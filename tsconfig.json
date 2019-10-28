@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "include": [],
+  "references": [
+    {"path": "./swim-gui-js/@swim/shell"},
+    {"path": "./swim-gui-js/@swim/prism"},
+    {"path": "./swim-gui-js/@swim/prism-shell"},
+    {"path": "./swim-gui-js/@swim/agent-domain"},
+    {"path": "./swim-gui-js/@swim/gui"},
+
+    {"path": "./@swim/toolkit"}
+  ]
+}

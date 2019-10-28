@@ -1,0 +1,45 @@
+{
+  "extends": "../../../tsconfig-main",
+  "compilerOptions": {
+    "baseUrl": "../../..",
+    "outDir": "../lib/main",
+    "paths": {
+      "@swim/util": ["../../swim-system-js/swim-core-js/@swim/util/main"],
+      "@swim/codec": ["../../swim-system-js/swim-core-js/@swim/codec/main"],
+      "@swim/collections": ["../../swim-system-js/swim-core-js/@swim/collections/main"],
+      "@swim/structure": ["../../swim-system-js/swim-core-js/@swim/structure/main"],
+      "@swim/streamlet": ["../../swim-system-js/swim-core-js/@swim/streamlet/main"],
+      "@swim/dataflow": ["../../swim-system-js/swim-core-js/@swim/dataflow/main"],
+      "@swim/recon": ["../../swim-system-js/swim-core-js/@swim/recon/main"],
+      "@swim/math": ["../../swim-system-js/swim-core-js/@swim/math/main"],
+      "@swim/time": ["../../swim-system-js/swim-core-js/@swim/time/main"],
+      "@swim/uri": ["../../swim-system-js/swim-core-js/@swim/uri/main"],
+      "@swim/warp": ["../../swim-system-js/swim-mesh-js/@swim/warp/main"],
+      "@swim/client": ["../../swim-system-js/swim-mesh-js/@swim/client/main"],
+      "@swim/angle": ["../../swim-system-js/swim-ui-js/@swim/angle/main"],
+      "@swim/length": ["../../swim-system-js/swim-ui-js/@swim/length/main"],
+      "@swim/color": ["../../swim-system-js/swim-ui-js/@swim/color/main"],
+      "@swim/font": ["../../swim-system-js/swim-ui-js/@swim/font/main"],
+      "@swim/transform": ["../../swim-system-js/swim-ui-js/@swim/transform/main"],
+      "@swim/interpolate": ["../../swim-system-js/swim-ui-js/@swim/interpolate/main"],
+      "@swim/scale": ["../../swim-system-js/swim-ui-js/@swim/scale/main"],
+      "@swim/transition": ["../../swim-system-js/swim-ui-js/@swim/transition/main"],
+      "@swim/animate": ["../../swim-system-js/swim-ui-js/@swim/animate/main"],
+      "@swim/dom": ["../../swim-system-js/swim-ui-js/@swim/dom/main"],
+      "@swim/style": ["../../swim-system-js/swim-ui-js/@swim/style/main"],
+      "@swim/render": ["../../swim-system-js/swim-ui-js/@swim/render/main"],
+      "@swim/constraint": ["../../swim-system-js/swim-ui-js/@swim/constraint/main"],
+      "@swim/view": ["../../swim-system-js/swim-ui-js/@swim/view/main"],
+      "@swim/shape": ["../../swim-system-js/swim-ui-js/@swim/shape/main"],
+      "@swim/typeset": ["../../swim-system-js/swim-ui-js/@swim/typeset/main"],
+      "@swim/gesture": ["../../swim-system-js/swim-ui-js/@swim/gesture/main"],
+      "@swim/shell": ["@swim/shell/main"],
+      "@swim/prism": ["@swim/prism/main"]
+    },
+    "tsBuildInfoFile": ".tsbuildinfo"
+  },
+  "references": [
+    {"path": "../../shell/main"},
+    {"path": "../../prism/main"}
+  ]
+}
