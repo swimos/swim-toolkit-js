@@ -19,6 +19,14 @@ import {ShellView} from "./ShellView";
 import {ShellViewObserver} from "./ShellViewObserver";
 
 export class ShellViewController<V extends ShellView = ShellView> extends HtmlAppViewController<V> implements ShellViewObserver<V> {
+  shellWillSearch(query: string, view: V): void {
+    // hook
+  }
+
+  shellDidSearch(query: string, view: V): void {
+    // hook
+  }
+
   shellWillDefocus(view: V): void {
     // hook
   }

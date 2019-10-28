@@ -62,6 +62,11 @@ export class SearchField extends HtmlView {
     return search;
   }
 
+  get searchInput(): HtmlView | null {
+    const childView = this.getChildView("search");
+    return childView instanceof HtmlView ? childView : null;
+  }
+
   get viewController(): HtmlViewController<SearchField> | null {
     return this._viewController;
   }

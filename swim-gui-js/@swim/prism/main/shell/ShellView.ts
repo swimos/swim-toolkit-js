@@ -15,11 +15,13 @@
 import {AnyColor, Color} from "@swim/color";
 import {Ease, Tween, Transition} from "@swim/transition";
 import {Constraint} from "@swim/constraint";
-import {MemberAnimator, LayoutAnchor, View, HtmlAppView, PopoverState, PopoverOptions, Popover, PopoverView} from "@swim/view";
+import {MemberAnimator, LayoutAnchor, View, HtmlView, HtmlAppView, PopoverState, PopoverOptions, Popover, PopoverView} from "@swim/view";
 import {ActionStack} from "../action/ActionStack";
 import {ActionStackObserver} from "../action/ActionStackObserver";
 import {Toolbar} from "../toolbar/Toolbar";
+import {SearchField} from "../search/SearchField";
 import {SearchPopover} from "../search/SearchPopover";
+import {SearchBar} from "../search/SearchBar";
 import {DockPopover} from "../dock/DockPopover";
 import {AccountPopover} from "../account/AccountPopover";
 import {SettingsDialog} from "../settings/SettingsDialog";
@@ -198,6 +200,7 @@ export class ShellView extends HtmlAppView implements ActionStackObserver {
 
   constructor(node: HTMLElement, key: string | null = null) {
     super(node, key);
+    this.onSearchInputChange = this.onSearchInputChange.bind(this);
     this.onTreeScroll = this.onTreeScroll.bind(this);
     this.beamHeight.setState(4);
     this.toolbarHeight.setState(60);
@@ -391,6 +394,24 @@ export class ShellView extends HtmlAppView implements ActionStackObserver {
   get toolbar(): Toolbar | null {
     const childView = this.getChildView("toolbar");
     return childView instanceof Toolbar ? childView : null;
+  }
+
+  get searchBar(): SearchBar | null {
+    const toolbar = this.toolbar;
+    const searchBar = toolbar && toolbar.searchBar;
+    return searchBar instanceof SearchBar ? searchBar : null;
+  }
+
+  get searchField(): SearchField | null {
+    const searchBar = this.searchBar;
+    const searchField = searchBar && searchBar.searchField;
+    return searchField instanceof SearchField ? searchField : null;
+  }
+
+  get searchInput(): HtmlView | null {
+    const searchField = this.searchField;
+    const searchInput = searchField && searchField.searchInput;
+    return searchInput instanceof HtmlView ? searchInput : null;
   }
 
   get cabinet(): CabinetView | null {
@@ -716,9 +737,17 @@ export class ShellView extends HtmlAppView implements ActionStackObserver {
     this._toolbarTreeBarInsetRightConstraint = this.constraint(toolbar.treeBarInsetRight, "eq", this.treeBarInsetRight).enabled(true);
     this._toolbarDockBarWidthConstraint = this.constraint(toolbar.dockBarWidth, "eq", this.dockBarWidth).enabled(true);
     this._toolbarDockBarInsetRightConstraint = this.constraint(toolbar.dockBarInsetRight, "eq", this.dockBarInsetRight).enabled(true);
+    const searchInput = this.searchInput;
+    if (searchInput) {
+      searchInput.on("change", this.onSearchInputChange);
+    }
   }
 
   protected onRemoveToolbar(toolbar: Toolbar): void {
+    const searchInput = this.searchInput;
+    if (searchInput) {
+      searchInput.off("change", this.onSearchInputChange);
+    }
     if (this._toolbarDockBarInsetRightConstraint) {
       this._toolbarDockBarInsetRightConstraint.enabled(false);
       this._toolbarDockBarInsetRightConstraint = void 0;
@@ -822,6 +851,35 @@ export class ShellView extends HtmlAppView implements ActionStackObserver {
       this._actionStackRightConstraint.enabled(false);
       this._actionStackRightConstraint = void 0;
     }
+  }
+
+  /** @hidden */
+  protected onSearchInputChange(event: Event): void {
+    const query = (event.target as HTMLInputElement).value;
+    this.search(query);
+  }
+
+  search(query: string): void {
+    this.willSearch(query);
+    this.didSearch(query);
+  }
+
+  /** @hidden */
+  protected willSearch(query: string): void {
+    this.willObserve(function (viewObserver: ShellViewObserver): void {
+      if (viewObserver.shellWillSearch) {
+        viewObserver.shellWillSearch(query, this);
+      }
+    });
+  }
+
+  /** @hidden */
+  protected didSearch(query: string): void {
+    this.didObserve(function (viewObserver: ShellViewObserver): void {
+      if (viewObserver.shellDidSearch) {
+        viewObserver.shellDidSearch(query, this);
+      }
+    });
   }
 
   showCabinet(tween?: Tween<any>): void {

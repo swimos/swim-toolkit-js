@@ -45,18 +45,22 @@ export class PortalRackController extends RackViewController implements PortalOb
     return this._selectedItem;
   }
 
-  selectItem(item: RackItem): void {
-    if (this._selectedItem !== item) {
-      if (this._selectedItem) {
-        this._selectedItem.unhighlight(true);
+  selectItem(newItem: RackItem | null): void {
+    const oldItem = this._selectedItem;
+    if (oldItem !== newItem) {
+      if (oldItem) {
+        oldItem.unhighlight(true);
       }
-      this._selectedItem = item;
-      this._selectedItem.highlight();
-      const itemController = item.viewController;
-      if (itemController instanceof DomainRackItemController) {
-        const shellController = this._shellController;
-        const treeController = itemController.createTreeController(shellController);
-        shellController.setTreeController(treeController);
+      this._selectedItem = newItem;
+      if (newItem) {
+        newItem.highlight();
+        const itemController = newItem.viewController;
+        if (itemController instanceof DomainRackItemController) {
+          const treeController = itemController.createTreeController(this._shellController);
+          this._shellController.setTreeController(treeController);
+        }
+      } else if (oldItem) {
+        this._shellController.setTreeController(null);
       }
     }
   }

@@ -36,6 +36,10 @@ export abstract class Portal {
 
   abstract get scope(): Entity | null;
 
+  search(query: string): Entity | null {
+    return null;
+  }
+
   get domains(): ReadonlyArray<Domain> {
     return this._domains;
   }

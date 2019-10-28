@@ -17,6 +17,7 @@ export {NewAgentSecondaryAction} from "./NewAgentSecondaryAction";
 export {NewLaneSecondaryAction} from "./NewLaneSecondaryAction";
 
 export {NodeEntity} from "./NodeEntity";
+export {NodeSearchEntity} from "./NodeSearchEntity";
 
 export {NodeIdentityView} from "./NodeIdentityView";
 export {NodeIdentityWidget} from "./NodeIdentityWidget";

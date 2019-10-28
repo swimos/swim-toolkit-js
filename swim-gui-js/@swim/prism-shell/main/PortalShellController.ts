@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Domain, Label, User, Portal, PortalObserver} from "@swim/shell";
-import {InspectorView, ShellView, ShellViewController} from "@swim/prism";
+import {PrimaryAction, Entity, Domain, Label, User, Portal, PortalObserver} from "@swim/shell";
+import {InspectorView, RackItem, ShellView, ShellViewController} from "@swim/prism";
 import {PrimaryActionStackController} from "./PrimaryActionStackController";
 import {UserAccountController} from "./UserAccountController";
 import {PortalRackController} from "./PortalRackController";
@@ -150,6 +150,37 @@ export class PortalShellController extends ShellViewController implements Portal
 
   defocusInspector(): void {
     this._view!.inspector!.defocus();
+  }
+
+  createSearchTreeController(entity: Entity, primaryAction: PrimaryAction | null = null): EntityTreeController {
+    return new EntityTreeController(this, entity, primaryAction);
+  }
+
+  shellWillSearch(query: string, view: ShellView): void {
+    if (query) {
+      const rackController = this._rackController;
+      if (rackController) {
+        rackController.selectItem(null);
+      }
+    }
+  }
+
+  shellDidSearch(query: string, view: ShellView): void {
+    if (query) {
+      const searchEntity = this._model.search(query);
+      if (searchEntity) {
+        const treeController = this.createSearchTreeController(searchEntity);
+        this.setTreeController(treeController);
+      }
+    } else {
+      const rackController = this._rackController;
+      if (rackController && !rackController.selectedItem) {
+        const firstItem = rackController.childViews[0];
+        if (firstItem instanceof RackItem) {
+          rackController.selectItem(firstItem);
+        }
+      }
+    }
   }
 
   shellWillDefocus(view: ShellView): void {

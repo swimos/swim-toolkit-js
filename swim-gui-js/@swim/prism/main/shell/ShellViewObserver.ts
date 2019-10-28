@@ -18,6 +18,10 @@ import {InspectorView} from "../inspector/InspectorView";
 import {ShellView} from "./ShellView";
 
 export interface ShellViewObserver<V extends ShellView = ShellView> extends HtmlAppViewObserver<V> {
+  shellWillSearch?(query: string, view: V): void;
+
+  shellDidSearch?(query: string, view: V): void;
+
   shellWillDefocus?(view: V): void;
 
   shellDidDefocus?(view: V): void;
