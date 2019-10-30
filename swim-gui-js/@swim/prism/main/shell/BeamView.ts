@@ -24,7 +24,7 @@ export class BeamView extends HtmlView {
 
   protected initNode(node: HTMLElement): void {
     this.addClass("beam")
-        .backgroundColor("#00a6ed");
+        .backgroundColor("#44d7b6");
   }
 
   get viewController(): HtmlViewController<BeamView> | null {

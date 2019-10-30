@@ -204,7 +204,7 @@ export class ShellView extends HtmlAppView implements ActionStackObserver {
     this.onTreeScroll = this.onTreeScroll.bind(this);
     this.beamHeight.setState(4);
     this.toolbarHeight.setState(60);
-    this.beamColor.setState(Color.parse("#00a6ed"));
+    this.beamColor.setState(Color.parse("#44d7b6"));
 
     this._isMobile = null;
     this._isModal = false;

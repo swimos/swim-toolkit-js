@@ -56,7 +56,7 @@ export class LeafView extends HtmlView {
     this.onMultitouchCancel = this.onMultitouchCancel.bind(this);
     this.onMultitouchEnd = this.onMultitouchEnd.bind(this);
     this.depthColor.setState(Color.parse("#1e2022"));
-    this.primaryColor.setState(Color.parse("#00a6ed"));
+    this.primaryColor.setState(Color.parse("#44d7b6"));
     this.secondaryColor.setState(Color.parse("#d8d8d8"));
     this.highlightColor.setState(Color.parse("#0e1418"));
     this.branchColor.setState(Color.rgb(255, 255, 255, 0.1));
@@ -608,7 +608,7 @@ export class LeafView extends HtmlView {
 
   protected onSetDepth(depth: number, tween: Tween<any>): void {
     if (this._depth !== 0) {
-      this.backgroundColor(this.depthColor.state!.darker(0.25 * this._depth), tween);
+      this.backgroundColor(this.depthColor.state!.darker(0.33 * this._depth), tween);
     }
 
     const branchView = this.branchView();
@@ -640,7 +640,7 @@ export class LeafView extends HtmlView {
     const avatarBody = avatarView ? avatarView.getChildView("body") as SvgView | null : null;
     const avatarFill = avatarBody ? avatarBody.getChildView("fill") as SvgView | null : null;
     if (avatarFill) {
-      avatarFill.fill(this.primaryColor.state!.darker(0.25 * this._depth), tween);
+      avatarFill.fill(this.primaryColor.state!.darker(0.33 * this._depth), tween);
     }
 
     if (this._expanded) {
@@ -648,7 +648,7 @@ export class LeafView extends HtmlView {
       const arrowIcon = arrowView ? arrowView.getChildView("icon") as SvgView | null : null;
       const arrowFill = arrowIcon ? arrowIcon.getChildView("fill") as SvgView | null : null;
       if (arrowFill) {
-        arrowFill.fill(this.primaryColor.state!.darker(0.25 * this._depth), tween);
+        arrowFill.fill(this.primaryColor.state!.darker(0.33 * this._depth), tween);
       }
     }
   }
@@ -673,7 +673,7 @@ export class LeafView extends HtmlView {
       }
       const selectView = this.selectView();
       if (selectView) {
-        selectView.backgroundColor(this.primaryColor.state!.darker(0.25 * this._depth), tween);
+        selectView.backgroundColor(this.primaryColor.state!.darker(0.33 * this._depth), tween);
       }
     }
     return this;
@@ -839,14 +839,14 @@ export class LeafView extends HtmlView {
   protected onExpand(tween: Tween<any>): void {
     const stemView = this.stemView();
     if (stemView) {
-      stemView.borderBottomColor(this.primaryColor.state!.darker(0.25 * this._depth), tween);
+      stemView.borderBottomColor(this.primaryColor.state!.darker(0.33 * this._depth), tween);
     }
 
     const arrowView = this.arrowView();
     const arrowIcon = arrowView ? arrowView.getChildView("icon") as SvgView | null : null;
     const arrowFill = arrowIcon ? arrowIcon.getChildView("fill") as SvgView | null : null;
     if (arrowFill) {
-      arrowFill.fill(this.primaryColor.state!.darker(0.25 * this._depth), tween)
+      arrowFill.fill(this.primaryColor.state!.darker(0.33 * this._depth), tween)
                .transform(Transform.translate(12, 12).rotate(Angle.deg(-180)), tween);
     }
   }
