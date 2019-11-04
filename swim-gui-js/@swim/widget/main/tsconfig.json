@@ -37,14 +37,8 @@
       "@swim/pie": ["../../swim-system-js/swim-ux-js/@swim/pie/main"],
       "@swim/chart": ["../../swim-system-js/swim-ux-js/@swim/chart/main"],
       "@swim/map": ["../../swim-system-js/swim-ux-js/@swim/map/main"],
-      "@swim/mapbox": ["../../swim-system-js/swim-ux-js/@swim/mapbox/main"],
-      "@swim/indicator": ["@swim/indicator/main"],
-      "@swim/widget": ["@swim/widget/main"]
+      "@swim/mapbox": ["../../swim-system-js/swim-ux-js/@swim/mapbox/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
-  },
-  "references": [
-    {"path": "../../indicator/main"},
-    {"path": "../../widget/main"}
-  ]
+  }
 }

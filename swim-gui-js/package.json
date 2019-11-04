@@ -45,6 +45,8 @@
     "@swim/gauge": "3.10.1",
     "@swim/pie": "3.10.1",
     "@swim/chart": "3.10.1",
+    "@swim/map": "3.10.1",
+    "@swim/mapbox": "3.10.1",
 
     "@types/node": "12",
     "rollup": "1.26",

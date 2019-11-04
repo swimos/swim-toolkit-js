@@ -1,7 +1,7 @@
 const gui = [
   {
-    id: "shell",
-    name: "@swim/shell",
+    id: "indicator",
+    name: "@swim/indicator",
     targets: [
       {
         id: "main",
@@ -9,31 +9,11 @@ const gui = [
     ],
   },
   {
-    id: "prism",
-    name: "@swim/prism",
+    id: "widget",
+    name: "@swim/widget",
     targets: [
       {
         id: "main",
-      },
-    ],
-  },
-  {
-    id: "prism-shell",
-    name: "@swim/prism-shell",
-    targets: [
-      {
-        id: "main",
-        deps: ["shell", "prism"],
-      },
-    ],
-  },
-  {
-    id: "agent-domain",
-    name: "@swim/agent-domain",
-    targets: [
-      {
-        id: "main",
-        deps: ["shell"],
       },
     ],
   },
@@ -45,7 +25,7 @@ const gui = [
     targets: [
       {
         id: "main",
-        deps: ["shell", "prism", "prism-shell", "agent-domain"],
+        deps: ["indicator", "widget"],
       },
     ],
   },

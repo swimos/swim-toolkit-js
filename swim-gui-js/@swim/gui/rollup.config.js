@@ -43,6 +43,8 @@ const main = {
       "@swim/gauge": "swim",
       "@swim/pie": "swim",
       "@swim/chart": "swim",
+      "@swim/map": "swim",
+      "@swim/mapbox": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -81,6 +83,8 @@ const main = {
     "@swim/gauge",
     "@swim/pie",
     "@swim/chart",
+    "@swim/map",
+    "@swim/mapbox",
   ],
   plugins: [
     nodeResolve({customResolveOptions: {paths: "../.."}}),

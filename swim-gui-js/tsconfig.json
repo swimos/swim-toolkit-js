@@ -2,10 +2,8 @@
   "files": [],
   "include": [],
   "references": [
-    {"path": "./@swim/shell"},
-    {"path": "./@swim/prism"},
-    {"path": "./@swim/prism-shell"},
-    {"path": "./@swim/agent-domain"},
+    {"path": "./@swim/indicator"},
+    {"path": "./@swim/widget"},
     {"path": "./@swim/gui"}
   ]
 }

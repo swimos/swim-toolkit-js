@@ -12,6 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/indicator";
-
-export * from "@swim/widget";
+export const SWIM_WIDGET = "@swim/widget"; // placeholder

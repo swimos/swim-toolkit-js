@@ -1,13 +1,13 @@
 {
-  "name": "@swim/gui",
+  "name": "@swim/indicator",
   "version": "3.10.1",
-  "description": "Web Agent graphical user interface framework",
+  "description": "Compact key indicator components",
   "homepage": "https://github.com/swimos/swim",
   "author": "Chris Sachs <chris@swim.ai>",
   "copyright": "2015-2019 SWIM.AI inc.",
   "license": "Apache-2.0",
   "repository": "https://github.com/swimos/swim.git",
-  "main": "dist/main/swim-gui.js",
+  "main": "dist/main/swim-indicator.js",
   "module": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "dependencies": {
@@ -39,13 +39,6 @@
     "@swim/view": "3.10.1",
     "@swim/shape": "3.10.1",
     "@swim/typeset": "3.10.1",
-    "@swim/gesture": "3.10.1",
-    "@swim/gauge": "3.10.1",
-    "@swim/pie": "3.10.1",
-    "@swim/chart": "3.10.1",
-    "@swim/map": "3.10.1",
-    "@swim/mapbox": "3.10.1",
-    "@swim/indicator": "3.10.1",
-    "@swim/widget": "3.10.1"
+    "@swim/gesture": "3.10.1"
   }
 }

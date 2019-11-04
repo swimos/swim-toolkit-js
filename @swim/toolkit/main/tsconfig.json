@@ -38,20 +38,18 @@
       "@swim/gauge": ["../swim-system-js/swim-ux-js/@swim/gauge/main"],
       "@swim/pie": ["../swim-system-js/swim-ux-js/@swim/pie/main"],
       "@swim/chart": ["../swim-system-js/swim-ux-js/@swim/chart/main"],
+      "@swim/map": ["../swim-system-js/swim-ux-js/@swim/map/main"],
+      "@swim/mapbox": ["../swim-system-js/swim-ux-js/@swim/mapbox/main"],
 
-      "@swim/shell": ["swim-gui-js/@swim/shell/main"],
-      "@swim/prism": ["swim-gui-js/@swim/prism/main"],
-      "@swim/prism-shell": ["swim-gui-js/@swim/prism-shell/main"],
-      "@swim/agent-domain": ["swim-gui-js/@swim/agent-domain/main"],
+      "@swim/indicator": ["swim-gui-js/@swim/indicator/main"],
+      "@swim/widget": ["swim-gui-js/@swim/widget/main"],
       "@swim/gui": ["swim-gui-js/@swim/gui/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "references": [
-    {"path": "../../../swim-gui-js/@swim/shell/main"},
-    {"path": "../../../swim-gui-js/@swim/prism/main"},
-    {"path": "../../../swim-gui-js/@swim/prism-shell/main"},
-    {"path": "../../../swim-gui-js/@swim/agent-domain/main"},
+    {"path": "../../../swim-gui-js/@swim/indicator/main"},
+    {"path": "../../../swim-gui-js/@swim/widget/main"},
     {"path": "../../../swim-gui-js/@swim/gui/main"}
   ]
 }

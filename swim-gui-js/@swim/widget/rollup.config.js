@@ -1,7 +1,7 @@
 import nodeResolve from "rollup-plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 
-const script = "swim-toolkit";
+const script = "swim-widget";
 const namespace = "swim";
 
 const main = {
@@ -87,7 +87,7 @@ const main = {
     "@swim/mapbox",
   ],
   plugins: [
-    nodeResolve({customResolveOptions: {paths: ["../../swim-gui-js"]}}),
+    nodeResolve({customResolveOptions: {paths: "../.."}}),
     sourcemaps(),
   ],
   onwarn(warning, warn) {

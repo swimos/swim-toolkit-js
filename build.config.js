@@ -626,9 +626,9 @@ const system = [
 
 const gui = [
   {
-    id: "shell",
-    name: "@swim/shell",
-    path: "swim-gui-js/@swim/shell",
+    id: "indicator",
+    name: "@swim/indicator",
+    path: "swim-gui-js/@swim/indicator",
     targets: [
       {
         id: "main",
@@ -637,35 +637,13 @@ const gui = [
     ],
   },
   {
-    id: "prism",
-    name: "@swim/prism",
-    path: "swim-gui-js/@swim/prism",
+    id: "widget",
+    name: "@swim/widget",
+    path: "swim-gui-js/@swim/widget",
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "collections", "structure", "streamlet", "dataflow", "recon", "math", "time", "uri", "warp", "client", "angle", "length", "color", "font", "transform", "interpolate", "scale", "transition", "animate", "dom", "style", "render", "constraint", "view", "shape", "typeset", "gesture"],
-      },
-    ],
-  },
-  {
-    id: "prism-shell",
-    name: "@swim/prism-shell",
-    path: "swim-gui-js/@swim/prism-shell",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "collections", "structure", "streamlet", "dataflow", "recon", "math", "time", "uri", "warp", "client", "angle", "length", "color", "font", "transform", "interpolate", "scale", "transition", "animate", "dom", "style", "render", "constraint", "view", "shape", "typeset", "gesture", "shell", "prism"],
-      },
-    ],
-  },
-  {
-    id: "agent-domain",
-    name: "@swim/agent-domain",
-    path: "swim-gui-js/@swim/agent-domain",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "collections", "structure", "streamlet", "dataflow", "recon", "math", "time", "uri", "warp", "client", "angle", "length", "color", "font", "transform", "interpolate", "scale", "transition", "animate", "dom", "style", "render", "constraint", "view", "shape", "typeset", "gesture", "gauge", "pie", "chart", "shell"],
+        deps: ["util", "codec", "collections", "structure", "streamlet", "dataflow", "recon", "math", "time", "uri", "warp", "client", "angle", "length", "color", "font", "transform", "interpolate", "scale", "transition", "animate", "dom", "style", "render", "constraint", "view", "shape", "typeset", "gesture", "gauge", "pie", "chart", "map", "mapbox"],
       },
     ],
   },
@@ -678,7 +656,7 @@ const gui = [
     targets: [
       {
         id: "main",
-        deps: ["shell", "prism", "prism-shell", "agent-domain"],
+        deps: ["indicator", "widget"],
       },
     ],
   },

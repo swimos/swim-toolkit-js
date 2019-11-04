@@ -1,7 +1,7 @@
 import nodeResolve from "rollup-plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 
-const script = "swim-toolkit";
+const script = "swim-indicator";
 const namespace = "swim";
 
 const main = {
@@ -40,11 +40,6 @@ const main = {
       "@swim/shape": "swim",
       "@swim/typeset": "swim",
       "@swim/gesture": "swim",
-      "@swim/gauge": "swim",
-      "@swim/pie": "swim",
-      "@swim/chart": "swim",
-      "@swim/map": "swim",
-      "@swim/mapbox": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -80,14 +75,9 @@ const main = {
     "@swim/shape",
     "@swim/typeset",
     "@swim/gesture",
-    "@swim/gauge",
-    "@swim/pie",
-    "@swim/chart",
-    "@swim/map",
-    "@swim/mapbox",
   ],
   plugins: [
-    nodeResolve({customResolveOptions: {paths: ["../../swim-gui-js"]}}),
+    nodeResolve({customResolveOptions: {paths: "../.."}}),
     sourcemaps(),
   ],
   onwarn(warning, warn) {
