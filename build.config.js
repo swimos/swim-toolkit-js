@@ -678,7 +678,7 @@ const toolkit = [
 ];
 
 export default {
-  version: "3.10.1",
+  version: "3.10.2",
   projects: core.concat(mesh).concat(ui).concat(ux).concat(web).concat(system).concat(gui).concat(toolkit),
   gaID: "UA-79441805-2",
 };
