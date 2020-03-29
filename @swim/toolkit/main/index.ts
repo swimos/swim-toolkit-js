@@ -12,4 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/gui";
+export * from "@swim/ui";
+export * from "@swim/ux";
+export * from "@swim/vis";
+export * from "@swim/maps";
+export * from "@swim/web";
