@@ -70,10 +70,10 @@ export class MapLayerView extends View implements MapView {
   /** @hidden */
   _eventHandlers?: {[type: string]: ViewEventHandler[] | undefined};
 
-  constructor(geoBounds?: GeoBox, depth?: number, maxDepth?: number) {
+  constructor(geoFrame?: GeoBox, depth?: number, maxDepth?: number) {
     super();
     this._parentView = null;
-    this._childViews = MapTile.empty(geoBounds, depth, maxDepth);
+    this._childViews = MapTile.empty(geoFrame, depth, maxDepth);
     this._viewController = null;
     this._viewFlags = 0;
   }
@@ -227,7 +227,12 @@ export class MapLayerView extends View implements MapView {
         this.willRemoveChildView(childView);
         childView.setParentView(null, this);
         this.removeChildViewMap(childView);
+        const oldGeoBounds = this._childViews._geoBounds;
         this._childViews = this._childViews.removed(oldChildView, oldChildViewBounds);
+        const newGeoBounds = this._childViews._geoBounds;
+        if (!newGeoBounds.equals(oldGeoBounds)) {
+          this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+        }
         this.onRemoveChildView(childView);
         this.didRemoveChildView(childView);
         childView.setKey(null);
@@ -236,7 +241,12 @@ export class MapLayerView extends View implements MapView {
     if (newChildView !== null) {
       const newChildViewBounds = newChildView.geoBounds;
       newChildView.setKey(key);
+      const oldGeoBounds = this._childViews._geoBounds;
       this._childViews = this._childViews.inserted(newChildView, newChildViewBounds);
+      const newGeoBounds = this._childViews._geoBounds;
+      if (!newGeoBounds.equals(oldGeoBounds)) {
+        this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+      }
       this.insertChildViewMap(newChildView);
       newChildView.setParentView(this, null);
       this.onInsertChildView(newChildView, null);
@@ -290,7 +300,12 @@ export class MapLayerView extends View implements MapView {
     }
     const childViewBounds = childView.geoBounds;
     this.willInsertChildView(childView, null);
+    const oldGeoBounds = this._childViews._geoBounds;
     this._childViews = this._childViews.inserted(childView, childViewBounds);
+    const newGeoBounds = this._childViews._geoBounds;
+    if (!newGeoBounds.equals(oldGeoBounds)) {
+      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+    }
     this.insertChildViewMap(childView);
     childView.setParentView(this, null);
     this.onInsertChildView(childView, null);
@@ -318,7 +333,12 @@ export class MapLayerView extends View implements MapView {
     }
     const childViewBounds = childView.geoBounds;
     this.willInsertChildView(childView, null);
+    const oldGeoBounds = this._childViews._geoBounds;
     this._childViews = this._childViews.inserted(childView, childViewBounds);
+    const newGeoBounds = this._childViews._geoBounds;
+    if (!newGeoBounds.equals(oldGeoBounds)) {
+      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+    }
     this.insertChildViewMap(childView);
     childView.setParentView(this, null);
     this.onInsertChildView(childView, null);
@@ -352,7 +372,12 @@ export class MapLayerView extends View implements MapView {
     }
     const childViewBounds = childView.geoBounds;
     this.willInsertChildView(childView, targetView);
+    const oldGeoBounds = this._childViews._geoBounds;
     this._childViews = this._childViews.inserted(childView, childViewBounds);
+    const newGeoBounds = this._childViews._geoBounds;
+    if (!newGeoBounds.equals(oldGeoBounds)) {
+      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+    }
     this.insertChildViewMap(childView);
     childView.setParentView(this, null);
     this.onInsertChildView(childView, targetView);
@@ -381,7 +406,12 @@ export class MapLayerView extends View implements MapView {
     this.willRemoveChildView(childView);
     childView.setParentView(null, this);
     this.removeChildViewMap(childView);
+    const oldGeoBounds = this._childViews._geoBounds;
     this._childViews = this._childViews.removed(childView, childViewBounds);
+    const newGeoBounds = this._childViews._geoBounds;
+    if (!newGeoBounds.equals(oldGeoBounds)) {
+      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+    }
     this.onRemoveChildView(childView);
     this.didRemoveChildView(childView);
     childView.setKey(null);
@@ -634,7 +664,7 @@ export class MapLayerView extends View implements MapView {
 
   /** @hidden */
   protected doProcessChildViews(processFlags: ViewFlags, viewContext: MapViewContext): void {
-    if ((processFlags & View.ProcessMask) !== 0 && !this._childViews.isEmpty()) {
+    if ((processFlags & View.ProcessMask) !== 0 && !this._childViews.isEmpty() && !this.isHidden() && !this.isCulled()) {
       this.willProcessChildViews(viewContext);
       this.doProcessTile(this._childViews, processFlags, viewContext);
       this.didProcessChildViews(viewContext);
@@ -643,16 +673,16 @@ export class MapLayerView extends View implements MapView {
 
   /** @hidden */
   protected doProcessTile(tile: MapTile, processFlags: ViewFlags, viewContext: MapViewContext): void {
-    if (tile._southWest !== null && tile._southWest._geoBounds.intersects(viewContext.geoFrame)) {
+    if (tile._southWest !== null && tile._southWest._geoFrame.intersects(viewContext.geoFrame)) {
       this.doProcessTile(tile._southWest, processFlags, viewContext);
     }
-    if (tile._northWest !== null && tile._northWest._geoBounds.intersects(viewContext.geoFrame)) {
+    if (tile._northWest !== null && tile._northWest._geoFrame.intersects(viewContext.geoFrame)) {
       this.doProcessTile(tile._northWest, processFlags, viewContext);
     }
-    if (tile._southEast !== null && tile._southEast._geoBounds.intersects(viewContext.geoFrame)) {
+    if (tile._southEast !== null && tile._southEast._geoFrame.intersects(viewContext.geoFrame)) {
       this.doProcessTile(tile._southEast, processFlags, viewContext);
     }
-    if (tile._northEast !== null && tile._northEast._geoBounds.intersects(viewContext.geoFrame)) {
+    if (tile._northEast !== null && tile._northEast._geoFrame.intersects(viewContext.geoFrame)) {
       this.doProcessTile(tile._northEast, processFlags, viewContext);
     }
     const childViews = tile._views;
@@ -754,10 +784,10 @@ export class MapLayerView extends View implements MapView {
     }
     const minDepth = 2;
     if (tile.depth >= minDepth) {
-      const southWest = geoProjection.project(tile._geoBounds.southWest);
-      const northWest = geoProjection.project(tile._geoBounds.northWest);
-      const northEast = geoProjection.project(tile._geoBounds.northEast);
-      const southEast = geoProjection.project(tile._geoBounds.southEast);
+      const southWest = geoProjection.project(tile._geoFrame.southWest);
+      const northWest = geoProjection.project(tile._geoFrame.northWest);
+      const northEast = geoProjection.project(tile._geoFrame.northEast);
+      const southEast = geoProjection.project(tile._geoFrame.southEast);
       context.beginPath();
       context.moveTo(southWest._x, southWest._y);
       context.lineTo(northWest._x, northWest._y);
@@ -790,16 +820,16 @@ export class MapLayerView extends View implements MapView {
 
   /** @hidden */
   protected doDisplayTile(tile: MapTile, displayFlags: ViewFlags, viewContext: MapViewContext): void {
-    if (tile._southWest !== null && tile._southWest._geoBounds.intersects(viewContext.geoFrame)) {
+    if (tile._southWest !== null && tile._southWest._geoFrame.intersects(viewContext.geoFrame)) {
       this.doDisplayTile(tile._southWest, displayFlags, viewContext);
     }
-    if (tile._northWest !== null && tile._northWest._geoBounds.intersects(viewContext.geoFrame)) {
+    if (tile._northWest !== null && tile._northWest._geoFrame.intersects(viewContext.geoFrame)) {
       this.doDisplayTile(tile._northWest, displayFlags, viewContext);
     }
-    if (tile._southEast !== null && tile._southEast._geoBounds.intersects(viewContext.geoFrame)) {
+    if (tile._southEast !== null && tile._southEast._geoFrame.intersects(viewContext.geoFrame)) {
       this.doDisplayTile(tile._southEast, displayFlags, viewContext);
     }
-    if (tile._northEast !== null && tile._northEast._geoBounds.intersects(viewContext.geoFrame)) {
+    if (tile._northEast !== null && tile._northEast._geoFrame.intersects(viewContext.geoFrame)) {
       this.doDisplayTile(tile._northEast, displayFlags, viewContext);
     }
     const childViews = tile._views;
@@ -818,8 +848,20 @@ export class MapLayerView extends View implements MapView {
     return viewContext;
   }
 
-  childViewDidSetGeoBounds(childView: MapView, newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-    this._childViews = this._childViews.moved(childView, newGeoBounds, oldGeoBounds);
+  protected didSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
+    const parentView = this._parentView;
+    if (MapView.is(parentView)) {
+      parentView.childViewDidSetGeoBounds(this, newGeoBounds, oldGeoBounds);
+    }
+  }
+
+  childViewDidSetGeoBounds(childView: MapView, newChildViewGeoBounds: GeoBox, oldChildViewGeoBounds: GeoBox): void {
+    const oldGeoBounds = this._childViews._geoBounds;
+    this._childViews = this._childViews.moved(childView, newChildViewGeoBounds, oldChildViewGeoBounds);
+    const newGeoBounds = this._childViews._geoBounds;
+    if (!newGeoBounds.equals(oldGeoBounds)) {
+      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+    }
   }
 
   hasViewScope(scopeName: string): boolean {
@@ -975,7 +1017,7 @@ export class MapLayerView extends View implements MapView {
   }
 
   protected onSetHidden(hidden: boolean): void {
-    this.requireUpdate(View.NeedsLayout);
+    this.requireUpdate(View.NeedsProject);
   }
 
   protected didSetHidden(hidden: boolean): void {
@@ -1019,7 +1061,7 @@ export class MapLayerView extends View implements MapView {
 
   protected onSetCulled(culled: boolean): void {
     if (!culled) {
-      this.requireUpdate(View.NeedsLayout);
+      this.requireUpdate(View.NeedsProject);
     }
   }
 
@@ -1081,16 +1123,16 @@ export class MapLayerView extends View implements MapView {
   protected hitTestTile(tile: MapTile, x: number, y: number, geoPoint: GeoPoint,
                         viewContext: MapViewContext): RenderedView | null {
     let hit: RenderedView | null = null;
-    if (tile._southWest !== null && tile._southWest._geoBounds.contains(geoPoint)) {
+    if (tile._southWest !== null && tile._southWest._geoFrame.contains(geoPoint)) {
       hit = this.hitTestTile(tile._southWest, x, y, geoPoint, viewContext);
     }
-    if (hit === null && tile._northWest !== null && tile._northWest._geoBounds.contains(geoPoint)) {
+    if (hit === null && tile._northWest !== null && tile._northWest._geoFrame.contains(geoPoint)) {
       hit = this.hitTestTile(tile._northWest, x, y, geoPoint, viewContext);
     }
-    if (hit === null && tile._southEast !== null && tile._southEast._geoBounds.contains(geoPoint)) {
+    if (hit === null && tile._southEast !== null && tile._southEast._geoFrame.contains(geoPoint)) {
       hit = this.hitTestTile(tile._southEast, x, y, geoPoint, viewContext);
     }
-    if (hit === null && tile._northEast !== null && tile._northEast._geoBounds.contains(geoPoint)) {
+    if (hit === null && tile._northEast !== null && tile._northEast._geoFrame.contains(geoPoint)) {
       hit = this.hitTestTile(tile._northEast, x, y, geoPoint, viewContext);
     }
     if (hit === null) {

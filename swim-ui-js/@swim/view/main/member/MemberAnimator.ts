@@ -119,6 +119,8 @@ export interface MemberAnimator<V extends AnimatedView, T, U = T> extends TweenA
 
   readonly inherit: string | null;
 
+  setInherit(inherit: string | null): void;
+
   readonly superAnimator: MemberAnimator<AnimatedView, T, U> | null;
 
   readonly superValue: T | undefined;
@@ -244,6 +246,11 @@ export const MemberAnimator: MemberAnimatorClass = (function (_super: typeof Twe
     enumerable: true,
     configurable: true,
   });
+
+  MemberAnimator.prototype.setInherit = function (this: MemberAnimator<AnimatedView, unknown, unknown>,
+                                                  inherit: string | null): void {
+    this._inherit = inherit;
+  };
 
   Object.defineProperty(MemberAnimator.prototype, "superAnimator", {
     get: function <T, U>(this: MemberAnimator<AnimatedView, T, U>): MemberAnimator<AnimatedView, T, U> | null {

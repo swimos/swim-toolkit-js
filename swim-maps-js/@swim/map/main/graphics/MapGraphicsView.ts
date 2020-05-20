@@ -148,6 +148,16 @@ export class MapGraphicsView extends GraphicsView implements MapView {
     });
   }
 
+  protected onSetHidden(hidden: boolean): void {
+    this.requireUpdate(View.NeedsProject);
+  }
+
+  protected onSetCulled(culled: boolean): void {
+    if (!culled) {
+      this.requireUpdate(View.NeedsProject);
+    }
+  }
+
   cullGeoFrame(geoFrame: GeoBox = this.geoFrame): void {
     this.setCulled(!geoFrame.intersects(this.geoBounds));
   }
@@ -189,6 +199,6 @@ export class MapGraphicsView extends GraphicsView implements MapView {
   }
 
   childViewDidSetGeoBounds(childView: MapView, newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-    // nop
+    // hook
   }
 }
