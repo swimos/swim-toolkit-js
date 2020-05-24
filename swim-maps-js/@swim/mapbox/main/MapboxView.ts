@@ -197,6 +197,7 @@ export class MapboxView extends MapGraphicsView {
       View.fromNode(map.getContainer());
       const canvasContainer = View.fromNode(map.getCanvasContainer());
       const canvas = canvasContainer.append("canvas");
+      canvas.setEventNode(canvasContainer.node);
       canvas.append(this);
       return canvas;
     }

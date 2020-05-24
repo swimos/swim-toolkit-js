@@ -14,7 +14,9 @@
 
 const uiView = new swim.UiView(document.getElementById("ui"));
 
-const canvas = uiView.append("canvas");
+const canvas = uiView.append("canvas")
+    .pointerEventsEnabled(true)
+    .touchAction("manipulation");
 
 const chart = new swim.ChartView()
     .bottomAxis("linear")
@@ -30,10 +32,10 @@ canvas.append(chart);
 const plot = new swim.AreaGraphView()
     .hitMode("graph")
     .fill("#4a4a4a")
-    .on("mouseenter", function (event) {
+    .on("pointerenter", function (event) {
       plot.fill("#1db0ef", {duration: 200});
     })
-    .on("mouseleave", function (event) {
+    .on("pointerleave", function (event) {
       plot.fill("#4a4a4a", {duration: 200});
     });
 chart.addPlot(plot);

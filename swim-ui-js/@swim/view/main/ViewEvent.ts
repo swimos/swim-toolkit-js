@@ -14,16 +14,38 @@
 
 import {View} from "./View";
 
+export interface ViewEventInit extends EventInit {
+  targetView?: View;
+  relatedTargetView?: View | null;
+}
+
 export interface ViewEvent extends Event {
   targetView?: View;
   relatedTargetView?: View | null;
 }
 
+export interface ViewMouseEventInit extends MouseEventInit, ViewEventInit {
+}
+
 export interface ViewMouseEvent extends MouseEvent, ViewEvent {
+}
+
+export interface ViewPointerEventInit extends PointerEventInit, ViewEventInit {
+}
+
+export interface ViewPointerEvent extends PointerEvent, ViewEvent {
+}
+
+export interface ViewTouchInit extends TouchInit {
+  targetView?: View;
 }
 
 export interface ViewTouch extends Touch {
   targetView?: View;
+}
+
+export interface ViewTouchEventInit extends TouchEventInit, ViewEventInit {
+  targetViewTouches?: TouchList;
 }
 
 export interface ViewTouchEvent extends TouchEvent, ViewEvent {

@@ -14,7 +14,8 @@
 
 const uiView = new swim.UiView(document.getElementById("ui"));
 
-const canvas = uiView.append("canvas");
+const canvas = uiView.append("canvas")
+    .touchAction("manipulation");
 
 const topAxis = swim.AxisView.top("0...10");
 const rightAxis = swim.AxisView.right("-1...1");

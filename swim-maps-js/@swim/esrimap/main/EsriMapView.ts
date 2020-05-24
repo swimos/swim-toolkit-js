@@ -124,7 +124,7 @@ export class EsriMapView extends EsriView {
       const esriViewRoot = View.fromNode(container.node.querySelector(".esri-view-root") as HTMLDivElement);
       const esriOverlaySurface = View.fromNode(esriViewRoot.node.querySelector(".esri-overlay-surface") as HTMLDivElement);
       const canvas = esriOverlaySurface.append("canvas");
-      canvas.setEventSurface(esriViewRoot.node);
+      canvas.setEventNode(esriViewRoot.node);
       canvas.append(this);
       return canvas;
     }

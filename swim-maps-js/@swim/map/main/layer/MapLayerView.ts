@@ -21,6 +21,7 @@ import {
   ViewScope,
   ViewEvent,
   ViewMouseEvent,
+  ViewPointerEvent,
   ViewEventHandler,
   ViewControllerType,
   ViewFlags,
@@ -67,6 +68,8 @@ export class MapLayerView extends View implements MapView {
   _memberAnimators?: {[animatorName: string]: Animator | undefined};
   /** @hidden */
   _viewFrame?: BoxR2;
+  /** @hidden */
+  _hoverSet?: {[id: string]: null | undefined};
   /** @hidden */
   _eventHandlers?: {[type: string]: ViewEventHandler[] | undefined};
 
@@ -1257,22 +1260,28 @@ export class MapLayerView extends View implements MapView {
       this.onMouseOver(event as MouseEvent);
     } else if (type === "mouseout") {
       this.onMouseOut(event as MouseEvent);
+    } else if (type === "pointerover") {
+      this.onPointerOver(event as ViewPointerEvent);
+    } else if (type === "pointerout") {
+      this.onPointerOut(event as ViewPointerEvent);
     }
   }
 
   /** @hidden */
   bubbleEvent(event: ViewEvent): View | null {
     this.handleEvent(event);
+    let next: View | null;
     if (event.bubbles && !event.cancelBubble) {
       const parentView = this._parentView;
       if (RenderedView.is(parentView)) {
-        return parentView.bubbleEvent(event);
+        next = parentView.bubbleEvent(event);
       } else {
-        return parentView;
+        next = parentView;
       }
     } else {
-      return null;
+      next = null;
     }
+    return next;
   }
 
   dispatchEvent(event: ViewEvent): boolean {
@@ -1286,21 +1295,38 @@ export class MapLayerView extends View implements MapView {
   }
 
   isHovering(): boolean {
-    return (this._viewFlags & View.HoveringFlag) !== 0;
+    const hoverSet = this._hoverSet;
+    return hoverSet !== void 0 && Object.keys(hoverSet).length !== 0;
   }
 
   /** @hidden */
   protected onMouseOver(event: ViewMouseEvent): void {
-    if ((this._viewFlags & View.HoveringFlag) === 0) {
-      this._viewFlags |= View.HoveringFlag;
+    let hoverSet = this._hoverSet;
+    if (hoverSet === void 0) {
+      hoverSet = {};
+      this._hoverSet = hoverSet;
+    }
+    if (hoverSet.mouse === void 0) {
+      hoverSet.mouse = null;
       const eventHandlers = this._eventHandlers;
       if (eventHandlers !== void 0 && eventHandlers.mouseenter !== void 0) {
         const enterEvent = new MouseEvent("mouseenter", {
+          bubbles: false,
+          button: event.button,
+          buttons: event.buttons,
+          altKey: event.altKey,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          shiftKey: event.shiftKey,
           clientX: event.clientX,
           clientY: event.clientY,
           screenX: event.screenX,
           screenY: event.screenY,
-          bubbles: false,
+          movementX: event.movementX,
+          movementY: event.movementY,
+          view: event.view,
+          detail: event.detail,
+          relatedTarget: event.relatedTarget,
         }) as ViewMouseEvent;
         enterEvent.targetView = this;
         enterEvent.relatedTargetView = event.relatedTargetView;
@@ -1311,20 +1337,124 @@ export class MapLayerView extends View implements MapView {
 
   /** @hidden */
   protected onMouseOut(event: ViewMouseEvent): void {
-    if ((this._viewFlags & View.HoveringFlag) !== 0) {
-      this._viewFlags &= ~View.HoveringFlag;
+    const hoverSet = this._hoverSet;
+    if (hoverSet !== void 0 && hoverSet.mouse !== void 0) {
+      delete hoverSet.mouse;
       const eventHandlers = this._eventHandlers;
       if (eventHandlers !== void 0 && eventHandlers.mouseleave !== void 0) {
         const leaveEvent = new MouseEvent("mouseleave", {
+          bubbles: false,
+          button: event.button,
+          buttons: event.buttons,
+          altKey: event.altKey,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          shiftKey: event.shiftKey,
           clientX: event.clientX,
           clientY: event.clientY,
           screenX: event.screenX,
           screenY: event.screenY,
-          bubbles: false,
+          movementX: event.movementX,
+          movementY: event.movementY,
+          view: event.view,
+          detail: event.detail,
+          relatedTarget: event.relatedTarget,
         }) as ViewMouseEvent;
         leaveEvent.targetView = this;
         leaveEvent.relatedTargetView = event.relatedTargetView;
         this.handleEvent(leaveEvent);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected onPointerOver(event: ViewPointerEvent): void {
+    let hoverSet = this._hoverSet;
+    if (hoverSet === void 0) {
+      hoverSet = {};
+      this._hoverSet = hoverSet;
+    }
+    const id = "" + event.pointerId;
+    if (hoverSet[id] === void 0) {
+      hoverSet[id] = null;
+      const eventHandlers = this._eventHandlers;
+      if (eventHandlers !== void 0 && eventHandlers.pointerenter !== void 0) {
+        const enterEvent = new PointerEvent("pointerenter", {
+          bubbles: false,
+          pointerId: event.pointerId,
+          pointerType: event.pointerType,
+          isPrimary: event.isPrimary,
+          button: event.button,
+          buttons: event.buttons,
+          altKey: event.altKey,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          shiftKey: event.shiftKey,
+          clientX: event.clientX,
+          clientY: event.clientY,
+          screenX: event.screenX,
+          screenY: event.screenY,
+          movementX: event.movementX,
+          movementY: event.movementY,
+          tiltX: event.tiltX,
+          tiltY: event.tiltY,
+          twist: event.twist,
+          width: event.width,
+          height: event.height,
+          pressure: event.pressure,
+          tangentialPressure: event.tangentialPressure,
+          view: event.view,
+          detail: event.detail,
+          relatedTarget: event.relatedTarget,
+        }) as ViewPointerEvent;
+        enterEvent.targetView = this;
+        enterEvent.relatedTargetView = event.relatedTargetView;
+        this.handleEvent(enterEvent);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected onPointerOut(event: ViewPointerEvent): void {
+    const hoverSet = this._hoverSet;
+    if (hoverSet !== void 0) {
+      const id = "" + event.pointerId;
+      if (hoverSet[id] !== void 0) {
+        delete hoverSet[id];
+        const eventHandlers = this._eventHandlers;
+        if (eventHandlers !== void 0 && eventHandlers.pointerleave !== void 0) {
+          const leaveEvent = new PointerEvent("pointerleave", {
+            bubbles: false,
+            pointerId: event.pointerId,
+            pointerType: event.pointerType,
+            isPrimary: event.isPrimary,
+            button: event.button,
+            buttons: event.buttons,
+            altKey: event.altKey,
+            ctrlKey: event.ctrlKey,
+            metaKey: event.metaKey,
+            shiftKey: event.shiftKey,
+            clientX: event.clientX,
+            clientY: event.clientY,
+            screenX: event.screenX,
+            screenY: event.screenY,
+            movementX: event.movementX,
+            movementY: event.movementY,
+            tiltX: event.tiltX,
+            tiltY: event.tiltY,
+            twist: event.twist,
+            width: event.width,
+            height: event.height,
+            pressure: event.pressure,
+            tangentialPressure: event.tangentialPressure,
+            view: event.view,
+            detail: event.detail,
+            relatedTarget: event.relatedTarget,
+          }) as ViewPointerEvent;
+          leaveEvent.targetView = this;
+          leaveEvent.relatedTargetView = event.relatedTargetView;
+          this.handleEvent(leaveEvent);
+        }
       }
     }
   }

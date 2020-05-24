@@ -559,13 +559,13 @@ export class PointerGestureView extends BaseGestureView {
     this.onPointerMove = this.onPointerMove.bind(this);
     this.onPointerUp = this.onPointerUp.bind(this);
     this.onPointerCancel = this.onPointerCancel.bind(this);
-    this.onDocumentLeave = this.onDocumentLeave.bind(this);
+    this.onPointerLeaveDocument = this.onPointerLeaveDocument.bind(this);
   }
 
   protected attachNode(node: Node): void {
     node.addEventListener("pointerenter", this.onPointerEnter);
     node.addEventListener("pointerleave", this.onPointerLeave);
-    node.addEventListener("pointerdown", this.onPointerDown, {passive: true});
+    node.addEventListener("pointerdown", this.onPointerDown);
   }
 
   protected detachNode(node: Node): void {
@@ -575,21 +575,21 @@ export class PointerGestureView extends BaseGestureView {
     document.body.removeEventListener("pointermove", this.onPointerMove);
     document.body.removeEventListener("pointerup", this.onPointerUp);
     document.body.removeEventListener("pointercancel", this.onPointerCancel);
-    document.body.removeEventListener("pointerleave", this.onDocumentLeave);
+    document.body.removeEventListener("pointerleave", this.onPointerLeaveDocument);
   }
 
   protected onStartTracking(): void {
     document.body.addEventListener("pointermove", this.onPointerMove);
     document.body.addEventListener("pointerup", this.onPointerUp);
     document.body.addEventListener("pointercancel", this.onPointerCancel);
-    document.body.addEventListener("pointerleave", this.onDocumentLeave);
+    document.body.addEventListener("pointerleave", this.onPointerLeaveDocument);
   }
 
   protected onStopTracking(): void {
     document.body.removeEventListener("pointermove", this.onPointerMove);
     document.body.removeEventListener("pointerup", this.onPointerUp);
     document.body.removeEventListener("pointercancel", this.onPointerCancel);
-    document.body.removeEventListener("pointerleave", this.onDocumentLeave);
+    document.body.removeEventListener("pointerleave", this.onPointerLeaveDocument);
   }
 
   protected onPointerEnter(event: PointerEvent): void {
@@ -612,6 +612,7 @@ export class PointerGestureView extends BaseGestureView {
   }
 
   protected onPointerDown(event: PointerEvent): void {
+    event.preventDefault();
     const id = "" + event.pointerId;
     const pointerType = PointerGestureView.pointerType(event.pointerType);
     this.beginTrack(id, pointerType, event.buttons, event.clientX, event.clientY, event);
@@ -640,7 +641,7 @@ export class PointerGestureView extends BaseGestureView {
     this.endHover(id, event);
   }
 
-  protected onDocumentLeave(event: PointerEvent): void {
+  protected onPointerLeaveDocument(event: PointerEvent): void {
     const id = "" + event.pointerId;
     this.cancelTrack(id, event.clientX, event.clientY, event);
     this.endHover(id, event);
@@ -667,10 +668,7 @@ export class TouchGestureView extends BaseGestureView {
   }
 
   protected attachNode(node: Node): void {
-    node.addEventListener("touchstart", this.onTouchStart, {passive: true});
-    node.addEventListener("touchmove", this.onTouchMove);
-    node.addEventListener("touchend", this.onTouchEnd);
-    node.addEventListener("touchcancel", this.onTouchCancel);
+    node.addEventListener("touchstart", this.onTouchStart);
   }
 
   protected detachNode(node: Node): void {
@@ -693,6 +691,7 @@ export class TouchGestureView extends BaseGestureView {
   }
 
   protected onTouchStart(event: TouchEvent): void {
+    event.preventDefault();
     const touches = event.targetTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i];
@@ -743,7 +742,7 @@ export class MouseGestureView extends BaseGestureView {
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
-    this.onDocumentLeave = this.onDocumentLeave.bind(this);
+    this.onMouseLeaveDocument = this.onMouseLeaveDocument.bind(this);
   }
 
   protected attachNode(node: Node): void {
@@ -758,19 +757,19 @@ export class MouseGestureView extends BaseGestureView {
     node.removeEventListener("mousedown", this.onMouseDown);
     document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("mouseup", this.onMouseUp);
-    document.body.removeEventListener("mouseleave", this.onDocumentLeave);
+    document.body.removeEventListener("mouseleave", this.onMouseLeaveDocument);
   }
 
   protected onStartTracking(): void {
     document.body.addEventListener("mousemove", this.onMouseMove);
     document.body.addEventListener("mouseup", this.onMouseUp);
-    document.body.addEventListener("mouseleave", this.onDocumentLeave);
+    document.body.addEventListener("mouseleave", this.onMouseLeaveDocument);
   }
 
   protected onStopTracking(): void {
     document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("mouseup", this.onMouseUp);
-    document.body.removeEventListener("mouseleave", this.onDocumentLeave);
+    document.body.removeEventListener("mouseleave", this.onMouseLeaveDocument);
   }
 
   protected onMouseEnter(event: MouseEvent): void {
@@ -804,7 +803,7 @@ export class MouseGestureView extends BaseGestureView {
     this.endHover("mouse", event);
   }
 
-  protected onDocumentLeave(event: MouseEvent): void {
+  protected onMouseLeaveDocument(event: MouseEvent): void {
     this.cancelTrack("mouse", event.clientX, event.clientY, event);
     this.endHover("mouse", event);
   }

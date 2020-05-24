@@ -330,7 +330,7 @@ export abstract class View {
   }
 
   requireUpdate(updateFlags: ViewFlags, immediate: boolean = false): void {
-    updateFlags &= ~View.LifecycleMask;
+    updateFlags &= ~View.StatusMask;
     this.willRequireUpdate(updateFlags, immediate);
     const oldUpdateFlags = this.viewFlags;
     const newUpdateFlags = oldUpdateFlags | updateFlags;
@@ -361,7 +361,7 @@ export abstract class View {
 
   protected willRequestUpdate(updateFlags: ViewFlags, immediate: boolean): ViewFlags {
     let additionalFlags = this.modifyUpdate(updateFlags);
-    additionalFlags &= ~View.LifecycleMask;
+    additionalFlags &= ~View.StatusMask;
     if (additionalFlags !== 0) {
       updateFlags |= additionalFlags;
       this.setViewFlags(this.viewFlags | additionalFlags);
@@ -894,34 +894,31 @@ export abstract class View {
   /** @hidden */
   static readonly CulledFlag: ViewFlags = 1 << 3;
   /** @hidden */
-  static readonly HoveringFlag: ViewFlags = 1 << 4;
+  static readonly ProcessingFlag: ViewFlags = 1 << 4;
   /** @hidden */
-  static readonly ProcessingFlag: ViewFlags = 1 << 5;
+  static readonly DisplayingFlag: ViewFlags = 1 << 5;
   /** @hidden */
-  static readonly DisplayingFlag: ViewFlags = 1 << 6;
+  static readonly ImmediateFlag: ViewFlags = 1 << 6;
   /** @hidden */
-  static readonly ImmediateFlag: ViewFlags = 1 << 7;
-  /** @hidden */
-  static readonly RemovingFlag: ViewFlags = 1 << 8;
+  static readonly RemovingFlag: ViewFlags = 1 << 7;
   /** @hidden */
   static readonly UpdatingMask: ViewFlags = View.ProcessingFlag
                                           | View.DisplayingFlag;
   /** @hidden */
-  static readonly LifecycleMask: ViewFlags = View.MountedFlag
-                                           | View.PoweredFlag
-                                           | View.HiddenFlag
-                                           | View.CulledFlag
-                                           | View.HoveringFlag
-                                           | View.ProcessingFlag
-                                           | View.DisplayingFlag
-                                           | View.RemovingFlag;
+  static readonly StatusMask: ViewFlags = View.MountedFlag
+                                        | View.PoweredFlag
+                                        | View.HiddenFlag
+                                        | View.CulledFlag
+                                        | View.ProcessingFlag
+                                        | View.DisplayingFlag
+                                        | View.RemovingFlag;
 
-  static readonly NeedsProcess: ViewFlags = 1 << 9;
-  static readonly NeedsResize: ViewFlags = 1 << 10;
-  static readonly NeedsScroll: ViewFlags = 1 << 11;
-  static readonly NeedsDerive: ViewFlags = 1 << 12;
-  static readonly NeedsAnimate: ViewFlags = 1 << 13;
-  static readonly NeedsProject: ViewFlags = 1 << 14;
+  static readonly NeedsProcess: ViewFlags = 1 << 8;
+  static readonly NeedsResize: ViewFlags = 1 << 9;
+  static readonly NeedsScroll: ViewFlags = 1 << 10;
+  static readonly NeedsDerive: ViewFlags = 1 << 11;
+  static readonly NeedsAnimate: ViewFlags = 1 << 12;
+  static readonly NeedsProject: ViewFlags = 1 << 13;
   /** @hidden */
   static readonly ProcessMask: ViewFlags = View.NeedsProcess
                                          | View.NeedsResize
@@ -930,10 +927,10 @@ export abstract class View {
                                          | View.NeedsAnimate
                                          | View.NeedsProject;
 
-  static readonly NeedsDisplay: ViewFlags = 1 << 15;
-  static readonly NeedsLayout: ViewFlags = 1 << 16;
-  static readonly NeedsRender: ViewFlags = 1 << 17;
-  static readonly NeedsComposite: ViewFlags = 1 << 18;
+  static readonly NeedsDisplay: ViewFlags = 1 << 14;
+  static readonly NeedsLayout: ViewFlags = 1 << 15;
+  static readonly NeedsRender: ViewFlags = 1 << 16;
+  static readonly NeedsComposite: ViewFlags = 1 << 17;
   /** @hidden */
   static readonly DisplayMask: ViewFlags = View.NeedsDisplay
                                          | View.NeedsLayout
@@ -945,7 +942,7 @@ export abstract class View {
                                         | View.DisplayMask;
 
   /** @hidden */
-  static readonly ViewFlagShift: ViewFlags = 19;
+  static readonly ViewFlagShift: ViewFlags = 18;
   /** @hidden */
   static readonly ViewFlagMask: ViewFlags = (1 << View.ViewFlagShift) - 1;
 

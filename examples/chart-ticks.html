@@ -14,7 +14,9 @@
 
 const uiView = new swim.UiView(document.getElementById("ui"));
 
-const canvas = uiView.append("canvas");
+const canvas = uiView.append("canvas")
+    .pointerEventsEnabled(true)
+    .touchAction("manipulation");
 
 const chart = new swim.ChartView()
     .bottomAxis("linear")
@@ -31,7 +33,7 @@ const plot = new swim.LineGraphView()
     .hitMode("domain")
     .stroke("#4a4a4a")
     .strokeWidth(2)
-    .on("mouseover", function (event) {
+    .on("pointerover", function (event) {
       const datum = event.targetView;
       const x = datum.x.value;
       chart.bottomAxis().insertTick({
@@ -48,7 +50,7 @@ const plot = new swim.LineGraphView()
         gridLineWidth: 1,
       });
     })
-    .on("mouseout", function (event) {
+    .on("pointerout", function (event) {
       const datum = event.targetView;
       chart.bottomAxis().removeTick(datum.x.value);
       chart.leftAxis().removeTick(datum.y.value);

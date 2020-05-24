@@ -13,6 +13,9 @@
 // limitations under the License.
 
 export {
+  CanvasFlags,
+  CanvasViewMouse,
+  CanvasViewPointer,
   ViewCanvas,
   CanvasView,
 } from "./CanvasView";

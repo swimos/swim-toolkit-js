@@ -152,11 +152,11 @@ export class UiView extends HtmlView implements RootView, LayoutManager {
 
   protected onMount(): void {
     super.onMount();
-    this.addEventListeners(this._node);
+    this.attachNode(this._node);
   }
 
   protected onUnmount(): void {
-    this.removeEventListeners(this._node);
+    this.detachNode(this._node);
     super.onUnmount();
   }
 
@@ -715,7 +715,7 @@ export class UiView extends HtmlView implements RootView, LayoutManager {
   }
 
   /** @hidden */
-  protected addEventListeners(node: Node): void {
+  protected attachNode(node: Node): void {
     if (typeof window !== "undefined") {
       window.addEventListener("resize", this.throttleResize);
       window.addEventListener("scroll", this.throttleScroll, {passive: true});
@@ -728,7 +728,7 @@ export class UiView extends HtmlView implements RootView, LayoutManager {
   }
 
   /** @hidden */
-  protected removeEventListeners(node: Node): void {
+  protected detachNode(node: Node): void {
     if (typeof window !== "undefined") {
       window.removeEventListener("resize", this.throttleResize);
       window.removeEventListener("scroll", this.throttleScroll);

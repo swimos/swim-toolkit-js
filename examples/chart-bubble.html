@@ -14,7 +14,9 @@
 
 const uiView = new swim.UiView(document.getElementById("ui"));
 
-const canvas = uiView.append("canvas");
+const canvas = uiView.append("canvas")
+    .pointerEventsEnabled(true)
+    .touchAction("manipulation");
 
 const chart = new swim.ChartView()
     .bottomAxis("linear")
@@ -34,12 +36,12 @@ chart.leftAxis().createTickLabel = function (tickValue) {
 
 const plot = new swim.BubblePlotView()
     .fill("#4a4a4a")
-    .on("mouseover", function (event) {
+    .on("pointerover", function (event) {
       if (event.targetView instanceof swim.DatumView) {
         event.targetView.color("#1db0ef", {duration: 200});
       }
     })
-    .on("mouseout", function (event) {
+    .on("pointerout", function (event) {
       if (event.targetView instanceof swim.DatumView) {
         event.targetView.color("#4a4a4a", {duration: 200});
       }

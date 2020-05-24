@@ -197,25 +197,22 @@ export class GoogleMapView extends MapGraphicsView {
     } else {
       class GoogleMapOverlayView extends google.maps.OverlayView {
         readonly _mapView: GoogleMapView;
-        _canvasView: CanvasView | null;
+        readonly _canvasView: CanvasView;
         constructor(mapView: GoogleMapView) {
           super();
           this._mapView = mapView;
-          this._canvasView = null;
+          this._canvasView = HtmlView.create("canvas");
+          this._canvasView.append(this._mapView);
         }
         onAdd(): void {
           const panes = this.getPanes();
           const overlayMouseTarget = GoogleMapView.materializeAncestors(panes.overlayMouseTarget as HTMLElement);
           const overlayContainer = overlayMouseTarget.parentView as HtmlView;
           const container = overlayContainer.parentView as HtmlView;
-          this._canvasView = container.append("canvas");
-          this._canvasView.append(this._mapView);
+          container.append(this._canvasView!);
         }
         onRemove(): void {
-          if (this._canvasView !== null) {
-            this._canvasView.remove();
-            this._canvasView = null;
-          }
+          this._canvasView.remove();
         }
         draw(): void {
           this._mapView.onMapRender();

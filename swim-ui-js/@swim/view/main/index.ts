@@ -13,9 +13,15 @@
 // limitations under the License.
 
 export {
+  ViewEventInit,
   ViewEvent,
+  ViewMouseEventInit,
   ViewMouseEvent,
+  ViewPointerEventInit,
+  ViewPointerEvent,
+  ViewTouchInit,
   ViewTouch,
+  ViewTouchEventInit,
   ViewTouchEvent,
   ViewEventHandler,
 } from "./ViewEvent";
