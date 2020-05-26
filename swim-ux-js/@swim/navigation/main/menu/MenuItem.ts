@@ -23,12 +23,13 @@ import {
   MemberAnimator,
   SvgView,
   HtmlView,
+  HtmlViewController,
 } from "@swim/view";
-import {GestureViewController} from "@swim/gesture";
+import {PositionGestureDelegate} from "@swim/gesture";
 import {TactileView} from "@swim/app";
 import {MenuList} from "./MenuList";
 
-export class MenuItem extends TactileView {
+export class MenuItem extends TactileView implements PositionGestureDelegate {
   /** @hidden */
   _highlighted: boolean;
 
@@ -58,7 +59,7 @@ export class MenuItem extends TactileView {
     this.paddingRight.setAutoState(Length.px(4));
   }
 
-  get viewController(): GestureViewController<MenuItem> | null {
+  get viewController(): HtmlViewController<MenuItem> | null {
     return this._viewController;
   }
 
@@ -241,7 +242,7 @@ export class MenuItem extends TactileView {
     // hook
   }
 
-  protected onStartHovering(): void {
+  didStartHovering(): void {
     const hoverColor = this.hoverColor.value;
     if (hoverColor !== void 0 && this.backgroundColor.isAuto()) {
       if (this.backgroundColor.value === void 0) {
@@ -251,7 +252,7 @@ export class MenuItem extends TactileView {
     }
   }
 
-  protected onStopHovering(): void {
+  didStopHovering(): void {
     const hoverColor = this.hoverColor.value;
     if (hoverColor !== void 0 && this.backgroundColor.isAuto()) {
       this.backgroundColor.setAutoState(hoverColor.alpha(0), this.tactileTransition);

@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export {GestureInputType} from "./Gesture";
+
+export {
+  PositionGestureInput,
+  AbstractPositionGesture,
+  PointerPositionGesture,
+  TouchPositionGesture,
+  MousePositionGesture,
+  PositionGesture,
+} from "./PositionGesture";
+export {PositionGestureDelegate} from "./PositionGestureDelegate";
+
 export {
   MultitouchEventInit,
   MultitouchEventClass,
@@ -34,16 +46,3 @@ export {
   HorizontalScaleGesture,
   VerticalScaleGesture,
 } from "./ScaleGesture";
-
-export {
-  GestureViewPointerType,
-  GestureViewHover,
-  GestureViewTrack,
-  BaseGestureView,
-  PointerGestureView,
-  TouchGestureView,
-  MouseGestureView,
-  GestureView,
-} from "./GestureView";
-export {GestureViewObserver} from "./GestureViewObserver";
-export {GestureViewController} from "./GestureViewController";

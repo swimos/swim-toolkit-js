@@ -12,13 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {ActionButton} from "./ActionButton";
-
-export {ActionItem} from "./ActionItem";
-
-export {
-  ActionStackState,
-  ActionStack,
-} from "./ActionStack";
-export {ActionStackObserver} from "./ActionStackObserver";
-export {ActionStackController} from "./ActionStackController";
+export type GestureInputType = "mouse" | "touch" | "pen" | "unknown";

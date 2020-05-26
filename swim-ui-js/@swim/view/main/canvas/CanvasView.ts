@@ -1269,11 +1269,11 @@ export class CanvasView extends HtmlView implements RenderedView {
     pointer.movementX = event.movementX;
     pointer.movementY = event.movementY;
 
+    pointer.width = event.width;
+    pointer.height = event.height;
     pointer.tiltX = event.tiltX;
     pointer.tiltY = event.tiltY;
     pointer.twist = event.twist;
-    pointer.width = event.width;
-    pointer.height = event.height;
     pointer.pressure = event.pressure;
     pointer.tangentialPressure = event.tangentialPressure;
 
