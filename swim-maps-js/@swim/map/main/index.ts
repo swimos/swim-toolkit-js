@@ -14,17 +14,7 @@
 
 export * from "./geo";
 
-export {MapViewContext} from "./MapViewContext";
-export {
-  MapViewInit,
-  MapView,
-} from "./MapView";
-export {MapViewObserver} from "./MapViewObserver";
-export {MapViewController} from "./MapViewController";
-
 export * from "./graphics";
-
-export * from "./composited";
 
 export * from "./raster";
 

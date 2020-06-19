@@ -115,6 +115,12 @@ export class Transition<T> {
     }
   }
 
+  observer(observer: TransitionObserver<T>): Transition<T> {
+    const observers = this._observers !== void 0 ? this._observers.slice(0) : [];
+    observers.push(observer);
+    return Transition.from(this._duration, this._ease, this._interpolator, observers);
+  }
+
   onBegin(onBegin: TransitionBegin<T>): Transition<T> {
     const observer: TransitionObserver<T> = {onBegin};
     const observers = this._observers !== void 0 ? this._observers.slice(0) : [];

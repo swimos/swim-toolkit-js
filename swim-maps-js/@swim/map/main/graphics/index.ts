@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {MapGraphicsView} from "./MapGraphicsView";
+export {MapGraphicsViewContext} from "./MapGraphicsViewContext";
+export {
+  MapGraphicsViewInit,
+  MapGraphicsView,
+} from "./MapGraphicsView";
 export {MapGraphicsViewObserver} from "./MapGraphicsViewObserver";
 export {MapGraphicsViewController} from "./MapGraphicsViewController";
+
+export {MapGraphicsNodeView} from "./MapGraphicsNodeView";
+export {MapGraphicsLeafView} from "./MapGraphicsLeafView";

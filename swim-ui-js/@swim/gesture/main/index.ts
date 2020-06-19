@@ -12,37 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {GestureInputType} from "./Gesture";
-
 export {
-  PositionGestureInput,
+  GestureInputType,
+  GestureInput,
+} from "./GestureInput";
+export {GestureDelegate} from "./GestureDelegate";
+
+export {PositionGestureInput} from "./PositionGestureInput";
+export {PositionGestureDelegate} from "./PositionGestureDelegate";
+export {
   AbstractPositionGesture,
   PointerPositionGesture,
   TouchPositionGesture,
   MousePositionGesture,
   PositionGesture,
 } from "./PositionGesture";
-export {PositionGestureDelegate} from "./PositionGestureDelegate";
 
+export {MomentumGestureInput} from "./MomentumGestureInput";
+export {MomentumGestureDelegate} from "./MomentumGestureDelegate";
 export {
-  MultitouchEventInit,
-  MultitouchEventClass,
-  MultitouchEvent,
-  MultitouchPoint,
-  MultitouchTrack,
-  MultitouchGhost,
-  Multitouch,
-  MultitouchPointer,
-  MultitouchTouch,
-  MultitouchMouse,
-} from "./Multitouch";
+  AbstractMomentumGesture,
+  PointerMomentumGesture,
+  TouchMomentumGesture,
+  MouseMomentumGesture,
+  MomentumGesture,
+} from "./MomentumGesture";
 
+export {ScaleGestureInput} from "./ScaleGestureInput";
+export {ScaleGestureDelegate} from "./ScaleGestureDelegate";
 export {
-  ScaleGestureEventInit,
-  ScaleGestureEventClass,
-  ScaleGestureEvent,
-  ScaleGesturePoint,
+  AbstractScaleGesture,
+  PointerScaleGesture,
+  TouchScaleGesture,
+  MouseScaleGesture,
   ScaleGesture,
-  HorizontalScaleGesture,
-  VerticalScaleGesture,
 } from "./ScaleGesture";

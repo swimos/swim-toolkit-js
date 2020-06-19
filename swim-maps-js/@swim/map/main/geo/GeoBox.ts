@@ -38,10 +38,15 @@ export class GeoBox implements HashCode, Debug {
   readonly _latMax: number;
 
   constructor(lngMin: number, latMin: number, lngMax: number, latMax: number) {
-    this._lngMin = lngMin <= lngMax ? lngMin : lngMax;
-    this._latMin = latMin <= latMax ? latMin : latMax;
-    this._lngMax = lngMin <= lngMax ? lngMax : lngMin;
-    this._latMax = latMin <= latMax ? latMax : latMin;
+    this._lngMin = lngMin;
+    this._latMin = latMin;
+    this._lngMax = lngMax;
+    this._latMax = latMax;
+  }
+
+  isDefined(): boolean {
+    return isFinite(this._lngMin) && isFinite(this._latMin)
+        && isFinite(this._lngMax) && isFinite(this._latMax);
   }
 
   get lngMin(): number {
@@ -248,12 +253,12 @@ export class GeoBox implements HashCode, Debug {
 
   private static _hashSeed?: number;
 
-  private static _empty?: GeoBox;
-  static empty(): GeoBox {
-    if (GeoBox._empty === void 0) {
-      GeoBox._empty = new GeoBox(0, 0, 0, 0);
+  private static _undefined?: GeoBox;
+  static undefined(): GeoBox {
+    if (GeoBox._undefined === void 0) {
+      GeoBox._undefined = new GeoBox(Infinity, Infinity, -Infinity, -Infinity);
     }
-    return GeoBox._empty;
+    return GeoBox._undefined;
   }
 
   private static _globe?: GeoBox;

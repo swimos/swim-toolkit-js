@@ -45,6 +45,9 @@ export interface LayoutManager {
 
   /** @hidden */
   didUpdateConstraintVariable(constraintVariable: ConstrainVariable, newValue: number, oldValue: number): void;
+
+  /** @hidden */
+  updateConstraintVariables(): void;
 }
 
 /** @hidden */
@@ -52,7 +55,7 @@ export const LayoutManager = {
   is(object: unknown): object is LayoutManager {
     if (typeof object === "object" && object !== null) {
       const view = object as LayoutManager;
-      return typeof view.setConstraintVariable === "function";
+      return typeof view.updateConstraintVariables === "function";
     }
     return false;
   },

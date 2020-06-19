@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import {AnyPointR2, PointR2} from "@swim/math";
-import {ViewFlags, View, RenderedViewContext, RenderedView, ViewHtml, HtmlView, CanvasView} from "@swim/view";
-import {AnyGeoPoint, GeoPoint, GeoBox, MapViewContext, MapGraphicsView} from "@swim/map";
+import {ViewFlags, View, GraphicsViewContext, GraphicsView, ViewHtml, HtmlView, CanvasView} from "@swim/view";
+import {AnyGeoPoint, GeoPoint, GeoBox, MapGraphicsViewContext, MapGraphicsNodeView} from "@swim/map";
 import {GoogleMapProjection} from "./GoogleMapProjection";
 import {GoogleMapViewObserver} from "./GoogleMapViewObserver";
 import {GoogleMapViewController} from "./GoogleMapViewController";
 
-export class GoogleMapView extends MapGraphicsView {
+export class GoogleMapView extends MapGraphicsNodeView {
   /** @hidden */
   readonly _map: google.maps.Map;
   /** @hidden */
@@ -148,21 +148,26 @@ export class GoogleMapView extends MapGraphicsView {
     return this._mapTilt;
   }
 
-  cascadeProcess(processFlags: ViewFlags, viewContext: RenderedViewContext): void {
+  protected onPower(): void {
+    super.onPower();
+    this.requireUpdate(View.NeedsProject);
+  }
+
+  cascadeProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): void {
     viewContext = this.mapViewContext(viewContext);
     super.cascadeProcess(processFlags, viewContext);
   }
 
-  cascadeDisplay(displayFlags: ViewFlags, viewContext: RenderedViewContext): void {
+  cascadeDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): void {
     viewContext = this.mapViewContext(viewContext);
     super.cascadeDisplay(displayFlags, viewContext);
   }
 
-  childViewContext(childView: View, viewContext: MapViewContext): MapViewContext {
+  childViewContext(childView: View, viewContext: MapGraphicsViewContext): MapGraphicsViewContext {
     return viewContext;
   }
 
-  mapViewContext(viewContext: RenderedViewContext): MapViewContext {
+  mapViewContext(viewContext: GraphicsViewContext): MapGraphicsViewContext {
     const mapViewContext = Object.create(viewContext);
     mapViewContext.geoProjection = this._geoProjection;
     mapViewContext.geoFrame = this.geoFrame;
@@ -179,9 +184,9 @@ export class GoogleMapView extends MapGraphicsView {
     return new GeoBox(sw.lng(), sw.lat(), ne.lng(), ne.lat());
   }
 
-  hitTest(x: number, y: number, viewContext: RenderedViewContext): RenderedView | null {
+  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
     viewContext = this.mapViewContext(viewContext);
-    return super.hitTest(x, y, viewContext);
+    return super.hitTest(x, y, viewContext as MapGraphicsViewContext);
   }
 
   protected onMapRender(): void {

@@ -64,17 +64,25 @@ export interface RootViewController<V extends RootView = RootView> extends ViewC
 
   viewDidProcess(viewContext: ViewContext, view: V): void;
 
+  viewWillResize(viewContext: ViewContext, view: V): void;
+
+  viewDidResize(viewContext: ViewContext, view: V): void;
+
   viewWillScroll(viewContext: ViewContext, view: V): void;
 
   viewDidScroll(viewContext: ViewContext, view: V): void;
 
-  viewWillDerive(viewContext: ViewContext, view: V): void;
+  viewWillCompute(viewContext: ViewContext, view: V): void;
 
-  viewDidDerive(viewContext: ViewContext, view: V): void;
+  viewDidCompute(viewContext: ViewContext, view: V): void;
 
   viewWillAnimate(viewContext: ViewContext, view: V): void;
 
   viewDidAnimate(viewContext: ViewContext, view: V): void;
+
+  viewWillLayout(viewContext: ViewContext, view: V): void;
+
+  viewDidLayout(viewContext: ViewContext, view: V): void;
 
   viewWillProcessChildViews(viewContext: ViewContext, view: V): void;
 
@@ -83,10 +91,6 @@ export interface RootViewController<V extends RootView = RootView> extends ViewC
   viewWillDisplay(viewContext: ViewContext, view: V): void;
 
   viewDidDisplay(viewContext: ViewContext, view: V): void;
-
-  viewWillLayout(viewContext: ViewContext, view: V): void;
-
-  viewDidLayout(viewContext: ViewContext, view: V): void;
 
   viewWillDisplayChildViews(viewContext: ViewContext, view: V): void;
 

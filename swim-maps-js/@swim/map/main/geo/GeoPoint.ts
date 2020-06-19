@@ -40,6 +40,10 @@ export class GeoPoint implements HashCode, Debug {
     this._lat = lat;
   }
 
+  isDefined(): boolean {
+    return isFinite(this._lng) && isFinite(this._lat);
+  }
+
   get lng(): number {
     return this._lng;
   }
@@ -88,7 +92,6 @@ export class GeoPoint implements HashCode, Debug {
   private static _hashSeed?: number;
 
   private static _origin?: GeoPoint;
-
   static origin(): GeoPoint {
     if (GeoPoint._origin === void 0) {
       GeoPoint._origin = new GeoPoint(0, 0);

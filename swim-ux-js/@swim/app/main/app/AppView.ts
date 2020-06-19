@@ -21,9 +21,9 @@ export class AppView extends UiView {
     return this._viewController;
   }
 
-  @ViewScope<AppView, Theme>({
-    init: function (this: AppView): Theme {
-      return this.createTheme();
+  @ViewScope<AppView, typeof Theme>(Theme, {
+    init(): Theme {
+      return this.view.createTheme();
     },
   })
   theme: ViewScope<this, Theme>;

@@ -15,5 +15,5 @@
 import {GraphicsViewObserver} from "@swim/view";
 import {AxisView} from "./AxisView";
 
-export interface AxisViewObserver<D = any, V extends AxisView<D> = AxisView<D>> extends GraphicsViewObserver<V> {
+export interface AxisViewObserver<D = unknown, V extends AxisView<D> = AxisView<D>> extends GraphicsViewObserver<V> {
 }

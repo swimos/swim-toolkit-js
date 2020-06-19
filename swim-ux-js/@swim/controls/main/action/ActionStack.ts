@@ -20,7 +20,7 @@ import {
   ViewNode,
   ModalState,
   Modal,
-  MemberAnimator,
+  ViewAnimator,
   SvgView,
   HtmlView,
 } from "@swim/view";
@@ -93,8 +93,8 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
     return this._stackState === "collapsed" || this._stackState === "collapsing";
   }
 
-  @MemberAnimator(Number, {value: 0})
-  stackPhase: MemberAnimator<this, number>; // 0 = collapsed; 1 = expanded
+  @ViewAnimator(Number, {value: 0})
+  stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   get modalState(): ModalState {
     const stackState = this._stackState;
@@ -454,7 +454,7 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
         if (itemCount > 1) {
           stackHeight += (itemCount - 1) * (this._itemSpacing + itemHeight);
         }
-        const stackPhase = Math.min(Math.max(0, -input.dy / (0.5 * stackHeight)), 1);
+        const stackPhase = Math.min(Math.max(0, -(input.y - input.y0) / (0.5 * stackHeight)), 1);
         this.stackPhase.setState(stackPhase);
         this.requireUpdate(View.NeedsLayout);
         if (stackPhase > 0.1) {
@@ -467,7 +467,7 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
   didEndPress(input: PositionGestureInput, event: Event | null): void {
     if (!input.defaultPrevented) {
       const stackPhase = this.stackPhase.value!;
-      if (input.dt < input.holdDelay) {
+      if (input.t - input.t0 < input.holdDelay) {
         if (stackPhase < 0.1 || this.stackState === "expanded") {
           this.collapse();
         } else {

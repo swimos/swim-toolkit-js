@@ -20,7 +20,7 @@ import {
   ViewEdgeInsets,
   ViewContext,
   View,
-  MemberAnimator,
+  ViewAnimator,
   SvgView,
   HtmlView,
   HtmlViewController,
@@ -63,22 +63,22 @@ export class MenuItem extends TactileView implements PositionGestureDelegate {
     return this._viewController;
   }
 
-  @MemberAnimator(Number, {inherit: true})
-  drawerStretch: MemberAnimator<this, number>; // 0 = collapsed; 1 = expanded
+  @ViewAnimator(Number, {inherit: true})
+  drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @MemberAnimator(Color)
-  normalFillColor: MemberAnimator<this, Color, AnyColor>;
+  @ViewAnimator(Color)
+  normalFillColor: ViewAnimator<this, Color, AnyColor>;
 
-  @MemberAnimator(Color)
-  highlightFillColor: MemberAnimator<this, Color, AnyColor>;
+  @ViewAnimator(Color)
+  highlightFillColor: ViewAnimator<this, Color, AnyColor>;
 
-  @MemberAnimator(Color)
-  highlightCellColor: MemberAnimator<this, Color, AnyColor>;
+  @ViewAnimator(Color)
+  highlightCellColor: ViewAnimator<this, Color, AnyColor>;
 
-  @MemberAnimator(Color)
-  hoverColor: MemberAnimator<this, Color, AnyColor>;
+  @ViewAnimator(Color)
+  hoverColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewScope({inherit: true})
+  @ViewScope(Object, {inherit: true})
   edgeInsets: ViewScope<this, ViewEdgeInsets>;
 
   get highlighted(): boolean {
@@ -242,23 +242,6 @@ export class MenuItem extends TactileView implements PositionGestureDelegate {
     // hook
   }
 
-  didStartHovering(): void {
-    const hoverColor = this.hoverColor.value;
-    if (hoverColor !== void 0 && this.backgroundColor.isAuto()) {
-      if (this.backgroundColor.value === void 0) {
-        this.backgroundColor.setAutoState(hoverColor.alpha(0), false);
-      }
-      this.backgroundColor.setAutoState(hoverColor, this.tactileTransition);
-    }
-  }
-
-  didStopHovering(): void {
-    const hoverColor = this.hoverColor.value;
-    if (hoverColor !== void 0 && this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(hoverColor.alpha(0), this.tactileTransition);
-    }
-  }
-
   highlight(tween?: Tween<any>): this {
     if (!this._highlighted) {
       this._highlighted = true;
@@ -301,6 +284,23 @@ export class MenuItem extends TactileView implements PositionGestureDelegate {
       }
     }
     return this;
+  }
+
+  didStartHovering(): void {
+    const hoverColor = this.hoverColor.value;
+    if (hoverColor !== void 0 && this.backgroundColor.isAuto()) {
+      if (this.backgroundColor.value === void 0) {
+        this.backgroundColor.setAutoState(hoverColor.alpha(0), false);
+      }
+      this.backgroundColor.setAutoState(hoverColor, this.tactileTransition);
+    }
+  }
+
+  didStopHovering(): void {
+    const hoverColor = this.hoverColor.value;
+    if (hoverColor !== void 0 && this.backgroundColor.isAuto()) {
+      this.backgroundColor.setAutoState(hoverColor.alpha(0), this.tactileTransition);
+    }
   }
 
   protected onClick(event: MouseEvent): void {

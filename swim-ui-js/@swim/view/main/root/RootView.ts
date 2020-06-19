@@ -16,9 +16,10 @@ import {Viewport} from "../Viewport";
 import {ViewContext} from "../ViewContext";
 import {View} from "../View";
 import {ModalOptions, Modal} from "../modal/Modal";
+import {LayoutManager} from "../layout/LayoutManager";
 import {RootViewController} from "./RootViewController";
 
-export interface RootView extends View {
+export interface RootView extends View, LayoutManager {
   readonly viewController: RootViewController | null;
 
   readonly rootView: this;

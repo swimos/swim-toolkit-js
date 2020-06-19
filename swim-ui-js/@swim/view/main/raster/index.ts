@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {RasterView} from "./RasterView";
+export {RasterViewContext} from "./RasterViewContext";
+export {
+  RasterViewInit,
+  RasterView,
+} from "./RasterView";
 export {RasterViewObserver} from "./RasterViewObserver";
 export {RasterViewController} from "./RasterViewController";

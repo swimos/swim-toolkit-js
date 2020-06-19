@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {MapTile} from "./MapTile";
+export {MapLayerTile} from "./MapLayerTile";
 
 export {MapLayerView} from "./MapLayerView";
 export {MapLayerViewObserver} from "./MapLayerViewObserver";

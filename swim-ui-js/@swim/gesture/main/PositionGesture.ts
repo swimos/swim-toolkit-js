@@ -13,111 +13,13 @@
 // limitations under the License.
 
 import {View, ViewObserver} from "@swim/view";
-import {GestureInputType} from "./Gesture";
+import {GestureInputType} from "./GestureInput";
+import {PositionGestureInput} from "./PositionGestureInput";
 import {PositionGestureDelegate} from "./PositionGestureDelegate";
 
-export class PositionGestureInput {
-  readonly inputId: string;
-  readonly inputType: GestureInputType;
-  readonly isPrimary: boolean;
-
-  button: number;
-  buttons: number;
-  altKey: boolean;
-  ctrlKey: boolean;
-  metaKey: boolean;
-  shiftKey: boolean;
-
-  x0: number;
-  y0: number;
-  t0: number;
-  dx: number;
-  dy: number;
-  dt: number;
-  x: number;
-  y: number;
-  t: number;
-
-  width: number;
-  height: number;
-  tiltX: number;
-  tiltY: number;
-  twist: number;
-  pressure: number;
-  tangentialPressure: number;
-
-  hovering: boolean;
-  pressing: boolean;
-  defaultPrevented: boolean;
-  holdTimer: number;
-  holdDelay: number;
-  detail?: unknown;
-
-  constructor(inputId: string, inputType: GestureInputType, isPrimary: boolean,
-              x: number, y: number, t: number) {
-    this.inputId = inputId;
-    this.inputType = inputType;
-    this.isPrimary = isPrimary;
-
-    this.button = 0;
-    this.buttons = 0;
-    this.altKey = false;
-    this.ctrlKey = false;
-    this.metaKey = false;
-    this.shiftKey = false;
-
-    this.x0 = x;
-    this.y0 = y;
-    this.t0 = t;
-    this.dx = 0;
-    this.dy = 0;
-    this.dt = 0;
-    this.x = x;
-    this.y = y;
-    this.t = t;
-
-    this.width = 0;
-    this.height = 0;
-    this.tiltX = 0;
-    this.tiltY = 0;
-    this.twist = 0;
-    this.pressure = 0;
-    this.tangentialPressure = 0;
-
-    this.hovering = false;
-    this.pressing = false;
-    this.defaultPrevented = false;
-    this.holdTimer = 0;
-    this.holdDelay = 400;
-  }
-
-  isRunaway(): boolean {
-    return this.inputType !== "mouse" && this.dt < 100
-        && this.dx * this.dx + this.dy * this.dy > 10 * 10;
-  }
-
-  preventDefault(): void {
-    this.defaultPrevented = true;
-  }
-
-  setHoldTimer(f: () => void): void {
-    if (this.holdDelay !== 0) {
-      this.clearHoldTimer();
-      this.holdTimer = setTimeout(f, this.holdDelay) as any;
-    }
-  }
-
-  clearHoldTimer(): void {
-    if (this.holdTimer !== 0) {
-      clearTimeout(this.holdTimer);
-      this.holdTimer = 0;
-    }
-  }
-}
-
-export class AbstractPositionGesture<V extends View = View> implements ViewObserver<V> {
+export class AbstractPositionGesture<V extends View> implements ViewObserver<V> {
   /** @hidden */
-  readonly _view: V;
+  _view: V | null;
   /** @hidden */
   _delegate: PositionGestureDelegate | null;
   /** @hidden */
@@ -129,24 +31,42 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
   /** @hidden */
   _pressCount: number;
 
-  constructor(view: V, delegate: PositionGestureDelegate | null = null) {
+  constructor(view: V | null, delegate: PositionGestureDelegate | null = null) {
     this._view = view;
     this._delegate = delegate;
     this._inputs = {};
     this._inputCount = 0;
     this._hoverCount = 0;
     this._pressCount = 0;
-    this.initView(view);
   }
 
-  protected initView(view: V): void {
-    if (view.isMounted()) {
-      this.attachEvents(view);
+  protected initView(view: V | null): void {
+    if (view !== null) {
+      view.addViewObserver(this);
+      if (view.isMounted()) {
+        this.attachEvents(view);
+      }
     }
   }
 
-  get view(): V {
+  get view(): V | null {
     return this._view;
+  }
+
+  setView(view: V | null): void {
+    if (this._view !== view) {
+      if (this._view !== null) {
+        this.detachEvents(this._view);
+        this._view.removeViewObserver(this);
+      }
+      this._view = view;
+      if (this._view !== null) {
+        this._view.addViewObserver(this);
+        if (this._view.isMounted()) {
+          this.attachEvents(this._view);
+        }
+      }
+    }
   }
 
   get delegate(): PositionGestureDelegate | null {
@@ -157,16 +77,54 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
     this._delegate = delegate;
   }
 
+  get inputs(): {readonly [inputId: string]: PositionGestureInput | undefined} {
+    return this._inputs;
+  }
+
+  getInput(inputId: string | number): PositionGestureInput | null {
+    if (typeof inputId === "number") {
+      inputId = "" + inputId;
+    }
+    const input = this._inputs[inputId];
+    return input !== void 0 ? input : null;
+  }
+
+  protected createInput(inputId: string, inputType: GestureInputType, isPrimary: boolean,
+                        x: number, y: number, t: number): PositionGestureInput {
+    return new PositionGestureInput(inputId, inputType, isPrimary, x, y, t);
+  }
+
+  protected getOrCreateInput(inputId: string | number, inputType: GestureInputType, isPrimary: boolean,
+                             x: number, y: number, t: number): PositionGestureInput {
+    if (typeof inputId === "number") {
+      inputId = "" + inputId;
+    }
+    let input = this._inputs[inputId];
+    if (input === void 0) {
+      input = this.createInput(inputId, inputType, isPrimary, x, y, t);
+      this._inputs[inputId] = input;
+      this._inputCount += 1;
+    }
+    return input;
+  }
+
+  protected clearInput(input: PositionGestureInput): void {
+    if (!input.hovering && !input.pressing) {
+      delete this._inputs[input.inputId];
+      this._inputCount -= 1;
+    }
+  }
+
   viewDidMount(view: V): void {
     this.attachEvents(view);
   }
 
   viewWillUnmount(view: V): void {
+    this.detachEvents(view);
     this._inputs = {};
     this._inputCount = 0;
     this._hoverCount = 0;
     this._pressCount = 0;
-    this.detachEvents(view);
   }
 
   protected attachEvents(view: V): void {
@@ -192,18 +150,6 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
 
   protected detachPressEvents(view: V): void {
     // hook
-  }
-
-  get inputs(): {readonly [inputId: string]: PositionGestureInput | undefined} {
-    return this._inputs;
-  }
-
-  getInput(inputId: string | number): PositionGestureInput | null {
-    if (typeof inputId === "number") {
-      inputId = "" + inputId;
-    }
-    const input = this._inputs[inputId];
-    return input !== void 0 ? input : null;
   }
 
   protected startHovering(): void {
@@ -254,25 +200,6 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
     }
   }
 
-  protected createInput(inputId: string, inputType: GestureInputType, isPrimary: boolean,
-                        x: number, y: number, t: number): PositionGestureInput {
-    return new PositionGestureInput(inputId, inputType, isPrimary, x, y, t);
-  }
-
-  protected getOrCreateInput(inputId: string | number, inputType: GestureInputType, isPrimary: boolean,
-                             x: number, y: number, t: number): PositionGestureInput {
-    if (typeof inputId === "number") {
-      inputId = "" + inputId;
-    }
-    let input = this._inputs[inputId];
-    if (input === void 0) {
-      input = this.createInput(inputId, inputType, isPrimary, x, y, t);
-      this._inputs[inputId] = input;
-      this._inputCount += 1;
-    }
-    return input;
-  }
-
   beginHover(input: PositionGestureInput, event: Event | null): void {
     if (!input.hovering) {
       this.willBeginHover(input, event);
@@ -314,10 +241,7 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
       if (this._hoverCount === 0) {
         this.stopHovering();
       }
-      if (!input.pressing) {
-        delete this._inputs[input.inputId];
-        this._inputCount -= 1;
-      }
+      this.clearInput(input);
     }
   }
 
@@ -353,7 +277,7 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
   }
 
   protected onStartPressing(): void {
-    this.attachPressEvents(this._view);
+    this.attachPressEvents(this._view!);
   }
 
   protected didStartPressing(): void {
@@ -377,7 +301,7 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
   }
 
   protected onStopPressing(): void {
-    this.detachPressEvents(this._view);
+    this.detachPressEvents(this._view!);
   }
 
   protected didStopPressing(): void {
@@ -389,30 +313,38 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
 
   beginPress(input: PositionGestureInput, event: Event | null): void {
     if (!input.pressing) {
-      this.willBeginPress(input, event);
-      input.t0 = performance.now();
-      input.dt = 0;
-      input.t = input.t0;
-      input.pressing = true;
-      this._pressCount += 1;
-      this.onBeginPress(input, event);
-      input.setHoldTimer(this.holdPress.bind(this, input));
-      this.didBeginPress(input, event);
-      if (this._pressCount === 1) {
-        this.startPressing();
+      const allowPress = this.willBeginPress(input, event);
+      if (allowPress) {
+        input.pressing = true;
+        this._pressCount += 1;
+        this.onBeginPress(input, event);
+        input.setHoldTimer(this.holdPress.bind(this, input));
+        this.didBeginPress(input, event);
+        if (this._pressCount === 1) {
+          this.startPressing();
+        }
       }
     }
   }
 
-  protected willBeginPress(input: PositionGestureInput, event: Event | null): void {
+  protected willBeginPress(input: PositionGestureInput, event: Event | null): boolean {
     const delegate = this._delegate;
     if (delegate !== null && delegate.willBeginPress !== void 0) {
-      delegate.willBeginPress(input, event);
+      const allowPress = delegate.willBeginPress(input, event);
+      if (allowPress === false) {
+        return false;
+      }
     }
+    return true;
   }
 
   protected onBeginPress(input: PositionGestureInput, event: Event | null): void {
-    // hook
+    input.x0 = input.x;
+    input.y0 = input.y;
+    input.t0 = input.t;
+    input.dx = 0;
+    input.dy = 0;
+    input.dt = 0;
   }
 
   protected didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -424,9 +356,8 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
 
   holdPress(input: PositionGestureInput): void {
     if (input.pressing) {
+      input.clearHoldTimer();
       this.willHoldPress(input);
-      input.t = performance.now();
-      input.dt = input.t - input.t0;
       this.onHoldPress(input);
       this.didHoldPress(input);
     }
@@ -440,7 +371,9 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
   }
 
   protected onHoldPress(input: PositionGestureInput): void {
-    // hook
+    const t = performance.now();
+    input.dt = t - input.t;
+    input.t = t;
   }
 
   protected didHoldPress(input: PositionGestureInput): void {
@@ -451,9 +384,11 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
   }
 
   movePress(input: PositionGestureInput, event: Event | null): void {
-    this.willMovePress(input, event);
-    this.onMovePress(input, event);
-    this.didMovePress(input, event);
+    if (input.pressing) {
+      this.willMovePress(input, event);
+      this.onMovePress(input, event);
+      this.didMovePress(input, event);
+    }
   }
 
   protected willMovePress(input: PositionGestureInput, event: Event | null): void {
@@ -476,19 +411,16 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
 
   endPress(input: PositionGestureInput, event: Event | null) {
     if (input.pressing) {
+      input.clearHoldTimer();
       this.willEndPress(input, event);
       input.pressing = false;
       this._pressCount -= 1;
       this.onEndPress(input, event);
-      input.clearHoldTimer();
       this.didEndPress(input, event);
       if (this._pressCount === 0) {
         this.stopPressing();
       }
-      if (!input.hovering) {
-        delete this._inputs[input.inputId];
-        this._inputCount -= 1;
-      }
+      this.clearInput(input);
     }
   }
 
@@ -512,19 +444,16 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
 
   cancelPress(input: PositionGestureInput, event: Event | null): void {
     if (input.pressing) {
+      input.clearHoldTimer();
       this.willCancelPress(input, event);
       input.pressing = false;
       this._pressCount -= 1;
       this.onCancelPress(input, event);
-      input.clearHoldTimer();
       this.didCancelPress(input, event);
       if (this._pressCount === 0) {
         this.stopPressing();
       }
-      if (!input.hovering) {
-        delete this._inputs[input.inputId];
-        this._inputCount -= 1;
-      }
+      this.clearInput(input);
     }
   }
 
@@ -546,34 +475,34 @@ export class AbstractPositionGesture<V extends View = View> implements ViewObser
     }
   }
 
-  press(event: Event | null): void {
-    this.willPress(event);
-    this.onPress(event);
-    this.didPress(event);
+  press(input: PositionGestureInput, event: Event | null): void {
+    this.willPress(input, event);
+    this.onPress(input, event);
+    this.didPress(input, event);
   }
 
-  protected willPress(event: Event | null): void {
+  protected willPress(input: PositionGestureInput, event: Event | null): void {
     const delegate = this._delegate;
     if (delegate !== null && delegate.willPress !== void 0) {
-      delegate.willPress(event);
+      delegate.willPress(input, event);
     }
   }
 
-  protected onPress(event: Event | null): void {
+  protected onPress(input: PositionGestureInput, event: Event | null): void {
     // hook
   }
 
-  protected didPress(event: Event | null): void {
+  protected didPress(input: PositionGestureInput, event: Event | null): void {
     const delegate = this._delegate;
     if (delegate !== null && delegate.didPress !== void 0) {
-      delegate.didPress(event);
+      delegate.didPress(input, event);
     }
   }
 }
 
 /** @hidden */
 export class PointerPositionGesture<V extends View> extends AbstractPositionGesture<V> {
-  constructor(view: V, delegate?: PositionGestureDelegate | null) {
+  constructor(view: V | null, delegate?: PositionGestureDelegate | null) {
     super(view, delegate);
     this.onPointerEnter = this.onPointerEnter.bind(this);
     this.onPointerLeave = this.onPointerLeave.bind(this);
@@ -582,6 +511,7 @@ export class PointerPositionGesture<V extends View> extends AbstractPositionGest
     this.onPointerUp = this.onPointerUp.bind(this);
     this.onPointerCancel = this.onPointerCancel.bind(this);
     this.onPointerLeaveDocument = this.onPointerLeaveDocument.bind(this);
+    this.initView(view);
   }
 
   protected attachHoverEvents(view: V): void {
@@ -618,12 +548,12 @@ export class PointerPositionGesture<V extends View> extends AbstractPositionGest
     input.metaKey = event.metaKey;
     input.shiftKey = event.shiftKey;
 
+    input.dx = event.clientX - input.x;
+    input.dy = event.clientY - input.y;
+    input.dt = event.timeStamp - input.t;
     input.x = event.clientX;
     input.y = event.clientY;
-    input.t = performance.now();
-    input.dx = input.x - input.x0;
-    input.dy = input.y - input.y0;
-    input.dt = input.t - input.t0;
+    input.t = event.timeStamp;
 
     input.width = event.width;
     input.height = event.height;
@@ -637,7 +567,7 @@ export class PointerPositionGesture<V extends View> extends AbstractPositionGest
   protected onPointerEnter(event: PointerEvent): void {
     if (event.pointerType === "mouse" && event.buttons === 0) {
       const input = this.getOrCreateInput(event.pointerId, PointerPositionGesture.inputType(event.pointerType),
-                                          event.isPrimary, event.clientX, event.clientY, performance.now());
+                                          event.isPrimary, event.clientX, event.clientY, event.timeStamp);
       this.updateInput(input, event);
       this.beginHover(input, event);
     }
@@ -656,7 +586,7 @@ export class PointerPositionGesture<V extends View> extends AbstractPositionGest
   protected onPointerDown(event: PointerEvent): void {
     event.preventDefault();
     const input = this.getOrCreateInput(event.pointerId, PointerPositionGesture.inputType(event.pointerType),
-                                        event.isPrimary, event.clientX, event.clientY, performance.now());
+                                        event.isPrimary, event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
     this.beginPress(input, event);
     if (event.pointerType === "mouse" && event.button !== 0) {
@@ -665,7 +595,6 @@ export class PointerPositionGesture<V extends View> extends AbstractPositionGest
   }
 
   protected onPointerMove(event: PointerEvent): void {
-    event.preventDefault();
     const input = this.getInput(event.pointerId);
     if (input !== null) {
       this.updateInput(input, event);
@@ -679,9 +608,8 @@ export class PointerPositionGesture<V extends View> extends AbstractPositionGest
       this.updateInput(input, event);
       this.endPress(input, event);
       if (!input.defaultPrevented && event.button === 0) {
-        this.press(event);
+        this.press(input, event);
       }
-      this.endHover(input, event);
     }
   }
 
@@ -690,7 +618,6 @@ export class PointerPositionGesture<V extends View> extends AbstractPositionGest
     if (input !== null) {
       this.updateInput(input, event);
       this.cancelPress(input, event);
-      this.endHover(input, event);
     }
   }
 
@@ -714,12 +641,13 @@ export class PointerPositionGesture<V extends View> extends AbstractPositionGest
 }
 
 export class TouchPositionGesture<V extends View> extends AbstractPositionGesture<V> {
-  constructor(view: V, delegate?: PositionGestureDelegate | null) {
+  constructor(view: V | null, delegate?: PositionGestureDelegate | null) {
     super(view, delegate);
     this.onTouchStart = this.onTouchStart.bind(this);
     this.onTouchMove = this.onTouchMove.bind(this);
     this.onTouchEnd = this.onTouchEnd.bind(this);
     this.onTouchCancel = this.onTouchCancel.bind(this);
+    this.initView(view);
   }
 
   protected attachHoverEvents(view: V): void {
@@ -748,12 +676,12 @@ export class TouchPositionGesture<V extends View> extends AbstractPositionGestur
     input.metaKey = event.metaKey;
     input.shiftKey = event.shiftKey;
 
+    input.dx = touch.clientX - input.x;
+    input.dy = touch.clientY - input.y;
+    input.dt = event.timeStamp - input.t;
     input.x = touch.clientX;
     input.y = touch.clientY;
-    input.t = performance.now();
-    input.dx = input.x - input.x0;
-    input.dy = input.y - input.y0;
-    input.dt = input.t - input.t0;
+    input.t = event.timeStamp;
   }
 
   protected onTouchStart(event: TouchEvent): void {
@@ -762,7 +690,7 @@ export class TouchPositionGesture<V extends View> extends AbstractPositionGestur
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i];
       const input = this.getOrCreateInput(touch.identifier, "touch", false,
-                                          touch.clientX, touch.clientY, performance.now());
+                                          touch.clientX, touch.clientY, event.timeStamp);
       this.updateInput(input, event, touch);
       this.beginPress(input, event);
     }
@@ -789,7 +717,7 @@ export class TouchPositionGesture<V extends View> extends AbstractPositionGestur
         this.updateInput(input, event, touch);
         this.endPress(input, event);
         if (!input.defaultPrevented) {
-          this.press(event);
+          this.press(input, event);
         }
         this.endHover(input, event);
       }
@@ -811,7 +739,7 @@ export class TouchPositionGesture<V extends View> extends AbstractPositionGestur
 }
 
 export class MousePositionGesture<V extends View> extends AbstractPositionGesture<V> {
-  constructor(view: V, delegate?: PositionGestureDelegate | null) {
+  constructor(view: V | null, delegate?: PositionGestureDelegate | null) {
     super(view, delegate);
     this.onMouseEnter = this.onMouseEnter.bind(this);
     this.onMouseLeave = this.onMouseLeave.bind(this);
@@ -819,6 +747,7 @@ export class MousePositionGesture<V extends View> extends AbstractPositionGestur
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onMouseLeaveDocument = this.onMouseLeaveDocument.bind(this);
+    this.initView(view);
   }
 
   protected attachHoverEvents(view: V): void {
@@ -853,18 +782,18 @@ export class MousePositionGesture<V extends View> extends AbstractPositionGestur
     input.metaKey = event.metaKey;
     input.shiftKey = event.shiftKey;
 
+    input.dx = event.clientX - input.x;
+    input.dy = event.clientY - input.y;
+    input.dt = event.timeStamp - input.y;
     input.x = event.clientX;
     input.y = event.clientY;
-    input.t = performance.now();
-    input.dx = input.x - input.x0;
-    input.dy = input.y - input.y0;
-    input.dt = input.t - input.t0;
+    input.t = event.timeStamp;
   }
 
   protected onMouseEnter(event: MouseEvent): void {
     if (event.buttons === 0) {
       const input = this.getOrCreateInput("mouse", "mouse", true,
-                                          event.clientX, event.clientY, performance.now());
+                                          event.clientX, event.clientY, event.timeStamp);
       this.updateInput(input, event);
       this.beginHover(input, event);
     }
@@ -880,7 +809,7 @@ export class MousePositionGesture<V extends View> extends AbstractPositionGestur
 
   protected onMouseDown(event: MouseEvent): void {
     const input = this.getOrCreateInput("mouse", "mouse", true,
-                                        event.clientX, event.clientY, performance.now());
+                                        event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
     this.beginPress(input, event);
     if (event.button !== 0) {
@@ -902,9 +831,8 @@ export class MousePositionGesture<V extends View> extends AbstractPositionGestur
       this.updateInput(input, event);
       this.endPress(input, event);
       if (!input.defaultPrevented && event.button === 0) {
-        this.press(event);
+        this.press(input, event);
       }
-      this.endHover(input, event);
     }
   }
 
@@ -918,7 +846,7 @@ export class MousePositionGesture<V extends View> extends AbstractPositionGestur
   }
 }
 
-type PositionGesture<V extends View> = AbstractPositionGesture<V>;
+type PositionGesture<V extends View = View> = AbstractPositionGesture<V>;
 const PositionGesture: typeof AbstractPositionGesture =
     typeof PointerEvent !== "undefined" ? PointerPositionGesture :
     typeof TouchEvent !== "undefined" ? TouchPositionGesture :

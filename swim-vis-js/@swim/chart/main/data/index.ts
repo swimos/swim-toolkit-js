@@ -13,12 +13,12 @@
 // limitations under the License.
 
 export {
-  DatumCategory,
-  DatumLabelPlacement,
-} from "./Datum";
+  DataPointCategory,
+  DataPointLabelPlacement,
+} from "./DataPoint";
 
 export {
-  AnyDatumView,
-  DatumViewInit,
-  DatumView,
-} from "./DatumView";
+  AnyDataPointView,
+  DataPointViewInit,
+  DataPointView,
+} from "./DataPointView";

@@ -34,22 +34,16 @@ export class TactileView extends HtmlView implements PositionGestureDelegate {
     return Transition.duration<any>(250, Ease.cubicOut);
   }
 
-  protected didMount(): void {
-    this._gesture.viewDidMount(this);
-    super.didMount();
-  }
-
-  protected willUnmount(): void {
-    super.willUnmount();
-    this._gesture.viewWillUnmount(this);
-  }
-
   didBeginPress(input: PositionGestureInput, event: Event | null): void {
+    if (input.detail instanceof IlluminationView) {
+      input.detail.dissipate(input.x, input.y, this.tactileTransition);
+      input.detail = void 0;
+    }
     if (input.detail === void 0) {
       const delay = input.inputType === "mouse" ? 0 : 100;
-      const illuminationView = this.prepend(IlluminationView);
-      illuminationView.illuminate(input.x, input.y, 0.1, this.tactileTransition, delay);
-      input.detail = illuminationView;
+      const illumination = this.prepend(IlluminationView);
+      illumination.illuminate(input.x, input.y, 0.1, this.tactileTransition, delay);
+      input.detail = illumination;
     }
   }
 
@@ -57,7 +51,6 @@ export class TactileView extends HtmlView implements PositionGestureDelegate {
     if (input.isRunaway()) {
       this._gesture.cancelPress(input, event);
     } else if (!this.clientBounds.contains(input.x, input.y)) {
-      input.preventDefault();
       this._gesture.beginHover(input, event);
       if (input.detail instanceof IlluminationView) {
         input.detail.dissipate(input.x, input.y, this.tactileTransition);
@@ -67,17 +60,21 @@ export class TactileView extends HtmlView implements PositionGestureDelegate {
   }
 
   didEndPress(input: PositionGestureInput, event: Event | null): void {
-    if (input.detail instanceof IlluminationView) {
-      if (this.clientBounds.contains(input.x, input.y)) {
-        input.detail.stimulate(input.x, input.y, 0.1, this.tactileTransition);
-      } else {
+    if (!this.clientBounds.contains(input.x, input.y)) {
+      this._gesture.endHover(input, event);
+      if (input.detail instanceof IlluminationView) {
         input.detail.dissipate(input.x, input.y, this.tactileTransition);
         input.detail = void 0;
       }
+    } else if (input.detail instanceof IlluminationView) {
+      input.detail.stimulate(input.x, input.y, 0.1, this.tactileTransition);
     }
   }
 
   didCancelPress(input: PositionGestureInput, event: Event | null): void {
+    if (input.hovering && !this.clientBounds.contains(input.x, input.y)) {
+      this._gesture.endHover(input, event);
+    }
     if (input.detail instanceof IlluminationView) {
       input.detail.dissipate(input.x, input.y, this.tactileTransition);
       input.detail = void 0;

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {PlotViewObserver} from "../plot/PlotViewObserver";
+import {ScaleViewObserver} from "../scale/ScaleViewObserver";
 import {GraphView} from "./GraphView";
 
-export interface GraphViewObserver<X = any, Y = any, V extends GraphView<X, Y> = GraphView<X, Y>> extends PlotViewObserver<X, Y, V> {
+export interface GraphViewObserver<X = unknown, Y = unknown, V extends GraphView<X, Y> = GraphView<X, Y>> extends ScaleViewObserver<X, Y, V> {
 }

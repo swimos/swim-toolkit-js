@@ -12,6 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {GraphicsView} from "./GraphicsView";
+export {GraphicsViewContext} from "./GraphicsViewContext";
+export {
+  GraphicsViewInit,
+  GraphicsView,
+} from "./GraphicsView";
 export {GraphicsViewObserver} from "./GraphicsViewObserver";
 export {GraphicsViewController} from "./GraphicsViewController";
+
+export {GraphicsNodeView} from "./GraphicsNodeView";
+export {GraphicsLeafView} from "./GraphicsLeafView";
+
+export {
+  FillViewInit,
+  FillView,
+} from "./FillView";
+
+export {
+  StrokeViewInit,
+  StrokeView,
+} from "./StrokeView";
+
+export {
+  TypesetViewInit,
+  TypesetView,
+} from "./TypesetView";

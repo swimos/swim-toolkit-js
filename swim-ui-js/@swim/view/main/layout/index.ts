@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {LayoutScope} from "./LayoutScope";
-
-export {LayoutManager} from "./LayoutManager";
-
-export {LayoutSolver} from "./LayoutSolver";
+export {LayoutContext} from "./LayoutContext";
 
 export {
   LayoutAnchorGetState,
@@ -27,4 +23,6 @@ export {
   LayoutAnchor,
 } from "./LayoutAnchor";
 
-export {LayoutView} from "./LayoutView";
+export {LayoutManager} from "./LayoutManager";
+
+export {LayoutSolver} from "./LayoutSolver";

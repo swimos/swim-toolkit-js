@@ -15,6 +15,7 @@
 export {
   AnyStyleValue,
   StyleValue,
+  StyleValueClass,
 } from "./StyleValue";
 export {StyleValueParser} from "./StyleValueParser";
 export {StyleValueForm} from "./StyleValueForm";

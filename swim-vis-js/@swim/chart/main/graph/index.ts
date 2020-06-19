@@ -13,23 +13,9 @@
 // limitations under the License.
 
 export {
-  GraphType,
-  GraphHitMode,
   AnyGraphView,
   GraphViewInit,
   GraphView,
 } from "./GraphView";
 export {GraphViewObserver} from "./GraphViewObserver";
 export {GraphViewController} from "./GraphViewController";
-
-export {
-  AnyLineGraphView,
-  LineGraphViewInit,
-  LineGraphView,
-} from "./LineGraphView";
-
-export {
-  AnyAreaGraphView,
-  AreaGraphViewInit,
-  AreaGraphView,
-} from "./AreaGraphView";

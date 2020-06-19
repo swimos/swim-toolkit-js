@@ -22,7 +22,34 @@ export {PlotViewObserver} from "./PlotViewObserver";
 export {PlotViewController} from "./PlotViewController";
 
 export {
+  ScatterPlotType,
+  AnyScatterPlotView,
+  ScatterPlotViewInit,
+  ScatterPlotView,
+} from "./ScatterPlotView";
+
+export {
+  SeriesPlotHitMode,
+  SeriesPlotType,
+  AnySeriesPlotView,
+  SeriesPlotViewInit,
+  SeriesPlotView,
+} from "./SeriesPlotView";
+
+export {
   AnyBubblePlotView,
   BubblePlotViewInit,
   BubblePlotView,
 } from "./BubblePlotView";
+
+export {
+  AnyLinePlotView,
+  LinePlotViewInit,
+  LinePlotView,
+} from "./LinePlotView";
+
+export {
+  AnyAreaPlotView,
+  AreaPlotViewInit,
+  AreaPlotView,
+} from "./AreaPlotView";

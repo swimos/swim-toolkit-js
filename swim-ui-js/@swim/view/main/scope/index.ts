@@ -14,10 +14,27 @@
 
 export {
   ViewScopeInit,
+  ViewScopeFromAny,
+  ViewScopeTypeConstructor,
+  ViewScopeDescriptorType,
   ViewScopeDescriptor,
   ViewScopeConstructor,
   ViewScopeClass,
   ViewScope,
 } from "./ViewScope";
 
-export {AtomicViewScope} from "./AtomicViewScope";
+export {
+  AnyViewScopeClass,
+  AnyViewScope,
+} from "./AnyViewScope";
+
+export {
+  ObjectViewScopeClass,
+  ObjectViewScope,
+} from "./ObjectViewScope";
+
+export {StringViewScope} from "./StringViewScope";
+
+export {BooleanViewScope} from "./BooleanViewScope";
+
+export {NumberViewScope} from "./NumberViewScope";

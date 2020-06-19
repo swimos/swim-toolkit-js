@@ -44,7 +44,7 @@ export class ActionButton extends TactileView implements PositionGestureDelegate
     return this._viewController;
   }
 
-  @ViewScope({inherit: true})
+  @ViewScope(Object, {inherit: true})
   theme: ViewScope<this, Theme>;
 
   get iconContainer(): HtmlView | null {
@@ -107,11 +107,11 @@ export class ActionButton extends TactileView implements PositionGestureDelegate
 
   protected onMount(): void {
     super.onMount();
-    this.requireUpdate(View.NeedsDerive);
+    this.requireUpdate(View.NeedsCompute);
   }
 
-  protected onDerive(viewContext: ViewContext): void {
-    super.onDerive(viewContext);
+  protected onCompute(viewContext: ViewContext): void {
+    super.onCompute(viewContext);
     const theme = this.theme.state;
     if (theme !== void 0) {
       this.setTheme(theme);

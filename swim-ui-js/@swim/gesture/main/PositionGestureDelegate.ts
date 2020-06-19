@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {PositionGestureInput} from "./PositionGesture";
+import {GestureDelegate} from "./GestureDelegate";
+import {PositionGestureInput} from "./PositionGestureInput";
 
-export interface PositionGestureDelegate {
+export interface PositionGestureDelegate extends GestureDelegate {
   willStartHovering?(): void;
 
   didStartHovering?(): void;
@@ -39,7 +40,7 @@ export interface PositionGestureDelegate {
 
   didStopPressing?(): void;
 
-  willBeginPress?(input: PositionGestureInput, event: Event | null): void;
+  willBeginPress?(input: PositionGestureInput, event: Event | null): boolean | void;
 
   didBeginPress?(input: PositionGestureInput, event: Event | null): void;
 
@@ -59,7 +60,7 @@ export interface PositionGestureDelegate {
 
   didCancelPress?(input: PositionGestureInput, event: Event | null): void;
 
-  willPress?(event: Event | null): void;
+  willPress?(input: PositionGestureInput, event: Event | null): void;
 
-  didPress?(event: Event | null): void;
+  didPress?(input: PositionGestureInput, event: Event | null): void;
 }

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnimatedViewObserver} from "../animated/AnimatedViewObserver";
+import {ViewObserver} from "../ViewObserver";
 import {NodeView} from "./NodeView";
 
-export interface NodeViewObserver<V extends NodeView = NodeView> extends AnimatedViewObserver<V> {
+export interface NodeViewObserver<V extends NodeView = NodeView> extends ViewObserver<V> {
   viewWillInsertChildNode?(childNode: Node, targetNode: Node | null, view: V): void;
 
   viewDidInsertChildNode?(childNode: Node, targetNode: Node | null, view: V): void;

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export {MapRasterViewContext} from "./MapRasterViewContext";
 export {MapRasterView} from "./MapRasterView";
 export {MapRasterViewObserver} from "./MapRasterViewObserver";
 export {MapRasterViewController} from "./MapRasterViewController";
