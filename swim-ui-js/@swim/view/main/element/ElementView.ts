@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
+import {Animator} from "@swim/animate";
 import {AttributeString, StyleString, StyledElement} from "@swim/style";
 import {View} from "../View";
 import {NodeView} from "../node/NodeView";
@@ -197,6 +198,46 @@ export class ElementView extends NodeView {
   }
 
   /** @hidden */
+  animate(animator: Animator): void {
+    super.animate(animator);
+    if (animator instanceof AttributeAnimator || animator instanceof StyleAnimator) {
+      this._viewFlags |= View.AnimatingFlag;
+    }
+  }
+
+  /** @hidden */
+  updateAnimators(t: number): void {
+    super.updateAnimators(t);
+    if ((this._viewFlags & View.AnimatingFlag) !== 0) {
+      this._viewFlags &= ~View.AnimatingFlag;
+      this.updateAttributeAnimators(t);
+      this.updateStyleAnimators(t);
+    }
+  }
+
+  /** @hidden */
+  updateAttributeAnimators(t: number): void {
+    const attributeAnimators = this._attributeAnimators;
+    if (attributeAnimators !== void 0) {
+      for (const animatorName in attributeAnimators) {
+        const attributeAnimator = attributeAnimators[animatorName]!;
+        attributeAnimator.onFrame(t);
+      }
+    }
+  }
+
+  /** @hidden */
+  updateStyleAnimators(t: number): void {
+    const styleAnimators = this._styleAnimators;
+    if (styleAnimators !== void 0) {
+      for (const animatorName in styleAnimators) {
+        const styleAnimator = styleAnimators[animatorName]!;
+        styleAnimator.onFrame(t);
+      }
+    }
+  }
+
+  /** @hidden */
   cancelAnimators(): void {
     super.cancelAnimators();
     this.cancelAttributeAnimators();
@@ -208,8 +249,8 @@ export class ElementView extends NodeView {
     const attributeAnimators = this._attributeAnimators;
     if (attributeAnimators !== void 0) {
       for (const animatorName in attributeAnimators) {
-        const animator = attributeAnimators[animatorName]!;
-        animator.cancel();
+        const attributeAnimator = attributeAnimators[animatorName]!;
+        attributeAnimator.cancel();
       }
     }
   }
@@ -219,8 +260,8 @@ export class ElementView extends NodeView {
     const styleAnimators = this._styleAnimators;
     if (styleAnimators !== void 0) {
       for (const animatorName in styleAnimators) {
-        const animator = styleAnimators[animatorName]!;
-        animator.cancel();
+        const styleAnimator = styleAnimators[animatorName]!;
+        styleAnimator.cancel();
       }
     }
   }

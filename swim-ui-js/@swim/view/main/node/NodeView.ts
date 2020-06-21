@@ -823,7 +823,7 @@ export class NodeView extends View {
   }
 
   cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void {
-    processFlags = this._viewFlags | processFlags;
+    processFlags |= this._viewFlags;
     processFlags = this.needsProcess(processFlags, viewContext);
     this.doProcess(processFlags, viewContext);
   }
@@ -891,6 +891,7 @@ export class NodeView extends View {
   }
 
   protected onAnimate(viewContext: ViewContext): void {
+    super.onAnimate(viewContext);
     this.updateAnimators(viewContext.updateTime);
   }
 
@@ -927,7 +928,7 @@ export class NodeView extends View {
   }
 
   cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void {
-    displayFlags = this._viewFlags | displayFlags;
+    displayFlags |= this._viewFlags;
     displayFlags = this.needsDisplay(displayFlags, viewContext);
     this.doDisplay(displayFlags, viewContext);
   }
@@ -1051,8 +1052,8 @@ export class NodeView extends View {
     const viewAnimators = this._viewAnimators;
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {
-        const animator = viewAnimators[animatorName]!;
-        animator.onFrame(t);
+        const viewAnimator = viewAnimators[animatorName]!;
+        viewAnimator.onFrame(t);
       }
     }
   }
@@ -1067,8 +1068,8 @@ export class NodeView extends View {
     const viewAnimators = this._viewAnimators;
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {
-        const animator = viewAnimators[animatorName]!;
-        animator.cancel();
+        const viewAnimator = viewAnimators[animatorName]!;
+        viewAnimator.cancel();
       }
     }
   }

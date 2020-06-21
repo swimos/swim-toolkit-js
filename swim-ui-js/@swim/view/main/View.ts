@@ -24,8 +24,8 @@ import {
   ConstraintStrength,
   Constraint,
 } from "@swim/constraint";
-import {Viewport} from "./viewport/Viewport";
-import {ViewIdiom} from "./viewport/ViewIdiom";
+import {Viewport} from "./Viewport";
+import {ViewIdiom} from "./ViewIdiom";
 import {ViewContext} from "./ViewContext";
 import {ViewObserver} from "./ViewObserver";
 import {ViewController} from "./ViewController";
@@ -1061,13 +1061,15 @@ export abstract class View implements AnimatorContext, LayoutContext {
   /** @hidden */
   static readonly CulledFlag: ViewFlags = 1 << 3;
   /** @hidden */
-  static readonly ProcessingFlag: ViewFlags = 1 << 4;
+  static readonly ImmediateFlag: ViewFlags = 1 << 4;
   /** @hidden */
-  static readonly DisplayingFlag: ViewFlags = 1 << 5;
+  static readonly AnimatingFlag: ViewFlags = 1 << 5;
   /** @hidden */
-  static readonly ImmediateFlag: ViewFlags = 1 << 6;
+  static readonly ProcessingFlag: ViewFlags = 1 << 6;
   /** @hidden */
-  static readonly RemovingFlag: ViewFlags = 1 << 7;
+  static readonly DisplayingFlag: ViewFlags = 1 << 7;
+  /** @hidden */
+  static readonly RemovingFlag: ViewFlags = 1 << 8;
   /** @hidden */
   static readonly UpdatingMask: ViewFlags = View.ProcessingFlag
                                           | View.DisplayingFlag;
@@ -1076,16 +1078,18 @@ export abstract class View implements AnimatorContext, LayoutContext {
                                         | View.PoweredFlag
                                         | View.HiddenFlag
                                         | View.CulledFlag
+                                        | View.ImmediateFlag
+                                        | View.AnimatingFlag
                                         | View.ProcessingFlag
                                         | View.DisplayingFlag
                                         | View.RemovingFlag;
 
-  static readonly NeedsProcess: ViewFlags = 1 << 8;
-  static readonly NeedsResize: ViewFlags = 1 << 9;
-  static readonly NeedsScroll: ViewFlags = 1 << 10;
-  static readonly NeedsCompute: ViewFlags = 1 << 11;
-  static readonly NeedsAnimate: ViewFlags = 1 << 12;
-  static readonly NeedsProject: ViewFlags = 1 << 13;
+  static readonly NeedsProcess: ViewFlags = 1 << 9;
+  static readonly NeedsResize: ViewFlags = 1 << 10;
+  static readonly NeedsScroll: ViewFlags = 1 << 11;
+  static readonly NeedsCompute: ViewFlags = 1 << 12;
+  static readonly NeedsAnimate: ViewFlags = 1 << 13;
+  static readonly NeedsProject: ViewFlags = 1 << 14;
   /** @hidden */
   static readonly ProcessMask: ViewFlags = View.NeedsProcess
                                          | View.NeedsResize
@@ -1094,10 +1098,10 @@ export abstract class View implements AnimatorContext, LayoutContext {
                                          | View.NeedsAnimate
                                          | View.NeedsProject;
 
-  static readonly NeedsDisplay: ViewFlags = 1 << 14;
-  static readonly NeedsLayout: ViewFlags = 1 << 15;
-  static readonly NeedsRender: ViewFlags = 1 << 16;
-  static readonly NeedsComposite: ViewFlags = 1 << 17;
+  static readonly NeedsDisplay: ViewFlags = 1 << 15;
+  static readonly NeedsLayout: ViewFlags = 1 << 16;
+  static readonly NeedsRender: ViewFlags = 1 << 17;
+  static readonly NeedsComposite: ViewFlags = 1 << 18;
   /** @hidden */
   static readonly DisplayMask: ViewFlags = View.NeedsDisplay
                                          | View.NeedsLayout

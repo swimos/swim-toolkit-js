@@ -363,7 +363,7 @@ export abstract class GraphicsView extends View {
   }
 
   cascadeProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): void {
-    processFlags = this._viewFlags | processFlags;
+    processFlags |= this._viewFlags;
     processFlags = this.needsProcess(processFlags, viewContext);
     this.doProcess(processFlags, viewContext);
   }
@@ -462,7 +462,7 @@ export abstract class GraphicsView extends View {
   }
 
   cascadeDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): void {
-    displayFlags = this._viewFlags | displayFlags;
+    displayFlags |= this._viewFlags;
     displayFlags = this.needsDisplay(displayFlags, viewContext);
     this.doDisplay(displayFlags, viewContext);
   }
@@ -616,8 +616,8 @@ export abstract class GraphicsView extends View {
     const viewAnimators = this._viewAnimators;
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {
-        const animator = viewAnimators[animatorName]!;
-        animator.onFrame(t);
+        const viewAnimator = viewAnimators[animatorName]!;
+        viewAnimator.onFrame(t);
       }
     }
   }
@@ -632,8 +632,8 @@ export abstract class GraphicsView extends View {
     const viewAnimators = this._viewAnimators;
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {
-        const animator = viewAnimators[animatorName]!;
-        animator.cancel();
+        const viewAnimator = viewAnimators[animatorName]!;
+        viewAnimator.cancel();
       }
     }
   }

@@ -15,9 +15,9 @@
 import {ConstrainVariable, Constraint, ConstraintSolver} from "@swim/constraint";
 import {ViewContext} from "../ViewContext";
 import {ViewFlags, View} from "../View";
-import {ViewEdgeInsets} from "../viewport/ViewDimensions";
-import {ViewportColorScheme, Viewport} from "../viewport/Viewport";
-import {ViewIdiom} from "../viewport/ViewIdiom";
+import {ViewEdgeInsets} from "../ViewDimensions";
+import {ViewportColorScheme, Viewport} from "../Viewport";
+import {ViewIdiom} from "../ViewIdiom";
 import {ModalOptions, Modal} from "../modal/Modal";
 import {RootView} from "../root/RootView";
 import {RootViewObserver} from "../root/RootViewObserver";

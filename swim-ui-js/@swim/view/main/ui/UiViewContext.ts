@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {ViewContext} from "../ViewContext";
-import {Viewport} from "../viewport/Viewport";
-import {ViewIdiom} from "../viewport/ViewIdiom";
+import {Viewport} from "../Viewport";
+import {ViewIdiom} from "../ViewIdiom";
 
 export interface UiViewContext extends ViewContext {
   updateTime: number;

@@ -142,6 +142,7 @@ export class RasterView extends GraphicsNodeView {
   /** @hidden */
   protected doDisplay(displayFlags: ViewFlags, viewContext: RasterViewContext): void {
     let cascadeFlags = displayFlags;
+    this._viewFlags &= ~View.NeedsDisplay;
     this.willDisplay(viewContext);
     this._viewFlags |= View.DisplayingFlag;
     try {

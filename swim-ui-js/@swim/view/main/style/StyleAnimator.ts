@@ -21,7 +21,7 @@ import {BoxShadow} from "@swim/shadow";
 import {Transform} from "@swim/transform";
 import {Tween} from "@swim/transition";
 import {StyledElement} from "@swim/style";
-import {TweenFrameAnimator} from "@swim/animate";
+import {Animator, TweenAnimator} from "@swim/animate";
 import {StringStyleAnimator} from "./StringStyleAnimator";
 import {NumberStyleAnimator} from "./NumberStyleAnimator";
 import {LengthStyleAnimator} from "./LengthStyleAnimator";
@@ -83,7 +83,7 @@ export interface StyleAnimatorClass {
   ColorOrString: typeof ColorOrStringStyleAnimator; // defined by ColorOrStringStyleAnimator
 }
 
-export interface StyleAnimator<V extends ElementView, T, U = T> extends TweenFrameAnimator<T> {
+export interface StyleAnimator<V extends ElementView, T, U = T> extends TweenAnimator<T> {
   (): T | undefined;
   (value: T | U | undefined, tween?: Tween<T>, priority?: string): V;
 
@@ -116,6 +116,8 @@ export interface StyleAnimator<V extends ElementView, T, U = T> extends TweenFra
 
   setAutoState(state: T | U | undefined, tween?: Tween<T>, priority?: string): void;
 
+  animate(animator?: Animator): void;
+
   update(newValue: T | undefined, oldValue: T | undefined): void;
 
   willUpdate(newValue: T | undefined, oldValue: T | undefined): void;
@@ -124,6 +126,8 @@ export interface StyleAnimator<V extends ElementView, T, U = T> extends TweenFra
 
   didUpdate(newValue: T | undefined, oldValue: T | undefined): void;
 
+  cancel(): void;
+
   delete(): void;
 
   parse(value: string): T;
@@ -131,7 +135,7 @@ export interface StyleAnimator<V extends ElementView, T, U = T> extends TweenFra
   fromAny(value: T | U): T;
 }
 
-export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof TweenFrameAnimator): StyleAnimatorClass {
+export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof TweenAnimator): StyleAnimatorClass {
   function StyleAnimatorDecoratorFactory(propertyNames: string | ReadonlyArray<string>,
                                          animatorType: StyleAnimatorType): PropertyDecorator {
     if (animatorType === String) {
@@ -306,6 +310,13 @@ export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof Tween
     }
   };
 
+  StyleAnimator.prototype.animate = function <T, U>(this: StyleAnimator<ElementView, T, U>,
+                                                    animator: Animator = this): void {
+    if (this._enabled || animator !== this) {
+      this._view.animate(animator);
+    }
+  };
+
   StyleAnimator.prototype.update = function <T, U>(this: StyleAnimator<ElementView, T, U>,
                                                    newValue: T | undefined,
                                                    oldValue: T | undefined): void {
@@ -341,6 +352,10 @@ export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof Tween
     // hook
   };
 
+  StyleAnimator.prototype.cancel = function <T, U>(this: StyleAnimator<ElementView, T, U>): void {
+    // nop
+  };
+
   StyleAnimator.prototype.delete = function <T, U>(this: StyleAnimator<ElementView, T, U>): void {
     const propertyNames = this._propertyNames;
     if (typeof propertyNames === "string") {
@@ -361,4 +376,4 @@ export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof Tween
   };
 
   return StyleAnimator;
-}(TweenFrameAnimator));
+}(TweenAnimator));

@@ -23,7 +23,14 @@ export {
 export {ViewObserver} from "./ViewObserver";
 export {ViewController} from "./ViewController";
 
-export * from "./viewport";
+export {ViewEdgeInsets} from "./ViewDimensions";
+
+export {
+  ViewportColorScheme,
+  Viewport,
+} from "./Viewport";
+
+export {ViewIdiom} from "./ViewIdiom";
 
 export * from "./event";
 

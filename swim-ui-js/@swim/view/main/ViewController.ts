@@ -15,8 +15,8 @@
 import {ViewContext} from "./ViewContext";
 import {View} from "./View";
 import {ViewObserver} from "./ViewObserver";
-import {Viewport} from "./viewport/Viewport";
-import {ViewIdiom} from "./viewport/ViewIdiom";
+import {Viewport} from "./Viewport";
+import {ViewIdiom} from "./ViewIdiom";
 import {RootView} from "./root/RootView";
 import {RootViewController} from "./root/RootViewController";
 

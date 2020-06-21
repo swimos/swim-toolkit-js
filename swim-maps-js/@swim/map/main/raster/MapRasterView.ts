@@ -131,6 +131,7 @@ export class MapRasterView extends MapGraphicsNodeView {
   /** @hidden */
   protected doDisplay(displayFlags: ViewFlags, viewContext: MapRasterViewContext): void {
     let cascadeFlags = displayFlags;
+    this._viewFlags &= ~View.NeedsDisplay;
     this.willDisplay(viewContext);
     this._viewFlags |= View.DisplayingFlag;
     try {

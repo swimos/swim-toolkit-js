@@ -18,7 +18,7 @@ import {Length} from "@swim/length";
 import {Color} from "@swim/color";
 import {Transform} from "@swim/transform";
 import {Tween} from "@swim/transition";
-import {TweenFrameAnimator} from "@swim/animate";
+import {Animator, TweenAnimator} from "@swim/animate";
 import {StringAttributeAnimator} from "./StringAttributeAnimator";
 import {BooleanAttributeAnimator} from "./BooleanAttributeAnimator";
 import {NumberAttributeAnimator} from "./NumberAttributeAnimator";
@@ -72,7 +72,7 @@ export interface AttributeAnimatorClass {
   ColorOrString: typeof ColorOrStringAttributeAnimator; // defined by ColorOrStringAttributeAnimator
 }
 
-export interface AttributeAnimator<V extends ElementView, T, U = T> extends TweenFrameAnimator<T> {
+export interface AttributeAnimator<V extends ElementView, T, U = T> extends TweenAnimator<T> {
   (): T | undefined;
   (value: T | U | undefined, tween?: Tween<T>): V;
 
@@ -101,6 +101,8 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
 
   setAutoState(state: T | U | undefined, tween?: Tween<T>): void;
 
+  animate(animator?: Animator): void;
+
   update(newValue: T | undefined, oldValue: T | undefined): void;
 
   willUpdate(newValue: T | undefined, oldValue: T | undefined): void;
@@ -109,6 +111,8 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
 
   didUpdate(newValue: T | undefined, oldValue: T | undefined): void;
 
+  cancel(): void;
+
   delete(): void;
 
   parse(value: string): T;
@@ -116,7 +120,7 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
   fromAny(value: T | U): T;
 }
 
-export const AttributeAnimator: AttributeAnimatorClass = (function (_super: typeof TweenFrameAnimator): AttributeAnimatorClass {
+export const AttributeAnimator: AttributeAnimatorClass = (function (_super: typeof TweenAnimator): AttributeAnimatorClass {
   function AttributeAnimatorDecoratorFactory(attributeName: string, animatorType: AttributeAnimatorType): PropertyDecorator {
     if (animatorType === String) {
       return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.String, attributeName);
@@ -259,6 +263,13 @@ export const AttributeAnimator: AttributeAnimatorClass = (function (_super: type
     }
   };
 
+  AttributeAnimator.prototype.animate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
+                                                        animator: Animator = this): void {
+    if (this._enabled || animator !== this) {
+      this._view.animate(animator);
+    }
+  };
+
   AttributeAnimator.prototype.update = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
                                                        newValue: T | undefined,
                                                        oldValue: T | undefined): void {
@@ -287,6 +298,10 @@ export const AttributeAnimator: AttributeAnimatorClass = (function (_super: type
     // hook
   };
 
+  AttributeAnimator.prototype.cancel = function <T, U>(this: AttributeAnimator<ElementView, T, U>): void {
+    // nop
+  };
+
   AttributeAnimator.prototype.delete = function <T, U>(this: AttributeAnimator<ElementView, T, U>): void {
     this._view.setAttribute(this._attributeName, void 0);
   };
@@ -300,4 +315,4 @@ export const AttributeAnimator: AttributeAnimatorClass = (function (_super: type
   };
 
   return AttributeAnimator;
-}(TweenFrameAnimator));
+}(TweenAnimator));
