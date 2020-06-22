@@ -390,6 +390,13 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
+  needsDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+    if ((this._viewFlags & View.NeedsLayout) === 0) {
+      displayFlags &= ~View.NeedsLayout;
+    }
+    return displayFlags;
+  }
+
   protected onLayout(viewContext: GraphicsViewContext): void {
     super.onLayout(viewContext);
     this.updateTicks();

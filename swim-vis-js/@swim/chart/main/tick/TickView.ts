@@ -191,10 +191,6 @@ export abstract class TickView<D> extends GraphicsNodeView {
     if (tickLabel !== null) {
       this.layoutTickLabel(tickLabel);
     }
-
-    // We don't need to run the layout phase unless the view frame changes
-    // between now and the display pass.
-    this._viewFlags &= ~View.NeedsLayout;
   }
 
   protected onLayout(viewContext: GraphicsViewContext): void {

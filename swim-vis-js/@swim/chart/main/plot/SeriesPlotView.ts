@@ -523,6 +523,13 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     this._viewFlags &= ~View.NeedsLayout;
   }
 
+  needsDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+    if ((this._viewFlags & View.NeedsLayout) === 0) {
+      displayFlags &= ~View.NeedsLayout;
+    }
+    return displayFlags;
+  }
+
   protected onLayout(viewContext: GraphicsViewContext): void {
     super.onLayout(viewContext);
     const xScale = this.xScale.value;
