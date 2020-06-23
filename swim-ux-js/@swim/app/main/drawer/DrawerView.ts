@@ -40,8 +40,6 @@ export class DrawerView extends HtmlView implements Modal {
   _drawerPlacement: DrawerPlacement;
   /** @hidden */
   _drawerState: DrawerState;
-  /** @hidden */
-  _drawerTransition: Transition<any>;
 
   constructor(node: HTMLElement) {
     super(node);
@@ -53,7 +51,6 @@ export class DrawerView extends HtmlView implements Modal {
     this.drawerStretch.update = this.updateDrawerStretch.bind(this);
     this._drawerPlacement = "left";
     this._drawerState = "hidden";
-    this._drawerTransition = Transition.duration(250, Ease.cubicOut);
   }
 
   protected initNode(node: HTMLElement): void {
@@ -126,6 +123,14 @@ export class DrawerView extends HtmlView implements Modal {
 
   @ViewScope(Object)
   edgeInsets: ViewScope<this, ViewEdgeInsets>;
+
+  @ViewScope(Object, {
+    inherit: true,
+    init(): Transition<any> {
+      return Transition.duration(250, Ease.cubicOut);
+    },
+  })
+  drawerTransition: ViewScope<this, Transition<any>>;
 
   protected willSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
     this.willObserve(function (viewObserver: DrawerViewObserver): void {
@@ -354,7 +359,10 @@ export class DrawerView extends HtmlView implements Modal {
   show(tween?: Tween<any>): void {
     if (!this.isShown() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this._drawerTransition;
+        tween = this.drawerTransition.state;
+        if (tween === void 0) {
+          tween = null;
+        }
       } else {
         tween = Transition.forTween(tween);
       }
@@ -392,7 +400,10 @@ export class DrawerView extends HtmlView implements Modal {
   hide(tween?: Tween<any>): void {
     if (!this.isHidden() || this.drawerSlide.value !== 0) {
       if (tween === void 0 || tween === true) {
-        tween = this._drawerTransition;
+        tween = this.drawerTransition.state;
+        if (tween === void 0) {
+          tween = null;
+        }
       } else {
         tween = Transition.forTween(tween);
       }
@@ -427,7 +438,10 @@ export class DrawerView extends HtmlView implements Modal {
   expand(tween?: Tween<any>): void {
     if (!this.isShown() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this._drawerTransition;
+        tween = this.drawerTransition.state;
+        if (tween === void 0) {
+          tween = null;
+        }
       } else {
         tween = Transition.forTween(tween);
       }
@@ -463,7 +477,10 @@ export class DrawerView extends HtmlView implements Modal {
   collapse(tween?: Tween<any>): void {
     if (this.isVertical() && (!this.isCollapsed() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 0)) {
       if (tween === void 0 || tween === true) {
-        tween = this._drawerTransition;
+        tween = this.drawerTransition.state;
+        if (tween === void 0) {
+          tween = null;
+        }
       } else {
         tween = Transition.forTween(tween);
       }

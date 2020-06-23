@@ -13,27 +13,24 @@
 // limitations under the License.
 
 import {Color} from "@swim/color";
-import {Ease, Tween, AnyTransition, Transition} from "@swim/transition";
-import {ModalState, HtmlView, UiView} from "@swim/view";
+import {Ease, Tween, Transition} from "@swim/transition";
+import {ModalState, ViewScope, HtmlView, UiView} from "@swim/view";
 
 export class ScrimView extends HtmlView {
   /** @hidden */
   _modalState: ModalState;
-  /** @hidden */
-  _transition: Transition<any>;
 
   constructor(node: HTMLElement) {
     super(node);
     this._modalState = "hidden";
-    this._transition = Transition.duration(250, Ease.cubicOut);
     this.onClick = this.onClick.bind(this);
     this.onSyntheticClick = this.onSyntheticClick.bind(this);
     if (typeof PointerEvent !== "undefined") {
-      this.on("pointerup", this.onClick, {passive: true});
+      this.on("pointerup", this.onClick);
       this.on("click", this.onSyntheticClick);
     } else if (typeof TouchEvent !== "undefined") {
       this.onSyntheticClick = this.onSyntheticClick.bind(this);
-      this.on("touchend", this.onClick, {passive: true});
+      this.on("touchend", this.onClick);
       this.on("click", this.onSyntheticClick);
     } else {
       this.on("click", this.onClick);
@@ -65,22 +62,21 @@ export class ScrimView extends HtmlView {
     return this._modalState === "hidden" || this._modalState === "hiding";
   }
 
-  transition(): Transition<any>;
-  transition(transition: AnyTransition<any>): this;
-  transition(transition?: AnyTransition<any>): Transition<any> | this {
-    if (transition === void 0) {
-      return this._transition;
-    } else {
-      transition = Transition.fromAny(transition);
-      this._transition = transition;
-      return this;
-    }
-  }
+  @ViewScope(Object, {
+    inherit: true,
+    init(): Transition<any> {
+      return Transition.duration(250, Ease.cubicOut);
+    },
+  })
+  scrimTransition: ViewScope<this, Transition<any>>;
 
   show(opacity: number, tween?: Tween<any>): void {
     if (this._modalState === "hidden" || this._modalState === "hiding") {
       if (tween === void 0 || tween === true) {
-        tween = this._transition;
+        tween = this.scrimTransition.state;
+        if (tween === void 0) {
+          tween = null;
+        }
       } else {
         tween = Transition.forTween(tween);
       }
@@ -107,7 +103,10 @@ export class ScrimView extends HtmlView {
   hide(tween?: Tween<any>): void {
     if (this._modalState === "shown" || this._modalState === "showing") {
       if (tween === void 0 || tween === true) {
-        tween = this._transition;
+        tween = this.scrimTransition.state;
+        if (tween === void 0) {
+          tween = null;
+        }
       } else {
         tween = Transition.forTween(tween);
       }

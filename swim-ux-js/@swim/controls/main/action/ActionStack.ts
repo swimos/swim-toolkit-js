@@ -17,9 +17,10 @@ import {
   ViewContext,
   ViewFlags,
   View,
-  ViewNode,
   ModalState,
   Modal,
+  ViewScope,
+  ViewNode,
   ViewAnimator,
   SvgView,
   HtmlView,
@@ -36,8 +37,6 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
   /** @hidden */
   _stackState: ActionStackState;
   /** @hidden */
-  _stackTransition: Transition<any>;
-  /** @hidden */
   _buttonIcon: SvgView | HtmlView | null;
   /** @hidden */
   _buttonSpacing: number;
@@ -53,7 +52,6 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
     this.onClick = this.onClick.bind(this);
     this.onContextMenu = this.onContextMenu.bind(this);
     this._stackState = "collapsed";
-    this._stackTransition = Transition.duration(250, Ease.cubicOut);
     this._buttonIcon = null;
     this._buttonSpacing = 36;
     this._itemSpacing = 20;
@@ -96,6 +94,14 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
   @ViewAnimator(Number, {value: 0})
   stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
+  @ViewScope(Object, {
+    inherit: true,
+    init(): Transition<any> {
+      return Transition.duration(250, Ease.cubicOut);
+    },
+  })
+  stackTransition: ViewScope<this, Transition<any>>;
+
   get modalState(): ModalState {
     const stackState = this._stackState;
     if (stackState === "collapsed") {
@@ -137,7 +143,7 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
     const button = this.button;
     if (button !== null) {
       if (tween === void 0 || tween === true) {
-        tween = this._stackTransition;
+        tween = this.stackTransition.state;
       } else if (tween === false) {
         tween = void 0;
       }
@@ -275,7 +281,10 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
   expand(tween?: Tween<any>): void {
     if (this.isCollapsed() || this.stackPhase.value !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this._stackTransition;
+        tween = this.stackTransition.state;
+        if (tween === void 0) {
+          tween = null;
+        }
       } else {
         tween = Transition.forTween(tween);
       }
@@ -290,7 +299,6 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
       } else {
         this.button!.setIcon(this.createCloseIcon());
         this.stackPhase.setState(1);
-        this.requireUpdate(View.NeedsLayout);
         this.didExpand();
       }
     }
@@ -307,6 +315,7 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
 
   protected didExpand(): void {
     this._stackState = "expanded";
+    this.requireUpdate(View.NeedsLayout);
     this.didObserve(function (viewObserver: ActionStackObserver): void {
       if (viewObserver.actionStackDidExpand !== void 0) {
         viewObserver.actionStackDidExpand(this);
@@ -317,7 +326,10 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
   collapse(tween?: Tween<any>): void {
     if (this.isExpanded() || this.stackPhase.value !== 0) {
       if (tween === void 0 || tween === true) {
-        tween = this._stackTransition;
+        tween = this.stackTransition.state;
+        if (tween === void 0) {
+          tween = null;
+        }
       } else {
         tween = Transition.forTween(tween);
       }
@@ -332,7 +344,6 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
       } else {
         this.button!.setIcon(this._buttonIcon);
         this.stackPhase.setState(0);
-        this.requireUpdate(View.NeedsLayout);
         this.didCollapse();
       }
     }
@@ -349,6 +360,7 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
 
   protected didCollapse(): void {
     this._stackState = "collapsed";
+    this.requireUpdate(View.NeedsLayout);
     this.didObserve(function (viewObserver: ActionStackObserver): void {
       if (viewObserver.actionStackDidCollapse !== void 0) {
         viewObserver.actionStackDidCollapse(this);
@@ -368,7 +380,10 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
   show(tween?: Tween<any>): void {
     if (this.opacity.state !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this._stackTransition;
+        tween = this.stackTransition.state;
+        if (tween === void 0) {
+          tween = null;
+        }
       } else {
         tween = Transition.forTween(tween);
       }
@@ -377,7 +392,6 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
         this.opacity(1, tween.onEnd(this.didShow.bind(this)));
       } else {
         this.opacity(1);
-        this.requireUpdate(View.NeedsLayout);
         this.didShow();
       }
     }
@@ -393,6 +407,7 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected didShow(): void {
+    this.requireUpdate(View.NeedsLayout);
     this.didObserve(function (viewObserver: ActionStackObserver): void {
       if (viewObserver.actionStackDidShow !== void 0) {
         viewObserver.actionStackDidShow(this);
@@ -403,7 +418,10 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
   hide(tween?: Tween<any>): void {
     if (this.opacity.state !== 0) {
       if (tween === void 0 || tween === true) {
-        tween = this._stackTransition;
+        tween = this.stackTransition.state;
+        if (tween === void 0) {
+          tween = null;
+        }
       } else {
         tween = Transition.forTween(tween);
       }
@@ -412,7 +430,6 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
         this.opacity(0, tween.onEnd(this.didHide.bind(this)));
       } else {
         this.opacity(0);
-        this.requireUpdate(View.NeedsLayout);
         this.didHide();
       }
     }
@@ -428,6 +445,7 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
 
   protected didHide(): void {
     this.display("none");
+    this.requireUpdate(View.NeedsLayout);
     this.didObserve(function (viewObserver: ActionStackObserver): void {
       if (viewObserver.actionStackDidHide !== void 0) {
         viewObserver.actionStackDidHide(this);

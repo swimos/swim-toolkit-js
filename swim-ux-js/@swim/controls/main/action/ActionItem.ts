@@ -16,7 +16,6 @@ import {AnyColor, Color} from "@swim/color";
 import {
   ViewScope,
   ViewContext,
-  ViewFlags,
   View,
   ViewAnimator,
   SvgView,
@@ -26,10 +25,6 @@ import {
 import {Theme} from "@swim/theme";
 
 export class ActionItem extends HtmlView {
-  constructor(node: HTMLElement) {
-    super(node);
-  }
-
   protected initNode(node: HTMLElement): void {
     this.addClass("action-item")
         .position("relative")
@@ -82,15 +77,6 @@ export class ActionItem extends HtmlView {
     this.requireUpdate(View.NeedsCompute);
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.NeedsAnimate) !== 0) {
-      additionalFlags |= View.NeedsLayout;
-    }
-    additionalFlags |= super.modifyUpdate(updateFlags | additionalFlags);
-    return additionalFlags;
-  }
-
   protected onCompute(viewContext: ViewContext): void {
     super.onCompute(viewContext);
     const theme = this.theme.state;
@@ -102,8 +88,9 @@ export class ActionItem extends HtmlView {
   protected onLayout(viewContext: ViewContext): void {
     super.onLayout(viewContext);
     const label = this.label;
-    if (label !== null) {
-      label.opacity(this.stackPhase.value!);
+    const phase = this.stackPhase.value;
+    if (label !== null && phase !== void 0) {
+      label.opacity.setAutoState(phase);
     }
   }
 
@@ -145,8 +132,9 @@ export class ActionItem extends HtmlView {
         .fontWeight("500")
         .lineHeight("48px")
         .whiteSpace("nowrap")
-        .color("#cccccc")
-        .opacity(this.stackPhase.value || 0);
+        .color("#cccccc");
+    const phase = this.stackPhase.value;
+    label.opacity.setAutoState(phase !== void 0 ? phase : 0);
   }
 
   protected onRemoveLabel(label: HtmlView): void {

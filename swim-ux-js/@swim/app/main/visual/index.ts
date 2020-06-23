@@ -15,8 +15,10 @@
 export {ScrimView} from "./ScrimView";
 
 export {
-  IlluminationState,
-  IlluminationView,
-} from "./IlluminationView";
+  GlowState,
+  GlowView,
+} from "./GlowView";
 
-export {TactileView} from "./TactileView";
+export {MembraneView} from "./MembraneView";
+
+export {MorphView} from "./MorphView";

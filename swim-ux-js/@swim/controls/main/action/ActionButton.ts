@@ -12,19 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Angle} from "@swim/angle";
-import {Transform} from "@swim/transform";
-import {Tween, Transition} from "@swim/transition";
+import {Tween} from "@swim/transition";
 import {ViewScope, ViewContext, View, SvgView, HtmlView, HtmlViewController} from "@swim/view";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {Theme} from "@swim/theme";
-import {TactileView} from "@swim/app";
+import {MembraneView, MorphView} from "@swim/app";
 
-export class ActionButton extends TactileView implements PositionGestureDelegate {
-  constructor(node: HTMLElement) {
-    super(node);
-  }
-
+export class ActionButton extends MembraneView implements PositionGestureDelegate {
   protected initNode(node: HTMLElement): void {
     super.initNode(node);
     this.addClass("action-button")
@@ -47,52 +41,22 @@ export class ActionButton extends TactileView implements PositionGestureDelegate
   @ViewScope(Object, {inherit: true})
   theme: ViewScope<this, Theme>;
 
-  get iconContainer(): HtmlView | null {
-    const childView = this.getChildView("iconContainer");
-    return childView instanceof HtmlView ? childView : null;
+  get morph(): MorphView | null {
+    const childView = this.getChildView("morph");
+    return childView instanceof MorphView ? childView : null;
   }
 
   get icon(): SvgView | HtmlView | null {
-    const iconContainer = this.iconContainer;
-    const childView = iconContainer !== null ? iconContainer.getChildView("icon") : null;
-    return childView instanceof SvgView || childView instanceof HtmlView ? childView : null;
+    const morph = this.morph;
+    return morph !== null ? morph.icon : null;
   }
 
   setIcon(icon: SvgView | HtmlView | null, tween: Tween<any> = null, ccw: boolean = false): void {
-    tween = Transition.forTween(tween);
-    const oldIconContainer = this.getChildView("iconContainer");
-    if (oldIconContainer instanceof HtmlView) {
-      this.removeChildViewMap(oldIconContainer);
-      oldIconContainer.setKey(null);
-      if (tween !== null) {
-        oldIconContainer.opacity(0, tween.onEnd(oldIconContainer.remove.bind(oldIconContainer)))
-                        .transform(Transform.rotate(Angle.deg(ccw ? -90 : 90)), tween);
-      } else {
-        oldIconContainer.remove();
-      }
+    let morph = this.morph;
+    if (morph === null) {
+      morph = this.append(MorphView, "morph");
     }
-    const newIconContainer = this.createIconContainer(icon)
-        .opacity(0)
-        .opacity(1, tween)
-        .transform(Transform.rotate(Angle.deg(ccw ? 90 : -90)))
-        .transform(Transform.rotate(Angle.deg(0)), tween);
-    this.appendChildView(newIconContainer, "iconContainer");
-  }
-
-  protected createIconContainer(icon: View | null): HtmlView {
-    const iconContainer = HtmlView.create("div")
-        .addClass("action-icon")
-        .position("absolute")
-        .display("flex")
-        .justifyContent("center")
-        .alignItems("center")
-        .width(56)
-        .height(56)
-        .pointerEvents("none");
-    if (icon !== null) {
-      iconContainer.appendChildView(icon, "icon");
-    }
-    return iconContainer;
+    morph.setIcon(icon, tween, ccw);
   }
 
   setTheme(theme: Theme): void {
@@ -121,38 +85,38 @@ export class ActionButton extends TactileView implements PositionGestureDelegate
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
     const childKey = childView.key;
-    if (childKey === "iconContainer" && childView instanceof HtmlView) {
-      this.onInsertIconContainer(childView);
+    if (childKey === "morph" && childView instanceof MorphView) {
+      this.onInsertMorph(childView);
     }
   }
 
   protected onRemoveChildView(childView: View): void {
     const childKey = childView.key;
-    if (childKey === "iconContainer" && childView instanceof HtmlView) {
-      this.onRemoveIconContainer(childView);
+    if (childKey === "morph" && childView instanceof MorphView) {
+      this.onRemoveMorph(childView);
     }
     super.onRemoveChildView(childView);
   }
 
-  protected onInsertIconContainer(iconContainer: HtmlView): void {
+  protected onInsertMorph(morph: MorphView): void {
     // hook
   }
 
-  protected onRemoveIconContainer(iconContainer: HtmlView): void {
+  protected onRemoveMorph(morph: MorphView): void {
     // hook
   }
 
   didStartHovering(): void {
     const theme = this.theme.state;
     if (theme !== void 0) {
-      this.backgroundColor.setAutoState(theme.primary.fillColor.darker(0.5), this.tactileTransition);
+      this.backgroundColor.setAutoState(theme.primary.fillColor.darker(0.5), this.membraneTransition.state);
     }
   }
 
   didStopHovering(): void {
     const theme = this.theme.state;
     if (theme !== void 0) {
-      this.backgroundColor.setAutoState(theme.primary.fillColor, this.tactileTransition);
+      this.backgroundColor.setAutoState(theme.primary.fillColor, this.membraneTransition.state);
     }
   }
 

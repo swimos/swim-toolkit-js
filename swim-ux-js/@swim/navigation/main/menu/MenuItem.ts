@@ -26,10 +26,10 @@ import {
   HtmlViewController,
 } from "@swim/view";
 import {PositionGestureDelegate} from "@swim/gesture";
-import {TactileView} from "@swim/app";
+import {MembraneView} from "@swim/app";
 import {MenuList} from "./MenuList";
 
-export class MenuItem extends TactileView implements PositionGestureDelegate {
+export class MenuItem extends MembraneView implements PositionGestureDelegate {
   /** @hidden */
   _highlighted: boolean;
 
@@ -246,7 +246,7 @@ export class MenuItem extends TactileView implements PositionGestureDelegate {
     if (!this._highlighted) {
       this._highlighted = true;
       if (tween === true) {
-        tween = this.tactileTransition;
+        tween = this.membraneTransition.state;
       }
       this.backgroundColor.setAutoState(this.highlightCellColor.value!.alpha(1), tween);
       const iconView = this.iconView();
@@ -268,7 +268,7 @@ export class MenuItem extends TactileView implements PositionGestureDelegate {
     if (this._highlighted) {
       this._highlighted = false;
       if (tween === true) {
-        tween = this.tactileTransition;
+        tween = this.membraneTransition.state;
       }
       this.backgroundColor.setAutoState(this.highlightCellColor.value!.alpha(0), tween);
       const iconView = this.iconView();
@@ -292,14 +292,14 @@ export class MenuItem extends TactileView implements PositionGestureDelegate {
       if (this.backgroundColor.value === void 0) {
         this.backgroundColor.setAutoState(hoverColor.alpha(0), false);
       }
-      this.backgroundColor.setAutoState(hoverColor, this.tactileTransition);
+      this.backgroundColor.setAutoState(hoverColor, this.membraneTransition.state);
     }
   }
 
   didStopHovering(): void {
     const hoverColor = this.hoverColor.value;
     if (hoverColor !== void 0 && this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(hoverColor.alpha(0), this.tactileTransition);
+      this.backgroundColor.setAutoState(hoverColor.alpha(0), this.membraneTransition.state);
     }
   }
 
