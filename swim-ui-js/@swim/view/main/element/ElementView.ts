@@ -16,7 +16,7 @@ import {BoxR2} from "@swim/math";
 import {Animator} from "@swim/animate";
 import {AttributeString, StyleString, StyledElement} from "@swim/style";
 import {View} from "../View";
-import {NodeView} from "../node/NodeView";
+import {NodeViewInit, NodeView} from "../node/NodeView";
 import {AttributeAnimatorConstructor, AttributeAnimator} from "../attribute/AttributeAnimator";
 import {StyleAnimatorConstructor, StyleAnimator} from "../style/StyleAnimator";
 import {ElementViewObserver} from "./ElementViewObserver";
@@ -25,6 +25,7 @@ import {SvgViewTagMap} from "../svg/SvgView";
 import {HtmlViewTagMap} from "../html/HtmlView";
 
 export interface ViewElement extends StyledElement {
+  viewController?: ElementViewController;
   view?: ElementView;
 }
 
@@ -36,6 +37,11 @@ export interface ElementViewConstructor<E extends Element = Element, V extends E
 
   readonly tag: string;
   readonly namespace?: string;
+}
+
+export interface ElementViewInit extends NodeViewInit {
+  id?: string;
+  classList?: string[];
 }
 
 export class ElementView extends NodeView {
@@ -54,6 +60,16 @@ export class ElementView extends NodeView {
 
   get viewController(): ElementViewController | null {
     return this._viewController;
+  }
+
+  initView(init: ElementViewInit): void {
+    super.initView(init);
+    if (init.id !== void 0) {
+      this.id(init.id);
+    }
+    if (init.classList !== void 0) {
+      this.addClass(...init.classList);
+    }
   }
 
   getAttribute(attributeName: string): string | null {

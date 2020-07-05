@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
+import {ViewFlags} from "../View";
 import {GraphicsViewContext} from "../graphics/GraphicsViewContext";
 import {HtmlViewController} from "../html/HtmlViewController";
 import {CanvasView} from "./CanvasView";
@@ -59,11 +60,11 @@ export class CanvasViewController<V extends CanvasView = CanvasView> extends Htm
     // hook
   }
 
-  viewWillProcessChildViews(viewContext: GraphicsViewContext, view: V): void {
+  viewWillProcessChildViews(processFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void {
     // hook
   }
 
-  viewDidProcessChildViews(viewContext: GraphicsViewContext, view: V): void {
+  viewDidProcessChildViews(processFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void {
     // hook
   }
 
@@ -91,11 +92,11 @@ export class CanvasViewController<V extends CanvasView = CanvasView> extends Htm
     // hook
   }
 
-  viewWillDisplayChildViews(viewContext: GraphicsViewContext, view: V): void {
+  viewWillDisplayChildViews(displayFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void {
     // hook
   }
 
-  viewDidDisplayChildViews(viewContext: GraphicsViewContext, view: V): void {
+  viewDidDisplayChildViews(displayFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void {
     // hook
   }
 

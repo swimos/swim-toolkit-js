@@ -16,6 +16,7 @@ export {
   ViewElement,
   ElementViewTagMap,
   ElementViewConstructor,
+  ElementViewInit,
   ElementView,
 } from "./ElementView";
 export {ElementViewObserver} from "./ElementViewObserver";

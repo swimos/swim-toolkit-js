@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ViewContext} from "./ViewContext";
-import {View} from "./View";
+import {ViewFlags, View} from "./View";
 import {ViewObserver} from "./ViewObserver";
 import {Viewport} from "./Viewport";
 import {ViewIdiom} from "./ViewIdiom";
@@ -51,9 +51,9 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
-  get key(): string | null {
+  get key(): string | undefined {
     const view = this._view;
-    return view !== null ? view.key : null;
+    return view !== null ? view.key : void 0;
   }
 
   get parentView(): View | null {
@@ -349,11 +349,11 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
-  viewWillProcessChildViews(viewContext: ViewContext, view: V): void {
+  viewWillProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext, view: V): void {
     // hook
   }
 
-  viewDidProcessChildViews(viewContext: ViewContext, view: V): void {
+  viewDidProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext, view: V): void {
     // hook
   }
 
@@ -370,11 +370,11 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
-  viewWillDisplayChildViews(viewContext: ViewContext, view: V): void {
+  viewWillDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext, view: V): void {
     // hook
   }
 
-  viewDidDisplayChildViews(viewContext: ViewContext, view: V): void {
+  viewDidDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext, view: V): void {
     // hook
   }
 

@@ -71,6 +71,32 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
     return this._viewController;
   }
 
+  initView(init: MapPolygonViewInit): void {
+    super.initView(init);
+    if (init.clipViewport !== void 0) {
+      this.clipViewport(init.clipViewport);
+    }
+    if (init.fill !== void 0) {
+      this.fill(init.fill);
+    }
+    if (init.stroke !== void 0) {
+      this.stroke(init.stroke);
+    }
+    if (init.strokeWidth !== void 0) {
+      this.strokeWidth(init.strokeWidth);
+    }
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.textColor !== void 0) {
+      this.textColor(init.textColor);
+    }
+    const points = init.points;
+    if (points !== void 0) {
+      this.points(points);
+    }
+  }
+
   points(): ReadonlyArray<MapPointView>;
   points(points: AnyMapPointView[], tween?: Tween<GeoPoint>): this;
   points(points?: AnyMapPointView[], tween?: Tween<GeoPoint>): ReadonlyArray<MapPointView> | this {
@@ -100,7 +126,7 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
         if (childView instanceof MapPointView) {
           const point = points[j];
           childView.setState(point);
-          const {lng, lat} = childView.geoPoint.value!;
+          const {lng, lat} = childView.geoPoint.getValue();
           lngMid += lng;
           latMid += lat;
           lngMin = Math.min(lngMin, lng);
@@ -115,7 +141,7 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
       while (j < points.length) {
         const point = MapPointView.fromAny(points[j]);
         this.appendChildView(point);
-        const {lng, lat} = point.geoPoint.value!;
+        const {lng, lat} = point.geoPoint.getValue();
         lngMid += lng;
         latMid += lat;
         lngMin = Math.min(lngMin, lng);
@@ -228,7 +254,7 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
       if (childView instanceof MapPointView) {
-        const {lng, lat} = childView.geoPoint.value!;
+        const {lng, lat} = childView.geoPoint.getValue();
         lngMid += lng;
         latMid += lat;
         lngMin = Math.min(lngMin, lng);
@@ -236,7 +262,7 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
         lngMax = Math.max(lng, lngMax);
         latMax = Math.max(lat, latMax);
         invalid = invalid || !isFinite(lng) || !isFinite(lat);
-        const {x, y} = childView.viewPoint.value!;
+        const {x, y} = childView.viewPoint.getValue();
         xMin = Math.min(xMin, x);
         yMin = Math.min(yMin, y);
         xMax = Math.max(x, xMax);
@@ -303,7 +329,7 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
     for (let i = 0; i < childCount; i += 1) {
       const childView = childViews[i];
       if (childView instanceof MapPointView) {
-        const {x, y} = childView.viewPoint.value!;
+        const {x, y} = childView.viewPoint.getValue();
         if (pointCount === 0) {
           context.moveTo(x, y);
         } else {
@@ -373,7 +399,7 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
     for (let i = 0; i < childCount; i += 1) {
       const childView = this._childViews[i];
       if (childView instanceof MapPointView) {
-        const {x, y} = childView.viewPoint.value!;
+        const {x, y} = childView.viewPoint.getValue();
         if (i === 0) {
           context.moveTo(x, y);
         } else {
@@ -412,34 +438,7 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
 
   static fromInit(init: MapPolygonViewInit): MapPolygonView {
     const view = new MapPolygonView();
-    if (init.clipViewport !== void 0) {
-      view.clipViewport(init.clipViewport);
-    }
-    if (init.fill !== void 0) {
-      view.fill(init.fill);
-    }
-    if (init.stroke !== void 0) {
-      view.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      view.strokeWidth(init.strokeWidth);
-    }
-    if (init.font !== void 0) {
-      view.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      view.textColor(init.textColor);
-    }
-    const points = init.points;
-    if (points !== void 0) {
-      view.points(points);
-    }
-    if (init.hidden !== void 0) {
-      view.setHidden(init.hidden);
-    }
-    if (init.culled !== void 0) {
-      view.setCulled(init.culled);
-    }
+    view.initView(init);
     return view;
   }
 }

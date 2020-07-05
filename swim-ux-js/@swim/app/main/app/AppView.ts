@@ -12,13 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewScope, Viewport, UiViewContext, UiView} from "@swim/view";
+import {ViewScope, Viewport, UiViewContext, UiViewInit, UiView} from "@swim/view";
 import {Theme} from "@swim/theme";
 import {AppViewController} from "./AppViewController";
+
+export interface AppViewInit extends UiViewInit {
+  viewController?: AppViewController;
+  theme?: Theme;
+}
 
 export class AppView extends UiView {
   get viewController(): AppViewController | null {
     return this._viewController;
+  }
+
+  initView(init: AppViewInit): void {
+    super.initView(init);
+    if (init.theme !== void 0) {
+      this.theme(init.theme);
+    }
   }
 
   @ViewScope<AppView, typeof Theme>(Theme, {

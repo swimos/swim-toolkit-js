@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {AppView} from "./AppView";
+export {
+  AppViewInit,
+  AppView,
+} from "./AppView";
 export {AppViewObserver} from "./AppViewObserver";
 export {AppViewController} from "./AppViewController";

@@ -9,8 +9,8 @@ const ux = [
     ],
   },
   {
-    id: "app",
-    name: "@swim/app",
+    id: "motif",
+    name: "@swim/motif",
     targets: [
       {
         id: "main",
@@ -19,22 +19,42 @@ const ux = [
     ],
   },
   {
-    id: "controls",
-    name: "@swim/controls",
+    id: "app",
+    name: "@swim/app",
     targets: [
       {
         id: "main",
-        deps: ["theme", "app"],
+        deps: ["theme", "motif"],
       },
     ],
   },
   {
-    id: "navigation",
-    name: "@swim/navigation",
+    id: "fab",
+    name: "@swim/fab",
     targets: [
       {
         id: "main",
-        deps: ["theme", "app"],
+        deps: ["theme", "motif", "app"],
+      },
+    ],
+  },
+  {
+    id: "menu",
+    name: "@swim/menu",
+    targets: [
+      {
+        id: "main",
+        deps: ["theme", "motif", "app"],
+      },
+    ],
+  },
+  {
+    id: "tree",
+    name: "@swim/tree",
+    targets: [
+      {
+        id: "main",
+        deps: ["theme", "motif", "app"],
       },
     ],
   },
@@ -46,7 +66,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "app", "controls", "navigation"],
+        deps: ["theme", "motif", "app", "fab", "menu", "tree"],
       },
     ],
   },

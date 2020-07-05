@@ -71,6 +71,11 @@ export class MapPointView extends MapGraphicsNodeView {
     return this._viewController;
   }
 
+  initView(init: MapPointViewInit): void {
+    super.initView(init);
+    this.setState(init);
+  }
+
   @ViewAnimator(GeoPoint, {value: GeoPoint.origin()})
   geoPoint: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
@@ -189,13 +194,6 @@ export class MapPointView extends MapGraphicsNodeView {
     if (init.label !== void 0) {
       this.label(init.label);
     }
-
-    if (init.hidden !== void 0) {
-      this.setHidden(init.hidden);
-    }
-    if (init.culled !== void 0) {
-      this.setCulled(init.culled);
-    }
   }
 
   protected onSetGeoPoint(newGeoPoint: GeoPoint | undefined, oldGeoPoint: GeoPoint | undefined): void {
@@ -208,19 +206,19 @@ export class MapPointView extends MapGraphicsNodeView {
     this.requireUpdate(View.NeedsProject);
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & View.NeedsProject) !== 0 && this.label() !== null) {
       additionalFlags |= View.NeedsLayout;
     }
-    additionalFlags |= super.modifyUpdate(updateFlags | additionalFlags);
+    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
     return additionalFlags;
   }
 
   protected onProject(viewContext: MapGraphicsViewContext): void {
     super.onProject(viewContext);
     if (this.viewPoint.isAuto()) {
-      const viewPoint = viewContext.geoProjection.project(this.geoPoint.value!);
+      const viewPoint = viewContext.geoProjection.project(this.geoPoint.getValue());
       //this.viewPoint.setAutoState(viewPoint);
       this.viewPoint._value = viewPoint;
       this.viewPoint._state = viewPoint;
@@ -240,8 +238,8 @@ export class MapPointView extends MapGraphicsNodeView {
     // TODO: auto placement
 
     const size = Math.min(frame.width, frame.height);
-    const padding = this.labelPadding.value!.pxValue(size);
-    const {x, y} = this.viewPoint.value!;
+    const padding = this.labelPadding.getValue().pxValue(size);
+    const {x, y} = this.viewPoint.getValue();
     let y1 = y;
     if (placement === "top") {
       y1 -= padding;
@@ -257,12 +255,12 @@ export class MapPointView extends MapGraphicsNodeView {
   }
 
   get viewBounds(): BoxR2 {
-    const {x, y} = this.viewPoint.value!;
+    const {x, y} = this.viewPoint.getValue();
     return new BoxR2(x, y, x, y);
   }
 
   get hitBounds(): BoxR2 {
-    const {x, y} = this.viewPoint.value!;
+    const {x, y} = this.viewPoint.getValue();
     const hitRadius = this._hitRadius !== void 0 ? this._hitRadius : 0;
     return new BoxR2(x - hitRadius, y - hitRadius, x + hitRadius, y + hitRadius);
   }
@@ -284,7 +282,7 @@ export class MapPointView extends MapGraphicsNodeView {
   }
 
   protected hitTestPoint(hx: number, hy: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
-    const {x, y} = this.viewPoint.value!;
+    const {x, y} = this.viewPoint.getValue();
     const radius = this.radius.value;
 
     let hitRadius = this._hitRadius !== void 0 ? this._hitRadius : 0;
@@ -332,14 +330,26 @@ export class MapPointView extends MapGraphicsNodeView {
     return init;
   }
 
-  static fromAny<X, Y>(point: AnyMapPointView): MapPointView {
+  static fromAny(point: AnyMapPointView): MapPointView {
     if (point instanceof MapPointView) {
       return point;
+    } else if (point instanceof GeoPoint || GeoPoint.isTuple(point)) {
+      return MapPointView.fromGeoPoint(point);
     } else if (typeof point === "object" && point !== null) {
-      const view = new MapPointView();
-      view.setState(point);
-      return view;
+      return MapPointView.fromInit(point);
     }
     throw new TypeError("" + point);
+  }
+
+  static fromGeoPoint<X, Y>(point: AnyGeoPoint): MapPointView {
+    const view = new MapPointView();
+    view.setState(point);
+    return view;
+  }
+
+  static fromInit<X, Y>(init: MapPointViewInit): MapPointView {
+    const view = new MapPointView();
+    view.initView(init);
+    return view;
   }
 }

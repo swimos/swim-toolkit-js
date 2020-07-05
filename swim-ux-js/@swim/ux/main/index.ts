@@ -14,8 +14,12 @@
 
 export * from "@swim/theme";
 
+export * from "@swim/motif";
+
 export * from "@swim/app";
 
-export * from "@swim/controls";
+export * from "@swim/fab";
 
-export * from "@swim/navigation";
+export * from "@swim/menu";
+
+export * from "@swim/tree";

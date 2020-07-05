@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ViewFlags} from "@swim/view";
 import {MapGraphicsViewObserver} from "../graphics/MapGraphicsViewObserver";
 import {MapRasterViewContext} from "./MapRasterViewContext";
 import {MapRasterView} from "./MapRasterView";
@@ -41,9 +42,9 @@ export interface MapRasterViewObserver<V extends MapRasterView = MapRasterView> 
 
   viewDidProject?(viewContext: MapRasterViewContext, view: V): void;
 
-  viewWillProcessChildViews?(viewContext: MapRasterViewContext, view: V): void;
+  viewWillProcessChildViews?(processFlags: ViewFlags, viewContext: MapRasterViewContext, view: V): void;
 
-  viewDidProcessChildViews?(viewContext: MapRasterViewContext, view: V): void;
+  viewDidProcessChildViews?(processFlags: ViewFlags, viewContext: MapRasterViewContext, view: V): void;
 
   viewWillDisplay?(viewContext: MapRasterViewContext, view: V): void;
 
@@ -61,7 +62,7 @@ export interface MapRasterViewObserver<V extends MapRasterView = MapRasterView> 
 
   viewDidComposite?(viewContext: MapRasterViewContext, view: V): void;
 
-  viewWillDisplayChildViews?(viewContext: MapRasterViewContext, view: V): void;
+  viewWillDisplayChildViews?(displayFlags: ViewFlags, viewContext: MapRasterViewContext, view: V): void;
 
-  viewDidDisplayChildViews?(viewContext: MapRasterViewContext, view: V): void;
+  viewDidDisplayChildViews?(displayFlags: ViewFlags, viewContext: MapRasterViewContext, view: V): void;
 }

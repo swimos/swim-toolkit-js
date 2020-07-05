@@ -35,17 +35,23 @@ import {LengthOrStringStyleAnimator} from "./LengthOrStringStyleAnimator";
 import {ColorOrStringStyleAnimator} from "./ColorOrStringStyleAnimator";
 import {ElementView} from "../element/ElementView";
 
-export type StyleAnimatorType = typeof String
-                              | typeof Number
-                              | typeof Length
-                              | typeof Color
-                              | typeof LineHeight
-                              | typeof FontFamily
-                              | typeof BoxShadow
-                              | typeof Transform
-                              | [typeof Number, typeof String]
-                              | [typeof Length, typeof String]
-                              | [typeof Color, typeof String];
+export type StyleAnimatorType<V, K extends keyof V> =
+  V extends {[P in K]: StyleAnimator<any, infer T, any>} ? T : unknown;
+
+export type StyleAnimatorInitType<V, K extends keyof V> =
+  V extends {[P in K]: StyleAnimator<any, any, infer U>} ? U : unknown;
+
+export type StyleAnimatorTypeConstructor = typeof String
+                                         | typeof Number
+                                         | typeof Length
+                                         | typeof Color
+                                         | typeof LineHeight
+                                         | typeof FontFamily
+                                         | typeof BoxShadow
+                                         | typeof Transform
+                                         | [typeof Number, typeof String]
+                                         | [typeof Length, typeof String]
+                                         | [typeof Color, typeof String];
 
 export interface StyleAnimatorConstructor<T, U = T> {
   new<V extends ElementView>(view: V, animatorName: string,
@@ -56,7 +62,7 @@ export interface StyleAnimatorClass {
   new<V extends ElementView, T, U = T>(view: V, animatorName: string,
                                        propertyNames: string | ReadonlyArray<string>): StyleAnimator<V, T, U>;
 
-  (propertyNames: string | ReadonlyArray<string>, animatorType: StyleAnimatorType): PropertyDecorator;
+  (propertyNames: string | ReadonlyArray<string>, animatorType: StyleAnimatorTypeConstructor): PropertyDecorator;
 
   // Forward type declarations
   /** @hidden */
@@ -112,6 +118,14 @@ export interface StyleAnimator<V extends ElementView, T, U = T> extends TweenAni
 
   setAuto(auto: boolean): void;
 
+  getValue(): T;
+
+  getState(): T;
+
+  getValueOr<V>(elseValue: V): T | V;
+
+  getStateOr<V>(elseState: V): T | V;
+
   setState(state: T | U | undefined, tween?: Tween<T>, priority?: string): void;
 
   setAutoState(state: T | U | undefined, tween?: Tween<T>, priority?: string): void;
@@ -137,7 +151,7 @@ export interface StyleAnimator<V extends ElementView, T, U = T> extends TweenAni
 
 export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof TweenAnimator): StyleAnimatorClass {
   function StyleAnimatorDecoratorFactory(propertyNames: string | ReadonlyArray<string>,
-                                         animatorType: StyleAnimatorType): PropertyDecorator {
+                                         animatorType: StyleAnimatorTypeConstructor): PropertyDecorator {
     if (animatorType === String) {
       return ElementView.decorateStyleAnimator.bind(void 0, StyleAnimator.String, propertyNames);
     } else if (animatorType === Number) {
@@ -185,13 +199,13 @@ export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof Tween
   const StyleAnimator: StyleAnimatorClass = function <V extends ElementView, T, U>(
       this: StyleAnimator<V, T, U> | StyleAnimatorClass,
       view: V | string | ReadonlyArray<string>,
-      animatorName: string | StyleAnimatorType,
+      animatorName: string | StyleAnimatorTypeConstructor,
       propertyNames: string | ReadonlyArray<string>): StyleAnimator<V, T, U> | PropertyDecorator {
     if (this instanceof StyleAnimator) { // constructor
       return StyleAnimatorConstructor.call(this, view, animatorName, propertyNames);
     } else { // decorator factory
       propertyNames = view as string | ReadonlyArray<string>;
-      const animatorType = animatorName as StyleAnimatorType;
+      const animatorType = animatorName as StyleAnimatorTypeConstructor;
       return StyleAnimatorDecoratorFactory(propertyNames, animatorType);
     }
   } as StyleAnimatorClass;
@@ -273,6 +287,40 @@ export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof Tween
       this._auto = auto;
       this._view.animatorDidSetAuto(this, auto);
     }
+  };
+
+  StyleAnimator.prototype.getValue = function <T, U>(this: StyleAnimator<ElementView, T, U>): T {
+    const value = this.value;
+    if (value === void 0) {
+      throw new TypeError("undefined " + this.name + " value");
+    }
+    return value;
+  };
+
+  StyleAnimator.prototype.getState = function <T, U>(this: StyleAnimator<ElementView, T, U>): T {
+    const state = this.state;
+    if (state === void 0) {
+      throw new TypeError("undefined " + this.name + " state");
+    }
+    return state;
+  };
+
+  StyleAnimator.prototype.getValueOr = function <T, U, V>(this: StyleAnimator<ElementView, T, U>,
+                                                          elseValue: V): T | V {
+    let value: T | V | undefined = this.value;
+    if (value === void 0) {
+      value = elseValue;
+    }
+    return value;
+  };
+
+  StyleAnimator.prototype.getStateOr = function <T, U, V>(this: StyleAnimator<ElementView, T, U>,
+                                                          elseState: V): T | V {
+    let state: T | V | undefined = this.state;
+    if (state === void 0) {
+      state = elseState
+    }
+    return state;
   };
 
   StyleAnimator.prototype.setState = function <T, U>(this: StyleAnimator<ElementView, T, U>,

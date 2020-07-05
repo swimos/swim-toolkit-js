@@ -36,6 +36,7 @@ import {
   AlignItems,
   AlignSelf,
   Appearance,
+  BackgroundClip,
   BorderCollapse,
   BorderStyle,
   BorderWidth,
@@ -69,9 +70,9 @@ import {View} from "../View";
 import {LayoutAnchor} from "../layout/LayoutAnchor";
 import {ViewNode, NodeView} from "../node/NodeView";
 import {TextView} from "../text/TextView";
-import {AttributeAnimator} from "../attribute/AttributeAnimator";
-import {StyleAnimator} from "../style/StyleAnimator";
-import {ElementViewConstructor, ElementView} from "../element/ElementView";
+import {AttributeAnimatorInitType, AttributeAnimator} from "../attribute/AttributeAnimator";
+import {StyleAnimatorInitType, StyleAnimator} from "../style/StyleAnimator";
+import {ElementViewConstructor, ElementViewInit, ElementView} from "../element/ElementView";
 import {SvgView} from "../svg/SvgView";
 import {HtmlViewController} from "./HtmlViewController";
 import {CanvasView} from "../canvas/CanvasView";
@@ -88,6 +89,152 @@ export interface HtmlChildViewTagMap extends HtmlViewTagMap {
   "svg": SvgView;
 }
 
+export interface HtmlViewAttributesInit {
+  autocomplete?: AttributeAnimatorInitType<HtmlView, "autocomplete">;
+  checked?: AttributeAnimatorInitType<HtmlView, "checked">;
+  colspan?: AttributeAnimatorInitType<HtmlView, "colspan">;
+  disabled?: AttributeAnimatorInitType<HtmlView, "disabled">;
+  placeholder?: AttributeAnimatorInitType<HtmlView, "placeholder">;
+  rowspan?: AttributeAnimatorInitType<HtmlView, "rowspan">;
+  selected?: AttributeAnimatorInitType<HtmlView, "selected">;
+  title?: AttributeAnimatorInitType<HtmlView, "title">;
+  type?: AttributeAnimatorInitType<HtmlView, "type">;
+  value?: AttributeAnimatorInitType<HtmlView, "value">;
+}
+
+export interface HtmlViewStyleInit {
+  alignContent?: StyleAnimatorInitType<HtmlView, "alignContent">;
+  alignItems?: StyleAnimatorInitType<HtmlView, "alignItems">;
+  alignSelf?: StyleAnimatorInitType<HtmlView, "alignSelf">;
+  appearance?: StyleAnimatorInitType<HtmlView, "appearance">;
+  backdropFilter?: StyleAnimatorInitType<HtmlView, "backdropFilter">;
+  backgroundClip?: StyleAnimatorInitType<HtmlView, "backgroundClip">;
+  backgroundColor?: StyleAnimatorInitType<HtmlView, "backgroundColor">;
+  borderCollapse?: StyleAnimatorInitType<HtmlView, "borderCollapse">;
+  borderColor?: [AnyColor | "currentColor" | undefined,
+                 AnyColor | "currentColor" | undefined,
+                 AnyColor | "currentColor" | undefined,
+                 AnyColor | "currentColor" | undefined] |
+                AnyColor | "currentColor";
+  borderTopColor?: StyleAnimatorInitType<HtmlView, "borderTopColor">;
+  borderRightColor?: StyleAnimatorInitType<HtmlView, "borderRightColor">;
+  borderBottomColor?: StyleAnimatorInitType<HtmlView, "borderBottomColor">;
+  borderLeftColor?: StyleAnimatorInitType<HtmlView, "borderLeftColor">;
+  borderRadius?: [AnyLength | undefined,
+                  AnyLength | undefined,
+                  AnyLength | undefined,
+                  AnyLength | undefined] |
+                 AnyLength;
+  borderTopLeftRadius?: StyleAnimatorInitType<HtmlView, "borderTopLeftRadius">;
+  borderTopRightRadius?: StyleAnimatorInitType<HtmlView, "borderTopRightRadius">;
+  borderBottomRightRadius?: StyleAnimatorInitType<HtmlView, "borderBottomRightRadius">;
+  borderBottomLeftRadius?: StyleAnimatorInitType<HtmlView, "borderBottomLeftRadius">;
+  borderSpacing?: StyleAnimatorInitType<HtmlView, "borderSpacing">;
+  borderStyle?: [BorderStyle | undefined,
+                 BorderStyle | undefined,
+                 BorderStyle | undefined,
+                 BorderStyle | undefined] |
+                BorderStyle;
+  borderTopStyle?: StyleAnimatorInitType<HtmlView, "borderTopStyle">;
+  borderRightStyle?: StyleAnimatorInitType<HtmlView, "borderRightStyle">;
+  borderBottomStyle?: StyleAnimatorInitType<HtmlView, "borderBottomStyle">;
+  borderLeftStyle?: StyleAnimatorInitType<HtmlView, "borderLeftStyle">;
+  borderWidth?: [BorderWidth | AnyLength | undefined,
+                 BorderWidth | AnyLength | undefined,
+                 BorderWidth | AnyLength | undefined,
+                 BorderWidth | AnyLength | undefined] |
+                BorderWidth | AnyLength;
+  borderTopWidth?: StyleAnimatorInitType<HtmlView, "borderTopWidth">;
+  borderRightWidth?: StyleAnimatorInitType<HtmlView, "borderRightWidth">;
+  borderBottomWidth?: StyleAnimatorInitType<HtmlView, "borderBottomWidth">;
+  borderLeftWidth?: StyleAnimatorInitType<HtmlView, "borderLeftWidth">;
+  bottom?: StyleAnimatorInitType<HtmlView, "bottom">;
+  boxShadow?: StyleAnimatorInitType<HtmlView, "boxShadow">;
+  boxSizing?: StyleAnimatorInitType<HtmlView, "boxSizing">;
+  color?: StyleAnimatorInitType<HtmlView, "color">;
+  cursor?: StyleAnimatorInitType<HtmlView, "cursor">;
+  display?: StyleAnimatorInitType<HtmlView, "display">;
+  filter?: StyleAnimatorInitType<HtmlView, "filter">;
+  flexBasis?: StyleAnimatorInitType<HtmlView, "flexBasis">;
+  flexDirection?: StyleAnimatorInitType<HtmlView, "flexDirection">;
+  flexGrow?: StyleAnimatorInitType<HtmlView, "flexGrow">;
+  flexShrink?: StyleAnimatorInitType<HtmlView, "flexShrink">;
+  flexWrap?: StyleAnimatorInitType<HtmlView, "flexWrap">;
+  font?: AnyFont | undefined;
+  fontFamily?: StyleAnimatorInitType<HtmlView, "fontFamily">;
+  fontSize?: StyleAnimatorInitType<HtmlView, "fontSize">;
+  fontStretch?: StyleAnimatorInitType<HtmlView, "fontStretch">;
+  fontStyle?: StyleAnimatorInitType<HtmlView, "fontStyle">;
+  fontVariant?: StyleAnimatorInitType<HtmlView, "fontVariant">;
+  fontWeight?: StyleAnimatorInitType<HtmlView, "fontWeight">;
+  height?: StyleAnimatorInitType<HtmlView, "height">;
+  justifyContent?: StyleAnimatorInitType<HtmlView, "justifyContent">;
+  left?: StyleAnimatorInitType<HtmlView, "left">;
+  lineHeight?: StyleAnimatorInitType<HtmlView, "lineHeight">;
+  margin?: [AnyLength | "auto" | undefined,
+            AnyLength | "auto" | undefined,
+            AnyLength | "auto" | undefined,
+            AnyLength | "auto" | undefined] |
+           AnyLength | "auto";
+  marginTop?: StyleAnimatorInitType<HtmlView, "marginTop">;
+  marginRight?: StyleAnimatorInitType<HtmlView, "marginRight">;
+  marginBottom?: StyleAnimatorInitType<HtmlView, "marginBottom">;
+  marginLeft?: StyleAnimatorInitType<HtmlView, "marginLeft">;
+  maxHeight?: StyleAnimatorInitType<HtmlView, "maxHeight">;
+  maxWidth?: StyleAnimatorInitType<HtmlView, "maxWidth">;
+  minHeight?: StyleAnimatorInitType<HtmlView, "minHeight">;
+  minWidth?: StyleAnimatorInitType<HtmlView, "minWidth">;
+  opacity?: StyleAnimatorInitType<HtmlView, "opacity">;
+  order?: StyleAnimatorInitType<HtmlView, "order">;
+  outlineColor?: StyleAnimatorInitType<HtmlView, "outlineColor">;
+  outlineStyle?: StyleAnimatorInitType<HtmlView, "outlineStyle">;
+  outlineWidth?: StyleAnimatorInitType<HtmlView, "outlineWidth">;
+  overflow?: [Overflow | undefined,
+              Overflow | undefined] |
+             Overflow;
+  overflowX?: StyleAnimatorInitType<HtmlView, "overflowX">;
+  overflowY?: StyleAnimatorInitType<HtmlView, "overflowY">;
+  overflowScrolling?: StyleAnimatorInitType<HtmlView, "overflowScrolling">;
+  overscrollBehavior?: [OverscrollBehavior | undefined,
+                        OverscrollBehavior | undefined] |
+                       OverscrollBehavior;
+  overscrollBehaviorX?: StyleAnimatorInitType<HtmlView, "overscrollBehaviorX">;
+  overscrollBehaviorY?: StyleAnimatorInitType<HtmlView, "overscrollBehaviorY">;
+  padding?: [AnyLength | undefined,
+             AnyLength | undefined,
+             AnyLength | undefined,
+             AnyLength | undefined] |
+            AnyLength;
+  paddingTop?: StyleAnimatorInitType<HtmlView, "paddingTop">;
+  paddingRight?: StyleAnimatorInitType<HtmlView, "paddingRight">;
+  paddingBottom?: StyleAnimatorInitType<HtmlView, "paddingBottom">;
+  paddingLeft?: StyleAnimatorInitType<HtmlView, "paddingLeft">;
+  pointerEvents?: StyleAnimatorInitType<HtmlView, "pointerEvents">;
+  position?: StyleAnimatorInitType<HtmlView, "position">;
+  right?: StyleAnimatorInitType<HtmlView, "right">;
+  textAlign?: StyleAnimatorInitType<HtmlView, "textAlign">;
+  textDecorationColor?: StyleAnimatorInitType<HtmlView, "textDecorationColor">;
+  textDecorationLine?: StyleAnimatorInitType<HtmlView, "textDecorationLine">;
+  textDecorationStyle?: StyleAnimatorInitType<HtmlView, "textDecorationStyle">;
+  textOverflow?: StyleAnimatorInitType<HtmlView, "textOverflow">;
+  textTransform?: StyleAnimatorInitType<HtmlView, "textTransform">;
+  top?: StyleAnimatorInitType<HtmlView, "top">;
+  touchAction?: StyleAnimatorInitType<HtmlView, "touchAction">;
+  transform?: StyleAnimatorInitType<HtmlView, "transform">;
+  userSelect?: StyleAnimatorInitType<HtmlView, "userSelect">;
+  verticalAlign?: StyleAnimatorInitType<HtmlView, "verticalAlign">;
+  visibility?: StyleAnimatorInitType<HtmlView, "visibility">;
+  whiteSpace?: StyleAnimatorInitType<HtmlView, "whiteSpace">;
+  width?: StyleAnimatorInitType<HtmlView, "width">;
+  zIndex?: StyleAnimatorInitType<HtmlView, "zIndex">;
+}
+
+export interface HtmlViewInit extends ElementViewInit {
+  viewController?: HtmlViewController;
+  attributes?: HtmlViewAttributesInit;
+  style?: HtmlViewStyleInit;
+}
+
 export class HtmlView extends ElementView {
   constructor(node: HTMLElement) {
     super(node);
@@ -99,6 +246,340 @@ export class HtmlView extends ElementView {
 
   get viewController(): HtmlViewController | null {
     return this._viewController;
+  }
+
+  initView(init: HtmlViewInit): void {
+    super.initView(init);
+    if (init.attributes !== void 0) {
+      this.initAttributes(init.attributes);
+    }
+    if (init.style !== void 0) {
+      this.initStyle(init.style);
+    }
+  }
+
+  initAttributes(init: HtmlViewAttributesInit): void {
+    if (init.autocomplete !== void 0) {
+      this.autocomplete(init.autocomplete);
+    }
+    if (init.checked !== void 0) {
+      this.checked(init.checked);
+    }
+    if (init.colspan !== void 0) {
+      this.colspan(init.colspan);
+    }
+    if (init.disabled !== void 0) {
+      this.disabled(init.disabled);
+    }
+    if (init.placeholder !== void 0) {
+      this.placeholder(init.placeholder);
+    }
+    if (init.rowspan !== void 0) {
+      this.rowspan(init.rowspan);
+    }
+    if (init.selected !== void 0) {
+      this.selected(init.selected);
+    }
+    if (init.title !== void 0) {
+      this.title(init.title);
+    }
+    if (init.type !== void 0) {
+      this.type(init.type);
+    }
+    if (init.value !== void 0) {
+      this.value(init.value);
+    }
+  }
+
+  initStyle(init: HtmlViewStyleInit): void {
+    if (init.alignContent !== void 0) {
+      this.alignContent(init.alignContent);
+    }
+    if (init.alignItems !== void 0) {
+      this.alignItems(init.alignItems);
+    }
+    if (init.alignSelf !== void 0) {
+      this.alignSelf(init.alignSelf);
+    }
+    if (init.appearance !== void 0) {
+      this.appearance(init.appearance);
+    }
+    if (init.backdropFilter !== void 0) {
+      this.backdropFilter(init.backdropFilter);
+    }
+    if (init.backgroundColor !== void 0) {
+      this.backgroundColor(init.backgroundColor);
+    }
+    if (init.backgroundColor !== void 0) {
+      this.backgroundColor(init.backgroundColor);
+    }
+    if (init.borderCollapse !== void 0) {
+      this.borderCollapse(init.borderCollapse);
+    }
+    if (init.borderColor !== void 0) {
+      this.borderColor(init.borderColor);
+    }
+    if (init.borderTopColor !== void 0) {
+      this.borderTopColor(init.borderTopColor);
+    }
+    if (init.borderRightColor !== void 0) {
+      this.borderRightColor(init.borderRightColor);
+    }
+    if (init.borderBottomColor !== void 0) {
+      this.borderBottomColor(init.borderBottomColor);
+    }
+    if (init.borderLeftColor !== void 0) {
+      this.borderLeftColor(init.borderLeftColor);
+    }
+    if (init.borderRadius !== void 0) {
+      this.borderRadius(init.borderRadius);
+    }
+    if (init.borderTopLeftRadius !== void 0) {
+      this.borderTopLeftRadius(init.borderTopLeftRadius);
+    }
+    if (init.borderTopRightRadius !== void 0) {
+      this.borderTopRightRadius(init.borderTopRightRadius);
+    }
+    if (init.borderBottomRightRadius !== void 0) {
+      this.borderBottomRightRadius(init.borderBottomRightRadius);
+    }
+    if (init.borderBottomLeftRadius !== void 0) {
+      this.borderBottomLeftRadius(init.borderBottomLeftRadius);
+    }
+    if (init.borderSpacing !== void 0) {
+      this.borderSpacing(init.borderSpacing);
+    }
+    if (init.borderStyle !== void 0) {
+      this.borderStyle(init.borderStyle);
+    }
+    if (init.borderTopStyle !== void 0) {
+      this.borderTopStyle(init.borderTopStyle);
+    }
+    if (init.borderRightStyle !== void 0) {
+      this.borderRightStyle(init.borderRightStyle);
+    }
+    if (init.borderBottomStyle !== void 0) {
+      this.borderBottomStyle(init.borderBottomStyle);
+    }
+    if (init.borderLeftStyle !== void 0) {
+      this.borderLeftStyle(init.borderLeftStyle);
+    }
+    if (init.borderWidth !== void 0) {
+      this.borderWidth(init.borderWidth);
+    }
+    if (init.borderTopWidth !== void 0) {
+      this.borderTopWidth(init.borderTopWidth);
+    }
+    if (init.borderRightWidth !== void 0) {
+      this.borderRightWidth(init.borderRightWidth);
+    }
+    if (init.borderBottomWidth !== void 0) {
+      this.borderBottomWidth(init.borderBottomWidth);
+    }
+    if (init.borderLeftWidth !== void 0) {
+      this.borderLeftWidth(init.borderLeftWidth);
+    }
+    if (init.bottom !== void 0) {
+      this.bottom(init.bottom);
+    }
+    if (init.boxShadow !== void 0) {
+      this.boxShadow(init.boxShadow);
+    }
+    if (init.boxSizing !== void 0) {
+      this.boxSizing(init.boxSizing);
+    }
+    if (init.color !== void 0) {
+      this.color(init.color);
+    }
+    if (init.cursor !== void 0) {
+      this.cursor(init.cursor);
+    }
+    if (init.display !== void 0) {
+      this.display(init.display);
+    }
+    if (init.filter !== void 0) {
+      this.filter(init.filter);
+    }
+    if (init.flexBasis !== void 0) {
+      this.flexBasis(init.flexBasis);
+    }
+    if (init.flexDirection !== void 0) {
+      this.flexDirection(init.flexDirection);
+    }
+    if (init.flexGrow !== void 0) {
+      this.flexGrow(init.flexGrow);
+    }
+    if (init.flexShrink !== void 0) {
+      this.flexShrink(init.flexShrink);
+    }
+    if (init.flexWrap !== void 0) {
+      this.flexWrap(init.flexWrap);
+    }
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.fontFamily !== void 0) {
+      this.fontFamily(init.fontFamily);
+    }
+    if (init.fontSize !== void 0) {
+      this.fontSize(init.fontSize);
+    }
+    if (init.fontStretch !== void 0) {
+      this.fontStretch(init.fontStretch);
+    }
+    if (init.fontStyle !== void 0) {
+      this.fontStyle(init.fontStyle);
+    }
+    if (init.fontVariant !== void 0) {
+      this.fontVariant(init.fontVariant);
+    }
+    if (init.fontWeight !== void 0) {
+      this.fontWeight(init.fontWeight);
+    }
+    if (init.height !== void 0) {
+      this.height(init.height);
+    }
+    if (init.justifyContent !== void 0) {
+      this.justifyContent(init.justifyContent);
+    }
+    if (init.left !== void 0) {
+      this.left(init.left);
+    }
+    if (init.lineHeight !== void 0) {
+      this.lineHeight(init.lineHeight);
+    }
+    if (init.margin !== void 0) {
+      this.margin(init.margin);
+    }
+    if (init.marginTop !== void 0) {
+      this.marginTop(init.marginTop);
+    }
+    if (init.marginRight !== void 0) {
+      this.marginRight(init.marginRight);
+    }
+    if (init.marginBottom !== void 0) {
+      this.marginBottom(init.marginBottom);
+    }
+    if (init.marginLeft !== void 0) {
+      this.marginLeft(init.marginLeft);
+    }
+    if (init.maxHeight !== void 0) {
+      this.maxHeight(init.maxHeight);
+    }
+    if (init.maxWidth !== void 0) {
+      this.maxWidth(init.maxWidth);
+    }
+    if (init.minHeight !== void 0) {
+      this.minHeight(init.minHeight);
+    }
+    if (init.minWidth !== void 0) {
+      this.minWidth(init.minWidth);
+    }
+    if (init.opacity !== void 0) {
+      this.opacity(init.opacity);
+    }
+    if (init.order !== void 0) {
+      this.order(init.order);
+    }
+    if (init.outlineColor !== void 0) {
+      this.outlineColor(init.outlineColor);
+    }
+    if (init.outlineStyle !== void 0) {
+      this.outlineStyle(init.outlineStyle);
+    }
+    if (init.outlineWidth !== void 0) {
+      this.outlineWidth(init.outlineWidth);
+    }
+    if (init.overflow !== void 0) {
+      this.overflow(init.overflow);
+    }
+    if (init.overflowX !== void 0) {
+      this.overflowX(init.overflowX);
+    }
+    if (init.overflowY !== void 0) {
+      this.overflowY(init.overflowY);
+    }
+    if (init.overflowScrolling !== void 0) {
+      this.overflowScrolling(init.overflowScrolling);
+    }
+    if (init.overscrollBehavior !== void 0) {
+      this.overscrollBehavior(init.overscrollBehavior);
+    }
+    if (init.overscrollBehaviorX !== void 0) {
+      this.overscrollBehaviorX(init.overscrollBehaviorX);
+    }
+    if (init.overscrollBehaviorY !== void 0) {
+      this.overscrollBehaviorY(init.overscrollBehaviorY);
+    }
+    if (init.padding !== void 0) {
+      this.padding(init.padding);
+    }
+    if (init.paddingTop !== void 0) {
+      this.paddingTop(init.paddingTop);
+    }
+    if (init.paddingRight !== void 0) {
+      this.paddingRight(init.paddingRight);
+    }
+    if (init.paddingBottom !== void 0) {
+      this.paddingBottom(init.paddingBottom);
+    }
+    if (init.paddingLeft !== void 0) {
+      this.paddingLeft(init.paddingLeft);
+    }
+    if (init.pointerEvents !== void 0) {
+      this.pointerEvents(init.pointerEvents);
+    }
+    if (init.position !== void 0) {
+      this.position(init.position);
+    }
+    if (init.right !== void 0) {
+      this.right(init.right);
+    }
+    if (init.textAlign !== void 0) {
+      this.textAlign(init.textAlign);
+    }
+    if (init.textDecorationColor !== void 0) {
+      this.textDecorationColor(init.textDecorationColor);
+    }
+    if (init.textDecorationLine !== void 0) {
+      this.textDecorationLine(init.textDecorationLine);
+    }
+    if (init.textDecorationStyle !== void 0) {
+      this.textDecorationStyle(init.textDecorationStyle);
+    }
+    if (init.textOverflow !== void 0) {
+      this.textOverflow(init.textOverflow);
+    }
+    if (init.textTransform !== void 0) {
+      this.textTransform(init.textTransform);
+    }
+    if (init.top !== void 0) {
+      this.top(init.top);
+    }
+    if (init.touchAction !== void 0) {
+      this.touchAction(init.touchAction);
+    }
+    if (init.transform !== void 0) {
+      this.transform(init.transform);
+    }
+    if (init.userSelect !== void 0) {
+      this.userSelect(init.userSelect);
+    }
+    if (init.verticalAlign !== void 0) {
+      this.verticalAlign(init.verticalAlign);
+    }
+    if (init.visibility !== void 0) {
+      this.visibility(init.visibility);
+    }
+    if (init.whiteSpace !== void 0) {
+      this.whiteSpace(init.whiteSpace);
+    }
+    if (init.width !== void 0) {
+      this.width(init.width);
+    }
+    if (init.zIndex !== void 0) {
+      this.zIndex(init.zIndex);
+    }
   }
 
   append<T extends keyof HtmlChildViewTagMap>(tag: T, key?: string): HtmlChildViewTagMap[T];
@@ -444,11 +925,14 @@ export class HtmlView extends ElementView {
   @StyleAnimator("align-self", String)
   alignSelf: StyleAnimator<this, AlignSelf>;
 
-  @StyleAnimator("appearance", String)
+  @StyleAnimator(["appearance", "-webkit-appearance"], String)
   appearance: StyleAnimator<this, Appearance>;
 
   @StyleAnimator(["backdrop-filter", "-webkit-backdrop-filter"], String)
   backdropFilter: StyleAnimator<this, string>;
+
+  @StyleAnimator(["background-clip", "-webkit-background-clip"], String)
+  backgroundClip: StyleAnimator<this, BackgroundClip>;
 
   @StyleAnimator("background-color", Color)
   backgroundColor: StyleAnimator<this, Color, AnyColor>;
@@ -995,6 +1479,9 @@ export class HtmlView extends ElementView {
   @StyleAnimator("overflow-y", String)
   overflowY: StyleAnimator<this, Overflow>;
 
+  @StyleAnimator("-webkit-overflow-scrolling", String)
+  overflowScrolling: StyleAnimator<this, "auto" | "touch">;
+
   overscrollBehavior(): [OverscrollBehavior | undefined,
                          OverscrollBehavior | undefined] |
                         OverscrollBehavior | undefined;
@@ -1155,9 +1642,6 @@ export class HtmlView extends ElementView {
 
   @StyleAnimator("visibility", String)
   visibility: StyleAnimator<this, Visibility>;
-
-  @StyleAnimator("-webkit-overflow-scrolling", String)
-  webkitOverflowScrolling: StyleAnimator<this, "auto" | "touch">;
 
   @StyleAnimator("white-space", String)
   whiteSpace: StyleAnimator<this, WhiteSpace>;

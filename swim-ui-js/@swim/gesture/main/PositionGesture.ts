@@ -541,6 +541,7 @@ export class PointerPositionGesture<V extends View> extends AbstractPositionGest
   }
 
   protected updateInput(input: PositionGestureInput, event: PointerEvent): void {
+    input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
     input.altKey = event.altKey;
@@ -671,6 +672,7 @@ export class TouchPositionGesture<V extends View> extends AbstractPositionGestur
   }
 
   protected updateInput(input: PositionGestureInput, event: TouchEvent, touch: Touch): void {
+    input.target = touch.target;
     input.altKey = event.altKey;
     input.ctrlKey = event.ctrlKey;
     input.metaKey = event.metaKey;
@@ -775,6 +777,7 @@ export class MousePositionGesture<V extends View> extends AbstractPositionGestur
   }
 
   protected updateInput(input: PositionGestureInput, event: MouseEvent): void {
+    input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
     input.altKey = event.altKey;

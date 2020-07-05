@@ -27,6 +27,10 @@ export abstract class MapGraphicsView extends GraphicsView {
     return this._viewController;
   }
 
+  initView(init: MapGraphicsViewInit): void {
+    super.initView(init);
+  }
+
   get geoProjection(): GeoProjection | null {
     const parentView = this.parentView;
     return parentView instanceof MapGraphicsView ? parentView.geoProjection : null;
@@ -62,39 +66,39 @@ export abstract class MapGraphicsView extends GraphicsView {
   /** @hidden */
   protected doProcess(processFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
     let cascadeFlags = processFlags;
+    this._viewFlags |= View.TraversingFlag | View.ProcessingFlag;
     this._viewFlags &= ~View.NeedsProcess;
-    this.willProcess(viewContext);
-    this._viewFlags |= View.ProcessingFlag;
     try {
+      this.willProcess(viewContext);
       if (((this._viewFlags | processFlags) & View.NeedsResize) !== 0) {
+        this.willResize(viewContext);
         cascadeFlags |= View.NeedsResize;
         this._viewFlags &= ~View.NeedsResize;
-        this.willResize(viewContext);
       }
       if (((this._viewFlags | processFlags) & View.NeedsScroll) !== 0) {
+        this.willScroll(viewContext);
         cascadeFlags |= View.NeedsScroll;
         this._viewFlags &= ~View.NeedsScroll;
-        this.willScroll(viewContext);
       }
       if (((this._viewFlags | processFlags) & View.NeedsCompute) !== 0) {
+        this.willCompute(viewContext);
         cascadeFlags |= View.NeedsCompute;
         this._viewFlags &= ~View.NeedsCompute;
-        this.willCompute(viewContext);
       }
       if (((this._viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
+        this.willAnimate(viewContext);
         cascadeFlags |= View.NeedsAnimate;
         this._viewFlags &= ~View.NeedsAnimate;
-        this.willAnimate(viewContext);
       }
       if (((this._viewFlags | processFlags) & View.NeedsLayout) !== 0) {
+        this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
         this._viewFlags &= ~View.NeedsLayout;
-        this.willLayout(viewContext);
       }
       if (((this._viewFlags | processFlags) & View.NeedsProject) !== 0) {
+        this.willProject(viewContext);
         cascadeFlags |= View.NeedsProject;
         this._viewFlags &= ~View.NeedsProject;
-        this.willProject(viewContext);
       }
 
       this.onProcess(viewContext);
@@ -137,9 +141,9 @@ export abstract class MapGraphicsView extends GraphicsView {
       if ((cascadeFlags & View.NeedsResize) !== 0) {
         this.didResize(viewContext);
       }
-    } finally {
-      this._viewFlags &= ~View.ProcessingFlag;
       this.didProcess(viewContext);
+    } finally {
+      this._viewFlags &= ~(View.TraversingFlag | View.ProcessingFlag);
     }
   }
 

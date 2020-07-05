@@ -533,9 +533,9 @@ const ux = [
     ],
   },
   {
-    id: "app",
-    name: "@swim/app",
-    path: "swim-ux-js/@swim/app",
+    id: "motif",
+    name: "@swim/motif",
+    path: "swim-ux-js/@swim/motif",
     targets: [
       {
         id: "main",
@@ -544,24 +544,46 @@ const ux = [
     ],
   },
   {
-    id: "controls",
-    name: "@swim/controls",
-    path: "swim-ux-js/@swim/controls",
+    id: "app",
+    name: "@swim/app",
+    path: "swim-ux-js/@swim/app",
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "app"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif"],
       },
     ],
   },
   {
-    id: "navigation",
-    name: "@swim/navigation",
-    path: "swim-ux-js/@swim/navigation",
+    id: "fab",
+    name: "@swim/fab",
+    path: "swim-ux-js/@swim/fab",
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "app"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif", "app"],
+      },
+    ],
+  },
+  {
+    id: "menu",
+    name: "@swim/menu",
+    path: "swim-ux-js/@swim/menu",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif", "app"],
+      },
+    ],
+  },
+  {
+    id: "tree",
+    name: "@swim/tree",
+    path: "swim-ux-js/@swim/tree",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif", "app"],
       },
     ],
   },
@@ -574,7 +596,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "app", "controls", "navigation"],
+        deps: ["theme", "motif", "app", "fab", "menu", "tree"],
       },
     ],
   },

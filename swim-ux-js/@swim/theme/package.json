@@ -30,7 +30,6 @@
     "@swim/style": "3.11.0-dev.20200619",
     "@swim/render": "3.11.0-dev.20200619",
     "@swim/constraint": "3.11.0-dev.20200619",
-    "@swim/view": "3.11.0-dev.20200619",
-    "@swim/gesture": "3.11.0-dev.20200619"
+    "@swim/view": "3.11.0-dev.20200619"
   }
 }

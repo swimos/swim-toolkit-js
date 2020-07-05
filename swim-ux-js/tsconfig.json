@@ -3,9 +3,11 @@
   "include": [],
   "references": [
     {"path": "./@swim/theme"},
+    {"path": "./@swim/motif"},
     {"path": "./@swim/app"},
-    {"path": "./@swim/controls"},
-    {"path": "./@swim/navigation"},
+    {"path": "./@swim/fab"},
+    {"path": "./@swim/menu"},
+    {"path": "./@swim/tree"},
     {"path": "./@swim/ux"}
   ]
 }

@@ -63,6 +63,73 @@ export class SliceView extends GraphicsNodeView {
     return this._viewController;
   }
 
+  initView(init: SliceViewInit): void {
+    super.initView(init);
+    if (init.value !== void 0) {
+      this.value(init.value);
+    }
+    if (init.total !== void 0) {
+      this.total(init.total);
+    }
+    if (init.center !== void 0) {
+      this.center(init.center);
+    }
+    if (init.innerRadius !== void 0) {
+      this.innerRadius(init.innerRadius);
+    }
+    if (init.outerRadius !== void 0) {
+      this.outerRadius(init.outerRadius);
+    }
+    if (init.phaseAngle !== void 0) {
+      this.phaseAngle(init.phaseAngle);
+    }
+    if (init.padAngle !== void 0) {
+      this.padAngle(init.padAngle);
+    }
+    if (init.padRadius !== void 0) {
+      this.padRadius(init.padRadius);
+    }
+    if (init.cornerRadius !== void 0) {
+      this.cornerRadius(init.cornerRadius);
+    }
+    if (init.labelRadius !== void 0) {
+      this.labelRadius(init.labelRadius);
+    }
+    if (init.sliceColor !== void 0) {
+      this.sliceColor(init.sliceColor);
+    }
+    if (init.tickAlign !== void 0) {
+      this.tickAlign(init.tickAlign);
+    }
+    if (init.tickRadius !== void 0) {
+      this.tickRadius(init.tickRadius);
+    }
+    if (init.tickLength !== void 0) {
+      this.tickLength(init.tickLength);
+    }
+    if (init.tickWidth !== void 0) {
+      this.tickWidth(init.tickWidth);
+    }
+    if (init.tickPadding !== void 0) {
+      this.tickPadding(init.tickPadding);
+    }
+    if (init.tickColor !== void 0) {
+      this.tickColor(init.tickColor);
+    }
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.textColor !== void 0) {
+      this.textColor(init.textColor);
+    }
+    if (init.label !== void 0) {
+      this.label(init.label);
+    }
+    if (init.legend !== void 0) {
+      this.legend(init.legend);
+    }
+  }
+
   @ViewAnimator(Number, {value: 0})
   value: ViewAnimator<this, number>;
 
@@ -173,30 +240,30 @@ export class SliceView extends GraphicsNodeView {
     const width = frame.width;
     const height = frame.height;
     const size = Math.min(width, height);
-    const value = this.value.value!;
-    const total = this.total.value!;
+    const value = this.value.getValue();
+    const total = this.total.getValue();
     const delta = total !== 0 ? value / total : 0;
 
-    const center = this.center.value!;
-    const innerRadius = this.innerRadius.value!.px(size);
-    const outerRadius = this.outerRadius.value!.px(size);
+    const center = this.center.getValue();
+    const innerRadius = this.innerRadius.getValue().px(size);
+    const outerRadius = this.outerRadius.getValue().px(size);
     const deltaRadius = outerRadius.value - innerRadius.value;
-    const startAngle = this.phaseAngle.value!.rad();
+    const startAngle = this.phaseAngle.getValue().rad();
     const sweepAngle = Angle.rad(2 * Math.PI * delta);
-    const padAngle = this.padAngle.value!;
-    const padRadius = this.padRadius.value! as Length | null;
-    const cornerRadius = this.cornerRadius.value!.px(deltaRadius);
+    const padAngle = this.padAngle.getValue();
+    const padRadius = this.padRadius.getValue() as Length | null;
+    const cornerRadius = this.cornerRadius.getValue().px(deltaRadius);
     const arc = new Arc(center, innerRadius, outerRadius, startAngle,
                         sweepAngle, padAngle, padRadius, cornerRadius);
 
     context.beginPath();
-    context.fillStyle = this.sliceColor.value!.toString();
+    context.fillStyle = this.sliceColor.getValue().toString();
     arc.draw(context, frame);
     context.fill();
 
     const label = this.label();
     if (label !== null && !label.isHidden()) {
-      const labelRadius = this.labelRadius.value!.pxValue(deltaRadius);
+      const labelRadius = this.labelRadius.getValue().pxValue(deltaRadius);
       const labelAngle = startAngle.value + sweepAngle.value / 2;
       const r = innerRadius.value + labelRadius;
       const rx = r * Math.cos(labelAngle);
@@ -211,12 +278,12 @@ export class SliceView extends GraphicsNodeView {
 
     const legend = this.legend();
     if (legend !== null && !legend.isHidden()) {
-      const tickAlign = this.tickAlign.value!;
+      const tickAlign = this.tickAlign.getValue();
       const tickAngle = startAngle.value + sweepAngle.value * tickAlign;
-      const tickRadius = this.tickRadius.value!.pxValue(size);
-      const tickLength = this.tickLength.value!.pxValue(width);
-      const tickWidth = this.tickWidth.value!.pxValue(size);
-      const tickColor = this.tickColor.value!;
+      const tickRadius = this.tickRadius.getValue().pxValue(size);
+      const tickLength = this.tickLength.getValue().pxValue(width);
+      const tickWidth = this.tickWidth.getValue().pxValue(size);
+      const tickColor = this.tickColor.getValue();
 
       const cx = center.x;
       const cy = center.y;
@@ -259,7 +326,7 @@ export class SliceView extends GraphicsNodeView {
       }
 
       if (TypesetView.is(legend)) {
-        const tickPadding = this.tickPadding.value!.pxValue(size);
+        const tickPadding = this.tickPadding.getValue().pxValue(size);
         if (FillView.is(legend)) {
           legend.fill.setAutoState(tickColor);
         }
@@ -288,19 +355,19 @@ export class SliceView extends GraphicsNodeView {
 
   protected hitTestSlice(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
     const size = Math.min(frame.width, frame.height);
-    const value = this.value.value!;
-    const total = this.total.value!;
+    const value = this.value.getValue();
+    const total = this.total.getValue();
     const delta = total !== 0 ? value / total : 0;
 
-    const center = this.center.value!;
-    const innerRadius = this.innerRadius.value!.px(size);
-    const outerRadius = this.outerRadius.value!.px(size);
+    const center = this.center.getValue();
+    const innerRadius = this.innerRadius.getValue().px(size);
+    const outerRadius = this.outerRadius.getValue().px(size);
     const deltaRadius = outerRadius.value - innerRadius.value;
-    const startAngle = this.phaseAngle.value!.rad();
+    const startAngle = this.phaseAngle.getValue().rad();
     const sweepAngle = Angle.rad(2 * Math.PI * delta);
-    const padAngle = this.padAngle.value!;
-    const padRadius = this.padRadius.value! as Length | null;
-    const cornerRadius = this.cornerRadius.value!.px(deltaRadius);
+    const padAngle = this.padAngle.getValue();
+    const padRadius = this.padRadius.getValue() as Length | null;
+    const cornerRadius = this.cornerRadius.getValue().px(deltaRadius);
     const arc = new Arc(center, innerRadius, outerRadius, startAngle,
                         sweepAngle, padAngle, padRadius, cornerRadius);
 
@@ -316,78 +383,14 @@ export class SliceView extends GraphicsNodeView {
     if (slice instanceof SliceView) {
       return slice;
     } else if (typeof slice === "object" && slice !== null) {
-      const view = new SliceView();
-      if (slice.value !== void 0) {
-        view.value(slice.value);
-      }
-      if (slice.total !== void 0) {
-        view.total(slice.total);
-      }
-      if (slice.center !== void 0) {
-        view.center(slice.center);
-      }
-      if (slice.innerRadius !== void 0) {
-        view.innerRadius(slice.innerRadius);
-      }
-      if (slice.outerRadius !== void 0) {
-        view.outerRadius(slice.outerRadius);
-      }
-      if (slice.phaseAngle !== void 0) {
-        view.phaseAngle(slice.phaseAngle);
-      }
-      if (slice.padAngle !== void 0) {
-        view.padAngle(slice.padAngle);
-      }
-      if (slice.padRadius !== void 0) {
-        view.padRadius(slice.padRadius);
-      }
-      if (slice.cornerRadius !== void 0) {
-        view.cornerRadius(slice.cornerRadius);
-      }
-      if (slice.labelRadius !== void 0) {
-        view.labelRadius(slice.labelRadius);
-      }
-      if (slice.sliceColor !== void 0) {
-        view.sliceColor(slice.sliceColor);
-      }
-      if (slice.tickAlign !== void 0) {
-        view.tickAlign(slice.tickAlign);
-      }
-      if (slice.tickRadius !== void 0) {
-        view.tickRadius(slice.tickRadius);
-      }
-      if (slice.tickLength !== void 0) {
-        view.tickLength(slice.tickLength);
-      }
-      if (slice.tickWidth !== void 0) {
-        view.tickWidth(slice.tickWidth);
-      }
-      if (slice.tickPadding !== void 0) {
-        view.tickPadding(slice.tickPadding);
-      }
-      if (slice.tickColor !== void 0) {
-        view.tickColor(slice.tickColor);
-      }
-      if (slice.font !== void 0) {
-        view.font(slice.font);
-      }
-      if (slice.textColor !== void 0) {
-        view.textColor(slice.textColor);
-      }
-      if (slice.label !== void 0) {
-        view.label(slice.label);
-      }
-      if (slice.legend !== void 0) {
-        view.legend(slice.legend);
-      }
-      if (slice.hidden !== void 0) {
-        view.setHidden(slice.hidden);
-      }
-      if (slice.culled !== void 0) {
-        view.setCulled(slice.culled);
-      }
-      return view;
+      return SliceView.fromInit(slice);
     }
     throw new TypeError("" + slice);
+  }
+
+  static fromInit(init: SliceViewInit): SliceView {
+    const view = new SliceView();
+    view.initView(init);
+    return view;
   }
 }

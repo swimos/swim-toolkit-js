@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ViewFlags} from "../View";
 import {GraphicsViewObserver} from "../graphics/GraphicsViewObserver";
 import {RasterViewContext} from "./RasterViewContext";
 import {RasterView} from "./RasterView";
@@ -37,9 +38,9 @@ export interface RasterViewObserver<V extends RasterView = RasterView> extends G
 
   viewDidAnimate?(viewContext: RasterViewContext, view: V): void;
 
-  viewWillProcessChildViews?(viewContext: RasterViewContext, view: V): void;
+  viewWillProcessChildViews?(processFlags: ViewFlags, viewContext: RasterViewContext, view: V): void;
 
-  viewDidProcessChildViews?(viewContext: RasterViewContext, view: V): void;
+  viewDidProcessChildViews?(processFlags: ViewFlags, viewContext: RasterViewContext, view: V): void;
 
   viewWillDisplay?(viewContext: RasterViewContext, view: V): void;
 
@@ -57,7 +58,7 @@ export interface RasterViewObserver<V extends RasterView = RasterView> extends G
 
   viewDidComposite?(viewContext: RasterViewContext, view: V): void;
 
-  viewWillDisplayChildViews?(viewContext: RasterViewContext, view: V): void;
+  viewWillDisplayChildViews?(displayFlags: ViewFlags, viewContext: RasterViewContext, view: V): void;
 
-  viewDidDisplayChildViews?(viewContext: RasterViewContext, view: V): void;
+  viewDidDisplayChildViews?(displayFlags: ViewFlags, viewContext: RasterViewContext, view: V): void;
 }

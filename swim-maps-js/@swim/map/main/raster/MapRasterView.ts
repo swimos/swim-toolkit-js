@@ -24,10 +24,17 @@ import {
 } from "@swim/render";
 import {ViewFlags, View, ViewAnimator, GraphicsView} from "@swim/view";
 import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
+import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
 import {MapGraphicsNodeView} from "../graphics/MapGraphicsNodeView";
 import {MapRasterViewContext} from "./MapRasterViewContext";
 import {MapRasterViewObserver} from "./MapRasterViewObserver";
 import {MapRasterViewController} from "./MapRasterViewController";
+
+export interface MapRasterViewInit extends MapGraphicsViewInit {
+  viewController?: MapRasterViewController;
+  opacity?: number;
+  compositeOperation?: CanvasCompositeOperation;
+}
 
 export class MapRasterView extends MapGraphicsNodeView {
   /** @hidden */
@@ -46,6 +53,16 @@ export class MapRasterView extends MapGraphicsNodeView {
 
   get viewController(): MapRasterViewController | null {
     return this._viewController;
+  }
+
+  initView(init: MapRasterViewInit): void {
+    super.initView(init);
+    if (init.opacity !== void 0) {
+      this.opacity(init.opacity);
+    }
+    if (init.compositeOperation !== void 0) {
+      this.compositeOperation(init.compositeOperation);
+    }
   }
 
   @ViewAnimator(Number, {value: 1})
@@ -104,7 +121,7 @@ export class MapRasterView extends MapGraphicsNodeView {
     }
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & View.UpdateMask) !== 0) {
       if ((updateFlags & View.ProcessMask) !== 0) {
@@ -131,24 +148,24 @@ export class MapRasterView extends MapGraphicsNodeView {
   /** @hidden */
   protected doDisplay(displayFlags: ViewFlags, viewContext: MapRasterViewContext): void {
     let cascadeFlags = displayFlags;
+    this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
     this._viewFlags &= ~View.NeedsDisplay;
-    this.willDisplay(viewContext);
-    this._viewFlags |= View.DisplayingFlag;
     try {
+      this.willDisplay(viewContext);
       if (((this._viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
+        this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
         this._viewFlags &= ~View.NeedsLayout;
-        this.willLayout(viewContext);
       }
       if (((this._viewFlags | displayFlags) & View.NeedsRender) !== 0) {
+        this.willRender(viewContext);
         cascadeFlags |= View.NeedsRender;
         this._viewFlags &= ~View.NeedsRender;
-        this.willRender(viewContext);
       }
       if (((this._viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
+        this.willComposite(viewContext);
         cascadeFlags |= View.NeedsComposite;
         this._viewFlags &= ~View.NeedsComposite;
-        this.willComposite(viewContext);
       }
 
       this.onDisplay(viewContext);
@@ -173,9 +190,9 @@ export class MapRasterView extends MapGraphicsNodeView {
       if ((cascadeFlags & View.NeedsLayout) !== 0) {
         this.didLayout(viewContext);
       }
-    } finally {
-      this._viewFlags &= ~View.DisplayingFlag;
       this.didDisplay(viewContext);
+    } finally {
+      this._viewFlags &= ~(View.TraversingFlag | View.DisplayingFlag);
     }
   }
 
@@ -328,8 +345,8 @@ export class MapRasterView extends MapGraphicsNodeView {
       const pixelRatio = compositor.pixelRatio;
       const context = compositor.context;
       context.save();
-      context.globalAlpha = this.opacity.value!;
-      context.globalCompositeOperation = this.compositeOperation.value!;
+      context.globalAlpha = this.opacity.getValue();
+      context.globalCompositeOperation = this.compositeOperation.getValue();
       const x = Math.floor(compositeFrame.xMin) * pixelRatio;
       const y = Math.floor(compositeFrame.yMin) * pixelRatio;
       context.putImageData(imageData, x, y);

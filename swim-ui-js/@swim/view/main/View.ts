@@ -46,11 +46,14 @@ import {HtmlView} from "./html/HtmlView";
 import {CanvasView} from "./canvas/CanvasView";
 import {UiView} from "./ui/UiView";
 
-export type ViewControllerType<V extends View> = V extends {readonly viewController: infer VC} ? VC : unknown;
+export type ViewControllerType<V extends View> =
+  V extends {readonly viewController: infer VC} ? VC : unknown;
 
 export type ViewFlags = number;
 
 export interface ViewInit {
+  key?: string;
+  viewController?: ViewController;
 }
 
 export interface ViewConstructor<V extends View = View> {
@@ -134,10 +137,16 @@ export abstract class View implements AnimatorContext, LayoutContext {
     }
   }
 
-  abstract get key(): string | null;
+  initView(init: ViewInit): void {
+    if (init.viewController !== void 0) {
+      this.setViewController(init.viewController as ViewControllerType<this>);
+    }
+  }
+
+  abstract get key(): string | undefined;
 
   /** @hidden */
-  abstract setKey(key: string | null): void;
+  abstract setKey(key: string | undefined): void;
 
   abstract get parentView(): View | null;
 
@@ -358,7 +367,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
     const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags;
     if (deltaUpdateFlags !== 0) {
       this.setViewFlags(newUpdateFlags);
-      this.requestUpdate(deltaUpdateFlags, immediate);
+      this.requestUpdate(this, deltaUpdateFlags, immediate);
     }
     this.didRequireUpdate(updateFlags, immediate);
   }
@@ -371,17 +380,17 @@ export abstract class View implements AnimatorContext, LayoutContext {
     // hook
   }
 
-  requestUpdate(updateFlags: ViewFlags, immediate: boolean): void {
-    updateFlags = this.willRequestUpdate(updateFlags, immediate);
+  requestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
+    updateFlags = this.willRequestUpdate(targetView, updateFlags, immediate);
     const parentView = this.parentView;
     if (parentView !== null) {
-      parentView.requestUpdate(updateFlags, immediate);
+      parentView.requestUpdate(targetView, updateFlags, immediate);
     }
-    this.didRequestUpdate(updateFlags, immediate);
+    this.didRequestUpdate(targetView, updateFlags, immediate);
   }
 
-  protected willRequestUpdate(updateFlags: ViewFlags, immediate: boolean): ViewFlags {
-    let additionalFlags = this.modifyUpdate(updateFlags);
+  protected willRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): ViewFlags {
+    let additionalFlags = this.modifyUpdate(targetView, updateFlags);
     additionalFlags &= ~View.StatusMask;
     if (additionalFlags !== 0) {
       updateFlags |= additionalFlags;
@@ -390,11 +399,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     return updateFlags;
   }
 
-  protected didRequestUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+  protected didRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
     // hook
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & View.ProcessMask) !== 0) {
       additionalFlags |= View.NeedsProcess;
@@ -403,6 +412,10 @@ export abstract class View implements AnimatorContext, LayoutContext {
       additionalFlags |= View.NeedsDisplay;
     }
     return additionalFlags;
+  }
+
+  isTraversing(): boolean {
+    return (this.viewFlags & View.TraversingFlag) !== 0;
   }
 
   isUpdating(): boolean {
@@ -544,39 +557,65 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   /** @hidden */
   protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext): void {
-    const childViews = this.childViews;
-    if ((processFlags & View.ProcessMask) !== 0 && childViews.length !== 0) {
-      this.willProcessChildViews(viewContext);
-      for (let i = 0; i < childViews.length; i += 1) {
-        const childView = childViews[i];
-        const childViewContext = this.childViewContext(childView, viewContext);
-        this.doProcessChildView(childView, processFlags, childViewContext);
-      }
-      this.didProcessChildViews(viewContext);
+    if ((processFlags & View.ProcessMask) !== 0 && this.childViewCount !== 0) {
+      this.willProcessChildViews(processFlags, viewContext);
+      this.onProcessChildViews(processFlags, viewContext);
+      this.didProcessChildViews(processFlags, viewContext);
     }
+  }
+
+  protected willProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext): void {
+    this.willObserve(function (viewObserver: ViewObserver): void {
+      if (viewObserver.viewWillProcessChildViews !== void 0) {
+        viewObserver.viewWillProcessChildViews(processFlags, viewContext, this);
+      }
+    });
+  }
+
+  protected onProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext): void {
+    this.processChildViews(processFlags, viewContext);
+  }
+
+  protected didProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext): void {
+    this.didObserve(function (viewObserver: ViewObserver): void {
+      if (viewObserver.viewDidProcessChildViews !== void 0) {
+        viewObserver.viewDidProcessChildViews(processFlags, viewContext, this);
+      }
+    });
+  }
+
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContext,
+                              callback?: (this: this, childView: View) => void): void {
+    this.forEachChildView(function (childView: View): void {
+      const childViewContext = this.childViewContext(childView, viewContext);
+      this.doProcessChildView(childView, processFlags, childViewContext);
+      if (callback !== void 0) {
+        callback.call(this, childView);
+      }
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+      }
+    }, this);
   }
 
   /** @hidden */
   protected doProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContext): void {
+    this.willProcessChildView(childView, processFlags, viewContext);
+    this.onProcessChildView(childView, processFlags, viewContext);
+    this.didProcessChildView(childView, processFlags, viewContext);
+  }
+
+  protected willProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContext): void {
+    // hook
+  }
+
+  protected onProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContext): void {
     childView.cascadeProcess(processFlags, viewContext);
   }
 
-  /** @hidden */
-  protected willProcessChildViews(viewContext: ViewContext): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
-      if (viewObserver.viewWillProcessChildViews !== void 0) {
-        viewObserver.viewWillProcessChildViews(viewContext, this);
-      }
-    });
-  }
-
-  /** @hidden */
-  protected didProcessChildViews(viewContext: ViewContext): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
-      if (viewObserver.viewDidProcessChildViews !== void 0) {
-        viewObserver.viewDidProcessChildViews(viewContext, this);
-      }
-    });
+  protected didProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContext): void {
+    // hook
   }
 
   isDisplaying(): boolean {
@@ -616,37 +655,64 @@ export abstract class View implements AnimatorContext, LayoutContext {
   protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext): void {
     const childViews = this.childViews;
     if ((displayFlags & View.DisplayMask) !== 0 && childViews.length !== 0) {
-      this.willDisplayChildViews(viewContext);
-      for (let i = 0; i < childViews.length; i += 1) {
-        const childView = childViews[i];
-        const childViewContext = this.childViewContext(childView, viewContext);
-        this.doDisplayChildView(childView, displayFlags, childViewContext);
-      }
-      this.didDisplayChildViews(viewContext);
+      this.willDisplayChildViews(displayFlags, viewContext);
+      this.onDisplayChildViews(displayFlags, viewContext);
+      this.didDisplayChildViews(displayFlags, viewContext);
     }
+  }
+
+  protected willDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext): void {
+    this.willObserve(function (viewObserver: ViewObserver): void {
+      if (viewObserver.viewWillDisplayChildViews !== void 0) {
+        viewObserver.viewWillDisplayChildViews(displayFlags, viewContext, this);
+      }
+    });
+  }
+
+  protected onDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext): void {
+    this.displayChildViews(displayFlags, viewContext);
+  }
+
+  protected didDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext): void {
+    this.didObserve(function (viewObserver: ViewObserver): void {
+      if (viewObserver.viewDidDisplayChildViews !== void 0) {
+        viewObserver.viewDidDisplayChildViews(displayFlags, viewContext, this);
+      }
+    });
+  }
+
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContext,
+                              callback?: (this: this, childView: View) => void): void {
+    this.forEachChildView(function (childView: View): void {
+      const childViewContext = this.childViewContext(childView, viewContext);
+      this.doDisplayChildView(childView, displayFlags, childViewContext);
+      if (callback !== void 0) {
+        callback.call(this, childView);
+      }
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+      }
+    }, this);
   }
 
   /** @hidden */
   protected doDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContext): void {
+    this.willDisplayChildView(childView, displayFlags, viewContext);
+    this.onDisplayChildView(childView, displayFlags, viewContext);
+    this.didDisplayChildView(childView, displayFlags, viewContext);
+  }
+
+  protected willDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContext): void {
+    // hook
+  }
+
+  protected onDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContext): void {
     childView.cascadeDisplay(displayFlags, viewContext);
   }
 
-  /** @hidden */
-  protected willDisplayChildViews(viewContext: ViewContext): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
-      if (viewObserver.viewWillDisplayChildViews !== void 0) {
-        viewObserver.viewWillDisplayChildViews(viewContext, this);
-      }
-    });
-  }
-
-  /** @hidden */
-  protected didDisplayChildViews(viewContext: ViewContext): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
-      if (viewObserver.viewDidDisplayChildViews !== void 0) {
-        viewObserver.viewDidDisplayChildViews(viewContext, this);
-      }
-    });
+  protected didDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContext): void {
+    // hook
   }
 
   childViewContext(childView: View, viewContext: ViewContext): ViewContext {
@@ -676,14 +742,12 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   /** @hidden */
   viewScopeDidSetAuto<T, U>(viewScope: ViewScope<View, T, U>, auto: boolean): void {
-    if (auto) {
-      this.requireUpdate(View.NeedsCompute);
-    }
+    // hook
   }
 
   /** @hidden */
   viewScopeDidSetState<T, U>(viewScope: ViewScope<View, T, U>, newState: T | undefined, oldState: T | undefined): void {
-    this.requireUpdate(View.NeedsCompute);
+    // hook
   }
 
   abstract hasViewAnimator(animatorName: string): boolean;
@@ -709,9 +773,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   /** @hidden */
   animatorDidSetAuto(animator: Animator, auto: boolean): void {
-    if (auto && animator instanceof View.Animator) {
-      this.requireUpdate(View.NeedsCompute);
-    }
+    // hook
   }
 
   /** @hidden */
@@ -1065,11 +1127,13 @@ export abstract class View implements AnimatorContext, LayoutContext {
   /** @hidden */
   static readonly AnimatingFlag: ViewFlags = 1 << 5;
   /** @hidden */
-  static readonly ProcessingFlag: ViewFlags = 1 << 6;
+  static readonly TraversingFlag: ViewFlags = 1 << 6;
   /** @hidden */
-  static readonly DisplayingFlag: ViewFlags = 1 << 7;
+  static readonly ProcessingFlag: ViewFlags = 1 << 7;
   /** @hidden */
-  static readonly RemovingFlag: ViewFlags = 1 << 8;
+  static readonly DisplayingFlag: ViewFlags = 1 << 8;
+  /** @hidden */
+  static readonly RemovingFlag: ViewFlags = 1 << 9;
   /** @hidden */
   static readonly UpdatingMask: ViewFlags = View.ProcessingFlag
                                           | View.DisplayingFlag;
@@ -1080,16 +1144,17 @@ export abstract class View implements AnimatorContext, LayoutContext {
                                         | View.CulledFlag
                                         | View.ImmediateFlag
                                         | View.AnimatingFlag
+                                        | View.TraversingFlag
                                         | View.ProcessingFlag
                                         | View.DisplayingFlag
                                         | View.RemovingFlag;
 
-  static readonly NeedsProcess: ViewFlags = 1 << 9;
-  static readonly NeedsResize: ViewFlags = 1 << 10;
-  static readonly NeedsScroll: ViewFlags = 1 << 11;
-  static readonly NeedsCompute: ViewFlags = 1 << 12;
-  static readonly NeedsAnimate: ViewFlags = 1 << 13;
-  static readonly NeedsProject: ViewFlags = 1 << 14;
+  static readonly NeedsProcess: ViewFlags = 1 << 10;
+  static readonly NeedsResize: ViewFlags = 1 << 11;
+  static readonly NeedsScroll: ViewFlags = 1 << 12;
+  static readonly NeedsCompute: ViewFlags = 1 << 13;
+  static readonly NeedsAnimate: ViewFlags = 1 << 14;
+  static readonly NeedsProject: ViewFlags = 1 << 15;
   /** @hidden */
   static readonly ProcessMask: ViewFlags = View.NeedsProcess
                                          | View.NeedsResize
@@ -1098,10 +1163,10 @@ export abstract class View implements AnimatorContext, LayoutContext {
                                          | View.NeedsAnimate
                                          | View.NeedsProject;
 
-  static readonly NeedsDisplay: ViewFlags = 1 << 15;
-  static readonly NeedsLayout: ViewFlags = 1 << 16;
-  static readonly NeedsRender: ViewFlags = 1 << 17;
-  static readonly NeedsComposite: ViewFlags = 1 << 18;
+  static readonly NeedsDisplay: ViewFlags = 1 << 16;
+  static readonly NeedsLayout: ViewFlags = 1 << 17;
+  static readonly NeedsRender: ViewFlags = 1 << 18;
+  static readonly NeedsComposite: ViewFlags = 1 << 19;
   /** @hidden */
   static readonly DisplayMask: ViewFlags = View.NeedsDisplay
                                          | View.NeedsLayout

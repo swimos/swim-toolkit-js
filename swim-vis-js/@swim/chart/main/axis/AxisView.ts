@@ -42,6 +42,8 @@ export type AxisOrientation = "top" | "right" | "bottom" | "left";
 export type AnyAxisView<D = unknown> = AxisView<D> | AxisViewInit<D>;
 
 export interface AxisViewInit<D = unknown> extends GraphicsViewInit {
+  viewController?: AxisViewController<D>;
+
   orientation?: AxisOrientation;
   scale?: ContinuousScale<D, number> | string;
   ticks?: AnyTickView<D>[];
@@ -81,6 +83,66 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     return this._viewController;
   }
 
+  initView(init: AxisViewInit<D>): void {
+    super.initView(init);
+    if (init.scale !== void 0) {
+      this.scale(init.scale);
+    }
+
+    const ticks = init.ticks;
+    if (ticks !== void 0) {
+      for (let i = 0, n = ticks.length; i < n; i += 1) {
+        this.insertTick(ticks[i]);
+      }
+    }
+    if (init.tickGenerator !== void 0) {
+      this.tickGenerator(init.tickGenerator);
+    }
+
+    if (init.borderColor !== void 0) {
+      this.borderColor(init.borderColor);
+    }
+    if (init.borderWidth !== void 0) {
+      this.borderWidth(init.borderWidth);
+    }
+    if (init.borderSerif !== void 0) {
+      this.borderSerif(init.borderSerif);
+    }
+
+    if (init.tickMarkSpacing !== void 0) {
+      this.tickMarkSpacing(init.tickMarkSpacing);
+    }
+    if (init.tickMarkColor !== void 0) {
+      this.tickMarkColor(init.tickMarkColor);
+    }
+    if (init.tickMarkWidth !== void 0) {
+      this.tickMarkWidth(init.tickMarkWidth);
+    }
+    if (init.tickMarkLength !== void 0) {
+      this.tickMarkLength(init.tickMarkLength);
+    }
+    if (init.tickLabelPadding !== void 0) {
+      this.tickLabelPadding(init.tickLabelPadding);
+    }
+    if (init.tickTransition !== void 0) {
+      this.tickTransition(init.tickTransition);
+    }
+
+    if (init.gridLineColor !== void 0) {
+      this.gridLineColor(init.gridLineColor);
+    }
+    if (init.gridLineWidth !== void 0) {
+      this.gridLineWidth(init.gridLineWidth);
+    }
+
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.textColor !== void 0) {
+      this.textColor(init.textColor);
+    }
+  }
+
   abstract get orientation(): AxisOrientation;
 
   abstract scale: ContinuousScaleViewAnimator<this, D, number>;
@@ -111,7 +173,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
       this._ticks.delete(value);
       this.onRemoveChildView(tick);
       this.didRemoveChildView(tick);
-      tick.setKey(null);
+      tick.setKey(void 0);
       return tick;
     }
     return null;
@@ -163,13 +225,13 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   @ViewAnimator(Number, {inherit: true})
   tickLabelPadding: ViewAnimator<this, number>;
 
-  @ViewScope(Object, {
+  @ViewScope(Transition, {
     inherit: true,
     init(): Transition<any> {
       return Transition.duration(250, Ease.cubicOut);
     },
   })
-  tickTransition: ViewScope<this, Transition<any>>;
+  tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
   @ViewAnimator(Color, {inherit: true})
   gridLineColor: ViewAnimator<this, Color, AnyColor>;
@@ -257,7 +319,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
       this._ticks.delete(key);
       this.onRemoveChildView(childView);
       this.didRemoveChildView(childView);
-      childView.setKey(null);
+      childView.setKey(void 0);
     }, this);
   }
 
@@ -269,46 +331,22 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.NeedsAnimate) !== 0) {
-      additionalFlags |= View.NeedsAnimate;
-    }
-    additionalFlags |= super.modifyUpdate(updateFlags | additionalFlags);
-    return additionalFlags;
-  }
-
-  needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
-    if ((processFlags & View.NeedsLayout) !== 0) {
-      processFlags |= View.NeedsAnimate;
-    }
-    return processFlags;
-  }
-
-  protected willAnimate(viewContext: GraphicsViewContext): void {
-    super.willAnimate(viewContext);
-    this.updateTicks();
-  }
-
   protected updateTicks(): void {
     const origin = this.origin.value;
     const scale = this.scale.value;
     let tickGenerator = this._tickGenerator;
-    if (origin !== void 0 && scale !== void 0) {
-      if (tickGenerator !== null) {
-        if (tickGenerator === true) {
-          tickGenerator = TickGenerator.fromScale(scale);
-          this._tickGenerator = tickGenerator;
-        }
-        this.generateTicks(tickGenerator, scale);
+    if (origin !== void 0 && scale !== void 0 && tickGenerator !== null) {
+      if (tickGenerator === true) {
+        tickGenerator = TickGenerator.fromScale(scale);
+        this._tickGenerator = tickGenerator;
       }
-      this.layoutTicks(origin, this.viewFrame, scale);
+      this.generateTicks(tickGenerator, scale);
     }
   }
 
   protected generateTicks(tickGenerator: TickGenerator<D>,
                           scale: ContinuousScale<D, number>): void {
-    const tickMarkSpacing = this.tickMarkSpacing.value!;
+    const tickMarkSpacing = this.tickMarkSpacing.getValue();
     if (tickMarkSpacing !== 0) {
       const [y0, y1] = scale.range();
       const dy = Math.abs(y1 - y0);
@@ -390,6 +428,46 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
+    let additionalFlags = 0;
+    if ((updateFlags & View.NeedsAnimate) !== 0) {
+      additionalFlags |= View.NeedsAnimate;
+    }
+    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
+    return additionalFlags;
+  }
+
+  needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+    if ((processFlags & View.NeedsLayout) !== 0) {
+      processFlags |= View.NeedsAnimate;
+    }
+    return processFlags;
+  }
+
+  protected willAnimate(viewContext: GraphicsViewContext): void {
+    super.willAnimate(viewContext);
+    this.updateTicks();
+  }
+
+  protected didAnimate(viewContext: GraphicsViewContext): void {
+    // We don't need to run the layout phase unless the view frame changes
+    // between now and the display pass.
+    this._viewFlags &= ~View.NeedsLayout;
+    super.didAnimate(viewContext);
+  }
+
+  protected willProcessChildView(childView: View, processFlags: ViewFlags,
+                                 viewContext: GraphicsViewContext): void {
+    super.willProcessChildView(childView, processFlags, viewContext);
+    if ((processFlags & View.NeedsAnimate) !== 0 && childView instanceof TickView) {
+      const origin = this.origin.value;
+      const scale = this.scale.value;
+      if (origin !== void 0 && scale !== void 0) {
+        this.layoutTick(childView, origin, this.viewFrame, scale);
+      }
+    }
+  }
+
   needsDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
     if ((this._viewFlags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
@@ -402,14 +480,16 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     this.updateTicks();
   }
 
-  protected layoutTicks(origin: PointR2, frame: BoxR2, scale: ContinuousScale<D, number>): void {
-    this._ticks.forEachValue(function (tick: TickView<D>): void {
-      this.layoutTick(tick, origin, frame, scale);
-    }, this);
-
-    // We don't need to run the layout phase unless the view frame changes
-    // between now and the display pass.
-    this._viewFlags &= ~View.NeedsLayout;
+  protected willDisplayChildView(childView: View, displayFlags: ViewFlags,
+                                 viewContext: GraphicsViewContext): void {
+    super.willDisplayChildView(childView, displayFlags, viewContext);
+    if ((displayFlags & View.NeedsLayout) !== 0 && childView instanceof TickView) {
+      const origin = this.origin.value;
+      const scale = this.scale.value;
+      if (origin !== void 0 && scale !== void 0) {
+        this.layoutTick(childView, origin, this.viewFrame, scale);
+      }
+    }
   }
 
   protected abstract layoutTick(tick: TickView<D>, origin: PointR2, frame: BoxR2,
@@ -440,7 +520,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   static top<X>(init?: AxisViewInit<X>): TopAxisView<X> {
     const view = new AxisView.Top<X>();
     if (init !== void 0) {
-      AxisView.init(view, init);
+      view.initView(init);
     }
     return view;
   }
@@ -448,7 +528,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   static right<Y>(init?: AxisViewInit<Y>): RightAxisView<Y> {
     const view = new AxisView.Right<Y>();
     if (init !== void 0) {
-      AxisView.init(view, init);
+      view.initView(init);
     }
     return view;
   }
@@ -456,7 +536,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   static bottom<X>(init?: AxisViewInit<X>): BottomAxisView<X> {
     const view = new AxisView.Bottom<X>();
     if (init !== void 0) {
-      AxisView.init(view, init);
+      view.initView(init);
     }
     return view;
   }
@@ -464,7 +544,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   static left<Y>(init?: AxisViewInit<Y>): LeftAxisView<Y> {
     const view = new AxisView.Left<Y>();
     if (init !== void 0) {
-      AxisView.init(view, init);
+      view.initView(init);
     }
     return view;
   }
@@ -505,75 +585,8 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
       }
     }
     const view = AxisView.fromOrientation<D>(orientation);
-    AxisView.init(view, init);
+    view.initView(init)
     return view;
-  }
-
-  /** @hidden */
-  static init<D>(view: AxisView<D>, init: AxisViewInit<D>): void {
-    if (init.scale !== void 0) {
-      view.scale(init.scale);
-    }
-
-    const ticks = init.ticks;
-    if (ticks !== void 0) {
-      for (let i = 0, n = ticks.length; i < n; i += 1) {
-        view.insertTick(ticks[i]);
-      }
-    }
-    if (init.tickGenerator !== void 0) {
-      view.tickGenerator(init.tickGenerator);
-    }
-
-    if (init.borderColor !== void 0) {
-      view.borderColor(init.borderColor);
-    }
-    if (init.borderWidth !== void 0) {
-      view.borderWidth(init.borderWidth);
-    }
-    if (init.borderSerif !== void 0) {
-      view.borderSerif(init.borderSerif);
-    }
-
-    if (init.tickMarkSpacing !== void 0) {
-      view.tickMarkSpacing(init.tickMarkSpacing);
-    }
-    if (init.tickMarkColor !== void 0) {
-      view.tickMarkColor(init.tickMarkColor);
-    }
-    if (init.tickMarkWidth !== void 0) {
-      view.tickMarkWidth(init.tickMarkWidth);
-    }
-    if (init.tickMarkLength !== void 0) {
-      view.tickMarkLength(init.tickMarkLength);
-    }
-    if (init.tickLabelPadding !== void 0) {
-      view.tickLabelPadding(init.tickLabelPadding);
-    }
-    if (init.tickTransition !== void 0) {
-      view.tickTransition(Transition.fromAny(init.tickTransition));
-    }
-
-    if (init.gridLineColor !== void 0) {
-      view.gridLineColor(init.gridLineColor);
-    }
-    if (init.gridLineWidth !== void 0) {
-      view.gridLineWidth(init.gridLineWidth);
-    }
-
-    if (init.font !== void 0) {
-      view.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      view.textColor(init.textColor);
-    }
-
-    if (init.hidden !== void 0) {
-      view.setHidden(init.hidden);
-    }
-    if (init.culled !== void 0) {
-      view.setCulled(init.culled);
-    }
   }
 
   // Forward type declarations

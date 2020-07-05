@@ -33,6 +33,7 @@ const main = {
       "@swim/view": "swim",
       "@swim/gesture": "swim",
       "@swim/theme": "swim",
+      "@swim/motif": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -61,6 +62,7 @@ const main = {
     "@swim/view",
     "@swim/gesture",
     "@swim/theme",
+    "@swim/motif",
   ],
   plugins: [
     nodeResolve({customResolveOptions: {paths: "../.."}}),

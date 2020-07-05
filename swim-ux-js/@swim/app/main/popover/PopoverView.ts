@@ -16,7 +16,7 @@ import {Objects} from "@swim/util";
 import {BoxR2} from "@swim/math";
 import {AnyLength, Length} from "@swim/length";
 import {Color} from "@swim/color";
-import {Ease, Tween, Transition} from "@swim/transition";
+import {Ease, Tween, AnyTransition, Transition} from "@swim/transition";
 import {
   ViewContext,
   ViewFlags,
@@ -25,6 +25,7 @@ import {
   Modal,
   ViewScope,
   ViewAnimator,
+  HtmlViewInit,
   HtmlView,
   HtmlViewObserver,
 } from "@swim/view";
@@ -32,6 +33,16 @@ import {PopoverViewObserver} from "./PopoverViewObserver";
 import {PopoverViewController} from "./PopoverViewController";
 
 export type PopoverPlacement = "none" | "above" | "below" | "over" | "top" | "bottom" | "right" | "left";
+
+export interface PopoverViewInit extends HtmlViewInit {
+  viewController?: PopoverViewController;
+  source?: View;
+  placement?: PopoverPlacement[];
+  placementFrame?: BoxR2;
+  arrowWidth?: AnyLength;
+  arrowHeight?: AnyLength;
+  popoverTransition?: AnyTransition<any>;
+}
 
 export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   /** @hidden */
@@ -45,31 +56,31 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   /** @hidden */
   _placementFrame: BoxR2 | null;
 
-  constructor(node: HTMLElement = document.createElement("div")) {
+  constructor(node: HTMLElement) {
     super(node);
-    this.arrowWidth.setState(Length.fromAny(10));
-    this.arrowHeight.setState(Length.fromAny(8));
     this._source = null;
     this._sourceFrame = null;
     this._modalState = "shown";
     this._placement = ["top", "bottom", "right", "left"];
     this._placementFrame = null;
     this.backgroundColor.didUpdate = this.didUpdateBackgroundColor.bind(this);
+    this.initArrow();
+  }
 
+  protected initArrow(): void {
     const arrow = this.createArrow();
     if (arrow !== null) {
-      const arrowView = View.fromNode(arrow);
-      this.prependChildView(arrowView, "arrow");
+      this.prependChildView(arrow, "arrow");
     }
   }
 
-  protected createArrow(): HTMLElement | null {
-    const arrow = document.createElement("div");
-    arrow.setAttribute("class", "popover-arrow");
-    arrow.style.setProperty("display", "none");
-    arrow.style.setProperty("position", "absolute");
-    arrow.style.setProperty("width", "0");
-    arrow.style.setProperty("height", "0");
+  protected createArrow(): HtmlView | null {
+    const arrow = HtmlView.create("div");
+    arrow.addClass("popover-arrow");
+    arrow.display.setAutoState("none");
+    arrow.position.setAutoState("absolute");
+    arrow.width.setAutoState(0);
+    arrow.height.setAutoState(0);
     return arrow;
   }
 
@@ -77,19 +88,41 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     return this._viewController;
   }
 
-  @ViewAnimator(Length)
+  initView(init: PopoverViewInit): void {
+    super.initView(init);
+    if (init.source !== void 0) {
+      this.setSource(init.source);
+    }
+    if (init.placement !== void 0) {
+      this.placement(init.placement);
+    }
+    if (init.placementFrame !== void 0) {
+      this.placementFrame(init.placementFrame);
+    }
+    if (init.arrowWidth !== void 0) {
+      this.arrowWidth(init.arrowWidth);
+    }
+    if (init.arrowHeight !== void 0) {
+      this.arrowHeight(init.arrowHeight);
+    }
+    if (init.popoverTransition !== void 0) {
+      this.popoverTransition(init.popoverTransition);
+    }
+  }
+
+  @ViewAnimator(Length, {value: Length.fromAny(10)})
   arrowWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length)
+  @ViewAnimator(Length, {value: Length.fromAny(8)})
   arrowHeight: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewScope(Object, {
+  @ViewScope(Transition, {
     inherit: true,
     init(): Transition<any> {
       return Transition.duration(250, Ease.cubicOut);
     },
   })
-  popoverTransition: ViewScope<this, Transition<any>>;
+  popoverTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
   get source(): View | null {
     return this._source;
@@ -149,10 +182,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   showModal(tween?: Tween<any>): void {
     if (this._modalState === "hidden" || this._modalState === "hiding") {
       if (tween === void 0 || tween === true) {
-        tween = this.popoverTransition.state;
-        if (tween === void 0) {
-          tween = null;
-        }
+        tween = this.popoverTransition.getStateOr(null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -161,23 +191,23 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       if (tween !== null) {
         tween = tween.onEnd(this.didShow.bind(this));
         if (placement === "above") {
-          this.opacity.setState(void 0);
+          this.opacity.setAutoState(void 0);
           if (this.marginTop.value === void 0) {
-            this.marginTop(-this._node.clientHeight);
+            this.marginTop.setAutoState(-this._node.clientHeight);
           }
-          this.marginTop(0, tween);
+          this.marginTop.setAutoState(0, tween);
         } else if (placement === "below") {
-          this.opacity.setState(void 0);
+          this.opacity.setAutoState(void 0);
           if (this.marginTop.value === void 0) {
-            this.marginTop(this._node.clientHeight);
+            this.marginTop.setAutoState(this._node.clientHeight);
           }
-          this.marginTop(0, tween);
+          this.marginTop.setAutoState(0, tween);
         } else {
-          this.marginTop.setState(void 0);
+          this.marginTop.setAutoState(void 0);
           if (this.opacity.value === void 0) {
-            this.opacity(0);
+            this.opacity.setAutoState(0);
           }
-          this.opacity(1, tween);
+          this.opacity.setAutoState(1, tween);
         }
       } else {
         this.didShow();
@@ -191,15 +221,15 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
         viewObserver.popoverWillShow(this);
       }
     });
-    this.visibility("visible");
+    this.visibility.setAutoState("visible");
     this._modalState = "showing";
   }
 
   protected didShow(): void {
     this._modalState = "shown";
-    this.pointerEvents("auto");
-    this.marginTop.setState(void 0);
-    this.opacity.setState(void 0);
+    this.pointerEvents.setAutoState("auto");
+    this.marginTop.setAutoState(void 0);
+    this.opacity.setAutoState(void 0);
     this.didObserve(function (viewObserver: PopoverViewObserver): void {
       if (viewObserver.popoverDidShow !== void 0) {
         viewObserver.popoverDidShow(this);
@@ -210,10 +240,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   hideModal(tween?: Tween<any>): void {
     if (this._modalState === "shown" || this._modalState === "showing") {
       if (tween === void 0 || tween === true) {
-        tween = this.popoverTransition.state;
-        if (tween === void 0) {
-          tween = null;
-        }
+        tween = this.popoverTransition.getStateOr(null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -222,23 +249,23 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       if (tween !== null) {
         tween = tween.onEnd(this.didHide.bind(this));
         if (placement === "above") {
-          this.opacity.setState(void 0);
+          this.opacity.setAutoState(void 0);
           if (this.marginTop.value === void 0) {
-            this.marginTop(0);
+            this.marginTop.setAutoState(0);
           }
-          this.marginTop(-this._node.clientHeight, tween);
+          this.marginTop.setAutoState(-this._node.clientHeight, tween);
         } else if (placement === "below") {
-          this.opacity.setState(void 0);
+          this.opacity.setAutoState(void 0);
           if (this.marginTop.value === void 0) {
-            this.marginTop(0);
+            this.marginTop.setAutoState(0);
           }
-          this.marginTop(this._node.clientHeight, tween);
+          this.marginTop.setAutoState(this._node.clientHeight, tween);
         } else {
-          this.marginTop.setState(void 0);
+          this.marginTop.setAutoState(void 0);
           if (this.opacity.value === void 0) {
-            this.opacity(1);
+            this.opacity.setAutoState(1);
           }
-          this.opacity(0, tween);
+          this.opacity.setAutoState(0, tween);
         }
       } else {
         this.didHide();
@@ -258,9 +285,9 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
 
   protected didHide(): void {
     this._modalState = "hidden";
-    this.visibility("hidden");
-    this.marginTop.setState(void 0);
-    this.opacity.setState(void 0);
+    this.visibility.setAutoState("hidden");
+    this.marginTop.setAutoState(void 0);
+    this.opacity.setAutoState(void 0);
     this.didObserve(function (viewObserver: PopoverViewObserver): void {
       if (viewObserver.popoverDidHide !== void 0) {
         viewObserver.popoverDidHide(this);
@@ -299,12 +326,12 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     }
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & (View.NeedsScroll | View.NeedsAnimate)) !== 0) {
       additionalFlags |= View.NeedsLayout;
     }
-    additionalFlags |= super.modifyUpdate(updateFlags | additionalFlags);
+    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
     return additionalFlags;
   }
 
@@ -382,7 +409,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     const marginTop = sourceTop - placementTop - window.pageYOffset;
     const marginBottom = placementBottom - sourceTop - sourceHeight;
 
-    const arrowHeight = this.arrowHeight.value!.pxValue();
+    const arrowHeight = this.arrowHeight.getValue().pxValue();
 
     let placement: PopoverPlacement | undefined;
     for (let i = 0; i < this._placement.length; i += 1) { // first fit
@@ -502,21 +529,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     if (placement !== "none" && (left !== node.offsetLeft || top !== node.offsetTop
                              ||  maxWidth !== oldMaxWidth || maxHeight !== oldMaxHeight)) {
       this.willPlacePopover(placement!);
-      node.style.setProperty("position", "absolute");
-      node.style.setProperty("left", left + "px");
-      if (right !== void 0) {
-        node.style.setProperty("right", right + "px");
-      } else {
-        node.style.removeProperty("right");
-      }
-      node.style.setProperty("top", top + "px");
-      if (bottom !== void 0) {
-        node.style.setProperty("bottom", bottom + "px");
-      } else {
-        node.style.removeProperty("bottom");
-      }
-      node.style.setProperty("max-width", maxWidth + "px");
-      node.style.setProperty("max-height", maxHeight + "px");
+      this.position.setAutoState("absolute");
+      this.left.setAutoState(left);
+      this.right.setAutoState(right);
+      this.top.setAutoState(top);
+      this.bottom.setAutoState(bottom);
+      this.maxWidth.setAutoState(maxWidth);
+      this.maxHeight.setAutoState(maxHeight);
       this.onPlacePopover(placement!);
       this.didPlacePopover(placement!);
     }
@@ -552,7 +571,6 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     if (parent === null) {
       return;
     }
-    const arrowNode = arrow._node;
 
     // offsetParent bounds in client coordinates
     const parentBounds = parent.getBoundingClientRect();
@@ -579,98 +597,98 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     const borderRadius = this.borderRadius();
     const radius = borderRadius instanceof Length ? borderRadius.pxValue() : 0;
 
-    const arrowWidth = this.arrowWidth.value!.pxValue();
-    const arrowHeight = this.arrowHeight.value!.pxValue();
+    const arrowWidth = this.arrowWidth.getValue().pxValue();
+    const arrowHeight = this.arrowHeight.getValue().pxValue();
 
     const arrowXMin = offsetLeft + radius + arrowWidth / 2;
     const arrowXMax = offsetRight - radius - arrowWidth / 2;
     const arrowYMin = offsetTop + radius + arrowWidth / 2;
     const arrowYMax = offsetBottom - radius - arrowWidth / 2;
 
-    arrowNode.style.removeProperty("top");
-    arrowNode.style.removeProperty("right");
-    arrowNode.style.removeProperty("bottom");
-    arrowNode.style.removeProperty("left");
-    arrowNode.style.removeProperty("border-left-width");
-    arrowNode.style.removeProperty("border-left-style");
-    arrowNode.style.removeProperty("border-left-color");
-    arrowNode.style.removeProperty("border-right-width");
-    arrowNode.style.removeProperty("border-right-style");
-    arrowNode.style.removeProperty("border-right-color");
-    arrowNode.style.removeProperty("border-top-width");
-    arrowNode.style.removeProperty("border-top-style");
-    arrowNode.style.removeProperty("border-top-color");
-    arrowNode.style.removeProperty("border-bottom-width");
-    arrowNode.style.removeProperty("border-bottom-style");
-    arrowNode.style.removeProperty("border-bottom-color");
-    arrowNode.style.setProperty("z-index", "100");
+    arrow.top.setAutoState(void 0);
+    arrow.right.setAutoState(void 0);
+    arrow.bottom.setAutoState(void 0);
+    arrow.left.setAutoState(void 0);
+    arrow.borderLeftWidth.setAutoState(void 0);
+    arrow.borderLeftStyle.setAutoState(void 0);
+    arrow.borderLeftColor.setAutoState(void 0);
+    arrow.borderRightWidth.setAutoState(void 0);
+    arrow.borderRightStyle.setAutoState(void 0);
+    arrow.borderRightColor.setAutoState(void 0);
+    arrow.borderTopWidth.setAutoState(void 0);
+    arrow.borderTopStyle.setAutoState(void 0);
+    arrow.borderTopColor.setAutoState(void 0);
+    arrow.borderBottomWidth.setAutoState(void 0);
+    arrow.borderBottomStyle.setAutoState(void 0);
+    arrow.borderBottomColor.setAutoState(void 0);
+    arrow.zIndex.setAutoState(100);
 
     if (placement === "none" || placement === "above" || placement === "below" || placement === "over") {
       // hide arrow
-      arrowNode.style.setProperty("display", "none");
+      arrow.display.setAutoState("none");
     } else if (Math.round(sourceY) <= Math.round(offsetTop - arrowHeight) // arrow tip below source center
         && arrowXMin <= sourceX && sourceX <= arrowXMax) { // arrow base on top popover edge
       // top arrow
-      arrowNode.style.setProperty("display", "block");
-      arrowNode.style.setProperty("top", Math.round(-arrowHeight) + "px");
-      arrowNode.style.setProperty("left", Math.round(sourceX - offsetLeft - arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-left-width", Math.round(arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-left-style", "solid");
-      arrowNode.style.setProperty("border-left-color", "transparent");
-      arrowNode.style.setProperty("border-right-width", Math.round(arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-right-style", "solid");
-      arrowNode.style.setProperty("border-right-color", "transparent");
-      arrowNode.style.setProperty("border-bottom-width", Math.round(arrowHeight) + "px");
-      arrowNode.style.setProperty("border-bottom-style", "solid");
-      arrowNode.style.setProperty("border-bottom-color", backgroundColor.toString());
+      arrow.display.setAutoState("block");
+      arrow.top.setAutoState(Math.round(-arrowHeight));
+      arrow.left.setAutoState(Math.round(sourceX - offsetLeft - arrowWidth / 2));
+      arrow.borderLeftWidth.setAutoState(Math.round(arrowWidth / 2));
+      arrow.borderLeftStyle.setAutoState("solid");
+      arrow.borderLeftColor.setAutoState(Color.transparent());
+      arrow.borderRightWidth.setAutoState(Math.round(arrowWidth / 2));
+      arrow.borderRightStyle.setAutoState("solid");
+      arrow.borderRightColor.setAutoState(Color.transparent());
+      arrow.borderBottomWidth.setAutoState(Math.round(arrowHeight));
+      arrow.borderBottomStyle.setAutoState("solid");
+      arrow.borderBottomColor.setAutoState(backgroundColor.toString());
     } else if (Math.round(offsetBottom + arrowHeight) <= Math.round(sourceY) // arrow tip above source center
         && arrowXMin <= sourceX && sourceX <= arrowXMax) { // arrow base on bottom popover edge
       // bottom arrow
-      arrowNode.style.setProperty("display", "block");
-      arrowNode.style.setProperty("bottom", Math.round(-arrowHeight) + "px");
-      arrowNode.style.setProperty("left", Math.round(sourceX - offsetLeft - arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-left-width", Math.round(arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-left-style", "solid");
-      arrowNode.style.setProperty("border-left-color", "transparent");
-      arrowNode.style.setProperty("border-right-width", Math.round(arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-right-style", "solid");
-      arrowNode.style.setProperty("border-right-color", "transparent");
-      arrowNode.style.setProperty("border-top-width", Math.round(arrowHeight) + "px");
-      arrowNode.style.setProperty("border-top-style", "solid");
-      arrowNode.style.setProperty("border-top-color", backgroundColor.toString());
+      arrow.display.setAutoState("block");
+      arrow.bottom.setAutoState(Math.round(-arrowHeight));
+      arrow.left.setAutoState(Math.round(sourceX - offsetLeft - arrowWidth / 2));
+      arrow.borderLeftWidth.setAutoState(Math.round(arrowWidth / 2));
+      arrow.borderLeftStyle.setAutoState("solid");
+      arrow.borderLeftColor.setAutoState(Color.transparent());
+      arrow.borderRightWidth.setAutoState(Math.round(arrowWidth / 2));
+      arrow.borderRightStyle.setAutoState("solid");
+      arrow.borderRightColor.setAutoState(Color.transparent());
+      arrow.borderTopWidth.setAutoState(Math.round(arrowHeight));
+      arrow.borderTopStyle.setAutoState("solid");
+      arrow.borderTopColor.setAutoState(backgroundColor.toString());
     } else if (Math.round(sourceX) <= Math.round(offsetLeft - arrowHeight) // arrow tip right of source center
         && arrowYMin <= sourceY && sourceY <= arrowYMax) { // arrow base on left popover edge
       // left arrow
-      arrowNode.style.setProperty("display", "block");
-      arrowNode.style.setProperty("left", Math.round(-arrowHeight) + "px");
-      arrowNode.style.setProperty("top", Math.round(sourceY - offsetTop - arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-top-width", Math.round(arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-top-style", "solid");
-      arrowNode.style.setProperty("border-top-color", "transparent");
-      arrowNode.style.setProperty("border-bottom-width", Math.round(arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-bottom-style", "solid");
-      arrowNode.style.setProperty("border-bottom-color", "transparent");
-      arrowNode.style.setProperty("border-right-width", Math.round(arrowHeight) + "px");
-      arrowNode.style.setProperty("border-right-style", "solid");
-      arrowNode.style.setProperty("border-right-color", backgroundColor.toString());
+      arrow.display.setAutoState("block");
+      arrow.left.setAutoState(Math.round(-arrowHeight));
+      arrow.top.setAutoState(Math.round(sourceY - offsetTop - arrowWidth / 2));
+      arrow.borderTopWidth.setAutoState(Math.round(arrowWidth / 2));
+      arrow.borderTopStyle.setAutoState("solid");
+      arrow.borderTopColor.setAutoState(Color.transparent());
+      arrow.borderBottomWidth.setAutoState(Math.round(arrowWidth / 2));
+      arrow.borderBottomStyle.setAutoState("solid");
+      arrow.borderBottomColor.setAutoState(Color.transparent());
+      arrow.borderRightWidth.setAutoState(Math.round(arrowHeight));
+      arrow.borderRightStyle.setAutoState("solid");
+      arrow.borderRightColor.setAutoState(backgroundColor.toString());
     } else if (Math.round(offsetRight + arrowHeight) <= Math.round(sourceX) // arrow tip left of source center
         && arrowYMin <= sourceY && sourceY <= arrowYMax) { // arrow base on right popover edge
       // right arrow
-      arrowNode.style.setProperty("display", "block");
-      arrowNode.style.setProperty("right", Math.round(-arrowHeight) + "px");
-      arrowNode.style.setProperty("top", Math.round(sourceY - offsetTop - arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-top-width", Math.round(arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-top-style", "solid");
-      arrowNode.style.setProperty("border-top-color", "transparent");
-      arrowNode.style.setProperty("border-bottom-width", Math.round(arrowWidth / 2) + "px");
-      arrowNode.style.setProperty("border-bottom-style", "solid");
-      arrowNode.style.setProperty("border-bottom-color", "transparent");
-      arrowNode.style.setProperty("border-left-width", Math.round(arrowHeight) + "px");
-      arrowNode.style.setProperty("border-left-style", "solid");
-      arrowNode.style.setProperty("border-left-color", backgroundColor.toString());
+      arrow.display.setAutoState("block");
+      arrow.right.setAutoState(Math.round(-arrowHeight));
+      arrow.top.setAutoState(Math.round(sourceY - offsetTop - arrowWidth / 2));
+      arrow.borderTopWidth.setAutoState(Math.round(arrowWidth / 2));
+      arrow.borderTopStyle.setAutoState("solid");
+      arrow.borderTopColor.setAutoState(Color.transparent());
+      arrow.borderBottomWidth.setAutoState(Math.round(arrowWidth / 2));
+      arrow.borderBottomStyle.setAutoState("solid");
+      arrow.borderBottomColor.setAutoState(Color.transparent());
+      arrow.borderLeftWidth.setAutoState(Math.round(arrowHeight));
+      arrow.borderLeftStyle.setAutoState("solid");
+      arrow.borderLeftColor.setAutoState(backgroundColor.toString());
     } else {
       // no arrow
-      arrowNode.style.setProperty("display", "none");
+      arrow.display.setAutoState("none");
     }
   }
 

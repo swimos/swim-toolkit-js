@@ -92,7 +92,7 @@ export const ContinuousScaleViewAnimator: ContinuousScaleViewAnimatorClass = (fu
         newState = newState.range(yMin as Y, yMax);
       }
       if ((tween === void 0 || tween === null || tween === false) && this._tweenState === TweenState.Tracking) {
-        const oldValue = this.value!;
+        const oldValue = this.getValue();
         const newValue = oldValue.domain(xMin as X, xMax as X);
         const duration = this._duration - this._beginTime;
         tween = Transition.duration(duration, void 0, Interpolator.between(newValue, newState));
@@ -121,7 +121,7 @@ export const ContinuousScaleViewAnimator: ContinuousScaleViewAnimatorClass = (fu
     if (oldState !== void 0) {
       newState = oldState.domain(xMin as X, xMax as X);
       if ((tween === void 0 || tween === null || tween === false) && this._tweenState === TweenState.Tracking) {
-        const oldValue = this.value!;
+        const oldValue = this.getValue();
         const newValue = oldValue.domain(xMin as X, xMax as X);
         const duration = this._duration - this._beginTime;
         tween = Transition.duration(duration, void 0, Interpolator.between(newValue, newState));
@@ -146,7 +146,7 @@ export const ContinuousScaleViewAnimator: ContinuousScaleViewAnimatorClass = (fu
       }
       const newState = oldState.range(yMin as Y, yMax as Y);
       if ((tween === void 0 || tween === null || tween === false) && this._tweenState === TweenState.Tracking) {
-        const oldValue = this.value!;
+        const oldValue = this.getValue();
         const newValue = oldValue.range(yMin as Y, yMax as Y);
         const duration = this._duration - this._beginTime;
         tween = Transition.duration(duration, void 0, Interpolator.between(newValue, newState));

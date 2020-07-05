@@ -19,14 +19,19 @@ import {ViewEdgeInsets} from "../ViewDimensions";
 import {ViewportColorScheme, Viewport} from "../Viewport";
 import {ViewIdiom} from "../ViewIdiom";
 import {ModalOptions, Modal} from "../modal/Modal";
-import {RootView} from "../root/RootView";
+import {RootViewInit, RootView} from "../root/RootView";
 import {RootViewObserver} from "../root/RootViewObserver";
 import {LayoutSolver} from "../layout/LayoutSolver";
 import {LayoutAnchor} from "../layout/LayoutAnchor";
 import {ViewNode} from "../node/NodeView";
-import {HtmlView} from "../html/HtmlView";
+import {HtmlViewInit, HtmlView} from "../html/HtmlView";
 import {UiViewContext} from "./UiViewContext";
 import {UiViewController} from "./UiViewController";
+
+export interface UiViewInit extends RootViewInit, HtmlViewInit {
+  viewController?: UiViewController;
+  viewIdiom?: ViewIdiom;
+}
 
 export class UiView extends HtmlView implements RootView {
   /** @hidden */
@@ -68,6 +73,13 @@ export class UiView extends HtmlView implements RootView {
 
   get viewController(): UiViewController | null {
     return this._viewController;
+  }
+
+  initView(init: UiViewInit): void {
+    super.initView(init);
+    if (init.viewIdiom !== void 0) {
+      this.setViewIdiom(init.viewIdiom);
+    }
   }
 
   @LayoutAnchor<UiView>({
@@ -178,22 +190,22 @@ export class UiView extends HtmlView implements RootView {
     super.onUnpower();
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = super.modifyUpdate(updateFlags);
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
+    let additionalFlags = super.modifyUpdate(targetView, updateFlags);
     if ((updateFlags & View.NeedsResize) !== 0) {
       additionalFlags |= View.NeedsLayout;
     }
     return additionalFlags;
   }
 
-  requestUpdate(updateFlags: ViewFlags, immediate: boolean): void {
-    updateFlags = this.willRequestUpdate(updateFlags, immediate);
+  requestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
+    updateFlags = this.willRequestUpdate(targetView, updateFlags, immediate);
     if (immediate && this._updateDelay <= UiView.MaxProcessInterval) {
       this.runImmediatePass();
     } else {
       this.scheduleUpdate();
     }
-    this.didRequestUpdate(updateFlags, immediate);
+    this.didRequestUpdate(targetView, updateFlags, immediate);
   }
 
   /** @hidden */

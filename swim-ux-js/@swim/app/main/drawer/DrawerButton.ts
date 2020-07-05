@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View, SvgView, HtmlView, HtmlViewController} from "@swim/view";
+import {View, ViewNodeType, SvgView, HtmlView, HtmlViewController} from "@swim/view";
 import {DrawerView} from "./DrawerView";
 
 export class DrawerButton extends HtmlView {
@@ -26,15 +26,16 @@ export class DrawerButton extends HtmlView {
     this.initChildren();
   }
 
-  protected initNode(node: HTMLElement): void {
-    this.addClass("drawer-button")
-        .display("flex")
-        .justifyContent("center")
-        .alignItems("center")
-        .width(48)
-        .height(48)
-        .userSelect("none")
-        .cursor("pointer");
+  protected initNode(node: ViewNodeType<this>): void {
+    super.initNode(node);
+    this.addClass("drawer-button");
+    this.display.setAutoState("flex")
+    this.justifyContent.setAutoState("center")
+    this.alignItems.setAutoState("center")
+    this.width.setAutoState(48)
+    this.height.setAutoState(48)
+    this.userSelect.setAutoState("none")
+    this.cursor.setAutoState("pointer");
   }
 
   protected initChildren(): void {
@@ -42,14 +43,15 @@ export class DrawerButton extends HtmlView {
   }
 
   protected createIcon(): SvgView {
-    const icon = SvgView.create("svg")
-        .width(30)
-        .height(30)
-        .viewBox("0 0 30 30")
-        .stroke("#ffffff")
-        .strokeWidth(2)
-        .strokeLinecap("round");
-    icon.append("path").d("M4 7h22M4 15h22M4 23h22");
+    const icon = SvgView.create("svg");
+    icon.width.setAutoState(30)
+    icon.height.setAutoState(30)
+    icon.viewBox.setAutoState("0 0 30 30")
+    icon.stroke.setAutoState("#ffffff")
+    icon.strokeWidth.setAutoState(2)
+    icon.strokeLinecap.setAutoState("round");
+    const path = icon.append("path")
+    path.d.setAutoState("M4 7h22M4 15h22M4 23h22");
     return icon;
   }
 

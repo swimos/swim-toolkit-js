@@ -90,6 +90,40 @@ export abstract class TickView<D> extends GraphicsNodeView {
     return this._viewController;
   }
 
+  initView(init: TickViewInit<D>): void {
+    super.initView(init);
+    if (init.tickMarkColor !== void 0) {
+      this.tickMarkColor(init.tickMarkColor);
+    }
+    if (init.tickMarkWidth !== void 0) {
+      this.tickMarkWidth(init.tickMarkWidth);
+    }
+    if (init.tickMarkLength !== void 0) {
+      this.tickMarkLength(init.tickMarkLength);
+    }
+    if (init.tickLabelPadding !== void 0) {
+      this.tickLabelPadding(init.tickLabelPadding);
+    }
+
+    if (init.gridLineColor !== void 0) {
+      this.gridLineColor(init.gridLineColor);
+    }
+    if (init.gridLineWidth !== void 0) {
+      this.gridLineWidth(init.gridLineWidth);
+    }
+
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.textColor !== void 0) {
+      this.textColor(init.textColor);
+    }
+
+    if (init.tickLabel !== void 0) {
+      this.tickLabel(init.tickLabel);
+    }
+  }
+
   abstract get orientation(): TickOrientation;
 
   get value(): D {
@@ -169,12 +203,12 @@ export abstract class TickView<D> extends GraphicsNodeView {
     }
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & View.NeedsAnimate) !== 0) {
       additionalFlags |= View.NeedsAnimate;
     }
-    additionalFlags |= super.modifyUpdate(updateFlags | additionalFlags);
+    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
     return additionalFlags;
   }
 
@@ -214,7 +248,7 @@ export abstract class TickView<D> extends GraphicsNodeView {
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
       const context = renderer.context;
-      context.globalAlpha = this.opacity.value!;
+      context.globalAlpha = this.opacity.getValue();
       this.renderTick(context, this.viewFrame);
     }
   }
@@ -239,7 +273,7 @@ export abstract class TickView<D> extends GraphicsNodeView {
     if (isNaN(view._offset0)) {
       view._offset0 = offset;
     }
-    const tickSpacing = view.tickMarkSpacing.value! / 2;
+    const tickSpacing = view.tickMarkSpacing.getValue() / 2;
     const v = Math.min(Math.abs(offset - view._offset0) / tickSpacing, 1);
     const opacity = this._interpolator!.interpolate(Math.max(u, v));
     if (u === 1 || v === 1) {
@@ -303,45 +337,7 @@ export abstract class TickView<D> extends GraphicsNodeView {
       throw new TypeError();
     }
     const view = TickView.from(init.value, orientation);
-
-    if (init.tickMarkColor !== void 0) {
-      view.tickMarkColor(init.tickMarkColor);
-    }
-    if (init.tickMarkWidth !== void 0) {
-      view.tickMarkWidth(init.tickMarkWidth);
-    }
-    if (init.tickMarkLength !== void 0) {
-      view.tickMarkLength(init.tickMarkLength);
-    }
-    if (init.tickLabelPadding !== void 0) {
-      view.tickLabelPadding(init.tickLabelPadding);
-    }
-
-    if (init.gridLineColor !== void 0) {
-      view.gridLineColor(init.gridLineColor);
-    }
-    if (init.gridLineWidth !== void 0) {
-      view.gridLineWidth(init.gridLineWidth);
-    }
-
-    if (init.font !== void 0) {
-      view.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      view.textColor(init.textColor);
-    }
-
-    if (init.tickLabel !== void 0) {
-      view.tickLabel(init.tickLabel);
-    }
-
-    if (init.hidden !== void 0) {
-      view.setHidden(init.hidden);
-    }
-    if (init.culled !== void 0) {
-      view.setCulled(init.culled);
-    }
-
+    view.initView(init);
     return view;
   }
 

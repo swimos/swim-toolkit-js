@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ViewContext} from "../ViewContext";
-import {View} from "../View";
+import {ViewFlags, View} from "../View";
 import {ViewController} from "../ViewController";
 import {ModalOptions, Modal} from "../modal/Modal";
 import {RootView} from "./RootView";
@@ -84,15 +84,15 @@ export interface RootViewController<V extends RootView = RootView> extends ViewC
 
   viewDidLayout(viewContext: ViewContext, view: V): void;
 
-  viewWillProcessChildViews(viewContext: ViewContext, view: V): void;
+  viewWillProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext, view: V): void;
 
-  viewDidProcessChildViews(viewContext: ViewContext, view: V): void;
+  viewDidProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext, view: V): void;
 
   viewWillDisplay(viewContext: ViewContext, view: V): void;
 
   viewDidDisplay(viewContext: ViewContext, view: V): void;
 
-  viewWillDisplayChildViews(viewContext: ViewContext, view: V): void;
+  viewWillDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext, view: V): void;
 
-  viewDidDisplayChildViews(viewContext: ViewContext, view: V): void;
+  viewDidDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext, view: V): void;
 }

@@ -57,6 +57,31 @@ export class MapCircleView extends MapGraphicsLeafView implements FillView, Stro
     return this._viewController;
   }
 
+  initView(init: MapCircleViewInit): void {
+    super.initView(init);
+    if (init.geoCenter !== void 0) {
+      this.geoCenter(init.geoCenter);
+    }
+    if (init.viewCenter !== void 0) {
+      this.viewCenter(init.viewCenter);
+    }
+    if (init.radius !== void 0) {
+      this.radius(init.radius);
+    }
+    if (init.hitRadius !== void 0) {
+      this.hitRadius(init.hitRadius);
+    }
+    if (init.fill !== void 0) {
+      this.fill(init.fill);
+    }
+    if (init.stroke !== void 0) {
+      this.stroke(init.stroke);
+    }
+    if (init.strokeWidth !== void 0) {
+      this.strokeWidth(init.strokeWidth);
+    }
+  }
+
   @ViewAnimator(GeoPoint, {value: GeoPoint.origin()})
   geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
@@ -105,14 +130,14 @@ export class MapCircleView extends MapGraphicsLeafView implements FillView, Stro
     let viewCenter: PointR2;
     if (this.viewCenter.isAuto()) {
       const geoProjection = viewContext.geoProjection;
-      viewCenter = geoProjection.project(this.geoCenter.value!);
+      viewCenter = geoProjection.project(this.geoCenter.getValue());
       this.viewCenter.setAutoState(viewCenter);
     } else {
-      viewCenter = this.viewCenter.value!;
+      viewCenter = this.viewCenter.getValue();
     }
     const frame = this.viewFrame;
     const size = Math.min(frame.width, frame.height);
-    const radius = this.radius.value!.pxValue(size);
+    const radius = this.radius.getValue().pxValue(size);
     const invalid = !isFinite(viewCenter.x) || !isFinite(viewCenter.y) || !isFinite(radius);
     const culled = invalid || !frame.intersectsCircle(new CircleR2(viewCenter.x, viewCenter.y, radius));
     this.setCulled(culled);
@@ -131,8 +156,8 @@ export class MapCircleView extends MapGraphicsLeafView implements FillView, Stro
 
   protected renderCircle(context: CanvasContext, frame: BoxR2): void {
     const size = Math.min(frame.width, frame.height);
-    const viewCenter = this.viewCenter.value!;
-    const radius = this.radius.value!.pxValue(size);
+    const viewCenter = this.viewCenter.getValue();
+    const radius = this.radius.getValue().pxValue(size);
 
     context.beginPath();
     context.arc(viewCenter.x, viewCenter.y, radius, 0, 2 * Math.PI);
@@ -158,17 +183,17 @@ export class MapCircleView extends MapGraphicsLeafView implements FillView, Stro
     const frame = this.viewFrame;
     const size = Math.min(frame.width, frame.height);
     const inversePageTransform = this.pageTransform.inverse();
-    const viewCenter = this.viewCenter.value!;
+    const viewCenter = this.viewCenter.getValue();
     const [px, py] = inversePageTransform.transform(viewCenter.x, viewCenter.y);
-    const radius = this.radius.value!.pxValue(size);
+    const radius = this.radius.getValue().pxValue(size);
     return new BoxR2(px - radius, py - radius, px + radius, py + radius);
   }
 
   get viewBounds(): BoxR2 {
     const frame = this.viewFrame;
     const size = Math.min(frame.width, frame.height);
-    const viewCenter = this.viewCenter.value!;
-    const radius = this.radius.value!.pxValue(size);
+    const viewCenter = this.viewCenter.getValue();
+    const radius = this.radius.getValue().pxValue(size);
     return new BoxR2(viewCenter.x - radius, viewCenter.y - radius,
                      viewCenter.x + radius, viewCenter.y + radius);
   }
@@ -176,8 +201,8 @@ export class MapCircleView extends MapGraphicsLeafView implements FillView, Stro
   get hitBounds(): BoxR2 {
     const frame = this.viewFrame;
     const size = Math.min(frame.width, frame.height);
-    const viewCenter = this.viewCenter.value!;
-    const radius = this.radius.value!.pxValue(size);
+    const viewCenter = this.viewCenter.getValue();
+    const radius = this.radius.getValue().pxValue(size);
     const hitRadius = this._hitRadius !== void 0 ? Math.max(this._hitRadius, radius) : radius;
     return new BoxR2(viewCenter.x - hitRadius, viewCenter.y - hitRadius,
                      viewCenter.x + hitRadius, viewCenter.y + hitRadius);
@@ -202,8 +227,8 @@ export class MapCircleView extends MapGraphicsLeafView implements FillView, Stro
   protected hitTestCircle(x: number, y: number, context: CanvasContext,
                           frame: BoxR2, pixelRatio: number): GraphicsView | null {
     const size = Math.min(frame.width, frame.height);
-    const viewCenter = this.viewCenter.value!;
-    const radius = this.radius.value!.pxValue(size);
+    const viewCenter = this.viewCenter.getValue();
+    const radius = this.radius.getValue().pxValue(size);
 
     if (this.fill.value !== void 0) {
       const hitRadius = this._hitRadius !== void 0 ? Math.max(this._hitRadius, radius) : radius;
@@ -244,33 +269,7 @@ export class MapCircleView extends MapGraphicsLeafView implements FillView, Stro
 
   static fromInit(init: MapCircleViewInit): MapCircleView {
     const view = new MapCircleView();
-    if (init.geoCenter !== void 0) {
-      view.geoCenter(init.geoCenter);
-    }
-    if (init.viewCenter !== void 0) {
-      view.viewCenter(init.viewCenter);
-    }
-    if (init.radius !== void 0) {
-      view.radius(init.radius);
-    }
-    if (init.hitRadius !== void 0) {
-      view.hitRadius(init.hitRadius);
-    }
-    if (init.fill !== void 0) {
-      view.fill(init.fill);
-    }
-    if (init.stroke !== void 0) {
-      view.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      view.strokeWidth(init.strokeWidth);
-    }
-    if (init.hidden !== void 0) {
-      view.setHidden(init.hidden);
-    }
-    if (init.culled !== void 0) {
-      view.setCulled(init.culled);
-    }
+    view.initView(init);
     return view;
   }
 }

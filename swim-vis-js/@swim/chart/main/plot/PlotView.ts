@@ -22,16 +22,17 @@ import {ScaleXYView} from "../scale/ScaleXYView";
 import {PlotViewController} from "./PlotViewController";
 import {ScatterPlotView} from "./ScatterPlotView";
 import {SeriesPlotView} from "./SeriesPlotView";
-import {BubblePlotView} from "./BubblePlotView";
-import {LinePlotView} from "./LinePlotView";
-import {AreaPlotView} from "./AreaPlotView";
+import {BubblePlotViewInit, BubblePlotView} from "./BubblePlotView";
+import {LinePlotViewInit, LinePlotView} from "./LinePlotView";
+import {AreaPlotViewInit, AreaPlotView} from "./AreaPlotView";
 
 export type PlotType = "bubble" | "line" | "area";
 
 export type AnyPlotView<X, Y> = PlotView<X, Y> | PlotViewInit<X, Y> | PlotType;
 
 export interface PlotViewInit<X, Y> extends GraphicsViewInit {
-  plotType: PlotType;
+  viewController?: PlotViewController<X, Y>;
+  plotType?: PlotType;
 
   xScale?: ContinuousScale<X, number>;
   yScale?: ContinuousScale<Y, number>;
@@ -113,11 +114,11 @@ export const PlotView = {
   fromInit<X, Y>(init: PlotViewInit<X, Y>): PlotView<X, Y> {
     const type = init.plotType;
     if (type === "bubble") {
-      return PlotView.Bubble.fromInit(init);
+      return PlotView.Bubble.fromInit(init as BubblePlotViewInit<X, Y>);
     } else if (type === "line") {
-      return PlotView.Line.fromInit(init);
+      return PlotView.Line.fromInit(init as LinePlotViewInit<X, Y>);
     } else if (type === "area") {
-      return PlotView.Area.fromInit(init);
+      return PlotView.Area.fromInit(init as AreaPlotViewInit<X, Y>);
     }
     throw new TypeError("" + init);
   },

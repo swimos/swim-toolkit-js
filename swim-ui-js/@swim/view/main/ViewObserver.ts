@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ViewContext} from "./ViewContext";
-import {View} from "./View";
+import {ViewFlags, View} from "./View";
 
 export interface ViewObserver<V extends View = View> {
   viewWillSetParentView?(newParentView: View | null, oldParentView: View | null, view: V): void;
@@ -68,15 +68,15 @@ export interface ViewObserver<V extends View = View> {
 
   viewDidLayout?(viewContext: ViewContext, view: V): void;
 
-  viewWillProcessChildViews?(viewContext: ViewContext, view: V): void;
+  viewWillProcessChildViews?(processFlags: ViewFlags, viewContext: ViewContext, view: V): void;
 
-  viewDidProcessChildViews?(viewContext: ViewContext, view: V): void;
+  viewDidProcessChildViews?(processFlags: ViewFlags, viewContext: ViewContext, view: V): void;
 
   viewWillDisplay?(viewContext: ViewContext, view: V): void;
 
   viewDidDisplay?(viewContext: ViewContext, view: V): void;
 
-  viewWillDisplayChildViews?(viewContext: ViewContext, view: V): void;
+  viewWillDisplayChildViews?(displayFlags: ViewFlags, viewContext: ViewContext, view: V): void;
 
-  viewDidDisplayChildViews?(viewContext: ViewContext, view: V): void;
+  viewDidDisplayChildViews?(displayFlags: ViewFlags, viewContext: ViewContext, view: V): void;
 }

@@ -21,20 +21,27 @@ component libraries:
   ([npm](https://www.npmjs.com/package/@swim/theme),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_theme.html)) –
   semantic looks and feels for mood-aware UX components.
+- [**@swim/motif**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/motif)
+  ([npm](https://www.npmjs.com/package/@swim/motif),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_motif.html)) –
+  procedurally styled and rendered decorative views.
 - [**@swim/app**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/app)
   ([npm](https://www.npmjs.com/package/@swim/app),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_app.html)) –
   application model for coordinating window-level components, such as popovers
   and drawers.
-- [**@swim/controls**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/controls)
-  ([npm](https://www.npmjs.com/package/@swim/controls),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_controls.html)) –
-  buttons, switches, sliders, and other user interface controls.
-- [**@swim/navigation**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/navigation)
-  ([npm](https://www.npmjs.com/package/@swim/navigation),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_navigation.html)) –
-  menus, tree views, nav bars, tab bars, and other user interface navigation
-  components.
+- [**@swim/fab**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/fab)
+  ([npm](https://www.npmjs.com/package/@swim/fab),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_fab.html)) –
+  flingable floating action buttons.
+- [**@swim/menu**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/menu)
+  ([npm](https://www.npmjs.com/package/@swim/menu),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_menu.html)) –
+  context-sensitive menu lists and menu items.
+- [**@swim/tree**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/tree)
+  ([npm](https://www.npmjs.com/package/@swim/tree),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_tree.html)) –
+  disclosable tree views with tabular columns.
 
 **@swim/ux** builds on the [**@swim/core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js/@swim/core)
 and [**@swim/ui**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/ui)

@@ -60,6 +60,73 @@ export class PieView extends GraphicsNodeView {
     return this._viewController;
   }
 
+  initView(init: PieViewInit): void {
+    super.initView(init);
+    if (init.limit !== void 0) {
+      this.limit(init.limit);
+    }
+    if (init.center !== void 0) {
+      this.center(init.center);
+    }
+    if (init.baseAngle !== void 0) {
+      this.baseAngle(init.baseAngle);
+    }
+    if (init.innerRadius !== void 0) {
+      this.innerRadius(init.innerRadius);
+    }
+    if (init.outerRadius !== void 0) {
+      this.outerRadius(init.outerRadius);
+    }
+    if (init.padAngle !== void 0) {
+      this.padAngle(init.padAngle);
+    }
+    if (init.padRadius !== void 0) {
+      this.padRadius(init.padRadius);
+    }
+    if (init.cornerRadius !== void 0) {
+      this.cornerRadius(init.cornerRadius);
+    }
+    if (init.labelRadius !== void 0) {
+      this.labelRadius(init.labelRadius);
+    }
+    if (init.sliceColor !== void 0) {
+      this.sliceColor(init.sliceColor);
+    }
+    if (init.tickAlign !== void 0) {
+      this.tickAlign(init.tickAlign);
+    }
+    if (init.tickRadius !== void 0) {
+      this.tickRadius(init.tickRadius);
+    }
+    if (init.tickLength !== void 0) {
+      this.tickLength(init.tickLength);
+    }
+    if (init.tickWidth !== void 0) {
+      this.tickWidth(init.tickWidth);
+    }
+    if (init.tickPadding !== void 0) {
+      this.tickPadding(init.tickPadding);
+    }
+    if (init.tickColor !== void 0) {
+      this.tickColor(init.tickColor);
+    }
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.textColor !== void 0) {
+      this.textColor(init.textColor);
+    }
+    if (init.title !== void 0) {
+      this.title(init.title);
+    }
+    const slices = init.slices;
+    if (slices !== void 0) {
+      for (let i = 0, n = slices.length; i < n; i += 1) {
+        this.addSlice(slices[i]);
+      }
+    }
+  }
+
   @ViewAnimator(Number, {value: 0})
   limit: ViewAnimator<this, number>;
 
@@ -128,9 +195,12 @@ export class PieView extends GraphicsNodeView {
     }
   }
 
-  addSlice(slice: AnySliceView): void {
+  addSlice(slice: AnySliceView, key?: string): void {
+    if (key === void 0) {
+      key = slice.key;
+    }
     slice = SliceView.fromAny(slice);
-    this.appendChildView(slice);
+    this.appendChildView(slice, key);
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -141,12 +211,12 @@ export class PieView extends GraphicsNodeView {
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & View.NeedsAnimate) !== 0) {
       additionalFlags |= View.NeedsAnimate;
     }
-    additionalFlags |= super.modifyUpdate(updateFlags | additionalFlags);
+    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
     return additionalFlags;
   }
 
@@ -169,28 +239,28 @@ export class PieView extends GraphicsNodeView {
     if (this.center.isAuto()) {
       const cx = (frame.xMin + frame.xMax) / 2;
       const cy = (frame.yMin + frame.yMax) / 2;
-      this.center.setAutoState(new PointR2(cx, cy))
+      this.center.setAutoState(new PointR2(cx, cy));
     }
 
     let total = 0;
     for (let i = 0; i < childCount; i += 1) {
       const childView = childViews[i];
       if (childView instanceof SliceView) {
-        const value = childView.value.value!;
+        const value = childView.value.getValue();
         if (isFinite(value)) {
           total += value;
         }
       }
     }
-    total = Math.max(total, this.limit.value!);
+    total = Math.max(total, this.limit.getValue());
 
-    let baseAngle = this.baseAngle.value!.rad();
+    let baseAngle = this.baseAngle.getValue().rad();
     for (let i = 0; i < childCount; i += 1) {
       const childView = childViews[i];
       if (childView instanceof SliceView) {
         childView.total.setAutoState(total);
         childView.phaseAngle.setAutoState(baseAngle);
-        const value = childView.value.value!;
+        const value = childView.value.getValue();
         if (isFinite(value)) {
           const delta = total !== 0 ? value / total : 0;
           baseAngle = Angle.rad(baseAngle.value + 2 * Math.PI * delta);
@@ -212,78 +282,14 @@ export class PieView extends GraphicsNodeView {
     if (pie instanceof PieView) {
       return pie;
     } else if (typeof pie === "object" && pie !== null) {
-      const view = new PieView();
-      if (pie.limit !== void 0) {
-        view.limit(pie.limit);
-      }
-      if (pie.center !== void 0) {
-        view.center(pie.center);
-      }
-      if (pie.baseAngle !== void 0) {
-        view.baseAngle(pie.baseAngle);
-      }
-      if (pie.innerRadius !== void 0) {
-        view.innerRadius(pie.innerRadius);
-      }
-      if (pie.outerRadius !== void 0) {
-        view.outerRadius(pie.outerRadius);
-      }
-      if (pie.padAngle !== void 0) {
-        view.padAngle(pie.padAngle);
-      }
-      if (pie.padRadius !== void 0) {
-        view.padRadius(pie.padRadius);
-      }
-      if (pie.cornerRadius !== void 0) {
-        view.cornerRadius(pie.cornerRadius);
-      }
-      if (pie.labelRadius !== void 0) {
-        view.labelRadius(pie.labelRadius);
-      }
-      if (pie.sliceColor !== void 0) {
-        view.sliceColor(pie.sliceColor);
-      }
-      if (pie.tickAlign !== void 0) {
-        view.tickAlign(pie.tickAlign);
-      }
-      if (pie.tickRadius !== void 0) {
-        view.tickRadius(pie.tickRadius);
-      }
-      if (pie.tickLength !== void 0) {
-        view.tickLength(pie.tickLength);
-      }
-      if (pie.tickWidth !== void 0) {
-        view.tickWidth(pie.tickWidth);
-      }
-      if (pie.tickPadding !== void 0) {
-        view.tickPadding(pie.tickPadding);
-      }
-      if (pie.tickColor !== void 0) {
-        view.tickColor(pie.tickColor);
-      }
-      if (pie.font !== void 0) {
-        view.font(pie.font);
-      }
-      if (pie.textColor !== void 0) {
-        view.textColor(pie.textColor);
-      }
-      if (pie.title !== void 0) {
-        view.title(pie.title);
-      }
-      const slices = pie.slices;
-      if (slices !== void 0) {
-        for (let i = 0, n = slices.length; i < n; i += 1) {
-          view.addSlice(slices[i]);
-        }
-      }
-      if (pie.hidden !== void 0) {
-        view.setHidden(pie.hidden);
-      }
-      if (pie.culled !== void 0) {
-        view.setCulled(pie.culled);
-      }
-      return view;
+      return PieView.fromInit(pie);
     }
     throw new TypeError("" + pie);
+  }
+
+  static fromInit(init: PieViewInit): PieView {
+    const view = new PieView();
+    view.initView(init);
+    return view;
   }
 }

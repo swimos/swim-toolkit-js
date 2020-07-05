@@ -37,7 +37,7 @@ export class LightPrimary implements AccentLook {
   iconColor: Color;
 
   constructor() {
-    this.fillColor = Color.parse("#32c5ff");
+    this.fillColor = Color.parse("#44d7b6");
     this.iconColor = Color.parse("#1e2022");
   }
 }
@@ -48,7 +48,7 @@ export class LightSecondary implements AccentLook {
   iconColor: Color;
 
   constructor() {
-    this.fillColor = Color.parse("#44d7b6");
+    this.fillColor = Color.parse("#32c5ff");
     this.iconColor = Color.parse("#1e2022");
   }
 }

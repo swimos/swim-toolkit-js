@@ -13,6 +13,9 @@
 // limitations under the License.
 
 export {UiViewContext} from "./UiViewContext";
-export {UiView} from "./UiView";
+export {
+  UiViewInit,
+  UiView,
+} from "./UiView";
 export {UiViewObserver} from "./UiViewObserver";
 export {UiViewController} from "./UiViewController";

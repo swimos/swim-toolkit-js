@@ -35,6 +35,12 @@ import {FontViewAnimator} from "./FontViewAnimator";
 import {TransformViewAnimator} from "./TransformViewAnimator";
 import {ContinuousScaleViewAnimator} from "./ContinuousScaleViewAnimator";
 
+export type ViewAnimatorType<V, K extends keyof V> =
+  V extends {[P in K]: ViewAnimator<any, infer T, any>} ? T : unknown;
+
+export type ViewAnimatorInitType<V, K extends keyof V> =
+  V extends {[P in K]: ViewAnimator<any, any, infer U>} ? U : unknown;
+
 export type ViewAnimatorInit<V extends View, T, U = T> =
   (this: ViewAnimator<V, T, U>) => T | U | undefined;
 
@@ -154,6 +160,14 @@ export interface ViewAnimator<V extends View, T, U = T> extends TweenAnimator<T>
   superIsTweening(): boolean;
 
   isTweening(): boolean;
+
+  getValue(): T;
+
+  getState(): T;
+
+  getValueOr<V>(elseValue: V): T | V;
+
+  getStateOr<V>(elseState: V): T | V;
 
   setState(state: T | U | undefined, tween?: Tween<T>): void;
 
@@ -396,6 +410,40 @@ export const ViewAnimator: ViewAnimatorClass = (function (_super: typeof TweenAn
   ViewAnimator.prototype.isTweening = function (this: ViewAnimator<View, unknown>): boolean {
     const value = this._value;
     return value !== void 0 ? _super.prototype.isTweening.call(this) : this.superIsTweening();
+  };
+
+  ViewAnimator.prototype.getValue = function <T, U>(this: ViewAnimator<View, T, U>): T {
+    const value = this.value;
+    if (value === void 0) {
+      throw new TypeError("undefined " + this.name + " value");
+    }
+    return value;
+  };
+
+  ViewAnimator.prototype.getState = function <T, U>(this: ViewAnimator<View, T, U>): T {
+    const state = this.state;
+    if (state === void 0) {
+      throw new TypeError("undefined " + this.name + " state");
+    }
+    return state;
+  };
+
+  ViewAnimator.prototype.getValueOr = function <T, U, V>(this: ViewAnimator<View, T, U>,
+                                                         elseValue: V): T | V {
+    let value: T | V | undefined = this.value;
+    if (value === void 0) {
+      value = elseValue;
+    }
+    return value;
+  };
+
+  ViewAnimator.prototype.getStateOr = function <T, U, V>(this: ViewAnimator<View, T, U>,
+                                                         elseState: V): T | V {
+    let state: T | V | undefined = this.state;
+    if (state === void 0) {
+      state = elseState
+    }
+    return state;
   };
 
   ViewAnimator.prototype.setState = function <T, U>(this: ViewAnimator<View, T, U>,

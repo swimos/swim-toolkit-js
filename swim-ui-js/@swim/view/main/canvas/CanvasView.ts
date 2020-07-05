@@ -25,7 +25,7 @@ import {GraphicsView} from "../graphics/GraphicsView";
 import {ViewNode, ViewNodeType, NodeView} from "../node/NodeView";
 import {TextView} from "../text/TextView";
 import {ElementViewConstructor, ElementView} from "../element/ElementView";
-import {HtmlChildViewTagMap, HtmlView} from "../html/HtmlView";
+import {HtmlChildViewTagMap, HtmlViewInit, HtmlView} from "../html/HtmlView";
 import {CanvasViewObserver} from "./CanvasViewObserver";
 import {CanvasViewController} from "./CanvasViewController";
 
@@ -42,6 +42,16 @@ export interface CanvasViewTouch extends ViewTouchInit {
 
 export interface ViewCanvas extends HTMLCanvasElement {
   view?: CanvasView;
+}
+
+export interface CanvasViewInit extends HtmlViewInit {
+  viewController?: CanvasViewController;
+  renderer?: AnyRenderer;
+  clickEventsEnabled?: boolean;
+  wheelEventsEnabled?: boolean;
+  mouseEventsEnabled?: boolean;
+  pointerEventsEnabled?: boolean;
+  touchEventsEnabled?: boolean;
 }
 
 export class CanvasView extends HtmlView {
@@ -105,11 +115,34 @@ export class CanvasView extends HtmlView {
   }
 
   protected initNode(node: ViewNodeType<this>): void {
-    node.style.position = "absolute";
+    super.initNode(node);
+    this.position.setAutoState("absolute");
   }
 
   get viewController(): CanvasViewController | null {
     return this._viewController;
+  }
+
+  initView(init: CanvasViewInit): void {
+    super.initView(init);
+    if (init.renderer !== void 0) {
+      this.setRenderer(init.renderer);
+    }
+    if (init.clickEventsEnabled !== void 0) {
+      this.clickEventsEnabled(init.clickEventsEnabled);
+    }
+    if (init.wheelEventsEnabled !== void 0) {
+      this.wheelEventsEnabled(init.wheelEventsEnabled);
+    }
+    if (init.mouseEventsEnabled !== void 0) {
+      this.mouseEventsEnabled(init.mouseEventsEnabled);
+    }
+    if (init.pointerEventsEnabled !== void 0) {
+      this.pointerEventsEnabled(init.pointerEventsEnabled);
+    }
+    if (init.touchEventsEnabled !== void 0) {
+      this.touchEventsEnabled(init.touchEventsEnabled);
+    }
   }
 
   get canvasView(): CanvasView | null {
@@ -213,7 +246,7 @@ export class CanvasView extends HtmlView {
         childViews.splice(index, 1);
         this.onRemoveChildView(childView);
         this.didRemoveChildView(childView);
-        childView.setKey(null);
+        childView.setKey(void 0);
       } else if (childView !== void 0) {
         oldChildView = childView;
         if (!(childView instanceof NodeView)) {
@@ -231,7 +264,7 @@ export class CanvasView extends HtmlView {
         this.onRemoveChildView(childView);
         this.didRemoveChildNode(childNode);
         this.didRemoveChildView(childView);
-        childView.setKey(null);
+        childView.setKey(void 0);
       }
     }
     if (newChildView !== null) {
@@ -425,7 +458,7 @@ export class CanvasView extends HtmlView {
     }
     this.onRemoveChildView(childView);
     this.didRemoveChildView(childView);
-    childView.setKey(null);
+    childView.setKey(void 0);
   }
 
   removeAll(): void {
@@ -441,7 +474,7 @@ export class CanvasView extends HtmlView {
         graphicsViews.pop();
         this.onRemoveChildView(childView);
         this.didRemoveChildView(childView);
-        childView.setKey(null);
+        childView.setKey(void 0);
         continue;
       }
       break;
@@ -497,16 +530,30 @@ export class CanvasView extends HtmlView {
   /** @hidden */
   doMountChildViews(): void {
     const childNodes = this._node.childNodes;
-    for (let i = 0; i < childNodes.length; i += 1) {
+    let i = 0;
+    while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeMount();
+        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
+          childView._viewFlags &= ~View.RemovingFlag;
+          this.removeChildView(childView);
+          continue;
+        }
       }
+      i += 1;
     }
     const graphicsViews = this._graphicsViews;
-    for (let i = 0; i < graphicsViews.length; i += 1) {
+    i = 0;
+    while (i < graphicsViews.length) {
       const childView = graphicsViews[i];
       childView.cascadeMount();
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
@@ -518,16 +565,30 @@ export class CanvasView extends HtmlView {
   /** @hidden */
   doUnmountChildViews(): void {
     const childNodes = this._node.childNodes;
-    for (let i = 0; i < childNodes.length; i += 1) {
+    let i = 0;
+    while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeUnmount();
+        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
+          childView._viewFlags &= ~View.RemovingFlag;
+          this.removeChildView(childView);
+          continue;
+        }
       }
+      i += 1;
     }
     const graphicsViews = this._graphicsViews;
-    for (let i = 0; i < graphicsViews.length; i += 1) {
+    i = 0;
+    while (i < graphicsViews.length) {
       const childView = graphicsViews[i];
       childView.cascadeUnmount();
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
@@ -539,36 +600,64 @@ export class CanvasView extends HtmlView {
   /** @hidden */
   doPowerChildViews(): void {
     const childNodes = this._node.childNodes;
-    for (let i = 0; i < childNodes.length; i += 1) {
+    let i = 0;
+    while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadePower();
+        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
+          childView._viewFlags &= ~View.RemovingFlag;
+          this.removeChildView(childView);
+          continue;
+        }
       }
+      i += 1;
     }
     const graphicsViews = this._graphicsViews;
-    for (let i = 0; i < graphicsViews.length; i += 1) {
+    i = 0;
+    while (i < graphicsViews.length) {
       const childView = graphicsViews[i];
       childView.cascadePower();
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
   /** @hidden */
   doUnpowerChildViews(): void {
     const childNodes = this._node.childNodes;
-    for (let i = 0; i < childNodes.length; i += 1) {
+    let i = 0;
+    while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeUnpower();
+        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
+          childView._viewFlags &= ~View.RemovingFlag;
+          this.removeChildView(childView);
+          continue;
+        }
       }
+      i += 1;
     }
     const graphicsViews = this._graphicsViews;
-    for (let i = 0; i < graphicsViews.length; i += 1) {
+    i = 0;
+    while (i < graphicsViews.length) {
       const childView = graphicsViews[i];
       childView.cascadeUnpower();
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & View.UpdateMask) !== 0) {
       if ((updateFlags & View.ProcessMask) !== 0) {
@@ -607,37 +696,48 @@ export class CanvasView extends HtmlView {
 
   /** @hidden */
   protected doProcessChildViews(processFlags: ViewFlags, viewContext: GraphicsViewContext): void {
+    if ((processFlags & View.ProcessMask) !== 0 &&
+        (this._graphicsViews.length !== 0 || this._node.childNodes.length !== 0)) {
+      this.willProcessChildViews(processFlags, viewContext);
+      this.onProcessChildViews(processFlags, viewContext);
+      this.didProcessChildViews(processFlags, viewContext);
+    }
+  }
+
+  protected processChildViews(processFlags: ViewFlags, viewContext: GraphicsViewContext,
+                              callback?: (this: this, childView: View) => void): void {
     const childNodes = this._node.childNodes;
     const graphicsViews = this._graphicsViews;
-    if ((processFlags & View.ProcessMask) !== 0 && (childNodes.length !== 0 || graphicsViews.length !== 0)) {
-      this.willProcessChildViews(viewContext);
-      let i = 0;
-      while (i < childNodes.length) {
-        const childView = (childNodes[i] as ViewNode).view;
-        if (childView !== void 0) {
-          const childViewContext = this.childViewContext(childView, viewContext);
-          this.doProcessChildView(childView, processFlags, childViewContext);
-          if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-            childView._viewFlags &= ~View.RemovingFlag;
-            this.removeChildView(childView);
-            continue;
-          }
-        }
-        i += 1;
-      }
-      i = 0;
-      while (i < graphicsViews.length) {
-        const childView = graphicsViews[i];
+    let i = 0;
+    while (i < childNodes.length) {
+      const childView = (childNodes[i] as ViewNode).view;
+      if (childView !== void 0) {
         const childViewContext = this.childViewContext(childView, viewContext);
         this.doProcessChildView(childView, processFlags, childViewContext);
-        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
-          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
+          childView._viewFlags &= ~View.RemovingFlag;
           this.removeChildView(childView);
           continue;
+        } else if (callback !== void 0) {
+          callback.call(this, childView);
         }
-        i += 1;
       }
-      this.didProcessChildViews(viewContext);
+      i += 1;
+    }
+    i = 0;
+    while (i < graphicsViews.length) {
+      const childView = graphicsViews[i];
+      const childViewContext = this.childViewContext(childView, viewContext);
+      this.doProcessChildView(childView, processFlags, childViewContext);
+      if (callback !== void 0) {
+        callback.call(this, childView);
+      }
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
@@ -654,19 +754,19 @@ export class CanvasView extends HtmlView {
   /** @hidden */
   protected doDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): void {
     let cascadeFlags = displayFlags;
+    this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
     this._viewFlags &= ~(View.NeedsDisplay | View.NeedsComposite);
-    this.willDisplay(viewContext);
-    this._viewFlags |= View.DisplayingFlag;
     try {
+      this.willDisplay(viewContext);
       if (((this._viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
+        this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
         this._viewFlags &= ~View.NeedsLayout;
-        this.willLayout(viewContext);
       }
       if (((this._viewFlags | displayFlags) & View.NeedsRender) !== 0) {
+        this.willRender(viewContext);
         cascadeFlags |= View.NeedsRender;
         this._viewFlags &= ~View.NeedsRender;
-        this.willRender(viewContext);
       }
 
       this.onDisplay(viewContext);
@@ -685,9 +785,9 @@ export class CanvasView extends HtmlView {
       if ((cascadeFlags & View.NeedsLayout) !== 0) {
         this.didLayout(viewContext);
       }
-    } finally {
-      this._viewFlags &= ~View.DisplayingFlag;
       this.didDisplay(viewContext);
+    } finally {
+      this._viewFlags &= ~(View.TraversingFlag | View.DisplayingFlag);
     }
   }
 
@@ -718,37 +818,48 @@ export class CanvasView extends HtmlView {
 
   /** @hidden */
   protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: GraphicsViewContext): void {
+    if ((displayFlags & View.DisplayMask) !== 0 &&
+        (this._graphicsViews.length !== 0 || this._node.childNodes.length !== 0)) {
+      this.willDisplayChildViews(displayFlags, viewContext);
+      this.onDisplayChildViews(displayFlags, viewContext);
+      this.didDisplayChildViews(displayFlags, viewContext);
+    }
+  }
+
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: GraphicsViewContext,
+                              callback?: (this: this, childView: View) => void): void {
     const childNodes = this._node.childNodes;
     const graphicsViews = this._graphicsViews;
-    if ((displayFlags & View.DisplayMask) !== 0 && (childNodes.length !== 0 || graphicsViews.length !== 0)) {
-      this.willDisplayChildViews(viewContext);
-      let i = 0;
-      while (i < childNodes.length) {
-        const childView = (childNodes[i] as ViewNode).view;
-        if (childView !== void 0) {
-          const childViewContext = this.childViewContext(childView, viewContext);
-          this.doDisplayChildView(childView, displayFlags, childViewContext);
-          if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-            childView._viewFlags &= ~View.RemovingFlag;
-            this.removeChildView(childView);
-            continue;
-          }
-        }
-        i += 1;
-      }
-      i = 0;
-      while (i < graphicsViews.length) {
-        const childView = graphicsViews[i];
+    let i = 0;
+    while (i < childNodes.length) {
+      const childView = (childNodes[i] as ViewNode).view;
+      if (childView !== void 0) {
         const childViewContext = this.childViewContext(childView, viewContext);
         this.doDisplayChildView(childView, displayFlags, childViewContext);
-        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
-          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        if (callback !== void 0) {
+          callback.call(this, childView);
+        }
+        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
+          childView._viewFlags &= ~View.RemovingFlag;
           this.removeChildView(childView);
           continue;
         }
-        i += 1;
       }
-      this.didDisplayChildViews(viewContext);
+      i += 1;
+    }
+    i = 0;
+    while (i < graphicsViews.length) {
+      const childView = graphicsViews[i];
+      const childViewContext = this.childViewContext(childView, viewContext);
+      this.doDisplayChildView(childView, displayFlags, childViewContext);
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      } else if (callback !== void 0) {
+        callback.call(this, childView);
+      }
+      i += 1;
     }
   }
 

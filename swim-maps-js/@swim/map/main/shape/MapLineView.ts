@@ -51,6 +51,25 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
     return this._viewController;
   }
 
+  initView(init: MapLineViewInit): void {
+    super.initView(init);
+    if (init.geoStart !== void 0) {
+      this.geoStart(init.geoStart);
+    }
+    if (init.geoEnd !== void 0) {
+      this.geoEnd(init.geoEnd);
+    }
+    if (init.stroke !== void 0) {
+      this.stroke(init.stroke);
+    }
+    if (init.strokeWidth !== void 0) {
+      this.strokeWidth(init.strokeWidth);
+    }
+    if (init.hitWidth !== void 0) {
+      this.hitWidth(init.hitWidth);
+    }
+  }
+
   @ViewAnimator(GeoPoint, {value: GeoPoint.origin()})
   geoStart: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
@@ -85,7 +104,7 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
   }
 
   protected onSetGeoStart(newGeoStart: GeoPoint | undefined, oldGeoStart: GeoPoint | undefined): void {
-    const newGeoEnd = this.geoEnd.value!;
+    const newGeoEnd = this.geoEnd.getValue();
     if (newGeoStart !== void 0 && newGeoEnd !== void 0) {
       const oldGeoBounds = this._geoBounds;
       const newGeoBounds = new GeoBox(Math.min(newGeoStart.lng, newGeoEnd.lng),
@@ -99,7 +118,7 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
   }
 
   protected onSetGeoEnd(newGeoEnd: GeoPoint | undefined, oldGeoEnd: GeoPoint | undefined): void {
-    const newGeoStart = this.geoEnd.value!;
+    const newGeoStart = this.geoEnd.getValue();
     if (newGeoStart !== void 0 && newGeoEnd !== void 0) {
       const oldGeoBounds = this._geoBounds;
       const newGeoBounds = new GeoBox(Math.min(newGeoStart.lng, newGeoEnd.lng),
@@ -118,16 +137,16 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
     let viewStart: PointR2;
     let viewEnd: PointR2;
     if (this.viewStart.isAuto()) {
-      viewStart = geoProjection.project(this.geoStart.value!);
+      viewStart = geoProjection.project(this.geoStart.getValue());
       this.viewStart.setAutoState(viewStart);
     } else {
-      viewStart = this.viewStart.value!;
+      viewStart = this.viewStart.getValue();
     }
     if (this.viewEnd.isAuto()) {
-      viewEnd = geoProjection.project(this.geoEnd.value!);
+      viewEnd = geoProjection.project(this.geoEnd.getValue());
       this.viewEnd.setAutoState(viewEnd);
     } else {
-      viewEnd = this.viewEnd.value!;
+      viewEnd = this.viewEnd.getValue();
     }
     const x0 = viewStart.x;
     const y0 = viewStart.y;
@@ -155,8 +174,8 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
       const strokeWidth = this.strokeWidth.value;
       if (strokeWidth !== void 0) {
         const size = Math.min(frame.width, frame.height);
-        const viewStart = this.viewStart.value!;
-        const viewEnd = this.viewEnd.value!;
+        const viewStart = this.viewStart.getValue();
+        const viewEnd = this.viewEnd.getValue();
         context.beginPath();
         context.moveTo(viewStart.x, viewStart.y);
         context.lineTo(viewEnd.x, viewEnd.y);
@@ -168,8 +187,8 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
   }
 
   get popoverFrame(): BoxR2 {
-    const viewStart = this.viewStart.value!;
-    const viewEnd = this.viewEnd.value!;
+    const viewStart = this.viewStart.getValue();
+    const viewEnd = this.viewEnd.getValue();
     const xMid = (viewStart.x + viewEnd.x) / 2;
     const yMid = (viewStart.y + viewEnd.y) / 2;
     const inversePageTransform = this.pageTransform.inverse();
@@ -178,10 +197,10 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
   }
 
   get viewBounds(): BoxR2 {
-    const viewStart = this.viewStart.value!;
+    const viewStart = this.viewStart.getValue();
     const x0 = viewStart.x;
     const y0 = viewStart.y;
-    const viewEnd = this.viewEnd.value!;
+    const viewEnd = this.viewEnd.getValue();
     const x1 = viewEnd.x;
     const y1 = viewEnd.y;
     return new BoxR2(Math.min(x0, x1), Math.min(y0, y1),
@@ -213,8 +232,8 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
   }
 
   protected hitTestLine(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
-    const viewStart = this.viewStart.value!;
-    const viewEnd = this.viewEnd.value!;
+    const viewStart = this.viewStart.getValue();
+    const viewEnd = this.viewEnd.getValue();
 
     let hitWidth = this._hitWidth !== void 0 ? this._hitWidth : 0;
     const strokeWidth = this.strokeWidth.value;
@@ -244,27 +263,7 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
 
   static fromInit(init: MapLineViewInit): MapLineView {
     const view = new MapLineView();
-    if (init.geoStart !== void 0) {
-      view.geoStart(init.geoStart);
-    }
-    if (init.geoEnd !== void 0) {
-      view.geoEnd(init.geoEnd);
-    }
-    if (init.stroke !== void 0) {
-      view.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      view.strokeWidth(init.strokeWidth);
-    }
-    if (init.hitWidth !== void 0) {
-      view.hitWidth(init.hitWidth);
-    }
-    if (init.hidden !== void 0) {
-      view.setHidden(init.hidden);
-    }
-    if (init.culled !== void 0) {
-      view.setCulled(init.culled);
-    }
+    view.initView(init);
     return view;
   }
 }

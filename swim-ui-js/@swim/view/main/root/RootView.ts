@@ -14,13 +14,19 @@
 
 import {Viewport} from "../Viewport";
 import {ViewContext} from "../ViewContext";
-import {View} from "../View";
+import {ViewInit, View} from "../View";
 import {ModalOptions, Modal} from "../modal/Modal";
 import {LayoutManager} from "../layout/LayoutManager";
 import {RootViewController} from "./RootViewController";
 
+export interface RootViewInit extends ViewInit {
+  viewController?: RootViewController;
+}
+
 export interface RootView extends View, LayoutManager {
   readonly viewController: RootViewController | null;
+
+  initView(init: RootViewInit): void;
 
   readonly rootView: this;
 
@@ -41,6 +47,7 @@ export interface RootView extends View, LayoutManager {
 
 /** @hidden */
 export const RootView = {
+  /** @hidden */
   is(object: unknown): object is RootView {
     if (typeof object === "object" && object !== null) {
       const view = object as RootView;

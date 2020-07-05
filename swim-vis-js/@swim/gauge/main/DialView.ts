@@ -74,6 +74,76 @@ export class DialView extends GraphicsNodeView {
     return this._viewController;
   }
 
+  initView(init: DialViewInit): void {
+    super.initView(init);
+    if (init.value !== void 0) {
+      this.value(init.value);
+    }
+    if (init.total !== void 0) {
+      this.total(init.total);
+    }
+    if (init.center !== void 0) {
+      this.center(init.center);
+    }
+    if (init.innerRadius !== void 0) {
+      this.innerRadius(init.innerRadius);
+    }
+    if (init.outerRadius !== void 0) {
+      this.outerRadius(init.outerRadius);
+    }
+    if (init.startAngle !== void 0) {
+      this.startAngle(init.startAngle);
+    }
+    if (init.sweepAngle !== void 0) {
+      this.sweepAngle(init.sweepAngle);
+    }
+    if (init.cornerRadius !== void 0) {
+      this.cornerRadius(init.cornerRadius);
+    }
+    if (init.dialColor !== void 0) {
+      this.dialColor(init.dialColor);
+    }
+    if (init.meterColor !== void 0) {
+      this.meterColor(init.meterColor);
+    }
+    if (init.labelPadding !== void 0) {
+      this.labelPadding(init.labelPadding);
+    }
+    if (init.tickAlign !== void 0) {
+      this.tickAlign(init.tickAlign);
+    }
+    if (init.tickRadius !== void 0) {
+      this.tickRadius(init.tickRadius);
+    }
+    if (init.tickLength !== void 0) {
+      this.tickLength(init.tickLength);
+    }
+    if (init.tickWidth !== void 0) {
+      this.tickWidth(init.tickWidth);
+    }
+    if (init.tickPadding !== void 0) {
+      this.tickPadding(init.tickPadding);
+    }
+    if (init.tickColor !== void 0) {
+      this.tickColor(init.tickColor);
+    }
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.textColor !== void 0) {
+      this.textColor(init.textColor);
+    }
+    if (init.arrangement !== void 0) {
+      this.arrangement(init.arrangement);
+    }
+    if (init.label !== void 0) {
+      this.label(init.label);
+    }
+    if (init.legend !== void 0) {
+      this.legend(init.legend);
+    }
+  }
+
   @ViewAnimator(Number, {value: 0})
   value: ViewAnimator<this, number>;
 
@@ -195,17 +265,17 @@ export class DialView extends GraphicsNodeView {
     const width = frame.width;
     const height = frame.height;
     const size = Math.min(width, height);
-    const value = this.value.value!;
-    const total = this.total.value!;
+    const value = this.value.getValue();
+    const total = this.total.getValue();
     const delta = total !== 0 ? value / total : 0;
 
-    const center = this.center.value!;
-    const innerRadius = this.innerRadius.value!.px(size);
-    const outerRadius = this.outerRadius.value!.px(size);
+    const center = this.center.getValue();
+    const innerRadius = this.innerRadius.getValue().px(size);
+    const outerRadius = this.outerRadius.getValue().px(size);
     const deltaRadius = outerRadius.value - innerRadius.value;
-    const startAngle = this.startAngle.value!.rad();
-    const sweepAngle = this.sweepAngle.value!.rad();
-    const cornerRadius = this.cornerRadius.value!.px(deltaRadius);
+    const startAngle = this.startAngle.getValue().rad();
+    const sweepAngle = this.sweepAngle.getValue().rad();
+    const cornerRadius = this.cornerRadius.getValue().px(deltaRadius);
     const dial = new Arc(center, innerRadius, outerRadius, startAngle,
                          sweepAngle, Angle.zero(), null, cornerRadius);
     const meter = dial.sweepAngle(sweepAngle.times(delta));
@@ -213,13 +283,13 @@ export class DialView extends GraphicsNodeView {
     context.save();
 
     context.beginPath();
-    context.fillStyle = this.dialColor.value!.toString();
+    context.fillStyle = this.dialColor.getValue().toString();
     dial.draw(context, frame);
     context.fill();
     context.clip();
 
     context.beginPath();
-    context.fillStyle = this.meterColor.value!.toString();
+    context.fillStyle = this.meterColor.getValue().toString();
     meter.draw(context, frame);
     context.fill();
 
@@ -246,7 +316,7 @@ export class DialView extends GraphicsNodeView {
         }
       }
       const padAngle = startAngle.value - Math.PI / 2;
-      const labelPadding = this.labelPadding.value!.pxValue(deltaRadius);
+      const labelPadding = this.labelPadding.getValue().pxValue(deltaRadius);
       const dx = labelPadding * Math.cos(padAngle);
       const dy = labelPadding * Math.sin(padAngle);
 
@@ -259,12 +329,12 @@ export class DialView extends GraphicsNodeView {
 
     const legend = this.legend();
     if (legend !== null && !legend.isHidden()) {
-      const tickAlign = this.tickAlign.value!;
+      const tickAlign = this.tickAlign.getValue();
       const tickAngle = startAngle.value + sweepAngle.value * delta * tickAlign;
-      const tickRadius = this.tickRadius.value!.pxValue(size);
-      const tickLength = this.tickLength.value!.pxValue(width);
-      const tickWidth = this.tickWidth.value!.pxValue(size);
-      const tickColor = this.tickColor.value!;
+      const tickRadius = this.tickRadius.getValue().pxValue(size);
+      const tickLength = this.tickLength.getValue().pxValue(width);
+      const tickWidth = this.tickWidth.getValue().pxValue(size);
+      const tickColor = this.tickColor.getValue();
 
       const cx = center.x;
       const cy = center.y;
@@ -307,7 +377,7 @@ export class DialView extends GraphicsNodeView {
       }
 
       if (TypesetView.is(legend)) {
-        const tickPadding = this.tickPadding.value!.pxValue(size);
+        const tickPadding = this.tickPadding.getValue().pxValue(size);
         if (FillView.is(legend)) {
           legend.fill.setAutoState(tickColor);
         }
@@ -336,13 +406,13 @@ export class DialView extends GraphicsNodeView {
 
   protected hitTestDial(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
     const size = Math.min(frame.width, frame.height);
-    const center = this.center.value!;
-    const innerRadius = this.innerRadius.value!.px(size);
-    const outerRadius = this.outerRadius.value!.px(size);
+    const center = this.center.getValue();
+    const innerRadius = this.innerRadius.getValue().px(size);
+    const outerRadius = this.outerRadius.getValue().px(size);
     const deltaRadius = outerRadius.value - innerRadius.value;
-    const startAngle = this.startAngle.value!;
-    const sweepAngle = this.sweepAngle.value!;
-    const cornerRadius = this.cornerRadius.value!.px(deltaRadius);
+    const startAngle = this.startAngle.getValue();
+    const sweepAngle = this.sweepAngle.getValue();
+    const cornerRadius = this.cornerRadius.getValue().px(deltaRadius);
     const dial = new Arc(center, innerRadius, outerRadius, startAngle,
                          sweepAngle, Angle.zero(), null, cornerRadius);
 
@@ -358,81 +428,14 @@ export class DialView extends GraphicsNodeView {
     if (dial instanceof DialView) {
       return dial;
     } else if (typeof dial === "object" && dial !== null) {
-      const view = new DialView();
-      if (dial.value !== void 0) {
-        view.value(dial.value);
-      }
-      if (dial.total !== void 0) {
-        view.total(dial.total);
-      }
-      if (dial.center !== void 0) {
-        view.center(dial.center);
-      }
-      if (dial.innerRadius !== void 0) {
-        view.innerRadius(dial.innerRadius);
-      }
-      if (dial.outerRadius !== void 0) {
-        view.outerRadius(dial.outerRadius);
-      }
-      if (dial.startAngle !== void 0) {
-        view.startAngle(dial.startAngle);
-      }
-      if (dial.sweepAngle !== void 0) {
-        view.sweepAngle(dial.sweepAngle);
-      }
-      if (dial.cornerRadius !== void 0) {
-        view.cornerRadius(dial.cornerRadius);
-      }
-      if (dial.dialColor !== void 0) {
-        view.dialColor(dial.dialColor);
-      }
-      if (dial.meterColor !== void 0) {
-        view.meterColor(dial.meterColor);
-      }
-      if (dial.labelPadding !== void 0) {
-        view.labelPadding(dial.labelPadding);
-      }
-      if (dial.tickAlign !== void 0) {
-        view.tickAlign(dial.tickAlign);
-      }
-      if (dial.tickRadius !== void 0) {
-        view.tickRadius(dial.tickRadius);
-      }
-      if (dial.tickLength !== void 0) {
-        view.tickLength(dial.tickLength);
-      }
-      if (dial.tickWidth !== void 0) {
-        view.tickWidth(dial.tickWidth);
-      }
-      if (dial.tickPadding !== void 0) {
-        view.tickPadding(dial.tickPadding);
-      }
-      if (dial.tickColor !== void 0) {
-        view.tickColor(dial.tickColor);
-      }
-      if (dial.font !== void 0) {
-        view.font(dial.font);
-      }
-      if (dial.textColor !== void 0) {
-        view.textColor(dial.textColor);
-      }
-      if (dial.arrangement !== void 0) {
-        view.arrangement(dial.arrangement);
-      }
-      if (dial.label !== void 0) {
-        view.label(dial.label);
-      }
-      if (dial.legend !== void 0) {
-        view.legend(dial.legend);
-      }
-      if (dial.hidden !== void 0) {
-        view.setHidden(dial.hidden);
-      }
-      if (dial.culled !== void 0) {
-        view.setCulled(dial.culled);
-      }
-      return view;
+      return DialView.fromInit(dial);
     }
     throw new TypeError("" + dial);
+  }
+
+  static fromInit(init: DialViewInit): DialView {
+    const view = new DialView();
+    view.initView(init);
+    return view;
   }
 }

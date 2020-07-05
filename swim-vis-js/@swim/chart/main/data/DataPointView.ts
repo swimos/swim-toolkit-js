@@ -84,6 +84,11 @@ export class DataPointView<X, Y> extends GraphicsNodeView {
     return this._viewController;
   }
 
+  initView(init: DataPointViewInit<X, Y>): void {
+    super.initView(init);
+    this.setState(init);
+  }
+
   get xCoord(): number {
     return this._xCoord;
   }
@@ -215,13 +220,6 @@ export class DataPointView<X, Y> extends GraphicsNodeView {
     if (point.label !== void 0) {
       this.label(point.label);
     }
-
-    if (point.hidden !== void 0) {
-      this.setHidden(point.hidden);
-    }
-    if (point.culled !== void 0) {
-      this.setCulled(point.culled);
-    }
   }
 
   isGradientStop(): boolean {
@@ -255,12 +253,12 @@ export class DataPointView<X, Y> extends GraphicsNodeView {
     // hook
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & View.NeedsAnimate) !== 0) {
       additionalFlags |= View.NeedsLayout;
     }
-    additionalFlags |= super.modifyUpdate(updateFlags | additionalFlags);
+    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
     return additionalFlags;
   }
 
@@ -346,10 +344,14 @@ export class DataPointView<X, Y> extends GraphicsNodeView {
     if (point instanceof DataPointView) {
       return point;
     } else if (typeof point === "object" && point !== null) {
-      const view = new DataPointView(point.x, point.y);
-      view.setState(point);
-      return view;
+      return DataPointView.fromInit(point);
     }
     throw new TypeError("" + point);
+  }
+
+  static fromInit<X, Y>(init: DataPointViewInit<X, Y>): DataPointView<X, Y> {
+    const view = new DataPointView(init.x, init.y);
+    view.initView(init);
+    return view;
   }
 }

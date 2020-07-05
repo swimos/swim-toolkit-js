@@ -61,6 +61,73 @@ export class GaugeView extends GraphicsNodeView {
     return this._viewController;
   }
 
+  initView(init: GaugeViewInit): void {
+    super.initView(init);
+    if (init.limit !== void 0) {
+      this.limit(init.limit);
+    }
+    if (init.innerRadius !== void 0) {
+      this.innerRadius(init.innerRadius);
+    }
+    if (init.outerRadius !== void 0) {
+      this.outerRadius(init.outerRadius);
+    }
+    if (init.startAngle !== void 0) {
+      this.startAngle(init.startAngle);
+    }
+    if (init.sweepAngle !== void 0) {
+      this.sweepAngle(init.sweepAngle);
+    }
+    if (init.cornerRadius !== void 0) {
+      this.cornerRadius(init.cornerRadius);
+    }
+    if (init.dialSpacing !== void 0) {
+      this.dialSpacing(init.dialSpacing);
+    }
+    if (init.dialColor !== void 0) {
+      this.dialColor(init.dialColor);
+    }
+    if (init.meterColor !== void 0) {
+      this.meterColor(init.meterColor);
+    }
+    if (init.labelPadding !== void 0) {
+      this.labelPadding(init.labelPadding);
+    }
+    if (init.tickAlign !== void 0) {
+      this.tickAlign(init.tickAlign);
+    }
+    if (init.tickRadius !== void 0) {
+      this.tickRadius(init.tickRadius);
+    }
+    if (init.tickLength !== void 0) {
+      this.tickLength(init.tickLength);
+    }
+    if (init.tickWidth !== void 0) {
+      this.tickWidth(init.tickWidth);
+    }
+    if (init.tickPadding !== void 0) {
+      this.tickPadding(init.tickPadding);
+    }
+    if (init.tickColor !== void 0) {
+      this.tickColor(init.tickColor);
+    }
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.textColor !== void 0) {
+      this.textColor(init.textColor);
+    }
+    if (init.title !== void 0) {
+      this.title(init.title);
+    }
+    const dials = init.dials;
+    if (dials !== void 0) {
+      for (let i = 0, n = dials.length; i < n; i += 1) {
+        this.addDial(dials[i]);
+      }
+    }
+  }
+
   @ViewAnimator(Number, {value: 0})
   limit: ViewAnimator<this, number>;
 
@@ -132,7 +199,10 @@ export class GaugeView extends GraphicsNodeView {
     }
   }
 
-  addDial(dial: AnyDialView): void {
+  addDial(dial: AnyDialView, key?: string): void {
+    if (key === void 0) {
+      key = dial.key;
+    }
     dial = DialView.fromAny(dial);
     this.appendChildView(dial);
   }
@@ -145,12 +215,12 @@ export class GaugeView extends GraphicsNodeView {
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & View.NeedsAnimate) !== 0) {
       additionalFlags |= View.NeedsAnimate;
     }
-    additionalFlags |= super.modifyUpdate(updateFlags | additionalFlags);
+    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
     return additionalFlags;
   }
 
@@ -170,7 +240,7 @@ export class GaugeView extends GraphicsNodeView {
     if (this.center.isAuto()) {
       const cx = (frame.xMin + frame.xMax) / 2;
       const cy = (frame.yMin + frame.yMax) / 2;
-      this.center.setAutoState(new PointR2(cx, cy))
+      this.center.setAutoState(new PointR2(cx, cy));
     }
 
     const childViews = this._childViews;
@@ -254,78 +324,14 @@ export class GaugeView extends GraphicsNodeView {
     if (gauge instanceof GaugeView) {
       return gauge;
     } else if (typeof gauge === "object" && gauge !== null) {
-      const view = new GaugeView();
-      if (gauge.limit !== void 0) {
-        view.limit(gauge.limit);
-      }
-      if (gauge.innerRadius !== void 0) {
-        view.innerRadius(gauge.innerRadius);
-      }
-      if (gauge.outerRadius !== void 0) {
-        view.outerRadius(gauge.outerRadius);
-      }
-      if (gauge.startAngle !== void 0) {
-        view.startAngle(gauge.startAngle);
-      }
-      if (gauge.sweepAngle !== void 0) {
-        view.sweepAngle(gauge.sweepAngle);
-      }
-      if (gauge.cornerRadius !== void 0) {
-        view.cornerRadius(gauge.cornerRadius);
-      }
-      if (gauge.dialSpacing !== void 0) {
-        view.dialSpacing(gauge.dialSpacing);
-      }
-      if (gauge.dialColor !== void 0) {
-        view.dialColor(gauge.dialColor);
-      }
-      if (gauge.meterColor !== void 0) {
-        view.meterColor(gauge.meterColor);
-      }
-      if (gauge.labelPadding !== void 0) {
-        view.labelPadding(gauge.labelPadding);
-      }
-      if (gauge.tickAlign !== void 0) {
-        view.tickAlign(gauge.tickAlign);
-      }
-      if (gauge.tickRadius !== void 0) {
-        view.tickRadius(gauge.tickRadius);
-      }
-      if (gauge.tickLength !== void 0) {
-        view.tickLength(gauge.tickLength);
-      }
-      if (gauge.tickWidth !== void 0) {
-        view.tickWidth(gauge.tickWidth);
-      }
-      if (gauge.tickPadding !== void 0) {
-        view.tickPadding(gauge.tickPadding);
-      }
-      if (gauge.tickColor !== void 0) {
-        view.tickColor(gauge.tickColor);
-      }
-      if (gauge.font !== void 0) {
-        view.font(gauge.font);
-      }
-      if (gauge.textColor !== void 0) {
-        view.textColor(gauge.textColor);
-      }
-      if (gauge.title !== void 0) {
-        view.title(gauge.title);
-      }
-      const dials = gauge.dials;
-      if (dials !== void 0) {
-        for (let i = 0, n = dials.length; i < n; i += 1) {
-          view.addDial(dials[i]);
-        }
-      }
-      if (gauge.hidden !== void 0) {
-        view.setHidden(gauge.hidden);
-      }
-      if (gauge.culled !== void 0) {
-        view.setCulled(gauge.culled);
-      }
-      return view;
+      return GaugeView.fromInit(gauge);
     }
     throw new TypeError("" + gauge);
+  }
+
+  static fromInit(init: GaugeViewInit): GaugeView {
+    const view = new GaugeView();
+    view.initView(init);
+    return view;
   }
 }

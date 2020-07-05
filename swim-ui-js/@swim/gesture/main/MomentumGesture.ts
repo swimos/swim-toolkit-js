@@ -456,6 +456,7 @@ export class PointerMomentumGesture<V extends View> extends AbstractMomentumGest
   }
 
   protected updateInput(input: MomentumGestureInput, event: PointerEvent): void {
+    input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
     input.altKey = event.altKey;
@@ -586,6 +587,7 @@ export class TouchMomentumGesture<V extends View> extends AbstractMomentumGestur
   }
 
   protected updateInput(input: MomentumGestureInput, event: TouchEvent, touch: Touch): void {
+    input.target = touch.target;
     input.altKey = event.altKey;
     input.ctrlKey = event.ctrlKey;
     input.metaKey = event.metaKey;
@@ -690,6 +692,7 @@ export class MouseMomentumGesture<V extends View> extends AbstractMomentumGestur
   }
 
   protected updateInput(input: MomentumGestureInput, event: MouseEvent): void {
+    input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
     input.altKey = event.altKey;

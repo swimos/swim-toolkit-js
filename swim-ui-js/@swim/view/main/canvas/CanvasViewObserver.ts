@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ViewFlags} from "../View";
 import {GraphicsViewContext} from "../graphics/GraphicsViewContext";
 import {HtmlViewObserver} from "../html/HtmlViewObserver";
 import {CanvasView} from "./CanvasView";
@@ -37,9 +38,9 @@ export interface CanvasViewObserver<V extends CanvasView = CanvasView> extends H
 
   viewDidAnimate?(viewContext: GraphicsViewContext, view: V): void;
 
-  viewWillProcessChildViews?(viewContext: GraphicsViewContext, view: V): void;
+  viewWillProcessChildViews?(processFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void;
 
-  viewDidProcessChildViews?(viewContext: GraphicsViewContext, view: V): void;
+  viewDidProcessChildViews?(processFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void;
 
   viewWillDisplay?(viewContext: GraphicsViewContext, view: V): void;
 
@@ -53,9 +54,9 @@ export interface CanvasViewObserver<V extends CanvasView = CanvasView> extends H
 
   viewDidRender?(viewContext: GraphicsViewContext, view: V): void;
 
-  viewWillDisplayChildViews?(viewContext: GraphicsViewContext, view: V): void;
+  viewWillDisplayChildViews?(displayFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void;
 
-  viewDidDisplayChildViews?(viewContext: GraphicsViewContext, view: V): void;
+  viewDidDisplayChildViews?(displayFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void;
 
   viewWillSetHidden?(hidden: boolean, view: V): void;
 

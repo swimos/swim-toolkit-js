@@ -20,14 +20,17 @@ The **Swim UX** framework consists of the following component libraries:
   umbrella package that depends on, and re-exports, all **Swim UX** libraries.
 - [**@swim/theme**](@swim/theme) –
   semantic looks and feels for mood-aware UX components.
+- [**@swim/motif**](@swim/motif) –
+  procedurally styled and rendered decorative views.
 - [**@swim/app**](@swim/app) –
   application model for coordinating window-level components, such as popovers
   and drawers.
-- [**@swim/controls**](@swim/controls) –
-  buttons, switches, sliders, and other user interface controls.
-- [**@swim/navigation**](@swim/navigation) –
-  menus, tree views, nav bars, tab bars, and other user interface navigation
-  components.
+- [**@swim/fab**](@swim/fab) –
+  flingable floating action buttons.
+- [**@swim/menu**](@swim/menu) –
+  context-sensitive menu lists and menu items.
+- [**@swim/tree**](@swim/tree) –
+  disclosable tree views with tabular columns.
 
 **Swim UX** builds on the [**Swim Core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js)
 and [**Swim UI**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js)
@@ -176,11 +179,11 @@ swim-ux-js $ bin/build.js test -p theme
 
 Use the `watch` build script command to automatically rebuild projects when
 dependent source files change.  For example, to continuously recompile the
-`main` target of the `controls` project when any source file in the project–or
+`main` target of the `motif` project when any source file in the project–or
 in one of the project's transitive local dependencies–changes, run:
 
 ```sh
-swim-ux-js $ bin/build.js watch -p controls:main
+swim-ux-js $ bin/build.js watch -p motif:main
 ```
 
 Pass the `--devel` (`-d`) option to expedite recompilation by skipping the

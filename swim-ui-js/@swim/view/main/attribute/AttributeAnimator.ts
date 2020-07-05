@@ -30,15 +30,21 @@ import {LengthOrStringAttributeAnimator} from "./LengthOrStringAttributeAnimator
 import {ColorOrStringAttributeAnimator} from "./ColorOrStringAttributeAnimator";
 import {ElementView} from "../element/ElementView";
 
-export type AttributeAnimatorType = typeof String
-                                  | typeof Boolean
-                                  | typeof Number
-                                  | typeof Length
-                                  | typeof Color
-                                  | typeof Transform
-                                  | [typeof Number, typeof String]
-                                  | [typeof Length, typeof String]
-                                  | [typeof Color, typeof String];
+export type AttributeAnimatorType<V, K extends keyof V> =
+  V extends {[P in K]: AttributeAnimator<any, infer T, any>} ? T : unknown;
+
+export type AttributeAnimatorInitType<V, K extends keyof V> =
+  V extends {[P in K]: AttributeAnimator<any, any, infer U>} ? U : unknown;
+
+export type AttributeAnimatorTypeConstructor = typeof String
+                                             | typeof Boolean
+                                             | typeof Number
+                                             | typeof Length
+                                             | typeof Color
+                                             | typeof Transform
+                                             | [typeof Number, typeof String]
+                                             | [typeof Length, typeof String]
+                                             | [typeof Color, typeof String];
 
 export interface AttributeAnimatorConstructor<T, U = T> {
   new<V extends ElementView>(view: V, animatorName: string,
@@ -49,7 +55,7 @@ export interface AttributeAnimatorClass {
   new<V extends ElementView, T, U = T>(view: V, animatorName: string,
                                        attributeName: string): AttributeAnimator<V, T, U>;
 
-  (attributeName: string, animatorType: AttributeAnimatorType): PropertyDecorator;
+  (attributeName: string, animatorType: AttributeAnimatorTypeConstructor): PropertyDecorator;
 
   // Forward type declarations
   /** @hidden */
@@ -97,6 +103,14 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
 
   setAuto(auto: boolean): void;
 
+  getValue(): T;
+
+  getState(): T;
+
+  getValueOr<V>(elseValue: V): T | V;
+
+  getStateOr<V>(elseState: V): T | V;
+
   setState(state: T | U | undefined, tween?: Tween<T>): void;
 
   setAutoState(state: T | U | undefined, tween?: Tween<T>): void;
@@ -121,7 +135,7 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
 }
 
 export const AttributeAnimator: AttributeAnimatorClass = (function (_super: typeof TweenAnimator): AttributeAnimatorClass {
-  function AttributeAnimatorDecoratorFactory(attributeName: string, animatorType: AttributeAnimatorType): PropertyDecorator {
+  function AttributeAnimatorDecoratorFactory(attributeName: string, animatorType: AttributeAnimatorTypeConstructor): PropertyDecorator {
     if (animatorType === String) {
       return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.String, attributeName);
     } else if (animatorType === Boolean) {
@@ -165,13 +179,13 @@ export const AttributeAnimator: AttributeAnimatorClass = (function (_super: type
   const AttributeAnimator: AttributeAnimatorClass = function <V extends ElementView, T, U>(
       this: AttributeAnimator<V, T, U> | AttributeAnimatorClass,
       view: V | string,
-      animatorName: string | AttributeAnimatorType,
+      animatorName: string | AttributeAnimatorTypeConstructor,
       attributeName: string): AttributeAnimator<V, T, U> | PropertyDecorator {
     if (this instanceof AttributeAnimator) { // constructor
       return AttributeAnimatorConstructor.call(this, view, animatorName, attributeName);
     } else { // decorator factory
       attributeName = view as string;
-      const animatorType = animatorName as AttributeAnimatorType;
+      const animatorType = animatorName as AttributeAnimatorTypeConstructor;
       return AttributeAnimatorDecoratorFactory(attributeName, animatorType);
     }
   } as AttributeAnimatorClass;
@@ -242,6 +256,40 @@ export const AttributeAnimator: AttributeAnimatorClass = (function (_super: type
       this._auto = auto;
       this._view.animatorDidSetAuto(this, auto);
     }
+  };
+
+  AttributeAnimator.prototype.getValue = function <T, U>(this: AttributeAnimator<ElementView, T, U>): T {
+    const value = this.value;
+    if (value === void 0) {
+      throw new TypeError("undefined " + this.name + " value");
+    }
+    return value;
+  };
+
+  AttributeAnimator.prototype.getState = function <T, U>(this: AttributeAnimator<ElementView, T, U>): T {
+    const state = this.state;
+    if (state === void 0) {
+      throw new TypeError("undefined " + this.name + " state");
+    }
+    return state;
+  };
+
+  AttributeAnimator.prototype.getValueOr = function <T, U, V>(this: AttributeAnimator<ElementView, T, U>,
+                                                              elseValue: V): T | V {
+    let value: T | V | undefined = this.value;
+    if (value === void 0) {
+      value = elseValue;
+    }
+    return value;
+  };
+
+  AttributeAnimator.prototype.getStateOr = function <T, U, V>(this: AttributeAnimator<ElementView, T, U>,
+                                                              elseState: V): T | V {
+    let state: T | V | undefined = this.state;
+    if (state === void 0) {
+      state = elseState
+    }
+    return state;
   };
 
   AttributeAnimator.prototype.setState = function <T, U>(this: AttributeAnimator<ElementView, T, U>,

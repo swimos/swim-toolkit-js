@@ -993,6 +993,7 @@ export class PointerScaleGesture<X, Y, V extends View> extends AbstractScaleGest
   }
 
   protected updateInput(input: ScaleGestureInput<X, Y>, event: PointerEvent): void {
+    input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
     input.altKey = event.altKey;
@@ -1132,6 +1133,7 @@ export class TouchScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
   }
 
   protected updateInput(input: ScaleGestureInput<X, Y>, event: TouchEvent, touch: Touch): void {
+    input.target = touch.target;
     input.altKey = event.altKey;
     input.ctrlKey = event.ctrlKey;
     input.metaKey = event.metaKey;
@@ -1281,6 +1283,7 @@ export class MouseScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
   }
 
   protected updateInput(input: ScaleGestureInput<X, Y>, event: MouseEvent): void {
+    input.target = event.target;
     input.button = event.button;
     input.buttons = event.buttons;
     input.altKey = event.altKey;

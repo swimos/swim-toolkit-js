@@ -38,7 +38,7 @@ const chart = canvas.append(swim.ChartView)
     .font("12px sans-serif")
     .textColor("#4a4a4a")
     .rescaleTransition(undefined);
-const graph = chart.graph();
+const graph = chart.graph;
 
 chart.leftAxis().createTickLabel = function (tickValue) {
   return tickValue + "%";

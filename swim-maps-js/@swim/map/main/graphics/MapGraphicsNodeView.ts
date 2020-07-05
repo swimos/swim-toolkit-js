@@ -101,7 +101,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
         childViews.splice(index, 1);
         this.onRemoveChildView(childView);
         this.didRemoveChildView(childView);
-        childView.setKey(null);
+        childView.setKey(void 0);
       }
     }
     if (newChildView !== null) {
@@ -123,7 +123,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
   /** @hidden */
   protected insertChildViewMap(childView: View): void {
     const key = childView.key;
-    if (key !== null) {
+    if (key !== void 0) {
       let childViewMap = this._childViewMap;
       if (childViewMap === void 0) {
         childViewMap = {};
@@ -138,7 +138,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
     const childViewMap = this._childViewMap;
     if (childViewMap !== void 0) {
       const key = childView.key;
-      if (key !== null) {
+      if (key !== void 0) {
         delete childViewMap[key];
       }
     }
@@ -235,7 +235,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
     }
     this.onRemoveChildView(childView);
     this.didRemoveChildView(childView);
-    childView.setKey(null);
+    childView.setKey(void 0);
     if (typeof key === "string") {
       return childView;
     }
@@ -253,7 +253,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
         childViews.pop();
         this.onRemoveChildView(childView);
         this.didRemoveChildView(childView);
-        childView.setKey(null);
+        childView.setKey(void 0);
         continue;
       }
       break;
@@ -263,79 +263,104 @@ export class MapGraphicsNodeView extends MapGraphicsView {
   /** @hidden */
   doMountChildViews(): void {
     const childViews = this._childViews;
-    for (let i = 0; i < childViews.length; i += 1) {
+    let i = 0;
+    while (i < childViews.length) {
       const childView = childViews[i];
       childView.cascadeMount();
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
   /** @hidden */
   doUnmountChildViews(): void {
     const childViews = this._childViews;
-    for (let i = 0; i < childViews.length; i += 1) {
+    let i = 0;
+    while (i < childViews.length) {
       const childView = childViews[i];
       childView.cascadeUnmount();
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
   /** @hidden */
   doPowerChildViews(): void {
     const childViews = this._childViews;
-    for (let i = 0; i < childViews.length; i += 1) {
+    let i = 0;
+    while (i < childViews.length) {
       const childView = childViews[i];
       childView.cascadePower();
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
   /** @hidden */
   doUnpowerChildViews(): void {
     const childViews = this._childViews;
-    for (let i = 0; i < childViews.length; i += 1) {
+    let i = 0;
+    while (i < childViews.length) {
       const childView = childViews[i];
       childView.cascadeUnpower();
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
-  /** @hidden */
-  protected doProcessChildViews(processFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
+  protected processChildViews(processFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+                              callback?: (this: this, childView: View) => void): void {
     const childViews = this._childViews;
-    if ((processFlags & View.ProcessMask) !== 0 && childViews.length !== 0) {
-      this.willProcessChildViews(viewContext);
-      let i = 0;
-      while (i < childViews.length) {
-        const childView = childViews[i];
-        const childViewContext = this.childViewContext(childView, viewContext);
-        this.doProcessChildView(childView, processFlags, childViewContext);
-        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
-          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
-          this.removeChildView(childView);
-          continue;
-        }
-        i += 1;
+    let i = 0;
+    while (i < childViews.length) {
+      const childView = childViews[i];
+      const childViewContext = this.childViewContext(childView, viewContext);
+      this.doProcessChildView(childView, processFlags, childViewContext);
+      if (callback !== void 0) {
+        callback.call(this, childView);
       }
-      this.didProcessChildViews(viewContext);
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
-  /** @hidden */
-  protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+                              callback?: (this: this, childView: View) => void): void {
     const childViews = this._childViews;
-    if ((displayFlags & View.DisplayMask) !== 0 && childViews.length !== 0
-        && !this.isHidden() && !this.isCulled()) {
-      this.willDisplayChildViews(viewContext);
-      let i = 0;
-      while (i < childViews.length) {
-        const childView = childViews[i];
-        const childViewContext = this.childViewContext(childView, viewContext);
-        this.doDisplayChildView(childView, displayFlags, childViewContext);
-        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
-          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
-          this.removeChildView(childView);
-          continue;
-        }
-        i += 1;
+    let i = 0;
+    while (i < childViews.length) {
+      const childView = childViews[i];
+      const childViewContext = this.childViewContext(childView, viewContext);
+      this.doDisplayChildView(childView, displayFlags, childViewContext);
+      if (callback !== void 0) {
+        callback.call(this, childView);
       }
-      this.didDisplayChildViews(viewContext);
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 

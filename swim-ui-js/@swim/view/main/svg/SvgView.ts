@@ -41,9 +41,9 @@ import {
 import {View} from "../View";
 import {ViewNode, NodeView} from "../node/NodeView";
 import {TextView} from "../text/TextView";
-import {AttributeAnimator} from "../attribute/AttributeAnimator";
-import {StyleAnimator} from "../style/StyleAnimator";
-import {ElementViewConstructor, ElementView} from "../element/ElementView";
+import {AttributeAnimatorInitType, AttributeAnimator} from "../attribute/AttributeAnimator";
+import {StyleAnimatorInitType, StyleAnimator} from "../style/StyleAnimator";
+import {ElementViewConstructor, ElementViewInit, ElementView} from "../element/ElementView";
 import {SvgViewController} from "./SvgViewController";
 import {HtmlView} from "../html/HtmlView";
 import {CanvasView} from "../canvas/CanvasView";
@@ -59,6 +59,63 @@ export interface SvgViewTagMap {
 export interface SvgChildViewTagMap {
 }
 
+export interface SvgViewAttributesInit {
+  alignmentBaseline?: AttributeAnimatorInitType<SvgView, "alignmentBaseline">;
+  clipPath?: AttributeAnimatorInitType<SvgView, "clipPath">;
+  cursor?: AttributeAnimatorInitType<SvgView, "cursor">;
+  cx?: AttributeAnimatorInitType<SvgView, "cx">;
+  cy?: AttributeAnimatorInitType<SvgView, "cy">;
+  d?: AttributeAnimatorInitType<SvgView, "d">;
+  dx?: AttributeAnimatorInitType<SvgView, "dx">;
+  dy?: AttributeAnimatorInitType<SvgView, "dy">;
+  edgeMode?: AttributeAnimatorInitType<SvgView, "edgeMode">;
+  fill?: AttributeAnimatorInitType<SvgView, "fill">;
+  fillRule?: AttributeAnimatorInitType<SvgView, "fillRule">;
+  height?: AttributeAnimatorInitType<SvgView, "height">;
+  in?: AttributeAnimatorInitType<SvgView, "in">;
+  in2?: AttributeAnimatorInitType<SvgView, "in2">;
+  mode?: AttributeAnimatorInitType<SvgView, "mode">;
+  opacity?: AttributeAnimatorInitType<SvgView, "opacity">;
+  points?: AttributeAnimatorInitType<SvgView, "points">;
+  preserveAspectRatio?: AttributeAnimatorInitType<SvgView, "preserveAspectRatio">;
+  r?: AttributeAnimatorInitType<SvgView, "r">;
+  result?: AttributeAnimatorInitType<SvgView, "result">;
+  stdDeviation?: AttributeAnimatorInitType<SvgView, "stdDeviation">;
+  stroke?: AttributeAnimatorInitType<SvgView, "stroke">;
+  strokeDasharray?: AttributeAnimatorInitType<SvgView, "strokeDasharray">;
+  strokeLinecap?: AttributeAnimatorInitType<SvgView, "strokeLinecap">;
+  strokeWidth?: AttributeAnimatorInitType<SvgView, "strokeWidth">;
+  textAnchor?: AttributeAnimatorInitType<SvgView, "textAnchor">;
+  transform?: AttributeAnimatorInitType<SvgView, "transform">;
+  type?: AttributeAnimatorInitType<SvgView, "type">;
+  values?: AttributeAnimatorInitType<SvgView, "values">;
+  viewBox?: AttributeAnimatorInitType<SvgView, "viewBox">;
+  width?: AttributeAnimatorInitType<SvgView, "width">;
+  x?: AttributeAnimatorInitType<SvgView, "x">;
+  x1?: AttributeAnimatorInitType<SvgView, "x1">;
+  x2?: AttributeAnimatorInitType<SvgView, "x2">;
+  y?: AttributeAnimatorInitType<SvgView, "y">;
+  y1?: AttributeAnimatorInitType<SvgView, "y1">;
+  y2?: AttributeAnimatorInitType<SvgView, "y2">;
+}
+
+export interface SvgViewStyleInit {
+  fontFamily?: StyleAnimatorInitType<SvgView, "fontFamily">;
+  fontSize?: StyleAnimatorInitType<SvgView, "fontSize">;
+  fontStretch?: StyleAnimatorInitType<SvgView, "fontStretch">;
+  fontStyle?: StyleAnimatorInitType<SvgView, "fontStyle">;
+  fontVariant?: StyleAnimatorInitType<SvgView, "fontVariant">;
+  fontWeight?: StyleAnimatorInitType<SvgView, "fontWeight">;
+  lineHeight?: StyleAnimatorInitType<SvgView, "lineHeight">;
+  touchAction?: StyleAnimatorInitType<SvgView, "touchAction">;
+}
+
+export interface SvgViewInit extends ElementViewInit {
+  viewController?: SvgViewController;
+  attributes?: SvgViewAttributesInit;
+  style?: SvgViewStyleInit;
+}
+
 export class SvgView extends ElementView {
   constructor(node: SVGElement) {
     super(node);
@@ -70,6 +127,160 @@ export class SvgView extends ElementView {
 
   get viewController(): SvgViewController | null {
     return this._viewController;
+  }
+
+  initView(init: SvgViewInit): void {
+    super.initView(init);
+    if (init.attributes !== void 0) {
+      this.initAttributes(init.attributes);
+    }
+    if (init.style !== void 0) {
+      this.initStyle(init.style);
+    }
+  }
+
+  initAttributes(init: SvgViewAttributesInit): void {
+    if (init.alignmentBaseline !== void 0) {
+      this.alignmentBaseline(init.alignmentBaseline);
+    }
+    if (init.clipPath !== void 0) {
+      this.clipPath(init.clipPath);
+    }
+    if (init.cursor !== void 0) {
+      this.cursor(init.cursor);
+    }
+    if (init.cx !== void 0) {
+      this.cx(init.cx);
+    }
+    if (init.cy !== void 0) {
+      this.cy(init.cy);
+    }
+    if (init.cy !== void 0) {
+      this.cy(init.cy);
+    }
+    if (init.d !== void 0) {
+      this.d(init.d);
+    }
+    if (init.dx !== void 0) {
+      this.dx(init.dx);
+    }
+    if (init.dy !== void 0) {
+      this.dy(init.dy);
+    }
+    if (init.edgeMode !== void 0) {
+      this.edgeMode(init.edgeMode);
+    }
+    if (init.fill !== void 0) {
+      this.fill(init.fill);
+    }
+    if (init.fillRule !== void 0) {
+      this.fillRule(init.fillRule);
+    }
+    if (init.height !== void 0) {
+      this.height(init.height);
+    }
+    if (init.in !== void 0) {
+      this.in(init.in);
+    }
+    if (init.in2 !== void 0) {
+      this.in2(init.in2);
+    }
+    if (init.mode !== void 0) {
+      this.mode(init.mode);
+    }
+    if (init.opacity !== void 0) {
+      this.opacity(init.opacity);
+    }
+    if (init.points !== void 0) {
+      this.points(init.points);
+    }
+    if (init.preserveAspectRatio !== void 0) {
+      this.preserveAspectRatio(init.preserveAspectRatio);
+    }
+    if (init.r !== void 0) {
+      this.r(init.r);
+    }
+    if (init.result !== void 0) {
+      this.result(init.result);
+    }
+    if (init.stdDeviation !== void 0) {
+      this.stdDeviation(init.stdDeviation);
+    }
+    if (init.stroke !== void 0) {
+      this.stroke(init.stroke);
+    }
+    if (init.strokeDasharray !== void 0) {
+      this.strokeDasharray(init.strokeDasharray);
+    }
+    if (init.strokeLinecap !== void 0) {
+      this.strokeLinecap(init.strokeLinecap);
+    }
+    if (init.strokeWidth !== void 0) {
+      this.strokeWidth(init.strokeWidth);
+    }
+    if (init.textAnchor !== void 0) {
+      this.textAnchor(init.textAnchor);
+    }
+    if (init.transform !== void 0) {
+      this.transform(init.transform);
+    }
+    if (init.type !== void 0) {
+      this.type(init.type);
+    }
+    if (init.values !== void 0) {
+      this.values(init.values);
+    }
+    if (init.viewBox !== void 0) {
+      this.viewBox(init.viewBox);
+    }
+    if (init.width !== void 0) {
+      this.width(init.width);
+    }
+    if (init.x !== void 0) {
+      this.x(init.x);
+    }
+    if (init.x1 !== void 0) {
+      this.x1(init.x1);
+    }
+    if (init.x2 !== void 0) {
+      this.x2(init.x2);
+    }
+    if (init.y !== void 0) {
+      this.y(init.y);
+    }
+    if (init.y1 !== void 0) {
+      this.y1(init.y1);
+    }
+    if (init.y2 !== void 0) {
+      this.y2(init.y2);
+    }
+  }
+
+  initStyle(init: SvgViewStyleInit): void {
+    if (init.fontFamily !== void 0) {
+      this.fontFamily(init.fontFamily);
+    }
+    if (init.fontSize !== void 0) {
+      this.fontSize(init.fontSize);
+    }
+    if (init.fontStretch !== void 0) {
+      this.fontStretch(init.fontStretch);
+    }
+    if (init.fontStyle !== void 0) {
+      this.fontStyle(init.fontStyle);
+    }
+    if (init.fontVariant !== void 0) {
+      this.fontVariant(init.fontVariant);
+    }
+    if (init.fontWeight !== void 0) {
+      this.fontWeight(init.fontWeight);
+    }
+    if (init.lineHeight !== void 0) {
+      this.lineHeight(init.lineHeight);
+    }
+    if (init.touchAction !== void 0) {
+      this.touchAction(init.touchAction);
+    }
   }
 
   append<T extends keyof SvgChildViewTagMap>(tag: T, key?: string): SvgChildViewTagMap[T];
@@ -184,7 +395,7 @@ export class SvgView extends ElementView {
   fill: AttributeAnimator<this, Paint, AnyColor | Paint>;
 
   @AttributeAnimator("fill-rule", String)
-  fillRuke: AttributeAnimator<this, FillRule>;
+  fillRule: AttributeAnimator<this, FillRule>;
 
   @AttributeAnimator("height", Length)
   height: AttributeAnimator<this, Length, AnyLength>;
@@ -230,9 +441,6 @@ export class SvgView extends ElementView {
 
   @AttributeAnimator("text-anchor", String)
   textAnchor: AttributeAnimator<this, TextAnchor>;
-
-  @StyleAnimator("touch-action", String)
-  touchAction: StyleAnimator<this, TouchAction>;
 
   @AttributeAnimator("transform", Transform)
   transform: AttributeAnimator<this, Transform, AnyTransform>;
@@ -330,6 +538,9 @@ export class SvgView extends ElementView {
 
   @StyleAnimator("line-height", LineHeight)
   lineHeight: StyleAnimator<this, LineHeight, AnyLineHeight>;
+
+  @StyleAnimator("touch-action", String)
+  touchAction: StyleAnimator<this, TouchAction>;
 
   static fromTag<T extends keyof SvgViewTagMap>(tag: T): SvgViewTagMap[T];
   static fromTag(tag: string): SvgView;

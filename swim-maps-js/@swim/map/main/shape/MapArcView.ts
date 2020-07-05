@@ -62,6 +62,46 @@ export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeV
     return this._viewController;
   }
 
+  initView(init: MapArcViewInit): void {
+    super.initView(init);
+    if (init.geoCenter !== void 0) {
+      this.geoCenter(init.geoCenter);
+    }
+    if (init.viewCenter !== void 0) {
+      this.viewCenter(init.viewCenter);
+    }
+    if (init.innerRadius !== void 0) {
+      this.innerRadius(init.innerRadius);
+    }
+    if (init.outerRadius !== void 0) {
+      this.outerRadius(init.outerRadius);
+    }
+    if (init.startAngle !== void 0) {
+      this.startAngle(init.startAngle);
+    }
+    if (init.sweepAngle !== void 0) {
+      this.sweepAngle(init.sweepAngle);
+    }
+    if (init.padAngle !== void 0) {
+      this.padAngle(init.padAngle);
+    }
+    if (init.padRadius !== void 0) {
+      this.padRadius(init.padRadius);
+    }
+    if (init.cornerRadius !== void 0) {
+      this.cornerRadius(init.cornerRadius);
+    }
+    if (init.fill !== void 0) {
+      this.fill(init.fill);
+    }
+    if (init.stroke !== void 0) {
+      this.stroke(init.stroke);
+    }
+    if (init.strokeWidth !== void 0) {
+      this.strokeWidth(init.strokeWidth);
+    }
+  }
+
   @ViewAnimator(GeoPoint, {value: GeoPoint.origin()})
   geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
@@ -99,15 +139,15 @@ export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeV
   strokeWidth: ViewAnimator<this, Length, AnyLength>;
 
   get value(): Arc {
-    return new Arc(this.viewCenter.value!, this.innerRadius.value!, this.outerRadius.value!,
-                   this.startAngle.value!, this.sweepAngle.value!, this.padAngle.value!,
-                   this.padRadius.value!, this.cornerRadius.value!);
+    return new Arc(this.viewCenter.getValue(), this.innerRadius.getValue(), this.outerRadius.getValue(),
+                   this.startAngle.getValue(), this.sweepAngle.getValue(), this.padAngle.getValue(),
+                   this.padRadius.getValue(), this.cornerRadius.getValue());
   }
 
   get state(): Arc {
-    return new Arc(this.viewCenter.state!, this.innerRadius.state!, this.outerRadius.state!,
-                   this.startAngle.state!, this.sweepAngle.state!, this.padAngle.state!,
-                   this.padRadius.state!, this.cornerRadius.state!);
+    return new Arc(this.viewCenter.getState(), this.innerRadius.getState(), this.outerRadius.getState(),
+                   this.startAngle.getState(), this.sweepAngle.getState(), this.padAngle.getState(),
+                   this.padRadius.getState(), this.cornerRadius.getState());
   }
 
   protected onSetGeoCenter(newGeoCenter: GeoPoint | undefined, oldGeoCenter: GeoPoint | undefined): void {
@@ -125,14 +165,14 @@ export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeV
     let viewCenter: PointR2;
     if (this.viewCenter.isAuto()) {
       const geoProjection = viewContext.geoProjection;
-      viewCenter = geoProjection.project(this.geoCenter.value!);
+      viewCenter = geoProjection.project(this.geoCenter.getValue());
       this.viewCenter.setAutoState(viewCenter);
     } else {
-      viewCenter = this.viewCenter.value!;
+      viewCenter = this.viewCenter.getValue();
     }
     const frame = this.viewFrame;
     const size = Math.min(frame.width, frame.height);
-    const radius = this.outerRadius.value!.pxValue(size);
+    const radius = this.outerRadius.getValue().pxValue(size);
     const invalid = !isFinite(viewCenter.x) || !isFinite(viewCenter.y) || !isFinite(radius);
     const culled = invalid || !frame.intersectsCircle(new CircleR2(viewCenter.x, viewCenter.y, radius));
     this.setCulled(culled);
@@ -173,10 +213,10 @@ export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeV
     const frame = this.viewFrame;
     const size = Math.min(frame.width, frame.height);
     const inversePageTransform = this.pageTransform.inverse();
-    const viewCenter = this.viewCenter.value!;
+    const viewCenter = this.viewCenter.getValue();
     const [px, py] = inversePageTransform.transform(viewCenter.x, viewCenter.y);
-    const r = (this.innerRadius.value!.pxValue(size) + this.outerRadius.value!.pxValue(size)) / 2;
-    const a = this.startAngle.value!.radValue() + this.sweepAngle.value!.radValue() / 2;
+    const r = (this.innerRadius.getValue().pxValue(size) + this.outerRadius.getValue().pxValue(size)) / 2;
+    const a = this.startAngle.getValue().radValue() + this.sweepAngle.getValue().radValue() / 2;
     const x = px + r * Math.cos(a);
     const y = py + r * Math.sin(a);
     return new BoxR2(x, y, x, y);
@@ -185,8 +225,8 @@ export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeV
   get viewBounds(): BoxR2 {
     const frame = this.viewFrame;
     const size = Math.min(frame.width, frame.height);
-    const viewCenter = this.viewCenter.value!;
-    const radius = this.outerRadius.value!.pxValue(size);
+    const viewCenter = this.viewCenter.getValue();
+    const radius = this.outerRadius.getValue().pxValue(size);
     return new BoxR2(viewCenter.x - radius, viewCenter.y - radius,
                      viewCenter.x + radius, viewCenter.y + radius);
   }
@@ -245,48 +285,7 @@ export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeV
 
   static fromInit(init: MapArcViewInit): MapArcView {
     const view = new MapArcView();
-    if (init.geoCenter !== void 0) {
-      view.geoCenter(init.geoCenter);
-    }
-    if (init.viewCenter !== void 0) {
-      view.viewCenter(init.viewCenter);
-    }
-    if (init.innerRadius !== void 0) {
-      view.innerRadius(init.innerRadius);
-    }
-    if (init.outerRadius !== void 0) {
-      view.outerRadius(init.outerRadius);
-    }
-    if (init.startAngle !== void 0) {
-      view.startAngle(init.startAngle);
-    }
-    if (init.sweepAngle !== void 0) {
-      view.sweepAngle(init.sweepAngle);
-    }
-    if (init.padAngle !== void 0) {
-      view.padAngle(init.padAngle);
-    }
-    if (init.padRadius !== void 0) {
-      view.padRadius(init.padRadius);
-    }
-    if (init.cornerRadius !== void 0) {
-      view.cornerRadius(init.cornerRadius);
-    }
-    if (init.fill !== void 0) {
-      view.fill(init.fill);
-    }
-    if (init.stroke !== void 0) {
-      view.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      view.strokeWidth(init.strokeWidth);
-    }
-    if (init.hidden !== void 0) {
-      view.setHidden(init.hidden);
-    }
-    if (init.culled !== void 0) {
-      view.setCulled(init.culled);
-    }
+    view.initView(init);
     return view;
   }
 }

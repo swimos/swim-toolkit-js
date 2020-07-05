@@ -26,6 +26,7 @@ export interface FillView extends GraphicsView {
 
 /** @hidden */
 export const FillView = {
+  /** @hidden */
   is(object: unknown): object is FillView {
     if (typeof object === "object" && object !== null) {
       const view = object as FillView;
@@ -33,5 +34,11 @@ export const FillView = {
           && "fill" in view;
     }
     return false;
+  },
+
+  initView(view: FillView, init: FillViewInit): void {
+    if (init.fill !== void 0) {
+      view.fill(init.fill);
+    }
   },
 };

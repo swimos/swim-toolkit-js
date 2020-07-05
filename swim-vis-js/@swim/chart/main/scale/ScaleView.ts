@@ -39,6 +39,7 @@ import {ScaleViewController} from "./ScaleViewController";
 export type ScaleFlags = number;
 
 export interface ScaleViewInit<X = unknown, Y = unknown> extends GraphicsViewInit {
+  viewController?: ScaleViewController<X, Y>;
   xScale?: ContinuousScale<X, number>;
   yScale?: ContinuousScale<Y, number>;
 
@@ -149,6 +150,96 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
 
   get viewController(): ScaleViewController<X, Y> | null {
     return this._viewController;
+  }
+
+  initView(init: ScaleViewInit<X, Y>): void {
+    super.initView(init);
+    if (init.xScale !== void 0) {
+      this.xScale(init.xScale);
+    }
+    if (init.yScale !== void 0) {
+      this.yScale(init.yScale);
+    }
+
+    if (init.xDomainBounds !== void 0) {
+      this.xDomainBounds(init.xDomainBounds);
+    }
+    if (init.yDomainBounds !== void 0) {
+      this.yDomainBounds(init.yDomainBounds);
+    }
+    if (init.xZoomBounds !== void 0) {
+      this.xZoomBounds(init.xZoomBounds);
+    }
+    if (init.yZoomBounds !== void 0) {
+      this.yZoomBounds(init.yZoomBounds);
+    }
+
+    if (init.xDomainPadding !== void 0) {
+      this.xDomainPadding(init.xDomainPadding);
+    }
+    if (init.yDomainPadding !== void 0) {
+      this.yDomainPadding(init.yDomainPadding);
+    }
+    if (init.xRangePadding !== void 0) {
+      this.xRangePadding(init.xRangePadding);
+    }
+    if (init.yRangePadding !== void 0) {
+      this.yRangePadding(init.yRangePadding);
+    }
+
+    if (init.fitAlign !== void 0) {
+      this.fitAlign(init.fitAlign);
+    }
+    if (init.xFitAlign !== void 0) {
+      this.xFitAlign(init.xFitAlign);
+    }
+    if (init.yFitAlign !== void 0) {
+      this.yFitAlign(init.yFitAlign);
+    }
+    if (init.fitAspectRatio !== void 0) {
+      this.fitAspectRatio(init.fitAspectRatio);
+    }
+    if (init.preserveAspectRatio !== void 0) {
+      this.preserveAspectRatio(init.preserveAspectRatio);
+    }
+
+    if (init.domainTracking !== void 0) {
+      this.domainTracking(init.domainTracking);
+    }
+    if (init.xDomainTracking !== void 0) {
+      this.xDomainTracking(init.xDomainTracking);
+    }
+    if (init.yDomainTracking !== void 0) {
+      this.yDomainTracking(init.yDomainTracking);
+    }
+
+    if (init.gestures !== void 0) {
+      this.gestures(init.gestures);
+    }
+    if (init.xGestures !== void 0) {
+      this.xGestures(init.xGestures);
+    }
+    if (init.yGestures !== void 0) {
+      this.yGestures(init.yGestures);
+    }
+
+    if (init.scaleGesture !== void 0) {
+      this.scaleGesture.setState(init.scaleGesture);
+      init.scaleGesture.setView(this);
+    }
+    if (init.rescaleTransition !== void 0) {
+      this.rescaleTransition.setState(init.rescaleTransition);
+    }
+    if (init.reboundTransition !== void 0) {
+      this.reboundTransition.setState(init.reboundTransition);
+    }
+
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.textColor !== void 0) {
+      this.textColor(init.textColor);
+    }
   }
 
   @ViewAnimator(ContinuousScale, {inherit: true})
@@ -429,6 +520,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
         xDataDomain = [xDataDomainMin, xDataDomainMax];
         this._xDataDomain = xDataDomain;
       }
+      console.log("compute xDataDomain:", xDataDomain);
     }
     return xDataDomain;
   }
@@ -459,6 +551,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
         yDataDomain = [yDataDomainMin, yDataDomainMax];
         this._yDataDomain = yDataDomain;
       }
+      console.log("compute yDataDomain:", yDataDomain);
     }
     return yDataDomain;
   }
@@ -711,21 +804,21 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
   })
   scaleGesture: ViewScope<this, ScaleGesture<X, Y>, ScaleGesture<X, Y> | boolean>;
 
-  @ViewScope(Object, {
+  @ViewScope(Transition, {
     inherit: true,
     init(): Transition<any> {
       return Transition.duration(250, Ease.linear);
     },
   })
-  rescaleTransition: ViewScope<this, Transition<any>>;
+  rescaleTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
-  @ViewScope(Object, {
+  @ViewScope(Transition, {
     inherit: true,
     init(): Transition<any> {
       return Transition.duration(250, Ease.cubicOut);
     },
   })
-  reboundTransition: ViewScope<this, Transition<any>>;
+  reboundTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
   @ViewAnimator(Font, {inherit: true})
   font: ViewAnimator<this, Font, AnyFont>;
@@ -804,12 +897,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     super.onRemoveChildView(childView);
   }
 
-  protected modifyUpdate(updateFlags: ViewFlags): ViewFlags {
+  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & View.NeedsAnimate) !== 0) {
       additionalFlags |= View.NeedsAnimate;
     }
-    additionalFlags |= super.modifyUpdate(updateFlags | additionalFlags);
+    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
     return additionalFlags;
   }
 
@@ -831,6 +924,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
    * from child view data domains if inherited x/y scales are undefined.
    */
   protected resizeScales(frame: BoxR2): void {
+    console.log("ScaleView.resizeScales");
     const xRange = this.xRange();
     if (xRange !== void 0) {
       const xScale = this.xScale.ownValue;
@@ -868,12 +962,35 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     }
   }
 
+  protected onAnimate(viewContext: GraphicsViewContext): void {
+    super.onAnimate(viewContext);
+    console.log("ScaleView.onAnimate");
+  }
+
+  protected onLayout(viewContext: GraphicsViewContext): void {
+    super.onLayout(viewContext);
+    console.log("ScaleView.onLayout");
+  }
+
+  protected onRender(viewContext: GraphicsViewContext): void {
+    super.onRender(viewContext);
+    console.log("ScaleView.onRender");
+  }
+
   protected didAnimate(viewContext: GraphicsViewContext): void {
     this.updateScales();
     super.didAnimate(viewContext);
   }
 
+  needsDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+    if ((this._viewFlags & View.NeedsLayout) === 0) {
+      displayFlags &= ~View.NeedsLayout;
+    }
+    return displayFlags;
+  }
+
   protected updateScales(): void {
+    console.log("ScaleView.updateScales");
     let xScale = this.xScale.value;
     let yScale = this.yScale.value;
     this.updateDataBounds(xScale, yScale);
@@ -890,6 +1007,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
    */
   protected updateDataBounds(xScale: ContinuousScale<X, number> | undefined,
                              yScale: ContinuousScale<Y, number> | undefined): void {
+    console.log("ScaleView.updateDataBounds");
     let xDataDomainMin: X | undefined;
     let xDataDomainMax: X | undefined;
     let yDataDomainMin: Y | undefined;
@@ -1048,6 +1166,10 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
           this._scaleFlags |= ScaleView.YMaxChangingFlag;
         }
       }
+      console.log("ScaleView.updateDataBounds xDataDomain:", this._xDataDomain);
+      console.log("ScaleView.updateDataBounds yDataDomain:", this._yDataDomain);
+      console.log("ScaleView.updateDataBounds xDataRange:", this._xDataRange);
+      console.log("ScaleView.updateDataBounds yDataRange:", this._yDataRange);
     } else {
       this._xDataDomain = void 0;
       this._yDataDomain = void 0;
@@ -1060,6 +1182,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
 
   protected updateOwnScales(xScale: ContinuousScale<X, number>,
                             yScale: ContinuousScale<Y, number>): void {
+    console.log("ScaleView.updateOwnScales");
     if ((this._scaleFlags & ScaleView.FitMask) !== 0) {
       this.fitScales(xScale, yScale);
     }
@@ -1073,6 +1196,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
    * Fits scales to domains, and corrects aspect ratio.
    */
   protected fitScales(oldXScale: ContinuousScale<X, number>, oldYScale: ContinuousScale<Y, number>): void {
+    console.log("ScaleView.fitScales");
     const xDataDomain = this._xDataDomain;
     let oldXDomain: readonly [X, X] | undefined;
     let newXDomain: readonly [X, X] | undefined;
@@ -1154,6 +1278,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     }
 
     if (newXDomain !== void 0) {
+      console.log("ScaleView.fitScales xDomain");
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & ScaleView.XFitTweenFlag) !== 0 &&
           (transition = this.rescaleTransition.state, transition !== void 0)) {
@@ -1168,11 +1293,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
       this.requireUpdate(View.NeedsLayout);
       this._scaleFlags &= ~ScaleView.XFitFlag;
       if (transition === void 0) {
-        this.didFitX(this.xScale.state!);
+        this.didFitX(this.xScale.getState());
       }
     }
 
     if (newYDomain !== void 0) {
+      console.log("ScaleView.fitScales yDomain");
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & ScaleView.YFitTweenFlag) !== 0 &&
           (transition = this.rescaleTransition.state, transition !== void 0)) {
@@ -1187,7 +1313,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
       this.requireUpdate(View.NeedsLayout);
       this._scaleFlags &= ~ScaleView.YFitFlag;
       if (transition === void 0) {
-        this.didFitY(this.yScale.state!);
+        this.didFitY(this.yScale.getState());
       }
     }
 
@@ -1468,6 +1594,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     if (newXDomain !== void 0 && !isPressing && (this._scaleFlags & ScaleView.XTweeningMask) === 0 &&
         (Math.abs(+newXDomain[0] - +oldXDomain[0]) >= 1e-12 ||
          Math.abs(+newXDomain[1] - +oldXDomain[1]) >= 1e-12)) {
+      console.log("ScaleView.boundScales xDomain");
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & (ScaleView.XBoundingFlag | ScaleView.RescaleFlag)) === 0) {
         transition = (this._scaleFlags & ScaleView.InteractingMask) !== 0
@@ -1484,13 +1611,14 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
       this.xDomain(newXDomain, transition);
       this.requireUpdate(View.NeedsLayout);
       if (transition === void 0) {
-        this.didReboundX(this.xScale.state!);
+        this.didReboundX(this.xScale.getState());
       }
     }
 
     if (newYDomain !== void 0 && !isPressing && (this._scaleFlags & ScaleView.YTweeningMask) === 0 &&
         (Math.abs(+newYDomain[0] - +oldYDomain[0]) >= 1e-12 ||
          Math.abs(+newYDomain[1] - +oldYDomain[1]) >= 1e-12)) {
+      console.log("ScaleView.boundScales yDomain");
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & (ScaleView.YBoundingFlag | ScaleView.RescaleFlag)) === 0) {
         transition = (this._scaleFlags & ScaleView.InteractingMask) !== 0
@@ -1507,7 +1635,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
       this.yDomain(newYDomain, transition);
       this.requireUpdate(View.NeedsLayout);
       if (transition === void 0) {
-        this.didReboundY(this.yScale.state!);
+        this.didReboundY(this.yScale.getState());
       }
     }
 
@@ -1731,101 +1859,4 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
   static TimeZoomMin: number = 86400000;
   /** @hidden */
   static TimeZoomMax: number = 1;
-
-  /** @hidden */
-  static init<X, Y>(view: ScaleView<X, Y>, init: ScaleViewInit<X, Y>): void {
-    if (init.xScale !== void 0) {
-      view.xScale(init.xScale);
-    }
-    if (init.yScale !== void 0) {
-      view.yScale(init.yScale);
-    }
-
-    if (init.xDomainBounds !== void 0) {
-      view.xDomainBounds(init.xDomainBounds);
-    }
-    if (init.yDomainBounds !== void 0) {
-      view.yDomainBounds(init.yDomainBounds);
-    }
-    if (init.xZoomBounds !== void 0) {
-      view.xZoomBounds(init.xZoomBounds);
-    }
-    if (init.yZoomBounds !== void 0) {
-      view.yZoomBounds(init.yZoomBounds);
-    }
-
-    if (init.xDomainPadding !== void 0) {
-      view.xDomainPadding(init.xDomainPadding);
-    }
-    if (init.yDomainPadding !== void 0) {
-      view.yDomainPadding(init.yDomainPadding);
-    }
-    if (init.xRangePadding !== void 0) {
-      view.xRangePadding(init.xRangePadding);
-    }
-    if (init.yRangePadding !== void 0) {
-      view.yRangePadding(init.yRangePadding);
-    }
-
-    if (init.fitAlign !== void 0) {
-      view.fitAlign(init.fitAlign);
-    }
-    if (init.xFitAlign !== void 0) {
-      view.xFitAlign(init.xFitAlign);
-    }
-    if (init.yFitAlign !== void 0) {
-      view.yFitAlign(init.yFitAlign);
-    }
-    if (init.fitAspectRatio !== void 0) {
-      view.fitAspectRatio(init.fitAspectRatio);
-    }
-    if (init.preserveAspectRatio !== void 0) {
-      view.preserveAspectRatio(init.preserveAspectRatio);
-    }
-
-    if (init.domainTracking !== void 0) {
-      view.domainTracking(init.domainTracking);
-    }
-    if (init.xDomainTracking !== void 0) {
-      view.xDomainTracking(init.xDomainTracking);
-    }
-    if (init.yDomainTracking !== void 0) {
-      view.yDomainTracking(init.yDomainTracking);
-    }
-
-    if (init.gestures !== void 0) {
-      view.gestures(init.gestures);
-    }
-    if (init.xGestures !== void 0) {
-      view.xGestures(init.xGestures);
-    }
-    if (init.yGestures !== void 0) {
-      view.yGestures(init.yGestures);
-    }
-
-    if (init.scaleGesture !== void 0) {
-      view.scaleGesture.setState(init.scaleGesture);
-      init.scaleGesture.setView(view);
-    }
-    if (init.rescaleTransition !== void 0) {
-      view.rescaleTransition.setState(Transition.fromAny(init.rescaleTransition));
-    }
-    if (init.reboundTransition !== void 0) {
-      view.reboundTransition.setState(Transition.fromAny(init.reboundTransition));
-    }
-
-    if (init.font !== void 0) {
-      view.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      view.textColor(init.textColor);
-    }
-
-    if (init.hidden !== void 0) {
-      view.setHidden(init.hidden);
-    }
-    if (init.culled !== void 0) {
-      view.setCulled(init.culled);
-    }
-  }
 }

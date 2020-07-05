@@ -41,10 +41,10 @@ export class BottomAxisView<X = unknown> extends AxisView<X> {
       const x0 = frame.xMin;
       const x1 = frame.xMax;
       const y = origin.y;
-      const dy = this.borderSerif.value!;
+      const dy = this.borderSerif.getValue();
 
       context.beginPath();
-      context.strokeStyle = this.borderColor.value!.toString();
+      context.strokeStyle = this.borderColor.getValue().toString();
       context.lineWidth = borderWidth;
       if (dy !== 0) {
         context.moveTo(x0, y + dy);

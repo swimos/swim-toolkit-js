@@ -26,16 +26,20 @@
       "@swim/view": ["../swim-ui-js/@swim/view/main"],
       "@swim/gesture": ["../swim-ui-js/@swim/gesture/main"],
       "@swim/theme": ["@swim/theme/main"],
+      "@swim/motif": ["@swim/motif/main"],
       "@swim/app": ["@swim/app/main"],
-      "@swim/controls": ["@swim/controls/main"],
-      "@swim/navigation": ["@swim/navigation/main"]
+      "@swim/fab": ["@swim/fab/main"],
+      "@swim/menu": ["@swim/menu/main"],
+      "@swim/tree": ["@swim/tree/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "references": [
     {"path": "../../theme/main"},
+    {"path": "../../motif/main"},
     {"path": "../../app/main"},
-    {"path": "../../controls/main"},
-    {"path": "../../navigation/main"}
+    {"path": "../../fab/main"},
+    {"path": "../../menu/main"},
+    {"path": "../../tree/main"}
   ]
 }

@@ -25,7 +25,8 @@
       "@swim/constraint": ["../swim-ui-js/@swim/constraint/main"],
       "@swim/view": ["../swim-ui-js/@swim/view/main"],
       "@swim/gesture": ["../swim-ui-js/@swim/gesture/main"],
-      "@swim/theme": ["@swim/theme/main"]
+      "@swim/theme": ["@swim/theme/main"],
+      "@swim/motif": ["@swim/motif/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
   },
@@ -51,6 +52,7 @@
     {"path": "../../../../swim-ui-js/@swim/constraint/main"},
     {"path": "../../../../swim-ui-js/@swim/view/main"},
     {"path": "../../../../swim-ui-js/@swim/gesture/main"},
-    {"path": "../../theme/main"}
+    {"path": "../../theme/main"},
+    {"path": "../../motif/main"}
   ]
 }

@@ -86,6 +86,11 @@ export type Appearance = "button"
                        | "none"
                        | "scrollbarbutton-up";
 
+export type BackgroundClip = "border-box"
+                           | "padding-box"
+                           | "content-box"
+                           | "text";
+
 export type BorderCollapse = "collapse"
                            | "separate";
 

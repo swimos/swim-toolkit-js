@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GraphicsViewObserver} from "@swim/view";
+import {ViewFlags, GraphicsViewObserver} from "@swim/view";
 import {MapGraphicsViewContext} from "./MapGraphicsViewContext";
 import {MapGraphicsView} from "./MapGraphicsView";
 
@@ -41,9 +41,9 @@ export interface MapGraphicsViewObserver<V extends MapGraphicsView = MapGraphics
 
   viewDidProject?(viewContext: MapGraphicsViewContext, view: V): void;
 
-  viewWillProcessChildViews?(viewContext: MapGraphicsViewContext, view: V): void;
+  viewWillProcessChildViews?(processFlags: ViewFlags, viewContext: MapGraphicsViewContext, view: V): void;
 
-  viewDidProcessChildViews?(viewContext: MapGraphicsViewContext, view: V): void;
+  viewDidProcessChildViews?(processFlags: ViewFlags, viewContext: MapGraphicsViewContext, view: V): void;
 
   viewWillDisplay?(viewContext: MapGraphicsViewContext, view: V): void;
 
@@ -57,7 +57,7 @@ export interface MapGraphicsViewObserver<V extends MapGraphicsView = MapGraphics
 
   viewDidRender?(viewContext: MapGraphicsViewContext, view: V): void;
 
-  viewWillDisplayChildViews?(viewContext: MapGraphicsViewContext, view: V): void;
+  viewWillDisplayChildViews?(displayFlags: ViewFlags, viewContext: MapGraphicsViewContext, view: V): void;
 
-  viewDidDisplayChildViews?(viewContext: MapGraphicsViewContext, view: V): void;
+  viewDidDisplayChildViews?(displayFlags: ViewFlags, viewContext: MapGraphicsViewContext, view: V): void;
 }

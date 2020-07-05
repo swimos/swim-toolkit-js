@@ -40,6 +40,7 @@ export interface TypesetView extends GraphicsView {
 
 /** @hidden */
 export const TypesetView = {
+  /** @hidden */
   is(object: unknown): object is TypesetView {
     if (typeof object === "object" && object !== null) {
       const view = object as TypesetView;
@@ -51,5 +52,23 @@ export const TypesetView = {
           && "textColor" in view;
     }
     return false;
+  },
+
+  initView(view: TypesetView, init: TypesetViewInit): void {
+    if (init.font !== void 0) {
+      view.font(init.font);
+    }
+    if (init.textAlign !== void 0) {
+      view.textAlign(init.textAlign);
+    }
+    if (init.textBaseline !== void 0) {
+      view.textBaseline(init.textBaseline);
+    }
+    if (init.textOrigin !== void 0) {
+      view.textOrigin(init.textOrigin);
+    }
+    if (init.textColor !== void 0) {
+      view.textColor(init.textColor);
+    }
   },
 };

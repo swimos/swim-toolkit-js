@@ -14,6 +14,8 @@
 
 export {
   StyleAnimatorType,
+  StyleAnimatorInitType,
+  StyleAnimatorTypeConstructor,
   StyleAnimatorConstructor,
   StyleAnimatorClass,
   StyleAnimator,

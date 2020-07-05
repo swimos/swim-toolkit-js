@@ -21,9 +21,11 @@
     {"path": "./swim-ui-js/@swim/ui"},
 
     {"path": "./swim-ux-js/@swim/theme"},
+    {"path": "./swim-ux-js/@swim/motif"},
     {"path": "./swim-ux-js/@swim/app"},
-    {"path": "./swim-ux-js/@swim/controls"},
-    {"path": "./swim-ux-js/@swim/navigation"},
+    {"path": "./swim-ux-js/@swim/fab"},
+    {"path": "./swim-ux-js/@swim/menu"},
+    {"path": "./swim-ux-js/@swim/tree"},
     {"path": "./swim-ux-js/@swim/ux"},
 
     {"path": "./swim-vis-js/@swim/gauge"},

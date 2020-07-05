@@ -32,9 +32,11 @@
       "@swim/ui": ["swim-ui-js/@swim/ui/main"],
 
       "@swim/theme": ["swim-ux-js/@swim/theme/main"],
+      "@swim/motif": ["swim-ux-js/@swim/motif/main"],
       "@swim/app": ["swim-ux-js/@swim/app/main"],
-      "@swim/controls": ["swim-ux-js/@swim/controls/main"],
-      "@swim/navigation": ["swim-ux-js/@swim/navigation/main"],
+      "@swim/fab": ["swim-ux-js/@swim/fab/main"],
+      "@swim/menu": ["swim-ux-js/@swim/menu/main"],
+      "@swim/tree": ["swim-ux-js/@swim/tree/main"],
       "@swim/ux": ["swim-ux-js/@swim/ux/main"],
 
       "@swim/gauge": ["swim-vis-js/@swim/gauge/main"],
@@ -85,9 +87,11 @@
     {"path": "../../../swim-maps-js/@swim/maps/main"},
 
     {"path": "../../../swim-ux-js/@swim/theme/main"},
+    {"path": "../../../swim-ux-js/@swim/motif/main"},
     {"path": "../../../swim-ux-js/@swim/app/main"},
-    {"path": "../../../swim-ux-js/@swim/controls/main"},
-    {"path": "../../../swim-ux-js/@swim/navigation/main"},
+    {"path": "../../../swim-ux-js/@swim/fab/main"},
+    {"path": "../../../swim-ux-js/@swim/menu/main"},
+    {"path": "../../../swim-ux-js/@swim/tree/main"},
     {"path": "../../../swim-ux-js/@swim/ux/main"},
 
     {"path": "../../../swim-web-js/@swim/website/main"},

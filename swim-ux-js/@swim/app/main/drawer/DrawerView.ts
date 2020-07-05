@@ -15,7 +15,7 @@
 import {AnyLength, Length} from "@swim/length";
 import {Color} from "@swim/color";
 import {BoxShadow} from "@swim/shadow";
-import {Ease, Tween, Transition} from "@swim/transition";
+import {Ease, Tween, AnyTransition, Transition} from "@swim/transition";
 import {
   ViewScope,
   ViewEdgeInsets,
@@ -24,6 +24,8 @@ import {
   ModalState,
   Modal,
   ViewAnimator,
+  ViewNodeType,
+  HtmlViewInit,
   HtmlView,
 } from "@swim/view";
 import {DrawerViewObserver} from "./DrawerViewObserver";
@@ -35,6 +37,14 @@ export type DrawerState = "shown" | "showing"
                         | "hidden" | "hiding"
                         | "collapsed" | "collapsing";
 
+export interface DrawerViewInit extends HtmlViewInit {
+  viewController?: DrawerViewController;
+  drawerPlacement?: DrawerPlacement;
+  drawerTransition?: AnyTransition<any>;
+  collapsedWidth?: AnyLength;
+  expandedWidth?: AnyLength;
+}
+
 export class DrawerView extends HtmlView implements Modal {
   /** @hidden */
   _drawerPlacement: DrawerPlacement;
@@ -43,29 +53,42 @@ export class DrawerView extends HtmlView implements Modal {
 
   constructor(node: HTMLElement) {
     super(node);
-    this.collapsedWidth.setAutoState(Length.px(60));
-    this.expandedWidth.setAutoState(Length.px(200));
-    this.drawerSlide.setState(0);
     this.drawerSlide.update = this.updateDrawerSlide.bind(this);
-    this.drawerStretch.setState(1);
     this.drawerStretch.update = this.updateDrawerStretch.bind(this);
     this._drawerPlacement = "left";
     this._drawerState = "hidden";
   }
 
-  protected initNode(node: HTMLElement): void {
-    this.addClass("drawer")
-        .display("none")
-        .flexDirection("column")
-        .overflowX("hidden")
-        .overflowY("auto")
-        .overscrollBehaviorY("contain")
-        .webkitOverflowScrolling("touch")
-        .backgroundColor("#26282a");
+  protected initNode(node: ViewNodeType<this>): void {
+    super.initNode(node);
+    this.addClass("drawer");
+    this.display.setAutoState("none");
+    this.flexDirection.setAutoState("column");
+    this.overflowX.setAutoState("hidden");
+    this.overflowY.setAutoState("auto");
+    this.overscrollBehaviorY.setAutoState("contain");
+    this.overflowScrolling.setAutoState("touch");
+    this.backgroundColor.setAutoState("#26282a");
   }
 
   get viewController(): DrawerViewController | null {
     return this._viewController;
+  }
+
+  initView(init: DrawerViewInit): void {
+    super.initView(init);
+    if (init.drawerPlacement !== void 0) {
+      this.drawerPlacement(init.drawerPlacement);
+    }
+    if (init.drawerTransition !== void 0) {
+      this.drawerTransition(init.drawerTransition);
+    }
+    if (init.collapsedWidth !== void 0) {
+      this.collapsedWidth(init.collapsedWidth);
+    }
+    if (init.expandedWidth !== void 0) {
+      this.expandedWidth(init.expandedWidth);
+    }
   }
 
   get drawerState(): DrawerState {
@@ -84,16 +107,16 @@ export class DrawerView extends HtmlView implements Modal {
     return this._drawerState === "collapsed" || this._drawerState === "collapsing";
   }
 
-  @ViewAnimator(Length)
+  @ViewAnimator(Length, {value: Length.px(60)})
   collapsedWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length)
+  @ViewAnimator(Length, {value: Length.px(200)})
   expandedWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Number)
+  @ViewAnimator(Number, {value: 0})
   drawerSlide: ViewAnimator<this, number>; // 0 = hidden; 1 = shown
 
-  @ViewAnimator(Number)
+  @ViewAnimator(Number, {value: 1})
   drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   drawerPlacement(): DrawerPlacement;
@@ -121,16 +144,16 @@ export class DrawerView extends HtmlView implements Modal {
     return this._drawerPlacement === "left" || this._drawerPlacement === "right";
   }
 
-  @ViewScope(Object)
-  edgeInsets: ViewScope<this, ViewEdgeInsets>;
-
-  @ViewScope(Object, {
+  @ViewScope(Transition, {
     inherit: true,
     init(): Transition<any> {
       return Transition.duration(250, Ease.cubicOut);
     },
   })
-  drawerTransition: ViewScope<this, Transition<any>>;
+  drawerTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
+
+  @ViewScope(Object)
+  edgeInsets: ViewScope<this, ViewEdgeInsets>;
 
   protected willSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
     this.willObserve(function (viewObserver: DrawerViewObserver): void {
@@ -189,8 +212,8 @@ export class DrawerView extends HtmlView implements Modal {
   /** @hidden */
   protected updateDrawerStretch(drawerStretch: number): void {
     if (this.isVertical()) {
-      const collapsedWidth = this.collapsedWidth.value!;
-      const expandedWidth = this.expandedWidth.value!;
+      const collapsedWidth = this.collapsedWidth.getValue();
+      const expandedWidth = this.expandedWidth.getValue();
       const width = collapsedWidth.times(1 - drawerStretch).plus(expandedWidth.times(drawerStretch));
       this.width.setAutoState(width);
     }
@@ -200,10 +223,10 @@ export class DrawerView extends HtmlView implements Modal {
     super.onLayout(viewContext);
     this.place(viewContext);
     if (viewContext.viewIdiom === "mobile") {
-      this.borderRightColor(Color.transparent());
+      this.borderRightColor.setAutoState(Color.transparent());
       this.boxShadow.setState(BoxShadow.of(0, 2, 4, 0, Color.black(0.5)));
     } else {
-      this.borderRightColor(Color.black());
+      this.borderRightColor.setAutoState(Color.black());
       this.boxShadow.setState(void 0);
     }
   }
@@ -235,7 +258,7 @@ export class DrawerView extends HtmlView implements Modal {
     this.right.setAutoState(Length.zero());
     this.bottom.setAutoState(void 0);
     this.left.setAutoState(Length.zero());
-    this.updateDrawerSlideTop(this.drawerSlide.value!);
+    this.updateDrawerSlideTop(this.drawerSlide.getValue());
 
     const safeArea = viewContext.viewport.safeArea;
     this.edgeInsets.setState({
@@ -264,8 +287,8 @@ export class DrawerView extends HtmlView implements Modal {
     this.right.setAutoState(void 0);
     this.bottom.setAutoState(Length.zero());
     this.left.setAutoState(void 0);
-    this.updateDrawerSlideRight(this.drawerSlide.value!);
-    this.updateDrawerStretch(this.drawerStretch.value!);
+    this.updateDrawerSlideRight(this.drawerSlide.getValue());
+    this.updateDrawerStretch(this.drawerStretch.getValue());
 
     const safeArea = viewContext.viewport.safeArea;
     this.paddingTop.setAutoState(Length.px(safeArea.insetTop));
@@ -292,7 +315,7 @@ export class DrawerView extends HtmlView implements Modal {
     this.right.setAutoState(Length.zero());
     this.bottom.setAutoState(void 0);
     this.left.setAutoState(Length.zero());
-    this.updateDrawerSlideBottom(this.drawerSlide.value!);
+    this.updateDrawerSlideBottom(this.drawerSlide.getValue());
 
     const safeArea = viewContext.viewport.safeArea;
     this.edgeInsets.setState({
@@ -321,8 +344,8 @@ export class DrawerView extends HtmlView implements Modal {
     this.right.setAutoState(void 0);
     this.bottom.setAutoState(Length.zero());
     this.left.setAutoState(void 0);
-    this.updateDrawerSlideLeft(this.drawerSlide.value!);
-    this.updateDrawerStretch(this.drawerStretch.value!);
+    this.updateDrawerSlideLeft(this.drawerSlide.getValue());
+    this.updateDrawerStretch(this.drawerStretch.getValue());
 
     const safeArea = viewContext.viewport.safeArea;
     this.paddingTop.setAutoState(Length.px(safeArea.insetTop));
@@ -359,10 +382,7 @@ export class DrawerView extends HtmlView implements Modal {
   show(tween?: Tween<any>): void {
     if (!this.isShown() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this.drawerTransition.state;
-        if (tween === void 0) {
-          tween = null;
-        }
+        tween = this.drawerTransition.getStateOr(null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -400,10 +420,7 @@ export class DrawerView extends HtmlView implements Modal {
   hide(tween?: Tween<any>): void {
     if (!this.isHidden() || this.drawerSlide.value !== 0) {
       if (tween === void 0 || tween === true) {
-        tween = this.drawerTransition.state;
-        if (tween === void 0) {
-          tween = null;
-        }
+        tween = this.drawerTransition.getStateOr(null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -438,10 +455,7 @@ export class DrawerView extends HtmlView implements Modal {
   expand(tween?: Tween<any>): void {
     if (!this.isShown() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this.drawerTransition.state;
-        if (tween === void 0) {
-          tween = null;
-        }
+        tween = this.drawerTransition.getStateOr(null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -477,10 +491,7 @@ export class DrawerView extends HtmlView implements Modal {
   collapse(tween?: Tween<any>): void {
     if (this.isVertical() && (!this.isCollapsed() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 0)) {
       if (tween === void 0 || tween === true) {
-        tween = this.drawerTransition.state;
-        if (tween === void 0) {
-          tween = null;
-        }
+        tween = this.drawerTransition.getStateOr(null);
       } else {
         tween = Transition.forTween(tween);
       }

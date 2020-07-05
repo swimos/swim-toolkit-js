@@ -21,6 +21,12 @@ import {StringViewScope} from "./StringViewScope";
 import {BooleanViewScope} from "./BooleanViewScope";
 import {NumberViewScope} from "./NumberViewScope";
 
+export type ViewScopeType<V, K extends keyof V> =
+  V extends {[P in K]: ViewScope<any, infer T, any>} ? T : unknown;
+
+export type ViewScopeInitType<V, K extends keyof V> =
+  V extends {[P in K]: ViewScope<any, any, infer U>} ? U : unknown;
+
 export type ViewScopeInit<V extends View, T, U = T> =
   (this: ViewScope<V, T, U>) => T | U | undefined;
 
@@ -108,6 +114,10 @@ export interface ViewScope<V extends View, T, U = T> {
   isAuto(): boolean;
 
   setAuto(auto: boolean): void;
+
+  getState(): T;
+
+  getStateOr<V>(elseState: V): T | V;
 
   setState(newState: T | U | undefined): void;
 
@@ -280,6 +290,23 @@ export const ViewScope: ViewScopeClass = (function (_super: typeof Object): View
       this._auto = auto;
       this._view.viewScopeDidSetAuto(this, auto);
     }
+  };
+
+  ViewScope.prototype.getState = function <T, U>(this: ViewScope<View, T, U>): T {
+    const state = this.state;
+    if (state === void 0) {
+      throw new TypeError("undefined " + this.name + " state");
+    }
+    return state;
+  };
+
+  ViewScope.prototype.getStateOr = function <T, U, V>(this: ViewScope<View, T, U>,
+                                                      elseState: V): T | V {
+    let state: T | V | undefined = this.state;
+    if (state === void 0) {
+      state = elseState;
+    }
+    return state;
   };
 
   ViewScope.prototype.setState = function <T, U>(this: ViewScope<View, T, U>,

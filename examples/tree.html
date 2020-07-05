@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Swim Tree View</title>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+      html, body {
+        -webkit-tap-highlight-color: transparent;
+      }
+    </style>
+  </head>
+  <body style="display: flex; width: 100vw; height: 100vh; margin: 0; background-color: #1e2022; font-family: sans-serif;">
+    <div id="app" style="position: relative; flex-grow: 1;">
+    </div>
+    <script src="../../swim-system-js/swim-core-js/@swim/core/dist/main/swim-core.js"></script>
+    <script src="../swim-ui-js/@swim/ui/dist/main/swim-ui.js"></script>
+    <script src="../swim-ux-js/@swim/ux/dist/main/swim-ux.js"></script>
+    <script>
+
+if (navigator.standalone) {
+  document.documentElement.style.width = "100vw";
+  document.documentElement.style.height = "100vh";
+} else {
+  document.documentElement.style.width = "100%";
+  document.documentElement.style.height = "100%";
+}
+if (navigator.standalone) {
+  document.body.style.width = "100vw";
+  document.body.style.height = "100vh";
+} else {
+  document.body.style.width = "100%";
+  document.body.style.height = "100%";
+}
+
+const appView = new swim.AppView(document.getElementById("app"))
+  .userSelect("none")
+  .color("#ffffff");
+
+appView.onSetViewIdiom = function (viewIdiom) {
+  if (viewIdiom === "desktop") {
+    appView.margin(60);
+  } else {
+    appView.margin(0);
+  }
+};
+
+const tree0 = appView.append(swim.TreeView.fromAny({
+  //depth: 1,
+  seed: {
+    roots: [
+      {
+        key: "icon",
+        shrink: 0,
+        basis: 80,
+      },
+      {
+        key: "name",
+        grow: 1,
+        basis: 240,
+      },
+      {
+        key: "kpi1",
+        optional: true,
+        basis: 120,
+      },
+      {
+        key: "kpi2",
+        optional: true,
+        basis: 120,
+      },
+      {
+        key: "disclose",
+        shrink: 0,
+        basis: 60,
+      },
+    ],
+  },
+  stem: {
+    style: {
+      color: "#989898",
+    },
+    veins: [
+      {
+        key: "name",
+        text: "Category",
+      },
+      {
+        key: "kpi1",
+        text: "Count",
+      },
+      {
+        key: "kpi2",
+        text: "Status",
+      },
+    ],
+  },
+  limbs: [
+    {
+      key: "limb00",
+      leaf: {
+        cells: [
+          {
+            key: "name",
+            text: "Places",
+          },
+          {
+            key: "kpi1",
+            text: "0",
+          },
+          {
+            key: "kpi2",
+            text: "idle",
+          },
+        ],
+      },
+    },
+    {
+      key: "limb01",
+      leaf: {
+        cells: [
+          {
+            key: "name",
+            text: "People",
+          },
+          {
+            key: "kpi1",
+            text: "3",
+          },
+          {
+            key: "kpi2",
+            text: "active",
+          },
+          {
+            key: "disclose",
+            cellType: "disclosure",
+          },
+        ],
+      },
+      tree: {
+        stem: {
+          style: {
+            color: "#989898",
+          },
+          veins: [
+            {
+              key: "name",
+              text: "Name",
+            },
+            {
+              key: "kpi1",
+              text: "Role",
+            },
+            {
+              key: "kpi2",
+              text: "Status",
+            },
+          ],
+        },
+        limbs: [
+          {
+            key: "limb010",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  text: "Chris",
+                },
+                {
+                  key: "kpi1",
+                  text: "root",
+                },
+                {
+                  key: "kpi2",
+                  text: "busy",
+                },
+                {
+                  key: "disclose",
+                  cellType: "disclosure",
+                },
+              ],
+            },
+            tree: {
+              stem: {
+                style: {
+                  color: "#989898",
+                },
+                veins: [
+                  {
+                    key: "name",
+                    text: "Task",
+                  },
+                  {
+                    key: "kpi1",
+                    text: "Points",
+                  },
+                  {
+                    key: "kpi2",
+                    text: "Status",
+                  },
+                ],
+              },
+              limbs: [
+                {
+                  key: "limb0120",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        text: "Architecting",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "NaN",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "implementing",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            key: "limb011",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  text: "Ajay",
+                },
+                {
+                  key: "kpi1",
+                  text: "admin",
+                },
+                {
+                  key: "kpi2",
+                  text: "online",
+                },
+                {
+                  key: "disclose",
+                  cellType: "disclosure",
+                },
+              ],
+            },
+            tree: {
+              stem: {
+                style: {
+                  color: "#989898",
+                },
+                veins: [
+                  {
+                    key: "name",
+                    text: "Task",
+                  },
+                  {
+                    key: "kpi1",
+                    text: "Points",
+                  },
+                  {
+                    key: "kpi2",
+                    text: "Status",
+                  },
+                ],
+              },
+              limbs: [
+                {
+                  key: "limb0120",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        text: "Engineering",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "100",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "unknown",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            key: "limb012",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  text: "Will",
+                },
+                {
+                  key: "kpi1",
+                  text: "admin",
+                },
+                {
+                  key: "kpi2",
+                  text: "extant",
+                },
+                {
+                  key: "disclose",
+                  cellType: "disclosure",
+                },
+              ],
+            },
+            tree: {
+              stem: {
+                style: {
+                  color: "#989898",
+                },
+                veins: [
+                  {
+                    key: "name",
+                    text: "Task",
+                  },
+                  {
+                    key: "kpi1",
+                    text: "Points",
+                  },
+                  {
+                    key: "kpi2",
+                    text: "Status",
+                  },
+                ],
+              },
+              limbs: [
+                {
+                  key: "limb0120",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        text: "Design",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "100",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "unknown",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          //{
+          //  key: "limb013",
+          //  leaf: {},
+          //},
+        ],
+      },
+    },
+    {
+      key: "tree02",
+      leaf: {
+        cells: [
+          {
+            key: "name",
+            text: "Things",
+          },
+          {
+            key: "kpi1",
+            text: "0",
+          },
+          {
+            key: "kpi2",
+            text: "idle",
+          },
+        ],
+      },
+    },
+  ],
+}));
+
+const limb01 = tree0.getChildView("limb01");
+const tree01 = limb01.tree;
+const limb012 = tree01.getChildView("limb012");
+const tree02 = limb012.tree;
+const limb0120 = tree02.getChildView("limb0120");
+
+//limb01.toggle();
+//setInterval(function () {
+//  limb012.toggle();
+//}, 1000);
+//setInterval(function () {
+//  if (limb0120.isMounted()) {
+//    limb0120.remove();
+//  } else {
+//    tree02.append(limb0120);
+//  }
+//}, 4000 / 3);
+
+    </script>
+  </body>
+</html>

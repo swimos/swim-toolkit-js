@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {RootView} from "./RootView";
+export {
+  RootViewInit,
+  RootView,
+} from "./RootView";
 export {RootViewObserver} from "./RootViewObserver";
 export {RootViewController} from "./RootViewController";

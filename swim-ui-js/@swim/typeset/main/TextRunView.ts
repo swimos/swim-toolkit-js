@@ -38,6 +38,11 @@ export class TextRunView extends GraphicsLeafView implements TypesetView {
     return this._viewController;
   }
 
+  initView(init: TextRunViewInit): void {
+    super.initView(init);
+    this.setState(init);
+  }
+
   @ViewAnimator(String, {value: ""})
   text: ViewAnimator<this, string>;
 
@@ -57,13 +62,13 @@ export class TextRunView extends GraphicsLeafView implements TypesetView {
   textColor: ViewAnimator<this, Color, AnyColor>;
 
   get value(): TextRun {
-    return new TextRun(this.text.value!, this.font.value!, this.textAlign.value!,
-                       this.textBaseline.value!, this.textOrigin.value!, this.textColor.value!);
+    return new TextRun(this.text.getValue(), this.font.getValue(), this.textAlign.getValue(),
+                       this.textBaseline.getValue(), this.textOrigin.getValue(), this.textColor.getValue());
   }
 
   get state(): TextRun {
-    return new TextRun(this.text.state!, this.font.state!, this.textAlign.state!,
-                       this.textBaseline.state!, this.textOrigin.state!, this.textColor.state!);
+    return new TextRun(this.text.getState(), this.font.getState(), this.textAlign.getState(),
+                       this.textBaseline.getState(), this.textOrigin.getState(), this.textColor.getState());
   }
 
   setState(run: TextRun | TextRunViewInit | string, tween?: Tween<any>): void {
@@ -90,12 +95,6 @@ export class TextRunView extends GraphicsLeafView implements TypesetView {
       }
       if (run.textColor !== void 0) {
         this.textColor(run.textColor, tween);
-      }
-      if (run.hidden !== void 0) {
-        this.setHidden(run.hidden);
-      }
-      if (run.culled !== void 0) {
-        this.setCulled(run.culled);
       }
     }
   }
@@ -132,17 +131,37 @@ export class TextRunView extends GraphicsLeafView implements TypesetView {
     if (textColor !== void 0) {
       context.fillStyle = textColor.toString();
     }
-    context.fillText(this.text.value!, textOrigin.x, textOrigin.y);
+    context.fillText(this.text.getValue(), textOrigin.x, textOrigin.y);
   }
 
   static fromAny(run: AnyTextRunView): TextRunView {
     if (run instanceof TextRunView) {
       return run;
-    } else if (typeof run === "string" || typeof run === "object" && run !== null) {
-      const view = new TextRunView();
-      view.setState(run);
-      return view;
+    } else if (run instanceof TextRun) {
+      return TextRunView.fromTextRun(run);
+    } else if (typeof run === "object" && run !== null) {
+      return TextRunView.fromInit(run);
+    } else if (typeof run === "string") {
+      return TextRunView.fromText(run);
     }
     throw new TypeError("" + run);
+  }
+
+  static fromText(text: string): TextRunView {
+    const view = new TextRunView();
+    view.text(text);
+    return view;
+  }
+
+  static fromTextRun(run: TextRun): TextRunView {
+    const view = new TextRunView();
+    view.setState(run);
+    return view;
+  }
+
+  static fromInit(init: TextRunViewInit): TextRunView {
+    const view = new TextRunView();
+    view.initView(init);
+    return view;
   }
 }

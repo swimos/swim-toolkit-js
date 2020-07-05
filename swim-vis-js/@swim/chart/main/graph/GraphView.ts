@@ -22,19 +22,29 @@ import {GraphViewController} from "./GraphViewController";
 export type AnyGraphView<X = unknown, Y = unknown> = GraphView<X, Y> | GraphViewInit<X, Y>;
 
 export interface GraphViewInit<X = unknown, Y = unknown> extends ScaleViewInit<X, Y> {
+  viewController?: GraphViewController<X, Y>;
   plots?: AnyPlotView<X, Y>[];
 }
 
 export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
-  constructor() {
-    super();
-  }
-
   get viewController(): GraphViewController<X, Y> | null {
     return this._viewController;
   }
 
-  addPlot(plot: AnyPlotView<X, Y>): void {
+  initView(init: GraphViewInit<X, Y>): void {
+    super.initView(init);
+    const plots = init.plots;
+    if (plots !== void 0) {
+      for (let i = 0, n = plots.length; i < n; i += 1) {
+        this.addPlot(plots[i]);
+      }
+    }
+  }
+
+  addPlot(plot: AnyPlotView<X, Y>, key?: string): void {
+    if (key === void 0 && typeof plot === "object" && plot !== null) {
+      key = plot.key;
+    }
     plot = PlotView.fromAny(plot);
     this.appendChildView(plot);
   }
@@ -105,15 +115,7 @@ export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
 
   static fromInit<X, Y>(init: GraphViewInit<X, Y>): GraphView<X, Y> {
     const view = new GraphView<X, Y>();
-    ScaleView.init(view, init);
-
-    const plots = init.plots;
-    if (plots !== void 0) {
-      for (let i = 0, n = plots.length; i < n; i += 1) {
-        view.addPlot(plots[i]);
-      }
-    }
-
+    view.initView(init);
     return view;
   }
 }

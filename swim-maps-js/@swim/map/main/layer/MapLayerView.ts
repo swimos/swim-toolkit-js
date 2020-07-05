@@ -19,9 +19,13 @@ import {GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {GeoProjection} from "../geo/GeoProjection";
 import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
-import {MapGraphicsView} from "../graphics/MapGraphicsView";
+import {MapGraphicsViewInit, MapGraphicsView} from "../graphics/MapGraphicsView";
 import {MapLayerTile} from "./MapLayerTile";
 import {MapLayerViewController} from "./MapLayerViewController";
+
+export interface MapLayerViewInit extends MapGraphicsViewInit {
+  tileOutlineColor?: AnyColor;
+}
 
 export class MapLayerView extends MapGraphicsView {
   /** @hidden */
@@ -36,6 +40,13 @@ export class MapLayerView extends MapGraphicsView {
 
   get viewController(): MapLayerViewController | null {
     return this._viewController;
+  }
+
+  initView(init: MapLayerViewInit): void {
+    super.initView(init);
+    if (init.tileOutlineColor !== void 0) {
+      this.tileOutlineColor(init.tileOutlineColor);
+    }
   }
 
   @ViewAnimator(Color)
@@ -93,7 +104,7 @@ export class MapLayerView extends MapGraphicsView {
         }
         this.onRemoveChildView(childView);
         this.didRemoveChildView(childView);
-        childView.setKey(null);
+        childView.setKey(void 0);
       }
     }
     if (newChildView !== null) {
@@ -116,7 +127,7 @@ export class MapLayerView extends MapGraphicsView {
   /** @hidden */
   protected insertChildViewMap(childView: MapGraphicsView): void {
     const key = childView.key;
-    if (key !== null) {
+    if (key !== void 0) {
       let childViewMap = this._childViewMap;
       if (childViewMap === void 0) {
         childViewMap = {};
@@ -131,7 +142,7 @@ export class MapLayerView extends MapGraphicsView {
     const childViewMap = this._childViewMap;
     if (childViewMap !== void 0) {
       const key = childView.key;
-      if (key !== null) {
+      if (key !== void 0) {
         delete childViewMap[key];
       }
     }
@@ -242,7 +253,7 @@ export class MapLayerView extends MapGraphicsView {
     }
     this.onRemoveChildView(childView);
     this.didRemoveChildView(childView);
-    childView.setKey(null);
+    childView.setKey(void 0);
     if (typeof key === "string") {
       return childView;
     }
@@ -258,31 +269,40 @@ export class MapLayerView extends MapGraphicsView {
   protected doProcessChildViews(processFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
     if ((processFlags & View.ProcessMask) !== 0 && !this._childViews.isEmpty()
         && !this.isHidden() && !this.isCulled()) {
-      this.willProcessChildViews(viewContext);
-      this.doProcessTile(this._childViews, processFlags, viewContext);
-      this.didProcessChildViews(viewContext);
+      this.willProcessChildViews(processFlags, viewContext);
+      this.onProcessChildViews(processFlags, viewContext);
+      this.didProcessChildViews(processFlags, viewContext);
     }
   }
 
+  protected processChildViews(processFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+                              callback?: (this: this, childView: View) => void): void {
+    this.processTile(this._childViews, processFlags, viewContext, callback);
+  }
+
   /** @hidden */
-  protected doProcessTile(tile: MapLayerTile, processFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
+  protected processTile(tile: MapLayerTile, processFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+                        callback: ((this: this, childView: View) => void) | undefined): void {
     if (tile._southWest !== null && tile._southWest._geoFrame.intersects(viewContext.geoFrame)) {
-      this.doProcessTile(tile._southWest, processFlags, viewContext);
+      this.processTile(tile._southWest, processFlags, viewContext, callback);
     }
     if (tile._northWest !== null && tile._northWest._geoFrame.intersects(viewContext.geoFrame)) {
-      this.doProcessTile(tile._northWest, processFlags, viewContext);
+      this.processTile(tile._northWest, processFlags, viewContext, callback);
     }
     if (tile._southEast !== null && tile._southEast._geoFrame.intersects(viewContext.geoFrame)) {
-      this.doProcessTile(tile._southEast, processFlags, viewContext);
+      this.processTile(tile._southEast, processFlags, viewContext, callback);
     }
     if (tile._northEast !== null && tile._northEast._geoFrame.intersects(viewContext.geoFrame)) {
-      this.doProcessTile(tile._northEast, processFlags, viewContext);
+      this.processTile(tile._northEast, processFlags, viewContext, callback);
     }
     const childViews = tile._views;
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
       const childViewContext = this.childViewContext(childView, viewContext);
       this.doProcessChildView(childView, processFlags, childViewContext);
+      if (callback !== void 0) {
+        callback.call(this, childView);
+      }
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
@@ -340,35 +360,34 @@ export class MapLayerView extends MapGraphicsView {
     }
   }
 
-  /** @hidden */
-  protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
-    if ((displayFlags & View.DisplayMask) !== 0 && !this._childViews.isEmpty()
-        && !this.isHidden() && !this.isCulled()) {
-      this.willDisplayChildViews(viewContext);
-      this.doDisplayTile(this._childViews, displayFlags, viewContext);
-      this.didDisplayChildViews(viewContext);
-    }
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+                              callback?: (this: this, childView: View) => void): void {
+    this.displayTile(this._childViews, displayFlags, viewContext, callback);
   }
 
   /** @hidden */
-  protected doDisplayTile(tile: MapLayerTile, displayFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
+  protected displayTile(tile: MapLayerTile, displayFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+                        callback: ((this: this, childView: View) => void) | undefined): void {
     if (tile._southWest !== null && tile._southWest._geoFrame.intersects(viewContext.geoFrame)) {
-      this.doDisplayTile(tile._southWest, displayFlags, viewContext);
+      this.displayTile(tile._southWest, displayFlags, viewContext, callback);
     }
     if (tile._northWest !== null && tile._northWest._geoFrame.intersects(viewContext.geoFrame)) {
-      this.doDisplayTile(tile._northWest, displayFlags, viewContext);
+      this.displayTile(tile._northWest, displayFlags, viewContext, callback);
     }
     if (tile._southEast !== null && tile._southEast._geoFrame.intersects(viewContext.geoFrame)) {
-      this.doDisplayTile(tile._southEast, displayFlags, viewContext);
+      this.displayTile(tile._southEast, displayFlags, viewContext, callback);
     }
     if (tile._northEast !== null && tile._northEast._geoFrame.intersects(viewContext.geoFrame)) {
-      this.doDisplayTile(tile._northEast, displayFlags, viewContext);
+      this.displayTile(tile._northEast, displayFlags, viewContext, callback);
     }
     const childViews = tile._views;
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
       const childViewContext = this.childViewContext(childView, viewContext);
       this.doDisplayChildView(childView, displayFlags, childViewContext);
+      if (callback !== void 0) {
+        callback.call(this, childView);
+      }
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);

@@ -13,11 +13,15 @@
 // limitations under the License.
 
 import {View} from "../View";
-import {NodeView} from "../node/NodeView";
+import {NodeViewInit, NodeView} from "../node/NodeView";
 import {TextViewController} from "./TextViewController";
 
 export interface ViewText extends Text {
   view?: TextView;
+}
+
+export interface TextViewInit extends NodeViewInit {
+  viewController?: TextViewController;
 }
 
 export class TextView extends NodeView {
@@ -31,6 +35,10 @@ export class TextView extends NodeView {
 
   get viewController(): TextViewController | null {
     return this._viewController;
+  }
+
+  initView(init: TextViewInit): void {
+    super.initView(init);
   }
 }
 View.Text = TextView;

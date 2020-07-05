@@ -14,6 +14,9 @@
 
 export {
   AttributeAnimatorType,
+  AttributeAnimatorInitType,
+  AttributeAnimatorTypeConstructor,
+  AttributeAnimatorConstructor,
   AttributeAnimatorClass,
   AttributeAnimator,
 } from "./AttributeAnimator";

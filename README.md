@@ -88,14 +88,17 @@ toolbars, controls, and other interactive application views and controllers.
   umbrella package that depends on, and re-exports, all **Swim UX** libraries.
 - [**@swim/theme**](swim-ux-js/@swim/theme) –
   semantic looks and feels for mood-aware UX components.
+- [**@swim/motif**](swim-ux-js/@swim/motif) –
+  procedurally styled and rendered decorative views.
 - [**@swim/app**](swim-ux-js/@swim/app) –
   application model for coordinating window-level components, such as popovers
   and drawers.
-- [**@swim/controls**](swim-ux-js/@swim/controls) –
-  buttons, switches, sliders, and other user interface controls.
-- [**@swim/navigation**](swim-ux-js/@swim/navigation) –
-  menus, tree views, nav bars, tab bars, and other user interface navigation
-  components.
+- [**@swim/fab**](swim-ux-js/@swim/fab) –
+  flingable floating action buttons.
+- [**@swim/menu**](swim-ux-js/@swim/menu) –
+  context-sensitive menu lists and menu items.
+- [**@swim/tree**](swim-ux-js/@swim/tree) –
+  disclosable tree views with tabular columns.
 
 ### [**Swim Visualizations** Framework](swim-vis-js)
 
