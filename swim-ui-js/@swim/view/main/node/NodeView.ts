@@ -738,11 +738,6 @@ export class NodeView extends View {
     }
   }
 
-  protected onMount(): void {
-    super.onMount();
-    this.requireUpdate(View.NeedsResize | View.NeedsLayout);
-  }
-
   protected didMount(): void {
     this.activateLayout();
     super.didMount();

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlViewObserver} from "@swim/view";
+import {ThemedHtmlViewObserver} from "@swim/theme";
 import {TreeStem} from "./TreeStem";
 
-export interface TreeStemObserver<V extends TreeStem = TreeStem> extends HtmlViewObserver<V> {
+export interface TreeStemObserver<V extends TreeStem = TreeStem> extends ThemedHtmlViewObserver<V> {
 }

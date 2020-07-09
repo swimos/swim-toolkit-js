@@ -179,17 +179,8 @@ export abstract class TweenAnimator<T> extends Animator {
   }
 
   setState(state: T | undefined, tween: Tween<T> = null): void {
-    const interrupts = this._observers; // get current transition observers
-    this._observers = null;
-    if (Transition.isAny(tween)) {
-      tween = Transition.fromAny(tween);
-      this.transition(tween); // may update transition observers
-    } else if (tween === false || tween === null) {
+    if (state === void 0 || tween === false || tween === null) {
       this._duration = 0;
-    }
-    this._interrupts = interrupts; // stash interrupted transition observers
-
-    if (state === void 0 || !tween) {
       this._state = state;
       this._beginTime = 0;
       if (this._tweenState === TweenState.Tracking) {
@@ -205,7 +196,13 @@ export abstract class TweenAnimator<T> extends Animator {
       } else {
         this.delete();
       }
-    } else if (this._tweenState !== TweenState.Quiesced || !Objects.equal(this._state, state)) {
+    } else if (!Objects.equal(this._state, state)) {
+      if (tween !== true) {
+        const interrupts = this._observers; // get current transition observers
+        this._observers = null;
+        this.transition(tween); // may update transition observers
+        this._interrupts = interrupts; // stash interrupted transition observers
+      }
       const value = this.value;
       if (this._interpolator !== null) {
         this._interpolator = this._interpolator.range(value, state);
@@ -222,6 +219,19 @@ export abstract class TweenAnimator<T> extends Animator {
         this._tweenState = TweenState.Diverged;
       }
       this.animate();
+    } else if (tween !== true) {
+      tween = Transition.fromAny(tween);
+      // add observers to current transition
+      let observers = this._observers;
+      if (observers === null) {
+        observers = [];
+        this._observers = observers;
+      }
+      Array.prototype.push.apply(observers, tween._observers);
+      // immediately complete quiesced transitions
+      if (this._tweenState === TweenState.Quiesced) {
+        this.doEnd(this._value);
+      }
     }
   }
 

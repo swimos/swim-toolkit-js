@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View, ViewNodeType, HtmlView} from "@swim/view";
+import {View, ViewNodeType} from "@swim/view";
+import {ThemedHtmlView} from "@swim/theme";
 import {MenuItem} from "./MenuItem";
 import {MenuListObserver} from "./MenuListObserver";
 import {MenuListController} from "./MenuListController";
 
-export class MenuList extends HtmlView {
-  constructor(node: HTMLElement) {
-    super(node);
-  }
-
+export class MenuList extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("menu-list");
@@ -29,6 +26,7 @@ export class MenuList extends HtmlView {
     this.flexShrink.setAutoState(0);
     this.marginTop.setAutoState(12);
     this.marginBottom.setAutoState(12);
+    this.userSelect.setAutoState("none");
   }
 
   get viewController(): MenuListController | null {

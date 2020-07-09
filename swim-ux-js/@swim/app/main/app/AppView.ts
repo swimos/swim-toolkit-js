@@ -12,53 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewScope, Viewport, UiViewContext, UiViewInit, UiView} from "@swim/view";
-import {Theme} from "@swim/theme";
+import {ThemedUiViewInit, ThemedUiView} from "@swim/theme";
 import {AppViewController} from "./AppViewController";
 
-export interface AppViewInit extends UiViewInit {
+export interface AppViewInit extends ThemedUiViewInit {
   viewController?: AppViewController;
-  theme?: Theme;
 }
 
-export class AppView extends UiView {
+export class AppView extends ThemedUiView {
   get viewController(): AppViewController | null {
     return this._viewController;
   }
 
   initView(init: AppViewInit): void {
     super.initView(init);
-    if (init.theme !== void 0) {
-      this.theme(init.theme);
-    }
-  }
-
-  @ViewScope<AppView, typeof Theme>(Theme, {
-    init(): Theme {
-      return this.view.createTheme();
-    },
-  })
-  theme: ViewScope<this, Theme>;
-
-  protected createTheme(): Theme {
-    const colorScheme = this.viewport.colorScheme;
-    if (colorScheme === "dark") {
-      return Theme.dark;
-    } else {
-      return Theme.light;
-    }
-  }
-
-  protected onResize(viewContext: UiViewContext): void {
-    super.onResize(viewContext);
-    this.updateViewIdiom(viewContext.viewport);
-  }
-
-  protected updateViewIdiom(viewport: Viewport) {
-    if (viewport.width < 960 || viewport.height < 480) {
-      this.setViewIdiom("mobile");
-    } else {
-      this.setViewIdiom("desktop");
-    }
   }
 }

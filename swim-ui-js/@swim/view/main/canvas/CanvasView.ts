@@ -592,11 +592,6 @@ export class CanvasView extends HtmlView {
     }
   }
 
-  onPower(): void {
-    super.onPower();
-    this.requireUpdate(View.NeedsRender);
-  }
-
   /** @hidden */
   doPowerChildViews(): void {
     const childNodes = this._node.childNodes;
@@ -1881,5 +1876,7 @@ export class CanvasView extends HtmlView {
                                           | CanvasView.MouseEventsFlag
                                           | CanvasView.PointerEventsFlag
                                           | CanvasView.TouchEventsFlag;
+
+  static readonly powerFlags: ViewFlags = HtmlView.powerFlags | View.NeedsRender;
 }
 View.Canvas = CanvasView;

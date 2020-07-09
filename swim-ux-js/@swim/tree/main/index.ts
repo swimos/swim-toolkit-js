@@ -32,6 +32,7 @@ export {
 export {TreeCellObserver} from "./TreeCellObserver";
 export {TreeCellController} from "./TreeCellController";
 
+export {TitleTreeCell} from "./TitleTreeCell";
 export {DisclosureTreeCell} from "./DisclosureTreeCell";
 
 export {

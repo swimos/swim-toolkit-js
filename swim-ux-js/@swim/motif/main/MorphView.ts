@@ -15,9 +15,10 @@
 import {Angle} from "@swim/angle";
 import {Transform} from "@swim/transform";
 import {Tween, Transition} from "@swim/transition";
-import {ViewNodeType, SvgView, HtmlView, HtmlViewController} from "@swim/view";
+import {ViewNodeType, SvgView, HtmlView} from "@swim/view";
+import {ThemedHtmlView} from "@swim/theme";
 
-export class MorphView extends HtmlView {
+export class MorphView extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("morph");
@@ -26,10 +27,6 @@ export class MorphView extends HtmlView {
     this.alignItems.setAutoState("center");
     this.flexGrow.setAutoState(1);
     this.pointerEvents.setAutoState("none");
-  }
-
-  get viewController(): HtmlViewController<MorphView> | null {
-    return this._viewController;
   }
 
   get form(): HtmlView | null {

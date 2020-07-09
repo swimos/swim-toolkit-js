@@ -15,19 +15,11 @@
 import {Angle} from "@swim/angle";
 import {AnyColor, Color, ColorInterpolator} from "@swim/color";
 import {Transform} from "@swim/transform";
-import {
-  ViewContext,
-  View,
-  ViewScope,
-  ViewAnimator,
-  ViewNodeType,
-  SvgView,
-  HtmlView,
-  HtmlViewController,
-} from "@swim/view";
-import {Theme} from "@swim/theme";
+import {Transition} from "@swim/transition";
+import {ViewContext, ViewAnimator, ViewNodeType, SvgView} from "@swim/view";
+import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
 
-export class DisclosureArrow extends HtmlView {
+export class DisclosureArrow extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("disclosure-arrow");
@@ -47,10 +39,6 @@ export class DisclosureArrow extends HtmlView {
     polygon.transform.setAutoState(Transform.translate(12, 12).rotate(Angle.deg(-180)));
   }
 
-  get viewController(): HtmlViewController<DisclosureArrow> | null {
-    return this._viewController;
-  }
-
   get icon(): SvgView {
     return this.getChildView("icon") as SvgView;
   }
@@ -60,44 +48,31 @@ export class DisclosureArrow extends HtmlView {
     return icon.getChildView("polygon") as SvgView;
   }
 
-  @ViewScope(Theme, {inherit: true})
-  theme: ViewScope<this, Theme>;
-
   @ViewAnimator(Number, {inherit: true})
   disclosurePhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @ViewAnimator(Color, {value: Color.transparent()})
+  @ViewAnimator(Color, {inherit: true})
   collapsedColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Color, {value: Color.transparent()})
+  @ViewAnimator(Color, {inherit: true})
   expandedColor: ViewAnimator<this, Color, AnyColor>;
 
-  setTheme(theme: Theme): void {
-    this.collapsedColor.setAutoState(theme.base.color);
-    this.expandedColor.setAutoState(theme.primary.fillColor);
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
-  protected onMount(): void {
-    super.onMount();
-    this.requireUpdate(View.NeedsCompute);
-  }
-
-  protected onCompute(viewContext: ViewContext): void {
-    super.onCompute(viewContext);
-    const theme = this.theme.state;
-    if (theme !== void 0) {
-      this.setTheme(theme);
-    }
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    this.collapsedColor.setAutoState(theme.inner(mood, Look.color), transition);
+    this.expandedColor.setAutoState(theme.inner(mood, Look.primaryColor), transition);
   }
 
   protected onAnimate(viewContext: ViewContext): void {
     super.onAnimate(viewContext);
     const disclosurePhase = this.disclosurePhase.getValueOr(0);
-    const collapsedColor = this.collapsedColor.getValue();
-    const expandedColor = this.expandedColor.getValue();
-    const colorInterpolator = ColorInterpolator.between(collapsedColor, expandedColor);
-    this.polygon.fill.setAutoState(colorInterpolator.interpolate(disclosurePhase));
+    const collapsedColor = this.collapsedColor.value;
+    const expandedColor = this.expandedColor.value;
+    if (collapsedColor !== void 0 && expandedColor !== void 0 && this.polygon.fill.isAuto()) {
+      const colorInterpolator = ColorInterpolator.between(collapsedColor, expandedColor);
+      this.polygon.fill.setAutoState(colorInterpolator.interpolate(disclosurePhase));
+    }
     const transform = Transform.translate(12, 12).rotate(Angle.deg(-180 * (1 - disclosurePhase)));
     this.polygon.transform.setAutoState(transform);
   }

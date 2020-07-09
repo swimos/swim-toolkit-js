@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewNodeType} from "@swim/view";
+import {View, ViewNodeType} from "@swim/view";
 import {PositionGestureInput} from "@swim/gesture";
 import {DisclosureArrow} from "@swim/motif";
 import {TreeCell} from "./TreeCell";
@@ -38,6 +38,28 @@ export class DisclosureTreeCell extends TreeCell {
         limb.toggle();
       }
     }
+  }
+
+  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+    super.onInsertChildView(childView, targetView);
+    if (childView.key === "arrow" && childView instanceof DisclosureArrow) {
+      this.onInsertArrow(childView);
+    }
+  }
+
+  protected onRemoveChildView(childView: View): void {
+    if (childView.key === "arrow" && childView instanceof DisclosureArrow) {
+      this.onRemoveArrow(childView);
+    }
+    super.onRemoveChildView(childView);
+  }
+
+  protected onInsertArrow(arrow: DisclosureArrow): void {
+    // hook
+  }
+
+  protected onRemoveArrow(arrow: DisclosureArrow): void {
+    // hook
   }
 }
 TreeCell.Disclosure = DisclosureTreeCell;

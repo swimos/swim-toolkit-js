@@ -31,4 +31,4 @@ export {MorphView} from "./MorphView";
 
 export {DisclosureArrow} from "./DisclosureArrow";
 
-export * from "./handlebar";
+export * from "./bracket";

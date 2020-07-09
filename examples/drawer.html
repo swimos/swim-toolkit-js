@@ -11,9 +11,7 @@
       }
     </style>
   </head>
-  <body style="display: flex; width: 100vw; height: 100vh; margin: 0; background-color: #1e2022; font-family: sans-serif;">
-    <div id="app" style="position: relative; flex-grow: 1;">
-    </div>
+  <body style="display: flex; width: 100vw; height: 100vh; margin: 0;">
     <script src="../../swim-system-js/swim-core-js/@swim/core/dist/main/swim-core.js"></script>
     <script src="../swim-ui-js/@swim/ui/dist/main/swim-ui.js"></script>
     <script src="../swim-ux-js/@swim/ux/dist/main/swim-ux.js"></script>
@@ -37,7 +35,7 @@ if (navigator.standalone) {
   document.body.style.height = "100%";
 }
 
-const appView = new swim.AppView(document.getElementById("app"));
+const appView = new swim.AppView(document.body);
 
 const drawerButton = appView.append(swim.DrawerButton)
   .position("absolute")
@@ -51,7 +49,7 @@ drawerButton.setDrawerView(drawerView);
 
 const menuList = swim.HtmlView.create(swim.MenuList);
 const menuListController = new swim.MenuListController();
-//menuList.setViewController(menuListController);
+menuList.setViewController(menuListController);
 drawerView.append(menuList);
 
 const icon1 = swim.SvgView.create("svg").width(24).height(24).viewBox("0 0 24 24");
@@ -60,7 +58,7 @@ const item1 = swim.HtmlView.create(swim.MenuItem)
   .iconView(icon1)
   .titleView("Agents");
 menuList.append(item1);
-//menuListController.selectItem(item1);
+menuListController.selectItem(item1);
 
 const icon2 = swim.SvgView.create("svg").width(24).height(24).viewBox("0 0 24 24");
 icon2.append("path").d("M10,2 C8.89,2 8,2.89 8,4 L8,7 C8,8.11 8.89,9 10,9 L11,9 L11,11 L2,11 L2,13 L6,13 L6,15 L5,15 C3.89,15 3,15.89 3,17 L3,20 C3,21.11 3.89,22 5,22 L9,22 C10.11,22 11,21.11 11,20 L11,17 C11,15.89 10.11,15 9,15 L8,15 L8,13 L16,13 L16,15 L15,15 C13.89,15 13,15.89 13,17 L13,20 C13,21.11 13.89,22 15,22 L19,22 C20.11,22 21,21.11 21,20 L21,17 C21,15.89 20.11,15 19,15 L18,15 L18,13 L22,13 L22,11 L13,11 L13,9 L14,9 C15.11,9 16,8.11 16,7 L16,4 C16,2.89 15.11,2 14,2 L10,2 L10,2 Z M10,4 L14,4 L14,7 L10,7 L10,4 L10,4 Z M5,17 L9,17 L9,20 L5,20 L5,17 L5,17 Z M15,17 L19,17 L19,20 L15,20 L15,17 Z");

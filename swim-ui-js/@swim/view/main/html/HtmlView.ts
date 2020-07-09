@@ -160,7 +160,7 @@ export interface HtmlViewStyleInit {
   flexGrow?: StyleAnimatorInitType<HtmlView, "flexGrow">;
   flexShrink?: StyleAnimatorInitType<HtmlView, "flexShrink">;
   flexWrap?: StyleAnimatorInitType<HtmlView, "flexWrap">;
-  font?: AnyFont | undefined;
+  font?: AnyFont;
   fontFamily?: StyleAnimatorInitType<HtmlView, "fontFamily">;
   fontSize?: StyleAnimatorInitType<HtmlView, "fontSize">;
   fontStretch?: StyleAnimatorInitType<HtmlView, "fontStretch">;
@@ -1280,28 +1280,26 @@ export class HtmlView extends ElementView {
         return void 0;
       }
     } else {
-      if (value !== void 0) {
-        value = Font.fromAny(value);
+      value = Font.fromAny(value);
+      if (value._style !== void 0) {
+        this.fontStyle(value._style, tween, priority);
       }
-      if (value === void 0 || value.style() !== null) {
-        this.fontStyle(value !== void 0 ? value.style() || void 0 : void 0, tween, priority);
+      if (value._variant !== void 0) {
+        this.fontVariant(value._variant, tween, priority);
       }
-      if (value === void 0 || value.variant() !== null) {
-        this.fontVariant(value !== void 0 ? value.variant() || void 0 : void 0, tween, priority);
+      if (value._weight !== void 0) {
+        this.fontWeight(value._weight, tween, priority);
       }
-      if (value === void 0 || value.weight() !== null) {
-        this.fontWeight(value !== void 0 ? value.weight() || void 0 : void 0, tween, priority);
+      if (value._stretch !== void 0) {
+        this.fontStretch(value._stretch, tween, priority);
       }
-      if (value === void 0 || value.stretch() !== null) {
-        this.fontStretch(value !== void 0 ? value.stretch() || void 0 : void 0, tween, priority);
+      if (value._size !== void 0) {
+        this.fontSize(value._size, tween, priority);
       }
-      if (value === void 0 || value.size() !== null) {
-        this.fontSize(value !== void 0 ? value.size() || void 0 : void 0, tween, priority);
+      if (value._height !== void 0) {
+        this.lineHeight(value._height, tween, priority);
       }
-      if (value === void 0 || value.height() !== null) {
-        this.lineHeight(value !== void 0 ? value.height() || void 0 : void 0, tween, priority);
-      }
-      this.fontFamily(value !== void 0 ? value.family() : void 0, tween, priority);
+      this.fontFamily(value._family, tween, priority);
       return this;
     }
   }

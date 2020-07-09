@@ -12,21 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewNodeType, HtmlViewInit, HtmlView} from "@swim/view";
+import {ViewNodeType, HtmlView} from "@swim/view";
 import {PositionGestureInput} from "@swim/gesture";
+import {ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {TreeCellController} from "./TreeCellController";
+import {TitleTreeCell} from "./TitleTreeCell";
 import {DisclosureTreeCell} from "./DisclosureTreeCell";
 
 export type AnyTreeCell = TreeCell | TreeCellInit;
 
-export interface TreeCellInit extends HtmlViewInit {
+export interface TreeCellInit extends ThemedHtmlViewInit {
   viewController?: TreeCellController;
   cellType?: TreeCellType;
 }
 
-export type TreeCellType = "disclosure";
+export type TreeCellType = "title" | "disclosure";
 
-export class TreeCell extends HtmlView {
+export class TreeCell extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-cell");
@@ -61,7 +63,9 @@ export class TreeCell extends HtmlView {
 
   static fromInit(init: TreeCellInit): TreeCell {
     let view: TreeCell;
-    if (init.cellType === "disclosure") {
+    if (init.cellType === "title") {
+      view = HtmlView.create(TreeCell.Title);
+    } else if (init.cellType === "disclosure") {
       view = HtmlView.create(TreeCell.Disclosure);
     } else {
       view = HtmlView.create(TreeCell);
@@ -71,6 +75,8 @@ export class TreeCell extends HtmlView {
   }
 
   // Forward type declarations
+  /** @hidden */
+  static Title: typeof TitleTreeCell; // defined by TitleTreeCell
   /** @hidden */
   static Disclosure: typeof DisclosureTreeCell; // defined by DisclosureTreeCell
 }

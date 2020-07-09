@@ -13,14 +13,14 @@
 // limitations under the License.
 
 import {Color} from "@swim/color";
-import {Ease, Tween, AnyTransition, Transition} from "@swim/transition";
-import {ModalState, ViewScope, ViewNodeType, HtmlViewInit, HtmlView, UiView} from "@swim/view";
+import {Tween, Transition} from "@swim/transition";
+import {ModalState, ViewNodeType, UiView} from "@swim/view";
+import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 
-export interface ScrimViewInit extends HtmlViewInit {
-  scrimTransition?: AnyTransition<any>;
+export interface ScrimViewInit extends ThemedHtmlViewInit {
 }
 
-export class ScrimView extends HtmlView {
+export class ScrimView extends ThemedHtmlView {
   /** @hidden */
   _modalState: ModalState;
 
@@ -57,9 +57,6 @@ export class ScrimView extends HtmlView {
 
   initView(init: ScrimViewInit): void {
     super.initView(init);
-    if (init.scrimTransition !== void 0) {
-      this.scrimTransition(init.scrimTransition);
-    }
   }
 
   get modalState(): ModalState {
@@ -74,18 +71,10 @@ export class ScrimView extends HtmlView {
     return this._modalState === "hidden" || this._modalState === "hiding";
   }
 
-  @ViewScope(Transition, {
-    inherit: true,
-    init(): Transition<any> {
-      return Transition.duration(250, Ease.cubicOut);
-    },
-  })
-  scrimTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
-
   show(opacity: number, tween?: Tween<any>): void {
     if (this._modalState === "hidden" || this._modalState === "hiding") {
       if (tween === void 0 || tween === true) {
-        tween = this.scrimTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -112,7 +101,7 @@ export class ScrimView extends HtmlView {
   hide(tween?: Tween<any>): void {
     if (this._modalState === "shown" || this._modalState === "showing") {
       if (tween === void 0 || tween === true) {
-        tween = this.scrimTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }

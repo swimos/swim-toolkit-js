@@ -12,29 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyTransition, Transition} from "@swim/transition";
-import {
-  ViewContext,
-  ViewFlags,
-  View,
-  ViewScope,
-  ViewNodeType,
-  HtmlViewInit,
-  HtmlView,
-} from "@swim/view";
+import {ViewContext, ViewFlags, View, ViewScope, ViewNodeType, HtmlView} from "@swim/view";
+import {ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeVein, TreeVein} from "./TreeVein";
 import {TreeStemController} from "./TreeStemController";
 
 export type AnyTreeStem = TreeStem | TreeStemInit;
 
-export interface TreeStemInit extends HtmlViewInit {
+export interface TreeStemInit extends ThemedHtmlViewInit {
   viewController?: TreeStemController;
 
   veins?: AnyTreeVein[];
 }
 
-export class TreeStem extends HtmlView {
+export class TreeStem extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-stem");
@@ -70,9 +62,6 @@ export class TreeStem extends HtmlView {
 
   @ViewScope(TreeSeed, {inherit: true})
   seed: ViewScope<this, TreeSeed, AnyTreeSeed>;
-
-  @ViewScope(Transition, {inherit: true})
-  treeTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);

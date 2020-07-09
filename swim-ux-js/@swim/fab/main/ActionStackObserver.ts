@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlViewObserver} from "@swim/view";
+import {ThemedHtmlViewObserver} from "@swim/theme";
 import {ActionStack} from "./ActionStack";
 
-export interface ActionStackObserver<V extends ActionStack = ActionStack> extends HtmlViewObserver<V> {
+export interface ActionStackObserver<V extends ActionStack = ActionStack> extends ThemedHtmlViewObserver<V> {
   actionStackWillExpand?(view: V): void;
 
   actionStackDidExpand?(view: V): void;

@@ -6,6 +6,10 @@ const ux = [
       {
         id: "main",
       },
+      {
+        id: "test",
+        deps: ["theme"],
+      },
     ],
   },
   {

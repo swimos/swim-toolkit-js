@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {HandlebarView} from "./HandlebarView";
-export {TopHandlebarView} from "./TopHandlebarView";
-export {RightHandlebarView} from "./RightHandlebarView";
-export {BottomHandlebarView} from "./BottomHandlebarView";
-export {LeftHandlebarView} from "./LeftHandlebarView";
+import {UiViewContext, UiViewObserver} from "@swim/view";
+import {ThemedViewObserver} from "./ThemedViewObserver";
+import {ThemedUiView} from "./ThemedUiView";
+
+export interface ThemedUiViewObserver<V extends ThemedUiView = ThemedUiView> extends UiViewObserver<V>, ThemedViewObserver<V> {
+  viewWillResize?(viewContext: UiViewContext, view: V): void;
+
+  viewDidResize?(viewContext: UiViewContext, view: V): void;
+}

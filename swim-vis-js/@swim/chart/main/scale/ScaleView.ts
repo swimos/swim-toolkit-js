@@ -882,11 +882,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  protected onPower(): void {
-    super.onPower();
-    this.requireUpdate(View.NeedsResize);
-  }
-
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
     this.requireUpdate(View.NeedsAnimate);
@@ -1859,4 +1854,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
   static TimeZoomMin: number = 86400000;
   /** @hidden */
   static TimeZoomMax: number = 1;
+
+  static readonly powerFlags: ViewFlags = GraphicsNodeView.powerFlags | View.NeedsResize;
 }

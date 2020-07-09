@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlViewController} from "@swim/view";
+import {ThemedHtmlViewController} from "@swim/theme";
 import {ActionButton} from "./ActionButton";
 import {ActionItem} from "./ActionItem";
 import {ActionStackState, ActionStack} from "./ActionStack";
 import {ActionStackObserver} from "./ActionStackObserver";
 
-export class ActionStackController<V extends ActionStack = ActionStack> extends HtmlViewController<V> implements ActionStackObserver<V> {
+export class ActionStackController<V extends ActionStack = ActionStack> extends ThemedHtmlViewController<V> implements ActionStackObserver<V> {
   get stackState(): ActionStackState | null {
     return this._view !== null ? this._view.stackState : null;
   }

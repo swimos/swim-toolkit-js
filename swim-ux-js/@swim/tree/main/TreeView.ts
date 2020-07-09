@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import {Length} from "@swim/length";
-import {AnyColor, Color} from "@swim/color";
-import {Ease, AnyTransition, Transition} from "@swim/transition";
+import {Transition} from "@swim/transition";
 import {
   ViewContext,
   ViewFlags,
@@ -23,10 +22,16 @@ import {
   ViewScope,
   ViewAnimator,
   ViewNodeType,
-  HtmlViewInit,
   HtmlView,
 } from "@swim/view";
-import {HandlebarView, TopHandlebarView, BottomHandlebarView} from "@swim/motif";
+import {
+  Look,
+  Feel,
+  MoodVector,
+  ThemeMatrix,
+  ThemedHtmlViewInit,
+  ThemedHtmlView,
+} from "@swim/theme";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeLimb, TreeLimb, TreeLimbState} from "./TreeLimb";
 import {AnyTreeStem, TreeStem} from "./TreeStem";
@@ -34,12 +39,9 @@ import {TreeViewController} from "./TreeViewController";
 
 export type AnyTreeView = TreeView | TreeViewInit;
 
-export interface TreeViewInit extends HtmlViewInit {
+export interface TreeViewInit extends ThemedHtmlViewInit {
   viewController?: TreeViewController;
-  treeTransition?: AnyTransition<any>;
   limbSpacing?: number;
-  branchColor?: AnyColor;
-  depthColor?: AnyColor;
 
   seed?: AnyTreeSeed;
   stem?: AnyTreeStem;
@@ -47,12 +49,13 @@ export interface TreeViewInit extends HtmlViewInit {
   depth?: number;
 }
 
-export class TreeView extends HtmlView {
+export class TreeView extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree");
     this.position.setAutoState("relative");
     this.opacity.setAutoState(1);
+    this.depth.onSet = this.onSetDepth.bind(this);
   }
 
   get viewController(): TreeViewController | null {
@@ -61,17 +64,8 @@ export class TreeView extends HtmlView {
 
   initView(init: TreeViewInit): void {
     super.initView(init);
-    if (init.depthColor !== void 0) {
-      this.depthColor(init.depthColor);
-    }
-    if (init.branchColor !== void 0) {
-      this.branchColor(init.branchColor);
-    }
     if (init.limbSpacing !== void 0) {
       this.limbSpacing(init.limbSpacing);
-    }
-    if (init.treeTransition !== void 0) {
-      this.treeTransition(init.treeTransition);
     }
 
     if (init.seed !== void 0) {
@@ -121,13 +115,6 @@ export class TreeView extends HtmlView {
   @ViewScope(Number, {value: 0})
   depth: ViewScope<this, number>;
 
-  @ViewScope(Transition, {
-    init(): Transition<any> {
-      return Transition.duration(250, Ease.cubicOut);
-    },
-  })
-  treeTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
-
   @ViewScope(Object, {inherit: true})
   edgeInsets: ViewScope<this, ViewEdgeInsets>;
 
@@ -143,30 +130,30 @@ export class TreeView extends HtmlView {
   @ViewAnimator(Number, {inherit: true})
   disclosingPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @ViewAnimator(Color, {value: Color.parse("#44d7b6")})
-  branchColor: ViewAnimator<this, Color, AnyColor>;
-
-  @ViewAnimator(Color, {value: Color.parse("#1e2022")})
-  depthColor: ViewAnimator<this, Color, AnyColor>;
-
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
-    if (childView.key === "stem" && childView instanceof TreeStem) {
+    const key = childView.key;
+    if (key === "stem" && childView instanceof TreeStem) {
       this.onInsertStem(childView);
     } else if (childView instanceof TreeLimb) {
       this.onInsertLimb(childView);
-    } else if (childView instanceof HandlebarView) {
-      this.onInsertBranch(childView);
+    } else if (key === "topBranch" && childView instanceof HtmlView) {
+      this.onInsertTopBranch(childView);
+    } else if (key === "bottomBranch" && childView instanceof HtmlView) {
+      this.onInsertBottomBranch(childView);
     }
   }
 
   protected onRemoveChildView(childView: View): void {
-    if (childView.key === "stem" && childView instanceof TreeStem) {
+    const key = childView.key;
+    if (key === "stem" && childView instanceof TreeStem) {
       this.onRemoveStem(childView);
     } else if (childView instanceof TreeLimb) {
       this.onRemoveLimb(childView);
-    } else if (childView instanceof HandlebarView) {
-      this.onRemoveBranch(childView);
+    } else if (key === "topBranch" && childView instanceof HtmlView) {
+      this.onRemoveTopBranch(childView);
+    } else if (key === "bottomBranch" && childView instanceof HtmlView) {
+      this.onRemoveBottomBranch(childView);
     }
     super.onRemoveChildView(childView);
   }
@@ -187,7 +174,7 @@ export class TreeView extends HtmlView {
     limb.right.setAutoState(0);
     const tree = limb.tree;
     if (tree !== null) {
-      tree.depth.setState(this.depth.getState() + 1);
+      tree.depth.setAutoState(this.depth.getState() + 1);
     }
   }
 
@@ -195,17 +182,68 @@ export class TreeView extends HtmlView {
     // hook
   }
 
-  protected onInsertBranch(branch: HandlebarView): void {
+  protected onInsertTopBranch(topBranch: HtmlView): void {
+    topBranch.position.setAutoState("absolute");
+    topBranch.top.setAutoState(0);
+    topBranch.right.setAutoState(0);
+    topBranch.left.setAutoState(0);
+  }
+
+  protected onRemoveTopBranch(topBranch: HtmlView): void {
     // hook
   }
 
-  protected onRemoveBranch(branch: HandlebarView): void {
+  protected onInsertBottomBranch(bottomBranch: HtmlView): void {
+    bottomBranch.position.setAutoState("absolute");
+    bottomBranch.bottom.setAutoState(0);
+    bottomBranch.right.setAutoState(0);
+    bottomBranch.left.setAutoState(0);
+  }
+
+  protected onRemoveBottomBranch(bottomBranch: HtmlView): void {
     // hook
   }
 
-  protected onMount(): void {
-    super.onMount();
-    this.requireUpdate(View.NeedsCompute);
+  protected onSetDepth(depth: number | undefined): void {
+    this.modifyTheme(Feel.default, [Feel.nested, depth !== void 0 && depth !== 0 ? 1 : void 0]);
+  }
+
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    const depth = this.depth.state;
+    if (depth !== void 0 && depth !== 0) {
+      let superTheme = this.theme.superState;
+      if (superTheme === void 0) {
+        superTheme = theme;
+      }
+
+      const backgroundColor = theme.inner(mood, Look.backgroundColor);
+      this.backgroundColor.setAutoState(backgroundColor, transition);
+
+      const primaryColor = superTheme.inner(mood, Look.primaryColor);
+      const borderColor = superTheme.inner(mood, Look.borderColor);
+      const limbSpacing = this.limbSpacing.getState();
+
+      let bottomBranch = this.getChildView("bottomBranch") as HtmlView | null;
+      if (bottomBranch === null) {
+        bottomBranch = this.prepend("div", "bottomBranch");
+      }
+      bottomBranch.height.setAutoState(limbSpacing / 2, transition);
+      bottomBranch.backgroundColor.setAutoState(borderColor, transition);
+      bottomBranch.zIndex.setAutoState(1000 - depth);
+
+      let topBranch = this.getChildView("topBranch") as HtmlView | null;
+      if (topBranch === null) {
+        topBranch = this.prepend("div", "topBranch");
+      }
+      topBranch.height.setAutoState(limbSpacing, transition);
+      topBranch.backgroundColor.setAutoState(primaryColor, transition);
+      topBranch.zIndex.setAutoState(1000 - depth);
+    } else {
+      this.removeChildView("topBranch");
+      this.removeChildView("bottomBranch");
+    }
   }
 
   protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
@@ -245,54 +283,6 @@ export class TreeView extends HtmlView {
     }
   }
 
-  protected onCompute(viewContext: ViewContext): void {
-    const depth = this.depth.state;
-    if (depth !== void 0) {
-      this.updateBranches(depth);
-    }
-  }
-
-  protected updateBranches(depth: number): void {
-    const depthColor = depth !== 0 ? this.depthColor.getState().darker(0.33 * depth) : void 0;
-    this.backgroundColor.setAutoState(depthColor);
-
-    if (depth !== 0) {
-      const armRadius = 8;
-      const limbSpacing = this.limbSpacing.getState();
-      const branchColor = this.branchColor.getState().darker(0.75 * depth);
-
-      let bottomBranch = this.getChildView("bottomBranch") as BottomHandlebarView | null;
-      if (bottomBranch === null) {
-        bottomBranch = HtmlView.create(BottomHandlebarView);
-        this.prepend(bottomBranch, "bottomBranch");
-      }
-      bottomBranch.thickness.setAutoState(limbSpacing);
-      bottomBranch.armRadius.setAutoState(armRadius);
-      bottomBranch.tipRadius.setAutoState(1.5 * limbSpacing);
-      bottomBranch.iconColor.setAutoState(branchColor);
-      bottomBranch.zIndex(Math.max(0, 1000 - depth));
-
-      let topBranch = this.getChildView("topBranch") as TopHandlebarView | null;
-      if (topBranch === null) {
-        topBranch = HtmlView.create(TopHandlebarView);
-        this.prepend(topBranch, "topBranch");
-      }
-      topBranch.thickness.setAutoState(limbSpacing);
-      topBranch.armRadius.setAutoState(armRadius);
-      topBranch.tipRadius.setAutoState(1.5 * limbSpacing);
-      topBranch.iconColor.setAutoState(branchColor);
-      topBranch.zIndex(Math.max(0, 1000 - depth));
-
-      this.borderTopLeftRadius.setAutoState(armRadius);
-      this.borderTopRightRadius.setAutoState(armRadius);
-      this.borderBottomLeftRadius.setAutoState(armRadius);
-      this.borderBottomRightRadius.setAutoState(armRadius);
-    } else {
-      this.removeChildView("topBranch");
-      this.removeChildView("bottomBranch");
-    }
-  }
-
   protected onAnimate(viewContext: ViewContext): void {
     super.onAnimate(viewContext);
     const disclosurePhase = this.disclosurePhase.value;
@@ -313,7 +303,7 @@ export class TreeView extends HtmlView {
       if (needsCompute && childView instanceof TreeLimb) {
         const childTree = childView.tree;
         if (childTree !== null) {
-          childTree.depth.setState(depth! + 1);
+          childTree.depth.setAutoState(depth! + 1);
         }
       }
       if (needsAnimate && (childView instanceof TreeLimb || childView instanceof TreeStem)) {

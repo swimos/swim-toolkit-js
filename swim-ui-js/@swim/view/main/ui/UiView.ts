@@ -175,11 +175,6 @@ export class UiView extends HtmlView implements RootView {
     return document.visibilityState === "visible";
   }
 
-  protected onPower(): void {
-    super.onPower();
-    this.requireUpdate(View.NeedsResize | View.NeedsScroll);
-  }
-
   protected onUnpower(): void {
     this.cancelUpdate();
     if (this._reorientationTimer !== 0) {
@@ -727,5 +722,7 @@ export class UiView extends HtmlView implements RootView {
   static MinProcessInterval: number = 12;
   /** @hidden */
   static MaxProcessInterval: number = 33;
+
+  static readonly powerFlags: ViewFlags = HtmlView.powerFlags | View.NeedsResize | View.NeedsScroll;
 }
 View.Ui = UiView;

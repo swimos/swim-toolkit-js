@@ -51,11 +51,6 @@ export abstract class MapGraphicsView extends GraphicsView {
     return parentView instanceof MapGraphicsView ? parentView.mapTilt : 0;
   }
 
-  protected onMount(): void {
-    super.onMount();
-    this.requireUpdate(View.NeedsProject);
-  }
-
   needsProcess(processFlags: ViewFlags, viewContext: MapGraphicsViewContext): ViewFlags {
     if ((this._viewFlags & View.NeedsAnimate) === 0) {
       processFlags &= ~View.NeedsAnimate;
@@ -231,4 +226,6 @@ export abstract class MapGraphicsView extends GraphicsView {
   childViewDidSetGeoBounds(childView: MapGraphicsView, newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
     // hook
   }
+
+  static readonly mountFlags: ViewFlags = GraphicsView.mountFlags | View.NeedsProject;
 }

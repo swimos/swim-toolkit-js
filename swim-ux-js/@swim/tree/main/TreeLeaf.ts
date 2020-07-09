@@ -12,19 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyColor, Color} from "@swim/color";
-import {Tween, AnyTransition, Transition} from "@swim/transition";
-import {
-  ViewContext,
-  ViewFlags,
-  View,
-  ViewScope,
-  ViewAnimator,
-  ViewNode,
-  ViewNodeType,
-  HtmlView,
-} from "@swim/view";
+import {Color} from "@swim/color";
+import {Tween, Transition} from "@swim/transition";
+import {ViewContext, ViewFlags, View, ViewScope, ViewNode, ViewNodeType, HtmlView} from "@swim/view";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
+import {Look} from "@swim/theme";
 import {MembraneViewInit, MembraneView} from "@swim/motif";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeCell, TreeCell} from "./TreeCell";
@@ -35,7 +27,6 @@ export type AnyTreeLeaf = TreeLeaf | TreeLeafInit;
 
 export interface TreeLeafInit extends MembraneViewInit {
   viewController?: TreeLeafController;
-  highlightColor?: AnyColor;
   highlighted?: boolean;
 
   cells?: AnyTreeCell[];
@@ -65,9 +56,6 @@ export class TreeLeaf extends MembraneView implements PositionGestureDelegate {
 
   initView(init: TreeLeafInit): void {
     super.initView(init);
-    if (init.highlightColor !== void 0) {
-      this.highlightColor(init.highlightColor);
-    }
     if (init.highlighted === true) {
       this.highlight();
     } else if (init.highlighted === false) {
@@ -97,14 +85,8 @@ export class TreeLeaf extends MembraneView implements PositionGestureDelegate {
   @ViewScope(TreeSeed, {inherit: true})
   seed: ViewScope<this, TreeSeed, AnyTreeSeed>;
 
-  @ViewScope(Transition, {inherit: true})
-  treeTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
-
   @ViewScope(Number, {inherit: true})
   limbSpacing: ViewScope<this, number>;
-
-  @ViewAnimator(Color, {value: Color.transparent()})
-  highlightColor: ViewAnimator<this, Color, AnyColor>;
 
   get highlighted(): boolean {
     return this._highlighted;
@@ -113,7 +95,7 @@ export class TreeLeaf extends MembraneView implements PositionGestureDelegate {
   highlight(tween?: Tween<any>): this {
     if (!this._highlighted) {
       if (tween === void 0 || tween === true) {
-        tween = this.treeTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -135,7 +117,7 @@ export class TreeLeaf extends MembraneView implements PositionGestureDelegate {
 
   protected onHighlight(tween: Tween<any>): void {
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(this.highlightColor.getValue().alpha(1), tween);
+      this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), tween);
     }
   }
 
@@ -150,7 +132,7 @@ export class TreeLeaf extends MembraneView implements PositionGestureDelegate {
   unhighlight(tween?: Tween<any>): this {
     if (this._highlighted) {
       if (tween === void 0 || tween === true) {
-        tween = this.treeTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -172,7 +154,7 @@ export class TreeLeaf extends MembraneView implements PositionGestureDelegate {
 
   protected onUnhighlight(tween: Tween<any>): void {
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(this.highlightColor.getValue().alpha(0), tween);
+      this.backgroundColor.setAutoState(Color.transparent(), tween);
     }
   }
 
@@ -206,18 +188,6 @@ export class TreeLeaf extends MembraneView implements PositionGestureDelegate {
 
   protected onRemoveCell(cell: TreeCell): void {
     // hook
-  }
-
-  protected onCompute(viewContext: ViewContext): void {
-    super.onCompute(viewContext);
-    let limbSpacing = this.limbSpacing.state;
-    if (limbSpacing === void 0) {
-      limbSpacing = 0;
-    }
-    this.borderTopLeftRadius.setAutoState(2 * limbSpacing);
-    this.borderTopRightRadius.setAutoState(2 * limbSpacing);
-    this.borderBottomLeftRadius.setAutoState(2 * limbSpacing);
-    this.borderBottomRightRadius.setAutoState(2 * limbSpacing);
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContext,

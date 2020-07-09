@@ -14,12 +14,12 @@
 
 import {PathContext} from "@swim/render";
 import {ViewNodeType, SvgView} from "@swim/view";
-import {HandlebarView} from "./HandlebarView";
+import {BracketView} from "./BracketView";
 
-export class BottomHandlebarView extends HandlebarView {
+export class BottomBracketView extends BracketView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
-    this.addClass("bottom-handlebar");
+    this.addClass("bottom-bracket");
     this.position.setAutoState("absolute");
     this.bottom.setAutoState(0);
     this.left.setAutoState(0);
@@ -33,7 +33,7 @@ export class BottomHandlebarView extends HandlebarView {
     super.initIcon(icon);
   }
 
-  protected resizeHandlebar(): void {
+  protected resizeBracket(): void {
     const armLength = this.armLength.getValue();
     const armOuterRadius = this.armRadius.getValue();
     const tipInnerRadius = this.tipRadius.getValue();

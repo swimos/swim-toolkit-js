@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewNodeType, HtmlViewInit, HtmlView} from "@swim/view";
+import {Transition} from "@swim/transition";
+import {ViewNodeType, HtmlView} from "@swim/view";
+import {Look, MoodVector, ThemeMatrix, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {TreeVeinController} from "./TreeVeinController";
 
 export type AnyTreeVein = TreeVein | TreeVeinInit;
 
-export interface TreeVeinInit extends HtmlViewInit {
+export interface TreeVeinInit extends ThemedHtmlViewInit {
   viewController?: TreeVeinController;
 }
 
-export class TreeVein extends HtmlView {
+export class TreeVein extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-vein");
@@ -35,6 +37,12 @@ export class TreeVein extends HtmlView {
 
   initView(init: TreeVeinInit): void {
     super.initView(init);
+  }
+
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    this.color.setAutoState(theme.inner(mood, Look.neutralColor), transition);
   }
 
   static fromAny(stem: AnyTreeVein): TreeVein {

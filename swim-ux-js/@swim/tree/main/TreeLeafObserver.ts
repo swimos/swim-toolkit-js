@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {Tween} from "@swim/transition";
-import {HtmlViewObserver} from "@swim/view";
+import {ThemedHtmlViewObserver} from "@swim/theme";
 import {TreeLeaf} from "./TreeLeaf";
 
-export interface TreeLeafObserver<V extends TreeLeaf = TreeLeaf> extends HtmlViewObserver<V> {
+export interface TreeLeafObserver<V extends TreeLeaf = TreeLeaf> extends ThemedHtmlViewObserver<V> {
   leafWillHighlight?(tween: Tween<any>, view: V): void;
 
   leafDidHighlight?(tween: Tween<any>, view: V): void;

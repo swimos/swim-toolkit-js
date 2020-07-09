@@ -16,7 +16,7 @@ import {Murmur3} from "@swim/util";
 import {Output} from "@swim/codec";
 import {Item, Value} from "@swim/structure";
 import {AnyAngle, Angle} from "@swim/angle";
-import {BRIGHTER, DARKER, Color} from "./Color";
+import {BRIGHTER, DARKER, AnyColor, Color} from "./Color";
 import {RgbColor} from "./RgbColor";
 
 export type AnyHslColor = HslColor | HslColorInit | string;
@@ -62,7 +62,23 @@ export class HslColor extends Color {
     return this.l;
   }
 
-  brighter(k?: number): HslColor {
+  plus(that: AnyColor): HslColor {
+    that = Color.fromAny(that).hsl();
+    return new HslColor(this.h + (that as HslColor).h, this.s + (that as HslColor).s,
+                        this.l + (that as HslColor).l, this.a + (that as HslColor).a);
+  }
+
+  times(scalar: number): HslColor {
+    return new HslColor(this.h * scalar, this.s * scalar, this.l * scalar, this.a * scalar);
+  }
+
+  combine(that: AnyColor, scalar: number = 1): HslColor {
+    that = Color.fromAny(that).hsl();
+    return new HslColor(this.h + (that as HslColor).h * scalar, this.s + (that as HslColor).s * scalar,
+                        this.l + (that as HslColor).l * scalar, this.a + (that as HslColor).a * scalar);
+  }
+
+  lighter(k?: number): HslColor {
     k = k === void 0 ? BRIGHTER : Math.pow(BRIGHTER, k);
     return k !== 1 ? new HslColor(this.h, this.s, this.l * k, this.a) : this;
   }

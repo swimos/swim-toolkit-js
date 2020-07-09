@@ -14,14 +14,14 @@
 
 import {PathContext} from "@swim/render";
 import {ViewNodeType, SvgView} from "@swim/view";
-import {HandlebarView} from "./HandlebarView";
+import {BracketView} from "./BracketView";
 
-export class RightHandlebarView extends HandlebarView {
+export class LeftBracketView extends BracketView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
-    this.addClass("right-handlebar");
+    this.addClass("left-bracket");
     this.position.setAutoState("absolute");
-    this.right.setAutoState(0);
+    this.left.setAutoState(0);
     this.top.setAutoState(0);
     this.bottom.setAutoState(0);
   }
@@ -33,7 +33,7 @@ export class RightHandlebarView extends HandlebarView {
     super.initIcon(icon);
   }
 
-  protected resizeHandlebar(): void {
+  protected resizeBracket(): void {
     const armLength = this.armLength.getValue();
     const armOuterRadius = this.armRadius.getValue();
     const tipInnerRadius = this.tipRadius.getValue();
@@ -49,36 +49,36 @@ export class RightHandlebarView extends HandlebarView {
     icon.width.setAutoState(width);
     icon.height.setAutoState(height);
     icon.viewBox.setAutoState("0 0 " + width + " " + height);
-    icon.setStyle("right", -tipInnerRadius + "px");
+    icon.setStyle("left", -tipInnerRadius + "px");
 
     const context = new PathContext();
     const halfThickness = thickness / 2;
     const armInnerRadius = Math.max(0, armOuterRadius - thickness);
-    const armBase = armLength;
-    const armOuter = armBase + armOuterRadius;
-    const armInner = armBase + armInnerRadius;
+    const armBase = width - armLength;
+    const armOuter = armBase - armOuterRadius;
+    const armInner = armBase - armInnerRadius;
     const tipOuterRadius = tipInnerRadius + thickness;
     const tipTop = center - halfThickness;
     const tipBottom = center + halfThickness;
     // Draw outer top arm.
-    context.moveTo(0, 0);
+    context.moveTo(width, 0);
     if (armLength !== 0) {
       context.lineTo(armBase, 0);
     }
     context.arcTo(armOuter, 0, armOuter, armOuterRadius, armOuterRadius);
     context.lineTo(armOuter, tipTop - tipInnerRadius);
     // Draw outer tip.
-    context.arcTo(armOuter, tipTop, width, tipTop, tipInnerRadius);
-    context.lineTo(width, tipBottom);
+    context.arcTo(armOuter, tipTop, 0, tipTop, tipInnerRadius);
+    context.lineTo(0, tipBottom);
     context.arcTo(armOuter, tipBottom, armOuter, tipBottom + tipInnerRadius, tipInnerRadius);
     // Draw outer bottom arm.
     context.lineTo(armOuter, height - armOuterRadius);
     context.arcTo(armOuter, height, armBase, height, armOuterRadius);
     if (armLength !== 0) {
-      context.lineTo(0, height);
+      context.lineTo(width, height);
     }
     // Draw inner bottom arm.
-    context.lineTo(0, height - thickness);
+    context.lineTo(width, height - thickness);
     if (armLength !== 0) {
       context.lineTo(armBase, height - thickness);
     }
@@ -86,13 +86,13 @@ export class RightHandlebarView extends HandlebarView {
     context.lineTo(armInner, center + tipInnerRadius);
     // Draw inner tip.
     const theta = Math.asin((tipInnerRadius + halfThickness) / tipOuterRadius);
-    context.arc(armInner + tipOuterRadius, tipTop + tipOuterRadius, tipOuterRadius, -Math.PI, -Math.PI + theta, false);
-    context.arc(armInner + tipOuterRadius, tipBottom - tipOuterRadius, tipOuterRadius, -Math.PI - theta, -Math.PI, false);
+    context.arc(armInner - tipOuterRadius, tipTop + tipOuterRadius, tipOuterRadius, 0, -theta, true);
+    context.arc(armInner - tipOuterRadius, tipBottom - tipOuterRadius, tipOuterRadius, theta, 0, true);
     // Draw inner top arm.
     context.lineTo(armInner, thickness + armInnerRadius);
     context.arcTo(armInner, thickness, armBase, thickness, armInnerRadius);
     if (armLength !== 0) {
-      context.lineTo(0, thickness);
+      context.lineTo(width, thickness);
     }
     context.closePath();
     this.path.d.setAutoState(context.toString());

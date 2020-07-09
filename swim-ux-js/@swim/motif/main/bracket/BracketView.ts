@@ -13,22 +13,24 @@
 // limitations under the License.
 
 import {AnyColor, Color} from "@swim/color";
-import {ViewContext, ViewAnimator, ViewNodeType, SvgView, HtmlView} from "@swim/view";
+import {Transition} from "@swim/transition";
+import {ViewContext, ViewAnimator, ViewNodeType, SvgView} from "@swim/view";
+import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
 
-export abstract class HandlebarView extends HtmlView {
+export abstract class BracketView extends ThemedHtmlView {
   constructor(node: HTMLElement) {
     super(node);
-    this.initHandlebar();
-    this.iconColor.onUpdate = this.onUpdateIconColor.bind(this);
+    this.initBracket();
+    this.bracketColor.onUpdate = this.onUpdateIconColor.bind(this);
   }
 
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
-    this.addClass("handlebar");
+    this.addClass("bracket");
     this.pointerEvents.setAutoState("none");
   }
 
-  protected initHandlebar(): void {
+  protected initBracket(): void {
     const icon = this.append("svg", "icon");
     this.initIcon(icon);
   }
@@ -64,16 +66,22 @@ export abstract class HandlebarView extends HtmlView {
   thickness: ViewAnimator<this, number>;
 
   @ViewAnimator(Color)
-  iconColor: ViewAnimator<this, Color, AnyColor>;
+  bracketColor: ViewAnimator<this, Color, AnyColor>;
 
-  protected onUpdateIconColor(iconColor: Color | undefined): void {
-    this.path.fill.setAutoState(iconColor);
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    this.bracketColor.setAutoState(theme.inner(mood, Look.primaryColor), transition);
   }
 
   protected onResize(viewContext: ViewContext): void {
     super.onResize(viewContext);
-    this.resizeHandlebar();
+    this.resizeBracket();
   }
 
-  protected abstract resizeHandlebar(): void;
+  protected abstract resizeBracket(): void;
+
+  protected onUpdateIconColor(bracketColor: Color | undefined): void {
+    this.path.fill.setAutoState(bracketColor);
+  }
 }

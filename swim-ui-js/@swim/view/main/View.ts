@@ -61,6 +61,10 @@ export interface ViewConstructor<V extends View = View> {
 }
 
 export interface ViewClass {
+  readonly mountFlags: ViewFlags;
+
+  readonly powerFlags: ViewFlags;
+
   /** @hidden */
   _viewScopeDescriptors?: {[scopeName: string]: ViewScopeDescriptor<View, unknown> | undefined};
 
@@ -252,6 +256,10 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
+  get viewClass(): ViewClass {
+    return this.constructor as unknown as ViewClass;
+  }
+
   /** @hidden */
   abstract get viewFlags(): ViewFlags;
 
@@ -264,6 +272,10 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   abstract cascadeMount(): void;
 
+  get mountFlags(): ViewFlags {
+    return this.viewClass.mountFlags;
+  }
+
   protected willMount(): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillMount !== void 0) {
@@ -273,7 +285,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
   }
 
   protected onMount(): void {
-    // hook
+    this.requireUpdate(this.mountFlags);
   }
 
   protected didMount(): void {
@@ -312,6 +324,10 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   abstract cascadePower(): void;
 
+  get powerFlags(): ViewFlags {
+    return this.viewClass.powerFlags;
+  }
+
   protected willPower(): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillPower !== void 0) {
@@ -321,7 +337,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
   }
 
   protected onPower(): void {
-    // hook
+    this.requireUpdate(this.powerFlags);
   }
 
   protected didPower(): void {
@@ -361,15 +377,17 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   requireUpdate(updateFlags: ViewFlags, immediate: boolean = false): void {
     updateFlags &= ~View.StatusMask;
-    this.willRequireUpdate(updateFlags, immediate);
-    const oldUpdateFlags = this.viewFlags;
-    const newUpdateFlags = oldUpdateFlags | updateFlags;
-    const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags;
-    if (deltaUpdateFlags !== 0) {
-      this.setViewFlags(newUpdateFlags);
-      this.requestUpdate(this, deltaUpdateFlags, immediate);
+    if (updateFlags !== 0) {
+      this.willRequireUpdate(updateFlags, immediate);
+      const oldUpdateFlags = this.viewFlags;
+      const newUpdateFlags = oldUpdateFlags | updateFlags;
+      const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags;
+      if (deltaUpdateFlags !== 0) {
+        this.setViewFlags(newUpdateFlags);
+        this.requestUpdate(this, deltaUpdateFlags, immediate);
+      }
+      this.didRequireUpdate(updateFlags, immediate);
     }
-    this.didRequireUpdate(updateFlags, immediate);
   }
 
   protected willRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
@@ -1181,6 +1199,10 @@ export abstract class View implements AnimatorContext, LayoutContext {
   static readonly ViewFlagShift: ViewFlags = 24;
   /** @hidden */
   static readonly ViewFlagMask: ViewFlags = (1 << View.ViewFlagShift) - 1;
+
+  static readonly mountFlags: ViewFlags = View.NeedsResize | View.NeedsLayout;
+
+  static readonly powerFlags: ViewFlags = 0;
 
   // Forward type declarations
   /** @hidden */

@@ -14,8 +14,7 @@
 
 import {AnyLength, Length} from "@swim/length";
 import {Color} from "@swim/color";
-import {BoxShadow} from "@swim/shadow";
-import {Ease, Tween, AnyTransition, Transition} from "@swim/transition";
+import {Tween, Transition} from "@swim/transition";
 import {
   ViewScope,
   ViewEdgeInsets,
@@ -25,9 +24,16 @@ import {
   Modal,
   ViewAnimator,
   ViewNodeType,
-  HtmlViewInit,
-  HtmlView,
 } from "@swim/view";
+import {
+  Look,
+  Feel,
+  Mood,
+  MoodVector,
+  ThemeMatrix,
+  ThemedHtmlViewInit,
+  ThemedHtmlView,
+} from "@swim/theme";
 import {DrawerViewObserver} from "./DrawerViewObserver";
 import {DrawerViewController} from "./DrawerViewController";
 
@@ -37,15 +43,14 @@ export type DrawerState = "shown" | "showing"
                         | "hidden" | "hiding"
                         | "collapsed" | "collapsing";
 
-export interface DrawerViewInit extends HtmlViewInit {
+export interface DrawerViewInit extends ThemedHtmlViewInit {
   viewController?: DrawerViewController;
   drawerPlacement?: DrawerPlacement;
-  drawerTransition?: AnyTransition<any>;
   collapsedWidth?: AnyLength;
   expandedWidth?: AnyLength;
 }
 
-export class DrawerView extends HtmlView implements Modal {
+export class DrawerView extends ThemedHtmlView implements Modal {
   /** @hidden */
   _drawerPlacement: DrawerPlacement;
   /** @hidden */
@@ -57,6 +62,8 @@ export class DrawerView extends HtmlView implements Modal {
     this.drawerStretch.update = this.updateDrawerStretch.bind(this);
     this._drawerPlacement = "left";
     this._drawerState = "hidden";
+
+    this.modifyTheme(Feel.default, [Feel.overlay, 1]);
   }
 
   protected initNode(node: ViewNodeType<this>): void {
@@ -68,7 +75,6 @@ export class DrawerView extends HtmlView implements Modal {
     this.overflowY.setAutoState("auto");
     this.overscrollBehaviorY.setAutoState("contain");
     this.overflowScrolling.setAutoState("touch");
-    this.backgroundColor.setAutoState("#26282a");
   }
 
   get viewController(): DrawerViewController | null {
@@ -79,9 +85,6 @@ export class DrawerView extends HtmlView implements Modal {
     super.initView(init);
     if (init.drawerPlacement !== void 0) {
       this.drawerPlacement(init.drawerPlacement);
-    }
-    if (init.drawerTransition !== void 0) {
-      this.drawerTransition(init.drawerTransition);
     }
     if (init.collapsedWidth !== void 0) {
       this.collapsedWidth(init.collapsedWidth);
@@ -143,14 +146,6 @@ export class DrawerView extends HtmlView implements Modal {
   isVertical(): boolean {
     return this._drawerPlacement === "left" || this._drawerPlacement === "right";
   }
-
-  @ViewScope(Transition, {
-    inherit: true,
-    init(): Transition<any> {
-      return Transition.duration(250, Ease.cubicOut);
-    },
-  })
-  drawerTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
   @ViewScope(Object)
   edgeInsets: ViewScope<this, ViewEdgeInsets>;
@@ -219,15 +214,23 @@ export class DrawerView extends HtmlView implements Modal {
     }
   }
 
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    if (this.backgroundColor.isAuto()) {
+      this.backgroundColor.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
+    }
+  }
+
   protected onLayout(viewContext: ViewContext): void {
     super.onLayout(viewContext);
     this.place(viewContext);
     if (viewContext.viewIdiom === "mobile") {
       this.borderRightColor.setAutoState(Color.transparent());
-      this.boxShadow.setState(BoxShadow.of(0, 2, 4, 0, Color.black(0.5)));
+      this.boxShadow.setAutoState(this.getLook(Look.shadow, Mood.floating));
     } else {
-      this.borderRightColor.setAutoState(Color.black());
-      this.boxShadow.setState(void 0);
+      this.borderRightColor.setAutoState(this.getLook(Look.borderColor));
+      this.boxShadow.setAutoState(this.getLook(Look.shadow));
     }
   }
 
@@ -261,7 +264,7 @@ export class DrawerView extends HtmlView implements Modal {
     this.updateDrawerSlideTop(this.drawerSlide.getValue());
 
     const safeArea = viewContext.viewport.safeArea;
-    this.edgeInsets.setState({
+    this.edgeInsets.setAutoState({
       insetTop: 0,
       insetRight: safeArea.insetRight,
       insetBottom: 0,
@@ -293,7 +296,7 @@ export class DrawerView extends HtmlView implements Modal {
     const safeArea = viewContext.viewport.safeArea;
     this.paddingTop.setAutoState(Length.px(safeArea.insetTop));
     this.paddingBottom.setAutoState(Length.px(safeArea.insetBottom));
-    this.edgeInsets.setState({
+    this.edgeInsets.setAutoState({
       insetTop: 0,
       insetRight: safeArea.insetRight,
       insetBottom: 0,
@@ -318,7 +321,7 @@ export class DrawerView extends HtmlView implements Modal {
     this.updateDrawerSlideBottom(this.drawerSlide.getValue());
 
     const safeArea = viewContext.viewport.safeArea;
-    this.edgeInsets.setState({
+    this.edgeInsets.setAutoState({
       insetTop: 0,
       insetRight: safeArea.insetRight,
       insetBottom: 0,
@@ -350,7 +353,7 @@ export class DrawerView extends HtmlView implements Modal {
     const safeArea = viewContext.viewport.safeArea;
     this.paddingTop.setAutoState(Length.px(safeArea.insetTop));
     this.paddingBottom.setAutoState(Length.px(safeArea.insetBottom));
-    this.edgeInsets.setState({
+    this.edgeInsets.setAutoState({
       insetTop: 0,
       insetRight: 0,
       insetBottom: 0,
@@ -382,18 +385,18 @@ export class DrawerView extends HtmlView implements Modal {
   show(tween?: Tween<any>): void {
     if (!this.isShown() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this.drawerTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "showing";
       if (tween !== null) {
-        this.drawerStretch(1, tween)
-            .drawerSlide(1, tween.onBegin(this.willShow.bind(this)).onEnd(this.didShow.bind(this)));
+        this.drawerStretch.setAutoState(1, tween);
+        this.drawerSlide.setAutoState(1, tween.onBegin(this.willShow.bind(this)).onEnd(this.didShow.bind(this)));
       } else {
         this.willShow();
-        this.drawerStretch(1)
-            .drawerSlide(1);
+        this.drawerStretch.setAutoState(1);
+        this.drawerSlide.setAutoState(1);
         this.didShow();
       }
     }
@@ -420,15 +423,15 @@ export class DrawerView extends HtmlView implements Modal {
   hide(tween?: Tween<any>): void {
     if (!this.isHidden() || this.drawerSlide.value !== 0) {
       if (tween === void 0 || tween === true) {
-        tween = this.drawerTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "hiding";
       if (tween !== null) {
-        this.drawerSlide(0, tween.onBegin(this.willHide.bind(this)).onEnd(this.didHide.bind(this)));
+        this.drawerSlide.setAutoState(0, tween.onBegin(this.willHide.bind(this)).onEnd(this.didHide.bind(this)));
       } else {
-        this.drawerSlide(0);
+        this.drawerSlide.setAutoState(0);
         this.didHide();
       }
     }
@@ -455,17 +458,17 @@ export class DrawerView extends HtmlView implements Modal {
   expand(tween?: Tween<any>): void {
     if (!this.isShown() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this.drawerTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "showing";
       if (tween !== null) {
-        this.drawerSlide(1, tween)
-            .drawerStretch(1, tween.onBegin(this.willExpand.bind(this)).onEnd(this.didExpand.bind(this)));
+        this.drawerSlide.setAutoState(1, tween);
+        this.drawerStretch.setAutoState(1, tween.onBegin(this.willExpand.bind(this)).onEnd(this.didExpand.bind(this)));
       } else {
-        this.drawerSlide(1)
-            .drawerStretch(1);
+        this.drawerSlide.setAutoState(1)
+        this.drawerStretch.setAutoState(1);
         this.didExpand();
       }
     }
@@ -491,17 +494,17 @@ export class DrawerView extends HtmlView implements Modal {
   collapse(tween?: Tween<any>): void {
     if (this.isVertical() && (!this.isCollapsed() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 0)) {
       if (tween === void 0 || tween === true) {
-        tween = this.drawerTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "collapsing";
       if (tween !== null) {
-        this.drawerSlide(1, tween)
-            .drawerStretch(0, tween.onBegin(this.willCollapse.bind(this)).onEnd(this.didCollapse.bind(this)));
+        this.drawerSlide.setAutoState(1, tween);
+        this.drawerStretch.setAutoState(0, tween.onBegin(this.willCollapse.bind(this)).onEnd(this.didCollapse.bind(this)));
       } else {
-        this.drawerSlide(1)
-            .drawerStretch(0);
+        this.drawerSlide.setAutoState(1);
+        this.drawerStretch.setAutoState(0);
         this.didCollapse();
       }
     }

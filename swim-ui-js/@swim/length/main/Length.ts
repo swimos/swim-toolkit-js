@@ -41,7 +41,8 @@ export abstract class Length implements HashCode, Debug {
   abstract get node(): Node | null;
 
   plus(that: AnyLength, units: LengthUnits = this.units): Length {
-    return Length.from(this.toValue(units) + Length.fromAny(that).toValue(units), units);
+    that = Length.fromAny(that);
+    return Length.from(this.toValue(units) + that.toValue(units), units);
   }
 
   opposite(units: LengthUnits = this.units): Length {
@@ -49,7 +50,8 @@ export abstract class Length implements HashCode, Debug {
   }
 
   minus(that: AnyLength, units: LengthUnits = this.units): Length {
-    return Length.from(this.toValue(units) - Length.fromAny(that).toValue(units), units);
+    that = Length.fromAny(that);
+    return Length.from(this.toValue(units) - that.toValue(units), units);
   }
 
   times(scalar: number, units: LengthUnits = this.units): Length {
@@ -58,6 +60,11 @@ export abstract class Length implements HashCode, Debug {
 
   divide(scalar: number, units: LengthUnits = this.units): Length {
     return Length.from(this.toValue(units) / scalar, units);
+  }
+
+  combine(that: AnyLength, scalar: number = 1, units: LengthUnits = this.units): Length {
+    that = Length.fromAny(that);
+    return Length.from(this.toValue(units) + that.toValue(units) * scalar, units);
   }
 
   /** Returns the base unit value, in pixels. */

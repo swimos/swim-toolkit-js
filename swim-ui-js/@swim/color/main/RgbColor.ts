@@ -15,7 +15,7 @@
 import {Murmur3} from "@swim/util";
 import {Output, Base16} from "@swim/codec";
 import {Item, Value} from "@swim/structure";
-import {BRIGHTER, DARKER, Color} from "./Color";
+import {BRIGHTER, DARKER, AnyColor, Color} from "./Color";
 import {HslColor} from "./HslColor";
 
 export type AnyRgbColor = RgbColor | RgbColorInit | string;
@@ -66,7 +66,23 @@ export class RgbColor extends Color {
     return (max + min) / 2;
   }
 
-  brighter(k?: number): RgbColor {
+  plus(that: AnyColor): RgbColor {
+    that = Color.fromAny(that).rgb();
+    return new RgbColor(this.r + (that as RgbColor).r, this.g + (that as RgbColor).g,
+                        this.b + (that as RgbColor).b, this.a + (that as RgbColor).a);
+  }
+
+  times(scalar: number): RgbColor {
+    return new RgbColor(this.r * scalar, this.g * scalar, this.b * scalar, this.a * scalar);
+  }
+
+  combine(that: AnyColor, scalar: number = 1): Color {
+    that = Color.fromAny(that).rgb();
+    return new RgbColor(this.r + (that as RgbColor).r * scalar, this.g + (that as RgbColor).g * scalar,
+                        this.b + (that as RgbColor).b * scalar, this.a + (that as RgbColor).a * scalar);
+  }
+
+  lighter(k?: number): RgbColor {
     k = k === void 0 ? BRIGHTER : Math.pow(BRIGHTER, k);
     return k !== 1 ? new RgbColor(this.r * k, this.g * k, this.b * k, this.a) : this;
   }

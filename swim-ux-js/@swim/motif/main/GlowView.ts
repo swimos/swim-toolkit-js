@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import {Length} from "@swim/length";
-import {Color} from "@swim/color";
 import {Tween, Transition} from "@swim/transition";
-import {ViewNodeType, HtmlView} from "@swim/view";
+import {ViewNodeType} from "@swim/view";
+import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
 
 export type GlowState = "ready" | "glowing" | "pulsing" | "fading";
 
-export class GlowView extends HtmlView {
+export class GlowView extends ThemedHtmlView {
   /** @hidden */
   _glowState: GlowState;
   /** @hidden */
@@ -41,12 +41,22 @@ export class GlowView extends HtmlView {
     this.borderTopRightRadius.setAutoState(Length.pct(50));
     this.borderBottomLeftRadius.setAutoState(Length.pct(50));
     this.borderBottomRightRadius.setAutoState(Length.pct(50));
-    this.backgroundColor.setAutoState(Color.white());
     this.pointerEvents.setAutoState("none");
   }
 
   get glowState(): GlowState {
     return this._glowState;
+  }
+
+  protected onMount(): void {
+    super.onMount();
+    if (this.backgroundColor.isAuto()) {
+      let highlightColor = this.getLook(Look.highlightColor);
+      if (highlightColor !== void 0) {
+        highlightColor = highlightColor.alpha(1);
+      }
+      this.backgroundColor.setAutoState(highlightColor);
+    }
   }
 
   protected onUnmount(): void {
@@ -56,38 +66,58 @@ export class GlowView extends HtmlView {
     super.onUnmount();
   }
 
-  glow(clientX: number, clientY: number, opacity: number,
-       tween: Tween<any> | undefined, delay: number = 0): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    if (this.backgroundColor.isAuto()) {
+      let highlightColor = theme.inner(mood, Look.highlightColor);
+      if (highlightColor !== void 0) {
+        highlightColor = highlightColor.alpha(1);
+      }
+      this.backgroundColor.setAutoState(highlightColor);
+    }
+  }
+
+  glow(clientX: number, clientY: number, tween?: Tween<any> | undefined, delay: number = 0): void {
     if (this._glowState === "ready") {
-      tween = Transition.forTween(tween);
       this.cancelGlow();
       if (delay !== 0) {
-        const glow = this.glow.bind(this, clientX, clientY, opacity, tween, 0);
+        const glow = this.glow.bind(this, clientX, clientY, tween, 0);
         this._glowTimer = setTimeout(glow, delay) as any;
       } else {
-        this.willGlow();
-        const clientBounds = this._node.offsetParent!.getBoundingClientRect();
-        const cx = clientX - clientBounds.left;
-        const cy = clientY - clientBounds.top;
-        const rx = Math.max(cx, clientBounds.width - cx);
-        const ry = Math.max(cy, clientBounds.height - cy);
-        const r = Math.sqrt(rx * rx + ry * ry);
-        this.opacity.setAutoState(opacity);
-        if (tween !== null) {
-          this.left.setAutoState(cx);
-          this.top.setAutoState(cy);
-          this.left.setAutoState(cx - r, tween.onEnd(this.didGlow.bind(this)));
-          this.top.setAutoState(cy - r, tween);
-          this.width.setAutoState(2 * r, tween);
-          this.height.setAutoState(2 * r, tween);
+        if (tween === void 0 || tween === true) {
+          tween = this.getLookOr(Look.transition, null);
         } else {
-          this.left.setAutoState(cx - r);
-          this.top.setAutoState(cy - r);
-          this.width.setAutoState(2 * r);
-          this.height.setAutoState(2 * r);
-          this.didGlow();
+          tween = Transition.forTween(tween);
         }
-        this._glowState = "glowing";
+        this.willGlow();
+        const offsetParent = this._node.offsetParent;
+        if (offsetParent !== null) {
+          const clientBounds = offsetParent.getBoundingClientRect();
+          const cx = clientX - clientBounds.left;
+          const cy = clientY - clientBounds.top;
+          const rx = Math.max(cx, clientBounds.width - cx);
+          const ry = Math.max(cy, clientBounds.height - cy);
+          const r = Math.sqrt(rx * rx + ry * ry);
+          const highlightColor = this.getLook(Look.highlightColor);
+          const opacity = highlightColor !== void 0 ? highlightColor.alpha() : 0.1;
+          this.opacity.setAutoState(opacity);
+          if (tween !== null) {
+            this.left.setAutoState(cx);
+            this.top.setAutoState(cy);
+            this.left.setAutoState(cx - r, tween.onEnd(this.didGlow.bind(this)));
+            this.top.setAutoState(cy - r, tween);
+            this.width.setAutoState(2 * r, tween);
+            this.height.setAutoState(2 * r, tween);
+          } else {
+            this.left.setAutoState(cx - r);
+            this.top.setAutoState(cy - r);
+            this.width.setAutoState(2 * r);
+            this.height.setAutoState(2 * r);
+            this.didGlow();
+          }
+          this._glowState = "glowing";
+        }
       }
     }
   }
@@ -107,10 +137,14 @@ export class GlowView extends HtmlView {
     }
   }
 
-  pulse(clientX: number, clientY: number, opacity: number, tween: Tween<any> | undefined): void {
-    tween = Transition.forTween(tween);
+  pulse(clientX: number, clientY: number, tween?: Tween<any> | undefined): void {
+    if (tween === void 0 || tween === true) {
+      tween = this.getLookOr(Look.transition, null);
+    } else {
+      tween = Transition.forTween(tween);
+    }
     if (this._glowState === "ready") {
-      this.glow(clientX, clientY, opacity, tween);
+      this.glow(clientX, clientY, tween);
     }
     if (this._glowState === "glowing") {
       this.willPulse();
@@ -132,12 +166,16 @@ export class GlowView extends HtmlView {
     this.remove();
   }
 
-  fade(clientX: number, clientY: number, tween: Tween<any> | undefined): void {
+  fade(clientX: number, clientY: number, tween?: Tween<any> | undefined): void {
     if (this._glowState === "ready") {
       this.cancelGlow();
       this.didFade()
     } else if (this._glowState === "glowing") {
-      tween = Transition.forTween(tween);
+      if (tween === void 0 || tween === true) {
+        tween = this.getLookOr(Look.transition, null);
+      } else {
+        tween = Transition.forTween(tween);
+      }
       this.willFade();
       if (tween !== null) {
         this.opacity.setAutoState(0, tween.onEnd(this.didFade.bind(this)));

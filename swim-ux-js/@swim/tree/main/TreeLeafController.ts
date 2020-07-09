@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {Tween} from "@swim/transition";
-import {HtmlViewController} from "@swim/view";
+import {ThemedHtmlViewController} from "@swim/theme";
 import {TreeLeaf} from "./TreeLeaf";
 import {TreeLeafObserver} from "./TreeLeafObserver";
 
-export class TreeLeafController<V extends TreeLeaf = TreeLeaf> extends HtmlViewController<V> implements TreeLeafObserver<V> {
+export class TreeLeafController<V extends TreeLeaf = TreeLeaf> extends ThemedHtmlViewController<V> implements TreeLeafObserver<V> {
   get highlighted(): boolean {
     return this._view !== null && this._view.highlighted;
   }

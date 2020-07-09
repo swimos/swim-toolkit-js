@@ -142,11 +142,6 @@ export class MapboxView extends MapGraphicsNodeView {
     return this._mapTilt;
   }
 
-  protected onPower(): void {
-    super.onPower();
-    this.requireUpdate(View.NeedsProject);
-  }
-
   cascadeProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): void {
     viewContext = this.mapViewContext(viewContext);
     super.cascadeProcess(processFlags, viewContext);
@@ -202,4 +197,6 @@ export class MapboxView extends MapGraphicsNodeView {
       return canvas;
     }
   }
+
+  static readonly powerFlags: ViewFlags = MapGraphicsNodeView.powerFlags | View.NeedsProject;
 }

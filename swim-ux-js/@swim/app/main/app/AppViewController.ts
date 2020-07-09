@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {UiViewController} from "@swim/view";
+import {ThemedUiViewController} from "@swim/theme";
 import {AppView} from "./AppView";
 import {AppViewObserver} from "./AppViewObserver";
 
-export class AppViewController<V extends AppView = AppView> extends UiViewController<V> implements AppViewObserver<V> {
+export class AppViewController<V extends AppView = AppView> extends ThemedUiViewController<V> implements AppViewObserver<V> {
 }

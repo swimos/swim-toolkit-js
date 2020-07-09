@@ -12,18 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween} from "@swim/transition";
-import {
-  ViewScope,
-  ViewContext,
-  View,
-  ViewNodeType,
-  SvgView,
-  HtmlView,
-  HtmlViewController,
-} from "@swim/view";
+import {Tween, Transition} from "@swim/transition";
+import {View, ViewNodeType, SvgView, HtmlView} from "@swim/view";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
-import {Theme} from "@swim/theme";
+import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {MembraneView, MorphView} from "@swim/motif";
 
 export class ActionButton extends MembraneView implements PositionGestureDelegate {
@@ -46,13 +38,6 @@ export class ActionButton extends MembraneView implements PositionGestureDelegat
     this.cursor.setAutoState("pointer");
   }
 
-  get viewController(): HtmlViewController<ActionButton> | null {
-    return this._viewController;
-  }
-
-  @ViewScope(Theme, {inherit: true})
-  theme: ViewScope<this, Theme>;
-
   get morph(): MorphView | null {
     const childView = this.getChildView("morph");
     return childView instanceof MorphView ? childView : null;
@@ -71,26 +56,16 @@ export class ActionButton extends MembraneView implements PositionGestureDelegat
     morph.setIcon(icon, tween, ccw);
   }
 
-  setTheme(theme: Theme): void {
-    this.backgroundColor.setAutoState(theme.primary.fillColor);
-    this.boxShadow.setAutoState(theme.floating.shadow);
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+
+    this.backgroundColor.setAutoState(theme.inner(mood, Look.primaryColor), transition);
+    this.boxShadow.setAutoState(theme.inner(Mood.floating, Look.shadow), transition);
 
     const icon = this.icon;
     if (icon instanceof SvgView) {
-      icon.fill.setAutoState(theme.primary.iconColor);
-    }
-  }
-
-  protected onMount(): void {
-    super.onMount();
-    this.requireUpdate(View.NeedsCompute);
-  }
-
-  protected onCompute(viewContext: ViewContext): void {
-    super.onCompute(viewContext);
-    const theme = this.theme.state;
-    if (theme !== void 0) {
-      this.setTheme(theme);
+      icon.fill.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
     }
   }
 
@@ -119,16 +94,18 @@ export class ActionButton extends MembraneView implements PositionGestureDelegat
   }
 
   didStartHovering(): void {
-    const theme = this.theme.state;
-    if (theme !== void 0) {
-      this.backgroundColor.setAutoState(theme.primary.fillColor.darker(0.5), this.membraneTransition.state);
+    this.modifyMood(Feel.default, [Feel.hovering, 1]);
+    if (this.backgroundColor.isAuto()) {
+      const transition = this.getLook(Look.transition);
+      this.backgroundColor.setAutoState(this.getLook(Look.primaryColor), transition);
     }
   }
 
   didStopHovering(): void {
-    const theme = this.theme.state;
-    if (theme !== void 0) {
-      this.backgroundColor.setAutoState(theme.primary.fillColor, this.membraneTransition.state);
+    this.modifyMood(Feel.default, [Feel.hovering, void 0]);
+    if (this.backgroundColor.isAuto()) {
+      const transition = this.getLook(Look.transition);
+      this.backgroundColor.setAutoState(this.getLook(Look.primaryColor), transition);
     }
   }
 

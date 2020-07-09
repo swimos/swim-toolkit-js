@@ -20,7 +20,7 @@ import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/font";
 import {AnyTransform, Transform} from "@swim/transform";
 import {ContinuousScale} from "@swim/scale";
-import {AnyTransition, Transition, Tween} from "@swim/transition";
+import {Tween, AnyTransition, Transition} from "@swim/transition";
 import {Animator, TweenAnimator} from "@swim/animate";
 import {View} from "../View";
 import {AnyViewAnimator} from "./AnyViewAnimator";

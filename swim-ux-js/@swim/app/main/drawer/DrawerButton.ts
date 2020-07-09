@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View, ViewNodeType, SvgView, HtmlView, HtmlViewController} from "@swim/view";
+import {Transition} from "@swim/transition";
+import {View, ViewNodeType, SvgView, HtmlView} from "@swim/view";
+import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
 import {DrawerView} from "./DrawerView";
 
-export class DrawerButton extends HtmlView {
+export class DrawerButton extends ThemedHtmlView {
   /** @hidden */
   _drawerView: DrawerView | null;
 
@@ -44,19 +46,14 @@ export class DrawerButton extends HtmlView {
 
   protected createIcon(): SvgView {
     const icon = SvgView.create("svg");
-    icon.width.setAutoState(30)
-    icon.height.setAutoState(30)
-    icon.viewBox.setAutoState("0 0 30 30")
-    icon.stroke.setAutoState("#ffffff")
-    icon.strokeWidth.setAutoState(2)
+    icon.width.setAutoState(30);
+    icon.height.setAutoState(30);
+    icon.viewBox.setAutoState("0 0 30 30");
+    icon.strokeWidth.setAutoState(2);
     icon.strokeLinecap.setAutoState("round");
-    const path = icon.append("path")
+    const path = icon.append("path");
     path.d.setAutoState("M4 7h22M4 15h22M4 23h22");
     return icon;
-  }
-
-  get viewController(): HtmlViewController<DrawerButton> | null {
-    return this._viewController;
   }
 
   get drawerView(): DrawerView | null {
@@ -67,9 +64,18 @@ export class DrawerButton extends HtmlView {
     this._drawerView = drawerView;
   }
 
-  get iconView(): HtmlView | null {
+  get icon(): SvgView | HtmlView | null {
     const childView = this.getChildView("icon");
-    return childView instanceof HtmlView ? childView : null;
+    return childView instanceof SvgView || childView instanceof HtmlView ? childView : null;
+  }
+
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    const icon = this.icon;
+    if (icon instanceof SvgView && icon.stroke.isAuto()) {
+      icon.stroke.setAutoState(theme.inner(mood, Look.color), transition);
+    }
   }
 
   protected onMount(): void {
@@ -99,7 +105,9 @@ export class DrawerButton extends HtmlView {
   }
 
   protected onInsertIcon(icon: SvgView | HtmlView): void {
-    // hook
+    if (icon instanceof SvgView && icon.stroke.isAuto()) {
+      icon.stroke.setAutoState(this.getLook(Look.color));
+    }
   }
 
   protected onRemoveIcon(icon: SvgView | HtmlView): void {

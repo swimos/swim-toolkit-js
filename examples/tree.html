@@ -11,9 +11,7 @@
       }
     </style>
   </head>
-  <body style="display: flex; width: 100vw; height: 100vh; margin: 0; background-color: #1e2022; font-family: sans-serif;">
-    <div id="app" style="position: relative; flex-grow: 1;">
-    </div>
+  <body style="display: flex; width: 100vw; height: 100vh; margin: 0;">
     <script src="../../swim-system-js/swim-core-js/@swim/core/dist/main/swim-core.js"></script>
     <script src="../swim-ui-js/@swim/ui/dist/main/swim-ui.js"></script>
     <script src="../swim-ux-js/@swim/ux/dist/main/swim-ux.js"></script>
@@ -34,19 +32,22 @@ if (navigator.standalone) {
   document.body.style.height = "100%";
 }
 
-const appView = new swim.AppView(document.getElementById("app"))
-  .userSelect("none")
-  .color("#ffffff");
+const appView = new swim.AppView(document.body);
 
 appView.onSetViewIdiom = function (viewIdiom) {
   if (viewIdiom === "desktop") {
-    appView.margin(60);
+    container.margin(60);
   } else {
-    appView.margin(0);
+    container.margin(0);
   }
 };
 
-const tree0 = appView.append(swim.TreeView.fromAny({
+const container = appView.append("div")
+  .position("relative")
+  .flexGrow(1)
+  .userSelect("none")
+
+const tree0 = container.append(swim.TreeView.fromAny({
   //depth: 1,
   seed: {
     roots: [
@@ -78,9 +79,6 @@ const tree0 = appView.append(swim.TreeView.fromAny({
     ],
   },
   stem: {
-    style: {
-      color: "#989898",
-    },
     veins: [
       {
         key: "name",
@@ -103,6 +101,7 @@ const tree0 = appView.append(swim.TreeView.fromAny({
         cells: [
           {
             key: "name",
+            cellType: "title",
             text: "Places",
           },
           {
@@ -113,6 +112,70 @@ const tree0 = appView.append(swim.TreeView.fromAny({
             key: "kpi2",
             text: "idle",
           },
+          {
+            key: "disclose",
+            cellType: "disclosure",
+          },
+        ],
+      },
+      tree: {
+        stem: {
+          veins: [
+            {
+              key: "name",
+              text: "Name",
+            },
+            {
+              key: "kpi1",
+              text: "Country",
+            },
+            {
+              key: "kpi2",
+              text: "Status",
+            },
+          ],
+        },
+        limbs: [
+          {
+            key: "limb010",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "Campbell",
+                },
+                {
+                  key: "kpi1",
+                  text: "USA",
+                },
+                {
+                  key: "kpi2",
+                  text: "quarantined",
+                },
+              ],
+            },
+          },
+          {
+            key: "limb011",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "Cambridge",
+                },
+                {
+                  key: "kpi1",
+                  text: "UK",
+                },
+                {
+                  key: "kpi2",
+                  text: "brexited",
+                },
+              ],
+            },
+          },
         ],
       },
     },
@@ -122,6 +185,7 @@ const tree0 = appView.append(swim.TreeView.fromAny({
         cells: [
           {
             key: "name",
+            cellType: "title",
             text: "People",
           },
           {
@@ -140,9 +204,6 @@ const tree0 = appView.append(swim.TreeView.fromAny({
       },
       tree: {
         stem: {
-          style: {
-            color: "#989898",
-          },
           veins: [
             {
               key: "name",
@@ -165,6 +226,7 @@ const tree0 = appView.append(swim.TreeView.fromAny({
               cells: [
                 {
                   key: "name",
+                  cellType: "title",
                   text: "Chris",
                 },
                 {
@@ -183,9 +245,6 @@ const tree0 = appView.append(swim.TreeView.fromAny({
             },
             tree: {
               stem: {
-                style: {
-                  color: "#989898",
-                },
                 veins: [
                   {
                     key: "name",
@@ -208,6 +267,7 @@ const tree0 = appView.append(swim.TreeView.fromAny({
                     cells: [
                       {
                         key: "name",
+                        cellType: "title",
                         text: "Architecting",
                       },
                       {
@@ -217,6 +277,70 @@ const tree0 = appView.append(swim.TreeView.fromAny({
                       {
                         key: "kpi2",
                         text: "implementing",
+                      },
+                      {
+                        key: "disclose",
+                        cellType: "disclosure",
+                      },
+                    ],
+                  },
+                  tree: {
+                    stem: {
+                      veins: [
+                        {
+                          key: "name",
+                          text: "Subtask",
+                        },
+                        {
+                          key: "kpi1",
+                          text: "Complete",
+                        },
+                        {
+                          key: "kpi2",
+                          text: "Status",
+                        },
+                      ],
+                    },
+                    limbs: [
+                      {
+                        key: "limb01200",
+                        leaf: {
+                          cells: [
+                            {
+                              key: "name",
+                              cellType: "title",
+                              text: "Iterating",
+                            },
+                            {
+                              key: "kpi1",
+                              text: "never",
+                            },
+                            {
+                              key: "kpi2",
+                              text: "in progress",
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  key: "limb0121",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        cellType: "title",
+                        text: "Contemplating",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "0",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "perpetual",
                       },
                     ],
                   },
@@ -230,6 +354,7 @@ const tree0 = appView.append(swim.TreeView.fromAny({
               cells: [
                 {
                   key: "name",
+                  cellType: "title",
                   text: "Ajay",
                 },
                 {
@@ -248,9 +373,6 @@ const tree0 = appView.append(swim.TreeView.fromAny({
             },
             tree: {
               stem: {
-                style: {
-                  color: "#989898",
-                },
                 veins: [
                   {
                     key: "name",
@@ -273,6 +395,7 @@ const tree0 = appView.append(swim.TreeView.fromAny({
                     cells: [
                       {
                         key: "name",
+                        cellType: "title",
                         text: "Engineering",
                       },
                       {
@@ -295,6 +418,7 @@ const tree0 = appView.append(swim.TreeView.fromAny({
               cells: [
                 {
                   key: "name",
+                  cellType: "title",
                   text: "Will",
                 },
                 {
@@ -313,9 +437,6 @@ const tree0 = appView.append(swim.TreeView.fromAny({
             },
             tree: {
               stem: {
-                style: {
-                  color: "#989898",
-                },
                 veins: [
                   {
                     key: "name",
@@ -338,6 +459,7 @@ const tree0 = appView.append(swim.TreeView.fromAny({
                     cells: [
                       {
                         key: "name",
+                        cellType: "title",
                         text: "Design",
                       },
                       {
@@ -354,10 +476,454 @@ const tree0 = appView.append(swim.TreeView.fromAny({
               ],
             },
           },
-          //{
-          //  key: "limb013",
-          //  leaf: {},
-          //},
+          {
+            key: "limb013",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "Rohit",
+                },
+                {
+                  key: "kpi1",
+                  text: "admin",
+                },
+                {
+                  key: "kpi2",
+                  text: "online",
+                },
+                {
+                  key: "disclose",
+                  cellType: "disclosure",
+                },
+              ],
+            },
+            tree: {
+              stem: {
+                veins: [
+                  {
+                    key: "name",
+                    text: "Task",
+                  },
+                  {
+                    key: "kpi1",
+                    text: "Points",
+                  },
+                  {
+                    key: "kpi2",
+                    text: "Status",
+                  },
+                ],
+              },
+              limbs: [
+                {
+                  key: "limb0120",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        cellType: "title",
+                        text: "Engineering",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "100",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "unknown",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            key: "limb014",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "Dian",
+                },
+                {
+                  key: "kpi1",
+                  text: "admin",
+                },
+                {
+                  key: "kpi2",
+                  text: "online",
+                },
+                {
+                  key: "disclose",
+                  cellType: "disclosure",
+                },
+              ],
+            },
+            tree: {
+              stem: {
+                veins: [
+                  {
+                    key: "name",
+                    text: "Task",
+                  },
+                  {
+                    key: "kpi1",
+                    text: "Points",
+                  },
+                  {
+                    key: "kpi2",
+                    text: "Status",
+                  },
+                ],
+              },
+              limbs: [
+                {
+                  key: "limb0120",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        cellType: "title",
+                        text: "Engineering",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "100",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "unknown",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            key: "limb015",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "Greg",
+                },
+                {
+                  key: "kpi1",
+                  text: "admin",
+                },
+                {
+                  key: "kpi2",
+                  text: "online",
+                },
+                {
+                  key: "disclose",
+                  cellType: "disclosure",
+                },
+              ],
+            },
+            tree: {
+              stem: {
+                veins: [
+                  {
+                    key: "name",
+                    text: "Task",
+                  },
+                  {
+                    key: "kpi1",
+                    text: "Points",
+                  },
+                  {
+                    key: "kpi2",
+                    text: "Status",
+                  },
+                ],
+              },
+              limbs: [
+                {
+                  key: "limb0120",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        cellType: "title",
+                        text: "Engineering",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "100",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "unknown",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            key: "limb016",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "Tom",
+                },
+                {
+                  key: "kpi1",
+                  text: "admin",
+                },
+                {
+                  key: "kpi2",
+                  text: "online",
+                },
+                {
+                  key: "disclose",
+                  cellType: "disclosure",
+                },
+              ],
+            },
+            tree: {
+              stem: {
+                veins: [
+                  {
+                    key: "name",
+                    text: "Task",
+                  },
+                  {
+                    key: "kpi1",
+                    text: "Points",
+                  },
+                  {
+                    key: "kpi2",
+                    text: "Status",
+                  },
+                ],
+              },
+              limbs: [
+                {
+                  key: "limb0120",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        cellType: "title",
+                        text: "Engineering",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "100",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "unknown",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            key: "limb017",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "Dobromir",
+                },
+                {
+                  key: "kpi1",
+                  text: "admin",
+                },
+                {
+                  key: "kpi2",
+                  text: "online",
+                },
+                {
+                  key: "disclose",
+                  cellType: "disclosure",
+                },
+              ],
+            },
+            tree: {
+              stem: {
+                veins: [
+                  {
+                    key: "name",
+                    text: "Task",
+                  },
+                  {
+                    key: "kpi1",
+                    text: "Points",
+                  },
+                  {
+                    key: "kpi2",
+                    text: "Status",
+                  },
+                ],
+              },
+              limbs: [
+                {
+                  key: "limb0120",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        cellType: "title",
+                        text: "Engineering",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "100",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "unknown",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            key: "limb018",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "Scott",
+                },
+                {
+                  key: "kpi1",
+                  text: "admin",
+                },
+                {
+                  key: "kpi2",
+                  text: "online",
+                },
+                {
+                  key: "disclose",
+                  cellType: "disclosure",
+                },
+              ],
+            },
+            tree: {
+              stem: {
+                veins: [
+                  {
+                    key: "name",
+                    text: "Task",
+                  },
+                  {
+                    key: "kpi1",
+                    text: "Points",
+                  },
+                  {
+                    key: "kpi2",
+                    text: "Status",
+                  },
+                ],
+              },
+              limbs: [
+                {
+                  key: "limb0120",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        cellType: "title",
+                        text: "Engineering",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "100",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "unknown",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            key: "limb019",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "Trinh",
+                },
+                {
+                  key: "kpi1",
+                  text: "admin",
+                },
+                {
+                  key: "kpi2",
+                  text: "online",
+                },
+                {
+                  key: "disclose",
+                  cellType: "disclosure",
+                },
+              ],
+            },
+            tree: {
+              stem: {
+                veins: [
+                  {
+                    key: "name",
+                    text: "Task",
+                  },
+                  {
+                    key: "kpi1",
+                    text: "Points",
+                  },
+                  {
+                    key: "kpi2",
+                    text: "Status",
+                  },
+                ],
+              },
+              limbs: [
+                {
+                  key: "limb0120",
+                  leaf: {
+                    cells: [
+                      {
+                        key: "name",
+                        cellType: "title",
+                        text: "Engineering",
+                      },
+                      {
+                        key: "kpi1",
+                        text: "100",
+                      },
+                      {
+                        key: "kpi2",
+                        text: "unknown",
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
         ],
       },
     },
@@ -367,6 +933,7 @@ const tree0 = appView.append(swim.TreeView.fromAny({
         cells: [
           {
             key: "name",
+            cellType: "title",
             text: "Things",
           },
           {
@@ -377,6 +944,70 @@ const tree0 = appView.append(swim.TreeView.fromAny({
             key: "kpi2",
             text: "idle",
           },
+          {
+            key: "disclose",
+            cellType: "disclosure",
+          },
+        ],
+      },
+      tree: {
+        stem: {
+          veins: [
+            {
+              key: "name",
+              text: "Name",
+            },
+            {
+              key: "kpi1",
+              text: "Dimensions",
+            },
+            {
+              key: "kpi2",
+              text: "Status",
+            },
+          ],
+        },
+        limbs: [
+          {
+            key: "limb010",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "Tesseract",
+                },
+                {
+                  key: "kpi1",
+                  text: "4",
+                },
+                {
+                  key: "kpi2",
+                  text: "projected",
+                },
+              ],
+            },
+          },
+          {
+            key: "limb011",
+            leaf: {
+              cells: [
+                {
+                  key: "name",
+                  cellType: "title",
+                  text: "String",
+                },
+                {
+                  key: "kpi1",
+                  text: "11",
+                },
+                {
+                  key: "kpi2",
+                  text: "imaginary",
+                },
+              ],
+            },
+          },
         ],
       },
     },
@@ -385,21 +1016,59 @@ const tree0 = appView.append(swim.TreeView.fromAny({
 
 const limb01 = tree0.getChildView("limb01");
 const tree01 = limb01.tree;
+const limb010 = tree01.getChildView("limb010");
+const limb011 = tree01.getChildView("limb011");
 const limb012 = tree01.getChildView("limb012");
 const tree02 = limb012.tree;
 const limb0120 = tree02.getChildView("limb0120");
+const limb013 = tree01.getChildView("limb013");
+const limb014 = tree01.getChildView("limb014");
+const limb015 = tree01.getChildView("limb015");
+const limb016 = tree01.getChildView("limb016");
+const limb017 = tree01.getChildView("limb017");
+const limb018 = tree01.getChildView("limb018");
+const limb019 = tree01.getChildView("limb019");
 
-//limb01.toggle();
-//setInterval(function () {
-//  limb012.toggle();
-//}, 1000);
-//setInterval(function () {
-//  if (limb0120.isMounted()) {
-//    limb0120.remove();
-//  } else {
-//    tree02.append(limb0120);
-//  }
-//}, 4000 / 3);
+function updateMood(view) {
+  //let mood = view.mood.getState();
+  let u = Math.random();
+  if (u < 0.8) {
+    view.modifyMood(swim.Feel.default, [swim.Feel.warning, undefined], [swim.Feel.alert, undefined]);
+    //view.moodModifier.setState(swim.MoodMatrix.empty());
+    //mood = mood.updated(swim.Feel.warning, undefined)
+    //           .updated(swim.Feel.alert, undefined);
+  } else if (u < 0.95) {
+    u = (u - 0.8) / 0.15
+    u = 0.5 + 0.5 * u;
+    view.modifyMood(swim.Feel.default, [swim.Feel.warning, u], [swim.Feel.alert, undefined]);
+    //view.moodModifier.setState(swim.MoodMatrix.forCols([swim.Feel.default, [[swim.Feel.default, 1], [swim.Feel.warning, u]]]));
+    //mood = mood.updated(swim.Feel.warning, u)
+    //           .updated(swim.Feel.alert, undefined);
+  } else {
+    u = (u - 0.95) / 0.05;
+    u = 0.5 + 0.5 * u;
+    view.modifyMood(swim.Feel.default, [swim.Feel.warning, undefined], [swim.Feel.alert, u]);
+    //view.moodModifier.setState(swim.MoodMatrix.forCols([swim.Feel.default, [[swim.Feel.default, 1], [swim.Feel.alert, u]]]));
+    //mood = mood.updated(swim.Feel.warning, undefined)
+    //           .updated(swim.Feel.alert, u);
+  }
+  //view.mood.setState(mood);
+  //view.requireUpdate(swim.View.NeedsCompute);
+}
+function updateMoods() {
+  updateMood(limb010);
+  updateMood(limb011);
+  updateMood(limb012);
+  updateMood(limb013);
+  updateMood(limb014);
+  updateMood(limb015);
+  updateMood(limb016);
+  updateMood(limb017);
+  updateMood(limb018);
+  updateMood(limb019);
+}
+setInterval(updateMoods, 4000);
+updateMoods();
 
     </script>
   </body>

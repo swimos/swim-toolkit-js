@@ -27,6 +27,7 @@ import {
   HtmlView,
 } from "@swim/view";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
+import {Look, ThemedHtmlView} from "@swim/theme";
 import {ActionButton} from "./ActionButton";
 import {ActionItem} from "./ActionItem";
 import {ActionStackObserver} from "./ActionStackObserver";
@@ -34,7 +35,7 @@ import {ActionStackController} from "./ActionStackController";
 
 export type ActionStackState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
-export class ActionStack extends HtmlView implements Modal, PositionGestureDelegate {
+export class ActionStack extends ThemedHtmlView implements Modal, PositionGestureDelegate {
   /** @hidden */
   _stackState: ActionStackState;
   /** @hidden */
@@ -154,7 +155,9 @@ export class ActionStack extends HtmlView implements Modal, PositionGestureDeleg
 
   protected createCloseIcon(): SvgView {
     const icon = SvgView.create("svg").width(24).height(24).viewBox("0 0 24 24");
-    icon.append("path").d("M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z");
+    icon.append("path")
+        .fill(this.getLook(Look.backgroundColor))
+        .d("M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z");
     return icon;
   }
 

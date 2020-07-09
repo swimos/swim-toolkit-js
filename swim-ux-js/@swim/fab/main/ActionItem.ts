@@ -12,20 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyColor, Color} from "@swim/color";
-import {
-  ViewScope,
-  ViewContext,
-  View,
-  ViewAnimator,
-  ViewNodeType,
-  SvgView,
-  HtmlView,
-  HtmlViewController,
-} from "@swim/view";
-import {Theme} from "@swim/theme";
+import {Transition} from "@swim/transition";
+import {ViewContext, View, ViewAnimator, ViewNodeType, SvgView, HtmlView} from "@swim/view";
+import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
+import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
+import {MembraneView} from "@swim/motif";
 
-export class ActionItem extends HtmlView {
+export class ActionItem extends MembraneView implements PositionGestureDelegate {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("action-item");
@@ -43,18 +36,8 @@ export class ActionItem extends HtmlView {
     this.cursor.setAutoState("pointer");
   }
 
-  get viewController(): HtmlViewController<ActionItem> | null {
-    return this._viewController;
-  }
-
-  @ViewScope(Theme, {inherit: true})
-  theme: ViewScope<this, Theme>;
-
   @ViewAnimator(Number, {inherit: true})
   stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
-
-  @ViewAnimator(Color)
-  hoverColor: ViewAnimator<this, Color, AnyColor>;
 
   get icon(): SvgView | HtmlView | null {
     const childView = this.getChildView("icon");
@@ -66,37 +49,45 @@ export class ActionItem extends HtmlView {
     return childView instanceof HtmlView ? childView : null;
   }
 
-  setTheme(theme: Theme): void {
-    this.backgroundColor.setAutoState(theme.secondary.fillColor);
-    this.boxShadow.setAutoState(theme.floating.shadow);
-    this.hoverColor.setAutoState(theme.secondary.fillColor.darker(0.5));
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    const phase = this.stackPhase.getValueOr(1);
+
+    this.backgroundColor.setAutoState(theme.inner(mood, Look.secondaryColor), transition);
+    let shadow = theme.inner(Mood.floating, Look.shadow);
+    if (shadow !== void 0) {
+      const shadowColor = shadow.color();
+      shadow = shadow.color(shadowColor.alpha(shadowColor.alpha() * phase));
+    }
+    this.boxShadow.setAutoState(shadow, transition);
 
     const icon = this.icon;
-    if (icon instanceof SvgView) {
-      icon.fill.setAutoState(theme.secondary.iconColor);
+    if (icon instanceof SvgView && icon.fill.isAuto()) {
+      icon.fill.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
     }
-  }
 
-  protected onMount(): void {
-    super.onMount();
-    this.requireUpdate(View.NeedsCompute);
-  }
-
-  protected onCompute(viewContext: ViewContext): void {
-    super.onCompute(viewContext);
-    const theme = this.theme.state;
-    if (theme !== void 0) {
-      this.setTheme(theme);
+    const label = this.label;
+    if (label !== null && label.color.isAuto()) {
+      label.color.setAutoState(theme.inner(mood, Look.mutedColor), transition);
     }
   }
 
   protected onLayout(viewContext: ViewContext): void {
     super.onLayout(viewContext);
+    const phase = this.stackPhase.getValueOr(1);
+
     const label = this.label;
-    const phase = this.stackPhase.value;
-    if (label !== null && phase !== void 0) {
+    if (label !== null) {
       label.opacity.setAutoState(phase);
     }
+
+    let shadow = this.getLook(Look.shadow, Mood.floating);
+    if (shadow !== void 0) {
+      const shadowColor = shadow.color();
+      shadow = shadow.color(shadowColor.alpha(shadowColor.alpha() * phase));
+    }
+    this.boxShadow.setAutoState(shadow);
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -137,11 +128,30 @@ export class ActionItem extends HtmlView {
     label.fontWeight.setAutoState("500");
     label.lineHeight.setAutoState("48px");
     label.whiteSpace.setAutoState("nowrap");
-    label.color.setAutoState("#cccccc");
     label.opacity.setAutoState(this.stackPhase.getValueOr(0));
   }
 
   protected onRemoveLabel(label: HtmlView): void {
     // hook
+  }
+
+  protected glow(input: PositionGestureInput): void {
+    // nop
+  }
+
+  didStartHovering(): void {
+    this.modifyMood(Feel.default, [Feel.hovering, 1]);
+    if (this.backgroundColor.isAuto()) {
+      const transition = this.getLook(Look.transition);
+      this.backgroundColor.setAutoState(this.getLook(Look.secondaryColor), transition);
+    }
+  }
+
+  didStopHovering(): void {
+    this.modifyMood(Feel.default, [Feel.hovering, void 0]);
+    if (this.backgroundColor.isAuto()) {
+      const transition = this.getLook(Look.transition);
+      this.backgroundColor.setAutoState(this.getLook(Look.secondaryColor), transition);
+    }
   }
 }

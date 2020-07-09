@@ -13,16 +13,9 @@
 // limitations under the License.
 
 import {Length} from "@swim/length";
-import {Tween, AnyTransition, Transition} from "@swim/transition";
-import {
-  ViewContext,
-  View,
-  ViewScope,
-  ViewAnimator,
-  ViewNodeType,
-  HtmlViewInit,
-  HtmlView,
-} from "@swim/view";
+import {Tween, Transition} from "@swim/transition";
+import {ViewContext, View, ViewScope, ViewAnimator, ViewNodeType, HtmlView} from "@swim/view";
+import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {AnyTreeLeaf, TreeLeaf} from "./TreeLeaf";
 import {TreeLimbObserver} from "./TreeLimbObserver";
 import {TreeLimbController} from "./TreeLimbController";
@@ -30,7 +23,7 @@ import {AnyTreeView, TreeView} from "./TreeView";
 
 export type AnyTreeLimb = TreeLimb | TreeLimbInit;
 
-export interface TreeLimbInit extends HtmlViewInit {
+export interface TreeLimbInit extends ThemedHtmlViewInit {
   viewController?: TreeLimbController;
   expanded?: boolean;
 
@@ -40,7 +33,7 @@ export interface TreeLimbInit extends HtmlViewInit {
 
 export type TreeLimbState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
-export class TreeLimb extends HtmlView {
+export class TreeLimb extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-limb");
@@ -113,14 +106,11 @@ export class TreeLimb extends HtmlView {
   @ViewScope(Number, {inherit: true})
   limbSpacing: ViewScope<this, number>;
 
-  @ViewScope(Transition, {inherit: true})
-  treeTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
-
   expand(tween?: Tween<any>): void {
     const disclosurePhase = this.disclosurePhase.value;
     if (this.isCollapsed() || disclosurePhase !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this.treeTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -169,7 +159,7 @@ export class TreeLimb extends HtmlView {
     const disclosurePhase = this.disclosurePhase.value;
     if (this.isExpanded() || disclosurePhase !== 0) {
       if (tween === void 0 || tween === true) {
-        tween = this.treeTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }

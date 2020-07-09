@@ -87,11 +87,6 @@ export abstract class EsriView extends MapGraphicsNodeView {
 
   abstract get mapTilt(): number;
 
-  protected onPower(): void {
-    super.onPower();
-    this.requireUpdate(View.NeedsProject);
-  }
-
   cascadeProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): void {
     viewContext = this.mapViewContext(viewContext);
     super.cascadeProcess(processFlags, viewContext);
@@ -122,4 +117,6 @@ export abstract class EsriView extends MapGraphicsNodeView {
   }
 
   abstract overlayCanvas(): CanvasView | null;
+
+  static readonly powerFlags: ViewFlags = MapGraphicsNodeView.powerFlags | View.NeedsProject;
 }

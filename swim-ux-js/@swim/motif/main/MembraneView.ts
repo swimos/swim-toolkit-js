@@ -12,16 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Ease, AnyTransition, Transition} from "@swim/transition";
-import {ViewScope, ViewNodeType, HtmlViewInit, HtmlView} from "@swim/view";
+import {ViewNodeType} from "@swim/view";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
+import {ThemedHtmlViewInit, ThemedHtmlView, ThemedHtmlViewController} from "@swim/theme";
 import {GlowView} from "./GlowView";
 
-export interface MembraneViewInit extends HtmlViewInit {
-  membraneTransition?: AnyTransition<any>;
+export interface MembraneViewInit extends ThemedHtmlViewInit {
 }
 
-export class MembraneView extends HtmlView implements PositionGestureDelegate {
+export class MembraneView extends ThemedHtmlView implements PositionGestureDelegate {
   /** @hidden */
   _gesture: PositionGesture<MembraneView>;
 
@@ -37,32 +36,29 @@ export class MembraneView extends HtmlView implements PositionGestureDelegate {
 
   initView(init: MembraneViewInit): void {
     super.initView(init);
-    if (init.membraneTransition !== void 0) {
-      this.membraneTransition(init.membraneTransition);
-    }
+  }
+
+  get viewController(): ThemedHtmlViewController<MembraneView> | null {
+    return this._viewController;
   }
 
   protected createGesture(): PositionGesture<MembraneView> {
     return new PositionGesture(this, this);
   }
 
-  @ViewScope(Transition, {
-    inherit: true,
-    init(): Transition<any> {
-      return Transition.duration(250, Ease.cubicOut);
-    },
-  })
-  membraneTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
-
   didBeginPress(input: PositionGestureInput, event: Event | null): void {
+    this.glow(input);
+  }
+
+  protected glow(input: PositionGestureInput): void {
     if (input.detail instanceof GlowView) {
-      input.detail.fade(input.x, input.y, this.membraneTransition.state);
+      input.detail.fade(input.x, input.y);
       input.detail = void 0;
     }
     if (input.detail === void 0) {
       const delay = input.inputType === "mouse" ? 0 : 100;
       input.detail = this.prepend(GlowView);
-      (input.detail as GlowView).glow(input.x, input.y, 0.1, this.membraneTransition.state, delay);
+      (input.detail as GlowView).glow(input.x, input.y, void 0, delay);
     }
   }
 
@@ -72,7 +68,7 @@ export class MembraneView extends HtmlView implements PositionGestureDelegate {
     } else if (!this.clientBounds.contains(input.x, input.y)) {
       this._gesture.beginHover(input, event);
       if (input.detail instanceof GlowView) {
-        input.detail.fade(input.x, input.y, this.membraneTransition.state);
+        input.detail.fade(input.x, input.y);
         input.detail = void 0;
       }
     }
@@ -82,11 +78,11 @@ export class MembraneView extends HtmlView implements PositionGestureDelegate {
     if (!this.clientBounds.contains(input.x, input.y)) {
       this._gesture.endHover(input, event);
       if (input.detail instanceof GlowView) {
-        input.detail.fade(input.x, input.y, this.membraneTransition.state);
+        input.detail.fade(input.x, input.y);
         input.detail = void 0;
       }
     } else if (input.detail instanceof GlowView) {
-      input.detail.pulse(input.x, input.y, 0.1, this.membraneTransition.state);
+      input.detail.pulse(input.x, input.y);
     }
   }
 
@@ -95,7 +91,7 @@ export class MembraneView extends HtmlView implements PositionGestureDelegate {
       this._gesture.endHover(input, event);
     }
     if (input.detail instanceof GlowView) {
-      input.detail.fade(input.x, input.y, this.membraneTransition.state);
+      input.detail.fade(input.x, input.y);
       input.detail = void 0;
     }
   }

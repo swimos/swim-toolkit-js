@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import {Length} from "@swim/length";
-import {AnyColor, Color} from "@swim/color";
-import {Tween} from "@swim/transition";
+import {Tween, Transition} from "@swim/transition";
 import {
   ViewScope,
   ViewEdgeInsets,
@@ -24,9 +23,9 @@ import {
   ViewNodeType,
   SvgView,
   HtmlView,
-  HtmlViewController,
 } from "@swim/view";
-import {PositionGestureDelegate} from "@swim/gesture";
+import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
+import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {MembraneView} from "@swim/motif";
 import {MenuList} from "./MenuList";
 
@@ -37,11 +36,6 @@ export class MenuItem extends MembraneView implements PositionGestureDelegate {
   constructor(node: HTMLElement) {
     super(node);
     this.onClick = this.onClick.bind(this);
-    this.normalFillColor.setState(Color.parse("#9a9a9a"));
-    this.highlightFillColor.setState(Color.parse("#d8d8d8"));
-    this.highlightCellColor.setState(Color.parse("#0a1215"));
-    this.hoverColor.setState(Color.rgb(255, 255, 255, 0.05));
-    this.backgroundColor.setAutoState(this.hoverColor.getValue().alpha(0));
     this._highlighted = false;
   }
 
@@ -58,28 +52,11 @@ export class MenuItem extends MembraneView implements PositionGestureDelegate {
     this.lineHeight.setAutoState(44);
     this.overflowX.setAutoState("hidden");
     this.overflowY.setAutoState("hidden");
-    this.userSelect.setAutoState("none");
     this.cursor.setAutoState("pointer");
-  }
-
-  get viewController(): HtmlViewController<MenuItem> | null {
-    return this._viewController;
   }
 
   @ViewAnimator(Number, {inherit: true})
   drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
-
-  @ViewAnimator(Color)
-  normalFillColor: ViewAnimator<this, Color, AnyColor>;
-
-  @ViewAnimator(Color)
-  highlightFillColor: ViewAnimator<this, Color, AnyColor>;
-
-  @ViewAnimator(Color)
-  highlightCellColor: ViewAnimator<this, Color, AnyColor>;
-
-  @ViewAnimator(Color)
-  hoverColor: ViewAnimator<this, Color, AnyColor>;
 
   @ViewScope(Object, {inherit: true})
   edgeInsets: ViewScope<this, ViewEdgeInsets>;
@@ -96,7 +73,6 @@ export class MenuItem extends MembraneView implements PositionGestureDelegate {
     view.width.setAutoState(36);
     view.height.setAutoState(44);
     if (icon !== void 0) {
-      icon.fill(this.normalFillColor.getValue());
       view.append(icon, "icon");
     }
     return view;
@@ -111,7 +87,6 @@ export class MenuItem extends MembraneView implements PositionGestureDelegate {
     view.textOverflow.setAutoState("ellipsis");
     view.overflowX.setAutoState("hidden");
     view.overflowY.setAutoState("hidden");
-    view.color.setAutoState(this.normalFillColor.getValue());
     if (text !== void 0) {
       view.text(text);
     }
@@ -177,6 +152,25 @@ export class MenuItem extends MembraneView implements PositionGestureDelegate {
     }
   }
 
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    const itemColor = theme.inner(mood, this._highlighted ? Look.color : Look.mutedColor);
+
+    const iconView = this.iconView();
+    if (iconView !== null) {
+      const icon = iconView.getChildView("icon");
+      if (icon instanceof SvgView && icon.fill.isAuto()) {
+        icon.fill.setAutoState(itemColor, transition);
+      }
+    }
+
+    const title = this.titleView();
+    if (title !== null && title.color.isAuto()) {
+      title.color.setAutoState(itemColor, transition);
+    }
+  }
+
   protected onMount(): void {
     super.onMount();
     this.on("click", this.onClick);
@@ -226,13 +220,17 @@ export class MenuItem extends MembraneView implements PositionGestureDelegate {
     super.onRemoveChildView(childView);
   }
 
-  protected onInsertIcon(icon: HtmlView): void {
-    icon.flexShrink.setAutoState(0);
-    icon.marginLeft.setAutoState(8);
-    icon.marginRight.setAutoState(8);
+  protected onInsertIcon(iconView: HtmlView): void {
+    iconView.flexShrink.setAutoState(0);
+    iconView.marginLeft.setAutoState(8);
+    iconView.marginRight.setAutoState(8);
+    const icon = iconView.getChildView("icon");
+    if (icon instanceof SvgView && icon.fill.isAuto()) {
+      icon.fill.setAutoState(this.getLook(Look.mutedColor));
+    }
   }
 
-  protected onRemoveIcon(icon: HtmlView): void {
+  protected onRemoveIcon(iconView: HtmlView): void {
     // hook
   }
 
@@ -240,6 +238,10 @@ export class MenuItem extends MembraneView implements PositionGestureDelegate {
     title.flexShrink.setAutoState(0);
     title.marginLeft.setAutoState(4);
     title.marginRight.setAutoState(4);
+    if (title.color.isAuto()) {
+      const itemColor = this.getLook(this._highlighted ? Look.color : Look.mutedColor);
+      title.color.setAutoState(itemColor);
+    }
   }
 
   protected onRemoveTitle(title: HtmlView): void {
@@ -249,20 +251,26 @@ export class MenuItem extends MembraneView implements PositionGestureDelegate {
   highlight(tween?: Tween<any>): this {
     if (!this._highlighted) {
       this._highlighted = true;
+      this.modifyMood(Feel.default, [Feel.selected, 1], [Feel.hovering, void 0]);
       if (tween === true) {
-        tween = this.membraneTransition.state;
+        tween = this.getLook(Look.transition);
+      } else {
+        tween = Transition.forTween(tween);
       }
-      this.backgroundColor.setAutoState(this.highlightCellColor.getValue().alpha(1), tween);
+      if (this.backgroundColor.isAuto()) {
+        this.backgroundColor.setAutoState(void 0, tween);
+        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), tween);
+      }
       const iconView = this.iconView();
       if (iconView !== null) {
         const icon = iconView.getChildView("icon");
-        if (icon instanceof SvgView) {
-          icon.fill(this.highlightFillColor.getValue(), tween);
+        if (icon instanceof SvgView && icon.fill.isAuto()) {
+          icon.fill.setAutoState(this.getLook(Look.color), tween);
         }
       }
       const titleView = this.titleView();
-      if (titleView !== null) {
-        titleView.color(this.highlightFillColor.getValue(), tween);
+      if (titleView !== null && titleView.color.isAuto()) {
+        titleView.color.setAutoState(this.getLook(Look.color), tween);
       }
     }
     return this;
@@ -271,39 +279,50 @@ export class MenuItem extends MembraneView implements PositionGestureDelegate {
   unhighlight(tween?: Tween<any>): this {
     if (this._highlighted) {
       this._highlighted = false;
+      this.modifyMood(Feel.default, [Feel.selected, 1], [Feel.selected, void 0]);
       if (tween === true) {
-        tween = this.membraneTransition.state;
+        tween = this.getLookOr(Look.transition, null);
+      } else {
+        tween = Transition.forTween(tween);
       }
-      this.backgroundColor.setAutoState(this.highlightCellColor.getValue().alpha(0), tween);
+      if (this.backgroundColor.isAuto()) {
+        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), tween);
+      }
       const iconView = this.iconView();
       if (iconView !== null) {
         const icon = iconView.getChildView("icon");
         if (icon instanceof SvgView) {
-          icon.fill(this.normalFillColor.getValue(), tween);
+          icon.fill.setAutoState(this.getLook(Look.mutedColor), tween);
         }
       }
       const titleView = this.titleView();
-      if (titleView !== null) {
-        titleView.color(this.normalFillColor.getValue(), tween);
+      if (titleView !== null && titleView.color.isAuto()) {
+        titleView.color.setAutoState(this.getLook(Look.mutedColor), tween);
       }
     }
     return this;
   }
 
+  protected glow(input: PositionGestureInput): void {
+    if (!this._highlighted) {
+      super.glow(input);
+    }
+  }
+
   didStartHovering(): void {
-    const hoverColor = this.hoverColor.value;
-    if (hoverColor !== void 0 && this.backgroundColor.isAuto()) {
-      if (this.backgroundColor.value === void 0) {
-        this.backgroundColor.setAutoState(hoverColor.alpha(0), false);
+    if (!this._highlighted) {
+      this.modifyMood(Feel.default, [Feel.hovering, 1]);
+      if (this.backgroundColor.isAuto()) {
+        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor));
       }
-      this.backgroundColor.setAutoState(hoverColor, this.membraneTransition.state);
     }
   }
 
   didStopHovering(): void {
-    const hoverColor = this.hoverColor.value;
-    if (hoverColor !== void 0 && this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(hoverColor.alpha(0), this.membraneTransition.state);
+    this.modifyMood(Feel.default, [Feel.hovering, void 0]);
+    if (this.backgroundColor.isAuto()) {
+      const transition = this.getLook(Look.transition);
+      this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), transition);
     }
   }
 

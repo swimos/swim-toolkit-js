@@ -17,7 +17,6 @@ const main = {
       "@swim/structure": "swim",
       "@swim/math": "swim",
       "@swim/time": "swim",
-      "@swim/uri": "swim",
       "@swim/angle": "swim",
       "@swim/length": "swim",
       "@swim/color": "swim",
@@ -43,7 +42,6 @@ const main = {
     "@swim/structure",
     "@swim/math",
     "@swim/time",
-    "@swim/uri",
     "@swim/angle",
     "@swim/length",
     "@swim/color",
@@ -68,6 +66,27 @@ const main = {
   },
 };
 
-const targets = [main];
+const test = {
+  input: "./lib/test/index.js",
+  output: {
+    file: `./dist/test/${script}-test.js`,
+    name: `${namespace}.test`,
+    format: "umd",
+    sourcemap: true,
+    interop: false,
+    extend: true,
+  },
+  plugins: [
+    nodeResolve({customResolveOptions: {paths: ["../..", "../../../swim-ui-js", "../../../../swim-system-js/swim-core-js"]}}),
+    sourcemaps(),
+  ],
+  onwarn(warning, warn) {
+    if (warning.code === "CIRCULAR_DEPENDENCY") return;
+    warn(warning);
+  },
+};
+
+const targets = [main, test];
 targets.main = main;
+targets.test = test;
 export default targets;
