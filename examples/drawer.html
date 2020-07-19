@@ -35,16 +35,16 @@ if (navigator.standalone) {
   document.body.style.height = "100%";
 }
 
-const appView = new swim.AppView(document.body);
+const uiView = new swim.ThemedUiView(document.body);
 
-const drawerButton = appView.append(swim.DrawerButton)
+const drawerButton = uiView.append(swim.DrawerButton)
   .position("absolute")
   .top("50%")
   .right("50%")
   .bottom("50%")
   .left("50%");
 
-const drawerView = appView.append(swim.DrawerView).drawerPlacement("left");
+const drawerView = uiView.append(swim.DrawerView).drawerPlacement("left");
 drawerButton.setDrawerView(drawerView);
 
 const menuList = swim.HtmlView.create(swim.MenuList);

@@ -1,28 +1,28 @@
-# @swim/app
+# @swim/popover
 
-[![package](https://img.shields.io/npm/v/@swim/app.svg)](https://www.npmjs.com/package/@swim/app)
-[![documentation](https://img.shields.io/badge/doc-TypeDoc-blue.svg)](https://docs.swimos.org/js/latest/modules/_swim_app.html)
+[![package](https://img.shields.io/npm/v/@swim/popover.svg)](https://www.npmjs.com/package/@swim/popover)
+[![documentation](https://img.shields.io/badge/doc-TypeDoc-blue.svg)](https://docs.swimos.org/js/latest/modules/_swim_popover.html)
 [![chat](https://img.shields.io/badge/chat-Gitter-green.svg)](https://gitter.im/swimos/community)
 
 <a href="https://www.swimos.org"><img src="https://docs.swimos.org/readme/marlin-blue.svg" align="left"></a>
 
-**@swim/app** implements an application model for coordinating window-level
-components, such as popovers and drawers.  **@swim/app** is part of the
+**@swim/popover** implements auto-placed, source-tracking popover views.
+**@swim/popover** is part of the
 [**@swim/ux**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/ux) framework.
 
 ## Installation
 
 ### npm
 
-For an npm-managed project, `npm install @swim/app` to make it a dependency.
-TypeScript sources will be installed into `node_modules/@swim/app/main`.
+For an npm-managed project, `npm install @swim/popover` to make it a dependency.
+TypeScript sources will be installed into `node_modules/@swim/popover/main`.
 Transpiled JavaScript and TypeScript definition files install into
-`node_modules/@swim/app/lib/main`.  And a pre-built UMD script can
-be found in `node_modules/@swim/app/dist/main/swim-app.js`.
+`node_modules/@swim/popover/lib/main`.  And a pre-built UMD script can
+be found in `node_modules/@swim/popover/dist/main/swim-popover.js`.
 
 ### Browser
 
-Browser applications can load `swim-ux.js`—which bundles the **@swim/app**
+Browser applications can load `swim-ux.js`—which bundles the **@swim/popover**
 library—along with its `swim-core.js` and `swim-ui.js` dependencies, directly
 from the SwimOS CDN.
 
@@ -40,7 +40,7 @@ from the SwimOS CDN.
 
 Alternatively, the `swim-toolkit.js` script may be loaded, along with its
 `swim-system.js` dependency, from the SwimOS CDN.  The `swim-toolkit.js`
-script bundles **@swim/app** together with all other
+script bundles **@swim/popover** together with all other
 [**@swim/toolkit**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/@swim/toolkit)
 frameworks.
 
@@ -58,29 +58,29 @@ frameworks.
 
 ### ES6/TypeScript
 
-**@swim/app** can be imported as an ES6 module from TypeScript and other
+**@swim/popover** can be imported as an ES6 module from TypeScript and other
 ES6-compatible environments.
 
 ```typescript
-import * as app from "@swim/app";
+import * as popover from "@swim/popover";
 ```
 
 ### CommonJS/Node.js
 
-**@swim/app** can also be used as a CommonJS module in Node.js applications.
+**@swim/popover** can also be used as a CommonJS module in Node.js applications.
 
 ```javascript
-var app = require("@swim/app");
+var popover = require("@swim/popover");
 ```
 
 ### Browser
 
-When loaded by a web browser, the `swim-app.js` script adds all
-**@swim/app** library exports to the global `swim` namespace.
-The `swim-app.js` script requires that `swim-core.js` and `swim-ui.js`
+When loaded by a web browser, the `swim-popover.js` script adds all
+**@swim/popover** library exports to the global `swim` namespace.
+The `swim-popover.js` script requires that `swim-core.js` and `swim-ui.js`
 have already been loaded.
 
-The `swim-toolkit.js` script also adds all **@swim/app** library
+The `swim-toolkit.js` script also adds all **@swim/popover** library
 exports to the global `swim` namespace, making it a drop-in replacement for
-`swim-ui.js` and `swim-app.js` when additional **@swim/toolkit** frameworks
+`swim-ui.js` and `swim-popover.js` when additional **@swim/toolkit** frameworks
 are needed.

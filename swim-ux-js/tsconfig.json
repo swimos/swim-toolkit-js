@@ -4,7 +4,8 @@
   "references": [
     {"path": "./@swim/theme"},
     {"path": "./@swim/motif"},
-    {"path": "./@swim/app"},
+    {"path": "./@swim/popover"},
+    {"path": "./@swim/drawer"},
     {"path": "./@swim/fab"},
     {"path": "./@swim/menu"},
     {"path": "./@swim/tree"},

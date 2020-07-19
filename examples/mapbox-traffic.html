@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css">
   </head>
   <body style="display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; margin: 0;">
-    <div id="app" style="display: flex; position: relative; width: 100%; height: 100%;">
+    <div id="ui" style="display: flex; position: relative; width: 100%; height: 100%;">
     </div>
     <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
     <script src="../../swim-system-js/swim-core-js/@swim/core/dist/main/swim-core.js"></script>
@@ -22,11 +22,11 @@ const GREEN = swim.Color.parse("#54e218");
 const INTERSECTION_COLOR = swim.Color.parse("#00a6ed");
 const RIPPLE_COLOR = swim.Color.parse("#efefef").alpha(0.25);
 
-const appView = new swim.AppView(document.getElementById("app"));
+const uiView = new swim.UiView(document.getElementById("ui"));
 
 mapboxgl.accessToken = "pk.eyJ1Ijoic3dpbWl0IiwiYSI6ImNqY2c3NXZkYzFoa2QycXQ1eXl1Mnd6M3EifQ.qpRE7xC08AyZfxJ56LoN7w";
 const map = new mapboxgl.Map({
-  container: appView.node,
+  container: uiView.node,
   style: "mapbox://styles/mapbox/dark-v10",
   center: {lng: -122.157139, lat: 37.450809},
   pitch: 70,
@@ -42,7 +42,7 @@ mapView.overlayCanvas()
 const mapLayer = mapView.append(new swim.MapLayerView(undefined, 0, 15));
 //mapLayer.tileOutlineColor("#cc0000");
 
-const host = swim.hostRef("warps://traffic.swim.services")
+const host = swim.hostRef("warps://traffic.swim.services");
 
 const intersectionsLink = host.downlinkMap()
     .nodeUri("/city/PaloAlto_CA_US")
@@ -81,7 +81,7 @@ function linkIntersection(intersectionId, node, intersectionView) {
       intersectionPopover.setSource(intersectionView);
       intersectionPopover.hideModal();
     }
-    appView.toggleModal(intersectionPopover, {multi: event.shiftKey});
+    uiView.toggleModal(intersectionPopover, {multi: event.shiftKey});
   });
   intersectionView.on("click", function (event) {
     event.stopPropagation();

@@ -1,7 +1,7 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 
-const script = "swim-fab";
+const script = "swim-drawer";
 const namespace = "swim";
 
 const main = {
@@ -33,7 +33,6 @@ const main = {
       "@swim/view": "swim",
       "@swim/gesture": "swim",
       "@swim/theme": "swim",
-      "@swim/motif": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -62,7 +61,6 @@ const main = {
     "@swim/view",
     "@swim/gesture",
     "@swim/theme",
-    "@swim/motif",
   ],
   plugins: [
     nodeResolve({customResolveOptions: {paths: "../.."}}),

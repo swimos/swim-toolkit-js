@@ -25,11 +25,14 @@ component libraries:
   ([npm](https://www.npmjs.com/package/@swim/motif),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_motif.html)) –
   procedurally styled and rendered decorative views.
-- [**@swim/app**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/app)
-  ([npm](https://www.npmjs.com/package/@swim/app),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_app.html)) –
-  application model for coordinating window-level components, such as popovers
-  and drawers.
+- [**@swim/popover**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/popover)
+  ([npm](https://www.npmjs.com/package/@swim/popover),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_popover.html)) –
+  auto-placed, source-tracking popover views.
+- [**@swim/drawer**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/drawer)
+  ([npm](https://www.npmjs.com/package/@swim/drawer),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_drawer.html)) –
+  responsive, minifiable drawer views.
 - [**@swim/fab**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/fab)
   ([npm](https://www.npmjs.com/package/@swim/fab),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_fab.html)) –

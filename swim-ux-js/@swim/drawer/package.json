@@ -1,13 +1,13 @@
 {
-  "name": "@swim/app",
+  "name": "@swim/drawer",
   "version": "3.11.0-dev.20200619",
-  "description": "Application model for coordinating window-level components, such as popovers and drawers",
+  "description": "Responsive, minifiable drawer views",
   "homepage": "https://github.com/swimos/swim",
   "author": "Chris Sachs <chris@swim.ai>",
   "copyright": "2015-2020 Swim inc.",
   "license": "Apache-2.0",
   "repository": "https://github.com/swimos/swim.git",
-  "main": "dist/main/swim-app.js",
+  "main": "dist/main/swim-drawer.js",
   "module": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "dependencies": {
@@ -32,7 +32,6 @@
     "@swim/constraint": "3.11.0-dev.20200619",
     "@swim/view": "3.11.0-dev.20200619",
     "@swim/gesture": "3.11.0-dev.20200619",
-    "@swim/theme": "3.11.0-dev.20200619",
-    "@swim/motif": "3.11.0-dev.20200619"
+    "@swim/theme": "3.11.0-dev.20200619"
   }
 }

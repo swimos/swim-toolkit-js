@@ -548,9 +548,20 @@ const ux = [
     ],
   },
   {
-    id: "app",
-    name: "@swim/app",
-    path: "swim-ux-js/@swim/app",
+    id: "popover",
+    name: "@swim/popover",
+    path: "swim-ux-js/@swim/popover",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif"],
+      },
+    ],
+  },
+  {
+    id: "drawer",
+    name: "@swim/drawer",
+    path: "swim-ux-js/@swim/drawer",
     targets: [
       {
         id: "main",
@@ -565,7 +576,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif", "app"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif"],
       },
     ],
   },
@@ -576,7 +587,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif", "app"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif"],
       },
     ],
   },
@@ -587,7 +598,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif", "app"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif"],
       },
     ],
   },
@@ -600,7 +611,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "motif", "app", "fab", "menu", "tree"],
+        deps: ["theme", "motif", "popover", "drawer", "fab", "menu", "tree"],
       },
     ],
   },

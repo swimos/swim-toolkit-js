@@ -32,9 +32,9 @@ if (navigator.standalone) {
   document.body.style.height = "100%";
 }
 
-const appView = new swim.AppView(document.body);
+const uiView = new swim.ThemedUiView(document.body);
 
-appView.onSetViewIdiom = function (viewIdiom) {
+uiView.onSetViewIdiom = function (viewIdiom) {
   if (viewIdiom === "desktop") {
     container.margin(60);
   } else {
@@ -42,7 +42,7 @@ appView.onSetViewIdiom = function (viewIdiom) {
   }
 };
 
-const container = appView.append("div")
+const container = uiView.append("div")
   .position("relative")
   .flexGrow(1)
   .userSelect("none")

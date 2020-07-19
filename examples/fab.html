@@ -35,9 +35,9 @@ if (navigator.standalone) {
   document.body.style.height = "100%";
 }
 
-const appView = new swim.AppView(document.body);
+const uiView = new swim.ThemedUiView(document.body);
 
-const actionStack = appView.append(swim.ActionStack)
+const actionStack = uiView.append(swim.ActionStack)
   .position("absolute")
   .top("60%")
   .right("50%")

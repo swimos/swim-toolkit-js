@@ -23,8 +23,18 @@ const ux = [
     ],
   },
   {
-    id: "app",
-    name: "@swim/app",
+    id: "popover",
+    name: "@swim/popover",
+    targets: [
+      {
+        id: "main",
+        deps: ["theme", "motif"],
+      },
+    ],
+  },
+  {
+    id: "drawer",
+    name: "@swim/drawer",
     targets: [
       {
         id: "main",
@@ -38,7 +48,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "motif", "app"],
+        deps: ["theme", "motif"],
       },
     ],
   },
@@ -48,7 +58,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "motif", "app"],
+        deps: ["theme", "motif"],
       },
     ],
   },
@@ -58,7 +68,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "motif", "app"],
+        deps: ["theme", "motif"],
       },
     ],
   },
@@ -70,7 +80,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "motif", "app", "fab", "menu", "tree"],
+        deps: ["theme", "motif", "popover", "drawer", "fab", "menu", "tree"],
       },
     ],
   },

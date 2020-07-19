@@ -22,9 +22,10 @@ The **Swim UX** framework consists of the following component libraries:
   semantic looks and feels for mood-aware UX components.
 - [**@swim/motif**](@swim/motif) –
   procedurally styled and rendered decorative views.
-- [**@swim/app**](@swim/app) –
-  application model for coordinating window-level components, such as popovers
-  and drawers.
+- [**@swim/popover**](@swim/popover) –
+  auto-placed, source-tracking popover views.
+- [**@swim/drawer**](@swim/drawer) –
+  responsive, minifiable drawer views.
 - [**@swim/fab**](@swim/fab) –
   flingable floating action buttons.
 - [**@swim/menu**](@swim/menu) –
@@ -159,11 +160,11 @@ swim-ux-js $ bin/build.js compile
 
 To compile a subset of projects and targets, include a `--projects` (`-p`)
 option, with a comma-separated list of `$project:($target)?` specifiers.
-For example, to build the `main` target of the `app` project, and all
+For example, to build the `main` target of the `popover` project, and all
 targets of the `ux` project, run:
 
 ```sh
-swim-ux-js $ bin/build.js compile -p app:main,ux
+swim-ux-js $ bin/build.js compile -p popover:main,ux
 ```
 
 ### Running tests

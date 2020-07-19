@@ -16,7 +16,9 @@ export * from "@swim/theme";
 
 export * from "@swim/motif";
 
-export * from "@swim/app";
+export * from "@swim/popover";
+
+export * from "@swim/drawer";
 
 export * from "@swim/fab";
 

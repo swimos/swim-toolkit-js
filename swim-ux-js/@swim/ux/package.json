@@ -34,7 +34,8 @@
     "@swim/gesture": "3.11.0-dev.20200619",
     "@swim/theme": "3.11.0-dev.20200619",
     "@swim/motif": "3.11.0-dev.20200619",
-    "@swim/app": "3.11.0-dev.20200619",
+    "@swim/popover": "3.11.0-dev.20200619",
+    "@swim/drawer": "3.11.0-dev.20200619",
     "@swim/fab": "3.11.0-dev.20200619",
     "@swim/menu": "3.11.0-dev.20200619",
     "@swim/tree": "3.11.0-dev.20200619"

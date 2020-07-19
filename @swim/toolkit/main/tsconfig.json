@@ -33,7 +33,8 @@
 
       "@swim/theme": ["swim-ux-js/@swim/theme/main"],
       "@swim/motif": ["swim-ux-js/@swim/motif/main"],
-      "@swim/app": ["swim-ux-js/@swim/app/main"],
+      "@swim/popover": ["swim-ux-js/@swim/popover/main"],
+      "@swim/drawer": ["swim-ux-js/@swim/drawer/main"],
       "@swim/fab": ["swim-ux-js/@swim/fab/main"],
       "@swim/menu": ["swim-ux-js/@swim/menu/main"],
       "@swim/tree": ["swim-ux-js/@swim/tree/main"],
@@ -88,7 +89,8 @@
 
     {"path": "../../../swim-ux-js/@swim/theme/main"},
     {"path": "../../../swim-ux-js/@swim/motif/main"},
-    {"path": "../../../swim-ux-js/@swim/app/main"},
+    {"path": "../../../swim-ux-js/@swim/popover/main"},
+    {"path": "../../../swim-ux-js/@swim/drawer/main"},
     {"path": "../../../swim-ux-js/@swim/fab/main"},
     {"path": "../../../swim-ux-js/@swim/menu/main"},
     {"path": "../../../swim-ux-js/@swim/tree/main"},
