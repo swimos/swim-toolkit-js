@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Objects} from "@swim/util";
 import {Length} from "@swim/length";
 import {Color} from "@swim/color";
 import {LineHeight, FontFamily} from "@swim/font";
@@ -99,8 +98,6 @@ export interface StyleAnimator<V extends ElementView, T, U = T> extends TweenAni
   _propertyNames: string | ReadonlyArray<string>;
   /** @hidden */
   _priority: string | undefined;
-  /** @hidden */
-  _auto: boolean;
 
   readonly view: V;
 
@@ -131,14 +128,6 @@ export interface StyleAnimator<V extends ElementView, T, U = T> extends TweenAni
   setAutoState(state: T | U | undefined, tween?: Tween<T>, priority?: string): void;
 
   animate(animator?: Animator): void;
-
-  update(newValue: T | undefined, oldValue: T | undefined): void;
-
-  willUpdate(newValue: T | undefined, oldValue: T | undefined): void;
-
-  onUpdate(newValue: T | undefined, oldValue: T | undefined): void;
-
-  didUpdate(newValue: T | undefined, oldValue: T | undefined): void;
 
   cancel(): void;
 
@@ -191,7 +180,6 @@ export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof Tween
     });
     this._view = view;
     this._propertyNames = propertyNames;
-    this._auto = true;
     const _this = _super.call(this, void 0, null) || this;
     return _this;
   }
@@ -278,14 +266,17 @@ export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof Tween
   });
 
   StyleAnimator.prototype.isAuto = function (this: StyleAnimator<ElementView, unknown, unknown>): boolean {
-    return this._auto;
+    return (this._animatorFlags & TweenAnimator.OverrideFlag) === 0;
   };
 
   StyleAnimator.prototype.setAuto = function (this: StyleAnimator<ElementView, unknown, unknown>,
                                               auto: boolean): void {
-    if (this._auto !== auto) {
-      this._auto = auto;
-      this._view.animatorDidSetAuto(this, auto);
+    if (auto && (this._animatorFlags & TweenAnimator.OverrideFlag) !== 0) {
+      this._animatorFlags &= ~TweenAnimator.OverrideFlag;
+      this._view.animatorDidSetAuto(this, true);
+    } else if (!auto && (this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
+      this._animatorFlags |= TweenAnimator.OverrideFlag;
+      this._view.animatorDidSetAuto(this, false);
     }
   };
 
@@ -336,14 +327,14 @@ export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof Tween
         this._priority = void 0;
       }
     }
-    this._auto = false;
+    this._animatorFlags |= TweenAnimator.OverrideFlag;
     _super.prototype.setState.call(this, state, tween);
   };
 
   StyleAnimator.prototype.setAutoState = function <T, U>(this: StyleAnimator<ElementView, T, U>,
                                                          state: T | U | undefined, tween?: Tween<T>,
                                                          priority?: string): void {
-    if (this._auto === true) {
+    if ((this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
       if (state !== void 0) {
         state = this.fromAny(state);
       }
@@ -360,25 +351,9 @@ export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof Tween
 
   StyleAnimator.prototype.animate = function <T, U>(this: StyleAnimator<ElementView, T, U>,
                                                     animator: Animator = this): void {
-    if (this._enabled || animator !== this) {
+    if (animator !== this || (this._animatorFlags & TweenAnimator.DisabledFlag) === 0) {
       this._view.animate(animator);
     }
-  };
-
-  StyleAnimator.prototype.update = function <T, U>(this: StyleAnimator<ElementView, T, U>,
-                                                   newValue: T | undefined,
-                                                   oldValue: T | undefined): void {
-    if (!Objects.equal(oldValue, newValue)) {
-      this.willUpdate(newValue, oldValue);
-      this.onUpdate(newValue, oldValue);
-      this.didUpdate(newValue, oldValue);
-    }
-  };
-
-  StyleAnimator.prototype.willUpdate = function <T, U>(this: StyleAnimator<ElementView, T, U>,
-                                                       newValue: T | undefined,
-                                                       oldValue: T | undefined): void {
-    // hook
   };
 
   StyleAnimator.prototype.onUpdate = function <T, U>(this: StyleAnimator<ElementView, T, U>,
@@ -392,12 +367,6 @@ export const StyleAnimator: StyleAnimatorClass = (function (_super: typeof Tween
         this._view.setStyle(propertyNames[i], newValue, this._priority);
       }
     }
-  };
-
-  StyleAnimator.prototype.didUpdate = function <T, U>(this: StyleAnimator<ElementView, T, U>,
-                                                      newValue: T | undefined,
-                                                      oldValue: T | undefined): void {
-    // hook
   };
 
   StyleAnimator.prototype.cancel = function <T, U>(this: StyleAnimator<ElementView, T, U>): void {

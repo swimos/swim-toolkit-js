@@ -132,8 +132,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     this._xDataRange = void 0;
     this._yDataRange = void 0;
     this._fitAspectRatio = void 0;
-    this.xScale.onUpdate = this.onUpdateXScale.bind(this);
-    this.yScale.onUpdate = this.onUpdateYScale.bind(this);
     this.onBeginFittingXScale = this.onBeginFittingXScale.bind(this);
     this.onEndFittingXScale = this.onEndFittingXScale.bind(this);
     this.onInterruptFittingXScale = this.onInterruptFittingXScale.bind(this);
@@ -520,7 +518,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
         xDataDomain = [xDataDomainMin, xDataDomainMax];
         this._xDataDomain = xDataDomain;
       }
-      console.log("compute xDataDomain:", xDataDomain);
     }
     return xDataDomain;
   }
@@ -551,7 +548,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
         yDataDomain = [yDataDomainMin, yDataDomainMax];
         this._yDataDomain = yDataDomain;
       }
-      console.log("compute yDataDomain:", yDataDomain);
     }
     return yDataDomain;
   }
@@ -919,7 +915,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
    * from child view data domains if inherited x/y scales are undefined.
    */
   protected resizeScales(frame: BoxR2): void {
-    console.log("ScaleView.resizeScales");
     const xRange = this.xRange();
     if (xRange !== void 0) {
       const xScale = this.xScale.ownValue;
@@ -957,21 +952,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     }
   }
 
-  protected onAnimate(viewContext: GraphicsViewContext): void {
-    super.onAnimate(viewContext);
-    console.log("ScaleView.onAnimate");
-  }
-
-  protected onLayout(viewContext: GraphicsViewContext): void {
-    super.onLayout(viewContext);
-    console.log("ScaleView.onLayout");
-  }
-
-  protected onRender(viewContext: GraphicsViewContext): void {
-    super.onRender(viewContext);
-    console.log("ScaleView.onRender");
-  }
-
   protected didAnimate(viewContext: GraphicsViewContext): void {
     this.updateScales();
     super.didAnimate(viewContext);
@@ -985,7 +965,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
   }
 
   protected updateScales(): void {
-    console.log("ScaleView.updateScales");
     let xScale = this.xScale.value;
     let yScale = this.yScale.value;
     this.updateDataBounds(xScale, yScale);
@@ -1002,7 +981,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
    */
   protected updateDataBounds(xScale: ContinuousScale<X, number> | undefined,
                              yScale: ContinuousScale<Y, number> | undefined): void {
-    console.log("ScaleView.updateDataBounds");
     let xDataDomainMin: X | undefined;
     let xDataDomainMax: X | undefined;
     let yDataDomainMin: Y | undefined;
@@ -1161,10 +1139,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
           this._scaleFlags |= ScaleView.YMaxChangingFlag;
         }
       }
-      console.log("ScaleView.updateDataBounds xDataDomain:", this._xDataDomain);
-      console.log("ScaleView.updateDataBounds yDataDomain:", this._yDataDomain);
-      console.log("ScaleView.updateDataBounds xDataRange:", this._xDataRange);
-      console.log("ScaleView.updateDataBounds yDataRange:", this._yDataRange);
     } else {
       this._xDataDomain = void 0;
       this._yDataDomain = void 0;
@@ -1177,7 +1151,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
 
   protected updateOwnScales(xScale: ContinuousScale<X, number>,
                             yScale: ContinuousScale<Y, number>): void {
-    console.log("ScaleView.updateOwnScales");
     if ((this._scaleFlags & ScaleView.FitMask) !== 0) {
       this.fitScales(xScale, yScale);
     }
@@ -1191,7 +1164,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
    * Fits scales to domains, and corrects aspect ratio.
    */
   protected fitScales(oldXScale: ContinuousScale<X, number>, oldYScale: ContinuousScale<Y, number>): void {
-    console.log("ScaleView.fitScales");
     const xDataDomain = this._xDataDomain;
     let oldXDomain: readonly [X, X] | undefined;
     let newXDomain: readonly [X, X] | undefined;
@@ -1273,7 +1245,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     }
 
     if (newXDomain !== void 0) {
-      console.log("ScaleView.fitScales xDomain");
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & ScaleView.XFitTweenFlag) !== 0 &&
           (transition = this.rescaleTransition.state, transition !== void 0)) {
@@ -1293,7 +1264,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     }
 
     if (newYDomain !== void 0) {
-      console.log("ScaleView.fitScales yDomain");
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & ScaleView.YFitTweenFlag) !== 0 &&
           (transition = this.rescaleTransition.state, transition !== void 0)) {
@@ -1589,7 +1559,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     if (newXDomain !== void 0 && !isPressing && (this._scaleFlags & ScaleView.XTweeningMask) === 0 &&
         (Math.abs(+newXDomain[0] - +oldXDomain[0]) >= 1e-12 ||
          Math.abs(+newXDomain[1] - +oldXDomain[1]) >= 1e-12)) {
-      console.log("ScaleView.boundScales xDomain");
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & (ScaleView.XBoundingFlag | ScaleView.RescaleFlag)) === 0) {
         transition = (this._scaleFlags & ScaleView.InteractingMask) !== 0
@@ -1613,7 +1582,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     if (newYDomain !== void 0 && !isPressing && (this._scaleFlags & ScaleView.YTweeningMask) === 0 &&
         (Math.abs(+newYDomain[0] - +oldYDomain[0]) >= 1e-12 ||
          Math.abs(+newYDomain[1] - +oldYDomain[1]) >= 1e-12)) {
-      console.log("ScaleView.boundScales yDomain");
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & (ScaleView.YBoundingFlag | ScaleView.RescaleFlag)) === 0) {
         transition = (this._scaleFlags & ScaleView.InteractingMask) !== 0
@@ -1716,14 +1684,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
       input.vy = 0;
       input.ay = 0;
     }
-  }
-
-  protected onUpdateXScale(xScale: ContinuousScale<X, number> | undefined): void {
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
-  protected onUpdateYScale(yScale: ContinuousScale<X, number> | undefined): void {
-    this.requireUpdate(View.NeedsAnimate);
   }
 
   /** @hidden */

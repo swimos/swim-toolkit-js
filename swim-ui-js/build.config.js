@@ -110,16 +110,6 @@ const ui = [
     ],
   },
   {
-    id: "animate",
-    name: "@swim/animate",
-    targets: [
-      {
-        id: "main",
-        deps: ["angle", "length", "color", "transform", "transition"],
-      },
-    ],
-  },
-  {
     id: "style",
     name: "@swim/style",
     targets: [
@@ -130,6 +120,16 @@ const ui = [
       {
         id: "test",
         deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style"],
+      },
+    ],
+  },
+  {
+    id: "animate",
+    name: "@swim/animate",
+    targets: [
+      {
+        id: "main",
+        deps: ["angle", "length", "color", "transform", "transition"],
       },
     ],
   },
@@ -162,7 +162,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint"],
+        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint"],
       },
     ],
   },
@@ -172,7 +172,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view"],
       },
     ],
   },
@@ -182,7 +182,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view"],
       },
     ],
   },
@@ -192,7 +192,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view"],
       },
     ],
   },
@@ -204,7 +204,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "shape", "typeset", "gesture"],
+        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "shape", "typeset", "gesture"],
       },
     ],
   },

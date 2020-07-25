@@ -27,13 +27,9 @@ export class TweenChildAnimator<T> extends TweenAnimator<T> {
 
   animate(animator: Animator = this): void {
     const parent = this.parent;
-    if (parent !== null && this._enabled) {
+    if (parent !== null && (this._animatorFlags & TweenAnimator.DisabledFlag) === 0) {
       parent.animate(animator);
     }
-  }
-
-  update(newValue: T | undefined, oldValue: T | undefined): void {
-    // hook
   }
 
   cancel(): void {

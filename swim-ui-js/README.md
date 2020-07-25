@@ -42,11 +42,11 @@ The **Swim UI** framework consists of the following component libraries:
 - [**@swim/transition**](@swim/transition) –
   transition types that specify duration, ease, interpolator, and lifecycle
   callback parameters for tween animations.
+- [**@swim/style**](@swim/style) –
+  CSS style types and universal style value parser.
 - [**@swim/animate**](@swim/animate) –
   property-managing animator types that efficiently tween values between
   discrete state changes.
-- [**@swim/style**](@swim/style) –
-  CSS style types and universal style value parser.
 - [**@swim/render**](@swim/render) –
   renderable graphic types for SVG/Canvas-compatible path drawing contexts,
   and Canvas-compatible rendering contexts.

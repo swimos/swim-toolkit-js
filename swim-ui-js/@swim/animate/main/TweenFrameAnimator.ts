@@ -25,7 +25,7 @@ export abstract class TweenFrameAnimator<T> extends TweenAnimator<T> {
   }
 
   animate(): void {
-    if (this._animationFrame === 0 && this._enabled) {
+    if (this._animationFrame === 0 && (this._animatorFlags & TweenAnimator.DisabledFlag) === 0) {
       if (!this.hasOwnProperty("onAnimationFrame")) {
         this.onAnimationFrame = this.onAnimationFrame.bind(this);
       }

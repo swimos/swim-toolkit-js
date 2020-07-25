@@ -55,7 +55,7 @@ export class TreeView extends ThemedHtmlView {
     this.addClass("tree");
     this.position.setAutoState("relative");
     this.opacity.setAutoState(1);
-    this.depth.onSet = this.onSetDepth.bind(this);
+    this.depth.onUpdate = this.onUpdateDepth.bind(this);
   }
 
   get viewController(): TreeViewController | null {
@@ -204,7 +204,7 @@ export class TreeView extends ThemedHtmlView {
     // hook
   }
 
-  protected onSetDepth(depth: number | undefined): void {
+  protected onUpdateDepth(depth: number | undefined): void {
     this.modifyTheme(Feel.default, [Feel.nested, depth !== void 0 && depth !== 0 ? 1 : void 0]);
   }
 
@@ -253,13 +253,6 @@ export class TreeView extends ThemedHtmlView {
     }
     additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
     return additionalFlags;
-  }
-
-  needsProcess(processFlags: ViewFlags, viewContext: ViewContext): ViewFlags {
-    if ((processFlags & View.NeedsLayout) !== 0) {
-      processFlags |= View.NeedsAnimate;
-    }
-    return processFlags;
   }
 
   protected onResize(viewContext: ViewContext): void {

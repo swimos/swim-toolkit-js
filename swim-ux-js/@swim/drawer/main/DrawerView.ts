@@ -58,8 +58,6 @@ export class DrawerView extends ThemedHtmlView implements Modal {
 
   constructor(node: HTMLElement) {
     super(node);
-    this.drawerSlide.update = this.updateDrawerSlide.bind(this);
-    this.drawerStretch.update = this.updateDrawerStretch.bind(this);
     this._drawerPlacement = "left";
     this._drawerState = "hidden";
 
@@ -219,6 +217,16 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     super.onApplyTheme(theme, mood, transition);
     if (this.backgroundColor.isAuto()) {
       this.backgroundColor.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
+    }
+  }
+
+  protected onAnimate(viewContext: ViewContext): void {
+    super.onAnimate(viewContext);
+    if (this.drawerSlide.isUpdated()) {
+      this.updateDrawerSlide(this.drawerSlide.getValue());
+    }
+    if (this.drawerStretch.isUpdated()) {
+      this.updateDrawerStretch(this.drawerStretch.getValue());
     }
   }
 
@@ -431,6 +439,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
       if (tween !== null) {
         this.drawerSlide.setAutoState(0, tween.onBegin(this.willHide.bind(this)).onEnd(this.didHide.bind(this)));
       } else {
+        this.willHide();
         this.drawerSlide.setAutoState(0);
         this.didHide();
       }
@@ -467,6 +476,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         this.drawerSlide.setAutoState(1, tween);
         this.drawerStretch.setAutoState(1, tween.onBegin(this.willExpand.bind(this)).onEnd(this.didExpand.bind(this)));
       } else {
+        this.willExpand();
         this.drawerSlide.setAutoState(1)
         this.drawerStretch.setAutoState(1);
         this.didExpand();
@@ -503,6 +513,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         this.drawerSlide.setAutoState(1, tween);
         this.drawerStretch.setAutoState(0, tween.onBegin(this.willCollapse.bind(this)).onEnd(this.didCollapse.bind(this)));
       } else {
+        this.willCollapse();
         this.drawerSlide.setAutoState(1);
         this.drawerStretch.setAutoState(0);
         this.didCollapse();

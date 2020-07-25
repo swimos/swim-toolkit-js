@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Objects} from "@swim/util";
 import {Length} from "@swim/length";
 import {Color} from "@swim/color";
 import {Transform} from "@swim/transform";
@@ -86,8 +85,6 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
   _view: V;
   /** @hidden */
   _attributeName: string;
-  /** @hidden */
-  _auto: boolean;
 
   readonly view: V;
 
@@ -116,14 +113,6 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
   setAutoState(state: T | U | undefined, tween?: Tween<T>): void;
 
   animate(animator?: Animator): void;
-
-  update(newValue: T | undefined, oldValue: T | undefined): void;
-
-  willUpdate(newValue: T | undefined, oldValue: T | undefined): void;
-
-  onUpdate(newValue: T | undefined, oldValue: T | undefined): void;
-
-  didUpdate(newValue: T | undefined, oldValue: T | undefined): void;
 
   cancel(): void;
 
@@ -171,7 +160,6 @@ export const AttributeAnimator: AttributeAnimatorClass = (function (_super: type
     });
     this._view = view;
     this._attributeName = attributeName;
-    this._auto = true;
     const _this = _super.call(this, void 0, null) || this;
     return _this;
   }
@@ -247,14 +235,17 @@ export const AttributeAnimator: AttributeAnimatorClass = (function (_super: type
   });
 
   AttributeAnimator.prototype.isAuto = function (this: AttributeAnimator<ElementView, unknown, unknown>): boolean {
-    return this._auto;
+    return (this._animatorFlags & TweenAnimator.OverrideFlag) === 0;
   };
 
   AttributeAnimator.prototype.setAuto = function (this: AttributeAnimator<ElementView, unknown, unknown>,
                                                   auto: boolean): void {
-    if (this._auto !== auto) {
-      this._auto = auto;
-      this._view.animatorDidSetAuto(this, auto);
+    if (auto && (this._animatorFlags & TweenAnimator.OverrideFlag) !== 0) {
+      this._animatorFlags &= ~TweenAnimator.OverrideFlag;
+      this._view.animatorDidSetAuto(this, true);
+    } else if (!auto && (this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
+      this._animatorFlags |= TweenAnimator.OverrideFlag;
+      this._view.animatorDidSetAuto(this, false);
     }
   };
 
@@ -297,13 +288,13 @@ export const AttributeAnimator: AttributeAnimatorClass = (function (_super: type
     if (state !== void 0) {
       state = this.fromAny(state);
     }
-    this._auto = false;
+    this._animatorFlags |= TweenAnimator.OverrideFlag;
     _super.prototype.setState.call(this, state, tween);
   };
 
   AttributeAnimator.prototype.setAutoState = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
                                                              state: T | U | undefined, tween?: Tween<T>): void {
-    if (this._auto === true) {
+    if ((this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
       if (state !== void 0) {
         state = this.fromAny(state);
       }
@@ -313,37 +304,15 @@ export const AttributeAnimator: AttributeAnimatorClass = (function (_super: type
 
   AttributeAnimator.prototype.animate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
                                                         animator: Animator = this): void {
-    if (this._enabled || animator !== this) {
+    if (animator !== this || (this._animatorFlags & TweenAnimator.DisabledFlag) === 0) {
       this._view.animate(animator);
     }
-  };
-
-  AttributeAnimator.prototype.update = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
-                                                       newValue: T | undefined,
-                                                       oldValue: T | undefined): void {
-    if (!Objects.equal(oldValue, newValue)) {
-      this.willUpdate(newValue, oldValue);
-      this.onUpdate(newValue, oldValue);
-      this.didUpdate(newValue, oldValue);
-    }
-  };
-
-  AttributeAnimator.prototype.willUpdate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
-                                                           newValue: T | undefined,
-                                                           oldValue: T | undefined): void {
-    // hook
   };
 
   AttributeAnimator.prototype.onUpdate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
                                                          newValue: T | undefined,
                                                          oldValue: T | undefined): void {
     this._view.setAttribute(this._attributeName, newValue);
-  };
-
-  AttributeAnimator.prototype.didUpdate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
-                                                          newValue: T | undefined,
-                                                          oldValue: T | undefined): void {
-    // hook
   };
 
   AttributeAnimator.prototype.cancel = function <T, U>(this: AttributeAnimator<ElementView, T, U>): void {

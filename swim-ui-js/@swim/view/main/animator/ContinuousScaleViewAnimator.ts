@@ -16,8 +16,8 @@ import {__extends} from "tslib";
 import {Interpolator} from "@swim/interpolate";
 import {Scale, ContinuousScale} from "@swim/scale";
 import {Transition, Tween} from "@swim/transition";
-import {TweenState} from "@swim/animate";
 import {StyleValue} from "@swim/style";
+import {TweenAnimator} from "@swim/animate";
 import {View} from "../View";
 import {ViewAnimatorDescriptor, ViewAnimator} from "./ViewAnimator";
 
@@ -91,16 +91,16 @@ export const ContinuousScaleViewAnimator: ContinuousScaleViewAnimatorClass = (fu
       if (yMin !== void 0 && yMax !== void 0) {
         newState = newState.range(yMin as Y, yMax);
       }
-      if ((tween === void 0 || tween === null || tween === false) && this._tweenState === TweenState.Tracking) {
+      if ((tween === void 0 || tween === null || tween === false) && (this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         const oldValue = this.getValue();
         const newValue = oldValue.domain(xMin as X, xMax as X);
-        const duration = this._duration - this._beginTime;
+        const duration = this._duration - this._divergeTime;
         tween = Transition.duration(duration, void 0, Interpolator.between(newValue, newState));
       }
     } else {
       newState = Scale.from(xMin as X, xMax as X, Interpolator.between(yMin as Y, yMax as Y));
     }
-    this._auto = false;
+    this._animatorFlags |= TweenAnimator.OverrideFlag;
     _super.prototype.setState.call(this, newState, tween);
   };
 
@@ -120,16 +120,16 @@ export const ContinuousScaleViewAnimator: ContinuousScaleViewAnimatorClass = (fu
     let newState: ContinuousScale<X, Y>;
     if (oldState !== void 0) {
       newState = oldState.domain(xMin as X, xMax as X);
-      if ((tween === void 0 || tween === null || tween === false) && this._tweenState === TweenState.Tracking) {
+      if ((tween === void 0 || tween === null || tween === false) && (this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         const oldValue = this.getValue();
         const newValue = oldValue.domain(xMin as X, xMax as X);
-        const duration = this._duration - this._beginTime;
+        const duration = this._duration - this._divergeTime;
         tween = Transition.duration(duration, void 0, Interpolator.between(newValue, newState));
       }
     } else {
       newState = Scale.from(xMin as X, xMax as X, Interpolator.between(void 0 as unknown as Y, void 0 as unknown as Y));
     }
-    this._auto = false;
+    this._animatorFlags |= TweenAnimator.OverrideFlag;
     _super.prototype.setState.call(this, newState, tween);
   };
 
@@ -145,13 +145,13 @@ export const ContinuousScaleViewAnimator: ContinuousScaleViewAnimatorClass = (fu
         yMin = (yMin as readonly [Y, Y])[0];
       }
       const newState = oldState.range(yMin as Y, yMax as Y);
-      if ((tween === void 0 || tween === null || tween === false) && this._tweenState === TweenState.Tracking) {
+      if ((tween === void 0 || tween === null || tween === false) && (this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         const oldValue = this.getValue();
         const newValue = oldValue.range(yMin as Y, yMax as Y);
-        const duration = this._duration - this._beginTime;
+        const duration = this._duration - this._divergeTime;
         tween = Transition.duration(duration, void 0, Interpolator.between(newValue, newState));
       }
-      this._auto = false;
+      this._animatorFlags |= TweenAnimator.OverrideFlag;
       _super.prototype.setState.call(this, newState, tween);
     }
   };

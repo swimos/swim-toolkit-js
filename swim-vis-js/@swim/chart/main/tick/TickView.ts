@@ -16,7 +16,7 @@ import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/font";
 import {Transition} from "@swim/transition";
-import {TweenState} from "@swim/animate";
+import {TweenAnimator} from "@swim/animate";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
   ViewFlags,
@@ -277,7 +277,7 @@ export abstract class TickView<D> extends GraphicsNodeView {
     const v = Math.min(Math.abs(offset - view._offset0) / tickSpacing, 1);
     const opacity = this._interpolator!.interpolate(Math.max(u, v));
     if (u === 1 || v === 1) {
-      this._tweenState = TweenState.Converged;
+      this._animatorFlags &= ~TweenAnimator.TweeningFlag;
     }
     if (opacity === 0 && view._state === TickState.Leaving) {
       view._state = TickState.Excluded;

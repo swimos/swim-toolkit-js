@@ -410,17 +410,6 @@ const ui = [
     ],
   },
   {
-    id: "animate",
-    name: "@swim/animate",
-    path: "swim-ui-js/@swim/animate",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "transform", "transition"],
-      },
-    ],
-  },
-  {
     id: "style",
     name: "@swim/style",
     path: "swim-ui-js/@swim/style",
@@ -432,6 +421,17 @@ const ui = [
       {
         id: "test",
         deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style"],
+      },
+    ],
+  },
+  {
+    id: "animate",
+    name: "@swim/animate",
+    path: "swim-ui-js/@swim/animate",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "transform", "transition"],
       },
     ],
   },
@@ -468,7 +468,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint"],
       },
     ],
   },
@@ -479,7 +479,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view"],
       },
     ],
   },
@@ -490,7 +490,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view"],
       },
     ],
   },
@@ -501,7 +501,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view"],
       },
     ],
   },
@@ -514,7 +514,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "shape", "typeset", "gesture"],
+        deps: ["angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "shape", "typeset", "gesture"],
       },
     ],
   },
@@ -528,11 +528,11 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view"],
       },
       {
         id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "theme"],
+        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "theme"],
       },
     ],
   },
@@ -543,7 +543,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme"],
       },
     ],
   },
@@ -554,7 +554,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme", "motif"],
       },
     ],
   },
@@ -565,7 +565,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme", "motif"],
       },
     ],
   },
@@ -576,7 +576,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme", "motif"],
       },
     ],
   },
@@ -587,7 +587,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme", "motif"],
       },
     ],
   },
@@ -598,7 +598,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "gesture", "theme", "motif"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme", "motif"],
       },
     ],
   },
@@ -625,7 +625,7 @@ const vis = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "shape", "typeset"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "shape", "typeset"],
       },
     ],
   },
@@ -636,7 +636,7 @@ const vis = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "shape", "typeset"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "shape", "typeset"],
       },
     ],
   },
@@ -647,7 +647,7 @@ const vis = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "collections", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "shape", "typeset", "gesture"],
+        deps: ["util", "codec", "collections", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "shape", "typeset", "gesture"],
       },
     ],
   },
@@ -674,7 +674,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "shape", "typeset"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "shape", "typeset"],
       },
     ],
   },
@@ -685,7 +685,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "shape", "typeset", "map"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "shape", "typeset", "map"],
       },
     ],
   },
@@ -696,7 +696,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "shape", "typeset", "map"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "shape", "typeset", "map"],
       },
     ],
   },
@@ -707,7 +707,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "shape", "typeset", "map"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "shape", "typeset", "map"],
       },
     ],
   },
@@ -734,7 +734,7 @@ const web = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view"],
       },
     ],
   },
@@ -745,7 +745,7 @@ const web = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view"],
       },
     ],
   },
@@ -773,7 +773,7 @@ const toolkit = [
     targets: [
       {
         id: "main",
-        deps: ["core", "mesh", "ui", "vis", "maps", "ux", "web"],
+        deps: ["core", "mesh", "ui", "ux", "vis", "maps", "web"],
       },
     ],
   },

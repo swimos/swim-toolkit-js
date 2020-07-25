@@ -21,7 +21,6 @@ export abstract class BracketView extends ThemedHtmlView {
   constructor(node: HTMLElement) {
     super(node);
     this.initBracket();
-    this.bracketColor.onUpdate = this.onUpdateIconColor.bind(this);
   }
 
   protected initNode(node: ViewNodeType<this>): void {
@@ -81,7 +80,10 @@ export abstract class BracketView extends ThemedHtmlView {
 
   protected abstract resizeBracket(): void;
 
-  protected onUpdateIconColor(bracketColor: Color | undefined): void {
-    this.path.fill.setAutoState(bracketColor);
+  protected onAnimate(viewContext: ViewContext): void {
+    super.onAnimate(viewContext);
+    if (this.bracketColor.isUpdated()) {
+      this.path.fill.setAutoState(this.bracketColor.value);
+    }
   }
 }

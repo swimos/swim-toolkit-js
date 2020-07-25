@@ -11,8 +11,7 @@ building pervasively real-time user interface applications.  **Swim Toolkit**
 incorporates the [**Swim UI**](swim-ui-js) real-time user interface toolkit,
 the [**Swim UX**](swim-ux-js) real-time application framework, the [**Swim
 Visualizations**](swim-vis-js) framework, the [**Swim Maps**](swim-maps-js)
-framework, and the [**Swim Web**](swim-web-js) real-time web application
-framework.
+framework, and the [**Swim Web**](swim-web-js) real-time web application framework.
 
 ## Umbrella Framework
 
@@ -57,11 +56,11 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
 - [**@swim/transition**](swim-ui-js/@swim/transition) –
   transition types that specify duration, ease, interpolator, and lifecycle
   callback parameters for tween animations.
+- [**@swim/style**](swim-ui-js/@swim/style) –
+  CSS style types and universal style value parser.
 - [**@swim/animate**](swim-ui-js/@swim/animate) –
   property-managing animator types that efficiently tween values between
   discrete state changes.
-- [**@swim/style**](swim-ui-js/@swim/style) –
-  CSS style types and universal style value parser.
 - [**@swim/render**](swim-ui-js/@swim/render) –
   renderable graphic types for SVG/Canvas-compatible path drawing contexts,
   and Canvas-compatible rendering contexts.

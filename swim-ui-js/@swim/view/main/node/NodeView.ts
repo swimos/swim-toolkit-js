@@ -738,6 +738,12 @@ export class NodeView extends View {
     }
   }
 
+  protected onMount(): void {
+    super.onMount();
+    this.mountScopes();
+    this.mountAnimators();
+  }
+
   protected didMount(): void {
     this.activateLayout();
     super.didMount();
@@ -784,7 +790,8 @@ export class NodeView extends View {
   }
 
   protected onUnmount(): void {
-    this.cancelAnimators();
+    this.unmountAnimators();
+    this.unmountScopes();
     this._viewFlags &= ~View.ViewFlagMask | View.RemovingFlag;
   }
 
@@ -1072,16 +1079,45 @@ export class NodeView extends View {
     return null;
   }
 
-  setViewScope(scopeName: string, viewScope: ViewScope<this, unknown> | null): void {
+  setViewScope(scopeName: string, newViewScope: ViewScope<this, unknown> | null): void {
     let viewScopes = this._viewScopes;
     if (viewScopes === void 0) {
       viewScopes = {};
       this._viewScopes = viewScopes;
     }
-    if (viewScope !== null) {
-      viewScopes[scopeName] = viewScope;
+    const oldViewScope = viewScopes[scopeName];
+    if (oldViewScope !== void 0 && this.isMounted()) {
+      oldViewScope.unmount();
+    }
+    if (newViewScope !== null) {
+      viewScopes[scopeName] = newViewScope;
+      if (this.isMounted()) {
+        newViewScope.mount();
+      }
     } else {
       delete viewScopes[scopeName];
+    }
+  }
+
+  /** @hidden */
+  mountScopes(): void {
+    const viewScopes = this._viewScopes;
+    if (viewScopes !== void 0) {
+      for (const scopeName in viewScopes) {
+        const viewScope = viewScopes[scopeName]!;
+        viewScope.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  unmountScopes(): void {
+    const viewScopes = this._viewScopes;
+    if (viewScopes !== void 0) {
+      for (const scopeName in viewScopes) {
+        const viewScope = viewScopes[scopeName]!;
+        viewScope.unmount();
+      }
     }
   }
 
@@ -1101,14 +1137,21 @@ export class NodeView extends View {
     return null;
   }
 
-  setViewAnimator(animatorName: string, viewAnimator: ViewAnimator<this, unknown> | null): void {
+  setViewAnimator(animatorName: string, newViewAnimator: ViewAnimator<this, unknown> | null): void {
     let viewAnimators = this._viewAnimators;
     if (viewAnimators === void 0) {
       viewAnimators = {};
       this._viewAnimators = viewAnimators;
     }
-    if (viewAnimator !== null) {
-      viewAnimators[animatorName] = viewAnimator;
+    const oldViewAnimator = viewAnimators[animatorName];
+    if (oldViewAnimator !== void 0 && this.isMounted()) {
+      oldViewAnimator.unmount();
+    }
+    if (newViewAnimator !== null) {
+      viewAnimators[animatorName] = newViewAnimator;
+      if (this.isMounted()) {
+        newViewAnimator.mount();
+      }
     } else {
       delete viewAnimators[animatorName];
     }
@@ -1131,17 +1174,23 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  cancelAnimators(): void {
-    this.cancelViewAnimators();
-  }
-
-  /** @hidden */
-  cancelViewAnimators(): void {
+  mountAnimators(): void {
     const viewAnimators = this._viewAnimators;
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {
         const viewAnimator = viewAnimators[animatorName]!;
-        viewAnimator.cancel();
+        viewAnimator.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  unmountAnimators(): void {
+    const viewAnimators = this._viewAnimators;
+    if (viewAnimators !== void 0) {
+      for (const animatorName in viewAnimators) {
+        const viewAnimator = viewAnimators[animatorName]!;
+        viewAnimator.unmount();
       }
     }
   }

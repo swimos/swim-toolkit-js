@@ -63,7 +63,6 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     this._modalState = "shown";
     this._placement = ["top", "bottom", "right", "left"];
     this._placementFrame = null;
-    this.backgroundColor.didUpdate = this.didUpdateBackgroundColor.bind(this);
     this.initArrow();
   }
 
@@ -279,7 +278,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
         viewObserver.popoverWillHide(this);
       }
     });
-    this.pointerEvents("none");
+    this.pointerEvents.setAutoState("none");
     this._modalState = "hiding";
   }
 
@@ -346,6 +345,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     super.willUnmount();
     if (this._source !== null) {
       this._source.removeViewObserver(this);
+    }
+  }
+
+  protected onAnimate(viewContext: ViewContext): void {
+    super.onAnimate(viewContext);
+    if (this.backgroundColor.isUpdated()) {
+      this.place(true);
     }
   }
 
@@ -690,10 +696,6 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       // no arrow
       arrow.display.setAutoState("none");
     }
-  }
-
-  protected didUpdateBackgroundColor(backgroundColor: Color | undefined): void {
-    this.place(true);
   }
 
   viewDidMount(view: View): void {

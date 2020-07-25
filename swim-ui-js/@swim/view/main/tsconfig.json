@@ -18,8 +18,8 @@
       "@swim/transform": ["@swim/transform/main"],
       "@swim/scale": ["@swim/scale/main"],
       "@swim/transition": ["@swim/transition/main"],
-      "@swim/animate": ["@swim/animate/main"],
       "@swim/style": ["@swim/style/main"],
+      "@swim/animate": ["@swim/animate/main"],
       "@swim/render": ["@swim/render/main"],
       "@swim/constraint": ["@swim/constraint/main"]
     },

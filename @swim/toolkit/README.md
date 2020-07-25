@@ -11,9 +11,11 @@ building pervasively real-time user interface applications.
 **@swim/toolkit** incorporates the
 [**@swim/ui**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js)
 real-time user interface toolkit, the
+[**@swim/ux**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js)
+real-time application framework, the
 [**@swim/vis**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-vis-js)
 and [**@swim/maps**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-maps-js)
-real-time widget toolkits, and the
+real-time widget toolkits, the
 [**@swim/web**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-web-js)
 real-time web application framework.
 
@@ -81,15 +83,15 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
   [doc](https://docs.swimos.org/js/latest/modules/_swim_transition.html)) –
   transition types that specify duration, ease, interpolator, and lifecycle
   callback parameters for tween animations.
+- [**@swim/style**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/style)
+  ([npm](https://www.npmjs.com/package/@swim/style),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_style.html)) –
+  CSS style types and universal style value parser.
 - [**@swim/animate**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/animate)
   ([npm](https://www.npmjs.com/package/@swim/animate),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_animate.html)) –
   property-managing animator types that efficiently tween values between
   discrete state changes.
-- [**@swim/style**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/style)
-  ([npm](https://www.npmjs.com/package/@swim/style),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_style.html)) –
-  CSS style types and universal style value parser.
 - [**@swim/render**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/render)
   ([npm](https://www.npmjs.com/package/@swim/render),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_render.html)) –
@@ -211,7 +213,7 @@ the following component libraries:
   [doc](https://docs.swimos.org/js/latest/modules/_swim_esrimap.html)) –
   support for overlaying **@swim/map** views on ArcGIS maps.
 
-### [**Swim Web Framework**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-web-js)
+### [**Swim Web** Framework](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-web-js)
 
 The **Swim Web** framework implements a thin web application framework built
 on the **Swim UI** toolkit.  **Swim Web** consists of the following component

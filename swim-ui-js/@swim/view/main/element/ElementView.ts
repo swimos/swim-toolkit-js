@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
-import {Animator} from "@swim/animate";
 import {AttributeString, StyleString, StyledElement} from "@swim/style";
+import {Animator} from "@swim/animate";
 import {View} from "../View";
 import {NodeViewInit, NodeView} from "../node/NodeView";
 import {AttributeAnimatorConstructor, AttributeAnimator} from "../attribute/AttributeAnimator";
@@ -249,35 +249,6 @@ export class ElementView extends NodeView {
       for (const animatorName in styleAnimators) {
         const styleAnimator = styleAnimators[animatorName]!;
         styleAnimator.onFrame(t);
-      }
-    }
-  }
-
-  /** @hidden */
-  cancelAnimators(): void {
-    super.cancelAnimators();
-    this.cancelAttributeAnimators();
-    this.cancelStyleAnimators();
-  }
-
-  /** @hidden */
-  cancelAttributeAnimators(): void {
-    const attributeAnimators = this._attributeAnimators;
-    if (attributeAnimators !== void 0) {
-      for (const animatorName in attributeAnimators) {
-        const attributeAnimator = attributeAnimators[animatorName]!;
-        attributeAnimator.cancel();
-      }
-    }
-  }
-
-  /** @hidden */
-  cancelStyleAnimators(): void {
-    const styleAnimators = this._styleAnimators;
-    if (styleAnimators !== void 0) {
-      for (const animatorName in styleAnimators) {
-        const styleAnimator = styleAnimators[animatorName]!;
-        styleAnimator.cancel();
       }
     }
   }
