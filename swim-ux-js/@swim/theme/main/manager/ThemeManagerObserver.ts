@@ -13,19 +13,13 @@
 // limitations under the License.
 
 import {Transition} from "@swim/transition";
-import {UiViewController} from "@swim/view";
+import {View, ViewManagerObserver} from "@swim/view";
 import {MoodVector} from "../mood/MoodVector";
 import {ThemeMatrix} from "../theme/ThemeMatrix";
-import {ThemedViewController} from "./ThemedViewController";
-import {ThemedUiView} from "./ThemedUiView";
-import {ThemedUiViewObserver} from "./ThemedUiViewObserver";
+import {ThemeManager} from "./ThemeManager";
 
-export class ThemedUiViewController<V extends ThemedUiView = ThemedUiView> extends UiViewController<V> implements ThemedViewController<V>, ThemedUiViewObserver<V> {
-  viewWillApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, view: V): void {
-    // hook
-  }
+export interface ThemeManagerObserver<V extends View = View, M extends ThemeManager<V> = ThemeManager<V>> extends ViewManagerObserver<V, M> {
+  managerWillApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, manager: M): void;
 
-  viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, view: V): void {
-    // hook
-  }
+  managerDidApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, manager: M): void;
 }

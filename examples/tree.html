@@ -32,20 +32,22 @@ if (navigator.standalone) {
   document.body.style.height = "100%";
 }
 
-const uiView = new swim.ThemedUiView(document.body);
+const bodyView = new swim.ThemedHtmlView(document.body);
 
-uiView.onSetViewIdiom = function (viewIdiom) {
-  if (viewIdiom === "desktop") {
-    container.margin(60);
-  } else {
-    container.margin(0);
-  }
-};
-
-const container = uiView.append("div")
+const container = bodyView.append("div")
   .position("relative")
   .flexGrow(1)
-  .userSelect("none")
+  .userSelect("none");
+
+container.addViewObserver({
+  viewWillResize(viewContext, view) {
+    if (viewContext.viewIdiom === "desktop") {
+      view.margin(60);
+    } else {
+      view.margin(0);
+    }
+  },
+});
 
 const tree0 = container.append(swim.TreeView.fromAny({
   //depth: 1,

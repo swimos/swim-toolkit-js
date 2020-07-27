@@ -12,13 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {RootViewObserver} from "../root/RootViewObserver";
-import {HtmlViewObserver} from "../html/HtmlViewObserver";
-import {UiViewContext} from "./UiViewContext";
-import {UiView} from "./UiView";
-
-export interface UiViewObserver<V extends UiView = UiView> extends HtmlViewObserver<V>, RootViewObserver<V> {
-  viewWillResize?(viewContext: UiViewContext, view: V): void;
-
-  viewDidResize?(viewContext: UiViewContext, view: V): void;
-}
+export {ViewManager} from "./ViewManager";
+export {ViewManagerObserver} from "./ViewManagerObserver";

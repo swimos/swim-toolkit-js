@@ -23,6 +23,7 @@ export {
   LayoutAnchor,
 } from "./LayoutAnchor";
 
-export {LayoutManager} from "./LayoutManager";
-
 export {LayoutSolver} from "./LayoutSolver";
+
+export {LayoutManager} from "./LayoutManager";
+export {LayoutManagerObserver} from "./LayoutManagerObserver";

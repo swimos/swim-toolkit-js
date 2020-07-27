@@ -145,12 +145,37 @@ export class ThemedHtmlView extends HtmlView implements ThemedView {
     });
   }
 
+  protected onMount(): void {
+    super.onMount();
+    this.initTheme();
+  }
+
+  protected initTheme(): void {
+    if (this.isRootView()) {
+      const themeManager = this.themeManager.state;
+      if (themeManager !== void 0) {
+        if (this.mood.isAuto() && this.mood.state === void 0) {
+          this.mood.setAutoState(themeManager.mood);
+        }
+        if (this.theme.isAuto() && this.theme.state === void 0) {
+          this.theme.setAutoState(themeManager.theme);
+        }
+      }
+    }
+  }
+
   protected computeMood(): void {
     const moodModifierScope = this.getViewScope("moodModifier") as ViewScope<this, MoodMatrix> | null;
     if (moodModifierScope !== null && this.mood.isAuto()) {
       const moodModifier = moodModifierScope.state;
       if (moodModifier !== void 0) {
-        const superMood = this.mood.superState;
+        let superMood = this.mood.superState;
+        if (superMood === void 0) {
+          const themeManager = this.themeManager.state;
+          if (themeManager !== void 0) {
+            superMood = themeManager.mood;
+          }
+        }
         if (superMood !== void 0) {
           const mood = moodModifier.transform(superMood, true);
           this.mood.setAutoState(mood);
@@ -166,7 +191,13 @@ export class ThemedHtmlView extends HtmlView implements ThemedView {
     if (themeModifierScope !== null && this.theme.isAuto()) {
       const themeModifier = themeModifierScope.state;
       if (themeModifier !== void 0) {
-        const superTheme = this.theme.superState;
+        let superTheme = this.theme.superState;
+        if (superTheme === void 0) {
+          const themeManager = this.themeManager.state;
+          if (themeManager !== void 0) {
+            superTheme = themeManager.theme;
+          }
+        }
         if (superTheme !== void 0) {
           const theme = superTheme.transform(themeModifier, true);
           this.theme.setAutoState(theme);

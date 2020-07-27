@@ -228,7 +228,7 @@ export const ViewScope: ViewScopeClass = (function (_super: typeof Object): View
     if (value !== void 0) {
       value = this.fromAny(value);
     }
-    this._state = value as T;
+    this._state = value as T | undefined;
     return this;
   }
 
@@ -512,11 +512,11 @@ export const ViewScope: ViewScopeClass = (function (_super: typeof Object): View
     }
   };
 
-  ViewScope.prototype.mount = function <T, U>(this: ViewScope<View, T, U>): void {
+  ViewScope.prototype.mount = function (this: ViewScope<View, unknown>): void {
     this.bindSuperScope();
   };
 
-  ViewScope.prototype.unmount = function <T, U>(this: ViewScope<View, T, U>): void {
+  ViewScope.prototype.unmount = function (this: ViewScope<View, unknown>): void {
     this.unbindSuperScope();
   };
 
@@ -527,3 +527,4 @@ export const ViewScope: ViewScopeClass = (function (_super: typeof Object): View
 
   return ViewScope;
 }(Object));
+View.Scope = ViewScope;

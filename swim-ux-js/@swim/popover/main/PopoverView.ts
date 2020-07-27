@@ -170,7 +170,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     return this;
   }
 
-  toggleModal(tween?: Tween<any>): void {
+  toggle(tween?: Tween<any>): void {
     if (this._modalState === "hidden" || this._modalState === "hiding") {
       this.showModal(tween);
     } else if (this._modalState === "shown" || this._modalState === "showing") {

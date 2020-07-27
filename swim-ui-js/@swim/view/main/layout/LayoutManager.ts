@@ -12,51 +12,186 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ConstrainVariable, Constraint} from "@swim/constraint";
+import {ConstrainVariable, Constraint, ConstraintSolver} from "@swim/constraint";
+import {View} from "../View";
+import {ViewManager} from "../manager/ViewManager";
+import {LayoutAnchor} from "./LayoutAnchor";
+import {LayoutSolver} from "./LayoutSolver";
+import {NodeView} from "../node/NodeView";
 
-/** @hidden */
-export interface LayoutManager {
+export class LayoutManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
-  activateConstraint(constraint: Constraint): void;
+  readonly _solver: LayoutSolver;
 
-  /** @hidden */
-  deactivateConstraint(constraint: Constraint): void;
-
-  /** @hidden */
-  didAddConstraint(constraint: Constraint): void;
-
-  /** @hidden */
-  didRemoveConstraint(constraint: Constraint): void;
-
-  /** @hidden */
-  activateConstraintVariable(constraintVariable: ConstrainVariable): void;
+  constructor() {
+    super();
+    this._solver = this.createSolver();
+  }
 
   /** @hidden */
-  deactivateConstraintVariable(constraintVariable: ConstrainVariable): void;
+  protected createSolver(): LayoutSolver {
+    return new LayoutSolver(this);
+  }
 
-  /** @hidden */
-  setConstraintVariable(constraintVariable: ConstrainVariable, state: number): void;
+  get solver(): ConstraintSolver {
+    return this._solver;
+  }
 
-  /** @hidden */
-  didAddConstraintVariable(constraintVariable: ConstrainVariable): void;
+  activateConstraint(constraint: Constraint): void {
+    this._solver.addConstraint(constraint);
+  }
 
-  /** @hidden */
-  didRemoveConstraintVariable(constraintVariable: ConstrainVariable): void;
+  deactivateConstraint(constraint: Constraint): void {
+    this._solver.removeConstraint(constraint);
+  }
 
-  /** @hidden */
-  didUpdateConstraintVariable(constraintVariable: ConstrainVariable, newValue: number, oldValue: number): void;
+  activateConstraintVariable(constraintVariable: ConstrainVariable): void {
+    this._solver.addConstraintVariable(constraintVariable);
+  }
 
-  /** @hidden */
-  updateConstraintVariables(): void;
-}
+  deactivateConstraintVariable(constraintVariable: ConstrainVariable): void {
+    this._solver.removeConstraintVariable(constraintVariable);
+  }
 
-/** @hidden */
-export const LayoutManager = {
-  is(object: unknown): object is LayoutManager {
-    if (typeof object === "object" && object !== null) {
-      const view = object as LayoutManager;
-      return typeof view.updateConstraintVariables === "function";
+  setConstraintVariable(constraintVariable: ConstrainVariable, state: number): void {
+    this._solver.setConstraintVariable(constraintVariable, state);
+  }
+
+  updateConstraintVariables(): void {
+    this._solver.updateConstraintVariables();
+  }
+
+  didAddConstraint(constraint: Constraint): void {
+    const rootViews = this._rootViews;
+    for (let i = 0, n = rootViews.length; i < n; i += 1) {
+      rootViews[i].requireUpdate(View.NeedsLayout);
     }
-    return false;
-  },
-};
+  }
+
+  didRemoveConstraint(constraint: Constraint): void {
+    const rootViews = this._rootViews;
+    for (let i = 0, n = rootViews.length; i < n; i += 1) {
+      rootViews[i].requireUpdate(View.NeedsLayout);
+    }
+  }
+
+  didAddConstraintVariable(constraintVariable: ConstrainVariable): void {
+    const rootViews = this._rootViews;
+    for (let i = 0, n = rootViews.length; i < n; i += 1) {
+      rootViews[i].requireUpdate(View.NeedsLayout);
+    }
+  }
+
+  didRemoveConstraintVariable(constraintVariable: ConstrainVariable): void {
+    const rootViews = this._rootViews;
+    for (let i = 0, n = rootViews.length; i < n; i += 1) {
+      rootViews[i].requireUpdate(View.NeedsLayout);
+    }
+  }
+
+  didUpdateConstraintVariable(constraintVariable: ConstrainVariable, newValue: number, oldValue: number): void {
+    if (oldValue !== newValue) {
+      const rootViews = this._rootViews;
+      for (let i = 0, n = rootViews.length; i < n; i += 1) {
+        rootViews[i].requireUpdate(View.NeedsLayout);
+      }
+    }
+  }
+
+  protected onAddRootView(rootView: V): void {
+    super.onAddRootView(rootView);
+    this.addLayoutAnchors(rootView);
+  }
+
+  protected onRemoveRootView(rootView: V): void {
+    super.onRemoveRootView(rootView);
+  }
+
+  protected addLayoutAnchors(rootView: V): void {
+    if (rootView instanceof View.Node && (rootView as NodeView)._node === document.body) {
+      this.addSafeAreaAnchors(rootView);
+    }
+  }
+
+  protected removeLayoutAnchors(rootView: V): void {
+    this.removeSafeAreaAnchors(rootView);
+  }
+
+  protected addSafeAreaAnchors(rootView: V): void {
+    let safeAreaInsetTop = rootView.getLayoutAnchor("safeAreaInsetTop");
+    if (safeAreaInsetTop === null) {
+      safeAreaInsetTop = new LayoutAnchor<V>(rootView, "safeAreaInsetTop", {
+        get(oldState: number): number {
+          const newState = this.scope.viewport!.safeArea.insetTop;
+          if (oldState !== newState) {
+            this.scope.requireUpdate(View.NeedsLayout);
+          }
+          return newState;
+        },
+        strength: "strong",
+      });
+      rootView.setLayoutAnchor("safeAreaInsetTop", safeAreaInsetTop);
+    }
+
+    let safeAreaInsetRight = rootView.getLayoutAnchor("safeAreaInsetRight");
+    if (safeAreaInsetRight === null) {
+      safeAreaInsetRight = new LayoutAnchor<V>(rootView, "safeAreaInsetRight", {
+        get(oldState: number): number {
+          const newState = this.scope.viewport!.safeArea.insetRight;
+          if (oldState !== newState) {
+            this.scope.requireUpdate(View.NeedsLayout);
+          }
+          return newState;
+        },
+        strength: "strong",
+      });
+      rootView.setLayoutAnchor("safeAreaInsetRight", safeAreaInsetRight);
+    }
+
+    let safeAreaInsetBottom = rootView.getLayoutAnchor("safeAreaInsetBottom");
+    if (safeAreaInsetBottom === null) {
+      safeAreaInsetBottom = new LayoutAnchor<V>(rootView, "safeAreaInsetBottom", {
+        get(oldState: number): number {
+          const newState = this.scope.viewport!.safeArea.insetBottom;
+          if (oldState !== newState) {
+            this.scope.requireUpdate(View.NeedsLayout);
+          }
+          return newState;
+        },
+        strength: "strong",
+      });
+      rootView.setLayoutAnchor("safeAreaInsetBottom", safeAreaInsetBottom);
+    }
+
+    let safeAreaInsetLeft = rootView.getLayoutAnchor("safeAreaInsetLeft");
+    if (safeAreaInsetLeft === null) {
+      safeAreaInsetLeft = new LayoutAnchor<V>(rootView, "safeAreaInsetLeft", {
+        get(oldState: number): number {
+          const newState = this.scope.viewport!.safeArea.insetLeft;
+          if (oldState !== newState) {
+            this.scope.requireUpdate(View.NeedsLayout);
+          }
+          return newState;
+        },
+        strength: "strong",
+      });
+      rootView.setLayoutAnchor("safeAreaInsetLeft", safeAreaInsetLeft);
+    }
+  }
+
+  protected removeSafeAreaAnchors(rootView: V): void {
+    rootView.setLayoutAnchor("safeAreaInsetTop", null);
+    rootView.setLayoutAnchor("safeAreaInsetRight", null);
+    rootView.setLayoutAnchor("safeAreaInsetBottom", null);
+    rootView.setLayoutAnchor("safeAreaInsetLeft", null);
+  }
+
+  private static _global?: LayoutManager;
+  static global(): LayoutManager {
+    if (LayoutManager._global === void 0) {
+      LayoutManager._global = new LayoutManager();
+    }
+    return LayoutManager._global;
+  }
+}
+ViewManager.Layout = LayoutManager;

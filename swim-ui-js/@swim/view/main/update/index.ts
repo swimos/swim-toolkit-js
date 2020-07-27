@@ -12,14 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewEdgeInsets} from "./ViewDimensions";
-
-export type ViewportColorScheme = "dark" | "light" | "no-preference";
-
-export interface Viewport {
-  readonly width: number;
-  readonly height: number;
-  readonly safeArea: ViewEdgeInsets;
-  readonly orientation: OrientationType;
-  readonly colorScheme: ViewportColorScheme;
-}
+export {UpdateContext} from "./UpdateContext";
+export {UpdateManager} from "./UpdateManager";
+export {UpdateManagerObserver} from "./UpdateManagerObserver";

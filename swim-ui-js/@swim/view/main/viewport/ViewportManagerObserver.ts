@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewObserver} from "../ViewObserver";
-import {ModalOptions, Modal} from "../modal/Modal";
-import {RootView} from "./RootView";
+import {View} from "../View";
+import {ViewManagerObserver} from "../manager/ViewManagerObserver";
+import {ViewIdiom} from "./ViewIdiom";
+import {ViewportManager} from "./ViewportManager";
 
-export interface RootViewObserver<V extends RootView = RootView> extends ViewObserver<V> {
-  viewWillPresentModal?(modal: Modal, options: ModalOptions, view: V): void;
+export interface ViewportManagerObserver<V extends View = View, M extends ViewportManager<V> = ViewportManager<V>> extends ViewManagerObserver<V, M> {
+  managerWillSetViewIdiom?(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom, manager: M): void;
 
-  viewDidPresentModal?(modal: Modal, options: ModalOptions, view: V): void;
-
-  viewWillDismissModal?(modal: Modal, view: V): void;
-
-  viewDidDismissModal?(modal: Modal, view: V): void;
+  managerDidSetViewIdiom?(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom, manager: M): void;
 }

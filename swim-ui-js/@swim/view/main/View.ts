@@ -24,16 +24,22 @@ import {
   ConstraintStrength,
   Constraint,
 } from "@swim/constraint";
-import {Viewport} from "./Viewport";
-import {ViewIdiom} from "./ViewIdiom";
 import {ViewContext} from "./ViewContext";
 import {ViewObserver} from "./ViewObserver";
 import {ViewController} from "./ViewController";
-import {RootView} from "./root/RootView";
-import {ViewScopeDescriptor, ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
-import {ViewAnimatorDescriptor, ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
+import {ViewManager} from "./manager/ViewManager";
+import {UpdateManager} from "./update/UpdateManager";
 import {LayoutContext} from "./layout/LayoutContext";
 import {LayoutAnchor} from "./layout/LayoutAnchor";
+import {LayoutManager} from "./layout/LayoutManager";
+import {ViewIdiom} from "./viewport/ViewIdiom";
+import {Viewport} from "./viewport/Viewport";
+import {ViewportManager} from "./viewport/ViewportManager";
+import {ModalOptions, Modal} from "./modal/Modal";
+import {ModalManager} from "./modal/ModalManager";
+import {ViewServiceDescriptor, ViewServiceConstructor, ViewService} from "./service/ViewService";
+import {ViewScopeDescriptor, ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
+import {ViewAnimatorDescriptor, ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
 import {GraphicsView} from "./graphics/GraphicsView";
 import {GraphicsNodeView} from "./graphics/GraphicsNodeView";
 import {GraphicsLeafView} from "./graphics/GraphicsLeafView";
@@ -44,7 +50,6 @@ import {ElementViewTagMap, ElementViewConstructor, ElementView} from "./element/
 import {SvgView} from "./svg/SvgView";
 import {HtmlView} from "./html/HtmlView";
 import {CanvasView} from "./canvas/CanvasView";
-import {UiView} from "./ui/UiView";
 
 export type ViewControllerType<V extends View> =
   V extends {readonly viewController: infer VC} ? VC : unknown;
@@ -64,6 +69,9 @@ export interface ViewClass {
   readonly mountFlags: ViewFlags;
 
   readonly powerFlags: ViewFlags;
+
+  /** @hidden */
+  _viewServiceDescriptors?: {[serviceName: string]: ViewServiceDescriptor<View, unknown> | undefined};
 
   /** @hidden */
   _viewScopeDescriptors?: {[scopeName: string]: ViewScopeDescriptor<View, unknown> | undefined};
@@ -256,6 +264,37 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
+  getSuperView<V extends View>(viewClass: {new(...args: any[]): V}): V | null {
+    const parentView = this.parentView;
+    if (parentView === null) {
+      return null;
+    } else if (parentView instanceof viewClass) {
+      return parentView;
+    } else {
+      return parentView.getSuperView(viewClass);
+    }
+  }
+
+  getBaseView<V extends View>(viewClass: {new(...args: any[]): V}): V | null {
+    const parentView = this.parentView;
+    if (parentView === null) {
+      return null;
+    } else if (parentView instanceof viewClass) {
+      const baseView = parentView.getBaseView(viewClass);
+      return baseView !== null ? baseView : parentView;
+    } else {
+      return parentView.getBaseView(viewClass);
+    }
+  }
+
+  updateManager: ViewService<this, UpdateManager>; // defined by UpdateService
+
+  layoutManager: ViewService<this, LayoutManager>; // defined by LayoutService
+
+  viewportManager: ViewService<this, ViewportManager>; // defined by ViewportService
+
+  modalManager: ViewService<this, ModalManager>; // defined by ModalService
+
   get viewClass(): ViewClass {
     return this.constructor as unknown as ViewClass;
   }
@@ -370,11 +409,6 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  get updateTime(): number {
-    const parentView = this.parentView;
-    return parentView !== null ? parentView.updateTime : performance.now();
-  }
-
   requireUpdate(updateFlags: ViewFlags, immediate: boolean = false): void {
     updateFlags &= ~View.StatusMask;
     if (updateFlags !== 0) {
@@ -403,6 +437,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     const parentView = this.parentView;
     if (parentView !== null) {
       parentView.requestUpdate(targetView, updateFlags, immediate);
+    } else if (this.isMounted()) {
+      const updateManager = this.updateManager.state;
+      if (updateManager !== void 0) {
+        updateManager.requestUpdate(targetView, updateFlags, immediate);
+      }
     }
     this.didRequestUpdate(targetView, updateFlags, immediate);
   }
@@ -737,6 +776,27 @@ export abstract class View implements AnimatorContext, LayoutContext {
     return viewContext;
   }
 
+  abstract hasViewService(serviceName: string): boolean;
+
+  abstract getViewService(serviceName: string): ViewService<this, unknown> | null;
+
+  abstract setViewService(serviceName: string, viewService: ViewService<this, unknown> | null): void;
+
+  /** @hidden */
+  getLazyViewService(serviceName: string): ViewService<this, unknown> | null {
+    let viewService = this.getViewService(serviceName);
+    if (viewService === null) {
+      const viewClass = (this as any).__proto__ as ViewClass;
+      const descriptor = View.getViewServiceDescriptor(serviceName, viewClass);
+      if (descriptor !== null && descriptor.serviceType !== void 0) {
+        const ViewService = descriptor.serviceType;
+        viewService = new ViewService<this>(this, serviceName, descriptor);
+        this.setViewService(serviceName, viewService);
+      }
+    }
+    return viewService
+  }
+
   abstract hasViewScope(scopeName: string): boolean;
 
   abstract getViewScope(scopeName: string): ViewScope<this, unknown> | null;
@@ -832,18 +892,18 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   /** @hidden */
   activateConstraint(constraint: Constraint): void {
-    const rootView = this.rootView;
-    if (rootView !== null) {
-      rootView.activateConstraint(constraint);
+    const layoutManager = this.layoutManager.state;
+    if (layoutManager !== void 0) {
+      layoutManager.activateConstraint(constraint);
       this.requireUpdate(View.NeedsLayout);
     }
   }
 
   /** @hidden */
   deactivateConstraint(constraint: Constraint): void {
-    const rootView = this.rootView;
-    if (rootView !== null) {
-      rootView.deactivateConstraint(constraint);
+    const layoutManager = this.layoutManager.state;
+    if (layoutManager !== void 0) {
+      layoutManager.deactivateConstraint(constraint);
       this.requireUpdate(View.NeedsLayout);
     }
   }
@@ -870,43 +930,90 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   /** @hidden */
   activateConstraintVariable(constraintVariable: ConstrainVariable): void {
-    const rootView = this.rootView;
-    if (rootView !== null) {
-      rootView.activateConstraintVariable(constraintVariable);
+    const layoutManager = this.layoutManager.state;
+    if (layoutManager !== void 0) {
+      layoutManager.activateConstraintVariable(constraintVariable);
       this.requireUpdate(View.NeedsLayout);
     }
   }
 
   /** @hidden */
   deactivateConstraintVariable(constraintVariable: ConstrainVariable): void {
-    const rootView = this.rootView;
-    if (rootView !== null) {
-      rootView.deactivateConstraintVariable(constraintVariable);
+    const layoutManager = this.layoutManager.state;
+    if (layoutManager !== void 0) {
+      layoutManager.deactivateConstraintVariable(constraintVariable);
       this.requireUpdate(View.NeedsLayout);
     }
   }
 
   /** @hidden */
   setConstraintVariable(constraintVariable: ConstrainVariable, state: number): void {
-    const rootView = this.rootView;
-    if (rootView !== null) {
-      rootView.setConstraintVariable(constraintVariable, state);
+    const layoutManager = this.layoutManager.state;
+    if (layoutManager !== void 0) {
+      layoutManager.setConstraintVariable(constraintVariable, state);
     }
   }
 
-  get viewport(): Viewport | null {
+  /** @hidden */
+  updateConstraintVariables(): void {
+    const layoutManager = this.layoutManager.state;
+    if (layoutManager !== void 0) {
+      layoutManager.updateConstraintVariables();
+    }
+  }
+
+  toggleModal(modal: Modal, options?: ModalOptions): void {
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.toggleModal(modal, options);
+    }
+  }
+
+  presentModal(modal: Modal, options: ModalOptions = {}): void {
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.presentModal(modal, options);
+    }
+  }
+
+  dismissModal(modal: Modal): void {
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.dismissModal(modal);
+    }
+  }
+
+  dismissModals(): void {
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.dismissModals();
+    }
+  }
+
+  get viewContext(): ViewContext {
+    let viewContext: ViewContext;
     const parentView = this.parentView;
-    return parentView !== null ? parentView.viewport : null;
+    if (parentView !== null) {
+      viewContext = parentView.viewContext;
+    } else if (this.isMounted()) {
+      const viewportManager = this.viewportManager.state;
+      if (viewportManager !== void 0) {
+        viewContext = viewportManager.viewContext;
+      } else {
+        viewContext = ViewContext.default();
+      }
+    } else {
+      viewContext = ViewContext.default();
+    }
+    return viewContext;
   }
 
   get viewIdiom(): ViewIdiom {
-    const parentView = this.parentView;
-    return parentView !== null ? parentView.viewIdiom : "unspecified";
+    return this.viewContext.viewIdiom;
   }
 
-  get rootView(): RootView | null {
-    const parentView = this.parentView;
-    return parentView !== null ? parentView.rootView : null;
+  get viewport(): Viewport {
+    return this.viewContext.viewport;
   }
 
   /**
@@ -976,6 +1083,45 @@ export abstract class View implements AnimatorContext, LayoutContext {
                options?: EventListenerOptions | boolean): this;
 
   /** @hidden */
+  static getViewServiceDescriptor<V extends View>(serviceName: string, viewClass: ViewClass | null = null): ViewServiceDescriptor<V, unknown> | null {
+    if (viewClass === null) {
+      viewClass = this.prototype as unknown as ViewClass;
+    }
+    do {
+      if (viewClass.hasOwnProperty("_viewServiceDescriptors")) {
+        const descriptor = viewClass._viewServiceDescriptors![serviceName];
+        if (descriptor !== void 0) {
+          return descriptor;
+        }
+      }
+      viewClass = (viewClass as any).__proto__ as ViewClass | null;
+    } while (viewClass !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateViewService<V extends View, T>(ViewService: ViewServiceConstructor<T>,
+                                                descriptor: ViewServiceDescriptor<V, T>,
+                                                viewClass: ViewClass, serviceName: string): void {
+    if (!viewClass.hasOwnProperty("_viewServiceDescriptors")) {
+      viewClass._viewServiceDescriptors = {};
+    }
+    viewClass._viewServiceDescriptors![serviceName] = descriptor;
+    Object.defineProperty(viewClass, serviceName, {
+      get: function (this: V): ViewService<V, T> {
+        let viewService = this.getViewService(serviceName) as ViewService<V, T> | null;
+        if (viewService === null) {
+          viewService = new ViewService<V>(this, serviceName, descriptor);
+          this.setViewService(serviceName, viewService);
+        }
+        return viewService;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
   static getViewScopeDescriptor<V extends View>(scopeName: string, viewClass: ViewClass | null = null): ViewScopeDescriptor<V, unknown> | null {
     if (viewClass === null) {
       viewClass = this.prototype as unknown as ViewClass;
@@ -994,7 +1140,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   /** @hidden */
   static decorateViewScope<V extends View, T, U>(ViewScope: ViewScopeConstructor<T, U>,
-                                                 descriptor: ViewScopeDescriptor<V, T, U> | undefined,
+                                                 descriptor: ViewScopeDescriptor<V, T, U>,
                                                  viewClass: ViewClass, scopeName: string): void {
     if (!viewClass.hasOwnProperty("_viewScopeDescriptors")) {
       viewClass._viewScopeDescriptors = {};
@@ -1030,7 +1176,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   /** @hidden */
   static decorateViewAnimator<V extends View, T, U>(ViewAnimator: ViewAnimatorConstructor<T, U>,
-                                                    descriptor: ViewAnimatorDescriptor<V, T, U> | undefined,
+                                                    descriptor: ViewAnimatorDescriptor<V, T, U>,
                                                     viewClass: ViewClass, animatorName: string): void {
     if (!viewClass.hasOwnProperty("_viewAnimatorDescriptors")) {
       viewClass._viewAnimatorDescriptors = {};
@@ -1206,9 +1352,13 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   // Forward type declarations
   /** @hidden */
-  static Animator: typeof ViewAnimator; // defined by ViewAnimator
+  static Manager: typeof ViewManager; // defined by ViewManager
   /** @hidden */
-  static Root: typeof RootView; // defined by RootView
+  static Service: typeof ViewService; // defined by ViewService
+  /** @hidden */
+  static Scope: typeof ViewScope; // defined by ViewScope
+  /** @hidden */
+  static Animator: typeof ViewAnimator; // defined by ViewAnimator
   /** @hidden */
   static Graphics: typeof GraphicsView; // defined by GraphicsView
   /** @hidden */
@@ -1229,6 +1379,4 @@ export abstract class View implements AnimatorContext, LayoutContext {
   static Html: typeof HtmlView; // defined by HtmlView
   /** @hidden */
   static Canvas: typeof CanvasView; // defined by CanvasView
-  /** @hidden */
-  static Ui: typeof UiView; // defined by UiView
 }

@@ -42,10 +42,7 @@ export class ActionStackController<V extends ActionStack = ActionStack> extends 
   }
 
   actionStackDidExpand(view: V): void {
-    const rootView = this.rootView;
-    if (rootView !== null) {
-      rootView.presentModal(view, {focus: true});
-    }
+    view.presentModal(view, {focus: true});
   }
 
   actionStackWillCollapse(view: V): void {
@@ -53,10 +50,7 @@ export class ActionStackController<V extends ActionStack = ActionStack> extends 
   }
 
   actionStackDidCollapse(view: V): void {
-    const rootView = this.rootView;
-    if (rootView !== null) {
-      rootView.dismissModal(view);
-    }
+    view.dismissModal(view);
   }
 
   actionStackWillShow(view: V): void {

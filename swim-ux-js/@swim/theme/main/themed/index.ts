@@ -42,10 +42,3 @@ export {
 } from "./ThemedHtmlView";
 export {ThemedHtmlViewObserver} from "./ThemedHtmlViewObserver";
 export {ThemedHtmlViewController} from "./ThemedHtmlViewController";
-
-export {
-  ThemedUiViewInit,
-  ThemedUiView,
-} from "./ThemedUiView";
-export {ThemedUiViewObserver} from "./ThemedUiViewObserver";
-export {ThemedUiViewController} from "./ThemedUiViewController";

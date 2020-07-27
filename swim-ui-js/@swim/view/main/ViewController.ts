@@ -13,12 +13,10 @@
 // limitations under the License.
 
 import {ViewContext} from "./ViewContext";
-import {ViewFlags, View} from "./View";
+import {ViewFlags, ViewConstructor, View} from "./View";
 import {ViewObserver} from "./ViewObserver";
-import {Viewport} from "./Viewport";
-import {ViewIdiom} from "./ViewIdiom";
-import {RootView} from "./root/RootView";
-import {RootViewController} from "./root/RootViewController";
+import {ViewIdiom} from "./viewport/ViewIdiom";
+import {Viewport} from "./viewport/Viewport";
 
 export class ViewController<V extends View = View> implements ViewObserver<V> {
   /** @hidden */
@@ -249,6 +247,16 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
+  getSuperView<V extends View>(viewClass: ViewConstructor<V>): V | null {
+    const view = this._view;
+    return view !== null ? view.getSuperView(viewClass) : null;
+  }
+
+  getBaseView<V extends View>(viewClass: ViewConstructor<V>): V | null {
+    const view = this._view;
+    return view !== null ? view.getBaseView(viewClass) : null;
+  }
+
   isMounted(): boolean {
     const view = this._view;
     return view !== null && view.isMounted();
@@ -378,28 +386,16 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
-  get viewport(): Viewport | null {
+  get viewContext(): ViewContext {
     const view = this._view;
-    return view !== null ? view.viewport : null;
+    return view !== null ? view.viewContext : ViewContext.default();
   }
 
   get viewIdiom(): ViewIdiom {
-    const view = this._view;
-    return view !== null ? view.viewIdiom : "unspecified";
+    return this.viewContext.viewIdiom;
   }
 
-  get rootView(): RootView | null {
-    const view = this._view;
-    return view !== null ? view.rootView : null;
-  }
-
-  get rootViewController(): RootViewController | null {
-    const rootView = this.rootView;
-    return rootView !== null ? rootView.viewController : null;
-  }
-
-  intersectsViewport(): boolean {
-    const view = this._view;
-    return view !== null && view.intersectsViewport();
+  get viewport(): Viewport {
+    return this.viewContext.viewport;
   }
 }

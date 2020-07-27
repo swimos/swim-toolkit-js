@@ -14,7 +14,7 @@
 
 import {Color} from "@swim/color";
 import {Tween, Transition} from "@swim/transition";
-import {ModalState, ViewNodeType, UiView} from "@swim/view";
+import {ModalState, ViewNodeType} from "@swim/view";
 import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 
 export interface ScrimViewInit extends ThemedHtmlViewInit {
@@ -79,7 +79,7 @@ export class ScrimView extends ThemedHtmlView {
         tween = Transition.forTween(tween);
       }
       this.willShow();
-      this.display("block");
+      this.display.setAutoState("block");
       if (tween !== null) {
         this.backgroundColor.setAutoState(Color.black(0));
         this.backgroundColor.setAutoState(Color.black(opacity), tween.onEnd(this.didShow.bind(this)));
@@ -121,14 +121,14 @@ export class ScrimView extends ThemedHtmlView {
 
   protected didHide(): void {
     this._modalState = "hidden";
-    this.display("none");
+    this.display.setAutoState("none");
   }
 
   protected onClick(event: Event): void {
-    const rootView = this.rootView;
-    if (rootView instanceof UiView) {
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
       event.stopPropagation();
-      rootView.onFallthroughClick(event);
+      modalManager.defaultClick(event);
     }
   }
 

@@ -645,42 +645,6 @@ export class HtmlView extends ElementView {
     return child;
   }
 
-  protected updateConstraints(): void {
-    super.updateConstraints();
-    const topAnchor = this.getLayoutAnchor("topAnchor");
-    if (topAnchor !== null) {
-      topAnchor.updateState();
-    }
-    const rightAnchor = this.getLayoutAnchor("rightAnchor");
-    if (rightAnchor !== null) {
-      rightAnchor.updateState();
-    }
-    const bottomAnchor = this.getLayoutAnchor("bottomAnchor");
-    if (bottomAnchor !== null) {
-      bottomAnchor.updateState();
-    }
-    const leftAnchor = this.getLayoutAnchor("leftAnchor");
-    if (leftAnchor !== null) {
-      leftAnchor.updateState();
-    }
-    const widthAnchor = this.getLayoutAnchor("widthAnchor");
-    if (widthAnchor !== null) {
-      widthAnchor.updateState();
-    }
-    const heightAnchor = this.getLayoutAnchor("heightAnchor");
-    if (heightAnchor !== null) {
-      heightAnchor.updateState();
-    }
-    const centerXAnchor = this.getLayoutAnchor("centerXAnchor");
-    if (centerXAnchor !== null) {
-      centerXAnchor.updateState();
-    }
-    const centerYAnchor = this.getLayoutAnchor("centerYAnchor");
-    if (centerYAnchor !== null) {
-      centerYAnchor.updateState();
-    }
-  }
-
   isPositioned(): boolean {
     const style = window.getComputedStyle(this._node);
     return style.position === "relative" || style.position === "absolute";

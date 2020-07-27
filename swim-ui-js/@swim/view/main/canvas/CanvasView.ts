@@ -864,7 +864,7 @@ export class CanvasView extends HtmlView {
 
   canvasViewContext(viewContext?: ViewContext): GraphicsViewContext {
     if (viewContext === void 0) {
-      viewContext = this.rootView!.viewContext;
+      viewContext = this.viewContext!;
     }
     return {
       updateTime: viewContext.updateTime,

@@ -28,4 +28,14 @@ export * from "./moods";
 
 export * from "./themed";
 
+export * from "./manager";
+
 export * from "./themes";
+
+import {ViewService} from "@swim/view";
+import {ThemeManager} from "./manager/ThemeManager";
+declare module "@swim/view" {
+  interface View {
+    themeManager: ViewService<this, ThemeManager>; // defined by ThemeService
+  }
+}

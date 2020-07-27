@@ -146,7 +146,13 @@ export abstract class ThemedGraphicsLeafView extends GraphicsLeafView implements
     if (moodModifierScope !== null && this.mood.isAuto()) {
       const moodModifier = moodModifierScope.state;
       if (moodModifier !== void 0) {
-        const superMood = this.mood.superState;
+        let superMood = this.mood.superState;
+        if (superMood === void 0) {
+          const themeManager = this.themeManager.state;
+          if (themeManager !== void 0) {
+            superMood = themeManager.mood;
+          }
+        }
         if (superMood !== void 0) {
           const mood = moodModifier.transform(superMood, true);
           this.mood.setAutoState(mood);
@@ -162,7 +168,13 @@ export abstract class ThemedGraphicsLeafView extends GraphicsLeafView implements
     if (themeModifierScope !== null && this.theme.isAuto()) {
       const themeModifier = themeModifierScope.state;
       if (themeModifier !== void 0) {
-        const superTheme = this.theme.superState;
+        let superTheme = this.theme.superState;
+        if (superTheme === void 0) {
+          const themeManager = this.themeManager.state;
+          if (themeManager !== void 0) {
+            superTheme = themeManager.theme;
+          }
+        }
         if (superTheme !== void 0) {
           const theme = superTheme.transform(themeModifier, true);
           this.theme.setAutoState(theme);

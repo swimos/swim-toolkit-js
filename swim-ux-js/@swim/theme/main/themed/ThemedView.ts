@@ -49,3 +49,17 @@ export interface ThemedView extends View {
 
   modifyTheme(feel: Feel, ...entries: [Feel, number | undefined][]): void;
 }
+
+/** @hidden */
+export const ThemedView = {
+  is(object: unknown): object is ThemedView {
+    if (typeof object === "object" && object !== null) {
+      const view = object as ThemedView;
+      return "mood" in view
+          && "moodModifier" in view
+          && "theme" in view
+          && "themeModifier" in view;
+    }
+    return false;
+  },
+};

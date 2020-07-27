@@ -20,17 +20,12 @@ import {
   ElementViewController,
   SvgView,
   HtmlView,
-  UiView,
 } from "@swim/view";
 import {WebAppViewController} from "./WebAppViewController";
 
-export class WebAppView extends UiView {
+export class WebAppView extends HtmlView {
   /** @hidden */
   readonly _mutationObserver: MutationObserver;
-
-  constructor(node: HTMLElement) {
-    super(node);
-  }
 
   get viewController(): WebAppViewController | null {
     return this._viewController;

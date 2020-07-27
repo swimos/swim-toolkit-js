@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {UiViewContext} from "./UiViewContext";
-export {
-  UiViewInit,
-  UiView,
-} from "./UiView";
-export {UiViewObserver} from "./UiViewObserver";
-export {UiViewController} from "./UiViewController";
+import {View} from "../View";
+import {ViewManagerObserver} from "../manager/ViewManagerObserver";
+import {UpdateManager} from "./UpdateManager";
+
+export interface UpdateManagerObserver<V extends View = View, M extends UpdateManager<V> = UpdateManager<V>> extends ViewManagerObserver<V, M> {
+}

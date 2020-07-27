@@ -12,12 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {UiViewContext, UiViewObserver} from "@swim/view";
-import {ThemedViewObserver} from "./ThemedViewObserver";
-import {ThemedUiView} from "./ThemedUiView";
+import {View} from "../View";
+import {ViewManager} from "./ViewManager";
 
-export interface ThemedUiViewObserver<V extends ThemedUiView = ThemedUiView> extends UiViewObserver<V>, ThemedViewObserver<V> {
-  viewWillResize?(viewContext: UiViewContext, view: V): void;
+export interface ViewManagerObserver<V extends View = View, M extends ViewManager<V> = ViewManager<V>> {
+  managerWillAttach?(manager: M): void;
 
-  viewDidResize?(viewContext: UiViewContext, view: V): void;
+  managerDidAttach?(manager: M): void;
+
+  managerWillDetach?(manager: M): void;
+
+  managerDidDetach?(manager: M): void;
+
+  managerWillAddRootView?(rootView: V, manager: M): void;
+
+  managerDidAddRootView?(rootView: V, manager: M): void;
+
+  managerWillRemoveRootView?(rootView: V, manager: M): void;
+
+  managerDidRemoveRootView?(rootView: V, manager: M): void;
 }

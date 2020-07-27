@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContext} from "../ViewContext";
-import {Viewport} from "../Viewport";
-import {ViewIdiom} from "../ViewIdiom";
+export {ViewIdiom} from "./ViewIdiom";
+export {ViewEdgeInsets} from "./ViewEdgeInsets";
+export {ViewColorScheme} from "./ViewColorScheme";
+export {Viewport} from "./Viewport";
 
-export interface UiViewContext extends ViewContext {
-  updateTime: number;
-
-  viewport: Viewport;
-
-  viewIdiom: ViewIdiom;
-}
+export {ViewportContext} from "./ViewportContext";
+export {ViewportManager} from "./ViewportManager";
+export {ViewportManagerObserver} from "./ViewportManagerObserver";

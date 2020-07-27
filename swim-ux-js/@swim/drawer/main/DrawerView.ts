@@ -16,12 +16,12 @@ import {AnyLength, Length} from "@swim/length";
 import {Color} from "@swim/color";
 import {Tween, Transition} from "@swim/transition";
 import {
-  ViewScope,
-  ViewEdgeInsets,
   ViewContext,
   View,
+  ViewEdgeInsets,
   ModalState,
   Modal,
+  ViewScope,
   ViewAnimator,
   ViewNodeType,
 } from "@swim/view";

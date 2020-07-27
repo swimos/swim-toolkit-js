@@ -23,26 +23,23 @@ export {
 export {ViewObserver} from "./ViewObserver";
 export {ViewController} from "./ViewController";
 
-export {ViewEdgeInsets} from "./ViewDimensions";
+export * from "./manager";
 
-export {
-  ViewportColorScheme,
-  Viewport,
-} from "./Viewport";
+export * from "./update";
 
-export {ViewIdiom} from "./ViewIdiom";
+export * from "./layout";
 
-export * from "./event";
+export * from "./viewport";
 
 export * from "./modal";
 
-export * from "./root";
+export * from "./event";
+
+export * from "./service";
 
 export * from "./scope";
 
 export * from "./animator";
-
-export * from "./layout";
 
 export * from "./graphics";
 
@@ -63,5 +60,3 @@ export * from "./svg";
 export * from "./html";
 
 export * from "./canvas";
-
-export * from "./ui";

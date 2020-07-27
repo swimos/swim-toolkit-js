@@ -17,3 +17,6 @@ export {
   ModalOptions,
   Modal,
 } from "./Modal";
+
+export {ModalManager} from "./ModalManager";
+export {ModalManagerObserver} from "./ModalManagerObserver";

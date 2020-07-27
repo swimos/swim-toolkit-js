@@ -22,6 +22,7 @@ import {ViewEvent} from "../event/ViewEvent";
 import {ViewMouseEvent} from "../event/ViewMouseEvent";
 import {ViewPointerEvent} from "../event/ViewPointerEvent";
 import {ViewEventHandler} from "../event/ViewEventHandler";
+import {ViewService} from "../service/ViewService";
 import {ViewScope} from "../scope/ViewScope";
 import {ViewAnimator} from "../animator/ViewAnimator";
 import {LayoutAnchor} from "../layout/LayoutAnchor";
@@ -47,6 +48,8 @@ export abstract class GraphicsView extends View {
   _viewObservers?: ViewObserver[];
   /** @hidden */
   _viewFlags: ViewFlags;
+  /** @hidden */
+  _viewServices?: {[serviceName: string]: ViewService<View, unknown> | undefined};
   /** @hidden */
   _viewScopes?: {[scopeName: string]: ViewScope<View, unknown> | undefined};
   /** @hidden */
@@ -128,6 +131,32 @@ export abstract class GraphicsView extends View {
         this.onRemoveViewObserver(viewObserver);
         this.didRemoveViewObserver(viewObserver);
       }
+    }
+  }
+
+  protected willObserve(callback: (this: this, viewObserver: ViewObserver) => void): void {
+    const viewController = this._viewController;
+    if (viewController !== null) {
+      callback.call(this, viewController);
+    }
+    const viewObservers = this._viewObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+        callback.call(this, viewObservers[i]);
+      }
+    }
+  }
+
+  protected didObserve(callback: (this: this, viewObserver: ViewObserver) => void): void {
+    const viewObservers = this._viewObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+        callback.call(this, viewObservers[i]);
+      }
+    }
+    const viewController = this._viewController;
+    if (viewController !== null) {
+      callback.call(this, viewController);
     }
   }
 
@@ -279,6 +308,7 @@ export abstract class GraphicsView extends View {
 
   protected onMount(): void {
     super.onMount();
+    this.mountServices();
     this.mountScopes();
     this.mountAnimators();
   }
@@ -324,6 +354,7 @@ export abstract class GraphicsView extends View {
   protected onUnmount(): void {
     this.unmountAnimators();
     this.unmountScopes();
+    this.unmountServices();
     this._viewFlags &= ~View.ViewFlagMask | View.RemovingFlag;
   }
 
@@ -582,6 +613,64 @@ export abstract class GraphicsView extends View {
     return viewContext;
   }
 
+  hasViewService(serviceName: string): boolean {
+    const viewServices = this._viewServices;
+    return viewServices !== void 0 && viewServices[serviceName] !== void 0;
+  }
+
+  getViewService(serviceName: string): ViewService<this, unknown> | null {
+    const viewServices = this._viewServices;
+    if (viewServices !== void 0) {
+      const viewService = viewServices[serviceName];
+      if (viewService !== void 0) {
+        return viewService as ViewService<this, unknown>;
+      }
+    }
+    return null;
+  }
+
+  setViewService(serviceName: string, newViewService: ViewService<this, unknown> | null): void {
+    let viewServices = this._viewServices;
+    if (viewServices === void 0) {
+      viewServices = {};
+      this._viewServices = viewServices;
+    }
+    const oldViewService = viewServices[serviceName];
+    if (oldViewService !== void 0 && this.isMounted()) {
+      oldViewService.unmount();
+    }
+    if (newViewService !== null) {
+      viewServices[serviceName] = newViewService;
+      if (this.isMounted()) {
+        newViewService.mount();
+      }
+    } else {
+      delete viewServices[serviceName];
+    }
+  }
+
+  /** @hidden */
+  mountServices(): void {
+    const viewServices = this._viewServices;
+    if (viewServices !== void 0) {
+      for (const serviceName in viewServices) {
+        const viewService = viewServices[serviceName]!;
+        viewService.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  unmountServices(): void {
+    const viewServices = this._viewServices;
+    if (viewServices !== void 0) {
+      for (const serviceName in viewServices) {
+        const viewService = viewServices[serviceName]!;
+        viewService.unmount();
+      }
+    }
+  }
+
   hasViewScope(scopeName: string): boolean {
     const viewScopes = this._viewScopes;
     return viewScopes !== void 0 && viewScopes[scopeName] !== void 0;
@@ -694,6 +783,11 @@ export abstract class GraphicsView extends View {
 
   /** @hidden */
   mountAnimators(): void {
+    this.mountViewAnimators();
+  }
+
+  /** @hidden */
+  mountViewAnimators(): void {
     const viewAnimators = this._viewAnimators;
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {
@@ -705,6 +799,11 @@ export abstract class GraphicsView extends View {
 
   /** @hidden */
   unmountAnimators(): void {
+    this.unmountViewAnimators();
+  }
+
+  /** @hidden */
+  unmountViewAnimators(): void {
     const viewAnimators = this._viewAnimators;
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {
@@ -818,14 +917,17 @@ export abstract class GraphicsView extends View {
   }
 
   protected updateConstraints(): void {
-    // hook
+    this.updateLayoutAnchors();
   }
 
   /** @hidden */
-  protected updateConstraintVariables(): void {
-    const rootView = this.rootView;
-    if (rootView !== null) {
-      rootView.updateConstraintVariables();
+  updateLayoutAnchors(): void {
+    const layoutAnchors = this._layoutAnchors;
+    if (layoutAnchors !== void 0) {
+      for (const anchorName in layoutAnchors) {
+        const layoutAnchor = layoutAnchors[anchorName]!;
+        layoutAnchor.updateState();
+      }
     }
   }
 
@@ -834,20 +936,20 @@ export abstract class GraphicsView extends View {
     const constraints = this._constraints;
     const constraintVariables = this._constraintVariables;
     if (constraints !== void 0 || constraintVariables !== void 0) {
-      const rootView = this.rootView;
-      if (rootView !== null) {
+      const layoutManager = this.layoutManager.state;
+      if (layoutManager !== void 0) {
         if (constraintVariables !== void 0) {
           for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
             const constraintVariable = constraintVariables[i];
             if (constraintVariable instanceof LayoutAnchor) {
-              rootView.activateConstraintVariable(constraintVariable);
+              layoutManager.activateConstraintVariable(constraintVariable);
               this.requireUpdate(View.NeedsLayout);
             }
           }
         }
         if (constraints !== void 0) {
           for (let i = 0, n = constraints.length; i < n; i += 1) {
-            rootView.activateConstraint(constraints[i]);
+            layoutManager.activateConstraint(constraints[i]);
             this.requireUpdate(View.NeedsLayout);
           }
         }
@@ -860,17 +962,17 @@ export abstract class GraphicsView extends View {
     const constraints = this._constraints;
     const constraintVariables = this._constraintVariables;
     if (constraints !== void 0 || constraintVariables !== void 0) {
-      const rootView = this.rootView;
-      if (rootView !== null) {
+      const layoutManager = this.layoutManager.state;
+      if (layoutManager !== void 0) {
         if (constraints !== void 0) {
           for (let i = 0, n = constraints.length; i < n; i += 1) {
-            rootView.deactivateConstraint(constraints![i]);
+            layoutManager.deactivateConstraint(constraints![i]);
             this.requireUpdate(View.NeedsLayout);
           }
         }
         if (constraintVariables !== void 0) {
           for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-            rootView.deactivateConstraintVariable(constraintVariables![i]);
+            layoutManager.deactivateConstraintVariable(constraintVariables![i]);
             this.requireUpdate(View.NeedsLayout);
           }
         }

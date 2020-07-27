@@ -628,25 +628,25 @@ export const ViewAnimator: ViewAnimatorClass = (function (_super: typeof TweenAn
     }
   };
 
-  ViewAnimator.prototype.onIdle = function <T, U>(this: ViewAnimator<View, T, U>): void {
+  ViewAnimator.prototype.onIdle = function (this: ViewAnimator<View, unknown>): void {
     if (this._value !== void 0) {
       _super.prototype.onIdle.call(this);
     }
   };
 
-  ViewAnimator.prototype.mount = function <T, U>(this: ViewAnimator<View, T, U>): void {
+  ViewAnimator.prototype.mount = function (this: ViewAnimator<View, unknown>): void {
     this.bindSuperAnimator();
   };
 
-  ViewAnimator.prototype.unmount = function <T, U>(this: ViewAnimator<View, T, U>): void {
+  ViewAnimator.prototype.unmount = function (this: ViewAnimator<View, unknown>): void {
     this.unbindSuperAnimator();
   };
 
-  ViewAnimator.prototype.cancel = function <T, U>(this: ViewAnimator<View, T, U>): void {
+  ViewAnimator.prototype.cancel = function (this: ViewAnimator<View, unknown>): void {
     // nop
   };
 
-  ViewAnimator.prototype.delete = function <T, U>(this: ViewAnimator<View, T, U>): void {
+  ViewAnimator.prototype.delete = function (this: ViewAnimator<View, unknown>): void {
     // nop
   };
 
