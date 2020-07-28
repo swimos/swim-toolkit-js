@@ -22,6 +22,7 @@
     "@swim/structure": "3.11.0-dev.20200619",
     "@swim/math": "3.11.0-dev.20200619",
     "@swim/time": "3.11.0-dev.20200619",
+    "@swim/uri": "3.11.0-dev.20200619",
     "@swim/angle": "3.11.0-dev.20200619",
     "@swim/length": "3.11.0-dev.20200619",
     "@swim/color": "3.11.0-dev.20200619",

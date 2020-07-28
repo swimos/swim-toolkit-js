@@ -17,11 +17,13 @@ import {View} from "../View";
 import {UpdateManager} from "../update/UpdateManager";
 import {LayoutManager} from "../layout/LayoutManager";
 import {ViewportManager} from "../viewport/ViewportManager";
+import {HistoryManager} from "../history/HistoryManager";
 import {ModalManager} from "../modal/ModalManager";
 import {ObjectService} from "./ObjectService";
 import {UpdateService} from "./UpdateService";
 import {LayoutService} from "./LayoutService";
 import {ViewportService} from "./ViewportService";
+import {HistoryService} from "./HistoryService";
 import {ModalService} from "./ModalService";
 
 export type ViewServiceType<V, K extends keyof V> =
@@ -34,6 +36,7 @@ export type ViewServiceTypeConstructor = typeof Object
                                        | typeof UpdateManager
                                        | typeof LayoutManager
                                        | typeof ViewportManager
+                                       | typeof HistoryManager
                                        | typeof ModalManager
                                        | {new (...args: any): any}
                                        | any;
@@ -42,6 +45,7 @@ export type ViewServiceDescriptorType<V extends View, C extends ViewServiceTypeC
   C extends typeof UpdateManager ? ViewServiceDescriptor<V, UpdateManager> :
   C extends typeof LayoutManager ? ViewServiceDescriptor<V, LayoutManager> :
   C extends typeof ViewportManager ? ViewServiceDescriptor<V, ViewportManager> :
+  C extends typeof HistoryManager ? ViewServiceDescriptor<V, HistoryManager> :
   C extends typeof ModalManager ? ViewServiceDescriptor<V, ModalManager> :
   C extends typeof Object ? ViewServiceDescriptor<V, Object> :
   C extends new (...args: any) => any ? ViewServiceDescriptor<V, InstanceType<C>> :
@@ -74,6 +78,8 @@ export interface ViewServiceClass {
   Layout: typeof LayoutService; // defined by LayoutService
   /** @hidden */
   Viewport: typeof ViewportService; // defined by ViewportService
+  /** @hidden */
+  History: typeof HistoryService; // defined by HistoryService
   /** @hidden */
   Modal: typeof ModalService; // defined by ModalService
 }
@@ -133,6 +139,8 @@ export const ViewService: ViewServiceClass = (function (_super: typeof Object): 
         serviceType = ViewService.Layout;
       } else if (valueType === ViewportManager) {
         serviceType = ViewService.Viewport;
+      } else if (valueType === HistoryManager) {
+        serviceType = ViewService.History;
       } else if (valueType === ModalManager) {
         serviceType = ViewService.Modal;
       } else {

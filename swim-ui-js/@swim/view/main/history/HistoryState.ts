@@ -12,28 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ViewServiceType,
-  ViewServiceInit,
-  ViewServiceTypeConstructor,
-  ViewServiceDescriptorType,
-  ViewServiceDescriptor,
-  ViewServiceConstructor,
-  ViewServiceClass,
-  ViewService,
-} from "./ViewService";
-
-export {
-  ObjectServiceClass,
-  ObjectService,
-} from "./ObjectService";
-
-export {UpdateService} from "./UpdateService";
-
-export {LayoutService} from "./LayoutService";
-
-export {ViewportService} from "./ViewportService";
-
-export {HistoryService} from "./HistoryService";
-
-export {ModalService} from "./ModalService";
+export type HistoryState = {readonly [key: string]: string | null | undefined};

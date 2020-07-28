@@ -31,6 +31,8 @@ export * from "./layout";
 
 export * from "./viewport";
 
+export * from "./history";
+
 export * from "./modal";
 
 export * from "./event";

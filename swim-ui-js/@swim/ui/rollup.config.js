@@ -17,6 +17,7 @@ const main = {
       "@swim/structure": "swim",
       "@swim/math": "swim",
       "@swim/time": "swim",
+      "@swim/uri": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -29,6 +30,7 @@ const main = {
     "@swim/structure",
     "@swim/math",
     "@swim/time",
+    "@swim/uri",
   ],
   plugins: [
     nodeResolve({customResolveOptions: {paths: "../.."}}),
