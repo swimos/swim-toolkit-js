@@ -117,6 +117,7 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     point.setParentView(this, null);
     this.onInsertChildView(point, null);
     this.didInsertChildView(point, null);
+    point.cascadeInsert();
     return point;
   }
 

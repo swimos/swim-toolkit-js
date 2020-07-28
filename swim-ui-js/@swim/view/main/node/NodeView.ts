@@ -320,6 +320,7 @@ export class NodeView extends View {
       this.onInsertChildView(newChildView, targetView);
       this.didInsertChildNode(newChildNode, targetNode);
       this.didInsertChildView(newChildView, targetView);
+      newChildView.cascadeInsert();
     }
     return oldChildView;
   }
@@ -377,6 +378,7 @@ export class NodeView extends View {
     this.onInsertChildView(childView, null);
     this.didInsertChildNode(childNode, null);
     this.didInsertChildView(childView, null);
+    childView.cascadeInsert();
   }
 
   appendChildNode(childNode: Node, key?: string): void {
@@ -402,6 +404,7 @@ export class NodeView extends View {
     this.didInsertChildNode(childNode, null);
     if (childView !== void 0) {
       this.didInsertChildView(childView, null);
+      childView.cascadeInsert();
     }
   }
 
@@ -436,6 +439,7 @@ export class NodeView extends View {
     this.onInsertChildView(childView, targetView);
     this.didInsertChildNode(childNode, targetNode);
     this.didInsertChildView(childView, targetView);
+    childView.cascadeInsert();
   }
 
   prependChildNode(childNode: Node, key?: string): void {
@@ -463,6 +467,7 @@ export class NodeView extends View {
     this.didInsertChildNode(childNode, targetNode);
     if (childView !== void 0) {
       this.didInsertChildView(childView, targetView);
+      childView.cascadeInsert();
     }
   }
 
@@ -511,6 +516,7 @@ export class NodeView extends View {
     this.onInsertChildView(childView, targetView);
     this.didInsertChildNode(childNode, targetNode);
     this.didInsertChildView(childView, targetView);
+    childView.cascadeInsert();
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -542,6 +548,7 @@ export class NodeView extends View {
     this.didInsertChildNode(childNode, targetNode);
     if (childView !== void 0) {
       this.didInsertChildView(childView, targetView);
+      childView.cascadeInsert();
     }
   }
 
@@ -561,6 +568,7 @@ export class NodeView extends View {
     this.onInsertChildView(childView, targetView);
     this.didInsertChildNode(childNode, targetNode);
     this.didInsertChildView(childView, targetView);
+    childView.cascadeInsert();
   }
 
   protected willInsertChildNode(childNode: Node, targetNode: Node | null): void {
@@ -776,6 +784,7 @@ export class NodeView extends View {
       if (!this.isPowered() && document.visibilityState === "visible") {
         this.cascadePower();
       }
+      this.cascadeInsert();
     }
   }
 
@@ -943,8 +952,31 @@ export class NodeView extends View {
     }
   }
 
+  cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
+    const viewFlags = this._viewFlags;
+    if ((viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
+      if (updateFlags === void 0) {
+        updateFlags = 0;
+      }
+      updateFlags |= viewFlags & View.UpdateMask;
+      if ((updateFlags & View.ProcessMask) !== 0) {
+        if (viewContext === void 0) {
+          viewContext = this.viewContext;
+        }
+        this.cascadeProcess(updateFlags, viewContext);
+      }
+      if ((updateFlags & View.DisplayMask) !== 0) {
+        if (viewContext === void 0) {
+          viewContext = this.viewContext;
+        }
+        this.cascadeDisplay(updateFlags, viewContext);
+      }
+    }
+  }
+
   cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void {
-    processFlags |= this._viewFlags;
+    viewContext = this.extendViewContext(viewContext);
+    processFlags |= this._viewFlags & View.UpdateMask;
     processFlags = this.needsProcess(processFlags, viewContext);
     this.doProcess(processFlags, viewContext);
   }
@@ -1042,8 +1074,7 @@ export class NodeView extends View {
     while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
-        const childViewContext = this.childViewContext(childView, viewContext);
-        this.doProcessChildView(childView, processFlags, childViewContext);
+        this.doProcessChildView(childView, processFlags, viewContext);
         if (callback !== void 0) {
           callback.call(this, childView);
         }
@@ -1058,7 +1089,8 @@ export class NodeView extends View {
   }
 
   cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void {
-    displayFlags |= this._viewFlags;
+    viewContext = this.extendViewContext(viewContext);
+    displayFlags |= this._viewFlags & View.UpdateMask;
     displayFlags = this.needsDisplay(displayFlags, viewContext);
     this.doDisplay(displayFlags, viewContext);
   }
@@ -1108,8 +1140,7 @@ export class NodeView extends View {
     while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
-        const childViewContext = this.childViewContext(childView, viewContext);
-        this.doDisplayChildView(childView, displayFlags, childViewContext);
+        this.doDisplayChildView(childView, displayFlags, viewContext);
         if (callback !== void 0) {
           callback.call(this, childView);
         }

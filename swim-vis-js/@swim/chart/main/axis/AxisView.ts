@@ -159,6 +159,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     tick.setParentView(this, null);
     this.onInsertChildView(tick, null);
     this.didInsertChildView(tick, null);
+    tick.cascadeInsert();
     return tick;
   }
 

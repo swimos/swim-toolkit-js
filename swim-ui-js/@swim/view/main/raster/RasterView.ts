@@ -140,16 +140,6 @@ export class RasterView extends GraphicsNodeView {
     return additionalFlags;
   }
 
-  cascadeProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): void {
-    viewContext = this.rasterViewContext(viewContext);
-    super.cascadeProcess(processFlags, viewContext);
-  }
-
-  cascadeDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): void {
-    viewContext = this.rasterViewContext(viewContext);
-    super.cascadeDisplay(displayFlags, viewContext);
-  }
-
   /** @hidden */
   protected doDisplay(displayFlags: ViewFlags, viewContext: RasterViewContext): void {
     let cascadeFlags = displayFlags;
@@ -232,11 +222,7 @@ export class RasterView extends GraphicsNodeView {
     });
   }
 
-  childViewContext(childView: View, viewContext: RasterViewContext): RasterViewContext {
-    return viewContext;
-  }
-
-  rasterViewContext(viewContext: GraphicsViewContext): RasterViewContext {
+  extendViewContext(viewContext: GraphicsViewContext): RasterViewContext {
     const rasterViewContext = Object.create(viewContext);
     rasterViewContext.compositor = viewContext.renderer;
     rasterViewContext.renderer = this.renderer;
@@ -270,7 +256,7 @@ export class RasterView extends GraphicsNodeView {
   }
 
   hitTest(x: number, y: number, viewContext: RasterViewContext): GraphicsView | null {
-    const rasterViewContext = this.rasterViewContext(viewContext);
+    viewContext = this.extendViewContext(viewContext);
     const compositeFrame = this.compositeFrame;
     x -= Math.floor(compositeFrame.xMin);
     y -= Math.floor(compositeFrame.yMin);
@@ -282,7 +268,7 @@ export class RasterView extends GraphicsNodeView {
       if (childView instanceof GraphicsView && !childView.isHidden() && !childView.isCulled()) {
         const hitBounds = childView.hitBounds;
         if (hitBounds.contains(x, y)) {
-          hit = childView.hitTest(x, y, rasterViewContext);
+          hit = childView.hitTest(x, y, viewContext);
           if (hit !== null) {
             break;
           }

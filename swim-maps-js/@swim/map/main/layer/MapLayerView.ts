@@ -120,6 +120,7 @@ export class MapLayerView extends MapGraphicsView {
       newChildView.setParentView(this, null);
       this.onInsertChildView(newChildView, null);
       this.didInsertChildView(newChildView, null);
+      newChildView.cascadeInsert();
     }
     return oldChildView;
   }
@@ -169,6 +170,7 @@ export class MapLayerView extends MapGraphicsView {
     childView.setParentView(this, null);
     this.onInsertChildView(childView, null);
     this.didInsertChildView(childView, null);
+    childView.cascadeInsert();
   }
 
   prependChildView(childView: View, key?: string): void {
@@ -192,6 +194,7 @@ export class MapLayerView extends MapGraphicsView {
     childView.setParentView(this, null);
     this.onInsertChildView(childView, null);
     this.didInsertChildView(childView, null);
+    childView.cascadeInsert();
   }
 
   insertChildView(childView: View, targetView: View | null, key?: string): void {
@@ -221,6 +224,7 @@ export class MapLayerView extends MapGraphicsView {
     childView.setParentView(this, null);
     this.onInsertChildView(childView, targetView);
     this.didInsertChildView(childView, targetView);
+    childView.cascadeInsert();
   }
 
   removeChildView(key: string): View | null;
@@ -298,8 +302,7 @@ export class MapLayerView extends MapGraphicsView {
     const childViews = tile._views;
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
-      const childViewContext = this.childViewContext(childView, viewContext);
-      this.doProcessChildView(childView, processFlags, childViewContext);
+      this.doProcessChildView(childView, processFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -383,8 +386,7 @@ export class MapLayerView extends MapGraphicsView {
     const childViews = tile._views;
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
-      const childViewContext = this.childViewContext(childView, viewContext);
-      this.doDisplayChildView(childView, displayFlags, childViewContext);
+      this.doDisplayChildView(childView, displayFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }

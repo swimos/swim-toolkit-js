@@ -279,6 +279,7 @@ export class CanvasView extends HtmlView {
       newChildView.setParentView(this, null);
       this.onInsertChildView(newChildView, targetView);
       this.didInsertChildView(newChildView, targetView);
+      newChildView.cascadeInsert();
     }
     return oldChildView;
   }
@@ -326,6 +327,7 @@ export class CanvasView extends HtmlView {
     childView.setParentView(this, null);
     this.onInsertChildView(childView, null);
     this.didInsertChildView(childView, null);
+    childView.cascadeInsert();
   }
 
   prepend<T extends keyof HtmlChildViewTagMap>(tag: T, key?: string): HtmlChildViewTagMap[T];
@@ -367,6 +369,7 @@ export class CanvasView extends HtmlView {
     childView.setParentView(this, null);
     this.onInsertChildView(childView, null);
     this.didInsertChildView(childView, null);
+    childView.cascadeInsert();
   }
 
   insert<T extends keyof HtmlChildViewTagMap>(tag: T, target: View | Node | null, key?: string): HtmlChildViewTagMap[T];
@@ -420,6 +423,7 @@ export class CanvasView extends HtmlView {
     childView.setParentView(this, null);
     this.onInsertChildView(childView, targetView);
     this.didInsertChildView(childView, targetView);
+    childView.cascadeInsert();
   }
 
   removeChildView(key: string): View | null;
@@ -666,16 +670,15 @@ export class CanvasView extends HtmlView {
     return additionalFlags;
   }
 
+  cascadeInsert(updateFlags?: ViewFlags, viewContext?: GraphicsViewContext): void {
+    // nop
+  }
+
   needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
     if ((processFlags & View.ProcessMask) !== 0) {
       this.requireUpdate(View.NeedsRender);
     }
     return processFlags;
-  }
-
-  cascadeProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): void {
-    viewContext = this.canvasViewContext(viewContext);
-    super.cascadeProcess(processFlags, viewContext);
   }
 
   protected onResize(viewContext: GraphicsViewContext): void {
@@ -707,8 +710,7 @@ export class CanvasView extends HtmlView {
     while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
-        const childViewContext = this.childViewContext(childView, viewContext);
-        this.doProcessChildView(childView, processFlags, childViewContext);
+        this.doProcessChildView(childView, processFlags, viewContext);
         if ((childView._viewFlags & View.RemovingFlag) !== 0) {
           childView._viewFlags &= ~View.RemovingFlag;
           this.removeChildView(childView);
@@ -722,8 +724,7 @@ export class CanvasView extends HtmlView {
     i = 0;
     while (i < graphicsViews.length) {
       const childView = graphicsViews[i];
-      const childViewContext = this.childViewContext(childView, viewContext);
-      this.doProcessChildView(childView, processFlags, childViewContext);
+      this.doProcessChildView(childView, processFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -739,11 +740,6 @@ export class CanvasView extends HtmlView {
   needsDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
     displayFlags |= View.NeedsRender;
     return displayFlags;
-  }
-
-  cascadeDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): void {
-    viewContext = this.canvasViewContext(viewContext);
-    super.cascadeDisplay(displayFlags, viewContext);
   }
 
   /** @hidden */
@@ -829,8 +825,7 @@ export class CanvasView extends HtmlView {
     while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
-        const childViewContext = this.childViewContext(childView, viewContext);
-        this.doDisplayChildView(childView, displayFlags, childViewContext);
+        this.doDisplayChildView(childView, displayFlags, viewContext);
         if (callback !== void 0) {
           callback.call(this, childView);
         }
@@ -845,8 +840,7 @@ export class CanvasView extends HtmlView {
     i = 0;
     while (i < graphicsViews.length) {
       const childView = graphicsViews[i];
-      const childViewContext = this.childViewContext(childView, viewContext);
-      this.doDisplayChildView(childView, displayFlags, childViewContext);
+      this.doDisplayChildView(childView, displayFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
@@ -858,20 +852,10 @@ export class CanvasView extends HtmlView {
     }
   }
 
-  childViewContext(childView: View, viewContext: GraphicsViewContext): GraphicsViewContext {
-    return viewContext;
-  }
-
-  canvasViewContext(viewContext?: ViewContext): GraphicsViewContext {
-    if (viewContext === void 0) {
-      viewContext = this.viewContext!;
-    }
-    return {
-      updateTime: viewContext.updateTime,
-      viewport: viewContext.viewport,
-      viewIdiom: viewContext.viewIdiom,
-      renderer: this.renderer,
-    };
+  extendViewContext(viewContext: ViewContext): GraphicsViewContext {
+    const canvasViewContext = Object.create(viewContext);
+    canvasViewContext.renderer = this.renderer;
+    return canvasViewContext;
   }
 
   isHidden(): boolean {
@@ -972,8 +956,9 @@ export class CanvasView extends HtmlView {
 
   hitTest(x: number, y: number, viewContext?: GraphicsViewContext): GraphicsView | null {
     if (viewContext === void 0) {
-      viewContext = this.canvasViewContext();
+      viewContext = this.viewContext as GraphicsViewContext;
     }
+    viewContext = this.extendViewContext(viewContext);
     let hit: GraphicsView | null = null;
     const graphicsViews = this._graphicsViews;
     for (let i = graphicsViews.length - 1; i >= 0; i -= 1) {

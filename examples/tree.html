@@ -34,7 +34,7 @@ if (navigator.standalone) {
 
 const bodyView = new swim.ThemedHtmlView(document.body);
 
-const container = bodyView.append("div")
+const container = swim.HtmlView.create("div")
   .position("relative")
   .flexGrow(1)
   .userSelect("none");
@@ -48,6 +48,8 @@ container.addViewObserver({
     }
   },
 });
+
+bodyView.append(container);
 
 const tree0 = container.append(swim.TreeView.fromAny({
   //depth: 1,

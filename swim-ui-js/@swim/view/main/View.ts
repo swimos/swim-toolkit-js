@@ -479,6 +479,8 @@ export abstract class View implements AnimatorContext, LayoutContext {
     return (this.viewFlags & View.UpdatingMask) !== 0;
   }
 
+  abstract cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void;
+
   isProcessing(): boolean {
     return (this.viewFlags & View.ProcessingFlag) !== 0;
   }
@@ -644,8 +646,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContext,
                               callback?: (this: this, childView: View) => void): void {
     this.forEachChildView(function (childView: View): void {
-      const childViewContext = this.childViewContext(childView, viewContext);
-      this.doProcessChildView(childView, processFlags, childViewContext);
+      this.doProcessChildView(childView, processFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -741,8 +742,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContext,
                               callback?: (this: this, childView: View) => void): void {
     this.forEachChildView(function (childView: View): void {
-      const childViewContext = this.childViewContext(childView, viewContext);
-      this.doDisplayChildView(childView, displayFlags, childViewContext);
+      this.doDisplayChildView(childView, displayFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -770,10 +770,6 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   protected didDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContext): void {
     // hook
-  }
-
-  childViewContext(childView: View, viewContext: ViewContext): ViewContext {
-    return viewContext;
   }
 
   abstract hasViewService(serviceName: string): boolean;
@@ -990,11 +986,16 @@ export abstract class View implements AnimatorContext, LayoutContext {
     }
   }
 
+  /** @hidden */
+  extendViewContext(viewContext: ViewContext): ViewContext {
+    return viewContext;
+  }
+
   get viewContext(): ViewContext {
     let viewContext: ViewContext;
     const parentView = this.parentView;
     if (parentView !== null) {
-      viewContext = parentView.viewContext;
+      viewContext = parentView.extendViewContext(parentView.viewContext);
     } else if (this.isMounted()) {
       const viewportManager = this.viewportManager.state;
       if (viewportManager !== void 0) {

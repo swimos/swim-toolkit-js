@@ -87,21 +87,7 @@ export abstract class EsriView extends MapGraphicsNodeView {
 
   abstract get mapTilt(): number;
 
-  cascadeProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): void {
-    viewContext = this.mapViewContext(viewContext);
-    super.cascadeProcess(processFlags, viewContext);
-  }
-
-  cascadeDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): void {
-    viewContext = this.mapViewContext(viewContext);
-    super.cascadeDisplay(displayFlags, viewContext);
-  }
-
-  childViewContext(childView: View, viewContext: MapGraphicsViewContext): MapGraphicsViewContext {
-    return viewContext;
-  }
-
-  mapViewContext(viewContext: GraphicsViewContext): MapGraphicsViewContext {
+  extendViewContext(viewContext: GraphicsViewContext): MapGraphicsViewContext {
     const mapViewContext = Object.create(viewContext);
     mapViewContext.geoProjection = this.geoProjection;
     mapViewContext.geoFrame = this.geoFrame;
@@ -112,7 +98,7 @@ export abstract class EsriView extends MapGraphicsNodeView {
   }
 
   hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
-    viewContext = this.mapViewContext(viewContext);
+    viewContext = this.extendViewContext(viewContext);
     return super.hitTest(x, y, viewContext as MapGraphicsViewContext);
   }
 

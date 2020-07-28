@@ -434,6 +434,10 @@ export abstract class GraphicsView extends View {
     }
   }
 
+  cascadeInsert(updateFlags?: ViewFlags, viewContext?: GraphicsViewContext): void {
+    // nop
+  }
+
   needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
     if ((this._viewFlags & View.NeedsAnimate) === 0) {
       processFlags &= ~View.NeedsAnimate;
@@ -442,7 +446,8 @@ export abstract class GraphicsView extends View {
   }
 
   cascadeProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): void {
-    processFlags |= this._viewFlags;
+    viewContext = this.extendViewContext(viewContext) as GraphicsViewContext;
+    processFlags |= this._viewFlags & View.UpdateMask;
     processFlags = this.needsProcess(processFlags, viewContext);
     this.doProcess(processFlags, viewContext);
   }
@@ -534,7 +539,8 @@ export abstract class GraphicsView extends View {
   }
 
   cascadeDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): void {
-    displayFlags |= this._viewFlags;
+    viewContext = this.extendViewContext(viewContext) as GraphicsViewContext;
+    displayFlags |= this._viewFlags & View.UpdateMask;
     displayFlags = this.needsDisplay(displayFlags, viewContext);
     this.doDisplay(displayFlags, viewContext);
   }
@@ -607,10 +613,6 @@ export abstract class GraphicsView extends View {
       this.onDisplayChildViews(displayFlags, viewContext);
       this.didDisplayChildViews(displayFlags, viewContext);
     }
-  }
-
-  childViewContext(childView: View, viewContext: GraphicsViewContext): GraphicsViewContext {
-    return viewContext;
   }
 
   hasViewService(serviceName: string): boolean {
@@ -1098,6 +1100,8 @@ export abstract class GraphicsView extends View {
   cullViewFrame(viewFrame: BoxR2 = this.viewFrame): void {
     this.setCulled(!viewFrame.intersects(this.viewBounds));
   }
+
+  readonly viewContext: GraphicsViewContext;
 
   /**
    * The parent-specified view-coordinate bounding box in which this view
