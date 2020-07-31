@@ -26,4 +26,4 @@ export {
 export {LayoutSolver} from "./LayoutSolver";
 
 export {LayoutManager} from "./LayoutManager";
-export {LayoutManagerObserver} from "./LayoutManagerObserver";
+export {LayoutObserver} from "./LayoutObserver";

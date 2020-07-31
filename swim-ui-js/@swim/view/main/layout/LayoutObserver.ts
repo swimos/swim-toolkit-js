@@ -14,11 +14,7 @@
 
 import {View} from "../View";
 import {ViewManagerObserver} from "../manager/ViewManagerObserver";
-import {ViewIdiom} from "./ViewIdiom";
-import {ViewportManager} from "./ViewportManager";
+import {LayoutManager} from "./LayoutManager";
 
-export interface ViewportManagerObserver<V extends View = View, M extends ViewportManager<V> = ViewportManager<V>> extends ViewManagerObserver<V, M> {
-  managerWillSetViewIdiom?(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom, manager: M): void;
-
-  managerDidSetViewIdiom?(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom, manager: M): void;
+export interface LayoutObserver<V extends View = View, M extends LayoutManager<V> = LayoutManager<V>> extends ViewManagerObserver<V, M> {
 }

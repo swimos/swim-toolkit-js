@@ -19,7 +19,7 @@ import {Mood} from "../mood/Mood";
 import {MoodVector} from "../mood/MoodVector";
 import {Theme} from "../theme/Theme";
 import {ThemeMatrix} from "../theme/ThemeMatrix";
-import {ThemeManagerObserver} from "./ThemeManagerObserver";
+import {ThemeObserver} from "./ThemeObserver";
 
 export class ThemeManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -87,7 +87,7 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
 
   protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                            transition: Transition<any> | null): void {
-    this.willObserve(function (viewObserver: ThemeManagerObserver): void {
+    this.willObserve(function (viewObserver: ThemeObserver): void {
       if (viewObserver.managerWillApplyTheme !== void 0) {
         viewObserver.managerWillApplyTheme(theme, mood, transition, this);
       }
@@ -145,12 +145,16 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
 
   protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                           transition: Transition<any> | null): void {
-    this.didObserve(function (viewObserver: ThemeManagerObserver): void {
+    this.didObserve(function (viewObserver: ThemeObserver): void {
       if (viewObserver.managerDidApplyTheme !== void 0) {
         viewObserver.managerDidApplyTheme(theme, mood, transition, this);
       }
     });
   }
+
+  addManagerObserver: (themeObserver: ThemeObserver) => void;
+
+  removeManagerObserver: (themeObserver: ThemeObserver) => void;
 
   protected onAddRootView(rootView: V): void {
     super.onAddRootView(rootView);

@@ -18,7 +18,7 @@ import {ViewManager} from "../manager/ViewManager";
 import {ViewIdiom} from "./ViewIdiom";
 import {Viewport} from "./Viewport";
 import {ViewportContext} from "./ViewportContext";
-import {ViewportManagerObserver} from "./ViewportManagerObserver";
+import {ViewportObserver} from "./ViewportObserver";
 
 export class ViewportManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -73,9 +73,9 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willSetViewIdiom(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom): void {
-    this.willObserve(function (managerObserver: ViewportManagerObserver): void {
-      if (managerObserver.managerWillSetViewIdiom !== void 0) {
-        managerObserver.managerWillSetViewIdiom(newViewIdiom, oldViewIdiom, this);
+    this.willObserve(function (viewportObserver: ViewportObserver): void {
+      if (viewportObserver.viewportWillSetViewIdiom !== void 0) {
+        viewportObserver.viewportWillSetViewIdiom(newViewIdiom, oldViewIdiom, this);
       }
     });
   }
@@ -88,9 +88,9 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected didSetViewIdiom(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom): void {
-    this.didObserve(function (managerObserver: ViewportManagerObserver): void {
-      if (managerObserver.managerDidSetViewIdiom !== void 0) {
-        managerObserver.managerDidSetViewIdiom(newViewIdiom, oldViewIdiom, this);
+    this.didObserve(function (viewportObserver: ViewportObserver): void {
+      if (viewportObserver.viewportDidSetViewIdiom !== void 0) {
+        viewportObserver.viewportDidSetViewIdiom(newViewIdiom, oldViewIdiom, this);
       }
     });
   }
@@ -102,6 +102,10 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
       this.setViewIdiom("desktop");
     }
   }
+
+  addManagerObserver: (viewportObserver: ViewportObserver) => void;
+
+  removeManagerObserver: (viewportObserver: ViewportObserver) => void;
 
   protected onAttach(): void {
     super.onAttach();

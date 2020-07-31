@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Ease, Tween, AnyTransition, Transition} from "@swim/transition";
+import {Tween, Transition} from "@swim/transition";
 import {
   ViewContext,
   ViewFlags,
   View,
+  ModalOptions,
   ModalState,
   Modal,
-  ViewScope,
   ViewAnimator,
   ViewNode,
   ViewNodeType,
@@ -96,13 +96,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   @ViewAnimator(Number, {value: 0})
   stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @ViewScope(Transition, {
-    inherit: true,
-    init(): Transition<any> {
-      return Transition.duration(250, Ease.cubicOut);
-    },
-  })
-  stackTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
+  get modalView(): View | null {
+    return null;
+  }
 
   get modalState(): ModalState {
     const stackState = this._stackState;
@@ -119,11 +115,11 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
     }
   }
 
-  get modalView(): View | null {
-    return null;
+  get modality(): boolean | number {
+    return this.stackPhase.getValue();
   }
 
-  showModal(tween?: Tween<any>): void {
+  showModal(options: ModalOptions, tween?: Tween<any>): void {
     this.expand(tween);
   }
 
@@ -145,9 +141,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
     const button = this.button;
     if (button !== null) {
       if (tween === void 0 || tween === true) {
-        tween = this.stackTransition.state;
-      } else if (tween === false) {
-        tween = void 0;
+        tween = this.getLookOr(Look.transition, null);
+      } else {
+        tween = Transition.forTween(tween);
       }
       button.setIcon(buttonIcon, tween, ccw);
     }
@@ -235,6 +231,10 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
         zIndex -= 1;
       }
     }
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.updateModality();
+    }
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -287,35 +287,36 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   }
 
   expand(tween?: Tween<any>): void {
-    if (this.isCollapsed() || this.stackPhase.value !== 1) {
+    if (this._stackState !== "expanded" || this.stackPhase.value !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this.stackTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
-      this.willExpand();
-      if (tween !== null) {
+      if (this._stackState !== "expanding") {
+        this.willExpand();
         this.button!.setIcon(this.createCloseIcon(), tween);
+      }
+      if (tween !== null) {
         if (this.stackPhase.value !== 1) {
-          this.stackPhase.setState(1, tween.onEnd(this.didExpand.bind(this)));
+          this.stackPhase.setAutoState(1, tween.onEnd(this.didExpand.bind(this)));
         } else {
           setTimeout(this.didExpand.bind(this));
         }
       } else {
-        this.button!.setIcon(this.createCloseIcon());
-        this.stackPhase.setState(1);
+        this.stackPhase.setAutoState(1);
         this.didExpand();
       }
     }
   }
 
   protected willExpand(): void {
+    this._stackState = "expanding";
     this.willObserve(function (viewObserver: ActionStackObserver): void {
       if (viewObserver.actionStackWillExpand !== void 0) {
         viewObserver.actionStackWillExpand(this);
       }
     });
-    this._stackState = "expanding";
   }
 
   protected didExpand(): void {
@@ -329,35 +330,36 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   }
 
   collapse(tween?: Tween<any>): void {
-    if (this.isExpanded() || this.stackPhase.value !== 0) {
+    if (this._stackState !== "collapsed" || this.stackPhase.value !== 0) {
       if (tween === void 0 || tween === true) {
-        tween = this.stackTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
-      this.willCollapse();
-      if (tween !== null) {
+      if (this._stackState !== "collapsing") {
+        this.willCollapse();
         this.button!.setIcon(this._buttonIcon, tween, true);
+      }
+      if (tween !== null) {
         if (this.stackPhase.value !== 0) {
-          this.stackPhase.setState(0, tween.onEnd(this.didCollapse.bind(this)));
+          this.stackPhase.setAutoState(0, tween.onEnd(this.didCollapse.bind(this)));
         } else {
           setTimeout(this.didCollapse.bind(this));
         }
       } else {
-        this.button!.setIcon(this._buttonIcon);
-        this.stackPhase.setState(0);
+        this.stackPhase.setAutoState(0);
         this.didCollapse();
       }
     }
   }
 
   protected willCollapse(): void {
+    this._stackState = "collapsing";
     this.willObserve(function (viewObserver: ActionStackObserver): void {
       if (viewObserver.actionStackWillCollapse !== void 0) {
         viewObserver.actionStackWillCollapse(this);
       }
     });
-    this._stackState = "collapsing";
   }
 
   protected didCollapse(): void {
@@ -382,7 +384,7 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   show(tween?: Tween<any>): void {
     if (this.opacity.state !== 1) {
       if (tween === void 0 || tween === true) {
-        tween = this.stackTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -417,7 +419,7 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   hide(tween?: Tween<any>): void {
     if (this.opacity.state !== 0) {
       if (tween === void 0 || tween === true) {
-        tween = this.stackTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -454,12 +456,12 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   }
 
   didHoldPress(input: PositionGestureInput): void {
-    this.toggle();
     input.preventDefault();
+    this.toggle();
   }
 
   didMovePress(input: PositionGestureInput, event: Event | null): void {
-    if (!input.defaultPrevented && this.isCollapsed()) {
+    if (!input.defaultPrevented && this._stackState !== "expanded") {
       const itemHeight = 48;
       const itemCount = this._itemCount;
       let stackHeight = 0;
@@ -469,10 +471,14 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
           stackHeight += (itemCount - 1) * (this._itemSpacing + itemHeight);
         }
         const stackPhase = Math.min(Math.max(0, -(input.y - input.y0) / (0.5 * stackHeight)), 1);
-        this.stackPhase.setState(stackPhase);
+        this.stackPhase.setAutoState(stackPhase);
         this.requireUpdate(View.NeedsLayout);
         if (stackPhase > 0.1) {
           input.clearHoldTimer();
+          if (this._stackState === "collapsed") {
+            this.willExpand();
+            this.button!.setIcon(this.createCloseIcon(), true);
+          }
         }
       }
     }
@@ -480,6 +486,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
 
   didEndPress(input: PositionGestureInput, event: Event | null): void {
     if (!input.defaultPrevented) {
+      if (event !== null) {
+        event.stopPropagation();
+      }
       const stackPhase = this.stackPhase.getValue();
       if (input.t - input.t0 < input.holdDelay) {
         if (stackPhase < 0.1 || this.stackState === "expanded") {

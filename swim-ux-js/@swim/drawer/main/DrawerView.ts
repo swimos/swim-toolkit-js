@@ -19,6 +19,7 @@ import {
   ViewContext,
   View,
   ViewEdgeInsets,
+  ModalOptions,
   ModalState,
   Modal,
   ViewScope,
@@ -55,11 +56,14 @@ export class DrawerView extends ThemedHtmlView implements Modal {
   _drawerPlacement: DrawerPlacement;
   /** @hidden */
   _drawerState: DrawerState;
+  /** @hidden */
+  _modality: boolean | number;
 
   constructor(node: HTMLElement) {
     super(node);
     this._drawerPlacement = "left";
     this._drawerState = "hidden";
+    this._modality = false;
 
     this.modifyTheme(Feel.default, [Feel.overlay, 1]);
   }
@@ -369,6 +373,10 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     });
   }
 
+  get modalView(): View | null {
+    return this;
+  }
+
   get modalState(): ModalState {
     const drawerState = this._drawerState;
     if (drawerState === "collapsed" || drawerState === "collapsing") {
@@ -378,11 +386,11 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     }
   }
 
-  get modalView(): View | null {
-    return this;
+  get modality(): boolean | number {
+    return this._modality;
   }
 
-  showModal(tween?: Tween<any>): void {
+  showModal(options: ModalOptions, tween?: Tween<any>): void {
     this.show(tween);
   }
 

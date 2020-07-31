@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ScrimViewInit,
-  ScrimView,
-} from "./ScrimView";
+export {ScrimView} from "./ScrimView";
 
 export {
   GlowState,

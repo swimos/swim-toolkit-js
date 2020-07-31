@@ -16,7 +16,7 @@ import {Uri, UriQuery, UriFragment} from "@swim/uri";
 import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
 import {HistoryState} from "./HistoryState";
-import {HistoryManagerObserver} from "./HistoryManagerObserver";
+import {HistoryObserver} from "./HistoryObserver";
 
 export class HistoryManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -114,9 +114,9 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willPushState(state: HistoryState): void {
-    this.willObserve(function (managerObserver: HistoryManagerObserver): void {
-      if (managerObserver.managerWillPushState !== void 0) {
-        managerObserver.managerWillPushState(state, this);
+    this.willObserve(function (historyObserver: HistoryObserver): void {
+      if (historyObserver.historyWillPushState !== void 0) {
+        historyObserver.historyWillPushState(state, this);
       }
     });
   }
@@ -129,9 +129,9 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected didPushState(state: HistoryState): void {
-    this.didObserve(function (managerObserver: HistoryManagerObserver): void {
-      if (managerObserver.managerDidPushState !== void 0) {
-        managerObserver.managerDidPushState(state, this);
+    this.didObserve(function (historyObserver: HistoryObserver): void {
+      if (historyObserver.historyDidPushState !== void 0) {
+        historyObserver.historyDidPushState(state, this);
       }
     });
   }
@@ -146,9 +146,9 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willReplaceState(state: HistoryState): void {
-    this.willObserve(function (managerObserver: HistoryManagerObserver): void {
-      if (managerObserver.managerWillReplaceState !== void 0) {
-        managerObserver.managerWillReplaceState(state, this);
+    this.willObserve(function (historyObserver: HistoryObserver): void {
+      if (historyObserver.historyWillReplaceState !== void 0) {
+        historyObserver.historyWillReplaceState(state, this);
       }
     });
   }
@@ -161,9 +161,9 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected didReplaceState(state: HistoryState): void {
-    this.didObserve(function (managerObserver: HistoryManagerObserver): void {
-      if (managerObserver.managerDidReplaceState !== void 0) {
-        managerObserver.managerDidReplaceState(state, this);
+    this.didObserve(function (historyObserver: HistoryObserver): void {
+      if (historyObserver.historyDidReplaceState !== void 0) {
+        historyObserver.historyDidReplaceState(state, this);
       }
     });
   }
@@ -178,9 +178,9 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willPopState(state: HistoryState): void {
-    this.willObserve(function (managerObserver: HistoryManagerObserver): void {
-      if (managerObserver.managerWillPopState !== void 0) {
-        managerObserver.managerWillPopState(state, this);
+    this.willObserve(function (historyObserver: HistoryObserver): void {
+      if (historyObserver.historyWillPopState !== void 0) {
+        historyObserver.historyWillPopState(state, this);
       }
     });
   }
@@ -193,12 +193,16 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected didPopState(state: HistoryState): void {
-    this.didObserve(function (managerObserver: HistoryManagerObserver): void {
-      if (managerObserver.managerDidPopState !== void 0) {
-        managerObserver.managerDidPopState(state, this);
+    this.didObserve(function (historyObserver: HistoryObserver): void {
+      if (historyObserver.historyDidPopState !== void 0) {
+        historyObserver.historyDidPopState(state, this);
       }
     });
   }
+
+  addManagerObserver: (historyObserver: HistoryObserver) => void;
+
+  removeManagerObserver: (historyObserver: HistoryObserver) => void;
 
   protected onAttach(): void {
     super.onAttach();

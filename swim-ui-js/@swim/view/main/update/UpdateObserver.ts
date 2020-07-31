@@ -14,19 +14,7 @@
 
 import {View} from "../View";
 import {ViewManagerObserver} from "../manager/ViewManagerObserver";
-import {HistoryState} from "./HistoryState";
-import {HistoryManager} from "./HistoryManager";
+import {UpdateManager} from "./UpdateManager";
 
-export interface HistoryManagerObserver<V extends View = View, M extends HistoryManager<V> = HistoryManager<V>> extends ViewManagerObserver<V, M> {
-  managerWillPushState?(state: HistoryState, manager: M): void;
-
-  managerDidPushState?(state: HistoryState, manager: M): void;
-
-  managerWillReplaceState?(state: HistoryState, manager: M): void;
-
-  managerDidReplaceState?(state: HistoryState, manager: M): void;
-
-  managerWillPopState?(state: HistoryState, manager: M): void | boolean;
-
-  managerDidPopState?(state: HistoryState, manager: M): void;
+export interface UpdateObserver<V extends View = View, M extends UpdateManager<V> = UpdateManager<V>> extends ViewManagerObserver<V, M> {
 }

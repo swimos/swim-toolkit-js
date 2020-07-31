@@ -21,6 +21,7 @@ import {
   ViewContext,
   ViewFlags,
   View,
+  ModalOptions,
   ModalState,
   Modal,
   ViewScope,
@@ -52,6 +53,8 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   /** @hidden */
   _modalState: ModalState;
   /** @hidden */
+  _modality: boolean | number;
+  /** @hidden */
   readonly _placement: PopoverPlacement[];
   /** @hidden */
   _placementFrame: BoxR2 | null;
@@ -61,6 +64,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     this._source = null;
     this._sourceFrame = null;
     this._modalState = "shown";
+    this._modality = false;
     this._placement = ["top", "bottom", "right", "left"];
     this._placementFrame = null;
     this.initArrow();
@@ -162,28 +166,27 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     });
   }
 
-  get modalState(): ModalState {
-    return this._modalState;
-  }
-
   get modalView(): View | null {
     return this;
   }
 
-  toggle(tween?: Tween<any>): void {
-    if (this._modalState === "hidden" || this._modalState === "hiding") {
-      this.showModal(tween);
-    } else if (this._modalState === "shown" || this._modalState === "showing") {
-      this.hideModal(tween);
-    }
+  get modalState(): ModalState {
+    return this._modalState;
   }
 
-  showModal(tween?: Tween<any>): void {
+  get modality(): boolean | number {
+    return this._modality;
+  }
+
+  showModal(options: ModalOptions, tween?: Tween<any>): void {
     if (this._modalState === "hidden" || this._modalState === "hiding") {
       if (tween === void 0 || tween === true) {
         tween = this.popoverTransition.getStateOr(null);
       } else {
         tween = Transition.forTween(tween);
+      }
+      if (options.modal !== void 0) {
+        this._modality = options.modal;
       }
       this.willShow();
       const placement = this.place();

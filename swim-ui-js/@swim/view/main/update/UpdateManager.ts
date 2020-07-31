@@ -15,6 +15,7 @@
 import {ViewFlags, View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
 import {UpdateContext} from "./UpdateContext";
+import {UpdateObserver} from "./UpdateObserver";
 
 export class UpdateManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -214,6 +215,10 @@ export class UpdateManager<V extends View = View> extends ViewManager<V> {
       }
     }
   }
+
+  addManagerObserver: (updateObserver: UpdateObserver) => void;
+
+  removeManagerObserver: (updateObserver: UpdateObserver) => void;
 
   protected onAttach(): void {
     super.onAttach();

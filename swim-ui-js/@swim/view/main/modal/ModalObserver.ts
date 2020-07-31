@@ -17,7 +17,7 @@ import {ViewManagerObserver} from "../manager/ViewManagerObserver";
 import {ModalOptions, Modal} from "./Modal";
 import {ModalManager} from "./ModalManager";
 
-export interface ModalManagerObserver<V extends View = View, M extends ModalManager<V> = ModalManager<V>> extends ViewManagerObserver<V, M> {
+export interface ModalObserver<V extends View = View, M extends ModalManager<V> = ModalManager<V>> extends ViewManagerObserver<V, M> {
   managerWillPresentModal?(modal: Modal, options: ModalOptions, manager: M): void;
 
   managerDidPresentModal?(modal: Modal, options: ModalOptions, manager: M): void;
@@ -26,7 +26,11 @@ export interface ModalManagerObserver<V extends View = View, M extends ModalMana
 
   managerDidDismissModal?(modal: Modal, manager: M): void;
 
-  managerWillDefaultClick?(event: Event, manager: M): void | boolean;
+  managerWillUpdateModality?(newModality: number, oldModality: number, manager: M): void;
 
-  managerDidDefaultClick?(event: Event, manager: M): void;
+  managerDidUpdateModality?(newModality: number, oldModality: number, manager: M): void;
+
+  managerWillDisruptModals?(event: Event | null, manager: M): void | boolean;
+
+  managerDidDisruptModals?(event: Event | null, manager: M): void;
 }

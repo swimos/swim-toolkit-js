@@ -13,10 +13,10 @@
 // limitations under the License.
 
 export {
-  ModalState,
   ModalOptions,
+  ModalState,
   Modal,
 } from "./Modal";
 
 export {ModalManager} from "./ModalManager";
-export {ModalManagerObserver} from "./ModalManagerObserver";
+export {ModalObserver} from "./ModalObserver";

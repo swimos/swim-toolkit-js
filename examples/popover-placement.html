@@ -21,7 +21,7 @@ const source = bodyView.append("div")
   .borderRadius(50)
   .backgroundColor("#989898")
   .on("click", function (event) {
-    popover.toggle();
+    bodyView.toggleModal(popover);
   });
 
 const popover = swim.View.create(swim.PopoverView)

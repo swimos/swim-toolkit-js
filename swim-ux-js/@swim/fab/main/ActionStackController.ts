@@ -38,11 +38,11 @@ export class ActionStackController<V extends ActionStack = ActionStack> extends 
   }
 
   actionStackWillExpand(view: V): void {
-    // hook
+    view.presentModal(view);
   }
 
   actionStackDidExpand(view: V): void {
-    view.presentModal(view, {focus: true});
+    // hook
   }
 
   actionStackWillCollapse(view: V): void {

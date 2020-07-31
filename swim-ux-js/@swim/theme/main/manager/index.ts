@@ -13,6 +13,6 @@
 // limitations under the License.
 
 export {ThemeManager} from "./ThemeManager";
-export {ThemeManagerObserver} from "./ThemeManagerObserver";
+export {ThemeObserver} from "./ThemeObserver";
 
 export {ThemeService} from "./ThemeService";

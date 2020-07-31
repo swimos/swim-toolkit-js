@@ -37,6 +37,8 @@ if (navigator.standalone) {
 
 const bodyView = new swim.ThemedHtmlView(document.body);
 
+bodyView.append(swim.ScrimView);
+
 const actionStack = bodyView.append(swim.ActionStack)
   .position("absolute")
   .top("60%")

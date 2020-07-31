@@ -28,7 +28,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "motif"],
+        deps: ["theme"],
       },
     ],
   },
@@ -38,7 +38,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "motif"],
+        deps: ["theme"],
       },
     ],
   },

@@ -19,4 +19,4 @@ export {Viewport} from "./Viewport";
 
 export {ViewportContext} from "./ViewportContext";
 export {ViewportManager} from "./ViewportManager";
-export {ViewportManagerObserver} from "./ViewportManagerObserver";
+export {ViewportObserver} from "./ViewportObserver";

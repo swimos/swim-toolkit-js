@@ -17,6 +17,7 @@ import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
 import {LayoutAnchor} from "./LayoutAnchor";
 import {LayoutSolver} from "./LayoutSolver";
+import {LayoutObserver} from "./LayoutObserver";
 import {NodeView} from "../node/NodeView";
 
 export class LayoutManager<V extends View = View> extends ViewManager<V> {
@@ -97,6 +98,10 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
       }
     }
   }
+
+  addManagerObserver: (layoutObserver: LayoutObserver) => void;
+
+  removeManagerObserver: (layoutObserver: LayoutObserver) => void;
 
   protected onAddRootView(rootView: V): void {
     super.onAddRootView(rootView);

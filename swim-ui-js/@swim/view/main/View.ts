@@ -298,6 +298,34 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   modalManager: ViewService<this, ModalManager>; // defined by ModalService
 
+  toggleModal(modal: Modal, options?: ModalOptions): void {
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.toggleModal(modal, options);
+    }
+  }
+
+  presentModal(modal: Modal, options?: ModalOptions): void {
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.presentModal(modal, options);
+    }
+  }
+
+  dismissModal(modal: Modal): void {
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.dismissModal(modal);
+    }
+  }
+
+  dismissModals(): void {
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.dismissModals();
+    }
+  }
+
   get viewClass(): ViewClass {
     return this.constructor as unknown as ViewClass;
   }
@@ -958,34 +986,6 @@ export abstract class View implements AnimatorContext, LayoutContext {
     const layoutManager = this.layoutManager.state;
     if (layoutManager !== void 0) {
       layoutManager.updateConstraintVariables();
-    }
-  }
-
-  toggleModal(modal: Modal, options?: ModalOptions): void {
-    const modalManager = this.modalManager.state;
-    if (modalManager !== void 0) {
-      modalManager.toggleModal(modal, options);
-    }
-  }
-
-  presentModal(modal: Modal, options: ModalOptions = {}): void {
-    const modalManager = this.modalManager.state;
-    if (modalManager !== void 0) {
-      modalManager.presentModal(modal, options);
-    }
-  }
-
-  dismissModal(modal: Modal): void {
-    const modalManager = this.modalManager.state;
-    if (modalManager !== void 0) {
-      modalManager.dismissModal(modal);
-    }
-  }
-
-  dismissModals(): void {
-    const modalManager = this.modalManager.state;
-    if (modalManager !== void 0) {
-      modalManager.dismissModals();
     }
   }
 

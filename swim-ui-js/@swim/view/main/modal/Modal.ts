@@ -15,19 +15,21 @@
 import {Tween} from "@swim/transition";
 import {View} from "../View";
 
-export type ModalState = "hidden" | "showing" | "shown" | "hiding";
-
 export interface ModalOptions {
-  focus?: boolean;
+  modal?: boolean | number;
   multi?: boolean;
 }
 
-export interface Modal {
-  readonly modalState: ModalState;
+export type ModalState = "hidden" | "showing" | "shown" | "hiding";
 
+export interface Modal {
   readonly modalView: View | null;
 
-  showModal(tween?: Tween<any>): void;
+  readonly modalState: ModalState;
+
+  readonly modality: boolean | number;
+
+  showModal(options: ModalOptions, tween?: Tween<any>): void;
 
   hideModal(tween?: Tween<any>): void;
 }
@@ -37,8 +39,9 @@ export const Modal = {
   is(object: unknown): object is Modal {
     if (typeof object === "object" && object !== null) {
       const modal = object as Modal;
-      return modal.modalState !== void 0
-          && modal.modalView !== void 0
+      return "modalView" in modal
+          && "modalState" in modal
+          && "modality" in modal
           && typeof modal.showModal === "function"
           && typeof modal.hideModal === "function";
     }

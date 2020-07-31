@@ -18,7 +18,7 @@ import {MoodVector} from "../mood/MoodVector";
 import {ThemeMatrix} from "../theme/ThemeMatrix";
 import {ThemeManager} from "./ThemeManager";
 
-export interface ThemeManagerObserver<V extends View = View, M extends ThemeManager<V> = ThemeManager<V>> extends ViewManagerObserver<V, M> {
+export interface ThemeObserver<V extends View = View, M extends ThemeManager<V> = ThemeManager<V>> extends ViewManagerObserver<V, M> {
   managerWillApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, manager: M): void;
 
   managerDidApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, manager: M): void;

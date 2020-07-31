@@ -14,22 +14,19 @@
 
 import {Color} from "@swim/color";
 import {Tween, Transition} from "@swim/transition";
-import {ModalState, ViewNodeType} from "@swim/view";
-import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
+import {ModalState, ModalManager, ModalObserver, ViewNodeType} from "@swim/view";
+import {Look, ThemedHtmlView} from "@swim/theme";
 
-export interface ScrimViewInit extends ThemedHtmlViewInit {
-}
-
-export class ScrimView extends ThemedHtmlView {
+export class ScrimView extends ThemedHtmlView implements ModalObserver {
   /** @hidden */
-  _modalState: ModalState;
+  _scrimState: ModalState;
 
   constructor(node: HTMLElement) {
     super(node);
-    this._modalState = "hidden";
+    this._scrimState = "hidden";
     this.onClick = this.onClick.bind(this);
-    this.onSyntheticClick = this.onSyntheticClick.bind(this);
     if (typeof PointerEvent !== "undefined") {
+      this.onSyntheticClick = this.onSyntheticClick.bind(this);
       this.on("pointerup", this.onClick);
       this.on("click", this.onSyntheticClick);
     } else if (typeof TouchEvent !== "undefined") {
@@ -55,24 +52,20 @@ export class ScrimView extends ThemedHtmlView {
     this.backgroundColor.setAutoState(Color.black(0));
   }
 
-  initView(init: ScrimViewInit): void {
-    super.initView(init);
-  }
-
-  get modalState(): ModalState {
-    return this._modalState;
+  get scrimState(): ModalState {
+    return this._scrimState;
   }
 
   isShown(): boolean {
-    return this._modalState === "shown" || this._modalState === "showing";
+    return this._scrimState === "shown" || this._scrimState === "showing";
   }
 
   isHidden(): boolean {
-    return this._modalState === "hidden" || this._modalState === "hiding";
+    return this._scrimState === "hidden" || this._scrimState === "hiding";
   }
 
   show(opacity: number, tween?: Tween<any>): void {
-    if (this._modalState === "hidden" || this._modalState === "hiding") {
+    if (this._scrimState === "hidden" || this._scrimState === "hiding") {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
@@ -91,15 +84,15 @@ export class ScrimView extends ThemedHtmlView {
   }
 
   protected willShow(): void {
-    this._modalState = "showing";
+    this._scrimState = "showing";
   }
 
   protected didShow(): void {
-    this._modalState = "shown";
+    this._scrimState = "shown";
   }
 
   hide(tween?: Tween<any>): void {
-    if (this._modalState === "shown" || this._modalState === "showing") {
+    if (this._scrimState === "shown" || this._scrimState === "showing") {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
@@ -116,19 +109,49 @@ export class ScrimView extends ThemedHtmlView {
   }
 
   protected willHide(): void {
-    this._modalState = "hiding";
+    this._scrimState = "hiding";
   }
 
   protected didHide(): void {
-    this._modalState = "hidden";
+    this._scrimState = "hidden";
     this.display.setAutoState("none");
+  }
+
+  protected onMount(): void {
+    super.onMount();
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.addManagerObserver(this);
+      this.managerDidUpdateModality(modalManager.modality, 0, modalManager);
+    }
+  }
+
+  protected onUnmount(): void {
+    const modalManager = this.modalManager.state;
+    if (modalManager !== void 0) {
+      modalManager.removeManagerObserver(this);
+    }
+    this.hide();
+    super.onUnmount();
+  }
+
+  managerDidUpdateModality(newModality: number, oldModality: number, manager: ModalManager): void {
+    if (newModality !== 0) {
+      const opacity = 0.5 * newModality;
+      if (oldModality === 0) {
+        this.show(opacity);
+      } else {
+        this.backgroundColor.setAutoState(Color.black(opacity));
+      }
+    } else {
+      this.hide();
+    }
   }
 
   protected onClick(event: Event): void {
     const modalManager = this.modalManager.state;
     if (modalManager !== void 0) {
-      event.stopPropagation();
-      modalManager.defaultClick(event);
+      modalManager.disruptModals(event);
     }
   }
 

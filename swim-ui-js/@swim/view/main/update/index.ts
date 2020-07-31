@@ -14,4 +14,4 @@
 
 export {UpdateContext} from "./UpdateContext";
 export {UpdateManager} from "./UpdateManager";
-export {UpdateManagerObserver} from "./UpdateManagerObserver";
+export {UpdateObserver} from "./UpdateObserver";

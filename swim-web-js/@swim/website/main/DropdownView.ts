@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Tween} from "@swim/transition";
-import {View, ModalState, Modal, HtmlView, HtmlViewController} from "@swim/view";
+import {View, ModalOptions, ModalState, Modal, HtmlView, HtmlViewController} from "@swim/view";
 
 export class DropdownView extends HtmlView implements Modal {
   /** @hidden */
@@ -76,14 +76,15 @@ export class DropdownView extends HtmlView implements Modal {
       if (classList.contains(this._visibleClass)) {
         classList.remove(this._visibleClass);
       } else {
-        const rootView = this.rootView;
-        if (rootView !== null) {
-          rootView.presentModal(this);
-        }
+        this.presentModal(this);
       }
       event.stopPropagation();
       event.preventDefault();
     }
+  }
+
+  get modalView(): View | null {
+    return this.menuView;
   }
 
   get modalState(): ModalState {
@@ -97,11 +98,11 @@ export class DropdownView extends HtmlView implements Modal {
     return "hidden";
   }
 
-  get modalView(): View | null {
-    return this.menuView;
+  get modality(): boolean | number {
+    return false;
   }
 
-  showModal(tween?: Tween<any>): void {
+  showModal(options: ModalOptions, tween?: Tween<any>): void {
     const menuView = this.menuView;
     if (menuView !== null) {
       const classList = menuView.classList;
@@ -115,9 +116,6 @@ export class DropdownView extends HtmlView implements Modal {
       const classList = menuView.classList;
       classList.remove(this._visibleClass);
     }
-    const rootView = this.rootView;
-    if (rootView !== null) {
-      rootView.dismissModal(this);
-    }
+    this.dismissModal(this);
   }
 }

@@ -16,7 +16,7 @@ import {Angle} from "@swim/angle";
 import {Transform} from "@swim/transform";
 import {Tween, Transition} from "@swim/transition";
 import {ViewNodeType, SvgView, HtmlView} from "@swim/view";
-import {ThemedHtmlView} from "@swim/theme";
+import {Look, ThemedHtmlView} from "@swim/theme";
 
 export class MorphView extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
@@ -40,8 +40,12 @@ export class MorphView extends ThemedHtmlView {
     return childView instanceof SvgView || childView instanceof HtmlView ? childView : null;
   }
 
-  setIcon(icon: SvgView | HtmlView | null, tween: Tween<any> = null, ccw: boolean = false): void {
-    tween = Transition.forTween(tween);
+  setIcon(icon: SvgView | HtmlView | null, tween?: Tween<any>, ccw: boolean = false): void {
+    if (tween === void 0 || tween === true) {
+      tween = this.getLookOr(Look.transition, null);
+    } else {
+      tween = Transition.forTween(tween);
+    }
     const oldForm = this.getChildView("form");
     if (oldForm instanceof HtmlView) {
       if (tween !== null) {
