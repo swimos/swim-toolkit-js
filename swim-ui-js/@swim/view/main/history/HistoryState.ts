@@ -12,4 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export type HistoryState = {readonly [key: string]: string | null | undefined};
+export interface HistoryState {
+  readonly fragment?: string;
+
+  readonly permanent?: {readonly [key: string]: string | undefined};
+
+  readonly ephemeral?: {readonly [key: string]: string | undefined};
+}

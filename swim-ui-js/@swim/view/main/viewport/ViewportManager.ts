@@ -74,8 +74,8 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
 
   protected willSetViewIdiom(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom): void {
     this.willObserve(function (viewportObserver: ViewportObserver): void {
-      if (viewportObserver.viewportWillSetViewIdiom !== void 0) {
-        viewportObserver.viewportWillSetViewIdiom(newViewIdiom, oldViewIdiom, this);
+      if (viewportObserver.managerWillSetViewIdiom !== void 0) {
+        viewportObserver.managerWillSetViewIdiom(newViewIdiom, oldViewIdiom, this);
       }
     });
   }
@@ -89,8 +89,8 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
 
   protected didSetViewIdiom(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom): void {
     this.didObserve(function (viewportObserver: ViewportObserver): void {
-      if (viewportObserver.viewportDidSetViewIdiom !== void 0) {
-        viewportObserver.viewportDidSetViewIdiom(newViewIdiom, oldViewIdiom, this);
+      if (viewportObserver.managerDidSetViewIdiom !== void 0) {
+        viewportObserver.managerDidSetViewIdiom(newViewIdiom, oldViewIdiom, this);
       }
     });
   }

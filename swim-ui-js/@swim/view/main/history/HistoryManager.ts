@@ -20,182 +20,203 @@ import {HistoryObserver} from "./HistoryObserver";
 
 export class HistoryManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
-  readonly _state: {[key: string]: string | null | undefined};
+  readonly _historyState: {
+    fragment: string | undefined;
+    readonly permanent: {[key: string]: string | undefined};
+    readonly ephemeral: {[key: string]: string | undefined};
+  };
 
   constructor() {
     super();
-    this.popState = this.popState.bind(this);
-    this._state = {};
-    this.initState();
+    this.popHistory = this.popHistory.bind(this);
+    this._historyState = {
+      fragment: void 0,
+      permanent: {},
+      ephemeral: {},
+    };
+    this.initHistory();
   }
 
-  protected initState(): void {
-    this.updateStateUrl(window.location.href);
+  protected initHistory(): void {
+    this.updateHistoryUrl(window.location.href);
   }
 
-  get state(): HistoryState {
-    return this._state;
+  get historyState(): HistoryState {
+    return this._historyState;
   }
 
-  get stateUrl(): string | undefined {
-    const state = this._state;
-    const builder = UriQuery.builder();
-    for (const key in state) {
-      const value = state[key];
-      if (typeof value === "string") {
-        builder.add(key, value);
-      } else if (value === null) {
-        builder.add(null, key);
-      }
+  get historyUrl(): string | undefined {
+    const historyState = this._historyState;
+    const queryBuilder = UriQuery.builder();
+    if (historyState.fragment !== void 0) {
+      queryBuilder.add(null, historyState.fragment);
     }
-    return Uri.fragment(UriFragment.from(builder.bind().toString())).toString();
-  }
-
-  protected clearState(): void {
-    const state = this._state;
-    for (const key in state) {
-      delete state[key];
+    for (const key in historyState.permanent) {
+      const value = historyState.permanent[key]!;
+      queryBuilder.add(key, value);
     }
+    return Uri.fragment(UriFragment.from(queryBuilder.bind().toString())).toString();
   }
 
-  protected updateStateUrl(stateUrl: string): void {
+  protected updateHistoryUrl(historyUrl: string): void {
     try {
-      const uri = Uri.parse(stateUrl);
+      const uri = Uri.parse(historyUrl);
       const fragment = uri.fragmentIdentifier();
       if (fragment !== null) {
-        this.updateStateUrlFragment(fragment);
+        this.updateHistoryUrlFragment(fragment);
       }
     } catch (e) {
       console.error(e);
     }
   }
 
-  protected updateStateUrlFragment(fragment: string): void {
-    const state = this._state;
+  protected updateHistoryUrlFragment(fragment: string): void {
+    const historyState = this._historyState;
     let query = UriQuery.parse(fragment);
     while (!query.isEmpty()) {
       const key = query.key();
       const value = query.value();
       if (key !== null) {
-        state[key] = value;
+        historyState.permanent[key] = value;
       } else {
-        state[value] = null;
+        historyState.fragment = value;
       }
       query = query.tail();
     }
   }
 
-  updateState(deltaState: HistoryState): HistoryState {
-    const state = this._state;
-    for (const key in deltaState) {
-      const value = deltaState[key];
+  protected clearHistoryState(): void {
+    const historyState = this._historyState;
+    for (const key in historyState.permanent) {
+      delete historyState.permanent[key];
+    }
+    for (const key in historyState.ephemeral) {
+      delete historyState.ephemeral[key];
+    }
+  }
+
+  updateHistoryState(deltaState: HistoryState): HistoryState {
+    const historyState = this._historyState;
+    if ("fragment" in deltaState) {
+      historyState.fragment = deltaState.fragment;
+    }
+    for (const key in deltaState.permanent) {
+      const value = deltaState.permanent[key];
       if (value !== void 0) {
-        state[key] = value;
+        historyState.permanent[key] = value;
       } else {
-        delete state[key];
+        delete historyState.permanent[key];
       }
     }
-    return state;
+    for (const key in deltaState.ephemeral) {
+      const value = deltaState.ephemeral[key];
+      if (value !== void 0) {
+        historyState.ephemeral[key] = value;
+      } else {
+        delete historyState.ephemeral[key];
+      }
+    }
+    return historyState;
   }
 
-  setState(newState: HistoryState): void {
-    this.clearState();
-    this.updateStateUrl(document.location.href);
-    this.updateState(newState);
+  setHistoryState(newState: HistoryState): void {
+    this.clearHistoryState();
+    this.updateHistoryUrl(document.location.href);
+    this.updateHistoryState(newState);
   }
 
-  pushState(deltaState: HistoryState): void {
-    const state = this.updateState(deltaState);
-    const url = this.stateUrl;
-    this.willPushState(state);
-    window.history.pushState(state, "", url);
-    this.onPushState(state);
-    this.didPushState(state);
+  pushHistory(deltaState: HistoryState): void {
+    const historyState = this.updateHistoryState(deltaState);
+    const historyUrl = this.historyUrl;
+    this.willPushHistory(historyState);
+    window.history.pushState(historyState, "", historyUrl);
+    this.onPushHistory(historyState);
+    this.didPushHistory(historyState);
   }
 
-  protected willPushState(state: HistoryState): void {
+  protected willPushHistory(historyState: HistoryState): void {
     this.willObserve(function (historyObserver: HistoryObserver): void {
-      if (historyObserver.historyWillPushState !== void 0) {
-        historyObserver.historyWillPushState(state, this);
+      if (historyObserver.managerWillPushHistory !== void 0) {
+        historyObserver.managerWillPushHistory(historyState, this);
       }
     });
   }
 
-  protected onPushState(state: HistoryState): void {
+  protected onPushHistory(historyState: HistoryState): void {
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
       rootViews[i].requireUpdate(View.NeedsCompute);
     }
   }
 
-  protected didPushState(state: HistoryState): void {
+  protected didPushHistory(historyState: HistoryState): void {
     this.didObserve(function (historyObserver: HistoryObserver): void {
-      if (historyObserver.historyDidPushState !== void 0) {
-        historyObserver.historyDidPushState(state, this);
+      if (historyObserver.managerDidPushHistory !== void 0) {
+        historyObserver.managerDidPushHistory(historyState, this);
       }
     });
   }
 
-  replaceState(deltaState: HistoryState): void {
-    const state = this.updateState(deltaState);
-    const url = this.stateUrl;
-    this.willReplaceState(state);
-    window.history.replaceState(state, "", url);
-    this.onReplaceState(state);
-    this.didReplaceState(state);
+  replaceHistory(deltaState: HistoryState): void {
+    const historyState = this.updateHistoryState(deltaState);
+    const historyUrl = this.historyUrl;
+    this.willReplaceHistory(historyState);
+    window.history.replaceState(historyState, "", historyUrl);
+    this.onReplaceHistory(historyState);
+    this.didReplaceHistory(historyState);
   }
 
-  protected willReplaceState(state: HistoryState): void {
+  protected willReplaceHistory(historyState: HistoryState): void {
     this.willObserve(function (historyObserver: HistoryObserver): void {
-      if (historyObserver.historyWillReplaceState !== void 0) {
-        historyObserver.historyWillReplaceState(state, this);
+      if (historyObserver.managerWillReplaceHistory !== void 0) {
+        historyObserver.managerWillReplaceHistory(historyState, this);
       }
     });
   }
 
-  protected onReplaceState(state: HistoryState): void {
+  protected onReplaceHistory(historyState: HistoryState): void {
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
       rootViews[i].requireUpdate(View.NeedsCompute);
     }
   }
 
-  protected didReplaceState(state: HistoryState): void {
+  protected didReplaceHistory(historyState: HistoryState): void {
     this.didObserve(function (historyObserver: HistoryObserver): void {
-      if (historyObserver.historyDidReplaceState !== void 0) {
-        historyObserver.historyDidReplaceState(state, this);
+      if (historyObserver.managerDidReplaceHistory !== void 0) {
+        historyObserver.managerDidReplaceHistory(historyState, this);
       }
     });
   }
 
   /** @hidden */
-  popState(event: PopStateEvent): void {
-    const state = this._state;
-    this.willPopState(state);
-    this.setState(event.state);
-    this.onPopState(state);
-    this.didPopState(state);
+  popHistory(event: PopStateEvent): void {
+    const historyState = this._historyState;
+    this.willPopHistory(historyState);
+    this.setHistoryState(event.state);
+    this.onPopHistory(historyState);
+    this.didPopHistory(historyState);
   }
 
-  protected willPopState(state: HistoryState): void {
+  protected willPopHistory(historyState: HistoryState): void {
     this.willObserve(function (historyObserver: HistoryObserver): void {
-      if (historyObserver.historyWillPopState !== void 0) {
-        historyObserver.historyWillPopState(state, this);
+      if (historyObserver.managerWillPopHistory !== void 0) {
+        historyObserver.managerWillPopHistory(historyState, this);
       }
     });
   }
 
-  protected onPopState(state: HistoryState): void {
+  protected onPopHistory(historyState: HistoryState): void {
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
       rootViews[i].requireUpdate(View.NeedsCompute);
     }
   }
 
-  protected didPopState(state: HistoryState): void {
+  protected didPopHistory(historyState: HistoryState): void {
     this.didObserve(function (historyObserver: HistoryObserver): void {
-      if (historyObserver.historyDidPopState !== void 0) {
-        historyObserver.historyDidPopState(state, this);
+      if (historyObserver.managerDidPopHistory !== void 0) {
+        historyObserver.managerDidPopHistory(historyState, this);
       }
     });
   }
@@ -216,13 +237,13 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
 
   protected attachEvents(): void {
     if (typeof window !== "undefined") {
-      window.addEventListener("popstate", this.popState);
+      window.addEventListener("popstate", this.popHistory);
     }
   }
 
   protected detachEvents(): void {
     if (typeof window !== "undefined") {
-      window.removeEventListener("popstate", this.popState);
+      window.removeEventListener("popstate", this.popHistory);
     }
   }
 

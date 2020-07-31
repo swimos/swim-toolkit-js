@@ -74,7 +74,7 @@ class NavMenuController extends swim.MenuListController {
     this.updateSelected();
   }
   updateSelected() {
-    const itemKey = historyManager.state.nav;
+    const itemKey = historyManager.historyState.fragment;
     if (itemKey !== undefined) {
       const item = menuList.getChildView(itemKey);
       if (item !== undefined && item !== this.selectedItem) {
@@ -87,8 +87,8 @@ class NavMenuController extends swim.MenuListController {
   }
   didSelectItem(newItem) {
     const itemKey = newItem.key;
-    if (itemKey !== historyManager.state.nav) {
-      historyManager.pushState({nav: itemKey});
+    if (itemKey !== historyManager.historyState.fragment) {
+      historyManager.pushHistory({fragment: itemKey});
     }
   }
 }

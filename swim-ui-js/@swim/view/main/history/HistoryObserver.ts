@@ -18,15 +18,15 @@ import {HistoryState} from "./HistoryState";
 import {HistoryManager} from "./HistoryManager";
 
 export interface HistoryObserver<V extends View = View, M extends HistoryManager<V> = HistoryManager<V>> extends ViewManagerObserver<V, M> {
-  historyWillPushState?(state: HistoryState, manager: M): void;
+  managerWillPushHistory?(historyState: HistoryState, manager: M): void;
 
-  historyDidPushState?(state: HistoryState, manager: M): void;
+  managerDidPushHistory?(historyState: HistoryState, manager: M): void;
 
-  historyWillReplaceState?(state: HistoryState, manager: M): void;
+  managerWillReplaceHistory?(historyState: HistoryState, manager: M): void;
 
-  historyDidReplaceState?(state: HistoryState, manager: M): void;
+  managerDidReplaceHistory?(historyState: HistoryState, manager: M): void;
 
-  historyWillPopState?(state: HistoryState, manager: M): void | boolean;
+  managerWillPopHistory?(historyState: HistoryState, manager: M): void | boolean;
 
-  historyDidPopState?(state: HistoryState, manager: M): void;
+  managerDidPopHistory?(historyState: HistoryState, manager: M): void;
 }
