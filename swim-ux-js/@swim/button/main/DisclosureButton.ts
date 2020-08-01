@@ -61,7 +61,7 @@ export class DisclosureButton extends ThemedHtmlView {
                          transition: Transition<any> | null): void {
     super.onApplyTheme(theme, mood, transition);
     this.collapsedColor.setAutoState(theme.inner(mood, Look.color), transition);
-    this.expandedColor.setAutoState(theme.inner(mood, Look.primaryColor), transition);
+    this.expandedColor.setAutoState(theme.inner(mood, Look.accentColor), transition);
   }
 
   protected onAnimate(viewContext: ViewContext): void {

@@ -26,7 +26,7 @@ export class TitleTreeCell extends TreeCell {
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {
     super.onApplyTheme(theme, mood, transition);
-    this.color.setAutoState(theme.inner(mood, Look.primaryColor), transition);
+    this.color.setAutoState(theme.inner(mood, Look.accentColor), transition);
   }
 }
 TreeCell.Title = TitleTreeCell;

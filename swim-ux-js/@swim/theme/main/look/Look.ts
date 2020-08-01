@@ -148,10 +148,9 @@ export abstract class Look<T, U = T> implements Mood {
   static font: Look<Font, AnyFont>; // defined by looks
 
   static color: Look<Color, AnyColor>; // defined by looks
+  static accentColor: Look<Color, AnyColor>; // defined by looks
   static mutedColor: Look<Color, AnyColor>; // defined by looks
   static neutralColor: Look<Color, AnyColor>; // defined by looks
-  static primaryColor: Look<Color, AnyColor>; // defined by looks
-  static secondaryColor: Look<Color, AnyColor>; // defined by looks
   static highlightColor: Look<Color, AnyColor>; // defined by looks
 
   static backgroundColor: Look<Color, AnyColor>; // defined by looks

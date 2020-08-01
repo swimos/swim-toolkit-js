@@ -22,6 +22,9 @@ export const Mood: {
   ambient: MoodVector; // defined by moods
   default: MoodVector; // defined by moods
 
+  primary: MoodVector; // defined by moods
+  secondary: MoodVector; // defined by moods
+
   selected: MoodVector; // defined by moods
   disabled: MoodVector; // defined by moods
   inactive: MoodVector; // defined by moods

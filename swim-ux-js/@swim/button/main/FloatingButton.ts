@@ -37,8 +37,6 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     this.display.setAutoState("flex");
     this.justifyContent.setAutoState("center");
     this.alignItems.setAutoState("center");
-    this.width.setAutoState(56);
-    this.height.setAutoState(56);
     this.borderTopLeftRadius.setAutoState("50%");
     this.borderTopRightRadius.setAutoState("50%");
     this.borderBottomLeftRadius.setAutoState("50%");
@@ -53,29 +51,10 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     return this._buttonType;
   }
 
-  setButtonType(buttonType: FloatingButtonType, tween?: Tween<any>): void {
+  setButtonType(buttonType: FloatingButtonType): void {
     if (this._buttonType !== buttonType) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
-      } else {
-        tween = Transition.forTween(tween);
-      }
       this._buttonType = buttonType;
-      this.onSetButtonType(buttonType, tween);
-    }
-  }
-
-  protected onSetButtonType(buttonType: FloatingButtonType, transition: Transition<any> | null): void {
-    if (buttonType === "regular") {
-      this.width.setAutoState(56, transition);
-      this.height.setAutoState(56, transition);
-      this.backgroundColor.setAutoState(this.getLook(Look.primaryColor), transition);
-    } else if (buttonType === "mini") {
-      this.width.setAutoState(40, transition);
-      this.height.setAutoState(40, transition);
-      this.backgroundColor.setAutoState(this.getLook(Look.secondaryColor), transition);
-    } else {
-      throw new Error("unsupported floating button type: " + buttonType);
+      this.requireUpdate(View.NeedsCompute);
     }
   }
 
@@ -108,10 +87,14 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     super.onApplyTheme(theme, mood, transition);
 
     if (this._buttonType === "regular") {
-      this.backgroundColor.setAutoState(theme.inner(mood, Look.primaryColor), transition);
+      this.width.setAutoState(56, transition);
+      this.height.setAutoState(56, transition);
     } else if (this._buttonType === "mini") {
-      this.backgroundColor.setAutoState(theme.inner(mood, Look.secondaryColor), transition);
+      this.width.setAutoState(40, transition);
+      this.height.setAutoState(40, transition);
     }
+
+    this.backgroundColor.setAutoState(theme.inner(mood, Look.accentColor), transition);
 
     let shadow = theme.inner(Mood.floating, Look.shadow);
     if (shadow !== void 0) {
@@ -167,11 +150,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     this.modifyMood(Feel.default, [Feel.hovering, 1]);
     if (this.backgroundColor.isAuto()) {
       const transition = this.getLook(Look.transition);
-      if (this._buttonType === "regular") {
-        this.backgroundColor.setAutoState(this.getLook(Look.primaryColor), transition);
-      } else if (this._buttonType === "mini") {
-        this.backgroundColor.setAutoState(this.getLook(Look.secondaryColor), transition);
-      }
+      this.backgroundColor.setAutoState(this.getLook(Look.accentColor), transition);
     }
   }
 
@@ -179,11 +158,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
     if (this.backgroundColor.isAuto()) {
       const transition = this.getLook(Look.transition);
-      if (this._buttonType === "regular") {
-        this.backgroundColor.setAutoState(this.getLook(Look.primaryColor), transition);
-      } else if (this._buttonType === "mini") {
-        this.backgroundColor.setAutoState(this.getLook(Look.secondaryColor), transition);
-      }
+      this.backgroundColor.setAutoState(this.getLook(Look.accentColor), transition);
     }
   }
 

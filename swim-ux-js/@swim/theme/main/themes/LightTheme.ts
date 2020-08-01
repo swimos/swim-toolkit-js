@@ -26,14 +26,16 @@ import {ThemeMatrix} from "../theme/ThemeMatrix";
 const LightFont = Font.parse("14px -apple-system, system-ui, sans-serif");
 
 const LightColor = Color.parse("#4a4a4a");
+const LightAccentColor = Color.parse("#5c5d5e");
 const LightMutedColor = Color.parse("#989898");
 const LightNeutralColor = Color.parse("#808080");
-const LightPrimaryColor = Color.parse("#49cbad");
-const LightSecondaryColor = Color.parse("#00a6ed");
 const LightHighlightColor = Color.black(0.05);
 
 const LightBackgroundColor = Color.white();
 const LightBorderColor = LightBackgroundColor.darker(1 / 2);
+
+const LightPrimaryColor = Color.parse("#49cbad");
+const LightSecondaryColor = Color.parse("#00a6ed");
 
 const LightOverlayColor = Color.parse("#efefef");
 const LightSelectedColor = LightOverlayColor.darker(1 / 2);
@@ -49,10 +51,9 @@ const LightAmbient = FeelVector.of(
   [Look.font, LightFont],
 
   [Look.color, LightColor],
+  [Look.accentColor, LightAccentColor],
   [Look.mutedColor, LightMutedColor],
   [Look.neutralColor, LightNeutralColor],
-  [Look.primaryColor, LightPrimaryColor],
-  [Look.secondaryColor, LightSecondaryColor],
   [Look.highlightColor, LightHighlightColor],
 
   [Look.backgroundColor, LightBackgroundColor],
@@ -62,14 +63,13 @@ const LightAmbient = FeelVector.of(
   [Look.transition, Transition.duration(1000, Ease.linear)],
 );
 
-const LightOrdinary = FeelVector.of(
+const LightDefault = FeelVector.of(
   [Look.font, LightFont],
 
   [Look.color, LightColor],
+  [Look.accentColor, LightAccentColor],
   [Look.mutedColor, LightMutedColor],
   [Look.neutralColor, LightNeutralColor],
-  [Look.primaryColor, LightPrimaryColor],
-  [Look.secondaryColor, LightSecondaryColor],
   [Look.highlightColor, LightHighlightColor],
 
   [Look.backgroundColor, LightBackgroundColor],
@@ -79,29 +79,33 @@ const LightOrdinary = FeelVector.of(
   [Look.transition, LightTransition],
 );
 
+const LightPrimary = FeelVector.of(
+  [Look.accentColor, LightPrimaryColor],
+);
+
+const LightSecondary = FeelVector.of(
+  [Look.accentColor, LightSecondaryColor],
+);
+
 const LightSelected = FeelVector.of(
   [Look.backgroundColor, LightSelectedColor],
 );
 
 const LightDisabled = FeelVector.of(
   [Look.color, LightDisabledColor],
-  [Look.primaryColor, LightDisabledColor],
-  [Look.secondaryColor, LightDisabledColor],
+  [Look.accentColor, LightDisabledColor],
 );
 
 const LightInactive = FeelVector.of(
-  [Look.primaryColor, LightInactiveColor],
-  [Look.secondaryColor, LightInactiveColor],
+  [Look.accentColor, LightInactiveColor],
 );
 
 const LightWarning = FeelVector.of(
-  [Look.primaryColor, LightWarningColor],
-  [Look.secondaryColor, LightWarningColor],
+  [Look.accentColor, LightWarningColor],
 );
 
 const LightAlert = FeelVector.of(
-  [Look.primaryColor, LightAlertColor],
-  [Look.secondaryColor, LightAlertColor],
+  [Look.accentColor, LightAlertColor],
 );
 
 const LightOverlay = FeelVector.of(
@@ -116,23 +120,24 @@ const LightFloating = FeelVector.of(
 );
 
 const LightNested = FeelVector.of(
-  [Look.primaryColor, Color.black(1 / 16)],
-  [Look.secondaryColor, Color.black(1 / 16)],
+  [Look.accentColor, Color.black(1 / 16)],
 
   [Look.backgroundColor, Color.black(1 / 16)],
   [Look.borderColor, Color.black(1 / 16)],
 );
 
 const LightHovering = FeelVector.of(
-  [Look.primaryColor, LightPrimaryColor.darker(1 / 3)],
-  [Look.secondaryColor, LightSecondaryColor.darker(1 / 3)],
+  [Look.accentColor, Color.black(1)],
 
-  [Look.backgroundColor, LightBackgroundColor.darker(1 / 3)],
+  [Look.backgroundColor, Color.black(1)],
 );
 
 const LightTheme = ThemeMatrix.forCols(
   [Feel.ambient, LightAmbient],
-  [Feel.default, LightOrdinary],
+  [Feel.default, LightDefault],
+
+  [Feel.primary, LightPrimary],
+  [Feel.secondary, LightSecondary],
 
   [Feel.selected, LightSelected],
   [Feel.disabled, LightDisabled],

@@ -221,7 +221,7 @@ export class TreeView extends ThemedHtmlView {
       const backgroundColor = theme.inner(mood, Look.backgroundColor);
       this.backgroundColor.setAutoState(backgroundColor, transition);
 
-      const primaryColor = superTheme.inner(mood, Look.primaryColor);
+      const accentColor = superTheme.inner(mood, Look.accentColor);
       const borderColor = superTheme.inner(mood, Look.borderColor);
       const limbSpacing = this.limbSpacing.getState();
 
@@ -238,7 +238,7 @@ export class TreeView extends ThemedHtmlView {
         topBranch = this.prepend("div", "topBranch");
       }
       topBranch.height.setAutoState(limbSpacing, transition);
-      topBranch.backgroundColor.setAutoState(primaryColor, transition);
+      topBranch.backgroundColor.setAutoState(accentColor, transition);
       topBranch.zIndex.setAutoState(1000 - depth);
     } else {
       this.removeChildView("topBranch");

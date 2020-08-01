@@ -19,6 +19,9 @@ import {BrightnessFeel} from "../feel/BrightnessFeel";
 Feel.ambient = new InterpolatedFeel("ambient");
 Feel.default = new InterpolatedFeel("default");
 
+Feel.primary = new InterpolatedFeel("primary");
+Feel.secondary = new InterpolatedFeel("secondary");
+
 Feel.selected = new InterpolatedFeel("selected");
 Feel.disabled = new InterpolatedFeel("disabled");
 Feel.inactive = new InterpolatedFeel("inactive");
@@ -29,4 +32,4 @@ Feel.overlay = new InterpolatedFeel("overlay");
 Feel.floating = new InterpolatedFeel("floating");
 Feel.nested = new BrightnessFeel("nested");
 
-Feel.hovering = new InterpolatedFeel("hovering");
+Feel.hovering = new BrightnessFeel("hovering");

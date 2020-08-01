@@ -205,7 +205,7 @@ export abstract class TweenAnimator<T> extends Animator {
         this._interrupts = interrupts; // stash interrupted transition observers
       }
       const value = this.value;
-      if (this._interpolator !== null) {
+      if (this._interpolator !== null && value !== void 0) {
         this._interpolator = this._interpolator.range(value, newState);
       } else if (value !== void 0) {
         this._interpolator = Interpolator.between<T, unknown>(value, newState);

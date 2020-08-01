@@ -19,6 +19,9 @@ import {MoodVector} from "../mood/MoodVector";
 Mood.ambient = MoodVector.of([Feel.ambient, 1]);
 Mood.default = MoodVector.of([Feel.default, 1]);
 
+Mood.primary = MoodVector.of([Feel.primary, 1]);
+Mood.secondary = MoodVector.of([Feel.secondary, 1]);
+
 Mood.selected = MoodVector.of([Feel.selected, 1]);
 Mood.disabled = MoodVector.of([Feel.disabled, 1]);
 Mood.inactive = MoodVector.of([Feel.inactive, 1]);

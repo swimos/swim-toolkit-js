@@ -26,14 +26,16 @@ import {ThemeMatrix} from "../theme/ThemeMatrix";
 const DarkFont = Font.parse("14px -apple-system, system-ui, sans-serif");
 
 const DarkColor = Color.parse("#d8d8d8");
+const DarkAccentColor = Color.parse("#5c5d5e");
 const DarkMutedColor = Color.parse("#989898");
 const DarkNeutralColor = Color.parse("#808080");
-const DarkPrimaryColor = Color.parse("#44d7b6");
-const DarkSecondaryColor = Color.parse("#32c5ff");
 const DarkHighlightColor = Color.white(0.1);
 
 const DarkBackgroundColor = Color.parse("#1e2022");
 const DarkBorderColor = DarkBackgroundColor.lighter(2 / 3);
+
+const DarkPrimaryColor = Color.parse("#44d7b6");
+const DarkSecondaryColor = Color.parse("#32c5ff");
 
 const DarkOverlayColor = Color.parse("#26282a");
 const DarkSelectedColor = DarkOverlayColor.darker(1);
@@ -49,10 +51,9 @@ const DarkAmbient = FeelVector.of(
   [Look.font, DarkFont],
 
   [Look.color, DarkColor],
+  [Look.accentColor, DarkAccentColor],
   [Look.mutedColor, DarkMutedColor],
   [Look.neutralColor, DarkNeutralColor],
-  [Look.primaryColor, DarkPrimaryColor],
-  [Look.secondaryColor, DarkSecondaryColor],
   [Look.highlightColor, DarkHighlightColor],
 
   [Look.backgroundColor, DarkBackgroundColor],
@@ -62,14 +63,13 @@ const DarkAmbient = FeelVector.of(
   [Look.transition, Transition.duration(1000, Ease.linear)],
 );
 
-const DarkOrdinary = FeelVector.of(
+const DarkDefault = FeelVector.of(
   [Look.font, DarkFont],
 
   [Look.color, DarkColor],
+  [Look.accentColor, DarkAccentColor],
   [Look.mutedColor, DarkMutedColor],
   [Look.neutralColor, DarkNeutralColor],
-  [Look.primaryColor, DarkPrimaryColor],
-  [Look.secondaryColor, DarkSecondaryColor],
   [Look.highlightColor, DarkHighlightColor],
 
   [Look.backgroundColor, DarkBackgroundColor],
@@ -79,29 +79,33 @@ const DarkOrdinary = FeelVector.of(
   [Look.transition, DarkTransition],
 );
 
+const DarkPrimary = FeelVector.of(
+  [Look.accentColor, DarkPrimaryColor],
+);
+
+const DarkSecondary = FeelVector.of(
+  [Look.accentColor, DarkSecondaryColor],
+);
+
 const DarkSelected = FeelVector.of(
   [Look.backgroundColor, DarkSelectedColor],
 );
 
 const DarkDisabled = FeelVector.of(
   [Look.color, DarkDisabledColor],
-  [Look.primaryColor, DarkDisabledColor],
-  [Look.secondaryColor, DarkDisabledColor],
+  [Look.accentColor, DarkDisabledColor],
 );
 
 const DarkInactive = FeelVector.of(
-  [Look.primaryColor, DarkInactiveColor],
-  [Look.secondaryColor, DarkInactiveColor],
+  [Look.accentColor, DarkInactiveColor],
 );
 
 const DarkWarning = FeelVector.of(
-  [Look.primaryColor, DarkWarningColor],
-  [Look.secondaryColor, DarkWarningColor],
+  [Look.accentColor, DarkWarningColor],
 );
 
 const DarkAlert = FeelVector.of(
-  [Look.primaryColor, DarkAlertColor],
-  [Look.secondaryColor, DarkAlertColor],
+  [Look.accentColor, DarkAlertColor],
 );
 
 const DarkOverlay = FeelVector.of(
@@ -116,23 +120,24 @@ const DarkFloating = FeelVector.of(
 );
 
 const DarkNested = FeelVector.of(
-  [Look.primaryColor, Color.black(1 / 3)],
-  [Look.secondaryColor, Color.black(1 / 3)],
+  [Look.accentColor, Color.black(1 / 3)],
 
   [Look.backgroundColor, Color.black(1 / 3)],
   [Look.borderColor, Color.black(1 / 3)],
 );
 
 const DarkHovering = FeelVector.of(
-  [Look.primaryColor, DarkPrimaryColor.darker(1)],
-  [Look.secondaryColor, DarkSecondaryColor.darker(1)],
+  [Look.accentColor, Color.black(1)],
 
-  [Look.backgroundColor, DarkBackgroundColor.lighter(1)],
+  [Look.backgroundColor, Color.black(-1)],
 );
 
 const DarkTheme = ThemeMatrix.forCols(
   [Feel.ambient, DarkAmbient],
-  [Feel.default, DarkOrdinary],
+  [Feel.default, DarkDefault],
+
+  [Feel.primary, DarkPrimary],
+  [Feel.secondary, DarkSecondary],
 
   [Feel.selected, DarkSelected],
   [Feel.disabled, DarkDisabled],
