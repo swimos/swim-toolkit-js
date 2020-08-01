@@ -20,10 +20,8 @@ The **Swim UX** framework consists of the following component libraries:
   umbrella package that depends on, and re-exports, all **Swim UX** libraries.
 - [**@swim/theme**](@swim/theme) –
   semantic looks and feels for mood-aware UX components.
-- [**@swim/motif**](@swim/motif) –
-  procedurally styled and rendered decorative views.
 - [**@swim/button**](@swim/button) –
-  flingable floating action buttons.
+  procedurally styled multitouch buttons.
 - [**@swim/popover**](@swim/popover) –
   auto-placed, source-tracking popover views.
 - [**@swim/drawer**](@swim/drawer) –
@@ -180,11 +178,11 @@ swim-ux-js $ bin/build.js test -p theme
 
 Use the `watch` build script command to automatically rebuild projects when
 dependent source files change.  For example, to continuously recompile the
-`main` target of the `motif` project when any source file in the project–or
+`main` target of the `button` project when any source file in the project–or
 in one of the project's transitive local dependencies–changes, run:
 
 ```sh
-swim-ux-js $ bin/build.js watch -p motif:main
+swim-ux-js $ bin/build.js watch -p button:main
 ```
 
 Pass the `--devel` (`-d`) option to expedite recompilation by skipping the

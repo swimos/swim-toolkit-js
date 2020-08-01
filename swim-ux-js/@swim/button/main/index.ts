@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export {ButtonMorph} from "./ButtonMorph";
+
+export {
+  ButtonGlowState,
+  ButtonGlow,
+} from "./ButtonGlow";
+
+export {
+  ButtonMembraneInit,
+  ButtonMembrane,
+} from "./ButtonMembrane";
+
 export {
   FloatingButtonType,
   FloatingButton,
@@ -25,3 +37,5 @@ export {
 } from "./ButtonStack";
 export {ButtonStackObserver} from "./ButtonStackObserver";
 export {ButtonStackController} from "./ButtonStackController";
+
+export {DisclosureButton} from "./DisclosureButton";

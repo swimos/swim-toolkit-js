@@ -18,10 +18,10 @@ import {Tween, Transition} from "@swim/transition";
 import {ViewNodeType, SvgView, HtmlView} from "@swim/view";
 import {Look, ThemedHtmlView} from "@swim/theme";
 
-export class MorphView extends ThemedHtmlView {
+export class ButtonMorph extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
-    this.addClass("morph");
+    this.addClass("button-morph");
     this.display.setAutoState("flex");
     this.justifyContent.setAutoState("center");
     this.alignItems.setAutoState("center");

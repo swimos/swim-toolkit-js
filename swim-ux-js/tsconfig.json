@@ -3,7 +3,6 @@
   "include": [],
   "references": [
     {"path": "./@swim/theme"},
-    {"path": "./@swim/motif"},
     {"path": "./@swim/button"},
     {"path": "./@swim/popover"},
     {"path": "./@swim/drawer"},

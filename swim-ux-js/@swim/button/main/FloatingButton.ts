@@ -13,14 +13,15 @@
 // limitations under the License.
 
 import {Tween, Transition} from "@swim/transition";
-import {View, ViewNodeType, SvgView, HtmlView} from "@swim/view";
+import {ViewContext, View, ViewAnimator, ViewNodeType, SvgView, HtmlView} from "@swim/view";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {MembraneView, MorphView} from "@swim/motif";
+import {ButtonMorph} from "./ButtonMorph";
+import {ButtonMembrane} from "./ButtonMembrane";
 
 export type FloatingButtonType = "regular" | "mini";
 
-export class FloatingButton extends MembraneView implements PositionGestureDelegate {
+export class FloatingButton extends ButtonMembrane implements PositionGestureDelegate {
   /** @hidden */
   _buttonType: FloatingButtonType;
 
@@ -78,9 +79,9 @@ export class FloatingButton extends MembraneView implements PositionGestureDeleg
     }
   }
 
-  get morph(): MorphView | null {
+  get morph(): ButtonMorph | null {
     const childView = this.getChildView("morph");
-    return childView instanceof MorphView ? childView : null;
+    return childView instanceof ButtonMorph ? childView : null;
   }
 
   get icon(): SvgView | HtmlView | null {
@@ -91,10 +92,16 @@ export class FloatingButton extends MembraneView implements PositionGestureDeleg
   setIcon(icon: SvgView | HtmlView | null, tween?: Tween<any>, ccw: boolean = false): void {
     let morph = this.morph;
     if (morph === null) {
-      morph = this.append(MorphView, "morph");
+      morph = this.append(ButtonMorph, "morph");
+    }
+    if (icon instanceof SvgView) {
+      icon.fill.setAutoState(this.getLook(Look.backgroundColor), tween);
     }
     morph.setIcon(icon, tween, ccw);
   }
+
+  @ViewAnimator(Number, {inherit: true})
+  stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {
@@ -105,7 +112,14 @@ export class FloatingButton extends MembraneView implements PositionGestureDeleg
     } else if (this._buttonType === "mini") {
       this.backgroundColor.setAutoState(theme.inner(mood, Look.secondaryColor), transition);
     }
-    this.boxShadow.setAutoState(theme.inner(Mood.floating, Look.shadow), transition);
+
+    let shadow = theme.inner(Mood.floating, Look.shadow);
+    if (shadow !== void 0) {
+      const shadowColor = shadow.color();
+      const phase = this.stackPhase.getValueOr(1);
+      shadow = shadow.color(shadowColor.alpha(shadowColor.alpha() * phase));
+    }
+    this.boxShadow.setAutoState(shadow, transition);
 
     const icon = this.icon;
     if (icon instanceof SvgView) {
@@ -113,27 +127,39 @@ export class FloatingButton extends MembraneView implements PositionGestureDeleg
     }
   }
 
+  protected onLayout(viewContext: ViewContext): void {
+    super.onLayout(viewContext);
+
+    let shadow = this.getLook(Look.shadow, Mood.floating);
+    if (shadow !== void 0) {
+      const shadowColor = shadow.color();
+      const phase = this.stackPhase.getValueOr(1);
+      shadow = shadow.color(shadowColor.alpha(shadowColor.alpha() * phase));
+    }
+    this.boxShadow.setAutoState(shadow);
+  }
+
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
     const childKey = childView.key;
-    if (childKey === "morph" && childView instanceof MorphView) {
+    if (childKey === "morph" && childView instanceof ButtonMorph) {
       this.onInsertMorph(childView);
     }
   }
 
   protected onRemoveChildView(childView: View): void {
     const childKey = childView.key;
-    if (childKey === "morph" && childView instanceof MorphView) {
+    if (childKey === "morph" && childView instanceof ButtonMorph) {
       this.onRemoveMorph(childView);
     }
     super.onRemoveChildView(childView);
   }
 
-  protected onInsertMorph(morph: MorphView): void {
+  protected onInsertMorph(morph: ButtonMorph): void {
     // hook
   }
 
-  protected onRemoveMorph(morph: MorphView): void {
+  protected onRemoveMorph(morph: ButtonMorph): void {
     // hook
   }
 

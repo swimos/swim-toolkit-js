@@ -21,7 +21,6 @@
     {"path": "./swim-ui-js/@swim/ui"},
 
     {"path": "./swim-ux-js/@swim/theme"},
-    {"path": "./swim-ux-js/@swim/motif"},
     {"path": "./swim-ux-js/@swim/button"},
     {"path": "./swim-ux-js/@swim/popover"},
     {"path": "./swim-ux-js/@swim/drawer"},

@@ -32,7 +32,6 @@
       "@swim/ui": ["swim-ui-js/@swim/ui/main"],
 
       "@swim/theme": ["swim-ux-js/@swim/theme/main"],
-      "@swim/motif": ["swim-ux-js/@swim/motif/main"],
       "@swim/button": ["swim-ux-js/@swim/button/main"],
       "@swim/popover": ["swim-ux-js/@swim/popover/main"],
       "@swim/drawer": ["swim-ux-js/@swim/drawer/main"],
@@ -88,7 +87,6 @@
     {"path": "../../../swim-maps-js/@swim/maps/main"},
 
     {"path": "../../../swim-ux-js/@swim/theme/main"},
-    {"path": "../../../swim-ux-js/@swim/motif/main"},
     {"path": "../../../swim-ux-js/@swim/button/main"},
     {"path": "../../../swim-ux-js/@swim/popover/main"},
     {"path": "../../../swim-ux-js/@swim/drawer/main"},

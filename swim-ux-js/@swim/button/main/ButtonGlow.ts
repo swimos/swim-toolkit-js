@@ -17,11 +17,11 @@ import {Tween, Transition} from "@swim/transition";
 import {ViewNodeType} from "@swim/view";
 import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
 
-export type GlowState = "ready" | "glowing" | "pulsing" | "fading";
+export type ButtonGlowState = "ready" | "glowing" | "pulsing" | "fading";
 
-export class GlowView extends ThemedHtmlView {
+export class ButtonGlow extends ThemedHtmlView {
   /** @hidden */
-  _glowState: GlowState;
+  _glowState: ButtonGlowState;
   /** @hidden */
   _glowTimer: number;
 
@@ -33,7 +33,7 @@ export class GlowView extends ThemedHtmlView {
 
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
-    this.addClass("glow");
+    this.addClass("button-glow");
     this.position.setAutoState("absolute");
     this.width.setAutoState(Length.zero());
     this.height.setAutoState(Length.zero());
@@ -44,7 +44,7 @@ export class GlowView extends ThemedHtmlView {
     this.pointerEvents.setAutoState("none");
   }
 
-  get glowState(): GlowState {
+  get glowState(): ButtonGlowState {
     return this._glowState;
   }
 

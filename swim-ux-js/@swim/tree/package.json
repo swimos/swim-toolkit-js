@@ -33,6 +33,6 @@
     "@swim/view": "3.11.0-dev.20200619",
     "@swim/gesture": "3.11.0-dev.20200619",
     "@swim/theme": "3.11.0-dev.20200619",
-    "@swim/motif": "3.11.0-dev.20200619"
+    "@swim/button": "3.11.0-dev.20200619"
   }
 }

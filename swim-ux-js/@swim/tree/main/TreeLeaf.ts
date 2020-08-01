@@ -17,7 +17,7 @@ import {Tween, Transition} from "@swim/transition";
 import {ViewContext, ViewFlags, View, ViewScope, ViewNode, ViewNodeType, HtmlView} from "@swim/view";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {Look} from "@swim/theme";
-import {MembraneViewInit, MembraneView} from "@swim/motif";
+import {ButtonMembraneInit, ButtonMembrane} from "@swim/button";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeCell, TreeCell} from "./TreeCell";
 import {TreeLeafObserver} from "./TreeLeafObserver";
@@ -25,14 +25,14 @@ import {TreeLeafController} from "./TreeLeafController";
 
 export type AnyTreeLeaf = TreeLeaf | TreeLeafInit;
 
-export interface TreeLeafInit extends MembraneViewInit {
+export interface TreeLeafInit extends ButtonMembraneInit {
   viewController?: TreeLeafController;
   highlighted?: boolean;
 
   cells?: AnyTreeCell[];
 }
 
-export class TreeLeaf extends MembraneView implements PositionGestureDelegate {
+export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate {
   /** @hidden */
   _highlighted: boolean;
 

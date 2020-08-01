@@ -26,10 +26,10 @@ import {
 } from "@swim/view";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {MembraneView} from "@swim/motif";
+import {ButtonMembrane} from "@swim/button";
 import {MenuList} from "./MenuList";
 
-export class MenuItem extends MembraneView implements PositionGestureDelegate {
+export class MenuItem extends ButtonMembrane implements PositionGestureDelegate {
   /** @hidden */
   _highlighted: boolean;
 

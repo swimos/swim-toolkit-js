@@ -134,14 +134,10 @@ toolbars, controls, and other interactive application views and controllers.
   ([npm](https://www.npmjs.com/package/@swim/theme),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_theme.html)) –
   semantic looks and feels for mood-aware UX components.
-- [**@swim/motif**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/motif)
-  ([npm](https://www.npmjs.com/package/@swim/motif),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_motif.html)) –
-  procedurally styled and rendered decorative views.
 - [**@swim/button**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/button)
   ([npm](https://www.npmjs.com/package/@swim/button),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_button.html)) –
-  flingable floating action buttons.
+  procedurally styled multitouch buttons.
 - [**@swim/popover**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/popover)
   ([npm](https://www.npmjs.com/package/@swim/popover),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_popover.html)) –

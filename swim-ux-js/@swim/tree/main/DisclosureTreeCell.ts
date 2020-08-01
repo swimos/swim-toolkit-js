@@ -14,7 +14,7 @@
 
 import {View, ViewNodeType} from "@swim/view";
 import {PositionGestureInput} from "@swim/gesture";
-import {DisclosureArrow} from "@swim/motif";
+import {DisclosureButton} from "@swim/button";
 import {TreeCell} from "./TreeCell";
 import {TreeLeaf} from "./TreeLeaf";
 import {TreeLimb} from "./TreeLimb";
@@ -23,11 +23,11 @@ export class DisclosureTreeCell extends TreeCell {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("disclosure-tree-cell");
-    this.append(DisclosureArrow, "arrow");
+    this.append(DisclosureButton, "button");
   }
 
-  get arrow(): DisclosureArrow {
-    return this.getChildView("arrow") as DisclosureArrow;
+  get button(): DisclosureButton {
+    return this.getChildView("button") as DisclosureButton;
   }
 
   didPress(input: PositionGestureInput, event: Event | null): void {
@@ -42,23 +42,23 @@ export class DisclosureTreeCell extends TreeCell {
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
-    if (childView.key === "arrow" && childView instanceof DisclosureArrow) {
-      this.onInsertArrow(childView);
+    if (childView.key === "button" && childView instanceof DisclosureButton) {
+      this.onInsertButton(childView);
     }
   }
 
   protected onRemoveChildView(childView: View): void {
-    if (childView.key === "arrow" && childView instanceof DisclosureArrow) {
-      this.onRemoveArrow(childView);
+    if (childView.key === "button" && childView instanceof DisclosureButton) {
+      this.onRemoveButton(childView);
     }
     super.onRemoveChildView(childView);
   }
 
-  protected onInsertArrow(arrow: DisclosureArrow): void {
+  protected onInsertButton(button: DisclosureButton): void {
     // hook
   }
 
-  protected onRemoveArrow(arrow: DisclosureArrow): void {
+  protected onRemoveButton(button: DisclosureButton): void {
     // hook
   }
 }

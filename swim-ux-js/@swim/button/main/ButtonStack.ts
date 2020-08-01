@@ -289,6 +289,7 @@ export class ButtonStack extends ThemedHtmlView implements Modal, PositionGestur
     this._gesture = new PositionGesture(button, this);
     button.addViewObserver(this._gesture);
     if (button instanceof FloatingButton) {
+      button.stackPhase.setAutoState(1);
       if (this.isCollapsed && this._buttonIcon !== null) {
         button.setIcon(this._buttonIcon);
       } else if (this.isExpanded()) {

@@ -19,10 +19,10 @@ import {Transition} from "@swim/transition";
 import {ViewContext, ViewAnimator, ViewNodeType, SvgView} from "@swim/view";
 import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
 
-export class DisclosureArrow extends ThemedHtmlView {
+export class DisclosureButton extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
-    this.addClass("disclosure-arrow");
+    this.addClass("disclosure-button");
     this.display.setAutoState("flex");
     this.justifyContent.setAutoState("center");
     this.alignItems.setAutoState("center");
@@ -34,18 +34,18 @@ export class DisclosureArrow extends ThemedHtmlView {
     icon.width.setAutoState(24);
     icon.height.setAutoState(24);
     icon.viewBox.setAutoState("0 0 24 24");
-    const polygon = icon.append("polygon", "polygon");
-    polygon.points.setAutoState("0 4 -6 -2 -4.59 -3.41 0 1.17 4.59 -3.41 6 -2");
-    polygon.transform.setAutoState(Transform.translate(12, 12).rotate(Angle.deg(-180)));
+    const arrow = icon.append("polygon", "arrow");
+    arrow.points.setAutoState("0 4 -6 -2 -4.59 -3.41 0 1.17 4.59 -3.41 6 -2");
+    arrow.transform.setAutoState(Transform.translate(12, 12).rotate(Angle.deg(-180)));
   }
 
   get icon(): SvgView {
     return this.getChildView("icon") as SvgView;
   }
 
-  get polygon(): SvgView {
+  get arrow(): SvgView {
     const icon = this.icon;
-    return icon.getChildView("polygon") as SvgView;
+    return icon.getChildView("arrow") as SvgView;
   }
 
   @ViewAnimator(Number, {inherit: true})
@@ -69,11 +69,11 @@ export class DisclosureArrow extends ThemedHtmlView {
     const disclosurePhase = this.disclosurePhase.getValueOr(0);
     const collapsedColor = this.collapsedColor.value;
     const expandedColor = this.expandedColor.value;
-    if (collapsedColor !== void 0 && expandedColor !== void 0 && this.polygon.fill.isAuto()) {
+    if (collapsedColor !== void 0 && expandedColor !== void 0 && this.arrow.fill.isAuto()) {
       const colorInterpolator = ColorInterpolator.between(collapsedColor, expandedColor);
-      this.polygon.fill.setAutoState(colorInterpolator.interpolate(disclosurePhase));
+      this.arrow.fill.setAutoState(colorInterpolator.interpolate(disclosurePhase));
     }
     const transform = Transform.translate(12, 12).rotate(Angle.deg(-180 * (1 - disclosurePhase)));
-    this.polygon.transform.setAutoState(transform);
+    this.arrow.transform.setAutoState(transform);
   }
 }

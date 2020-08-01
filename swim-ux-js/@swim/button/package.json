@@ -1,7 +1,7 @@
 {
   "name": "@swim/button",
   "version": "3.11.0-dev.20200619",
-  "description": "Flingable floating action buttons",
+  "description": "Procedurally styled multitouch buttons",
   "homepage": "https://github.com/swimos/swim",
   "author": "Chris Sachs <chris@swim.ai>",
   "copyright": "2015-2020 Swim inc.",
@@ -32,7 +32,6 @@
     "@swim/constraint": "3.11.0-dev.20200619",
     "@swim/view": "3.11.0-dev.20200619",
     "@swim/gesture": "3.11.0-dev.20200619",
-    "@swim/theme": "3.11.0-dev.20200619",
-    "@swim/motif": "3.11.0-dev.20200619"
+    "@swim/theme": "3.11.0-dev.20200619"
   }
 }

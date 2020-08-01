@@ -34,9 +34,6 @@ export class ButtonItem extends ThemedHtmlView {
     return button;
   }
 
-  @ViewAnimator(Number, {inherit: true})
-  stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
-
   get button(): FloatingButton | null {
     const childView = this.getChildView("button");
     return childView instanceof FloatingButton ? childView : null;
@@ -51,6 +48,9 @@ export class ButtonItem extends ThemedHtmlView {
     const childView = this.getChildView("label");
     return childView instanceof HtmlView ? childView : null;
   }
+
+  @ViewAnimator(Number, {inherit: true})
+  stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {
