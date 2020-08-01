@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {HtmlView} from "@swim/view";
 import {ThemedHtmlViewController} from "@swim/theme";
-import {ActionButton} from "./ActionButton";
-import {ActionItem} from "./ActionItem";
-import {ActionStackState, ActionStack} from "./ActionStack";
-import {ActionStackObserver} from "./ActionStackObserver";
+import {ButtonItem} from "./ButtonItem";
+import {ButtonStackState, ButtonStack} from "./ButtonStack";
+import {ButtonStackObserver} from "./ButtonStackObserver";
 
-export class ActionStackController<V extends ActionStack = ActionStack> extends ThemedHtmlViewController<V> implements ActionStackObserver<V> {
-  get stackState(): ActionStackState | null {
+export class ButtonStackController<V extends ButtonStack = ButtonStack> extends ThemedHtmlViewController<V> implements ButtonStackObserver<V> {
+  get stackState(): ButtonStackState | null {
     return this._view !== null ? this._view.stackState : null;
   }
 
-  get button(): ActionButton | null {
+  get button(): HtmlView | null {
     return this._view !== null ? this._view.button : null;
   }
 
-  get items(): ReadonlyArray<ActionItem> {
+  get items(): ReadonlyArray<ButtonItem> {
     return this._view !== null ? this._view.items : [];
   }
 
@@ -37,35 +37,35 @@ export class ActionStackController<V extends ActionStack = ActionStack> extends 
     }
   }
 
-  actionStackWillExpand(view: V): void {
+  buttonStackWillExpand(view: V): void {
     view.presentModal(view);
   }
 
-  actionStackDidExpand(view: V): void {
+  buttonStackDidExpand(view: V): void {
     // hook
   }
 
-  actionStackWillCollapse(view: V): void {
+  buttonStackWillCollapse(view: V): void {
     // hook
   }
 
-  actionStackDidCollapse(view: V): void {
+  buttonStackDidCollapse(view: V): void {
     view.dismissModal(view);
   }
 
-  actionStackWillShow(view: V): void {
+  buttonStackWillShow(view: V): void {
     // hook
   }
 
-  actionStackDidShow(view: V): void {
+  buttonStackDidShow(view: V): void {
     // hook
   }
 
-  actionStackWillHide(view: V): void {
+  buttonStackWillHide(view: V): void {
     // hook
   }
 
-  actionStackDidHide(view: V): void {
+  buttonStackDidHide(view: V): void {
     // hook
   }
 }

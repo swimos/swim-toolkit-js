@@ -23,6 +23,16 @@ const ux = [
     ],
   },
   {
+    id: "button",
+    name: "@swim/button",
+    targets: [
+      {
+        id: "main",
+        deps: ["theme", "motif"],
+      },
+    ],
+  },
+  {
     id: "popover",
     name: "@swim/popover",
     targets: [
@@ -39,16 +49,6 @@ const ux = [
       {
         id: "main",
         deps: ["theme"],
-      },
-    ],
-  },
-  {
-    id: "fab",
-    name: "@swim/fab",
-    targets: [
-      {
-        id: "main",
-        deps: ["theme", "motif"],
       },
     ],
   },
@@ -80,7 +80,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "motif", "popover", "drawer", "fab", "menu", "tree"],
+        deps: ["theme", "motif", "button", "popover", "drawer", "menu", "tree"],
       },
     ],
   },

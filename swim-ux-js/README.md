@@ -22,12 +22,12 @@ The **Swim UX** framework consists of the following component libraries:
   semantic looks and feels for mood-aware UX components.
 - [**@swim/motif**](@swim/motif) –
   procedurally styled and rendered decorative views.
+- [**@swim/button**](@swim/button) –
+  flingable floating action buttons.
 - [**@swim/popover**](@swim/popover) –
   auto-placed, source-tracking popover views.
 - [**@swim/drawer**](@swim/drawer) –
   responsive, minifiable drawer views.
-- [**@swim/fab**](@swim/fab) –
-  flingable floating action buttons.
 - [**@swim/menu**](@swim/menu) –
   context-sensitive menu lists and menu items.
 - [**@swim/tree**](@swim/tree) –

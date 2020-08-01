@@ -13,22 +13,22 @@
 // limitations under the License.
 
 import {ThemedHtmlViewObserver} from "@swim/theme";
-import {ActionStack} from "./ActionStack";
+import {ButtonStack} from "./ButtonStack";
 
-export interface ActionStackObserver<V extends ActionStack = ActionStack> extends ThemedHtmlViewObserver<V> {
-  actionStackWillExpand?(view: V): void;
+export interface ButtonStackObserver<V extends ButtonStack = ButtonStack> extends ThemedHtmlViewObserver<V> {
+  buttonStackWillExpand?(view: V): void;
 
-  actionStackDidExpand?(view: V): void;
+  buttonStackDidExpand?(view: V): void;
 
-  actionStackWillCollapse?(view: V): void;
+  buttonStackWillCollapse?(view: V): void;
 
-  actionStackDidCollapse?(view: V): void;
+  buttonStackDidCollapse?(view: V): void;
 
-  actionStackWillShow?(view: V): void;
+  buttonStackWillShow?(view: V): void;
 
-  actionStackDidShow?(view: V): void;
+  buttonStackDidShow?(view: V): void;
 
-  actionStackWillHide?(view: V): void;
+  buttonStackWillHide?(view: V): void;
 
-  actionStackDidHide?(view: V): void;
+  buttonStackDidHide?(view: V): void;
 }

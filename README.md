@@ -89,12 +89,12 @@ toolbars, controls, and other interactive application views and controllers.
   semantic looks and feels for mood-aware UX components.
 - [**@swim/motif**](swim-ux-js/@swim/motif) –
   procedurally styled and rendered decorative views.
+- [**@swim/button**](swim-ux-js/@swim/button) –
+  flingable floating action buttons.
 - [**@swim/popover**](swim-ux-js/@swim/popover) –
   auto-placed, source-tracking popover views.
 - [**@swim/drawer**](swim-ux-js/@swim/drawer) –
   responsive, minifiable drawer views.
-- [**@swim/fab**](swim-ux-js/@swim/fab) –
-  flingable floating action buttons.
 - [**@swim/menu**](swim-ux-js/@swim/menu) –
   context-sensitive menu lists and menu items.
 - [**@swim/tree**](swim-ux-js/@swim/tree) –

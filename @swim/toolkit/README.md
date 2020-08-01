@@ -138,6 +138,10 @@ toolbars, controls, and other interactive application views and controllers.
   ([npm](https://www.npmjs.com/package/@swim/motif),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_motif.html)) –
   procedurally styled and rendered decorative views.
+- [**@swim/button**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/button)
+  ([npm](https://www.npmjs.com/package/@swim/button),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_button.html)) –
+  flingable floating action buttons.
 - [**@swim/popover**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/popover)
   ([npm](https://www.npmjs.com/package/@swim/popover),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_popover.html)) –
@@ -146,10 +150,6 @@ toolbars, controls, and other interactive application views and controllers.
   ([npm](https://www.npmjs.com/package/@swim/drawer),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_drawer.html)) –
   responsive, minifiable drawer views.
-- [**@swim/fab**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/fab)
-  ([npm](https://www.npmjs.com/package/@swim/fab),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_fab.html)) –
-  flingable floating action buttons.
 - [**@swim/menu**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/menu)
   ([npm](https://www.npmjs.com/package/@swim/menu),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_menu.html)) –

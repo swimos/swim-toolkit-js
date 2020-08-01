@@ -1,5 +1,5 @@
 {
-  "name": "@swim/fab",
+  "name": "@swim/button",
   "version": "3.11.0-dev.20200619",
   "description": "Flingable floating action buttons",
   "homepage": "https://github.com/swimos/swim",
@@ -7,7 +7,7 @@
   "copyright": "2015-2020 Swim inc.",
   "license": "Apache-2.0",
   "repository": "https://github.com/swimos/swim.git",
-  "main": "dist/main/swim-fab.js",
+  "main": "dist/main/swim-button.js",
   "module": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "dependencies": {

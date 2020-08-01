@@ -548,6 +548,17 @@ const ux = [
     ],
   },
   {
+    id: "button",
+    name: "@swim/button",
+    path: "swim-ux-js/@swim/button",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme", "motif"],
+      },
+    ],
+  },
+  {
     id: "popover",
     name: "@swim/popover",
     path: "swim-ux-js/@swim/popover",
@@ -566,17 +577,6 @@ const ux = [
       {
         id: "main",
         deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme"],
-      },
-    ],
-  },
-  {
-    id: "fab",
-    name: "@swim/fab",
-    path: "swim-ux-js/@swim/fab",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme", "motif"],
       },
     ],
   },
@@ -611,7 +611,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "motif", "popover", "drawer", "fab", "menu", "tree"],
+        deps: ["theme", "motif", "button", "popover", "drawer", "menu", "tree"],
       },
     ],
   },

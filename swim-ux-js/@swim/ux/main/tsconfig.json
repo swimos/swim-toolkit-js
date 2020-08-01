@@ -27,9 +27,9 @@
       "@swim/gesture": ["../swim-ui-js/@swim/gesture/main"],
       "@swim/theme": ["@swim/theme/main"],
       "@swim/motif": ["@swim/motif/main"],
+      "@swim/button": ["@swim/button/main"],
       "@swim/popover": ["@swim/popover/main"],
       "@swim/drawer": ["@swim/drawer/main"],
-      "@swim/fab": ["@swim/fab/main"],
       "@swim/menu": ["@swim/menu/main"],
       "@swim/tree": ["@swim/tree/main"]
     },
@@ -38,9 +38,9 @@
   "references": [
     {"path": "../../theme/main"},
     {"path": "../../motif/main"},
+    {"path": "../../button/main"},
     {"path": "../../popover/main"},
     {"path": "../../drawer/main"},
-    {"path": "../../fab/main"},
     {"path": "../../menu/main"},
     {"path": "../../tree/main"}
   ]

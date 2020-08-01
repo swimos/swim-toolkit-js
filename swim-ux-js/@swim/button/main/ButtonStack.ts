@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Length} from "@swim/length";
 import {Tween, Transition} from "@swim/transition";
 import {
   ViewContext,
@@ -28,16 +29,16 @@ import {
 } from "@swim/view";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import {Look, ThemedHtmlView} from "@swim/theme";
-import {ActionButton} from "./ActionButton";
-import {ActionItem} from "./ActionItem";
-import {ActionStackObserver} from "./ActionStackObserver";
-import {ActionStackController} from "./ActionStackController";
+import {FloatingButton} from "./FloatingButton";
+import {ButtonItem} from "./ButtonItem";
+import {ButtonStackObserver} from "./ButtonStackObserver";
+import {ButtonStackController} from "./ButtonStackController";
 
-export type ActionStackState = "collapsed" | "expanding" | "expanded" | "collapsing";
+export type ButtonStackState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
-export class ActionStack extends ThemedHtmlView implements Modal, PositionGestureDelegate {
+export class ButtonStack extends ThemedHtmlView implements Modal, PositionGestureDelegate {
   /** @hidden */
-  _stackState: ActionStackState;
+  _stackState: ButtonStackState;
   /** @hidden */
   _buttonIcon: SvgView | HtmlView | null;
   /** @hidden */
@@ -45,43 +46,49 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   /** @hidden */
   _itemSpacing: number;
   /** @hidden */
-  _itemCount: number;
+  _stackHeight: number;
   /** @hidden */
-  _gesture: PositionGesture<ActionButton> | null;
+  _gesture: PositionGesture<HtmlView> | null;
 
   constructor(node: HTMLElement) {
     super(node);
-    this.onClick = this.onClick.bind(this);
     this.onContextMenu = this.onContextMenu.bind(this);
     this._stackState = "collapsed";
     this._buttonIcon = null;
-    this._buttonSpacing = 36;
+    this._buttonSpacing = 28;
     this._itemSpacing = 20;
-    this._itemCount = 0;
+    this._stackHeight = 0;
     this._gesture = null;
     this.initChildren();
   }
 
   protected initNode(node: ViewNodeType<this>): void {
-    this.addClass("action-stack");
+    this.addClass("button-stack");
     this.display.setAutoState("block");
     this.position.setAutoState("relative");
     this.width.setAutoState(56);
     this.height.setAutoState(56);
     this.opacity.setAutoState(1);
     this.userSelect.setAutoState("none");
-    this.touchAction.setAutoState("none");
+    this.cursor.setAutoState("pointer");
   }
 
   protected initChildren(): void {
-    this.append(ActionButton, "button");
+    const button = this.createButton();
+    if (button !== null) {
+      this.append(button, "button");
+    }
   }
 
-  get viewController(): ActionStackController | null {
+  protected createButton(): HtmlView | null {
+    return HtmlView.create(FloatingButton);
+  }
+
+  get viewController(): ButtonStackController | null {
     return this._viewController;
   }
 
-  get stackState(): ActionStackState {
+  get stackState(): ButtonStackState {
     return this._stackState;
   }
 
@@ -127,9 +134,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
     this.collapse(tween);
   }
 
-  get button(): ActionButton | null {
+  get button(): HtmlView | null {
     const childView = this.getChildView("button");
-    return childView instanceof ActionButton ? childView : null;
+    return childView instanceof HtmlView ? childView : null;
   }
 
   get buttonIcon(): SvgView | HtmlView | null {
@@ -139,7 +146,7 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   setButtonIcon(buttonIcon: SvgView | HtmlView | null, tween?: Tween<any>, ccw?: boolean): void {
     this._buttonIcon = buttonIcon;
     const button = this.button;
-    if (button !== null) {
+    if (button instanceof FloatingButton) {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
@@ -157,19 +164,19 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
     return icon;
   }
 
-  get items(): ReadonlyArray<ActionItem> {
+  get items(): ReadonlyArray<ButtonItem> {
     const childNodes = this._node.childNodes;
     const childViews = [];
     for (let i = 0, n = childNodes.length; i < n; i += 1) {
       const childView = (childNodes[i] as ViewNode).view;
-      if (childView instanceof ActionItem) {
+      if (childView instanceof ButtonItem) {
         childViews.push(childView);
       }
     }
     return childViews;
   }
 
-  insertItem(item: ActionItem, index?: number, key?: string): void {
+  insertItem(item: ButtonItem, index?: number, key?: string): void {
     if (index === void 0) {
       index = this.node.childNodes.length - 1;
     }
@@ -180,7 +187,7 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
     const childNodes = this._node.childNodes;
     for (let i = childNodes.length - 1; i >= 0; i -= 1) {
       const childView = (childNodes[i] as ViewNode).view;
-      if (childView instanceof ActionItem) {
+      if (childView instanceof ButtonItem) {
         this.removeChild(childView);
       }
     }
@@ -188,12 +195,10 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
 
   protected onMount(): void {
     super.onMount();
-    this.on("click", this.onClick);
     this.on("contextmenu", this.onContextMenu);
   }
 
   protected onUnmount(): void {
-    this.off("click", this.onClick);
     this.off("contextmenu", this.onContextMenu);
     super.onUnmount();
   }
@@ -209,81 +214,105 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
 
   protected onLayout(viewContext: ViewContext): void {
     super.onLayout(viewContext);
-    const phase = this.stackPhase.getValue();
-    const childNodes = this._node.childNodes;
-    const childCount = childNodes.length;
-    const button = this.button;
-    if (button !== null) {
-      button.zIndex(childCount);
-    }
-    const buttonHeight = 56;
-    const itemHeight = 48;
-    let itemIndex = 0;
-    let zIndex = childCount - 1;
-    for (let i = 0; i < childCount; i += 1) {
-      const childView = (childNodes[i] as ViewNode).view;
-      if (childView instanceof ActionItem) {
-        const bottom = buttonHeight + this._buttonSpacing + itemIndex * (this._itemSpacing + itemHeight);
-        childView.display.setAutoState(phase === 0 ? "none" : "flex");
-        childView.bottom.setAutoState(phase * bottom);
-        childView.zIndex.setAutoState(zIndex);
-        itemIndex += 1;
-        zIndex -= 1;
-      }
-    }
+    this.layoutStack();
     const modalManager = this.modalManager.state;
     if (modalManager !== void 0) {
       modalManager.updateModality();
     }
   }
 
+  protected layoutStack(): void {
+    const phase = this.stackPhase.getValue();
+    const childNodes = this._node.childNodes;
+    const childCount = childNodes.length;
+    const button = this.button;
+    let zIndex = childCount - 1;
+    let itemIndex = 0;
+    let stackHeight = 0;
+    let y: number;
+    if (button !== null) {
+      button.zIndex.setAutoState(childCount);
+      const buttonHeight = button !== null ? button.height.value : void 0;
+      y = buttonHeight instanceof Length
+        ? buttonHeight.pxValue()
+        : button._node.offsetHeight;
+    } else {
+      y = 0;
+    }
+    for (let i = 0; i < childCount; i += 1) {
+      const childView = (childNodes[i] as ViewNode).view;
+      if (childView instanceof ButtonItem) {
+        if (itemIndex === 0) {
+          stackHeight += this._buttonSpacing;
+          y += this._buttonSpacing;
+        } else {
+          stackHeight += this._itemSpacing;
+          y += this._itemSpacing;
+        }
+        const itemHeight = childView.height.value;
+        const dy = itemHeight instanceof Length
+                 ? itemHeight.pxValue()
+                 : childView._node.offsetHeight;
+        childView.display.setAutoState(phase === 0 ? "none" : "flex");
+        childView.bottom.setAutoState(phase * y);
+        childView.zIndex.setAutoState(zIndex);
+        y += dy;
+        stackHeight += dy;
+        itemIndex += 1;
+        zIndex -= 1;
+      }
+    }
+    this._stackHeight = stackHeight;
+  }
+
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
     const childKey = childView.key;
-    if (childKey === "button" && childView instanceof ActionButton) {
+    if (childKey === "button" && childView instanceof HtmlView) {
       this.onInsertButton(childView);
-    } else if (childView instanceof ActionItem) {
+    } else if (childView instanceof ButtonItem) {
       this.onInsertItem(childView);
     }
   }
 
   protected onRemoveChildView(childView: View): void {
     const childKey = childView.key;
-    if (childKey === "button" && childView instanceof ActionButton) {
+    if (childKey === "button" && childView instanceof HtmlView) {
       this.onRemoveButton(childView);
-    } else if (childView instanceof ActionItem) {
+    } else if (childView instanceof ButtonItem) {
       this.onRemoveItem(childView);
     }
     super.onRemoveChildView(childView);
   }
 
-  protected onInsertButton(button: ActionButton): void {
+  protected onInsertButton(button: HtmlView): void {
     this._gesture = new PositionGesture(button, this);
     button.addViewObserver(this._gesture);
-    if (this.isCollapsed && this._buttonIcon !== null) {
-      button.setIcon(this._buttonIcon);
-    } else if (this.isExpanded()) {
-      button.setIcon(this.createCloseIcon());
+    if (button instanceof FloatingButton) {
+      if (this.isCollapsed && this._buttonIcon !== null) {
+        button.setIcon(this._buttonIcon);
+      } else if (this.isExpanded()) {
+        button.setIcon(this.createCloseIcon());
+      }
     }
     button.zIndex.setAutoState(0);
   }
 
-  protected onRemoveButton(button: ActionButton): void {
+  protected onRemoveButton(button: HtmlView): void {
     button.removeViewObserver(this._gesture!);
     this._gesture = null;
   }
 
-  protected onInsertItem(item: ActionItem): void {
+  protected onInsertItem(item: ButtonItem): void {
     item.position.setAutoState("absolute");
-    item.right.setAutoState(4);
-    item.bottom.setAutoState(4);
-    item.left.setAutoState(4);
+    item.right.setAutoState(8);
+    item.bottom.setAutoState(8);
+    item.left.setAutoState(8);
     item.zIndex.setAutoState(0);
-    this._itemCount += 1;
   }
 
-  protected onRemoveItem(item: ActionItem): void {
-    this._itemCount -= 1;
+  protected onRemoveItem(item: ButtonItem): void {
+    // hook
   }
 
   expand(tween?: Tween<any>): void {
@@ -295,7 +324,10 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
       }
       if (this._stackState !== "expanding") {
         this.willExpand();
-        this.button!.setIcon(this.createCloseIcon(), tween);
+        const button = this.button;
+        if (button instanceof FloatingButton) {
+          button.setIcon(this.createCloseIcon(), tween);
+        }
       }
       if (tween !== null) {
         if (this.stackPhase.value !== 1) {
@@ -312,9 +344,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
 
   protected willExpand(): void {
     this._stackState = "expanding";
-    this.willObserve(function (viewObserver: ActionStackObserver): void {
-      if (viewObserver.actionStackWillExpand !== void 0) {
-        viewObserver.actionStackWillExpand(this);
+    this.willObserve(function (viewObserver: ButtonStackObserver): void {
+      if (viewObserver.buttonStackWillExpand !== void 0) {
+        viewObserver.buttonStackWillExpand(this);
       }
     });
   }
@@ -322,9 +354,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   protected didExpand(): void {
     this._stackState = "expanded";
     this.requireUpdate(View.NeedsLayout);
-    this.didObserve(function (viewObserver: ActionStackObserver): void {
-      if (viewObserver.actionStackDidExpand !== void 0) {
-        viewObserver.actionStackDidExpand(this);
+    this.didObserve(function (viewObserver: ButtonStackObserver): void {
+      if (viewObserver.buttonStackDidExpand !== void 0) {
+        viewObserver.buttonStackDidExpand(this);
       }
     });
   }
@@ -338,7 +370,10 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
       }
       if (this._stackState !== "collapsing") {
         this.willCollapse();
-        this.button!.setIcon(this._buttonIcon, tween, true);
+        const button = this.button;
+        if (button instanceof FloatingButton) {
+          button.setIcon(this._buttonIcon, tween, true);
+        }
       }
       if (tween !== null) {
         if (this.stackPhase.value !== 0) {
@@ -355,9 +390,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
 
   protected willCollapse(): void {
     this._stackState = "collapsing";
-    this.willObserve(function (viewObserver: ActionStackObserver): void {
-      if (viewObserver.actionStackWillCollapse !== void 0) {
-        viewObserver.actionStackWillCollapse(this);
+    this.willObserve(function (viewObserver: ButtonStackObserver): void {
+      if (viewObserver.buttonStackWillCollapse !== void 0) {
+        viewObserver.buttonStackWillCollapse(this);
       }
     });
   }
@@ -365,9 +400,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   protected didCollapse(): void {
     this._stackState = "collapsed";
     this.requireUpdate(View.NeedsLayout);
-    this.didObserve(function (viewObserver: ActionStackObserver): void {
-      if (viewObserver.actionStackDidCollapse !== void 0) {
-        viewObserver.actionStackDidCollapse(this);
+    this.didObserve(function (viewObserver: ButtonStackObserver): void {
+      if (viewObserver.buttonStackDidCollapse !== void 0) {
+        viewObserver.buttonStackDidCollapse(this);
       }
     });
   }
@@ -399,9 +434,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   }
 
   protected willShow(): void {
-    this.willObserve(function (viewObserver: ActionStackObserver): void {
-      if (viewObserver.actionStackWillShow !== void 0) {
-        viewObserver.actionStackWillShow(this);
+    this.willObserve(function (viewObserver: ButtonStackObserver): void {
+      if (viewObserver.buttonStackWillShow !== void 0) {
+        viewObserver.buttonStackWillShow(this);
       }
     });
     this.display("block");
@@ -409,9 +444,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
 
   protected didShow(): void {
     this.requireUpdate(View.NeedsLayout);
-    this.didObserve(function (viewObserver: ActionStackObserver): void {
-      if (viewObserver.actionStackDidShow !== void 0) {
-        viewObserver.actionStackDidShow(this);
+    this.didObserve(function (viewObserver: ButtonStackObserver): void {
+      if (viewObserver.buttonStackDidShow !== void 0) {
+        viewObserver.buttonStackDidShow(this);
       }
     });
   }
@@ -434,9 +469,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   }
 
   protected willHide(): void {
-    this.willObserve(function (viewObserver: ActionStackObserver): void {
-      if (viewObserver.actionStackWillHide !== void 0) {
-        viewObserver.actionStackWillHide(this);
+    this.willObserve(function (viewObserver: ButtonStackObserver): void {
+      if (viewObserver.buttonStackWillHide !== void 0) {
+        viewObserver.buttonStackWillHide(this);
       }
     });
   }
@@ -444,9 +479,9 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
   protected didHide(): void {
     this.display("none");
     this.requireUpdate(View.NeedsLayout);
-    this.didObserve(function (viewObserver: ActionStackObserver): void {
-      if (viewObserver.actionStackDidHide !== void 0) {
-        viewObserver.actionStackDidHide(this);
+    this.didObserve(function (viewObserver: ButtonStackObserver): void {
+      if (viewObserver.buttonStackDidHide !== void 0) {
+        viewObserver.buttonStackDidHide(this);
       }
     });
   }
@@ -462,22 +497,17 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
 
   didMovePress(input: PositionGestureInput, event: Event | null): void {
     if (!input.defaultPrevented && this._stackState !== "expanded") {
-      const itemHeight = 48;
-      const itemCount = this._itemCount;
-      let stackHeight = 0;
-      if (itemCount > 0) {
-        stackHeight += this._buttonSpacing + itemHeight;
-        if (itemCount > 1) {
-          stackHeight += (itemCount - 1) * (this._itemSpacing + itemHeight);
-        }
-        const stackPhase = Math.min(Math.max(0, -(input.y - input.y0) / (0.5 * stackHeight)), 1);
-        this.stackPhase.setAutoState(stackPhase);
-        this.requireUpdate(View.NeedsLayout);
-        if (stackPhase > 0.1) {
-          input.clearHoldTimer();
-          if (this._stackState === "collapsed") {
-            this.willExpand();
-            this.button!.setIcon(this.createCloseIcon(), true);
+      const stackHeight = this._stackHeight;
+      const stackPhase = Math.min(Math.max(0, -(input.y - input.y0) / (0.5 * stackHeight)), 1);
+      this.stackPhase.setAutoState(stackPhase);
+      this.requireUpdate(View.NeedsLayout);
+      if (stackPhase > 0.1) {
+        input.clearHoldTimer();
+        if (this._stackState === "collapsed") {
+          this.willExpand();
+          const button = this.button;
+          if (button instanceof FloatingButton) {
+            button.setIcon(this.createCloseIcon(), true);
           }
         }
       }
@@ -517,10 +547,6 @@ export class ActionStack extends ThemedHtmlView implements Modal, PositionGestur
         this.expand();
       }
     }
-  }
-
-  protected onClick(event: MouseEvent): void {
-    event.stopPropagation();
   }
 
   protected onContextMenu(event: MouseEvent): void {

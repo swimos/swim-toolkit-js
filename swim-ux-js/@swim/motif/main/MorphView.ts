@@ -72,8 +72,10 @@ export class MorphView extends ThemedHtmlView {
     form.display.setAutoState("flex");
     form.justifyContent.setAutoState("center");
     form.alignItems.setAutoState("center");
-    form.width.setAutoState(this._node.clientWidth);
-    form.height.setAutoState(this._node.clientHeight);
+    form.top.setAutoState(0);
+    form.right.setAutoState(0);
+    form.bottom.setAutoState(0);
+    form.left.setAutoState(0);
     form.pointerEvents.setAutoState("none");
     if (icon !== null) {
       form.appendChildView(icon, "icon");

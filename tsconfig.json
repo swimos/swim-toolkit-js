@@ -22,9 +22,9 @@
 
     {"path": "./swim-ux-js/@swim/theme"},
     {"path": "./swim-ux-js/@swim/motif"},
+    {"path": "./swim-ux-js/@swim/button"},
     {"path": "./swim-ux-js/@swim/popover"},
     {"path": "./swim-ux-js/@swim/drawer"},
-    {"path": "./swim-ux-js/@swim/fab"},
     {"path": "./swim-ux-js/@swim/menu"},
     {"path": "./swim-ux-js/@swim/tree"},
     {"path": "./swim-ux-js/@swim/ux"},

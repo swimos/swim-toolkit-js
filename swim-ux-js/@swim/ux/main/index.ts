@@ -16,11 +16,11 @@ export * from "@swim/theme";
 
 export * from "@swim/motif";
 
+export * from "@swim/button";
+
 export * from "@swim/popover";
 
 export * from "@swim/drawer";
-
-export * from "@swim/fab";
 
 export * from "@swim/menu";
 
