@@ -13,17 +13,11 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
-import {ViewFlags, View, GraphicsView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, GraphicsView} from "@swim/view";
 import {GeoBox} from "../geo/GeoBox";
-import {MapGraphicsViewContext} from "./MapGraphicsViewContext";
 import {MapGraphicsView} from "./MapGraphicsView";
-import {MapGraphicsViewController} from "./MapGraphicsViewController";
 
 export class MapGraphicsLeafView extends MapGraphicsView {
-  get viewController(): MapGraphicsViewController<MapGraphicsLeafView> | null {
-    return this._viewController;
-  }
-
   get childViewCount(): number {
     return 0;
   }
@@ -90,12 +84,12 @@ export class MapGraphicsLeafView extends MapGraphicsView {
   }
 
   /** @hidden */
-  protected doProcessChildViews(processFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
+  protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // nop
   }
 
   /** @hidden */
-  protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
+  protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // nop
   }
 
@@ -111,7 +105,7 @@ export class MapGraphicsLeafView extends MapGraphicsView {
     return this.viewBounds;
   }
 
-  hitTest(x: number, y: number, viewContext: MapGraphicsViewContext): GraphicsView | null {
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     return null;
   }
 }

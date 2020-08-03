@@ -20,17 +20,18 @@ import {ContinuousScale} from "@swim/scale";
 import {Ease, AnyTransition, Transition} from "@swim/transition";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
+  ViewContextType,
   ViewFlags,
   View,
   ViewScope,
   ViewAnimator,
   ContinuousScaleViewAnimator,
-  GraphicsViewContext,
   GraphicsViewInit,
   GraphicsView,
 } from "@swim/view";
 import {AnyTickView, TickView} from "../tick/TickView";
 import {TickGenerator} from "../tick/TickGenerator";
+import {AxisViewObserver} from "./AxisViewObserver";
 import {AxisViewController} from "./AxisViewController";
 import {TopAxisView} from "./TopAxisView";
 import {RightAxisView} from "./RightAxisView";
@@ -79,9 +80,9 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     this._tickGenerator = true;
   }
 
-  get viewController(): AxisViewController<D> | null {
-    return this._viewController;
-  }
+  readonly viewController: AxisViewController<D> | null;
+
+  readonly viewObservers: ReadonlyArray<AxisViewObserver<D>>;
 
   initView(init: AxisViewInit<D>): void {
     super.initView(init);
@@ -438,19 +439,19 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     return additionalFlags;
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
   }
 
-  protected willAnimate(viewContext: GraphicsViewContext): void {
+  protected willAnimate(viewContext: ViewContextType<this>): void {
     super.willAnimate(viewContext);
     this.updateTicks();
   }
 
-  protected didAnimate(viewContext: GraphicsViewContext): void {
+  protected didAnimate(viewContext: ViewContextType<this>): void {
     // We don't need to run the layout phase unless the view frame changes
     // between now and the display pass.
     this._viewFlags &= ~View.NeedsLayout;
@@ -458,7 +459,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   protected willProcessChildView(childView: View, processFlags: ViewFlags,
-                                 viewContext: GraphicsViewContext): void {
+                                 viewContext: ViewContextType<this>): void {
     super.willProcessChildView(childView, processFlags, viewContext);
     if ((processFlags & View.NeedsAnimate) !== 0 && childView instanceof TickView) {
       const origin = this.origin.value;
@@ -469,20 +470,20 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
-  needsDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this._viewFlags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
   }
 
-  protected onLayout(viewContext: GraphicsViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.updateTicks();
   }
 
   protected willDisplayChildView(childView: View, displayFlags: ViewFlags,
-                                 viewContext: GraphicsViewContext): void {
+                                 viewContext: ViewContextType<this>): void {
     super.willDisplayChildView(childView, displayFlags, viewContext);
     if ((displayFlags & View.NeedsLayout) !== 0 && childView instanceof TickView) {
       const origin = this.origin.value;
@@ -496,7 +497,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   protected abstract layoutTick(tick: TickView<D>, origin: PointR2, frame: BoxR2,
                                 scale: ContinuousScale<D, number>): void;
 
-  protected willRender(viewContext: GraphicsViewContext): void {
+  protected willRender(viewContext: ViewContextType<this>): void {
     super.willRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer) {
@@ -505,7 +506,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
-  protected didRender(viewContext: GraphicsViewContext): void {
+  protected didRender(viewContext: ViewContextType<this>): void {
     const renderer = viewContext.renderer;
     const origin = this.origin.value;
     if (renderer instanceof CanvasRenderer && origin !== void 0) {

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Tween, Transition} from "@swim/transition";
-import {ViewContext, ViewFlags, View, ViewScope, SvgViewInit, SvgView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewScope, SvgViewInit, SvgView} from "@swim/view";
 import {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 import {Mood} from "../mood/Mood";
@@ -29,9 +29,9 @@ export interface ThemedSvgViewInit extends SvgViewInit, ThemedViewInit {
 }
 
 export class ThemedSvgView extends SvgView implements ThemedView {
-  get viewController(): ThemedSvgViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: ThemedSvgViewController | null;
+
+  readonly viewObservers: ReadonlyArray<ThemedSvgViewObserver>;
 
   initView(init: ThemedSvgViewInit): void {
     super.initView(init);
@@ -208,7 +208,7 @@ export class ThemedSvgView extends SvgView implements ThemedView {
     }
   }
 
-  protected onCompute(viewContext: ViewContext): void {
+  protected onCompute(viewContext: ViewContextType<this>): void {
     super.onCompute(viewContext);
     this.computeMood();
     this.computeTheme();

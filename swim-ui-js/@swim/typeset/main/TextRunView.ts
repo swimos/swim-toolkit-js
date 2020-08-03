@@ -18,9 +18,8 @@ import {AnyFont, Font} from "@swim/font";
 import {Tween} from "@swim/transition";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
+  ViewContextType,
   ViewAnimator,
-  GraphicsViewContext,
-  GraphicsViewController,
   GraphicsLeafView,
   TypesetViewInit,
   TypesetView,
@@ -34,10 +33,6 @@ export interface TextRunViewInit extends TypesetViewInit {
 }
 
 export class TextRunView extends GraphicsLeafView implements TypesetView {
-  get viewController(): GraphicsViewController<TextRunView> | null {
-    return this._viewController;
-  }
-
   initView(init: TextRunViewInit): void {
     super.initView(init);
     this.setState(init);
@@ -99,7 +94,7 @@ export class TextRunView extends GraphicsLeafView implements TypesetView {
     }
   }
 
-  protected onRender(viewContext: GraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {

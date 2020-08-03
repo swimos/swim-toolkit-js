@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContext} from "./ViewContext";
-import {ViewFlags, ViewConstructor, View} from "./View";
+import {ViewContextType, ViewContext} from "./ViewContext";
+import {ViewFlags, View} from "./View";
 import {ViewObserver} from "./ViewObserver";
 import {ViewIdiom} from "./viewport/ViewIdiom";
 import {Viewport} from "./viewport/Viewport";
+
+export type ViewControllerType<V extends View> =
+  V extends {readonly viewController: infer VC} ? VC : unknown;
 
 export class ViewController<V extends View = View> implements ViewObserver<V> {
   /** @hidden */
@@ -247,12 +250,12 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
-  getSuperView<V extends View>(viewClass: ViewConstructor<V>): V | null {
+  getSuperView<V extends View>(viewClass: {new(...args: any[]): V}): V | null {
     const view = this._view;
     return view !== null ? view.getSuperView(viewClass) : null;
   }
 
-  getBaseView<V extends View>(viewClass: ViewConstructor<V>): V | null {
+  getBaseView<V extends View>(viewClass: {new(...args: any[]): V}): V | null {
     const view = this._view;
     return view !== null ? view.getBaseView(viewClass) : null;
   }
@@ -299,6 +302,11 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
+  isTraversing(): boolean {
+    const view = this._view;
+    return view !== null && view.isTraversing();
+  }
+
   isUpdating(): boolean {
     const view = this._view;
     return view !== null && view.isUpdating();
@@ -309,59 +317,59 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     return view !== null && view.isProcessing();
   }
 
-  viewWillProcess(viewContext: ViewContext, view: V): void {
+  viewWillProcess(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidProcess(viewContext: ViewContext, view: V): void {
+  viewDidProcess(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewWillResize(viewContext: ViewContext, view: V): void {
+  viewWillResize(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidResize(viewContext: ViewContext, view: V): void {
+  viewDidResize(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewWillScroll(viewContext: ViewContext, view: V): void {
+  viewWillScroll(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidScroll(viewContext: ViewContext, view: V): void {
+  viewDidScroll(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewWillCompute(viewContext: ViewContext, view: V): void {
+  viewWillCompute(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidCompute(viewContext: ViewContext, view: V): void {
+  viewDidCompute(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewWillAnimate(viewContext: ViewContext, view: V): void {
+  viewWillAnimate(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidAnimate(viewContext: ViewContext, view: V): void {
+  viewDidAnimate(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewWillLayout(viewContext: ViewContext, view: V): void {
+  viewWillLayout(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidLayout(viewContext: ViewContext, view: V): void {
+  viewDidLayout(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewWillProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext, view: V): void {
+  viewWillProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext, view: V): void {
+  viewDidProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
@@ -370,19 +378,19 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     return view !== null && view.isDisplaying();
   }
 
-  viewWillDisplay(viewContext: ViewContext, view: V): void {
+  viewWillDisplay(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidDisplay(viewContext: ViewContext, view: V): void {
+  viewDidDisplay(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewWillDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext, view: V): void {
+  viewWillDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext, view: V): void {
+  viewDidDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 

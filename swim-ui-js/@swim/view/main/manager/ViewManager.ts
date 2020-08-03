@@ -14,20 +14,105 @@
 
 import {View} from "../View";
 import {ViewManagerObserver} from "./ViewManagerObserver";
-import {UpdateManager} from "../update/UpdateManager";
+import {DisplayManager} from "../display/DisplayManager";
 import {LayoutManager} from "../layout/LayoutManager";
 import {ViewportManager} from "../viewport/ViewportManager";
 import {HistoryManager} from "../history/HistoryManager";
 import {ModalManager} from "../modal/ModalManager";
 
+export type ViewManagerObserverType<VM extends ViewManager> =
+  VM extends {readonly viewManagerObservers: ReadonlyArray<infer VMO>} ? VMO : unknown;
+
 export abstract class ViewManager<V extends View = View> {
   /** @hidden */
   readonly _rootViews: V[];
   /** @hidden */
-  _managerObservers?: ViewManagerObserver[];
+  _viewManagerObservers?: ViewManagerObserverType<this>[];
 
   constructor() {
     this._rootViews = [];
+  }
+
+  get viewManagerObservers(): ReadonlyArray<ViewManagerObserver> {
+    let viewManagerObservers = this._viewManagerObservers;
+    if (viewManagerObservers === void 0) {
+      viewManagerObservers = [];
+      this._viewManagerObservers = viewManagerObservers;
+    }
+    return viewManagerObservers;
+  }
+
+  addViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
+    let viewManagerObservers = this._viewManagerObservers;
+    let index: number;
+    if (viewManagerObservers === void 0) {
+      viewManagerObservers = [];
+      this._viewManagerObservers = viewManagerObservers;
+      index = -1;
+    } else {
+      index = viewManagerObservers.indexOf(viewManagerObserver);
+    }
+    if (index < 0) {
+      this.willAddViewManagerObserver(viewManagerObserver);
+      viewManagerObservers.push(viewManagerObserver);
+      this.onAddViewManagerObserver(viewManagerObserver);
+      this.didAddViewManagerObserver(viewManagerObserver);
+    }
+  }
+
+  protected willAddViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
+    // hook
+  }
+
+  protected onAddViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
+    // hook
+  }
+
+  protected didAddViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
+    // hook
+  }
+
+  removeViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
+    const viewManagerObservers = this._viewManagerObservers;
+    if (viewManagerObservers !== void 0) {
+      const index = viewManagerObservers.indexOf(viewManagerObserver);
+      if (index >= 0) {
+        this.willRemoveViewManagerObserver(viewManagerObserver);
+        viewManagerObservers.splice(index, 1);
+        this.onRemoveViewManagerObserver(viewManagerObserver);
+        this.didRemoveViewManagerObserver(viewManagerObserver);
+      }
+    }
+  }
+
+  protected willRemoveViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
+    // hook
+  }
+
+  protected onRemoveViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
+    // hook
+  }
+
+  protected didRemoveViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
+    // hook
+  }
+
+  protected willObserve(callback: (this: this, viewManagerObserver: ViewManagerObserverType<this>) => void): void {
+    const viewManagerObservers = this._viewManagerObservers;
+    if (viewManagerObservers !== void 0) {
+      for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
+        callback.call(this, viewManagerObservers[i]);
+      }
+    }
+  }
+
+  protected didObserve(callback: (this: this, viewManagerObserver: ViewManagerObserverType<this>) => void): void {
+    const viewManagerObservers = this._viewManagerObservers;
+    if (viewManagerObservers !== void 0) {
+      for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
+        callback.call(this, viewManagerObservers[i]);
+      }
+    }
   }
 
   isAttached(): boolean {
@@ -35,9 +120,9 @@ export abstract class ViewManager<V extends View = View> {
   }
 
   protected willAttach(): void {
-    this.willObserve(function (managerObserver: ViewManagerObserver): void {
-      if (managerObserver.managerWillAttach !== void 0) {
-        managerObserver.managerWillAttach(this);
+    this.willObserve(function (viewManagerObserver: ViewManagerObserver): void {
+      if (viewManagerObserver.managerWillAttach !== void 0) {
+        viewManagerObserver.managerWillAttach(this);
       }
     });
   }
@@ -47,17 +132,17 @@ export abstract class ViewManager<V extends View = View> {
   }
 
   protected didAttach(): void {
-    this.didObserve(function (managerObserver: ViewManagerObserver): void {
-      if (managerObserver.managerDidAttach !== void 0) {
-        managerObserver.managerDidAttach(this);
+    this.didObserve(function (viewManagerObserver: ViewManagerObserver): void {
+      if (viewManagerObserver.managerDidAttach !== void 0) {
+        viewManagerObserver.managerDidAttach(this);
       }
     });
   }
 
   protected willDetach(): void {
-    this.willObserve(function (managerObserver: ViewManagerObserver): void {
-      if (managerObserver.managerWillDetach !== void 0) {
-        managerObserver.managerWillDetach(this);
+    this.willObserve(function (viewManagerObserver: ViewManagerObserver): void {
+      if (viewManagerObserver.managerWillDetach !== void 0) {
+        viewManagerObserver.managerWillDetach(this);
       }
     });
   }
@@ -67,9 +152,9 @@ export abstract class ViewManager<V extends View = View> {
   }
 
   protected didDetach(): void {
-    this.didObserve(function (managerObserver: ViewManagerObserver): void {
-      if (managerObserver.managerDidDetach !== void 0) {
-        managerObserver.managerDidDetach(this);
+    this.didObserve(function (viewManagerObserver: ViewManagerObserver): void {
+      if (viewManagerObserver.managerDidDetach !== void 0) {
+        viewManagerObserver.managerDidDetach(this);
       }
     });
   }
@@ -100,9 +185,9 @@ export abstract class ViewManager<V extends View = View> {
   }
 
   protected willAddRootView(rootView: V): void {
-    this.willObserve(function (managerObserver: ViewManagerObserver): void {
-      if (managerObserver.managerWillAddRootView !== void 0) {
-        managerObserver.managerWillAddRootView(rootView, this);
+    this.willObserve(function (viewManagerObserver: ViewManagerObserver): void {
+      if (viewManagerObserver.managerWillAddRootView !== void 0) {
+        viewManagerObserver.managerWillAddRootView(rootView, this);
       }
     });
   }
@@ -112,9 +197,9 @@ export abstract class ViewManager<V extends View = View> {
   }
 
   protected didAddRootView(rootView: V): void {
-    this.didObserve(function (managerObserver: ViewManagerObserver): void {
-      if (managerObserver.managerDidAddRootView !== void 0) {
-        managerObserver.managerDidAddRootView(rootView, this);
+    this.didObserve(function (viewManagerObserver: ViewManagerObserver): void {
+      if (viewManagerObserver.managerDidAddRootView !== void 0) {
+        viewManagerObserver.managerDidAddRootView(rootView, this);
       }
     });
   }
@@ -141,9 +226,9 @@ export abstract class ViewManager<V extends View = View> {
   }
 
   protected willRemoveRootView(rootView: V): void {
-    this.willObserve(function (managerObserver: ViewManagerObserver): void {
-      if (managerObserver.managerWillRemoveRootView !== void 0) {
-        managerObserver.managerWillRemoveRootView(rootView, this);
+    this.willObserve(function (viewManagerObserver: ViewManagerObserver): void {
+      if (viewManagerObserver.managerWillRemoveRootView !== void 0) {
+        viewManagerObserver.managerWillRemoveRootView(rootView, this);
       }
     });
   }
@@ -153,98 +238,16 @@ export abstract class ViewManager<V extends View = View> {
   }
 
   protected didRemoveRootView(rootView: V): void {
-    this.didObserve(function (managerObserver: ViewManagerObserver): void {
-      if (managerObserver.managerDidRemoveRootView !== void 0) {
-        managerObserver.managerDidRemoveRootView(rootView, this);
+    this.didObserve(function (viewManagerObserver: ViewManagerObserver): void {
+      if (viewManagerObserver.managerDidRemoveRootView !== void 0) {
+        viewManagerObserver.managerDidRemoveRootView(rootView, this);
       }
     });
   }
 
-  get managerObservers(): ReadonlyArray<ViewManagerObserver> {
-    let managerObservers = this._managerObservers;
-    if (managerObservers === void 0) {
-      managerObservers = [];
-      this._managerObservers = managerObservers;
-    }
-    return managerObservers;
-  }
-
-  addManagerObserver(managerObserver: ViewManagerObserver): void {
-    let managerObservers = this._managerObservers;
-    let index: number;
-    if (managerObservers === void 0) {
-      managerObservers = [];
-      this._managerObservers = managerObservers;
-      index = -1;
-    } else {
-      index = managerObservers.indexOf(managerObserver);
-    }
-    if (index < 0) {
-      this.willAddManagerObserver(managerObserver);
-      managerObservers.push(managerObserver);
-      this.onAddManagerObserver(managerObserver);
-      this.didAddManagerObserver(managerObserver);
-    }
-  }
-
-  protected willAddManagerObserver(managerObserver: ViewManagerObserver): void {
-    // hook
-  }
-
-  protected onAddManagerObserver(managerObserver: ViewManagerObserver): void {
-    // hook
-  }
-
-  protected didAddManagerObserver(managerObserver: ViewManagerObserver): void {
-    // hook
-  }
-
-  removeManagerObserver(managerObserver: ViewManagerObserver): void {
-    const managerObservers = this._managerObservers;
-    if (managerObservers !== void 0) {
-      const index = managerObservers.indexOf(managerObserver);
-      if (index >= 0) {
-        this.willRemoveManagerObserver(managerObserver);
-        managerObservers.splice(index, 1);
-        this.onRemoveManagerObserver(managerObserver);
-        this.didRemoveManagerObserver(managerObserver);
-      }
-    }
-  }
-
-  protected willRemoveManagerObserver(managerObserver: ViewManagerObserver): void {
-    // hook
-  }
-
-  protected onRemoveManagerObserver(managerObserver: ViewManagerObserver): void {
-    // hook
-  }
-
-  protected didRemoveManagerObserver(managerObserver: ViewManagerObserver): void {
-    // hook
-  }
-
-  protected willObserve(callback: (this: this, managerObserver: ViewManagerObserver) => void): void {
-    const managerObservers = this._managerObservers;
-    if (managerObservers !== void 0) {
-      for (let i = 0, n = managerObservers.length; i < n; i += 1) {
-        callback.call(this, managerObservers[i]);
-      }
-    }
-  }
-
-  protected didObserve(callback: (this: this, managerObserver: ViewManagerObserver) => void): void {
-    const managerObservers = this._managerObservers;
-    if (managerObservers !== void 0) {
-      for (let i = 0, n = managerObservers.length; i < n; i += 1) {
-        callback.call(this, managerObservers[i]);
-      }
-    }
-  }
-
   // Forward type declarations
   /** @hidden */
-  static Update: typeof UpdateManager; // defined by UpdateManager
+  static Display: typeof DisplayManager; // defined by DisplayManager
   /** @hidden */
   static Layout: typeof LayoutManager; // defined by LayoutManager
   /** @hidden */

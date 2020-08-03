@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View, ViewObserver} from "@swim/view";
+import {ViewObserverType, View, ViewObserver} from "@swim/view";
 import {GestureInputType} from "./GestureInput";
 import {PositionGestureInput} from "./PositionGestureInput";
 import {PositionGestureDelegate} from "./PositionGestureDelegate";
@@ -42,7 +42,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
 
   protected initView(view: V | null): void {
     if (view !== null) {
-      view.addViewObserver(this);
+      view.addViewObserver(this as ViewObserverType<V>);
       if (view.isMounted()) {
         this.attachEvents(view);
       }
@@ -57,11 +57,11 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
     if (this._view !== view) {
       if (this._view !== null) {
         this.detachEvents(this._view);
-        this._view.removeViewObserver(this);
+        this._view.removeViewObserver(this as ViewObserverType<V>);
       }
       this._view = view;
       if (this._view !== null) {
-        this._view.addViewObserver(this);
+        this._view.addViewObserver(this as ViewObserverType<V>);
         if (this._view.isMounted()) {
           this.attachEvents(this._view);
         }

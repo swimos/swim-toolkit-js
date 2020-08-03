@@ -18,12 +18,11 @@ import {AnyLength, Length} from "@swim/length";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/font";
 import {
+  ViewContextType,
   ViewFlags,
   View,
   ViewAnimator,
-  GraphicsViewContext,
   GraphicsViewInit,
-  GraphicsViewController,
   GraphicsNodeView,
   TypesetView,
 } from "@swim/view";
@@ -57,10 +56,6 @@ export interface GaugeViewInit extends GraphicsViewInit {
 }
 
 export class GaugeView extends GraphicsNodeView {
-  get viewController(): GraphicsViewController<GaugeView> | null {
-    return this._viewController;
-  }
-
   initView(init: GaugeViewInit): void {
     super.initView(init);
     if (init.limit !== void 0) {
@@ -224,14 +219,14 @@ export class GaugeView extends GraphicsNodeView {
     return additionalFlags;
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this._viewFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
   }
 
-  protected onAnimate(viewContext: GraphicsViewContext): void {
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     this.animateGauge(this.viewFrame);
   }
@@ -286,7 +281,7 @@ export class GaugeView extends GraphicsNodeView {
     }
   }
 
-  protected didAnimate(viewContext: GraphicsViewContext): void {
+  protected didAnimate(viewContext: ViewContextType<this>): void {
     this.layoutGauge();
     super.didAnimate(viewContext);
   }

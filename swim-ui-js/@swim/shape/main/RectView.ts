@@ -18,10 +18,9 @@ import {AnyColor, Color} from "@swim/color";
 import {Tween} from "@swim/transition";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
+  ViewContextType,
   ViewAnimator,
-  GraphicsViewContext,
   GraphicsView,
-  GraphicsViewController,
   GraphicsLeafView,
   FillViewInit,
   FillView,
@@ -40,10 +39,6 @@ export interface RectViewInit extends FillViewInit, StrokeViewInit {
 }
 
 export class RectView extends GraphicsLeafView implements FillView, StrokeView {
-  get viewController(): GraphicsViewController<RectView> | null {
-    return this._viewController;
-  }
-
   initView(init: RectViewInit): void {
     super.initView(init);
     this.setState(init);
@@ -105,7 +100,7 @@ export class RectView extends GraphicsLeafView implements FillView, StrokeView {
     }
   }
 
-  protected onRender(viewContext: GraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -149,8 +144,8 @@ export class RectView extends GraphicsLeafView implements FillView, StrokeView {
     return new BoxR2(x, y, x + width, y + height);
   }
 
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
-    let hit = super.hitTest(x, y, viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+    let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
       if (renderer instanceof CanvasRenderer) {

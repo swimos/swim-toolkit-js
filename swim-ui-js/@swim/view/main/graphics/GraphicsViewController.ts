@@ -13,23 +13,17 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
+import {ViewContextType} from "../ViewContext";
 import {ViewController} from "../ViewController";
-import {GraphicsViewContext} from "./GraphicsViewContext";
 import {GraphicsView} from "./GraphicsView";
 import {GraphicsViewObserver} from "./GraphicsViewObserver";
-import {CanvasView} from "../canvas/CanvasView";
 
 export class GraphicsViewController<V extends GraphicsView = GraphicsView> extends ViewController<V> implements GraphicsViewObserver<V> {
-  get canvasView(): CanvasView | null {
-    const view = this._view;
-    return view !== null ? view.canvasView : null;
-  }
-
-  viewWillRender(viewContext: GraphicsViewContext, view: V): void {
+  viewWillRender(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidRender(viewContext: GraphicsViewContext, view: V): void {
+  viewDidRender(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 

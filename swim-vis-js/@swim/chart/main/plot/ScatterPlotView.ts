@@ -20,15 +20,16 @@ import {ContinuousScale} from "@swim/scale";
 import {Tween} from "@swim/transition";
 import {CanvasRenderer, CanvasContext} from "@swim/render";
 import {
+  ViewContextType,
   ViewFlags,
   View,
   ViewAnimator,
   ContinuousScaleViewAnimator,
-  GraphicsViewContext,
   GraphicsNodeView,
 } from "@swim/view";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {PlotViewInit, PlotView} from "./PlotView";
+import {PlotViewObserver} from "./PlotViewObserver";
 import {PlotViewController} from "./PlotViewController";
 
 export type ScatterPlotType = "bubble";
@@ -57,9 +58,9 @@ export abstract class ScatterPlotView<X, Y> extends GraphicsNodeView implements 
     this._yDataRange = void 0;
   }
 
-  get viewController(): PlotViewController<X, Y, ScatterPlotView<X, Y>> | null {
-    return this._viewController;
-  }
+  readonly viewController: PlotViewController<X, Y> | null;
+
+  readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 
   initView(init: ScatterPlotViewInit<X, Y>): void {
     super.initView(init);
@@ -244,14 +245,14 @@ export abstract class ScatterPlotView<X, Y> extends GraphicsNodeView implements 
     return additionalFlags;
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
   }
 
-  protected willResize(viewContext: GraphicsViewContext): void {
+  protected willResize(viewContext: ViewContextType<this>): void {
     super.willResize(viewContext);
     this.resizeScales(this.viewFrame);
   }
@@ -270,7 +271,7 @@ export abstract class ScatterPlotView<X, Y> extends GraphicsNodeView implements 
     }
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: GraphicsViewContext,
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     // Compute domain and range extrema while animating child views.
     let needsAnimate = (processFlags & View.NeedsAnimate) !== 0;
@@ -387,14 +388,14 @@ export abstract class ScatterPlotView<X, Y> extends GraphicsNodeView implements 
     }
   }
 
-  needsDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this._viewFlags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: GraphicsViewContext,
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     // Recompute range extrema when laying out child views.
     const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
@@ -470,7 +471,7 @@ export abstract class ScatterPlotView<X, Y> extends GraphicsNodeView implements 
     }
   }
 
-  protected onRender(viewContext: GraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {

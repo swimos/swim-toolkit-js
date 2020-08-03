@@ -20,5 +20,5 @@ export {
 export {MapGraphicsViewObserver} from "./MapGraphicsViewObserver";
 export {MapGraphicsViewController} from "./MapGraphicsViewController";
 
-export {MapGraphicsNodeView} from "./MapGraphicsNodeView";
 export {MapGraphicsLeafView} from "./MapGraphicsLeafView";
+export {MapGraphicsNodeView} from "./MapGraphicsNodeView";

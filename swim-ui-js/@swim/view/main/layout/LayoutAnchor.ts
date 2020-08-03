@@ -14,15 +14,15 @@
 
 import {__extends} from "tslib";
 import {ConstrainBinding, AnyConstraintStrength, ConstraintStrength} from "@swim/constraint";
-import {LayoutContext} from "./LayoutContext";
+import {LayoutScope} from "./LayoutScope";
 
-export type LayoutAnchorGetState<L extends LayoutContext> =
+export type LayoutAnchorGetState<L extends LayoutScope> =
   (this: LayoutAnchor<L>, oldState: number) => number;
 
-export type LayoutAnchorSetValue<L extends LayoutContext> =
+export type LayoutAnchorSetValue<L extends LayoutScope> =
   (this: LayoutAnchor<L>, newValue: number) => void;
 
-export interface LayoutAnchorDescriptor<L extends LayoutContext> {
+export interface LayoutAnchorDescriptor<L extends LayoutScope> {
   value?: number;
   strength?: AnyConstraintStrength;
   enabled?: boolean;
@@ -31,14 +31,14 @@ export interface LayoutAnchorDescriptor<L extends LayoutContext> {
 }
 
 export interface LayoutAnchorConstructor {
-  new<L extends LayoutContext>(scope: L, anchorName: string, descriptor?: LayoutAnchorDescriptor<L>): LayoutAnchor<L>;
+  new<L extends LayoutScope>(scope: L, anchorName: string, descriptor?: LayoutAnchorDescriptor<L>): LayoutAnchor<L>;
 }
 
 export interface LayoutAnchorClass extends LayoutAnchorConstructor {
-  <L extends LayoutContext>(descriptor: LayoutAnchorDescriptor<L>): PropertyDecorator;
+  <L extends LayoutScope>(descriptor: LayoutAnchorDescriptor<L>): PropertyDecorator;
 }
 
-export interface LayoutAnchor<L extends LayoutContext> extends ConstrainBinding {
+export interface LayoutAnchor<L extends LayoutScope> extends ConstrainBinding {
   (): number;
   (state: number): L;
 
@@ -62,12 +62,12 @@ export interface LayoutAnchor<L extends LayoutContext> extends ConstrainBinding 
 }
 
 export const LayoutAnchor: LayoutAnchorClass = (function (_super: typeof ConstrainBinding): LayoutAnchorClass {
-  function LayoutAnchorDecoratorFactory<L extends LayoutContext>(descriptor: LayoutAnchorDescriptor<L>): PropertyDecorator {
-    return LayoutContext.decorateLayoutAnchor.bind(void 0, LayoutAnchor, descriptor);
+  function LayoutAnchorDecoratorFactory<L extends LayoutScope>(descriptor: LayoutAnchorDescriptor<L>): PropertyDecorator {
+    return LayoutScope.decorateLayoutAnchor.bind(void 0, LayoutAnchor, descriptor);
   }
 
-  function LayoutAnchorConstructor<L extends LayoutContext>(this: LayoutAnchor<L>, scope: L, anchorName: string,
-                                                            descriptor?: LayoutAnchorDescriptor<L>): LayoutAnchor<L> {
+  function LayoutAnchorConstructor<L extends LayoutScope>(this: LayoutAnchor<L>, scope: L, anchorName: string,
+                                                          descriptor?: LayoutAnchorDescriptor<L>): LayoutAnchor<L> {
     let value: number;
     let strength: ConstraintStrength;
     if (descriptor !== void 0 && descriptor.value !== void 0) {
@@ -93,7 +93,7 @@ export const LayoutAnchor: LayoutAnchorClass = (function (_super: typeof Constra
     return _this;
   }
 
-  const LayoutAnchor: LayoutAnchorClass = function <L extends LayoutContext>(
+  const LayoutAnchor: LayoutAnchorClass = function <L extends LayoutScope>(
       this: LayoutAnchor<L> | LayoutAnchorClass,
       scope: L | LayoutAnchorDescriptor<L>,
       anchorName?: string,
@@ -117,7 +117,7 @@ export const LayoutAnchor: LayoutAnchorClass = (function (_super: typeof Constra
   } as LayoutAnchorClass;
   __extends(LayoutAnchor, _super);
 
-  LayoutAnchor.prototype.enabled = function <L extends LayoutContext>(this: LayoutAnchor<L>, enabled?: boolean): boolean | LayoutAnchor<L> {
+  LayoutAnchor.prototype.enabled = function <L extends LayoutScope>(this: LayoutAnchor<L>, enabled?: boolean): boolean | LayoutAnchor<L> {
     if (enabled === void 0) {
       return this._enabled;
     } else {
@@ -126,7 +126,7 @@ export const LayoutAnchor: LayoutAnchorClass = (function (_super: typeof Constra
     }
   };
 
-  LayoutAnchor.prototype.updateValue = function <L extends LayoutContext>(this: LayoutAnchor<L>, newValue: number): void {
+  LayoutAnchor.prototype.updateValue = function <L extends LayoutScope>(this: LayoutAnchor<L>, newValue: number): void {
     const oldValue = this._value;
     if (oldValue !== newValue) {
       this._value = newValue;
@@ -136,7 +136,7 @@ export const LayoutAnchor: LayoutAnchorClass = (function (_super: typeof Constra
     }
   };
 
-  LayoutAnchor.prototype.updateState = function <L extends LayoutContext>(this: LayoutAnchor<L>): void {
+  LayoutAnchor.prototype.updateState = function <L extends LayoutScope>(this: LayoutAnchor<L>): void {
     if (!this._enabled && this.getState !== void 0) {
       const oldState = this._state;
       const newState = this.getState(oldState);

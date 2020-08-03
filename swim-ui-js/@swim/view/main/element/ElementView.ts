@@ -58,9 +58,9 @@ export class ElementView extends NodeView {
     return this._node;
   }
 
-  get viewController(): ElementViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: ElementViewController | null;
+
+  readonly viewObservers: ReadonlyArray<ElementViewObserver>;
 
   initView(init: ElementViewInit): void {
     super.initView(init);

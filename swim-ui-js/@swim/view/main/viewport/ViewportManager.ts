@@ -18,7 +18,7 @@ import {ViewManager} from "../manager/ViewManager";
 import {ViewIdiom} from "./ViewIdiom";
 import {Viewport} from "./Viewport";
 import {ViewportContext} from "./ViewportContext";
-import {ViewportObserver} from "./ViewportObserver";
+import {ViewportManagerObserver} from "./ViewportManagerObserver";
 
 export class ViewportManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -39,14 +39,10 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
 
   protected initViewContext(): ViewportContext {
     return {
-      updateTime: performance.now(),
+      updateTime: 0,
       viewIdiom: "unspecified",
       viewport: this.detectViewport(),
     };
-  }
-
-  protected detectViewport(): Viewport {
-    return Viewport.detect();
   }
 
   get viewContext(): ViewContext {
@@ -73,9 +69,9 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willSetViewIdiom(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom): void {
-    this.willObserve(function (viewportObserver: ViewportObserver): void {
-      if (viewportObserver.managerWillSetViewIdiom !== void 0) {
-        viewportObserver.managerWillSetViewIdiom(newViewIdiom, oldViewIdiom, this);
+    this.willObserve(function (viewManagerObserver: ViewportManagerObserver): void {
+      if (viewManagerObserver.viewManagerWillSetViewIdiom !== void 0) {
+        viewManagerObserver.viewManagerWillSetViewIdiom(newViewIdiom, oldViewIdiom, this);
       }
     });
   }
@@ -88,9 +84,9 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected didSetViewIdiom(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom): void {
-    this.didObserve(function (viewportObserver: ViewportObserver): void {
-      if (viewportObserver.managerDidSetViewIdiom !== void 0) {
-        viewportObserver.managerDidSetViewIdiom(newViewIdiom, oldViewIdiom, this);
+    this.didObserve(function (viewManagerObserver: ViewportManagerObserver): void {
+      if (viewManagerObserver.viewManagerDidSetViewIdiom !== void 0) {
+        viewManagerObserver.viewManagerDidSetViewIdiom(newViewIdiom, oldViewIdiom, this);
       }
     });
   }
@@ -103,9 +99,7 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  addManagerObserver: (viewportObserver: ViewportObserver) => void;
-
-  removeManagerObserver: (viewportObserver: ViewportObserver) => void;
+  readonly viewManagerObservers: ReadonlyArray<ViewportManagerObserver>;
 
   protected onAttach(): void {
     super.onAttach();
@@ -132,6 +126,10 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
       window.removeEventListener("scroll", this.throttleScroll);
       window.removeEventListener("orientationchange", this.debounceReorientation);
     }
+  }
+
+  protected detectViewport(): Viewport {
+    return Viewport.detect();
   }
 
   /** @hidden */

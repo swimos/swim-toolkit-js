@@ -15,9 +15,10 @@
 import {BoxR2} from "@swim/math";
 import {Transform} from "@swim/transform";
 import {ConstrainVariable, Constraint} from "@swim/constraint";
-import {ViewContext} from "../ViewContext";
-import {ViewControllerType, ViewFlags, ViewInit, View} from "../View";
-import {ViewObserver} from "../ViewObserver";
+import {ViewContextType, ViewContext} from "../ViewContext";
+import {ViewFlags, ViewInit, View} from "../View";
+import {ViewObserverType} from "../ViewObserver";
+import {ViewControllerType} from "../ViewController";
 import {ViewService} from "../service/ViewService";
 import {ViewScope} from "../scope/ViewScope";
 import {ViewAnimator} from "../animator/ViewAnimator";
@@ -46,7 +47,7 @@ export class NodeView extends View {
   /** @hidden */
   _viewController: ViewControllerType<this> | null;
   /** @hidden */
-  _viewObservers?: ViewObserver[];
+  _viewObservers?: ViewObserverType<this>[];
   /** @hidden */
   _viewFlags: ViewFlags;
   /** @hidden */
@@ -80,6 +81,13 @@ export class NodeView extends View {
     // hook
   }
 
+  initView(init: NodeViewInit): void {
+    super.initView(init);
+    if (init.text !== void 0) {
+      this.text(init.text);
+    }
+  }
+
   get viewController(): NodeViewController | null {
     return this._viewController;
   }
@@ -100,7 +108,7 @@ export class NodeView extends View {
     }
   }
 
-  get viewObservers(): ReadonlyArray<ViewObserver> {
+  get viewObservers(): ReadonlyArray<NodeViewObserver> {
     let viewObservers = this._viewObservers;
     if (viewObservers === void 0) {
       viewObservers = [];
@@ -109,7 +117,7 @@ export class NodeView extends View {
     return viewObservers;
   }
 
-  addViewObserver(viewObserver: ViewObserver): void {
+  addViewObserver(viewObserver: ViewObserverType<this>): void {
     let viewObservers = this._viewObservers;
     let index: number;
     if (viewObservers === void 0) {
@@ -127,7 +135,7 @@ export class NodeView extends View {
     }
   }
 
-  removeViewObserver(viewObserver: ViewObserver): void {
+  removeViewObserver(viewObserver: ViewObserverType<this>): void {
     const viewObservers = this._viewObservers;
     if (viewObservers !== void 0) {
       const index = viewObservers.indexOf(viewObserver);
@@ -140,7 +148,7 @@ export class NodeView extends View {
     }
   }
 
-  protected willObserve(callback: (this: this, viewObserver: ViewObserver) => void): void {
+  protected willObserve(callback: (this: this, viewObserver: ViewObserverType<this>) => void): void {
     const viewController = this._viewController;
     if (viewController !== null) {
       callback.call(this, viewController);
@@ -153,7 +161,7 @@ export class NodeView extends View {
     }
   }
 
-  protected didObserve(callback: (this: this, viewObserver: ViewObserver) => void): void {
+  protected didObserve(callback: (this: this, viewObserver: ViewObserverType<this>) => void): void {
     const viewObservers = this._viewObservers;
     if (viewObservers !== void 0) {
       for (let i = 0, n = viewObservers.length; i < n; i += 1) {
@@ -163,13 +171,6 @@ export class NodeView extends View {
     const viewController = this._viewController;
     if (viewController !== null) {
       callback.call(this, viewController);
-    }
-  }
-
-  initView(init: NodeViewInit): void {
-    super.initView(init);
-    if (init.text !== void 0) {
-      this.text(init.text);
     }
   }
 
@@ -591,6 +592,28 @@ export class NodeView extends View {
     });
   }
 
+  cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
+    const viewFlags = this._viewFlags;
+    if ((viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
+      if (updateFlags === void 0) {
+        updateFlags = 0;
+      }
+      updateFlags |= viewFlags & View.UpdateMask;
+      if ((updateFlags & View.ProcessMask) !== 0) {
+        if (viewContext === void 0) {
+          viewContext = this.superViewContext;
+        }
+        this.cascadeProcess(updateFlags, viewContext);
+      }
+      if ((updateFlags & View.DisplayMask) !== 0) {
+        if (viewContext === void 0) {
+          viewContext = this.superViewContext;
+        }
+        this.cascadeDisplay(updateFlags, viewContext);
+      }
+    }
+  }
+
   removeChild(child: View | Node): void {
     if (child instanceof View) {
       this.removeChildView(child);
@@ -744,7 +767,7 @@ export class NodeView extends View {
 
   /** @hidden */
   isRootView(): boolean {
-    let node = this._node as Node;
+    let node: Node = this._node;
     do {
       const parentNode: ViewNode | null = node.parentNode;
       if (parentNode !== null) {
@@ -818,7 +841,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  doMountChildViews(): void {
+  protected doMountChildViews(): void {
     const childNodes = this._node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
@@ -865,7 +888,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  doUnmountChildViews(): void {
+  protected doUnmountChildViews(): void {
     const childNodes = this._node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
@@ -900,7 +923,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  doPowerChildViews(): void {
+  protected doPowerChildViews(): void {
     const childNodes = this._node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
@@ -935,7 +958,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  doUnpowerChildViews(): void {
+  protected doUnpowerChildViews(): void {
     const childNodes = this._node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
@@ -952,37 +975,15 @@ export class NodeView extends View {
     }
   }
 
-  cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
-    const viewFlags = this._viewFlags;
-    if ((viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
-      if (updateFlags === void 0) {
-        updateFlags = 0;
-      }
-      updateFlags |= viewFlags & View.UpdateMask;
-      if ((updateFlags & View.ProcessMask) !== 0) {
-        if (viewContext === void 0) {
-          viewContext = this.viewContext;
-        }
-        this.cascadeProcess(updateFlags, viewContext);
-      }
-      if ((updateFlags & View.DisplayMask) !== 0) {
-        if (viewContext === void 0) {
-          viewContext = this.viewContext;
-        }
-        this.cascadeDisplay(updateFlags, viewContext);
-      }
-    }
-  }
-
   cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void {
-    viewContext = this.extendViewContext(viewContext);
+    const extendedViewContext = this.extendViewContext(viewContext);
     processFlags |= this._viewFlags & View.UpdateMask;
-    processFlags = this.needsProcess(processFlags, viewContext);
-    this.doProcess(processFlags, viewContext);
+    processFlags = this.needsProcess(processFlags, extendedViewContext);
+    this.doProcess(processFlags, extendedViewContext);
   }
 
   /** @hidden */
-  protected doProcess(processFlags: ViewFlags, viewContext: ViewContext): void {
+  protected doProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = processFlags;
     this._viewFlags |= View.TraversingFlag | View.ProcessingFlag;
     this._viewFlags &= ~(View.NeedsProcess | View.NeedsProject);
@@ -1043,23 +1044,23 @@ export class NodeView extends View {
     }
   }
 
-  protected onAnimate(viewContext: ViewContext): void {
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     this.updateAnimators(viewContext.updateTime);
   }
 
-  protected willLayout(viewContext: ViewContext): void {
+  protected willLayout(viewContext: ViewContextType<this>): void {
     super.willLayout(viewContext);
     this.updateConstraints();
   }
 
-  protected didLayout(viewContext: ViewContext): void {
+  protected didLayout(viewContext: ViewContextType<this>): void {
     this.updateConstraintVariables();
     super.didLayout(viewContext);
   }
 
   /** @hidden */
-  protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext): void {
+  protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     if ((processFlags & View.ProcessMask) !== 0 && this._node.childNodes.length !== 0) {
       this.willProcessChildViews(processFlags, viewContext);
       this.onProcessChildViews(processFlags, viewContext);
@@ -1067,14 +1068,14 @@ export class NodeView extends View {
     }
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContext,
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     const childNodes = this._node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
-        this.doProcessChildView(childView, processFlags, viewContext);
+        this.processChildView(childView, processFlags, viewContext);
         if (callback !== void 0) {
           callback.call(this, childView);
         }
@@ -1089,14 +1090,14 @@ export class NodeView extends View {
   }
 
   cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void {
-    viewContext = this.extendViewContext(viewContext);
+    const extendedViewContext = this.extendViewContext(viewContext);
     displayFlags |= this._viewFlags & View.UpdateMask;
-    displayFlags = this.needsDisplay(displayFlags, viewContext);
-    this.doDisplay(displayFlags, viewContext);
+    displayFlags = this.needsDisplay(displayFlags, extendedViewContext);
+    this.doDisplay(displayFlags, extendedViewContext);
   }
 
   /** @hidden */
-  protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void {
+  protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = displayFlags;
     this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
     this._viewFlags &= ~(View.NeedsDisplay | View.NeedsRender | View.NeedsComposite);
@@ -1125,7 +1126,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext): void {
+  protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     if ((displayFlags & View.DisplayMask) !== 0 && this._node.childNodes.length !== 0) {
       this.willDisplayChildViews(displayFlags, viewContext);
       this.onDisplayChildViews(displayFlags, viewContext);
@@ -1133,14 +1134,14 @@ export class NodeView extends View {
     }
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContext,
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     const childNodes = this._node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
-        this.doDisplayChildView(childView, displayFlags, viewContext);
+        this.displayChildView(childView, displayFlags, viewContext);
         if (callback !== void 0) {
           callback.call(this, childView);
         }

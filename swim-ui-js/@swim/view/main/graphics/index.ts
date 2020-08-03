@@ -20,8 +20,8 @@ export {
 export {GraphicsViewObserver} from "./GraphicsViewObserver";
 export {GraphicsViewController} from "./GraphicsViewController";
 
-export {GraphicsNodeView} from "./GraphicsNodeView";
 export {GraphicsLeafView} from "./GraphicsLeafView";
+export {GraphicsNodeView} from "./GraphicsNodeView";
 
 export {
   FillViewInit,

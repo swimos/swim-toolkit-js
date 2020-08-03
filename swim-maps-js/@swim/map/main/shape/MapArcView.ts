@@ -18,6 +18,7 @@ import {AnyLength, Length} from "@swim/length";
 import {AnyColor, Color} from "@swim/color";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
+  ViewContextType,
   View,
   ViewAnimator,
   GraphicsView,
@@ -29,9 +30,7 @@ import {
 import {Arc} from "@swim/shape";
 import {AnyGeoPoint, GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
-import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
 import {MapGraphicsLeafView} from "../graphics/MapGraphicsLeafView";
 
 export type AnyMapArcView = MapArcView | MapArcViewInit;
@@ -56,10 +55,6 @@ export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeV
     super();
     this._geoBounds = GeoBox.undefined();
     this.geoCenter.onUpdate = this.onSetGeoCenter.bind(this);
-  }
-
-  get viewController(): MapGraphicsViewController<MapArcView> | null {
-    return this._viewController;
   }
 
   initView(init: MapArcViewInit): void {
@@ -160,7 +155,7 @@ export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeV
     this.requireUpdate(View.NeedsProject);
   }
 
-  protected onProject(viewContext: MapGraphicsViewContext): void {
+  protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
     let viewCenter: PointR2;
     if (this.viewCenter.isAuto()) {
@@ -178,7 +173,7 @@ export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeV
     this.setCulled(culled);
   }
 
-  protected onRender(viewContext: MapGraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -239,8 +234,8 @@ export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeV
     return this._geoBounds;
   }
 
-  hitTest(x: number, y: number, viewContext: MapGraphicsViewContext): GraphicsView | null {
-    let hit = super.hitTest(x, y, viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+    let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
       if (renderer instanceof CanvasRenderer) {

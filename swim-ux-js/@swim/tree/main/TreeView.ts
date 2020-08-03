@@ -15,7 +15,7 @@
 import {Length} from "@swim/length";
 import {Transition} from "@swim/transition";
 import {
-  ViewContext,
+  ViewContextType,
   ViewFlags,
   View,
   ViewEdgeInsets,
@@ -35,6 +35,7 @@ import {
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeLimb, TreeLimb, TreeLimbState} from "./TreeLimb";
 import {AnyTreeStem, TreeStem} from "./TreeStem";
+import {TreeViewObserver} from "./TreeViewObserver";
 import {TreeViewController} from "./TreeViewController";
 
 export type AnyTreeView = TreeView | TreeViewInit;
@@ -58,9 +59,9 @@ export class TreeView extends ThemedHtmlView {
     this.depth.onUpdate = this.onUpdateDepth.bind(this);
   }
 
-  get viewController(): TreeViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: TreeViewController | null;
+
+  readonly viewObservers: ReadonlyArray<TreeViewObserver>;
 
   initView(init: TreeViewInit): void {
     super.initView(init);
@@ -255,7 +256,7 @@ export class TreeView extends ThemedHtmlView {
     return additionalFlags;
   }
 
-  protected onResize(viewContext: ViewContext): void {
+  protected onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);
     this.resizeTree();
   }
@@ -276,7 +277,7 @@ export class TreeView extends ThemedHtmlView {
     }
   }
 
-  protected onAnimate(viewContext: ViewContext): void {
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const disclosurePhase = this.disclosurePhase.value;
     if (disclosurePhase !== void 0) {
@@ -284,7 +285,7 @@ export class TreeView extends ThemedHtmlView {
     }
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContext,
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     const needsCompute = (processFlags & View.NeedsCompute) !== 0;
     const needsAnimate = (processFlags & View.NeedsAnimate) !== 0;

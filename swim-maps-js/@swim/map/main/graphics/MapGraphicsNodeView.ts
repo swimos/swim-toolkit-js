@@ -13,11 +13,9 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
-import {ViewFlags, View, GraphicsView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, GraphicsView} from "@swim/view";
 import {GeoBox} from "../geo/GeoBox";
-import {MapGraphicsViewContext} from "./MapGraphicsViewContext";
 import {MapGraphicsView} from "./MapGraphicsView";
-import {MapGraphicsViewController} from "./MapGraphicsViewController";
 
 export class MapGraphicsNodeView extends MapGraphicsView {
   /** @hidden */
@@ -28,10 +26,6 @@ export class MapGraphicsNodeView extends MapGraphicsView {
   constructor() {
     super();
     this._childViews = [];
-  }
-
-  get viewController(): MapGraphicsViewController<MapGraphicsNodeView> | null {
-    return this._viewController;
   }
 
   get childViewCount(): number {
@@ -328,13 +322,13 @@ export class MapGraphicsNodeView extends MapGraphicsView {
     }
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i];
-      this.doProcessChildView(childView, processFlags, viewContext);
+      this.processChildView(childView, processFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -347,13 +341,13 @@ export class MapGraphicsNodeView extends MapGraphicsView {
     }
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i];
-      this.doDisplayChildView(childView, displayFlags, viewContext);
+      this.displayChildView(childView, displayFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -430,7 +424,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
     return hitBounds;
   }
 
-  hitTest(x: number, y: number, viewContext: MapGraphicsViewContext): GraphicsView | null {
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit: GraphicsView | null = null;
     const childViews = this._childViews;
     for (let i = childViews.length - 1; i >= 0; i -= 1) {

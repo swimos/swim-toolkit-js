@@ -18,13 +18,18 @@ import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/font";
 import {Tween} from "@swim/transition";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
-import {ViewFlags, View, ViewAnimator, GraphicsView, TypesetView} from "@swim/view";
+import {
+  ViewContextType,
+  ViewFlags,
+  View,
+  ViewAnimator,
+  GraphicsView,
+  TypesetView,
+} from "@swim/view";
 import {AnyTextRunView, TextRunView} from "@swim/typeset";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
-import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
 import {MapGraphicsNodeView} from "../graphics/MapGraphicsNodeView";
 
 export type MapPointLabelPlacement = "auto" | "top" | "right" | "bottom" | "left";
@@ -65,10 +70,6 @@ export class MapPointView extends MapGraphicsNodeView {
     super();
     this._geoBounds = GeoBox.undefined();
     this.geoPoint.onUpdate = this.onSetGeoPoint.bind(this);
-  }
-
-  get viewController(): MapGraphicsViewController<MapPointView> | null {
-    return this._viewController;
   }
 
   initView(init: MapPointViewInit): void {
@@ -215,7 +216,7 @@ export class MapPointView extends MapGraphicsNodeView {
     return additionalFlags;
   }
 
-  protected onProject(viewContext: MapGraphicsViewContext): void {
+  protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
     if (this.viewPoint.isAuto()) {
       const viewPoint = viewContext.geoProjection.project(this.geoPoint.getValue());
@@ -225,7 +226,7 @@ export class MapPointView extends MapGraphicsNodeView {
     }
   }
 
-  protected onLayout(viewContext: MapGraphicsViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     const label = this.label();
     if (label !== null) {
@@ -269,8 +270,8 @@ export class MapPointView extends MapGraphicsNodeView {
     return this._geoBounds;
   }
 
-  hitTest(x: number, y: number, viewContext: MapGraphicsViewContext): GraphicsView | null {
-    let hit = super.hitTest(x, y, viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+    let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
       if (renderer instanceof CanvasRenderer) {

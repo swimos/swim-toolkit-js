@@ -14,13 +14,13 @@
 
 import {AnyColor, Color} from "@swim/color";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
-import {ViewFlags, View, ViewAnimator, GraphicsView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewAnimator, GraphicsView} from "@swim/view";
 import {GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {GeoProjection} from "../geo/GeoProjection";
-import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 import {MapGraphicsViewInit, MapGraphicsView} from "../graphics/MapGraphicsView";
 import {MapLayerTile} from "./MapLayerTile";
+import {MapLayerViewObserver} from "./MapLayerViewObserver";
 import {MapLayerViewController} from "./MapLayerViewController";
 
 export interface MapLayerViewInit extends MapGraphicsViewInit {
@@ -38,9 +38,9 @@ export class MapLayerView extends MapGraphicsView {
     this._childViews = MapLayerTile.empty(geoFrame, depth, maxDepth);
   }
 
-  get viewController(): MapLayerViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: MapLayerViewController | null;
+
+  readonly viewObservers: ReadonlyArray<MapLayerViewObserver>;
 
   initView(init: MapLayerViewInit): void {
     super.initView(init);
@@ -270,7 +270,7 @@ export class MapLayerView extends MapGraphicsView {
   }
 
   /** @hidden */
-  protected doProcessChildViews(processFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
+  protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     if ((processFlags & View.ProcessMask) !== 0 && !this._childViews.isEmpty()
         && !this.isHidden() && !this.isCulled()) {
       this.willProcessChildViews(processFlags, viewContext);
@@ -279,13 +279,13 @@ export class MapLayerView extends MapGraphicsView {
     }
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     this.processTile(this._childViews, processFlags, viewContext, callback);
   }
 
   /** @hidden */
-  protected processTile(tile: MapLayerTile, processFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+  protected processTile(tile: MapLayerTile, processFlags: ViewFlags, viewContext: ViewContextType<this>,
                         callback: ((this: this, childView: View) => void) | undefined): void {
     if (tile._southWest !== null && tile._southWest._geoFrame.intersects(viewContext.geoFrame)) {
       this.processTile(tile._southWest, processFlags, viewContext, callback);
@@ -302,7 +302,7 @@ export class MapLayerView extends MapGraphicsView {
     const childViews = tile._views;
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
-      this.doProcessChildView(childView, processFlags, viewContext);
+      this.processChildView(childView, processFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -313,14 +313,14 @@ export class MapLayerView extends MapGraphicsView {
     }
   }
 
-  protected onRender(viewContext: MapGraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     const outlineColor = this.getViewAnimator("tileOutlineColor") as ViewAnimator<this, Color, AnyColor> | null;
     if (outlineColor !== null && outlineColor.value !== void 0) {
       this.renderTiles(viewContext, outlineColor.value);
     }
   }
 
-  protected renderTiles(viewContext: MapGraphicsViewContext, outlineColor: Color): void {
+  protected renderTiles(viewContext: ViewContextType<this>, outlineColor: Color): void {
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
       const context = renderer.context;
@@ -363,13 +363,13 @@ export class MapLayerView extends MapGraphicsView {
     }
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     this.displayTile(this._childViews, displayFlags, viewContext, callback);
   }
 
   /** @hidden */
-  protected displayTile(tile: MapLayerTile, displayFlags: ViewFlags, viewContext: MapGraphicsViewContext,
+  protected displayTile(tile: MapLayerTile, displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                         callback: ((this: this, childView: View) => void) | undefined): void {
     if (tile._southWest !== null && tile._southWest._geoFrame.intersects(viewContext.geoFrame)) {
       this.displayTile(tile._southWest, displayFlags, viewContext, callback);
@@ -386,7 +386,7 @@ export class MapLayerView extends MapGraphicsView {
     const childViews = tile._views;
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
-      this.doDisplayChildView(childView, displayFlags, viewContext);
+      this.displayChildView(childView, displayFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -410,13 +410,13 @@ export class MapLayerView extends MapGraphicsView {
     return this._childViews._geoBounds;
   }
 
-  hitTest(x: number, y: number, viewContext: MapGraphicsViewContext): GraphicsView | null {
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     const geoPoint = viewContext.geoProjection.unproject(x, y);
     return this.hitTestTile(this._childViews, x, y, geoPoint, viewContext);
   }
 
   protected hitTestTile(tile: MapLayerTile, x: number, y: number, geoPoint: GeoPoint,
-                        viewContext: MapGraphicsViewContext): GraphicsView | null {
+                        viewContext: ViewContextType<this>): GraphicsView | null {
     let hit: GraphicsView | null = null;
     if (tile._southWest !== null && tile._southWest._geoFrame.contains(geoPoint)) {
       hit = this.hitTestTile(tile._southWest, x, y, geoPoint, viewContext);

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Tween, Transition} from "@swim/transition";
-import {ViewFlags, View, ViewScope, GraphicsViewContext, GraphicsLeafView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewScope, GraphicsLeafView} from "@swim/view";
 import {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 import {Mood} from "../mood/Mood";
@@ -25,9 +25,9 @@ import {ThemedGraphicsViewObserver} from "./ThemedGraphicsViewObserver";
 import {ThemedGraphicsViewController} from "./ThemedGraphicsViewController";
 
 export abstract class ThemedGraphicsLeafView extends GraphicsLeafView implements ThemedGraphicsView {
-  get viewController(): ThemedGraphicsViewController<ThemedGraphicsLeafView> | null {
-    return this._viewController;
-  }
+  readonly viewController: ThemedGraphicsViewController | null;
+
+  readonly viewObservers: ReadonlyArray<ThemedGraphicsViewObserver>;
 
   initView(init: ThemedGraphicsViewInit): void {
     super.initView(init);
@@ -185,7 +185,7 @@ export abstract class ThemedGraphicsLeafView extends GraphicsLeafView implements
     }
   }
 
-  protected onCompute(viewContext: GraphicsViewContext): void {
+  protected onCompute(viewContext: ViewContextType<this>): void {
     super.onCompute(viewContext);
     this.computeMood();
     this.computeTheme();

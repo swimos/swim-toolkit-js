@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Tween} from "@swim/transition";
-import {View, ModalOptions, ModalState, Modal, HtmlView, HtmlViewController} from "@swim/view";
+import {View, ModalOptions, ModalState, Modal, HtmlView} from "@swim/view";
 
 export class DropdownView extends HtmlView implements Modal {
   /** @hidden */
@@ -23,10 +23,6 @@ export class DropdownView extends HtmlView implements Modal {
     super(node);
     this.onToggleClick = this.onToggleClick.bind(this);
     this._visibleClass = "dropdown-visible";
-  }
-
-  get viewController(): HtmlViewController<DropdownView> | null {
-    return this._viewController;
   }
 
   get toggleView(): HtmlView | null {

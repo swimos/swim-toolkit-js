@@ -24,16 +24,16 @@ export {
 } from "./ViewService";
 
 export {
-  ObjectServiceClass,
-  ObjectService,
-} from "./ObjectService";
+  ObjectViewServiceClass,
+  ObjectViewService,
+} from "./ObjectViewService";
 
-export {UpdateService} from "./UpdateService";
+export {DisplayManagerService} from "./DisplayManagerService";
 
-export {LayoutService} from "./LayoutService";
+export {LayoutManagerService} from "./LayoutManagerService";
 
-export {ViewportService} from "./ViewportService";
+export {ViewportManagerService} from "./ViewportManagerService";
 
-export {HistoryService} from "./HistoryService";
+export {HistoryManagerService} from "./HistoryManagerService";
 
-export {ModalService} from "./ModalService";
+export {ModalManagerService} from "./ModalManagerService";

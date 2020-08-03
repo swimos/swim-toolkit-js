@@ -16,7 +16,7 @@ import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
 import {ViewNode, NodeView} from "../node/NodeView";
 import {ModalOptions, Modal} from "./Modal";
-import {ModalObserver} from "./ModalObserver";
+import {ModalManagerObserver} from "./ModalManagerObserver";
 
 export class ModalManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -99,9 +99,9 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willPresentModal(modal: Modal, options: ModalOptions): void {
-    this.willObserve(function (modalObserver: ModalObserver): void {
-      if (modalObserver.managerWillPresentModal !== void 0) {
-        modalObserver.managerWillPresentModal(modal, options, this);
+    this.willObserve(function (viewManagerObserver: ModalManagerObserver): void {
+      if (viewManagerObserver.viewManagerWillPresentModal !== void 0) {
+        viewManagerObserver.viewManagerWillPresentModal(modal, options, this);
       }
     });
   }
@@ -111,9 +111,9 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected didPresentModal(modal: Modal, options: ModalOptions): void {
-    this.didObserve(function (modalObserver: ModalObserver): void {
-      if (modalObserver.managerDidPresentModal !== void 0) {
-        modalObserver.managerDidPresentModal(modal, options, this);
+    this.didObserve(function (viewManagerObserver: ModalManagerObserver): void {
+      if (viewManagerObserver.viewManagerDidPresentModal !== void 0) {
+        viewManagerObserver.viewManagerDidPresentModal(modal, options, this);
       }
     });
   }
@@ -132,9 +132,9 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willDismissModal(modal: Modal): void {
-    this.willObserve(function (modalObserver: ModalObserver): void {
-      if (modalObserver.managerWillDismissModal !== void 0) {
-        modalObserver.managerWillDismissModal(modal, this);
+    this.willObserve(function (viewManagerObserver: ModalManagerObserver): void {
+      if (viewManagerObserver.viewManagerWillDismissModal !== void 0) {
+        viewManagerObserver.viewManagerWillDismissModal(modal, this);
       }
     });
   }
@@ -144,9 +144,9 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected didDismissModal(modal: Modal): void {
-    this.didObserve(function (modalObserver: ModalObserver): void {
-      if (modalObserver.managerDidDismissModal !== void 0) {
-        modalObserver.managerDidDismissModal(modal, this);
+    this.didObserve(function (viewManagerObserver: ModalManagerObserver): void {
+      if (viewManagerObserver.viewManagerDidDismissModal !== void 0) {
+        viewManagerObserver.viewManagerDidDismissModal(modal, this);
       }
     });
   }
@@ -176,9 +176,9 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willUpdateModality(newModality: number, oldModality: number): void {
-    this.willObserve(function (modalObserver: ModalObserver): void {
-      if (modalObserver.managerWillUpdateModality !== void 0) {
-        modalObserver.managerWillUpdateModality(newModality, oldModality, this);
+    this.willObserve(function (viewManagerObserver: ModalManagerObserver): void {
+      if (viewManagerObserver.viewManagerWillUpdateModality !== void 0) {
+        viewManagerObserver.viewManagerWillUpdateModality(newModality, oldModality, this);
       }
     });
   }
@@ -188,28 +188,28 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected didUpdateModality(newModality: number, oldModality: number): void {
-    this.didObserve(function (modalObserver: ModalObserver): void {
-      if (modalObserver.managerDidUpdateModality !== void 0) {
-        modalObserver.managerDidUpdateModality(newModality, oldModality, this);
+    this.didObserve(function (viewManagerObserver: ModalManagerObserver): void {
+      if (viewManagerObserver.viewManagerDidUpdateModality !== void 0) {
+        viewManagerObserver.viewManagerDidUpdateModality(newModality, oldModality, this);
       }
     });
   }
 
-  disruptModals(event: Event | null): void {
-    const handled = this.willDisruptModals(event);
+  displaceModals(event: Event | null): void {
+    const handled = this.willDisplaceModals(event);
     if (!handled) {
-      this.onDisruptModals(event);
-      this.didDisruptModals(event);
+      this.onDisplaceModals(event);
+      this.didDisplaceModals(event);
     }
   }
 
-  protected willDisruptModals(event: Event | null): boolean {
-    const managerObservers = this._managerObservers;
-    if (managerObservers !== void 0) {
-      for (let i = 0, n = managerObservers.length; i < n; i += 1) {
-        const modalObserver: ModalObserver = managerObservers[i];
-        if (modalObserver.managerWillDisruptModals !== void 0) {
-          const handled = modalObserver.managerWillDisruptModals(event, this);
+  protected willDisplaceModals(event: Event | null): boolean {
+    const viewManagerObservers = this._viewManagerObservers;
+    if (viewManagerObservers !== void 0) {
+      for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
+        const viewManagerObserver: ModalManagerObserver = viewManagerObservers[i];
+        if (viewManagerObserver.viewManagerWillDisplaceModals !== void 0) {
+          const handled = viewManagerObserver.viewManagerWillDisplaceModals(event, this);
           if (handled === true) {
             return true;
           }
@@ -219,7 +219,7 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
     return false;
   }
 
-  protected onDisruptModals(event: Event | null): void {
+  protected onDisplaceModals(event: Event | null): void {
     const modals = this._modals;
     let i = 0;
     while (i < modals.length) {
@@ -232,17 +232,15 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  protected didDisruptModals(event: Event | null): void {
-    this.didObserve(function (modalObserver: ModalObserver): void {
-      if (modalObserver.managerDidDisruptModals !== void 0) {
-        modalObserver.managerDidDisruptModals(event, this);
+  protected didDisplaceModals(event: Event | null): void {
+    this.didObserve(function (viewManagerObserver: ModalManagerObserver): void {
+      if (viewManagerObserver.viewManagerDidDisplaceModals !== void 0) {
+        viewManagerObserver.viewManagerDidDisplaceModals(event, this);
       }
     });
   }
 
-  addManagerObserver: (modalObserver: ModalObserver) => void;
-
-  removeManagerObserver: (modalObserver: ModalObserver) => void;
+  readonly viewManagerObservers: ReadonlyArray<ModalManagerObserver>;
 
   protected onAddRootView(rootView: V): void {
     this.attachEvents(rootView);
@@ -261,7 +259,7 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected onClick(event: Event): void {
-    this.disruptModals(event);
+    this.displaceModals(event);
   }
 
   private static _global?: ModalManager;

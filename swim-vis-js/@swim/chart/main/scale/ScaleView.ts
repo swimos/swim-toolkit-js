@@ -20,12 +20,12 @@ import {AnyFont, Font} from "@swim/font";
 import {Scale, ContinuousScale, LinearScale, TimeScale} from "@swim/scale";
 import {Ease, Tween, AnyTransition, Transition} from "@swim/transition";
 import {
+  ViewContextType,
   ViewFlags,
   View,
   ViewScope,
   ViewAnimator,
   ContinuousScaleViewAnimator,
-  GraphicsViewContext,
   GraphicsViewInit,
   GraphicsNodeView,
 } from "@swim/view";
@@ -33,6 +33,7 @@ import {ScaleGestureInput, ScaleGestureDelegate, ScaleGesture} from "@swim/gestu
 import {ScaleXView} from "./ScaleXView";
 import {ScaleYView} from "./ScaleYView";
 import {ScaleXYView} from "./ScaleXYView";
+import {ScaleViewObserver} from "./ScaleViewObserver";
 import {ScaleViewController} from "./ScaleViewController";
 
 /** @hidden */
@@ -146,10 +147,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     this.onInterruptBoundingYScale = this.onInterruptBoundingYScale.bind(this);
   }
 
-  get viewController(): ScaleViewController<X, Y> | null {
-    return this._viewController;
-  }
-
   initView(init: ScaleViewInit<X, Y>): void {
     super.initView(init);
     if (init.xScale !== void 0) {
@@ -239,6 +236,10 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
       this.textColor(init.textColor);
     }
   }
+
+  readonly viewController: ScaleViewController<X, Y> | null;
+
+  readonly viewObservers: ReadonlyArray<ScaleViewObserver<X, Y>>;
 
   @ViewAnimator(ContinuousScale, {inherit: true})
   xScale: ContinuousScaleViewAnimator<this, X, number>;
@@ -897,14 +898,14 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     return additionalFlags;
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
   }
 
-  protected willResize(viewContext: GraphicsViewContext): void {
+  protected willResize(viewContext: ViewContextType<this>): void {
     super.willResize(viewContext);
     this.resizeScales(this.viewFrame);
     this._scaleFlags |= ScaleView.RescaleFlag;
@@ -952,12 +953,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
     }
   }
 
-  protected didAnimate(viewContext: GraphicsViewContext): void {
+  protected didAnimate(viewContext: ViewContextType<this>): void {
     this.updateScales();
     super.didAnimate(viewContext);
   }
 
-  needsDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this._viewFlags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }

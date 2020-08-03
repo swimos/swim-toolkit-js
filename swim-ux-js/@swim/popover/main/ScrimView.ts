@@ -14,10 +14,10 @@
 
 import {Color} from "@swim/color";
 import {Tween, Transition} from "@swim/transition";
-import {ModalState, ModalManager, ModalObserver, ViewNodeType} from "@swim/view";
+import {ModalState, ModalManager, ModalManagerObserver, ViewNodeType} from "@swim/view";
 import {Look, ThemedHtmlView} from "@swim/theme";
 
-export class ScrimView extends ThemedHtmlView implements ModalObserver {
+export class ScrimView extends ThemedHtmlView implements ModalManagerObserver {
   /** @hidden */
   _scrimState: ModalState;
 
@@ -121,21 +121,21 @@ export class ScrimView extends ThemedHtmlView implements ModalObserver {
     super.onMount();
     const modalManager = this.modalManager.state;
     if (modalManager !== void 0) {
-      modalManager.addManagerObserver(this);
-      this.managerDidUpdateModality(modalManager.modality, 0, modalManager);
+      modalManager.addViewManagerObserver(this);
+      this.viewManagerDidUpdateModality(modalManager.modality, 0, modalManager);
     }
   }
 
   protected onUnmount(): void {
     const modalManager = this.modalManager.state;
     if (modalManager !== void 0) {
-      modalManager.removeManagerObserver(this);
+      modalManager.removeViewManagerObserver(this);
     }
     this.hide();
     super.onUnmount();
   }
 
-  managerDidUpdateModality(newModality: number, oldModality: number, manager: ModalManager): void {
+  viewManagerDidUpdateModality(newModality: number, oldModality: number, viewManager: ModalManager): void {
     if (newModality !== 0) {
       const opacity = 0.5 * newModality;
       if (oldModality === 0) {
@@ -151,7 +151,7 @@ export class ScrimView extends ThemedHtmlView implements ModalObserver {
   protected onClick(event: Event): void {
     const modalManager = this.modalManager.state;
     if (modalManager !== void 0) {
-      modalManager.disruptModals(event);
+      modalManager.displaceModals(event);
     }
   }
 

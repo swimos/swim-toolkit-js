@@ -39,6 +39,10 @@
     {"path": "./swim-maps-js/@swim/esrimap"},
     {"path": "./swim-maps-js/@swim/maps"},
 
+    {"path": "./swim-mvc-js/@swim/model"},
+    {"path": "./swim-mvc-js/@swim/component"},
+    {"path": "./swim-mvc-js/@swim/mvc"},
+
     {"path": "./swim-web-js/@swim/website"},
     {"path": "./swim-web-js/@swim/webapp"},
     {"path": "./swim-web-js/@swim/web"},

@@ -15,10 +15,10 @@
 import {Length} from "@swim/length";
 import {Tween, Transition} from "@swim/transition";
 import {
-  ViewScope,
-  ViewEdgeInsets,
-  ViewContext,
+  ViewContextType,
   View,
+  ViewEdgeInsets,
+  ViewScope,
   ViewAnimator,
   ViewNodeType,
   SvgView,
@@ -181,7 +181,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     super.onUnmount();
   }
 
-  protected onAnimate(viewContext: ViewContext): void {
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const drawerStretch = this.drawerStretch.value;
     if (typeof drawerStretch === "number") {
@@ -191,7 +191,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     }
   }
 
-  protected onLayout(viewContext: ViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     const edgeInsets = this.edgeInsets.state;
     if (edgeInsets !== void 0) {

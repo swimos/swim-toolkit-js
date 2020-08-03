@@ -36,10 +36,6 @@ export interface BubblePlotViewInit<X, Y> extends ScatterPlotViewInit<X, Y>, Fil
 }
 
 export class BubblePlotView<X, Y> extends ScatterPlotView<X, Y> implements FillView, StrokeView {
-  get viewController(): PlotViewController<X, Y, BubblePlotView<X, Y>> | null {
-    return this._viewController;
-  }
-
   initView(init: BubblePlotViewInit<X, Y>): void {
     super.initView(init);
     if (init.radius !== void 0) {

@@ -16,12 +16,17 @@ import {AnyPointR2, PointR2, BoxR2, SegmentR2} from "@swim/math";
 import {AnyLength, Length} from "@swim/length";
 import {AnyColor, Color} from "@swim/color";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
-import {View, ViewAnimator, GraphicsView, StrokeViewInit, StrokeView} from "@swim/view";
+import {
+  ViewContextType,
+  View,
+  ViewAnimator,
+  GraphicsView,
+  StrokeViewInit,
+  StrokeView,
+} from "@swim/view";
 import {AnyGeoPoint, GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
-import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
 import {MapGraphicsLeafView} from "../graphics/MapGraphicsLeafView";
 
 export type AnyMapLineView = MapLineView | MapLineViewInit;
@@ -45,10 +50,6 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
     this._geoBounds = GeoBox.undefined();
     this.geoStart.onUpdate = this.onSetGeoStart.bind(this);
     this.geoEnd.onUpdate = this.onSetGeoEnd.bind(this);
-  }
-
-  get viewController(): MapGraphicsViewController<MapLineView> | null {
-    return this._viewController;
   }
 
   initView(init: MapLineViewInit): void {
@@ -131,7 +132,7 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
     this.requireUpdate(View.NeedsProject);
   }
 
-  protected onProject(viewContext: MapGraphicsViewContext): void {
+  protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
     const geoProjection = viewContext.geoProjection;
     let viewStart: PointR2;
@@ -157,7 +158,7 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
     this.setCulled(culled);
   }
 
-  protected onRender(viewContext: MapGraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -215,8 +216,8 @@ export class MapLineView extends MapGraphicsLeafView implements StrokeView {
     return this._geoBounds;
   }
 
-  hitTest(x: number, y: number, viewContext: MapGraphicsViewContext): GraphicsView | null {
-    let hit = super.hitTest(x, y, viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+    let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
       if (renderer instanceof CanvasRenderer) {

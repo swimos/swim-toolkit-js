@@ -74,6 +74,7 @@ import {AttributeAnimatorInitType, AttributeAnimator} from "../attribute/Attribu
 import {StyleAnimatorInitType, StyleAnimator} from "../style/StyleAnimator";
 import {ElementViewConstructor, ElementViewInit, ElementView} from "../element/ElementView";
 import {SvgView} from "../svg/SvgView";
+import {HtmlViewObserver} from "./HtmlViewObserver";
 import {HtmlViewController} from "./HtmlViewController";
 import {CanvasView} from "../canvas/CanvasView";
 
@@ -244,9 +245,9 @@ export class HtmlView extends ElementView {
     return this._node;
   }
 
-  get viewController(): HtmlViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: HtmlViewController | null;
+
+  readonly viewObservers: ReadonlyArray<HtmlViewObserver>;
 
   initView(init: HtmlViewInit): void {
     super.initView(init);

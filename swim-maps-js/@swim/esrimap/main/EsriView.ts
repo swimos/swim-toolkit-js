@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {AnyPointR2, PointR2} from "@swim/math";
-import {ViewFlags, View, GraphicsViewContext, GraphicsView, CanvasView} from "@swim/view";
-import {AnyGeoPoint, GeoPoint, MapGraphicsViewContext, MapGraphicsNodeView} from "@swim/map";
+import {ViewContextType, ViewFlags, View, GraphicsViewContext, CanvasView} from "@swim/view";
+import {AnyGeoPoint, GeoPoint, MapGraphicsNodeView} from "@swim/map";
 import {EsriProjection} from "./EsriProjection";
 import {EsriViewObserver} from "./EsriViewObserver";
 import {EsriViewController} from "./EsriViewController";
@@ -27,9 +27,9 @@ export abstract class EsriView extends MapGraphicsNodeView {
 
   abstract get map(): __esri.View;
 
-  get viewController(): EsriViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: EsriViewController | null;
+
+  readonly viewObservers: ReadonlyArray<EsriViewObserver>;
 
   abstract project(lnglat: AnyGeoPoint): PointR2;
   abstract project(lng: number, lat: number): PointR2;
@@ -87,7 +87,7 @@ export abstract class EsriView extends MapGraphicsNodeView {
 
   abstract get mapTilt(): number;
 
-  extendViewContext(viewContext: GraphicsViewContext): MapGraphicsViewContext {
+  extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
     const mapViewContext = Object.create(viewContext);
     mapViewContext.geoProjection = this.geoProjection;
     mapViewContext.geoFrame = this.geoFrame;
@@ -95,11 +95,6 @@ export abstract class EsriView extends MapGraphicsNodeView {
     mapViewContext.mapHeading = this.mapHeading;
     mapViewContext.mapTilt = this.mapTilt;
     return mapViewContext;
-  }
-
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
-    viewContext = this.extendViewContext(viewContext);
-    return super.hitTest(x, y, viewContext as MapGraphicsViewContext);
   }
 
   abstract overlayCanvas(): CanvasView | null;

@@ -14,6 +14,7 @@
 
 import {View} from "../View";
 import {NodeViewInit, NodeView} from "../node/NodeView";
+import {TextViewObserver} from "./TextViewObserver";
 import {TextViewController} from "./TextViewController";
 
 export interface ViewText extends Text {
@@ -33,9 +34,9 @@ export class TextView extends NodeView {
     return this._node;
   }
 
-  get viewController(): TextViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: TextViewController | null;
+
+  readonly viewObservers: ReadonlyArray<TextViewObserver>;
 
   initView(init: TextViewInit): void {
     super.initView(init);

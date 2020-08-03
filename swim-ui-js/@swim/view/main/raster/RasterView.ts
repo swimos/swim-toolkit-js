@@ -22,6 +22,7 @@ import {
   CanvasRenderer,
   WebGLRenderer,
 } from "@swim/render";
+import {ViewContextType} from "../ViewContext";
 import {ViewFlags, View} from "../View";
 import {ViewAnimator} from "../animator/ViewAnimator";
 import {GraphicsViewContext} from "../graphics/GraphicsViewContext";
@@ -52,9 +53,9 @@ export class RasterView extends GraphicsNodeView {
     this._rasterFrame = BoxR2.undefined();
   }
 
-  get viewController(): RasterViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: RasterViewController | null;
+
+  readonly viewObservers: ReadonlyArray<RasterViewObserver>;
 
   initView(init: RasterViewInit): void {
     super.initView(init);
@@ -141,7 +142,7 @@ export class RasterView extends GraphicsNodeView {
   }
 
   /** @hidden */
-  protected doDisplay(displayFlags: ViewFlags, viewContext: RasterViewContext): void {
+  protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = displayFlags;
     this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
     this._viewFlags &= ~View.NeedsDisplay;
@@ -191,18 +192,18 @@ export class RasterView extends GraphicsNodeView {
     }
   }
 
-  protected onResize(viewContext: RasterViewContext): void {
+  protected onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);
     this.resizeCanvas(this._canvas);
     this.resetRenderer();
   }
 
-  protected onRender(viewContext: RasterViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     this.clearCanvas();
   }
 
-  protected willComposite(viewContext: RasterViewContext): void {
+  protected willComposite(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: RasterViewObserver): void {
       if (viewObserver.viewWillRender !== void 0) {
         viewObserver.viewWillRender(viewContext, this);
@@ -210,11 +211,11 @@ export class RasterView extends GraphicsNodeView {
     });
   }
 
-  protected onComposite(viewContext: RasterViewContext): void {
+  protected onComposite(viewContext: ViewContextType<this>): void {
     this.compositeImage(viewContext);
   }
 
-  protected didComposite(viewContext: RasterViewContext): void {
+  protected didComposite(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: RasterViewObserver): void {
       if (viewObserver.viewDidRender !== void 0) {
         viewObserver.viewDidRender(viewContext, this);
@@ -222,12 +223,14 @@ export class RasterView extends GraphicsNodeView {
     });
   }
 
-  extendViewContext(viewContext: GraphicsViewContext): RasterViewContext {
+  extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
     const rasterViewContext = Object.create(viewContext);
     rasterViewContext.compositor = viewContext.renderer;
     rasterViewContext.renderer = this.renderer;
     return rasterViewContext;
   }
+
+  readonly viewContext: RasterViewContext;
 
   /** @hidden */
   get compositeFrame(): BoxR2 {
@@ -255,8 +258,7 @@ export class RasterView extends GraphicsNodeView {
     }
   }
 
-  hitTest(x: number, y: number, viewContext: RasterViewContext): GraphicsView | null {
-    viewContext = this.extendViewContext(viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     const compositeFrame = this.compositeFrame;
     x -= Math.floor(compositeFrame.xMin);
     y -= Math.floor(compositeFrame.yMin);
@@ -331,7 +333,7 @@ export class RasterView extends GraphicsNodeView {
     }
   }
 
-  protected compositeImage(viewContext: RasterViewContext): void {
+  protected compositeImage(viewContext: ViewContextType<this>): void {
     const compositor = viewContext.compositor;
     const renderer = viewContext.renderer;
     if (compositor instanceof CanvasRenderer && renderer instanceof CanvasRenderer) {

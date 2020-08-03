@@ -18,12 +18,11 @@ import {AnyLength, Length} from "@swim/length";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/font";
 import {
+  ViewContextType,
   ViewFlags,
   View,
   ViewAnimator,
-  GraphicsViewContext,
   GraphicsViewInit,
-  GraphicsViewController,
   GraphicsNodeView,
   TypesetView,
 } from "@swim/view";
@@ -56,10 +55,6 @@ export interface PieViewInit extends GraphicsViewInit {
 }
 
 export class PieView extends GraphicsNodeView {
-  get viewController(): GraphicsViewController<PieView> | null {
-    return this._viewController;
-  }
-
   initView(init: PieViewInit): void {
     super.initView(init);
     if (init.limit !== void 0) {
@@ -220,14 +215,14 @@ export class PieView extends GraphicsNodeView {
     return additionalFlags;
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this._viewFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
   }
 
-  protected didAnimate(viewContext: GraphicsViewContext): void {
+  protected didAnimate(viewContext: ViewContextType<this>): void {
     this.layoutPie(this.viewFrame);
     super.didAnimate(viewContext);
   }

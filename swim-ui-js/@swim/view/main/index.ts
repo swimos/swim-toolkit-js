@@ -12,20 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {ViewContext} from "./ViewContext";
 export {
-  ViewControllerType,
+  ViewContextType,
+  ViewContext,
+} from "./ViewContext";
+export {
   ViewFlags,
   ViewInit,
   ViewClass,
   View,
 } from "./View";
-export {ViewObserver} from "./ViewObserver";
-export {ViewController} from "./ViewController";
+export {
+  ViewObserverType,
+  ViewObserver,
+} from "./ViewObserver";
+export {
+  ViewControllerType,
+  ViewController,
+} from "./ViewController";
 
 export * from "./manager";
 
-export * from "./update";
+export * from "./display";
 
 export * from "./layout";
 

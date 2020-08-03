@@ -21,15 +21,16 @@ import {
   SvgView,
   HtmlView,
 } from "@swim/view";
+import {WebAppViewObserver} from "./WebAppViewObserver";
 import {WebAppViewController} from "./WebAppViewController";
 
 export class WebAppView extends HtmlView {
   /** @hidden */
   readonly _mutationObserver: MutationObserver;
 
-  get viewController(): WebAppViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: WebAppViewController | null;
+
+  readonly viewObservers: ReadonlyArray<WebAppViewObserver>;
 
   materializeTree(parentView: NodeView = this): void {
     const childNodes = parentView.node.childNodes;

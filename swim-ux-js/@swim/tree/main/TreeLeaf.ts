@@ -14,7 +14,7 @@
 
 import {Color} from "@swim/color";
 import {Tween, Transition} from "@swim/transition";
-import {ViewContext, ViewFlags, View, ViewScope, ViewNode, ViewNodeType, HtmlView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewScope, ViewNode, ViewNodeType, HtmlView} from "@swim/view";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {Look} from "@swim/theme";
 import {ButtonMembraneInit, ButtonMembrane} from "@swim/button";
@@ -50,9 +50,9 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     this.overflowY.setAutoState("hidden");
   }
 
-  get viewController(): TreeLeafController | null {
-    return this._viewController;
-  }
+  readonly viewController: TreeLeafController | null;
+
+  readonly viewObservers: ReadonlyArray<TreeLeafObserver>;
 
   initView(init: TreeLeafInit): void {
     super.initView(init);
@@ -190,7 +190,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     // hook
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContext,
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
     const seed = needsLayout ? this.seed.state : void 0;

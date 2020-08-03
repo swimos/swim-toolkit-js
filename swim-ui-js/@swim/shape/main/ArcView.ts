@@ -19,10 +19,9 @@ import {AnyColor, Color} from "@swim/color";
 import {Tween} from "@swim/transition";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
+  ViewContextType,
   ViewAnimator,
-  GraphicsViewContext,
   GraphicsView,
-  GraphicsViewController,
   GraphicsLeafView,
   FillViewInit,
   FillView,
@@ -37,10 +36,6 @@ export interface ArcViewInit extends FillViewInit, StrokeViewInit, ArcInit {
 }
 
 export class ArcView extends GraphicsLeafView implements FillView, StrokeView {
-  get viewController(): GraphicsViewController<ArcView> | null {
-    return this._viewController;
-  }
-
   initView(init: ArcViewInit): void {
     super.initView(init);
     this.setState(init);
@@ -130,7 +125,7 @@ export class ArcView extends GraphicsLeafView implements FillView, StrokeView {
     }
   }
 
-  protected onRender(viewContext: GraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -183,8 +178,8 @@ export class ArcView extends GraphicsLeafView implements FillView, StrokeView {
                      center.x + radius, center.y + radius);
   }
 
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
-    let hit = super.hitTest(x, y, viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+    let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
       if (renderer instanceof CanvasRenderer) {

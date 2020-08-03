@@ -41,6 +41,7 @@ const main = {
                                                 "../../swim-ux-js",
                                                 "../../swim-vis-js",
                                                 "../../swim-maps-js",
+                                                "../../swim-mvc-js",
                                                 "../../swim-web-js"]}}),
     sourcemaps(),
   ],

@@ -27,10 +27,6 @@ export interface AreaPlotViewInit<X, Y> extends SeriesPlotViewInit<X, Y>, FillVi
 }
 
 export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView {
-  get viewController(): PlotViewController<X, Y, AreaPlotView<X, Y>> | null {
-    return this._viewController;
-  }
-
   initView(init: AreaPlotViewInit<X, Y>): void {
     super.initView(init);
     if (init.fill !== void 0) {

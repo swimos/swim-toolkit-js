@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContext, ViewFlags, View, ViewScope, ViewNodeType, HtmlView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewScope, ViewNodeType, HtmlView} from "@swim/view";
 import {ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeVein, TreeVein} from "./TreeVein";
+import {TreeStemObserver} from "./TreeStemObserver";
 import {TreeStemController} from "./TreeStemController";
 
 export type AnyTreeStem = TreeStem | TreeStemInit;
@@ -34,9 +35,9 @@ export class TreeStem extends ThemedHtmlView {
     this.height.setAutoState(60);
   }
 
-  get viewController(): TreeStemController | null {
-    return this._viewController;
-  }
+  readonly viewController: TreeStemController | null;
+
+  readonly viewObservers: ReadonlyArray<TreeStemObserver>;
 
   initView(init: TreeStemInit): void {
     super.initView(init);
@@ -87,7 +88,7 @@ export class TreeStem extends ThemedHtmlView {
     // hook
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContext,
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
     const seed = needsLayout ? this.seed.state : void 0;

@@ -13,10 +13,9 @@
 // limitations under the License.
 
 import {PointR2, BoxR2} from "@swim/math";
-import {View} from "@swim/view";
+import {ViewContextType, View} from "@swim/view";
 import {GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
-import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 import {MapGraphicsView} from "../graphics/MapGraphicsView";
 import {MapGraphicsNodeView} from "../graphics/MapGraphicsNodeView";
 
@@ -68,7 +67,7 @@ export class MapGroupView extends MapGraphicsNodeView {
     super.didRemoveChildView(childView);
   }
 
-  protected didProject(viewContext: MapGraphicsViewContext): void {
+  protected didProject(viewContext: ViewContextType<this>): void {
     this._viewCentroid = viewContext.geoProjection.project(this._geoCentroid);
     super.didProject(viewContext);
   }

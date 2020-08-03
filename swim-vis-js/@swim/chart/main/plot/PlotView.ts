@@ -19,6 +19,7 @@ import {Tween} from "@swim/transition";
 import {GraphicsViewInit, GraphicsView} from "@swim/view";
 import {AnyDataPointView} from "../data/DataPointView";
 import {ScaleXYView} from "../scale/ScaleXYView";
+import {PlotViewObserver} from "./PlotViewObserver";
 import {PlotViewController} from "./PlotViewController";
 import {ScatterPlotView} from "./ScatterPlotView";
 import {SeriesPlotView} from "./SeriesPlotView";
@@ -44,7 +45,9 @@ export interface PlotViewInit<X, Y> extends GraphicsViewInit {
 }
 
 export interface PlotView<X, Y> extends GraphicsView, ScaleXYView<X, Y> {
-  viewController: PlotViewController<X, Y> | null;
+  readonly viewController: PlotViewController<X, Y> | null;
+
+  readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 
   plotType: PlotType;
 

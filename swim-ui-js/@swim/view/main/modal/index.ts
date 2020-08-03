@@ -19,4 +19,4 @@ export {
 } from "./Modal";
 
 export {ModalManager} from "./ModalManager";
-export {ModalObserver} from "./ModalObserver";
+export {ModalManagerObserver} from "./ModalManagerObserver";

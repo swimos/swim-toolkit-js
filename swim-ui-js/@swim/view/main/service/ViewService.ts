@@ -14,17 +14,17 @@
 
 import {__extends} from "tslib";
 import {View} from "../View";
-import {UpdateManager} from "../update/UpdateManager";
+import {DisplayManager} from "../display/DisplayManager";
 import {LayoutManager} from "../layout/LayoutManager";
 import {ViewportManager} from "../viewport/ViewportManager";
 import {HistoryManager} from "../history/HistoryManager";
 import {ModalManager} from "../modal/ModalManager";
-import {ObjectService} from "./ObjectService";
-import {UpdateService} from "./UpdateService";
-import {LayoutService} from "./LayoutService";
-import {ViewportService} from "./ViewportService";
-import {HistoryService} from "./HistoryService";
-import {ModalService} from "./ModalService";
+import {ObjectViewService} from "./ObjectViewService";
+import {DisplayManagerService} from "./DisplayManagerService";
+import {LayoutManagerService} from "./LayoutManagerService";
+import {ViewportManagerService} from "./ViewportManagerService";
+import {HistoryManagerService} from "./HistoryManagerService";
+import {ModalManagerService} from "./ModalManagerService";
 
 export type ViewServiceType<V, K extends keyof V> =
   V extends {[P in K]: ViewService<any, infer T>} ? T : unknown;
@@ -33,7 +33,7 @@ export type ViewServiceInit<V extends View, T> =
   (this: ViewService<V, T>) => T | undefined;
 
 export type ViewServiceTypeConstructor = typeof Object
-                                       | typeof UpdateManager
+                                       | typeof DisplayManager
                                        | typeof LayoutManager
                                        | typeof ViewportManager
                                        | typeof HistoryManager
@@ -42,7 +42,7 @@ export type ViewServiceTypeConstructor = typeof Object
                                        | any;
 
 export type ViewServiceDescriptorType<V extends View, C extends ViewServiceTypeConstructor> =
-  C extends typeof UpdateManager ? ViewServiceDescriptor<V, UpdateManager> :
+  C extends typeof DisplayManager ? ViewServiceDescriptor<V, DisplayManager> :
   C extends typeof LayoutManager ? ViewServiceDescriptor<V, LayoutManager> :
   C extends typeof ViewportManager ? ViewServiceDescriptor<V, ViewportManager> :
   C extends typeof HistoryManager ? ViewServiceDescriptor<V, HistoryManager> :
@@ -71,17 +71,17 @@ export interface ViewServiceClass {
 
   // Forward type declarations
   /** @hidden */
-  Object: typeof ObjectService; // defined by ObjectService
+  Object: typeof ObjectViewService; // defined by ObjectViewService
   /** @hidden */
-  Update: typeof UpdateService; // defined by UpdateService
+  Display: typeof DisplayManagerService; // defined by DisplayManagerService
   /** @hidden */
-  Layout: typeof LayoutService; // defined by LayoutService
+  Layout: typeof LayoutManagerService; // defined by LayoutManagerService
   /** @hidden */
-  Viewport: typeof ViewportService; // defined by ViewportService
+  Viewport: typeof ViewportManagerService; // defined by ViewportManagerService
   /** @hidden */
-  History: typeof HistoryService; // defined by HistoryService
+  History: typeof HistoryManagerService; // defined by HistoryManagerService
   /** @hidden */
-  Modal: typeof ModalService; // defined by ModalService
+  Modal: typeof ModalManagerService; // defined by ModalManagerService
 }
 
 export interface ViewService<V extends View, T> {
@@ -133,8 +133,8 @@ export const ViewService: ViewServiceClass = (function (_super: typeof Object): 
     }
     let serviceType = descriptor.serviceType;
     if (serviceType === void 0) {
-      if (valueType === UpdateManager) {
-        serviceType = ViewService.Update;
+      if (valueType === DisplayManager) {
+        serviceType = ViewService.Display;
       } else if (valueType === LayoutManager) {
         serviceType = ViewService.Layout;
       } else if (valueType === ViewportManager) {

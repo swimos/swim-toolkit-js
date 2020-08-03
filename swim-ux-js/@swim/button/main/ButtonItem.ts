@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Transition} from "@swim/transition";
-import {ViewContext, View, ViewAnimator, ViewNodeType, SvgView, HtmlView} from "@swim/view";
+import {ViewContextType, View, ViewAnimator, ViewNodeType, SvgView, HtmlView} from "@swim/view";
 import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
 import {FloatingButton} from "./FloatingButton";
 
@@ -61,7 +61,7 @@ export class ButtonItem extends ThemedHtmlView {
     }
   }
 
-  protected onLayout(viewContext: ViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     const phase = this.stackPhase.getValueOr(1);
     const button = this.button;

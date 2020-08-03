@@ -16,7 +16,7 @@ import {Angle} from "@swim/angle";
 import {AnyColor, Color, ColorInterpolator} from "@swim/color";
 import {Transform} from "@swim/transform";
 import {Transition} from "@swim/transition";
-import {ViewContext, ViewAnimator, ViewNodeType, SvgView} from "@swim/view";
+import {ViewContextType, ViewAnimator, ViewNodeType, SvgView} from "@swim/view";
 import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
 
 export class DisclosureButton extends ThemedHtmlView {
@@ -64,7 +64,7 @@ export class DisclosureButton extends ThemedHtmlView {
     this.expandedColor.setAutoState(theme.inner(mood, Look.accentColor), transition);
   }
 
-  protected onAnimate(viewContext: ViewContext): void {
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const disclosurePhase = this.disclosurePhase.getValueOr(0);
     const collapsedColor = this.collapsedColor.value;

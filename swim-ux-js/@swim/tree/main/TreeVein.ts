@@ -15,6 +15,7 @@
 import {Transition} from "@swim/transition";
 import {ViewNodeType, HtmlView} from "@swim/view";
 import {Look, MoodVector, ThemeMatrix, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
+import {TreeVeinObserver} from "./TreeVeinObserver";
 import {TreeVeinController} from "./TreeVeinController";
 
 export type AnyTreeVein = TreeVein | TreeVeinInit;
@@ -31,9 +32,9 @@ export class TreeVein extends ThemedHtmlView {
     this.alignItems.setAutoState("center");
   }
 
-  get viewController(): TreeVeinController | null {
-    return this._viewController;
-  }
+  readonly viewController: TreeVeinController | null;
+
+  readonly viewObservers: ReadonlyArray<TreeVeinObserver>;
 
   initView(init: TreeVeinInit): void {
     super.initView(init);

@@ -22,7 +22,7 @@ import {
   CanvasRenderer,
   WebGLRenderer,
 } from "@swim/render";
-import {ViewFlags, View, ViewAnimator, GraphicsView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewAnimator, GraphicsView} from "@swim/view";
 import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
 import {MapGraphicsNodeView} from "../graphics/MapGraphicsNodeView";
@@ -51,9 +51,9 @@ export class MapRasterView extends MapGraphicsNodeView {
     this._rasterFrame = BoxR2.undefined();
   }
 
-  get viewController(): MapRasterViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: MapRasterViewController | null;
+
+  readonly viewObservers: ReadonlyArray<MapRasterViewObserver>;
 
   initView(init: MapRasterViewInit): void {
     super.initView(init);
@@ -136,7 +136,7 @@ export class MapRasterView extends MapGraphicsNodeView {
   }
 
   /** @hidden */
-  protected doDisplay(displayFlags: ViewFlags, viewContext: MapRasterViewContext): void {
+  protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = displayFlags;
     this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
     this._viewFlags &= ~View.NeedsDisplay;
@@ -186,18 +186,18 @@ export class MapRasterView extends MapGraphicsNodeView {
     }
   }
 
-  protected onLayout(viewContext: MapRasterViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.resizeCanvas(this._canvas);
     this.resetRenderer();
   }
 
-  protected onRender(viewContext: MapRasterViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     this.clearCanvas();
   }
 
-  protected willComposite(viewContext: MapRasterViewContext): void {
+  protected willComposite(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: MapRasterViewObserver): void {
       if (viewObserver.viewWillRender !== void 0) {
         viewObserver.viewWillRender(viewContext, this);
@@ -205,11 +205,11 @@ export class MapRasterView extends MapGraphicsNodeView {
     });
   }
 
-  protected onComposite(viewContext: MapRasterViewContext): void {
+  protected onComposite(viewContext: ViewContextType<this>): void {
     this.compositeImage(viewContext);
   }
 
-  protected didComposite(viewContext: MapRasterViewContext): void {
+  protected didComposite(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: MapRasterViewObserver): void {
       if (viewObserver.viewDidRender !== void 0) {
         viewObserver.viewDidRender(viewContext, this);
@@ -217,12 +217,14 @@ export class MapRasterView extends MapGraphicsNodeView {
     });
   }
 
-  extendViewContext(viewContext: MapGraphicsViewContext): MapRasterViewContext {
+  extendViewContext(viewContext: MapGraphicsViewContext): ViewContextType<this> {
     const rasterViewContext = Object.create(viewContext);
     rasterViewContext.compositor = viewContext.renderer;
     rasterViewContext.renderer = this.renderer;
     return rasterViewContext;
   }
+
+  readonly viewContext: MapRasterViewContext;
 
   /** @hidden */
   get compositeFrame(): BoxR2 {
@@ -246,8 +248,7 @@ export class MapRasterView extends MapGraphicsNodeView {
     }
   }
 
-  hitTest(x: number, y: number, viewContext: MapRasterViewContext): GraphicsView | null {
-    viewContext = this.extendViewContext(viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     const compositeFrame = this.compositeFrame;
     x -= Math.floor(compositeFrame.xMin);
     y -= Math.floor(compositeFrame.yMin);
@@ -322,7 +323,7 @@ export class MapRasterView extends MapGraphicsNodeView {
     }
   }
 
-  protected compositeImage(viewContext: MapRasterViewContext): void {
+  protected compositeImage(viewContext: ViewContextType<this>): void {
     const compositor = viewContext.compositor;
     const renderer = viewContext.renderer;
     if (compositor instanceof CanvasRenderer && renderer instanceof CanvasRenderer) {

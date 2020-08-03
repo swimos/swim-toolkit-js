@@ -13,10 +13,9 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
+import {ViewContextType} from "../ViewContext";
 import {ViewFlags, View} from "../View";
-import {GraphicsViewContext} from "./GraphicsViewContext";
 import {GraphicsView} from "./GraphicsView";
-import {GraphicsViewController} from "./GraphicsViewController";
 
 export class GraphicsNodeView extends GraphicsView {
   /** @hidden */
@@ -27,10 +26,6 @@ export class GraphicsNodeView extends GraphicsView {
   constructor() {
     super();
     this._childViews = [];
-  }
-
-  get viewController(): GraphicsViewController<GraphicsNodeView> | null {
-    return this._viewController;
   }
 
   get childViewCount(): number {
@@ -264,7 +259,7 @@ export class GraphicsNodeView extends GraphicsView {
   }
 
   /** @hidden */
-  doMountChildViews(): void {
+  protected doMountChildViews(): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -280,7 +275,7 @@ export class GraphicsNodeView extends GraphicsView {
   }
 
   /** @hidden */
-  doUnmountChildViews(): void {
+  protected doUnmountChildViews(): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -296,7 +291,7 @@ export class GraphicsNodeView extends GraphicsView {
   }
 
   /** @hidden */
-  doPowerChildViews(): void {
+  protected doPowerChildViews(): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -312,7 +307,7 @@ export class GraphicsNodeView extends GraphicsView {
   }
 
   /** @hidden */
-  doUnpowerChildViews(): void {
+  protected doUnpowerChildViews(): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -327,13 +322,13 @@ export class GraphicsNodeView extends GraphicsView {
     }
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: GraphicsViewContext,
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i];
-      this.doProcessChildView(childView, processFlags, viewContext);
+      this.processChildView(childView, processFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -346,13 +341,13 @@ export class GraphicsNodeView extends GraphicsView {
     }
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: GraphicsViewContext,
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i];
-      this.doDisplayChildView(childView, displayFlags, viewContext);
+      this.displayChildView(childView, displayFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -407,7 +402,7 @@ export class GraphicsNodeView extends GraphicsView {
     return hitBounds;
   }
 
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit: GraphicsView | null = null;
     const childViews = this._childViews;
     for (let i = childViews.length - 1; i >= 0; i -= 1) {

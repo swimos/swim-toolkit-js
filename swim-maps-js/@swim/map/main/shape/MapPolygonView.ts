@@ -19,6 +19,7 @@ import {AnyFont, Font} from "@swim/font";
 import {Tween} from "@swim/transition";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
+  ViewContextType,
   View,
   ViewAnimator,
   GraphicsView,
@@ -29,9 +30,7 @@ import {
 } from "@swim/view";
 import {GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
-import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
 import {MapGraphicsNodeView} from "../graphics/MapGraphicsNodeView";
 import {AnyMapPointView, MapPointView} from "./MapPointView";
 
@@ -65,10 +64,6 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
     this._clipViewport = true;
     this._geoBounds = GeoBox.undefined();
     this._viewBounds = BoxR2.undefined();
-  }
-
-  get viewController(): MapGraphicsViewController<MapPolygonView> | null {
-    return this._viewController;
   }
 
   initView(init: MapPolygonViewInit): void {
@@ -234,7 +229,7 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
     childView.requireUpdate(View.NeedsAnimate | View.NeedsProject);
   }
 
-  protected didProject(viewContext: MapGraphicsViewContext): void {
+  protected didProject(viewContext: ViewContextType<this>): void {
     const oldGeoBounds = this._geoBounds;
     let lngMin = Infinity;
     let latMin = Infinity;
@@ -310,7 +305,7 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
     super.didProject(viewContext);
   }
 
-  protected onRender(viewContext: MapGraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -375,8 +370,8 @@ export class MapPolygonView extends MapGraphicsNodeView implements FillView, Str
     return this.viewBounds;
   }
 
-  hitTest(x: number, y: number, viewContext: MapGraphicsViewContext): GraphicsView | null {
-    let hit = super.hitTest(x, y, viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+    let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
       if (renderer instanceof CanvasRenderer) {

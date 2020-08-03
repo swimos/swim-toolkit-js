@@ -12,53 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewFlags} from "../View";
+import {ViewContextType} from "../ViewContext";
 import {GraphicsViewObserver} from "../graphics/GraphicsViewObserver";
-import {RasterViewContext} from "./RasterViewContext";
 import {RasterView} from "./RasterView";
 
 export interface RasterViewObserver<V extends RasterView = RasterView> extends GraphicsViewObserver<V> {
-  viewWillProcess?(viewContext: RasterViewContext, view: V): void;
+  viewWillComposite?(viewContext: ViewContextType<V>, view: V): void;
 
-  viewDidProcess?(viewContext: RasterViewContext, view: V): void;
-
-  viewWillResize?(viewContext: RasterViewContext, view: V): void;
-
-  viewDidResize?(viewContext: RasterViewContext, view: V): void;
-
-  viewWillScroll?(viewContext: RasterViewContext, view: V): void;
-
-  viewDidScroll?(viewContext: RasterViewContext, view: V): void;
-
-  viewWillCompute?(viewContext: RasterViewContext, view: V): void;
-
-  viewDidCompute?(viewContext: RasterViewContext, view: V): void;
-
-  viewWillAnimate?(viewContext: RasterViewContext, view: V): void;
-
-  viewDidAnimate?(viewContext: RasterViewContext, view: V): void;
-
-  viewWillProcessChildViews?(processFlags: ViewFlags, viewContext: RasterViewContext, view: V): void;
-
-  viewDidProcessChildViews?(processFlags: ViewFlags, viewContext: RasterViewContext, view: V): void;
-
-  viewWillDisplay?(viewContext: RasterViewContext, view: V): void;
-
-  viewDidDisplay?(viewContext: RasterViewContext, view: V): void;
-
-  viewWillLayout?(viewContext: RasterViewContext, view: V): void;
-
-  viewDidLayout?(viewContext: RasterViewContext, view: V): void;
-
-  viewWillRender?(viewContext: RasterViewContext, view: V): void;
-
-  viewDidRender?(viewContext: RasterViewContext, view: V): void;
-
-  viewWillComposite?(viewContext: RasterViewContext, view: V): void;
-
-  viewDidComposite?(viewContext: RasterViewContext, view: V): void;
-
-  viewWillDisplayChildViews?(displayFlags: ViewFlags, viewContext: RasterViewContext, view: V): void;
-
-  viewDidDisplayChildViews?(displayFlags: ViewFlags, viewContext: RasterViewContext, view: V): void;
+  viewDidComposite?(viewContext: ViewContextType<V>, view: V): void;
 }

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Tween, Transition} from "@swim/transition";
-import {ViewContext, View, ViewAnimator, ViewNodeType, SvgView, HtmlView} from "@swim/view";
+import {ViewContextType, View, ViewAnimator, ViewNodeType, SvgView, HtmlView} from "@swim/view";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ButtonMorph} from "./ButtonMorph";
@@ -110,7 +110,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     }
   }
 
-  protected onLayout(viewContext: ViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
 
     let shadow = this.getLook(Look.shadow, Mood.floating);

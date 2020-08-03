@@ -16,7 +16,7 @@ import {AnyLength, Length} from "@swim/length";
 import {Color} from "@swim/color";
 import {Tween, Transition} from "@swim/transition";
 import {
-  ViewContext,
+  ViewContextType,
   View,
   ViewEdgeInsets,
   ModalOptions,
@@ -79,9 +79,9 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     this.overflowScrolling.setAutoState("touch");
   }
 
-  get viewController(): DrawerViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: DrawerViewController | null;
+
+  readonly viewObservers: ReadonlyArray<DrawerViewObserver>;
 
   initView(init: DrawerViewInit): void {
     super.initView(init);
@@ -224,7 +224,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     }
   }
 
-  protected onAnimate(viewContext: ViewContext): void {
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     if (this.drawerSlide.isUpdated()) {
       this.updateDrawerSlide(this.drawerSlide.getValue());
@@ -234,7 +234,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     }
   }
 
-  protected onLayout(viewContext: ViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.place(viewContext);
     if (viewContext.viewIdiom === "mobile") {
@@ -246,7 +246,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     }
   }
 
-  protected place(viewContext: ViewContext): void {
+  protected place(viewContext: ViewContextType<this>): void {
     const drawerPlacement = this._drawerPlacement;
     if (drawerPlacement === "top") {
       this.placeTop(viewContext);
@@ -260,7 +260,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
   }
 
   /** @hidden */
-  protected placeTop(viewContext: ViewContext): void {
+  protected placeTop(viewContext: ViewContextType<this>): void {
     this.addClass("drawer-top")
         .removeClass("drawer-right")
         .removeClass("drawer-bottom")
@@ -289,7 +289,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
   }
 
   /** @hidden */
-  protected placeRight(viewContext: ViewContext): void {
+  protected placeRight(viewContext: ViewContextType<this>): void {
     this.removeClass("drawer-top")
         .addClass("drawer-right")
         .removeClass("drawer-bottom")
@@ -317,7 +317,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
   }
 
   /** @hidden */
-  protected placeBottom(viewContext: ViewContext): void {
+  protected placeBottom(viewContext: ViewContextType<this>): void {
     this.removeClass("drawer-top")
         .removeClass("drawer-right")
         .addClass("drawer-bottom")
@@ -346,7 +346,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
   }
 
   /** @hidden */
-  protected placeLeft(viewContext: ViewContext): void {
+  protected placeLeft(viewContext: ViewContextType<this>): void {
     this.removeClass("drawer-top")
         .removeClass("drawer-right")
         .removeClass("drawer-bottom")

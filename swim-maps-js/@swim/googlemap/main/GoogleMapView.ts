@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {AnyPointR2, PointR2} from "@swim/math";
-import {ViewFlags, View, GraphicsViewContext, GraphicsView, ViewHtml, HtmlView, CanvasView} from "@swim/view";
-import {AnyGeoPoint, GeoPoint, GeoBox, MapGraphicsViewContext, MapGraphicsNodeView} from "@swim/map";
+import {ViewContextType, ViewFlags, View, GraphicsViewContext, ViewHtml, HtmlView, CanvasView} from "@swim/view";
+import {AnyGeoPoint, GeoPoint, GeoBox, MapGraphicsNodeView} from "@swim/map";
 import {GoogleMapProjection} from "./GoogleMapProjection";
 import {GoogleMapViewObserver} from "./GoogleMapViewObserver";
 import {GoogleMapViewController} from "./GoogleMapViewController";
@@ -53,9 +53,9 @@ export class GoogleMapView extends MapGraphicsNodeView {
     // hook
   }
 
-  get viewController(): GoogleMapViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: GoogleMapViewController | null;
+
+  readonly viewObservers: ReadonlyArray<GoogleMapViewObserver>;
 
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;
@@ -148,7 +148,7 @@ export class GoogleMapView extends MapGraphicsNodeView {
     return this._mapTilt;
   }
 
-  extendViewContext(viewContext: GraphicsViewContext): MapGraphicsViewContext {
+  extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
     const mapViewContext = Object.create(viewContext);
     mapViewContext.geoProjection = this._geoProjection;
     mapViewContext.geoFrame = this.geoFrame;
@@ -165,11 +165,6 @@ export class GoogleMapView extends MapGraphicsNodeView {
     return new GeoBox(sw.lng(), sw.lat(), ne.lng(), ne.lat());
   }
 
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
-    viewContext = this.extendViewContext(viewContext);
-    return super.hitTest(x, y, viewContext as MapGraphicsViewContext);
-  }
-
   protected onMapRender(): void {
     this._mapHeading = this._map.getHeading();
     this._mapTilt = this._map.getTilt();
@@ -178,8 +173,8 @@ export class GoogleMapView extends MapGraphicsNodeView {
   }
 
   overlayCanvas(): CanvasView | null {
-    if (this._parentView !== null) {
-      return this.canvasView;
+    if (this.isMounted()) {
+      return this.getSuperView(CanvasView);
     } else {
       class GoogleMapOverlayView extends google.maps.OverlayView {
         readonly _mapView: GoogleMapView;

@@ -16,6 +16,8 @@ real-time application framework, the
 [**@swim/vis**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-vis-js)
 and [**@swim/maps**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-maps-js)
 real-time widget toolkits, the
+[**@swim/mvc**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js)
+framework, and the
 [**@swim/web**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-web-js)
 real-time web application framework.
 
@@ -37,6 +39,7 @@ The **Swim UI** framework implements a user interface toolkit for pervasively
 real-time applications.  A unified view hierarchy, with builtin procedural
 styling and animation, makes it easy for **Swim UI** components to uniformly
 style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
+**Swim UI** consists of the following component libraries:
 
 - [**@swim/ui**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/ui)
   ([npm](https://www.npmjs.com/package/@swim/ui),
@@ -209,6 +212,25 @@ the following component libraries:
   [doc](https://docs.swimos.org/js/latest/modules/_swim_esrimap.html)) –
   support for overlaying **@swim/map** views on ArcGIS maps.
 
+### [**Swim MVC** Framework](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js)
+
+The **Swim MVC** framework implements a model-view-controller framework built
+on the **Swim UI** toolkit.  **Swim MVC** consists of the following component
+libraries:
+
+- [**@swim/mvc**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/mvc)
+  ([npm](https://www.npmjs.com/package/@swim/mvc),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_mvc.html)) –
+  model-view-controller framework built on the **@swim/ui** toolkit.
+- [**@swim/model**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/model)
+  ([npm](https://www.npmjs.com/package/@swim/model),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_model.html)) –
+  generic model hierarchy with lifecycle management and dynamic scoping.
+- [**@swim/component**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/component)
+  ([npm](https://www.npmjs.com/package/@swim/component),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_component.html)) –
+  UI schema for abstracting over view and model instantiation and configuration.
+
 ### [**Swim Web** Framework](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-web-js)
 
 The **Swim Web** framework implements a thin web application framework built
@@ -246,8 +268,8 @@ bundles all **@swim/toolkit** child frameworks, can be found in
 
 Browser applications can load `swim-toolkit.js`, along with its `swim-system.js`
 dependency, from the SwimOS CDN.  The `swim-toolkit.js` bundle supersedes
-`swim-ui.js`, `swim-vis.js`, `swim-maps.js`, and `swim-web.js`—those
-scripts need not be loaded when using `swim-toolkit.js`.
+`swim-ui.js`, `swim-ux.js`, `swim-vis.js`, `swim-maps.js`, and
+`swim-web.js`—those scripts need not be loaded when using `swim-toolkit.js`.
 
 ```html
 <!-- Development -->
@@ -282,6 +304,6 @@ var swim = require("@swim/toolkit");
 
 ### Browser
 
-When loaded by a web browser, the `swim-tookit.js` script adds all child
+When loaded by a web browser, the `swim-toolkit.js` script adds all child
 framework exports to the global `swim` namespace.  The `swim-toolkit.js` script
 requires that either `swim-core.js` or `swim-system.js` has already been loaded.

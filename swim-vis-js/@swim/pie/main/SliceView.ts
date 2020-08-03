@@ -19,12 +19,11 @@ import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/font";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
+  ViewContextType,
   View,
   ViewAnimator,
-  GraphicsViewContext,
   GraphicsViewInit,
   GraphicsView,
-  GraphicsViewController,
   GraphicsNodeView,
   FillView,
   TypesetView,
@@ -59,10 +58,6 @@ export interface SliceViewInit extends GraphicsViewInit {
 }
 
 export class SliceView extends GraphicsNodeView {
-  get viewController(): GraphicsViewController<SliceView> | null {
-    return this._viewController;
-  }
-
   initView(init: SliceViewInit): void {
     super.initView(init);
     if (init.value !== void 0) {
@@ -225,7 +220,7 @@ export class SliceView extends GraphicsNodeView {
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  protected onRender(viewContext: GraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -337,8 +332,8 @@ export class SliceView extends GraphicsNodeView {
     }
   }
 
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
-    let hit = super.hitTest(x, y, viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+    let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
       if (renderer instanceof CanvasRenderer) {

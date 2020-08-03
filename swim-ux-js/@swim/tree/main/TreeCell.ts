@@ -15,6 +15,7 @@
 import {ViewNodeType, HtmlView} from "@swim/view";
 import {PositionGestureInput} from "@swim/gesture";
 import {ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
+import {TreeCellObserver} from "./TreeCellObserver";
 import {TreeCellController} from "./TreeCellController";
 import {TitleTreeCell} from "./TitleTreeCell";
 import {DisclosureTreeCell} from "./DisclosureTreeCell";
@@ -36,9 +37,9 @@ export class TreeCell extends ThemedHtmlView {
     this.alignItems.setAutoState("center");
   }
 
-  get viewController(): TreeCellController | null {
-    return this._viewController;
-  }
+  readonly viewController: TreeCellController | null;
+
+  readonly viewObservers: ReadonlyArray<TreeCellObserver>;
 
   initView(init: TreeCellInit): void {
     super.initView(init);

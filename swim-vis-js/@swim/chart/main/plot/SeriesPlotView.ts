@@ -21,16 +21,17 @@ import {ContinuousScale} from "@swim/scale";
 import {Tween} from "@swim/transition";
 import {CanvasRenderer, CanvasContext} from "@swim/render";
 import {
+  ViewContextType,
   ViewFlags,
   View,
   ViewAnimator,
   ContinuousScaleViewAnimator,
-  GraphicsViewContext,
   GraphicsView,
 } from "@swim/view";
 import {DataPointCategory} from "../data/DataPoint";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {PlotViewInit, PlotView} from "./PlotView";
+import {PlotViewObserver} from "./PlotViewObserver";
 import {PlotViewController} from "./PlotViewController";
 
 export type SeriesPlotHitMode = "domain" | "plot" | "data" | "none";
@@ -71,9 +72,9 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     this._gradientStops = 0;
   }
 
-  get viewController(): PlotViewController<X, Y, SeriesPlotView<X, Y>> | null {
-    return this._viewController;
-  }
+  readonly viewController: PlotViewController<X, Y> | null;
+
+  readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 
   initView(init: SeriesPlotViewInit<X, Y>): void {
     super.initView(init);
@@ -343,14 +344,14 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     return additionalFlags;
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
   }
 
-  protected willResize(viewContext: GraphicsViewContext): void {
+  protected willResize(viewContext: ViewContextType<this>): void {
     super.willResize(viewContext);
     this.resizeScales(this.viewFrame);
   }
@@ -369,7 +370,7 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     }
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: GraphicsViewContext,
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     // Compute domain and range extrema while animating child views.
     let needsAnimate = (processFlags & View.NeedsAnimate) !== 0;
@@ -544,14 +545,14 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     }
   }
 
-  needsDisplay(displayFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this._viewFlags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: GraphicsViewContext,
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     // Recompute range extrema when laying out child views.
     const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
@@ -629,7 +630,7 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     }
   }
 
-  protected onRender(viewContext: GraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -640,7 +641,7 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
 
   protected abstract renderPlot(context: CanvasContext, frame: BoxR2): void;
 
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit: GraphicsView | null = null;
     if (this._hitMode !== "none") {
       const renderer = viewContext.renderer;

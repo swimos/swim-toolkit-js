@@ -18,6 +18,7 @@ import {AnyLength, Length} from "@swim/length";
 import {Color} from "@swim/color";
 import {Ease, Tween, AnyTransition, Transition} from "@swim/transition";
 import {
+  ViewContextType,
   ViewContext,
   ViewFlags,
   View,
@@ -87,9 +88,9 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     return arrow;
   }
 
-  get viewController(): PopoverViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: PopoverViewController | null;
+
+  readonly viewObservers: ReadonlyArray<PopoverViewObserver>;
 
   initView(init: PopoverViewInit): void {
     super.initView(init);
@@ -351,14 +352,14 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     }
   }
 
-  protected onAnimate(viewContext: ViewContext): void {
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     if (this.backgroundColor.isUpdated()) {
       this.place(true);
     }
   }
 
-  protected onLayout(viewContext: ViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.place();
   }

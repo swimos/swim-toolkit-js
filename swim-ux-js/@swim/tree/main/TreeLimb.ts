@@ -14,7 +14,7 @@
 
 import {Length} from "@swim/length";
 import {Tween, Transition} from "@swim/transition";
-import {ViewContext, View, ViewScope, ViewAnimator, ViewNodeType, HtmlView} from "@swim/view";
+import {ViewContextType, View, ViewScope, ViewAnimator, ViewNodeType, HtmlView} from "@swim/view";
 import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {AnyTreeLeaf, TreeLeaf} from "./TreeLeaf";
 import {TreeLimbObserver} from "./TreeLimbObserver";
@@ -40,9 +40,9 @@ export class TreeLimb extends ThemedHtmlView {
     this.position.setAutoState("relative");
   }
 
-  get viewController(): TreeLimbController | null {
-    return this._viewController;
-  }
+  readonly viewController: TreeLimbController | null;
+
+  readonly viewObservers: ReadonlyArray<TreeLimbObserver>;
 
   initView(init: TreeLimbInit): void {
     super.initView(init);
@@ -254,7 +254,7 @@ export class TreeLimb extends ThemedHtmlView {
     // hook
   }
 
-  protected didAnimate(viewContext: ViewContext): void {
+  protected didAnimate(viewContext: ViewContextType<this>): void {
     this.layoutLimb();
     super.didAnimate(viewContext);
   }

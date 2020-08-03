@@ -24,12 +24,12 @@ import {
   ConstraintStrength,
   Constraint,
 } from "@swim/constraint";
-import {ViewContext} from "./ViewContext";
-import {ViewObserver} from "./ViewObserver";
-import {ViewController} from "./ViewController";
+import {ViewContextType, ViewContext} from "./ViewContext";
+import {ViewObserverType, ViewObserver} from "./ViewObserver";
+import {ViewControllerType, ViewController} from "./ViewController";
 import {ViewManager} from "./manager/ViewManager";
-import {UpdateManager} from "./update/UpdateManager";
-import {LayoutContext} from "./layout/LayoutContext";
+import {DisplayManager} from "./display/DisplayManager";
+import {LayoutScope} from "./layout/LayoutScope";
 import {LayoutAnchor} from "./layout/LayoutAnchor";
 import {LayoutManager} from "./layout/LayoutManager";
 import {ViewIdiom} from "./viewport/ViewIdiom";
@@ -42,8 +42,8 @@ import {ViewServiceDescriptor, ViewServiceConstructor, ViewService} from "./serv
 import {ViewScopeDescriptor, ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
 import {ViewAnimatorDescriptor, ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
 import {GraphicsView} from "./graphics/GraphicsView";
-import {GraphicsNodeView} from "./graphics/GraphicsNodeView";
 import {GraphicsLeafView} from "./graphics/GraphicsLeafView";
+import {GraphicsNodeView} from "./graphics/GraphicsNodeView";
 import {RasterView} from "./raster/RasterView";
 import {ViewNode, NodeView} from "./node/NodeView";
 import {TextView} from "./text/TextView";
@@ -51,9 +51,6 @@ import {ElementViewTagMap, ElementViewConstructor, ElementView} from "./element/
 import {SvgView} from "./svg/SvgView";
 import {HtmlView} from "./html/HtmlView";
 import {CanvasView} from "./canvas/CanvasView";
-
-export type ViewControllerType<V extends View> =
-  V extends {readonly viewController: infer VC} ? VC : unknown;
 
 export type ViewFlags = number;
 
@@ -71,6 +68,10 @@ export interface ViewClass {
 
   readonly powerFlags: ViewFlags;
 
+  readonly insertFlags: ViewFlags;
+
+  readonly removeFlags: ViewFlags;
+
   /** @hidden */
   _viewServiceDescriptors?: {[serviceName: string]: ViewServiceDescriptor<View, unknown> | undefined};
 
@@ -81,7 +82,7 @@ export interface ViewClass {
   _viewAnimatorDescriptors?: {[animatorName: string]: ViewAnimatorDescriptor<View, unknown> | undefined};
 }
 
-export abstract class View implements AnimatorContext, LayoutContext {
+export abstract class View implements AnimatorContext, LayoutScope {
   abstract get viewController(): ViewController | null;
 
   abstract setViewController(viewController: ViewControllerType<this> | null): void;
@@ -100,35 +101,35 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   abstract get viewObservers(): ReadonlyArray<ViewObserver>;
 
-  abstract addViewObserver(viewObserver: ViewObserver): void;
+  abstract addViewObserver(viewObserver: ViewObserverType<this>): void;
 
-  protected willAddViewObserver(viewObserver: ViewObserver): void {
+  protected willAddViewObserver(viewObserver: ViewObserverType<this>): void {
     // hook
   }
 
-  protected onAddViewObserver(viewObserver: ViewObserver): void {
+  protected onAddViewObserver(viewObserver: ViewObserverType<this>): void {
     // hook
   }
 
-  protected didAddViewObserver(viewObserver: ViewObserver): void {
+  protected didAddViewObserver(viewObserver: ViewObserverType<this>): void {
     // hook
   }
 
-  abstract removeViewObserver(viewObserver: ViewObserver): void;
+  abstract removeViewObserver(viewObserver: ViewObserverType<this>): void;
 
-  protected willRemoveViewObserver(viewObserver: ViewObserver): void {
+  protected willRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
     // hook
   }
 
-  protected onRemoveViewObserver(viewObserver: ViewObserver): void {
+  protected onRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
     // hook
   }
 
-  protected didRemoveViewObserver(viewObserver: ViewObserver): void {
+  protected didRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
     // hook
   }
 
-  protected willObserve(callback: (this: this, viewObserver: ViewObserver) => void): void {
+  protected willObserve(callback: (this: this, viewObserver: ViewObserverType<this>) => void): void {
     const viewController = this.viewController;
     if (viewController !== null) {
       callback.call(this, viewController);
@@ -139,7 +140,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
     }
   }
 
-  protected didObserve(callback: (this: this, viewObserver: ViewObserver) => void): void {
+  protected didObserve(callback: (this: this, viewObserver: ViewObserverType<this>) => void): void {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       callback.call(this, viewObservers[i]);
@@ -218,6 +219,10 @@ export abstract class View implements AnimatorContext, LayoutContext {
 
   abstract insertChildView(childView: View, targetView: View | null, key?: string): void;
 
+  get insertFlags(): ViewFlags {
+    return this.viewClass.insertFlags;
+  }
+
   protected willInsertChildView(childView: View, targetView: View | null | undefined): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillInsertChildView !== void 0) {
@@ -227,7 +232,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    // hook
+    this.requireUpdate(this.insertFlags);
   }
 
   protected didInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -238,12 +243,18 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
+  abstract cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void;
+
   abstract removeChildView(key: string): View | null;
   abstract removeChildView(childView: View): void;
 
   abstract removeAll(): void;
 
   abstract remove(): void;
+
+  get removeFlags(): ViewFlags {
+    return this.viewClass.removeFlags;
+  }
 
   protected willRemoveChildView(childView: View): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
@@ -254,7 +265,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
   }
 
   protected onRemoveChildView(childView: View): void {
-    // hook
+    this.requireUpdate(this.removeFlags);
   }
 
   protected didRemoveChildView(childView: View): void {
@@ -288,15 +299,15 @@ export abstract class View implements AnimatorContext, LayoutContext {
     }
   }
 
-  updateManager: ViewService<this, UpdateManager>; // defined by UpdateService
+  displayManager: ViewService<this, DisplayManager>; // defined by DisplayManagerService
 
-  layoutManager: ViewService<this, LayoutManager>; // defined by LayoutService
+  layoutManager: ViewService<this, LayoutManager>; // defined by LayoutManagerService
 
-  viewportManager: ViewService<this, ViewportManager>; // defined by ViewportService
+  viewportManager: ViewService<this, ViewportManager>; // defined by ViewportManagerService
 
-  historyManager: ViewService<this, HistoryManager>; // defined by HistoryService
+  historyManager: ViewService<this, HistoryManager>; // defined by HistoryManagerService
 
-  modalManager: ViewService<this, ModalManager>; // defined by ModalService
+  modalManager: ViewService<this, ModalManager>; // defined by ModalManagerService
 
   toggleModal(modal: Modal, options?: ModalOptions): void {
     const modalManager = this.modalManager.state;
@@ -469,9 +480,9 @@ export abstract class View implements AnimatorContext, LayoutContext {
     if (parentView !== null) {
       parentView.requestUpdate(targetView, updateFlags, immediate);
     } else if (this.isMounted()) {
-      const updateManager = this.updateManager.state;
-      if (updateManager !== void 0) {
-        updateManager.requestUpdate(targetView, updateFlags, immediate);
+      const displayManager = this.displayManager.state;
+      if (displayManager !== void 0) {
+        displayManager.requestUpdate(targetView, updateFlags, immediate);
       }
     }
     this.didRequestUpdate(targetView, updateFlags, immediate);
@@ -510,22 +521,17 @@ export abstract class View implements AnimatorContext, LayoutContext {
     return (this.viewFlags & View.UpdatingMask) !== 0;
   }
 
-  abstract cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void;
-
   isProcessing(): boolean {
     return (this.viewFlags & View.ProcessingFlag) !== 0;
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: ViewContext): ViewFlags {
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     return processFlags;
   }
 
   abstract cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void;
 
-  /** @hidden */
-  protected abstract doProcess(processFlags: ViewFlags, viewContext: ViewContext): void;
-
-  protected willProcess(viewContext: ViewContext): void {
+  protected willProcess(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillProcess !== void 0) {
         viewObserver.viewWillProcess(viewContext, this);
@@ -533,11 +539,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected onProcess(viewContext: ViewContext): void {
+  protected onProcess(viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didProcess(viewContext: ViewContext): void {
+  protected didProcess(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidProcess !== void 0) {
         viewObserver.viewDidProcess(viewContext, this);
@@ -545,7 +551,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected willResize(viewContext: ViewContext): void {
+  protected willResize(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillResize !== void 0) {
         viewObserver.viewWillResize(viewContext, this);
@@ -553,11 +559,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected onResize(viewContext: ViewContext): void {
+  protected onResize(viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didResize(viewContext: ViewContext): void {
+  protected didResize(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidResize !== void 0) {
         viewObserver.viewDidResize(viewContext, this);
@@ -565,7 +571,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected willScroll(viewContext: ViewContext): void {
+  protected willScroll(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillScroll !== void 0) {
         viewObserver.viewWillScroll(viewContext, this);
@@ -573,11 +579,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected onScroll(viewContext: ViewContext): void {
+  protected onScroll(viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didScroll(viewContext: ViewContext): void {
+  protected didScroll(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidScroll !== void 0) {
         viewObserver.viewDidScroll(viewContext, this);
@@ -585,7 +591,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected willCompute(viewContext: ViewContext): void {
+  protected willCompute(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillCompute !== void 0) {
         viewObserver.viewWillCompute(viewContext, this);
@@ -593,11 +599,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected onCompute(viewContext: ViewContext): void {
+  protected onCompute(viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didCompute(viewContext: ViewContext): void {
+  protected didCompute(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidCompute !== void 0) {
         viewObserver.viewDidCompute(viewContext, this);
@@ -605,7 +611,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected willAnimate(viewContext: ViewContext): void {
+  protected willAnimate(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillAnimate !== void 0) {
         viewObserver.viewWillAnimate(viewContext, this);
@@ -613,11 +619,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected onAnimate(viewContext: ViewContext): void {
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didAnimate(viewContext: ViewContext): void {
+  protected didAnimate(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidAnimate !== void 0) {
         viewObserver.viewDidAnimate(viewContext, this);
@@ -625,7 +631,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected willLayout(viewContext: ViewContext): void {
+  protected willLayout(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillLayout !== void 0) {
         viewObserver.viewWillLayout(viewContext, this);
@@ -633,11 +639,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected onLayout(viewContext: ViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didLayout(viewContext: ViewContext): void {
+  protected didLayout(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidLayout !== void 0) {
         viewObserver.viewDidLayout(viewContext, this);
@@ -645,16 +651,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  /** @hidden */
-  protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext): void {
-    if ((processFlags & View.ProcessMask) !== 0 && this.childViewCount !== 0) {
-      this.willProcessChildViews(processFlags, viewContext);
-      this.onProcessChildViews(processFlags, viewContext);
-      this.didProcessChildViews(processFlags, viewContext);
-    }
-  }
-
-  protected willProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext): void {
+  protected willProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillProcessChildViews !== void 0) {
         viewObserver.viewWillProcessChildViews(processFlags, viewContext, this);
@@ -662,11 +659,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected onProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext): void {
+  protected onProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.processChildViews(processFlags, viewContext);
   }
 
-  protected didProcessChildViews(processFlags: ViewFlags, viewContext: ViewContext): void {
+  protected didProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidProcessChildViews !== void 0) {
         viewObserver.viewDidProcessChildViews(processFlags, viewContext, this);
@@ -674,10 +671,10 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContext,
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     this.forEachChildView(function (childView: View): void {
-      this.doProcessChildView(childView, processFlags, viewContext);
+      this.processChildView(childView, processFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -689,21 +686,21 @@ export abstract class View implements AnimatorContext, LayoutContext {
   }
 
   /** @hidden */
-  protected doProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContext): void {
+  protected processChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.willProcessChildView(childView, processFlags, viewContext);
     this.onProcessChildView(childView, processFlags, viewContext);
     this.didProcessChildView(childView, processFlags, viewContext);
   }
 
-  protected willProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContext): void {
+  protected willProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected onProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContext): void {
+  protected onProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     childView.cascadeProcess(processFlags, viewContext);
   }
 
-  protected didProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContext): void {
+  protected didProcessChildView(childView: View, processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // hook
   }
 
@@ -711,16 +708,13 @@ export abstract class View implements AnimatorContext, LayoutContext {
     return (this.viewFlags & View.DisplayingFlag) !== 0;
   }
 
-  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContext): ViewFlags {
+  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     return displayFlags;
   }
 
   abstract cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void;
 
-  /** @hidden */
-  protected abstract doDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void;
-
-  protected willDisplay(viewContext: ViewContext): void {
+  protected willDisplay(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillDisplay !== void 0) {
         viewObserver.viewWillDisplay(viewContext, this);
@@ -728,11 +722,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected onDisplay(viewContext: ViewContext): void {
+  protected onDisplay(viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didDisplay(viewContext: ViewContext): void {
+  protected didDisplay(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidDisplay !== void 0) {
         viewObserver.viewDidDisplay(viewContext, this);
@@ -740,17 +734,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  /** @hidden */
-  protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext): void {
-    const childViews = this.childViews;
-    if ((displayFlags & View.DisplayMask) !== 0 && childViews.length !== 0) {
-      this.willDisplayChildViews(displayFlags, viewContext);
-      this.onDisplayChildViews(displayFlags, viewContext);
-      this.didDisplayChildViews(displayFlags, viewContext);
-    }
-  }
-
-  protected willDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext): void {
+  protected willDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillDisplayChildViews !== void 0) {
         viewObserver.viewWillDisplayChildViews(displayFlags, viewContext, this);
@@ -758,11 +742,11 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected onDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext): void {
+  protected onDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.displayChildViews(displayFlags, viewContext);
   }
 
-  protected didDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContext): void {
+  protected didDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidDisplayChildViews !== void 0) {
         viewObserver.viewDidDisplayChildViews(displayFlags, viewContext, this);
@@ -770,10 +754,10 @@ export abstract class View implements AnimatorContext, LayoutContext {
     });
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContext,
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
     this.forEachChildView(function (childView: View): void {
-      this.doDisplayChildView(childView, displayFlags, viewContext);
+      this.displayChildView(childView, displayFlags, viewContext);
       if (callback !== void 0) {
         callback.call(this, childView);
       }
@@ -785,21 +769,21 @@ export abstract class View implements AnimatorContext, LayoutContext {
   }
 
   /** @hidden */
-  protected doDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContext): void {
+  protected displayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.willDisplayChildView(childView, displayFlags, viewContext);
     this.onDisplayChildView(childView, displayFlags, viewContext);
     this.didDisplayChildView(childView, displayFlags, viewContext);
   }
 
-  protected willDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContext): void {
+  protected willDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected onDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContext): void {
+  protected onDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     childView.cascadeDisplay(displayFlags, viewContext);
   }
 
-  protected didDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContext): void {
+  protected didDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // hook
   }
 
@@ -989,27 +973,30 @@ export abstract class View implements AnimatorContext, LayoutContext {
     }
   }
 
-  /** @hidden */
-  extendViewContext(viewContext: ViewContext): ViewContext {
-    return viewContext;
+  extendViewContext(viewContext: ViewContext): ViewContextType<this> {
+    return viewContext as ViewContextType<this>;
   }
 
-  get viewContext(): ViewContext {
-    let viewContext: ViewContext;
+  get superViewContext(): ViewContext {
+    let superViewContext: ViewContext;
     const parentView = this.parentView;
     if (parentView !== null) {
-      viewContext = parentView.extendViewContext(parentView.viewContext);
+      superViewContext = parentView.viewContext;
     } else if (this.isMounted()) {
       const viewportManager = this.viewportManager.state;
       if (viewportManager !== void 0) {
-        viewContext = viewportManager.viewContext;
+        superViewContext = viewportManager.viewContext;
       } else {
-        viewContext = ViewContext.default();
+        superViewContext = ViewContext.default();
       }
     } else {
-      viewContext = ViewContext.default();
+      superViewContext = ViewContext.default();
     }
-    return viewContext;
+    return superViewContext;
+  }
+
+  get viewContext(): ViewContext {
+    return this.extendViewContext(this.superViewContext);
   }
 
   get viewIdiom(): ViewIdiom {
@@ -1243,6 +1230,7 @@ export abstract class View implements AnimatorContext, LayoutContext {
       const parentView = view.parentView;
       if (parentView !== null) {
         view.setParentView(parentView, null);
+        view.cascadeInsert();
       }
       return view;
     }
@@ -1291,17 +1279,17 @@ export abstract class View implements AnimatorContext, LayoutContext {
   /** @hidden */
   static readonly CulledFlag: ViewFlags = 1 << 3;
   /** @hidden */
-  static readonly ImmediateFlag: ViewFlags = 1 << 4;
+  static readonly AnimatingFlag: ViewFlags = 1 << 4;
   /** @hidden */
-  static readonly AnimatingFlag: ViewFlags = 1 << 5;
+  static readonly TraversingFlag: ViewFlags = 1 << 5;
   /** @hidden */
-  static readonly TraversingFlag: ViewFlags = 1 << 6;
+  static readonly ProcessingFlag: ViewFlags = 1 << 6;
   /** @hidden */
-  static readonly ProcessingFlag: ViewFlags = 1 << 7;
+  static readonly DisplayingFlag: ViewFlags = 1 << 7;
   /** @hidden */
-  static readonly DisplayingFlag: ViewFlags = 1 << 8;
+  static readonly RemovingFlag: ViewFlags = 1 << 8;
   /** @hidden */
-  static readonly RemovingFlag: ViewFlags = 1 << 9;
+  static readonly ImmediateFlag: ViewFlags = 1 << 9;
   /** @hidden */
   static readonly UpdatingMask: ViewFlags = View.ProcessingFlag
                                           | View.DisplayingFlag;
@@ -1310,12 +1298,12 @@ export abstract class View implements AnimatorContext, LayoutContext {
                                         | View.PoweredFlag
                                         | View.HiddenFlag
                                         | View.CulledFlag
-                                        | View.ImmediateFlag
                                         | View.AnimatingFlag
                                         | View.TraversingFlag
                                         | View.ProcessingFlag
                                         | View.DisplayingFlag
-                                        | View.RemovingFlag;
+                                        | View.RemovingFlag
+                                        | View.ImmediateFlag;
 
   static readonly NeedsProcess: ViewFlags = 1 << 10;
   static readonly NeedsResize: ViewFlags = 1 << 11;
@@ -1351,8 +1339,9 @@ export abstract class View implements AnimatorContext, LayoutContext {
   static readonly ViewFlagMask: ViewFlags = (1 << View.ViewFlagShift) - 1;
 
   static readonly mountFlags: ViewFlags = View.NeedsResize | View.NeedsLayout;
-
   static readonly powerFlags: ViewFlags = 0;
+  static readonly insertFlags: ViewFlags = 0;
+  static readonly removeFlags: ViewFlags = 0;
 
   // Forward type declarations
   /** @hidden */
@@ -1366,9 +1355,9 @@ export abstract class View implements AnimatorContext, LayoutContext {
   /** @hidden */
   static Graphics: typeof GraphicsView; // defined by GraphicsView
   /** @hidden */
-  static GraphicsNode: typeof GraphicsNodeView; // defined by GraphicsNodeView
-  /** @hidden */
   static GraphicsLeaf: typeof GraphicsLeafView; // defined by GraphicsLeafView
+  /** @hidden */
+  static GraphicsNode: typeof GraphicsNodeView; // defined by GraphicsNodeView
   /** @hidden */
   static Raster: typeof RasterView; // defined by RasterView
   /** @hidden */

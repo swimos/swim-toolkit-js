@@ -17,6 +17,7 @@ import {AnyLength, Length} from "@swim/length";
 import {AnyColor, Color} from "@swim/color";
 import {Ease, AnyTransition, Transition} from "@swim/transition";
 import {View, ViewScope, ViewAnimator} from "@swim/view";
+import {ChartViewObserver} from "./ChartViewObserver";
 import {ChartViewController} from "./ChartViewController";
 import {ScaleViewInit, ScaleView} from "./scale/ScaleView";
 import {AnyGraphView, GraphView} from "./graph/GraphView";
@@ -56,10 +57,6 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
   constructor() {
     super();
     this.initChart();
-  }
-
-  get viewController(): ChartViewController<X, Y> | null {
-    return this._viewController;
   }
 
   initView(init: ChartViewInit<X, Y>): void {
@@ -135,6 +132,10 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
   protected createGraph(): GraphView<X, Y> | null {
     return new GraphView();
   }
+
+  readonly viewController: ChartViewController<X, Y> | null;
+
+  readonly viewObservers: ReadonlyArray<ChartViewObserver<X, Y>>;
 
   get graph(): GraphView<X, Y> | null {
     const childView = this.getChildView("graph");

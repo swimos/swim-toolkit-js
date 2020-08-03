@@ -12,51 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewFlags} from "../View";
-import {GraphicsViewContext} from "../graphics/GraphicsViewContext";
+import {ViewContextType} from "../ViewContext";
 import {HtmlViewObserver} from "../html/HtmlViewObserver";
 import {CanvasView} from "./CanvasView";
 
 export interface CanvasViewObserver<V extends CanvasView = CanvasView> extends HtmlViewObserver<V> {
-  viewWillProcess?(viewContext: GraphicsViewContext, view: V): void;
+  viewWillRender?(viewContext: ViewContextType<V>, view: V): void;
 
-  viewDidProcess?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewWillResize?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewDidResize?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewWillScroll?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewDidScroll?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewWillCompute?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewDidCompute?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewWillAnimate?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewDidAnimate?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewWillProcessChildViews?(processFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void;
-
-  viewDidProcessChildViews?(processFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void;
-
-  viewWillDisplay?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewDidDisplay?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewWillLayout?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewDidLayout?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewWillRender?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewDidRender?(viewContext: GraphicsViewContext, view: V): void;
-
-  viewWillDisplayChildViews?(displayFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void;
-
-  viewDidDisplayChildViews?(displayFlags: ViewFlags, viewContext: GraphicsViewContext, view: V): void;
+  viewDidRender?(viewContext: ViewContextType<V>, view: V): void;
 
   viewWillSetHidden?(hidden: boolean, view: V): void;
 

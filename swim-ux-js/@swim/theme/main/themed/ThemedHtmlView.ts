@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Tween, Transition} from "@swim/transition";
-import {ViewContext, ViewFlags, View, ViewScope, HtmlViewInit, HtmlView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewScope, HtmlViewInit, HtmlView} from "@swim/view";
 import {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 import {Mood} from "../mood/Mood";
@@ -29,9 +29,9 @@ export interface ThemedHtmlViewInit extends HtmlViewInit, ThemedViewInit {
 }
 
 export class ThemedHtmlView extends HtmlView implements ThemedView {
-  get viewController(): ThemedHtmlViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: ThemedHtmlViewController | null;
+
+  readonly viewObservers: ReadonlyArray<ThemedHtmlViewObserver>;
 
   initView(init: ThemedHtmlViewInit): void {
     super.initView(init);
@@ -208,7 +208,7 @@ export class ThemedHtmlView extends HtmlView implements ThemedView {
     }
   }
 
-  protected onCompute(viewContext: ViewContext): void {
+  protected onCompute(viewContext: ViewContextType<this>): void {
     super.onCompute(viewContext);
     this.computeMood();
     this.computeTheme();

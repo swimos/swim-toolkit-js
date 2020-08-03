@@ -13,16 +13,11 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
+import {ViewContextType} from "../ViewContext";
 import {ViewFlags, View} from "../View";
-import {GraphicsViewContext} from "./GraphicsViewContext";
 import {GraphicsView} from "./GraphicsView";
-import {GraphicsViewController} from "./GraphicsViewController";
 
 export class GraphicsLeafView extends GraphicsView {
-  get viewController(): GraphicsViewController<GraphicsLeafView> | null {
-    return this._viewController;
-  }
-
   get childViewCount(): number {
     return 0;
   }
@@ -69,32 +64,32 @@ export class GraphicsLeafView extends GraphicsView {
   }
 
   /** @hidden */
-  doMountChildViews(): void {
+  protected doMountChildViews(): void {
     // nop
   }
 
   /** @hidden */
-  doUnmountChildViews(): void {
+  protected doUnmountChildViews(): void {
     // nop
   }
 
   /** @hidden */
-  doPowerChildViews(): void {
+  protected doPowerChildViews(): void {
     // nop
   }
 
   /** @hidden */
-  doUnpowerChildViews(): void {
+  protected doUnpowerChildViews(): void {
     // nop
   }
 
   /** @hidden */
-  protected doProcessChildViews(processFlags: ViewFlags, viewContext: GraphicsViewContext): void {
+  protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // nop
   }
 
   /** @hidden */
-  protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: GraphicsViewContext): void {
+  protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // nop
   }
 
@@ -106,7 +101,7 @@ export class GraphicsLeafView extends GraphicsView {
     return this.viewBounds;
   }
 
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     return null;
   }
 }

@@ -14,8 +14,8 @@
 
 import * as mapboxgl from "mapbox-gl";
 import {AnyPointR2, PointR2} from "@swim/math";
-import {ViewFlags, View, GraphicsViewContext, GraphicsView, CanvasView} from "@swim/view";
-import {AnyGeoPoint, GeoPoint, GeoBox, MapGraphicsViewContext, MapGraphicsNodeView} from "@swim/map";
+import {ViewContextType, ViewFlags, View, GraphicsViewContext, CanvasView} from "@swim/view";
+import {AnyGeoPoint, GeoPoint, GeoBox, MapGraphicsNodeView} from "@swim/map";
 import {MapboxProjection} from "./MapboxProjection";
 import {MapboxViewObserver} from "./MapboxViewObserver";
 import {MapboxViewController} from "./MapboxViewController";
@@ -51,9 +51,9 @@ export class MapboxView extends MapGraphicsNodeView {
     map.on("render", this.onMapRender);
   }
 
-  get viewController(): MapboxViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: MapboxViewController | null;
+
+  readonly viewObservers: ReadonlyArray<MapboxViewObserver>;
 
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;
@@ -142,7 +142,7 @@ export class MapboxView extends MapGraphicsNodeView {
     return this._mapTilt;
   }
 
-  extendViewContext(viewContext: GraphicsViewContext): MapGraphicsViewContext {
+  extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
     const mapViewContext = Object.create(viewContext);
     mapViewContext.geoProjection = this._geoProjection;
     mapViewContext.geoFrame = this.geoFrame;
@@ -165,14 +165,9 @@ export class MapboxView extends MapGraphicsNodeView {
     this.setGeoProjection(this._geoProjection);
   }
 
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
-    viewContext = this.extendViewContext(viewContext);
-    return super.hitTest(x, y, viewContext as MapGraphicsViewContext);
-  }
-
   overlayCanvas(): CanvasView | null {
-    if (this._parentView !== null) {
-      return this.canvasView;
+    if (this.isMounted()) {
+      return this.getSuperView(CanvasView);
     } else {
       const map = this._map;
       View.fromNode(map.getContainer());

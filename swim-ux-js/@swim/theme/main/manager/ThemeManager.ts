@@ -19,7 +19,7 @@ import {Mood} from "../mood/Mood";
 import {MoodVector} from "../mood/MoodVector";
 import {Theme} from "../theme/Theme";
 import {ThemeMatrix} from "../theme/ThemeMatrix";
-import {ThemeObserver} from "./ThemeObserver";
+import {ThemeManagerObserver} from "./ThemeManagerObserver";
 
 export class ThemeManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -87,9 +87,9 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
 
   protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                            transition: Transition<any> | null): void {
-    this.willObserve(function (viewObserver: ThemeObserver): void {
-      if (viewObserver.managerWillApplyTheme !== void 0) {
-        viewObserver.managerWillApplyTheme(theme, mood, transition, this);
+    this.willObserve(function (viewManagerObserver: ThemeManagerObserver): void {
+      if (viewManagerObserver.viewManagerWillApplyTheme !== void 0) {
+        viewManagerObserver.viewManagerWillApplyTheme(theme, mood, transition, this);
       }
     });
   }
@@ -145,16 +145,14 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
 
   protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                           transition: Transition<any> | null): void {
-    this.didObserve(function (viewObserver: ThemeObserver): void {
-      if (viewObserver.managerDidApplyTheme !== void 0) {
-        viewObserver.managerDidApplyTheme(theme, mood, transition, this);
+    this.didObserve(function (viewManagerObserver: ThemeManagerObserver): void {
+      if (viewManagerObserver.viewManagerDidApplyTheme !== void 0) {
+        viewManagerObserver.viewManagerDidApplyTheme(theme, mood, transition, this);
       }
     });
   }
 
-  addManagerObserver: (themeObserver: ThemeObserver) => void;
-
-  removeManagerObserver: (themeObserver: ThemeObserver) => void;
+  readonly viewManagerObservers: ReadonlyArray<ThemeManagerObserver>;
 
   protected onAddRootView(rootView: V): void {
     super.onAddRootView(rootView);

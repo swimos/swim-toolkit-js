@@ -14,9 +14,10 @@
 
 import {BoxR2} from "@swim/math";
 import {CanvasRenderer, CanvasContext} from "@swim/render";
-import {View, GraphicsViewContext, GraphicsView} from "@swim/view";
+import {ViewContextType, View, GraphicsView} from "@swim/view";
 import {ScaleViewInit, ScaleView} from "../scale/ScaleView";
 import {AnyPlotView, PlotView} from "../plot/PlotView";
+import {GraphViewObserver} from "./GraphViewObserver";
 import {GraphViewController} from "./GraphViewController";
 
 export type AnyGraphView<X = unknown, Y = unknown> = GraphView<X, Y> | GraphViewInit<X, Y>;
@@ -27,9 +28,9 @@ export interface GraphViewInit<X = unknown, Y = unknown> extends ScaleViewInit<X
 }
 
 export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
-  get viewController(): GraphViewController<X, Y> | null {
-    return this._viewController;
-  }
+  readonly viewController: GraphViewController<X, Y> | null;
+
+  readonly viewObservers: ReadonlyArray<GraphViewObserver<X, Y>>;
 
   initView(init: GraphViewInit<X, Y>): void {
     super.initView(init);
@@ -71,7 +72,7 @@ export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     // hook
   }
 
-  protected willRender(viewContext: GraphicsViewContext): void {
+  protected willRender(viewContext: ViewContextType<this>): void {
     super.willRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer) {
@@ -81,7 +82,7 @@ export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     }
   }
 
-  protected didRender(viewContext: GraphicsViewContext): void {
+  protected didRender(viewContext: ViewContextType<this>): void {
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer) {
       const context = renderer.context;
@@ -96,8 +97,8 @@ export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     context.clip();
   }
 
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
-    let hit = super.hitTest(x, y, viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+    let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       hit = this;
     }

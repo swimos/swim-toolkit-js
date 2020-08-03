@@ -38,10 +38,6 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
     this._hitWidth = 5;
   }
 
-  get viewController(): PlotViewController<X, Y, LinePlotView<X, Y>> | null {
-    return this._viewController;
-  }
-
   initView(init: LinePlotViewInit<X, Y>): void {
     super.initView(init);
      if (init.hitWidth !== void 0) {

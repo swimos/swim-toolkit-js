@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewFlags, View, GraphicsViewInit, GraphicsView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, GraphicsViewInit, GraphicsView} from "@swim/view";
 import {GeoBox} from "../geo/GeoBox";
 import {GeoProjection} from "../geo/GeoProjection";
 import {MapGraphicsViewContext} from "./MapGraphicsViewContext";
@@ -23,9 +23,9 @@ export interface MapGraphicsViewInit extends GraphicsViewInit {
 }
 
 export abstract class MapGraphicsView extends GraphicsView {
-  get viewController(): MapGraphicsViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: MapGraphicsViewController | null;
+
+  readonly viewObservers: ReadonlyArray<MapGraphicsViewObserver>;
 
   initView(init: MapGraphicsViewInit): void {
     super.initView(init);
@@ -51,7 +51,7 @@ export abstract class MapGraphicsView extends GraphicsView {
     return parentView instanceof MapGraphicsView ? parentView.mapTilt : 0;
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: MapGraphicsViewContext): ViewFlags {
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this._viewFlags & View.NeedsAnimate) === 0) {
       processFlags &= ~View.NeedsAnimate;
     }
@@ -59,7 +59,7 @@ export abstract class MapGraphicsView extends GraphicsView {
   }
 
   /** @hidden */
-  protected doProcess(processFlags: ViewFlags, viewContext: MapGraphicsViewContext): void {
+  protected doProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = processFlags;
     this._viewFlags |= View.TraversingFlag | View.ProcessingFlag;
     this._viewFlags &= ~View.NeedsProcess;
@@ -142,7 +142,7 @@ export abstract class MapGraphicsView extends GraphicsView {
     }
   }
 
-  protected willProject(viewContext: MapGraphicsViewContext): void {
+  protected willProject(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: MapGraphicsViewObserver): void {
       if (viewObserver.viewWillProject !== void 0) {
         viewObserver.viewWillProject(viewContext, this);
@@ -150,11 +150,11 @@ export abstract class MapGraphicsView extends GraphicsView {
     });
   }
 
-  protected onProject(viewContext: MapGraphicsViewContext): void {
+  protected onProject(viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didProject(viewContext: MapGraphicsViewContext): void {
+  protected didProject(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: MapGraphicsViewObserver): void {
       if (viewObserver.viewDidProject !== void 0) {
         viewObserver.viewDidProject(viewContext, this);
@@ -177,6 +177,8 @@ export abstract class MapGraphicsView extends GraphicsView {
   cullGeoFrame(geoFrame: GeoBox = this.geoFrame): void {
     this.setCulled(!geoFrame.intersects(this.geoBounds));
   }
+
+  readonly viewContext: MapGraphicsViewContext;
 
   /**
    * The map-specified geographic bounding box in which this view should layout

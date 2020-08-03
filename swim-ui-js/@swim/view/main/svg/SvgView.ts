@@ -44,6 +44,7 @@ import {TextView} from "../text/TextView";
 import {AttributeAnimatorInitType, AttributeAnimator} from "../attribute/AttributeAnimator";
 import {StyleAnimatorInitType, StyleAnimator} from "../style/StyleAnimator";
 import {ElementViewConstructor, ElementViewInit, ElementView} from "../element/ElementView";
+import {SvgViewObserver} from "./SvgViewObserver";
 import {SvgViewController} from "./SvgViewController";
 import {HtmlView} from "../html/HtmlView";
 import {CanvasView} from "../canvas/CanvasView";
@@ -125,9 +126,9 @@ export class SvgView extends ElementView {
     return this._node;
   }
 
-  get viewController(): SvgViewController | null {
-    return this._viewController;
-  }
+  readonly viewController: SvgViewController | null;
+
+  readonly viewObservers: ReadonlyArray<SvgViewObserver>;
 
   initView(init: SvgViewInit): void {
     super.initView(init);

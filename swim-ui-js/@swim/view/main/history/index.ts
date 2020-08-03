@@ -14,4 +14,4 @@
 
 export {HistoryState} from "./HistoryState";
 export {HistoryManager} from "./HistoryManager";
-export {HistoryObserver} from "./HistoryObserver";
+export {HistoryManagerObserver} from "./HistoryManagerObserver";

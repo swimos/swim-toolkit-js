@@ -19,13 +19,12 @@ import {AnyFont, Font} from "@swim/font";
 import {Tween} from "@swim/transition";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
+  ViewContextType,
   ViewFlags,
   View,
   ViewAnimator,
-  GraphicsViewContext,
   GraphicsViewInit,
   GraphicsView,
-  GraphicsViewController,
   GraphicsNodeView,
   TypesetView,
 } from "@swim/view";
@@ -78,10 +77,6 @@ export class DataPointView<X, Y> extends GraphicsNodeView {
     this._yCoord = NaN;
     this.x.setAutoState(x);
     this.y.setAutoState(y);
-  }
-
-  get viewController(): GraphicsViewController<DataPointView<X, Y>> | null {
-    return this._viewController;
   }
 
   initView(init: DataPointViewInit<X, Y>): void {
@@ -262,12 +257,12 @@ export class DataPointView<X, Y> extends GraphicsNodeView {
     return additionalFlags;
   }
 
-  protected onAnimate(viewContext: GraphicsViewContext): void {
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     this._gradientStop = this.color.value !== void 0 || this.opacity.value !== void 0;
   }
 
-  protected onLayout(viewContext: GraphicsViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     const label = this.label();
     if (label !== null) {
@@ -312,8 +307,8 @@ export class DataPointView<X, Y> extends GraphicsNodeView {
     }
   }
 
-  hitTest(x: number, y: number, viewContext: GraphicsViewContext): GraphicsView | null {
-    let hit = super.hitTest(x, y, viewContext);
+  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+    let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
       if (renderer instanceof CanvasRenderer) {

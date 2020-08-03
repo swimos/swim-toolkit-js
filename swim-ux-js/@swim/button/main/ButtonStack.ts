@@ -15,7 +15,7 @@
 import {Length} from "@swim/length";
 import {Tween, Transition} from "@swim/transition";
 import {
-  ViewContext,
+  ViewContextType,
   ViewFlags,
   View,
   ModalOptions,
@@ -84,9 +84,9 @@ export class ButtonStack extends ThemedHtmlView implements Modal, PositionGestur
     return HtmlView.create(FloatingButton);
   }
 
-  get viewController(): ButtonStackController | null {
-    return this._viewController;
-  }
+  readonly viewController: ButtonStackController | null;
+
+  readonly viewObservers: ReadonlyArray<ButtonStackObserver>;
 
   get stackState(): ButtonStackState {
     return this._stackState;
@@ -212,7 +212,7 @@ export class ButtonStack extends ThemedHtmlView implements Modal, PositionGestur
     return additionalFlags;
   }
 
-  protected onLayout(viewContext: ViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.layoutStack();
     const modalManager = this.modalManager.state;

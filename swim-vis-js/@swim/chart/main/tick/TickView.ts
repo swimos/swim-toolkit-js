@@ -19,13 +19,12 @@ import {Transition} from "@swim/transition";
 import {TweenAnimator} from "@swim/animate";
 import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
+  ViewContextType,
   ViewFlags,
   View,
   ViewAnimator,
-  GraphicsViewContext,
   GraphicsViewInit,
   GraphicsView,
-  GraphicsViewController,
   GraphicsNodeView,
 } from "@swim/view";
 import {AnyTextRunView, TextRunView} from "@swim/typeset";
@@ -84,10 +83,6 @@ export abstract class TickView<D> extends GraphicsNodeView {
     this._state = TickState.Excluded;
     this._preserve = true;
     this.opacity.interpolate = TickView.interpolateOpacity;
-  }
-
-  get viewController(): GraphicsViewController<TickView<D>> | null {
-    return this._viewController;
   }
 
   initView(init: TickViewInit<D>): void {
@@ -212,14 +207,14 @@ export abstract class TickView<D> extends GraphicsNodeView {
     return additionalFlags;
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: GraphicsViewContext): ViewFlags {
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
   }
 
-  protected onAnimate(viewContext: GraphicsViewContext): void {
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const tickLabel = this.tickLabel();
     if (tickLabel !== null) {
@@ -227,7 +222,7 @@ export abstract class TickView<D> extends GraphicsNodeView {
     }
   }
 
-  protected onLayout(viewContext: GraphicsViewContext): void {
+  protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     const tickLabel = this.tickLabel();
     if (tickLabel !== null) {
@@ -235,7 +230,7 @@ export abstract class TickView<D> extends GraphicsNodeView {
     }
   }
 
-  protected willRender(viewContext: GraphicsViewContext): void {
+  protected willRender(viewContext: ViewContextType<this>): void {
     super.willRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer) {
@@ -244,7 +239,7 @@ export abstract class TickView<D> extends GraphicsNodeView {
     }
   }
 
-  protected onRender(viewContext: GraphicsViewContext): void {
+  protected onRender(viewContext: ViewContextType<this>): void {
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
       const context = renderer.context;
@@ -253,7 +248,7 @@ export abstract class TickView<D> extends GraphicsNodeView {
     }
   }
 
-  protected didRender(viewContext: GraphicsViewContext): void {
+  protected didRender(viewContext: ViewContextType<this>): void {
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer) {
       const context = renderer.context;

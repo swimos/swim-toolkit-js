@@ -15,20 +15,20 @@
 import {View} from "../View";
 import {ViewManager} from "./ViewManager";
 
-export interface ViewManagerObserver<V extends View = View, M extends ViewManager<V> = ViewManager<V>> {
-  managerWillAttach?(manager: M): void;
+export interface ViewManagerObserver<V extends View = View, VM extends ViewManager<V> = ViewManager<V>> {
+  managerWillAttach?(viewManager: VM): void;
 
-  managerDidAttach?(manager: M): void;
+  managerDidAttach?(viewManager: VM): void;
 
-  managerWillDetach?(manager: M): void;
+  managerWillDetach?(viewManager: VM): void;
 
-  managerDidDetach?(manager: M): void;
+  managerDidDetach?(viewManager: VM): void;
 
-  managerWillAddRootView?(rootView: V, manager: M): void;
+  managerWillAddRootView?(rootView: V, viewManager: VM): void;
 
-  managerDidAddRootView?(rootView: V, manager: M): void;
+  managerDidAddRootView?(rootView: V, viewManager: VM): void;
 
-  managerWillRemoveRootView?(rootView: V, manager: M): void;
+  managerWillRemoveRootView?(rootView: V, viewManager: VM): void;
 
-  managerDidRemoveRootView?(rootView: V, manager: M): void;
+  managerDidRemoveRootView?(rootView: V, viewManager: VM): void;
 }
