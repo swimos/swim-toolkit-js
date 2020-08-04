@@ -29,9 +29,9 @@ export interface ThemedGraphicsViewObserver<V extends ThemedGraphicsView = Theme
 
   viewDidScroll?(viewContext: GraphicsViewContext, view: V): void;
 
-  viewWillCompute?(viewContext: GraphicsViewContext, view: V): void;
+  viewWillChange?(viewContext: GraphicsViewContext, view: V): void;
 
-  viewDidCompute?(viewContext: GraphicsViewContext, view: V): void;
+  viewDidChange?(viewContext: GraphicsViewContext, view: V): void;
 
   viewWillAnimate?(viewContext: GraphicsViewContext, view: V): void;
 

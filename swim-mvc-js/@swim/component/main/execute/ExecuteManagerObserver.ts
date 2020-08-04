@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModelContext} from "../ModelContext";
+import {Component} from "../Component";
+import {ComponentManagerObserver} from "../manager/ComponentManagerObserver";
+import {ExecuteManager} from "./ExecuteManager";
 
-export interface GenericModelContext extends ModelContext {
+export interface ExecuteManagerObserver<C extends Component = Component, CM extends ExecuteManager<C> = ExecuteManager<C>> extends ComponentManagerObserver<C, CM> {
 }

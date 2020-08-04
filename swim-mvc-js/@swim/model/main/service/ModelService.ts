@@ -29,10 +29,10 @@ export type ModelServiceTypeConstructor = typeof Object
                                         | {new (...args: any): any}
                                         | any;
 
-export type ModelServiceDescriptorType<M extends Model, C extends ModelServiceTypeConstructor> =
-  C extends typeof RefreshManager ? ModelServiceDescriptor<M, RefreshManager> :
-  C extends typeof Object ? ModelServiceDescriptor<M, Object> :
-  C extends new (...args: any) => any ? ModelServiceDescriptor<M, InstanceType<C>> :
+export type ModelServiceDescriptorType<M extends Model, TC extends ModelServiceTypeConstructor> =
+  TC extends typeof RefreshManager ? ModelServiceDescriptor<M, RefreshManager> :
+  TC extends typeof Object ? ModelServiceDescriptor<M, Object> :
+  TC extends new (...args: any) => any ? ModelServiceDescriptor<M, InstanceType<TC>> :
   ModelServiceDescriptor<M, any>;
 
 export interface ModelServiceDescriptor<M extends Model, T> {
@@ -50,8 +50,8 @@ export interface ModelServiceConstructor<T> {
 export interface ModelServiceClass {
   new<M extends Model, T>(model: M, serviceName: string, value?: T, inherit?: string): ModelService<M, T>;
 
-  <M extends Model, C extends ModelServiceTypeConstructor>(
-      valueType: C, descriptor?: ModelServiceDescriptorType<M, C>): PropertyDecorator;
+  <M extends Model, TC extends ModelServiceTypeConstructor>(
+      valueType: TC, descriptor?: ModelServiceDescriptorType<M, TC>): PropertyDecorator;
 
   // Forward type declarations
   /** @hidden */
@@ -102,10 +102,10 @@ export interface ModelService<M extends Model, T> {
 }
 
 export const ModelService: ModelServiceClass = (function (_super: typeof Object): ModelServiceClass {
-  function ModelServiceDecoratorFactory<M extends Model, C extends ModelServiceTypeConstructor>(
-      valueType: C, descriptor?: ModelServiceDescriptorType<M, C>): PropertyDecorator {
+  function ModelServiceDecoratorFactory<M extends Model, TC extends ModelServiceTypeConstructor>(
+      valueType: TC, descriptor?: ModelServiceDescriptorType<M, TC>): PropertyDecorator {
     if (descriptor === void 0) {
-      descriptor = {} as ModelServiceDescriptorType<M, C>;
+      descriptor = {} as ModelServiceDescriptorType<M, TC>;
     }
     let serviceType = descriptor.serviceType;
     if (serviceType === void 0) {

@@ -6,8 +6,8 @@
 
 <a href="https://www.swimos.org"><img src="https://docs.swimos.org/readme/marlin-blue.svg" align="left"></a>
 
-**@swim/component** provides a UI schema for abstracting over view and model
-instantiation and configuration.  **@swim/component** is part of the
+**@swim/component** provides componentized controller layer with application
+lifecycle and service management.  **@swim/component** is part of the
 [**@swim/mvc**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/mvc) framework.
 
 ## Installation

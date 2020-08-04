@@ -37,12 +37,13 @@ export class GenericNodeModel extends GenericModel {
 
   forEachChildModel<T, S = unknown>(callback: (this: S, childModel: Model) => T | void,
                                     thisArg?: S): T | undefined {
+    let result: T | undefined;
     const childModels = this._childModels;
     if (childModels.length !== 0) {
       let i = 0;
       do {
         const childModel = childModels[i];
-        const result = callback.call(thisArg, childModel);
+        result = callback.call(thisArg, childModel);
         if (result !== void 0) {
           return result;
         }
@@ -55,7 +56,7 @@ export class GenericNodeModel extends GenericModel {
         break;
       } while (true);
     }
-    return void 0;
+    return result;
   }
 
   getChildModel(key: string): Model | null {

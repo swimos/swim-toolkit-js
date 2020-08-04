@@ -143,9 +143,9 @@ libraries:
 - [**@swim/mvc**](swim-mvc-js/@swim/mvc) –
   umbrella package that depends on, and re-exports, all **Swim MVC** libraries.
 - [**@swim/model**](swim-mvc-js/@swim/model) –
-  generic model hierarchy with lifecycle management and dynamic scoping.
+  lifecycle-managed model hierarchy supporting dynamic scoping and service injection.
 - [**@swim/component**](swim-mvc-js/@swim/component) –
-  UI schema for abstracting over view and model instantiation and configuration.
+  componentized controller layer with application lifecycle and service management.
 
 ### [**Swim Web** Framework](swim-web-js)
 

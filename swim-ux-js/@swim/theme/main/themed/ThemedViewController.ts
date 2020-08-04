@@ -64,9 +64,9 @@ export interface ThemedViewController<V extends ThemedView = ThemedView> extends
 
   viewDidScroll(viewContext: ViewContext, view: V): void;
 
-  viewWillCompute(viewContext: ViewContext, view: V): void;
+  viewWillChange(viewContext: ViewContext, view: V): void;
 
-  viewDidCompute(viewContext: ViewContext, view: V): void;
+  viewDidChange(viewContext: ViewContext, view: V): void;
 
   viewWillAnimate(viewContext: ViewContext, view: V): void;
 

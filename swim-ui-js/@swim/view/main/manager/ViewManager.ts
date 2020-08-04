@@ -97,22 +97,32 @@ export abstract class ViewManager<V extends View = View> {
     // hook
   }
 
-  protected willObserve(callback: (this: this, viewManagerObserver: ViewManagerObserverType<this>) => void): void {
+  protected willObserve<T>(callback: (this: this, viewManagerObserver: ViewManagerObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const viewManagerObservers = this._viewManagerObservers;
     if (viewManagerObservers !== void 0) {
       for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
-        callback.call(this, viewManagerObservers[i]);
+        result = callback.call(this, viewManagerObservers[i]);
+        if (result !== void 0) {
+          return result;
+        }
       }
     }
+    return result;
   }
 
-  protected didObserve(callback: (this: this, viewManagerObserver: ViewManagerObserverType<this>) => void): void {
+  protected didObserve<T>(callback: (this: this, viewManagerObserver: ViewManagerObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const viewManagerObservers = this._viewManagerObservers;
     if (viewManagerObservers !== void 0) {
       for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
-        callback.call(this, viewManagerObservers[i]);
+        result = callback.call(this, viewManagerObservers[i]);
+        if (result !== void 0) {
+          return result;
+        }
       }
     }
+    return result;
   }
 
   isAttached(): boolean {
@@ -121,8 +131,8 @@ export abstract class ViewManager<V extends View = View> {
 
   protected willAttach(): void {
     this.willObserve(function (viewManagerObserver: ViewManagerObserver): void {
-      if (viewManagerObserver.managerWillAttach !== void 0) {
-        viewManagerObserver.managerWillAttach(this);
+      if (viewManagerObserver.viewManagerWillAttach !== void 0) {
+        viewManagerObserver.viewManagerWillAttach(this);
       }
     });
   }
@@ -133,16 +143,16 @@ export abstract class ViewManager<V extends View = View> {
 
   protected didAttach(): void {
     this.didObserve(function (viewManagerObserver: ViewManagerObserver): void {
-      if (viewManagerObserver.managerDidAttach !== void 0) {
-        viewManagerObserver.managerDidAttach(this);
+      if (viewManagerObserver.viewanagerDidAttach !== void 0) {
+        viewManagerObserver.viewanagerDidAttach(this);
       }
     });
   }
 
   protected willDetach(): void {
     this.willObserve(function (viewManagerObserver: ViewManagerObserver): void {
-      if (viewManagerObserver.managerWillDetach !== void 0) {
-        viewManagerObserver.managerWillDetach(this);
+      if (viewManagerObserver.viewManagerWillDetach !== void 0) {
+        viewManagerObserver.viewManagerWillDetach(this);
       }
     });
   }
@@ -153,8 +163,8 @@ export abstract class ViewManager<V extends View = View> {
 
   protected didDetach(): void {
     this.didObserve(function (viewManagerObserver: ViewManagerObserver): void {
-      if (viewManagerObserver.managerDidDetach !== void 0) {
-        viewManagerObserver.managerDidDetach(this);
+      if (viewManagerObserver.viewManagerDidDetach !== void 0) {
+        viewManagerObserver.viewManagerDidDetach(this);
       }
     });
   }
@@ -186,8 +196,8 @@ export abstract class ViewManager<V extends View = View> {
 
   protected willAddRootView(rootView: V): void {
     this.willObserve(function (viewManagerObserver: ViewManagerObserver): void {
-      if (viewManagerObserver.managerWillAddRootView !== void 0) {
-        viewManagerObserver.managerWillAddRootView(rootView, this);
+      if (viewManagerObserver.viewManagerWillAddRootView !== void 0) {
+        viewManagerObserver.viewManagerWillAddRootView(rootView, this);
       }
     });
   }
@@ -198,8 +208,8 @@ export abstract class ViewManager<V extends View = View> {
 
   protected didAddRootView(rootView: V): void {
     this.didObserve(function (viewManagerObserver: ViewManagerObserver): void {
-      if (viewManagerObserver.managerDidAddRootView !== void 0) {
-        viewManagerObserver.managerDidAddRootView(rootView, this);
+      if (viewManagerObserver.viewManagerDidAddRootView !== void 0) {
+        viewManagerObserver.viewManagerDidAddRootView(rootView, this);
       }
     });
   }
@@ -227,8 +237,8 @@ export abstract class ViewManager<V extends View = View> {
 
   protected willRemoveRootView(rootView: V): void {
     this.willObserve(function (viewManagerObserver: ViewManagerObserver): void {
-      if (viewManagerObserver.managerWillRemoveRootView !== void 0) {
-        viewManagerObserver.managerWillRemoveRootView(rootView, this);
+      if (viewManagerObserver.viewManagerWillRemoveRootView !== void 0) {
+        viewManagerObserver.viewManagerWillRemoveRootView(rootView, this);
       }
     });
   }
@@ -239,8 +249,8 @@ export abstract class ViewManager<V extends View = View> {
 
   protected didRemoveRootView(rootView: V): void {
     this.didObserve(function (viewManagerObserver: ViewManagerObserver): void {
-      if (viewManagerObserver.managerDidRemoveRootView !== void 0) {
-        viewManagerObserver.managerDidRemoveRootView(rootView, this);
+      if (viewManagerObserver.viewManagerDidRemoveRootView !== void 0) {
+        viewManagerObserver.viewManagerDidRemoveRootView(rootView, this);
       }
     });
   }

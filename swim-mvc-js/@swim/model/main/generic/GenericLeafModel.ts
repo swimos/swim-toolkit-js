@@ -83,12 +83,12 @@ export class GenericLeafModel extends GenericModel {
   }
 
   /** @hidden */
-  protected doAnalyzeChildModels(processFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+  protected doAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
     // nop
   }
 
   /** @hidden */
-  protected doRefreshChildModels(displayFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+  protected doRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
     // nop
   }
 }

@@ -16,19 +16,19 @@ import {Model} from "../Model";
 import {ModelManager} from "./ModelManager";
 
 export interface ModelManagerObserver<M extends Model = Model, MM extends ModelManager<M> = ModelManager<M>> {
-  managerWillAttach?(modelManager: MM): void;
+  modelManagerWillAttach?(modelManager: MM): void;
 
-  managerDidAttach?(modelManager: MM): void;
+  modelManagerDidAttach?(modelManager: MM): void;
 
-  managerWillDetach?(modelManager: MM): void;
+  modelManagerWillDetach?(modelManager: MM): void;
 
-  managerDidDetach?(modelManager: MM): void;
+  modelManagerDidDetach?(modelManager: MM): void;
 
-  managerWillAddRootModel?(rootModel: M, modelManager: MM): void;
+  modelManagerWillAddRootModel?(rootModel: M, modelManager: MM): void;
 
-  managerDidAddRootModel?(rootModel: M, modelManager: MM): void;
+  modelManagerDidAddRootModel?(rootModel: M, modelManager: MM): void;
 
-  managerWillRemoveRootModel?(rootModel: M, modelManager: MM): void;
+  modelManagerWillRemoveRootModel?(rootModel: M, modelManager: MM): void;
 
-  managerDidRemoveRootModel?(rootModel: M, modelManager: MM): void;
+  modelManagerDidRemoveRootModel?(rootModel: M, modelManager: MM): void;
 }

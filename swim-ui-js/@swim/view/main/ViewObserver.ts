@@ -59,9 +59,9 @@ export interface ViewObserver<V extends View = View> {
 
   viewDidScroll?(viewContext: ViewContextType<V>, view: V): void;
 
-  viewWillCompute?(viewContext: ViewContextType<V>, view: V): void;
+  viewWillChange?(viewContext: ViewContextType<V>, view: V): void;
 
-  viewDidCompute?(viewContext: ViewContextType<V>, view: V): void;
+  viewDidChange?(viewContext: ViewContextType<V>, view: V): void;
 
   viewWillAnimate?(viewContext: ViewContextType<V>, view: V): void;
 

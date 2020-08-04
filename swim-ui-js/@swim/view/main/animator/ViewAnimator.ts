@@ -61,19 +61,19 @@ export type ViewAnimatorTypeConstructor = FromAny<any>
                                         | {new (...args: any): any}
                                         | any;
 
-export type ViewAnimatorDescriptorType<V extends View, C extends ViewAnimatorTypeConstructor> =
-  C extends typeof ContinuousScale ? ViewAnimatorDescriptor<V, any, any> :
-  C extends typeof Transform ? ViewAnimatorDescriptor<V, Transform | null, AnyTransform | null> :
-  C extends typeof Font ? ViewAnimatorDescriptor<V, Font | null, AnyFont | null> :
-  C extends typeof Color ? ViewAnimatorDescriptor<V, Color | null, AnyColor | null> :
-  C extends typeof Length ? ViewAnimatorDescriptor<V, Length | null, AnyLength | null> :
-  C extends typeof Angle ? ViewAnimatorDescriptor<V, Angle | null, AnyAngle | null> :
-  C extends typeof Number ? ViewAnimatorDescriptor<V, number | null, number | string | null> :
-  C extends typeof Boolean ? ViewAnimatorDescriptor<V, boolean | null, boolean | string | null> :
-  C extends typeof String ? ViewAnimatorDescriptor<V, string | null> :
-  C extends typeof Object ? ViewAnimatorDescriptor<V, Object> :
-  C extends FromAny<any> ? ViewAnimatorDescriptor<V, any> :
-  C extends new (...args: any) => any ? ViewAnimatorDescriptor<V, InstanceType<C>, any> :
+export type ViewAnimatorDescriptorType<V extends View, TC extends ViewAnimatorTypeConstructor> =
+  TC extends typeof ContinuousScale ? ViewAnimatorDescriptor<V, any, any> :
+  TC extends typeof Transform ? ViewAnimatorDescriptor<V, Transform | null, AnyTransform | null> :
+  TC extends typeof Font ? ViewAnimatorDescriptor<V, Font | null, AnyFont | null> :
+  TC extends typeof Color ? ViewAnimatorDescriptor<V, Color | null, AnyColor | null> :
+  TC extends typeof Length ? ViewAnimatorDescriptor<V, Length | null, AnyLength | null> :
+  TC extends typeof Angle ? ViewAnimatorDescriptor<V, Angle | null, AnyAngle | null> :
+  TC extends typeof Number ? ViewAnimatorDescriptor<V, number | null, number | string | null> :
+  TC extends typeof Boolean ? ViewAnimatorDescriptor<V, boolean | null, boolean | string | null> :
+  TC extends typeof String ? ViewAnimatorDescriptor<V, string | null> :
+  TC extends typeof Object ? ViewAnimatorDescriptor<V, Object> :
+  TC extends FromAny<any> ? ViewAnimatorDescriptor<V, any> :
+  TC extends new (...args: any) => any ? ViewAnimatorDescriptor<V, InstanceType<TC>, any> :
   ViewAnimatorDescriptor<V, any>;
 
 export interface ViewAnimatorDescriptor<V extends View, T, U = T> {
@@ -96,8 +96,8 @@ export interface ViewAnimatorClass {
   new<V extends View, T, U = T>(view: V, animatorName: string | undefined,
                                 descriptor?: ViewAnimatorDescriptor<V, T, U>): ViewAnimator<V, T, U>;
 
-  <V extends View, C extends ViewAnimatorTypeConstructor>(
-      valueType: C, descriptor?: ViewAnimatorDescriptorType<V, C>): PropertyDecorator;
+  <V extends View, TC extends ViewAnimatorTypeConstructor>(
+      valueType: TC, descriptor?: ViewAnimatorDescriptorType<V, TC>): PropertyDecorator;
 
   // Forward type declarations
   /** @hidden */
@@ -216,10 +216,10 @@ export interface ViewAnimator<V extends View, T, U = T> extends TweenAnimator<T>
 }
 
 export const ViewAnimator: ViewAnimatorClass = (function (_super: typeof TweenAnimator): ViewAnimatorClass {
-  function MemberAnimatorDecoratorFactory<V extends View, C extends ViewAnimatorTypeConstructor>(
-      valueType: C, descriptor?: ViewAnimatorDescriptorType<V, C>): PropertyDecorator {
+  function MemberAnimatorDecoratorFactory<V extends View, TC extends ViewAnimatorTypeConstructor>(
+      valueType: TC, descriptor?: ViewAnimatorDescriptorType<V, TC>): PropertyDecorator {
     if (descriptor === void 0) {
-      descriptor = {} as ViewAnimatorDescriptorType<V, C>;
+      descriptor = {} as ViewAnimatorDescriptorType<V, TC>;
     }
     let animatorType = descriptor.animatorType;
     if (animatorType === void 0) {

@@ -20,11 +20,11 @@ component libraries:
 - [**@swim/model**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/model)
   ([npm](https://www.npmjs.com/package/@swim/model),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_model.html)) –
-  generic model hierarchy with lifecycle management and dynamic scoping.
+  lifecycle-managed model hierarchy supporting dynamic scoping and service injection.
 - [**@swim/component**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/component)
   ([npm](https://www.npmjs.com/package/@swim/component),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_component.html)) –
-  UI schema for abstracting over view and model instantiation and configuration.
+  componentized controller layer with application lifecycle and service management.
 
 **@swim/mvc** builds on the [**@swim/core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js/@swim/core)
 and [**@swim/ui**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/ui)

@@ -38,12 +38,13 @@ export class MapGraphicsNodeView extends MapGraphicsView {
 
   forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
                                    thisArg?: S): T | undefined {
+    let result: T | undefined;
     const childViews = this._childViews;
     if (childViews.length !== 0) {
       let i = 0;
       do {
         const childView = childViews[i];
-        const result = callback.call(thisArg, childView);
+        result = callback.call(thisArg, childView);
         if (result !== void 0) {
           return result;
         }
@@ -56,7 +57,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
         break;
       } while (true);
     }
-    return void 0;
+    return result;
   }
 
   getChildView(key: string): View | null {

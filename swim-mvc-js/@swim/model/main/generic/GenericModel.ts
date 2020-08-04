@@ -13,18 +13,11 @@
 // limitations under the License.
 
 import {ModelContextType, ModelContext} from "../ModelContext";
-import {ModelFlags, ModelInit, Model} from "../Model";
-import {ModelObserverType} from "../ModelObserver";
-import {ModelControllerType} from "../ModelController";
+import {ModelFlags, Model} from "../Model";
+import {ModelObserverType, ModelObserver} from "../ModelObserver";
+import {ModelControllerType, ModelController} from "../ModelController";
 import {ModelService} from "../service/ModelService";
 import {ModelScope} from "../scope/ModelScope";
-import {GenericModelContext} from "./GenericModelContext";
-import {GenericModelObserver} from "./GenericModelObserver";
-import {GenericModelController} from "./GenericModelController";
-
-export interface GenericModelInit extends ModelInit {
-  modelController?: GenericModelController;
-}
 
 export abstract class GenericModel extends Model {
   /** @hidden */
@@ -49,11 +42,7 @@ export abstract class GenericModel extends Model {
     this._modelFlags = 0;
   }
 
-  initModel(init: GenericModelInit): void {
-    super.initModel(init);
-  }
-
-  get modelController(): GenericModelController | null {
+  get modelController(): ModelController | null {
     return this._modelController;
   }
 
@@ -73,7 +62,7 @@ export abstract class GenericModel extends Model {
     }
   }
 
-  get modelObservers(): ReadonlyArray<GenericModelObserver> {
+  get modelObservers(): ReadonlyArray<ModelObserver> {
     let modelObservers = this._modelObservers;
     if (modelObservers === void 0) {
       modelObservers = [];
@@ -113,30 +102,46 @@ export abstract class GenericModel extends Model {
     }
   }
 
-  protected willObserve(callback: (this: this, modelObserver: ModelObserverType<this>) => void): void {
+  protected willObserve<T>(callback: (this: this, modelObserver: ModelObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const modelController = this._modelController;
     if (modelController !== null) {
-      callback.call(this, modelController);
+      result = callback.call(this, modelController);
+      if (result !== void 0) {
+        return result;
+      }
     }
     const modelObservers = this._modelObservers;
     if (modelObservers !== void 0) {
       for (let i = 0, n = modelObservers.length; i < n; i += 1) {
-        callback.call(this, modelObservers[i]);
+        result = callback.call(this, modelObservers[i]);
+        if (result !== void 0) {
+          return result;
+        }
       }
     }
+    return result;
   }
 
-  protected didObserve(callback: (this: this, modelObserver: ModelObserverType<this>) => void): void {
+  protected didObserve<T>(callback: (this: this, modelObserver: ModelObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const modelObservers = this._modelObservers;
     if (modelObservers !== void 0) {
       for (let i = 0, n = modelObservers.length; i < n; i += 1) {
-        callback.call(this, modelObservers[i]);
+        result = callback.call(this, modelObservers[i]);
+        if (result !== void 0) {
+          return result;
+        }
       }
     }
     const modelController = this._modelController;
     if (modelController !== null) {
-      callback.call(this, modelController);
+      result = callback.call(this, modelController);
+      if (result !== void 0) {
+        return result;
+      }
     }
+    return result;
   }
 
   get key(): string | undefined {
@@ -563,7 +568,5 @@ export abstract class GenericModel extends Model {
       }
     }
   }
-
-  readonly modelContext: GenericModelContext;
 }
 Model.Generic = GenericModel;

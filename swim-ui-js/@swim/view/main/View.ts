@@ -68,9 +68,9 @@ export interface ViewClass {
 
   readonly powerFlags: ViewFlags;
 
-  readonly insertFlags: ViewFlags;
+  readonly insertChildFlags: ViewFlags;
 
-  readonly removeFlags: ViewFlags;
+  readonly removeChildFlags: ViewFlags;
 
   /** @hidden */
   _viewServiceDescriptors?: {[serviceName: string]: ViewServiceDescriptor<View, unknown> | undefined};
@@ -129,26 +129,42 @@ export abstract class View implements AnimatorContext, LayoutScope {
     // hook
   }
 
-  protected willObserve(callback: (this: this, viewObserver: ViewObserverType<this>) => void): void {
+  protected willObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const viewController = this.viewController;
     if (viewController !== null) {
-      callback.call(this, viewController);
+      result = callback.call(this, viewController);
+      if (result !== void 0) {
+        return result;
+      }
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-      callback.call(this, viewObservers[i]);
+      result = callback.call(this, viewObservers[i]);
+      if (result !== void 0) {
+        return result;
+      }
     }
+    return result;
   }
 
-  protected didObserve(callback: (this: this, viewObserver: ViewObserverType<this>) => void): void {
+  protected didObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-      callback.call(this, viewObservers[i]);
+      result = callback.call(this, viewObservers[i]);
+      if (result !== void 0) {
+        return result;
+      }
     }
     const viewController = this.viewController;
     if (viewController !== null) {
-      callback.call(this, viewController);
+      result = callback.call(this, viewController);
+      if (result !== void 0) {
+        return result;
+      }
     }
+    return result;
   }
 
   initView(init: ViewInit): void {
@@ -219,8 +235,8 @@ export abstract class View implements AnimatorContext, LayoutScope {
 
   abstract insertChildView(childView: View, targetView: View | null, key?: string): void;
 
-  get insertFlags(): ViewFlags {
-    return this.viewClass.insertFlags;
+  get insertChildFlags(): ViewFlags {
+    return this.viewClass.insertChildFlags;
   }
 
   protected willInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -232,7 +248,7 @@ export abstract class View implements AnimatorContext, LayoutScope {
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    this.requireUpdate(this.insertFlags);
+    this.requireUpdate(this.insertChildFlags);
   }
 
   protected didInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -252,8 +268,8 @@ export abstract class View implements AnimatorContext, LayoutScope {
 
   abstract remove(): void;
 
-  get removeFlags(): ViewFlags {
-    return this.viewClass.removeFlags;
+  get removeChildFlags(): ViewFlags {
+    return this.viewClass.removeChildFlags;
   }
 
   protected willRemoveChildView(childView: View): void {
@@ -265,7 +281,7 @@ export abstract class View implements AnimatorContext, LayoutScope {
   }
 
   protected onRemoveChildView(childView: View): void {
-    this.requireUpdate(this.removeFlags);
+    this.requireUpdate(this.removeChildFlags);
   }
 
   protected didRemoveChildView(childView: View): void {
@@ -591,22 +607,22 @@ export abstract class View implements AnimatorContext, LayoutScope {
     });
   }
 
-  protected willCompute(viewContext: ViewContextType<this>): void {
+  protected willChange(viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
-      if (viewObserver.viewWillCompute !== void 0) {
-        viewObserver.viewWillCompute(viewContext, this);
+      if (viewObserver.viewWillChange !== void 0) {
+        viewObserver.viewWillChange(viewContext, this);
       }
     });
   }
 
-  protected onCompute(viewContext: ViewContextType<this>): void {
+  protected onChange(viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didCompute(viewContext: ViewContextType<this>): void {
+  protected didChange(viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
-      if (viewObserver.viewDidCompute !== void 0) {
-        viewObserver.viewDidCompute(viewContext, this);
+      if (viewObserver.viewDidChange !== void 0) {
+        viewObserver.viewDidChange(viewContext, this);
       }
     });
   }
@@ -1236,7 +1252,7 @@ export abstract class View implements AnimatorContext, LayoutScope {
     }
   }
 
-  static fromConstructor<C extends ElementViewConstructor | ViewConstructor>(viewConstructor: C): InstanceType<C>;
+  static fromConstructor<VC extends ElementViewConstructor | ViewConstructor>(viewConstructor: VC): InstanceType<VC>;
   static fromConstructor(viewConstructor: ElementViewConstructor | ViewConstructor): View {
     if (View.Element.isConstructor(viewConstructor)) {
       if (viewConstructor.namespace === void 0) {
@@ -1257,8 +1273,8 @@ export abstract class View implements AnimatorContext, LayoutScope {
   static create(node: Element): ElementView;
   static create(node: Text): TextView;
   static create(node: Node): NodeView;
-  static create<C extends ElementViewConstructor>(viewConstructor: C): InstanceType<C>;
-  static create<C extends ViewConstructor>(viewConstructor: C): InstanceType<C>;
+  static create<VC extends ElementViewConstructor>(viewConstructor: VC): InstanceType<VC>;
+  static create<VC extends ViewConstructor>(viewConstructor: VC): InstanceType<VC>;
   static create(source: string | Node | ElementViewConstructor | ViewConstructor): View {
     if (typeof source === "string") {
       return View.fromTag(source);
@@ -1308,14 +1324,14 @@ export abstract class View implements AnimatorContext, LayoutScope {
   static readonly NeedsProcess: ViewFlags = 1 << 10;
   static readonly NeedsResize: ViewFlags = 1 << 11;
   static readonly NeedsScroll: ViewFlags = 1 << 12;
-  static readonly NeedsCompute: ViewFlags = 1 << 13;
+  static readonly NeedsChange: ViewFlags = 1 << 13;
   static readonly NeedsAnimate: ViewFlags = 1 << 14;
   static readonly NeedsProject: ViewFlags = 1 << 15;
   /** @hidden */
   static readonly ProcessMask: ViewFlags = View.NeedsProcess
                                          | View.NeedsResize
                                          | View.NeedsScroll
-                                         | View.NeedsCompute
+                                         | View.NeedsChange
                                          | View.NeedsAnimate
                                          | View.NeedsProject;
 
@@ -1340,8 +1356,8 @@ export abstract class View implements AnimatorContext, LayoutScope {
 
   static readonly mountFlags: ViewFlags = View.NeedsResize | View.NeedsLayout;
   static readonly powerFlags: ViewFlags = 0;
-  static readonly insertFlags: ViewFlags = 0;
-  static readonly removeFlags: ViewFlags = 0;
+  static readonly insertChildFlags: ViewFlags = 0;
+  static readonly removeChildFlags: ViewFlags = 0;
 
   // Forward type declarations
   /** @hidden */

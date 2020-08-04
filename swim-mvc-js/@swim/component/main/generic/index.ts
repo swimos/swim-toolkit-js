@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModelController} from "../ModelController";
-import {GenericModel} from "./GenericModel";
-import {GenericModelObserver} from "./GenericModelObserver";
-
-export class GenericModelController<M extends GenericModel = GenericModel> extends ModelController<M> implements GenericModelObserver<M> {
-}
+export {GenericComponent} from "./GenericComponent";
+export {GenericLeafComponent} from "./GenericLeafComponent";
+export {GenericNodeComponent} from "./GenericNodeComponent";

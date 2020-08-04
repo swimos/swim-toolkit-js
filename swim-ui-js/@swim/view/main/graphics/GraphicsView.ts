@@ -145,30 +145,46 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  protected willObserve(callback: (this: this, viewObserver: ViewObserverType<this>) => void): void {
+  protected willObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const viewController = this._viewController;
     if (viewController !== null) {
-      callback.call(this, viewController);
+      result = callback.call(this, viewController);
+      if (result !== void 0) {
+        return result;
+      }
     }
     const viewObservers = this._viewObservers;
     if (viewObservers !== void 0) {
       for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-        callback.call(this, viewObservers[i]);
+        result = callback.call(this, viewObservers[i]);
+        if (result !== void 0) {
+          return result;
+        }
       }
     }
+    return result;
   }
 
-  protected didObserve(callback: (this: this, viewObserver: ViewObserverType<this>) => void): void {
+  protected didObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const viewObservers = this._viewObservers;
     if (viewObservers !== void 0) {
       for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-        callback.call(this, viewObservers[i]);
+        result = callback.call(this, viewObservers[i]);
+        if (result !== void 0) {
+          return result;
+        }
       }
     }
     const viewController = this._viewController;
     if (viewController !== null) {
-      callback.call(this, viewController);
+      result = callback.call(this, viewController);
+      if (result !== void 0) {
+        return result;
+      }
     }
+    return result;
   }
 
   get key(): string | undefined {
@@ -208,7 +224,7 @@ export abstract class GraphicsView extends View {
   abstract setChildView(key: string, newChildView: View | null): View | null;
 
   append<V extends GraphicsView>(childView: V, key?: string): V;
-  append<C extends ViewConstructor<GraphicsView>>(viewConstructor: C, key?: string): InstanceType<C>;
+  append<VC extends ViewConstructor<GraphicsView>>(viewConstructor: VC, key?: string): InstanceType<VC>;
   append(child: GraphicsView | ViewConstructor<GraphicsView>, key?: string): GraphicsView {
     if (typeof child === "function") {
       child = GraphicsView.create(child);
@@ -220,7 +236,7 @@ export abstract class GraphicsView extends View {
   abstract appendChildView(childView: View, key?: string): void;
 
   prepend<V extends GraphicsView>(childView: V, key?: string): V;
-  prepend<C extends ViewConstructor<GraphicsView>>(viewConstructor: C, key?: string): InstanceType<C>;
+  prepend<VC extends ViewConstructor<GraphicsView>>(viewConstructor: VC, key?: string): InstanceType<VC>;
   prepend(child: GraphicsView | ViewConstructor<GraphicsView>, key?: string): GraphicsView {
     if (typeof child === "function") {
       child = GraphicsView.create(child);
@@ -232,7 +248,7 @@ export abstract class GraphicsView extends View {
   abstract prependChildView(childView: View, key?: string): void;
 
   insert<V extends GraphicsView>(childView: V, target: View | null, key?: string): V;
-  insert<C extends ViewConstructor<GraphicsView>>(viewConstructor: C, target: View | null, key?: string): InstanceType<C>;
+  insert<VC extends ViewConstructor<GraphicsView>>(viewConstructor: VC, target: View | null, key?: string): InstanceType<VC>;
   insert(child: GraphicsView | ViewConstructor<GraphicsView>, target: View | null, key?: string): GraphicsView {
     if (typeof child === "function") {
       child = GraphicsView.create(child);
@@ -449,10 +465,10 @@ export abstract class GraphicsView extends View {
         cascadeFlags |= View.NeedsScroll;
         this._viewFlags &= ~View.NeedsScroll;
       }
-      if (((this._viewFlags | processFlags) & View.NeedsCompute) !== 0) {
-        this.willCompute(viewContext);
-        cascadeFlags |= View.NeedsCompute;
-        this._viewFlags &= ~View.NeedsCompute;
+      if (((this._viewFlags | processFlags) & View.NeedsChange) !== 0) {
+        this.willChange(viewContext);
+        cascadeFlags |= View.NeedsChange;
+        this._viewFlags &= ~View.NeedsChange;
       }
       if (((this._viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
         this.willAnimate(viewContext);
@@ -467,8 +483,8 @@ export abstract class GraphicsView extends View {
       if ((cascadeFlags & View.NeedsScroll) !== 0) {
         this.onScroll(viewContext);
       }
-      if ((cascadeFlags & View.NeedsCompute) !== 0) {
-        this.onCompute(viewContext);
+      if ((cascadeFlags & View.NeedsChange) !== 0) {
+        this.onChange(viewContext);
       }
       if ((cascadeFlags & View.NeedsAnimate) !== 0) {
         this.onAnimate(viewContext);
@@ -479,8 +495,8 @@ export abstract class GraphicsView extends View {
       if ((cascadeFlags & View.NeedsAnimate) !== 0) {
         this.didAnimate(viewContext);
       }
-      if ((cascadeFlags & View.NeedsCompute) !== 0) {
-        this.didCompute(viewContext);
+      if ((cascadeFlags & View.NeedsChange) !== 0) {
+        this.didChange(viewContext);
       }
       if ((cascadeFlags & View.NeedsScroll) !== 0) {
         this.didScroll(viewContext);
@@ -1502,7 +1518,7 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  static readonly insertFlags: ViewFlags = View.insertFlags | View.NeedsLayout | View.NeedsRender;
-  static readonly removeFlags: ViewFlags = View.removeFlags | View.NeedsLayout | View.NeedsRender;
+  static readonly insertChildFlags: ViewFlags = View.insertChildFlags | View.NeedsLayout | View.NeedsRender;
+  static readonly removeChildFlags: ViewFlags = View.removeChildFlags | View.NeedsLayout | View.NeedsRender;
 }
 View.Graphics = GraphicsView;

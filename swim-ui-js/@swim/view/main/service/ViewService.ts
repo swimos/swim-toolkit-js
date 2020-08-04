@@ -41,14 +41,14 @@ export type ViewServiceTypeConstructor = typeof Object
                                        | {new (...args: any): any}
                                        | any;
 
-export type ViewServiceDescriptorType<V extends View, C extends ViewServiceTypeConstructor> =
-  C extends typeof DisplayManager ? ViewServiceDescriptor<V, DisplayManager> :
-  C extends typeof LayoutManager ? ViewServiceDescriptor<V, LayoutManager> :
-  C extends typeof ViewportManager ? ViewServiceDescriptor<V, ViewportManager> :
-  C extends typeof HistoryManager ? ViewServiceDescriptor<V, HistoryManager> :
-  C extends typeof ModalManager ? ViewServiceDescriptor<V, ModalManager> :
-  C extends typeof Object ? ViewServiceDescriptor<V, Object> :
-  C extends new (...args: any) => any ? ViewServiceDescriptor<V, InstanceType<C>> :
+export type ViewServiceDescriptorType<V extends View, TC extends ViewServiceTypeConstructor> =
+  TC extends typeof DisplayManager ? ViewServiceDescriptor<V, DisplayManager> :
+  TC extends typeof LayoutManager ? ViewServiceDescriptor<V, LayoutManager> :
+  TC extends typeof ViewportManager ? ViewServiceDescriptor<V, ViewportManager> :
+  TC extends typeof HistoryManager ? ViewServiceDescriptor<V, HistoryManager> :
+  TC extends typeof ModalManager ? ViewServiceDescriptor<V, ModalManager> :
+  TC extends typeof Object ? ViewServiceDescriptor<V, Object> :
+  TC extends new (...args: any) => any ? ViewServiceDescriptor<V, InstanceType<TC>> :
   ViewServiceDescriptor<V, any>;
 
 export interface ViewServiceDescriptor<V extends View, T> {
@@ -66,8 +66,8 @@ export interface ViewServiceConstructor<T> {
 export interface ViewServiceClass {
   new<V extends View, T>(view: V, serviceName: string, value?: T, inherit?: string): ViewService<V, T>;
 
-  <V extends View, C extends ViewServiceTypeConstructor>(
-      valueType: C, descriptor?: ViewServiceDescriptorType<V, C>): PropertyDecorator;
+  <V extends View, TC extends ViewServiceTypeConstructor>(
+      valueType: TC, descriptor?: ViewServiceDescriptorType<V, TC>): PropertyDecorator;
 
   // Forward type declarations
   /** @hidden */
@@ -126,10 +126,10 @@ export interface ViewService<V extends View, T> {
 }
 
 export const ViewService: ViewServiceClass = (function (_super: typeof Object): ViewServiceClass {
-  function ViewServiceDecoratorFactory<V extends View, C extends ViewServiceTypeConstructor>(
-      valueType: C, descriptor?: ViewServiceDescriptorType<V, C>): PropertyDecorator {
+  function ViewServiceDecoratorFactory<V extends View, TC extends ViewServiceTypeConstructor>(
+      valueType: TC, descriptor?: ViewServiceDescriptorType<V, TC>): PropertyDecorator {
     if (descriptor === void 0) {
-      descriptor = {} as ViewServiceDescriptorType<V, C>;
+      descriptor = {} as ViewServiceDescriptorType<V, TC>;
     }
     let serviceType = descriptor.serviceType;
     if (serviceType === void 0) {

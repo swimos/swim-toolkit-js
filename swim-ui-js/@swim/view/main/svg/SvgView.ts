@@ -291,7 +291,7 @@ export class SvgView extends ElementView {
   append(childNode: Text, key?: string): TextView;
   append(childNode: Node, key?: string): NodeView;
   append<V extends NodeView>(childView: V, key?: string): V;
-  append<C extends ElementViewConstructor>(viewConstructor: C, key?: string): InstanceType<C>;
+  append<VC extends ElementViewConstructor>(viewConstructor: VC, key?: string): InstanceType<VC>;
   append(child: string | Node | NodeView | ElementViewConstructor, key?: string): NodeView {
     if (typeof child === "string") {
       child = SvgView.fromTag(child);
@@ -311,7 +311,7 @@ export class SvgView extends ElementView {
   prepend(childNode: Text, key?: string): TextView;
   prepend(childNode: Node, key?: string): NodeView;
   prepend<V extends NodeView>(childView: V, key?: string): V;
-  prepend<C extends ElementViewConstructor>(viewConstructor: C, key?: string): InstanceType<C>;
+  prepend<VC extends ElementViewConstructor>(viewConstructor: VC, key?: string): InstanceType<VC>;
   prepend(child: string | Node | NodeView | ElementViewConstructor, key?: string): NodeView {
     if (typeof child === "string") {
       child = SvgView.fromTag(child);
@@ -331,7 +331,7 @@ export class SvgView extends ElementView {
   insert(childNode: Text, target: View | Node | null, key?: string): TextView;
   insert(childNode: Node, target: View | Node | null, key?: string): NodeView;
   insert<V extends NodeView>(childView: V, target: View | Node | null, key?: string): V;
-  insert<C extends ElementViewConstructor>(viewConstructor: C, target: View | Node | null, key?: string): InstanceType<C>;
+  insert<VC extends ElementViewConstructor>(viewConstructor: VC, target: View | Node | null, key?: string): InstanceType<VC>;
   insert(child: string | Node | NodeView | ElementViewConstructor, target: View | Node | null, key?: string): NodeView {
     if (typeof child === "string") {
       child = SvgView.fromTag(child);
@@ -567,7 +567,7 @@ export class SvgView extends ElementView {
   static create<T extends keyof SvgViewTagMap>(tag: T): SvgViewTagMap[T];
   static create(tag: string): SvgView;
   static create(node: SVGElement): SvgView;
-  static create<C extends ElementViewConstructor<SVGElement, SvgView>>(viewConstructor: C): InstanceType<C>;
+  static create<VC extends ElementViewConstructor<SVGElement, SvgView>>(viewConstructor: VC): InstanceType<VC>;
   static create(source: string | SVGElement | ElementViewConstructor<SVGElement, SvgView>): SvgView {
     if (typeof source === "string") {
       return SvgView.fromTag(source);

@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "@swim/view";
-import {Model} from "@swim/model";
-
-export interface ModelComponent<V = View, M = Model> {
-  createModel(view: V): M | null;
-}
+export {
+  ComponentManagerObserverType,
+  ComponentManager,
+} from "./ComponentManager";
+export {ComponentManagerObserver} from "./ComponentManagerObserver";

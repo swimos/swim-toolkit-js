@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  GenericModelInit,
-  GenericModel,
-} from "./GenericModel";
-export {GenericModelObserver} from "./GenericModelObserver";
-export {GenericModelController} from "./GenericModelController";
-
+export {GenericModel} from "./GenericModel";
 export {GenericLeafModel} from "./GenericLeafModel";
 export {GenericNodeModel} from "./GenericNodeModel";

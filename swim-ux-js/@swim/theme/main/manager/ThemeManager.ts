@@ -55,7 +55,7 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     this._mood = mood;
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsCompute);
+      rootViews[i].requireUpdate(View.NeedsChange);
     }
   }
 
@@ -67,7 +67,7 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     this._theme = theme;
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsCompute);
+      rootViews[i].requireUpdate(View.NeedsChange);
     }
   }
 

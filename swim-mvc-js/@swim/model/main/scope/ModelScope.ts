@@ -41,13 +41,13 @@ export type ModelScopeTypeConstructor = FromAny<any>
                                       | {new (...args: any): any}
                                       | any;
 
-export type ModelScopeDescriptorType<M extends Model, C extends ModelScopeTypeConstructor> =
-  C extends typeof Number ? ModelScopeDescriptor<M, number | null, number | string | null> :
-  C extends typeof Boolean ? ModelScopeDescriptor<M, boolean | null, boolean | string | null> :
-  C extends typeof String ? ModelScopeDescriptor<M, string | null> :
-  C extends typeof Object ? ModelScopeDescriptor<M, Object> :
-  C extends FromAny<any> ? ModelScopeDescriptor<M, any> :
-  C extends new (...args: any) => any ? ModelScopeDescriptor<M, InstanceType<C>, any> :
+export type ModelScopeDescriptorType<M extends Model, TC extends ModelScopeTypeConstructor> =
+  TC extends typeof Number ? ModelScopeDescriptor<M, number | null, number | string | null> :
+  TC extends typeof Boolean ? ModelScopeDescriptor<M, boolean | null, boolean | string | null> :
+  TC extends typeof String ? ModelScopeDescriptor<M, string | null> :
+  TC extends typeof Object ? ModelScopeDescriptor<M, Object> :
+  TC extends FromAny<any> ? ModelScopeDescriptor<M, any> :
+  TC extends new (...args: any) => any ? ModelScopeDescriptor<M, InstanceType<TC>, any> :
   ModelScopeDescriptor<M, any>;
 
 export interface ModelScopeDescriptor<M extends Model, T, U = T> {
@@ -67,8 +67,8 @@ export interface ModelScopeConstructor<T, U = T> {
 export interface ModelScopeClass {
   new<M extends Model, T, U>(model: M, scopeName: string, value?: T | U, inherit?: string): ModelScope<M, T, U>;
 
-  <M extends Model, C extends ModelScopeTypeConstructor>(
-      valueType: C, descriptor?: ModelScopeDescriptorType<M, C>): PropertyDecorator;
+  <M extends Model, TC extends ModelScopeTypeConstructor>(
+      valueType: TC, descriptor?: ModelScopeDescriptorType<M, TC>): PropertyDecorator;
 
   // Forward type declarations
   /** @hidden */
@@ -171,10 +171,10 @@ export interface ModelScope<M extends Model, T, U = T> {
 }
 
 export const ModelScope: ModelScopeClass = (function (_super: typeof Object): ModelScopeClass {
-  function ModelScopeDecoratorFactory<M extends Model, C extends ModelScopeTypeConstructor>(
-      valueType: C, descriptor?: ModelScopeDescriptorType<M, C>): PropertyDecorator {
+  function ModelScopeDecoratorFactory<M extends Model, TC extends ModelScopeTypeConstructor>(
+      valueType: TC, descriptor?: ModelScopeDescriptorType<M, TC>): PropertyDecorator {
     if (descriptor === void 0) {
-      descriptor = {} as ModelScopeDescriptorType<M, C>;
+      descriptor = {} as ModelScopeDescriptorType<M, TC>;
     }
     let scopeType = descriptor.scopeType;
     if (scopeType === void 0) {

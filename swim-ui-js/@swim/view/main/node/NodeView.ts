@@ -148,41 +148,46 @@ export class NodeView extends View {
     }
   }
 
-  protected willObserve(callback: (this: this, viewObserver: ViewObserverType<this>) => void): void {
+  protected willObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const viewController = this._viewController;
     if (viewController !== null) {
-      callback.call(this, viewController);
+      result = callback.call(this, viewController);
+      if (result !== void 0) {
+        return result;
+      }
     }
     const viewObservers = this._viewObservers;
     if (viewObservers !== void 0) {
       for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-        callback.call(this, viewObservers[i]);
+        result = callback.call(this, viewObservers[i]);
+        if (result !== void 0) {
+          return result;
+        }
       }
     }
+    return result;
   }
 
-  protected didObserve(callback: (this: this, viewObserver: ViewObserverType<this>) => void): void {
+  protected didObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const viewObservers = this._viewObservers;
     if (viewObservers !== void 0) {
       for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-        callback.call(this, viewObservers[i]);
+        result = callback.call(this, viewObservers[i]);
+        if (result !== void 0) {
+          return result;
+        }
       }
     }
     const viewController = this._viewController;
     if (viewController !== null) {
-      callback.call(this, viewController);
+      result = callback.call(this, viewController);
+      if (result !== void 0) {
+        return result;
+      }
     }
-  }
-
-  text(): string | null;
-  text(value: string | null): this;
-  text(value?: string | null): string | null | this {
-    if (value === void 0) {
-      return this._node.textContent;
-    } else {
-      this._node.textContent = value;
-      return this;
-    }
+    return result;
   }
 
   get key(): string | undefined {
@@ -242,6 +247,7 @@ export class NodeView extends View {
 
   forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
                                    thisArg?: S): T | undefined {
+    let result: T | undefined;
     const childNodes = this._node.childNodes;
     if (childNodes.length !== 0) {
       let i = 0;
@@ -249,7 +255,7 @@ export class NodeView extends View {
         const childNode = childNodes[i];
         const childView = (childNode as ViewNode).view;
         if (childView !== void 0) {
-          const result = callback.call(thisArg, childView);
+          result = callback.call(thisArg, childView);
           if (result !== void 0) {
             return result;
           }
@@ -263,7 +269,7 @@ export class NodeView extends View {
         break;
       } while (true);
     }
-    return void 0;
+    return result;
   }
 
   getChildView(key: string): View | null {
@@ -755,6 +761,17 @@ export class NodeView extends View {
     });
   }
 
+  text(): string | null;
+  text(value: string | null): this;
+  text(value?: string | null): string | null | this {
+    if (value === void 0) {
+      return this._node.textContent;
+    } else {
+      this._node.textContent = value;
+      return this;
+    }
+  }
+
   /** @hidden */
   get viewFlags(): ViewFlags {
     return this._viewFlags;
@@ -999,10 +1016,10 @@ export class NodeView extends View {
         cascadeFlags |= View.NeedsScroll;
         this._viewFlags &= ~View.NeedsScroll;
       }
-      if (((this._viewFlags | processFlags) & View.NeedsCompute) !== 0) {
-        this.willCompute(viewContext);
-        cascadeFlags |= View.NeedsCompute;
-        this._viewFlags &= ~View.NeedsCompute;
+      if (((this._viewFlags | processFlags) & View.NeedsChange) !== 0) {
+        this.willChange(viewContext);
+        cascadeFlags |= View.NeedsChange;
+        this._viewFlags &= ~View.NeedsChange;
       }
       if (((this._viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
         this.willAnimate(viewContext);
@@ -1017,8 +1034,8 @@ export class NodeView extends View {
       if ((cascadeFlags & View.NeedsScroll) !== 0) {
         this.onScroll(viewContext);
       }
-      if ((cascadeFlags & View.NeedsCompute) !== 0) {
-        this.onCompute(viewContext);
+      if ((cascadeFlags & View.NeedsChange) !== 0) {
+        this.onChange(viewContext);
       }
       if ((cascadeFlags & View.NeedsAnimate) !== 0) {
         this.onAnimate(viewContext);
@@ -1029,8 +1046,8 @@ export class NodeView extends View {
       if ((cascadeFlags & View.NeedsAnimate) !== 0) {
         this.didAnimate(viewContext);
       }
-      if ((cascadeFlags & View.NeedsCompute) !== 0) {
-        this.didCompute(viewContext);
+      if ((cascadeFlags & View.NeedsChange) !== 0) {
+        this.didChange(viewContext);
       }
       if ((cascadeFlags & View.NeedsScroll) !== 0) {
         this.didScroll(viewContext);

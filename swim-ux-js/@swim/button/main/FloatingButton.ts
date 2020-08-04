@@ -54,7 +54,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
   setButtonType(buttonType: FloatingButtonType): void {
     if (this._buttonType !== buttonType) {
       this._buttonType = buttonType;
-      this.requireUpdate(View.NeedsCompute);
+      this.requireUpdate(View.NeedsChange);
     }
   }
 

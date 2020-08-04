@@ -12,9 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "@swim/view";
-import {Model} from "@swim/model";
+import {Component} from "./Component";
 
-export interface ViewComponent<V = View, M = Model> {
-  createView(model: M): V | null;
+export type ComponentContextType<C extends Component> =
+  C extends {readonly componentContext: infer C} ? C : unknown;
+
+export interface ComponentContext {
+  readonly updateTime: number;
 }
+
+/** @hidden */
+export const ComponentContext = {
+  default(): ComponentContext {
+    return {
+      updateTime: performance.now(),
+    };
+  },
+};

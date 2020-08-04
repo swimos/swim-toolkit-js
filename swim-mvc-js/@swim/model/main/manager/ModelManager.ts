@@ -93,22 +93,32 @@ export abstract class ModelManager<M extends Model = Model> {
     // hook
   }
 
-  protected willObserve(callback: (this: this, modelManagerObserver: ModelManagerObserverType<this>) => void): void {
+  protected willObserve<T>(callback: (this: this, modelManagerObserver: ModelManagerObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const modelManagerObservers = this._modelManagerObservers;
     if (modelManagerObservers !== void 0) {
       for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
-        callback.call(this, modelManagerObservers[i]);
+        result = callback.call(this, modelManagerObservers[i]);
+        if (result !== void 0) {
+          return result;
+        }
       }
     }
+    return result;
   }
 
-  protected didObserve(callback: (this: this, modelManagerObserver: ModelManagerObserverType<this>) => void): void {
+  protected didObserve<T>(callback: (this: this, modelManagerObserver: ModelManagerObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const modelManagerObservers = this._modelManagerObservers;
     if (modelManagerObservers !== void 0) {
       for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
-        callback.call(this, modelManagerObservers[i]);
+        result = callback.call(this, modelManagerObservers[i]);
+        if (result !== void 0) {
+          return result;
+        }
       }
     }
+    return result;
   }
 
   isAttached(): boolean {
@@ -117,8 +127,8 @@ export abstract class ModelManager<M extends Model = Model> {
 
   protected willAttach(): void {
     this.willObserve(function (modelManagerObserver: ModelManagerObserver): void {
-      if (modelManagerObserver.managerWillAttach !== void 0) {
-        modelManagerObserver.managerWillAttach(this);
+      if (modelManagerObserver.modelManagerWillAttach !== void 0) {
+        modelManagerObserver.modelManagerWillAttach(this);
       }
     });
   }
@@ -129,16 +139,16 @@ export abstract class ModelManager<M extends Model = Model> {
 
   protected didAttach(): void {
     this.didObserve(function (modelManagerObserver: ModelManagerObserver): void {
-      if (modelManagerObserver.managerDidAttach !== void 0) {
-        modelManagerObserver.managerDidAttach(this);
+      if (modelManagerObserver.modelManagerDidAttach !== void 0) {
+        modelManagerObserver.modelManagerDidAttach(this);
       }
     });
   }
 
   protected willDetach(): void {
     this.willObserve(function (modelManagerObserver: ModelManagerObserver): void {
-      if (modelManagerObserver.managerWillDetach !== void 0) {
-        modelManagerObserver.managerWillDetach(this);
+      if (modelManagerObserver.modelManagerWillDetach !== void 0) {
+        modelManagerObserver.modelManagerWillDetach(this);
       }
     });
   }
@@ -149,8 +159,8 @@ export abstract class ModelManager<M extends Model = Model> {
 
   protected didDetach(): void {
     this.didObserve(function (modelManagerObserver: ModelManagerObserver): void {
-      if (modelManagerObserver.managerDidDetach !== void 0) {
-        modelManagerObserver.managerDidDetach(this);
+      if (modelManagerObserver.modelManagerDidDetach !== void 0) {
+        modelManagerObserver.modelManagerDidDetach(this);
       }
     });
   }
@@ -182,8 +192,8 @@ export abstract class ModelManager<M extends Model = Model> {
 
   protected willAddRootModel(rootModel: M): void {
     this.willObserve(function (modelManagerObserver: ModelManagerObserver): void {
-      if (modelManagerObserver.managerWillAddRootModel !== void 0) {
-        modelManagerObserver.managerWillAddRootModel(rootModel, this);
+      if (modelManagerObserver.modelManagerWillAddRootModel !== void 0) {
+        modelManagerObserver.modelManagerWillAddRootModel(rootModel, this);
       }
     });
   }
@@ -194,8 +204,8 @@ export abstract class ModelManager<M extends Model = Model> {
 
   protected didAddRootModel(rootModel: M): void {
     this.didObserve(function (modelManagerObserver: ModelManagerObserver): void {
-      if (modelManagerObserver.managerDidAddRootModel !== void 0) {
-        modelManagerObserver.managerDidAddRootModel(rootModel, this);
+      if (modelManagerObserver.modelManagerDidAddRootModel !== void 0) {
+        modelManagerObserver.modelManagerDidAddRootModel(rootModel, this);
       }
     });
   }
@@ -223,8 +233,8 @@ export abstract class ModelManager<M extends Model = Model> {
 
   protected willRemoveRootModel(rootModel: M): void {
     this.willObserve(function (modelManagerObserver: ModelManagerObserver): void {
-      if (modelManagerObserver.managerWillRemoveRootModel !== void 0) {
-        modelManagerObserver.managerWillRemoveRootModel(rootModel, this);
+      if (modelManagerObserver.modelManagerWillRemoveRootModel !== void 0) {
+        modelManagerObserver.modelManagerWillRemoveRootModel(rootModel, this);
       }
     });
   }
@@ -235,8 +245,8 @@ export abstract class ModelManager<M extends Model = Model> {
 
   protected didRemoveRootModel(rootModel: M): void {
     this.didObserve(function (modelManagerObserver: ModelManagerObserver): void {
-      if (modelManagerObserver.managerDidRemoveRootModel !== void 0) {
-        modelManagerObserver.managerDidRemoveRootModel(rootModel, this);
+      if (modelManagerObserver.modelManagerDidRemoveRootModel !== void 0) {
+        modelManagerObserver.modelManagerDidRemoveRootModel(rootModel, this);
       }
     });
   }

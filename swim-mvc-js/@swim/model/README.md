@@ -6,8 +6,8 @@
 
 <a href="https://www.swimos.org"><img src="https://docs.swimos.org/readme/marlin-blue.svg" align="left"></a>
 
-**@swim/model** implements a generic model hierarchy with lifecycle management
-and dynamic scoping.  **@swim/model** is part of the
+**@swim/model** implements a lifecycle-managed model hierarchy supporting
+dynamic scoping and service injection.  **@swim/model** is part of the
 [**@swim/mvc**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/mvc) framework.
 
 ## Installation

@@ -341,11 +341,11 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
-  viewWillCompute(viewContext: ViewContextType<V>, view: V): void {
+  viewWillChange(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidCompute(viewContext: ViewContextType<V>, view: V): void {
+  viewDidChange(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 

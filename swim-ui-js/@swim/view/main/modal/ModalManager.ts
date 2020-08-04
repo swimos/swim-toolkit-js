@@ -204,19 +204,15 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willDisplaceModals(event: Event | null): boolean {
-    const viewManagerObservers = this._viewManagerObservers;
-    if (viewManagerObservers !== void 0) {
-      for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
-        const viewManagerObserver: ModalManagerObserver = viewManagerObservers[i];
-        if (viewManagerObserver.viewManagerWillDisplaceModals !== void 0) {
-          const handled = viewManagerObserver.viewManagerWillDisplaceModals(event, this);
-          if (handled === true) {
-            return true;
-          }
+    const handled = this.willObserve(function (viewManagerObserver: ModalManagerObserver): boolean | void {
+      if (viewManagerObserver.viewManagerWillDisplaceModals !== void 0) {
+        const handled = viewManagerObserver.viewManagerWillDisplaceModals(event, this);
+        if (handled === true) {
+          return true;
         }
       }
-    }
-    return false;
+    });
+    return handled !== void 0 ? handled : false;
   }
 
   protected onDisplaceModals(event: Event | null): void {

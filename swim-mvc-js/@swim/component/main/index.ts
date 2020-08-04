@@ -12,6 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {ViewComponent} from "./ViewComponent";
-export {ModelComponent} from "./ModelComponent";
-export {Component} from "./Component";
+export {
+  ComponentContextType,
+  ComponentContext,
+} from "./ComponentContext";
+export {
+  ComponentFlags,
+  ComponentInit,
+  ComponentClass,
+  Component,
+} from "./Component";
+export {
+  ComponentObserverType,
+  ComponentObserver,
+} from "./ComponentObserver";
+
+export * from "./manager";
+
+export * from "./execute";
+
+export * from "./service";
+
+export * from "./scope";
+
+export * from "./generic";

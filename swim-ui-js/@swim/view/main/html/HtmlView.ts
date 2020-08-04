@@ -591,7 +591,7 @@ export class HtmlView extends ElementView {
   append(childNode: Text, key?: string): TextView;
   append(childNode: Node, key?: string): NodeView;
   append<V extends NodeView>(childView: V, key?: string): V;
-  append<C extends ElementViewConstructor>(viewConstructor: C, key?: string): InstanceType<C>;
+  append<VC extends ElementViewConstructor>(viewConstructor: VC, key?: string): InstanceType<VC>;
   append(child: string | Node | NodeView | ElementViewConstructor, key?: string): NodeView {
     if (typeof child === "string") {
       child = View.fromTag(child);
@@ -612,7 +612,7 @@ export class HtmlView extends ElementView {
   prepend(childNode: Text, key?: string): TextView;
   prepend(childNode: Node, key?: string): NodeView;
   prepend<V extends NodeView>(childView: V, key?: string): V;
-  prepend<C extends ElementViewConstructor>(viewConstructor: C, key?: string): InstanceType<C>;
+  prepend<VC extends ElementViewConstructor>(viewConstructor: VC, key?: string): InstanceType<VC>;
   prepend(child: string | Node | NodeView | ElementViewConstructor, key?: string): NodeView {
     if (typeof child === "string") {
       child = View.fromTag(child);
@@ -633,7 +633,7 @@ export class HtmlView extends ElementView {
   insert(childNode: Text, target: View | Node | null, key?: string): TextView;
   insert(childNode: Node, target: View | Node | null, key?: string): NodeView;
   insert<V extends NodeView>(childView: V, target: View | Node | null, key?: string): V;
-  insert<C extends ElementViewConstructor>(viewConstructor: C, target: View | Node | null, key?: string): InstanceType<C>;
+  insert<VC extends ElementViewConstructor>(viewConstructor: VC, target: View | Node | null, key?: string): InstanceType<VC>;
   insert(child: string | Node | NodeView | ElementViewConstructor, target: View | Node | null, key?: string): NodeView {
     if (typeof child === "string") {
       child = View.fromTag(child);
@@ -1646,7 +1646,7 @@ export class HtmlView extends ElementView {
   static create(tag: string): HtmlView;
   static create(node: HTMLCanvasElement): CanvasView;
   static create(node: HTMLElement): HtmlView;
-  static create<C extends ElementViewConstructor<HTMLElement, HtmlView>>(viewConstructor: C): InstanceType<C>;
+  static create<VC extends ElementViewConstructor<HTMLElement, HtmlView>>(viewConstructor: VC): InstanceType<VC>;
   static create(source: string | HTMLElement | ElementViewConstructor<HTMLElement, HtmlView>): HtmlView {
     if (typeof source === "string") {
       return HtmlView.fromTag(source);

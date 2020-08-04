@@ -331,6 +331,14 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     // hook
   }
 
+  modelWillCorrelate(modelContext: ModelContextType<M>, model: M): void {
+    // hook
+  }
+
+  modelDidCorrelate(modelContext: ModelContextType<M>, model: M): void {
+    // hook
+  }
+
   modelWillAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
     // hook
   }

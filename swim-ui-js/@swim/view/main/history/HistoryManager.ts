@@ -145,7 +145,7 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   protected onPushHistory(historyState: HistoryState): void {
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsCompute);
+      rootViews[i].requireUpdate(View.NeedsChange);
     }
   }
 
@@ -177,7 +177,7 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   protected onReplaceHistory(historyState: HistoryState): void {
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsCompute);
+      rootViews[i].requireUpdate(View.NeedsChange);
     }
   }
 
@@ -209,7 +209,7 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   protected onPopHistory(historyState: HistoryState): void {
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsCompute);
+      rootViews[i].requireUpdate(View.NeedsChange);
     }
   }
 

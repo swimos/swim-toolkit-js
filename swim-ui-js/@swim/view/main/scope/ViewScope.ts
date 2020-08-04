@@ -41,13 +41,13 @@ export type ViewScopeTypeConstructor = FromAny<any>
                                      | {new (...args: any): any}
                                      | any;
 
-export type ViewScopeDescriptorType<V extends View, C extends ViewScopeTypeConstructor> =
-  C extends typeof Number ? ViewScopeDescriptor<V, number | null, number | string | null> :
-  C extends typeof Boolean ? ViewScopeDescriptor<V, boolean | null, boolean | string | null> :
-  C extends typeof String ? ViewScopeDescriptor<V, string | null> :
-  C extends typeof Object ? ViewScopeDescriptor<V, Object> :
-  C extends FromAny<any> ? ViewScopeDescriptor<V, any> :
-  C extends new (...args: any) => any ? ViewScopeDescriptor<V, InstanceType<C>, any> :
+export type ViewScopeDescriptorType<V extends View, TC extends ViewScopeTypeConstructor> =
+  TC extends typeof Number ? ViewScopeDescriptor<V, number | null, number | string | null> :
+  TC extends typeof Boolean ? ViewScopeDescriptor<V, boolean | null, boolean | string | null> :
+  TC extends typeof String ? ViewScopeDescriptor<V, string | null> :
+  TC extends typeof Object ? ViewScopeDescriptor<V, Object> :
+  TC extends FromAny<any> ? ViewScopeDescriptor<V, any> :
+  TC extends new (...args: any) => any ? ViewScopeDescriptor<V, InstanceType<TC>, any> :
   ViewScopeDescriptor<V, any>;
 
 export interface ViewScopeDescriptor<V extends View, T, U = T> {
@@ -67,8 +67,8 @@ export interface ViewScopeConstructor<T, U = T> {
 export interface ViewScopeClass {
   new<V extends View, T, U>(view: V, scopeName: string, value?: T | U, inherit?: string): ViewScope<V, T, U>;
 
-  <V extends View, C extends ViewScopeTypeConstructor>(
-      valueType: C, descriptor?: ViewScopeDescriptorType<V, C>): PropertyDecorator;
+  <V extends View, TC extends ViewScopeTypeConstructor>(
+      valueType: TC, descriptor?: ViewScopeDescriptorType<V, TC>): PropertyDecorator;
 
   // Forward type declarations
   /** @hidden */
@@ -171,10 +171,10 @@ export interface ViewScope<V extends View, T, U = T> {
 }
 
 export const ViewScope: ViewScopeClass = (function (_super: typeof Object): ViewScopeClass {
-  function ViewScopeDecoratorFactory<V extends View, C extends ViewScopeTypeConstructor>(
-      valueType: C, descriptor?: ViewScopeDescriptorType<V, C>): PropertyDecorator {
+  function ViewScopeDecoratorFactory<V extends View, TC extends ViewScopeTypeConstructor>(
+      valueType: TC, descriptor?: ViewScopeDescriptorType<V, TC>): PropertyDecorator {
     if (descriptor === void 0) {
-      descriptor = {} as ViewScopeDescriptorType<V, C>;
+      descriptor = {} as ViewScopeDescriptorType<V, TC>;
     }
     let scopeType = descriptor.scopeType;
     if (scopeType === void 0) {

@@ -138,7 +138,7 @@ export class TreeLimb extends ThemedHtmlView {
       }
     });
     this.disclosureState.setAutoState("expanding");
-    this.requireUpdate(View.NeedsResize | View.NeedsCompute);
+    this.requireUpdate(View.NeedsResize | View.NeedsChange);
     const tree = this.tree;
     if (tree !== null) {
       tree.display.setAutoState("block");

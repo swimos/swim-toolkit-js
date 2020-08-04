@@ -35,9 +35,9 @@ export interface ModelClass {
 
   readonly powerFlags: ModelFlags;
 
-  readonly insertFlags: ModelFlags;
+  readonly insertChildFlags: ModelFlags;
 
-  readonly removeFlags: ModelFlags;
+  readonly removeChildFlags: ModelFlags;
 
   /** @hidden */
   _modelServiceDescriptors?: {[serviceName: string]: ModelServiceDescriptor<Model, unknown> | undefined};
@@ -93,26 +93,42 @@ export abstract class Model {
     // hook
   }
 
-  protected willObserve(callback: (this: this, modelObserver: ModelObserverType<this>) => void): void {
+  protected willObserve<T>(callback: (this: this, modelObserver: ModelObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const modelController = this.modelController;
     if (modelController !== null) {
-      callback.call(this, modelController);
+      result = callback.call(this, modelController);
+      if (result !== void 0) {
+        return result;
+      }
     }
     const modelObservers = this.modelObservers;
     for (let i = 0, n = modelObservers.length; i < n; i += 1) {
-      callback.call(this, modelObservers[i]);
+      result = callback.call(this, modelObservers[i]);
+      if (result !== void 0) {
+        return result;
+      }
     }
+    return result;
   }
 
-  protected didObserve(callback: (this: this, modelObserver: ModelObserverType<this>) => void): void {
+  protected didObserve<T>(callback: (this: this, modelObserver: ModelObserverType<this>) => T | void): T | undefined {
+    let result: T | undefined;
     const modelObservers = this.modelObservers;
     for (let i = 0, n = modelObservers.length; i < n; i += 1) {
-      callback.call(this, modelObservers[i]);
+      result = callback.call(this, modelObservers[i]);
+      if (result !== void 0) {
+        return result;
+      }
     }
     const modelController = this.modelController;
     if (modelController !== null) {
-      callback.call(this, modelController);
+      result = callback.call(this, modelController);
+      if (result !== void 0) {
+        return result;
+      }
     }
+    return result;
   }
 
   initModel(init: ModelInit): void {
@@ -168,8 +184,8 @@ export abstract class Model {
 
   abstract insertChildModel(childModel: Model, targetModel: Model | null, key?: string): void;
 
-  get insertFlags(): ModelFlags {
-    return this.modelClass.insertFlags;
+  get insertChildFlags(): ModelFlags {
+    return this.modelClass.insertChildFlags;
   }
 
   protected willInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
@@ -181,7 +197,7 @@ export abstract class Model {
   }
 
   protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
-    this.requireUpdate(this.insertFlags);
+    this.requireUpdate(this.insertChildFlags);
   }
 
   protected didInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
@@ -192,7 +208,7 @@ export abstract class Model {
     });
   }
 
-  abstract cascadeInsert(updateFlags?: ModelFlags, viewContext?: ModelContext): void;
+  abstract cascadeInsert(updateFlags?: ModelFlags, modelContext?: ModelContext): void;
 
   abstract removeChildModel(key: string): Model | null;
   abstract removeChildModel(childModel: Model): void;
@@ -201,8 +217,8 @@ export abstract class Model {
 
   abstract remove(): void;
 
-  get removeFlags(): ModelFlags {
-    return this.modelClass.removeFlags;
+  get removeChildFlags(): ModelFlags {
+    return this.modelClass.removeChildFlags;
   }
 
   protected willRemoveChildModel(childModel: Model): void {
@@ -214,7 +230,7 @@ export abstract class Model {
   }
 
   protected onRemoveChildModel(childModel: Model): void {
-    this.requireUpdate(this.removeFlags);
+    this.requireUpdate(this.removeChildFlags);
   }
 
   protected didRemoveChildModel(childModel: Model): void {
@@ -480,6 +496,26 @@ export abstract class Model {
     this.didObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelDidAggregate !== void 0) {
         modelObserver.modelDidAggregate(modelContext, this);
+      }
+    });
+  }
+
+  protected willCorrelate(modelContext: ModelContextType<this>): void {
+    this.willObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelWillCorrelate !== void 0) {
+        modelObserver.modelWillCorrelate(modelContext, this);
+      }
+    });
+  }
+
+  protected onCorrelate(modelContext: ModelContextType<this>): void {
+    // hook
+  }
+
+  protected didCorrelate(modelContext: ModelContextType<this>): void {
+    this.didObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelDidCorrelate !== void 0) {
+        modelObserver.modelDidCorrelate(modelContext, this);
       }
     });
   }
@@ -845,13 +881,15 @@ export abstract class Model {
 
   static readonly NeedsAnalyze: ModelFlags = 1 << 7;
   static readonly NeedsAggregate: ModelFlags = 1 << 8;
+  static readonly NeedsCorrelate: ModelFlags = 1 << 9;
   /** @hidden */
   static readonly AnalyzeMask: ModelFlags = Model.NeedsAnalyze
                                           | Model.NeedsAggregate
+                                          | Model.NeedsCorrelate;
 
-  static readonly NeedsRefresh: ModelFlags = 1 << 9;
-  static readonly NeedsFetch: ModelFlags = 1 << 10;
-  static readonly NeedsFlush: ModelFlags = 1 << 11;
+  static readonly NeedsRefresh: ModelFlags = 1 << 10;
+  static readonly NeedsFetch: ModelFlags = 1 << 11;
+  static readonly NeedsFlush: ModelFlags = 1 << 12;
   /** @hidden */
   static readonly RefreshMask: ModelFlags = Model.NeedsRefresh
                                           | Model.NeedsFetch
@@ -868,8 +906,8 @@ export abstract class Model {
 
   static readonly mountFlags: ModelFlags = 0;
   static readonly powerFlags: ModelFlags = 0;
-  static readonly insertFlags: ModelFlags = 0;
-  static readonly removeFlags: ModelFlags = 0;
+  static readonly insertChildFlags: ModelFlags = 0;
+  static readonly removeChildFlags: ModelFlags = 0;
 
   // Forward type declarations
   /** @hidden */

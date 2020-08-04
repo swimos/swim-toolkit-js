@@ -75,10 +75,10 @@ export abstract class MapGraphicsView extends GraphicsView {
         cascadeFlags |= View.NeedsScroll;
         this._viewFlags &= ~View.NeedsScroll;
       }
-      if (((this._viewFlags | processFlags) & View.NeedsCompute) !== 0) {
-        this.willCompute(viewContext);
-        cascadeFlags |= View.NeedsCompute;
-        this._viewFlags &= ~View.NeedsCompute;
+      if (((this._viewFlags | processFlags) & View.NeedsChange) !== 0) {
+        this.willChange(viewContext);
+        cascadeFlags |= View.NeedsChange;
+        this._viewFlags &= ~View.NeedsChange;
       }
       if (((this._viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
         this.willAnimate(viewContext);
@@ -103,8 +103,8 @@ export abstract class MapGraphicsView extends GraphicsView {
       if ((cascadeFlags & View.NeedsScroll) !== 0) {
         this.onScroll(viewContext);
       }
-      if ((cascadeFlags & View.NeedsCompute) !== 0) {
-        this.onCompute(viewContext);
+      if ((cascadeFlags & View.NeedsChange) !== 0) {
+        this.onChange(viewContext);
       }
       if ((cascadeFlags & View.NeedsAnimate) !== 0) {
         this.onAnimate(viewContext);
@@ -127,8 +127,8 @@ export abstract class MapGraphicsView extends GraphicsView {
       if ((cascadeFlags & View.NeedsAnimate) !== 0) {
         this.didAnimate(viewContext);
       }
-      if ((cascadeFlags & View.NeedsCompute) !== 0) {
-        this.didCompute(viewContext);
+      if ((cascadeFlags & View.NeedsChange) !== 0) {
+        this.didChange(viewContext);
       }
       if ((cascadeFlags & View.NeedsScroll) !== 0) {
         this.didScroll(viewContext);

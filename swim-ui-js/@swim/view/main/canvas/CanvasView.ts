@@ -173,6 +173,7 @@ export class CanvasView extends HtmlView {
 
   forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
                                    thisArg?: S): T | undefined {
+    let result: T | undefined;
     const childNodes = this._node.childNodes;
     if (childNodes.length !== 0) {
       let i = 0;
@@ -180,7 +181,7 @@ export class CanvasView extends HtmlView {
         const childNode = childNodes[i];
         const childView = (childNode as ViewNode).view;
         if (childView !== void 0) {
-          const result = callback.call(thisArg, childView);
+          result = callback.call(thisArg, childView);
           if (result !== void 0) {
             return result;
           }
@@ -199,7 +200,7 @@ export class CanvasView extends HtmlView {
       let i = 0;
       do {
         const childView = graphicsViews[i];
-        const result = callback.call(thisArg, childView);
+        result = callback.call(thisArg, childView);
         if (result !== void 0) {
           return result;
         }
@@ -212,7 +213,7 @@ export class CanvasView extends HtmlView {
         break;
       } while (true);
     }
-    return void 0;
+    return result;
   }
 
   setChildView(key: string, newChildView: View | null): View | null {
@@ -291,7 +292,7 @@ export class CanvasView extends HtmlView {
   append(childNode: Text, key?: string): TextView;
   append(childNode: Node, key?: string): NodeView;
   append<V extends NodeView | GraphicsView>(childView: V, key?: string): V;
-  append<C extends ElementViewConstructor>(viewConstructor: C, key?: string): InstanceType<C>;
+  append<VC extends ElementViewConstructor>(viewConstructor: VC, key?: string): InstanceType<VC>;
   append(child: string | Node | View | ElementViewConstructor, key?: string): View {
     if (typeof child === "string") {
       child = View.fromTag(child);
@@ -333,7 +334,7 @@ export class CanvasView extends HtmlView {
   prepend(childNode: Text, key?: string): TextView;
   prepend(childNode: Node, key?: string): NodeView;
   prepend<V extends NodeView | GraphicsView>(childView: V, key?: string): V;
-  prepend<C extends ElementViewConstructor>(viewConstructor: C, key?: string): InstanceType<C>;
+  prepend<VC extends ElementViewConstructor>(viewConstructor: VC, key?: string): InstanceType<VC>;
   prepend(child: string | Node | View | ElementViewConstructor, key?: string): View {
     if (typeof child === "string") {
       child = View.fromTag(child);
@@ -375,7 +376,7 @@ export class CanvasView extends HtmlView {
   insert(childNode: Text, target: View | Node | null, key?: string): TextView;
   insert(childNode: Node, target: View | Node | null, key?: string): NodeView;
   insert<V extends NodeView | GraphicsView>(childView: V, target: View | Node | null, key?: string): V;
-  insert<C extends ElementViewConstructor>(viewConstructor: C, target: View | Node | null, key?: string): InstanceType<C>;
+  insert<VC extends ElementViewConstructor>(viewConstructor: VC, target: View | Node | null, key?: string): InstanceType<VC>;
   insert(child: string | Node | View | ElementViewConstructor, target: View | Node | null, key?: string): View {
     if (typeof child === "string") {
       child = View.fromTag(child);

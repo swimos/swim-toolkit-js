@@ -287,14 +287,14 @@ export class TreeView extends ThemedHtmlView {
 
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
-    const needsCompute = (processFlags & View.NeedsCompute) !== 0;
+    const needsChange = (processFlags & View.NeedsChange) !== 0;
     const needsAnimate = (processFlags & View.NeedsAnimate) !== 0;
-    const depth = needsCompute ? this.depth.getState() : void 0;
+    const depth = needsChange ? this.depth.getState() : void 0;
     const disclosingPhase = needsAnimate ? this.disclosingPhase.getValueOr(1) : void 0;
     const limbSpacing = needsAnimate ? this.limbSpacing.getState() : 0;
     let y = limbSpacing;
     function processChildView(this: TreeView, childView: View): void {
-      if (needsCompute && childView instanceof TreeLimb) {
+      if (needsChange && childView instanceof TreeLimb) {
         const childTree = childView.tree;
         if (childTree !== null) {
           childTree.depth.setAutoState(depth! + 1);
@@ -313,7 +313,7 @@ export class TreeView extends ThemedHtmlView {
       }
     }
     super.processChildViews(processFlags, viewContext,
-                            needsCompute || needsAnimate ? processChildView : callback);
+                            needsChange || needsAnimate ? processChildView : callback);
     if (needsAnimate) {
       this.height.setAutoState(y);
     }

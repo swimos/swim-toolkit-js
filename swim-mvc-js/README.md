@@ -17,9 +17,9 @@ The **Swim MVC** framework consists of the following component libraries:
 - [**@swim/mvc**](@swim/mvc) –
   umbrella package that depends on, and re-exports, all Swim MVC libraries.
 - [**@swim/model**](@swim/model) –
-  generic model hierarchy with lifecycle management and dynamic scoping.
+  lifecycle-managed model hierarchy supporting dynamic scoping and service injection.
 - [**@swim/component**](@swim/component) –
-  UI schema for abstracting over view and model instantiation and configuration.
+  componentized controller layer with application lifecycle and service management.
 
 **Swim MVC** builds on the [**Swim Core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js)
 and [**Swim UI**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js)

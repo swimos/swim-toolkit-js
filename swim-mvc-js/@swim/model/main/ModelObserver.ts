@@ -55,9 +55,13 @@ export interface ModelObserver<M extends Model = Model> {
 
   modelDidAggregate?(modelContext: ModelContextType<M>, model: M): void;
 
-  modelWillAnalyzeChildModels?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, view: M): void;
+  modelWillCorrelate?(modelContext: ModelContextType<M>, model: M): void;
 
-  modelDidAnalyzeChildModels?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, view: M): void;
+  modelDidCorrelate?(modelContext: ModelContextType<M>, model: M): void;
+
+  modelWillAnalyzeChildModels?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
+
+  modelDidAnalyzeChildModels?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
   modelWillRefresh?(modelContext: ModelContextType<M>, model: M): void;
 
@@ -71,7 +75,7 @@ export interface ModelObserver<M extends Model = Model> {
 
   modelDidFlush?(modelContext: ModelContextType<M>, model: M): void;
 
-  modelWillRefreshChildModels?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, view: M): void;
+  modelWillRefreshChildModels?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
-  modelDidRefreshChildModels?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, view: M): void;
+  modelDidRefreshChildModels?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 }

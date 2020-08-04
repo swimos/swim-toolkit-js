@@ -89,8 +89,8 @@ export abstract class ThemedGraphicsNodeView extends GraphicsNodeView implements
     const newMoodModifier = oldMoodModifier.updatedCol(feel, true, ...entries);
     if (!newMoodModifier.equals(oldMoodModifier)) {
       this.moodModifier.setState(newMoodModifier);
-      this.computeMood();
-      this.requireUpdate(View.NeedsCompute);
+      this.changeMood();
+      this.requireUpdate(View.NeedsChange);
     }
   }
 
@@ -99,8 +99,8 @@ export abstract class ThemedGraphicsNodeView extends GraphicsNodeView implements
     const newThemeModifier = oldThemeModifier.updatedCol(feel, true, ...entries);
     if (!newThemeModifier.equals(oldThemeModifier)) {
       this.themeModifier.setState(newThemeModifier);
-      this.computeTheme();
-      this.requireUpdate(View.NeedsCompute);
+      this.changeTheme();
+      this.requireUpdate(View.NeedsChange);
     }
   }
 
@@ -141,7 +141,7 @@ export abstract class ThemedGraphicsNodeView extends GraphicsNodeView implements
     });
   }
 
-  protected computeMood(): void {
+  protected changeMood(): void {
     const moodModifierScope = this.getViewScope("moodModifier") as ViewScope<this, MoodMatrix> | null;
     if (moodModifierScope !== null && this.mood.isAuto()) {
       const moodModifier = moodModifierScope.state;
@@ -163,7 +163,7 @@ export abstract class ThemedGraphicsNodeView extends GraphicsNodeView implements
     }
   }
 
-  protected computeTheme(): void {
+  protected changeTheme(): void {
     const themeModifierScope = this.getViewScope("themeModifier") as ViewScope<this, MoodMatrix> | null;
     if (themeModifierScope !== null && this.theme.isAuto()) {
       const themeModifier = themeModifierScope.state;
@@ -185,10 +185,10 @@ export abstract class ThemedGraphicsNodeView extends GraphicsNodeView implements
     }
   }
 
-  protected onCompute(viewContext: ViewContextType<this>): void {
-    super.onCompute(viewContext);
-    this.computeMood();
-    this.computeTheme();
+  protected onChange(viewContext: ViewContextType<this>): void {
+    super.onChange(viewContext);
+    this.changeMood();
+    this.changeTheme();
 
     const theme = this.theme.state;
     const mood = this.mood.state;
@@ -197,5 +197,5 @@ export abstract class ThemedGraphicsNodeView extends GraphicsNodeView implements
     }
   }
 
-  static readonly mountFlags: ViewFlags = GraphicsNodeView.mountFlags | View.NeedsCompute;
+  static readonly mountFlags: ViewFlags = GraphicsNodeView.mountFlags | View.NeedsChange;
 }
