@@ -21,7 +21,7 @@ import {
   ViewContextType,
   ViewAnimator,
   GraphicsView,
-  GraphicsLeafView,
+  LayerView,
   FillViewInit,
   FillView,
   StrokeViewInit,
@@ -38,7 +38,7 @@ export interface RectViewInit extends FillViewInit, StrokeViewInit {
   height?: AnyLength;
 }
 
-export class RectView extends GraphicsLeafView implements FillView, StrokeView {
+export class RectView extends LayerView implements FillView, StrokeView {
   initView(init: RectViewInit): void {
     super.initView(init);
     this.setState(init);

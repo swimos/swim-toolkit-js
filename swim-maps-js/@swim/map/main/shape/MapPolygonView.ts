@@ -31,7 +31,7 @@ import {
 import {GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsNodeView} from "../graphics/MapGraphicsNodeView";
+import {MapLayerView} from "../graphics/MapLayerView";
 import {AnyMapPointView, MapPointView} from "./MapPointView";
 
 export type AnyMapPolygonView = MapPolygonView | MapPolygonViewInit;
@@ -45,7 +45,7 @@ export interface MapPolygonViewInit extends MapGraphicsViewInit, FillViewInit, S
   textColor?: AnyColor;
 }
 
-export class MapPolygonView extends MapGraphicsNodeView implements FillView, StrokeView {
+export class MapPolygonView extends MapLayerView implements FillView, StrokeView {
   /** @hidden */
   _geoCentroid: GeoPoint;
   /** @hidden */

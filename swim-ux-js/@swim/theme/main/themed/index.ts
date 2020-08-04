@@ -26,8 +26,7 @@ export {
 export {ThemedGraphicsViewObserver} from "./ThemedGraphicsViewObserver";
 export {ThemedGraphicsViewController} from "./ThemedGraphicsViewController";
 
-export {ThemedGraphicsNodeView} from "./ThemedGraphicsNodeView";
-export {ThemedGraphicsLeafView} from "./ThemedGraphicsLeafView";
+export {ThemedLayerView} from "./ThemedLayerView";
 
 export {
   ThemedSvgViewInit,

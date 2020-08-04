@@ -17,9 +17,9 @@ import {ViewContextType, View} from "@swim/view";
 import {GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsView} from "../graphics/MapGraphicsView";
-import {MapGraphicsNodeView} from "../graphics/MapGraphicsNodeView";
+import {MapLayerView} from "../graphics/MapLayerView";
 
-export class MapGroupView extends MapGraphicsNodeView {
+export class MapGroupView extends MapLayerView {
   /** @hidden */
   _geoCentroid: GeoPoint;
   /** @hidden */

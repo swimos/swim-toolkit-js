@@ -25,7 +25,7 @@ import {
   ViewAnimator,
   GraphicsViewInit,
   GraphicsView,
-  GraphicsNodeView,
+  LayerView,
   TypesetView,
 } from "@swim/view";
 import {AnyTextRunView, TextRunView} from "@swim/typeset";
@@ -55,7 +55,7 @@ export interface DataPointViewInit<X, Y> extends GraphicsViewInit {
   label?: GraphicsView | string | null;
 }
 
-export class DataPointView<X, Y> extends GraphicsNodeView {
+export class DataPointView<X, Y> extends LayerView {
   /** @hidden */
   _xCoord: number;
   /** @hidden */

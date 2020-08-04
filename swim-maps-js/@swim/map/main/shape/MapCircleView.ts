@@ -29,7 +29,7 @@ import {
 import {AnyGeoPoint, GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsLeafView} from "../graphics/MapGraphicsLeafView";
+import {MapLayerView} from "../graphics/MapLayerView";
 
 export type AnyMapCircleView = MapCircleView | MapCircleViewInit;
 
@@ -40,7 +40,7 @@ export interface MapCircleViewInit extends MapGraphicsViewInit, FillViewInit, St
   hitRadius?: number;
 }
 
-export class MapCircleView extends MapGraphicsLeafView implements FillView, StrokeView {
+export class MapCircleView extends MapLayerView implements FillView, StrokeView {
   /** @hidden */
   _hitRadius?: number;
   /** @hidden */

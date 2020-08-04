@@ -24,7 +24,7 @@ import {
   ViewAnimator,
   GraphicsViewInit,
   GraphicsView,
-  GraphicsNodeView,
+  LayerView,
   FillView,
   TypesetView,
 } from "@swim/view";
@@ -57,7 +57,7 @@ export interface SliceViewInit extends GraphicsViewInit {
   legend?: GraphicsView | string | null;
 }
 
-export class SliceView extends GraphicsNodeView {
+export class SliceView extends LayerView {
   initView(init: SliceViewInit): void {
     super.initView(init);
     if (init.value !== void 0) {

@@ -25,7 +25,7 @@ import {
   View,
   ViewAnimator,
   ContinuousScaleViewAnimator,
-  GraphicsNodeView,
+  LayerView,
 } from "@swim/view";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {PlotViewInit, PlotView} from "./PlotView";
@@ -40,7 +40,7 @@ export interface ScatterPlotViewInit<X, Y> extends PlotViewInit<X, Y> {
   plotType?: ScatterPlotType;
 }
 
-export abstract class ScatterPlotView<X, Y> extends GraphicsNodeView implements PlotView<X, Y> {
+export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotView<X, Y> {
   /** @hidden */
   _xDataDomain: [X, X] | undefined;
   /** @hidden */

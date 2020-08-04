@@ -31,7 +31,7 @@ import {Arc} from "@swim/shape";
 import {AnyGeoPoint, GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsLeafView} from "../graphics/MapGraphicsLeafView";
+import {MapLayerView} from "../graphics/MapLayerView";
 
 export type AnyMapArcView = MapArcView | MapArcViewInit;
 
@@ -47,7 +47,7 @@ export interface MapArcViewInit extends MapGraphicsViewInit, FillViewInit, Strok
   cornerRadius?: AnyLength;
 }
 
-export class MapArcView extends MapGraphicsLeafView implements FillView, StrokeView {
+export class MapArcView extends MapLayerView implements FillView, StrokeView {
   /** @hidden */
   _geoBounds: GeoBox;
 

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
-import {ViewContextType, ViewFlags, View, GraphicsView} from "@swim/view";
-import {GeoBox} from "../geo/GeoBox";
-import {MapGraphicsView} from "./MapGraphicsView";
+import {ViewContextType} from "../ViewContext";
+import {ViewFlags, View} from "../View";
+import {GraphicsView} from "./GraphicsView";
 
-export class MapGraphicsNodeView extends MapGraphicsView {
+export class LayerView extends GraphicsView {
   /** @hidden */
   readonly _childViews: View[];
   /** @hidden */
@@ -260,7 +260,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
   }
 
   /** @hidden */
-  doMountChildViews(): void {
+  protected doMountChildViews(): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -276,7 +276,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
   }
 
   /** @hidden */
-  doUnmountChildViews(): void {
+  protected doUnmountChildViews(): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -292,7 +292,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
   }
 
   /** @hidden */
-  doPowerChildViews(): void {
+  protected doPowerChildViews(): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -308,7 +308,7 @@ export class MapGraphicsNodeView extends MapGraphicsView {
   }
 
   /** @hidden */
-  doUnpowerChildViews(): void {
+  protected doUnpowerChildViews(): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -359,28 +359,6 @@ export class MapGraphicsNodeView extends MapGraphicsView {
       }
       i += 1;
     }
-  }
-
-  deriveGeoBounds(): GeoBox {
-    let geoBounds: GeoBox | undefined;
-    const childViews = this._childViews;
-    for (let i = 0, n = childViews.length; i < n; i += 1) {
-      const childView = childViews[i];
-      if (childView instanceof MapGraphicsView && !childView.isHidden()) {
-        const childGeoBounds = childView.geoBounds;
-        if (childGeoBounds.isDefined()) {
-          if (geoBounds !== void 0) {
-            geoBounds = geoBounds.union(childGeoBounds);
-          } else {
-            geoBounds = childGeoBounds;
-          }
-        }
-      }
-    }
-    if (geoBounds === void 0) {
-      geoBounds = this.geoFrame;
-    }
-    return geoBounds;
   }
 
   deriveViewBounds(): BoxR2 {
@@ -443,3 +421,4 @@ export class MapGraphicsNodeView extends MapGraphicsView {
     return hit;
   }
 }
+View.Layer = LayerView;

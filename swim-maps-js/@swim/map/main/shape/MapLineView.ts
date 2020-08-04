@@ -27,7 +27,7 @@ import {
 import {AnyGeoPoint, GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsLeafView} from "../graphics/MapGraphicsLeafView";
+import {MapLayerView} from "../graphics/MapLayerView";
 
 export type AnyMapLineView = MapLineView | MapLineViewInit;
 
@@ -39,7 +39,7 @@ export interface MapLineViewInit extends MapGraphicsViewInit, StrokeViewInit {
   hitWidth?: number;
 }
 
-export class MapLineView extends MapGraphicsLeafView implements StrokeView {
+export class MapLineView extends MapLayerView implements StrokeView {
   /** @hidden */
   _hitWidth?: number;
   /** @hidden */

@@ -27,7 +27,7 @@ import {
   ViewAnimator,
   ContinuousScaleViewAnimator,
   GraphicsViewInit,
-  GraphicsNodeView,
+  LayerView,
 } from "@swim/view";
 import {ScaleGestureInput, ScaleGestureDelegate, ScaleGesture} from "@swim/gesture";
 import {ScaleXView} from "./ScaleXView";
@@ -76,7 +76,7 @@ export interface ScaleViewInit<X = unknown, Y = unknown> extends GraphicsViewIni
   textColor?: AnyColor;
 }
 
-export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeView
+export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   implements ScaleXYView<X, Y>, ScaleGestureDelegate<X, Y> {
 
   /** @hidden */
@@ -1816,5 +1816,5 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends GraphicsNodeVi
   /** @hidden */
   static TimeZoomMax: number = 1;
 
-  static readonly powerFlags: ViewFlags = GraphicsNodeView.powerFlags | View.NeedsResize;
+  static readonly powerFlags: ViewFlags = LayerView.powerFlags | View.NeedsResize;
 }

@@ -24,7 +24,7 @@ import {
   ViewAnimator,
   GraphicsViewInit,
   GraphicsView,
-  GraphicsNodeView,
+  LayerView,
   FillView,
   TypesetView,
 } from "@swim/view";
@@ -60,7 +60,7 @@ export interface DialViewInit extends GraphicsViewInit {
   legend?: GraphicsView | string | null;
 }
 
-export class DialView extends GraphicsNodeView {
+export class DialView extends LayerView {
   /** @hidden */
   _arrangement: DialViewArrangement;
 

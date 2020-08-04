@@ -14,12 +14,12 @@
 
 import {AnyPointR2, PointR2} from "@swim/math";
 import {ViewContextType, ViewFlags, View, GraphicsViewContext, ViewHtml, HtmlView, CanvasView} from "@swim/view";
-import {AnyGeoPoint, GeoPoint, GeoBox, MapGraphicsNodeView} from "@swim/map";
+import {AnyGeoPoint, GeoPoint, GeoBox, MapLayerView} from "@swim/map";
 import {GoogleMapProjection} from "./GoogleMapProjection";
 import {GoogleMapViewObserver} from "./GoogleMapViewObserver";
 import {GoogleMapViewController} from "./GoogleMapViewController";
 
-export class GoogleMapView extends MapGraphicsNodeView {
+export class GoogleMapView extends MapLayerView {
   /** @hidden */
   readonly _map: google.maps.Map;
   /** @hidden */
@@ -214,5 +214,5 @@ export class GoogleMapView extends MapGraphicsNodeView {
     return View.fromNode(node);
   }
 
-  static readonly powerFlags: ViewFlags = MapGraphicsNodeView.powerFlags | View.NeedsProject;
+  static readonly powerFlags: ViewFlags = MapLayerView.powerFlags | View.NeedsProject;
 }

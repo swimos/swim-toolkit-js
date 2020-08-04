@@ -25,7 +25,7 @@ import {
 import {ViewContextType, ViewFlags, View, ViewAnimator, GraphicsView} from "@swim/view";
 import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsNodeView} from "../graphics/MapGraphicsNodeView";
+import {MapLayerView} from "../graphics/MapLayerView";
 import {MapRasterViewContext} from "./MapRasterViewContext";
 import {MapRasterViewObserver} from "./MapRasterViewObserver";
 import {MapRasterViewController} from "./MapRasterViewController";
@@ -36,7 +36,7 @@ export interface MapRasterViewInit extends MapGraphicsViewInit {
   compositeOperation?: CanvasCompositeOperation;
 }
 
-export class MapRasterView extends MapGraphicsNodeView {
+export class MapRasterView extends MapLayerView {
   /** @hidden */
   _canvas: HTMLCanvasElement;
   /** @hidden */

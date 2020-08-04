@@ -23,7 +23,7 @@ import {
   View,
   ViewAnimator,
   GraphicsViewInit,
-  GraphicsNodeView,
+  LayerView,
   TypesetView,
 } from "@swim/view";
 import {AnyTextRunView, TextRunView} from "@swim/typeset";
@@ -54,7 +54,7 @@ export interface PieViewInit extends GraphicsViewInit {
   slices?: AnySliceView[];
 }
 
-export class PieView extends GraphicsNodeView {
+export class PieView extends LayerView {
   initView(init: PieViewInit): void {
     super.initView(init);
     if (init.limit !== void 0) {

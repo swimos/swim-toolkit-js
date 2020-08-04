@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Tween, Transition} from "@swim/transition";
-import {ViewContextType, ViewFlags, View, ViewScope, GraphicsNodeView} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewScope, LayerView} from "@swim/view";
 import {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 import {Mood} from "../mood/Mood";
@@ -24,7 +24,7 @@ import {ThemedGraphicsViewInit, ThemedGraphicsView} from "./ThemedGraphicsView";
 import {ThemedGraphicsViewObserver} from "./ThemedGraphicsViewObserver";
 import {ThemedGraphicsViewController} from "./ThemedGraphicsViewController";
 
-export abstract class ThemedGraphicsNodeView extends GraphicsNodeView implements ThemedGraphicsView {
+export abstract class ThemedLayerView extends LayerView implements ThemedGraphicsView {
   readonly viewController: ThemedGraphicsViewController | null;
 
   readonly viewObservers: ReadonlyArray<ThemedGraphicsViewObserver>;
@@ -197,5 +197,5 @@ export abstract class ThemedGraphicsNodeView extends GraphicsNodeView implements
     }
   }
 
-  static readonly mountFlags: ViewFlags = GraphicsNodeView.mountFlags | View.NeedsChange;
+  static readonly mountFlags: ViewFlags = LayerView.mountFlags | View.NeedsChange;
 }

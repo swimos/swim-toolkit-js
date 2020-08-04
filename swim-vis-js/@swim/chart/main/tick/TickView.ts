@@ -25,7 +25,7 @@ import {
   ViewAnimator,
   GraphicsViewInit,
   GraphicsView,
-  GraphicsNodeView,
+  LayerView,
 } from "@swim/view";
 import {AnyTextRunView, TextRunView} from "@swim/typeset";
 import {TopTickView} from "./TopTickView";
@@ -63,7 +63,7 @@ export interface TickViewInit<D> extends GraphicsViewInit {
   tickLabel?: GraphicsView | string | null;
 }
 
-export abstract class TickView<D> extends GraphicsNodeView {
+export abstract class TickView<D> extends LayerView {
   /** @hidden */
   readonly _value: D;
   /** @hidden */

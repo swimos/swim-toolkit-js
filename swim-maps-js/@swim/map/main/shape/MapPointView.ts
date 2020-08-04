@@ -30,7 +30,7 @@ import {AnyTextRunView, TextRunView} from "@swim/typeset";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsNodeView} from "../graphics/MapGraphicsNodeView";
+import {MapLayerView} from "../graphics/MapLayerView";
 
 export type MapPointLabelPlacement = "auto" | "top" | "right" | "bottom" | "left";
 
@@ -58,7 +58,7 @@ export interface MapPointViewInit extends MapGraphicsViewInit {
   label?: GraphicsView | string | null;
 }
 
-export class MapPointView extends MapGraphicsNodeView {
+export class MapPointView extends MapLayerView {
   /** @hidden */
   _hitRadius?: number;
   /** @hidden */

@@ -29,7 +29,7 @@ import {
 import {GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsNodeView} from "../graphics/MapGraphicsNodeView";
+import {MapLayerView} from "../graphics/MapLayerView";
 import {AnyMapPointView, MapPointView} from "./MapPointView";
 
 export type AnyMapPolylineView = MapPolylineView | MapPolylineViewInit;
@@ -43,7 +43,7 @@ export interface MapPolylineViewInit extends MapGraphicsViewInit, StrokeViewInit
   textColor?: AnyColor;
 }
 
-export class MapPolylineView extends MapGraphicsNodeView implements StrokeView {
+export class MapPolylineView extends MapLayerView implements StrokeView {
   /** @hidden */
   _hitWidth?: number;
   /** @hidden */

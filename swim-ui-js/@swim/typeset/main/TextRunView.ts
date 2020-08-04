@@ -20,7 +20,7 @@ import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {
   ViewContextType,
   ViewAnimator,
-  GraphicsLeafView,
+  LayerView,
   TypesetViewInit,
   TypesetView,
 } from "@swim/view";
@@ -32,7 +32,7 @@ export interface TextRunViewInit extends TypesetViewInit {
   text?: string;
 }
 
-export class TextRunView extends GraphicsLeafView implements TypesetView {
+export class TextRunView extends LayerView implements TypesetView {
   initView(init: TextRunViewInit): void {
     super.initView(init);
     this.setState(init);

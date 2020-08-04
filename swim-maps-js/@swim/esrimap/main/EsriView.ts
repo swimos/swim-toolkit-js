@@ -14,12 +14,12 @@
 
 import {AnyPointR2, PointR2} from "@swim/math";
 import {ViewContextType, ViewFlags, View, GraphicsViewContext, CanvasView} from "@swim/view";
-import {AnyGeoPoint, GeoPoint, MapGraphicsNodeView} from "@swim/map";
+import {AnyGeoPoint, GeoPoint, MapLayerView} from "@swim/map";
 import {EsriProjection} from "./EsriProjection";
 import {EsriViewObserver} from "./EsriViewObserver";
 import {EsriViewController} from "./EsriViewController";
 
-export abstract class EsriView extends MapGraphicsNodeView {
+export abstract class EsriView extends MapLayerView {
   constructor() {
     super();
     EsriProjection.init();
@@ -99,5 +99,5 @@ export abstract class EsriView extends MapGraphicsNodeView {
 
   abstract overlayCanvas(): CanvasView | null;
 
-  static readonly powerFlags: ViewFlags = MapGraphicsNodeView.powerFlags | View.NeedsProject;
+  static readonly powerFlags: ViewFlags = MapLayerView.powerFlags | View.NeedsProject;
 }

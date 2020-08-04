@@ -23,7 +23,7 @@ import {
   View,
   ViewAnimator,
   GraphicsViewInit,
-  GraphicsNodeView,
+  LayerView,
   TypesetView,
 } from "@swim/view";
 import {AnyTextRunView, TextRunView} from "@swim/typeset";
@@ -55,7 +55,7 @@ export interface GaugeViewInit extends GraphicsViewInit {
   dials?: AnyDialView[];
 }
 
-export class GaugeView extends GraphicsNodeView {
+export class GaugeView extends LayerView {
   initView(init: GaugeViewInit): void {
     super.initView(init);
     if (init.limit !== void 0) {

@@ -27,7 +27,7 @@ import {ViewFlags, View} from "../View";
 import {ViewAnimator} from "../animator/ViewAnimator";
 import {GraphicsViewContext} from "../graphics/GraphicsViewContext";
 import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
-import {GraphicsNodeView} from "../graphics/GraphicsNodeView";
+import {LayerView} from "../graphics/LayerView";
 import {RasterViewContext} from "./RasterViewContext";
 import {RasterViewObserver} from "./RasterViewObserver";
 import {RasterViewController} from "./RasterViewController";
@@ -38,7 +38,7 @@ export interface RasterViewInit extends GraphicsViewInit {
   compositeOperation?: CanvasCompositeOperation;
 }
 
-export class RasterView extends GraphicsNodeView {
+export class RasterView extends LayerView {
   /** @hidden */
   _canvas: HTMLCanvasElement;
   /** @hidden */

@@ -42,8 +42,7 @@ import {ViewServiceDescriptor, ViewServiceConstructor, ViewService} from "./serv
 import {ViewScopeDescriptor, ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
 import {ViewAnimatorDescriptor, ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
 import {GraphicsView} from "./graphics/GraphicsView";
-import {GraphicsLeafView} from "./graphics/GraphicsLeafView";
-import {GraphicsNodeView} from "./graphics/GraphicsNodeView";
+import {LayerView} from "./graphics/LayerView";
 import {RasterView} from "./raster/RasterView";
 import {ViewNode, NodeView} from "./node/NodeView";
 import {TextView} from "./text/TextView";
@@ -1371,9 +1370,7 @@ export abstract class View implements AnimatorContext, LayoutScope {
   /** @hidden */
   static Graphics: typeof GraphicsView; // defined by GraphicsView
   /** @hidden */
-  static GraphicsLeaf: typeof GraphicsLeafView; // defined by GraphicsLeafView
-  /** @hidden */
-  static GraphicsNode: typeof GraphicsNodeView; // defined by GraphicsNodeView
+  static Layer: typeof LayerView; // defined by LayerView
   /** @hidden */
   static Raster: typeof RasterView; // defined by RasterView
   /** @hidden */

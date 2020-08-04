@@ -15,12 +15,12 @@
 import * as mapboxgl from "mapbox-gl";
 import {AnyPointR2, PointR2} from "@swim/math";
 import {ViewContextType, ViewFlags, View, GraphicsViewContext, CanvasView} from "@swim/view";
-import {AnyGeoPoint, GeoPoint, GeoBox, MapGraphicsNodeView} from "@swim/map";
+import {AnyGeoPoint, GeoPoint, GeoBox, MapLayerView} from "@swim/map";
 import {MapboxProjection} from "./MapboxProjection";
 import {MapboxViewObserver} from "./MapboxViewObserver";
 import {MapboxViewController} from "./MapboxViewController";
 
-export class MapboxView extends MapGraphicsNodeView {
+export class MapboxView extends MapLayerView {
   /** @hidden */
   readonly _map: mapboxgl.Map;
   /** @hidden */
@@ -179,5 +179,5 @@ export class MapboxView extends MapGraphicsNodeView {
     }
   }
 
-  static readonly powerFlags: ViewFlags = MapGraphicsNodeView.powerFlags | View.NeedsProject;
+  static readonly powerFlags: ViewFlags = MapLayerView.powerFlags | View.NeedsProject;
 }

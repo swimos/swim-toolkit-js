@@ -22,7 +22,7 @@ import {
   ViewContextType,
   ViewAnimator,
   GraphicsView,
-  GraphicsLeafView,
+  LayerView,
   FillViewInit,
   FillView,
   StrokeViewInit,
@@ -35,7 +35,7 @@ export type AnyArcView = ArcView | Arc | ArcViewInit;
 export interface ArcViewInit extends FillViewInit, StrokeViewInit, ArcInit {
 }
 
-export class ArcView extends GraphicsLeafView implements FillView, StrokeView {
+export class ArcView extends LayerView implements FillView, StrokeView {
   initView(init: ArcViewInit): void {
     super.initView(init);
     this.setState(init);
