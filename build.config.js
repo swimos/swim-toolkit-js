@@ -723,7 +723,7 @@ const mvc = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view"],
+        deps: ["util"],
       },
     ],
   },
