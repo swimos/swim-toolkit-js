@@ -16,7 +16,7 @@ import {ComponentContextType} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
 import {GenericComponent} from "./GenericComponent";
 
-export class GenericNodeComponent extends GenericComponent {
+export class CompositeComponent extends GenericComponent {
   /** @hidden */
   readonly _childComponents: Component[];
   /** @hidden */
@@ -342,4 +342,4 @@ export class GenericNodeComponent extends GenericComponent {
     }
   }
 }
-Component.GenericNode = GenericNodeComponent;
+Component.Composite = CompositeComponent;

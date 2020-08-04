@@ -16,7 +16,7 @@ import {ModelContextType} from "../ModelContext";
 import {ModelFlags, Model} from "../Model";
 import {GenericModel} from "./GenericModel";
 
-export class GenericNodeModel extends GenericModel {
+export class CompositeModel extends GenericModel {
   /** @hidden */
   readonly _childModels: Model[];
   /** @hidden */
@@ -342,4 +342,4 @@ export class GenericNodeModel extends GenericModel {
     }
   }
 }
-Model.GenericNode = GenericNodeModel;
+Model.Composite = CompositeModel;

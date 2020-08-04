@@ -13,5 +13,4 @@
 // limitations under the License.
 
 export {GenericComponent} from "./GenericComponent";
-export {GenericLeafComponent} from "./GenericLeafComponent";
-export {GenericNodeComponent} from "./GenericNodeComponent";
+export {CompositeComponent} from "./CompositeComponent";

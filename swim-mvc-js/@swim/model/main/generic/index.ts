@@ -13,5 +13,4 @@
 // limitations under the License.
 
 export {GenericModel} from "./GenericModel";
-export {GenericLeafModel} from "./GenericLeafModel";
-export {GenericNodeModel} from "./GenericNodeModel";
+export {CompositeModel} from "./CompositeModel";

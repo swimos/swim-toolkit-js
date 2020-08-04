@@ -20,8 +20,7 @@ import {RefreshManager} from "./refresh/RefreshManager";
 import {ModelServiceDescriptor, ModelServiceConstructor, ModelService} from "./service/ModelService";
 import {ModelScopeDescriptor, ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
 import {GenericModel} from "./generic/GenericModel";
-import {GenericLeafModel} from "./generic/GenericLeafModel";
-import {GenericNodeModel} from "./generic/GenericNodeModel";
+import {CompositeModel} from "./generic/CompositeModel";
 
 export type ModelFlags = number;
 
@@ -919,7 +918,5 @@ export abstract class Model {
   /** @hidden */
   static Generic: typeof GenericModel; // defined by GenericModel
   /** @hidden */
-  static GenericLeaf: typeof GenericLeafModel; // defined by GenericLeafModel
-  /** @hidden */
-  static GenericNode: typeof GenericNodeModel; // defined by GenericNodeModel
+  static Composite: typeof CompositeModel; // defined by CompositeModel
 }

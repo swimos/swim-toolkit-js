@@ -27,8 +27,7 @@ import {
   ComponentScope,
 } from "./scope/ComponentScope";
 import {GenericComponent} from "./generic/GenericComponent";
-import {GenericLeafComponent} from "./generic/GenericLeafComponent";
-import {GenericNodeComponent} from "./generic/GenericNodeComponent";
+import {CompositeComponent} from "./generic/CompositeComponent";
 
 export type ComponentFlags = number;
 
@@ -915,7 +914,5 @@ export abstract class Component {
   /** @hidden */
   static Generic: typeof GenericComponent; // defined by GenericComponent
   /** @hidden */
-  static GenericLeaf: typeof GenericLeafComponent; // defined by GenericLeafComponent
-  /** @hidden */
-  static GenericNode: typeof GenericNodeComponent; // defined by GenericNodeComponent
+  static Composite: typeof CompositeComponent; // defined by CompositeComponent
 }
