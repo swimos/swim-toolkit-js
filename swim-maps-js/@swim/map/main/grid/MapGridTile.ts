@@ -16,7 +16,7 @@ import {GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsView} from "../graphics/MapGraphicsView";
 
-export class MapLayerTile {
+export class MapGridTile {
   /** @hidden */
   readonly _depth: number;
   /** @hidden */
@@ -30,13 +30,13 @@ export class MapLayerTile {
   /** @hidden */
   readonly _geoCenter: GeoPoint;
   /** @hidden */
-  readonly _southWest: MapLayerTile | null;
+  readonly _southWest: MapGridTile | null;
   /** @hidden */
-  readonly _northWest: MapLayerTile | null;
+  readonly _northWest: MapGridTile | null;
   /** @hidden */
-  readonly _southEast: MapLayerTile | null;
+  readonly _southEast: MapGridTile | null;
   /** @hidden */
-  readonly _northEast: MapLayerTile | null;
+  readonly _northEast: MapGridTile | null;
   /** @hidden */
   readonly _views: ReadonlyArray<MapGraphicsView>;
   /** @hidden */
@@ -44,8 +44,8 @@ export class MapLayerTile {
 
   constructor(depth: number, maxDepth: number, density: number,
               geoFrame: GeoBox, geoBounds: GeoBox, geoCenter: GeoPoint,
-              southWest: MapLayerTile | null, northWest: MapLayerTile | null,
-              southEast: MapLayerTile | null, northEast: MapLayerTile | null,
+              southWest: MapGridTile | null, northWest: MapGridTile | null,
+              southEast: MapGridTile | null, northEast: MapGridTile | null,
               views: ReadonlyArray<MapGraphicsView>, size: number) {
     this._depth = depth;
     this._maxDepth = maxDepth;
@@ -85,19 +85,19 @@ export class MapLayerTile {
     return this._geoCenter;
   }
 
-  get southWest(): MapLayerTile | null {
+  get southWest(): MapGridTile | null {
     return this._southWest;
   }
 
-  get northWest(): MapLayerTile | null {
+  get northWest(): MapGridTile | null {
     return this._northWest;
   }
 
-  get southEast(): MapLayerTile | null {
+  get southEast(): MapGridTile | null {
     return this._southEast;
   }
 
-  get northEast(): MapLayerTile | null {
+  get northEast(): MapGridTile | null {
     return this._northEast;
   }
 
@@ -117,7 +117,7 @@ export class MapLayerTile {
     return this._geoFrame.intersects(bounds);
   }
 
-  getTile(bounds: GeoBox): MapLayerTile {
+  getTile(bounds: GeoBox): MapGridTile {
     if (this._depth < this._maxDepth && this._size > this._density) {
       const geoCenter = this._geoCenter;
       const inWest = bounds.lngMin <= geoCenter.lng;
@@ -151,8 +151,8 @@ export class MapLayerTile {
     return this;
   }
 
-  inserted(view: MapGraphicsView, bounds: GeoBox): MapLayerTile {
-    let tile: MapLayerTile = this;
+  inserted(view: MapGraphicsView, bounds: GeoBox): MapGridTile {
+    let tile: MapGridTile = this;
     if (tile._depth < tile._maxDepth) {
       if (tile._size === tile._density) {
         tile = tile.reinsertedNode();
@@ -168,7 +168,7 @@ export class MapLayerTile {
   }
 
   /** @hidden */
-  protected insertedNode(view: MapGraphicsView, bounds: GeoBox): MapLayerTile | null {
+  protected insertedNode(view: MapGraphicsView, bounds: GeoBox): MapGridTile | null {
     const geoCenter = this._geoCenter;
     const inWest = bounds.lngMin <= geoCenter.lng;
     const inSouth = bounds.latMin <= geoCenter.lat;
@@ -245,7 +245,7 @@ export class MapLayerTile {
   }
 
   /** @hidden */
-  protected insertedLeaf(view: MapGraphicsView): MapLayerTile {
+  protected insertedLeaf(view: MapGraphicsView): MapGridTile {
     const oldViews = this._views;
     if (oldViews.indexOf(view) < 0) {
       const newViews = oldViews.slice(0);
@@ -259,7 +259,7 @@ export class MapLayerTile {
   }
 
   /** @hidden */
-  protected reinsertedNode(): MapLayerTile {
+  protected reinsertedNode(): MapGridTile {
     const views = this._views;
     const viewCount = views.length;
     let tile = this.createTile(this._depth, this._maxDepth, this._density, this._geoFrame,
@@ -279,7 +279,7 @@ export class MapLayerTile {
     return tile;
   }
 
-  removed(view: MapGraphicsView, bounds: GeoBox): MapLayerTile {
+  removed(view: MapGraphicsView, bounds: GeoBox): MapGridTile {
     if (this._depth < this._maxDepth && this._size > this._density) {
       const newTile = this.removedNode(view, bounds);
       if (newTile !== null) {
@@ -290,7 +290,7 @@ export class MapLayerTile {
   }
 
   /** @hidden */
-  protected removedNode(view: MapGraphicsView, bounds: GeoBox): MapLayerTile | null {
+  protected removedNode(view: MapGraphicsView, bounds: GeoBox): MapGridTile | null {
     const geoCenter = this._geoCenter;
     const inWest = bounds.lngMin <= geoCenter.lng;
     const inSouth = bounds.latMin <= geoCenter.lat;
@@ -300,7 +300,7 @@ export class MapLayerTile {
       if (inSouth && inWest) {
         const oldSouthWest = this._southWest;
         if (oldSouthWest !== null) {
-          let newSouthWest: MapLayerTile | null = oldSouthWest.removed(view, bounds);
+          let newSouthWest: MapGridTile | null = oldSouthWest.removed(view, bounds);
           if (newSouthWest.isEmpty()) {
             newSouthWest = null;
           }
@@ -313,7 +313,7 @@ export class MapLayerTile {
       } else if (inNorth && inWest) {
         const oldNorthWest = this._northWest;
         if (oldNorthWest !== null) {
-          let newNorthWest: MapLayerTile | null = oldNorthWest.removed(view, bounds);
+          let newNorthWest: MapGridTile | null = oldNorthWest.removed(view, bounds);
           if (newNorthWest.isEmpty()) {
             newNorthWest = null;
           }
@@ -326,7 +326,7 @@ export class MapLayerTile {
       } else if (inSouth && inEast) {
         const oldSouthEast = this._southEast;
         if (oldSouthEast !== null) {
-          let newSouthEast: MapLayerTile | null = oldSouthEast.removed(view, bounds);
+          let newSouthEast: MapGridTile | null = oldSouthEast.removed(view, bounds);
           if (newSouthEast.isEmpty()) {
             newSouthEast = null;
           }
@@ -339,7 +339,7 @@ export class MapLayerTile {
       } else if (inNorth && inEast) {
         const oldNorthEast = this._northEast;
         if (oldNorthEast !== null) {
-          let newNorthEast: MapLayerTile | null = oldNorthEast.removed(view, bounds);
+          let newNorthEast: MapGridTile | null = oldNorthEast.removed(view, bounds);
           if (newNorthEast.isEmpty()) {
             newNorthEast = null;
           }
@@ -355,7 +355,7 @@ export class MapLayerTile {
   }
 
   /** @hidden */
-  protected removedLeaf(view: MapGraphicsView): MapLayerTile {
+  protected removedLeaf(view: MapGraphicsView): MapGridTile {
     const oldViews = this._views;
     const index = oldViews.indexOf(view);
     if (index >= 0) {
@@ -369,7 +369,7 @@ export class MapLayerTile {
     }
   }
 
-  moved(view: MapGraphicsView, newBounds: GeoBox, oldBounds: GeoBox): MapLayerTile {
+  moved(view: MapGraphicsView, newBounds: GeoBox, oldBounds: GeoBox): MapGridTile {
     if (this._depth < this._maxDepth && this._size > this._density) {
       const newTile = this.movedNode(view, newBounds, oldBounds);
       if (newTile !== null) {
@@ -380,7 +380,7 @@ export class MapLayerTile {
   }
 
   /** @hidden */
-  protected movedNode(view: MapGraphicsView, newBounds: GeoBox, oldBounds: GeoBox): MapLayerTile | null {
+  protected movedNode(view: MapGraphicsView, newBounds: GeoBox, oldBounds: GeoBox): MapGridTile | null {
     const geoCenter = this._geoCenter;
     const newInWest = newBounds.lngMin <= geoCenter.lng;
     const newInSouth = newBounds.latMin <= geoCenter.lat;
@@ -553,9 +553,9 @@ export class MapLayerTile {
 
   protected createTile(depth: number, maxDepth: number, density: number,
                        geoFrame: GeoBox, geoBounds?: GeoBox, geoCenter?: GeoPoint,
-                       southWest: MapLayerTile | null = null, northWest: MapLayerTile | null = null,
-                       southEast: MapLayerTile | null = null, northEast: MapLayerTile | null = null,
-                       views: ReadonlyArray<MapGraphicsView> = [], size: number = 0): MapLayerTile {
+                       southWest: MapGridTile | null = null, northWest: MapGridTile | null = null,
+                       southEast: MapGridTile | null = null, northEast: MapGridTile | null = null,
+                       views: ReadonlyArray<MapGraphicsView> = [], size: number = 0): MapGridTile {
     if (geoCenter === void 0) {
       geoCenter = geoFrame.center;
     }
@@ -580,11 +580,11 @@ export class MapLayerTile {
         geoBounds = geoFrame;
       }
     }
-    return new MapLayerTile(depth, maxDepth, density, geoFrame, geoBounds, geoCenter,
-                            southWest, northWest, southEast, northEast, views, size);
+    return new MapGridTile(depth, maxDepth, density, geoFrame, geoBounds, geoCenter,
+                           southWest, northWest, southEast, northEast, views, size);
   }
 
-  static empty(geoFrame?: GeoBox, depth?: number, maxDepth?: number, density?: number): MapLayerTile {
+  static empty(geoFrame?: GeoBox, depth?: number, maxDepth?: number, density?: number): MapGridTile {
     if (geoFrame === void 0) {
       geoFrame = GeoBox.globe();
     }
@@ -598,7 +598,7 @@ export class MapLayerTile {
       density = 8;
     }
     maxDepth = Math.max(depth, maxDepth);
-    return new MapLayerTile(depth, maxDepth, density, geoFrame, geoFrame,
-                            geoFrame.center, null, null, null, null, [], 0);
+    return new MapGridTile(depth, maxDepth, density, geoFrame, geoFrame,
+                           geoFrame.center, null, null, null, null, [], 0);
   }
 }

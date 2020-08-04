@@ -19,30 +19,24 @@ import {GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {GeoProjection} from "../geo/GeoProjection";
 import {MapGraphicsViewInit, MapGraphicsView} from "../graphics/MapGraphicsView";
-import {MapLayerTile} from "./MapLayerTile";
-import {MapLayerViewObserver} from "./MapLayerViewObserver";
-import {MapLayerViewController} from "./MapLayerViewController";
+import {MapGridTile} from "./MapGridTile";
 
-export interface MapLayerViewInit extends MapGraphicsViewInit {
+export interface MapGridViewInit extends MapGraphicsViewInit {
   tileOutlineColor?: AnyColor;
 }
 
-export class MapLayerView extends MapGraphicsView {
+export class MapGridView extends MapGraphicsView {
   /** @hidden */
-  _childViews: MapLayerTile;
+  _childViews: MapGridTile;
   /** @hidden */
   _childViewMap?: {[key: string]: MapGraphicsView | undefined};
 
   constructor(geoFrame?: GeoBox, depth?: number, maxDepth?: number, density?: number) {
     super();
-    this._childViews = MapLayerTile.empty(geoFrame, depth, maxDepth, density);
+    this._childViews = MapGridTile.empty(geoFrame, depth, maxDepth, density);
   }
 
-  readonly viewController: MapLayerViewController | null;
-
-  readonly viewObservers: ReadonlyArray<MapLayerViewObserver>;
-
-  initView(init: MapLayerViewInit): void {
+  initView(init: MapGridViewInit): void {
     super.initView(init);
     if (init.tileOutlineColor !== void 0) {
       this.tileOutlineColor(init.tileOutlineColor);
@@ -285,7 +279,7 @@ export class MapLayerView extends MapGraphicsView {
   }
 
   /** @hidden */
-  protected processTile(tile: MapLayerTile, processFlags: ViewFlags, viewContext: ViewContextType<this>,
+  protected processTile(tile: MapGridTile, processFlags: ViewFlags, viewContext: ViewContextType<this>,
                         callback: ((this: this, childView: View) => void) | undefined): void {
     if (tile._southWest !== null && tile._southWest._geoFrame.intersects(viewContext.geoFrame)) {
       this.processTile(tile._southWest, processFlags, viewContext, callback);
@@ -330,7 +324,7 @@ export class MapLayerView extends MapGraphicsView {
     }
   }
 
-  protected renderTile(tile: MapLayerTile, context: CanvasContext,
+  protected renderTile(tile: MapGridTile, context: CanvasContext,
                        geoProjection: GeoProjection, outlineColor: Color): void {
     if (tile._southWest !== null) {
       this.renderTile(tile._southWest, context, geoProjection, outlineColor);
@@ -369,7 +363,7 @@ export class MapLayerView extends MapGraphicsView {
   }
 
   /** @hidden */
-  protected displayTile(tile: MapLayerTile, displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+  protected displayTile(tile: MapGridTile, displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                         callback: ((this: this, childView: View) => void) | undefined): void {
     if (tile._southWest !== null && tile._southWest._geoFrame.intersects(viewContext.geoFrame)) {
       this.displayTile(tile._southWest, displayFlags, viewContext, callback);
@@ -415,7 +409,7 @@ export class MapLayerView extends MapGraphicsView {
     return this.hitTestTile(this._childViews, x, y, geoPoint, viewContext);
   }
 
-  protected hitTestTile(tile: MapLayerTile, x: number, y: number, geoPoint: GeoPoint,
+  protected hitTestTile(tile: MapGridTile, x: number, y: number, geoPoint: GeoPoint,
                         viewContext: ViewContextType<this>): GraphicsView | null {
     let hit: GraphicsView | null = null;
     if (tile._southWest !== null && tile._southWest._geoFrame.contains(geoPoint)) {

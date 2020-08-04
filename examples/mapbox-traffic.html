@@ -39,8 +39,8 @@ const mapView = new swim.MapboxView(map);
 mapView.overlayCanvas()
     .pointerEventsEnabled(true);
 
-const mapLayer = mapView.append(swim.MapLayerView);
-//mapLayer.tileOutlineColor("#cc0000");
+const mapGrid = mapView.append(swim.MapGridView);
+//mapGrid.tileOutlineColor("#cc0000");
 
 const host = swim.hostRef("warps://traffic.swim.services");
 
@@ -52,14 +52,14 @@ const intersectionsLink = host.downlinkMap()
       const lng = value.get("lng").numberValue();
       const lat = value.get("lat").numberValue();
 
-      let intersectionView = mapLayer.getChildView(key);
+      let intersectionView = mapGrid.getChildView(key);
       if (intersectionView === null) {
         const intersectionId = value.get("id").stringValue();
         intersectionView = new swim.MapCircleView()
             .geoCenter([lng, lat])
             .radius(5)
             .fill(INTERSECTION_COLOR);
-        mapLayer.setChildView(key, intersectionView);
+        mapGrid.setChildView(key, intersectionView);
         linkIntersection(intersectionId, host.nodeRef(key), intersectionView);
       }
     })
@@ -122,7 +122,7 @@ function linkIntersection(intersectionId, node, intersectionView) {
                 detectorApproaches.push(approachView);
                 detectors[detectorId] = detectorApproaches;
               }
-              mapLayer.setChildView(approachKey, approachView);
+              mapGrid.setChildView(approachKey, approachView);
             }
           }
         })

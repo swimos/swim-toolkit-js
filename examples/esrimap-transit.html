@@ -57,8 +57,8 @@ require([
   //const mapView = new swim.EsriSceneView(esriSceneView);
   //mapView.overlayCanvas();
 
-  const mapLayer = mapView.append(swim.MapLayerView);
-  //mapLayer.tileOutlineColor("#cc0000");
+  const mapGrid = mapView.append(swim.MapGridView);
+  //mapGrid.tileOutlineColor("#cc0000");
 
   const vehiclesLink = swim.downlinkMap()
       .hostUri("warp://transit.swim.services")
@@ -70,7 +70,7 @@ require([
         const lat = value.get("latitude").numberValue(0);
         const tween = swim.Transition.duration(10000);
 
-        let vehicleView = mapLayer.getChildView(key);
+        let vehicleView = mapGrid.getChildView(key);
         if (vehicleView !== null) {
           vehicleView.geoCenter([lng, lat], tween);
           if (!document.hidden && mapView.geoBounds.contains(lng, lat)) {
@@ -78,7 +78,7 @@ require([
           }
         } else {
           vehicleView = new swim.MapCircleView().geoCenter([lng, lat]).radius(5).fill(VEHICLE_COLOR);
-          mapLayer.setChildView(key, vehicleView);
+          mapGrid.setChildView(key, vehicleView);
         }
       })
       .open();
