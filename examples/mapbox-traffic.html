@@ -39,7 +39,7 @@ const mapView = new swim.MapboxView(map);
 mapView.overlayCanvas()
     .pointerEventsEnabled(true);
 
-const mapLayer = mapView.append(new swim.MapLayerView(undefined, 0, 15));
+const mapLayer = mapView.append(swim.MapLayerView);
 //mapLayer.tileOutlineColor("#cc0000");
 
 const host = swim.hostRef("warps://traffic.swim.services");

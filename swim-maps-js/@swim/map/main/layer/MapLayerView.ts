@@ -33,9 +33,9 @@ export class MapLayerView extends MapGraphicsView {
   /** @hidden */
   _childViewMap?: {[key: string]: MapGraphicsView | undefined};
 
-  constructor(geoFrame?: GeoBox, depth?: number, maxDepth?: number) {
+  constructor(geoFrame?: GeoBox, depth?: number, maxDepth?: number, density?: number) {
     super();
-    this._childViews = MapLayerTile.empty(geoFrame, depth, maxDepth);
+    this._childViews = MapLayerTile.empty(geoFrame, depth, maxDepth, density);
   }
 
   readonly viewController: MapLayerViewController | null;
