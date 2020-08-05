@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {View} from "@swim/view";
+import {Model} from "@swim/model";
 import {ComponentContextType, ComponentContext} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
 import {ComponentObserverType, ComponentObserver} from "../ComponentObserver";
 import {ComponentService} from "../service/ComponentService";
 import {ComponentScope} from "../scope/ComponentScope";
+import {ComponentModel} from "../model/ComponentModel";
+import {ComponentView} from "../view/ComponentView";
 
 export abstract class GenericComponent extends Component {
   /** @hidden */
@@ -31,6 +35,10 @@ export abstract class GenericComponent extends Component {
   _componentServices?: {[serviceName: string]: ComponentService<Component, unknown> | undefined};
   /** @hidden */
   _componentScopes?: {[scopeName: string]: ComponentScope<Component, unknown> | undefined};
+  /** @hidden */
+  _componentModels?: {[modelName: string]: ComponentModel<Component, Model> | undefined};
+  /** @hidden */
+  _componentViews?: {[viewName: string]: ComponentView<Component, View> | undefined};
 
   constructor() {
     super();
@@ -211,6 +219,7 @@ export abstract class GenericComponent extends Component {
     super.onMount();
     this.mountServices();
     this.mountScopes();
+    this.mountViews();
   }
 
   /** @hidden */
@@ -242,6 +251,7 @@ export abstract class GenericComponent extends Component {
   }
 
   protected onUnmount(): void {
+    this.unmountViews();
     this.unmountScopes();
     this.unmountServices();
     this._componentFlags &= ~Component.ComponentFlagMask | Component.RemovingFlag;
@@ -549,6 +559,122 @@ export abstract class GenericComponent extends Component {
       for (const scopeName in componentScopes) {
         const componentScope = componentScopes[scopeName]!;
         componentScope.unmount();
+      }
+    }
+  }
+
+  hasComponentModel(modelName: string): boolean {
+    const componentModels = this._componentModels;
+    return componentModels !== void 0 && componentModels[modelName] !== void 0;
+  }
+
+  getComponentModel(modelName: string): ComponentModel<this, Model> | null {
+    const componentModels = this._componentModels;
+    if (componentModels !== void 0) {
+      const componentModel = componentModels[modelName];
+      if (componentModel !== void 0) {
+        return componentModel as ComponentModel<this, Model>;
+      }
+    }
+    return null;
+  }
+
+  setComponentModel(modelName: string, newComponentModel: ComponentModel<this, Model> | null): void {
+    let componentModels = this._componentModels;
+    if (componentModels === void 0) {
+      componentModels = {};
+      this._componentModels = componentModels;
+    }
+    const oldComponentModel = componentModels[modelName];
+    if (oldComponentModel !== void 0 && this.isMounted()) {
+      oldComponentModel.unmount();
+    }
+    if (newComponentModel !== null) {
+      componentModels[modelName] = newComponentModel;
+      if (this.isMounted()) {
+        newComponentModel.mount();
+      }
+    } else {
+      delete componentModels[modelName];
+    }
+  }
+
+  /** @hidden */
+  mountModels(): void {
+    const componentModels = this._componentModels;
+    if (componentModels !== void 0) {
+      for (const modelName in componentModels) {
+        const componentModel = componentModels[modelName]!;
+        componentModel.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  unmountModels(): void {
+    const componentModels = this._componentModels;
+    if (componentModels !== void 0) {
+      for (const modelName in componentModels) {
+        const componentModel = componentModels[modelName]!;
+        componentModel.unmount();
+      }
+    }
+  }
+
+  hasComponentView(viewName: string): boolean {
+    const componentViews = this._componentViews;
+    return componentViews !== void 0 && componentViews[viewName] !== void 0;
+  }
+
+  getComponentView(viewName: string): ComponentView<this, View> | null {
+    const componentViews = this._componentViews;
+    if (componentViews !== void 0) {
+      const componentView = componentViews[viewName];
+      if (componentView !== void 0) {
+        return componentView as ComponentView<this, View>;
+      }
+    }
+    return null;
+  }
+
+  setComponentView(viewName: string, newComponentView: ComponentView<this, View> | null): void {
+    let componentViews = this._componentViews;
+    if (componentViews === void 0) {
+      componentViews = {};
+      this._componentViews = componentViews;
+    }
+    const oldComponentView = componentViews[viewName];
+    if (oldComponentView !== void 0 && this.isMounted()) {
+      oldComponentView.unmount();
+    }
+    if (newComponentView !== null) {
+      componentViews[viewName] = newComponentView;
+      if (this.isMounted()) {
+        newComponentView.mount();
+      }
+    } else {
+      delete componentViews[viewName];
+    }
+  }
+
+  /** @hidden */
+  mountViews(): void {
+    const componentViews = this._componentViews;
+    if (componentViews !== void 0) {
+      for (const viewName in componentViews) {
+        const componentView = componentViews[viewName]!;
+        componentView.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  unmountViews(): void {
+    const componentViews = this._componentViews;
+    if (componentViews !== void 0) {
+      for (const viewName in componentViews) {
+        const componentView = componentViews[viewName]!;
+        componentView.unmount();
       }
     }
   }

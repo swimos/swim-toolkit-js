@@ -65,7 +65,7 @@ export interface ModelScopeConstructor<T, U = T> {
 }
 
 export interface ModelScopeClass {
-  new<M extends Model, T, U>(model: M, scopeName: string, value?: T | U, inherit?: string): ModelScope<M, T, U>;
+  new<M extends Model, T, U>(model: M, scopeName: string, descriptor?: ModelScopeDescriptor<M, T, U>): ModelScope<M, T, U>;
 
   <M extends Model, TC extends ModelScopeTypeConstructor>(
       valueType: TC, descriptor?: ModelScopeDescriptorType<M, TC>): PropertyDecorator;

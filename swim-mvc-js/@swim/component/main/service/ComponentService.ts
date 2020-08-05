@@ -48,7 +48,7 @@ export interface ComponentServiceConstructor<T> {
 }
 
 export interface ComponentServiceClass {
-  new<C extends Component, T>(component: C, serviceName: string, value?: T, inherit?: string): ComponentService<C, T>;
+  new<C extends Component, T>(component: C, serviceName: string, descriptor?: ComponentServiceDescriptor<C, T>): ComponentService<C, T>;
 
   <C extends Component, TC extends ComponentServiceTypeConstructor>(
       valueType: TC, descriptor?: ComponentServiceDescriptorType<C, TC>): PropertyDecorator;

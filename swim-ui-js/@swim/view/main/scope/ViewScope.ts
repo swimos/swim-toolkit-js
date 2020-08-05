@@ -65,7 +65,7 @@ export interface ViewScopeConstructor<T, U = T> {
 }
 
 export interface ViewScopeClass {
-  new<V extends View, T, U>(view: V, scopeName: string, value?: T | U, inherit?: string): ViewScope<V, T, U>;
+  new<V extends View, T, U>(view: V, scopeName: string, descriptor?: ViewScopeDescriptor<V, T, U>): ViewScope<V, T, U>;
 
   <V extends View, TC extends ViewScopeTypeConstructor>(
       valueType: TC, descriptor?: ViewScopeDescriptorType<V, TC>): PropertyDecorator;

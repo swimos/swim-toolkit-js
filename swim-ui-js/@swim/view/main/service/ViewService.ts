@@ -64,7 +64,7 @@ export interface ViewServiceConstructor<T> {
 }
 
 export interface ViewServiceClass {
-  new<V extends View, T>(view: V, serviceName: string, value?: T, inherit?: string): ViewService<V, T>;
+  new<V extends View, T>(view: V, serviceName: string, descriptor?: ViewServiceDescriptor<V, T>): ViewService<V, T>;
 
   <V extends View, TC extends ViewServiceTypeConstructor>(
       valueType: TC, descriptor?: ViewServiceDescriptorType<V, TC>): PropertyDecorator;

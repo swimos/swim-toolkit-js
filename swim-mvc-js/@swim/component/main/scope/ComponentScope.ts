@@ -65,7 +65,7 @@ export interface ComponentScopeConstructor<T, U = T> {
 }
 
 export interface ComponentScopeClass {
-  new<C extends Component, T, U>(component: C, scopeName: string, value?: T | U, inherit?: string): ComponentScope<C, T, U>;
+  new<C extends Component, T, U>(component: C, scopeName: string, descriptor?: ComponentScopeDescriptor<C, T, U>): ComponentScope<C, T, U>;
 
   <C extends Component, TC extends ComponentScopeTypeConstructor>(
       valueType: TC, descriptor?: ComponentScopeDescriptorType<C, TC>): PropertyDecorator;

@@ -48,7 +48,7 @@ export interface ModelServiceConstructor<T> {
 }
 
 export interface ModelServiceClass {
-  new<M extends Model, T>(model: M, serviceName: string, value?: T, inherit?: string): ModelService<M, T>;
+  new<M extends Model, T>(model: M, serviceName: string, descriptor?: ModelServiceDescriptor<M, T>): ModelService<M, T>;
 
   <M extends Model, TC extends ModelServiceTypeConstructor>(
       valueType: TC, descriptor?: ModelServiceDescriptorType<M, TC>): PropertyDecorator;

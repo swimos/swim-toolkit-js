@@ -713,7 +713,7 @@ export abstract class Model {
         this.setModelService(serviceName, modelService);
       }
     }
-    return modelService
+    return modelService;
   }
 
   abstract hasModelScope(scopeName: string): boolean;
@@ -734,7 +734,7 @@ export abstract class Model {
         this.setModelScope(scopeName, modelScope);
       }
     }
-    return modelScope
+    return modelScope;
   }
 
   /** @hidden */

@@ -13,30 +13,15 @@
 // limitations under the License.
 
 export {
-  ComponentContextType,
-  ComponentContext,
-} from "./ComponentContext";
+  ComponentViewTypeConstructor,
+  ComponentViewDescriptorType,
+  ComponentViewDescriptor,
+  ComponentViewConstructor,
+  ComponentViewClass,
+  ComponentView,
+} from "./ComponentView";
+
 export {
-  ComponentFlags,
-  ComponentInit,
-  ComponentClass,
-  Component,
-} from "./Component";
-export {
-  ComponentObserverType,
-  ComponentObserver,
-} from "./ComponentObserver";
-
-export * from "./manager";
-
-export * from "./execute";
-
-export * from "./service";
-
-export * from "./scope";
-
-export * from "./model";
-
-export * from "./view";
-
-export * from "./generic";
+  ComponentViewObserverClass,
+  ComponentViewObserver,
+} from "./ComponentViewObserver";

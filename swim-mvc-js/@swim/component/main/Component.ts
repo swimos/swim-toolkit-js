@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {View} from "@swim/view";
+import {Model} from "@swim/model";
 import {ComponentContextType, ComponentContext} from "./ComponentContext";
 import {ComponentObserverType, ComponentObserver} from "./ComponentObserver";
 import {ComponentManager} from "./manager/ComponentManager";
@@ -26,6 +28,16 @@ import {
   ComponentScopeConstructor,
   ComponentScope,
 } from "./scope/ComponentScope";
+import {
+  ComponentModelDescriptor,
+  ComponentModelConstructor,
+  ComponentModel,
+} from "./model/ComponentModel";
+import {
+  ComponentViewDescriptor,
+  ComponentViewConstructor,
+  ComponentView,
+} from "./view/ComponentView";
 import {GenericComponent} from "./generic/GenericComponent";
 import {CompositeComponent} from "./generic/CompositeComponent";
 
@@ -49,6 +61,12 @@ export interface ComponentClass {
 
   /** @hidden */
   _componentScopeDescriptors?: {[scopeName: string]: ComponentScopeDescriptor<Component, unknown> | undefined};
+
+  /** @hidden */
+  _componentModelDescriptors?: {[modelName: string]: ComponentModelDescriptor<Component, Model> | undefined};
+
+  /** @hidden */
+  _componentViewDescriptors?: {[viewName: string]: ComponentViewDescriptor<Component, View> | undefined};
 }
 
 export abstract class Component {
@@ -707,7 +725,7 @@ export abstract class Component {
         this.setComponentService(serviceName, componentService);
       }
     }
-    return componentService
+    return componentService;
   }
 
   abstract hasComponentScope(scopeName: string): boolean;
@@ -728,7 +746,7 @@ export abstract class Component {
         this.setComponentScope(scopeName, componentScope);
       }
     }
-    return componentScope
+    return componentScope;
   }
 
   /** @hidden */
@@ -738,6 +756,68 @@ export abstract class Component {
 
   /** @hidden */
   componentScopeDidSetState<T, U>(componentScope: ComponentScope<Component, T, U>, newState: T | undefined, oldState: T | undefined): void {
+    // hook
+  }
+
+  abstract hasComponentModel(modelName: string): boolean;
+
+  abstract getComponentModel(modelName: string): ComponentModel<this, Model> | null;
+
+  abstract setComponentModel(modelName: string, componentModel: ComponentModel<this, Model> | null): void;
+
+  /** @hidden */
+  getLazyComponentModel(modelName: string): ComponentModel<this, Model> | null {
+    let componentModel = this.getComponentModel(modelName);
+    if (componentModel === null) {
+      const componentClass = (this as any).__proto__ as ComponentClass;
+      const descriptor = Component.getComponentModelDescriptor(modelName, componentClass);
+      if (descriptor !== null && descriptor.componentModelType !== void 0) {
+        const ComponentModel = descriptor.componentModelType;
+        componentModel = new ComponentModel<this>(this, modelName, descriptor);
+        this.setComponentModel(modelName, componentModel);
+      }
+    }
+    return componentModel;
+  }
+
+  /** @hidden */
+  componentModelDidSetAuto<M extends Model>(componentModel: ComponentModel<Component, M>, auto: boolean): void {
+    // hook
+  }
+
+  /** @hidden */
+  componentModelDidSetModel<M extends Model>(componentModel: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null): void {
+    // hook
+  }
+
+  abstract hasComponentView(viewName: string): boolean;
+
+  abstract getComponentView(viewName: string): ComponentView<this, View> | null;
+
+  abstract setComponentView(viewName: string, componentView: ComponentView<this, View> | null): void;
+
+  /** @hidden */
+  getLazyComponentView(viewName: string): ComponentView<this, View> | null {
+    let componentView = this.getComponentView(viewName);
+    if (componentView === null) {
+      const componentClass = (this as any).__proto__ as ComponentClass;
+      const descriptor = Component.getComponentViewDescriptor(viewName, componentClass);
+      if (descriptor !== null && descriptor.componentViewType !== void 0) {
+        const ComponentView = descriptor.componentViewType;
+        componentView = new ComponentView<this>(this, viewName, descriptor);
+        this.setComponentView(viewName, componentView);
+      }
+    }
+    return componentView;
+  }
+
+  /** @hidden */
+  componentViewDidSetAuto<V extends View>(componentView: ComponentView<Component, V>, auto: boolean): void {
+    // hook
+  }
+
+  /** @hidden */
+  componentViewDidSetView<V extends View>(componentView: ComponentView<Component, V>, newView: V | null, oldView: V | null): void {
     // hook
   }
 
@@ -847,6 +927,84 @@ export abstract class Component {
   }
 
   /** @hidden */
+  static getComponentModelDescriptor<C extends Component>(modelName: string, componentClass: ComponentClass | null = null): ComponentModelDescriptor<C, Model> | null {
+    if (componentClass === null) {
+      componentClass = this.prototype as unknown as ComponentClass;
+    }
+    do {
+      if (componentClass.hasOwnProperty("_componentModelDescriptors")) {
+        const descriptor = componentClass._componentModelDescriptors![modelName];
+        if (descriptor !== void 0) {
+          return descriptor;
+        }
+      }
+      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
+    } while (componentClass !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateComponentModel<C extends Component, M extends Model>(ComponentModel: ComponentModelConstructor<M>,
+                                                                      descriptor: ComponentModelDescriptor<C, M>,
+                                                                      componentClass: ComponentClass, modelName: string): void {
+    if (!componentClass.hasOwnProperty("_componentModelDescriptors")) {
+      componentClass._componentModelDescriptors = {};
+    }
+    componentClass._componentModelDescriptors![modelName] = descriptor;
+    Object.defineProperty(componentClass, modelName, {
+      get: function (this: C): ComponentModel<C, M> {
+        let componentModel = this.getComponentModel(modelName) as ComponentModel<C, M> | null;
+        if (componentModel === null) {
+          componentModel = new ComponentModel<C>(this, modelName, descriptor);
+          this.setComponentModel(modelName, componentModel);
+        }
+        return componentModel;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
+  static getComponentViewDescriptor<C extends Component>(viewName: string, componentClass: ComponentClass | null = null): ComponentViewDescriptor<C, View> | null {
+    if (componentClass === null) {
+      componentClass = this.prototype as unknown as ComponentClass;
+    }
+    do {
+      if (componentClass.hasOwnProperty("_componentViewDescriptors")) {
+        const descriptor = componentClass._componentViewDescriptors![viewName];
+        if (descriptor !== void 0) {
+          return descriptor;
+        }
+      }
+      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
+    } while (componentClass !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateComponentView<C extends Component, V extends View>(ComponentView: ComponentViewConstructor<V>,
+                                                                    descriptor: ComponentViewDescriptor<C, V>,
+                                                                    componentClass: ComponentClass, viewName: string): void {
+    if (!componentClass.hasOwnProperty("_componentViewDescriptors")) {
+      componentClass._componentViewDescriptors = {};
+    }
+    componentClass._componentViewDescriptors![viewName] = descriptor;
+    Object.defineProperty(componentClass, viewName, {
+      get: function (this: C): ComponentView<C, V> {
+        let componentView = this.getComponentView(viewName) as ComponentView<C, V> | null;
+        if (componentView === null) {
+          componentView = new ComponentView<C>(this, viewName, descriptor);
+          this.setComponentView(viewName, componentView);
+        }
+        return componentView;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
   static readonly MountedFlag: ComponentFlags = 1 << 0;
   /** @hidden */
   static readonly PoweredFlag: ComponentFlags = 1 << 1;
@@ -911,6 +1069,10 @@ export abstract class Component {
   static Service: typeof ComponentService; // defined by ComponentService
   /** @hidden */
   static Scope: typeof ComponentScope; // defined by ComponentScope
+  /** @hidden */
+  static Model: typeof ComponentModel; // defined by ComponentModel
+  /** @hidden */
+  static View: typeof ComponentView; // defined by ComponentView
   /** @hidden */
   static Generic: typeof GenericComponent; // defined by GenericComponent
   /** @hidden */

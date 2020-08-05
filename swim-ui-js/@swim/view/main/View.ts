@@ -820,7 +820,7 @@ export abstract class View implements AnimatorContext, LayoutScope {
         this.setViewService(serviceName, viewService);
       }
     }
-    return viewService
+    return viewService;
   }
 
   abstract hasViewScope(scopeName: string): boolean;
@@ -841,7 +841,7 @@ export abstract class View implements AnimatorContext, LayoutScope {
         this.setViewScope(scopeName, viewScope);
       }
     }
-    return viewScope
+    return viewScope;
   }
 
   /** @hidden */
