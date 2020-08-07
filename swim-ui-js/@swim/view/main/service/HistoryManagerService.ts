@@ -14,21 +14,31 @@
 
 import {View} from "../View";
 import {HistoryManager} from "../history/HistoryManager";
+import {HistoryManagerObserver} from "../history/HistoryManagerObserver";
 import {ViewService} from "./ViewService";
 
 /** @hidden */
 export abstract class HistoryManagerService<V extends View> extends ViewService<V, HistoryManager> {
+  /** @hidden */
+  observer?: boolean;
+
   mount(): void {
     super.mount();
     const state = this._state;
     if (state !== void 0) {
-      state.addRootView(this._view);
+      state.insertRootView(this._view);
+      if (this.observer === true) {
+        state.addViewManagerObserver(this as HistoryManagerObserver<V>);
+      }
     }
   }
 
   unmount(): void {
     const state = this._state;
     if (state !== void 0) {
+      if (this.observer === true) {
+        state.removeViewManagerObserver(this as HistoryManagerObserver<V>);
+      }
       state.removeRootView(this._view);
     }
     super.unmount();

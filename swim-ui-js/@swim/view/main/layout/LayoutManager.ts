@@ -101,13 +101,9 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
 
   readonly viewManagerObservers: ReadonlyArray<LayoutManagerObserver>;
 
-  protected onAddRootView(rootView: V): void {
-    super.onAddRootView(rootView);
+  protected onInsertRootView(rootView: V): void {
+    super.onInsertRootView(rootView);
     this.addLayoutAnchors(rootView);
-  }
-
-  protected onRemoveRootView(rootView: V): void {
-    super.onRemoveRootView(rootView);
   }
 
   protected addLayoutAnchors(rootView: V): void {

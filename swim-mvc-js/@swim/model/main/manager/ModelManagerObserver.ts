@@ -24,9 +24,9 @@ export interface ModelManagerObserver<M extends Model = Model, MM extends ModelM
 
   modelManagerDidDetach?(modelManager: MM): void;
 
-  modelManagerWillAddRootModel?(rootModel: M, modelManager: MM): void;
+  modelManagerWillInsertRootModel?(rootModel: M, modelManager: MM): void;
 
-  modelManagerDidAddRootModel?(rootModel: M, modelManager: MM): void;
+  modelManagerDidInsertRootModel?(rootModel: M, modelManager: MM): void;
 
   modelManagerWillRemoveRootModel?(rootModel: M, modelManager: MM): void;
 

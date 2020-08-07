@@ -24,9 +24,9 @@ export interface ViewManagerObserver<V extends View = View, VM extends ViewManag
 
   viewManagerDidDetach?(viewManager: VM): void;
 
-  viewManagerWillAddRootView?(rootView: V, viewManager: VM): void;
+  viewManagerWillInsertRootView?(rootView: V, viewManager: VM): void;
 
-  viewManagerDidAddRootView?(rootView: V, viewManager: VM): void;
+  viewManagerDidInsertRootView?(rootView: V, viewManager: VM): void;
 
   viewManagerWillRemoveRootView?(rootView: V, viewManager: VM): void;
 

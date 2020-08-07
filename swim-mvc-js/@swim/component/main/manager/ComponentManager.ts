@@ -169,7 +169,7 @@ export abstract class ComponentManager<C extends Component = Component> {
     return this._rootComponents;
   }
 
-  addRootComponent(rootComponent: C): void {
+  insertRootComponent(rootComponent: C): void {
     const rootComponents = this._rootComponents;
     const index = rootComponents.indexOf(rootComponent);
     if (index < 0) {
@@ -177,35 +177,35 @@ export abstract class ComponentManager<C extends Component = Component> {
       if (needsAttach) {
         this.willAttach();
       }
-      this.willAddRootComponent(rootComponent);
+      this.willInsertRootComponent(rootComponent);
       rootComponents.push(rootComponent);
       if (needsAttach) {
         this.onAttach();
       }
-      this.onAddRootComponent(rootComponent);
-      this.didAddRootComponent(rootComponent);
+      this.onInsertRootComponent(rootComponent);
+      this.didInsertRootComponent(rootComponent);
       if (needsAttach) {
         this.didAttach();
       }
     }
   }
 
-  protected willAddRootComponent(rootComponent: C): void {
+  protected willInsertRootComponent(rootComponent: C): void {
     this.willObserve(function (componentManagerObserver: ComponentManagerObserver): void {
-      if (componentManagerObserver.componentManagerWillAddRootComponent !== void 0) {
-        componentManagerObserver.componentManagerWillAddRootComponent(rootComponent, this);
+      if (componentManagerObserver.componentManagerWillInsertRootComponent !== void 0) {
+        componentManagerObserver.componentManagerWillInsertRootComponent(rootComponent, this);
       }
     });
   }
 
-  protected onAddRootComponent(rootComponent: C): void {
+  protected onInsertRootComponent(rootComponent: C): void {
     // hook
   }
 
-  protected didAddRootComponent(rootComponent: C): void {
+  protected didInsertRootComponent(rootComponent: C): void {
     this.didObserve(function (componentManagerObserver: ComponentManagerObserver): void {
-      if (componentManagerObserver.componentManagerDidAddRootComponent !== void 0) {
-        componentManagerObserver.componentManagerDidAddRootComponent(rootComponent, this);
+      if (componentManagerObserver.componentManagerDidInsertRootComponent !== void 0) {
+        componentManagerObserver.componentManagerDidInsertRootComponent(rootComponent, this);
       }
     });
   }

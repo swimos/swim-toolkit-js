@@ -249,7 +249,8 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  protected onAddRootView(rootView: V): void {
+  protected onInsertRootView(rootView: V): void {
+    super.onInsertRootView(rootView);
     this.requestUpdate(rootView, rootView.viewFlags & View.UpdateMask, false);
   }
 

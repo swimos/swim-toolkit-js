@@ -18,7 +18,7 @@ import {ViewIdiom} from "./ViewIdiom";
 import {ViewportManager} from "./ViewportManager";
 
 export interface ViewportManagerObserver<V extends View = View, VM extends ViewportManager<V> = ViewportManager<V>> extends ViewManagerObserver<V, VM> {
-  viewManagerWillSetViewIdiom?(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom, viewManager: VM): void;
+  viewportManagerWillSetViewIdiom?(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom, viewportManager: VM): void;
 
-  viewManagerDidSetViewIdiom?(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom, viewManager: VM): void;
+  viewportManagerDidSetViewIdiom?(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom, viewportManager: VM): void;
 }

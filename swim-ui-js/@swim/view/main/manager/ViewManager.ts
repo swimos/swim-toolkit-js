@@ -173,7 +173,7 @@ export abstract class ViewManager<V extends View = View> {
     return this._rootViews;
   }
 
-  addRootView(rootView: V): void {
+  insertRootView(rootView: V): void {
     const rootViews = this._rootViews;
     const index = rootViews.indexOf(rootView);
     if (index < 0) {
@@ -181,35 +181,35 @@ export abstract class ViewManager<V extends View = View> {
       if (needsAttach) {
         this.willAttach();
       }
-      this.willAddRootView(rootView);
+      this.willInsertRootView(rootView);
       rootViews.push(rootView);
       if (needsAttach) {
         this.onAttach();
       }
-      this.onAddRootView(rootView);
-      this.didAddRootView(rootView);
+      this.onInsertRootView(rootView);
+      this.didInsertRootView(rootView);
       if (needsAttach) {
         this.didAttach();
       }
     }
   }
 
-  protected willAddRootView(rootView: V): void {
+  protected willInsertRootView(rootView: V): void {
     this.willObserve(function (viewManagerObserver: ViewManagerObserver): void {
-      if (viewManagerObserver.viewManagerWillAddRootView !== void 0) {
-        viewManagerObserver.viewManagerWillAddRootView(rootView, this);
+      if (viewManagerObserver.viewManagerWillInsertRootView !== void 0) {
+        viewManagerObserver.viewManagerWillInsertRootView(rootView, this);
       }
     });
   }
 
-  protected onAddRootView(rootView: V): void {
+  protected onInsertRootView(rootView: V): void {
     // hook
   }
 
-  protected didAddRootView(rootView: V): void {
+  protected didInsertRootView(rootView: V): void {
     this.didObserve(function (viewManagerObserver: ViewManagerObserver): void {
-      if (viewManagerObserver.viewManagerDidAddRootView !== void 0) {
-        viewManagerObserver.viewManagerDidAddRootView(rootView, this);
+      if (viewManagerObserver.viewManagerDidInsertRootView !== void 0) {
+        viewManagerObserver.viewManagerDidInsertRootView(rootView, this);
       }
     });
   }

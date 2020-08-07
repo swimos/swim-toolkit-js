@@ -261,7 +261,8 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     }
   }
 
-  protected onAddRootComponent(rootComponent: C): void {
+  protected onInsertRootComponent(rootComponent: C): void {
+    super.onInsertRootComponent(rootComponent);
     this.requestUpdate(rootComponent, rootComponent.componentFlags & Component.UpdateMask, false);
   }
 

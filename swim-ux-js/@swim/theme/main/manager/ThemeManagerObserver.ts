@@ -19,7 +19,7 @@ import {ThemeMatrix} from "../theme/ThemeMatrix";
 import {ThemeManager} from "./ThemeManager";
 
 export interface ThemeManagerObserver<V extends View = View, VM extends ThemeManager<V> = ThemeManager<V>> extends ViewManagerObserver<V, VM> {
-  viewManagerWillApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, viewManager: VM): void;
+  themeManagerWillApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, themeManager: VM): void;
 
-  viewManagerDidApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, viewManager: VM): void;
+  themeManagerDidApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, themeManager: VM): void;
 }

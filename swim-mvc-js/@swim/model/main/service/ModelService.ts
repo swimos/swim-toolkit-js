@@ -14,6 +14,7 @@
 
 import {__extends} from "tslib";
 import {Model} from "../Model";
+import {ModelManagerObserverType, ModelManager} from "../manager/ModelManager";
 import {RefreshManager} from "../refresh/RefreshManager";
 import {RefreshManagerService} from "./RefreshManagerService";
 
@@ -26,6 +27,7 @@ export interface ModelServiceInit<M extends Model, T> {
   init?(): T | undefined;
   value?: T;
   inherit?: string | boolean;
+  observer?: boolean;
 
   extends?: ModelServicePrototype<T>;
 }
@@ -90,7 +92,8 @@ export interface ModelService<M extends Model, T> {
 
 export function ModelService<M extends Model, T, I = {}>(descriptor: {extends: ModelServicePrototype<T>} & ModelServiceDescriptor<M, T, I>): PropertyDecorator;
 export function ModelService<M extends Model, T extends Object = object, I = {}>(descriptor: {type: typeof Object} & ModelServiceDescriptor<M, T, I>): PropertyDecorator;
-export function ModelService<M extends Model, T extends RefreshManager = RefreshManager, I = {}>(descriptor: {type: typeof RefreshManager} & ModelServiceDescriptor<M, T, I>): PropertyDecorator;
+export function ModelService<M extends Model, T extends RefreshManager = RefreshManager, I = ModelManagerObserverType<T>>(descriptor: {type: typeof RefreshManager} & ModelServiceDescriptor<M, T, I>): PropertyDecorator;
+export function ModelService<M extends Model, T extends ModelManager = ModelManager, I = ModelManagerObserverType<T>>(descriptor: {type: typeof ModelManager} & ModelServiceDescriptor<M, T, I>): PropertyDecorator;
 export function ModelService<M extends Model, T, I = {}>(descriptor: {type: Function & { prototype: T }} & ModelServiceDescriptor<M, T, I>): PropertyDecorator;
 
 export function ModelService<M extends Model, T>(

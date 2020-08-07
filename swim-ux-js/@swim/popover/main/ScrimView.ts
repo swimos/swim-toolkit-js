@@ -122,7 +122,7 @@ export class ScrimView extends ThemedHtmlView implements ModalManagerObserver {
     const modalManager = this.modalManager.state;
     if (modalManager !== void 0) {
       modalManager.addViewManagerObserver(this);
-      this.viewManagerDidUpdateModality(modalManager.modality, 0, modalManager);
+      this.modalManagerDidUpdateModality(modalManager.modality, 0, modalManager);
     }
   }
 
@@ -135,7 +135,7 @@ export class ScrimView extends ThemedHtmlView implements ModalManagerObserver {
     super.onUnmount();
   }
 
-  viewManagerDidUpdateModality(newModality: number, oldModality: number, viewManager: ModalManager): void {
+  modalManagerDidUpdateModality(newModality: number, oldModality: number, viewManager: ModalManager): void {
     if (newModality !== 0) {
       const opacity = 0.5 * newModality;
       if (oldModality === 0) {

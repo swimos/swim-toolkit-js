@@ -88,8 +88,8 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
   protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                            transition: Transition<any> | null): void {
     this.willObserve(function (viewManagerObserver: ThemeManagerObserver): void {
-      if (viewManagerObserver.viewManagerWillApplyTheme !== void 0) {
-        viewManagerObserver.viewManagerWillApplyTheme(theme, mood, transition, this);
+      if (viewManagerObserver.themeManagerWillApplyTheme !== void 0) {
+        viewManagerObserver.themeManagerWillApplyTheme(theme, mood, transition, this);
       }
     });
   }
@@ -146,16 +146,16 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
   protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                           transition: Transition<any> | null): void {
     this.didObserve(function (viewManagerObserver: ThemeManagerObserver): void {
-      if (viewManagerObserver.viewManagerDidApplyTheme !== void 0) {
-        viewManagerObserver.viewManagerDidApplyTheme(theme, mood, transition, this);
+      if (viewManagerObserver.themeManagerDidApplyTheme !== void 0) {
+        viewManagerObserver.themeManagerDidApplyTheme(theme, mood, transition, this);
       }
     });
   }
 
   readonly viewManagerObservers: ReadonlyArray<ThemeManagerObserver>;
 
-  protected onAddRootView(rootView: V): void {
-    super.onAddRootView(rootView);
+  protected onInsertRootView(rootView: V): void {
+    super.onInsertRootView(rootView);
     this.applyTheme(this._theme, this._mood);
   }
 

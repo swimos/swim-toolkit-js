@@ -14,21 +14,31 @@
 
 import {View} from "../View";
 import {LayoutManager} from "../layout/LayoutManager";
+import {LayoutManagerObserver} from "../layout/LayoutManagerObserver";
 import {ViewService} from "./ViewService";
 
 /** @hidden */
 export abstract class LayoutManagerService<V extends View> extends ViewService<V, LayoutManager> {
+  /** @hidden */
+  observer?: boolean;
+
   mount(): void {
     super.mount();
     const state = this._state;
     if (state !== void 0) {
-      state.addRootView(this._view);
+      state.insertRootView(this._view);
+      if (this.observer === true) {
+        state.addViewManagerObserver(this as LayoutManagerObserver<V>);
+      }
     }
   }
 
   unmount(): void {
     const state = this._state;
     if (state !== void 0) {
+      if (this.observer === true) {
+        state.removeViewManagerObserver(this as LayoutManagerObserver<V>);
+      }
       state.removeRootView(this._view);
     }
     super.unmount();

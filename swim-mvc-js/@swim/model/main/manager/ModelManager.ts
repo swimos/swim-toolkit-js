@@ -169,7 +169,7 @@ export abstract class ModelManager<M extends Model = Model> {
     return this._rootModels;
   }
 
-  addRootModel(rootModel: M): void {
+  insertRootModel(rootModel: M): void {
     const rootModels = this._rootModels;
     const index = rootModels.indexOf(rootModel);
     if (index < 0) {
@@ -177,35 +177,35 @@ export abstract class ModelManager<M extends Model = Model> {
       if (needsAttach) {
         this.willAttach();
       }
-      this.willAddRootModel(rootModel);
+      this.willInsertRootModel(rootModel);
       rootModels.push(rootModel);
       if (needsAttach) {
         this.onAttach();
       }
-      this.onAddRootModel(rootModel);
-      this.didAddRootModel(rootModel);
+      this.onInsertRootModel(rootModel);
+      this.didInsertRootModel(rootModel);
       if (needsAttach) {
         this.didAttach();
       }
     }
   }
 
-  protected willAddRootModel(rootModel: M): void {
+  protected willInsertRootModel(rootModel: M): void {
     this.willObserve(function (modelManagerObserver: ModelManagerObserver): void {
-      if (modelManagerObserver.modelManagerWillAddRootModel !== void 0) {
-        modelManagerObserver.modelManagerWillAddRootModel(rootModel, this);
+      if (modelManagerObserver.modelManagerWillInsertRootModel !== void 0) {
+        modelManagerObserver.modelManagerWillInsertRootModel(rootModel, this);
       }
     });
   }
 
-  protected onAddRootModel(rootModel: M): void {
+  protected onInsertRootModel(rootModel: M): void {
     // hook
   }
 
-  protected didAddRootModel(rootModel: M): void {
+  protected didInsertRootModel(rootModel: M): void {
     this.didObserve(function (modelManagerObserver: ModelManagerObserver): void {
-      if (modelManagerObserver.modelManagerDidAddRootModel !== void 0) {
-        modelManagerObserver.modelManagerDidAddRootModel(rootModel, this);
+      if (modelManagerObserver.modelManagerDidInsertRootModel !== void 0) {
+        modelManagerObserver.modelManagerDidInsertRootModel(rootModel, this);
       }
     });
   }

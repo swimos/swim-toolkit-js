@@ -14,21 +14,31 @@
 
 import {Model} from "../Model";
 import {RefreshManager} from "../refresh/RefreshManager";
+import {RefreshManagerObserver} from "../refresh/RefreshManagerObserver";
 import {ModelService} from "./ModelService";
 
 /** @hidden */
 export abstract class RefreshManagerService<M extends Model> extends ModelService<M, RefreshManager> {
+  /** @hidden */
+  readonly observer?: boolean;
+
   mount(): void {
     super.mount();
     const state = this._state;
     if (state !== void 0) {
-      state.addRootModel(this._model);
+      state.insertRootModel(this._model);
+      if (this.observer === true) {
+        state.addModelManagerObserver(this as RefreshManagerObserver<M>);
+      }
     }
   }
 
   unmount(): void {
     const state = this._state;
     if (state !== void 0) {
+      if (this.observer === true) {
+        state.removeModelManagerObserver(this as RefreshManagerObserver<M>);
+      }
       state.removeRootModel(this._model);
     }
     super.unmount();

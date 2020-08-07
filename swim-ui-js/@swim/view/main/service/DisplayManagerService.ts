@@ -14,21 +14,31 @@
 
 import {View} from "../View";
 import {DisplayManager} from "../display/DisplayManager";
+import {DisplayManagerObserver} from "../display/DisplayManagerObserver";
 import {ViewService} from "./ViewService";
 
 /** @hidden */
 export abstract class DisplayManagerService<V extends View> extends ViewService<V, DisplayManager> {
+  /** @hidden */
+  readonly observer?: boolean;
+
   mount(): void {
     super.mount();
     const state = this._state;
     if (state !== void 0) {
-      state.addRootView(this._view);
+      state.insertRootView(this._view);
+      if (this.observer === true) {
+        state.addViewManagerObserver(this as DisplayManagerObserver<V>);
+      }
     }
   }
 
   unmount(): void {
     const state = this._state;
     if (state !== void 0) {
+      if (this.observer === true) {
+        state.removeViewManagerObserver(this as DisplayManagerObserver<V>);
+      }
       state.removeRootView(this._view);
     }
     super.unmount();

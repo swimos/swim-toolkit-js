@@ -24,9 +24,9 @@ export interface ComponentManagerObserver<C extends Component = Component, CM ex
 
   componentManagerDidDetach?(componentManager: CM): void;
 
-  componentManagerWillAddRootComponent?(rootComponent: C, componentManager: CM): void;
+  componentManagerWillInsertRootComponent?(rootComponent: C, componentManager: CM): void;
 
-  componentManagerDidAddRootComponent?(rootComponent: C, componentManager: CM): void;
+  componentManagerDidInsertRootComponent?(rootComponent: C, componentManager: CM): void;
 
   componentManagerWillRemoveRootComponent?(rootComponent: C, componentManager: CM): void;
 

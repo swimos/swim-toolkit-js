@@ -18,19 +18,19 @@ import {ModalOptions, Modal} from "./Modal";
 import {ModalManager} from "./ModalManager";
 
 export interface ModalManagerObserver<V extends View = View, VM extends ModalManager<V> = ModalManager<V>> extends ViewManagerObserver<V, VM> {
-  viewManagerWillPresentModal?(modal: Modal, options: ModalOptions, viewManager: VM): void;
+  modalManagerWillPresentModal?(modal: Modal, options: ModalOptions, modalManager: VM): void;
 
-  viewManagerDidPresentModal?(modal: Modal, options: ModalOptions, viewManager: VM): void;
+  modalManagerDidPresentModal?(modal: Modal, options: ModalOptions, modalManager: VM): void;
 
-  viewManagerWillDismissModal?(modal: Modal, viewManager: VM): void;
+  modalManagerWillDismissModal?(modal: Modal, modalManager: VM): void;
 
-  viewManagerDidDismissModal?(modal: Modal, viewManager: VM): void;
+  modalManagerDidDismissModal?(modal: Modal, modalManager: VM): void;
 
-  viewManagerWillUpdateModality?(newModality: number, oldModality: number, viewManager: VM): void;
+  modalManagerWillUpdateModality?(newModality: number, oldModality: number, modalManager: VM): void;
 
-  viewManagerDidUpdateModality?(newModality: number, oldModality: number, viewManager: VM): void;
+  modalManagerDidUpdateModality?(newModality: number, oldModality: number, modalManager: VM): void;
 
-  viewManagerWillDisplaceModals?(event: Event | null, viewManager: VM): void | boolean;
+  modalManagerWillDisplaceModals?(event: Event | null, modalManager: VM): void | boolean;
 
-  viewManagerDidDisplaceModals?(event: Event | null, viewManager: VM): void;
+  modalManagerDidDisplaceModals?(event: Event | null, modalManager: VM): void;
 }

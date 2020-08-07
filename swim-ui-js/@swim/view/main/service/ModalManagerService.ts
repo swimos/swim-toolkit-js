@@ -14,21 +14,31 @@
 
 import {View} from "../View";
 import {ModalManager} from "../modal/ModalManager";
+import {ModalManagerObserver} from "../modal/ModalManagerObserver";
 import {ViewService} from "./ViewService";
 
 /** @hidden */
 export abstract class ModalManagerService<V extends View> extends ViewService<V, ModalManager> {
+  /** @hidden */
+  observer?: boolean;
+
   mount(): void {
     super.mount();
     const state = this._state;
     if (state !== void 0) {
-      state.addRootView(this._view);
+      state.insertRootView(this._view);
+      if (this.observer === true) {
+        state.addViewManagerObserver(this as ModalManagerObserver<V>);
+      }
     }
   }
 
   unmount(): void {
     const state = this._state;
     if (state !== void 0) {
+      if (this.observer === true) {
+        state.removeViewManagerObserver(this as ModalManagerObserver<V>);
+      }
       state.removeRootView(this._view);
     }
     super.unmount();

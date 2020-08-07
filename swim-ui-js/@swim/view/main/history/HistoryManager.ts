@@ -136,8 +136,8 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
 
   protected willPushHistory(historyState: HistoryState): void {
     this.willObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.viewManagerWillPushHistory !== void 0) {
-        viewManagerObserver.viewManagerWillPushHistory(historyState, this);
+      if (viewManagerObserver.historyManagerWillPushHistory !== void 0) {
+        viewManagerObserver.historyManagerWillPushHistory(historyState, this);
       }
     });
   }
@@ -151,8 +151,8 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
 
   protected didPushHistory(historyState: HistoryState): void {
     this.didObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.viewManagerDidPushHistory !== void 0) {
-        viewManagerObserver.viewManagerDidPushHistory(historyState, this);
+      if (viewManagerObserver.historyManagerDidPushHistory !== void 0) {
+        viewManagerObserver.historyManagerDidPushHistory(historyState, this);
       }
     });
   }
@@ -168,8 +168,8 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
 
   protected willReplaceHistory(historyState: HistoryState): void {
     this.willObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.viewManagerWillReplaceHistory !== void 0) {
-        viewManagerObserver.viewManagerWillReplaceHistory(historyState, this);
+      if (viewManagerObserver.historyManagerWillReplaceHistory !== void 0) {
+        viewManagerObserver.historyManagerWillReplaceHistory(historyState, this);
       }
     });
   }
@@ -183,8 +183,8 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
 
   protected didReplaceHistory(historyState: HistoryState): void {
     this.didObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.viewManagerDidReplaceHistory !== void 0) {
-        viewManagerObserver.viewManagerDidReplaceHistory(historyState, this);
+      if (viewManagerObserver.historyManagerDidReplaceHistory !== void 0) {
+        viewManagerObserver.historyManagerDidReplaceHistory(historyState, this);
       }
     });
   }
@@ -200,8 +200,8 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
 
   protected willPopHistory(historyState: HistoryState): void {
     this.willObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.viewManagerWillPopHistory !== void 0) {
-        viewManagerObserver.viewManagerWillPopHistory(historyState, this);
+      if (viewManagerObserver.historyManagerWillPopHistory !== void 0) {
+        viewManagerObserver.historyManagerWillPopHistory(historyState, this);
       }
     });
   }
@@ -215,8 +215,8 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
 
   protected didPopHistory(historyState: HistoryState): void {
     this.didObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.viewManagerDidPopHistory !== void 0) {
-        viewManagerObserver.viewManagerDidPopHistory(historyState, this);
+      if (viewManagerObserver.historyManagerDidPopHistory !== void 0) {
+        viewManagerObserver.historyManagerDidPopHistory(historyState, this);
       }
     });
   }

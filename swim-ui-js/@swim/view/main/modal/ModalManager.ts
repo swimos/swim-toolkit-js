@@ -100,8 +100,8 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
 
   protected willPresentModal(modal: Modal, options: ModalOptions): void {
     this.willObserve(function (viewManagerObserver: ModalManagerObserver): void {
-      if (viewManagerObserver.viewManagerWillPresentModal !== void 0) {
-        viewManagerObserver.viewManagerWillPresentModal(modal, options, this);
+      if (viewManagerObserver.modalManagerWillPresentModal !== void 0) {
+        viewManagerObserver.modalManagerWillPresentModal(modal, options, this);
       }
     });
   }
@@ -112,8 +112,8 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
 
   protected didPresentModal(modal: Modal, options: ModalOptions): void {
     this.didObserve(function (viewManagerObserver: ModalManagerObserver): void {
-      if (viewManagerObserver.viewManagerDidPresentModal !== void 0) {
-        viewManagerObserver.viewManagerDidPresentModal(modal, options, this);
+      if (viewManagerObserver.modalManagerDidPresentModal !== void 0) {
+        viewManagerObserver.modalManagerDidPresentModal(modal, options, this);
       }
     });
   }
@@ -133,8 +133,8 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
 
   protected willDismissModal(modal: Modal): void {
     this.willObserve(function (viewManagerObserver: ModalManagerObserver): void {
-      if (viewManagerObserver.viewManagerWillDismissModal !== void 0) {
-        viewManagerObserver.viewManagerWillDismissModal(modal, this);
+      if (viewManagerObserver.modalManagerWillDismissModal !== void 0) {
+        viewManagerObserver.modalManagerWillDismissModal(modal, this);
       }
     });
   }
@@ -145,8 +145,8 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
 
   protected didDismissModal(modal: Modal): void {
     this.didObserve(function (viewManagerObserver: ModalManagerObserver): void {
-      if (viewManagerObserver.viewManagerDidDismissModal !== void 0) {
-        viewManagerObserver.viewManagerDidDismissModal(modal, this);
+      if (viewManagerObserver.modalManagerDidDismissModal !== void 0) {
+        viewManagerObserver.modalManagerDidDismissModal(modal, this);
       }
     });
   }
@@ -177,8 +177,8 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
 
   protected willUpdateModality(newModality: number, oldModality: number): void {
     this.willObserve(function (viewManagerObserver: ModalManagerObserver): void {
-      if (viewManagerObserver.viewManagerWillUpdateModality !== void 0) {
-        viewManagerObserver.viewManagerWillUpdateModality(newModality, oldModality, this);
+      if (viewManagerObserver.modalManagerWillUpdateModality !== void 0) {
+        viewManagerObserver.modalManagerWillUpdateModality(newModality, oldModality, this);
       }
     });
   }
@@ -189,8 +189,8 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
 
   protected didUpdateModality(newModality: number, oldModality: number): void {
     this.didObserve(function (viewManagerObserver: ModalManagerObserver): void {
-      if (viewManagerObserver.viewManagerDidUpdateModality !== void 0) {
-        viewManagerObserver.viewManagerDidUpdateModality(newModality, oldModality, this);
+      if (viewManagerObserver.modalManagerDidUpdateModality !== void 0) {
+        viewManagerObserver.modalManagerDidUpdateModality(newModality, oldModality, this);
       }
     });
   }
@@ -205,8 +205,8 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
 
   protected willDisplaceModals(event: Event | null): boolean {
     const handled = this.willObserve(function (viewManagerObserver: ModalManagerObserver): boolean | void {
-      if (viewManagerObserver.viewManagerWillDisplaceModals !== void 0) {
-        const handled = viewManagerObserver.viewManagerWillDisplaceModals(event, this);
+      if (viewManagerObserver.modalManagerWillDisplaceModals !== void 0) {
+        const handled = viewManagerObserver.modalManagerWillDisplaceModals(event, this);
         if (handled === true) {
           return true;
         }
@@ -230,19 +230,21 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
 
   protected didDisplaceModals(event: Event | null): void {
     this.didObserve(function (viewManagerObserver: ModalManagerObserver): void {
-      if (viewManagerObserver.viewManagerDidDisplaceModals !== void 0) {
-        viewManagerObserver.viewManagerDidDisplaceModals(event, this);
+      if (viewManagerObserver.modalManagerDidDisplaceModals !== void 0) {
+        viewManagerObserver.modalManagerDidDisplaceModals(event, this);
       }
     });
   }
 
   readonly viewManagerObservers: ReadonlyArray<ModalManagerObserver>;
 
-  protected onAddRootView(rootView: V): void {
+  protected onInsertRootView(rootView: V): void {
+    super.onInsertRootView(rootView);
     this.attachEvents(rootView);
   }
 
   protected onRemoveRootView(rootView: V): void {
+    super.onRemoveRootView(rootView);
     this.detachEvents(rootView);
   }
 

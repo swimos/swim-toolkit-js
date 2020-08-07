@@ -261,7 +261,8 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     }
   }
 
-  protected onAddRootModel(rootModel: M): void {
+  protected onInsertRootModel(rootModel: M): void {
+    super.onInsertRootModel(rootModel);
     this.requestUpdate(rootModel, rootModel.modelFlags & Model.UpdateMask, false);
   }
 

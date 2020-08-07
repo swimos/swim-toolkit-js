@@ -14,21 +14,31 @@
 
 import {Component} from "../Component";
 import {ExecuteManager} from "../execute/ExecuteManager";
+import {ExecuteManagerObserver} from "../execute/ExecuteManagerObserver";
 import {ComponentService} from "./ComponentService";
 
 /** @hidden */
-export abstract class ExecuteManagerService<M extends Component> extends ComponentService<M, ExecuteManager> {
+export abstract class ExecuteManagerService<C extends Component> extends ComponentService<C, ExecuteManager> {
+  /** @hidden */
+  readonly observer?: boolean;
+
   mount(): void {
     super.mount();
     const state = this._state;
     if (state !== void 0) {
-      state.addRootComponent(this._component);
+      state.insertRootComponent(this._component);
+      if (this.observer === true) {
+        state.addComponentManagerObserver(this as ExecuteManagerObserver<C>);
+      }
     }
   }
 
   unmount(): void {
     const state = this._state;
     if (state !== void 0) {
+      if (this.observer === true) {
+        state.removeComponentManagerObserver(this as ExecuteManagerObserver<C>);
+      }
       state.removeRootComponent(this._component);
     }
     super.unmount();

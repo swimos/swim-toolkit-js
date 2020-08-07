@@ -14,20 +14,30 @@
 
 import {View, ViewService} from "@swim/view";
 import {ThemeManager} from "./ThemeManager";
+import {ThemeManagerObserver} from "./ThemeManagerObserver";
 
 /** @hidden */
 export abstract class ThemeManagerService<V extends View> extends ViewService<V, ThemeManager> {
+  /** @hidden */
+  observer?: boolean;
+
   mount(): void {
     super.mount();
     const state = this._state;
     if (state !== void 0) {
-      state.addRootView(this._view);
+      state.insertRootView(this._view);
+      if (this.observer === true) {
+        state.addViewManagerObserver(this as ThemeManagerObserver<V>);
+      }
     }
   }
 
   unmount(): void {
     const state = this._state;
     if (state !== void 0) {
+      if (this.observer === true) {
+        state.removeViewManagerObserver(this as ThemeManagerObserver<V>);
+      }
       state.removeRootView(this._view);
     }
     super.unmount();
