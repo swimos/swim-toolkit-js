@@ -55,10 +55,10 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     this.cursor.setAutoState("pointer");
   }
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @ViewScope(Object, {inherit: true})
+  @ViewScope({type: Object, inherit: true})
   edgeInsets: ViewScope<this, ViewEdgeInsets>;
 
   get highlighted(): boolean {

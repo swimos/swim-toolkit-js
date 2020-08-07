@@ -12,42 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Component} from "../Component";
-import {ComponentScopeDescriptor, ComponentScope} from "./ComponentScope";
+import {ComponentScope} from "./ComponentScope";
 
 /** @hidden */
-export interface ObjectComponentScopeClass {
-  new<C extends Component, T>(component: C, scopeName: string, descriptor?: ComponentScopeDescriptor<C, T>): ObjectComponentScope<C, T>;
-}
-
-/** @hidden */
-export interface ObjectComponentScope<C extends Component, T> extends ComponentScope<C, T> {
-}
-
-/** @hidden */
-export const ObjectComponentScope: ObjectComponentScopeClass = (function (_super: typeof ComponentScope): ObjectComponentScopeClass {
-  const ObjectComponentScope: ObjectComponentScopeClass = function <C extends Component, T>(
-      this: ObjectComponentScope<C, T>, component: C, scopeName: string,
-      descriptor?: ComponentScopeDescriptor<C, T>): ObjectComponentScope<C, T> {
-    let _this: ObjectComponentScope<C, T> = function accessor(state?: T): T | undefined | C {
-      if (arguments.length === 0) {
-        return _this.state;
-      } else {
-        _this.setState(state);
-        return _this._component;
-      }
-    } as ObjectComponentScope<C, T>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, component, scopeName, descriptor) || _this;
-    return _this;
-  } as unknown as ObjectComponentScopeClass;
-  __extends(ObjectComponentScope, _super);
-
-  ObjectComponentScope.prototype.fromAny = function <T>(this: ObjectComponentScope<Component, T>, value: T | null): T | null {
+export abstract class ObjectComponentScope<C extends Component, T> extends ComponentScope<C, T> {
+  fromAny(value: T): T | undefined {
     return value;
-  };
-
-  return ObjectComponentScope;
-}(ComponentScope));
+  }
+}
 ComponentScope.Object = ObjectComponentScope;

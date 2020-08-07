@@ -365,115 +365,115 @@ export class SvgView extends ElementView {
     return this;
   }
 
-  @AttributeAnimator("alignment-baseline", String)
+  @AttributeAnimator({attributeName: "alignment-baseline", type: String})
   alignmentBaseline: AttributeAnimator<this, AlignmentBaseline>;
 
-  @AttributeAnimator("clip-path", String)
+  @AttributeAnimator({attributeName: "clip-path", type: String})
   clipPath: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("cursor", String)
+  @AttributeAnimator({attributeName: "cursor", type: String})
   cursor: AttributeAnimator<this, CssCursor>;
 
-  @AttributeAnimator("cx", Number)
+  @AttributeAnimator({attributeName: "cx", type: Number})
   cx: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("cy", Number)
+  @AttributeAnimator({attributeName: "cy", type: Number})
   cy: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("d", String)
+  @AttributeAnimator({attributeName: "d", type: String})
   d: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("dx", [Number, String]) // list-of-lengths
+  @AttributeAnimator({attributeName: "dx", type: [Number, String]}) // list-of-lengths
   dx: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("dy", [Number, String]) // list-of-lengths
+  @AttributeAnimator({attributeName: "dy", type: [Number, String]}) // list-of-lengths
   dy: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("edgeMode", String)
+  @AttributeAnimator({attributeName: "edgeMode", type: String})
   edgeMode: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("fill", [Color, String])
+  @AttributeAnimator({attributeName: "fill", type: [Color, String]})
   fill: AttributeAnimator<this, Paint, AnyColor | Paint>;
 
-  @AttributeAnimator("fill-rule", String)
+  @AttributeAnimator({attributeName: "fill-rule", type: String})
   fillRule: AttributeAnimator<this, FillRule>;
 
-  @AttributeAnimator("height", Length)
+  @AttributeAnimator({attributeName: "height", type: Length})
   height: AttributeAnimator<this, Length, AnyLength>;
 
-  @AttributeAnimator("in", String)
+  @AttributeAnimator({attributeName: "in", type: String})
   in: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("in2", String)
+  @AttributeAnimator({attributeName: "in2", type: String})
   in2: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("mode", String)
+  @AttributeAnimator({attributeName: "mode", type: String})
   mode: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("opacity", Number)
+  @AttributeAnimator({attributeName: "opacity", type: Number})
   opacity: AttributeAnimator<this, number>;
 
-  @AttributeAnimator("points", String)
+  @AttributeAnimator({attributeName: "points", type: String})
   points: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("preserveAspectRatio", Boolean)
+  @AttributeAnimator({attributeName: "preserveAspectRatio", type: Boolean})
   preserveAspectRatio: AttributeAnimator<this, boolean, boolean | string>;
 
-  @AttributeAnimator("r", Number)
+  @AttributeAnimator({attributeName: "r", type: Number})
   r: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("result", String)
+  @AttributeAnimator({attributeName: "result", type: String})
   result: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("stdDeviation", String)
+  @AttributeAnimator({attributeName: "stdDeviation", type: String})
   stdDeviation: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("stroke", [Color, String])
+  @AttributeAnimator({attributeName: "stroke", type: [Color, String]})
   stroke: AttributeAnimator<this, Paint, AnyColor | Paint>;
 
-  @AttributeAnimator("stroke-dasharray", String)
+  @AttributeAnimator({attributeName: "stroke-dasharray", type: String})
   strokeDasharray: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("stroke-linecap", String)
+  @AttributeAnimator({attributeName: "stroke-linecap", type: String})
   strokeLinecap: AttributeAnimator<this, StrokeLinecap>;
 
-  @AttributeAnimator("stroke-width", Number)
+  @AttributeAnimator({attributeName: "stroke-width", type: Number})
   strokeWidth: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("text-anchor", String)
+  @AttributeAnimator({attributeName: "text-anchor", type: String})
   textAnchor: AttributeAnimator<this, TextAnchor>;
 
-  @AttributeAnimator("transform", Transform)
+  @AttributeAnimator({attributeName: "transform", type: Transform})
   transform: AttributeAnimator<this, Transform, AnyTransform>;
 
-  @AttributeAnimator("type", String)
+  @AttributeAnimator({attributeName: "type", type: String})
   type: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("values", String)
+  @AttributeAnimator({attributeName: "values", type: String})
   values: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("viewBox", String)
+  @AttributeAnimator({attributeName: "viewBox", type: String})
   viewBox: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("width", Length)
+  @AttributeAnimator({attributeName: "width", type: Length})
   width: AttributeAnimator<this, Length, AnyLength>;
 
-  @AttributeAnimator("x", Number)
+  @AttributeAnimator({attributeName: "x", type: Number})
   x: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("x1", Number)
+  @AttributeAnimator({attributeName: "x1", type: Number})
   x1: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("x2", Number)
+  @AttributeAnimator({attributeName: "x2", type: Number})
   x2: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("y", Number)
+  @AttributeAnimator({attributeName: "y", type: Number})
   y: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("y1", Number)
+  @AttributeAnimator({attributeName: "y1", type: Number})
   y1: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("y2", Number)
+  @AttributeAnimator({attributeName: "y2", type: Number})
   y2: AttributeAnimator<this, number, number | string>;
 
   font(): Font | undefined;
@@ -519,28 +519,28 @@ export class SvgView extends ElementView {
     }
   }
 
-  @StyleAnimator("font-family", FontFamily)
+  @StyleAnimator({propertyNames: "font-family", type: FontFamily})
   fontFamily: StyleAnimator<this, FontFamily | FontFamily[], FontFamily | ReadonlyArray<FontFamily>>;
 
-  @StyleAnimator("font-size", [Length, String])
+  @StyleAnimator({propertyNames: "font-size", type: [Length, String]})
   fontSize: StyleAnimator<this, FontSize, AnyFontSize>;
 
-  @StyleAnimator("font-stretch", String)
+  @StyleAnimator({propertyNames: "font-stretch", type: String})
   fontStretch: StyleAnimator<this, FontStretch>;
 
-  @StyleAnimator("font-style", String)
+  @StyleAnimator({propertyNames: "font-style", type: String})
   fontStyle: StyleAnimator<this, FontStyle>;
 
-  @StyleAnimator("font-variant", String)
+  @StyleAnimator({propertyNames: "font-variant", type: String})
   fontVariant: StyleAnimator<this, FontVariant>;
 
-  @StyleAnimator("font-weight", String)
+  @StyleAnimator({propertyNames: "font-weight", type: String})
   fontWeight: StyleAnimator<this, FontWeight>;
 
-  @StyleAnimator("line-height", LineHeight)
+  @StyleAnimator({propertyNames: "line-height", type: LineHeight})
   lineHeight: StyleAnimator<this, LineHeight, AnyLineHeight>;
 
-  @StyleAnimator("touch-action", String)
+  @StyleAnimator({propertyNames: "touch-action", type: String})
   touchAction: StyleAnimator<this, TouchAction>;
 
   static fromTag<T extends keyof SvgViewTagMap>(tag: T): SvgViewTagMap[T];

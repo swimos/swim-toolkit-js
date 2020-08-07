@@ -13,15 +13,12 @@
 // limitations under the License.
 
 export {
-  ComponentModelTypeConstructor,
-  ComponentModelDescriptorType,
+  ComponentModelType,
+  ComponentModelInit,
   ComponentModelDescriptor,
+  ComponentModelPrototype,
   ComponentModelConstructor,
-  ComponentModelClass,
   ComponentModel,
 } from "./ComponentModel";
 
-export {
-  ComponentModelObserverClass,
-  ComponentModelObserver,
-} from "./ComponentModelObserver";
+export {ComponentModelObserver} from "./ComponentModelObserver";

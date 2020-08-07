@@ -16,24 +16,13 @@ export {
   ModelScopeType,
   ModelScopeInitType,
   ModelScopeInit,
-  ModelScopeFromAny,
-  ModelScopeTypeConstructor,
-  ModelScopeDescriptorType,
   ModelScopeDescriptor,
+  ModelScopePrototype,
   ModelScopeConstructor,
-  ModelScopeClass,
   ModelScope,
 } from "./ModelScope";
 
-export {
-  AnyModelScopeClass,
-  AnyModelScope,
-} from "./AnyModelScope";
-
-export {
-  ObjectModelScopeClass,
-  ObjectModelScope,
-} from "./ObjectModelScope";
+export {ObjectModelScope} from "./ObjectModelScope";
 
 export {StringModelScope} from "./StringModelScope";
 

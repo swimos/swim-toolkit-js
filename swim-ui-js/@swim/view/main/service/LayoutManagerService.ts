@@ -12,50 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {View} from "../View";
 import {LayoutManager} from "../layout/LayoutManager";
-import {ViewServiceDescriptor, ViewServiceConstructor, ViewService} from "./ViewService";
+import {ViewService} from "./ViewService";
 
 /** @hidden */
-export interface LayoutManagerService<V extends View> extends ViewService<V, LayoutManager> {
-}
-
-/** @hidden */
-export const LayoutManagerService: ViewServiceConstructor<LayoutManager> = (function (_super: typeof ViewService): ViewServiceConstructor<LayoutManager> {
-  const LayoutManagerService: ViewServiceConstructor<LayoutManager> = function <V extends View>(
-      this: LayoutManagerService<V>, view: V, serviceName: string, descriptor?: ViewServiceDescriptor<V, LayoutManager>): LayoutManagerService<V> {
-    let _this: LayoutManagerService<V> = function accessor(): LayoutManager | undefined {
-      return _this.state;
-    } as LayoutManagerService<V>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, view, serviceName, descriptor) || _this;
-    return _this;
-  } as unknown as ViewServiceConstructor<LayoutManager>;
-  __extends(LayoutManagerService, _super);
-
-  LayoutManagerService.prototype.mount = function (this: LayoutManagerService<View>): void {
-    _super.prototype.mount.call(this);
+export abstract class LayoutManagerService<V extends View> extends ViewService<V, LayoutManager> {
+  mount(): void {
+    super.mount();
     const state = this._state;
     if (state !== void 0) {
       state.addRootView(this._view);
     }
-  };
+  }
 
-  LayoutManagerService.prototype.unmount = function (this: LayoutManagerService<View>): void {
+  unmount(): void {
     const state = this._state;
     if (state !== void 0) {
       state.removeRootView(this._view);
     }
-    _super.prototype.unmount.call(this);
-  };
+    super.unmount();
+  }
 
-  LayoutManagerService.prototype.init = function (this: LayoutManagerService<View>): LayoutManager | undefined {
+  init(): LayoutManager | undefined {
     return LayoutManager.global();
-  };
-
-  return LayoutManagerService;
-}(ViewService));
+  }
+}
 ViewService.Layout = LayoutManagerService;
 
-View.decorateViewService(LayoutManagerService, {serviceType: LayoutManagerService}, View.prototype, "layoutManager");
+ViewService({type: LayoutManager})(View.prototype, "layoutManager");

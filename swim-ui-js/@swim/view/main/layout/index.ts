@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {LayoutScope} from "./LayoutScope";
-
 export {
-  LayoutAnchorGetState,
-  LayoutAnchorSetValue,
+  LayoutAnchorInit,
   LayoutAnchorDescriptor,
+  LayoutAnchorPrototype,
   LayoutAnchorConstructor,
-  LayoutAnchorClass,
   LayoutAnchor,
 } from "./LayoutAnchor";
 

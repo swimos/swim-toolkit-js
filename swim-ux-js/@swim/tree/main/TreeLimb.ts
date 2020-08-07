@@ -94,16 +94,16 @@ export class TreeLimb extends ThemedHtmlView {
     return disclosureState === "collapsed" || disclosureState === "collapsing";
   }
 
-  @ViewScope(Object, {value: "collapsed"})
+  @ViewScope({type: Object, value: "collapsed"})
   disclosureState: ViewScope<this, TreeLimbState>;
 
-  @ViewAnimator(Number, {value: 0})
+  @ViewAnimator({type: Number, value: 0})
   disclosurePhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   disclosingPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @ViewScope(Number, {inherit: true})
+  @ViewScope({type: Number, inherit: true})
   limbSpacing: ViewScope<this, number>;
 
   expand(tween?: Tween<any>): void {

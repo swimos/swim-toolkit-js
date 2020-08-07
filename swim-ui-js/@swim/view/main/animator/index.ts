@@ -16,24 +16,13 @@ export {
   ViewAnimatorType,
   ViewAnimatorInitType,
   ViewAnimatorInit,
-  ViewAnimatorFromAny,
-  ViewAnimatorTypeConstructor,
-  ViewAnimatorDescriptorType,
   ViewAnimatorDescriptor,
+  ViewAnimatorPrototype,
   ViewAnimatorConstructor,
-  ViewAnimatorClass,
   ViewAnimator,
 } from "./ViewAnimator";
 
-export {
-  AnyViewAnimatorClass,
-  AnyViewAnimator,
-} from "./AnyViewAnimator";
-
-export {
-  ObjectViewAnimatorClass,
-  ObjectViewAnimator,
-} from "./ObjectViewAnimator";
+export {ObjectViewAnimator} from "./ObjectViewAnimator";
 
 export {StringViewAnimator} from "./StringViewAnimator";
 
@@ -51,7 +40,4 @@ export {FontViewAnimator} from "./FontViewAnimator";
 
 export {TransformViewAnimator} from "./TransformViewAnimator";
 
-export {
-  ContinuousScaleViewAnimatorClass,
-  ContinuousScaleViewAnimator,
-} from "./ContinuousScaleViewAnimator";
+export {ContinuousScaleViewAnimator} from "./ContinuousScaleViewAnimator";

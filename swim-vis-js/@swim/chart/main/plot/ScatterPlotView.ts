@@ -118,10 +118,10 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     }
   }
 
-  @ViewAnimator(ContinuousScale, {inherit: true})
+  @ViewAnimator({type: ContinuousScale, inherit: true})
   xScale: ContinuousScaleViewAnimator<this, X, number>;
 
-  @ViewAnimator(ContinuousScale, {inherit: true})
+  @ViewAnimator({type: ContinuousScale, inherit: true})
   yScale: ContinuousScaleViewAnimator<this, Y, number>;
 
   xDomain(): readonly [X, X] | undefined;
@@ -222,10 +222,10 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     return this._yDataRange;
   }
 
-  @ViewAnimator(Font, {inherit: true})
+  @ViewAnimator({type: Font, inherit: true})
   font: ViewAnimator<this, Font, AnyFont>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   textColor: ViewAnimator<this, Color, AnyColor>;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {

@@ -117,76 +117,50 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected removeLayoutAnchors(rootView: V): void {
-    this.removeSafeAreaAnchors(rootView);
+    // hook
   }
 
   protected addSafeAreaAnchors(rootView: V): void {
-    let safeAreaInsetTop = rootView.getLayoutAnchor("safeAreaInsetTop");
-    if (safeAreaInsetTop === null) {
-      safeAreaInsetTop = new LayoutAnchor<V>(rootView, "safeAreaInsetTop", {
-        get(oldState: number): number {
-          const newState = this.scope.viewport!.safeArea.insetTop;
-          if (oldState !== newState) {
-            this.scope.requireUpdate(View.NeedsLayout);
-          }
-          return newState;
-        },
-        strength: "strong",
-      });
-      rootView.setLayoutAnchor("safeAreaInsetTop", safeAreaInsetTop);
-    }
-
-    let safeAreaInsetRight = rootView.getLayoutAnchor("safeAreaInsetRight");
-    if (safeAreaInsetRight === null) {
-      safeAreaInsetRight = new LayoutAnchor<V>(rootView, "safeAreaInsetRight", {
-        get(oldState: number): number {
-          const newState = this.scope.viewport!.safeArea.insetRight;
-          if (oldState !== newState) {
-            this.scope.requireUpdate(View.NeedsLayout);
-          }
-          return newState;
-        },
-        strength: "strong",
-      });
-      rootView.setLayoutAnchor("safeAreaInsetRight", safeAreaInsetRight);
-    }
-
-    let safeAreaInsetBottom = rootView.getLayoutAnchor("safeAreaInsetBottom");
-    if (safeAreaInsetBottom === null) {
-      safeAreaInsetBottom = new LayoutAnchor<V>(rootView, "safeAreaInsetBottom", {
-        get(oldState: number): number {
-          const newState = this.scope.viewport!.safeArea.insetBottom;
-          if (oldState !== newState) {
-            this.scope.requireUpdate(View.NeedsLayout);
-          }
-          return newState;
-        },
-        strength: "strong",
-      });
-      rootView.setLayoutAnchor("safeAreaInsetBottom", safeAreaInsetBottom);
-    }
-
-    let safeAreaInsetLeft = rootView.getLayoutAnchor("safeAreaInsetLeft");
-    if (safeAreaInsetLeft === null) {
-      safeAreaInsetLeft = new LayoutAnchor<V>(rootView, "safeAreaInsetLeft", {
-        get(oldState: number): number {
-          const newState = this.scope.viewport!.safeArea.insetLeft;
-          if (oldState !== newState) {
-            this.scope.requireUpdate(View.NeedsLayout);
-          }
-          return newState;
-        },
-        strength: "strong",
-      });
-      rootView.setLayoutAnchor("safeAreaInsetLeft", safeAreaInsetLeft);
-    }
-  }
-
-  protected removeSafeAreaAnchors(rootView: V): void {
-    rootView.setLayoutAnchor("safeAreaInsetTop", null);
-    rootView.setLayoutAnchor("safeAreaInsetRight", null);
-    rootView.setLayoutAnchor("safeAreaInsetBottom", null);
-    rootView.setLayoutAnchor("safeAreaInsetLeft", null);
+    LayoutAnchor({
+      strength: "strong",
+      getState(oldState: number): number {
+        const newState = this.view.viewport.safeArea.insetTop;
+        if (oldState !== newState) {
+          this.view.requireUpdate(View.NeedsLayout);
+        }
+        return newState;
+      },
+    })(rootView, "safeAreaInsetTop");
+    LayoutAnchor({
+      strength: "strong",
+      getState(oldState: number): number {
+        const newState = this.view.viewport.safeArea.insetRight;
+        if (oldState !== newState) {
+          this.view.requireUpdate(View.NeedsLayout);
+        }
+        return newState;
+      },
+    })(rootView, "safeAreaInsetRight");
+    LayoutAnchor({
+      strength: "strong",
+      getState(oldState: number): number {
+        const newState = this.view.viewport.safeArea.insetBottom;
+        if (oldState !== newState) {
+          this.view.requireUpdate(View.NeedsLayout);
+        }
+        return newState;
+      },
+    })(rootView, "safeAreaInsetBottom");
+    LayoutAnchor({
+      strength: "strong",
+      getState(oldState: number): number {
+        const newState = this.view.viewport.safeArea.insetLeft;
+        if (oldState !== newState) {
+          this.view.requireUpdate(View.NeedsLayout);
+        }
+        return newState;
+      },
+    })(rootView, "safeAreaInsetLeft");
   }
 
   private static _global?: LayoutManager;

@@ -15,9 +15,10 @@
 export {
   StyleAnimatorType,
   StyleAnimatorInitType,
-  StyleAnimatorTypeConstructor,
+  StyleAnimatorInit,
+  StyleAnimatorDescriptor,
+  StyleAnimatorPrototype,
   StyleAnimatorConstructor,
-  StyleAnimatorClass,
   StyleAnimator,
 } from "./StyleAnimator";
 

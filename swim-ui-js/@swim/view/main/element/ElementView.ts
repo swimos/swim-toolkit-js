@@ -15,7 +15,7 @@
 import {BoxR2} from "@swim/math";
 import {AttributeString, StyleString, StyledElement} from "@swim/style";
 import {Animator} from "@swim/animate";
-import {View} from "../View";
+import {ViewClass, View} from "../View";
 import {NodeViewInit, NodeView} from "../node/NodeView";
 import {AttributeAnimatorConstructor, AttributeAnimator} from "../attribute/AttributeAnimator";
 import {StyleAnimatorConstructor, StyleAnimator} from "../style/StyleAnimator";
@@ -32,16 +32,16 @@ export interface ViewElement extends StyledElement {
 export interface ElementViewTagMap extends SvgViewTagMap, HtmlViewTagMap {
 }
 
+export interface ElementViewInit extends NodeViewInit {
+  id?: string;
+  classList?: string[];
+}
+
 export interface ElementViewConstructor<E extends Element = Element, V extends ElementView = ElementView> {
   new(node: E): V;
 
   readonly tag: string;
   readonly namespace?: string;
-}
-
-export interface ElementViewInit extends NodeViewInit {
-  id?: string;
-  classList?: string[];
 }
 
 export class ElementView extends NodeView {
@@ -350,21 +350,13 @@ export class ElementView extends NodeView {
   }
 
   /** @hidden */
-  static initAttributeAnimator<V extends ElementView, T, U>(
-      AttributeAnimator: AttributeAnimatorConstructor<T, U>, view: V,
-      animatorName: string, attributeName: string): AttributeAnimator<V, T, U> {
-    return new AttributeAnimator<V>(view, animatorName, attributeName);
-  }
-
-  /** @hidden */
-  static decorateAttributeAnimator<V extends ElementView, T, U>(
-      AttributeAnimator: AttributeAnimatorConstructor<T, U>, attributeName: string,
-      viewClass: unknown, animatorName: string): void {
+  static decorateAttributeAnimator<V extends ElementView, T, U>(constructor: AttributeAnimatorConstructor<T, U>,
+                                                                viewClass: ViewClass, animatorName: string): void {
     Object.defineProperty(viewClass, animatorName, {
       get: function (this: V): AttributeAnimator<V, T, U> {
         let animator = this.getAttributeAnimator(animatorName) as AttributeAnimator<V, T, U> | null;
         if (animator === null) {
-          animator = ElementView.initAttributeAnimator(AttributeAnimator, this, animatorName, attributeName);
+          animator = new constructor<V>(this, animatorName);
           this.setAttributeAnimator(animatorName, animator);
         }
         return animator;
@@ -375,21 +367,13 @@ export class ElementView extends NodeView {
   }
 
   /** @hidden */
-  static initStyleAnimator<V extends ElementView, T, U>(
-      StyleAnimator: StyleAnimatorConstructor<T, U>, view: V,
-      animatorName: string, propertyNames: string | ReadonlyArray<string>): StyleAnimator<V, T, U> {
-    return new StyleAnimator<V>(view, animatorName, propertyNames);
-  }
-
-  /** @hidden */
-  static decorateStyleAnimator<V extends ElementView, T, U>(
-      StyleAnimator: StyleAnimatorConstructor<T, U>, propertyNames: string | ReadonlyArray<string>,
-      viewClass: unknown, animatorName: string): void {
+  static decorateStyleAnimator<V extends ElementView, T, U>(constructor: StyleAnimatorConstructor<T, U>,
+                                                            viewClass: ViewClass, animatorName: string): void {
     Object.defineProperty(viewClass, animatorName, {
       get: function (this: V): StyleAnimator<V, T, U> {
         let animator = this.getStyleAnimator(animatorName) as StyleAnimator<V, T, U> | null;
         if (animator === null) {
-          animator = ElementView.initStyleAnimator(StyleAnimator, this, animatorName, propertyNames);
+          animator = new constructor<V>(this, animatorName);
           this.setStyleAnimator(animatorName, animator);
         }
         return animator;

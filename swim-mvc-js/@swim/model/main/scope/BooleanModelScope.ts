@@ -12,40 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Model} from "../Model";
-import {ModelScopeDescriptor, ModelScopeConstructor, ModelScope} from "./ModelScope";
+import {ModelScope} from "./ModelScope";
 
 /** @hidden */
-export interface BooleanModelScope<M extends Model> extends ModelScope<M, boolean, boolean | string> {
+export abstract class BooleanModelScope<M extends Model> extends ModelScope<M, boolean, boolean | string> {
+  fromAny(value: boolean | string): boolean | undefined {
+    return !!value;
+  }
 }
-
-/** @hidden */
-export const BooleanModelScope: ModelScopeConstructor<boolean, boolean | string> = (function (_super: typeof ModelScope): ModelScopeConstructor<boolean, boolean | string> {
-  const BooleanModelScope: ModelScopeConstructor<boolean, boolean | string> = function <M extends Model>(
-      this: BooleanModelScope<M>, model: M, scopeName: string, descriptor?: ModelScopeDescriptor<M, boolean, boolean | string>): BooleanModelScope<M> {
-    let _this: BooleanModelScope<M> = function accessor(state?: boolean | string): boolean | undefined | M {
-      if (arguments.length === 0) {
-        return _this.state;
-      } else {
-        _this.setState(state);
-        return _this._model;
-      }
-    } as BooleanModelScope<M>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, model, scopeName, descriptor) || _this;
-    return _this;
-  } as unknown as ModelScopeConstructor<boolean, boolean | string>;
-  __extends(BooleanModelScope, _super);
-
-  BooleanModelScope.prototype.fromAny = function (this: BooleanModelScope<Model>, value: boolean | string | null): boolean | null {
-    if (typeof value === "string") {
-      return !!value;
-    } else {
-      return value;
-    }
-  };
-
-  return BooleanModelScope;
-}(ModelScope));
 ModelScope.Boolean = BooleanModelScope;

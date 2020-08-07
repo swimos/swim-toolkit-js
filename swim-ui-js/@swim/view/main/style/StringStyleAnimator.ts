@@ -12,41 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
-import {Tween} from "@swim/transition";
-import {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
+import {StyleAnimator} from "./StyleAnimator";
 import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export interface StringStyleAnimator<V extends ElementView> extends StyleAnimator<V, string> {
+export abstract class StringStyleAnimator<V extends ElementView> extends StyleAnimator<V, string> {
+  parse(value: string): string {
+    return value;
+  }
+
+  fromAny(value: string): string {
+    return value;
+  }
 }
-
-/** @hidden */
-export const StringStyleAnimator: StyleAnimatorConstructor<string> = (function (_super: typeof StyleAnimator): StyleAnimatorConstructor<string> {
-  const StringStyleAnimator: StyleAnimatorConstructor<string> = function <V extends ElementView>(
-      this: StringStyleAnimator<V>, view: V, animatorName: string, propertyNames: string | ReadonlyArray<string>): StringStyleAnimator<V> {
-    let _this: StringStyleAnimator<V> = function accessor(value?: string, tween?: Tween<string>, priority?: string): string | undefined | V {
-      if (arguments.length === 0) {
-        return _this.value;
-      } else {
-        _this.setState(value, tween, priority);
-        return _this._view;
-      }
-    } as StringStyleAnimator<V>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, view, animatorName, propertyNames) || _this;
-    return _this;
-  } as unknown as StyleAnimatorConstructor<string>;
-  __extends(StringStyleAnimator, _super);
-
-  StringStyleAnimator.prototype.parse = function (this: StringStyleAnimator<ElementView>, value: string): string {
-    return value;
-  };
-
-  StringStyleAnimator.prototype.fromAny = function (this: StringStyleAnimator<ElementView>, value: string): string {
-    return value;
-  };
-
-  return StringStyleAnimator;
-}(StyleAnimator));
 StyleAnimator.String = StringStyleAnimator;

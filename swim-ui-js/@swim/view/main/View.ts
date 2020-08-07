@@ -29,8 +29,7 @@ import {ViewObserverType, ViewObserver} from "./ViewObserver";
 import {ViewControllerType, ViewController} from "./ViewController";
 import {ViewManager} from "./manager/ViewManager";
 import {DisplayManager} from "./display/DisplayManager";
-import {LayoutScope} from "./layout/LayoutScope";
-import {LayoutAnchor} from "./layout/LayoutAnchor";
+import {LayoutAnchorConstructor, LayoutAnchor} from "./layout/LayoutAnchor";
 import {LayoutManager} from "./layout/LayoutManager";
 import {ViewIdiom} from "./viewport/ViewIdiom";
 import {Viewport} from "./viewport/Viewport";
@@ -38,9 +37,9 @@ import {ViewportManager} from "./viewport/ViewportManager";
 import {HistoryManager} from "./history/HistoryManager";
 import {ModalOptions, Modal} from "./modal/Modal";
 import {ModalManager} from "./modal/ModalManager";
-import {ViewServiceDescriptor, ViewServiceConstructor, ViewService} from "./service/ViewService";
-import {ViewScopeDescriptor, ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
-import {ViewAnimatorDescriptor, ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
+import {ViewServiceConstructor, ViewService} from "./service/ViewService";
+import {ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
+import {ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
 import {GraphicsView} from "./graphics/GraphicsView";
 import {LayerView} from "./graphics/LayerView";
 import {RasterView} from "./raster/RasterView";
@@ -72,16 +71,16 @@ export interface ViewClass {
   readonly removeChildFlags: ViewFlags;
 
   /** @hidden */
-  _viewServiceDescriptors?: {[serviceName: string]: ViewServiceDescriptor<View, unknown> | undefined};
+  _viewServiceConstructors?: {[serviceName: string]: ViewServiceConstructor<unknown> | undefined};
 
   /** @hidden */
-  _viewScopeDescriptors?: {[scopeName: string]: ViewScopeDescriptor<View, unknown> | undefined};
+  _viewScopeConstructors?: {[scopeName: string]: ViewScopeConstructor<unknown> | undefined};
 
   /** @hidden */
-  _viewAnimatorDescriptors?: {[animatorName: string]: ViewAnimatorDescriptor<View, unknown> | undefined};
+  _viewAnimatorConstructors?: {[animatorName: string]: ViewAnimatorConstructor<unknown> | undefined};
 }
 
-export abstract class View implements AnimatorContext, LayoutScope {
+export abstract class View implements AnimatorContext {
   abstract get viewController(): ViewController | null;
 
   abstract setViewController(viewController: ViewControllerType<this> | null): void;
@@ -813,10 +812,9 @@ export abstract class View implements AnimatorContext, LayoutScope {
     let viewService = this.getViewService(serviceName);
     if (viewService === null) {
       const viewClass = (this as any).__proto__ as ViewClass;
-      const descriptor = View.getViewServiceDescriptor(serviceName, viewClass);
-      if (descriptor !== null && descriptor.serviceType !== void 0) {
-        const ViewService = descriptor.serviceType;
-        viewService = new ViewService<this>(this, serviceName, descriptor);
+      const constructor = View.getViewServiceConstructor(serviceName, viewClass);
+      if (constructor !== null) {
+        viewService = new constructor<this>(this, serviceName);
         this.setViewService(serviceName, viewService);
       }
     }
@@ -834,10 +832,9 @@ export abstract class View implements AnimatorContext, LayoutScope {
     let viewScope = this.getViewScope(scopeName);
     if (viewScope === null) {
       const viewClass = (this as any).__proto__ as ViewClass;
-      const descriptor = View.getViewScopeDescriptor(scopeName, viewClass);
-      if (descriptor !== null && descriptor.scopeType !== void 0) {
-        const ViewScope = descriptor.scopeType;
-        viewScope = new ViewScope<this>(this, scopeName, descriptor);
+      const constructor = View.getViewScopeConstructor(scopeName, viewClass);
+      if (constructor !== null) {
+        viewScope = new constructor<this>(this, scopeName);
         this.setViewScope(scopeName, viewScope);
       }
     }
@@ -858,17 +855,16 @@ export abstract class View implements AnimatorContext, LayoutScope {
 
   abstract getViewAnimator(animatorName: string): ViewAnimator<this, unknown> | null;
 
-  abstract setViewAnimator(animatorName: string, animator: ViewAnimator<this, unknown> | null): void;
+  abstract setViewAnimator(animatorName: string, viewAnimator: ViewAnimator<this, unknown> | null): void;
 
   /** @hidden */
   getLazyViewAnimator(animatorName: string): ViewAnimator<this, unknown> | null {
     let viewAnimator = this.getViewAnimator(animatorName);
     if (viewAnimator === null) {
       const viewClass = (this as any).__proto__ as ViewClass;
-      const descriptor = View.getViewAnimatorDescriptor(animatorName, viewClass);
-      if (descriptor !== null && descriptor.animatorType !== void 0) {
-        const ViewAnimator = descriptor.animatorType;
-        viewAnimator = new ViewAnimator<this>(this, animatorName, descriptor);
+      const constructor = View.getViewAnimatorConstructor(animatorName, viewClass);
+      if (constructor !== null) {
+        viewAnimator = new constructor<this>(this, animatorName);
         this.setViewAnimator(animatorName, viewAnimator);
       }
     }
@@ -1089,15 +1085,15 @@ export abstract class View implements AnimatorContext, LayoutScope {
                options?: EventListenerOptions | boolean): this;
 
   /** @hidden */
-  static getViewServiceDescriptor<V extends View>(serviceName: string, viewClass: ViewClass | null = null): ViewServiceDescriptor<V, unknown> | null {
+  static getViewServiceConstructor<V extends View>(serviceName: string, viewClass: ViewClass | null = null): ViewServiceConstructor<unknown> | null {
     if (viewClass === null) {
       viewClass = this.prototype as unknown as ViewClass;
     }
     do {
-      if (viewClass.hasOwnProperty("_viewServiceDescriptors")) {
-        const descriptor = viewClass._viewServiceDescriptors![serviceName];
-        if (descriptor !== void 0) {
-          return descriptor;
+      if (viewClass.hasOwnProperty("_viewServiceConstructors")) {
+        const constructor = viewClass._viewServiceConstructors![serviceName];
+        if (constructor !== void 0) {
+          return constructor;
         }
       }
       viewClass = (viewClass as any).__proto__ as ViewClass | null;
@@ -1106,18 +1102,17 @@ export abstract class View implements AnimatorContext, LayoutScope {
   }
 
   /** @hidden */
-  static decorateViewService<V extends View, T>(ViewService: ViewServiceConstructor<T>,
-                                                descriptor: ViewServiceDescriptor<V, T>,
+  static decorateViewService<V extends View, T>(constructor: ViewServiceConstructor<T>,
                                                 viewClass: ViewClass, serviceName: string): void {
-    if (!viewClass.hasOwnProperty("_viewServiceDescriptors")) {
-      viewClass._viewServiceDescriptors = {};
+    if (!viewClass.hasOwnProperty("_viewServiceConstructors")) {
+      viewClass._viewServiceConstructors = {};
     }
-    viewClass._viewServiceDescriptors![serviceName] = descriptor;
+    viewClass._viewServiceConstructors![serviceName] = constructor;
     Object.defineProperty(viewClass, serviceName, {
       get: function (this: V): ViewService<V, T> {
         let viewService = this.getViewService(serviceName) as ViewService<V, T> | null;
         if (viewService === null) {
-          viewService = new ViewService<V>(this, serviceName, descriptor);
+          viewService = new constructor<V>(this, serviceName);
           this.setViewService(serviceName, viewService);
         }
         return viewService;
@@ -1128,15 +1123,15 @@ export abstract class View implements AnimatorContext, LayoutScope {
   }
 
   /** @hidden */
-  static getViewScopeDescriptor<V extends View>(scopeName: string, viewClass: ViewClass | null = null): ViewScopeDescriptor<V, unknown> | null {
+  static getViewScopeConstructor(scopeName: string, viewClass: ViewClass | null = null): ViewScopeConstructor<unknown> | null {
     if (viewClass === null) {
       viewClass = this.prototype as unknown as ViewClass;
     }
     do {
-      if (viewClass.hasOwnProperty("_viewScopeDescriptors")) {
-        const descriptor = viewClass._viewScopeDescriptors![scopeName];
-        if (descriptor !== void 0) {
-          return descriptor;
+      if (viewClass.hasOwnProperty("_viewScopeConstructors")) {
+        const constructor = viewClass._viewScopeConstructors![scopeName];
+        if (constructor !== void 0) {
+          return constructor;
         }
       }
       viewClass = (viewClass as any).__proto__ as ViewClass | null;
@@ -1145,18 +1140,17 @@ export abstract class View implements AnimatorContext, LayoutScope {
   }
 
   /** @hidden */
-  static decorateViewScope<V extends View, T, U>(ViewScope: ViewScopeConstructor<T, U>,
-                                                 descriptor: ViewScopeDescriptor<V, T, U>,
+  static decorateViewScope<V extends View, T, U>(constructor: ViewScopeConstructor<T, U>,
                                                  viewClass: ViewClass, scopeName: string): void {
-    if (!viewClass.hasOwnProperty("_viewScopeDescriptors")) {
-      viewClass._viewScopeDescriptors = {};
+    if (!viewClass.hasOwnProperty("_viewScopeConstructors")) {
+      viewClass._viewScopeConstructors = {};
     }
-    viewClass._viewScopeDescriptors![scopeName] = descriptor;
+    viewClass._viewScopeConstructors![scopeName] = constructor;
     Object.defineProperty(viewClass, scopeName, {
       get: function (this: V): ViewScope<V, T, U> {
         let viewScope = this.getViewScope(scopeName) as ViewScope<V, T, U> | null;
         if (viewScope === null) {
-          viewScope = new ViewScope<V>(this, scopeName, descriptor);
+          viewScope = new constructor<V>(this, scopeName);
           this.setViewScope(scopeName, viewScope);
         }
         return viewScope;
@@ -1167,12 +1161,15 @@ export abstract class View implements AnimatorContext, LayoutScope {
   }
 
   /** @hidden */
-  static getViewAnimatorDescriptor<V extends View>(animatorName: string, viewClass: ViewClass | null): ViewAnimatorDescriptor<V, unknown> | null {
+  static getViewAnimatorConstructor(animatorName: string, viewClass: ViewClass | null): ViewAnimatorConstructor<unknown> | null {
+    if (viewClass === null) {
+      viewClass = this.prototype as unknown as ViewClass;
+    }
     while (viewClass !== null) {
-      if (viewClass.hasOwnProperty("_viewAnimatorDescriptors")) {
-        const descriptor = viewClass._viewAnimatorDescriptors![animatorName];
-        if (descriptor !== void 0) {
-          return descriptor;
+      if (viewClass.hasOwnProperty("_viewAnimatorConstructors")) {
+        const constructor = viewClass._viewAnimatorConstructors![animatorName];
+        if (constructor !== void 0) {
+          return constructor;
         }
       }
       viewClass = (viewClass as any).__proto__ as ViewClass | null;
@@ -1181,21 +1178,37 @@ export abstract class View implements AnimatorContext, LayoutScope {
   }
 
   /** @hidden */
-  static decorateViewAnimator<V extends View, T, U>(ViewAnimator: ViewAnimatorConstructor<T, U>,
-                                                    descriptor: ViewAnimatorDescriptor<V, T, U>,
+  static decorateViewAnimator<V extends View, T, U>(constructor: ViewAnimatorConstructor<T, U>,
                                                     viewClass: ViewClass, animatorName: string): void {
-    if (!viewClass.hasOwnProperty("_viewAnimatorDescriptors")) {
-      viewClass._viewAnimatorDescriptors = {};
+    if (!viewClass.hasOwnProperty("_viewAnimatorConstructors")) {
+      viewClass._viewAnimatorConstructors = {};
     }
-    viewClass._viewAnimatorDescriptors![animatorName] = descriptor;
+    viewClass._viewAnimatorConstructors![animatorName] = constructor;
     Object.defineProperty(viewClass, animatorName, {
       get: function (this: V): ViewAnimator<V, T, U> {
-        let animator = this.getViewAnimator(animatorName) as ViewAnimator<V, T, U> | null;
-        if (animator === null) {
-          animator = new ViewAnimator<V>(this, animatorName, descriptor);
-          this.setViewAnimator(animatorName, animator);
+        let viewAnimator = this.getViewAnimator(animatorName) as ViewAnimator<V, T, U> | null;
+        if (viewAnimator === null) {
+          viewAnimator = new constructor<V>(this, animatorName);
+          this.setViewAnimator(animatorName, viewAnimator);
         }
-        return animator;
+        return viewAnimator;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
+  static decorateLayoutAnchor<V extends View>(constructor: LayoutAnchorConstructor,
+                                              viewClass: unknown, anchorName: string): void {
+    Object.defineProperty(viewClass, anchorName, {
+      get: function (this: V): LayoutAnchor<V> {
+        let layoutAnchor = this.getLayoutAnchor(anchorName) as LayoutAnchor<V> | null;
+        if (layoutAnchor === null) {
+          layoutAnchor = new constructor<V>(this, anchorName);
+          this.setLayoutAnchor(anchorName, layoutAnchor);
+        }
+        return layoutAnchor;
       },
       configurable: true,
       enumerable: true,

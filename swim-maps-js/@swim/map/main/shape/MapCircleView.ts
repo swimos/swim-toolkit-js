@@ -77,22 +77,22 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
     }
   }
 
-  @ViewAnimator(GeoPoint, {value: GeoPoint.origin()})
+  @ViewAnimator({type: GeoPoint, value: GeoPoint.origin()})
   geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewAnimator(PointR2, {value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, value: PointR2.origin()})
   viewCenter: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator(Length, {value: 0})
+  @ViewAnimator({type: Length, value: 0})
   radius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   fill: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   stroke: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Length, {inherit: true})
+  @ViewAnimator({type: Length, inherit: true})
   strokeWidth: ViewAnimator<this, Length, AnyLength>;
 
   hitRadius(): number | null;

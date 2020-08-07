@@ -12,48 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
-import {View, ViewServiceDescriptor, ViewServiceConstructor, ViewService} from "@swim/view";
+import {View, ViewService} from "@swim/view";
 import {ThemeManager} from "./ThemeManager";
 
 /** @hidden */
-export interface ThemeManagerService<V extends View> extends ViewService<V, ThemeManager> {
-}
-
-/** @hidden */
-export const ThemeManagerService: ViewServiceConstructor<ThemeManager> = (function (_super: typeof ViewService): ViewServiceConstructor<ThemeManager> {
-  const ThemeManagerService: ViewServiceConstructor<ThemeManager> = function <V extends View>(
-      this: ThemeManagerService<V>, view: V, serviceName: string, descriptor?: ViewServiceDescriptor<V, ThemeManager>): ThemeManagerService<V> {
-    let _this: ThemeManagerService<V> = function accessor(): ThemeManager | undefined {
-      return _this.state;
-    } as ThemeManagerService<V>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, view, serviceName, descriptor) || _this;
-    return _this;
-  } as unknown as ViewServiceConstructor<ThemeManager>;
-  __extends(ThemeManagerService, _super);
-
-  ThemeManagerService.prototype.mount = function (this: ThemeManagerService<View>): void {
-    _super.prototype.mount.call(this);
+export abstract class ThemeManagerService<V extends View> extends ViewService<V, ThemeManager> {
+  mount(): void {
+    super.mount();
     const state = this._state;
     if (state !== void 0) {
       state.addRootView(this._view);
     }
-  };
+  }
 
-  ThemeManagerService.prototype.unmount = function (this: ThemeManagerService<View>): void {
+  unmount(): void {
     const state = this._state;
     if (state !== void 0) {
       state.removeRootView(this._view);
     }
-    _super.prototype.unmount.call(this);
-  };
+    super.unmount();
+  }
 
-  ThemeManagerService.prototype.init = function (this: ThemeManagerService<View>): ThemeManager | undefined {
+  init(): ThemeManager | undefined {
     return ThemeManager.global();
-  };
+  }
+}
 
-  return ThemeManagerService;
-}(ViewService));
-
-View.decorateViewService(ThemeManagerService, {serviceType: ThemeManagerService}, View.prototype, "themeManager");
+ViewService({extends: ThemeManagerService})(View.prototype, "themeManager");

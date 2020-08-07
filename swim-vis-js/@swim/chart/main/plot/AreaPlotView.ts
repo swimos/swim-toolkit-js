@@ -38,7 +38,7 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
     return "area";
   }
 
-  @ViewAnimator(Color, {value: Color.black()})
+  @ViewAnimator({type: Color, value: Color.black()})
   fill: ViewAnimator<this, Color, AnyColor>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {

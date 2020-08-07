@@ -114,13 +114,14 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     }
   }
 
-  @ViewAnimator(Length, {value: Length.fromAny(10)})
+  @ViewAnimator({type: Length, value: Length.fromAny(10)})
   arrowWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length, {value: Length.fromAny(8)})
+  @ViewAnimator({type: Length, value: Length.fromAny(8)})
   arrowHeight: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewScope(Transition, {
+  @ViewScope({
+    type: Transition,
     inherit: true,
     init(): Transition<any> {
       return Transition.duration(250, Ease.cubicOut);

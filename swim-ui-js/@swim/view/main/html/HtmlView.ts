@@ -682,227 +682,227 @@ export class HtmlView extends ElementView {
   }
 
   @LayoutAnchor<HtmlView>({
-    get(oldState: number): number {
-      const offsetParent = this.scope.node.offsetParent!;
+    strength: "strong",
+    getState(oldState: number): number {
+      const offsetParent = this.view.node.offsetParent!;
       const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.scope.node.getBoundingClientRect();
+      const bounds = this.view.node.getBoundingClientRect();
       const newState = bounds.top - offsetBounds.top;
       if (oldState !== newState) {
-        this.scope.requireUpdate(View.NeedsLayout);
+        this.view.requireUpdate(View.NeedsLayout);
       }
       return newState;
     },
-    set(newValue: number): void {
-      this.scope.top.setState(Length.px(newValue));
-      this.scope.requireUpdate(View.NeedsLayout);
+    setValue(newValue: number): void {
+      this.view.top.setState(Length.px(newValue));
+      this.view.requireUpdate(View.NeedsLayout);
     },
-    strength: "strong",
   })
   topAnchor: LayoutAnchor<this>;
 
   @LayoutAnchor<HtmlView>({
-    get(oldState: number): number {
-      const offsetParent = this.scope.node.offsetParent!;
+    strength: "strong",
+    getState(oldState: number): number {
+      const offsetParent = this.view.node.offsetParent!;
       const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.scope.node.getBoundingClientRect();
+      const bounds = this.view.node.getBoundingClientRect();
       const newState = offsetBounds.right + bounds.right;
       if (oldState !== newState) {
-        this.scope.requireUpdate(View.NeedsLayout);
+        this.view.requireUpdate(View.NeedsLayout);
       }
       return newState;
     },
-    set(newValue: number): void {
-      this.scope.right.setState(Length.px(newValue));
-      this.scope.requireUpdate(View.NeedsLayout);
+    setValue(newValue: number): void {
+      this.view.right.setState(Length.px(newValue));
+      this.view.requireUpdate(View.NeedsLayout);
     },
-    strength: "strong",
   })
   rightAnchor: LayoutAnchor<this>;
 
   @LayoutAnchor<HtmlView>({
-    get(oldState: number): number {
-      const offsetParent = this.scope.node.offsetParent!;
+    strength: "strong",
+    getState(oldState: number): number {
+      const offsetParent = this.view.node.offsetParent!;
       const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.scope.node.getBoundingClientRect();
+      const bounds = this.view.node.getBoundingClientRect();
       const newState = offsetBounds.bottom + bounds.bottom;
       if (oldState !== newState) {
-        this.scope.requireUpdate(View.NeedsLayout);
+        this.view.requireUpdate(View.NeedsLayout);
       }
       return newState;
     },
-    set(newValue: number): void {
-      this.scope.bottom.setState(Length.px(newValue));
-      this.scope.requireUpdate(View.NeedsLayout);
+    setValue(newValue: number): void {
+      this.view.bottom.setState(Length.px(newValue));
+      this.view.requireUpdate(View.NeedsLayout);
     },
-    strength: "strong",
   })
   bottomAnchor: LayoutAnchor<this>;
 
   @LayoutAnchor<HtmlView>({
-    get(oldState: number): number {
-      const offsetParent = this.scope.node.offsetParent!;
+    strength: "strong",
+    getState(oldState: number): number {
+      const offsetParent = this.view.node.offsetParent!;
       const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.scope.node.getBoundingClientRect();
+      const bounds = this.view.node.getBoundingClientRect();
       const newState = bounds.left - offsetBounds.left;
       if (oldState !== newState) {
-        this.scope.requireUpdate(View.NeedsLayout);
+        this.view.requireUpdate(View.NeedsLayout);
       }
       return newState;
     },
-    set(newValue: number): void {
-      this.scope.left.setState(Length.px(newValue));
-      this.scope.requireUpdate(View.NeedsLayout);
+    setValue(newValue: number): void {
+      this.view.left.setState(Length.px(newValue));
+      this.view.requireUpdate(View.NeedsLayout);
     },
-    strength: "strong",
   })
   leftAnchor: LayoutAnchor<this>;
 
   @LayoutAnchor<HtmlView>({
-    get(oldState: number): number {
-      const bounds = this.scope.node.getBoundingClientRect();
+    strength: "strong",
+    getState(oldState: number): number {
+      const bounds = this.view.node.getBoundingClientRect();
       const newState = bounds.width;
       if (oldState !== newState) {
-        this.scope.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       }
       return newState;
     },
-    set(newValue: number): void {
-      this.scope.width.setState(Length.px(newValue));
-      this.scope.requireUpdate(View.NeedsResize | View.NeedsLayout);
+    setValue(newValue: number): void {
+      this.view.width.setState(Length.px(newValue));
+      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
-    strength: "strong",
   })
   widthAnchor: LayoutAnchor<this>;
 
   @LayoutAnchor<HtmlView>({
-    get(oldState: number): number {
-      const bounds = this.scope.node.getBoundingClientRect();
+    strength: "strong",
+    getState(oldState: number): number {
+      const bounds = this.view.node.getBoundingClientRect();
       const newState = bounds.height;
       if (oldState !== newState) {
-        this.scope.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       }
       return newState;
     },
-    set(newValue: number): void {
-      this.scope.height.setState(Length.px(newValue));
-      this.scope.requireUpdate(View.NeedsResize | View.NeedsLayout);
+    setValue(newValue: number): void {
+      this.view.height.setState(Length.px(newValue));
+      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
-    strength: "strong",
   })
   heightAnchor: LayoutAnchor<this>;
 
   @LayoutAnchor<HtmlView>({
-    get(oldState: number): number {
-      const offsetParent = this.scope.node.offsetParent!;
+    strength: "strong",
+    getState(oldState: number): number {
+      const offsetParent = this.view.node.offsetParent!;
       const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.scope.node.getBoundingClientRect();
+      const bounds = this.view.node.getBoundingClientRect();
       const newState = bounds.left + 0.5 * bounds.width - offsetBounds.left;
       if (oldState !== newState) {
-        this.scope.requireUpdate(View.NeedsLayout);
+        this.view.requireUpdate(View.NeedsLayout);
       }
       return newState;
     },
-    set(newValue: number): void {
-      const rightAnchor = this.scope.getLayoutAnchor("rightAnchor");
-      const leftAnchor = this.scope.getLayoutAnchor("leftAnchor");
-      const widthAnchor = this.scope.getLayoutAnchor("widthAnchor");
+    setValue(newValue: number): void {
+      const rightAnchor = this.view.getLayoutAnchor("rightAnchor");
+      const leftAnchor = this.view.getLayoutAnchor("leftAnchor");
+      const widthAnchor = this.view.getLayoutAnchor("widthAnchor");
       if (leftAnchor !== null && leftAnchor.enabled()) {
-        this.scope.width.setState(Length.px(2 * (newValue - leftAnchor.value)));
-        this.scope.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        this.view.width.setState(Length.px(2 * (newValue - leftAnchor.value)));
+        this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       } else if (rightAnchor !== null && rightAnchor.enabled()) {
-        this.scope.width.setState(Length.px(2 * (rightAnchor.value - newValue)));
-        this.scope.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        this.view.width.setState(Length.px(2 * (rightAnchor.value - newValue)));
+        this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       } else if (widthAnchor !== null && widthAnchor.enabled()) {
-        this.scope.left.setState(Length.px(newValue - 0.5 * widthAnchor.value));
-        this.scope.requireUpdate(View.NeedsLayout);
+        this.view.left.setState(Length.px(newValue - 0.5 * widthAnchor.value));
+        this.view.requireUpdate(View.NeedsLayout);
       }
     },
-    strength: "strong",
   })
   centerXAnchor: LayoutAnchor<this>;
 
   @LayoutAnchor<HtmlView>({
-    get(oldState: number): number {
-      const offsetParent = this.scope.node.offsetParent!;
+    strength: "strong",
+    getState(oldState: number): number {
+      const offsetParent = this.view.node.offsetParent!;
       const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.scope.node.getBoundingClientRect();
+      const bounds = this.view.node.getBoundingClientRect();
       const newState = bounds.top + 0.5 * bounds.height - offsetBounds.top;
       if (oldState !== newState) {
-        this.scope.requireUpdate(View.NeedsLayout);
+        this.view.requireUpdate(View.NeedsLayout);
       }
       return newState;
     },
-    set(newValue: number): void {
-      const topAnchor = this.scope.getLayoutAnchor("topAnchor");
-      const bottomAnchor = this.scope.getLayoutAnchor("bottomAnchor");
-      const heightAnchor = this.scope.getLayoutAnchor("heightAnchor");
+    setValue(newValue: number): void {
+      const topAnchor = this.view.getLayoutAnchor("topAnchor");
+      const bottomAnchor = this.view.getLayoutAnchor("bottomAnchor");
+      const heightAnchor = this.view.getLayoutAnchor("heightAnchor");
       if (topAnchor !== null && topAnchor.enabled()) {
-        this.scope.height.setState(Length.px(2 * (newValue - topAnchor.value)));
-        this.scope.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        this.view.height.setState(Length.px(2 * (newValue - topAnchor.value)));
+        this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       } else if (bottomAnchor !== null && bottomAnchor.enabled()) {
-        this.scope.height.setState(Length.px(2 * (bottomAnchor.value - newValue)));
-        this.scope.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        this.view.height.setState(Length.px(2 * (bottomAnchor.value - newValue)));
+        this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       } else if (heightAnchor !== null && heightAnchor.enabled()) {
-        this.scope.top.setState(Length.px(newValue - 0.5 * heightAnchor.value));
-        this.scope.requireUpdate(View.NeedsLayout);
+        this.view.top.setState(Length.px(newValue - 0.5 * heightAnchor.value));
+        this.view.requireUpdate(View.NeedsLayout);
       }
     },
-    strength: "strong",
   })
   centerYAnchor: LayoutAnchor<this>;
 
-  @AttributeAnimator("autocomplete", String)
+  @AttributeAnimator({attributeName: "autocomplete", type: String})
   autocomplete: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("checked", Boolean)
+  @AttributeAnimator({attributeName: "checked", type: Boolean})
   checked: AttributeAnimator<this, boolean, boolean | string>;
 
-  @AttributeAnimator("colspan", Number)
+  @AttributeAnimator({attributeName: "colspan", type: Number})
   colspan: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("disabled", Boolean)
+  @AttributeAnimator({attributeName: "disabled", type: Boolean})
   disabled: AttributeAnimator<this, boolean, boolean | string>;
 
-  @AttributeAnimator("placeholder", String)
+  @AttributeAnimator({attributeName: "placeholder", type: String})
   placeholder: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("rowspan", Number)
+  @AttributeAnimator({attributeName: "rowspan", type: Number})
   rowspan: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator("selected", Boolean)
+  @AttributeAnimator({attributeName: "selected", type: Boolean})
   selected: AttributeAnimator<this, boolean, boolean | string>;
 
-  @AttributeAnimator("title", String)
+  @AttributeAnimator({attributeName: "title", type: String})
   title: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("type", String)
+  @AttributeAnimator({attributeName: "type", type: String})
   type: AttributeAnimator<this, string>;
 
-  @AttributeAnimator("value", String)
+  @AttributeAnimator({attributeName: "value", type: String})
   value: AttributeAnimator<this, string>;
 
-  @StyleAnimator("align-content", String)
+  @StyleAnimator({propertyNames: "align-content", type: String})
   alignContent: StyleAnimator<this, AlignContent>;
 
-  @StyleAnimator("align-items", String)
+  @StyleAnimator({propertyNames: "align-items", type: String})
   alignItems: StyleAnimator<this, AlignItems>;
 
-  @StyleAnimator("align-self", String)
+  @StyleAnimator({propertyNames: "align-self", type: String})
   alignSelf: StyleAnimator<this, AlignSelf>;
 
-  @StyleAnimator(["appearance", "-webkit-appearance"], String)
+  @StyleAnimator({propertyNames: ["appearance", "-webkit-appearance"], type: String})
   appearance: StyleAnimator<this, Appearance>;
 
-  @StyleAnimator(["backdrop-filter", "-webkit-backdrop-filter"], String)
+  @StyleAnimator({propertyNames: ["backdrop-filter", "-webkit-backdrop-filter"], type: String})
   backdropFilter: StyleAnimator<this, string>;
 
-  @StyleAnimator(["background-clip", "-webkit-background-clip"], String)
+  @StyleAnimator({propertyNames: ["background-clip", "-webkit-background-clip"], type: String})
   backgroundClip: StyleAnimator<this, BackgroundClip>;
 
-  @StyleAnimator("background-color", Color)
+  @StyleAnimator({propertyNames: "background-color", type: Color})
   backgroundColor: StyleAnimator<this, Color, AnyColor>;
 
-  @StyleAnimator("border-collapse", String)
+  @StyleAnimator({propertyNames: "border-collapse", type: String})
   borderCollapse: StyleAnimator<this, BorderCollapse>;
 
   borderColor(): [Color | "currentColor" | undefined,
@@ -964,16 +964,16 @@ export class HtmlView extends ElementView {
     }
   }
 
-  @StyleAnimator("border-top-color", [Color, String])
+  @StyleAnimator({propertyNames: "border-top-color", type: [Color, String]})
   borderTopColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
 
-  @StyleAnimator("border-right-color", [Color, String])
+  @StyleAnimator({propertyNames: "border-right-color", type: [Color, String]})
   borderRightColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
 
-  @StyleAnimator("border-bottom-color", [Color, String])
+  @StyleAnimator({propertyNames: "border-bottom-color", type: [Color, String]})
   borderBottomColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
 
-  @StyleAnimator("border-left-color", [Color, String])
+  @StyleAnimator({propertyNames: "border-left-color", type: [Color, String]})
   borderLeftColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
 
   borderRadius(): [Length | undefined,
@@ -1035,19 +1035,19 @@ export class HtmlView extends ElementView {
     }
   }
 
-  @StyleAnimator("border-top-left-radius", Length)
+  @StyleAnimator({propertyNames: "border-top-left-radius", type: Length})
   borderTopLeftRadius: StyleAnimator<this, Length, AnyLength>;
 
-  @StyleAnimator("border-top-right-radius", Length)
+  @StyleAnimator({propertyNames: "border-top-right-radius", type: Length})
   borderTopRightRadius: StyleAnimator<this, Length, AnyLength>;
 
-  @StyleAnimator("border-bottom-right-radius", Length)
+  @StyleAnimator({propertyNames: "border-bottom-right-radius", type: Length})
   borderBottomRightRadius: StyleAnimator<this, Length, AnyLength>;
 
-  @StyleAnimator("border-bottom-left-radius", Length)
+  @StyleAnimator({propertyNames: "border-bottom-left-radius", type: Length})
   borderBottomLeftRadius: StyleAnimator<this, Length, AnyLength>;
 
-  @StyleAnimator("border-spacing", String)
+  @StyleAnimator({propertyNames: "border-spacing", type: String})
   borderSpacing: StyleAnimator<this, string>;
 
   borderStyle(): [BorderStyle | undefined,
@@ -1109,16 +1109,16 @@ export class HtmlView extends ElementView {
     }
   }
 
-  @StyleAnimator("border-top-style", String)
+  @StyleAnimator({propertyNames: "border-top-style", type: String})
   borderTopStyle: StyleAnimator<this, BorderStyle>;
 
-  @StyleAnimator("border-right-style", String)
+  @StyleAnimator({propertyNames: "border-right-style", type: String})
   borderRightStyle: StyleAnimator<this, BorderStyle>;
 
-  @StyleAnimator("border-bottom-style", String)
+  @StyleAnimator({propertyNames: "border-bottom-style", type: String})
   borderBottomStyle: StyleAnimator<this, BorderStyle>;
 
-  @StyleAnimator("border-left-style", String)
+  @StyleAnimator({propertyNames: "border-left-style", type: String})
   borderLeftStyle: StyleAnimator<this, BorderStyle>;
 
   borderWidth(): [BorderWidth | undefined,
@@ -1180,52 +1180,52 @@ export class HtmlView extends ElementView {
     }
   }
 
-  @StyleAnimator("border-top-width", [Length, String])
+  @StyleAnimator({propertyNames: "border-top-width", type: [Length, String]})
   borderTopWidth: StyleAnimator<this, Length | BorderWidth, AnyLength | BorderWidth>;
 
-  @StyleAnimator("border-right-width", [Length, String])
+  @StyleAnimator({propertyNames: "border-right-width", type: [Length, String]})
   borderRightWidth: StyleAnimator<this, Length | BorderWidth, AnyLength | BorderWidth>;
 
-  @StyleAnimator("border-bottom-width", [Length, String])
+  @StyleAnimator({propertyNames: "border-bottom-width", type: [Length, String]})
   borderBottomWidth: StyleAnimator<this, Length | BorderWidth, AnyLength | BorderWidth>;
 
-  @StyleAnimator("border-left-width", [Length, String])
+  @StyleAnimator({propertyNames: "border-left-width", type: [Length, String]})
   borderLeftWidth: StyleAnimator<this, Length | BorderWidth, AnyLength | BorderWidth>;
 
-  @StyleAnimator("bottom", [Length, String])
+  @StyleAnimator({propertyNames: "bottom", type: [Length, String]})
   bottom: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
 
-  @StyleAnimator("box-shadow", BoxShadow)
+  @StyleAnimator({propertyNames: "box-shadow", type: BoxShadow})
   boxShadow: StyleAnimator<this, BoxShadow, AnyBoxShadow>;
 
-  @StyleAnimator("box-sizing", String)
+  @StyleAnimator({propertyNames: "box-sizing", type: String})
   boxSizing: StyleAnimator<this, BoxSizing>;
 
-  @StyleAnimator("color", [Color, String])
+  @StyleAnimator({propertyNames: "color", type: [Color, String]})
   color: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
 
-  @StyleAnimator("cursor", String)
+  @StyleAnimator({propertyNames: "cursor", type: String})
   cursor: StyleAnimator<this, CssCursor>;
 
-  @StyleAnimator("display", String)
+  @StyleAnimator({propertyNames: "display", type: String})
   display: StyleAnimator<this, CssDisplay>;
 
-  @StyleAnimator("filter", String)
+  @StyleAnimator({propertyNames: "filter", type: String})
   filter: StyleAnimator<this, string>;
 
-  @StyleAnimator("flex-basis", [Length, String])
+  @StyleAnimator({propertyNames: "flex-basis", type: [Length, String]})
   flexBasis: StyleAnimator<this, Length | FlexBasis, AnyLength | FlexBasis>;
 
-  @StyleAnimator("flex-direction", String)
+  @StyleAnimator({propertyNames: "flex-direction", type: String})
   flexDirection: StyleAnimator<this, FlexDirection>;
 
-  @StyleAnimator("flex-grow", Number)
+  @StyleAnimator({propertyNames: "flex-grow", type: Number})
   flexGrow: StyleAnimator<this, number, number | string>;
 
-  @StyleAnimator("flex-shrink", Number)
+  @StyleAnimator({propertyNames: "flex-shrink", type: Number})
   flexShrink: StyleAnimator<this, number, number | string>;
 
-  @StyleAnimator("flex-wrap", String)
+  @StyleAnimator({propertyNames: "flex-wrap", type: String})
   flexWrap: StyleAnimator<this, FlexWrap>;
 
   font(): Font | undefined;
@@ -1269,34 +1269,34 @@ export class HtmlView extends ElementView {
     }
   }
 
-  @StyleAnimator("font-family", FontFamily)
+  @StyleAnimator({propertyNames: "font-family", type: FontFamily})
   fontFamily: StyleAnimator<this, FontFamily | FontFamily[], FontFamily | ReadonlyArray<FontFamily>>;
 
-  @StyleAnimator("font-size", [Length, String])
+  @StyleAnimator({propertyNames: "font-size", type: [Length, String]})
   fontSize: StyleAnimator<this, FontSize, AnyFontSize>;
 
-  @StyleAnimator("font-stretch", String)
+  @StyleAnimator({propertyNames: "font-stretch", type: String})
   fontStretch: StyleAnimator<this, FontStretch>;
 
-  @StyleAnimator("font-style", String)
+  @StyleAnimator({propertyNames: "font-style", type: String})
   fontStyle: StyleAnimator<this, FontStyle>;
 
-  @StyleAnimator("font-variant", String)
+  @StyleAnimator({propertyNames: "font-variant", type: String})
   fontVariant: StyleAnimator<this, FontVariant>;
 
-  @StyleAnimator("font-weight", String)
+  @StyleAnimator({propertyNames: "font-weight", type: String})
   fontWeight: StyleAnimator<this, FontWeight>;
 
-  @StyleAnimator("height", [Length, String])
+  @StyleAnimator({propertyNames: "height", type: [Length, String]})
   height: StyleAnimator<this, Height, AnyLength | Height>;
 
-  @StyleAnimator("justify-content", String)
+  @StyleAnimator({propertyNames: "justify-content", type: String})
   justifyContent: StyleAnimator<this, JustifyContent>;
 
-  @StyleAnimator("left", [Length, String])
+  @StyleAnimator({propertyNames: "left", type: [Length, String]})
   left: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
 
-  @StyleAnimator("line-height", LineHeight)
+  @StyleAnimator({propertyNames: "line-height", type: LineHeight})
   lineHeight: StyleAnimator<this, LineHeight, AnyLineHeight>;
 
   margin(): [Length | "auto" | undefined,
@@ -1358,43 +1358,43 @@ export class HtmlView extends ElementView {
     }
   }
 
-  @StyleAnimator("margin-top", [Length, String])
+  @StyleAnimator({propertyNames: "margin-top", type: [Length, String]})
   marginTop: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
 
-  @StyleAnimator("margin-right", [Length, String])
+  @StyleAnimator({propertyNames: "margin-right", type: [Length, String]})
   marginRight: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
 
-  @StyleAnimator("margin-bottom", [Length, String])
+  @StyleAnimator({propertyNames: "margin-bottom", type: [Length, String]})
   marginBottom: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
 
-  @StyleAnimator("margin-left", [Length, String])
+  @StyleAnimator({propertyNames: "margin-left", type: [Length, String]})
   marginLeft: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
 
-  @StyleAnimator("max-height", [Length, String])
+  @StyleAnimator({propertyNames: "max-height", type: [Length, String]})
   maxHeight: StyleAnimator<this, MaxHeight, AnyLength | MaxHeight>;
 
-  @StyleAnimator("max-width", [Length, String])
+  @StyleAnimator({propertyNames: "max-width", type: [Length, String]})
   maxWidth: StyleAnimator<this, MaxWidth, AnyLength | MaxWidth>;
 
-  @StyleAnimator("min-height", [Length, String])
+  @StyleAnimator({propertyNames: "min-height", type: [Length, String]})
   minHeight: StyleAnimator<this, MinHeight, AnyLength | MinHeight>;
 
-  @StyleAnimator("min-width", [Length, String])
+  @StyleAnimator({propertyNames: "min-width", type: [Length, String]})
   minWidth: StyleAnimator<this, MinWidth, AnyLength | MinWidth>;
 
-  @StyleAnimator("opacity", Number)
+  @StyleAnimator({propertyNames: "opacity", type: Number})
   opacity: StyleAnimator<this, number, number | string>;
 
-  @StyleAnimator("order", Number)
+  @StyleAnimator({propertyNames: "order", type: Number})
   order: StyleAnimator<this, number, number | string>;
 
-  @StyleAnimator("outline-color", [Color, String])
+  @StyleAnimator({propertyNames: "outline-color", type: [Color, String]})
   outlineColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
 
-  @StyleAnimator("outline-style", String)
+  @StyleAnimator({propertyNames: "outline-style", type: String})
   outlineStyle: StyleAnimator<this, BorderStyle>;
 
-  @StyleAnimator("outline-width", [Length, String])
+  @StyleAnimator({propertyNames: "outline-width", type: [Length, String]})
   outlineWidth: StyleAnimator<this, Length | BorderWidth, AnyLength | BorderWidth>;
 
   overflow(): [Overflow | undefined,
@@ -1436,13 +1436,13 @@ export class HtmlView extends ElementView {
     }
   }
 
-  @StyleAnimator("overflow-x", String)
+  @StyleAnimator({propertyNames: "overflow-x", type: String})
   overflowX: StyleAnimator<this, Overflow>;
 
-  @StyleAnimator("overflow-y", String)
+  @StyleAnimator({propertyNames: "overflow-y", type: String})
   overflowY: StyleAnimator<this, Overflow>;
 
-  @StyleAnimator("-webkit-overflow-scrolling", String)
+  @StyleAnimator({propertyNames: "-webkit-overflow-scrolling", type: String})
   overflowScrolling: StyleAnimator<this, "auto" | "touch">;
 
   overscrollBehavior(): [OverscrollBehavior | undefined,
@@ -1484,10 +1484,10 @@ export class HtmlView extends ElementView {
     }
   }
 
-  @StyleAnimator("overscroll-behavior-x", String)
+  @StyleAnimator({propertyNames: "overscroll-behavior-x", type: String})
   overscrollBehaviorX: StyleAnimator<this, OverscrollBehavior>;
 
-  @StyleAnimator("overscroll-behavior-y", String)
+  @StyleAnimator({propertyNames: "overscroll-behavior-y", type: String})
   overscrollBehaviorY: StyleAnimator<this, OverscrollBehavior>;
 
   padding(): [Length | undefined,
@@ -1549,70 +1549,70 @@ export class HtmlView extends ElementView {
     }
   }
 
-  @StyleAnimator("padding-top", Length)
+  @StyleAnimator({propertyNames: "padding-top", type: Length})
   paddingTop: StyleAnimator<this, Length, AnyLength>;
 
-  @StyleAnimator("padding-right", Length)
+  @StyleAnimator({propertyNames: "padding-right", type: Length})
   paddingRight: StyleAnimator<this, Length, AnyLength>;
 
-  @StyleAnimator("padding-bottom", Length)
+  @StyleAnimator({propertyNames: "padding-bottom", type: Length})
   paddingBottom: StyleAnimator<this, Length, AnyLength>;
 
-  @StyleAnimator("padding-left", Length)
+  @StyleAnimator({propertyNames: "padding-left", type: Length})
   paddingLeft: StyleAnimator<this, Length, AnyLength>;
 
-  @StyleAnimator("pointer-events", String)
+  @StyleAnimator({propertyNames: "pointer-events", type: String})
   pointerEvents: StyleAnimator<this, PointerEvents>;
 
-  @StyleAnimator("position", String)
+  @StyleAnimator({propertyNames: "position", type: String})
   position: StyleAnimator<this, Position>;
 
-  @StyleAnimator("right", [Length, String])
+  @StyleAnimator({propertyNames: "right", type: [Length, String]})
   right: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
 
-  @StyleAnimator("text-align", String)
+  @StyleAnimator({propertyNames: "text-align", type: String})
   textAlign: StyleAnimator<this, TextAlign>;
 
-  @StyleAnimator("text-decoration-color", [Color, String])
+  @StyleAnimator({propertyNames: "text-decoration-color", type: [Color, String]})
   textDecorationColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
 
-  @StyleAnimator("text-decoration-line", String)
+  @StyleAnimator({propertyNames: "text-decoration-line", type: String})
   textDecorationLine: StyleAnimator<this, string>;
 
-  @StyleAnimator("text-decoration-style", String)
+  @StyleAnimator({propertyNames: "text-decoration-style", type: String})
   textDecorationStyle: StyleAnimator<this, TextDecorationStyle>;
 
-  @StyleAnimator("text-overflow", String)
+  @StyleAnimator({propertyNames: "text-overflow", type: String})
   textOverflow: StyleAnimator<this, string>;
 
-  @StyleAnimator("text-transform", String)
+  @StyleAnimator({propertyNames: "text-transform", type: String})
   textTransform: StyleAnimator<this, TextTransform>;
 
-  @StyleAnimator("top", [Length, String])
+  @StyleAnimator({propertyNames: "top", type: [Length, String]})
   top: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
 
-  @StyleAnimator("touch-action", String)
+  @StyleAnimator({propertyNames: "touch-action", type: String})
   touchAction: StyleAnimator<this, TouchAction>;
 
-  @StyleAnimator("transform", Transform)
+  @StyleAnimator({propertyNames: "transform", type: Transform})
   transform: StyleAnimator<this, Transform, AnyTransform>;
 
-  @StyleAnimator(["user-select", "-webkit-user-select", "-moz-user-select", "-ms-user-select"], String)
+  @StyleAnimator({propertyNames: ["user-select", "-webkit-user-select", "-moz-user-select", "-ms-user-select"], type: String})
   userSelect: StyleAnimator<this, UserSelect>;
 
-  @StyleAnimator("vertical-align", [Length, String])
+  @StyleAnimator({propertyNames: "vertical-align", type: [Length, String]})
   verticalAlign: StyleAnimator<this, VerticalAlign, AnyLength | VerticalAlign>;
 
-  @StyleAnimator("visibility", String)
+  @StyleAnimator({propertyNames: "visibility", type: String})
   visibility: StyleAnimator<this, Visibility>;
 
-  @StyleAnimator("white-space", String)
+  @StyleAnimator({propertyNames: "white-space", type: String})
   whiteSpace: StyleAnimator<this, WhiteSpace>;
 
-  @StyleAnimator("width", [Length, String])
+  @StyleAnimator({propertyNames: "width", type: [Length, String]})
   width: StyleAnimator<this, Width, AnyLength | Width>;
 
-  @StyleAnimator("z-index", [Number, String])
+  @StyleAnimator({propertyNames: "z-index", type: [Number, String]})
   zIndex: StyleAnimator<this, number | string>;
 
   static fromTag<T extends keyof HtmlViewTagMap>(tag: T): HtmlViewTagMap[T];

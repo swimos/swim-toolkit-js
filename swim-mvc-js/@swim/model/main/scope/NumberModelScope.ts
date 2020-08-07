@@ -12,45 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Model} from "../Model";
-import {ModelScopeDescriptor, ModelScopeConstructor, ModelScope} from "./ModelScope";
+import {ModelScope} from "./ModelScope";
 
 /** @hidden */
-export interface NumberModelScope<M extends Model> extends ModelScope<M, number, number | string> {
-}
-
-/** @hidden */
-export const NumberModelScope: ModelScopeConstructor<number, number | string> = (function (_super: typeof ModelScope): ModelScopeConstructor<number, number | string> {
-  const NumberModelScope: ModelScopeConstructor<number, number | string> = function <M extends Model>(
-      this: NumberModelScope<M>, model: M, scopeName: string, descriptor?: ModelScopeDescriptor<M, number, number | string>): NumberModelScope<M> {
-    let _this: NumberModelScope<M> = function accessor(state?: number | string): number | undefined | M {
-      if (arguments.length === 0) {
-        return _this.state;
-      } else {
-        _this.setState(state);
-        return _this._model;
-      }
-    } as NumberModelScope<M>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, model, scopeName, descriptor) || _this;
-    return _this;
-  } as unknown as ModelScopeConstructor<number, number | string>;
-  __extends(NumberModelScope, _super);
-
-  NumberModelScope.prototype.fromAny = function (this: NumberModelScope<Model>, value: number | string | null): number | null {
-    if (typeof value === "string") {
+export abstract class NumberModelScope<M extends Model> extends ModelScope<M, number, number | string> {
+  fromAny(value: number | string): number | undefined {
+    if (typeof value === "number") {
+      return value;
+    } else {
       const number = +value;
       if (isFinite(number)) {
         return number;
       } else {
         throw new Error(value);
       }
-    } else {
-      return value;
     }
-  };
-
-  return NumberModelScope;
-}(ModelScope));
+  }
+}
 ModelScope.Number = NumberModelScope;

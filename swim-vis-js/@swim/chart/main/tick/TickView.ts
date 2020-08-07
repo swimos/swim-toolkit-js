@@ -125,37 +125,37 @@ export abstract class TickView<D> extends LayerView {
     return this._value;
   }
 
-  @ViewAnimator(PointR2, {value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, value: PointR2.origin()})
   anchor: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator(Number, {value: 1})
+  @ViewAnimator({type: Number, value: 1})
   opacity: ViewAnimator<this, number>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   tickMarkSpacing: ViewAnimator<this, number>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   tickMarkColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   tickMarkWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   tickMarkLength: ViewAnimator<this, number>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   tickLabelPadding: ViewAnimator<this, number>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   gridLineColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   gridLineWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator(Font, {inherit: true})
+  @ViewAnimator({type: Font, inherit: true})
   font: ViewAnimator<this, Font, AnyFont>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   textColor: ViewAnimator<this, Color, AnyColor>;
 
   tickLabel(): GraphicsView | null;

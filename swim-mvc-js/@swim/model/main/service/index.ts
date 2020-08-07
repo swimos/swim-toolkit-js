@@ -15,17 +15,10 @@
 export {
   ModelServiceType,
   ModelServiceInit,
-  ModelServiceTypeConstructor,
-  ModelServiceDescriptorType,
   ModelServiceDescriptor,
+  ModelServicePrototype,
   ModelServiceConstructor,
-  ModelServiceClass,
   ModelService,
 } from "./ModelService";
-
-export {
-  ObjectModelServiceClass,
-  ObjectModelService,
-} from "./ObjectModelService";
 
 export {RefreshManagerService} from "./RefreshManagerService";

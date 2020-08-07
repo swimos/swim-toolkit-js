@@ -12,36 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Component} from "../Component";
-import {ComponentScopeDescriptor, ComponentScopeConstructor, ComponentScope} from "./ComponentScope";
+import {ComponentScope} from "./ComponentScope";
 
 /** @hidden */
-export interface StringComponentScope<C extends Component> extends ComponentScope<C, string> {
-}
-
-/** @hidden */
-export const StringComponentScope: ComponentScopeConstructor<string> = (function (_super: typeof ComponentScope): ComponentScopeConstructor<string> {
-  const StringComponentScope: ComponentScopeConstructor<string> = function <C extends Component>(
-      this: StringComponentScope<C>, component: C, scopeName: string, descriptor?: ComponentScopeDescriptor<C, string>): StringComponentScope<C> {
-    let _this: StringComponentScope<C> = function accessor(state?: string): string | undefined | C {
-      if (arguments.length === 0) {
-        return _this.state;
-      } else {
-        _this.setState(state);
-        return _this._component;
-      }
-    } as StringComponentScope<C>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, component, scopeName, descriptor) || _this;
-    return _this;
-  } as unknown as ComponentScopeConstructor<string>;
-  __extends(StringComponentScope, _super);
-
-  StringComponentScope.prototype.fromAny = function (this: StringComponentScope<Component>, value: string | null): string | null {
+export abstract class StringComponentScope<C extends Component> extends ComponentScope<C, string> {
+  fromAny(value: string): string | undefined {
     return value;
-  };
-
-  return StringComponentScope;
-}(ComponentScope));
+  }
+}
 ComponentScope.String = StringComponentScope;

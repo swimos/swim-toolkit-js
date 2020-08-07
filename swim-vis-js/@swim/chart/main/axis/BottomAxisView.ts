@@ -24,7 +24,7 @@ export class BottomAxisView<X = unknown> extends AxisView<X> {
     return "bottom";
   }
 
-  @ViewAnimator(ContinuousScale, {inherit: "xScale"})
+  @ViewAnimator({type: ContinuousScale, inherit: "xScale"})
   scale: ContinuousScaleViewAnimator<this, X, number>;
 
   protected layoutTick(tick: TickView<X>, origin: PointR2, frame: BoxR2,

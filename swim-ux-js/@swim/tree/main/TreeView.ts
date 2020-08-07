@@ -110,25 +110,25 @@ export class TreeView extends ThemedHtmlView {
     }
   }
 
-  @ViewScope(TreeSeed, {inherit: true})
+  @ViewScope({type: TreeSeed, inherit: true})
   seed: ViewScope<this, TreeSeed, AnyTreeSeed>;
 
-  @ViewScope(Number, {value: 0})
+  @ViewScope({type: Number, value: 0})
   depth: ViewScope<this, number>;
 
-  @ViewScope(Object, {inherit: true})
+  @ViewScope({type: Object, inherit: true})
   edgeInsets: ViewScope<this, ViewEdgeInsets>;
 
-  @ViewScope(Number, {value: 2})
+  @ViewScope({type: Number, value: 2})
   limbSpacing: ViewScope<this, number>;
 
-  @ViewScope(Object, {inherit: true})
+  @ViewScope({type: Object, inherit: true})
   disclosureState: ViewScope<this, TreeLimbState>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   disclosurePhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   disclosingPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {

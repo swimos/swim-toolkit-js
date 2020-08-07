@@ -77,28 +77,28 @@ export class MapPointView extends MapLayerView {
     this.setState(init);
   }
 
-  @ViewAnimator(GeoPoint, {value: GeoPoint.origin()})
+  @ViewAnimator({type: GeoPoint, value: GeoPoint.origin()})
   geoPoint: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewAnimator(PointR2, {value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, value: PointR2.origin()})
   viewPoint: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator(Length)
+  @ViewAnimator({type: Length})
   radius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Color)
+  @ViewAnimator({type: Color})
   color: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Number)
+  @ViewAnimator({type: Number})
   opacity: ViewAnimator<this, number>;
 
-  @ViewAnimator(Length)
+  @ViewAnimator({type: Length})
   labelPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Font, {inherit: true})
+  @ViewAnimator({type: Font, inherit: true})
   font: ViewAnimator<this, Font, AnyFont>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   textColor: ViewAnimator<this, Color, AnyColor>;
 
   hitRadius(): number | null;

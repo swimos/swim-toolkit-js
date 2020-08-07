@@ -200,34 +200,35 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
-  @ViewAnimator(PointR2, {value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, value: PointR2.origin()})
   origin: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   borderColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   borderWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   borderSerif: ViewAnimator<this, number>;
 
-  @ViewAnimator(Number, {value: 80})
+  @ViewAnimator({type: Number, value: 80})
   tickMarkSpacing: ViewAnimator<this, number>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   tickMarkColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   tickMarkWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   tickMarkLength: ViewAnimator<this, number>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   tickLabelPadding: ViewAnimator<this, number>;
 
-  @ViewScope(Transition, {
+  @ViewScope({
+    type: Transition,
     inherit: true,
     init(): Transition<any> {
       return Transition.duration(250, Ease.cubicOut);
@@ -235,16 +236,16 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   })
   tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   gridLineColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   gridLineWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator(Font, {inherit: true})
+  @ViewAnimator({type: Font, inherit: true})
   font: ViewAnimator<this, Font, AnyFont>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   textColor: ViewAnimator<this, Color, AnyColor>;
 
   get childViewCount(): number {

@@ -49,7 +49,7 @@ export class ButtonItem extends ThemedHtmlView {
     return childView instanceof HtmlView ? childView : null;
   }
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,

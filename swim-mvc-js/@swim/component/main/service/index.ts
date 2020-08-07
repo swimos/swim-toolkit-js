@@ -15,17 +15,10 @@
 export {
   ComponentServiceType,
   ComponentServiceInit,
-  ComponentServiceTypeConstructor,
-  ComponentServiceDescriptorType,
   ComponentServiceDescriptor,
+  ComponentServicePrototype,
   ComponentServiceConstructor,
-  ComponentServiceClass,
   ComponentService,
 } from "./ComponentService";
-
-export {
-  ObjectComponentServiceClass,
-  ObjectComponentService,
-} from "./ObjectComponentService";
 
 export {ExecuteManagerService} from "./ExecuteManagerService";

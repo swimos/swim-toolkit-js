@@ -12,54 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Component} from "../Component";
 import {ExecuteManager} from "../execute/ExecuteManager";
-import {
-  ComponentServiceDescriptor,
-  ComponentServiceConstructor,
-  ComponentService,
-} from "./ComponentService";
+import {ComponentService} from "./ComponentService";
 
 /** @hidden */
-export interface ExecuteManagerService<C extends Component> extends ComponentService<C, ExecuteManager> {
-}
-
-/** @hidden */
-export const ExecuteManagerService: ComponentServiceConstructor<ExecuteManager> = (function (_super: typeof ComponentService): ComponentServiceConstructor<ExecuteManager> {
-  const ExecuteManagerService: ComponentServiceConstructor<ExecuteManager> = function <C extends Component>(
-      this: ExecuteManagerService<C>, component: C, serviceName: string, descriptor?: ComponentServiceDescriptor<C, ExecuteManager>): ExecuteManagerService<C> {
-    let _this: ExecuteManagerService<C> = function accessor(): ExecuteManager | undefined {
-      return _this.state;
-    } as ExecuteManagerService<C>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, component, serviceName, descriptor) || _this;
-    return _this;
-  } as unknown as ComponentServiceConstructor<ExecuteManager>;
-  __extends(ExecuteManagerService, _super);
-
-  ExecuteManagerService.prototype.mount = function (this: ExecuteManagerService<Component>): void {
-    _super.prototype.mount.call(this);
+export abstract class ExecuteManagerService<M extends Component> extends ComponentService<M, ExecuteManager> {
+  mount(): void {
+    super.mount();
     const state = this._state;
     if (state !== void 0) {
       state.addRootComponent(this._component);
     }
-  };
+  }
 
-  ExecuteManagerService.prototype.unmount = function (this: ExecuteManagerService<Component>): void {
+  unmount(): void {
     const state = this._state;
     if (state !== void 0) {
       state.removeRootComponent(this._component);
     }
-    _super.prototype.unmount.call(this);
-  };
+    super.unmount();
+  }
 
-  ExecuteManagerService.prototype.init = function (this: ExecuteManagerService<Component>): ExecuteManager | undefined {
+  init(): ExecuteManager | undefined {
     return ExecuteManager.global();
-  };
-
-  return ExecuteManagerService;
-}(ComponentService));
+  }
+}
 ComponentService.Execute = ExecuteManagerService;
 
-Component.decorateComponentService(ExecuteManagerService, {serviceType: ExecuteManagerService}, Component.prototype, "executeManager");
+ComponentService({type: ExecuteManager})(Component.prototype, "executeManager");

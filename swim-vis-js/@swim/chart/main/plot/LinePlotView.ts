@@ -56,10 +56,10 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
     return "line";
   }
 
-  @ViewAnimator(Color, {value: Color.black()})
+  @ViewAnimator({type: Color, value: Color.black()})
   stroke: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Length, {value: Length.px(1)})
+  @ViewAnimator({type: Length, value: Length.px(1)})
   strokeWidth: ViewAnimator<this, Length, AnyLength>;
 
   hitWidth(): number;

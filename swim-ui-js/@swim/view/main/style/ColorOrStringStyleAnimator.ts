@@ -12,43 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {AnyColor, Color} from "@swim/color";
-import {Tween} from "@swim/transition";
-import {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
+import {StyleAnimator} from "./StyleAnimator";
 import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export interface ColorOrStringStyleAnimator<V extends ElementView> extends StyleAnimator<V, Color | string, AnyColor | string> {
-}
-
-/** @hidden */
-export const ColorOrStringStyleAnimator: StyleAnimatorConstructor<Color | string, AnyColor | string> = (function (_super: typeof StyleAnimator): StyleAnimatorConstructor<Color | string, AnyColor | string> {
-  const ColorOrStringStyleAnimator: StyleAnimatorConstructor<Color | string, AnyColor | string> = function <V extends ElementView>(
-      this: ColorOrStringStyleAnimator<V>, view: V, animatorName: string, propertyNames: string | ReadonlyArray<string>): ColorOrStringStyleAnimator<V> {
-    let _this: ColorOrStringStyleAnimator<V> = function accessor(value?: AnyColor | string, tween?: Tween<Color | string>, priority?: string): Color | string | undefined | V {
-      if (arguments.length === 0) {
-        return _this.value;
-      } else {
-        _this.setState(value, tween, priority);
-        return _this._view;
-      }
-    } as ColorOrStringStyleAnimator<V>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, view, animatorName, propertyNames) || _this;
-    return _this;
-  } as unknown as StyleAnimatorConstructor<Color | string, AnyColor | string>;
-  __extends(ColorOrStringStyleAnimator, _super);
-
-  ColorOrStringStyleAnimator.prototype.parse = function (this: ColorOrStringStyleAnimator<ElementView>, value: string): Color | string {
+export abstract class ColorOrStringStyleAnimator<V extends ElementView> extends StyleAnimator<V, Color | string, AnyColor | string> {
+  parse(value: string): Color | string {
     try {
       return Color.parse(value);
     } catch (swallow) {
       return value;
     }
-  };
+  }
 
-  ColorOrStringStyleAnimator.prototype.fromAny = function (this: ColorOrStringStyleAnimator<ElementView>, value: AnyColor | string): Color | string {
+  fromAny(value: AnyColor | string): Color | string {
     if (typeof value === "string") {
       try {
         return Color.parse(value);
@@ -58,8 +36,6 @@ export const ColorOrStringStyleAnimator: StyleAnimatorConstructor<Color | string
     } else {
       return Color.fromAny(value);
     }
-  };
-
-  return ColorOrStringStyleAnimator;
-}(StyleAnimator));
+  }
+}
 StyleAnimator.ColorOrString = ColorOrStringStyleAnimator;

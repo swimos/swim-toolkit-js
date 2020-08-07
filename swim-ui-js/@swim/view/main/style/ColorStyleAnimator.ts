@@ -12,42 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {AnyColor, Color} from "@swim/color";
-import {Tween} from "@swim/transition";
-import {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
+import {StyleAnimator} from "./StyleAnimator";
 import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export interface ColorStyleAnimator<V extends ElementView> extends StyleAnimator<V, Color, AnyColor> {
-}
-
-/** @hidden */
-export const ColorStyleAnimator: StyleAnimatorConstructor<Color, AnyColor> = (function (_super: typeof StyleAnimator): StyleAnimatorConstructor<Color, AnyColor> {
-  const ColorStyleAnimator: StyleAnimatorConstructor<Color, AnyColor> = function <V extends ElementView>(
-      this: ColorStyleAnimator<V>, view: V, animatorName: string, propertyNames: string | ReadonlyArray<string>): ColorStyleAnimator<V> {
-    let _this: ColorStyleAnimator<V> = function accessor(value?: AnyColor, tween?: Tween<Color>, priority?: string): Color | undefined | V {
-      if (arguments.length === 0) {
-        return _this.value;
-      } else {
-        _this.setState(value, tween, priority);
-        return _this._view;
-      }
-    } as ColorStyleAnimator<V>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, view, animatorName, propertyNames) || _this;
-    return _this;
-  } as unknown as StyleAnimatorConstructor<Color, AnyColor>;
-  __extends(ColorStyleAnimator, _super);
-
-  ColorStyleAnimator.prototype.parse = function (this: ColorStyleAnimator<ElementView>, value: string): Color {
+export abstract class ColorStyleAnimator<V extends ElementView> extends StyleAnimator<V, Color, AnyColor> {
+  parse(value: string): Color {
     return Color.parse(value);
-  };
+  }
 
-  ColorStyleAnimator.prototype.fromAny = function (this: ColorStyleAnimator<ElementView>, value: AnyColor): Color {
+  fromAny(value: AnyColor): Color {
     return Color.fromAny(value);
-  };
-
-  return ColorStyleAnimator;
-}(StyleAnimator));
+  }
+}
 StyleAnimator.Color = ColorStyleAnimator;

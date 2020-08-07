@@ -12,74 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
-import {Model, ModelObserver} from "@swim/model";
+import {Model, ModelObserverType} from "@swim/model";
 import {Component} from "../Component";
-import {ComponentModelDescriptor, ComponentModel} from "./ComponentModel";
+import {ComponentModel} from "./ComponentModel";
 
 /** @hidden */
-export interface ComponentModelObserverClass {
-  new<C extends Component, M extends Model>(component: C, modelName: string, descriptor?: ComponentModelDescriptor<C, M>): ComponentModelObserver<C, M>;
-}
-
-/** @hidden */
-export interface ComponentModelObserver<C extends Component, M extends Model> extends ComponentModel<C, M>, ModelObserver<M> {
-}
-
-/** @hidden */
-export const ComponentModelObserver: ComponentModelObserverClass = (function (_super: typeof ComponentModel): ComponentModelObserverClass {
-  const ComponentModelObserver: ComponentModelObserverClass = function <C extends Component, M extends Model>(
-      this: ComponentModelObserver<C, M>, component: C, modelName: string,
-      descriptor?: ComponentModelDescriptor<C, M>): ComponentModelObserver<C, M> {
-    let _this: ComponentModelObserver<C, M> = function accessor(model?: M | null): M | null | C {
-      if (model === void 0) {
-        return _this.model;
-      } else {
-        _this.setModel(model);
-        return _this._component;
-      }
-    } as ComponentModelObserver<C, M>;
-    (_this as any).__proto__ = this;
-    if (descriptor !== void 0) {
-      if ((descriptor as any).__proto__ === Object.prototype) {
-        (descriptor as any).__proto__ = (this as any).__proto__;
-      } else if ((descriptor as any).__proto__ !== (this as any).__proto__) {
-        throw new TypeError("unexpected " + modelName + " prototype");
-      }
-      (this as any).__proto__ = descriptor;
-    }
-    _this = _super.call(_this, component, modelName, descriptor) || _this;
-    return _this;
-  } as unknown as ComponentModelObserverClass;
-  __extends(ComponentModelObserver, _super);
-
-  ComponentModelObserver.prototype.onSetModel = function (this: ComponentModelObserver<Component, Model>,
-                                                          newModel: Model | null,
-                                                          oldModel: Model | null): void {
+export abstract class ComponentModelObserver<C extends Component, M extends Model> extends ComponentModel<C, M> {
+  onSetModel(newModel: M | null, oldModel: M | null): void {
+    super.onSetModel(newModel, oldModel);
     if (this._component.isMounted()) {
       if (oldModel !== null) {
-        oldModel.removeModelObserver(this);
+        oldModel.removeModelObserver(this as ModelObserverType<M>);
       }
       if (newModel !== null) {
-        newModel.addModelObserver(this);
+        newModel.addModelObserver(this as ModelObserverType<M>);
       }
     }
   }
 
-  ComponentModelObserver.prototype.mount = function (this: ComponentModelObserver<Component, Model>): void {
+  mount(): void {
+    super.mount();
     const model = this._model;
     if (model !== null) {
-      model.addModelObserver(this);
+      model.addModelObserver(this as ModelObserverType<M>);
     }
-  };
+  }
 
-  ComponentModelObserver.prototype.unmount = function (this: ComponentModelObserver<Component, Model>): void {
+  unmount(): void {
     const model = this._model;
     if (model !== null) {
-      model.removeModelObserver(this);
+      model.removeModelObserver(this as ModelObserverType<M>);
     }
-  };
-
-  return ComponentModelObserver;
-}(ComponentModel));
+    super.unmount();
+  }
+}
 ComponentModel.Observer = ComponentModelObserver;

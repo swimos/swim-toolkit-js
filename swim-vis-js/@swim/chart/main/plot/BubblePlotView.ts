@@ -56,16 +56,16 @@ export class BubblePlotView<X, Y> extends ScatterPlotView<X, Y> implements FillV
     return "bubble";
   }
 
-  @ViewAnimator(Length, {value: Length.px(5)})
+  @ViewAnimator({type: Length, value: Length.px(5)})
   radius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Color, {value: Color.black()})
+  @ViewAnimator({type: Color, value: Color.black()})
   fill: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Color)
+  @ViewAnimator({type: Color})
   stroke: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Length)
+  @ViewAnimator({type: Length})
   strokeWidth: ViewAnimator<this, Length, AnyLength>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {

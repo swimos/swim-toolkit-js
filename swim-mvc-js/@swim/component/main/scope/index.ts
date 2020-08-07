@@ -16,24 +16,13 @@ export {
   ComponentScopeType,
   ComponentScopeInitType,
   ComponentScopeInit,
-  ComponentScopeFromAny,
-  ComponentScopeTypeConstructor,
-  ComponentScopeDescriptorType,
   ComponentScopeDescriptor,
+  ComponentScopePrototype,
   ComponentScopeConstructor,
-  ComponentScopeClass,
   ComponentScope,
 } from "./ComponentScope";
 
-export {
-  AnyComponentScopeClass,
-  AnyComponentScope,
-} from "./AnyComponentScope";
-
-export {
-  ObjectComponentScopeClass,
-  ObjectComponentScope,
-} from "./ObjectComponentScope";
+export {ObjectComponentScope} from "./ObjectComponentScope";
 
 export {StringComponentScope} from "./StringComponentScope";
 

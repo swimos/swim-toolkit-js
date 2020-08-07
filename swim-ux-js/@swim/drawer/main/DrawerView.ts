@@ -112,16 +112,16 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     return this._drawerState === "collapsed" || this._drawerState === "collapsing";
   }
 
-  @ViewAnimator(Length, {value: Length.px(60)})
+  @ViewAnimator({type: Length, value: Length.px(60)})
   collapsedWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length, {value: Length.px(200)})
+  @ViewAnimator({type: Length, value: Length.px(200)})
   expandedWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Number, {value: 0})
+  @ViewAnimator({type: Number, value: 0})
   drawerSlide: ViewAnimator<this, number>; // 0 = hidden; 1 = shown
 
-  @ViewAnimator(Number, {value: 1})
+  @ViewAnimator({type: Number, value: 1})
   drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   drawerPlacement(): DrawerPlacement;
@@ -149,7 +149,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     return this._drawerPlacement === "left" || this._drawerPlacement === "right";
   }
 
-  @ViewScope(Object)
+  @ViewScope({type: Object})
   edgeInsets: ViewScope<this, ViewEdgeInsets>;
 
   protected willSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {

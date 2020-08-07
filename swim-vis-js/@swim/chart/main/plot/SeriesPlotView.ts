@@ -145,10 +145,10 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     return null;
   }
 
-  @ViewAnimator(ContinuousScale, {inherit: true})
+  @ViewAnimator({type: ContinuousScale, inherit: true})
   xScale: ContinuousScaleViewAnimator<this, X, number>;
 
-  @ViewAnimator(ContinuousScale, {inherit: true})
+  @ViewAnimator({type: ContinuousScale, inherit: true})
   yScale: ContinuousScaleViewAnimator<this, Y, number>;
 
   xDomain(): readonly [X, X] | undefined;
@@ -243,10 +243,10 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     }
   }
 
-  @ViewAnimator(Font, {inherit: true})
+  @ViewAnimator({type: Font, inherit: true})
   font: ViewAnimator<this, Font, AnyFont>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   textColor: ViewAnimator<this, Color, AnyColor>;
 
   get childViewCount(): number {

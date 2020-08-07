@@ -12,45 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Component} from "../Component";
-import {ComponentScopeDescriptor, ComponentScopeConstructor, ComponentScope} from "./ComponentScope";
+import {ComponentScope} from "./ComponentScope";
 
 /** @hidden */
-export interface NumberComponentScope<C extends Component> extends ComponentScope<C, number, number | string> {
-}
-
-/** @hidden */
-export const NumberComponentScope: ComponentScopeConstructor<number, number | string> = (function (_super: typeof ComponentScope): ComponentScopeConstructor<number, number | string> {
-  const NumberComponentScope: ComponentScopeConstructor<number, number | string> = function <C extends Component>(
-      this: NumberComponentScope<C>, component: C, scopeName: string, descriptor?: ComponentScopeDescriptor<C, number, number | string>): NumberComponentScope<C> {
-    let _this: NumberComponentScope<C> = function accessor(state?: number | string): number | undefined | C {
-      if (arguments.length === 0) {
-        return _this.state;
-      } else {
-        _this.setState(state);
-        return _this._component;
-      }
-    } as NumberComponentScope<C>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, component, scopeName, descriptor) || _this;
-    return _this;
-  } as unknown as ComponentScopeConstructor<number, number | string>;
-  __extends(NumberComponentScope, _super);
-
-  NumberComponentScope.prototype.fromAny = function (this: NumberComponentScope<Component>, value: number | string | null): number | null {
-    if (typeof value === "string") {
+export abstract class NumberComponentScope<C extends Component> extends ComponentScope<C, number, number | string> {
+  fromAny(value: number | string): number | undefined {
+    if (typeof value === "number") {
+      return value;
+    } else {
       const number = +value;
       if (isFinite(number)) {
         return number;
       } else {
         throw new Error(value);
       }
-    } else {
-      return value;
     }
-  };
-
-  return NumberComponentScope;
-}(ComponentScope));
+  }
+}
 ComponentScope.Number = NumberComponentScope;

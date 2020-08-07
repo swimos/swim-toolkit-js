@@ -38,22 +38,22 @@ export class TextRunView extends LayerView implements TypesetView {
     this.setState(init);
   }
 
-  @ViewAnimator(String, {value: ""})
+  @ViewAnimator({type: String, value: ""})
   text: ViewAnimator<this, string>;
 
-  @ViewAnimator(Font, {inherit: true})
+  @ViewAnimator({type: Font, inherit: true})
   font: ViewAnimator<this, Font, AnyFont>;
 
-  @ViewAnimator(String, {inherit: true})
+  @ViewAnimator({type: String, inherit: true})
   textAlign: ViewAnimator<this, CanvasTextAlign>;
 
-  @ViewAnimator(String, {inherit: true})
+  @ViewAnimator({type: String, inherit: true})
   textBaseline: ViewAnimator<this, CanvasTextBaseline>;
 
-  @ViewAnimator(PointR2, {inherit: true})
+  @ViewAnimator({type: PointR2, inherit: true})
   textOrigin: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   textColor: ViewAnimator<this, Color, AnyColor>;
 
   get value(): TextRun {

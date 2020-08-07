@@ -12,50 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {View} from "../View";
 import {ViewportManager} from "../viewport/ViewportManager";
-import {ViewServiceDescriptor, ViewServiceConstructor, ViewService} from "./ViewService";
+import {ViewService} from "./ViewService";
 
 /** @hidden */
-export interface ViewportManagerService<V extends View> extends ViewService<V, ViewportManager> {
-}
-
-/** @hidden */
-export const ViewportManagerService: ViewServiceConstructor<ViewportManager> = (function (_super: typeof ViewService): ViewServiceConstructor<ViewportManager> {
-  const ViewportManagerService: ViewServiceConstructor<ViewportManager> = function <V extends View>(
-      this: ViewportManagerService<V>, view: V, serviceName: string, descriptor?: ViewServiceDescriptor<V, ViewportManager>): ViewportManagerService<V> {
-    let _this: ViewportManagerService<V> = function accessor(): ViewportManager | undefined {
-      return _this.state;
-    } as ViewportManagerService<V>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, view, serviceName, descriptor) || _this;
-    return _this;
-  } as unknown as ViewServiceConstructor<ViewportManager>;
-  __extends(ViewportManagerService, _super);
-
-  ViewportManagerService.prototype.mount = function (this: ViewportManagerService<View>): void {
-    _super.prototype.mount.call(this);
+export abstract class ViewportManagerService<V extends View> extends ViewService<V, ViewportManager> {
+  mount(): void {
+    super.mount();
     const state = this._state;
     if (state !== void 0) {
       state.addRootView(this._view);
     }
-  };
+  }
 
-  ViewportManagerService.prototype.unmount = function (this: ViewportManagerService<View>): void {
+  unmount(): void {
     const state = this._state;
     if (state !== void 0) {
       state.removeRootView(this._view);
     }
-    _super.prototype.unmount.call(this);
-  };
+    super.unmount();
+  }
 
-  ViewportManagerService.prototype.init = function (this: ViewportManagerService<View>): ViewportManager | undefined {
+  init(): ViewportManager | undefined {
     return ViewportManager.global();
-  };
-
-  return ViewportManagerService;
-}(ViewService));
+  }
+}
 ViewService.Viewport = ViewportManagerService;
 
-View.decorateViewService(ViewportManagerService, {serviceType: ViewportManagerService}, View.prototype, "viewportManager");
+ViewService({type: ViewportManager})(View.prototype, "viewportManager");

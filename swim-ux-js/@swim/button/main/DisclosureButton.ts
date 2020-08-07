@@ -48,13 +48,13 @@ export class DisclosureButton extends ThemedHtmlView {
     return icon.getChildView("arrow") as SvgView;
   }
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   disclosurePhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   collapsedColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   expandedColor: ViewAnimator<this, Color, AnyColor>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,

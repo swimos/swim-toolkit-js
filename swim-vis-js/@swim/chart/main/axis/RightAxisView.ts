@@ -24,7 +24,7 @@ export class RightAxisView<Y = unknown> extends AxisView<Y> {
     return "right";
   }
 
-  @ViewAnimator(ContinuousScale, {inherit: "yScale"})
+  @ViewAnimator({type: ContinuousScale, inherit: "yScale"})
   scale: ContinuousScaleViewAnimator<this, Y, number>;
 
   protected layoutTick(tick: TickView<Y>, origin: PointR2, frame: BoxR2,

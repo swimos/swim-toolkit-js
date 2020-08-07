@@ -225,40 +225,41 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     }
   }
 
-  @ViewAnimator(Length, {value: Length.px(20)})
+  @ViewAnimator({type: Length, value: Length.px(20)})
   gutterTop: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length, {value: Length.px(40)})
+  @ViewAnimator({type: Length, value: Length.px(40)})
   gutterRight: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length, {value: Length.px(20)})
+  @ViewAnimator({type: Length, value: Length.px(20)})
   gutterBottom: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length, {value: Length.px(40)})
+  @ViewAnimator({type: Length, value: Length.px(40)})
   gutterLeft: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Color, {value: Color.black()})
+  @ViewAnimator({type: Color, value: Color.black()})
   borderColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Number, {value: 1})
+  @ViewAnimator({type: Number, value: 1})
   borderWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator(Number, {value: 6})
+  @ViewAnimator({type: Number, value: 6})
   borderSerif: ViewAnimator<this, number>;
 
-  @ViewAnimator(Color, {value: Color.black()})
+  @ViewAnimator({type: Color, value: Color.black()})
   tickMarkColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Number, {value: 1})
+  @ViewAnimator({type: Number, value: 1})
   tickMarkWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator(Number, {value: 6})
+  @ViewAnimator({type: Number, value: 6})
   tickMarkLength: ViewAnimator<this, number>;
 
-  @ViewAnimator(Number, {value: 2})
+  @ViewAnimator({type: Number, value: 2})
   tickLabelPadding: ViewAnimator<this, number>;
 
-  @ViewScope(Transition, {
+  @ViewScope({
+    type: Transition,
     inherit: true,
     init(): Transition<any> {
       return Transition.duration(250, Ease.cubicOut);
@@ -266,10 +267,10 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
   })
   tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
-  @ViewAnimator(Color, {value: Color.transparent()})
+  @ViewAnimator({type: Color, value: Color.transparent()})
   gridLineColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Number, {value: 0})
+  @ViewAnimator({type: Number, value: 0})
   gridLineWidth: ViewAnimator<this, number>;
 
   xRange(): readonly [number, number] | undefined {

@@ -12,50 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Model} from "../Model";
 import {RefreshManager} from "../refresh/RefreshManager";
-import {ModelServiceDescriptor, ModelServiceConstructor, ModelService} from "./ModelService";
+import {ModelService} from "./ModelService";
 
 /** @hidden */
-export interface RefreshManagerService<M extends Model> extends ModelService<M, RefreshManager> {
-}
-
-/** @hidden */
-export const RefreshManagerService: ModelServiceConstructor<RefreshManager> = (function (_super: typeof ModelService): ModelServiceConstructor<RefreshManager> {
-  const RefreshManagerService: ModelServiceConstructor<RefreshManager> = function <M extends Model>(
-      this: RefreshManagerService<M>, model: M, serviceName: string, descriptor?: ModelServiceDescriptor<M, RefreshManager>): RefreshManagerService<M> {
-    let _this: RefreshManagerService<M> = function accessor(): RefreshManager | undefined {
-      return _this.state;
-    } as RefreshManagerService<M>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, model, serviceName, descriptor) || _this;
-    return _this;
-  } as unknown as ModelServiceConstructor<RefreshManager>;
-  __extends(RefreshManagerService, _super);
-
-  RefreshManagerService.prototype.mount = function (this: RefreshManagerService<Model>): void {
-    _super.prototype.mount.call(this);
+export abstract class RefreshManagerService<M extends Model> extends ModelService<M, RefreshManager> {
+  mount(): void {
+    super.mount();
     const state = this._state;
     if (state !== void 0) {
       state.addRootModel(this._model);
     }
-  };
+  }
 
-  RefreshManagerService.prototype.unmount = function (this: RefreshManagerService<Model>): void {
+  unmount(): void {
     const state = this._state;
     if (state !== void 0) {
       state.removeRootModel(this._model);
     }
-    _super.prototype.unmount.call(this);
-  };
+    super.unmount();
+  }
 
-  RefreshManagerService.prototype.init = function (this: RefreshManagerService<Model>): RefreshManager | undefined {
+  init(): RefreshManager | undefined {
     return RefreshManager.global();
-  };
-
-  return RefreshManagerService;
-}(ModelService));
+  }
+}
 ModelService.Refresh = RefreshManagerService;
 
-Model.decorateModelService(RefreshManagerService, {serviceType: RefreshManagerService}, Model.prototype, "refreshManager");
+ModelService({type: RefreshManager})(Model.prototype, "refreshManager");

@@ -17,10 +17,10 @@ import {ModelObserverType, ModelObserver} from "./ModelObserver";
 import {ModelControllerType, ModelController} from "./ModelController";
 import {ModelManager} from "./manager/ModelManager";
 import {RefreshManager} from "./refresh/RefreshManager";
-import {ModelServiceDescriptor, ModelServiceConstructor, ModelService} from "./service/ModelService";
-import {ModelScopeDescriptor, ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
+import {ModelServiceConstructor, ModelService} from "./service/ModelService";
+import {ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
 import {GenericModel} from "./generic/GenericModel";
-import {CompositeModel} from "./generic/CompositeModel";
+import {CompoundModel} from "./generic/CompoundModel";
 
 export type ModelFlags = number;
 
@@ -39,10 +39,10 @@ export interface ModelClass {
   readonly removeChildFlags: ModelFlags;
 
   /** @hidden */
-  _modelServiceDescriptors?: {[serviceName: string]: ModelServiceDescriptor<Model, unknown> | undefined};
+  _modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<unknown> | undefined};
 
   /** @hidden */
-  _modelScopeDescriptors?: {[scopeName: string]: ModelScopeDescriptor<Model, unknown> | undefined};
+  _modelScopeConstructors?: {[scopeName: string]: ModelScopeConstructor<unknown> | undefined};
 }
 
 export abstract class Model {
@@ -706,10 +706,9 @@ export abstract class Model {
     let modelService = this.getModelService(serviceName);
     if (modelService === null) {
       const modelClass = (this as any).__proto__ as ModelClass;
-      const descriptor = Model.getModelServiceDescriptor(serviceName, modelClass);
-      if (descriptor !== null && descriptor.serviceType !== void 0) {
-        const ModelService = descriptor.serviceType;
-        modelService = new ModelService<this>(this, serviceName, descriptor);
+      const constructor = Model.getModelServiceConstructor(serviceName, modelClass);
+      if (constructor !== null) {
+        modelService = new constructor<this>(this, serviceName);
         this.setModelService(serviceName, modelService);
       }
     }
@@ -727,10 +726,9 @@ export abstract class Model {
     let modelScope = this.getModelScope(scopeName);
     if (modelScope === null) {
       const modelClass = (this as any).__proto__ as ModelClass;
-      const descriptor = Model.getModelScopeDescriptor(scopeName, modelClass);
-      if (descriptor !== null && descriptor.scopeType !== void 0) {
-        const ModelScope = descriptor.scopeType;
-        modelScope = new ModelScope<this>(this, scopeName, descriptor);
+      const constructor = Model.getModelScopeConstructor(scopeName, modelClass);
+      if (constructor !== null) {
+        modelScope = new constructor<this>(this, scopeName);
         this.setModelScope(scopeName, modelScope);
       }
     }
@@ -775,13 +773,13 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static getModelServiceDescriptor<M extends Model>(serviceName: string, modelClass: ModelClass | null = null): ModelServiceDescriptor<M, unknown> | null {
+  static getModelServiceConstructor<M extends Model>(serviceName: string, modelClass: ModelClass | null = null): ModelServiceConstructor<unknown> | null {
     if (modelClass === null) {
       modelClass = this.prototype as unknown as ModelClass;
     }
     do {
-      if (modelClass.hasOwnProperty("_modelServiceDescriptors")) {
-        const descriptor = modelClass._modelServiceDescriptors![serviceName];
+      if (modelClass.hasOwnProperty("_modelServiceConstructors")) {
+        const descriptor = modelClass._modelServiceConstructors![serviceName];
         if (descriptor !== void 0) {
           return descriptor;
         }
@@ -792,18 +790,17 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static decorateModelService<M extends Model, T>(ModelService: ModelServiceConstructor<T>,
-                                                  descriptor: ModelServiceDescriptor<M, T>,
+  static decorateModelService<M extends Model, T>(constructor: ModelServiceConstructor<T>,
                                                   modelClass: ModelClass, serviceName: string): void {
-    if (!modelClass.hasOwnProperty("_modelServiceDescriptors")) {
-      modelClass._modelServiceDescriptors = {};
+    if (!modelClass.hasOwnProperty("_modelServiceConstructors")) {
+      modelClass._modelServiceConstructors = {};
     }
-    modelClass._modelServiceDescriptors![serviceName] = descriptor;
+    modelClass._modelServiceConstructors![serviceName] = constructor;
     Object.defineProperty(modelClass, serviceName, {
       get: function (this: M): ModelService<M, T> {
         let modelService = this.getModelService(serviceName) as ModelService<M, T> | null;
         if (modelService === null) {
-          modelService = new ModelService<M>(this, serviceName, descriptor);
+          modelService = new constructor<M>(this, serviceName);
           this.setModelService(serviceName, modelService);
         }
         return modelService;
@@ -814,15 +811,15 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static getModelScopeDescriptor<M extends Model>(scopeName: string, modelClass: ModelClass | null = null): ModelScopeDescriptor<M, unknown> | null {
+  static getModelScopeConstructor<M extends Model>(scopeName: string, modelClass: ModelClass | null = null): ModelScopeConstructor<unknown> | null {
     if (modelClass === null) {
       modelClass = this.prototype as unknown as ModelClass;
     }
     do {
-      if (modelClass.hasOwnProperty("_modelScopeDescriptors")) {
-        const descriptor = modelClass._modelScopeDescriptors![scopeName];
-        if (descriptor !== void 0) {
-          return descriptor;
+      if (modelClass.hasOwnProperty("_modelScopeConstructors")) {
+        const constructor = modelClass._modelScopeConstructors![scopeName];
+        if (constructor !== void 0) {
+          return constructor;
         }
       }
       modelClass = (modelClass as any).__proto__ as ModelClass | null;
@@ -831,18 +828,17 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static decorateModelScope<M extends Model, T, U>(ModelScope: ModelScopeConstructor<T, U>,
-                                                   descriptor: ModelScopeDescriptor<M, T, U>,
+  static decorateModelScope<M extends Model, T, U>(constructor: ModelScopeConstructor<T, U>,
                                                    modelClass: ModelClass, scopeName: string): void {
-    if (!modelClass.hasOwnProperty("_modelScopeDescriptors")) {
-      modelClass._modelScopeDescriptors = {};
+    if (!modelClass.hasOwnProperty("_modelScopeConstructors")) {
+      modelClass._modelScopeConstructors = {};
     }
-    modelClass._modelScopeDescriptors![scopeName] = descriptor;
+    modelClass._modelScopeConstructors![scopeName] = constructor;
     Object.defineProperty(modelClass, scopeName, {
       get: function (this: M): ModelScope<M, T, U> {
         let modelScope = this.getModelScope(scopeName) as ModelScope<M, T, U> | null;
         if (modelScope === null) {
-          modelScope = new ModelScope<M>(this, scopeName, descriptor);
+          modelScope = new constructor<M>(this, scopeName);
           this.setModelScope(scopeName, modelScope);
         }
         return modelScope;
@@ -918,5 +914,5 @@ export abstract class Model {
   /** @hidden */
   static Generic: typeof GenericModel; // defined by GenericModel
   /** @hidden */
-  static Composite: typeof CompositeModel; // defined by CompositeModel
+  static Compound: typeof CompoundModel; // defined by CompoundModel
 }

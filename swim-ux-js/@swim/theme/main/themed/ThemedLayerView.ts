@@ -45,16 +45,16 @@ export abstract class ThemedLayerView extends LayerView implements ThemedGraphic
     }
   }
 
-  @ViewScope(MoodVector, {inherit: true})
+  @ViewScope({type: MoodVector, inherit: true})
   mood: ViewScope<this, MoodVector>;
 
-  @ViewScope(MoodMatrix)
+  @ViewScope({type: MoodMatrix})
   moodModifier: ViewScope<this, MoodMatrix>;
 
-  @ViewScope(ThemeMatrix, {inherit: true})
+  @ViewScope({type: ThemeMatrix, inherit: true})
   theme: ViewScope<this, ThemeMatrix>;
 
-  @ViewScope(MoodMatrix)
+  @ViewScope({type: MoodMatrix})
   themeModifier: ViewScope<this, MoodMatrix>;
 
   getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined {

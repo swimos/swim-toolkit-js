@@ -13,4 +13,4 @@
 // limitations under the License.
 
 export {GenericModel} from "./GenericModel";
-export {CompositeModel} from "./CompositeModel";
+export {CompoundModel} from "./CompoundModel";

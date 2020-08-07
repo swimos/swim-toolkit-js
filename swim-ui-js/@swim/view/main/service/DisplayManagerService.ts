@@ -12,50 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {View} from "../View";
 import {DisplayManager} from "../display/DisplayManager";
-import {ViewServiceDescriptor, ViewServiceConstructor, ViewService} from "./ViewService";
+import {ViewService} from "./ViewService";
 
 /** @hidden */
-export interface DisplayManagerService<V extends View> extends ViewService<V, DisplayManager> {
-}
-
-/** @hidden */
-export const DisplayManagerService: ViewServiceConstructor<DisplayManager> = (function (_super: typeof ViewService): ViewServiceConstructor<DisplayManager> {
-  const DisplayManagerService: ViewServiceConstructor<DisplayManager> = function <V extends View>(
-      this: DisplayManagerService<V>, view: V, serviceName: string, descriptor?: ViewServiceDescriptor<V, DisplayManager>): DisplayManagerService<V> {
-    let _this: DisplayManagerService<V> = function accessor(): DisplayManager | undefined {
-      return _this.state;
-    } as DisplayManagerService<V>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, view, serviceName, descriptor) || _this;
-    return _this;
-  } as unknown as ViewServiceConstructor<DisplayManager>;
-  __extends(DisplayManagerService, _super);
-
-  DisplayManagerService.prototype.mount = function (this: DisplayManagerService<View>): void {
-    _super.prototype.mount.call(this);
+export abstract class DisplayManagerService<V extends View> extends ViewService<V, DisplayManager> {
+  mount(): void {
+    super.mount();
     const state = this._state;
     if (state !== void 0) {
       state.addRootView(this._view);
     }
-  };
+  }
 
-  DisplayManagerService.prototype.unmount = function (this: DisplayManagerService<View>): void {
+  unmount(): void {
     const state = this._state;
     if (state !== void 0) {
       state.removeRootView(this._view);
     }
-    _super.prototype.unmount.call(this);
-  };
+    super.unmount();
+  }
 
-  DisplayManagerService.prototype.init = function (this: DisplayManagerService<View>): DisplayManager | undefined {
+  init(): DisplayManager | undefined {
     return DisplayManager.global();
-  };
-
-  return DisplayManagerService;
-}(ViewService));
+  }
+}
 ViewService.Display = DisplayManagerService;
 
-View.decorateViewService(DisplayManagerService, {serviceType: DisplayManagerService}, View.prototype, "displayManager");
+ViewService({type: DisplayManager})(View.prototype, "displayManager");

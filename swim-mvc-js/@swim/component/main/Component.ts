@@ -18,26 +18,10 @@ import {ComponentContextType, ComponentContext} from "./ComponentContext";
 import {ComponentObserverType, ComponentObserver} from "./ComponentObserver";
 import {ComponentManager} from "./manager/ComponentManager";
 import {ExecuteManager} from "./execute/ExecuteManager";
-import {
-  ComponentServiceDescriptor,
-  ComponentServiceConstructor,
-  ComponentService,
-} from "./service/ComponentService";
-import {
-  ComponentScopeDescriptor,
-  ComponentScopeConstructor,
-  ComponentScope,
-} from "./scope/ComponentScope";
-import {
-  ComponentModelDescriptor,
-  ComponentModelConstructor,
-  ComponentModel,
-} from "./model/ComponentModel";
-import {
-  ComponentViewDescriptor,
-  ComponentViewConstructor,
-  ComponentView,
-} from "./view/ComponentView";
+import {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";
+import {ComponentScopeConstructor, ComponentScope} from "./scope/ComponentScope";
+import {ComponentModelConstructor, ComponentModel} from "./model/ComponentModel";
+import {ComponentViewConstructor, ComponentView} from "./view/ComponentView";
 import {GenericComponent} from "./generic/GenericComponent";
 import {CompositeComponent} from "./generic/CompositeComponent";
 
@@ -57,16 +41,16 @@ export interface ComponentClass {
   readonly removeChildFlags: ComponentFlags;
 
   /** @hidden */
-  _componentServiceDescriptors?: {[serviceName: string]: ComponentServiceDescriptor<Component, unknown> | undefined};
+  _componentServiceConstructors?: {[serviceName: string]: ComponentServiceConstructor<unknown> | undefined};
 
   /** @hidden */
-  _componentScopeDescriptors?: {[scopeName: string]: ComponentScopeDescriptor<Component, unknown> | undefined};
+  _componentScopeConstructors?: {[scopeName: string]: ComponentScopeConstructor<unknown> | undefined};
 
   /** @hidden */
-  _componentModelDescriptors?: {[modelName: string]: ComponentModelDescriptor<Component, Model> | undefined};
+  _componentModelConstructors?: {[modelName: string]: ComponentModelConstructor<Model> | undefined};
 
   /** @hidden */
-  _componentViewDescriptors?: {[viewName: string]: ComponentViewDescriptor<Component, View> | undefined};
+  _componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<View> | undefined};
 }
 
 export abstract class Component {
@@ -718,10 +702,9 @@ export abstract class Component {
     let componentService = this.getComponentService(serviceName);
     if (componentService === null) {
       const componentClass = (this as any).__proto__ as ComponentClass;
-      const descriptor = Component.getComponentServiceDescriptor(serviceName, componentClass);
-      if (descriptor !== null && descriptor.serviceType !== void 0) {
-        const ComponentService = descriptor.serviceType;
-        componentService = new ComponentService<this>(this, serviceName, descriptor);
+      const constructor = Component.getComponentServiceConstructor(serviceName, componentClass);
+      if (constructor !== null) {
+        componentService = new constructor<this>(this, serviceName);
         this.setComponentService(serviceName, componentService);
       }
     }
@@ -739,10 +722,9 @@ export abstract class Component {
     let componentScope = this.getComponentScope(scopeName);
     if (componentScope === null) {
       const componentClass = (this as any).__proto__ as ComponentClass;
-      const descriptor = Component.getComponentScopeDescriptor(scopeName, componentClass);
-      if (descriptor !== null && descriptor.scopeType !== void 0) {
-        const ComponentScope = descriptor.scopeType;
-        componentScope = new ComponentScope<this>(this, scopeName, descriptor);
+      const constructor = Component.getComponentScopeConstructor(scopeName, componentClass);
+      if (constructor !== null) {
+        componentScope = new constructor<this>(this, scopeName);
         this.setComponentScope(scopeName, componentScope);
       }
     }
@@ -770,10 +752,9 @@ export abstract class Component {
     let componentModel = this.getComponentModel(modelName);
     if (componentModel === null) {
       const componentClass = (this as any).__proto__ as ComponentClass;
-      const descriptor = Component.getComponentModelDescriptor(modelName, componentClass);
-      if (descriptor !== null && descriptor.componentModelType !== void 0) {
-        const ComponentModel = descriptor.componentModelType;
-        componentModel = new ComponentModel<this>(this, modelName, descriptor);
+      const constructor = Component.getComponentModelConstructor(modelName, componentClass);
+      if (constructor !== null) {
+        componentModel = new constructor<this>(this, modelName);
         this.setComponentModel(modelName, componentModel);
       }
     }
@@ -801,10 +782,9 @@ export abstract class Component {
     let componentView = this.getComponentView(viewName);
     if (componentView === null) {
       const componentClass = (this as any).__proto__ as ComponentClass;
-      const descriptor = Component.getComponentViewDescriptor(viewName, componentClass);
-      if (descriptor !== null && descriptor.componentViewType !== void 0) {
-        const ComponentView = descriptor.componentViewType;
-        componentView = new ComponentView<this>(this, viewName, descriptor);
+      const constructor = Component.getComponentViewConstructor(viewName, componentClass);
+      if (constructor !== null) {
+        componentView = new constructor<this>(this, viewName);
         this.setComponentView(viewName, componentView);
       }
     }
@@ -849,15 +829,15 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentServiceDescriptor<C extends Component>(serviceName: string, componentClass: ComponentClass | null = null): ComponentServiceDescriptor<C, unknown> | null {
+  static getComponentServiceConstructor<C extends Component>(serviceName: string, componentClass: ComponentClass | null = null): ComponentServiceConstructor<unknown> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
     do {
-      if (componentClass.hasOwnProperty("_componentServiceDescriptors")) {
-        const descriptor = componentClass._componentServiceDescriptors![serviceName];
-        if (descriptor !== void 0) {
-          return descriptor;
+      if (componentClass.hasOwnProperty("_componentServiceConstructors")) {
+        const constructor = componentClass._componentServiceConstructors![serviceName];
+        if (constructor !== void 0) {
+          return constructor;
         }
       }
       componentClass = (componentClass as any).__proto__ as ComponentClass | null;
@@ -866,18 +846,17 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentService<C extends Component, T>(ComponentService: ComponentServiceConstructor<T>,
-                                                          descriptor: ComponentServiceDescriptor<C, T>,
+  static decorateComponentService<C extends Component, T>(constructor: ComponentServiceConstructor<T>,
                                                           componentClass: ComponentClass, serviceName: string): void {
-    if (!componentClass.hasOwnProperty("_componentServiceDescriptors")) {
-      componentClass._componentServiceDescriptors = {};
+    if (!componentClass.hasOwnProperty("_componentServiceConstructors")) {
+      componentClass._componentServiceConstructors = {};
     }
-    componentClass._componentServiceDescriptors![serviceName] = descriptor;
+    componentClass._componentServiceConstructors![serviceName] = constructor;
     Object.defineProperty(componentClass, serviceName, {
       get: function (this: C): ComponentService<C, T> {
         let componentService = this.getComponentService(serviceName) as ComponentService<C, T> | null;
         if (componentService === null) {
-          componentService = new ComponentService<C>(this, serviceName, descriptor);
+          componentService = new constructor<C>(this, serviceName);
           this.setComponentService(serviceName, componentService);
         }
         return componentService;
@@ -888,15 +867,15 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentScopeDescriptor<C extends Component>(scopeName: string, componentClass: ComponentClass | null = null): ComponentScopeDescriptor<C, unknown> | null {
+  static getComponentScopeConstructor<C extends Component>(scopeName: string, componentClass: ComponentClass | null = null): ComponentScopeConstructor<unknown> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
     do {
-      if (componentClass.hasOwnProperty("_componentScopeDescriptors")) {
-        const descriptor = componentClass._componentScopeDescriptors![scopeName];
-        if (descriptor !== void 0) {
-          return descriptor;
+      if (componentClass.hasOwnProperty("_componentScopeConstructors")) {
+        const constructor = componentClass._componentScopeConstructors![scopeName];
+        if (constructor !== void 0) {
+          return constructor;
         }
       }
       componentClass = (componentClass as any).__proto__ as ComponentClass | null;
@@ -905,18 +884,17 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentScope<C extends Component, T, U>(ComponentScope: ComponentScopeConstructor<T, U>,
-                                                           descriptor: ComponentScopeDescriptor<C, T, U>,
+  static decorateComponentScope<C extends Component, T, U>(constructor: ComponentScopeConstructor<T, U>,
                                                            componentClass: ComponentClass, scopeName: string): void {
-    if (!componentClass.hasOwnProperty("_componentScopeDescriptors")) {
-      componentClass._componentScopeDescriptors = {};
+    if (!componentClass.hasOwnProperty("_componentScopeConstructors")) {
+      componentClass._componentScopeConstructors = {};
     }
-    componentClass._componentScopeDescriptors![scopeName] = descriptor;
+    componentClass._componentScopeConstructors![scopeName] = constructor;
     Object.defineProperty(componentClass, scopeName, {
       get: function (this: C): ComponentScope<C, T, U> {
         let componentScope = this.getComponentScope(scopeName) as ComponentScope<C, T, U> | null;
         if (componentScope === null) {
-          componentScope = new ComponentScope<C>(this, scopeName, descriptor);
+          componentScope = new constructor<C>(this, scopeName);
           this.setComponentScope(scopeName, componentScope);
         }
         return componentScope;
@@ -927,15 +905,15 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentModelDescriptor<C extends Component>(modelName: string, componentClass: ComponentClass | null = null): ComponentModelDescriptor<C, Model> | null {
+  static getComponentModelConstructor<C extends Component>(modelName: string, componentClass: ComponentClass | null = null): ComponentModelConstructor<Model> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
     do {
-      if (componentClass.hasOwnProperty("_componentModelDescriptors")) {
-        const descriptor = componentClass._componentModelDescriptors![modelName];
-        if (descriptor !== void 0) {
-          return descriptor;
+      if (componentClass.hasOwnProperty("_componentModelConstructors")) {
+        const constructor = componentClass._componentModelConstructors![modelName];
+        if (constructor !== void 0) {
+          return constructor;
         }
       }
       componentClass = (componentClass as any).__proto__ as ComponentClass | null;
@@ -944,18 +922,17 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentModel<C extends Component, M extends Model>(ComponentModel: ComponentModelConstructor<M>,
-                                                                      descriptor: ComponentModelDescriptor<C, M>,
+  static decorateComponentModel<C extends Component, M extends Model>(constructor: ComponentModelConstructor<M>,
                                                                       componentClass: ComponentClass, modelName: string): void {
-    if (!componentClass.hasOwnProperty("_componentModelDescriptors")) {
-      componentClass._componentModelDescriptors = {};
+    if (!componentClass.hasOwnProperty("_componentModelConstructors")) {
+      componentClass._componentModelConstructors = {};
     }
-    componentClass._componentModelDescriptors![modelName] = descriptor;
+    componentClass._componentModelConstructors![modelName] = constructor;
     Object.defineProperty(componentClass, modelName, {
       get: function (this: C): ComponentModel<C, M> {
         let componentModel = this.getComponentModel(modelName) as ComponentModel<C, M> | null;
         if (componentModel === null) {
-          componentModel = new ComponentModel<C>(this, modelName, descriptor);
+          componentModel = new constructor<C>(this, modelName);
           this.setComponentModel(modelName, componentModel);
         }
         return componentModel;
@@ -966,15 +943,15 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentViewDescriptor<C extends Component>(viewName: string, componentClass: ComponentClass | null = null): ComponentViewDescriptor<C, View> | null {
+  static getComponentViewConstructor<C extends Component>(viewName: string, componentClass: ComponentClass | null = null): ComponentViewConstructor<View> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
     do {
-      if (componentClass.hasOwnProperty("_componentViewDescriptors")) {
-        const descriptor = componentClass._componentViewDescriptors![viewName];
-        if (descriptor !== void 0) {
-          return descriptor;
+      if (componentClass.hasOwnProperty("_componentViewConstructors")) {
+        const constructor = componentClass._componentViewConstructors![viewName];
+        if (constructor !== void 0) {
+          return constructor;
         }
       }
       componentClass = (componentClass as any).__proto__ as ComponentClass | null;
@@ -983,18 +960,17 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentView<C extends Component, V extends View>(ComponentView: ComponentViewConstructor<V>,
-                                                                    descriptor: ComponentViewDescriptor<C, V>,
+  static decorateComponentView<C extends Component, V extends View>(constructor: ComponentViewConstructor<V>,
                                                                     componentClass: ComponentClass, viewName: string): void {
-    if (!componentClass.hasOwnProperty("_componentViewDescriptors")) {
-      componentClass._componentViewDescriptors = {};
+    if (!componentClass.hasOwnProperty("_componentViewConstructors")) {
+      componentClass._componentViewConstructors = {};
     }
-    componentClass._componentViewDescriptors![viewName] = descriptor;
+    componentClass._componentViewConstructors![viewName] = constructor;
     Object.defineProperty(componentClass, viewName, {
       get: function (this: C): ComponentView<C, V> {
         let componentView = this.getComponentView(viewName) as ComponentView<C, V> | null;
         if (componentView === null) {
-          componentView = new ComponentView<C>(this, viewName, descriptor);
+          componentView = new constructor<C>(this, viewName);
           this.setComponentView(viewName, componentView);
         }
         return componentView;

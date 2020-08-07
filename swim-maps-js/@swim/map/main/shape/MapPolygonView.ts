@@ -203,19 +203,19 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
     return this._viewCentroid;
   }
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   fill: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   stroke: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Length, {inherit: true})
+  @ViewAnimator({type: Length, inherit: true})
   strokeWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Font, {inherit: true})
+  @ViewAnimator({type: Font, inherit: true})
   font: ViewAnimator<this, Font, AnyFont>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   textColor: ViewAnimator<this, Color, AnyColor>;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {

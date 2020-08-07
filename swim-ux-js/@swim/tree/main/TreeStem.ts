@@ -61,7 +61,7 @@ export class TreeStem extends ThemedHtmlView {
     }
   }
 
-  @ViewScope(TreeSeed, {inherit: true})
+  @ViewScope({type: TreeSeed, inherit: true})
   seed: ViewScope<this, TreeSeed, AnyTreeSeed>;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {

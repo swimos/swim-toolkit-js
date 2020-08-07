@@ -100,7 +100,7 @@ export class ButtonStack extends ThemedHtmlView implements Modal, PositionGestur
     return this._stackState === "collapsed" || this._stackState === "collapsing";
   }
 
-  @ViewAnimator(Number, {value: 0})
+  @ViewAnimator({type: Number, value: 0})
   stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   get modalView(): View | null {

@@ -15,18 +15,11 @@
 export {
   ViewServiceType,
   ViewServiceInit,
-  ViewServiceTypeConstructor,
-  ViewServiceDescriptorType,
   ViewServiceDescriptor,
+  ViewServicePrototype,
   ViewServiceConstructor,
-  ViewServiceClass,
   ViewService,
 } from "./ViewService";
-
-export {
-  ObjectViewServiceClass,
-  ObjectViewService,
-} from "./ObjectViewService";
 
 export {DisplayManagerService} from "./DisplayManagerService";
 

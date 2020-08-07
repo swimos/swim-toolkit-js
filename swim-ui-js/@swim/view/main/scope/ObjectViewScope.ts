@@ -12,42 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {View} from "../View";
-import {ViewScopeDescriptor, ViewScope} from "./ViewScope";
+import {ViewScope} from "./ViewScope";
 
 /** @hidden */
-export interface ObjectViewScopeClass {
-  new<V extends View, T>(view: V, scopeName: string, descriptor?: ViewScopeDescriptor<V, T>): ObjectViewScope<V, T>;
-}
-
-/** @hidden */
-export interface ObjectViewScope<V extends View, T> extends ViewScope<V, T> {
-}
-
-/** @hidden */
-export const ObjectViewScope: ObjectViewScopeClass = (function (_super: typeof ViewScope): ObjectViewScopeClass {
-  const ObjectViewScope: ObjectViewScopeClass = function <V extends View, T>(
-      this: ObjectViewScope<V, T>, view: V, scopeName: string,
-      descriptor?: ViewScopeDescriptor<V, T>): ObjectViewScope<V, T> {
-    let _this: ObjectViewScope<V, T> = function accessor(state?: T): T | undefined | V {
-      if (arguments.length === 0) {
-        return _this.state;
-      } else {
-        _this.setState(state);
-        return _this._view;
-      }
-    } as ObjectViewScope<V, T>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, view, scopeName, descriptor) || _this;
-    return _this;
-  } as unknown as ObjectViewScopeClass;
-  __extends(ObjectViewScope, _super);
-
-  ObjectViewScope.prototype.fromAny = function <T>(this: ObjectViewScope<View, T>, value: T | null): T | null {
+export abstract class ObjectViewScope<V extends View, T> extends ViewScope<V, T> {
+  fromAny(value: T): T | undefined {
     return value;
-  };
-
-  return ObjectViewScope;
-}(ViewScope));
+  }
+}
 ViewScope.Object = ObjectViewScope;

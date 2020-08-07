@@ -12,36 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Model} from "../Model";
-import {ModelScopeDescriptor, ModelScopeConstructor, ModelScope} from "./ModelScope";
+import {ModelScope} from "./ModelScope";
 
 /** @hidden */
-export interface StringModelScope<M extends Model> extends ModelScope<M, string> {
-}
-
-/** @hidden */
-export const StringModelScope: ModelScopeConstructor<string> = (function (_super: typeof ModelScope): ModelScopeConstructor<string> {
-  const StringModelScope: ModelScopeConstructor<string> = function <M extends Model>(
-      this: StringModelScope<M>, model: M, scopeName: string, descriptor?: ModelScopeDescriptor<M, string>): StringModelScope<M> {
-    let _this: StringModelScope<M> = function accessor(state?: string): string | undefined | M {
-      if (arguments.length === 0) {
-        return _this.state;
-      } else {
-        _this.setState(state);
-        return _this._model;
-      }
-    } as StringModelScope<M>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, model, scopeName, descriptor) || _this;
-    return _this;
-  } as unknown as ModelScopeConstructor<string>;
-  __extends(StringModelScope, _super);
-
-  StringModelScope.prototype.fromAny = function (this: StringModelScope<Model>, value: string | null): string | null {
+export abstract class StringModelScope<M extends Model> extends ModelScope<M, string> {
+  fromAny(value: string): string | undefined {
     return value;
-  };
-
-  return StringModelScope;
-}(ModelScope));
+  }
+}
 ModelScope.String = StringModelScope;

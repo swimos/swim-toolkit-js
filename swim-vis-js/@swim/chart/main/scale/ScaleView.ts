@@ -241,10 +241,10 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
 
   readonly viewObservers: ReadonlyArray<ScaleViewObserver<X, Y>>;
 
-  @ViewAnimator(ContinuousScale, {inherit: true})
+  @ViewAnimator({type: ContinuousScale, inherit: true})
   xScale: ContinuousScaleViewAnimator<this, X, number>;
 
-  @ViewAnimator(ContinuousScale, {inherit: true})
+  @ViewAnimator({type: ContinuousScale, inherit: true})
   yScale: ContinuousScaleViewAnimator<this, Y, number>;
 
   xDomain(): readonly [X, X] | undefined;
@@ -787,7 +787,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     return new ScaleGesture(this, this);
   }
 
-  @ViewScope<ScaleView<X, Y>, typeof ScaleGesture>(ScaleGesture, {
+  @ViewScope<ScaleView<X, Y>, ScaleGesture<X, Y>>({
+    type: ScaleGesture,
     inherit: true,
     fromAny(value: ScaleGesture<X, Y> | boolean): ScaleGesture<X, Y> | undefined {
       if (value === true) {
@@ -801,7 +802,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   })
   scaleGesture: ViewScope<this, ScaleGesture<X, Y>, ScaleGesture<X, Y> | boolean>;
 
-  @ViewScope(Transition, {
+  @ViewScope({
+    type: Transition,
     inherit: true,
     init(): Transition<any> {
       return Transition.duration(250, Ease.linear);
@@ -809,7 +811,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   })
   rescaleTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
-  @ViewScope(Transition, {
+  @ViewScope({
+    type: Transition,
     inherit: true,
     init(): Transition<any> {
       return Transition.duration(250, Ease.cubicOut);
@@ -817,10 +820,10 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   })
   reboundTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
-  @ViewAnimator(Font, {inherit: true})
+  @ViewAnimator({type: Font, inherit: true})
   font: ViewAnimator<this, Font, AnyFont>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   textColor: ViewAnimator<this, Color, AnyColor>;
 
   xDomainInRange(): boolean {

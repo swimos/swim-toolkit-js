@@ -96,31 +96,31 @@ export class DataPointView<X, Y> extends LayerView {
     return this._y2Coord;
   }
 
-  @ViewAnimator(Object)
+  @ViewAnimator({type: Object})
   x: ViewAnimator<this, X>;
 
-  @ViewAnimator(Object)
+  @ViewAnimator({type: Object})
   y: ViewAnimator<this, Y>;
 
-  @ViewAnimator(Object)
+  @ViewAnimator({type: Object})
   y2: ViewAnimator<this, Y>;
 
-  @ViewAnimator(Length)
+  @ViewAnimator({type: Length})
   r: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Color)
+  @ViewAnimator({type: Color})
   color: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Number)
+  @ViewAnimator({type: Number})
   opacity: ViewAnimator<this, number>;
 
-  @ViewAnimator(Length)
+  @ViewAnimator({type: Length})
   labelPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Font, {inherit: true})
+  @ViewAnimator({type: Font, inherit: true})
   font: ViewAnimator<this, Font, AnyFont>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   textColor: ViewAnimator<this, Color, AnyColor>;
 
   hitRadius(): number;

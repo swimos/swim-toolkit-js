@@ -15,54 +15,28 @@
 import {__extends} from "tslib";
 import {Model} from "../Model";
 import {RefreshManager} from "../refresh/RefreshManager";
-import {ObjectModelService} from "./ObjectModelService";
 import {RefreshManagerService} from "./RefreshManagerService";
 
 export type ModelServiceType<M, K extends keyof M> =
   M extends {[P in K]: ModelService<any, infer T>} ? T : unknown;
 
-export type ModelServiceInit<M extends Model, T> =
-  (this: ModelService<M, T>) => T | undefined;
+export interface ModelServiceInit<M extends Model, T> {
+  type?: unknown;
 
-export type ModelServiceTypeConstructor = typeof Object
-                                        | typeof RefreshManager
-                                        | {new (...args: any): any}
-                                        | any;
-
-export type ModelServiceDescriptorType<M extends Model, TC extends ModelServiceTypeConstructor> =
-  TC extends typeof RefreshManager ? ModelServiceDescriptor<M, RefreshManager> :
-  TC extends typeof Object ? ModelServiceDescriptor<M, Object> :
-  TC extends new (...args: any) => any ? ModelServiceDescriptor<M, InstanceType<TC>> :
-  ModelServiceDescriptor<M, any>;
-
-export interface ModelServiceDescriptor<M extends Model, T> {
-  init?: ModelServiceInit<M, T>;
+  init?(): T | undefined;
   value?: T;
   inherit?: string | boolean;
-  /** @hidden */
-  serviceType?: ModelServiceConstructor<T>;
+
+  extends?: ModelServicePrototype<T>;
 }
 
-export interface ModelServiceConstructor<T> {
-  new<M extends Model>(model: M, serviceName: string, descriptor?: ModelServiceDescriptor<M, T>): ModelService<M, T>;
-}
+export type ModelServiceDescriptor<M extends Model, T> = ModelServiceInit<M, T> & ThisType<ModelService<M, T>>;
 
-export interface ModelServiceClass {
-  new<M extends Model, T>(model: M, serviceName: string, descriptor?: ModelServiceDescriptor<M, T>): ModelService<M, T>;
+export type ModelServicePrototype<T> = Function & { prototype: ModelService<Model, T> };
 
-  <M extends Model, TC extends ModelServiceTypeConstructor>(
-      valueType: TC, descriptor?: ModelServiceDescriptorType<M, TC>): PropertyDecorator;
+export type ModelServiceConstructor<T> = new <M extends Model>(model: M, serviceName: string | undefined) => ModelService<M, T>;
 
-  // Forward type declarations
-  /** @hidden */
-  Object: typeof ObjectModelService; // defined by ObjectModelService
-  /** @hidden */
-  Refresh: typeof RefreshManagerService; // defined by RefreshManagerService
-}
-
-export interface ModelService<M extends Model, T> {
-  (): T | undefined;
-
+export declare abstract class ModelService<M extends Model, T> {
   /** @hidden */
   _model: M;
   /** @hidden */
@@ -72,15 +46,17 @@ export interface ModelService<M extends Model, T> {
   /** @hidden */
   _state: T | undefined;
 
-  readonly model: M;
+  constructor(model: M, serviceName: string | undefined);
 
-  readonly name: string;
+  get model(): M;
 
-  readonly inherit: string | undefined;
+  get name(): string;
+
+  get inherit(): string | undefined;
 
   setInherit(inherit: string | undefined): void;
 
-  readonly superService: ModelService<Model, T> | null;
+  get superService(): ModelService<Model, T> | null;
 
   /** @hidden */
   bindSuperService(): void;
@@ -88,209 +64,243 @@ export interface ModelService<M extends Model, T> {
   /** @hidden */
   unbindSuperService(): void;
 
-  readonly superState: T | undefined;
+  get superState(): T | undefined;
 
-  readonly ownState: T | undefined;
+  get ownState(): T | undefined;
 
-  readonly state: T | undefined;
+  get state(): T | undefined;
 
   mount(): void;
 
   unmount(): void;
 
   init(): T | undefined;
+
+  /** @hidden */
+  static constructorForType(type: unknown): ModelServicePrototype<unknown> | null;
+
+  // Forward type declarations
+  /** @hidden */
+  static Refresh: typeof RefreshManagerService; // defined by RefreshManagerService
 }
 
-export const ModelService: ModelServiceClass = (function (_super: typeof Object): ModelServiceClass {
-  function ModelServiceDecoratorFactory<M extends Model, TC extends ModelServiceTypeConstructor>(
-      valueType: TC, descriptor?: ModelServiceDescriptorType<M, TC>): PropertyDecorator {
-    if (descriptor === void 0) {
-      descriptor = {} as ModelServiceDescriptorType<M, TC>;
-    }
-    let serviceType = descriptor.serviceType;
-    if (serviceType === void 0) {
-      if (valueType === RefreshManager) {
-        serviceType = ModelService.Refresh;
-      } else {
-        serviceType = ModelService.Object;
-      }
-      descriptor.serviceType = serviceType;
-    }
-    return Model.decorateModelService.bind(void 0, serviceType, descriptor);
-  }
+export interface ModelService<M extends Model, T> {
+  (): T | undefined;
+}
 
-  function ModelServiceConstructor<M extends Model, T>(
-      this: ModelService<M, T>, model: M, serviceName: string,
-      descriptor?: ModelServiceDescriptor<M, T>): ModelService<M, T> {
-    this._model = model;
+export function ModelService<M extends Model, T>(descriptor: {extends: ModelServicePrototype<T>} & ModelServiceDescriptor<M, T>): PropertyDecorator;
+export function ModelService<M extends Model>(descriptor: {type: typeof Object} & ModelServiceDescriptor<M, object>): PropertyDecorator;
+export function ModelService<M extends Model>(descriptor: {type: typeof RefreshManager} & ModelServiceDescriptor<M, RefreshManager>): PropertyDecorator;
+export function ModelService<M extends Model, T>(descriptor: {type: Function & { prototype: T }} & ModelServiceDescriptor<M, T>): PropertyDecorator;
+
+export function ModelService<M extends Model, T>(
+    this: ModelService<M, T> | typeof ModelService,
+    model: M | ModelServiceInit<M, T>,
+    serviceName?: string,
+  ): ModelService<M, T> | PropertyDecorator {
+  if (this instanceof ModelService) { // constructor
+    return ModelServiceConstructor.call(this, model as M, serviceName);
+  } else { // decorator factory
+    return ModelServiceDecoratorFactory(model as ModelServiceInit<M, T>);
+  }
+};
+__extends(ModelService, Object);
+Model.Service = ModelService;
+
+function ModelServiceConstructor<M extends Model, T>(this: ModelService<M, T>, model: M, serviceName: string | undefined): ModelService<M, T> {
+  if (serviceName !== void 0) {
     Object.defineProperty(this, "name", {
       value: serviceName,
       enumerable: true,
       configurable: true,
     });
-    if (descriptor !== void 0) {
-      if (typeof descriptor.inherit === "string") {
-        this._inherit = descriptor.inherit;
-      } else if (descriptor.inherit !== false) {
-        this._inherit = serviceName;
-      }
-      if (descriptor.value !== void 0) {
-        this._state = descriptor.value;
-      }
-    } else {
-      this._inherit = serviceName;
-    }
-    return this;
+  }
+  this._model = model;
+  return this;
+}
+
+function ModelServiceDecoratorFactory<M extends Model, T>(descriptor: ModelServiceInit<M, T>): PropertyDecorator {
+  const type = descriptor.type;
+  const value = descriptor.value;
+  const inherit = descriptor.inherit;
+  delete descriptor.type;
+  delete descriptor.value;
+  delete descriptor.inherit;
+
+  let BaseModelService = descriptor.extends;
+  delete descriptor.extends;
+  if (BaseModelService === void 0) {
+    BaseModelService = ModelService.constructorForType(type) as ModelServicePrototype<T>;
+  }
+  if (BaseModelService === null) {
+    BaseModelService = ModelService;
   }
 
-  const ModelService: ModelServiceClass = function <M extends Model, T>(
-      this: ModelService<M, T> | ModelServiceClass,
-      model?: M | ModelServiceTypeConstructor,
-      serviceName?: string | ModelServiceDescriptor<M, T>,
-      descriptor?: ModelServiceDescriptor<M, T>): ModelService<M, T> | PropertyDecorator | void {
-    if (this instanceof ModelService) { // constructor
-      return ModelServiceConstructor.call(this, model as M, serviceName as string, descriptor);
-    } else { // decorator factory
-      const valueType = model as ModelServiceTypeConstructor;
-      descriptor = serviceName as ModelServiceDescriptor<M, T> | undefined;
-      return ModelServiceDecoratorFactory(valueType, descriptor);
+  function DecoratedModelService(this: ModelService<M, T>, model: M, serviceName: string | undefined): ModelService<M, T> {
+    let _this: ModelService<M, T> = function accessor(): T | undefined {
+      return _this._state;
+    } as ModelService<M, T>;
+    Object.setPrototypeOf(_this, this);
+    _this = BaseModelService!.call(_this, model, serviceName) || _this;
+    if (typeof inherit === "string") {
+      _this._inherit = inherit;
+    } else if (inherit !== false) {
+      _this._inherit = serviceName;
     }
-  } as ModelServiceClass;
-  __extends(ModelService, _super);
-
-  Object.defineProperty(ModelService.prototype, "model", {
-    get: function <M extends Model>(this: ModelService<M, unknown>): M {
-      return this._model;
-    },
-    enumerable: true,
-    configurable: true,
-  });
-
-  Object.defineProperty(ModelService.prototype, "inherit", {
-    get: function (this: ModelService<Model, unknown>): string | undefined {
-      return this._inherit;
-    },
-    enumerable: true,
-    configurable: true,
-  });
-
-  ModelService.prototype.setInherit = function (this: ModelService<Model, unknown>,
-                                                inherit: string | undefined): void {
-    this.unbindSuperService();
-    if (inherit !== void 0) {
-      this._inherit = inherit;
-      this.bindSuperService();
-    } else if (this._inherit !== void 0) {
-      this._inherit = void 0;
+    if (value !== void 0) {
+      _this._state = value;
     }
-  };
+    return _this;
+  }
 
-  Object.defineProperty(ModelService.prototype, "superService", {
-    get: function <T>(this: ModelService<Model, T>): ModelService<Model, T> | null {
-      let superService: ModelService<Model, T> | null | undefined = this._superService;
-      if (superService === void 0) {
-        superService = null;
-        let model = this._model;
-        if (!model.isMounted()) {
-          const inherit = this._inherit;
-          if (inherit !== void 0) {
-            do {
-              const parentModel = model.parentModel;
-              if (parentModel !== null) {
-                model = parentModel;
-                const service = model.getModelService(inherit);
-                if (service === null) {
-                  continue;
-                } else {
-                  superService = service as ModelService<Model, T>;
-                }
+  if (descriptor !== void 0) {
+    Object.setPrototypeOf(DecoratedModelService, BaseModelService);
+    DecoratedModelService.prototype = descriptor as ModelService<M, T>;
+    DecoratedModelService.prototype.constructor = DecoratedModelService;
+    Object.setPrototypeOf(DecoratedModelService.prototype, BaseModelService.prototype);
+  } else {
+    __extends(DecoratedModelService, BaseModelService);
+  }
+
+  return Model.decorateModelService.bind(void 0, DecoratedModelService);
+}
+
+Object.defineProperty(ModelService.prototype, "model", {
+  get: function <M extends Model>(this: ModelService<M, unknown>): M {
+    return this._model;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+Object.defineProperty(ModelService.prototype, "inherit", {
+  get: function (this: ModelService<Model, unknown>): string | undefined {
+    return this._inherit;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+ModelService.prototype.setInherit = function (this: ModelService<Model, unknown>,
+                                              inherit: string | undefined): void {
+  this.unbindSuperService();
+  if (inherit !== void 0) {
+    this._inherit = inherit;
+    this.bindSuperService();
+  } else if (this._inherit !== void 0) {
+    this._inherit = void 0;
+  }
+};
+
+Object.defineProperty(ModelService.prototype, "superService", {
+  get: function <T>(this: ModelService<Model, T>): ModelService<Model, T> | null {
+    let superService: ModelService<Model, T> | null | undefined = this._superService;
+    if (superService === void 0) {
+      superService = null;
+      let model = this._model;
+      if (!model.isMounted()) {
+        const inherit = this._inherit;
+        if (inherit !== void 0) {
+          do {
+            const parentModel = model.parentModel;
+            if (parentModel !== null) {
+              model = parentModel;
+              const service = model.getModelService(inherit);
+              if (service === null) {
+                continue;
+              } else {
+                superService = service as ModelService<Model, T>;
               }
-              break;
-            } while (true);
-          }
+            }
+            break;
+          } while (true);
         }
       }
-      return superService;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+    }
+    return superService;
+  },
+  enumerable: true,
+  configurable: true,
+});
 
-  ModelService.prototype.bindSuperService = function (this: ModelService<Model, unknown>): void {
-    let model = this._model;
-    if (model.isMounted()) {
-      const inherit = this._inherit;
-      if (inherit !== void 0) {
-        do {
-          const parentModel = model.parentModel;
-          if (parentModel !== null) {
-            model = parentModel;
-            const service = model.getModelService(inherit);
-            if (service === null) {
-              continue;
-            } else {
-              this._superService = service;
-            }
-          } else if (model !== this._model) {
-            const service = model.getLazyModelService(inherit);
-            if (service !== null) {
-              this._superService = service;
-            }
+ModelService.prototype.bindSuperService = function (this: ModelService<Model, unknown>): void {
+  let model = this._model;
+  if (model.isMounted()) {
+    const inherit = this._inherit;
+    if (inherit !== void 0) {
+      do {
+        const parentModel = model.parentModel;
+        if (parentModel !== null) {
+          model = parentModel;
+          const service = model.getModelService(inherit);
+          if (service === null) {
+            continue;
+          } else {
+            this._superService = service;
           }
-          break;
-        } while (true);
-      }
-      if (this._state === void 0 && this._superService === void 0) {
-        this._state = this.init();
-      }
+        } else if (model !== this._model) {
+          const service = model.getLazyModelService(inherit);
+          if (service !== null) {
+            this._superService = service;
+          }
+        }
+        break;
+      } while (true);
     }
-  };
-
-  ModelService.prototype.unbindSuperService = function (this: ModelService<Model, unknown>): void {
-    const superService = this._superService;
-    if (superService !== void 0) {
-      this._superService = void 0;
+    if (this._state === void 0 && this._superService === void 0) {
+      this._state = this.init();
     }
-  };
+  }
+};
 
-  Object.defineProperty(ModelService.prototype, "superState", {
-    get: function <T>(this: ModelService<Model, T>): T | undefined {
-      const superService = this.superService;
-      return superService !== null ? superService.state : void 0;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+ModelService.prototype.unbindSuperService = function (this: ModelService<Model, unknown>): void {
+  const superService = this._superService;
+  if (superService !== void 0) {
+    this._superService = void 0;
+  }
+};
 
-  Object.defineProperty(ModelService.prototype, "ownState", {
-    get: function <T>(this: ModelService<Model, T>): T | undefined {
-      return this._state;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+Object.defineProperty(ModelService.prototype, "superState", {
+  get: function <T>(this: ModelService<Model, T>): T | undefined {
+    const superService = this.superService;
+    return superService !== null ? superService.state : void 0;
+  },
+  enumerable: true,
+  configurable: true,
+});
 
-  Object.defineProperty(ModelService.prototype, "state", {
-    get: function <T>(this: ModelService<Model, T>): T | undefined {
-      const state = this._state;
-      return state !== void 0 ? state : this.superState;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+Object.defineProperty(ModelService.prototype, "ownState", {
+  get: function <T>(this: ModelService<Model, T>): T | undefined {
+    return this._state;
+  },
+  enumerable: true,
+  configurable: true,
+});
 
-  ModelService.prototype.mount = function (this: ModelService<Model, unknown>): void {
-    this.bindSuperService();
-  };
+Object.defineProperty(ModelService.prototype, "state", {
+  get: function <T>(this: ModelService<Model, T>): T | undefined {
+    const state = this._state;
+    return state !== void 0 ? state : this.superState;
+  },
+  enumerable: true,
+  configurable: true,
+});
 
-  ModelService.prototype.unmount = function (this: ModelService<Model, unknown>): void {
-    this.unbindSuperService();
-  };
+ModelService.prototype.mount = function (this: ModelService<Model, unknown>): void {
+  this.bindSuperService();
+};
 
-  ModelService.prototype.init = function <T>(this: ModelService<Model, T>): T | undefined {
-    return void 0;
-  };
+ModelService.prototype.unmount = function (this: ModelService<Model, unknown>): void {
+  this.unbindSuperService();
+};
 
-  return ModelService;
-}(Object));
-Model.Service = ModelService;
+ModelService.prototype.init = function <T>(this: ModelService<Model, T>): T | undefined {
+  return void 0;
+};
+
+ModelService.constructorForType = function (type: unknown): ModelServicePrototype<unknown> | null {
+  if (type === RefreshManager) {
+    return ModelService.Refresh;
+  }
+  return null;
+}

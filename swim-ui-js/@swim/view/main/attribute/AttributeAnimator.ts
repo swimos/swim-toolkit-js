@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Length} from "@swim/length";
-import {Color} from "@swim/color";
-import {Transform} from "@swim/transform";
+import {FromAny} from "@swim/util";
+import {AnyLength, Length} from "@swim/length";
+import {AnyColor, Color} from "@swim/color";
+import {AnyTransform, Transform} from "@swim/transform";
 import {Tween} from "@swim/transition";
 import {Animator, TweenAnimator} from "@swim/animate";
 import {StringAttributeAnimator} from "./StringAttributeAnimator";
@@ -27,74 +28,47 @@ import {TransformAttributeAnimator} from "./TransformAttributeAnimator";
 import {NumberOrStringAttributeAnimator} from "./NumberOrStringAttributeAnimator";
 import {LengthOrStringAttributeAnimator} from "./LengthOrStringAttributeAnimator";
 import {ColorOrStringAttributeAnimator} from "./ColorOrStringAttributeAnimator";
+import {ViewFlags} from "../View";
 import {ElementView} from "../element/ElementView";
 
 export type AttributeAnimatorType<V, K extends keyof V> =
   V extends {[P in K]: AttributeAnimator<any, infer T, any>} ? T : unknown;
 
 export type AttributeAnimatorInitType<V, K extends keyof V> =
-  V extends {[P in K]: AttributeAnimator<any, any, infer U>} ? U : unknown;
+  V extends {[P in K]: AttributeAnimator<any, infer T, infer U>} ? T | U : unknown;
 
-export type AttributeAnimatorTypeConstructor = typeof String
-                                             | typeof Boolean
-                                             | typeof Number
-                                             | typeof Length
-                                             | typeof Color
-                                             | typeof Transform
-                                             | [typeof Number, typeof String]
-                                             | [typeof Length, typeof String]
-                                             | [typeof Color, typeof String];
+export interface AttributeAnimatorInit<V extends ElementView, T, U = T> {
+  attributeName: string;
+  type?: unknown;
 
-export interface AttributeAnimatorConstructor<T, U = T> {
-  new<V extends ElementView>(view: V, animatorName: string,
-                             attributeName: string): AttributeAnimator<V, T, U>;
+  updateFlags?: ViewFlags;
+  parse?(value: string): T
+  fromAny?(value: T | U): T;
+
+  extends?: AttributeAnimatorPrototype<T, U>;
 }
 
-export interface AttributeAnimatorClass {
-  new<V extends ElementView, T, U = T>(view: V, animatorName: string,
-                                       attributeName: string): AttributeAnimator<V, T, U>;
+export type AttributeAnimatorDescriptor<V extends ElementView, T, U = T> = AttributeAnimatorInit<V, T, U> & ThisType<AttributeAnimator<V, T, U>>;
 
-  (attributeName: string, animatorType: AttributeAnimatorTypeConstructor): PropertyDecorator;
+export type AttributeAnimatorPrototype<T, U = T> = Function & { prototype: AttributeAnimator<ElementView, T, U> };
 
-  // Forward type declarations
-  /** @hidden */
-  String: typeof StringAttributeAnimator; // defined by StringAttributeAnimator
-  /** @hidden */
-  Boolean: typeof BooleanAttributeAnimator; // defined by BooleanAttributeAnimator
-  /** @hidden */
-  Number: typeof NumberAttributeAnimator; // defined by NumberAttributeAnimator
-  /** @hidden */
-  Length: typeof LengthAttributeAnimator; // defined by LengthAttributeAnimator
-  /** @hidden */
-  Color: typeof ColorAttributeAnimator; // defined by ColorAttributeAnimator
-  /** @hidden */
-  Transform: typeof TransformAttributeAnimator; // defined by TransformAttributeAnimator
-  /** @hidden */
-  NumberOrString: typeof NumberOrStringAttributeAnimator; // defined by NumberOrStringAttributeAnimator
-  /** @hidden */
-  LengthOrString: typeof LengthOrStringAttributeAnimator; // defined by LengthOrStringAttributeAnimator
-  /** @hidden */
-  ColorOrString: typeof ColorOrStringAttributeAnimator; // defined by ColorOrStringAttributeAnimator
-}
+export type AttributeAnimatorConstructor<T, U = T> = new <V extends ElementView>(view: V, animatorName: string) => AttributeAnimator<V, T, U>;
 
-export interface AttributeAnimator<V extends ElementView, T, U = T> extends TweenAnimator<T> {
-  (): T | undefined;
-  (value: T | U | undefined, tween?: Tween<T>): V;
-
+export declare abstract class AttributeAnimator<V extends ElementView, T, U = T> {
   /** @hidden */
   _view: V;
-  /** @hidden */
-  _attributeName: string;
 
-  readonly view: V;
+  constructor(view: V, animatorName: string);
 
-  readonly name: string;
+  get view(): V;
 
-  readonly node: Element;
+  get name(): string;
 
-  readonly attributeName: string;
+  get node(): Element;
 
-  readonly attributeValue: T | undefined;
+  abstract readonly attributeName: string;
+
+  get attributeValue(): T | undefined;
 
   isAuto(): boolean;
 
@@ -104,9 +78,9 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
 
   getState(): T;
 
-  getValueOr<V>(elseValue: V): T | V;
+  getValueOr<E>(elseValue: E): T | E;
 
-  getStateOr<V>(elseState: V): T | V;
+  getStateOr<E>(elseState: E): T | E;
 
   setState(state: T | U | undefined, tween?: Tween<T>): void;
 
@@ -114,222 +88,286 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
 
   animate(animator?: Animator): void;
 
+  updateFlags?: ViewFlags;
+
   cancel(): void;
 
   delete(): void;
 
-  parse(value: string): T;
+  abstract parse(value: string): T;
 
-  fromAny(value: T | U): T;
+  abstract fromAny(value: T | U): T;
+
+  /** @hidden */
+  static constructorForType(type: unknown): AttributeAnimatorPrototype<unknown> | null;
+
+  // Forward type declarations
+  /** @hidden */
+  static String: typeof StringAttributeAnimator; // defined by StringAttributeAnimator
+  /** @hidden */
+  static Boolean: typeof BooleanAttributeAnimator; // defined by BooleanAttributeAnimator
+  /** @hidden */
+  static Number: typeof NumberAttributeAnimator; // defined by NumberAttributeAnimator
+  /** @hidden */
+  static Length: typeof LengthAttributeAnimator; // defined by LengthAttributeAnimator
+  /** @hidden */
+  static Color: typeof ColorAttributeAnimator; // defined by ColorAttributeAnimator
+  /** @hidden */
+  static Transform: typeof TransformAttributeAnimator; // defined by TransformAttributeAnimator
+  /** @hidden */
+  static NumberOrString: typeof NumberOrStringAttributeAnimator; // defined by NumberOrStringAttributeAnimator
+  /** @hidden */
+  static LengthOrString: typeof LengthOrStringAttributeAnimator; // defined by LengthOrStringAttributeAnimator
+  /** @hidden */
+  static ColorOrString: typeof ColorOrStringAttributeAnimator; // defined by ColorOrStringAttributeAnimator
 }
 
-export const AttributeAnimator: AttributeAnimatorClass = (function (_super: typeof TweenAnimator): AttributeAnimatorClass {
-  function AttributeAnimatorDecoratorFactory(attributeName: string, animatorType: AttributeAnimatorTypeConstructor): PropertyDecorator {
-    if (animatorType === String) {
-      return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.String, attributeName);
-    } else if (animatorType === Boolean) {
-      return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.Boolean, attributeName);
-    } else if (animatorType === Number) {
-      return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.Number, attributeName);
-    } else if (animatorType === Length) {
-      return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.Length, attributeName);
-    } else if (animatorType === Color) {
-      return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.Color, attributeName);
-    } else if (animatorType === Transform) {
-      return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.Transform, attributeName);
-    } else if (Array.isArray(animatorType) && animatorType.length === 2) {
-      const [type0, type1] = animatorType;
-      if (type0 === Number && type1 === String) {
-        return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.NumberOrString, attributeName);
-      } else if (type0 === Length && type1 === String) {
-        return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.LengthOrString, attributeName);
-      } else if (type0 === Color && type1 === String) {
-        return ElementView.decorateAttributeAnimator.bind(void 0, AttributeAnimator.ColorOrString, attributeName);
-      }
+export interface AttributeAnimator<V extends ElementView, T, U = T> extends TweenAnimator<T> {
+  (): T | undefined;
+  (value: T | U | undefined, tween?: Tween<T>): V;
+}
+
+export function AttributeAnimator<V extends ElementView, T, U = T>(descriptor: {extends: AttributeAnimatorPrototype<T, U>} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView>(descriptor: {type: typeof String} & AttributeAnimatorDescriptor<V, string>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView>(descriptor: {type: typeof Boolean} & AttributeAnimatorDescriptor<V, boolean, boolean | string>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView>(descriptor: {type: typeof Number} & AttributeAnimatorDescriptor<V, number, number | string>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView>(descriptor: {type: typeof Length} & AttributeAnimatorDescriptor<V, Length, AnyLength>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView>(descriptor: {type: typeof Color} & AttributeAnimatorDescriptor<V, Color, AnyColor>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView>(descriptor: {type: typeof Transform} & AttributeAnimatorDescriptor<V, Transform, AnyTransform>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView>(descriptor: {type: [typeof Number, typeof String]} & AttributeAnimatorDescriptor<V, number | string>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView>(descriptor: {type: [typeof Length, typeof String]} & AttributeAnimatorDescriptor<V, Length | string, AnyLength | string>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView>(descriptor: {type: [typeof Color, typeof String]} & AttributeAnimatorDescriptor<V, Color | string, AnyColor | string>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T, U = T>(descriptor: {type: FromAny<T, U>} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T>(descriptor: {type: Function & { prototype: T }} & AttributeAnimatorDescriptor<V, T>): PropertyDecorator;
+
+export function AttributeAnimator<V extends ElementView, T, U>(
+    this: AttributeAnimator<V, T, U> | typeof AttributeAnimator,
+    view: V | AttributeAnimatorInit<V, T, U>,
+    animatorName?: string,
+  ): AttributeAnimator<V, T, U> | PropertyDecorator {
+  if (this instanceof AttributeAnimator) { // constructor
+    return AttributeAnimatorConstructor.call(this, view as V, animatorName as string);
+  } else { // decorator factory
+    return AttributeAnimatorDecoratorFactory(view as AttributeAnimatorInit<V, T, U>);
+  }
+};
+__extends(AttributeAnimator, TweenAnimator);
+
+function AttributeAnimatorConstructor<V extends ElementView, T, U = T>(this: AttributeAnimator<V, T, U>, view: V, animatorName: string): AttributeAnimator<V, T, U> {
+  const _this: AttributeAnimator<V, T, U> = TweenAnimator.call(this, void 0, null) || this;
+  Object.defineProperty(_this, "name", {
+    value: animatorName,
+    enumerable: true,
+    configurable: true,
+  });
+  _this._view = view;
+  return _this;
+}
+
+function AttributeAnimatorDecoratorFactory<V extends ElementView, T, U = T>(descriptor: AttributeAnimatorInit<V, T, U>): PropertyDecorator {
+  const type = descriptor.type;
+  delete descriptor.type;
+
+  let BaseAttributeAnimator = descriptor.extends;
+  delete descriptor.extends;
+  if (BaseAttributeAnimator === void 0) {
+    BaseAttributeAnimator = AttributeAnimator.constructorForType(type) as AttributeAnimatorPrototype<T, U>;
+  }
+  if (BaseAttributeAnimator === null) {
+    BaseAttributeAnimator = AttributeAnimator;
+    if (!("fromAny" in descriptor) && FromAny.is<T, U>(type)) {
+      descriptor.fromAny = type.fromAny;
     }
-    throw new TypeError("" + animatorType);
   }
 
-  function AttributeAnimatorConstructor<V extends ElementView, T, U = T>(
-      this: AttributeAnimator<V, T, U>, view: V, animatorName: string,
-      attributeName: string): AttributeAnimator<V, T, U> {
-    Object.defineProperty(this, "name", {
-      value: animatorName,
-      enumerable: true,
-      configurable: true,
-    });
-    this._view = view;
-    this._attributeName = attributeName;
-    const _this = _super.call(this, void 0, null) || this;
+  function DecoratedAttributeAnimator(this: AttributeAnimator<V, T, U>, view: V, animatorName: string): AttributeAnimator<V, T, U> {
+    let _this: AttributeAnimator<V, T, U> = function accessor(value?: T | U, tween?: Tween<T>): T | undefined | V {
+      if (arguments.length === 0) {
+        return _this.value;
+      } else {
+        _this.setState(value, tween);
+        return _this._view;
+      }
+    } as AttributeAnimator<V, T, U>;
+    Object.setPrototypeOf(_this, this);
+    _this = BaseAttributeAnimator!.call(_this, view, animatorName) || _this;
     return _this;
   }
 
-  const AttributeAnimator: AttributeAnimatorClass = function <V extends ElementView, T, U>(
-      this: AttributeAnimator<V, T, U> | AttributeAnimatorClass,
-      view: V | string,
-      animatorName: string | AttributeAnimatorTypeConstructor,
-      attributeName: string): AttributeAnimator<V, T, U> | PropertyDecorator {
-    if (this instanceof AttributeAnimator) { // constructor
-      return AttributeAnimatorConstructor.call(this, view, animatorName, attributeName);
-    } else { // decorator factory
-      attributeName = view as string;
-      const animatorType = animatorName as AttributeAnimatorTypeConstructor;
-      return AttributeAnimatorDecoratorFactory(attributeName, animatorType);
-    }
-  } as AttributeAnimatorClass;
-  __extends(AttributeAnimator, _super);
+  if (descriptor !== void 0) {
+    Object.setPrototypeOf(DecoratedAttributeAnimator, BaseAttributeAnimator);
+    DecoratedAttributeAnimator.prototype = descriptor as AttributeAnimator<V, T, U>;
+    DecoratedAttributeAnimator.prototype.constructor = DecoratedAttributeAnimator;
+    Object.setPrototypeOf(DecoratedAttributeAnimator.prototype, BaseAttributeAnimator.prototype);
+  } else {
+    __extends(DecoratedAttributeAnimator, BaseAttributeAnimator);
+  }
 
-  Object.defineProperty(AttributeAnimator.prototype, "view", {
-    get: function (this: AttributeAnimator<ElementView, unknown, unknown>): ElementView {
-      return this._view;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+  return ElementView.decorateAttributeAnimator.bind(void 0, DecoratedAttributeAnimator);
+}
 
-  Object.defineProperty(AttributeAnimator.prototype, "node", {
-    get: function (this: AttributeAnimator<ElementView, unknown, unknown>): Element {
-      return this._view._node;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+Object.defineProperty(AttributeAnimator.prototype, "view", {
+  get: function (this: AttributeAnimator<ElementView, unknown, unknown>): ElementView {
+    return this._view;
+  },
+  enumerable: true,
+  configurable: true,
+});
 
-  Object.defineProperty(AttributeAnimator.prototype, "attributeName", {
-    get: function (this: AttributeAnimator<ElementView, unknown, unknown>): string {
-      return this._attributeName;
-    },
-    enumerable: true,
-    configurable: true,
-  });
+Object.defineProperty(AttributeAnimator.prototype, "node", {
+  get: function (this: AttributeAnimator<ElementView, unknown, unknown>): Element {
+    return this._view._node;
+  },
+  enumerable: true,
+  configurable: true,
+});
 
-  Object.defineProperty(AttributeAnimator.prototype, "attributeValue", {
-    get: function <T, U>(this: AttributeAnimator<ElementView, T, unknown>): T | undefined {
-      const value = this._view.getAttribute(this._attributeName);
-      if (value !== null) {
-        try {
-          return this.parse(value);
-        } catch (e) {
-          // swallow parse errors
-        }
+Object.defineProperty(AttributeAnimator.prototype, "attributeValue", {
+  get: function <T, U>(this: AttributeAnimator<ElementView, T, unknown>): T | undefined {
+    const value = this._view.getAttribute(this.attributeName);
+    if (value !== null) {
+      try {
+        return this.parse(value);
+      } catch (e) {
+        // swallow parse errors
       }
-      return void 0;
-    },
-    enumerable: true,
-    configurable: true,
-  });
-
-  Object.defineProperty(AttributeAnimator.prototype, "value", {
-    get: function <T, U>(this: AttributeAnimator<ElementView, T, U>): T | undefined {
-      let value = this._value;
-      if (value === void 0) {
-        value = this.attributeValue;
-        if (value !== void 0) {
-          this.setAuto(false);
-        }
-      }
-      return value;
-    },
-    enumerable: true,
-    configurable: true,
-  });
-
-  AttributeAnimator.prototype.isAuto = function (this: AttributeAnimator<ElementView, unknown, unknown>): boolean {
-    return (this._animatorFlags & TweenAnimator.OverrideFlag) === 0;
-  };
-
-  AttributeAnimator.prototype.setAuto = function (this: AttributeAnimator<ElementView, unknown, unknown>,
-                                                  auto: boolean): void {
-    if (auto && (this._animatorFlags & TweenAnimator.OverrideFlag) !== 0) {
-      this._animatorFlags &= ~TweenAnimator.OverrideFlag;
-      this._view.animatorDidSetAuto(this, true);
-    } else if (!auto && (this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
-      this._animatorFlags |= TweenAnimator.OverrideFlag;
-      this._view.animatorDidSetAuto(this, false);
     }
-  };
+    return void 0;
+  },
+  enumerable: true,
+  configurable: true,
+});
 
-  AttributeAnimator.prototype.getValue = function <T, U>(this: AttributeAnimator<ElementView, T, U>): T {
-    const value = this.value;
+Object.defineProperty(AttributeAnimator.prototype, "value", {
+  get: function <T, U>(this: AttributeAnimator<ElementView, T, U>): T | undefined {
+    let value = this._value;
     if (value === void 0) {
-      throw new TypeError("undefined " + this.name + " value");
+      value = this.attributeValue;
+      if (value !== void 0) {
+        this.setAuto(false);
+      }
     }
     return value;
-  };
+  },
+  enumerable: true,
+  configurable: true,
+});
 
-  AttributeAnimator.prototype.getState = function <T, U>(this: AttributeAnimator<ElementView, T, U>): T {
-    const state = this.state;
-    if (state === void 0) {
-      throw new TypeError("undefined " + this.name + " state");
-    }
-    return state;
-  };
+AttributeAnimator.prototype.isAuto = function (this: AttributeAnimator<ElementView, unknown, unknown>): boolean {
+  return (this._animatorFlags & TweenAnimator.OverrideFlag) === 0;
+};
 
-  AttributeAnimator.prototype.getValueOr = function <T, U, V>(this: AttributeAnimator<ElementView, T, U>,
-                                                              elseValue: V): T | V {
-    let value: T | V | undefined = this.value;
-    if (value === void 0) {
-      value = elseValue;
-    }
-    return value;
-  };
+AttributeAnimator.prototype.setAuto = function (this: AttributeAnimator<ElementView, unknown, unknown>,
+                                                auto: boolean): void {
+  if (auto && (this._animatorFlags & TweenAnimator.OverrideFlag) !== 0) {
+    this._animatorFlags &= ~TweenAnimator.OverrideFlag;
+    this._view.animatorDidSetAuto(this, true);
+  } else if (!auto && (this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
+    this._animatorFlags |= TweenAnimator.OverrideFlag;
+    this._view.animatorDidSetAuto(this, false);
+  }
+};
 
-  AttributeAnimator.prototype.getStateOr = function <T, U, V>(this: AttributeAnimator<ElementView, T, U>,
-                                                              elseState: V): T | V {
-    let state: T | V | undefined = this.state;
-    if (state === void 0) {
-      state = elseState
-    }
-    return state;
-  };
+AttributeAnimator.prototype.getValue = function <T, U>(this: AttributeAnimator<ElementView, T, U>): T {
+  const value = this.value;
+  if (value === void 0) {
+    throw new TypeError("undefined " + this.name + " value");
+  }
+  return value;
+};
 
-  AttributeAnimator.prototype.setState = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
-                                                         state: T | U | undefined, tween?: Tween<T>): void {
+AttributeAnimator.prototype.getState = function <T, U>(this: AttributeAnimator<ElementView, T, U>): T {
+  const state = this.state;
+  if (state === void 0) {
+    throw new TypeError("undefined " + this.name + " state");
+  }
+  return state;
+};
+
+AttributeAnimator.prototype.getValueOr = function <T, U, E>(this: AttributeAnimator<ElementView, T, U>,
+                                                            elseValue: E): T | E {
+  let value: T | E | undefined = this.value;
+  if (value === void 0) {
+    value = elseValue;
+  }
+  return value;
+};
+
+AttributeAnimator.prototype.getStateOr = function <T, U, E>(this: AttributeAnimator<ElementView, T, U>,
+                                                            elseState: E): T | E {
+  let state: T | E | undefined = this.state;
+  if (state === void 0) {
+    state = elseState
+  }
+  return state;
+};
+
+AttributeAnimator.prototype.setState = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
+                                                       state: T | U | undefined, tween?: Tween<T>): void {
+  if (state !== void 0) {
+    state = this.fromAny(state);
+  }
+  this._animatorFlags |= TweenAnimator.OverrideFlag;
+  TweenAnimator.prototype.setState.call(this, state, tween);
+};
+
+AttributeAnimator.prototype.setAutoState = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
+                                                           state: T | U | undefined, tween?: Tween<T>): void {
+  if ((this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
     if (state !== void 0) {
       state = this.fromAny(state);
     }
-    this._animatorFlags |= TweenAnimator.OverrideFlag;
-    _super.prototype.setState.call(this, state, tween);
-  };
+    TweenAnimator.prototype.setState.call(this, state, tween);
+  }
+};
 
-  AttributeAnimator.prototype.setAutoState = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
-                                                             state: T | U | undefined, tween?: Tween<T>): void {
-    if ((this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
-      if (state !== void 0) {
-        state = this.fromAny(state);
-      }
-      _super.prototype.setState.call(this, state, tween);
+AttributeAnimator.prototype.animate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
+                                                      animator: Animator = this): void {
+  if (animator !== this || (this._animatorFlags & TweenAnimator.DisabledFlag) === 0) {
+    this._view.animate(animator);
+  }
+};
+
+AttributeAnimator.prototype.onUpdate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
+                                                       newValue: T | undefined,
+                                                       oldValue: T | undefined): void {
+  this._view.setAttribute(this.attributeName, newValue);
+  const updateFlags = this.updateFlags;
+  if (updateFlags !== void 0) {
+    this._view.requireUpdate(updateFlags);
+  }
+};
+
+AttributeAnimator.prototype.cancel = function <T, U>(this: AttributeAnimator<ElementView, T, U>): void {
+  // nop
+};
+
+AttributeAnimator.prototype.delete = function <T, U>(this: AttributeAnimator<ElementView, T, U>): void {
+  this._view.setAttribute(this.attributeName, void 0);
+};
+
+AttributeAnimator.constructorForType = function (type: unknown): AttributeAnimatorPrototype<unknown> | null {
+  if (type === String) {
+    return AttributeAnimator.String;
+  } else if (type === Boolean) {
+    return AttributeAnimator.Boolean;
+  } else if (type === Number) {
+    return AttributeAnimator.Number;
+  } else if (type === Length) {
+    return AttributeAnimator.Length;
+  } else if (type === Color) {
+    return AttributeAnimator.Color;
+  } else if (type === Transform) {
+    return AttributeAnimator.Transform;
+  } else if (Array.isArray(type) && type.length === 2) {
+    const [type0, type1] = type;
+    if (type0 === Number && type1 === String) {
+      return AttributeAnimator.NumberOrString;
+    } else if (type0 === Length && type1 === String) {
+      return AttributeAnimator.LengthOrString;
+    } else if (type0 === Color && type1 === String) {
+      return AttributeAnimator.ColorOrString;
     }
-  };
-
-  AttributeAnimator.prototype.animate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
-                                                        animator: Animator = this): void {
-    if (animator !== this || (this._animatorFlags & TweenAnimator.DisabledFlag) === 0) {
-      this._view.animate(animator);
-    }
-  };
-
-  AttributeAnimator.prototype.onUpdate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
-                                                         newValue: T | undefined,
-                                                         oldValue: T | undefined): void {
-    this._view.setAttribute(this._attributeName, newValue);
-  };
-
-  AttributeAnimator.prototype.cancel = function <T, U>(this: AttributeAnimator<ElementView, T, U>): void {
-    // nop
-  };
-
-  AttributeAnimator.prototype.delete = function <T, U>(this: AttributeAnimator<ElementView, T, U>): void {
-    this._view.setAttribute(this._attributeName, void 0);
-  };
-
-  AttributeAnimator.prototype.parse = function <T, U>(this: AttributeAnimator<ElementView, T, U>, value: string): T {
-    throw new Error(); // abstract
-  };
-
-  AttributeAnimator.prototype.fromAny = function <T, U>(this: AttributeAnimator<ElementView, T, U>, value: T | U): T {
-    throw new Error(); // abstract
-  };
-
-  return AttributeAnimator;
-}(TweenAnimator));
+  }
+  return null;
+}

@@ -1033,32 +1033,20 @@ const limb017 = tree01.getChildView("limb017");
 const limb018 = tree01.getChildView("limb018");
 const limb019 = tree01.getChildView("limb019");
 
-tree0.modifyMood(swim.Feel.default, [swim.Feel.primary, 1]);
+tree0.modifyTheme(swim.Feel.default, [swim.Feel.primary, 1]);
 function updateMood(view) {
-  //let mood = view.mood.getState();
   let u = Math.random();
   if (u < 0.8) {
     view.modifyMood(swim.Feel.default, [swim.Feel.warning, undefined], [swim.Feel.alert, undefined]);
-    //view.moodModifier.setState(swim.MoodMatrix.empty());
-    //mood = mood.updated(swim.Feel.warning, undefined)
-    //           .updated(swim.Feel.alert, undefined);
   } else if (u < 0.95) {
     u = (u - 0.8) / 0.15
     u = 0.5 + 0.5 * u;
     view.modifyMood(swim.Feel.default, [swim.Feel.warning, u], [swim.Feel.alert, undefined]);
-    //view.moodModifier.setState(swim.MoodMatrix.forCols([swim.Feel.default, [[swim.Feel.default, 1], [swim.Feel.warning, u]]]));
-    //mood = mood.updated(swim.Feel.warning, u)
-    //           .updated(swim.Feel.alert, undefined);
   } else {
     u = (u - 0.95) / 0.05;
     u = 0.5 + 0.5 * u;
     view.modifyMood(swim.Feel.default, [swim.Feel.warning, undefined], [swim.Feel.alert, u]);
-    //view.moodModifier.setState(swim.MoodMatrix.forCols([swim.Feel.default, [[swim.Feel.default, 1], [swim.Feel.alert, u]]]));
-    //mood = mood.updated(swim.Feel.warning, undefined)
-    //           .updated(swim.Feel.alert, u);
   }
-  //view.mood.setState(mood);
-  //view.requireUpdate(swim.View.NeedsCompute);
 }
 function updateMoods() {
   updateMood(limb010);

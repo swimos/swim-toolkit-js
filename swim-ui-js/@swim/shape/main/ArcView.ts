@@ -41,37 +41,37 @@ export class ArcView extends LayerView implements FillView, StrokeView {
     this.setState(init);
   }
 
-  @ViewAnimator(PointR2, {value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, value: PointR2.origin()})
   center: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator(Length, {value: Length.zero()})
+  @ViewAnimator({type: Length, value: Length.zero()})
   innerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length, {value: Length.zero()})
+  @ViewAnimator({type: Length, value: Length.zero()})
   outerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Angle, {value: Angle.zero()})
+  @ViewAnimator({type: Angle, value: Angle.zero()})
   startAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator(Angle, {value: Angle.zero()})
+  @ViewAnimator({type: Angle, value: Angle.zero()})
   sweepAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator(Angle, {value: Angle.zero()})
+  @ViewAnimator({type: Angle, value: Angle.zero()})
   padAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator(Length, {value: null})
+  @ViewAnimator({type: Length, value: null})
   padRadius: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator(Length, {value: Length.zero()})
+  @ViewAnimator({type: Length, value: Length.zero()})
   cornerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   fill: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   stroke: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Length, {inherit: true})
+  @ViewAnimator({type: Length, inherit: true})
   strokeWidth: ViewAnimator<this, Length, AnyLength>;
 
   get value(): Arc {

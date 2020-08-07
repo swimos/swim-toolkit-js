@@ -12,42 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {AnyTransform, Transform} from "@swim/transform";
-import {Tween} from "@swim/transition";
-import {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
+import {StyleAnimator} from "./StyleAnimator";
 import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export interface TransformStyleAnimator<V extends ElementView> extends StyleAnimator<V, Transform, AnyTransform> {
-}
-
-/** @hidden */
-export const TransformStyleAnimator: StyleAnimatorConstructor<Transform, AnyTransform> = (function (_super: typeof StyleAnimator): StyleAnimatorConstructor<Transform, AnyTransform> {
-  const TransformStyleAnimator: StyleAnimatorConstructor<Transform, AnyTransform> = function <V extends ElementView>(
-      this: TransformStyleAnimator<V>, view: V, animatorName: string, propertyNames: string | ReadonlyArray<string>): TransformStyleAnimator<V> {
-    let _this: TransformStyleAnimator<V> = function accessor(value?: AnyTransform, tween?: Tween<Transform>, priority?: string): Transform | undefined | V {
-      if (arguments.length === 0) {
-        return _this.value;
-      } else {
-        _this.setState(value, tween, priority);
-        return _this._view;
-      }
-    } as TransformStyleAnimator<V>;
-    (_this as any).__proto__ = this;
-    _this = _super.call(_this, view, animatorName, propertyNames) || _this;
-    return _this;
-  } as unknown as StyleAnimatorConstructor<Transform, AnyTransform>;
-  __extends(TransformStyleAnimator, _super);
-
-  TransformStyleAnimator.prototype.parse = function (this: TransformStyleAnimator<ElementView>, value: string): Transform {
+export abstract class TransformStyleAnimator<V extends ElementView> extends StyleAnimator<V, Transform, AnyTransform> {
+  parse(value: string): Transform {
     return Transform.parse(value);
-  };
+  }
 
-  TransformStyleAnimator.prototype.fromAny = function (this: TransformStyleAnimator<ElementView>, value: AnyTransform): Transform {
+  fromAny(value: AnyTransform): Transform {
     return Transform.fromAny(value);
-  };
-
-  return TransformStyleAnimator;
-}(StyleAnimator));
+  }
+}
 StyleAnimator.Transform = TransformStyleAnimator;

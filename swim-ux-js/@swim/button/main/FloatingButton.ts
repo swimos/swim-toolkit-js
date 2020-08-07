@@ -79,7 +79,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     morph.setIcon(icon, tween, ccw);
   }
 
-  @ViewAnimator(Number, {inherit: true})
+  @ViewAnimator({type: Number, inherit: true})
   stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,

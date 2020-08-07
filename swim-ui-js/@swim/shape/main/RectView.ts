@@ -44,25 +44,25 @@ export class RectView extends LayerView implements FillView, StrokeView {
     this.setState(init);
   }
 
-  @ViewAnimator(Length, {value: Length.zero()})
+  @ViewAnimator({type: Length, value: Length.zero()})
   x: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length, {value: Length.zero()})
+  @ViewAnimator({type: Length, value: Length.zero()})
   y: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length, {value: Length.zero()})
+  @ViewAnimator({type: Length, value: Length.zero()})
   width: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Length, {value: Length.zero()})
+  @ViewAnimator({type: Length, value: Length.zero()})
   height: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   fill: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Color, {inherit: true})
+  @ViewAnimator({type: Color, inherit: true})
   stroke: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator(Length, {inherit: true})
+  @ViewAnimator({type: Length, inherit: true})
   strokeWidth: ViewAnimator<this, Length, AnyLength>;
 
   get value(): Rect {
