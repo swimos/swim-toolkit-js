@@ -89,8 +89,8 @@ export interface ComponentService<C extends Component, T> {
 }
 
 export function ComponentService<C extends Component, T, I = {}>(descriptor: {extends: ComponentServicePrototype<T>} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
-export function ComponentService<C extends Component, T = object, I = {}>(descriptor: {type: typeof Object} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
-export function ComponentService<C extends Component, T = ExecuteManager, I = {}>(descriptor: {type: typeof ExecuteManager} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
+export function ComponentService<C extends Component, T extends Object = object, I = {}>(descriptor: {type: typeof Object} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
+export function ComponentService<C extends Component, T extends ExecuteManager = ExecuteManager, I = {}>(descriptor: {type: typeof ExecuteManager} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
 export function ComponentService<C extends Component, T, I = {}>(descriptor: {type: Function & { prototype: T }} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
 
 export function ComponentService<C extends Component, T>(

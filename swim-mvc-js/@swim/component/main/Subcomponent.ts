@@ -80,7 +80,7 @@ export interface Subcomponent<C extends Component, S extends Component> {
   (subcomponent: S | null): C;
 }
 
-export function Subcomponent<C extends Component, S extends Component, I = ComponentObserverType<S>>(descriptor: SubcomponentDescriptor<C, S, I>): PropertyDecorator;
+export function Subcomponent<C extends Component, S extends Component = Component, I = ComponentObserverType<S>>(descriptor: SubcomponentDescriptor<C, S, I>): PropertyDecorator;
 
 export function Subcomponent<C extends Component, S extends Component>(
     this: Subcomponent<C, S> | typeof Subcomponent,

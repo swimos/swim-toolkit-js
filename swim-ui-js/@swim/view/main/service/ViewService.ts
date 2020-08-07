@@ -105,12 +105,12 @@ export interface ViewService<V extends View, T> {
 }
 
 export function ViewService<V extends View, T, I = {}>(descriptor: {extends: ViewServicePrototype<T>} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
-export function ViewService<V extends View, T = object, I = {}>(descriptor: {type: typeof Object} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
-export function ViewService<V extends View, T = DisplayManager, I = {}>(descriptor: {type: typeof DisplayManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
-export function ViewService<V extends View, T = LayoutManager, I = {}>(descriptor: {type: typeof LayoutManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
-export function ViewService<V extends View, T = ViewportManager, I = {}>(descriptor: {type: typeof ViewportManager} & ViewServiceDescriptor<V, T, I> ): PropertyDecorator;
-export function ViewService<V extends View, T = HistoryManager, I = {}>(descriptor: {type: typeof HistoryManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
-export function ViewService<V extends View, T = ModalManager, I = {}>(descriptor: {type: typeof ModalManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
+export function ViewService<V extends View, T extends Object = object, I = {}>(descriptor: {type: typeof Object} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
+export function ViewService<V extends View, T extends DisplayManager = DisplayManager, I = {}>(descriptor: {type: typeof DisplayManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
+export function ViewService<V extends View, T extends LayoutManager = LayoutManager, I = {}>(descriptor: {type: typeof LayoutManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
+export function ViewService<V extends View, T extends ViewportManager = ViewportManager, I = {}>(descriptor: {type: typeof ViewportManager} & ViewServiceDescriptor<V, T, I> ): PropertyDecorator;
+export function ViewService<V extends View, T extends HistoryManager = HistoryManager, I = {}>(descriptor: {type: typeof HistoryManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
+export function ViewService<V extends View, T extends ModalManager = ModalManager, I = {}>(descriptor: {type: typeof ModalManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
 export function ViewService<V extends View, T, I = {}>(descriptor: {type: Function & { prototype: T }} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
 
 export function ViewService<V extends View, T>(

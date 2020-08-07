@@ -150,10 +150,10 @@ export interface ModelScope<M extends Model, T, U = T> {
 }
 
 export function ModelScope<M extends Model, T, U = T, I = {}>(descriptor: {extends: ModelScopePrototype<T, U>} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
-export function ModelScope<M extends Model, T = object, U = T, I = {}>(descriptor: {type: typeof Object} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
-export function ModelScope<M extends Model, T = string, U = T, I = {}>(descriptor: {type: typeof String} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
-export function ModelScope<M extends Model, T = boolean, U = T | string, I = {}>(descriptor: {type: typeof Boolean} & ModelScopeDescriptor<M, T, U, I> ): PropertyDecorator;
-export function ModelScope<M extends Model, T = number, U = T | string, I = {}>(descriptor: {type: typeof Number} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
+export function ModelScope<M extends Model, T extends Object = object, U extends Object = T, I = {}>(descriptor: {type: typeof Object} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
+export function ModelScope<M extends Model, T extends string = string, U extends string = T, I = {}>(descriptor: {type: typeof String} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
+export function ModelScope<M extends Model, T extends boolean = boolean, U extends boolean | string = T | string, I = {}>(descriptor: {type: typeof Boolean} & ModelScopeDescriptor<M, T, U, I> ): PropertyDecorator;
+export function ModelScope<M extends Model, T extends number = number, U extends number | string = T | string, I = {}>(descriptor: {type: typeof Number} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
 export function ModelScope<M extends Model, T, U = T, I = {}>(descriptor: {type: FromAny<T, U>} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
 export function ModelScope<M extends Model, T, U = T, I = {}>(descriptor: {type: Function & { prototype: T }} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
 

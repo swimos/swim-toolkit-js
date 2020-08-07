@@ -180,16 +180,16 @@ export interface ViewAnimator<V extends View, T, U = T> extends TweenAnimator<T>
 }
 
 export function ViewAnimator<V extends View, T, U = T, I = {}>(descriptor: {extends: ViewAnimatorPrototype<T, U>} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewAnimator<V extends View, T = object, U = T, I = {}>(descriptor: {type: typeof Object} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewAnimator<V extends View, T = string, U = T, I = {}>(descriptor: {type: typeof String} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewAnimator<V extends View, T = boolean, U = T | boolean, I = {}>(descriptor: {type: typeof Boolean} & ViewAnimatorDescriptor<V, T, U, I> ): PropertyDecorator;
-export function ViewAnimator<V extends View, T = number, U = T | string, I = {}>(descriptor: {type: typeof Number} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewAnimator<V extends View, T = Angle, U = T | AnyAngle, I = {}>(descriptor: {type: typeof Angle} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewAnimator<V extends View, T = Length, U = T | AnyLength, I = {}>(descriptor: {type: typeof Length} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewAnimator<V extends View, T = Color, U = T | AnyColor, I = {}>(descriptor: {type: typeof Color} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewAnimator<V extends View, T = Font, U = T | AnyFont, I = {}>(descriptor: {type: typeof Font} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewAnimator<V extends View, T = Transform, U = T | AnyTransform, I = {}>(descriptor: {type: typeof Transform} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewAnimator<V extends View, T = ContinuousScale<unknown, unknown>, U = T | string, I = {}>(descriptor: {type: typeof ContinuousScale} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Object = object, U extends Object = T, I = {}>(descriptor: {type: typeof Object} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends string = string, U extends string = T, I = {}>(descriptor: {type: typeof String} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends boolean = boolean, U extends boolean | string = T | string, I = {}>(descriptor: {type: typeof Boolean} & ViewAnimatorDescriptor<V, T, U, I> ): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends number = number, U extends number | string = T | string, I = {}>(descriptor: {type: typeof Number} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Angle | null = Angle, U extends AnyAngle | null = T | AnyAngle, I = {}>(descriptor: {type: typeof Angle} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Length | null = Length, U extends AnyLength | null = T | AnyLength, I = {}>(descriptor: {type: typeof Length} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Color | null = Color, U extends AnyColor | null = T | AnyColor, I = {}>(descriptor: {type: typeof Color} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Font | null = Font, U extends AnyFont | null = T | AnyFont, I = {}>(descriptor: {type: typeof Font} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Transform | null = Transform, U extends AnyTransform | null = T | AnyTransform, I = {}>(descriptor: {type: typeof Transform} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends ContinuousScale<unknown, unknown> = ContinuousScale<unknown, unknown>, U extends ContinuousScale<unknown, unknown> | string = T | string, I = {}>(descriptor: {type: typeof ContinuousScale} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
 export function ViewAnimator<V extends View, T, U = T, I = {}>(descriptor: {type: FromAny<T, U>} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
 export function ViewAnimator<V extends View, T, U = T, I = {}>(descriptor: {type: Function & { prototype: T }} & ViewAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
 

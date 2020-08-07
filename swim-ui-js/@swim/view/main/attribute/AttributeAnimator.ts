@@ -128,15 +128,15 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
 }
 
 export function AttributeAnimator<V extends ElementView, T, U = T, I = {}>(descriptor: {extends: AttributeAnimatorPrototype<T, U>} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function AttributeAnimator<V extends ElementView, T = string, U = T, I = {}>(descriptor: {type: typeof String} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function AttributeAnimator<V extends ElementView, T = boolean, U = T | string, I = {}>(descriptor: {type: typeof Boolean} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function AttributeAnimator<V extends ElementView, T = number, U = T | string, I = {}>(descriptor: {type: typeof Number} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function AttributeAnimator<V extends ElementView, T = Length, U = T | AnyLength, I = {}>(descriptor: {type: typeof Length} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function AttributeAnimator<V extends ElementView, T = Color, U = T | AnyColor, I = {}>(descriptor: {type: typeof Color} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function AttributeAnimator<V extends ElementView, T = Transform, U = T | AnyTransform, I = {}>(descriptor: {type: typeof Transform} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function AttributeAnimator<V extends ElementView, T = number | string, U = T | string, I = {}>(descriptor: {type: [typeof Number, typeof String]} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function AttributeAnimator<V extends ElementView, T = Length | string, U = T | AnyLength, I = {}>(descriptor: {type: [typeof Length, typeof String]} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
-export function AttributeAnimator<V extends ElementView, T = Color | string, U = T | AnyColor, I = {}>(descriptor: {type: [typeof Color, typeof String]} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends string = string, U extends string = T, I = {}>(descriptor: {type: typeof String} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends boolean = boolean, U extends boolean | string = T | string, I = {}>(descriptor: {type: typeof Boolean} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends number = number, U extends number | string = T | string, I = {}>(descriptor: {type: typeof Number} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends Length = Length, U extends AnyLength = T | AnyLength, I = {}>(descriptor: {type: typeof Length} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends Color = Color, U extends AnyColor = T | AnyColor, I = {}>(descriptor: {type: typeof Color} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends Transform = Transform, U extends AnyTransform = T | AnyTransform, I = {}>(descriptor: {type: typeof Transform} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends number | string = number | string, U extends number | string = T, I = {}>(descriptor: {type: [typeof Number, typeof String]} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends Length | string = Length | string, U extends AnyLength | string = T | AnyLength, I = {}>(descriptor: {type: [typeof Length, typeof String]} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends Color | string = Color | string, U extends AnyColor | string = T | AnyColor, I = {}>(descriptor: {type: [typeof Color, typeof String]} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
 export function AttributeAnimator<V extends ElementView, T, U = T, I = {}>(descriptor: {type: FromAny<T, U>} & AttributeAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
 export function AttributeAnimator<V extends ElementView, T, U = T, I = {}>(descriptor: {type: Function & { prototype: T }} & AttributeAnimatorDescriptor<V, T, I>): PropertyDecorator;
 

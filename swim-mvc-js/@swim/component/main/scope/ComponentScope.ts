@@ -150,10 +150,10 @@ export interface ComponentScope<C extends Component, T, U = T> {
 }
 
 export function ComponentScope<C extends Component, T, U = T, I = {}>(descriptor: {extends: ComponentScopePrototype<T, U>} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
-export function ComponentScope<C extends Component, T = object, U = T, I = {}>(descriptor: {type: typeof Object} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
-export function ComponentScope<C extends Component, T = string, U = T, I = {}>(descriptor: {type: typeof String} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
-export function ComponentScope<C extends Component, T = boolean, U = T | string, I = {}>(descriptor: {type: typeof Boolean} & ComponentScopeDescriptor<C, T, U, I> ): PropertyDecorator;
-export function ComponentScope<C extends Component, T = number, U = T | string, I = {}>(descriptor: {type: typeof Number} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
+export function ComponentScope<C extends Component, T extends Object = object, U extends Object = T, I = {}>(descriptor: {type: typeof Object} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
+export function ComponentScope<C extends Component, T extends string = string, U extends string = T, I = {}>(descriptor: {type: typeof String} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
+export function ComponentScope<C extends Component, T extends boolean = boolean, U extends boolean | string = T | string, I = {}>(descriptor: {type: typeof Boolean} & ComponentScopeDescriptor<C, T, U, I> ): PropertyDecorator;
+export function ComponentScope<C extends Component, T extends number = number, U extends number | string = T | string, I = {}>(descriptor: {type: typeof Number} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
 export function ComponentScope<C extends Component, T, U = T, I = {}>(descriptor: {type: FromAny<T, U>} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
 export function ComponentScope<C extends Component, T, U = T, I = {}>(descriptor: {type: Function & { prototype: T }} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
 

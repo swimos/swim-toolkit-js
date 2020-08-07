@@ -51,10 +51,10 @@ export interface ComponentClass {
   _componentScopeConstructors?: {[scopeName: string]: ComponentScopeConstructor<unknown> | undefined};
 
   /** @hidden */
-  _componentModelConstructors?: {[modelName: string]: ComponentModelConstructor<Model> | undefined};
+  _componentModelConstructors?: {[modelName: string]: ComponentModelConstructor<Model, unknown> | undefined};
 
   /** @hidden */
-  _componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<View> | undefined};
+  _componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<View, unknown> | undefined};
 }
 
 export abstract class Component {
@@ -767,12 +767,12 @@ export abstract class Component {
 
   abstract hasComponentModel(modelName: string): boolean;
 
-  abstract getComponentModel(modelName: string): ComponentModel<this, Model> | null;
+  abstract getComponentModel(modelName: string): ComponentModel<this, Model, unknown> | null;
 
-  abstract setComponentModel(modelName: string, componentModel: ComponentModel<this, Model> | null): void;
+  abstract setComponentModel(modelName: string, componentModel: ComponentModel<this, Model, unknown> | null): void;
 
   /** @hidden */
-  getLazyComponentModel(modelName: string): ComponentModel<this, Model> | null {
+  getLazyComponentModel(modelName: string): ComponentModel<this, Model, unknown> | null {
     let componentModel = this.getComponentModel(modelName);
     if (componentModel === null) {
       const componentClass = (this as any).__proto__ as ComponentClass;
@@ -786,23 +786,23 @@ export abstract class Component {
   }
 
   /** @hidden */
-  componentModelDidSetAuto<M extends Model>(componentModel: ComponentModel<Component, M>, auto: boolean): void {
+  componentModelDidSetAuto<M extends Model, U>(componentModel: ComponentModel<Component, M, U>, auto: boolean): void {
     // hook
   }
 
   /** @hidden */
-  componentModelDidSetModel<M extends Model>(componentModel: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null): void {
+  componentModelDidSetModel<M extends Model, U>(componentModel: ComponentModel<Component, M, U>, newModel: M | null, oldModel: M | null): void {
     // hook
   }
 
   abstract hasComponentView(viewName: string): boolean;
 
-  abstract getComponentView(viewName: string): ComponentView<this, View> | null;
+  abstract getComponentView(viewName: string): ComponentView<this, View, unknown> | null;
 
-  abstract setComponentView(viewName: string, componentView: ComponentView<this, View> | null): void;
+  abstract setComponentView(viewName: string, componentView: ComponentView<this, View, unknown> | null): void;
 
   /** @hidden */
-  getLazyComponentView(viewName: string): ComponentView<this, View> | null {
+  getLazyComponentView(viewName: string): ComponentView<this, View, unknown> | null {
     let componentView = this.getComponentView(viewName);
     if (componentView === null) {
       const componentClass = (this as any).__proto__ as ComponentClass;
@@ -816,12 +816,12 @@ export abstract class Component {
   }
 
   /** @hidden */
-  componentViewDidSetAuto<V extends View>(componentView: ComponentView<Component, V>, auto: boolean): void {
+  componentViewDidSetAuto<V extends View, U>(componentView: ComponentView<Component, V, U>, auto: boolean): void {
     // hook
   }
 
   /** @hidden */
-  componentViewDidSetView<V extends View>(componentView: ComponentView<Component, V>, newView: V | null, oldView: V | null): void {
+  componentViewDidSetView<V extends View, U>(componentView: ComponentView<Component, V, U>, newView: V | null, oldView: V | null): void {
     // hook
   }
 
@@ -984,15 +984,15 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentModel<C extends Component, M extends Model>(constructor: ComponentModelConstructor<M>,
-                                                                      componentClass: ComponentClass, modelName: string): void {
+  static decorateComponentModel<C extends Component, M extends Model, U>(constructor: ComponentModelConstructor<M, U>,
+                                                                         componentClass: ComponentClass, modelName: string): void {
     if (!componentClass.hasOwnProperty("_componentModelConstructors")) {
       componentClass._componentModelConstructors = {};
     }
     componentClass._componentModelConstructors![modelName] = constructor;
     Object.defineProperty(componentClass, modelName, {
-      get: function (this: C): ComponentModel<C, M> {
-        let componentModel = this.getComponentModel(modelName) as ComponentModel<C, M> | null;
+      get: function (this: C): ComponentModel<C, M, U> {
+        let componentModel = this.getComponentModel(modelName) as ComponentModel<C, M, U> | null;
         if (componentModel === null) {
           componentModel = new constructor<C>(this, modelName);
           this.setComponentModel(modelName, componentModel);
@@ -1022,15 +1022,15 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentView<C extends Component, V extends View>(constructor: ComponentViewConstructor<V>,
-                                                                    componentClass: ComponentClass, viewName: string): void {
+  static decorateComponentView<C extends Component, V extends View, U>(constructor: ComponentViewConstructor<V, U>,
+                                                                       componentClass: ComponentClass, viewName: string): void {
     if (!componentClass.hasOwnProperty("_componentViewConstructors")) {
       componentClass._componentViewConstructors = {};
     }
     componentClass._componentViewConstructors![viewName] = constructor;
     Object.defineProperty(componentClass, viewName, {
-      get: function (this: C): ComponentView<C, V> {
-        let componentView = this.getComponentView(viewName) as ComponentView<C, V> | null;
+      get: function (this: C): ComponentView<C, V, U> {
+        let componentView = this.getComponentView(viewName) as ComponentView<C, V, U> | null;
         if (componentView === null) {
           componentView = new constructor<C>(this, viewName);
           this.setComponentView(viewName, componentView);

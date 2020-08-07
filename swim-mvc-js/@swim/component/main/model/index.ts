@@ -14,6 +14,7 @@
 
 export {
   ComponentModelType,
+  ComponentModelInitType,
   ComponentModelInit,
   ComponentModelDescriptor,
   ComponentModelPrototype,

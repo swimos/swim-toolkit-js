@@ -150,10 +150,10 @@ export interface ViewScope<V extends View, T, U = T> {
 }
 
 export function ViewScope<V extends View, T, U = T, I = {}>(descriptor: {extends: ViewScopePrototype<T, U>} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewScope<V extends View, T = object, U = T, I = {}>(descriptor: {type: typeof Object} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewScope<V extends View, T = string, U = T, I = {}>(descriptor: {type: typeof String} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewScope<V extends View, T = boolean, U = T | string, I = {}>(descriptor: {type: typeof Boolean} & ViewScopeDescriptor<V, T, U, I> ): PropertyDecorator;
-export function ViewScope<V extends View, T = number, U = T | string, I = {}>(descriptor: {type: typeof Number} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewScope<V extends View, T extends Object = object, U extends Object = T, I = {}>(descriptor: {type: typeof Object} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewScope<V extends View, T extends string = string, U extends string = T, I = {}>(descriptor: {type: typeof String} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewScope<V extends View, T extends boolean = boolean, U extends boolean | string = T | string, I = {}>(descriptor: {type: typeof Boolean} & ViewScopeDescriptor<V, T, U, I> ): PropertyDecorator;
+export function ViewScope<V extends View, T extends number = number, U extends number | string = T | string, I = {}>(descriptor: {type: typeof Number} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
 export function ViewScope<V extends View, T, U = T, I = {}>(descriptor: {type: FromAny<T, U>} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
 export function ViewScope<V extends View, T, U = T, I = {}>(descriptor: {type: Function & { prototype: T }} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
 
