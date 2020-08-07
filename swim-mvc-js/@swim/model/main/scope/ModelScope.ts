@@ -61,9 +61,9 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
 
   constructor(model: M, scopeName: string | undefined);
 
-  get model(): M;
-
   get name(): string;
+
+  get model(): M;
 
   get inherit(): string | undefined;
 

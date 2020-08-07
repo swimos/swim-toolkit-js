@@ -60,9 +60,9 @@ export declare abstract class AttributeAnimator<V extends ElementView, T, U = T>
 
   constructor(view: V, animatorName: string);
 
-  get view(): V;
-
   get name(): string;
+
+  get view(): V;
 
   get node(): Element;
 

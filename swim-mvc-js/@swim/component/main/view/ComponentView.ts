@@ -46,9 +46,9 @@ export declare abstract class ComponentView<C extends Component, V extends View>
 
   constructor(component: C, viewName: string | undefined);
 
-  get component(): C;
-
   get name(): string;
+
+  get component(): C;
 
   get view(): V | null;
 

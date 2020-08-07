@@ -490,7 +490,7 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  mountServices(): void {
+  protected mountServices(): void {
     const modelServices = this._modelServices;
     if (modelServices !== void 0) {
       for (const serviceName in modelServices) {
@@ -501,7 +501,7 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  unmountServices(): void {
+  protected unmountServices(): void {
     const modelServices = this._modelServices;
     if (modelServices !== void 0) {
       for (const serviceName in modelServices) {
@@ -548,7 +548,7 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  mountScopes(): void {
+  protected mountScopes(): void {
     const modelScopes = this._modelScopes;
     if (modelScopes !== void 0) {
       for (const scopeName in modelScopes) {
@@ -559,7 +559,7 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  unmountScopes(): void {
+  protected unmountScopes(): void {
     const modelScopes = this._modelScopes;
     if (modelScopes !== void 0) {
       for (const scopeName in modelScopes) {

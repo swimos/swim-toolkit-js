@@ -48,9 +48,9 @@ export declare abstract class ModelService<M extends Model, T> {
 
   constructor(model: M, serviceName: string | undefined);
 
-  get model(): M;
-
   get name(): string;
+
+  get model(): M;
 
   get inherit(): string | undefined;
 

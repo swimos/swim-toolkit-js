@@ -61,9 +61,9 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
 
   constructor(view: V, scopeName: string | undefined);
 
-  get view(): V;
-
   get name(): string;
+
+  get view(): V;
 
   get inherit(): string | undefined;
 

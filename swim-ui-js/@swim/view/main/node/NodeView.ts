@@ -1209,7 +1209,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  mountServices(): void {
+  protected mountServices(): void {
     const viewServices = this._viewServices;
     if (viewServices !== void 0) {
       for (const serviceName in viewServices) {
@@ -1220,7 +1220,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  unmountServices(): void {
+  protected unmountServices(): void {
     const viewServices = this._viewServices;
     if (viewServices !== void 0) {
       for (const serviceName in viewServices) {
@@ -1267,7 +1267,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  mountScopes(): void {
+  protected mountScopes(): void {
     const viewScopes = this._viewScopes;
     if (viewScopes !== void 0) {
       for (const scopeName in viewScopes) {
@@ -1278,7 +1278,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  unmountScopes(): void {
+  protected unmountScopes(): void {
     const viewScopes = this._viewScopes;
     if (viewScopes !== void 0) {
       for (const scopeName in viewScopes) {
@@ -1341,12 +1341,12 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  mountAnimators(): void {
+  protected mountAnimators(): void {
     this.mountViewAnimators();
   }
 
   /** @hidden */
-  mountViewAnimators(): void {
+  protected mountViewAnimators(): void {
     const viewAnimators = this._viewAnimators;
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {
@@ -1357,12 +1357,12 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  unmountAnimators(): void {
+  protected unmountAnimators(): void {
     this.unmountViewAnimators();
   }
 
   /** @hidden */
-  unmountViewAnimators(): void {
+  protected unmountViewAnimators(): void {
     const viewAnimators = this._viewAnimators;
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {

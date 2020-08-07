@@ -56,9 +56,9 @@ export declare abstract class ViewService<V extends View, T> {
 
   constructor(view: V, serviceName: string | undefined);
 
-  get view(): V;
-
   get name(): string;
+
+  get view(): V;
 
   get inherit(): string | undefined;
 

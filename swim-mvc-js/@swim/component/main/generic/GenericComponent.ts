@@ -17,6 +17,7 @@ import {Model} from "@swim/model";
 import {ComponentContextType, ComponentContext} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
 import {ComponentObserverType, ComponentObserver} from "../ComponentObserver";
+import {Subcomponent} from "../Subcomponent";
 import {ComponentService} from "../service/ComponentService";
 import {ComponentScope} from "../scope/ComponentScope";
 import {ComponentModel} from "../model/ComponentModel";
@@ -31,6 +32,8 @@ export abstract class GenericComponent extends Component {
   _componentObservers?: ComponentObserverType<this>[];
   /** @hidden */
   _componentFlags: ComponentFlags;
+  /** @hidden */
+  _subcomponents?: {[subcomponentName: string]: Subcomponent<Component, Component> | undefined};
   /** @hidden */
   _componentServices?: {[serviceName: string]: ComponentService<Component, unknown> | undefined};
   /** @hidden */
@@ -156,6 +159,16 @@ export abstract class GenericComponent extends Component {
 
   abstract insertChildComponent(childComponent: Component, targetComponent: Component | null, key?: string): void;
 
+  protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
+    super.onInsertChildComponent(childComponent, targetComponent);
+    this.insertSubcomponent(childComponent);
+  }
+
+  protected onRemoveChildComponent(childComponent: Component): void {
+    super.onRemoveChildComponent(childComponent);
+    this.removeSubcomponent(childComponent);
+  }
+
   cascadeInsert(updateFlags?: ComponentFlags, componentContext?: ComponentContext): void {
     // nop
   }
@@ -217,6 +230,7 @@ export abstract class GenericComponent extends Component {
 
   protected onMount(): void {
     super.onMount();
+    this.mountSubcomponents();
     this.mountServices();
     this.mountScopes();
     this.mountViews();
@@ -254,6 +268,7 @@ export abstract class GenericComponent extends Component {
     this.unmountViews();
     this.unmountScopes();
     this.unmountServices();
+    this.unmountSubcomponents();
     this._componentFlags &= ~Component.ComponentFlagMask | Component.RemovingFlag;
   }
 
@@ -447,6 +462,86 @@ export abstract class GenericComponent extends Component {
     }
   }
 
+  hasSubcomponent(subcomponentName: string): boolean {
+    const subcomponents = this._subcomponents;
+    return subcomponents !== void 0 && subcomponents[subcomponentName] !== void 0;
+  }
+
+  getSubcomponent(subcomponentName: string): Subcomponent<this, Component> | null {
+    const subcomponents = this._subcomponents;
+    if (subcomponents !== void 0) {
+      const subcomponent = subcomponents[subcomponentName];
+      if (subcomponent !== void 0) {
+        return subcomponent as Subcomponent<this, Component>;
+      }
+    }
+    return null;
+  }
+
+  setSubcomponent(subcomponentName: string, newSubcomponent: Subcomponent<this, Component> | null): void {
+    let subcomponents = this._subcomponents;
+    if (subcomponents === void 0) {
+      subcomponents = {};
+      this._subcomponents = subcomponents;
+    }
+    const oldSubcomponent = subcomponents[subcomponentName];
+    if (oldSubcomponent !== void 0 && this.isMounted()) {
+      oldSubcomponent.unmount();
+    }
+    if (newSubcomponent !== null) {
+      subcomponents[subcomponentName] = newSubcomponent;
+      if (this.isMounted()) {
+        newSubcomponent.mount();
+      }
+    } else {
+      delete subcomponents[subcomponentName];
+    }
+  }
+
+  /** @hidden */
+  protected mountSubcomponents(): void {
+    const subcomponents = this._subcomponents;
+    if (subcomponents !== void 0) {
+      for (const subcomponentName in subcomponents) {
+        const subcomponent = subcomponents[subcomponentName]!;
+        subcomponent.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected unmountSubcomponents(): void {
+    const subcomponents = this._subcomponents;
+    if (subcomponents !== void 0) {
+      for (const subcomponentName in subcomponents) {
+        const subcomponent = subcomponents[subcomponentName]!;
+        subcomponent.unmount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected insertSubcomponent(childComponent: Component): void {
+    const subcomponentName = childComponent.key;
+    if (subcomponentName !== void 0) {
+      const subcomponent = this.getLazySubcomponent(subcomponentName);
+      if (subcomponent !== null) {
+        subcomponent.doSetSubcomponent(childComponent);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected removeSubcomponent(childComponent: Component): void {
+    const subcomponentName = childComponent.key;
+    if (subcomponentName !== void 0) {
+      const subcomponent = this.getLazySubcomponent(subcomponentName);
+      if (subcomponent !== null) {
+        subcomponent.doSetSubcomponent(null);
+      }
+    }
+  }
+
   hasComponentService(serviceName: string): boolean {
     const componentServices = this._componentServices;
     return componentServices !== void 0 && componentServices[serviceName] !== void 0;
@@ -484,7 +579,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  mountServices(): void {
+  protected mountServices(): void {
     const componentServices = this._componentServices;
     if (componentServices !== void 0) {
       for (const serviceName in componentServices) {
@@ -495,7 +590,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  unmountServices(): void {
+  protected unmountServices(): void {
     const componentServices = this._componentServices;
     if (componentServices !== void 0) {
       for (const serviceName in componentServices) {
@@ -542,7 +637,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  mountScopes(): void {
+  protected mountScopes(): void {
     const componentScopes = this._componentScopes;
     if (componentScopes !== void 0) {
       for (const scopeName in componentScopes) {
@@ -553,7 +648,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  unmountScopes(): void {
+  protected unmountScopes(): void {
     const componentScopes = this._componentScopes;
     if (componentScopes !== void 0) {
       for (const scopeName in componentScopes) {
@@ -600,7 +695,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  mountModels(): void {
+  protected mountModels(): void {
     const componentModels = this._componentModels;
     if (componentModels !== void 0) {
       for (const modelName in componentModels) {
@@ -611,7 +706,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  unmountModels(): void {
+  protected unmountModels(): void {
     const componentModels = this._componentModels;
     if (componentModels !== void 0) {
       for (const modelName in componentModels) {
@@ -658,7 +753,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  mountViews(): void {
+  protected mountViews(): void {
     const componentViews = this._componentViews;
     if (componentViews !== void 0) {
       for (const viewName in componentViews) {
@@ -669,7 +764,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  unmountViews(): void {
+  protected unmountViews(): void {
     const componentViews = this._componentViews;
     if (componentViews !== void 0) {
       for (const viewName in componentViews) {

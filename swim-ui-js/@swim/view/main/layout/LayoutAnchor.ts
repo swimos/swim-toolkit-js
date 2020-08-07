@@ -48,9 +48,9 @@ export declare abstract class LayoutAnchor<V extends View> {
 
   constructor(view: V, anchorName: string | undefined);
 
-  get view(): V;
-
   get name(): string;
+
+  get view(): V;
 
   get value(): number;
 

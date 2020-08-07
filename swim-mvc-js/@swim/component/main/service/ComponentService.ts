@@ -48,9 +48,9 @@ export declare abstract class ComponentService<C extends Component, T> {
 
   constructor(component: C, serviceName: string | undefined);
 
-  get component(): C;
-
   get name(): string;
+
+  get component(): C;
 
   get inherit(): string | undefined;
 

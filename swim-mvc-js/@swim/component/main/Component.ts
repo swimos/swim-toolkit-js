@@ -16,6 +16,7 @@ import {View} from "@swim/view";
 import {Model} from "@swim/model";
 import {ComponentContextType, ComponentContext} from "./ComponentContext";
 import {ComponentObserverType, ComponentObserver} from "./ComponentObserver";
+import {SubcomponentConstructor, Subcomponent} from "./Subcomponent";
 import {ComponentManager} from "./manager/ComponentManager";
 import {ExecuteManager} from "./execute/ExecuteManager";
 import {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";
@@ -39,6 +40,9 @@ export interface ComponentClass {
   readonly insertChildFlags: ComponentFlags;
 
   readonly removeChildFlags: ComponentFlags;
+
+  /** @hidden */
+  _subcomponentConstructors?: {[subcomponentName: string]: SubcomponentConstructor<Component> | undefined};
 
   /** @hidden */
   _componentServiceConstructors?: {[serviceName: string]: ComponentServiceConstructor<unknown> | undefined};
@@ -691,6 +695,26 @@ export abstract class Component {
     // hook
   }
 
+  abstract hasSubcomponent(subcomponentName: string): boolean;
+
+  abstract getSubcomponent(subcomponentName: string): Subcomponent<this, Component> | null;
+
+  abstract setSubcomponent(subcomponentName: string, componentService: Subcomponent<this, Component> | null): void;
+
+  /** @hidden */
+  getLazySubcomponent(subcomponentName: string): Subcomponent<this, Component> | null {
+    let subcomponent = this.getSubcomponent(subcomponentName);
+    if (subcomponent === null) {
+      const componentClass = (this as any).__proto__ as ComponentClass;
+      const constructor = Component.getSubcomponentConstructor(subcomponentName, componentClass);
+      if (constructor !== null) {
+        subcomponent = new constructor<this>(this, subcomponentName);
+        this.setSubcomponent(subcomponentName, subcomponent);
+      }
+    }
+    return subcomponent;
+  }
+
   abstract hasComponentService(serviceName: string): boolean;
 
   abstract getComponentService(serviceName: string): ComponentService<this, unknown> | null;
@@ -826,6 +850,44 @@ export abstract class Component {
 
   get componentContext(): ComponentContext {
     return this.extendComponentContext(this.superComponentContext);
+  }
+
+  /** @hidden */
+  static getSubcomponentConstructor<C extends Component>(subcomponentName: string, componentClass: ComponentClass | null = null): SubcomponentConstructor<Component> | null {
+    if (componentClass === null) {
+      componentClass = this.prototype as unknown as ComponentClass;
+    }
+    do {
+      if (componentClass.hasOwnProperty("_subcomponentConstructors")) {
+        const constructor = componentClass._subcomponentConstructors![subcomponentName];
+        if (constructor !== void 0) {
+          return constructor;
+        }
+      }
+      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
+    } while (componentClass !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateSubcomponent<C extends Component, S extends Component>(constructor: SubcomponentConstructor<S>,
+                                                                        componentClass: ComponentClass, subcomponentName: string): void {
+    if (!componentClass.hasOwnProperty("_subcomponentConstructors")) {
+      componentClass._subcomponentConstructors = {};
+    }
+    componentClass._subcomponentConstructors![subcomponentName] = constructor;
+    Object.defineProperty(componentClass, subcomponentName, {
+      get: function (this: C): Subcomponent<C, S> {
+        let subcomponent = this.getSubcomponent(subcomponentName) as Subcomponent<C, S> | null;
+        if (subcomponent === null) {
+          subcomponent = new constructor<C>(this, subcomponentName);
+          this.setSubcomponent(subcomponentName, subcomponent);
+        }
+        return subcomponent;
+      },
+      configurable: true,
+      enumerable: true,
+    });
   }
 
   /** @hidden */
@@ -1039,6 +1101,8 @@ export abstract class Component {
   static readonly removeChildFlags: ComponentFlags = 0;
 
   // Forward type declarations
+  /** @hidden */
+  static Subcomponent: typeof Subcomponent; // defined by Subcomponent
   /** @hidden */
   static Manager: typeof ComponentManager; // defined by ComponentManager
   /** @hidden */

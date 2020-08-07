@@ -71,9 +71,9 @@ export declare abstract class ViewAnimator<V extends View, T, U = T> {
 
   constructor(view: V, animatorName: string | undefined);
 
-  get view(): V;
-
   get name(): string;
+
+  get view(): V;
 
   get inherit(): string | undefined;
 

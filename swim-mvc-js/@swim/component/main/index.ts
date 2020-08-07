@@ -27,6 +27,17 @@ export {
   ComponentObserver,
 } from "./ComponentObserver";
 
+export {
+  SubcomponentType,
+  SubcomponentInit,
+  SubcomponentDescriptor,
+  SubcomponentPrototype,
+  SubcomponentConstructor,
+  Subcomponent,
+} from "./Subcomponent";
+
+export {SubcomponentObserver} from "./SubcomponentObserver";
+
 export * from "./manager";
 
 export * from "./execute";

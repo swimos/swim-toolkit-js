@@ -61,9 +61,9 @@ export declare abstract class ComponentScope<C extends Component, T, U = T> {
 
   constructor(component: C, scopeName: string | undefined);
 
-  get component(): C;
-
   get name(): string;
+
+  get component(): C;
 
   get inherit(): string | undefined;
 

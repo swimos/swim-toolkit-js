@@ -46,9 +46,9 @@ export declare abstract class ComponentModel<C extends Component, M extends Mode
 
   constructor(component: C, modelName: string | undefined);
 
-  get component(): C;
-
   get name(): string;
+
+  get component(): C;
 
   get model(): M | null;
 
