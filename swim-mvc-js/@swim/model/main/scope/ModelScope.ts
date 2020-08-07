@@ -39,7 +39,7 @@ export interface ModelScopeInit<M extends Model, T, U = T> {
   extends?: ModelScopePrototype<T, U>;
 }
 
-export type ModelScopeDescriptor<M extends Model, T, U = T> = ModelScopeInit<M, T, U> & ThisType<ModelScope<M, T, U>>;
+export type ModelScopeDescriptor<M extends Model, T, U = T, I = {}> = ModelScopeInit<M, T, U> & ThisType<ModelScope<M, T, U> & I> & I;
 
 export type ModelScopePrototype<T, U = T> = Function & { prototype: ModelScope<Model, T, U> };
 
@@ -149,13 +149,13 @@ export interface ModelScope<M extends Model, T, U = T> {
   (value: T | U | undefined): M;
 }
 
-export function ModelScope<M extends Model, T, U = T>(descriptor: {extends: ModelScopePrototype<T, U>} & ModelScopeDescriptor<M, T, U>): PropertyDecorator;
-export function ModelScope<M extends Model>(descriptor: {type: typeof Object} & ModelScopeDescriptor<M, object | null>): PropertyDecorator;
-export function ModelScope<M extends Model>(descriptor: {type: typeof String} & ModelScopeDescriptor<M, string | null>): PropertyDecorator;
-export function ModelScope<M extends Model>(descriptor: {type: typeof Boolean} & ModelScopeDescriptor<M, boolean | null, boolean | string | null> ): PropertyDecorator;
-export function ModelScope<M extends Model>(descriptor: {type: typeof Number} & ModelScopeDescriptor<M, number | null, number | string | null>): PropertyDecorator;
-export function ModelScope<M extends Model, T, U = T>(descriptor: {type: FromAny<T, U>} & ModelScopeDescriptor<M, T, U>): PropertyDecorator;
-export function ModelScope<M extends Model, T>(descriptor: {type: Function & { prototype: T }} & ModelScopeDescriptor<M, T>): PropertyDecorator;
+export function ModelScope<M extends Model, T, U = T, I = {}>(descriptor: {extends: ModelScopePrototype<T, U>} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
+export function ModelScope<M extends Model, T = object, U = T, I = {}>(descriptor: {type: typeof Object} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
+export function ModelScope<M extends Model, T = string, U = T, I = {}>(descriptor: {type: typeof String} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
+export function ModelScope<M extends Model, T = boolean, U = T | string, I = {}>(descriptor: {type: typeof Boolean} & ModelScopeDescriptor<M, T, U, I> ): PropertyDecorator;
+export function ModelScope<M extends Model, T = number, U = T | string, I = {}>(descriptor: {type: typeof Number} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
+export function ModelScope<M extends Model, T, U = T, I = {}>(descriptor: {type: FromAny<T, U>} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
+export function ModelScope<M extends Model, T, U = T, I = {}>(descriptor: {type: Function & { prototype: T }} & ModelScopeDescriptor<M, T, U, I>): PropertyDecorator;
 
 export function ModelScope<M extends Model, T, U>(
     this: ModelScope<M, T, U> | typeof ModelScope,

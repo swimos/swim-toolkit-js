@@ -28,7 +28,7 @@ export interface LayoutAnchorInit<V extends View> {
   extends?: LayoutAnchorPrototype;
 }
 
-export type LayoutAnchorDescriptor<V extends View> = LayoutAnchorInit<V> & ThisType<LayoutAnchor<V>>;
+export type LayoutAnchorDescriptor<V extends View, I = {}> = LayoutAnchorInit<V> & ThisType<LayoutAnchor<V> & I> & I;
 
 export type LayoutAnchorPrototype = Function & { prototype: LayoutAnchor<View> };
 
@@ -81,7 +81,7 @@ export interface LayoutAnchor<V extends View> extends ConstrainVariable {
   (state: number): V;
 }
 
-export function LayoutAnchor<V extends View>(descriptor: LayoutAnchorDescriptor<V>): PropertyDecorator;
+export function LayoutAnchor<V extends View, I = {}>(descriptor: LayoutAnchorDescriptor<V, I>): PropertyDecorator;
 
 export function LayoutAnchor<V extends View>(
     this: LayoutAnchor<V> | typeof LayoutAnchor,

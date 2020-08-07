@@ -30,7 +30,7 @@ export interface ComponentServiceInit<C extends Component, T> {
   extends?: ComponentServicePrototype<T>;
 }
 
-export type ComponentServiceDescriptor<C extends Component, T> = ComponentServiceInit<C, T> & ThisType<ComponentService<C, T>>;
+export type ComponentServiceDescriptor<C extends Component, T, I = {}> = ComponentServiceInit<C, T> & ThisType<ComponentService<C, T> & I> & I;
 
 export type ComponentServicePrototype<T> = Function & { prototype: ComponentService<Component, T> };
 
@@ -88,10 +88,10 @@ export interface ComponentService<C extends Component, T> {
   (): T | undefined;
 }
 
-export function ComponentService<C extends Component, T>(descriptor: {extends: ComponentServicePrototype<T>} & ComponentServiceDescriptor<C, T>): PropertyDecorator;
-export function ComponentService<C extends Component>(descriptor: {type: typeof Object} & ComponentServiceDescriptor<C, object>): PropertyDecorator;
-export function ComponentService<C extends Component>(descriptor: {type: typeof ExecuteManager} & ComponentServiceDescriptor<C, ExecuteManager>): PropertyDecorator;
-export function ComponentService<C extends Component, T>(descriptor: {type: Function & { prototype: T }} & ComponentServiceDescriptor<C, T>): PropertyDecorator;
+export function ComponentService<C extends Component, T, I = {}>(descriptor: {extends: ComponentServicePrototype<T>} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
+export function ComponentService<C extends Component, T = object, I = {}>(descriptor: {type: typeof Object} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
+export function ComponentService<C extends Component, T = ExecuteManager, I = {}>(descriptor: {type: typeof ExecuteManager} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
+export function ComponentService<C extends Component, T, I = {}>(descriptor: {type: Function & { prototype: T }} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
 
 export function ComponentService<C extends Component, T>(
     this: ComponentService<C, T> | typeof ComponentService,

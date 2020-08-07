@@ -121,7 +121,7 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected addSafeAreaAnchors(rootView: V): void {
-    LayoutAnchor({
+    LayoutAnchor<View>({
       strength: "strong",
       getState(oldState: number): number {
         const newState = this.view.viewport.safeArea.insetTop;
@@ -131,7 +131,7 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
         return newState;
       },
     })(rootView, "safeAreaInsetTop");
-    LayoutAnchor({
+    LayoutAnchor<View>({
       strength: "strong",
       getState(oldState: number): number {
         const newState = this.view.viewport.safeArea.insetRight;
@@ -141,7 +141,7 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
         return newState;
       },
     })(rootView, "safeAreaInsetRight");
-    LayoutAnchor({
+    LayoutAnchor<View>({
       strength: "strong",
       getState(oldState: number): number {
         const newState = this.view.viewport.safeArea.insetBottom;
@@ -151,7 +151,7 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
         return newState;
       },
     })(rootView, "safeAreaInsetBottom");
-    LayoutAnchor({
+    LayoutAnchor<View>({
       strength: "strong",
       getState(oldState: number): number {
         const newState = this.view.viewport.safeArea.insetLeft;

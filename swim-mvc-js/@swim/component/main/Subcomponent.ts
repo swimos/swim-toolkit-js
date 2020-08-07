@@ -30,7 +30,7 @@ export interface SubcomponentInit<C extends Component, S extends Component> {
   extends?: SubcomponentPrototype<S>;
 }
 
-export type SubcomponentDescriptor<C extends Component, S extends Component> = SubcomponentInit<C, S> & ComponentObserverType<S> & ThisType<Subcomponent<C, S>>;
+export type SubcomponentDescriptor<C extends Component, S extends Component, I = ComponentObserverType<S>> = SubcomponentInit<C, S> & ThisType<Subcomponent<C, S> & I> & I;
 
 export type SubcomponentPrototype<S extends Component> = Function & { prototype: Subcomponent<Component, S> };
 
@@ -80,7 +80,7 @@ export interface Subcomponent<C extends Component, S extends Component> {
   (subcomponent: S | null): C;
 }
 
-export function Subcomponent<C extends Component, S extends Component>(descriptor: SubcomponentDescriptor<C, S>): PropertyDecorator;
+export function Subcomponent<C extends Component, S extends Component, I = ComponentObserverType<S>>(descriptor: SubcomponentDescriptor<C, S, I>): PropertyDecorator;
 
 export function Subcomponent<C extends Component, S extends Component>(
     this: Subcomponent<C, S> | typeof Subcomponent,

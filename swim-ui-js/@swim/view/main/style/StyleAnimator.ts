@@ -53,7 +53,7 @@ export interface StyleAnimatorInit<V extends ElementView, T, U = T> {
   extends?: StyleAnimatorPrototype<T, U>;
 }
 
-export type StyleAnimatorDescriptor<V extends ElementView, T, U = T> = StyleAnimatorInit<V, T, U> & ThisType<StyleAnimator<V, T, U>>;
+export type StyleAnimatorDescriptor<V extends ElementView, T, U = T, I = {}> = StyleAnimatorInit<V, T, U> & ThisType<StyleAnimator<V, T, U> & I> & I;
 
 export type StyleAnimatorPrototype<T, U = T> = Function & { prototype: StyleAnimator<ElementView, T, U> };
 
@@ -140,20 +140,20 @@ export interface StyleAnimator<V extends ElementView, T, U = T> extends TweenAni
   (value: T | U | undefined, tween?: Tween<T>, priority?: string): V;
 }
 
-export function StyleAnimator<V extends ElementView, T, U = T>(descriptor: {extends: StyleAnimatorPrototype<T, U>} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: typeof String} & StyleAnimatorDescriptor<V, string>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: typeof Number} & StyleAnimatorDescriptor<V, number, number | string>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: typeof Length} & StyleAnimatorDescriptor<V, Length, AnyLength>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: typeof Color} & StyleAnimatorDescriptor<V, Color, AnyColor>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: typeof LineHeight} & StyleAnimatorDescriptor<V, LineHeight, AnyLineHeight>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: typeof FontFamily} & StyleAnimatorDescriptor<V, FontFamily | FontFamily[], FontFamily | ReadonlyArray<FontFamily>>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: typeof BoxShadow} & StyleAnimatorDescriptor<V, BoxShadow, AnyBoxShadow>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: typeof Transform} & StyleAnimatorDescriptor<V, Transform, AnyTransform>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: [typeof Number, typeof String]} & StyleAnimatorDescriptor<V, number | string>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: [typeof Length, typeof String]} & StyleAnimatorDescriptor<V, Length | string, AnyLength | string>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView>(descriptor: {type: [typeof Color, typeof String]} & StyleAnimatorDescriptor<V, Color | string, AnyColor | string>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView, T, U = T>(descriptor: {type: FromAny<T, U>} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-export function StyleAnimator<V extends ElementView, T>(descriptor: {type: Function & { prototype: T }} & StyleAnimatorDescriptor<V, T>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T, U = T, I = {}>(descriptor: {extends: StyleAnimatorPrototype<T, U>} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = string, U = T, I = {}>(descriptor: {type: typeof String} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = number, U = T | string, I = {}>(descriptor: {type: typeof Number} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = Length, U = T | AnyLength, I = {}>(descriptor: {type: typeof Length} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = Color, U = T | AnyColor, I = {}>(descriptor: {type: typeof Color} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = LineHeight, U = T | AnyLineHeight, I = {}>(descriptor: {type: typeof LineHeight} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = FontFamily | FontFamily[], U = T, I = {}>(descriptor: {type: typeof FontFamily} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = BoxShadow, U = T | AnyBoxShadow, I = {}>(descriptor: {type: typeof BoxShadow} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = Transform, U = T | AnyTransform, I = {}>(descriptor: {type: typeof Transform} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = number | string, U = T | string, I = {}>(descriptor: {type: [typeof Number, typeof String]} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = Length | string, U = T | AnyLength, I = {}>(descriptor: {type: [typeof Length, typeof String]} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T = Color | string, U = T | AnyColor, I = {}>(descriptor: {type: [typeof Color, typeof String]} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T, U = T, I = {}>(descriptor: {type: FromAny<T, U>} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends ElementView, T, U = T, I = {}>(descriptor: {type: Function & { prototype: T }} & StyleAnimatorDescriptor<V, T, U, I>): PropertyDecorator;
 
 export function StyleAnimator<V extends ElementView, T, U>(
     this: StyleAnimator<V, T, U> | typeof StyleAnimator,

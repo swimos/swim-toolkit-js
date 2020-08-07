@@ -30,7 +30,7 @@ export interface ComponentModelInit<C extends Component, M extends Model> {
   extends?: ComponentModelPrototype<M>;
 }
 
-export type ComponentModelDescriptor<C extends Component, M extends Model> = ComponentModelInit<C, M> & ModelObserverType<M> & ThisType<ComponentModel<C, M>>;
+export type ComponentModelDescriptor<C extends Component, M extends Model, I = ModelObserverType<M>> = ComponentModelInit<C, M> & ThisType<ComponentModel<C, M> & I> & I;
 
 export type ComponentModelPrototype<M extends Model> = Function & { prototype: ComponentModel<Component, M> };
 
@@ -88,7 +88,7 @@ export interface ComponentModel<C extends Component, M extends Model> {
   (model: M | null): C;
 }
 
-export function ComponentModel<C extends Component, M extends Model>(descriptor: ComponentModelDescriptor<C, M>): PropertyDecorator;
+export function ComponentModel<C extends Component, M extends Model, I = ModelObserverType<M>>(descriptor: ComponentModelDescriptor<C, M, I>): PropertyDecorator;
 
 export function ComponentModel<C extends Component, M extends Model>(
     this: ComponentModel<C, M> | typeof ComponentModel,

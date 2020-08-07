@@ -30,7 +30,7 @@ export interface ModelServiceInit<M extends Model, T> {
   extends?: ModelServicePrototype<T>;
 }
 
-export type ModelServiceDescriptor<M extends Model, T> = ModelServiceInit<M, T> & ThisType<ModelService<M, T>>;
+export type ModelServiceDescriptor<M extends Model, T, I = {}> = ModelServiceInit<M, T> & ThisType<ModelService<M, T> & I> & I;
 
 export type ModelServicePrototype<T> = Function & { prototype: ModelService<Model, T> };
 
@@ -88,10 +88,10 @@ export interface ModelService<M extends Model, T> {
   (): T | undefined;
 }
 
-export function ModelService<M extends Model, T>(descriptor: {extends: ModelServicePrototype<T>} & ModelServiceDescriptor<M, T>): PropertyDecorator;
-export function ModelService<M extends Model>(descriptor: {type: typeof Object} & ModelServiceDescriptor<M, object>): PropertyDecorator;
-export function ModelService<M extends Model>(descriptor: {type: typeof RefreshManager} & ModelServiceDescriptor<M, RefreshManager>): PropertyDecorator;
-export function ModelService<M extends Model, T>(descriptor: {type: Function & { prototype: T }} & ModelServiceDescriptor<M, T>): PropertyDecorator;
+export function ModelService<M extends Model, T, I = {}>(descriptor: {extends: ModelServicePrototype<T>} & ModelServiceDescriptor<M, T, I>): PropertyDecorator;
+export function ModelService<M extends Model, T = object, I = {}>(descriptor: {type: typeof Object} & ModelServiceDescriptor<M, T, I>): PropertyDecorator;
+export function ModelService<M extends Model, T = RefreshManager, I = {}>(descriptor: {type: typeof RefreshManager} & ModelServiceDescriptor<M, T, I>): PropertyDecorator;
+export function ModelService<M extends Model, T, I = {}>(descriptor: {type: Function & { prototype: T }} & ModelServiceDescriptor<M, T, I>): PropertyDecorator;
 
 export function ModelService<M extends Model, T>(
     this: ModelService<M, T> | typeof ModelService,

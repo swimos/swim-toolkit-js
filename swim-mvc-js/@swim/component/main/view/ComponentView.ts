@@ -30,7 +30,7 @@ export interface ComponentViewInit<C extends Component, V extends View> {
   extends?: ComponentViewPrototype<V>;
 }
 
-export type ComponentViewDescriptor<C extends Component, V extends View> = ComponentViewInit<C, V> & ViewObserverType<V> & ThisType<ComponentView<C, V>>;
+export type ComponentViewDescriptor<C extends Component, V extends View, I = ViewObserverType<V>> = ComponentViewInit<C, V> & ThisType<ComponentView<C, V> & I> & I;
 
 export type ComponentViewPrototype<V extends View> = Function & { prototype: ComponentView<Component, V> };
 
@@ -88,7 +88,7 @@ export interface ComponentView<C extends Component, V extends View> {
   (view: V | null): C;
 }
 
-export function ComponentView<C extends Component, V extends View>(descriptor: ComponentViewDescriptor<C, V>): PropertyDecorator;
+export function ComponentView<C extends Component, V extends View, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptor<C, V, I>): PropertyDecorator;
 
 export function ComponentView<C extends Component, V extends View>(
     this: ComponentView<C, V> | typeof ComponentView,

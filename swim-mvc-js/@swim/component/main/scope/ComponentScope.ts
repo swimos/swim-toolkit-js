@@ -39,7 +39,7 @@ export interface ComponentScopeInit<C extends Component, T, U = T> {
   extends?: ComponentScopePrototype<T, U>;
 }
 
-export type ComponentScopeDescriptor<C extends Component, T, U = T> = ComponentScopeInit<C, T, U> & ThisType<ComponentScope<C, T, U>>;
+export type ComponentScopeDescriptor<C extends Component, T, U = T, I = {}> = ComponentScopeInit<C, T, U> & ThisType<ComponentScope<C, T, U> & I> & I;
 
 export type ComponentScopePrototype<T, U = T> = Function & { prototype: ComponentScope<Component, T, U> };
 
@@ -149,13 +149,13 @@ export interface ComponentScope<C extends Component, T, U = T> {
   (value: T | U | undefined): C;
 }
 
-export function ComponentScope<C extends Component, T, U = T>(descriptor: {extends: ComponentScopePrototype<T, U>} & ComponentScopeDescriptor<C, T, U>): PropertyDecorator;
-export function ComponentScope<C extends Component>(descriptor: {type: typeof Object} & ComponentScopeDescriptor<C, object | null>): PropertyDecorator;
-export function ComponentScope<C extends Component>(descriptor: {type: typeof String} & ComponentScopeDescriptor<C, string | null>): PropertyDecorator;
-export function ComponentScope<C extends Component>(descriptor: {type: typeof Boolean} & ComponentScopeDescriptor<C, boolean | null, boolean | string | null> ): PropertyDecorator;
-export function ComponentScope<C extends Component>(descriptor: {type: typeof Number} & ComponentScopeDescriptor<C, number | null, number | string | null>): PropertyDecorator;
-export function ComponentScope<C extends Component, T, U = T>(descriptor: {type: FromAny<T, U>} & ComponentScopeDescriptor<C, T, U>): PropertyDecorator;
-export function ComponentScope<C extends Component, T>(descriptor: {type: Function & { prototype: T }} & ComponentScopeDescriptor<C, T>): PropertyDecorator;
+export function ComponentScope<C extends Component, T, U = T, I = {}>(descriptor: {extends: ComponentScopePrototype<T, U>} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
+export function ComponentScope<C extends Component, T = object, U = T, I = {}>(descriptor: {type: typeof Object} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
+export function ComponentScope<C extends Component, T = string, U = T, I = {}>(descriptor: {type: typeof String} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
+export function ComponentScope<C extends Component, T = boolean, U = T | string, I = {}>(descriptor: {type: typeof Boolean} & ComponentScopeDescriptor<C, T, U, I> ): PropertyDecorator;
+export function ComponentScope<C extends Component, T = number, U = T | string, I = {}>(descriptor: {type: typeof Number} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
+export function ComponentScope<C extends Component, T, U = T, I = {}>(descriptor: {type: FromAny<T, U>} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
+export function ComponentScope<C extends Component, T, U = T, I = {}>(descriptor: {type: Function & { prototype: T }} & ComponentScopeDescriptor<C, T, U, I>): PropertyDecorator;
 
 export function ComponentScope<C extends Component, T, U>(
     this: ComponentScope<C, T, U> | typeof ComponentScope,
