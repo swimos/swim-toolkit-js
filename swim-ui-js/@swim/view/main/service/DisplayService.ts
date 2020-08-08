@@ -12,23 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ViewServiceType,
-  ViewServiceInit,
-  ViewServiceDescriptor,
-  ViewServicePrototype,
-  ViewServiceConstructor,
-  ViewService,
-} from "./ViewService";
+import {View} from "../View";
+import {DisplayManager} from "../display/DisplayManager";
+import {ViewService} from "./ViewService";
+import {ViewManagerService} from "./ViewManagerService";
 
-export {ViewManagerService} from "./ViewManagerService";
+/** @hidden */
+export abstract class DisplayService<V extends View> extends ViewManagerService<V, DisplayManager<V>> {
+  init(): DisplayManager<V> | undefined {
+    return DisplayManager.global();
+  }
+}
+ViewService.Display = DisplayService;
 
-export {DisplayService} from "./DisplayService";
-
-export {LayoutService} from "./LayoutService";
-
-export {ViewportService} from "./ViewportService";
-
-export {HistoryService} from "./HistoryService";
-
-export {ModalService} from "./ModalService";
+ViewService({type: DisplayManager})(View.prototype, "displayService");

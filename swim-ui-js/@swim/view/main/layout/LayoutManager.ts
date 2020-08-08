@@ -159,8 +159,8 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
     })(rootView, "safeAreaInsetLeft");
   }
 
-  private static _global?: LayoutManager;
-  static global(): LayoutManager {
+  private static _global?: LayoutManager<any>;
+  static global<V extends View>(): LayoutManager<V> {
     if (LayoutManager._global === void 0) {
       LayoutManager._global = new LayoutManager();
     }

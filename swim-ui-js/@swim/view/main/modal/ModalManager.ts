@@ -260,8 +260,8 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
     this.displaceModals(event);
   }
 
-  private static _global?: ModalManager;
-  static global(): ModalManager {
+  private static _global?: ModalManager<any>;
+  static global<V extends View>(): ModalManager<V> {
     if (ModalManager._global === void 0) {
       ModalManager._global = new ModalManager();
     }

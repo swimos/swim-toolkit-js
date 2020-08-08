@@ -215,7 +215,7 @@ export class ButtonStack extends ThemedHtmlView implements Modal, PositionGestur
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.layoutStack();
-    const modalManager = this.modalManager.state;
+    const modalManager = this.modalService.manager;
     if (modalManager !== void 0) {
       modalManager.updateModality();
     }

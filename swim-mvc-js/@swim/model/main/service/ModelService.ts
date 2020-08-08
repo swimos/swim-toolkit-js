@@ -16,7 +16,8 @@ import {__extends} from "tslib";
 import {Model} from "../Model";
 import {ModelManagerObserverType, ModelManager} from "../manager/ModelManager";
 import {RefreshManager} from "../refresh/RefreshManager";
-import {RefreshManagerService} from "./RefreshManagerService";
+import {ModelManagerService} from "./ModelManagerService";
+import {RefreshService} from "./RefreshService";
 
 export type ModelServiceType<M, K extends keyof M> =
   M extends {[P in K]: ModelService<any, infer T>} ? T : unknown;
@@ -46,7 +47,7 @@ export declare abstract class ModelService<M extends Model, T> {
   /** @hidden */
   _superService?: ModelService<Model, T>;
   /** @hidden */
-  _state: T | undefined;
+  _manager: T | undefined;
 
   constructor(model: M, serviceName: string | undefined);
 
@@ -66,11 +67,11 @@ export declare abstract class ModelService<M extends Model, T> {
   /** @hidden */
   unbindSuperService(): void;
 
-  get superState(): T | undefined;
+  get superManager(): T | undefined;
 
-  get ownState(): T | undefined;
+  get ownManager(): T | undefined;
 
-  get state(): T | undefined;
+  get manager(): T | undefined;
 
   mount(): void;
 
@@ -83,7 +84,9 @@ export declare abstract class ModelService<M extends Model, T> {
 
   // Forward type declarations
   /** @hidden */
-  static Refresh: typeof RefreshManagerService; // defined by RefreshManagerService
+  static Manager: typeof ModelManagerService; // defined by ModelManagerService
+  /** @hidden */
+  static Refresh: typeof RefreshService; // defined by RefreshService
 }
 
 export interface ModelService<M extends Model, T> {
@@ -141,7 +144,7 @@ function ModelServiceDecoratorFactory<M extends Model, T>(descriptor: ModelServi
 
   function DecoratedModelService(this: ModelService<M, T>, model: M, serviceName: string | undefined): ModelService<M, T> {
     let _this: ModelService<M, T> = function accessor(): T | undefined {
-      return _this._state;
+      return _this._manager;
     } as ModelService<M, T>;
     Object.setPrototypeOf(_this, this);
     _this = BaseModelService!.call(_this, model, serviceName) || _this;
@@ -151,7 +154,7 @@ function ModelServiceDecoratorFactory<M extends Model, T>(descriptor: ModelServi
       _this._inherit = serviceName;
     }
     if (value !== void 0) {
-      _this._state = value;
+      _this._manager = value;
     }
     return _this;
   }
@@ -250,8 +253,8 @@ ModelService.prototype.bindSuperService = function (this: ModelService<Model, un
         break;
       } while (true);
     }
-    if (this._state === void 0 && this._superService === void 0) {
-      this._state = this.init();
+    if (this._manager === void 0 && this._superService === void 0) {
+      this._manager = this.init();
     }
   }
 };
@@ -263,27 +266,27 @@ ModelService.prototype.unbindSuperService = function (this: ModelService<Model, 
   }
 };
 
-Object.defineProperty(ModelService.prototype, "superState", {
+Object.defineProperty(ModelService.prototype, "superManager", {
   get: function <T>(this: ModelService<Model, T>): T | undefined {
     const superService = this.superService;
-    return superService !== null ? superService.state : void 0;
+    return superService !== null ? superService.manager : void 0;
   },
   enumerable: true,
   configurable: true,
 });
 
-Object.defineProperty(ModelService.prototype, "ownState", {
+Object.defineProperty(ModelService.prototype, "ownManager", {
   get: function <T>(this: ModelService<Model, T>): T | undefined {
-    return this._state;
+    return this._manager;
   },
   enumerable: true,
   configurable: true,
 });
 
-Object.defineProperty(ModelService.prototype, "state", {
+Object.defineProperty(ModelService.prototype, "manager", {
   get: function <T>(this: ModelService<Model, T>): T | undefined {
-    const state = this._state;
-    return state !== void 0 ? state : this.superState;
+    const manager = this._manager;
+    return manager !== void 0 ? manager : this.superManager;
   },
   enumerable: true,
   configurable: true,
@@ -304,6 +307,8 @@ ModelService.prototype.init = function <T>(this: ModelService<Model, T>): T | un
 ModelService.constructorForType = function (type: unknown): ModelServicePrototype<unknown> | null {
   if (type === RefreshManager) {
     return ModelService.Refresh;
+  } else if (type === ModelManager) {
+    return ModelService.Manager;
   }
   return null;
 }

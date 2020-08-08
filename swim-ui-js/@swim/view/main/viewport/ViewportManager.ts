@@ -173,8 +173,8 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
   static ReorientationDelay: number = 500;
 
-  private static _global?: ViewportManager;
-  static global(): ViewportManager {
+  private static _global?: ViewportManager<any>;
+  static global<V extends View>(): ViewportManager<V> {
     if (ViewportManager._global === void 0) {
       ViewportManager._global = new ViewportManager();
     }

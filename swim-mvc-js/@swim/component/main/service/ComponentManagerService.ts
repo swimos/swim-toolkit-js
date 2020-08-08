@@ -13,41 +13,34 @@
 // limitations under the License.
 
 import {Component} from "../Component";
-import {ExecuteManager} from "../execute/ExecuteManager";
-import {ExecuteManagerObserver} from "../execute/ExecuteManagerObserver";
+import {ComponentManagerObserverType, ComponentManager} from "../manager/ComponentManager";
 import {ComponentService} from "./ComponentService";
 
 /** @hidden */
-export abstract class ExecuteManagerService<C extends Component> extends ComponentService<C, ExecuteManager> {
+export abstract class ComponentManagerService<C extends Component, CM extends ComponentManager<C>> extends ComponentService<C, CM> {
   /** @hidden */
   readonly observer?: boolean;
 
   mount(): void {
     super.mount();
-    const state = this._state;
-    if (state !== void 0) {
-      state.insertRootComponent(this._component);
+    const manager = this._manager;
+    if (manager !== void 0) {
+      manager.insertRootComponent(this._component);
       if (this.observer === true) {
-        state.addComponentManagerObserver(this as ExecuteManagerObserver<C>);
+        manager.addComponentManagerObserver(this as ComponentManagerObserverType<CM>);
       }
     }
   }
 
   unmount(): void {
-    const state = this._state;
-    if (state !== void 0) {
+    const manager = this._manager;
+    if (manager !== void 0) {
       if (this.observer === true) {
-        state.removeComponentManagerObserver(this as ExecuteManagerObserver<C>);
+        manager.removeComponentManagerObserver(this as ComponentManagerObserverType<CM>);
       }
-      state.removeRootComponent(this._component);
+      manager.removeRootComponent(this._component);
     }
     super.unmount();
   }
-
-  init(): ExecuteManager | undefined {
-    return ExecuteManager.global();
-  }
 }
-ComponentService.Execute = ExecuteManagerService;
-
-ComponentService({type: ExecuteManager})(Component.prototype, "executeManager");
+ComponentService.Manager = ComponentManagerService;

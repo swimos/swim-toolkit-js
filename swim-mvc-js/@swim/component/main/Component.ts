@@ -243,7 +243,7 @@ export abstract class Component {
     }
   }
 
-  executeManager: ComponentService<this, ExecuteManager>; // defined by ExecuteManagerService
+  executeService: ComponentService<this, ExecuteManager>; // defined by ExecuteService
 
   get componentClass(): ComponentClass {
     return this.constructor as unknown as ComponentClass;
@@ -388,7 +388,7 @@ export abstract class Component {
     if (parentComponent !== null) {
       parentComponent.requestUpdate(targetComponent, updateFlags, immediate);
     } else if (this.isMounted()) {
-      const executeManager = this.executeManager.state;
+      const executeManager = this.executeService.manager;
       if (executeManager !== void 0) {
         executeManager.requestUpdate(targetComponent, updateFlags, immediate);
       }
@@ -836,7 +836,7 @@ export abstract class Component {
     if (parentComponent !== null) {
       superComponentContext = parentComponent.componentContext;
     } else if (this.isMounted()) {
-      const executeManager = this.executeManager.state;
+      const executeManager = this.executeService.manager;
       if (executeManager !== void 0) {
         superComponentContext = executeManager.componentContext;
       } else {

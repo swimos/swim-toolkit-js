@@ -247,8 +247,8 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  private static _global?: HistoryManager;
-  static global(): HistoryManager {
+  private static _global?: HistoryManager<any>;
+  static global<V extends View>(): HistoryManager<V> {
     if (HistoryManager._global === void 0) {
       HistoryManager._global = new HistoryManager();
     }

@@ -13,41 +13,34 @@
 // limitations under the License.
 
 import {Model} from "../Model";
-import {RefreshManager} from "../refresh/RefreshManager";
-import {RefreshManagerObserver} from "../refresh/RefreshManagerObserver";
+import {ModelManagerObserverType, ModelManager} from "../manager/ModelManager";
 import {ModelService} from "./ModelService";
 
 /** @hidden */
-export abstract class RefreshManagerService<M extends Model> extends ModelService<M, RefreshManager> {
+export abstract class ModelManagerService<M extends Model, MM extends ModelManager<M>> extends ModelService<M, MM> {
   /** @hidden */
   readonly observer?: boolean;
 
   mount(): void {
     super.mount();
-    const state = this._state;
-    if (state !== void 0) {
-      state.insertRootModel(this._model);
+    const manager = this._manager;
+    if (manager !== void 0) {
+      manager.insertRootModel(this._model);
       if (this.observer === true) {
-        state.addModelManagerObserver(this as RefreshManagerObserver<M>);
+        manager.addModelManagerObserver(this as ModelManagerObserverType<MM>);
       }
     }
   }
 
   unmount(): void {
-    const state = this._state;
-    if (state !== void 0) {
+    const manager = this._manager;
+    if (manager !== void 0) {
       if (this.observer === true) {
-        state.removeModelManagerObserver(this as RefreshManagerObserver<M>);
+        manager.removeModelManagerObserver(this as ModelManagerObserverType<MM>);
       }
-      state.removeRootModel(this._model);
+      manager.removeRootModel(this._model);
     }
     super.unmount();
   }
-
-  init(): RefreshManager | undefined {
-    return RefreshManager.global();
-  }
 }
-ModelService.Refresh = RefreshManagerService;
-
-ModelService({type: RefreshManager})(Model.prototype, "refreshManager");
+ModelService.Manager = ModelManagerService;

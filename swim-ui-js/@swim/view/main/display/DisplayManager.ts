@@ -263,8 +263,8 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  private static _global?: DisplayManager;
-  static global(): DisplayManager {
+  private static _global?: DisplayManager<any>;
+  static global<V extends View>(): DisplayManager<V> {
     if (DisplayManager._global === void 0) {
       DisplayManager._global = new DisplayManager();
     }

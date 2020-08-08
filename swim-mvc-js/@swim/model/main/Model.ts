@@ -263,7 +263,7 @@ export abstract class Model {
     }
   }
 
-  refreshManager: ModelService<this, RefreshManager>; // defined by RefreshManagerService
+  refreshService: ModelService<this, RefreshManager>; // defined by RefreshService
 
   get modelClass(): ModelClass {
     return this.constructor as unknown as ModelClass;
@@ -408,7 +408,7 @@ export abstract class Model {
     if (parentModel !== null) {
       parentModel.requestUpdate(targetModel, updateFlags, immediate);
     } else if (this.isMounted()) {
-      const refreshManager = this.refreshManager.state;
+      const refreshManager = this.refreshService.manager;
       if (refreshManager !== void 0) {
         refreshManager.requestUpdate(targetModel, updateFlags, immediate);
       }
@@ -756,7 +756,7 @@ export abstract class Model {
     if (parentModel !== null) {
       superModelContext = parentModel.modelContext;
     } else if (this.isMounted()) {
-      const refreshManager = this.refreshManager.state;
+      const refreshManager = this.refreshService.manager;
       if (refreshManager !== void 0) {
         superModelContext = refreshManager.modelContext;
       } else {

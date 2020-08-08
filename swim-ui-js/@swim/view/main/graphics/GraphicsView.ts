@@ -934,7 +934,7 @@ export abstract class GraphicsView extends View {
     const constraints = this._constraints;
     const constraintVariables = this._constraintVariables;
     if (constraints !== void 0 || constraintVariables !== void 0) {
-      const layoutManager = this.layoutManager.state;
+      const layoutManager = this.layoutService.manager;
       if (layoutManager !== void 0) {
         if (constraintVariables !== void 0) {
           for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
@@ -960,7 +960,7 @@ export abstract class GraphicsView extends View {
     const constraints = this._constraints;
     const constraintVariables = this._constraintVariables;
     if (constraints !== void 0 || constraintVariables !== void 0) {
-      const layoutManager = this.layoutManager.state;
+      const layoutManager = this.layoutService.manager;
       if (layoutManager !== void 0) {
         if (constraints !== void 0) {
           for (let i = 0, n = constraints.length; i < n; i += 1) {

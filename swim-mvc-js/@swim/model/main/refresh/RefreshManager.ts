@@ -275,8 +275,8 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     }
   }
 
-  private static _global?: RefreshManager;
-  static global(): RefreshManager {
+  private static _global?: RefreshManager<any>;
+  static global<M extends Model>(): RefreshManager<M> {
     if (RefreshManager._global === void 0) {
       RefreshManager._global = new RefreshManager();
     }

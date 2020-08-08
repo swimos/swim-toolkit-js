@@ -275,8 +275,8 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     }
   }
 
-  private static _global?: ExecuteManager;
-  static global(): ExecuteManager {
+  private static _global?: ExecuteManager<any>;
+  static global<C extends Component>(): ExecuteManager<C> {
     if (ExecuteManager._global === void 0) {
       ExecuteManager._global = new ExecuteManager();
     }

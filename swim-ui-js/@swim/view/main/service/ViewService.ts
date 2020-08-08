@@ -20,11 +20,12 @@ import {LayoutManager} from "../layout/LayoutManager";
 import {ViewportManager} from "../viewport/ViewportManager";
 import {HistoryManager} from "../history/HistoryManager";
 import {ModalManager} from "../modal/ModalManager";
-import {DisplayManagerService} from "./DisplayManagerService";
-import {LayoutManagerService} from "./LayoutManagerService";
-import {ViewportManagerService} from "./ViewportManagerService";
-import {HistoryManagerService} from "./HistoryManagerService";
-import {ModalManagerService} from "./ModalManagerService";
+import {ViewManagerService} from "./ViewManagerService";
+import {DisplayService} from "./DisplayService";
+import {LayoutService} from "./LayoutService";
+import {ViewportService} from "./ViewportService";
+import {HistoryService} from "./HistoryService";
+import {ModalService} from "./ModalService";
 
 export type ViewServiceType<V, K extends keyof V> =
   V extends {[P in K]: ViewService<any, infer T>} ? T : unknown;
@@ -54,7 +55,7 @@ export declare abstract class ViewService<V extends View, T> {
   /** @hidden */
   _superService?: ViewService<View, T>;
   /** @hidden */
-  _state: T | undefined;
+  _manager: T | undefined;
 
   constructor(view: V, serviceName: string | undefined);
 
@@ -74,11 +75,11 @@ export declare abstract class ViewService<V extends View, T> {
   /** @hidden */
   unbindSuperService(): void;
 
-  get superState(): T | undefined;
+  get superManager(): T | undefined;
 
-  get ownState(): T | undefined;
+  get ownManager(): T | undefined;
 
-  get state(): T | undefined;
+  get manager(): T | undefined;
 
   mount(): void;
 
@@ -91,15 +92,17 @@ export declare abstract class ViewService<V extends View, T> {
 
   // Forward type declarations
   /** @hidden */
-  static Display: typeof DisplayManagerService; // defined by DisplayManagerService
+  static Manager: typeof ViewManagerService; // defined by ViewManagerService
   /** @hidden */
-  static Layout: typeof LayoutManagerService; // defined by LayoutManagerService
+  static Display: typeof DisplayService; // defined by DisplayService
   /** @hidden */
-  static Viewport: typeof ViewportManagerService; // defined by ViewportManagerService
+  static Layout: typeof LayoutService; // defined by LayoutService
   /** @hidden */
-  static History: typeof HistoryManagerService; // defined by HistoryManagerService
+  static Viewport: typeof ViewportService; // defined by ViewportService
   /** @hidden */
-  static Modal: typeof ModalManagerService; // defined by ModalManagerService
+  static History: typeof HistoryService; // defined by HistoryService
+  /** @hidden */
+  static Modal: typeof ModalService; // defined by ModalService
 }
 
 export interface ViewService<V extends View, T> {
@@ -161,7 +164,7 @@ function ViewServiceDecoratorFactory<V extends View, T>(descriptor: ViewServiceI
 
   function DecoratedViewService(this: ViewService<V, T>, view: V, serviceName: string | undefined): ViewService<V, T> {
     let _this: ViewService<V, T> = function accessor(): T | undefined {
-      return _this._state;
+      return _this._manager;
     } as ViewService<V, T>;
     Object.setPrototypeOf(_this, this);
     _this = BaseViewService!.call(_this, view, serviceName) || _this;
@@ -171,7 +174,7 @@ function ViewServiceDecoratorFactory<V extends View, T>(descriptor: ViewServiceI
       _this._inherit = serviceName;
     }
     if (value !== void 0) {
-      _this._state = value;
+      _this._manager = value;
     }
     return _this;
   }
@@ -270,8 +273,8 @@ ViewService.prototype.bindSuperService = function (this: ViewService<View, unkno
         break;
       } while (true);
     }
-    if (this._state === void 0 && this._superService === void 0) {
-      this._state = this.init();
+    if (this._manager === void 0 && this._superService === void 0) {
+      this._manager = this.init();
     }
   }
 };
@@ -283,27 +286,27 @@ ViewService.prototype.unbindSuperService = function (this: ViewService<View, unk
   }
 };
 
-Object.defineProperty(ViewService.prototype, "superState", {
+Object.defineProperty(ViewService.prototype, "superManager", {
   get: function <T>(this: ViewService<View, T>): T | undefined {
     const superService = this.superService;
-    return superService !== null ? superService.state : void 0;
+    return superService !== null ? superService.manager : void 0;
   },
   enumerable: true,
   configurable: true,
 });
 
-Object.defineProperty(ViewService.prototype, "ownState", {
+Object.defineProperty(ViewService.prototype, "ownManager", {
   get: function <T>(this: ViewService<View, T>): T | undefined {
-    return this._state;
+    return this._manager;
   },
   enumerable: true,
   configurable: true,
 });
 
-Object.defineProperty(ViewService.prototype, "state", {
+Object.defineProperty(ViewService.prototype, "manager", {
   get: function <T>(this: ViewService<View, T>): T | undefined {
-    const state = this._state;
-    return state !== void 0 ? state : this.superState;
+    const manager = this._manager;
+    return manager !== void 0 ? manager : this.superManager;
   },
   enumerable: true,
   configurable: true,
@@ -332,6 +335,8 @@ ViewService.constructorForType = function (type: unknown): ViewServicePrototype<
     return ViewService.History;
   } else if (type === ModalManager) {
     return ViewService.Modal;
+  } else if (type === ViewManager) {
+    return ViewService.Manager;
   }
   return null;
 }

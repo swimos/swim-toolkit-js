@@ -313,39 +313,39 @@ export abstract class View implements AnimatorContext {
     }
   }
 
-  displayManager: ViewService<this, DisplayManager>; // defined by DisplayManagerService
+  displayService: ViewService<this, DisplayManager>; // defined by DisplayService
 
-  layoutManager: ViewService<this, LayoutManager>; // defined by LayoutManagerService
+  layoutService: ViewService<this, LayoutManager>; // defined by LayoutService
 
-  viewportManager: ViewService<this, ViewportManager>; // defined by ViewportManagerService
+  viewportService: ViewService<this, ViewportManager>; // defined by ViewportService
 
-  historyManager: ViewService<this, HistoryManager>; // defined by HistoryManagerService
+  historyService: ViewService<this, HistoryManager>; // defined by HistoryService
 
-  modalManager: ViewService<this, ModalManager>; // defined by ModalManagerService
+  modalService: ViewService<this, ModalManager>; // defined by ModalService
 
   toggleModal(modal: Modal, options?: ModalOptions): void {
-    const modalManager = this.modalManager.state;
+    const modalManager = this.modalService.manager;
     if (modalManager !== void 0) {
       modalManager.toggleModal(modal, options);
     }
   }
 
   presentModal(modal: Modal, options?: ModalOptions): void {
-    const modalManager = this.modalManager.state;
+    const modalManager = this.modalService.manager;
     if (modalManager !== void 0) {
       modalManager.presentModal(modal, options);
     }
   }
 
   dismissModal(modal: Modal): void {
-    const modalManager = this.modalManager.state;
+    const modalManager = this.modalService.manager;
     if (modalManager !== void 0) {
       modalManager.dismissModal(modal);
     }
   }
 
   dismissModals(): void {
-    const modalManager = this.modalManager.state;
+    const modalManager = this.modalService.manager;
     if (modalManager !== void 0) {
       modalManager.dismissModals();
     }
@@ -494,7 +494,7 @@ export abstract class View implements AnimatorContext {
     if (parentView !== null) {
       parentView.requestUpdate(targetView, updateFlags, immediate);
     } else if (this.isMounted()) {
-      const displayManager = this.displayManager.state;
+      const displayManager = this.displayService.manager;
       if (displayManager !== void 0) {
         displayManager.requestUpdate(targetView, updateFlags, immediate);
       }
@@ -914,7 +914,7 @@ export abstract class View implements AnimatorContext {
 
   /** @hidden */
   activateConstraint(constraint: Constraint): void {
-    const layoutManager = this.layoutManager.state;
+    const layoutManager = this.layoutService.manager;
     if (layoutManager !== void 0) {
       layoutManager.activateConstraint(constraint);
       this.requireUpdate(View.NeedsLayout);
@@ -923,7 +923,7 @@ export abstract class View implements AnimatorContext {
 
   /** @hidden */
   deactivateConstraint(constraint: Constraint): void {
-    const layoutManager = this.layoutManager.state;
+    const layoutManager = this.layoutService.manager;
     if (layoutManager !== void 0) {
       layoutManager.deactivateConstraint(constraint);
       this.requireUpdate(View.NeedsLayout);
@@ -952,7 +952,7 @@ export abstract class View implements AnimatorContext {
 
   /** @hidden */
   activateConstraintVariable(constraintVariable: ConstrainVariable): void {
-    const layoutManager = this.layoutManager.state;
+    const layoutManager = this.layoutService.manager;
     if (layoutManager !== void 0) {
       layoutManager.activateConstraintVariable(constraintVariable);
       this.requireUpdate(View.NeedsLayout);
@@ -961,7 +961,7 @@ export abstract class View implements AnimatorContext {
 
   /** @hidden */
   deactivateConstraintVariable(constraintVariable: ConstrainVariable): void {
-    const layoutManager = this.layoutManager.state;
+    const layoutManager = this.layoutService.manager;
     if (layoutManager !== void 0) {
       layoutManager.deactivateConstraintVariable(constraintVariable);
       this.requireUpdate(View.NeedsLayout);
@@ -970,7 +970,7 @@ export abstract class View implements AnimatorContext {
 
   /** @hidden */
   setConstraintVariable(constraintVariable: ConstrainVariable, state: number): void {
-    const layoutManager = this.layoutManager.state;
+    const layoutManager = this.layoutService.manager;
     if (layoutManager !== void 0) {
       layoutManager.setConstraintVariable(constraintVariable, state);
     }
@@ -978,7 +978,7 @@ export abstract class View implements AnimatorContext {
 
   /** @hidden */
   updateConstraintVariables(): void {
-    const layoutManager = this.layoutManager.state;
+    const layoutManager = this.layoutService.manager;
     if (layoutManager !== void 0) {
       layoutManager.updateConstraintVariables();
     }
@@ -994,7 +994,7 @@ export abstract class View implements AnimatorContext {
     if (parentView !== null) {
       superViewContext = parentView.viewContext;
     } else if (this.isMounted()) {
-      const viewportManager = this.viewportManager.state;
+      const viewportManager = this.viewportService.manager;
       if (viewportManager !== void 0) {
         superViewContext = viewportManager.viewContext;
       } else {

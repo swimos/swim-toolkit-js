@@ -21,4 +21,6 @@ export {
   ModelService,
 } from "./ModelService";
 
-export {RefreshManagerService} from "./RefreshManagerService";
+export {ModelManagerService} from "./ModelManagerService";
+
+export {RefreshService} from "./RefreshService";

@@ -170,8 +170,8 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     this.applyTheme(this._theme, this._mood);
   }
 
-  private static _global?: ThemeManager;
-  static global(): ThemeManager {
+  private static _global?: ThemeManager<any>;
+  static global<V extends View>(): ThemeManager<V> {
     if (ThemeManager._global === void 0) {
       ThemeManager._global = new ThemeManager();
     }

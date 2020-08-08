@@ -148,7 +148,7 @@ export abstract class ThemedLayerView extends LayerView implements ThemedGraphic
       if (moodModifier !== void 0) {
         let superMood = this.mood.superState;
         if (superMood === void 0) {
-          const themeManager = this.themeManager.state;
+          const themeManager = this.themeService.manager;
           if (themeManager !== void 0) {
             superMood = themeManager.mood;
           }
@@ -170,7 +170,7 @@ export abstract class ThemedLayerView extends LayerView implements ThemedGraphic
       if (themeModifier !== void 0) {
         let superTheme = this.theme.superState;
         if (superTheme === void 0) {
-          const themeManager = this.themeManager.state;
+          const themeManager = this.themeService.manager;
           if (themeManager !== void 0) {
             superTheme = themeManager.theme;
           }

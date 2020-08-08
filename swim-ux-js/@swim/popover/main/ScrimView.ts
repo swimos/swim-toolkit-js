@@ -119,7 +119,7 @@ export class ScrimView extends ThemedHtmlView implements ModalManagerObserver {
 
   protected onMount(): void {
     super.onMount();
-    const modalManager = this.modalManager.state;
+    const modalManager = this.modalService.manager;
     if (modalManager !== void 0) {
       modalManager.addViewManagerObserver(this);
       this.modalManagerDidUpdateModality(modalManager.modality, 0, modalManager);
@@ -127,7 +127,7 @@ export class ScrimView extends ThemedHtmlView implements ModalManagerObserver {
   }
 
   protected onUnmount(): void {
-    const modalManager = this.modalManager.state;
+    const modalManager = this.modalService.manager;
     if (modalManager !== void 0) {
       modalManager.removeViewManagerObserver(this);
     }
@@ -149,7 +149,7 @@ export class ScrimView extends ThemedHtmlView implements ModalManagerObserver {
   }
 
   protected onClick(event: Event): void {
-    const modalManager = this.modalManager.state;
+    const modalManager = this.modalService.manager;
     if (modalManager !== void 0) {
       modalManager.displaceModals(event);
     }

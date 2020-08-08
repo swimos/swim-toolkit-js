@@ -12,23 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ViewServiceType,
-  ViewServiceInit,
-  ViewServiceDescriptor,
-  ViewServicePrototype,
-  ViewServiceConstructor,
-  ViewService,
-} from "./ViewService";
+import {Component} from "../Component";
+import {ExecuteManager} from "../execute/ExecuteManager";
+import {ComponentService} from "./ComponentService";
+import {ComponentManagerService} from "./ComponentManagerService";
 
-export {ViewManagerService} from "./ViewManagerService";
+/** @hidden */
+export abstract class ExecuteService<C extends Component> extends ComponentManagerService<C, ExecuteManager<C>> {
+  init(): ExecuteManager<C> | undefined {
+    return ExecuteManager.global();
+  }
+}
+ComponentService.Execute = ExecuteService;
 
-export {DisplayService} from "./DisplayService";
-
-export {LayoutService} from "./LayoutService";
-
-export {ViewportService} from "./ViewportService";
-
-export {HistoryService} from "./HistoryService";
-
-export {ModalService} from "./ModalService";
+ComponentService({type: ExecuteManager})(Component.prototype, "executeService");

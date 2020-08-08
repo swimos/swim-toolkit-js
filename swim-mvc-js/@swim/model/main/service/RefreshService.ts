@@ -12,23 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ViewServiceType,
-  ViewServiceInit,
-  ViewServiceDescriptor,
-  ViewServicePrototype,
-  ViewServiceConstructor,
-  ViewService,
-} from "./ViewService";
+import {Model} from "../Model";
+import {RefreshManager} from "../refresh/RefreshManager";
+import {ModelService} from "./ModelService";
+import {ModelManagerService} from "./ModelManagerService";
 
-export {ViewManagerService} from "./ViewManagerService";
+/** @hidden */
+export abstract class RefreshService<M extends Model> extends ModelManagerService<M, RefreshManager<M>> {
+  init(): RefreshManager<M> | undefined {
+    return RefreshManager.global();
+  }
+}
+ModelService.Refresh = RefreshService;
 
-export {DisplayService} from "./DisplayService";
-
-export {LayoutService} from "./LayoutService";
-
-export {ViewportService} from "./ViewportService";
-
-export {HistoryService} from "./HistoryService";
-
-export {ModalService} from "./ModalService";
+ModelService({type: RefreshManager})(Model.prototype, "refreshService");

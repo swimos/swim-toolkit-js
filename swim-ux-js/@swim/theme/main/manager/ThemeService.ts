@@ -12,23 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ViewServiceType,
-  ViewServiceInit,
-  ViewServiceDescriptor,
-  ViewServicePrototype,
-  ViewServiceConstructor,
-  ViewService,
-} from "./ViewService";
+import {View, ViewService, ViewManagerService} from "@swim/view";
+import {ThemeManager} from "./ThemeManager";
 
-export {ViewManagerService} from "./ViewManagerService";
+/** @hidden */
+export abstract class ThemeService<V extends View> extends ViewManagerService<V, ThemeManager<V>> {
+  init(): ThemeManager<V> | undefined {
+    return ThemeManager.global();
+  }
+}
 
-export {DisplayService} from "./DisplayService";
-
-export {LayoutService} from "./LayoutService";
-
-export {ViewportService} from "./ViewportService";
-
-export {HistoryService} from "./HistoryService";
-
-export {ModalService} from "./ModalService";
+ViewService({extends: ThemeService})(View.prototype, "themeService");

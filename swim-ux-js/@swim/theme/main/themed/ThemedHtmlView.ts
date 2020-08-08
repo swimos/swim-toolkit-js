@@ -152,7 +152,7 @@ export class ThemedHtmlView extends HtmlView implements ThemedView {
 
   protected initTheme(): void {
     if (this.isRootView()) {
-      const themeManager = this.themeManager.state;
+      const themeManager = this.themeService.manager;
       if (themeManager !== void 0) {
         if (this.mood.isAuto() && this.mood.state === void 0) {
           this.mood.setAutoState(themeManager.mood);
@@ -171,7 +171,7 @@ export class ThemedHtmlView extends HtmlView implements ThemedView {
       if (moodModifier !== void 0) {
         let superMood = this.mood.superState;
         if (superMood === void 0) {
-          const themeManager = this.themeManager.state;
+          const themeManager = this.themeService.manager;
           if (themeManager !== void 0) {
             superMood = themeManager.mood;
           }
@@ -193,7 +193,7 @@ export class ThemedHtmlView extends HtmlView implements ThemedView {
       if (themeModifier !== void 0) {
         let superTheme = this.theme.superState;
         if (superTheme === void 0) {
-          const themeManager = this.themeManager.state;
+          const themeManager = this.themeService.manager;
           if (themeManager !== void 0) {
             superTheme = themeManager.theme;
           }

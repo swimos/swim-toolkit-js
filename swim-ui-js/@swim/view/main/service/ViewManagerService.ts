@@ -13,41 +13,34 @@
 // limitations under the License.
 
 import {View} from "../View";
-import {ModalManager} from "../modal/ModalManager";
-import {ModalManagerObserver} from "../modal/ModalManagerObserver";
+import {ViewManagerObserverType, ViewManager} from "../manager/ViewManager";
 import {ViewService} from "./ViewService";
 
 /** @hidden */
-export abstract class ModalManagerService<V extends View> extends ViewService<V, ModalManager> {
+export abstract class ViewManagerService<V extends View, VM extends ViewManager<V>> extends ViewService<V, VM> {
   /** @hidden */
-  observer?: boolean;
+  readonly observer?: boolean;
 
   mount(): void {
     super.mount();
-    const state = this._state;
-    if (state !== void 0) {
-      state.insertRootView(this._view);
+    const manager = this._manager;
+    if (manager !== void 0) {
+      manager.insertRootView(this._view);
       if (this.observer === true) {
-        state.addViewManagerObserver(this as ModalManagerObserver<V>);
+        manager.addViewManagerObserver(this as ViewManagerObserverType<VM>);
       }
     }
   }
 
   unmount(): void {
-    const state = this._state;
-    if (state !== void 0) {
+    const manager = this._manager;
+    if (manager !== void 0) {
       if (this.observer === true) {
-        state.removeViewManagerObserver(this as ModalManagerObserver<V>);
+        manager.removeViewManagerObserver(this as ViewManagerObserverType<VM>);
       }
-      state.removeRootView(this._view);
+      manager.removeRootView(this._view);
     }
     super.unmount();
   }
-
-  init(): ModalManager | undefined {
-    return ModalManager.global();
-  }
 }
-ViewService.Modal = ModalManagerService;
-
-ViewService({type: ModalManager})(View.prototype, "modalManager");
+ViewService.Manager = ViewManagerService;

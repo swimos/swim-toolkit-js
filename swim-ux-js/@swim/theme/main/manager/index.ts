@@ -15,4 +15,4 @@
 export {ThemeManager} from "./ThemeManager";
 export {ThemeManagerObserver} from "./ThemeManagerObserver";
 
-export {ThemeManagerService} from "./ThemeManagerService";
+export {ThemeService} from "./ThemeService";
