@@ -12,17 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "../View";
-import {HistoryManager} from "../history/HistoryManager";
-import {ViewService} from "./ViewService";
-import {ViewManagerService} from "./ViewManagerService";
+export {HistoryStateInit, HistoryState} from "./HistoryState";
 
-/** @hidden */
-export abstract class HistoryService<V extends View> extends ViewManagerService<V, HistoryManager<V>> {
-  init(): HistoryManager<V> | undefined {
-    return HistoryManager.global();
-  }
-}
-ViewService.History = HistoryService;
-
-ViewService({type: HistoryManager})(View.prototype, "historyService");
+export {HistoryManager} from "./HistoryManager";
+export {HistoryManagerObserver} from "./HistoryManagerObserver";

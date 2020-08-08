@@ -36,7 +36,6 @@ if (navigator.standalone) {
 }
 
 const bodyView = new swim.ThemedHtmlView(document.body);
-const historyManager = bodyView.historyManager.state;
 
 const drawerButton = bodyView.append(swim.DrawerButton)
   .position("absolute")
@@ -68,33 +67,9 @@ const settingsItem = drawerView.append(swim.MenuItem)
   .iconView(settingsIcon)
   .titleView("Settings");
 
-class NavMenuController extends swim.MenuListController {
-  constructor() {
-    super();
-    this.updateSelected();
-  }
-  updateSelected() {
-    const itemKey = historyManager.historyState.fragment;
-    if (itemKey !== undefined) {
-      const item = menuList.getChildView(itemKey);
-      if (item !== undefined && item !== this.selectedItem) {
-        this.selectItem(item)
-      }
-    }
-  }
-  viewDidCompute() {
-    this.updateSelected();
-  }
-  didSelectItem(newItem) {
-    const itemKey = newItem.key;
-    if (itemKey !== historyManager.historyState.fragment) {
-      historyManager.pushHistory({fragment: itemKey});
-    }
-  }
-}
-const menuListController = new NavMenuController();
+const menuListController = new swim.MenuListController();
 menuList.setViewController(menuListController);
-//menuListController.selectItem(item1);
+menuListController.selectItem(item1);
 
 drawerView.show();
 

@@ -17,7 +17,6 @@ import {ViewManagerObserver} from "./ViewManagerObserver";
 import {DisplayManager} from "../display/DisplayManager";
 import {LayoutManager} from "../layout/LayoutManager";
 import {ViewportManager} from "../viewport/ViewportManager";
-import {HistoryManager} from "../history/HistoryManager";
 import {ModalManager} from "../modal/ModalManager";
 
 export type ViewManagerObserverType<VM extends ViewManager> =
@@ -262,8 +261,6 @@ export abstract class ViewManager<V extends View = View> {
   static Layout: typeof LayoutManager; // defined by LayoutManager
   /** @hidden */
   static Viewport: typeof ViewportManager; // defined by ViewportManager
-  /** @hidden */
-  static History: typeof HistoryManager; // defined by HistoryManager
   /** @hidden */
   static Modal: typeof ModalManager; // defined by ModalManager
 }

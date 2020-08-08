@@ -42,6 +42,8 @@ export * from "./manager";
 
 export * from "./execute";
 
+export * from "./history";
+
 export * from "./service";
 
 export * from "./scope";

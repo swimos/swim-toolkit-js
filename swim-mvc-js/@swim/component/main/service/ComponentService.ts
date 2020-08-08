@@ -16,8 +16,10 @@ import {__extends} from "tslib";
 import {Component} from "../Component";
 import {ComponentManagerObserverType, ComponentManager} from "../manager/ComponentManager";
 import {ExecuteManager} from "../execute/ExecuteManager";
+import {HistoryManager} from "../history/HistoryManager";
 import {ComponentManagerService} from "./ComponentManagerService";
 import {ExecuteService} from "./ExecuteService";
+import {HistoryService} from "./HistoryService";
 
 export type ComponentServiceType<C, K extends keyof C> =
   C extends {[P in K]: ComponentService<any, infer T>} ? T : unknown;
@@ -87,6 +89,8 @@ export declare abstract class ComponentService<C extends Component, T> {
   static Manager: typeof ComponentManagerService; // defined by ComponentManagerService
   /** @hidden */
   static Execute: typeof ExecuteService; // defined by ExecuteService
+  /** @hidden */
+  static History: typeof HistoryService; // defined by HistoryService
 }
 
 export interface ComponentService<C extends Component, T> {
@@ -96,6 +100,7 @@ export interface ComponentService<C extends Component, T> {
 export function ComponentService<C extends Component, T, I = {}>(descriptor: {extends: ComponentServicePrototype<T>} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
 export function ComponentService<C extends Component, T extends Object = object, I = {}>(descriptor: {type: typeof Object} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
 export function ComponentService<C extends Component, T extends ExecuteManager = ExecuteManager, I = ComponentManagerObserverType<T>>(descriptor: {type: typeof ExecuteManager} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
+export function ComponentService<C extends Component, T extends HistoryManager = HistoryManager, I = ComponentManagerObserverType<T>>(descriptor: {type: typeof HistoryManager} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
 export function ComponentService<C extends Component, T extends ComponentManager = ComponentManager, I = ComponentManagerObserverType<T>>(descriptor: {type: typeof ComponentManager} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
 export function ComponentService<C extends Component, T, I = {}>(descriptor: {type: Function & { prototype: T }} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
 
@@ -307,6 +312,8 @@ ComponentService.prototype.init = function <T>(this: ComponentService<Component,
 ComponentService.constructorForType = function (type: unknown): ComponentServicePrototype<unknown> | null {
   if (type === ExecuteManager) {
     return ComponentService.Execute;
+  } else if (type === HistoryManager) {
+    return ComponentService.History;
   } else if (type === ComponentManager) {
     return ComponentService.Manager;
   }

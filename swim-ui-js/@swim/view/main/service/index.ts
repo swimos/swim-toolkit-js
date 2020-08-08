@@ -29,6 +29,4 @@ export {LayoutService} from "./LayoutService";
 
 export {ViewportService} from "./ViewportService";
 
-export {HistoryService} from "./HistoryService";
-
 export {ModalService} from "./ModalService";

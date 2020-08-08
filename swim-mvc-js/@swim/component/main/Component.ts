@@ -19,6 +19,7 @@ import {ComponentObserverType, ComponentObserver} from "./ComponentObserver";
 import {SubcomponentConstructor, Subcomponent} from "./Subcomponent";
 import {ComponentManager} from "./manager/ComponentManager";
 import {ExecuteManager} from "./execute/ExecuteManager";
+import {HistoryManager} from "./history/HistoryManager";
 import {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";
 import {ComponentScopeConstructor, ComponentScope} from "./scope/ComponentScope";
 import {ComponentModelConstructor, ComponentModel} from "./model/ComponentModel";
@@ -244,6 +245,8 @@ export abstract class Component {
   }
 
   executeService: ComponentService<this, ExecuteManager>; // defined by ExecuteService
+
+  historyService: ComponentService<this, HistoryManager>; // defined by HistoryService
 
   get componentClass(): ComponentClass {
     return this.constructor as unknown as ComponentClass;

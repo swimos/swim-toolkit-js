@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import {Uri, UriQuery, UriFragment} from "@swim/uri";
-import {View} from "../View";
-import {ViewManager} from "../manager/ViewManager";
+import {Component} from "../Component";
+import {ComponentManager} from "../manager/ComponentManager";
 import {HistoryStateInit, HistoryState} from "./HistoryState";
 import {HistoryManagerObserver} from "./HistoryManagerObserver";
 
-export class HistoryManager<V extends View = View> extends ViewManager<V> {
+export class HistoryManager<C extends Component = Component> extends ComponentManager<C> {
   /** @hidden */
   readonly _historyState: {
     fragment: string | undefined;
@@ -135,24 +135,24 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willPushHistory(historyState: HistoryState): void {
-    this.willObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.historyManagerWillPushHistory !== void 0) {
-        viewManagerObserver.historyManagerWillPushHistory(historyState, this);
+    this.willObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+      if (componentManagerObserver.historyManagerWillPushHistory !== void 0) {
+        componentManagerObserver.historyManagerWillPushHistory(historyState, this);
       }
     });
   }
 
   protected onPushHistory(historyState: HistoryState): void {
-    const rootViews = this._rootViews;
-    for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsChange);
+    const rootComponents = this._rootComponents;
+    for (let i = 0, n = rootComponents.length; i < n; i += 1) {
+      rootComponents[i].requireUpdate(Component.NeedsNavigate);
     }
   }
 
   protected didPushHistory(historyState: HistoryState): void {
-    this.didObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.historyManagerDidPushHistory !== void 0) {
-        viewManagerObserver.historyManagerDidPushHistory(historyState, this);
+    this.didObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+      if (componentManagerObserver.historyManagerDidPushHistory !== void 0) {
+        componentManagerObserver.historyManagerDidPushHistory(historyState, this);
       }
     });
   }
@@ -167,24 +167,24 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willReplaceHistory(historyState: HistoryState): void {
-    this.willObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.historyManagerWillReplaceHistory !== void 0) {
-        viewManagerObserver.historyManagerWillReplaceHistory(historyState, this);
+    this.willObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+      if (componentManagerObserver.historyManagerWillReplaceHistory !== void 0) {
+        componentManagerObserver.historyManagerWillReplaceHistory(historyState, this);
       }
     });
   }
 
   protected onReplaceHistory(historyState: HistoryState): void {
-    const rootViews = this._rootViews;
-    for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsChange);
+    const rootComponents = this._rootComponents;
+    for (let i = 0, n = rootComponents.length; i < n; i += 1) {
+      rootComponents[i].requireUpdate(Component.NeedsNavigate);
     }
   }
 
   protected didReplaceHistory(historyState: HistoryState): void {
-    this.didObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.historyManagerDidReplaceHistory !== void 0) {
-        viewManagerObserver.historyManagerDidReplaceHistory(historyState, this);
+    this.didObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+      if (componentManagerObserver.historyManagerDidReplaceHistory !== void 0) {
+        componentManagerObserver.historyManagerDidReplaceHistory(historyState, this);
       }
     });
   }
@@ -201,29 +201,29 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willPopHistory(historyState: HistoryState): void {
-    this.willObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.historyManagerWillPopHistory !== void 0) {
-        viewManagerObserver.historyManagerWillPopHistory(historyState, this);
+    this.willObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+      if (componentManagerObserver.historyManagerWillPopHistory !== void 0) {
+        componentManagerObserver.historyManagerWillPopHistory(historyState, this);
       }
     });
   }
 
   protected onPopHistory(historyState: HistoryState): void {
-    const rootViews = this._rootViews;
-    for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsChange);
+    const rootComponents = this._rootComponents;
+    for (let i = 0, n = rootComponents.length; i < n; i += 1) {
+      rootComponents[i].requireUpdate(Component.NeedsNavigate);
     }
   }
 
   protected didPopHistory(historyState: HistoryState): void {
-    this.didObserve(function (viewManagerObserver: HistoryManagerObserver): void {
-      if (viewManagerObserver.historyManagerDidPopHistory !== void 0) {
-        viewManagerObserver.historyManagerDidPopHistory(historyState, this);
+    this.didObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+      if (componentManagerObserver.historyManagerDidPopHistory !== void 0) {
+        componentManagerObserver.historyManagerDidPopHistory(historyState, this);
       }
     });
   }
 
-  readonly viewManagerObservers: ReadonlyArray<HistoryManagerObserver>;
+  readonly componentManagerObservers: ReadonlyArray<HistoryManagerObserver>;
 
   protected onAttach(): void {
     super.onAttach();
@@ -248,11 +248,11 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   }
 
   private static _global?: HistoryManager<any>;
-  static global<V extends View>(): HistoryManager<V> {
+  static global<C extends Component>(): HistoryManager<C> {
     if (HistoryManager._global === void 0) {
       HistoryManager._global = new HistoryManager();
     }
     return HistoryManager._global;
   }
 }
-ViewManager.History = HistoryManager;
+ComponentManager.History = HistoryManager;

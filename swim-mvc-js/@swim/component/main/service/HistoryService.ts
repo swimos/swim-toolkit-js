@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {HistoryStateInit, HistoryState} from "./HistoryState";
-export {HistoryManager} from "./HistoryManager";
-export {HistoryManagerObserver} from "./HistoryManagerObserver";
+import {Component} from "../Component";
+import {HistoryManager} from "../history/HistoryManager";
+import {ComponentService} from "./ComponentService";
+import {ComponentManagerService} from "./ComponentManagerService";
+
+/** @hidden */
+export abstract class HistoryService<C extends Component> extends ComponentManagerService<C, HistoryManager<C>> {
+  init(): HistoryManager<C> | undefined {
+    return HistoryManager.global();
+  }
+}
+ComponentService.History = HistoryService;
+
+ComponentService({type: HistoryManager})(Component.prototype, "historyService");

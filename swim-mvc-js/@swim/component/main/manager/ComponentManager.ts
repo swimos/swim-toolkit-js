@@ -15,6 +15,7 @@
 import {Component} from "../Component";
 import {ComponentManagerObserver} from "./ComponentManagerObserver";
 import {ExecuteManager} from "../execute/ExecuteManager";
+import {HistoryManager} from "../history/HistoryManager";
 
 export type ComponentManagerObserverType<CM extends ComponentManager> =
   CM extends {readonly componentManagerObservers: ReadonlyArray<infer CMO>} ? CMO : unknown;
@@ -254,5 +255,7 @@ export abstract class ComponentManager<C extends Component = Component> {
   // Forward type declarations
   /** @hidden */
   static Execute: typeof ExecuteManager; // defined by ExecuteManager
+  /** @hidden */
+  static History: typeof HistoryManager; // defined by HistoryManager
 }
 Component.Manager = ComponentManager;

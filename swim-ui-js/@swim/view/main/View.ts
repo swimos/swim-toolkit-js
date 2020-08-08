@@ -34,7 +34,6 @@ import {LayoutManager} from "./layout/LayoutManager";
 import {ViewIdiom} from "./viewport/ViewIdiom";
 import {Viewport} from "./viewport/Viewport";
 import {ViewportManager} from "./viewport/ViewportManager";
-import {HistoryManager} from "./history/HistoryManager";
 import {ModalOptions, Modal} from "./modal/Modal";
 import {ModalManager} from "./modal/ModalManager";
 import {ViewServiceConstructor, ViewService} from "./service/ViewService";
@@ -318,8 +317,6 @@ export abstract class View implements AnimatorContext {
   layoutService: ViewService<this, LayoutManager>; // defined by LayoutService
 
   viewportService: ViewService<this, ViewportManager>; // defined by ViewportService
-
-  historyService: ViewService<this, HistoryManager>; // defined by HistoryService
 
   modalService: ViewService<this, ModalManager>; // defined by ModalService
 

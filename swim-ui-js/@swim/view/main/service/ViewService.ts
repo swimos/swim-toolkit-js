@@ -18,13 +18,11 @@ import {ViewManagerObserverType, ViewManager} from "../manager/ViewManager";
 import {DisplayManager} from "../display/DisplayManager";
 import {LayoutManager} from "../layout/LayoutManager";
 import {ViewportManager} from "../viewport/ViewportManager";
-import {HistoryManager} from "../history/HistoryManager";
 import {ModalManager} from "../modal/ModalManager";
 import {ViewManagerService} from "./ViewManagerService";
 import {DisplayService} from "./DisplayService";
 import {LayoutService} from "./LayoutService";
 import {ViewportService} from "./ViewportService";
-import {HistoryService} from "./HistoryService";
 import {ModalService} from "./ModalService";
 
 export type ViewServiceType<V, K extends keyof V> =
@@ -100,8 +98,6 @@ export declare abstract class ViewService<V extends View, T> {
   /** @hidden */
   static Viewport: typeof ViewportService; // defined by ViewportService
   /** @hidden */
-  static History: typeof HistoryService; // defined by HistoryService
-  /** @hidden */
   static Modal: typeof ModalService; // defined by ModalService
 }
 
@@ -114,7 +110,6 @@ export function ViewService<V extends View, T extends Object = object, I = {}>(d
 export function ViewService<V extends View, T extends DisplayManager = DisplayManager, I = ViewManagerObserverType<T>>(descriptor: {type: typeof DisplayManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
 export function ViewService<V extends View, T extends LayoutManager = LayoutManager, I = ViewManagerObserverType<T>>(descriptor: {type: typeof LayoutManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
 export function ViewService<V extends View, T extends ViewportManager = ViewportManager, I = ViewManagerObserverType<T>>(descriptor: {type: typeof ViewportManager} & ViewServiceDescriptor<V, T, I> ): PropertyDecorator;
-export function ViewService<V extends View, T extends HistoryManager = HistoryManager, I = ViewManagerObserverType<T>>(descriptor: {type: typeof HistoryManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
 export function ViewService<V extends View, T extends ModalManager = ModalManager, I = ViewManagerObserverType<T>>(descriptor: {type: typeof ModalManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
 export function ViewService<V extends View, T extends ViewManager = ViewManager, I = ViewManagerObserverType<T>>(descriptor: {type: typeof ViewManager} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
 export function ViewService<V extends View, T, I = {}>(descriptor: {type: Function & { prototype: T }} & ViewServiceDescriptor<V, T, I>): PropertyDecorator;
@@ -331,8 +326,6 @@ ViewService.constructorForType = function (type: unknown): ViewServicePrototype<
     return ViewService.Layout;
   } else if (type === ViewportManager) {
     return ViewService.Viewport;
-  } else if (type === HistoryManager) {
-    return ViewService.History;
   } else if (type === ModalManager) {
     return ViewService.Modal;
   } else if (type === ViewManager) {
