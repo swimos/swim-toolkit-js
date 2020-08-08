@@ -13,6 +13,8 @@
 // limitations under the License.
 
 export {MenuItem} from "./MenuItem";
+export {MenuItemObserver} from "./MenuItemObserver";
+export {MenuItemController} from "./MenuItemController";
 
 export {MenuList} from "./MenuList";
 export {MenuListObserver} from "./MenuListObserver";

@@ -15,7 +15,7 @@
 import {Uri, UriQuery, UriFragment} from "@swim/uri";
 import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
-import {HistoryState} from "./HistoryState";
+import {HistoryStateInit, HistoryState} from "./HistoryState";
 import {HistoryManagerObserver} from "./HistoryManagerObserver";
 
 export class HistoryManager<V extends View = View> extends ViewManager<V> {
@@ -95,7 +95,7 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  updateHistoryState(deltaState: HistoryState): HistoryState {
+  updateHistoryState(deltaState: HistoryStateInit): HistoryState {
     const historyState = this._historyState;
     if ("fragment" in deltaState) {
       historyState.fragment = deltaState.fragment;
@@ -119,13 +119,13 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
     return historyState;
   }
 
-  setHistoryState(newState: HistoryState): void {
+  setHistoryState(newState: HistoryStateInit): void {
     this.clearHistoryState();
     this.updateHistoryUrl(document.location.href);
     this.updateHistoryState(newState);
   }
 
-  pushHistory(deltaState: HistoryState): void {
+  pushHistory(deltaState: HistoryStateInit): void {
     const historyState = this.updateHistoryState(deltaState);
     const historyUrl = this.historyUrl;
     this.willPushHistory(historyState);
@@ -157,7 +157,7 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
     });
   }
 
-  replaceHistory(deltaState: HistoryState): void {
+  replaceHistory(deltaState: HistoryStateInit): void {
     const historyState = this.updateHistoryState(deltaState);
     const historyUrl = this.historyUrl;
     this.willReplaceHistory(historyState);
@@ -193,7 +193,9 @@ export class HistoryManager<V extends View = View> extends ViewManager<V> {
   popHistory(event: PopStateEvent): void {
     const historyState = this._historyState;
     this.willPopHistory(historyState);
-    this.setHistoryState(event.state);
+    this.setHistoryState({
+      ephemeral: typeof event.state === "object" && event.state !== null ? event.state : {},
+    });
     this.onPopHistory(historyState);
     this.didPopHistory(historyState);
   }

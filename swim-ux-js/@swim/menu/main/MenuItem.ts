@@ -27,6 +27,8 @@ import {
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ButtonMembrane} from "@swim/button";
+import {MenuItemObserver} from "./MenuItemObserver";
+import {MenuItemController} from "./MenuItemController";
 import {MenuList} from "./MenuList";
 
 export class MenuItem extends ButtonMembrane implements PositionGestureDelegate {
@@ -54,6 +56,10 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     this.overflowY.setAutoState("hidden");
     this.cursor.setAutoState("pointer");
   }
+
+  readonly viewController: MenuItemController | null;
+
+  readonly viewObservers: ReadonlyArray<MenuItemObserver>;
 
   @ViewAnimator({type: Number, inherit: true})
   drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
@@ -156,18 +162,21 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
                          transition: Transition<any> | null): void {
     super.onApplyTheme(theme, mood, transition);
     const itemColor = theme.inner(mood, this._highlighted ? Look.color : Look.mutedColor);
+    if (this.backgroundColor.isAuto()) {
+      this.backgroundColor.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
+    }
 
     const iconView = this.iconView();
     if (iconView !== null) {
       const icon = iconView.getChildView("icon");
-      if (icon instanceof SvgView && icon.fill.isAuto()) {
+      if (icon instanceof SvgView) {
         icon.fill.setAutoState(itemColor, transition);
       }
     }
 
-    const title = this.titleView();
-    if (title !== null && title.color.isAuto()) {
-      title.color.setAutoState(itemColor, transition);
+    const titleView = this.titleView();
+    if (titleView !== null) {
+      titleView.color.setAutoState(itemColor, transition);
     }
   }
 
@@ -185,9 +194,11 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     super.onAnimate(viewContext);
     const drawerStretch = this.drawerStretch.value;
     if (typeof drawerStretch === "number") {
-      const titleView = this.titleView()!;
-      titleView.display.setAutoState(drawerStretch === 0 ? "none" : "block");
-      titleView.opacity.setAutoState(drawerStretch);
+      const titleView = this.titleView();
+      if (titleView !== null) {
+        titleView.display.setAutoState(drawerStretch === 0 ? "none" : "block");
+        titleView.opacity.setAutoState(drawerStretch);
+      }
     }
   }
 
@@ -309,8 +320,22 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     }
   }
 
+  get hovers(): boolean {
+    return true;
+  }
+
+  setHovers(hovers: boolean): void {
+    if (this.hovers !== hovers) {
+      Object.defineProperty(this, "hovers", {
+        value: hovers,
+        configurable: true,
+        enumerable: true,
+      });
+    }
+  }
+
   didStartHovering(): void {
-    if (!this._highlighted) {
+    if (!this._highlighted && this.hovers) {
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
       if (this.backgroundColor.isAuto()) {
         this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor));
@@ -328,6 +353,11 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
 
   protected onClick(event: MouseEvent): void {
     event.stopPropagation();
+    this.didObserve(function (viewObserver: MenuItemObserver): void {
+      if (viewObserver.menuItemDidPress !== void 0) {
+        viewObserver.menuItemDidPress(this);
+      }
+    });
     const parentView = this.parentView;
     if (parentView instanceof MenuList) {
       parentView.onPressItem(this);

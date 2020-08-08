@@ -79,6 +79,15 @@ export declare abstract class ComponentView<C extends Component, V extends View,
   /** @hidden */
   setOwnView(view: V | U | null): void;
 
+  /** @hidden */
+  willSetOwnView(newView: V | null, oldView: V | null): void;
+
+  /** @hidden */
+  onSetOwnView(newView: V | null, oldView: V | null): void;
+
+  /** @hidden */
+  didSetOwnView(newView: V | null, oldView: V | null): void;
+
   mount(): void;
 
   unmount(): void;
@@ -222,7 +231,7 @@ ComponentView.prototype.onSetView = function <V extends View>(this: ComponentVie
 ComponentView.prototype.didSetView = function <V extends View>(this: ComponentView<Component, V>,
                                                                newView: V | null,
                                                                oldView: V | null): void {
-  this._component.componentViewDidSetView(this, newView, oldView);
+  // hook
 }
 
 ComponentView.prototype.setAutoView = function <V extends View, U>(this: ComponentView<Component, V, U>,
@@ -239,12 +248,33 @@ ComponentView.prototype.setOwnView = function <V extends View, U>(this: Componen
     newView = this.fromAny(newView);
   }
   if (oldView !== newView) {
+    this.willSetOwnView(newView as V | null, oldView);
     this.willSetView(newView as V | null, oldView);
     this._view = newView as V | null;
+    this.onSetOwnView(newView as V | null, oldView);
     this.onSetView(newView as V | null, oldView);
     this.didSetView(newView as V | null, oldView);
+    this.didSetOwnView(newView as V | null, oldView);
   }
 };
+
+ComponentView.prototype.willSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
+                                                                   newView: V | null,
+                                                                   oldView: V | null): void {
+  // hook
+}
+
+ComponentView.prototype.onSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
+                                                                 newView: V | null,
+                                                                 oldView: V | null): void {
+  // hook
+}
+
+ComponentView.prototype.didSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
+                                                                  newView: V | null,
+                                                                  oldView: V | null): void {
+  this._component.componentViewDidSetView(this, newView, oldView);
+}
 
 ComponentView.prototype.mount = function (this: ComponentView<Component, View>): void {
   // hook

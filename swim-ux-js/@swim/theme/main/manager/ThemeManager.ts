@@ -20,6 +20,7 @@ import {MoodVector} from "../mood/MoodVector";
 import {Theme} from "../theme/Theme";
 import {ThemeMatrix} from "../theme/ThemeMatrix";
 import {ThemeManagerObserver} from "./ThemeManagerObserver";
+import {ThemedView} from "../themed/ThemedView";
 
 export class ThemeManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -53,9 +54,14 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
 
   setMood(mood: MoodVector): void {
     this._mood = mood;
+    this.applyTheme(this._theme, this._mood);
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsChange);
+      const rootView = rootViews[i];
+      if (ThemedView.is(rootView) && rootView.mood.isAuto()) {
+        rootView.mood.setAutoState(mood);
+        rootView.requireUpdate(View.NeedsChange);
+      }
     }
   }
 
@@ -65,9 +71,14 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
 
   setTheme(theme: ThemeMatrix): void {
     this._theme = theme;
+    this.applyTheme(this._theme, this._mood);
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsChange);
+      const rootView = rootViews[i];
+      if (ThemedView.is(rootView) && rootView.theme.isAuto()) {
+        rootView.theme.setAutoState(theme);
+        rootView.requireUpdate(View.NeedsChange);
+      }
     }
   }
 

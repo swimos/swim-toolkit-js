@@ -18,8 +18,8 @@ import {ComponentModel} from "./ComponentModel";
 
 /** @hidden */
 export abstract class ComponentModelObserver<C extends Component, M extends Model> extends ComponentModel<C, M> {
-  onSetModel(newModel: M | null, oldModel: M | null): void {
-    super.onSetModel(newModel, oldModel);
+  onSetOwnModel(newModel: M | null, oldModel: M | null): void {
+    super.onSetOwnModel(newModel, oldModel);
     if (this._component.isMounted()) {
       if (oldModel !== null) {
         oldModel.removeModelObserver(this as ModelObserverType<M>);

@@ -42,8 +42,24 @@ export class ButtonMembrane extends ThemedHtmlView implements PositionGestureDel
     return new PositionGesture(this, this);
   }
 
+  get glows(): boolean {
+    return true;
+  }
+
+  setGlows(glows: boolean): void {
+    if (this.glows !== glows) {
+      Object.defineProperty(this, "glows", {
+        value: glows,
+        configurable: true,
+        enumerable: true,
+      });
+    }
+  }
+
   didBeginPress(input: PositionGestureInput, event: Event | null): void {
-    this.glow(input);
+    if (this.glows) {
+      this.glow(input);
+    }
   }
 
   protected glow(input: PositionGestureInput): void {

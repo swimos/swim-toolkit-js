@@ -12,10 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export interface HistoryStateInit {
+  fragment?: string;
+
+  permanent?: {[key: string]: string | undefined};
+
+  ephemeral?: {[key: string]: string | undefined};
+}
+
 export interface HistoryState {
-  readonly fragment?: string;
+  readonly fragment: string | undefined;
 
-  readonly permanent?: {readonly [key: string]: string | undefined};
+  readonly permanent: {readonly [key: string]: string | undefined};
 
-  readonly ephemeral?: {readonly [key: string]: string | undefined};
+  readonly ephemeral: {readonly [key: string]: string | undefined};
 }

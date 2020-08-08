@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {HistoryStateInit, HistoryState} from "./HistoryState";
-export {HistoryManager} from "./HistoryManager";
-export {HistoryManagerObserver} from "./HistoryManagerObserver";
+import {ThemedHtmlViewObserver} from "@swim/theme";
+import {MenuItem} from "./MenuItem";
+
+export interface MenuItemObserver<V extends MenuItem = MenuItem> extends ThemedHtmlViewObserver<V> {
+  menuItemDidPress?(view: V): void;
+}

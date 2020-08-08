@@ -18,8 +18,8 @@ import {ComponentView} from "./ComponentView";
 
 /** @hidden */
 export abstract class ComponentViewObserver<C extends Component, V extends View> extends ComponentView<C, V> {
-  onSetView(newView: V | null, oldView: V | null): void {
-    super.onSetView(newView, oldView);
+  onSetOwnView(newView: V | null, oldView: V | null): void {
+    super.onSetOwnView(newView, oldView);
     if (this._component.isMounted()) {
       if (oldView !== null) {
         oldView.removeViewObserver(this as ViewObserverType<V>);

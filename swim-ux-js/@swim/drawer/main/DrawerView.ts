@@ -407,8 +407,12 @@ export class DrawerView extends ThemedHtmlView implements Modal {
       }
       this._drawerState = "showing";
       if (tween !== null) {
-        this.drawerStretch.setAutoState(1, tween);
-        this.drawerSlide.setAutoState(1, tween.onBegin(this.willShow.bind(this)).onEnd(this.didShow.bind(this)));
+        if (this.drawerSlide.value !== 1) {
+          this.drawerStretch.setAutoState(1, tween);
+          this.drawerSlide.setAutoState(1, tween.onBegin(this.willShow.bind(this)).onEnd(this.didShow.bind(this)));
+        } else {
+          this.drawerStretch.setAutoState(1, tween.onBegin(this.willShow.bind(this)).onEnd(this.didShow.bind(this)));
+        }
       } else {
         this.willShow();
         this.drawerStretch.setAutoState(1);
@@ -424,11 +428,12 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         viewObserver.drawerWillShow(this);
       }
     });
-    this.display("flex");
+    this.display.setAutoState("flex");
   }
 
   protected didShow(): void {
     this._drawerState = "shown";
+    this.requireUpdate(View.NeedsAnimate);
     this.didObserve(function (viewObserver: DrawerViewObserver): void {
       if (viewObserver.drawerDidShow !== void 0) {
         viewObserver.drawerDidShow(this);
@@ -463,8 +468,9 @@ export class DrawerView extends ThemedHtmlView implements Modal {
   }
 
   protected didHide(): void {
-    this.display("none");
+    this.display.setAutoState("none");
     this._drawerState = "hidden";
+    this.requireUpdate(View.NeedsAnimate);
     this.didObserve(function (viewObserver: DrawerViewObserver): void {
       if (viewObserver.drawerDidHide !== void 0) {
         viewObserver.drawerDidHide(this);
@@ -481,8 +487,12 @@ export class DrawerView extends ThemedHtmlView implements Modal {
       }
       this._drawerState = "showing";
       if (tween !== null) {
-        this.drawerSlide.setAutoState(1, tween);
-        this.drawerStretch.setAutoState(1, tween.onBegin(this.willExpand.bind(this)).onEnd(this.didExpand.bind(this)));
+        if (this.drawerStretch.value !== 1) {
+          this.drawerSlide.setAutoState(1, tween);
+          this.drawerStretch.setAutoState(1, tween.onBegin(this.willExpand.bind(this)).onEnd(this.didExpand.bind(this)));
+        } else {
+          this.drawerSlide.setAutoState(1, tween.onBegin(this.willExpand.bind(this)).onEnd(this.didExpand.bind(this)));
+        }
       } else {
         this.willExpand();
         this.drawerSlide.setAutoState(1)
@@ -502,6 +512,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
 
   protected didExpand(): void {
     this._drawerState = "shown";
+    this.requireUpdate(View.NeedsAnimate);
     this.didObserve(function (viewObserver: DrawerViewObserver): void {
       if (viewObserver.drawerDidExpand !== void 0) {
         viewObserver.drawerDidExpand(this);
@@ -517,9 +528,16 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "collapsing";
+      if (this.drawerSlide.value === 0) {
+        this.drawerStretch.setAutoState(0);
+      }
       if (tween !== null) {
-        this.drawerSlide.setAutoState(1, tween);
-        this.drawerStretch.setAutoState(0, tween.onBegin(this.willCollapse.bind(this)).onEnd(this.didCollapse.bind(this)));
+        if (this.drawerStretch.value !== 0) {
+          this.drawerSlide.setAutoState(1, tween);
+          this.drawerStretch.setAutoState(0, tween.onBegin(this.willCollapse.bind(this)).onEnd(this.didCollapse.bind(this)));
+        } else {
+          this.drawerSlide.setAutoState(1, tween.onBegin(this.willCollapse.bind(this)).onEnd(this.didCollapse.bind(this)));
+        }
       } else {
         this.willCollapse();
         this.drawerSlide.setAutoState(1);
@@ -535,11 +553,12 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         viewObserver.drawerWillCollapse(this);
       }
     });
-    this.display("flex");
+    this.display.setAutoState("flex");
   }
 
   protected didCollapse(): void {
     this._drawerState = "collapsed";
+    this.requireUpdate(View.NeedsAnimate);
     this.didObserve(function (viewObserver: DrawerViewObserver): void {
       if (viewObserver.drawerDidCollapse !== void 0) {
         viewObserver.drawerDidCollapse(this);
