@@ -104,8 +104,10 @@ export declare abstract class ViewService<V extends View, T> {
 
   getManagerOr<E>(elseManager: E): (T extends undefined ? never : T) | E;
 
+  /** @hidden */
   mount(): void;
 
+  /** @hidden */
   unmount(): void;
 
   /** @hidden */

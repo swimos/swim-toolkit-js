@@ -48,6 +48,9 @@ export interface StyleAnimatorInit<T, U = T> {
   type?: unknown;
 
   updateFlags?: ViewFlags;
+  willUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
+  onUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
+  didUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
   parse?(value: string): T | undefined;
   fromAny?(value: T | U): T | undefined;
 }

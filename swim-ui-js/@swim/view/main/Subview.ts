@@ -95,9 +95,15 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
   /** @hidden */
   didSetOwnSubview(newSubview: S | null, oldSubview: S | null): void;
 
+  /** @hidden */
   mount(): void;
 
+  /** @hidden */
   unmount(): void;
+
+  insert(parentView?: View): void;
+
+  remove(): void;
 
   createSubview(): S | U | null;
 
@@ -238,6 +244,31 @@ Subview.prototype.mount = function (this: Subview<View, View>): void {
 
 Subview.prototype.unmount = function (this: Subview<View, View>): void {
   // hook
+};
+
+Subview.prototype.insert = function (this: Subview<View, View>, parentView?: View): void {
+  let subview = this._subview;
+  if (subview === null) {
+    subview = this.createSubview();
+  }
+  if (subview !== null) {
+    if (parentView === void 0) {
+      parentView = this._view;
+    }
+    if (subview.parentView !== parentView) {
+      parentView.setChildView(this.name, subview);
+    }
+    if (this._subview === null) {
+      this.doSetSubview(subview);
+    }
+  }
+};
+
+Subview.prototype.remove = function (this: Subview<View, View>): void {
+  const subview = this._subview;
+  if (subview !== null) {
+    subview.remove();
+  }
 };
 
 Subview.prototype.createSubview = function <S extends View, U>(this: Subview<View, S, U>): S | U | null {

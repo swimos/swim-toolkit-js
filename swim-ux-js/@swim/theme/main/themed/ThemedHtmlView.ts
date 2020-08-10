@@ -208,16 +208,22 @@ export class ThemedHtmlView extends HtmlView implements ThemedView {
     }
   }
 
+  protected updateTheme(): void {
+    if (this.theme.isUpdated() || this.mood.isUpdated()) {
+      this.changeMood();
+      this.changeTheme();
+
+      const theme = this.theme.state;
+      const mood = this.mood.state;
+      if (theme !== void 0 && mood !== void 0) {
+        this.applyTheme(theme, mood);
+      }
+    }
+  }
+
   protected onChange(viewContext: ViewContextType<this>): void {
     super.onChange(viewContext);
-    this.changeMood();
-    this.changeTheme();
-
-    const theme = this.theme.state;
-    const mood = this.mood.state;
-    if (theme !== void 0 && mood !== void 0) {
-      this.applyTheme(theme, mood);
-    }
+    this.updateTheme();
   }
 
   static readonly mountFlags: ViewFlags = HtmlView.mountFlags | View.NeedsChange;

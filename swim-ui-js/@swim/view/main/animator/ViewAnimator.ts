@@ -46,6 +46,9 @@ export interface ViewAnimatorInit<T, U = T> {
   inherit?: string | boolean;
 
   updateFlags?: ViewFlags;
+  willUpdate?(newValue: T, oldValue: T): void;
+  onUpdate?(newValue: T, oldValue: T): void;
+  didUpdate?(newValue: T, oldValue: T): void;
   fromAny?(value: T | U): T;
   initState?(): T | U;
 }
@@ -160,8 +163,10 @@ export declare abstract class ViewAnimator<V extends View, T, U = T> {
 
   animate(animator?: Animator): void;
 
+  /** @hidden */
   mount(): void;
 
+  /** @hidden */
   unmount(): void;
 
   fromAny(value: T | U): T;
@@ -334,6 +339,7 @@ ViewAnimator.prototype.bindSuperAnimator = function (this: ViewAnimator<View, un
               this._state = animator._state;
               this._value = animator._value;
               this._animatorFlags |= TweenAnimator.UpdatedFlag;
+              this.animate();
             }
           } else {
             continue;

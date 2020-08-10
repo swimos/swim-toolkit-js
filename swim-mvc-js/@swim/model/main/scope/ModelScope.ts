@@ -162,8 +162,10 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
   /** @hidden */
   mutate(): void;
 
+  /** @hidden */
   mount(): void;
 
+  /** @hidden */
   unmount(): void;
 
   fromAny(value: T | U): T;
@@ -329,6 +331,7 @@ ModelScope.prototype.bindSuperScope = function (this: ModelScope<Model, unknown>
             if (this.isInherited()) {
               this._state = scope._state;
               this._scopeFlags |= ModelScope.UpdatedFlag;
+              this.mutate();
             }
           } else {
             continue;

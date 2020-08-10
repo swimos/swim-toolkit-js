@@ -162,8 +162,10 @@ export declare abstract class ComponentScope<C extends Component, T, U = T> {
   /** @hidden */
   revise(): void;
 
+  /** @hidden */
   mount(): void;
 
+  /** @hidden */
   unmount(): void;
 
   fromAny(value: T | U): T;
@@ -329,6 +331,7 @@ ComponentScope.prototype.bindSuperScope = function (this: ComponentScope<Compone
             if (this.isInherited()) {
               this._state = scope._state;
               this._scopeFlags |= ComponentScope.UpdatedFlag;
+              this.revise();
             }
           } else {
             continue;

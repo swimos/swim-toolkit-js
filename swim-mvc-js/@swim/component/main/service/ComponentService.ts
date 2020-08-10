@@ -98,8 +98,10 @@ export declare abstract class ComponentService<C extends Component, T> {
 
   getManagerOr<E>(elseManager: E): (T extends undefined ? never : T) | E;
 
+  /** @hidden */
   mount(): void;
 
+  /** @hidden */
   unmount(): void;
 
   /** @hidden */

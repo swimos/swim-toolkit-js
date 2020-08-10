@@ -162,8 +162,10 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
   /** @hidden */
   change(): void;
 
+  /** @hidden */
   mount(): void;
 
+  /** @hidden */
   unmount(): void;
 
   fromAny(value: T | U): T;
@@ -329,6 +331,7 @@ ViewScope.prototype.bindSuperScope = function (this: ViewScope<View, unknown>): 
             if (this.isInherited()) {
               this._state = scope._state;
               this._scopeFlags |= ViewScope.UpdatedFlag;
+              this.change();
             }
           } else {
             continue;
