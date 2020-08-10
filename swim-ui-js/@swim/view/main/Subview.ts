@@ -17,6 +17,7 @@ import {FromAny} from "@swim/util";
 import {ViewConstructor, View} from "./View";
 import {ViewObserverType} from "./ViewObserver";
 import {SubviewObserver} from "./SubviewObserver";
+import {NodeView} from "./node/NodeView";
 
 export type SubviewMemberType<V, K extends keyof V> =
   V extends {[P in K]: Subview<any, infer S, any>} ? S : unknown;
@@ -281,7 +282,12 @@ Subview.prototype.createSubview = function <S extends View, U>(this: Subview<Vie
 
 Subview.prototype.fromAny = function <S extends View, U>(this: Subview<View, S, U>, value: S | U): S | null {
   if (value instanceof Node) {
-    return View.fromNode(value) as unknown as S | null;
+    const type = this.type;
+    if (typeof type === "function" && type.prototype instanceof NodeView) {
+      return new (type as {new(node: Node): S})(value);
+    } else {
+      return View.fromNode(value) as unknown as S | null;
+    }
   }
   return value as S | null;
 };

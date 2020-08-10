@@ -14,7 +14,7 @@
 
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
-import {ViewConstructor, View, ViewObserverType} from "@swim/view";
+import {ViewConstructor, View, ViewObserverType, NodeView} from "@swim/view";
 import {Component} from "../Component";
 import {ComponentViewObserver} from "./ComponentViewObserver";
 
@@ -306,7 +306,12 @@ ComponentView.prototype.createView = function <V extends View, U>(this: Componen
 ComponentView.prototype.fromAny = function <V extends View, U>(this: ComponentView<Component, V, U>,
                                                                value: V | U): V | null {
   if (value instanceof Node) {
-    return View.fromNode(value) as unknown as V | null;
+    const type = this.type;
+    if (typeof type === "function" && type.prototype instanceof NodeView) {
+      return new (type as {new(node: Node): V})(value);
+    } else {
+      return View.fromNode(value) as unknown as V | null;
+    }
   }
   return value as V | null;
 };
