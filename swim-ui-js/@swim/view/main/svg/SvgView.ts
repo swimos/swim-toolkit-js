@@ -41,8 +41,8 @@ import {
 import {View} from "../View";
 import {ViewNode, NodeView} from "../node/NodeView";
 import {TextView} from "../text/TextView";
-import {AttributeAnimatorInitType, AttributeAnimator} from "../attribute/AttributeAnimator";
-import {StyleAnimatorInitType, StyleAnimator} from "../style/StyleAnimator";
+import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";
+import {StyleAnimatorMemberInit, StyleAnimator} from "../style/StyleAnimator";
 import {ElementViewConstructor, ElementViewInit, ElementView} from "../element/ElementView";
 import {SvgViewObserver} from "./SvgViewObserver";
 import {SvgViewController} from "./SvgViewController";
@@ -61,54 +61,54 @@ export interface SvgChildViewTagMap {
 }
 
 export interface SvgViewAttributesInit {
-  alignmentBaseline?: AttributeAnimatorInitType<SvgView, "alignmentBaseline">;
-  clipPath?: AttributeAnimatorInitType<SvgView, "clipPath">;
-  cursor?: AttributeAnimatorInitType<SvgView, "cursor">;
-  cx?: AttributeAnimatorInitType<SvgView, "cx">;
-  cy?: AttributeAnimatorInitType<SvgView, "cy">;
-  d?: AttributeAnimatorInitType<SvgView, "d">;
-  dx?: AttributeAnimatorInitType<SvgView, "dx">;
-  dy?: AttributeAnimatorInitType<SvgView, "dy">;
-  edgeMode?: AttributeAnimatorInitType<SvgView, "edgeMode">;
-  fill?: AttributeAnimatorInitType<SvgView, "fill">;
-  fillRule?: AttributeAnimatorInitType<SvgView, "fillRule">;
-  height?: AttributeAnimatorInitType<SvgView, "height">;
-  in?: AttributeAnimatorInitType<SvgView, "in">;
-  in2?: AttributeAnimatorInitType<SvgView, "in2">;
-  mode?: AttributeAnimatorInitType<SvgView, "mode">;
-  opacity?: AttributeAnimatorInitType<SvgView, "opacity">;
-  points?: AttributeAnimatorInitType<SvgView, "points">;
-  preserveAspectRatio?: AttributeAnimatorInitType<SvgView, "preserveAspectRatio">;
-  r?: AttributeAnimatorInitType<SvgView, "r">;
-  result?: AttributeAnimatorInitType<SvgView, "result">;
-  stdDeviation?: AttributeAnimatorInitType<SvgView, "stdDeviation">;
-  stroke?: AttributeAnimatorInitType<SvgView, "stroke">;
-  strokeDasharray?: AttributeAnimatorInitType<SvgView, "strokeDasharray">;
-  strokeLinecap?: AttributeAnimatorInitType<SvgView, "strokeLinecap">;
-  strokeWidth?: AttributeAnimatorInitType<SvgView, "strokeWidth">;
-  textAnchor?: AttributeAnimatorInitType<SvgView, "textAnchor">;
-  transform?: AttributeAnimatorInitType<SvgView, "transform">;
-  type?: AttributeAnimatorInitType<SvgView, "type">;
-  values?: AttributeAnimatorInitType<SvgView, "values">;
-  viewBox?: AttributeAnimatorInitType<SvgView, "viewBox">;
-  width?: AttributeAnimatorInitType<SvgView, "width">;
-  x?: AttributeAnimatorInitType<SvgView, "x">;
-  x1?: AttributeAnimatorInitType<SvgView, "x1">;
-  x2?: AttributeAnimatorInitType<SvgView, "x2">;
-  y?: AttributeAnimatorInitType<SvgView, "y">;
-  y1?: AttributeAnimatorInitType<SvgView, "y1">;
-  y2?: AttributeAnimatorInitType<SvgView, "y2">;
+  alignmentBaseline?: AttributeAnimatorMemberInit<SvgView, "alignmentBaseline">;
+  clipPath?: AttributeAnimatorMemberInit<SvgView, "clipPath">;
+  cursor?: AttributeAnimatorMemberInit<SvgView, "cursor">;
+  cx?: AttributeAnimatorMemberInit<SvgView, "cx">;
+  cy?: AttributeAnimatorMemberInit<SvgView, "cy">;
+  d?: AttributeAnimatorMemberInit<SvgView, "d">;
+  dx?: AttributeAnimatorMemberInit<SvgView, "dx">;
+  dy?: AttributeAnimatorMemberInit<SvgView, "dy">;
+  edgeMode?: AttributeAnimatorMemberInit<SvgView, "edgeMode">;
+  fill?: AttributeAnimatorMemberInit<SvgView, "fill">;
+  fillRule?: AttributeAnimatorMemberInit<SvgView, "fillRule">;
+  height?: AttributeAnimatorMemberInit<SvgView, "height">;
+  in?: AttributeAnimatorMemberInit<SvgView, "in">;
+  in2?: AttributeAnimatorMemberInit<SvgView, "in2">;
+  mode?: AttributeAnimatorMemberInit<SvgView, "mode">;
+  opacity?: AttributeAnimatorMemberInit<SvgView, "opacity">;
+  points?: AttributeAnimatorMemberInit<SvgView, "points">;
+  preserveAspectRatio?: AttributeAnimatorMemberInit<SvgView, "preserveAspectRatio">;
+  r?: AttributeAnimatorMemberInit<SvgView, "r">;
+  result?: AttributeAnimatorMemberInit<SvgView, "result">;
+  stdDeviation?: AttributeAnimatorMemberInit<SvgView, "stdDeviation">;
+  stroke?: AttributeAnimatorMemberInit<SvgView, "stroke">;
+  strokeDasharray?: AttributeAnimatorMemberInit<SvgView, "strokeDasharray">;
+  strokeLinecap?: AttributeAnimatorMemberInit<SvgView, "strokeLinecap">;
+  strokeWidth?: AttributeAnimatorMemberInit<SvgView, "strokeWidth">;
+  textAnchor?: AttributeAnimatorMemberInit<SvgView, "textAnchor">;
+  transform?: AttributeAnimatorMemberInit<SvgView, "transform">;
+  type?: AttributeAnimatorMemberInit<SvgView, "type">;
+  values?: AttributeAnimatorMemberInit<SvgView, "values">;
+  viewBox?: AttributeAnimatorMemberInit<SvgView, "viewBox">;
+  width?: AttributeAnimatorMemberInit<SvgView, "width">;
+  x?: AttributeAnimatorMemberInit<SvgView, "x">;
+  x1?: AttributeAnimatorMemberInit<SvgView, "x1">;
+  x2?: AttributeAnimatorMemberInit<SvgView, "x2">;
+  y?: AttributeAnimatorMemberInit<SvgView, "y">;
+  y1?: AttributeAnimatorMemberInit<SvgView, "y1">;
+  y2?: AttributeAnimatorMemberInit<SvgView, "y2">;
 }
 
 export interface SvgViewStyleInit {
-  fontFamily?: StyleAnimatorInitType<SvgView, "fontFamily">;
-  fontSize?: StyleAnimatorInitType<SvgView, "fontSize">;
-  fontStretch?: StyleAnimatorInitType<SvgView, "fontStretch">;
-  fontStyle?: StyleAnimatorInitType<SvgView, "fontStyle">;
-  fontVariant?: StyleAnimatorInitType<SvgView, "fontVariant">;
-  fontWeight?: StyleAnimatorInitType<SvgView, "fontWeight">;
-  lineHeight?: StyleAnimatorInitType<SvgView, "lineHeight">;
-  touchAction?: StyleAnimatorInitType<SvgView, "touchAction">;
+  fontFamily?: StyleAnimatorMemberInit<SvgView, "fontFamily">;
+  fontSize?: StyleAnimatorMemberInit<SvgView, "fontSize">;
+  fontStretch?: StyleAnimatorMemberInit<SvgView, "fontStretch">;
+  fontStyle?: StyleAnimatorMemberInit<SvgView, "fontStyle">;
+  fontVariant?: StyleAnimatorMemberInit<SvgView, "fontVariant">;
+  fontWeight?: StyleAnimatorMemberInit<SvgView, "fontWeight">;
+  lineHeight?: StyleAnimatorMemberInit<SvgView, "lineHeight">;
+  touchAction?: StyleAnimatorMemberInit<SvgView, "touchAction">;
 }
 
 export interface SvgViewInit extends ElementViewInit {

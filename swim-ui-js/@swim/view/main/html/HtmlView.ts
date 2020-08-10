@@ -70,8 +70,8 @@ import {View} from "../View";
 import {LayoutAnchor} from "../layout/LayoutAnchor";
 import {ViewNode, NodeView} from "../node/NodeView";
 import {TextView} from "../text/TextView";
-import {AttributeAnimatorInitType, AttributeAnimator} from "../attribute/AttributeAnimator";
-import {StyleAnimatorInitType, StyleAnimator} from "../style/StyleAnimator";
+import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";
+import {StyleAnimatorMemberInit, StyleAnimator} from "../style/StyleAnimator";
 import {ElementViewConstructor, ElementViewInit, ElementView} from "../element/ElementView";
 import {SvgView} from "../svg/SvgView";
 import {HtmlViewObserver} from "./HtmlViewObserver";
@@ -91,143 +91,143 @@ export interface HtmlChildViewTagMap extends HtmlViewTagMap {
 }
 
 export interface HtmlViewAttributesInit {
-  autocomplete?: AttributeAnimatorInitType<HtmlView, "autocomplete">;
-  checked?: AttributeAnimatorInitType<HtmlView, "checked">;
-  colspan?: AttributeAnimatorInitType<HtmlView, "colspan">;
-  disabled?: AttributeAnimatorInitType<HtmlView, "disabled">;
-  placeholder?: AttributeAnimatorInitType<HtmlView, "placeholder">;
-  rowspan?: AttributeAnimatorInitType<HtmlView, "rowspan">;
-  selected?: AttributeAnimatorInitType<HtmlView, "selected">;
-  title?: AttributeAnimatorInitType<HtmlView, "title">;
-  type?: AttributeAnimatorInitType<HtmlView, "type">;
-  value?: AttributeAnimatorInitType<HtmlView, "value">;
+  autocomplete?: AttributeAnimatorMemberInit<HtmlView, "autocomplete">;
+  checked?: AttributeAnimatorMemberInit<HtmlView, "checked">;
+  colspan?: AttributeAnimatorMemberInit<HtmlView, "colspan">;
+  disabled?: AttributeAnimatorMemberInit<HtmlView, "disabled">;
+  placeholder?: AttributeAnimatorMemberInit<HtmlView, "placeholder">;
+  rowspan?: AttributeAnimatorMemberInit<HtmlView, "rowspan">;
+  selected?: AttributeAnimatorMemberInit<HtmlView, "selected">;
+  title?: AttributeAnimatorMemberInit<HtmlView, "title">;
+  type?: AttributeAnimatorMemberInit<HtmlView, "type">;
+  value?: AttributeAnimatorMemberInit<HtmlView, "value">;
 }
 
 export interface HtmlViewStyleInit {
-  alignContent?: StyleAnimatorInitType<HtmlView, "alignContent">;
-  alignItems?: StyleAnimatorInitType<HtmlView, "alignItems">;
-  alignSelf?: StyleAnimatorInitType<HtmlView, "alignSelf">;
-  appearance?: StyleAnimatorInitType<HtmlView, "appearance">;
-  backdropFilter?: StyleAnimatorInitType<HtmlView, "backdropFilter">;
-  backgroundClip?: StyleAnimatorInitType<HtmlView, "backgroundClip">;
-  backgroundColor?: StyleAnimatorInitType<HtmlView, "backgroundColor">;
-  borderCollapse?: StyleAnimatorInitType<HtmlView, "borderCollapse">;
+  alignContent?: StyleAnimatorMemberInit<HtmlView, "alignContent">;
+  alignItems?: StyleAnimatorMemberInit<HtmlView, "alignItems">;
+  alignSelf?: StyleAnimatorMemberInit<HtmlView, "alignSelf">;
+  appearance?: StyleAnimatorMemberInit<HtmlView, "appearance">;
+  backdropFilter?: StyleAnimatorMemberInit<HtmlView, "backdropFilter">;
+  backgroundClip?: StyleAnimatorMemberInit<HtmlView, "backgroundClip">;
+  backgroundColor?: StyleAnimatorMemberInit<HtmlView, "backgroundColor">;
+  borderCollapse?: StyleAnimatorMemberInit<HtmlView, "borderCollapse">;
   borderColor?: [AnyColor | "currentColor" | undefined,
                  AnyColor | "currentColor" | undefined,
                  AnyColor | "currentColor" | undefined,
                  AnyColor | "currentColor" | undefined] |
                 AnyColor | "currentColor";
-  borderTopColor?: StyleAnimatorInitType<HtmlView, "borderTopColor">;
-  borderRightColor?: StyleAnimatorInitType<HtmlView, "borderRightColor">;
-  borderBottomColor?: StyleAnimatorInitType<HtmlView, "borderBottomColor">;
-  borderLeftColor?: StyleAnimatorInitType<HtmlView, "borderLeftColor">;
+  borderTopColor?: StyleAnimatorMemberInit<HtmlView, "borderTopColor">;
+  borderRightColor?: StyleAnimatorMemberInit<HtmlView, "borderRightColor">;
+  borderBottomColor?: StyleAnimatorMemberInit<HtmlView, "borderBottomColor">;
+  borderLeftColor?: StyleAnimatorMemberInit<HtmlView, "borderLeftColor">;
   borderRadius?: [AnyLength | undefined,
                   AnyLength | undefined,
                   AnyLength | undefined,
                   AnyLength | undefined] |
                  AnyLength;
-  borderTopLeftRadius?: StyleAnimatorInitType<HtmlView, "borderTopLeftRadius">;
-  borderTopRightRadius?: StyleAnimatorInitType<HtmlView, "borderTopRightRadius">;
-  borderBottomRightRadius?: StyleAnimatorInitType<HtmlView, "borderBottomRightRadius">;
-  borderBottomLeftRadius?: StyleAnimatorInitType<HtmlView, "borderBottomLeftRadius">;
-  borderSpacing?: StyleAnimatorInitType<HtmlView, "borderSpacing">;
+  borderTopLeftRadius?: StyleAnimatorMemberInit<HtmlView, "borderTopLeftRadius">;
+  borderTopRightRadius?: StyleAnimatorMemberInit<HtmlView, "borderTopRightRadius">;
+  borderBottomRightRadius?: StyleAnimatorMemberInit<HtmlView, "borderBottomRightRadius">;
+  borderBottomLeftRadius?: StyleAnimatorMemberInit<HtmlView, "borderBottomLeftRadius">;
+  borderSpacing?: StyleAnimatorMemberInit<HtmlView, "borderSpacing">;
   borderStyle?: [BorderStyle | undefined,
                  BorderStyle | undefined,
                  BorderStyle | undefined,
                  BorderStyle | undefined] |
                 BorderStyle;
-  borderTopStyle?: StyleAnimatorInitType<HtmlView, "borderTopStyle">;
-  borderRightStyle?: StyleAnimatorInitType<HtmlView, "borderRightStyle">;
-  borderBottomStyle?: StyleAnimatorInitType<HtmlView, "borderBottomStyle">;
-  borderLeftStyle?: StyleAnimatorInitType<HtmlView, "borderLeftStyle">;
+  borderTopStyle?: StyleAnimatorMemberInit<HtmlView, "borderTopStyle">;
+  borderRightStyle?: StyleAnimatorMemberInit<HtmlView, "borderRightStyle">;
+  borderBottomStyle?: StyleAnimatorMemberInit<HtmlView, "borderBottomStyle">;
+  borderLeftStyle?: StyleAnimatorMemberInit<HtmlView, "borderLeftStyle">;
   borderWidth?: [BorderWidth | AnyLength | undefined,
                  BorderWidth | AnyLength | undefined,
                  BorderWidth | AnyLength | undefined,
                  BorderWidth | AnyLength | undefined] |
                 BorderWidth | AnyLength;
-  borderTopWidth?: StyleAnimatorInitType<HtmlView, "borderTopWidth">;
-  borderRightWidth?: StyleAnimatorInitType<HtmlView, "borderRightWidth">;
-  borderBottomWidth?: StyleAnimatorInitType<HtmlView, "borderBottomWidth">;
-  borderLeftWidth?: StyleAnimatorInitType<HtmlView, "borderLeftWidth">;
-  bottom?: StyleAnimatorInitType<HtmlView, "bottom">;
-  boxShadow?: StyleAnimatorInitType<HtmlView, "boxShadow">;
-  boxSizing?: StyleAnimatorInitType<HtmlView, "boxSizing">;
-  color?: StyleAnimatorInitType<HtmlView, "color">;
-  cursor?: StyleAnimatorInitType<HtmlView, "cursor">;
-  display?: StyleAnimatorInitType<HtmlView, "display">;
-  filter?: StyleAnimatorInitType<HtmlView, "filter">;
-  flexBasis?: StyleAnimatorInitType<HtmlView, "flexBasis">;
-  flexDirection?: StyleAnimatorInitType<HtmlView, "flexDirection">;
-  flexGrow?: StyleAnimatorInitType<HtmlView, "flexGrow">;
-  flexShrink?: StyleAnimatorInitType<HtmlView, "flexShrink">;
-  flexWrap?: StyleAnimatorInitType<HtmlView, "flexWrap">;
+  borderTopWidth?: StyleAnimatorMemberInit<HtmlView, "borderTopWidth">;
+  borderRightWidth?: StyleAnimatorMemberInit<HtmlView, "borderRightWidth">;
+  borderBottomWidth?: StyleAnimatorMemberInit<HtmlView, "borderBottomWidth">;
+  borderLeftWidth?: StyleAnimatorMemberInit<HtmlView, "borderLeftWidth">;
+  bottom?: StyleAnimatorMemberInit<HtmlView, "bottom">;
+  boxShadow?: StyleAnimatorMemberInit<HtmlView, "boxShadow">;
+  boxSizing?: StyleAnimatorMemberInit<HtmlView, "boxSizing">;
+  color?: StyleAnimatorMemberInit<HtmlView, "color">;
+  cursor?: StyleAnimatorMemberInit<HtmlView, "cursor">;
+  display?: StyleAnimatorMemberInit<HtmlView, "display">;
+  filter?: StyleAnimatorMemberInit<HtmlView, "filter">;
+  flexBasis?: StyleAnimatorMemberInit<HtmlView, "flexBasis">;
+  flexDirection?: StyleAnimatorMemberInit<HtmlView, "flexDirection">;
+  flexGrow?: StyleAnimatorMemberInit<HtmlView, "flexGrow">;
+  flexShrink?: StyleAnimatorMemberInit<HtmlView, "flexShrink">;
+  flexWrap?: StyleAnimatorMemberInit<HtmlView, "flexWrap">;
   font?: AnyFont;
-  fontFamily?: StyleAnimatorInitType<HtmlView, "fontFamily">;
-  fontSize?: StyleAnimatorInitType<HtmlView, "fontSize">;
-  fontStretch?: StyleAnimatorInitType<HtmlView, "fontStretch">;
-  fontStyle?: StyleAnimatorInitType<HtmlView, "fontStyle">;
-  fontVariant?: StyleAnimatorInitType<HtmlView, "fontVariant">;
-  fontWeight?: StyleAnimatorInitType<HtmlView, "fontWeight">;
-  height?: StyleAnimatorInitType<HtmlView, "height">;
-  justifyContent?: StyleAnimatorInitType<HtmlView, "justifyContent">;
-  left?: StyleAnimatorInitType<HtmlView, "left">;
-  lineHeight?: StyleAnimatorInitType<HtmlView, "lineHeight">;
+  fontFamily?: StyleAnimatorMemberInit<HtmlView, "fontFamily">;
+  fontSize?: StyleAnimatorMemberInit<HtmlView, "fontSize">;
+  fontStretch?: StyleAnimatorMemberInit<HtmlView, "fontStretch">;
+  fontStyle?: StyleAnimatorMemberInit<HtmlView, "fontStyle">;
+  fontVariant?: StyleAnimatorMemberInit<HtmlView, "fontVariant">;
+  fontWeight?: StyleAnimatorMemberInit<HtmlView, "fontWeight">;
+  height?: StyleAnimatorMemberInit<HtmlView, "height">;
+  justifyContent?: StyleAnimatorMemberInit<HtmlView, "justifyContent">;
+  left?: StyleAnimatorMemberInit<HtmlView, "left">;
+  lineHeight?: StyleAnimatorMemberInit<HtmlView, "lineHeight">;
   margin?: [AnyLength | "auto" | undefined,
             AnyLength | "auto" | undefined,
             AnyLength | "auto" | undefined,
             AnyLength | "auto" | undefined] |
            AnyLength | "auto";
-  marginTop?: StyleAnimatorInitType<HtmlView, "marginTop">;
-  marginRight?: StyleAnimatorInitType<HtmlView, "marginRight">;
-  marginBottom?: StyleAnimatorInitType<HtmlView, "marginBottom">;
-  marginLeft?: StyleAnimatorInitType<HtmlView, "marginLeft">;
-  maxHeight?: StyleAnimatorInitType<HtmlView, "maxHeight">;
-  maxWidth?: StyleAnimatorInitType<HtmlView, "maxWidth">;
-  minHeight?: StyleAnimatorInitType<HtmlView, "minHeight">;
-  minWidth?: StyleAnimatorInitType<HtmlView, "minWidth">;
-  opacity?: StyleAnimatorInitType<HtmlView, "opacity">;
-  order?: StyleAnimatorInitType<HtmlView, "order">;
-  outlineColor?: StyleAnimatorInitType<HtmlView, "outlineColor">;
-  outlineStyle?: StyleAnimatorInitType<HtmlView, "outlineStyle">;
-  outlineWidth?: StyleAnimatorInitType<HtmlView, "outlineWidth">;
+  marginTop?: StyleAnimatorMemberInit<HtmlView, "marginTop">;
+  marginRight?: StyleAnimatorMemberInit<HtmlView, "marginRight">;
+  marginBottom?: StyleAnimatorMemberInit<HtmlView, "marginBottom">;
+  marginLeft?: StyleAnimatorMemberInit<HtmlView, "marginLeft">;
+  maxHeight?: StyleAnimatorMemberInit<HtmlView, "maxHeight">;
+  maxWidth?: StyleAnimatorMemberInit<HtmlView, "maxWidth">;
+  minHeight?: StyleAnimatorMemberInit<HtmlView, "minHeight">;
+  minWidth?: StyleAnimatorMemberInit<HtmlView, "minWidth">;
+  opacity?: StyleAnimatorMemberInit<HtmlView, "opacity">;
+  order?: StyleAnimatorMemberInit<HtmlView, "order">;
+  outlineColor?: StyleAnimatorMemberInit<HtmlView, "outlineColor">;
+  outlineStyle?: StyleAnimatorMemberInit<HtmlView, "outlineStyle">;
+  outlineWidth?: StyleAnimatorMemberInit<HtmlView, "outlineWidth">;
   overflow?: [Overflow | undefined,
               Overflow | undefined] |
              Overflow;
-  overflowX?: StyleAnimatorInitType<HtmlView, "overflowX">;
-  overflowY?: StyleAnimatorInitType<HtmlView, "overflowY">;
-  overflowScrolling?: StyleAnimatorInitType<HtmlView, "overflowScrolling">;
+  overflowX?: StyleAnimatorMemberInit<HtmlView, "overflowX">;
+  overflowY?: StyleAnimatorMemberInit<HtmlView, "overflowY">;
+  overflowScrolling?: StyleAnimatorMemberInit<HtmlView, "overflowScrolling">;
   overscrollBehavior?: [OverscrollBehavior | undefined,
                         OverscrollBehavior | undefined] |
                        OverscrollBehavior;
-  overscrollBehaviorX?: StyleAnimatorInitType<HtmlView, "overscrollBehaviorX">;
-  overscrollBehaviorY?: StyleAnimatorInitType<HtmlView, "overscrollBehaviorY">;
+  overscrollBehaviorX?: StyleAnimatorMemberInit<HtmlView, "overscrollBehaviorX">;
+  overscrollBehaviorY?: StyleAnimatorMemberInit<HtmlView, "overscrollBehaviorY">;
   padding?: [AnyLength | undefined,
              AnyLength | undefined,
              AnyLength | undefined,
              AnyLength | undefined] |
             AnyLength;
-  paddingTop?: StyleAnimatorInitType<HtmlView, "paddingTop">;
-  paddingRight?: StyleAnimatorInitType<HtmlView, "paddingRight">;
-  paddingBottom?: StyleAnimatorInitType<HtmlView, "paddingBottom">;
-  paddingLeft?: StyleAnimatorInitType<HtmlView, "paddingLeft">;
-  pointerEvents?: StyleAnimatorInitType<HtmlView, "pointerEvents">;
-  position?: StyleAnimatorInitType<HtmlView, "position">;
-  right?: StyleAnimatorInitType<HtmlView, "right">;
-  textAlign?: StyleAnimatorInitType<HtmlView, "textAlign">;
-  textDecorationColor?: StyleAnimatorInitType<HtmlView, "textDecorationColor">;
-  textDecorationLine?: StyleAnimatorInitType<HtmlView, "textDecorationLine">;
-  textDecorationStyle?: StyleAnimatorInitType<HtmlView, "textDecorationStyle">;
-  textOverflow?: StyleAnimatorInitType<HtmlView, "textOverflow">;
-  textTransform?: StyleAnimatorInitType<HtmlView, "textTransform">;
-  top?: StyleAnimatorInitType<HtmlView, "top">;
-  touchAction?: StyleAnimatorInitType<HtmlView, "touchAction">;
-  transform?: StyleAnimatorInitType<HtmlView, "transform">;
-  userSelect?: StyleAnimatorInitType<HtmlView, "userSelect">;
-  verticalAlign?: StyleAnimatorInitType<HtmlView, "verticalAlign">;
-  visibility?: StyleAnimatorInitType<HtmlView, "visibility">;
-  whiteSpace?: StyleAnimatorInitType<HtmlView, "whiteSpace">;
-  width?: StyleAnimatorInitType<HtmlView, "width">;
-  zIndex?: StyleAnimatorInitType<HtmlView, "zIndex">;
+  paddingTop?: StyleAnimatorMemberInit<HtmlView, "paddingTop">;
+  paddingRight?: StyleAnimatorMemberInit<HtmlView, "paddingRight">;
+  paddingBottom?: StyleAnimatorMemberInit<HtmlView, "paddingBottom">;
+  paddingLeft?: StyleAnimatorMemberInit<HtmlView, "paddingLeft">;
+  pointerEvents?: StyleAnimatorMemberInit<HtmlView, "pointerEvents">;
+  position?: StyleAnimatorMemberInit<HtmlView, "position">;
+  right?: StyleAnimatorMemberInit<HtmlView, "right">;
+  textAlign?: StyleAnimatorMemberInit<HtmlView, "textAlign">;
+  textDecorationColor?: StyleAnimatorMemberInit<HtmlView, "textDecorationColor">;
+  textDecorationLine?: StyleAnimatorMemberInit<HtmlView, "textDecorationLine">;
+  textDecorationStyle?: StyleAnimatorMemberInit<HtmlView, "textDecorationStyle">;
+  textOverflow?: StyleAnimatorMemberInit<HtmlView, "textOverflow">;
+  textTransform?: StyleAnimatorMemberInit<HtmlView, "textTransform">;
+  top?: StyleAnimatorMemberInit<HtmlView, "top">;
+  touchAction?: StyleAnimatorMemberInit<HtmlView, "touchAction">;
+  transform?: StyleAnimatorMemberInit<HtmlView, "transform">;
+  userSelect?: StyleAnimatorMemberInit<HtmlView, "userSelect">;
+  verticalAlign?: StyleAnimatorMemberInit<HtmlView, "verticalAlign">;
+  visibility?: StyleAnimatorMemberInit<HtmlView, "visibility">;
+  whiteSpace?: StyleAnimatorMemberInit<HtmlView, "whiteSpace">;
+  width?: StyleAnimatorMemberInit<HtmlView, "width">;
+  zIndex?: StyleAnimatorMemberInit<HtmlView, "zIndex">;
 }
 
 export interface HtmlViewInit extends ElementViewInit {

@@ -17,9 +17,9 @@ import {ThemeManager} from "./ThemeManager";
 
 /** @hidden */
 export abstract class ThemeService<V extends View> extends ViewManagerService<V, ThemeManager<V>> {
-  initManager(): ThemeManager<V> | undefined {
+  initManager(): ThemeManager<V> {
     return ThemeManager.global();
   }
 }
 
-ViewService({extends: ThemeService})(View.prototype, "themeService");
+ViewService({extends: ThemeService, observe: false})(View.prototype, "themeService");

@@ -13,12 +13,12 @@
 // limitations under the License.
 
 export {
-  StyleAnimatorType,
-  StyleAnimatorInitType,
+  StyleAnimatorMemberType,
+  StyleAnimatorMemberInit,
   StyleAnimatorInit,
   StyleAnimatorDescriptorInit,
-  StyleAnimatorDescriptorInitExtends,
-  StyleAnimatorDescriptorInitFromAny,
+  StyleAnimatorDescriptorExtends,
+  StyleAnimatorDescriptorFromAny,
   StyleAnimatorDescriptor,
   StyleAnimatorPrototype,
   StyleAnimatorConstructor,

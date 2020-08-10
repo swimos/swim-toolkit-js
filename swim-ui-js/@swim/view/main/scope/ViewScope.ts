@@ -19,10 +19,10 @@ import {StringViewScope} from "./StringViewScope";
 import {BooleanViewScope} from "./BooleanViewScope";
 import {NumberViewScope} from "./NumberViewScope";
 
-export type ViewScopeType<V, K extends keyof V> =
+export type ViewScopeMemberType<V, K extends keyof V> =
   V extends {[P in K]: ViewScope<any, infer T, any>} ? T : unknown;
 
-export type ViewScopeInitType<V, K extends keyof V> =
+export type ViewScopeMemberInit<V, K extends keyof V> =
   V extends {[P in K]: ViewScope<any, infer T, infer U>} ? T | U : unknown;
 
 export type ViewScopeFlags = number;
@@ -43,16 +43,16 @@ export interface ViewScopeInit<T, U = T> {
 
 export type ViewScopeDescriptorInit<V extends View, T, U = T, I = {}> = ViewScopeInit<T, U> & ThisType<ViewScope<V, T, U> & I> & I;
 
-export type ViewScopeDescriptorInitExtends<V extends View, T, U = T, I = {}> = {extends: ViewScopePrototype} & ViewScopeDescriptorInit<V, T, U, I>;
+export type ViewScopeDescriptorExtends<V extends View, T, U = T, I = {}> = {extends: ViewScopePrototype} & ViewScopeDescriptorInit<V, T, U, I>;
 
-export type ViewScopeDescriptorInitFromAny<V extends View, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ViewScopeDescriptorInit<V, T, U, I>;
+export type ViewScopeDescriptorFromAny<V extends View, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ViewScopeDescriptorInit<V, T, U, I>;
 
-export type ViewScopeDescriptor<V extends View, T, U = T> =
-  U extends T ? ViewScopeDescriptorInit<V, T, U> :
-  T extends string | null | undefined ? U extends string | null | undefined ? {type: typeof String} & ViewScopeDescriptorInit<V, T, U> : ViewScopeDescriptorInitExtends<V, T, U> :
-  T extends boolean | null | undefined ? U extends boolean | string | null | undefined ? {type: typeof Boolean} & ViewScopeDescriptorInit<V, T, U> : ViewScopeDescriptorInitExtends<V, T, U> :
-  T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & ViewScopeDescriptorInit<V, T, U> : ViewScopeDescriptorInitExtends<V, T, U> :
-  ViewScopeDescriptorInitFromAny<V, T, U>;
+export type ViewScopeDescriptor<V extends View, T, U = T, I = {}> =
+  U extends T ? ViewScopeDescriptorInit<V, T, U, I> :
+  T extends string | null | undefined ? U extends string | null | undefined ? {type: typeof String} & ViewScopeDescriptorInit<V, T, U, I> : ViewScopeDescriptorExtends<V, T, U, I> :
+  T extends boolean | null | undefined ? U extends boolean | string | null | undefined ? {type: typeof Boolean} & ViewScopeDescriptorInit<V, T, U, I> : ViewScopeDescriptorExtends<V, T, U, I> :
+  T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & ViewScopeDescriptorInit<V, T, U, I> : ViewScopeDescriptorExtends<V, T, U, I> :
+  ViewScopeDescriptorFromAny<V, T, U, I>;
 
 export type ViewScopePrototype = Function & {prototype: ViewScope<any, any, any>};
 
@@ -174,6 +174,7 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
   /** @hidden */
   static getConstructor(type: unknown): ViewScopePrototype | null;
 
+  static define<V extends View, T, U = T, I = {}>(descriptor: ViewScopeDescriptorExtends<V, T, U, I>): ViewScopeConstructor<V, T, U>;
   static define<V extends View, T, U = T>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U>;
 
   /** @hidden */
@@ -197,6 +198,7 @@ export interface ViewScope<V extends View, T, U = T> {
   (state: T | U): V;
 }
 
+export function ViewScope<V extends View, T, U = T, I = {}>(descriptor: ViewScopeDescriptorExtends<V, T, U, I>): PropertyDecorator;
 export function ViewScope<V extends View, T, U = T>(descriptor: ViewScopeDescriptor<V, T, U>): PropertyDecorator;
 
 export function ViewScope<V extends View, T, U>(
@@ -281,8 +283,8 @@ Object.defineProperty(ViewScope.prototype, "superName", {
 });
 
 Object.defineProperty(ViewScope.prototype, "superScope", {
-  get: function <T, U>(this: ViewScope<View, T, U>): ViewScope<View, T, U> | null {
-    let superScope: ViewScope<View, T, U> | null | undefined = this._superScope;
+  get: function (this: ViewScope<View, unknown>): ViewScope<View, unknown> | null {
+    let superScope: ViewScope<View, unknown> | null | undefined = this._superScope;
     if (superScope === void 0) {
       superScope = null;
       let view = this._view;
@@ -294,10 +296,10 @@ Object.defineProperty(ViewScope.prototype, "superScope", {
             if (parentView !== null) {
               view = parentView;
               const scope = view.getLazyViewScope(superName);
-              if (scope === null) {
-                continue;
+              if (scope !== null) {
+                superScope = scope;
               } else {
-                superScope = scope as ViewScope<View, T, U>;
+                continue;
               }
             }
             break;
@@ -321,15 +323,15 @@ ViewScope.prototype.bindSuperScope = function (this: ViewScope<View, unknown>): 
         if (parentView !== null) {
           view = parentView;
           const scope = view.getLazyViewScope(superName);
-          if (scope === null) {
-            continue;
-          } else {
+          if (scope !== null) {
             this._superScope = scope;
             scope.addSubScope(this);
             if (this.isInherited()) {
               this._state = scope._state;
               this._scopeFlags |= ViewScope.UpdatedFlag;
             }
+          } else {
+            continue;
           }
         }
         break;

@@ -19,10 +19,10 @@ import {ViewManagerService} from "./ViewManagerService";
 
 /** @hidden */
 export abstract class DisplayService<V extends View> extends ViewManagerService<V, DisplayManager<V>> {
-  initManager(): DisplayManager<V> | undefined {
+  initManager(): DisplayManager<V> {
     return DisplayManager.global();
   }
 }
 ViewService.Display = DisplayService;
 
-ViewService({type: DisplayManager})(View.prototype, "displayService");
+ViewService({type: DisplayManager, observe: false})(View.prototype, "displayService");

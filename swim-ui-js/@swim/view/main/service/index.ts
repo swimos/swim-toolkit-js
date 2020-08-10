@@ -13,9 +13,11 @@
 // limitations under the License.
 
 export {
-  ViewServiceType,
+  ViewServiceMemberType,
+  ViewServiceFlags,
   ViewServiceInit,
   ViewServiceDescriptorInit,
+  ViewServiceDescriptorExtends,
   ViewServiceDescriptor,
   ViewServicePrototype,
   ViewServiceConstructor,

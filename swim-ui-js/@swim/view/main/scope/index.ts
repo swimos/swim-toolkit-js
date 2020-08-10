@@ -13,13 +13,13 @@
 // limitations under the License.
 
 export {
-  ViewScopeType,
-  ViewScopeInitType,
+  ViewScopeMemberType,
+  ViewScopeMemberInit,
   ViewScopeFlags,
   ViewScopeInit,
   ViewScopeDescriptorInit,
-  ViewScopeDescriptorInitExtends,
-  ViewScopeDescriptorInitFromAny,
+  ViewScopeDescriptorExtends,
+  ViewScopeDescriptorFromAny,
   ViewScopeDescriptor,
   ViewScopePrototype,
   ViewScopeConstructor,

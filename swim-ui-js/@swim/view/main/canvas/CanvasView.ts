@@ -668,7 +668,19 @@ export class CanvasView extends HtmlView {
   }
 
   cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
-    // nop
+    const viewFlags = this._viewFlags;
+    if ((viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
+      if (updateFlags === void 0) {
+        updateFlags = 0;
+      }
+      updateFlags |= viewFlags & View.UpdateMask;
+      if ((updateFlags & View.ProcessMask) !== 0) {
+        if (viewContext === void 0) {
+          viewContext = this.superViewContext;
+        }
+        this.cascadeProcess(updateFlags, viewContext);
+      }
+    }
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {

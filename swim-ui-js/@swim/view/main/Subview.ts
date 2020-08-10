@@ -18,10 +18,10 @@ import {ViewConstructor, View} from "./View";
 import {ViewObserverType} from "./ViewObserver";
 import {SubviewObserver} from "./SubviewObserver";
 
-export type SubviewType<V, K extends keyof V> =
+export type SubviewMemberType<V, K extends keyof V> =
   V extends {[P in K]: Subview<any, infer S, any>} ? S : unknown;
 
-export type SubviewInitType<V, K extends keyof V> =
+export type SubviewMemberInit<V, K extends keyof V> =
   V extends {[P in K]: Subview<any, infer T, infer U>} ? T | U : unknown;
 
 export interface SubviewInit<S extends View, U = S> {
@@ -38,13 +38,13 @@ export interface SubviewInit<S extends View, U = S> {
 
 export type SubviewDescriptorInit<V extends View, S extends View, U = S, I = ViewObserverType<S>> = SubviewInit<S, U> & ThisType<Subview<V, S, U> & I> & I;
 
-export type SubviewDescriptorInitExtends<V extends View, S extends View, U = S, I = {}> = {extends: SubviewPrototype} & SubviewDescriptorInit<V, S, U, I>;
+export type SubviewDescriptorExtends<V extends View, S extends View, U = S, I = {}> = {extends: SubviewPrototype} & SubviewDescriptorInit<V, S, U, I>;
 
-export type SubviewDescriptorInitFromAny<V extends View, S extends View, U = S, I = {}> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & SubviewDescriptorInit<V, S, U, I>;
+export type SubviewDescriptorFromAny<V extends View, S extends View, U = S, I = {}> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & SubviewDescriptorInit<V, S, U, I>;
 
-export type SubviewDescriptor<V extends View, S extends View, U = S> =
-  U extends S ? SubviewDescriptorInit<V, S, U> :
-  SubviewDescriptorInitFromAny<V, S, U>;
+export type SubviewDescriptor<V extends View, S extends View, U = S, I = {}> =
+  U extends S ? SubviewDescriptorInit<V, S, U, I> :
+  SubviewDescriptorFromAny<V, S, U, I>;
 
 export type SubviewPrototype = Function & {prototype: Subview<any, any>};
 
@@ -103,6 +103,7 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
 
   fromAny(value: S | U): S | null;
 
+  static define<V extends View, S extends View = View, U = S, I = {}>(descriptor: SubviewDescriptorExtends<V, S, U, I>): SubviewConstructor<V, S, U>;
   static define<V extends View, S extends View = View, U = S>(descriptor: SubviewDescriptor<V, S, U>): SubviewConstructor<V, S, U>;
 
   // Forward type declarations
@@ -115,6 +116,7 @@ export interface Subview<V extends View, S extends View, U = S> {
   (subview: S | U | null): V;
 }
 
+export function Subview<V extends View, S extends View = View, U = S, I = {}>(descriptor: SubviewDescriptorExtends<V, S, U, I>): PropertyDecorator;
 export function Subview<V extends View, S extends View = View, U = S>(descriptor: SubviewDescriptor<V, S, U>): PropertyDecorator;
 
 export function Subview<V extends View, S extends View, U>(

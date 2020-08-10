@@ -31,10 +31,10 @@ import {ColorOrStringAttributeAnimator} from "./ColorOrStringAttributeAnimator";
 import {ViewFlags} from "../View";
 import {ElementView} from "../element/ElementView";
 
-export type AttributeAnimatorType<V, K extends keyof V> =
+export type AttributeAnimatorMemberType<V, K extends keyof V> =
   V extends {[P in K]: AttributeAnimator<any, infer T, any>} ? T : unknown;
 
-export type AttributeAnimatorInitType<V, K extends keyof V> =
+export type AttributeAnimatorMemberInit<V, K extends keyof V> =
   V extends {[P in K]: AttributeAnimator<any, infer T, infer U>} ? T | U : unknown;
 
 export interface AttributeAnimatorInit<T, U = T> {
@@ -49,22 +49,22 @@ export interface AttributeAnimatorInit<T, U = T> {
 
 export type AttributeAnimatorDescriptorInit<V extends ElementView, T, U = T, I = {}> = AttributeAnimatorInit<T, U> & ThisType<AttributeAnimator<V, T, U> & I> & I;
 
-export type AttributeAnimatorDescriptorInitExtends<V extends ElementView, T, U = T, I = {}> = {extends: AttributeAnimatorPrototype} & AttributeAnimatorDescriptorInit<V, T, U, I>;
+export type AttributeAnimatorDescriptorExtends<V extends ElementView, T, U = T, I = {}> = {extends: AttributeAnimatorPrototype} & AttributeAnimatorDescriptorInit<V, T, U, I>;
 
-export type AttributeAnimatorDescriptorInitFromAny<V extends ElementView, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & AttributeAnimatorDescriptorInit<V, T, U, I>;
+export type AttributeAnimatorDescriptorFromAny<V extends ElementView, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & AttributeAnimatorDescriptorInit<V, T, U, I>;
 
-export type AttributeAnimatorDescriptor<V extends ElementView, T, U = T> =
-  U extends T ? AttributeAnimatorDescriptorInit<V, T, U> :
-  T extends Length | undefined ? U extends AnyLength | undefined ? {type: typeof Length} & AttributeAnimatorDescriptorInit<V, T, U> : AttributeAnimatorDescriptorInitExtends<V, T, U> :
-  T extends Color | undefined ? U extends AnyColor | undefined ? {type: typeof Color} & AttributeAnimatorDescriptorInit<V, T, U> : AttributeAnimatorDescriptorInitExtends<V, T, U> :
-  T extends Transform | undefined ? U extends AnyTransform | undefined ? {type: typeof Transform} & AttributeAnimatorDescriptorInit<V, T, U> : AttributeAnimatorDescriptorInitExtends<V, T, U> :
-  T extends string | undefined ? U extends string | undefined ? {type: typeof String} & AttributeAnimatorDescriptorInit<V, T, U> : AttributeAnimatorDescriptorInitExtends<V, T, U> :
-  T extends boolean | undefined ? U extends boolean | string | undefined ? {type: typeof Boolean} & AttributeAnimatorDescriptorInit<V, T, U> : AttributeAnimatorDescriptorInitExtends<V, T, U> :
-  T extends number | undefined ? U extends number | string | undefined ? {type: typeof Number} & AttributeAnimatorDescriptorInit<V, T, U> : AttributeAnimatorDescriptorInitExtends<V, T, U> :
-  T extends Length | string | undefined ? U extends AnyLength | string | undefined ? {type: [typeof Length, typeof String]} & AttributeAnimatorDescriptorInit<V, T, U> : AttributeAnimatorDescriptorInitExtends<V, T, U> :
-  T extends Color | string | undefined ? U extends AnyColor | string | undefined ? {type: [typeof Color, typeof String]} & AttributeAnimatorDescriptorInit<V, T, U> : AttributeAnimatorDescriptorInitExtends<V, T, U> :
-  T extends number | string | undefined ? U extends number | string | undefined ? {type: [typeof Number, typeof String]} & AttributeAnimatorDescriptorInit<V, T, U> : AttributeAnimatorDescriptorInitExtends<V, T, U> :
-  AttributeAnimatorDescriptorInitFromAny<V, T, U>;
+export type AttributeAnimatorDescriptor<V extends ElementView, T, U = T, I = {}> =
+  U extends T ? AttributeAnimatorDescriptorInit<V, T, U, I> :
+  T extends Length | undefined ? U extends AnyLength | undefined ? {type: typeof Length} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
+  T extends Color | undefined ? U extends AnyColor | undefined ? {type: typeof Color} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
+  T extends Transform | undefined ? U extends AnyTransform | undefined ? {type: typeof Transform} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
+  T extends string | undefined ? U extends string | undefined ? {type: typeof String} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
+  T extends boolean | undefined ? U extends boolean | string | undefined ? {type: typeof Boolean} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
+  T extends number | undefined ? U extends number | string | undefined ? {type: typeof Number} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
+  T extends Length | string | undefined ? U extends AnyLength | string | undefined ? {type: [typeof Length, typeof String]} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
+  T extends Color | string | undefined ? U extends AnyColor | string | undefined ? {type: [typeof Color, typeof String]} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
+  T extends number | string | undefined ? U extends number | string | undefined ? {type: [typeof Number, typeof String]} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
+  AttributeAnimatorDescriptorFromAny<V, T, U, I>;
 
 export type AttributeAnimatorPrototype = Function & {prototype: AttributeAnimator<any, any, any>};
 
@@ -118,6 +118,7 @@ export declare abstract class AttributeAnimator<V extends ElementView, T, U = T>
   /** @hidden */
   static getConstructor(type: unknown): AttributeAnimatorPrototype | null;
 
+  static define<V extends ElementView, T, U = T, I = {}>(descriptor: AttributeAnimatorDescriptorExtends<V, T, U, I>): AttributeAnimatorConstructor<V, T, U>;
   static define<V extends ElementView, T, U = T>(descriptor: AttributeAnimatorDescriptor<V, T, U>): AttributeAnimatorConstructor<V, T, U>;
 
   // Forward type declarations
@@ -146,6 +147,7 @@ export interface AttributeAnimator<V extends ElementView, T, U = T> extends Twee
   (value: T | U | undefined, tween?: Tween<T>): V;
 }
 
+export function AttributeAnimator<V extends ElementView, T, U = T, I = {}>(descriptor: AttributeAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
 export function AttributeAnimator<V extends ElementView, T, U = T>(descriptor: AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
 
 export function AttributeAnimator<V extends ElementView, T, U>(

@@ -32,12 +32,12 @@ export {
 } from "./ViewController";
 
 export {
-  SubviewType,
-  SubviewInitType,
+  SubviewMemberType,
+  SubviewMemberInit,
   SubviewInit,
   SubviewDescriptorInit,
-  SubviewDescriptorInitExtends,
-  SubviewDescriptorInitFromAny,
+  SubviewDescriptorExtends,
+  SubviewDescriptorFromAny,
   SubviewDescriptor,
   SubviewPrototype,
   SubviewConstructor,

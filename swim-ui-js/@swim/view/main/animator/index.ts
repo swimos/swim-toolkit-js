@@ -13,12 +13,12 @@
 // limitations under the License.
 
 export {
-  ViewAnimatorType,
-  ViewAnimatorInitType,
+  ViewAnimatorMemberType,
+  ViewAnimatorMemberInit,
   ViewAnimatorInit,
   ViewAnimatorDescriptorInit,
-  ViewAnimatorDescriptorInitExtends,
-  ViewAnimatorDescriptorInitFromAny,
+  ViewAnimatorDescriptorExtends,
+  ViewAnimatorDescriptorFromAny,
   ViewAnimatorDescriptor,
   ViewAnimatorPrototype,
   ViewAnimatorConstructor,

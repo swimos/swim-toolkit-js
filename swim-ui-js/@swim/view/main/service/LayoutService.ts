@@ -19,10 +19,10 @@ import {ViewManagerService} from "./ViewManagerService";
 
 /** @hidden */
 export abstract class LayoutService<V extends View> extends ViewManagerService<V, LayoutManager<V>> {
-  initManager(): LayoutManager<V> | undefined {
+  initManager(): LayoutManager<V> {
     return LayoutManager.global();
   }
 }
 ViewService.Layout = LayoutService;
 
-ViewService({type: LayoutManager})(View.prototype, "layoutService");
+ViewService({type: LayoutManager, observe: false})(View.prototype, "layoutService");

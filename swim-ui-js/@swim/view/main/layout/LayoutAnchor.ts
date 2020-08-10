@@ -29,6 +29,8 @@ export interface LayoutAnchorInit {
 
 export type LayoutAnchorDescriptorInit<V extends View, I = {}> = LayoutAnchorInit & ThisType<LayoutAnchor<V> & I> & I;
 
+export type LayoutAnchorDescriptorExtends<V extends View, I = {}> = {extends: LayoutAnchorPrototype} & LayoutAnchorDescriptorInit<V, I>;
+
 export type LayoutAnchorDescriptor<V extends View> = LayoutAnchorDescriptorInit<V>;
 
 export type LayoutAnchorPrototype = Function & {prototype: LayoutAnchor<any>};
@@ -82,6 +84,7 @@ export declare abstract class LayoutAnchor<V extends View> {
   /** @hidden */
   initValue(): number;
 
+  static define<V extends View, I = {}>(descriptor: LayoutAnchorDescriptorExtends<V, I>): LayoutAnchorConstructor<V>;
   static define<V extends View>(descriptor: LayoutAnchorDescriptor<V>): LayoutAnchorConstructor<V>;
 }
 
@@ -90,6 +93,7 @@ export interface LayoutAnchor<V extends View> extends ConstrainVariable {
   (state: number): V;
 }
 
+export function LayoutAnchor<V extends View, I = {}>(descriptor: LayoutAnchorDescriptorExtends<V, I>): PropertyDecorator;
 export function LayoutAnchor<V extends View>(descriptor: LayoutAnchorDescriptor<V>): PropertyDecorator;
 
 export function LayoutAnchor<V extends View>(

@@ -13,12 +13,12 @@
 // limitations under the License.
 
 export {
-  AttributeAnimatorType,
-  AttributeAnimatorInitType,
+  AttributeAnimatorMemberType,
+  AttributeAnimatorMemberInit,
   AttributeAnimatorInit,
   AttributeAnimatorDescriptorInit,
-  AttributeAnimatorDescriptorInitExtends,
-  AttributeAnimatorDescriptorInitFromAny,
+  AttributeAnimatorDescriptorExtends,
+  AttributeAnimatorDescriptorFromAny,
   AttributeAnimatorDescriptor,
   AttributeAnimatorPrototype,
   AttributeAnimatorConstructor,

@@ -882,16 +882,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    super.onInsertChildView(childView, targetView);
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
-  protected onRemoveChildView(childView: View): void {
-    this.requireUpdate(View.NeedsAnimate);
-    super.onRemoveChildView(childView);
-  }
-
   protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
     if ((updateFlags & View.NeedsAnimate) !== 0) {
@@ -1820,4 +1810,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   static TimeZoomMax: number = 1;
 
   static readonly powerFlags: ViewFlags = LayerView.powerFlags | View.NeedsResize;
+
+  static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsResize | View.NeedsAnimate;
+  static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;
 }
