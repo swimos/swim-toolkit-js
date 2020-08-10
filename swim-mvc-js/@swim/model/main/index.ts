@@ -31,6 +31,17 @@ export {
   ModelController,
 } from "./ModelController";
 
+export {
+  SubmodelType,
+  SubmodelInit,
+  SubmodelDescriptor,
+  SubmodelPrototype,
+  SubmodelConstructor,
+  Submodel,
+} from "./Submodel";
+
+export {SubmodelObserver} from "./SubmodelObserver";
+
 export * from "./manager";
 
 export * from "./refresh";

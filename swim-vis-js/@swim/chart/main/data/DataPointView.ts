@@ -97,31 +97,31 @@ export class DataPointView<X, Y> extends LayerView {
   }
 
   @ViewAnimator({type: Object})
-  x: ViewAnimator<this, X>;
+  x: ViewAnimator<this, X | undefined>;
 
   @ViewAnimator({type: Object})
-  y: ViewAnimator<this, Y>;
+  y: ViewAnimator<this, Y | undefined>;
 
   @ViewAnimator({type: Object})
-  y2: ViewAnimator<this, Y>;
+  y2: ViewAnimator<this, Y | undefined>;
 
   @ViewAnimator({type: Length})
-  r: ViewAnimator<this, Length, AnyLength>;
+  r: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color})
-  color: ViewAnimator<this, Color, AnyColor>;
+  color: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number})
-  opacity: ViewAnimator<this, number>;
+  opacity: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length})
-  labelPadding: ViewAnimator<this, Length, AnyLength>;
+  labelPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font, AnyFont>;
+  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color, AnyColor>;
+  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   hitRadius(): number;
   hitRadius(hitRadius: number): this;

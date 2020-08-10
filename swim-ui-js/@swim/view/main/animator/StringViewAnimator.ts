@@ -16,8 +16,8 @@ import {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
-export abstract class StringViewAnimator<V extends View> extends ViewAnimator<V, string> {
-  fromAny(value: string): string | undefined {
+export abstract class StringViewAnimator<V extends View> extends ViewAnimator<V, string | null | undefined> {
+  fromAny(value: string | null | undefined): string | null | undefined {
     return value;
   }
 }

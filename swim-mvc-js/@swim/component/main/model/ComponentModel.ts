@@ -116,7 +116,7 @@ export function ComponentModel<C extends Component, M extends Model, U = M>(
   } else { // decorator factory
     return ComponentModelDecoratorFactory(component as ComponentModelInit<C, M, U>);
   }
-};
+}
 __extends(ComponentModel, Object);
 Component.Model = ComponentModel;
 
@@ -220,19 +220,19 @@ ComponentModel.prototype.willSetModel = function <M extends Model>(this: Compone
                                                                    newModel: M | null,
                                                                    oldModel: M | null): void {
   // hook
-}
+};
 
 ComponentModel.prototype.onSetModel = function <M extends Model>(this: ComponentModel<Component, M>,
                                                                  newModel: M | null,
                                                                  oldModel: M | null): void {
   // hook
-}
+};
 
 ComponentModel.prototype.didSetModel = function <M extends Model>(this: ComponentModel<Component, M>,
                                                                   newModel: M | null,
                                                                   oldModel: M | null): void {
   // hook
-}
+};
 
 ComponentModel.prototype.setAutoModel = function <M extends Model, U>(this: ComponentModel<Component, M, U>,
                                                                       model: M | U | null): void {
@@ -262,19 +262,19 @@ ComponentModel.prototype.willSetOwnModel = function <M extends Model>(this: Comp
                                                                       newModel: M | null,
                                                                       oldModel: M | null): void {
   // hook
-}
+};
 
 ComponentModel.prototype.onSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>,
                                                                     newModel: M | null,
                                                                     oldModel: M | null): void {
   // hook
-}
+};
 
 ComponentModel.prototype.didSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>,
                                                                      newModel: M | null,
                                                                      oldModel: M | null): void {
   this._component.componentModelDidSetModel(this, newModel, oldModel);
-}
+};
 
 ComponentModel.prototype.mount = function (this: ComponentModel<Component, Model>): void {
   // hook

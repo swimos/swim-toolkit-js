@@ -31,6 +31,21 @@ export {
   ViewController,
 } from "./ViewController";
 
+export {
+  SubviewType,
+  SubviewInitType,
+  SubviewInit,
+  SubviewDescriptorInit,
+  SubviewDescriptorInitExtends,
+  SubviewDescriptorInitFromAny,
+  SubviewDescriptor,
+  SubviewPrototype,
+  SubviewConstructor,
+  Subview,
+} from "./Subview";
+
+export {SubviewObserver} from "./SubviewObserver";
+
 export * from "./manager";
 
 export * from "./display";

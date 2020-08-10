@@ -18,11 +18,11 @@ import {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class LengthStyleAnimator<V extends ElementView> extends StyleAnimator<V, Length, AnyLength> {
-  parse(value: string): Length {
+  parse(value: string): Length | undefined {
     return Length.parse(value, this.node);
   }
 
-  fromAny(value: AnyLength): Length {
+  fromAny(value: AnyLength): Length | undefined {
     return Length.fromAny(value, this.node);
   }
 }

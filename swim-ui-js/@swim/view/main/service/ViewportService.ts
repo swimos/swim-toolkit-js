@@ -19,7 +19,7 @@ import {ViewManagerService} from "./ViewManagerService";
 
 /** @hidden */
 export abstract class ViewportService<V extends View> extends ViewManagerService<V, ViewportManager<V>> {
-  init(): ViewportManager<V> | undefined {
+  initManager(): ViewportManager<V> | undefined {
     return ViewportManager.global();
   }
 }

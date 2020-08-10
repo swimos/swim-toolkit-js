@@ -114,7 +114,7 @@ export function ComponentService<C extends Component, T>(
   } else { // decorator factory
     return ComponentServiceDecoratorFactory(component as ComponentServiceInit<C, T>);
   }
-};
+}
 __extends(ComponentService, Object);
 Component.Service = ComponentService;
 
@@ -318,4 +318,4 @@ ComponentService.constructorForType = function (type: unknown): ComponentService
     return ComponentService.Manager;
   }
   return null;
-}
+};

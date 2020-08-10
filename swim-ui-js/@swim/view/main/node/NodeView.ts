@@ -19,6 +19,7 @@ import {ViewContextType, ViewContext} from "../ViewContext";
 import {ViewFlags, ViewInit, View} from "../View";
 import {ViewObserverType} from "../ViewObserver";
 import {ViewControllerType} from "../ViewController";
+import {Subview} from "../Subview";
 import {ViewService} from "../service/ViewService";
 import {ViewScope} from "../scope/ViewScope";
 import {ViewAnimator} from "../animator/ViewAnimator";
@@ -50,6 +51,8 @@ export class NodeView extends View {
   _viewObservers?: ViewObserverType<this>[];
   /** @hidden */
   _viewFlags: ViewFlags;
+  /** @hidden */
+  _subviews?: {[subviewName: string]: Subview<View, View> | undefined};
   /** @hidden */
   _viewServices?: {[serviceName: string]: ViewService<View, unknown> | undefined};
   /** @hidden */
@@ -528,7 +531,7 @@ export class NodeView extends View {
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
-    this.requireUpdate(View.NeedsLayout);
+    this.insertSubview(childView);
   }
 
   insertChildNode(childNode: Node, targetNode: Node | null, key?: string): void {
@@ -665,7 +668,8 @@ export class NodeView extends View {
   }
 
   protected onRemoveChildView(childView: View): void {
-    this.requireUpdate(View.NeedsLayout);
+    super.onRemoveChildView(childView);
+    this.removeSubview(childView);
   }
 
   removeChildNode(childNode: Node): void {
@@ -850,6 +854,7 @@ export class NodeView extends View {
     this.mountServices();
     this.mountScopes();
     this.mountAnimators();
+    this.mountSubviews();
   }
 
   protected didMount(): void {
@@ -898,6 +903,7 @@ export class NodeView extends View {
   }
 
   protected onUnmount(): void {
+    this.unmountSubviews();
     this.unmountAnimators();
     this.unmountScopes();
     this.unmountServices();
@@ -1061,6 +1067,11 @@ export class NodeView extends View {
     }
   }
 
+  protected onChange(viewContext: ViewContextType<this>): void {
+    super.onChange(viewContext);
+    this.updateScopes();
+  }
+
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     this.updateAnimators(viewContext.updateTime);
@@ -1172,6 +1183,86 @@ export class NodeView extends View {
     }
   }
 
+  hasSubview(subviewName: string): boolean {
+    const subviews = this._subviews;
+    return subviews !== void 0 && subviews[subviewName] !== void 0;
+  }
+
+  getSubview(subviewName: string): Subview<this, View> | null {
+    const subviews = this._subviews;
+    if (subviews !== void 0) {
+      const subview = subviews[subviewName];
+      if (subview !== void 0) {
+        return subview as Subview<this, View>;
+      }
+    }
+    return null;
+  }
+
+  setSubview(subviewName: string, newSubview: Subview<this, View> | null): void {
+    let subviews = this._subviews;
+    if (subviews === void 0) {
+      subviews = {};
+      this._subviews = subviews;
+    }
+    const oldSubview = subviews[subviewName];
+    if (oldSubview !== void 0 && this.isMounted()) {
+      oldSubview.unmount();
+    }
+    if (newSubview !== null) {
+      subviews[subviewName] = newSubview;
+      if (this.isMounted()) {
+        newSubview.mount();
+      }
+    } else {
+      delete subviews[subviewName];
+    }
+  }
+
+  /** @hidden */
+  protected mountSubviews(): void {
+    const subviews = this._subviews;
+    if (subviews !== void 0) {
+      for (const subviewName in subviews) {
+        const subview = subviews[subviewName]!;
+        subview.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected unmountSubviews(): void {
+    const subviews = this._subviews;
+    if (subviews !== void 0) {
+      for (const subviewName in subviews) {
+        const subview = subviews[subviewName]!;
+        subview.unmount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected insertSubview(childView: View): void {
+    const subviewName = childView.key;
+    if (subviewName !== void 0) {
+      const subview = this.getLazySubview(subviewName);
+      if (subview !== null) {
+        subview.doSetSubview(childView);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected removeSubview(childView: View): void {
+    const subviewName = childView.key;
+    if (subviewName !== void 0) {
+      const subview = this.getSubview(subviewName);
+      if (subview !== null) {
+        subview.doSetSubview(null);
+      }
+    }
+  }
+
   hasViewService(serviceName: string): boolean {
     const viewServices = this._viewServices;
     return viewServices !== void 0 && viewServices[serviceName] !== void 0;
@@ -1267,6 +1358,17 @@ export class NodeView extends View {
   }
 
   /** @hidden */
+  updateScopes(): void {
+    const viewScopes = this._viewScopes;
+    if (viewScopes !== void 0) {
+      for (const scopeName in viewScopes) {
+        const viewScope = viewScopes[scopeName]!;
+        viewScope.onChange();
+      }
+    }
+  }
+
+  /** @hidden */
   protected mountScopes(): void {
     const viewScopes = this._viewScopes;
     if (viewScopes !== void 0) {
@@ -1335,7 +1437,7 @@ export class NodeView extends View {
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {
         const viewAnimator = viewAnimators[animatorName]!;
-        viewAnimator.onFrame(t);
+        viewAnimator.onAnimate(t);
       }
     }
   }
@@ -1575,5 +1677,8 @@ export class NodeView extends View {
     this._node.removeEventListener(type, listener, options);
     return this;
   }
+
+  static readonly insertChildFlags: ViewFlags = View.insertChildFlags | View.NeedsLayout;
+  static readonly removeChildFlags: ViewFlags = View.removeChildFlags | View.NeedsLayout;
 }
 View.Node = NodeView;

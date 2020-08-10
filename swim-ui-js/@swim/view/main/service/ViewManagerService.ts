@@ -19,14 +19,14 @@ import {ViewService} from "./ViewService";
 /** @hidden */
 export abstract class ViewManagerService<V extends View, VM extends ViewManager<V>> extends ViewService<V, VM> {
   /** @hidden */
-  readonly observer?: boolean;
+  readonly observe?: boolean;
 
   mount(): void {
     super.mount();
     const manager = this._manager;
     if (manager !== void 0) {
       manager.insertRootView(this._view);
-      if (this.observer === true) {
+      if (this.observe === true) {
         manager.addViewManagerObserver(this as ViewManagerObserverType<VM>);
       }
     }
@@ -35,7 +35,7 @@ export abstract class ViewManagerService<V extends View, VM extends ViewManager<
   unmount(): void {
     const manager = this._manager;
     if (manager !== void 0) {
-      if (this.observer === true) {
+      if (this.observe === true) {
         manager.removeViewManagerObserver(this as ViewManagerObserverType<VM>);
       }
       manager.removeRootView(this._view);

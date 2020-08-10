@@ -18,8 +18,8 @@ import {Subcomponent} from "./Subcomponent";
 
 /** @hidden */
 export abstract class SubcomponentObserver<C extends Component, S extends Component> extends Subcomponent<C, S> {
-  onSetSubcomponent(newSubcomponent: S | null, oldSubcomponent: S | null): void {
-    super.onSetSubcomponent(newSubcomponent, oldSubcomponent);
+  onSetOwnSubcomponent(newSubcomponent: S | null, oldSubcomponent: S | null): void {
+    super.onSetOwnSubcomponent(newSubcomponent, oldSubcomponent);
     if (this._component.isMounted()) {
       if (oldSubcomponent !== null) {
         oldSubcomponent.removeComponentObserver(this as ComponentObserverType<S>);

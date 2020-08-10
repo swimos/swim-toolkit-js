@@ -21,7 +21,7 @@ export interface FillViewInit extends GraphicsViewInit {
 }
 
 export interface FillView extends GraphicsView {
-  readonly fill: ViewAnimator<this, Color, AnyColor>;
+  readonly fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 }
 
 /** @hidden */

@@ -44,26 +44,26 @@ export class RectView extends LayerView implements FillView, StrokeView {
     this.setState(init);
   }
 
-  @ViewAnimator({type: Length, value: Length.zero()})
+  @ViewAnimator({type: Length, state: Length.zero()})
   x: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, value: Length.zero()})
+  @ViewAnimator({type: Length, state: Length.zero()})
   y: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, value: Length.zero()})
+  @ViewAnimator({type: Length, state: Length.zero()})
   width: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, value: Length.zero()})
+  @ViewAnimator({type: Length, state: Length.zero()})
   height: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, inherit: true})
-  fill: ViewAnimator<this, Color, AnyColor>;
+  fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  stroke: ViewAnimator<this, Color, AnyColor>;
+  stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  strokeWidth: ViewAnimator<this, Length, AnyLength>;
+  strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   get value(): Rect {
     return new Rect(this.x.getValue(), this.y.getValue(), this.width.getValue(), this.height.getValue());

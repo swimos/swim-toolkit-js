@@ -18,11 +18,11 @@ import {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class FontFamilyStyleAnimator<V extends ElementView> extends StyleAnimator<V, FontFamily | FontFamily[], FontFamily | ReadonlyArray<FontFamily>> {
-  parse(value: string): FontFamily | FontFamily[] {
+  parse(value: string): FontFamily | FontFamily[] | undefined {
     return Font.parse(value).family();
   }
 
-  fromAny(value: FontFamily | ReadonlyArray<FontFamily>): FontFamily | FontFamily[] {
+  fromAny(value: FontFamily | ReadonlyArray<FontFamily>): FontFamily | FontFamily[] | undefined {
     return Font.family(value).family();
   }
 }

@@ -18,7 +18,7 @@ import {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class ColorOrStringStyleAnimator<V extends ElementView> extends StyleAnimator<V, Color | string, AnyColor | string> {
-  parse(value: string): Color | string {
+  parse(value: string): Color | string | undefined {
     try {
       return Color.parse(value);
     } catch (swallow) {
@@ -26,7 +26,7 @@ export abstract class ColorOrStringStyleAnimator<V extends ElementView> extends 
     }
   }
 
-  fromAny(value: AnyColor | string): Color | string {
+  fromAny(value: AnyColor | string): Color | string | undefined {
     if (typeof value === "string") {
       try {
         return Color.parse(value);

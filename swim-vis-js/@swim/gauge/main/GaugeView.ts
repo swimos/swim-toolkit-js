@@ -123,62 +123,62 @@ export class GaugeView extends LayerView {
     }
   }
 
-  @ViewAnimator({type: Number, value: 0})
+  @ViewAnimator({type: Number, state: 0})
   limit: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: PointR2, value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, state: PointR2.origin()})
   center: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Length, value: Length.pct(30)})
+  @ViewAnimator({type: Length, state: Length.pct(30)})
   innerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, value: Length.pct(40)})
+  @ViewAnimator({type: Length, state: Length.pct(40)})
   outerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Angle, value: Angle.rad(-Math.PI / 2)})
+  @ViewAnimator({type: Angle, state: Angle.rad(-Math.PI / 2)})
   startAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Angle, value: Angle.rad(2 * Math.PI)})
+  @ViewAnimator({type: Angle, state: Angle.rad(2 * Math.PI)})
   sweepAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Length, value: Length.pct(50)})
+  @ViewAnimator({type: Length, state: Length.pct(50)})
   cornerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, value: Length.px(1)})
+  @ViewAnimator({type: Length, state: Length.px(1)})
   dialSpacing: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, value: Color.transparent()})
+  @ViewAnimator({type: Color, state: Color.transparent()})
   dialColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator({type: Color, value: Color.black()})
+  @ViewAnimator({type: Color, state: Color.black()})
   meterColor: ViewAnimator<this, Color, AnyColor>;
 
-  @ViewAnimator({type: Length, value: Length.pct(25)})
+  @ViewAnimator({type: Length, state: Length.pct(25)})
   labelPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Number, value: 0.5})
+  @ViewAnimator({type: Number, state: 0.5})
   tickAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Length, value: Length.pct(45)})
+  @ViewAnimator({type: Length, state: Length.pct(45)})
   tickRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, value: Length.pct(50)})
+  @ViewAnimator({type: Length, state: Length.pct(50)})
   tickLength: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, value: Length.px(1)})
+  @ViewAnimator({type: Length, state: Length.px(1)})
   tickWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, value: Length.px(1)})
+  @ViewAnimator({type: Length, state: Length.px(1)})
   tickPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, value: Color.black()})
+  @ViewAnimator({type: Color, state: Color.black()})
   tickColor: ViewAnimator<this, Color, AnyColor>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font, AnyFont>;
+  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color, AnyColor>;
+  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   title(): View | null;
   title(title: View | AnyTextRunView | null): this;

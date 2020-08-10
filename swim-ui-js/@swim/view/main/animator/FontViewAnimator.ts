@@ -17,9 +17,9 @@ import {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
-export abstract class FontViewAnimator<V extends View> extends ViewAnimator<V, Font | null, AnyFont | null> {
-  fromAny(value: AnyFont | null): Font | null | undefined {
-    return value !== null ? Font.fromAny(value) : null;
+export abstract class FontViewAnimator<V extends View> extends ViewAnimator<V, Font | null | undefined, AnyFont | null | undefined> {
+  fromAny(value: AnyFont | null | undefined): Font | null | undefined {
+    return value !== void 0 && value !== null ? Font.fromAny(value) : value;
   }
 }
 ViewAnimator.Font = FontViewAnimator;

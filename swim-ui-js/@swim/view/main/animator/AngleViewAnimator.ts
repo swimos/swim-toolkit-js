@@ -17,9 +17,9 @@ import {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
-export abstract class AngleViewAnimator<V extends View> extends ViewAnimator<V, Angle | null, AnyAngle | null> {
-  fromAny(value: AnyAngle | null): Angle | null | undefined {
-    return value !== null ? Angle.fromAny(value) : null;
+export abstract class AngleViewAnimator<V extends View> extends ViewAnimator<V, Angle | null | undefined, AnyAngle | null | undefined> {
+  fromAny(value: AnyAngle | null): Angle | null {
+    return value !== void 0 && value !== null ? Angle.fromAny(value) : value;
   }
 }
 ViewAnimator.Angle = AngleViewAnimator;

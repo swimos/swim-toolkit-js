@@ -17,12 +17,12 @@ import {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class NumberOrStringStyleAnimator<V extends ElementView> extends StyleAnimator<V, number | string, number | string> {
-  parse(value: string): number | string {
+  parse(value: string): number | string | undefined {
     const number = +value;
     return isFinite(number) ? number : value;
   }
 
-  fromAny(value: number | string): number | string {
+  fromAny(value: number | string): number | string | undefined {
     if (typeof value === "number") {
       return value;
     } else {

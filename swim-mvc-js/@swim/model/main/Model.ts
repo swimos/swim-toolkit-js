@@ -15,6 +15,7 @@
 import {ModelContextType, ModelContext} from "./ModelContext";
 import {ModelObserverType, ModelObserver} from "./ModelObserver";
 import {ModelControllerType, ModelController} from "./ModelController";
+import {SubmodelConstructor, Submodel} from "./Submodel";
 import {ModelManager} from "./manager/ModelManager";
 import {RefreshManager} from "./refresh/RefreshManager";
 import {ModelServiceConstructor, ModelService} from "./service/ModelService";
@@ -37,6 +38,9 @@ export interface ModelClass {
   readonly insertChildFlags: ModelFlags;
 
   readonly removeChildFlags: ModelFlags;
+
+  /** @hidden */
+  _submodelConstructors?: {[submodelName: string]: SubmodelConstructor<Model> | undefined};
 
   /** @hidden */
   _modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<unknown> | undefined};
@@ -695,6 +699,26 @@ export abstract class Model {
     // hook
   }
 
+  abstract hasSubmodel(submodelName: string): boolean;
+
+  abstract getSubmodel(submodelName: string): Submodel<this, Model> | null;
+
+  abstract setSubmodel(submodelName: string, submodel: Submodel<this, Model> | null): void;
+
+  /** @hidden */
+  getLazySubmodel(submodelName: string): Submodel<this, Model> | null {
+    let submodel = this.getSubmodel(submodelName);
+    if (submodel === null) {
+      const modelClass = (this as any).__proto__ as ModelClass;
+      const constructor = Model.getSubmodelConstructor(submodelName, modelClass);
+      if (constructor !== null) {
+        submodel = new constructor<this>(this, submodelName);
+        this.setSubmodel(submodelName, submodel);
+      }
+    }
+    return submodel;
+  }
+
   abstract hasModelService(serviceName: string): boolean;
 
   abstract getModelService(serviceName: string): ModelService<this, unknown> | null;
@@ -773,7 +797,45 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static getModelServiceConstructor<M extends Model>(serviceName: string, modelClass: ModelClass | null = null): ModelServiceConstructor<unknown> | null {
+  static getSubmodelConstructor(submodelName: string, modelClass: ModelClass | null = null): SubmodelConstructor<Model> | null {
+    if (modelClass === null) {
+      modelClass = this.prototype as unknown as ModelClass;
+    }
+    do {
+      if (modelClass.hasOwnProperty("_submodelConstructors")) {
+        const constructor = modelClass._submodelConstructors![submodelName];
+        if (constructor !== void 0) {
+          return constructor;
+        }
+      }
+      modelClass = (modelClass as any).__proto__ as ModelClass | null;
+    } while (modelClass !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateSubmodel<M extends Model, S extends Model>(constructor: SubmodelConstructor<S>,
+                                                            modelClass: ModelClass, submodelName: string): void {
+    if (!modelClass.hasOwnProperty("_submodelConstructors")) {
+      modelClass._submodelConstructors = {};
+    }
+    modelClass._submodelConstructors![submodelName] = constructor;
+    Object.defineProperty(modelClass, submodelName, {
+      get: function (this: M): Submodel<M, S> {
+        let submodel = this.getSubmodel(submodelName) as Submodel<M, S> | null;
+        if (submodel === null) {
+          submodel = new constructor<M>(this, submodelName);
+          this.setSubmodel(submodelName, submodel);
+        }
+        return submodel;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
+  static getModelServiceConstructor(serviceName: string, modelClass: ModelClass | null = null): ModelServiceConstructor<unknown> | null {
     if (modelClass === null) {
       modelClass = this.prototype as unknown as ModelClass;
     }
@@ -811,7 +873,7 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static getModelScopeConstructor<M extends Model>(scopeName: string, modelClass: ModelClass | null = null): ModelScopeConstructor<unknown> | null {
+  static getModelScopeConstructor(scopeName: string, modelClass: ModelClass | null = null): ModelScopeConstructor<unknown> | null {
     if (modelClass === null) {
       modelClass = this.prototype as unknown as ModelClass;
     }
@@ -905,6 +967,8 @@ export abstract class Model {
   static readonly removeChildFlags: ModelFlags = 0;
 
   // Forward type declarations
+  /** @hidden */
+  static Submodel: typeof Submodel; // defined by Submodel
   /** @hidden */
   static Manager: typeof ModelManager; // defined by ModelManager
   /** @hidden */

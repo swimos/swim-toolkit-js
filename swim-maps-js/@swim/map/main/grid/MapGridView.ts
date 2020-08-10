@@ -44,7 +44,7 @@ export class MapGridView extends MapGraphicsView {
   }
 
   @ViewAnimator({type: Color})
-  tileOutlineColor: ViewAnimator<this, Color, AnyColor>;
+  tileOutlineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   get childViewCount(): number {
     return this._childViews.size;

@@ -167,7 +167,7 @@ export function ComponentScope<C extends Component, T, U>(
   } else { // decorator factory
     return ComponentScopeDecoratorFactory(component as ComponentScopeInit<C, T, U>);
   }
-};
+}
 __extends(ComponentScope, Object);
 Component.Scope = ComponentScope;
 
@@ -350,7 +350,7 @@ ComponentScope.prototype.addSubScope = function <T, U>(this: ComponentScope<Comp
     this._subScopes = subScopes;
   }
   subScopes.push(subScope);
-}
+};
 
 ComponentScope.prototype.removeSubScope = function <T, U>(this: ComponentScope<Component, T, U>,
                                                           subScope: ComponentScope<Component, T, U>): void {
@@ -428,13 +428,13 @@ ComponentScope.prototype.willSetState = function <T, U>(this: ComponentScope<Com
                                                         newState: T | undefined,
                                                         oldState: T | undefined): void {
   // hook
-}
+};
 
 ComponentScope.prototype.didSetState = function <T, U>(this: ComponentScope<Component, T, U>,
                                                        newState: T | undefined,
                                                        oldState: T | undefined): void {
   // hook
-}
+};
 
 ComponentScope.prototype.setAutoState = function <T, U>(this: ComponentScope<Component, T, U>,
                                                         state: T | U | undefined): void {
@@ -535,4 +535,4 @@ ComponentScope.constructorForType = function (type: unknown): ComponentScopeProt
     return ComponentScope.Number;
   }
   return null;
-}
+};

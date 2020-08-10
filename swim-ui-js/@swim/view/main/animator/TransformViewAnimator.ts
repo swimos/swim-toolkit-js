@@ -17,9 +17,9 @@ import {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
-export abstract class TransformViewAnimator<V extends View> extends ViewAnimator<V, Transform | null, AnyTransform | null> {
-  fromAny(value: AnyTransform | null): Transform | null | undefined {
-    return value !== null ? Transform.fromAny(value) : null;
+export abstract class TransformViewAnimator<V extends View> extends ViewAnimator<V, Transform | null | undefined, AnyTransform | null | undefined> {
+  fromAny(value: AnyTransform | null | undefined): Transform | null | undefined {
+    return value !== void 0 && value !== null ? Transform.fromAny(value) : null;
   }
 }
 ViewAnimator.Transform = TransformViewAnimator;

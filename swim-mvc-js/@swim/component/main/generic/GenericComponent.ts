@@ -164,17 +164,17 @@ export abstract class GenericComponent extends Component {
     this.insertSubcomponent(childComponent);
   }
 
-  protected onRemoveChildComponent(childComponent: Component): void {
-    super.onRemoveChildComponent(childComponent);
-    this.removeSubcomponent(childComponent);
-  }
-
   cascadeInsert(updateFlags?: ComponentFlags, componentContext?: ComponentContext): void {
     // nop
   }
 
   abstract removeChildComponent(key: string): Component | null;
   abstract removeChildComponent(childComponent: Component): void;
+
+  protected onRemoveChildComponent(childComponent: Component): void {
+    super.onRemoveChildComponent(childComponent);
+    this.removeSubcomponent(childComponent);
+  }
 
   abstract removeAll(): void;
 
@@ -230,10 +230,10 @@ export abstract class GenericComponent extends Component {
 
   protected onMount(): void {
     super.onMount();
-    this.mountSubcomponents();
     this.mountServices();
     this.mountScopes();
     this.mountViews();
+    this.mountSubcomponents();
   }
 
   /** @hidden */
@@ -265,10 +265,10 @@ export abstract class GenericComponent extends Component {
   }
 
   protected onUnmount(): void {
+    this.unmountSubcomponents();
     this.unmountViews();
     this.unmountScopes();
     this.unmountServices();
-    this.unmountSubcomponents();
     this._componentFlags &= ~Component.ComponentFlagMask | Component.RemovingFlag;
   }
 
@@ -535,7 +535,7 @@ export abstract class GenericComponent extends Component {
   protected removeSubcomponent(childComponent: Component): void {
     const subcomponentName = childComponent.key;
     if (subcomponentName !== void 0) {
-      const subcomponent = this.getLazySubcomponent(subcomponentName);
+      const subcomponent = this.getSubcomponent(subcomponentName);
       if (subcomponent !== null) {
         subcomponent.doSetSubcomponent(null);
       }

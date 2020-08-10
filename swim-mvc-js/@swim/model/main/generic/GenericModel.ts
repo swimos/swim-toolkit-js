@@ -16,6 +16,7 @@ import {ModelContextType, ModelContext} from "../ModelContext";
 import {ModelFlags, Model} from "../Model";
 import {ModelObserverType, ModelObserver} from "../ModelObserver";
 import {ModelControllerType, ModelController} from "../ModelController";
+import {Submodel} from "../Submodel";
 import {ModelService} from "../service/ModelService";
 import {ModelScope} from "../scope/ModelScope";
 
@@ -30,6 +31,8 @@ export abstract class GenericModel extends Model {
   _modelObservers?: ModelObserverType<this>[];
   /** @hidden */
   _modelFlags: ModelFlags;
+  /** @hidden */
+  _submodels?: {[submodelName: string]: Submodel<Model, Model> | undefined};
   /** @hidden */
   _modelServices?: {[serviceName: string]: ModelService<Model, unknown> | undefined};
   /** @hidden */
@@ -186,12 +189,22 @@ export abstract class GenericModel extends Model {
 
   abstract insertChildModel(childModel: Model, targetModel: Model | null, key?: string): void;
 
+  protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
+    super.onInsertChildModel(childModel, targetModel);
+    this.insertSubmodel(childModel);
+  }
+
   cascadeInsert(updateFlags?: ModelFlags, modelContext?: ModelContext): void {
     // nop
   }
 
   abstract removeChildModel(key: string): Model | null;
   abstract removeChildModel(childModel: Model): void;
+
+  protected onRemoveChildModel(childModel: Model): void {
+    super.onRemoveChildModel(childModel);
+    this.removeSubmodel(childModel);
+  }
 
   abstract removeAll(): void;
 
@@ -249,6 +262,7 @@ export abstract class GenericModel extends Model {
     super.onMount();
     this.mountServices();
     this.mountScopes();
+    this.mountSubmodels();
   }
 
   /** @hidden */
@@ -280,6 +294,7 @@ export abstract class GenericModel extends Model {
   }
 
   protected onUnmount(): void {
+    this.unmountSubmodels();
     this.unmountScopes();
     this.unmountServices();
     this._modelFlags &= ~Model.ModelFlagMask | Model.RemovingFlag;
@@ -450,6 +465,86 @@ export abstract class GenericModel extends Model {
       this.willRefreshChildModels(refreshFlags, modelContext);
       this.onRefreshChildModels(refreshFlags, modelContext);
       this.didRefreshChildModels(refreshFlags, modelContext);
+    }
+  }
+
+  hasSubmodel(submodelName: string): boolean {
+    const submodels = this._submodels;
+    return submodels !== void 0 && submodels[submodelName] !== void 0;
+  }
+
+  getSubmodel(submodelName: string): Submodel<this, Model> | null {
+    const submodels = this._submodels;
+    if (submodels !== void 0) {
+      const submodel = submodels[submodelName];
+      if (submodel !== void 0) {
+        return submodel as Submodel<this, Model>;
+      }
+    }
+    return null;
+  }
+
+  setSubmodel(submodelName: string, newSubmodel: Submodel<this, Model> | null): void {
+    let submodels = this._submodels;
+    if (submodels === void 0) {
+      submodels = {};
+      this._submodels = submodels;
+    }
+    const oldSubmodel = submodels[submodelName];
+    if (oldSubmodel !== void 0 && this.isMounted()) {
+      oldSubmodel.unmount();
+    }
+    if (newSubmodel !== null) {
+      submodels[submodelName] = newSubmodel;
+      if (this.isMounted()) {
+        newSubmodel.mount();
+      }
+    } else {
+      delete submodels[submodelName];
+    }
+  }
+
+  /** @hidden */
+  protected mountSubmodels(): void {
+    const submodels = this._submodels;
+    if (submodels !== void 0) {
+      for (const submodelName in submodels) {
+        const submodel = submodels[submodelName]!;
+        submodel.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected unmountSubmodels(): void {
+    const submodels = this._submodels;
+    if (submodels !== void 0) {
+      for (const submodelName in submodels) {
+        const submodel = submodels[submodelName]!;
+        submodel.unmount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected insertSubmodel(childModel: Model): void {
+    const submodelName = childModel.key;
+    if (submodelName !== void 0) {
+      const submodel = this.getLazySubmodel(submodelName);
+      if (submodel !== null) {
+        submodel.doSetSubmodel(childModel);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected removeSubmodel(childModel: Model): void {
+    const submodelName = childModel.key;
+    if (submodelName !== void 0) {
+      const submodel = this.getSubmodel(submodelName);
+      if (submodel !== null) {
+        submodel.doSetSubmodel(null);
+      }
     }
   }
 

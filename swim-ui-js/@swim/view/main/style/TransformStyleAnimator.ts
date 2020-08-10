@@ -18,11 +18,11 @@ import {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class TransformStyleAnimator<V extends ElementView> extends StyleAnimator<V, Transform, AnyTransform> {
-  parse(value: string): Transform {
+  parse(value: string): Transform | undefined {
     return Transform.parse(value);
   }
 
-  fromAny(value: AnyTransform): Transform {
+  fromAny(value: AnyTransform): Transform | undefined {
     return Transform.fromAny(value);
   }
 }

@@ -244,10 +244,10 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
   }
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font, AnyFont>;
+  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color, AnyColor>;
+  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   get childViewCount(): number {
     return this._data.size;

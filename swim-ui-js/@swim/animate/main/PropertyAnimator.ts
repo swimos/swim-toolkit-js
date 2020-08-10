@@ -19,17 +19,13 @@ export class PropertyAnimator<O, K extends keyof O> extends TweenFrameAnimator<O
   readonly target: O;
   readonly key: K;
 
-  constructor(target: O, key: K, value: O[K] | undefined, transition: Transition<O[K]> | null = null) {
+  constructor(target: O, key: K, value: O[K], transition: Transition<O[K]> | null = null) {
     super(value, transition);
     this.target = target;
     this.key = key;
   }
 
-  onUpdate(newValue: O[K] | undefined, oldValue: O[K] | undefined): void {
+  onUpdate(newValue: O[K], oldValue: O[K]): void {
     this.target[this.key] = newValue!;
-  }
-
-  delete(): void {
-    delete this.target[this.key];
   }
 }

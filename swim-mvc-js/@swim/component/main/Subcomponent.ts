@@ -21,11 +21,13 @@ export type SubcomponentType<C, K extends keyof C> =
   C extends {[P in K]: Subcomponent<any, infer S>} ? S : unknown;
 
 export interface SubcomponentInit<C extends Component, S extends Component> {
+  type?: unknown;
   observer?: boolean;
 
   willSetSubcomponent?(newSubcomponent: S | null, oldSubcomponent: S | null): void;
   onSetSubcomponent?(newSubcomponent: S | null, oldSubcomponent: S | null): void;
   didSetSubcomponent?(newSubcomponent: S | null, oldSubcomponent: S | null): void;
+  createSubcomponent?(): S | null;
 
   extends?: SubcomponentPrototype<S>;
 }
@@ -66,6 +68,17 @@ export declare abstract class Subcomponent<C extends Component, S extends Compon
   /** @hidden */
   didSetSubcomponent(newSubcomponent: S | null, oldSubcomponent: S | null): void;
 
+  /** @hidden */
+  willSetOwnSubcomponent(newSubcomponent: S | null, oldSubcomponent: S | null): void;
+
+  /** @hidden */
+  onSetOwnSubcomponent(newSubcomponent: S | null, oldSubcomponent: S | null): void;
+
+  /** @hidden */
+  didSetOwnSubcomponent(newSubcomponent: S | null, oldSubcomponent: S | null): void;
+
+  createSubcomponent(): S | null;
+
   mount(): void;
 
   unmount(): void;
@@ -80,6 +93,7 @@ export interface Subcomponent<C extends Component, S extends Component> {
   (subcomponent: S | null): C;
 }
 
+export function Subcomponent<C extends Component, S extends Component = Component, I = ComponentObserverType<S>>(descriptor: {extends: SubcomponentPrototype<S>} & SubcomponentDescriptor<C, S, I>): PropertyDecorator;
 export function Subcomponent<C extends Component, S extends Component = Component, I = ComponentObserverType<S>>(descriptor: SubcomponentDescriptor<C, S, I>): PropertyDecorator;
 
 export function Subcomponent<C extends Component, S extends Component>(
@@ -92,7 +106,7 @@ export function Subcomponent<C extends Component, S extends Component>(
   } else { // decorator factory
     return SubcomponentDecoratorFactory(component as SubcomponentInit<C, S>);
   }
-};
+}
 __extends(Subcomponent, Object);
 Component.Subcomponent = Subcomponent;
 
@@ -182,10 +196,13 @@ Subcomponent.prototype.doSetSubcomponent = function <S extends Component>(this: 
                                                                           newSubcomponent: S | null): void {
   const oldSubcomponent = this._subcomponent;
   if (oldSubcomponent !== newSubcomponent) {
+    this.willSetOwnSubcomponent(newSubcomponent, oldSubcomponent);
     this.willSetSubcomponent(newSubcomponent, oldSubcomponent);
     this._subcomponent = newSubcomponent;
+    this.onSetOwnSubcomponent(newSubcomponent, oldSubcomponent);
     this.onSetSubcomponent(newSubcomponent, oldSubcomponent);
     this.didSetSubcomponent(newSubcomponent, oldSubcomponent);
+    this.didSetOwnSubcomponent(newSubcomponent, oldSubcomponent);
   }
 };
 
@@ -193,19 +210,41 @@ Subcomponent.prototype.willSetSubcomponent = function <S extends Component>(this
                                                                             newSubcomponent: S | null,
                                                                             oldSubcomponent: S | null): void {
   // hook
-}
+};
 
 Subcomponent.prototype.onSetSubcomponent = function <S extends Component>(this: Subcomponent<Component, S>,
                                                                           newSubcomponent: S | null,
                                                                           oldSubcomponent: S | null): void {
   // hook
-}
+};
 
 Subcomponent.prototype.didSetSubcomponent = function <S extends Component>(this: Subcomponent<Component, S>,
                                                                            newSubcomponent: S | null,
                                                                            oldSubcomponent: S | null): void {
   // hook
-}
+};
+
+Subcomponent.prototype.willSetOwnSubcomponent = function <S extends Component>(this: Subcomponent<Component, S>,
+                                                                               newSubcomponent: S | null,
+                                                                               oldSubcomponent: S | null): void {
+  // hook
+};
+
+Subcomponent.prototype.onSetOwnSubcomponent = function <S extends Component>(this: Subcomponent<Component, S>,
+                                                                             newSubcomponent: S | null,
+                                                                             oldSubcomponent: S | null): void {
+  // hook
+};
+
+Subcomponent.prototype.didSetOwnSubcomponent = function <S extends Component>(this: Subcomponent<Component, S>,
+                                                                              newSubcomponent: S | null,
+                                                                              oldSubcomponent: S | null): void {
+  // hook
+};
+
+Subcomponent.prototype.createSubcomponent = function <S extends Component>(this: Subcomponent<Component, S>): S | null {
+  return null;
+};
 
 Subcomponent.prototype.mount = function (this: Subcomponent<Component, Component>): void {
   // hook

@@ -17,9 +17,9 @@ import {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
-export abstract class ColorViewAnimator<V extends View> extends ViewAnimator<V, Color | null, AnyColor | null> {
-  fromAny(value: AnyColor | null): Color | null | undefined {
-    return value !== null ? Color.fromAny(value) : null;
+export abstract class ColorViewAnimator<V extends View> extends ViewAnimator<V, Color | null | undefined, AnyColor | null | undefined> {
+  fromAny(value: AnyColor | null): Color | null {
+    return value !== void 0 && value !== null ? Color.fromAny(value) : value;
   }
 }
 ViewAnimator.Color = ColorViewAnimator;

@@ -33,13 +33,13 @@ export interface ThemedView extends View {
 
   initView(init: ThemedViewInit): void;
 
-  mood: ViewScope<this, MoodVector>;
+  mood: ViewScope<this, MoodVector | undefined>;
 
-  moodModifier: ViewScope<this, MoodMatrix>;
+  moodModifier: ViewScope<this, MoodMatrix | undefined>;
 
-  theme: ViewScope<this, ThemeMatrix>;
+  theme: ViewScope<this, ThemeMatrix | undefined>;
 
-  themeModifier: ViewScope<this, MoodMatrix>;
+  themeModifier: ViewScope<this, MoodMatrix | undefined>;
 
   getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined
 

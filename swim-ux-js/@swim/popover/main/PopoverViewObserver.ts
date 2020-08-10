@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View, HtmlViewObserver} from "@swim/view";
+import {View} from "@swim/view";
+import {ThemedHtmlViewObserver} from "@swim/theme";
 import {PopoverPlacement, PopoverView} from "./PopoverView";
 
-export interface PopoverViewObserver<V extends PopoverView = PopoverView> extends HtmlViewObserver<V> {
+export interface PopoverViewObserver<V extends PopoverView = PopoverView> extends ThemedHtmlViewObserver<V> {
   popoverWillSetSource?(source: View | null, view: V): void;
 
   popoverDidSetSource?(source: View | null, view: V): void;

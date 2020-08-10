@@ -21,7 +21,7 @@ import {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
-export abstract class ContinuousScaleViewAnimator<V extends View, X, Y> extends ViewAnimator<V, ContinuousScale<X, Y>, ContinuousScale<X, Y> | string> {
+export abstract class ContinuousScaleViewAnimator<V extends View, X, Y> extends ViewAnimator<V, ContinuousScale<X, Y> | undefined, ContinuousScale<X, Y> | string | undefined> {
   setScale(domain: readonly [X, X] | string, range: readonly [Y, Y], tween?: Tween<ContinuousScale<X, Y>>): void;
   setScale(xMin: X, xMax: X, yMin: Y, yMax: Y, tween?: Tween<ContinuousScale<X, Y>>): void;
   setScale(xMin?: readonly [X, X] | X | string, xMax?: readonly [Y, Y] | X,
@@ -49,13 +49,14 @@ export abstract class ContinuousScaleViewAnimator<V extends View, X, Y> extends 
       if ((tween === void 0 || tween === null || tween === false) && (this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         const oldValue = this.getValue();
         const newValue = oldValue.domain(xMin as X, xMax as X);
-        const duration = this._duration - this._divergeTime;
+        const duration = this._duration - this._baseTime;
         tween = Transition.duration(duration, void 0, Interpolator.between(newValue, newState));
       }
     } else {
       newState = Scale.from(xMin as X, xMax as X, Interpolator.between(yMin as Y, yMax as Y));
     }
     this._animatorFlags |= TweenAnimator.OverrideFlag;
+    this._animatorFlags &= ~TweenAnimator.InheritedFlag;
     super.setState(newState, tween);
   }
 
@@ -78,13 +79,14 @@ export abstract class ContinuousScaleViewAnimator<V extends View, X, Y> extends 
       if ((tween === void 0 || tween === null || tween === false) && (this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         const oldValue = this.getValue();
         const newValue = oldValue.domain(xMin as X, xMax as X);
-        const duration = this._duration - this._divergeTime;
+        const duration = this._duration - this._baseTime;
         tween = Transition.duration(duration, void 0, Interpolator.between(newValue, newState));
       }
     } else {
       newState = Scale.from(xMin as X, xMax as X, Interpolator.between(void 0 as unknown as Y, void 0 as unknown as Y));
     }
     this._animatorFlags |= TweenAnimator.OverrideFlag;
+    this._animatorFlags &= ~TweenAnimator.InheritedFlag;
     super.setState(newState, tween);
   }
 
@@ -103,10 +105,11 @@ export abstract class ContinuousScaleViewAnimator<V extends View, X, Y> extends 
       if ((tween === void 0 || tween === null || tween === false) && (this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         const oldValue = this.getValue();
         const newValue = oldValue.range(yMin as Y, yMax as Y);
-        const duration = this._duration - this._divergeTime;
+        const duration = this._duration - this._baseTime;
         tween = Transition.duration(duration, void 0, Interpolator.between(newValue, newState));
       }
       this._animatorFlags |= TweenAnimator.OverrideFlag;
+      this._animatorFlags &= ~TweenAnimator.InheritedFlag;
       super.setState(newState, tween);
     }
   }
@@ -116,8 +119,8 @@ export abstract class ContinuousScaleViewAnimator<V extends View, X, Y> extends 
   setBaseScale(xMin?: readonly [X, X] | X | string, xMax?: readonly [Y, Y] | X,
                yMin?: Y | Tween<ContinuousScale<X, Y>>, yMax?: Y,
                tween?: Tween<ContinuousScale<X, Y>>): void {
-    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y>> | null | undefined;
-    if (this._value === void 0 && (superAnimator = this.superAnimator, superAnimator instanceof ContinuousScaleViewAnimator)) {
+    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined, ContinuousScale<X, Y> | string | undefined> | null | undefined;
+    if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ContinuousScaleViewAnimator)) {
       superAnimator.setBaseScale(xMin as any, xMax as any, yMin as any, yMax as any, tween);
     } else {
       this.setScale(xMin as any, xMax as any, yMin as any, yMax as any, tween);
@@ -128,8 +131,8 @@ export abstract class ContinuousScaleViewAnimator<V extends View, X, Y> extends 
   setBaseDomain(xMin: X, xMax: X, tween?: Tween<ContinuousScale<X, Y>>): void;
   setBaseDomain(xMin?: readonly [X, X] | X | string, xMax?: X | Tween<ContinuousScale<X, Y>>,
                 tween?: Tween<ContinuousScale<X, Y>>): void {
-    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y>> | null | undefined;
-    if (this._value === void 0 && (superAnimator = this.superAnimator, superAnimator instanceof ContinuousScaleViewAnimator)) {
+    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined, ContinuousScale<X, Y> | string | undefined> | null | undefined;
+    if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ContinuousScaleViewAnimator)) {
       superAnimator.setBaseDomain(xMin as any, xMax as any, tween);
     } else {
       this.setDomain(xMin as any, xMax as any, tween);
@@ -140,15 +143,15 @@ export abstract class ContinuousScaleViewAnimator<V extends View, X, Y> extends 
   setBaseRange(yMin: Y, yMax: Y, tween?: Tween<ContinuousScale<X, Y>>): void;
   setBaseRange(yMin?: readonly [Y, Y] | Y, yMax?: Y | Tween<ContinuousScale<X, Y>>,
                tween?: Tween<ContinuousScale<X, Y>>): void {
-    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y>> | null | undefined;
-    if (this._value === void 0 && (superAnimator = this.superAnimator, superAnimator instanceof ContinuousScaleViewAnimator)) {
+    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined, ContinuousScale<X, Y> | string | undefined> | null | undefined;
+    if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ContinuousScaleViewAnimator)) {
       superAnimator.setBaseRange(yMin as any, yMax as any, tween);
     } else {
       this.setRange(yMin as any, yMax as any, tween);
     }
   }
 
-  fromAny(value: ContinuousScale<X, Y> | string): ContinuousScale<X, Y> | undefined {
+  fromAny(value: ContinuousScale<X, Y> | string | undefined): ContinuousScale<X, Y> | undefined {
     if (typeof value === "string") {
       value = StyleValue.parseScale(value);
     }

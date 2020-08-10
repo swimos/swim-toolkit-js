@@ -16,7 +16,7 @@ import {Objects} from "@swim/util";
 import {BoxR2} from "@swim/math";
 import {AnyLength, Length} from "@swim/length";
 import {Color} from "@swim/color";
-import {Ease, Tween, AnyTransition, Transition} from "@swim/transition";
+import {Tween, Transition} from "@swim/transition";
 import {
   ViewContextType,
   ViewContext,
@@ -25,28 +25,26 @@ import {
   ModalOptions,
   ModalState,
   Modal,
-  ViewScope,
   ViewAnimator,
-  HtmlViewInit,
   HtmlView,
   HtmlViewObserver,
 } from "@swim/view";
+import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {PopoverViewObserver} from "./PopoverViewObserver";
 import {PopoverViewController} from "./PopoverViewController";
 
 export type PopoverPlacement = "none" | "above" | "below" | "over" | "top" | "bottom" | "right" | "left";
 
-export interface PopoverViewInit extends HtmlViewInit {
+export interface PopoverViewInit extends ThemedHtmlViewInit {
   viewController?: PopoverViewController;
   source?: View;
   placement?: PopoverPlacement[];
   placementFrame?: BoxR2;
   arrowWidth?: AnyLength;
   arrowHeight?: AnyLength;
-  popoverTransition?: AnyTransition<any>;
 }
 
-export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
+export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserver {
   /** @hidden */
   _source: View | null;
   /** @hidden */
@@ -109,25 +107,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     if (init.arrowHeight !== void 0) {
       this.arrowHeight(init.arrowHeight);
     }
-    if (init.popoverTransition !== void 0) {
-      this.popoverTransition(init.popoverTransition);
-    }
   }
 
-  @ViewAnimator({type: Length, value: Length.fromAny(10)})
+  @ViewAnimator({type: Length, state: Length.fromAny(10)})
   arrowWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, value: Length.fromAny(8)})
+  @ViewAnimator({type: Length, state: Length.fromAny(8)})
   arrowHeight: ViewAnimator<this, Length, AnyLength>;
-
-  @ViewScope({
-    type: Transition,
-    inherit: true,
-    init(): Transition<any> {
-      return Transition.duration(250, Ease.cubicOut);
-    },
-  })
-  popoverTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
   get source(): View | null {
     return this._source;
@@ -183,7 +169,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   showModal(options: ModalOptions, tween?: Tween<any>): void {
     if (this._modalState === "hidden" || this._modalState === "hiding") {
       if (tween === void 0 || tween === true) {
-        tween = this.popoverTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
@@ -244,7 +230,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   hideModal(tween?: Tween<any>): void {
     if (this._modalState === "shown" || this._modalState === "showing") {
       if (tween === void 0 || tween === true) {
-        tween = this.popoverTransition.getStateOr(null);
+        tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }

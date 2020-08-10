@@ -67,10 +67,10 @@ export class RasterView extends LayerView {
     }
   }
 
-  @ViewAnimator({type: Number, value: 1})
+  @ViewAnimator({type: Number, state: 1})
   opacity: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: String, value: "source-over"})
+  @ViewAnimator({type: String, state: "source-over"})
   compositeOperation: ViewAnimator<this, CanvasCompositeOperation>;
 
   get pixelRatio(): number {

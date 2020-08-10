@@ -16,13 +16,14 @@ export {
   ViewAnimatorType,
   ViewAnimatorInitType,
   ViewAnimatorInit,
+  ViewAnimatorDescriptorInit,
+  ViewAnimatorDescriptorInitExtends,
+  ViewAnimatorDescriptorInitFromAny,
   ViewAnimatorDescriptor,
   ViewAnimatorPrototype,
   ViewAnimatorConstructor,
   ViewAnimator,
 } from "./ViewAnimator";
-
-export {ObjectViewAnimator} from "./ObjectViewAnimator";
 
 export {StringViewAnimator} from "./StringViewAnimator";
 

@@ -15,6 +15,7 @@
 export {
   ViewServiceType,
   ViewServiceInit,
+  ViewServiceDescriptorInit,
   ViewServiceDescriptor,
   ViewServicePrototype,
   ViewServiceConstructor,

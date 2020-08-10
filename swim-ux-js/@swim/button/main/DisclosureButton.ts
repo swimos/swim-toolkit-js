@@ -49,13 +49,13 @@ export class DisclosureButton extends ThemedHtmlView {
   }
 
   @ViewAnimator({type: Number, inherit: true})
-  disclosurePhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
+  disclosurePhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   @ViewAnimator({type: Color, inherit: true})
-  collapsedColor: ViewAnimator<this, Color, AnyColor>;
+  collapsedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  expandedColor: ViewAnimator<this, Color, AnyColor>;
+  expandedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {

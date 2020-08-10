@@ -116,7 +116,7 @@ export function ComponentView<C extends Component, V extends View = View, U = V>
   } else { // decorator factory
     return ComponentViewDecoratorFactory(component as ComponentViewInit<C, V, U>);
   }
-};
+}
 __extends(ComponentView, Object);
 Component.View = ComponentView;
 
@@ -220,19 +220,19 @@ ComponentView.prototype.willSetView = function <V extends View>(this: ComponentV
                                                                 newView: V | null,
                                                                 oldView: V | null): void {
   // hook
-}
+};
 
 ComponentView.prototype.onSetView = function <V extends View>(this: ComponentView<Component, V>,
                                                               newView: V | null,
                                                               oldView: V | null): void {
   // hook
-}
+};
 
 ComponentView.prototype.didSetView = function <V extends View>(this: ComponentView<Component, V>,
                                                                newView: V | null,
                                                                oldView: V | null): void {
   // hook
-}
+};
 
 ComponentView.prototype.setAutoView = function <V extends View, U>(this: ComponentView<Component, V, U>,
                                                                    view: V | U | null): void {
@@ -262,19 +262,19 @@ ComponentView.prototype.willSetOwnView = function <V extends View>(this: Compone
                                                                    newView: V | null,
                                                                    oldView: V | null): void {
   // hook
-}
+};
 
 ComponentView.prototype.onSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
                                                                  newView: V | null,
                                                                  oldView: V | null): void {
   // hook
-}
+};
 
 ComponentView.prototype.didSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
                                                                   newView: V | null,
                                                                   oldView: V | null): void {
   this._component.componentViewDidSetView(this, newView, oldView);
-}
+};
 
 ComponentView.prototype.mount = function (this: ComponentView<Component, View>): void {
   // hook

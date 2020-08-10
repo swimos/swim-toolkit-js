@@ -16,17 +16,19 @@ import {View} from "../View";
 import {ViewScope} from "./ViewScope";
 
 /** @hidden */
-export abstract class NumberViewScope<V extends View> extends ViewScope<V, number, number | string> {
-  fromAny(value: number | string): number | undefined {
+export abstract class NumberViewScope<V extends View> extends ViewScope<V, number | null | undefined, number | string | null | undefined> {
+  fromAny(value: number | string | null | undefined): number | null | undefined {
     if (typeof value === "number") {
       return value;
-    } else {
+    } else if (typeof value === "string") {
       const number = +value;
       if (isFinite(number)) {
         return number;
       } else {
         throw new Error(value);
       }
+    } else {
+      return value;
     }
   }
 }

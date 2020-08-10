@@ -190,16 +190,16 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   }
 
   @ViewAnimator({type: Color, inherit: true})
-  stroke: ViewAnimator<this, Color, AnyColor>;
+  stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  strokeWidth: ViewAnimator<this, Length, AnyLength>;
+  strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font, AnyFont>;
+  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color, AnyColor>;
+  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   hitWidth(): number | null;
   hitWidth(hitWidth: number | null): this;

@@ -18,11 +18,11 @@ import {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class BoxShadowStyleAnimator<V extends ElementView> extends StyleAnimator<V, BoxShadow, AnyBoxShadow> {
-  parse(value: string): BoxShadow {
+  parse(value: string): BoxShadow | undefined {
     return BoxShadow.parse(value);
   }
 
-  fromAny(value: AnyBoxShadow): BoxShadow {
+  fromAny(value: AnyBoxShadow): BoxShadow | undefined {
     return BoxShadow.fromAny(value);
   }
 }

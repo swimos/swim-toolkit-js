@@ -62,10 +62,10 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   readonly viewObservers: ReadonlyArray<MenuItemObserver>;
 
   @ViewAnimator({type: Number, inherit: true})
-  drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
+  drawerStretch: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   @ViewScope({type: Object, inherit: true})
-  edgeInsets: ViewScope<this, ViewEdgeInsets>;
+  edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
 
   get highlighted(): boolean {
     return this._highlighted;

@@ -19,7 +19,7 @@ import {ViewManagerService} from "./ViewManagerService";
 
 /** @hidden */
 export abstract class ModalService<V extends View> extends ViewManagerService<V, ModalManager<V>> {
-  init(): ModalManager<V> | undefined {
+  initManager(): ModalManager<V> | undefined {
     return ModalManager.global();
   }
 }

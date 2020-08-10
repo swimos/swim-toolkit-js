@@ -77,29 +77,29 @@ export class MapPointView extends MapLayerView {
     this.setState(init);
   }
 
-  @ViewAnimator({type: GeoPoint, value: GeoPoint.origin()})
+  @ViewAnimator({type: GeoPoint, state: GeoPoint.origin()})
   geoPoint: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewAnimator({type: PointR2, value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, state: PointR2.origin()})
   viewPoint: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Length})
-  radius: ViewAnimator<this, Length, AnyLength>;
+  radius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color})
-  color: ViewAnimator<this, Color, AnyColor>;
+  color: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number})
-  opacity: ViewAnimator<this, number>;
+  opacity: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length})
-  labelPadding: ViewAnimator<this, Length, AnyLength>;
+  labelPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font, AnyFont>;
+  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color, AnyColor>;
+  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   hitRadius(): number | null;
   hitRadius(hitRadius: number | null): this;

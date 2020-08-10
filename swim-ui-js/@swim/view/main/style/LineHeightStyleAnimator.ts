@@ -18,11 +18,11 @@ import {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class LineHeightStyleAnimator<V extends ElementView> extends StyleAnimator<V, LineHeight, AnyLineHeight> {
-  parse(value: string): LineHeight {
+  parse(value: string): LineHeight | undefined {
     return LineHeight.fromAny(value);
   }
 
-  fromAny(value: AnyLineHeight): LineHeight {
+  fromAny(value: AnyLineHeight): LineHeight | undefined {
     return LineHeight.fromAny(value);
   }
 }

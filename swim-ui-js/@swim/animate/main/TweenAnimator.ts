@@ -32,15 +32,15 @@ export abstract class TweenAnimator<T> extends Animator {
   /** @hidden */
   _interrupts: TransitionObserver<T>[] | null;
   /** @hidden */
-  _value: T | undefined;
+  _value: T;
   /** @hidden */
-  _state: T | undefined;
+  _state: T;
   /** @hidden */
-  _divergeTime: number;
+  _baseTime: number;
   /** @hidden */
   _animatorFlags: TweenAnimatorFlags;
 
-  constructor(value: T | undefined, transition: Transition<T> | null) {
+  constructor(value: T, transition: Transition<T> | null) {
     super();
     if (transition !== null) {
       this._duration = transition._duration !== void 0 ? transition._duration : 0;
@@ -54,10 +54,12 @@ export abstract class TweenAnimator<T> extends Animator {
       this._observers = null;
     }
     this._interrupts = null;
-    this._value = value;
-    this._state = value;
-    this._divergeTime = 0;
-    this._animatorFlags = 0;
+    if (value !== void 0) {
+      this._value = value;
+      this._state = value;
+    }
+    this._baseTime = 0;
+    this._animatorFlags = TweenAnimator.UpdatedFlag;
   }
 
   duration(): number;
@@ -157,31 +159,33 @@ export abstract class TweenAnimator<T> extends Animator {
     this.animate();
   }
 
-  abstract cancel(): void;
-
-  isUpdated(): boolean {
-    return (this._animatorFlags & TweenAnimator.UpdatedFlag) !== 0;
+  cancel(): void {
+    // nop
   }
 
   isTweening(): boolean {
     return (this._animatorFlags & TweenAnimator.TweeningFlag) !== 0;
   }
 
-  get value(): T | undefined {
+  isUpdated(): boolean {
+    return (this._animatorFlags & TweenAnimator.UpdatedFlag) !== 0;
+  }
+
+  get value(): T {
     return this._value;
   }
 
-  get state(): T | undefined {
+  get state(): T {
     return this._state;
   }
 
-  setState(newState: T | undefined, tween: Tween<T> = null): void {
+  setState(newState: T, tween: Tween<T> = null): void {
     const oldState = this._state;
     if (newState === void 0 || tween === false || tween === null) {
       this.willSetState(newState, oldState);
       this._duration = 0;
       this._state = newState;
-      this._divergeTime = 0;
+      this._baseTime = 0;
       if ((this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         this._animatorFlags &= ~TweenAnimator.TweeningFlag;
         this.doInterrupt(this._value);
@@ -189,12 +193,9 @@ export abstract class TweenAnimator<T> extends Animator {
       const oldValue = this._value;
       this._value = newState;
       this._interpolator = null;
+      this.onSetState(newState, oldState);
       this.cancel();
-      if (newState !== void 0) {
-        this.update(newState, oldValue);
-      } else {
-        this.delete();
-      }
+      this.update(newState, oldValue);
       this.didSetState(newState, oldState);
     } else if (!Objects.equal(oldState, newState)) {
       this.willSetState(newState, oldState);
@@ -213,12 +214,13 @@ export abstract class TweenAnimator<T> extends Animator {
         this._interpolator = Interpolator.between<T, unknown>(newState, newState);
       }
       this._state = newState;
-      this._divergeTime = 0;
+      this._baseTime = 0;
       if ((this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         this._animatorFlags |= TweenAnimator.InterruptFlag | TweenAnimator.DivergedFlag;
       } else {
         this._animatorFlags |= TweenAnimator.TweeningFlag | TweenAnimator.DivergedFlag;
       }
+      this.onSetState(newState, oldState);
       this.animate();
       this.didSetState(newState, oldState);
     } else if (tween !== true) {
@@ -237,56 +239,54 @@ export abstract class TweenAnimator<T> extends Animator {
     }
   }
 
-  protected willSetState(newState: T | undefined, oldState: T | undefined) {
+  protected willSetState(newState: T, oldState: T): void {
     // hook
   }
 
-  protected didSetState(newState: T | undefined, oldState: T | undefined) {
+  protected onSetState(newState: T, oldState: T): void {
     // hook
   }
 
-  onFrame(t: number): void {
+  protected didSetState(newState: T, oldState: T): void {
+    // hook
+  }
+
+  onAnimate(t: number): void {
     if ((this._animatorFlags & (TweenAnimator.TweeningFlag | TweenAnimator.DisabledFlag)
-                             ^ TweenAnimator.TweeningFlag) !== 0) {
-      this.onIdle();
-      return;
-    }
-
-    if ((this._animatorFlags & TweenAnimator.InterruptFlag) !== 0) {
-      this._animatorFlags &= ~TweenAnimator.InterruptFlag;
-      this.doInterrupt(this._value);
-    }
-
-    if ((this._animatorFlags & TweenAnimator.DivergedFlag) !== 0) {
-      this._animatorFlags &= ~TweenAnimator.DivergedFlag;
-      this.doBegin(this._value);
-      if (!Objects.equal(this._value, this._state)) {
-        this._divergeTime = t;
-      } else {
-        this.tween(1);
+                             ^ TweenAnimator.TweeningFlag) === 0) {
+      if ((this._animatorFlags & TweenAnimator.InterruptFlag) !== 0) {
+        this._animatorFlags &= ~TweenAnimator.InterruptFlag;
+        this.doInterrupt(this._value);
       }
-    }
 
-    if ((this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
-      const u = this._duration !== 0 ? Math.min(Math.max(0, (t - this._divergeTime) / this._duration), 1) : 1;
-      this.tween(u);
-    }
+      if ((this._animatorFlags & TweenAnimator.DivergedFlag) !== 0) {
+        this._animatorFlags &= ~TweenAnimator.DivergedFlag;
+        this.doBegin(this._value);
+        if (!Objects.equal(this._value, this._state)) {
+          this._baseTime = t;
+        } else {
+          this.tween(1);
+        }
+      }
 
-    if ((this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
-      this.animate();
+      if ((this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
+        const u = this._duration !== 0 ? Math.min(Math.max(0, (t - this._baseTime) / this._duration), 1) : 1;
+        this.tween(u);
+      }
+
+      if ((this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
+        this.animate();
+      } else {
+        this._interrupts = null;
+        this._baseTime = 0;
+        this.doEnd(this._value);
+      }
     } else {
-      this._interrupts = null;
-      this._divergeTime = 0;
-      this.doEnd(this._value);
+      this.onIdle();
     }
   }
 
-  /** @hidden */
-  onIdle(): void {
-    this._animatorFlags &= ~TweenAnimator.UpdatedFlag;
-  }
-
-  interpolate(u: number): T | undefined {
+  interpolate(u: number): T {
     const interpolator = this._interpolator;
     return interpolator !== null ? interpolator.interpolate(u) : this._state;
   }
@@ -301,32 +301,30 @@ export abstract class TweenAnimator<T> extends Animator {
     }
   }
 
-  update(newValue: T | undefined, oldValue: T | undefined): void {
+  update(newValue: T, oldValue: T): void {
     if (!Objects.equal(oldValue, newValue)) {
       this.willUpdate(newValue, oldValue);
-      this._animatorFlags |= TweenAnimator.UpdatedFlag;
       this._value = newValue;
+      this._animatorFlags |= TweenAnimator.UpdatedFlag;
       this.onUpdate(newValue, oldValue);
       this.didUpdate(newValue, oldValue);
     }
   }
 
-  willUpdate(newValue: T | undefined, oldValue: T | undefined): void {
+  willUpdate(newValue: T, oldValue: T): void {
     // hook
   }
 
-  onUpdate(newValue: T | undefined, oldValue: T | undefined): void {
+  onUpdate(newValue: T, oldValue: T): void {
     // hook
   }
 
-  didUpdate(newValue: T | undefined, oldValue: T | undefined): void {
+  didUpdate(newValue: T, oldValue: T): void {
     // hook
   }
-
-  abstract delete(): void;
 
   /** @hidden */
-  protected doBegin(value: T | undefined): void {
+  protected doBegin(value: T): void {
     this.onBegin(value);
     const observers = this._observers;
     if (observers !== null) {
@@ -339,12 +337,12 @@ export abstract class TweenAnimator<T> extends Animator {
     }
   }
 
-  protected onBegin(value: T | undefined): void {
+  protected onBegin(value: T): void {
     // hook
   }
 
   /** @hidden */
-  protected doEnd(value: T | undefined): void {
+  protected doEnd(value: T): void {
     this.onEnd(value);
     const observers = this._observers;
     if (observers !== null) {
@@ -358,12 +356,12 @@ export abstract class TweenAnimator<T> extends Animator {
     }
   }
 
-  protected onEnd(value: T | undefined): void {
+  protected onEnd(value: T): void {
     // hook
   }
 
   /** @hidden */
-  protected doInterrupt(value: T | undefined): void {
+  protected doInterrupt(value: T): void {
     this.onInterrupt(value);
     const interrupts = this._interrupts;
     if (interrupts !== null) {
@@ -377,23 +375,30 @@ export abstract class TweenAnimator<T> extends Animator {
     }
   }
 
-  protected onInterrupt(value: T | undefined): void {
+  protected onInterrupt(value: T): void {
     // hook
   }
 
   /** @hidden */
-  static UpdatedFlag: TweenAnimatorFlags = 1 << 0;
-  /** @hidden */
-  static TweeningFlag: TweenAnimatorFlags = 1 << 1;
-  /** @hidden */
-  static DivergedFlag: TweenAnimatorFlags = 1 << 2;
-  /** @hidden */
-  static InterruptFlag: TweenAnimatorFlags = 1 << 3;
-  /** @hidden */
-  static DisabledFlag: TweenAnimatorFlags = 1 << 4;
-  /** @hidden */
-  static OverrideFlag: TweenAnimatorFlags = 1 << 5;
+  protected onIdle(): void {
+    this._animatorFlags &= ~TweenAnimator.UpdatedFlag;
+  }
 
   /** @hidden */
-  static AnimatorFlagsShift: number = 6;
+  static TweeningFlag: TweenAnimatorFlags = 1 << 0;
+  /** @hidden */
+  static DivergedFlag: TweenAnimatorFlags = 1 << 1;
+  /** @hidden */
+  static InterruptFlag: TweenAnimatorFlags = 1 << 2;
+  /** @hidden */
+  static DisabledFlag: TweenAnimatorFlags = 1 << 3;
+  /** @hidden */
+  static UpdatedFlag: TweenAnimatorFlags = 1 << 4;
+  /** @hidden */
+  static OverrideFlag: TweenAnimatorFlags = 1 << 5;
+  /** @hidden */
+  static InheritedFlag: TweenAnimatorFlags = 1 << 6;
+
+  /** @hidden */
+  static AnimatorFlagsShift: number = 8;
 }

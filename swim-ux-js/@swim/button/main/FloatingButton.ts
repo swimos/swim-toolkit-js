@@ -80,7 +80,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
   }
 
   @ViewAnimator({type: Number, inherit: true})
-  stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
+  stackPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {

@@ -83,10 +83,10 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   @ViewScope({type: TreeSeed, inherit: true})
-  seed: ViewScope<this, TreeSeed, AnyTreeSeed>;
+  seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
   @ViewScope({type: Number, inherit: true})
-  limbSpacing: ViewScope<this, number>;
+  limbSpacing: ViewScope<this, number | undefined>;
 
   get highlighted(): boolean {
     return this._highlighted;

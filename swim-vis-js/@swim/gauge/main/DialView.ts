@@ -139,62 +139,62 @@ export class DialView extends LayerView {
     }
   }
 
-  @ViewAnimator({type: Number, value: 0})
+  @ViewAnimator({type: Number, state: 0})
   value: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, value: 1})
+  @ViewAnimator({type: Number, state: 1})
   total: ViewAnimator<this, number>;
 
   @ViewAnimator({type: PointR2, inherit: true})
-  center: ViewAnimator<this, PointR2, AnyPointR2>;
+  center: ViewAnimator<this, PointR2 | undefined, AnyPointR2 | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  innerRadius: ViewAnimator<this, Length, AnyLength>;
+  innerRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  outerRadius: ViewAnimator<this, Length, AnyLength>;
+  outerRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Angle, inherit: true})
-  startAngle: ViewAnimator<this, Angle, AnyAngle>;
+  startAngle: ViewAnimator<this, Angle | undefined, AnyAngle | undefined>;
 
   @ViewAnimator({type: Angle, inherit: true})
-  sweepAngle: ViewAnimator<this, Angle, AnyAngle>;
+  sweepAngle: ViewAnimator<this, Angle | undefined, AnyAngle | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  cornerRadius: ViewAnimator<this, Length, AnyLength>;
+  cornerRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  dialColor: ViewAnimator<this, Color, AnyColor>;
+  dialColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  meterColor: ViewAnimator<this, Color, AnyColor>;
+  meterColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  labelPadding: ViewAnimator<this, Length, AnyLength>;
+  labelPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickAlign: ViewAnimator<this, number>;
+  tickAlign: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  tickRadius: ViewAnimator<this, Length, AnyLength>;
+  tickRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  tickLength: ViewAnimator<this, Length, AnyLength>;
+  tickLength: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  tickWidth: ViewAnimator<this, Length, AnyLength>;
+  tickWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  tickPadding: ViewAnimator<this, Length, AnyLength>;
+  tickPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  tickColor: ViewAnimator<this, Color, AnyColor>;
+  tickColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font, AnyFont>;
+  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color, AnyColor>;
+  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   label(): GraphicsView | null;
   label(label: GraphicsView | AnyTextRunView | null): this;

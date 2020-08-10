@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View, HtmlViewController} from "@swim/view";
+import {View} from "@swim/view";
+import {ThemedHtmlViewController} from "@swim/theme";
 import {PopoverPlacement, PopoverView} from "./PopoverView";
 import {PopoverViewObserver} from "./PopoverViewObserver";
 
-export class PopoverViewController<V extends PopoverView = PopoverView> extends HtmlViewController<V> implements PopoverViewObserver<V> {
+export class PopoverViewController<V extends PopoverView = PopoverView> extends ThemedHtmlViewController<V> implements PopoverViewObserver<V> {
   get source(): View | null {
     const view = this._view;
     return view !== null ? view.source : null;

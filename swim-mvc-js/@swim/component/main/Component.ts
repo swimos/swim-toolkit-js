@@ -702,7 +702,7 @@ export abstract class Component {
 
   abstract getSubcomponent(subcomponentName: string): Subcomponent<this, Component> | null;
 
-  abstract setSubcomponent(subcomponentName: string, componentService: Subcomponent<this, Component> | null): void;
+  abstract setSubcomponent(subcomponentName: string, subcomponent: Subcomponent<this, Component> | null): void;
 
   /** @hidden */
   getLazySubcomponent(subcomponentName: string): Subcomponent<this, Component> | null {
@@ -856,7 +856,7 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getSubcomponentConstructor<C extends Component>(subcomponentName: string, componentClass: ComponentClass | null = null): SubcomponentConstructor<Component> | null {
+  static getSubcomponentConstructor(subcomponentName: string, componentClass: ComponentClass | null = null): SubcomponentConstructor<Component> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
@@ -894,7 +894,7 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentServiceConstructor<C extends Component>(serviceName: string, componentClass: ComponentClass | null = null): ComponentServiceConstructor<unknown> | null {
+  static getComponentServiceConstructor(serviceName: string, componentClass: ComponentClass | null = null): ComponentServiceConstructor<unknown> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
@@ -932,7 +932,7 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentScopeConstructor<C extends Component>(scopeName: string, componentClass: ComponentClass | null = null): ComponentScopeConstructor<unknown> | null {
+  static getComponentScopeConstructor(scopeName: string, componentClass: ComponentClass | null = null): ComponentScopeConstructor<unknown> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
@@ -970,7 +970,7 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentModelConstructor<C extends Component>(modelName: string, componentClass: ComponentClass | null = null): ComponentModelConstructor<Model> | null {
+  static getComponentModelConstructor(modelName: string, componentClass: ComponentClass | null = null): ComponentModelConstructor<Model> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
@@ -1008,7 +1008,7 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentViewConstructor<C extends Component>(viewName: string, componentClass: ComponentClass | null = null): ComponentViewConstructor<View> | null {
+  static getComponentViewConstructor(viewName: string, componentClass: ComponentClass | null = null): ComponentViewConstructor<View> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }

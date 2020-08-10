@@ -15,14 +15,16 @@
 export {
   ViewScopeType,
   ViewScopeInitType,
+  ViewScopeFlags,
   ViewScopeInit,
+  ViewScopeDescriptorInit,
+  ViewScopeDescriptorInitExtends,
+  ViewScopeDescriptorInitFromAny,
   ViewScopeDescriptor,
   ViewScopePrototype,
   ViewScopeConstructor,
   ViewScope,
 } from "./ViewScope";
-
-export {ObjectViewScope} from "./ObjectViewScope";
 
 export {StringViewScope} from "./StringViewScope";
 

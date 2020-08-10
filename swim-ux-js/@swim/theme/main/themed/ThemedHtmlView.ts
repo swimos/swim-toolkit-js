@@ -50,16 +50,16 @@ export class ThemedHtmlView extends HtmlView implements ThemedView {
   }
 
   @ViewScope({type: MoodVector, inherit: true})
-  mood: ViewScope<this, MoodVector>;
+  mood: ViewScope<this, MoodVector | undefined>;
 
   @ViewScope({type: MoodMatrix})
-  moodModifier: ViewScope<this, MoodMatrix>;
+  moodModifier: ViewScope<this, MoodMatrix | undefined>;
 
   @ViewScope({type: ThemeMatrix, inherit: true})
-  theme: ViewScope<this, ThemeMatrix>;
+  theme: ViewScope<this, ThemeMatrix | undefined>;
 
   @ViewScope({type: MoodMatrix})
-  themeModifier: ViewScope<this, MoodMatrix>;
+  themeModifier: ViewScope<this, MoodMatrix | undefined>;
 
   getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined {
     const theme = this.theme.state;

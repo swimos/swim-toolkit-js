@@ -109,7 +109,7 @@ export function ModelService<M extends Model, T>(
   } else { // decorator factory
     return ModelServiceDecoratorFactory(model as ModelServiceInit<M, T>);
   }
-};
+}
 __extends(ModelService, Object);
 Model.Service = ModelService;
 
@@ -311,4 +311,4 @@ ModelService.constructorForType = function (type: unknown): ModelServicePrototyp
     return ModelService.Manager;
   }
   return null;
-}
+};

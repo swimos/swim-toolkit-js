@@ -223,10 +223,10 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   }
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font, AnyFont>;
+  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color, AnyColor>;
+  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     this.requireUpdate(View.NeedsAnimate);

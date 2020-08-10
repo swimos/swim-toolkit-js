@@ -17,11 +17,11 @@ import {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class StringStyleAnimator<V extends ElementView> extends StyleAnimator<V, string> {
-  parse(value: string): string {
+  parse(value: string): string | undefined {
     return value;
   }
 
-  fromAny(value: string): string {
+  fromAny(value: string): string | undefined {
     return value;
   }
 }

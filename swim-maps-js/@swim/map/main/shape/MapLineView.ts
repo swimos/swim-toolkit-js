@@ -71,23 +71,23 @@ export class MapLineView extends MapLayerView implements StrokeView {
     }
   }
 
-  @ViewAnimator({type: GeoPoint, value: GeoPoint.origin()})
+  @ViewAnimator({type: GeoPoint, state: GeoPoint.origin()})
   geoStart: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewAnimator({type: GeoPoint, value: GeoPoint.origin()})
+  @ViewAnimator({type: GeoPoint, state: GeoPoint.origin()})
   geoEnd: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewAnimator({type: PointR2, value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, state: PointR2.origin()})
   viewStart: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: PointR2, value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, state: PointR2.origin()})
   viewEnd: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Color, inherit: true})
-  stroke: ViewAnimator<this, Color, AnyColor>;
+  stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  strokeWidth: ViewAnimator<this, Length, AnyLength>;
+  strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   hitWidth(): number | null;
   hitWidth(hitWidth: number | null): this;

@@ -787,10 +787,10 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     return new ScaleGesture(this, this);
   }
 
-  @ViewScope<ScaleView<X, Y>, ScaleGesture<X, Y>>({
+  @ViewScope<ScaleView<X, Y>, ScaleGesture<X, Y> | undefined, ScaleGesture<X, Y> | boolean | undefined>({
     type: ScaleGesture,
     inherit: true,
-    fromAny(value: ScaleGesture<X, Y> | boolean): ScaleGesture<X, Y> | undefined {
+    fromAny(value: ScaleGesture<X, Y> | boolean | undefined): ScaleGesture<X, Y> | undefined {
       if (value === true) {
         return this.view.createScaleGesture();
       } else if (value === false) {
@@ -800,31 +800,31 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
     }
   })
-  scaleGesture: ViewScope<this, ScaleGesture<X, Y>, ScaleGesture<X, Y> | boolean>;
+  scaleGesture: ViewScope<this, ScaleGesture<X, Y> | undefined, ScaleGesture<X, Y> | boolean | undefined>;
 
   @ViewScope({
     type: Transition,
     inherit: true,
-    init(): Transition<any> {
+    initState(): Transition<any> | undefined {
       return Transition.duration(250, Ease.linear);
     },
   })
-  rescaleTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
+  rescaleTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
 
   @ViewScope({
     type: Transition,
     inherit: true,
-    init(): Transition<any> {
+    initState(): Transition<any> | undefined {
       return Transition.duration(250, Ease.cubicOut);
     },
   })
-  reboundTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
+  reboundTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font, AnyFont>;
+  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color, AnyColor>;
+  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   xDomainInRange(): boolean {
     return (this._scaleFlags & ScaleView.XInRangeMask) === ScaleView.XInRangeMask;
@@ -926,7 +926,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         this.xScale.setRange(xRange);
         this.requireUpdate(View.NeedsAnimate);
         this._scaleFlags |= ScaleView.RescaleFlag;
-      } else if (this.xScale.value === void 0) {
+      } else if (this.xScale.superValue === void 0) {
         const xDataDomain = this.xDataDomain();
         if (xDataDomain !== void 0) {
           const xScale = Scale.from(xDataDomain[0], xDataDomain[1],
@@ -944,7 +944,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         this.yScale.setRange(yRange[1], yRange[0]);
         this.requireUpdate(View.NeedsAnimate);
         this._scaleFlags |= ScaleView.RescaleFlag;
-      } else if (this.yScale.value === void 0) {
+      } else if (this.yScale.superValue === void 0) {
         const yDataDomain = this.yDataDomain();
         if (yDataDomain !== void 0) {
           const yScale = Scale.from(yDataDomain[0], yDataDomain[1],

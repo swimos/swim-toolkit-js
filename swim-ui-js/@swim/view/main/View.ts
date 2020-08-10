@@ -27,6 +27,7 @@ import {
 import {ViewContextType, ViewContext} from "./ViewContext";
 import {ViewObserverType, ViewObserver} from "./ViewObserver";
 import {ViewControllerType, ViewController} from "./ViewController";
+import {SubviewConstructor, Subview} from "./Subview";
 import {ViewManager} from "./manager/ViewManager";
 import {DisplayManager} from "./display/DisplayManager";
 import {LayoutAnchorConstructor, LayoutAnchor} from "./layout/LayoutAnchor";
@@ -70,13 +71,16 @@ export interface ViewClass {
   readonly removeChildFlags: ViewFlags;
 
   /** @hidden */
-  _viewServiceConstructors?: {[serviceName: string]: ViewServiceConstructor<unknown> | undefined};
+  _subviewConstructors?: {[subviewName: string]: SubviewConstructor<any, any> | undefined};
 
   /** @hidden */
-  _viewScopeConstructors?: {[scopeName: string]: ViewScopeConstructor<unknown> | undefined};
+  _viewServiceConstructors?: {[serviceName: string]: ViewServiceConstructor<any, unknown> | undefined};
 
   /** @hidden */
-  _viewAnimatorConstructors?: {[animatorName: string]: ViewAnimatorConstructor<unknown> | undefined};
+  _viewScopeConstructors?: {[scopeName: string]: ViewScopeConstructor<any, unknown> | undefined};
+
+  /** @hidden */
+  _viewAnimatorConstructors?: {[animatorName: string]: ViewAnimatorConstructor<any, unknown> | undefined};
 }
 
 export abstract class View implements AnimatorContext {
@@ -798,6 +802,26 @@ export abstract class View implements AnimatorContext {
     // hook
   }
 
+  abstract hasSubview(subviewName: string): boolean;
+
+  abstract getSubview(subviewName: string): Subview<this, View> | null;
+
+  abstract setSubview(subviewName: string, subview: Subview<this, View> | null): void;
+
+  /** @hidden */
+  getLazySubview(subviewName: string): Subview<this, View> | null {
+    let subview = this.getSubview(subviewName);
+    if (subview === null) {
+      const viewClass = (this as any).__proto__ as ViewClass;
+      const constructor = View.getSubviewConstructor(subviewName, viewClass);
+      if (constructor !== null) {
+        subview = new constructor(this, subviewName);
+        this.setSubview(subviewName, subview);
+      }
+    }
+    return subview;
+  }
+
   abstract hasViewService(serviceName: string): boolean;
 
   abstract getViewService(serviceName: string): ViewService<this, unknown> | null;
@@ -811,7 +835,7 @@ export abstract class View implements AnimatorContext {
       const viewClass = (this as any).__proto__ as ViewClass;
       const constructor = View.getViewServiceConstructor(serviceName, viewClass);
       if (constructor !== null) {
-        viewService = new constructor<this>(this, serviceName);
+        viewService = new constructor(this, serviceName);
         this.setViewService(serviceName, viewService);
       }
     }
@@ -831,7 +855,7 @@ export abstract class View implements AnimatorContext {
       const viewClass = (this as any).__proto__ as ViewClass;
       const constructor = View.getViewScopeConstructor(scopeName, viewClass);
       if (constructor !== null) {
-        viewScope = new constructor<this>(this, scopeName);
+        viewScope = new constructor(this, scopeName);
         this.setViewScope(scopeName, viewScope);
       }
     }
@@ -840,11 +864,6 @@ export abstract class View implements AnimatorContext {
 
   /** @hidden */
   viewScopeDidSetAuto<T, U>(viewScope: ViewScope<View, T, U>, auto: boolean): void {
-    // hook
-  }
-
-  /** @hidden */
-  viewScopeDidSetState<T, U>(viewScope: ViewScope<View, T, U>, newState: T | undefined, oldState: T | undefined): void {
     // hook
   }
 
@@ -861,16 +880,11 @@ export abstract class View implements AnimatorContext {
       const viewClass = (this as any).__proto__ as ViewClass;
       const constructor = View.getViewAnimatorConstructor(animatorName, viewClass);
       if (constructor !== null) {
-        viewAnimator = new constructor<this>(this, animatorName);
+        viewAnimator = new constructor(this, animatorName);
         this.setViewAnimator(animatorName, viewAnimator);
       }
     }
     return viewAnimator;
-  }
-
-  /** @hidden */
-  animatorDidSetAuto(animator: Animator, auto: boolean): void {
-    // hook
   }
 
   /** @hidden */
@@ -1082,7 +1096,45 @@ export abstract class View implements AnimatorContext {
                options?: EventListenerOptions | boolean): this;
 
   /** @hidden */
-  static getViewServiceConstructor<V extends View>(serviceName: string, viewClass: ViewClass | null = null): ViewServiceConstructor<unknown> | null {
+  static getSubviewConstructor(subviewName: string, viewClass: ViewClass | null = null): SubviewConstructor<any, any> | null {
+    if (viewClass === null) {
+      viewClass = this.prototype as unknown as ViewClass;
+    }
+    do {
+      if (viewClass.hasOwnProperty("_subviewConstructors")) {
+        const constructor = viewClass._subviewConstructors![subviewName];
+        if (constructor !== void 0) {
+          return constructor;
+        }
+      }
+      viewClass = (viewClass as any).__proto__ as ViewClass | null;
+    } while (viewClass !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateSubview<V extends View, S extends View>(constructor: SubviewConstructor<V, S>,
+                                                         viewClass: ViewClass, subviewName: string): void {
+    if (!viewClass.hasOwnProperty("_subviewConstructors")) {
+      viewClass._subviewConstructors = {};
+    }
+    viewClass._subviewConstructors![subviewName] = constructor;
+    Object.defineProperty(viewClass, subviewName, {
+      get: function (this: V): Subview<V, S> {
+        let subview = this.getSubview(subviewName) as Subview<V, S> | null;
+        if (subview === null) {
+          subview = new constructor(this, subviewName);
+          this.setSubview(subviewName, subview);
+        }
+        return subview;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
+  static getViewServiceConstructor(serviceName: string, viewClass: ViewClass | null = null): ViewServiceConstructor<any, unknown> | null {
     if (viewClass === null) {
       viewClass = this.prototype as unknown as ViewClass;
     }
@@ -1099,7 +1151,7 @@ export abstract class View implements AnimatorContext {
   }
 
   /** @hidden */
-  static decorateViewService<V extends View, T>(constructor: ViewServiceConstructor<T>,
+  static decorateViewService<V extends View, T>(constructor: ViewServiceConstructor<V, T>,
                                                 viewClass: ViewClass, serviceName: string): void {
     if (!viewClass.hasOwnProperty("_viewServiceConstructors")) {
       viewClass._viewServiceConstructors = {};
@@ -1109,7 +1161,7 @@ export abstract class View implements AnimatorContext {
       get: function (this: V): ViewService<V, T> {
         let viewService = this.getViewService(serviceName) as ViewService<V, T> | null;
         if (viewService === null) {
-          viewService = new constructor<V>(this, serviceName);
+          viewService = new constructor(this, serviceName);
           this.setViewService(serviceName, viewService);
         }
         return viewService;
@@ -1120,7 +1172,7 @@ export abstract class View implements AnimatorContext {
   }
 
   /** @hidden */
-  static getViewScopeConstructor(scopeName: string, viewClass: ViewClass | null = null): ViewScopeConstructor<unknown> | null {
+  static getViewScopeConstructor(scopeName: string, viewClass: ViewClass | null = null): ViewScopeConstructor<any, unknown> | null {
     if (viewClass === null) {
       viewClass = this.prototype as unknown as ViewClass;
     }
@@ -1137,7 +1189,7 @@ export abstract class View implements AnimatorContext {
   }
 
   /** @hidden */
-  static decorateViewScope<V extends View, T, U>(constructor: ViewScopeConstructor<T, U>,
+  static decorateViewScope<V extends View, T, U>(constructor: ViewScopeConstructor<V, T, U>,
                                                  viewClass: ViewClass, scopeName: string): void {
     if (!viewClass.hasOwnProperty("_viewScopeConstructors")) {
       viewClass._viewScopeConstructors = {};
@@ -1147,7 +1199,7 @@ export abstract class View implements AnimatorContext {
       get: function (this: V): ViewScope<V, T, U> {
         let viewScope = this.getViewScope(scopeName) as ViewScope<V, T, U> | null;
         if (viewScope === null) {
-          viewScope = new constructor<V>(this, scopeName);
+          viewScope = new constructor(this, scopeName);
           this.setViewScope(scopeName, viewScope);
         }
         return viewScope;
@@ -1158,7 +1210,7 @@ export abstract class View implements AnimatorContext {
   }
 
   /** @hidden */
-  static getViewAnimatorConstructor(animatorName: string, viewClass: ViewClass | null): ViewAnimatorConstructor<unknown> | null {
+  static getViewAnimatorConstructor(animatorName: string, viewClass: ViewClass | null): ViewAnimatorConstructor<any, unknown> | null {
     if (viewClass === null) {
       viewClass = this.prototype as unknown as ViewClass;
     }
@@ -1175,7 +1227,7 @@ export abstract class View implements AnimatorContext {
   }
 
   /** @hidden */
-  static decorateViewAnimator<V extends View, T, U>(constructor: ViewAnimatorConstructor<T, U>,
+  static decorateViewAnimator<V extends View, T, U>(constructor: ViewAnimatorConstructor<V, T, U>,
                                                     viewClass: ViewClass, animatorName: string): void {
     if (!viewClass.hasOwnProperty("_viewAnimatorConstructors")) {
       viewClass._viewAnimatorConstructors = {};
@@ -1185,7 +1237,7 @@ export abstract class View implements AnimatorContext {
       get: function (this: V): ViewAnimator<V, T, U> {
         let viewAnimator = this.getViewAnimator(animatorName) as ViewAnimator<V, T, U> | null;
         if (viewAnimator === null) {
-          viewAnimator = new constructor<V>(this, animatorName);
+          viewAnimator = new constructor(this, animatorName);
           this.setViewAnimator(animatorName, viewAnimator);
         }
         return viewAnimator;
@@ -1196,13 +1248,13 @@ export abstract class View implements AnimatorContext {
   }
 
   /** @hidden */
-  static decorateLayoutAnchor<V extends View>(constructor: LayoutAnchorConstructor,
+  static decorateLayoutAnchor<V extends View>(constructor: LayoutAnchorConstructor<V>,
                                               viewClass: unknown, anchorName: string): void {
     Object.defineProperty(viewClass, anchorName, {
       get: function (this: V): LayoutAnchor<V> {
         let layoutAnchor = this.getLayoutAnchor(anchorName) as LayoutAnchor<V> | null;
         if (layoutAnchor === null) {
-          layoutAnchor = new constructor<V>(this, anchorName);
+          layoutAnchor = new constructor(this, anchorName);
           this.setLayoutAnchor(anchorName, layoutAnchor);
         }
         return layoutAnchor;
@@ -1369,6 +1421,8 @@ export abstract class View implements AnimatorContext {
   static readonly removeChildFlags: ViewFlags = 0;
 
   // Forward type declarations
+  /** @hidden */
+  static Subview: typeof Subview; // defined by Subview
   /** @hidden */
   static Manager: typeof ViewManager; // defined by ViewManager
   /** @hidden */

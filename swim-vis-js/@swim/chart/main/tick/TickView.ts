@@ -125,38 +125,38 @@ export abstract class TickView<D> extends LayerView {
     return this._value;
   }
 
-  @ViewAnimator({type: PointR2, value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, state: PointR2.origin()})
   anchor: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Number, value: 1})
+  @ViewAnimator({type: Number, state: 1})
   opacity: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickMarkSpacing: ViewAnimator<this, number>;
+  tickMarkSpacing: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  tickMarkColor: ViewAnimator<this, Color, AnyColor>;
+  tickMarkColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickMarkWidth: ViewAnimator<this, number>;
+  tickMarkWidth: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickMarkLength: ViewAnimator<this, number>;
+  tickMarkLength: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickLabelPadding: ViewAnimator<this, number>;
+  tickLabelPadding: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  gridLineColor: ViewAnimator<this, Color, AnyColor>;
+  gridLineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  gridLineWidth: ViewAnimator<this, number>;
+  gridLineWidth: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font, AnyFont>;
+  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color, AnyColor>;
+  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   tickLabel(): GraphicsView | null;
   tickLabel(tickLabel: GraphicsView | AnyTextRunView | null): this;

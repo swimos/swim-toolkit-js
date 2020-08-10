@@ -15,7 +15,6 @@
 import {__extends} from "tslib";
 import {Objects, FromAny} from "@swim/util";
 import {ViewFlags, View} from "../View";
-import {ObjectViewScope} from "./ObjectViewScope";
 import {StringViewScope} from "./StringViewScope";
 import {BooleanViewScope} from "./BooleanViewScope";
 import {NumberViewScope} from "./NumberViewScope";
@@ -26,38 +25,55 @@ export type ViewScopeType<V, K extends keyof V> =
 export type ViewScopeInitType<V, K extends keyof V> =
   V extends {[P in K]: ViewScope<any, infer T, infer U>} ? T | U : unknown;
 
-export interface ViewScopeInit<V extends View, T, U = T> {
-  type?: unknown;
+export type ViewScopeFlags = number;
 
-  init?(): T | U | undefined;
-  value?: T | U;
+export interface ViewScopeInit<T, U = T> {
+  extends?: ViewScopePrototype;
+  type?: unknown;
+  state?: T | U;
   inherit?: string | boolean;
 
   updateFlags?: ViewFlags;
-  fromAny?(value: T | U): T | undefined;
-
-  extends?: ViewScopePrototype<T, U>;
+  willUpdate?(newState: T, oldState: T): void;
+  onUpdate?(newState: T, oldState: T): void;
+  didUpdate?(newState: T, oldState: T): void;
+  fromAny?(value: T | U): T;
+  initState?(): T | U;
 }
 
-export type ViewScopeDescriptor<V extends View, T, U = T, I = {}> = ViewScopeInit<V, T, U> & ThisType<ViewScope<V, T, U> & I> & I;
+export type ViewScopeDescriptorInit<V extends View, T, U = T, I = {}> = ViewScopeInit<T, U> & ThisType<ViewScope<V, T, U> & I> & I;
 
-export type ViewScopePrototype<T, U = T> = Function & { prototype: ViewScope<View, T, U> };
+export type ViewScopeDescriptorInitExtends<V extends View, T, U = T, I = {}> = {extends: ViewScopePrototype} & ViewScopeDescriptorInit<V, T, U, I>;
 
-export type ViewScopeConstructor<T, U = T> = new <V extends View>(view: V, scopeName: string | undefined) => ViewScope<V, T, U>;
+export type ViewScopeDescriptorInitFromAny<V extends View, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ViewScopeDescriptorInit<V, T, U, I>;
+
+export type ViewScopeDescriptor<V extends View, T, U = T> =
+  U extends T ? ViewScopeDescriptorInit<V, T, U> :
+  T extends string | null | undefined ? U extends string | null | undefined ? {type: typeof String} & ViewScopeDescriptorInit<V, T, U> : ViewScopeDescriptorInitExtends<V, T, U> :
+  T extends boolean | null | undefined ? U extends boolean | string | null | undefined ? {type: typeof Boolean} & ViewScopeDescriptorInit<V, T, U> : ViewScopeDescriptorInitExtends<V, T, U> :
+  T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & ViewScopeDescriptorInit<V, T, U> : ViewScopeDescriptorInitExtends<V, T, U> :
+  ViewScopeDescriptorInitFromAny<V, T, U>;
+
+export type ViewScopePrototype = Function & {prototype: ViewScope<any, any, any>};
+
+export type ViewScopeConstructor<V extends View, T, U = T> = {
+  new(view: V, scopeName: string | undefined): ViewScope<V, T, U>;
+  prototype: ViewScope<any, any, any>;
+};
 
 export declare abstract class ViewScope<V extends View, T, U = T> {
   /** @hidden */
   _view: V;
   /** @hidden */
-  _inherit?: string;
+  _inherit: string | boolean;
+  /** @hidden */
+  _scopeFlags: ViewScopeFlags;
   /** @hidden */
   _superScope?: ViewScope<View, T, U>;
   /** @hidden */
   _subScopes?: ViewScope<View, T, U>[];
   /** @hidden */
-  _auto: boolean;
-  /** @hidden */
-  _state: T | undefined;
+  _state: T;
 
   constructor(view: V, scopeName: string | undefined);
 
@@ -65,9 +81,16 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
 
   get view(): V;
 
-  get inherit(): string | undefined;
+  get inherit(): string | boolean;
 
-  setInherit(inherit: string | undefined): void;
+  setInherit(inherit: string | boolean): void;
+
+  isInherited(): boolean;
+
+  updateFlags?: ViewFlags;
+
+  /** @hidden */
+  get superName(): string | undefined;
 
   get superScope(): ViewScope<View, T, U> | null;
 
@@ -83,59 +106,84 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
   /** @hidden */
   removeSubScope(subScope: ViewScope<View, T, U>): void;
 
-  get superState(): T | undefined;
-
-  get ownState(): T | undefined;
-
-  get state(): T | undefined;
-
   isAuto(): boolean;
 
   setAuto(auto: boolean): void;
 
-  getState(): T;
+  isUpdated(): boolean;
 
-  getStateOr<E>(elseState: E): T | E;
+  get state(): T;
 
-  setState(newState: T | U | undefined): void;
+  get ownState(): T | undefined;
 
-  /** @hidden */
-  willSetState(newState: T | undefined, oldState: T | undefined): void;
+  get superState(): T | undefined;
 
-  /** @hidden */
-  didSetState(newState: T | undefined, oldState: T | undefined): void;
+  getState(): T extends undefined ? never : T;
 
-  setAutoState(state: T | U | undefined): void;
+  getStateOr<E>(elseState: E): (T extends undefined ? never : T) | E;
 
-  setOwnState(state: T | U | undefined): void;
-
-  setBaseState(state: T | U | undefined): void;
-
-  update(newState: T | undefined, oldState: T | undefined): void;
-
-  willUpdate(newState: T | undefined, oldState: T | undefined): void;
-
-  onUpdate(newState: T | undefined, oldState: T | undefined): void;
-
-  didUpdate(newState: T | undefined, oldState: T | undefined): void;
-
-  updateFlags?: ViewFlags;
+  setState(state: T | U): void;
 
   /** @hidden */
-  cascadeUpdate(newState: T | undefined, oldState: T | undefined): void;
+  willSetState(newState: T, oldState: T): void;
+
+  /** @hidden */
+  onSetState(newState: T, oldState: T): void;
+
+  /** @hidden */
+  didSetState(newState: T, oldState: T): void;
+
+  setAutoState(state: T | U): void;
+
+  setOwnState(state: T | U): void;
+
+  setBaseState(state: T | U): void;
+
+  /** @hidden */
+  onChange(): void;
+
+  /** @hidden */
+  updateInherited(): void;
+
+  update(newState: T, oldState: T): void;
+
+  willUpdate(newState: T, oldState: T): void;
+
+  onUpdate(newState: T, oldState: T): void;
+
+  didUpdate(newState: T, oldState: T): void;
+
+  /** @hidden */
+  updateSubScopes(newState: T, oldState: T): void;
+
+  /** @hidden */
+  onIdle(): void;
+
+  /** @hidden */
+  change(): void;
 
   mount(): void;
 
   unmount(): void;
 
-  abstract fromAny(value: T | U): T | undefined;
+  fromAny(value: T | U): T;
 
   /** @hidden */
-  static constructorForType(type: unknown): ViewScopePrototype<unknown> | null;
+  initState?(): T | U;
+
+  /** @hidden */
+  static getConstructor(type: unknown): ViewScopePrototype | null;
+
+  static define<V extends View, T, U = T>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U>;
+
+  /** @hidden */
+  static UpdatedFlag: ViewScopeFlags;
+  /** @hidden */
+  static OverrideFlag: ViewScopeFlags;
+  /** @hidden */
+  static InheritedFlag: ViewScopeFlags;
 
   // Forward type declarations
-  /** @hidden */
-  static Object: typeof ObjectViewScope; // defined by ObjectViewScope
   /** @hidden */
   static String: typeof StringViewScope; // defined by StringViewScope
   /** @hidden */
@@ -145,29 +193,23 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
 }
 
 export interface ViewScope<V extends View, T, U = T> {
-  (): T | undefined;
-  (value: T | U | undefined): V;
+  (): T;
+  (state: T | U): V;
 }
 
-export function ViewScope<V extends View, T, U = T, I = {}>(descriptor: {extends: ViewScopePrototype<T, U>} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewScope<V extends View, T extends Object = object, U extends Object = T, I = {}>(descriptor: {type: typeof Object} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewScope<V extends View, T extends string = string, U extends string = T, I = {}>(descriptor: {type: typeof String} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewScope<V extends View, T extends boolean = boolean, U extends boolean | string = T | string, I = {}>(descriptor: {type: typeof Boolean} & ViewScopeDescriptor<V, T, U, I> ): PropertyDecorator;
-export function ViewScope<V extends View, T extends number = number, U extends number | string = T | string, I = {}>(descriptor: {type: typeof Number} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewScope<V extends View, T, U = T, I = {}>(descriptor: {type: FromAny<T, U>} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
-export function ViewScope<V extends View, T, U = T, I = {}>(descriptor: {type: Function & { prototype: T }} & ViewScopeDescriptor<V, T, U, I>): PropertyDecorator;
+export function ViewScope<V extends View, T, U = T>(descriptor: ViewScopeDescriptor<V, T, U>): PropertyDecorator;
 
 export function ViewScope<V extends View, T, U>(
     this: ViewScope<V, T, U> | typeof ViewScope,
-    view: V | ViewScopeInit<V, T, U>,
+    view: V | ViewScopeDescriptor<V, T, U>,
     scopeName?: string,
   ): ViewScope<V, T, U> | PropertyDecorator {
   if (this instanceof ViewScope) { // constructor
     return ViewScopeConstructor.call(this, view as V, scopeName);
   } else { // decorator factory
-    return ViewScopeDecoratorFactory(view as ViewScopeInit<V, T, U>);
+    return ViewScopeDecoratorFactory(view as ViewScopeDescriptor<V, T, U>);
   }
-};
+}
 __extends(ViewScope, Object);
 View.Scope = ViewScope;
 
@@ -180,77 +222,20 @@ function ViewScopeConstructor<V extends View, T, U>(this: ViewScope<V, T, U>, vi
     });
   }
   this._view = view;
-  this._auto = true;
+  this._scopeFlags = ViewScope.UpdatedFlag;
+  if (this.initState !== void 0) {
+    const initState = this.initState();
+    if (initState !== void 0) {
+      this._state = this.fromAny(initState);
+    }
+  } else if (this._inherit !== false) {
+    this._scopeFlags |= ViewScope.InheritedFlag;
+  }
   return this;
 }
 
-function ViewScopeDecoratorFactory<V extends View, T, U = T>(descriptor: ViewScopeInit<V, T, U>): PropertyDecorator {
-  const type = descriptor.type;
-  const init = descriptor.init;
-  const value = descriptor.value;
-  const inherit = descriptor.inherit;
-  delete descriptor.type;
-  delete descriptor.init;
-  delete descriptor.value;
-  delete descriptor.inherit;
-
-  let BaseViewScope = descriptor.extends;
-  delete descriptor.extends;
-  if (BaseViewScope === void 0) {
-    BaseViewScope = ViewScope.constructorForType(type) as ViewScopePrototype<T, U>;
-  }
-  if (BaseViewScope === null) {
-    if (FromAny.is<T, U>(type)) {
-      BaseViewScope = ViewScope;
-      if (!("fromAny" in descriptor)) {
-        descriptor.fromAny = type.fromAny;
-      }
-    } else {
-      BaseViewScope = ViewScope.Object;
-    }
-  }
-
-  function DecoratedViewScope(this: ViewScope<V, T, U>, view: V, scopeName: string | undefined): ViewScope<V, T, U> {
-    let _this: ViewScope<V, T, U> = function accessor(state?: T | U): T | undefined | V {
-      if (arguments.length === 0) {
-        return _this._state;
-      } else {
-        _this.setState(state);
-        return _this._view;
-      }
-    } as ViewScope<V, T, U>;
-    Object.setPrototypeOf(_this, this);
-    _this = BaseViewScope!.call(_this, view, scopeName) || _this;
-    if (typeof inherit === "string") {
-      _this._inherit = inherit;
-    } else if (inherit === true && scopeName !== void 0) {
-      _this._inherit = scopeName;
-    }
-    let initValue: T | undefined;
-    if (init !== void 0) {
-      const lazyValue = init.call(_this);
-      if (lazyValue !== void 0) {
-        initValue = _this.fromAny(lazyValue);
-      }
-    } else if (value !== void 0) {
-      initValue = _this.fromAny(value);
-    }
-    if (initValue !== void 0) {
-      _this._state = initValue;
-    }
-    return _this;
-  }
-
-  if (descriptor !== void 0) {
-    Object.setPrototypeOf(DecoratedViewScope, BaseViewScope);
-    DecoratedViewScope.prototype = descriptor as ViewScope<V, T, U>;
-    DecoratedViewScope.prototype.constructor = DecoratedViewScope;
-    Object.setPrototypeOf(DecoratedViewScope.prototype, BaseViewScope.prototype);
-  } else {
-    __extends(DecoratedViewScope, BaseViewScope);
-  }
-
-  return View.decorateViewScope.bind(void 0, DecoratedViewScope);
+function ViewScopeDecoratorFactory<V extends View, T, U>(descriptor: ViewScopeDescriptor<V, T, U>): PropertyDecorator {
+  return View.decorateViewScope.bind(View, ViewScope.define(descriptor));
 }
 
 Object.defineProperty(ViewScope.prototype, "view", {
@@ -262,7 +247,7 @@ Object.defineProperty(ViewScope.prototype, "view", {
 });
 
 Object.defineProperty(ViewScope.prototype, "inherit", {
-  get: function (this: ViewScope<View, unknown>): string | undefined {
+  get: function (this: ViewScope<View, unknown>): string | boolean {
     return this._inherit;
   },
   enumerable: true,
@@ -270,15 +255,30 @@ Object.defineProperty(ViewScope.prototype, "inherit", {
 });
 
 ViewScope.prototype.setInherit = function (this: ViewScope<View, unknown>,
-                                           inherit: string | undefined): void {
-  this.unbindSuperScope();
-  if (inherit !== void 0) {
-    this._inherit = inherit;
-    this.bindSuperScope();
-  } else if (this._inherit !== void 0) {
-    this._inherit = void 0;
+                                           inherit: string | boolean): void {
+  if (this._inherit !== inherit) {
+    this.unbindSuperScope();
+    if (inherit !== false) {
+      this._inherit = inherit;
+      this.bindSuperScope();
+    } else if (this._inherit !== false) {
+      this._inherit = false;
+    }
   }
 };
+
+ViewScope.prototype.isInherited = function (this: ViewScope<View, unknown>): boolean {
+  return (this._scopeFlags & ViewScope.InheritedFlag) !== 0;
+};
+
+Object.defineProperty(ViewScope.prototype, "superName", {
+  get: function (this: ViewScope<View, unknown>): string | undefined {
+    const inherit = this._inherit;
+    return typeof inherit === "string" ? inherit : inherit === true ? this.name : void 0;
+  },
+  enumerable: true,
+  configurable: true,
+});
 
 Object.defineProperty(ViewScope.prototype, "superScope", {
   get: function <T, U>(this: ViewScope<View, T, U>): ViewScope<View, T, U> | null {
@@ -287,13 +287,13 @@ Object.defineProperty(ViewScope.prototype, "superScope", {
       superScope = null;
       let view = this._view;
       if (!view.isMounted()) {
-        const inherit = this._inherit;
-        if (inherit !== void 0) {
+        const superName = this.superName;
+        if (superName !== void 0) {
           do {
             const parentView = view.parentView;
             if (parentView !== null) {
               view = parentView;
-              const scope = view.getLazyViewScope(inherit);
+              const scope = view.getLazyViewScope(superName);
               if (scope === null) {
                 continue;
               } else {
@@ -314,18 +314,22 @@ Object.defineProperty(ViewScope.prototype, "superScope", {
 ViewScope.prototype.bindSuperScope = function (this: ViewScope<View, unknown>): void {
   let view = this._view;
   if (view.isMounted()) {
-    const inherit = this._inherit;
-    if (inherit !== void 0) {
+    const superName = this.superName;
+    if (superName !== void 0) {
       do {
         const parentView = view.parentView;
         if (parentView !== null) {
           view = parentView;
-          const scope = view.getLazyViewScope(inherit);
+          const scope = view.getLazyViewScope(superName);
           if (scope === null) {
             continue;
           } else {
             this._superScope = scope;
             scope.addSubScope(this);
+            if (this.isInherited()) {
+              this._state = scope._state;
+              this._scopeFlags |= ViewScope.UpdatedFlag;
+            }
           }
         }
         break;
@@ -350,7 +354,7 @@ ViewScope.prototype.addSubScope = function <T, U>(this: ViewScope<View, T, U>,
     this._subScopes = subScopes;
   }
   subScopes.push(subScope);
-}
+};
 
 ViewScope.prototype.removeSubScope = function <T, U>(this: ViewScope<View, T, U>,
                                                      subScope: ViewScope<View, T, U>): void {
@@ -363,6 +367,41 @@ ViewScope.prototype.removeSubScope = function <T, U>(this: ViewScope<View, T, U>
   }
 };
 
+ViewScope.prototype.isAuto = function (this: ViewScope<View, unknown>): boolean {
+  return (this._scopeFlags & ViewScope.OverrideFlag) === 0;
+};
+
+ViewScope.prototype.setAuto = function (this: ViewScope<View, unknown>,
+                                        auto: boolean): void {
+  if (auto && (this._scopeFlags & ViewScope.OverrideFlag) !== 0) {
+    this._scopeFlags &= ~ViewScope.OverrideFlag;
+    this._view.viewScopeDidSetAuto(this, true);
+  } else if (!auto && (this._scopeFlags & ViewScope.OverrideFlag) === 0) {
+    this._scopeFlags |= ViewScope.OverrideFlag;
+    this._view.viewScopeDidSetAuto(this, false);
+  }
+};
+
+ViewScope.prototype.isUpdated = function (this: ViewScope<View, unknown>): boolean {
+  return (this._scopeFlags & ViewScope.UpdatedFlag) !== 0;
+};
+
+Object.defineProperty(ViewScope.prototype, "state", {
+  get: function <T>(this: ViewScope<View, T>): T {
+    return this._state;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+Object.defineProperty(ViewScope.prototype, "ownState", {
+  get: function <T>(this: ViewScope<View, T>): T | undefined {
+    return !this.isInherited() ? this.state : void 0;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
 Object.defineProperty(ViewScope.prototype, "superState", {
   get: function <T>(this: ViewScope<View, T>): T | undefined {
     const superScope = this.superScope;
@@ -372,123 +411,115 @@ Object.defineProperty(ViewScope.prototype, "superState", {
   configurable: true,
 });
 
-Object.defineProperty(ViewScope.prototype, "ownState", {
-  get: function <T>(this: ViewScope<View, T>): T | undefined {
-    return this._state;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-Object.defineProperty(ViewScope.prototype, "state", {
-  get: function <T>(this: ViewScope<View, T>): T | undefined {
-    const state = this._state;
-    return state !== void 0 ? state : this.superState;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-ViewScope.prototype.isAuto = function (this: ViewScope<View, unknown>): boolean {
-  return this._auto;
-};
-
-ViewScope.prototype.setAuto = function (this: ViewScope<View, unknown>,
-                                        auto: boolean): void {
-  if (this._auto !== auto) {
-    this._auto = auto;
-    this._view.viewScopeDidSetAuto(this, auto);
-  }
-};
-
-ViewScope.prototype.getState = function <T, U>(this: ViewScope<View, T, U>): T {
+ViewScope.prototype.getState = function <T, U>(this: ViewScope<View, T, U>): T extends undefined ? never : T {
   const state = this.state;
   if (state === void 0) {
     throw new TypeError("undefined " + this.name + " state");
   }
-  return state;
+  return state as T extends undefined ? never : T;
 };
 
 ViewScope.prototype.getStateOr = function <T, U, E>(this: ViewScope<View, T, U>,
-                                                    elseState: E): T | E {
+                                                    elseState: E): (T extends undefined ? never : T) | E {
   let state: T | E | undefined = this.state;
   if (state === void 0) {
     state = elseState;
   }
-  return state;
+  return state as (T extends undefined ? never : T) | E;
 };
 
 ViewScope.prototype.setState = function <T, U>(this: ViewScope<View, T, U>,
-                                               state: T | U | undefined): void {
-  this._auto = false;
+                                               state: T | U): void {
+  this._scopeFlags |= ViewScope.OverrideFlag;
   this.setOwnState(state);
 };
 
 ViewScope.prototype.willSetState = function <T, U>(this: ViewScope<View, T, U>,
-                                                   newState: T | undefined,
-                                                   oldState: T | undefined): void {
+                                                   newState: T, oldState: T): void {
   // hook
-}
+};
+
+ViewScope.prototype.onSetState = function <T, U>(this: ViewScope<View, T, U>,
+                                                 newState: T, oldState: T): void {
+  // hook
+};
 
 ViewScope.prototype.didSetState = function <T, U>(this: ViewScope<View, T, U>,
-                                                  newState: T | undefined,
-                                                  oldState: T | undefined): void {
+                                                  newState: T, oldState: T): void {
   // hook
-}
+};
 
 ViewScope.prototype.setAutoState = function <T, U>(this: ViewScope<View, T, U>,
-                                                   state: T | U | undefined): void {
-  if (this._auto === true) {
+                                                   state: T | U): void {
+  if ((this._scopeFlags & ViewScope.OverrideFlag) === 0) {
     this.setOwnState(state);
   }
 };
 
 ViewScope.prototype.setOwnState = function <T, U>(this: ViewScope<View, T, U>,
-                                                  newState: T | U | undefined): void {
+                                                  newState: T | U): void {
   const oldState = this._state;
   if (newState !== void 0) {
     newState = this.fromAny(newState);
   }
+  this._scopeFlags &= ~ViewScope.InheritedFlag;
   if (!Objects.equal(oldState, newState)) {
-    this.willSetState(newState as T | undefined, oldState);
-    this.willUpdate(newState as T | undefined, oldState);
-    this._state = newState as T | undefined;
-    this.onUpdate(newState as T | undefined, oldState);
-    this.cascadeUpdate(newState as T | undefined, oldState);
-    this.didUpdate(newState as T | undefined, oldState);
-    this.didSetState(newState as T | undefined, oldState);
+    this.willSetState(newState as T, oldState);
+    this.willUpdate(newState as T, oldState);
+    this._state = newState as T;
+    this._scopeFlags |= ViewScope.UpdatedFlag;
+    this.onSetState(newState as T, oldState);
+    this.onUpdate(newState as T, oldState);
+    this.updateSubScopes(newState as T, oldState);
+    this.didUpdate(newState as T, oldState);
+    this.didSetState(newState as T, oldState);
   }
 };
 
 ViewScope.prototype.setBaseState = function <T, U>(this: ViewScope<View, T, U>,
-                                                   state: T | U | undefined): void {
+                                                   state: T | U): void {
   let superScope: ViewScope<View, T, U> | null | undefined;
-  if (this._state === void 0 && (superScope = this.superScope, superScope !== null)) {
+  if (this.isInherited() && (superScope = this.superScope, superScope !== null)) {
     superScope.setBaseState(state);
   } else {
     this.setState(state);
   }
 };
 
+ViewScope.prototype.onChange = function <T, U>(this: ViewScope<View, T, U>): void {
+  if (this.isInherited() && this.isUpdated()) {
+    this.updateInherited();
+  } else {
+    this.onIdle();
+  }
+};
+
+ViewScope.prototype.updateInherited = function <T, U>(this: ViewScope<View, T, U>): void {
+  const superScope = this._superScope;
+  if (superScope !== void 0) {
+    this.update(superScope.state, this.state);
+  }
+};
+
 ViewScope.prototype.update = function <T, U>(this: ViewScope<View, T, U>,
-                                             newState: T | undefined,
-                                             oldState: T | undefined): void {
-  this.willUpdate(newState, oldState);
-  this._state = newState;
-  this.onUpdate(newState, oldState);
-  this.cascadeUpdate(newState, oldState);
-  this.didUpdate(newState, oldState);
+                                             newState: T, oldState: T): void {
+  if (!Objects.equal(oldState, newState)) {
+    this.willUpdate(newState, oldState);
+    this._state = newState;
+    this._scopeFlags |= ViewScope.UpdatedFlag;
+    this.onUpdate(newState, oldState);
+    this.updateSubScopes(newState, oldState);
+    this.didUpdate(newState, oldState);
+  }
 };
 
 ViewScope.prototype.willUpdate = function <T, U>(this: ViewScope<View, T, U>,
-                                                 newState: T | undefined,
-                                                 oldState: T | undefined): void {
+                                                 newState: T, oldState: T): void {
   // hook
 };
 
 ViewScope.prototype.onUpdate = function <T, U>(this: ViewScope<View, T, U>,
-                                               newState: T | undefined,
-                                               oldState: T | undefined): void {
+                                               newState: T, oldState: T): void {
   const updateFlags = this.updateFlags;
   if (updateFlags !== void 0) {
     this._view.requireUpdate(updateFlags);
@@ -496,26 +527,29 @@ ViewScope.prototype.onUpdate = function <T, U>(this: ViewScope<View, T, U>,
 };
 
 ViewScope.prototype.didUpdate = function <T, U>(this: ViewScope<View, T, U>,
-                                                newState: T | undefined,
-                                                oldState: T | undefined): void {
-  this._view.viewScopeDidSetState(this, newState, oldState);
+                                                newState: T, oldState: T): void {
+  // hook
 };
 
-ViewScope.prototype.cascadeUpdate = function <T, U>(this: ViewScope<View, T, U>,
-                                                    newState: T | undefined,
-                                                    oldState: T | undefined): void {
+ViewScope.prototype.updateSubScopes = function <T, U>(this: ViewScope<View, T, U>,
+                                                      newState: T, oldState: T): void {
   const subScopes = this._subScopes;
   if (subScopes !== void 0) {
     for (let i = 0, n = subScopes.length; i < n; i += 1) {
       const subScope = subScopes[i];
-      if (subScope._state === void 0) {
-        subScope.willUpdate(newState, oldState);
-        subScope.onUpdate(newState, oldState);
-        subScope.cascadeUpdate(newState, oldState);
-        subScope.didUpdate(newState, oldState);
+      if (subScope.isInherited()) {
+        subScope.change();
       }
     }
   }
+};
+
+ViewScope.prototype.onIdle = function (this: ViewScope<View, unknown>): void {
+  this._scopeFlags &= ~ViewScope.UpdatedFlag;
+};
+
+ViewScope.prototype.change = function (this: ViewScope<View, unknown>): void {
+  this._view.requireUpdate(View.NeedsChange);
 };
 
 ViewScope.prototype.mount = function (this: ViewScope<View, unknown>): void {
@@ -526,7 +560,11 @@ ViewScope.prototype.unmount = function (this: ViewScope<View, unknown>): void {
   this.unbindSuperScope();
 };
 
-ViewScope.constructorForType = function (type: unknown): ViewScopePrototype<unknown> | null {
+ViewScope.prototype.fromAny = function <T, U>(this: ViewScope<View, T, U>, value: T | U): T {
+  return value as T;
+};
+
+ViewScope.getConstructor = function (type: unknown): ViewScopePrototype | null {
   if (type === String) {
     return ViewScope.String;
   } else if (type === Boolean) {
@@ -535,4 +573,56 @@ ViewScope.constructorForType = function (type: unknown): ViewScopePrototype<unkn
     return ViewScope.Number;
   }
   return null;
-}
+};
+
+ViewScope.define = function <V extends View, T, U>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U> {
+  let _super: ViewScopePrototype | null | undefined = descriptor.extends;
+  const state = descriptor.state;
+  const inherit = descriptor.inherit;
+  delete descriptor.extends;
+  delete descriptor.state;
+  delete descriptor.inherit;
+
+  if (_super === void 0) {
+    _super = ViewScope.getConstructor(descriptor.type);
+  }
+  if (_super === null) {
+    _super = ViewScope;
+    if (!descriptor.hasOwnProperty("fromAny") && FromAny.is<T, U>(descriptor.type)) {
+      descriptor.fromAny = descriptor.type.fromAny;
+    }
+  }
+
+  const _constructor = function ViewScopeAccessor(this: ViewScope<V, T, U>, view: V, scopeName: string | undefined): ViewScope<V, T, U> {
+    let _this: ViewScope<V, T, U> = function accessor(state?: T | U): T | V {
+      if (arguments.length === 0) {
+        return _this._state;
+      } else {
+        _this.setState(state!);
+        return _this._view;
+      }
+    } as ViewScope<V, T, U>;
+    Object.setPrototypeOf(_this, this);
+    _this = _super!.call(_this, view, scopeName) || _this;
+    return _this;
+  } as unknown as ViewScopeConstructor<V, T, U>;
+
+  const _prototype = descriptor as unknown as ViewScope<V, T, U>;
+  Object.setPrototypeOf(_constructor, _super);
+  _constructor.prototype = _prototype;
+  _constructor.prototype.constructor = _constructor;
+  Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  if (state !== void 0 && !_prototype.hasOwnProperty("initState")) {
+    _prototype.initState = function (): T | U {
+      return state;
+    };
+  }
+  _prototype._inherit = inherit !== void 0 ? inherit : false;
+
+  return _constructor;
+};
+
+ViewScope.UpdatedFlag = 1 << 0;
+ViewScope.OverrideFlag = 1 << 1;
+ViewScope.InheritedFlag = 1 << 2;

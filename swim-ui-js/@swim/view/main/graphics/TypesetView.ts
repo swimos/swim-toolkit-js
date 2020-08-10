@@ -27,15 +27,15 @@ export interface TypesetViewInit extends GraphicsViewInit {
 }
 
 export interface TypesetView extends GraphicsView {
-  readonly font: ViewAnimator<this, Font, AnyFont>;
+  readonly font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
-  readonly textAlign: ViewAnimator<this, CanvasTextAlign>;
+  readonly textAlign: ViewAnimator<this, CanvasTextAlign | undefined>;
 
-  readonly textBaseline: ViewAnimator<this, CanvasTextBaseline>;
+  readonly textBaseline: ViewAnimator<this, CanvasTextBaseline | undefined>;
 
-  readonly textOrigin: ViewAnimator<this, PointR2, AnyPointR2>;
+  readonly textOrigin: ViewAnimator<this, PointR2 | undefined, AnyPointR2 | undefined>;
 
-  readonly textColor: ViewAnimator<this, Color, AnyColor>;
+  readonly textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 }
 
 /** @hidden */

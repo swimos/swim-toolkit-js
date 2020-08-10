@@ -16,8 +16,8 @@ import {View} from "../View";
 import {ViewScope} from "./ViewScope";
 
 /** @hidden */
-export abstract class StringViewScope<V extends View> extends ViewScope<V, string> {
-  fromAny(value: string): string | undefined {
+export abstract class StringViewScope<V extends View> extends ViewScope<V, string | null | undefined> {
+  fromAny(value: string | null | undefined): string | null | undefined {
     return value;
   }
 }

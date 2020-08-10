@@ -20,6 +20,7 @@ import {ViewContextType, ViewContext} from "../ViewContext";
 import {ViewFlags, ViewConstructor, ViewInit, View} from "../View";
 import {ViewObserverType} from "../ViewObserver";
 import {ViewControllerType} from "../ViewController";
+import {Subview} from "../Subview";
 import {ViewEvent} from "../event/ViewEvent";
 import {ViewMouseEvent} from "../event/ViewMouseEvent";
 import {ViewPointerEvent} from "../event/ViewPointerEvent";
@@ -49,6 +50,8 @@ export abstract class GraphicsView extends View {
   _viewObservers?: ViewObserverType<this>[];
   /** @hidden */
   _viewFlags: ViewFlags;
+  /** @hidden */
+  _subviews?: {[subviewName: string]: Subview<View, View> | undefined};
   /** @hidden */
   _viewServices?: {[serviceName: string]: ViewService<View, unknown> | undefined};
   /** @hidden */
@@ -259,12 +262,22 @@ export abstract class GraphicsView extends View {
 
   abstract insertChildView(childView: View, targetView: View | null, key?: string): void;
 
+  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+    super.onInsertChildView(childView, targetView);
+    this.insertSubview(childView);
+  }
+
   cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
     // nop
   }
 
   abstract removeChildView(key: string): View | null;
   abstract removeChildView(childView: View): void;
+
+  protected onRemoveChildView(childView: View): void {
+    super.onRemoveChildView(childView);
+    this.removeSubview(childView);
+  }
 
   abstract removeAll(): void;
 
@@ -311,6 +324,7 @@ export abstract class GraphicsView extends View {
     this.mountServices();
     this.mountScopes();
     this.mountAnimators();
+    this.mountSubviews();
   }
 
   protected didMount(): void {
@@ -352,6 +366,7 @@ export abstract class GraphicsView extends View {
   }
 
   protected onUnmount(): void {
+    this.unmountSubviews();
     this.unmountAnimators();
     this.unmountScopes();
     this.unmountServices();
@@ -510,6 +525,11 @@ export abstract class GraphicsView extends View {
     }
   }
 
+  protected onChange(viewContext: ViewContextType<this>): void {
+    super.onChange(viewContext);
+    this.updateScopes();
+  }
+
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     this.updateAnimators(viewContext.updateTime);
@@ -611,6 +631,86 @@ export abstract class GraphicsView extends View {
     }
   }
 
+  hasSubview(subviewName: string): boolean {
+    const subviews = this._subviews;
+    return subviews !== void 0 && subviews[subviewName] !== void 0;
+  }
+
+  getSubview(subviewName: string): Subview<this, View> | null {
+    const subviews = this._subviews;
+    if (subviews !== void 0) {
+      const subview = subviews[subviewName];
+      if (subview !== void 0) {
+        return subview as Subview<this, View>;
+      }
+    }
+    return null;
+  }
+
+  setSubview(subviewName: string, newSubview: Subview<this, View> | null): void {
+    let subviews = this._subviews;
+    if (subviews === void 0) {
+      subviews = {};
+      this._subviews = subviews;
+    }
+    const oldSubview = subviews[subviewName];
+    if (oldSubview !== void 0 && this.isMounted()) {
+      oldSubview.unmount();
+    }
+    if (newSubview !== null) {
+      subviews[subviewName] = newSubview;
+      if (this.isMounted()) {
+        newSubview.mount();
+      }
+    } else {
+      delete subviews[subviewName];
+    }
+  }
+
+  /** @hidden */
+  protected mountSubviews(): void {
+    const subviews = this._subviews;
+    if (subviews !== void 0) {
+      for (const subviewName in subviews) {
+        const subview = subviews[subviewName]!;
+        subview.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected unmountSubviews(): void {
+    const subviews = this._subviews;
+    if (subviews !== void 0) {
+      for (const subviewName in subviews) {
+        const subview = subviews[subviewName]!;
+        subview.unmount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected insertSubview(childView: View): void {
+    const subviewName = childView.key;
+    if (subviewName !== void 0) {
+      const subview = this.getLazySubview(subviewName);
+      if (subview !== null) {
+        subview.doSetSubview(childView);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected removeSubview(childView: View): void {
+    const subviewName = childView.key;
+    if (subviewName !== void 0) {
+      const subview = this.getSubview(subviewName);
+      if (subview !== null) {
+        subview.doSetSubview(null);
+      }
+    }
+  }
+
   hasViewService(serviceName: string): boolean {
     const viewServices = this._viewServices;
     return viewServices !== void 0 && viewServices[serviceName] !== void 0;
@@ -706,6 +806,17 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
+  updateScopes(): void {
+    const viewScopes = this._viewScopes;
+    if (viewScopes !== void 0) {
+      for (const scopeName in viewScopes) {
+        const viewScope = viewScopes[scopeName]!;
+        viewScope.onChange();
+      }
+    }
+  }
+
+  /** @hidden */
   protected mountScopes(): void {
     const viewScopes = this._viewScopes;
     if (viewScopes !== void 0) {
@@ -774,7 +885,7 @@ export abstract class GraphicsView extends View {
     if (viewAnimators !== void 0) {
       for (const animatorName in viewAnimators) {
         const viewAnimator = viewAnimators[animatorName]!;
-        viewAnimator.onFrame(t);
+        viewAnimator.onAnimate(t);
       }
     }
   }

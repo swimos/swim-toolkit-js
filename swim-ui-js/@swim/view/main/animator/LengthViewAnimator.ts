@@ -17,9 +17,9 @@ import {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
-export abstract class LengthViewAnimator<V extends View> extends ViewAnimator<V, Length | null, AnyLength | null> {
-  fromAny(value: AnyLength | null): Length | null | undefined {
-    return value !== null ? Length.fromAny(value) : null;
+export abstract class LengthViewAnimator<V extends View> extends ViewAnimator<V, Length | null | undefined, AnyLength | null | undefined> {
+  fromAny(value: AnyLength | null | undefined): Length | null | undefined {
+    return value !== void 0 && value !== null ? Length.fromAny(value) : null;
   }
 }
 ViewAnimator.Length = LengthViewAnimator;

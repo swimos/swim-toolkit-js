@@ -237,7 +237,7 @@ export class ElementView extends NodeView {
     if (attributeAnimators !== void 0) {
       for (const animatorName in attributeAnimators) {
         const attributeAnimator = attributeAnimators[animatorName]!;
-        attributeAnimator.onFrame(t);
+        attributeAnimator.onAnimate(t);
       }
     }
   }
@@ -248,7 +248,7 @@ export class ElementView extends NodeView {
     if (styleAnimators !== void 0) {
       for (const animatorName in styleAnimators) {
         const styleAnimator = styleAnimators[animatorName]!;
-        styleAnimator.onFrame(t);
+        styleAnimator.onAnimate(t);
       }
     }
   }
@@ -350,13 +350,13 @@ export class ElementView extends NodeView {
   }
 
   /** @hidden */
-  static decorateAttributeAnimator<V extends ElementView, T, U>(constructor: AttributeAnimatorConstructor<T, U>,
+  static decorateAttributeAnimator<V extends ElementView, T, U>(constructor: AttributeAnimatorConstructor<V, T, U>,
                                                                 viewClass: ViewClass, animatorName: string): void {
     Object.defineProperty(viewClass, animatorName, {
       get: function (this: V): AttributeAnimator<V, T, U> {
         let animator = this.getAttributeAnimator(animatorName) as AttributeAnimator<V, T, U> | null;
         if (animator === null) {
-          animator = new constructor<V>(this, animatorName);
+          animator = new constructor(this, animatorName);
           this.setAttributeAnimator(animatorName, animator);
         }
         return animator;
@@ -367,13 +367,13 @@ export class ElementView extends NodeView {
   }
 
   /** @hidden */
-  static decorateStyleAnimator<V extends ElementView, T, U>(constructor: StyleAnimatorConstructor<T, U>,
+  static decorateStyleAnimator<V extends ElementView, T, U>(constructor: StyleAnimatorConstructor<V, T, U>,
                                                             viewClass: ViewClass, animatorName: string): void {
     Object.defineProperty(viewClass, animatorName, {
       get: function (this: V): StyleAnimator<V, T, U> {
         let animator = this.getStyleAnimator(animatorName) as StyleAnimator<V, T, U> | null;
         if (animator === null) {
-          animator = new constructor<V>(this, animatorName);
+          animator = new constructor(this, animatorName);
           this.setStyleAnimator(animatorName, animator);
         }
         return animator;

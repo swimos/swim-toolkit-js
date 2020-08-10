@@ -18,7 +18,7 @@ import {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class LengthOrStringStyleAnimator<V extends ElementView> extends StyleAnimator<V, Length | string, AnyLength | string> {
-  parse(value: string): Length | string {
+  parse(value: string): Length | string | undefined {
     try {
       return Length.parse(value, this.node);
     } catch (swallow) {
@@ -26,7 +26,7 @@ export abstract class LengthOrStringStyleAnimator<V extends ElementView> extends
     }
   }
 
-  fromAny(value: AnyLength | string): Length | string {
+  fromAny(value: AnyLength | string): Length | string | undefined {
     if (typeof value === "string") {
       try {
         return Length.parse(value, this.node);

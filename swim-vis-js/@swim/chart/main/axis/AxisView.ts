@@ -200,53 +200,53 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
-  @ViewAnimator({type: PointR2, value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, state: PointR2.origin()})
   origin: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Color, inherit: true})
-  borderColor: ViewAnimator<this, Color, AnyColor>;
+  borderColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  borderWidth: ViewAnimator<this, number>;
+  borderWidth: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  borderSerif: ViewAnimator<this, number>;
+  borderSerif: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Number, value: 80})
-  tickMarkSpacing: ViewAnimator<this, number>;
+  @ViewAnimator({type: Number, state: 80})
+  tickMarkSpacing: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  tickMarkColor: ViewAnimator<this, Color, AnyColor>;
+  tickMarkColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickMarkWidth: ViewAnimator<this, number>;
+  tickMarkWidth: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickMarkLength: ViewAnimator<this, number>;
+  tickMarkLength: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickLabelPadding: ViewAnimator<this, number>;
+  tickLabelPadding: ViewAnimator<this, number | undefined>;
 
   @ViewScope({
     type: Transition,
     inherit: true,
-    init(): Transition<any> {
+    initState(): Transition<any> {
       return Transition.duration(250, Ease.cubicOut);
     },
   })
   tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
   @ViewAnimator({type: Color, inherit: true})
-  gridLineColor: ViewAnimator<this, Color, AnyColor>;
+  gridLineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  gridLineWidth: ViewAnimator<this, number>;
+  gridLineWidth: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font, AnyFont>;
+  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color, AnyColor>;
+  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   get childViewCount(): number {
     return this._ticks.size;

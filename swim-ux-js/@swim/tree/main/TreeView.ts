@@ -56,7 +56,6 @@ export class TreeView extends ThemedHtmlView {
     this.addClass("tree");
     this.position.setAutoState("relative");
     this.opacity.setAutoState(1);
-    this.depth.onUpdate = this.onUpdateDepth.bind(this);
   }
 
   readonly viewController: TreeViewController | null;
@@ -111,25 +110,31 @@ export class TreeView extends ThemedHtmlView {
   }
 
   @ViewScope({type: TreeSeed, inherit: true})
-  seed: ViewScope<this, TreeSeed, AnyTreeSeed>;
+  seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
-  @ViewScope({type: Number, value: 0})
+  @ViewScope<TreeView, number>({
+    type: Number,
+    state: 0,
+    onUpdate(depth: number): void {
+      this.view.onUpdateDepth(depth);
+    },
+  })
   depth: ViewScope<this, number>;
 
   @ViewScope({type: Object, inherit: true})
-  edgeInsets: ViewScope<this, ViewEdgeInsets>;
+  edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
 
-  @ViewScope({type: Number, value: 2})
+  @ViewScope({type: Number, state: 2})
   limbSpacing: ViewScope<this, number>;
 
-  @ViewScope({type: Object, inherit: true})
-  disclosureState: ViewScope<this, TreeLimbState>;
+  @ViewScope({type: String, inherit: true})
+  disclosureState: ViewScope<this, TreeLimbState | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  disclosurePhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
+  disclosurePhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   @ViewAnimator({type: Number, inherit: true})
-  disclosingPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
+  disclosingPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);

@@ -167,7 +167,7 @@ export function ModelScope<M extends Model, T, U>(
   } else { // decorator factory
     return ModelScopeDecoratorFactory(model as ModelScopeInit<M, T, U>);
   }
-};
+}
 __extends(ModelScope, Object);
 Model.Scope = ModelScope;
 
@@ -350,7 +350,7 @@ ModelScope.prototype.addSubScope = function <T, U>(this: ModelScope<Model, T, U>
     this._subScopes = subScopes;
   }
   subScopes.push(subScope);
-}
+};
 
 ModelScope.prototype.removeSubScope = function <T, U>(this: ModelScope<Model, T, U>,
                                                       subScope: ModelScope<Model, T, U>): void {
@@ -428,13 +428,13 @@ ModelScope.prototype.willSetState = function <T, U>(this: ModelScope<Model, T, U
                                                     newState: T | undefined,
                                                     oldState: T | undefined): void {
   // hook
-}
+};
 
 ModelScope.prototype.didSetState = function <T, U>(this: ModelScope<Model, T, U>,
                                                    newState: T | undefined,
                                                    oldState: T | undefined): void {
   // hook
-}
+};
 
 ModelScope.prototype.setAutoState = function <T, U>(this: ModelScope<Model, T, U>,
                                                     state: T | U | undefined): void {
@@ -535,4 +535,4 @@ ModelScope.constructorForType = function (type: unknown): ModelScopePrototype<un
     return ModelScope.Number;
   }
   return null;
-}
+};

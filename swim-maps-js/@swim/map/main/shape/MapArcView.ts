@@ -97,41 +97,41 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
     }
   }
 
-  @ViewAnimator({type: GeoPoint, value: GeoPoint.origin()})
+  @ViewAnimator({type: GeoPoint, state: GeoPoint.origin()})
   geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewAnimator({type: PointR2, value: PointR2.origin()})
+  @ViewAnimator({type: PointR2, state: PointR2.origin()})
   viewCenter: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Length, value: Length.zero()})
+  @ViewAnimator({type: Length, state: Length.zero()})
   innerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, value: Length.zero()})
+  @ViewAnimator({type: Length, state: Length.zero()})
   outerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Angle, value: Angle.zero()})
+  @ViewAnimator({type: Angle, state: Angle.zero()})
   startAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Angle, value: Angle.zero()})
+  @ViewAnimator({type: Angle, state: Angle.zero()})
   sweepAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Angle, value: Angle.zero()})
+  @ViewAnimator({type: Angle, state: Angle.zero()})
   padAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Length, value: null})
+  @ViewAnimator({type: Length, state: null})
   padRadius: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Length, value: Length.zero()})
+  @ViewAnimator({type: Length, state: Length.zero()})
   cornerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, inherit: true})
-  fill: ViewAnimator<this, Color, AnyColor>;
+  fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  stroke: ViewAnimator<this, Color, AnyColor>;
+  stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  strokeWidth: ViewAnimator<this, Length, AnyLength>;
+  strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   get value(): Arc {
     return new Arc(this.viewCenter.getValue(), this.innerRadius.getValue(), this.outerRadius.getValue(),
