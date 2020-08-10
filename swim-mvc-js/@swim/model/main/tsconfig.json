@@ -7,5 +7,8 @@
       "@swim/util": ["../../swim-system-js/swim-core-js/@swim/util/main"]
     },
     "tsBuildInfoFile": "../lib/main/.tsbuildinfo"
-  }
+  },
+  "references": [
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/util/main"}
+  ]
 }

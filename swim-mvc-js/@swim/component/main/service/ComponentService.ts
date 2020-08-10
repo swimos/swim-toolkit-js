@@ -21,35 +21,49 @@ import {ComponentManagerService} from "./ComponentManagerService";
 import {ExecuteService} from "./ExecuteService";
 import {HistoryService} from "./HistoryService";
 
-export type ComponentServiceType<C, K extends keyof C> =
+export type ComponentServiceMemberType<C, K extends keyof C> =
   C extends {[P in K]: ComponentService<any, infer T>} ? T : unknown;
 
-export interface ComponentServiceInit<C extends Component, T> {
+export type ComponentServiceFlags = number;
+
+export interface ComponentServiceInit<T> {
+  extends?: ComponentServicePrototype;
+  observe?: boolean;
   type?: unknown;
-
-  init?(): T | undefined;
-  value?: T;
+  manager?: T;
   inherit?: string | boolean;
-  observer?: boolean;
 
-  extends?: ComponentServicePrototype<T>;
+  initManager?(): T;
 }
 
-export type ComponentServiceDescriptor<C extends Component, T, I = {}> = ComponentServiceInit<C, T> & ThisType<ComponentService<C, T> & I> & I;
+export type ComponentServiceDescriptorInit<C extends Component, T, I = {}> = ComponentServiceInit<T> & ThisType<ComponentService<C, T> & I> & I;
 
-export type ComponentServicePrototype<T> = Function & { prototype: ComponentService<Component, T> };
+export type ComponentServiceDescriptorExtends<C extends Component, T, I = {}> = {extends: ComponentServicePrototype} & ComponentServiceDescriptorInit<C, T, I>;
 
-export type ComponentServiceConstructor<T> = new <C extends Component>(component: C, serviceName: string | undefined) => ComponentService<C, T>;
+export type ComponentServiceDescriptor<C extends Component, T> =
+  T extends ExecuteManager ? {type: typeof ExecuteManager} & ComponentServiceDescriptorInit<C, T, ComponentManagerObserverType<T>> :
+  T extends HistoryManager ? {type: typeof HistoryManager} & ComponentServiceDescriptorInit<C, T, ComponentManagerObserverType<T>> :
+  T extends ComponentManager ? {type: typeof ComponentManager} & ComponentServiceDescriptorInit<C, T, ComponentManagerObserverType<T>> :
+  ComponentServiceDescriptorInit<C, T>;
+
+export type ComponentServicePrototype = Function & {prototype: ComponentService<any, any>};
+
+export type ComponentServiceConstructor<C extends Component, T> = {
+  new(component: C, serviceName: string | undefined): ComponentService<C, T>;
+  prototype: ComponentService<any, any>;
+};
 
 export declare abstract class ComponentService<C extends Component, T> {
   /** @hidden */
   _component: C;
   /** @hidden */
-  _inherit?: string;
+  _inherit: string | boolean;
+  /** @hidden */
+  _serviceFlags: ComponentServiceFlags;
   /** @hidden */
   _superService?: ComponentService<Component, T>;
   /** @hidden */
-  _manager: T | undefined;
+  _manager: T;
 
   constructor(component: C, serviceName: string | undefined);
 
@@ -57,9 +71,14 @@ export declare abstract class ComponentService<C extends Component, T> {
 
   get component(): C;
 
-  get inherit(): string | undefined;
+  get inherit(): string | boolean;
 
-  setInherit(inherit: string | undefined): void;
+  setInherit(inherit: string | boolean): void;
+
+  isInherited(): boolean;
+
+  /** @hidden */
+  get superName(): string | undefined;
 
   get superService(): ComponentService<Component, T> | null;
 
@@ -69,20 +88,31 @@ export declare abstract class ComponentService<C extends Component, T> {
   /** @hidden */
   unbindSuperService(): void;
 
-  get superManager(): T | undefined;
+  get manager(): T;
 
   get ownManager(): T | undefined;
 
-  get manager(): T | undefined;
+  get superManager(): T | undefined;
+
+  getManager(): T extends undefined ? never : T;
+
+  getManagerOr<E>(elseManager: E): (T extends undefined ? never : T) | E;
 
   mount(): void;
 
   unmount(): void;
 
-  init(): T | undefined;
+  /** @hidden */
+  initManager(): T;
 
   /** @hidden */
-  static constructorForType(type: unknown): ComponentServicePrototype<unknown> | null;
+  static getConstructor(type: unknown): ComponentServicePrototype | null;
+
+  static define<C extends Component, T, I = {}>(descriptor: ComponentServiceDescriptorExtends<C, T, I>): ComponentServiceConstructor<C, T>;
+  static define<C extends Component, T>(descriptor: ComponentServiceDescriptor<C, T>): ComponentServiceConstructor<C, T>;
+
+  /** @hidden */
+  static InheritedFlag: ComponentServiceFlags;
 
   // Forward type declarations
   /** @hidden */
@@ -94,25 +124,21 @@ export declare abstract class ComponentService<C extends Component, T> {
 }
 
 export interface ComponentService<C extends Component, T> {
-  (): T | undefined;
+  (): T;
 }
 
-export function ComponentService<C extends Component, T, I = {}>(descriptor: {extends: ComponentServicePrototype<T>} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
-export function ComponentService<C extends Component, T extends Object = object, I = {}>(descriptor: {type: typeof Object} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
-export function ComponentService<C extends Component, T extends ExecuteManager = ExecuteManager, I = ComponentManagerObserverType<T>>(descriptor: {type: typeof ExecuteManager} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
-export function ComponentService<C extends Component, T extends HistoryManager = HistoryManager, I = ComponentManagerObserverType<T>>(descriptor: {type: typeof HistoryManager} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
-export function ComponentService<C extends Component, T extends ComponentManager = ComponentManager, I = ComponentManagerObserverType<T>>(descriptor: {type: typeof ComponentManager} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
-export function ComponentService<C extends Component, T, I = {}>(descriptor: {type: Function & { prototype: T }} & ComponentServiceDescriptor<C, T, I>): PropertyDecorator;
+export function ComponentService<C extends Component, T, I = {}>(descriptor: ComponentServiceDescriptorExtends<C, T, I>): PropertyDecorator;
+export function ComponentService<C extends Component, T>(descriptor: ComponentServiceDescriptor<C, T>): PropertyDecorator;
 
 export function ComponentService<C extends Component, T>(
     this: ComponentService<C, T> | typeof ComponentService,
-    component: C | ComponentServiceInit<C, T>,
+    component: C | ComponentServiceDescriptor<C, T>,
     serviceName?: string,
   ): ComponentService<C, T> | PropertyDecorator {
   if (this instanceof ComponentService) { // constructor
     return ComponentServiceConstructor.call(this, component as C, serviceName);
   } else { // decorator factory
-    return ComponentServiceDecoratorFactory(component as ComponentServiceInit<C, T>);
+    return ComponentServiceDecoratorFactory(component as ComponentServiceDescriptor<C, T>);
   }
 }
 __extends(ComponentService, Object);
@@ -127,53 +153,15 @@ function ComponentServiceConstructor<C extends Component, T>(this: ComponentServ
     });
   }
   this._component = component;
+  this._serviceFlags = 0;
+  if (this._inherit !== false) {
+    this._serviceFlags |= ComponentService.InheritedFlag;
+  }
   return this;
 }
 
-function ComponentServiceDecoratorFactory<C extends Component, T>(descriptor: ComponentServiceInit<C, T>): PropertyDecorator {
-  const type = descriptor.type;
-  const value = descriptor.value;
-  const inherit = descriptor.inherit;
-  delete descriptor.type;
-  delete descriptor.value;
-  delete descriptor.inherit;
-
-  let BaseComponentService = descriptor.extends;
-  delete descriptor.extends;
-  if (BaseComponentService === void 0) {
-    BaseComponentService = ComponentService.constructorForType(type) as ComponentServicePrototype<T>;
-  }
-  if (BaseComponentService === null) {
-    BaseComponentService = ComponentService;
-  }
-
-  function DecoratedComponentService(this: ComponentService<C, T>, component: C, serviceName: string | undefined): ComponentService<C, T> {
-    let _this: ComponentService<C, T> = function accessor(): T | undefined {
-      return _this._manager;
-    } as ComponentService<C, T>;
-    Object.setPrototypeOf(_this, this);
-    _this = BaseComponentService!.call(_this, component, serviceName) || _this;
-    if (typeof inherit === "string") {
-      _this._inherit = inherit;
-    } else if (inherit !== false) {
-      _this._inherit = serviceName;
-    }
-    if (value !== void 0) {
-      _this._manager = value;
-    }
-    return _this;
-  }
-
-  if (descriptor !== void 0) {
-    Object.setPrototypeOf(DecoratedComponentService, BaseComponentService);
-    DecoratedComponentService.prototype = descriptor as ComponentService<C, T>;
-    DecoratedComponentService.prototype.constructor = DecoratedComponentService;
-    Object.setPrototypeOf(DecoratedComponentService.prototype, BaseComponentService.prototype);
-  } else {
-    __extends(DecoratedComponentService, BaseComponentService);
-  }
-
-  return Component.decorateComponentService.bind(void 0, DecoratedComponentService);
+function ComponentServiceDecoratorFactory<C extends Component, T>(descriptor: ComponentServiceDescriptor<C, T>): PropertyDecorator {
+  return Component.decorateComponentService.bind(void 0, ComponentService.define(descriptor));
 }
 
 Object.defineProperty(ComponentService.prototype, "component", {
@@ -185,7 +173,7 @@ Object.defineProperty(ComponentService.prototype, "component", {
 });
 
 Object.defineProperty(ComponentService.prototype, "inherit", {
-  get: function (this: ComponentService<Component, unknown>): string | undefined {
+  get: function (this: ComponentService<Component, unknown>): string | boolean {
     return this._inherit;
   },
   enumerable: true,
@@ -193,34 +181,52 @@ Object.defineProperty(ComponentService.prototype, "inherit", {
 });
 
 ComponentService.prototype.setInherit = function (this: ComponentService<Component, unknown>,
-                                              inherit: string | undefined): void {
-  this.unbindSuperService();
-  if (inherit !== void 0) {
-    this._inherit = inherit;
-    this.bindSuperService();
-  } else if (this._inherit !== void 0) {
-    this._inherit = void 0;
+                                                  inherit: string | boolean): void {
+  if (this._inherit !== inherit) {
+    this.unbindSuperService();
+    if (inherit !== false) {
+      this._inherit = inherit;
+      this.bindSuperService();
+    } else if (this._inherit !== false) {
+      this._inherit = false;
+    }
   }
 };
 
+ComponentService.prototype.isInherited = function (this: ComponentService<Component, unknown>): boolean {
+  return (this._serviceFlags & ComponentService.InheritedFlag) !== 0;
+};
+
+Object.defineProperty(ComponentService.prototype, "superName", {
+  get: function (this: ComponentService<Component, unknown>): string | undefined {
+    const inherit = this._inherit;
+    return typeof inherit === "string" ? inherit : inherit === true ? this.name : void 0;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
 Object.defineProperty(ComponentService.prototype, "superService", {
-  get: function <T>(this: ComponentService<Component, T>): ComponentService<Component, T> | null {
-    let superService: ComponentService<Component, T> | null | undefined = this._superService;
+  get: function (this: ComponentService<Component, unknown>): ComponentService<Component, unknown> | null {
+    let superService: ComponentService<Component, unknown> | null | undefined = this._superService;
     if (superService === void 0) {
       superService = null;
       let component = this._component;
       if (!component.isMounted()) {
-        const inherit = this._inherit;
-        if (inherit !== void 0) {
+        const superName = this.superName;
+        if (superName !== void 0) {
           do {
             const parentComponent = component.parentComponent;
             if (parentComponent !== null) {
               component = parentComponent;
-              const service = component.getComponentService(inherit);
-              if (service === null) {
-                continue;
+              const service = component.getComponentService(superName);
+              if (service !== null) {
+                superService = service;
+                if (service.isInherited()) {
+                  continue;
+                }
               } else {
-                superService = service as ComponentService<Component, T>;
+                continue;
               }
             }
             break;
@@ -237,20 +243,23 @@ Object.defineProperty(ComponentService.prototype, "superService", {
 ComponentService.prototype.bindSuperService = function (this: ComponentService<Component, unknown>): void {
   let component = this._component;
   if (component.isMounted()) {
-    const inherit = this._inherit;
-    if (inherit !== void 0) {
+    const superName = this.superName;
+    if (superName !== void 0) {
       do {
         const parentComponent = component.parentComponent;
         if (parentComponent !== null) {
           component = parentComponent;
-          const service = component.getComponentService(inherit);
-          if (service === null) {
-            continue;
-          } else {
+          const service = component.getComponentService(superName);
+          if (service !== null) {
             this._superService = service;
+            if (service.isInherited()) {
+              continue;
+            }
+          } else {
+            continue;
           }
         } else if (component !== this._component) {
-          const service = component.getLazyComponentService(inherit);
+          const service = component.getLazyComponentService(superName);
           if (service !== null) {
             this._superService = service;
           }
@@ -259,7 +268,8 @@ ComponentService.prototype.bindSuperService = function (this: ComponentService<C
       } while (true);
     }
     if (this._manager === void 0 && this._superService === void 0) {
-      this._manager = this.init();
+      this._manager = this.initManager();
+      this._serviceFlags &= ~ComponentService.InheritedFlag;
     }
   }
 };
@@ -271,6 +281,22 @@ ComponentService.prototype.unbindSuperService = function (this: ComponentService
   }
 };
 
+Object.defineProperty(ComponentService.prototype, "manager", {
+  get: function <T>(this: ComponentService<Component, T>): T {
+    return this._manager;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+Object.defineProperty(ComponentService.prototype, "ownManager", {
+  get: function <T>(this: ComponentService<Component, T>): T | undefined {
+    return !this.isInherited() ? this.manager : void 0;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
 Object.defineProperty(ComponentService.prototype, "superManager", {
   get: function <T>(this: ComponentService<Component, T>): T | undefined {
     const superService = this.superService;
@@ -280,22 +306,22 @@ Object.defineProperty(ComponentService.prototype, "superManager", {
   configurable: true,
 });
 
-Object.defineProperty(ComponentService.prototype, "ownManager", {
-  get: function <T>(this: ComponentService<Component, T>): T | undefined {
-    return this._manager;
-  },
-  enumerable: true,
-  configurable: true,
-});
+ComponentService.prototype.getManager = function <T>(this: ComponentService<Component, T>): T extends undefined ? never : T {
+  const manager = this.manager;
+  if (manager === void 0) {
+    throw new TypeError("undefined " + this.name + " manager");
+  }
+  return manager as T extends undefined ? never : T;
+};
 
-Object.defineProperty(ComponentService.prototype, "manager", {
-  get: function <T>(this: ComponentService<Component, T>): T | undefined {
-    const manager = this._manager;
-    return manager !== void 0 ? manager : this.superManager;
-  },
-  enumerable: true,
-  configurable: true,
-});
+ComponentService.prototype.getManagerOr = function <T, E>(this: ComponentService<Component, T>,
+                                                          elseManager: E): (T extends undefined ? never : T) | E {
+  let manager: T | E | undefined = this.manager;
+  if (manager === void 0) {
+    manager = elseManager;
+  }
+  return manager as (T extends undefined ? never : T) | E;
+};
 
 ComponentService.prototype.mount = function (this: ComponentService<Component, unknown>): void {
   this.bindSuperService();
@@ -305,11 +331,11 @@ ComponentService.prototype.unmount = function (this: ComponentService<Component,
   this.unbindSuperService();
 };
 
-ComponentService.prototype.init = function <T>(this: ComponentService<Component, T>): T | undefined {
-  return void 0;
+ComponentService.prototype.initManager = function <T>(this: ComponentService<Component, T>): T {
+  return void 0 as unknown as T;
 };
 
-ComponentService.constructorForType = function (type: unknown): ComponentServicePrototype<unknown> | null {
+ComponentService.getConstructor = function (type: unknown): ComponentServicePrototype | null {
   if (type === ExecuteManager) {
     return ComponentService.Execute;
   } else if (type === HistoryManager) {
@@ -319,3 +345,45 @@ ComponentService.constructorForType = function (type: unknown): ComponentService
   }
   return null;
 };
+
+ComponentService.define = function <C extends Component, T>(descriptor: ComponentServiceDescriptor<C, T>): ComponentServiceConstructor<C, T> {
+  let _super: ComponentServicePrototype | null | undefined = descriptor.extends;
+  const manager = descriptor.manager;
+  const inherit = descriptor.inherit;
+  delete descriptor.extends;
+  delete descriptor.manager;
+  delete descriptor.inherit;
+
+  if (_super === void 0) {
+    _super = ComponentService.getConstructor(descriptor.type);
+  }
+  if (_super === null) {
+    _super = ComponentService;
+  }
+
+  const _constructor = function ComponentServiceAccessor(this: ComponentService<C, T>, component: C, serviceName: string | undefined): ComponentService<C, T> {
+    let _this: ComponentService<C, T> = function accessor(): T | undefined {
+      return _this._manager;
+    } as ComponentService<C, T>;
+    Object.setPrototypeOf(_this, this);
+    _this = _super!.call(_this, component, serviceName) || _this;
+    return _this;
+  } as unknown as ComponentServiceConstructor<C, T>;
+
+  const _prototype = descriptor as unknown as ComponentService<C, T>;
+  Object.setPrototypeOf(_constructor, _super);
+  _constructor.prototype = _prototype;
+  _constructor.prototype.constructor = _constructor;
+  Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  if (manager !== void 0 && !_prototype.hasOwnProperty("initManager")) {
+    _prototype.initManager = function (): T {
+      return manager;
+    };
+  }
+  _prototype._inherit = inherit !== void 0 ? inherit : false;
+
+  return _constructor;
+}
+
+ComponentService.InheritedFlag = 1 << 0;

@@ -16,17 +16,19 @@ import {Model} from "../Model";
 import {ModelScope} from "./ModelScope";
 
 /** @hidden */
-export abstract class NumberModelScope<M extends Model> extends ModelScope<M, number, number | string> {
-  fromAny(value: number | string): number | undefined {
+export abstract class NumberModelScope<M extends Model> extends ModelScope<M, number | null | undefined, number | string | null | undefined> {
+  fromAny(value: number | string | null | undefined): number | null | undefined {
     if (typeof value === "number") {
       return value;
-    } else {
+    } else if (typeof value === "string") {
       const number = +value;
       if (isFinite(number)) {
         return number;
       } else {
         throw new Error(value);
       }
+    } else {
+      return value;
     }
   }
 }

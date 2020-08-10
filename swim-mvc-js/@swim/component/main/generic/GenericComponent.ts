@@ -420,10 +420,10 @@ export abstract class GenericComponent extends Component {
     this._componentFlags &= ~Component.NeedsExecute;
     try {
       this.willExecute(componentContext);
-      if (((this._componentFlags | executeFlags) & Component.NeedsNavigate) !== 0) {
-        this.willNavigate(componentContext);
-        cascadeFlags |= Component.NeedsNavigate;
-        this._componentFlags &= ~Component.NeedsNavigate;
+      if (((this._componentFlags | executeFlags) & Component.NeedsRevise) !== 0) {
+        this.willRevise(componentContext);
+        cascadeFlags |= Component.NeedsRevise;
+        this._componentFlags &= ~Component.NeedsRevise;
       }
       if (((this._componentFlags | executeFlags) & Component.NeedsCompute) !== 0) {
         this.willCompute(componentContext);
@@ -432,8 +432,8 @@ export abstract class GenericComponent extends Component {
       }
 
       this.onExecute(componentContext);
-      if ((cascadeFlags & Component.NeedsNavigate) !== 0) {
-        this.onNavigate(componentContext);
+      if ((cascadeFlags & Component.NeedsRevise) !== 0) {
+        this.onRevise(componentContext);
       }
       if ((cascadeFlags & Component.NeedsCompute) !== 0) {
         this.onCompute(componentContext);
@@ -444,13 +444,18 @@ export abstract class GenericComponent extends Component {
       if ((cascadeFlags & Component.NeedsCompute) !== 0) {
         this.didCompute(componentContext);
       }
-      if ((cascadeFlags & Component.NeedsNavigate) !== 0) {
-        this.didNavigate(componentContext);
+      if ((cascadeFlags & Component.NeedsRevise) !== 0) {
+        this.didRevise(componentContext);
       }
       this.didExecute(componentContext);
     } finally {
       this._componentFlags &= ~(Component.TraversingFlag | Component.ExecutingFlag);
     }
+  }
+
+  protected onRevise(componentContext: ComponentContextType<this>): void {
+    super.onRevise(componentContext);
+    this.updateScopes();
   }
 
   /** @hidden */
@@ -633,6 +638,17 @@ export abstract class GenericComponent extends Component {
       }
     } else {
       delete componentScopes[scopeName];
+    }
+  }
+
+  /** @hidden */
+  updateScopes(): void {
+    const componentScopes = this._componentScopes;
+    if (componentScopes !== void 0) {
+      for (const scopeName in componentScopes) {
+        const componentScope = componentScopes[scopeName]!;
+        componentScope.onRevise();
+      }
     }
   }
 

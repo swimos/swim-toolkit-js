@@ -40,13 +40,13 @@ export interface ModelClass {
   readonly removeChildFlags: ModelFlags;
 
   /** @hidden */
-  _submodelConstructors?: {[submodelName: string]: SubmodelConstructor<Model> | undefined};
+  _submodelConstructors?: {[submodelName: string]: SubmodelConstructor<any, any> | undefined};
 
   /** @hidden */
-  _modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<unknown> | undefined};
+  _modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<any, unknown> | undefined};
 
   /** @hidden */
-  _modelScopeConstructors?: {[scopeName: string]: ModelScopeConstructor<unknown> | undefined};
+  _modelScopeConstructors?: {[scopeName: string]: ModelScopeConstructor<any, unknown> | undefined};
 }
 
 export abstract class Model {
@@ -483,6 +483,26 @@ export abstract class Model {
     });
   }
 
+  protected willMutate(modelContext: ModelContextType<this>): void {
+    this.willObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelWillMutate !== void 0) {
+        modelObserver.modelWillMutate(modelContext, this);
+      }
+    });
+  }
+
+  protected onMutate(modelContext: ModelContextType<this>): void {
+    // hook
+  }
+
+  protected didMutate(modelContext: ModelContextType<this>): void {
+    this.didObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelDidMutate !== void 0) {
+        modelObserver.modelDidMutate(modelContext, this);
+      }
+    });
+  }
+
   protected willAggregate(modelContext: ModelContextType<this>): void {
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillAggregate !== void 0) {
@@ -703,7 +723,7 @@ export abstract class Model {
 
   abstract getSubmodel(submodelName: string): Submodel<this, Model> | null;
 
-  abstract setSubmodel(submodelName: string, submodel: Submodel<this, Model> | null): void;
+  abstract setSubmodel(submodelName: string, submodel: Submodel<this, Model, unknown> | null): void;
 
   /** @hidden */
   getLazySubmodel(submodelName: string): Submodel<this, Model> | null {
@@ -712,7 +732,7 @@ export abstract class Model {
       const modelClass = (this as any).__proto__ as ModelClass;
       const constructor = Model.getSubmodelConstructor(submodelName, modelClass);
       if (constructor !== null) {
-        submodel = new constructor<this>(this, submodelName);
+        submodel = new constructor(this, submodelName);
         this.setSubmodel(submodelName, submodel);
       }
     }
@@ -732,7 +752,7 @@ export abstract class Model {
       const modelClass = (this as any).__proto__ as ModelClass;
       const constructor = Model.getModelServiceConstructor(serviceName, modelClass);
       if (constructor !== null) {
-        modelService = new constructor<this>(this, serviceName);
+        modelService = new constructor(this, serviceName);
         this.setModelService(serviceName, modelService);
       }
     }
@@ -752,21 +772,11 @@ export abstract class Model {
       const modelClass = (this as any).__proto__ as ModelClass;
       const constructor = Model.getModelScopeConstructor(scopeName, modelClass);
       if (constructor !== null) {
-        modelScope = new constructor<this>(this, scopeName);
+        modelScope = new constructor(this, scopeName);
         this.setModelScope(scopeName, modelScope);
       }
     }
     return modelScope;
-  }
-
-  /** @hidden */
-  modelScopeDidSetAuto<T, U>(modelScope: ModelScope<Model, T, U>, auto: boolean): void {
-    // hook
-  }
-
-  /** @hidden */
-  modelScopeDidSetState<T, U>(modelScope: ModelScope<Model, T, U>, newState: T | undefined, oldState: T | undefined): void {
-    // hook
   }
 
   /** @hidden */
@@ -797,7 +807,7 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static getSubmodelConstructor(submodelName: string, modelClass: ModelClass | null = null): SubmodelConstructor<Model> | null {
+  static getSubmodelConstructor(submodelName: string, modelClass: ModelClass | null = null): SubmodelConstructor<any, any> | null {
     if (modelClass === null) {
       modelClass = this.prototype as unknown as ModelClass;
     }
@@ -814,17 +824,17 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static decorateSubmodel<M extends Model, S extends Model>(constructor: SubmodelConstructor<S>,
-                                                            modelClass: ModelClass, submodelName: string): void {
+  static decorateSubmodel<M extends Model, S extends Model, U>(constructor: SubmodelConstructor<M, S, U>,
+                                                               modelClass: ModelClass, submodelName: string): void {
     if (!modelClass.hasOwnProperty("_submodelConstructors")) {
       modelClass._submodelConstructors = {};
     }
     modelClass._submodelConstructors![submodelName] = constructor;
     Object.defineProperty(modelClass, submodelName, {
-      get: function (this: M): Submodel<M, S> {
-        let submodel = this.getSubmodel(submodelName) as Submodel<M, S> | null;
+      get: function (this: M): Submodel<M, S, U> {
+        let submodel = this.getSubmodel(submodelName) as Submodel<M, S, U> | null;
         if (submodel === null) {
-          submodel = new constructor<M>(this, submodelName);
+          submodel = new constructor(this, submodelName);
           this.setSubmodel(submodelName, submodel);
         }
         return submodel;
@@ -835,7 +845,7 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static getModelServiceConstructor(serviceName: string, modelClass: ModelClass | null = null): ModelServiceConstructor<unknown> | null {
+  static getModelServiceConstructor(serviceName: string, modelClass: ModelClass | null = null): ModelServiceConstructor<any, unknown> | null {
     if (modelClass === null) {
       modelClass = this.prototype as unknown as ModelClass;
     }
@@ -852,7 +862,7 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static decorateModelService<M extends Model, T>(constructor: ModelServiceConstructor<T>,
+  static decorateModelService<M extends Model, T>(constructor: ModelServiceConstructor<M, T>,
                                                   modelClass: ModelClass, serviceName: string): void {
     if (!modelClass.hasOwnProperty("_modelServiceConstructors")) {
       modelClass._modelServiceConstructors = {};
@@ -862,7 +872,7 @@ export abstract class Model {
       get: function (this: M): ModelService<M, T> {
         let modelService = this.getModelService(serviceName) as ModelService<M, T> | null;
         if (modelService === null) {
-          modelService = new constructor<M>(this, serviceName);
+          modelService = new constructor(this, serviceName);
           this.setModelService(serviceName, modelService);
         }
         return modelService;
@@ -873,7 +883,7 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static getModelScopeConstructor(scopeName: string, modelClass: ModelClass | null = null): ModelScopeConstructor<unknown> | null {
+  static getModelScopeConstructor(scopeName: string, modelClass: ModelClass | null = null): ModelScopeConstructor<any, unknown> | null {
     if (modelClass === null) {
       modelClass = this.prototype as unknown as ModelClass;
     }
@@ -890,7 +900,7 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static decorateModelScope<M extends Model, T, U>(constructor: ModelScopeConstructor<T, U>,
+  static decorateModelScope<M extends Model, T, U>(constructor: ModelScopeConstructor<M, T, U>,
                                                    modelClass: ModelClass, scopeName: string): void {
     if (!modelClass.hasOwnProperty("_modelScopeConstructors")) {
       modelClass._modelScopeConstructors = {};
@@ -900,7 +910,7 @@ export abstract class Model {
       get: function (this: M): ModelScope<M, T, U> {
         let modelScope = this.getModelScope(scopeName) as ModelScope<M, T, U> | null;
         if (modelScope === null) {
-          modelScope = new constructor<M>(this, scopeName);
+          modelScope = new constructor(this, scopeName);
           this.setModelScope(scopeName, modelScope);
         }
         return modelScope;
@@ -937,16 +947,18 @@ export abstract class Model {
                                          | Model.ImmediateFlag;
 
   static readonly NeedsAnalyze: ModelFlags = 1 << 7;
-  static readonly NeedsAggregate: ModelFlags = 1 << 8;
-  static readonly NeedsCorrelate: ModelFlags = 1 << 9;
+  static readonly NeedsMutate: ModelFlags = 1 << 8;
+  static readonly NeedsAggregate: ModelFlags = 1 << 9;
+  static readonly NeedsCorrelate: ModelFlags = 1 << 10;
   /** @hidden */
   static readonly AnalyzeMask: ModelFlags = Model.NeedsAnalyze
+                                          | Model.NeedsMutate
                                           | Model.NeedsAggregate
                                           | Model.NeedsCorrelate;
 
-  static readonly NeedsRefresh: ModelFlags = 1 << 10;
-  static readonly NeedsFetch: ModelFlags = 1 << 11;
-  static readonly NeedsFlush: ModelFlags = 1 << 12;
+  static readonly NeedsRefresh: ModelFlags = 1 << 11;
+  static readonly NeedsFetch: ModelFlags = 1 << 12;
+  static readonly NeedsFlush: ModelFlags = 1 << 13;
   /** @hidden */
   static readonly RefreshMask: ModelFlags = Model.NeedsRefresh
                                           | Model.NeedsFetch

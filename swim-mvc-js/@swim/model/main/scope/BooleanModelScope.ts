@@ -16,8 +16,8 @@ import {Model} from "../Model";
 import {ModelScope} from "./ModelScope";
 
 /** @hidden */
-export abstract class BooleanModelScope<M extends Model> extends ModelScope<M, boolean, boolean | string> {
-  fromAny(value: boolean | string): boolean | undefined {
+export abstract class BooleanModelScope<M extends Model> extends ModelScope<M, boolean | null | undefined, boolean | string | null | undefined> {
+  fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
     return !!value;
   }
 }

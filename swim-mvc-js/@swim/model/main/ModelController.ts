@@ -315,6 +315,14 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     return model !== null && model.isAnalyzing();
   }
 
+  modelWillMutate(modelContext: ModelContextType<M>, model: M): void {
+    // hook
+  }
+
+  modelDidMutate(modelContext: ModelContextType<M>, model: M): void {
+    // hook
+  }
+
   modelWillAnalyze(modelContext: ModelContextType<M>, model: M): void {
     // hook
   }

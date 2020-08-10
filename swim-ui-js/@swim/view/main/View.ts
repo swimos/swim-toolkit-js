@@ -806,7 +806,7 @@ export abstract class View implements AnimatorContext {
 
   abstract getSubview(subviewName: string): Subview<this, View> | null;
 
-  abstract setSubview(subviewName: string, subview: Subview<this, View> | null): void;
+  abstract setSubview(subviewName: string, subview: Subview<this, View, unknown> | null): void;
 
   /** @hidden */
   getLazySubview(subviewName: string): Subview<this, View> | null {
@@ -860,11 +860,6 @@ export abstract class View implements AnimatorContext {
       }
     }
     return viewScope;
-  }
-
-  /** @hidden */
-  viewScopeDidSetAuto<T, U>(viewScope: ViewScope<View, T, U>, auto: boolean): void {
-    // hook
   }
 
   abstract hasViewAnimator(animatorName: string): boolean;
@@ -1113,15 +1108,15 @@ export abstract class View implements AnimatorContext {
   }
 
   /** @hidden */
-  static decorateSubview<V extends View, S extends View>(constructor: SubviewConstructor<V, S>,
-                                                         viewClass: ViewClass, subviewName: string): void {
+  static decorateSubview<V extends View, S extends View, U>(constructor: SubviewConstructor<V, S, U>,
+                                                            viewClass: ViewClass, subviewName: string): void {
     if (!viewClass.hasOwnProperty("_subviewConstructors")) {
       viewClass._subviewConstructors = {};
     }
     viewClass._subviewConstructors![subviewName] = constructor;
     Object.defineProperty(viewClass, subviewName, {
-      get: function (this: V): Subview<V, S> {
-        let subview = this.getSubview(subviewName) as Subview<V, S> | null;
+      get: function (this: V): Subview<V, S, U> {
+        let subview = this.getSubview(subviewName) as Subview<V, S, U> | null;
         if (subview === null) {
           subview = new constructor(this, subviewName);
           this.setSubview(subviewName, subview);

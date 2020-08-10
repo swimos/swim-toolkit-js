@@ -13,38 +13,56 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
+import {FromAny} from "@swim/util";
 import {Component} from "./Component";
 import {ComponentObserverType} from "./ComponentObserver";
 import {SubcomponentObserver} from "./SubcomponentObserver";
 
-export type SubcomponentType<C, K extends keyof C> =
-  C extends {[P in K]: Subcomponent<any, infer S>} ? S : unknown;
+export type SubcomponentMemberType<C, K extends keyof C> =
+  C extends {[P in K]: Subcomponent<any, infer S, any>} ? S : unknown;
 
-export interface SubcomponentInit<C extends Component, S extends Component> {
+export type SubcomponentMemberInit<C, K extends keyof C> =
+  C extends {[P in K]: Subcomponent<any, infer T, infer U>} ? T | U : unknown;
+
+export interface SubcomponentInit<S extends Component, U = S> {
+  extends?: SubcomponentPrototype;
+  observe?: boolean;
   type?: unknown;
-  observer?: boolean;
 
   willSetSubcomponent?(newSubcomponent: S | null, oldSubcomponent: S | null): void;
   onSetSubcomponent?(newSubcomponent: S | null, oldSubcomponent: S | null): void;
   didSetSubcomponent?(newSubcomponent: S | null, oldSubcomponent: S | null): void;
-  createSubcomponent?(): S | null;
-
-  extends?: SubcomponentPrototype<S>;
+  createSubcomponent?(): S | U | null;
+  fromAny?(value: S | U): S | null;
 }
 
-export type SubcomponentDescriptor<C extends Component, S extends Component, I = ComponentObserverType<S>> = SubcomponentInit<C, S> & ThisType<Subcomponent<C, S> & I> & I;
+export type SubcomponentDescriptorInit<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = SubcomponentInit<S, U> & ThisType<Subcomponent<C, S, U> & I> & I;
 
-export type SubcomponentPrototype<S extends Component> = Function & { prototype: Subcomponent<Component, S> };
+export type SubcomponentDescriptorExtends<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = {extends: SubcomponentPrototype} & SubcomponentDescriptorInit<C, S, U, I>;
 
-export type SubcomponentConstructor<S extends Component> = new <C extends Component>(component: C, subcomponentName: string | undefined) => Subcomponent<C, S>;
+export type SubcomponentDescriptorFromAny<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & SubcomponentDescriptorInit<C, S, U, I>;
 
-export declare abstract class Subcomponent<C extends Component, S extends Component> {
+export type SubcomponentDescriptor<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> =
+  U extends S ? SubcomponentDescriptorInit<C, S, U, I> :
+  SubcomponentDescriptorFromAny<C, S, U, I>;
+
+export type SubcomponentPrototype = Function & {prototype: Subcomponent<any, any>};
+
+export type SubcomponentConstructor<C extends Component, S extends Component, U = S> = {
+  new(component: C, subcomponentName: string | undefined): Subcomponent<C, S, U>;
+  prototype: Subcomponent<any, any, any>;
+}
+
+export declare abstract class Subcomponent<C extends Component, S extends Component, U = S> {
   /** @hidden */
   _component: C;
   /** @hidden */
   _subcomponent: S | null;
 
   constructor(component: C, subcomponentName: string | undefined);
+
+  /** @hidden */
+  readonly type?: unknown;
 
   get name(): string;
 
@@ -54,7 +72,7 @@ export declare abstract class Subcomponent<C extends Component, S extends Compon
 
   getSubcomponent(): S;
 
-  setSubcomponent(newSubcomponent: S | null): void;
+  setSubcomponent(subcomponent: S | U | null): void;
 
   /** @hidden */
   doSetSubcomponent(newSubcomponent: S | null): void;
@@ -77,40 +95,45 @@ export declare abstract class Subcomponent<C extends Component, S extends Compon
   /** @hidden */
   didSetOwnSubcomponent(newSubcomponent: S | null, oldSubcomponent: S | null): void;
 
-  createSubcomponent(): S | null;
-
   mount(): void;
 
   unmount(): void;
+
+  createSubcomponent(): S | U | null;
+
+  fromAny(value: S | U): S | null;
+
+  static define<C extends Component, S extends Component = Component, U = S, I = ComponentObserverType<S>>(descriptor: SubcomponentDescriptorExtends<C, S, U, I>): SubcomponentConstructor<C, S, U>;
+  static define<C extends Component, S extends Component = Component, U = S>(descriptor: SubcomponentDescriptor<C, S, U>): SubcomponentConstructor<C, S, U>;
 
   // Forward type declarations
   /** @hidden */
   static Observer: typeof SubcomponentObserver; // defined by SubcomponentObserver
 }
 
-export interface Subcomponent<C extends Component, S extends Component> {
+export interface Subcomponent<C extends Component, S extends Component, U = S> {
   (): S | null;
-  (subcomponent: S | null): C;
+  (subcomponent: S | U | null): C;
 }
 
-export function Subcomponent<C extends Component, S extends Component = Component, I = ComponentObserverType<S>>(descriptor: {extends: SubcomponentPrototype<S>} & SubcomponentDescriptor<C, S, I>): PropertyDecorator;
-export function Subcomponent<C extends Component, S extends Component = Component, I = ComponentObserverType<S>>(descriptor: SubcomponentDescriptor<C, S, I>): PropertyDecorator;
+export function Subcomponent<C extends Component, S extends Component = Component, U = S, I = ComponentObserverType<S>>(descriptor: SubcomponentDescriptorExtends<C, S, U, I>): PropertyDecorator;
+export function Subcomponent<C extends Component, S extends Component = Component, U = S>(descriptor: SubcomponentDescriptor<C, S, U>): PropertyDecorator;
 
-export function Subcomponent<C extends Component, S extends Component>(
+export function Subcomponent<C extends Component, S extends Component, U>(
     this: Subcomponent<C, S> | typeof Subcomponent,
-    component: C | SubcomponentInit<C, S>,
+    component: C | SubcomponentDescriptor<C, S, U>,
     subcomponentName?: string,
   ): Subcomponent<C, S> | PropertyDecorator {
   if (this instanceof Subcomponent) { // constructor
     return SubcomponentConstructor.call(this, component as C, subcomponentName);
   } else { // decorator factory
-    return SubcomponentDecoratorFactory(component as SubcomponentInit<C, S>);
+    return SubcomponentDecoratorFactory(component as SubcomponentDescriptor<C, S, U>);
   }
 }
 __extends(Subcomponent, Object);
 Component.Subcomponent = Subcomponent;
 
-function SubcomponentConstructor<C extends Component, S extends Component>(this: Subcomponent<C, S>, component: C, subcomponentName: string | undefined): Subcomponent<C, S> {
+function SubcomponentConstructor<C extends Component, S extends Component, U>(this: Subcomponent<C, S, U>, component: C, subcomponentName: string | undefined): Subcomponent<C, S, U> {
   if (subcomponentName !== void 0) {
     Object.defineProperty(this, "name", {
       value: subcomponentName,
@@ -123,44 +146,8 @@ function SubcomponentConstructor<C extends Component, S extends Component>(this:
   return this;
 }
 
-function SubcomponentDecoratorFactory<C extends Component, S extends Component>(descriptor: SubcomponentInit<C, S>): PropertyDecorator {
-  const observer = descriptor.observer;
-  delete descriptor.observer;
-
-  let BaseSubcomponent = descriptor.extends;
-  delete descriptor.extends;
-  if (BaseSubcomponent === void 0) {
-    if (observer !== false) {
-      BaseSubcomponent = Subcomponent.Observer;
-    } else {
-      BaseSubcomponent = Subcomponent;
-    }
-  }
-
-  function DecoratedSubcomponent(this: Subcomponent<C, S>, component: C, subcomponentName: string | undefined): Subcomponent<C, S> {
-    let _this: Subcomponent<C, S> = function accessor(subcomponent?: S | null): S | null | C {
-      if (subcomponent === void 0) {
-        return _this._subcomponent;
-      } else {
-        _this.setSubcomponent(subcomponent);
-        return _this._component;
-      }
-    } as Subcomponent<C, S>;
-    Object.setPrototypeOf(_this, this);
-    _this = BaseSubcomponent!.call(_this, component, subcomponentName) || _this;
-    return _this;
-  }
-
-  if (descriptor !== void 0) {
-    Object.setPrototypeOf(DecoratedSubcomponent, BaseSubcomponent);
-    DecoratedSubcomponent.prototype = descriptor as Subcomponent<C, S>;
-    DecoratedSubcomponent.prototype.constructor = DecoratedSubcomponent;
-    Object.setPrototypeOf(DecoratedSubcomponent.prototype, BaseSubcomponent.prototype);
-  } else {
-    __extends(DecoratedSubcomponent, BaseSubcomponent);
-  }
-
-  return Component.decorateSubcomponent.bind(void 0, DecoratedSubcomponent);
+function SubcomponentDecoratorFactory<C extends Component, S extends Component, U>(descriptor: SubcomponentDescriptor<C, S, U>): PropertyDecorator {
+  return Component.decorateSubcomponent.bind(Component, Subcomponent.define(descriptor));
 }
 
 Object.defineProperty(Subcomponent.prototype, "component", {
@@ -187,9 +174,12 @@ Subcomponent.prototype.getSubcomponent = function <S extends Component>(this: Su
   return subcomponent;
 };
 
-Subcomponent.prototype.setSubcomponent = function <S extends Component>(this: Subcomponent<Component, S>,
-                                                                        newSubcomponent: S | null): void {
-  this._component.setChildComponent(this.name, newSubcomponent);
+Subcomponent.prototype.setSubcomponent = function <S extends Component, U>(this: Subcomponent<Component, S, U>,
+                                                                           subcomponent: S | U | null): void {
+  if (subcomponent !== null) {
+    subcomponent = this.fromAny(subcomponent);
+  }
+  this._component.setChildComponent(this.name, subcomponent as S | null);
 };
 
 Subcomponent.prototype.doSetSubcomponent = function <S extends Component>(this: Subcomponent<Component, S>,
@@ -242,14 +232,53 @@ Subcomponent.prototype.didSetOwnSubcomponent = function <S extends Component>(th
   // hook
 };
 
-Subcomponent.prototype.createSubcomponent = function <S extends Component>(this: Subcomponent<Component, S>): S | null {
-  return null;
-};
-
 Subcomponent.prototype.mount = function (this: Subcomponent<Component, Component>): void {
   // hook
 };
 
 Subcomponent.prototype.unmount = function (this: Subcomponent<Component, Component>): void {
   // hook
+};
+
+Subcomponent.prototype.createSubcomponent = function <S extends Component, U>(this: Subcomponent<Component, S, U>): S | U | null {
+  return null;
+};
+
+Subcomponent.prototype.fromAny = function <S extends Component, U>(this: Subcomponent<Component, S, U>, value: S | U): S | null {
+  return value as S | null;
+};
+
+Subcomponent.define = function <C extends Component, S extends Component, U>(descriptor: SubcomponentDescriptor<C, S, U>): SubcomponentConstructor<C, S, U> {
+  let _super = descriptor.extends;
+  delete descriptor.extends;
+
+  if (_super === void 0) {
+    if (descriptor.observe !== false) {
+      _super = Subcomponent.Observer;
+    } else {
+      _super = Subcomponent;
+    }
+  }
+
+  const _constructor = function SubcomponentAccessor(this: Subcomponent<C, S>, component: C, subcomponentName: string | undefined): Subcomponent<C, S, U> {
+    let _this: Subcomponent<C, S, U> = function accessor(subcomponent?: S | U | null): S | null | C {
+      if (subcomponent === void 0) {
+        return _this._subcomponent;
+      } else {
+        _this.setSubcomponent(subcomponent);
+        return _this._component;
+      }
+    } as Subcomponent<C, S, U>;
+    Object.setPrototypeOf(_this, this);
+    _this = _super!.call(_this, component, subcomponentName) || _this;
+    return _this;
+  } as unknown as SubcomponentConstructor<C, S, U>;
+
+  const _prototype = descriptor as unknown as Subcomponent<C, S, U>;
+  Object.setPrototypeOf(_constructor, _super);
+  _constructor.prototype = _prototype;
+  _constructor.prototype.constructor = _constructor;
+  Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  return _constructor;
 };

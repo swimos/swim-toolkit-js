@@ -13,8 +13,11 @@
 // limitations under the License.
 
 export {
-  ModelServiceType,
+  ModelServiceMemberType,
+  ModelServiceFlags,
   ModelServiceInit,
+  ModelServiceDescriptorInit,
+  ModelServiceDescriptorExtends,
   ModelServiceDescriptor,
   ModelServicePrototype,
   ModelServiceConstructor,

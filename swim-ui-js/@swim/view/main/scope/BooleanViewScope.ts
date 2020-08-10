@@ -18,13 +18,7 @@ import {ViewScope} from "./ViewScope";
 /** @hidden */
 export abstract class BooleanViewScope<V extends View> extends ViewScope<V, boolean | null | undefined, boolean | string | null | undefined> {
   fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
-    if (typeof value === "boolean") {
-      return value;
-    } else if (typeof value === "string") {
-      return value === "true";
-    } else {
-      return value;
-    }
+    return !!value;
   }
 }
 ViewScope.Boolean = BooleanViewScope;

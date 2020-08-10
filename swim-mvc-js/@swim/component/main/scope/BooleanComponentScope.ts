@@ -16,8 +16,8 @@ import {Component} from "../Component";
 import {ComponentScope} from "./ComponentScope";
 
 /** @hidden */
-export abstract class BooleanComponentScope<C extends Component> extends ComponentScope<C, boolean, boolean | string> {
-  fromAny(value: boolean | string): boolean | undefined {
+export abstract class BooleanComponentScope<C extends Component> extends ComponentScope<C, boolean | null | undefined, boolean | string | null | undefined> {
+  fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
     return !!value;
   }
 }

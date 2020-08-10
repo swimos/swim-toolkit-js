@@ -19,10 +19,10 @@ import {ComponentManagerService} from "./ComponentManagerService";
 
 /** @hidden */
 export abstract class HistoryService<C extends Component> extends ComponentManagerService<C, HistoryManager<C>> {
-  init(): HistoryManager<C> | undefined {
+  initManager(): HistoryManager<C> {
     return HistoryManager.global();
   }
 }
 ComponentService.History = HistoryService;
 
-ComponentService({type: HistoryManager})(Component.prototype, "historyService");
+ComponentService({type: HistoryManager, observe: false})(Component.prototype, "historyService");

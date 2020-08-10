@@ -16,8 +16,8 @@ import {Model} from "../Model";
 import {ModelScope} from "./ModelScope";
 
 /** @hidden */
-export abstract class StringModelScope<M extends Model> extends ModelScope<M, string> {
-  fromAny(value: string): string | undefined {
+export abstract class StringModelScope<M extends Model> extends ModelScope<M, string | null | undefined> {
+  fromAny(value: string | null | undefined): string | null | undefined {
     return value;
   }
 }

@@ -145,7 +145,7 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
   protected onPushHistory(historyState: HistoryState): void {
     const rootComponents = this._rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
-      rootComponents[i].requireUpdate(Component.NeedsNavigate);
+      rootComponents[i].requireUpdate(Component.NeedsRevise);
     }
   }
 
@@ -177,7 +177,7 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
   protected onReplaceHistory(historyState: HistoryState): void {
     const rootComponents = this._rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
-      rootComponents[i].requireUpdate(Component.NeedsNavigate);
+      rootComponents[i].requireUpdate(Component.NeedsRevise);
     }
   }
 
@@ -211,7 +211,7 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
   protected onPopHistory(historyState: HistoryState): void {
     const rootComponents = this._rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
-      rootComponents[i].requireUpdate(Component.NeedsNavigate);
+      rootComponents[i].requireUpdate(Component.NeedsRevise);
     }
   }
 

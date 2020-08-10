@@ -32,17 +32,17 @@ export interface SubviewInit<S extends View, U = S> {
   willSetSubview?(newSubview: S | null, oldSubview: S | null): void;
   onSetSubview?(newSubview: S | null, oldSubview: S | null): void;
   didSetSubview?(newSubview: S | null, oldSubview: S | null): void;
-  createSubview?(): S | null;
+  createSubview?(): S | U | null;
   fromAny?(value: S | U): S | null;
 }
 
 export type SubviewDescriptorInit<V extends View, S extends View, U = S, I = ViewObserverType<S>> = SubviewInit<S, U> & ThisType<Subview<V, S, U> & I> & I;
 
-export type SubviewDescriptorExtends<V extends View, S extends View, U = S, I = {}> = {extends: SubviewPrototype} & SubviewDescriptorInit<V, S, U, I>;
+export type SubviewDescriptorExtends<V extends View, S extends View, U = S, I = ViewObserverType<S>> = {extends: SubviewPrototype} & SubviewDescriptorInit<V, S, U, I>;
 
-export type SubviewDescriptorFromAny<V extends View, S extends View, U = S, I = {}> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & SubviewDescriptorInit<V, S, U, I>;
+export type SubviewDescriptorFromAny<V extends View, S extends View, U = S, I = ViewObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & SubviewDescriptorInit<V, S, U, I>;
 
-export type SubviewDescriptor<V extends View, S extends View, U = S, I = {}> =
+export type SubviewDescriptor<V extends View, S extends View, U = S, I = ViewObserverType<S>> =
   U extends S ? SubviewDescriptorInit<V, S, U, I> :
   SubviewDescriptorFromAny<V, S, U, I>;
 
@@ -95,15 +95,15 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
   /** @hidden */
   didSetOwnSubview(newSubview: S | null, oldSubview: S | null): void;
 
-  createSubview(): S | null;
-
   mount(): void;
 
   unmount(): void;
 
+  createSubview(): S | U | null;
+
   fromAny(value: S | U): S | null;
 
-  static define<V extends View, S extends View = View, U = S, I = {}>(descriptor: SubviewDescriptorExtends<V, S, U, I>): SubviewConstructor<V, S, U>;
+  static define<V extends View, S extends View = View, U = S, I = ViewObserverType<S>>(descriptor: SubviewDescriptorExtends<V, S, U, I>): SubviewConstructor<V, S, U>;
   static define<V extends View, S extends View = View, U = S>(descriptor: SubviewDescriptor<V, S, U>): SubviewConstructor<V, S, U>;
 
   // Forward type declarations
@@ -116,7 +116,7 @@ export interface Subview<V extends View, S extends View, U = S> {
   (subview: S | U | null): V;
 }
 
-export function Subview<V extends View, S extends View = View, U = S, I = {}>(descriptor: SubviewDescriptorExtends<V, S, U, I>): PropertyDecorator;
+export function Subview<V extends View, S extends View = View, U = S, I = ViewObserverType<S>>(descriptor: SubviewDescriptorExtends<V, S, U, I>): PropertyDecorator;
 export function Subview<V extends View, S extends View = View, U = S>(descriptor: SubviewDescriptor<V, S, U>): PropertyDecorator;
 
 export function Subview<V extends View, S extends View, U>(
@@ -232,14 +232,6 @@ Subview.prototype.didSetOwnSubview = function <S extends View>(this: Subview<Vie
   // hook
 };
 
-Subview.prototype.createSubview = function <S extends View>(this: Subview<View, S>): S | null {
-  const type = this.type;
-  if (typeof type === "function" && type.prototype instanceof View) {
-    return View.create(type as ViewConstructor) as S;
-  }
-  return null;
-};
-
 Subview.prototype.mount = function (this: Subview<View, View>): void {
   // hook
 };
@@ -248,7 +240,18 @@ Subview.prototype.unmount = function (this: Subview<View, View>): void {
   // hook
 };
 
+Subview.prototype.createSubview = function <S extends View, U>(this: Subview<View, S, U>): S | U | null {
+  const type = this.type;
+  if (typeof type === "function" && type.prototype instanceof View) {
+    return View.create(type as ViewConstructor) as S;
+  }
+  return null;
+};
+
 Subview.prototype.fromAny = function <S extends View, U>(this: Subview<View, S, U>, value: S | U): S | null {
+  if (value instanceof Node) {
+    return View.fromNode(value) as unknown as S | null;
+  }
   return value as S | null;
 };
 

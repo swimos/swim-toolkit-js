@@ -19,14 +19,14 @@ import {ModelService} from "./ModelService";
 /** @hidden */
 export abstract class ModelManagerService<M extends Model, MM extends ModelManager<M>> extends ModelService<M, MM> {
   /** @hidden */
-  readonly observer?: boolean;
+  readonly observe?: boolean;
 
   mount(): void {
     super.mount();
     const manager = this._manager;
     if (manager !== void 0) {
       manager.insertRootModel(this._model);
-      if (this.observer === true) {
+      if (this.observe !== false) {
         manager.addModelManagerObserver(this as ModelManagerObserverType<MM>);
       }
     }
@@ -35,7 +35,7 @@ export abstract class ModelManagerService<M extends Model, MM extends ModelManag
   unmount(): void {
     const manager = this._manager;
     if (manager !== void 0) {
-      if (this.observer === true) {
+      if (this.observe !== false) {
         manager.removeModelManagerObserver(this as ModelManagerObserverType<MM>);
       }
       manager.removeRootModel(this._model);

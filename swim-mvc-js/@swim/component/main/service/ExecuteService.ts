@@ -19,10 +19,10 @@ import {ComponentManagerService} from "./ComponentManagerService";
 
 /** @hidden */
 export abstract class ExecuteService<C extends Component> extends ComponentManagerService<C, ExecuteManager<C>> {
-  init(): ExecuteManager<C> | undefined {
+  initManager(): ExecuteManager<C> {
     return ExecuteManager.global();
   }
 }
 ComponentService.Execute = ExecuteService;
 
-ComponentService({type: ExecuteManager})(Component.prototype, "executeService");
+ComponentService({type: ExecuteManager, observe: false})(Component.prototype, "executeService");

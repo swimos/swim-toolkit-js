@@ -13,8 +13,12 @@
 // limitations under the License.
 
 export {
-  ComponentViewType,
+  ComponentViewMemberType,
+  ComponentViewMemberInit,
   ComponentViewInit,
+  ComponentViewDescriptorInit,
+  ComponentViewDescriptorExtends,
+  ComponentViewDescriptorFromAny,
   ComponentViewDescriptor,
   ComponentViewPrototype,
   ComponentViewConstructor,

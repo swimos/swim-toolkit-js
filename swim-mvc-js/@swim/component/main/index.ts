@@ -28,8 +28,12 @@ export {
 } from "./ComponentObserver";
 
 export {
-  SubcomponentType,
+  SubcomponentMemberType,
+  SubcomponentMemberInit,
   SubcomponentInit,
+  SubcomponentDescriptorInit,
+  SubcomponentDescriptorExtends,
+  SubcomponentDescriptorFromAny,
   SubcomponentDescriptor,
   SubcomponentPrototype,
   SubcomponentConstructor,

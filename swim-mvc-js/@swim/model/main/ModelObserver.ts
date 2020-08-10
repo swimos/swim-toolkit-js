@@ -51,6 +51,10 @@ export interface ModelObserver<M extends Model = Model> {
 
   modelDidAnalyze?(modelContext: ModelContextType<M>, model: M): void;
 
+  modelWillMutate?(modelContext: ModelContextType<M>, model: M): void;
+
+  modelDidMutate?(modelContext: ModelContextType<M>, model: M): void;
+
   modelWillAggregate?(modelContext: ModelContextType<M>, model: M): void;
 
   modelDidAggregate?(modelContext: ModelContextType<M>, model: M): void;

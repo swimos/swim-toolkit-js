@@ -381,26 +381,53 @@ export abstract class GenericModel extends Model {
     this._modelFlags &= ~Model.NeedsAnalyze;
     try {
       this.willAnalyze(modelContext);
+      if (((this._modelFlags | analyzeFlags) & Model.NeedsMutate) !== 0) {
+        this.willMutate(modelContext);
+        cascadeFlags |= Model.NeedsMutate;
+        this._modelFlags &= ~Model.NeedsMutate;
+      }
       if (((this._modelFlags | analyzeFlags) & Model.NeedsAggregate) !== 0) {
         this.willAggregate(modelContext);
         cascadeFlags |= Model.NeedsAggregate;
         this._modelFlags &= ~Model.NeedsAggregate;
       }
+      if (((this._modelFlags | analyzeFlags) & Model.NeedsCorrelate) !== 0) {
+        this.willCorrelate(modelContext);
+        cascadeFlags |= Model.NeedsCorrelate;
+        this._modelFlags &= ~Model.NeedsCorrelate;
+      }
 
       this.onAnalyze(modelContext);
+      if ((cascadeFlags & Model.NeedsMutate) !== 0) {
+        this.onMutate(modelContext);
+      }
       if ((cascadeFlags & Model.NeedsAggregate) !== 0) {
         this.onAggregate(modelContext);
+      }
+      if ((cascadeFlags & Model.NeedsCorrelate) !== 0) {
+        this.onCorrelate(modelContext);
       }
 
       this.doAnalyzeChildModels(cascadeFlags, modelContext);
 
+      if ((cascadeFlags & Model.NeedsCorrelate) !== 0) {
+        this.didCorrelate(modelContext);
+      }
       if ((cascadeFlags & Model.NeedsAggregate) !== 0) {
         this.didAggregate(modelContext);
+      }
+      if ((cascadeFlags & Model.NeedsMutate) !== 0) {
+        this.didMutate(modelContext);
       }
       this.didAnalyze(modelContext);
     } finally {
       this._modelFlags &= ~(Model.TraversingFlag | Model.AnalyzingFlag);
     }
+  }
+
+  protected onMutate(modelContext: ModelContextType<this>): void {
+    super.onMutate(modelContext);
+    this.updateScopes();
   }
 
   /** @hidden */
@@ -484,7 +511,7 @@ export abstract class GenericModel extends Model {
     return null;
   }
 
-  setSubmodel(submodelName: string, newSubmodel: Submodel<this, Model> | null): void {
+  setSubmodel(submodelName: string, newSubmodel: Submodel<this, any> | null): void {
     let submodels = this._submodels;
     if (submodels === void 0) {
       submodels = {};
@@ -639,6 +666,17 @@ export abstract class GenericModel extends Model {
       }
     } else {
       delete modelScopes[scopeName];
+    }
+  }
+
+  /** @hidden */
+  updateScopes(): void {
+    const modelScopes = this._modelScopes;
+    if (modelScopes !== void 0) {
+      for (const scopeName in modelScopes) {
+        const modelScope = modelScopes[scopeName]!;
+        modelScope.onMutate();
+      }
     }
   }
 

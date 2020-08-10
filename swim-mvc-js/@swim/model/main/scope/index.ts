@@ -13,16 +13,18 @@
 // limitations under the License.
 
 export {
-  ModelScopeType,
-  ModelScopeInitType,
+  ModelScopeMemberType,
+  ModelScopeMemberInit,
+  ModelScopeFlags,
   ModelScopeInit,
+  ModelScopeDescriptorInit,
+  ModelScopeDescriptorExtends,
+  ModelScopeDescriptorFromAny,
   ModelScopeDescriptor,
   ModelScopePrototype,
   ModelScopeConstructor,
   ModelScope,
 } from "./ModelScope";
-
-export {ObjectModelScope} from "./ObjectModelScope";
 
 export {StringModelScope} from "./StringModelScope";
 

@@ -13,38 +13,56 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
+import {FromAny} from "@swim/util";
 import {Model} from "./Model";
 import {ModelObserverType} from "./ModelObserver";
 import {SubmodelObserver} from "./SubmodelObserver";
 
-export type SubmodelType<M, K extends keyof M> =
-  M extends {[P in K]: Submodel<any, infer S>} ? S : unknown;
+export type SubmodelMemberType<M, K extends keyof M> =
+  M extends {[P in K]: Submodel<any, infer S, any>} ? S : unknown;
 
-export interface SubmodelInit<M extends Model, S extends Model> {
+export type SubmodelMemberInit<M, K extends keyof M> =
+  M extends {[P in K]: Submodel<any, infer T, infer U>} ? T | U : unknown;
+
+export interface SubmodelInit<S extends Model, U = S> {
+  extends?: SubmodelPrototype;
+  observe?: boolean;
   type?: unknown;
-  observer?: boolean;
 
   willSetSubmodel?(newSubmodel: S | null, oldSubmodel: S | null): void;
   onSetSubmodel?(newSubmodel: S | null, oldSubmodel: S | null): void;
   didSetSubmodel?(newSubmodel: S | null, oldSubmodel: S | null): void;
-  createSubmodel?(): S | null;
-
-  extends?: SubmodelPrototype<S>;
+  createSubmodel?(): S | U | null;
+  fromAny?(value: S | U): S | null;
 }
 
-export type SubmodelDescriptor<M extends Model, S extends Model, I = ModelObserverType<S>> = SubmodelInit<M, S> & ThisType<Submodel<M, S> & I> & I;
+export type SubmodelDescriptorInit<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = SubmodelInit<S, U> & ThisType<Submodel<M, S, U> & I> & I;
 
-export type SubmodelPrototype<S extends Model> = Function & { prototype: Submodel<Model, S> };
+export type SubmodelDescriptorExtends<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = {extends: SubmodelPrototype} & SubmodelDescriptorInit<M, S, U, I>;
 
-export type SubmodelConstructor<S extends Model> = new <M extends Model>(model: M, submodelName: string | undefined) => Submodel<M, S>;
+export type SubmodelDescriptorFromAny<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & SubmodelDescriptorInit<M, S, U, I>;
 
-export declare abstract class Submodel<M extends Model, S extends Model> {
+export type SubmodelDescriptor<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> =
+  U extends S ? SubmodelDescriptorInit<M, S, U, I> :
+  SubmodelDescriptorFromAny<M, S, U, I>;
+
+export type SubmodelPrototype = Function & {prototype: Submodel<any, any>};
+
+export type SubmodelConstructor<M extends Model, S extends Model, U = S> = {
+  new(model: M, submodelName: string | undefined): Submodel<M, S, U>;
+  prototype: Submodel<any, any, any>;
+}
+
+export declare abstract class Submodel<M extends Model, S extends Model, U = S> {
   /** @hidden */
   _model: M;
   /** @hidden */
   _submodel: S | null;
 
   constructor(model: M, submodelName: string | undefined);
+
+  /** @hidden */
+  readonly type?: unknown;
 
   get name(): string;
 
@@ -54,7 +72,7 @@ export declare abstract class Submodel<M extends Model, S extends Model> {
 
   getSubmodel(): S;
 
-  setSubmodel(newSubmodel: S | null): void;
+  setSubmodel(submodel: S | U | null): void;
 
   /** @hidden */
   doSetSubmodel(newSubmodel: S | null): void;
@@ -77,40 +95,45 @@ export declare abstract class Submodel<M extends Model, S extends Model> {
   /** @hidden */
   didSetOwnSubmodel(newSubmodel: S | null, oldSubmodel: S | null): void;
 
-  createSubmodel(): S | null;
-
   mount(): void;
 
   unmount(): void;
+
+  createSubmodel(): S | U | null;
+
+  fromAny(value: S | U): S | null;
+
+  static define<M extends Model, S extends Model = Model, U = S, I = ModelObserverType<S>>(descriptor: SubmodelDescriptorExtends<M, S, U, I>): SubmodelConstructor<M, S, U>;
+  static define<M extends Model, S extends Model = Model, U = S>(descriptor: SubmodelDescriptor<M, S, U>): SubmodelConstructor<M, S, U>;
 
   // Forward type declarations
   /** @hidden */
   static Observer: typeof SubmodelObserver; // defined by SubmodelObserver
 }
 
-export interface Submodel<M extends Model, S extends Model> {
+export interface Submodel<M extends Model, S extends Model, U = S> {
   (): S | null;
-  (submodel: S | null): M;
+  (submodel: S | U | null): M;
 }
 
-export function Submodel<M extends Model, S extends Model = Model, I = ModelObserverType<S>>(descriptor: {extends: SubmodelPrototype<S>} & SubmodelDescriptor<M, S, I>): PropertyDecorator;
-export function Submodel<M extends Model, S extends Model = Model, I = ModelObserverType<S>>(descriptor: SubmodelDescriptor<M, S, I>): PropertyDecorator;
+export function Submodel<M extends Model, S extends Model = Model, U = S, I = ModelObserverType<S>>(descriptor: SubmodelDescriptorExtends<M, S, U, I>): PropertyDecorator;
+export function Submodel<M extends Model, S extends Model = Model, U = S>(descriptor: SubmodelDescriptor<M, S, U>): PropertyDecorator;
 
-export function Submodel<M extends Model, S extends Model>(
+export function Submodel<M extends Model, S extends Model, U>(
     this: Submodel<M, S> | typeof Submodel,
-    model: M | SubmodelInit<M, S>,
+    model: M | SubmodelDescriptor<M, S, U>,
     submodelName?: string,
   ): Submodel<M, S> | PropertyDecorator {
   if (this instanceof Submodel) { // constructor
     return SubmodelConstructor.call(this, model as M, submodelName);
   } else { // decorator factory
-    return SubmodelDecoratorFactory(model as SubmodelInit<M, S>);
+    return SubmodelDecoratorFactory(model as SubmodelDescriptor<M, S, U>);
   }
 }
 __extends(Submodel, Object);
 Model.Submodel = Submodel;
 
-function SubmodelConstructor<M extends Model, S extends Model>(this: Submodel<M, S>, model: M, submodelName: string | undefined): Submodel<M, S> {
+function SubmodelConstructor<M extends Model, S extends Model, U>(this: Submodel<M, S, U>, model: M, submodelName: string | undefined): Submodel<M, S, U> {
   if (submodelName !== void 0) {
     Object.defineProperty(this, "name", {
       value: submodelName,
@@ -123,44 +146,8 @@ function SubmodelConstructor<M extends Model, S extends Model>(this: Submodel<M,
   return this;
 }
 
-function SubmodelDecoratorFactory<M extends Model, S extends Model>(descriptor: SubmodelInit<M, S>): PropertyDecorator {
-  const observer = descriptor.observer;
-  delete descriptor.observer;
-
-  let BaseSubmodel = descriptor.extends;
-  delete descriptor.extends;
-  if (BaseSubmodel === void 0) {
-    if (observer !== false) {
-      BaseSubmodel = Submodel.Observer;
-    } else {
-      BaseSubmodel = Submodel;
-    }
-  }
-
-  function DecoratedSubmodel(this: Submodel<M, S>, model: M, submodelName: string | undefined): Submodel<M, S> {
-    let _this: Submodel<M, S> = function accessor(submodel?: S | null): S | null | M {
-      if (submodel === void 0) {
-        return _this._submodel;
-      } else {
-        _this.setSubmodel(submodel);
-        return _this._model;
-      }
-    } as Submodel<M, S>;
-    Object.setPrototypeOf(_this, this);
-    _this = BaseSubmodel!.call(_this, model, submodelName) || _this;
-    return _this;
-  }
-
-  if (descriptor !== void 0) {
-    Object.setPrototypeOf(DecoratedSubmodel, BaseSubmodel);
-    DecoratedSubmodel.prototype = descriptor as Submodel<M, S>;
-    DecoratedSubmodel.prototype.constructor = DecoratedSubmodel;
-    Object.setPrototypeOf(DecoratedSubmodel.prototype, BaseSubmodel.prototype);
-  } else {
-    __extends(DecoratedSubmodel, BaseSubmodel);
-  }
-
-  return Model.decorateSubmodel.bind(void 0, DecoratedSubmodel);
+function SubmodelDecoratorFactory<M extends Model, S extends Model, U>(descriptor: SubmodelDescriptor<M, S, U>): PropertyDecorator {
+  return Model.decorateSubmodel.bind(Model, Submodel.define(descriptor));
 }
 
 Object.defineProperty(Submodel.prototype, "model", {
@@ -187,9 +174,12 @@ Submodel.prototype.getSubmodel = function <S extends Model>(this: Submodel<Model
   return submodel;
 };
 
-Submodel.prototype.setSubmodel = function <S extends Model>(this: Submodel<Model, S>,
-                                                            newSubmodel: S | null): void {
-  this._model.setChildModel(this.name, newSubmodel);
+Submodel.prototype.setSubmodel = function <S extends Model, U>(this: Submodel<Model, S, U>,
+                                                               submodel: S | U | null): void {
+  if (submodel !== null) {
+    submodel = this.fromAny(submodel);
+  }
+  this._model.setChildModel(this.name, submodel as S | null);
 };
 
 Submodel.prototype.doSetSubmodel = function <S extends Model>(this: Submodel<Model, S>,
@@ -237,13 +227,9 @@ Submodel.prototype.onSetOwnSubmodel = function <S extends Model>(this: Submodel<
 };
 
 Submodel.prototype.didSetOwnSubmodel = function <S extends Model>(this: Submodel<Model, S>,
-                                                                 newSubmodel: S | null,
-                                                                 oldSubmodel: S | null): void {
+                                                                  newSubmodel: S | null,
+                                                                  oldSubmodel: S | null): void {
   // hook
-};
-
-Submodel.prototype.createSubmodel = function <S extends Model>(this: Submodel<Model, S>): S | null {
-  return null;
 };
 
 Submodel.prototype.mount = function (this: Submodel<Model, Model>): void {
@@ -252,4 +238,47 @@ Submodel.prototype.mount = function (this: Submodel<Model, Model>): void {
 
 Submodel.prototype.unmount = function (this: Submodel<Model, Model>): void {
   // hook
+};
+
+Submodel.prototype.createSubmodel = function <S extends Model, U>(this: Submodel<Model, S, U>): S | U | null {
+  return null;
+};
+
+Submodel.prototype.fromAny = function <S extends Model, U>(this: Submodel<Model, S, U>, value: S | U): S | null {
+  return value as S | null;
+};
+
+Submodel.define = function <M extends Model, S extends Model, U>(descriptor: SubmodelDescriptor<M, S, U>): SubmodelConstructor<M, S, U> {
+  let _super = descriptor.extends;
+  delete descriptor.extends;
+
+  if (_super === void 0) {
+    if (descriptor.observe !== false) {
+      _super = Submodel.Observer;
+    } else {
+      _super = Submodel;
+    }
+  }
+
+  const _constructor = function SubmodelAccessor(this: Submodel<M, S>, model: M, submodelName: string | undefined): Submodel<M, S, U> {
+    let _this: Submodel<M, S, U> = function accessor(submodel?: S | U | null): S | null | M {
+      if (submodel === void 0) {
+        return _this._submodel;
+      } else {
+        _this.setSubmodel(submodel);
+        return _this._model;
+      }
+    } as Submodel<M, S, U>;
+    Object.setPrototypeOf(_this, this);
+    _this = _super!.call(_this, model, submodelName) || _this;
+    return _this;
+  } as unknown as SubmodelConstructor<M, S, U>;
+
+  const _prototype = descriptor as unknown as Submodel<M, S, U>;
+  Object.setPrototypeOf(_constructor, _super);
+  _constructor.prototype = _prototype;
+  _constructor.prototype.constructor = _constructor;
+  Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  return _constructor;
 };

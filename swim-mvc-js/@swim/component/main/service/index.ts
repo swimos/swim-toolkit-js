@@ -13,8 +13,11 @@
 // limitations under the License.
 
 export {
-  ComponentServiceType,
+  ComponentServiceMemberType,
+  ComponentServiceFlags,
   ComponentServiceInit,
+  ComponentServiceDescriptorInit,
+  ComponentServiceDescriptorExtends,
   ComponentServiceDescriptor,
   ComponentServicePrototype,
   ComponentServiceConstructor,

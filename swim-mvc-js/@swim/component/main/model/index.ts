@@ -13,9 +13,12 @@
 // limitations under the License.
 
 export {
-  ComponentModelType,
-  ComponentModelInitType,
+  ComponentModelMemberType,
+  ComponentModelMemberInit,
   ComponentModelInit,
+  ComponentModelDescriptorInit,
+  ComponentModelDescriptorExtends,
+  ComponentModelDescriptorFromAny,
   ComponentModelDescriptor,
   ComponentModelPrototype,
   ComponentModelConstructor,

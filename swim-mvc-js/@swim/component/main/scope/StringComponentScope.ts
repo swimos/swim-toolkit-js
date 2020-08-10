@@ -16,8 +16,8 @@ import {Component} from "../Component";
 import {ComponentScope} from "./ComponentScope";
 
 /** @hidden */
-export abstract class StringComponentScope<C extends Component> extends ComponentScope<C, string> {
-  fromAny(value: string): string | undefined {
+export abstract class StringComponentScope<C extends Component> extends ComponentScope<C, string | null | undefined> {
+  fromAny(value: string | null | undefined): string | null | undefined {
     return value;
   }
 }

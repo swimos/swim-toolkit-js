@@ -71,9 +71,9 @@ export interface ComponentObserver<C extends Component = Component> {
 
  componentDidExecute?(componentContext: ComponentContextType<C>, component: C): void;
 
- componentWillNavigate?(componentContext: ComponentContextType<C>, component: C): void;
+ componentWillRevise?(componentContext: ComponentContextType<C>, component: C): void;
 
- componentDidNavigate?(componentContext: ComponentContextType<C>, component: C): void;
+ componentDidRevise?(componentContext: ComponentContextType<C>, component: C): void;
 
  componentWillCompute?(componentContext: ComponentContextType<C>, component: C): void;
 

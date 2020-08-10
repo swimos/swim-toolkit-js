@@ -18,13 +18,7 @@ import {ViewAnimator} from "./ViewAnimator";
 /** @hidden */
 export abstract class BooleanViewAnimator<V extends View> extends ViewAnimator<V, boolean | null | undefined, boolean | string | null | undefined> {
   fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
-    if (typeof value === "boolean") {
-      return value;
-    } else if (typeof value === "string") {
-      return value === "true";
-    } else {
-      return value;
-    }
+    return !!value;
   }
 }
 ViewAnimator.Boolean = BooleanViewAnimator;

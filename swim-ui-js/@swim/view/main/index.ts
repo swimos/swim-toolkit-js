@@ -19,6 +19,7 @@ export {
 export {
   ViewFlags,
   ViewInit,
+  ViewConstructor,
   ViewClass,
   View,
 } from "./View";

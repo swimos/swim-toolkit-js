@@ -32,8 +32,12 @@ export {
 } from "./ModelController";
 
 export {
-  SubmodelType,
+  SubmodelMemberType,
+  SubmodelMemberInit,
   SubmodelInit,
+  SubmodelDescriptorInit,
+  SubmodelDescriptorExtends,
+  SubmodelDescriptorFromAny,
   SubmodelDescriptor,
   SubmodelPrototype,
   SubmodelConstructor,

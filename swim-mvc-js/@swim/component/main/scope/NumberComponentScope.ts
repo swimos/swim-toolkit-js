@@ -16,17 +16,19 @@ import {Component} from "../Component";
 import {ComponentScope} from "./ComponentScope";
 
 /** @hidden */
-export abstract class NumberComponentScope<C extends Component> extends ComponentScope<C, number, number | string> {
-  fromAny(value: number | string): number | undefined {
+export abstract class NumberComponentScope<C extends Component> extends ComponentScope<C, number | null | undefined, number | string | null | undefined> {
+  fromAny(value: number | string | null | undefined): number | null | undefined {
     if (typeof value === "number") {
       return value;
-    } else {
+    } else if (typeof value === "string") {
       const number = +value;
       if (isFinite(number)) {
         return number;
       } else {
         throw new Error(value);
       }
+    } else {
+      return value;
     }
   }
 }

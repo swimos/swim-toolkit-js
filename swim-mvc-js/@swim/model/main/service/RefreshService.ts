@@ -19,10 +19,10 @@ import {ModelManagerService} from "./ModelManagerService";
 
 /** @hidden */
 export abstract class RefreshService<M extends Model> extends ModelManagerService<M, RefreshManager<M>> {
-  init(): RefreshManager<M> | undefined {
+  initManager(): RefreshManager<M> {
     return RefreshManager.global();
   }
 }
 ModelService.Refresh = RefreshService;
 
-ModelService({type: RefreshManager})(Model.prototype, "refreshService");
+ModelService({type: RefreshManager, observe: false})(Model.prototype, "refreshService");

@@ -377,10 +377,8 @@ ViewScope.prototype.setAuto = function (this: ViewScope<View, unknown>,
                                         auto: boolean): void {
   if (auto && (this._scopeFlags & ViewScope.OverrideFlag) !== 0) {
     this._scopeFlags &= ~ViewScope.OverrideFlag;
-    this._view.viewScopeDidSetAuto(this, true);
   } else if (!auto && (this._scopeFlags & ViewScope.OverrideFlag) === 0) {
     this._scopeFlags |= ViewScope.OverrideFlag;
-    this._view.viewScopeDidSetAuto(this, false);
   }
 };
 

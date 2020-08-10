@@ -13,16 +13,18 @@
 // limitations under the License.
 
 export {
-  ComponentScopeType,
-  ComponentScopeInitType,
+  ComponentScopeMemberType,
+  ComponentScopeMemberInit,
+  ComponentScopeFlags,
   ComponentScopeInit,
+  ComponentScopeDescriptorInit,
+  ComponentScopeDescriptorExtends,
+  ComponentScopeDescriptorFromAny,
   ComponentScopeDescriptor,
   ComponentScopePrototype,
   ComponentScopeConstructor,
   ComponentScope,
 } from "./ComponentScope";
-
-export {ObjectComponentScope} from "./ObjectComponentScope";
 
 export {StringComponentScope} from "./StringComponentScope";
 
