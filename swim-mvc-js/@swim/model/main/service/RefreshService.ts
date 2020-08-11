@@ -17,7 +17,6 @@ import {RefreshManager} from "../refresh/RefreshManager";
 import {ModelService} from "./ModelService";
 import {ModelManagerService} from "./ModelManagerService";
 
-/** @hidden */
 export abstract class RefreshService<M extends Model> extends ModelManagerService<M, RefreshManager<M>> {
   initManager(): RefreshManager<M> {
     return RefreshManager.global();

@@ -14,7 +14,7 @@
 
 import {ViewContext} from "../ViewContext";
 import {View} from "../View";
-import {ViewManager} from "../manager/ViewManager";
+import {ViewManagerObserverType, ViewManager} from "../manager/ViewManager";
 import {ViewIdiom} from "./ViewIdiom";
 import {Viewport} from "./Viewport";
 import {ViewportContext} from "./ViewportContext";
@@ -57,6 +57,38 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     return this._viewContext.viewIdiom;
   }
 
+  /** @hidden */
+  detectViewport(): Viewport {
+    return Viewport.detect();
+  }
+
+  /** @hidden */
+  detectViewIdiom(viewport: Viewport): ViewIdiom | undefined {
+    if (viewport.width < 960 || viewport.height < 480) {
+      return "mobile";
+    } else {
+      return "desktop";
+    }
+  }
+
+  /** @hidden */
+  updateViewIdiom(viewport: Viewport): void {
+    let viewIdiom = this.willObserve(function (viewManagerObserver: ViewportManagerObserver): void | ViewIdiom {
+      if (viewManagerObserver.detectViewIdiom !== void 0) {
+        const viewIdiom = viewManagerObserver.detectViewIdiom(viewport!, this);
+        if (viewIdiom !== void 0) {
+          return viewIdiom;
+        }
+      }
+    });
+    if (viewIdiom === void 0) {
+      viewIdiom = this.detectViewIdiom(viewport);
+    }
+    if (viewIdiom !== void 0) {
+      this.setViewIdiom(viewIdiom);
+    }
+  }
+
   setViewIdiom(newViewIdiom: ViewIdiom): void {
     const viewContext = this._viewContext;
     const oldViewIdiom = viewContext.viewIdiom;
@@ -91,20 +123,19 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     });
   }
 
-  updateViewIdiom(viewport: Viewport) {
-    if (viewport.width < 960 || viewport.height < 480) {
-      this.setViewIdiom("mobile");
-    } else {
-      this.setViewIdiom("desktop");
+  readonly viewManagerObservers: ReadonlyArray<ViewportManagerObserver>;
+
+  protected onAddViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
+    super.onAddViewManagerObserver(viewManagerObserver);
+    if (this.isAttached()) {
+      this.updateViewIdiom(this.viewport);
     }
   }
-
-  readonly viewManagerObservers: ReadonlyArray<ViewportManagerObserver>;
 
   protected onAttach(): void {
     super.onAttach();
     this.attachEvents();
-    this.updateViewIdiom(this._viewContext.viewport);
+    this.updateViewIdiom(this.viewport);
   }
 
   protected onDetach(): void {
@@ -126,10 +157,6 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
       window.removeEventListener("scroll", this.throttleScroll);
       window.removeEventListener("orientationchange", this.debounceReorientation);
     }
-  }
-
-  protected detectViewport(): Viewport {
-    return Viewport.detect();
   }
 
   /** @hidden */

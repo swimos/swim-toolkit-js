@@ -95,6 +95,7 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
     }
   }
 
+  /** @hidden */
   updateHistoryState(deltaState: HistoryStateInit): HistoryState {
     const historyState = this._historyState;
     if ("fragment" in deltaState) {
@@ -119,6 +120,7 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
     return historyState;
   }
 
+  /** @hidden */
   setHistoryState(newState: HistoryStateInit): void {
     this.clearHistoryState();
     this.updateHistoryUrl(document.location.href);

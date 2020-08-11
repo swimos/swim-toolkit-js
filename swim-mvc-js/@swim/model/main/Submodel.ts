@@ -27,6 +27,7 @@ export type SubmodelMemberInit<M, K extends keyof M> =
 export interface SubmodelInit<S extends Model, U = S> {
   extends?: SubmodelPrototype;
   observe?: boolean;
+  child?: boolean;
   type?: unknown;
 
   willSetSubmodel?(newSubmodel: S | null, oldSubmodel: S | null): void;
@@ -63,6 +64,9 @@ export declare abstract class Submodel<M extends Model, S extends Model, U = S> 
 
   /** @hidden */
   readonly type?: unknown;
+
+  /** @hidden */
+  child: boolean;
 
   get name(): string;
 
@@ -185,7 +189,11 @@ Submodel.prototype.setSubmodel = function <S extends Model, U>(this: Submodel<Mo
   if (submodel !== null) {
     submodel = this.fromAny(submodel);
   }
-  this._model.setChildModel(this.name, submodel as S | null);
+  if (this.child) {
+    this._model.setChildModel(this.name, submodel as S | null);
+  } else {
+    this.doSetSubmodel(submodel as S | null);
+  }
 };
 
 Submodel.prototype.doSetSubmodel = function <S extends Model>(this: Submodel<Model, S>,
@@ -310,6 +318,10 @@ Submodel.define = function <M extends Model, S extends Model, U>(descriptor: Sub
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  if (!_prototype.hasOwnProperty("child")) {
+    _prototype.child = true;
+  }
 
   return _constructor;
 };

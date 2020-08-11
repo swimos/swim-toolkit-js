@@ -530,7 +530,7 @@ export abstract class GenericComponent extends Component {
     const subcomponentName = childComponent.key;
     if (subcomponentName !== void 0) {
       const subcomponent = this.getLazySubcomponent(subcomponentName);
-      if (subcomponent !== null) {
+      if (subcomponent !== null && subcomponent.child) {
         subcomponent.doSetSubcomponent(childComponent);
       }
     }
@@ -541,7 +541,7 @@ export abstract class GenericComponent extends Component {
     const subcomponentName = childComponent.key;
     if (subcomponentName !== void 0) {
       const subcomponent = this.getSubcomponent(subcomponentName);
-      if (subcomponent !== null) {
+      if (subcomponent !== null && subcomponent.child) {
         subcomponent.doSetSubcomponent(null);
       }
     }

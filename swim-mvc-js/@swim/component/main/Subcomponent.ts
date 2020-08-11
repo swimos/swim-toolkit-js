@@ -27,6 +27,7 @@ export type SubcomponentMemberInit<C, K extends keyof C> =
 export interface SubcomponentInit<S extends Component, U = S> {
   extends?: SubcomponentPrototype;
   observe?: boolean;
+  child?: boolean;
   type?: unknown;
 
   willSetSubcomponent?(newSubcomponent: S | null, oldSubcomponent: S | null): void;
@@ -63,6 +64,9 @@ export declare abstract class Subcomponent<C extends Component, S extends Compon
 
   /** @hidden */
   readonly type?: unknown;
+
+  /** @hidden */
+  child: boolean;
 
   get name(): string;
 
@@ -185,7 +189,11 @@ Subcomponent.prototype.setSubcomponent = function <S extends Component, U>(this:
   if (subcomponent !== null) {
     subcomponent = this.fromAny(subcomponent);
   }
-  this._component.setChildComponent(this.name, subcomponent as S | null);
+  if (this.child) {
+    this._component.setChildComponent(this.name, subcomponent as S | null);
+  } else {
+    this.doSetSubcomponent(subcomponent as S | null);
+  }
 };
 
 Subcomponent.prototype.doSetSubcomponent = function <S extends Component>(this: Subcomponent<Component, S>,
@@ -311,6 +319,10 @@ Subcomponent.define = function <C extends Component, S extends Component, U>(des
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  if (!_prototype.hasOwnProperty("child")) {
+    _prototype.child = true;
+  }
 
   return _constructor;
 };

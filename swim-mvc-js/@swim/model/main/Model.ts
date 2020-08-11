@@ -17,8 +17,8 @@ import {ModelObserverType, ModelObserver} from "./ModelObserver";
 import {ModelControllerType, ModelController} from "./ModelController";
 import {SubmodelConstructor, Submodel} from "./Submodel";
 import {ModelManager} from "./manager/ModelManager";
-import {RefreshManager} from "./refresh/RefreshManager";
 import {ModelServiceConstructor, ModelService} from "./service/ModelService";
+import {RefreshService} from "./service/RefreshService";
 import {ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
 import {GenericModel} from "./generic/GenericModel";
 import {CompoundModel} from "./generic/CompoundModel";
@@ -267,7 +267,7 @@ export abstract class Model {
     }
   }
 
-  refreshService: ModelService<this, RefreshManager>; // defined by RefreshService
+  readonly refreshService: RefreshService<this>; // defined by RefreshService
 
   get modelClass(): ModelClass {
     return this.constructor as unknown as ModelClass;

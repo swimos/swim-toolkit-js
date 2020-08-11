@@ -558,7 +558,7 @@ export abstract class GenericModel extends Model {
     const submodelName = childModel.key;
     if (submodelName !== void 0) {
       const submodel = this.getLazySubmodel(submodelName);
-      if (submodel !== null) {
+      if (submodel !== null && submodel.child) {
         submodel.doSetSubmodel(childModel);
       }
     }
@@ -569,7 +569,7 @@ export abstract class GenericModel extends Model {
     const submodelName = childModel.key;
     if (submodelName !== void 0) {
       const submodel = this.getSubmodel(submodelName);
-      if (submodel !== null) {
+      if (submodel !== null && submodel.child) {
         submodel.doSetSubmodel(null);
       }
     }

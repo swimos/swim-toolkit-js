@@ -28,6 +28,7 @@ export type SubviewMemberInit<V, K extends keyof V> =
 export interface SubviewInit<S extends View, U = S> {
   extends?: SubviewPrototype;
   observe?: boolean;
+  child?: boolean;
   type?: unknown;
 
   willSetSubview?(newSubview: S | null, oldSubview: S | null): void;
@@ -64,6 +65,9 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
 
   /** @hidden */
   readonly type?: unknown;
+
+  /** @hidden */
+  child: boolean;
 
   get name(): string;
 
@@ -186,7 +190,11 @@ Subview.prototype.setSubview = function <S extends View, U>(this: Subview<View, 
   if (subview !== null) {
     subview = this.fromAny(subview);
   }
-  this._view.setChildView(this.name, subview as S | null);
+  if (this.child) {
+    this._view.setChildView(this.name, subview as S | null);
+  } else {
+    this.doSetSubview(subview as S | null);
+  }
 };
 
 Subview.prototype.doSetSubview = function <S extends View>(this: Subview<View, S>,
@@ -323,6 +331,10 @@ Subview.define = function <V extends View, S extends View, U>(descriptor: Subvie
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  if (!_prototype.hasOwnProperty("child")) {
+    _prototype.child = true;
+  }
 
   return _constructor;
 };

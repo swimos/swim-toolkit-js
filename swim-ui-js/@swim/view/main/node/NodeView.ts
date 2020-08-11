@@ -1246,7 +1246,7 @@ export class NodeView extends View {
     const subviewName = childView.key;
     if (subviewName !== void 0) {
       const subview = this.getLazySubview(subviewName);
-      if (subview !== null) {
+      if (subview !== null && subview.child) {
         subview.doSetSubview(childView);
       }
     }
@@ -1257,7 +1257,7 @@ export class NodeView extends View {
     const subviewName = childView.key;
     if (subviewName !== void 0) {
       const subview = this.getSubview(subviewName);
-      if (subview !== null) {
+      if (subview !== null && subview.child) {
         subview.doSetSubview(null);
       }
     }

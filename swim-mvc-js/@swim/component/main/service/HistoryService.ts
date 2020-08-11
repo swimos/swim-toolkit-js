@@ -13,12 +13,24 @@
 // limitations under the License.
 
 import {Component} from "../Component";
+import {HistoryStateInit, HistoryState} from "../history/HistoryState";
 import {HistoryManager} from "../history/HistoryManager";
 import {ComponentService} from "./ComponentService";
 import {ComponentManagerService} from "./ComponentManagerService";
 
-/** @hidden */
 export abstract class HistoryService<C extends Component> extends ComponentManagerService<C, HistoryManager<C>> {
+  get historyState(): HistoryState {
+    return this.manager.historyState;
+  }
+
+  pushHistory(deltaState: HistoryStateInit): void {
+    this.manager.pushHistory(deltaState);
+  }
+
+  replaceHistory(deltaState: HistoryStateInit): void {
+    this.manager.replaceHistory(deltaState);
+  }
+
   initManager(): HistoryManager<C> {
     return HistoryManager.global();
   }
