@@ -119,6 +119,10 @@ const LightFloating = FeelVector.of(
   [Look.shadow, BoxShadow.of(0, 2, 4, 0, Color.black(0.5))],
 );
 
+const LightEmbossed = FeelVector.of(
+  [Look.accentColor, Color.black(1 / 2)],
+);
+
 const LightNested = FeelVector.of(
   [Look.accentColor, Color.black(1 / 16)],
 
@@ -147,6 +151,7 @@ const LightTheme = ThemeMatrix.forCols(
 
   [Feel.overlay, LightOverlay],
   [Feel.floating, LightFloating],
+  [Feel.embossed, LightEmbossed],
   [Feel.nested, LightNested],
 
   [Feel.hovering, LightHovering],

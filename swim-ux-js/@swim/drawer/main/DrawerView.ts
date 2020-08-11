@@ -63,7 +63,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     super(node);
     this._drawerPlacement = "left";
     this._drawerState = "hidden";
-    this._modality = false;
+    this._modality = true;
 
     this.modifyTheme(Feel.default, [Feel.overlay, 1]);
   }
@@ -147,6 +147,46 @@ export class DrawerView extends ThemedHtmlView implements Modal {
 
   isVertical(): boolean {
     return this._drawerPlacement === "left" || this._drawerPlacement === "right";
+  }
+
+  get effectiveWidth(): Length {
+    const width = this.width.value;
+    if (this._drawerPlacement === "left") {
+      const left = this.left.value;
+      if (width instanceof Length && left instanceof Length) {
+        return width.plus(left);
+      }
+    } else if (this._drawerPlacement === "right") {
+      const right = this.left.value;
+      if (width instanceof Length && right instanceof Length) {
+        return width.plus(right);
+      }
+    }
+    if (width instanceof Length) {
+      return width;
+    } else {
+      return Length.px(this.clientBounds.width);
+    }
+  }
+
+  get effectiveHeight(): Length {
+    const height = this.height.value;
+    if (this._drawerPlacement === "top") {
+      const top = this.top.value;
+      if (height instanceof Length && top instanceof Length) {
+        return height.plus(top);
+      }
+    } else if (this._drawerPlacement === "bottom") {
+      const bottom = this.bottom.value;
+      if (height instanceof Length && bottom instanceof Length) {
+        return height.plus(bottom);
+      }
+    }
+    if (height instanceof Length) {
+      return height;
+    } else {
+      return Length.px(this.clientBounds.height);
+    }
   }
 
   @ViewScope({type: Object})
@@ -391,6 +431,9 @@ export class DrawerView extends ThemedHtmlView implements Modal {
   }
 
   showModal(options: ModalOptions, tween?: Tween<any>): void {
+    if (options.modal !== void 0) {
+      this._modality = options.modal;
+    }
     this.show(tween);
   }
 
@@ -429,6 +472,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
       }
     });
     this.display.setAutoState("flex");
+    this.place(this.viewContext as ViewContextType<this>);
   }
 
   protected didShow(): void {
@@ -449,6 +493,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "hiding";
+      this.dismissModal(this);
       if (tween !== null) {
         this.drawerSlide.setAutoState(0, tween.onBegin(this.willHide.bind(this)).onEnd(this.didHide.bind(this)));
       } else {
@@ -486,6 +531,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "showing";
+      this.dismissModal(this);
       if (tween !== null) {
         if (this.drawerStretch.value !== 1) {
           this.drawerSlide.setAutoState(1, tween);
@@ -528,6 +574,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "collapsing";
+      this.dismissModal(this);
       if (this.drawerSlide.value === 0) {
         this.drawerStretch.setAutoState(0);
       }
@@ -568,7 +615,9 @@ export class DrawerView extends ThemedHtmlView implements Modal {
 
   toggle(tween?: Tween<any>): void {
     const drawerState = this._drawerState;
-    if (drawerState === "hidden" || drawerState === "hiding") {
+    if (this.viewIdiom === "mobile" && (drawerState === "hidden" || drawerState === "hiding")) {
+      this.presentModal(this, {modal: true});
+    } else if (drawerState === "hidden" || drawerState === "hiding") {
       this.show(tween);
     } else if (drawerState === "collapsed" || drawerState === "collapsing") {
       this.expand(tween);

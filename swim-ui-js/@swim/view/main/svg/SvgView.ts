@@ -34,6 +34,7 @@ import {
   CssCursor,
   FillRule,
   Paint,
+  PointerEvents,
   StrokeLinecap,
   TextAnchor,
   TouchAction,
@@ -75,8 +76,10 @@ export interface SvgViewAttributesInit {
   height?: AttributeAnimatorMemberInit<SvgView, "height">;
   in?: AttributeAnimatorMemberInit<SvgView, "in">;
   in2?: AttributeAnimatorMemberInit<SvgView, "in2">;
+  lengthAdjust?: AttributeAnimatorMemberInit<SvgView, "lengthAdjust">;
   mode?: AttributeAnimatorMemberInit<SvgView, "mode">;
   opacity?: AttributeAnimatorMemberInit<SvgView, "opacity">;
+  pointerEvents?: AttributeAnimatorMemberInit<SvgView, "pointerEvents">;
   points?: AttributeAnimatorMemberInit<SvgView, "points">;
   preserveAspectRatio?: AttributeAnimatorMemberInit<SvgView, "preserveAspectRatio">;
   r?: AttributeAnimatorMemberInit<SvgView, "r">;
@@ -87,6 +90,7 @@ export interface SvgViewAttributesInit {
   strokeLinecap?: AttributeAnimatorMemberInit<SvgView, "strokeLinecap">;
   strokeWidth?: AttributeAnimatorMemberInit<SvgView, "strokeWidth">;
   textAnchor?: AttributeAnimatorMemberInit<SvgView, "textAnchor">;
+  textLength?: AttributeAnimatorMemberInit<SvgView, "textLength">;
   transform?: AttributeAnimatorMemberInit<SvgView, "transform">;
   type?: AttributeAnimatorMemberInit<SvgView, "type">;
   values?: AttributeAnimatorMemberInit<SvgView, "values">;
@@ -186,11 +190,17 @@ export class SvgView extends ElementView {
     if (init.in2 !== void 0) {
       this.in2(init.in2);
     }
+    if (init.lengthAdjust !== void 0) {
+      this.lengthAdjust(init.lengthAdjust);
+    }
     if (init.mode !== void 0) {
       this.mode(init.mode);
     }
     if (init.opacity !== void 0) {
       this.opacity(init.opacity);
+    }
+    if (init.pointerEvents !== void 0) {
+      this.pointerEvents(init.pointerEvents);
     }
     if (init.points !== void 0) {
       this.points(init.points);
@@ -221,6 +231,9 @@ export class SvgView extends ElementView {
     }
     if (init.textAnchor !== void 0) {
       this.textAnchor(init.textAnchor);
+    }
+    if (init.textLength !== void 0) {
+      this.textLength(init.textLength);
     }
     if (init.transform !== void 0) {
       this.transform(init.transform);
@@ -407,11 +420,17 @@ export class SvgView extends ElementView {
   @AttributeAnimator({attributeName: "in2", type: String})
   in2: AttributeAnimator<this, string>;
 
+  @AttributeAnimator({attributeName: "lengthAdjust", type: String})
+  lengthAdjust: AttributeAnimator<this, "spacing" | "spacingAndGlyphs">;
+
   @AttributeAnimator({attributeName: "mode", type: String})
   mode: AttributeAnimator<this, string>;
 
   @AttributeAnimator({attributeName: "opacity", type: Number})
   opacity: AttributeAnimator<this, number>;
+
+  @AttributeAnimator({attributeName: "pointer-events", type: String})
+  pointerEvents: AttributeAnimator<this, PointerEvents>;
 
   @AttributeAnimator({attributeName: "points", type: String})
   points: AttributeAnimator<this, string>;
@@ -442,6 +461,9 @@ export class SvgView extends ElementView {
 
   @AttributeAnimator({attributeName: "text-anchor", type: String})
   textAnchor: AttributeAnimator<this, TextAnchor>;
+
+  @AttributeAnimator({attributeName: "textLength", type: Length})
+  textLength: AttributeAnimator<this, Length, AnyLength>;
 
   @AttributeAnimator({attributeName: "transform", type: Transform})
   transform: AttributeAnimator<this, Transform, AnyTransform>;

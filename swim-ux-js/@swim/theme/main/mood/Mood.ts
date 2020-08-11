@@ -33,6 +33,7 @@ export const Mood: {
 
   overlay: MoodVector; // defined by moods
   floating: MoodVector; // defined by moods
+  embossed: MoodVector; // defined by moods
   nested: MoodVector; // defined by moods
 
   hovering: MoodVector; // defined by moods

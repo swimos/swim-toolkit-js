@@ -55,6 +55,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     this.overflowX.setAutoState("hidden");
     this.overflowY.setAutoState("hidden");
     this.cursor.setAutoState("pointer");
+    this.userSelect.setAutoState("none");
   }
 
   readonly viewController: MenuItemController | null;

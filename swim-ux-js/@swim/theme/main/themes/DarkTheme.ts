@@ -119,6 +119,10 @@ const DarkFloating = FeelVector.of(
   [Look.shadow, BoxShadow.of(0, 2, 4, 0, Color.black(0.5))],
 );
 
+const DarkEmbossed = FeelVector.of(
+  [Look.accentColor, Color.black(1 / 2)],
+);
+
 const DarkNested = FeelVector.of(
   [Look.accentColor, Color.black(1 / 3)],
 
@@ -147,6 +151,7 @@ const DarkTheme = ThemeMatrix.forCols(
 
   [Feel.overlay, DarkOverlay],
   [Feel.floating, DarkFloating],
+  [Feel.embossed, DarkEmbossed],
   [Feel.nested, DarkNested],
 
   [Feel.hovering, DarkHovering],
