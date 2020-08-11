@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "../View";
-import {ViewManager} from "../manager/ViewManager";
-import {ViewNode, NodeView} from "../node/NodeView";
-import {ModalOptions, Modal} from "./Modal";
+import {View, ViewManager, ViewNode, NodeView} from "@swim/view";
+import {ModalOptions, Modal} from "../Modal";
 import {ModalManagerObserver} from "./ModalManagerObserver";
 
 export class ModalManager<V extends View = View> extends ViewManager<V> {
@@ -67,15 +65,6 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
       modalView.mount();
     } else {
       throw new TypeError("" + modalView);
-    }
-  }
-
-  toggleModal(modal: Modal, options?: ModalOptions): void {
-    const modalState = modal.modalState;
-    if (modalState === "hidden" || modalState === "hiding") {
-      this.presentModal(modal, options);
-    } else if (modalState === "shown" || modalState === "showing") {
-      this.dismissModal(modal);
     }
   }
 
@@ -155,6 +144,15 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
     const modals = this._modals;
     while (modals.length !== 0) {
       this.dismissModal(modals[0]);
+    }
+  }
+
+  toggleModal(modal: Modal, options?: ModalOptions): void {
+    const modalState = modal.modalState;
+    if (modalState === "hidden" || modalState === "hiding") {
+      this.presentModal(modal, options);
+    } else if (modalState === "shown" || modalState === "showing") {
+      this.dismissModal(modal);
     }
   }
 
@@ -268,4 +266,3 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
     return ModalManager._global;
   }
 }
-ViewManager.Modal = ModalManager;

@@ -17,7 +17,6 @@ import {DisplayManager} from "../display/DisplayManager";
 import {ViewService} from "./ViewService";
 import {ViewManagerService} from "./ViewManagerService";
 
-/** @hidden */
 export abstract class DisplayService<V extends View> extends ViewManagerService<V, DisplayManager<V>> {
   initManager(): DisplayManager<V> {
     return DisplayManager.global();

@@ -13,13 +13,34 @@
 // limitations under the License.
 
 import {View, ViewService, ViewManagerService} from "@swim/view";
+import {MoodVector} from "../mood/MoodVector";
+import {ThemeMatrix} from "../theme/ThemeMatrix";
 import {ThemeManager} from "./ThemeManager";
 
-/** @hidden */
 export abstract class ThemeService<V extends View> extends ViewManagerService<V, ThemeManager<V>> {
+  get mood(): MoodVector {
+    return this.manager.mood;
+  }
+
+  setMood(mood: MoodVector): void {
+    this.manager.setMood(mood);
+  }
+
+  get theme(): ThemeMatrix {
+    return this.manager.theme;
+  }
+
+  setTheme(theme: ThemeMatrix): void {
+    this.manager.setTheme(theme);
+  }
+
   initManager(): ThemeManager<V> {
     return ThemeManager.global();
   }
 }
 
-ViewService({extends: ThemeService, observe: false})(View.prototype, "themeService");
+ViewService({
+  extends: ThemeService,
+  type: ThemeManager,
+  observe: false,
+})(View.prototype, "themeService");

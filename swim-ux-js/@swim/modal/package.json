@@ -1,5 +1,5 @@
 {
-  "name": "@swim/popover",
+  "name": "@swim/modal",
   "version": "3.11.0-dev.20200619",
   "description": "Auto-placed, source-tracking popover views",
   "homepage": "https://github.com/swimos/swim",
@@ -7,7 +7,7 @@
   "copyright": "2015-2020 Swim inc.",
   "license": "Apache-2.0",
   "repository": "https://github.com/swimos/swim.git",
-  "main": "dist/main/swim-popover.js",
+  "main": "dist/main/swim-modal.js",
   "module": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "dependencies": {
@@ -17,7 +17,6 @@
     "@swim/structure": "3.11.0-dev.20200619",
     "@swim/math": "3.11.0-dev.20200619",
     "@swim/time": "3.11.0-dev.20200619",
-    "@swim/uri": "3.11.0-dev.20200619",
     "@swim/angle": "3.11.0-dev.20200619",
     "@swim/length": "3.11.0-dev.20200619",
     "@swim/color": "3.11.0-dev.20200619",
@@ -31,7 +30,6 @@
     "@swim/render": "3.11.0-dev.20200619",
     "@swim/constraint": "3.11.0-dev.20200619",
     "@swim/view": "3.11.0-dev.20200619",
-    "@swim/gesture": "3.11.0-dev.20200619",
     "@swim/theme": "3.11.0-dev.20200619"
   }
 }

@@ -10,7 +10,6 @@
       "@swim/structure": ["../../swim-system-js/swim-core-js/@swim/structure/main"],
       "@swim/math": ["../../swim-system-js/swim-core-js/@swim/math/main"],
       "@swim/time": ["../../swim-system-js/swim-core-js/@swim/time/main"],
-      "@swim/uri": ["../../swim-system-js/swim-core-js/@swim/uri/main"],
       "@swim/angle": ["../swim-ui-js/@swim/angle/main"],
       "@swim/length": ["../swim-ui-js/@swim/length/main"],
       "@swim/color": ["../swim-ui-js/@swim/color/main"],
@@ -24,6 +23,8 @@
       "@swim/render": ["../swim-ui-js/@swim/render/main"],
       "@swim/constraint": ["../swim-ui-js/@swim/constraint/main"],
       "@swim/view": ["../swim-ui-js/@swim/view/main"],
+      "@swim/theme": ["../swim-ux-js/@swim/theme/main"],
+      "@swim/modal": ["../swim-ux-js/@swim/modal/main"],
       "@swim/website": ["@swim/website/main"],
       "@swim/webapp": ["@swim/webapp/main"]
     },

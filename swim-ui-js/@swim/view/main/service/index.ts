@@ -31,5 +31,3 @@ export {DisplayService} from "./DisplayService";
 export {LayoutService} from "./LayoutService";
 
 export {ViewportService} from "./ViewportService";
-
-export {ModalService} from "./ModalService";

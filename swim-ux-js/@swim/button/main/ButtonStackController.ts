@@ -38,7 +38,7 @@ export class ButtonStackController<V extends ButtonStack = ButtonStack> extends 
   }
 
   buttonStackWillExpand(view: V): void {
-    view.presentModal(view);
+    view.modalService.presentModal(view);
   }
 
   buttonStackDidExpand(view: V): void {
@@ -50,7 +50,7 @@ export class ButtonStackController<V extends ButtonStack = ButtonStack> extends 
   }
 
   buttonStackDidCollapse(view: V): void {
-    view.dismissModal(view);
+    view.modalService.dismissModal(view);
   }
 
   buttonStackWillShow(view: V): void {

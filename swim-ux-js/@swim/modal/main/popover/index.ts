@@ -18,5 +18,3 @@ export {
 } from "./PopoverView";
 export {PopoverViewObserver} from "./PopoverViewObserver";
 export {PopoverViewController} from "./PopoverViewController";
-
-export {ScrimView} from "./ScrimView";

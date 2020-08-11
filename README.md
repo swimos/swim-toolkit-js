@@ -90,7 +90,7 @@ toolbars, controls, and other interactive application views and controllers.
   semantic looks and feels for mood-aware UX components.
 - [**@swim/button**](swim-ux-js/@swim/button) –
   procedurally styled multitouch buttons.
-- [**@swim/popover**](swim-ux-js/@swim/popover) –
+- [**@swim/modal**](swim-ux-js/@swim/modal) –
   auto-placed, source-tracking popover views.
 - [**@swim/drawer**](swim-ux-js/@swim/drawer) –
   responsive, minifiable drawer views.

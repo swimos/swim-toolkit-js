@@ -18,5 +18,13 @@ export {
   Modal,
 } from "./Modal";
 
-export {ModalManager} from "./ModalManager";
-export {ModalManagerObserver} from "./ModalManagerObserver";
+export * from "./manager";
+
+export * from "./popover";
+
+import {ModalService} from "./manager/ModalService";
+declare module "@swim/view" {
+  interface View {
+    modalService: ModalService<this>; // defined by ModalService
+  }
+}

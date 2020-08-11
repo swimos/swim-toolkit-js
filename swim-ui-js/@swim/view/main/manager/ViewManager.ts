@@ -17,7 +17,6 @@ import {ViewManagerObserver} from "./ViewManagerObserver";
 import {DisplayManager} from "../display/DisplayManager";
 import {LayoutManager} from "../layout/LayoutManager";
 import {ViewportManager} from "../viewport/ViewportManager";
-import {ModalManager} from "../modal/ModalManager";
 
 export type ViewManagerObserverType<VM extends ViewManager> =
   VM extends {readonly viewManagerObservers: ReadonlyArray<infer VMO>} ? VMO : unknown;
@@ -261,7 +260,5 @@ export abstract class ViewManager<V extends View = View> {
   static Layout: typeof LayoutManager; // defined by LayoutManager
   /** @hidden */
   static Viewport: typeof ViewportManager; // defined by ViewportManager
-  /** @hidden */
-  static Modal: typeof ModalManager; // defined by ModalManager
 }
 View.Manager = ViewManager;

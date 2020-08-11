@@ -21,7 +21,7 @@ const source = bodyView.append("div")
   .borderRadius(50)
   .backgroundColor("#989898")
   .on("click", function (event) {
-    bodyView.toggleModal(popover);
+    bodyView.modalService.toggleModal(popover);
   });
 
 const popover = swim.View.create(swim.PopoverView)
@@ -32,7 +32,7 @@ const popover = swim.View.create(swim.PopoverView)
   .backgroundColor("#4a4a4a");
 popover.setSource(source);
 popover.hideModal(false);
-bodyView.presentModal(popover);
+bodyView.modalService.presentModal(popover);
 
 //setInterval(function () {
 //  const tween = swim.Transition.duration(1000);

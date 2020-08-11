@@ -12,17 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "../View";
-import {ModalManager} from "../modal/ModalManager";
-import {ViewService} from "./ViewService";
-import {ViewManagerService} from "./ViewManagerService";
+export {ModalManager} from "./ModalManager";
+export {ModalManagerObserver} from "./ModalManagerObserver";
 
-/** @hidden */
-export abstract class ModalService<V extends View> extends ViewManagerService<V, ModalManager<V>> {
-  initManager(): ModalManager<V> {
-    return ModalManager.global();
-  }
-}
-ViewService.Modal = ModalService;
+export {ModalService} from "./ModalService";
 
-ViewService({type: ModalManager, observe: false})(View.prototype, "modalService");
+export {ScrimView} from "./ScrimView";

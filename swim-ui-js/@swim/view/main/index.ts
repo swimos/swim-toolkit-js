@@ -55,8 +55,6 @@ export * from "./layout";
 
 export * from "./viewport";
 
-export * from "./modal";
-
 export * from "./event";
 
 export * from "./service";

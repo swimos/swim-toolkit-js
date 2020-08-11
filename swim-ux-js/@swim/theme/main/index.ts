@@ -32,10 +32,9 @@ export * from "./manager";
 
 export * from "./themes";
 
-import {ViewService} from "@swim/view";
-import {ThemeManager} from "./manager/ThemeManager";
+import {ThemeService} from "./manager/ThemeService";
 declare module "@swim/view" {
-  interface View {
-    themeService: ViewService<this, ThemeManager>; // defined by ThemeService
+  abstract class View {
+    get themeService(): ThemeService<this>; // defined by ThemeService
   }
 }

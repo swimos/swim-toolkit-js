@@ -49,12 +49,12 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     return this._viewContext;
   }
 
-  get viewIdiom(): ViewIdiom {
-    return this._viewContext.viewIdiom;
-  }
-
   get viewport(): Viewport {
     return this._viewContext.viewport;
+  }
+
+  get viewIdiom(): ViewIdiom {
+    return this._viewContext.viewIdiom;
   }
 
   setViewIdiom(newViewIdiom: ViewIdiom): void {

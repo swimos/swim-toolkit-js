@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import {Tween} from "@swim/transition";
-import {View, ModalOptions, ModalState, Modal, HtmlView} from "@swim/view";
+import {View, HtmlView} from "@swim/view";
+import {ModalOptions, ModalState, Modal} from "@swim/modal";
 
 export class DropdownView extends HtmlView implements Modal {
   /** @hidden */
@@ -72,7 +73,7 @@ export class DropdownView extends HtmlView implements Modal {
       if (classList.contains(this._visibleClass)) {
         classList.remove(this._visibleClass);
       } else {
-        this.presentModal(this);
+        this.modalService.presentModal(this);
       }
       event.stopPropagation();
       event.preventDefault();
@@ -112,6 +113,6 @@ export class DropdownView extends HtmlView implements Modal {
       const classList = menuView.classList;
       classList.remove(this._visibleClass);
     }
-    this.dismissModal(this);
+    this.modalService.dismissModal(this);
   }
 }

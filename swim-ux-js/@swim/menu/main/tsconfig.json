@@ -10,7 +10,6 @@
       "@swim/structure": ["../../swim-system-js/swim-core-js/@swim/structure/main"],
       "@swim/math": ["../../swim-system-js/swim-core-js/@swim/math/main"],
       "@swim/time": ["../../swim-system-js/swim-core-js/@swim/time/main"],
-      "@swim/uri": ["../../swim-system-js/swim-core-js/@swim/uri/main"],
       "@swim/angle": ["../swim-ui-js/@swim/angle/main"],
       "@swim/length": ["../swim-ui-js/@swim/length/main"],
       "@swim/color": ["../swim-ui-js/@swim/color/main"],
@@ -26,6 +25,7 @@
       "@swim/view": ["../swim-ui-js/@swim/view/main"],
       "@swim/gesture": ["../swim-ui-js/@swim/gesture/main"],
       "@swim/theme": ["@swim/theme/main"],
+      "@swim/modal": ["@swim/modal/main"],
       "@swim/button": ["@swim/button/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
@@ -37,7 +37,6 @@
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/structure/main"},
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/math/main"},
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/time/main"},
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/uri/main"},
     {"path": "../../../../swim-ui-js/@swim/angle/main"},
     {"path": "../../../../swim-ui-js/@swim/length/main"},
     {"path": "../../../../swim-ui-js/@swim/color/main"},
@@ -53,6 +52,7 @@
     {"path": "../../../../swim-ui-js/@swim/view/main"},
     {"path": "../../../../swim-ui-js/@swim/gesture/main"},
     {"path": "../../theme/main"},
+    {"path": "../../modal/main"},
     {"path": "../../button/main"}
   ]
 }

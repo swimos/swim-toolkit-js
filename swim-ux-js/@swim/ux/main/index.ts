@@ -14,9 +14,9 @@
 
 export * from "@swim/theme";
 
-export * from "@swim/button";
+export * from "@swim/modal";
 
-export * from "@swim/popover";
+export * from "@swim/button";
 
 export * from "@swim/drawer";
 

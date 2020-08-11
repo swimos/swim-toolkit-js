@@ -19,9 +19,6 @@ import {
   ViewContextType,
   View,
   ViewEdgeInsets,
-  ModalOptions,
-  ModalState,
-  Modal,
   ViewScope,
   ViewAnimator,
   ViewNodeType,
@@ -35,6 +32,7 @@ import {
   ThemedHtmlViewInit,
   ThemedHtmlView,
 } from "@swim/theme";
+import {ModalOptions, ModalState, Modal} from "@swim/modal";
 import {DrawerViewObserver} from "./DrawerViewObserver";
 import {DrawerViewController} from "./DrawerViewController";
 
@@ -493,7 +491,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "hiding";
-      this.dismissModal(this);
+      this.modalService.dismissModal(this);
       if (tween !== null) {
         this.drawerSlide.setAutoState(0, tween.onBegin(this.willHide.bind(this)).onEnd(this.didHide.bind(this)));
       } else {
@@ -531,7 +529,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "showing";
-      this.dismissModal(this);
+      this.modalService.dismissModal(this);
       if (tween !== null) {
         if (this.drawerStretch.value !== 1) {
           this.drawerSlide.setAutoState(1, tween);
@@ -574,7 +572,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
         tween = Transition.forTween(tween);
       }
       this._drawerState = "collapsing";
-      this.dismissModal(this);
+      this.modalService.dismissModal(this);
       if (this.drawerSlide.value === 0) {
         this.drawerStretch.setAutoState(0);
       }
@@ -616,7 +614,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
   toggle(tween?: Tween<any>): void {
     const drawerState = this._drawerState;
     if (this.viewIdiom === "mobile" && (drawerState === "hidden" || drawerState === "hiding")) {
-      this.presentModal(this, {modal: true});
+      this.modalService.presentModal(this, {modal: true});
     } else if (drawerState === "hidden" || drawerState === "hiding") {
       this.show(tween);
     } else if (drawerState === "collapsed" || drawerState === "collapsing") {

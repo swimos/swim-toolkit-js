@@ -32,8 +32,8 @@
       "@swim/ui": ["swim-ui-js/@swim/ui/main"],
 
       "@swim/theme": ["swim-ux-js/@swim/theme/main"],
+      "@swim/modal": ["swim-ux-js/@swim/modal/main"],
       "@swim/button": ["swim-ux-js/@swim/button/main"],
-      "@swim/popover": ["swim-ux-js/@swim/popover/main"],
       "@swim/drawer": ["swim-ux-js/@swim/drawer/main"],
       "@swim/menu": ["swim-ux-js/@swim/menu/main"],
       "@swim/tree": ["swim-ux-js/@swim/tree/main"],
@@ -91,8 +91,8 @@
     {"path": "../../../swim-maps-js/@swim/maps/main"},
 
     {"path": "../../../swim-ux-js/@swim/theme/main"},
+    {"path": "../../../swim-ux-js/@swim/modal/main"},
     {"path": "../../../swim-ux-js/@swim/button/main"},
-    {"path": "../../../swim-ux-js/@swim/popover/main"},
     {"path": "../../../swim-ux-js/@swim/drawer/main"},
     {"path": "../../../swim-ux-js/@swim/menu/main"},
     {"path": "../../../swim-ux-js/@swim/tree/main"},

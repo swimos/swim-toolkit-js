@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "../View";
-import {ViewManagerObserver} from "../manager/ViewManagerObserver";
-import {ModalOptions, Modal} from "./Modal";
+import {View, ViewManagerObserver} from "@swim/view";
+import {ModalOptions, Modal} from "../Modal";
 import {ModalManager} from "./ModalManager";
 
 export interface ModalManagerObserver<V extends View = View, VM extends ModalManager<V> = ModalManager<V>> extends ViewManagerObserver<V, VM> {

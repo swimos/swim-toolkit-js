@@ -18,7 +18,6 @@
     "@swim/structure": "3.11.0-dev.20200619",
     "@swim/math": "3.11.0-dev.20200619",
     "@swim/time": "3.11.0-dev.20200619",
-    "@swim/uri": "3.11.0-dev.20200619",
 
     "@swim/angle": "3.11.0-dev.20200619",
     "@swim/length": "3.11.0-dev.20200619",
@@ -33,6 +32,9 @@
     "@swim/render": "3.11.0-dev.20200619",
     "@swim/constraint": "3.11.0-dev.20200619",
     "@swim/view": "3.11.0-dev.20200619",
+
+    "@swim/theme": "3.11.0-dev.20200619",
+    "@swim/modal": "3.11.0-dev.20200619",
 
     "@rollup/plugin-node-resolve": "8",
     "@types/node": "14",

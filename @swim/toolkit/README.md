@@ -141,9 +141,9 @@ toolbars, controls, and other interactive application views and controllers.
   ([npm](https://www.npmjs.com/package/@swim/button),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_button.html)) –
   procedurally styled multitouch buttons.
-- [**@swim/popover**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/popover)
-  ([npm](https://www.npmjs.com/package/@swim/popover),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_popover.html)) –
+- [**@swim/modal**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/modal)
+  ([npm](https://www.npmjs.com/package/@swim/modal),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_modal.html)) –
   auto-placed, source-tracking popover views.
 - [**@swim/drawer**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/drawer)
   ([npm](https://www.npmjs.com/package/@swim/drawer),

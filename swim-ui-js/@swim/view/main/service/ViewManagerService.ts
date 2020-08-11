@@ -16,7 +16,6 @@ import {View} from "../View";
 import {ViewManagerObserverType, ViewManager} from "../manager/ViewManager";
 import {ViewService} from "./ViewService";
 
-/** @hidden */
 export abstract class ViewManagerService<V extends View, VM extends ViewManager<V>> extends ViewService<V, VM> {
   /** @hidden */
   readonly observe?: boolean;

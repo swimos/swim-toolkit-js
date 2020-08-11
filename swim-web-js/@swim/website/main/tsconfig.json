@@ -10,7 +10,6 @@
       "@swim/structure": ["../../swim-system-js/swim-core-js/@swim/structure/main"],
       "@swim/math": ["../../swim-system-js/swim-core-js/@swim/math/main"],
       "@swim/time": ["../../swim-system-js/swim-core-js/@swim/time/main"],
-      "@swim/uri": ["../../swim-system-js/swim-core-js/@swim/uri/main"],
       "@swim/angle": ["../swim-ui-js/@swim/angle/main"],
       "@swim/length": ["../swim-ui-js/@swim/length/main"],
       "@swim/color": ["../swim-ui-js/@swim/color/main"],
@@ -23,7 +22,9 @@
       "@swim/animate": ["../swim-ui-js/@swim/animate/main"],
       "@swim/render": ["../swim-ui-js/@swim/render/main"],
       "@swim/constraint": ["../swim-ui-js/@swim/constraint/main"],
-      "@swim/view": ["../swim-ui-js/@swim/view/main"]
+      "@swim/view": ["../swim-ui-js/@swim/view/main"],
+      "@swim/theme": ["../swim-ux-js/@swim/theme/main"],
+      "@swim/modal": ["../swim-ux-js/@swim/modal/main"]
     },
     "tsBuildInfoFile": "../lib/main/.tsbuildinfo"
   },
@@ -34,7 +35,6 @@
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/structure/main"},
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/math/main"},
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/time/main"},
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/uri/main"},
     {"path": "../../../../swim-ui-js/@swim/angle/main"},
     {"path": "../../../../swim-ui-js/@swim/length/main"},
     {"path": "../../../../swim-ui-js/@swim/color/main"},
@@ -47,6 +47,8 @@
     {"path": "../../../../swim-ui-js/@swim/animate/main"},
     {"path": "../../../../swim-ui-js/@swim/render/main"},
     {"path": "../../../../swim-ui-js/@swim/constraint/main"},
-    {"path": "../../../../swim-ui-js/@swim/view/main"}
+    {"path": "../../../../swim-ui-js/@swim/view/main"},
+    {"path": "../../../../swim-ux-js/@swim/theme/main"},
+    {"path": "../../../../swim-ux-js/@swim/modal/main"}
   ]
 }

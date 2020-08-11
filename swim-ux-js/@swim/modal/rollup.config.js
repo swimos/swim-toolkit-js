@@ -1,7 +1,7 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 
-const script = "swim-popover";
+const script = "swim-modal";
 const namespace = "swim";
 
 const main = {
@@ -17,7 +17,6 @@ const main = {
       "@swim/structure": "swim",
       "@swim/math": "swim",
       "@swim/time": "swim",
-      "@swim/uri": "swim",
       "@swim/angle": "swim",
       "@swim/length": "swim",
       "@swim/color": "swim",
@@ -31,7 +30,6 @@ const main = {
       "@swim/render": "swim",
       "@swim/constraint": "swim",
       "@swim/view": "swim",
-      "@swim/gesture": "swim",
       "@swim/theme": "swim",
     },
     sourcemap: true,
@@ -45,7 +43,6 @@ const main = {
     "@swim/structure",
     "@swim/math",
     "@swim/time",
-    "@swim/uri",
     "@swim/angle",
     "@swim/length",
     "@swim/color",
@@ -59,7 +56,6 @@ const main = {
     "@swim/render",
     "@swim/constraint",
     "@swim/view",
-    "@swim/gesture",
     "@swim/theme",
   ],
   plugins: [

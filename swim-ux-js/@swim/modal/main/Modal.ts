@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Tween} from "@swim/transition";
-import {View} from "../View";
+import {View} from "@swim/view";
 
 export interface ModalOptions {
   modal?: boolean | number;

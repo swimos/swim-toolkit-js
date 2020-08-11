@@ -12,15 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ViewContext} from "../ViewContext";
 import {View} from "../View";
+import {ViewIdiom} from "../viewport/ViewIdiom";
+import {Viewport} from "../viewport/Viewport";
 import {ViewportManager} from "../viewport/ViewportManager";
 import {ViewService} from "./ViewService";
 import {ViewManagerService} from "./ViewManagerService";
 
-/** @hidden */
 export abstract class ViewportService<V extends View> extends ViewManagerService<V, ViewportManager<V>> {
   initManager(): ViewportManager<V> {
     return ViewportManager.global();
+  }
+
+  get viewContext(): ViewContext {
+    return this.manager.viewContext;
+  }
+
+  get viewport(): Viewport {
+    return this.manager.viewport;
+  }
+
+  get viewIdiom(): ViewIdiom {
+    return this.manager.viewIdiom;
+  }
+
+  setViewIdiom(viewIdiom: ViewIdiom): void {
+    this.manager.setViewIdiom(viewIdiom);
   }
 }
 ViewService.Viewport = ViewportService;

@@ -29,15 +29,13 @@ import {ViewObserverType, ViewObserver} from "./ViewObserver";
 import {ViewControllerType, ViewController} from "./ViewController";
 import {SubviewConstructor, Subview} from "./Subview";
 import {ViewManager} from "./manager/ViewManager";
-import {DisplayManager} from "./display/DisplayManager";
 import {LayoutAnchorConstructor, LayoutAnchor} from "./layout/LayoutAnchor";
-import {LayoutManager} from "./layout/LayoutManager";
 import {ViewIdiom} from "./viewport/ViewIdiom";
 import {Viewport} from "./viewport/Viewport";
-import {ViewportManager} from "./viewport/ViewportManager";
-import {ModalOptions, Modal} from "./modal/Modal";
-import {ModalManager} from "./modal/ModalManager";
 import {ViewServiceConstructor, ViewService} from "./service/ViewService";
+import {DisplayService} from "./service/DisplayService";
+import {LayoutService} from "./service/LayoutService";
+import {ViewportService} from "./service/ViewportService";
 import {ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
 import {ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
 import {GraphicsView} from "./graphics/GraphicsView";
@@ -316,41 +314,11 @@ export abstract class View implements AnimatorContext {
     }
   }
 
-  displayService: ViewService<this, DisplayManager>; // defined by DisplayService
+  readonly displayService: DisplayService<this>; // defined by DisplayService
 
-  layoutService: ViewService<this, LayoutManager>; // defined by LayoutService
+  readonly layoutService: LayoutService<this>; // defined by LayoutService
 
-  viewportService: ViewService<this, ViewportManager>; // defined by ViewportService
-
-  modalService: ViewService<this, ModalManager>; // defined by ModalService
-
-  toggleModal(modal: Modal, options?: ModalOptions): void {
-    const modalManager = this.modalService.manager;
-    if (modalManager !== void 0) {
-      modalManager.toggleModal(modal, options);
-    }
-  }
-
-  presentModal(modal: Modal, options?: ModalOptions): void {
-    const modalManager = this.modalService.manager;
-    if (modalManager !== void 0) {
-      modalManager.presentModal(modal, options);
-    }
-  }
-
-  dismissModal(modal: Modal): void {
-    const modalManager = this.modalService.manager;
-    if (modalManager !== void 0) {
-      modalManager.dismissModal(modal);
-    }
-  }
-
-  dismissModals(): void {
-    const modalManager = this.modalService.manager;
-    if (modalManager !== void 0) {
-      modalManager.dismissModals();
-    }
-  }
+  readonly viewportService: ViewportService<this>; // defined by ViewportService
 
   get viewClass(): ViewClass {
     return this.constructor as unknown as ViewClass;

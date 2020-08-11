@@ -18,9 +18,6 @@ import {
   ViewContextType,
   ViewFlags,
   View,
-  ModalOptions,
-  ModalState,
-  Modal,
   ViewAnimator,
   ViewNode,
   ViewNodeType,
@@ -29,6 +26,7 @@ import {
 } from "@swim/view";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import {Look, ThemedHtmlView} from "@swim/theme";
+import {ModalOptions, ModalState, Modal} from "@swim/modal";
 import {FloatingButton} from "./FloatingButton";
 import {ButtonItem} from "./ButtonItem";
 import {ButtonStackObserver} from "./ButtonStackObserver";

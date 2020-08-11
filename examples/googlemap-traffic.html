@@ -76,7 +76,7 @@ function linkIntersection(intersectionId, node, intersectionView) {
       intersectionPopover.setSource(intersectionView);
       intersectionPopover.hideModal();
     }
-    uiView.toggleModal(intersectionPopover, {multi: event.shiftKey});
+    uiView.modalService.toggleModal(intersectionPopover, {multi: event.shiftKey});
   });
 
   const schematicLink = node.downlinkValue()

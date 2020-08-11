@@ -22,14 +22,12 @@ import {
   ViewContext,
   ViewFlags,
   View,
-  ModalOptions,
-  ModalState,
-  Modal,
   ViewAnimator,
   HtmlView,
   HtmlViewObserver,
 } from "@swim/view";
 import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
+import {ModalOptions, ModalState, Modal} from "../Modal";
 import {PopoverViewObserver} from "./PopoverViewObserver";
 import {PopoverViewController} from "./PopoverViewController";
 
