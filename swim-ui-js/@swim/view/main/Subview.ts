@@ -14,6 +14,16 @@
 
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
+import {
+  Constrain,
+  ConstrainVariable,
+  ConstrainBinding,
+  ConstraintRelation,
+  AnyConstraintStrength,
+  ConstraintStrength,
+  Constraint,
+  ConstraintScope,
+} from "@swim/constraint";
 import {ViewConstructor, View} from "./View";
 import {ViewObserverType} from "./ViewObserver";
 import {SubviewObserver} from "./SubviewObserver";
@@ -40,7 +50,7 @@ export interface SubviewInit<S extends View, U = S> {
 
 export type SubviewDescriptorInit<V extends View, S extends View, U = S, I = ViewObserverType<S>> = SubviewInit<S, U> & ThisType<Subview<V, S, U> & I> & I;
 
-export type SubviewDescriptorExtends<V extends View, S extends View, U = S, I = ViewObserverType<S>> = {extends: SubviewPrototype} & SubviewDescriptorInit<V, S, U, I>;
+export type SubviewDescriptorExtends<V extends View, S extends View, U = S, I = ViewObserverType<S>> = {extends: SubviewPrototype | undefined} & SubviewDescriptorInit<V, S, U, I>;
 
 export type SubviewDescriptorFromAny<V extends View, S extends View, U = S, I = ViewObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & SubviewDescriptorInit<V, S, U, I>;
 
@@ -60,6 +70,10 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
   _view: V;
   /** @hidden */
   _subview: S | null;
+  /** @hidden */
+  _constraints?: Constraint[];
+  /** @hidden */
+  _constraintVariables?: ConstrainVariable[];
 
   constructor(view: V, subviewName: string | undefined);
 
@@ -100,6 +114,48 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
   /** @hidden */
   didSetOwnSubview(newSubview: S | null, oldSubview: S | null): void;
 
+  constraint(lhs: Constrain | number, relation: ConstraintRelation,
+             rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint;
+
+  get constraints(): ReadonlyArray<Constraint>;
+
+  hasConstraint(constraint: Constraint): boolean;
+
+  addConstraint(constraint: Constraint): void;
+
+  removeConstraint(constraint: Constraint): void;
+
+  /** @hidden */
+  activateConstraint(constraint: Constraint): void;
+
+  /** @hidden */
+  deactivateConstraint(constraint: Constraint): void;
+
+  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable;
+
+  get constraintVariables(): ReadonlyArray<ConstrainVariable>;
+
+  hasConstraintVariable(variable: ConstrainVariable): boolean;
+
+  addConstraintVariable(variable: ConstrainVariable): void;
+
+  removeConstraintVariable(variable: ConstrainVariable): void;
+
+  /** @hidden */
+  activateConstraintVariable(constraintVariable: ConstrainVariable): void;
+
+  /** @hidden */
+  deactivateConstraintVariable(constraintVariable: ConstrainVariable): void;
+
+  /** @hidden */
+  setConstraintVariable(constraintVariable: ConstrainVariable, state: number): void;
+
+  /** @hidden */
+  activateLayout(): void;
+
+  /** @hidden */
+  deactivateLayout(): void;
+
   /** @hidden */
   mount(): void;
 
@@ -122,7 +178,7 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
   static Observer: typeof SubviewObserver; // defined by SubviewObserver
 }
 
-export interface Subview<V extends View, S extends View, U = S> {
+export interface Subview<V extends View, S extends View, U = S> extends ConstraintScope {
   (): S | null;
   (subview: S | U | null): V;
 }
@@ -201,6 +257,7 @@ Subview.prototype.doSetSubview = function <S extends View>(this: Subview<View, S
                                                            newSubview: S | null): void {
   const oldSubview = this._subview;
   if (oldSubview !== newSubview) {
+    this.deactivateLayout();
     this.willSetOwnSubview(newSubview, oldSubview);
     this.willSetSubview(newSubview, oldSubview);
     this._subview = newSubview;
@@ -247,12 +304,189 @@ Subview.prototype.didSetOwnSubview = function <S extends View>(this: Subview<Vie
   // hook
 };
 
+Subview.prototype.constraint = function (this: Subview<View, View>, lhs: Constrain | number, relation: ConstraintRelation,
+                                         rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
+  if (typeof lhs === "number") {
+    lhs = Constrain.constant(lhs);
+  }
+  if (typeof rhs === "number") {
+    rhs = Constrain.constant(rhs);
+  }
+  const constrain = rhs !== void 0 ? lhs.minus(rhs) : lhs;
+  if (strength === void 0) {
+    strength = ConstraintStrength.Required;
+  } else {
+    strength = ConstraintStrength.fromAny(strength);
+  }
+  return new Constraint(this._view, constrain, relation, strength);
+};
+
+Object.defineProperty(Subview.prototype, "constraints", {
+  get: function (this: Subview<View, View>): ReadonlyArray<Constraint> {
+    let constraints = this._constraints;
+    if (constraints === void 0) {
+      constraints = [];
+      this._constraints = constraints;
+    }
+    return constraints;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+Subview.prototype.hasConstraint = function (this: Subview<View, View>,
+                                            constraint: Constraint): boolean {
+  const constraints = this._constraints;
+  return constraints !== void 0 && constraints.indexOf(constraint) >= 0;
+};
+
+Subview.prototype.addConstraint = function (this: Subview<View, View>,
+                                            constraint: Constraint): void {
+  let constraints = this._constraints;
+  if (constraints === void 0) {
+    constraints = [];
+    this._constraints = constraints;
+  }
+  if (constraints.indexOf(constraint) < 0) {
+    constraints.push(constraint);
+    this.activateConstraint(constraint);
+  }
+};
+
+Subview.prototype.removeConstraint = function (this: Subview<View, View>,
+                                               constraint: Constraint): void {
+  const constraints = this._constraints;
+  if (constraints !== void 0) {
+    const index = constraints.indexOf(constraint);
+    if (index >= 0) {
+      constraints.splice(index, 1);
+      this.deactivateConstraint(constraint);
+    }
+  }
+};
+
+Subview.prototype.activateConstraint = function (this: Subview<View, View>,
+                                                 constraint: Constraint): void {
+  this._view.activateConstraint(constraint);
+};
+
+Subview.prototype.deactivateConstraint = function (this: Subview<View, View>,
+                                                   constraint: Constraint): void {
+  this._view.deactivateConstraint(constraint);
+};
+
+Subview.prototype.constraintVariable = function (this: Subview<View, View>, name: string, value?: number,
+                                                 strength?: AnyConstraintStrength): ConstrainVariable {
+  if (value === void 0) {
+    value = 0;
+  }
+  if (strength === void 0) {
+    strength = ConstraintStrength.Strong;
+  } else {
+    strength = ConstraintStrength.fromAny(strength);
+  }
+  return new ConstrainBinding(this, name, value, strength);
+};
+
+Object.defineProperty(Subview.prototype, "constraintVariables", {
+  get: function (this: Subview<View, View>): ReadonlyArray<ConstrainVariable> {
+    let constraintVariables = this._constraintVariables;
+    if (constraintVariables === void 0) {
+      constraintVariables = [];
+      this._constraintVariables = constraintVariables;
+    }
+    return constraintVariables;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+Subview.prototype.hasConstraintVariable = function (this: Subview<View, View>,
+                                                    constraintVariable: ConstrainVariable): boolean {
+  const constraintVariables = this._constraintVariables;
+  return constraintVariables !== void 0 && constraintVariables.indexOf(constraintVariable) >= 0;
+};
+
+Subview.prototype.addConstraintVariable = function (this: Subview<View, View>,
+                                                    constraintVariable: ConstrainVariable): void {
+  let constraintVariables = this._constraintVariables;
+  if (constraintVariables === void 0) {
+    constraintVariables = [];
+    this._constraintVariables = constraintVariables;
+  }
+  if (constraintVariables.indexOf(constraintVariable) < 0) {
+    constraintVariables.push(constraintVariable);
+    this.activateConstraintVariable(constraintVariable);
+  }
+};
+
+Subview.prototype.removeConstraintVariable = function (this: Subview<View, View>,
+                                                       constraintVariable: ConstrainVariable): void {
+  const constraintVariables = this._constraintVariables;
+  if (constraintVariables !== void 0) {
+    const index = constraintVariables.indexOf(constraintVariable);
+    if (index >= 0) {
+      this.deactivateConstraintVariable(constraintVariable);
+      constraintVariables.splice(index, 1);
+    }
+  }
+};
+
+Subview.prototype.activateConstraintVariable = function (this: Subview<View, View>,
+                                                         constraintVariable: ConstrainVariable): void {
+  this._view.activateConstraintVariable(constraintVariable);
+};
+
+Subview.prototype.deactivateConstraintVariable = function (this: Subview<View, View>,
+                                                           constraintVariable: ConstrainVariable): void {
+  this._view.deactivateConstraintVariable(constraintVariable);
+};
+
+Subview.prototype.setConstraintVariable = function (this: Subview<View, View>,
+                                                    constraintVariable: ConstrainVariable, state: number): void {
+  this._view.setConstraintVariable(constraintVariable, state);
+};
+
+Subview.prototype.activateLayout = function (this: Subview<View, View>): void {
+  const constraints = this._constraints;
+  const constraintVariables = this._constraintVariables;
+  if (constraints !== void 0 || constraintVariables !== void 0) {
+    if (constraintVariables !== void 0) {
+      for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
+        this._view.activateConstraintVariable(constraintVariables[i]);
+      }
+    }
+    if (constraints !== void 0) {
+      for (let i = 0, n = constraints.length; i < n; i += 1) {
+        this._view.activateConstraint(constraints[i]);
+      }
+    }
+  }
+};
+
+Subview.prototype.deactivateLayout = function (this: Subview<View, View>): void {
+  const constraints = this._constraints;
+  const constraintVariables = this._constraintVariables;
+  if (constraints !== void 0 || constraintVariables !== void 0) {
+    if (constraints !== void 0) {
+      for (let i = 0, n = constraints.length; i < n; i += 1) {
+        this._view.deactivateConstraint(constraints[i]);
+      }
+    }
+    if (constraintVariables !== void 0) {
+      for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
+        this._view.deactivateConstraintVariable(constraintVariables[i]);
+      }
+    }
+  }
+};
+
 Subview.prototype.mount = function (this: Subview<View, View>): void {
-  // hook
+  this.activateLayout();
 };
 
 Subview.prototype.unmount = function (this: Subview<View, View>): void {
-  // hook
+  this.deactivateLayout();
 };
 
 Subview.prototype.insert = function (this: Subview<View, View>, parentView?: View): void {

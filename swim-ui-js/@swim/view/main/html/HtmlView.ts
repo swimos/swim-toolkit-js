@@ -684,18 +684,22 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent!;
-      const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.view.node.getBoundingClientRect();
-      const newState = bounds.top - offsetBounds.top;
-      if (oldState !== newState) {
-        this.view.requireUpdate(View.NeedsLayout);
+      const offsetParent = this.view.node.offsetParent;
+      if (offsetParent !== null) {
+        const offsetBounds = offsetParent.getBoundingClientRect();
+        const bounds = this.view.node.getBoundingClientRect();
+        const newState = bounds.top - offsetBounds.top;
+        if (oldState !== newState) {
+          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
+      } else {
+        return NaN;
       }
-      return newState;
     },
     setValue(newValue: number): void {
       this.view.top.setState(Length.px(newValue));
-      this.view.requireUpdate(View.NeedsLayout);
+      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
   topAnchor: LayoutAnchor<this>;
@@ -703,18 +707,22 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent!;
-      const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.view.node.getBoundingClientRect();
-      const newState = offsetBounds.right + bounds.right;
-      if (oldState !== newState) {
-        this.view.requireUpdate(View.NeedsLayout);
+      const offsetParent = this.view.node.offsetParent;
+      if (offsetParent !== null) {
+        const offsetBounds = offsetParent.getBoundingClientRect();
+        const bounds = this.view.node.getBoundingClientRect();
+        const newState = offsetBounds.right + bounds.right;
+        if (oldState !== newState) {
+          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
+      } else {
+        return NaN;
       }
-      return newState;
     },
     setValue(newValue: number): void {
       this.view.right.setState(Length.px(newValue));
-      this.view.requireUpdate(View.NeedsLayout);
+      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
   rightAnchor: LayoutAnchor<this>;
@@ -722,18 +730,22 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent!;
-      const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.view.node.getBoundingClientRect();
-      const newState = offsetBounds.bottom + bounds.bottom;
-      if (oldState !== newState) {
-        this.view.requireUpdate(View.NeedsLayout);
+      const offsetParent = this.view.node.offsetParent;
+      if (offsetParent !== null) {
+        const offsetBounds = offsetParent.getBoundingClientRect();
+        const bounds = this.view.node.getBoundingClientRect();
+        const newState = offsetBounds.bottom + bounds.bottom;
+        if (oldState !== newState) {
+          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
+      } else {
+        return NaN;
       }
-      return newState;
     },
     setValue(newValue: number): void {
       this.view.bottom.setState(Length.px(newValue));
-      this.view.requireUpdate(View.NeedsLayout);
+      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
   bottomAnchor: LayoutAnchor<this>;
@@ -741,18 +753,22 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent!;
-      const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.view.node.getBoundingClientRect();
-      const newState = bounds.left - offsetBounds.left;
-      if (oldState !== newState) {
-        this.view.requireUpdate(View.NeedsLayout);
+      const offsetParent = this.view.node.offsetParent;
+      if (offsetParent !== null) {
+        const offsetBounds = offsetParent.getBoundingClientRect();
+        const bounds = this.view.node.getBoundingClientRect();
+        const newState = bounds.left - offsetBounds.left;
+        if (oldState !== newState) {
+          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
+      } else {
+        return NaN;
       }
-      return newState;
     },
     setValue(newValue: number): void {
       this.view.left.setState(Length.px(newValue));
-      this.view.requireUpdate(View.NeedsLayout);
+      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
   leftAnchor: LayoutAnchor<this>;
@@ -794,14 +810,18 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent!;
-      const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.view.node.getBoundingClientRect();
-      const newState = bounds.left + 0.5 * bounds.width - offsetBounds.left;
-      if (oldState !== newState) {
-        this.view.requireUpdate(View.NeedsLayout);
+      const offsetParent = this.view.node.offsetParent;
+      if (offsetParent !== null) {
+        const offsetBounds = offsetParent.getBoundingClientRect();
+        const bounds = this.view.node.getBoundingClientRect();
+        const newState = bounds.left + 0.5 * bounds.width - offsetBounds.left;
+        if (oldState !== newState) {
+          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
+      } else {
+        return NaN;
       }
-      return newState;
     },
     setValue(newValue: number): void {
       const rightAnchor = this.view.getLayoutAnchor("rightAnchor");
@@ -815,7 +835,7 @@ export class HtmlView extends ElementView {
         this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       } else if (widthAnchor !== null && widthAnchor.enabled()) {
         this.view.left.setState(Length.px(newValue - 0.5 * widthAnchor.value));
-        this.view.requireUpdate(View.NeedsLayout);
+        this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       }
     },
   })
@@ -824,14 +844,18 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent!;
-      const offsetBounds = offsetParent.getBoundingClientRect();
-      const bounds = this.view.node.getBoundingClientRect();
-      const newState = bounds.top + 0.5 * bounds.height - offsetBounds.top;
-      if (oldState !== newState) {
-        this.view.requireUpdate(View.NeedsLayout);
+      const offsetParent = this.view.node.offsetParent;
+      if (offsetParent !== null) {
+        const offsetBounds = offsetParent.getBoundingClientRect();
+        const bounds = this.view.node.getBoundingClientRect();
+        const newState = bounds.top + 0.5 * bounds.height - offsetBounds.top;
+        if (oldState !== newState) {
+          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
+      } else {
+        return NaN;
       }
-      return newState;
     },
     setValue(newValue: number): void {
       const topAnchor = this.view.getLayoutAnchor("topAnchor");
@@ -845,7 +869,7 @@ export class HtmlView extends ElementView {
         this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       } else if (heightAnchor !== null && heightAnchor.enabled()) {
         this.view.top.setState(Length.px(newValue - 0.5 * heightAnchor.value));
-        this.view.requireUpdate(View.NeedsLayout);
+        this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       }
     },
   })

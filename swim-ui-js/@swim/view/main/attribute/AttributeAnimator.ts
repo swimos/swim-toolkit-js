@@ -52,7 +52,7 @@ export interface AttributeAnimatorInit<T, U = T> {
 
 export type AttributeAnimatorDescriptorInit<V extends ElementView, T, U = T, I = {}> = AttributeAnimatorInit<T, U> & ThisType<AttributeAnimator<V, T, U> & I> & I;
 
-export type AttributeAnimatorDescriptorExtends<V extends ElementView, T, U = T, I = {}> = {extends: AttributeAnimatorPrototype} & AttributeAnimatorDescriptorInit<V, T, U, I>;
+export type AttributeAnimatorDescriptorExtends<V extends ElementView, T, U = T, I = {}> = {extends: AttributeAnimatorPrototype | undefined} & AttributeAnimatorDescriptorInit<V, T, U, I>;
 
 export type AttributeAnimatorDescriptorFromAny<V extends ElementView, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & AttributeAnimatorDescriptorInit<V, T, U, I>;
 

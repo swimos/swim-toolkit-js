@@ -38,7 +38,7 @@ export interface ComponentModelInit<M extends Model, U = M> {
 
 export type ComponentModelDescriptorInit<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> = ComponentModelInit<M, U> & ThisType<ComponentModel<C, M, U> & I> & I;
 
-export type ComponentModelDescriptorExtends<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> = {extends: ComponentModelPrototype} & ComponentModelDescriptorInit<C, M, U, I>;
+export type ComponentModelDescriptorExtends<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> = {extends: ComponentModelPrototype | undefined} & ComponentModelDescriptorInit<C, M, U, I>;
 
 export type ComponentModelDescriptorFromAny<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> = ({type: FromAny<M, U>} | {fromAny(value: M | U): M | null}) & ComponentModelDescriptorInit<C, M, U, I>;
 

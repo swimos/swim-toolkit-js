@@ -36,7 +36,7 @@ export interface ModelServiceInit<T> {
 
 export type ModelServiceDescriptorInit<M extends Model, T, I = {}> = ModelServiceInit<T> & ThisType<ModelService<M, T> & I> & I;
 
-export type ModelServiceDescriptorExtends<M extends Model, T, I = {}> = {extends: ModelServicePrototype} & ModelServiceDescriptorInit<M, T, I>;
+export type ModelServiceDescriptorExtends<M extends Model, T, I = {}> = {extends: ModelServicePrototype | undefined} & ModelServiceDescriptorInit<M, T, I>;
 
 export type ModelServiceDescriptor<M extends Model, T> =
   T extends RefreshManager ? {type: typeof RefreshManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T>> :

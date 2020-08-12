@@ -39,7 +39,7 @@ export interface SubmodelInit<S extends Model, U = S> {
 
 export type SubmodelDescriptorInit<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = SubmodelInit<S, U> & ThisType<Submodel<M, S, U> & I> & I;
 
-export type SubmodelDescriptorExtends<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = {extends: SubmodelPrototype} & SubmodelDescriptorInit<M, S, U, I>;
+export type SubmodelDescriptorExtends<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = {extends: SubmodelPrototype | undefined} & SubmodelDescriptorInit<M, S, U, I>;
 
 export type SubmodelDescriptorFromAny<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & SubmodelDescriptorInit<M, S, U, I>;
 

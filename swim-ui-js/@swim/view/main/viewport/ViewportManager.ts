@@ -28,8 +28,8 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
 
   constructor() {
     super();
-    this.throttleResize = this.throttleResize.bind(this);
     this.throttleScroll = this.throttleScroll.bind(this);
+    this.throttleResize = this.throttleResize.bind(this);
     this.debounceReorientation = this.debounceReorientation.bind(this);
     this.throttleReorientation = this.throttleReorientation.bind(this);
 
@@ -123,6 +123,26 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     });
   }
 
+  protected willReorient(orientation: OrientationType): void {
+    this.willObserve(function (viewManagerObserver: ViewportManagerObserver): void {
+      if (viewManagerObserver.viewportManagerWillReorient !== void 0) {
+        viewManagerObserver.viewportManagerWillReorient(orientation, this);
+      }
+    });
+  }
+
+  protected onReorient(orientation: OrientationType): void {
+    // hook
+  }
+
+  protected didReorient(orientation: OrientationType): void {
+    this.didObserve(function (viewManagerObserver: ViewportManagerObserver): void {
+      if (viewManagerObserver.viewportManagerDidReorient !== void 0) {
+        viewManagerObserver.viewportManagerDidReorient(orientation, this);
+      }
+    });
+  }
+
   readonly viewManagerObservers: ReadonlyArray<ViewportManagerObserver>;
 
   protected onAddViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
@@ -145,17 +165,31 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
 
   protected attachEvents(): void {
     if (typeof window !== "undefined") {
-      window.addEventListener("resize", this.throttleResize);
       window.addEventListener("scroll", this.throttleScroll, {passive: true});
+      window.addEventListener("resize", this.throttleResize);
       window.addEventListener("orientationchange", this.debounceReorientation);
+      if (typeof (window as any).visualViewport !== "undefined") {
+        (window as any).visualViewport.addEventListener("resize", this.throttleResize);
+      }
     }
   }
 
   protected detachEvents(): void {
     if (typeof window !== "undefined") {
-      window.removeEventListener("resize", this.throttleResize);
       window.removeEventListener("scroll", this.throttleScroll);
+      window.removeEventListener("resize", this.throttleResize);
       window.removeEventListener("orientationchange", this.debounceReorientation);
+      if (typeof (window as any).visualViewport !== "undefined") {
+        (window as any).visualViewport.removeEventListener("resize", this.throttleResize);
+      }
+    }
+  }
+
+  /** @hidden */
+  throttleScroll(): void {
+    const rootViews = this._rootViews;
+    for (let i = 0, n = rootViews.length; i < n; i += 1) {
+      rootViews[i].requireUpdate(View.NeedsScroll);
     }
   }
 
@@ -168,14 +202,6 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     const rootViews = this._rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
       rootViews[i].requireUpdate(View.NeedsResize | View.NeedsLayout);
-    }
-  }
-
-  /** @hidden */
-  throttleScroll(): void {
-    const rootViews = this._rootViews;
-    for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsScroll);
     }
   }
 
@@ -194,11 +220,22 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
       clearTimeout(this._reorientationTimer);
       this._reorientationTimer = 0;
     }
-    this.throttleResize();
+
+    const viewport = this.detectViewport();
+    this._viewContext.viewport = viewport;
+    this.willReorient(viewport.orientation);
+    this.updateViewIdiom(viewport);
+    this.onReorient(viewport.orientation);
+    this.didReorient(viewport.orientation);
+
+    const rootViews = this._rootViews;
+    for (let i = 0, n = rootViews.length; i < n; i += 1) {
+      rootViews[i].requireUpdate(View.NeedsResize | View.NeedsScroll | View.NeedsLayout);
+    }
   }
 
   /** @hidden */
-  static ReorientationDelay: number = 500;
+  static ReorientationDelay: number = 100;
 
   private static _global?: ViewportManager<any>;
   static global<V extends View>(): ViewportManager<V> {

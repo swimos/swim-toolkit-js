@@ -29,7 +29,7 @@ export interface LayoutAnchorInit {
 
 export type LayoutAnchorDescriptorInit<V extends View, I = {}> = LayoutAnchorInit & ThisType<LayoutAnchor<V> & I> & I;
 
-export type LayoutAnchorDescriptorExtends<V extends View, I = {}> = {extends: LayoutAnchorPrototype} & LayoutAnchorDescriptorInit<V, I>;
+export type LayoutAnchorDescriptorExtends<V extends View, I = {}> = {extends: LayoutAnchorPrototype | undefined} & LayoutAnchorDescriptorInit<V, I>;
 
 export type LayoutAnchorDescriptor<V extends View> = LayoutAnchorDescriptorInit<V>;
 

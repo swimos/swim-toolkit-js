@@ -23,6 +23,7 @@ import {
   AnyConstraintStrength,
   ConstraintStrength,
   Constraint,
+  ConstraintScope,
 } from "@swim/constraint";
 import {ViewContextType, ViewContext} from "./ViewContext";
 import {ViewObserverType, ViewObserver} from "./ViewObserver";
@@ -81,7 +82,7 @@ export interface ViewClass {
   _viewAnimatorConstructors?: {[animatorName: string]: ViewAnimatorConstructor<any, unknown> | undefined};
 }
 
-export abstract class View implements AnimatorContext {
+export abstract class View implements AnimatorContext, ConstraintScope {
   abstract get viewController(): ViewController | null;
 
   abstract setViewController(viewController: ViewControllerType<this> | null): void;

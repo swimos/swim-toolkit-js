@@ -55,7 +55,7 @@ export interface ViewAnimatorInit<T, U = T> {
 
 export type ViewAnimatorDescriptorInit<V extends View, T, U = T, I = {}> = ViewAnimatorInit<T, U> & ThisType<ViewAnimator<V, T, U> & I> & I;
 
-export type ViewAnimatorDescriptorExtends<V extends View, T, U = T, I = {}> = {extends: ViewAnimatorPrototype} & ViewAnimatorDescriptorInit<V, T, U, I>;
+export type ViewAnimatorDescriptorExtends<V extends View, T, U = T, I = {}> = {extends: ViewAnimatorPrototype | undefined} & ViewAnimatorDescriptorInit<V, T, U, I>;
 
 export type ViewAnimatorDescriptorFromAny<V extends View, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ViewAnimatorDescriptorInit<V, T, U, I>;
 

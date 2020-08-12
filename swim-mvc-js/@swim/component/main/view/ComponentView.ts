@@ -38,7 +38,7 @@ export interface ComponentViewInit<V extends View, U = V> {
 
 export type ComponentViewDescriptorInit<C extends Component, V extends View, U = V, I = ViewObserverType<V>> = ComponentViewInit<V, U> & ThisType<ComponentView<C, V, U> & I> & I;
 
-export type ComponentViewDescriptorExtends<C extends Component, V extends View, U = V, I = ViewObserverType<V>> = {extends: ComponentViewPrototype} & ComponentViewDescriptorInit<C, V, U, I>;
+export type ComponentViewDescriptorExtends<C extends Component, V extends View, U = V, I = ViewObserverType<V>> = {extends: ComponentViewPrototype | undefined} & ComponentViewDescriptorInit<C, V, U, I>;
 
 export type ComponentViewDescriptorFromAny<C extends Component, V extends View, U = V, I = ViewObserverType<V>> = ({type: FromAny<V, U>} | {fromAny(value: V | U): V | null}) & ComponentViewDescriptorInit<C, V, U, I>;
 

@@ -43,7 +43,7 @@ export interface ViewScopeInit<T, U = T> {
 
 export type ViewScopeDescriptorInit<V extends View, T, U = T, I = {}> = ViewScopeInit<T, U> & ThisType<ViewScope<V, T, U> & I> & I;
 
-export type ViewScopeDescriptorExtends<V extends View, T, U = T, I = {}> = {extends: ViewScopePrototype} & ViewScopeDescriptorInit<V, T, U, I>;
+export type ViewScopeDescriptorExtends<V extends View, T, U = T, I = {}> = {extends: ViewScopePrototype | undefined} & ViewScopeDescriptorInit<V, T, U, I>;
 
 export type ViewScopeDescriptorFromAny<V extends View, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ViewScopeDescriptorInit<V, T, U, I>;
 

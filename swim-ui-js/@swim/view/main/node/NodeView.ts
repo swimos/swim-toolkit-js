@@ -1627,13 +1627,13 @@ export class NodeView extends View {
       if (layoutManager !== void 0) {
         if (constraints !== void 0) {
           for (let i = 0, n = constraints.length; i < n; i += 1) {
-            layoutManager.deactivateConstraint(constraints![i]);
+            layoutManager.deactivateConstraint(constraints[i]);
             this.requireUpdate(View.NeedsLayout);
           }
         }
         if (constraintVariables !== void 0) {
           for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-            layoutManager.deactivateConstraintVariable(constraintVariables![i]);
+            layoutManager.deactivateConstraintVariable(constraintVariables[i]);
             this.requireUpdate(View.NeedsLayout);
           }
         }

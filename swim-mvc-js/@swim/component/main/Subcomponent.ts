@@ -39,7 +39,7 @@ export interface SubcomponentInit<S extends Component, U = S> {
 
 export type SubcomponentDescriptorInit<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = SubcomponentInit<S, U> & ThisType<Subcomponent<C, S, U> & I> & I;
 
-export type SubcomponentDescriptorExtends<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = {extends: SubcomponentPrototype} & SubcomponentDescriptorInit<C, S, U, I>;
+export type SubcomponentDescriptorExtends<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = {extends: SubcomponentPrototype | undefined} & SubcomponentDescriptorInit<C, S, U, I>;
 
 export type SubcomponentDescriptorFromAny<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & SubcomponentDescriptorInit<C, S, U, I>;
 

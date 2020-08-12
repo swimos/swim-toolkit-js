@@ -43,7 +43,7 @@ export interface ComponentScopeInit<T, U = T> {
 
 export type ComponentScopeDescriptorInit<C extends Component, T, U = T, I = {}> = ComponentScopeInit<T, U> & ThisType<ComponentScope<C, T, U> & I> & I;
 
-export type ComponentScopeDescriptorExtends<C extends Component, T, U = T, I = {}> = {extends: ComponentScopePrototype} & ComponentScopeDescriptorInit<C, T, U, I>;
+export type ComponentScopeDescriptorExtends<C extends Component, T, U = T, I = {}> = {extends: ComponentScopePrototype | undefined} & ComponentScopeDescriptorInit<C, T, U, I>;
 
 export type ComponentScopeDescriptorFromAny<C extends Component, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ComponentScopeDescriptorInit<C, T, U, I>;
 

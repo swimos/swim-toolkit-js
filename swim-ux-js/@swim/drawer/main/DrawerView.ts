@@ -187,7 +187,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     }
   }
 
-  @ViewScope({type: Object})
+  @ViewScope({type: Object, inherit: true})
   edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
 
   protected willSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
@@ -313,12 +313,15 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     this.left.setAutoState(Length.zero());
     this.updateDrawerSlideTop(this.drawerSlide.getValue());
 
-    const safeArea = viewContext.viewport.safeArea;
+    let edgeInsets = this.edgeInsets.superState;
+    if (edgeInsets === void 0) {
+      edgeInsets = viewContext.viewport.safeArea;
+    }
     this.edgeInsets.setAutoState({
       insetTop: 0,
-      insetRight: safeArea.insetRight,
+      insetRight: edgeInsets.insetRight,
       insetBottom: 0,
-      insetLeft: safeArea.insetLeft,
+      insetLeft: edgeInsets.insetLeft,
     });
 
     if (this.isCollapsed()) {
@@ -343,12 +346,15 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     this.updateDrawerSlideRight(this.drawerSlide.getValue());
     this.updateDrawerStretch(this.drawerStretch.getValue());
 
-    const safeArea = viewContext.viewport.safeArea;
-    this.paddingTop.setAutoState(Length.px(safeArea.insetTop));
-    this.paddingBottom.setAutoState(Length.px(safeArea.insetBottom));
+    let edgeInsets = this.edgeInsets.superState;
+    if (edgeInsets === void 0) {
+      edgeInsets = viewContext.viewport.safeArea;
+    }
+    this.paddingTop.setAutoState(Length.px(edgeInsets.insetTop));
+    this.paddingBottom.setAutoState(Length.px(edgeInsets.insetBottom));
     this.edgeInsets.setAutoState({
       insetTop: 0,
-      insetRight: safeArea.insetRight,
+      insetRight: edgeInsets.insetRight,
       insetBottom: 0,
       insetLeft: 0,
     });
@@ -370,12 +376,15 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     this.left.setAutoState(Length.zero());
     this.updateDrawerSlideBottom(this.drawerSlide.getValue());
 
-    const safeArea = viewContext.viewport.safeArea;
+    let edgeInsets = this.edgeInsets.superState;
+    if (edgeInsets === void 0) {
+      edgeInsets = viewContext.viewport.safeArea;
+    }
     this.edgeInsets.setAutoState({
       insetTop: 0,
-      insetRight: safeArea.insetRight,
+      insetRight: edgeInsets.insetRight,
       insetBottom: 0,
-      insetLeft: safeArea.insetLeft,
+      insetLeft: edgeInsets.insetLeft,
     });
 
     if (this.isCollapsed()) {
@@ -400,14 +409,17 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     this.updateDrawerSlideLeft(this.drawerSlide.getValue());
     this.updateDrawerStretch(this.drawerStretch.getValue());
 
-    const safeArea = viewContext.viewport.safeArea;
-    this.paddingTop.setAutoState(Length.px(safeArea.insetTop));
-    this.paddingBottom.setAutoState(Length.px(safeArea.insetBottom));
+    let edgeInsets = this.edgeInsets.superState;
+    if (edgeInsets === void 0) {
+      edgeInsets = viewContext.viewport.safeArea;
+    }
+    this.paddingTop.setAutoState(Length.px(edgeInsets.insetTop));
+    this.paddingBottom.setAutoState(Length.px(edgeInsets.insetBottom));
     this.edgeInsets.setAutoState({
       insetTop: 0,
       insetRight: 0,
       insetBottom: 0,
-      insetLeft: safeArea.insetLeft,
+      insetLeft: edgeInsets.insetLeft,
     });
   }
 

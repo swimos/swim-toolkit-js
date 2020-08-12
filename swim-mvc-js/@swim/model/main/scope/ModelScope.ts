@@ -43,7 +43,7 @@ export interface ModelScopeInit<T, U = T> {
 
 export type ModelScopeDescriptorInit<M extends Model, T, U = T, I = {}> = ModelScopeInit<T, U> & ThisType<ModelScope<M, T, U> & I> & I;
 
-export type ModelScopeDescriptorExtends<M extends Model, T, U = T, I = {}> = {extends: ModelScopePrototype} & ModelScopeDescriptorInit<M, T, U, I>;
+export type ModelScopeDescriptorExtends<M extends Model, T, U = T, I = {}> = {extends: ModelScopePrototype | undefined} & ModelScopeDescriptorInit<M, T, U, I>;
 
 export type ModelScopeDescriptorFromAny<M extends Model, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ModelScopeDescriptorInit<M, T, U, I>;
 

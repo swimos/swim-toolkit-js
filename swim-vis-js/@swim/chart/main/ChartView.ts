@@ -262,7 +262,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     type: Transition,
     inherit: true,
     initState(): Transition<any> {
-      return Transition.duration(250, Ease.cubicOut);
+      return Transition.duration(300, Ease.cubicOut);
     },
   })
   tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;

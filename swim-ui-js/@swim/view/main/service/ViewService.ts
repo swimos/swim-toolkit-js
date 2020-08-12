@@ -40,7 +40,7 @@ export interface ViewServiceInit<T> {
 
 export type ViewServiceDescriptorInit<V extends View, T, I = {}> = ViewServiceInit<T> & ThisType<ViewService<V, T> & I> & I;
 
-export type ViewServiceDescriptorExtends<V extends View, T, I = {}> = {extends: ViewServicePrototype} & ViewServiceDescriptorInit<V, T, I>;
+export type ViewServiceDescriptorExtends<V extends View, T, I = {}> = {extends: ViewServicePrototype | undefined} & ViewServiceDescriptorInit<V, T, I>;
 
 export type ViewServiceDescriptor<V extends View, T> =
   T extends DisplayManager ? {type: typeof DisplayManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T>> :

@@ -57,7 +57,7 @@ export interface StyleAnimatorInit<T, U = T> {
 
 export type StyleAnimatorDescriptorInit<V extends ElementView, T, U = T, I = {}> = StyleAnimatorInit<T, U> & ThisType<StyleAnimator<V, T, U> & I> & I;
 
-export type StyleAnimatorDescriptorExtends<V extends ElementView, T, U = T, I = {}> = {extends: StyleAnimatorPrototype} & StyleAnimatorDescriptorInit<V, T, U, I>;
+export type StyleAnimatorDescriptorExtends<V extends ElementView, T, U = T, I = {}> = {extends: StyleAnimatorPrototype | undefined} & StyleAnimatorDescriptorInit<V, T, U, I>;
 
 export type StyleAnimatorDescriptorFromAny<V extends ElementView, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & StyleAnimatorDescriptorInit<V, T, U, I>;
 

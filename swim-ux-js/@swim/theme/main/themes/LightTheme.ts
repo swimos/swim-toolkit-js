@@ -45,7 +45,7 @@ const LightWarningColor = Color.parse("#d3ca46");
 const LightAlertColor = Color.parse("#f6511d");
 
 const LightSpacing = Length.px(10);
-const LightTransition = Transition.duration(250, Ease.cubicOut);
+const LightTransition = Transition.duration(300, Ease.cubicOut);
 
 const LightAmbient = FeelVector.of(
   [Look.font, LightFont],

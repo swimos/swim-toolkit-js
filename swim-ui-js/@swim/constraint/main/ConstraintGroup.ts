@@ -84,11 +84,10 @@ export class ConstraintGroup {
   }
 
   /** @hidden */
-  enabledConstraints(): void {
+  enableConstraints(): void {
     const constraints = this._constraints;
     for (let i = 0, n = constraints.length ; i < n; i += 1) {
-      const constraint = constraints[i];
-      constraint.enabled(true);
+      constraints[i].enabled(true);
     }
   }
 
@@ -96,8 +95,7 @@ export class ConstraintGroup {
   disableConstraints(): void {
     const constraints = this._constraints;
     for (let i = 0, n = constraints.length ; i < n; i += 1) {
-      const constraint = constraints[i];
-      constraint.enabled(false);
+      constraints[i].enabled(false);
     }
   }
 
@@ -109,7 +107,7 @@ export class ConstraintGroup {
     } else {
       if (enabled && !this._enabled) {
         this._enabled = true;
-        this.enabledConstraints();
+        this.enableConstraints();
       } else if (!enabled && this._enabled) {
         this._enabled = false;
         this.disableConstraints();
