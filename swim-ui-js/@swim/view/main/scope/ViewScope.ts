@@ -112,6 +112,8 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
 
   isUpdated(): boolean;
 
+  isChanging(): boolean;
+
   get state(): T;
 
   get ownState(): T | undefined;
@@ -181,6 +183,8 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
 
   /** @hidden */
   static UpdatedFlag: ViewScopeFlags;
+  /** @hidden */
+  static ChangingFlag: ViewScopeFlags;
   /** @hidden */
   static OverrideFlag: ViewScopeFlags;
   /** @hidden */
@@ -389,6 +393,10 @@ ViewScope.prototype.isUpdated = function (this: ViewScope<View, unknown>): boole
   return (this._scopeFlags & ViewScope.UpdatedFlag) !== 0;
 };
 
+ViewScope.prototype.isChanging = function (this: ViewScope<View, unknown>): boolean {
+  return (this._scopeFlags & ViewScope.ChangingFlag) !== 0;
+};
+
 Object.defineProperty(ViewScope.prototype, "state", {
   get: function <T>(this: ViewScope<View, T>): T {
     return this._state;
@@ -470,7 +478,7 @@ ViewScope.prototype.setOwnState = function <T, U>(this: ViewScope<View, T, U>,
     this.willSetState(newState as T, oldState);
     this.willUpdate(newState as T, oldState);
     this._state = newState as T;
-    this._scopeFlags |= ViewScope.UpdatedFlag;
+    this._scopeFlags |= ViewScope.ChangingFlag | ViewScope.UpdatedFlag;
     this.onSetState(newState as T, oldState);
     this.onUpdate(newState as T, oldState);
     this.updateSubScopes(newState as T, oldState);
@@ -490,7 +498,7 @@ ViewScope.prototype.setBaseState = function <T, U>(this: ViewScope<View, T, U>,
 };
 
 ViewScope.prototype.onChange = function <T, U>(this: ViewScope<View, T, U>): void {
-  if (this.isInherited() && this.isUpdated()) {
+  if (this.isInherited()) {
     this.updateInherited();
   } else {
     this.onIdle();
@@ -499,8 +507,10 @@ ViewScope.prototype.onChange = function <T, U>(this: ViewScope<View, T, U>): voi
 
 ViewScope.prototype.updateInherited = function <T, U>(this: ViewScope<View, T, U>): void {
   const superScope = this._superScope;
-  if (superScope !== void 0) {
+  if (superScope !== void 0 && superScope.isChanging()) {
     this.update(superScope.state, this.state);
+  } else {
+    this.onIdle();
   }
 };
 
@@ -509,7 +519,7 @@ ViewScope.prototype.update = function <T, U>(this: ViewScope<View, T, U>,
   if (!Objects.equal(oldState, newState)) {
     this.willUpdate(newState, oldState);
     this._state = newState;
-    this._scopeFlags |= ViewScope.UpdatedFlag;
+    this._scopeFlags |= ViewScope.ChangingFlag | ViewScope.UpdatedFlag;
     this.onUpdate(newState, oldState);
     this.updateSubScopes(newState, oldState);
     this.didUpdate(newState, oldState);
@@ -548,10 +558,15 @@ ViewScope.prototype.updateSubScopes = function <T, U>(this: ViewScope<View, T, U
 };
 
 ViewScope.prototype.onIdle = function (this: ViewScope<View, unknown>): void {
-  this._scopeFlags &= ~ViewScope.UpdatedFlag;
+  if ((this._scopeFlags & ViewScope.UpdatedFlag) !== 0) {
+    this._scopeFlags &= ~ViewScope.UpdatedFlag;
+  } else {
+    this._scopeFlags &= ~ViewScope.ChangingFlag;
+  }
 };
 
 ViewScope.prototype.change = function (this: ViewScope<View, unknown>): void {
+  this._scopeFlags |= ViewScope.ChangingFlag;
   this._view.requireUpdate(View.NeedsChange);
 };
 
@@ -627,5 +642,6 @@ ViewScope.define = function <V extends View, T, U>(descriptor: ViewScopeDescript
 };
 
 ViewScope.UpdatedFlag = 1 << 0;
-ViewScope.OverrideFlag = 1 << 1;
-ViewScope.InheritedFlag = 1 << 2;
+ViewScope.ChangingFlag = 1 << 1;
+ViewScope.OverrideFlag = 1 << 2;
+ViewScope.InheritedFlag = 1 << 3;

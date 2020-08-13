@@ -199,18 +199,6 @@ export abstract class GenericComponent extends Component {
     this._componentFlags = componentFlags;
   }
 
-  mount(): void {
-    if (this._parentComponent === null) {
-      if (!this.isMounted()) {
-        this.cascadeMount();
-      }
-      if (!this.isPowered() && document.visibilityState === "visible") {
-        this.cascadePower();
-      }
-      this.cascadeInsert();
-    }
-  }
-
   cascadeMount(): void {
     if ((this._componentFlags & Component.MountedFlag) === 0) {
       this._componentFlags |= Component.MountedFlag;

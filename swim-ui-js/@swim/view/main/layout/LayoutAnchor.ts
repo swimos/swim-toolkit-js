@@ -20,7 +20,7 @@ export interface LayoutAnchorInit {
   extends?: LayoutAnchorPrototype;
   value?: number;
   strength?: AnyConstraintStrength;
-  enabled?: boolean;
+  constrained?: boolean;
 
   getState?(oldState: number): number;
   setValue?(newValue: number): void;
@@ -50,7 +50,7 @@ export declare abstract class LayoutAnchor<V extends View> {
   /** @hidden */
   _strength: ConstraintStrength;
   /** @hidden */
-  _enabled: boolean;
+  _constrained: boolean;
 
   constructor(view: V, anchorName: string | undefined);
 
@@ -72,8 +72,8 @@ export declare abstract class LayoutAnchor<V extends View> {
 
   setStrength(newStrength: AnyConstraintStrength): void;
 
-  enabled(): boolean;
-  enabled(enabled: boolean): this;
+  constrained(): boolean;
+  constrained(constrained: boolean): this;
 
   /** @hidden */
   getState?(oldState: number): number;
@@ -122,7 +122,7 @@ function LayoutAnchorConstructor<V extends View>(this: LayoutAnchor<V>, view: V,
   _this._value = _this.initValue();
   _this._state = NaN;
   _this._strength = ConstraintStrength.Strong;
-  _this._enabled = false;
+  _this._constrained = false;
   return _this;
 }
 
@@ -150,7 +150,7 @@ LayoutAnchor.prototype.updateValue = function (this: LayoutAnchor<View>, newValu
   const oldValue = this._value;
   if (oldValue !== newValue) {
     this._value = newValue;
-    if (this._enabled && this.setValue !== void 0) {
+    if (this._constrained && this.setValue !== void 0) {
       this.setValue(newValue);
     }
   }
@@ -180,7 +180,7 @@ LayoutAnchor.prototype.setState = function (this: LayoutAnchor<View>, newState: 
 };
 
 LayoutAnchor.prototype.updateState = function (this: LayoutAnchor<View>): void {
-  if (!this._enabled && this.getState !== void 0) {
+  if (!this._constrained && this.getState !== void 0) {
     const oldState = this._state;
     const newState = this.getState(oldState);
     this.setState(newState);
@@ -208,11 +208,11 @@ LayoutAnchor.prototype.setStrength = function (this: LayoutAnchor<View>, newStre
   }
 };
 
-LayoutAnchor.prototype.enabled = function (this: LayoutAnchor<View>, enabled?: boolean): boolean | any {
-  if (enabled === void 0) {
-    return this._enabled;
+LayoutAnchor.prototype.constrained = function (this: LayoutAnchor<View>, constrained?: boolean): boolean | any {
+  if (constrained === void 0) {
+    return this._constrained;
   } else {
-    this._enabled = enabled;
+    this._constrained = constrained;
     return this;
   }
 };
@@ -225,11 +225,11 @@ LayoutAnchor.define = function <V extends View>(descriptor: LayoutAnchorDescript
   let _super = descriptor.extends;
   const value = descriptor.value;
   const strength = descriptor.strength;
-  const enabled = descriptor.enabled;
+  const constrained = descriptor.constrained;
   delete descriptor.extends;
   delete descriptor.value;
   delete descriptor.strength;
-  delete descriptor.enabled;
+  delete descriptor.constrained;
 
   if (_super === void 0) {
     _super = LayoutAnchor;
@@ -240,7 +240,7 @@ LayoutAnchor.define = function <V extends View>(descriptor: LayoutAnchorDescript
       if (state === void 0) {
         return _this._state;
       } else {
-        _this.enabled(true).setState(state);
+        _this.constrained(true).setState(state);
         return _this._view;
       }
     } as LayoutAnchor<V>;
@@ -263,8 +263,8 @@ LayoutAnchor.define = function <V extends View>(descriptor: LayoutAnchorDescript
   if (strength !== void 0) {
     _prototype._strength = ConstraintStrength.fromAny(strength);
   }
-  if (enabled !== void 0) {
-    _prototype._enabled = enabled;
+  if (constrained !== void 0) {
+    _prototype._constrained = constrained;
   }
 
   return _constructor;

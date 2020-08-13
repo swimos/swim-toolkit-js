@@ -186,7 +186,7 @@ export abstract class ThemedLayerView extends LayerView implements ThemedGraphic
   }
 
   protected updateTheme(): void {
-    if (this.theme.isUpdated() || this.mood.isUpdated()) {
+    if (this.theme.isChanging() || this.mood.isChanging()) {
       this.changeMood();
       this.changeTheme();
 

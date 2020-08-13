@@ -73,7 +73,6 @@ export class NodeView extends View {
     this._viewController = null;
     this._viewFlags = 0;
     this.initNode(this._node);
-    this.mount();
   }
 
   get node(): ViewNode {
@@ -787,8 +786,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  isRootView(): boolean {
-    let node: Node = this._node;
+  static isRootView(node: Node): boolean {
     do {
       const parentNode: ViewNode | null = node.parentNode;
       if (parentNode !== null) {
@@ -805,8 +803,7 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  isNodeMounted(): boolean {
-    const node = this._node;
+  static isNodeMounted(node: Node): boolean {
     let isConnected: boolean | undefined = node.isConnected;
     if (typeof isConnected !== "boolean") {
       const ownerDocument = node.ownerDocument;
@@ -821,10 +818,8 @@ export class NodeView extends View {
   }
 
   mount(): void {
-    if (this.isNodeMounted() && this.isRootView()) {
-      if (!this.isMounted()) {
-        this.cascadeMount();
-      }
+    if (!this.isMounted() && NodeView.isNodeMounted(this._node) && NodeView.isRootView(this._node)) {
+      this.cascadeMount();
       if (!this.isPowered() && document.visibilityState === "visible") {
         this.cascadePower();
       }

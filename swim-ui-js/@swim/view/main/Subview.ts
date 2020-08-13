@@ -40,6 +40,7 @@ export interface SubviewInit<S extends View, U = S> {
   observe?: boolean;
   child?: boolean;
   type?: unknown;
+  tag?: string;
 
   willSetSubview?(newSubview: S | null, oldSubview: S | null): void;
   onSetSubview?(newSubview: S | null, oldSubview: S | null): void;
@@ -78,10 +79,13 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
   constructor(view: V, subviewName: string | undefined);
 
   /** @hidden */
+  child: boolean;
+
+  /** @hidden */
   readonly type?: unknown;
 
   /** @hidden */
-  child: boolean;
+  readonly tag?: unknown;
 
   get name(): string;
 
@@ -517,7 +521,11 @@ Subview.prototype.remove = function (this: Subview<View, View>): void {
 Subview.prototype.createSubview = function <S extends View, U>(this: Subview<View, S, U>): S | U | null {
   const type = this.type;
   if (typeof type === "function" && type.prototype instanceof View) {
-    return View.create(type as ViewConstructor) as S;
+    if (this.tag !== void 0) {
+      return (type as typeof NodeView).fromTag(this.tag as string) as unknown as S;
+    } else {
+      return View.create(type as ViewConstructor) as S;
+    }
   }
   return null;
 };
@@ -526,9 +534,9 @@ Subview.prototype.fromAny = function <S extends View, U>(this: Subview<View, S, 
   if (value instanceof Node) {
     const type = this.type;
     if (typeof type === "function" && type.prototype instanceof NodeView) {
-      return new (type as {new(node: Node): S})(value);
+      return (type as typeof NodeView).fromNode(value) as unknown as S;
     } else {
-      return View.fromNode(value) as unknown as S | null;
+      return View.fromNode(value) as unknown as S;
     }
   }
   return value as S | null;

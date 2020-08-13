@@ -229,18 +229,6 @@ export abstract class GenericModel extends Model {
     this._modelFlags = modelFlags;
   }
 
-  mount(): void {
-    if (this._parentModel === null) {
-      if (!this.isMounted()) {
-        this.cascadeMount();
-      }
-      if (!this.isPowered() && document.visibilityState === "visible") {
-        this.cascadePower();
-      }
-      this.cascadeInsert();
-    }
-  }
-
   cascadeMount(): void {
     if ((this._modelFlags & Model.MountedFlag) === 0) {
       this._modelFlags |= Model.MountedFlag;

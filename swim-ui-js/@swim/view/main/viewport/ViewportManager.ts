@@ -168,9 +168,6 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
       window.addEventListener("scroll", this.throttleScroll, {passive: true});
       window.addEventListener("resize", this.throttleResize);
       window.addEventListener("orientationchange", this.debounceReorientation);
-      if (typeof (window as any).visualViewport !== "undefined") {
-        (window as any).visualViewport.addEventListener("resize", this.throttleResize);
-      }
     }
   }
 
@@ -179,9 +176,6 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
       window.removeEventListener("scroll", this.throttleScroll);
       window.removeEventListener("resize", this.throttleResize);
       window.removeEventListener("orientationchange", this.debounceReorientation);
-      if (typeof (window as any).visualViewport !== "undefined") {
-        (window as any).visualViewport.removeEventListener("resize", this.throttleResize);
-      }
     }
   }
 

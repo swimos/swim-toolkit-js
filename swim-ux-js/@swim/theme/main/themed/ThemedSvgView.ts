@@ -13,7 +13,15 @@
 // limitations under the License.
 
 import {Tween, Transition} from "@swim/transition";
-import {ViewContextType, ViewFlags, View, ViewScope, SvgViewInit, SvgView} from "@swim/view";
+import {
+  ViewContextType,
+  ViewFlags,
+  View,
+  ViewScope,
+  NodeView,
+  SvgViewInit,
+  SvgView,
+} from "@swim/view";
 import {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 import {Mood} from "../mood/Mood";
@@ -151,7 +159,7 @@ export class ThemedSvgView extends SvgView implements ThemedView {
   }
 
   protected initTheme(): void {
-    if (this.isRootView()) {
+    if (NodeView.isRootView(this._node)) {
       const themeManager = this.themeService.manager;
       if (themeManager !== void 0) {
         if (this.mood.isAuto() && this.mood.state === void 0) {
@@ -209,7 +217,7 @@ export class ThemedSvgView extends SvgView implements ThemedView {
   }
 
   protected updateTheme(): void {
-    if (this.theme.isUpdated() || this.mood.isUpdated()) {
+    if (this.theme.isChanging() || this.mood.isChanging()) {
       this.changeMood();
       this.changeTheme();
 

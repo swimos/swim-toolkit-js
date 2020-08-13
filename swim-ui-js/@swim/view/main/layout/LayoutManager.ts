@@ -15,10 +15,8 @@
 import {ConstrainVariable, Constraint, ConstraintSolver} from "@swim/constraint";
 import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
-import {LayoutAnchor} from "./LayoutAnchor";
 import {LayoutSolver} from "./LayoutSolver";
 import {LayoutManagerObserver} from "./LayoutManagerObserver";
-import {NodeView} from "../node/NodeView";
 
 export class LayoutManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -100,64 +98,6 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
   }
 
   readonly viewManagerObservers: ReadonlyArray<LayoutManagerObserver>;
-
-  protected onInsertRootView(rootView: V): void {
-    super.onInsertRootView(rootView);
-    this.addLayoutAnchors(rootView);
-  }
-
-  protected addLayoutAnchors(rootView: V): void {
-    if (rootView instanceof View.Node && (rootView as NodeView)._node === document.body) {
-      this.addSafeAreaAnchors(rootView);
-    }
-  }
-
-  protected removeLayoutAnchors(rootView: V): void {
-    // hook
-  }
-
-  protected addSafeAreaAnchors(rootView: V): void {
-    LayoutAnchor<View>({
-      strength: "strong",
-      getState(oldState: number): number {
-        const newState = this.view.viewport.safeArea.insetTop;
-        if (oldState !== newState) {
-          this.view.requireUpdate(View.NeedsLayout);
-        }
-        return newState;
-      },
-    })(rootView, "safeAreaInsetTop");
-    LayoutAnchor<View>({
-      strength: "strong",
-      getState(oldState: number): number {
-        const newState = this.view.viewport.safeArea.insetRight;
-        if (oldState !== newState) {
-          this.view.requireUpdate(View.NeedsLayout);
-        }
-        return newState;
-      },
-    })(rootView, "safeAreaInsetRight");
-    LayoutAnchor<View>({
-      strength: "strong",
-      getState(oldState: number): number {
-        const newState = this.view.viewport.safeArea.insetBottom;
-        if (oldState !== newState) {
-          this.view.requireUpdate(View.NeedsLayout);
-        }
-        return newState;
-      },
-    })(rootView, "safeAreaInsetBottom");
-    LayoutAnchor<View>({
-      strength: "strong",
-      getState(oldState: number): number {
-        const newState = this.view.viewport.safeArea.insetLeft;
-        if (oldState !== newState) {
-          this.view.requireUpdate(View.NeedsLayout);
-        }
-        return newState;
-      },
-    })(rootView, "safeAreaInsetLeft");
-  }
 
   private static _global?: LayoutManager<any>;
   static global<V extends View>(): LayoutManager<V> {

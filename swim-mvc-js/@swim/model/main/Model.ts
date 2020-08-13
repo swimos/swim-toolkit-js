@@ -283,6 +283,18 @@ export abstract class Model {
     return (this.modelFlags & Model.MountedFlag) !== 0;
   }
 
+  mount(): void {
+    if (this.parentModel === null) {
+      if (!this.isMounted()) {
+        this.cascadeMount();
+      }
+      if (!this.isPowered() && document.visibilityState === "visible") {
+        this.cascadePower();
+      }
+      this.cascadeInsert();
+    }
+  }
+
   abstract cascadeMount(): void;
 
   get mountFlags(): ModelFlags {

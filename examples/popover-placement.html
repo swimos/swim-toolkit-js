@@ -10,7 +10,7 @@
     <script src="../swim-ux-js/@swim/ux/dist/main/swim-ux.js"></script>
     <script>
 
-const bodyView = new swim.HtmlView(document.body);
+const bodyView = swim.HtmlView.fromNode(document.body);
 
 const source = bodyView.append("div")
   .position("absolute")

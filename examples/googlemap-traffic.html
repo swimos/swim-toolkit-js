@@ -21,7 +21,7 @@ const GREEN = swim.Color.parse("#54e218");
 const INTERSECTION_COLOR = swim.Color.parse("#00a6ed");
 const RIPPLE_COLOR = swim.Color.parse("#efefef").alpha(0.25);
 
-const uiView = new swim.HtmlView(document.getElementById("ui"));
+const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
 const map = new google.maps.Map(uiView.node, {
   center: {lng: -122.162, lat: 37.445},

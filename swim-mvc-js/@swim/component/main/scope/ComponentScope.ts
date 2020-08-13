@@ -112,6 +112,8 @@ export declare abstract class ComponentScope<C extends Component, T, U = T> {
 
   isUpdated(): boolean;
 
+  isRevising(): boolean;
+
   get state(): T;
 
   get ownState(): T | undefined;
@@ -181,6 +183,8 @@ export declare abstract class ComponentScope<C extends Component, T, U = T> {
 
   /** @hidden */
   static UpdatedFlag: ComponentScopeFlags;
+  /** @hidden */
+  static RevisingFlag: ComponentScopeFlags;
   /** @hidden */
   static OverrideFlag: ComponentScopeFlags;
   /** @hidden */
@@ -389,6 +393,10 @@ ComponentScope.prototype.isUpdated = function (this: ComponentScope<Component, u
   return (this._scopeFlags & ComponentScope.UpdatedFlag) !== 0;
 };
 
+ComponentScope.prototype.isRevising = function (this: ComponentScope<Component, unknown>): boolean {
+  return (this._scopeFlags & ComponentScope.RevisingFlag) !== 0;
+};
+
 Object.defineProperty(ComponentScope.prototype, "state", {
   get: function <T>(this: ComponentScope<Component, T>): T {
     return this._state;
@@ -470,7 +478,7 @@ ComponentScope.prototype.setOwnState = function <T, U>(this: ComponentScope<Comp
     this.willSetState(newState as T, oldState);
     this.willUpdate(newState as T, oldState);
     this._state = newState as T;
-    this._scopeFlags |= ComponentScope.UpdatedFlag;
+    this._scopeFlags |= ComponentScope.RevisingFlag | ComponentScope.UpdatedFlag;
     this.onSetState(newState as T, oldState);
     this.onUpdate(newState as T, oldState);
     this.updateSubScopes(newState as T, oldState);
@@ -490,7 +498,7 @@ ComponentScope.prototype.setBaseState = function <T, U>(this: ComponentScope<Com
 };
 
 ComponentScope.prototype.onRevise = function <T, U>(this: ComponentScope<Component, T, U>): void {
-  if (this.isInherited() && this.isUpdated()) {
+  if (this.isInherited()) {
     this.updateInherited();
   } else {
     this.onIdle();
@@ -499,8 +507,10 @@ ComponentScope.prototype.onRevise = function <T, U>(this: ComponentScope<Compone
 
 ComponentScope.prototype.updateInherited = function <T, U>(this: ComponentScope<Component, T, U>): void {
   const superScope = this._superScope;
-  if (superScope !== void 0) {
+  if (superScope !== void 0 && superScope.isRevising()) {
     this.update(superScope.state, this.state);
+  } else {
+    this.onIdle();
   }
 };
 
@@ -509,7 +519,7 @@ ComponentScope.prototype.update = function <T, U>(this: ComponentScope<Component
   if (!Objects.equal(oldState, newState)) {
     this.willUpdate(newState, oldState);
     this._state = newState;
-    this._scopeFlags |= ComponentScope.UpdatedFlag;
+    this._scopeFlags |= ComponentScope.RevisingFlag | ComponentScope.UpdatedFlag;
     this.onUpdate(newState, oldState);
     this.updateSubScopes(newState, oldState);
     this.didUpdate(newState, oldState);
@@ -548,10 +558,15 @@ ComponentScope.prototype.updateSubScopes = function <T, U>(this: ComponentScope<
 };
 
 ComponentScope.prototype.onIdle = function (this: ComponentScope<Component, unknown>): void {
-  this._scopeFlags &= ~ComponentScope.UpdatedFlag;
+  if ((this._scopeFlags & ComponentScope.UpdatedFlag) !== 0) {
+    this._scopeFlags &= ~ComponentScope.UpdatedFlag;
+  } else {
+    this._scopeFlags &= ~ComponentScope.RevisingFlag;
+  }
 };
 
 ComponentScope.prototype.revise = function (this: ComponentScope<Component, unknown>): void {
+  this._scopeFlags |= ComponentScope.RevisingFlag;
   this._component.requireUpdate(Component.NeedsRevise);
 };
 
@@ -627,5 +642,6 @@ ComponentScope.define = function <C extends Component, T, U>(descriptor: Compone
 };
 
 ComponentScope.UpdatedFlag = 1 << 0;
-ComponentScope.OverrideFlag = 1 << 1;
-ComponentScope.InheritedFlag = 1 << 2;
+ComponentScope.RevisingFlag = 1 << 1;
+ComponentScope.OverrideFlag = 1 << 2;
+ComponentScope.InheritedFlag = 1 << 3;

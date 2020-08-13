@@ -63,10 +63,10 @@ export declare abstract class Submodel<M extends Model, S extends Model, U = S> 
   constructor(model: M, submodelName: string | undefined);
 
   /** @hidden */
-  readonly type?: unknown;
+  child: boolean;
 
   /** @hidden */
-  child: boolean;
+  readonly type?: unknown;
 
   get name(): string;
 

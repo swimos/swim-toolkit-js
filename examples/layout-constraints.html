@@ -9,7 +9,7 @@
     <script src="../swim-ui-js/@swim/ui/dist/main/swim-ui.js"></script>
     <script>
 
-const bodyView = new swim.HtmlView(document.body);
+const bodyView = swim.HtmlView.fromNode(document.body);
 
 const circle = bodyView.append("div")
     .position("absolute")

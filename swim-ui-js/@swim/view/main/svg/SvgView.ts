@@ -40,15 +40,13 @@ import {
   TouchAction,
 } from "@swim/style";
 import {View} from "../View";
-import {ViewNode, NodeView} from "../node/NodeView";
+import {NodeView} from "../node/NodeView";
 import {TextView} from "../text/TextView";
 import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";
 import {StyleAnimatorMemberInit, StyleAnimator} from "../style/StyleAnimator";
 import {ElementViewConstructor, ElementViewInit, ElementView} from "../element/ElementView";
 import {SvgViewObserver} from "./SvgViewObserver";
 import {SvgViewController} from "./SvgViewController";
-import {HtmlView} from "../html/HtmlView";
-import {CanvasView} from "../canvas/CanvasView";
 
 export interface ViewSvg extends SVGElement {
   view?: SvgView;
@@ -568,22 +566,8 @@ export class SvgView extends ElementView {
   static fromTag<T extends keyof SvgViewTagMap>(tag: T): SvgViewTagMap[T];
   static fromTag(tag: string): SvgView;
   static fromTag(tag: string): SvgView {
-    return new SvgView(document.createElementNS(SvgView.namespace, tag) as SVGElement);
-  }
-
-  static fromNode(node: HTMLCanvasElement): CanvasView;
-  static fromNode(node: HTMLElement): HtmlView;
-  static fromNode(node: SVGElement): SvgView;
-  static fromNode(node: Element): ElementView;
-  static fromNode(node: Text): TextView;
-  static fromNode(node: Node): NodeView;
-  static fromNode(node: ViewNode): NodeView {
-    if (node.view instanceof View) {
-      return node.view;
-    } else if (node instanceof SVGElement) {
-      return new SvgView(node);
-    }
-    throw new TypeError("" + node);
+    const node = document.createElementNS(View.Svg.namespace, tag) as SVGElement;
+    return new (this as unknown as {new(node: SVGElement): SvgView})(node);
   }
 
   static create<T extends keyof SvgViewTagMap>(tag: T): SvgViewTagMap[T];
@@ -592,11 +576,11 @@ export class SvgView extends ElementView {
   static create<VC extends ElementViewConstructor<SVGElement, SvgView>>(viewConstructor: VC): InstanceType<VC>;
   static create(source: string | SVGElement | ElementViewConstructor<SVGElement, SvgView>): SvgView {
     if (typeof source === "string") {
-      return SvgView.fromTag(source);
+      return this.fromTag(source);
     } else if (source instanceof SVGElement) {
-      return SvgView.fromNode(source);
+      return this.fromNode(source);
     } else if (typeof source === "function") {
-      return SvgView.fromConstructor(source);
+      return this.fromConstructor(source);
     }
     throw new TypeError("" + source);
   }

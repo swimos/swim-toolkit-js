@@ -68,7 +68,7 @@ import {
 } from "@swim/style";
 import {View} from "../View";
 import {LayoutAnchor} from "../layout/LayoutAnchor";
-import {ViewNode, NodeView} from "../node/NodeView";
+import {NodeView} from "../node/NodeView";
 import {TextView} from "../text/TextView";
 import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";
 import {StyleAnimatorMemberInit, StyleAnimator} from "../style/StyleAnimator";
@@ -827,13 +827,13 @@ export class HtmlView extends ElementView {
       const rightAnchor = this.view.getLayoutAnchor("rightAnchor");
       const leftAnchor = this.view.getLayoutAnchor("leftAnchor");
       const widthAnchor = this.view.getLayoutAnchor("widthAnchor");
-      if (leftAnchor !== null && leftAnchor.enabled()) {
+      if (leftAnchor !== null && leftAnchor.constrained()) {
         this.view.width.setState(Length.px(2 * (newValue - leftAnchor.value)));
         this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
-      } else if (rightAnchor !== null && rightAnchor.enabled()) {
+      } else if (rightAnchor !== null && rightAnchor.constrained()) {
         this.view.width.setState(Length.px(2 * (rightAnchor.value - newValue)));
         this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
-      } else if (widthAnchor !== null && widthAnchor.enabled()) {
+      } else if (widthAnchor !== null && widthAnchor.constrained()) {
         this.view.left.setState(Length.px(newValue - 0.5 * widthAnchor.value));
         this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       }
@@ -861,19 +861,115 @@ export class HtmlView extends ElementView {
       const topAnchor = this.view.getLayoutAnchor("topAnchor");
       const bottomAnchor = this.view.getLayoutAnchor("bottomAnchor");
       const heightAnchor = this.view.getLayoutAnchor("heightAnchor");
-      if (topAnchor !== null && topAnchor.enabled()) {
+      if (topAnchor !== null && topAnchor.constrained()) {
         this.view.height.setState(Length.px(2 * (newValue - topAnchor.value)));
         this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
-      } else if (bottomAnchor !== null && bottomAnchor.enabled()) {
+      } else if (bottomAnchor !== null && bottomAnchor.constrained()) {
         this.view.height.setState(Length.px(2 * (bottomAnchor.value - newValue)));
         this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
-      } else if (heightAnchor !== null && heightAnchor.enabled()) {
+      } else if (heightAnchor !== null && heightAnchor.constrained()) {
         this.view.top.setState(Length.px(newValue - 0.5 * heightAnchor.value));
         this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
       }
     },
   })
   centerYAnchor: LayoutAnchor<this>;
+
+  @LayoutAnchor<HtmlView>({
+    strength: "strong",
+    getState(oldState: number): number {
+      const marginTop = this.view.marginTop.value;
+      return marginTop instanceof Length ? marginTop.pxValue() : NaN;
+    },
+    setValue(newValue: number): void {
+      this.view.marginTop.setState(Length.px(newValue));
+    },
+  })
+  marginTopAnchor: LayoutAnchor<this>;
+
+  @LayoutAnchor<HtmlView>({
+    strength: "strong",
+    getState(oldState: number): number {
+      const marginRight = this.view.marginRight.value;
+      return marginRight instanceof Length ? marginRight.pxValue() : NaN;
+    },
+    setValue(newValue: number): void {
+      this.view.marginRight.setState(Length.px(newValue));
+    },
+  })
+  marginRightAnchor: LayoutAnchor<this>;
+
+  @LayoutAnchor<HtmlView>({
+    strength: "strong",
+    getState(oldState: number): number {
+      const marginBottom = this.view.marginBottom.value;
+      return marginBottom instanceof Length ? marginBottom.pxValue() : NaN;
+    },
+    setValue(newValue: number): void {
+      this.view.marginBottom.setState(Length.px(newValue));
+    },
+  })
+  marginBottomAnchor: LayoutAnchor<this>;
+
+  @LayoutAnchor<HtmlView>({
+    strength: "strong",
+    getState(oldState: number): number {
+      const marginLeft = this.view.marginLeft.value;
+      return marginLeft instanceof Length ? marginLeft.pxValue() : NaN;
+    },
+    setValue(newValue: number): void {
+      this.view.marginLeft.setState(Length.px(newValue));
+    },
+  })
+  marginLeftAnchor: LayoutAnchor<this>;
+
+  @LayoutAnchor<HtmlView>({
+    strength: "strong",
+    getState(oldState: number): number {
+      const paddingTop = this.view.paddingTop.value;
+      return paddingTop instanceof Length ? paddingTop.pxValue() : NaN;
+    },
+    setValue(newValue: number): void {
+      this.view.paddingTop.setState(Length.px(newValue));
+    },
+  })
+  paddingTopAnchor: LayoutAnchor<this>;
+
+  @LayoutAnchor<HtmlView>({
+    strength: "strong",
+    getState(oldState: number): number {
+      const paddingRight = this.view.paddingRight.value;
+      return paddingRight instanceof Length ? paddingRight.pxValue() : NaN;
+    },
+    setValue(newValue: number): void {
+      this.view.paddingRight.setState(Length.px(newValue));
+    },
+  })
+  paddingRightAnchor: LayoutAnchor<this>;
+
+  @LayoutAnchor<HtmlView>({
+    strength: "strong",
+    getState(oldState: number): number {
+      const paddingBottom = this.view.paddingBottom.value;
+      return paddingBottom instanceof Length ? paddingBottom.pxValue() : NaN;
+    },
+    setValue(newValue: number): void {
+      this.view.paddingBottom.setState(Length.px(newValue));
+    },
+  })
+  paddingBottomAnchor: LayoutAnchor<this>;
+
+  @LayoutAnchor<HtmlView>({
+    strength: "strong",
+    getState(oldState: number): number {
+      const paddingLeft = this.view.paddingLeft.value;
+      return paddingLeft instanceof Length ? paddingLeft.pxValue() : NaN;
+    },
+    setValue(newValue: number): void {
+      this.view.paddingLeft.setState(Length.px(newValue));
+    },
+  })
+  paddingLeftAnchor: LayoutAnchor<this>;
 
   @AttributeAnimator({attributeName: "autocomplete", type: String})
   autocomplete: AttributeAnimator<this, string>;
@@ -1642,28 +1738,8 @@ export class HtmlView extends ElementView {
   static fromTag<T extends keyof HtmlViewTagMap>(tag: T): HtmlViewTagMap[T];
   static fromTag(tag: string): HtmlView;
   static fromTag(tag: string): HtmlView {
-    if (tag === "canvas") {
-      return new View.Canvas(document.createElement(tag) as HTMLCanvasElement);
-    } else {
-      return new HtmlView(document.createElement(tag));
-    }
-  }
-
-  static fromNode(node: HTMLCanvasElement): CanvasView;
-  static fromNode(node: HTMLElement): HtmlView;
-  static fromNode(node: SVGElement): SvgView;
-  static fromNode(node: Element): ElementView;
-  static fromNode(node: Text): TextView;
-  static fromNode(node: Node): NodeView;
-  static fromNode(node: ViewNode): NodeView {
-    if (node.view instanceof View) {
-      return node.view;
-    } else if (node instanceof HTMLCanvasElement) {
-      return new View.Canvas(node);
-    } else if (node instanceof HTMLElement) {
-      return new HtmlView(node);
-    }
-    throw new TypeError("" + node);
+    const node = document.createElement(tag);
+    return new (this as unknown as {new(node: HTMLElement): HtmlView})(node);
   }
 
   static create<T extends keyof HtmlViewTagMap>(tag: T): HtmlViewTagMap[T];
@@ -1673,11 +1749,11 @@ export class HtmlView extends ElementView {
   static create<VC extends ElementViewConstructor<HTMLElement, HtmlView>>(viewConstructor: VC): InstanceType<VC>;
   static create(source: string | HTMLElement | ElementViewConstructor<HTMLElement, HtmlView>): HtmlView {
     if (typeof source === "string") {
-      return HtmlView.fromTag(source);
+      return this.fromTag(source);
     } else if (source instanceof HTMLElement) {
-      return HtmlView.fromNode(source);
+      return this.fromNode(source);
     } else if (typeof source === "function") {
-      return HtmlView.fromConstructor(source);
+      return this.fromConstructor(source);
     }
     throw new TypeError("" + source);
   }

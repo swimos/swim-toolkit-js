@@ -112,6 +112,8 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
 
   isUpdated(): boolean;
 
+  isMutating(): boolean;
+
   get state(): T;
 
   get ownState(): T | undefined;
@@ -181,6 +183,8 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
 
   /** @hidden */
   static UpdatedFlag: ModelScopeFlags;
+  /** @hidden */
+  static MutatingFlag: ModelScopeFlags;
   /** @hidden */
   static OverrideFlag: ModelScopeFlags;
   /** @hidden */
@@ -389,6 +393,10 @@ ModelScope.prototype.isUpdated = function (this: ModelScope<Model, unknown>): bo
   return (this._scopeFlags & ModelScope.UpdatedFlag) !== 0;
 };
 
+ModelScope.prototype.isMutating = function (this: ModelScope<Model, unknown>): boolean {
+  return (this._scopeFlags & ModelScope.MutatingFlag) !== 0;
+};
+
 Object.defineProperty(ModelScope.prototype, "state", {
   get: function <T>(this: ModelScope<Model, T>): T {
     return this._state;
@@ -470,7 +478,7 @@ ModelScope.prototype.setOwnState = function <T, U>(this: ModelScope<Model, T, U>
     this.willSetState(newState as T, oldState);
     this.willUpdate(newState as T, oldState);
     this._state = newState as T;
-    this._scopeFlags |= ModelScope.UpdatedFlag;
+    this._scopeFlags |= ModelScope.MutatingFlag | ModelScope.UpdatedFlag;
     this.onSetState(newState as T, oldState);
     this.onUpdate(newState as T, oldState);
     this.updateSubScopes(newState as T, oldState);
@@ -490,7 +498,7 @@ ModelScope.prototype.setBaseState = function <T, U>(this: ModelScope<Model, T, U
 };
 
 ModelScope.prototype.onMutate = function <T, U>(this: ModelScope<Model, T, U>): void {
-  if (this.isInherited() && this.isUpdated()) {
+  if (this.isInherited()) {
     this.updateInherited();
   } else {
     this.onIdle();
@@ -499,8 +507,10 @@ ModelScope.prototype.onMutate = function <T, U>(this: ModelScope<Model, T, U>): 
 
 ModelScope.prototype.updateInherited = function <T, U>(this: ModelScope<Model, T, U>): void {
   const superScope = this._superScope;
-  if (superScope !== void 0) {
+  if (superScope !== void 0 && superScope.isMutating()) {
     this.update(superScope.state, this.state);
+  } else {
+    this.onIdle();
   }
 };
 
@@ -509,7 +519,7 @@ ModelScope.prototype.update = function <T, U>(this: ModelScope<Model, T, U>,
   if (!Objects.equal(oldState, newState)) {
     this.willUpdate(newState, oldState);
     this._state = newState;
-    this._scopeFlags |= ModelScope.UpdatedFlag;
+    this._scopeFlags |= ModelScope.MutatingFlag | ModelScope.UpdatedFlag;
     this.onUpdate(newState, oldState);
     this.updateSubScopes(newState, oldState);
     this.didUpdate(newState, oldState);
@@ -548,10 +558,15 @@ ModelScope.prototype.updateSubScopes = function <T, U>(this: ModelScope<Model, T
 };
 
 ModelScope.prototype.onIdle = function (this: ModelScope<Model, unknown>): void {
-  this._scopeFlags &= ~ModelScope.UpdatedFlag;
+  if ((this._scopeFlags & ModelScope.UpdatedFlag) !== 0) {
+    this._scopeFlags &= ~ModelScope.UpdatedFlag;
+  } else {
+    this._scopeFlags &= ~ModelScope.MutatingFlag;
+  }
 };
 
 ModelScope.prototype.mutate = function (this: ModelScope<Model, unknown>): void {
+  this._scopeFlags |= ModelScope.MutatingFlag;
   this._model.requireUpdate(Model.NeedsMutate);
 };
 
@@ -627,5 +642,6 @@ ModelScope.define = function <M extends Model, T, U>(descriptor: ModelScopeDescr
 };
 
 ModelScope.UpdatedFlag = 1 << 0;
-ModelScope.OverrideFlag = 1 << 1;
-ModelScope.InheritedFlag = 1 << 2;
+ModelScope.MutatingFlag = 1 << 1;
+ModelScope.OverrideFlag = 1 << 2;
+ModelScope.InheritedFlag = 1 << 3;

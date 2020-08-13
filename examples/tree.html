@@ -32,7 +32,7 @@ if (navigator.standalone) {
   document.body.style.height = "100%";
 }
 
-const bodyView = new swim.ThemedHtmlView(document.body);
+const bodyView = swim.ThemedHtmlView.fromNode(document.body);
 
 const container = swim.HtmlView.create("div")
   .position("relative")
@@ -1035,16 +1035,18 @@ const limb019 = tree01.getChildView("limb019");
 
 tree0.modifyTheme(swim.Feel.default, [swim.Feel.primary, 1]);
 function updateMood(view) {
+  const warnThreshold = 0.8;
+  const alertThreshold = 0.95;
   let u = Math.random();
-  if (u < 0.8) {
+  if (u < warnThreshold) {
     view.modifyMood(swim.Feel.default, [swim.Feel.warning, undefined], [swim.Feel.alert, undefined]);
-  } else if (u < 0.95) {
-    u = (u - 0.8) / 0.15
-    u = 0.5 + 0.5 * u;
-    view.modifyMood(swim.Feel.default, [swim.Feel.warning, u], [swim.Feel.alert, undefined]);
+  } else if (u < alertThreshold) {
+    u = (u - warnThreshold) / (alertThreshold - warnThreshold);
+    u = 0.6 + 0.4 * u;
+    view.modifyMood(swim.Feel.default, [swim.Feel.warning, 1], [swim.Feel.alert, undefined]);
   } else {
-    u = (u - 0.95) / 0.05;
-    u = 0.5 + 0.5 * u;
+    u = (u - alertThreshold) / (1 - alertThreshold);
+    u = 0.6 + 0.4 * u;
     view.modifyMood(swim.Feel.default, [swim.Feel.warning, undefined], [swim.Feel.alert, u]);
   }
 }

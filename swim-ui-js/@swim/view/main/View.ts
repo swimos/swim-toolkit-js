@@ -1231,12 +1231,21 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   static fromTag<T extends keyof ElementViewTagMap>(tag: T): ElementViewTagMap[T];
   static fromTag(tag: string): ElementView;
   static fromTag(tag: string): ElementView {
-    if (tag === "svg") {
-      return new View.Svg(document.createElementNS(View.Svg.namespace, tag) as SVGElement);
+    if (this.prototype instanceof View.Svg) {
+      const node = document.createElementNS(View.Svg.namespace, tag) as SVGElement;
+      return new (this as unknown as {new(node: Element): ElementView})(node);
+    } else if (this.prototype instanceof View.Element) {
+      const node = document.createElement(tag);
+      return new (this as unknown as {new(node: Element): ElementView})(node);
+    } else if (tag === "svg") {
+      const node = document.createElementNS(View.Svg.namespace, tag) as SVGElement;
+      return new View.Svg(node);
     } else if (tag === "canvas") {
-      return new View.Canvas(document.createElement(tag) as HTMLCanvasElement);
+      const node = document.createElement(tag) as HTMLCanvasElement;
+      return new View.Canvas(node);
     } else {
-      return new View.Html(document.createElement(tag));
+      const node = document.createElement(tag);
+      return new View.Html(node);
     }
   }
 
@@ -1251,7 +1260,9 @@ export abstract class View implements AnimatorContext, ConstraintScope {
       return node.view;
     } else {
       let view: NodeView;
-      if (node instanceof Element) {
+      if (this.prototype instanceof View.Element) {
+        view = new (this as unknown as {new(node: Node): NodeView})(node);
+      } else if (node instanceof Element) {
         if (node instanceof HTMLElement) {
           if (node instanceof HTMLCanvasElement) {
             view = new View.Canvas(node);
@@ -1272,6 +1283,8 @@ export abstract class View implements AnimatorContext, ConstraintScope {
       if (parentView !== null) {
         view.setParentView(parentView, null);
         view.cascadeInsert();
+      } else {
+        view.mount();
       }
       return view;
     }
@@ -1302,11 +1315,11 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   static create<VC extends ViewConstructor>(viewConstructor: VC): InstanceType<VC>;
   static create(source: string | Node | ElementViewConstructor | ViewConstructor): View {
     if (typeof source === "string") {
-      return View.fromTag(source);
+      return this.fromTag(source);
     } else if (source instanceof Node) {
-      return View.fromNode(source);
+      return this.fromNode(source);
     } else if (typeof source === "function") {
-      return View.fromConstructor(source);
+      return this.fromConstructor(source);
     }
     throw new TypeError("" + source);
   }

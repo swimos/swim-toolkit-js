@@ -35,7 +35,7 @@ if (navigator.standalone) {
   document.body.style.height = "100%";
 }
 
-const bodyView = new swim.ThemedHtmlView(document.body);
+const bodyView = swim.ThemedHtmlView.fromNode(document.body);
 
 bodyView.append(swim.ScrimView);
 

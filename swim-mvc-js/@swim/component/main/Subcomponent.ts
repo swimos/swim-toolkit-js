@@ -63,10 +63,10 @@ export declare abstract class Subcomponent<C extends Component, S extends Compon
   constructor(component: C, subcomponentName: string | undefined);
 
   /** @hidden */
-  readonly type?: unknown;
+  child: boolean;
 
   /** @hidden */
-  child: boolean;
+  readonly type?: unknown;
 
   get name(): string;
 

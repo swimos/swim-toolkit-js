@@ -28,6 +28,7 @@ export interface ComponentViewInit<V extends View, U = V> {
   extends?: ComponentViewPrototype;
   observe?: boolean;
   type?: unknown;
+  tag?: string;
 
   willSetView?(newView: V | null, oldView: V | null): void;
   onSetView?(newView: V | null, oldView: V | null): void;
@@ -65,6 +66,8 @@ export declare abstract class ComponentView<C extends Component, V extends View,
 
   /** @hidden */
   readonly type?: unknown;
+
+  readonly tag?: string;
 
   get name(): string;
 
@@ -231,6 +234,10 @@ ComponentView.prototype.setAutoView = function <V extends View, U>(this: Compone
 
 ComponentView.prototype.setOwnView = function <V extends View, U>(this: ComponentView<Component, V, U>,
                                                                   newView: V | U | null): void {
+  if (newView instanceof NodeView && newView.isMounted() ||
+      newView instanceof Node && NodeView.isNodeMounted(newView) && NodeView.isRootView(newView)) {
+    this._component.mount();
+  }
   const oldView = this._view;
   if (newView !== null) {
     newView = this.fromAny(newView);
@@ -298,7 +305,11 @@ ComponentView.prototype.remove = function (this: ComponentView<Component, View>)
 ComponentView.prototype.createView = function <V extends View, U>(this: ComponentView<Component, V, U>): V | U | null {
   const type = this.type;
   if (typeof type === "function" && type.prototype instanceof View) {
-    return View.create(type as ViewConstructor) as V;
+    if (this.tag !== void 0) {
+      return (type as typeof NodeView).fromTag(this.tag as string) as unknown as V;
+    } else {
+      return View.create(type as ViewConstructor) as V;
+    }
   }
   return null;
 };
@@ -308,9 +319,9 @@ ComponentView.prototype.fromAny = function <V extends View, U>(this: ComponentVi
   if (value instanceof Node) {
     const type = this.type;
     if (typeof type === "function" && type.prototype instanceof NodeView) {
-      return new (type as {new(node: Node): V})(value);
+      return (type as typeof NodeView).fromNode(value) as unknown as V;
     } else {
-      return View.fromNode(value) as unknown as V | null;
+      return View.fromNode(value) as unknown as V;
     }
   }
   return value as V | null;
