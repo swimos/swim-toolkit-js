@@ -70,6 +70,10 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
   ([npm](https://www.npmjs.com/package/@swim/shadow),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_shadow.html)) –
   CSS box shadow types and parsers.
+- [**@swim/gradient**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/gradient)
+  ([npm](https://www.npmjs.com/package/@swim/gradient),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_gradient.html)) –
+  CSS gradient types and parsers.
 - [**@swim/transform**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/transform)
   ([npm](https://www.npmjs.com/package/@swim/transform),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_transform.html)) –

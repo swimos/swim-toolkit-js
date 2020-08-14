@@ -18,6 +18,7 @@ import {Angle} from "@swim/angle";
 import {Length} from "@swim/length";
 import {Color, HexColorParser, RgbColorParser, HslColorParser} from "@swim/color";
 import {FontWeight, FontParser} from "@swim/font";
+import {LinearGradientParser} from "@swim/gradient";
 import {
   Transform,
   TranslateTransformParser,
@@ -109,6 +110,8 @@ export class StyleValueParser extends Parser<StyleValue> {
           case "x-small":
           case "xx-large":
           case "xx-small": return FontParser.parseRest(input, void 0, void 0, void 0, void 0, ident);
+
+          case "linear-gradient": return LinearGradientParser.parseRest(input, identOutput);
 
           case "translateX":
           case "translateY":

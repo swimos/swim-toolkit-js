@@ -32,6 +32,8 @@ The **Swim UI** framework consists of the following component libraries:
   CSS font property types and parsers.
 - [**@swim/shadow**](@swim/shadow) –
   CSS box shadow types and parsers.
+- [**@swim/gradient**](@swim/gradient) –
+  CSS gradient types and parsers.
 - [**@swim/transform**](@swim/transform) –
   CSS and SVG compatible transform types with unit-aware algebraic operators
   and parsers.

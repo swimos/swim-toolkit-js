@@ -47,6 +47,8 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
   CSS font property types and parsers.
 - [**@swim/shadow**](swim-ui-js/@swim/shadow) –
   CSS box shadow types and parsers.
+- [**@swim/gradient**](swim-ui-js/@swim/gradient) –
+  CSS gradient types and parsers.
 - [**@swim/transform**](swim-ui-js/@swim/transform) –
   CSS and SVG compatible transform types with unit-aware algebraic operators
   and parsers.

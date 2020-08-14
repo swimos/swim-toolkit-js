@@ -21,6 +21,7 @@ import {AnyLength, Length} from "@swim/length";
 import {AnyColor, Color, RgbColorInit, HslColorInit} from "@swim/color";
 import {AnyFont, Font} from "@swim/font";
 import {AnyBoxShadow, BoxShadowInit, BoxShadow} from "@swim/shadow";
+import {AnyLinearGradient, LinearGradient} from "@swim/gradient";
 import {AnyTransform, Transform} from "@swim/transform";
 import {Scale, ContinuousScale, LinearScale, TimeScale} from "@swim/scale";
 import {AnyTransition, TransitionInit, Transition} from "@swim/transition";
@@ -36,6 +37,7 @@ export type AnyStyleValue = AnyDateTime
                           | AnyColor | RgbColorInit | HslColorInit
                           | AnyFont
                           | AnyBoxShadow | BoxShadowInit
+                          | AnyLinearGradient
                           | AnyTransform
                           | Interpolator<any>
                           | Scale<any, any>
@@ -49,6 +51,7 @@ export type StyleValue = DateTime
                        | Color
                        | Font
                        | BoxShadow
+                       | LinearGradient
                        | Transform
                        | Interpolator<any>
                        | Scale<any, any>
@@ -100,6 +103,7 @@ export const StyleValue: StyleValueClass = {
         || value instanceof Color
         || value instanceof Font
         || value instanceof BoxShadow
+        || value instanceof LinearGradient
         || value instanceof Transform
         || value instanceof Interpolator
         || value instanceof Scale

@@ -29,6 +29,7 @@ import {
   Font,
 } from "@swim/font";
 import {AnyBoxShadow, BoxShadow} from "@swim/shadow";
+import {AnyLinearGradient, LinearGradient} from "@swim/gradient";
 import {AnyTransform, Transform} from "@swim/transform";
 import {Tween} from "@swim/transition";
 import {
@@ -111,6 +112,7 @@ export interface HtmlViewStyleInit {
   backdropFilter?: StyleAnimatorMemberInit<HtmlView, "backdropFilter">;
   backgroundClip?: StyleAnimatorMemberInit<HtmlView, "backgroundClip">;
   backgroundColor?: StyleAnimatorMemberInit<HtmlView, "backgroundColor">;
+  backgroundImage?: StyleAnimatorMemberInit<HtmlView, "backgroundImage">;
   borderCollapse?: StyleAnimatorMemberInit<HtmlView, "borderCollapse">;
   borderColor?: [AnyColor | "currentColor" | undefined,
                  AnyColor | "currentColor" | undefined,
@@ -308,11 +310,14 @@ export class HtmlView extends ElementView {
     if (init.backdropFilter !== void 0) {
       this.backdropFilter(init.backdropFilter);
     }
-    if (init.backgroundColor !== void 0) {
-      this.backgroundColor(init.backgroundColor);
+    if (init.backgroundClip !== void 0) {
+      this.backgroundClip(init.backgroundClip);
     }
     if (init.backgroundColor !== void 0) {
       this.backgroundColor(init.backgroundColor);
+    }
+    if (init.backgroundImage !== void 0) {
+      this.backgroundImage(init.backgroundImage);
     }
     if (init.borderCollapse !== void 0) {
       this.borderCollapse(init.borderCollapse);
@@ -1021,6 +1026,30 @@ export class HtmlView extends ElementView {
 
   @StyleAnimator({propertyNames: "background-color", type: Color})
   backgroundColor: StyleAnimator<this, Color, AnyColor>;
+
+  @StyleAnimator({
+    propertyNames: "background-image",
+    type: Color,
+    parse(value: string): LinearGradient | string | undefined {
+      try {
+        return LinearGradient.parse(value);
+      } catch (swallow) {
+        return value;
+      }
+    },
+    fromAny(value: AnyLinearGradient | string): LinearGradient | string | undefined {
+      if (typeof value === "string") {
+        try {
+          return LinearGradient.parse(value);
+        } catch (swallow) {
+          return value;
+        }
+      } else {
+        return LinearGradient.fromAny(value);
+      }
+    },
+  })
+  backgroundImage: StyleAnimator<this, LinearGradient | string, AnyLinearGradient | string>;
 
   @StyleAnimator({propertyNames: "border-collapse", type: String})
   borderCollapse: StyleAnimator<this, BorderCollapse>;

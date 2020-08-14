@@ -7,6 +7,7 @@
     {"path": "./swim-ui-js/@swim/color"},
     {"path": "./swim-ui-js/@swim/font"},
     {"path": "./swim-ui-js/@swim/shadow"},
+    {"path": "./swim-ui-js/@swim/gradient"},
     {"path": "./swim-ui-js/@swim/transform"},
     {"path": "./swim-ui-js/@swim/scale"},
     {"path": "./swim-ui-js/@swim/transition"},
