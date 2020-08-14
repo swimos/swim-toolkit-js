@@ -99,7 +99,7 @@ export class ButtonMembrane extends ThemedHtmlView implements PositionGestureDel
   }
 
   didCancelPress(input: PositionGestureInput, event: Event | null): void {
-    if (input.hovering && !this.clientBounds.contains(input.x, input.y)) {
+    if (!this.clientBounds.contains(input.x, input.y)) {
       this._gesture.endHover(input, event);
     }
     if (input.detail instanceof ButtonGlow) {

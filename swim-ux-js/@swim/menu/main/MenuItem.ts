@@ -339,7 +339,8 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     if (!this._highlighted && this.hovers) {
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
       if (this.backgroundColor.isAuto()) {
-        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor));
+        const transition = this._gesture._pressCount !== 0 ? this.getLook(Look.transition) : null;
+        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), transition);
       }
     }
   }
