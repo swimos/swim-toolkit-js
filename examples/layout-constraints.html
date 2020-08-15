@@ -15,10 +15,12 @@ const circle = bodyView.append("div")
     .position("absolute")
     .borderRadius("50%")
     .backgroundColor("#989898");
-circle.widthAnchor.enabled(true);
-circle.heightAnchor.enabled(true);
-circle.centerXAnchor.enabled(true);
-circle.centerYAnchor.enabled(true);
+circle.leftAnchor.constrained(true);
+circle.topAnchor.constrained(true);
+circle.widthAnchor.constrained(true);
+circle.heightAnchor.constrained(true);
+circle.centerXAnchor.constrained(true);
+circle.centerYAnchor.constrained(true);
 circle.constraint(circle.widthAnchor, "eq", circle.heightAnchor).enabled(true);
 circle.constraint(circle.heightAnchor, "eq", bodyView.heightAnchor.divide(3)).enabled(true);
 circle.constraint(circle.centerXAnchor, "eq", bodyView.widthAnchor.divide(2)).enabled(true);

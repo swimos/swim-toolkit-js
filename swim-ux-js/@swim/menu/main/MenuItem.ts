@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Length} from "@swim/length";
+import {AnyLength, Length} from "@swim/length";
 import {Tween, Transition} from "@swim/transition";
+import {Height} from "@swim/style";
 import {
   ViewContextType,
   View,
@@ -32,13 +33,9 @@ import {MenuItemController} from "./MenuItemController";
 import {MenuList} from "./MenuList";
 
 export class MenuItem extends ButtonMembrane implements PositionGestureDelegate {
-  /** @hidden */
-  _highlighted: boolean;
-
   constructor(node: HTMLElement) {
     super(node);
     this.onClick = this.onClick.bind(this);
-    this._highlighted = false;
   }
 
   protected initNode(node: ViewNodeType<this>): void {
@@ -48,8 +45,6 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     this.display.setAutoState("flex");
     this.flexShrink.setAutoState(0);
     this.height.setAutoState(44);
-    this.paddingLeft.setAutoState(Length.px(4));
-    this.paddingRight.setAutoState(Length.px(4));
     this.boxSizing.setAutoState("border-box");
     this.lineHeight.setAutoState(44);
     this.overflowX.setAutoState("hidden");
@@ -62,42 +57,45 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
 
   readonly viewObservers: ReadonlyArray<MenuItemObserver>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  drawerStretch: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
+  @ViewScope({type: Boolean, state: false})
+  highlighted: ViewScope<this, boolean>;
 
   @ViewScope({type: Object, inherit: true})
   edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
 
-  get highlighted(): boolean {
-    return this._highlighted;
-  }
+  @ViewAnimator({type: Length, inherit: true})
+  collapsedWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+
+  @ViewAnimator({type: Number, inherit: true})
+  drawerStretch: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   protected createIconView(icon?: SvgView): HtmlView {
-    const view = HtmlView.create("div");
-    view.display.setAutoState("flex");
-    view.justifyContent.setAutoState("center");
-    view.alignItems.setAutoState("center");
-    view.width.setAutoState(36);
-    view.height.setAutoState(44);
+    const iconView = HtmlView.create("div");
+    iconView.display.setAutoState("flex");
+    iconView.justifyContent.setAutoState("center");
+    iconView.alignItems.setAutoState("center");
+    iconView.width.setAutoState(this.collapsedWidth.getStateOr(MenuItem.DefaultCollapsedWidth));
+    iconView.height.setAutoState(44);
+    iconView.boxSizing.setAutoState("border-box");
     if (icon !== void 0) {
-      view.append(icon, "icon");
+      iconView.append(icon, "icon");
     }
-    return view;
+    return iconView;
   }
 
   protected createTitleView(text?: string): HtmlView {
-    const view = HtmlView.create("span");
-    view.display.setAutoState("block");
-    view.fontFamily.setAutoState("system-ui, 'Open Sans', sans-serif");
-    view.fontSize.setAutoState(17);
-    view.whiteSpace.setAutoState("nowrap");
-    view.textOverflow.setAutoState("ellipsis");
-    view.overflowX.setAutoState("hidden");
-    view.overflowY.setAutoState("hidden");
+    const titleView = HtmlView.create("span");
+    titleView.display.setAutoState("block");
+    titleView.fontFamily.setAutoState("system-ui, 'Open Sans', sans-serif");
+    titleView.fontSize.setAutoState(17);
+    titleView.whiteSpace.setAutoState("nowrap");
+    titleView.textOverflow.setAutoState("ellipsis");
+    titleView.overflowX.setAutoState("hidden");
+    titleView.overflowY.setAutoState("hidden");
     if (text !== void 0) {
-      view.text(text);
+      titleView.text(text);
     }
-    return view;
+    return titleView;
   }
 
   iconView(): HtmlView | null;
@@ -162,7 +160,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {
     super.onApplyTheme(theme, mood, transition);
-    const itemColor = theme.inner(mood, this._highlighted ? Look.color : Look.mutedColor);
+    const itemColor = theme.inner(mood, this.highlighted.state ? Look.color : Look.mutedColor);
     if (this.backgroundColor.isAuto()) {
       this.backgroundColor.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
     }
@@ -207,8 +205,21 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     super.onLayout(viewContext);
     const edgeInsets = this.edgeInsets.state;
     if (edgeInsets !== void 0) {
-      this.paddingLeft.setAutoState(Length.px(Math.max(4, edgeInsets.insetLeft)));
-      this.paddingRight.setAutoState(Length.px(Math.max(4, edgeInsets.insetRight)));
+      let collapsedWidth: Length | number | undefined = this.collapsedWidth.state;
+      collapsedWidth = collapsedWidth !== void 0 ? collapsedWidth.pxValue() : MenuItem.DefaultCollapsedWidth;
+      let height: Height | number | undefined = this.height.state;
+      height = height instanceof Length ? height.pxValue() : this.clientBounds.height;
+      const iconPadding = Math.max(0, (collapsedWidth - height) / 2);
+
+      this.paddingLeft.setAutoState(Math.max(0, edgeInsets.insetLeft - iconPadding));
+      const iconView = this.iconView();
+      if (iconView !== null) {
+        iconView.width.setAutoState(collapsedWidth);
+      }
+      const titleView = this.titleView();
+      if (titleView !== null) {
+        titleView.paddingRight.setAutoState(edgeInsets.insetRight);
+      }
     }
   }
 
@@ -216,53 +227,49 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     super.onInsertChildView(childView, targetView);
     const childKey = childView.key;
     if (childKey === "icon" && childView instanceof HtmlView) {
-      this.onInsertIcon(childView);
+      this.onInsertIconView(childView);
     } else if (childKey === "title" && childView instanceof HtmlView) {
-      this.onInsertTitle(childView);
+      this.onInsertTitleView(childView);
     }
   }
 
   protected onRemoveChildView(childView: View): void {
     const childKey = childView.key;
     if (childKey === "icon" && childView instanceof HtmlView) {
-      this.onRemoveIcon(childView);
+      this.onRemoveIconView(childView);
     } else if (childKey === "title" && childView instanceof HtmlView) {
-      this.onRemoveTitle(childView);
+      this.onRemoveTitleView(childView);
     }
     super.onRemoveChildView(childView);
   }
 
-  protected onInsertIcon(iconView: HtmlView): void {
+  protected onInsertIconView(iconView: HtmlView): void {
     iconView.flexShrink.setAutoState(0);
-    iconView.marginLeft.setAutoState(8);
-    iconView.marginRight.setAutoState(8);
     const icon = iconView.getChildView("icon");
     if (icon instanceof SvgView && icon.fill.isAuto()) {
       icon.fill.setAutoState(this.getLook(Look.mutedColor));
     }
   }
 
-  protected onRemoveIcon(iconView: HtmlView): void {
+  protected onRemoveIconView(iconView: HtmlView): void {
     // hook
   }
 
-  protected onInsertTitle(title: HtmlView): void {
+  protected onInsertTitleView(title: HtmlView): void {
     title.flexShrink.setAutoState(0);
-    title.marginLeft.setAutoState(4);
-    title.marginRight.setAutoState(4);
     if (title.color.isAuto()) {
-      const itemColor = this.getLook(this._highlighted ? Look.color : Look.mutedColor);
+      const itemColor = this.getLook(this.highlighted.state ? Look.color : Look.mutedColor);
       title.color.setAutoState(itemColor);
     }
   }
 
-  protected onRemoveTitle(title: HtmlView): void {
+  protected onRemoveTitleView(title: HtmlView): void {
     // hook
   }
 
   highlight(tween?: Tween<any>): this {
-    if (!this._highlighted) {
-      this._highlighted = true;
+    if (!this.highlighted.state) {
+      this.highlighted.setState(true);
       this.modifyMood(Feel.default, [Feel.selected, 1], [Feel.hovering, void 0]);
       if (tween === true) {
         tween = this.getLook(Look.transition);
@@ -289,8 +296,8 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   unhighlight(tween?: Tween<any>): this {
-    if (this._highlighted) {
-      this._highlighted = false;
+    if (this.highlighted.state) {
+      this.highlighted.setState(false);
       this.modifyMood(Feel.default, [Feel.selected, 1], [Feel.selected, void 0]);
       if (tween === true) {
         tween = this.getLookOr(Look.transition, null);
@@ -316,7 +323,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected glow(input: PositionGestureInput): void {
-    if (!this._highlighted) {
+    if (!this.highlighted.state) {
       super.glow(input);
     }
   }
@@ -336,7 +343,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   didStartHovering(): void {
-    if (!this._highlighted && this.hovers) {
+    if (!this.highlighted.state && this.hovers) {
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
       if (this.backgroundColor.isAuto()) {
         const transition = this._gesture._pressCount !== 0 ? this.getLook(Look.transition) : null;
@@ -365,4 +372,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
       parentView.onPressItem(this);
     }
   }
+
+  /** @hidden */
+  static DefaultCollapsedWidth: number = 60;
 }
