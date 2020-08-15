@@ -690,8 +690,12 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const offsetParent = this.view.node.offsetParent;
-      if (offsetParent !== null) {
-        const offsetBounds = offsetParent.getBoundingClientRect();
+      const offsetBounds = offsetParent !== null
+                         ? offsetParent.getBoundingClientRect()
+                         : this.view.node === document.body
+                         ? this.view.node.getBoundingClientRect()
+                         : null;
+      if (offsetBounds !== null) {
         const bounds = this.view.node.getBoundingClientRect();
         const newState = bounds.top - offsetBounds.top;
         if (oldState !== newState) {
@@ -713,8 +717,12 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const offsetParent = this.view.node.offsetParent;
-      if (offsetParent !== null) {
-        const offsetBounds = offsetParent.getBoundingClientRect();
+      const offsetBounds = offsetParent !== null
+                         ? offsetParent.getBoundingClientRect()
+                         : this.view.node === document.body
+                         ? this.view.node.getBoundingClientRect()
+                         : null;
+      if (offsetBounds !== null) {
         const bounds = this.view.node.getBoundingClientRect();
         const newState = offsetBounds.right + bounds.right;
         if (oldState !== newState) {
@@ -736,8 +744,12 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const offsetParent = this.view.node.offsetParent;
-      if (offsetParent !== null) {
-        const offsetBounds = offsetParent.getBoundingClientRect();
+      const offsetBounds = offsetParent !== null
+                         ? offsetParent.getBoundingClientRect()
+                         : this.view.node === document.body
+                         ? this.view.node.getBoundingClientRect()
+                         : null;
+      if (offsetBounds !== null) {
         const bounds = this.view.node.getBoundingClientRect();
         const newState = offsetBounds.bottom + bounds.bottom;
         if (oldState !== newState) {
@@ -759,8 +771,12 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const offsetParent = this.view.node.offsetParent;
-      if (offsetParent !== null) {
-        const offsetBounds = offsetParent.getBoundingClientRect();
+      const offsetBounds = offsetParent !== null
+                         ? offsetParent.getBoundingClientRect()
+                         : this.view.node === document.body
+                         ? this.view.node.getBoundingClientRect()
+                         : null;
+      if (offsetBounds !== null) {
         const bounds = this.view.node.getBoundingClientRect();
         const newState = bounds.left - offsetBounds.left;
         if (oldState !== newState) {
@@ -816,8 +832,12 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const offsetParent = this.view.node.offsetParent;
-      if (offsetParent !== null) {
-        const offsetBounds = offsetParent.getBoundingClientRect();
+      const offsetBounds = offsetParent !== null
+                         ? offsetParent.getBoundingClientRect()
+                         : this.view.node === document.body
+                         ? this.view.node.getBoundingClientRect()
+                         : null;
+      if (offsetBounds !== null) {
         const bounds = this.view.node.getBoundingClientRect();
         const newState = bounds.left + 0.5 * bounds.width - offsetBounds.left;
         if (oldState !== newState) {
@@ -830,8 +850,12 @@ export class HtmlView extends ElementView {
     },
     setValue(newValue: number): void {
       const offsetParent = this.view.node.offsetParent;
-      if (offsetParent !== null) {
-        const offsetBounds = offsetParent.getBoundingClientRect();
+      const offsetBounds = offsetParent !== null
+                         ? offsetParent.getBoundingClientRect()
+                         : this.view.node === document.body
+                         ? this.view.node.getBoundingClientRect()
+                         : null;
+      if (offsetBounds !== null) {
         const bounds = this.view.node.getBoundingClientRect();
         const leftAnchor = this.view.getLayoutAnchor("leftAnchor");
         if (leftAnchor !== null && leftAnchor.constrained()) {
@@ -856,8 +880,12 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const offsetParent = this.view.node.offsetParent;
-      if (offsetParent !== null) {
-        const offsetBounds = offsetParent.getBoundingClientRect();
+      const offsetBounds = offsetParent !== null
+                         ? offsetParent.getBoundingClientRect()
+                         : this.view.node === document.body
+                         ? this.view.node.getBoundingClientRect()
+                         : null;
+      if (offsetBounds !== null) {
         const bounds = this.view.node.getBoundingClientRect();
         const newState = bounds.top + 0.5 * bounds.height - offsetBounds.top;
         if (oldState !== newState) {
@@ -870,8 +898,12 @@ export class HtmlView extends ElementView {
     },
     setValue(newValue: number): void {
       const offsetParent = this.view.node.offsetParent;
-      if (offsetParent !== null) {
-        const offsetBounds = offsetParent.getBoundingClientRect();
+      const offsetBounds = offsetParent !== null
+                         ? offsetParent.getBoundingClientRect()
+                         : this.view.node === document.body
+                         ? this.view.node.getBoundingClientRect()
+                         : null;
+      if (offsetBounds !== null) {
         const bounds = this.view.node.getBoundingClientRect();
         const topAnchor = this.view.getLayoutAnchor("topAnchor");
         if (topAnchor !== null && topAnchor.constrained()) {
