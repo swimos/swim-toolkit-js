@@ -15,6 +15,7 @@
 export {
   AnyColorStop,
   ColorStopInit,
+  ColorStopTuple,
   ColorStop,
 } from "./ColorStop";
 export {ColorStopInterpolator} from "./ColorStopInterpolator";

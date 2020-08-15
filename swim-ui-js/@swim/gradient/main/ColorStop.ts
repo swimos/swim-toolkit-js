@@ -19,13 +19,15 @@ import {AnyColor, Color} from "@swim/color";
 import {ColorStopParser} from "./ColorStopParser";
 import {ColorStopListParser} from "./ColorStopListParser";
 
-export type AnyColorStop = ColorStop | ColorStopInit | string;
+export type AnyColorStop = ColorStop | ColorStopInit | ColorStopTuple | string;
 
 export interface ColorStopInit {
   color: AnyColor;
   stop?: AnyLength;
   hint?: AnyLength;
 }
+
+export type ColorStopTuple = [AnyColor, AnyLength | null];
 
 export class ColorStop implements Equals {
   /** @hidden */
@@ -122,13 +124,21 @@ export class ColorStop implements Equals {
     return new ColorStop(color, stop, hint);
   }
 
+  static fromTuple(value: ColorStopTuple): ColorStop {
+    const color = Color.fromAny(value[0]);
+    const stop = value[1] !== null ? Length.fromAny(value[1], "%") : null;
+    return new ColorStop(color, stop, null);
+  }
+
   static fromAny(value: AnyColorStop): ColorStop {
     if (value instanceof ColorStop) {
       return value;
     } else if (typeof value === "string") {
       return ColorStop.parse(value);
-    } else if (typeof value === "object" && value !== null) {
+    } else if (ColorStop.isInit(value)) {
       return ColorStop.fromInit(value);
+    } else if (ColorStop.isTuple(value)) {
+      return ColorStop.fromTuple(value);
     }
     throw new TypeError("" + value);
   }
@@ -194,9 +204,18 @@ export class ColorStop implements Equals {
   }
 
   /** @hidden */
+  static isTuple(value: unknown): value is ColorStopTuple {
+    return Array.isArray(value)
+        && value.length === 2
+        && Color.isAny(value[0])
+        && (value[1] === null || Length.isAny(value[1]));
+  }
+
+  /** @hidden */
   static isAny(value: unknown): value is AnyColorStop {
     return value instanceof ColorStop
         || ColorStop.isInit(value)
+        || ColorStop.isTuple(value)
         || typeof value === "string";
   }
 

@@ -193,7 +193,7 @@ export abstract class Length implements HashCode, Debug {
       return value;
     } else if (typeof value === "number") {
       return Length.from(value, defaultUnits, node);
-    } else if (typeof value === "string" && typeof defaultUnits !== "string") {
+    } else if (typeof value === "string" && typeof defaultUnits === "string") {
       return Length.parse(value, defaultUnits, node);
     }
     throw new TypeError("" + value);

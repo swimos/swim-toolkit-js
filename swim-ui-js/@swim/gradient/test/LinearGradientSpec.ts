@@ -65,7 +65,7 @@ export class LinearGradientSpec extends Spec {
     exam.equal(LinearGradient.parse("linear-gradient(0, #000000, #ffffff)"),
                LinearGradient.from(0, "#000000", "#ffffff"));
     exam.equal(LinearGradient.parse("linear-gradient(to right, #000000 33%, #ffffff 67%)"),
-               LinearGradient.from("right", "#000000 33%", "#ffffff 67%"));
+               LinearGradient.from("right", ["#000000", 33], ["#ffffff", 67]));
     exam.equal(LinearGradient.parse("linear-gradient(to bottom left, #000000 33%, 50%, #ffffff 67%)"),
                LinearGradient.from(["bottom", "left"], "#000000 33%", "50%, #ffffff 67%"));
   }
@@ -74,7 +74,7 @@ export class LinearGradientSpec extends Spec {
   writeLinearGradients(exam: Exam): void {
     exam.equal(LinearGradient.from(45, "#000000", "#ffffff").toString(),
                "linear-gradient(45deg, #000000, #ffffff)");
-    exam.equal(LinearGradient.from("right", "#000000 33%", "#ffffff 67%").toString(),
+    exam.equal(LinearGradient.from("right", ["#000000", 33], ["#ffffff", 67]).toString(),
                "linear-gradient(to right, #000000 33%, #ffffff 67%)");
     exam.equal(LinearGradient.from(["bottom", "left"], "#000000 33%", "50%, #ffffff 67%").toString(),
                "linear-gradient(to bottom left, #000000 33%, 50%, #ffffff 67%)");
@@ -86,8 +86,8 @@ export class LinearGradientSpec extends Spec {
                                     LinearGradient.from(90, "#222222", "#444444"))
                            .interpolate(0.5),
                LinearGradient.from(45, "#111111", "#666666"));
-    exam.equal(Interpolator.between(LinearGradient.from(0, "#000000 20%", "#888888 80%"),
-                                    LinearGradient.from(90, "#222222 40%", "#444444 60%"))
+    exam.equal(Interpolator.between(LinearGradient.from(0, ["#000000", 20], ["#888888", 80]),
+                                    LinearGradient.from(90, ["#222222", 40], ["#444444", 60]))
                            .interpolate(0.5),
                LinearGradient.from(45, "#111111 30%", "#666666 70%"));
     exam.equal(Interpolator.between(LinearGradient.from(0, "#000000 20%", "40%, #888888 80%"),

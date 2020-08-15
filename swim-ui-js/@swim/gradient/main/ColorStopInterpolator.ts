@@ -15,7 +15,7 @@
 import {Interpolator} from "@swim/interpolate";
 import {Length} from "@swim/length";
 import {Color} from "@swim/color";
-import {AnyColorStop, ColorStopInit, ColorStop} from "./ColorStop";
+import {AnyColorStop, ColorStopInit, ColorStopTuple, ColorStop} from "./ColorStop";
 
 export class ColorStopInterpolator extends Interpolator<ColorStop, AnyColorStop> {
   /** @hidden */
@@ -44,8 +44,8 @@ export class ColorStopInterpolator extends Interpolator<ColorStop, AnyColorStop>
   }
 
   range(): readonly [ColorStop, ColorStop];
-  range(ss: readonly [ColorStop | ColorStopInit, ColorStop | ColorStopInit]): ColorStopInterpolator;
-  range(s0: ColorStop | ColorStopInit, s1: ColorStop | ColorStopInit): ColorStopInterpolator;
+  range(ss: readonly [ColorStop | ColorStopInit | ColorStopTuple, ColorStop | ColorStopInit | ColorStopTuple]): ColorStopInterpolator;
+  range(s0: ColorStop | ColorStopInit | ColorStopTuple, s1: ColorStop | ColorStopInit | ColorStopTuple): ColorStopInterpolator;
   range(ss: readonly [AnyColorStop, AnyColorStop]): Interpolator<ColorStop, AnyColorStop>;
   range(s0: AnyColorStop, s1: AnyColorStop): Interpolator<ColorStop, AnyColorStop>;
   range(s0?: readonly [AnyColorStop, AnyColorStop] | AnyColorStop,
@@ -71,7 +71,7 @@ export class ColorStopInterpolator extends Interpolator<ColorStop, AnyColorStop>
     return false;
   }
 
-  static between(s0: ColorStop | ColorStopInit, s1: ColorStop | ColorStopInit): ColorStopInterpolator;
+  static between(s0: ColorStop | ColorStopInit | ColorStopTuple, s1: ColorStop | ColorStopInit | ColorStopTuple): ColorStopInterpolator;
   static between(s0: AnyColorStop, s1: AnyColorStop): Interpolator<ColorStop, AnyColorStop>;
   static between(a: unknown, b: unknown): Interpolator<unknown>;
   static between(a: unknown, b: unknown): Interpolator<unknown> {
