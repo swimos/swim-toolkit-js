@@ -38,7 +38,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "modal"],
+        deps: ["theme", "modal", "button"],
       },
     ],
   },

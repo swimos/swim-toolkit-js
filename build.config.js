@@ -580,7 +580,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme", "modal"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme", "modal", "button"],
       },
     ],
   },

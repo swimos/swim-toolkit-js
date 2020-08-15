@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export {ButtonObserver} from "./ButtonObserver";
+
 export {ButtonMorph} from "./ButtonMorph";
 
 export {
@@ -37,5 +39,7 @@ export {
 } from "./ButtonStack";
 export {ButtonStackObserver} from "./ButtonStackObserver";
 export {ButtonStackController} from "./ButtonStackController";
+
+export {IconButton} from "./IconButton";
 
 export {DisclosureButton} from "./DisclosureButton";

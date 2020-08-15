@@ -161,6 +161,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
                          transition: Transition<any> | null): void {
     super.onApplyTheme(theme, mood, transition);
     const itemColor = theme.inner(mood, this.highlighted.state ? Look.color : Look.mutedColor);
+
     if (this.backgroundColor.isAuto()) {
       this.backgroundColor.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
     }

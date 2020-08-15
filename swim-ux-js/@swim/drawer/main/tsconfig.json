@@ -26,7 +26,8 @@
       "@swim/view": ["../swim-ui-js/@swim/view/main"],
       "@swim/gesture": ["../swim-ui-js/@swim/gesture/main"],
       "@swim/theme": ["@swim/theme/main"],
-      "@swim/modal": ["@swim/modal/main"]
+      "@swim/modal": ["@swim/modal/main"],
+      "@swim/button": ["@swim/button/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
   },
@@ -53,6 +54,7 @@
     {"path": "../../../../swim-ui-js/@swim/view/main"},
     {"path": "../../../../swim-ui-js/@swim/gesture/main"},
     {"path": "../../theme/main"},
-    {"path": "../../modal/main"}
+    {"path": "../../modal/main"},
+    {"path": "../../button/main"}
   ]
 }
