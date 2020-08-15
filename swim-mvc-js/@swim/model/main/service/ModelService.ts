@@ -45,9 +45,9 @@ export type ModelServiceDescriptor<M extends Model, T> =
 
 export type ModelServicePrototype = Function & {prototype: ModelService<any, any>};
 
-export type ModelServiceConstructor<M extends Model, T> = {
-  new(model: M, serviceName: string | undefined): ModelService<M, T>;
-  prototype: ModelService<any, any>;
+export type ModelServiceConstructor<M extends Model, T, I = {}> = {
+  new(model: M, serviceName: string | undefined): ModelService<M, T> & I;
+  prototype: ModelService<any, any> & I;
 };
 
 export declare abstract class ModelService<M extends Model, T> {
@@ -107,7 +107,7 @@ export declare abstract class ModelService<M extends Model, T> {
   /** @hidden */
   static getConstructor(type: unknown): ModelServicePrototype | null;
 
-  static define<M extends Model, T, I = {}>(descriptor: ModelServiceDescriptorExtends<M, T, I>): ModelServiceConstructor<M, T>;
+  static define<M extends Model, T, I = {}>(descriptor: ModelServiceDescriptorExtends<M, T, I>): ModelServiceConstructor<M, T, I>;
   static define<M extends Model, T>(descriptor: ModelServiceDescriptor<M, T>): ModelServiceConstructor<M, T>;
 
   /** @hidden */
@@ -341,7 +341,7 @@ ModelService.getConstructor = function (type: unknown): ModelServicePrototype | 
   return null;
 };
 
-ModelService.define = function <M extends Model, T>(descriptor: ModelServiceDescriptor<M, T>): ModelServiceConstructor<M, T> {
+ModelService.define = function <M extends Model, T, I>(descriptor: ModelServiceDescriptor<M, T>): ModelServiceConstructor<M, T, I> {
   let _super: ModelServicePrototype | null | undefined = descriptor.extends;
   const manager = descriptor.manager;
   const inherit = descriptor.inherit;
@@ -363,9 +363,9 @@ ModelService.define = function <M extends Model, T>(descriptor: ModelServiceDesc
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, model, serviceName) || _this;
     return _this;
-  } as unknown as ModelServiceConstructor<M, T>;
+  } as unknown as ModelServiceConstructor<M, T, I>;
 
-  const _prototype = descriptor as unknown as ModelService<M, T>;
+  const _prototype = descriptor as unknown as ModelService<M, T> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

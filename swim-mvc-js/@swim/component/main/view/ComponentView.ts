@@ -49,9 +49,9 @@ export type ComponentViewDescriptor<C extends Component, V extends View, U = V, 
 
 export type ComponentViewPrototype = Function & {prototype: ComponentView<any, any>};
 
-export type ComponentViewConstructor<C extends Component, V extends View, U = V> = {
-  new(component: C, viewName: string | undefined): ComponentView<C, V, U>;
-  prototype: ComponentView<any, any, any>;
+export type ComponentViewConstructor<C extends Component, V extends View, U = V, I = ViewObserverType<V>> = {
+  new(component: C, viewName: string | undefined): ComponentView<C, V, U> & I;
+  prototype: ComponentView<any, any, any> & I;
 }
 
 export declare abstract class ComponentView<C extends Component, V extends View, U = V> {
@@ -120,7 +120,7 @@ export declare abstract class ComponentView<C extends Component, V extends View,
 
   fromAny(value: V | U): V | null;
 
-  static define<C extends Component, V extends View = View, U = V, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptorExtends<C, V, U, I>): ComponentViewConstructor<C, V, U>;
+  static define<C extends Component, V extends View = View, U = V, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptorExtends<C, V, U, I>): ComponentViewConstructor<C, V, U, I>;
   static define<C extends Component, V extends View = View, U = V>(descriptor: ComponentViewDescriptor<C, V, U>): ComponentViewConstructor<C, V, U>;
 
   // Forward type declarations
@@ -327,7 +327,7 @@ ComponentView.prototype.fromAny = function <V extends View, U>(this: ComponentVi
   return value as V | null;
 };
 
-ComponentView.define = function <C extends Component, V extends View, U>(descriptor: ComponentViewDescriptor<C, V, U>): ComponentViewConstructor<C, V, U> {
+ComponentView.define = function <C extends Component, V extends View, U, I>(descriptor: ComponentViewDescriptor<C, V, U, I>): ComponentViewConstructor<C, V, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 
@@ -351,9 +351,9 @@ ComponentView.define = function <C extends Component, V extends View, U>(descrip
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, component, viewName) || _this;
     return _this;
-  } as unknown as ComponentViewConstructor<C, V, U>;
+  } as unknown as ComponentViewConstructor<C, V, U, I>;
 
-  const _prototype = descriptor as unknown as ComponentView<C, V, U>;
+  const _prototype = descriptor as unknown as ComponentView<C, V, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

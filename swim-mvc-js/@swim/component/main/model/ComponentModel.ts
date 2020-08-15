@@ -48,9 +48,9 @@ export type ComponentModelDescriptor<C extends Component, M extends Model, U = M
 
 export type ComponentModelPrototype = Function & {prototype: ComponentModel<any, any>};
 
-export type ComponentModelConstructor<C extends Component, M extends Model, U = M> = {
-  new(component: C, modelName: string | undefined): ComponentModel<C, M, U>;
-  prototype: ComponentModel<any, any, any>;
+export type ComponentModelConstructor<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> = {
+  new(component: C, modelName: string | undefined): ComponentModel<C, M, U> & I;
+  prototype: ComponentModel<any, any, any> & I;
 }
 
 export declare abstract class ComponentModel<C extends Component, M extends Model, U = M> {
@@ -117,7 +117,7 @@ export declare abstract class ComponentModel<C extends Component, M extends Mode
 
   fromAny(value: M | U): M | null;
 
-  static define<C extends Component, M extends Model = Model, U = M, I = ModelObserverType<M>>(descriptor: ComponentModelDescriptorExtends<C, M, U, I>): ComponentModelConstructor<C, M, U>;
+  static define<C extends Component, M extends Model = Model, U = M, I = ModelObserverType<M>>(descriptor: ComponentModelDescriptorExtends<C, M, U, I>): ComponentModelConstructor<C, M, U, I>;
   static define<C extends Component, M extends Model = Model, U = M>(descriptor: ComponentModelDescriptor<C, M, U>): ComponentModelConstructor<C, M, U>;
 
   // Forward type declarations
@@ -304,7 +304,7 @@ ComponentModel.prototype.fromAny = function <M extends Model, U>(this: Component
   return value as M | null;
 };
 
-ComponentModel.define = function <C extends Component, M extends Model, U>(descriptor: ComponentModelDescriptor<C, M, U>): ComponentModelConstructor<C, M, U> {
+ComponentModel.define = function <C extends Component, M extends Model, U, I>(descriptor: ComponentModelDescriptor<C, M, U>): ComponentModelConstructor<C, M, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 
@@ -328,9 +328,9 @@ ComponentModel.define = function <C extends Component, M extends Model, U>(descr
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, component, modelName) || _this;
     return _this;
-  } as unknown as ComponentModelConstructor<C, M, U>;
+  } as unknown as ComponentModelConstructor<C, M, U, I>;
 
-  const _prototype = descriptor as unknown as ComponentModel<C, M, U>;
+  const _prototype = descriptor as unknown as ComponentModel<C, M, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

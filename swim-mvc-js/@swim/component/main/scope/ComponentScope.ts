@@ -56,9 +56,9 @@ export type ComponentScopeDescriptor<C extends Component, T, U = T, I = {}> =
 
 export type ComponentScopePrototype = Function & {prototype: ComponentScope<any, any, any>};
 
-export type ComponentScopeConstructor<C extends Component, T, U = T> = {
-  new(component: C, scopeName: string | undefined): ComponentScope<C, T, U>;
-  prototype: ComponentScope<any, any, any>;
+export type ComponentScopeConstructor<C extends Component, T, U = T, I = {}> = {
+  new(component: C, scopeName: string | undefined): ComponentScope<C, T, U> & I;
+  prototype: ComponentScope<any, any, any> & I;
 };
 
 export declare abstract class ComponentScope<C extends Component, T, U = T> {
@@ -178,7 +178,7 @@ export declare abstract class ComponentScope<C extends Component, T, U = T> {
   /** @hidden */
   static getConstructor(type: unknown): ComponentScopePrototype | null;
 
-  static define<C extends Component, T, U = T, I = {}>(descriptor: ComponentScopeDescriptorExtends<C, T, U, I>): ComponentScopeConstructor<C, T, U>;
+  static define<C extends Component, T, U = T, I = {}>(descriptor: ComponentScopeDescriptorExtends<C, T, U, I>): ComponentScopeConstructor<C, T, U, I>;
   static define<C extends Component, T, U = T>(descriptor: ComponentScopeDescriptor<C, T, U>): ComponentScopeConstructor<C, T, U>;
 
   /** @hidden */
@@ -593,7 +593,7 @@ ComponentScope.getConstructor = function (type: unknown): ComponentScopePrototyp
   return null;
 };
 
-ComponentScope.define = function <C extends Component, T, U>(descriptor: ComponentScopeDescriptor<C, T, U>): ComponentScopeConstructor<C, T, U> {
+ComponentScope.define = function <C extends Component, T, U, I>(descriptor: ComponentScopeDescriptor<C, T, U>): ComponentScopeConstructor<C, T, U, I> {
   let _super: ComponentScopePrototype | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
@@ -623,9 +623,9 @@ ComponentScope.define = function <C extends Component, T, U>(descriptor: Compone
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, component, scopeName) || _this;
     return _this;
-  } as unknown as ComponentScopeConstructor<C, T, U>;
+  } as unknown as ComponentScopeConstructor<C, T, U, I>;
 
-  const _prototype = descriptor as unknown as ComponentScope<C, T, U>;
+  const _prototype = descriptor as unknown as ComponentScope<C, T, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

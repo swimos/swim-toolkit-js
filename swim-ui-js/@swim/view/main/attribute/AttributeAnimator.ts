@@ -71,9 +71,9 @@ export type AttributeAnimatorDescriptor<V extends ElementView, T, U = T, I = {}>
 
 export type AttributeAnimatorPrototype = Function & {prototype: AttributeAnimator<any, any, any>};
 
-export type AttributeAnimatorConstructor<V extends ElementView, T, U = T> = {
-  new(view: V, animatorName: string): AttributeAnimator<V, T, U>;
-  prototype: AttributeAnimator<any, any, any>;
+export type AttributeAnimatorConstructor<V extends ElementView, T, U = T, I = {}> = {
+  new(view: V, animatorName: string): AttributeAnimator<V, T, U> & I;
+  prototype: AttributeAnimator<any, any, any> & I;
 };
 
 export declare abstract class AttributeAnimator<V extends ElementView, T, U = T> {
@@ -121,7 +121,7 @@ export declare abstract class AttributeAnimator<V extends ElementView, T, U = T>
   /** @hidden */
   static getConstructor(type: unknown): AttributeAnimatorPrototype | null;
 
-  static define<V extends ElementView, T, U = T, I = {}>(descriptor: AttributeAnimatorDescriptorExtends<V, T, U, I>): AttributeAnimatorConstructor<V, T, U>;
+  static define<V extends ElementView, T, U = T, I = {}>(descriptor: AttributeAnimatorDescriptorExtends<V, T, U, I>): AttributeAnimatorConstructor<V, T, U, I>;
   static define<V extends ElementView, T, U = T>(descriptor: AttributeAnimatorDescriptor<V, T, U>): AttributeAnimatorConstructor<V, T, U>;
 
   // Forward type declarations
@@ -166,7 +166,7 @@ export function AttributeAnimator<V extends ElementView, T, U>(
 }
 __extends(AttributeAnimator, TweenAnimator);
 
-function AttributeAnimatorConstructor<V extends ElementView, T, U = T>(this: AttributeAnimator<V, T, U>, view: V, animatorName: string | undefined): AttributeAnimator<V, T, U> {
+function AttributeAnimatorConstructor<V extends ElementView, T, U>(this: AttributeAnimator<V, T, U>, view: V, animatorName: string | undefined): AttributeAnimator<V, T, U> {
   const _this: AttributeAnimator<V, T, U> = TweenAnimator.call(this, void 0, null) || this;
   if (animatorName !== void 0) {
     Object.defineProperty(_this, "name", {
@@ -347,7 +347,7 @@ AttributeAnimator.getConstructor = function (type: unknown): AttributeAnimatorPr
   return null;
 };
 
-AttributeAnimator.define = function <V extends ElementView, T, U = T>(descriptor: AttributeAnimatorDescriptor<V, T, U>): AttributeAnimatorConstructor<V, T, U> {
+AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor: AttributeAnimatorDescriptor<V, T, U>): AttributeAnimatorConstructor<V, T, U, I> {
   let _super: AttributeAnimatorPrototype | null | undefined = descriptor.extends;
   delete descriptor.extends;
 
@@ -373,9 +373,9 @@ AttributeAnimator.define = function <V extends ElementView, T, U = T>(descriptor
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, view, animatorName) || _this;
     return _this;
-  } as unknown as AttributeAnimatorConstructor<V, T, U>;
+  } as unknown as AttributeAnimatorConstructor<V, T, U, I>;
 
-  const _prototype = descriptor as unknown as AttributeAnimator<V, T, U>;
+  const _prototype = descriptor as unknown as AttributeAnimator<V, T, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

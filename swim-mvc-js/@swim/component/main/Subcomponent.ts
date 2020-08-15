@@ -49,9 +49,9 @@ export type SubcomponentDescriptor<C extends Component, S extends Component, U =
 
 export type SubcomponentPrototype = Function & {prototype: Subcomponent<any, any>};
 
-export type SubcomponentConstructor<C extends Component, S extends Component, U = S> = {
-  new(component: C, subcomponentName: string | undefined): Subcomponent<C, S, U>;
-  prototype: Subcomponent<any, any, any>;
+export type SubcomponentConstructor<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = {
+  new(component: C, subcomponentName: string | undefined): Subcomponent<C, S, U> & I;
+  prototype: Subcomponent<any, any, any> & I;
 }
 
 export declare abstract class Subcomponent<C extends Component, S extends Component, U = S> {
@@ -113,7 +113,7 @@ export declare abstract class Subcomponent<C extends Component, S extends Compon
 
   fromAny(value: S | U): S | null;
 
-  static define<C extends Component, S extends Component = Component, U = S, I = ComponentObserverType<S>>(descriptor: SubcomponentDescriptorExtends<C, S, U, I>): SubcomponentConstructor<C, S, U>;
+  static define<C extends Component, S extends Component = Component, U = S, I = ComponentObserverType<S>>(descriptor: SubcomponentDescriptorExtends<C, S, U, I>): SubcomponentConstructor<C, S, U, I>;
   static define<C extends Component, S extends Component = Component, U = S>(descriptor: SubcomponentDescriptor<C, S, U>): SubcomponentConstructor<C, S, U>;
 
   // Forward type declarations
@@ -288,7 +288,7 @@ Subcomponent.prototype.fromAny = function <S extends Component, U>(this: Subcomp
   return value as S | null;
 };
 
-Subcomponent.define = function <C extends Component, S extends Component, U>(descriptor: SubcomponentDescriptor<C, S, U>): SubcomponentConstructor<C, S, U> {
+Subcomponent.define = function <C extends Component, S extends Component, U, I>(descriptor: SubcomponentDescriptor<C, S, U>): SubcomponentConstructor<C, S, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 
@@ -312,9 +312,9 @@ Subcomponent.define = function <C extends Component, S extends Component, U>(des
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, component, subcomponentName) || _this;
     return _this;
-  } as unknown as SubcomponentConstructor<C, S, U>;
+  } as unknown as SubcomponentConstructor<C, S, U, I>;
 
-  const _prototype = descriptor as unknown as Subcomponent<C, S, U>;
+  const _prototype = descriptor as unknown as Subcomponent<C, S, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

@@ -48,9 +48,9 @@ export type ComponentServiceDescriptor<C extends Component, T> =
 
 export type ComponentServicePrototype = Function & {prototype: ComponentService<any, any>};
 
-export type ComponentServiceConstructor<C extends Component, T> = {
-  new(component: C, serviceName: string | undefined): ComponentService<C, T>;
-  prototype: ComponentService<any, any>;
+export type ComponentServiceConstructor<C extends Component, T, I = {}> = {
+  new(component: C, serviceName: string | undefined): ComponentService<C, T> & I;
+  prototype: ComponentService<any, any> & I;
 };
 
 export declare abstract class ComponentService<C extends Component, T> {
@@ -110,7 +110,7 @@ export declare abstract class ComponentService<C extends Component, T> {
   /** @hidden */
   static getConstructor(type: unknown): ComponentServicePrototype | null;
 
-  static define<C extends Component, T, I = {}>(descriptor: ComponentServiceDescriptorExtends<C, T, I>): ComponentServiceConstructor<C, T>;
+  static define<C extends Component, T, I = {}>(descriptor: ComponentServiceDescriptorExtends<C, T, I>): ComponentServiceConstructor<C, T, I>;
   static define<C extends Component, T>(descriptor: ComponentServiceDescriptor<C, T>): ComponentServiceConstructor<C, T>;
 
   /** @hidden */
@@ -348,7 +348,7 @@ ComponentService.getConstructor = function (type: unknown): ComponentServiceProt
   return null;
 };
 
-ComponentService.define = function <C extends Component, T>(descriptor: ComponentServiceDescriptor<C, T>): ComponentServiceConstructor<C, T> {
+ComponentService.define = function <C extends Component, T, I>(descriptor: ComponentServiceDescriptor<C, T>): ComponentServiceConstructor<C, T, I> {
   let _super: ComponentServicePrototype | null | undefined = descriptor.extends;
   const manager = descriptor.manager;
   const inherit = descriptor.inherit;
@@ -370,9 +370,9 @@ ComponentService.define = function <C extends Component, T>(descriptor: Componen
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, component, serviceName) || _this;
     return _this;
-  } as unknown as ComponentServiceConstructor<C, T>;
+  } as unknown as ComponentServiceConstructor<C, T, I>;
 
-  const _prototype = descriptor as unknown as ComponentService<C, T>;
+  const _prototype = descriptor as unknown as ComponentService<C, T> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

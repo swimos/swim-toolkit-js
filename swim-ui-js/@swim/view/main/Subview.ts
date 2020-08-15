@@ -61,9 +61,9 @@ export type SubviewDescriptor<V extends View, S extends View, U = S, I = ViewObs
 
 export type SubviewPrototype = Function & {prototype: Subview<any, any>};
 
-export type SubviewConstructor<V extends View, S extends View, U = S> = {
-  new(view: V, subviewName: string | undefined): Subview<V, S, U>;
-  prototype: Subview<any, any, any>;
+export type SubviewConstructor<V extends View, S extends View, U = S, I = ViewObserverType<S>> = {
+  new(view: V, subviewName: string | undefined): Subview<V, S, U> & I;
+  prototype: Subview<any, any, any> & I;
 }
 
 export declare abstract class Subview<V extends View, S extends View, U = S> {
@@ -174,7 +174,7 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
 
   fromAny(value: S | U): S | null;
 
-  static define<V extends View, S extends View = View, U = S, I = ViewObserverType<S>>(descriptor: SubviewDescriptorExtends<V, S, U, I>): SubviewConstructor<V, S, U>;
+  static define<V extends View, S extends View = View, U = S, I = ViewObserverType<S>>(descriptor: SubviewDescriptorExtends<V, S, U, I>): SubviewConstructor<V, S, U, I>;
   static define<V extends View, S extends View = View, U = S>(descriptor: SubviewDescriptor<V, S, U>): SubviewConstructor<V, S, U>;
 
   // Forward type declarations
@@ -542,7 +542,7 @@ Subview.prototype.fromAny = function <S extends View, U>(this: Subview<View, S, 
   return value as S | null;
 };
 
-Subview.define = function <V extends View, S extends View, U>(descriptor: SubviewDescriptor<V, S, U>): SubviewConstructor<V, S, U> {
+Subview.define = function <V extends View, S extends View, U, I>(descriptor: SubviewDescriptor<V, S, U>): SubviewConstructor<V, S, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 
@@ -566,9 +566,9 @@ Subview.define = function <V extends View, S extends View, U>(descriptor: Subvie
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, view, subviewName) || _this;
     return _this;
-  } as unknown as SubviewConstructor<V, S, U>;
+  } as unknown as SubviewConstructor<V, S, U, I>;
 
-  const _prototype = descriptor as unknown as Subview<V, S, U>;
+  const _prototype = descriptor as unknown as Subview<V, S, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

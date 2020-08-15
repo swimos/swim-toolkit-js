@@ -56,9 +56,9 @@ export type ViewScopeDescriptor<V extends View, T, U = T, I = {}> =
 
 export type ViewScopePrototype = Function & {prototype: ViewScope<any, any, any>};
 
-export type ViewScopeConstructor<V extends View, T, U = T> = {
-  new(view: V, scopeName: string | undefined): ViewScope<V, T, U>;
-  prototype: ViewScope<any, any, any>;
+export type ViewScopeConstructor<V extends View, T, U = T, I = {}> = {
+  new(view: V, scopeName: string | undefined): ViewScope<V, T, U> & I;
+  prototype: ViewScope<any, any, any> & I;
 };
 
 export declare abstract class ViewScope<V extends View, T, U = T> {
@@ -178,7 +178,7 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
   /** @hidden */
   static getConstructor(type: unknown): ViewScopePrototype | null;
 
-  static define<V extends View, T, U = T, I = {}>(descriptor: ViewScopeDescriptorExtends<V, T, U, I>): ViewScopeConstructor<V, T, U>;
+  static define<V extends View, T, U = T, I = {}>(descriptor: ViewScopeDescriptorExtends<V, T, U, I>): ViewScopeConstructor<V, T, U, I>;
   static define<V extends View, T, U = T>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U>;
 
   /** @hidden */
@@ -593,7 +593,7 @@ ViewScope.getConstructor = function (type: unknown): ViewScopePrototype | null {
   return null;
 };
 
-ViewScope.define = function <V extends View, T, U>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U> {
+ViewScope.define = function <V extends View, T, U, I>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U, I> {
   let _super: ViewScopePrototype | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
@@ -623,9 +623,9 @@ ViewScope.define = function <V extends View, T, U>(descriptor: ViewScopeDescript
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, view, scopeName) || _this;
     return _this;
-  } as unknown as ViewScopeConstructor<V, T, U>;
+  } as unknown as ViewScopeConstructor<V, T, U, I>;
 
-  const _prototype = descriptor as unknown as ViewScope<V, T, U>;
+  const _prototype = descriptor as unknown as ViewScope<V, T, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

@@ -35,9 +35,9 @@ export type LayoutAnchorDescriptor<V extends View> = LayoutAnchorDescriptorInit<
 
 export type LayoutAnchorPrototype = Function & {prototype: LayoutAnchor<any>};
 
-export type LayoutAnchorConstructor<V extends View> = {
-  new(view: V, anchorName: string | undefined): LayoutAnchor<V>;
-  prototype: LayoutAnchor<any>
+export type LayoutAnchorConstructor<V extends View, I = {}> = {
+  new(view: V, anchorName: string | undefined): LayoutAnchor<V> & I;
+  prototype: LayoutAnchor<any> & I;
 };
 
 export declare abstract class LayoutAnchor<V extends View> {
@@ -84,7 +84,7 @@ export declare abstract class LayoutAnchor<V extends View> {
   /** @hidden */
   initValue(): number;
 
-  static define<V extends View, I = {}>(descriptor: LayoutAnchorDescriptorExtends<V, I>): LayoutAnchorConstructor<V>;
+  static define<V extends View, I = {}>(descriptor: LayoutAnchorDescriptorExtends<V, I>): LayoutAnchorConstructor<V, I>;
   static define<V extends View>(descriptor: LayoutAnchorDescriptor<V>): LayoutAnchorConstructor<V>;
 }
 
@@ -221,7 +221,7 @@ LayoutAnchor.prototype.initValue = function (this: LayoutAnchor<View>): number {
   return NaN;
 };
 
-LayoutAnchor.define = function <V extends View>(descriptor: LayoutAnchorDescriptor<V>): LayoutAnchorConstructor<V> {
+LayoutAnchor.define = function <V extends View, I>(descriptor: LayoutAnchorDescriptor<V>): LayoutAnchorConstructor<V, I> {
   let _super = descriptor.extends;
   const value = descriptor.value;
   const strength = descriptor.strength;
@@ -247,9 +247,9 @@ LayoutAnchor.define = function <V extends View>(descriptor: LayoutAnchorDescript
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, view, anchorName) || _this;
     return _this;
-  } as unknown as LayoutAnchorConstructor<V>;
+  } as unknown as LayoutAnchorConstructor<V, I>;
 
-  const _prototype = descriptor as unknown as LayoutAnchor<V>;
+  const _prototype = descriptor as unknown as LayoutAnchor<V> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

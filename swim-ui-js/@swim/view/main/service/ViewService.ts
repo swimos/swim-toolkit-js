@@ -51,9 +51,9 @@ export type ViewServiceDescriptor<V extends View, T> =
 
 export type ViewServicePrototype = Function & {prototype: ViewService<any, any>};
 
-export type ViewServiceConstructor<V extends View, T> = {
-  new(view: V, serviceName: string | undefined): ViewService<V, T>;
-  prototype: ViewService<any, any>;
+export type ViewServiceConstructor<V extends View, T, I = {}> = {
+  new(view: V, serviceName: string | undefined): ViewService<V, T> & I;
+  prototype: ViewService<any, any> & I;
 };
 
 export declare abstract class ViewService<V extends View, T> {
@@ -113,7 +113,7 @@ export declare abstract class ViewService<V extends View, T> {
   /** @hidden */
   static getConstructor(type: unknown): ViewServicePrototype | null;
 
-  static define<V extends View, T, I = {}>(descriptor: ViewServiceDescriptorExtends<V, T, I>): ViewServiceConstructor<V, T>;
+  static define<V extends View, T, I = {}>(descriptor: ViewServiceDescriptorExtends<V, T, I>): ViewServiceConstructor<V, T, I>;
   static define<V extends View, T>(descriptor: ViewServiceDescriptor<V, T>): ViewServiceConstructor<V, T>;
 
   /** @hidden */
@@ -355,7 +355,7 @@ ViewService.getConstructor = function (type: unknown): ViewServicePrototype | nu
   return null;
 };
 
-ViewService.define = function <V extends View, T>(descriptor: ViewServiceDescriptor<V, T>): ViewServiceConstructor<V, T> {
+ViewService.define = function <V extends View, T, I>(descriptor: ViewServiceDescriptor<V, T>): ViewServiceConstructor<V, T, I> {
   let _super: ViewServicePrototype | null | undefined = descriptor.extends;
   const manager = descriptor.manager;
   const inherit = descriptor.inherit;
@@ -377,9 +377,9 @@ ViewService.define = function <V extends View, T>(descriptor: ViewServiceDescrip
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, view, serviceName) || _this;
     return _this;
-  } as unknown as ViewServiceConstructor<V, T>;
+  } as unknown as ViewServiceConstructor<V, T, I>;
 
-  const _prototype = descriptor as unknown as ViewService<V, T>;
+  const _prototype = descriptor as unknown as ViewService<V, T> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

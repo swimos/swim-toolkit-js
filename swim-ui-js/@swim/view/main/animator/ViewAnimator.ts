@@ -74,9 +74,9 @@ export type ViewAnimatorDescriptor<V extends View, T, U = T, I = {}> =
 
 export type ViewAnimatorPrototype = Function & {prototype: ViewAnimator<any, any, any>};
 
-export type ViewAnimatorConstructor<V extends View, T, U = T> = {
-  new(view: V, animatorName: string | undefined): ViewAnimator<V, T, U>;
-  prototype: ViewAnimator<any, any, any>;
+export type ViewAnimatorConstructor<V extends View, T, U = T, I = {}> = {
+  new(view: V, animatorName: string | undefined): ViewAnimator<V, T, U> & I;
+  prototype: ViewAnimator<any, any, any> & I;
 };
 
 export declare abstract class ViewAnimator<V extends View, T, U = T> {
@@ -177,7 +177,7 @@ export declare abstract class ViewAnimator<V extends View, T, U = T> {
   /** @hidden */
   static getConstructor(type: unknown): ViewAnimatorPrototype | null;
 
-  static define<V extends View, T, U = T, I = {}>(descriptor: ViewAnimatorDescriptorExtends<V, T, U, I>): ViewAnimatorConstructor<V, T, U>;
+  static define<V extends View, T, U = T, I = {}>(descriptor: ViewAnimatorDescriptorExtends<V, T, U, I>): ViewAnimatorConstructor<V, T, U, I>;
   static define<V extends View, T, U = T>(descriptor: ViewAnimatorDescriptor<V, T, U>): ViewAnimatorConstructor<V, T, U>;
 
   // Forward type declarations
@@ -598,7 +598,7 @@ ViewAnimator.getConstructor = function (type: unknown): ViewAnimatorPrototype | 
   return null;
 };
 
-ViewAnimator.define = function <V extends View, T, U>(descriptor: ViewAnimatorDescriptor<V, T, U>): ViewAnimatorConstructor<V, T, U> {
+ViewAnimator.define = function <V extends View, T, U, I>(descriptor: ViewAnimatorDescriptor<V, T, U>): ViewAnimatorConstructor<V, T, U, I> {
   let _super: ViewAnimatorPrototype | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
@@ -628,9 +628,9 @@ ViewAnimator.define = function <V extends View, T, U>(descriptor: ViewAnimatorDe
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, view, animatorName) || _this;
     return _this;
-  } as unknown as ViewAnimatorConstructor<V, T, U>
+  } as unknown as ViewAnimatorConstructor<V, T, U, I>
 
-  const _prototype = descriptor as unknown as ViewAnimator<V, T, U>;
+  const _prototype = descriptor as unknown as ViewAnimator<V, T, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

@@ -56,9 +56,9 @@ export type ModelScopeDescriptor<M extends Model, T, U = T, I = {}> =
 
 export type ModelScopePrototype = Function & {prototype: ModelScope<any, any, any>};
 
-export type ModelScopeConstructor<M extends Model, T, U = T> = {
-  new(model: M, scopeName: string | undefined): ModelScope<M, T, U>;
-  prototype: ModelScope<any, any, any>;
+export type ModelScopeConstructor<M extends Model, T, U = T, I = {}> = {
+  new(model: M, scopeName: string | undefined): ModelScope<M, T, U> & I;
+  prototype: ModelScope<any, any, any> & I;
 };
 
 export declare abstract class ModelScope<M extends Model, T, U = T> {
@@ -178,7 +178,7 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
   /** @hidden */
   static getConstructor(type: unknown): ModelScopePrototype | null;
 
-  static define<M extends Model, T, U = T, I = {}>(descriptor: ModelScopeDescriptorExtends<M, T, U, I>): ModelScopeConstructor<M, T, U>;
+  static define<M extends Model, T, U = T, I = {}>(descriptor: ModelScopeDescriptorExtends<M, T, U, I>): ModelScopeConstructor<M, T, U, I>;
   static define<M extends Model, T, U = T>(descriptor: ModelScopeDescriptor<M, T, U>): ModelScopeConstructor<M, T, U>;
 
   /** @hidden */
@@ -593,7 +593,7 @@ ModelScope.getConstructor = function (type: unknown): ModelScopePrototype | null
   return null;
 };
 
-ModelScope.define = function <M extends Model, T, U>(descriptor: ModelScopeDescriptor<M, T, U>): ModelScopeConstructor<M, T, U> {
+ModelScope.define = function <M extends Model, T, U, I>(descriptor: ModelScopeDescriptor<M, T, U>): ModelScopeConstructor<M, T, U, I> {
   let _super: ModelScopePrototype | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
@@ -623,9 +623,9 @@ ModelScope.define = function <M extends Model, T, U>(descriptor: ModelScopeDescr
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, model, scopeName) || _this;
     return _this;
-  } as unknown as ModelScopeConstructor<M, T, U>;
+  } as unknown as ModelScopeConstructor<M, T, U, I>;
 
-  const _prototype = descriptor as unknown as ModelScope<M, T, U>;
+  const _prototype = descriptor as unknown as ModelScope<M, T, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

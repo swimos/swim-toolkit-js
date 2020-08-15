@@ -78,9 +78,9 @@ export type StyleAnimatorDescriptor<V extends ElementView, T, U = T, I = {}> =
 
 export type StyleAnimatorPrototype = Function & {prototype: StyleAnimator<any, any, any>};
 
-export type StyleAnimatorConstructor<V extends ElementView, T, U = T> = {
-  new(view: V, animatorName: string): StyleAnimator<V, T, U>;
-  prototype: StyleAnimator<any, any, any>;
+export type StyleAnimatorConstructor<V extends ElementView, T, U = T, I = {}> = {
+  new(view: V, animatorName: string): StyleAnimator<V, T, U> & I;
+  prototype: StyleAnimator<any, any, any> & I;
 };
 
 export declare abstract class StyleAnimator<V extends ElementView, T, U = T> {
@@ -132,7 +132,7 @@ export declare abstract class StyleAnimator<V extends ElementView, T, U = T> {
   /** @hidden */
   static getConstructor(type: unknown): StyleAnimatorPrototype | null;
 
-  static define<V extends ElementView, T, U = T, I = {}>(descriptor: StyleAnimatorDescriptorExtends<V, T, U, I>): StyleAnimatorConstructor<V, T, U>;
+  static define<V extends ElementView, T, U = T, I = {}>(descriptor: StyleAnimatorDescriptorExtends<V, T, U, I>): StyleAnimatorConstructor<V, T, U, I>;
   static define<V extends ElementView, T, U = T>(descriptor: StyleAnimatorDescriptor<V, T, U>): StyleAnimatorConstructor<V, T, U>;
 
   // Forward type declarations
@@ -400,7 +400,7 @@ StyleAnimator.getConstructor = function (type: unknown): StyleAnimatorPrototype 
   return null;
 };
 
-StyleAnimator.define = function <V extends ElementView, T, U>(descriptor: StyleAnimatorDescriptor<V, T, U>): StyleAnimatorConstructor<V, T, U> {
+StyleAnimator.define = function <V extends ElementView, T, U, I>(descriptor: StyleAnimatorDescriptor<V, T, U>): StyleAnimatorConstructor<V, T, U, I> {
   let _super: StyleAnimatorPrototype | null | undefined = descriptor.extends;
   delete descriptor.extends;
 
@@ -426,9 +426,9 @@ StyleAnimator.define = function <V extends ElementView, T, U>(descriptor: StyleA
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, view, animatorName) || _this;
     return _this;
-  } as unknown as StyleAnimatorConstructor<V, T, U>;
+  } as unknown as StyleAnimatorConstructor<V, T, U, I>;
 
-  const _prototype = descriptor as unknown as StyleAnimator<V, T, U>;
+  const _prototype = descriptor as unknown as StyleAnimator<V, T, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
