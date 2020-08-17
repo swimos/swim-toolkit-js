@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Color} from "@swim/color";
 import {Tween, Transition} from "@swim/transition";
 import {View, ViewNodeType, SvgView, HtmlView} from "@swim/view";
 import {PositionGestureDelegate} from "@swim/gesture";
@@ -83,7 +84,11 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
     super.onApplyTheme(theme, mood, transition);
 
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
+      let backgroundColor = this.getLook(Look.backgroundColor);
+      if (this._gesture._hoverCount === 0 && backgroundColor instanceof Color) {
+        backgroundColor = backgroundColor.alpha(0);
+      }
+      this.backgroundColor.setAutoState(backgroundColor, transition);
     }
 
     const icon = this.icon;
@@ -159,7 +164,11 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
     const transition = this.getLook(Look.transition);
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), transition);
+      let backgroundColor = this.getLook(Look.backgroundColor);
+      if (backgroundColor instanceof Color) {
+        backgroundColor = backgroundColor.alpha(0);
+      }
+      this.backgroundColor.setAutoState(backgroundColor, transition);
     }
     const icon = this.icon;
     if (icon instanceof SvgView && icon.fill.isAuto()) {

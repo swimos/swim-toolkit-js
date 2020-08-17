@@ -105,7 +105,8 @@ export declare abstract class Subcomponent<C extends Component, S extends Compon
   /** @hidden */
   unmount(): void;
 
-  insert(parentComponent?: Component): void;
+  insert(parentComponent: Component, key?: string): void;
+  insert(key?: string): void;
 
   remove(): void;
 
@@ -255,17 +256,25 @@ Subcomponent.prototype.unmount = function (this: Subcomponent<Component, Compone
 };
 
 Subcomponent.prototype.insert = function (this: Subcomponent<Component, Component>,
-                                          parentComponent?: Component): void {
+                                          parentComponent?: Component | string, key?: string): void {
   let subcomponent = this._subcomponent;
   if (subcomponent === null) {
     subcomponent = this.createSubcomponent();
   }
   if (subcomponent !== null) {
+    if (typeof parentComponent === "string") {
+      key = parentComponent;
+      parentComponent = void 0;
+    }
     if (parentComponent === void 0) {
       parentComponent = this._component;
     }
     if (subcomponent.parentComponent !== parentComponent) {
-      parentComponent.setChildComponent(this.name, subcomponent);
+      if (key !== void 0) {
+        parentComponent.setChildComponent(key, subcomponent);
+      } else {
+        parentComponent.appendChildComponent(subcomponent);
+      }
     }
     if (this._subcomponent === null) {
       this.doSetSubcomponent(subcomponent);

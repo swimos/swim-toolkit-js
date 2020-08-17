@@ -159,7 +159,22 @@ export abstract class Model {
   }
 
   protected onSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
-    // hook
+    if (newParentModel !== null) {
+      if (newParentModel.isMounted()) {
+        this.cascadeMount();
+        if (newParentModel.isPowered()) {
+          this.cascadePower();
+        }
+      }
+    } else if (this.isMounted()) {
+      try {
+        if (this.isPowered()) {
+          this.cascadeUnpower();
+        }
+      } finally {
+        this.cascadeUnmount();
+      }
+    }
   }
 
   protected didSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
@@ -284,10 +299,8 @@ export abstract class Model {
   }
 
   mount(): void {
-    if (this.parentModel === null) {
-      if (!this.isMounted()) {
-        this.cascadeMount();
-      }
+    if (!this.isMounted() && this.parentModel === null) {
+      this.cascadeMount();
       if (!this.isPowered() && document.visibilityState === "visible") {
         this.cascadePower();
       }

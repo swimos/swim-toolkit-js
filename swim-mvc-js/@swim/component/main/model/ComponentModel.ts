@@ -109,7 +109,7 @@ export declare abstract class ComponentModel<C extends Component, M extends Mode
   /** @hidden */
   unmount(): void;
 
-  insert(parentModel: Model): void;
+  insert(parentModel: Model, key?: string): void;
 
   remove(): void;
 
@@ -273,14 +273,18 @@ ComponentModel.prototype.unmount = function (this: ComponentModel<Component, Mod
 };
 
 ComponentModel.prototype.insert = function (this: ComponentModel<Component, Model>,
-                                            parentModel: Model): void {
+                                            parentModel: Model, key?: string): void {
   let model = this._model;
   if (model === null) {
     model = this.createModel();
   }
   if (model !== null) {
     if (model.parentModel !== parentModel) {
-      parentModel.setChildModel(this.name, model);
+      if (key !== void 0) {
+        parentModel.setChildModel(key, model);
+      } else {
+        parentModel.appendChildModel(model);
+      }
     }
     if (this._model === null) {
       this.setModel(model);

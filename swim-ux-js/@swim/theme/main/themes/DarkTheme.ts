@@ -34,7 +34,7 @@ const DarkHighlightColor = Color.white(0.1);
 const DarkBackgroundColor = Color.parse("#1e2022");
 const DarkBorderColor = DarkBackgroundColor.lighter(2 / 3);
 
-const DarkPrimaryColor = Color.parse("#44d7b6");
+const DarkPrimaryColor = Color.parse("#66ffdd");
 const DarkSecondaryColor = Color.parse("#32c5ff");
 
 const DarkOverlayColor = Color.parse("#26282a");

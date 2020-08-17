@@ -136,7 +136,22 @@ export abstract class Component {
   }
 
   protected onSetParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
-    // hook
+    if (newParentComponent !== null) {
+      if (newParentComponent.isMounted()) {
+        this.cascadeMount();
+        if (newParentComponent.isPowered()) {
+          this.cascadePower();
+        }
+      }
+    } else if (this.isMounted()) {
+      try {
+        if (this.isPowered()) {
+          this.cascadeUnpower();
+        }
+      } finally {
+        this.cascadeUnmount();
+      }
+    }
   }
 
   protected didSetParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
@@ -263,10 +278,8 @@ export abstract class Component {
   }
 
   mount(): void {
-    if (this.parentComponent === null) {
-      if (!this.isMounted()) {
-        this.cascadeMount();
-      }
+    if (!this.isMounted() && this.parentComponent === null) {
+      this.cascadeMount();
       if (!this.isPowered() && document.visibilityState === "visible") {
         this.cascadePower();
       }

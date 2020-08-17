@@ -112,7 +112,7 @@ export declare abstract class ComponentView<C extends Component, V extends View,
   /** @hidden */
   unmount(): void;
 
-  insert(parentView: View): void;
+  insert(parentView: View, key?: string): void;
 
   remove(): void;
 
@@ -280,14 +280,18 @@ ComponentView.prototype.unmount = function (this: ComponentView<Component, View>
 };
 
 ComponentView.prototype.insert = function (this: ComponentView<Component, View>,
-                                           parentView: View): void {
+                                           parentView: View, key?: string): void {
   let view = this._view;
   if (view === null) {
     view = this.createView();
   }
   if (view !== null) {
     if (view.parentView !== parentView) {
-      parentView.setChildView(this.name, view);
+      if (key !== void 0) {
+        parentView.setChildView(key, view);
+      } else {
+        parentView.appendChildView(view);
+      }
     }
     if (this._view === null) {
       this.setView(view);

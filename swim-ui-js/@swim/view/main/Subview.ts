@@ -166,7 +166,8 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
   /** @hidden */
   unmount(): void;
 
-  insert(parentView?: View): void;
+  insert(parentView: View, key?: string): void;
+  insert(key?: string): void;
 
   remove(): void;
 
@@ -493,17 +494,26 @@ Subview.prototype.unmount = function (this: Subview<View, View>): void {
   this.deactivateLayout();
 };
 
-Subview.prototype.insert = function (this: Subview<View, View>, parentView?: View): void {
+Subview.prototype.insert = function (this: Subview<View, View>,
+                                     parentView?: View | string, key?: string): void {
   let subview = this._subview;
   if (subview === null) {
     subview = this.createSubview();
   }
   if (subview !== null) {
+    if (typeof parentView === "string") {
+      key = parentView;
+      parentView = void 0;
+    }
     if (parentView === void 0) {
       parentView = this._view;
     }
     if (subview.parentView !== parentView) {
-      parentView.setChildView(this.name, subview);
+      if (key !== void 0) {
+        parentView.setChildView(key, subview);
+      } else {
+        parentView.appendChildView(subview);
+      }
     }
     if (this._subview === null) {
       this.doSetSubview(subview);

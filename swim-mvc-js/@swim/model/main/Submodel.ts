@@ -105,7 +105,8 @@ export declare abstract class Submodel<M extends Model, S extends Model, U = S> 
   /** @hidden */
   unmount(): void;
 
-  insert(parentModel?: Model): void;
+  insert(parentModel: Model, key?: string): void;
+  insert(key?: string): void;
 
   remove(): void;
 
@@ -254,17 +255,26 @@ Submodel.prototype.unmount = function (this: Submodel<Model, Model>): void {
   // hook
 };
 
-Submodel.prototype.insert = function (this: Submodel<Model, Model>, parentModel?: Model): void {
+Submodel.prototype.insert = function (this: Submodel<Model, Model>,
+                                      parentModel?: Model | string, key?: string): void {
   let submodel = this._submodel;
   if (submodel === null) {
     submodel = this.createSubmodel();
   }
   if (submodel !== null) {
+    if (typeof parentModel === "string") {
+      key = parentModel;
+      parentModel = void 0;
+    }
     if (parentModel === void 0) {
       parentModel = this._model;
     }
     if (submodel.parentModel !== parentModel) {
-      parentModel.setChildModel(this.name, submodel);
+      if (key !== void 0) {
+        parentModel.setChildModel(key, submodel);
+      } else {
+        parentModel.appendChildModel(submodel);
+      }
     }
     if (this._submodel === null) {
       this.doSetSubmodel(submodel);
