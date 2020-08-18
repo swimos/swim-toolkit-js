@@ -338,4 +338,6 @@ export class TreeView extends ThemedHtmlView {
     view.initView(init);
     return view;
   }
+
+  static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsResize;
 }
