@@ -41,7 +41,7 @@ const LightOverlayColor = Color.parse("#efefef");
 const LightSelectedColor = LightOverlayColor.darker(1 / 2);
 const LightDisabledColor = Color.parse("#7b7c7d");
 const LightInactiveColor = Color.parse("#7b7c7d");
-const LightWarningColor = Color.parse("#d3ca46");
+const LightWarningColor = Color.parse("#e6dd51");
 const LightAlertColor = Color.parse("#f6511d");
 
 const LightSpacing = Length.px(10);
