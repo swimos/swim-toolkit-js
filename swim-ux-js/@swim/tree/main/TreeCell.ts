@@ -19,6 +19,7 @@ import {TreeCellObserver} from "./TreeCellObserver";
 import {TreeCellController} from "./TreeCellController";
 import {TitleTreeCell} from "./TitleTreeCell";
 import {DisclosureTreeCell} from "./DisclosureTreeCell";
+import {PolygonTreeCell} from "./PolygonTreeCell";
 
 export type AnyTreeCell = TreeCell | TreeCellInit;
 
@@ -27,7 +28,7 @@ export interface TreeCellInit extends ThemedHtmlViewInit {
   cellType?: TreeCellType;
 }
 
-export type TreeCellType = "title" | "disclosure";
+export type TreeCellType = "title" | "disclosure" | "polygon";
 
 export class TreeCell extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
@@ -68,6 +69,8 @@ export class TreeCell extends ThemedHtmlView {
       view = HtmlView.create(TreeCell.Title);
     } else if (init.cellType === "disclosure") {
       view = HtmlView.create(TreeCell.Disclosure);
+    } else if (init.cellType === "polygon") {
+      view = HtmlView.create(TreeCell.Polygon);
     } else {
       view = HtmlView.create(TreeCell);
     }
@@ -80,4 +83,6 @@ export class TreeCell extends ThemedHtmlView {
   static Title: typeof TitleTreeCell; // defined by TitleTreeCell
   /** @hidden */
   static Disclosure: typeof DisclosureTreeCell; // defined by DisclosureTreeCell
+  /** @hidden */
+  static Polygon: typeof PolygonTreeCell; // defined by PolygonTreeCell
 }

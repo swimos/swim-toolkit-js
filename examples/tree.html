@@ -51,7 +51,17 @@ container.addViewObserver({
 
 bodyView.append(container);
 
-const tree0 = container.append(swim.TreeView.fromAny({
+const iconCell = {
+  key: "icon",
+  cellType: "polygon",
+  sides: 6,
+  radius: 20,
+};
+const disclosureCell = {
+  key: "disclose",
+  cellType: "disclosure",
+};
+const tree0 = swim.TreeView.fromAny({
   //depth: 1,
   seed: {
     roots: [
@@ -103,6 +113,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
       key: "limb00",
       leaf: {
         cells: [
+          iconCell,
           {
             key: "name",
             cellType: "title",
@@ -116,10 +127,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "kpi2",
             text: "idle",
           },
-          {
-            key: "disclose",
-            cellType: "disclosure",
-          },
+          disclosureCell,
         ],
       },
       tree: {
@@ -144,6 +152,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb010",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -164,6 +173,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb011",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -187,6 +197,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
       key: "limb01",
       leaf: {
         cells: [
+          iconCell,
           {
             key: "name",
             cellType: "title",
@@ -200,10 +211,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "kpi2",
             text: "active",
           },
-          {
-            key: "disclose",
-            cellType: "disclosure",
-          },
+          disclosureCell,
         ],
       },
       tree: {
@@ -228,6 +236,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb010",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -241,10 +250,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "kpi2",
                   text: "busy",
                 },
-                {
-                  key: "disclose",
-                  cellType: "disclosure",
-                },
+                disclosureCell,
               ],
             },
             tree: {
@@ -269,6 +275,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0120",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -282,10 +289,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                         key: "kpi2",
                         text: "implementing",
                       },
-                      {
-                        key: "disclose",
-                        cellType: "disclosure",
-                      },
+                      disclosureCell,
                     ],
                   },
                   tree: {
@@ -310,6 +314,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                         key: "limb01200",
                         leaf: {
                           cells: [
+                            iconCell,
                             {
                               key: "name",
                               cellType: "title",
@@ -333,6 +338,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0121",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -356,6 +362,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb011",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -369,10 +376,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "kpi2",
                   text: "online",
                 },
-                {
-                  key: "disclose",
-                  cellType: "disclosure",
-                },
+                disclosureCell,
               ],
             },
             tree: {
@@ -397,6 +401,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0120",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -420,6 +425,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb012",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -433,10 +439,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "kpi2",
                   text: "extant",
                 },
-                {
-                  key: "disclose",
-                  cellType: "disclosure",
-                },
+                disclosureCell,
               ],
             },
             tree: {
@@ -461,6 +464,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0120",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -484,6 +488,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb013",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -497,10 +502,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "kpi2",
                   text: "online",
                 },
-                {
-                  key: "disclose",
-                  cellType: "disclosure",
-                },
+                disclosureCell,
               ],
             },
             tree: {
@@ -525,6 +527,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0120",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -548,6 +551,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb014",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -561,10 +565,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "kpi2",
                   text: "online",
                 },
-                {
-                  key: "disclose",
-                  cellType: "disclosure",
-                },
+                disclosureCell,
               ],
             },
             tree: {
@@ -589,6 +590,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0120",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -612,6 +614,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb015",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -625,10 +628,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "kpi2",
                   text: "online",
                 },
-                {
-                  key: "disclose",
-                  cellType: "disclosure",
-                },
+                disclosureCell,
               ],
             },
             tree: {
@@ -653,6 +653,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0120",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -676,6 +677,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb016",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -689,10 +691,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "kpi2",
                   text: "online",
                 },
-                {
-                  key: "disclose",
-                  cellType: "disclosure",
-                },
+                disclosureCell,
               ],
             },
             tree: {
@@ -717,6 +716,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0120",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -740,6 +740,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb017",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -753,10 +754,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "kpi2",
                   text: "online",
                 },
-                {
-                  key: "disclose",
-                  cellType: "disclosure",
-                },
+                disclosureCell,
               ],
             },
             tree: {
@@ -781,6 +779,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0120",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -804,6 +803,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb018",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -817,10 +817,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "kpi2",
                   text: "online",
                 },
-                {
-                  key: "disclose",
-                  cellType: "disclosure",
-                },
+                disclosureCell,
               ],
             },
             tree: {
@@ -845,6 +842,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0120",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -868,6 +866,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb019",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -881,10 +880,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "kpi2",
                   text: "online",
                 },
-                {
-                  key: "disclose",
-                  cellType: "disclosure",
-                },
+                disclosureCell,
               ],
             },
             tree: {
@@ -909,6 +905,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
                   key: "limb0120",
                   leaf: {
                     cells: [
+                      iconCell,
                       {
                         key: "name",
                         cellType: "title",
@@ -935,6 +932,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
       key: "tree02",
       leaf: {
         cells: [
+          iconCell,
           {
             key: "name",
             cellType: "title",
@@ -948,10 +946,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "kpi2",
             text: "idle",
           },
-          {
-            key: "disclose",
-            cellType: "disclosure",
-          },
+          disclosureCell,
         ],
       },
       tree: {
@@ -976,6 +971,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb010",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -996,6 +992,7 @@ const tree0 = container.append(swim.TreeView.fromAny({
             key: "limb011",
             leaf: {
               cells: [
+                iconCell,
                 {
                   key: "name",
                   cellType: "title",
@@ -1016,7 +1013,9 @@ const tree0 = container.append(swim.TreeView.fromAny({
       },
     },
   ],
-}));
+});
+tree0.modifyTheme(swim.Feel.default, [swim.Feel.primary, 1]);
+container.append(tree0, "tree0");
 
 const limb01 = tree0.getChildView("limb01");
 const tree01 = limb01.tree;
@@ -1033,7 +1032,6 @@ const limb017 = tree01.getChildView("limb017");
 const limb018 = tree01.getChildView("limb018");
 const limb019 = tree01.getChildView("limb019");
 
-tree0.modifyTheme(swim.Feel.default, [swim.Feel.primary, 1]);
 function updateMood(view) {
   const warnThreshold = 0.8;
   const alertThreshold = 0.95;
