@@ -9,9 +9,10 @@
 The **Swim Toolkit** TypeScript implementation provides a set of frameworks for
 building pervasively real-time user interface applications.  **Swim Toolkit**
 incorporates the [**Swim UI**](swim-ui-js) real-time user interface toolkit,
-the [**Swim UX**](swim-ux-js) real-time application framework, the [**Swim
-Visualizations**](swim-vis-js) framework, the [**Swim Maps**](swim-maps-js)
-framework, the [**Swim MVC**](swim-mvc-js) framework, and the
+the [**Swim UX**](swim-ux-js) real-time application framework, the
+[**Swim Visualizations**](swim-vis-js) real-time visualizations framework, the
+[**Swim Maps**](swim-maps-js) real-time maps framework, the
+[**Swim MVC**](swim-mvc-js) real-time component framework, and the
 [**Swim Web**](swim-web-js) real-time web application framework.
 
 ## Umbrella Framework

@@ -14,10 +14,11 @@ real-time user interface toolkit, the
 [**@swim/ux**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js)
 real-time application framework, the
 [**@swim/vis**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-vis-js)
-and [**@swim/maps**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-maps-js)
-real-time widget toolkits, the
+real-time visualizations framework, the
+[**@swim/maps**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-maps-js)
+real-time maps framework, the
 [**@swim/mvc**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js)
-framework, and the
+real-time component framework, and the
 [**@swim/web**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-web-js)
 real-time web application framework.
 

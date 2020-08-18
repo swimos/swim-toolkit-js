@@ -125,7 +125,7 @@ export class LinearGradient implements Equals {
         array[i] = ColorStop.fromAny(stops[i]);
       }
     }
-    return new LinearGradient(angle as LinearGradientAngle, array);
+    return new LinearGradient(angle, array);
   }
 
   static fromInit(init: LinearGradientInit): LinearGradient {

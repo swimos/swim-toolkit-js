@@ -1,7 +1,7 @@
 {
   "name": "@swim/vis",
   "version": "3.11.0-dev.20200619",
-  "description": "Swim UI Visualizations Framework",
+  "description": "Swim Visualizations Framework",
   "homepage": "https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-vis-js",
   "author": "Chris Sachs <chris@swimos.org>",
   "copyright": "2015-2020 Swim inc.",

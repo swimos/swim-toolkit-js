@@ -213,7 +213,7 @@ const ui = [
   {
     id: "ui",
     name: "@swim/ui",
-    title: "Swim UI Toolkit",
+    title: "Swim User Interface Toolkit",
     umbrella: true,
     targets: [
       {

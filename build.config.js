@@ -524,7 +524,7 @@ const ui = [
     id: "ui",
     name: "@swim/ui",
     path: "swim-ui-js/@swim/ui",
-    title: "Swim UI Toolkit",
+    title: "Swim User Interface Toolkit",
     umbrella: true,
     targets: [
       {
@@ -659,7 +659,7 @@ const vis = [
     id: "vis",
     name: "@swim/vis",
     path: "swim-vis-js/@swim/vis",
-    title: "Swim UI Visualizations",
+    title: "Swim Visualizations Framework",
     umbrella: true,
     targets: [
       {
@@ -719,7 +719,7 @@ const maps = [
     id: "maps",
     name: "@swim/maps",
     path: "swim-maps-js/@swim/maps",
-    title: "Swim UI Maps",
+    title: "Swim Maps Framework",
     umbrella: true,
     targets: [
       {
@@ -810,7 +810,7 @@ const toolkit = [
   {
     id: "toolkit",
     name: "@swim/toolkit",
-    title: "SwimOS",
+    title: "Swim Toolkit",
     umbrella: true,
     targets: [
       {
