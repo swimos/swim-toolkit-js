@@ -297,7 +297,7 @@ Subcomponent.prototype.fromAny = function <S extends Component, U>(this: Subcomp
   return value as S | null;
 };
 
-Subcomponent.define = function <C extends Component, S extends Component, U, I>(descriptor: SubcomponentDescriptor<C, S, U>): SubcomponentConstructor<C, S, U, I> {
+Subcomponent.define = function <C extends Component, S extends Component, U, I>(descriptor: SubcomponentDescriptor<C, S, U, I>): SubcomponentConstructor<C, S, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 

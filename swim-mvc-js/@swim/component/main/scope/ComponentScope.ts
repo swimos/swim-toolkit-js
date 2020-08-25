@@ -593,7 +593,7 @@ ComponentScope.getConstructor = function (type: unknown): ComponentScopePrototyp
   return null;
 };
 
-ComponentScope.define = function <C extends Component, T, U, I>(descriptor: ComponentScopeDescriptor<C, T, U>): ComponentScopeConstructor<C, T, U, I> {
+ComponentScope.define = function <C extends Component, T, U, I>(descriptor: ComponentScopeDescriptor<C, T, U, I>): ComponentScopeConstructor<C, T, U, I> {
   let _super: ComponentScopePrototype | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;

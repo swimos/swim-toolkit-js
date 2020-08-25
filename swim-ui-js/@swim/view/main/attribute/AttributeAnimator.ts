@@ -347,7 +347,7 @@ AttributeAnimator.getConstructor = function (type: unknown): AttributeAnimatorPr
   return null;
 };
 
-AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor: AttributeAnimatorDescriptor<V, T, U>): AttributeAnimatorConstructor<V, T, U, I> {
+AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor: AttributeAnimatorDescriptor<V, T, U, I>): AttributeAnimatorConstructor<V, T, U, I> {
   let _super: AttributeAnimatorPrototype | null | undefined = descriptor.extends;
   delete descriptor.extends;
 

@@ -400,7 +400,7 @@ StyleAnimator.getConstructor = function (type: unknown): StyleAnimatorPrototype 
   return null;
 };
 
-StyleAnimator.define = function <V extends ElementView, T, U, I>(descriptor: StyleAnimatorDescriptor<V, T, U>): StyleAnimatorConstructor<V, T, U, I> {
+StyleAnimator.define = function <V extends ElementView, T, U, I>(descriptor: StyleAnimatorDescriptor<V, T, U, I>): StyleAnimatorConstructor<V, T, U, I> {
   let _super: StyleAnimatorPrototype | null | undefined = descriptor.extends;
   delete descriptor.extends;
 

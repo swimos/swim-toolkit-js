@@ -31,7 +31,7 @@ export type LayoutAnchorDescriptorInit<V extends View, I = {}> = LayoutAnchorIni
 
 export type LayoutAnchorDescriptorExtends<V extends View, I = {}> = {extends: LayoutAnchorPrototype | undefined} & LayoutAnchorDescriptorInit<V, I>;
 
-export type LayoutAnchorDescriptor<V extends View> = LayoutAnchorDescriptorInit<V>;
+export type LayoutAnchorDescriptor<V extends View, I = {}> = LayoutAnchorDescriptorInit<V, I>;
 
 export type LayoutAnchorPrototype = Function & {prototype: LayoutAnchor<any>};
 
@@ -221,7 +221,7 @@ LayoutAnchor.prototype.initValue = function (this: LayoutAnchor<View>): number {
   return NaN;
 };
 
-LayoutAnchor.define = function <V extends View, I>(descriptor: LayoutAnchorDescriptor<V>): LayoutAnchorConstructor<V, I> {
+LayoutAnchor.define = function <V extends View, I>(descriptor: LayoutAnchorDescriptor<V, I>): LayoutAnchorConstructor<V, I> {
   let _super = descriptor.extends;
   const value = descriptor.value;
   const strength = descriptor.strength;

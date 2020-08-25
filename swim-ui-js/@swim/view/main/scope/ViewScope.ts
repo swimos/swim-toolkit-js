@@ -593,7 +593,7 @@ ViewScope.getConstructor = function (type: unknown): ViewScopePrototype | null {
   return null;
 };
 
-ViewScope.define = function <V extends View, T, U, I>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U, I> {
+ViewScope.define = function <V extends View, T, U, I>(descriptor: ViewScopeDescriptor<V, T, U, I>): ViewScopeConstructor<V, T, U, I> {
   let _super: ViewScopePrototype | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;

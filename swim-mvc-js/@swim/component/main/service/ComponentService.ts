@@ -40,11 +40,11 @@ export type ComponentServiceDescriptorInit<C extends Component, T, I = {}> = Com
 
 export type ComponentServiceDescriptorExtends<C extends Component, T, I = {}> = {extends: ComponentServicePrototype | undefined} & ComponentServiceDescriptorInit<C, T, I>;
 
-export type ComponentServiceDescriptor<C extends Component, T> =
-  T extends ExecuteManager ? {type: typeof ExecuteManager} & ComponentServiceDescriptorInit<C, T, ComponentManagerObserverType<T>> :
-  T extends HistoryManager ? {type: typeof HistoryManager} & ComponentServiceDescriptorInit<C, T, ComponentManagerObserverType<T>> :
-  T extends ComponentManager ? {type: typeof ComponentManager} & ComponentServiceDescriptorInit<C, T, ComponentManagerObserverType<T>> :
-  ComponentServiceDescriptorInit<C, T>;
+export type ComponentServiceDescriptor<C extends Component, T, I = {}> =
+  T extends ExecuteManager ? {type: typeof ExecuteManager} & ComponentServiceDescriptorInit<C, T, ComponentManagerObserverType<T> & I> :
+  T extends HistoryManager ? {type: typeof HistoryManager} & ComponentServiceDescriptorInit<C, T, ComponentManagerObserverType<T> & I> :
+  T extends ComponentManager ? {type: typeof ComponentManager} & ComponentServiceDescriptorInit<C, T, ComponentManagerObserverType<T> & I> :
+  ComponentServiceDescriptorInit<C, T, I>;
 
 export type ComponentServicePrototype = Function & {prototype: ComponentService<any, any>};
 
@@ -348,7 +348,7 @@ ComponentService.getConstructor = function (type: unknown): ComponentServiceProt
   return null;
 };
 
-ComponentService.define = function <C extends Component, T, I>(descriptor: ComponentServiceDescriptor<C, T>): ComponentServiceConstructor<C, T, I> {
+ComponentService.define = function <C extends Component, T, I>(descriptor: ComponentServiceDescriptor<C, T, I>): ComponentServiceConstructor<C, T, I> {
   let _super: ComponentServicePrototype | null | undefined = descriptor.extends;
   const manager = descriptor.manager;
   const inherit = descriptor.inherit;

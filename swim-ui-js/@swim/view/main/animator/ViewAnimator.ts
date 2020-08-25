@@ -598,7 +598,7 @@ ViewAnimator.getConstructor = function (type: unknown): ViewAnimatorPrototype | 
   return null;
 };
 
-ViewAnimator.define = function <V extends View, T, U, I>(descriptor: ViewAnimatorDescriptor<V, T, U>): ViewAnimatorConstructor<V, T, U, I> {
+ViewAnimator.define = function <V extends View, T, U, I>(descriptor: ViewAnimatorDescriptor<V, T, U, I>): ViewAnimatorConstructor<V, T, U, I> {
   let _super: ViewAnimatorPrototype | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;

@@ -259,7 +259,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
   }
 
   /** @hidden */
-  static index<M extends Mood, T>(array: ReadonlyArray<[M, T]>): {readonly [name: string]: number | undefined} {
+  static index<M extends Mood>(array: ReadonlyArray<[M, unknown]>): {readonly [name: string]: number | undefined} {
     const index: {[name: string]: number | undefined} = {};
     for (let i = 0, n = array.length; i < n; i += 1) {
       const entry = array[i];

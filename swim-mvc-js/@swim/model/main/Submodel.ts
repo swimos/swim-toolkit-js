@@ -49,9 +49,9 @@ export type SubmodelDescriptor<M extends Model, S extends Model, U = S, I = Mode
 
 export type SubmodelPrototype = Function & {prototype: Submodel<any, any>};
 
-export type SubmodelConstructor<M extends Model, S extends Model, U = S> = {
-  new(model: M, submodelName: string | undefined): Submodel<M, S, U>;
-  prototype: Submodel<any, any, any>;
+export type SubmodelConstructor<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = {
+  new(model: M, submodelName: string | undefined): Submodel<M, S, U> & I;
+  prototype: Submodel<any, any, any> & I;
 }
 
 export declare abstract class Submodel<M extends Model, S extends Model, U = S> {
@@ -297,7 +297,7 @@ Submodel.prototype.fromAny = function <S extends Model, U>(this: Submodel<Model,
   return value as S | null;
 };
 
-Submodel.define = function <M extends Model, S extends Model, U>(descriptor: SubmodelDescriptor<M, S, U>): SubmodelConstructor<M, S, U> {
+Submodel.define = function <M extends Model, S extends Model, U, I>(descriptor: SubmodelDescriptor<M, S, U, I>): SubmodelConstructor<M, S, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 
@@ -321,9 +321,9 @@ Submodel.define = function <M extends Model, S extends Model, U>(descriptor: Sub
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, model, submodelName) || _this;
     return _this;
-  } as unknown as SubmodelConstructor<M, S, U>;
+  } as unknown as SubmodelConstructor<M, S, U, I>;
 
-  const _prototype = descriptor as unknown as Submodel<M, S, U>;
+  const _prototype = descriptor as unknown as Submodel<M, S, U> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

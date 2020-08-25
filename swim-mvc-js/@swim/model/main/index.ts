@@ -54,4 +54,6 @@ export * from "./service";
 
 export * from "./scope";
 
+export * from "./trait";
+
 export * from "./generic";

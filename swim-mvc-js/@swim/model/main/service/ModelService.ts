@@ -38,10 +38,10 @@ export type ModelServiceDescriptorInit<M extends Model, T, I = {}> = ModelServic
 
 export type ModelServiceDescriptorExtends<M extends Model, T, I = {}> = {extends: ModelServicePrototype | undefined} & ModelServiceDescriptorInit<M, T, I>;
 
-export type ModelServiceDescriptor<M extends Model, T> =
-  T extends RefreshManager ? {type: typeof RefreshManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T>> :
-  T extends ModelManager ? {type: typeof ModelManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T>> :
-  ModelServiceDescriptorInit<M, T>;
+export type ModelServiceDescriptor<M extends Model, T, I = {}> =
+  T extends RefreshManager ? {type: typeof RefreshManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T> & I> :
+  T extends ModelManager ? {type: typeof ModelManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T> & I> :
+  ModelServiceDescriptorInit<M, T, I>;
 
 export type ModelServicePrototype = Function & {prototype: ModelService<any, any>};
 
@@ -341,7 +341,7 @@ ModelService.getConstructor = function (type: unknown): ModelServicePrototype | 
   return null;
 };
 
-ModelService.define = function <M extends Model, T, I>(descriptor: ModelServiceDescriptor<M, T>): ModelServiceConstructor<M, T, I> {
+ModelService.define = function <M extends Model, T, I>(descriptor: ModelServiceDescriptor<M, T, I>): ModelServiceConstructor<M, T, I> {
   let _super: ModelServicePrototype | null | undefined = descriptor.extends;
   const manager = descriptor.manager;
   const inherit = descriptor.inherit;

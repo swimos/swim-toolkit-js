@@ -593,7 +593,7 @@ ModelScope.getConstructor = function (type: unknown): ModelScopePrototype | null
   return null;
 };
 
-ModelScope.define = function <M extends Model, T, U, I>(descriptor: ModelScopeDescriptor<M, T, U>): ModelScopeConstructor<M, T, U, I> {
+ModelScope.define = function <M extends Model, T, U, I>(descriptor: ModelScopeDescriptor<M, T, U, I>): ModelScopeConstructor<M, T, U, I> {
   let _super: ModelScopePrototype | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;

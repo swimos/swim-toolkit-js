@@ -552,7 +552,7 @@ Subview.prototype.fromAny = function <S extends View, U>(this: Subview<View, S, 
   return value as S | null;
 };
 
-Subview.define = function <V extends View, S extends View, U, I>(descriptor: SubviewDescriptor<V, S, U>): SubviewConstructor<V, S, U, I> {
+Subview.define = function <V extends View, S extends View, U, I>(descriptor: SubviewDescriptor<V, S, U, I>): SubviewConstructor<V, S, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 

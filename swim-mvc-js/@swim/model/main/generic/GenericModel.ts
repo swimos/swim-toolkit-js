@@ -19,6 +19,7 @@ import {ModelControllerType, ModelController} from "../ModelController";
 import {Submodel} from "../Submodel";
 import {ModelService} from "../service/ModelService";
 import {ModelScope} from "../scope/ModelScope";
+import {ModelTrait} from "../trait/ModelTrait";
 
 export abstract class GenericModel extends Model {
   /** @hidden */
@@ -37,6 +38,8 @@ export abstract class GenericModel extends Model {
   _modelServices?: {[serviceName: string]: ModelService<Model, unknown> | undefined};
   /** @hidden */
   _modelScopes?: {[scopeName: string]: ModelScope<Model, unknown> | undefined};
+  /** @hidden */
+  _modelTraits?: {[traitName: string]: ModelTrait<Model> | undefined};
 
   constructor() {
     super();
@@ -250,6 +253,7 @@ export abstract class GenericModel extends Model {
     super.onMount();
     this.mountServices();
     this.mountScopes();
+    this.mountTraits();
     this.mountSubmodels();
   }
 
@@ -283,6 +287,7 @@ export abstract class GenericModel extends Model {
 
   protected onUnmount(): void {
     this.unmountSubmodels();
+    this.unmountTraits();
     this.unmountScopes();
     this.unmountServices();
     this._modelFlags &= ~Model.ModelFlagMask | Model.RemovingFlag;
@@ -686,6 +691,64 @@ export abstract class GenericModel extends Model {
       for (const scopeName in modelScopes) {
         const modelScope = modelScopes[scopeName]!;
         modelScope.unmount();
+      }
+    }
+  }
+
+  hasModelTrait(traitName: string): boolean {
+    const modelTraits = this._modelTraits;
+    return modelTraits !== void 0 && modelTraits[traitName] !== void 0;
+  }
+
+  getModelTrait(traitName: string): ModelTrait<this> | null {
+    const modelTraits = this._modelTraits;
+    if (modelTraits !== void 0) {
+      const modelTrait = modelTraits[traitName];
+      if (modelTrait !== void 0) {
+        return modelTrait as ModelTrait<this>;
+      }
+    }
+    return null;
+  }
+
+  setModelTrait(traitName: string, newModelTrait: ModelTrait<this> | null): void {
+    let modelTraits = this._modelTraits;
+    if (modelTraits === void 0) {
+      modelTraits = {};
+      this._modelTraits = modelTraits;
+    }
+    const oldModelTrait = modelTraits[traitName];
+    if (oldModelTrait !== void 0 && this.isMounted()) {
+      oldModelTrait.unmount();
+    }
+    if (newModelTrait !== null) {
+      modelTraits[traitName] = newModelTrait;
+      if (this.isMounted()) {
+        newModelTrait.mount();
+      }
+    } else {
+      delete modelTraits[traitName];
+    }
+  }
+
+  /** @hidden */
+  protected mountTraits(): void {
+    const modelTraits = this._modelTraits;
+    if (modelTraits !== void 0) {
+      for (const traitName in modelTraits) {
+        const modelTrait = modelTraits[traitName]!;
+        modelTrait.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected unmountTraits(): void {
+    const modelTraits = this._modelTraits;
+    if (modelTraits !== void 0) {
+      for (const traitName in modelTraits) {
+        const modelTrait = modelTraits[traitName]!;
+        modelTrait.unmount();
       }
     }
   }

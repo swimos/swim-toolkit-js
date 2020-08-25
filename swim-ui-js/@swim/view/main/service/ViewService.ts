@@ -42,12 +42,12 @@ export type ViewServiceDescriptorInit<V extends View, T, I = {}> = ViewServiceIn
 
 export type ViewServiceDescriptorExtends<V extends View, T, I = {}> = {extends: ViewServicePrototype | undefined} & ViewServiceDescriptorInit<V, T, I>;
 
-export type ViewServiceDescriptor<V extends View, T> =
-  T extends DisplayManager ? {type: typeof DisplayManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T>> :
-  T extends LayoutManager ? {type: typeof LayoutManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T>> :
-  T extends ViewportManager ? {type: typeof ViewportManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T>> :
-  T extends ViewManager ? {type: typeof ViewManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T>> :
-  ViewServiceDescriptorInit<V, T>;
+export type ViewServiceDescriptor<V extends View, T, I = {}> =
+  T extends DisplayManager ? {type: typeof DisplayManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T> & I> :
+  T extends LayoutManager ? {type: typeof LayoutManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T> & I> :
+  T extends ViewportManager ? {type: typeof ViewportManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T> & I> :
+  T extends ViewManager ? {type: typeof ViewManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T> & I> :
+  ViewServiceDescriptorInit<V, T, I>;
 
 export type ViewServicePrototype = Function & {prototype: ViewService<any, any>};
 
@@ -355,7 +355,7 @@ ViewService.getConstructor = function (type: unknown): ViewServicePrototype | nu
   return null;
 };
 
-ViewService.define = function <V extends View, T, I>(descriptor: ViewServiceDescriptor<V, T>): ViewServiceConstructor<V, T, I> {
+ViewService.define = function <V extends View, T, I>(descriptor: ViewServiceDescriptor<V, T, I>): ViewServiceConstructor<V, T, I> {
   let _super: ViewServicePrototype | null | undefined = descriptor.extends;
   const manager = descriptor.manager;
   const inherit = descriptor.inherit;

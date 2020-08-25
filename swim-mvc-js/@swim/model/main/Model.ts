@@ -20,6 +20,7 @@ import {ModelManager} from "./manager/ModelManager";
 import {ModelServiceConstructor, ModelService} from "./service/ModelService";
 import {RefreshService} from "./service/RefreshService";
 import {ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
+import {ModelTraitConstructor, ModelTrait} from "./trait/ModelTrait";
 import {GenericModel} from "./generic/GenericModel";
 import {CompoundModel} from "./generic/CompoundModel";
 
@@ -804,6 +805,12 @@ export abstract class Model {
     return modelScope;
   }
 
+  abstract hasModelTrait(traitName: string): boolean;
+
+  abstract getModelTrait(traitName: string): ModelTrait<this> | null;
+
+  abstract setModelTrait(traitName: string, modelTrait: ModelTrait<this> | null): void;
+
   /** @hidden */
   extendModelContext(modelContext: ModelContext): ModelContextType<this> {
     return modelContext as ModelContextType<this>;
@@ -946,6 +953,23 @@ export abstract class Model {
   }
 
   /** @hidden */
+  static decorateModelTrait<M extends Model>(constructor: ModelTraitConstructor<M>,
+                                             modelClass: ModelClass, traitName: string): void {
+    Object.defineProperty(modelClass, traitName, {
+      get: function (this: M): ModelTrait<M> {
+        let modelTrait = this.getModelTrait(traitName);
+        if (modelTrait === null) {
+          modelTrait = new constructor(this, traitName);
+          this.setModelTrait(traitName, modelTrait);
+        }
+        return modelTrait;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
   static readonly MountedFlag: ModelFlags = 1 << 0;
   /** @hidden */
   static readonly PoweredFlag: ModelFlags = 1 << 1;
@@ -1012,6 +1036,8 @@ export abstract class Model {
   static Service: typeof ModelService; // defined by ModelService
   /** @hidden */
   static Scope: typeof ModelScope; // defined by ModelScope
+  /** @hidden */
+  static Trait: typeof ModelTrait; // defined by ModelTrait
   /** @hidden */
   static Generic: typeof GenericModel; // defined by GenericModel
   /** @hidden */

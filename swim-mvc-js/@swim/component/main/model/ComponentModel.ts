@@ -308,7 +308,7 @@ ComponentModel.prototype.fromAny = function <M extends Model, U>(this: Component
   return value as M | null;
 };
 
-ComponentModel.define = function <C extends Component, M extends Model, U, I>(descriptor: ComponentModelDescriptor<C, M, U>): ComponentModelConstructor<C, M, U, I> {
+ComponentModel.define = function <C extends Component, M extends Model, U, I>(descriptor: ComponentModelDescriptor<C, M, U, I>): ComponentModelConstructor<C, M, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 
