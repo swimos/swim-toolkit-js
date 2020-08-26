@@ -15,6 +15,7 @@
 import {Model} from "../Model";
 import {ModelManagerObserver} from "./ModelManagerObserver";
 import {RefreshManager} from "../refresh/RefreshManager";
+import {WarpManager} from "../warp/WarpManager";
 
 export type ModelManagerObserverType<MM extends ModelManager> =
   MM extends {readonly modelManagerObservers: ReadonlyArray<infer MMO>} ? MMO : unknown;
@@ -254,5 +255,7 @@ export abstract class ModelManager<M extends Model = Model> {
   // Forward type declarations
   /** @hidden */
   static Refresh: typeof RefreshManager; // defined by RefreshManager
+  /** @hidden */
+  static Warp: typeof WarpManager; // defined by WarpManager
 }
 Model.Manager = ModelManager;

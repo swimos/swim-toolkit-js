@@ -52,7 +52,7 @@ export type ComponentViewPrototype = Function & {prototype: ComponentView<any, a
 export type ComponentViewConstructor<C extends Component, V extends View, U = V, I = ViewObserverType<V>> = {
   new(component: C, viewName: string | undefined): ComponentView<C, V, U> & I;
   prototype: ComponentView<any, any, any> & I;
-}
+};
 
 export declare abstract class ComponentView<C extends Component, V extends View, U = V> {
   /** @hidden */

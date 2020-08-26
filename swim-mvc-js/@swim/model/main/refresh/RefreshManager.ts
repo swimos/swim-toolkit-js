@@ -54,7 +54,7 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
   }
 
   get powerFlags(): ModelFlags {
-    return Model.NeedsFetch;
+    return 0;
   }
 
   protected onPower(): void {

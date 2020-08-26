@@ -17,12 +17,12 @@ import {Model} from "../Model";
 import {ModelObserverType} from "../ModelObserver";
 import {ModelTraitObserver} from "./ModelTraitObserver";
 
-export interface ModelTraitInit<M extends Model> {
+export interface ModelTraitInit {
   extends?: ModelTraitPrototype;
   observe?: boolean;
 }
 
-export type ModelTraitDescriptorInit<M extends Model, I = ModelObserverType<M>> = ModelTraitInit<M> & ThisType<ModelTrait<M> & I> & I;
+export type ModelTraitDescriptorInit<M extends Model, I = ModelObserverType<M>> = ModelTraitInit & ThisType<ModelTrait<M> & I> & I;
 
 export type ModelTraitDescriptorExtends<M extends Model, I = ModelObserverType<M>> = {extends: ModelTraitPrototype | undefined} & ModelTraitDescriptorInit<M, I>;
 
@@ -33,7 +33,7 @@ export type ModelTraitPrototype = Function & {prototype: ModelTrait<any>};
 export type ModelTraitConstructor<M extends Model, I = ModelObserverType<M>> = {
   new(model: M, traitName: string | undefined): ModelTrait<M> & I;
   prototype: ModelTrait<any> & I;
-}
+};
 
 export declare abstract class ModelTrait<M extends Model> {
   /** @hidden */

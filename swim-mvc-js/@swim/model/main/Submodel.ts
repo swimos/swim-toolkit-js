@@ -52,7 +52,7 @@ export type SubmodelPrototype = Function & {prototype: Submodel<any, any>};
 export type SubmodelConstructor<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = {
   new(model: M, submodelName: string | undefined): Submodel<M, S, U> & I;
   prototype: Submodel<any, any, any> & I;
-}
+};
 
 export declare abstract class Submodel<M extends Model, S extends Model, U = S> {
   /** @hidden */

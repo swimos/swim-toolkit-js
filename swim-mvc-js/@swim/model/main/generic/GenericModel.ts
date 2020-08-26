@@ -20,6 +20,7 @@ import {Submodel} from "../Submodel";
 import {ModelService} from "../service/ModelService";
 import {ModelScope} from "../scope/ModelScope";
 import {ModelTrait} from "../trait/ModelTrait";
+import {ModelDownlink} from "../downlink/ModelDownlink";
 
 export abstract class GenericModel extends Model {
   /** @hidden */
@@ -40,6 +41,8 @@ export abstract class GenericModel extends Model {
   _modelScopes?: {[scopeName: string]: ModelScope<Model, unknown> | undefined};
   /** @hidden */
   _modelTraits?: {[traitName: string]: ModelTrait<Model> | undefined};
+  /** @hidden */
+  _modelDownlinks?: {[downlinkName: string]: ModelDownlink<Model> | undefined};
 
   constructor() {
     super();
@@ -254,6 +257,7 @@ export abstract class GenericModel extends Model {
     this.mountServices();
     this.mountScopes();
     this.mountTraits();
+    this.mountDownlinks();
     this.mountSubmodels();
   }
 
@@ -287,6 +291,7 @@ export abstract class GenericModel extends Model {
 
   protected onUnmount(): void {
     this.unmountSubmodels();
+    this.unmountDownlinks();
     this.unmountTraits();
     this.unmountScopes();
     this.unmountServices();
@@ -446,37 +451,42 @@ export abstract class GenericModel extends Model {
     this._modelFlags &= ~Model.NeedsRefresh;
     try {
       this.willRefresh(modelContext);
-      if (((this._modelFlags | refreshFlags) & Model.NeedsFetch) !== 0) {
-        this.willFetch(modelContext);
-        cascadeFlags |= Model.NeedsFetch;
-        this._modelFlags &= ~Model.NeedsFetch;
+      if (((this._modelFlags | refreshFlags) & Model.NeedsValidate) !== 0) {
+        this.willValidate(modelContext);
+        cascadeFlags |= Model.NeedsValidate;
+        this._modelFlags &= ~Model.NeedsValidate;
       }
-      if (((this._modelFlags | refreshFlags) & Model.NeedsFlush) !== 0) {
-        this.willFlush(modelContext);
-        cascadeFlags |= Model.NeedsFlush;
-        this._modelFlags &= ~Model.NeedsFlush;
+      if (((this._modelFlags | refreshFlags) & Model.NeedsReconcile) !== 0) {
+        this.willReconcile(modelContext);
+        cascadeFlags |= Model.NeedsReconcile;
+        this._modelFlags &= ~Model.NeedsReconcile;
       }
 
       this.onRefresh(modelContext);
-      if ((cascadeFlags & Model.NeedsFetch) !== 0) {
-        this.onFetch(modelContext);
+      if ((cascadeFlags & Model.NeedsValidate) !== 0) {
+        this.onValidate(modelContext);
       }
-      if ((cascadeFlags & Model.NeedsFlush) !== 0) {
-        this.onFlush(modelContext);
+      if ((cascadeFlags & Model.NeedsReconcile) !== 0) {
+        this.onReconcile(modelContext);
       }
 
       this.doRefreshChildModels(cascadeFlags, modelContext);
 
-      if ((cascadeFlags & Model.NeedsFlush) !== 0) {
-        this.didFlush(modelContext);
+      if ((cascadeFlags & Model.NeedsReconcile) !== 0) {
+        this.didReconcile(modelContext);
       }
-      if ((cascadeFlags & Model.NeedsFetch) !== 0) {
-        this.didFetch(modelContext);
+      if ((cascadeFlags & Model.NeedsValidate) !== 0) {
+        this.didValidate(modelContext);
       }
       this.didRefresh(modelContext);
     } finally {
       this._modelFlags &= ~(Model.TraversingFlag | Model.RefreshingFlag);
     }
+  }
+
+  protected onReconcile(modelContext: ModelContextType<this>): void {
+    super.onReconcile(modelContext);
+    this.reconcileDownlinks();
   }
 
   /** @hidden */
@@ -752,5 +762,76 @@ export abstract class GenericModel extends Model {
       }
     }
   }
+
+  hasModelDownlink(downlinkName: string): boolean {
+    const modelDownlinks = this._modelDownlinks;
+    return modelDownlinks !== void 0 && modelDownlinks[downlinkName] !== void 0;
+  }
+
+  getModelDownlink(downlinkName: string): ModelDownlink<this> | null {
+    const modelDownlinks = this._modelDownlinks;
+    if (modelDownlinks !== void 0) {
+      const modelDownlink = modelDownlinks[downlinkName];
+      if (modelDownlink !== void 0) {
+        return modelDownlink as ModelDownlink<this>;
+      }
+    }
+    return null;
+  }
+
+  setModelDownlink(downlinkName: string, newModelDownlink: ModelDownlink<this> | null): void {
+    let modelDownlinks = this._modelDownlinks;
+    if (modelDownlinks === void 0) {
+      modelDownlinks = {};
+      this._modelDownlinks = modelDownlinks;
+    }
+    const oldModelDownlink = modelDownlinks[downlinkName];
+    if (oldModelDownlink !== void 0 && this.isMounted()) {
+      oldModelDownlink.unmount();
+    }
+    if (newModelDownlink !== null) {
+      modelDownlinks[downlinkName] = newModelDownlink;
+      if (this.isMounted()) {
+        newModelDownlink.mount();
+      }
+    } else {
+      delete modelDownlinks[downlinkName];
+    }
+  }
+
+  /** @hidden */
+  protected mountDownlinks(): void {
+    const modelDownlinks = this._modelDownlinks;
+    if (modelDownlinks !== void 0) {
+      for (const downlinkName in modelDownlinks) {
+        const modelDownlink = modelDownlinks[downlinkName]!;
+        modelDownlink.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected unmountDownlinks(): void {
+    const modelDownlinks = this._modelDownlinks;
+    if (modelDownlinks !== void 0) {
+      for (const downlinkName in modelDownlinks) {
+        const modelDownlink = modelDownlinks[downlinkName]!;
+        modelDownlink.unmount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected reconcileDownlinks(): void {
+    const modelDownlinks = this._modelDownlinks;
+    if (modelDownlinks !== void 0) {
+      for (const downlinkName in modelDownlinks) {
+        const modelDownlink = modelDownlinks[downlinkName]!;
+        modelDownlink.reconcile();
+      }
+    }
+  }
 }
 Model.Generic = GenericModel;
+
+ModelScope({type: Object, inherit: true})(Model.prototype, "warpRef");

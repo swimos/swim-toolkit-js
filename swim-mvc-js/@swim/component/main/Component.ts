@@ -302,6 +302,7 @@ export abstract class Component {
   }
 
   protected onMount(): void {
+    this.requestUpdate(this, this.componentFlags & ~Component.StatusMask, false);
     this.requireUpdate(this.mountFlags);
   }
 

@@ -11,6 +11,16 @@
   "module": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "dependencies": {
-    "@swim/util": "3.11.0-dev.20200619"
+    "@swim/util": "3.11.0-dev.20200619",
+    "@swim/codec": "3.11.0-dev.20200619",
+    "@swim/collections": "3.11.0-dev.20200619",
+    "@swim/interpolate": "3.11.0-dev.20200619",
+    "@swim/structure": "3.11.0-dev.20200619",
+    "@swim/streamlet": "3.11.0-dev.20200619",
+    "@swim/dataflow": "3.11.0-dev.20200619",
+    "@swim/recon": "3.11.0-dev.20200619",
+    "@swim/uri": "3.11.0-dev.20200619",
+    "@swim/warp": "3.11.0-dev.20200619",
+    "@swim/client": "3.11.0-dev.20200619"
   }
 }

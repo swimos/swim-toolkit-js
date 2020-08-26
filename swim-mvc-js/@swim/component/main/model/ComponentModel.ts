@@ -51,7 +51,7 @@ export type ComponentModelPrototype = Function & {prototype: ComponentModel<any,
 export type ComponentModelConstructor<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> = {
   new(component: C, modelName: string | undefined): ComponentModel<C, M, U> & I;
   prototype: ComponentModel<any, any, any> & I;
-}
+};
 
 export declare abstract class ComponentModel<C extends Component, M extends Model, U = M> {
   /** @hidden */

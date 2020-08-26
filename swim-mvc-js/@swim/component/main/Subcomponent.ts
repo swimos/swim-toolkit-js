@@ -52,7 +52,7 @@ export type SubcomponentPrototype = Function & {prototype: Subcomponent<any, any
 export type SubcomponentConstructor<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = {
   new(component: C, subcomponentName: string | undefined): Subcomponent<C, S, U> & I;
   prototype: Subcomponent<any, any, any> & I;
-}
+};
 
 export declare abstract class Subcomponent<C extends Component, S extends Component, U = S> {
   /** @hidden */

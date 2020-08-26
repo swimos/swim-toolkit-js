@@ -738,7 +738,7 @@ const mvc = [
     targets: [
       {
         id: "main",
-        deps: ["util"],
+        deps: ["util", "codec", "collections", "interpolate", "structure", "streamlet", "dataflow", "recon", "uri", "warp", "client"],
       },
     ],
   },
@@ -749,7 +749,7 @@ const mvc = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "uri", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "model"],
+        deps: ["util", "codec", "collections", "interpolate", "structure", "streamlet", "dataflow", "recon", "math", "time", "uri", "warp", "client", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "model"],
       },
     ],
   },

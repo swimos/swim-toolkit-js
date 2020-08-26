@@ -350,6 +350,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected onMount(): void {
+    this.requestUpdate(this, this.viewFlags & ~View.StatusMask, false);
     this.requireUpdate(this.mountFlags);
   }
 

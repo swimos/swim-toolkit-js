@@ -12,20 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ModelServiceMemberType,
-  ModelServiceFlags,
-  ModelServiceInit,
-  ModelServiceDescriptorInit,
-  ModelServiceDescriptorExtends,
-  ModelServiceDescriptor,
-  ModelServicePrototype,
-  ModelServiceConstructor,
-  ModelService,
-} from "./ModelService";
+import {WarpClient} from "@swim/client";
+import {Model} from "../Model";
+import {WarpManager} from "../warp/WarpManager";
+import {ModelService} from "./ModelService";
+import {ModelManagerService} from "./ModelManagerService";
 
-export {ModelManagerService} from "./ModelManagerService";
+export abstract class WarpService<M extends Model> extends ModelManagerService<M, WarpManager<M>> {
+  get client(): WarpClient {
+    return this.manager.client;
+  }
 
-export {RefreshService} from "./RefreshService";
+  initManager(): WarpManager<M> {
+    return WarpManager.global();
+  }
+}
+ModelService.Warp = WarpService;
 
-export {WarpService} from "./WarpService";
+ModelService({type: WarpManager, observe: false})(Model.prototype, "warpService");

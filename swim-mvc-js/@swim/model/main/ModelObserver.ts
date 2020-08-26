@@ -71,13 +71,13 @@ export interface ModelObserver<M extends Model = Model> {
 
   modelDidRefresh?(modelContext: ModelContextType<M>, model: M): void;
 
-  modelWillFetch?(modelContext: ModelContextType<M>, model: M): void;
+  modelWillValidate?(modelContext: ModelContextType<M>, model: M): void;
 
-  modelDidFetch?(modelContext: ModelContextType<M>, model: M): void;
+  modelDidValidate?(modelContext: ModelContextType<M>, model: M): void;
 
-  modelWillFlush?(modelContext: ModelContextType<M>, model: M): void;
+  modelWillReconcile?(modelContext: ModelContextType<M>, model: M): void;
 
-  modelDidFlush?(modelContext: ModelContextType<M>, model: M): void;
+  modelDidReconcile?(modelContext: ModelContextType<M>, model: M): void;
 
   modelWillRefreshChildModels?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 

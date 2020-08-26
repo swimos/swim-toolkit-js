@@ -50,10 +50,14 @@ export * from "./manager";
 
 export * from "./refresh";
 
+export * from "./warp";
+
 export * from "./service";
 
 export * from "./scope";
 
 export * from "./trait";
+
+export * from "./downlink";
 
 export * from "./generic";

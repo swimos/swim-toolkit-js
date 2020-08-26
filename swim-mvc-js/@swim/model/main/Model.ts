@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {WarpRef} from "@swim/client";
 import {ModelContextType, ModelContext} from "./ModelContext";
 import {ModelObserverType, ModelObserver} from "./ModelObserver";
 import {ModelControllerType, ModelController} from "./ModelController";
@@ -19,8 +20,10 @@ import {SubmodelConstructor, Submodel} from "./Submodel";
 import {ModelManager} from "./manager/ModelManager";
 import {ModelServiceConstructor, ModelService} from "./service/ModelService";
 import {RefreshService} from "./service/RefreshService";
+import {WarpService} from "./service/WarpService";
 import {ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
 import {ModelTraitConstructor, ModelTrait} from "./trait/ModelTrait";
+import {ModelDownlinkConstructor, ModelDownlink} from "./downlink/ModelDownlink";
 import {GenericModel} from "./generic/GenericModel";
 import {CompoundModel} from "./generic/CompoundModel";
 
@@ -285,6 +288,10 @@ export abstract class Model {
 
   readonly refreshService: RefreshService<this>; // defined by RefreshService
 
+  readonly warpService: WarpService<this>; // defined by WarpService
+
+  readonly warpRef: ModelScope<this, WarpRef>; // defined by GenericModel
+
   get modelClass(): ModelClass {
     return this.constructor as unknown as ModelClass;
   }
@@ -324,6 +331,7 @@ export abstract class Model {
   }
 
   protected onMount(): void {
+    this.requestUpdate(this, this.modelFlags & ~Model.StatusMask, false);
     this.requireUpdate(this.mountFlags);
   }
 
@@ -652,42 +660,42 @@ export abstract class Model {
     });
   }
 
-  protected willFetch(modelContext: ModelContextType<this>): void {
+  protected willValidate(modelContext: ModelContextType<this>): void {
     this.willObserve(function (modelObserver: ModelObserver): void {
-      if (modelObserver.modelWillFetch !== void 0) {
-        modelObserver.modelWillFetch(modelContext, this);
+      if (modelObserver.modelWillValidate !== void 0) {
+        modelObserver.modelWillValidate(modelContext, this);
       }
     });
   }
 
-  protected onFetch(modelContext: ModelContextType<this>): void {
+  protected onValidate(modelContext: ModelContextType<this>): void {
     // hook
   }
 
-  protected didFetch(modelContext: ModelContextType<this>): void {
+  protected didValidate(modelContext: ModelContextType<this>): void {
     this.didObserve(function (modelObserver: ModelObserver): void {
-      if (modelObserver.modelDidFetch !== void 0) {
-        modelObserver.modelDidFetch(modelContext, this);
+      if (modelObserver.modelDidValidate !== void 0) {
+        modelObserver.modelDidValidate(modelContext, this);
       }
     });
   }
 
-  protected willFlush(modelContext: ModelContextType<this>): void {
+  protected willReconcile(modelContext: ModelContextType<this>): void {
     this.willObserve(function (modelObserver: ModelObserver): void {
-      if (modelObserver.modelWillFlush !== void 0) {
-        modelObserver.modelWillFlush(modelContext, this);
+      if (modelObserver.modelWillReconcile !== void 0) {
+        modelObserver.modelWillReconcile(modelContext, this);
       }
     });
   }
 
-  protected onFlush(modelContext: ModelContextType<this>): void {
+  protected onReconcile(modelContext: ModelContextType<this>): void {
     // hook
   }
 
-  protected didFlush(modelContext: ModelContextType<this>): void {
+  protected didReconcile(modelContext: ModelContextType<this>): void {
     this.didObserve(function (modelObserver: ModelObserver): void {
-      if (modelObserver.modelDidFlush !== void 0) {
-        modelObserver.modelDidFlush(modelContext, this);
+      if (modelObserver.modelDidReconcile !== void 0) {
+        modelObserver.modelDidReconcile(modelContext, this);
       }
     });
   }
@@ -810,6 +818,12 @@ export abstract class Model {
   abstract getModelTrait(traitName: string): ModelTrait<this> | null;
 
   abstract setModelTrait(traitName: string, modelTrait: ModelTrait<this> | null): void;
+
+  abstract hasModelDownlink(downlinkName: string): boolean;
+
+  abstract getModelDownlink(downlinkName: string): ModelDownlink<this> | null;
+
+  abstract setModelDownlink(downlinkName: string, modelDownlink: ModelDownlink<this> | null): void;
 
   /** @hidden */
   extendModelContext(modelContext: ModelContext): ModelContextType<this> {
@@ -970,6 +984,23 @@ export abstract class Model {
   }
 
   /** @hidden */
+  static decorateModelDownlink<M extends Model>(constructor: ModelDownlinkConstructor<M>,
+                                                modelClass: ModelClass, downlinkName: string): void {
+    Object.defineProperty(modelClass, downlinkName, {
+      get: function (this: M): ModelDownlink<M> {
+        let modelDownlink = this.getModelDownlink(downlinkName);
+        if (modelDownlink === null) {
+          modelDownlink = new constructor(this, downlinkName);
+          this.setModelDownlink(downlinkName, modelDownlink);
+        }
+        return modelDownlink;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
   static readonly MountedFlag: ModelFlags = 1 << 0;
   /** @hidden */
   static readonly PoweredFlag: ModelFlags = 1 << 1;
@@ -1006,12 +1037,12 @@ export abstract class Model {
                                           | Model.NeedsCorrelate;
 
   static readonly NeedsRefresh: ModelFlags = 1 << 11;
-  static readonly NeedsFetch: ModelFlags = 1 << 12;
-  static readonly NeedsFlush: ModelFlags = 1 << 13;
+  static readonly NeedsValidate: ModelFlags = 1 << 12;
+  static readonly NeedsReconcile: ModelFlags = 1 << 13;
   /** @hidden */
   static readonly RefreshMask: ModelFlags = Model.NeedsRefresh
-                                          | Model.NeedsFetch
-                                          | Model.NeedsFlush;
+                                          | Model.NeedsValidate
+                                          | Model.NeedsReconcile;
 
   /** @hidden */
   static readonly UpdateMask: ModelFlags = Model.AnalyzeMask
@@ -1038,6 +1069,8 @@ export abstract class Model {
   static Scope: typeof ModelScope; // defined by ModelScope
   /** @hidden */
   static Trait: typeof ModelTrait; // defined by ModelTrait
+  /** @hidden */
+  static Downlink: typeof ModelDownlink; // defined by ModelDownlink
   /** @hidden */
   static Generic: typeof GenericModel; // defined by GenericModel
   /** @hidden */

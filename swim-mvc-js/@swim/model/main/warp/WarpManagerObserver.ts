@@ -12,20 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ModelServiceMemberType,
-  ModelServiceFlags,
-  ModelServiceInit,
-  ModelServiceDescriptorInit,
-  ModelServiceDescriptorExtends,
-  ModelServiceDescriptor,
-  ModelServicePrototype,
-  ModelServiceConstructor,
-  ModelService,
-} from "./ModelService";
+import {Model} from "../Model";
+import {ModelManagerObserver} from "../manager/ModelManagerObserver";
+import {WarpManager} from "./WarpManager";
 
-export {ModelManagerService} from "./ModelManagerService";
-
-export {RefreshService} from "./RefreshService";
-
-export {WarpService} from "./WarpService";
+export interface WarpManagerObserver<M extends Model = Model, MM extends WarpManager<M> = WarpManager<M>> extends ModelManagerObserver<M, MM> {
+}

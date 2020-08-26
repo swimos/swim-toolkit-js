@@ -16,8 +16,10 @@ import {__extends} from "tslib";
 import {Model} from "../Model";
 import {ModelManagerObserverType, ModelManager} from "../manager/ModelManager";
 import {RefreshManager} from "../refresh/RefreshManager";
+import {WarpManager} from "../warp/WarpManager";
 import {ModelManagerService} from "./ModelManagerService";
 import {RefreshService} from "./RefreshService";
+import {WarpService} from "./WarpService";
 
 export type ModelServiceMemberType<M, K extends keyof M> =
   M extends {[P in K]: ModelService<any, infer T>} ? T : unknown;
@@ -40,6 +42,7 @@ export type ModelServiceDescriptorExtends<M extends Model, T, I = {}> = {extends
 
 export type ModelServiceDescriptor<M extends Model, T, I = {}> =
   T extends RefreshManager ? {type: typeof RefreshManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T> & I> :
+  T extends WarpManager ? {type: typeof WarpManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T> & I> :
   T extends ModelManager ? {type: typeof ModelManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T> & I> :
   ModelServiceDescriptorInit<M, T, I>;
 
@@ -118,6 +121,8 @@ export declare abstract class ModelService<M extends Model, T> {
   static Manager: typeof ModelManagerService; // defined by ModelManagerService
   /** @hidden */
   static Refresh: typeof RefreshService; // defined by RefreshService
+  /** @hidden */
+  static Warp: typeof WarpService; // defined by WarpService
 }
 
 export interface ModelService<M extends Model, T> {
@@ -335,6 +340,8 @@ ModelService.prototype.initManager = function <T>(this: ModelService<Model, T>):
 ModelService.getConstructor = function (type: unknown): ModelServicePrototype | null {
   if (type === RefreshManager) {
     return ModelService.Refresh;
+  } else if (type === WarpManager) {
+    return ModelService.Warp;
   } else if (type === ModelManager) {
     return ModelService.Manager;
   }

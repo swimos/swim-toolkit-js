@@ -64,7 +64,7 @@ export type SubviewPrototype = Function & {prototype: Subview<any, any>};
 export type SubviewConstructor<V extends View, S extends View, U = S, I = ViewObserverType<S>> = {
   new(view: V, subviewName: string | undefined): Subview<V, S, U> & I;
   prototype: Subview<any, any, any> & I;
-}
+};
 
 export declare abstract class Subview<V extends View, S extends View, U = S> {
   /** @hidden */

@@ -368,19 +368,19 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     // hook
   }
 
-  modelWillFetch(modelContext: ModelContextType<M>, model: M): void {
+  modelWillValidate(modelContext: ModelContextType<M>, model: M): void {
     // hook
   }
 
-  modelDidFetch(modelContext: ModelContextType<M>, model: M): void {
+  modelDidValidate(modelContext: ModelContextType<M>, model: M): void {
     // hook
   }
 
-  modelWillFlush(modelContext: ModelContextType<M>, model: M): void {
+  modelWillReconcile(modelContext: ModelContextType<M>, model: M): void {
     // hook
   }
 
-  modelDidFlush(modelContext: ModelContextType<M>, model: M): void {
+  modelDidReconcile(modelContext: ModelContextType<M>, model: M): void {
     // hook
   }
 
