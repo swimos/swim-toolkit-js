@@ -26,7 +26,7 @@ import {ThemeMatrix} from "../theme/ThemeMatrix";
 const DarkFont = Font.parse("14px -apple-system, system-ui, sans-serif");
 
 const DarkColor = Color.parse("#d8d8d8");
-const DarkAccentColor = Color.parse("#5c5d5e");
+const DarkAccentColor = Color.parse("#6c6d6e");
 const DarkMutedColor = Color.parse("#989898");
 const DarkNeutralColor = Color.parse("#808080");
 const DarkHighlightColor = Color.white(0.1);

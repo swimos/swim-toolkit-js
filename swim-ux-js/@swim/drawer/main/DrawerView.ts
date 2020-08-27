@@ -62,8 +62,7 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     this._drawerPlacement = "left";
     this._drawerState = "hidden";
     this._modality = true;
-
-    this.modifyTheme(Feel.default, [Feel.overlay, 1]);
+    this.initTheme();
   }
 
   protected initNode(node: ViewNodeType<this>): void {
@@ -75,6 +74,10 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     this.overflowY.setAutoState("auto");
     this.overscrollBehaviorY.setAutoState("contain");
     this.overflowScrolling.setAutoState("touch");
+  }
+
+  protected initTheme(): void {
+    this.modifyTheme(Feel.default, [Feel.overlay, 1]);
   }
 
   readonly viewController: DrawerViewController | null;
