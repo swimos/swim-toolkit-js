@@ -261,6 +261,36 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     return childViews;
   }
 
+  firstChildView(): View | null {
+    const childView = this._data.firstValue();
+    return childView !== void 0 ? childView : null;
+  }
+
+  lastChildView(): View | null {
+    const childView = this._data.lastValue();
+    return childView !== void 0 ? childView : null;
+  }
+
+  nextChildView(targetView: View): View | null {
+    if (targetView instanceof DataPointView) {
+      const childView = this._data.nextValue(targetView.x.state);
+      if (childView !== void 0) {
+        return childView;
+      }
+    }
+    return null;
+  }
+
+  previousChildView(targetView: View): View | null {
+    if (targetView instanceof DataPointView) {
+      const childView = this._data.previousValue(targetView.x.state);
+      if (childView !== void 0) {
+        return childView;
+      }
+    }
+    return null;
+  }
+
   forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
                                    thisArg?: S): T | undefined {
     return this._data.forEachValue(callback, thisArg);

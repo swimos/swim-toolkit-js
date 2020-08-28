@@ -178,10 +178,7 @@ export class TreeView extends ThemedHtmlView {
     limb.position.setAutoState("absolute");
     limb.left.setAutoState(0);
     limb.right.setAutoState(0);
-    const tree = limb.tree;
-    if (tree !== null) {
-      tree.depth.setAutoState(this.depth.getState() + 1);
-    }
+    limb.depth.setAutoState(this.depth.state + 1);
   }
 
   protected onRemoveLimb(limb: TreeLimb): void {
@@ -210,8 +207,8 @@ export class TreeView extends ThemedHtmlView {
     // hook
   }
 
-  protected onUpdateDepth(depth: number | undefined): void {
-    this.modifyTheme(Feel.default, [Feel.nested, depth !== void 0 && depth !== 0 ? 1 : void 0]);
+  protected onUpdateDepth(depth: number): void {
+    this.modifyTheme(Feel.default, [Feel.nested, depth !== 0 ? 1 : void 0]);
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
@@ -261,6 +258,13 @@ export class TreeView extends ThemedHtmlView {
     return additionalFlags;
   }
 
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+    if ((processFlags & View.NeedsResize) !== 0) {
+      processFlags |= View.NeedsAnimate;
+    }
+    return processFlags;
+  }
+
   protected onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);
     this.resizeTree();
@@ -300,9 +304,9 @@ export class TreeView extends ThemedHtmlView {
     let y = limbSpacing;
     function processChildView(this: TreeView, childView: View): void {
       if (needsChange && childView instanceof TreeLimb) {
-        const childTree = childView.tree;
-        if (childTree !== null) {
-          childTree.depth.setAutoState(depth! + 1);
+        const subtree = childView.subtree;
+        if (subtree !== null) {
+          subtree.depth.setAutoState(depth! + 1);
         }
       }
       if (needsAnimate && (childView instanceof TreeLimb || childView instanceof TreeStem)) {
@@ -339,5 +343,5 @@ export class TreeView extends ThemedHtmlView {
     return view;
   }
 
-  static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsResize;
+  static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
 }

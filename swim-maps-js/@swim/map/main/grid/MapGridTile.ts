@@ -477,7 +477,7 @@ export class MapGridTile {
     return this;
   }
 
-  forEach<T, S>(callback: (this: S, view: MapGraphicsView) => T | void, thisArg: S): T | undefined {
+  forEach<T, S>(callback: (this: S, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
     if (this._southWest !== null) {
       const result = this._southWest.forEach(callback, thisArg);
       if (result !== void 0) {
@@ -512,7 +512,42 @@ export class MapGridTile {
     return void 0;
   }
 
-  forEachIntersecting<T, S>(bounds: GeoBox, callback: (this: S, view: MapGraphicsView) => T | void, thisArg: S): T | undefined {
+  forEachReverse<T, S>(callback: (this: S, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
+    const views = this._views;
+    for (let i = views.length - 1; i >= 0; i -= 1) {
+      const result = callback.call(thisArg, views[i]);
+      if (result !== void 0) {
+        return result;
+      }
+    }
+    if (this._northEast !== null) {
+      const result = this._northEast.forEachReverse(callback, thisArg);
+      if (result !== void 0) {
+        return result;
+      }
+    }
+    if (this._southEast !== null) {
+      const result = this._southEast.forEachReverse(callback, thisArg);
+      if (result !== void 0) {
+        return result;
+      }
+    }
+    if (this._northWest !== null) {
+      const result = this._northWest.forEachReverse(callback, thisArg);
+      if (result !== void 0) {
+        return result;
+      }
+    }
+    if (this._southWest !== null) {
+      const result = this._southWest.forEachReverse(callback, thisArg);
+      if (result !== void 0) {
+        return result;
+      }
+    }
+    return void 0;
+  }
+
+  forEachIntersecting<T, S>(bounds: GeoBox, callback: (this: S, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
     if (this._geoFrame.intersects(bounds)) {
       if (this._southWest !== null) {
         const result = this._southWest.forEachIntersecting(bounds, callback, thisArg);
@@ -549,7 +584,7 @@ export class MapGridTile {
     return void 0;
   }
 
-  forEachNonIntersecting<T, S>(bounds: GeoBox, callback: (this: S, view: MapGraphicsView) => T | void, thisArg: S): T | undefined {
+  forEachNonIntersecting<T, S>(bounds: GeoBox, callback: (this: S, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
     if (!this._geoFrame.intersects(bounds)) {
       if (this._southWest !== null) {
         const result = this._southWest.forEachNonIntersecting(bounds, callback, thisArg);

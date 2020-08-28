@@ -35,6 +35,28 @@ export class CompoundModel extends GenericModel {
     return this._childModels;
   }
 
+  firstChildModel(): Model | null {
+    const childModels = this._childModels;
+    return childModels.length !== 0 ? childModels[0] : null;
+  }
+
+  lastChildModel(): Model | null {
+    const childModels = this._childModels;
+    return childModels.length !== 0 ? childModels[childModels.length - 1] : null;
+  }
+
+  nextChildModel(targetModel: Model): Model | null {
+    const childModels = this._childModels;
+    const targetIndex = childModels.indexOf(targetModel);
+    return targetIndex >= 0 && targetIndex + 1 < childModels.length ? childModels[targetIndex + 1] : null;
+  }
+
+  previousChildModel(targetModel: Model): Model | null {
+    const childModels = this._childModels;
+    const targetIndex = childModels.indexOf(targetModel);
+    return targetIndex - 1 >= 0 ? childModels[targetIndex - 1] : null;
+  }
+
   forEachChildModel<T, S = unknown>(callback: (this: S, childModel: Model) => T | void,
                                     thisArg?: S): T | undefined {
     let result: T | undefined;
@@ -157,12 +179,14 @@ export class CompoundModel extends GenericModel {
       this.removeChildModel(key);
       childModel.setKey(key);
     }
-    this.willInsertChildModel(childModel, null);
-    this._childModels.unshift(childModel);
+    const childModels = this._childModels;
+    const targetModel = childModels.length !== 0 ? childModels[0] : null;
+    this.willInsertChildModel(childModel, targetModel);
+    childModels.unshift(childModel);
     this.insertChildModelMap(childModel);
-    childModel.setParentModel(this, null);
-    this.onInsertChildModel(childModel, null);
-    this.didInsertChildModel(childModel, null);
+    childModel.setParentModel(this, targetModel);
+    this.onInsertChildModel(childModel, targetModel);
+    this.didInsertChildModel(childModel, targetModel);
     childModel.cascadeInsert();
   }
 

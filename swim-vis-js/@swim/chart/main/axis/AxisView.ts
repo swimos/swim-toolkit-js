@@ -260,6 +260,36 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     return childViews;
   }
 
+  firstChildView(): View | null {
+    const childView = this._ticks.firstValue();
+    return childView !== void 0 ? childView : null;
+  }
+
+  lastChildView(): View | null {
+    const childView = this._ticks.lastValue();
+    return childView !== void 0 ? childView : null;
+  }
+
+  nextChildView(targetView: View): View | null {
+    if (targetView instanceof TickView) {
+      const childView = this._ticks.nextValue(targetView.value);
+      if (childView !== void 0) {
+        return childView;
+      }
+    }
+    return null;
+  }
+
+  previousChildView(targetView: View): View | null {
+    if (targetView instanceof TickView) {
+      const childView = this._ticks.previousValue(targetView.value);
+      if (childView !== void 0) {
+        return childView;
+      }
+    }
+    return null;
+  }
+
   forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
                                    thisArg?: S): T | undefined {
     return this._ticks.forEachValue(callback, thisArg);

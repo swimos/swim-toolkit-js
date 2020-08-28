@@ -59,6 +59,28 @@ export class CompositeComponent extends GenericComponent {
     return result;
   }
 
+  firstChildComponent(): Component | null {
+    const childComponents = this._childComponents;
+    return childComponents.length !== 0 ? childComponents[0] : null;
+  }
+
+  lastChildComponent(): Component | null {
+    const childComponents = this._childComponents;
+    return childComponents.length !== 0 ? childComponents[childComponents.length - 1] : null;
+  }
+
+  nextChildComponent(targetComponent: Component): Component | null {
+    const childComponents = this._childComponents;
+    const targetIndex = childComponents.indexOf(targetComponent);
+    return targetIndex >= 0 && targetIndex + 1 < childComponents.length ? childComponents[targetIndex + 1] : null;
+  }
+
+  previousChildComponent(targetComponent: Component): Component | null {
+    const childComponents = this._childComponents;
+    const targetIndex = childComponents.indexOf(targetComponent);
+    return targetIndex - 1 >= 0 ? childComponents[targetIndex - 1] : null;
+  }
+
   getChildComponent(key: string): Component | null {
     const childComponentMap = this._childComponentMap;
     if (childComponentMap !== void 0) {
@@ -157,12 +179,14 @@ export class CompositeComponent extends GenericComponent {
       this.removeChildComponent(key);
       childComponent.setKey(key);
     }
-    this.willInsertChildComponent(childComponent, null);
-    this._childComponents.unshift(childComponent);
+    const childComponents = this._childComponents;
+    const targetComponent = childComponents.length !== 0 ? childComponents[0] : null;
+    this.willInsertChildComponent(childComponent, targetComponent);
+    childComponents.unshift(childComponent);
     this.insertChildComponentMap(childComponent);
-    childComponent.setParentComponent(this, null);
-    this.onInsertChildComponent(childComponent, null);
-    this.didInsertChildComponent(childComponent, null);
+    childComponent.setParentComponent(this, targetComponent);
+    this.onInsertChildComponent(childComponent, targetComponent);
+    this.didInsertChildComponent(childComponent, targetComponent);
     childComponent.cascadeInsert();
   }
 

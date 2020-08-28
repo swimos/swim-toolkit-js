@@ -14,7 +14,15 @@
 
 import {Length} from "@swim/length";
 import {Tween, Transition} from "@swim/transition";
-import {ViewContextType, View, ViewScope, ViewAnimator, ViewNodeType, HtmlView} from "@swim/view";
+import {
+  ViewContextType,
+  ViewFlags,
+  View,
+  ViewScope,
+  ViewAnimator,
+  ViewNodeType,
+  HtmlView,
+} from "@swim/view";
 import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {AnyTreeLeaf, TreeLeaf} from "./TreeLeaf";
 import {TreeLimbObserver} from "./TreeLimbObserver";
@@ -28,7 +36,7 @@ export interface TreeLimbInit extends ThemedHtmlViewInit {
   expanded?: boolean;
 
   leaf?: AnyTreeLeaf;
-  tree?: AnyTreeView;
+  subtree?: AnyTreeView;
 }
 
 export type TreeLimbState = "collapsed" | "expanding" | "expanded" | "collapsing";
@@ -55,8 +63,8 @@ export class TreeLimb extends ThemedHtmlView {
     if (init.leaf !== void 0) {
       this.setLeaf(init.leaf);
     }
-    if (init.tree !== void 0) {
-      this.setTree(init.tree);
+    if (init.subtree !== void 0) {
+      this.setSubtree(init.subtree);
     }
   }
 
@@ -72,16 +80,16 @@ export class TreeLimb extends ThemedHtmlView {
     this.setChildView("leaf", leaf);
   }
 
-  get tree(): TreeView | null {
-    const childView = this.getChildView("tree");
+  get subtree(): TreeView | null {
+    const childView = this.getChildView("subtree");
     return childView instanceof TreeView ? childView : null;
   }
 
-  setTree(tree: AnyTreeView | null): void {
-    if (tree !== null) {
-      tree = TreeView.fromAny(tree);
+  setSubtree(subtree: AnyTreeView | null): void {
+    if (subtree !== null) {
+      subtree = TreeView.fromAny(subtree);
     }
-    this.setChildView("tree", tree);
+    this.setChildView("subtree", subtree);
   }
 
   isExpanded(): boolean {
@@ -93,6 +101,15 @@ export class TreeLimb extends ThemedHtmlView {
     const disclosureState = this.disclosureState.state;
     return disclosureState === "collapsed" || disclosureState === "collapsing";
   }
+
+  @ViewScope<TreeLimb, number>({
+    type: Number,
+    state: 0,
+    onUpdate(depth: number): void {
+      this.view.onUpdateDepth(depth);
+    },
+  })
+  depth: ViewScope<this, number>;
 
   @ViewScope({type: String, state: "collapsed"})
   disclosureState: ViewScope<this, TreeLimbState>;
@@ -139,9 +156,9 @@ export class TreeLimb extends ThemedHtmlView {
     });
     this.disclosureState.setAutoState("expanding");
     this.requireUpdate(View.NeedsResize | View.NeedsChange);
-    const tree = this.tree;
-    if (tree !== null) {
-      tree.display.setAutoState("block");
+    const subtree = this.subtree;
+    if (subtree !== null) {
+      subtree.display.setAutoState("block");
     }
   }
 
@@ -187,9 +204,9 @@ export class TreeLimb extends ThemedHtmlView {
       }
     });
     this.disclosureState.setAutoState("collapsing");
-    const tree = this.tree;
-    if (tree !== null) {
-      tree.height.setAutoState(0, tween);
+    const subtree = this.subtree;
+    if (subtree !== null) {
+      subtree.height.setAutoState(0, tween);
     }
   }
 
@@ -197,9 +214,9 @@ export class TreeLimb extends ThemedHtmlView {
     this.disclosureState.setAutoState("collapsed");
     this.disclosingPhase.setState(void 0);
     this.requireUpdate(View.NeedsResize);
-    const tree = this.tree;
-    if (tree !== null) {
-      tree.display.setAutoState("none");
+    const subtree = this.subtree;
+    if (subtree !== null) {
+      subtree.display.setAutoState("none");
     }
     this.didObserve(function (viewObserver: TreeLimbObserver): void {
       if (viewObserver.limbDidCollapse !== void 0) {
@@ -221,16 +238,16 @@ export class TreeLimb extends ThemedHtmlView {
     super.onInsertChildView(childView, targetView);
     if (childView.key === "leaf" && childView instanceof TreeLeaf) {
       this.onInsertLeaf(childView);
-    } else if (childView.key === "tree" && childView instanceof TreeView) {
-      this.onInsertTree(childView);
+    } else if (childView.key === "subtree" && childView instanceof TreeView) {
+      this.onInsertSubtree(childView);
     }
   }
 
   protected onRemoveChildView(childView: View): void {
     if (childView.key === "leaf" && childView instanceof TreeLeaf) {
       this.onRemoveLeaf(childView);
-    } else if (childView.key === "tree" && childView instanceof TreeView) {
-      this.onRemoveTree(childView);
+    } else if (childView.key === "subtree" && childView instanceof TreeView) {
+      this.onRemoveSubtree(childView);
     }
     super.onRemoveChildView(childView);
   }
@@ -243,15 +260,23 @@ export class TreeLimb extends ThemedHtmlView {
     // hook
   }
 
-  protected onInsertTree(tree: TreeView): void {
-    tree.display.setAutoState(this.isExpanded() ? "block" : "none");
-    tree.position.setAutoState("absolute");
-    tree.left.setAutoState(0);
-    tree.right.setAutoState(0);
+  protected onInsertSubtree(subtree: TreeView): void {
+    subtree.display.setAutoState(this.isExpanded() ? "block" : "none");
+    subtree.position.setAutoState("absolute");
+    subtree.left.setAutoState(0);
+    subtree.right.setAutoState(0);
+    subtree.depth.setAutoState(this.depth.state);
   }
 
-  protected onRemoveTree(tree: TreeView): void {
+  protected onRemoveSubtree(subtree: TreeView): void {
     // hook
+  }
+
+  protected onUpdateDepth(depth: number): void {
+    const subtree = this.subtree;
+    if (subtree !== null) {
+      subtree.depth.setAutoState(depth);
+    }
   }
 
   protected didAnimate(viewContext: ViewContextType<this>): void {
@@ -276,13 +301,13 @@ export class TreeLimb extends ThemedHtmlView {
       leaf.right.setAutoState(limbSpacing);
       y += dy * disclosingPhase;
     }
-    const tree = this.tree;
-    if (tree !== null && this.disclosureState.state !== "collapsed") {
-      const limbHeight = tree.height.value;
+    const subtree = this.subtree;
+    if (subtree !== null && this.disclosureState.state !== "collapsed") {
+      const limbHeight = subtree.height.value;
       const dy = limbHeight instanceof Length
                ? limbHeight.pxValue()
-               : tree._node.offsetHeight;
-      tree.top.setAutoState(y * disclosingPhase);
+               : subtree._node.offsetHeight;
+      subtree.top.setAutoState(y * disclosingPhase);
       y += dy * disclosingPhase;
     } else {
       y += limbSpacing * disclosingPhase;
@@ -304,4 +329,6 @@ export class TreeLimb extends ThemedHtmlView {
     view.initView(init);
     return view;
   }
+
+  static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
 }

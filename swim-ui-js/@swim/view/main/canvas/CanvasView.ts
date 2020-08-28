@@ -171,6 +171,93 @@ export class CanvasView extends HtmlView {
     return childViews;
   }
 
+  firstChildView(): View | null {
+    const childNodes = this._node.childNodes;
+    for (let i = 0, n = childNodes.length; i < n; i += 1) {
+      const childView = (childNodes[i] as ViewNode).view;
+      if (childView !== void 0) {
+        return childView;
+      }
+    }
+    const graphicsViews = this._graphicsViews;
+    if (graphicsViews.length !== 0) {
+      return graphicsViews[0];
+    }
+    return null;
+  }
+
+  lastChildView(): View | null {
+    const graphicsViews = this._graphicsViews;
+    if (graphicsViews.length !== 0) {
+      return graphicsViews[graphicsViews.length - 1];
+    }
+    const childNodes = this._node.childNodes;
+    for (let i = childNodes.length - 1; i >= 0; i -= 1) {
+      const childView = (childNodes[i] as ViewNode).view;
+      if (childView !== void 0) {
+        return childView;
+      }
+    }
+    return null;
+  }
+
+  nextChildView(targetView: View): View | null {
+    const graphicsViews = this._graphicsViews;
+    if (targetView instanceof NodeView && targetView.parentView === this) {
+      let targetNode: ViewNode | null = targetView._node;
+      do {
+        targetNode = targetNode!.nextSibling;
+        if (targetNode !== null) {
+          if (targetNode.view !== void 0) {
+            return targetNode.view;
+          }
+          continue;
+        }
+        break;
+      } while (true);
+      if (graphicsViews.length !== 0) {
+        return graphicsViews[0];
+      }
+    } else if (targetView instanceof GraphicsView) {
+      const targetIndex = graphicsViews.indexOf(targetView);
+      if (targetIndex >= 0 && targetIndex + 1 < graphicsViews.length) {
+        return graphicsViews[targetIndex + 1];
+      }
+    }
+    return null;
+  }
+
+  previousChildView(targetView: View): View | null {
+    let targetNode: ViewNode | null = null;
+    if (targetView instanceof GraphicsView) {
+      const graphicsViews = this._graphicsViews;
+      const targetIndex = graphicsViews.indexOf(targetView);
+      if (targetIndex - 1 >= 0) {
+        return graphicsViews[targetIndex - 1];
+      } else if (targetIndex === 0) {
+        targetNode = this._node.lastChild;
+        if (targetNode !== null && targetNode.view !== void 0) {
+          return targetNode.view;
+        }
+      }
+    } else if (targetView instanceof NodeView && targetView.parentView === this) {
+      targetNode = targetView._node;
+    }
+    if (targetNode !== null) {
+      do {
+        targetNode = targetNode!.previousSibling;
+        if (targetNode !== null) {
+          if (targetNode.view !== void 0) {
+            return targetNode.view;
+          }
+          continue;
+        }
+        break;
+      } while (true);
+    }
+    return null;
+  }
+
   forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
                                    thisArg?: S): T | undefined {
     let result: T | undefined;
@@ -360,12 +447,14 @@ export class CanvasView extends HtmlView {
       this.removeChildView(key);
       childView.setKey(key);
     }
-    this.willInsertChildView(childView, null);
-    this._graphicsViews.unshift(childView);
+    const graphicsViews = this._graphicsViews;
+    const targetView = graphicsViews.length !== 0 ? graphicsViews[0] : null;
+    this.willInsertChildView(childView, targetView);
+    graphicsViews.unshift(childView);
     this.insertChildViewMap(childView);
-    childView.setParentView(this, null);
-    this.onInsertChildView(childView, null);
-    this.didInsertChildView(childView, null);
+    childView.setParentView(this, targetView);
+    this.onInsertChildView(childView, targetView);
+    this.didInsertChildView(childView, targetView);
     childView.cascadeInsert();
   }
 

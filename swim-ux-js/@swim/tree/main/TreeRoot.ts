@@ -20,8 +20,8 @@ export interface TreeRootInit {
   key?: string;
   grow?: number;
   shrink?: number;
-  optional?: boolean;
   basis?: AnyLength;
+  optional?: boolean;
   width?: AnyLength | null;
   left?: AnyLength | null;
   right?: AnyLength | null;
@@ -36,9 +36,9 @@ export class TreeRoot {
   /** @hidden */
   readonly _shrink: number;
   /** @hidden */
-  readonly _optional: boolean;
-  /** @hidden */
   readonly _basis: Length;
+  /** @hidden */
+  readonly _optional: boolean;
   /** @hidden */
   readonly _width: Length | null;
   /** @hidden */
@@ -48,14 +48,14 @@ export class TreeRoot {
   /** @hidden */
   readonly _hidden: boolean;
 
-  constructor(key: string, grow: number, shrink: number, optional: boolean,
-              basis: Length, width: Length | null, left: Length | null,
+  constructor(key: string, grow: number, shrink: number, basis: Length,
+              optional: boolean, width: Length | null, left: Length | null,
               right: Length | null, hidden: boolean) {
     this._key = key;
     this._grow = grow;
     this._shrink = shrink;
-    this._optional = optional;
     this._basis = basis;
+    this._optional = optional;
     this._width = width;
     this._left = left;
     this._right = right;
@@ -72,7 +72,7 @@ export class TreeRoot {
     if (grow === void 0) {
       return this._grow;
     } else {
-      return this.copy(this._key, grow, this._shrink, this._optional, this._basis,
+      return this.copy(this._key, grow, this._shrink, this._basis, this._optional,
                        this._width, this._left, this._right, this._hidden);
     }
   }
@@ -83,18 +83,7 @@ export class TreeRoot {
     if (shrink === void 0) {
       return this._shrink;
     } else {
-      return this.copy(this._key, this._grow, shrink, this._optional, this._basis,
-                       this._width, this._left, this._right, this._hidden);
-    }
-  }
-
-  optional(): boolean;
-  optional(optional: boolean): TreeRoot;
-  optional(optional?: boolean): boolean | TreeRoot {
-    if (optional === void 0) {
-      return this._optional;
-    } else {
-      return this.copy(this._key, this._grow, this._shrink, optional, this._basis,
+      return this.copy(this._key, this._grow, shrink, this._basis, this._optional,
                        this._width, this._left, this._right, this._hidden);
     }
   }
@@ -106,7 +95,18 @@ export class TreeRoot {
       return this._basis;
     } else {
       basis = Length.fromAny(basis);
-      return this.copy(this._key, this._grow, this._shrink, this._optional, basis,
+      return this.copy(this._key, this._grow, this._shrink, basis, this._optional,
+                       this._width, this._left, this._right, this._hidden);
+    }
+  }
+
+  optional(): boolean;
+  optional(optional: boolean): TreeRoot;
+  optional(optional?: boolean): boolean | TreeRoot {
+    if (optional === void 0) {
+      return this._optional;
+    } else {
+      return this.copy(this._key, this._grow, this._shrink, this._basis, optional,
                        this._width, this._left, this._right, this._hidden);
     }
   }
@@ -120,8 +120,8 @@ export class TreeRoot {
       if (width !== null) {
         width = Length.fromAny(width);
       }
-      return this.copy(this._key, this._grow, this._shrink, this._optional,
-                       this._basis, width, this._left, this._right, this._hidden);
+      return this.copy(this._key, this._grow, this._shrink, this._basis,
+                       this._optional, width, this._left, this._right, this._hidden);
     }
   }
 
@@ -134,8 +134,8 @@ export class TreeRoot {
       if (left !== null) {
         left = Length.fromAny(left);
       }
-      return this.copy(this._key, this._grow, this._shrink, this._optional,
-                       this._basis, this._width, left, this._right, this._hidden);
+      return this.copy(this._key, this._grow, this._shrink, this._basis,
+                       this._optional, this._width, left, this._right, this._hidden);
     }
   }
 
@@ -148,8 +148,8 @@ export class TreeRoot {
       if (right !== null) {
         right = Length.fromAny(right);
       }
-      return this.copy(this._key, this._grow, this._shrink, this._optional,
-                       this._basis, this._width, this._left, right, this._hidden);
+      return this.copy(this._key, this._grow, this._shrink, this._basis,
+                       this._optional, this._width, this._left, right, this._hidden);
     }
   }
 
@@ -159,8 +159,8 @@ export class TreeRoot {
     if (hidden === void 0) {
       return this._hidden;
     } else {
-      return this.copy(this._key, this._grow, this._shrink, this._optional,
-                       this._basis, this._width, this._left, this._right, hidden);
+      return this.copy(this._key, this._grow, this._shrink, this._basis,
+                       this._optional, this._width, this._left, this._right, hidden);
     }
   }
 
@@ -178,15 +178,35 @@ export class TreeRoot {
     if (hidden === void 0) {
       hidden = this._hidden;
     }
-    return this.copy(this._key, this._grow, this._shrink, this._optional,
-                     this._basis, width, left, right, hidden);
+    return this.copy(this._key, this._grow, this._shrink, this._basis,
+                     this._optional, width, left, right, hidden);
   }
 
-  protected copy(key: string, grow: number, shrink: number, optional: boolean,
-                 basis: Length, width: Length | null, left: Length | null,
+  protected copy(key: string, grow: number, shrink: number, basis: Length,
+                 optional: boolean, width: Length | null, left: Length | null,
                  right: Length | null, hidden: boolean): TreeRoot {
-    return new TreeRoot(key, grow, shrink, optional, basis,
+    return new TreeRoot(key, grow, shrink, basis, optional,
                         width, left, right, hidden);
+  }
+
+  static create(key: string, grow?: number, shrink?: number,
+                basis?: AnyLength, optional?: boolean): TreeRoot {
+    if (grow === void 0) {
+      grow = 0;
+    }
+    if (shrink === void 0) {
+      shrink = 1;
+    }
+    if (basis !== void 0) {
+      basis = Length.fromAny(basis);
+    } else {
+      basis = Length.zero();
+    }
+    if (optional === void 0) {
+      optional = false;
+    }
+    return new TreeRoot(key, grow, shrink, basis, optional,
+                        null, null, null, false);
   }
 
   static fromAny(grain: AnyTreeRoot): TreeRoot {
@@ -211,15 +231,15 @@ export class TreeRoot {
     if (shrink === void 0) {
       shrink = 1;
     }
-    let optional = init.optional;
-    if (optional === void 0) {
-      optional = false;
-    }
     let basis = init.basis;
     if (basis !== void 0) {
       basis = Length.fromAny(basis);
     } else {
       basis = Length.zero();
+    }
+    let optional = init.optional;
+    if (optional === void 0) {
+      optional = false;
     }
     let width = init.width;
     if (width !== void 0 && width !== null) {
@@ -243,7 +263,7 @@ export class TreeRoot {
     if (hidden === void 0) {
       hidden = false;
     }
-    return new TreeRoot(key, grow, shrink, optional, basis,
+    return new TreeRoot(key, grow, shrink, basis, optional,
                         width, left, right, hidden);
   }
 }

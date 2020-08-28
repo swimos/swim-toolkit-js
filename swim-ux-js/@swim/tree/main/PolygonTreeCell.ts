@@ -30,6 +30,11 @@ export class PolygonTreeCell extends TreeCell {
   /** @hidden */
   _sides: number;
 
+  constructor(node: HTMLElement) {
+    super(node);
+    this._sides = 0;
+  }
+
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("polygon-tree-cell")

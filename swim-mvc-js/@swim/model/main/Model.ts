@@ -193,6 +193,14 @@ export abstract class Model {
 
   abstract get childModels(): ReadonlyArray<Model>;
 
+  abstract firstChildModel(): Model | null;
+
+  abstract lastChildModel(): Model | null;
+
+  abstract nextChildModel(targetModel: Model): Model | null;
+
+  abstract previousChildModel(targetModel: Model): Model | null;
+
   abstract forEachChildModel<T, S = unknown>(callback: (this: S, childModel: Model) => T | void,
                                              thisArg?: S): T | undefined;
 

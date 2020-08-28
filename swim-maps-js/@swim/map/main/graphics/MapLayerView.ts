@@ -36,6 +36,28 @@ export class MapLayerView extends MapGraphicsView {
     return this._childViews;
   }
 
+  firstChildView(): View | null {
+    const childViews = this._childViews;
+    return childViews.length !== 0 ? childViews[0] : null;
+  }
+
+  lastChildView(): View | null {
+    const childViews = this._childViews;
+    return childViews.length !== 0 ? childViews[childViews.length - 1] : null;
+  }
+
+  nextChildView(targetView: View): View | null {
+    const childViews = this._childViews;
+    const targetIndex = childViews.indexOf(targetView);
+    return targetIndex >= 0 && targetIndex + 1 < childViews.length ? childViews[targetIndex + 1] : null;
+  }
+
+  previousChildView(targetView: View): View | null {
+    const childViews = this._childViews;
+    const targetIndex = childViews.indexOf(targetView);
+    return targetIndex - 1 >= 0 ? childViews[targetIndex - 1] : null;
+  }
+
   forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
                                    thisArg?: S): T | undefined {
     let result: T | undefined;
@@ -167,12 +189,14 @@ export class MapLayerView extends MapGraphicsView {
       this.removeChildView(key);
       childView.setKey(key);
     }
-    this.willInsertChildView(childView, null);
-    this._childViews.unshift(childView);
+    const childViews = this._childViews;
+    const targetView = childViews.length !== 0 ? childViews[0] : null;
+    this.willInsertChildView(childView, targetView);
+    childViews.unshift(childView);
     this.insertChildViewMap(childView);
-    childView.setParentView(this, null);
-    this.onInsertChildView(childView, null);
-    this.didInsertChildView(childView, null);
+    childView.setParentView(this, targetView);
+    this.onInsertChildView(childView, targetView);
+    this.didInsertChildView(childView, targetView);
     childView.cascadeInsert();
   }
 

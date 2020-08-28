@@ -166,6 +166,14 @@ export abstract class Component {
 
   abstract get childComponents(): ReadonlyArray<Component>;
 
+  abstract firstChildComponent(): Component | null;
+
+  abstract lastChildComponent(): Component | null;
+
+  abstract nextChildComponent(targetComponent: Component): Component | null;
+
+  abstract previousChildComponent(targetComponent: Component): Component | null;
+
   abstract forEachChildComponent<T, S = unknown>(callback: (this: S, childComponent: Component) => T | void,
                                                  thisArg?: S): T | undefined;
 

@@ -222,6 +222,14 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   abstract get childViews(): ReadonlyArray<View>;
 
+  abstract firstChildView(): View | null;
+
+  abstract lastChildView(): View | null;
+
+  abstract nextChildView(targetView: View): View | null;
+
+  abstract previousChildView(targetView: View): View | null;
+
   abstract forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
                                             thisArg?: S): T | undefined;
 

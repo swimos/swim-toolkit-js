@@ -195,6 +195,19 @@ export class TreeSeed {
     return new TreeSeed(Length.px(width), left, right, newRoots);
   }
 
+  static of(...treeRoots: AnyTreeRoot[]): TreeSeed {
+    const n = treeRoots.length;
+    const roots = new Array<TreeRoot>(n);
+    for (let i = 0; i < n; i += 1) {
+      roots[i] = TreeRoot.fromAny(treeRoots[i]);
+    }
+    return new TreeSeed(null, null, null, roots);
+  }
+
+  static from(roots: ReadonlyArray<TreeRoot>): TreeSeed {
+    return new TreeSeed(null, null, null, roots);
+  }
+
   static fromAny(seed: AnyTreeSeed): TreeSeed {
     if (seed instanceof TreeSeed) {
       return seed;

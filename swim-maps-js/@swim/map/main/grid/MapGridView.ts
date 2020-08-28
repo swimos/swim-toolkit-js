@@ -58,6 +58,52 @@ export class MapGridView extends MapGraphicsView {
     return childViews;
   }
 
+  firstChildView(): View | null {
+    const childView = this._childViews.forEach(function (childView: MapGraphicsView): MapGraphicsView {
+      return childView;
+    }, this);
+    return childView !== void 0 ? childView : null;
+  }
+
+  lastChildView(): View | null {
+    const childView = this._childViews.forEachReverse(function (childView: MapGraphicsView): MapGraphicsView {
+      return childView;
+    }, this);
+    return childView !== void 0 ? childView : null;
+  }
+
+  nextChildView(targetView: View): View | null {
+    if (targetView.parentView === this) {
+      let nextChildView: MapGraphicsView | null = null;
+      const childView = this._childViews.forEachReverse(function (childView: MapGraphicsView): MapGraphicsView | null | void {
+        if (childView === targetView) {
+          return nextChildView;
+        }
+        nextChildView = childView;
+      }, this);
+      if (childView !== void 0) {
+        return childView;
+      }
+    }
+    return null;
+  }
+
+  previousChildView(targetView: View): View | null {
+    if (targetView.parentView === this) {
+      let previousChildView: MapGraphicsView | null = null;
+      const childView = this._childViews.forEach(function (childView: MapGraphicsView): MapGraphicsView | null | void {
+        if (childView === targetView) {
+          return previousChildView;
+        }
+        previousChildView = childView;
+      }, this);
+      if (childView !== void 0) {
+        return childView;
+      }
+    }
+    return null;
+  }
+
   forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
                                    thisArg?: S): T | undefined {
     return this._childViews.forEach(callback, thisArg);

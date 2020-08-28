@@ -247,6 +247,62 @@ export class NodeView extends View {
     return childViews;
   }
 
+  firstChildView(): View | null {
+    const childNodes = this._node.childNodes;
+    for (let i = 0, n = childNodes.length; i < n; i += 1) {
+      const childView = (childNodes[i] as ViewNode).view;
+      if (childView !== void 0) {
+        return childView;
+      }
+    }
+    return null;
+  }
+
+  lastChildView(): View | null {
+    const childNodes = this._node.childNodes;
+    for (let i = childNodes.length - 1; i >= 0; i -= 1) {
+      const childView = (childNodes[i] as ViewNode).view;
+      if (childView !== void 0) {
+        return childView;
+      }
+    }
+    return null;
+  }
+
+  nextChildView(targetView: View): View | null {
+    if (targetView instanceof NodeView && targetView.parentView === this) {
+      let targetNode: ViewNode | null = targetView._node;
+      do {
+        targetNode = targetNode!.nextSibling;
+        if (targetNode !== null) {
+          if (targetNode.view !== void 0) {
+            return targetNode.view;
+          }
+          continue;
+        }
+        break;
+      } while (true);
+    }
+    return null;
+  }
+
+  previousChildView(targetView: View): View | null {
+    if (targetView instanceof NodeView && targetView.parentView === this) {
+      let targetNode: ViewNode | null = targetView._node;
+      do {
+        targetNode = targetNode!.previousSibling;
+        if (targetNode !== null) {
+          if (targetNode.view !== void 0) {
+            return targetNode.view;
+          }
+          continue;
+        }
+        break;
+      } while (true);
+    }
+    return null;
+  }
+
   forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
                                    thisArg?: S): T | undefined {
     let result: T | undefined;
