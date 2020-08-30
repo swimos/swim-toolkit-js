@@ -29,9 +29,11 @@ export class MenuList extends ThemedHtmlView {
     this.userSelect.setAutoState("none");
   }
 
-  readonly viewController: MenuListController | null;
+  // @ts-ignore
+  declare readonly viewController: MenuListController | null;
 
-  readonly viewObservers: ReadonlyArray<MenuListObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<MenuListObserver>;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);

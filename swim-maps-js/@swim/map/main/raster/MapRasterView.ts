@@ -51,9 +51,11 @@ export class MapRasterView extends MapLayerView {
     this._rasterFrame = BoxR2.undefined();
   }
 
-  readonly viewController: MapRasterViewController | null;
+  // @ts-ignore
+  declare readonly viewController: MapRasterViewController | null;
 
-  readonly viewObservers: ReadonlyArray<MapRasterViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<MapRasterViewObserver>;
 
   initView(init: MapRasterViewInit): void {
     super.initView(init);
@@ -224,7 +226,8 @@ export class MapRasterView extends MapLayerView {
     return rasterViewContext;
   }
 
-  readonly viewContext: MapRasterViewContext;
+  // @ts-ignore
+  declare readonly viewContext: MapRasterViewContext;
 
   /** @hidden */
   get compositeFrame(): BoxR2 {

@@ -163,7 +163,8 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     });
   }
 
-  readonly viewManagerObservers: ReadonlyArray<ThemeManagerObserver>;
+  // @ts-ignore
+  declare readonly viewManagerObservers: ReadonlyArray<ThemeManagerObserver>;
 
   protected onInsertRootView(rootView: V): void {
     super.onInsertRootView(rootView);

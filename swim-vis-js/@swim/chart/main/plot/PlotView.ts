@@ -45,9 +45,11 @@ export interface PlotViewInit<X, Y> extends GraphicsViewInit {
 }
 
 export interface PlotView<X, Y> extends GraphicsView, ScaleXYView<X, Y> {
-  readonly viewController: PlotViewController<X, Y> | null;
+  // @ts-ignore
+  declare readonly viewController: PlotViewController<X, Y> | null;
 
-  readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 
   plotType: PlotType;
 

@@ -237,9 +237,11 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     }
   }
 
-  readonly viewController: ScaleViewController<X, Y> | null;
+  // @ts-ignore
+  declare readonly viewController: ScaleViewController<X, Y> | null;
 
-  readonly viewObservers: ReadonlyArray<ScaleViewObserver<X, Y>>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<ScaleViewObserver<X, Y>>;
 
   @ViewAnimator({type: ContinuousScale, inherit: true})
   xScale: ContinuousScaleViewAnimator<this, X, number>;

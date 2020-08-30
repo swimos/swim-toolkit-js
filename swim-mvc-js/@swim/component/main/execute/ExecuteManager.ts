@@ -237,7 +237,8 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     }
   }
 
-  readonly componentManagerObservers: ReadonlyArray<ExecuteManagerObserver>;
+  // @ts-ignore
+  declare readonly componentManagerObservers: ReadonlyArray<ExecuteManagerObserver>;
 
   protected onAttach(): void {
     super.onAttach();

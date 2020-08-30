@@ -37,9 +37,11 @@ export interface ThemedHtmlViewInit extends HtmlViewInit, ThemedViewInit {
 }
 
 export class ThemedHtmlView extends HtmlView implements ThemedView {
-  readonly viewController: ThemedHtmlViewController | null;
+  // @ts-ignore
+  declare readonly viewController: ThemedHtmlViewController | null;
 
-  readonly viewObservers: ReadonlyArray<ThemedHtmlViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<ThemedHtmlViewObserver>;
 
   initView(init: ThemedHtmlViewInit): void {
     super.initView(init);

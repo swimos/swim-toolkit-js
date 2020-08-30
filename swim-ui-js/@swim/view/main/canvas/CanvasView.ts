@@ -119,9 +119,11 @@ export class CanvasView extends HtmlView {
     this.position.setAutoState("absolute");
   }
 
-  readonly viewController: CanvasViewController | null;
+  // @ts-ignore
+  declare readonly viewController: CanvasViewController | null;
 
-  readonly viewObservers: ReadonlyArray<CanvasViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<CanvasViewObserver>;
 
   initView(init: CanvasViewInit): void {
     super.initView(init);
@@ -1036,7 +1038,8 @@ export class CanvasView extends HtmlView {
     return canvasViewContext;
   }
 
-  readonly viewContext: GraphicsViewContext;
+  // @ts-ignore
+  declare readonly viewContext: GraphicsViewContext;
 
   get viewFrame(): BoxR2 {
     return this._viewFrame;

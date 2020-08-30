@@ -30,7 +30,8 @@ export class WarpManager<M extends Model = Model> extends ModelManager<M> {
     return this._client;
   }
 
-  readonly modelManagerObservers: ReadonlyArray<WarpManagerObserver>;
+  // @ts-ignore
+  declare readonly modelManagerObservers: ReadonlyArray<WarpManagerObserver>;
 
   private static _global?: WarpManager<any>;
   static global<M extends Model>(): WarpManager<M> {

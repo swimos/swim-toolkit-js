@@ -143,7 +143,8 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     });
   }
 
-  readonly viewManagerObservers: ReadonlyArray<ViewportManagerObserver>;
+  // @ts-ignore
+  declare readonly viewManagerObservers: ReadonlyArray<ViewportManagerObserver>;
 
   protected onAddViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
     super.onAddViewManagerObserver(viewManagerObserver);

@@ -1228,7 +1228,8 @@ export abstract class GraphicsView extends View {
     this.setCulled(!viewFrame.intersects(this.viewBounds));
   }
 
-  readonly viewContext: GraphicsViewContext;
+  // @ts-ignore
+  declare readonly viewContext: GraphicsViewContext;
 
   /**
    * The parent-specified view-coordinate bounding box in which this view

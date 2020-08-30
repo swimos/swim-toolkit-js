@@ -28,9 +28,11 @@ export class WebAppView extends HtmlView {
   /** @hidden */
   readonly _mutationObserver: MutationObserver;
 
-  readonly viewController: WebAppViewController | null;
+  // @ts-ignore
+  declare readonly viewController: WebAppViewController | null;
 
-  readonly viewObservers: ReadonlyArray<WebAppViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<WebAppViewObserver>;
 
   materializeTree(parentView: NodeView = this): void {
     const childNodes = parentView.node.childNodes;

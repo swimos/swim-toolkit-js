@@ -458,7 +458,7 @@ ModelDownlink.prototype.initDownlink = function (this: ModelDownlink<Model>, dow
 
 ModelDownlink.define = function <M extends Model, I>(descriptor: ModelDownlinkDescriptor<M, I>): ModelDownlinkConstructor<M, I> {
   const type = descriptor.type;
-  delete descriptor.type;
+  delete (descriptor as {type?: string}).type;
   if (type === "event") {
     return ModelDownlink.Event.define(descriptor as unknown as ModelEventDownlinkDescriptor<M>) as unknown as ModelDownlinkConstructor<M, I>;
   } else if (type === "list") {

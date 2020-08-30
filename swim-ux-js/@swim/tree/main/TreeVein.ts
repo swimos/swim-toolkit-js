@@ -32,9 +32,11 @@ export class TreeVein extends ThemedHtmlView {
     this.alignItems.setAutoState("center");
   }
 
-  readonly viewController: TreeVeinController | null;
+  // @ts-ignore
+  declare readonly viewController: TreeVeinController | null;
 
-  readonly viewObservers: ReadonlyArray<TreeVeinObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<TreeVeinObserver>;
 
   initView(init: TreeVeinInit): void {
     super.initView(init);

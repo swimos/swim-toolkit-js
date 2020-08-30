@@ -84,9 +84,11 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
     return arrow;
   }
 
-  readonly viewController: PopoverViewController | null;
+  // @ts-ignore
+  declare readonly viewController: PopoverViewController | null;
 
-  readonly viewObservers: ReadonlyArray<PopoverViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<PopoverViewObserver>;
 
   initView(init: PopoverViewInit): void {
     super.initView(init);

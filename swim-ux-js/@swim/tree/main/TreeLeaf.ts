@@ -50,9 +50,11 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     this.overflowY.setAutoState("hidden");
   }
 
-  readonly viewController: TreeLeafController | null;
+  // @ts-ignore
+  declare readonly viewController: TreeLeafController | null;
 
-  readonly viewObservers: ReadonlyArray<TreeLeafObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<TreeLeafObserver>;
 
   initView(init: TreeLeafInit): void {
     super.initView(init);

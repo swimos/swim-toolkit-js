@@ -49,9 +49,11 @@ export class EsriMapView extends EsriView {
     map.watch("extent", this.onMapRender);
   }
 
-  readonly viewController: EsriMapViewController | null;
+  // @ts-ignore
+  declare readonly viewController: EsriMapViewController | null;
 
-  readonly viewObservers: ReadonlyArray<EsriMapViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<EsriMapViewObserver>;
 
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;

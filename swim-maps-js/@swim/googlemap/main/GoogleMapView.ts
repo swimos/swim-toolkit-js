@@ -53,9 +53,11 @@ export class GoogleMapView extends MapLayerView {
     // hook
   }
 
-  readonly viewController: GoogleMapViewController | null;
+  // @ts-ignore
+  declare readonly viewController: GoogleMapViewController | null;
 
-  readonly viewObservers: ReadonlyArray<GoogleMapViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<GoogleMapViewObserver>;
 
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;

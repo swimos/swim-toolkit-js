@@ -97,7 +97,8 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  readonly viewManagerObservers: ReadonlyArray<LayoutManagerObserver>;
+  // @ts-ignore
+  declare readonly viewManagerObservers: ReadonlyArray<LayoutManagerObserver>;
 
   private static _global?: LayoutManager<any>;
   static global<V extends View>(): LayoutManager<V> {

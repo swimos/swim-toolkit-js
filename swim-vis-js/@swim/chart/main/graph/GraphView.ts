@@ -28,9 +28,11 @@ export interface GraphViewInit<X = unknown, Y = unknown> extends ScaleViewInit<X
 }
 
 export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
-  readonly viewController: GraphViewController<X, Y> | null;
+  // @ts-ignore
+  declare readonly viewController: GraphViewController<X, Y> | null;
 
-  readonly viewObservers: ReadonlyArray<GraphViewObserver<X, Y>>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<GraphViewObserver<X, Y>>;
 
   initView(init: GraphViewInit<X, Y>): void {
     super.initView(init);

@@ -51,9 +51,11 @@ export class MapboxView extends MapLayerView {
     map.on("render", this.onMapRender);
   }
 
-  readonly viewController: MapboxViewController | null;
+  // @ts-ignore
+  declare readonly viewController: MapboxViewController | null;
 
-  readonly viewObservers: ReadonlyArray<MapboxViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<MapboxViewObserver>;
 
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;

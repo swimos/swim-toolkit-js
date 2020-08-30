@@ -27,9 +27,11 @@ export abstract class EsriView extends MapLayerView {
 
   abstract get map(): __esri.View;
 
-  readonly viewController: EsriViewController | null;
+  // @ts-ignore
+  declare readonly viewController: EsriViewController | null;
 
-  readonly viewObservers: ReadonlyArray<EsriViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<EsriViewObserver>;
 
   abstract project(lnglat: AnyGeoPoint): PointR2;
   abstract project(lng: number, lat: number): PointR2;

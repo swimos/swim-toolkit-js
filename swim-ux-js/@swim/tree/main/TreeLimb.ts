@@ -48,9 +48,11 @@ export class TreeLimb extends ThemedHtmlView {
     this.position.setAutoState("relative");
   }
 
-  readonly viewController: TreeLimbController | null;
+  // @ts-ignore
+  declare readonly viewController: TreeLimbController | null;
 
-  readonly viewObservers: ReadonlyArray<TreeLimbObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<TreeLimbObserver>;
 
   initView(init: TreeLimbInit): void {
     super.initView(init);

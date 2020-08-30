@@ -35,9 +35,11 @@ export class TreeStem extends ThemedHtmlView {
     this.height.setAutoState(60);
   }
 
-  readonly viewController: TreeStemController | null;
+  // @ts-ignore
+  declare readonly viewController: TreeStemController | null;
 
-  readonly viewObservers: ReadonlyArray<TreeStemObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<TreeStemObserver>;
 
   initView(init: TreeStemInit): void {
     super.initView(init);

@@ -82,9 +82,11 @@ export class ButtonStack extends ThemedHtmlView implements Modal, PositionGestur
     return HtmlView.create(FloatingButton);
   }
 
-  readonly viewController: ButtonStackController | null;
+  // @ts-ignore
+  declare readonly viewController: ButtonStackController | null;
 
-  readonly viewObservers: ReadonlyArray<ButtonStackObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<ButtonStackObserver>;
 
   get stackState(): ButtonStackState {
     return this._stackState;

@@ -38,9 +38,11 @@ export class TreeCell extends ThemedHtmlView {
     this.alignItems.setAutoState("center");
   }
 
-  readonly viewController: TreeCellController | null;
+  // @ts-ignore
+  declare readonly viewController: TreeCellController | null;
 
-  readonly viewObservers: ReadonlyArray<TreeCellObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<TreeCellObserver>;
 
   initView(init: TreeCellInit): void {
     super.initView(init);

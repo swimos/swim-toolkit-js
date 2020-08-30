@@ -72,9 +72,11 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     this._gradientStops = 0;
   }
 
-  readonly viewController: PlotViewController<X, Y> | null;
+  // @ts-ignore
+  declare readonly viewController: PlotViewController<X, Y> | null;
 
-  readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 
   initView(init: SeriesPlotViewInit<X, Y>): void {
     super.initView(init);

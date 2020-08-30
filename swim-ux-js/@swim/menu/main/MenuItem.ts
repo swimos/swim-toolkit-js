@@ -53,9 +53,11 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     this.userSelect.setAutoState("none");
   }
 
-  readonly viewController: MenuItemController | null;
+  // @ts-ignore
+  declare readonly viewController: MenuItemController | null;
 
-  readonly viewObservers: ReadonlyArray<MenuItemObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<MenuItemObserver>;
 
   @ViewScope({type: Boolean, state: false})
   highlighted: ViewScope<this, boolean>;

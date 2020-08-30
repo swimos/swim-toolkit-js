@@ -25,9 +25,11 @@ import {ThemedGraphicsViewObserver} from "./ThemedGraphicsViewObserver";
 import {ThemedGraphicsViewController} from "./ThemedGraphicsViewController";
 
 export abstract class ThemedLayerView extends LayerView implements ThemedGraphicsView {
-  readonly viewController: ThemedGraphicsViewController | null;
+  // @ts-ignore
+  declare readonly viewController: ThemedGraphicsViewController | null;
 
-  readonly viewObservers: ReadonlyArray<ThemedGraphicsViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<ThemedGraphicsViewObserver>;
 
   initView(init: ThemedGraphicsViewInit): void {
     super.initView(init);

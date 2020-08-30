@@ -80,9 +80,11 @@ export class DrawerView extends ThemedHtmlView implements Modal {
     this.modifyTheme(Feel.default, [Feel.overlay, 1]);
   }
 
-  readonly viewController: DrawerViewController | null;
+  // @ts-ignore
+  declare readonly viewController: DrawerViewController | null;
 
-  readonly viewObservers: ReadonlyArray<DrawerViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<DrawerViewObserver>;
 
   initView(init: DrawerViewInit): void {
     super.initView(init);

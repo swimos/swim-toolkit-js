@@ -23,9 +23,11 @@ export interface MapGraphicsViewInit extends GraphicsViewInit {
 }
 
 export abstract class MapGraphicsView extends GraphicsView {
-  readonly viewController: MapGraphicsViewController | null;
+  // @ts-ignore
+  declare readonly viewController: MapGraphicsViewController | null;
 
-  readonly viewObservers: ReadonlyArray<MapGraphicsViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<MapGraphicsViewObserver>;
 
   initView(init: MapGraphicsViewInit): void {
     super.initView(init);
@@ -178,7 +180,8 @@ export abstract class MapGraphicsView extends GraphicsView {
     this.setCulled(!geoFrame.intersects(this.geoBounds));
   }
 
-  readonly viewContext: MapGraphicsViewContext;
+  // @ts-ignore
+  declare readonly viewContext: MapGraphicsViewContext;
 
   /**
    * The map-specified geographic bounding box in which this view should layout

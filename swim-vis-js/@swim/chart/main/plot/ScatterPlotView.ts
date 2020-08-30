@@ -58,9 +58,11 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     this._yDataRange = void 0;
   }
 
-  readonly viewController: PlotViewController<X, Y> | null;
+  // @ts-ignore
+  declare readonly viewController: PlotViewController<X, Y> | null;
 
-  readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 
   initView(init: ScatterPlotViewInit<X, Y>): void {
     super.initView(init);

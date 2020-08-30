@@ -133,9 +133,11 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     return new GraphView();
   }
 
-  readonly viewController: ChartViewController<X, Y> | null;
+  // @ts-ignore
+  declare readonly viewController: ChartViewController<X, Y> | null;
 
-  readonly viewObservers: ReadonlyArray<ChartViewObserver<X, Y>>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<ChartViewObserver<X, Y>>;
 
   get graph(): GraphView<X, Y> | null {
     const childView = this.getChildView("graph");

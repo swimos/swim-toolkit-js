@@ -37,9 +37,11 @@ export interface ThemedSvgViewInit extends SvgViewInit, ThemedViewInit {
 }
 
 export class ThemedSvgView extends SvgView implements ThemedView {
-  readonly viewController: ThemedSvgViewController | null;
+  // @ts-ignore
+  declare readonly viewController: ThemedSvgViewController | null;
 
-  readonly viewObservers: ReadonlyArray<ThemedSvgViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<ThemedSvgViewObserver>;
 
   initView(init: ThemedSvgViewInit): void {
     super.initView(init);

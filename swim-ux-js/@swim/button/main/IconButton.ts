@@ -53,9 +53,11 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
     this.cursor.setAutoState("pointer");
   }
 
-  readonly viewController: ThemedHtmlViewController & ButtonObserver | null;
+  // @ts-ignore
+  declare readonly viewController: ThemedHtmlViewController & ButtonObserver | null;
 
-  readonly viewObservers: ReadonlyArray<ThemedHtmlViewObserver & ButtonObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<ThemedHtmlViewObserver & ButtonObserver>;
 
   get morph(): ButtonMorph | null {
     const childView = this.getChildView("morph");

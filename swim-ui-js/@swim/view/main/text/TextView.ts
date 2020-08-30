@@ -34,9 +34,11 @@ export class TextView extends NodeView {
     return this._node;
   }
 
-  readonly viewController: TextViewController | null;
+  // @ts-ignore
+  declare readonly viewController: TextViewController | null;
 
-  readonly viewObservers: ReadonlyArray<TextViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<TextViewObserver>;
 
   initView(init: TextViewInit): void {
     super.initView(init);

@@ -225,7 +225,8 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  readonly viewManagerObservers: ReadonlyArray<DisplayManagerObserver>;
+  // @ts-ignore
+  declare readonly viewManagerObservers: ReadonlyArray<DisplayManagerObserver>;
 
   protected onAttach(): void {
     super.onAttach();

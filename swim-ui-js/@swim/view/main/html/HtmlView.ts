@@ -247,9 +247,11 @@ export class HtmlView extends ElementView {
     return this._node;
   }
 
-  readonly viewController: HtmlViewController | null;
+  // @ts-ignore
+  declare readonly viewController: HtmlViewController | null;
 
-  readonly viewObservers: ReadonlyArray<HtmlViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<HtmlViewObserver>;
 
   initView(init: HtmlViewInit): void {
     super.initView(init);

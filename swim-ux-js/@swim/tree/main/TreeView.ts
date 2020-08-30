@@ -58,9 +58,11 @@ export class TreeView extends ThemedHtmlView {
     this.opacity.setAutoState(1);
   }
 
-  readonly viewController: TreeViewController | null;
+  // @ts-ignore
+  declare readonly viewController: TreeViewController | null;
 
-  readonly viewObservers: ReadonlyArray<TreeViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<TreeViewObserver>;
 
   initView(init: TreeViewInit): void {
     super.initView(init);

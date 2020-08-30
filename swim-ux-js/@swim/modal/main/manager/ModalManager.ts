@@ -234,7 +234,8 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
     });
   }
 
-  readonly viewManagerObservers: ReadonlyArray<ModalManagerObserver>;
+  // @ts-ignore
+  declare readonly viewManagerObservers: ReadonlyArray<ModalManagerObserver>;
 
   protected onInsertRootView(rootView: V): void {
     super.onInsertRootView(rootView);

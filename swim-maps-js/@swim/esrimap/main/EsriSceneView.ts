@@ -52,9 +52,11 @@ export class EsriSceneView extends EsriView {
     map.watch("extent", this.onMapRender);
   }
 
-  readonly viewController: EsriSceneViewController | null;
+  // @ts-ignore
+  declare readonly viewController: EsriSceneViewController | null;
 
-  readonly viewObservers: ReadonlyArray<EsriSceneViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<EsriSceneViewObserver>;
 
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;

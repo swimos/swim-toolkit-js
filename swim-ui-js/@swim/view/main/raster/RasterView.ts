@@ -53,9 +53,11 @@ export class RasterView extends LayerView {
     this._rasterFrame = BoxR2.undefined();
   }
 
-  readonly viewController: RasterViewController | null;
+  // @ts-ignore
+  declare readonly viewController: RasterViewController | null;
 
-  readonly viewObservers: ReadonlyArray<RasterViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<RasterViewObserver>;
 
   initView(init: RasterViewInit): void {
     super.initView(init);
@@ -230,7 +232,8 @@ export class RasterView extends LayerView {
     return rasterViewContext;
   }
 
-  readonly viewContext: RasterViewContext;
+  // @ts-ignore
+  declare readonly viewContext: RasterViewContext;
 
   /** @hidden */
   get compositeFrame(): BoxR2 {

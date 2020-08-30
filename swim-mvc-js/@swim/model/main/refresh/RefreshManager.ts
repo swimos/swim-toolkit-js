@@ -237,7 +237,8 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     }
   }
 
-  readonly modelManagerObservers: ReadonlyArray<RefreshManagerObserver>;
+  // @ts-ignore
+  declare readonly modelManagerObservers: ReadonlyArray<RefreshManagerObserver>;
 
   protected onAttach(): void {
     super.onAttach();

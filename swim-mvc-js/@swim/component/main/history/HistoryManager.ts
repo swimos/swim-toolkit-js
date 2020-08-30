@@ -225,7 +225,8 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
     });
   }
 
-  readonly componentManagerObservers: ReadonlyArray<HistoryManagerObserver>;
+  // @ts-ignore
+  declare readonly componentManagerObservers: ReadonlyArray<HistoryManagerObserver>;
 
   protected onAttach(): void {
     super.onAttach();

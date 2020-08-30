@@ -80,9 +80,11 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     this._tickGenerator = true;
   }
 
-  readonly viewController: AxisViewController<D> | null;
+  // @ts-ignore
+  declare readonly viewController: AxisViewController<D> | null;
 
-  readonly viewObservers: ReadonlyArray<AxisViewObserver<D>>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<AxisViewObserver<D>>;
 
   initView(init: AxisViewInit<D>): void {
     super.initView(init);

@@ -128,9 +128,11 @@ export class SvgView extends ElementView {
     return this._node;
   }
 
-  readonly viewController: SvgViewController | null;
+  // @ts-ignore
+  declare readonly viewController: SvgViewController | null;
 
-  readonly viewObservers: ReadonlyArray<SvgViewObserver>;
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<SvgViewObserver>;
 
   initView(init: SvgViewInit): void {
     super.initView(init);
