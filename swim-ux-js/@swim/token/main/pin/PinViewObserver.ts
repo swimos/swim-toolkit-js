@@ -12,6 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {NavbarView} from "./NavbarView";
+import {ThemedHtmlViewObserver} from "@swim/theme";
+import {PinView} from "./PinView";
 
-export {ToggleView} from "./ToggleView";
+export interface PinViewObserver<V extends PinView = PinView> extends ThemedHtmlViewObserver<V> {
+  pinWillExpand?(view: V): void;
+
+  pinDidExpand?(view: V): void;
+
+  pinWillCollapse?(view: V): void;
+
+  pinDidCollapse?(view: V): void;
+
+  pinDidPressHead?(view: V): void;
+
+  pinDidPressBody?(view: V): void;
+}

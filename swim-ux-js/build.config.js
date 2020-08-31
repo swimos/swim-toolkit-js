@@ -33,6 +33,16 @@ const ux = [
     ],
   },
   {
+    id: "token",
+    name: "@swim/token",
+    targets: [
+      {
+        id: "main",
+        deps: ["theme", "modal", "button"],
+      },
+    ],
+  },
+  {
     id: "drawer",
     name: "@swim/drawer",
     targets: [
@@ -70,7 +80,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "modal", "button", "drawer", "menu", "tree"],
+        deps: ["theme", "modal", "button", "token", "drawer", "menu", "tree"],
       },
     ],
   },

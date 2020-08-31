@@ -574,6 +574,17 @@ const ux = [
     ],
   },
   {
+    id: "token",
+    name: "@swim/token",
+    path: "swim-ux-js/@swim/token",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "style", "animate", "render", "constraint", "view", "gesture", "theme", "modal", "button"],
+      },
+    ],
+  },
+  {
     id: "drawer",
     name: "@swim/drawer",
     path: "swim-ux-js/@swim/drawer",
@@ -615,7 +626,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "modal", "button", "drawer", "menu", "tree"],
+        deps: ["theme", "modal", "button", "token", "drawer", "menu", "tree"],
       },
     ],
   },

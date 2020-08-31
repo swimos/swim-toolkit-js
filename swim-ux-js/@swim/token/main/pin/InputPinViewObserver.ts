@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {NavbarView} from "./NavbarView";
+import {HtmlView} from "@swim/view";
+import {PinViewObserver} from "./PinViewObserver";
+import {InputPinView} from "./InputPinView";
 
-export {ToggleView} from "./ToggleView";
+export interface InputPinViewObserver<V extends InputPinView = InputPinView> extends PinViewObserver<V> {
+  pinDidUpdateInput?(inputView: HtmlView, view: V): void;
+
+  pinDidChangeInput?(inputView: HtmlView, view: V): void;
+
+  pinDidAcceptInput?(inputView: HtmlView, view: V): void;
+}

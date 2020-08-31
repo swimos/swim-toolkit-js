@@ -97,6 +97,8 @@ toolbars, controls, and other interactive application views and controllers.
   auto-placed, source-tracking popover views.
 - [**@swim/drawer**](swim-ux-js/@swim/drawer) –
   responsive, minifiable drawer views.
+- [**@swim/token**](swim-ux-js/@swim/token) –
+  compact, editable pin and chip token views.
 - [**@swim/menu**](swim-ux-js/@swim/menu) –
   context-sensitive menu lists and menu items.
 - [**@swim/tree**](swim-ux-js/@swim/tree) –

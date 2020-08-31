@@ -16,14 +16,14 @@ import {Tween} from "@swim/transition";
 import {View, HtmlView} from "@swim/view";
 import {ModalOptions, ModalState, Modal} from "@swim/modal";
 
-export class DropdownView extends HtmlView implements Modal {
+export class ToggleView extends HtmlView implements Modal {
   /** @hidden */
   _visibleClass: string;
 
   constructor(node: HTMLElement) {
     super(node);
     this.onToggleClick = this.onToggleClick.bind(this);
-    this._visibleClass = "dropdown-visible";
+    this._visibleClass = "toggle-visible";
   }
 
   get toggleView(): HtmlView | null {

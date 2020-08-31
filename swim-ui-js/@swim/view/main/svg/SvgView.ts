@@ -71,6 +71,8 @@ export interface SvgViewAttributesInit {
   edgeMode?: AttributeAnimatorMemberInit<SvgView, "edgeMode">;
   fill?: AttributeAnimatorMemberInit<SvgView, "fill">;
   fillRule?: AttributeAnimatorMemberInit<SvgView, "fillRule">;
+  floodColor?: AttributeAnimatorMemberInit<SvgView, "floodColor">;
+  floodOpacity?: AttributeAnimatorMemberInit<SvgView, "floodOpacity">;
   height?: AttributeAnimatorMemberInit<SvgView, "height">;
   in?: AttributeAnimatorMemberInit<SvgView, "in">;
   in2?: AttributeAnimatorMemberInit<SvgView, "in2">;
@@ -103,6 +105,7 @@ export interface SvgViewAttributesInit {
 }
 
 export interface SvgViewStyleInit {
+  filter?: StyleAnimatorMemberInit<SvgView, "filter">;
   fontFamily?: StyleAnimatorMemberInit<SvgView, "fontFamily">;
   fontSize?: StyleAnimatorMemberInit<SvgView, "fontSize">;
   fontStretch?: StyleAnimatorMemberInit<SvgView, "fontStretch">;
@@ -180,6 +183,12 @@ export class SvgView extends ElementView {
     }
     if (init.fillRule !== void 0) {
       this.fillRule(init.fillRule);
+    }
+    if (init.floodColor !== void 0) {
+      this.floodColor(init.floodColor);
+    }
+    if (init.floodOpacity !== void 0) {
+      this.floodOpacity(init.floodOpacity);
     }
     if (init.height !== void 0) {
       this.height(init.height);
@@ -271,6 +280,9 @@ export class SvgView extends ElementView {
   }
 
   initStyle(init: SvgViewStyleInit): void {
+    if (init.filter !== void 0) {
+      this.filter(init.filter);
+    }
     if (init.fontFamily !== void 0) {
       this.fontFamily(init.fontFamily);
     }
@@ -411,6 +423,12 @@ export class SvgView extends ElementView {
   @AttributeAnimator({attributeName: "fill-rule", type: String})
   fillRule: AttributeAnimator<this, FillRule>;
 
+  @AttributeAnimator({attributeName: "flood-color", type: [Color, String]})
+  floodColor: AttributeAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
+
+  @AttributeAnimator({attributeName: "flood-opacity", type: Number})
+  floodOpacity: AttributeAnimator<this, number, number | string>;
+
   @AttributeAnimator({attributeName: "height", type: Length})
   height: AttributeAnimator<this, Length, AnyLength>;
 
@@ -444,8 +462,8 @@ export class SvgView extends ElementView {
   @AttributeAnimator({attributeName: "result", type: String})
   result: AttributeAnimator<this, string>;
 
-  @AttributeAnimator({attributeName: "stdDeviation", type: String})
-  stdDeviation: AttributeAnimator<this, string>;
+  @AttributeAnimator({attributeName: "stdDeviation", type: Number})
+  stdDeviation: AttributeAnimator<this, number, number | string>;
 
   @AttributeAnimator({attributeName: "stroke", type: [Color, String]})
   stroke: AttributeAnimator<this, Paint, AnyColor | Paint>;
@@ -497,6 +515,9 @@ export class SvgView extends ElementView {
 
   @AttributeAnimator({attributeName: "y2", type: Number})
   y2: AttributeAnimator<this, number, number | string>;
+
+  @StyleAnimator({propertyNames: "filter", type: String})
+  filter: StyleAnimator<this, string>;
 
   font(): Font | undefined;
   font(value: AnyFont | undefined, tween?: Tween<any>, priority?: string): this;

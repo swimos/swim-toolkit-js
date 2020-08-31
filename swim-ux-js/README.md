@@ -26,6 +26,8 @@ The **Swim UX** framework consists of the following component libraries:
   auto-placed, source-tracking popover views.
 - [**@swim/drawer**](@swim/drawer) –
   responsive, minifiable drawer views.
+- [**@swim/token**](@swim/token) –
+  compact, editable pin and chip token views.
 - [**@swim/menu**](@swim/menu) –
   context-sensitive menu lists and menu items.
 - [**@swim/tree**](@swim/tree) –

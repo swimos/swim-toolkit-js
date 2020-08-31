@@ -154,6 +154,10 @@ toolbars, controls, and other interactive application views and controllers.
   ([npm](https://www.npmjs.com/package/@swim/drawer),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_drawer.html)) –
   responsive, minifiable drawer views.
+- [**@swim/token**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/token)
+  ([npm](https://www.npmjs.com/package/@swim/token),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_token.html)) –
+  compact, editable pin and chip token views.
 - [**@swim/menu**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/menu)
   ([npm](https://www.npmjs.com/package/@swim/menu),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_menu.html)) –

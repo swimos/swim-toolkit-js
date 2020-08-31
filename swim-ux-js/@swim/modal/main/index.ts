@@ -20,6 +20,8 @@ export {
 
 export * from "./manager";
 
+export * from "./dropdown";
+
 export * from "./popover";
 
 import {ModalService} from "./manager/ModalService";

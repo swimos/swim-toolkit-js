@@ -18,6 +18,8 @@ export * from "@swim/modal";
 
 export * from "@swim/button";
 
+export * from "@swim/token";
+
 export * from "@swim/drawer";
 
 export * from "@swim/menu";

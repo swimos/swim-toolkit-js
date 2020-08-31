@@ -5,6 +5,7 @@
     {"path": "./@swim/theme"},
     {"path": "./@swim/modal"},
     {"path": "./@swim/button"},
+    {"path": "./@swim/token"},
     {"path": "./@swim/drawer"},
     {"path": "./@swim/menu"},
     {"path": "./@swim/tree"},

@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {NavbarView} from "./NavbarView";
+export {
+  PinViewState,
+  PinViewInit,
+  PinView,
+} from "./PinView";
+export {PinViewObserver} from "./PinViewObserver";
+export {PinViewController} from "./PinViewController";
 
-export {ToggleView} from "./ToggleView";
+export {
+  InputPinViewInit,
+  InputPinView,
+} from "./InputPinView";
+export {InputPinViewObserver} from "./InputPinViewObserver";
+export {InputPinViewController} from "./InputPinViewController";

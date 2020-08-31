@@ -14,6 +14,7 @@
 
 export {
   PopoverPlacement,
+  PopoverViewInit,
   PopoverView,
 } from "./PopoverView";
 export {PopoverViewObserver} from "./PopoverViewObserver";

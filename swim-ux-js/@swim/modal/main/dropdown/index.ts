@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {NavbarView} from "./NavbarView";
-
-export {ToggleView} from "./ToggleView";
+export {
+  DropdownPlacement,
+  DropdownViewInit,
+  DropdownView,
+} from "./DropdownView";
+export {DropdownViewObserver} from "./DropdownViewObserver";
+export {DropdownViewController} from "./DropdownViewController";

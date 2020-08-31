@@ -15,7 +15,6 @@
 import {Objects} from "@swim/util";
 import {BoxR2} from "@swim/math";
 import {AnyLength, Length} from "@swim/length";
-import {Color} from "@swim/color";
 import {Tween, Transition} from "@swim/transition";
 import {
   ViewContextType,
@@ -28,21 +27,20 @@ import {
 } from "@swim/view";
 import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {ModalOptions, ModalState, Modal} from "../Modal";
-import {PopoverViewObserver} from "./PopoverViewObserver";
-import {PopoverViewController} from "./PopoverViewController";
+import {DropdownViewObserver} from "./DropdownViewObserver";
+import {DropdownViewController} from "./DropdownViewController";
 
-export type PopoverPlacement = "none" | "above" | "below" | "over" | "top" | "bottom" | "right" | "left";
+export type DropdownPlacement = "none" | "above" | "below" | "over" | "top" | "bottom" | "right" | "left";
 
-export interface PopoverViewInit extends ThemedHtmlViewInit {
-  viewController?: PopoverViewController;
+export interface DropdownViewInit extends ThemedHtmlViewInit {
+  viewController?: DropdownViewController;
   source?: View;
-  placement?: PopoverPlacement[];
+  placement?: DropdownPlacement[];
   placementFrame?: BoxR2;
-  arrowWidth?: AnyLength;
-  arrowHeight?: AnyLength;
+  placementGap?: AnyLength;
 }
 
-export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserver {
+export class DropdownView extends ThemedHtmlView implements Modal, HtmlViewObserver {
   /** @hidden */
   _source: View | null;
   /** @hidden */
@@ -52,7 +50,7 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
   /** @hidden */
   _modality: boolean | number;
   /** @hidden */
-  readonly _placement: PopoverPlacement[];
+  readonly _placement: DropdownPlacement[];
   /** @hidden */
   _placementFrame: BoxR2 | null;
 
@@ -70,35 +68,17 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
     this._sourceFrame = null;
     this._modalState = "shown";
     this._modality = false;
-    this._placement = ["top", "bottom", "right", "left"];
+    this._placement = ["bottom"];
     this._placementFrame = null;
-    this.initArrow();
-  }
-
-  protected initArrow(): void {
-    const arrow = this.createArrow();
-    if (arrow !== null) {
-      this.prependChildView(arrow, "arrow");
-    }
-  }
-
-  protected createArrow(): HtmlView | null {
-    const arrow = HtmlView.create("div");
-    arrow.addClass("popover-arrow");
-    arrow.display.setAutoState("none");
-    arrow.position.setAutoState("absolute");
-    arrow.width.setAutoState(0);
-    arrow.height.setAutoState(0);
-    return arrow;
   }
 
   // @ts-ignore
-  declare readonly viewController: PopoverViewController | null;
+  declare readonly viewController: DropdownViewController | null;
 
   // @ts-ignore
-  declare readonly viewObservers: ReadonlyArray<PopoverViewObserver>;
+  declare readonly viewObservers: ReadonlyArray<DropdownViewObserver>;
 
-  initView(init: PopoverViewInit): void {
+  initView(init: DropdownViewInit): void {
     super.initView(init);
     if (init.source !== void 0) {
       this.setSource(init.source);
@@ -109,19 +89,13 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
     if (init.placementFrame !== void 0) {
       this.placementFrame(init.placementFrame);
     }
-    if (init.arrowWidth !== void 0) {
-      this.arrowWidth(init.arrowWidth);
-    }
-    if (init.arrowHeight !== void 0) {
-      this.arrowHeight(init.arrowHeight);
+    if (init.placementGap !== void 0) {
+      this.placementGap(init.placementGap);
     }
   }
 
-  @ViewAnimator({type: Length, state: Length.px(10)})
-  arrowWidth: ViewAnimator<this, Length, AnyLength>;
-
-  @ViewAnimator({type: Length, state: Length.px(8)})
-  arrowHeight: ViewAnimator<this, Length, AnyLength>;
+  @ViewAnimator({type: Length, state: Length.zero()})
+  placementGap: ViewAnimator<this, Length, AnyLength>;
 
   get source(): View | null {
     return this._source;
@@ -143,9 +117,9 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
   }
 
   protected willSetSource(source: View | null): void {
-    this.willObserve(function (viewObserver: PopoverViewObserver): void {
-      if (viewObserver.popoverWillSetSource !== void 0) {
-        viewObserver.popoverWillSetSource(source, this);
+    this.willObserve(function (viewObserver: DropdownViewObserver): void {
+      if (viewObserver.dropdownWillSetSource !== void 0) {
+        viewObserver.dropdownWillSetSource(source, this);
       }
     });
   }
@@ -155,9 +129,9 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
   }
 
   protected didSetSource(source: View | null): void {
-    this.didObserve(function (viewObserver: PopoverViewObserver): void {
-      if (viewObserver.popoverDidSetSource !== void 0) {
-        viewObserver.popoverDidSetSource(source, this);
+    this.didObserve(function (viewObserver: DropdownViewObserver): void {
+      if (viewObserver.dropdownDidSetSource !== void 0) {
+        viewObserver.dropdownDidSetSource(source, this);
       }
     });
   }
@@ -214,9 +188,9 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
   }
 
   protected willShow(): void {
-    this.willObserve(function (viewObserver: PopoverViewObserver): void {
-      if (viewObserver.popoverWillShow !== void 0) {
-        viewObserver.popoverWillShow(this);
+    this.willObserve(function (viewObserver: DropdownViewObserver): void {
+      if (viewObserver.dropdownWillShow !== void 0) {
+        viewObserver.dropdownWillShow(this);
       }
     });
     this.visibility.setAutoState("visible");
@@ -228,9 +202,9 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
     this.pointerEvents.setAutoState("auto");
     this.marginTop.setAutoState(void 0);
     this.opacity.setAutoState(void 0);
-    this.didObserve(function (viewObserver: PopoverViewObserver): void {
-      if (viewObserver.popoverDidShow !== void 0) {
-        viewObserver.popoverDidShow(this);
+    this.didObserve(function (viewObserver: DropdownViewObserver): void {
+      if (viewObserver.dropdownDidShow !== void 0) {
+        viewObserver.dropdownDidShow(this);
       }
     });
   }
@@ -272,9 +246,9 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
   }
 
   protected willHide(): void {
-    this.willObserve(function (viewObserver: PopoverViewObserver): void {
-      if (viewObserver.popoverWillHide !== void 0) {
-        viewObserver.popoverWillHide(this);
+    this.willObserve(function (viewObserver: DropdownViewObserver): void {
+      if (viewObserver.dropdownWillHide !== void 0) {
+        viewObserver.dropdownWillHide(this);
       }
     });
     this.pointerEvents.setAutoState("none");
@@ -286,16 +260,16 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
     this.visibility.setAutoState("hidden");
     this.marginTop.setAutoState(void 0);
     this.opacity.setAutoState(void 0);
-    this.didObserve(function (viewObserver: PopoverViewObserver): void {
-      if (viewObserver.popoverDidHide !== void 0) {
-        viewObserver.popoverDidHide(this);
+    this.didObserve(function (viewObserver: DropdownViewObserver): void {
+      if (viewObserver.dropdownDidHide !== void 0) {
+        viewObserver.dropdownDidHide(this);
       }
     });
   }
 
-  placement(): ReadonlyArray<PopoverPlacement>;
-  placement(placement: ReadonlyArray<PopoverPlacement>): this;
-  placement(placement?: ReadonlyArray<PopoverPlacement>): ReadonlyArray<PopoverPlacement> | this {
+  placement(): ReadonlyArray<DropdownPlacement>;
+  placement(placement: ReadonlyArray<DropdownPlacement>): this;
+  placement(placement?: ReadonlyArray<DropdownPlacement>): ReadonlyArray<DropdownPlacement> | this {
     if (placement === void 0) {
       return this._placement;
     } else {
@@ -347,44 +321,32 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
     }
   }
 
-  protected onAnimate(viewContext: ViewContextType<this>): void {
-    super.onAnimate(viewContext);
-    if (this.backgroundColor.isUpdated()) {
-      this.place(true);
-    }
-  }
-
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.place();
   }
 
-  place(force: boolean = true): PopoverPlacement {
+  place(force: boolean = true): DropdownPlacement {
     const source = this._source;
     const oldSourceFrame = this._sourceFrame;
     const newSourceFrame = source !== null ? source.popoverFrame : null;
     if (newSourceFrame !== null && this._placement.length !== 0 &&
         (force || !newSourceFrame.equals(oldSourceFrame))) {
-      const placement = this.placePopover(source!, newSourceFrame);
-      const arrow = this.getChildView("arrow");
-      if (arrow instanceof HtmlView) {
-        this.placeArrow(source!, newSourceFrame, arrow, placement);
-      }
-      return placement;
+      return this.placeDropdown(source!, newSourceFrame);
     } else {
       return "none";
     }
   }
 
   /** @hidden */
-  protected placePopover(source: View, sourceFrame: BoxR2): PopoverPlacement {
+  protected placeDropdown(source: View, sourceFrame: BoxR2): DropdownPlacement {
     const node = this._node;
     const parent = node.offsetParent;
     if (parent === null) {
       return "none";
     }
-    const popoverWidth = node.clientWidth;
-    const popoverHeight = node.clientHeight;
+    const dropdownWidth = node.clientWidth;
+    const dropdownHeight = node.clientHeight;
 
     // offsetParent bounds in client coordinates
     const parentBounds = parent.getBoundingClientRect();
@@ -398,8 +360,6 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
     const sourceBottom = sourceFrame.bottom - window.pageYOffset - parentTop;
     const sourceWidth = sourceFrame.width;
     const sourceHeight = sourceFrame.height;
-    const sourceX = sourceLeft + sourceWidth / 2;
-    const sourceY = sourceTop + sourceHeight / 2;
 
     // placement frame in offsetParent coordinates (transformed from client coordinates)
     const placementFrame = this._placementFrame;
@@ -414,24 +374,24 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
     const marginTop = sourceTop - placementTop - window.pageYOffset;
     const marginBottom = placementBottom - sourceTop - sourceHeight;
 
-    const arrowHeight = this.arrowHeight.getValue().pxValue();
+    const placementGap = this.placementGap.getValue().pxValue();
 
-    let placement: PopoverPlacement | undefined;
+    let placement: DropdownPlacement | undefined;
     for (let i = 0; i < this._placement.length; i += 1) { // first fit
       const p = this._placement[i];
       if (p === "above" || p === "below" || p === "over") {
         placement = p;
         break;
-      } else if (p === "top" && popoverHeight + arrowHeight <= marginTop) {
+      } else if (p === "top" && dropdownHeight + placementGap <= marginTop) {
         placement = p;
         break;
-      } else if (p === "bottom" && popoverHeight + arrowHeight <= marginBottom) {
+      } else if (p === "bottom" && dropdownHeight + placementGap <= marginBottom) {
         placement = p;
         break;
-      } else if (p === "left" && popoverWidth + arrowHeight <= marginLeft) {
+      } else if (p === "left" && dropdownWidth + placementGap <= marginLeft) {
         placement = p;
         break;
-      } else if (p === "right" && popoverWidth + arrowHeight <= marginRight) {
+      } else if (p === "right" && dropdownWidth + placementGap <= marginRight) {
         placement = p;
         break;
       }
@@ -485,7 +445,7 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
       maxHeight = Math.round(Math.max(0, placementBottom - placementTop));
     } else if (placement === "below") {
       left = Math.round(placementLeft);
-      top = Math.round(placementBottom - popoverHeight);
+      top = Math.round(placementBottom - dropdownHeight);
       right = Math.round(placementRight - (placementFrame !== null ? placementFrame.width : window.innerWidth));
       width = Math.round(Math.max(0, placementRight - placementLeft));
       height = void 0;
@@ -501,47 +461,31 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
       maxWidth = void 0;
       maxHeight = void 0;
     } else if (placement === "top") {
-      if (sourceX - popoverWidth / 2 <= placementLeft) {
-        left = Math.round(placementLeft);
-      } else if (sourceX + popoverWidth / 2 >= placementRight) {
-        left = Math.round(placementRight - popoverWidth);
-      } else {
-        left = Math.round(sourceX - popoverWidth / 2);
-      }
-      top = Math.round(Math.max(placementTop, sourceTop - (popoverHeight + arrowHeight)));
+      left = Math.max(placementLeft, sourceLeft);
+      top = Math.round(Math.max(placementTop, sourceTop - (dropdownHeight + placementGap)));
+      width = Math.round(Math.max(0, Math.min(sourceWidth, placementRight - sourceLeft)));
+      height = void 0;
       maxWidth = Math.round(Math.max(0, placementRight - placementLeft));
       maxHeight = Math.round(Math.max(0, sourceBottom - placementTop));
     } else if (placement === "bottom") {
-      if (sourceX - popoverWidth / 2 <= placementLeft) {
-        left = Math.round(placementLeft);
-      } else if (sourceX + popoverWidth / 2 >= placementRight) {
-        left = Math.round(placementRight - popoverWidth);
-      } else {
-        left = Math.round(sourceX - popoverWidth / 2);
-      }
-      top = Math.round(Math.max(placementTop, sourceBottom + arrowHeight));
+      left = Math.max(placementLeft, sourceLeft);
+      top = Math.round(Math.max(placementTop, sourceBottom + placementGap));
+      width = Math.round(Math.max(0, Math.min(sourceWidth, placementRight - sourceLeft)));
+      height = void 0;
       maxWidth = Math.round(Math.max(0, placementRight - placementLeft));
       maxHeight = Math.round(Math.max(0, placementBottom - sourceTop));
     } else if (placement === "left") {
-      left = Math.round(Math.max(placementLeft, sourceLeft - (popoverWidth + arrowHeight)));
-      if (sourceY - popoverHeight / 2 <= placementTop) {
-        top = Math.round(placementTop);
-      } else if (sourceY + popoverHeight / 2 >= placementBottom) {
-        top = Math.round(placementBottom - popoverHeight);
-      } else {
-        top = Math.round(sourceY - popoverHeight / 2);
-      }
+      left = Math.round(Math.max(placementLeft, sourceLeft - (dropdownWidth + placementGap)));
+      top = Math.max(placementTop, sourceTop);
+      width = void 0;
+      height = Math.round(Math.max(0, Math.min(sourceHeight, placementBottom - sourceTop)));
       maxWidth = Math.round(Math.max(0, sourceRight - placementLeft));
       maxHeight = Math.round(Math.max(0, placementBottom - placementTop));
     } else if (placement === "right") {
-      left = Math.round(Math.max(placementLeft, sourceRight + arrowHeight));
-      if (sourceY - popoverHeight / 2 <= placementTop) {
-        top = Math.round(placementTop);
-      } else if (sourceY + popoverHeight / 2 >= placementBottom) {
-        top = Math.round(placementBottom - popoverHeight);
-      } else {
-        top = Math.round(sourceY - popoverHeight / 2);
-      }
+      left = Math.round(Math.max(placementLeft, sourceRight + placementGap));
+      top = Math.max(placementTop, sourceTop);
+      width = void 0;
+      height = Math.round(Math.max(0, Math.min(sourceHeight, placementBottom - sourceTop)));
       maxWidth = Math.round(Math.max(0, placementRight - sourceLeft));
       maxHeight = Math.round(Math.max(0, placementBottom - placementTop));
     }
@@ -552,7 +496,7 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
                                  height !== oldHeight && this.height.isAuto() ||
                                  maxWidth !== oldMaxWidth && this.maxWidth.isAuto() ||
                                  maxHeight !== oldMaxHeight && this.maxHeight.isAuto())) {
-      this.willPlacePopover(placement!);
+      this.willPlaceDropdown(placement!);
       this.position.setAutoState("absolute");
       this.left.setAutoState(left);
       this.right.setAutoState(right);
@@ -562,160 +506,31 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
       this.height.setAutoState(height);
       this.maxWidth.setAutoState(maxWidth);
       this.maxHeight.setAutoState(maxHeight);
-      this.onPlacePopover(placement!);
-      this.didPlacePopover(placement!);
+      this.onPlaceDropdown(placement!);
+      this.didPlaceDropdown(placement!);
     }
 
     return placement;
   }
 
-  protected willPlacePopover(placement: PopoverPlacement): void {
-    this.willObserve(function (viewObserver: PopoverViewObserver): void {
-      if (viewObserver.popoverWillPlace !== void 0) {
-        viewObserver.popoverWillPlace(placement, this);
+  protected willPlaceDropdown(placement: DropdownPlacement): void {
+    this.willObserve(function (viewObserver: DropdownViewObserver): void {
+      if (viewObserver.dropdownWillPlace !== void 0) {
+        viewObserver.dropdownWillPlace(placement, this);
       }
     });
   }
 
-  protected onPlacePopover(placement: PopoverPlacement): void {
+  protected onPlaceDropdown(placement: DropdownPlacement): void {
     // hook
   }
 
-  protected didPlacePopover(placement: PopoverPlacement): void {
-    this.didObserve(function (viewObserver: PopoverViewObserver): void {
-      if (viewObserver.popoverDidPlace !== void 0) {
-        viewObserver.popoverDidPlace(placement, this);
+  protected didPlaceDropdown(placement: DropdownPlacement): void {
+    this.didObserve(function (viewObserver: DropdownViewObserver): void {
+      if (viewObserver.dropdownDidPlace !== void 0) {
+        viewObserver.dropdownDidPlace(placement, this);
       }
     });
-  }
-
-  /** @hidden */
-  protected placeArrow(source: View, sourceFrame: BoxR2, arrow: HtmlView,
-                       placement: PopoverPlacement): void {
-    const node = this._node;
-    const parent = node.offsetParent;
-    if (parent === null) {
-      return;
-    }
-
-    // offsetParent bounds in client coordinates
-    const parentBounds = parent.getBoundingClientRect();
-    const parentLeft = parentBounds.left;
-    const parentTop = parentBounds.top;
-
-    // source bounds in offsetParent coordinates (transformed from page coordinates)
-    const sourceLeft = sourceFrame.left - window.pageXOffset - parentLeft;
-    const sourceTop = sourceFrame.top - window.pageYOffset - parentTop;
-    const sourceWidth = sourceFrame.width;
-    const sourceHeight = sourceFrame.height;
-    const sourceX = sourceLeft + sourceWidth / 2;
-    const sourceY = sourceTop + sourceHeight / 2;
-
-    const offsetLeft = node.offsetLeft;
-    const offsetRight = offsetLeft + node.clientWidth;
-    const offsetTop = node.offsetTop;
-    const offsetBottom = offsetTop + node.clientHeight;
-
-    let backgroundColor = this.backgroundColor.value;
-    if (backgroundColor === void 0) {
-      backgroundColor = Color.transparent();
-    }
-    const borderRadius = this.borderRadius();
-    const radius = borderRadius instanceof Length ? borderRadius.pxValue() : 0;
-
-    const arrowWidth = this.arrowWidth.getValue().pxValue();
-    const arrowHeight = this.arrowHeight.getValue().pxValue();
-
-    const arrowXMin = offsetLeft + radius + arrowWidth / 2;
-    const arrowXMax = offsetRight - radius - arrowWidth / 2;
-    const arrowYMin = offsetTop + radius + arrowWidth / 2;
-    const arrowYMax = offsetBottom - radius - arrowWidth / 2;
-
-    arrow.top.setAutoState(void 0);
-    arrow.right.setAutoState(void 0);
-    arrow.bottom.setAutoState(void 0);
-    arrow.left.setAutoState(void 0);
-    arrow.borderLeftWidth.setAutoState(void 0);
-    arrow.borderLeftStyle.setAutoState(void 0);
-    arrow.borderLeftColor.setAutoState(void 0);
-    arrow.borderRightWidth.setAutoState(void 0);
-    arrow.borderRightStyle.setAutoState(void 0);
-    arrow.borderRightColor.setAutoState(void 0);
-    arrow.borderTopWidth.setAutoState(void 0);
-    arrow.borderTopStyle.setAutoState(void 0);
-    arrow.borderTopColor.setAutoState(void 0);
-    arrow.borderBottomWidth.setAutoState(void 0);
-    arrow.borderBottomStyle.setAutoState(void 0);
-    arrow.borderBottomColor.setAutoState(void 0);
-    arrow.zIndex.setAutoState(100);
-
-    if (placement === "none" || placement === "above" || placement === "below" || placement === "over") {
-      // hide arrow
-      arrow.display.setAutoState("none");
-    } else if (Math.round(sourceY) <= Math.round(offsetTop - arrowHeight) // arrow tip below source center
-        && arrowXMin <= sourceX && sourceX <= arrowXMax) { // arrow base on top popover edge
-      // top arrow
-      arrow.display.setAutoState("block");
-      arrow.top.setAutoState(Math.round(-arrowHeight));
-      arrow.left.setAutoState(Math.round(sourceX - offsetLeft - arrowWidth / 2));
-      arrow.borderLeftWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderLeftStyle.setAutoState("solid");
-      arrow.borderLeftColor.setAutoState(Color.transparent());
-      arrow.borderRightWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderRightStyle.setAutoState("solid");
-      arrow.borderRightColor.setAutoState(Color.transparent());
-      arrow.borderBottomWidth.setAutoState(Math.round(arrowHeight));
-      arrow.borderBottomStyle.setAutoState("solid");
-      arrow.borderBottomColor.setAutoState(backgroundColor.toString());
-    } else if (Math.round(offsetBottom + arrowHeight) <= Math.round(sourceY) // arrow tip above source center
-        && arrowXMin <= sourceX && sourceX <= arrowXMax) { // arrow base on bottom popover edge
-      // bottom arrow
-      arrow.display.setAutoState("block");
-      arrow.bottom.setAutoState(Math.round(-arrowHeight));
-      arrow.left.setAutoState(Math.round(sourceX - offsetLeft - arrowWidth / 2));
-      arrow.borderLeftWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderLeftStyle.setAutoState("solid");
-      arrow.borderLeftColor.setAutoState(Color.transparent());
-      arrow.borderRightWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderRightStyle.setAutoState("solid");
-      arrow.borderRightColor.setAutoState(Color.transparent());
-      arrow.borderTopWidth.setAutoState(Math.round(arrowHeight));
-      arrow.borderTopStyle.setAutoState("solid");
-      arrow.borderTopColor.setAutoState(backgroundColor.toString());
-    } else if (Math.round(sourceX) <= Math.round(offsetLeft - arrowHeight) // arrow tip right of source center
-        && arrowYMin <= sourceY && sourceY <= arrowYMax) { // arrow base on left popover edge
-      // left arrow
-      arrow.display.setAutoState("block");
-      arrow.left.setAutoState(Math.round(-arrowHeight));
-      arrow.top.setAutoState(Math.round(sourceY - offsetTop - arrowWidth / 2));
-      arrow.borderTopWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderTopStyle.setAutoState("solid");
-      arrow.borderTopColor.setAutoState(Color.transparent());
-      arrow.borderBottomWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderBottomStyle.setAutoState("solid");
-      arrow.borderBottomColor.setAutoState(Color.transparent());
-      arrow.borderRightWidth.setAutoState(Math.round(arrowHeight));
-      arrow.borderRightStyle.setAutoState("solid");
-      arrow.borderRightColor.setAutoState(backgroundColor.toString());
-    } else if (Math.round(offsetRight + arrowHeight) <= Math.round(sourceX) // arrow tip left of source center
-        && arrowYMin <= sourceY && sourceY <= arrowYMax) { // arrow base on right popover edge
-      // right arrow
-      arrow.display.setAutoState("block");
-      arrow.right.setAutoState(Math.round(-arrowHeight));
-      arrow.top.setAutoState(Math.round(sourceY - offsetTop - arrowWidth / 2));
-      arrow.borderTopWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderTopStyle.setAutoState("solid");
-      arrow.borderTopColor.setAutoState(Color.transparent());
-      arrow.borderBottomWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderBottomStyle.setAutoState("solid");
-      arrow.borderBottomColor.setAutoState(Color.transparent());
-      arrow.borderLeftWidth.setAutoState(Math.round(arrowHeight));
-      arrow.borderLeftStyle.setAutoState("solid");
-      arrow.borderLeftColor.setAutoState(backgroundColor.toString());
-    } else {
-      // no arrow
-      arrow.display.setAutoState("none");
-    }
   }
 
   viewDidMount(view: View): void {
