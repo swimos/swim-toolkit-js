@@ -298,7 +298,7 @@ export abstract class Model {
 
   readonly warpService: WarpService<this>; // defined by WarpService
 
-  readonly warpRef: ModelScope<this, WarpRef>; // defined by GenericModel
+  readonly warpRef: ModelScope<this, WarpRef | undefined>; // defined by GenericModel
 
   get modelClass(): ModelClass {
     return this.constructor as unknown as ModelClass;

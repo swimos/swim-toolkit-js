@@ -834,4 +834,4 @@ export abstract class GenericModel extends Model {
 }
 Model.Generic = GenericModel;
 
-ModelScope({type: Object, inherit: true})(Model.prototype, "warpRef");
+ModelScope({type: Object, inherit: true, updateFlags: Model.NeedsReconcile})(Model.prototype, "warpRef");

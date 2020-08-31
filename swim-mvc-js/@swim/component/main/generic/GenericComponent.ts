@@ -220,6 +220,7 @@ export abstract class GenericComponent extends Component {
     super.onMount();
     this.mountServices();
     this.mountScopes();
+    this.mountModels();
     this.mountViews();
     this.mountSubcomponents();
   }
@@ -255,6 +256,7 @@ export abstract class GenericComponent extends Component {
   protected onUnmount(): void {
     this.unmountSubcomponents();
     this.unmountViews();
+    this.unmountModels();
     this.unmountScopes();
     this.unmountServices();
     this._componentFlags &= ~Component.ComponentFlagMask | Component.RemovingFlag;
