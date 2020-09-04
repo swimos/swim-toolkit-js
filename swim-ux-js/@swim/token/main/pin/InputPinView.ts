@@ -31,7 +31,7 @@ export class InputPinView extends PinView {
     this.onInputUpdate = this.onInputUpdate.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
     this.onInputKey = this.onInputKey.bind(this);
-    this.label.insert();
+    this.label.setSubview(this.label.createSubview());
   }
 
   protected initNode(node: ViewNodeType<this>): void {
@@ -55,6 +55,10 @@ export class InputPinView extends PinView {
 
   protected initLabel(labelView: HtmlView): void {
     super.initLabel(labelView);
+    labelView.paddingTop.setAutoState(0);
+    labelView.paddingRight.setAutoState(0);
+    labelView.paddingBottom.setAutoState(0);
+    labelView.paddingLeft.setAutoState(0);
     labelView.borderTopStyle.setAutoState("none");
     labelView.borderRightStyle.setAutoState("none");
     labelView.borderBottomStyle.setAutoState("none");
@@ -63,13 +67,22 @@ export class InputPinView extends PinView {
     labelView.backgroundColor.setAutoState(Color.transparent());
     labelView.appearance.setAutoState("none");
     labelView.outlineStyle.setAutoState("none");
+    labelView.pointerEvents.setAutoState("auto");
   }
 
   @Subview<InputPinView, HtmlView>({
+    child: false,
     type: HtmlView,
     tag: "input",
     onSetSubview(labelView: HtmlView | null): void {
       if (labelView !== null) {
+        if (labelView.parentView === null) {
+          this.view.labelContainer.insert();
+          const labelContainer = this.view.labelContainer.subview;
+          if (labelContainer !== null) {
+            labelContainer.appendChildView(labelView);
+          }
+        }
         this.view.initLabel(labelView);
       }
     },

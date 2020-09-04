@@ -333,4 +333,5 @@ export class TreeLimb extends ThemedHtmlView {
   }
 
   static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
+  static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsAnimate;
 }

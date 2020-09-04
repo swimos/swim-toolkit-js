@@ -485,7 +485,9 @@ export class PointerMomentumGesture<V extends View> extends AbstractMomentumGest
       const input = this.getOrCreateInput(event.pointerId, PointerMomentumGesture.inputType(event.pointerType),
                                           event.isPrimary, event.clientX, event.clientY, event.timeStamp);
       this.updateInput(input, event);
-      this.beginHover(input, event);
+      if (!input.hovering) {
+        this.beginHover(input, event);
+      }
     }
   }
 
@@ -504,7 +506,9 @@ export class PointerMomentumGesture<V extends View> extends AbstractMomentumGest
     const input = this.getOrCreateInput(event.pointerId, PointerMomentumGesture.inputType(event.pointerType),
                                         event.isPrimary, event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
-    this.beginPress(input, event);
+    if (!input.pressing) {
+      this.beginPress(input, event);
+    }
     if (event.pointerType === "mouse" && event.button !== 0) {
       this.cancelPress(input, event);
     }
@@ -609,7 +613,9 @@ export class TouchMomentumGesture<V extends View> extends AbstractMomentumGestur
       const input = this.getOrCreateInput(touch.identifier, "touch", false,
                                           touch.clientX, touch.clientY, event.timeStamp);
       this.updateInput(input, event, touch);
-      this.beginPress(input, event);
+      if (!input.pressing) {
+        this.beginPress(input, event);
+      }
     }
   }
 
@@ -713,7 +719,9 @@ export class MouseMomentumGesture<V extends View> extends AbstractMomentumGestur
       const input = this.getOrCreateInput("mouse", "mouse", true,
                                           event.clientX, event.clientY, event.timeStamp);
       this.updateInput(input, event);
-      this.beginHover(input, event);
+      if (!input.hovering) {
+        this.beginHover(input, event);
+      }
     }
   }
 
@@ -729,7 +737,9 @@ export class MouseMomentumGesture<V extends View> extends AbstractMomentumGestur
     const input = this.getOrCreateInput("mouse", "mouse", true,
                                         event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
-    this.beginPress(input, event);
+    if (!input.pressing) {
+      this.beginPress(input, event);
+    }
     if (event.button !== 0) {
       this.cancelPress(input, event);
     }

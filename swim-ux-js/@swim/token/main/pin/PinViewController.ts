@@ -51,4 +51,8 @@ export class PinViewController<V extends PinView = PinView> extends ThemedHtmlVi
   pinDidPressBody(view: V): void {
     // hook
   }
+
+  pinDidPressFoot(view: V): void {
+    // hook
+  }
 }

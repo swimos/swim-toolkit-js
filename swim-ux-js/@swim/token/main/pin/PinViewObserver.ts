@@ -27,4 +27,6 @@ export interface PinViewObserver<V extends PinView = PinView> extends ThemedHtml
   pinDidPressHead?(view: V): void;
 
   pinDidPressBody?(view: V): void;
+
+  pinDidPressFoot?(view: V): void;
 }

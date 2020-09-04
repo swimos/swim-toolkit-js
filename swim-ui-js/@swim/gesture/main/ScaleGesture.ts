@@ -1024,7 +1024,9 @@ export class PointerScaleGesture<X, Y, V extends View> extends AbstractScaleGest
       if (!input.coasting) {
         this.updateInput(input, event);
       }
-      this.beginHover(input, event);
+      if (!input.hovering) {
+        this.beginHover(input, event);
+      }
     }
   }
 
@@ -1045,7 +1047,9 @@ export class PointerScaleGesture<X, Y, V extends View> extends AbstractScaleGest
     const input = this.getOrCreateInput(event.pointerId, PointerScaleGesture.inputType(event.pointerType),
                                         event.isPrimary, event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
-    this.beginPress(input, event);
+    if (!input.pressing) {
+      this.beginPress(input, event);
+    }
     if (event.pointerType === "mouse" && event.button !== 0) {
       this.cancelPress(input, event);
     }
@@ -1155,7 +1159,9 @@ export class TouchScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
       const input = this.getOrCreateInput(touch.identifier, "touch", false,
                                           touch.clientX, touch.clientY, event.timeStamp);
       this.updateInput(input, event, touch);
-      this.beginPress(input, event);
+      if (!input.pressing) {
+        this.beginPress(input, event);
+      }
     }
   }
 
@@ -1306,7 +1312,9 @@ export class MouseScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
       if (!input.coasting) {
         this.updateInput(input, event);
       }
-      this.beginHover(input, event);
+      if (!input.hovering) {
+        this.beginHover(input, event);
+      }
     }
   }
 
@@ -1324,7 +1332,9 @@ export class MouseScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
     const input = this.getOrCreateInput("mouse", "mouse", true,
                                         event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
-    this.beginPress(input, event);
+    if (!input.pressing) {
+      this.beginPress(input, event);
+    }
     if (event.button !== 0) {
       this.cancelPress(input, event);
     }

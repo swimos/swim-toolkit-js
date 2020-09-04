@@ -261,6 +261,9 @@ export class TreeView extends ThemedHtmlView {
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+    if ((this._viewFlags & View.NeedsAnimate) === 0) {
+      processFlags &= ~View.NeedsAnimate;
+    }
     if ((processFlags & View.NeedsResize) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
@@ -346,4 +349,5 @@ export class TreeView extends ThemedHtmlView {
   }
 
   static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
+  static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsAnimate;
 }
