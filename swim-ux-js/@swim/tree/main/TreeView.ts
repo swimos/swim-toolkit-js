@@ -307,7 +307,7 @@ export class TreeView extends ThemedHtmlView {
     const disclosingPhase = needsAnimate ? this.disclosingPhase.getValueOr(1) : void 0;
     const limbSpacing = needsAnimate ? this.limbSpacing.getState() : 0;
     let y = limbSpacing;
-    function processChildView(this: TreeView, childView: View): void {
+    function animateChildView(this: TreeView, childView: View): void {
       if (needsChange && childView instanceof TreeLimb) {
         const subtree = childView.subtree;
         if (subtree !== null) {
@@ -327,7 +327,7 @@ export class TreeView extends ThemedHtmlView {
       }
     }
     super.processChildViews(processFlags, viewContext,
-                            needsChange || needsAnimate ? processChildView : callback);
+                            needsChange || needsAnimate ? animateChildView : callback);
     if (needsAnimate) {
       this.height.setAutoState(y);
     }

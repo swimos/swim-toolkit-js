@@ -60,7 +60,10 @@ export declare abstract class ModelValueDownlink<M extends Model, V, VU = V> {
   createDownlink(warp: WarpRef): ValueDownlink<V, VU>;
 
   /** @hidden */
-  initDownlink(downlink: ValueDownlink<V, VU>): ValueDownlink<V, VU>;
+  scopeDownlink(downlink: ValueDownlink<V, VU>): ValueDownlink<V, VU>;
+
+  /** @hidden */
+  initDownlink?(downlink: ValueDownlink<V, VU>): ValueDownlink<V, VU>;
 
   static define<M extends Model, V, VU = V, I = {}>(descriptor: ModelValueDownlinkDescriptorExtends<M, V, VU, I>): ModelValueDownlinkConstructor<M, V, VU, I>;
   static define<M extends Model, V, VU = V>(descriptor: {valueForm: Form<V, VU>} & ModelValueDownlinkDescriptor<M, V, VU>): ModelValueDownlinkConstructor<M, V, VU>;
@@ -142,8 +145,8 @@ ModelValueDownlink.define = function <M extends Model, V, VU, I>(descriptor: Mod
   let hostUri = descriptor.hostUri;
   let nodeUri = descriptor.nodeUri;
   let laneUri = descriptor.laneUri;
-  const prio = descriptor.prio;
-  const rate = descriptor.rate;
+  let prio = descriptor.prio;
+  let rate = descriptor.rate;
   let body = descriptor.body;
   delete descriptor.extends;
   delete descriptor.enabled;
@@ -157,18 +160,6 @@ ModelValueDownlink.define = function <M extends Model, V, VU, I>(descriptor: Mod
 
   if (_super === void 0) {
     _super = ModelValueDownlink;
-  }
-  if (hostUri !== void 0) {
-    hostUri = Uri.fromAny(hostUri);
-  }
-  if (nodeUri !== void 0) {
-    nodeUri = Uri.fromAny(nodeUri);
-  }
-  if (laneUri !== void 0) {
-    laneUri = Uri.fromAny(laneUri);
-  }
-  if (body !== void 0) {
-    body = Value.fromAny(body);
   }
 
   const _constructor = function ModelValueDownlinkAccessor(this: ModelValueDownlink<M, V, VU>, model: M, downlinkName: string | undefined): ModelValueDownlink<M, V, VU> {
@@ -198,10 +189,10 @@ ModelValueDownlink.define = function <M extends Model, V, VU, I>(descriptor: Mod
       _this._laneUri = laneUri as Uri;
     }
     if (prio !== void 0) {
-      _this._prio = prio;
+      _this._prio = prio as number;
     }
     if (rate !== void 0) {
-      _this._rate = rate;
+      _this._rate = rate as number;
     }
     if (body !== void 0) {
       _this._body = body as Value;
@@ -214,6 +205,39 @@ ModelValueDownlink.define = function <M extends Model, V, VU, I>(descriptor: Mod
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  if (typeof hostUri === "function") {
+    _prototype.initHostUri = hostUri;
+    hostUri = void 0;
+  } else if (hostUri !== void 0) {
+    hostUri = Uri.fromAny(hostUri);
+  }
+  if (typeof nodeUri === "function") {
+    _prototype.initNodeUri = nodeUri;
+    nodeUri = void 0;
+  } else if (nodeUri !== void 0) {
+    nodeUri = Uri.fromAny(nodeUri);
+  }
+  if (typeof laneUri === "function") {
+    _prototype.initLaneUri = laneUri;
+    laneUri = void 0;
+  } else if (laneUri !== void 0) {
+    laneUri = Uri.fromAny(laneUri);
+  }
+  if (typeof prio === "function") {
+    _prototype.initPrio = prio;
+    prio = void 0;
+  }
+  if (typeof rate === "function") {
+    _prototype.initRate = rate;
+    rate = void 0;
+  }
+  if (typeof body === "function") {
+    _prototype.initBody = body;
+    body = void 0;
+  } else if (body !== void 0) {
+    body = Value.fromAny(body);
+  }
 
   return _constructor;
 };

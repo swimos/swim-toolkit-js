@@ -50,7 +50,10 @@ export declare abstract class ModelEventDownlink<M extends Model> {
   createDownlink(warp: WarpRef): EventDownlink;
 
   /** @hidden */
-  initDownlink(downlink: EventDownlink): EventDownlink;
+  scopeDownlink(downlink: EventDownlink): EventDownlink;
+
+  /** @hidden */
+  initDownlink?(downlink: EventDownlink): EventDownlink;
 
   static define<M extends Model, I = {}>(descriptor: ModelEventDownlinkDescriptorExtends<M, I>): ModelEventDownlinkConstructor<M, I>;
   static define<M extends Model>(descriptor: ModelEventDownlinkDescriptor<M>): ModelEventDownlinkConstructor<M>;
@@ -90,19 +93,14 @@ ModelEventDownlink.prototype.createDownlink = function <V, VU>(this: ModelEventD
   return warp.downlink();
 };
 
-ModelEventDownlink.prototype.initDownlink = function <V, VU>(this: ModelEventDownlink<Model>, downlink: EventDownlink): EventDownlink {
-  downlink = ModelDownlink.prototype.initDownlink.call(this, downlink);
-  return downlink;
-};
-
 ModelEventDownlink.define = function <M extends Model, V, VU, I>(descriptor: ModelEventDownlinkDescriptor<M, I>): ModelEventDownlinkConstructor<M, I> {
   let _super: ModelEventDownlinkPrototype | null | undefined = descriptor.extends;
   const enabled = descriptor.enabled;
   let hostUri = descriptor.hostUri;
   let nodeUri = descriptor.nodeUri;
   let laneUri = descriptor.laneUri;
-  const prio = descriptor.prio;
-  const rate = descriptor.rate;
+  let prio = descriptor.prio;
+  let rate = descriptor.rate;
   let body = descriptor.body;
   delete descriptor.extends;
   delete descriptor.enabled;
@@ -115,18 +113,6 @@ ModelEventDownlink.define = function <M extends Model, V, VU, I>(descriptor: Mod
 
   if (_super === void 0) {
     _super = ModelEventDownlink;
-  }
-  if (hostUri !== void 0) {
-    hostUri = Uri.fromAny(hostUri);
-  }
-  if (nodeUri !== void 0) {
-    nodeUri = Uri.fromAny(nodeUri);
-  }
-  if (laneUri !== void 0) {
-    laneUri = Uri.fromAny(laneUri);
-  }
-  if (body !== void 0) {
-    body = Value.fromAny(body);
   }
 
   const _constructor = function ModelEventDownlinkAccessor(this: ModelDownlink<M>, model: M, downlinkName: string | undefined): ModelEventDownlink<M> {
@@ -144,10 +130,10 @@ ModelEventDownlink.define = function <M extends Model, V, VU, I>(descriptor: Mod
       _this._laneUri = laneUri as Uri;
     }
     if (prio !== void 0) {
-      _this._prio = prio;
+      _this._prio = prio as number;
     }
     if (rate !== void 0) {
-      _this._rate = rate;
+      _this._rate = rate as number;
     }
     if (body !== void 0) {
       _this._body = body as Value;
@@ -160,6 +146,39 @@ ModelEventDownlink.define = function <M extends Model, V, VU, I>(descriptor: Mod
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  if (typeof hostUri === "function") {
+    _prototype.initHostUri = hostUri;
+    hostUri = void 0;
+  } else if (hostUri !== void 0) {
+    hostUri = Uri.fromAny(hostUri);
+  }
+  if (typeof nodeUri === "function") {
+    _prototype.initNodeUri = nodeUri;
+    nodeUri = void 0;
+  } else if (nodeUri !== void 0) {
+    nodeUri = Uri.fromAny(nodeUri);
+  }
+  if (typeof laneUri === "function") {
+    _prototype.initLaneUri = laneUri;
+    laneUri = void 0;
+  } else if (laneUri !== void 0) {
+    laneUri = Uri.fromAny(laneUri);
+  }
+  if (typeof prio === "function") {
+    _prototype.initPrio = prio;
+    prio = void 0;
+  }
+  if (typeof rate === "function") {
+    _prototype.initRate = rate;
+    rate = void 0;
+  }
+  if (typeof body === "function") {
+    _prototype.initBody = body;
+    body = void 0;
+  } else if (body !== void 0) {
+    body = Value.fromAny(body);
+  }
 
   return _constructor;
 };

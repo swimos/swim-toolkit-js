@@ -90,11 +90,11 @@ export class TreeStem extends ThemedHtmlView {
     // hook
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
-    const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
-    const seed = needsLayout ? this.seed.state : void 0;
-    function layoutChildView(this: TreeStem, childView: View): void {
+    const needsAnimate = (processFlags & View.NeedsAnimate) !== 0;
+    const seed = needsAnimate ? this.seed.state : void 0;
+    function animateChildView(this: TreeStem, childView: View): void {
       if (childView instanceof TreeVein) {
         const key = childView.key;
         const root = seed !== void 0 && key !== void 0 ? seed.getRoot(key) : null;
@@ -114,7 +114,7 @@ export class TreeStem extends ThemedHtmlView {
         callback.call(this, childView);
       }
     }
-    super.displayChildViews(displayFlags, viewContext, needsLayout ? layoutChildView : callback);
+    super.processChildViews(processFlags, viewContext, needsAnimate ? animateChildView : callback);
   }
 
   static fromAny(stem: AnyTreeStem): TreeStem {
@@ -131,4 +131,7 @@ export class TreeStem extends ThemedHtmlView {
     view.initView(init);
     return view;
   }
+
+  static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
+  static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsAnimate;
 }

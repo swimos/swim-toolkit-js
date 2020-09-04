@@ -47,12 +47,12 @@ export interface ModelDownlinkInit extends DownlinkObserver {
   extends?: ModelDownlinkPrototype;
   enabled?: boolean;
 
-  hostUri?: AnyUri;
-  nodeUri?: AnyUri;
-  laneUri?: AnyUri;
-  prio?: number;
-  rate?: number;
-  body?: AnyValue;
+  hostUri?: AnyUri | (() => AnyUri | null);
+  nodeUri?: AnyUri | (() => AnyUri | null);
+  laneUri?: AnyUri | (() => AnyUri | null);
+  prio?: number | (() => number | null);
+  rate?: number | (() => number | null);
+  body?: AnyValue | (() => AnyValue | null);
 
   initDownlink?(downlink: Downlink): Downlink;
 }
@@ -148,7 +148,28 @@ export declare abstract class ModelDownlink<M extends Model> {
   createDownlink(warp: WarpRef): Downlink;
 
   /** @hidden */
-  initDownlink(downlink: Downlink): Downlink;
+  scopeDownlink(downlink: Downlink): Downlink;
+
+  /** @hidden */
+  initDownlink?(downlink: Downlink): Downlink;
+
+  /** @hidden */
+  initHostUri?(): AnyUri | null;
+
+  /** @hidden */
+  initNodeUri?(): AnyUri | null;
+
+  /** @hidden */
+  initLaneUri?(): AnyUri | null;
+
+  /** @hidden */
+  initPrio?(): number | null;
+
+  /** @hidden */
+  initRate?(): number | null;
+
+  /** @hidden */
+  initBody?(): AnyValue | null;
 
   static define<M extends Model, I = {}>(descriptor: {type: "event"} & ModelEventDownlinkDescriptorExtends<M, I>): ModelEventDownlinkConstructor<M, I>;
   static define<M extends Model>(descriptor: {type: "event"} & ModelEventDownlinkDescriptor<M>): ModelEventDownlinkConstructor<M>;
@@ -287,7 +308,16 @@ ModelDownlink.prototype.warp = function (this: ModelDownlink<Model>, warp?: Warp
 
 ModelDownlink.prototype.hostUri = function (this: ModelDownlink<Model>, hostUri?: AnyUri | null): Uri | null | ModelDownlink<Model> {
   if (hostUri === void 0) {
-    return this._hostUri !== void 0 ? this._hostUri : null;
+    if (this._hostUri !== void 0) {
+      return this._hostUri;
+    } else {
+      hostUri = this.initHostUri !== void 0 ? this.initHostUri() : null;
+      if (hostUri !== null) {
+        hostUri = Uri.fromAny(hostUri);
+        this._hostUri = hostUri;
+      }
+      return hostUri;
+    }
   } else {
     if (hostUri !== null) {
       hostUri = Uri.fromAny(hostUri);
@@ -304,7 +334,16 @@ ModelDownlink.prototype.hostUri = function (this: ModelDownlink<Model>, hostUri?
 
 ModelDownlink.prototype.nodeUri = function (this: ModelDownlink<Model>, nodeUri?: AnyUri | null): Uri | null | ModelDownlink<Model> {
   if (nodeUri === void 0) {
-    return this._nodeUri !== void 0 ? this._nodeUri : null;
+    if (this._nodeUri !== void 0) {
+      return this._nodeUri;
+    } else {
+      nodeUri = this.initNodeUri !== void 0 ? this.initNodeUri() : null;
+      if (nodeUri !== null) {
+        nodeUri = Uri.fromAny(nodeUri);
+        this._nodeUri = nodeUri;
+      }
+      return nodeUri;
+    }
   } else {
     if (nodeUri !== null) {
       nodeUri = Uri.fromAny(nodeUri);
@@ -321,7 +360,16 @@ ModelDownlink.prototype.nodeUri = function (this: ModelDownlink<Model>, nodeUri?
 
 ModelDownlink.prototype.laneUri = function (this: ModelDownlink<Model>, laneUri?: AnyUri | null): Uri | null | ModelDownlink<Model> {
   if (laneUri === void 0) {
-    return this._laneUri !== void 0 ? this._laneUri : null;
+    if (this._laneUri !== void 0) {
+      return this._laneUri;
+    } else {
+      laneUri = this.initLaneUri !== void 0 ? this.initLaneUri() : null;
+      if (laneUri !== null) {
+        laneUri = Uri.fromAny(laneUri);
+        this._laneUri = laneUri;
+      }
+      return laneUri;
+    }
   } else {
     if (laneUri !== null) {
       laneUri = Uri.fromAny(laneUri);
@@ -338,7 +386,15 @@ ModelDownlink.prototype.laneUri = function (this: ModelDownlink<Model>, laneUri?
 
 ModelDownlink.prototype.prio = function (this: ModelDownlink<Model>, prio?: number | null): number | null | ModelDownlink<Model> {
   if (prio === void 0) {
-    return this._prio !== void 0 ? this._prio : null;
+    if (this._prio !== void 0) {
+      return this._prio;
+    } else {
+      prio = this.initPrio !== void 0 ? this.initPrio() : null;
+      if (prio !== null) {
+        this._prio = prio;
+      }
+      return prio;
+    }
   } else {
     if (prio === null) {
       prio = void 0;
@@ -353,7 +409,15 @@ ModelDownlink.prototype.prio = function (this: ModelDownlink<Model>, prio?: numb
 
 ModelDownlink.prototype.rate = function (this: ModelDownlink<Model>, rate?: number | null): number | null | ModelDownlink<Model> {
   if (rate === void 0) {
-    return this._rate !== void 0 ? this._rate : null;
+    if (this._rate !== void 0) {
+      return this._rate;
+    } else {
+      rate = this.initRate !== void 0 ? this.initRate() : null;
+      if (rate !== null) {
+        this._rate = rate;
+      }
+      return rate;
+    }
   } else {
     if (rate === null) {
       rate = void 0;
@@ -368,7 +432,16 @@ ModelDownlink.prototype.rate = function (this: ModelDownlink<Model>, rate?: numb
 
 ModelDownlink.prototype.body = function (this: ModelDownlink<Model>, body?: AnyValue | null): Value | null | ModelDownlink<Model> {
   if (body === void 0) {
-    return this._body !== void 0 ? this._body : null;
+    if (this._body !== void 0) {
+      return this._body;
+    } else {
+      body = this.initBody !== void 0 ? this.initBody() : null;
+      if (body !== null) {
+        body = Value.fromAny(body);
+        this._body = body;
+      }
+      return body;
+    }
   } else {
     if (body !== null) {
       body = Value.fromAny(body);
@@ -393,7 +466,10 @@ ModelDownlink.prototype.link = function (this: ModelDownlink<Model>): void {
       warp = this._model.warpService.client;
     }
     let downlink = this.createDownlink(warp);
-    downlink = this.initDownlink(downlink);
+    downlink = this.scopeDownlink(downlink);
+    if (this.initDownlink !== void 0) {
+      downlink = this.initDownlink(downlink);
+    }
     downlink = downlink.observe(this as DownlinkObserver);
     this._downlink = downlink.open();
     this._downlinkFlags &= ~ModelDownlink.PendingFlag;
@@ -434,24 +510,30 @@ ModelDownlink.prototype.reconcile = function (this: ModelDownlink<Model>): void 
   }
 };
 
-ModelDownlink.prototype.initDownlink = function (this: ModelDownlink<Model>, downlink: Downlink): Downlink {
-  if (this._hostUri !== void 0) {
-    downlink = downlink.hostUri(this._hostUri);
+ModelDownlink.prototype.scopeDownlink = function (this: ModelDownlink<Model>, downlink: Downlink): Downlink {
+  const hostUri = this.hostUri();
+  if (hostUri !== null) {
+    downlink = downlink.hostUri(hostUri);
   }
-  if (this._nodeUri !== void 0) {
-    downlink = downlink.nodeUri(this._nodeUri);
+  const nodeUri = this.nodeUri();
+  if (nodeUri !== null) {
+    downlink = downlink.nodeUri(nodeUri);
   }
-  if (this._laneUri !== void 0) {
-    downlink = downlink.laneUri(this._laneUri);
+  const laneUri = this.laneUri();
+  if (laneUri !== null) {
+    downlink = downlink.laneUri(laneUri);
   }
-  if (this._prio !== void 0) {
-    downlink = downlink.prio(this._prio);
+  const prio = this.prio();
+  if (prio !== null) {
+    downlink = downlink.prio(prio);
   }
-  if (this._rate !== void 0) {
-    downlink = downlink.rate(this._rate);
+  const rate = this.rate();
+  if (rate !== null) {
+    downlink = downlink.rate(rate);
   }
-  if (this._body !== void 0) {
-    downlink = downlink.body(this._body);
+  const body = this.body();
+  if (body !== null) {
+    downlink = downlink.body(body);
   }
   return downlink;
 };
@@ -473,8 +555,8 @@ ModelDownlink.define = function <M extends Model, I>(descriptor: ModelDownlinkDe
     let hostUri = descriptor.hostUri;
     let nodeUri = descriptor.nodeUri;
     let laneUri = descriptor.laneUri;
-    const prio = descriptor.prio;
-    const rate = descriptor.rate;
+    let prio = descriptor.prio;
+    let rate = descriptor.rate;
     let body = descriptor.body;
     delete descriptor.extends;
     delete descriptor.enabled;
@@ -487,18 +569,6 @@ ModelDownlink.define = function <M extends Model, I>(descriptor: ModelDownlinkDe
 
     if (_super === void 0) {
       _super = ModelDownlink;
-    }
-    if (hostUri !== void 0) {
-      hostUri = Uri.fromAny(hostUri);
-    }
-    if (nodeUri !== void 0) {
-      nodeUri = Uri.fromAny(nodeUri);
-    }
-    if (laneUri !== void 0) {
-      laneUri = Uri.fromAny(laneUri);
-    }
-    if (body !== void 0) {
-      body = Value.fromAny(body);
     }
 
     const _constructor = function ModelDownlinkAccessor(this: ModelDownlink<M>, model: M, downlinkName: string | undefined): ModelDownlink<M> {
@@ -516,10 +586,10 @@ ModelDownlink.define = function <M extends Model, I>(descriptor: ModelDownlinkDe
         _this._laneUri = laneUri as Uri;
       }
       if (prio !== void 0) {
-        _this._prio = prio;
+        _this._prio = prio as number;
       }
       if (rate !== void 0) {
-        _this._rate = rate;
+        _this._rate = rate as number;
       }
       if (body !== void 0) {
         _this._body = body as Value;
@@ -532,6 +602,39 @@ ModelDownlink.define = function <M extends Model, I>(descriptor: ModelDownlinkDe
     _constructor.prototype = _prototype;
     _constructor.prototype.constructor = _constructor;
     Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+    if (typeof hostUri === "function") {
+      _prototype.initHostUri = hostUri;
+      hostUri = void 0;
+    } else if (hostUri !== void 0) {
+      hostUri = Uri.fromAny(hostUri);
+    }
+    if (typeof nodeUri === "function") {
+      _prototype.initNodeUri = nodeUri;
+      nodeUri = void 0;
+    } else if (nodeUri !== void 0) {
+      nodeUri = Uri.fromAny(nodeUri);
+    }
+    if (typeof laneUri === "function") {
+      _prototype.initLaneUri = laneUri;
+      laneUri = void 0;
+    } else if (laneUri !== void 0) {
+      laneUri = Uri.fromAny(laneUri);
+    }
+    if (typeof prio === "function") {
+      _prototype.initPrio = prio;
+      prio = void 0;
+    }
+    if (typeof rate === "function") {
+      _prototype.initRate = rate;
+      rate = void 0;
+    }
+    if (typeof body === "function") {
+      _prototype.initBody = body;
+      body = void 0;
+    } else if (body !== void 0) {
+      body = Value.fromAny(body);
+    }
 
     return _constructor;
   }

@@ -116,7 +116,10 @@ export declare abstract class ModelMapDownlink<M extends Model, K, V, KU = K, VU
   createDownlink(warp: WarpRef): MapDownlink<K, V, KU, VU>;
 
   /** @hidden */
-  initDownlink(downlink: MapDownlink<K, V, KU, VU>): MapDownlink<K, V, KU, VU>;
+  scopeDownlink(downlink: MapDownlink<K, V, KU, VU>): MapDownlink<K, V, KU, VU>;
+
+  /** @hidden */
+  initDownlink?(downlink: MapDownlink<K, V, KU, VU>): MapDownlink<K, V, KU, VU>;
 
   static define<M extends Model, K, V, KU = K, VU = V, I = {}>(descriptor: ModelMapDownlinkDescriptorExtends<M, K, V, KU, VU, I>): ModelMapDownlinkConstructor<M, K, V, KU, VU, I>;
   static define<M extends Model, K, V, KU = K, VU = V>(descriptor: {keyForm: Form<K, KU>; valueForm: Form<V, VU>} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): ModelMapDownlinkConstructor<M, K, V, KU, VU>;
@@ -359,8 +362,8 @@ ModelMapDownlink.define = function <M extends Model, K, V, KU, VU, I>(descriptor
   let hostUri = descriptor.hostUri;
   let nodeUri = descriptor.nodeUri;
   let laneUri = descriptor.laneUri;
-  const prio = descriptor.prio;
-  const rate = descriptor.rate;
+  let prio = descriptor.prio;
+  let rate = descriptor.rate;
   let body = descriptor.body;
   delete descriptor.extends;
   delete descriptor.enabled;
@@ -375,18 +378,6 @@ ModelMapDownlink.define = function <M extends Model, K, V, KU, VU, I>(descriptor
 
   if (_super === void 0) {
     _super = ModelMapDownlink;
-  }
-  if (hostUri !== void 0) {
-    hostUri = Uri.fromAny(hostUri);
-  }
-  if (nodeUri !== void 0) {
-    nodeUri = Uri.fromAny(nodeUri);
-  }
-  if (laneUri !== void 0) {
-    laneUri = Uri.fromAny(laneUri);
-  }
-  if (body !== void 0) {
-    body = Value.fromAny(body);
   }
 
   const _constructor = function ModelMapDownlinkAccessor(this: ModelMapDownlink<M, K, V, KU, VU>, model: M, downlinkName: string | undefined): ModelMapDownlink<M, K, V, KU, VU> {
@@ -419,10 +410,10 @@ ModelMapDownlink.define = function <M extends Model, K, V, KU, VU, I>(descriptor
       _this._laneUri = laneUri as Uri;
     }
     if (prio !== void 0) {
-      _this._prio = prio;
+      _this._prio = prio as number;
     }
     if (rate !== void 0) {
-      _this._rate = rate;
+      _this._rate = rate as number;
     }
     if (body !== void 0) {
       _this._body = body as Value;
@@ -435,6 +426,39 @@ ModelMapDownlink.define = function <M extends Model, K, V, KU, VU, I>(descriptor
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  if (typeof hostUri === "function") {
+    _prototype.initHostUri = hostUri;
+    hostUri = void 0;
+  } else if (hostUri !== void 0) {
+    hostUri = Uri.fromAny(hostUri);
+  }
+  if (typeof nodeUri === "function") {
+    _prototype.initNodeUri = nodeUri;
+    nodeUri = void 0;
+  } else if (nodeUri !== void 0) {
+    nodeUri = Uri.fromAny(nodeUri);
+  }
+  if (typeof laneUri === "function") {
+    _prototype.initLaneUri = laneUri;
+    laneUri = void 0;
+  } else if (laneUri !== void 0) {
+    laneUri = Uri.fromAny(laneUri);
+  }
+  if (typeof prio === "function") {
+    _prototype.initPrio = prio;
+    prio = void 0;
+  }
+  if (typeof rate === "function") {
+    _prototype.initRate = rate;
+    rate = void 0;
+  }
+  if (typeof body === "function") {
+    _prototype.initBody = body;
+    body = void 0;
+  } else if (body !== void 0) {
+    body = Value.fromAny(body);
+  }
 
   return _constructor;
 };

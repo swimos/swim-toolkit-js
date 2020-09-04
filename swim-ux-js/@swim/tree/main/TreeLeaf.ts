@@ -192,11 +192,11 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     // hook
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
-    const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
-    const seed = needsLayout ? this.seed.state : void 0;
-    function layoutChildView(this: TreeLeaf, childView: View): void {
+    const needsAnimate = (processFlags & View.NeedsAnimate) !== 0;
+    const seed = needsAnimate ? this.seed.state : void 0;
+    function animateChildView(this: TreeLeaf, childView: View): void {
       if (childView instanceof TreeCell) {
         const key = childView.key;
         const root = seed !== void 0 && key !== void 0 ? seed.getRoot(key) : null;
@@ -216,7 +216,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
         callback.call(this, childView);
       }
     }
-    super.displayChildViews(displayFlags, viewContext, needsLayout ? layoutChildView : callback);
+    super.processChildViews(processFlags, viewContext, needsAnimate ? animateChildView : callback);
   }
 
   didHoldPress(input: PositionGestureInput): void {
@@ -258,4 +258,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     view.initView(init);
     return view;
   }
+
+  static readonly mountFlags: ViewFlags = ButtonMembrane.mountFlags | View.NeedsAnimate;
+  static readonly powerFlags: ViewFlags = ButtonMembrane.powerFlags | View.NeedsAnimate;
 }
