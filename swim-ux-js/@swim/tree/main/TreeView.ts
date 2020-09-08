@@ -272,7 +272,9 @@ export class TreeView extends ThemedHtmlView {
 
   protected onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);
-    this.resizeTree();
+    if (this.display.state !== "none") {
+      this.resizeTree();
+    }
   }
 
   protected resizeTree(): void {

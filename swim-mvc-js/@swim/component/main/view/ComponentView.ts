@@ -256,19 +256,19 @@ ComponentView.prototype.setOwnView = function <V extends View, U>(this: Componen
 ComponentView.prototype.willSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
                                                                    newView: V | null,
                                                                    oldView: V | null): void {
-  // hook
+  this._component.willSetComponentView(this, newView, oldView);
 };
 
 ComponentView.prototype.onSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
                                                                  newView: V | null,
                                                                  oldView: V | null): void {
-  // hook
+  this._component.onSetComponentView(this, newView, oldView);
 };
 
 ComponentView.prototype.didSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
                                                                   newView: V | null,
                                                                   oldView: V | null): void {
-  // hook
+  this._component.didSetComponentView(this, newView, oldView);
 };
 
 ComponentView.prototype.mount = function (this: ComponentView<Component, View>): void {

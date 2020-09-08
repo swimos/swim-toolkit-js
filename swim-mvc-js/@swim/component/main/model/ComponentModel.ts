@@ -249,19 +249,19 @@ ComponentModel.prototype.setOwnModel = function <M extends Model, U>(this: Compo
 ComponentModel.prototype.willSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>,
                                                                       newModel: M | null,
                                                                       oldModel: M | null): void {
-  // hook
+  this._component.willSetComponentModel(this, newModel, oldModel);
 };
 
 ComponentModel.prototype.onSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>,
                                                                     newModel: M | null,
                                                                     oldModel: M | null): void {
-  // hook
+  this._component.onSetComponentModel(this, newModel, oldModel);
 };
 
 ComponentModel.prototype.didSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>,
                                                                      newModel: M | null,
                                                                      oldModel: M | null): void {
-  // hook
+  this._component.didSetComponentModel(this, newModel, oldModel);
 };
 
 ComponentModel.prototype.mount = function (this: ComponentModel<Component, Model>): void {

@@ -822,6 +822,29 @@ export abstract class Component {
     return componentModel;
   }
 
+  /** @hidden */
+  willSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M, unknown>, newModel: M | null, oldModel: M | null): void {
+    this.willObserve(function (componentObserver: ComponentObserver): void {
+      if (componentObserver.componentWillSetModel !== void 0) {
+        componentObserver.componentWillSetModel(componentModel, newModel, oldModel, this);
+      }
+    });
+  }
+
+  /** @hidden */
+  onSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M, unknown>, newModel: M | null, oldModel: M | null): void {
+    // hook
+  }
+
+  /** @hidden */
+  didSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M, unknown>, newModel: M | null, oldModel: M | null): void {
+    this.didObserve(function (componentObserver: ComponentObserver): void {
+      if (componentObserver.componentDidSetModel !== void 0) {
+        componentObserver.componentDidSetModel(componentModel, newModel, oldModel, this);
+      }
+    });
+  }
+
   abstract hasComponentView(viewName: string): boolean;
 
   abstract getComponentView(viewName: string): ComponentView<this, View, unknown> | null;
@@ -840,6 +863,29 @@ export abstract class Component {
       }
     }
     return componentView;
+  }
+
+  /** @hidden */
+  willSetComponentView<V extends View>(componentView: ComponentView<this, V, unknown>, newView: V | null, oldView: V | null): void {
+    this.willObserve(function (componentObserver: ComponentObserver): void {
+      if (componentObserver.componentWillSetView !== void 0) {
+        componentObserver.componentWillSetView(componentView, newView, oldView, this);
+      }
+    });
+  }
+
+  /** @hidden */
+  onSetComponentView<V extends View>(componentView: ComponentView<this, V, unknown>, newView: V | null, oldView: V | null): void {
+    // hook
+  }
+
+  /** @hidden */
+  didSetComponentView<V extends View>(componentView: ComponentView<this, V, unknown>, newView: V | null, oldView: V | null): void {
+    this.didObserve(function (componentObserver: ComponentObserver): void {
+      if (componentObserver.componentDidSetView !== void 0) {
+        componentObserver.componentDidSetView(componentView, newView, oldView, this);
+      }
+    });
   }
 
   /** @hidden */

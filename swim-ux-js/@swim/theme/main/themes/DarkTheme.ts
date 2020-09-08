@@ -124,8 +124,6 @@ const DarkEmbossed = FeelVector.of(
 );
 
 const DarkNested = FeelVector.of(
-  [Look.accentColor, Color.black(1 / 3)],
-
   [Look.backgroundColor, Color.black(1 / 3)],
   [Look.borderColor, Color.black(1 / 3)],
 );

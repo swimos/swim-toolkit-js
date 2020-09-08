@@ -305,9 +305,9 @@ export class TreeLimb extends ThemedHtmlView {
     }
     const subtree = this.subtree;
     if (subtree !== null && this.disclosureState.state !== "collapsed") {
-      const limbHeight = subtree.height.value;
-      const dy = limbHeight instanceof Length
-               ? limbHeight.pxValue()
+      const subtreeHeight = subtree.height.value;
+      const dy = subtreeHeight instanceof Length
+               ? subtreeHeight.pxValue()
                : subtree._node.offsetHeight;
       subtree.top.setAutoState(y * disclosingPhase);
       y += dy * disclosingPhase;

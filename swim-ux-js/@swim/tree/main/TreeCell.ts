@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewNodeType, HtmlView} from "@swim/view";
+import {ViewFlags, View, ViewNodeType, HtmlView} from "@swim/view";
 import {PositionGestureInput} from "@swim/gesture";
 import {ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {TreeCellObserver} from "./TreeCellObserver";
@@ -34,7 +34,7 @@ export class TreeCell extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-cell");
-    this.display.setAutoState("flex");
+    this.display.setAutoState("none");
     this.alignItems.setAutoState("center");
   }
 
@@ -87,4 +87,7 @@ export class TreeCell extends ThemedHtmlView {
   static Disclosure: typeof DisclosureTreeCell; // defined by DisclosureTreeCell
   /** @hidden */
   static Polygon: typeof PolygonTreeCell; // defined by PolygonTreeCell
+
+  static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
+  static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsAnimate;
 }

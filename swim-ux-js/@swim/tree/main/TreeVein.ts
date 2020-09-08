@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Transition} from "@swim/transition";
-import {ViewNodeType, HtmlView} from "@swim/view";
+import {ViewFlags, View, ViewNodeType, HtmlView} from "@swim/view";
 import {Look, MoodVector, ThemeMatrix, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {TreeVeinObserver} from "./TreeVeinObserver";
 import {TreeVeinController} from "./TreeVeinController";
@@ -28,7 +28,7 @@ export class TreeVein extends ThemedHtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-vein");
-    this.display.setAutoState("flex");
+    this.display.setAutoState("none");
     this.alignItems.setAutoState("center");
   }
 
@@ -62,4 +62,7 @@ export class TreeVein extends ThemedHtmlView {
     view.initView(init);
     return view;
   }
+
+  static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
+  static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsAnimate;
 }

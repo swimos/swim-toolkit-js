@@ -124,8 +124,6 @@ const LightEmbossed = FeelVector.of(
 );
 
 const LightNested = FeelVector.of(
-  [Look.accentColor, Color.black(1 / 16)],
-
   [Look.backgroundColor, Color.black(1 / 16)],
   [Look.borderColor, Color.black(1 / 16)],
 );
