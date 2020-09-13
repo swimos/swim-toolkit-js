@@ -95,12 +95,25 @@ export class PolygonTreeCell extends TreeCell {
 
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
-    this.layoutPolygon();
+    if (this.display.state !== "none") {
+      this.layoutPolygon();
+    }
   }
 
   protected layoutPolygon(): void {
-    const bounds = this.clientBounds;
-    const radius = this.radius.value.pxValue(Math.min(bounds.width, bounds.height));
+    let width: Length | number | string | undefined = this.width.state;
+    let height: Length | number | string | undefined = this.height.state;
+    if (width instanceof Length) {
+      width = width.pxValue();
+    } else if (typeof width !== "number") {
+      return;
+    }
+    if (height instanceof Length) {
+      height = height.pxValue();
+    } else if (typeof height !== "number") {
+      return;
+    }
+    const radius = this.radius.value.pxValue(Math.min(width, height));
     const size = 2 * radius;
     const sides = this._sides;
     const sector = 2 * Math.PI / sides;

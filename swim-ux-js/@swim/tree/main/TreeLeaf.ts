@@ -196,6 +196,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
                               callback?: (this: this, childView: View) => void): void {
     const needsAnimate = (processFlags & View.NeedsAnimate) !== 0;
     const seed = needsAnimate ? this.seed.state : void 0;
+    const height = needsAnimate ? this.height.state : void 0;
     function animateChildView(this: TreeLeaf, childView: View): void {
       if (childView instanceof TreeCell) {
         const key = childView.key;
@@ -206,10 +207,15 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
           childView.left.setAutoState(left !== null ? left : void 0);
           const width = root._width;
           childView.width.setAutoState(width !== null ? width : void 0);
+          childView.height.setAutoState(height);
+          if (!root._hidden && (childView.width.isUpdated() || childView.height.isUpdated())) {
+            childView.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          }
         } else {
           childView.display.setAutoState("none");
           childView.left.setAutoState(void 0);
-          childView.right.setAutoState(void 0);
+          childView.width.setAutoState(void 0);
+          childView.height.setAutoState(void 0);
         }
       }
       if (callback !== void 0) {

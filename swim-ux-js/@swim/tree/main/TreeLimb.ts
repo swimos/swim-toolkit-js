@@ -24,6 +24,7 @@ import {
   HtmlView,
 } from "@swim/view";
 import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
+import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeLeaf, TreeLeaf} from "./TreeLeaf";
 import {TreeLimbObserver} from "./TreeLimbObserver";
 import {TreeLimbController} from "./TreeLimbController";
@@ -103,6 +104,9 @@ export class TreeLimb extends ThemedHtmlView {
     const disclosureState = this.disclosureState.state;
     return disclosureState === "collapsed" || disclosureState === "collapsing";
   }
+
+  @ViewScope({type: TreeSeed, inherit: true})
+  seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
   @ViewScope<TreeLimb, number>({
     type: Number,
@@ -266,7 +270,9 @@ export class TreeLimb extends ThemedHtmlView {
     subtree.display.setAutoState(this.isExpanded() ? "block" : "none");
     subtree.position.setAutoState("absolute");
     subtree.left.setAutoState(0);
-    subtree.right.setAutoState(0);
+    const seed = this.seed.state;
+    const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
+    subtree.width.setAutoState(width);
     subtree.depth.setAutoState(this.depth.state);
   }
 
@@ -290,6 +296,8 @@ export class TreeLimb extends ThemedHtmlView {
     const disclosingPhase = this.disclosureState.state === "expanded"
                           ? this.disclosingPhase.getValueOr(1)
                           : 1;
+    const seed = this.seed.state;
+    const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
     const limbSpacing = this.limbSpacing.getStateOr(0);
     let y = 0;
     const leaf = this.leaf;
@@ -300,7 +308,7 @@ export class TreeLimb extends ThemedHtmlView {
                : leaf._node.offsetHeight;
       leaf.top.setAutoState(y * disclosingPhase);
       leaf.left.setAutoState(limbSpacing);
-      leaf.right.setAutoState(limbSpacing);
+      leaf.width.setAutoState(width !== void 0 ? width.pxValue() - 2 * limbSpacing : void 0);
       y += dy * disclosingPhase;
     }
     const subtree = this.subtree;
@@ -310,6 +318,7 @@ export class TreeLimb extends ThemedHtmlView {
                ? subtreeHeight.pxValue()
                : subtree._node.offsetHeight;
       subtree.top.setAutoState(y * disclosingPhase);
+      subtree.width.setAutoState(width);
       y += dy * disclosingPhase;
     } else {
       y += limbSpacing * disclosingPhase;
