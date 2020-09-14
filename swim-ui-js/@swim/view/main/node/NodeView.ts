@@ -1049,6 +1049,105 @@ export class NodeView extends View {
     }
   }
 
+  setCulled(culled: boolean): void {
+    const viewFlags = this._viewFlags;
+    if (culled && (viewFlags & View.CulledFlag) === 0) {
+      this._viewFlags = viewFlags | View.CulledFlag;
+      if ((viewFlags & View.CullFlag) === 0) {
+        this.doCull();
+      }
+    } else if (!culled && (viewFlags & View.CulledFlag) !== 0) {
+      this._viewFlags = viewFlags & ~View.CulledFlag;
+      if ((viewFlags & View.CullFlag) === 0) {
+        this.doUncull();
+      }
+    }
+  }
+
+  cascadeCull(): void {
+    if ((this._viewFlags & View.CullFlag) === 0) {
+      this._viewFlags |= View.CullFlag;
+      if ((this._viewFlags & View.CulledFlag) === 0) {
+        this.doCull();
+      }
+    } else {
+      throw new Error("already culled");
+    }
+  }
+
+  /** @hidden */
+  protected doCull(): void {
+    this._viewFlags |= View.TraversingFlag;
+    try {
+      this.willCull();
+      this.onCull();
+      this.doCullChildViews();
+      this.didCull();
+    } finally {
+      this._viewFlags &= ~View.TraversingFlag;
+    }
+  }
+
+  /** @hidden */
+  protected doCullChildViews(): void {
+    const childNodes = this._node.childNodes;
+    let i = 0;
+    while (i < childNodes.length) {
+      const childView = (childNodes[i] as ViewNode).view;
+      if (childView !== void 0) {
+        childView.cascadeCull();
+        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
+          childView._viewFlags &= ~View.RemovingFlag;
+          this.removeChildView(childView);
+          continue;
+        }
+      }
+      i += 1;
+    }
+  }
+
+  cascadeUncull(): void {
+    if ((this._viewFlags & View.CullFlag) !== 0) {
+      this._viewFlags &= ~View.CullFlag
+      if ((this._viewFlags & View.CulledFlag) === 0) {
+        this.doUncull();
+      }
+    } else {
+      throw new Error("already unculled");
+    }
+  }
+
+  /** @hidden */
+  protected doUncull(): void {
+    this._viewFlags |= View.TraversingFlag;
+    try {
+      this.willUncull();
+      this.doUncullChildViews();
+      this.onUncull();
+      this.didUncull();
+    } finally {
+      this._viewFlags &= ~View.TraversingFlag;
+    }
+  }
+
+  /** @hidden */
+  protected doUncullChildViews(): void {
+    const childNodes = this._node.childNodes;
+    let i = 0;
+    while (i < childNodes.length) {
+      const childView = (childNodes[i] as ViewNode).view;
+      if (childView !== void 0) {
+        childView.cascadeUncull();
+        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
+          childView._viewFlags &= ~View.RemovingFlag;
+          this.removeChildView(childView);
+          continue;
+        }
+      }
+      i += 1;
+    }
+  }
+
   cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void {
     const extendedViewContext = this.extendViewContext(viewContext);
     processFlags |= this._viewFlags & View.UpdateMask;

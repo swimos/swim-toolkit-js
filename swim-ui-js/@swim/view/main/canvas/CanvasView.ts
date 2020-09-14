@@ -992,46 +992,6 @@ export class CanvasView extends HtmlView {
     });
   }
 
-  isCulled(): boolean {
-    return (this._viewFlags & View.CulledFlag) !== 0;
-  }
-
-  setCulled(newCulled: boolean): void {
-    const oldCulled = (this._viewFlags & View.CulledFlag) !== 0;
-    if (oldCulled !== newCulled) {
-      this.willSetCulled(newCulled);
-      if (newCulled) {
-        this._viewFlags |= View.CulledFlag;
-      } else {
-        this._viewFlags &= ~View.CulledFlag;
-      }
-      this.onSetCulled(newCulled);
-      this.didSetCulled(newCulled);
-    }
-  }
-
-  protected willSetCulled(culled: boolean): void {
-    this.willObserve(function (viewObserver: CanvasViewObserver): void {
-      if (viewObserver.viewWillSetCulled !== void 0) {
-        viewObserver.viewWillSetCulled(culled, this);
-      }
-    });
-  }
-
-  protected onSetCulled(culled: boolean): void {
-    if (!culled) {
-      this.requireUpdate(View.NeedsRender);
-    }
-  }
-
-  protected didSetCulled(culled: boolean): void {
-    this.didObserve(function (viewObserver: CanvasViewObserver): void {
-      if (viewObserver.viewDidSetCulled !== void 0) {
-        viewObserver.viewDidSetCulled(culled, this);
-      }
-    });
-  }
-
   extendViewContext(viewContext: ViewContext): ViewContextType<this> {
     const canvasViewContext = Object.create(viewContext);
     canvasViewContext.renderer = this.renderer;
@@ -1970,5 +1930,6 @@ export class CanvasView extends HtmlView {
                                           | CanvasView.TouchEventsFlag;
 
   static readonly powerFlags: ViewFlags = HtmlView.powerFlags | View.NeedsRender;
+  static readonly uncullFlags: ViewFlags = HtmlView.uncullFlags | View.NeedsRender;
 }
 View.Canvas = CanvasView;

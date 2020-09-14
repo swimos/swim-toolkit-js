@@ -24,6 +24,8 @@ export {
   TreeSeed,
 } from "./TreeSeed";
 
+export {TreeViewContext} from "./TreeViewContext";
+
 export {
   AnyTreeCell,
   TreeCellInit,

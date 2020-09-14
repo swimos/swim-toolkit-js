@@ -12,16 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContextType} from "../ViewContext";
-import {HtmlViewObserver} from "../html/HtmlViewObserver";
-import {CanvasView} from "./CanvasView";
+import {Model} from "./Model";
 
-export interface CanvasViewObserver<V extends CanvasView = CanvasView> extends HtmlViewObserver<V> {
-  viewWillRender?(viewContext: ViewContextType<V>, view: V): void;
+export type ModelConsumerType<M extends Model> =
+  M extends {readonly modelConsumers: ReadonlyArray<infer MO>} ? MO : unknown;
 
-  viewDidRender?(viewContext: ViewContextType<V>, view: V): void;
-
-  viewWillSetHidden?(hidden: boolean, view: V): void;
-
-  viewDidSetHidden?(hidden: boolean, view: V): void;
-}
+export type ModelConsumer<M extends Model = Model> = unknown

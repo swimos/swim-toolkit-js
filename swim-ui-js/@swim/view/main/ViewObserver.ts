@@ -47,6 +47,14 @@ export interface ViewObserver<V extends View = View> {
 
   viewDidUnpower?(view: V): void;
 
+  viewWillCull?(view: V): void;
+
+  viewDidCull?(view: V): void;
+
+  viewWillUncull?(view: V): void;
+
+  viewDidUncull?(view: V): void;
+
   viewWillProcess?(viewContext: ViewContextType<V>, view: V): void;
 
   viewDidProcess?(viewContext: ViewContextType<V>, view: V): void;

@@ -48,6 +48,14 @@ export interface ThemedViewController<V extends ThemedView = ThemedView> extends
 
   viewDidUnpower(view: V): void;
 
+  viewWillCull(view: V): void;
+
+  viewDidCull(view: V): void;
+
+  viewWillUncull(view: V): void;
+
+  viewDidUncull(view: V): void;
+
   viewWillApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, view: V): void;
 
   viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, view: V): void;

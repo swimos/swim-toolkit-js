@@ -16,6 +16,7 @@ import {WarpRef} from "@swim/client";
 import {ModelContextType, ModelContext} from "./ModelContext";
 import {ModelObserverType, ModelObserver} from "./ModelObserver";
 import {ModelControllerType, ModelController} from "./ModelController";
+import {ModelConsumerType, ModelConsumer} from "./ModelConsumer";
 import {SubmodelConstructor, Submodel} from "./Submodel";
 import {ModelManager} from "./manager/ModelManager";
 import {ModelServiceConstructor, ModelService} from "./service/ModelService";
@@ -42,6 +43,10 @@ export interface ModelClass {
   readonly insertChildFlags: ModelFlags;
 
   readonly removeChildFlags: ModelFlags;
+
+  readonly startConsumingFlags: ModelFlags;
+
+  readonly stopConsumingFlags: ModelFlags;
 
   /** @hidden */
   _submodelConstructors?: {[submodelName: string]: SubmodelConstructor<any, any> | undefined};
@@ -761,6 +766,88 @@ export abstract class Model {
     // hook
   }
 
+  isConsuming(): boolean {
+    return (this.modelFlags & Model.ConsumingFlag) !== 0;
+  }
+
+  get startConsumingFlags(): ModelFlags {
+    return this.modelClass.startConsumingFlags;
+  }
+
+  protected willStartConsuming(): void {
+    this.willObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelWillStartConsuming !== void 0) {
+        modelObserver.modelWillStartConsuming(this);
+      }
+    });
+  }
+
+  protected onStartConsuming(): void {
+    this.requireUpdate(this.startConsumingFlags);
+  }
+
+  protected didStartConsuming(): void {
+    this.didObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelDidStartConsuming !== void 0) {
+        modelObserver.modelDidStartConsuming(this);
+      }
+    });
+  }
+
+  get stopConsumingFlags(): ModelFlags {
+    return this.modelClass.stopConsumingFlags;
+  }
+
+  protected willStopConsuming(): void {
+    this.willObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelWillStopConsuming !== void 0) {
+        modelObserver.modelWillStopConsuming(this);
+      }
+    });
+  }
+
+  protected onStopConsuming(): void {
+    this.requireUpdate(this.stopConsumingFlags);
+  }
+
+  protected didStopConsuming(): void {
+    this.didObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelDidStopConsuming !== void 0) {
+        modelObserver.modelDidStopConsuming(this);
+      }
+    });
+  }
+
+  abstract get modelConsumers(): ReadonlyArray<ModelConsumer>;
+
+  abstract addModelConsumer(modelConsumer: ModelConsumerType<this>): void;
+
+  protected willAddModelConsumer(modelConsumer: ModelConsumerType<this>): void {
+    // hook
+  }
+
+  protected onAddModelConsumer(modelConsumer: ModelConsumerType<this>): void {
+    // hook
+  }
+
+  protected didAddModelConsumer(modelConsumer: ModelConsumerType<this>): void {
+    // hook
+  }
+
+  abstract removeModelConsumer(modelConsumer: ModelConsumerType<this>): void;
+
+  protected willRemoveModelConsumer(modelConsumer: ModelConsumerType<this>): void {
+    // hook
+  }
+
+  protected onRemoveModelConsumer(modelConsumer: ModelConsumerType<this>): void {
+    // hook
+  }
+
+  protected didRemoveModelConsumer(modelConsumer: ModelConsumerType<this>): void {
+    // hook
+  }
+
   abstract hasSubmodel(submodelName: string): boolean;
 
   abstract getSubmodel(submodelName: string): Submodel<this, Model> | null;
@@ -1013,40 +1100,43 @@ export abstract class Model {
   /** @hidden */
   static readonly PoweredFlag: ModelFlags = 1 << 1;
   /** @hidden */
-  static readonly TraversingFlag: ModelFlags = 1 << 2;
+  static readonly ConsumingFlag: ModelFlags = 1 << 2;
   /** @hidden */
-  static readonly AnalyzingFlag: ModelFlags = 1 << 3;
+  static readonly TraversingFlag: ModelFlags = 1 << 3;
   /** @hidden */
-  static readonly RefreshingFlag: ModelFlags = 1 << 4;
+  static readonly AnalyzingFlag: ModelFlags = 1 << 4;
   /** @hidden */
-  static readonly RemovingFlag: ModelFlags = 1 << 5;
+  static readonly RefreshingFlag: ModelFlags = 1 << 5;
   /** @hidden */
-  static readonly ImmediateFlag: ModelFlags = 1 << 6;
+  static readonly RemovingFlag: ModelFlags = 1 << 6;
+  /** @hidden */
+  static readonly ImmediateFlag: ModelFlags = 1 << 7;
   /** @hidden */
   static readonly UpdatingMask: ModelFlags = Model.AnalyzingFlag
                                            | Model.RefreshingFlag;
   /** @hidden */
   static readonly StatusMask: ModelFlags = Model.MountedFlag
                                          | Model.PoweredFlag
+                                         | Model.ConsumingFlag
                                          | Model.TraversingFlag
                                          | Model.AnalyzingFlag
                                          | Model.RefreshingFlag
                                          | Model.RemovingFlag
                                          | Model.ImmediateFlag;
 
-  static readonly NeedsAnalyze: ModelFlags = 1 << 7;
-  static readonly NeedsMutate: ModelFlags = 1 << 8;
-  static readonly NeedsAggregate: ModelFlags = 1 << 9;
-  static readonly NeedsCorrelate: ModelFlags = 1 << 10;
+  static readonly NeedsAnalyze: ModelFlags = 1 << 8;
+  static readonly NeedsMutate: ModelFlags = 1 << 9;
+  static readonly NeedsAggregate: ModelFlags = 1 << 10;
+  static readonly NeedsCorrelate: ModelFlags = 1 << 11;
   /** @hidden */
   static readonly AnalyzeMask: ModelFlags = Model.NeedsAnalyze
                                           | Model.NeedsMutate
                                           | Model.NeedsAggregate
                                           | Model.NeedsCorrelate;
 
-  static readonly NeedsRefresh: ModelFlags = 1 << 11;
-  static readonly NeedsValidate: ModelFlags = 1 << 12;
-  static readonly NeedsReconcile: ModelFlags = 1 << 13;
+  static readonly NeedsRefresh: ModelFlags = 1 << 12;
+  static readonly NeedsValidate: ModelFlags = 1 << 13;
+  static readonly NeedsReconcile: ModelFlags = 1 << 14;
   /** @hidden */
   static readonly RefreshMask: ModelFlags = Model.NeedsRefresh
                                           | Model.NeedsValidate
@@ -1065,6 +1155,8 @@ export abstract class Model {
   static readonly powerFlags: ModelFlags = 0;
   static readonly insertChildFlags: ModelFlags = 0;
   static readonly removeChildFlags: ModelFlags = 0;
+  static readonly startConsumingFlags: ModelFlags = 0;
+  static readonly stopConsumingFlags: ModelFlags = 0;
 
   // Forward type declarations
   /** @hidden */

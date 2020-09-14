@@ -16,6 +16,7 @@ import {ModelContextType, ModelContext} from "../ModelContext";
 import {ModelFlags, Model} from "../Model";
 import {ModelObserverType, ModelObserver} from "../ModelObserver";
 import {ModelControllerType, ModelController} from "../ModelController";
+import {ModelConsumerType, ModelConsumer} from "../ModelConsumer";
 import {Submodel} from "../Submodel";
 import {ModelService} from "../service/ModelService";
 import {ModelScope} from "../scope/ModelScope";
@@ -33,6 +34,8 @@ export abstract class GenericModel extends Model {
   _modelObservers?: ModelObserverType<this>[];
   /** @hidden */
   _modelFlags: ModelFlags;
+  /** @hidden */
+  _modelConsumers?: ModelConsumerType<this>[];
   /** @hidden */
   _submodels?: {[submodelName: string]: Submodel<Model, Model> | undefined};
   /** @hidden */
@@ -495,6 +498,70 @@ export abstract class GenericModel extends Model {
       this.willRefreshChildModels(refreshFlags, modelContext);
       this.onRefreshChildModels(refreshFlags, modelContext);
       this.didRefreshChildModels(refreshFlags, modelContext);
+    }
+  }
+
+  protected startConsuming(): void {
+    if ((this._modelFlags & Model.ConsumingFlag) === 0) {
+      this.willStartConsuming();
+      this._modelFlags |= Model.ConsumingFlag;
+      this.onStartConsuming();
+      this.didStartConsuming();
+    }
+  }
+
+  protected stopConsuming(): void {
+    if ((this._modelFlags & Model.ConsumingFlag) !== 0) {
+      this.willStopConsuming();
+      this._modelFlags &= ~Model.ConsumingFlag;
+      this.onStopConsuming();
+      this.didStopConsuming();
+    }
+  }
+
+  get modelConsumers(): ReadonlyArray<ModelConsumer> {
+    let modelConsumers = this._modelConsumers;
+    if (modelConsumers === void 0) {
+      modelConsumers = [];
+      this._modelConsumers = modelConsumers;
+    }
+    return modelConsumers;
+  }
+
+  addModelConsumer(modelConsumer: ModelConsumerType<this>): void {
+    let modelConsumers = this._modelConsumers;
+    let index: number;
+    if (modelConsumers === void 0) {
+      modelConsumers = [];
+      this._modelConsumers = modelConsumers;
+      index = -1;
+    } else {
+      index = modelConsumers.indexOf(modelConsumer);
+    }
+    if (index < 0) {
+      this.willAddModelConsumer(modelConsumer);
+      modelConsumers.push(modelConsumer);
+      this.onAddModelConsumer(modelConsumer);
+      this.didAddModelConsumer(modelConsumer);
+      if (modelConsumers.length === 1) {
+        this.startConsuming();
+      }
+    }
+  }
+
+  removeModelConsumer(modelConsumer: ModelConsumerType<this>): void {
+    const modelConsumers = this._modelConsumers;
+    if (modelConsumers !== void 0) {
+      const index = modelConsumers.indexOf(modelConsumer);
+      if (index >= 0) {
+        this.willRemoveModelConsumer(modelConsumer);
+        modelConsumers.splice(index, 1);
+        this.onRemoveModelConsumer(modelConsumer);
+        this.didRemoveModelConsumer(modelConsumer);
+        if (modelConsumers.length === 0) {
+          this.stopConsuming();
+        }
+      }
     }
   }
 

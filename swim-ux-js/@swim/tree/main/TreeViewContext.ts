@@ -12,16 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContextType} from "../ViewContext";
-import {HtmlViewObserver} from "../html/HtmlViewObserver";
-import {CanvasView} from "./CanvasView";
+import {BoxR2} from "@swim/math";
+import {ViewContext} from "@swim/view";
 
-export interface CanvasViewObserver<V extends CanvasView = CanvasView> extends HtmlViewObserver<V> {
-  viewWillRender?(viewContext: ViewContextType<V>, view: V): void;
-
-  viewDidRender?(viewContext: ViewContextType<V>, view: V): void;
-
-  viewWillSetHidden?(hidden: boolean, view: V): void;
-
-  viewDidSetHidden?(hidden: boolean, view: V): void;
+export interface TreeViewContext extends ViewContext {
+  /**
+   * The current client viewport rectangle, translated into view coordinates.
+   */
+  readonly visibleFrame: BoxR2;
 }

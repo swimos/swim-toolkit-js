@@ -90,4 +90,5 @@ export class TreeCell extends ThemedHtmlView {
 
   static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
   static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsAnimate;
+  static readonly uncullFlags: ViewFlags = ThemedHtmlView.uncullFlags | View.NeedsAnimate;
 }

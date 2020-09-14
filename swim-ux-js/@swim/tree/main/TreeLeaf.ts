@@ -267,4 +267,5 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
 
   static readonly mountFlags: ViewFlags = ButtonMembrane.mountFlags | View.NeedsAnimate;
   static readonly powerFlags: ViewFlags = ButtonMembrane.powerFlags | View.NeedsAnimate;
+  static readonly uncullFlags: ViewFlags = ButtonMembrane.uncullFlags | View.NeedsAnimate;
 }

@@ -170,12 +170,6 @@ export abstract class MapGraphicsView extends GraphicsView {
     }
   }
 
-  protected onSetCulled(culled: boolean): void {
-    if (!culled) {
-      this.requireUpdate(View.NeedsProject);
-    }
-  }
-
   cullGeoFrame(geoFrame: GeoBox = this.geoFrame): void {
     this.setCulled(!geoFrame.intersects(this.geoBounds));
   }
@@ -233,4 +227,5 @@ export abstract class MapGraphicsView extends GraphicsView {
   }
 
   static readonly mountFlags: ViewFlags = GraphicsView.mountFlags | View.NeedsProject;
+  static readonly uncullFlags: ViewFlags = GraphicsView.uncullFlags | View.NeedsProject;
 }

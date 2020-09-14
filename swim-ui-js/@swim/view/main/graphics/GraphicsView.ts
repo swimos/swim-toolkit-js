@@ -36,7 +36,6 @@ import {GraphicsViewController} from "./GraphicsViewController";
 export interface GraphicsViewInit extends ViewInit {
   viewController?: GraphicsViewController;
   hidden?: boolean;
-  culled?: boolean;
 }
 
 export abstract class GraphicsView extends View {
@@ -82,9 +81,6 @@ export abstract class GraphicsView extends View {
     super.initView(init);
     if (init.hidden !== void 0) {
       this.setHidden(init.hidden);
-    }
-    if (init.culled !== void 0) {
-      this.setCulled(init.culled);
     }
   }
 
@@ -460,6 +456,95 @@ export abstract class GraphicsView extends View {
     }, this);
   }
 
+  setCulled(culled: boolean): void {
+    const viewFlags = this._viewFlags;
+    if (culled && (viewFlags & View.CulledFlag) === 0) {
+      this._viewFlags = viewFlags | View.CulledFlag;
+      if ((viewFlags & View.CullFlag) === 0) {
+        this.doCull();
+      }
+    } else if (!culled && (viewFlags & View.CulledFlag) !== 0) {
+      this._viewFlags = viewFlags & ~View.CulledFlag;
+      if ((viewFlags & View.CullFlag) === 0) {
+        this.doUncull();
+      }
+    }
+  }
+
+  cascadeCull(): void {
+    if ((this._viewFlags & View.CullFlag) === 0) {
+      this._viewFlags |= View.CullFlag;
+      if ((this._viewFlags & View.CulledFlag) === 0) {
+        this.doCull();
+      }
+    } else {
+      throw new Error("already culled");
+    }
+  }
+
+  /** @hidden */
+  protected doCull(): void {
+    this._viewFlags |= View.TraversingFlag;
+    try {
+      this.willCull();
+      this.onCull();
+      this.doCullChildViews();
+      this.didCull();
+    } finally {
+      this._viewFlags &= ~View.TraversingFlag;
+    }
+  }
+
+  /** @hidden */
+  protected doCullChildViews(): void {
+    this.forEachChildView(function (childView: View): void {
+      childView.cascadeCull();
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+      }
+    }, this);
+  }
+
+  cascadeUncull(): void {
+    if ((this._viewFlags & View.CullFlag) !== 0) {
+      this._viewFlags &= ~View.CullFlag
+      if ((this._viewFlags & View.CulledFlag) === 0) {
+        this.doUncull();
+      }
+    } else {
+      throw new Error("already unculled");
+    }
+  }
+
+  /** @hidden */
+  protected doUncull(): void {
+    this._viewFlags |= View.TraversingFlag;
+    try {
+      this.willUncull();
+      this.doUncullChildViews();
+      this.onUncull();
+      this.didUncull();
+    } finally {
+      this._viewFlags &= ~View.TraversingFlag;
+    }
+  }
+
+  /** @hidden */
+  protected doUncullChildViews(): void {
+    this.forEachChildView(function (childView: View): void {
+      childView.cascadeUncull();
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+      }
+    }, this);
+  }
+
+  cullViewFrame(viewFrame: BoxR2 = this.viewFrame): void {
+    this.setCulled(!viewFrame.intersects(this.viewBounds));
+  }
+
   get renderer(): Renderer | null {
     const parentView = this._parentView;
     if (parentView instanceof GraphicsView || parentView instanceof View.Canvas) {
@@ -649,6 +734,65 @@ export abstract class GraphicsView extends View {
       this.onDisplayChildViews(displayFlags, viewContext);
       this.didDisplayChildViews(displayFlags, viewContext);
     }
+  }
+
+  /**
+   * Returns `true` if this view is ineligible for rendering and hit testing,
+   * and should be excluded from its parent's layout and hit bounds.
+   */
+  isHidden(): boolean {
+    if ((this._viewFlags & View.HiddenFlag) !== 0) {
+      return true;
+    } else {
+      const parentView = this._parentView;
+      if (parentView instanceof GraphicsView || parentView instanceof View.Canvas) {
+        return parentView.isHidden();
+      } else {
+        return false;
+      }
+    }
+  }
+
+  /**
+   * Makes this view ineligible for rendering and hit testing, and excludes
+   * this view from its parent's layout and hit bounds, when `hidden` is `true`.
+   * Makes this view eligible for rendering and hit testing, and includes this
+   * view in its parent's layout and hit bounds, when `hidden` is `false`.
+   */
+  setHidden(newHidden: boolean): void {
+    const oldHidden = (this._viewFlags & View.HiddenFlag) !== 0;
+    if (oldHidden !== newHidden) {
+      this.willSetHidden(newHidden);
+      if (newHidden) {
+        this._viewFlags |= View.HiddenFlag;
+      } else {
+        this._viewFlags &= ~View.HiddenFlag;
+      }
+      this.onSetHidden(newHidden);
+      this.didSetHidden(newHidden);
+    }
+  }
+
+  protected willSetHidden(hidden: boolean): void {
+    this.willObserve(function (viewObserver: GraphicsViewObserver): void {
+      if (viewObserver.viewWillSetHidden !== void 0) {
+        viewObserver.viewWillSetHidden(hidden, this);
+      }
+    });
+  }
+
+  protected onSetHidden(hidden: boolean): void {
+    if (!hidden) {
+      this.requireUpdate(View.NeedsRender);
+    }
+  }
+
+  protected didSetHidden(hidden: boolean): void {
+    this.didObserve(function (viewObserver: GraphicsViewObserver): void {
+      if (viewObserver.viewDidSetHidden !== void 0) {
+        viewObserver.viewDidSetHidden(hidden, this);
+      }
+    });
   }
 
   hasSubview(subviewName: string): boolean {
@@ -1109,125 +1253,6 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  /**
-   * Returns `true` if this view is ineligible for rendering and hit testing,
-   * and should be excluded from its parent's layout and hit bounds.
-   */
-  isHidden(): boolean {
-    if ((this._viewFlags & View.HiddenFlag) !== 0) {
-      return true;
-    } else {
-      const parentView = this._parentView;
-      if (parentView instanceof GraphicsView || parentView instanceof View.Canvas) {
-        return parentView.isHidden();
-      } else {
-        return false;
-      }
-    }
-  }
-
-  /**
-   * Makes this view ineligible for rendering and hit testing, and excludes
-   * this view from its parent's layout and hit bounds, when `hidden` is `true`.
-   * Makes this view eligible for rendering and hit testing, and includes this
-   * view in its parent's layout and hit bounds, when `hidden` is `false`.
-   */
-  setHidden(newHidden: boolean): void {
-    const oldHidden = (this._viewFlags & View.HiddenFlag) !== 0;
-    if (oldHidden !== newHidden) {
-      this.willSetHidden(newHidden);
-      if (newHidden) {
-        this._viewFlags |= View.HiddenFlag;
-      } else {
-        this._viewFlags &= ~View.HiddenFlag;
-      }
-      this.onSetHidden(newHidden);
-      this.didSetHidden(newHidden);
-    }
-  }
-
-  protected willSetHidden(hidden: boolean): void {
-    this.willObserve(function (viewObserver: GraphicsViewObserver): void {
-      if (viewObserver.viewWillSetHidden !== void 0) {
-        viewObserver.viewWillSetHidden(hidden, this);
-      }
-    });
-  }
-
-  protected onSetHidden(hidden: boolean): void {
-    if (!hidden) {
-      this.requireUpdate(View.NeedsRender);
-    }
-  }
-
-  protected didSetHidden(hidden: boolean): void {
-    this.didObserve(function (viewObserver: GraphicsViewObserver): void {
-      if (viewObserver.viewDidSetHidden !== void 0) {
-        viewObserver.viewDidSetHidden(hidden, this);
-      }
-    });
-  }
-
-  /**
-   * Returns `true` if this view should be excluded from rendering and hit testing.
-   */
-  isCulled(): boolean {
-    if ((this._viewFlags & View.CulledFlag) !== 0) {
-      return true;
-    } else {
-      const parentView = this._parentView;
-      if (parentView instanceof GraphicsView || parentView instanceof View.Canvas) {
-        return parentView.isCulled();
-      } else {
-        return false;
-      }
-    }
-  }
-
-  /**
-   * Excludes this view from rendering and hit testing when `culled` is `true`.
-   * Includes this view in rendering and hit testing when `culled` is `false`.
-   */
-  setCulled(newCulled: boolean): void {
-    const oldCulled = (this._viewFlags & View.CulledFlag) !== 0;
-    if (oldCulled !== newCulled) {
-      this.willSetCulled(newCulled);
-      if (newCulled) {
-        this._viewFlags |= View.CulledFlag;
-      } else {
-        this._viewFlags &= ~View.CulledFlag;
-      }
-      this.onSetCulled(newCulled);
-      this.didSetCulled(newCulled);
-    }
-  }
-
-  protected willSetCulled(culled: boolean): void {
-    this.willObserve(function (viewObserver: GraphicsViewObserver): void {
-      if (viewObserver.viewWillSetCulled !== void 0) {
-        viewObserver.viewWillSetCulled(culled, this);
-      }
-    });
-  }
-
-  protected onSetCulled(culled: boolean): void {
-    if (!culled) {
-      this.requireUpdate(View.NeedsRender);
-    }
-  }
-
-  protected didSetCulled(culled: boolean): void {
-    this.didObserve(function (viewObserver: GraphicsViewObserver): void {
-      if (viewObserver.viewDidSetCulled !== void 0) {
-        viewObserver.viewDidSetCulled(culled, this);
-      }
-    });
-  }
-
-  cullViewFrame(viewFrame: BoxR2 = this.viewFrame): void {
-    this.setCulled(!viewFrame.intersects(this.viewBounds));
-  }
-
   // @ts-ignore
   declare readonly viewContext: GraphicsViewContext;
 
@@ -1650,6 +1675,7 @@ export abstract class GraphicsView extends View {
     }
   }
 
+  static readonly uncullFlags: ViewFlags = View.uncullFlags | View.NeedsRender;
   static readonly insertChildFlags: ViewFlags = View.insertChildFlags | View.NeedsLayout | View.NeedsRender;
   static readonly removeChildFlags: ViewFlags = View.removeChildFlags | View.NeedsLayout | View.NeedsRender;
 }

@@ -302,6 +302,27 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
+  isCulled(): boolean {
+    const view = this._view;
+    return view !== null && view.isCulled();
+  }
+
+  viewWillCull(view: V): void {
+    // hook
+  }
+
+  viewDidCull(view: V): void {
+    // hook
+  }
+
+  viewWillUncull(view: V): void {
+    // hook
+  }
+
+  viewDidUncull(view: V): void {
+    // hook
+  }
+
   isTraversing(): boolean {
     const view = this._view;
     return view !== null && view.isTraversing();

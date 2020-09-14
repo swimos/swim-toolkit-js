@@ -65,6 +65,8 @@ export interface ViewClass {
 
   readonly powerFlags: ViewFlags;
 
+  readonly uncullFlags: ViewFlags;
+
   readonly insertChildFlags: ViewFlags;
 
   readonly removeChildFlags: ViewFlags;
@@ -197,6 +199,9 @@ export abstract class View implements AnimatorContext, ConstraintScope {
         this.cascadeMount();
         if (newParentView.isPowered()) {
           this.cascadePower();
+        }
+        if (newParentView.isCulled()) {
+          this.cascadeCull();
         }
       }
     } else if (this.isMounted()) {
@@ -440,6 +445,60 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidUnpower !== void 0) {
         viewObserver.viewDidUnpower(this);
+      }
+    });
+  }
+
+  isCulled(): boolean {
+    return (this.viewFlags & View.CulledMask) !== 0;
+  }
+
+  abstract setCulled(culled: boolean): void;
+
+  abstract cascadeCull(): void;
+
+  protected willCull(): void {
+    this.willObserve(function (viewObserver: ViewObserver): void {
+      if (viewObserver.viewWillCull !== void 0) {
+        viewObserver.viewWillCull(this);
+      }
+    });
+  }
+
+  protected onCull(): void {
+    // hook
+  }
+
+  protected didCull(): void {
+    this.didObserve(function (viewObserver: ViewObserver): void {
+      if (viewObserver.viewDidCull !== void 0) {
+        viewObserver.viewDidCull(this);
+      }
+    });
+  }
+
+  abstract cascadeUncull(): void;
+
+  get uncullFlags(): ViewFlags {
+    return this.viewClass.uncullFlags;
+  }
+
+  protected willUncull(): void {
+    this.willObserve(function (viewObserver: ViewObserver): void {
+      if (viewObserver.viewWillUncull !== void 0) {
+        viewObserver.viewWillUncull(this);
+      }
+    });
+  }
+
+  protected onUncull(): void {
+    this.requireUpdate(this.uncullFlags);
+  }
+
+  protected didUncull(): void {
+    this.didObserve(function (viewObserver: ViewObserver): void {
+      if (viewObserver.viewDidUncull !== void 0) {
+        viewObserver.viewDidUncull(this);
       }
     });
   }
@@ -1338,29 +1397,35 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   /** @hidden */
   static readonly PoweredFlag: ViewFlags = 1 << 1;
   /** @hidden */
-  static readonly HiddenFlag: ViewFlags = 1 << 2;
+  static readonly CullFlag: ViewFlags = 1 << 2;
   /** @hidden */
   static readonly CulledFlag: ViewFlags = 1 << 3;
   /** @hidden */
-  static readonly AnimatingFlag: ViewFlags = 1 << 4;
+  static readonly HiddenFlag: ViewFlags = 1 << 4;
   /** @hidden */
-  static readonly TraversingFlag: ViewFlags = 1 << 5;
+  static readonly AnimatingFlag: ViewFlags = 1 << 5;
   /** @hidden */
-  static readonly ProcessingFlag: ViewFlags = 1 << 6;
+  static readonly TraversingFlag: ViewFlags = 1 << 6;
   /** @hidden */
-  static readonly DisplayingFlag: ViewFlags = 1 << 7;
+  static readonly ProcessingFlag: ViewFlags = 1 << 7;
   /** @hidden */
-  static readonly RemovingFlag: ViewFlags = 1 << 8;
+  static readonly DisplayingFlag: ViewFlags = 1 << 8;
   /** @hidden */
-  static readonly ImmediateFlag: ViewFlags = 1 << 9;
+  static readonly RemovingFlag: ViewFlags = 1 << 9;
+  /** @hidden */
+  static readonly ImmediateFlag: ViewFlags = 1 << 10;
+  /** @hidden */
+  static readonly CulledMask: ViewFlags = View.CullFlag
+                                        | View.CulledFlag;
   /** @hidden */
   static readonly UpdatingMask: ViewFlags = View.ProcessingFlag
                                           | View.DisplayingFlag;
   /** @hidden */
   static readonly StatusMask: ViewFlags = View.MountedFlag
                                         | View.PoweredFlag
-                                        | View.HiddenFlag
+                                        | View.CullFlag
                                         | View.CulledFlag
+                                        | View.HiddenFlag
                                         | View.AnimatingFlag
                                         | View.TraversingFlag
                                         | View.ProcessingFlag
@@ -1368,12 +1433,12 @@ export abstract class View implements AnimatorContext, ConstraintScope {
                                         | View.RemovingFlag
                                         | View.ImmediateFlag;
 
-  static readonly NeedsProcess: ViewFlags = 1 << 10;
-  static readonly NeedsResize: ViewFlags = 1 << 11;
-  static readonly NeedsScroll: ViewFlags = 1 << 12;
-  static readonly NeedsChange: ViewFlags = 1 << 13;
-  static readonly NeedsAnimate: ViewFlags = 1 << 14;
-  static readonly NeedsProject: ViewFlags = 1 << 15;
+  static readonly NeedsProcess: ViewFlags = 1 << 11;
+  static readonly NeedsResize: ViewFlags = 1 << 12;
+  static readonly NeedsScroll: ViewFlags = 1 << 13;
+  static readonly NeedsChange: ViewFlags = 1 << 14;
+  static readonly NeedsAnimate: ViewFlags = 1 << 15;
+  static readonly NeedsProject: ViewFlags = 1 << 16;
   /** @hidden */
   static readonly ProcessMask: ViewFlags = View.NeedsProcess
                                          | View.NeedsResize
@@ -1382,10 +1447,10 @@ export abstract class View implements AnimatorContext, ConstraintScope {
                                          | View.NeedsAnimate
                                          | View.NeedsProject;
 
-  static readonly NeedsDisplay: ViewFlags = 1 << 16;
-  static readonly NeedsLayout: ViewFlags = 1 << 17;
-  static readonly NeedsRender: ViewFlags = 1 << 18;
-  static readonly NeedsComposite: ViewFlags = 1 << 19;
+  static readonly NeedsDisplay: ViewFlags = 1 << 17;
+  static readonly NeedsLayout: ViewFlags = 1 << 18;
+  static readonly NeedsRender: ViewFlags = 1 << 19;
+  static readonly NeedsComposite: ViewFlags = 1 << 20;
   /** @hidden */
   static readonly DisplayMask: ViewFlags = View.NeedsDisplay
                                          | View.NeedsLayout
@@ -1403,6 +1468,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   static readonly mountFlags: ViewFlags = View.NeedsResize | View.NeedsLayout;
   static readonly powerFlags: ViewFlags = 0;
+  static readonly uncullFlags: ViewFlags = 0;
   static readonly insertChildFlags: ViewFlags = 0;
   static readonly removeChildFlags: ViewFlags = 0;
 

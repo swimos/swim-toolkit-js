@@ -392,6 +392,22 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     // hook
   }
 
+  modelWillStartConsuming(model: M): void {
+    // hook
+  }
+
+  modelDidStartConsuming(model: M): void {
+    // hook
+  }
+
+  modelWillStopConsuming(model: M): void {
+    // hook
+  }
+
+  modelDidStopConsuming(model: M): void {
+    // hook
+  }
+
   get modelContext(): ModelContext {
     const model = this._model;
     return model !== null ? model.modelContext : ModelContext.default();

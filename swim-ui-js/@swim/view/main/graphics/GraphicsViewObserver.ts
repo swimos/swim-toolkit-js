@@ -24,8 +24,4 @@ export interface GraphicsViewObserver<V extends GraphicsView = GraphicsView> ext
   viewWillSetHidden?(hidden: boolean, view: V): void;
 
   viewDidSetHidden?(hidden: boolean, view: V): void;
-
-  viewWillSetCulled?(culled: boolean, view: V): void;
-
-  viewDidSetCulled?(culled: boolean, view: V): void;
 }

@@ -40,19 +40,6 @@ export class CanvasViewController<V extends CanvasView = CanvasView> extends Htm
     // hook
   }
 
-  isCulled(): boolean {
-    const view = this._view;
-    return view !== null && view.isCulled();
-  }
-
-  viewWillSetCulled(culled: boolean, view: V): boolean | void {
-    // hook
-  }
-
-  viewDidSetCulled(culled: boolean, view: V): void {
-    // hook
-  }
-
   get viewFrame(): BoxR2 {
     const view = this._view;
     return view !== null ? view.viewFrame : BoxR2.undefined();

@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {BoxR2} from "@swim/math";
 import {Length} from "@swim/length";
 import {Tween, Transition} from "@swim/transition";
 import {
   ViewContextType,
+  ViewContext,
   ViewFlags,
   View,
   ViewScope,
@@ -25,6 +27,7 @@ import {
 } from "@swim/view";
 import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
+import {TreeViewContext} from "./TreeViewContext";
 import {AnyTreeLeaf, TreeLeaf} from "./TreeLeaf";
 import {TreeLimbObserver} from "./TreeLimbObserver";
 import {TreeLimbController} from "./TreeLimbController";
@@ -54,6 +57,9 @@ export class TreeLimb extends ThemedHtmlView {
 
   // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<TreeLimbObserver>;
+
+  // @ts-ignore
+  declare readonly viewContext: TreeViewContext;
 
   initView(init: TreeLimbInit): void {
     super.initView(init);
@@ -240,6 +246,16 @@ export class TreeLimb extends ThemedHtmlView {
     }
   }
 
+  protected onCull(): void {
+    super.onCull();
+    this.display.setAutoState("none");
+  }
+
+  protected onUncull(): void {
+    super.onUncull();
+    this.display.setAutoState("block");
+  }
+
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
     if (childView.key === "leaf" && childView instanceof TreeLeaf) {
@@ -285,6 +301,25 @@ export class TreeLimb extends ThemedHtmlView {
     if (subtree !== null) {
       subtree.depth.setAutoState(depth);
     }
+  }
+
+  extendViewContext(viewContext: ViewContext): ViewContextType<this> {
+    const treeViewContext = Object.create(viewContext);
+    const parentVisibleFrame = (viewContext as TreeViewContext).visibleFrame as BoxR2 | undefined;
+    let childVisibleFrame: BoxR2;
+    if (parentVisibleFrame !== void 0) {
+      const left = this.left.state;
+      const x = left instanceof Length ? left.pxValue() : this._node.offsetLeft;
+      const top = this.top.state;
+      const y = top instanceof Length ? top.pxValue() : this._node.offsetTop;
+      childVisibleFrame = new BoxR2(parentVisibleFrame.xMin - x, parentVisibleFrame.yMin - y,
+                                    parentVisibleFrame.xMax - x, parentVisibleFrame.yMax - y);
+    } else {
+      const {x, y} = this._node.getBoundingClientRect();
+      childVisibleFrame = new BoxR2(-x, -y, window.innerWidth - x, window.innerHeight - y);
+    }
+    treeViewContext.visibleFrame = childVisibleFrame;
+    return treeViewContext;
   }
 
   protected didAnimate(viewContext: ViewContextType<this>): void {
@@ -343,4 +378,5 @@ export class TreeLimb extends ThemedHtmlView {
 
   static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
   static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsAnimate;
+  static readonly uncullFlags: ViewFlags = ThemedHtmlView.uncullFlags | View.NeedsAnimate;
 }

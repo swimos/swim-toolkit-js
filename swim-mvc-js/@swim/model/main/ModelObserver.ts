@@ -82,4 +82,12 @@ export interface ModelObserver<M extends Model = Model> {
   modelWillRefreshChildModels?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
   modelDidRefreshChildModels?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
+
+  modelWillStartConsuming?(model: M): void;
+
+  modelDidStartConsuming?(model: M): void;
+
+  modelWillStopConsuming?(model: M): void;
+
+  modelDidStopConsuming?(model: M): void;
 }

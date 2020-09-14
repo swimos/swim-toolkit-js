@@ -40,19 +40,6 @@ export class GraphicsViewController<V extends GraphicsView = GraphicsView> exten
     // hook
   }
 
-  isCulled(): boolean {
-    const view = this._view;
-    return view !== null && view.isCulled();
-  }
-
-  viewWillSetCulled(culled: boolean, view: V): void {
-    // hook
-  }
-
-  viewDidSetCulled(culled: boolean, view: V): void {
-    // hook
-  }
-
   get viewFrame(): BoxR2 {
     const view = this._view;
     return view !== null ? view.viewFrame : BoxR2.undefined();

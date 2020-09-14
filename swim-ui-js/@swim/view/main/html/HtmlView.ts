@@ -1813,8 +1813,13 @@ export class HtmlView extends ElementView {
   static fromTag<T extends keyof HtmlViewTagMap>(tag: T): HtmlViewTagMap[T];
   static fromTag(tag: string): HtmlView;
   static fromTag(tag: string): HtmlView {
-    const node = document.createElement(tag);
-    return new (this as unknown as {new(node: HTMLElement): HtmlView})(node);
+    if (tag === "canvas") {
+      const node = document.createElement(tag) as HTMLCanvasElement;
+      return new View.Canvas(node);
+    } else {
+      const node = document.createElement(tag);
+      return new (this as unknown as {new(node: HTMLElement): HtmlView})(node);
+    }
   }
 
   static create<T extends keyof HtmlViewTagMap>(tag: T): HtmlViewTagMap[T];
