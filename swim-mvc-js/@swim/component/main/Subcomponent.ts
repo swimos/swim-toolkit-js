@@ -105,10 +105,10 @@ export declare abstract class Subcomponent<C extends Component, S extends Compon
   /** @hidden */
   unmount(): void;
 
-  insert(parentComponent: Component, key?: string): void;
-  insert(key?: string): void;
+  insert(parentComponent: Component, key?: string): S | null;
+  insert(key?: string): S | null;
 
-  remove(): void;
+  remove(): S | null;
 
   createSubcomponent(): S | U | null;
 
@@ -255,8 +255,9 @@ Subcomponent.prototype.unmount = function (this: Subcomponent<Component, Compone
   // hook
 };
 
-Subcomponent.prototype.insert = function (this: Subcomponent<Component, Component>,
-                                          parentComponent?: Component | string, key?: string): void {
+Subcomponent.prototype.insert = function <S extends Component>(this: Subcomponent<Component, S>,
+                                                               parentComponent?: Component | string,
+                                                               key?: string): S | null {
   let subcomponent = this._subcomponent;
   if (subcomponent === null) {
     subcomponent = this.createSubcomponent();
@@ -280,13 +281,15 @@ Subcomponent.prototype.insert = function (this: Subcomponent<Component, Componen
       this.doSetSubcomponent(subcomponent);
     }
   }
+  return subcomponent
 };
 
-Subcomponent.prototype.remove = function (this: Subcomponent<Component, Component>): void {
+Subcomponent.prototype.remove = function <S extends Component>(this: Subcomponent<Component, S>): S | null {
   const subcomponent = this._subcomponent;
   if (subcomponent !== null) {
     subcomponent.remove();
   }
+  return subcomponent;
 };
 
 Subcomponent.prototype.createSubcomponent = function <S extends Component, U>(this: Subcomponent<Component, S, U>): S | U | null {
