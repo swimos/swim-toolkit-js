@@ -30,6 +30,7 @@ Mood.alert = MoodVector.of([Feel.alert, 1]);
 
 Mood.overlay = MoodVector.of([Feel.overlay, 1]);
 Mood.floating = MoodVector.of([Feel.floating, 1]);
+Mood.translucent = MoodVector.of([Feel.translucent, 1]);
 Mood.embossed = MoodVector.of([Feel.embossed, 1]);
 Mood.nested = MoodVector.of([Feel.nested, 1]);
 

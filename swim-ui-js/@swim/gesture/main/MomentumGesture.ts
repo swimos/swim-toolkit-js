@@ -224,6 +224,10 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
     input.deriveVelocity(this.velocityMax());
   }
 
+  isCoasting(): boolean {
+    return this._coastCount !== 0;
+  }
+
   protected startCoasting(): void {
     this.willStartCoasting();
     this.onStartCoasting();

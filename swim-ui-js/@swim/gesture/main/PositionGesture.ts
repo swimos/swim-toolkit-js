@@ -152,6 +152,10 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
     // hook
   }
 
+  isHovering(): boolean {
+    return this._hoverCount !== 0;
+  }
+
   protected startHovering(): void {
     this.willStartHovering();
     this.onStartHovering();
@@ -261,6 +265,10 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
     if (delegate !== null && delegate.didEndHover !== void 0) {
       delegate.didEndHover(input, event);
     }
+  }
+
+  isPressing(): boolean {
+    return this._pressCount !== 0;
   }
 
   protected startPressing(): void {

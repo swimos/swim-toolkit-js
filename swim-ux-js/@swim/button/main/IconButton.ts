@@ -75,7 +75,7 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
       morph = this.append(ButtonMorph, "morph");
     }
     if (icon instanceof SvgView && icon.fill.isAuto()) {
-      const iconLook = this._gesture._hoverCount !== 0 ? Look.color : Look.mutedColor;
+      const iconLook = this._gesture.isHovering() ? Look.color : Look.mutedColor;
       icon.fill.setAutoState(this.getLook(iconLook), tween);
     }
     morph.setIcon(icon, tween, ccw);
@@ -87,7 +87,7 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
 
     if (this.backgroundColor.isAuto()) {
       let backgroundColor = this.getLook(Look.backgroundColor);
-      if (this._gesture._hoverCount === 0 && backgroundColor instanceof Color) {
+      if (!this._gesture.isHovering() && backgroundColor instanceof Color) {
         backgroundColor = backgroundColor.alpha(0);
       }
       this.backgroundColor.setAutoState(backgroundColor, transition);
@@ -95,7 +95,7 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
 
     const icon = this.icon;
     if (icon instanceof SvgView && icon.fill.isAuto()) {
-      const iconLook = this._gesture._hoverCount !== 0 ? Look.color : Look.mutedColor;
+      const iconLook = this._gesture.isHovering() ? Look.color : Look.mutedColor;
       icon.fill.setAutoState(theme.inner(mood, iconLook), transition);
     }
   }

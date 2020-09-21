@@ -1331,8 +1331,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   protected boundScales(oldXScale: ContinuousScale<X, number>,
                         oldYScale: ContinuousScale<Y, number>): void {
     const scaleGesture = this.scaleGesture.state;
-    const isPressing = scaleGesture !== void 0 && scaleGesture._pressCount !== 0;
-    const isCoasting = scaleGesture !== void 0 && scaleGesture._coastCount !== 0;
+    const isPressing = scaleGesture !== void 0 && scaleGesture.isPressing();
+    const isCoasting = scaleGesture !== void 0 && scaleGesture.isCoasting();
     this._scaleFlags &= ~ScaleView.ClampedMask;
 
     const xDataDomainPadded = this._xDataDomainPadded;

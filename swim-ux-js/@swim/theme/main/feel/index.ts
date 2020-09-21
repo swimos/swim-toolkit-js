@@ -23,3 +23,4 @@ export {FeelVectorInterpolator} from "./FeelVectorInterpolator";
 
 export {InterpolatedFeel} from "./InterpolatedFeel";
 export {BrightnessFeel} from "./BrightnessFeel";
+export {OpacityFeel} from "./OpacityFeel";

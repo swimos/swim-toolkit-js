@@ -165,7 +165,11 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     const itemColor = theme.inner(mood, this.highlighted.state ? Look.color : Look.mutedColor);
 
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
+      let backgroundColor = this.getLook(Look.backgroundColor);
+      if (backgroundColor !== void 0 && !this.highlighted.state && !this._gesture.isHovering()) {
+        backgroundColor = backgroundColor.alpha(0);
+      }
+      this.backgroundColor.setAutoState(backgroundColor, transition);
     }
 
     const iconView = this.iconView();
@@ -280,8 +284,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
         tween = Transition.forTween(tween);
       }
       if (this.backgroundColor.isAuto()) {
-        this.backgroundColor.setAutoState(void 0, tween);
-        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), tween);
+        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor));
       }
       const iconView = this.iconView();
       if (iconView !== null) {
@@ -308,7 +311,11 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
         tween = Transition.forTween(tween);
       }
       if (this.backgroundColor.isAuto()) {
-        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), tween);
+        let backgroundColor = this.getLook(Look.backgroundColor);
+        if (backgroundColor !== void 0 && !this._gesture.isHovering()) {
+          backgroundColor = backgroundColor.alpha(0);
+        }
+        this.backgroundColor.setAutoState(backgroundColor, tween);
       }
       const iconView = this.iconView();
       if (iconView !== null) {
@@ -349,7 +356,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     if (!this.highlighted.state && this.hovers) {
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
       if (this.backgroundColor.isAuto()) {
-        const transition = this._gesture._pressCount !== 0 ? this.getLook(Look.transition) : null;
+        const transition = this._gesture.isPressing() ? this.getLook(Look.transition) : null;
         this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), transition);
       }
     }
@@ -358,8 +365,12 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   didStopHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
     if (this.backgroundColor.isAuto()) {
+      let backgroundColor = this.getLook(Look.backgroundColor);
+      if (backgroundColor !== void 0 && !this.highlighted.state) {
+        backgroundColor = backgroundColor.alpha(0);
+      }
       const transition = this.getLook(Look.transition);
-      this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), transition);
+      this.backgroundColor.setAutoState(backgroundColor, transition);
     }
   }
 

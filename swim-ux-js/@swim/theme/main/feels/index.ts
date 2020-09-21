@@ -15,6 +15,7 @@
 import {Feel} from "../feel/Feel";
 import {InterpolatedFeel} from "../feel/InterpolatedFeel";
 import {BrightnessFeel} from "../feel/BrightnessFeel";
+import {OpacityFeel} from "../feel/OpacityFeel";
 
 Feel.ambient = new InterpolatedFeel("ambient");
 Feel.default = new InterpolatedFeel("default");
@@ -30,6 +31,7 @@ Feel.alert = new InterpolatedFeel("alert");
 
 Feel.overlay = new InterpolatedFeel("overlay");
 Feel.floating = new InterpolatedFeel("floating");
+Feel.translucent = new OpacityFeel("translucent");
 Feel.embossed = new BrightnessFeel("embossed");
 Feel.nested = new BrightnessFeel("nested");
 
