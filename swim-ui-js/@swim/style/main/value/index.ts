@@ -12,21 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {StyleAnimator} from "./StyleAnimator";
-import {ElementView} from "../element/ElementView";
+export {
+  AnyStyleValue,
+  StyleValue,
+  StyleValueClass,
+} from "./StyleValue";
+export {StyleValueParser} from "./StyleValueParser";
+export {StyleValueForm} from "./StyleValueForm";
 
-/** @hidden */
-export abstract class StringStyleAnimator<V extends ElementView> extends StyleAnimator<V, string> {
-  parse(value: string): string | undefined {
-    return value;
-  }
+export {StyleInterpolatorForm} from "./StyleInterpolatorForm";
+export {StyleScaleForm} from "./StyleScaleForm";
+export {StyleTransitionForm} from "./StyleTransitionForm";
 
-  fromCss(value: CSSStyleValue): string | undefined {
-    return value.toString();
-  }
-
-  fromAny(value: string): string | undefined {
-    return value;
-  }
-}
-StyleAnimator.String = StringStyleAnimator;
+export {ToAttributeString} from "./ToAttributeString";
+export {ToStyleString} from "./ToStyleString";
+export {ToCssValue} from "./ToCssValue";

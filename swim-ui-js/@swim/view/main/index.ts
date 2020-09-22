@@ -73,8 +73,6 @@ export * from "./text";
 
 export * from "./attribute";
 
-export * from "./style";
-
 export * from "./element";
 
 export * from "./svg";
@@ -82,3 +80,5 @@ export * from "./svg";
 export * from "./html";
 
 export * from "./canvas";
+
+export * from "./style";

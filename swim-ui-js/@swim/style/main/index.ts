@@ -12,23 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyStyleValue,
-  StyleValue,
-  StyleValueClass,
-} from "./StyleValue";
-export {StyleValueParser} from "./StyleValueParser";
-export {StyleValueForm} from "./StyleValueForm";
-
-export {StyleInterpolatorForm} from "./StyleInterpolatorForm";
-export {StyleScaleForm} from "./StyleScaleForm";
-export {StyleTransitionForm} from "./StyleTransitionForm";
-
-export {ToAttributeString} from "./ToAttributeString";
-export {ToStyleString} from "./ToStyleString";
-export {ToCssValue} from "./ToCssValue";
-
 export * from "./css";
+
+export * from "./value";
+
+export * from "./animator";
+
+export * from "./sheet";
 
 declare global { // CSS Typed OM shim
   interface CSSStyleValue {
@@ -66,5 +56,9 @@ declare global { // CSS Typed OM shim
 
   interface ElementCSSInlineStyle {
     readonly attributeStyleMap: StylePropertyMap;
+  }
+
+  interface CSSStyleRule {
+    readonly styleMap: StylePropertyMap;
   }
 }

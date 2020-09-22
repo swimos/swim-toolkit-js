@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length} from "@swim/length";
+import {AnyTransform, Transform} from "@swim/transform";
+import {StyleContext} from "../sheet/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
-import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export abstract class LengthStyleAnimator<V extends ElementView> extends StyleAnimator<V, Length, AnyLength> {
-  parse(value: string): Length | undefined {
-    return Length.parse(value, this.node);
+export abstract class TransformStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Transform, AnyTransform> {
+  parse(value: string): Transform | undefined {
+    return Transform.parse(value);
   }
 
-  fromCss(value: CSSStyleValue): Length | undefined {
-    return Length.fromCss(value, this.node);
+  fromCss(value: CSSStyleValue): Transform | undefined {
+    return Transform.fromCss(value);
   }
 
-  fromAny(value: AnyLength): Length | undefined {
-    return Length.fromAny(value, this.node);
+  fromAny(value: AnyTransform): Transform | undefined {
+    return Transform.fromAny(value);
   }
 }
-StyleAnimator.Length = LengthStyleAnimator;
+StyleAnimator.Transform = TransformStyleAnimator;

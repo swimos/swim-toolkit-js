@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {AnyLength, Length} from "@swim/length";
+import {StyleContext} from "../sheet/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
-import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export abstract class LengthOrStringStyleAnimator<V extends ElementView> extends StyleAnimator<V, Length | string, AnyLength | string> {
+export abstract class LengthOrStringStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Length | string, AnyLength | string> {
   parse(value: string): Length | string | undefined {
     try {
       return Length.parse(value, this.node);

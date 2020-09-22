@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyBoxShadow, BoxShadow} from "@swim/shadow";
+import {AnyColor, Color} from "@swim/color";
+import {StyleContext} from "../sheet/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
-import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export abstract class BoxShadowStyleAnimator<V extends ElementView> extends StyleAnimator<V, BoxShadow, AnyBoxShadow> {
-  parse(value: string): BoxShadow | undefined {
-    return BoxShadow.parse(value);
+export abstract class ColorStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Color, AnyColor> {
+  parse(value: string): Color | undefined {
+    return Color.parse(value);
   }
 
-  fromAny(value: AnyBoxShadow): BoxShadow | undefined {
-    return BoxShadow.fromAny(value);
+  fromAny(value: AnyColor): Color | undefined {
+    return Color.fromAny(value);
   }
 }
-StyleAnimator.BoxShadow = BoxShadowStyleAnimator;
+StyleAnimator.Color = ColorStyleAnimator;

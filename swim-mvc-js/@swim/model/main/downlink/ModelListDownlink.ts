@@ -129,7 +129,6 @@ ModelDownlink.List = ModelListDownlink;
 
 function ModelListDownlinkConstructor<M extends Model, V, VU>(this: ModelListDownlink<M, V, VU>, model: M, downlinkName: string | undefined): ModelListDownlink<M, V, VU> {
   const _this: ModelListDownlink<M, V, VU> = ModelDownlink.call(this, model, downlinkName) || this;
-  _this._downlink = null;
   return _this;
 }
 

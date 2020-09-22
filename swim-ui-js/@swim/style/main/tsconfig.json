@@ -18,7 +18,8 @@
       "@swim/gradient": ["@swim/gradient/main"],
       "@swim/transform": ["@swim/transform/main"],
       "@swim/scale": ["@swim/scale/main"],
-      "@swim/transition": ["@swim/transition/main"]
+      "@swim/transition": ["@swim/transition/main"],
+      "@swim/animate": ["@swim/animate/main"]
     },
     "tsBuildInfoFile": "../lib/main/.tsbuildinfo"
   },
@@ -37,6 +38,7 @@
     {"path": "../../gradient/main"},
     {"path": "../../transform/main"},
     {"path": "../../scale/main"},
-    {"path": "../../transition/main"}
+    {"path": "../../transition/main"},
+    {"path": "../../animate/main"}
   ]
 }

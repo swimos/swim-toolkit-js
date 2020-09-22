@@ -26,6 +26,7 @@ const main = {
       "@swim/transform": "swim",
       "@swim/scale": "swim",
       "@swim/transition": "swim",
+      "@swim/animate": "swim",
       "@swim/style": "swim",
     },
     sourcemap: true,
@@ -48,6 +49,7 @@ const main = {
     "@swim/transform",
     "@swim/scale",
     "@swim/transition",
+    "@swim/animate",
     "@swim/style",
   ],
   plugins: [

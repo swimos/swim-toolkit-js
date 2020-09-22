@@ -145,7 +145,7 @@ export declare abstract class ModelDownlink<M extends Model> {
   reconcile(): void;
 
   /** @hidden */
-  createDownlink(warp: WarpRef): Downlink;
+  abstract createDownlink(warp: WarpRef): Downlink;
 
   /** @hidden */
   scopeDownlink(downlink: Downlink): Downlink;

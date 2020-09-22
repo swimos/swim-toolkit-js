@@ -14,7 +14,8 @@
 
 import {Color} from "@swim/color";
 import {Transition} from "@swim/transition";
-import {Subview, ViewNodeType, HtmlView} from "@swim/view";
+import {StyleRule, StyleSheet} from "@swim/style";
+import {Subview, ViewNodeType, HtmlView, StyleView} from "@swim/view";
 import {PositionGesture} from "@swim/gesture";
 import {Look, MoodVector, ThemeMatrix, ThemedSvgView} from "@swim/theme";
 import {TokenViewInit, TokenView} from "./TokenView";
@@ -31,7 +32,6 @@ export class InputTokenView extends TokenView {
     this.onInputUpdate = this.onInputUpdate.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
     this.onInputKey = this.onInputKey.bind(this);
-    this.label.setSubview(this.label.createSubview());
   }
 
   protected initNode(node: ViewNodeType<this>): void {
@@ -49,9 +49,24 @@ export class InputTokenView extends TokenView {
     super.initView(init);
   }
 
-  protected createBodyGesture(bodyView: ThemedSvgView): PositionGesture<ThemedSvgView> | null {
-    return null;
+  protected initSubviews(): void {
+    this.stylesheet.insert();
+    super.initSubviews();
+    this.label.setSubview(this.label.createSubview());
   }
+
+  protected initStylesheet(styleView: StyleView): void {
+    const sheet = styleView.sheet;
+    if (sheet !== null) {
+      const placeholder = new InputTokenView.PlaceholderRule(sheet, "placeholder");
+      sheet.setCssRule("placeholder", placeholder);
+    }
+  }
+
+  /** @hidden */
+  static PlaceholderRule = StyleRule.define<StyleSheet>({
+    css: "::placeholder {}",
+  });
 
   protected initLabel(labelView: HtmlView): void {
     super.initLabel(labelView);
@@ -69,6 +84,19 @@ export class InputTokenView extends TokenView {
     labelView.outlineStyle.setAutoState("none");
     labelView.pointerEvents.setAutoState("auto");
   }
+
+  protected createBodyGesture(bodyView: ThemedSvgView): PositionGesture<ThemedSvgView> | null {
+    return null;
+  }
+
+  @Subview<InputTokenView, StyleView>({
+    child: true,
+    type: StyleView,
+    viewDidMount(styleView: StyleView): void {
+      this.view.initStylesheet(styleView);
+    },
+  })
+  readonly stylesheet: Subview<this, StyleView>;
 
   @Subview<InputTokenView, HtmlView>({
     child: false,
@@ -102,6 +130,14 @@ export class InputTokenView extends TokenView {
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {
     super.onApplyTheme(theme, mood, transition);
+    const styleView = this.stylesheet.subview;
+    if (styleView !== null) {
+      const placeholder = styleView.getCssRule("placeholder") as StyleRule<StyleSheet> | null;
+      if (placeholder !== null) {
+        placeholder.color.setAutoState(theme.inner(mood, Look.mutedColor), transition);
+      }
+    }
+
     const labelView = this.label.subview;
     if (labelView !== null) {
       const font = theme.inner(mood, Look.font);

@@ -65,7 +65,7 @@ export class TokenView extends ThemedHtmlView {
     this.onClickBody = this.onClickBody.bind(this);
     this.onClickFoot = this.onClickFoot.bind(this);
     this._tokenState = "expanded";
-    this.shape.insert();
+    this.initSubviews();
   }
 
   protected initNode(node: ViewNodeType<this>): void {
@@ -85,6 +85,10 @@ export class TokenView extends ThemedHtmlView {
 
   initView(init: TokenViewInit): void {
     super.initView(init);
+  }
+
+  protected initSubviews(): void {
+    this.shape.insert();
   }
 
   protected initShape(shapeView: ThemedSvgView): void {

@@ -30,9 +30,8 @@ export class TextView extends NodeView {
     super(node);
   }
 
-  get node(): ViewText {
-    return this._node;
-  }
+  // @ts-ignore
+  declare readonly node: ViewText;
 
   // @ts-ignore
   declare readonly viewController: TextViewController | null;

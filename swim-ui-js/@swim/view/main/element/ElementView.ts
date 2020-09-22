@@ -13,12 +13,17 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
-import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
+import {
+  ToAttributeString,
+  ToStyleString,
+  ToCssValue,
+  StyleContext,
+  StyleAnimator,
+} from "@swim/style";
 import {Animator} from "@swim/animate";
 import {ViewClass, View} from "../View";
 import {NodeViewInit, NodeView} from "../node/NodeView";
 import {AttributeAnimatorConstructor, AttributeAnimator} from "../attribute/AttributeAnimator";
-import {StyleAnimatorConstructor, StyleAnimator} from "../style/StyleAnimator";
 import {ElementViewObserver} from "./ElementViewObserver";
 import {ElementViewController} from "./ElementViewController";
 import {SvgViewTagMap} from "../svg/SvgView";
@@ -44,7 +49,7 @@ export interface ElementViewConstructor<E extends Element = Element, V extends E
   readonly namespace?: string;
 }
 
-export class ElementView extends NodeView {
+export class ElementView extends NodeView implements StyleContext {
   /** @hidden */
   _attributeAnimators?: {[animatorName: string]: AttributeAnimator<ElementView, unknown> | undefined};
   /** @hidden */
@@ -54,9 +59,8 @@ export class ElementView extends NodeView {
     super(node);
   }
 
-  get node(): ViewElement {
-    return this._node;
-  }
+  // @ts-ignore
+  declare readonly node: ViewElement;
 
   // @ts-ignore
   declare readonly viewController: ElementViewController | null;
@@ -140,6 +144,7 @@ export class ElementView extends NodeView {
   }
 
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
+    // Conditionally overridden when CSS Typed OM is available.
     const style = this._node.style;
     if (typeof propertyNames === "string") {
       return style.getPropertyValue(propertyNames);
@@ -226,7 +231,7 @@ export class ElementView extends NodeView {
 
   /** @hidden */
   updateAnimators(t: number): void {
-    super.updateAnimators(t);
+    this.updateViewAnimators(t);
     if ((this._viewFlags & View.AnimatingFlag) !== 0) {
       this._viewFlags &= ~View.AnimatingFlag;
       this.updateAttributeAnimators(t);
@@ -361,23 +366,6 @@ export class ElementView extends NodeView {
         if (animator === null) {
           animator = new constructor(this, animatorName);
           this.setAttributeAnimator(animatorName, animator);
-        }
-        return animator;
-      },
-      configurable: true,
-      enumerable: true,
-    });
-  }
-
-  /** @hidden */
-  static decorateStyleAnimator<V extends ElementView, T, U>(constructor: StyleAnimatorConstructor<V, T, U>,
-                                                            viewClass: ViewClass, animatorName: string): void {
-    Object.defineProperty(viewClass, animatorName, {
-      get: function (this: V): StyleAnimator<V, T, U> {
-        let animator = this.getStyleAnimator(animatorName) as StyleAnimator<V, T, U> | null;
-        if (animator === null) {
-          animator = new constructor(this, animatorName);
-          this.setStyleAnimator(animatorName, animator);
         }
         return animator;
       },

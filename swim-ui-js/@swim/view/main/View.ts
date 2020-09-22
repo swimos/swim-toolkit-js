@@ -48,6 +48,7 @@ import {ElementViewTagMap, ElementViewConstructor, ElementView} from "./element/
 import {SvgView} from "./svg/SvgView";
 import {HtmlView} from "./html/HtmlView";
 import {CanvasView} from "./canvas/CanvasView";
+import {StyleView} from "./style/StyleView";
 
 export type ViewFlags = number;
 
@@ -1311,6 +1312,9 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     } else if (tag === "canvas") {
       const node = document.createElement(tag) as HTMLCanvasElement;
       return new View.Canvas(node);
+    } else if (tag === "style") {
+      const node = document.createElement(tag) as HTMLStyleElement;
+      return new View.Style(node);
     } else {
       const node = document.createElement(tag);
       return new View.Html(node);
@@ -1501,4 +1505,6 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   static Html: typeof HtmlView; // defined by HtmlView
   /** @hidden */
   static Canvas: typeof CanvasView; // defined by CanvasView
+  /** @hidden */
+  static Style: typeof StyleView; // defined by StyleView
 }

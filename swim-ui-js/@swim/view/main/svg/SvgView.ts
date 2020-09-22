@@ -38,12 +38,13 @@ import {
   StrokeLinecap,
   TextAnchor,
   TouchAction,
+  StyleAnimatorMemberInit,
+  StyleAnimator,
 } from "@swim/style";
 import {View} from "../View";
 import {NodeView} from "../node/NodeView";
 import {TextView} from "../text/TextView";
 import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";
-import {StyleAnimatorMemberInit, StyleAnimator} from "../style/StyleAnimator";
 import {ElementViewConstructor, ElementViewInit, ElementView} from "../element/ElementView";
 import {SvgViewObserver} from "./SvgViewObserver";
 import {SvgViewController} from "./SvgViewController";
@@ -127,9 +128,8 @@ export class SvgView extends ElementView {
     super(node);
   }
 
-  get node(): ViewSvg {
-    return this._node;
-  }
+  // @ts-ignore
+  declare readonly node: ViewSvg;
 
   // @ts-ignore
   declare readonly viewController: SvgViewController | null;

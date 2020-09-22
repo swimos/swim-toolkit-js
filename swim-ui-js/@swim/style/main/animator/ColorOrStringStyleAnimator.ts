@@ -12,27 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Length} from "@swim/length";
-import {AnyLineHeight, LineHeight} from "@swim/font";
+import {AnyColor, Color} from "@swim/color";
+import {StyleContext} from "../sheet/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
-import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export abstract class LineHeightStyleAnimator<V extends ElementView> extends StyleAnimator<V, LineHeight, AnyLineHeight> {
-  parse(value: string): LineHeight | undefined {
-    return LineHeight.fromAny(value);
-  }
-
-  fromCss(value: CSSStyleValue): LineHeight | undefined {
-    if (value instanceof CSSNumericValue) {
-      return Length.fromCss(value);
-    } else {
-      return void 0;
+export abstract class ColorOrStringStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Color | string, AnyColor | string> {
+  parse(value: string): Color | string | undefined {
+    try {
+      return Color.parse(value);
+    } catch (swallow) {
+      return value;
     }
   }
 
-  fromAny(value: AnyLineHeight): LineHeight | undefined {
-    return LineHeight.fromAny(value);
+  fromAny(value: AnyColor | string): Color | string | undefined {
+    if (typeof value === "string") {
+      try {
+        return Color.parse(value);
+      } catch (swallow) {
+        return value;
+      }
+    } else {
+      return Color.fromAny(value);
+    }
   }
 }
-StyleAnimator.LineHeight = LineHeightStyleAnimator;
+StyleAnimator.ColorOrString = ColorOrStringStyleAnimator;

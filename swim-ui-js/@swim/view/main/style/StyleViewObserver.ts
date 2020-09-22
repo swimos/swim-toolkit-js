@@ -12,18 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyColor, Color} from "@swim/color";
-import {StyleAnimator} from "./StyleAnimator";
-import {ElementView} from "../element/ElementView";
+import {HtmlViewObserver} from "../html/HtmlViewObserver";
+import {StyleView} from "./StyleView";
 
-/** @hidden */
-export abstract class ColorStyleAnimator<V extends ElementView> extends StyleAnimator<V, Color, AnyColor> {
-  parse(value: string): Color | undefined {
-    return Color.parse(value);
-  }
-
-  fromAny(value: AnyColor): Color | undefined {
-    return Color.fromAny(value);
-  }
+export interface StyleViewObserver<V extends StyleView = StyleView> extends HtmlViewObserver<V> {
 }
-StyleAnimator.Color = ColorStyleAnimator;

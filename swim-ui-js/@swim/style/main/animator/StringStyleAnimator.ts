@@ -12,22 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyTransform, Transform} from "@swim/transform";
+import {StyleContext} from "../sheet/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
-import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export abstract class TransformStyleAnimator<V extends ElementView> extends StyleAnimator<V, Transform, AnyTransform> {
-  parse(value: string): Transform | undefined {
-    return Transform.parse(value);
+export abstract class StringStyleAnimator<V extends StyleContext> extends StyleAnimator<V, string> {
+  parse(value: string): string | undefined {
+    return value;
   }
 
-  fromCss(value: CSSStyleValue): Transform | undefined {
-    return Transform.fromCss(value);
+  fromCss(value: CSSStyleValue): string | undefined {
+    return value.toString();
   }
 
-  fromAny(value: AnyTransform): Transform | undefined {
-    return Transform.fromAny(value);
+  fromAny(value: string): string | undefined {
+    return value;
   }
 }
-StyleAnimator.Transform = TransformStyleAnimator;
+StyleAnimator.String = StringStyleAnimator;

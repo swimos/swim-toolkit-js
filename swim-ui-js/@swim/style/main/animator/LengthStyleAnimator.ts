@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FontFamily, Font} from "@swim/font";
+import {AnyLength, Length} from "@swim/length";
+import {StyleContext} from "../sheet/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
-import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export abstract class FontFamilyStyleAnimator<V extends ElementView> extends StyleAnimator<V, FontFamily | FontFamily[], FontFamily | ReadonlyArray<FontFamily>> {
-  parse(value: string): FontFamily | FontFamily[] | undefined {
-    return Font.parse(value).family();
+export abstract class LengthStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Length, AnyLength> {
+  parse(value: string): Length | undefined {
+    return Length.parse(value, this.node);
   }
 
-  fromAny(value: FontFamily | ReadonlyArray<FontFamily>): FontFamily | FontFamily[] | undefined {
-    return Font.family(value).family();
+  fromCss(value: CSSStyleValue): Length | undefined {
+    return Length.fromCss(value, this.node);
+  }
+
+  fromAny(value: AnyLength): Length | undefined {
+    return Length.fromAny(value, this.node);
   }
 }
-StyleAnimator.FontFamily = FontFamilyStyleAnimator;
+StyleAnimator.Length = LengthStyleAnimator;

@@ -12,18 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {StyleContext} from "../sheet/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
-import {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export abstract class NumberStyleAnimator<V extends ElementView> extends StyleAnimator<V, number, number | string> {
-  parse(value: string): number | undefined {
+export abstract class NumberOrStringStyleAnimator<V extends StyleContext> extends StyleAnimator<V, number | string, number | string> {
+  parse(value: string): number | string | undefined {
     const number = +value;
-    if (isFinite(number)) {
-      return number;
-    } else {
-      throw new Error(value);
-    }
+    return isFinite(number) ? number : value;
   }
 
   fromCss(value: CSSStyleValue): number | undefined {
@@ -34,17 +30,13 @@ export abstract class NumberStyleAnimator<V extends ElementView> extends StyleAn
     }
   }
 
-  fromAny(value: number | string): number | undefined {
+  fromAny(value: number | string): number | string | undefined {
     if (typeof value === "number") {
       return value;
     } else {
       const number = +value;
-      if (isFinite(number)) {
-        return number;
-      } else {
-        throw new Error(value);
-      }
+      return isFinite(number) ? number : value;
     }
   }
 }
-StyleAnimator.Number = NumberStyleAnimator;
+StyleAnimator.NumberOrString = NumberOrStringStyleAnimator;

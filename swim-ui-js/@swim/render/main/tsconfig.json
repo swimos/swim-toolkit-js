@@ -19,6 +19,7 @@
       "@swim/transform": ["@swim/transform/main"],
       "@swim/scale": ["@swim/scale/main"],
       "@swim/transition": ["@swim/transition/main"],
+      "@swim/animate": ["@swim/animate/main"],
       "@swim/style": ["@swim/style/main"]
     },
     "tsBuildInfoFile": "../lib/main/.tsbuildinfo"
@@ -39,6 +40,7 @@
     {"path": "../../transform/main"},
     {"path": "../../scale/main"},
     {"path": "../../transition/main"},
+    {"path": "../../animate/main"},
     {"path": "../../style/main"}
   ]
 }

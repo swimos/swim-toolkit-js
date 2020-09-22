@@ -151,7 +151,6 @@ ModelDownlink.Map = ModelMapDownlink;
 
 function ModelMapDownlinkConstructor<M extends Model, K, V, KU, VU>(this: ModelMapDownlink<M, K, V, KU, VU>, model: M, downlinkName: string | undefined): ModelMapDownlink<M, K, V, KU, VU> {
   const _this: ModelMapDownlink<M, K, V, KU, VU> = ModelDownlink.call(this, model, downlinkName) || this;
-  _this._downlink = null;
   return _this;
 }
 

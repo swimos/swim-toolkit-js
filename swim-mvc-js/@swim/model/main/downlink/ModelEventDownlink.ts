@@ -81,7 +81,6 @@ ModelDownlink.Event = ModelEventDownlink;
 
 function ModelEventDownlinkConstructor<M extends Model>(this: ModelEventDownlink<M>, model: M, downlinkName: string | undefined): ModelEventDownlink<M> {
   const _this: ModelEventDownlink<M> = ModelDownlink.call(this, model, downlinkName) || this;
-  _this._downlink = null;
   return _this;
 }
 

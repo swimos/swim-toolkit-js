@@ -26,6 +26,7 @@ const main = {
       "@swim/transform": "swim",
       "@swim/scale": "swim",
       "@swim/transition": "swim",
+      "@swim/animate": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -47,6 +48,7 @@ const main = {
     "@swim/transform",
     "@swim/scale",
     "@swim/transition",
+    "@swim/animate",
   ],
   plugins: [
     nodeResolve({customResolveOptions: {paths: "../.."}}),

@@ -110,14 +110,13 @@ export class CanvasView extends HtmlView {
     this._touches = {};
   }
 
-  get node(): ViewCanvas {
-    return this._node;
-  }
-
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.position.setAutoState("absolute");
   }
+
+  // @ts-ignore
+  declare readonly node: ViewCanvas;
 
   // @ts-ignore
   declare readonly viewController: CanvasViewController | null;

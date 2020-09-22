@@ -25,6 +25,7 @@
     "@swim/gradient": "3.11.0-dev.20200619",
     "@swim/transform": "3.11.0-dev.20200619",
     "@swim/scale": "3.11.0-dev.20200619",
-    "@swim/transition": "3.11.0-dev.20200619"
+    "@swim/transition": "3.11.0-dev.20200619",
+    "@swim/animate": "3.11.0-dev.20200619"
   }
 }

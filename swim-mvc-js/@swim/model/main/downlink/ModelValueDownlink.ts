@@ -95,7 +95,6 @@ ModelDownlink.Value = ModelValueDownlink;
 
 function ModelValueDownlinkConstructor<M extends Model, V, VU>(this: ModelValueDownlink<M, V, VU>, model: M, downlinkName: string | undefined): ModelValueDownlink<M, V, VU> {
   const _this: ModelValueDownlink<M, V, VU> = ModelDownlink.call(this, model, downlinkName) || this;
-  _this._downlink = null;
   return _this;
 }
 

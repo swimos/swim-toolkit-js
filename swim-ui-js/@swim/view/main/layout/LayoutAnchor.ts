@@ -127,7 +127,7 @@ function LayoutAnchorConstructor<V extends View>(this: LayoutAnchor<V>, view: V,
 }
 
 function LayoutAnchorDecoratorFactory<V extends View>(descriptor: LayoutAnchorDescriptor<V>): PropertyDecorator {
-  return View.decorateLayoutAnchor.bind(void 0, LayoutAnchor.define(descriptor));
+  return View.decorateLayoutAnchor.bind(View, LayoutAnchor.define(descriptor));
 }
 
 Object.defineProperty(LayoutAnchor.prototype, "view", {
