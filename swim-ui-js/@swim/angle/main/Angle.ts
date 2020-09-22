@@ -111,6 +111,10 @@ export abstract class Angle implements HashCode, Debug {
     }
   }
 
+  toCssValue(): CSSUnitValue | undefined {
+    return void 0; // conditionally overridden when CSS Typed OM is available
+  }
+
   abstract equals(that: unknown): boolean;
 
   abstract hashCode(): number;
@@ -152,6 +156,14 @@ export abstract class Angle implements HashCode, Debug {
       case "grad": return Angle.grad(value);
       case "turn": return Angle.turn(value);
       default: throw new Error("unknown angle units: " + units);
+    }
+  }
+
+  static fromCss(value: CSSStyleValue): Angle {
+    if (value instanceof CSSUnitValue) {
+      return Angle.from(value.value, value.unit as AngleUnits);
+    } else {
+      throw new TypeError("" + value);
     }
   }
 

@@ -48,6 +48,10 @@ export class BoxShadow implements Equals {
   readonly _color: Color;
   /** @hidden */
   readonly _next: BoxShadow | null;
+  /** @hidden */
+  _string?: string;
+  /** @hidden */
+  _cssValue?: CSSStyleValue;
 
   constructor(inset: boolean, offsetX: Length, offsetY: Length, blurRadius: Length,
               spreadRadius: Length, color: Color, next: BoxShadow | null) {
@@ -150,6 +154,10 @@ export class BoxShadow implements Equals {
                          this._spreadRadius, this._color, next);
   }
 
+  toCssValue(): CSSStyleValue | undefined {
+    return void 0; // conditionally overridden when CSS Typed OM is available
+  }
+
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -163,34 +171,33 @@ export class BoxShadow implements Equals {
   }
 
   toString(): string {
-    if (this.isDefined()) {
-      let s = "";
-      let boxShadow = this as BoxShadow;
-      do {
-        if (boxShadow._inset) {
+    let s = this._string;
+    if (s === void 0) {
+      if (this.isDefined()) {
+        s = "";
+        if (this._inset) {
           s += "inset";
           s += " ";
         }
-        s += boxShadow._offsetX.toString();
+        s += this._offsetX.toString();
         s += " ";
-        s += boxShadow._offsetY.toString();
+        s += this._offsetY.toString();
         s += " ";
-        s += boxShadow._blurRadius.toString();
+        s += this._blurRadius.toString();
         s += " ";
-        s += boxShadow._spreadRadius.toString();
+        s += this._spreadRadius.toString();
         s += " ";
-        s += boxShadow._color.toString();
-        if (boxShadow._next !== null) {
+        s += this._color.toString();
+        if (this._next !== null) {
           s += ", ";
-          boxShadow = boxShadow._next;
-          continue;
+          s += this._next.toString();
         }
-        break;
-      } while (true);
-      return s;
-    } else {
-      return "none";
+      } else {
+        s = "none";
+      }
+      this._string = s;
     }
+    return s;
   }
 
   private static _none?: BoxShadow;
@@ -435,4 +442,14 @@ export class BoxShadow implements Equals {
   static Parser: typeof BoxShadowParser; // defined by BoxShadowParser
   /** @hidden */
   static Form: typeof BoxShadowForm; // defined by BoxShadowForm
+}
+if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+  BoxShadow.prototype.toCssValue = function (this: BoxShadow): CSSStyleValue | undefined {
+    let cssValue = this._cssValue;
+    if (cssValue === void 0) {
+      cssValue = CSSStyleValue.parse("box-shadow", this.toString());
+      this._cssValue = cssValue;
+    }
+    return cssValue;
+  };
 }

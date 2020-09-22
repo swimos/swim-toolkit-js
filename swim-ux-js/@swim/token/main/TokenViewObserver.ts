@@ -12,14 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface StyleString {
-  toStyleString(): string;
-}
+import {ThemedHtmlViewObserver} from "@swim/theme";
+import {TokenView} from "./TokenView";
 
-export function StyleString(value: unknown): string {
-  if (typeof value === "object" && value !== null && typeof (value as StyleString).toStyleString === "function") {
-    return (value as StyleString).toStyleString();
-  } else {
-    return "" + value;
-  }
+export interface TokenViewObserver<V extends TokenView = TokenView> extends ThemedHtmlViewObserver<V> {
+  tokenWillExpand?(view: V): void;
+
+  tokenDidExpand?(view: V): void;
+
+  tokenWillCollapse?(view: V): void;
+
+  tokenDidCollapse?(view: V): void;
+
+  tokenDidPressHead?(view: V): void;
+
+  tokenDidPressBody?(view: V): void;
+
+  tokenDidPressFoot?(view: V): void;
 }

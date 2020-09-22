@@ -12,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlView} from "@swim/view";
-import {PinViewObserver} from "./PinViewObserver";
-import {InputPinView} from "./InputPinView";
+export interface ToAttributeString {
+  toAttributeString(): string;
+}
 
-export interface InputPinViewObserver<V extends InputPinView = InputPinView> extends PinViewObserver<V> {
-  pinDidUpdateInput?(inputView: HtmlView, view: V): void;
-
-  pinDidChangeInput?(inputView: HtmlView, view: V): void;
-
-  pinDidAcceptInput?(inputView: HtmlView, view: V): void;
+export function ToAttributeString(value: unknown): string {
+  if (typeof value === "object" && value !== null) {
+    if (typeof (value as ToAttributeString).toAttributeString === "function") {
+      return (value as ToAttributeString).toAttributeString();
+    } else {
+      return value.toString();
+    }
+  } else {
+    return "" + value;
+  }
 }

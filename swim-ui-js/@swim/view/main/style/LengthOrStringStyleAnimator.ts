@@ -26,6 +26,14 @@ export abstract class LengthOrStringStyleAnimator<V extends ElementView> extends
     }
   }
 
+  fromCss(value: CSSStyleValue): Length | undefined {
+    if (value instanceof CSSNumericValue) {
+      return Length.fromCss(value, this.node);
+    } else {
+      return void 0;
+    }
+  }
+
   fromAny(value: AnyLength | string): Length | string | undefined {
     if (typeof value === "string") {
       try {

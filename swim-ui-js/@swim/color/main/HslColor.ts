@@ -33,6 +33,8 @@ export class HslColor extends Color {
   readonly s: number;
   readonly l: number;
   readonly a: number;
+  /** @hidden */
+  _string?: string;
 
   constructor(h: number, s: number, l: number, a: number = 1) {
     super();
@@ -140,20 +142,24 @@ export class HslColor extends Color {
   }
 
   toString(): string {
-    let a = this.a;
-    a = isNaN(a) ? 1 : Math.max(0, Math.min(this.a, 1));
-    let s = a === 1 ? "hsl" : "hsla";
-    s += "(";
-    s += Math.max(0, Math.min(Math.round(this.h) || 0, 360));
-    s += ",";
-    s += Math.max(0, Math.min(100 * Math.round(this.s) || 0, 100)) + "%";
-    s += ",";
-    s += Math.max(0, Math.min(100 * Math.round(this.l) || 0, 100)) + "%";
-    if (a !== 1) {
+    let s = this._string;
+    if (s === void 0) {
+      let a = this.a;
+      a = isNaN(a) ? 1 : Math.max(0, Math.min(this.a, 1));
+      s = a === 1 ? "hsl" : "hsla";
+      s += "(";
+      s += Math.max(0, Math.min(Math.round(this.h) || 0, 360));
       s += ",";
-      s += a;
+      s += Math.max(0, Math.min(100 * Math.round(this.s) || 0, 100)) + "%";
+      s += ",";
+      s += Math.max(0, Math.min(100 * Math.round(this.l) || 0, 100)) + "%";
+      if (a !== 1) {
+        s += ",";
+        s += a;
+      }
+      s += ")";
+      this._string = s;
     }
-    s += ")";
     return s;
   }
 

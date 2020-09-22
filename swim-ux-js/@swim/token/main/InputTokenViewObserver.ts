@@ -13,20 +13,13 @@
 // limitations under the License.
 
 import {HtmlView} from "@swim/view";
-import {PinViewController} from "./PinViewController";
-import {InputPinView} from "./InputPinView";
-import {InputPinViewObserver} from "./InputPinViewObserver";
+import {TokenViewObserver} from "./TokenViewObserver";
+import {InputTokenView} from "./InputTokenView";
 
-export class InputPinViewController<V extends InputPinView = InputPinView> extends PinViewController<V> implements InputPinViewObserver<V> {
-  pinDidUpdateInput(inputView: HtmlView, view: V): void {
-    // hook
-  }
+export interface InputTokenViewObserver<V extends InputTokenView = InputTokenView> extends TokenViewObserver<V> {
+  tokenDidUpdateInput?(inputView: HtmlView, view: V): void;
 
-  pinDidChangeInput(inputView: HtmlView, view: V): void {
-    // hook
-  }
+  tokenDidChangeInput?(inputView: HtmlView, view: V): void;
 
-  pinDidAcceptInput(inputView: HtmlView, view: V): void {
-    // hook
-  }
+  tokenDidAcceptInput?(inputView: HtmlView, view: V): void;
 }

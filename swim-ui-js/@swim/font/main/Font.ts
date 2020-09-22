@@ -52,6 +52,10 @@ export class Font implements Equals, Debug {
   readonly _height?: LineHeight;
   /** @hidden */
   readonly _family: FontFamily | ReadonlyArray<FontFamily>;
+  /** @hidden */
+  _string?: string;
+  /** @hidden */
+  _cssValue?: CSSStyleValue;
 
   constructor(style: FontStyle | undefined, variant: FontVariant | undefined,
               weight: FontWeight | undefined, stretch: FontStretch | undefined,
@@ -200,6 +204,10 @@ export class Font implements Equals, Debug {
     };
   }
 
+  toCssValue(): CSSStyleValue | undefined {
+    return void 0; // conditionally overridden when CSS Typed OM is available
+  }
+
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -245,52 +253,56 @@ export class Font implements Equals, Debug {
   }
 
   toString(): string {
-    let s = "";
-    if (this._style !== void 0 || this._variant === "normal" || this._weight === "normal" || this._stretch === "normal") {
-      s += this._style || "normal";
-    }
-    if (this._variant !== void 0 || this._weight === "normal" || this._stretch === "normal") {
-      if (s.length !== 0) {
-        s += " ";
+    let s = this._string;
+    if (s === void 0) {
+      s = "";
+      if (this._style !== void 0 || this._variant === "normal" || this._weight === "normal" || this._stretch === "normal") {
+        s += this._style || "normal";
       }
-      s += this._variant || "normal";
-    }
-    if (this._weight !== void 0 || this._stretch === "normal") {
-      if (s.length !== 0) {
-        s += " ";
+      if (this._variant !== void 0 || this._weight === "normal" || this._stretch === "normal") {
+        if (s.length !== 0) {
+          s += " ";
+        }
+        s += this._variant || "normal";
       }
-      s += this._weight || "normal";
-    }
-    if (this._stretch !== void 0) {
-      if (s.length !== 0) {
-        s += " ";
+      if (this._weight !== void 0 || this._stretch === "normal") {
+        if (s.length !== 0) {
+          s += " ";
+        }
+        s += this._weight || "normal";
       }
-      s += this._stretch;
-    }
-    if (this._size !== void 0) {
-      if (s.length !== 0) {
-        s += " ";
+      if (this._stretch !== void 0) {
+        if (s.length !== 0) {
+          s += " ";
+        }
+        s += this._stretch;
       }
-      s += this._size.toString();
-      if (this._height !== void 0) {
-        s += "/";
-        s += this._height.toString();
+      if (this._size !== void 0) {
+        if (s.length !== 0) {
+          s += " ";
+        }
+        s += this._size.toString();
+        if (this._height !== void 0) {
+          s += "/";
+          s += this._height.toString();
+        }
       }
-    }
-    if (typeof this._family === "string") {
-      if (s.length !== 0) {
-        s += " ";
+      if (typeof this._family === "string") {
+        if (s.length !== 0) {
+          s += " ";
+        }
+        s += FontFamily.format(this._family);
+      } else if (Array.isArray(this._family) && this._family.length !== 0) {
+        if (s.length !== 0) {
+          s += " ";
+        }
+        s += FontFamily.format(this._family[0]);
+        for (let i = 1; i < this._family.length; i += 1) {
+          s += ", ";
+          s += FontFamily.format(this._family[i]);
+        }
       }
-      s += FontFamily.format(this._family);
-    } else if (Array.isArray(this._family) && this._family.length !== 0) {
-      if (s.length !== 0) {
-        s += " ";
-      }
-      s += FontFamily.format(this._family[0]);
-      for (let i = 1; i < this._family.length; i += 1) {
-        s += ", ";
-        s += FontFamily.format(this._family[i]);
-      }
+      this._string = s;
     }
     return s;
   }
@@ -433,4 +445,14 @@ export class Font implements Equals, Debug {
   static Parser: typeof FontParser; // defined by FontParser
   /** @hidden */
   static Form: typeof FontForm; // defined by FontForm
+}
+if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+  Font.prototype.toCssValue = function (this: Font): CSSStyleValue | undefined {
+    let cssValue = this._cssValue;
+    if (cssValue === void 0) {
+      cssValue = CSSStyleValue.parse("font", this.toString());
+      this._cssValue = cssValue;
+    }
+    return cssValue;
+  };
 }

@@ -34,3 +34,12 @@ export {
 export {LinearGradientInterpolator} from "./LinearGradientInterpolator";
 export {LinearGradientParser} from "./LinearGradientParser";
 export {LinearGradientAngleParser} from "./LinearGradientAngleParser";
+
+declare global { // CSS Typed OM shim
+  interface CSSStyleValue {
+  }
+  var CSSStyleValue: {
+    new(): CSSStyleValue;
+    parse(property: string, cssText: string): CSSStyleValue;
+  };
+}

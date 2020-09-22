@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Length} from "@swim/length";
 import {AnyLineHeight, LineHeight} from "@swim/font";
 import {StyleAnimator} from "./StyleAnimator";
 import {ElementView} from "../element/ElementView";
@@ -20,6 +21,14 @@ import {ElementView} from "../element/ElementView";
 export abstract class LineHeightStyleAnimator<V extends ElementView> extends StyleAnimator<V, LineHeight, AnyLineHeight> {
   parse(value: string): LineHeight | undefined {
     return LineHeight.fromAny(value);
+  }
+
+  fromCss(value: CSSStyleValue): LineHeight | undefined {
+    if (value instanceof CSSNumericValue) {
+      return Length.fromCss(value);
+    } else {
+      return void 0;
+    }
   }
 
   fromAny(value: AnyLineHeight): LineHeight | undefined {

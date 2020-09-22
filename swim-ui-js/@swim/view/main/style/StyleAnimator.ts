@@ -20,7 +20,6 @@ import {AnyLineHeight, LineHeight, FontFamily} from "@swim/font";
 import {AnyBoxShadow, BoxShadow} from "@swim/shadow";
 import {AnyTransform, Transform} from "@swim/transform";
 import {Tween} from "@swim/transition";
-import {StyledElement} from "@swim/style";
 import {Animator, TweenAnimator} from "@swim/animate";
 import {StringStyleAnimator} from "./StringStyleAnimator";
 import {NumberStyleAnimator} from "./NumberStyleAnimator";
@@ -52,6 +51,7 @@ export interface StyleAnimatorInit<T, U = T> {
   onUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
   didUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
   parse?(value: string): T | undefined;
+  fromCss?(value: CSSStyleValue): T | undefined;
   fromAny?(value: T | U): T | undefined;
 }
 
@@ -95,7 +95,7 @@ export declare abstract class StyleAnimator<V extends ElementView, T, U = T> {
 
   get view(): V;
 
-  get node(): StyledElement;
+  get node(): Element & ElementCSSInlineStyle;
 
   updateFlags?: ViewFlags;
 
@@ -126,6 +126,8 @@ export declare abstract class StyleAnimator<V extends ElementView, T, U = T> {
   animate(animator?: Animator): void;
 
   parse(value: string): T | undefined;
+
+  fromCss(value: CSSStyleValue): T | undefined;
 
   fromAny(value: T | U): T | undefined;
 
@@ -207,28 +209,57 @@ Object.defineProperty(StyleAnimator.prototype, "view", {
 });
 
 Object.defineProperty(StyleAnimator.prototype, "node", {
-  get: function (this: StyleAnimator<ElementView, unknown, unknown>): StyledElement {
+  get: function (this: StyleAnimator<ElementView, unknown, unknown>): Element & ElementCSSInlineStyle {
     return this._view._node;
   },
   enumerable: true,
   configurable: true,
 });
 
-Object.defineProperty(StyleAnimator.prototype, "propertyValue", {
-  get: function <T, U>(this: StyleAnimator<ElementView, T, U>): T | undefined {
-    const value = this._view.getStyle(this.propertyNames);
-    if (value !== "") {
-      try {
-        return this.parse(value);
-      } catch (e) {
-        // swallow parse errors
+if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+  Object.defineProperty(StyleAnimator.prototype, "propertyValue", {
+    get: function <T, U>(this: StyleAnimator<ElementView, T, U>): T | undefined {
+      let propertyValue: T | undefined;
+      let value = this._view.getStyle(this.propertyNames);
+      if (value instanceof CSSStyleValue) {
+        try {
+          propertyValue = this.fromCss(value);
+        } catch (e) {
+          // swallow decode errors
+        }
+        if (propertyValue === void 0) {
+          value = value.toString();
+        }
       }
-    }
-    return void 0;
-  },
-  enumerable: true,
-  configurable: true,
-});
+      if (typeof value === "string" && value !== "") {
+        try {
+          propertyValue = this.parse(value);
+        } catch (e) {
+          // swallow parse errors
+        }
+      }
+      return propertyValue;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+} else {
+  Object.defineProperty(StyleAnimator.prototype, "propertyValue", {
+    get: function <T, U>(this: StyleAnimator<ElementView, T, U>): T | undefined {
+      const value = this._view.getStyle(this.propertyNames);
+      if (typeof value === "string" && value !== "") {
+        try {
+          return this.parse(value);
+        } catch (e) {
+          // swallow parse errors
+        }
+      }
+      return void 0;
+    },
+    enumerable: true,
+    configurable: true,
+  });
+}
 
 Object.defineProperty(StyleAnimator.prototype, "priority", {
   get: function (this: StyleAnimator<ElementView, unknown, unknown>): string | undefined {
@@ -362,7 +393,11 @@ StyleAnimator.prototype.animate = function <T, U>(this: StyleAnimator<ElementVie
   }
 };
 
-StyleAnimator.prototype.parse = function <T, U>(this: StyleAnimator<ElementView, T, U>): T | undefined {
+StyleAnimator.prototype.parse = function <T, U>(this: StyleAnimator<ElementView, T, U>, value: string): T | undefined {
+  return void 0;
+};
+
+StyleAnimator.prototype.fromCss = function <T, U>(this: StyleAnimator<ElementView, T, U>, value: CSSStyleValue): T | undefined {
   return void 0;
 };
 

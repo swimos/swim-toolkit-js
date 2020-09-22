@@ -39,6 +39,10 @@ export class LinearGradient implements Equals {
   readonly _angle: LinearGradientAngle;
   /** @hidden */
   readonly _stops: ReadonlyArray<ColorStop>;
+  /** @hidden */
+  _string?: string;
+  /** @hidden */
+  _cssValue?: CSSStyleValue;
 
   constructor(angle: LinearGradientAngle, stops: ReadonlyArray<ColorStop>) {
     this._angle = angle;
@@ -73,6 +77,10 @@ export class LinearGradient implements Equals {
     }
   }
 
+  toCssValue(): CSSStyleValue | undefined {
+    return void 0; // conditionally overridden when CSS Typed OM is available
+  }
+
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
@@ -84,26 +92,30 @@ export class LinearGradient implements Equals {
   }
 
   toString(): string {
-    let s = "linear-gradient(";
-    if (this._angle instanceof Angle) {
-      s += this._angle.toString();
-    } else {
-      s += "to"
-      if (typeof this._angle === "string") {
-        s += " ";
-        s += this._angle;
+    let s = this._string;
+    if (s === void 0) {
+      s = "linear-gradient(";
+      if (this._angle instanceof Angle) {
+        s += this._angle.toString();
       } else {
-        for (let i = 0, n = this._angle.length; i < n; i += 1) {
+        s += "to"
+        if (typeof this._angle === "string") {
           s += " ";
-          s += this._angle[i];
+          s += this._angle;
+        } else {
+          for (let i = 0, n = this._angle.length; i < n; i += 1) {
+            s += " ";
+            s += this._angle[i];
+          }
         }
       }
+      for (let i = 0, n = this._stops.length; i < n; i += 1) {
+        s += ", ";
+        s += this._stops[i].toString();
+      }
+      s += ")";
+      this._string = s;
     }
-    for (let i = 0, n = this._stops.length; i < n; i += 1) {
-      s += ", ";
-      s += this._stops[i].toString();
-    }
-    s += ")";
     return s;
   }
 
@@ -207,4 +219,14 @@ export class LinearGradient implements Equals {
   static Parser: typeof LinearGradientParser; // defined by LinearGradientParser
   /** @hidden */
   static AngleParser: typeof LinearGradientAngleParser; // defined by LinearGradientAngleParser
+}
+if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+  LinearGradient.prototype.toCssValue = function (this: LinearGradient): CSSStyleValue | undefined {
+    let cssValue = this._cssValue;
+    if (cssValue === void 0) {
+      cssValue = CSSStyleValue.parse("background-image", this.toString());
+      this._cssValue = cssValue;
+    }
+    return cssValue;
+  };
 }

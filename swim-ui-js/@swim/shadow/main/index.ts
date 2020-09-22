@@ -21,3 +21,12 @@ export {
 export {BoxShadowInterpolator} from "./BoxShadowInterpolator";
 export {BoxShadowParser} from "./BoxShadowParser";
 export {BoxShadowForm} from "./BoxShadowForm";
+
+declare global { // CSS Typed OM shim
+  interface CSSStyleValue {
+  }
+  var CSSStyleValue: {
+    new(): CSSStyleValue;
+    parse(property: string, cssText: string): CSSStyleValue;
+  };
+}

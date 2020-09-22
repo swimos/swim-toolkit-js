@@ -17,15 +17,15 @@ import {Transition} from "@swim/transition";
 import {Subview, ViewNodeType, HtmlView} from "@swim/view";
 import {PositionGesture} from "@swim/gesture";
 import {Look, MoodVector, ThemeMatrix, ThemedSvgView} from "@swim/theme";
-import {PinViewInit, PinView} from "./PinView";
-import {InputPinViewObserver} from "./InputPinViewObserver";
-import {InputPinViewController} from "./InputPinViewController";
+import {TokenViewInit, TokenView} from "./TokenView";
+import {InputTokenViewObserver} from "./InputTokenViewObserver";
+import {InputTokenViewController} from "./InputTokenViewController";
 
-export interface InputPinViewInit extends PinViewInit {
-  controller?: InputPinViewController;
+export interface InputTokenViewInit extends TokenViewInit {
+  controller?: InputTokenViewController;
 }
 
-export class InputPinView extends PinView {
+export class InputTokenView extends TokenView {
   constructor(node: HTMLElement) {
     super(node);
     this.onInputUpdate = this.onInputUpdate.bind(this);
@@ -36,16 +36,16 @@ export class InputPinView extends PinView {
 
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
-    this.addClass("input-pin");
+    this.addClass("input-token");
   }
 
   // @ts-ignore
-  declare readonly viewController: InputPinViewController | null;
+  declare readonly viewController: InputTokenViewController | null;
 
   // @ts-ignore
-  declare readonly viewObservers: ReadonlyArray<InputPinViewObserver>;
+  declare readonly viewObservers: ReadonlyArray<InputTokenViewObserver>;
 
-  initView(init: InputPinViewInit): void {
+  initView(init: InputTokenViewInit): void {
     super.initView(init);
   }
 
@@ -70,7 +70,7 @@ export class InputPinView extends PinView {
     labelView.pointerEvents.setAutoState("auto");
   }
 
-  @Subview<InputPinView, HtmlView>({
+  @Subview<InputTokenView, HtmlView>({
     child: false,
     type: HtmlView,
     tag: "input",
@@ -103,27 +103,29 @@ export class InputPinView extends PinView {
                          transition: Transition<any> | null): void {
     super.onApplyTheme(theme, mood, transition);
     const labelView = this.label.subview;
-    const font = theme.inner(mood, Look.font);
-    if (labelView !== null && font !== void 0) {
-      if (font._style !== void 0) {
-        labelView.fontStyle.setAutoState(font._style);
+    if (labelView !== null) {
+      const font = theme.inner(mood, Look.font);
+      if (font !== void 0) {
+        if (font._style !== void 0) {
+          labelView.fontStyle.setAutoState(font._style);
+        }
+        if (font._variant !== void 0) {
+          labelView.fontVariant.setAutoState(font._variant);
+        }
+        if (font._weight !== void 0) {
+          labelView.fontWeight.setAutoState(font._weight);
+        }
+        if (font._stretch !== void 0) {
+          labelView.fontStretch.setAutoState(font._stretch);
+        }
+        if (font._size !== void 0) {
+          labelView.fontSize.setAutoState(font._size);
+        }
+        if (font._height !== void 0) {
+          labelView.lineHeight.setAutoState(font._height);
+        }
+        labelView.fontFamily.setAutoState(font._family);
       }
-      if (font._variant !== void 0) {
-        labelView.fontVariant.setAutoState(font._variant);
-      }
-      if (font._weight !== void 0) {
-        labelView.fontWeight.setAutoState(font._weight);
-      }
-      if (font._stretch !== void 0) {
-        labelView.fontStretch.setAutoState(font._stretch);
-      }
-      if (font._size !== void 0) {
-        labelView.fontSize.setAutoState(font._size);
-      }
-      if (font._height !== void 0) {
-        labelView.lineHeight.setAutoState(font._height);
-      }
-      labelView.fontFamily.setAutoState(font._family);
     }
   }
 
@@ -135,9 +137,9 @@ export class InputPinView extends PinView {
   }
 
   protected didUpdateInput(inputView: HtmlView): void {
-    this.didObserve(function (viewObserver: InputPinViewObserver): void {
-      if (viewObserver.pinDidUpdateInput !== void 0) {
-        viewObserver.pinDidUpdateInput(inputView, this);
+    this.didObserve(function (viewObserver: InputTokenViewObserver): void {
+      if (viewObserver.tokenDidUpdateInput !== void 0) {
+        viewObserver.tokenDidUpdateInput(inputView, this);
       }
     });
   }
@@ -150,9 +152,9 @@ export class InputPinView extends PinView {
   }
 
   protected didChangeInput(inputView: HtmlView): void {
-    this.didObserve(function (viewObserver: InputPinViewObserver): void {
-      if (viewObserver.pinDidChangeInput !== void 0) {
-        viewObserver.pinDidChangeInput(inputView, this);
+    this.didObserve(function (viewObserver: InputTokenViewObserver): void {
+      if (viewObserver.tokenDidChangeInput !== void 0) {
+        viewObserver.tokenDidChangeInput(inputView, this);
       }
     });
   }
@@ -165,9 +167,9 @@ export class InputPinView extends PinView {
   }
 
   protected didAcceptInput(inputView: HtmlView): void {
-    this.didObserve(function (viewObserver: InputPinViewObserver): void {
-      if (viewObserver.pinDidAcceptInput !== void 0) {
-        viewObserver.pinDidAcceptInput(inputView, this);
+    this.didObserve(function (viewObserver: InputTokenViewObserver): void {
+      if (viewObserver.tokenDidAcceptInput !== void 0) {
+        viewObserver.tokenDidAcceptInput(inputView, this);
       }
     });
   }

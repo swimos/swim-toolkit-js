@@ -40,18 +40,18 @@ import {
   ThemedHtmlViewInit,
   ThemedHtmlView,
 } from "@swim/theme";
-import {PinViewObserver} from "./PinViewObserver";
-import {PinViewController} from "./PinViewController";
+import {TokenViewObserver} from "./TokenViewObserver";
+import {TokenViewController} from "./TokenViewController";
 
-export type PinViewState = "collapsed" | "expanding" | "expanded" | "collapsing";
+export type TokenViewState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
-export interface PinViewInit extends ThemedHtmlViewInit {
-  controller?: PinViewController;
+export interface TokenViewInit extends ThemedHtmlViewInit {
+  controller?: TokenViewController;
 }
 
-export class PinView extends ThemedHtmlView {
+export class TokenView extends ThemedHtmlView {
   /** @hidden */
-  _pinState: PinViewState;
+  _tokenState: TokenViewState;
   /** @hidden */
   _headGesture?: PositionGesture<ThemedSvgView>;
   /** @hidden */
@@ -64,13 +64,13 @@ export class PinView extends ThemedHtmlView {
     this.onClickHead = this.onClickHead.bind(this);
     this.onClickBody = this.onClickBody.bind(this);
     this.onClickFoot = this.onClickFoot.bind(this);
-    this._pinState = "expanded";
+    this._tokenState = "expanded";
     this.shape.insert();
   }
 
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
-    this.addClass("pin");
+    this.addClass("token");
     this.position.setAutoState("relative");
     this.height.setAutoState(32);
     this.boxSizing.setAutoState("content-box");
@@ -78,12 +78,12 @@ export class PinView extends ThemedHtmlView {
   }
 
   // @ts-ignore
-  declare readonly viewController: PinViewController | null;
+  declare readonly viewController: TokenViewController | null;
 
   // @ts-ignore
-  declare readonly viewObservers: ReadonlyArray<PinViewObserver>;
+  declare readonly viewObservers: ReadonlyArray<TokenViewObserver>;
 
-  initView(init: PinViewInit): void {
+  initView(init: TokenViewInit): void {
     super.initView(init);
   }
 
@@ -193,22 +193,22 @@ export class PinView extends ThemedHtmlView {
     }
   }
 
-  get pinState(): PinViewState {
-    return this._pinState;
+  get tokenState(): TokenViewState {
+    return this._tokenState;
   }
 
   isExpanded(): boolean {
-    return this._pinState === "expanded" || this._pinState === "expanding";
+    return this._tokenState === "expanded" || this._tokenState === "expanding";
   }
 
   isCollapsed(): boolean {
-    return this._pinState === "collapsed" || this._pinState === "collapsing";
+    return this._tokenState === "collapsed" || this._tokenState === "collapsing";
   }
 
   @ViewAnimator({type: Number, state: 1, updateFlags: View.NeedsLayout})
   expandedPhase: ViewAnimator<this, number>;
 
-  @Subview<PinView, ThemedSvgView>({
+  @Subview<TokenView, ThemedSvgView>({
     type: ThemedSvgView,
     tag: "svg",
     onSetSubview(shapeView: ThemedSvgView | null): void {
@@ -219,7 +219,7 @@ export class PinView extends ThemedHtmlView {
   })
   readonly shape: Subview<this, ThemedSvgView>;
 
-  @Subview<PinView, ThemedSvgView, ThemedSvgView, ThemedViewObserver & PositionGestureDelegate>({
+  @Subview<TokenView, ThemedSvgView, ThemedSvgView, ThemedViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: ThemedSvgView,
@@ -291,7 +291,7 @@ export class PinView extends ThemedHtmlView {
   })
   readonly head: Subview<this, ThemedSvgView> & PositionGestureDelegate;
 
-  @Subview<PinView, ThemedSvgView, ThemedSvgView, ThemedViewObserver & PositionGestureDelegate>({
+  @Subview<TokenView, ThemedSvgView, ThemedSvgView, ThemedViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: ThemedSvgView,
@@ -357,7 +357,7 @@ export class PinView extends ThemedHtmlView {
   })
   readonly body: Subview<this, ThemedSvgView> & PositionGestureDelegate;
 
-  @Subview<PinView, ThemedSvgView, ThemedSvgView, ThemedViewObserver & PositionGestureDelegate>({
+  @Subview<TokenView, ThemedSvgView, ThemedSvgView, ThemedViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: ThemedSvgView,
@@ -429,7 +429,7 @@ export class PinView extends ThemedHtmlView {
   })
   readonly foot: Subview<this, ThemedSvgView> & PositionGestureDelegate;
 
-  @Subview<PinView, SvgView | HtmlView, SvgView | HtmlView, {embossed: boolean}>({
+  @Subview<TokenView, SvgView | HtmlView, SvgView | HtmlView, {embossed: boolean}>({
     extends: void 0,
     type: SvgView,
     tag: "path",
@@ -442,7 +442,7 @@ export class PinView extends ThemedHtmlView {
   })
   readonly icon: Subview<this, SvgView | HtmlView> & {embossed: boolean};
 
-  @Subview<PinView, HtmlView>({
+  @Subview<TokenView, HtmlView>({
     type: HtmlView,
     onSetSubview(labelContainer: HtmlView | null): void {
       if (labelContainer !== null) {
@@ -452,7 +452,7 @@ export class PinView extends ThemedHtmlView {
   })
   readonly labelContainer: Subview<this, HtmlView>;
 
-  @Subview<PinView, HtmlView>({
+  @Subview<TokenView, HtmlView>({
     child: false,
     type: HtmlView,
     onSetSubview(labelView: HtmlView | null): void {
@@ -470,7 +470,7 @@ export class PinView extends ThemedHtmlView {
   })
   readonly label: Subview<this, HtmlView>;
 
-  @Subview<PinView, HtmlView>({
+  @Subview<TokenView, HtmlView>({
     type: HtmlView,
     onSetSubview(actionContainer: HtmlView | null): void {
       if (actionContainer !== null) {
@@ -480,7 +480,7 @@ export class PinView extends ThemedHtmlView {
   })
   readonly actionContainer: Subview<this, HtmlView>;
 
-  @Subview<PinView, SvgView | HtmlView, SvgView | HtmlView, {embossed: boolean}>({
+  @Subview<TokenView, SvgView | HtmlView, SvgView | HtmlView, {embossed: boolean}>({
     extends: void 0,
     child: false,
     type: HtmlView,
@@ -509,10 +509,10 @@ export class PinView extends ThemedHtmlView {
 
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
-    this.layoutPin();
+    this.layoutToken();
   }
 
-  protected layoutPin(): void {
+  protected layoutToken(): void {
     const gap = 2;
 
     const paddingTop = this.paddingTop.getStateOr(Length.zero()).pxValue();
@@ -520,8 +520,8 @@ export class PinView extends ThemedHtmlView {
     const paddingBottom = this.paddingBottom.getStateOr(Length.zero()).pxValue();
     const paddingLeft = this.paddingLeft.getStateOr(Length.zero()).pxValue();
     const boxHeight = this._node.clientHeight;
-    const pinHeight = boxHeight - paddingTop - paddingBottom;
-    const radius = pinHeight / 2;
+    const tokenHeight = boxHeight - paddingTop - paddingBottom;
+    const radius = tokenHeight / 2;
     const pad = Math.sqrt(gap * gap + 2 * radius * gap);
     const padAngle = Math.asin(pad / (radius + gap));
     const labelPaddingLeft = radius / 2;
@@ -556,26 +556,26 @@ export class PinView extends ThemedHtmlView {
       footWidth += actionWidth + actionPaddingRight;
     }
 
-    let pinWidth = pinHeight
+    let tokenWidth = tokenHeight
     if (expandedPhase !== 0 && bodyWidth !== 0) {
-      pinWidth += gap + expandedPhase * bodyWidth;
+      tokenWidth += gap + expandedPhase * bodyWidth;
     }
-    const bodyRight = pinWidth;
+    const bodyRight = tokenWidth;
     if (expandedPhase !== 0 && footWidth !== 0) {
-      pinWidth += gap + expandedPhase * footWidth;
+      tokenWidth += gap + expandedPhase * footWidth;
     }
 
-    const width = pinWidth + paddingLeft + paddingRight;
+    const width = tokenWidth + paddingLeft + paddingRight;
     const height = boxHeight;
 
-    this.width.setAutoState(pinWidth);
+    this.width.setAutoState(tokenWidth);
 
     if (labelContainer !== null) {
       labelContainer.display.setAutoState(expandedPhase !== 0 ? "block" : "none");
-      labelContainer.left.setAutoState(paddingLeft + pinHeight + gap + labelPaddingLeft);
+      labelContainer.left.setAutoState(paddingLeft + tokenHeight + gap + labelPaddingLeft);
       labelContainer.top.setAutoState(paddingTop);
       labelContainer.width.setAutoState(expandedPhase * labelWidth);
-      labelContainer.height.setAutoState(pinHeight);
+      labelContainer.height.setAutoState(tokenHeight);
     }
 
     if (actionContainer !== null) {
@@ -583,7 +583,7 @@ export class PinView extends ThemedHtmlView {
       actionContainer.left.setAutoState(paddingLeft + bodyRight + gap);
       actionContainer.top.setAutoState(paddingTop);
       actionContainer.width.setAutoState(expandedPhase * actionWidth);
-      actionContainer.height.setAutoState(pinHeight);
+      actionContainer.height.setAutoState(tokenHeight);
     }
 
     if (shapeView !== null) {
@@ -614,7 +614,7 @@ export class PinView extends ThemedHtmlView {
       if (expandedPhase !== 0) {
         const u = 1 - expandedPhase;
         context.arc(paddingLeft + bodyRight - radius, paddingTop + radius, radius + gap, -(Math.PI / 2) + padAngle, Math.PI / 2 - padAngle);
-        context.arc(paddingLeft + pinWidth - radius - u * gap, paddingTop + radius, radius + u * gap, Math.PI / 2 - u * padAngle, -(Math.PI / 2) + u * padAngle, true);
+        context.arc(paddingLeft + tokenWidth - radius - u * gap, paddingTop + radius, radius + u * gap, Math.PI / 2 - u * padAngle, -(Math.PI / 2) + u * padAngle, true);
         context.closePath();
       }
       footView.d.setAutoState(context.toString());
@@ -623,13 +623,13 @@ export class PinView extends ThemedHtmlView {
     if (iconView instanceof HtmlView) {
       iconView.left.setAutoState(paddingLeft);
       iconView.top.setAutoState(paddingTop);
-      iconView.width.setAutoState(pinHeight);
-      iconView.height.setAutoState(pinHeight);
+      iconView.width.setAutoState(tokenHeight);
+      iconView.height.setAutoState(tokenHeight);
     } else if (iconView !== null) {
       iconView.setStyle("left", paddingLeft + "px");
       iconView.setStyle("top", paddingTop + "px");
-      iconView.setStyle("width", pinHeight + "px");
-      iconView.setStyle("height", pinHeight + "px");
+      iconView.setStyle("width", tokenHeight + "px");
+      iconView.setStyle("height", tokenHeight + "px");
     }
 
     if (actionView instanceof HtmlView) {
@@ -644,13 +644,13 @@ export class PinView extends ThemedHtmlView {
   }
 
   expand(tween?: Tween<any>): void {
-    if (this._pinState !== "expanded" || this.expandedPhase.value !== 1) {
+    if (this._tokenState !== "expanded" || this.expandedPhase.value !== 1) {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
-      if (this._pinState !== "expanding") {
+      if (this._tokenState !== "expanding") {
         this.willExpand();
       }
       if (tween !== null) {
@@ -667,7 +667,7 @@ export class PinView extends ThemedHtmlView {
   }
 
   protected willExpand(): void {
-    this._pinState = "expanding";
+    this._tokenState = "expanding";
     const labelContainer = this.labelContainer.subview;
     if (labelContainer !== null) {
       labelContainer.display.setAutoState("block");
@@ -676,31 +676,31 @@ export class PinView extends ThemedHtmlView {
     if (actionContainer !== null) {
       actionContainer.display.setAutoState("block");
     }
-    this.willObserve(function (viewObserver: PinViewObserver): void {
-      if (viewObserver.pinWillExpand !== void 0) {
-        viewObserver.pinWillExpand(this);
+    this.willObserve(function (viewObserver: TokenViewObserver): void {
+      if (viewObserver.tokenWillExpand !== void 0) {
+        viewObserver.tokenWillExpand(this);
       }
     });
   }
 
   protected didExpand(): void {
-    this._pinState = "expanded";
+    this._tokenState = "expanded";
     this.requireUpdate(View.NeedsLayout);
-    this.didObserve(function (viewObserver: PinViewObserver): void {
-      if (viewObserver.pinDidExpand !== void 0) {
-        viewObserver.pinDidExpand(this);
+    this.didObserve(function (viewObserver: TokenViewObserver): void {
+      if (viewObserver.tokenDidExpand !== void 0) {
+        viewObserver.tokenDidExpand(this);
       }
     });
   }
 
   collapse(tween?: Tween<any>): void {
-    if (this._pinState !== "collapsed" || this.expandedPhase.value !== 0) {
+    if (this._tokenState !== "collapsed" || this.expandedPhase.value !== 0) {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
-      if (this._pinState !== "collapsing") {
+      if (this._tokenState !== "collapsing") {
         this.willCollapse();
       }
       if (tween !== null) {
@@ -717,29 +717,29 @@ export class PinView extends ThemedHtmlView {
   }
 
   protected willCollapse(): void {
-    this._pinState = "collapsing";
-    this.willObserve(function (viewObserver: PinViewObserver): void {
-      if (viewObserver.pinWillCollapse !== void 0) {
-        viewObserver.pinWillCollapse(this);
+    this._tokenState = "collapsing";
+    this.willObserve(function (viewObserver: TokenViewObserver): void {
+      if (viewObserver.tokenWillCollapse !== void 0) {
+        viewObserver.tokenWillCollapse(this);
       }
     });
   }
 
   protected didCollapse(): void {
-    this._pinState = "collapsed";
+    this._tokenState = "collapsed";
     this.requireUpdate(View.NeedsLayout);
-    this.didObserve(function (viewObserver: PinViewObserver): void {
-      if (viewObserver.pinDidCollapse !== void 0) {
-        viewObserver.pinDidCollapse(this);
+    this.didObserve(function (viewObserver: TokenViewObserver): void {
+      if (viewObserver.tokenDidCollapse !== void 0) {
+        viewObserver.tokenDidCollapse(this);
       }
     });
   }
 
   toggle(tween?: Tween<any>): void {
-    const pinState = this._pinState;
-    if (pinState === "collapsed" || pinState === "collapsing") {
+    const tokenState = this._tokenState;
+    if (tokenState === "collapsed" || tokenState === "collapsing") {
       this.expand(tween);
-    } else if (pinState === "expanded" || pinState === "expanding") {
+    } else if (tokenState === "expanded" || tokenState === "expanding") {
       this.collapse(tween);
     }
   }
@@ -749,9 +749,9 @@ export class PinView extends ThemedHtmlView {
   }
 
   protected didPressHead(): void {
-    this.didObserve(function (viewObserver: PinViewObserver): void {
-      if (viewObserver.pinDidPressHead !== void 0) {
-        viewObserver.pinDidPressHead(this);
+    this.didObserve(function (viewObserver: TokenViewObserver): void {
+      if (viewObserver.tokenDidPressHead !== void 0) {
+        viewObserver.tokenDidPressHead(this);
       }
     });
   }
@@ -761,9 +761,9 @@ export class PinView extends ThemedHtmlView {
   }
 
   protected didPressBody(): void {
-    this.didObserve(function (viewObserver: PinViewObserver): void {
-      if (viewObserver.pinDidPressBody !== void 0) {
-        viewObserver.pinDidPressBody(this);
+    this.didObserve(function (viewObserver: TokenViewObserver): void {
+      if (viewObserver.tokenDidPressBody !== void 0) {
+        viewObserver.tokenDidPressBody(this);
       }
     });
   }
@@ -773,9 +773,9 @@ export class PinView extends ThemedHtmlView {
   }
 
   protected didPressFoot(): void {
-    this.didObserve(function (viewObserver: PinViewObserver): void {
-      if (viewObserver.pinDidPressFoot !== void 0) {
-        viewObserver.pinDidPressFoot(this);
+    this.didObserve(function (viewObserver: TokenViewObserver): void {
+      if (viewObserver.tokenDidPressFoot !== void 0) {
+        viewObserver.tokenDidPressFoot(this);
       }
     });
   }

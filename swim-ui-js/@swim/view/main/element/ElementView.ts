@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
-import {AttributeString, StyleString, StyledElement} from "@swim/style";
+import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
 import {Animator} from "@swim/animate";
 import {ViewClass, View} from "../View";
 import {NodeViewInit, NodeView} from "../node/NodeView";
@@ -24,7 +24,7 @@ import {ElementViewController} from "./ElementViewController";
 import {SvgViewTagMap} from "../svg/SvgView";
 import {HtmlViewTagMap} from "../html/HtmlView";
 
-export interface ViewElement extends StyledElement {
+export interface ViewElement extends Element, ElementCSSInlineStyle {
   viewController?: ElementViewController;
   view?: ElementView;
 }
@@ -81,7 +81,7 @@ export class ElementView extends NodeView {
   setAttribute(attributeName: string, value: unknown): this {
     this.willSetAttribute(attributeName, value);
     if (value !== void 0) {
-      this._node.setAttribute(attributeName, AttributeString(value));
+      this._node.setAttribute(attributeName, ToAttributeString(value));
     } else {
       this._node.removeAttribute(attributeName);
     }
@@ -139,7 +139,7 @@ export class ElementView extends NodeView {
     }
   }
 
-  getStyle(propertyNames: string | ReadonlyArray<string>): string {
+  getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
     const style = this._node.style;
     if (typeof propertyNames === "string") {
       return style.getPropertyValue(propertyNames);
@@ -155,9 +155,10 @@ export class ElementView extends NodeView {
   }
 
   setStyle(propertyName: string, value: unknown, priority?: string): this {
+    // Conditionally overridden when CSS Typed OM is available.
     this.willSetStyle(propertyName, value, priority);
     if (value !== void 0) {
-      this._node.style.setProperty(propertyName, StyleString(value), priority);
+      this._node.style.setProperty(propertyName, ToStyleString(value), priority);
     } else {
       this._node.style.removeProperty(propertyName);
     }
@@ -384,5 +385,37 @@ export class ElementView extends NodeView {
       enumerable: true,
     });
   }
+}
+if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+  ElementView.prototype.getStyle = function (this: ElementView, propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
+    const style = this._node.attributeStyleMap;
+    if (typeof propertyNames === "string") {
+      return style.get(propertyNames);
+    } else {
+      for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+        const value = style.get(propertyNames[i]);
+        if (value !== "") {
+          return value;
+        }
+      }
+      return "";
+    }
+  };
+  ElementView.prototype.setStyle = function (this: ElementView, propertyName: string,
+                                             value: unknown, priority?: string): ElementView {
+    this.willSetStyle(propertyName, value, priority);
+    if (value !== void 0) {
+      try {
+        this._node.attributeStyleMap.set(propertyName, ToCssValue(value));
+      } catch (e) {
+        // swallow
+      }
+    } else {
+      this._node.attributeStyleMap.delete(propertyName);
+    }
+    this.onSetStyle(propertyName, value, priority);
+    this.didSetStyle(propertyName, value, priority);
+    return this;
+  };
 }
 View.Element = ElementView;

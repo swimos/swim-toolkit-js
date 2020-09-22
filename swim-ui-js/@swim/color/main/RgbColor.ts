@@ -32,6 +32,8 @@ export class RgbColor extends Color {
   readonly g: number;
   readonly b: number;
   readonly a: number;
+  /** @hidden */
+  _string?: string;
 
   constructor(r: number, g: number, b: number, a: number = 1) {
     super();
@@ -161,25 +163,29 @@ export class RgbColor extends Color {
   }
 
   toString(): string {
-    let a = this.a;
-    a = isNaN(a) ? 1 : Math.max(0, Math.min(this.a, 1));
-    if (a === 1) {
-      return this.toHexString();
-    } else {
-      let s = a === 1 ? "rgb" : "rgba";
-      s += "(";
-      s += Math.max(0, Math.min(Math.round(this.r) || 0, 255));
-      s += ",";
-      s += Math.max(0, Math.min(Math.round(this.g) || 0, 255));
-      s += ",";
-      s += Math.max(0, Math.min(Math.round(this.b) || 0, 255));
-      if (a !== 1) {
+    let s = this._string;
+    if (s === void 0) {
+      let a = this.a;
+      a = isNaN(a) ? 1 : Math.max(0, Math.min(this.a, 1));
+      if (a === 1) {
+        s = this.toHexString();
+      } else {
+        s = a === 1 ? "rgb" : "rgba";
+        s += "(";
+        s += Math.max(0, Math.min(Math.round(this.r) || 0, 255));
         s += ",";
-        s += a;
+        s += Math.max(0, Math.min(Math.round(this.g) || 0, 255));
+        s += ",";
+        s += Math.max(0, Math.min(Math.round(this.b) || 0, 255));
+        if (a !== 1) {
+          s += ",";
+          s += a;
+        }
+        s += ")";
       }
-      s += ")";
-      return s;
+      this._string = s;
     }
+    return s;
   }
 
   private static _hashSeed?: number;

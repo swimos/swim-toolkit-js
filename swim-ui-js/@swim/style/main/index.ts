@@ -24,9 +24,47 @@ export {StyleInterpolatorForm} from "./StyleInterpolatorForm";
 export {StyleScaleForm} from "./StyleScaleForm";
 export {StyleTransitionForm} from "./StyleTransitionForm";
 
-export {AttributeString} from "./AttributeString";
-export {StyleString} from "./StyleString";
-
-export {StyledElement} from "./StyledElement";
+export {ToAttributeString} from "./ToAttributeString";
+export {ToStyleString} from "./ToStyleString";
+export {ToCssValue} from "./ToCssValue";
 
 export * from "./css";
+
+declare global { // CSS Typed OM shim
+  interface CSSStyleValue {
+  }
+  var CSSStyleValue: {
+    new(): CSSStyleValue;
+    parse(property: string, cssText: string): CSSStyleValue;
+  };
+  interface CSSNumericValue extends CSSStyleValue {
+    to(unit: string): CSSUnitValue;
+  }
+  var CSSNumericValue: {
+    new(): CSSNumericValue;
+  };
+  interface CSSUnitValue extends CSSNumericValue {
+    value: number;
+    readonly unit: string;
+  }
+  var CSSUnitValue: {
+    new(value: number, unit: string): CSSUnitValue;
+  };
+
+  interface StylePropertyMapReadOnly {
+    readonly size: number;
+    has(property: string): boolean;
+    get(property: string): CSSStyleValue | undefined;
+    getAll(property: string): CSSStyleValue[];
+  }
+  interface StylePropertyMap extends StylePropertyMapReadOnly {
+    set(property: string, ...values: (CSSStyleValue | string)[]): void;
+    append(property: string, ...values: (CSSStyleValue | string)[]): void;
+    delete(property: string): void;
+    clear(): void;
+  }
+
+  interface ElementCSSInlineStyle {
+    readonly attributeStyleMap: StylePropertyMap;
+  }
+}

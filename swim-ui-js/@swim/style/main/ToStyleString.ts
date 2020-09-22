@@ -12,6 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface StyledElement extends Element {
-  style: CSSStyleDeclaration;
+export interface ToStyleString {
+  toStyleString(): string;
+}
+
+export function ToStyleString(value: unknown): string {
+  if (typeof value === "object" && value !== null) {
+    if (typeof (value as ToStyleString).toStyleString === "function") {
+      return (value as ToStyleString).toStyleString();
+    } else {
+      return value.toString();
+    }
+  } else {
+    return "" + value;
+  }
 }

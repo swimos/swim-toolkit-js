@@ -22,6 +22,10 @@ export abstract class LengthStyleAnimator<V extends ElementView> extends StyleAn
     return Length.parse(value, this.node);
   }
 
+  fromCss(value: CSSStyleValue): Length | undefined {
+    return Length.fromCss(value, this.node);
+  }
+
   fromAny(value: AnyLength): Length | undefined {
     return Length.fromAny(value, this.node);
   }

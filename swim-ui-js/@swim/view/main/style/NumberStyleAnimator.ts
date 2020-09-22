@@ -26,6 +26,14 @@ export abstract class NumberStyleAnimator<V extends ElementView> extends StyleAn
     }
   }
 
+  fromCss(value: CSSStyleValue): number | undefined {
+    if (value instanceof CSSNumericValue) {
+      return value.to("number").value;
+    } else {
+      return void 0;
+    }
+  }
+
   fromAny(value: number | string): number | undefined {
     if (typeof value === "number") {
       return value;

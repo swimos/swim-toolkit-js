@@ -22,6 +22,14 @@ export abstract class NumberOrStringStyleAnimator<V extends ElementView> extends
     return isFinite(number) ? number : value;
   }
 
+  fromCss(value: CSSStyleValue): number | undefined {
+    if (value instanceof CSSNumericValue) {
+      return value.to("number").value;
+    } else {
+      return void 0;
+    }
+  }
+
   fromAny(value: number | string): number | string | undefined {
     if (typeof value === "number") {
       return value;

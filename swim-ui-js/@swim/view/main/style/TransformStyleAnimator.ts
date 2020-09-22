@@ -22,6 +22,10 @@ export abstract class TransformStyleAnimator<V extends ElementView> extends Styl
     return Transform.parse(value);
   }
 
+  fromCss(value: CSSStyleValue): Transform | undefined {
+    return Transform.fromCss(value);
+  }
+
   fromAny(value: AnyTransform): Transform | undefined {
     return Transform.fromAny(value);
   }

@@ -13,34 +13,34 @@
 // limitations under the License.
 
 import {ThemedHtmlViewController} from "@swim/theme";
-import {PinViewState, PinView} from "./PinView";
-import {PinViewObserver} from "./PinViewObserver";
+import {TokenViewState, TokenView} from "./TokenView";
+import {TokenViewObserver} from "./TokenViewObserver";
 
-export class PinViewController<V extends PinView = PinView> extends ThemedHtmlViewController<V> implements PinViewObserver<V> {
-  get pinState(): PinViewState | null {
-    return this._view !== null ? this._view.pinState : null;
+export class TokenViewController<V extends TokenView = TokenView> extends ThemedHtmlViewController<V> implements TokenViewObserver<V> {
+  get tokenState(): TokenViewState | null {
+    return this._view !== null ? this._view.tokenState : null;
   }
 
-  pinWillExpand(view: V): void {
+  tokenWillExpand(view: V): void {
     // hook
   }
 
-  pinDidExpand(view: V): void {
+  tokenDidExpand(view: V): void {
     // hook
   }
 
-  pinWillCollapse(view: V): void {
+  tokenWillCollapse(view: V): void {
     const labelView = view.label.subview;
     if (labelView !== null) {
       labelView.node.blur();
     }
   }
 
-  pinDidCollapse(view: V): void {
+  tokenDidCollapse(view: V): void {
     // hook
   }
 
-  pinDidPressHead(view: V): void {
+  tokenDidPressHead(view: V): void {
     view.toggle();
     const labelView = view.label.subview;
     if (labelView !== null && view.isExpanded()) {
@@ -48,11 +48,11 @@ export class PinViewController<V extends PinView = PinView> extends ThemedHtmlVi
     }
   }
 
-  pinDidPressBody(view: V): void {
+  tokenDidPressBody(view: V): void {
     // hook
   }
 
-  pinDidPressFoot(view: V): void {
+  tokenDidPressFoot(view: V): void {
     // hook
   }
 }

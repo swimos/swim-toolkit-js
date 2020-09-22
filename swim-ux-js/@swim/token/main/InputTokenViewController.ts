@@ -12,17 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  PinViewState,
-  PinViewInit,
-  PinView,
-} from "./PinView";
-export {PinViewObserver} from "./PinViewObserver";
-export {PinViewController} from "./PinViewController";
+import {HtmlView} from "@swim/view";
+import {TokenViewController} from "./TokenViewController";
+import {InputTokenView} from "./InputTokenView";
+import {InputTokenViewObserver} from "./InputTokenViewObserver";
 
-export {
-  InputPinViewInit,
-  InputPinView,
-} from "./InputPinView";
-export {InputPinViewObserver} from "./InputPinViewObserver";
-export {InputPinViewController} from "./InputPinViewController";
+export class InputTokenViewController<V extends InputTokenView = InputTokenView> extends TokenViewController<V> implements InputTokenViewObserver<V> {
+  tokenDidUpdateInput(inputView: HtmlView, view: V): void {
+    // hook
+  }
+
+  tokenDidChangeInput(inputView: HtmlView, view: V): void {
+    // hook
+  }
+
+  tokenDidAcceptInput(inputView: HtmlView, view: V): void {
+    // hook
+  }
+}

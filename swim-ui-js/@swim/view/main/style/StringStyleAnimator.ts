@@ -21,6 +21,10 @@ export abstract class StringStyleAnimator<V extends ElementView> extends StyleAn
     return value;
   }
 
+  fromCss(value: CSSStyleValue): string | undefined {
+    return value.toString();
+  }
+
   fromAny(value: string): string | undefined {
     return value;
   }

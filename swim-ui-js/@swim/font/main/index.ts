@@ -45,3 +45,11 @@ export {FontInterpolator} from "./FontInterpolator";
 export {FontParser} from "./FontParser";
 export {FontForm} from "./FontForm";
 
+declare global { // CSS Typed OM shim
+  interface CSSStyleValue {
+  }
+  var CSSStyleValue: {
+    new(): CSSStyleValue;
+    parse(property: string, cssText: string): CSSStyleValue;
+  };
+}

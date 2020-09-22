@@ -120,6 +120,10 @@ export abstract class Length implements HashCode, Debug {
     }
   }
 
+  toCssValue(): CSSUnitValue | undefined {
+    return void 0; // conditionally overridden when CSS Typed OM is available
+  }
+
   abstract equals(that: unknown): boolean;
 
   abstract hashCode(): number;
@@ -179,6 +183,21 @@ export abstract class Length implements HashCode, Debug {
       case "%": return Length.pct(value, node);
       case "": return Length.unitless(value, node);
       default: throw new Error("unknown length units: " + units);
+    }
+  }
+
+  static fromCss(value: CSSStyleValue, node?: Node | null): Length {
+    if (value instanceof CSSUnitValue) {
+      switch (value.unit) {
+        case "px": return Length.px(value.value, node);
+        case "em": return Length.em(value.value, node);
+        case "rem": return Length.rem(value.value, node);
+        case "percent": return Length.pct(value.value, node);
+        case "number": return Length.unitless(value.value, node);
+        default: throw new Error("unknown length units: " + value.unit);
+      }
+    } else {
+      throw new TypeError("" + value);
     }
   }
 
