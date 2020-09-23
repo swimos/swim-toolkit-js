@@ -105,8 +105,8 @@ export class ColorStop implements Equals {
     return s;
   }
 
-  static from(color: AnyColor, stop: AnyLength | null = null,
-              hint: AnyLength | null = null): ColorStop {
+  static create(color: AnyColor, stop: AnyLength | null = null,
+                hint: AnyLength | null = null): ColorStop {
     color = Color.fromAny(color);
     if (stop !== null) {
       stop = Length.fromAny(stop, "%");

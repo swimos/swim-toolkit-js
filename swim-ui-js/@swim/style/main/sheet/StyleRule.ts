@@ -153,13 +153,19 @@ if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
       return "";
     }
   };
-  StyleRule.prototype.setStyle = function (this: StyleRule<CssContext>, propertyName: string, value: unknown, priority?: string): StyleRule<CssContext> {
+  StyleRule.prototype.setStyle = function (this: StyleRule<CssContext>, propertyName: string,
+                                           value: unknown, priority?: string): StyleRule<CssContext> {
     this.willSetStyle(propertyName, value, priority);
     if (value !== void 0) {
-      try {
-        this._rule.styleMap.set(propertyName, ToCssValue(value));
-      } catch (e) {
-        // swallow
+      const cssValue = ToCssValue(value);
+      if (cssValue !== void 0) {
+        try {
+          this._rule.styleMap.set(propertyName, cssValue);
+        } catch (e) {
+          // swallow
+        }
+      } else {
+        this._rule.style.setProperty(propertyName, ToStyleString(value), priority);
       }
     } else {
       this._rule.styleMap.delete(propertyName);
@@ -183,7 +189,8 @@ if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
       return "";
     }
   };
-  StyleRule.prototype.setStyle = function (this: StyleRule<CssContext>, propertyName: string, value: unknown, priority?: string): StyleRule<CssContext> {
+  StyleRule.prototype.setStyle = function (this: StyleRule<CssContext>, propertyName: string, 
+                                           value: unknown, priority?: string): StyleRule<CssContext> {
     this.willSetStyle(propertyName, value, priority);
     if (value !== void 0) {
       this._rule.style.setProperty(propertyName, ToStyleString(value), priority);

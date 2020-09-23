@@ -808,7 +808,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     type: Transition,
     inherit: true,
     initState(): Transition<any> | undefined {
-      return Transition.duration(300, Ease.linear);
+      return Transition.duration(250, Ease.linear);
     },
   })
   rescaleTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
@@ -817,7 +817,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     type: Transition,
     inherit: true,
     initState(): Transition<any> | undefined {
-      return Transition.duration(300, Ease.cubicOut);
+      return Transition.duration(250, Ease.cubicOut);
     },
   })
   reboundTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;

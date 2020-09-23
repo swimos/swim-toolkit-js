@@ -45,7 +45,7 @@ const DarkWarningColor = Color.parse("#f9f070");
 const DarkAlertColor = Color.parse("#f6511d");
 
 const DarkSpacing = Length.px(10);
-const DarkTransition = Transition.duration(300, Ease.cubicOut);
+const DarkTransition = Transition.duration(250, Ease.cubicOut);
 
 const DarkAmbient = FeelVector.of(
   [Look.font, DarkFont],
@@ -120,11 +120,14 @@ const DarkFloating = FeelVector.of(
 );
 
 const DarkTranslucent = FeelVector.of(
+  [Look.accentColor, Color.black(0.8)],
+
   [Look.backgroundColor, Color.black(0.8)],
+  [Look.borderColor, Color.black(0.8)],
 );
 
 const DarkEmbossed = FeelVector.of(
-  [Look.accentColor, Color.black(1 / 2)],
+  [Look.accentColor, Color.black(1)],
 );
 
 const DarkNested = FeelVector.of(

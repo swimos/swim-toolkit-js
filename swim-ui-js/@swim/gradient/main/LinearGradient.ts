@@ -41,8 +41,6 @@ export class LinearGradient implements Equals {
   readonly _stops: ReadonlyArray<ColorStop>;
   /** @hidden */
   _string?: string;
-  /** @hidden */
-  _cssValue?: CSSStyleValue;
 
   constructor(angle: LinearGradientAngle, stops: ReadonlyArray<ColorStop>) {
     this._angle = angle;
@@ -75,10 +73,6 @@ export class LinearGradient implements Equals {
       }
       return new LinearGradient(this._angle, array);
     }
-  }
-
-  toCssValue(): CSSStyleValue | undefined {
-    return void 0; // conditionally overridden when CSS Typed OM is available
   }
 
   equals(that: unknown): boolean {
@@ -119,7 +113,7 @@ export class LinearGradient implements Equals {
     return s;
   }
 
-  static from(angle: AnyLinearGradientAngle, ...stops: AnyColorStop[]): LinearGradient {
+  static create(angle: AnyLinearGradientAngle, ...stops: AnyColorStop[]): LinearGradient {
     if (angle instanceof Angle || typeof angle === "number") {
       angle = Angle.fromAny(angle, "deg");
     }
@@ -219,14 +213,4 @@ export class LinearGradient implements Equals {
   static Parser: typeof LinearGradientParser; // defined by LinearGradientParser
   /** @hidden */
   static AngleParser: typeof LinearGradientAngleParser; // defined by LinearGradientAngleParser
-}
-if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
-  LinearGradient.prototype.toCssValue = function (this: LinearGradient): CSSStyleValue | undefined {
-    let cssValue = this._cssValue;
-    if (cssValue === void 0) {
-      cssValue = CSSStyleValue.parse("background-image", this.toString());
-      this._cssValue = cssValue;
-    }
-    return cssValue;
-  };
 }

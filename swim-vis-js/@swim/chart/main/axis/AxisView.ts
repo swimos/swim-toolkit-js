@@ -233,7 +233,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     type: Transition,
     inherit: true,
     initState(): Transition<any> {
-      return Transition.duration(300, Ease.cubicOut);
+      return Transition.duration(250, Ease.cubicOut);
     },
   })
   tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;

@@ -46,7 +46,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     this.flexShrink.setAutoState(0);
     this.height.setAutoState(44);
     this.boxSizing.setAutoState("border-box");
-    this.lineHeight.setAutoState(44);
+    this.lineHeight.setAutoState(this.height.state);
     this.overflowX.setAutoState("hidden");
     this.overflowY.setAutoState("hidden");
     this.cursor.setAutoState("pointer");
@@ -77,7 +77,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     iconView.justifyContent.setAutoState("center");
     iconView.alignItems.setAutoState("center");
     iconView.width.setAutoState(this.collapsedWidth.getStateOr(MenuItem.DefaultCollapsedWidth));
-    iconView.height.setAutoState(44);
+    iconView.height.setAutoState("100%");
     iconView.boxSizing.setAutoState("border-box");
     if (icon !== void 0) {
       iconView.append(icon, "icon");
@@ -198,6 +198,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
+    this.lineHeight.setAutoState(this.height.state);
     const drawerStretch = this.drawerStretch.value;
     if (typeof drawerStretch === "number") {
       const titleView = this.titleView();

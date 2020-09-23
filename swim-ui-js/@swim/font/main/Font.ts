@@ -54,8 +54,6 @@ export class Font implements Equals, Debug {
   readonly _family: FontFamily | ReadonlyArray<FontFamily>;
   /** @hidden */
   _string?: string;
-  /** @hidden */
-  _cssValue?: CSSStyleValue;
 
   constructor(style: FontStyle | undefined, variant: FontVariant | undefined,
               weight: FontWeight | undefined, stretch: FontStretch | undefined,
@@ -202,10 +200,6 @@ export class Font implements Equals, Debug {
       height: this._height,
       family: (Array.isArray(this._family) ? this._family.slice(0) : this._family) as FontFamily | FontFamily[],
     };
-  }
-
-  toCssValue(): CSSStyleValue | undefined {
-    return void 0; // conditionally overridden when CSS Typed OM is available
   }
 
   equals(that: unknown): boolean {
@@ -445,14 +439,4 @@ export class Font implements Equals, Debug {
   static Parser: typeof FontParser; // defined by FontParser
   /** @hidden */
   static Form: typeof FontForm; // defined by FontForm
-}
-if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
-  Font.prototype.toCssValue = function (this: Font): CSSStyleValue | undefined {
-    let cssValue = this._cssValue;
-    if (cssValue === void 0) {
-      cssValue = CSSStyleValue.parse("font", this.toString());
-      this._cssValue = cssValue;
-    }
-    return cssValue;
-  };
 }

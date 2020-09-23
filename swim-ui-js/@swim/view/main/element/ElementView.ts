@@ -393,10 +393,15 @@ if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
                                              value: unknown, priority?: string): ElementView {
     this.willSetStyle(propertyName, value, priority);
     if (value !== void 0) {
-      try {
-        this._node.attributeStyleMap.set(propertyName, ToCssValue(value));
-      } catch (e) {
-        // swallow
+      const cssValue = ToCssValue(value);
+      if (cssValue !== void 0) {
+        try {
+          this._node.attributeStyleMap.set(propertyName, cssValue);
+        } catch (e) {
+          // swallow
+        }
+      } else {
+        this._node.style.setProperty(propertyName, ToStyleString(value), priority);
       }
     } else {
       this._node.attributeStyleMap.delete(propertyName);

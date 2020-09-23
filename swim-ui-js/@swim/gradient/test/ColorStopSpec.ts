@@ -20,21 +20,21 @@ export class ColorStopSpec extends Spec {
   @Test
   parseColorStops(exam: Exam): void {
     exam.equal(ColorStop.parse("#ffffff"),
-               ColorStop.from("#ffffff"));
+               ColorStop.create("#ffffff"));
     exam.equal(ColorStop.parse("#ffffff 75%"),
-               ColorStop.from("#ffffff", 75));
+               ColorStop.create("#ffffff", 75));
     exam.equal(ColorStop.parse("25% #ffffff"),
-               ColorStop.from("#ffffff", 25));
+               ColorStop.create("#ffffff", 25));
   }
 
   @Test
   parseColorStopHints(exam: Exam): void {
     exam.equal(ColorStop.parseHint("50%, #ffffff"),
-               ColorStop.from("#ffffff", null, 50));
+               ColorStop.create("#ffffff", null, 50));
     exam.equal(ColorStop.parseHint("25%, #ffffff 75%"),
-               ColorStop.from("#ffffff", 75, 25));
+               ColorStop.create("#ffffff", 75, 25));
     exam.equal(ColorStop.parseHint("40%, 60% #ffffff"),
-               ColorStop.from("#ffffff", 60, 40));
+               ColorStop.create("#ffffff", 60, 40));
   }
 
   @Test
@@ -62,38 +62,38 @@ export class ColorStopSpec extends Spec {
 
   @Test
   writeColorStops(exam: Exam): void {
-    exam.equal(ColorStop.from("#ffffff").toString(), "#ffffff");
-    exam.equal(ColorStop.from("#ffffff", 75).toString(), "#ffffff 75%");
+    exam.equal(ColorStop.create("#ffffff").toString(), "#ffffff");
+    exam.equal(ColorStop.create("#ffffff", 75).toString(), "#ffffff 75%");
   }
 
   @Test
   writeColorStopHints(exam: Exam): void {
-    exam.equal(ColorStop.from("#ffffff", null, 50).toString(), "50%, #ffffff");
-    exam.equal(ColorStop.from("#ffffff", 75, 25).toString(), "25%, #ffffff 75%");
+    exam.equal(ColorStop.create("#ffffff", null, 50).toString(), "50%, #ffffff");
+    exam.equal(ColorStop.create("#ffffff", 75, 25).toString(), "25%, #ffffff 75%");
   }
 
   @Test
   parseColorStopLists(exam: Exam): void {
     exam.equal(ColorStop.parseList("#ffffff"),
-               [ColorStop.from("#ffffff")]);
+               [ColorStop.create("#ffffff")]);
     exam.equal(ColorStop.parseList("#000000, #ffffff"),
-               [ColorStop.from("#000000"), ColorStop.from("#ffffff")]);
+               [ColorStop.create("#000000"), ColorStop.create("#ffffff")]);
     exam.equal(ColorStop.parseList("#000000 33%, #ffffff 67%"),
-               [ColorStop.from("#000000", 33), ColorStop.from("#ffffff", 67)]);
+               [ColorStop.create("#000000", 33), ColorStop.create("#ffffff", 67)]);
     exam.equal(ColorStop.parseList("33% #000000, 67% #ffffff"),
-               [ColorStop.from("#000000", 33), ColorStop.from("#ffffff", 67)]);
+               [ColorStop.create("#000000", 33), ColorStop.create("#ffffff", 67)]);
   }
 
   @Test
   parseColorStopListsWithHints(exam: Exam): void {
     exam.equal(ColorStop.parseList("#ffffff"),
-               [ColorStop.from("#ffffff")]);
+               [ColorStop.create("#ffffff")]);
     exam.equal(ColorStop.parseList("#000000, 50%, #ffffff"),
-               [ColorStop.from("#000000"), ColorStop.from("#ffffff", null, 50)]);
+               [ColorStop.create("#000000"), ColorStop.create("#ffffff", null, 50)]);
     exam.equal(ColorStop.parseList("#000000 25%, 50%, #ffffff 75%"),
-               [ColorStop.from("#000000", 25), ColorStop.from("#ffffff", 75, 50)]);
+               [ColorStop.create("#000000", 25), ColorStop.create("#ffffff", 75, 50)]);
     exam.equal(ColorStop.parseList("25% #000000, 50%, 75% #ffffff"),
-               [ColorStop.from("#000000", 25), ColorStop.from("#ffffff", 75, 50)]);
+               [ColorStop.create("#000000", 25), ColorStop.create("#ffffff", 75, 50)]);
   }
 
   @Test
@@ -105,17 +105,17 @@ export class ColorStopSpec extends Spec {
 
   @Test
   interpolateColorStops(exam: Exam): void {
-    exam.equal(Interpolator.between(ColorStop.from("#000000"),
-                                    ColorStop.from("#888888"))
+    exam.equal(Interpolator.between(ColorStop.create("#000000"),
+                                    ColorStop.create("#888888"))
                            .interpolate(0.5),
-               ColorStop.from("#444444"));
-    exam.equal(Interpolator.between(ColorStop.from("#000000", 25),
-                                    ColorStop.from("#888888", 75))
+               ColorStop.create("#444444"));
+    exam.equal(Interpolator.between(ColorStop.create("#000000", 25),
+                                    ColorStop.create("#888888", 75))
                            .interpolate(0.5),
-               ColorStop.from("#444444", 50));
-    exam.equal(Interpolator.between(ColorStop.from("#000000", 25, 10),
-                                    ColorStop.from("#888888", 75, 30))
+               ColorStop.create("#444444", 50));
+    exam.equal(Interpolator.between(ColorStop.create("#000000", 25, 10),
+                                    ColorStop.create("#888888", 75, 30))
                            .interpolate(0.5),
-               ColorStop.from("#444444", 50, 20));
+               ColorStop.create("#444444", 50, 20));
   }
 }

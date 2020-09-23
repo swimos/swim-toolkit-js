@@ -45,7 +45,7 @@ const LightWarningColor = Color.parse("#e6dd51");
 const LightAlertColor = Color.parse("#f6511d");
 
 const LightSpacing = Length.px(10);
-const LightTransition = Transition.duration(300, Ease.cubicOut);
+const LightTransition = Transition.duration(250, Ease.cubicOut);
 
 const LightAmbient = FeelVector.of(
   [Look.font, LightFont],
@@ -120,11 +120,14 @@ const LightFloating = FeelVector.of(
 );
 
 const LightTranslucent = FeelVector.of(
+  [Look.accentColor, Color.black(0.8)],
+
   [Look.backgroundColor, Color.black(0.8)],
+  [Look.borderColor, Color.black(0.8)],
 );
 
 const LightEmbossed = FeelVector.of(
-  [Look.accentColor, Color.black(1 / 2)],
+  [Look.accentColor, Color.black(1)],
 );
 
 const LightNested = FeelVector.of(

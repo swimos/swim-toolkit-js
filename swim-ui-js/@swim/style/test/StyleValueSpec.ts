@@ -102,11 +102,11 @@ export class StyleValueSpec extends Spec {
   @Test
   parseLinearGradients(exam: Exam): void {
     exam.equal(StyleValue.parse("linear-gradient(0, #000000, #ffffff)"),
-               LinearGradient.from(0, "#000000", "#ffffff"));
+               LinearGradient.create(0, "#000000", "#ffffff"));
     exam.equal(StyleValue.parse("linear-gradient(to right, #000000 33%, #ffffff 67%)"),
-               LinearGradient.from("right", "#000000 33%", "#ffffff 67%"));
+               LinearGradient.create("right", "#000000 33%", "#ffffff 67%"));
     exam.equal(StyleValue.parse("linear-gradient(to bottom left, #000000 33%, 50%, #ffffff 67%)"),
-               LinearGradient.from(["bottom", "left"], "#000000 33%", "50%, #ffffff 67%"));
+               LinearGradient.create(["bottom", "left"], "#000000 33%", "50%, #ffffff 67%"));
   }
 
   @Test
