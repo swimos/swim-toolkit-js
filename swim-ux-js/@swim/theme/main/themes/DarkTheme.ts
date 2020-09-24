@@ -51,6 +51,7 @@ const DarkAmbient = FeelVector.of(
   [Look.font, DarkFont],
 
   [Look.color, DarkColor],
+  [Look.statusColor, DarkColor],
   [Look.accentColor, DarkAccentColor],
   [Look.mutedColor, DarkMutedColor],
   [Look.neutralColor, DarkNeutralColor],
@@ -67,6 +68,7 @@ const DarkDefault = FeelVector.of(
   [Look.font, DarkFont],
 
   [Look.color, DarkColor],
+  [Look.statusColor, DarkColor],
   [Look.accentColor, DarkAccentColor],
   [Look.mutedColor, DarkMutedColor],
   [Look.neutralColor, DarkNeutralColor],
@@ -93,18 +95,22 @@ const DarkSelected = FeelVector.of(
 
 const DarkDisabled = FeelVector.of(
   [Look.color, DarkDisabledColor],
+  [Look.statusColor, DarkDisabledColor],
   [Look.accentColor, DarkDisabledColor],
 );
 
 const DarkInactive = FeelVector.of(
+  [Look.statusColor, DarkInactiveColor],
   [Look.accentColor, DarkInactiveColor],
 );
 
 const DarkWarning = FeelVector.of(
+  [Look.statusColor, DarkWarningColor],
   [Look.accentColor, DarkWarningColor],
 );
 
 const DarkAlert = FeelVector.of(
+  [Look.statusColor, DarkAlertColor],
   [Look.accentColor, DarkAlertColor],
 );
 
@@ -119,7 +125,13 @@ const DarkFloating = FeelVector.of(
   [Look.shadow, BoxShadow.of(0, 2, 4, 0, Color.black(0.5))],
 );
 
+const DarkTransparent = FeelVector.of(
+  [Look.backgroundColor, DarkBackgroundColor.alpha(0)],
+  [Look.borderColor, DarkBorderColor.alpha(0)],
+);
+
 const DarkTranslucent = FeelVector.of(
+  [Look.statusColor, Color.black(0.8)],
   [Look.accentColor, Color.black(0.8)],
 
   [Look.backgroundColor, Color.black(0.8)],
@@ -127,6 +139,7 @@ const DarkTranslucent = FeelVector.of(
 );
 
 const DarkEmbossed = FeelVector.of(
+  [Look.statusColor, Color.black(1)],
   [Look.accentColor, Color.black(1)],
 );
 
@@ -136,6 +149,7 @@ const DarkNested = FeelVector.of(
 );
 
 const DarkHovering = FeelVector.of(
+  [Look.statusColor, Color.black(1)],
   [Look.accentColor, Color.black(1)],
 
   [Look.backgroundColor, Color.black(-1)],
@@ -156,6 +170,7 @@ const DarkTheme = ThemeMatrix.forCols(
 
   [Feel.overlay, DarkOverlay],
   [Feel.floating, DarkFloating],
+  [Feel.transparent, DarkTransparent],
   [Feel.translucent, DarkTranslucent],
   [Feel.embossed, DarkEmbossed],
   [Feel.nested, DarkNested],

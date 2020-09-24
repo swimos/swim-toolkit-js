@@ -61,6 +61,7 @@ export abstract class Feel implements Mood {
 
   static overlay: Feel; // defined by feels
   static floating: Feel; // defined by feels
+  static transparent: Feel; // defined by feels
   static translucent: Feel; // defined by feels
   static embossed: Feel; // defined by feels
   static nested: Feel; // defined by feels

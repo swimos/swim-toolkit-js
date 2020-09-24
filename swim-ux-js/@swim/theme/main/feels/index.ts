@@ -31,6 +31,7 @@ Feel.alert = new InterpolatedFeel("alert");
 
 Feel.overlay = new InterpolatedFeel("overlay");
 Feel.floating = new InterpolatedFeel("floating");
+Feel.transparent = new InterpolatedFeel("transparent");
 Feel.translucent = new OpacityFeel("translucent");
 Feel.embossed = new BrightnessFeel("embossed");
 Feel.nested = new BrightnessFeel("nested");

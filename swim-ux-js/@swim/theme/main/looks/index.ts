@@ -23,6 +23,7 @@ import {TransitionLook} from "../look/TransitionLook";
 Look.font = new FontLook("font");
 
 Look.color = new ColorLook("color");
+Look.statusColor = new ColorLook("statusColor");
 Look.accentColor = new ColorLook("accentColor");
 Look.mutedColor = new ColorLook("mutedColor");
 Look.neutralColor = new ColorLook("neutralColor");

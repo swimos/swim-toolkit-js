@@ -51,6 +51,7 @@ const LightAmbient = FeelVector.of(
   [Look.font, LightFont],
 
   [Look.color, LightColor],
+  [Look.statusColor, LightColor],
   [Look.accentColor, LightAccentColor],
   [Look.mutedColor, LightMutedColor],
   [Look.neutralColor, LightNeutralColor],
@@ -67,6 +68,7 @@ const LightDefault = FeelVector.of(
   [Look.font, LightFont],
 
   [Look.color, LightColor],
+  [Look.statusColor, LightColor],
   [Look.accentColor, LightAccentColor],
   [Look.mutedColor, LightMutedColor],
   [Look.neutralColor, LightNeutralColor],
@@ -93,18 +95,22 @@ const LightSelected = FeelVector.of(
 
 const LightDisabled = FeelVector.of(
   [Look.color, LightDisabledColor],
+  [Look.statusColor, LightDisabledColor],
   [Look.accentColor, LightDisabledColor],
 );
 
 const LightInactive = FeelVector.of(
+  [Look.statusColor, LightInactiveColor],
   [Look.accentColor, LightInactiveColor],
 );
 
 const LightWarning = FeelVector.of(
+  [Look.statusColor, LightWarningColor],
   [Look.accentColor, LightWarningColor],
 );
 
 const LightAlert = FeelVector.of(
+  [Look.statusColor, LightAlertColor],
   [Look.accentColor, LightAlertColor],
 );
 
@@ -119,7 +125,13 @@ const LightFloating = FeelVector.of(
   [Look.shadow, BoxShadow.of(0, 2, 4, 0, Color.black(0.5))],
 );
 
+const LightTransparent = FeelVector.of(
+  [Look.backgroundColor, LightBackgroundColor.alpha(0)],
+  [Look.borderColor, LightBorderColor.alpha(0)],
+);
+
 const LightTranslucent = FeelVector.of(
+  [Look.statusColor, Color.black(0.8)],
   [Look.accentColor, Color.black(0.8)],
 
   [Look.backgroundColor, Color.black(0.8)],
@@ -127,6 +139,7 @@ const LightTranslucent = FeelVector.of(
 );
 
 const LightEmbossed = FeelVector.of(
+  [Look.statusColor, Color.black(1)],
   [Look.accentColor, Color.black(1)],
 );
 
@@ -136,6 +149,7 @@ const LightNested = FeelVector.of(
 );
 
 const LightHovering = FeelVector.of(
+  [Look.statusColor, Color.black(1)],
   [Look.accentColor, Color.black(1)],
 
   [Look.backgroundColor, Color.black(1)],
@@ -156,6 +170,7 @@ const LightTheme = ThemeMatrix.forCols(
 
   [Feel.overlay, LightOverlay],
   [Feel.floating, LightFloating],
+  [Feel.transparent, LightTransparent],
   [Feel.translucent, LightTranslucent],
   [Feel.embossed, LightEmbossed],
   [Feel.nested, LightNested],

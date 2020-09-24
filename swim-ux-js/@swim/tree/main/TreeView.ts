@@ -237,12 +237,16 @@ export class TreeView extends ThemedHtmlView {
       if (superTheme === void 0) {
         superTheme = theme;
       }
+      const limbView = this.parentView;
+      const leafView = limbView instanceof TreeLimb ? limbView.leaf : null;
+      const leafMood = leafView !== null ? leafView.moodModifier.state : void 0;
+      const superMood = leafMood !== void 0 ? leafMood.transform(mood) : mood;
 
       const backgroundColor = theme.inner(mood, Look.backgroundColor);
       this.backgroundColor.setAutoState(backgroundColor, transition);
 
-      const accentColor = superTheme.inner(mood, Look.accentColor);
-      const borderColor = superTheme.inner(mood, Look.borderColor);
+      const accentColor = superTheme.inner(superMood, Look.accentColor);
+      const borderColor = superTheme.inner(superMood, Look.borderColor);
       const limbSpacing = this.limbSpacing.getState();
 
       let bottomBranch = this.getChildView("bottomBranch") as HtmlView | null;
