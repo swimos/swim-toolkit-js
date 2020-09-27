@@ -36,6 +36,8 @@ export class TreeCell extends ThemedHtmlView {
     this.addClass("tree-cell");
     this.display.setAutoState("none");
     this.alignItems.setAutoState("center");
+    this.overflowX.setAutoState("hidden");
+    this.overflowY.setAutoState("hidden");
   }
 
   // @ts-ignore
