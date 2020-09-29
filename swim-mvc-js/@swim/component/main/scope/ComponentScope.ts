@@ -87,6 +87,8 @@ export declare abstract class ComponentScope<C extends Component, T, U = T> {
 
   isInherited(): boolean;
 
+  setInherited(inherited: boolean): void;
+
   updateFlags?: ComponentFlags;
 
   /** @hidden */
@@ -277,6 +279,14 @@ ComponentScope.prototype.setInherit = function (this: ComponentScope<Component, 
 
 ComponentScope.prototype.isInherited = function (this: ComponentScope<Component, unknown>): boolean {
   return (this._scopeFlags & ComponentScope.InheritedFlag) !== 0;
+};
+
+ComponentScope.prototype.setInherited = function (this: ComponentScope<Component, unknown>,
+                                                  inherited: boolean): void {
+  if ((this._scopeFlags & ComponentScope.InheritedFlag) === 0) {
+    this._scopeFlags |= ComponentScope.InheritedFlag;
+    this.revise();
+  }
 };
 
 Object.defineProperty(ComponentScope.prototype, "superName", {

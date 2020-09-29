@@ -62,22 +62,16 @@ export class MapLayerView extends MapGraphicsView {
                                    thisArg?: S): T | undefined {
     let result: T | undefined;
     const childViews = this._childViews;
-    if (childViews.length !== 0) {
-      let i = 0;
-      do {
-        const childView = childViews[i];
-        result = callback.call(thisArg, childView);
-        if (result !== void 0) {
-          return result;
-        }
-        if (i < childViews.length) {
-          if (childViews[i] === childView) {
-            i += 1;
-          }
-          continue;
-        }
+    let i = 0;
+    while (i < childViews.length) {
+      const childView = childViews[i];
+      result = callback.call(thisArg, childView);
+      if (result !== void 0) {
         break;
-      } while (true);
+      }
+      if (childViews[i] === childView) {
+        i += 1;
+      }
     }
     return result;
   }

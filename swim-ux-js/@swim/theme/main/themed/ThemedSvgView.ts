@@ -76,9 +76,11 @@ export class ThemedSvgView extends SvgView implements ThemedView {
     let value: T | undefined;
     if (theme !== void 0) {
       if (mood === void 0) {
-        mood = this.mood.getState();
+        mood = this.mood.state;
       }
-      value = theme.inner(mood, look)
+      if (mood !== void 0) {
+        value = theme.inner(mood, look);
+      }
     }
     return value;
   }
@@ -88,9 +90,11 @@ export class ThemedSvgView extends SvgView implements ThemedView {
     let value: T | V | undefined;
     if (theme !== void 0) {
       if (mood === void 0) {
-        mood = this.mood.getState();
+        mood = this.mood.state;
       }
-      value = theme.inner(mood, look)
+      if (mood !== void 0) {
+        value = theme.inner(mood, look);
+      }
     }
     if (value === void 0) {
       value = elseValue;
@@ -191,7 +195,7 @@ export class ThemedSvgView extends SvgView implements ThemedView {
           this.mood.setAutoState(mood);
         }
       } else {
-        this.mood.setAutoState(void 0);
+        this.mood.setInherited(true);
       }
     }
   }
@@ -213,7 +217,7 @@ export class ThemedSvgView extends SvgView implements ThemedView {
           this.theme.setAutoState(theme);
         }
       } else {
-        this.theme.setAutoState(void 0);
+        this.theme.setInherited(true);
       }
     }
   }

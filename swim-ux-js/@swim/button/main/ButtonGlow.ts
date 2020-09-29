@@ -48,8 +48,7 @@ export class ButtonGlow extends ThemedHtmlView {
     return this._glowState;
   }
 
-  protected onMount(): void {
-    super.onMount();
+  protected didMount(): void {
     if (this.backgroundColor.isAuto()) {
       let highlightColor = this.getLook(Look.highlightColor);
       if (highlightColor !== void 0) {
@@ -57,6 +56,7 @@ export class ButtonGlow extends ThemedHtmlView {
       }
       this.backgroundColor.setAutoState(highlightColor);
     }
+    super.didMount();
   }
 
   protected onUnmount(): void {

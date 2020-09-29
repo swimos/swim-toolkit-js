@@ -87,6 +87,8 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
 
   isInherited(): boolean;
 
+  setInherited(inherited: boolean): void;
+
   updateFlags?: ViewFlags;
 
   /** @hidden */
@@ -277,6 +279,14 @@ ViewScope.prototype.setInherit = function (this: ViewScope<View, unknown>,
 
 ViewScope.prototype.isInherited = function (this: ViewScope<View, unknown>): boolean {
   return (this._scopeFlags & ViewScope.InheritedFlag) !== 0;
+};
+
+ViewScope.prototype.setInherited = function (this: ViewScope<View, unknown>,
+                                             inherited: string | boolean): void {
+  if ((this._scopeFlags & ViewScope.InheritedFlag) === 0) {
+    this._scopeFlags |= ViewScope.InheritedFlag;
+    this.change();
+  }
 };
 
 Object.defineProperty(ViewScope.prototype, "superName", {

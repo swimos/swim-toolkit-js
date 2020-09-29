@@ -493,6 +493,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected onUncull(): void {
+    this.requestUpdate(this, this.viewFlags & ~View.StatusMask, false);
     this.requireUpdate(this.uncullFlags);
   }
 
@@ -528,17 +529,19 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   requestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
-    updateFlags = this.willRequestUpdate(targetView, updateFlags, immediate);
-    const parentView = this.parentView;
-    if (parentView !== null) {
-      parentView.requestUpdate(targetView, updateFlags, immediate);
-    } else if (this.isMounted()) {
-      const displayManager = this.displayService.manager;
-      if (displayManager !== void 0) {
-        displayManager.requestUpdate(targetView, updateFlags, immediate);
+    if ((this.viewFlags & View.CulledMask) !== View.CulledFlag) { // if not culled root
+      updateFlags = this.willRequestUpdate(targetView, updateFlags, immediate);
+      const parentView = this.parentView;
+      if (parentView !== null) {
+        parentView.requestUpdate(targetView, updateFlags, immediate);
+      } else if (this.isMounted()) {
+        const displayManager = this.displayService.manager;
+        if (displayManager !== void 0) {
+          displayManager.requestUpdate(targetView, updateFlags, immediate);
+        }
       }
+      this.didRequestUpdate(targetView, updateFlags, immediate);
     }
-    this.didRequestUpdate(targetView, updateFlags, immediate);
   }
 
   protected willRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): ViewFlags {

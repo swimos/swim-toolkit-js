@@ -307,25 +307,19 @@ export class NodeView extends View {
                                    thisArg?: S): T | undefined {
     let result: T | undefined;
     const childNodes = this._node.childNodes;
-    if (childNodes.length !== 0) {
-      let i = 0;
-      do {
-        const childNode = childNodes[i];
-        const childView = (childNode as ViewNode).view;
-        if (childView !== void 0) {
-          result = callback.call(thisArg, childView);
-          if (result !== void 0) {
-            return result;
-          }
+    let i = 0;
+    while (i < childNodes.length) {
+      const childNode = childNodes[i] as ViewNode;
+      const childView = childNode.view;
+      if (childView !== void 0) {
+        result = callback.call(thisArg, childView);
+        if (result !== void 0) {
+          break;
         }
-        if (i < childNodes.length) {
-          if (childNodes[i] === childNode) {
-            i += 1;
-          }
-          continue;
-        }
-        break;
-      } while (true);
+      }
+      if (childNodes[i] === childNode) {
+        i += 1;
+      }
     }
     return result;
   }
@@ -1305,7 +1299,8 @@ export class NodeView extends View {
 
   /** @hidden */
   protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((displayFlags & View.DisplayMask) !== 0 && this._node.childNodes.length !== 0) {
+    if ((displayFlags & View.DisplayMask) !== 0 && this._node.childNodes.length !== 0
+        && !this.isCulled()) {
       this.willDisplayChildViews(displayFlags, viewContext);
       this.onDisplayChildViews(displayFlags, viewContext);
       this.didDisplayChildViews(displayFlags, viewContext);

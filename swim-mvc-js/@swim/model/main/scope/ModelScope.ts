@@ -87,6 +87,8 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
 
   isInherited(): boolean;
 
+  setInherited(inherited: boolean): void;
+
   updateFlags?: ModelFlags;
 
   /** @hidden */
@@ -277,6 +279,14 @@ ModelScope.prototype.setInherit = function (this: ModelScope<Model, unknown>,
 
 ModelScope.prototype.isInherited = function (this: ModelScope<Model, unknown>): boolean {
   return (this._scopeFlags & ModelScope.InheritedFlag) !== 0;
+};
+
+ModelScope.prototype.setInherited = function (this: ModelScope<Model, unknown>,
+                                              inherited: boolean): void {
+  if ((this._scopeFlags & ModelScope.InheritedFlag) === 0) {
+    this._scopeFlags |= ModelScope.InheritedFlag;
+    this.mutate();
+  }
 };
 
 Object.defineProperty(ModelScope.prototype, "superName", {

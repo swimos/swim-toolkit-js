@@ -263,43 +263,31 @@ export class CanvasView extends HtmlView {
                                    thisArg?: S): T | undefined {
     let result: T | undefined;
     const childNodes = this._node.childNodes;
-    if (childNodes.length !== 0) {
-      let i = 0;
-      do {
-        const childNode = childNodes[i];
-        const childView = (childNode as ViewNode).view;
-        if (childView !== void 0) {
-          result = callback.call(thisArg, childView);
-          if (result !== void 0) {
-            return result;
-          }
-        }
-        if (i < childNodes.length) {
-          if (childNodes[i] === childNode) {
-            i += 1;
-          }
-          continue;
-        }
-        break;
-      } while (true);
-    }
-    const graphicsViews = this._graphicsViews;
-    if (graphicsViews.length !== 0) {
-      let i = 0;
-      do {
-        const childView = graphicsViews[i];
+    let i = 0;
+    while (i < childNodes.length) {
+      const childNode = childNodes[i] as ViewNode;
+      const childView = childNode.view;
+      if (childView !== void 0) {
         result = callback.call(thisArg, childView);
         if (result !== void 0) {
-          return result;
+          break;
         }
-        if (i < graphicsViews.length) {
-          if (graphicsViews[i] === childView) {
-            i += 1;
-          }
-          continue;
-        }
+      }
+      if (childNodes[i] === childNode) {
+        i += 1;
+      }
+    }
+    const graphicsViews = this._graphicsViews;
+    i = 0;
+    while (i < graphicsViews.length) {
+      const childView = graphicsViews[i];
+      result = callback.call(thisArg, childView);
+      if (result !== void 0) {
         break;
-      } while (true);
+      }
+      if (graphicsViews[i] === childView) {
+        i += 1;
+      }
     }
     return result;
   }
