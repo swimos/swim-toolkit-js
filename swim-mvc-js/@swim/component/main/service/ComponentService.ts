@@ -280,9 +280,13 @@ ComponentService.prototype.bindSuperService = function (this: ComponentService<C
         break;
       } while (true);
     }
-    if (this._manager === void 0 && this._superService === void 0) {
-      this._manager = this.initManager();
-      this._serviceFlags &= ~ComponentService.InheritedFlag;
+    if (this._manager === void 0) {
+      if (this._superService !== void 0) {
+        this._manager = this._superService._manager;
+      } else {
+        this._manager = this.initManager();
+        this._serviceFlags &= ~ComponentService.InheritedFlag;
+      }
     }
   }
 };
@@ -394,7 +398,7 @@ ComponentService.define = function <C extends Component, T, I>(descriptor: Compo
       return manager;
     };
   }
-  _prototype._inherit = inherit !== void 0 ? inherit : false;
+  _prototype._inherit = inherit !== void 0 ? inherit : true;
 
   return _constructor;
 }

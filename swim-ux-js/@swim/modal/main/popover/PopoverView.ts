@@ -59,13 +59,6 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
   constructor(node: HTMLElement) {
     super(node);
     this.onClick = this.onClick.bind(this);
-    if (typeof PointerEvent !== "undefined") {
-      this.on("pointerup", this.onClick);
-    } else if (typeof TouchEvent !== "undefined") {
-      this.on("touchend", this.onClick);
-    } else {
-      this.on("click", this.onClick);
-    }
     this._source = null;
     this._sourceFrame = null;
     this._modalState = "shown";
@@ -335,6 +328,7 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
 
   protected onMount(): void {
     super.onMount();
+    this.attachEvents();
     if (this._source !== null) {
       this._source.addViewObserver(this);
     }
@@ -342,9 +336,18 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
 
   protected onUnmount(): void {
     super.onUnmount();
+    this.detachEvents();
     if (this._source !== null) {
       this._source.removeViewObserver(this);
     }
+  }
+
+  protected attachEvents(): void {
+    this.on("click", this.onClick);
+  }
+
+  protected detachEvents(): void {
+    this.off("click", this.onClick);
   }
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
@@ -754,7 +757,7 @@ export class PopoverView extends ThemedHtmlView implements Modal, HtmlViewObserv
     this.place();
   }
 
-  protected onClick(event: MouseEvent): void {
+  protected onClick(event: Event): void {
     event.stopPropagation();
   }
 }

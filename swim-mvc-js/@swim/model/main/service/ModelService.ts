@@ -280,9 +280,13 @@ ModelService.prototype.bindSuperService = function (this: ModelService<Model, un
         break;
       } while (true);
     }
-    if (this._manager === void 0 && this._superService === void 0) {
-      this._manager = this.initManager();
-      this._serviceFlags &= ~ModelService.InheritedFlag;
+    if (this._manager === void 0) {
+      if (this._superService !== void 0) {
+        this._manager = this._superService._manager;
+      } else {
+        this._manager = this.initManager();
+        this._serviceFlags &= ~ModelService.InheritedFlag;
+      }
     }
   }
 };
@@ -394,7 +398,7 @@ ModelService.define = function <M extends Model, T, I>(descriptor: ModelServiceD
       return manager;
     };
   }
-  _prototype._inherit = inherit !== void 0 ? inherit : false;
+  _prototype._inherit = inherit !== void 0 ? inherit : true;
 
   return _constructor;
 }

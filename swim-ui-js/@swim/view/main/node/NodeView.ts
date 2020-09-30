@@ -161,10 +161,15 @@ export class NodeView extends View {
     }
     const viewObservers = this._viewObservers;
     if (viewObservers !== void 0) {
-      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-        result = callback.call(this, viewObservers[i]);
+      let i = 0;
+      while (i < viewObservers.length) {
+        const viewObserver = viewObservers[i];
+        result = callback.call(this, viewObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (viewObserver === viewObservers[i]) {
+          i += 1;
         }
       }
     }
@@ -175,10 +180,15 @@ export class NodeView extends View {
     let result: T | undefined;
     const viewObservers = this._viewObservers;
     if (viewObservers !== void 0) {
-      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-        result = callback.call(this, viewObservers[i]);
+      let i = 0;
+      while (i < viewObservers.length) {
+        const viewObserver = viewObservers[i];
+        result = callback.call(this, viewObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (viewObserver === viewObservers[i]) {
+          i += 1;
         }
       }
     }

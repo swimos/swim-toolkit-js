@@ -99,10 +99,15 @@ export abstract class ViewManager<V extends View = View> {
     let result: T | undefined;
     const viewManagerObservers = this._viewManagerObservers;
     if (viewManagerObservers !== void 0) {
-      for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
-        result = callback.call(this, viewManagerObservers[i]);
+      let i = 0;
+      while (i < viewManagerObservers.length) {
+        const viewManagerObserver = viewManagerObservers[i];
+        result = callback.call(this, viewManagerObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (viewManagerObserver === viewManagerObservers[i]) {
+          i += 1;
         }
       }
     }
@@ -113,10 +118,15 @@ export abstract class ViewManager<V extends View = View> {
     let result: T | undefined;
     const viewManagerObservers = this._viewManagerObservers;
     if (viewManagerObservers !== void 0) {
-      for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
-        result = callback.call(this, viewManagerObservers[i]);
+      let i = 0;
+      while (i < viewManagerObservers.length) {
+        const viewManagerObserver = viewManagerObservers[i];
+        result = callback.call(this, viewManagerObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (viewManagerObserver === viewManagerObservers[i]) {
+          i += 1;
         }
       }
     }

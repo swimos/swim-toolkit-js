@@ -92,10 +92,15 @@ export abstract class Component {
   protected willObserve<T>(callback: (this: this, componentObserver: ComponentObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
     const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      result = callback.call(this, componentObservers[i]);
+    let i = 0;
+    while (i < componentObservers.length) {
+      const componentObserver = componentObservers[i];
+      result = callback.call(this, componentObserver);
       if (result !== void 0) {
         return result;
+      }
+      if (componentObserver === componentObservers[i]) {
+        i += 1;
       }
     }
     return result;
@@ -104,10 +109,15 @@ export abstract class Component {
   protected didObserve<T>(callback: (this: this, componentObserver: ComponentObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
     const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      result = callback.call(this, componentObservers[i]);
+    let i = 0;
+    while (i < componentObservers.length) {
+      const componentObserver = componentObservers[i];
+      result = callback.call(this, componentObserver);
       if (result !== void 0) {
         return result;
+      }
+      if (componentObserver === componentObservers[i]) {
+        i += 1;
       }
     }
     return result;

@@ -98,10 +98,15 @@ export abstract class ModelManager<M extends Model = Model> {
     let result: T | undefined;
     const modelManagerObservers = this._modelManagerObservers;
     if (modelManagerObservers !== void 0) {
-      for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
-        result = callback.call(this, modelManagerObservers[i]);
+      let i = 0;
+      while (i < modelManagerObservers.length) {
+        const modelManagerObserver = modelManagerObservers[i];
+        result = callback.call(this, modelManagerObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (modelManagerObserver === modelManagerObservers[i]) {
+          i += 1;
         }
       }
     }
@@ -112,10 +117,15 @@ export abstract class ModelManager<M extends Model = Model> {
     let result: T | undefined;
     const modelManagerObservers = this._modelManagerObservers;
     if (modelManagerObservers !== void 0) {
-      for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
-        result = callback.call(this, modelManagerObservers[i]);
+      let i = 0;
+      while (i < modelManagerObservers.length) {
+        const modelManagerObserver = modelManagerObservers[i];
+        result = callback.call(this, modelManagerObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (modelManagerObserver === modelManagerObservers[i]) {
+          i += 1;
         }
       }
     }

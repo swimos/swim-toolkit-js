@@ -24,7 +24,7 @@ export abstract class ComponentManagerService<C extends Component, CM extends Co
   mount(): void {
     super.mount();
     const manager = this._manager;
-    if (manager !== void 0) {
+    if (manager !== void 0 && !this.isInherited()) {
       manager.insertRootComponent(this._component);
       if (this.observe !== false) {
         manager.addComponentManagerObserver(this as ComponentManagerObserverType<CM>);
@@ -34,7 +34,7 @@ export abstract class ComponentManagerService<C extends Component, CM extends Co
 
   unmount(): void {
     const manager = this._manager;
-    if (manager !== void 0) {
+    if (manager !== void 0 && !this.isInherited()) {
       if (this.observe !== false) {
         manager.removeComponentManagerObserver(this as ComponentManagerObserverType<CM>);
       }

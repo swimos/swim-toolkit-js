@@ -142,10 +142,15 @@ export abstract class View implements AnimatorContext, ConstraintScope {
       }
     }
     const viewObservers = this.viewObservers;
-    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-      result = callback.call(this, viewObservers[i]);
+    let i = 0;
+    while (i < viewObservers.length) {
+      const viewObserver = viewObservers[i];
+      result = callback.call(this, viewObserver);
       if (result !== void 0) {
         return result;
+      }
+      if (viewObserver === viewObservers[i]) {
+        i += 1;
       }
     }
     return result;
@@ -154,10 +159,15 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   protected didObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
     const viewObservers = this.viewObservers;
-    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-      result = callback.call(this, viewObservers[i]);
+    let i = 0;
+    while (i < viewObservers.length) {
+      const viewObserver = viewObservers[i];
+      result = callback.call(this, viewObserver);
       if (result !== void 0) {
         return result;
+      }
+      if (viewObserver === viewObservers[i]) {
+        i += 1;
       }
     }
     const viewController = this.viewController;

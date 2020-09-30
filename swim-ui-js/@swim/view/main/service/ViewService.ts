@@ -285,9 +285,13 @@ ViewService.prototype.bindSuperService = function (this: ViewService<View, unkno
         break;
       } while (true);
     }
-    if (this._manager === void 0 && this._superService === void 0) {
-      this._manager = this.initManager();
-      this._serviceFlags &= ~ViewService.InheritedFlag;
+    if (this._manager === void 0) {
+      if (this._superService !== void 0) {
+        this._manager = this._superService._manager;
+      } else {
+        this._manager = this.initManager();
+        this._serviceFlags &= ~ViewService.InheritedFlag;
+      }
     }
   }
 };
@@ -401,7 +405,7 @@ ViewService.define = function <V extends View, T, I>(descriptor: ViewServiceDesc
       return manager;
     };
   }
-  _prototype._inherit = inherit !== void 0 ? inherit : false;
+  _prototype._inherit = inherit !== void 0 ? inherit : true;
 
   return _constructor;
 }

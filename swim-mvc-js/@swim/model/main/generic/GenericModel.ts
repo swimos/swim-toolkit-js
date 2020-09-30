@@ -125,10 +125,15 @@ export abstract class GenericModel extends Model {
     }
     const modelObservers = this._modelObservers;
     if (modelObservers !== void 0) {
-      for (let i = 0, n = modelObservers.length; i < n; i += 1) {
-        result = callback.call(this, modelObservers[i]);
+      let i = 0;
+      while (i < modelObservers.length) {
+        const modelObserver = modelObservers[i];
+        result = callback.call(this, modelObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (modelObserver === modelObservers[i]) {
+          i += 1;
         }
       }
     }
@@ -139,10 +144,15 @@ export abstract class GenericModel extends Model {
     let result: T | undefined;
     const modelObservers = this._modelObservers;
     if (modelObservers !== void 0) {
-      for (let i = 0, n = modelObservers.length; i < n; i += 1) {
-        result = callback.call(this, modelObservers[i]);
+      let i = 0;
+      while (i < modelObservers.length) {
+        const modelObserver = modelObservers[i];
+        result = callback.call(this, modelObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (modelObserver === modelObservers[i]) {
+          i += 1;
         }
       }
     }

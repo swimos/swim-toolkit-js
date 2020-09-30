@@ -98,10 +98,15 @@ export abstract class ComponentManager<C extends Component = Component> {
     let result: T | undefined;
     const componentManagerObservers = this._componentManagerObservers;
     if (componentManagerObservers !== void 0) {
-      for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
-        result = callback.call(this, componentManagerObservers[i]);
+      let i = 0;
+      while (i < componentManagerObservers.length) {
+        const componentManagerObserver = componentManagerObservers[i];
+        result = callback.call(this, componentManagerObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (componentManagerObserver === componentManagerObservers[i]) {
+          i += 1;
         }
       }
     }
@@ -112,10 +117,15 @@ export abstract class ComponentManager<C extends Component = Component> {
     let result: T | undefined;
     const componentManagerObservers = this._componentManagerObservers;
     if (componentManagerObservers !== void 0) {
-      for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
-        result = callback.call(this, componentManagerObservers[i]);
+      let i = 0;
+      while (i < componentManagerObservers.length) {
+        const componentManagerObserver = componentManagerObservers[i];
+        result = callback.call(this, componentManagerObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (componentManagerObserver === componentManagerObservers[i]) {
+          i += 1;
         }
       }
     }

@@ -115,10 +115,15 @@ export abstract class Model {
       }
     }
     const modelObservers = this.modelObservers;
-    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
-      result = callback.call(this, modelObservers[i]);
+    let i = 0;
+    while (i < modelObservers.length) {
+      const modelObserver = modelObservers[i];
+      result = callback.call(this, modelObserver);
       if (result !== void 0) {
         return result;
+      }
+      if (modelObserver === modelObservers[i]) {
+        i += 1;
       }
     }
     return result;
@@ -127,10 +132,15 @@ export abstract class Model {
   protected didObserve<T>(callback: (this: this, modelObserver: ModelObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
     const modelObservers = this.modelObservers;
-    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
-      result = callback.call(this, modelObservers[i]);
+    let i = 0;
+    while (i < modelObservers.length) {
+      const modelObserver = modelObservers[i];
+      result = callback.call(this, modelObserver);
       if (result !== void 0) {
         return result;
+      }
+      if (modelObserver === modelObservers[i]) {
+        i += 1;
       }
     }
     const modelController = this.modelController;

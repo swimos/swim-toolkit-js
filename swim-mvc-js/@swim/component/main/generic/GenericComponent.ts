@@ -93,10 +93,15 @@ export abstract class GenericComponent extends Component {
     let result: T | undefined;
     const componentObservers = this._componentObservers;
     if (componentObservers !== void 0) {
-      for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-        result = callback.call(this, componentObservers[i]);
+      let i = 0;
+      while (i < componentObservers.length) {
+        const componentObserver = componentObservers[i];
+        result = callback.call(this, componentObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (componentObserver === componentObservers[i]) {
+          i += 1;
         }
       }
     }
@@ -107,10 +112,15 @@ export abstract class GenericComponent extends Component {
     let result: T | undefined;
     const componentObservers = this._componentObservers;
     if (componentObservers !== void 0) {
-      for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-        result = callback.call(this, componentObservers[i]);
+      let i = 0;
+      while (i < componentObservers.length) {
+        const componentObserver = componentObservers[i];
+        result = callback.call(this, componentObserver);
         if (result !== void 0) {
           return result;
+        }
+        if (componentObserver === componentObservers[i]) {
+          i += 1;
         }
       }
     }
