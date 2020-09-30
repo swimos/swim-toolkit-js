@@ -240,5 +240,15 @@ export class ThemedSvgView extends SvgView implements ThemedView {
     this.updateTheme();
   }
 
+  protected onUncull(): void {
+    super.onUncull();
+    if (this.theme.isInherited()) {
+      this.theme.change();
+    }
+    if (this.mood.isInherited()) {
+      this.mood.change();
+    }
+  }
+
   static readonly mountFlags: ViewFlags = SvgView.mountFlags | View.NeedsChange;
 }

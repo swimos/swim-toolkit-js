@@ -209,5 +209,15 @@ export abstract class ThemedLayerView extends LayerView implements ThemedGraphic
     this.updateTheme();
   }
 
+  protected onUncull(): void {
+    super.onUncull();
+    if (this.theme.isInherited()) {
+      this.theme.change();
+    }
+    if (this.mood.isInherited()) {
+      this.mood.change();
+    }
+  }
+
   static readonly mountFlags: ViewFlags = LayerView.mountFlags | View.NeedsChange;
 }

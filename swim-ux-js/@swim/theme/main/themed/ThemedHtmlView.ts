@@ -240,5 +240,15 @@ export class ThemedHtmlView extends HtmlView implements ThemedView {
     this.updateTheme();
   }
 
+  protected onUncull(): void {
+    super.onUncull();
+    if (this.theme.isInherited()) {
+      this.theme.change();
+    }
+    if (this.mood.isInherited()) {
+      this.mood.change();
+    }
+  }
+
   static readonly mountFlags: ViewFlags = HtmlView.mountFlags | View.NeedsChange;
 }
