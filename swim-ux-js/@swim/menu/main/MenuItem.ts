@@ -305,7 +305,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   unhighlight(tween?: Tween<any>): this {
     if (this.highlighted.state) {
       this.highlighted.setState(false);
-      this.modifyMood(Feel.default, [Feel.selected, 1], [Feel.selected, void 0]);
+      this.modifyMood(Feel.default, [Feel.selected, void 0]);
       if (tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {

@@ -382,8 +382,7 @@ export class TreeLimb extends ThemedHtmlView {
                ? leafHeight.pxValue()
                : leaf._node.offsetHeight;
       leaf.top.setAutoState(y * disclosingPhase);
-      leaf.left.setAutoState(limbSpacing);
-      leaf.width.setAutoState(width !== void 0 ? width.pxValue() - 2 * limbSpacing : void 0);
+      leaf.width.setAutoState(width !== void 0 ? width.pxValue() : void 0);
       y += dy * disclosingPhase;
     }
     const subtree = this.subtree;

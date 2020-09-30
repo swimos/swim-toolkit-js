@@ -31,6 +31,8 @@ export class DisclosureTreeCell extends TreeCell {
   }
 
   didPress(input: PositionGestureInput, event: Event | null): void {
+    super.didPress(input, event);
+    input.preventDefault();
     const leaf = this.parentView;
     if (leaf instanceof TreeLeaf) {
       const limb = leaf.parentView;

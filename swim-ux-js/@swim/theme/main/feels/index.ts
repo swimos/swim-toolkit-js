@@ -23,7 +23,7 @@ Feel.default = new InterpolatedFeel("default");
 Feel.primary = new InterpolatedFeel("primary");
 Feel.secondary = new InterpolatedFeel("secondary");
 
-Feel.selected = new InterpolatedFeel("selected");
+Feel.selected = new BrightnessFeel("selected");
 Feel.disabled = new InterpolatedFeel("disabled");
 Feel.inactive = new InterpolatedFeel("inactive");
 Feel.warning = new InterpolatedFeel("warning");

@@ -55,7 +55,13 @@ export class TreeCell extends ThemedHtmlView {
   }
 
   didPress(input: PositionGestureInput, event: Event | null): void {
-    // hook
+    if (!input.defaultPrevented) {
+      this.didObserve(function (viewObserver: TreeCellObserver): void {
+        if (viewObserver.cellDidPress !== void 0) {
+          viewObserver.cellDidPress(input, event, this);
+        }
+      });
+    }
   }
 
   static fromAny(stem: AnyTreeCell): TreeCell {

@@ -38,7 +38,6 @@ const LightPrimaryColor = Color.parse("#49cbad");
 const LightSecondaryColor = Color.parse("#00a6ed");
 
 const LightOverlayColor = Color.parse("#efefef");
-const LightSelectedColor = LightOverlayColor.darker(1 / 2);
 const LightDisabledColor = Color.parse("#7b7c7d");
 const LightInactiveColor = Color.parse("#7b7c7d");
 const LightWarningColor = Color.parse("#e6dd51");
@@ -90,7 +89,7 @@ const LightSecondary = FeelVector.of(
 );
 
 const LightSelected = FeelVector.of(
-  [Look.backgroundColor, LightSelectedColor],
+  [Look.backgroundColor, Color.black(1 / 2)],
 );
 
 const LightDisabled = FeelVector.of(

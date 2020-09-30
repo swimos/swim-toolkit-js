@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Color} from "@swim/color";
 import {Tween, Transition} from "@swim/transition";
 import {ViewContextType, ViewFlags, View, ViewScope, ViewNode, ViewNodeType, HtmlView} from "@swim/view";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
-import {Look} from "@swim/theme";
+import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ButtonMembraneInit, ButtonMembrane} from "@swim/button";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeCell, TreeCell} from "./TreeCell";
@@ -33,14 +32,6 @@ export interface TreeLeafInit extends ButtonMembraneInit {
 }
 
 export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate {
-  /** @hidden */
-  _highlighted: boolean;
-
-  constructor(node: HTMLElement) {
-    super(node);
-    this._highlighted = false;
-  }
-
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-leaf");
@@ -90,82 +81,132 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   @ViewScope({type: Number, inherit: true})
   limbSpacing: ViewScope<this, number | undefined>;
 
-  get highlighted(): boolean {
-    return this._highlighted;
-  }
+  @ViewScope({type: Boolean, state: false})
+  highlighted: ViewScope<this, boolean>;
 
   highlight(tween?: Tween<any>): this {
-    if (!this._highlighted) {
+    if (!this.highlighted.state) {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
       this.willHighlight(tween);
-      this._highlighted = true;
+      this.highlighted.setState(true);
       this.onHighlight(tween);
       this.didHighlight(tween);
     }
     return this;
   }
 
-  protected willHighlight(tween: Tween<any>): void {
+  protected willHighlight(transition: Transition<any> | null): void {
     this.willObserve(function (viewObserver: TreeLeafObserver): void {
       if (viewObserver.leafWillHighlight !== void 0) {
-        viewObserver.leafWillHighlight(tween, this);
+        viewObserver.leafWillHighlight(transition, this);
       }
     });
   }
 
-  protected onHighlight(tween: Tween<any>): void {
+  protected onHighlight(transition: Transition<any> | null): void {
+    this.modifyMood(Feel.default, [Feel.selected, 1]);
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), tween);
+      this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), transition);
+    }
+    const selectedColor = this.getLook(Look.accentColor);
+    let selectedView = this.getChildView("selected") as HtmlView | null;
+    if (selectedView === null) {
+      selectedView = this.prepend("div", "selected");
+      selectedView.addClass("selected");
+      selectedView.position.setAutoState("absolute");
+      selectedView.top.setAutoState(2);
+      selectedView.bottom.setAutoState(2);
+      selectedView.left.setAutoState(0);
+      selectedView.width.setAutoState(4);
+      if (selectedColor !== void 0) {
+        selectedView.backgroundColor.setAutoState(selectedColor.alpha(0));
+      }
+    }
+    if (selectedView !== null) {
+      selectedView.backgroundColor.setAutoState(selectedColor, transition);
     }
   }
 
-  protected didHighlight(tween: Tween<any>): void {
+  protected didHighlight(transition: Transition<any> | null): void {
     this.didObserve(function (viewObserver: TreeLeafObserver): void {
       if (viewObserver.leafDidHighlight !== void 0) {
-        viewObserver.leafDidHighlight(tween, this);
+        viewObserver.leafDidHighlight(transition, this);
       }
     });
   }
 
   unhighlight(tween?: Tween<any>): this {
-    if (this._highlighted) {
+    if (this.highlighted.state) {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
       this.willUnhighlight(tween);
-      this._highlighted = false;
+      this.highlighted.setState(false);
       this.onUnhighlight(tween);
       this.didUnhighlight(tween);
     }
     return this;
   }
 
-  protected willUnhighlight(tween: Tween<any>): void {
+  protected willUnhighlight(transition: Transition<any> | null): void {
     this.willObserve(function (viewObserver: TreeLeafObserver): void {
       if (viewObserver.leafWillUnhighlight !== void 0) {
-        viewObserver.leafWillUnhighlight(tween, this);
+        viewObserver.leafWillUnhighlight(transition, this);
       }
     });
   }
 
-  protected onUnhighlight(tween: Tween<any>): void {
+  protected onUnhighlight(transition: Transition<any> | null): void {
+    this.modifyMood(Feel.default, [Feel.selected, void 0]);
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(Color.transparent(), tween);
+      let backgroundColor = this.getLook(Look.backgroundColor);
+      if (backgroundColor !== void 0) {
+        backgroundColor = backgroundColor.alpha(0);
+      }
+      this.backgroundColor.setAutoState(backgroundColor, transition);
+    }
+    const selectedView = this.getChildView("selected") as HtmlView | null;
+    if (selectedView !== null) {
+      let selectedColor = this.getLook(Look.accentColor);
+      if (selectedColor !== void 0) {
+        selectedColor = selectedColor.alpha(0);
+      }
+      selectedView.backgroundColor.setAutoState(selectedColor, transition);
     }
   }
 
-  protected didUnhighlight(tween: Tween<any>): void {
+  protected didUnhighlight(transition: Transition<any> | null): void {
     this.didObserve(function (viewObserver: TreeLeafObserver): void {
       if (viewObserver.leafDidUnhighlight !== void 0) {
-        viewObserver.leafDidUnhighlight(tween, this);
+        viewObserver.leafDidUnhighlight(transition, this);
       }
     });
+  }
+
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    if (this.backgroundColor.isAuto()) {
+      let backgroundColor = this.getLook(Look.backgroundColor);
+      if (backgroundColor !== void 0 && !this.highlighted.state) {
+        backgroundColor = backgroundColor.alpha(0);
+      }
+      this.backgroundColor.setAutoState(backgroundColor, transition);
+    }
+    const selectedView = this.getChildView("selected") as HtmlView | null;
+    if (selectedView !== null) {
+      let selectedColor = this.getLook(Look.accentColor);
+      if (selectedColor !== void 0 && !this.highlighted.state) {
+        selectedColor = selectedColor.alpha(0);
+      }
+      selectedView.backgroundColor.setAutoState(selectedColor, transition);
+    }
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -244,6 +285,16 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
         break;
       }
       target = target instanceof Node ? target.parentNode : null;
+    }
+  }
+
+  didPress(input: PositionGestureInput, event: Event | null): void {
+    if (!input.defaultPrevented) {
+      this.didObserve(function (viewObserver: TreeLeafObserver): void {
+        if (viewObserver.leafDidPress !== void 0) {
+          viewObserver.leafDidPress(input, event, this);
+        }
+      });
     }
   }
 

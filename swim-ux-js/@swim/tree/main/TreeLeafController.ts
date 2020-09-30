@@ -13,13 +13,14 @@
 // limitations under the License.
 
 import {Tween} from "@swim/transition";
+import {PositionGestureInput} from "@swim/gesture";
 import {ThemedHtmlViewController} from "@swim/theme";
 import {TreeLeaf} from "./TreeLeaf";
 import {TreeLeafObserver} from "./TreeLeafObserver";
 
 export class TreeLeafController<V extends TreeLeaf = TreeLeaf> extends ThemedHtmlViewController<V> implements TreeLeafObserver<V> {
-  get highlighted(): boolean {
-    return this._view !== null && this._view.highlighted;
+  leafDidPress(input: PositionGestureInput, event: Event | null, view: V): void {
+    // hook
   }
 
   leafWillHighlight(tween: Tween<any>, view: V): void {

@@ -13,10 +13,13 @@
 // limitations under the License.
 
 import {Tween} from "@swim/transition";
+import {PositionGestureInput} from "@swim/gesture";
 import {ThemedHtmlViewObserver} from "@swim/theme";
 import {TreeLeaf} from "./TreeLeaf";
 
 export interface TreeLeafObserver<V extends TreeLeaf = TreeLeaf> extends ThemedHtmlViewObserver<V> {
+  leafDidPress?(input: PositionGestureInput, event: Event | null, view: V): void;
+
   leafWillHighlight?(tween: Tween<any>, view: V): void;
 
   leafDidHighlight?(tween: Tween<any>, view: V): void;

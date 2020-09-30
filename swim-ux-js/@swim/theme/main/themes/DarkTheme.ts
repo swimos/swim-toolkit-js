@@ -38,7 +38,6 @@ const DarkPrimaryColor = Color.parse("#66ffdd");
 const DarkSecondaryColor = Color.parse("#32c5ff");
 
 const DarkOverlayColor = Color.parse("#26282a");
-const DarkSelectedColor = DarkOverlayColor.darker(1);
 const DarkDisabledColor = Color.parse("#7b7c7d");
 const DarkInactiveColor = Color.parse("#7b7c7d");
 const DarkWarningColor = Color.parse("#f9f070");
@@ -90,7 +89,7 @@ const DarkSecondary = FeelVector.of(
 );
 
 const DarkSelected = FeelVector.of(
-  [Look.backgroundColor, DarkSelectedColor],
+  [Look.backgroundColor, Color.black(1)],
 );
 
 const DarkDisabled = FeelVector.of(
