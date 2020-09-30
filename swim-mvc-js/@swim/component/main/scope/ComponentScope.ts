@@ -283,8 +283,11 @@ ComponentScope.prototype.isInherited = function (this: ComponentScope<Component,
 
 ComponentScope.prototype.setInherited = function (this: ComponentScope<Component, unknown>,
                                                   inherited: boolean): void {
-  if ((this._scopeFlags & ComponentScope.InheritedFlag) === 0) {
+  if (inherited && (this._scopeFlags & ComponentScope.InheritedFlag) === 0) {
     this._scopeFlags |= ComponentScope.InheritedFlag;
+    this.revise();
+  } else if (!inherited && (this._scopeFlags & ComponentScope.InheritedFlag) !== 0) {
+    this._scopeFlags &= ~ComponentScope.InheritedFlag;
     this.revise();
   }
 };

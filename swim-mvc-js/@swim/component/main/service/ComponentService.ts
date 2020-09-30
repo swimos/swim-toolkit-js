@@ -77,6 +77,8 @@ export declare abstract class ComponentService<C extends Component, T> {
 
   isInherited(): boolean;
 
+  setInherited(inherited: boolean): void;
+
   /** @hidden */
   get superName(): string | undefined;
 
@@ -197,6 +199,15 @@ ComponentService.prototype.setInherit = function (this: ComponentService<Compone
 
 ComponentService.prototype.isInherited = function (this: ComponentService<Component, unknown>): boolean {
   return (this._serviceFlags & ComponentService.InheritedFlag) !== 0;
+};
+
+ComponentService.prototype.setInherited = function (this: ComponentService<Component, unknown>,
+                                                    inherited: boolean): void {
+  if (inherited && (this._serviceFlags & ComponentService.InheritedFlag) === 0) {
+    this._serviceFlags |= ComponentService.InheritedFlag;
+  } else if (!inherited && (this._serviceFlags & ComponentService.InheritedFlag) !== 0) {
+    this._serviceFlags &= ~ComponentService.InheritedFlag;
+  }
 };
 
 Object.defineProperty(ComponentService.prototype, "superName", {

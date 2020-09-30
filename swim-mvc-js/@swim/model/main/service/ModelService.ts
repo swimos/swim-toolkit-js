@@ -77,6 +77,8 @@ export declare abstract class ModelService<M extends Model, T> {
 
   isInherited(): boolean;
 
+  setInherited(inherited: boolean): void;
+
   /** @hidden */
   get superName(): string | undefined;
 
@@ -197,6 +199,15 @@ ModelService.prototype.setInherit = function (this: ModelService<Model, unknown>
 
 ModelService.prototype.isInherited = function (this: ModelService<Model, unknown>): boolean {
   return (this._serviceFlags & ModelService.InheritedFlag) !== 0;
+};
+
+ModelService.prototype.setInherited = function (this: ModelService<Model, unknown>,
+                                                inherited: boolean): void {
+  if (inherited && (this._serviceFlags & ModelService.InheritedFlag) === 0) {
+    this._serviceFlags |= ModelService.InheritedFlag;
+  } else if (!inherited && (this._serviceFlags & ModelService.InheritedFlag) !== 0) {
+    this._serviceFlags &= ~ModelService.InheritedFlag;
+  }
 };
 
 Object.defineProperty(ModelService.prototype, "superName", {

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Equals, Objects} from "@swim/util"
 import {AnyLength, Length} from "@swim/length";
 
 export type AnyTreeRoot = TreeRoot | TreeRootInit;
@@ -28,7 +29,7 @@ export interface TreeRootInit {
   hidden?: boolean;
 }
 
-export class TreeRoot {
+export class TreeRoot implements Equals {
   /** @hidden */
   readonly _key: string;
   /** @hidden */
@@ -187,6 +188,23 @@ export class TreeRoot {
                  right: Length | null, hidden: boolean): TreeRoot {
     return new TreeRoot(key, grow, shrink, basis, optional,
                         width, left, right, hidden);
+  }
+
+  equivalentTo(that: TreeRoot): boolean {
+    return this._key === that._key && this._grow === that._grow && this._shrink === that._shrink
+        && this._basis.equals(that._basis) && this._optional === that._optional;
+  }
+
+  equals(that: unknown): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof TreeRoot) {
+      return this._key === that._key && this._grow === that._grow && this._shrink === that._shrink
+          && this._basis.equals(that._basis) && this._optional === that._optional
+          && Objects.equal(this._width, that._width) && Objects.equal(this._left, that._left)
+          && Objects.equal(this._right, that._right) && this._hidden === that._hidden;
+    }
+    return false;
   }
 
   static create(key: string, grow?: number, shrink?: number,

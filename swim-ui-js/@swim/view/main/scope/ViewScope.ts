@@ -282,9 +282,12 @@ ViewScope.prototype.isInherited = function (this: ViewScope<View, unknown>): boo
 };
 
 ViewScope.prototype.setInherited = function (this: ViewScope<View, unknown>,
-                                             inherited: string | boolean): void {
-  if ((this._scopeFlags & ViewScope.InheritedFlag) === 0) {
+                                             inherited: boolean): void {
+  if (inherited && (this._scopeFlags & ViewScope.InheritedFlag) === 0) {
     this._scopeFlags |= ViewScope.InheritedFlag;
+    this.change();
+  } else if (!inherited && (this._scopeFlags & ViewScope.InheritedFlag) !== 0) {
+    this._scopeFlags &= ~ViewScope.InheritedFlag;
     this.change();
   }
 };

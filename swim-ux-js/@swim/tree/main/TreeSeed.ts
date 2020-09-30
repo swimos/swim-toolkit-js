@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Equals, Objects} from "@swim/util"
 import {AnyLength, Length} from "@swim/length";
 import {AnyTreeRoot, TreeRoot} from "./TreeRoot";
 
@@ -24,7 +25,7 @@ export interface TreeSeedInit {
   roots?: AnyTreeRoot[];
 }
 
-export class TreeSeed {
+export class TreeSeed implements Equals {
   /** @hidden */
   readonly _width: Length | null;
   /** @hidden */
@@ -193,6 +194,31 @@ export class TreeSeed {
     }
 
     return new TreeSeed(Length.px(width), left, right, newRoots);
+  }
+
+  equivalentTo(that: TreeSeed): boolean {
+    const theseRoots = this._roots;
+    const thoseRoots = that._roots;
+    const n = theseRoots.length;
+    if (n === thoseRoots.length) {
+      for (let i = 0; i < n; i += 1) {
+        if (!theseRoots[i].equivalentTo(thoseRoots[i])) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
+  equals(that: unknown): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof TreeSeed) {
+      return Objects.equal(this._width, that._width) && Objects.equal(this._left, that._left)
+          && Objects.equal(this._right, that._right) && Objects.equal(this._roots, that._roots);
+    }
+    return false;
   }
 
   static of(...treeRoots: AnyTreeRoot[]): TreeSeed {

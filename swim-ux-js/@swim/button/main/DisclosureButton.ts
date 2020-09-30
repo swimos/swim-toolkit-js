@@ -66,14 +66,16 @@ export class DisclosureButton extends ThemedHtmlView {
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
-    const disclosurePhase = this.disclosurePhase.getValueOr(0);
-    const collapsedColor = this.collapsedColor.value;
-    const expandedColor = this.expandedColor.value;
-    if (collapsedColor !== void 0 && expandedColor !== void 0 && this.arrow.fill.isAuto()) {
-      const colorInterpolator = ColorInterpolator.between(collapsedColor, expandedColor);
-      this.arrow.fill.setAutoState(colorInterpolator.interpolate(disclosurePhase));
+    if (this.disclosurePhase.isUpdated()) {
+      const disclosurePhase = this.disclosurePhase.getValueOr(0);
+      const collapsedColor = this.collapsedColor.value;
+      const expandedColor = this.expandedColor.value;
+      if (collapsedColor !== void 0 && expandedColor !== void 0 && this.arrow.fill.isAuto()) {
+        const colorInterpolator = ColorInterpolator.between(collapsedColor, expandedColor);
+        this.arrow.fill.setAutoState(colorInterpolator.interpolate(disclosurePhase));
+      }
+      const transform = Transform.translate(12, 12).rotate(Angle.deg(-180 * (1 - disclosurePhase)));
+      this.arrow.transform.setAutoState(transform);
     }
-    const transform = Transform.translate(12, 12).rotate(Angle.deg(-180 * (1 - disclosurePhase)));
-    this.arrow.transform.setAutoState(transform);
   }
 }

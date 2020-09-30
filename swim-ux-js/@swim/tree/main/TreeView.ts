@@ -54,12 +54,23 @@ export interface TreeViewInit extends ThemedHtmlViewInit {
 }
 
 export class TreeView extends ThemedHtmlView {
+  /** @hidden */
+  readonly _visibleViews: View[];
+  /** @hidden */
+  _visibleFrame: BoxR2;
+
+  constructor(node: HTMLElement) {
+    super(node);
+    this._visibleViews = [];
+    this._visibleFrame = new BoxR2(0, 0, window.innerWidth, window.innerHeight);
+  }
+
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree");
     this.display.setAutoState("block");
     this.position.setAutoState("relative");
-    this.opacity.setAutoState(1);
+    this.opacity.setAutoState(0);
   }
 
   // @ts-ignore
@@ -170,6 +181,11 @@ export class TreeView extends ThemedHtmlView {
     } else if (key === "bottomBranch" && childView instanceof HtmlView) {
       this.onRemoveBottomBranch(childView);
     }
+    const visibleViews = this._visibleViews;
+    const visibleIndex = visibleViews.indexOf(childView);
+    if (visibleIndex >= 0) {
+      visibleViews.splice(visibleIndex, 1);
+    }
     super.onRemoveChildView(childView);
   }
 
@@ -179,6 +195,7 @@ export class TreeView extends ThemedHtmlView {
     const seed = this.seed.state;
     const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
     stem.width.setAutoState(width);
+    stem.visibility.setAutoState("hidden");
   }
 
   protected onRemoveStem(stem: TreeStem): void {
@@ -192,6 +209,7 @@ export class TreeView extends ThemedHtmlView {
     const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
     limb.width.setAutoState(width);
     limb.depth.setAutoState(this.depth.state + 1);
+    limb.visibility.setAutoState("hidden");
   }
 
   protected onRemoveLimb(limb: TreeLimb): void {
@@ -199,12 +217,14 @@ export class TreeView extends ThemedHtmlView {
   }
 
   protected onInsertTopBranch(topBranch: HtmlView): void {
+    topBranch.addClass("branch-top");
     topBranch.position.setAutoState("absolute");
     topBranch.top.setAutoState(0);
     topBranch.left.setAutoState(0);
     const seed = this.seed.state;
     const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
     topBranch.width.setAutoState(width);
+    topBranch.visibility.setAutoState("hidden");
   }
 
   protected onRemoveTopBranch(topBranch: HtmlView): void {
@@ -212,12 +232,14 @@ export class TreeView extends ThemedHtmlView {
   }
 
   protected onInsertBottomBranch(bottomBranch: HtmlView): void {
+    bottomBranch.addClass("branch-bottom");
     bottomBranch.position.setAutoState("absolute");
     bottomBranch.bottom.setAutoState(0);
     bottomBranch.left.setAutoState(0);
     const seed = this.seed.state;
     const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
     bottomBranch.width.setAutoState(width);
+    bottomBranch.visibility.setAutoState("hidden");
   }
 
   protected onRemoveBottomBranch(bottomBranch: HtmlView): void {
@@ -270,49 +292,53 @@ export class TreeView extends ThemedHtmlView {
     }
   }
 
-  extendViewContext(viewContext: ViewContext): ViewContextType<this> {
-    const treeViewContext = Object.create(viewContext);
+  protected detectVisibleFrame(viewContext: ViewContext): BoxR2 {
+    const xBleed = 0;
+    const yBleed = 64;
     const parentVisibleFrame = (viewContext as TreeViewContext).visibleFrame as BoxR2 | undefined;
-    let childVisibleFrame: BoxR2;
     if (parentVisibleFrame !== void 0) {
       const left = this.left.state;
-      const x = left instanceof Length ? left.pxValue() : this._node.offsetLeft;
+      const x = left instanceof Length ? left.pxValue() : 0;
       const top = this.top.state;
-      const y = top instanceof Length ? top.pxValue() : this._node.offsetTop;
-      childVisibleFrame = new BoxR2(parentVisibleFrame.xMin - x, parentVisibleFrame.yMin - y,
-                                    parentVisibleFrame.xMax - x, parentVisibleFrame.yMax - y);
+      const y = top instanceof Length ? top.pxValue() : 0;
+      return new BoxR2(parentVisibleFrame.xMin - x - xBleed, parentVisibleFrame.yMin - y - yBleed,
+                       parentVisibleFrame.xMax - x + xBleed, parentVisibleFrame.yMax - y + yBleed);
     } else {
       const {x, y} = this._node.getBoundingClientRect();
-      childVisibleFrame = new BoxR2(-x, -y, window.innerWidth - x, window.innerHeight - y);
+      return new BoxR2(-x - xBleed,
+                       -y - yBleed,
+                       window.innerWidth - x + xBleed,
+                       window.innerHeight - y + yBleed);
     }
-    treeViewContext.visibleFrame = childVisibleFrame;
+  }
+
+  extendViewContext(viewContext: ViewContext): ViewContextType<this> {
+    const treeViewContext = Object.create(viewContext);
+    treeViewContext.visibleFrame = this._visibleFrame;
     return treeViewContext;
   }
 
   protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
     let additionalFlags = 0;
-    if (targetView instanceof TreeLimb && (updateFlags & View.NeedsAnimate) !== 0) {
-      additionalFlags |= View.NeedsAnimate;
+    if ((updateFlags & View.NeedsResize) !== 0 && targetView instanceof TreeLimb) {
+      additionalFlags |= View.NeedsResize;
     }
-    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
+    if ((updateFlags & View.NeedsLayout) !== 0 && targetView instanceof TreeLimb) {
+      additionalFlags |= View.NeedsLayout;
+    }
     return additionalFlags;
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this._viewFlags & View.NeedsAnimate) === 0) {
-      processFlags &= ~View.NeedsAnimate;
-    }
     if ((processFlags & View.NeedsResize) !== 0) {
-      processFlags |= View.NeedsScroll | View.NeedsAnimate;
+      processFlags |= View.NeedsScroll;
     }
     return processFlags;
   }
 
   protected onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);
-    if (this.display.state !== "none") {
-      this.resizeTree();
-    }
+    this.resizeTree();
   }
 
   protected resizeTree(): void {
@@ -338,33 +364,89 @@ export class TreeView extends ThemedHtmlView {
     }
   }
 
+  protected onScroll(viewContext: ViewContextType<this>): void {
+    super.onScroll(viewContext);
+    this._viewFlags |= View.NeedsScroll; // defer to display pass
+    this.requireUpdate(View.NeedsDisplay);
+  }
+
+  protected onChange(viewContext: ViewContextType<this>): void {
+    super.onChange(viewContext);
+    this._viewFlags |= View.NeedsChange; // defer to display pass
+    this.requireUpdate(View.NeedsDisplay);
+  }
+
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const disclosurePhase = this.disclosurePhase.value;
-    if (disclosurePhase !== void 0) {
-      this.opacity.setAutoState(disclosurePhase);
-    }
+    this.opacity.setAutoState(disclosurePhase !== void 0 ? disclosurePhase : 1);
   }
 
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
-    const needsScroll = (processFlags & View.NeedsScroll) !== 0;
-    const needsChange = (processFlags & View.NeedsChange) !== 0;
-    const needsAnimate = (processFlags & View.NeedsAnimate) !== 0;
+    if (!this.isCulled()) {
+      this.processVisibleViews(processFlags, viewContext, callback);
+    }
+  }
+
+  protected processVisibleViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                                callback?: (this: this, childView: View) => void): void {
+    const visibleViews = this._visibleViews;
+    let i = 0;
+    while (i < visibleViews.length) {
+      const childView = visibleViews[i];
+      this.processChildView(childView, processFlags, viewContext);
+      if (callback !== void 0) {
+        callback.call(this, childView);
+      }
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
+    }
+  }
+
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                              callback?: (this: this, childView: View) => void): void {
+    const needsScroll = (displayFlags & View.NeedsScroll) !== 0;
+    const needsChange = (displayFlags & View.NeedsChange) !== 0;
+    const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
     const depth = needsChange ? this.depth.getState() : void 0;
-    const disclosingPhase = needsAnimate ? this.disclosingPhase.getValueOr(1) : void 0;
-    const seed = needsAnimate ? this.seed.state : void 0;
-    const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
-    const limbSpacing = needsAnimate ? this.limbSpacing.getState() : 0;
+    const disclosingPhase = needsLayout ? this.disclosingPhase.getValueOr(1) : void 0;
+    let seed: TreeSeed | undefined;
+    let width: Length | undefined;
+    if (needsLayout) {
+      seed = this.seed.state;
+      if (seed !== void 0 && seed._width === null) {
+        this.resizeTree();
+      }
+      seed = this.seed.state;
+      if (seed !== void 0 && seed._width !== null) {
+        width = seed._width;
+      }
+    }
+    const limbSpacing = needsLayout ? this.limbSpacing.getState() : 0;
     let y = limbSpacing;
-    function animateChildView(this: TreeView, childView: View): void {
+    const visibleViews = this._visibleViews;
+    let visibleFrame: BoxR2;
+    if (needsScroll || needsLayout) {
+      visibleViews.length = 0;
+      visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
+      (viewContext as any).visibleFrame = visibleFrame;
+      this._visibleFrame = visibleFrame;
+    } else {
+      visibleFrame = viewContext.visibleFrame;
+    }
+    function layoutChildView(this: TreeView, childView: View): void {
       if (needsChange && childView instanceof TreeLimb) {
         const subtree = childView.subtree;
         if (subtree !== null) {
           subtree.depth.setAutoState(depth! + 1);
         }
       }
-      if (needsAnimate && childView instanceof HtmlView) {
+      if (needsLayout && childView instanceof HtmlView) {
         if (childView instanceof TreeLimb || childView instanceof TreeStem) {
           const childHeight = childView.height.value;
           const dy = childHeight instanceof Length
@@ -375,27 +457,65 @@ export class TreeView extends ThemedHtmlView {
         }
         childView.width.setAutoState(width);
       }
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
-      if ((needsScroll || needsAnimate) && childView instanceof HtmlView) {
+      if ((needsScroll || needsLayout) && childView instanceof HtmlView) {
         const top = childView.top.state;
         const height = childView.height.state;
+        let isVisible: boolean;
         if (top instanceof Length && height instanceof Length) {
-          const visibleFrame = viewContext.visibleFrame;
           const yMin0 = visibleFrame.yMin;
           const yMax0 = visibleFrame.yMax;
           const yMin1 = top.pxValue();
           const yMax1 = yMin1 + height.pxValue();
-          const isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
-          childView.setCulled(!isVisible);
+          isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
+        } else {
+          isVisible = true;
         }
+        childView.setCulled(!isVisible);
+        childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
+        if (isVisible) {
+          visibleViews.push(childView);
+          if (callback !== void 0) {
+            callback.call(this, childView);
+          }
+        }
+      } else if (callback !== void 0) {
+        callback.call(this, childView);
       }
     }
-    super.processChildViews(processFlags, viewContext,
-                            needsScroll || needsChange || needsAnimate ? animateChildView : callback);
-    if (needsAnimate) {
+    if (needsScroll || needsLayout) {
+      super.displayChildViews(displayFlags, viewContext, layoutChildView);
+    } else {
+      this.displayVisibleViews(displayFlags, viewContext, needsChange ? layoutChildView : callback);
+    }
+    if (needsLayout) {
       this.height.setAutoState(y);
+      const disclosurePhase = this.disclosurePhase.value;
+      this.opacity.setAutoState(disclosurePhase !== void 0 ? disclosurePhase : 1);
+    }
+    if (needsChange) {
+      this._viewFlags &= ~View.NeedsChange;
+    }
+    if (needsScroll) {
+      this._viewFlags &= ~View.NeedsScroll;
+    }
+  }
+
+  protected displayVisibleViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                                callback?: (this: this, childView: View) => void): void {
+    const visibleViews = this._visibleViews;
+    let i = 0;
+    while (i < visibleViews.length) {
+      const childView = visibleViews[i];
+      this.displayChildView(childView, displayFlags, viewContext);
+      if (callback !== void 0) {
+        callback.call(this, childView);
+      }
+      if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+        childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+        this.removeChildView(childView);
+        continue;
+      }
+      i += 1;
     }
   }
 
@@ -413,8 +533,4 @@ export class TreeView extends ThemedHtmlView {
     view.initView(init);
     return view;
   }
-
-  static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
-  static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsAnimate;
-  static readonly uncullFlags: ViewFlags = ThemedHtmlView.uncullFlags | View.NeedsAnimate;
 }

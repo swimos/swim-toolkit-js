@@ -101,6 +101,8 @@ export declare abstract class ViewAnimator<V extends View, T, U = T> {
 
   isInherited(): boolean;
 
+  setInherited(inherited: boolean): void;
+
   updateFlags?: ViewFlags;
 
   /** @hidden */
@@ -280,6 +282,17 @@ ViewAnimator.prototype.setInherit = function (this: ViewAnimator<View, unknown>,
 
 ViewAnimator.prototype.isInherited = function (this: ViewAnimator<View, unknown>): boolean {
   return (this._animatorFlags & TweenAnimator.InheritedFlag) !== 0;
+};
+
+ViewAnimator.prototype.setInherited = function (this: ViewAnimator<View, unknown>,
+                                             inherited: boolean): void {
+  if (inherited && (this._animatorFlags & TweenAnimator.InheritedFlag) === 0) {
+    this._animatorFlags |= TweenAnimator.InheritedFlag;
+    this.animate();
+  } else if (!inherited && (this._animatorFlags & TweenAnimator.InheritedFlag) !== 0) {
+    this._animatorFlags &= ~TweenAnimator.InheritedFlag;
+    this.animate();
+  }
 };
 
 Object.defineProperty(ViewAnimator.prototype, "superName", {

@@ -283,8 +283,11 @@ ModelScope.prototype.isInherited = function (this: ModelScope<Model, unknown>): 
 
 ModelScope.prototype.setInherited = function (this: ModelScope<Model, unknown>,
                                               inherited: boolean): void {
-  if ((this._scopeFlags & ModelScope.InheritedFlag) === 0) {
+  if (inherited && (this._scopeFlags & ModelScope.InheritedFlag) === 0) {
     this._scopeFlags |= ModelScope.InheritedFlag;
+    this.mutate();
+  } else if (!inherited && (this._scopeFlags & ModelScope.InheritedFlag) !== 0) {
+    this._scopeFlags &= ~ModelScope.InheritedFlag;
     this.mutate();
   }
 };

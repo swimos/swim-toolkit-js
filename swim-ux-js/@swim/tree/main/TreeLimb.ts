@@ -46,6 +46,14 @@ export interface TreeLimbInit extends ThemedHtmlViewInit {
 export type TreeLimbState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
 export class TreeLimb extends ThemedHtmlView {
+  /** @hidden */
+  _visibleFrame: BoxR2;
+
+  constructor(node: HTMLElement) {
+    super(node);
+    this._visibleFrame = new BoxR2(0, 0, window.innerWidth, window.innerHeight);
+  }
+
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-limb");
@@ -167,7 +175,7 @@ export class TreeLimb extends ThemedHtmlView {
       }
     });
     this.disclosureState.setAutoState("expanding");
-    this.requireUpdate(View.NeedsResize | View.NeedsChange);
+    this.requireUpdate(View.NeedsResize | View.NeedsChange | View.NeedsLayout);
     const subtree = this.subtree;
     if (subtree !== null) {
       subtree.display.setAutoState("block");
@@ -176,7 +184,7 @@ export class TreeLimb extends ThemedHtmlView {
 
   protected didExpand(tween: Tween<any>): void {
     this.disclosureState.setAutoState("expanded");
-    this.disclosingPhase.setState(void 0);
+    this.disclosingPhase.setInherited(true);
     this.didObserve(function (viewObserver: TreeLimbObserver): void {
       if (viewObserver.limbDidExpand !== void 0) {
         viewObserver.limbDidExpand(this);
@@ -224,8 +232,8 @@ export class TreeLimb extends ThemedHtmlView {
 
   protected didCollapse(tween: Tween<any>): void {
     this.disclosureState.setAutoState("collapsed");
-    this.disclosingPhase.setState(void 0);
-    this.requireUpdate(View.NeedsResize);
+    this.disclosingPhase.setInherited(true);
+    this.requireUpdate(View.NeedsResize | View.NeedsLayout);
     const subtree = this.subtree;
     if (subtree !== null) {
       subtree.display.setAutoState("none");
@@ -303,28 +311,60 @@ export class TreeLimb extends ThemedHtmlView {
     }
   }
 
-  extendViewContext(viewContext: ViewContext): ViewContextType<this> {
-    const treeViewContext = Object.create(viewContext);
+  protected detectVisibleFrame(viewContext: ViewContext): BoxR2 {
+    const xBleed = 0;
+    const yBleed = 64;
     const parentVisibleFrame = (viewContext as TreeViewContext).visibleFrame as BoxR2 | undefined;
-    let childVisibleFrame: BoxR2;
     if (parentVisibleFrame !== void 0) {
       const left = this.left.state;
-      const x = left instanceof Length ? left.pxValue() : this._node.offsetLeft;
+      const x = left instanceof Length ? left.pxValue() : 0;
       const top = this.top.state;
-      const y = top instanceof Length ? top.pxValue() : this._node.offsetTop;
-      childVisibleFrame = new BoxR2(parentVisibleFrame.xMin - x, parentVisibleFrame.yMin - y,
-                                    parentVisibleFrame.xMax - x, parentVisibleFrame.yMax - y);
+      const y = top instanceof Length ? top.pxValue() : 0;
+      return new BoxR2(parentVisibleFrame.xMin - x - xBleed, parentVisibleFrame.yMin - y - yBleed,
+                       parentVisibleFrame.xMax - x + xBleed, parentVisibleFrame.yMax - y + yBleed);
     } else {
       const {x, y} = this._node.getBoundingClientRect();
-      childVisibleFrame = new BoxR2(-x, -y, window.innerWidth - x, window.innerHeight - y);
+      return new BoxR2(-x - xBleed,
+                       -y - yBleed,
+                       window.innerWidth - x + xBleed,
+                       window.innerHeight - y + yBleed);
     }
-    treeViewContext.visibleFrame = childVisibleFrame;
+  }
+
+  extendViewContext(viewContext: ViewContext): ViewContextType<this> {
+    const treeViewContext = Object.create(viewContext);
+    treeViewContext.visibleFrame = this._visibleFrame;
     return treeViewContext;
   }
 
-  protected didAnimate(viewContext: ViewContextType<this>): void {
-    this.layoutLimb();
-    super.didAnimate(viewContext);
+  protected onScroll(viewContext: ViewContextType<this>): void {
+    super.onScroll(viewContext);
+    this._viewFlags |= View.NeedsScroll; // defer to display pass
+    this.requireUpdate(View.NeedsDisplay);
+  }
+
+  protected onAnimate(viewContext: ViewContextType<this>): void {
+    super.onAnimate(viewContext);
+    if (this.disclosingPhase.isUpdated()) {
+      this.requireUpdate(View.NeedsLayout);
+    }
+  }
+
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                              callback?: (this: this, childView: View) => void): void {
+    const needsScroll = (displayFlags & View.NeedsScroll) !== 0;
+    const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
+    if (needsScroll || needsLayout) {
+      this._visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
+      (viewContext as any).visibleFrame = this._visibleFrame;
+    }
+    super.displayChildViews(displayFlags, viewContext, callback);
+    if (needsLayout) {
+      this.layoutLimb();
+    }
+    if (needsScroll) {
+      this._viewFlags &= ~View.NeedsScroll;
+    }
   }
 
   protected layoutLimb(): void {
@@ -376,7 +416,5 @@ export class TreeLimb extends ThemedHtmlView {
     return view;
   }
 
-  static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
-  static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsAnimate;
-  static readonly uncullFlags: ViewFlags = ThemedHtmlView.uncullFlags | View.NeedsAnimate;
+  static readonly uncullFlags: ViewFlags = ThemedHtmlView.uncullFlags | View.NeedsLayout;
 }

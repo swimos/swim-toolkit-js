@@ -33,6 +33,8 @@ export class TreeStem extends ThemedHtmlView {
     this.addClass("tree-stem");
     this.position.setAutoState("relative");
     this.height.setAutoState(60);
+    this.overflowX.setAutoState("hidden");
+    this.overflowY.setAutoState("hidden");
   }
 
   // @ts-ignore
@@ -90,12 +92,12 @@ export class TreeStem extends ThemedHtmlView {
     // hook
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               callback?: (this: this, childView: View) => void): void {
-    const needsAnimate = (processFlags & View.NeedsAnimate) !== 0;
-    const seed = needsAnimate ? this.seed.state : void 0;
-    const height = needsAnimate ? this.height.state : void 0;
-    function animateChildView(this: TreeStem, childView: View): void {
+    const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
+    const seed = needsLayout ? this.seed.state : void 0;
+    const height = needsLayout ? this.height.state : void 0;
+    function layoutChildView(this: TreeStem, childView: View): void {
       if (childView instanceof TreeVein) {
         const key = childView.key;
         const root = seed !== void 0 && key !== void 0 ? seed.getRoot(key) : null;
@@ -106,9 +108,6 @@ export class TreeStem extends ThemedHtmlView {
           const width = root._width;
           childView.width.setAutoState(width !== null ? width : void 0);
           childView.height.setAutoState(height);
-          if (!root._hidden && (childView.width.isUpdated() || childView.height.isUpdated())) {
-            childView.requireUpdate(View.NeedsResize | View.NeedsLayout);
-          }
         } else {
           childView.display.setAutoState("none");
           childView.left.setAutoState(void 0);
@@ -120,7 +119,7 @@ export class TreeStem extends ThemedHtmlView {
         callback.call(this, childView);
       }
     }
-    super.processChildViews(processFlags, viewContext, needsAnimate ? animateChildView : callback);
+    super.displayChildViews(displayFlags, viewContext, needsLayout ? layoutChildView : callback);
   }
 
   static fromAny(stem: AnyTreeStem): TreeStem {
@@ -137,8 +136,4 @@ export class TreeStem extends ThemedHtmlView {
     view.initView(init);
     return view;
   }
-
-  static readonly mountFlags: ViewFlags = ThemedHtmlView.mountFlags | View.NeedsAnimate;
-  static readonly powerFlags: ViewFlags = ThemedHtmlView.powerFlags | View.NeedsAnimate;
-  static readonly uncullFlags: ViewFlags = ThemedHtmlView.uncullFlags | View.NeedsAnimate;
 }

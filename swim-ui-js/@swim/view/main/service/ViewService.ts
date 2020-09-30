@@ -80,6 +80,8 @@ export declare abstract class ViewService<V extends View, T> {
 
   isInherited(): boolean;
 
+  setInherited(inherited: boolean): void;
+
   /** @hidden */
   get superName(): string | undefined;
 
@@ -202,6 +204,15 @@ ViewService.prototype.setInherit = function (this: ViewService<View, unknown>,
 
 ViewService.prototype.isInherited = function (this: ViewService<View, unknown>): boolean {
   return (this._serviceFlags & ViewService.InheritedFlag) !== 0;
+};
+
+ViewService.prototype.setInherited = function (this: ViewService<View, unknown>,
+                                               inherited: boolean): void {
+  if (inherited && (this._serviceFlags & ViewService.InheritedFlag) === 0) {
+    this._serviceFlags |= ViewService.InheritedFlag;
+  } else if (!inherited && (this._serviceFlags & ViewService.InheritedFlag) !== 0) {
+    this._serviceFlags &= ~ViewService.InheritedFlag;
+  }
 };
 
 Object.defineProperty(ViewService.prototype, "superName", {
