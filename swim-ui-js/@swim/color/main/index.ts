@@ -12,31 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyColor,
-  ColorInit,
-  Color,
-} from "./Color";
-export {
-  AnyRgbColor,
-  RgbColorInit,
-  RgbColor,
-} from "./RgbColor";
-export {
-  AnyHslColor,
-  HslColorInit,
-  HslColor,
-} from "./HslColor";
+export * from "./color";
 
-export {ColorChannel} from "./ColorChannel";
-export {ColorChannelParser} from "./ColorChannelParser";
-export {HexColorParser} from "./HexColorParser";
-export {RgbColorParser} from "./RgbColorParser";
-export {HslColorParser} from "./HslColorParser";
-export {ColorParser} from "./ColorParser";
+export * from "./channel";
 
-export {ColorInterpolator} from "./ColorInterpolator";
-export {RgbColorInterpolator} from "./RgbColorInterpolator";
-export {HslColorInterpolator} from "./HslColorInterpolator";
+export * from "./rgb";
 
-export {ColorForm} from "./ColorForm";
+export * from "./hsl";
+
+export * from "./stop";
+
+export * from "./linear";

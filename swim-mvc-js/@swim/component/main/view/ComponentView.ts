@@ -33,6 +33,7 @@ export interface ComponentViewInit<V extends View, U = V> {
   willSetView?(newView: V | null, oldView: V | null): void;
   onSetView?(newView: V | null, oldView: V | null): void;
   didSetView?(newView: V | null, oldView: V | null): void;
+  insertView?(parentView: View, childView: V, key: string | undefined): void;
   createView?(): V | U | null;
   fromAny?(value: V | U): V | null;
 }
@@ -112,7 +113,10 @@ export declare abstract class ComponentView<C extends Component, V extends View,
   /** @hidden */
   unmount(): void;
 
-  insert(parentView: View, key?: string): V | null;
+  insert(parentView: View, key?: string | null): V | null;
+
+  /** @hidden */
+  insertView(parentView: View, childView: V, key: string | undefined): void;
 
   remove(): V | null;
 
@@ -280,18 +284,19 @@ ComponentView.prototype.unmount = function (this: ComponentView<Component, View>
 };
 
 ComponentView.prototype.insert = function <V extends View>(this: ComponentView<Component, V>,
-                                                           parentView: View, key?: string): V | null {
+                                                           parentView: View, key?: string | null): V | null {
   let view = this._view;
   if (view === null) {
     view = this.createView();
   }
   if (view !== null) {
-    if (view.parentView !== parentView) {
-      if (key !== void 0) {
-        parentView.setChildView(key, view);
-      } else {
-        parentView.appendChildView(view);
-      }
+    if (key === void 0) {
+      key = this.name;
+    } else if (key === null) {
+      key = void 0;
+    }
+    if (view.parentView !== parentView || view.key !== key) {
+      this.insertView(parentView, view, key);
     }
     if (this._view === null) {
       this.setView(view);
@@ -299,6 +304,16 @@ ComponentView.prototype.insert = function <V extends View>(this: ComponentView<C
   }
   return view;
 };
+
+ComponentView.prototype.insertView = function<V extends View>(this: ComponentView<Component, V>,
+                                                              parentView: View, childView: V,
+                                                              key: string | undefined): void {
+  if (key !== void 0) {
+    parentView.setChildView(key, childView);
+  } else {
+    parentView.appendChildView(childView);
+  }
+}
 
 ComponentView.prototype.remove = function <V extends View>(this: ComponentView<Component, V>): V | null {
   const view = this._view;

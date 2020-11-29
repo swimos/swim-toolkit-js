@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HashCode, Murmur3} from "@swim/util";
+import {Equivalent, HashCode, Murmur3, Objects} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import {PointR2} from "@swim/math";
 import {GeoProjection} from "./GeoProjection";
@@ -29,7 +29,7 @@ export type GeoPointTuple = [number, number];
 /**
  * A geographic point represented by a WGS84 longitude and latitude.
  */
-export class GeoPoint implements HashCode, Debug {
+export class GeoPoint implements Equivalent<GeoPoint>, HashCode, Debug {
   /** @hidden */
   readonly _lng: number;
   /** @hidden */
@@ -61,6 +61,11 @@ export class GeoPoint implements HashCode, Debug {
       lng: this._lng,
       lat: this._lat,
     };
+  }
+
+  equivalentTo(that: GeoPoint, epsilon?: number): boolean {
+    return Objects.equivalent(that._lng, this._lng, epsilon)
+        && Objects.equivalent(that._lat, this._lat, epsilon);
   }
 
   equals(that: unknown): boolean {

@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyPointR2, PointR2, BoxR2, SegmentR2} from "@swim/math";
-import {AnyLength, Length} from "@swim/length";
+import {AnyLength, Length, AnyPointR2, PointR2, BoxR2, SegmentR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {GraphicsView, StrokeViewInit, StrokeView} from "@swim/graphics";
+import {
+  GraphicsView,
+  StrokeViewInit,
+  StrokeView,
+  CanvasContext,
+  CanvasRenderer,
+} from "@swim/graphics";
 import {AnyGeoPoint, GeoPoint} from "../geo/GeoPoint";
 import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";

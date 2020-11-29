@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import {AnyAngle, Angle} from "@swim/angle";
-import {AnyLength, Length} from "@swim/length";
+import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/font";
-import {CanvasContext, CanvasRenderer} from "@swim/render";
+import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
   LayerView,
+  CanvasContext,
+  CanvasRenderer,
   FillView,
   Arc,
   TypesetView,

@@ -15,23 +15,17 @@
 import {Objects} from "@swim/util";
 import {Interpolator} from "@swim/interpolate";
 import {BoxR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/font";
 import {Scale, ContinuousScale, LinearScale, TimeScale} from "@swim/scale";
-import {Ease, Tween, AnyTransition, Transition} from "@swim/transition";
-import {
-  ViewContextType,
-  ViewFlags,
-  View,
-  ViewScope,
-  ViewAnimator,
-  ContinuousScaleViewAnimator,
-} from "@swim/view";
+import {Ease, Tween, AnyTransition, Transition} from "@swim/tween";
+import {AnyColor, Color} from "@swim/color";
+import {AnyFont, Font} from "@swim/style";
+import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, LayerView} from "@swim/graphics";
 import {ScaleGestureInput, ScaleGestureDelegate, ScaleGesture} from "@swim/gesture";
 import {ScaleXView} from "./ScaleXView";
 import {ScaleYView} from "./ScaleYView";
 import {ScaleXYView} from "./ScaleXYView";
+import {ScaleViewAnimator} from "./ScaleViewAnimator";
 import {ScaleViewObserver} from "./ScaleViewObserver";
 import {ScaleViewController} from "./ScaleViewController";
 
@@ -242,11 +236,11 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<ScaleViewObserver<X, Y>>;
 
-  @ViewAnimator({type: ContinuousScale, inherit: true})
-  xScale: ContinuousScaleViewAnimator<this, X, number>;
+  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
+  xScale: ScaleViewAnimator<this, X, number>;
 
-  @ViewAnimator({type: ContinuousScale, inherit: true})
-  yScale: ContinuousScaleViewAnimator<this, Y, number>;
+  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
+  yScale: ScaleViewAnimator<this, Y, number>;
 
   xDomain(): readonly [X, X] | undefined;
   xDomain(xDomain: readonly [X, X] | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;

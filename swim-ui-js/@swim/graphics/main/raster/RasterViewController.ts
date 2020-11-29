@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ViewContextType} from "@swim/view";
-import {GraphicsViewController} from "../GraphicsViewController";
+import {GraphicsViewController} from "../graphics/GraphicsViewController";
 import {RasterView} from "./RasterView";
 import {RasterViewObserver} from "./RasterViewObserver";
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyFont, Font} from "@swim/font";
+import {AnyFont, Font} from "@swim/style";
 import {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 

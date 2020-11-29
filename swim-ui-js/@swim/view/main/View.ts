@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {Transform} from "@swim/transform";
-import {AnimatorContext, Animator} from "@swim/animate";
+import {BoxR2, Transform} from "@swim/math";
 import {
   Constrain,
   ConstrainVariable,
@@ -25,18 +23,22 @@ import {
   Constraint,
   ConstraintScope,
 } from "@swim/constraint";
+import {Tween, Transition, AnimatorContext, Animator} from "@swim/tween";
+import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewContext} from "./ViewContext";
 import {ViewObserverType, ViewObserver} from "./ViewObserver";
 import {ViewControllerType, ViewController} from "./ViewController";
 import {SubviewConstructor, Subview} from "./Subview";
 import {ViewManager} from "./manager/ViewManager";
-import {LayoutAnchorConstructor, LayoutAnchor} from "./layout/LayoutAnchor";
 import {ViewIdiom} from "./viewport/ViewIdiom";
 import {Viewport} from "./viewport/Viewport";
+import {LayoutAnchorConstructor, LayoutAnchor} from "./layout/LayoutAnchor";
 import {ViewServiceConstructor, ViewService} from "./service/ViewService";
+import {ViewportService} from "./service/ViewportService";
 import {DisplayService} from "./service/DisplayService";
 import {LayoutService} from "./service/LayoutService";
-import {ViewportService} from "./service/ViewportService";
+import {ThemeService} from "./service/ThemeService";
+import {ModalService} from "./service/ModalService";
 import {ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
 import {ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
 
@@ -335,11 +337,15 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     }
   }
 
-  readonly displayService: DisplayService<this>; // defined by DisplayService
+  declare readonly viewportService: ViewportService<this>; // defined by ViewportService
 
-  readonly layoutService: LayoutService<this>; // defined by LayoutService
+  declare readonly displayService: DisplayService<this>; // defined by DisplayService
 
-  readonly viewportService: ViewportService<this>; // defined by ViewportService
+  declare readonly layoutService: LayoutService<this>; // defined by LayoutService
+
+  declare readonly themeService: ThemeService<this>; // defined by ThemeService
+
+  declare readonly modalService: ModalService<this>; // defined by ModalService
 
   get viewClass(): ViewClass {
     return this.constructor as unknown as ViewClass;
@@ -847,6 +853,55 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   protected didDisplayChildView(childView: View, displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // hook
+  }
+
+  declare readonly mood: ViewScope<this, MoodVector | undefined>; // defined by ViewScope
+
+  declare readonly theme: ViewScope<this, ThemeMatrix | undefined>; // defined by ViewScope
+
+  abstract getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined;
+
+  abstract getLookOr<T, V>(look: Look<T, unknown>, elseValue: V, mood?: MoodVector<Feel>): T | V;
+
+  abstract modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): void;
+
+  abstract modifyTheme(feel: Feel, ...entries: [Feel, number | undefined][]): void;
+
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, tween?: Tween<any>): void {
+    if (tween === void 0 || tween === true) {
+      tween = theme.inner(Mood.ambient, Look.transition);
+      if (tween === void 0) {
+        tween = null;
+      }
+    } else {
+      tween = Transition.forTween(tween);
+    }
+    this.willApplyTheme(theme, mood, tween);
+    this.onApplyTheme(theme, mood, tween);
+    this.didApplyTheme(theme, mood, tween);
+  }
+
+  protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                           transition: Transition<any> | null): void {
+    this.willObserve(function (viewObserver: ViewObserver): void {
+      if (viewObserver.viewWillApplyTheme !== void 0) {
+        viewObserver.viewWillApplyTheme(theme, mood, transition, this);
+      }
+    });
+  }
+
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    // hook
+  }
+
+  protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                          transition: Transition<any> | null): void {
+    this.didObserve(function (viewObserver: ViewObserver): void {
+      if (viewObserver.viewDidApplyTheme !== void 0) {
+        viewObserver.viewDidApplyTheme(theme, mood, transition, this);
+      }
+    });
   }
 
   abstract hasSubview(subviewName: string): boolean;
@@ -1380,8 +1435,8 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   /** @hidden */
   static readonly ViewFlagMask: ViewFlags = (1 << View.ViewFlagShift) - 1;
 
-  static readonly mountFlags: ViewFlags = View.NeedsResize | View.NeedsLayout;
-  static readonly powerFlags: ViewFlags = 0;
+  static readonly mountFlags: ViewFlags = View.NeedsResize | View.NeedsChange | View.NeedsLayout;
+  static readonly powerFlags: ViewFlags = View.NeedsResize | View.NeedsChange | View.NeedsLayout;
   static readonly uncullFlags: ViewFlags = 0;
   static readonly insertChildFlags: ViewFlags = View.NeedsLayout;
   static readonly removeChildFlags: ViewFlags = View.NeedsLayout;

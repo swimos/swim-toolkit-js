@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Length} from "@swim/length";
+import {Length} from "@swim/math";
 import {Color} from "@swim/color";
 
 export type AlignContent = "baseline"

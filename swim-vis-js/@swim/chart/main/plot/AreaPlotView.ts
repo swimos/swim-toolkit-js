@@ -14,9 +14,8 @@
 
 import {BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {CanvasRenderer, CanvasContext} from "@swim/render";
 import {ViewAnimator} from "@swim/view";
-import {GraphicsView, FillViewInit, FillView} from "@swim/graphics";
+import {GraphicsView, CanvasContext, CanvasRenderer, FillViewInit, FillView} from "@swim/graphics";
 import {PlotView} from "./PlotView";
 import {PlotViewController} from "./PlotViewController";
 import {SeriesPlotType, SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";

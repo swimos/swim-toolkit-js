@@ -1,0 +1,19 @@
+{
+  "name": "@swim/tween",
+  "version": "3.11.0-dev.20201021",
+  "description": "Procedurally animated transitions between managed states",
+  "homepage": "https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/tween",
+  "author": "Chris Sachs <chris@swimos.org>",
+  "copyright": "2015-2020 Swim inc.",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/swimos/swim.git",
+  "main": "dist/main/swim-tween.js",
+  "module": "lib/main/index.js",
+  "types": "lib/main/index.d.ts",
+  "dependencies": {
+    "@swim/util": "3.11.0-dev.20201021",
+    "@swim/codec": "3.11.0-dev.20201021",
+    "@swim/interpolate": "3.11.0-dev.20201021",
+    "@swim/structure": "3.11.0-dev.20201021"
+  }
+}

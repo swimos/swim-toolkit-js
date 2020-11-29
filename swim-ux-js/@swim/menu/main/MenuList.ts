@@ -13,13 +13,12 @@
 // limitations under the License.
 
 import {View} from "@swim/view";
-import {ViewNodeType} from "@swim/dom";
-import {ThemedHtmlView} from "@swim/theme";
+import {ViewNodeType, HtmlView} from "@swim/dom";
 import {MenuItem} from "./MenuItem";
 import {MenuListObserver} from "./MenuListObserver";
 import {MenuListController} from "./MenuListController";
 
-export class MenuList extends ThemedHtmlView {
+export class MenuList extends HtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("menu-list");

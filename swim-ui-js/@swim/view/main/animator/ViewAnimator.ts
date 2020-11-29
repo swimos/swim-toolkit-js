@@ -14,14 +14,10 @@
 
 import {__extends} from "tslib";
 import {Objects, FromAny} from "@swim/util";
-import {AnyAngle, Angle} from "@swim/angle";
-import {AnyLength, Length} from "@swim/length";
+import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/font";
-import {AnyTransform, Transform} from "@swim/transform";
-import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/transition";
-import {Animator, TweenAnimator} from "@swim/animate";
+import {Tween, Animator, TweenAnimator} from "@swim/tween";
+import {AnyFont, Font} from "@swim/style";
 import {ViewFlags, View} from "../View";
 import {StringViewAnimator} from "./StringViewAnimator";
 import {BooleanViewAnimator} from "./BooleanViewAnimator";
@@ -31,7 +27,6 @@ import {LengthViewAnimator} from "./LengthViewAnimator";
 import {ColorViewAnimator} from "./ColorViewAnimator";
 import {FontViewAnimator} from "./FontViewAnimator";
 import {TransformViewAnimator} from "./TransformViewAnimator";
-import {ContinuousScaleViewAnimator} from "./ContinuousScaleViewAnimator";
 
 export type ViewAnimatorMemberType<V, K extends keyof V> =
   V extends {[P in K]: ViewAnimator<any, infer T, any>} ? T : unknown;
@@ -66,7 +61,6 @@ export type ViewAnimatorDescriptor<V extends View, T, U = T, I = {}> =
   T extends Color | null | undefined ? U extends AnyColor | null | undefined ? {type: typeof Color} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
   T extends Font | null | undefined ? U extends AnyFont | null | undefined ? {type: typeof Font} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
   T extends Transform | null | undefined ? U extends AnyTransform | null | undefined ? {type: typeof Transform} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
-  T extends ContinuousScale<infer X, infer Y> | undefined ? U extends ContinuousScale<X, Y> | string | undefined ? {type: typeof ContinuousScale} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
   T extends string | null | undefined ? U extends string | null | undefined ? {type: typeof String} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
   T extends boolean | null | undefined ? U extends boolean | string | null | undefined ? {type: typeof Boolean} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
   T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
@@ -199,8 +193,6 @@ export declare abstract class ViewAnimator<V extends View, T, U = T> {
   static Font: typeof FontViewAnimator; // defined by FontViewAnimator
   /** @hidden */
   static Transform: typeof TransformViewAnimator; // defined by TransformViewAnimator
-  /** @hidden */
-  static ContinuousScale: typeof ContinuousScaleViewAnimator; // defined by ContinuousScaleViewAnimator
 }
 
 export interface ViewAnimator<V extends View, T, U = T> extends TweenAnimator<T> {
@@ -274,6 +266,10 @@ ViewAnimator.prototype.setInherit = function (this: ViewAnimator<View, unknown>,
     if (inherit !== false) {
       this._inherit = inherit;
       this.bindSuperAnimator();
+      if ((this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
+        this._animatorFlags |= TweenAnimator.UpdatedFlag | TweenAnimator.InheritedFlag;
+        this.animate();
+      }
     } else if (this._inherit !== false) {
       this._inherit = false;
     }
@@ -605,8 +601,6 @@ ViewAnimator.getConstructor = function (type: unknown): ViewAnimatorPrototype | 
     return ViewAnimator.Font;
   } else if (type === Transform) {
     return ViewAnimator.Transform;
-  } else if (type === ContinuousScale) {
-    return ViewAnimator.ContinuousScale;
   }
   return null;
 };

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HashCode, Murmur3} from "@swim/util";
+import {Equivalent, HashCode, Murmur3, Objects} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
 import {BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint} from "./GeoPoint";
@@ -27,7 +27,7 @@ export interface GeoBoxInit {
   latMax: number;
 }
 
-export class GeoBox implements HashCode, Debug {
+export class GeoBox implements Equivalent<GeoBox>, HashCode, Debug {
   /** @hidden */
   readonly _lngMin: number;
   /** @hidden */
@@ -216,6 +216,13 @@ export class GeoBox implements HashCode, Debug {
       lngMax: this._lngMax,
       latMax: this._latMax,
     };
+  }
+
+  equivalentTo(that: GeoBox, epsilon?: number): boolean {
+    return Objects.equivalent(that._lngMin, this._lngMin, epsilon)
+        && Objects.equivalent(that._latMin, this._latMin, epsilon)
+        && Objects.equivalent(that._lngMax, this._lngMax, epsilon)
+        && Objects.equivalent(that._latMax, this._latMax, epsilon);
   }
 
   protected canEqual(that: GeoBox): boolean {

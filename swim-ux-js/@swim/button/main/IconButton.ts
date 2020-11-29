@@ -12,19 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Tween, Transition} from "@swim/tween";
 import {Color} from "@swim/color";
-import {Tween, Transition} from "@swim/transition";
+import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {View} from "@swim/view";
-import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
+import {ViewNodeType, HtmlView, HtmlViewObserver, HtmlViewController, SvgView} from "@swim/dom";
 import {PositionGestureDelegate} from "@swim/gesture";
-import {
-  Look,
-  Feel,
-  MoodVector,
-  ThemeMatrix,
-  ThemedHtmlViewObserver,
-  ThemedHtmlViewController,
-} from "@swim/theme";
 import {ButtonObserver} from "./ButtonObserver";
 import {ButtonMorph} from "./ButtonMorph";
 import {ButtonMembrane} from "./ButtonMembrane";
@@ -55,10 +48,10 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
   }
 
   // @ts-ignore
-  declare readonly viewController: ThemedHtmlViewController & ButtonObserver | null;
+  declare readonly viewController: HtmlViewController & ButtonObserver | null;
 
   // @ts-ignore
-  declare readonly viewObservers: ReadonlyArray<ThemedHtmlViewObserver & ButtonObserver>;
+  declare readonly viewObservers: ReadonlyArray<HtmlViewObserver & ButtonObserver>;
 
   get morph(): ButtonMorph | null {
     const childView = this.getChildView("morph");

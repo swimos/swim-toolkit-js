@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Angle} from "@swim/angle";
-import {Transform} from "@swim/transform";
-import {Tween, Transition} from "@swim/transition";
+import {Angle, Transform} from "@swim/math";
+import {Tween, Transition} from "@swim/tween";
+import {Look} from "@swim/theme";
 import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
-import {Look, ThemedHtmlView} from "@swim/theme";
 
-export class ButtonMorph extends ThemedHtmlView {
+export class ButtonMorph extends HtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("button-morph");

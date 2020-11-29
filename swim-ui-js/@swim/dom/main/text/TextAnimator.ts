@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Transition} from "@swim/transition";
-import {TweenFrameAnimator} from "@swim/animate";
+import {Transition, TweenFrameAnimator} from "@swim/tween";
 
 export class TextAnimator<T = unknown> extends TweenFrameAnimator<T> {
   readonly target: Node;

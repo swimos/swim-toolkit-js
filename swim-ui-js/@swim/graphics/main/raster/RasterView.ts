@@ -12,20 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {Transform} from "@swim/transform";
-import {
-  AnyRenderer,
-  RendererType,
-  Renderer,
-  CanvasCompositeOperation,
-  CanvasRenderer,
-  WebGLRenderer,
-} from "@swim/render";
+import {BoxR2, Transform} from "@swim/math";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
-import {GraphicsViewContext} from "../GraphicsViewContext";
-import {GraphicsViewInit, GraphicsView} from "../GraphicsView";
-import {LayerView} from "../LayerView";
+import {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import {GraphicsViewContext} from "../graphics/GraphicsViewContext";
+import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
+import {LayerView} from "../layer/LayerView";
+import {WebGLRenderer} from "../webgl/WebGLRenderer";
+import {CanvasCompositeOperation} from "../canvas/CanvasContext";
+import {CanvasRenderer} from "../canvas/CanvasRenderer";
 import {RasterViewContext} from "./RasterViewContext";
 import {RasterViewObserver} from "./RasterViewObserver";
 import {RasterViewController} from "./RasterViewController";
@@ -40,7 +35,7 @@ export class RasterView extends LayerView {
   /** @hidden */
   _canvas: HTMLCanvasElement;
   /** @hidden */
-  _renderer: Renderer | null | undefined;
+  _renderer: GraphicsRenderer | null | undefined;
   /** @hidden */
   _rasterFrame: BoxR2;
 
@@ -81,7 +76,7 @@ export class RasterView extends LayerView {
     return this._canvas;
   }
 
-  get compositor(): Renderer | null {
+  get compositor(): GraphicsRenderer | null {
     const parentView = this.parentView;
     if (parentView instanceof GraphicsView || parentView instanceof GraphicsView.Canvas) {
       return parentView.renderer;
@@ -90,7 +85,7 @@ export class RasterView extends LayerView {
     }
   }
 
-  get renderer(): Renderer | null {
+  get renderer(): GraphicsRenderer | null {
     let renderer = this._renderer;
     if (renderer === void 0) {
       renderer = this.createRenderer();
@@ -99,15 +94,15 @@ export class RasterView extends LayerView {
     return renderer;
   }
 
-  setRenderer(renderer: AnyRenderer | null): void {
+  setRenderer(renderer: AnyGraphicsRenderer | null): void {
     if (typeof renderer === "string") {
-      renderer = this.createRenderer(renderer as RendererType);
+      renderer = this.createRenderer(renderer as GraphicsRendererType);
     }
     this._renderer = renderer;
     this.resetRenderer();
   }
 
-  protected createRenderer(rendererType: RendererType = "canvas"): Renderer | null {
+  protected createRenderer(rendererType: GraphicsRendererType = "canvas"): GraphicsRenderer | null {
     if (rendererType === "canvas") {
       const context = this._canvas.getContext("2d");
       if (context !== null) {

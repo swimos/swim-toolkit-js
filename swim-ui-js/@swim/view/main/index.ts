@@ -50,16 +50,20 @@ export {SubviewObserver} from "./SubviewObserver";
 
 export * from "./manager";
 
+export * from "./viewport";
+
 export * from "./display";
 
 export * from "./layout";
 
-export * from "./viewport";
+export * from "./theme";
 
-export * from "./event";
+export * from "./modal";
 
 export * from "./service";
 
 export * from "./scope";
 
 export * from "./animator";
+
+export * from "./event";

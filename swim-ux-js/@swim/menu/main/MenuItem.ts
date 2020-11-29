@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length} from "@swim/length";
-import {Tween, Transition} from "@swim/transition";
+import {AnyLength, Length} from "@swim/math";
+import {Tween, Transition} from "@swim/tween";
 import {Height} from "@swim/style";
+import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewEdgeInsets, ViewScope, ViewAnimator} from "@swim/view";
 import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
-import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ButtonMembrane} from "@swim/button";
 import {MenuItemObserver} from "./MenuItemObserver";
 import {MenuItemController} from "./MenuItemController";

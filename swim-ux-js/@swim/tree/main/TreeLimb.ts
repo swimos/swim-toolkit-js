@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {Length} from "@swim/length";
-import {Tween, Transition} from "@swim/transition";
+import {Length, BoxR2} from "@swim/math";
+import {Tween, Transition} from "@swim/tween";
+import {Look} from "@swim/theme";
 import {ViewContextType, ViewContext, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
-import {ViewNodeType, HtmlViewConstructor} from "@swim/dom";
-import {Look, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
+import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {TreeViewContext} from "./TreeViewContext";
 import {AnyTreeLeaf, TreeLeaf} from "./TreeLeaf";
@@ -27,7 +26,7 @@ import {AnyTreeView, TreeView} from "./TreeView";
 
 export type AnyTreeLimb = TreeLimb | TreeLimbInit | HTMLElement;
 
-export interface TreeLimbInit extends ThemedHtmlViewInit {
+export interface TreeLimbInit extends HtmlViewInit {
   viewController?: TreeLimbController;
   expanded?: boolean;
 
@@ -37,7 +36,7 @@ export interface TreeLimbInit extends ThemedHtmlViewInit {
 
 export type TreeLimbState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
-export class TreeLimb extends ThemedHtmlView {
+export class TreeLimb extends HtmlView {
   /** @hidden */
   _visibleFrame: BoxR2;
 
@@ -411,5 +410,5 @@ export class TreeLimb extends ThemedHtmlView {
     throw new TypeError("" + value);
   }
 
-  static readonly uncullFlags: ViewFlags = ThemedHtmlView.uncullFlags | View.NeedsLayout;
+  static readonly uncullFlags: ViewFlags = HtmlView.uncullFlags | View.NeedsLayout;
 }

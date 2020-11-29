@@ -16,6 +16,8 @@ export {ScaleXView} from "./ScaleXView";
 export {ScaleYView} from "./ScaleYView";
 export {ScaleXYView} from "./ScaleXYView";
 
+export {ScaleViewAnimator} from "./ScaleViewAnimator";
+
 export {
   ScaleFlags,
   ScaleViewInit,

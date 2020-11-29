@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {PointR2, BoxR2} from "@swim/math";
-import {AnyLength, Length} from "@swim/length";
+import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
+import {Ease, AnyTransition, Transition} from "@swim/tween";
 import {AnyColor, Color} from "@swim/color";
-import {Ease, AnyTransition, Transition} from "@swim/transition";
 import {View, ViewScope, ViewAnimator} from "@swim/view";
 import {ChartViewObserver} from "./ChartViewObserver";
 import {ChartViewController} from "./ChartViewController";
@@ -293,7 +292,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     return [yRangeMin, yRangeMax];
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null): void {
+  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof GraphView) {
       this.onInsertGraph(childView);

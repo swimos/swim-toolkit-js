@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length} from "@swim/length";
+import {AnyLength, Length} from "@swim/math";
 import {Color} from "@swim/color";
-import {Tween, Transition} from "@swim/transition";
-import {ViewContextType, View, ViewEdgeInsets, ViewScope, ViewAnimator} from "@swim/view";
-import {ViewNodeType} from "@swim/dom";
+import {Tween, Transition} from "@swim/tween";
+import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
-  Look,
-  Feel,
-  Mood,
-  MoodVector,
-  ThemeMatrix,
-  ThemedHtmlViewInit,
-  ThemedHtmlView,
-} from "@swim/theme";
-import {ModalOptions, ModalState, Modal} from "@swim/modal";
+  ViewContextType,
+  View,
+  ViewEdgeInsets,
+  ModalOptions,
+  ModalState,
+  Modal,
+  ViewScope,
+  ViewAnimator,
+} from "@swim/view";
+import {ViewNodeType, HtmlViewInit, HtmlView} from "@swim/dom";
 import {DrawerViewObserver} from "./DrawerViewObserver";
 import {DrawerViewController} from "./DrawerViewController";
 
@@ -36,14 +36,14 @@ export type DrawerState = "shown" | "showing"
                         | "hidden" | "hiding"
                         | "collapsed" | "collapsing";
 
-export interface DrawerViewInit extends ThemedHtmlViewInit {
+export interface DrawerViewInit extends HtmlViewInit {
   viewController?: DrawerViewController;
   drawerPlacement?: DrawerPlacement;
   collapsedWidth?: AnyLength;
   expandedWidth?: AnyLength;
 }
 
-export class DrawerView extends ThemedHtmlView implements Modal {
+export class DrawerView extends HtmlView implements Modal {
   /** @hidden */
   _drawerPlacement: DrawerPlacement;
   /** @hidden */

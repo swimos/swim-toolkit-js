@@ -271,6 +271,10 @@ ModelScope.prototype.setInherit = function (this: ModelScope<Model, unknown>,
     if (inherit !== false) {
       this._inherit = inherit;
       this.bindSuperScope();
+      if ((this._scopeFlags & ModelScope.OverrideFlag) === 0) {
+        this._scopeFlags |= ModelScope.UpdatedFlag | ModelScope.InheritedFlag;
+        this.mutate();
+      }
     } else if (this._inherit !== false) {
       this._inherit = false;
     }

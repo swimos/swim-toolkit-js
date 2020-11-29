@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ThemedHtmlViewController} from "@swim/theme";
+import {HtmlViewController} from "@swim/dom";
 import {TreeView} from "./TreeView";
 import {TreeViewObserver} from "./TreeViewObserver";
 
-export class TreeViewController<V extends TreeView = TreeView> extends ThemedHtmlViewController<V> implements TreeViewObserver<V> {
+export class TreeViewController<V extends TreeView = TreeView> extends HtmlViewController<V> implements TreeViewObserver<V> {
 }

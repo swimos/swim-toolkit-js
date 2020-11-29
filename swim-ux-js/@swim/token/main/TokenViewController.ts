@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ThemedHtmlViewController} from "@swim/theme";
+import {HtmlViewController} from "@swim/dom";
 import {TokenViewState, TokenView} from "./TokenView";
 import {TokenViewObserver} from "./TokenViewObserver";
 
-export class TokenViewController<V extends TokenView = TokenView> extends ThemedHtmlViewController<V> implements TokenViewObserver<V> {
+export class TokenViewController<V extends TokenView = TokenView> extends HtmlViewController<V> implements TokenViewObserver<V> {
   get tokenState(): TokenViewState | null {
     return this._view !== null ? this._view.tokenState : null;
   }

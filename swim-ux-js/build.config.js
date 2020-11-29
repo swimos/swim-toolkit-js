@@ -1,34 +1,10 @@
 const ux = [
   {
-    id: "theme",
-    name: "@swim/theme",
-    targets: [
-      {
-        id: "main",
-      },
-      {
-        id: "test",
-        deps: ["theme"],
-      },
-    ],
-  },
-  {
-    id: "modal",
-    name: "@swim/modal",
-    targets: [
-      {
-        id: "main",
-        deps: ["theme"],
-      },
-    ],
-  },
-  {
     id: "button",
     name: "@swim/button",
     targets: [
       {
         id: "main",
-        deps: ["theme", "modal"],
       },
     ],
   },
@@ -38,7 +14,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "modal", "button"],
+        deps: ["button"],
       },
     ],
   },
@@ -48,7 +24,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "modal", "button"],
+        deps: ["button"],
       },
     ],
   },
@@ -58,7 +34,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "modal", "button"],
+        deps: ["button"],
       },
     ],
   },
@@ -68,7 +44,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "modal", "button"],
+        deps: ["button"],
       },
     ],
   },
@@ -80,7 +56,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "modal", "button", "token", "drawer", "menu", "tree"],
+        deps: ["button", "token", "drawer", "menu", "tree"],
       },
     ],
   },

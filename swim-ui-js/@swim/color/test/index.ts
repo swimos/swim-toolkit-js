@@ -12,21 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Spec, Unit} from "@swim/unit";
+export {ColorParserSpec} from "./ColorParserSpec";
+export {ColorStopSpec} from "./ColorStopSpec";
+export {LinearGradientSpec} from "./LinearGradientSpec";
+export {ColorSuite} from "./ColorSuite";
 
-import {ColorParserSpec} from "./ColorParserSpec";
-
-@Unit
-class ColorSpec extends Spec {
-  @Unit
-  colorParserSpec(): Spec {
-    return new ColorParserSpec();
-  }
-}
-
-export {
-  ColorParserSpec,
-  ColorSpec,
-};
-
-ColorSpec.run();
+import {ColorSuite} from "./ColorSuite";
+ColorSuite.run();

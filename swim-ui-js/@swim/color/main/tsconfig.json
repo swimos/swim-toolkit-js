@@ -8,7 +8,7 @@
       "@swim/codec": ["../../swim-system-js/swim-core-js/@swim/codec/main"],
       "@swim/interpolate": ["../../swim-system-js/swim-core-js/@swim/interpolate/main"],
       "@swim/structure": ["../../swim-system-js/swim-core-js/@swim/structure/main"],
-      "@swim/angle": ["@swim/angle/main"]
+      "@swim/math": ["../../swim-system-js/swim-core-js/@swim/math/main"]
     },
     "tsBuildInfoFile": "../lib/main/.tsbuildinfo"
   },
@@ -17,6 +17,6 @@
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/codec/main"},
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/interpolate/main"},
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/structure/main"},
-    {"path": "../../angle/main"}
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/math/main"}
   ]
 }

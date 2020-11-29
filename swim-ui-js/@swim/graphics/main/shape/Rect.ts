@@ -14,9 +14,12 @@
 
 import {Equals} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
-import {BoxR2} from "@swim/math";
-import {AnyLength, Length} from "@swim/length";
-import {DrawingContext, Renderer, PathContext, PathRenderer, Graphics} from "@swim/render";
+import {AnyLength, Length, BoxR2} from "@swim/math";
+import {Graphics} from "../graphics/Graphics";
+import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import {DrawingContext} from "../drawing/DrawingContext";
+import {PathContext} from "../path/PathContext";
+import {PathRenderer} from "../path/PathRenderer";
 
 export type AnyRect = Rect | RectInit;
 
@@ -105,8 +108,8 @@ export class Rect implements Graphics, Equals, Debug {
   }
 
   render(): string;
-  render(renderer: Renderer, frame?: BoxR2): void;
-  render(renderer?: Renderer, frame?: BoxR2): string | void {
+  render(renderer: GraphicsRenderer, frame?: BoxR2): void;
+  render(renderer?: GraphicsRenderer, frame?: BoxR2): string | void {
     if (renderer === void 0) {
       const context = new PathContext();
       this.draw(context, frame);

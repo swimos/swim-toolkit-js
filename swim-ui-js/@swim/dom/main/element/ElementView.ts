@@ -13,9 +13,12 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
-import {ToAttributeString, ToStyleString, ToCssValue, StyleContext, StyleAnimator} from "@swim/style";
-import {Animator} from "@swim/animate";
-import {ViewConstructor, ViewClass, View} from "@swim/view";
+import {Animator} from "@swim/tween";
+import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
+import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
+import {ViewContextType, ViewConstructor, ViewClass, View, ViewScope} from "@swim/view";
+import {StyleContext} from "../css/StyleContext";
+import {StyleAnimator} from "../style/StyleAnimator";
 import {NodeViewInit, NodeViewConstructor, NodeViewClass, NodeView} from "../node/NodeView";
 import {AttributeAnimatorConstructor, AttributeAnimator} from "../attribute/AttributeAnimator";
 import {ElementViewObserver} from "./ElementViewObserver";
@@ -29,6 +32,10 @@ export interface ViewElement extends Element, ElementCSSInlineStyle {
 export interface ElementViewInit extends NodeViewInit {
   id?: string;
   classList?: string[];
+  mood?: MoodVector;
+  moodModifier?: MoodMatrix;
+  theme?: ThemeMatrix;
+  themeModifier?: MoodMatrix;
 }
 
 export interface ElementViewConstructor<V extends ElementView = ElementView> extends NodeViewConstructor<V> {
@@ -67,10 +74,166 @@ export class ElementView extends NodeView implements StyleContext {
     if (init.classList !== void 0) {
       this.addClass(...init.classList);
     }
+    if (init.mood !== void 0) {
+      this.mood(init.mood);
+    }
+    if (init.moodModifier !== void 0) {
+      this.moodModifier(init.moodModifier);
+    }
+    if (init.theme !== void 0) {
+      this.theme(init.theme);
+    }
+    if (init.themeModifier !== void 0) {
+      this.themeModifier(init.themeModifier);
+    }
   }
 
   get viewClass(): ElementViewClass {
     return this.constructor as unknown as ElementViewClass;
+  }
+
+  protected onChange(viewContext: ViewContextType<this>): void {
+    super.onChange(viewContext);
+    this.updateTheme();
+  }
+
+  protected onUncull(): void {
+    super.onUncull();
+    if (this.mood.isInherited()) {
+      this.mood.change();
+    }
+    if (this.theme.isInherited()) {
+      this.theme.change();
+    }
+  }
+
+  @ViewScope({type: MoodMatrix})
+  moodModifier: ViewScope<this, MoodMatrix | undefined>;
+
+  @ViewScope({type: MoodMatrix})
+  themeModifier: ViewScope<this, MoodMatrix | undefined>;
+
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined {
+    const theme = this.theme.state;
+    let value: T | undefined;
+    if (theme !== void 0) {
+      if (mood === void 0) {
+        mood = this.mood.state;
+      }
+      if (mood !== void 0) {
+        value = theme.inner(mood, look);
+      }
+    }
+    return value;
+  }
+
+  getLookOr<T, V>(look: Look<T, unknown>, elseValue: V, mood?: MoodVector<Feel>): T | V {
+    const theme = this.theme.state;
+    let value: T | V | undefined;
+    if (theme !== void 0) {
+      if (mood === void 0) {
+        mood = this.mood.state;
+      }
+      if (mood !== void 0) {
+        value = theme.inner(mood, look);
+      }
+    }
+    if (value === void 0) {
+      value = elseValue;
+    }
+    return value;
+  }
+
+  modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): void {
+    const oldMoodModifier = this.moodModifier.getStateOr(MoodMatrix.empty());
+    const newMoodModifier = oldMoodModifier.updatedCol(feel, true, ...entries);
+    if (!newMoodModifier.equals(oldMoodModifier)) {
+      this.moodModifier.setState(newMoodModifier);
+      this.changeMood();
+      this.requireUpdate(View.NeedsChange);
+    }
+  }
+
+  modifyTheme(feel: Feel, ...entries: [Feel, number | undefined][]): void {
+    const oldThemeModifier = this.themeModifier.getStateOr(MoodMatrix.empty());
+    const newThemeModifier = oldThemeModifier.updatedCol(feel, true, ...entries);
+    if (!newThemeModifier.equals(oldThemeModifier)) {
+      this.themeModifier.setState(newThemeModifier);
+      this.changeTheme();
+      this.requireUpdate(View.NeedsChange);
+    }
+  }
+
+  protected changeMood(): void {
+    const moodModifierScope = this.getViewScope("moodModifier") as ViewScope<this, MoodMatrix | undefined> | null;
+    if (moodModifierScope !== null && this.mood.isAuto()) {
+      const moodModifier = moodModifierScope.state;
+      if (moodModifier !== void 0) {
+        let superMood = this.mood.superState;
+        if (superMood === void 0) {
+          const themeManager = this.themeService.manager;
+          if (themeManager !== void 0) {
+            superMood = themeManager.mood;
+          }
+        }
+        if (superMood !== void 0) {
+          const mood = moodModifier.transform(superMood, true);
+          this.mood.setAutoState(mood);
+        }
+      } else {
+        this.mood.setInherited(true);
+      }
+    }
+  }
+
+  protected changeTheme(): void {
+    const themeModifierScope = this.getViewScope("themeModifier") as ViewScope<this, MoodMatrix | undefined> | null;
+    if (themeModifierScope !== null && this.theme.isAuto()) {
+      const themeModifier = themeModifierScope.state;
+      if (themeModifier !== void 0) {
+        let superTheme = this.theme.superState;
+        if (superTheme === void 0) {
+          const themeManager = this.themeService.manager;
+          if (themeManager !== void 0) {
+            superTheme = themeManager.theme;
+          }
+        }
+        if (superTheme !== void 0) {
+          const theme = superTheme.transform(themeModifier, true);
+          this.theme.setAutoState(theme);
+        }
+      } else {
+        this.theme.setInherited(true);
+      }
+    }
+  }
+
+  protected updateTheme(): void {
+    if (this.theme.isChanging() || this.mood.isChanging()) {
+      this.changeMood();
+      this.changeTheme();
+
+      const theme = this.theme.state;
+      const mood = this.mood.state;
+      if (theme !== void 0 && mood !== void 0) {
+        this.applyTheme(theme, mood);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected mountTheme(): void {
+    if (NodeView.isRootView(this._node)) {
+      const themeManager = this.themeService.manager;
+      if (themeManager !== void 0) {
+        if (this.mood.isAuto() && this.mood.state === void 0) {
+          this.mood.setAutoState(themeManager.mood);
+        }
+        if (this.theme.isAuto() && this.theme.state === void 0) {
+          this.theme.setAutoState(themeManager.theme);
+        }
+      }
+    }
   }
 
   getAttribute(attributeName: string): string | null {

@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewNodeType} from "@swim/dom";
+import {ViewNodeType, HtmlViewInit, HtmlView} from "@swim/dom";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
-import {ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {ButtonGlow} from "./ButtonGlow";
 
-export interface ButtonMembraneInit extends ThemedHtmlViewInit {
+export interface ButtonMembraneInit extends HtmlViewInit {
 }
 
-export class ButtonMembrane extends ThemedHtmlView implements PositionGestureDelegate {
+export class ButtonMembrane extends HtmlView implements PositionGestureDelegate {
   /** @hidden */
   _gesture: PositionGesture<ButtonMembrane>;
 

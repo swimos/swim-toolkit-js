@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ViewContextType} from "@swim/view";
-import {GraphicsViewObserver} from "../GraphicsViewObserver";
+import {GraphicsViewObserver} from "../graphics/GraphicsViewObserver";
 import {RasterView} from "./RasterView";
 
 export interface RasterViewObserver<V extends RasterView = RasterView> extends GraphicsViewObserver<V> {

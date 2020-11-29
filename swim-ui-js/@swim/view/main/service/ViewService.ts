@@ -15,13 +15,17 @@
 import {__extends} from "tslib";
 import {View} from "../View";
 import {ViewManagerObserverType, ViewManager} from "../manager/ViewManager";
+import {ViewportManager} from "../viewport/ViewportManager";
 import {DisplayManager} from "../display/DisplayManager";
 import {LayoutManager} from "../layout/LayoutManager";
-import {ViewportManager} from "../viewport/ViewportManager";
+import {ThemeManager} from "../theme/ThemeManager";
+import {ModalManager} from "../modal/ModalManager";
 import {ViewManagerService} from "./ViewManagerService";
+import {ViewportService} from "./ViewportService";
 import {DisplayService} from "./DisplayService";
 import {LayoutService} from "./LayoutService";
-import {ViewportService} from "./ViewportService";
+import {ThemeService} from "./ThemeService";
+import {ModalService} from "./ModalService";
 
 export type ViewServiceMemberType<V, K extends keyof V> =
   V extends {[P in K]: ViewService<any, infer T>} ? T : unknown;
@@ -125,11 +129,15 @@ export declare abstract class ViewService<V extends View, T> {
   /** @hidden */
   static Manager: typeof ViewManagerService; // defined by ViewManagerService
   /** @hidden */
+  static Viewport: typeof ViewportService; // defined by ViewportService
+  /** @hidden */
   static Display: typeof DisplayService; // defined by DisplayService
   /** @hidden */
   static Layout: typeof LayoutService; // defined by LayoutService
   /** @hidden */
-  static Viewport: typeof ViewportService; // defined by ViewportService
+  static Theme: typeof ThemeService; // defined by ThemeService
+  /** @hidden */
+  static Modal: typeof ModalService; // defined by ModalService
 }
 
 export interface ViewService<V extends View, T> {
@@ -358,12 +366,16 @@ ViewService.prototype.initManager = function <T>(this: ViewService<View, T>): T 
 };
 
 ViewService.getConstructor = function (type: unknown): ViewServicePrototype | null {
-  if (type === DisplayManager) {
+  if (type === ViewportManager) {
+    return ViewService.Viewport;
+  } else if (type === DisplayManager) {
     return ViewService.Display;
   } else if (type === LayoutManager) {
     return ViewService.Layout;
-  } else if (type === ViewportManager) {
-    return ViewService.Viewport;
+  } else if (type === ThemeManager) {
+    return ViewService.Theme;
+  } else if (type === ModalManager) {
+    return ViewService.Modal;
   } else if (type === ViewManager) {
     return ViewService.Manager;
   }

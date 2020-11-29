@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Transition} from "@swim/transition";
+import {Transition} from "@swim/tween";
+import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
-import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
 import {FloatingButton} from "./FloatingButton";
 
-export class ButtonItem extends ThemedHtmlView {
+export class ButtonItem extends HtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("button-item");

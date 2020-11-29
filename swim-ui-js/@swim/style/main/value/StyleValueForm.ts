@@ -13,16 +13,11 @@
 // limitations under the License.
 
 import {Item, Record, Num, Bool, Form} from "@swim/structure";
+import {Length, Angle, Transform} from "@swim/math";
 import {DateTime} from "@swim/time";
-import {Angle} from "@swim/angle";
-import {Length} from "@swim/length";
 import {Color} from "@swim/color";
-import {Font} from "@swim/font";
-import {BoxShadow} from "@swim/shadow";
-import {Transform} from "@swim/transform";
-import {Interpolator} from "@swim/interpolate";
-import {Scale} from "@swim/scale";
-import {Transition} from "@swim/transition";
+import {Font} from "../font/Font";
+import {BoxShadow} from "../shadow/BoxShadow";
 import {AnyStyleValue, StyleValue} from "./StyleValue";
 
 /** @hidden */
@@ -62,12 +57,6 @@ export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
         return BoxShadow.form().mold(value);
       } else if (value instanceof Transform) {
         return Transform.form().mold(value);
-      } else if (value instanceof Interpolator) {
-        return StyleValue.interpolatorForm().mold(value);
-      } else if (value instanceof Scale) {
-        return StyleValue.scaleForm().mold(value);
-      } else if (value instanceof Transition) {
-        return StyleValue.transitionForm().mold(value);
       } else if (typeof value === "number") {
         return Num.from(value);
       }
@@ -121,18 +110,6 @@ export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
       const transform = Transform.fromValue(value);
       if (transform !== void 0) {
         return transform;
-      }
-      const interpolator = StyleValue.interpolatorForm().cast(value);
-      if (interpolator !== void 0) {
-        return interpolator;
-      }
-      const scale = StyleValue.scaleForm().cast(value);
-      if (scale !== void 0) {
-        return scale;
-      }
-      const transition = StyleValue.transitionForm().cast(value);
-      if (transition !== void 0) {
-        return transition;
       }
     }
     return void 0;

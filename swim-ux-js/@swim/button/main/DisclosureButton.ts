@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Angle} from "@swim/angle";
+import {Angle, Transform} from "@swim/math";
+import {Transition} from "@swim/tween";
 import {AnyColor, Color, ColorInterpolator} from "@swim/color";
-import {Transform} from "@swim/transform";
-import {Transition} from "@swim/transition";
+import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewAnimator} from "@swim/view";
-import {ViewNodeType, SvgView} from "@swim/dom";
-import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
+import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
 
-export class DisclosureButton extends ThemedHtmlView {
+export class DisclosureButton extends HtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("disclosure-button");

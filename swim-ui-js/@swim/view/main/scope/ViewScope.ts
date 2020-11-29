@@ -14,6 +14,7 @@
 
 import {__extends} from "tslib";
 import {Objects, FromAny} from "@swim/util";
+import {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, View} from "../View";
 import {StringViewScope} from "./StringViewScope";
 import {BooleanViewScope} from "./BooleanViewScope";
@@ -271,6 +272,10 @@ ViewScope.prototype.setInherit = function (this: ViewScope<View, unknown>,
     if (inherit !== false) {
       this._inherit = inherit;
       this.bindSuperScope();
+      if ((this._scopeFlags & ViewScope.OverrideFlag) === 0) {
+        this._scopeFlags |= ViewScope.UpdatedFlag | ViewScope.InheritedFlag;
+        this.change();
+      }
     } else if (this._inherit !== false) {
       this._inherit = false;
     }
@@ -658,3 +663,6 @@ ViewScope.UpdatedFlag = 1 << 0;
 ViewScope.ChangingFlag = 1 << 1;
 ViewScope.OverrideFlag = 1 << 2;
 ViewScope.InheritedFlag = 1 << 3;
+
+ViewScope({type: MoodVector, inherit: true})(View.prototype, "mood");
+ViewScope({type: ThemeMatrix, inherit: true})(View.prototype, "theme");

@@ -13,23 +13,16 @@
 // limitations under the License.
 
 import {Input, Parser, Diagnostic, Unicode} from "@swim/codec";
-import {Interpolator, StepInterpolator} from "@swim/interpolate";
+import {Interpolator} from "@swim/interpolate";
 import {Form} from "@swim/structure";
+import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
 import {AnyDateTime, DateTime} from "@swim/time";
-import {AnyAngle, Angle} from "@swim/angle";
-import {AnyLength, Length} from "@swim/length";
-import {AnyColor, Color, RgbColorInit, HslColorInit} from "@swim/color";
-import {AnyFont, Font} from "@swim/font";
-import {AnyBoxShadow, BoxShadowInit, BoxShadow} from "@swim/shadow";
-import {AnyLinearGradient, LinearGradient} from "@swim/gradient";
-import {AnyTransform, Transform} from "@swim/transform";
-import {Scale, ContinuousScale, LinearScale, TimeScale} from "@swim/scale";
-import {AnyTransition, TransitionInit, Transition} from "@swim/transition";
+import {AnyTransition, TransitionInit, Transition} from "@swim/tween";
+import {AnyColor, Color, RgbColorInit, HslColorInit, AnyLinearGradient, LinearGradient} from "@swim/color";
+import {AnyFont, Font} from "../font/Font";
+import {AnyBoxShadow, BoxShadowInit, BoxShadow} from "../shadow/BoxShadow";
 import {StyleValueParser} from "./StyleValueParser";
 import {StyleValueForm} from "./StyleValueForm";
-import {StyleInterpolatorForm} from "./StyleInterpolatorForm";
-import {StyleScaleForm} from "./StyleScaleForm";
-import {StyleTransitionForm} from "./StyleTransitionForm";
 
 export type AnyStyleValue = AnyDateTime
                           | AnyAngle
@@ -40,7 +33,6 @@ export type AnyStyleValue = AnyDateTime
                           | AnyLinearGradient
                           | AnyTransform
                           | Interpolator<any>
-                          | Scale<any, any>
                           | AnyTransition<any> | TransitionInit<any>
                           | number
                           | boolean;
@@ -54,7 +46,6 @@ export type StyleValue = DateTime
                        | LinearGradient
                        | Transform
                        | Interpolator<any>
-                       | Scale<any, any>
                        | Transition<any>
                        | number
                        | boolean;
@@ -64,35 +55,15 @@ export interface StyleValueClass {
 
   parse(input: Input | string): StyleValue;
 
-  parseScale<X, Y>(input: string): ContinuousScale<X, Y>;
-
   /** @hidden */
   _form: Form<StyleValue, AnyStyleValue> | undefined;
   form(unit?: AnyStyleValue): Form<StyleValue, AnyStyleValue>;
-
-  /** @hidden */
-  _interpolatorForm: Form<Interpolator<StyleValue, AnyStyleValue>> | undefined;
-  interpolatorForm(unit?: Interpolator<StyleValue, AnyStyleValue>): Form<Interpolator<StyleValue, AnyStyleValue>>;
-
-  /** @hidden */
-  _scaleForm: Form<Scale<StyleValue, StyleValue, AnyStyleValue, AnyStyleValue>> | undefined,
-  scaleForm(unit?: Scale<StyleValue, StyleValue, AnyStyleValue, AnyStyleValue>): Form<Scale<StyleValue, StyleValue, AnyStyleValue, AnyStyleValue>>;
-
-  /** @hidden */
-  _transitionForm: Form<Transition<StyleValue>, AnyTransition<StyleValue>> | undefined;
-  transitionForm(unit?: AnyTransition<StyleValue> | null): Form<Transition<StyleValue>, AnyTransition<StyleValue>>;
 
   // Forward type declarations
   /** @hidden */
   Parser: typeof StyleValueParser, // defined by StyleValueParser
   /** @hidden */
   Form: typeof StyleValueForm, // defined by StyleValueForm
-  /** @hidden */
-  InterpolatorForm: typeof StyleInterpolatorForm, // defined by StyleInterpolatorForm
-  /** @hidden */
-  ScaleForm: typeof StyleScaleForm, // defined by StyleScaleForm
-  /** @hidden */
-  TransitionForm: typeof StyleTransitionForm, // defined by StyleTransitionForm
 }
 
 export const StyleValue: StyleValueClass = {
@@ -106,7 +77,6 @@ export const StyleValue: StyleValueClass = {
         || value instanceof LinearGradient
         || value instanceof Transform
         || value instanceof Interpolator
-        || value instanceof Scale
         || value instanceof Transition
         || typeof value === "number"
         || typeof value === "boolean") {
@@ -146,26 +116,6 @@ export const StyleValue: StyleValueClass = {
     return parser.bind();
   },
 
-  parseScale<X, Y>(input: string): ContinuousScale<X, Y> {
-    if (input === "linear") {
-      return new LinearScale(0, 1, new StepInterpolator(void 0, void 0)) as unknown as ContinuousScale<X, Y>;
-    } else if (input === "time") {
-      const d1 = DateTime.current();
-      const d0 = d1.day(d1.day() - 1);
-      return new TimeScale(d0, d1, new StepInterpolator(void 0, void 0)) as unknown as ContinuousScale<X, Y>;
-    } else {
-      const domain = input.split("...");
-      const x0 = StyleValue.parse(domain[0]);
-      const x1 = StyleValue.parse(domain[1]);
-      if (typeof x0 === "number" && typeof x1 === "number") {
-        return new LinearScale(x0, x1, new StepInterpolator(void 0, void 0)) as unknown as ContinuousScale<X, Y>;
-      } else if (x0 instanceof DateTime && x1 instanceof DateTime) {
-        return new TimeScale(x0, x1, new StepInterpolator(void 0, void 0)) as unknown as ContinuousScale<X, Y>;
-      }
-    }
-    throw new TypeError("" + input);
-  },
-
   /** @hidden */
   _form: void 0 as Form<StyleValue, AnyStyleValue> | undefined,
   form(unit?: AnyStyleValue): Form<StyleValue, AnyStyleValue> {
@@ -180,55 +130,9 @@ export const StyleValue: StyleValueClass = {
     }
   },
 
-  /** @hidden */
-  _interpolatorForm: void 0 as Form<Interpolator<StyleValue, AnyStyleValue>> | undefined,
-  interpolatorForm(unit?: Interpolator<StyleValue, AnyStyleValue>): Form<Interpolator<StyleValue, AnyStyleValue>> {
-    if (unit !== void 0) {
-      return new StyleValue.InterpolatorForm(unit);
-    } else {
-      if (StyleValue._interpolatorForm === void 0) {
-        StyleValue._interpolatorForm = new StyleValue.InterpolatorForm();
-      }
-      return StyleValue._interpolatorForm;
-    }
-  },
-
-  /** @hidden */
-  _scaleForm: void 0 as Form<Scale<StyleValue, StyleValue, AnyStyleValue, AnyStyleValue>> | undefined,
-  scaleForm(unit?: Scale<StyleValue, StyleValue, AnyStyleValue, AnyStyleValue>): Form<Scale<StyleValue, StyleValue, AnyStyleValue, AnyStyleValue>> {
-    if (unit !== void 0) {
-      return new StyleValue.ScaleForm(unit);
-    } else {
-      if (StyleValue._scaleForm === void 0) {
-        StyleValue._scaleForm = new StyleValue.ScaleForm();
-      }
-      return StyleValue._scaleForm;
-    }
-  },
-
-  /** @hidden */
-  _transitionForm: void 0 as Form<Transition<StyleValue>, AnyTransition<StyleValue>> | undefined,
-  transitionForm(unit: AnyTransition<StyleValue> | null = null): Form<Transition<StyleValue>, AnyTransition<StyleValue>> {
-    if (unit !== null) {
-      unit = Transition.fromAny(unit);
-      return new StyleValue.TransitionForm(unit || void 0);
-    } else {
-      if (StyleValue._transitionForm === void 0) {
-        StyleValue._transitionForm = new StyleValue.TransitionForm();
-      }
-      return StyleValue._transitionForm;
-    }
-  },
-
   // Forward type declarations
   /** @hidden */
   Parser: void 0 as any as typeof StyleValueParser, // defined by StyleValueParser
   /** @hidden */
   Form: void 0 as any as typeof StyleValueForm, // defined by StyleValueForm
-  /** @hidden */
-  InterpolatorForm: void 0 as any as typeof StyleInterpolatorForm, // defined by StyleInterpolatorForm
-  /** @hidden */
-  ScaleForm: void 0 as any as typeof StyleScaleForm, // defined by StyleScaleForm
-  /** @hidden */
-  TransitionForm: void 0 as any as typeof StyleTransitionForm, // defined by StyleTransitionForm
 };

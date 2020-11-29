@@ -14,7 +14,7 @@
 
 import {AnyColor, Color} from "@swim/color";
 import {ViewAnimator} from "@swim/view";
-import {GraphicsViewInit, GraphicsView} from "../GraphicsView";
+import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
 
 export interface FillViewInit extends GraphicsViewInit {
   fill?: AnyColor;

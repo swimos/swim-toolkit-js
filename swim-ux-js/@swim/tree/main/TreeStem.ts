@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import {ViewContextType, ViewFlags, View, ViewScope} from "@swim/view";
-import {ViewNodeType, HtmlViewConstructor} from "@swim/dom";
-import {ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
+import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeVein, TreeVein} from "./TreeVein";
 import {TreeStemObserver} from "./TreeStemObserver";
@@ -22,13 +21,13 @@ import {TreeStemController} from "./TreeStemController";
 
 export type AnyTreeStem = TreeStem | TreeStemInit | HTMLElement;
 
-export interface TreeStemInit extends ThemedHtmlViewInit {
+export interface TreeStemInit extends HtmlViewInit {
   viewController?: TreeStemController;
 
   veins?: AnyTreeVein[];
 }
 
-export class TreeStem extends ThemedHtmlView {
+export class TreeStem extends HtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-stem");

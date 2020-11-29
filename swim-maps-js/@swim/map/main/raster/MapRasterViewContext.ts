@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Renderer} from "@swim/render";
+import {GraphicsRenderer} from "@swim/graphics";
 import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 
 export interface MapRasterViewContext extends MapGraphicsViewContext {
-  readonly compositor: Renderer | null;
+  readonly compositor: GraphicsRenderer | null;
 }

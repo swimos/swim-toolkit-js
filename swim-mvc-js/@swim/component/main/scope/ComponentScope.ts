@@ -271,6 +271,10 @@ ComponentScope.prototype.setInherit = function (this: ComponentScope<Component, 
     if (inherit !== false) {
       this._inherit = inherit;
       this.bindSuperScope();
+      if ((this._scopeFlags & ComponentScope.OverrideFlag) === 0) {
+        this._scopeFlags |= ComponentScope.UpdatedFlag | ComponentScope.InheritedFlag;
+        this.revise();
+      }
     } else if (this._inherit !== false) {
       this._inherit = false;
     }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyAngle, Angle} from "@swim/angle";
+import {AnyAngle, Angle} from "@swim/math";
 import {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 

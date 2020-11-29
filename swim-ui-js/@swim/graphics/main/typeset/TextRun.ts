@@ -16,8 +16,11 @@ import {Equals, Objects} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/font";
-import {Renderer, CanvasContext, CanvasRenderer, Graphics} from "@swim/render";
+import {AnyFont, Font} from "@swim/style";
+import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import {Graphics} from "../graphics/Graphics";
+import {CanvasContext} from "../canvas/CanvasContext";
+import {CanvasRenderer} from "../canvas/CanvasRenderer";
 
 export type AnyTextRun = TextRun | TextRunInit | string;
 
@@ -154,7 +157,7 @@ export class TextRun implements Graphics, Equals, Debug {
     }
   }
 
-  render(renderer: Renderer, frame: BoxR2): void {
+  render(renderer: GraphicsRenderer, frame: BoxR2): void {
     if (renderer instanceof CanvasRenderer) {
       this.draw(renderer.context, frame);
     }

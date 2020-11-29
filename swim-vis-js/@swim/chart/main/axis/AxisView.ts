@@ -14,20 +14,13 @@
 
 import {BTree} from "@swim/collections";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/font";
 import {ContinuousScale} from "@swim/scale";
-import {Ease, AnyTransition, Transition} from "@swim/transition";
-import {CanvasContext, CanvasRenderer} from "@swim/render";
-import {
-  ViewContextType,
-  ViewFlags,
-  View,
-  ViewScope,
-  ViewAnimator,
-  ContinuousScaleViewAnimator,
-} from "@swim/view";
-import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
+import {Ease, AnyTransition, Transition} from "@swim/tween";
+import {AnyColor, Color} from "@swim/color";
+import {AnyFont, Font} from "@swim/style";
+import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
+import {GraphicsViewInit, GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
+import {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
 import {AnyTickView, TickView} from "../tick/TickView";
 import {TickGenerator} from "../tick/TickGenerator";
 import {AxisViewObserver} from "./AxisViewObserver";
@@ -147,7 +140,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   abstract get orientation(): AxisOrientation;
 
-  abstract scale: ContinuousScaleViewAnimator<this, D, number>;
+  abstract scale: ScaleViewAnimator<this, D, number>;
 
   getTick(value: D): TickView<D> | undefined {
     return this._ticks.get(value);

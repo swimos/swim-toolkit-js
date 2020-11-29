@@ -1,0 +1,24 @@
+{
+  "extends": "../../../tsconfig-test",
+  "compilerOptions": {
+    "baseUrl": "../../..",
+    "outDir": "../lib/test",
+    "paths": {
+      "@swim/util": ["../../swim-system-js/swim-core-js/@swim/util/main"],
+      "@swim/codec": ["../../swim-system-js/swim-core-js/@swim/codec/main"],
+      "@swim/unit": ["../../swim-system-js/swim-core-js/@swim/unit/main"],
+      "@swim/interpolate": ["../../swim-system-js/swim-core-js/@swim/interpolate/main"],
+      "@swim/structure": ["../../swim-system-js/swim-core-js/@swim/structure/main"],
+      "@swim/math": ["../../swim-system-js/swim-core-js/@swim/math/main"],
+      "@swim/time": ["../../swim-system-js/swim-core-js/@swim/time/main"],
+      "@swim/tween": ["@swim/tween/main"],
+      "@swim/color": ["@swim/color/main"],
+      "@swim/theme": ["@swim/theme/main"]
+    }
+  },
+  "references": [
+    {"path": "../../tween/main"},
+    {"path": "../../color/main"},
+    {"path": "../../theme/main"}
+  ]
+}

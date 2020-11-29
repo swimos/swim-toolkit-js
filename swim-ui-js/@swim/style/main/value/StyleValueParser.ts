@@ -13,23 +13,21 @@
 // limitations under the License.
 
 import {Input, Output, Parser, Diagnostic, Unicode, Base10} from "@swim/codec";
-import {DateTimeInit, DateTimeFormat} from "@swim/time";
-import {Angle} from "@swim/angle";
-import {Length} from "@swim/length";
-import {Color, HexColorParser, RgbColorParser, HslColorParser} from "@swim/color";
-import {FontWeight, FontParser} from "@swim/font";
-import {LinearGradientParser} from "@swim/gradient";
 import {
+  Length,
+  Angle,
   Transform,
   TranslateTransformParser,
   ScaleTransformParser,
   RotateTransformParser,
   SkewTransformParser,
   AffineTransformParser,
-} from "@swim/transform";
+} from "@swim/math";
+import {DateTimeInit, DateTimeFormat} from "@swim/time";
+import {Color, HexColorParser, RgbColorParser, HslColorParser, LinearGradientParser} from "@swim/color";
+import {FontWeight} from "../font/FontWeight";
+import {FontParser} from "../font/FontParser";
 import {StyleValue} from "./StyleValue";
-
-const ISO_8601_REST = DateTimeFormat.pattern('%m-%dT%H:%M:%S.%LZ');
 
 /** @hidden */
 export class StyleValueParser extends Parser<StyleValue> {
@@ -154,7 +152,7 @@ export class StyleValueParser extends Parser<StyleValue> {
         input.step();
         const date = {} as DateTimeInit;
         date.year = valueParser!.bind();
-        return ISO_8601_REST.parseDate(input, date);
+        return DateTimeFormat.pattern('%m-%dT%H:%M:%S.%LZ').parseDate(input, date);
       } else if (!input.isEmpty()) {
         step = 5;
       }

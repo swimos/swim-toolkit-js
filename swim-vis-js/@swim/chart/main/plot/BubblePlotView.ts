@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {AnyLength, Length} from "@swim/length";
+import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {CanvasContext} from "@swim/render";
 import {ViewAnimator} from "@swim/view";
-import {FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
+import {CanvasContext, FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
 import {DataPointView} from "../data/DataPointView";
 import {PlotView} from "./PlotView";
 import {PlotViewController} from "./PlotViewController";

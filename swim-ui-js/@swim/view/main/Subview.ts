@@ -43,6 +43,7 @@ export interface SubviewInit<S extends View, U = S> {
   willSetSubview?(newSubview: S | null, oldSubview: S | null): void;
   onSetSubview?(newSubview: S | null, oldSubview: S | null): void;
   didSetSubview?(newSubview: S | null, oldSubview: S | null): void;
+  insertSubview?(parentView: View, childView: S, key: string | undefined): void;
   createSubview?(): S | U | null;
   fromAny?(value: S | U): S | null;
 }
@@ -161,8 +162,11 @@ export declare abstract class Subview<V extends View, S extends View, U = S> {
   /** @hidden */
   unmount(): void;
 
-  insert(parentView: View, key?: string): S | null;
-  insert(key?: string): S | null;
+  insert(parentView: View, key?: string | null): S | null;
+  insert(key?: string | null): S | null;
+
+  /** @hidden */
+  insertSubview(parentView: View, childView: S, key: string | undefined): void;
 
   remove(): S | null;
 
@@ -247,7 +251,13 @@ Subview.prototype.setSubview = function <S extends View, U>(this: Subview<View, 
     subview = this.fromAny(subview);
   }
   if (this.child) {
-    this._view.setChildView(this.name, subview as S | null);
+    if (subview === null || ((subview as S).parentView !== this._view || (subview as S).key !== this.name)) {
+      if (subview !== null) {
+        this.insertSubview(this._view, subview as S, this.name);
+      } else {
+        this._view.setChildView(this.name, null);
+      }
+    }
   } else {
     this.doSetSubview(subview as S | null);
   }
@@ -490,26 +500,27 @@ Subview.prototype.unmount = function (this: Subview<View, View>): void {
 };
 
 Subview.prototype.insert = function <S extends View>(this: Subview<View, S>,
-                                                     parentView?: View | string,
-                                                     key?: string): S | null {
+                                                     parentView?: View | string | null,
+                                                     key?: string | null): S | null {
   let subview = this._subview;
   if (subview === null) {
     subview = this.createSubview();
   }
   if (subview !== null) {
-    if (typeof parentView === "string") {
+    if (typeof parentView === "string" || parentView === null) {
       key = parentView;
       parentView = void 0;
     }
     if (parentView === void 0) {
       parentView = this._view;
     }
-    if (subview.parentView !== parentView) {
-      if (key !== void 0) {
-        parentView.setChildView(key, subview);
-      } else {
-        parentView.appendChildView(subview);
-      }
+    if (key === void 0) {
+      key = this.name;
+    } else if (key === null) {
+      key = void 0;
+    }
+    if (subview.parentView !== parentView || subview.key !== key) {
+      this.insertSubview(parentView, subview, key);
     }
     if (this._subview === null) {
       this.doSetSubview(subview);
@@ -517,6 +528,16 @@ Subview.prototype.insert = function <S extends View>(this: Subview<View, S>,
   }
   return subview;
 };
+
+Subview.prototype.insertSubview = function<S extends View>(this: Subview<View, S>,
+                                                           parentView: View, childView: S,
+                                                           key: string | undefined): void {
+  if (key !== void 0) {
+    parentView.setChildView(key, childView);
+  } else {
+    parentView.appendChildView(childView);
+  }
+}
 
 Subview.prototype.remove = function <S extends View>(this: Subview<View, S>): S | null {
   const subview = this._subview;

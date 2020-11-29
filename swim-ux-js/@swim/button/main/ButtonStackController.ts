@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlView} from "@swim/dom";
-import {ThemedHtmlViewController} from "@swim/theme";
+import {HtmlView, HtmlViewController} from "@swim/dom";
 import {ButtonItem} from "./ButtonItem";
 import {ButtonStackState, ButtonStack} from "./ButtonStack";
 import {ButtonStackObserver} from "./ButtonStackObserver";
 
-export class ButtonStackController<V extends ButtonStack = ButtonStack> extends ThemedHtmlViewController<V> implements ButtonStackObserver<V> {
+export class ButtonStackController<V extends ButtonStack = ButtonStack> extends HtmlViewController<V> implements ButtonStackObserver<V> {
   get stackState(): ButtonStackState | null {
     return this._view !== null ? this._view.stackState : null;
   }

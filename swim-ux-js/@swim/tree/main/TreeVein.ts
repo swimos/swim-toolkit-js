@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Transition} from "@swim/transition";
-import {ViewNodeType, HtmlViewConstructor} from "@swim/dom";
-import {Look, MoodVector, ThemeMatrix, ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
+import {Transition} from "@swim/tween";
+import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {TreeVeinObserver} from "./TreeVeinObserver";
 import {TreeVeinController} from "./TreeVeinController";
 
 export type AnyTreeVein = TreeVein | TreeVeinInit | HTMLElement;
 
-export interface TreeVeinInit extends ThemedHtmlViewInit {
+export interface TreeVeinInit extends HtmlViewInit {
   viewController?: TreeVeinController;
 }
 
-export class TreeVein extends ThemedHtmlView {
+export class TreeVein extends HtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-vein");

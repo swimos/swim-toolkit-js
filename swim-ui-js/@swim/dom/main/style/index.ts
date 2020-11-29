@@ -13,9 +13,36 @@
 // limitations under the License.
 
 export {
-  ViewStyle,
-  StyleViewInit,
-  StyleView,
-} from "./StyleView";
-export {StyleViewObserver} from "./StyleViewObserver";
-export {StyleViewController} from "./StyleViewController";
+  StyleAnimatorMemberType,
+  StyleAnimatorMemberInit,
+  StyleAnimatorInit,
+  StyleAnimatorDescriptorInit,
+  StyleAnimatorDescriptorExtends,
+  StyleAnimatorDescriptorFromAny,
+  StyleAnimatorDescriptor,
+  StyleAnimatorPrototype,
+  StyleAnimatorConstructor,
+  StyleAnimator,
+} from "./StyleAnimator";
+
+export {StringStyleAnimator} from "./StringStyleAnimator";
+
+export {NumberStyleAnimator} from "./NumberStyleAnimator";
+
+export {LengthStyleAnimator} from "./LengthStyleAnimator";
+
+export {ColorStyleAnimator} from "./ColorStyleAnimator";
+
+export {LineHeightStyleAnimator} from "./LineHeightStyleAnimator";
+
+export {FontFamilyStyleAnimator} from "./FontFamilyStyleAnimator";
+
+export {BoxShadowStyleAnimator} from "./BoxShadowStyleAnimator";
+
+export {TransformStyleAnimator} from "./TransformStyleAnimator";
+
+export {NumberOrStringStyleAnimator} from "./NumberOrStringStyleAnimator";
+
+export {LengthOrStringStyleAnimator} from "./LengthOrStringStyleAnimator";
+
+export {ColorOrStringStyleAnimator} from "./ColorOrStringStyleAnimator";

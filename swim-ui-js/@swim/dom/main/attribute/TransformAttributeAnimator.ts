@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyTransform, Transform} from "@swim/transform";
+import {AnyTransform, Transform} from "@swim/math";
 import {AttributeAnimator} from "./AttributeAnimator";
 import {ElementView} from "../element/ElementView";
 

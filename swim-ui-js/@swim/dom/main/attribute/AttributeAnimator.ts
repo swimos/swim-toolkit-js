@@ -14,12 +14,10 @@
 
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
-import {AnyLength, Length} from "@swim/length";
+import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
+import {Tween, Animator, TweenAnimator} from "@swim/tween";
 import {AnyColor, Color} from "@swim/color";
-import {AnyTransform, Transform} from "@swim/transform";
-import {Tween} from "@swim/transition";
 import {ViewFlags} from "@swim/view";
-import {Animator, TweenAnimator} from "@swim/animate";
 import {StringAttributeAnimator} from "./StringAttributeAnimator";
 import {BooleanAttributeAnimator} from "./BooleanAttributeAnimator";
 import {NumberAttributeAnimator} from "./NumberAttributeAnimator";

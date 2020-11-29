@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Objects} from "@swim/util"
-import {AnyLength, Length} from "@swim/length";
+import {Equivalent, Equals, Objects} from "@swim/util"
+import {AnyLength, Length} from "@swim/math";
 
 export type AnyTreeRoot = TreeRoot | TreeRootInit;
 
@@ -29,7 +29,7 @@ export interface TreeRootInit {
   hidden?: boolean;
 }
 
-export class TreeRoot implements Equals {
+export class TreeRoot implements Equivalent<TreeRoot>, Equals {
   /** @hidden */
   readonly _key: string;
   /** @hidden */
@@ -227,13 +227,13 @@ export class TreeRoot implements Equals {
                         null, null, null, false);
   }
 
-  static fromAny(grain: AnyTreeRoot): TreeRoot {
-    if (grain instanceof TreeRoot) {
-      return grain;
-    } else if (typeof grain === "object" && grain !== null) {
-      return TreeRoot.fromInit(grain);
+  static fromAny(value: AnyTreeRoot): TreeRoot {
+    if (value instanceof TreeRoot) {
+      return value;
+    } else if (typeof value === "object" && value !== null) {
+      return TreeRoot.fromInit(value);
     }
-    throw new TypeError("" + grain);
+    throw new TypeError("" + value);
   }
 
   static fromInit(init: TreeRootInit): TreeRoot {

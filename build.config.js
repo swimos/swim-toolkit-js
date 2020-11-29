@@ -156,6 +156,21 @@ const core = [
     ],
   },
   {
+    id: "uri",
+    name: "@swim/uri",
+    path: "../swim-system-js/swim-core-js/@swim/uri",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure"],
+      },
+      {
+        id: "test",
+        deps: ["util", "codec", "unit", "interpolate", "structure", "uri"],
+      },
+    ],
+  },
+  {
     id: "math",
     name: "@swim/math",
     path: "../swim-system-js/swim-core-js/@swim/math",
@@ -186,17 +201,17 @@ const core = [
     ],
   },
   {
-    id: "uri",
-    name: "@swim/uri",
-    path: "../swim-system-js/swim-core-js/@swim/uri",
+    id: "scale",
+    name: "@swim/scale",
+    path: "../swim-system-js/swim-core-js/@swim/scale",
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure"],
+        deps: ["util", "codec", "interpolate", "structure", "time"],
       },
       {
         id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "uri"],
+        deps: ["util", "codec", "unit", "interpolate", "structure", "time", "scale"],
       },
     ],
   },
@@ -209,7 +224,7 @@ const core = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "collections", "interpolate", "structure", "streamlet", "dataflow", "recon", "math", "time", "uri"],
+        deps: ["util", "codec", "collections", "interpolate", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "scale"],
       },
     ],
   },
@@ -290,178 +305,6 @@ const system = [
 
 const ui = [
   {
-    id: "angle",
-    name: "@swim/angle",
-    path: "swim-ui-js/@swim/angle",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "angle"],
-      },
-    ],
-  },
-  {
-    id: "length",
-    name: "@swim/length",
-    path: "swim-ui-js/@swim/length",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "length"],
-      },
-    ],
-  },
-  {
-    id: "color",
-    name: "@swim/color",
-    path: "swim-ui-js/@swim/color",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "angle"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "angle", "color"],
-      },
-    ],
-  },
-  {
-    id: "font",
-    name: "@swim/font",
-    path: "swim-ui-js/@swim/font",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "length"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "length", "font"],
-      },
-    ],
-  },
-  {
-    id: "shadow",
-    name: "@swim/shadow",
-    path: "swim-ui-js/@swim/shadow",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "length", "color"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "length", "color", "shadow"],
-      },
-    ],
-  },
-  {
-    id: "gradient",
-    name: "@swim/gradient",
-    path: "swim-ui-js/@swim/gradient",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "length", "color"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "length", "color", "gradient"],
-      },
-    ],
-  },
-  {
-    id: "transform",
-    name: "@swim/transform",
-    path: "swim-ui-js/@swim/transform",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "angle", "length"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "angle", "length", "transform"],
-      },
-    ],
-  },
-  {
-    id: "scale",
-    name: "@swim/scale",
-    path: "swim-ui-js/@swim/scale",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "transform"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "angle", "length", "color", "transform", "scale"],
-      },
-    ],
-  },
-  {
-    id: "transition",
-    name: "@swim/transition",
-    path: "swim-ui-js/@swim/transition",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "transform"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "angle", "length", "color", "transform", "transition"],
-      },
-    ],
-  },
-  {
-    id: "animate",
-    name: "@swim/animate",
-    path: "swim-ui-js/@swim/animate",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "transform", "transition"],
-      },
-    ],
-  },
-  {
-    id: "style",
-    name: "@swim/style",
-    path: "swim-ui-js/@swim/style",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style"],
-      },
-    ],
-  },
-  {
-    id: "render",
-    name: "@swim/render",
-    path: "swim-ui-js/@swim/render",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style"],
-      },
-    ],
-  },
-  {
     id: "constraint",
     name: "@swim/constraint",
     path: "swim-ui-js/@swim/constraint",
@@ -477,13 +320,73 @@ const ui = [
     ],
   },
   {
+    id: "tween",
+    name: "@swim/tween",
+    path: "swim-ui-js/@swim/tween",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure"],
+      },
+      {
+        id: "test",
+        deps: ["util", "codec", "unit", "interpolate", "structure", "tween"],
+      },
+    ],
+  },
+  {
+    id: "color",
+    name: "@swim/color",
+    path: "swim-ui-js/@swim/color",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math"],
+      },
+      {
+        id: "test",
+        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "color"],
+      },
+    ],
+  },
+  {
+    id: "style",
+    name: "@swim/style",
+    path: "swim-ui-js/@swim/style",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "tween", "color"],
+      },
+      {
+        id: "test",
+        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "tween", "color", "style"],
+      },
+    ],
+  },
+  {
+    id: "theme",
+    name: "@swim/theme",
+    path: "swim-ui-js/@swim/theme",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "tween", "color"],
+      },
+      {
+        id: "test",
+        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "tween", "color", "theme"],
+      },
+    ],
+  },
+  {
     id: "view",
     name: "@swim/view",
     path: "swim-ui-js/@swim/view",
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "constraint", "tween", "color", "style", "theme"],
       },
     ],
   },
@@ -494,7 +397,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "constraint", "tween", "color", "style", "theme", "view"],
       },
     ],
   },
@@ -505,7 +408,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "constraint", "tween", "color", "style", "theme", "view", "dom"],
       },
     ],
   },
@@ -516,7 +419,18 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view"],
+      },
+    ],
+  },
+  {
+    id: "popover",
+    name: "@swim/popover",
+    path: "swim-ui-js/@swim/popover",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "constraint", "tween", "color", "style", "theme", "view", "dom"],
       },
     ],
   },
@@ -529,7 +443,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "gesture"],
+        deps: ["constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "gesture", "popover"],
       },
     ],
   },
@@ -537,39 +451,13 @@ const ui = [
 
 const ux = [
   {
-    id: "theme",
-    name: "@swim/theme",
-    path: "swim-ux-js/@swim/theme",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "theme"],
-      },
-    ],
-  },
-  {
-    id: "modal",
-    name: "@swim/modal",
-    path: "swim-ux-js/@swim/modal",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "theme"],
-      },
-    ],
-  },
-  {
     id: "button",
     name: "@swim/button",
     path: "swim-ux-js/@swim/button",
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "gesture", "theme", "modal"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "gesture", "popover"],
       },
     ],
   },
@@ -580,7 +468,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "gesture", "theme", "modal", "button"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "gesture", "popover", "button"],
       },
     ],
   },
@@ -591,7 +479,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "gesture", "theme", "modal", "button"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "gesture", "popover", "button"],
       },
     ],
   },
@@ -602,7 +490,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "gesture", "theme", "modal", "button"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "gesture", "popover", "button"],
       },
     ],
   },
@@ -613,7 +501,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "gesture", "theme", "modal", "button"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "gesture", "popover", "button"],
       },
     ],
   },
@@ -626,7 +514,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["theme", "modal", "button", "token", "drawer", "menu", "tree"],
+        deps: ["button", "token", "drawer", "menu", "tree"],
       },
     ],
   },
@@ -640,7 +528,7 @@ const vis = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics"],
       },
     ],
   },
@@ -651,7 +539,7 @@ const vis = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics"],
       },
     ],
   },
@@ -662,7 +550,7 @@ const vis = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "collections", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "gesture"],
+        deps: ["util", "codec", "collections", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "gesture"],
       },
     ],
   },
@@ -689,7 +577,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics"],
       },
     ],
   },
@@ -700,7 +588,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "map"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "map"],
       },
     ],
   },
@@ -711,7 +599,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "map"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "map"],
       },
     ],
   },
@@ -722,7 +610,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "map"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "map"],
       },
     ],
   },
@@ -760,7 +648,7 @@ const mvc = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "collections", "interpolate", "structure", "streamlet", "dataflow", "recon", "math", "time", "uri", "warp", "client", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "model"],
+        deps: ["util", "codec", "collections", "interpolate", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "scale", "warp", "client", "constraint", "tween", "color", "style", "theme", "view", "dom", "model"],
       },
     ],
   },
@@ -779,44 +667,6 @@ const mvc = [
   },
 ];
 
-const web = [
-  {
-    id: "website",
-    name: "@swim/website",
-    path: "swim-web-js/@swim/website",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom", "graphics", "theme", "modal"],
-      },
-    ],
-  },
-  {
-    id: "webapp",
-    name: "@swim/webapp",
-    path: "swim-web-js/@swim/webapp",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "angle", "length", "color", "font", "shadow", "gradient", "transform", "scale", "transition", "animate", "style", "render", "constraint", "view", "dom"],
-      },
-    ],
-  },
-  {
-    id: "web",
-    name: "@swim/web",
-    path: "swim-web-js/@swim/web",
-    title: "Swim Web Application Framework",
-    umbrella: true,
-    targets: [
-      {
-        id: "main",
-        deps: ["website", "webapp"],
-      },
-    ],
-  },
-];
-
 const toolkit = [
   {
     id: "toolkit",
@@ -826,7 +676,7 @@ const toolkit = [
     targets: [
       {
         id: "main",
-        deps: ["core", "mesh", "ui", "ux", "vis", "maps", "mvc", "web"],
+        deps: ["core", "mesh", "ui", "ux", "vis", "maps", "mvc"],
       },
     ],
   },
@@ -834,6 +684,6 @@ const toolkit = [
 
 export default {
   version: "3.10.2",
-  projects: core.concat(mesh).concat(system).concat(ui).concat(ux).concat(vis).concat(maps).concat(mvc).concat(web).concat(toolkit),
+  projects: core.concat(mesh).concat(system).concat(ui).concat(ux).concat(vis).concat(maps).concat(mvc).concat(toolkit),
   gaID: "UA-79441805-2",
 };

@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {AnyLength, Length} from "@swim/length";
+import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
+import {Tween} from "@swim/tween";
 import {AnyColor, Color} from "@swim/color";
 import {
   FontStyle,
@@ -27,10 +28,6 @@ import {
   FontFamily,
   AnyFont,
   Font,
-} from "@swim/font";
-import {AnyTransform, Transform} from "@swim/transform";
-import {Tween} from "@swim/transition";
-import {
   AlignmentBaseline,
   CssCursor,
   FillRule,
@@ -39,10 +36,9 @@ import {
   StrokeLinecap,
   TextAnchor,
   TouchAction,
-  StyleAnimatorMemberInit,
-  StyleAnimator,
 } from "@swim/style";
 import {ViewFactory, ViewConstructor, View} from "@swim/view";
+import {StyleAnimatorMemberInit, StyleAnimator} from "../style/StyleAnimator";
 import {NodeViewConstructor, NodeView} from "../node/NodeView";
 import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";
 import {ElementViewInit,  ElementViewConstructor, ElementViewClass, ElementView} from "../element/ElementView";

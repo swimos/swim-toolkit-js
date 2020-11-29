@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {Length} from "@swim/length";
-import {Transition} from "@swim/transition";
+import {Length, BoxR2} from "@swim/math";
+import {Transition} from "@swim/tween";
+import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
   ViewContext,
@@ -24,15 +24,7 @@ import {
   ViewScope,
   ViewAnimator,
 } from "@swim/view";
-import {ViewNodeType, HtmlViewConstructor, HtmlView} from "@swim/dom";
-import {
-  Look,
-  Feel,
-  MoodVector,
-  ThemeMatrix,
-  ThemedHtmlViewInit,
-  ThemedHtmlView,
-} from "@swim/theme";
+import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {TreeViewContext} from "./TreeViewContext";
 import {AnyTreeLimb, TreeLimb, TreeLimbState} from "./TreeLimb";
@@ -42,7 +34,7 @@ import {TreeViewController} from "./TreeViewController";
 
 export type AnyTreeView = TreeView | TreeViewInit | HTMLElement;
 
-export interface TreeViewInit extends ThemedHtmlViewInit {
+export interface TreeViewInit extends HtmlViewInit {
   viewController?: TreeViewController;
   limbSpacing?: number;
 
@@ -52,7 +44,7 @@ export interface TreeViewInit extends ThemedHtmlViewInit {
   depth?: number;
 }
 
-export class TreeView extends ThemedHtmlView {
+export class TreeView extends HtmlView {
   /** @hidden */
   readonly _visibleViews: View[];
   /** @hidden */

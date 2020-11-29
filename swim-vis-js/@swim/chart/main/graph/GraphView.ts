@@ -13,9 +13,8 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
-import {CanvasRenderer, CanvasContext} from "@swim/render";
 import {ViewContextType, View} from "@swim/view";
-import {GraphicsView} from "@swim/graphics";
+import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {ScaleViewInit, ScaleView} from "../scale/ScaleView";
 import {AnyPlotView, PlotView} from "../plot/PlotView";
 import {GraphViewObserver} from "./GraphViewObserver";

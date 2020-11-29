@@ -13,14 +13,10 @@
 // limitations under the License.
 
 import {Spec, Test, Exam} from "@swim/unit";
+import {Length, Angle, Transform} from "@swim/math";
 import {DateTime} from "@swim/time";
-import {Angle} from "@swim/angle";
-import {Length} from "@swim/length";
-import {Color} from "@swim/color";
-import {Font} from "@swim/font";
-import {LinearGradient} from "@swim/gradient";
-import {Transform} from "@swim/transform";
-import {StyleValue} from "@swim/style";
+import {Color, LinearGradient} from "@swim/color";
+import {Font, StyleValue} from "@swim/style";
 
 export class StyleValueSpec extends Spec {
   @Test

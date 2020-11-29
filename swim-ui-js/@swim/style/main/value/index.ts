@@ -20,10 +20,6 @@ export {
 export {StyleValueParser} from "./StyleValueParser";
 export {StyleValueForm} from "./StyleValueForm";
 
-export {StyleInterpolatorForm} from "./StyleInterpolatorForm";
-export {StyleScaleForm} from "./StyleScaleForm";
-export {StyleTransitionForm} from "./StyleTransitionForm";
-
 export {ToAttributeString} from "./ToAttributeString";
 export {ToStyleString} from "./ToStyleString";
 export {ToCssValue} from "./ToCssValue";

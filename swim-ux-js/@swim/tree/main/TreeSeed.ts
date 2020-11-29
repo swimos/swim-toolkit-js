@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Objects} from "@swim/util"
-import {AnyLength, Length} from "@swim/length";
+import {Equivalent, Equals, Objects} from "@swim/util"
+import {AnyLength, Length} from "@swim/math";
 import {AnyTreeRoot, TreeRoot} from "./TreeRoot";
 
 export type AnyTreeSeed = TreeSeed | TreeSeedInit;
@@ -25,7 +25,7 @@ export interface TreeSeedInit {
   roots?: AnyTreeRoot[];
 }
 
-export class TreeSeed implements Equals {
+export class TreeSeed implements Equivalent<TreeSeed>, Equals {
   /** @hidden */
   readonly _width: Length | null;
   /** @hidden */
@@ -43,19 +43,19 @@ export class TreeSeed implements Equals {
     this._roots = roots;
   }
 
-  get width(): Length | null {
+  width(): Length | null {
     return this._width;
   }
 
-  get left(): Length | null {
+  left(): Length | null {
     return this._left;
   }
 
-  get right(): Length | null {
+  right(): Length | null {
     return this._right;
   }
 
-  get roots(): ReadonlyArray<TreeRoot> {
+  roots(): ReadonlyArray<TreeRoot> {
     return this._roots;
   }
 
@@ -234,13 +234,13 @@ export class TreeSeed implements Equals {
     return new TreeSeed(null, null, null, roots);
   }
 
-  static fromAny(seed: AnyTreeSeed): TreeSeed {
-    if (seed instanceof TreeSeed) {
-      return seed;
-    } else if (typeof seed === "object" && seed !== null) {
-      return TreeSeed.fromInit(seed);
+  static fromAny(value: AnyTreeSeed): TreeSeed {
+    if (value instanceof TreeSeed) {
+      return value;
+    } else if (typeof value === "object" && value !== null) {
+      return TreeSeed.fromInit(value);
     }
-    throw new TypeError("" + seed);
+    throw new TypeError("" + value);
   }
 
   static fromInit(init: TreeSeedInit): TreeSeed {

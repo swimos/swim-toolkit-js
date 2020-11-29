@@ -14,14 +14,12 @@
 
 import {Equals, Objects} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
-import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import {AnyAngle, Angle} from "@swim/angle";
-import {AnyLength, Length} from "@swim/length";
-import {DrawingContext, Renderer, PathContext, PathRenderer, Graphics} from "@swim/render";
-
-const PI = Math.PI;
-const TAU = 2 * PI;
-const EPSILON = 1e-12;
+import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import {Graphics} from "../graphics/Graphics";
+import {DrawingContext} from "../drawing/DrawingContext";
+import {PathContext} from "../path/PathContext";
+import {PathRenderer} from "../path/PathRenderer";
 
 export type AnyArc = Arc | ArcInit;
 
@@ -195,8 +193,8 @@ export class Arc implements Graphics, Equals, Debug {
   }
 
   render(): string;
-  render(renderer: Renderer, frame?: BoxR2): void;
-  render(renderer?: Renderer, frame?: BoxR2): string | void {
+  render(renderer: GraphicsRenderer, frame?: BoxR2): void;
+  render(renderer?: GraphicsRenderer, frame?: BoxR2): string | void {
     if (renderer === void 0) {
       const context = new PathContext();
       this.draw(context, frame);
@@ -233,14 +231,14 @@ export class Arc implements Graphics, Equals, Debug {
       r0 = r;
     }
 
-    if (!(r1 > EPSILON)) {
+    if (!(r1 > Arc.Epsilon)) {
       // degenerate point
       context.moveTo(cx, cy);
-    } else if (da > TAU - EPSILON) {
+    } else if (da > 2 * Math.PI - Arc.Epsilon) {
       // full circle or annulus
       context.moveTo(cx + r1 * Math.cos(a0), cy + r1 * Math.sin(a0));
       context.arc(cx, cy, r1, a0, a1, !cw);
-      if (r0 > EPSILON) {
+      if (r0 > Arc.Epsilon) {
         context.moveTo(cx + r0 * Math.cos(a1), cy + r0 * Math.sin(a1));
         context.arc(cx, cy, r0, a1, a0, cw);
       }
@@ -253,16 +251,16 @@ export class Arc implements Graphics, Equals, Debug {
       let da0 = da;
       let da1 = da;
       const ap = (this._padAngle.radValue()) / 2;
-      const rp = +(ap > EPSILON) && (this._padRadius !== null ? this._padRadius.pxValue(size) : Math.sqrt(r0 * r0 + r1 * r1));
+      const rp = +(ap > Arc.Epsilon) && (this._padRadius !== null ? this._padRadius.pxValue(size) : Math.sqrt(r0 * r0 + r1 * r1));
       const rc = Math.min(Math.abs(r1 - r0) / 2, this._cornerRadius.pxValue(size));
       let rc0 = rc;
       let rc1 = rc;
 
-      if (rp > EPSILON) {
+      if (rp > Arc.Epsilon) {
         // apply padding
         let p0 = Math.asin(rp / r0 * Math.sin(ap));
         let p1 = Math.asin(rp / r1 * Math.sin(ap));
-        if ((da0 -= p0 * 2) > EPSILON) {
+        if ((da0 -= p0 * 2) > Arc.Epsilon) {
           p0 *= cw ? 1 : -1;
           a00 += p0;
           a10 -= p0;
@@ -270,7 +268,7 @@ export class Arc implements Graphics, Equals, Debug {
           da0 = 0;
           a00 = a10 = (a0 + a1) / 2;
         }
-        if ((da1 -= p1 * 2) > EPSILON) {
+        if ((da1 -= p1 * 2) > Arc.Epsilon) {
           p1 *= cw ? 1 : -1;
           a01 += p1;
           a11 -= p1;
@@ -289,16 +287,16 @@ export class Arc implements Graphics, Equals, Debug {
       let x11: number | undefined;
       let y11: number | undefined;
 
-      if (rc > EPSILON) {
+      if (rc > Arc.Epsilon) {
         // rounded corners
         x11 = r1 * Math.cos(a11);
         y11 = r1 * Math.sin(a11);
         x00 = r0 * Math.cos(a00);
         y00 = r0 * Math.sin(a00);
 
-        if (da < PI) {
+        if (da < Math.PI) {
           // limit corner radius to sector angle
-          const oc = da0 > EPSILON ? Arc.intersect(x01, y01, x00, y00, x11, y11, x10, y10) : [x10, y10];
+          const oc = da0 > Arc.Epsilon ? Arc.intersect(x01, y01, x00, y00, x11, y11, x10, y10) : [x10, y10];
           const ax = x01 - oc[0];
           const ay = y01 - oc[1];
           const bx = x11 - oc[0];
@@ -312,10 +310,10 @@ export class Arc implements Graphics, Equals, Debug {
         }
       }
 
-      if (!(da1 > EPSILON)) {
+      if (!(da1 > Arc.Epsilon)) {
         // collapsed sector
         context.moveTo(cx + x01, cy + y01);
-      } else if (rc1 > EPSILON) {
+      } else if (rc1 > Arc.Epsilon) {
         // rounded outer corners
         const t0 = Arc.cornerTangents(x00!, y00!, x01, y01, r1, rc1, cw);
         const t1 = Arc.cornerTangents(x11!, y11!, x10, y10, r1, rc1, cw);
@@ -338,10 +336,10 @@ export class Arc implements Graphics, Equals, Debug {
         context.arc(cx, cy, r1, a01, a11, !cw);
       }
 
-      if (!(r0 > EPSILON) || !(da0 > EPSILON)) {
+      if (!(r0 > Arc.Epsilon) || !(da0 > Arc.Epsilon)) {
         // collapsed sector
         context.lineTo(cx + x10, cy + y10);
-      } else if (rc0 > EPSILON) {
+      } else if (rc0 > Arc.Epsilon) {
         // rounded inner corners
         const t0 = Arc.cornerTangents(x10, y10, x11!, y11!, r0, -rc0, cw);
         const t1 = Arc.cornerTangents(x01, y01, x00!, y00!, r0, -rc0, cw);
@@ -515,4 +513,7 @@ export class Arc implements Graphics, Equals, Debug {
       y11: cy0 * (r1 / r - 1),
     };
   }
+
+  /** @hidden */
+  static Epsilon: number = 1e-12;
 }

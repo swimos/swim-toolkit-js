@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Length} from "@swim/length";
-import {Tween, Transition} from "@swim/transition";
-import {ViewNodeType} from "@swim/dom";
-import {Look, MoodVector, ThemeMatrix, ThemedHtmlView} from "@swim/theme";
+import {Length} from "@swim/math";
+import {Tween, Transition} from "@swim/tween";
+import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import {ViewNodeType, HtmlView} from "@swim/dom";
 
 export type ButtonGlowState = "ready" | "glowing" | "pulsing" | "fading";
 
-export class ButtonGlow extends ThemedHtmlView {
+export class ButtonGlow extends HtmlView {
   /** @hidden */
   _glowState: ButtonGlowState;
   /** @hidden */

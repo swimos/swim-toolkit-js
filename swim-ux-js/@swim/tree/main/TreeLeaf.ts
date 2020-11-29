@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween, Transition} from "@swim/transition";
+import {Tween, Transition} from "@swim/tween";
+import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewScope} from "@swim/view";
 import {ViewNode, ViewNodeType, HtmlViewConstructor, HtmlView} from "@swim/dom";
 import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
-import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ButtonMembraneInit, ButtonMembrane} from "@swim/button";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeCell, TreeCell} from "./TreeCell";

@@ -14,20 +14,14 @@
 
 import {Objects} from "@swim/util";
 import {BoxR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/font";
 import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/transition";
-import {CanvasRenderer, CanvasContext} from "@swim/render";
-import {
-  ViewContextType,
-  ViewFlags,
-  View,
-  ViewAnimator,
-  ContinuousScaleViewAnimator,
-} from "@swim/view";
-import {LayerView} from "@swim/graphics";
+import {Tween} from "@swim/tween";
+import {AnyColor, Color} from "@swim/color";
+import {AnyFont, Font} from "@swim/style";
+import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
+import {LayerView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
+import {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
 import {PlotViewInit, PlotView} from "./PlotView";
 import {PlotViewObserver} from "./PlotViewObserver";
 import {PlotViewController} from "./PlotViewController";
@@ -120,11 +114,11 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     }
   }
 
-  @ViewAnimator({type: ContinuousScale, inherit: true})
-  xScale: ContinuousScaleViewAnimator<this, X, number>;
+  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
+  xScale: ScaleViewAnimator<this, X, number>;
 
-  @ViewAnimator({type: ContinuousScale, inherit: true})
-  yScale: ContinuousScaleViewAnimator<this, Y, number>;
+  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
+  yScale: ScaleViewAnimator<this, Y, number>;
 
   xDomain(): readonly [X, X] | undefined;
   xDomain(xDomain: readonly [X, X] | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;

@@ -12,20 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/angle";
-export * from "@swim/length";
-export * from "@swim/color";
-export * from "@swim/font";
-export * from "@swim/shadow";
-export * from "@swim/gradient";
-export * from "@swim/transform";
-export * from "@swim/scale";
-export * from "@swim/transition";
-export * from "@swim/animate";
-export * from "@swim/style";
-export * from "@swim/render";
 export * from "@swim/constraint";
+export * from "@swim/tween";
+export * from "@swim/color";
+export * from "@swim/style";
+export * from "@swim/theme";
 export * from "@swim/view";
 export * from "@swim/dom";
 export * from "@swim/graphics";
 export * from "@swim/gesture";
+export * from "@swim/popover";

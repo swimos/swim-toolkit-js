@@ -21,5 +21,3 @@ export * from "@swim/vis";
 export * from "@swim/maps";
 
 export * from "@swim/mvc";
-
-export * from "@swim/web";

@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/theme";
-
-export * from "@swim/modal";
-
 export * from "@swim/button";
 
 export * from "@swim/token";

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {AnyLength, Length} from "@swim/length";
+import {AnyLength, Length, BoxR2} from "@swim/math";
+import {Tween} from "@swim/tween";
 import {AnyColor, Color} from "@swim/color";
-import {Tween} from "@swim/transition";
-import {CanvasContext, CanvasRenderer} from "@swim/render";
 import {ViewContextType, ViewAnimator} from "@swim/view";
-import {GraphicsView} from "../GraphicsView";
-import {LayerView} from "../LayerView";
+import {GraphicsView} from "../graphics/GraphicsView";
+import {LayerView} from "../layer/LayerView";
+import {CanvasContext} from "../canvas/CanvasContext";
+import {CanvasRenderer} from "../canvas/CanvasRenderer";
 import {FillViewInit, FillView} from "./FillView";
 import {StrokeViewInit, StrokeView} from "./StrokeView";
 import {Rect} from "./Rect";

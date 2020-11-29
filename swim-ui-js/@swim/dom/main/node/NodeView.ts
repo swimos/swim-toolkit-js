@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {Transform} from "@swim/transform";
+import {BoxR2, Transform} from "@swim/math";
 import {ConstrainVariable, Constraint} from "@swim/constraint";
+import {Look, Feel, MoodVector} from "@swim/theme";
 import {
   ViewContextType,
   ViewContext,
@@ -30,13 +30,14 @@ import {
   ViewScope,
   ViewAnimator,
   LayoutAnchor,
+  ModalManager,
 } from "@swim/view";
 import {NodeViewObserver} from "./NodeViewObserver";
 import {NodeViewController} from "./NodeViewController";
 import {TextViewConstructor, TextView} from "../text/TextView";
 import {ViewElement, ElementViewConstructor, ElementView} from "../element/ElementView";
 import {HtmlView} from "../html/HtmlView";
-import {StyleView} from "../style/StyleView";
+import {StyleView} from "../html/StyleView";
 import {SvgView} from "../svg/SvgView";
 
 export interface ViewNode extends Node {
@@ -366,14 +367,17 @@ export class NodeView extends View {
   }
 
   setChildView(key: string, newChildView: View | null): View | null {
+    let targetNode: Node | null = null;
     if (newChildView !== null) {
       if (!(newChildView instanceof NodeView)) {
         throw new TypeError("" + newChildView);
       }
+      if (newChildView.parentView === this) {
+        targetNode = newChildView._node.nextSibling;
+      }
       newChildView.remove();
     }
     let oldChildView: View | null = null;
-    let targetNode: Node | null = null;
     const childViewMap = this._childViewMap;
     if (childViewMap !== void 0) {
       const childView = childViewMap[key];
@@ -934,6 +938,7 @@ export class NodeView extends View {
     this.mountScopes();
     this.mountAnimators();
     this.mountSubviews();
+    this.mountTheme();
   }
 
   protected didMount(): void {
@@ -1360,6 +1365,27 @@ export class NodeView extends View {
       }
       i += 1;
     }
+  }
+
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined {
+    return void 0;
+  }
+
+  getLookOr<T, V>(look: Look<T, unknown>, elseValue: V, mood?: MoodVector<Feel>): T | V {
+    return elseValue;
+  }
+
+  modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): void {
+    // nop
+  }
+
+  modifyTheme(feel: Feel, ...entries: [Feel, number | undefined][]): void {
+    // nop
+  }
+
+  /** @hidden */
+  protected mountTheme(): void {
+    // hook
   }
 
   hasSubview(subviewName: string): boolean {
@@ -1920,3 +1946,16 @@ export class NodeView extends View {
   /** @hidden */
   static Svg: typeof SvgView; // defined by SvgView
 }
+
+ModalManager.insertModalView = function (modalView: View): void {
+  const matteNode = document.body as ViewNode;
+  const matteView = matteNode.view;
+  if (matteView !== void 0) {
+    matteView.appendChildView(modalView);
+  } else if (modalView instanceof NodeView) {
+    matteNode.appendChild(modalView._node);
+    modalView.mount();
+  } else {
+    throw new TypeError("" + modalView);
+  }
+};

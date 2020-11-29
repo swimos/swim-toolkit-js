@@ -40,5 +40,3 @@ export {ColorViewAnimator} from "./ColorViewAnimator";
 export {FontViewAnimator} from "./FontViewAnimator";
 
 export {TransformViewAnimator} from "./TransformViewAnimator";
-
-export {ContinuousScaleViewAnimator} from "./ContinuousScaleViewAnimator";

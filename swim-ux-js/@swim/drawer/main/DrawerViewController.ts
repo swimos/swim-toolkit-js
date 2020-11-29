@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ThemedHtmlViewController} from "@swim/theme";
+import {HtmlViewController} from "@swim/dom";
 import {DrawerPlacement, DrawerView} from "./DrawerView";
 import {DrawerViewObserver} from "./DrawerViewObserver";
 
-export class DrawerViewController<V extends DrawerView = DrawerView> extends ThemedHtmlViewController<V> implements DrawerViewObserver<V> {
+export class DrawerViewController<V extends DrawerView = DrawerView> extends HtmlViewController<V> implements DrawerViewObserver<V> {
   drawerWillSetPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement, view: V): void {
     // hook
   }

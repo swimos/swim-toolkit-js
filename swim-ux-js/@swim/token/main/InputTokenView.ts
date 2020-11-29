@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Transition} from "@swim/tween";
 import {Color} from "@swim/color";
-import {Transition} from "@swim/transition";
-import {StyleRule, StyleSheet} from "@swim/style";
+import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {Subview} from "@swim/view";
-import {ViewNodeType, HtmlView, StyleView} from "@swim/dom";
+import {StyleRule, StyleSheet, ViewNodeType, HtmlView, StyleView, SvgView} from "@swim/dom";
 import {PositionGesture} from "@swim/gesture";
-import {Look, MoodVector, ThemeMatrix, ThemedSvgView} from "@swim/theme";
 import {TokenViewInit, TokenView} from "./TokenView";
 import {InputTokenViewObserver} from "./InputTokenViewObserver";
 import {InputTokenViewController} from "./InputTokenViewController";
@@ -86,7 +85,7 @@ export class InputTokenView extends TokenView {
     labelView.pointerEvents.setAutoState("auto");
   }
 
-  protected createBodyGesture(bodyView: ThemedSvgView): PositionGesture<ThemedSvgView> | null {
+  protected createBodyGesture(bodyView: SvgView): PositionGesture<SvgView> | null {
     return null;
   }
 

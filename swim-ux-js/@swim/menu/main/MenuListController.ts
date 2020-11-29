@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ThemedHtmlViewController} from "@swim/theme";
+import {HtmlViewController} from "@swim/dom";
 import {MenuItem} from "./MenuItem";
 import {MenuList} from "./MenuList";
 import {MenuListObserver} from "./MenuListObserver";
 
-export class MenuListController<V extends MenuList = MenuList> extends ThemedHtmlViewController<V> implements MenuListObserver<V> {
+export class MenuListController<V extends MenuList = MenuList> extends HtmlViewController<V> implements MenuListObserver<V> {
   /** @hidden */
   _selectedItem: MenuItem | null;
 

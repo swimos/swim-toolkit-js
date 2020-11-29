@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Transition} from "@swim/tween";
+import {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType} from "./ViewContext";
 import {ViewFlags, View} from "./View";
 
@@ -90,4 +92,8 @@ export interface ViewObserver<V extends View = View> {
   viewWillDisplayChildViews?(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
 
   viewDidDisplayChildViews?(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
+
+  viewWillApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, view: V): void;
+
+  viewDidApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, view: V): void;
 }

@@ -12,40 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Length} from "@swim/length";
-import {Tween, Transition} from "@swim/transition";
-import {PathContext} from "@swim/render";
-import {ViewContextType, ViewFlags, View, Subview, ViewAnimator} from "@swim/view";
-import {ViewNodeType, ElementView, HtmlView, SvgView} from "@swim/dom";
+import {Length} from "@swim/math";
+import {Tween, Transition} from "@swim/tween";
+import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
+import {ViewContextType, ViewFlags, View, ViewObserver, Subview, ViewAnimator} from "@swim/view";
+import {ViewNodeType, ElementView, HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
+import {PathContext} from "@swim/graphics";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
-import {
-  Look,
-  Feel,
-  MoodVector,
-  ThemeMatrix,
-  ThemedViewObserver,
-  ThemedSvgView,
-  ThemedHtmlViewInit,
-  ThemedHtmlView,
-} from "@swim/theme";
 import {TokenViewObserver} from "./TokenViewObserver";
 import {TokenViewController} from "./TokenViewController";
 
 export type TokenViewState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
-export interface TokenViewInit extends ThemedHtmlViewInit {
+export interface TokenViewInit extends HtmlViewInit {
   controller?: TokenViewController;
 }
 
-export class TokenView extends ThemedHtmlView {
+export class TokenView extends HtmlView {
   /** @hidden */
   _tokenState: TokenViewState;
   /** @hidden */
-  _headGesture?: PositionGesture<ThemedSvgView>;
+  _headGesture?: PositionGesture<SvgView>;
   /** @hidden */
-  _bodyGesture?: PositionGesture<ThemedSvgView>;
+  _bodyGesture?: PositionGesture<SvgView>;
   /** @hidden */
-  _footGesture?: PositionGesture<ThemedSvgView>;
+  _footGesture?: PositionGesture<SvgView>;
 
   constructor(node: HTMLElement) {
     super(node);
@@ -79,7 +70,7 @@ export class TokenView extends ThemedHtmlView {
     this.shape.insert();
   }
 
-  protected initShape(shapeView: ThemedSvgView): void {
+  protected initShape(shapeView: SvgView): void {
     shapeView.addClass("shape");
     shapeView.setStyle("position", "absolute");
     shapeView.setStyle("top", "0");
@@ -90,7 +81,7 @@ export class TokenView extends ThemedHtmlView {
     this.foot.insert(shapeView, "foot");
   }
 
-  protected initHead(headView: ThemedSvgView): void {
+  protected initHead(headView: SvgView): void {
     headView.addClass("head");
     headView.pointerEvents.setAutoState("fill");
     headView.cursor.setAutoState("pointer");
@@ -100,11 +91,11 @@ export class TokenView extends ThemedHtmlView {
     }
   }
 
-  protected createHeadGesture(headView: ThemedSvgView): PositionGesture<ThemedSvgView> | null {
+  protected createHeadGesture(headView: SvgView): PositionGesture<SvgView> | null {
     return new PositionGesture(headView, this.head);
   }
 
-  protected initBody(bodyView: ThemedSvgView): void {
+  protected initBody(bodyView: SvgView): void {
     bodyView.addClass("body");
     bodyView.pointerEvents.setAutoState("fill");
     bodyView.cursor.setAutoState("pointer");
@@ -114,11 +105,11 @@ export class TokenView extends ThemedHtmlView {
     }
   }
 
-  protected createBodyGesture(bodyView: ThemedSvgView): PositionGesture<ThemedSvgView> | null {
+  protected createBodyGesture(bodyView: SvgView): PositionGesture<SvgView> | null {
     return new PositionGesture(bodyView, this.body);
   }
 
-  protected initFoot(footView: ThemedSvgView): void {
+  protected initFoot(footView: SvgView): void {
     footView.addClass("foot");
     footView.pointerEvents.setAutoState("fill");
     footView.cursor.setAutoState("pointer");
@@ -128,7 +119,7 @@ export class TokenView extends ThemedHtmlView {
     }
   }
 
-  protected createFootGesture(footView: ThemedSvgView): PositionGesture<ThemedSvgView> | null {
+  protected createFootGesture(footView: SvgView): PositionGesture<SvgView> | null {
     return new PositionGesture(footView, this.foot);
   }
 
@@ -201,32 +192,32 @@ export class TokenView extends ThemedHtmlView {
   @ViewAnimator({type: Number, state: 1, updateFlags: View.NeedsLayout})
   expandedPhase: ViewAnimator<this, number>;
 
-  @Subview<TokenView, ThemedSvgView>({
-    type: ThemedSvgView,
-    onSetSubview(shapeView: ThemedSvgView | null): void {
+  @Subview<TokenView, SvgView>({
+    type: SvgView,
+    onSetSubview(shapeView: SvgView | null): void {
       if (shapeView !== null) {
         this.view.initShape(shapeView);
       }
     },
   })
-  readonly shape: Subview<this, ThemedSvgView>;
+  readonly shape: Subview<this, SvgView>;
 
-  @Subview<TokenView, ThemedSvgView, ThemedSvgView, ThemedViewObserver & PositionGestureDelegate>({
+  @Subview<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
-    type: ThemedSvgView.path,
-    onSetSubview(headView: ThemedSvgView | null): void {
+    type: SvgView.path,
+    onSetSubview(headView: SvgView | null): void {
       if (headView !== null) {
         this.view.initHead(headView);
       }
     },
-    viewDidMount(headView: ThemedSvgView): void {
+    viewDidMount(headView: SvgView): void {
       headView.on("click", this.view.onClickHead);
     },
-    viewWillUnmount(headView: ThemedSvgView): void {
+    viewWillUnmount(headView: SvgView): void {
       headView.off("click", this.view.onClickHead);
     },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, headView: ThemedSvgView): void {
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, headView: SvgView): void {
       headView.fill.setAutoState(theme.inner(mood, Look.accentColor), transition);
       const iconView = this.view.icon.subview;
       if (iconView instanceof SvgView && iconView.fill.isAuto()) {
@@ -280,24 +271,24 @@ export class TokenView extends ThemedHtmlView {
       }
     },
   })
-  readonly head: Subview<this, ThemedSvgView> & PositionGestureDelegate;
+  readonly head: Subview<this, SvgView> & PositionGestureDelegate;
 
-  @Subview<TokenView, ThemedSvgView, ThemedSvgView, ThemedViewObserver & PositionGestureDelegate>({
+  @Subview<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
-    type: ThemedSvgView.path,
-    onSetSubview(bodyView: ThemedSvgView | null): void {
+    type: SvgView.path,
+    onSetSubview(bodyView: SvgView | null): void {
       if (bodyView !== null) {
         this.view.initBody(bodyView);
       }
     },
-    viewDidMount(headView: ThemedSvgView): void {
+    viewDidMount(headView: SvgView): void {
       headView.on("click", this.view.onClickBody);
     },
-    viewWillUnmount(headView: ThemedSvgView): void {
+    viewWillUnmount(headView: SvgView): void {
       headView.off("click", this.view.onClickBody);
     },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, bodyView: ThemedSvgView): void {
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, bodyView: SvgView): void {
       bodyView.fill.setAutoState(theme.inner(mood, Look.accentColor), transition);
       const labelView = this.view.label.subview;
       if (labelView !== null && labelView.color.isAuto()) {
@@ -345,24 +336,24 @@ export class TokenView extends ThemedHtmlView {
       }
     },
   })
-  readonly body: Subview<this, ThemedSvgView> & PositionGestureDelegate;
+  readonly body: Subview<this, SvgView> & PositionGestureDelegate;
 
-  @Subview<TokenView, ThemedSvgView, ThemedSvgView, ThemedViewObserver & PositionGestureDelegate>({
+  @Subview<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
-    type: ThemedSvgView.path,
-    onSetSubview(footView: ThemedSvgView | null): void {
+    type: SvgView.path,
+    onSetSubview(footView: SvgView | null): void {
       if (footView !== null) {
         this.view.initFoot(footView);
       }
     },
-    viewDidMount(footView: ThemedSvgView): void {
+    viewDidMount(footView: SvgView): void {
       footView.on("click", this.view.onClickFoot);
     },
-    viewWillUnmount(footView: ThemedSvgView): void {
+    viewWillUnmount(footView: SvgView): void {
       footView.off("click", this.view.onClickFoot);
     },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, footView: ThemedSvgView): void {
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, footView: SvgView): void {
       footView.fill.setAutoState(theme.inner(mood, Look.accentColor), transition);
       const actionView = this.view.action.subview;
       if (actionView instanceof SvgView && actionView.fill.isAuto()) {
@@ -416,7 +407,7 @@ export class TokenView extends ThemedHtmlView {
       }
     },
   })
-  readonly foot: Subview<this, ThemedSvgView> & PositionGestureDelegate;
+  readonly foot: Subview<this, SvgView> & PositionGestureDelegate;
 
   @Subview<TokenView, ElementView, Element, {embossed: boolean}>({
     extends: void 0,

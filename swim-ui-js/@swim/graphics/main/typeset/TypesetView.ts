@@ -14,9 +14,9 @@
 
 import {AnyPointR2, PointR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/font";
+import {AnyFont, Font} from "@swim/style";
 import {ViewAnimator} from "@swim/view";
-import {GraphicsViewInit, GraphicsView} from "../GraphicsView";
+import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
 
 export interface TypesetViewInit extends GraphicsViewInit {
   font?: AnyFont;

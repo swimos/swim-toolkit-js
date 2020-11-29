@@ -14,13 +14,6 @@
 
 import {BoxR2} from "@swim/math";
 import {
-  AnyRenderer,
-  RendererType,
-  Renderer,
-  CanvasRenderer,
-  WebGLRenderer,
-} from "@swim/render";
-import {
   ViewContextType,
   ViewContext,
   ViewConstructor,
@@ -45,8 +38,11 @@ import {
   HtmlViewTagMap,
   HtmlView,
 } from "@swim/dom";
-import {GraphicsViewContext} from "../GraphicsViewContext";
-import {GraphicsView} from "../GraphicsView";
+import {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import {GraphicsViewContext} from "../graphics/GraphicsViewContext";
+import {GraphicsView} from "../graphics/GraphicsView";
+import {WebGLRenderer} from "../webgl/WebGLRenderer";
+import {CanvasRenderer} from "./CanvasRenderer";
 import {CanvasViewObserver} from "./CanvasViewObserver";
 import {CanvasViewController} from "./CanvasViewController";
 
@@ -68,7 +64,7 @@ export interface ViewCanvas extends HTMLCanvasElement {
 
 export interface CanvasViewInit extends HtmlViewInit {
   viewController?: CanvasViewController;
-  renderer?: AnyRenderer;
+  renderer?: AnyGraphicsRenderer;
   clickEventsEnabled?: boolean;
   wheelEventsEnabled?: boolean;
   mouseEventsEnabled?: boolean;
@@ -82,7 +78,7 @@ export class CanvasView extends HtmlView {
   /** @hidden */
   readonly _graphicsViews: GraphicsView[];
   /** @hidden */
-  _renderer: Renderer | null | undefined;
+  _renderer: GraphicsRenderer | null | undefined;
   /** @hidden */
   _viewFrame: BoxR2;
   /** @hidden */
@@ -325,10 +321,16 @@ export class CanvasView extends HtmlView {
   }
 
   setGraphicsView(key: string, newChildView: GraphicsView | null): View | null {
-    let index = -1;
-    let oldChildView: View | null = null;
     let targetView: View | null = null;
     const childViews = this._graphicsViews;
+    if (newChildView !== null) {
+      if (newChildView.parentView === this) {
+        targetView = childViews[childViews.indexOf(newChildView) + 1] || null;
+      }
+      newChildView.remove();
+    }
+    let index = -1;
+    let oldChildView: View | null = null;
     const childViewMap = this._childViewMap;
     if (childViewMap !== void 0) {
       const childView = childViewMap[key];
@@ -591,7 +593,7 @@ export class CanvasView extends HtmlView {
     return window.devicePixelRatio || 1;
   }
 
-  get renderer(): Renderer | null {
+  get renderer(): GraphicsRenderer | null {
     let renderer = this._renderer;
     if (renderer === void 0) {
       renderer = this.createRenderer();
@@ -600,15 +602,15 @@ export class CanvasView extends HtmlView {
     return renderer;
   }
 
-  setRenderer(renderer: AnyRenderer | null): void {
+  setRenderer(renderer: AnyGraphicsRenderer | null): void {
     if (typeof renderer === "string") {
-      renderer = this.createRenderer(renderer as RendererType);
+      renderer = this.createRenderer(renderer as GraphicsRendererType);
     }
     this._renderer = renderer;
     this.resetRenderer();
   }
 
-  protected createRenderer(rendererType: RendererType = "canvas"): Renderer | null {
+  protected createRenderer(rendererType: GraphicsRendererType = "canvas"): GraphicsRenderer | null {
     if (rendererType === "canvas") {
       const context = this._node.getContext("2d");
       if (context !== null) {

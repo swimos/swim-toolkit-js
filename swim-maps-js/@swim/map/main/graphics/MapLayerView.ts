@@ -89,16 +89,19 @@ export class MapLayerView extends MapGraphicsView {
   }
 
   setChildView(key: string, newChildView: View | null): View | null {
+    let targetView: View | null = null;
+    const childViews = this._childViews;
     if (newChildView !== null) {
       if (!(newChildView instanceof GraphicsView)) {
         throw new TypeError("" + newChildView);
+      }
+      if (newChildView.parentView === this) {
+        targetView = childViews[childViews.indexOf(newChildView) + 1] || null;
       }
       newChildView.remove();
     }
     let index = -1;
     let oldChildView: View | null = null;
-    let targetView: View | null = null;
-    const childViews = this._childViews;
     const childViewMap = this._childViewMap;
     if (childViewMap !== void 0) {
       const childView = childViewMap[key];

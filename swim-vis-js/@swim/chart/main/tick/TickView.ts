@@ -13,13 +13,19 @@
 // limitations under the License.
 
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {Transition, TweenAnimator} from "@swim/tween";
 import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/font";
-import {Transition} from "@swim/transition";
-import {TweenAnimator} from "@swim/animate";
-import {CanvasContext, CanvasRenderer} from "@swim/render";
+import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
-import {GraphicsViewInit, GraphicsView, LayerView, AnyTextRunView, TextRunView} from "@swim/graphics";
+import {
+  GraphicsViewInit,
+  GraphicsView,
+  LayerView,
+  CanvasContext,
+  CanvasRenderer,
+  AnyTextRunView,
+  TextRunView,
+} from "@swim/graphics";
 import {TopTickView} from "./TopTickView";
 import {RightTickView} from "./RightTickView";
 import {BottomTickView} from "./BottomTickView";

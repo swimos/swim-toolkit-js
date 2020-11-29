@@ -35,7 +35,7 @@ if (navigator.standalone) {
   document.body.style.height = "100%";
 }
 
-const bodyView = swim.ThemedHtmlView.fromNode(document.body);
+const bodyView = swim.HtmlView.fromNode(document.body);
 
 const drawerButton = bodyView.append(swim.DrawerButton)
   .position("absolute")

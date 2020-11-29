@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Length} from "@swim/length";
-import {Tween, Transition} from "@swim/transition";
-import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
+import {Length} from "@swim/math";
+import {Tween, Transition} from "@swim/tween";
+import {Look} from "@swim/theme";
+import {ViewContextType, ViewFlags, View, ModalOptions, ModalState, Modal, ViewAnimator} from "@swim/view";
 import {ViewNodeType, ViewNode, HtmlView, SvgView} from "@swim/dom";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
-import {Look, ThemedHtmlView} from "@swim/theme";
-import {ModalOptions, ModalState, Modal} from "@swim/modal";
 import {FloatingButton} from "./FloatingButton";
 import {ButtonItem} from "./ButtonItem";
 import {ButtonStackObserver} from "./ButtonStackObserver";
@@ -26,7 +25,7 @@ import {ButtonStackController} from "./ButtonStackController";
 
 export type ButtonStackState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
-export class ButtonStack extends ThemedHtmlView implements Modal, PositionGestureDelegate {
+export class ButtonStack extends HtmlView implements Modal, PositionGestureDelegate {
   /** @hidden */
   _stackState: ButtonStackState;
   /** @hidden */

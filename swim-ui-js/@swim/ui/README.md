@@ -17,67 +17,27 @@ part of the [**@swim/toolkit**](https://github.com/swimos/swim/tree/master/swim-
 The **@swim/ui** umbrella package depends on, and re-exports, the following
 component libraries:
 
-- [**@swim/angle**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/angle)
-  ([npm](https://www.npmjs.com/package/@swim/angle),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_angle.html)) –
-  dimensional angle types with unit-aware algebraic operators, conversions,
-  and parsers.
-- [**@swim/length**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/length)
-  ([npm](https://www.npmjs.com/package/@swim/length),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_length.html)) –
-  DOM-relative length types with unit-aware algebraic operators, conversions,
-  and parsers.
+- [**@swim/constraint**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/constraint)
+  ([npm](https://www.npmjs.com/package/@swim/constraint),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_constraint.html)) –
+  incremental solver for systems of linear layout constraints.
+- [**@swim/tween**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/tween)
+  ([npm](https://www.npmjs.com/package/@swim/tween),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_tween.html)) –
+  procedurally animated transitions between managed states.
 - [**@swim/color**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/color)
   ([npm](https://www.npmjs.com/package/@swim/color),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_color.html)) –
   RGB and HSL color types with color-space-aware operators, conversions,
   and parsers.
-- [**@swim/font**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/font)
-  ([npm](https://www.npmjs.com/package/@swim/font),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_font.html)) –
-  CSS font property types and parsers.
-- [**@swim/shadow**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/shadow)
-  ([npm](https://www.npmjs.com/package/@swim/shadow),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_shadow.html)) –
-  CSS box shadow types and parsers.
-- [**@swim/gradient**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/gradient)
-  ([npm](https://www.npmjs.com/package/@swim/gradient),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_gradient.html)) –
-  CSS gradient types and parsers.
-- [**@swim/transform**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/transform)
-  ([npm](https://www.npmjs.com/package/@swim/transform),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_transform.html)) –
-  CSS and SVG compatible transform types with unit-aware algebraic operators
-  and parsers.
-- [**@swim/scale**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/scale)
-  ([npm](https://www.npmjs.com/package/@swim/scale),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_scale.html)) –
-  scale types that map numeric and temporal input domains to interpolated
-  output ranges, with support for continuous domain clamping, domain solving,
-  range unscaling, and interpolation between scales.
-- [**@swim/transition**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/transition)
-  ([npm](https://www.npmjs.com/package/@swim/transition),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_transition.html)) –
-  transition types that specify duration, ease, interpolator, and lifecycle
-  callback parameters for tween animations.
 - [**@swim/style**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/style)
   ([npm](https://www.npmjs.com/package/@swim/style),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_style.html)) –
   CSS style types and universal style value parser.
-- [**@swim/animate**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/animate)
-  ([npm](https://www.npmjs.com/package/@swim/animate),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_animate.html)) –
-  property-managing animator types that efficiently tween values between
-  discrete state changes.
-- [**@swim/render**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/render)
-  ([npm](https://www.npmjs.com/package/@swim/render),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_render.html)) –
-  renderable graphic types for SVG and Canvas compatible path drawing contexts,
-  and Canvas compatible rendering contexts.
-- [**@swim/constraint**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/constraint)
-  ([npm](https://www.npmjs.com/package/@swim/constraint),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_constraint.html)) –
-  incremental solver for systems of linear layout constraints.
+- [**@swim/theme**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/theme)
+  ([npm](https://www.npmjs.com/package/@swim/theme),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_theme.html)) –
+  semantic looks and feels for mood-aware UX components.
 - [**@swim/view**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/view)
   ([npm](https://www.npmjs.com/package/@swim/view),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_view.html)) –
@@ -96,6 +56,10 @@ component libraries:
   ([npm](https://www.npmjs.com/package/@swim/gesture),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_gesture.html)) –
   multitouch gesture recognizers, with kinematic surface modeling.
+- [**@swim/popover**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/popover)
+  ([npm](https://www.npmjs.com/package/@swim/popover),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_popover.html)) –
+  auto-placed, source-tracking popover views.
 
 **@swim/ui** builds on the [**@swim/core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js/@swim/core)
 framework; it has no additional dependencies.

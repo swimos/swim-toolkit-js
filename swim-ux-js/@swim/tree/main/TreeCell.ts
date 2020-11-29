@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewNodeType, HtmlViewConstructor} from "@swim/dom";
+import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {PositionGestureInput} from "@swim/gesture";
-import {ThemedHtmlViewInit, ThemedHtmlView} from "@swim/theme";
 import {TreeCellObserver} from "./TreeCellObserver";
 import {TreeCellController} from "./TreeCellController";
 import {TitleTreeCell} from "./TitleTreeCell";
@@ -23,14 +22,14 @@ import {PolygonTreeCell} from "./PolygonTreeCell";
 
 export type AnyTreeCell = TreeCell | TreeCellInit | HTMLElement;
 
-export interface TreeCellInit extends ThemedHtmlViewInit {
+export interface TreeCellInit extends HtmlViewInit {
   viewController?: TreeCellController;
   cellType?: TreeCellType;
 }
 
 export type TreeCellType = "title" | "disclosure" | "polygon";
 
-export class TreeCell extends ThemedHtmlView {
+export class TreeCell extends HtmlView {
   protected initNode(node: ViewNodeType<this>): void {
     super.initNode(node);
     this.addClass("tree-cell");

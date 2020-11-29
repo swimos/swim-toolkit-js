@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyColor} from "@swim/color";
-import {AnyFont} from "@swim/font";
 import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/transition";
+import {Tween} from "@swim/tween";
+import {AnyColor} from "@swim/color";
+import {AnyFont} from "@swim/style";
 import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
 import {AnyDataPointView} from "../data/DataPointView";
 import {ScaleXYView} from "../scale/ScaleXYView";

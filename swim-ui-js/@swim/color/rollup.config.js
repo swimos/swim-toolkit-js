@@ -15,7 +15,7 @@ const main = {
       "@swim/codec": "swim",
       "@swim/interpolate": "swim",
       "@swim/structure": "swim",
-      "@swim/angle": "swim",
+      "@swim/math": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -26,7 +26,7 @@ const main = {
     "@swim/codec",
     "@swim/interpolate",
     "@swim/structure",
-    "@swim/angle",
+    "@swim/math",
   ],
   plugins: [
     nodeResolve({customResolveOptions: {paths: "../.."}}),

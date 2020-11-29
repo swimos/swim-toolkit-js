@@ -13,12 +13,13 @@
 // limitations under the License.
 
 import {AnyPointR2, PointR2} from "@swim/math";
+import {Tween} from "@swim/tween";
 import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/font";
-import {Tween} from "@swim/transition";
-import {CanvasContext, CanvasRenderer} from "@swim/render";
+import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewAnimator} from "@swim/view";
-import {LayerView} from "../LayerView";
+import {LayerView} from "../layer/LayerView";
+import {CanvasContext} from "../canvas/CanvasContext";
+import {CanvasRenderer} from "../canvas/CanvasRenderer";
 import {TypesetViewInit, TypesetView} from "./TypesetView";
 import {TextRun} from "./TextRun";
 

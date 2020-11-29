@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {Transform} from "@swim/transform";
+import {BoxR2, Transform} from "@swim/math";
+import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {
-  AnyRenderer,
-  RendererType,
-  Renderer,
+  AnyGraphicsRenderer,
+  GraphicsRendererType,
+  GraphicsRenderer,
+  GraphicsView,
   CanvasCompositeOperation,
   CanvasRenderer,
   WebGLRenderer,
-} from "@swim/render";
-import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
-import {GraphicsView} from "@swim/graphics";
+} from "@swim/graphics";
 import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
 import {MapLayerView} from "../graphics/MapLayerView";
@@ -41,7 +40,7 @@ export class MapRasterView extends MapLayerView {
   /** @hidden */
   _canvas: HTMLCanvasElement;
   /** @hidden */
-  _renderer: Renderer | null | undefined;
+  _renderer: GraphicsRenderer | null | undefined;
   /** @hidden */
   _rasterFrame: BoxR2;
 
@@ -82,12 +81,12 @@ export class MapRasterView extends MapLayerView {
     return this._canvas;
   }
 
-  get compositor(): Renderer | null {
+  get compositor(): GraphicsRenderer | null {
     const parentView = this.parentView;
     return parentView instanceof GraphicsView ? parentView.renderer : null;
   }
 
-  get renderer(): Renderer | null {
+  get renderer(): GraphicsRenderer | null {
     let renderer = this._renderer;
     if (renderer === void 0) {
       renderer = this.createRenderer();
@@ -96,15 +95,15 @@ export class MapRasterView extends MapLayerView {
     return renderer;
   }
 
-  setRenderer(renderer: AnyRenderer | null): void {
+  setRenderer(renderer: AnyGraphicsRenderer | null): void {
     if (typeof renderer === "string") {
-      renderer = this.createRenderer(renderer as RendererType);
+      renderer = this.createRenderer(renderer as GraphicsRendererType);
     }
     this._renderer = renderer;
     this.resetRenderer();
   }
 
-  protected createRenderer(rendererType: RendererType = "canvas"): Renderer | null {
+  protected createRenderer(rendererType: GraphicsRendererType = "canvas"): GraphicsRenderer | null {
     if (rendererType === "canvas") {
       const context = this._canvas.getContext("2d");
       if (context !== null) {

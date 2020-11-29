@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ThemedHtmlViewObserver} from "@swim/theme";
+import {HtmlViewObserver} from "@swim/dom";
 import {MenuItem} from "./MenuItem";
 import {MenuList} from "./MenuList";
 
-export interface MenuListObserver<V extends MenuList = MenuList> extends ThemedHtmlViewObserver<V> {
+export interface MenuListObserver<V extends MenuList = MenuList> extends HtmlViewObserver<V> {
   menuDidPressItem?(item: MenuItem, view: V): void;
 }

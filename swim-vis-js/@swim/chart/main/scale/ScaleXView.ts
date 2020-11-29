@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/transition";
+import {Tween} from "@swim/tween";
 import {GraphicsView} from "@swim/graphics";
 import {ScaleView} from "./ScaleView";
 

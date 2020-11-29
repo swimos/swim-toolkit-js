@@ -14,7 +14,7 @@
 
 import {BoxR2} from "@swim/math";
 import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/transition";
+import {Tween} from "@swim/tween";
 import {ViewContext, View, ViewObserver} from "@swim/view";
 import {GestureInputType} from "./GestureInput";
 import {AbstractMomentumGesture} from "./MomentumGesture";

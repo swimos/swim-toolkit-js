@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyAngle, Angle} from "@swim/angle";
-import {AnyLength, Length} from "@swim/length";
-import {Transition} from "@swim/transition";
-import {Height, Width, StyleAnimator} from "@swim/style";
-import {PathContext} from "@swim/render";
-import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {ViewNodeType, SvgView} from "@swim/dom";
+import {AnyLength, Length, AnyAngle, Angle} from "@swim/math";
+import {Transition} from "@swim/tween";
+import {Height, Width} from "@swim/style";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import {ViewContextType, View, ViewAnimator} from "@swim/view";
+import {StyleAnimator, ViewNodeType, SvgView} from "@swim/dom";
+import {PathContext} from "@swim/graphics";
 import {TreeCellInit, TreeCell} from "./TreeCell";
 
 export interface PolygonTreeCellInit extends TreeCellInit {

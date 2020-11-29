@@ -13,16 +13,17 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Length} from "@swim/length";
-import {Transform} from "@swim/transform";
-import {StyleMapInit, StyleMap} from "@swim/style";
+import {Length, Transform} from "@swim/math";
+import {Transition} from "@swim/tween";
+import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, ViewFactory, ViewConstructor, View, LayoutAnchor} from "@swim/view";
+import {StyleMapInit, StyleMap} from "../css/StyleMap";
 import {NodeViewConstructor, NodeView} from "../node/NodeView";
 import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";
 import {ElementViewInit, ElementViewConstructor, ElementViewClass, ElementView} from "../element/ElementView";
 import {HtmlViewObserver} from "./HtmlViewObserver";
 import {HtmlViewController} from "./HtmlViewController";
-import {StyleView} from "../style/StyleView";
+import {StyleView} from "./StyleView";
 
 export interface ViewHtml extends HTMLElement {
   view?: HtmlView;
@@ -303,6 +304,43 @@ export class HtmlView extends ElementView {
     }
     this.insertChild(child, target, key);
     return child;
+  }
+
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         transition: Transition<any> | null): void {
+    super.onApplyTheme(theme, mood, transition);
+    if (this._node === document.body) {
+      this.applyRootTheme(theme, mood, transition);
+    }
+  }
+
+  /** @hidden */
+  applyRootTheme(theme: ThemeMatrix, mood: MoodVector,
+                 transition: Transition<any> | null): void {
+    const font = theme.inner(Mood.ambient, Look.font);
+    if (font !== void 0) {
+      if (font._style !== void 0) {
+        this.fontStyle.setAutoState(font._style);
+      }
+      if (font._variant !== void 0) {
+        this.fontVariant.setAutoState(font._variant);
+      }
+      if (font._weight !== void 0) {
+        this.fontWeight.setAutoState(font._weight);
+      }
+      if (font._stretch !== void 0) {
+        this.fontStretch.setAutoState(font._stretch);
+      }
+      if (font._size !== void 0) {
+        this.fontSize.setAutoState(font._size);
+      }
+      if (font._height !== void 0) {
+        this.lineHeight.setAutoState(font._height);
+      }
+      this.fontFamily.setAutoState(font._family);
+    }
+    this.backgroundColor.setAutoState(theme.inner(Mood.ambient, Look.backgroundColor), transition);
+    this.color.setAutoState(theme.inner(Mood.ambient, Look.color), transition);
   }
 
   isPositioned(): boolean {
