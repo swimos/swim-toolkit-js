@@ -24,5 +24,3 @@ export {
   ComponentViewConstructor,
   ComponentView,
 } from "./ComponentView";
-
-export {ComponentViewObserver} from "./ComponentViewObserver";

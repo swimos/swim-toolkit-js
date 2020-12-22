@@ -15,7 +15,7 @@
 import {Transition} from "@swim/tween";
 import {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewContext} from "./ViewContext";
-import {ViewFlags, View} from "./View";
+import {ViewFlags, ViewPrototype, View} from "./View";
 import {ViewObserver} from "./ViewObserver";
 import {ViewIdiom} from "./viewport/ViewIdiom";
 import {Viewport} from "./viewport/Viewport";
@@ -75,6 +75,11 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
 
   viewDidSetParentView(newParentView: View | null, oldParentView: View | null, view: V): void {
     // hook
+  }
+
+  get childViewCount(): number {
+    const view = this._view;
+    return view !== null ? view.childViewCount : 0;
   }
 
   get childViews(): ReadonlyArray<View> {
@@ -194,14 +199,10 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
   removeChildView(childView: View): void;
   removeChildView(key: string | View): View | null | void {
     const view = this._view;
-    if (view !== null) {
-      if (typeof key === "string") {
-        return view.removeChildView(key);
-      } else {
-        view.removeChildView(key);
-      }
-    } else {
-      throw new Error("no view");
+    if (typeof key === "string") {
+      return view !== null ? view.removeChildView(key) : null;
+    } else if (view !== null) {
+      view.removeChildView(key);
     }
   }
 
@@ -252,14 +253,14 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
-  getSuperView<V extends View>(viewClass: {new(...args: any[]): V}): V | null {
+  getSuperView<V extends View>(viewPrototype: ViewPrototype<V>): V | null {
     const view = this._view;
-    return view !== null ? view.getSuperView(viewClass) : null;
+    return view !== null ? view.getSuperView(viewPrototype) : null;
   }
 
-  getBaseView<V extends View>(viewClass: {new(...args: any[]): V}): V | null {
+  getBaseView<V extends View>(viewPrototype: ViewPrototype<V>): V | null {
     const view = this._view;
-    return view !== null ? view.getBaseView(viewClass) : null;
+    return view !== null ? view.getBaseView(viewPrototype) : null;
   }
 
   isMounted(): boolean {
@@ -340,11 +341,11 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     return view !== null && view.isProcessing();
   }
 
-  viewWillProcess(viewContext: ViewContextType<V>, view: V): void {
+  viewWillProcess(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidProcess(viewContext: ViewContextType<V>, view: V): void {
+  viewDidProcess(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
@@ -380,14 +381,6 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
-  viewWillLayout(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidLayout(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
   viewWillProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
@@ -401,11 +394,19 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     return view !== null && view.isDisplaying();
   }
 
-  viewWillDisplay(viewContext: ViewContextType<V>, view: V): void {
+  viewWillDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 
-  viewDidDisplay(viewContext: ViewContextType<V>, view: V): void {
+  viewDidDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
+  viewWillLayout(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
+  viewDidLayout(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 

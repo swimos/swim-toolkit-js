@@ -67,22 +67,24 @@ export type AttributeAnimatorDescriptor<V extends ElementView, T, U = T, I = {}>
   T extends number | string | undefined ? U extends number | string | undefined ? {type: [typeof Number, typeof String]} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
   AttributeAnimatorDescriptorFromAny<V, T, U, I>;
 
-export type AttributeAnimatorPrototype = Function & {prototype: AttributeAnimator<any, any, any>};
+export interface AttributeAnimatorPrototype extends Function {
+  readonly prototype: AttributeAnimator<any, any, any>;
+}
 
-export type AttributeAnimatorConstructor<V extends ElementView, T, U = T, I = {}> = {
-  new(view: V, animatorName: string): AttributeAnimator<V, T, U> & I;
+export interface AttributeAnimatorConstructor<V extends ElementView, T, U = T, I = {}> {
+  new(owner: V, animatorName: string): AttributeAnimator<V, T, U> & I;
   prototype: AttributeAnimator<any, any, any> & I;
-};
+}
 
 export declare abstract class AttributeAnimator<V extends ElementView, T, U = T> {
   /** @hidden */
-  _view: V;
+  _owner: V;
 
-  constructor(view: V, animatorName: string);
+  constructor(owner: V, animatorName: string);
 
   get name(): string;
 
-  get view(): V;
+  get owner(): V;
 
   get node(): Element;
 
@@ -153,18 +155,18 @@ export function AttributeAnimator<V extends ElementView, T, U = T>(descriptor: A
 
 export function AttributeAnimator<V extends ElementView, T, U>(
     this: AttributeAnimator<V, T, U> | typeof AttributeAnimator,
-    view: V | AttributeAnimatorDescriptor<V, T, U>,
+    owner: V | AttributeAnimatorDescriptor<V, T, U>,
     animatorName?: string,
   ): AttributeAnimator<V, T, U> | PropertyDecorator {
   if (this instanceof AttributeAnimator) { // constructor
-    return AttributeAnimatorConstructor.call(this, view as V, animatorName);
+    return AttributeAnimatorConstructor.call(this, owner as V, animatorName);
   } else { // decorator factory
-    return AttributeAnimatorDecoratorFactory(view as AttributeAnimatorDescriptor<V, T, U>);
+    return AttributeAnimatorDecoratorFactory(owner as AttributeAnimatorDescriptor<V, T, U>);
   }
 }
 __extends(AttributeAnimator, TweenAnimator);
 
-function AttributeAnimatorConstructor<V extends ElementView, T, U>(this: AttributeAnimator<V, T, U>, view: V, animatorName: string | undefined): AttributeAnimator<V, T, U> {
+function AttributeAnimatorConstructor<V extends ElementView, T, U>(this: AttributeAnimator<V, T, U>, owner: V, animatorName: string | undefined): AttributeAnimator<V, T, U> {
   const _this: AttributeAnimator<V, T, U> = TweenAnimator.call(this, void 0, null) || this;
   if (animatorName !== void 0) {
     Object.defineProperty(_this, "name", {
@@ -173,7 +175,7 @@ function AttributeAnimatorConstructor<V extends ElementView, T, U>(this: Attribu
       configurable: true,
     });
   }
-  _this._view = view;
+  _this._owner = owner;
   return _this;
 }
 
@@ -181,9 +183,9 @@ function AttributeAnimatorDecoratorFactory<V extends ElementView, T, U = T>(desc
   return ElementView.decorateAttributeAnimator.bind(ElementView, AttributeAnimator.define(descriptor));
 }
 
-Object.defineProperty(AttributeAnimator.prototype, "view", {
+Object.defineProperty(AttributeAnimator.prototype, "owner", {
   get: function (this: AttributeAnimator<ElementView, unknown, unknown>): ElementView {
-    return this._view;
+    return this._owner;
   },
   enumerable: true,
   configurable: true,
@@ -191,7 +193,7 @@ Object.defineProperty(AttributeAnimator.prototype, "view", {
 
 Object.defineProperty(AttributeAnimator.prototype, "node", {
   get: function (this: AttributeAnimator<ElementView, unknown, unknown>): Element {
-    return this._view._node;
+    return this._owner._node;
   },
   enumerable: true,
   configurable: true,
@@ -199,7 +201,7 @@ Object.defineProperty(AttributeAnimator.prototype, "node", {
 
 Object.defineProperty(AttributeAnimator.prototype, "attributeValue", {
   get: function <T, U>(this: AttributeAnimator<ElementView, T, unknown>): T | undefined {
-    const value = this._view.getAttribute(this.attributeName);
+    const value = this._owner.getAttribute(this.attributeName);
     if (value !== null) {
       try {
         return this.parse(value);
@@ -297,17 +299,17 @@ AttributeAnimator.prototype.setAutoState = function <T, U>(this: AttributeAnimat
 AttributeAnimator.prototype.onUpdate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
                                                        newValue: T | undefined,
                                                        oldValue: T | undefined): void {
-  this._view.setAttribute(this.attributeName, newValue);
+  this._owner.setAttribute(this.attributeName, newValue);
   const updateFlags = this.updateFlags;
   if (updateFlags !== void 0) {
-    this._view.requireUpdate(updateFlags);
+    this._owner.requireUpdate(updateFlags);
   }
 };
 
 AttributeAnimator.prototype.animate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
                                                       animator: Animator = this): void {
   if (animator !== this || (this._animatorFlags & TweenAnimator.DisabledFlag) === 0) {
-    this._view.animate(animator);
+    this._owner.animate(animator);
   }
 };
 
@@ -354,22 +356,22 @@ AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor:
   }
   if (_super === null) {
     _super = AttributeAnimator;
-    if (!descriptor.hasOwnProperty("fromAny") && FromAny.is<T, U>(descriptor.type)) {
+    if (descriptor.fromAny === void 0 && FromAny.is<T, U>(descriptor.type)) {
       descriptor.fromAny = descriptor.type.fromAny;
     }
   }
 
-  const _constructor = function AttributeAnimatorAccessor(this: AttributeAnimator<V, T, U>, view: V, animatorName: string): AttributeAnimator<V, T, U> {
+  const _constructor = function AttributeAnimatorAccessor(this: AttributeAnimator<V, T, U>, owner: V, animatorName: string): AttributeAnimator<V, T, U> {
     let _this: AttributeAnimator<V, T, U> = function accessor(value?: T | U, tween?: Tween<T>): T | undefined | V {
       if (arguments.length === 0) {
         return _this.value;
       } else {
         _this.setState(value, tween);
-        return _this._view;
+        return _this._owner;
       }
     } as AttributeAnimator<V, T, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, view, animatorName) || _this;
+    _this = _super!.call(_this, owner, animatorName) || _this;
     return _this;
   } as unknown as AttributeAnimatorConstructor<V, T, U, I>;
 

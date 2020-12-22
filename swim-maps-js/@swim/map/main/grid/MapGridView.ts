@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {GeoPoint, GeoBox, GeoProjection} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
-import {GeoPoint} from "../geo/GeoPoint";
-import {GeoBox} from "../geo/GeoBox";
-import {GeoProjection} from "../geo/GeoProjection";
 import {MapGraphicsViewInit, MapGraphicsView} from "../graphics/MapGraphicsView";
 import {MapGridTile} from "./MapGridTile";
 
@@ -320,32 +318,31 @@ export class MapGridView extends MapGraphicsView {
   }
 
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
-    this.processTile(this._childViews, processFlags, viewContext, callback);
+                              processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
+    this.processTile(this._childViews, processFlags, viewContext, processChildView);
   }
 
   /** @hidden */
   protected processTile(tile: MapGridTile, processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                        callback: ((this: this, childView: View) => void) | undefined): void {
+                        processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                           viewContext: ViewContextType<this>) => void): void {
     if (tile._southWest !== null && tile._southWest._geoFrame.intersects(viewContext.geoFrame)) {
-      this.processTile(tile._southWest, processFlags, viewContext, callback);
+      this.processTile(tile._southWest, processFlags, viewContext, processChildView);
     }
     if (tile._northWest !== null && tile._northWest._geoFrame.intersects(viewContext.geoFrame)) {
-      this.processTile(tile._northWest, processFlags, viewContext, callback);
+      this.processTile(tile._northWest, processFlags, viewContext, processChildView);
     }
     if (tile._southEast !== null && tile._southEast._geoFrame.intersects(viewContext.geoFrame)) {
-      this.processTile(tile._southEast, processFlags, viewContext, callback);
+      this.processTile(tile._southEast, processFlags, viewContext, processChildView);
     }
     if (tile._northEast !== null && tile._northEast._geoFrame.intersects(viewContext.geoFrame)) {
-      this.processTile(tile._northEast, processFlags, viewContext, callback);
+      this.processTile(tile._northEast, processFlags, viewContext, processChildView);
     }
     const childViews = tile._views;
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
-      this.processChildView(childView, processFlags, viewContext);
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+      processChildView.call(this, childView, processFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
@@ -404,32 +401,31 @@ export class MapGridView extends MapGraphicsView {
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
-    this.displayTile(this._childViews, displayFlags, viewContext, callback);
+                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
+    this.displayTile(this._childViews, displayFlags, viewContext, displayChildView);
   }
 
   /** @hidden */
   protected displayTile(tile: MapGridTile, displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                        callback: ((this: this, childView: View) => void) | undefined): void {
+                        displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                           viewContext: ViewContextType<this>) => void): void {
     if (tile._southWest !== null && tile._southWest._geoFrame.intersects(viewContext.geoFrame)) {
-      this.displayTile(tile._southWest, displayFlags, viewContext, callback);
+      this.displayTile(tile._southWest, displayFlags, viewContext, displayChildView);
     }
     if (tile._northWest !== null && tile._northWest._geoFrame.intersects(viewContext.geoFrame)) {
-      this.displayTile(tile._northWest, displayFlags, viewContext, callback);
+      this.displayTile(tile._northWest, displayFlags, viewContext, displayChildView);
     }
     if (tile._southEast !== null && tile._southEast._geoFrame.intersects(viewContext.geoFrame)) {
-      this.displayTile(tile._southEast, displayFlags, viewContext, callback);
+      this.displayTile(tile._southEast, displayFlags, viewContext, displayChildView);
     }
     if (tile._northEast !== null && tile._northEast._geoFrame.intersects(viewContext.geoFrame)) {
-      this.displayTile(tile._northEast, displayFlags, viewContext, callback);
+      this.displayTile(tile._northEast, displayFlags, viewContext, displayChildView);
     }
     const childViews = tile._views;
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
-      this.displayChildView(childView, displayFlags, viewContext);
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+      displayChildView.call(this, childView, displayFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
@@ -483,5 +479,9 @@ export class MapGridView extends MapGraphicsView {
       }
     }
     return hit;
+  }
+
+  static create(): MapGridView {
+    return new MapGridView();
   }
 }

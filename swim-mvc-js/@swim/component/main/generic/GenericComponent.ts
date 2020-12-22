@@ -13,15 +13,16 @@
 // limitations under the License.
 
 import {View} from "@swim/view";
-import {Model} from "@swim/model";
+import {Model, Trait} from "@swim/model";
 import {ComponentContextType, ComponentContext} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
 import {ComponentObserverType, ComponentObserver} from "../ComponentObserver";
-import {Subcomponent} from "../Subcomponent";
 import {ComponentService} from "../service/ComponentService";
 import {ComponentScope} from "../scope/ComponentScope";
 import {ComponentModel} from "../model/ComponentModel";
+import {ComponentTrait} from "../trait/ComponentTrait";
 import {ComponentView} from "../view/ComponentView";
+import {ComponentBinding} from "../binding/ComponentBinding";
 
 export abstract class GenericComponent extends Component {
   /** @hidden */
@@ -33,15 +34,17 @@ export abstract class GenericComponent extends Component {
   /** @hidden */
   _componentFlags: ComponentFlags;
   /** @hidden */
-  _subcomponents?: {[subcomponentName: string]: Subcomponent<Component, Component> | undefined};
-  /** @hidden */
   _componentServices?: {[serviceName: string]: ComponentService<Component, unknown> | undefined};
   /** @hidden */
   _componentScopes?: {[scopeName: string]: ComponentScope<Component, unknown> | undefined};
   /** @hidden */
   _componentModels?: {[modelName: string]: ComponentModel<Component, Model> | undefined};
   /** @hidden */
+  _componentTraits?: {[traitName: string]: ComponentTrait<Component, Trait> | undefined};
+  /** @hidden */
   _componentViews?: {[viewName: string]: ComponentView<Component, View> | undefined};
+  /** @hidden */
+  _componentBindings?: {[bindingName: string]: ComponentBinding<Component, Component> | undefined};
 
   constructor() {
     super();
@@ -152,6 +155,17 @@ export abstract class GenericComponent extends Component {
     this.didSetParentComponent(newParentComponent, oldParentComponent);
   }
 
+  remove(): void {
+    const parentComponent = this._parentComponent;
+    if (parentComponent !== null) {
+      if ((this._componentFlags & Component.TraversingFlag) === 0) {
+        parentComponent.removeChildComponent(this);
+      } else {
+        this._componentFlags |= Component.RemovingFlag;
+      }
+    }
+  }
+
   abstract get childComponentCount(): number;
 
   abstract get childComponents(): ReadonlyArray<Component>;
@@ -171,7 +185,7 @@ export abstract class GenericComponent extends Component {
 
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
     super.onInsertChildComponent(childComponent, targetComponent);
-    this.insertSubcomponent(childComponent);
+    this.insertComponentBinding(childComponent);
   }
 
   cascadeInsert(updateFlags?: ComponentFlags, componentContext?: ComponentContext): void {
@@ -183,21 +197,10 @@ export abstract class GenericComponent extends Component {
 
   protected onRemoveChildComponent(childComponent: Component): void {
     super.onRemoveChildComponent(childComponent);
-    this.removeSubcomponent(childComponent);
+    this.removeComponentBinding(childComponent);
   }
 
   abstract removeAll(): void;
-
-  remove(): void {
-    const parentComponent = this._parentComponent;
-    if (parentComponent !== null) {
-      if ((this._componentFlags & Component.TraversingFlag) === 0) {
-        parentComponent.removeChildComponent(this);
-      } else {
-        this._componentFlags |= Component.RemovingFlag;
-      }
-    }
-  }
 
   /** @hidden */
   get componentFlags(): ComponentFlags {
@@ -231,8 +234,9 @@ export abstract class GenericComponent extends Component {
     this.mountServices();
     this.mountScopes();
     this.mountModels();
+    this.mountTraits();
     this.mountViews();
-    this.mountSubcomponents();
+    this.mountBindings();
   }
 
   /** @hidden */
@@ -248,7 +252,7 @@ export abstract class GenericComponent extends Component {
 
   cascadeUnmount(): void {
     if ((this._componentFlags & Component.MountedFlag) !== 0) {
-      this._componentFlags &= ~Component.MountedFlag
+      this._componentFlags &= ~Component.MountedFlag;
       this._componentFlags |= Component.TraversingFlag;
       try {
         this.willUnmount();
@@ -264,8 +268,9 @@ export abstract class GenericComponent extends Component {
   }
 
   protected onUnmount(): void {
-    this.unmountSubcomponents();
+    this.unmountBindings();
     this.unmountViews();
+    this.unmountTraits();
     this.unmountModels();
     this.unmountScopes();
     this.unmountServices();
@@ -313,7 +318,7 @@ export abstract class GenericComponent extends Component {
 
   cascadeUnpower(): void {
     if ((this._componentFlags & Component.PoweredFlag) !== 0) {
-      this._componentFlags &= ~Component.PoweredFlag
+      this._componentFlags &= ~Component.PoweredFlag;
       this._componentFlags |= Component.TraversingFlag;
       try {
         this.willUnpower();
@@ -397,15 +402,6 @@ export abstract class GenericComponent extends Component {
     }
   }
 
-  /** @hidden */
-  protected doCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    if ((compileFlags & Component.CompileMask) !== 0 && this.childComponentCount !== 0) {
-      this.willCompileChildComponents(compileFlags, componentContext);
-      this.onCompileChildComponents(compileFlags, componentContext);
-      this.didCompileChildComponents(compileFlags, componentContext);
-    }
-  }
-
   cascadeExecute(executeFlags: ComponentFlags, componentContext: ComponentContext): void {
     const extendedComponentContext = this.extendComponentContext(componentContext);
     executeFlags |= this._componentFlags & Component.UpdateMask;
@@ -455,96 +451,7 @@ export abstract class GenericComponent extends Component {
 
   protected onRevise(componentContext: ComponentContextType<this>): void {
     super.onRevise(componentContext);
-    this.updateScopes();
-  }
-
-  /** @hidden */
-  protected doExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    if ((executeFlags & Component.ExecuteMask) !== 0 && this.childComponentCount !== 0) {
-      this.willExecuteChildComponents(executeFlags, componentContext);
-      this.onExecuteChildComponents(executeFlags, componentContext);
-      this.didExecuteChildComponents(executeFlags, componentContext);
-    }
-  }
-
-  hasSubcomponent(subcomponentName: string): boolean {
-    const subcomponents = this._subcomponents;
-    return subcomponents !== void 0 && subcomponents[subcomponentName] !== void 0;
-  }
-
-  getSubcomponent(subcomponentName: string): Subcomponent<this, Component> | null {
-    const subcomponents = this._subcomponents;
-    if (subcomponents !== void 0) {
-      const subcomponent = subcomponents[subcomponentName];
-      if (subcomponent !== void 0) {
-        return subcomponent as Subcomponent<this, Component>;
-      }
-    }
-    return null;
-  }
-
-  setSubcomponent(subcomponentName: string, newSubcomponent: Subcomponent<this, Component> | null): void {
-    let subcomponents = this._subcomponents;
-    if (subcomponents === void 0) {
-      subcomponents = {};
-      this._subcomponents = subcomponents;
-    }
-    const oldSubcomponent = subcomponents[subcomponentName];
-    if (oldSubcomponent !== void 0 && this.isMounted()) {
-      oldSubcomponent.unmount();
-    }
-    if (newSubcomponent !== null) {
-      subcomponents[subcomponentName] = newSubcomponent;
-      if (this.isMounted()) {
-        newSubcomponent.mount();
-      }
-    } else {
-      delete subcomponents[subcomponentName];
-    }
-  }
-
-  /** @hidden */
-  protected mountSubcomponents(): void {
-    const subcomponents = this._subcomponents;
-    if (subcomponents !== void 0) {
-      for (const subcomponentName in subcomponents) {
-        const subcomponent = subcomponents[subcomponentName]!;
-        subcomponent.mount();
-      }
-    }
-  }
-
-  /** @hidden */
-  protected unmountSubcomponents(): void {
-    const subcomponents = this._subcomponents;
-    if (subcomponents !== void 0) {
-      for (const subcomponentName in subcomponents) {
-        const subcomponent = subcomponents[subcomponentName]!;
-        subcomponent.unmount();
-      }
-    }
-  }
-
-  /** @hidden */
-  protected insertSubcomponent(childComponent: Component): void {
-    const subcomponentName = childComponent.key;
-    if (subcomponentName !== void 0) {
-      const subcomponent = this.getLazySubcomponent(subcomponentName);
-      if (subcomponent !== null && subcomponent.child) {
-        subcomponent.doSetSubcomponent(childComponent);
-      }
-    }
-  }
-
-  /** @hidden */
-  protected removeSubcomponent(childComponent: Component): void {
-    const subcomponentName = childComponent.key;
-    if (subcomponentName !== void 0) {
-      const subcomponent = this.getSubcomponent(subcomponentName);
-      if (subcomponent !== null && subcomponent.child) {
-        subcomponent.doSetSubcomponent(null);
-      }
-    }
+    this.reviseScopes();
   }
 
   hasComponentService(serviceName: string): boolean {
@@ -642,7 +549,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  updateScopes(): void {
+  reviseScopes(): void {
     const componentScopes = this._componentScopes;
     if (componentScopes !== void 0) {
       for (const scopeName in componentScopes) {
@@ -732,6 +639,64 @@ export abstract class GenericComponent extends Component {
     }
   }
 
+  hasComponentTrait(traitName: string): boolean {
+    const componentTraits = this._componentTraits;
+    return componentTraits !== void 0 && componentTraits[traitName] !== void 0;
+  }
+
+  getComponentTrait(traitName: string): ComponentTrait<this, Trait> | null {
+    const componentTraits = this._componentTraits;
+    if (componentTraits !== void 0) {
+      const componentTrait = componentTraits[traitName];
+      if (componentTrait !== void 0) {
+        return componentTrait as ComponentTrait<this, Trait>;
+      }
+    }
+    return null;
+  }
+
+  setComponentTrait(traitName: string, newComponentTrait: ComponentTrait<this, Trait> | null): void {
+    let componentTraits = this._componentTraits;
+    if (componentTraits === void 0) {
+      componentTraits = {};
+      this._componentTraits = componentTraits;
+    }
+    const oldComponentTrait = componentTraits[traitName];
+    if (oldComponentTrait !== void 0 && this.isMounted()) {
+      oldComponentTrait.unmount();
+    }
+    if (newComponentTrait !== null) {
+      componentTraits[traitName] = newComponentTrait;
+      if (this.isMounted()) {
+        newComponentTrait.mount();
+      }
+    } else {
+      delete componentTraits[traitName];
+    }
+  }
+
+  /** @hidden */
+  protected mountTraits(): void {
+    const componentTraits = this._componentTraits;
+    if (componentTraits !== void 0) {
+      for (const traitName in componentTraits) {
+        const componentTrait = componentTraits[traitName]!;
+        componentTrait.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected unmountTraits(): void {
+    const componentTraits = this._componentTraits;
+    if (componentTraits !== void 0) {
+      for (const traitName in componentTraits) {
+        const componentTrait = componentTraits[traitName]!;
+        componentTrait.unmount();
+      }
+    }
+  }
+
   hasComponentView(viewName: string): boolean {
     const componentViews = this._componentViews;
     return componentViews !== void 0 && componentViews[viewName] !== void 0;
@@ -786,6 +751,86 @@ export abstract class GenericComponent extends Component {
       for (const viewName in componentViews) {
         const componentView = componentViews[viewName]!;
         componentView.unmount();
+      }
+    }
+  }
+
+  hasComponentBinding(bindingName: string): boolean {
+    const componentBindings = this._componentBindings;
+    return componentBindings !== void 0 && componentBindings[bindingName] !== void 0;
+  }
+
+  getComponentBinding(bindingName: string): ComponentBinding<this, Component> | null {
+    const componentBindings = this._componentBindings;
+    if (componentBindings !== void 0) {
+      const componentBinding = componentBindings[bindingName];
+      if (componentBinding !== void 0) {
+        return componentBinding as ComponentBinding<this, Component>;
+      }
+    }
+    return null;
+  }
+
+  setComponentBinding(bindingName: string, newComponentBinding: ComponentBinding<this, Component> | null): void {
+    let componentBindings = this._componentBindings;
+    if (componentBindings === void 0) {
+      componentBindings = {};
+      this._componentBindings = componentBindings;
+    }
+    const oldComponentBinding = componentBindings[bindingName];
+    if (oldComponentBinding !== void 0 && this.isMounted()) {
+      oldComponentBinding.unmount();
+    }
+    if (newComponentBinding !== null) {
+      componentBindings[bindingName] = newComponentBinding;
+      if (this.isMounted()) {
+        newComponentBinding.mount();
+      }
+    } else {
+      delete componentBindings[bindingName];
+    }
+  }
+
+  /** @hidden */
+  protected mountBindings(): void {
+    const componentBindings = this._componentBindings;
+    if (componentBindings !== void 0) {
+      for (const bindingName in componentBindings) {
+        const componentBinding = componentBindings[bindingName]!;
+        componentBinding.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected unmountBindings(): void {
+    const componentBindings = this._componentBindings;
+    if (componentBindings !== void 0) {
+      for (const bindingName in componentBindings) {
+        const componentBinding = componentBindings[bindingName]!;
+        componentBinding.unmount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected insertComponentBinding(childComponent: Component): void {
+    const bindingName = childComponent.key;
+    if (bindingName !== void 0) {
+      const componentBinding = this.getLazyComponentBinding(bindingName);
+      if (componentBinding !== null && componentBinding.child === true) {
+        componentBinding.doSetComponent(childComponent);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected removeComponentBinding(childComponent: Component): void {
+    const bindingName = childComponent.key;
+    if (bindingName !== void 0) {
+      const componentBinding = this.getComponentBinding(bindingName);
+      if (componentBinding !== null && componentBinding.child === true) {
+        componentBinding.doSetComponent(null);
       }
     }
   }

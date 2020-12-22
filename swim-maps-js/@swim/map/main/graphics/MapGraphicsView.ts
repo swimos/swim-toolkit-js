@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {GeoBox, GeoProjection} from "@swim/geo";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
-import {GeoBox} from "../geo/GeoBox";
-import {GeoProjection} from "../geo/GeoProjection";
 import {MapGraphicsViewContext} from "./MapGraphicsViewContext";
 import {MapGraphicsViewObserver} from "./MapGraphicsViewObserver";
 import {MapGraphicsViewController} from "./MapGraphicsViewController";
@@ -67,7 +66,7 @@ export abstract class MapGraphicsView extends GraphicsView {
     this._viewFlags |= View.TraversingFlag | View.ProcessingFlag;
     this._viewFlags &= ~View.NeedsProcess;
     try {
-      this.willProcess(viewContext);
+      this.willProcess(cascadeFlags, viewContext);
       if (((this._viewFlags | processFlags) & View.NeedsResize) !== 0) {
         this.willResize(viewContext);
         cascadeFlags |= View.NeedsResize;
@@ -99,7 +98,7 @@ export abstract class MapGraphicsView extends GraphicsView {
         this._viewFlags &= ~View.NeedsProject;
       }
 
-      this.onProcess(viewContext);
+      this.onProcess(cascadeFlags, viewContext);
       if ((cascadeFlags & View.NeedsResize) !== 0) {
         this.onResize(viewContext);
       }
@@ -139,7 +138,7 @@ export abstract class MapGraphicsView extends GraphicsView {
       if ((cascadeFlags & View.NeedsResize) !== 0) {
         this.didResize(viewContext);
       }
-      this.didProcess(viewContext);
+      this.didProcess(cascadeFlags, viewContext);
     } finally {
       this._viewFlags &= ~(View.TraversingFlag | View.ProcessingFlag);
     }
@@ -171,6 +170,18 @@ export abstract class MapGraphicsView extends GraphicsView {
     }
   }
 
+  protected didSetHidden(hidden: boolean): void {
+    const parentView = this._parentView;
+    if (parentView instanceof MapGraphicsView) {
+      parentView.childViewDidSetHidden(this, hidden);
+    }
+    super.didSetHidden(hidden);
+  }
+
+  childViewDidSetHidden(childView: MapGraphicsView, hidden: boolean): void {
+    // hook
+  }
+
   cullGeoFrame(geoFrame: GeoBox = this.geoFrame): void {
     this.setCulled(!geoFrame.intersects(this.geoBounds));
   }
@@ -196,13 +207,17 @@ export abstract class MapGraphicsView extends GraphicsView {
     return this.geoFrame;
   }
 
+  get ownGeoBounds(): GeoBox | null {
+    return null;
+  }
+
   deriveGeoBounds(): GeoBox {
-    let geoBounds: GeoBox | undefined;
+    let geoBounds: GeoBox | null = this.ownGeoBounds;
     this.forEachChildView(function (childView: View): void {
       if (childView instanceof MapGraphicsView && !childView.isHidden()) {
         const childGeoBounds = childView.geoBounds;
         if (childGeoBounds.isDefined()) {
-          if (geoBounds !== void 0) {
+          if (geoBounds !== null) {
             geoBounds = geoBounds.union(childGeoBounds);
           } else {
             geoBounds = childGeoBounds;
@@ -210,7 +225,7 @@ export abstract class MapGraphicsView extends GraphicsView {
         }
       }
     }, this);
-    if (geoBounds === void 0) {
+    if (geoBounds === null) {
       geoBounds = this.geoFrame;
     }
     return geoBounds;

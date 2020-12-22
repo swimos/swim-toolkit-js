@@ -23,32 +23,37 @@ be found in `node_modules/@swim/model/dist/main/swim-model.js`.
 ### Browser
 
 Browser applications can load `swim-mvc.js`—which bundles the **@swim/model**
-library—along with its `swim-core.js` and `swim-ui.js` dependencies, directly
-from the SwimOS CDN.
+library—along with its `swim-core.js`, `swim-mesh.js`, and `swim-ui.js`
+dependencies, directly from the SwimOS CDN.
 
 ```html
 <!-- Development -->
 <script src="https://cdn.swimos.org/js/latest/swim-core.js"></script>
+<script src="https://cdn.swimos.org/js/latest/swim-mesh.js"></script>
 <script src="https://cdn.swimos.org/js/latest/swim-ui.js"></script>
 <script src="https://cdn.swimos.org/js/latest/swim-mvc.js"></script>
 
 <!-- Production -->
 <script src="https://cdn.swimos.org/js/latest/swim-core.min.js"></script>
+<script src="https://cdn.swimos.org/js/latest/swim-mesh.min.js"></script>
 <script src="https://cdn.swimos.org/js/latest/swim-ui.min.js"></script>
 <script src="https://cdn.swimos.org/js/latest/swim-mvc.min.js"></script>
 ```
 
-Alternatively, the standalone `swim-system.js` script may be loaded
-from the SwimOS CDN, which bundles **@swim/model** together with all other
-[**@swim/system**](https://github.com/swimos/swim/tree/master/swim-system-js/@swim/system)
-libraries.
+Alternatively, the `swim-toolkit.js` script may be loaded, along with its
+`swim-system.js` dependency, from the SwimOS CDN.  The `swim-toolkit.js`
+script bundles **@swim/model** together with all other
+[**@swim/toolkit**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/@swim/toolkit)
+frameworks.
 
 ```html
 <!-- Development -->
 <script src="https://cdn.swimos.org/js/latest/swim-system.js"></script>
+<script src="https://cdn.swimos.org/js/latest/swim-toolkit.js"></script>
 
 <!-- Production -->
 <script src="https://cdn.swimos.org/js/latest/swim-system.min.js"></script>
+<script src="https://cdn.swimos.org/js/latest/swim-toolkit.min.js"></script>
 ```
 
 ## Usage
@@ -72,12 +77,12 @@ var model = require("@swim/model");
 
 ### Browser
 
-When loaded by a mvc browser, the `swim-mvc.js` script adds all
+When loaded by a web browser, the `swim-mvc.js` script adds all
 **@swim/model** library exports to the global `swim` namespace.
-The `swim-mvc.js` script requires that `swim-core.js` and `swim-ui.js`
-have already been loaded.
+The `swim-mvc.js` script requires that `swim-core.js`, `swim-mesh.js`,
+and `swim-ui.js` have already been loaded.
 
-The `swim-system.js` script also adds all **@swim/model** library exports
-to the global `swim` namespace, making it a drop-in replacement for
-'swim-core.js', `swim-ui.js`, and `swim-mvc.js` when additional
-**@swim/system** libraries are needed.
+The `swim-toolkit.js` script also adds all **@swim/model** library
+exports to the global `swim` namespace, making it a drop-in replacement for
+`swim-ui.js` and `swim-model.js` when additional **@swim/toolkit** frameworks
+are needed.

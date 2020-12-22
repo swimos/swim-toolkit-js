@@ -28,7 +28,6 @@ import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewContext} from "./ViewContext";
 import {ViewObserverType, ViewObserver} from "./ViewObserver";
 import {ViewControllerType, ViewController} from "./ViewController";
-import {SubviewConstructor, Subview} from "./Subview";
 import {ViewManager} from "./manager/ViewManager";
 import {ViewIdiom} from "./viewport/ViewIdiom";
 import {Viewport} from "./viewport/Viewport";
@@ -41,6 +40,7 @@ import {ThemeService} from "./service/ThemeService";
 import {ModalService} from "./service/ModalService";
 import {ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
 import {ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
+import {ViewBindingConstructor, ViewBinding} from "./binding/ViewBinding";
 
 export type ViewFlags = number;
 
@@ -54,9 +54,13 @@ export interface ViewFactory<V extends View = View, U = V> {
   fromAny?(value: V | U): V;
 }
 
+export interface ViewPrototype<V extends View = View> extends Function {
+  readonly prototype: V;
+}
+
 export interface ViewConstructor<V extends View = View> {
   new(): V;
-  prototype: V;
+  readonly prototype: V;
 }
 
 export interface ViewClass {
@@ -71,9 +75,6 @@ export interface ViewClass {
   readonly removeChildFlags: ViewFlags;
 
   /** @hidden */
-  _subviewConstructors?: {[subviewName: string]: SubviewConstructor<any, any> | undefined};
-
-  /** @hidden */
   _viewServiceConstructors?: {[serviceName: string]: ViewServiceConstructor<any, unknown> | undefined};
 
   /** @hidden */
@@ -81,6 +82,9 @@ export interface ViewClass {
 
   /** @hidden */
   _viewAnimatorConstructors?: {[animatorName: string]: ViewAnimatorConstructor<any, unknown> | undefined};
+
+  /** @hidden */
+  _viewBindingConstructors?: {[bindingName: string]: ViewBindingConstructor<any, any> | undefined};
 }
 
 export abstract class View implements AnimatorContext, ConstraintScope {
@@ -232,6 +236,8 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     });
   }
 
+  abstract remove(): void;
+
   abstract get childViewCount(): number;
 
   abstract get childViews(): ReadonlyArray<View>;
@@ -288,8 +294,6 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   abstract removeAll(): void;
 
-  abstract remove(): void;
-
   get removeChildFlags(): ViewFlags {
     return this.viewClass.removeChildFlags;
   }
@@ -314,26 +318,28 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     });
   }
 
-  getSuperView<V extends View>(viewClass: {new(...args: any[]): V}): V | null {
+  getSuperView<V extends View>(viewPrototype: ViewPrototype<V>): V | null {
     const parentView = this.parentView;
     if (parentView === null) {
       return null;
-    } else if (parentView instanceof viewClass) {
+    } else if (parentView instanceof viewPrototype) {
       return parentView;
     } else {
-      return parentView.getSuperView(viewClass);
+      return parentView.getSuperView(viewPrototype);
     }
   }
 
-  getBaseView<V extends View>(viewClass: {new(...args: any[]): V}): V | null {
+  getBaseView<V extends View>(viewPrototype: ViewPrototype<V>): V | null {
     const parentView = this.parentView;
     if (parentView === null) {
       return null;
-    } else if (parentView instanceof viewClass) {
-      const baseView = parentView.getBaseView(viewClass);
-      return baseView !== null ? baseView : parentView;
     } else {
-      return parentView.getBaseView(viewClass);
+      const baseView = parentView.getBaseView(viewPrototype);
+      if (baseView !== null) {
+        return baseView;
+      } else {
+        return parentView instanceof viewPrototype ? parentView : null;
+      }
     }
   }
 
@@ -361,11 +367,11 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     return (this.viewFlags & View.MountedFlag) !== 0;
   }
 
-  abstract cascadeMount(): void;
-
   get mountFlags(): ViewFlags {
     return this.viewClass.mountFlags;
   }
+
+  abstract cascadeMount(): void;
 
   protected willMount(): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
@@ -376,7 +382,6 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected onMount(): void {
-    this.requestUpdate(this, this.viewFlags & ~View.StatusMask, false);
     this.requireUpdate(this.mountFlags);
   }
 
@@ -414,11 +419,11 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     return (this.viewFlags & View.PoweredFlag) !== 0;
   }
 
-  abstract cascadePower(): void;
-
   get powerFlags(): ViewFlags {
     return this.viewClass.powerFlags;
   }
+
+  abstract cascadePower(): void;
 
   protected willPower(): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
@@ -429,6 +434,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected onPower(): void {
+    this.requestUpdate(this, this.viewFlags & ~View.StatusMask, false);
     this.requireUpdate(this.powerFlags);
   }
 
@@ -599,22 +605,22 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   abstract cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void;
 
-  protected willProcess(viewContext: ViewContextType<this>): void {
+  protected willProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillProcess !== void 0) {
-        viewObserver.viewWillProcess(viewContext, this);
+        viewObserver.viewWillProcess(processFlags, viewContext, this);
       }
     });
   }
 
-  protected onProcess(viewContext: ViewContextType<this>): void {
+  protected onProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didProcess(viewContext: ViewContextType<this>): void {
+  protected didProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidProcess !== void 0) {
-        viewObserver.viewDidProcess(viewContext, this);
+        viewObserver.viewDidProcess(processFlags, viewContext, this);
       }
     });
   }
@@ -728,7 +734,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected onProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    this.processChildViews(processFlags, viewContext);
+    this.processChildViews(processFlags, viewContext, this.processChildView);
   }
 
   protected didProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
@@ -740,17 +746,16 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
-    this.forEachChildView(function (childView: View): void {
-      this.processChildView(childView, processFlags, viewContext);
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+                              processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
+    function doProcessChildView(this: View, childView: View): void {
+      processChildView.call(this, childView, processFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
       }
-    }, this);
+    }
+    this.forEachChildView(doProcessChildView, this);
   }
 
   /** @hidden */
@@ -782,22 +787,22 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   abstract cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void;
 
-  protected willDisplay(viewContext: ViewContextType<this>): void {
+  protected willDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.willObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewWillDisplay !== void 0) {
-        viewObserver.viewWillDisplay(viewContext, this);
+        viewObserver.viewWillDisplay(displayFlags, viewContext, this);
       }
     });
   }
 
-  protected onDisplay(viewContext: ViewContextType<this>): void {
+  protected onDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     // hook
   }
 
-  protected didDisplay(viewContext: ViewContextType<this>): void {
+  protected didDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.didObserve(function (viewObserver: ViewObserver): void {
       if (viewObserver.viewDidDisplay !== void 0) {
-        viewObserver.viewDidDisplay(viewContext, this);
+        viewObserver.viewDidDisplay(displayFlags, viewContext, this);
       }
     });
   }
@@ -811,7 +816,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected onDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    this.displayChildViews(displayFlags, viewContext);
+    this.displayChildViews(displayFlags, viewContext, this.displayChildView);
   }
 
   protected didDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
@@ -823,17 +828,16 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
-    this.forEachChildView(function (childView: View): void {
-      this.displayChildView(childView, displayFlags, viewContext);
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
+    function doDisplayChildView(this: View, childView: View): void {
+      displayChildView.call(this, childView, displayFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
       }
-    }, this);
+    }
+    this.forEachChildView(doDisplayChildView, this);
   }
 
   /** @hidden */
@@ -904,26 +908,6 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     });
   }
 
-  abstract hasSubview(subviewName: string): boolean;
-
-  abstract getSubview(subviewName: string): Subview<this, View> | null;
-
-  abstract setSubview(subviewName: string, subview: Subview<this, View, unknown> | null): void;
-
-  /** @hidden */
-  getLazySubview(subviewName: string): Subview<this, View> | null {
-    let subview = this.getSubview(subviewName);
-    if (subview === null) {
-      const viewClass = (this as any).__proto__ as ViewClass;
-      const constructor = View.getSubviewConstructor(subviewName, viewClass);
-      if (constructor !== null) {
-        subview = new constructor(this, subviewName);
-        this.setSubview(subviewName, subview);
-      }
-    }
-    return subview;
-  }
-
   abstract hasViewService(serviceName: string): boolean;
 
   abstract getViewService(serviceName: string): ViewService<this, unknown> | null;
@@ -984,9 +968,24 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     return viewAnimator;
   }
 
+  abstract hasViewBinding(bindingName: string): boolean;
+
+  abstract getViewBinding(bindingName: string): ViewBinding<this, View> | null;
+
+  abstract setViewBinding(bindingName: string, viewBinding: ViewBinding<this, View, unknown> | null): void;
+
   /** @hidden */
-  animate(animator: Animator): void {
-    this.requireUpdate(View.NeedsAnimate);
+  getLazyViewBinding(bindingName: string): ViewBinding<this, View> | null {
+    let viewBinding = this.getViewBinding(bindingName);
+    if (viewBinding === null) {
+      const viewClass = (this as any).__proto__ as ViewClass;
+      const constructor = View.getViewBindingConstructor(bindingName, viewClass);
+      if (constructor !== null) {
+        viewBinding = new constructor(this, bindingName);
+        this.setViewBinding(bindingName, viewBinding);
+      }
+    }
+    return viewBinding;
   }
 
   abstract hasLayoutAnchor(anchorName: string): boolean;
@@ -994,6 +993,11 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   abstract getLayoutAnchor(anchorName: string): LayoutAnchor<this> | null;
 
   abstract setLayoutAnchor(anchorName: string, layoutAnchor: LayoutAnchor<this> | null): void;
+
+  /** @hidden */
+  animate(animator: Animator): void {
+    this.requireUpdate(View.NeedsAnimate);
+  }
 
   constraint(lhs: Constrain | number, relation: ConstraintRelation,
              rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
@@ -1193,13 +1197,13 @@ export abstract class View implements AnimatorContext, ConstraintScope {
                options?: EventListenerOptions | boolean): this;
 
   /** @hidden */
-  static getSubviewConstructor(subviewName: string, viewClass: ViewClass | null = null): SubviewConstructor<any, any> | null {
+  static getViewBindingConstructor(bindingName: string, viewClass: ViewClass | null = null): ViewBindingConstructor<any, any> | null {
     if (viewClass === null) {
       viewClass = this.prototype as unknown as ViewClass;
     }
     do {
-      if (viewClass.hasOwnProperty("_subviewConstructors")) {
-        const constructor = viewClass._subviewConstructors![subviewName];
+      if (viewClass.hasOwnProperty("_viewBindingConstructors")) {
+        const constructor = viewClass._viewBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1210,20 +1214,20 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   /** @hidden */
-  static decorateSubview<V extends View, S extends View, U>(constructor: SubviewConstructor<V, S, U>,
-                                                            viewClass: ViewClass, subviewName: string): void {
-    if (!viewClass.hasOwnProperty("_subviewConstructors")) {
-      viewClass._subviewConstructors = {};
+  static decorateViewBinding<V extends View, S extends View, U>(constructor: ViewBindingConstructor<V, S, U>,
+                                                                viewClass: ViewClass, bindingName: string): void {
+    if (!viewClass.hasOwnProperty("_viewBindingConstructors")) {
+      viewClass._viewBindingConstructors = {};
     }
-    viewClass._subviewConstructors![subviewName] = constructor;
-    Object.defineProperty(viewClass, subviewName, {
-      get: function (this: V): Subview<V, S, U> {
-        let subview = this.getSubview(subviewName) as Subview<V, S, U> | null;
-        if (subview === null) {
-          subview = new constructor(this, subviewName);
-          this.setSubview(subviewName, subview);
+    viewClass._viewBindingConstructors![bindingName] = constructor;
+    Object.defineProperty(viewClass, bindingName, {
+      get: function (this: V): ViewBinding<V, S, U> {
+        let viewBinding = this.getViewBinding(bindingName) as ViewBinding<V, S, U> | null;
+        if (viewBinding === null) {
+          viewBinding = new constructor(this, bindingName);
+          this.setViewBinding(bindingName, viewBinding);
         }
-        return subview;
+        return viewBinding;
       },
       configurable: true,
       enumerable: true,
@@ -1443,8 +1447,6 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   // Forward type declarations
   /** @hidden */
-  static Subview: typeof Subview; // defined by Subview
-  /** @hidden */
   static Manager: typeof ViewManager; // defined by ViewManager
   /** @hidden */
   static Service: typeof ViewService; // defined by ViewService
@@ -1452,4 +1454,6 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   static Scope: typeof ViewScope; // defined by ViewScope
   /** @hidden */
   static Animator: typeof ViewAnimator; // defined by ViewAnimator
+  /** @hidden */
+  static Binding: typeof ViewBinding; // defined by ViewBinding
 }

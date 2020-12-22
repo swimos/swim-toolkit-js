@@ -54,32 +54,34 @@ export type ComponentScopeDescriptor<C extends Component, T, U = T, I = {}> =
   T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & ComponentScopeDescriptorInit<C, T, U, I> : ComponentScopeDescriptorExtends<C, T, U, I> :
   ComponentScopeDescriptorFromAny<C, T, U, I>;
 
-export type ComponentScopePrototype = Function & {prototype: ComponentScope<any, any, any>};
+export interface ComponentScopePrototype extends Function {
+  readonly prototype: ComponentScope<any, any, any>;
+}
 
-export type ComponentScopeConstructor<C extends Component, T, U = T, I = {}> = {
-  new(component: C, scopeName: string | undefined): ComponentScope<C, T, U> & I;
+export interface ComponentScopeConstructor<C extends Component, T, U = T, I = {}> {
+  new(owner: C, scopeName: string | undefined): ComponentScope<C, T, U> & I;
   prototype: ComponentScope<any, any, any> & I;
-};
+}
 
 export declare abstract class ComponentScope<C extends Component, T, U = T> {
   /** @hidden */
-  _component: C;
+  _owner: C;
   /** @hidden */
   _inherit: string | boolean;
   /** @hidden */
   _scopeFlags: ComponentScopeFlags;
   /** @hidden */
-  _superScope?: ComponentScope<Component, T, U>;
+  _superScope?: ComponentScope<Component, T>;
   /** @hidden */
-  _subScopes?: ComponentScope<Component, T, U>[];
+  _subScopes?: ComponentScope<Component, T>[];
   /** @hidden */
   _state: T;
 
-  constructor(component: C, scopeName: string | undefined);
+  constructor(owner: C, scopeName: string | undefined);
 
   get name(): string;
 
-  get component(): C;
+  get owner(): C;
 
   get inherit(): string | boolean;
 
@@ -94,7 +96,7 @@ export declare abstract class ComponentScope<C extends Component, T, U = T> {
   /** @hidden */
   get superName(): string | undefined;
 
-  get superScope(): ComponentScope<Component, T, U> | null;
+  get superScope(): ComponentScope<Component, T> | null;
 
   /** @hidden */
   bindSuperScope(): void;
@@ -103,10 +105,10 @@ export declare abstract class ComponentScope<C extends Component, T, U = T> {
   unbindSuperScope(): void;
 
   /** @hidden */
-  addSubScope(subScope: ComponentScope<Component, T, U>): void;
+  addSubScope(subScope: ComponentScope<Component, T>): void;
 
   /** @hidden */
-  removeSubScope(subScope: ComponentScope<Component, T, U>): void;
+  removeSubScope(subScope: ComponentScope<Component, T>): void;
 
   isAuto(): boolean;
 
@@ -211,19 +213,19 @@ export function ComponentScope<C extends Component, T, U = T>(descriptor: Compon
 
 export function ComponentScope<C extends Component, T, U>(
     this: ComponentScope<C, T, U> | typeof ComponentScope,
-    component: C | ComponentScopeDescriptor<C, T, U>,
+    owner: C | ComponentScopeDescriptor<C, T, U>,
     scopeName?: string,
   ): ComponentScope<C, T, U> | PropertyDecorator {
   if (this instanceof ComponentScope) { // constructor
-    return ComponentScopeConstructor.call(this, component as C, scopeName);
+    return ComponentScopeConstructor.call(this, owner as C, scopeName);
   } else { // decorator factory
-    return ComponentScopeDecoratorFactory(component as ComponentScopeDescriptor<C, T, U>);
+    return ComponentScopeDecoratorFactory(owner as ComponentScopeDescriptor<C, T, U>);
   }
 }
 __extends(ComponentScope, Object);
 Component.Scope = ComponentScope;
 
-function ComponentScopeConstructor<C extends Component, T, U>(this: ComponentScope<C, T, U>, component: C, scopeName: string | undefined): ComponentScope<C, T, U> {
+function ComponentScopeConstructor<C extends Component, T, U>(this: ComponentScope<C, T, U>, owner: C, scopeName: string | undefined): ComponentScope<C, T, U> {
   if (scopeName !== void 0) {
     Object.defineProperty(this, "name", {
       value: scopeName,
@@ -231,7 +233,7 @@ function ComponentScopeConstructor<C extends Component, T, U>(this: ComponentSco
       configurable: true,
     });
   }
-  this._component = component;
+  this._owner = owner;
   this._scopeFlags = ComponentScope.UpdatedFlag;
   if (this.initState !== void 0) {
     const initState = this.initState();
@@ -248,9 +250,9 @@ function ComponentScopeDecoratorFactory<C extends Component, T, U>(descriptor: C
   return Component.decorateComponentScope.bind(Component, ComponentScope.define(descriptor));
 }
 
-Object.defineProperty(ComponentScope.prototype, "component", {
+Object.defineProperty(ComponentScope.prototype, "owner", {
   get: function <C extends Component>(this: ComponentScope<C, unknown>): C {
-    return this._component;
+    return this._owner;
   },
   enumerable: true,
   configurable: true,
@@ -277,6 +279,7 @@ ComponentScope.prototype.setInherit = function (this: ComponentScope<Component, 
       }
     } else if (this._inherit !== false) {
       this._inherit = false;
+      this._scopeFlags &= ~ComponentScope.InheritedFlag;
     }
   }
 };
@@ -310,7 +313,7 @@ Object.defineProperty(ComponentScope.prototype, "superScope", {
     let superScope: ComponentScope<Component, unknown> | null | undefined = this._superScope;
     if (superScope === void 0) {
       superScope = null;
-      let component = this._component;
+      let component = this._owner;
       if (!component.isMounted()) {
         const superName = this.superName;
         if (superName !== void 0) {
@@ -337,7 +340,7 @@ Object.defineProperty(ComponentScope.prototype, "superScope", {
 });
 
 ComponentScope.prototype.bindSuperScope = function (this: ComponentScope<Component, unknown>): void {
-  let component = this._component;
+  let component = this._owner;
   if (component.isMounted()) {
     const superName = this.superName;
     if (superName !== void 0) {
@@ -345,12 +348,12 @@ ComponentScope.prototype.bindSuperScope = function (this: ComponentScope<Compone
         const parentComponent = component.parentComponent;
         if (parentComponent !== null) {
           component = parentComponent;
-          const scope = component.getLazyComponentScope(superName);
-          if (scope !== null) {
-            this._superScope = scope;
-            scope.addSubScope(this);
+          const superScope = component.getLazyComponentScope(superName);
+          if (superScope !== null) {
+            this._superScope = superScope;
+            superScope.addSubScope(this);
             if (this.isInherited()) {
-              this._state = scope._state;
+              this._state = superScope._state;
               this._scopeFlags |= ComponentScope.UpdatedFlag;
               this.revise();
             }
@@ -372,8 +375,8 @@ ComponentScope.prototype.unbindSuperScope = function (this: ComponentScope<Compo
   }
 };
 
-ComponentScope.prototype.addSubScope = function <T, U>(this: ComponentScope<Component, T, U>,
-                                                       subScope: ComponentScope<Component, T, U>): void {
+ComponentScope.prototype.addSubScope = function <T>(this: ComponentScope<Component, T>,
+                                                    subScope: ComponentScope<Component, T>): void {
   let subScopes = this._subScopes;
   if (subScopes === void 0) {
     subScopes = [];
@@ -382,8 +385,8 @@ ComponentScope.prototype.addSubScope = function <T, U>(this: ComponentScope<Comp
   subScopes.push(subScope);
 };
 
-ComponentScope.prototype.removeSubScope = function <T, U>(this: ComponentScope<Component, T, U>,
-                                                          subScope: ComponentScope<Component, T, U>): void {
+ComponentScope.prototype.removeSubScope = function <T>(this: ComponentScope<Component, T>,
+                                                       subScope: ComponentScope<Component, T>): void {
   const subScopes = this._subScopes;
   if (subScopes !== void 0) {
     const index = subScopes.indexOf(subScope);
@@ -462,18 +465,18 @@ ComponentScope.prototype.setState = function <T, U>(this: ComponentScope<Compone
   this.setOwnState(state);
 };
 
-ComponentScope.prototype.willSetState = function <T, U>(this: ComponentScope<Component, T, U>,
-                                                        newState: T, oldState: T): void {
+ComponentScope.prototype.willSetState = function <T>(this: ComponentScope<Component, T>,
+                                                     newState: T, oldState: T): void {
   // hook
 };
 
-ComponentScope.prototype.onSetState = function <T, U>(this: ComponentScope<Component, T, U>,
-                                                      newState: T, oldState: T): void {
+ComponentScope.prototype.onSetState = function <T>(this: ComponentScope<Component, T>,
+                                                   newState: T, oldState: T): void {
   // hook
 };
 
-ComponentScope.prototype.didSetState = function <T, U>(this: ComponentScope<Component, T, U>,
-                                                       newState: T, oldState: T): void {
+ComponentScope.prototype.didSetState = function <T>(this: ComponentScope<Component, T>,
+                                                    newState: T, oldState: T): void {
   // hook
 };
 
@@ -506,15 +509,18 @@ ComponentScope.prototype.setOwnState = function <T, U>(this: ComponentScope<Comp
 
 ComponentScope.prototype.setBaseState = function <T, U>(this: ComponentScope<Component, T, U>,
                                                         state: T | U): void {
-  let superScope: ComponentScope<Component, T, U> | null | undefined;
+  let superScope: ComponentScope<Component, T> | null | undefined;
   if (this.isInherited() && (superScope = this.superScope, superScope !== null)) {
-    superScope.setBaseState(state);
+    if (state !== void 0) {
+      state = this.fromAny(state);
+    }
+    superScope.setBaseState(state as T);
   } else {
     this.setState(state);
   }
 };
 
-ComponentScope.prototype.onRevise = function <T, U>(this: ComponentScope<Component, T, U>): void {
+ComponentScope.prototype.onRevise = function (this: ComponentScope<Component, unknown>): void {
   if (this.isInherited()) {
     this.updateInherited();
   } else {
@@ -522,17 +528,17 @@ ComponentScope.prototype.onRevise = function <T, U>(this: ComponentScope<Compone
   }
 };
 
-ComponentScope.prototype.updateInherited = function <T, U>(this: ComponentScope<Component, T, U>): void {
+ComponentScope.prototype.updateInherited = function <T>(this: ComponentScope<Component, T>): void {
   const superScope = this._superScope;
-  if (superScope !== void 0 && superScope.isRevising()) {
+  if (superScope !== void 0 && this.isRevising()) {
     this.update(superScope.state, this.state);
   } else {
     this.onIdle();
   }
 };
 
-ComponentScope.prototype.update = function <T, U>(this: ComponentScope<Component, T, U>,
-                                                  newState: T, oldState: T): void {
+ComponentScope.prototype.update = function <T>(this: ComponentScope<Component, T>,
+                                               newState: T, oldState: T): void {
   if (!Objects.equal(oldState, newState)) {
     this.willUpdate(newState, oldState);
     this._state = newState;
@@ -543,26 +549,26 @@ ComponentScope.prototype.update = function <T, U>(this: ComponentScope<Component
   }
 };
 
-ComponentScope.prototype.willUpdate = function <T, U>(this: ComponentScope<Component, T, U>,
-                                                      newState: T, oldState: T): void {
+ComponentScope.prototype.willUpdate = function <T>(this: ComponentScope<Component, T>,
+                                                   newState: T, oldState: T): void {
   // hook
 };
 
-ComponentScope.prototype.onUpdate = function <T, U>(this: ComponentScope<Component, T, U>,
-                                                    newState: T, oldState: T): void {
+ComponentScope.prototype.onUpdate = function <T>(this: ComponentScope<Component, T>,
+                                                 newState: T, oldState: T): void {
   const updateFlags = this.updateFlags;
   if (updateFlags !== void 0) {
-    this._component.requireUpdate(updateFlags);
+    this._owner.requireUpdate(updateFlags);
   }
 };
 
-ComponentScope.prototype.didUpdate = function <T, U>(this: ComponentScope<Component, T, U>,
-                                                     newState: T, oldState: T): void {
+ComponentScope.prototype.didUpdate = function <T>(this: ComponentScope<Component, T>,
+                                                  newState: T, oldState: T): void {
   // hook
 };
 
-ComponentScope.prototype.updateSubScopes = function <T, U>(this: ComponentScope<Component, T, U>,
-                                                           newState: T, oldState: T): void {
+ComponentScope.prototype.updateSubScopes = function <T>(this: ComponentScope<Component, T>,
+                                                        newState: T, oldState: T): void {
   const subScopes = this._subScopes;
   if (subScopes !== void 0) {
     for (let i = 0, n = subScopes.length; i < n; i += 1) {
@@ -584,7 +590,7 @@ ComponentScope.prototype.onIdle = function (this: ComponentScope<Component, unkn
 
 ComponentScope.prototype.revise = function (this: ComponentScope<Component, unknown>): void {
   this._scopeFlags |= ComponentScope.RevisingFlag;
-  this._component.requireUpdate(Component.NeedsRevise);
+  this._owner.requireUpdate(Component.NeedsRevise);
 };
 
 ComponentScope.prototype.mount = function (this: ComponentScope<Component, unknown>): void {
@@ -614,6 +620,7 @@ ComponentScope.define = function <C extends Component, T, U, I>(descriptor: Comp
   let _super: ComponentScopePrototype | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
+  const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
   delete descriptor.inherit;
@@ -623,22 +630,22 @@ ComponentScope.define = function <C extends Component, T, U, I>(descriptor: Comp
   }
   if (_super === null) {
     _super = ComponentScope;
-    if (!descriptor.hasOwnProperty("fromAny") && FromAny.is<T, U>(descriptor.type)) {
+    if (descriptor.fromAny === void 0 && FromAny.is<T, U>(descriptor.type)) {
       descriptor.fromAny = descriptor.type.fromAny;
     }
   }
 
-  const _constructor = function ComponentScopeAccessor(this: ComponentScope<C, T, U>, component: C, scopeName: string | undefined): ComponentScope<C, T, U> {
+  const _constructor = function ComponentScopeAccessor(this: ComponentScope<C, T, U>, owner: C, scopeName: string | undefined): ComponentScope<C, T, U> {
     let _this: ComponentScope<C, T, U> = function accessor(state?: T | U): T | C {
       if (arguments.length === 0) {
         return _this._state;
       } else {
         _this.setState(state!);
-        return _this._component;
+        return _this._owner;
       }
     } as ComponentScope<C, T, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, component, scopeName) || _this;
+    _this = _super!.call(_this, owner, scopeName) || _this;
     return _this;
   } as unknown as ComponentScopeConstructor<C, T, U, I>;
 
@@ -648,7 +655,7 @@ ComponentScope.define = function <C extends Component, T, U, I>(descriptor: Comp
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
 
-  if (state !== void 0 && !_prototype.hasOwnProperty("initState")) {
+  if (state !== void 0 && initState === void 0) {
     _prototype.initState = function (): T | U {
       return state;
     };

@@ -93,11 +93,22 @@ export class TreeStem extends HtmlView {
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
-    const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
-    const seed = needsLayout ? this.seed.state : void 0;
-    const height = needsLayout ? this.height.state : void 0;
-    function layoutChildView(this: TreeStem, childView: View): void {
+                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
+    if ((displayFlags & View.NeedsLayout) !== 0) {
+      this.layoutChildViews(displayFlags, viewContext, displayChildView);
+    } else {
+      super.displayChildViews(displayFlags, viewContext, displayChildView);
+    }
+  }
+
+  protected layoutChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                             displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                viewContext: ViewContextType<this>) => void): void {
+    const seed = this.seed.state;
+    const height = this.height.state;
+    function layoutChildView(this: TreeStem, childView: View, displayFlags: ViewFlags,
+                             viewContext: ViewContextType<TreeStem>): void {
       if (childView instanceof TreeVein) {
         const key = childView.key;
         const root = seed !== void 0 && key !== void 0 ? seed.getRoot(key) : null;
@@ -115,11 +126,9 @@ export class TreeStem extends HtmlView {
           childView.height.setAutoState(void 0);
         }
       }
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+      displayChildView.call(this, childView, displayFlags, viewContext);
     }
-    super.displayChildViews(displayFlags, viewContext, needsLayout ? layoutChildView : callback);
+    super.displayChildViews(displayFlags, viewContext, layoutChildView);
   }
 
   static fromInit(init: TreeStemInit): TreeStem {

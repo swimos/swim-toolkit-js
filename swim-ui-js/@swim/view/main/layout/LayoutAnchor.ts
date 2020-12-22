@@ -33,16 +33,18 @@ export type LayoutAnchorDescriptorExtends<V extends View, I = {}> = {extends: La
 
 export type LayoutAnchorDescriptor<V extends View, I = {}> = LayoutAnchorDescriptorInit<V, I>;
 
-export type LayoutAnchorPrototype = Function & {prototype: LayoutAnchor<any>};
+export interface LayoutAnchorPrototype extends Function {
+  readonly prototype: LayoutAnchor<any>;
+}
 
-export type LayoutAnchorConstructor<V extends View, I = {}> = {
-  new(view: V, anchorName: string | undefined): LayoutAnchor<V> & I;
+export interface LayoutAnchorConstructor<V extends View, I = {}> {
+  new(owner: V, anchorName: string | undefined): LayoutAnchor<V> & I;
   prototype: LayoutAnchor<any> & I;
-};
+}
 
 export declare abstract class LayoutAnchor<V extends View> {
   /** @hidden */
-  _view: V;
+  _owner: V;
   /** @hidden */
   _value: number;
   /** @hidden */
@@ -52,11 +54,11 @@ export declare abstract class LayoutAnchor<V extends View> {
   /** @hidden */
   _constrained: boolean;
 
-  constructor(view: V, anchorName: string | undefined);
+  constructor(owner: V, anchorName: string | undefined);
 
   get name(): string;
 
-  get view(): V;
+  get owner(): V;
 
   get value(): number;
 
@@ -98,18 +100,18 @@ export function LayoutAnchor<V extends View>(descriptor: LayoutAnchorDescriptor<
 
 export function LayoutAnchor<V extends View>(
     this: LayoutAnchor<V> | typeof LayoutAnchor,
-    view: V | LayoutAnchorDescriptor<V>,
+    owner: V | LayoutAnchorDescriptor<V>,
     anchorName?: string,
   ): LayoutAnchor<V> | PropertyDecorator {
   if (this instanceof LayoutAnchor) { // constructor
-    return LayoutAnchorConstructor.call(this, view as V, anchorName);
+    return LayoutAnchorConstructor.call(this, owner as V, anchorName);
   } else { // decorator factory
-    return LayoutAnchorDecoratorFactory(view as LayoutAnchorDescriptor<V>);
+    return LayoutAnchorDecoratorFactory(owner as LayoutAnchorDescriptor<V>);
   }
 }
 __extends(LayoutAnchor, ConstrainVariable);
 
-function LayoutAnchorConstructor<V extends View>(this: LayoutAnchor<V>, view: V, anchorName: string | undefined): LayoutAnchor<V> {
+function LayoutAnchorConstructor<V extends View>(this: LayoutAnchor<V>, owner: V, anchorName: string | undefined): LayoutAnchor<V> {
   const _this: LayoutAnchor<V> = ConstrainVariable.call(this) || this;
   if (anchorName !== void 0) {
     Object.defineProperty(_this, "name", {
@@ -118,7 +120,7 @@ function LayoutAnchorConstructor<V extends View>(this: LayoutAnchor<V>, view: V,
       configurable: true,
     });
   }
-  _this._view = view;
+  _this._owner = owner;
   _this._value = _this.initValue();
   _this._state = NaN;
   _this._strength = ConstraintStrength.Strong;
@@ -130,9 +132,9 @@ function LayoutAnchorDecoratorFactory<V extends View>(descriptor: LayoutAnchorDe
   return View.decorateLayoutAnchor.bind(View, LayoutAnchor.define(descriptor));
 }
 
-Object.defineProperty(LayoutAnchor.prototype, "view", {
+Object.defineProperty(LayoutAnchor.prototype, "owner", {
   get: function <V extends View>(this: LayoutAnchor<V>): V {
-    return this._view;
+    return this._owner;
   },
   enumerable: true,
   configurable: true,
@@ -167,14 +169,14 @@ Object.defineProperty(LayoutAnchor.prototype, "state", {
 LayoutAnchor.prototype.setState = function (this: LayoutAnchor<View>, newState: number): void {
   const oldState = this._state;
   if (isFinite(oldState) && !isFinite(newState)) {
-    this._view.removeConstraintVariable(this);
+    this._owner.removeConstraintVariable(this);
   }
   this._state = newState;
   if (isFinite(newState)) {
     if (!isFinite(oldState)) {
-      this._view.addConstraintVariable(this);
+      this._owner.addConstraintVariable(this);
     } else {
-      this._view.setConstraintVariable(this, newState);
+      this._owner.setConstraintVariable(this, newState);
     }
   }
 };
@@ -200,11 +202,11 @@ LayoutAnchor.prototype.setStrength = function (this: LayoutAnchor<View>, newStre
   const oldStrength = this._strength;
   newStrength = ConstraintStrength.fromAny(newStrength);
   if (isFinite(state) && oldStrength !== newStrength) {
-    this._view.removeConstraintVariable(this);
+    this._owner.removeConstraintVariable(this);
   }
   this._strength = newStrength;
   if (isFinite(state) && oldStrength !== newStrength) {
-    this._view.addConstraintVariable(this);
+    this._owner.addConstraintVariable(this);
   }
 };
 
@@ -226,6 +228,7 @@ LayoutAnchor.define = function <V extends View, I>(descriptor: LayoutAnchorDescr
   const value = descriptor.value;
   const strength = descriptor.strength;
   const constrained = descriptor.constrained;
+  const initValue = descriptor.initValue;
   delete descriptor.extends;
   delete descriptor.value;
   delete descriptor.strength;
@@ -235,17 +238,17 @@ LayoutAnchor.define = function <V extends View, I>(descriptor: LayoutAnchorDescr
     _super = LayoutAnchor;
   }
 
-  const _constructor = function LayoutAnchorAccessor(this: LayoutAnchor<V>, view: V, anchorName: string | undefined): LayoutAnchor<V> {
+  const _constructor = function LayoutAnchorAccessor(this: LayoutAnchor<V>, owner: V, anchorName: string | undefined): LayoutAnchor<V> {
     let _this: LayoutAnchor<V> = function accessor(state?: number): number | V {
       if (state === void 0) {
         return _this._state;
       } else {
         _this.constrained(true).setState(state);
-        return _this._view;
+        return _this._owner;
       }
     } as LayoutAnchor<V>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, view, anchorName) || _this;
+    _this = _super!.call(_this, owner, anchorName) || _this;
     return _this;
   } as unknown as LayoutAnchorConstructor<V, I>;
 
@@ -255,7 +258,7 @@ LayoutAnchor.define = function <V extends View, I>(descriptor: LayoutAnchorDescr
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
 
-  if (value !== void 0 && !_prototype.hasOwnProperty("initValue")) {
+  if (value !== void 0 && initValue === void 0) {
     _prototype.initValue = function (): number {
       return value;
     };

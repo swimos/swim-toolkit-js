@@ -13,20 +13,23 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
+import {GeoBox} from "@swim/geo";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {GraphicsView} from "@swim/graphics";
-import {GeoBox} from "../geo/GeoBox";
-import {MapGraphicsView} from "./MapGraphicsView";
+import {MapGraphicsView} from "../graphics/MapGraphicsView";
 
 export class MapLayerView extends MapGraphicsView {
   /** @hidden */
   readonly _childViews: View[];
   /** @hidden */
   _childViewMap?: {[key: string]: View | undefined};
+  /** @hidden */
+  _geoBounds: GeoBox;
 
   constructor() {
     super();
     this._childViews = [];
+    this._geoBounds = GeoBox.undefined();
   }
 
   get childViewCount(): number {
@@ -192,7 +195,7 @@ export class MapLayerView extends MapGraphicsView {
     this.willInsertChildView(childView, targetView);
     childViews.unshift(childView);
     this.insertChildViewMap(childView);
-    childView.setParentView(this, targetView);
+    childView.setParentView(this, null);
     this.onInsertChildView(childView, targetView);
     this.didInsertChildView(childView, targetView);
     childView.cascadeInsert();
@@ -228,6 +231,13 @@ export class MapLayerView extends MapGraphicsView {
     childView.cascadeInsert();
   }
 
+  protected didInsertChildView(childView: View, targetView: View | null | undefined): void {
+    if (childView instanceof MapGraphicsView) {
+      this.childViewDidInsertGeoBounds(childView, childView.geoBounds);
+    }
+    super.didInsertChildView(childView, targetView);
+  }
+
   removeChildView(key: string): View | null;
   removeChildView(childView: View): void;
   removeChildView(key: string | View): View | null | void {
@@ -260,6 +270,13 @@ export class MapLayerView extends MapGraphicsView {
     if (typeof key === "string") {
       return childView;
     }
+  }
+
+  protected didRemoveChildView(childView: View): void {
+    if (childView instanceof MapGraphicsView) {
+      this.childViewDidRemoveGeoBounds(childView, childView.geoBounds);
+    }
+    super.didRemoveChildView(childView);
   }
 
   removeAll(): void {
@@ -346,15 +363,13 @@ export class MapLayerView extends MapGraphicsView {
   }
 
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
+                              processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i];
-      this.processChildView(childView, processFlags, viewContext);
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+      processChildView.call(this, childView, processFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
@@ -365,15 +380,13 @@ export class MapLayerView extends MapGraphicsView {
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
+                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i];
-      this.displayChildView(childView, displayFlags, viewContext);
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+      displayChildView.call(this, childView, displayFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
@@ -383,15 +396,44 @@ export class MapLayerView extends MapGraphicsView {
     }
   }
 
+  get geoBounds(): GeoBox {
+    return this._geoBounds;
+  }
+
+  protected doUpdateGeoBounds(): void {
+    const oldGeoBounds = this._geoBounds;
+    const newGeoBounds = this.deriveGeoBounds();
+    if (!oldGeoBounds.equals(newGeoBounds)) {
+      this._geoBounds = newGeoBounds;
+      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+    }
+  }
+
+  protected childViewDidInsertGeoBounds(childView: MapGraphicsView, newGeoBounds: GeoBox): void {
+    this.doUpdateGeoBounds();
+  }
+
+  protected childViewDidRemoveGeoBounds(childView: MapGraphicsView, oldGeoBounds: GeoBox): void {
+    this.doUpdateGeoBounds();
+  }
+
+  childViewDidSetGeoBounds(childView: MapGraphicsView, newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
+    this.doUpdateGeoBounds();
+  }
+
+  childViewDidSetHidden(childView: MapGraphicsView, hidden: boolean): void {
+    this.doUpdateGeoBounds();
+  }
+
   deriveGeoBounds(): GeoBox {
-    let geoBounds: GeoBox | undefined;
+    let geoBounds: GeoBox | null = this.ownGeoBounds;
     const childViews = this._childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
       const childView = childViews[i];
       if (childView instanceof MapGraphicsView && !childView.isHidden()) {
         const childGeoBounds = childView.geoBounds;
         if (childGeoBounds.isDefined()) {
-          if (geoBounds !== void 0) {
+          if (geoBounds !== null) {
             geoBounds = geoBounds.union(childGeoBounds);
           } else {
             geoBounds = childGeoBounds;
@@ -399,21 +441,21 @@ export class MapLayerView extends MapGraphicsView {
         }
       }
     }
-    if (geoBounds === void 0) {
+    if (geoBounds === null) {
       geoBounds = this.geoFrame;
     }
     return geoBounds;
   }
 
   deriveViewBounds(): BoxR2 {
-    let viewBounds: BoxR2 | undefined;
+    let viewBounds: BoxR2 | null = this.ownViewBounds;
     const childViews = this._childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
       const childView = childViews[i];
       if (childView instanceof GraphicsView && !childView.isHidden()) {
         const childViewBounds = childView.viewBounds;
         if (childViewBounds.isDefined()) {
-          if (viewBounds !== void 0) {
+          if (viewBounds !== null) {
             viewBounds = viewBounds.union(childViewBounds);
           } else {
             viewBounds = childViewBounds;
@@ -421,7 +463,7 @@ export class MapLayerView extends MapGraphicsView {
         }
       }
     }
-    if (viewBounds === void 0) {
+    if (viewBounds === null) {
       viewBounds = this.viewFrame;
     }
     return viewBounds;

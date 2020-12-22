@@ -19,6 +19,7 @@ export {
 export {
   ModelFlags,
   ModelInit,
+  ModelPrototype,
   ModelClass,
   Model,
 } from "./Model";
@@ -36,19 +37,21 @@ export {
 } from "./ModelConsumer";
 
 export {
-  SubmodelMemberType,
-  SubmodelMemberInit,
-  SubmodelInit,
-  SubmodelDescriptorInit,
-  SubmodelDescriptorExtends,
-  SubmodelDescriptorFromAny,
-  SubmodelDescriptor,
-  SubmodelPrototype,
-  SubmodelConstructor,
-  Submodel,
-} from "./Submodel";
-
-export {SubmodelObserver} from "./SubmodelObserver";
+  TraitModelType,
+  TraitContextType,
+  TraitFlags,
+  TraitPrototype,
+  TraitClass,
+  Trait,
+} from "./Trait";
+export {
+  TraitObserverType,
+  TraitObserver,
+} from "./TraitObserver";
+export {
+  TraitConsumerType,
+  TraitConsumer,
+} from "./TraitConsumer";
 
 export * from "./manager";
 
@@ -60,7 +63,7 @@ export * from "./service";
 
 export * from "./scope";
 
-export * from "./trait";
+export * from "./binding";
 
 export * from "./downlink";
 

@@ -787,7 +787,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     inherit: true,
     fromAny(value: ScaleGesture<X, Y> | boolean | undefined): ScaleGesture<X, Y> | undefined {
       if (value === true) {
-        return this.view.createScaleGesture();
+        return this.owner.createScaleGesture();
       } else if (value === false) {
         return void 0;
       } else {

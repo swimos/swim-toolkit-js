@@ -26,6 +26,17 @@ export {
 
 export {ModelManagerService} from "./ModelManagerService";
 
+export {
+  TraitServiceMemberType,
+  TraitServiceInit,
+  TraitServiceDescriptorInit,
+  TraitServiceDescriptorExtends,
+  TraitServiceDescriptor,
+  TraitServicePrototype,
+  TraitServiceConstructor,
+  TraitService,
+} from "./TraitService";
+
 export {RefreshService} from "./RefreshService";
 
 export {WarpService} from "./WarpService";

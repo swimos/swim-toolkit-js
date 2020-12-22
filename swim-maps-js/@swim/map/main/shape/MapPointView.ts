@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint, GeoBox} from "@swim/geo";
 import {Tween} from "@swim/tween";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
@@ -25,10 +26,8 @@ import {
   CanvasContext,
   CanvasRenderer,
 } from "@swim/graphics";
-import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint} from "../geo/GeoPoint";
-import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapLayerView} from "../graphics/MapLayerView";
+import {MapLayerView} from "../layer/MapLayerView";
 
 export type MapPointLabelPlacement = "auto" | "top" | "right" | "bottom" | "left";
 
@@ -61,21 +60,19 @@ export class MapPointView extends MapLayerView {
   _hitRadius?: number;
   /** @hidden */
   _labelPlacement?: MapPointLabelPlacement;
-  /** @hidden */
-  _geoBounds: GeoBox;
-
-  constructor() {
-    super();
-    this._geoBounds = GeoBox.undefined();
-    this.geoPoint.onUpdate = this.onSetGeoPoint.bind(this);
-  }
 
   initView(init: MapPointViewInit): void {
     super.initView(init);
     this.setState(init);
   }
 
-  @ViewAnimator({type: GeoPoint, state: GeoPoint.origin()})
+  @ViewAnimator<MapPointView, GeoPoint, AnyGeoPoint>({
+    type: GeoPoint,
+    state: GeoPoint.origin(),
+    onUpdate(newValue: GeoPoint, oldValue: GeoPoint): void {
+      this.owner.onSetGeoPoint(newValue, oldValue);
+    },
+  })
   geoPoint: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
@@ -195,8 +192,8 @@ export class MapPointView extends MapLayerView {
     }
   }
 
-  protected onSetGeoPoint(newGeoPoint: GeoPoint | undefined, oldGeoPoint: GeoPoint | undefined): void {
-    if (newGeoPoint !== void 0) {
+  protected onSetGeoPoint(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
+    if (newGeoPoint.isDefined()) {
       const oldGeoBounds = this._geoBounds;
       const newGeoBounds = new GeoBox(newGeoPoint._lng, newGeoPoint._lat, newGeoPoint._lng, newGeoPoint._lat);
       this._geoBounds = newGeoBounds;
@@ -253,6 +250,10 @@ export class MapPointView extends MapLayerView {
     }
   }
 
+  protected doUpdateGeoBounds(): void {
+    // nop
+  }
+
   get viewBounds(): BoxR2 {
     const {x, y} = this.viewPoint.getValue();
     return new BoxR2(x, y, x, y);
@@ -262,10 +263,6 @@ export class MapPointView extends MapLayerView {
     const {x, y} = this.viewPoint.getValue();
     const hitRadius = this._hitRadius !== void 0 ? this._hitRadius : 0;
     return new BoxR2(x - hitRadius, y - hitRadius, x + hitRadius, y + hitRadius);
-  }
-
-  get geoBounds(): GeoBox {
-    return this._geoBounds;
   }
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
@@ -329,13 +326,13 @@ export class MapPointView extends MapLayerView {
     return init;
   }
 
-  static fromGeoPoint<X, Y>(point: AnyGeoPoint): MapPointView {
+  static fromGeoPoint(point: AnyGeoPoint): MapPointView {
     const view = new MapPointView();
     view.setState(point);
     return view;
   }
 
-  static fromInit<X, Y>(init: MapPointViewInit): MapPointView {
+  static fromInit(init: MapPointViewInit): MapPointView {
     const view = new MapPointView();
     view.initView(init);
     return view;

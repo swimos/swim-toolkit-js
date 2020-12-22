@@ -39,22 +39,16 @@ export class CompositeComponent extends GenericComponent {
                                         thisArg?: S): T | undefined {
     let result: T | undefined;
     const childComponents = this._childComponents;
-    if (childComponents.length !== 0) {
-      let i = 0;
-      do {
-        const childComponent = childComponents[i];
-        result = callback.call(thisArg, childComponent);
-        if (result !== void 0) {
-          return result;
-        }
-        if (i < childComponents.length) {
-          if (childComponents[i] === childComponent) {
-            i += 1;
-          }
-          continue;
-        }
+    let i = 0;
+    while (i < childComponents.length) {
+      const childComponent = childComponents[i];
+      result = callback.call(thisArg, childComponent);
+      if (result !== void 0) {
         break;
-      } while (true);
+      }
+      if (childComponents[i] === childComponent) {
+        i += 1;
+      }
     }
     return result;
   }
@@ -184,7 +178,7 @@ export class CompositeComponent extends GenericComponent {
     this.willInsertChildComponent(childComponent, targetComponent);
     childComponents.unshift(childComponent);
     this.insertChildComponentMap(childComponent);
-    childComponent.setParentComponent(this, targetComponent);
+    childComponent.setParentComponent(this, null);
     this.onInsertChildComponent(childComponent, targetComponent);
     this.didInsertChildComponent(childComponent, targetComponent);
     childComponent.cascadeInsert();
@@ -329,15 +323,13 @@ export class CompositeComponent extends GenericComponent {
   }
 
   protected compileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>,
-                                   callback?: (this: this, childComponent: Component) => void): void {
+                                   compileChildComponent: (this: this, childComponent: Component, compileFlags: ComponentFlags,
+                                                           componentContext: ComponentContextType<this>) => void): void {
     const childComponents = this._childComponents;
     let i = 0;
     while (i < childComponents.length) {
       const childComponent = childComponents[i];
-      this.compileChildComponent(childComponent, compileFlags, componentContext);
-      if (callback !== void 0) {
-        callback.call(this, childComponent);
-      }
+      compileChildComponent.call(this, childComponent, compileFlags, componentContext);
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
         this.removeChildComponent(childComponent);
@@ -348,15 +340,13 @@ export class CompositeComponent extends GenericComponent {
   }
 
   protected executeChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>,
-                                   callback?: (this: this, childComponent: Component) => void): void {
+                                   executeChildComponent: (this: this, childComponent: Component, executeFlags: ComponentFlags,
+                                                           componentContext: ComponentContextType<this>) => void): void {
     const childComponents = this._childComponents;
     let i = 0;
     while (i < childComponents.length) {
       const childComponent = childComponents[i];
-      this.executeChildComponent(childComponent, executeFlags, componentContext);
-      if (callback !== void 0) {
-        callback.call(this, childComponent);
-      }
+      executeChildComponent.call(this, childComponent, executeFlags, componentContext);
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
         this.removeChildComponent(childComponent);

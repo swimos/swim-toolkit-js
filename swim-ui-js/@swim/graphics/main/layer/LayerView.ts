@@ -190,7 +190,7 @@ export class LayerView extends GraphicsView {
     this.willInsertChildView(childView, targetView);
     childViews.unshift(childView);
     this.insertChildViewMap(childView);
-    childView.setParentView(this, targetView);
+    childView.setParentView(this, null);
     this.onInsertChildView(childView, targetView);
     this.didInsertChildView(childView, targetView);
     childView.cascadeInsert();
@@ -344,15 +344,13 @@ export class LayerView extends GraphicsView {
   }
 
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
+                              processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i];
-      this.processChildView(childView, processFlags, viewContext);
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+      processChildView.call(this, childView, processFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
@@ -363,15 +361,13 @@ export class LayerView extends GraphicsView {
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
+                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
     const childViews = this._childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i];
-      this.displayChildView(childView, displayFlags, viewContext);
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+      displayChildView.call(this, childView, displayFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);

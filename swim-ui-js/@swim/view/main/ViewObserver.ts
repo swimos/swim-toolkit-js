@@ -57,9 +57,9 @@ export interface ViewObserver<V extends View = View> {
 
   viewDidUncull?(view: V): void;
 
-  viewWillProcess?(viewContext: ViewContextType<V>, view: V): void;
+  viewWillProcess?(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
 
-  viewDidProcess?(viewContext: ViewContextType<V>, view: V): void;
+  viewDidProcess?(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
 
   viewWillResize?(viewContext: ViewContextType<V>, view: V): void;
 
@@ -77,17 +77,17 @@ export interface ViewObserver<V extends View = View> {
 
   viewDidAnimate?(viewContext: ViewContextType<V>, view: V): void;
 
-  viewWillLayout?(viewContext: ViewContextType<V>, view: V): void;
-
-  viewDidLayout?(viewContext: ViewContextType<V>, view: V): void;
-
   viewWillProcessChildViews?(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
 
   viewDidProcessChildViews?(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
 
-  viewWillDisplay?(viewContext: ViewContextType<V>, view: V): void;
+  viewWillDisplay?(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
 
-  viewDidDisplay?(viewContext: ViewContextType<V>, view: V): void;
+  viewDidDisplay?(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
+
+  viewWillLayout?(viewContext: ViewContextType<V>, view: V): void;
+
+  viewDidLayout?(viewContext: ViewContextType<V>, view: V): void;
 
   viewWillDisplayChildViews?(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
 

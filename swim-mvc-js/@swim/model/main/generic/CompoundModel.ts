@@ -61,22 +61,16 @@ export class CompoundModel extends GenericModel {
                                     thisArg?: S): T | undefined {
     let result: T | undefined;
     const childModels = this._childModels;
-    if (childModels.length !== 0) {
-      let i = 0;
-      do {
-        const childModel = childModels[i];
-        result = callback.call(thisArg, childModel);
-        if (result !== void 0) {
-          return result;
-        }
-        if (i < childModels.length) {
-          if (childModels[i] === childModel) {
-            i += 1;
-          }
-          continue;
-        }
+    let i = 0;
+    while (i < childModels.length) {
+      const childModel = childModels[i];
+      result = callback.call(thisArg, childModel);
+      if (result !== void 0) {
         break;
-      } while (true);
+      }
+      if (childModels[i] === childModel) {
+        i += 1;
+      }
     }
     return result;
   }
@@ -184,7 +178,7 @@ export class CompoundModel extends GenericModel {
     this.willInsertChildModel(childModel, targetModel);
     childModels.unshift(childModel);
     this.insertChildModelMap(childModel);
-    childModel.setParentModel(this, targetModel);
+    childModel.setParentModel(this, null);
     this.onInsertChildModel(childModel, targetModel);
     this.didInsertChildModel(childModel, targetModel);
     childModel.cascadeInsert();
@@ -328,16 +322,15 @@ export class CompoundModel extends GenericModel {
     }
   }
 
-  protected analyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
-                               callback?: (this: this, childModel: Model) => void): void {
+  /** @hidden */
+  protected analyzeOwnChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
+                                  analyzeChildModel: (this: this, childModel: Model, analyzeFlags: ModelFlags,
+                                                      modelContext: ModelContextType<this>) => void): void {
     const childModels = this._childModels;
     let i = 0;
     while (i < childModels.length) {
       const childModel = childModels[i];
-      this.analyzeChildModel(childModel, analyzeFlags, modelContext);
-      if (callback !== void 0) {
-        callback.call(this, childModel);
-      }
+      analyzeChildModel.call(this, childModel, analyzeFlags, modelContext);
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
         this.removeChildModel(childModel);
@@ -347,16 +340,15 @@ export class CompoundModel extends GenericModel {
     }
   }
 
-  protected refreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
-                               callback?: (this: this, childModel: Model) => void): void {
+  /** @hidden */
+  protected refreshOwnChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
+                                  refreshChildModel: (this: this, childModel: Model, refreshFlags: ModelFlags,
+                                                      modelContext: ModelContextType<this>) => void): void {
     const childModels = this._childModels;
     let i = 0;
     while (i < childModels.length) {
       const childModel = childModels[i];
-      this.refreshChildModel(childModel, refreshFlags, modelContext);
-      if (callback !== void 0) {
-        callback.call(this, childModel);
-      }
+      refreshChildModel.call(this, childModel, refreshFlags, modelContext);
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
         this.removeChildModel(childModel);

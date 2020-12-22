@@ -13,4 +13,7 @@
 // limitations under the License.
 
 export {GenericModel} from "./GenericModel";
+
 export {CompoundModel} from "./CompoundModel";
+
+export {GenericTrait} from "./GenericTrait";

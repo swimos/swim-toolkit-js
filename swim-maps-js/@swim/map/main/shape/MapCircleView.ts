@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2, CircleR2} from "@swim/math";
+import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {
@@ -24,10 +25,8 @@ import {
   CanvasContext,
   CanvasRenderer,
 } from "@swim/graphics";
-import {AnyGeoPoint, GeoPoint} from "../geo/GeoPoint";
-import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapLayerView} from "../graphics/MapLayerView";
+import {MapLayerView} from "../layer/MapLayerView";
 
 export type AnyMapCircleView = MapCircleView | MapCircleViewInit;
 
@@ -41,14 +40,6 @@ export interface MapCircleViewInit extends MapGraphicsViewInit, FillViewInit, St
 export class MapCircleView extends MapLayerView implements FillView, StrokeView {
   /** @hidden */
   _hitRadius?: number;
-  /** @hidden */
-  _geoBounds: GeoBox;
-
-  constructor() {
-    super();
-    this._geoBounds = GeoBox.undefined();
-    this.geoCenter.onUpdate = this.onSetGeoCenter.bind(this);
-  }
 
   initView(init: MapCircleViewInit): void {
     super.initView(init);
@@ -75,7 +66,13 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
     }
   }
 
-  @ViewAnimator({type: GeoPoint, state: GeoPoint.origin()})
+  @ViewAnimator<MapCircleView, GeoPoint, AnyGeoPoint>({
+    type: GeoPoint,
+    state: GeoPoint.origin(),
+    onUpdate(newValue: GeoPoint, oldValue: GeoPoint): void {
+      this.owner.onSetGeoCenter(newValue, oldValue);
+    },
+  })
   geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
@@ -108,8 +105,8 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
     }
   }
 
-  protected onSetGeoCenter(newGeoCenter: GeoPoint | undefined, oldGeoCenter: GeoPoint | undefined): void {
-    if (newGeoCenter !== void 0) {
+  protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+    if (newGeoCenter.isDefined()) {
       const oldGeoBounds = this._geoBounds;
       const newGeoBounds = new GeoBox(newGeoCenter._lng, newGeoCenter._lat, newGeoCenter._lng, newGeoCenter._lat);
       this._geoBounds = newGeoBounds;
@@ -172,6 +169,10 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
     }
   }
 
+  protected doUpdateGeoBounds(): void {
+    // nop
+  }
+
   get popoverFrame(): BoxR2 {
     const frame = this.viewFrame;
     const size = Math.min(frame.width, frame.height);
@@ -199,10 +200,6 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
     const hitRadius = this._hitRadius !== void 0 ? Math.max(this._hitRadius, radius) : radius;
     return new BoxR2(viewCenter.x - hitRadius, viewCenter.y - hitRadius,
                      viewCenter.x + hitRadius, viewCenter.y + hitRadius);
-  }
-
-  get geoBounds(): GeoBox {
-    return this._geoBounds;
   }
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {

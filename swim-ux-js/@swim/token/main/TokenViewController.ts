@@ -30,7 +30,7 @@ export class TokenViewController<V extends TokenView = TokenView> extends HtmlVi
   }
 
   tokenWillCollapse(view: V): void {
-    const labelView = view.label.subview;
+    const labelView = view.label.view;
     if (labelView !== null) {
       labelView.node.blur();
     }
@@ -42,7 +42,7 @@ export class TokenViewController<V extends TokenView = TokenView> extends HtmlVi
 
   tokenDidPressHead(view: V): void {
     view.toggle();
-    const labelView = view.label.subview;
+    const labelView = view.label.view;
     if (labelView !== null && view.isExpanded()) {
       labelView.node.focus();
     }

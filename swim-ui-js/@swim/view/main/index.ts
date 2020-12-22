@@ -20,6 +20,7 @@ export {
   ViewFlags,
   ViewInit,
   ViewFactory,
+  ViewPrototype,
   ViewConstructor,
   ViewClass,
   View,
@@ -32,21 +33,6 @@ export {
   ViewControllerType,
   ViewController,
 } from "./ViewController";
-
-export {
-  SubviewMemberType,
-  SubviewMemberInit,
-  SubviewInit,
-  SubviewDescriptorInit,
-  SubviewDescriptorExtends,
-  SubviewDescriptorFromAny,
-  SubviewDescriptor,
-  SubviewPrototype,
-  SubviewConstructor,
-  Subview,
-} from "./Subview";
-
-export {SubviewObserver} from "./SubviewObserver";
 
 export * from "./manager";
 
@@ -65,5 +51,7 @@ export * from "./service";
 export * from "./scope";
 
 export * from "./animator";
+
+export * from "./binding";
 
 export * from "./event";

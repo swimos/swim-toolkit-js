@@ -14,6 +14,7 @@
 
 import {ModelContextType} from "./ModelContext";
 import {ModelFlags, Model} from "./Model";
+import {Trait} from "./Trait";
 
 export type ModelObserverType<M extends Model> =
   M extends {readonly modelObservers: ReadonlyArray<infer MO>} ? MO : unknown;
@@ -30,6 +31,14 @@ export interface ModelObserver<M extends Model = Model> {
   modelWillRemoveChildModel?(childModel: Model, model: M): void;
 
   modelDidRemoveChildModel?(childModel: Model, model: M): void;
+
+  modelWillInsertTrait?(trait: Trait, targetTrait: Trait | null | undefined, model: M): void;
+
+  modelDidInsertTrait?(trait: Trait, targetTrait: Trait | null | undefined, model: M): void;
+
+  modelWillRemoveTrait?(trait: Trait, model: M): void;
+
+  modelDidRemoveTrait?(trait: Trait, model: M): void;
 
   modelWillMount?(model: M): void;
 

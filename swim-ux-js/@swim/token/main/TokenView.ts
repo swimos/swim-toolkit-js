@@ -15,7 +15,7 @@
 import {Length} from "@swim/math";
 import {Tween, Transition} from "@swim/tween";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewObserver, Subview, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewObserver, ViewAnimator, ViewBinding} from "@swim/view";
 import {ViewNodeType, ElementView, HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
 import {PathContext} from "@swim/graphics";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
@@ -44,7 +44,7 @@ export class TokenView extends HtmlView {
     this.onClickBody = this.onClickBody.bind(this);
     this.onClickFoot = this.onClickFoot.bind(this);
     this._tokenState = "expanded";
-    this.initSubviews();
+    this.initChildViews();
   }
 
   protected initNode(node: ViewNodeType<this>): void {
@@ -66,7 +66,7 @@ export class TokenView extends HtmlView {
     super.initView(init);
   }
 
-  protected initSubviews(): void {
+  protected initChildViews(): void {
     this.shape.insert();
   }
 
@@ -192,298 +192,298 @@ export class TokenView extends HtmlView {
   @ViewAnimator({type: Number, state: 1, updateFlags: View.NeedsLayout})
   expandedPhase: ViewAnimator<this, number>;
 
-  @Subview<TokenView, SvgView>({
+  @ViewBinding<TokenView, SvgView>({
     type: SvgView,
-    onSetSubview(shapeView: SvgView | null): void {
+    onSetView(shapeView: SvgView | null): void {
       if (shapeView !== null) {
-        this.view.initShape(shapeView);
+        this.owner.initShape(shapeView);
       }
     },
   })
-  readonly shape: Subview<this, SvgView>;
+  readonly shape: ViewBinding<this, SvgView>;
 
-  @Subview<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
+  @ViewBinding<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
-    onSetSubview(headView: SvgView | null): void {
+    onSetView(headView: SvgView | null): void {
       if (headView !== null) {
-        this.view.initHead(headView);
+        this.owner.initHead(headView);
       }
     },
     viewDidMount(headView: SvgView): void {
-      headView.on("click", this.view.onClickHead);
+      headView.on("click", this.owner.onClickHead);
     },
     viewWillUnmount(headView: SvgView): void {
-      headView.off("click", this.view.onClickHead);
+      headView.off("click", this.owner.onClickHead);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, headView: SvgView): void {
       headView.fill.setAutoState(theme.inner(mood, Look.accentColor), transition);
-      const iconView = this.view.icon.subview;
+      const iconView = this.owner.icon.view;
       if (iconView instanceof SvgView && iconView.fill.isAuto()) {
-        const iconColor = this.view.icon.embossed ? theme.inner(mood.updated(Feel.embossed, 1), Look.accentColor)
-                                                  : theme.inner(mood, Look.backgroundColor);
+        const iconColor = this.owner.icon.embossed ? theme.inner(mood.updated(Feel.embossed, 1), Look.accentColor)
+                                                   : theme.inner(mood, Look.backgroundColor);
         iconView.fill.setAutoState(iconColor, transition);
       }
     },
     didStartHovering(): void {
-      const headView = this.subview!;
+      const headView = this.view!;
       headView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const transition = headView.getLook(Look.transition);
       headView.fill.setAutoState(headView.getLook(Look.accentColor), transition);
-      const iconView = this.view.icon.subview;
+      const iconView = this.owner.icon.view;
       if (iconView instanceof SvgView && iconView.fill.isAuto()) {
-        const iconColor = this.view.icon.embossed ? headView.getLook(Look.accentColor, headView.mood.getState().updated(Feel.embossed, 1))
-                                                  : headView.getLook(Look.backgroundColor);
+        const iconColor = this.owner.icon.embossed ? headView.getLook(Look.accentColor, headView.mood.getState().updated(Feel.embossed, 1))
+                                                   : headView.getLook(Look.backgroundColor);
         iconView.fill.setAutoState(iconColor, transition);
       }
     },
     didStopHovering(): void {
-      const headView = this.subview!;
+      const headView = this.view!;
       headView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const transition = headView.getLook(Look.transition);
       headView.fill.setAutoState(headView.getLook(Look.accentColor), transition);
-      const iconView = this.view.icon.subview;
+      const iconView = this.owner.icon.view;
       if (iconView instanceof SvgView && iconView.fill.isAuto()) {
-        const iconColor = this.view.icon.embossed ? headView.getLook(Look.accentColor, headView.mood.getState().updated(Feel.embossed, 1))
-                                                  : headView.getLook(Look.backgroundColor);
+        const iconColor = this.owner.icon.embossed ? headView.getLook(Look.accentColor, headView.mood.getState().updated(Feel.embossed, 1))
+                                                   : headView.getLook(Look.backgroundColor);
         iconView.fill.setAutoState(iconColor, transition);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._headGesture !== void 0 && input.inputType !== "mouse") {
-        this.view._headGesture.beginHover(input, event);
+      if (this.owner._headGesture !== void 0 && input.inputType !== "mouse") {
+        this.owner._headGesture.beginHover(input, event);
       }
     },
     didMovePress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._headGesture !== void 0 && input.isRunaway()) {
-        this.view._headGesture.cancelPress(input, event);
+      if (this.owner._headGesture !== void 0 && input.isRunaway()) {
+        this.owner._headGesture.cancelPress(input, event);
       }
     },
     didEndPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._headGesture !== void 0 && (input.inputType !== "mouse" || !this.subview!.clientBounds.contains(input.x, input.y))) {
-        this.view._headGesture.endHover(input, event);
+      if (this.owner._headGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        this.owner._headGesture.endHover(input, event);
       }
     },
     didCancelPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._headGesture !== void 0 && (input.inputType !== "mouse" || !this.subview!.clientBounds.contains(input.x, input.y))) {
-        this.view._headGesture.endHover(input, event);
+      if (this.owner._headGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        this.owner._headGesture.endHover(input, event);
       }
     },
   })
-  readonly head: Subview<this, SvgView> & PositionGestureDelegate;
+  readonly head: ViewBinding<this, SvgView> & PositionGestureDelegate;
 
-  @Subview<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
+  @ViewBinding<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
-    onSetSubview(bodyView: SvgView | null): void {
+    onSetView(bodyView: SvgView | null): void {
       if (bodyView !== null) {
-        this.view.initBody(bodyView);
+        this.owner.initBody(bodyView);
       }
     },
     viewDidMount(headView: SvgView): void {
-      headView.on("click", this.view.onClickBody);
+      headView.on("click", this.owner.onClickBody);
     },
     viewWillUnmount(headView: SvgView): void {
-      headView.off("click", this.view.onClickBody);
+      headView.off("click", this.owner.onClickBody);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, bodyView: SvgView): void {
       bodyView.fill.setAutoState(theme.inner(mood, Look.accentColor), transition);
-      const labelView = this.view.label.subview;
+      const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
         labelView.color.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
       }
     },
     didStartHovering(): void {
-      const bodyView = this.subview!;
+      const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const transition = bodyView.getLook(Look.transition);
       bodyView.fill.setAutoState(bodyView.getLook(Look.accentColor), transition);
-      const labelView = this.view.label.subview;
+      const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
         labelView.color.setAutoState(bodyView.getLook(Look.backgroundColor), transition);
       }
     },
     didStopHovering(): void {
-      const bodyView = this.subview!;
+      const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const transition = bodyView.getLook(Look.transition);
       bodyView.fill.setAutoState(bodyView.getLook(Look.accentColor), transition);
-      const labelView = this.view.label.subview;
+      const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
         labelView.color.setAutoState(bodyView.getLook(Look.backgroundColor), transition);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._bodyGesture !== void 0 && input.inputType !== "mouse") {
-        this.view._bodyGesture.beginHover(input, event);
+      if (this.owner._bodyGesture !== void 0 && input.inputType !== "mouse") {
+        this.owner._bodyGesture.beginHover(input, event);
       }
     },
     didMovePress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._bodyGesture !== void 0 && input.isRunaway()) {
-        this.view._bodyGesture.cancelPress(input, event);
+      if (this.owner._bodyGesture !== void 0 && input.isRunaway()) {
+        this.owner._bodyGesture.cancelPress(input, event);
       }
     },
     didEndPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._bodyGesture !== void 0 && (input.inputType !== "mouse" || !this.subview!.clientBounds.contains(input.x, input.y))) {
-        this.view._bodyGesture.endHover(input, event);
+      if (this.owner._bodyGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        this.owner._bodyGesture.endHover(input, event);
       }
     },
     didCancelPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._bodyGesture !== void 0 && (input.inputType !== "mouse" || !this.subview!.clientBounds.contains(input.x, input.y))) {
-        this.view._bodyGesture.endHover(input, event);
+      if (this.owner._bodyGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        this.owner._bodyGesture.endHover(input, event);
       }
     },
   })
-  readonly body: Subview<this, SvgView> & PositionGestureDelegate;
+  readonly body: ViewBinding<this, SvgView> & PositionGestureDelegate;
 
-  @Subview<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
+  @ViewBinding<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
-    onSetSubview(footView: SvgView | null): void {
+    onSetView(footView: SvgView | null): void {
       if (footView !== null) {
-        this.view.initFoot(footView);
+        this.owner.initFoot(footView);
       }
     },
     viewDidMount(footView: SvgView): void {
-      footView.on("click", this.view.onClickFoot);
+      footView.on("click", this.owner.onClickFoot);
     },
     viewWillUnmount(footView: SvgView): void {
-      footView.off("click", this.view.onClickFoot);
+      footView.off("click", this.owner.onClickFoot);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, footView: SvgView): void {
       footView.fill.setAutoState(theme.inner(mood, Look.accentColor), transition);
-      const actionView = this.view.action.subview;
+      const actionView = this.owner.action.view;
       if (actionView instanceof SvgView && actionView.fill.isAuto()) {
-        const iconColor = this.view.action.embossed ? theme.inner(mood.updated(Feel.embossed, 1), Look.accentColor)
-                                                    : theme.inner(mood, Look.backgroundColor);
+        const iconColor = this.owner.action.embossed ? theme.inner(mood.updated(Feel.embossed, 1), Look.accentColor)
+                                                     : theme.inner(mood, Look.backgroundColor);
         actionView.fill.setAutoState(iconColor, transition);
       }
     },
     didStartHovering(): void {
-      const footView = this.subview!;
+      const footView = this.view!;
       footView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const transition = footView.getLook(Look.transition);
       footView.fill.setAutoState(footView.getLook(Look.accentColor), transition);
-      const actionView = this.view.action.subview;
+      const actionView = this.owner.action.view;
       if (actionView instanceof SvgView && actionView.fill.isAuto()) {
-        const iconColor = this.view.action.embossed ? footView.getLook(Look.accentColor, footView.mood.getState().updated(Feel.embossed, 1))
-                                                    : footView.getLook(Look.backgroundColor);
+        const iconColor = this.owner.action.embossed ? footView.getLook(Look.accentColor, footView.mood.getState().updated(Feel.embossed, 1))
+                                                     : footView.getLook(Look.backgroundColor);
         actionView.fill.setAutoState(iconColor, transition);
       }
     },
     didStopHovering(): void {
-      const footView = this.subview!;
+      const footView = this.view!;
       footView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const transition = footView.getLook(Look.transition);
       footView.fill.setAutoState(footView.getLook(Look.accentColor), transition);
-      const actionView = this.view.action.subview;
+      const actionView = this.owner.action.view;
       if (actionView instanceof SvgView && actionView.fill.isAuto()) {
-        const iconColor = this.view.action.embossed ? footView.getLook(Look.accentColor, footView.mood.getState().updated(Feel.embossed, 1))
-                                                    : footView.getLook(Look.backgroundColor);
+        const iconColor = this.owner.action.embossed ? footView.getLook(Look.accentColor, footView.mood.getState().updated(Feel.embossed, 1))
+                                                     : footView.getLook(Look.backgroundColor);
         actionView.fill.setAutoState(iconColor, transition);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._footGesture !== void 0 && input.inputType !== "mouse") {
-        this.view._footGesture.beginHover(input, event);
+      if (this.owner._footGesture !== void 0 && input.inputType !== "mouse") {
+        this.owner._footGesture.beginHover(input, event);
       }
     },
     didMovePress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._footGesture !== void 0 && input.isRunaway()) {
-        this.view._footGesture.cancelPress(input, event);
+      if (this.owner._footGesture !== void 0 && input.isRunaway()) {
+        this.owner._footGesture.cancelPress(input, event);
       }
     },
     didEndPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._footGesture !== void 0 && (input.inputType !== "mouse" || !this.subview!.clientBounds.contains(input.x, input.y))) {
-        this.view._footGesture.endHover(input, event);
+      if (this.owner._footGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        this.owner._footGesture.endHover(input, event);
       }
     },
     didCancelPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.view._footGesture !== void 0 && (input.inputType !== "mouse" || !this.subview!.clientBounds.contains(input.x, input.y))) {
-        this.view._footGesture.endHover(input, event);
+      if (this.owner._footGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        this.owner._footGesture.endHover(input, event);
       }
     },
   })
-  readonly foot: Subview<this, SvgView> & PositionGestureDelegate;
+  readonly foot: ViewBinding<this, SvgView> & PositionGestureDelegate;
 
-  @Subview<TokenView, ElementView, Element, {embossed: boolean}>({
+  @ViewBinding<TokenView, ElementView, Element, {embossed: boolean}>({
     extends: void 0,
     type: SvgView.path,
     embossed: true,
-    onSetSubview(iconView: ElementView | null): void {
+    onSetView(iconView: ElementView | null): void {
       if (iconView !== null) {
-        this.view.initIcon(iconView);
+        this.owner.initIcon(iconView);
       }
     },
     fromAny(value: ElementView | Element): ElementView {
       return ElementView.fromAny(value);
     },
   })
-  readonly icon: Subview<this, ElementView> & {embossed: boolean};
+  readonly icon: ViewBinding<this, ElementView> & {embossed: boolean};
 
-  @Subview<TokenView, HtmlView>({
+  @ViewBinding<TokenView, HtmlView>({
     type: HtmlView,
-    onSetSubview(labelContainer: HtmlView | null): void {
+    onSetView(labelContainer: HtmlView | null): void {
       if (labelContainer !== null) {
-        this.view.initLabelContainer(labelContainer);
+        this.owner.initLabelContainer(labelContainer);
       }
     },
   })
-  readonly labelContainer: Subview<this, HtmlView>;
+  readonly labelContainer: ViewBinding<this, HtmlView>;
 
-  @Subview<TokenView, HtmlView>({
+  @ViewBinding<TokenView, HtmlView>({
     child: false,
     type: HtmlView,
-    onSetSubview(labelView: HtmlView | null): void {
+    onSetView(labelView: HtmlView | null): void {
       if (labelView !== null) {
         if (labelView.parentView === null) {
-          this.view.labelContainer.insert();
-          const labelContainer = this.view.labelContainer.subview;
+          this.owner.labelContainer.insert();
+          const labelContainer = this.owner.labelContainer.view;
           if (labelContainer !== null) {
             labelContainer.appendChildView(labelView);
           }
         }
-        this.view.initLabel(labelView);
+        this.owner.initLabel(labelView);
       }
     },
   })
-  readonly label: Subview<this, HtmlView>;
+  readonly label: ViewBinding<this, HtmlView>;
 
-  @Subview<TokenView, HtmlView>({
+  @ViewBinding<TokenView, HtmlView>({
     type: HtmlView,
-    onSetSubview(actionContainer: HtmlView | null): void {
+    onSetView(actionContainer: HtmlView | null): void {
       if (actionContainer !== null) {
-        this.view.initActionContainer(actionContainer);
+        this.owner.initActionContainer(actionContainer);
       }
     },
   })
-  readonly actionContainer: Subview<this, HtmlView>;
+  readonly actionContainer: ViewBinding<this, HtmlView>;
 
-  @Subview<TokenView, ElementView, Element, {embossed: boolean}>({
+  @ViewBinding<TokenView, ElementView, Element, {embossed: boolean}>({
     extends: void 0,
     child: false,
     type: HtmlView,
     embossed: true,
-    onSetSubview(actionView: ElementView | null): void {
+    onSetView(actionView: ElementView | null): void {
       if (actionView !== null) {
         if (actionView.parentView === null) {
-          this.view.actionContainer.insert();
-          const actionContainer = this.view.actionContainer.subview;
+          this.owner.actionContainer.insert();
+          const actionContainer = this.owner.actionContainer.view;
           if (actionContainer !== null) {
             actionContainer.appendChildView(actionView);
           }
         }
-        this.view.initAction(actionView);
+        this.owner.initAction(actionView);
       }
     },
     fromAny(value: ElementView | Element): ElementView {
       return ElementView.fromAny(value);
     },
   })
-  readonly action: Subview<this, ElementView> & {embossed: boolean};
+  readonly action: ViewBinding<this, ElementView> & {embossed: boolean};
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {
@@ -514,15 +514,15 @@ export class TokenView extends HtmlView {
     const actionPaddingRight = radius / 2;
     const expandedPhase = this.expandedPhase.value;
 
-    const shapeView = this.shape.subview;
-    const headView = this.head.subview;
-    const bodyView = this.body.subview;
-    const footView = this.foot.subview;
-    const iconView = this.icon.subview;
-    const labelContainer = this.labelContainer.subview;
-    const labelView = this.label.subview;
-    const actionContainer = this.actionContainer.subview;
-    const actionView = this.action.subview;
+    const shapeView = this.shape.view;
+    const headView = this.head.view;
+    const bodyView = this.body.view;
+    const footView = this.foot.view;
+    const iconView = this.icon.view;
+    const labelContainer = this.labelContainer.view;
+    const labelView = this.label.view;
+    const actionContainer = this.actionContainer.view;
+    const actionView = this.action.view;
 
     let labelWidth = 0;
     let bodyWidth = 0;
@@ -653,11 +653,11 @@ export class TokenView extends HtmlView {
 
   protected willExpand(): void {
     this._tokenState = "expanding";
-    const labelContainer = this.labelContainer.subview;
+    const labelContainer = this.labelContainer.view;
     if (labelContainer !== null) {
       labelContainer.display.setAutoState("block");
     }
-    const actionContainer = this.actionContainer.subview;
+    const actionContainer = this.actionContainer.view;
     if (actionContainer !== null) {
       actionContainer.display.setAutoState("block");
     }

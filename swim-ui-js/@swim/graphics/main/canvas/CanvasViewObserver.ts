@@ -21,6 +21,10 @@ export interface CanvasViewObserver<V extends CanvasView = CanvasView> extends H
 
   viewDidRender?(viewContext: ViewContextType<V>, view: V): void;
 
+  viewWillComposite?(viewContext: ViewContextType<V>, view: V): void;
+
+  viewDidComposite?(viewContext: ViewContextType<V>, view: V): void;
+
   viewWillSetHidden?(hidden: boolean, view: V): void;
 
   viewDidSetHidden?(hidden: boolean, view: V): void;

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
+import {GeoPoint, GeoBox} from "@swim/geo";
 import {Tween} from "@swim/tween";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
@@ -24,16 +25,14 @@ import {
   CanvasContext,
   CanvasRenderer,
 } from "@swim/graphics";
-import {GeoPoint} from "../geo/GeoPoint";
-import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapLayerView} from "../graphics/MapLayerView";
+import {MapLayerView} from "../layer/MapLayerView";
 import {AnyMapPointView, MapPointView} from "./MapPointView";
 
 export type AnyMapPolylineView = MapPolylineView | MapPolylineViewInit;
 
 export interface MapPolylineViewInit extends MapGraphicsViewInit, StrokeViewInit {
-  points?: AnyMapPointView[];
+  points?: ReadonlyArray<AnyMapPointView>;
 
   hitWidth?: number;
 
@@ -51,8 +50,6 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   /** @hidden */
   _gradientStops: number;
   /** @hidden */
-  _geoBounds: GeoBox;
-  /** @hidden */
   _viewBounds: BoxR2;
 
   constructor() {
@@ -60,7 +57,6 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     this._geoCenter = GeoPoint.origin();
     this._viewCentroid = PointR2.origin();
     this._gradientStops = 0;
-    this._geoBounds = GeoBox.undefined();
     this._viewBounds = BoxR2.undefined();
   }
 
@@ -88,18 +84,18 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   }
 
   points(): ReadonlyArray<MapPointView>;
-  points(points: AnyMapPointView[], tween?: Tween<GeoPoint>): this;
-  points(points?: AnyMapPointView[], tween?: Tween<GeoPoint>): ReadonlyArray<MapPointView> | this {
+  points(points: ReadonlyArray<AnyMapPointView>, tween?: Tween<GeoPoint>): this;
+  points(points?: ReadonlyArray<AnyMapPointView>, tween?: Tween<GeoPoint>): ReadonlyArray<MapPointView> | this {
     const childViews = this._childViews;
     if (points === void 0) {
-      points = [];
+      const points: MapPointView[] = [];
       for (let i = 0; i < childViews.length; i += 1) {
         const childView = childViews[i];
         if (childView instanceof MapPointView) {
           points.push(childView);
         }
       }
-      return points as ReadonlyArray<MapPointView>;
+      return points;
     } else {
       const oldGeoBounds = this._geoBounds;
       let lngMin = Infinity;
@@ -386,6 +382,10 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     }
   }
 
+  protected doUpdateGeoBounds(): void {
+    // nop
+  }
+
   get popoverFrame(): BoxR2 {
     const viewCentroid = this._viewCentroid;
     const inversePageTransform = this.pageTransform.inverse();
@@ -393,16 +393,8 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     return new BoxR2(px, py, px, py);
   }
 
-  get geoBounds(): GeoBox {
-    return this._geoBounds;
-  }
-
   get viewBounds(): BoxR2 {
     return this._viewBounds;
-  }
-
-  get hitBounds(): BoxR2 {
-    return this.viewBounds;
   }
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {

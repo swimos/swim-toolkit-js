@@ -20,7 +20,7 @@ import {ConstraintScope} from "./ConstraintScope";
 
 export class ConstrainBinding extends ConstrainVariable implements Debug {
   /** @hidden */
-  readonly _scope: ConstraintScope;
+  readonly _owner: ConstraintScope;
   /** @hidden */
   _value: number;
   /** @hidden */
@@ -28,9 +28,9 @@ export class ConstrainBinding extends ConstrainVariable implements Debug {
   /** @hidden */
   _strength: ConstraintStrength;
 
-  constructor(scope: ConstraintScope, name: string, value: number, strength: ConstraintStrength) {
+  constructor(owner: ConstraintScope, name: string, value: number, strength: ConstraintStrength) {
     super();
-    this._scope = scope;
+    this._owner = owner;
     Object.defineProperty(this, "name", {
       value: name,
       enumerable: true,
@@ -41,8 +41,8 @@ export class ConstrainBinding extends ConstrainVariable implements Debug {
     this._strength = strength;
   }
 
-  get scope(): ConstraintScope {
-    return this._scope;
+  get owner(): ConstraintScope {
+    return this._owner;
   }
 
   readonly name: string;
@@ -62,14 +62,14 @@ export class ConstrainBinding extends ConstrainVariable implements Debug {
   setState(newState: number): void {
     const oldState = this._state;
     if (isFinite(oldState) && !isFinite(newState)) {
-      this._scope.removeConstraintVariable(this);
+      this._owner.removeConstraintVariable(this);
     }
     this._state = newState;
     if (isFinite(newState)) {
       if (!isFinite(oldState)) {
-        this._scope.addConstraintVariable(this);
+        this._owner.addConstraintVariable(this);
       } else {
-        this._scope.setConstraintVariable(this, newState);
+        this._owner.setConstraintVariable(this, newState);
       }
     }
   }
@@ -83,16 +83,16 @@ export class ConstrainBinding extends ConstrainVariable implements Debug {
     const oldStrength = this._strength;
     newStrength = ConstraintStrength.fromAny(newStrength);
     if (isFinite(state) && oldStrength !== newStrength) {
-      this._scope.removeConstraintVariable(this);
+      this._owner.removeConstraintVariable(this);
     }
     this._strength = newStrength;
     if (isFinite(state) && oldStrength !== newStrength) {
-      this._scope.addConstraintVariable(this);
+      this._owner.addConstraintVariable(this);
     }
   }
 
   debug(output: Output): void {
-    output = output.debug(this.scope).write(46/*'.'*/).write("variable").write(40/*'('*/)
+    output = output.debug(this.owner).write(46/*'.'*/).write("variable").write(40/*'('*/)
         .debug(this.name).write(", ").debug(this.value).write(41/*')'*/);
   }
 

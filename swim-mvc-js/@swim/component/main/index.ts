@@ -19,6 +19,7 @@ export {
 export {
   ComponentFlags,
   ComponentInit,
+  ComponentPrototype,
   ComponentClass,
   Component,
 } from "./Component";
@@ -26,21 +27,6 @@ export {
   ComponentObserverType,
   ComponentObserver,
 } from "./ComponentObserver";
-
-export {
-  SubcomponentMemberType,
-  SubcomponentMemberInit,
-  SubcomponentInit,
-  SubcomponentDescriptorInit,
-  SubcomponentDescriptorExtends,
-  SubcomponentDescriptorFromAny,
-  SubcomponentDescriptor,
-  SubcomponentPrototype,
-  SubcomponentConstructor,
-  Subcomponent,
-} from "./Subcomponent";
-
-export {SubcomponentObserver} from "./SubcomponentObserver";
 
 export * from "./manager";
 
@@ -54,6 +40,10 @@ export * from "./scope";
 
 export * from "./model";
 
+export * from "./trait";
+
 export * from "./view";
+
+export * from "./binding";
 
 export * from "./generic";

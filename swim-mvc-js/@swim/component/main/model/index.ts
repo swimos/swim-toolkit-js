@@ -24,5 +24,3 @@ export {
   ComponentModelConstructor,
   ComponentModel,
 } from "./ComponentModel";
-
-export {ComponentModelObserver} from "./ComponentModelObserver";

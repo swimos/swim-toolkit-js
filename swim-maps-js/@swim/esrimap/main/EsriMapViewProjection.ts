@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyPointR2, PointR2} from "@swim/math";
-import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/map";
+import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {EsriProjection} from "./EsriProjection";
 
 export class EsriMapViewProjection implements EsriProjection {

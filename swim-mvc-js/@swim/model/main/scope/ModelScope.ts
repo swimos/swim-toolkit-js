@@ -15,9 +15,11 @@
 import {__extends} from "tslib";
 import {Objects, FromAny} from "@swim/util";
 import {ModelFlags, Model} from "../Model";
+import {Trait} from "../Trait";
 import {StringModelScope} from "./StringModelScope";
 import {BooleanModelScope} from "./BooleanModelScope";
 import {NumberModelScope} from "./NumberModelScope";
+import {TraitScope} from "./TraitScope";
 
 export type ModelScopeMemberType<M, K extends keyof M> =
   M extends {[P in K]: ModelScope<any, infer T, any>} ? T : unknown;
@@ -54,32 +56,36 @@ export type ModelScopeDescriptor<M extends Model, T, U = T, I = {}> =
   T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & ModelScopeDescriptorInit<M, T, U, I> : ModelScopeDescriptorExtends<M, T, U, I> :
   ModelScopeDescriptorFromAny<M, T, U, I>;
 
-export type ModelScopePrototype = Function & {prototype: ModelScope<any, any, any>};
+export interface ModelScopePrototype extends Function {
+  readonly prototype: ModelScope<any, any, any>;
+}
 
-export type ModelScopeConstructor<M extends Model, T, U = T, I = {}> = {
-  new(model: M, scopeName: string | undefined): ModelScope<M, T, U> & I;
+export interface ModelScopeConstructor<M extends Model, T, U = T, I = {}> {
+  new(owner: M, scopeName: string | undefined): ModelScope<M, T, U> & I;
   prototype: ModelScope<any, any, any> & I;
-};
+}
 
 export declare abstract class ModelScope<M extends Model, T, U = T> {
   /** @hidden */
-  _model: M;
+  _owner: M;
   /** @hidden */
   _inherit: string | boolean;
   /** @hidden */
   _scopeFlags: ModelScopeFlags;
   /** @hidden */
-  _superScope?: ModelScope<Model, T, U>;
+  _superScope?: ModelScope<Model, T>;
   /** @hidden */
-  _subScopes?: ModelScope<Model, T, U>[];
+  _subScopes?: ModelScope<Model, T>[];
+  /** @hidden */
+  _traitScopes?: TraitScope<Trait, T>[];
   /** @hidden */
   _state: T;
 
-  constructor(model: M, scopeName: string | undefined);
+  constructor(owner: M, scopeName: string | undefined);
 
   get name(): string;
 
-  get model(): M;
+  get owner(): M;
 
   get inherit(): string | boolean;
 
@@ -94,7 +100,7 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
   /** @hidden */
   get superName(): string | undefined;
 
-  get superScope(): ModelScope<Model, T, U> | null;
+  get superScope(): ModelScope<Model, T> | null;
 
   /** @hidden */
   bindSuperScope(): void;
@@ -103,10 +109,16 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
   unbindSuperScope(): void;
 
   /** @hidden */
-  addSubScope(subScope: ModelScope<Model, T, U>): void;
+  addSubScope(subScope: ModelScope<Model, T>): void;
 
   /** @hidden */
-  removeSubScope(subScope: ModelScope<Model, T, U>): void;
+  removeSubScope(subScope: ModelScope<Model, T>): void;
+
+  /** @hidden */
+  addTraitScope(traitScope: TraitScope<Trait, T>): void;
+
+  /** @hidden */
+  removeTraitScope(traitScope: TraitScope<Trait, T>): void;
 
   isAuto(): boolean;
 
@@ -161,6 +173,9 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
   updateSubScopes(newState: T, oldState: T): void;
 
   /** @hidden */
+  updateTraitScopes(newState: T, oldState: T): void;
+
+  /** @hidden */
   onIdle(): void;
 
   /** @hidden */
@@ -211,19 +226,19 @@ export function ModelScope<M extends Model, T, U = T>(descriptor: ModelScopeDesc
 
 export function ModelScope<M extends Model, T, U>(
     this: ModelScope<M, T, U> | typeof ModelScope,
-    model: M | ModelScopeDescriptor<M, T, U>,
+    owner: M | ModelScopeDescriptor<M, T, U>,
     scopeName?: string,
   ): ModelScope<M, T, U> | PropertyDecorator {
   if (this instanceof ModelScope) { // constructor
-    return ModelScopeConstructor.call(this, model as M, scopeName);
+    return ModelScopeConstructor.call(this, owner as M, scopeName);
   } else { // decorator factory
-    return ModelScopeDecoratorFactory(model as ModelScopeDescriptor<M, T, U>);
+    return ModelScopeDecoratorFactory(owner as ModelScopeDescriptor<M, T, U>);
   }
 }
 __extends(ModelScope, Object);
 Model.Scope = ModelScope;
 
-function ModelScopeConstructor<M extends Model, T, U>(this: ModelScope<M, T, U>, model: M, scopeName: string | undefined): ModelScope<M, T, U> {
+function ModelScopeConstructor<M extends Model, T, U>(this: ModelScope<M, T, U>, owner: M, scopeName: string | undefined): ModelScope<M, T, U> {
   if (scopeName !== void 0) {
     Object.defineProperty(this, "name", {
       value: scopeName,
@@ -231,7 +246,7 @@ function ModelScopeConstructor<M extends Model, T, U>(this: ModelScope<M, T, U>,
       configurable: true,
     });
   }
-  this._model = model;
+  this._owner = owner;
   this._scopeFlags = ModelScope.UpdatedFlag;
   if (this.initState !== void 0) {
     const initState = this.initState();
@@ -248,9 +263,9 @@ function ModelScopeDecoratorFactory<M extends Model, T, U>(descriptor: ModelScop
   return Model.decorateModelScope.bind(Model, ModelScope.define(descriptor));
 }
 
-Object.defineProperty(ModelScope.prototype, "model", {
+Object.defineProperty(ModelScope.prototype, "owner", {
   get: function <M extends Model>(this: ModelScope<M, unknown>): M {
-    return this._model;
+    return this._owner;
   },
   enumerable: true,
   configurable: true,
@@ -272,11 +287,27 @@ ModelScope.prototype.setInherit = function (this: ModelScope<Model, unknown>,
       this._inherit = inherit;
       this.bindSuperScope();
       if ((this._scopeFlags & ModelScope.OverrideFlag) === 0) {
-        this._scopeFlags |= ModelScope.UpdatedFlag | ModelScope.InheritedFlag;
-        this.mutate();
+        this._scopeFlags |= ModelScope.UpdatedFlag | ModelScope.MutatingFlag | ModelScope.InheritedFlag;
+        this._owner.requireUpdate(Model.NeedsMutate);
+      }
+      const traitScopes = this._traitScopes;
+      for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
+        const traitScope = traitScopes![i];
+        traitScope._inherit = inherit;
+        if ((traitScope._scopeFlags & ModelScope.OverrideFlag) === 0) {
+          traitScope._scopeFlags |= ModelScope.UpdatedFlag | ModelScope.InheritedFlag;
+          traitScope.mutate();
+        }
       }
     } else if (this._inherit !== false) {
       this._inherit = false;
+      this._scopeFlags &= ~ModelScope.InheritedFlag;
+      const traitScopes = this._traitScopes;
+      for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
+        const traitScope = traitScopes![i];
+        traitScope._inherit = false;
+        traitScope._scopeFlags &= ~ModelScope.InheritedFlag;
+      }
     }
   }
 };
@@ -288,11 +319,24 @@ ModelScope.prototype.isInherited = function (this: ModelScope<Model, unknown>): 
 ModelScope.prototype.setInherited = function (this: ModelScope<Model, unknown>,
                                               inherited: boolean): void {
   if (inherited && (this._scopeFlags & ModelScope.InheritedFlag) === 0) {
-    this._scopeFlags |= ModelScope.InheritedFlag;
-    this.mutate();
+    this._scopeFlags |= ModelScope.MutatingFlag | ModelScope.InheritedFlag;
+    this._owner.requireUpdate(Model.NeedsMutate);
+    const traitScopes = this._traitScopes;
+    for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
+      const traitScope = traitScopes![i];
+      traitScope._scopeFlags |= ModelScope.InheritedFlag;
+      traitScope.mutate();
+    }
   } else if (!inherited && (this._scopeFlags & ModelScope.InheritedFlag) !== 0) {
     this._scopeFlags &= ~ModelScope.InheritedFlag;
-    this.mutate();
+    this._scopeFlags |= ModelScope.MutatingFlag;
+    this._owner.requireUpdate(Model.NeedsMutate);
+    const traitScopes = this._traitScopes;
+    for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
+      const traitScope = traitScopes![i];
+      traitScope._scopeFlags &= ~ModelScope.InheritedFlag;
+      traitScope.mutate();
+    }
   }
 };
 
@@ -310,7 +354,7 @@ Object.defineProperty(ModelScope.prototype, "superScope", {
     let superScope: ModelScope<Model, unknown> | null | undefined = this._superScope;
     if (superScope === void 0) {
       superScope = null;
-      let model = this._model;
+      let model = this._owner;
       if (!model.isMounted()) {
         const superName = this.superName;
         if (superName !== void 0) {
@@ -337,7 +381,7 @@ Object.defineProperty(ModelScope.prototype, "superScope", {
 });
 
 ModelScope.prototype.bindSuperScope = function (this: ModelScope<Model, unknown>): void {
-  let model = this._model;
+  let model = this._owner;
   if (model.isMounted()) {
     const superName = this.superName;
     if (superName !== void 0) {
@@ -345,14 +389,20 @@ ModelScope.prototype.bindSuperScope = function (this: ModelScope<Model, unknown>
         const parentModel = model.parentModel;
         if (parentModel !== null) {
           model = parentModel;
-          const scope = model.getLazyModelScope(superName);
-          if (scope !== null) {
-            this._superScope = scope;
-            scope.addSubScope(this);
+          const superScope = model.getLazyModelScope(superName);
+          if (superScope !== null) {
+            this._superScope = superScope;
+            superScope.addSubScope(this);
             if (this.isInherited()) {
-              this._state = scope._state;
-              this._scopeFlags |= ModelScope.UpdatedFlag;
-              this.mutate();
+              this._state = superScope._state;
+              this._scopeFlags |= ModelScope.UpdatedFlag | ModelScope.MutatingFlag;
+              this._owner.requireUpdate(Model.NeedsMutate);
+              const traitScopes = this._traitScopes;
+              for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
+                const traitScope = traitScopes![i];
+                traitScope._scopeFlags |= ModelScope.UpdatedFlag;
+                traitScope.mutate();
+              }
             }
           } else {
             continue;
@@ -372,8 +422,8 @@ ModelScope.prototype.unbindSuperScope = function (this: ModelScope<Model, unknow
   }
 };
 
-ModelScope.prototype.addSubScope = function <T, U>(this: ModelScope<Model, T, U>,
-                                                   subScope: ModelScope<Model, T, U>): void {
+ModelScope.prototype.addSubScope = function <T>(this: ModelScope<Model, T>,
+                                                subScope: ModelScope<Model, T>): void {
   let subScopes = this._subScopes;
   if (subScopes === void 0) {
     subScopes = [];
@@ -382,13 +432,34 @@ ModelScope.prototype.addSubScope = function <T, U>(this: ModelScope<Model, T, U>
   subScopes.push(subScope);
 };
 
-ModelScope.prototype.removeSubScope = function <T, U>(this: ModelScope<Model, T, U>,
-                                                      subScope: ModelScope<Model, T, U>): void {
+ModelScope.prototype.removeSubScope = function <T>(this: ModelScope<Model, T>,
+                                                   subScope: ModelScope<Model, T>): void {
   const subScopes = this._subScopes;
   if (subScopes !== void 0) {
     const index = subScopes.indexOf(subScope);
     if (index >= 0) {
       subScopes.splice(index, 1);
+    }
+  }
+};
+
+ModelScope.prototype.addTraitScope = function <T>(this: ModelScope<Model, T>,
+                                                  traitScope: TraitScope<Trait, T>): void {
+  let traitScopes = this._traitScopes;
+  if (traitScopes === void 0) {
+    traitScopes = [];
+    this._traitScopes = traitScopes;
+  }
+  traitScopes.push(traitScope);
+};
+
+ModelScope.prototype.removeTraitScope = function <T>(this: ModelScope<Model, T>,
+                                                     traitScope: TraitScope<Trait, T>): void {
+  const traitScopes = this._traitScopes;
+  if (traitScopes !== void 0) {
+    const index = traitScopes.indexOf(traitScope);
+    if (index >= 0) {
+      traitScopes.splice(index, 1);
     }
   }
 };
@@ -401,8 +472,18 @@ ModelScope.prototype.setAuto = function (this: ModelScope<Model, unknown>,
                                          auto: boolean): void {
   if (auto && (this._scopeFlags & ModelScope.OverrideFlag) !== 0) {
     this._scopeFlags &= ~ModelScope.OverrideFlag;
+    const traitScopes = this._traitScopes;
+    for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
+      const traitScope = traitScopes![i];
+      traitScope._scopeFlags &= ~ModelScope.OverrideFlag;
+    }
   } else if (!auto && (this._scopeFlags & ModelScope.OverrideFlag) === 0) {
     this._scopeFlags |= ModelScope.OverrideFlag;
+    const traitScopes = this._traitScopes;
+    for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
+      const traitScope = traitScopes![i];
+      traitScope._scopeFlags |= ModelScope.OverrideFlag;
+    }
   }
 };
 
@@ -458,22 +539,29 @@ ModelScope.prototype.getStateOr = function <T, U, E>(this: ModelScope<Model, T, 
 
 ModelScope.prototype.setState = function <T, U>(this: ModelScope<Model, T, U>,
                                                 state: T | U): void {
-  this._scopeFlags |= ModelScope.OverrideFlag;
+  if ((this._scopeFlags & ModelScope.OverrideFlag) === 0) {
+    this._scopeFlags |= ModelScope.OverrideFlag;
+    const traitScopes = this._traitScopes;
+    for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
+      const traitScope = traitScopes![i];
+      traitScope._scopeFlags |= ModelScope.OverrideFlag;
+    }
+  }
   this.setOwnState(state);
 };
 
-ModelScope.prototype.willSetState = function <T, U>(this: ModelScope<Model, T, U>,
-                                                    newState: T, oldState: T): void {
+ModelScope.prototype.willSetState = function <T>(this: ModelScope<Model, T>,
+                                                 newState: T, oldState: T): void {
   // hook
 };
 
-ModelScope.prototype.onSetState = function <T, U>(this: ModelScope<Model, T, U>,
-                                                  newState: T, oldState: T): void {
+ModelScope.prototype.onSetState = function <T>(this: ModelScope<Model, T>,
+                                               newState: T, oldState: T): void {
   // hook
 };
 
-ModelScope.prototype.didSetState = function <T, U>(this: ModelScope<Model, T, U>,
-                                                   newState: T, oldState: T): void {
+ModelScope.prototype.didSetState = function <T>(this: ModelScope<Model, T>,
+                                                newState: T, oldState: T): void {
   // hook
 };
 
@@ -490,7 +578,14 @@ ModelScope.prototype.setOwnState = function <T, U>(this: ModelScope<Model, T, U>
   if (newState !== void 0) {
     newState = this.fromAny(newState);
   }
-  this._scopeFlags &= ~ModelScope.InheritedFlag;
+  if ((this._scopeFlags & ModelScope.InheritedFlag) !== 0) {
+    this._scopeFlags &= ~ModelScope.InheritedFlag;
+    const traitScopes = this._traitScopes;
+    for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
+      const traitScope = traitScopes![i];
+      traitScope._scopeFlags &= ~ModelScope.InheritedFlag;
+    }
+  }
   if (!Objects.equal(oldState, newState)) {
     this.willSetState(newState as T, oldState);
     this.willUpdate(newState as T, oldState);
@@ -499,6 +594,7 @@ ModelScope.prototype.setOwnState = function <T, U>(this: ModelScope<Model, T, U>
     this.onSetState(newState as T, oldState);
     this.onUpdate(newState as T, oldState);
     this.updateSubScopes(newState as T, oldState);
+    this.updateTraitScopes(newState as T, oldState);
     this.didUpdate(newState as T, oldState);
     this.didSetState(newState as T, oldState);
   }
@@ -506,15 +602,18 @@ ModelScope.prototype.setOwnState = function <T, U>(this: ModelScope<Model, T, U>
 
 ModelScope.prototype.setBaseState = function <T, U>(this: ModelScope<Model, T, U>,
                                                     state: T | U): void {
-  let superScope: ModelScope<Model, T, U> | null | undefined;
+  let superScope: ModelScope<Model, T> | null | undefined;
   if (this.isInherited() && (superScope = this.superScope, superScope !== null)) {
-    superScope.setBaseState(state);
+    if (state !== void 0) {
+      state = this.fromAny(state);
+    }
+    superScope.setBaseState(state as T);
   } else {
     this.setState(state);
   }
 };
 
-ModelScope.prototype.onMutate = function <T, U>(this: ModelScope<Model, T, U>): void {
+ModelScope.prototype.onMutate = function (this: ModelScope<Model, unknown>): void {
   if (this.isInherited()) {
     this.updateInherited();
   } else {
@@ -522,47 +621,48 @@ ModelScope.prototype.onMutate = function <T, U>(this: ModelScope<Model, T, U>): 
   }
 };
 
-ModelScope.prototype.updateInherited = function <T, U>(this: ModelScope<Model, T, U>): void {
+ModelScope.prototype.updateInherited = function <T>(this: ModelScope<Model, T>): void {
   const superScope = this._superScope;
-  if (superScope !== void 0 && superScope.isMutating()) {
+  if (superScope !== void 0 && this.isMutating()) {
     this.update(superScope.state, this.state);
   } else {
     this.onIdle();
   }
 };
 
-ModelScope.prototype.update = function <T, U>(this: ModelScope<Model, T, U>,
-                                              newState: T, oldState: T): void {
+ModelScope.prototype.update = function <T>(this: ModelScope<Model, T>,
+                                           newState: T, oldState: T): void {
   if (!Objects.equal(oldState, newState)) {
     this.willUpdate(newState, oldState);
     this._state = newState;
     this._scopeFlags |= ModelScope.MutatingFlag | ModelScope.UpdatedFlag;
     this.onUpdate(newState, oldState);
     this.updateSubScopes(newState, oldState);
+    this.updateTraitScopes(newState, oldState);
     this.didUpdate(newState, oldState);
   }
 };
 
-ModelScope.prototype.willUpdate = function <T, U>(this: ModelScope<Model, T, U>,
-                                                  newState: T, oldState: T): void {
+ModelScope.prototype.willUpdate = function <T>(this: ModelScope<Model, T>,
+                                               newState: T, oldState: T): void {
   // hook
 };
 
-ModelScope.prototype.onUpdate = function <T, U>(this: ModelScope<Model, T, U>,
-                                                newState: T, oldState: T): void {
+ModelScope.prototype.onUpdate = function <T>(this: ModelScope<Model, T>,
+                                             newState: T, oldState: T): void {
   const updateFlags = this.updateFlags;
   if (updateFlags !== void 0) {
-    this._model.requireUpdate(updateFlags);
+    this._owner.requireUpdate(updateFlags);
   }
 };
 
-ModelScope.prototype.didUpdate = function <T, U>(this: ModelScope<Model, T, U>,
-                                                 newState: T, oldState: T): void {
+ModelScope.prototype.didUpdate = function <T>(this: ModelScope<Model, T>,
+                                              newState: T, oldState: T): void {
   // hook
 };
 
-ModelScope.prototype.updateSubScopes = function <T, U>(this: ModelScope<Model, T, U>,
-                                                       newState: T, oldState: T): void {
+ModelScope.prototype.updateSubScopes = function <T>(this: ModelScope<Model, T>,
+                                                    newState: T, oldState: T): void {
   const subScopes = this._subScopes;
   if (subScopes !== void 0) {
     for (let i = 0, n = subScopes.length; i < n; i += 1) {
@@ -570,6 +670,17 @@ ModelScope.prototype.updateSubScopes = function <T, U>(this: ModelScope<Model, T
       if (subScope.isInherited()) {
         subScope.mutate();
       }
+    }
+  }
+};
+
+ModelScope.prototype.updateTraitScopes = function <T>(this: ModelScope<Model, T>,
+                                                      newState: T, oldState: T): void {
+  const traitScopes = this._traitScopes;
+  if (traitScopes !== void 0) {
+    for (let i = 0, n = traitScopes.length; i < n; i += 1) {
+      const traitScope = traitScopes[i];
+      traitScope.mutate();
     }
   }
 };
@@ -583,8 +694,17 @@ ModelScope.prototype.onIdle = function (this: ModelScope<Model, unknown>): void 
 };
 
 ModelScope.prototype.mutate = function (this: ModelScope<Model, unknown>): void {
-  this._scopeFlags |= ModelScope.MutatingFlag;
-  this._model.requireUpdate(Model.NeedsMutate);
+  this._owner.requireUpdate(Model.NeedsMutate);
+  if ((this._scopeFlags & ModelScope.MutatingFlag) === 0) {
+    this._scopeFlags |= ModelScope.MutatingFlag;
+    const traitScopes = this._traitScopes;
+    if (traitScopes !== void 0) {
+      for (let i = 0, n = traitScopes.length; i < n; i += 1) {
+        const traitScope = traitScopes[i];
+        traitScope.mutate();
+      }
+    }
+  }
 };
 
 ModelScope.prototype.mount = function (this: ModelScope<Model, unknown>): void {
@@ -614,6 +734,7 @@ ModelScope.define = function <M extends Model, T, U, I>(descriptor: ModelScopeDe
   let _super: ModelScopePrototype | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
+  const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
   delete descriptor.inherit;
@@ -623,22 +744,22 @@ ModelScope.define = function <M extends Model, T, U, I>(descriptor: ModelScopeDe
   }
   if (_super === null) {
     _super = ModelScope;
-    if (!descriptor.hasOwnProperty("fromAny") && FromAny.is<T, U>(descriptor.type)) {
+    if (descriptor.fromAny === void 0 && FromAny.is<T, U>(descriptor.type)) {
       descriptor.fromAny = descriptor.type.fromAny;
     }
   }
 
-  const _constructor = function ModelScopeAccessor(this: ModelScope<M, T, U>, model: M, scopeName: string | undefined): ModelScope<M, T, U> {
+  const _constructor = function ModelScopeAccessor(this: ModelScope<M, T, U>, owner: M, scopeName: string | undefined): ModelScope<M, T, U> {
     let _this: ModelScope<M, T, U> = function accessor(state?: T | U): T | M {
       if (arguments.length === 0) {
         return _this._state;
       } else {
         _this.setState(state!);
-        return _this._model;
+        return _this._owner;
       }
     } as ModelScope<M, T, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, model, scopeName) || _this;
+    _this = _super!.call(_this, owner, scopeName) || _this;
     return _this;
   } as unknown as ModelScopeConstructor<M, T, U, I>;
 
@@ -648,7 +769,7 @@ ModelScope.define = function <M extends Model, T, U, I>(descriptor: ModelScopeDe
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
 
-  if (state !== void 0 && !_prototype.hasOwnProperty("initState")) {
+  if (state !== void 0 && initState === void 0) {
     _prototype.initState = function (): T | U {
       return state;
     };

@@ -31,12 +31,14 @@ export type MediaRuleDescriptorExtends<V extends CssContext, I = {}> = {extends:
 
 export type MediaRuleDescriptor<V extends CssContext, I = {}> = MediaRuleDescriptorInit<V, I>;
 
-export type MediaRulePrototype = Function & {prototype: MediaRule<any>};
+export interface MediaRulePrototype extends Function {
+  readonly prototype: MediaRule<any>;
+}
 
-export type MediaRuleConstructor<V extends CssContext, I = {}> = {
+export interface MediaRuleConstructor<V extends CssContext, I = {}> {
   new(owner: V, ruleName: string | undefined): MediaRule<V> & I;
   prototype: MediaRule<any> & I;
-};
+}
 
 export declare abstract class MediaRule<V extends CssContext> {
   /** @hidden */

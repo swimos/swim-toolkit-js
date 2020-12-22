@@ -13,17 +13,18 @@
 // limitations under the License.
 
 import {View} from "@swim/view";
-import {Model} from "@swim/model";
+import {Model, Trait} from "@swim/model";
 import {ComponentContextType, ComponentContext} from "./ComponentContext";
 import {ComponentObserverType, ComponentObserver} from "./ComponentObserver";
-import {SubcomponentConstructor, Subcomponent} from "./Subcomponent";
 import {ComponentManager} from "./manager/ComponentManager";
 import {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";
 import {ExecuteService} from "./service/ExecuteService";
 import {HistoryService} from "./service/HistoryService";
 import {ComponentScopeConstructor, ComponentScope} from "./scope/ComponentScope";
 import {ComponentModelConstructor, ComponentModel} from "./model/ComponentModel";
+import {ComponentTraitConstructor, ComponentTrait} from "./trait/ComponentTrait";
 import {ComponentViewConstructor, ComponentView} from "./view/ComponentView";
+import {ComponentBindingConstructor, ComponentBinding} from "./binding/ComponentBinding";
 import {GenericComponent} from "./generic/GenericComponent";
 import {CompositeComponent} from "./generic/CompositeComponent";
 
@@ -31,6 +32,10 @@ export type ComponentFlags = number;
 
 export interface ComponentInit {
   key?: string;
+}
+
+export interface ComponentPrototype<C extends Component = Component> extends Function {
+  readonly prototype: C;
 }
 
 export interface ComponentClass {
@@ -43,19 +48,22 @@ export interface ComponentClass {
   readonly removeChildFlags: ComponentFlags;
 
   /** @hidden */
-  _subcomponentConstructors?: {[subcomponentName: string]: SubcomponentConstructor<any, any> | undefined};
+  _componentServiceConstructors?: {[serviceName: string]: ComponentServiceConstructor<Component, unknown> | undefined};
 
   /** @hidden */
-  _componentServiceConstructors?: {[serviceName: string]: ComponentServiceConstructor<any, unknown> | undefined};
+  _componentScopeConstructors?: {[scopeName: string]: ComponentScopeConstructor<Component, unknown> | undefined};
 
   /** @hidden */
-  _componentScopeConstructors?: {[scopeName: string]: ComponentScopeConstructor<any, unknown> | undefined};
+  _componentModelConstructors?: {[modelName: string]: ComponentModelConstructor<Component, Model> | undefined};
 
   /** @hidden */
-  _componentModelConstructors?: {[modelName: string]: ComponentModelConstructor<any, any> | undefined};
+  _componentTraitConstructors?: {[traitName: string]: ComponentTraitConstructor<Component, Trait> | undefined};
 
   /** @hidden */
-  _componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<any, any> | undefined};
+  _componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<Component, View> | undefined};
+
+  /** @hidden */
+  _componentBindingConstructors?: {[bindingName: string]: ComponentBindingConstructor<Component, Component> | undefined};
 }
 
 export abstract class Component {
@@ -172,6 +180,8 @@ export abstract class Component {
     });
   }
 
+  abstract remove(): void;
+
   abstract get childComponentCount(): number;
 
   abstract get childComponents(): ReadonlyArray<Component>;
@@ -228,8 +238,6 @@ export abstract class Component {
 
   abstract removeAll(): void;
 
-  abstract remove(): void;
-
   get removeChildFlags(): ComponentFlags {
     return this.componentClass.removeChildFlags;
   }
@@ -254,26 +262,28 @@ export abstract class Component {
     });
   }
 
-  getSuperComponent<C extends Component>(componentClass: {new(...args: any[]): C}): C | null {
+  getSuperComponent<C extends Component>(componentPrototype: ComponentPrototype<C>): C | null {
     const parentComponent = this.parentComponent;
     if (parentComponent === null) {
       return null;
-    } else if (parentComponent instanceof componentClass) {
+    } else if (parentComponent instanceof componentPrototype) {
       return parentComponent;
     } else {
-      return parentComponent.getSuperComponent(componentClass);
+      return parentComponent.getSuperComponent(componentPrototype);
     }
   }
 
-  getBaseComponent<C extends Component>(componentClass: {new(...args: any[]): C}): C | null {
+  getBaseComponent<C extends Component>(componentPrototype: ComponentPrototype<C>): C | null {
     const parentComponent = this.parentComponent;
     if (parentComponent === null) {
       return null;
-    } else if (parentComponent instanceof componentClass) {
-      const baseComponent = parentComponent.getBaseComponent(componentClass);
-      return baseComponent !== null ? baseComponent : parentComponent;
     } else {
-      return parentComponent.getBaseComponent(componentClass);
+      const baseComponent = parentComponent.getBaseComponent(componentPrototype);
+      if (baseComponent !== null) {
+        return baseComponent;
+      } else {
+        return parentComponent instanceof componentPrototype ? parentComponent : null;
+      }
     }
   }
 
@@ -295,6 +305,10 @@ export abstract class Component {
     return (this.componentFlags & Component.MountedFlag) !== 0;
   }
 
+  get mountFlags(): ComponentFlags {
+    return this.componentClass.mountFlags;
+  }
+
   mount(): void {
     if (!this.isMounted() && this.parentComponent === null) {
       this.cascadeMount();
@@ -307,10 +321,6 @@ export abstract class Component {
 
   abstract cascadeMount(): void;
 
-  get mountFlags(): ComponentFlags {
-    return this.componentClass.mountFlags;
-  }
-
   protected willMount(): void {
     this.willObserve(function (componentObserver: ComponentObserver): void {
       if (componentObserver.componentWillMount !== void 0) {
@@ -320,7 +330,6 @@ export abstract class Component {
   }
 
   protected onMount(): void {
-    this.requestUpdate(this, this.componentFlags & ~Component.StatusMask, false);
     this.requireUpdate(this.mountFlags);
   }
 
@@ -358,11 +367,11 @@ export abstract class Component {
     return (this.componentFlags & Component.PoweredFlag) !== 0;
   }
 
-  abstract cascadePower(): void;
-
   get powerFlags(): ComponentFlags {
     return this.componentClass.powerFlags;
   }
+
+  abstract cascadePower(): void;
 
   protected willPower(): void {
     this.willObserve(function (componentObserver: ComponentObserver): void {
@@ -373,6 +382,7 @@ export abstract class Component {
   }
 
   protected onPower(): void {
+    this.requestUpdate(this, this.componentFlags & ~Component.StatusMask, false);
     this.requireUpdate(this.powerFlags);
   }
 
@@ -566,6 +576,15 @@ export abstract class Component {
     });
   }
 
+  /** @hidden */
+  protected doCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
+    if ((compileFlags & Component.CompileMask) !== 0 && this.childComponentCount !== 0) {
+      this.willCompileChildComponents(compileFlags, componentContext);
+      this.onCompileChildComponents(compileFlags, componentContext);
+      this.didCompileChildComponents(compileFlags, componentContext);
+    }
+  }
+
   protected willCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
     this.willObserve(function (componentObserver: ComponentObserver): void {
       if (componentObserver.componentWillCompileChildComponents !== void 0) {
@@ -575,7 +594,7 @@ export abstract class Component {
   }
 
   protected onCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    this.compileChildComponents(compileFlags, componentContext);
+    this.compileChildComponents(compileFlags, componentContext, this.compileChildComponent);
   }
 
   protected didCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
@@ -587,17 +606,16 @@ export abstract class Component {
   }
 
   protected compileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>,
-                                   callback?: (this: this, childComponent: Component) => void): void {
-    this.forEachChildComponent(function (childComponent: Component): void {
-      this.compileChildComponent(childComponent, compileFlags, componentContext);
-      if (callback !== void 0) {
-        callback.call(this, childComponent);
-      }
+                                   compileChildComponent: (this: this, childComponent: Component, compileFlags: ComponentFlags,
+                                                           componentContext: ComponentContextType<this>) => void): void {
+    function doCompileChildComponent(this: Component, childComponent: Component): void {
+      compileChildComponent.call(this, childComponent, compileFlags, componentContext);
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
         this.removeChildComponent(childComponent);
       }
-    }, this);
+    }
+    this.forEachChildComponent(doCompileChildComponent, this);
   }
 
   /** @hidden */
@@ -689,6 +707,15 @@ export abstract class Component {
     });
   }
 
+  /** @hidden */
+  protected doExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
+    if ((executeFlags & Component.ExecuteMask) !== 0 && this.childComponentCount !== 0) {
+      this.willExecuteChildComponents(executeFlags, componentContext);
+      this.onExecuteChildComponents(executeFlags, componentContext);
+      this.didExecuteChildComponents(executeFlags, componentContext);
+    }
+  }
+
   protected willExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
     this.willObserve(function (componentObserver: ComponentObserver): void {
       if (componentObserver.componentWillExecuteChildComponents !== void 0) {
@@ -698,7 +725,7 @@ export abstract class Component {
   }
 
   protected onExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    this.executeChildComponents(executeFlags, componentContext);
+    this.executeChildComponents(executeFlags, componentContext, this.executeChildComponent);
   }
 
   protected didExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
@@ -710,17 +737,16 @@ export abstract class Component {
   }
 
   protected executeChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>,
-                                   callback?: (this: this, childComponent: Component) => void): void {
-    this.forEachChildComponent(function (childComponent: Component): void {
-      this.executeChildComponent(childComponent, executeFlags, componentContext);
-      if (callback !== void 0) {
-        callback.call(this, childComponent);
-      }
+                                   executeChildComponent: (this: this, childComponent: Component, executeFlags: ComponentFlags,
+                                                           componentContext: ComponentContextType<this>) => void): void {
+    function doExecuteChildComponent(this: Component, childComponent: Component): void {
+      executeChildComponent.call(this, childComponent, executeFlags, componentContext);
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
         this.removeChildComponent(childComponent);
       }
-    }, this);
+    }
+    this.forEachChildComponent(doExecuteChildComponent, this);
   }
 
   /** @hidden */
@@ -742,26 +768,6 @@ export abstract class Component {
     // hook
   }
 
-  abstract hasSubcomponent(subcomponentName: string): boolean;
-
-  abstract getSubcomponent(subcomponentName: string): Subcomponent<this, Component> | null;
-
-  abstract setSubcomponent(subcomponentName: string, subcomponent: Subcomponent<this, Component, unknown> | null): void;
-
-  /** @hidden */
-  getLazySubcomponent(subcomponentName: string): Subcomponent<this, Component> | null {
-    let subcomponent = this.getSubcomponent(subcomponentName);
-    if (subcomponent === null) {
-      const componentClass = (this as any).__proto__ as ComponentClass;
-      const constructor = Component.getSubcomponentConstructor(subcomponentName, componentClass);
-      if (constructor !== null) {
-        subcomponent = new constructor(this, subcomponentName);
-        this.setSubcomponent(subcomponentName, subcomponent);
-      }
-    }
-    return subcomponent;
-  }
-
   abstract hasComponentService(serviceName: string): boolean;
 
   abstract getComponentService(serviceName: string): ComponentService<this, unknown> | null;
@@ -769,13 +775,13 @@ export abstract class Component {
   abstract setComponentService(serviceName: string, componentService: ComponentService<this, unknown> | null): void;
 
   /** @hidden */
-  getLazyComponentService(serviceName: string): ComponentService<this, any> | null {
+  getLazyComponentService(serviceName: string): ComponentService<this, unknown> | null {
     let componentService = this.getComponentService(serviceName);
     if (componentService === null) {
       const componentClass = (this as any).__proto__ as ComponentClass;
       const constructor = Component.getComponentServiceConstructor(serviceName, componentClass);
       if (constructor !== null) {
-        componentService = new constructor(this, serviceName);
+        componentService = new constructor(this, serviceName) as ComponentService<this, unknown>;
         this.setComponentService(serviceName, componentService);
       }
     }
@@ -795,37 +801,27 @@ export abstract class Component {
       const componentClass = (this as any).__proto__ as ComponentClass;
       const constructor = Component.getComponentScopeConstructor(scopeName, componentClass);
       if (constructor !== null) {
-        componentScope = new constructor(this, scopeName);
+        componentScope = new constructor(this, scopeName) as ComponentScope<this, unknown>;
         this.setComponentScope(scopeName, componentScope);
       }
     }
     return componentScope;
   }
 
-  /** @hidden */
-  componentScopeDidSetAuto<T, U>(componentScope: ComponentScope<Component, T, U>, auto: boolean): void {
-    // hook
-  }
-
-  /** @hidden */
-  componentScopeDidSetState<T, U>(componentScope: ComponentScope<Component, T, U>, newState: T | undefined, oldState: T | undefined): void {
-    // hook
-  }
-
   abstract hasComponentModel(modelName: string): boolean;
 
-  abstract getComponentModel(modelName: string): ComponentModel<this, Model, unknown> | null;
+  abstract getComponentModel(modelName: string): ComponentModel<this, Model> | null;
 
-  abstract setComponentModel(modelName: string, componentModel: ComponentModel<this, Model, unknown> | null): void;
+  abstract setComponentModel(modelName: string, componentModel: ComponentModel<this, Model> | null): void;
 
   /** @hidden */
-  getLazyComponentModel(modelName: string): ComponentModel<this, Model, unknown> | null {
+  getLazyComponentModel(modelName: string): ComponentModel<this, Model> | null {
     let componentModel = this.getComponentModel(modelName);
     if (componentModel === null) {
       const componentClass = (this as any).__proto__ as ComponentClass;
       const constructor = Component.getComponentModelConstructor(modelName, componentClass);
       if (constructor !== null) {
-        componentModel = new constructor(this, modelName);
+        componentModel = new constructor(this, modelName) as ComponentModel<this, Model>;
         this.setComponentModel(modelName, componentModel);
       }
     }
@@ -833,7 +829,7 @@ export abstract class Component {
   }
 
   /** @hidden */
-  willSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M, unknown>, newModel: M | null, oldModel: M | null): void {
+  willSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null): void {
     this.willObserve(function (componentObserver: ComponentObserver): void {
       if (componentObserver.componentWillSetModel !== void 0) {
         componentObserver.componentWillSetModel(componentModel, newModel, oldModel, this);
@@ -842,12 +838,12 @@ export abstract class Component {
   }
 
   /** @hidden */
-  onSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M, unknown>, newModel: M | null, oldModel: M | null): void {
+  onSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null): void {
     // hook
   }
 
   /** @hidden */
-  didSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M, unknown>, newModel: M | null, oldModel: M | null): void {
+  didSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null): void {
     this.didObserve(function (componentObserver: ComponentObserver): void {
       if (componentObserver.componentDidSetModel !== void 0) {
         componentObserver.componentDidSetModel(componentModel, newModel, oldModel, this);
@@ -855,20 +851,63 @@ export abstract class Component {
     });
   }
 
-  abstract hasComponentView(viewName: string): boolean;
+  abstract hasComponentTrait(traitName: string): boolean;
 
-  abstract getComponentView(viewName: string): ComponentView<this, View, unknown> | null;
+  abstract getComponentTrait(traitName: string): ComponentTrait<this, Trait> | null;
 
-  abstract setComponentView(viewName: string, componentView: ComponentView<this, View, unknown> | null): void;
+  abstract setComponentTrait(traitName: string, componentTrait: ComponentTrait<this, Trait> | null): void;
 
   /** @hidden */
-  getLazyComponentView(viewName: string): ComponentView<this, View, unknown> | null {
+  getLazyComponentTrait(traitName: string): ComponentTrait<this, Trait> | null {
+    let componentTrait = this.getComponentTrait(traitName);
+    if (componentTrait === null) {
+      const componentClass = (this as any).__proto__ as ComponentClass;
+      const constructor = Component.getComponentTraitConstructor(traitName, componentClass);
+      if (constructor !== null) {
+        componentTrait = new constructor(this, traitName) as ComponentTrait<this, Trait>;
+        this.setComponentTrait(traitName, componentTrait);
+      }
+    }
+    return componentTrait;
+  }
+
+  /** @hidden */
+  willSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null): void {
+    this.willObserve(function (componentObserver: ComponentObserver): void {
+      if (componentObserver.componentWillSetTrait !== void 0) {
+        componentObserver.componentWillSetTrait(componentTrait, newTrait, oldTrait, this);
+      }
+    });
+  }
+
+  /** @hidden */
+  onSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null): void {
+    // hook
+  }
+
+  /** @hidden */
+  didSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null): void {
+    this.didObserve(function (componentObserver: ComponentObserver): void {
+      if (componentObserver.componentDidSetTrait !== void 0) {
+        componentObserver.componentDidSetTrait(componentTrait, newTrait, oldTrait, this);
+      }
+    });
+  }
+
+  abstract hasComponentView(viewName: string): boolean;
+
+  abstract getComponentView(viewName: string): ComponentView<this, View> | null;
+
+  abstract setComponentView(viewName: string, componentView: ComponentView<this, View> | null): void;
+
+  /** @hidden */
+  getLazyComponentView(viewName: string): ComponentView<this, View> | null {
     let componentView = this.getComponentView(viewName);
     if (componentView === null) {
       const componentClass = (this as any).__proto__ as ComponentClass;
       const constructor = Component.getComponentViewConstructor(viewName, componentClass);
       if (constructor !== null) {
-        componentView = new constructor(this, viewName);
+        componentView = new constructor(this, viewName) as ComponentView<this, View>;
         this.setComponentView(viewName, componentView);
       }
     }
@@ -876,7 +915,7 @@ export abstract class Component {
   }
 
   /** @hidden */
-  willSetComponentView<V extends View>(componentView: ComponentView<this, V, unknown>, newView: V | null, oldView: V | null): void {
+  willSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null): void {
     this.willObserve(function (componentObserver: ComponentObserver): void {
       if (componentObserver.componentWillSetView !== void 0) {
         componentObserver.componentWillSetView(componentView, newView, oldView, this);
@@ -885,17 +924,37 @@ export abstract class Component {
   }
 
   /** @hidden */
-  onSetComponentView<V extends View>(componentView: ComponentView<this, V, unknown>, newView: V | null, oldView: V | null): void {
+  onSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null): void {
     // hook
   }
 
   /** @hidden */
-  didSetComponentView<V extends View>(componentView: ComponentView<this, V, unknown>, newView: V | null, oldView: V | null): void {
+  didSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null): void {
     this.didObserve(function (componentObserver: ComponentObserver): void {
       if (componentObserver.componentDidSetView !== void 0) {
         componentObserver.componentDidSetView(componentView, newView, oldView, this);
       }
     });
+  }
+
+  abstract hasComponentBinding(bindingName: string): boolean;
+
+  abstract getComponentBinding(bindingName: string): ComponentBinding<this, Component> | null;
+
+  abstract setComponentBinding(bindingName: string, componentBinding: ComponentBinding<this, Component> | null): void;
+
+  /** @hidden */
+  getLazyComponentBinding(bindingName: string): ComponentBinding<this, Component> | null {
+    let componentBinding = this.getComponentBinding(bindingName);
+    if (componentBinding === null) {
+      const componentClass = (this as any).__proto__ as ComponentClass;
+      const constructor = Component.getComponentBindingConstructor(bindingName, componentClass);
+      if (constructor !== null) {
+        componentBinding = new constructor(this, bindingName) as ComponentBinding<this, Component>;
+        this.setComponentBinding(bindingName, componentBinding);
+      }
+    }
+    return componentBinding;
   }
 
   /** @hidden */
@@ -926,45 +985,7 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getSubcomponentConstructor(subcomponentName: string, componentClass: ComponentClass | null = null): SubcomponentConstructor<any, any> | null {
-    if (componentClass === null) {
-      componentClass = this.prototype as unknown as ComponentClass;
-    }
-    do {
-      if (componentClass.hasOwnProperty("_subcomponentConstructors")) {
-        const constructor = componentClass._subcomponentConstructors![subcomponentName];
-        if (constructor !== void 0) {
-          return constructor;
-        }
-      }
-      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
-    } while (componentClass !== null);
-    return null;
-  }
-
-  /** @hidden */
-  static decorateSubcomponent<C extends Component, S extends Component, U>(constructor: SubcomponentConstructor<C, S, U>,
-                                                                           componentClass: ComponentClass, subcomponentName: string): void {
-    if (!componentClass.hasOwnProperty("_subcomponentConstructors")) {
-      componentClass._subcomponentConstructors = {};
-    }
-    componentClass._subcomponentConstructors![subcomponentName] = constructor;
-    Object.defineProperty(componentClass, subcomponentName, {
-      get: function (this: C): Subcomponent<C, S, U> {
-        let subcomponent = this.getSubcomponent(subcomponentName) as Subcomponent<C, S, U> | null;
-        if (subcomponent === null) {
-          subcomponent = new constructor(this, subcomponentName);
-          this.setSubcomponent(subcomponentName, subcomponent);
-        }
-        return subcomponent;
-      },
-      configurable: true,
-      enumerable: true,
-    });
-  }
-
-  /** @hidden */
-  static getComponentServiceConstructor(serviceName: string, componentClass: ComponentClass | null = null): ComponentServiceConstructor<any, unknown> | null {
+  static getComponentServiceConstructor(serviceName: string, componentClass: ComponentClass | null = null): ComponentServiceConstructor<Component, unknown> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
@@ -981,15 +1002,15 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentService<C extends Component, T>(constructor: ComponentServiceConstructor<C, T>,
-                                                          componentClass: ComponentClass, serviceName: string): void {
+  static decorateComponentService(constructor: ComponentServiceConstructor<Component, unknown>,
+                                  componentClass: ComponentClass, serviceName: string): void {
     if (!componentClass.hasOwnProperty("_componentServiceConstructors")) {
       componentClass._componentServiceConstructors = {};
     }
     componentClass._componentServiceConstructors![serviceName] = constructor;
     Object.defineProperty(componentClass, serviceName, {
-      get: function (this: C): ComponentService<C, T> {
-        let componentService = this.getComponentService(serviceName) as ComponentService<C, T> | null;
+      get: function (this: Component): ComponentService<Component, unknown> {
+        let componentService = this.getComponentService(serviceName);
         if (componentService === null) {
           componentService = new constructor(this, serviceName);
           this.setComponentService(serviceName, componentService);
@@ -1002,7 +1023,7 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentScopeConstructor(scopeName: string, componentClass: ComponentClass | null = null): ComponentScopeConstructor<any, unknown> | null {
+  static getComponentScopeConstructor(scopeName: string, componentClass: ComponentClass | null = null): ComponentScopeConstructor<Component, unknown> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
@@ -1019,15 +1040,15 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentScope<C extends Component, T, U>(constructor: ComponentScopeConstructor<C, T, U>,
-                                                           componentClass: ComponentClass, scopeName: string): void {
+  static decorateComponentScope(constructor: ComponentScopeConstructor<Component, unknown>,
+                                componentClass: ComponentClass, scopeName: string): void {
     if (!componentClass.hasOwnProperty("_componentScopeConstructors")) {
       componentClass._componentScopeConstructors = {};
     }
     componentClass._componentScopeConstructors![scopeName] = constructor;
     Object.defineProperty(componentClass, scopeName, {
-      get: function (this: C): ComponentScope<C, T, U> {
-        let componentScope = this.getComponentScope(scopeName) as ComponentScope<C, T, U> | null;
+      get: function (this: Component): ComponentScope<Component, unknown> {
+        let componentScope = this.getComponentScope(scopeName);
         if (componentScope === null) {
           componentScope = new constructor(this, scopeName);
           this.setComponentScope(scopeName, componentScope);
@@ -1040,7 +1061,7 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentModelConstructor(modelName: string, componentClass: ComponentClass | null = null): ComponentModelConstructor<any, any> | null {
+  static getComponentModelConstructor(modelName: string, componentClass: ComponentClass | null = null): ComponentModelConstructor<Component, Model> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
@@ -1057,15 +1078,15 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentModel<C extends Component, M extends Model, U>(constructor: ComponentModelConstructor<C, M, U>,
-                                                                         componentClass: ComponentClass, modelName: string): void {
+  static decorateComponentModel(constructor: ComponentModelConstructor<Component, Model>,
+                                componentClass: ComponentClass, modelName: string): void {
     if (!componentClass.hasOwnProperty("_componentModelConstructors")) {
       componentClass._componentModelConstructors = {};
     }
     componentClass._componentModelConstructors![modelName] = constructor;
     Object.defineProperty(componentClass, modelName, {
-      get: function (this: C): ComponentModel<C, M, U> {
-        let componentModel = this.getComponentModel(modelName) as ComponentModel<C, M, U> | null;
+      get: function (this: Component): ComponentModel<Component, Model> {
+        let componentModel = this.getComponentModel(modelName);
         if (componentModel === null) {
           componentModel = new constructor(this, modelName);
           this.setComponentModel(modelName, componentModel);
@@ -1078,7 +1099,45 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentViewConstructor(viewName: string, componentClass: ComponentClass | null = null): ComponentViewConstructor<any, any> | null {
+  static getComponentTraitConstructor(traitName: string, componentClass: ComponentClass | null = null): ComponentTraitConstructor<Component, Trait> | null {
+    if (componentClass === null) {
+      componentClass = this.prototype as unknown as ComponentClass;
+    }
+    do {
+      if (componentClass.hasOwnProperty("_componentTraitConstructors")) {
+        const constructor = componentClass._componentTraitConstructors![traitName];
+        if (constructor !== void 0) {
+          return constructor;
+        }
+      }
+      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
+    } while (componentClass !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateComponentTrait(constructor: ComponentTraitConstructor<Component, Trait>,
+                                componentClass: ComponentClass, traitName: string): void {
+    if (!componentClass.hasOwnProperty("_componentTraitConstructors")) {
+      componentClass._componentTraitConstructors = {};
+    }
+    componentClass._componentTraitConstructors![traitName] = constructor;
+    Object.defineProperty(componentClass, traitName, {
+      get: function (this: Component): ComponentTrait<Component, Trait> {
+        let componentTrait = this.getComponentTrait(traitName);
+        if (componentTrait === null) {
+          componentTrait = new constructor(this, traitName);
+          this.setComponentTrait(traitName, componentTrait);
+        }
+        return componentTrait;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
+  static getComponentViewConstructor(viewName: string, componentClass: ComponentClass | null = null): ComponentViewConstructor<Component, View> | null {
     if (componentClass === null) {
       componentClass = this.prototype as unknown as ComponentClass;
     }
@@ -1095,20 +1154,58 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentView<C extends Component, V extends View, U>(constructor: ComponentViewConstructor<C, V, U>,
-                                                                       componentClass: ComponentClass, viewName: string): void {
+  static decorateComponentView(constructor: ComponentViewConstructor<Component, View>,
+                               componentClass: ComponentClass, viewName: string): void {
     if (!componentClass.hasOwnProperty("_componentViewConstructors")) {
       componentClass._componentViewConstructors = {};
     }
     componentClass._componentViewConstructors![viewName] = constructor;
     Object.defineProperty(componentClass, viewName, {
-      get: function (this: C): ComponentView<C, V, U> {
-        let componentView = this.getComponentView(viewName) as ComponentView<C, V, U> | null;
+      get: function (this: Component): ComponentView<Component, View> {
+        let componentView = this.getComponentView(viewName);
         if (componentView === null) {
           componentView = new constructor(this, viewName);
           this.setComponentView(viewName, componentView);
         }
         return componentView;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
+  static getComponentBindingConstructor(bindingName: string, componentClass: ComponentClass | null = null): ComponentBindingConstructor<Component, Component> | null {
+    if (componentClass === null) {
+      componentClass = this.prototype as unknown as ComponentClass;
+    }
+    do {
+      if (componentClass.hasOwnProperty("_componentBindingConstructors")) {
+        const constructor = componentClass._componentBindingConstructors![bindingName];
+        if (constructor !== void 0) {
+          return constructor;
+        }
+      }
+      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
+    } while (componentClass !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateComponentBinding(constructor: ComponentBindingConstructor<Component, Component>,
+                                  componentClass: ComponentClass, bindingName: string): void {
+    if (!componentClass.hasOwnProperty("_componentBindingConstructors")) {
+      componentClass._componentBindingConstructors = {};
+    }
+    componentClass._componentBindingConstructors![bindingName] = constructor;
+    Object.defineProperty(componentClass, bindingName, {
+      get: function (this: Component): ComponentBinding<Component, Component> {
+        let componentBinding = this.getComponentBinding(bindingName);
+        if (componentBinding === null) {
+          componentBinding = new constructor(this, bindingName);
+          this.setComponentBinding(bindingName, componentBinding);
+        }
+        return componentBinding;
       },
       configurable: true,
       enumerable: true,
@@ -1175,8 +1272,6 @@ export abstract class Component {
 
   // Forward type declarations
   /** @hidden */
-  static Subcomponent: typeof Subcomponent; // defined by Subcomponent
-  /** @hidden */
   static Manager: typeof ComponentManager; // defined by ComponentManager
   /** @hidden */
   static Service: typeof ComponentService; // defined by ComponentService
@@ -1185,7 +1280,11 @@ export abstract class Component {
   /** @hidden */
   static Model: typeof ComponentModel; // defined by ComponentModel
   /** @hidden */
+  static Trait: typeof ComponentTrait; // defined by ComponentTrait
+  /** @hidden */
   static View: typeof ComponentView; // defined by ComponentView
+  /** @hidden */
+  static Binding: typeof ComponentBinding; // defined by ComponentBinding
   /** @hidden */
   static Generic: typeof GenericComponent; // defined by GenericComponent
   /** @hidden */

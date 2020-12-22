@@ -9,6 +9,7 @@
       "@swim/interpolate": ["../../swim-system-js/swim-core-js/@swim/interpolate/main"],
       "@swim/structure": ["../../swim-system-js/swim-core-js/@swim/structure/main"],
       "@swim/math": ["../../swim-system-js/swim-core-js/@swim/math/main"],
+      "@swim/geo": ["../../swim-system-js/swim-core-js/@swim/geo/main"],
       "@swim/time": ["../../swim-system-js/swim-core-js/@swim/time/main"],
       "@swim/scale": ["../../swim-system-js/swim-core-js/@swim/scale/main"],
       "@swim/constraint": ["../swim-ui-js/@swim/constraint/main"],

@@ -117,7 +117,7 @@ export class TreeLimb extends HtmlView {
     type: Number,
     state: 0,
     onUpdate(depth: number): void {
-      this.view.onUpdateDepth(depth);
+      this.owner.onUpdateDepth(depth);
     },
   })
   depth: ViewScope<this, number>;
@@ -341,21 +341,18 @@ export class TreeLimb extends HtmlView {
     }
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
-    const needsScroll = (displayFlags & View.NeedsScroll) !== 0;
-    const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
-    if (needsScroll || needsLayout) {
+  protected onDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
+    super.onDisplay(displayFlags, viewContext);
+    if ((displayFlags & (View.NeedsScroll | View.NeedsLayout)) !== 0) {
       this._visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
       (viewContext as any).visibleFrame = this._visibleFrame;
-    }
-    super.displayChildViews(displayFlags, viewContext, callback);
-    if (needsLayout) {
-      this.layoutLimb();
-    }
-    if (needsScroll) {
       this._viewFlags &= ~View.NeedsScroll;
     }
+  }
+
+  protected didLayout(viewContext: ViewContextType<this>): void {
+    this.layoutLimb();
+    super.didLayout(viewContext);
   }
 
   protected layoutLimb(): void {
@@ -368,20 +365,16 @@ export class TreeLimb extends HtmlView {
     let y = 0;
     const leaf = this.leaf;
     if (leaf !== null) {
-      const leafHeight = leaf.height.value;
-      const dy = leafHeight instanceof Length
-               ? leafHeight.pxValue()
-               : leaf._node.offsetHeight;
+      let dy: Length | string | number | undefined = leaf.height.value;
+      dy = dy instanceof Length ? dy.pxValue() : leaf._node.offsetHeight;
       leaf.top.setAutoState(y * disclosingPhase);
       leaf.width.setAutoState(width !== void 0 ? width.pxValue() : void 0);
       y += dy * disclosingPhase;
     }
     const subtree = this.subtree;
     if (subtree !== null && this.disclosureState.state !== "collapsed") {
-      const subtreeHeight = subtree.height.value;
-      const dy = subtreeHeight instanceof Length
-               ? subtreeHeight.pxValue()
-               : subtree._node.offsetHeight;
+      let dy: Length | string | number | undefined = subtree.height.value;
+      dy = dy instanceof Length ? dy.pxValue() : subtree._node.offsetHeight;
       subtree.top.setAutoState(y * disclosingPhase);
       subtree.width.setAutoState(width);
       y += dy * disclosingPhase;

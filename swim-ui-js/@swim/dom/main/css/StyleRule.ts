@@ -39,12 +39,14 @@ export type StyleRuleDescriptorExtends<V extends CssContext, I = {}> = {extends:
 
 export type StyleRuleDescriptor<V extends CssContext, I = {}> = StyleRuleDescriptorInit<V, I>;
 
-export type StyleRulePrototype = Function & {prototype: StyleRule<any>};
+export interface StyleRulePrototype extends Function {
+  readonly prototype: StyleRule<any>;
+}
 
-export type StyleRuleConstructor<V extends CssContext, I = {}> = {
+export interface StyleRuleConstructor<V extends CssContext, I = {}> {
   new(owner: V, ruleName: string | undefined): StyleRule<V> & I;
   prototype: StyleRule<any> & I;
-};
+}
 
 export declare abstract class StyleRule<V extends CssContext> {
   /** @hidden */

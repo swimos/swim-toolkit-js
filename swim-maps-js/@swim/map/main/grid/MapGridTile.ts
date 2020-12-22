@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GeoPoint} from "../geo/GeoPoint";
-import {GeoBox} from "../geo/GeoBox";
+import {GeoPoint, GeoBox} from "@swim/geo";
 import {MapGraphicsView} from "../graphics/MapGraphicsView";
 
 export class MapGridTile {
@@ -206,7 +205,7 @@ export class MapGridTile {
       }
     }
     tile = tile.insertedLeaf(view, bounds);
-    if (this !== tile && tile._size === tile._density + 1) {
+    if (this !== tile && tile._depth < tile._maxDepth && tile._size === tile._density + 1) {
       tile = tile.reinsertedNode();
     }
     return tile;

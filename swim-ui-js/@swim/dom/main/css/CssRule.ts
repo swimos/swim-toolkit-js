@@ -43,12 +43,14 @@ export type CssRuleDescriptorExtends<V extends CssContext, I = {}> = {extends: C
 
 export type CssRuleDescriptor<V extends CssContext, I = {}> = {type?: CssRuleType} & CssRuleDescriptorInit<V, I>;
 
-export type CssRulePrototype = Function & {prototype: CssRule<any>};
+export interface CssRulePrototype extends Function {
+  readonly prototype: CssRule<any>;
+}
 
-export type CssRuleConstructor<V extends CssContext, I = {}> = {
+export interface CssRuleConstructor<V extends CssContext, I = {}> {
   new(owner: V, ruleName: string | undefined): CssRule<V> & I;
   prototype: CssRule<any> & I;
-};
+}
 
 export declare abstract class CssRule<V extends CssContext> {
   /** @hidden */

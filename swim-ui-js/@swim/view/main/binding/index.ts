@@ -12,17 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContextType} from "@swim/view";
-import {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
-import {MapRasterView} from "./MapRasterView";
-import {MapRasterViewObserver} from "./MapRasterViewObserver";
-
-export class MapRasterViewController<V extends MapRasterView = MapRasterView> extends MapGraphicsViewController<V> implements MapRasterViewObserver<V> {
-  viewWillComposite(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidComposite(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-}
+export {
+  ViewBindingMemberType,
+  ViewBindingMemberInit,
+  ViewBindingInit,
+  ViewBindingDescriptorInit,
+  ViewBindingDescriptorExtends,
+  ViewBindingDescriptorFromAny,
+  ViewBindingDescriptor,
+  ViewBindingPrototype,
+  ViewBindingConstructor,
+  ViewBinding,
+} from "./ViewBinding";

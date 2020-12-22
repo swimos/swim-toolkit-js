@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {MapGroupView} from "./MapGroupView";
-
 export {
   MapPointLabelPlacement,
   AnyMapPointView,
@@ -50,3 +48,9 @@ export {
   MapPolygonViewInit,
   MapPolygonView,
 } from "./MapPolygonView";
+
+export {
+  AnyMapIconView,
+  MapIconViewInit,
+  MapIconView,
+} from "./MapIconView";

@@ -27,6 +27,14 @@ export class CanvasViewController<V extends CanvasView = CanvasView> extends Htm
     // hook
   }
 
+  viewWillComposite(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
+  viewDidComposite(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
   isHidden(): boolean {
     const view = this._view;
     return view !== null && view.isHidden();

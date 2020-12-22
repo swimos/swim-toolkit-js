@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import {ModelContextType, ModelContext} from "./ModelContext";
-import {ModelFlags, Model} from "./Model";
+import {ModelFlags, ModelPrototype, Model} from "./Model";
 import {ModelObserver} from "./ModelObserver";
+import {TraitPrototype, Trait} from "./Trait";
 
 export type ModelControllerType<M extends Model> =
   M extends {readonly modelController: infer MC} ? MC : unknown;
@@ -71,6 +72,20 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
 
   modelDidSetParentModel(newParentModel: Model | null, oldParentModel: Model | null, model: M): void {
     // hook
+  }
+
+  remove(): void {
+    const model = this._model;
+    if (model !== null) {
+      model.remove();
+    } else {
+      throw new Error("no model");
+    }
+  }
+
+  get childModelCount(): number {
+    const model = this._model;
+    return model !== null ? model.childModelCount : 0;
   }
 
   get childModels(): ReadonlyArray<Model> {
@@ -190,14 +205,10 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   removeChildModel(childModel: Model): void;
   removeChildModel(key: string | Model): Model | null | void {
     const model = this._model;
-    if (model !== null) {
-      if (typeof key === "string") {
-        return model.removeChildModel(key);
-      } else {
-        model.removeChildModel(key);
-      }
-    } else {
-      throw new Error("no model");
+    if (typeof key === "string") {
+      return model !== null ? model.removeChildModel(key) : null;
+    } else if (model !== null) {
+      model.removeChildModel(key);
     }
   }
 
@@ -231,15 +242,6 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     }
   }
 
-  remove(): void {
-    const model = this._model;
-    if (model !== null) {
-      model.remove();
-    } else {
-      throw new Error("no model");
-    }
-  }
-
   modelWillRemoveChildModel(childModel: Model, model: M): void {
     // hook
   }
@@ -248,14 +250,109 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     // hook
   }
 
-  getSuperModel<M extends Model>(modelClass: {new(...args: any[]): M}): M | null {
+  getSuperModel<M extends Model>(modelClass: ModelPrototype<M>): M | null {
     const model = this._model;
     return model !== null ? model.getSuperModel(modelClass) : null;
   }
 
-  getBaseModel<M extends Model>(modelClass: {new(...args: any[]): M}): M | null {
+  getBaseModel<M extends Model>(modelClass: ModelPrototype<M>): M | null {
     const model = this._model;
     return model !== null ? model.getBaseModel(modelClass) : null;
+  }
+
+  get traitCount(): number {
+    const model = this._model;
+    return model !== null ? model.traitCount : 0;
+  }
+
+  get traits(): ReadonlyArray<Trait> {
+    const model = this._model;
+    return model !== null ? model.traits : [];
+  }
+
+  getTrait(key: string): Trait | null;
+  getTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null;
+  getTrait(key: string | TraitPrototype<Trait>): Trait | null;
+  getTrait(key: string | TraitPrototype<Trait>): Trait | null {
+    const model = this._model;
+    return model !== null ? model.getTrait(key) : null;
+  }
+
+  setTrait(key: string, newTrait: Trait | null): Trait | null {
+    const model = this._model;
+    if (model !== null) {
+      return model.setTrait(key, newTrait);
+    } else {
+      throw new Error("no model");
+    }
+  }
+
+  appendTrait(trait: Trait, key?: string): void {
+    const model = this._model;
+    if (model !== null) {
+      model.appendTrait(trait, key);
+    } else {
+      throw new Error("no model");
+    }
+  }
+
+  prependTrait(trait: Trait, key?: string): void {
+    const model = this._model;
+    if (model !== null) {
+      model.prependTrait(trait, key);
+    } else {
+      throw new Error("no model");
+    }
+  }
+
+  insertTrait(trait: Trait, targetTrait: Trait | null, key?: string): void {
+    const model = this._model;
+    if (model !== null) {
+      model.insertTrait(trait, targetTrait, key);
+    } else {
+      throw new Error("no model");
+    }
+  }
+
+  modelWillInsertTrait(trait: Trait, targetTrait: Trait | null | undefined, model: M): void {
+    // hook
+  }
+
+  modelDidInsertTrait(trait: Trait, targetTrait: Trait | null | undefined, model: M): void {
+    // hook
+  }
+
+  removeTrait(key: string): Trait | null;
+  removeTrait(trait: Trait): void;
+  removeTrait(key: string | Trait): Trait | null | void {
+    const model = this._model;
+    if (model !== null) {
+      if (typeof key === "string") {
+        return model.removeTrait(key);
+      } else {
+        model.removeTrait(key);
+      }
+    } else {
+      throw new Error("no model");
+    }
+  }
+
+  modelWillRemoveTrait(trait: Trait, model: M): void {
+    // hook
+  }
+
+  modelDidRemoveTrait(trait: Trait, model: M): void {
+    // hook
+  }
+
+  getSuperTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
+    const model = this._model;
+    return model !== null ? model.getSuperTrait(traitPrototype) : null;
+  }
+
+  getBaseTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
+    const model = this._model;
+    return model !== null ? model.getBaseTrait(traitPrototype) : null;
   }
 
   isMounted(): boolean {

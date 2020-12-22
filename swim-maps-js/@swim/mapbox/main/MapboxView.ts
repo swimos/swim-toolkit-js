@@ -14,10 +14,11 @@
 
 import * as mapboxgl from "mapbox-gl";
 import {AnyPointR2, PointR2} from "@swim/math";
+import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {GraphicsViewContext, CanvasView} from "@swim/graphics";
-import {AnyGeoPoint, GeoPoint, GeoBox, MapLayerView} from "@swim/map";
+import {MapLayerView} from "@swim/map";
 import {MapboxProjection} from "./MapboxProjection";
 import {MapboxViewObserver} from "./MapboxViewObserver";
 import {MapboxViewController} from "./MapboxViewController";

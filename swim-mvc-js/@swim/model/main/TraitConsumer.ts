@@ -12,17 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContextType} from "@swim/view";
-import {GraphicsViewController} from "../graphics/GraphicsViewController";
-import {RasterView} from "./RasterView";
-import {RasterViewObserver} from "./RasterViewObserver";
+import {Trait} from "./Trait";
 
-export class RasterViewController<V extends RasterView = RasterView> extends GraphicsViewController<V> implements RasterViewObserver<V> {
-  viewWillComposite(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
+export type TraitConsumerType<R extends Trait> =
+  R extends {readonly traitConsumers: ReadonlyArray<infer RC>} ? RC : unknown;
 
-  viewDidComposite(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-}
+export type TraitConsumer<R extends Trait = Trait> = unknown

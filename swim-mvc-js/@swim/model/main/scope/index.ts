@@ -31,3 +31,22 @@ export {StringModelScope} from "./StringModelScope";
 export {BooleanModelScope} from "./BooleanModelScope";
 
 export {NumberModelScope} from "./NumberModelScope";
+
+export {
+  TraitScopeMemberType,
+  TraitScopeMemberInit,
+  TraitScopeInit,
+  TraitScopeDescriptorInit,
+  TraitScopeDescriptorExtends,
+  TraitScopeDescriptorFromAny,
+  TraitScopeDescriptor,
+  TraitScopePrototype,
+  TraitScopeConstructor,
+  TraitScope,
+} from "./TraitScope";
+
+export {StringTraitScope} from "./StringTraitScope";
+
+export {BooleanTraitScope} from "./BooleanTraitScope";
+
+export {NumberTraitScope} from "./NumberTraitScope";

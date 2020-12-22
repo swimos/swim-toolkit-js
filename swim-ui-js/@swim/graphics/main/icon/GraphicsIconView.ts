@@ -75,6 +75,7 @@ export class GraphicsIconView extends LayerView implements IconView {
     const graphics = this.graphics.value;
     if (graphics !== void 0) {
       const context = renderer.context;
+      context.beginPath();
       const iconColor = this.iconColor.value;
       if (iconColor !== void 0) {
         context.fillStyle = iconColor.toString();
@@ -107,8 +108,6 @@ export class GraphicsIconView extends LayerView implements IconView {
       if (renderer instanceof CanvasRenderer) {
         const context = renderer.context;
         context.save();
-        x *= renderer.pixelRatio;
-        y *= renderer.pixelRatio;
         hit = this.hitTestIcon(x, y, renderer, this.viewBounds);
         context.restore();
       }
@@ -116,15 +115,19 @@ export class GraphicsIconView extends LayerView implements IconView {
     return hit;
   }
 
-  protected hitTestIcon(x: number, y: number,renderer: CanvasRenderer, frame: BoxR2): GraphicsView | null {
-    const graphics = this.graphics.value;
-    if (graphics !== void 0) {
-      const context = renderer.context;
-      graphics.render(renderer, frame);
-      if (context.isPointInPath(x, y)) {
-        return this;
-      }
+  protected hitTestIcon(x: number, y: number, renderer: CanvasRenderer, frame: BoxR2): GraphicsView | null {
+    // TODO: icon hit test mode
+    if (this.hitBounds.contains(x, y)) {
+      return this;
     }
+    //const graphics = this.graphics.value;
+    //if (graphics !== void 0) {
+    //  const context = renderer.context;
+    //  graphics.render(renderer, frame);
+    //  if (context.isPointInPath(x * renderer.pixelRatio, y * renderer.pixelRatio)) {
+    //    return this;
+    //  }
+    //}
     return null;
   }
 

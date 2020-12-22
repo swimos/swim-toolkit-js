@@ -22,11 +22,8 @@ import {WebGLRenderer} from "../webgl/WebGLRenderer";
 import {CanvasCompositeOperation} from "../canvas/CanvasContext";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
 import {RasterViewContext} from "./RasterViewContext";
-import {RasterViewObserver} from "./RasterViewObserver";
-import {RasterViewController} from "./RasterViewController";
 
 export interface RasterViewInit extends GraphicsViewInit {
-  viewController?: RasterViewController;
   opacity?: number;
   compositeOperation?: CanvasCompositeOperation;
 }
@@ -45,12 +42,6 @@ export class RasterView extends LayerView {
     this._renderer = void 0;
     this._rasterFrame = BoxR2.undefined();
   }
-
-  // @ts-ignore
-  declare readonly viewController: RasterViewController | null;
-
-  // @ts-ignore
-  declare readonly viewObservers: ReadonlyArray<RasterViewObserver>;
 
   initView(init: RasterViewInit): void {
     super.initView(init);
@@ -136,59 +127,8 @@ export class RasterView extends LayerView {
     return additionalFlags;
   }
 
-  /** @hidden */
-  protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    let cascadeFlags = displayFlags;
-    this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
-    this._viewFlags &= ~View.NeedsDisplay;
-    try {
-      this.willDisplay(viewContext);
-      if (((this._viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
-        this.willLayout(viewContext);
-        cascadeFlags |= View.NeedsLayout;
-        this._viewFlags &= ~View.NeedsLayout;
-      }
-      if (((this._viewFlags | displayFlags) & View.NeedsRender) !== 0) {
-        this.willRender(viewContext);
-        cascadeFlags |= View.NeedsRender;
-        this._viewFlags &= ~View.NeedsRender;
-      }
-      if (((this._viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
-        this.willComposite(viewContext);
-        cascadeFlags |= View.NeedsComposite;
-        this._viewFlags &= ~View.NeedsComposite;
-      }
-
-      this.onDisplay(viewContext);
-      if ((cascadeFlags & View.NeedsLayout) !== 0) {
-        this.onLayout(viewContext);
-      }
-      if ((cascadeFlags & View.NeedsRender) !== 0) {
-        this.onRender(viewContext);
-      }
-      if ((cascadeFlags & View.NeedsComposite) !== 0) {
-        this.onComposite(viewContext);
-      }
-
-      this.doDisplayChildViews(cascadeFlags, viewContext);
-
-      if ((cascadeFlags & View.NeedsComposite) !== 0) {
-        this.didComposite(viewContext);
-      }
-      if ((cascadeFlags & View.NeedsRender) !== 0) {
-        this.didRender(viewContext);
-      }
-      if ((cascadeFlags & View.NeedsLayout) !== 0) {
-        this.didLayout(viewContext);
-      }
-      this.didDisplay(viewContext);
-    } finally {
-      this._viewFlags &= ~(View.TraversingFlag | View.DisplayingFlag);
-    }
-  }
-
-  protected onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
     this.resizeCanvas(this._canvas);
     this.resetRenderer();
   }
@@ -198,24 +138,9 @@ export class RasterView extends LayerView {
     this.clearCanvas();
   }
 
-  protected willComposite(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: RasterViewObserver): void {
-      if (viewObserver.viewWillRender !== void 0) {
-        viewObserver.viewWillRender(viewContext, this);
-      }
-    });
-  }
-
   protected onComposite(viewContext: ViewContextType<this>): void {
+    super.onComposite(viewContext);
     this.compositeImage(viewContext);
-  }
-
-  protected didComposite(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: RasterViewObserver): void {
-      if (viewObserver.viewDidRender !== void 0) {
-        viewObserver.viewDidRender(viewContext, this);
-      }
-    });
   }
 
   extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
@@ -333,16 +258,14 @@ export class RasterView extends LayerView {
     const compositor = viewContext.compositor;
     const renderer = viewContext.renderer;
     if (compositor instanceof CanvasRenderer && renderer instanceof CanvasRenderer) {
-      const imageData = renderer.context.getImageData(0, 0, this._canvas.width, this._canvas.height);
       const compositeFrame = this.compositeFrame;
-      const pixelRatio = compositor.pixelRatio;
       const context = compositor.context;
       context.save();
       context.globalAlpha = this.opacity.getValue();
       context.globalCompositeOperation = this.compositeOperation.getValue();
-      const x = Math.floor(compositeFrame.xMin) * pixelRatio;
-      const y = Math.floor(compositeFrame.yMin) * pixelRatio;
-      context.putImageData(imageData, x, y);
+      const x = Math.floor(compositeFrame.x);
+      const y = Math.floor(compositeFrame.y);
+      context.drawImage(this._canvas, x, y, this._canvas.width, this._canvas.height);
       context.restore();
     }
   }

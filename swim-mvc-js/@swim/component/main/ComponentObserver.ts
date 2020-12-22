@@ -13,10 +13,11 @@
 // limitations under the License.
 
 import {View} from "@swim/view";
-import {Model} from "@swim/model";
+import {Model, Trait} from "@swim/model";
 import {ComponentContextType} from "./ComponentContext";
 import {ComponentFlags, Component} from "./Component";
 import {ComponentModel} from "./model/ComponentModel";
+import {ComponentTrait} from "./trait/ComponentTrait";
 import {ComponentView} from "./view/ComponentView";
 
 export type ComponentObserverType<C extends Component> =
@@ -87,11 +88,15 @@ export interface ComponentObserver<C extends Component = Component> {
 
   componentDidExecuteChildComponents?(marshalFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
-  componentWillSetModel?<M extends Model>(componentModel: ComponentModel<C, M, unknown>, newModel: M | null, oldModel: M | null, component: C): void;
+  componentWillSetModel?<M extends Model>(componentModel: ComponentModel<C, M>, newModel: M | null, oldModel: M | null, component: C): void;
 
-  componentDidSetModel?<M extends Model>(componentModel: ComponentModel<C, M, unknown>, newModel: M | null, oldModel: M | null, component: C): void;
+  componentDidSetModel?<M extends Model>(componentModel: ComponentModel<C, M>, newModel: M | null, oldModel: M | null, component: C): void;
 
-  componentWillSetView?<V extends View>(componentView: ComponentView<C, V, unknown>, newView: V | null, oldView: V | null, component: C): void;
+  componentWillSetTrait?<R extends Trait>(componentTrait: ComponentTrait<C, R>, newTrait: R | null, oldTrait: R | null, component: C): void;
 
-  componentDidSetView?<V extends View>(componentView: ComponentView<C, V, unknown>, newView: V | null, oldView: V | null, component: C): void;
+  componentDidSetTrait?<R extends Trait>(componentTrait: ComponentTrait<C, R>, newTrait: R | null, oldTrait: R | null, component: C): void;
+
+  componentWillSetView?<V extends View>(componentView: ComponentView<C, V>, newView: V | null, oldView: V | null, component: C): void;
+
+  componentDidSetView?<V extends View>(componentView: ComponentView<C, V>, newView: V | null, oldView: V | null, component: C): void;
 }

@@ -18,6 +18,7 @@ import {AnyValue, Value, Form} from "@swim/structure";
 import {AnyUri, Uri} from "@swim/uri";
 import {DownlinkType, DownlinkObserver, Downlink, WarpRef} from "@swim/client";
 import {Model} from "../Model";
+import {ModelDownlinkContext} from "./ModelDownlinkContext";
 import {
   ModelEventDownlinkDescriptorExtends,
   ModelEventDownlinkDescriptor,
@@ -59,22 +60,24 @@ export interface ModelDownlinkInit extends DownlinkObserver {
 
 export type ModelDownlinkFlags = number;
 
-export type ModelDownlinkDescriptorInit<M extends Model, I = {}> = ModelDownlinkInit & ThisType<ModelDownlink<M> & I> & I;
+export type ModelDownlinkDescriptorInit<M extends ModelDownlinkContext, I = {}> = ModelDownlinkInit & ThisType<ModelDownlink<M> & I> & I;
 
-export type ModelDownlinkDescriptorExtends<M extends Model, I = {}> = {extends: ModelDownlinkPrototype | undefined, type: DownlinkType} & ModelDownlinkDescriptorInit<M, I>;
+export type ModelDownlinkDescriptorExtends<M extends ModelDownlinkContext, I = {}> = {extends: ModelDownlinkPrototype | undefined, type: DownlinkType} & ModelDownlinkDescriptorInit<M, I>;
 
-export type ModelDownlinkDescriptor<M extends Model, I = {}> = {type: DownlinkType} & ModelDownlinkDescriptorInit<M, I>;
+export type ModelDownlinkDescriptor<M extends ModelDownlinkContext, I = {}> = {type: DownlinkType} & ModelDownlinkDescriptorInit<M, I>;
 
-export type ModelDownlinkPrototype = Function & {prototype: ModelDownlink<any>};
+export interface ModelDownlinkPrototype extends Function {
+  readonly prototype: ModelDownlink<any>;
+}
 
-export type ModelDownlinkConstructor<M extends Model, I = {}> = {
-  new(model: M, downlinkName: string | undefined): ModelDownlink<M> & I;
+export interface ModelDownlinkConstructor<M extends ModelDownlinkContext, I = {}> {
+  new(owner: M, downlinkName: string | undefined): ModelDownlink<M> & I;
   prototype: ModelDownlink<any> & I;
-};
+}
 
-export declare abstract class ModelDownlink<M extends Model> {
+export declare abstract class ModelDownlink<M extends ModelDownlinkContext> {
   /** @hidden */
-  _model: M;
+  _owner: M;
   /** @hidden */
   _downlink: Downlink | null;
   /** @hidden */
@@ -94,11 +97,11 @@ export declare abstract class ModelDownlink<M extends Model> {
   /** @hidden */
   _body?: Value;
 
-  constructor(model: M, downlinkName: string | undefined);
+  constructor(owner: M, downlinkName: string | undefined);
 
   get name(): string | undefined;
 
-  get model(): M;
+  get owner(): M;
 
   get downlink(): Downlink | null;
 
@@ -171,23 +174,23 @@ export declare abstract class ModelDownlink<M extends Model> {
   /** @hidden */
   initBody?(): AnyValue | null;
 
-  static define<M extends Model, I = {}>(descriptor: {type: "event"} & ModelEventDownlinkDescriptorExtends<M, I>): ModelEventDownlinkConstructor<M, I>;
-  static define<M extends Model>(descriptor: {type: "event"} & ModelEventDownlinkDescriptor<M>): ModelEventDownlinkConstructor<M>;
+  static define<M extends ModelDownlinkContext, I = {}>(descriptor: {type: "event"} & ModelEventDownlinkDescriptorExtends<M, I>): ModelEventDownlinkConstructor<M, I>;
+  static define<M extends ModelDownlinkContext>(descriptor: {type: "event"} & ModelEventDownlinkDescriptor<M>): ModelEventDownlinkConstructor<M>;
 
-  static define<M extends Model, V, VU = V, I = {}>(descriptor: {type: "list"} & ModelListDownlinkDescriptorExtends<M, V, VU, I>): ModelListDownlinkConstructor<M, V, VU, I>;
-  static define<M extends Model, V, VU = V>(descriptor: {type: "list"; valueForm: Form<V, VU>} & ModelListDownlinkDescriptor<M, V, VU>): ModelListDownlinkConstructor<M, V, VU>;
-  static define<M extends Model, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: {type: "list"} & ModelListDownlinkDescriptor<M, V, VU>): ModelListDownlinkConstructor<M, V, VU>;
+  static define<M extends ModelDownlinkContext, V, VU = V, I = {}>(descriptor: {type: "list"} & ModelListDownlinkDescriptorExtends<M, V, VU, I>): ModelListDownlinkConstructor<M, V, VU, I>;
+  static define<M extends ModelDownlinkContext, V, VU = V>(descriptor: {type: "list"; valueForm: Form<V, VU>} & ModelListDownlinkDescriptor<M, V, VU>): ModelListDownlinkConstructor<M, V, VU>;
+  static define<M extends ModelDownlinkContext, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: {type: "list"} & ModelListDownlinkDescriptor<M, V, VU>): ModelListDownlinkConstructor<M, V, VU>;
 
-  static define<M extends Model, K, V, KU = K, VU = V, I = {}>(descriptor: {type: "map"} & ModelMapDownlinkDescriptorExtends<M, K, V, KU, VU, I>): ModelMapDownlinkConstructor<M, K, V, KU, VU, I>;
-  static define<M extends Model, K, V, KU = K, VU = V>(descriptor: {type: "map"; keyForm: Form<K, KU>; valueForm: Form<V, VU>} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): ModelMapDownlinkConstructor<M, K, V, KU, VU>;
-  static define<M extends Model, K extends Value = Value, V extends Value = Value, KU extends AnyValue = AnyValue, VU extends AnyValue = AnyValue>(descriptor: {type: "map"} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): ModelMapDownlinkConstructor<M, K, V, KU, VU>;
+  static define<M extends ModelDownlinkContext, K, V, KU = K, VU = V, I = {}>(descriptor: {type: "map"} & ModelMapDownlinkDescriptorExtends<M, K, V, KU, VU, I>): ModelMapDownlinkConstructor<M, K, V, KU, VU, I>;
+  static define<M extends ModelDownlinkContext, K, V, KU = K, VU = V>(descriptor: {type: "map"; keyForm: Form<K, KU>; valueForm: Form<V, VU>} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): ModelMapDownlinkConstructor<M, K, V, KU, VU>;
+  static define<M extends ModelDownlinkContext, K extends Value = Value, V extends Value = Value, KU extends AnyValue = AnyValue, VU extends AnyValue = AnyValue>(descriptor: {type: "map"} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): ModelMapDownlinkConstructor<M, K, V, KU, VU>;
 
-  static define<M extends Model, V, VU = V, I = {}>(descriptor: {type: "value"} & ModelValueDownlinkDescriptorExtends<M, V, VU, I>): ModelValueDownlinkConstructor<M, V, VU, I>;
-  static define<M extends Model, V, VU = V>(descriptor: {type: "value"; valueForm: Form<V, VU>} & ModelValueDownlinkDescriptor<M, V, VU>): ModelValueDownlinkConstructor<M, V, VU>;
-  static define<M extends Model, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: {type: "value"} & ModelValueDownlinkDescriptor<M, V, VU>): ModelValueDownlinkConstructor<M, V, VU>;
+  static define<M extends ModelDownlinkContext, V, VU = V, I = {}>(descriptor: {type: "value"} & ModelValueDownlinkDescriptorExtends<M, V, VU, I>): ModelValueDownlinkConstructor<M, V, VU, I>;
+  static define<M extends ModelDownlinkContext, V, VU = V>(descriptor: {type: "value"; valueForm: Form<V, VU>} & ModelValueDownlinkDescriptor<M, V, VU>): ModelValueDownlinkConstructor<M, V, VU>;
+  static define<M extends ModelDownlinkContext, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: {type: "value"} & ModelValueDownlinkDescriptor<M, V, VU>): ModelValueDownlinkConstructor<M, V, VU>;
 
-  static define<M extends Model, I = {}>(descriptor: ModelDownlinkDescriptorExtends<M, I>): ModelDownlinkConstructor<M, I>;
-  static define<M extends Model>(descriptor: ModelDownlinkDescriptor<M>): ModelDownlinkConstructor<M>;
+  static define<M extends ModelDownlinkContext, I = {}>(descriptor: ModelDownlinkDescriptorExtends<M, I>): ModelDownlinkConstructor<M, I>;
+  static define<M extends ModelDownlinkContext>(descriptor: ModelDownlinkDescriptor<M>): ModelDownlinkConstructor<M>;
 
   /** @hidden */
   static PendingFlag: ModelDownlinkFlags;
@@ -207,42 +210,41 @@ export declare abstract class ModelDownlink<M extends Model> {
   static Value: typeof ModelValueDownlink; // defined by ModelValueDownlink
 }
 
-export interface ModelDownlink<M extends Model> {
+export interface ModelDownlink<M extends ModelDownlinkContext> {
 }
 
-export function ModelDownlink<M extends Model, I = {}>(descriptor: {type: "event"} & ModelEventDownlinkDescriptorExtends<M, I>): PropertyDecorator;
-export function ModelDownlink<M extends Model>(descriptor: {type: "event"} & ModelEventDownlinkDescriptor<M>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, I = {}>(descriptor: {type: "event"} & ModelEventDownlinkDescriptorExtends<M, I>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext>(descriptor: {type: "event"} & ModelEventDownlinkDescriptor<M>): PropertyDecorator;
 
-export function ModelDownlink<M extends Model, V, VU = V, I = {}>(descriptor: {type: "list"} & ModelListDownlinkDescriptorExtends<M, V, VU, I>): PropertyDecorator;
-export function ModelDownlink<M extends Model, V, VU = V>(descriptor: {type: "list"; valueForm: Form<V, VU>} & ModelListDownlinkDescriptor<M, V, VU>): PropertyDecorator;
-export function ModelDownlink<M extends Model, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: {type: "list"} & ModelListDownlinkDescriptor<M, V, VU>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, V, VU = V, I = {}>(descriptor: {type: "list"} & ModelListDownlinkDescriptorExtends<M, V, VU, I>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, V, VU = V>(descriptor: {type: "list"; valueForm: Form<V, VU>} & ModelListDownlinkDescriptor<M, V, VU>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: {type: "list"} & ModelListDownlinkDescriptor<M, V, VU>): PropertyDecorator;
 
-export function ModelDownlink<M extends Model, K, V, KU = K, VU = V, I = {}>(descriptor: {type: "map"} & ModelMapDownlinkDescriptorExtends<M, K, V, KU, VU, I>): PropertyDecorator;
-export function ModelDownlink<M extends Model, K, V, KU = K, VU = V>(descriptor: {type: "map"; keyForm: Form<K, KU>; valueForm: Form<V, VU>} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): PropertyDecorator;
-export function ModelDownlink<M extends Model, K extends Value = Value, V extends Value = Value, KU extends AnyValue = AnyValue, VU extends AnyValue = AnyValue>(descriptor: {type: "map"} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, K, V, KU = K, VU = V, I = {}>(descriptor: {type: "map"} & ModelMapDownlinkDescriptorExtends<M, K, V, KU, VU, I>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, K, V, KU = K, VU = V>(descriptor: {type: "map"; keyForm: Form<K, KU>; valueForm: Form<V, VU>} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, K extends Value = Value, V extends Value = Value, KU extends AnyValue = AnyValue, VU extends AnyValue = AnyValue>(descriptor: {type: "map"} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): PropertyDecorator;
 
-export function ModelDownlink<M extends Model, V, VU = V, I = {}>(descriptor: {type: "value"} & ModelValueDownlinkDescriptorExtends<M, V, VU, I>): PropertyDecorator;
-export function ModelDownlink<M extends Model, V, VU = V>(descriptor: {type: "value"; valueForm: Form<V, VU>} & ModelValueDownlinkDescriptor<M, V, VU>): PropertyDecorator;
-export function ModelDownlink<M extends Model, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: {type: "value"} & ModelValueDownlinkDescriptor<M, V, VU>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, V, VU = V, I = {}>(descriptor: {type: "value"} & ModelValueDownlinkDescriptorExtends<M, V, VU, I>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, V, VU = V>(descriptor: {type: "value"; valueForm: Form<V, VU>} & ModelValueDownlinkDescriptor<M, V, VU>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: {type: "value"} & ModelValueDownlinkDescriptor<M, V, VU>): PropertyDecorator;
 
-export function ModelDownlink<M extends Model, I = {}>(descriptor: ModelDownlinkDescriptorExtends<M, I>): PropertyDecorator;
-export function ModelDownlink<M extends Model>(descriptor: ModelDownlinkDescriptor<M>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext, I = {}>(descriptor: ModelDownlinkDescriptorExtends<M, I>): PropertyDecorator;
+export function ModelDownlink<M extends ModelDownlinkContext>(descriptor: ModelDownlinkDescriptor<M>): PropertyDecorator;
 
-export function ModelDownlink<M extends Model>(
+export function ModelDownlink<M extends ModelDownlinkContext>(
     this: ModelDownlink<M> | typeof ModelDownlink,
-    model: M | ModelDownlinkDescriptor<M>,
+    owner: M | ModelDownlinkDescriptor<M>,
     downlinkName?: string
   ): ModelDownlink<M> | PropertyDecorator {
   if (this instanceof ModelDownlink) { // constructor
-    return ModelDownlinkConstructor.call(this, model as M, downlinkName);
+    return ModelDownlinkConstructor.call(this, owner as M, downlinkName);
   } else { // decorator factory
-    return ModelDownlinkDecoratorFactory(model as ModelDownlinkDescriptor<M>);
+    return ModelDownlinkDecoratorFactory(owner as ModelDownlinkDescriptor<M>);
   }
 }
 __extends(ModelDownlink, Object);
-Model.Downlink = ModelDownlink;
 
-function ModelDownlinkConstructor<M extends Model>(this: ModelDownlink<M>, model: M, downlinkName: string | undefined): ModelDownlink<M> {
+function ModelDownlinkConstructor<M extends ModelDownlinkContext>(this: ModelDownlink<M>, owner: M, downlinkName: string | undefined): ModelDownlink<M> {
   if (downlinkName !== void 0) {
     Object.defineProperty(this, "name", {
       value: downlinkName,
@@ -250,48 +252,48 @@ function ModelDownlinkConstructor<M extends Model>(this: ModelDownlink<M>, model
       configurable: true,
     });
   }
-  this._model = model;
+  this._owner = owner;
   this._downlink = null;
   this._downlinkFlags = ModelDownlink.PendingFlag;
   return this;
 }
 
-function ModelDownlinkDecoratorFactory<M extends Model>(descriptor: ModelDownlinkDescriptor<M>): PropertyDecorator {
-  return Model.decorateModelDownlink.bind(Model, ModelDownlink.define(descriptor));
+function ModelDownlinkDecoratorFactory<M extends ModelDownlinkContext>(descriptor: ModelDownlinkDescriptor<M>): PropertyDecorator {
+  return ModelDownlinkContext.decorateModelDownlink.bind(ModelDownlinkContext, ModelDownlink.define(descriptor));
 }
 
-Object.defineProperty(ModelDownlink.prototype, "model", {
-  get: function <M extends Model>(this: ModelDownlink<M>): M {
-    return this._model;
+Object.defineProperty(ModelDownlink.prototype, "owner", {
+  get: function <M extends ModelDownlinkContext>(this: ModelDownlink<M>): M {
+    return this._owner;
   },
   enumerable: true,
   configurable: true,
 });
 
 Object.defineProperty(ModelDownlink.prototype, "downlink", {
-  get: function (this: ModelDownlink<Model>): Downlink | null {
+  get: function (this: ModelDownlink<ModelDownlinkContext>): Downlink | null {
     return this._downlink;
   },
   enumerable: true,
   configurable: true,
 });
 
-ModelDownlink.prototype.enabled = function (this: ModelDownlink<Model>, enabled?: boolean): boolean | ModelDownlink<Model> {
+ModelDownlink.prototype.enabled = function (this: ModelDownlink<ModelDownlinkContext>, enabled?: boolean): boolean | ModelDownlink<ModelDownlinkContext> {
   if (enabled === void 0) {
     return (this._downlinkFlags & ModelDownlink.EnabledFlag) !== 0;
   } else {
     if (enabled && (this._downlinkFlags & ModelDownlink.EnabledFlag) === 0) {
       this._downlinkFlags |= ModelDownlink.EnabledFlag;
-      this._model.requireUpdate(Model.NeedsReconcile);
+      this._owner.requireUpdate(Model.NeedsReconcile);
     } else if (!enabled && (this._downlinkFlags & ModelDownlink.EnabledFlag) !== 0) {
       this._downlinkFlags &= ~ModelDownlink.EnabledFlag;
-      this._model.requireUpdate(Model.NeedsReconcile);
+      this._owner.requireUpdate(Model.NeedsReconcile);
     }
     return this;
   }
-} as {(): boolean; (enabled: boolean): ModelDownlink<Model>};
+} as {(): boolean; (enabled: boolean): ModelDownlink<ModelDownlinkContext>};
 
-ModelDownlink.prototype.warp = function (this: ModelDownlink<Model>, warp?: WarpRef | null): WarpRef | null | ModelDownlink<Model> {
+ModelDownlink.prototype.warp = function (this: ModelDownlink<ModelDownlinkContext>, warp?: WarpRef | null): WarpRef | null | ModelDownlink<ModelDownlinkContext> {
   if (warp === void 0) {
     return this._warp !== void 0 ? this._warp : null;
   } else {
@@ -304,9 +306,9 @@ ModelDownlink.prototype.warp = function (this: ModelDownlink<Model>, warp?: Warp
     }
     return this;
   }
-} as {(): WarpRef | null; (warp: WarpRef | null): ModelDownlink<Model>};
+} as {(): WarpRef | null; (warp: WarpRef | null): ModelDownlink<ModelDownlinkContext>};
 
-ModelDownlink.prototype.hostUri = function (this: ModelDownlink<Model>, hostUri?: AnyUri | null): Uri | null | ModelDownlink<Model> {
+ModelDownlink.prototype.hostUri = function (this: ModelDownlink<ModelDownlinkContext>, hostUri?: AnyUri | null): Uri | null | ModelDownlink<ModelDownlinkContext> {
   if (hostUri === void 0) {
     if (this._hostUri !== void 0) {
       return this._hostUri;
@@ -330,9 +332,9 @@ ModelDownlink.prototype.hostUri = function (this: ModelDownlink<Model>, hostUri?
     }
     return this;
   }
-} as {(): Uri | null; (hostUri: AnyUri | null): ModelDownlink<Model>};
+} as {(): Uri | null; (hostUri: AnyUri | null): ModelDownlink<ModelDownlinkContext>};
 
-ModelDownlink.prototype.nodeUri = function (this: ModelDownlink<Model>, nodeUri?: AnyUri | null): Uri | null | ModelDownlink<Model> {
+ModelDownlink.prototype.nodeUri = function (this: ModelDownlink<ModelDownlinkContext>, nodeUri?: AnyUri | null): Uri | null | ModelDownlink<ModelDownlinkContext> {
   if (nodeUri === void 0) {
     if (this._nodeUri !== void 0) {
       return this._nodeUri;
@@ -356,9 +358,9 @@ ModelDownlink.prototype.nodeUri = function (this: ModelDownlink<Model>, nodeUri?
     }
     return this;
   }
-} as {(): Uri | null; (nodeUri: AnyUri | null): ModelDownlink<Model>};
+} as {(): Uri | null; (nodeUri: AnyUri | null): ModelDownlink<ModelDownlinkContext>;};
 
-ModelDownlink.prototype.laneUri = function (this: ModelDownlink<Model>, laneUri?: AnyUri | null): Uri | null | ModelDownlink<Model> {
+ModelDownlink.prototype.laneUri = function (this: ModelDownlink<ModelDownlinkContext>, laneUri?: AnyUri | null): Uri | null | ModelDownlink<ModelDownlinkContext> {
   if (laneUri === void 0) {
     if (this._laneUri !== void 0) {
       return this._laneUri;
@@ -382,9 +384,9 @@ ModelDownlink.prototype.laneUri = function (this: ModelDownlink<Model>, laneUri?
     }
     return this;
   }
-} as {(): Uri | null; (laneUri: AnyUri | null): ModelDownlink<Model>};
+} as {(): Uri | null; (laneUri: AnyUri | null): ModelDownlink<ModelDownlinkContext>;};
 
-ModelDownlink.prototype.prio = function (this: ModelDownlink<Model>, prio?: number | null): number | null | ModelDownlink<Model> {
+ModelDownlink.prototype.prio = function (this: ModelDownlink<ModelDownlinkContext>, prio?: number | null): number | null | ModelDownlink<ModelDownlinkContext> {
   if (prio === void 0) {
     if (this._prio !== void 0) {
       return this._prio;
@@ -405,9 +407,9 @@ ModelDownlink.prototype.prio = function (this: ModelDownlink<Model>, prio?: numb
     }
     return this;
   }
-} as {(): number | null; (prio: number | null): ModelDownlink<Model>};
+} as {(): number | null; (prio: number | null): ModelDownlink<ModelDownlinkContext>;};
 
-ModelDownlink.prototype.rate = function (this: ModelDownlink<Model>, rate?: number | null): number | null | ModelDownlink<Model> {
+ModelDownlink.prototype.rate = function (this: ModelDownlink<ModelDownlinkContext>, rate?: number | null): number | null | ModelDownlink<ModelDownlinkContext> {
   if (rate === void 0) {
     if (this._rate !== void 0) {
       return this._rate;
@@ -428,9 +430,9 @@ ModelDownlink.prototype.rate = function (this: ModelDownlink<Model>, rate?: numb
     }
     return this;
   }
-} as {(): number | null; (rate: number | null): ModelDownlink<Model>};
+} as {(): number | null; (rate: number | null): ModelDownlink<ModelDownlinkContext>;};
 
-ModelDownlink.prototype.body = function (this: ModelDownlink<Model>, body?: AnyValue | null): Value | null | ModelDownlink<Model> {
+ModelDownlink.prototype.body = function (this: ModelDownlink<ModelDownlinkContext>, body?: AnyValue | null): Value | null | ModelDownlink<ModelDownlinkContext> {
   if (body === void 0) {
     if (this._body !== void 0) {
       return this._body;
@@ -454,16 +456,16 @@ ModelDownlink.prototype.body = function (this: ModelDownlink<Model>, body?: AnyV
     }
     return this;
   }
-} as {(): Value | null; (body: AnyValue | null): ModelDownlink<Model>};
+} as {(): Value | null; (body: AnyValue | null): ModelDownlink<ModelDownlinkContext>;};
 
-ModelDownlink.prototype.link = function (this: ModelDownlink<Model>): void {
+ModelDownlink.prototype.link = function (this: ModelDownlink<ModelDownlinkContext>): void {
   if (this._downlink === null) {
     let warp = this._warp;
     if (warp === void 0) {
-      warp = this._model.warpRef.state;
+      warp = this._owner.warpRef.state;
     }
     if (warp === void 0) {
-      warp = this._model.warpService.client;
+      warp = this._owner.warpService.manager.client;
     }
     let downlink = this.createDownlink(warp);
     downlink = this.scopeDownlink(downlink);
@@ -476,7 +478,7 @@ ModelDownlink.prototype.link = function (this: ModelDownlink<Model>): void {
   }
 };
 
-ModelDownlink.prototype.unlink = function (this: ModelDownlink<Model>): void {
+ModelDownlink.prototype.unlink = function (this: ModelDownlink<ModelDownlinkContext>): void {
   if (this._downlink !== null) {
     this._downlink.close();
     this._downlink = null;
@@ -484,22 +486,22 @@ ModelDownlink.prototype.unlink = function (this: ModelDownlink<Model>): void {
   }
 };
 
-ModelDownlink.prototype.relink = function (this: ModelDownlink<Model>): void {
+ModelDownlink.prototype.relink = function (this: ModelDownlink<ModelDownlinkContext>): void {
   this._downlinkFlags |= ModelDownlink.PendingFlag;
-  this._model.requireUpdate(Model.NeedsReconcile);
+  this._owner.requireUpdate(Model.NeedsReconcile);
 };
 
-ModelDownlink.prototype.mount = function (this: ModelDownlink<Model>): void {
+ModelDownlink.prototype.mount = function (this: ModelDownlink<ModelDownlinkContext>): void {
   if ((this._downlinkFlags & ModelDownlink.EnabledFlag) !== 0) {
-    this._model.requireUpdate(Model.NeedsReconcile);
+    this._owner.requireUpdate(Model.NeedsReconcile);
   }
 };
 
-ModelDownlink.prototype.unmount = function (this: ModelDownlink<Model>): void {
+ModelDownlink.prototype.unmount = function (this: ModelDownlink<ModelDownlinkContext>): void {
   this.unlink();
 };
 
-ModelDownlink.prototype.reconcile = function (this: ModelDownlink<Model>): void {
+ModelDownlink.prototype.reconcile = function (this: ModelDownlink<ModelDownlinkContext>): void {
   if (this._downlink !== null && (this._downlinkFlags & ModelDownlink.RelinkMask) === ModelDownlink.RelinkMask) {
     this.unlink();
     this.link();
@@ -510,7 +512,7 @@ ModelDownlink.prototype.reconcile = function (this: ModelDownlink<Model>): void 
   }
 };
 
-ModelDownlink.prototype.scopeDownlink = function (this: ModelDownlink<Model>, downlink: Downlink): Downlink {
+ModelDownlink.prototype.scopeDownlink = function (this: ModelDownlink<ModelDownlinkContext>, downlink: Downlink): Downlink {
   const hostUri = this.hostUri();
   if (hostUri !== null) {
     downlink = downlink.hostUri(hostUri);
@@ -538,7 +540,7 @@ ModelDownlink.prototype.scopeDownlink = function (this: ModelDownlink<Model>, do
   return downlink;
 };
 
-ModelDownlink.define = function <M extends Model, I>(descriptor: ModelDownlinkDescriptor<M, I>): ModelDownlinkConstructor<M, I> {
+ModelDownlink.define = function <M extends ModelDownlinkContext, I>(descriptor: ModelDownlinkDescriptor<M, I>): ModelDownlinkConstructor<M, I> {
   const type = descriptor.type;
   delete (descriptor as {type?: string}).type;
   if (type === "event") {
@@ -571,8 +573,8 @@ ModelDownlink.define = function <M extends Model, I>(descriptor: ModelDownlinkDe
       _super = ModelDownlink;
     }
 
-    const _constructor = function ModelDownlinkAccessor(this: ModelDownlink<M>, model: M, downlinkName: string | undefined): ModelDownlink<M> {
-      const _this: ModelDownlink<M> = _super!.call(this, model, downlinkName) || this;
+    const _constructor = function ModelDownlinkAccessor(this: ModelDownlink<M>, owner: M, downlinkName: string | undefined): ModelDownlink<M> {
+      const _this: ModelDownlink<M> = _super!.call(this, owner, downlinkName) || this;
       if (enabled === true) {
         _this._downlinkFlags |= ModelDownlink.EnabledFlag;
       }

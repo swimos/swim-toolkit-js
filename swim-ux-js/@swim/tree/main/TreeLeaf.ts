@@ -235,11 +235,22 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
-    const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
-    const seed = needsLayout ? this.seed.state : void 0;
-    const height = needsLayout ? this.height.state : void 0;
-    function layoutChildViews(this: TreeLeaf, childView: View): void {
+                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
+    if ((displayFlags & View.NeedsLayout) !== 0) {
+      this.layoutChildViews(displayFlags, viewContext, displayChildView);
+    } else {
+      super.displayChildViews(displayFlags, viewContext, displayChildView);
+    }
+  }
+
+  protected layoutChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                             displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                viewContext: ViewContextType<this>) => void): void {
+    const seed = this.seed.state;
+    const height = this.height.state;
+    function layoutChildView(this: TreeLeaf, childView: View, displayFlags: ViewFlags,
+                              viewContext: ViewContextType<TreeLeaf>): void {
       if (childView instanceof TreeCell) {
         const key = childView.key;
         const root = seed !== void 0 && key !== void 0 ? seed.getRoot(key) : null;
@@ -257,11 +268,9 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
           childView.height.setAutoState(void 0);
         }
       }
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+      displayChildView.call(this, childView, displayFlags, viewContext);
     }
-    super.displayChildViews(displayFlags, viewContext, needsLayout ? layoutChildViews : callback);
+    super.displayChildViews(displayFlags, viewContext, layoutChildView);
   }
 
   didHoldPress(input: PositionGestureInput): void {

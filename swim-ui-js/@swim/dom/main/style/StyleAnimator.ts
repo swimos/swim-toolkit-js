@@ -72,12 +72,14 @@ export type StyleAnimatorDescriptor<V extends StyleContext, T, U = T, I = {}> =
   T extends number | string | undefined ? U extends number | string | undefined ? {type: [typeof Number, typeof String]} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
   StyleAnimatorDescriptorFromAny<V, T, U, I>;
 
-export type StyleAnimatorPrototype = Function & {prototype: StyleAnimator<any, any, any>};
+export interface StyleAnimatorPrototype extends Function {
+  readonly prototype: StyleAnimator<any, any, any>;
+}
 
-export type StyleAnimatorConstructor<V extends StyleContext, T, U = T, I = {}> = {
+export interface StyleAnimatorConstructor<V extends StyleContext, T, U = T, I = {}> {
   new(owner: V, animatorName: string): StyleAnimator<V, T, U> & I;
   prototype: StyleAnimator<any, any, any> & I;
-};
+}
 
 export declare abstract class StyleAnimator<V extends StyleContext, T, U = T> {
   /** @hidden */
@@ -440,7 +442,7 @@ StyleAnimator.define = function <V extends StyleContext, T, U, I>(descriptor: St
   }
   if (_super === null) {
     _super = StyleAnimator;
-    if (!descriptor.hasOwnProperty("fromAny") && FromAny.is<T, U>(descriptor.type)) {
+    if (descriptor.fromAny === void 0 && FromAny.is<T, U>(descriptor.type)) {
       descriptor.fromAny = descriptor.type.fromAny;
     }
   }

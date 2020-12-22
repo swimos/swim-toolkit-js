@@ -53,16 +53,18 @@ export type ViewServiceDescriptor<V extends View, T, I = {}> =
   T extends ViewManager ? {type: typeof ViewManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T> & I> :
   ViewServiceDescriptorInit<V, T, I>;
 
-export type ViewServicePrototype = Function & {prototype: ViewService<any, any>};
+export interface ViewServicePrototype extends Function {
+  readonly prototype: ViewService<any, any>;
+}
 
-export type ViewServiceConstructor<V extends View, T, I = {}> = {
-  new(view: V, serviceName: string | undefined): ViewService<V, T> & I;
+export interface ViewServiceConstructor<V extends View, T, I = {}> {
+  new(owner: V, serviceName: string | undefined): ViewService<V, T> & I;
   prototype: ViewService<any, any> & I;
-};
+}
 
 export declare abstract class ViewService<V extends View, T> {
   /** @hidden */
-  _view: V;
+  _owner: V;
   /** @hidden */
   _inherit: string | boolean;
   /** @hidden */
@@ -72,11 +74,11 @@ export declare abstract class ViewService<V extends View, T> {
   /** @hidden */
   _manager: T;
 
-  constructor(view: V, serviceName: string | undefined);
+  constructor(owner: V, serviceName: string | undefined);
 
   get name(): string;
 
-  get view(): V;
+  get owner(): V;
 
   get inherit(): string | boolean;
 
@@ -149,19 +151,19 @@ export function ViewService<V extends View, T>(descriptor: ViewServiceDescriptor
 
 export function ViewService<V extends View, T>(
     this: ViewService<V, T> | typeof ViewService,
-    view: V | ViewServiceDescriptor<V, T>,
+    owner: V | ViewServiceDescriptor<V, T>,
     serviceName?: string,
   ): ViewService<V, T> | PropertyDecorator {
   if (this instanceof ViewService) { // constructor
-    return ViewServiceConstructor.call(this, view as V, serviceName);
+    return ViewServiceConstructor.call(this, owner as V, serviceName);
   } else { // decorator factory
-    return ViewServiceDecoratorFactory(view as ViewServiceDescriptor<V, T>);
+    return ViewServiceDecoratorFactory(owner as ViewServiceDescriptor<V, T>);
   }
 }
 __extends(ViewService, Object);
 View.Service = ViewService;
 
-function ViewServiceConstructor<V extends View, T>(this: ViewService<V, T>, view: V, serviceName: string | undefined): ViewService<V, T> {
+function ViewServiceConstructor<V extends View, T>(this: ViewService<V, T>, owner: V, serviceName: string | undefined): ViewService<V, T> {
   if (serviceName !== void 0) {
     Object.defineProperty(this, "name", {
       value: serviceName,
@@ -169,7 +171,7 @@ function ViewServiceConstructor<V extends View, T>(this: ViewService<V, T>, view
       configurable: true,
     });
   }
-  this._view = view;
+  this._owner = owner;
   this._serviceFlags = 0;
   if (this._inherit !== false) {
     this._serviceFlags |= ViewService.InheritedFlag;
@@ -178,12 +180,12 @@ function ViewServiceConstructor<V extends View, T>(this: ViewService<V, T>, view
 }
 
 function ViewServiceDecoratorFactory<V extends View, T>(descriptor: ViewServiceDescriptor<V, T>): PropertyDecorator {
-  return View.decorateViewService.bind(void 0, ViewService.define(descriptor));
+  return View.decorateViewService.bind(View, ViewService.define(descriptor));
 }
 
-Object.defineProperty(ViewService.prototype, "view", {
+Object.defineProperty(ViewService.prototype, "owner", {
   get: function <V extends View>(this: ViewService<V, unknown>): V {
-    return this._view;
+    return this._owner;
   },
   enumerable: true,
   configurable: true,
@@ -237,7 +239,7 @@ Object.defineProperty(ViewService.prototype, "superService", {
     let superService: ViewService<View, unknown> | null | undefined = this._superService;
     if (superService === void 0) {
       superService = null;
-      let view = this._view;
+      let view = this._owner;
       if (!view.isMounted()) {
         const superName = this.superName;
         if (superName !== void 0) {
@@ -267,7 +269,7 @@ Object.defineProperty(ViewService.prototype, "superService", {
 });
 
 ViewService.prototype.bindSuperService = function (this: ViewService<View, unknown>): void {
-  let view = this._view;
+  let view = this._owner;
   if (view.isMounted()) {
     const superName = this.superName;
     if (superName !== void 0) {
@@ -284,7 +286,7 @@ ViewService.prototype.bindSuperService = function (this: ViewService<View, unkno
           } else {
             continue;
           }
-        } else if (view !== this._view) {
+        } else if (view !== this._owner) {
           const service = view.getLazyViewService(superName);
           if (service !== null) {
             this._superService = service;
@@ -386,6 +388,7 @@ ViewService.define = function <V extends View, T, I>(descriptor: ViewServiceDesc
   let _super: ViewServicePrototype | null | undefined = descriptor.extends;
   const manager = descriptor.manager;
   const inherit = descriptor.inherit;
+  const initManager = descriptor.initManager;
   delete descriptor.extends;
   delete descriptor.manager;
   delete descriptor.inherit;
@@ -397,12 +400,12 @@ ViewService.define = function <V extends View, T, I>(descriptor: ViewServiceDesc
     _super = ViewService;
   }
 
-  const _constructor = function ViewServiceAccessor(this: ViewService<V, T>, view: V, serviceName: string | undefined): ViewService<V, T> {
+  const _constructor = function ViewServiceAccessor(this: ViewService<V, T>, owner: V, serviceName: string | undefined): ViewService<V, T> {
     let _this: ViewService<V, T> = function accessor(): T | undefined {
       return _this._manager;
     } as ViewService<V, T>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, view, serviceName) || _this;
+    _this = _super!.call(_this, owner, serviceName) || _this;
     return _this;
   } as unknown as ViewServiceConstructor<V, T, I>;
 
@@ -412,7 +415,7 @@ ViewService.define = function <V extends View, T, I>(descriptor: ViewServiceDesc
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
 
-  if (manager !== void 0 && !_prototype.hasOwnProperty("initManager")) {
+  if (manager !== void 0 && initManager === void 0) {
     _prototype.initManager = function (): T {
       return manager;
     };

@@ -381,17 +381,15 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent;
-      const offsetBounds = offsetParent !== null
-                         ? offsetParent.getBoundingClientRect()
-                         : this.view.node === document.body
-                         ? this.view.node.getBoundingClientRect()
-                         : null;
+      const node = this.owner.node;
+      const offsetParent = node.offsetParent;
+      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                         : node === document.body  ? node.getBoundingClientRect() : null;
       if (offsetBounds !== null) {
-        const bounds = this.view.node.getBoundingClientRect();
+        const bounds = node.getBoundingClientRect();
         const newState = bounds.top - offsetBounds.top;
         if (oldState !== newState) {
-          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
@@ -399,8 +397,8 @@ export class HtmlView extends ElementView {
       }
     },
     setValue(newValue: number): void {
-      this.view.top.setState(newValue);
-      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+      this.owner.top.setState(newValue);
+      this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
   topAnchor: LayoutAnchor<this>;
@@ -408,17 +406,15 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent;
-      const offsetBounds = offsetParent !== null
-                         ? offsetParent.getBoundingClientRect()
-                         : this.view.node === document.body
-                         ? this.view.node.getBoundingClientRect()
-                         : null;
+      const node = this.owner.node;
+      const offsetParent = node.offsetParent;
+      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                         : node === document.body ? node.getBoundingClientRect() : null;
       if (offsetBounds !== null) {
-        const bounds = this.view.node.getBoundingClientRect();
+        const bounds = node.getBoundingClientRect();
         const newState = offsetBounds.right + bounds.right;
         if (oldState !== newState) {
-          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
@@ -426,8 +422,8 @@ export class HtmlView extends ElementView {
       }
     },
     setValue(newValue: number): void {
-      this.view.right.setState(newValue);
-      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+      this.owner.right.setState(newValue);
+      this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
   rightAnchor: LayoutAnchor<this>;
@@ -435,17 +431,15 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent;
-      const offsetBounds = offsetParent !== null
-                         ? offsetParent.getBoundingClientRect()
-                         : this.view.node === document.body
-                         ? this.view.node.getBoundingClientRect()
-                         : null;
+      const node = this.owner.node;
+      const offsetParent = node.offsetParent;
+      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                         : node === document.body ? node.getBoundingClientRect() : null;
       if (offsetBounds !== null) {
-        const bounds = this.view.node.getBoundingClientRect();
+        const bounds = node.getBoundingClientRect();
         const newState = offsetBounds.bottom + bounds.bottom;
         if (oldState !== newState) {
-          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
@@ -453,8 +447,8 @@ export class HtmlView extends ElementView {
       }
     },
     setValue(newValue: number): void {
-      this.view.bottom.setState(newValue);
-      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+      this.owner.bottom.setState(newValue);
+      this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
   bottomAnchor: LayoutAnchor<this>;
@@ -462,17 +456,15 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent;
-      const offsetBounds = offsetParent !== null
-                         ? offsetParent.getBoundingClientRect()
-                         : this.view.node === document.body
-                         ? this.view.node.getBoundingClientRect()
-                         : null;
+      const node = this.owner.node;
+      const offsetParent = node.offsetParent;
+      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                         : node === document.body ? node.getBoundingClientRect() : null;
       if (offsetBounds !== null) {
-        const bounds = this.view.node.getBoundingClientRect();
+        const bounds = node.getBoundingClientRect();
         const newState = bounds.left - offsetBounds.left;
         if (oldState !== newState) {
-          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
@@ -480,8 +472,8 @@ export class HtmlView extends ElementView {
       }
     },
     setValue(newValue: number): void {
-      this.view.left.setState(newValue);
-      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+      this.owner.left.setState(newValue);
+      this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
   leftAnchor: LayoutAnchor<this>;
@@ -489,16 +481,16 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const bounds = this.view.node.getBoundingClientRect();
+      const bounds = this.owner.node.getBoundingClientRect();
       const newState = bounds.width;
       if (oldState !== newState) {
-        this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
       }
       return newState;
     },
     setValue(newValue: number): void {
-      this.view.width.setState(newValue);
-      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+      this.owner.width.setState(newValue);
+      this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
   widthAnchor: LayoutAnchor<this>;
@@ -506,16 +498,16 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const bounds = this.view.node.getBoundingClientRect();
+      const bounds = this.owner.node.getBoundingClientRect();
       const newState = bounds.height;
       if (oldState !== newState) {
-        this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
       }
       return newState;
     },
     setValue(newValue: number): void {
-      this.view.height.setState(newValue);
-      this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+      this.owner.height.setState(newValue);
+      this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
   heightAnchor: LayoutAnchor<this>;
@@ -523,17 +515,15 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent;
-      const offsetBounds = offsetParent !== null
-                         ? offsetParent.getBoundingClientRect()
-                         : this.view.node === document.body
-                         ? this.view.node.getBoundingClientRect()
-                         : null;
+      const node = this.owner.node;
+      const offsetParent = node.offsetParent;
+      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                         : node === document.body ? node.getBoundingClientRect() : null;
       if (offsetBounds !== null) {
-        const bounds = this.view.node.getBoundingClientRect();
+        const bounds = node.getBoundingClientRect();
         const newState = bounds.left + 0.5 * bounds.width - offsetBounds.left;
         if (oldState !== newState) {
-          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
@@ -541,26 +531,24 @@ export class HtmlView extends ElementView {
       }
     },
     setValue(newValue: number): void {
-      const offsetParent = this.view.node.offsetParent;
-      const offsetBounds = offsetParent !== null
-                         ? offsetParent.getBoundingClientRect()
-                         : this.view.node === document.body
-                         ? this.view.node.getBoundingClientRect()
-                         : null;
+      const node = this.owner.node;
+      const offsetParent = node.offsetParent;
+      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                         : node === document.body ? node.getBoundingClientRect() : null;
       if (offsetBounds !== null) {
-        const bounds = this.view.node.getBoundingClientRect();
-        const leftAnchor = this.view.getLayoutAnchor("leftAnchor");
+        const bounds = node.getBoundingClientRect();
+        const leftAnchor = this.owner.getLayoutAnchor("leftAnchor");
         if (leftAnchor !== null && leftAnchor.constrained()) {
           const newState = offsetBounds.left + newValue - 0.5 * bounds.width;
-          this.view.left.setState(newState);
-          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          this.owner.left.setState(newState);
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
           return;
         }
-        const rightAnchor = this.view.getLayoutAnchor("rightAnchor");
+        const rightAnchor = this.owner.getLayoutAnchor("rightAnchor");
         if (rightAnchor !== null && rightAnchor.constrained()) {
           const newState = offsetBounds.right - newValue - 0.5 * bounds.width;
-          this.view.right.setState(newState);
-          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          this.owner.right.setState(newState);
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
           return;
         }
       }
@@ -571,17 +559,15 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const offsetParent = this.view.node.offsetParent;
-      const offsetBounds = offsetParent !== null
-                         ? offsetParent.getBoundingClientRect()
-                         : this.view.node === document.body
-                         ? this.view.node.getBoundingClientRect()
-                         : null;
+      const node = this.owner.node;
+      const offsetParent = node.offsetParent;
+      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                         : node === document.body ? node.getBoundingClientRect() : null;
       if (offsetBounds !== null) {
-        const bounds = this.view.node.getBoundingClientRect();
+        const bounds = node.getBoundingClientRect();
         const newState = bounds.top + 0.5 * bounds.height - offsetBounds.top;
         if (oldState !== newState) {
-          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
@@ -589,26 +575,24 @@ export class HtmlView extends ElementView {
       }
     },
     setValue(newValue: number): void {
-      const offsetParent = this.view.node.offsetParent;
-      const offsetBounds = offsetParent !== null
-                         ? offsetParent.getBoundingClientRect()
-                         : this.view.node === document.body
-                         ? this.view.node.getBoundingClientRect()
-                         : null;
+      const node = this.owner.node;
+      const offsetParent = node.offsetParent;
+      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                         : node === document.body ? node.getBoundingClientRect() : null;
       if (offsetBounds !== null) {
-        const bounds = this.view.node.getBoundingClientRect();
-        const topAnchor = this.view.getLayoutAnchor("topAnchor");
+        const bounds = node.getBoundingClientRect();
+        const topAnchor = this.owner.getLayoutAnchor("topAnchor");
         if (topAnchor !== null && topAnchor.constrained()) {
           const newState = offsetBounds.top + newValue - 0.5 * bounds.height;
-          this.view.top.setState(newState);
-          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          this.owner.top.setState(newState);
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
           return;
         }
-        const bottomAnchor = this.view.getLayoutAnchor("bottomAnchor");
+        const bottomAnchor = this.owner.getLayoutAnchor("bottomAnchor");
         if (bottomAnchor !== null && bottomAnchor.constrained()) {
           const newState = offsetBounds.bottom - newValue - 0.5 * bounds.height;
-          this.view.bottom.setState(newState);
-          this.view.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          this.owner.bottom.setState(newState);
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
           return;
         }
       }
@@ -619,11 +603,11 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const marginTop = this.view.marginTop.value;
+      const marginTop = this.owner.marginTop.value;
       return marginTop instanceof Length ? marginTop.pxValue() : NaN;
     },
     setValue(newValue: number): void {
-      this.view.marginTop.setState(newValue);
+      this.owner.marginTop.setState(newValue);
     },
   })
   marginTopAnchor: LayoutAnchor<this>;
@@ -631,11 +615,11 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const marginRight = this.view.marginRight.value;
+      const marginRight = this.owner.marginRight.value;
       return marginRight instanceof Length ? marginRight.pxValue() : NaN;
     },
     setValue(newValue: number): void {
-      this.view.marginRight.setState(newValue);
+      this.owner.marginRight.setState(newValue);
     },
   })
   marginRightAnchor: LayoutAnchor<this>;
@@ -643,11 +627,11 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const marginBottom = this.view.marginBottom.value;
+      const marginBottom = this.owner.marginBottom.value;
       return marginBottom instanceof Length ? marginBottom.pxValue() : NaN;
     },
     setValue(newValue: number): void {
-      this.view.marginBottom.setState(newValue);
+      this.owner.marginBottom.setState(newValue);
     },
   })
   marginBottomAnchor: LayoutAnchor<this>;
@@ -655,11 +639,11 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const marginLeft = this.view.marginLeft.value;
+      const marginLeft = this.owner.marginLeft.value;
       return marginLeft instanceof Length ? marginLeft.pxValue() : NaN;
     },
     setValue(newValue: number): void {
-      this.view.marginLeft.setState(newValue);
+      this.owner.marginLeft.setState(newValue);
     },
   })
   marginLeftAnchor: LayoutAnchor<this>;
@@ -667,11 +651,11 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const paddingTop = this.view.paddingTop.value;
+      const paddingTop = this.owner.paddingTop.value;
       return paddingTop instanceof Length ? paddingTop.pxValue() : NaN;
     },
     setValue(newValue: number): void {
-      this.view.paddingTop.setState(newValue);
+      this.owner.paddingTop.setState(newValue);
     },
   })
   paddingTopAnchor: LayoutAnchor<this>;
@@ -679,11 +663,11 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const paddingRight = this.view.paddingRight.value;
+      const paddingRight = this.owner.paddingRight.value;
       return paddingRight instanceof Length ? paddingRight.pxValue() : NaN;
     },
     setValue(newValue: number): void {
-      this.view.paddingRight.setState(newValue);
+      this.owner.paddingRight.setState(newValue);
     },
   })
   paddingRightAnchor: LayoutAnchor<this>;
@@ -691,11 +675,11 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const paddingBottom = this.view.paddingBottom.value;
+      const paddingBottom = this.owner.paddingBottom.value;
       return paddingBottom instanceof Length ? paddingBottom.pxValue() : NaN;
     },
     setValue(newValue: number): void {
-      this.view.paddingBottom.setState(newValue);
+      this.owner.paddingBottom.setState(newValue);
     },
   })
   paddingBottomAnchor: LayoutAnchor<this>;
@@ -703,11 +687,11 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const paddingLeft = this.view.paddingLeft.value;
+      const paddingLeft = this.owner.paddingLeft.value;
       return paddingLeft instanceof Length ? paddingLeft.pxValue() : NaN;
     },
     setValue(newValue: number): void {
-      this.view.paddingLeft.setState(newValue);
+      this.owner.paddingLeft.setState(newValue);
     },
   })
   paddingLeftAnchor: LayoutAnchor<this>;

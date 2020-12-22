@@ -39,8 +39,8 @@ export const StyleContext: {
                                                       contextClass: unknown, animatorName: string): void;
 } = {} as any;
 
-StyleContext.decorateStyleAnimator = function<V extends StyleContext, T, U>(constructor: StyleAnimatorConstructor<V, T, U>,
-                                                                            contextClass: unknown, animatorName: string): void {
+StyleContext.decorateStyleAnimator = function <V extends StyleContext, T, U>(constructor: StyleAnimatorConstructor<V, T, U>,
+                                                                             contextClass: unknown, animatorName: string): void {
   Object.defineProperty(contextClass, animatorName, {
     get: function (this: V): StyleAnimator<V, T, U> {
       let animator = this.getStyleAnimator(animatorName) as StyleAnimator<V, T, U> | null;

@@ -26,8 +26,9 @@ component libraries:
   [doc](https://docs.swimos.org/js/latest/modules/_swim_component.html)) –
   componentized controller layer with application lifecycle and service management.
 
-**@swim/mvc** builds on the [**@swim/core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js/@swim/core)
-and [**@swim/ui**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/ui)
+**@swim/mvc** builds on the [**@swim/core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js/@swim/core),
+[**@swim/mesh**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-mesh-js/@swim/mesh), and
+[**@swim/ui**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/ui)
 frameworks; it has no additional required dependencies.
 
 ## Installation
@@ -43,17 +44,19 @@ bundles all **@swim/mvc** component libraries, can be found in
 
 ### Browser
 
-Browser applications can load `swim-mvc.js`, along with its `swim-core.js`
-and `swim-ui.js` dependencies, from the SwimOS CDN.
+Browser applications can load `swim-mvc.js`, along with its `swim-core.js`,
+`swim-mesh.js`, and `swim-ui.js` dependencies, from the SwimOS CDN.
 
 ```html
 <!-- Development -->
 <script src="https://cdn.swimos.org/js/latest/swim-core.js"></script>
+<script src="https://cdn.swimos.org/js/latest/swim-mesh.js"></script>
 <script src="https://cdn.swimos.org/js/latest/swim-ui.js"></script>
 <script src="https://cdn.swimos.org/js/latest/swim-mvc.js"></script>
 
 <!-- Production -->
 <script src="https://cdn.swimos.org/js/latest/swim-core.min.js"></script>
+<script src="https://cdn.swimos.org/js/latest/swim-mesh.min.js"></script>
 <script src="https://cdn.swimos.org/js/latest/swim-ui.min.js"></script>
 <script src="https://cdn.swimos.org/js/latest/swim-mvc.min.js"></script>
 ```
@@ -99,7 +102,8 @@ var swim = require("@swim/mvc");
 
 When loaded by a web browser, the `swim-mvc.js` script adds all component
 library exports to the global `swim` namespace.  The `swim-mvc.js` script
-requires that `swim-core.js` and `swim-ui.js` have already been loaded.
+requires that `swim-core.js`, `swim-mesh.js`, and `swim-ui.js` have already
+been loaded.
 
 The `swim-toolkit.js` script also adds all **@swim/mvc** component library
 exports to the global `swim` namespace, making it a drop-in replacement

@@ -14,9 +14,11 @@
 
 import {WarpClient} from "@swim/client";
 import {Model} from "../Model";
+import {Trait} from "../Trait";
 import {WarpManager} from "../warp/WarpManager";
 import {ModelService} from "./ModelService";
 import {ModelManagerService} from "./ModelManagerService";
+import {TraitService} from "./TraitService";
 
 export abstract class WarpService<M extends Model> extends ModelManagerService<M, WarpManager<M>> {
   get client(): WarpClient {
@@ -29,4 +31,16 @@ export abstract class WarpService<M extends Model> extends ModelManagerService<M
 }
 ModelService.Warp = WarpService;
 
-ModelService({type: WarpManager, observe: false})(Model.prototype, "warpService");
+ModelService({
+  type: WarpManager,
+  observe: false,
+})(Model.prototype, "warpService");
+
+TraitService({
+  type: WarpManager,
+  observe: false,
+  modelService: {
+    type: WarpManager,
+    observe: false,
+  },
+})(Trait.prototype, "warpService");

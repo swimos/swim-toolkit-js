@@ -397,12 +397,26 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
   }
 
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
+                              processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
+    let xScale: ContinuousScale<X, number> | undefined;
+    let yScale: ContinuousScale<Y, number> | undefined;
+    if ((processFlags & View.NeedsAnimate) !== 0 &&
+        (xScale = this.xScale.value, xScale !== void 0) &&
+        (yScale = this.yScale.value, yScale !== void 0)) {
+      this.animateChildViews(xScale, yScale, processFlags, viewContext, processChildView);
+    } else {
+      super.processChildViews(processFlags, viewContext, processChildView);
+    }
+  }
+
+  protected animateChildViews(xScale: ContinuousScale<X, number>,
+                              yScale: ContinuousScale<Y, number>,
+                              processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                              processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
     // Compute domain and range extrema while animating child views.
-    let needsAnimate = (processFlags & View.NeedsAnimate) !== 0;
-    const xScale = needsAnimate ? this.xScale.value : void 0;
-    const yScale = needsAnimate ? this.yScale.value : void 0;
-    const frame = needsAnimate ? this.viewFrame : void 0;
+    const frame = this.viewFrame;
     let point0: DataPointView<X, Y> | undefined;
     let point1: DataPointView<X, Y> | undefined;
     let y0: Y | undefined;
@@ -417,19 +431,20 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     let yRangeMax: number | undefined;
     let gradientStops = 0;
 
-    function animateChildView(this: SeriesPlotView<X, Y>, point2: DataPointView<X, Y>): void {
+    function animateChildView(this: SeriesPlotView<X, Y>, point2: DataPointView<X, Y>, processFlags: ViewFlags,
+                              viewContext: ViewContextType<SeriesPlotView<X, Y>>): void {
       const x2 = point2.x.getValue();
       const y2 = point2.y.getValue();
       const dy2 = point2.y2.value;
 
-      const sx2 = xScale!.scale(x2);
-      const sy2 = yScale!.scale(y2);
-      point2._xCoord = frame!.xMin + sx2;
-      point2._yCoord = frame!.yMin + sy2;
+      const sx2 = xScale.scale(x2);
+      const sy2 = yScale.scale(y2);
+      point2._xCoord = frame.xMin + sx2;
+      point2._yCoord = frame.yMin + sy2;
 
       const sdy2 = dy2 !== void 0 ? yScale!.scale(dy2) : void 0;
       if (sdy2 !== void 0) {
-        point2._y2Coord = frame!.yMin + sdy2;
+        point2._y2Coord = frame.yMin + sdy2;
       } else if (point2._y2Coord !== void 0) {
         point2._y2Coord = void 0;
       }
@@ -499,76 +514,71 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
       xDomainMax = x2;
       xRangeMax = sx2;
 
-      if (callback !== void 0) {
-        callback.call(this, point2);
-      }
+      processChildView.call(this, point2, processFlags, viewContext);
     }
-    needsAnimate = needsAnimate && xScale !== void 0 && yScale !== void 0;
-    super.processChildViews(processFlags, viewContext, needsAnimate ? animateChildView : callback);
+    super.processChildViews(processFlags, viewContext, animateChildView);
 
-    if (needsAnimate) {
-      if (point1 !== void 0) {
-        let category: DataPointCategory;
-        if (point0 !== void 0) {
-          // categorize end point
-          if (Objects.compare(y0!, y1!) < 0) {
-            category = "increasing";
-          } else if (Objects.compare(y1!, y0!) < 0) {
-            category = "decreasing";
-          } else {
-            category = "flat";
-          }
+    if (point1 !== void 0) {
+      let category: DataPointCategory;
+      if (point0 !== void 0) {
+        // categorize end point
+        if (Objects.compare(y0!, y1!) < 0) {
+          category = "increasing";
+        } else if (Objects.compare(y1!, y0!) < 0) {
+          category = "decreasing";
         } else {
-          // categorize only point
           category = "flat";
         }
-        point1.category(category);
-
-        // update extrema
-        let xDataDomain = this._xDataDomain;
-        if (xDataDomain === void 0) {
-          xDataDomain = [xDomainMin!, xDomainMax!];
-          this._xDataDomain = xDataDomain;
-        } else {
-          xDataDomain[0] = xDomainMin!;
-          xDataDomain[1] = xDomainMax!;
-        }
-        let yDataDomain = this._yDataDomain;
-        if (yDataDomain === void 0) {
-          yDataDomain = [yDomainMin!, yDomainMax!];
-          this._yDataDomain = yDataDomain;
-        } else {
-          yDataDomain[0] = yDomainMin!;
-          yDataDomain[1] = yDomainMax!;
-        }
-        let xDataRange = this._xDataRange;
-        if (xDataRange === void 0) {
-          xDataRange = [xRangeMin!, xRangeMax!];
-          this._xDataRange = xDataRange;
-        } else {
-          xDataRange[0] = xRangeMin!;
-          xDataRange[1] = xRangeMax!;
-        }
-        let yDataRange = this._yDataRange;
-        if (yDataRange === void 0) {
-          yDataRange = [yRangeMin!, yRangeMax!];
-          this._yDataRange = yDataRange;
-        } else {
-          yDataRange[0] = yRangeMin!;
-          yDataRange[1] = yRangeMax!;
-        }
       } else {
-        this._xDataDomain = void 0;
-        this._yDataDomain = void 0;
-        this._xDataRange = void 0;
-        this._yDataRange = void 0;
+        // categorize only point
+        category = "flat";
       }
-      this._gradientStops = gradientStops;
+      point1.category(category);
 
-      // We don't need to run the layout phase unless the view frame changes
-      // between now and the display pass.
-      this._viewFlags &= ~View.NeedsLayout;
+      // update extrema
+      let xDataDomain = this._xDataDomain;
+      if (xDataDomain === void 0) {
+        xDataDomain = [xDomainMin!, xDomainMax!];
+        this._xDataDomain = xDataDomain;
+      } else {
+        xDataDomain[0] = xDomainMin!;
+        xDataDomain[1] = xDomainMax!;
+      }
+      let yDataDomain = this._yDataDomain;
+      if (yDataDomain === void 0) {
+        yDataDomain = [yDomainMin!, yDomainMax!];
+        this._yDataDomain = yDataDomain;
+      } else {
+        yDataDomain[0] = yDomainMin!;
+        yDataDomain[1] = yDomainMax!;
+      }
+      let xDataRange = this._xDataRange;
+      if (xDataRange === void 0) {
+        xDataRange = [xRangeMin!, xRangeMax!];
+        this._xDataRange = xDataRange;
+      } else {
+        xDataRange[0] = xRangeMin!;
+        xDataRange[1] = xRangeMax!;
+      }
+      let yDataRange = this._yDataRange;
+      if (yDataRange === void 0) {
+        yDataRange = [yRangeMin!, yRangeMax!];
+        this._yDataRange = yDataRange;
+      } else {
+        yDataRange[0] = yRangeMin!;
+        yDataRange[1] = yRangeMax!;
+      }
+    } else {
+      this._xDataDomain = void 0;
+      this._yDataDomain = void 0;
+      this._xDataRange = void 0;
+      this._yDataRange = void 0;
     }
+    this._gradientStops = gradientStops;
+
+    // We don't need to run the layout phase unless the view frame changes
+    // between now and the display pass.
+    this._viewFlags &= ~View.NeedsLayout;
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
@@ -579,31 +589,46 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
+                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
+    let xScale: ContinuousScale<X, number> | undefined;
+    let yScale: ContinuousScale<Y, number> | undefined;
+    if ((displayFlags & View.NeedsLayout) !== 0 &&
+        (xScale = this.xScale.value, xScale !== void 0) &&
+        (yScale = this.yScale.value, yScale !== void 0)) {
+      this.layoutChildViews(xScale, yScale, displayFlags, viewContext, displayChildView);
+    } else {
+      super.displayChildViews(displayFlags, viewContext, displayChildView);
+    }
+  }
+
+  protected layoutChildViews(xScale: ContinuousScale<X, number>,
+                             yScale: ContinuousScale<Y, number>,
+                             displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                             displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                viewContext: ViewContextType<this>) => void): void {
     // Recompute range extrema when laying out child views.
-    const needsLayout = (displayFlags & View.NeedsLayout) !== 0;
-    const xScale = needsLayout ? this.xScale.value : void 0;
-    const yScale = needsLayout ? this.yScale.value : void 0;
-    const frame = needsLayout ? this.viewFrame : void 0;
+    const frame = this.viewFrame;
     let point0: DataPointView<X, Y> | undefined;
     let xRangeMin: number | undefined;
     let yRangeMin: number | undefined;
     let xRangeMax: number | undefined;
     let yRangeMax: number | undefined;
 
-    function layoutChildView(this: SeriesPlotView<X, Y>, point1: DataPointView<X, Y>): void {
+    function layoutChildView(this: SeriesPlotView<X, Y>, point1: DataPointView<X, Y>, displayFlags: ViewFlags,
+                             viewContext: ViewContextType<SeriesPlotView<X, Y>>): void {
       const x1 = point1.x.getValue();
       const y1 = point1.y.getValue();
       const dy1 = point1.y2.value;
 
-      const sx1 = xScale!.scale(x1);
-      const sy1 = yScale!.scale(y1);
-      point1._xCoord = frame!.xMin + sx1;
-      point1._yCoord = frame!.yMin + sy1;
+      const sx1 = xScale.scale(x1);
+      const sy1 = yScale.scale(y1);
+      point1._xCoord = frame.xMin + sx1;
+      point1._yCoord = frame.yMin + sy1;
 
       const sdy1 = dy1 !== void 0 ? yScale!.scale(dy1) : void 0;
       if (sdy1 !== void 0) {
-        point1._y2Coord = frame!.yMin + sdy1;
+        point1._y2Coord = frame.yMin + sdy1;
       } else if (point1._y2Coord !== void 0) {
         point1._y2Coord = void 0;
       }
@@ -624,35 +649,31 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
       point0 = point1;
       xRangeMax = sx1;
 
-      if (callback !== void 0) {
-        callback.call(this, point1);
-      }
+      displayChildView.call(this, point1, displayFlags, viewContext);
     }
-    super.displayChildViews(displayFlags, viewContext, needsLayout ? layoutChildView : callback);
+    super.displayChildViews(displayFlags, viewContext, layoutChildView);
 
-    if (needsLayout) {
-      if (point0 !== void 0) {
-        // update extrema
-        let xDataRange = this._xDataRange;
-        if (xDataRange === void 0) {
-          xDataRange = [xRangeMin!, xRangeMax!];
-          this._xDataRange = xDataRange;
-        } else {
-          xDataRange[0] = xRangeMin!;
-          xDataRange[1] = xRangeMax!;
-        }
-        let yDataRange = this._yDataRange;
-        if (yDataRange === void 0) {
-          yDataRange = [yRangeMin!, yRangeMax!];
-          this._yDataRange = yDataRange;
-        } else {
-          yDataRange[0] = yRangeMin!;
-          yDataRange[1] = yRangeMax!;
-        }
+    if (point0 !== void 0) {
+      // update extrema
+      let xDataRange = this._xDataRange;
+      if (xDataRange === void 0) {
+        xDataRange = [xRangeMin!, xRangeMax!];
+        this._xDataRange = xDataRange;
       } else {
-        this._xDataRange = void 0;
-        this._yDataRange = void 0;
+        xDataRange[0] = xRangeMin!;
+        xDataRange[1] = xRangeMax!;
       }
+      let yDataRange = this._yDataRange;
+      if (yDataRange === void 0) {
+        yDataRange = [yRangeMin!, yRangeMax!];
+        this._yDataRange = yDataRange;
+      } else {
+        yDataRange[0] = yRangeMin!;
+        yDataRange[1] = yRangeMax!;
+      }
+    } else {
+      this._xDataRange = void 0;
+      this._yDataRange = void 0;
     }
   }
 

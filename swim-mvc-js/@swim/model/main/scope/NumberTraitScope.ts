@@ -12,20 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Model} from "../Model";
-import {ModelObserverType} from "../ModelObserver";
-import {ModelTrait} from "./ModelTrait";
+import {Trait} from "../Trait";
+import {TraitScope} from "./TraitScope";
 
 /** @hidden */
-export abstract class ModelTraitObserver<M extends Model> extends ModelTrait<M> {
-  mount(): void {
-    super.mount();
-    this._model.addModelObserver(this as ModelObserverType<M>);
-  }
-
-  unmount(): void {
-    this._model.removeModelObserver(this as ModelObserverType<M>);
-    super.unmount();
+export abstract class NumberTraitScope<R extends Trait> extends TraitScope<R, number | null | undefined, number | string | null | undefined> {
+  fromAny(value: number | string | null | undefined): number | null | undefined {
+    if (typeof value === "number") {
+      return value;
+    } else if (typeof value === "string") {
+      const number = +value;
+      if (isFinite(number)) {
+        return number;
+      } else {
+        throw new Error(value);
+      }
+    } else {
+      return value;
+    }
   }
 }
-ModelTrait.Observer = ModelTraitObserver;
+TraitScope.Number = NumberTraitScope;

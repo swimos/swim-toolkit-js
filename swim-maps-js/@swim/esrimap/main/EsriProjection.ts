@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GeoProjection} from "@swim/map";
+import {GeoProjection} from "@swim/geo";
 
 export interface EsriProjection extends GeoProjection {
   readonly map: __esri.View;

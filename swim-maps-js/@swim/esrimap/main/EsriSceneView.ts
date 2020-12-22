@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {AnyPointR2, PointR2} from "@swim/math";
+import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {HtmlView} from "@swim/dom";
 import {CanvasView} from "@swim/graphics";
-import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/map";
 import {EsriProjection} from "./EsriProjection";
 import {EsriView} from "./EsriView";
 import {EsriSceneViewProjection} from "./EsriSceneViewProjection";

@@ -14,7 +14,7 @@
 
 import * as mapboxgl from "mapbox-gl";
 import {AnyPointR2, PointR2} from "@swim/math";
-import {AnyGeoPoint, GeoPoint, GeoBox, GeoProjection} from "@swim/map";
+import {AnyGeoPoint, GeoPoint, GeoBox, GeoProjection} from "@swim/geo";
 
 export class MapboxProjection implements GeoProjection {
   /** @hidden */

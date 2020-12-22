@@ -186,6 +186,21 @@ const core = [
     ],
   },
   {
+    id: "geo",
+    name: "@swim/geo",
+    path: "../swim-system-js/swim-core-js/@swim/geo",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "interpolate", "structure", "math"],
+      },
+      {
+        id: "test",
+        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "geo"],
+      },
+    ],
+  },
+  {
     id: "time",
     name: "@swim/time",
     path: "../swim-system-js/swim-core-js/@swim/time",
@@ -224,7 +239,7 @@ const core = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "collections", "interpolate", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "scale"],
+        deps: ["util", "codec", "collections", "interpolate", "structure", "streamlet", "dataflow", "recon", "uri", "math", "geo", "time", "scale"],
       },
     ],
   },
@@ -577,7 +592,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "geo", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics"],
       },
     ],
   },
@@ -588,7 +603,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "map"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "geo", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "map"],
       },
     ],
   },
@@ -599,7 +614,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "map"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "geo", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "map"],
       },
     ],
   },
@@ -610,7 +625,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "map"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "geo", "time", "scale", "constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "map"],
       },
     ],
   },

@@ -25,13 +25,10 @@ import {
 } from "@swim/graphics";
 import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapLayerView} from "../graphics/MapLayerView";
+import {MapLayerView} from "../layer/MapLayerView";
 import {MapRasterViewContext} from "./MapRasterViewContext";
-import {MapRasterViewObserver} from "./MapRasterViewObserver";
-import {MapRasterViewController} from "./MapRasterViewController";
 
 export interface MapRasterViewInit extends MapGraphicsViewInit {
-  viewController?: MapRasterViewController;
   opacity?: number;
   compositeOperation?: CanvasCompositeOperation;
 }
@@ -50,12 +47,6 @@ export class MapRasterView extends MapLayerView {
     this._renderer = void 0;
     this._rasterFrame = BoxR2.undefined();
   }
-
-  // @ts-ignore
-  declare readonly viewController: MapRasterViewController | null;
-
-  // @ts-ignore
-  declare readonly viewObservers: ReadonlyArray<MapRasterViewObserver>;
 
   initView(init: MapRasterViewInit): void {
     super.initView(init);
@@ -137,57 +128,6 @@ export class MapRasterView extends MapLayerView {
     return additionalFlags;
   }
 
-  /** @hidden */
-  protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    let cascadeFlags = displayFlags;
-    this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
-    this._viewFlags &= ~View.NeedsDisplay;
-    try {
-      this.willDisplay(viewContext);
-      if (((this._viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
-        this.willLayout(viewContext);
-        cascadeFlags |= View.NeedsLayout;
-        this._viewFlags &= ~View.NeedsLayout;
-      }
-      if (((this._viewFlags | displayFlags) & View.NeedsRender) !== 0) {
-        this.willRender(viewContext);
-        cascadeFlags |= View.NeedsRender;
-        this._viewFlags &= ~View.NeedsRender;
-      }
-      if (((this._viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
-        this.willComposite(viewContext);
-        cascadeFlags |= View.NeedsComposite;
-        this._viewFlags &= ~View.NeedsComposite;
-      }
-
-      this.onDisplay(viewContext);
-      if ((cascadeFlags & View.NeedsLayout) !== 0) {
-        this.onLayout(viewContext);
-      }
-      if ((cascadeFlags & View.NeedsRender) !== 0) {
-        this.onRender(viewContext);
-      }
-      if ((cascadeFlags & View.NeedsComposite) !== 0) {
-        this.onComposite(viewContext);
-      }
-
-      this.doDisplayChildViews(cascadeFlags, viewContext);
-
-      if ((cascadeFlags & View.NeedsComposite) !== 0) {
-        this.didComposite(viewContext);
-      }
-      if ((cascadeFlags & View.NeedsRender) !== 0) {
-        this.didRender(viewContext);
-      }
-      if ((cascadeFlags & View.NeedsLayout) !== 0) {
-        this.didLayout(viewContext);
-      }
-      this.didDisplay(viewContext);
-    } finally {
-      this._viewFlags &= ~(View.TraversingFlag | View.DisplayingFlag);
-    }
-  }
-
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.resizeCanvas(this._canvas);
@@ -199,24 +139,9 @@ export class MapRasterView extends MapLayerView {
     this.clearCanvas();
   }
 
-  protected willComposite(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: MapRasterViewObserver): void {
-      if (viewObserver.viewWillRender !== void 0) {
-        viewObserver.viewWillRender(viewContext, this);
-      }
-    });
-  }
-
   protected onComposite(viewContext: ViewContextType<this>): void {
+    super.onComposite(viewContext);
     this.compositeImage(viewContext);
-  }
-
-  protected didComposite(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: MapRasterViewObserver): void {
-      if (viewObserver.viewDidRender !== void 0) {
-        viewObserver.viewDidRender(viewContext, this);
-      }
-    });
   }
 
   extendViewContext(viewContext: MapGraphicsViewContext): ViewContextType<this> {
@@ -330,17 +255,19 @@ export class MapRasterView extends MapLayerView {
     const compositor = viewContext.compositor;
     const renderer = viewContext.renderer;
     if (compositor instanceof CanvasRenderer && renderer instanceof CanvasRenderer) {
-      const imageData = renderer.context.getImageData(0, 0, this._canvas.width, this._canvas.height);
       const compositeFrame = this.compositeFrame;
-      const pixelRatio = compositor.pixelRatio;
       const context = compositor.context;
       context.save();
       context.globalAlpha = this.opacity.getValue();
       context.globalCompositeOperation = this.compositeOperation.getValue();
-      const x = Math.floor(compositeFrame.xMin) * pixelRatio;
-      const y = Math.floor(compositeFrame.yMin) * pixelRatio;
-      context.putImageData(imageData, x, y);
+      const x = Math.floor(compositeFrame.x);
+      const y = Math.floor(compositeFrame.y);
+      context.drawImage(this._canvas, x, y, this._canvas.width, this._canvas.height);
       context.restore();
     }
+  }
+
+  static create(): MapRasterView {
+    return new MapRasterView();
   }
 }

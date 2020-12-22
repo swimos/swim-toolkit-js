@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2, SegmentR2} from "@swim/math";
+import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {
@@ -22,10 +23,8 @@ import {
   CanvasContext,
   CanvasRenderer,
 } from "@swim/graphics";
-import {AnyGeoPoint, GeoPoint} from "../geo/GeoPoint";
-import {GeoBox} from "../geo/GeoBox";
 import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapLayerView} from "../graphics/MapLayerView";
+import {MapLayerView} from "../layer/MapLayerView";
 
 export type AnyMapLineView = MapLineView | MapLineViewInit;
 
@@ -40,15 +39,6 @@ export interface MapLineViewInit extends MapGraphicsViewInit, StrokeViewInit {
 export class MapLineView extends MapLayerView implements StrokeView {
   /** @hidden */
   _hitWidth?: number;
-  /** @hidden */
-  _geoBounds: GeoBox;
-
-  constructor() {
-    super();
-    this._geoBounds = GeoBox.undefined();
-    this.geoStart.onUpdate = this.onSetGeoStart.bind(this);
-    this.geoEnd.onUpdate = this.onSetGeoEnd.bind(this);
-  }
 
   initView(init: MapLineViewInit): void {
     super.initView(init);
@@ -69,10 +59,22 @@ export class MapLineView extends MapLayerView implements StrokeView {
     }
   }
 
-  @ViewAnimator({type: GeoPoint, state: GeoPoint.origin()})
+  @ViewAnimator<MapLineView, GeoPoint, AnyGeoPoint>({
+    type: GeoPoint,
+    state: GeoPoint.origin(),
+    onUpdate(newValue: GeoPoint, oldValue: GeoPoint): void {
+      this.owner.onSetGeoStart(newValue, oldValue);
+    },
+  })
   geoStart: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewAnimator({type: GeoPoint, state: GeoPoint.origin()})
+  @ViewAnimator<MapLineView, GeoPoint, AnyGeoPoint>({
+    type: GeoPoint,
+    state: GeoPoint.origin(),
+    onUpdate(newValue: GeoPoint, oldValue: GeoPoint): void {
+      this.owner.onSetGeoEnd(newValue, oldValue);
+    },
+  })
   geoEnd: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
@@ -102,9 +104,9 @@ export class MapLineView extends MapLayerView implements StrokeView {
     }
   }
 
-  protected onSetGeoStart(newGeoStart: GeoPoint | undefined, oldGeoStart: GeoPoint | undefined): void {
+  protected onSetGeoStart(newGeoStart: GeoPoint, oldGeoStart: GeoPoint): void {
     const newGeoEnd = this.geoEnd.getValue();
-    if (newGeoStart !== void 0 && newGeoEnd !== void 0) {
+    if (newGeoStart.isDefined() && newGeoEnd.isDefined()) {
       const oldGeoBounds = this._geoBounds;
       const newGeoBounds = new GeoBox(Math.min(newGeoStart.lng, newGeoEnd.lng),
                                       Math.min(newGeoStart.lat, newGeoEnd.lat),
@@ -116,9 +118,9 @@ export class MapLineView extends MapLayerView implements StrokeView {
     this.requireUpdate(View.NeedsProject);
   }
 
-  protected onSetGeoEnd(newGeoEnd: GeoPoint | undefined, oldGeoEnd: GeoPoint | undefined): void {
+  protected onSetGeoEnd(newGeoEnd: GeoPoint, oldGeoEnd: GeoPoint): void {
     const newGeoStart = this.geoEnd.getValue();
-    if (newGeoStart !== void 0 && newGeoEnd !== void 0) {
+    if (newGeoStart.isDefined() && newGeoEnd.isDefined()) {
       const oldGeoBounds = this._geoBounds;
       const newGeoBounds = new GeoBox(Math.min(newGeoStart.lng, newGeoEnd.lng),
                                       Math.min(newGeoStart.lat, newGeoEnd.lat),
@@ -185,6 +187,10 @@ export class MapLineView extends MapLayerView implements StrokeView {
     }
   }
 
+  protected doUpdateGeoBounds(): void {
+    // nop
+  }
+
   get popoverFrame(): BoxR2 {
     const viewStart = this.viewStart.getValue();
     const viewEnd = this.viewEnd.getValue();
@@ -204,14 +210,6 @@ export class MapLineView extends MapLayerView implements StrokeView {
     const y1 = viewEnd.y;
     return new BoxR2(Math.min(x0, x1), Math.min(y0, y1),
                      Math.max(x0, x1), Math.max(y0, y1));
-  }
-
-  get hitBounds(): BoxR2 {
-    return this.viewBounds;
-  }
-
-  get geoBounds(): GeoBox {
-    return this._geoBounds;
   }
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {

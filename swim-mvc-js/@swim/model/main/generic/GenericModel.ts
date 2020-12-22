@@ -17,10 +17,11 @@ import {ModelFlags, Model} from "../Model";
 import {ModelObserverType, ModelObserver} from "../ModelObserver";
 import {ModelControllerType, ModelController} from "../ModelController";
 import {ModelConsumerType, ModelConsumer} from "../ModelConsumer";
-import {Submodel} from "../Submodel";
+import {TraitPrototype, Trait} from "../Trait";
 import {ModelService} from "../service/ModelService";
 import {ModelScope} from "../scope/ModelScope";
-import {ModelTrait} from "../trait/ModelTrait";
+import {ModelBinding} from "../binding/ModelBinding";
+import {ModelTrait} from "../binding/ModelTrait";
 import {ModelDownlink} from "../downlink/ModelDownlink";
 
 export abstract class GenericModel extends Model {
@@ -35,15 +36,19 @@ export abstract class GenericModel extends Model {
   /** @hidden */
   _modelFlags: ModelFlags;
   /** @hidden */
-  _modelConsumers?: ModelConsumerType<this>[];
+  _traits?: Trait[];
   /** @hidden */
-  _submodels?: {[submodelName: string]: Submodel<Model, Model> | undefined};
+  _traitMap?: {[key: string]: Trait | undefined};
+  /** @hidden */
+  _modelConsumers?: ModelConsumerType<this>[];
   /** @hidden */
   _modelServices?: {[serviceName: string]: ModelService<Model, unknown> | undefined};
   /** @hidden */
   _modelScopes?: {[scopeName: string]: ModelScope<Model, unknown> | undefined};
   /** @hidden */
-  _modelTraits?: {[traitName: string]: ModelTrait<Model> | undefined};
+  _modelBindings?: {[bindingName: string]: ModelBinding<Model, Model> | undefined};
+  /** @hidden */
+  _modelTraits?: {[bindingName: string]: ModelTrait<Model, Trait> | undefined};
   /** @hidden */
   _modelDownlinks?: {[downlinkName: string]: ModelDownlink<Model> | undefined};
 
@@ -191,6 +196,17 @@ export abstract class GenericModel extends Model {
     this.didSetParentModel(newParentModel, oldParentModel);
   }
 
+  remove(): void {
+    const parentModel = this._parentModel;
+    if (parentModel !== null) {
+      if ((this._modelFlags & Model.TraversingFlag) === 0) {
+        parentModel.removeChildModel(this);
+      } else {
+        this._modelFlags |= Model.RemovingFlag;
+      }
+    }
+  }
+
   abstract get childModelCount(): number;
 
   abstract get childModels(): ReadonlyArray<Model>;
@@ -210,7 +226,7 @@ export abstract class GenericModel extends Model {
 
   protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
     super.onInsertChildModel(childModel, targetModel);
-    this.insertSubmodel(childModel);
+    this.insertModelBinding(childModel);
   }
 
   cascadeInsert(updateFlags?: ModelFlags, modelContext?: ModelContext): void {
@@ -222,20 +238,267 @@ export abstract class GenericModel extends Model {
 
   protected onRemoveChildModel(childModel: Model): void {
     super.onRemoveChildModel(childModel);
-    this.removeSubmodel(childModel);
+    this.removeModelBinding(childModel);
   }
 
   abstract removeAll(): void;
 
-  remove(): void {
-    const parentModel = this._parentModel;
-    if (parentModel !== null) {
-      if ((this._modelFlags & Model.TraversingFlag) === 0) {
-        parentModel.removeChildModel(this);
-      } else {
-        this._modelFlags |= Model.RemovingFlag;
+  get traitCount(): number {
+    const traits = this._traits;
+    return traits !== void 0 ? traits.length : 0;
+  }
+
+  get traits(): ReadonlyArray<Trait> {
+    let traits = this._traits;
+    if (traits === void 0) {
+      traits = [];
+      this._traits = traits;
+    }
+    return traits;
+  }
+
+  firstTrait(): Trait | null {
+    const traits = this._traits;
+    return traits !== void 0 && traits.length !== 0 ? traits[0] : null;
+  }
+
+  lastTrait(): Trait | null {
+    const traits = this._traits;
+    return traits !== void 0 && traits.length !== 0 ? traits[traits.length - 1] : null;
+  }
+
+  nextTrait(targetTrait: Trait): Trait | null {
+    const traits = this._traits;
+    const targetIndex = traits !== void 0 ? traits.indexOf(targetTrait) : -1;
+    return targetIndex >= 0 && targetIndex + 1 < traits!.length ? traits![targetIndex + 1] : null;
+  }
+
+  previousTrait(targetTrait: Trait): Trait | null {
+    const traits = this._traits;
+    const targetIndex = traits !== void 0 ? traits.indexOf(targetTrait) : -1;
+    return targetIndex - 1 >= 0 ? traits![targetIndex - 1] : null;
+  }
+
+  forEachTrait<T, S = unknown>(callback: (this: S, trait: Trait) => T | void,
+                               thisArg?: S): T | undefined {
+    let result: T | undefined;
+    const traits = this._traits;
+    if (traits !== void 0) {
+      let i = 0;
+      while (i < traits.length) {
+        const trait = traits[i];
+        result = callback.call(thisArg, trait);
+        if (result !== void 0) {
+          break;
+        }
+        if (traits[i] === trait) {
+          i += 1;
+        }
       }
     }
+    return result;
+  }
+
+  getTrait(key: string): Trait | null;
+  getTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null;
+  getTrait(key: string | TraitPrototype<Trait>): Trait | null;
+  getTrait(key: string | TraitPrototype<Trait>): Trait | null {
+    if (typeof key === "string") {
+      const traitMap = this._traitMap;
+      if (traitMap !== void 0) {
+        const trait = traitMap[key];
+        if (trait !== void 0) {
+          return trait;
+        }
+      }
+    } else {
+      const traits = this._traits;
+      if (traits !== void 0) {
+        for (let i = 0, n = traits.length; i < n; i += 1) {
+          const trait = traits[i];
+          if (trait instanceof key) {
+            return trait;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  setTrait(key: string, newTrait: Trait | null): Trait | null {
+    if (newTrait !== null) {
+      newTrait.remove();
+    }
+    let index = -1;
+    let oldTrait: Trait | null = null;
+    let targetTrait: Trait | null = null;
+    let traits = this._traits;
+    if (traits === void 0) {
+      traits = [];
+      this._traits = traits;
+    }
+    const traitMap = this._traitMap;
+    if (traitMap !== void 0) {
+      const trait = traitMap[key];
+      if (trait !== void 0) {
+        index = traits.indexOf(trait);
+        // assert(index >= 0);
+        oldTrait = trait;
+        targetTrait = traits[index + 1] || null;
+        this.willRemoveTrait(trait);
+        trait.setModel(null, this);
+        this.removeTraitMap(trait);
+        traits.splice(index, 1);
+        this.onRemoveTrait(trait);
+        this.didRemoveTrait(trait);
+        trait.setKey(void 0);
+      }
+    }
+    if (newTrait !== null) {
+      newTrait.setKey(key);
+      this.willInsertTrait(newTrait, targetTrait);
+      if (index >= 0) {
+        traits.splice(index, 0, newTrait);
+      } else {
+        traits.push(newTrait);
+      }
+      this.insertTraitMap(newTrait);
+      newTrait.setModel(this, null);
+      this.onInsertTrait(newTrait, targetTrait);
+      this.didInsertTrait(newTrait, targetTrait);
+    }
+    return oldTrait;
+  }
+
+  /** @hidden */
+  protected insertTraitMap(trait: Trait): void {
+    const key = trait.key;
+    if (key !== void 0) {
+      let traitMap = this._traitMap;
+      if (traitMap === void 0) {
+        traitMap = {};
+        this._traitMap = traitMap;
+      }
+      traitMap[key] = trait;
+    }
+  }
+
+  /** @hidden */
+  protected removeTraitMap(trait: Trait): void {
+    const traitMap = this._traitMap;
+    if (traitMap !== void 0) {
+      const key = trait.key;
+      if (key !== void 0) {
+        delete traitMap[key];
+      }
+    }
+  }
+
+  appendTrait(trait: Trait, key?: string): void {
+    trait.remove();
+    if (key !== void 0) {
+      this.removeTrait(key);
+      trait.setKey(key);
+    }
+    this.willInsertTrait(trait, null);
+    let traits = this._traits;
+    if (traits === void 0) {
+      traits = [];
+      this._traits = traits;
+    }
+    traits.push(trait);
+    this.insertTraitMap(trait);
+    trait.setModel(this, null);
+    this.onInsertTrait(trait, null);
+    this.didInsertTrait(trait, null);
+  }
+
+  prependTrait(trait: Trait, key?: string): void {
+    trait.remove();
+    if (key !== void 0) {
+      this.removeTrait(key);
+      trait.setKey(key);
+    }
+    let traits = this._traits;
+    if (traits === void 0) {
+      traits = [];
+      this._traits = traits;
+    }
+    const targetTrait = traits.length !== 0 ? traits[0] : null;
+    this.willInsertTrait(trait, targetTrait);
+    traits.unshift(trait);
+    this.insertTraitMap(trait);
+    trait.setModel(this, null);
+    this.onInsertTrait(trait, targetTrait);
+    this.didInsertTrait(trait, targetTrait);
+  }
+
+  insertTrait(trait: Trait, targetTrait: Trait | null, key?: string): void {
+    if (targetTrait !== null && targetTrait.model !== this) {
+      throw new TypeError("" + targetTrait);
+    }
+    trait.remove();
+    if (key !== void 0) {
+      this.removeTrait(key);
+      trait.setKey(key);
+    }
+    this.willInsertTrait(trait, targetTrait);
+    let traits = this._traits;
+    if (traits === void 0) {
+      traits = [];
+      this._traits = traits;
+    }
+    const index = targetTrait !== null ? traits.indexOf(targetTrait) : -1;
+    if (index >= 0) {
+      traits.splice(index, 0, trait);
+    } else {
+      traits.push(trait);
+    }
+    this.insertTraitMap(trait);
+    trait.setModel(this, null);
+    this.onInsertTrait(trait, targetTrait);
+    this.didInsertTrait(trait, targetTrait);
+  }
+
+  protected onInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
+    super.onInsertTrait(trait, targetTrait);
+    this.insertModelTrait(trait);
+  }
+
+  removeTrait(key: string): Trait | null;
+  removeTrait(trait: Trait): void;
+  removeTrait(key: string | Trait): Trait | null | void {
+    let trait: Trait | null;
+    if (typeof key === "string") {
+      trait = this.getTrait(key);
+      if (trait === null) {
+        return null;
+      }
+    } else {
+      trait = key;
+    }
+    if (trait.model !== this) {
+      throw new Error("not a member trait");
+    }
+    this.willRemoveTrait(trait);
+    trait.setModel(null, this);
+    this.removeTraitMap(trait);
+    const traits = this._traits;
+    const index = traits !== void 0 ? traits.indexOf(trait) : -1;
+    if (index >= 0) {
+      traits!.splice(index, 1);
+    }
+    this.onRemoveTrait(trait);
+    this.didRemoveTrait(trait);
+    trait.setKey(void 0);
+    if (typeof key === "string") {
+      return trait;
+    }
+  }
+
+  protected onRemoveTrait(trait: Trait): void {
+    super.onRemoveTrait(trait);
+    this.removeModelTrait(trait);
   }
 
   /** @hidden */
@@ -255,6 +518,7 @@ export abstract class GenericModel extends Model {
       try {
         this.willMount();
         this.onMount();
+        this.doMountTraits();
         this.doMountChildModels();
         this.didMount();
       } finally {
@@ -269,9 +533,16 @@ export abstract class GenericModel extends Model {
     super.onMount();
     this.mountServices();
     this.mountScopes();
-    this.mountTraits();
+    this.mountModelBindings();
+    this.mountModelTraits();
     this.mountDownlinks();
-    this.mountSubmodels();
+  }
+
+  /** @hidden */
+  protected doMountTraits(): void {
+    this.forEachTrait(function (trait: Trait): void {
+      trait.doMount();
+    });
   }
 
   /** @hidden */
@@ -287,11 +558,12 @@ export abstract class GenericModel extends Model {
 
   cascadeUnmount(): void {
     if ((this._modelFlags & Model.MountedFlag) !== 0) {
-      this._modelFlags &= ~Model.MountedFlag
+      this._modelFlags &= ~Model.MountedFlag;
       this._modelFlags |= Model.TraversingFlag;
       try {
         this.willUnmount();
         this.doUnmountChildModels();
+        this.doUnmountTraits();
         this.onUnmount();
         this.didUnmount();
       } finally {
@@ -303,12 +575,19 @@ export abstract class GenericModel extends Model {
   }
 
   protected onUnmount(): void {
-    this.unmountSubmodels();
     this.unmountDownlinks();
-    this.unmountTraits();
+    this.unmountModelTraits();
+    this.unmountModelBindings();
     this.unmountScopes();
     this.unmountServices();
     this._modelFlags &= ~Model.ModelFlagMask | Model.RemovingFlag;
+  }
+
+  /** @hidden */
+  protected doUnmountTraits(): void {
+    this.forEachTrait(function (trait: Trait): void {
+      trait.doUnmount();
+    });
   }
 
   /** @hidden */
@@ -329,6 +608,7 @@ export abstract class GenericModel extends Model {
       try {
         this.willPower();
         this.onPower();
+        this.doPowerTraits();
         this.doPowerChildModels();
         this.didPower();
       } finally {
@@ -337,6 +617,13 @@ export abstract class GenericModel extends Model {
     } else {
       throw new Error("already powered");
     }
+  }
+
+  /** @hidden */
+  protected doPowerTraits(): void {
+    this.forEachTrait(function (trait: Trait): void {
+      trait.doPower();
+    });
   }
 
   /** @hidden */
@@ -352,11 +639,12 @@ export abstract class GenericModel extends Model {
 
   cascadeUnpower(): void {
     if ((this._modelFlags & Model.PoweredFlag) !== 0) {
-      this._modelFlags &= ~Model.PoweredFlag
+      this._modelFlags &= ~Model.PoweredFlag;
       this._modelFlags |= Model.TraversingFlag;
       try {
         this.willUnpower();
         this.doUnpowerChildModels();
+        this.doUnpowerTraits();
         this.onUnpower();
         this.didUnpower();
       } finally {
@@ -365,6 +653,13 @@ export abstract class GenericModel extends Model {
     } else {
       throw new Error("already unpowered");
     }
+  }
+
+  /** @hidden */
+  protected doUnpowerTraits(): void {
+    this.forEachTrait(function (trait: Trait): void {
+      trait.doUnpower();
+    });
   }
 
   /** @hidden */
@@ -438,15 +733,30 @@ export abstract class GenericModel extends Model {
 
   protected onMutate(modelContext: ModelContextType<this>): void {
     super.onMutate(modelContext);
-    this.updateScopes();
+    this.mutateScopes();
   }
 
-  /** @hidden */
-  protected doAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    if ((analyzeFlags & Model.AnalyzeMask) !== 0 && this.childModelCount !== 0) {
-      this.willAnalyzeChildModels(analyzeFlags, modelContext);
-      this.onAnalyzeChildModels(analyzeFlags, modelContext);
-      this.didAnalyzeChildModels(analyzeFlags, modelContext);
+  protected analyzeTraitChildModels(traits: ReadonlyArray<Trait>, traitIndex: number,
+                                    analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
+                                    analyzeChildModel: (this: this, childModel: Model, analyzeFlags: ModelFlags,
+                                                        modelContext: ModelContextType<this>) => void): void {
+    if (traitIndex < traits.length) {
+      const trait = traits[traitIndex];
+      (trait as any).analyzeChildModels(analyzeFlags, modelContext, analyzeChildModel,
+                                        this.analyzeTraitChildModels.bind(this, traits, traitIndex + 1));
+    } else {
+      this.analyzeOwnChildModels(analyzeFlags, modelContext, analyzeChildModel);
+    }
+  }
+
+  protected analyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
+                               analyzeChildModel: (this: this, childModel: Model, analyzeFlags: ModelFlags,
+                                                   modelContext: ModelContextType<this>) => void): void {
+    const traits = this._traits;
+    if (traits !== void 0 && traits.length !== 0) {
+      this.analyzeTraitChildModels(traits, 0, analyzeFlags, modelContext, analyzeChildModel);
+    } else {
+      this.analyzeOwnChildModels(analyzeFlags, modelContext, analyzeChildModel);
     }
   }
 
@@ -497,18 +807,33 @@ export abstract class GenericModel extends Model {
     }
   }
 
+  protected refreshTraitChildModels(traits: ReadonlyArray<Trait>, traitIndex: number,
+                                    refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
+                                    refreshChildModel: (this: this, childModel: Model, refreshFlags: ModelFlags,
+                                                        modelContext: ModelContextType<this>) => void): void {
+    if (traitIndex < traits.length) {
+      const trait = traits[traitIndex];
+      (trait as any).refreshChildModels(refreshFlags, modelContext, refreshChildModel,
+                                        this.refreshTraitChildModels.bind(this, traits, traitIndex + 1));
+    } else {
+      this.refreshOwnChildModels(refreshFlags, modelContext, refreshChildModel);
+    }
+  }
+
+  protected refreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
+                               refreshChildModel: (this: this, childModel: Model, refreshFlags: ModelFlags,
+                                                   modelContext: ModelContextType<this>) => void): void {
+    const traits = this._traits;
+    if (traits !== void 0 && traits.length !== 0) {
+      this.refreshTraitChildModels(traits, 0, refreshFlags, modelContext, refreshChildModel);
+    } else {
+      this.refreshOwnChildModels(refreshFlags, modelContext, refreshChildModel);
+    }
+  }
+
   protected onReconcile(modelContext: ModelContextType<this>): void {
     super.onReconcile(modelContext);
     this.reconcileDownlinks();
-  }
-
-  /** @hidden */
-  protected doRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    if ((refreshFlags & Model.RefreshMask) !== 0 && this.childModelCount !== 0) {
-      this.willRefreshChildModels(refreshFlags, modelContext);
-      this.onRefreshChildModels(refreshFlags, modelContext);
-      this.didRefreshChildModels(refreshFlags, modelContext);
-    }
   }
 
   protected startConsuming(): void {
@@ -571,86 +896,6 @@ export abstract class GenericModel extends Model {
         if (modelConsumers.length === 0) {
           this.stopConsuming();
         }
-      }
-    }
-  }
-
-  hasSubmodel(submodelName: string): boolean {
-    const submodels = this._submodels;
-    return submodels !== void 0 && submodels[submodelName] !== void 0;
-  }
-
-  getSubmodel(submodelName: string): Submodel<this, Model> | null {
-    const submodels = this._submodels;
-    if (submodels !== void 0) {
-      const submodel = submodels[submodelName];
-      if (submodel !== void 0) {
-        return submodel as Submodel<this, Model>;
-      }
-    }
-    return null;
-  }
-
-  setSubmodel(submodelName: string, newSubmodel: Submodel<this, any> | null): void {
-    let submodels = this._submodels;
-    if (submodels === void 0) {
-      submodels = {};
-      this._submodels = submodels;
-    }
-    const oldSubmodel = submodels[submodelName];
-    if (oldSubmodel !== void 0 && this.isMounted()) {
-      oldSubmodel.unmount();
-    }
-    if (newSubmodel !== null) {
-      submodels[submodelName] = newSubmodel;
-      if (this.isMounted()) {
-        newSubmodel.mount();
-      }
-    } else {
-      delete submodels[submodelName];
-    }
-  }
-
-  /** @hidden */
-  protected mountSubmodels(): void {
-    const submodels = this._submodels;
-    if (submodels !== void 0) {
-      for (const submodelName in submodels) {
-        const submodel = submodels[submodelName]!;
-        submodel.mount();
-      }
-    }
-  }
-
-  /** @hidden */
-  protected unmountSubmodels(): void {
-    const submodels = this._submodels;
-    if (submodels !== void 0) {
-      for (const submodelName in submodels) {
-        const submodel = submodels[submodelName]!;
-        submodel.unmount();
-      }
-    }
-  }
-
-  /** @hidden */
-  protected insertSubmodel(childModel: Model): void {
-    const submodelName = childModel.key;
-    if (submodelName !== void 0) {
-      const submodel = this.getLazySubmodel(submodelName);
-      if (submodel !== null && submodel.child) {
-        submodel.doSetSubmodel(childModel);
-      }
-    }
-  }
-
-  /** @hidden */
-  protected removeSubmodel(childModel: Model): void {
-    const submodelName = childModel.key;
-    if (submodelName !== void 0) {
-      const submodel = this.getSubmodel(submodelName);
-      if (submodel !== null && submodel.child) {
-        submodel.doSetSubmodel(null);
       }
     }
   }
@@ -750,7 +995,7 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  updateScopes(): void {
+  mutateScopes(): void {
     const modelScopes = this._modelScopes;
     if (modelScopes !== void 0) {
       for (const scopeName in modelScopes) {
@@ -782,60 +1027,162 @@ export abstract class GenericModel extends Model {
     }
   }
 
-  hasModelTrait(traitName: string): boolean {
-    const modelTraits = this._modelTraits;
-    return modelTraits !== void 0 && modelTraits[traitName] !== void 0;
+  hasModelBinding(bindingName: string): boolean {
+    const modelBindings = this._modelBindings;
+    return modelBindings !== void 0 && modelBindings[bindingName] !== void 0;
   }
 
-  getModelTrait(traitName: string): ModelTrait<this> | null {
-    const modelTraits = this._modelTraits;
-    if (modelTraits !== void 0) {
-      const modelTrait = modelTraits[traitName];
-      if (modelTrait !== void 0) {
-        return modelTrait as ModelTrait<this>;
+  getModelBinding(bindingName: string): ModelBinding<this, Model> | null {
+    const modelBindings = this._modelBindings;
+    if (modelBindings !== void 0) {
+      const modelBinding = modelBindings[bindingName];
+      if (modelBinding !== void 0) {
+        return modelBinding as ModelBinding<this, Model>;
       }
     }
     return null;
   }
 
-  setModelTrait(traitName: string, newModelTrait: ModelTrait<this> | null): void {
+  setModelBinding(bindingName: string, newModelBinding: ModelBinding<this, any> | null): void {
+    let modelBindings = this._modelBindings;
+    if (modelBindings === void 0) {
+      modelBindings = {};
+      this._modelBindings = modelBindings;
+    }
+    const oldModelBinding = modelBindings[bindingName];
+    if (oldModelBinding !== void 0 && this.isMounted()) {
+      oldModelBinding.unmount();
+    }
+    if (newModelBinding !== null) {
+      modelBindings[bindingName] = newModelBinding;
+      if (this.isMounted()) {
+        newModelBinding.mount();
+      }
+    } else {
+      delete modelBindings[bindingName];
+    }
+  }
+
+  /** @hidden */
+  protected mountModelBindings(): void {
+    const modelBindings = this._modelBindings;
+    if (modelBindings !== void 0) {
+      for (const bindingName in modelBindings) {
+        const modelBinding = modelBindings[bindingName]!;
+        modelBinding.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected unmountModelBindings(): void {
+    const modelBindings = this._modelBindings;
+    if (modelBindings !== void 0) {
+      for (const bindingName in modelBindings) {
+        const modelBinding = modelBindings[bindingName]!;
+        modelBinding.unmount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected insertModelBinding(childModel: Model): void {
+    const bindingName = childModel.key;
+    if (bindingName !== void 0) {
+      const modelBinding = this.getLazyModelBinding(bindingName);
+      if (modelBinding !== null && modelBinding.child === true) {
+        modelBinding.doSetModel(childModel);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected removeModelBinding(childModel: Model): void {
+    const bindingName = childModel.key;
+    if (bindingName !== void 0) {
+      const modelBinding = this.getModelBinding(bindingName);
+      if (modelBinding !== null && modelBinding.child === true) {
+        modelBinding.doSetModel(null);
+      }
+    }
+  }
+
+  hasModelTrait(bindingName: string): boolean {
+    const modelTraits = this._modelTraits;
+    return modelTraits !== void 0 && modelTraits[bindingName] !== void 0;
+  }
+
+  getModelTrait(bindingName: string): ModelTrait<this, Trait> | null {
+    const modelTraits = this._modelTraits;
+    if (modelTraits !== void 0) {
+      const modelTrait = modelTraits[bindingName];
+      if (modelTrait !== void 0) {
+        return modelTrait as ModelTrait<this, Trait>;
+      }
+    }
+    return null;
+  }
+
+  setModelTrait(bindingName: string, newModelTrait: ModelTrait<this, any> | null): void {
     let modelTraits = this._modelTraits;
     if (modelTraits === void 0) {
       modelTraits = {};
       this._modelTraits = modelTraits;
     }
-    const oldModelTrait = modelTraits[traitName];
+    const oldModelTrait = modelTraits[bindingName];
     if (oldModelTrait !== void 0 && this.isMounted()) {
       oldModelTrait.unmount();
     }
     if (newModelTrait !== null) {
-      modelTraits[traitName] = newModelTrait;
+      modelTraits[bindingName] = newModelTrait;
       if (this.isMounted()) {
         newModelTrait.mount();
       }
     } else {
-      delete modelTraits[traitName];
+      delete modelTraits[bindingName];
     }
   }
 
   /** @hidden */
-  protected mountTraits(): void {
+  protected mountModelTraits(): void {
     const modelTraits = this._modelTraits;
     if (modelTraits !== void 0) {
-      for (const traitName in modelTraits) {
-        const modelTrait = modelTraits[traitName]!;
+      for (const bindingName in modelTraits) {
+        const modelTrait = modelTraits[bindingName]!;
         modelTrait.mount();
       }
     }
   }
 
   /** @hidden */
-  protected unmountTraits(): void {
+  protected unmountModelTraits(): void {
     const modelTraits = this._modelTraits;
     if (modelTraits !== void 0) {
-      for (const traitName in modelTraits) {
-        const modelTrait = modelTraits[traitName]!;
+      for (const bindingName in modelTraits) {
+        const modelTrait = modelTraits[bindingName]!;
         modelTrait.unmount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected insertModelTrait(trait: Trait): void {
+    const bindingName = trait.key;
+    if (bindingName !== void 0) {
+      const modelTrait = this.getLazyModelTrait(bindingName);
+      if (modelTrait !== null && modelTrait.sibling === true) {
+        modelTrait.doSetTrait(trait);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected removeModelTrait(trait: Trait): void {
+    const bindingName = trait.key;
+    if (bindingName !== void 0) {
+      const modelTrait = this.getModelTrait(bindingName);
+      if (modelTrait !== null && modelTrait.sibling === true) {
+        modelTrait.doSetTrait(null);
       }
     }
   }
@@ -911,4 +1258,8 @@ export abstract class GenericModel extends Model {
 }
 Model.Generic = GenericModel;
 
-ModelScope({type: Object, inherit: true, updateFlags: Model.NeedsReconcile})(Model.prototype, "warpRef");
+ModelScope({
+  type: Object,
+  inherit: true,
+  updateFlags: Model.NeedsReconcile,
+})(Model.prototype, "warpRef");

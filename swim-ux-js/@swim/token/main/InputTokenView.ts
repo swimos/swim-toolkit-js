@@ -15,7 +15,7 @@
 import {Transition} from "@swim/tween";
 import {Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {Subview} from "@swim/view";
+import {ViewBinding} from "@swim/view";
 import {StyleRule, StyleSheet, ViewNodeType, HtmlView, StyleView, SvgView} from "@swim/dom";
 import {PositionGesture} from "@swim/gesture";
 import {TokenViewInit, TokenView} from "./TokenView";
@@ -49,10 +49,10 @@ export class InputTokenView extends TokenView {
     super.initView(init);
   }
 
-  protected initSubviews(): void {
+  protected initChildViews(): void {
     this.stylesheet.insert();
-    super.initSubviews();
-    this.label.setSubview(this.label.createSubview());
+    super.initChildViews();
+    this.label.setView(this.label.createView());
   }
 
   protected initStylesheet(styleView: StyleView): void {
@@ -89,47 +89,47 @@ export class InputTokenView extends TokenView {
     return null;
   }
 
-  @Subview<InputTokenView, StyleView>({
+  @ViewBinding<InputTokenView, StyleView>({
     child: true,
     type: HtmlView.style,
     viewDidMount(styleView: StyleView): void {
-      this.view.initStylesheet(styleView);
+      this.owner.initStylesheet(styleView);
     },
   })
-  readonly stylesheet: Subview<this, StyleView>;
+  readonly stylesheet: ViewBinding<this, StyleView>;
 
-  @Subview<InputTokenView, HtmlView>({
+  @ViewBinding<InputTokenView, HtmlView>({
     child: false,
     type: HtmlView.input,
-    onSetSubview(labelView: HtmlView | null): void {
+    onSetView(labelView: HtmlView | null): void {
       if (labelView !== null) {
         if (labelView.parentView === null) {
-          this.view.labelContainer.insert();
-          const labelContainer = this.view.labelContainer.subview;
+          this.owner.labelContainer.insert();
+          const labelContainer = this.owner.labelContainer.view;
           if (labelContainer !== null) {
             labelContainer.appendChildView(labelView);
           }
         }
-        this.view.initLabel(labelView);
+        this.owner.initLabel(labelView);
       }
     },
     viewDidMount(labelView: HtmlView): void {
-      labelView.on("input", this.view.onInputUpdate);
-      labelView.on("change", this.view.onInputChange);
-      labelView.on("keydown", this.view.onInputKey);
+      labelView.on("input", this.owner.onInputUpdate);
+      labelView.on("change", this.owner.onInputChange);
+      labelView.on("keydown", this.owner.onInputKey);
     },
     viewWillUnmount(labelView: HtmlView): void {
-      labelView.off("input", this.view.onInputUpdate);
-      labelView.off("change", this.view.onInputChange);
-      labelView.off("keydown", this.view.onInputKey);
+      labelView.off("input", this.owner.onInputUpdate);
+      labelView.off("change", this.owner.onInputChange);
+      labelView.off("keydown", this.owner.onInputKey);
     },
   })
-  readonly label: Subview<this, HtmlView>;
+  readonly label: ViewBinding<this, HtmlView>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {
     super.onApplyTheme(theme, mood, transition);
-    const styleView = this.stylesheet.subview;
+    const styleView = this.stylesheet.view;
     if (styleView !== null) {
       const placeholder = styleView.getCssRule("placeholder") as StyleRule<StyleSheet> | null;
       if (placeholder !== null) {
@@ -137,7 +137,7 @@ export class InputTokenView extends TokenView {
       }
     }
 
-    const labelView = this.label.subview;
+    const labelView = this.label.view;
     if (labelView !== null) {
       const font = theme.inner(mood, Look.font);
       if (font !== void 0) {
@@ -165,7 +165,7 @@ export class InputTokenView extends TokenView {
   }
 
   protected onInputUpdate(event: InputEvent): void {
-    const inputView = this.label.subview;
+    const inputView = this.label.view;
     if (inputView !== null) {
       this.didUpdateInput(inputView);
     }
@@ -180,7 +180,7 @@ export class InputTokenView extends TokenView {
   }
 
   protected onInputChange(event: Event): void {
-    const inputView = this.label.subview;
+    const inputView = this.label.view;
     if (inputView !== null) {
       this.didChangeInput(inputView);
     }
@@ -195,7 +195,7 @@ export class InputTokenView extends TokenView {
   }
 
   protected onInputKey(event: KeyboardEvent): void {
-    const inputView = this.label.subview;
+    const inputView = this.label.view;
     if (inputView !== null && event.key === "Enter") {
       this.didAcceptInput(inputView);
     }

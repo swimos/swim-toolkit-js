@@ -17,14 +17,16 @@ import {ModelContextType, ModelContext} from "./ModelContext";
 import {ModelObserverType, ModelObserver} from "./ModelObserver";
 import {ModelControllerType, ModelController} from "./ModelController";
 import {ModelConsumerType, ModelConsumer} from "./ModelConsumer";
-import {SubmodelConstructor, Submodel} from "./Submodel";
+import {TraitPrototype, Trait} from "./Trait";
 import {ModelManager} from "./manager/ModelManager";
 import {ModelServiceConstructor, ModelService} from "./service/ModelService";
 import {RefreshService} from "./service/RefreshService";
 import {WarpService} from "./service/WarpService";
 import {ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
-import {ModelTraitConstructor, ModelTrait} from "./trait/ModelTrait";
-import {ModelDownlinkConstructor, ModelDownlink} from "./downlink/ModelDownlink";
+import {ModelBindingConstructor, ModelBinding} from "./binding/ModelBinding";
+import {ModelTraitConstructor, ModelTrait} from "./binding/ModelTrait";
+import {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
+import {ModelDownlink} from "./downlink/ModelDownlink";
 import {GenericModel} from "./generic/GenericModel";
 import {CompoundModel} from "./generic/CompoundModel";
 
@@ -35,7 +37,23 @@ export interface ModelInit {
   modelController?: ModelController;
 }
 
+export interface ModelPrototype<M extends Model = Model> extends Function {
+  readonly prototype: M;
+}
+
 export interface ModelClass {
+  /** @hidden */
+  _modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<Model, unknown> | undefined};
+
+  /** @hidden */
+  _modelScopeConstructors?: {[scopeName: string]: ModelScopeConstructor<Model, unknown> | undefined};
+
+  /** @hidden */
+  _modelBindingConstructors?: {[bindingName: string]: ModelBindingConstructor<Model, Model> | undefined};
+
+  /** @hidden */
+  _modelTraitConstructors?: {[bindingName: string]: ModelTraitConstructor<Model, Trait> | undefined};
+
   readonly mountFlags: ModelFlags;
 
   readonly powerFlags: ModelFlags;
@@ -44,21 +62,16 @@ export interface ModelClass {
 
   readonly removeChildFlags: ModelFlags;
 
+  readonly insertTraitFlags: ModelFlags;
+
+  readonly removeTraitFlags: ModelFlags;
+
   readonly startConsumingFlags: ModelFlags;
 
   readonly stopConsumingFlags: ModelFlags;
-
-  /** @hidden */
-  _submodelConstructors?: {[submodelName: string]: SubmodelConstructor<any, any> | undefined};
-
-  /** @hidden */
-  _modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<any, unknown> | undefined};
-
-  /** @hidden */
-  _modelScopeConstructors?: {[scopeName: string]: ModelScopeConstructor<any, unknown> | undefined};
 }
 
-export abstract class Model {
+export abstract class Model implements ModelDownlinkContext {
   abstract get modelController(): ModelController | null;
 
   abstract setModelController(modelController: ModelControllerType<this> | null): void;
@@ -170,6 +183,9 @@ export abstract class Model {
   abstract setParentModel(newParentModel: Model | null, oldParentModel: Model | null): void;
 
   protected willSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willSetParentModel(newParentModel, oldParentModel);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillSetParentModel !== void 0) {
         modelObserver.modelWillSetParentModel(newParentModel, oldParentModel, this);
@@ -178,6 +194,9 @@ export abstract class Model {
   }
 
   protected onSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onSetParentModel(newParentModel, oldParentModel);
+    });
     if (newParentModel !== null) {
       if (newParentModel.isMounted()) {
         this.cascadeMount();
@@ -202,7 +221,12 @@ export abstract class Model {
         modelObserver.modelDidSetParentModel(newParentModel, oldParentModel, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didSetParentModel(newParentModel, oldParentModel);
+    });
   }
+
+  abstract remove(): void;
 
   abstract get childModelCount(): number;
 
@@ -234,6 +258,9 @@ export abstract class Model {
   }
 
   protected willInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willInsertChildModel(childModel, targetModel);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillInsertChildModel !== void 0) {
         modelObserver.modelWillInsertChildModel(childModel, targetModel, this);
@@ -243,6 +270,9 @@ export abstract class Model {
 
   protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
     this.requireUpdate(this.insertChildFlags);
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onInsertChildModel(childModel, targetModel);
+    });
   }
 
   protected didInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
@@ -250,6 +280,9 @@ export abstract class Model {
       if (modelObserver.modelDidInsertChildModel !== void 0) {
         modelObserver.modelDidInsertChildModel(childModel, targetModel, this);
       }
+    });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didInsertChildModel(childModel, targetModel);
     });
   }
 
@@ -260,13 +293,14 @@ export abstract class Model {
 
   abstract removeAll(): void;
 
-  abstract remove(): void;
-
   get removeChildFlags(): ModelFlags {
     return this.modelClass.removeChildFlags;
   }
 
   protected willRemoveChildModel(childModel: Model): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willRemoveChildModel(childModel);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillRemoveChildModel !== void 0) {
         modelObserver.modelWillRemoveChildModel(childModel, this);
@@ -276,6 +310,9 @@ export abstract class Model {
 
   protected onRemoveChildModel(childModel: Model): void {
     this.requireUpdate(this.removeChildFlags);
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onRemoveChildModel(childModel);
+    });
   }
 
   protected didRemoveChildModel(childModel: Model): void {
@@ -284,28 +321,157 @@ export abstract class Model {
         modelObserver.modelDidRemoveChildModel(childModel, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didRemoveChildModel(childModel);
+    });
   }
 
-  getSuperModel<M extends Model>(modelClass: {new(...args: any[]): M}): M | null {
+  getSuperModel<M extends Model>(modelPrototype: ModelPrototype<M>): M | null {
     const parentModel = this.parentModel;
     if (parentModel === null) {
       return null;
-    } else if (parentModel instanceof modelClass) {
+    } else if (parentModel instanceof modelPrototype) {
       return parentModel;
     } else {
-      return parentModel.getSuperModel(modelClass);
+      return parentModel.getSuperModel(modelPrototype);
     }
   }
 
-  getBaseModel<M extends Model>(modelClass: {new(...args: any[]): M}): M | null {
+  getBaseModel<M extends Model>(modelPrototype: ModelPrototype<M>): M | null {
     const parentModel = this.parentModel;
     if (parentModel === null) {
       return null;
-    } else if (parentModel instanceof modelClass) {
-      const baseModel = parentModel.getBaseModel(modelClass);
-      return baseModel !== null ? baseModel : parentModel;
     } else {
-      return parentModel.getBaseModel(modelClass);
+      const baseModel = parentModel.getBaseModel(modelPrototype);
+      if (baseModel !== null) {
+        return baseModel;
+      } else {
+        return parentModel instanceof modelPrototype ? parentModel : null;
+      }
+    }
+  }
+
+  abstract get traitCount(): number;
+
+  abstract get traits(): ReadonlyArray<Trait>;
+
+  abstract firstTrait(): Trait | null;
+
+  abstract lastTrait(): Trait | null;
+
+  abstract nextTrait(targetTrait: Trait): Trait | null;
+
+  abstract previousTrait(targetTrait: Trait): Trait | null;
+
+  abstract forEachTrait<T, S = unknown>(callback: (this: S, trait: Trait) => T | void,
+                                        thisArg?: S): T | undefined;
+
+  abstract getTrait(key: string): Trait | null;
+  abstract getTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null;
+  abstract getTrait(key: string | TraitPrototype<Trait>): Trait | null;
+
+  abstract setTrait(key: string, newTrait: Trait | null): Trait | null;
+
+  abstract appendTrait(trait: Trait, key?: string): void;
+
+  abstract prependTrait(trait: Trait, key?: string): void;
+
+  abstract insertTrait(trait: Trait, targetTrait: Trait | null, key?: string): void;
+
+  get insertTraitFlags(): ModelFlags {
+    return this.modelClass.insertTraitFlags;
+  }
+
+  protected willInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willInsertTrait(newTrait, targetTrait);
+    });
+    this.willObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelWillInsertTrait !== void 0) {
+        modelObserver.modelWillInsertTrait(newTrait, targetTrait, this);
+      }
+    });
+  }
+
+  protected onInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
+    this.requireUpdate(this.insertTraitFlags);
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onInsertTrait(newTrait, targetTrait);
+    });
+  }
+
+  protected didInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
+    this.didObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelDidInsertTrait !== void 0) {
+        modelObserver.modelDidInsertTrait(newTrait, targetTrait, this);
+      }
+    });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didInsertTrait(newTrait, targetTrait);
+    });
+  }
+
+  abstract removeTrait(key: string): Trait | null;
+  abstract removeTrait(trait: Trait): void;
+
+  get removeTraitFlags(): ModelFlags {
+    return this.modelClass.removeTraitFlags;
+  }
+
+  protected willRemoveTrait(oldTrait: Trait): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willRemoveTrait(oldTrait);
+    });
+    this.willObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelWillRemoveTrait !== void 0) {
+        modelObserver.modelWillRemoveTrait(oldTrait, this);
+      }
+    });
+  }
+
+  protected onRemoveTrait(oldTrait: Trait): void {
+    this.requireUpdate(this.removeTraitFlags);
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onRemoveTrait(oldTrait);
+    });
+  }
+
+  protected didRemoveTrait(oldTrait: Trait): void {
+    this.didObserve(function (modelObserver: ModelObserver): void {
+      if (modelObserver.modelDidRemoveTrait !== void 0) {
+        modelObserver.modelDidRemoveTrait(oldTrait, this);
+      }
+    });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didRemoveTrait(oldTrait);
+    });
+  }
+
+  getSuperTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
+    const parentModel = this.parentModel;
+    if (parentModel === null) {
+      return null;
+    } else {
+      const trait = parentModel.getTrait(traitPrototype);
+      if (trait !== null) {
+        return trait;
+      } else {
+        return parentModel.getSuperTrait(traitPrototype);
+      }
+    }
+  }
+
+  getBaseTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
+    const parentModel = this.parentModel;
+    if (parentModel === null) {
+      return null;
+    } else {
+      const baseTrait = parentModel.getBaseTrait(traitPrototype);
+      if (baseTrait !== null) {
+        return baseTrait;
+      } else {
+        return parentModel.getTrait(traitPrototype);
+      }
     }
   }
 
@@ -329,6 +495,10 @@ export abstract class Model {
     return (this.modelFlags & Model.MountedFlag) !== 0;
   }
 
+  get mountFlags(): ModelFlags {
+    return this.modelClass.mountFlags;
+  }
+
   mount(): void {
     if (!this.isMounted() && this.parentModel === null) {
       this.cascadeMount();
@@ -341,10 +511,6 @@ export abstract class Model {
 
   abstract cascadeMount(): void;
 
-  get mountFlags(): ModelFlags {
-    return this.modelClass.mountFlags;
-  }
-
   protected willMount(): void {
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillMount !== void 0) {
@@ -354,7 +520,6 @@ export abstract class Model {
   }
 
   protected onMount(): void {
-    this.requestUpdate(this, this.modelFlags & ~Model.StatusMask, false);
     this.requireUpdate(this.mountFlags);
   }
 
@@ -392,11 +557,11 @@ export abstract class Model {
     return (this.modelFlags & Model.PoweredFlag) !== 0;
   }
 
-  abstract cascadePower(): void;
-
   get powerFlags(): ModelFlags {
     return this.modelClass.powerFlags;
   }
+
+  abstract cascadePower(): void;
 
   protected willPower(): void {
     this.willObserve(function (modelObserver: ModelObserver): void {
@@ -407,6 +572,7 @@ export abstract class Model {
   }
 
   protected onPower(): void {
+    this.requestUpdate(this, this.modelFlags & ~Model.StatusMask, false);
     this.requireUpdate(this.powerFlags);
   }
 
@@ -456,11 +622,15 @@ export abstract class Model {
   }
 
   protected willRequireUpdate(updateFlags: ModelFlags, immediate: boolean): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willRequireUpdate(updateFlags, immediate);
+    });
   }
 
   protected didRequireUpdate(updateFlags: ModelFlags, immediate: boolean): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didRequireUpdate(updateFlags, immediate);
+    });
   }
 
   requestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
@@ -478,6 +648,9 @@ export abstract class Model {
   }
 
   protected willRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): ModelFlags {
+    this.forEachTrait(function (trait: Trait): void {
+      updateFlags |= (trait as any).willRequestUpdate(targetModel, updateFlags, immediate);
+    });
     let additionalFlags = this.modifyUpdate(targetModel, updateFlags);
     additionalFlags &= ~Model.StatusMask;
     if (additionalFlags !== 0) {
@@ -488,7 +661,9 @@ export abstract class Model {
   }
 
   protected didRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didRequestUpdate(targetModel, updateFlags, immediate);
+    });
   }
 
   protected modifyUpdate(targetModel: Model, updateFlags: ModelFlags): ModelFlags {
@@ -499,6 +674,9 @@ export abstract class Model {
     if ((updateFlags & Model.RefreshMask) !== 0) {
       additionalFlags |= Model.NeedsRefresh;
     }
+    this.forEachTrait(function (trait: Trait): void {
+      additionalFlags |= (trait as any).modifyUpdate(targetModel, updateFlags);
+    });
     return additionalFlags;
   }
 
@@ -515,12 +693,18 @@ export abstract class Model {
   }
 
   needsAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): ModelFlags {
+    this.forEachTrait(function (trait: Trait): void {
+      analyzeFlags = trait.needsAnalyze(analyzeFlags, modelContext);
+    });
     return analyzeFlags;
   }
 
   abstract cascadeAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContext): void;
 
   protected willAnalyze(modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willAnalyze(modelContext);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillAnalyze !== void 0) {
         modelObserver.modelWillAnalyze(modelContext, this);
@@ -529,7 +713,9 @@ export abstract class Model {
   }
 
   protected onAnalyze(modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onAnalyze(modelContext);
+    });
   }
 
   protected didAnalyze(modelContext: ModelContextType<this>): void {
@@ -538,9 +724,15 @@ export abstract class Model {
         modelObserver.modelDidAnalyze(modelContext, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didAnalyze(modelContext);
+    });
   }
 
   protected willMutate(modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willMutate(modelContext);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillMutate !== void 0) {
         modelObserver.modelWillMutate(modelContext, this);
@@ -549,7 +741,9 @@ export abstract class Model {
   }
 
   protected onMutate(modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onMutate(modelContext);
+    });
   }
 
   protected didMutate(modelContext: ModelContextType<this>): void {
@@ -558,9 +752,15 @@ export abstract class Model {
         modelObserver.modelDidMutate(modelContext, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didMutate(modelContext);
+    });
   }
 
   protected willAggregate(modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willAggregate(modelContext);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillAggregate !== void 0) {
         modelObserver.modelWillAggregate(modelContext, this);
@@ -569,7 +769,9 @@ export abstract class Model {
   }
 
   protected onAggregate(modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onAggregate(modelContext);
+    });
   }
 
   protected didAggregate(modelContext: ModelContextType<this>): void {
@@ -578,9 +780,15 @@ export abstract class Model {
         modelObserver.modelDidAggregate(modelContext, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didAggregate(modelContext);
+    });
   }
 
   protected willCorrelate(modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willCorrelate(modelContext);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillCorrelate !== void 0) {
         modelObserver.modelWillCorrelate(modelContext, this);
@@ -589,7 +797,9 @@ export abstract class Model {
   }
 
   protected onCorrelate(modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onCorrelate(modelContext);
+    });
   }
 
   protected didCorrelate(modelContext: ModelContextType<this>): void {
@@ -598,9 +808,24 @@ export abstract class Model {
         modelObserver.modelDidCorrelate(modelContext, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didCorrelate(modelContext);
+    });
+  }
+
+  /** @hidden */
+  protected doAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    if ((analyzeFlags & Model.AnalyzeMask) !== 0 && this.childModelCount !== 0) {
+      this.willAnalyzeChildModels(analyzeFlags, modelContext);
+      this.onAnalyzeChildModels(analyzeFlags, modelContext);
+      this.didAnalyzeChildModels(analyzeFlags, modelContext);
+    }
   }
 
   protected willAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willAnalyzeChildModels(analyzeFlags, modelContext);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillAnalyzeChildModels !== void 0) {
         modelObserver.modelWillAnalyzeChildModels(analyzeFlags, modelContext, this);
@@ -609,7 +834,10 @@ export abstract class Model {
   }
 
   protected onAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.analyzeChildModels(analyzeFlags, modelContext);
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onAnalyzeChildModels(analyzeFlags, modelContext);
+    });
+    this.analyzeChildModels(analyzeFlags, modelContext, this.analyzeChildModel);
   }
 
   protected didAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
@@ -618,21 +846,28 @@ export abstract class Model {
         modelObserver.modelDidAnalyzeChildModels(analyzeFlags, modelContext, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didAnalyzeChildModels(analyzeFlags, modelContext);
+    });
   }
 
-  protected analyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
-                               callback?: (this: this, childModel: Model) => void): void {
-    this.forEachChildModel(function (childModel: Model): void {
-      this.analyzeChildModel(childModel, analyzeFlags, modelContext);
-      if (callback !== void 0) {
-        callback.call(this, childModel);
-      }
+  /** @hidden */
+  protected analyzeOwnChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
+                                  analyzeChildModel: (this: this, childModel: Model, analyzeFlags: ModelFlags,
+                                                      modelContext: ModelContextType<this>) => void): void {
+    function doAnalyzeChildModel(this: Model, childModel: Model): void {
+      analyzeChildModel.call(this, childModel, analyzeFlags, modelContext);
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
         this.removeChildModel(childModel);
       }
-    }, this);
+    }
+    this.forEachChildModel(doAnalyzeChildModel, this);
   }
+
+  protected abstract analyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
+                                        analyzeChildModel: (this: this, childModel: Model, analyzeFlags: ModelFlags,
+                                                            modelContext: ModelContextType<this>) => void): void;
 
   /** @hidden */
   protected analyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
@@ -642,15 +877,22 @@ export abstract class Model {
   }
 
   protected willAnalyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willAnalyzeChildModel(childModel, analyzeFlags, modelContext);
+    });
   }
 
   protected onAnalyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onAnalyzeChildModel(childModel, analyzeFlags, modelContext);
+    });
     childModel.cascadeAnalyze(analyzeFlags, modelContext);
   }
 
   protected didAnalyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didAnalyzeChildModel(childModel, analyzeFlags, modelContext);
+    });
   }
 
   isRefreshing(): boolean {
@@ -658,12 +900,18 @@ export abstract class Model {
   }
 
   needsRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): ModelFlags {
+    this.forEachTrait(function (trait: Trait): void {
+      refreshFlags = trait.needsRefresh(refreshFlags, modelContext);
+    });
     return refreshFlags;
   }
 
   abstract cascadeRefresh(refreshFlags: ModelFlags, modelContext: ModelContext): void;
 
   protected willRefresh(modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willRefresh(modelContext);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillRefresh !== void 0) {
         modelObserver.modelWillRefresh(modelContext, this);
@@ -672,7 +920,9 @@ export abstract class Model {
   }
 
   protected onRefresh(modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onRefresh(modelContext);
+    });
   }
 
   protected didRefresh(modelContext: ModelContextType<this>): void {
@@ -681,9 +931,15 @@ export abstract class Model {
         modelObserver.modelDidRefresh(modelContext, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didRefresh(modelContext);
+    });
   }
 
   protected willValidate(modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willValidate(modelContext);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillValidate !== void 0) {
         modelObserver.modelWillValidate(modelContext, this);
@@ -692,7 +948,9 @@ export abstract class Model {
   }
 
   protected onValidate(modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onValidate(modelContext);
+    });
   }
 
   protected didValidate(modelContext: ModelContextType<this>): void {
@@ -701,9 +959,15 @@ export abstract class Model {
         modelObserver.modelDidValidate(modelContext, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didValidate(modelContext);
+    });
   }
 
   protected willReconcile(modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willReconcile(modelContext);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillReconcile !== void 0) {
         modelObserver.modelWillReconcile(modelContext, this);
@@ -712,7 +976,9 @@ export abstract class Model {
   }
 
   protected onReconcile(modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onReconcile(modelContext);
+    });
   }
 
   protected didReconcile(modelContext: ModelContextType<this>): void {
@@ -721,9 +987,24 @@ export abstract class Model {
         modelObserver.modelDidReconcile(modelContext, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didReconcile(modelContext);
+    });
+  }
+
+  /** @hidden */
+  protected doRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    if ((refreshFlags & Model.RefreshMask) !== 0 && this.childModelCount !== 0) {
+      this.willRefreshChildModels(refreshFlags, modelContext);
+      this.onRefreshChildModels(refreshFlags, modelContext);
+      this.didRefreshChildModels(refreshFlags, modelContext);
+    }
   }
 
   protected willRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willRefreshChildModels(refreshFlags, modelContext);
+    });
     this.willObserve(function (modelObserver: ModelObserver): void {
       if (modelObserver.modelWillRefreshChildModels !== void 0) {
         modelObserver.modelWillRefreshChildModels(refreshFlags, modelContext, this);
@@ -732,7 +1013,10 @@ export abstract class Model {
   }
 
   protected onRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.refreshChildModels(refreshFlags, modelContext);
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onRefreshChildModels(refreshFlags, modelContext);
+    });
+    this.refreshChildModels(refreshFlags, modelContext, this.refreshChildModel);
   }
 
   protected didRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
@@ -741,21 +1025,28 @@ export abstract class Model {
         modelObserver.modelDidRefreshChildModels(refreshFlags, modelContext, this);
       }
     });
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didRefreshChildModels(refreshFlags, modelContext);
+    });
   }
 
-  protected refreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
-                               callback?: (this: this, childModel: Model) => void): void {
-    this.forEachChildModel(function (childModel: Model): void {
-      this.refreshChildModel(childModel, refreshFlags, modelContext);
-      if (callback !== void 0) {
-        callback.call(this, childModel);
-      }
+  /** @hidden */
+  protected refreshOwnChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
+                                  refreshChildModel: (this: this, childModel: Model, refreshFlags: ModelFlags,
+                                                      modelContext: ModelContextType<this>) => void): void {
+    function doRefreshChildModel(this: Model, childModel: Model): void {
+      refreshChildModel.call(this, childModel, refreshFlags, modelContext);
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
         this.removeChildModel(childModel);
       }
-    }, this);
+    }
+    this.forEachChildModel(doRefreshChildModel, this);
   }
+
+  protected abstract refreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
+                                        refreshChildModel: (this: this, childModel: Model, refreshFlags: ModelFlags,
+                                                            modelContext: ModelContextType<this>) => void): void;
 
   /** @hidden */
   protected refreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
@@ -765,15 +1056,22 @@ export abstract class Model {
   }
 
   protected willRefreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).willRefreshChildModel(childModel, refreshFlags, modelContext);
+    });
   }
 
   protected onRefreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).onRefreshChildModel(childModel, refreshFlags, modelContext);
+    });
     childModel.cascadeRefresh(refreshFlags, modelContext);
   }
 
   protected didRefreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    // hook
+    this.forEachTrait(function (trait: Trait): void {
+      (trait as any).didRefreshChildModel(childModel, refreshFlags, modelContext);
+    });
   }
 
   isConsuming(): boolean {
@@ -858,26 +1156,6 @@ export abstract class Model {
     // hook
   }
 
-  abstract hasSubmodel(submodelName: string): boolean;
-
-  abstract getSubmodel(submodelName: string): Submodel<this, Model> | null;
-
-  abstract setSubmodel(submodelName: string, submodel: Submodel<this, Model, unknown> | null): void;
-
-  /** @hidden */
-  getLazySubmodel(submodelName: string): Submodel<this, Model> | null {
-    let submodel = this.getSubmodel(submodelName);
-    if (submodel === null) {
-      const modelClass = (this as any).__proto__ as ModelClass;
-      const constructor = Model.getSubmodelConstructor(submodelName, modelClass);
-      if (constructor !== null) {
-        submodel = new constructor(this, submodelName);
-        this.setSubmodel(submodelName, submodel);
-      }
-    }
-    return submodel;
-  }
-
   abstract hasModelService(serviceName: string): boolean;
 
   abstract getModelService(serviceName: string): ModelService<this, unknown> | null;
@@ -886,12 +1164,12 @@ export abstract class Model {
 
   /** @hidden */
   getLazyModelService(serviceName: string): ModelService<this, unknown> | null {
-    let modelService = this.getModelService(serviceName);
+    let modelService = this.getModelService(serviceName) as ModelService<this, unknown> | null;
     if (modelService === null) {
       const modelClass = (this as any).__proto__ as ModelClass;
       const constructor = Model.getModelServiceConstructor(serviceName, modelClass);
       if (constructor !== null) {
-        modelService = new constructor(this, serviceName);
+        modelService = new constructor(this, serviceName) as ModelService<this, unknown>;
         this.setModelService(serviceName, modelService);
       }
     }
@@ -906,23 +1184,57 @@ export abstract class Model {
 
   /** @hidden */
   getLazyModelScope(scopeName: string): ModelScope<this, unknown> | null {
-    let modelScope = this.getModelScope(scopeName);
+    let modelScope = this.getModelScope(scopeName) as ModelScope<this, unknown> | null;
     if (modelScope === null) {
       const modelClass = (this as any).__proto__ as ModelClass;
       const constructor = Model.getModelScopeConstructor(scopeName, modelClass);
       if (constructor !== null) {
-        modelScope = new constructor(this, scopeName);
+        modelScope = new constructor(this, scopeName) as ModelScope<this, unknown>;
         this.setModelScope(scopeName, modelScope);
       }
     }
     return modelScope;
   }
 
-  abstract hasModelTrait(traitName: string): boolean;
+  abstract hasModelBinding(bindingName: string): boolean;
 
-  abstract getModelTrait(traitName: string): ModelTrait<this> | null;
+  abstract getModelBinding(bindingName: string): ModelBinding<this, Model> | null;
 
-  abstract setModelTrait(traitName: string, modelTrait: ModelTrait<this> | null): void;
+  abstract setModelBinding(bindingName: string, modelBinding: ModelBinding<this, Model, unknown> | null): void;
+
+  /** @hidden */
+  getLazyModelBinding(bindingName: string): ModelBinding<this, Model> | null {
+    let modelBinding = this.getModelBinding(bindingName) as ModelBinding<this, Model> | null;
+    if (modelBinding === null) {
+      const modelClass = (this as any).__proto__ as ModelClass;
+      const constructor = Model.getModelBindingConstructor(bindingName, modelClass);
+      if (constructor !== null) {
+        modelBinding = new constructor(this, bindingName) as ModelBinding<this, Model>;
+        this.setModelBinding(bindingName, modelBinding);
+      }
+    }
+    return modelBinding;
+  }
+
+  abstract hasModelTrait(bindingName: string): boolean;
+
+  abstract getModelTrait(bindingName: string): ModelTrait<this, Trait> | null;
+
+  abstract setModelTrait(bindingName: string, modelTrait: ModelTrait<this, Trait, unknown> | null): void;
+
+  /** @hidden */
+  getLazyModelTrait(bindingName: string): ModelTrait<this, Trait> | null {
+    let modelTrait = this.getModelTrait(bindingName) as ModelTrait<this, Trait> | null;
+    if (modelTrait === null) {
+      const modelClass = (this as any).__proto__ as ModelClass;
+      const constructor = Model.getModelTraitConstructor(bindingName, modelClass);
+      if (constructor !== null) {
+        modelTrait = new constructor(this, bindingName) as ModelTrait<this, Trait>;
+        this.setModelTrait(bindingName, modelTrait);
+      }
+    }
+    return modelTrait;
+  }
 
   abstract hasModelDownlink(downlinkName: string): boolean;
 
@@ -958,45 +1270,7 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static getSubmodelConstructor(submodelName: string, modelClass: ModelClass | null = null): SubmodelConstructor<any, any> | null {
-    if (modelClass === null) {
-      modelClass = this.prototype as unknown as ModelClass;
-    }
-    do {
-      if (modelClass.hasOwnProperty("_submodelConstructors")) {
-        const constructor = modelClass._submodelConstructors![submodelName];
-        if (constructor !== void 0) {
-          return constructor;
-        }
-      }
-      modelClass = (modelClass as any).__proto__ as ModelClass | null;
-    } while (modelClass !== null);
-    return null;
-  }
-
-  /** @hidden */
-  static decorateSubmodel<M extends Model, S extends Model, U>(constructor: SubmodelConstructor<M, S, U>,
-                                                               modelClass: ModelClass, submodelName: string): void {
-    if (!modelClass.hasOwnProperty("_submodelConstructors")) {
-      modelClass._submodelConstructors = {};
-    }
-    modelClass._submodelConstructors![submodelName] = constructor;
-    Object.defineProperty(modelClass, submodelName, {
-      get: function (this: M): Submodel<M, S, U> {
-        let submodel = this.getSubmodel(submodelName) as Submodel<M, S, U> | null;
-        if (submodel === null) {
-          submodel = new constructor(this, submodelName);
-          this.setSubmodel(submodelName, submodel);
-        }
-        return submodel;
-      },
-      configurable: true,
-      enumerable: true,
-    });
-  }
-
-  /** @hidden */
-  static getModelServiceConstructor(serviceName: string, modelClass: ModelClass | null = null): ModelServiceConstructor<any, unknown> | null {
+  static getModelServiceConstructor(serviceName: string, modelClass: ModelClass | null = null): ModelServiceConstructor<Model, unknown> | null {
     if (modelClass === null) {
       modelClass = this.prototype as unknown as ModelClass;
     }
@@ -1013,15 +1287,15 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static decorateModelService<M extends Model, T>(constructor: ModelServiceConstructor<M, T>,
-                                                  modelClass: ModelClass, serviceName: string): void {
+  static decorateModelService(constructor: ModelServiceConstructor<Model, unknown>,
+                              modelClass: ModelClass, serviceName: string): void {
     if (!modelClass.hasOwnProperty("_modelServiceConstructors")) {
       modelClass._modelServiceConstructors = {};
     }
     modelClass._modelServiceConstructors![serviceName] = constructor;
     Object.defineProperty(modelClass, serviceName, {
-      get: function (this: M): ModelService<M, T> {
-        let modelService = this.getModelService(serviceName) as ModelService<M, T> | null;
+      get: function (this: Model): ModelService<Model, unknown> {
+        let modelService = this.getModelService(serviceName);
         if (modelService === null) {
           modelService = new constructor(this, serviceName);
           this.setModelService(serviceName, modelService);
@@ -1034,7 +1308,7 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static getModelScopeConstructor(scopeName: string, modelClass: ModelClass | null = null): ModelScopeConstructor<any, unknown> | null {
+  static getModelScopeConstructor(scopeName: string, modelClass: ModelClass | null = null): ModelScopeConstructor<Model, unknown> | null {
     if (modelClass === null) {
       modelClass = this.prototype as unknown as ModelClass;
     }
@@ -1051,15 +1325,15 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static decorateModelScope<M extends Model, T, U>(constructor: ModelScopeConstructor<M, T, U>,
-                                                   modelClass: ModelClass, scopeName: string): void {
+  static decorateModelScope(constructor: ModelScopeConstructor<Model, unknown>,
+                            modelClass: ModelClass, scopeName: string): void {
     if (!modelClass.hasOwnProperty("_modelScopeConstructors")) {
       modelClass._modelScopeConstructors = {};
     }
     modelClass._modelScopeConstructors![scopeName] = constructor;
     Object.defineProperty(modelClass, scopeName, {
-      get: function (this: M): ModelScope<M, T, U> {
-        let modelScope = this.getModelScope(scopeName) as ModelScope<M, T, U> | null;
+      get: function (this: Model): ModelScope<Model, unknown> {
+        let modelScope = this.getModelScope(scopeName);
         if (modelScope === null) {
           modelScope = new constructor(this, scopeName);
           this.setModelScope(scopeName, modelScope);
@@ -1072,16 +1346,37 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static decorateModelTrait<M extends Model>(constructor: ModelTraitConstructor<M>,
-                                             modelClass: ModelClass, traitName: string): void {
-    Object.defineProperty(modelClass, traitName, {
-      get: function (this: M): ModelTrait<M> {
-        let modelTrait = this.getModelTrait(traitName);
-        if (modelTrait === null) {
-          modelTrait = new constructor(this, traitName);
-          this.setModelTrait(traitName, modelTrait);
+  static getModelBindingConstructor(bindingName: string, modelClass: ModelClass | null = null): ModelBindingConstructor<Model, Model> | null {
+    if (modelClass === null) {
+      modelClass = this.prototype as unknown as ModelClass;
+    }
+    do {
+      if (modelClass.hasOwnProperty("_modelBindingConstructors")) {
+        const constructor = modelClass._modelBindingConstructors![bindingName];
+        if (constructor !== void 0) {
+          return constructor;
         }
-        return modelTrait;
+      }
+      modelClass = (modelClass as any).__proto__ as ModelClass | null;
+    } while (modelClass !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateModelBinding(constructor: ModelBindingConstructor<Model, Model>,
+                              modelClass: ModelClass, bindingName: string): void {
+    if (!modelClass.hasOwnProperty("_modelBindingConstructors")) {
+      modelClass._modelBindingConstructors = {};
+    }
+    modelClass._modelBindingConstructors![bindingName] = constructor;
+    Object.defineProperty(modelClass, bindingName, {
+      get: function (this: Model): ModelBinding<Model, Model> {
+        let modelBinding = this.getModelBinding(bindingName);
+        if (modelBinding === null) {
+          modelBinding = new constructor(this, bindingName);
+          this.setModelBinding(bindingName, modelBinding);
+        }
+        return modelBinding;
       },
       configurable: true,
       enumerable: true,
@@ -1089,16 +1384,37 @@ export abstract class Model {
   }
 
   /** @hidden */
-  static decorateModelDownlink<M extends Model>(constructor: ModelDownlinkConstructor<M>,
-                                                modelClass: ModelClass, downlinkName: string): void {
-    Object.defineProperty(modelClass, downlinkName, {
-      get: function (this: M): ModelDownlink<M> {
-        let modelDownlink = this.getModelDownlink(downlinkName);
-        if (modelDownlink === null) {
-          modelDownlink = new constructor(this, downlinkName);
-          this.setModelDownlink(downlinkName, modelDownlink);
+  static getModelTraitConstructor(bindingName: string, modelClass: ModelClass | null = null): ModelTraitConstructor<Model, Trait> | null {
+    if (modelClass === null) {
+      modelClass = this.prototype as unknown as ModelClass;
+    }
+    do {
+      if (modelClass.hasOwnProperty("_modelTraitConstructors")) {
+        const constructor = modelClass._modelTraitConstructors![bindingName];
+        if (constructor !== void 0) {
+          return constructor;
         }
-        return modelDownlink;
+      }
+      modelClass = (modelClass as any).__proto__ as ModelClass | null;
+    } while (modelClass !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateModelTrait(constructor: ModelTraitConstructor<Model, Trait>,
+                            modelClass: ModelClass, bindingName: string): void {
+    if (!modelClass.hasOwnProperty("_modelTraitConstructors")) {
+      modelClass._modelTraitConstructors = {};
+    }
+    modelClass._modelTraitConstructors![bindingName] = constructor;
+    Object.defineProperty(modelClass, bindingName, {
+      get: function (this: Model): ModelTrait<Model, Trait> {
+        let modelTrait = this.getModelTrait(bindingName);
+        if (modelTrait === null) {
+          modelTrait = new constructor(this, bindingName);
+          this.setModelTrait(bindingName, modelTrait);
+        }
+        return modelTrait;
       },
       configurable: true,
       enumerable: true,
@@ -1165,12 +1481,12 @@ export abstract class Model {
   static readonly powerFlags: ModelFlags = 0;
   static readonly insertChildFlags: ModelFlags = 0;
   static readonly removeChildFlags: ModelFlags = 0;
+  static readonly insertTraitFlags: ModelFlags = 0;
+  static readonly removeTraitFlags: ModelFlags = 0;
   static readonly startConsumingFlags: ModelFlags = 0;
   static readonly stopConsumingFlags: ModelFlags = 0;
 
   // Forward type declarations
-  /** @hidden */
-  static Submodel: typeof Submodel; // defined by Submodel
   /** @hidden */
   static Manager: typeof ModelManager; // defined by ModelManager
   /** @hidden */
@@ -1178,9 +1494,7 @@ export abstract class Model {
   /** @hidden */
   static Scope: typeof ModelScope; // defined by ModelScope
   /** @hidden */
-  static Trait: typeof ModelTrait; // defined by ModelTrait
-  /** @hidden */
-  static Downlink: typeof ModelDownlink; // defined by ModelDownlink
+  static Binding: typeof ModelBinding; // defined by ModelBinding
   /** @hidden */
   static Generic: typeof GenericModel; // defined by GenericModel
   /** @hidden */

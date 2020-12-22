@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContextType} from "@swim/view";
-import {GraphicsViewObserver} from "../graphics/GraphicsViewObserver";
-import {RasterView} from "./RasterView";
+import {Trait} from "../Trait";
+import {TraitScope} from "./TraitScope";
 
-export interface RasterViewObserver<V extends RasterView = RasterView> extends GraphicsViewObserver<V> {
-  viewWillComposite?(viewContext: ViewContextType<V>, view: V): void;
-
-  viewDidComposite?(viewContext: ViewContextType<V>, view: V): void;
+/** @hidden */
+export abstract class StringTraitScope<R extends Trait> extends TraitScope<R, string | null | undefined> {
+  fromAny(value: string | null | undefined): string | null | undefined {
+    return value;
+  }
 }
+TraitScope.String = StringTraitScope;

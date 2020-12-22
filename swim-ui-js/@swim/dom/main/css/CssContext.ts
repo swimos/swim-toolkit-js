@@ -61,8 +61,8 @@ CssContext.getCssRuleConstructor = function (ruleName: string, contextClass: Css
   return null;
 };
 
-CssContext.decorateCssRule = function<V extends CssContext>(constructor: CssRuleConstructor<V>,
-                                                            contextClass: CssContextClass, ruleName: string): void {
+CssContext.decorateCssRule = function <V extends CssContext>(constructor: CssRuleConstructor<V>,
+                                                             contextClass: CssContextClass, ruleName: string): void {
   if (!contextClass.hasOwnProperty("_cssRuleConstructors")) {
     contextClass._cssRuleConstructors = {};
   }

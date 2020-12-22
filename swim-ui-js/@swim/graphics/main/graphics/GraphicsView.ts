@@ -25,15 +25,15 @@ import {
   View,
   ViewObserverType,
   ViewControllerType,
-  Subview,
+  ViewService,
+  LayoutAnchor,
+  ViewScope,
+  ViewAnimator,
+  ViewBinding,
   ViewEvent,
   ViewMouseEvent,
   ViewPointerEvent,
   ViewEventHandler,
-  ViewService,
-  ViewScope,
-  ViewAnimator,
-  LayoutAnchor,
 } from "@swim/view";
 import {GraphicsRenderer} from "./GraphicsRenderer";
 import {GraphicsViewContext} from "./GraphicsViewContext";
@@ -54,7 +54,7 @@ export interface GraphicsViewInit extends ViewInit {
 
 export interface GraphicsViewConstructor<V extends GraphicsView = GraphicsView> {
   new(): V;
-  prototype: V;
+  readonly prototype: V;
 }
 
 export interface GraphicsViewClass extends ViewClass {
@@ -72,13 +72,13 @@ export abstract class GraphicsView extends View {
   /** @hidden */
   _viewFlags: ViewFlags;
   /** @hidden */
-  _subviews?: {[subviewName: string]: Subview<View, View> | undefined};
-  /** @hidden */
   _viewServices?: {[serviceName: string]: ViewService<View, unknown> | undefined};
   /** @hidden */
   _viewScopes?: {[scopeName: string]: ViewScope<View, unknown> | undefined};
   /** @hidden */
   _viewAnimators?: {[animatorName: string]: ViewAnimator<View, unknown> | undefined};
+  /** @hidden */
+  _viewBindings?: {[bindingName: string]: ViewBinding<View, View> | undefined};
   /** @hidden */
   _layoutAnchors?: {[anchorName: string]: LayoutAnchor<View> | undefined};
   /** @hidden */
@@ -255,6 +255,17 @@ export abstract class GraphicsView extends View {
     this.didSetParentView(newParentView, oldParentView);
   }
 
+  remove(): void {
+    const parentView = this._parentView;
+    if (parentView !== null) {
+      if ((this._viewFlags & View.TraversingFlag) === 0) {
+        parentView.removeChildView(this);
+      } else {
+        this._viewFlags |= View.RemovingFlag;
+      }
+    }
+  }
+
   abstract get childViewCount(): number;
 
   abstract get childViews(): ReadonlyArray<View>;
@@ -315,16 +326,15 @@ export abstract class GraphicsView extends View {
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
-    this.insertSubview(childView);
+    this.insertViewBinding(childView);
   }
 
   cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
-    const viewFlags = this._viewFlags;
-    if ((viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
+    if ((this._viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
       if (updateFlags === void 0) {
         updateFlags = 0;
       }
-      updateFlags |= viewFlags & View.UpdateMask;
+      updateFlags |= this._viewFlags & View.UpdateMask;
       if ((updateFlags & View.ProcessMask) !== 0) {
         if (viewContext === void 0) {
           viewContext = this.superViewContext;
@@ -339,21 +349,10 @@ export abstract class GraphicsView extends View {
 
   protected onRemoveChildView(childView: View): void {
     super.onRemoveChildView(childView);
-    this.removeSubview(childView);
+    this.removeViewBinding(childView);
   }
 
   abstract removeAll(): void;
-
-  remove(): void {
-    const parentView = this._parentView;
-    if (parentView !== null) {
-      if ((this._viewFlags & View.TraversingFlag) === 0) {
-        parentView.removeChildView(this);
-      } else {
-        this._viewFlags |= View.RemovingFlag;
-      }
-    }
-  }
 
   get viewClass(): GraphicsViewClass {
     return this.constructor as unknown as GraphicsViewClass;
@@ -391,7 +390,7 @@ export abstract class GraphicsView extends View {
     this.mountServices();
     this.mountScopes();
     this.mountAnimators();
-    this.mountSubviews();
+    this.mountBindings();
     this.mountTheme();
   }
 
@@ -413,7 +412,7 @@ export abstract class GraphicsView extends View {
 
   cascadeUnmount(): void {
     if ((this._viewFlags & View.MountedFlag) !== 0) {
-      this._viewFlags &= ~View.MountedFlag
+      this._viewFlags &= ~View.MountedFlag;
       this._viewFlags |= View.TraversingFlag;
       try {
         this.willUnmount();
@@ -434,7 +433,7 @@ export abstract class GraphicsView extends View {
   }
 
   protected onUnmount(): void {
-    this.unmountSubviews();
+    this.unmountBindings();
     this.unmountAnimators();
     this.unmountScopes();
     this.unmountServices();
@@ -482,7 +481,7 @@ export abstract class GraphicsView extends View {
 
   cascadeUnpower(): void {
     if ((this._viewFlags & View.PoweredFlag) !== 0) {
-      this._viewFlags &= ~View.PoweredFlag
+      this._viewFlags &= ~View.PoweredFlag;
       this._viewFlags |= View.TraversingFlag;
       try {
         this.willUnpower();
@@ -636,7 +635,7 @@ export abstract class GraphicsView extends View {
     this._viewFlags |= View.TraversingFlag | View.ProcessingFlag;
     this._viewFlags &= ~(View.NeedsProcess | View.NeedsProject);
     try {
-      this.willProcess(viewContext);
+      this.willProcess(cascadeFlags, viewContext);
       if (((this._viewFlags | processFlags) & View.NeedsResize) !== 0) {
         this.willResize(viewContext);
         cascadeFlags |= View.NeedsResize;
@@ -658,7 +657,7 @@ export abstract class GraphicsView extends View {
         this._viewFlags &= ~View.NeedsAnimate;
       }
 
-      this.onProcess(viewContext);
+      this.onProcess(cascadeFlags, viewContext);
       if ((cascadeFlags & View.NeedsResize) !== 0) {
         this.onResize(viewContext);
       }
@@ -686,7 +685,7 @@ export abstract class GraphicsView extends View {
       if ((cascadeFlags & View.NeedsResize) !== 0) {
         this.didResize(viewContext);
       }
-      this.didProcess(viewContext);
+      this.didProcess(cascadeFlags, viewContext);
     } finally {
       this._viewFlags &= ~(View.TraversingFlag | View.ProcessingFlag);
     }
@@ -694,7 +693,7 @@ export abstract class GraphicsView extends View {
 
   protected onChange(viewContext: ViewContextType<this>): void {
     super.onChange(viewContext);
-    this.updateScopes();
+    this.changeScopes();
     this.updateTheme();
   }
 
@@ -733,9 +732,9 @@ export abstract class GraphicsView extends View {
   protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = displayFlags;
     this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
-    this._viewFlags &= ~(View.NeedsDisplay | View.NeedsComposite);
+    this._viewFlags &= ~View.NeedsDisplay;
     try {
-      this.willDisplay(viewContext);
+      this.willDisplay(cascadeFlags, viewContext);
       if (((this._viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
         this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
@@ -746,24 +745,35 @@ export abstract class GraphicsView extends View {
         cascadeFlags |= View.NeedsRender;
         this._viewFlags &= ~View.NeedsRender;
       }
+      if (((this._viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
+        this.willComposite(viewContext);
+        cascadeFlags |= View.NeedsComposite;
+        this._viewFlags &= ~View.NeedsComposite;
+      }
 
-      this.onDisplay(viewContext);
+      this.onDisplay(cascadeFlags, viewContext);
       if ((cascadeFlags & View.NeedsLayout) !== 0) {
         this.onLayout(viewContext);
       }
       if ((cascadeFlags & View.NeedsRender) !== 0) {
         this.onRender(viewContext);
       }
+      if ((cascadeFlags & View.NeedsComposite) !== 0) {
+        this.onComposite(viewContext);
+      }
 
       this.doDisplayChildViews(cascadeFlags, viewContext);
 
+      if ((cascadeFlags & View.NeedsComposite) !== 0) {
+        this.didComposite(viewContext);
+      }
       if ((cascadeFlags & View.NeedsRender) !== 0) {
         this.didRender(viewContext);
       }
       if ((cascadeFlags & View.NeedsLayout) !== 0) {
         this.didLayout(viewContext);
       }
-      this.didDisplay(viewContext);
+      this.didDisplay(cascadeFlags, viewContext);
     } finally {
       this._viewFlags &= ~(View.TraversingFlag | View.DisplayingFlag);
     }
@@ -785,6 +795,26 @@ export abstract class GraphicsView extends View {
     this.didObserve(function (viewObserver: GraphicsViewObserver): void {
       if (viewObserver.viewDidRender !== void 0) {
         viewObserver.viewDidRender(viewContext, this);
+      }
+    });
+  }
+
+  protected willComposite(viewContext: ViewContextType<this>): void {
+    this.willObserve(function (viewObserver: GraphicsViewObserver): void {
+      if (viewObserver.viewWillComposite !== void 0) {
+        viewObserver.viewWillComposite(viewContext, this);
+      }
+    });
+  }
+
+  protected onComposite(viewContext: ViewContextType<this>): void {
+    // hook
+  }
+
+  protected didComposite(viewContext: ViewContextType<this>): void {
+    this.didObserve(function (viewObserver: GraphicsViewObserver): void {
+      if (viewObserver.viewDidComposite !== void 0) {
+        viewObserver.viewDidComposite(viewContext, this);
       }
     });
   }
@@ -977,86 +1007,6 @@ export abstract class GraphicsView extends View {
     });
   }
 
-  hasSubview(subviewName: string): boolean {
-    const subviews = this._subviews;
-    return subviews !== void 0 && subviews[subviewName] !== void 0;
-  }
-
-  getSubview(subviewName: string): Subview<this, View> | null {
-    const subviews = this._subviews;
-    if (subviews !== void 0) {
-      const subview = subviews[subviewName];
-      if (subview !== void 0) {
-        return subview as Subview<this, View>;
-      }
-    }
-    return null;
-  }
-
-  setSubview(subviewName: string, newSubview: Subview<this, View> | null): void {
-    let subviews = this._subviews;
-    if (subviews === void 0) {
-      subviews = {};
-      this._subviews = subviews;
-    }
-    const oldSubview = subviews[subviewName];
-    if (oldSubview !== void 0 && this.isMounted()) {
-      oldSubview.unmount();
-    }
-    if (newSubview !== null) {
-      subviews[subviewName] = newSubview;
-      if (this.isMounted()) {
-        newSubview.mount();
-      }
-    } else {
-      delete subviews[subviewName];
-    }
-  }
-
-  /** @hidden */
-  protected mountSubviews(): void {
-    const subviews = this._subviews;
-    if (subviews !== void 0) {
-      for (const subviewName in subviews) {
-        const subview = subviews[subviewName]!;
-        subview.mount();
-      }
-    }
-  }
-
-  /** @hidden */
-  protected unmountSubviews(): void {
-    const subviews = this._subviews;
-    if (subviews !== void 0) {
-      for (const subviewName in subviews) {
-        const subview = subviews[subviewName]!;
-        subview.unmount();
-      }
-    }
-  }
-
-  /** @hidden */
-  protected insertSubview(childView: View): void {
-    const subviewName = childView.key;
-    if (subviewName !== void 0) {
-      const subview = this.getLazySubview(subviewName);
-      if (subview !== null && subview.child) {
-        subview.doSetSubview(childView);
-      }
-    }
-  }
-
-  /** @hidden */
-  protected removeSubview(childView: View): void {
-    const subviewName = childView.key;
-    if (subviewName !== void 0) {
-      const subview = this.getSubview(subviewName);
-      if (subview !== null && subview.child) {
-        subview.doSetSubview(null);
-      }
-    }
-  }
-
   hasViewService(serviceName: string): boolean {
     const viewServices = this._viewServices;
     return viewServices !== void 0 && viewServices[serviceName] !== void 0;
@@ -1152,7 +1102,7 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
-  updateScopes(): void {
+  changeScopes(): void {
     const viewScopes = this._viewScopes;
     if (viewScopes !== void 0) {
       for (const scopeName in viewScopes) {
@@ -1264,6 +1214,86 @@ export abstract class GraphicsView extends View {
       for (const animatorName in viewAnimators) {
         const viewAnimator = viewAnimators[animatorName]!;
         viewAnimator.unmount();
+      }
+    }
+  }
+
+  hasViewBinding(bindingName: string): boolean {
+    const viewBindings = this._viewBindings;
+    return viewBindings !== void 0 && viewBindings[bindingName] !== void 0;
+  }
+
+  getViewBinding(bindingName: string): ViewBinding<this, View> | null {
+    const viewBindings = this._viewBindings;
+    if (viewBindings !== void 0) {
+      const viewBinding = viewBindings[bindingName];
+      if (viewBinding !== void 0) {
+        return viewBinding as ViewBinding<this, View>;
+      }
+    }
+    return null;
+  }
+
+  setViewBinding(bindingName: string, newViewBinding: ViewBinding<this, View> | null): void {
+    let viewBindings = this._viewBindings;
+    if (viewBindings === void 0) {
+      viewBindings = {};
+      this._viewBindings = viewBindings;
+    }
+    const oldViewBinding = viewBindings[bindingName];
+    if (oldViewBinding !== void 0 && this.isMounted()) {
+      oldViewBinding.unmount();
+    }
+    if (newViewBinding !== null) {
+      viewBindings[bindingName] = newViewBinding;
+      if (this.isMounted()) {
+        newViewBinding.mount();
+      }
+    } else {
+      delete viewBindings[bindingName];
+    }
+  }
+
+  /** @hidden */
+  protected mountBindings(): void {
+    const viewBindings = this._viewBindings;
+    if (viewBindings !== void 0) {
+      for (const bindingName in viewBindings) {
+        const viewBinding = viewBindings[bindingName]!;
+        viewBinding.mount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected unmountBindings(): void {
+    const viewBindings = this._viewBindings;
+    if (viewBindings !== void 0) {
+      for (const bindingName in viewBindings) {
+        const viewBinding = viewBindings[bindingName]!;
+        viewBinding.unmount();
+      }
+    }
+  }
+
+  /** @hidden */
+  protected insertViewBinding(childView: View): void {
+    const bindingName = childView.key;
+    if (bindingName !== void 0) {
+      const viewBinding = this.getLazyViewBinding(bindingName);
+      if (viewBinding !== null && viewBinding.child === true) {
+        viewBinding.doSetView(childView);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected removeViewBinding(childView: View): void {
+    const bindingName = childView.key;
+    if (bindingName !== void 0) {
+      const viewBinding = this.getViewBinding(bindingName);
+      if (viewBinding !== null && viewBinding.child === true) {
+        viewBinding.doSetView(null);
       }
     }
   }
@@ -1476,13 +1506,17 @@ export abstract class GraphicsView extends View {
     return this.viewFrame;
   }
 
+  get ownViewBounds(): BoxR2 | null {
+    return null;
+  }
+
   deriveViewBounds(): BoxR2 {
-    let viewBounds: BoxR2 | undefined;
+    let viewBounds: BoxR2 | null = this.ownViewBounds;
     this.forEachChildView(function (childView: View): void {
       if (childView instanceof GraphicsView && !childView.isHidden()) {
         const childViewBounds = childView.viewBounds;
         if (childViewBounds.isDefined()) {
-          if (viewBounds !== void 0) {
+          if (viewBounds !== null) {
             viewBounds = viewBounds.union(childViewBounds);
           } else {
             viewBounds = childViewBounds;
@@ -1490,7 +1524,7 @@ export abstract class GraphicsView extends View {
         }
       }
     }, this);
-    if (viewBounds === void 0) {
+    if (viewBounds === null) {
       viewBounds = this.viewFrame;
     }
     return viewBounds;

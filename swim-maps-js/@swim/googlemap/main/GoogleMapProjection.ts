@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyPointR2, PointR2} from "@swim/math";
-import {AnyGeoPoint, GeoPoint, GeoBox, GeoProjection} from "@swim/map";
+import {AnyGeoPoint, GeoPoint, GeoBox, GeoProjection} from "@swim/geo";
 import {GoogleMapView} from "./GoogleMapView";
 
 export class GoogleMapProjection implements GeoProjection {

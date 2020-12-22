@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ModelTraitInit,
-  ModelTraitDescriptorInit,
-  ModelTraitDescriptorExtends,
-  ModelTraitDescriptor,
-  ModelTraitPrototype,
-  ModelTraitConstructor,
-  ModelTrait,
-} from "./ModelTrait";
+import {Trait} from "../Trait";
+import {TraitScope} from "./TraitScope";
 
-export {ModelTraitObserver} from "./ModelTraitObserver";
+/** @hidden */
+export abstract class BooleanTraitScope<R extends Trait> extends TraitScope<R, boolean | null | undefined, boolean | string | null | undefined> {
+  fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
+    return !!value;
+  }
+}
+TraitScope.Boolean = BooleanTraitScope;

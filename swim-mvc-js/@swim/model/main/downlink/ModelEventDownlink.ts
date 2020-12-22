@@ -16,7 +16,7 @@ import {__extends} from "tslib";
 import {Value} from "@swim/structure";
 import {Uri} from "@swim/uri";
 import {EventDownlinkObserver, EventDownlink, WarpRef} from "@swim/client";
-import {Model} from "../Model";
+import {ModelDownlinkContext} from "./ModelDownlinkContext";
 import {ModelDownlinkInit, ModelDownlink} from "./ModelDownlink";
 
 export interface ModelEventDownlinkInit extends ModelDownlinkInit, EventDownlinkObserver {
@@ -25,24 +25,26 @@ export interface ModelEventDownlinkInit extends ModelDownlinkInit, EventDownlink
   initDownlink?(downlink: EventDownlink): EventDownlink;
 }
 
-export type ModelEventDownlinkDescriptorInit<M extends Model, I = {}> = ModelEventDownlinkInit & ThisType<ModelEventDownlink<M> & I> & I;
+export type ModelEventDownlinkDescriptorInit<M extends ModelDownlinkContext, I = {}> = ModelEventDownlinkInit & ThisType<ModelEventDownlink<M> & I> & I;
 
-export type ModelEventDownlinkDescriptorExtends<M extends Model, I = {}> = {extends: ModelEventDownlinkPrototype | undefined} & ModelEventDownlinkDescriptorInit<M, I>;
+export type ModelEventDownlinkDescriptorExtends<M extends ModelDownlinkContext, I = {}> = {extends: ModelEventDownlinkPrototype | undefined} & ModelEventDownlinkDescriptorInit<M, I>;
 
-export type ModelEventDownlinkDescriptor<M extends Model, I = {}> = ModelEventDownlinkDescriptorInit<M, I>;
+export type ModelEventDownlinkDescriptor<M extends ModelDownlinkContext, I = {}> = ModelEventDownlinkDescriptorInit<M, I>;
 
-export type ModelEventDownlinkPrototype = Function & {prototype: ModelEventDownlink<any>};
+export interface ModelEventDownlinkPrototype extends Function {
+  readonly prototype: ModelEventDownlink<any>;
+}
 
-export type ModelEventDownlinkConstructor<M extends Model, I = {}> = {
-  new(model: M, downlinkName: string | undefined): ModelEventDownlink<M> & I;
+export interface ModelEventDownlinkConstructor<M extends ModelDownlinkContext, I = {}> {
+  new(owner: M, downlinkName: string | undefined): ModelEventDownlink<M> & I;
   prototype: ModelEventDownlink<any> & I;
-};
+}
 
-export declare abstract class ModelEventDownlink<M extends Model> {
+export declare abstract class ModelEventDownlink<M extends ModelDownlinkContext> {
   /** @hidden */
   _downlink: EventDownlink | null;
 
-  constructor(model: M, downlinkName: string | undefined);
+  constructor(owner: M, downlinkName: string | undefined);
 
   get downlink(): EventDownlink | null;
 
@@ -55,44 +57,44 @@ export declare abstract class ModelEventDownlink<M extends Model> {
   /** @hidden */
   initDownlink?(downlink: EventDownlink): EventDownlink;
 
-  static define<M extends Model, I = {}>(descriptor: ModelEventDownlinkDescriptorExtends<M, I>): ModelEventDownlinkConstructor<M, I>;
-  static define<M extends Model>(descriptor: ModelEventDownlinkDescriptor<M>): ModelEventDownlinkConstructor<M>;
+  static define<M extends ModelDownlinkContext, I = {}>(descriptor: ModelEventDownlinkDescriptorExtends<M, I>): ModelEventDownlinkConstructor<M, I>;
+  static define<M extends ModelDownlinkContext>(descriptor: ModelEventDownlinkDescriptor<M>): ModelEventDownlinkConstructor<M>;
 }
 
-export interface ModelEventDownlink<M extends Model> extends ModelDownlink<M> {
+export interface ModelEventDownlink<M extends ModelDownlinkContext> extends ModelDownlink<M> {
 }
 
-export function ModelEventDownlink<M extends Model, I = {}>(descriptor: ModelEventDownlinkDescriptorExtends<M, I>): PropertyDecorator;
-export function ModelEventDownlink<M extends Model>(descriptor: ModelEventDownlinkDescriptor<M>): PropertyDecorator;
+export function ModelEventDownlink<M extends ModelDownlinkContext, I = {}>(descriptor: ModelEventDownlinkDescriptorExtends<M, I>): PropertyDecorator;
+export function ModelEventDownlink<M extends ModelDownlinkContext>(descriptor: ModelEventDownlinkDescriptor<M>): PropertyDecorator;
 
-export function ModelEventDownlink<M extends Model>(
+export function ModelEventDownlink<M extends ModelDownlinkContext>(
     this: ModelEventDownlink<M> | typeof ModelEventDownlink,
-    model: M | ModelEventDownlinkDescriptor<M>,
+    owner: M | ModelEventDownlinkDescriptor<M>,
     downlinkName?: string
   ): ModelEventDownlink<M> | PropertyDecorator {
   if (this instanceof ModelEventDownlink) { // constructor
-    return ModelEventDownlinkConstructor.call(this, model as M, downlinkName);
+    return ModelEventDownlinkConstructor.call(this, owner as M, downlinkName);
   } else { // decorator factory
-    return ModelEventDownlinkDecoratorFactory(model as ModelEventDownlinkDescriptor<M>);
+    return ModelEventDownlinkDecoratorFactory(owner as ModelEventDownlinkDescriptor<M>);
   }
 }
 __extends(ModelEventDownlink, ModelDownlink);
 ModelDownlink.Event = ModelEventDownlink;
 
-function ModelEventDownlinkConstructor<M extends Model>(this: ModelEventDownlink<M>, model: M, downlinkName: string | undefined): ModelEventDownlink<M> {
-  const _this: ModelEventDownlink<M> = ModelDownlink.call(this, model, downlinkName) || this;
+function ModelEventDownlinkConstructor<M extends ModelDownlinkContext>(this: ModelEventDownlink<M>, owner: M, downlinkName: string | undefined): ModelEventDownlink<M> {
+  const _this: ModelEventDownlink<M> = ModelDownlink.call(this, owner, downlinkName) || this;
   return _this;
 }
 
-function ModelEventDownlinkDecoratorFactory<M extends Model>(descriptor: ModelEventDownlinkDescriptor<M>): PropertyDecorator {
-  return Model.decorateModelDownlink.bind(Model, ModelEventDownlink.define(descriptor));
+function ModelEventDownlinkDecoratorFactory<M extends ModelDownlinkContext>(descriptor: ModelEventDownlinkDescriptor<M>): PropertyDecorator {
+  return ModelDownlinkContext.decorateModelDownlink.bind(ModelDownlinkContext, ModelEventDownlink.define(descriptor));
 }
 
-ModelEventDownlink.prototype.createDownlink = function <V, VU>(this: ModelEventDownlink<Model>, warp: WarpRef): EventDownlink {
+ModelEventDownlink.prototype.createDownlink = function <V, VU>(this: ModelEventDownlink<ModelDownlinkContext>, warp: WarpRef): EventDownlink {
   return warp.downlink();
 };
 
-ModelEventDownlink.define = function <M extends Model, V, VU, I>(descriptor: ModelEventDownlinkDescriptor<M, I>): ModelEventDownlinkConstructor<M, I> {
+ModelEventDownlink.define = function <M extends ModelDownlinkContext, V, VU, I>(descriptor: ModelEventDownlinkDescriptor<M, I>): ModelEventDownlinkConstructor<M, I> {
   let _super: ModelEventDownlinkPrototype | null | undefined = descriptor.extends;
   const enabled = descriptor.enabled;
   let hostUri = descriptor.hostUri;
@@ -114,8 +116,8 @@ ModelEventDownlink.define = function <M extends Model, V, VU, I>(descriptor: Mod
     _super = ModelEventDownlink;
   }
 
-  const _constructor = function ModelEventDownlinkAccessor(this: ModelDownlink<M>, model: M, downlinkName: string | undefined): ModelEventDownlink<M> {
-    const _this: ModelEventDownlink<M> = _super!.call(this, model, downlinkName) || this;
+  const _constructor = function ModelEventDownlinkAccessor(this: ModelDownlink<M>, owner: M, downlinkName: string | undefined): ModelEventDownlink<M> {
+    const _this: ModelEventDownlink<M> = _super!.call(this, owner, downlinkName) || this;
     if (enabled === true) {
       _this._downlinkFlags |= ModelDownlink.EnabledFlag;
     }

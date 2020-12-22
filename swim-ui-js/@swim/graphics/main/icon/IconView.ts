@@ -90,7 +90,7 @@ export const IconView = {
   /** @hidden */
   Graphics: void 0 as unknown as typeof GraphicsIconView, // defined by GraphicsIconView
   /** @hidden */
-  Path: void 0 as unknown as typeof SvgIconPathView, // defined by PathIconVIew
+  Path: void 0 as unknown as typeof SvgIconPathView, // defined by PathIconView
   /** @hidden */
   Svg: void 0 as unknown as typeof SvgIconView, // defined by SvgIconView
   /** @hidden */

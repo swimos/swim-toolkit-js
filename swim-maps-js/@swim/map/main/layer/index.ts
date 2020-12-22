@@ -12,18 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyGeoPoint,
-  GeoPointInit,
-  GeoPointTuple,
-  GeoPoint,
-} from "./GeoPoint";
-export {GeoPointInterpolator} from "./GeoPointInterpolator";
-
-export {
-  AnyGeoBox,
-  GeoBoxInit,
-  GeoBox,
-} from "./GeoBox";
-
-export {GeoProjection} from "./GeoProjection";
+export {MapLayerView} from "./MapLayerView";

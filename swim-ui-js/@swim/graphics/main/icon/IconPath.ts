@@ -38,7 +38,8 @@ export class IconPath extends Icon {
   }
 
   draw(context: DrawingContext, frame: BoxR2): void {
-    this.toPath(frame).draw(context);
+    this._path.transformDraw(context, Transform.scale(frame.width, frame.height)
+                                               .translate(frame.x, frame.y));
   }
 
   toPath(frame: BoxR2): PathR2 {

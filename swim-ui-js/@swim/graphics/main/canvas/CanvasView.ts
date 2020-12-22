@@ -469,7 +469,7 @@ export class CanvasView extends HtmlView {
     this.willInsertChildView(childView, targetView);
     graphicsViews.unshift(childView);
     this.insertChildViewMap(childView);
-    childView.setParentView(this, targetView);
+    childView.setParentView(this, null);
     this.onInsertChildView(childView, targetView);
     this.didInsertChildView(childView, targetView);
     childView.cascadeInsert();
@@ -769,18 +769,17 @@ export class CanvasView extends HtmlView {
       if ((updateFlags & View.DisplayMask) !== 0) {
         additionalFlags |= View.NeedsDisplay;
       }
-      additionalFlags |= View.NeedsRender;
+      additionalFlags |= View.NeedsRender | View.NeedsComposite;
     }
     return additionalFlags;
   }
 
   cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
-    const viewFlags = this._viewFlags;
-    if ((viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
+    if ((this._viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
       if (updateFlags === void 0) {
         updateFlags = 0;
       }
-      updateFlags |= viewFlags & View.UpdateMask;
+      updateFlags |= this._viewFlags & View.UpdateMask;
       if ((updateFlags & View.ProcessMask) !== 0) {
         if (viewContext === void 0) {
           viewContext = this.superViewContext;
@@ -792,7 +791,7 @@ export class CanvasView extends HtmlView {
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.ProcessMask) !== 0) {
-      this.requireUpdate(View.NeedsRender);
+      this.requireUpdate(View.NeedsRender | View.NeedsComposite);
     }
     return processFlags;
   }
@@ -819,31 +818,27 @@ export class CanvasView extends HtmlView {
   }
 
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
+                              processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
     const childNodes = this._node.childNodes;
-    const graphicsViews = this._graphicsViews;
     let i = 0;
     while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
-        this.processChildView(childView, processFlags, viewContext);
+        processChildView.call(this, childView, processFlags, viewContext);
         if ((childView._viewFlags & View.RemovingFlag) !== 0) {
           childView._viewFlags &= ~View.RemovingFlag;
           this.removeChildView(childView);
           continue;
-        } else if (callback !== void 0) {
-          callback.call(this, childView);
         }
       }
       i += 1;
     }
+    const graphicsViews = this._graphicsViews;
     i = 0;
     while (i < graphicsViews.length) {
       const childView = graphicsViews[i];
-      this.processChildView(childView, processFlags, viewContext);
-      if (callback !== void 0) {
-        callback.call(this, childView);
-      }
+      processChildView.call(this, childView, processFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
@@ -854,7 +849,7 @@ export class CanvasView extends HtmlView {
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    displayFlags |= View.NeedsRender;
+    displayFlags |= View.NeedsRender | View.NeedsComposite;
     return displayFlags;
   }
 
@@ -862,9 +857,9 @@ export class CanvasView extends HtmlView {
   protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = displayFlags;
     this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
-    this._viewFlags &= ~(View.NeedsDisplay | View.NeedsComposite);
+    this._viewFlags &= ~View.NeedsDisplay;
     try {
-      this.willDisplay(viewContext);
+      this.willDisplay(cascadeFlags, viewContext);
       if (((this._viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
         this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
@@ -875,32 +870,43 @@ export class CanvasView extends HtmlView {
         cascadeFlags |= View.NeedsRender;
         this._viewFlags &= ~View.NeedsRender;
       }
+      if (((this._viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
+        this.willComposite(viewContext);
+        cascadeFlags |= View.NeedsComposite;
+        this._viewFlags &= ~View.NeedsComposite;
+      }
 
-      this.onDisplay(viewContext);
+      this.onDisplay(cascadeFlags, viewContext);
       if ((cascadeFlags & View.NeedsLayout) !== 0) {
         this.onLayout(viewContext);
       }
       if ((cascadeFlags & View.NeedsRender) !== 0) {
         this.onRender(viewContext);
       }
+      if ((cascadeFlags & View.NeedsComposite) !== 0) {
+        this.onComposite(viewContext);
+      }
 
       this.doDisplayChildViews(cascadeFlags, viewContext);
 
+      if ((cascadeFlags & View.NeedsComposite) !== 0) {
+        this.didComposite(viewContext);
+      }
       if ((cascadeFlags & View.NeedsRender) !== 0) {
         this.didRender(viewContext);
       }
       if ((cascadeFlags & View.NeedsLayout) !== 0) {
         this.didLayout(viewContext);
       }
-      this.didDisplay(viewContext);
+      this.didDisplay(cascadeFlags, viewContext);
     } finally {
       this._viewFlags &= ~(View.TraversingFlag | View.DisplayingFlag);
     }
   }
 
-  protected didDisplay(viewContext: ViewContextType<this>): void {
+  protected didDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.detectHitTargets();
-    super.didDisplay(viewContext);
+    super.didDisplay(displayFlags, viewContext);
   }
 
   protected willRender(viewContext: ViewContextType<this>): void {
@@ -923,6 +929,26 @@ export class CanvasView extends HtmlView {
     });
   }
 
+  protected willComposite(viewContext: ViewContextType<this>): void {
+    this.willObserve(function (viewObserver: CanvasViewObserver): void {
+      if (viewObserver.viewWillComposite !== void 0) {
+        viewObserver.viewWillComposite(viewContext, this);
+      }
+    });
+  }
+
+  protected onComposite(viewContext: ViewContextType<this>): void {
+    // hook
+  }
+
+  protected didComposite(viewContext: ViewContextType<this>): void {
+    this.didObserve(function (viewObserver: CanvasViewObserver): void {
+      if (viewObserver.viewDidComposite !== void 0) {
+        viewObserver.viewDidComposite(viewContext, this);
+      }
+    });
+  }
+
   /** @hidden */
   protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     if ((displayFlags & View.DisplayMask) !== 0 &&
@@ -934,17 +960,14 @@ export class CanvasView extends HtmlView {
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              callback?: (this: this, childView: View) => void): void {
+                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                 viewContext: ViewContextType<this>) => void): void {
     const childNodes = this._node.childNodes;
-    const graphicsViews = this._graphicsViews;
     let i = 0;
     while (i < childNodes.length) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView !== void 0) {
-        this.displayChildView(childView, displayFlags, viewContext);
-        if (callback !== void 0) {
-          callback.call(this, childView);
-        }
+        displayChildView.call(this, childView, displayFlags, viewContext);
         if ((childView._viewFlags & View.RemovingFlag) !== 0) {
           childView._viewFlags &= ~View.RemovingFlag;
           this.removeChildView(childView);
@@ -953,16 +976,15 @@ export class CanvasView extends HtmlView {
       }
       i += 1;
     }
+    const graphicsViews = this._graphicsViews;
     i = 0;
     while (i < graphicsViews.length) {
       const childView = graphicsViews[i];
-      this.displayChildView(childView, displayFlags, viewContext);
+      displayChildView.call(this, childView, displayFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
         continue;
-      } else if (callback !== void 0) {
-        callback.call(this, childView);
       }
       i += 1;
     }
@@ -996,7 +1018,7 @@ export class CanvasView extends HtmlView {
 
   protected onSetHidden(hidden: boolean): void {
     if (!hidden) {
-      this.requireUpdate(View.NeedsRender);
+      this.requireUpdate(View.NeedsRender | View.NeedsComposite);
     }
   }
 
@@ -1945,8 +1967,8 @@ export class CanvasView extends HtmlView {
                                           | CanvasView.PointerEventsFlag
                                           | CanvasView.TouchEventsFlag;
 
-  static readonly powerFlags: ViewFlags = HtmlView.powerFlags | View.NeedsRender;
-  static readonly uncullFlags: ViewFlags = HtmlView.uncullFlags | View.NeedsRender;
+  static readonly powerFlags: ViewFlags = HtmlView.powerFlags | View.NeedsRender | View.NeedsComposite;
+  static readonly uncullFlags: ViewFlags = HtmlView.uncullFlags | View.NeedsRender | View.NeedsComposite;
 }
 GraphicsView.Canvas = CanvasView;
 

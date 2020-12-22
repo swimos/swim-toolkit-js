@@ -25,7 +25,7 @@ export abstract class ModelManagerService<M extends Model, MM extends ModelManag
     super.mount();
     const manager = this._manager;
     if (manager !== void 0 && !this.isInherited()) {
-      manager.insertRootModel(this._model);
+      manager.insertRootModel(this._owner);
       if (this.observe !== false) {
         manager.addModelManagerObserver(this as ModelManagerObserverType<MM>);
       }
@@ -38,7 +38,7 @@ export abstract class ModelManagerService<M extends Model, MM extends ModelManag
       if (this.observe !== false) {
         manager.removeModelManagerObserver(this as ModelManagerObserverType<MM>);
       }
-      manager.removeRootModel(this._model);
+      manager.removeRootModel(this._owner);
     }
     super.unmount();
   }

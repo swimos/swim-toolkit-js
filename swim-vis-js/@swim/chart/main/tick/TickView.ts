@@ -261,7 +261,7 @@ export abstract class TickView<D> extends LayerView {
 
   private static interpolateOpacity<D>(this: ViewAnimator<TickView<D>, number>, u: number): number {
     // Interpolate over max of time and distance translated
-    const view = this._view;
+    const view = this.owner;
     const offset = view._offset;
     if (isNaN(view._offset0)) {
       view._offset0 = offset;

@@ -26,6 +26,14 @@ export class GraphicsViewController<V extends GraphicsView = GraphicsView> exten
     // hook
   }
 
+  viewWillComposite(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
+  viewDidComposite(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
   isHidden(): boolean {
     const view = this._view;
     return view !== null && view.isHidden();

@@ -20,6 +20,10 @@ export interface GraphicsViewObserver<V extends GraphicsView = GraphicsView> ext
 
   viewDidRender?(viewContext: ViewContextType<V>, view: V): void;
 
+  viewWillComposite?(viewContext: ViewContextType<V>, view: V): void;
+
+  viewDidComposite?(viewContext: ViewContextType<V>, view: V): void;
+
   viewWillSetHidden?(hidden: boolean, view: V): void;
 
   viewDidSetHidden?(hidden: boolean, view: V): void;
