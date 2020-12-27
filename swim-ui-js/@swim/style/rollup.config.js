@@ -35,7 +35,7 @@ const main = {
     "@swim/color",
   ],
   plugins: [
-    nodeResolve({customResolveOptions: {paths: "../.."}}),
+    nodeResolve({moduleDirectories: ["../..", "node_modules"]}),
     sourcemaps(),
   ],
   onwarn(warning, warn) {
@@ -55,7 +55,7 @@ const test = {
     extend: true,
   },
   plugins: [
-    nodeResolve({customResolveOptions: {paths: ["../..", "../../../../swim-system-js/swim-core-js"]}}),
+    nodeResolve({moduleDirectories: ["../..", "../../../../swim-system-js/swim-core-js", "node_modules"]}),
     sourcemaps(),
   ],
   onwarn(warning, warn) {

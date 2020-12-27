@@ -21,7 +21,7 @@ const mvc = [
   {
     id: "mvc",
     name: "@swim/mvc",
-    title: "Swim MVC Framework",
+    title: "Swim MVC",
     umbrella: true,
     targets: [
       {

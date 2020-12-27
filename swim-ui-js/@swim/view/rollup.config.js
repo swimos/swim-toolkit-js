@@ -41,7 +41,7 @@ const main = {
     "@swim/theme",
   ],
   plugins: [
-    nodeResolve({customResolveOptions: {paths: "../.."}}),
+    nodeResolve({moduleDirectories: ["../..", "node_modules"]}),
     sourcemaps(),
   ],
   onwarn(warning, warn) {

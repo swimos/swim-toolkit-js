@@ -49,7 +49,7 @@ const main = {
     "@swim/graphics",
   ],
   plugins: [
-    nodeResolve({customResolveOptions: {paths: "../.."}}),
+    nodeResolve({moduleDirectories: ["../..", "node_modules"]}),
     sourcemaps(),
   ],
   onwarn(warning, warn) {

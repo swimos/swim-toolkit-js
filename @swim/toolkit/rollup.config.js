@@ -51,11 +51,12 @@ const main = {
     "@swim/client",
   ],
   plugins: [
-    nodeResolve({customResolveOptions: {paths: ["../../swim-ui-js",
-                                                "../../swim-ux-js",
-                                                "../../swim-vis-js",
-                                                "../../swim-maps-js",
-                                                "../../swim-mvc-js"]}}),
+    nodeResolve({moduleDirectories: ["../../swim-ui-js",
+                                     "../../swim-ux-js",
+                                     "../../swim-vis-js",
+                                     "../../swim-maps-js",
+                                     "../../swim-mvc-js",
+                                     "node_modules"]}),
     sourcemaps(),
   ],
   onwarn(warning, warn) {

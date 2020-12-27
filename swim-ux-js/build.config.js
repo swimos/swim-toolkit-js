@@ -51,7 +51,7 @@ const ux = [
   {
     id: "ux",
     name: "@swim/ux",
-    title: "Swim User Experience Framework",
+    title: "Swim UX",
     umbrella: true,
     targets: [
       {

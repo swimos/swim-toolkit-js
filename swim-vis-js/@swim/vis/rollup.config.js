@@ -53,7 +53,7 @@ const main = {
     "@swim/gesture",
   ],
   plugins: [
-    nodeResolve({customResolveOptions: {paths: "../.."}}),
+    nodeResolve({moduleDirectories: ["../..", "node_modules"]}),
     sourcemaps(),
   ],
   onwarn(warning, warn) {

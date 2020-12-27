@@ -234,7 +234,7 @@ const core = [
     id: "core",
     name: "@swim/core",
     path: "../swim-system-js/swim-core-js/@swim/core",
-    title: "Swim Core Framework",
+    title: "Swim Core",
     umbrella: true,
     targets: [
       {
@@ -291,7 +291,7 @@ const mesh = [
     id: "mesh",
     name: "@swim/mesh",
     path: "../swim-system-js/swim-mesh-js/@swim/mesh",
-    title: "Swim Mesh Framework",
+    title: "Swim Mesh",
     umbrella: true,
     targets: [
       {
@@ -307,7 +307,7 @@ const system = [
     id: "system",
     name: "@swim/system",
     path: "../swim-system-js/@swim/system",
-    title: "Swim System Framework",
+    title: "Swim System",
     umbrella: true,
     targets: [
       {
@@ -453,7 +453,7 @@ const ui = [
     id: "ui",
     name: "@swim/ui",
     path: "swim-ui-js/@swim/ui",
-    title: "Swim User Interface Toolkit",
+    title: "Swim UI",
     umbrella: true,
     targets: [
       {
@@ -524,7 +524,7 @@ const ux = [
     id: "ux",
     name: "@swim/ux",
     path: "swim-ux-js/@swim/ux",
-    title: "Swim User Experience Framework",
+    title: "Swim UX",
     umbrella: true,
     targets: [
       {
@@ -573,7 +573,7 @@ const vis = [
     id: "vis",
     name: "@swim/vis",
     path: "swim-vis-js/@swim/vis",
-    title: "Swim Visualizations Framework",
+    title: "Swim Vis",
     umbrella: true,
     targets: [
       {
@@ -633,7 +633,7 @@ const maps = [
     id: "maps",
     name: "@swim/maps",
     path: "swim-maps-js/@swim/maps",
-    title: "Swim Maps Framework",
+    title: "Swim Maps",
     umbrella: true,
     targets: [
       {
@@ -671,7 +671,7 @@ const mvc = [
     id: "mvc",
     name: "@swim/mvc",
     path: "swim-mvc-js/@swim/mvc",
-    title: "Swim MVC Framework",
+    title: "Swim MVC",
     umbrella: true,
     targets: [
       {

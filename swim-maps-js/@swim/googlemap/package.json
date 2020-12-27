@@ -11,7 +11,7 @@
   "module": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "devDependencies": {
-    "@types/googlemaps": "3.40"
+    "@types/googlemaps": "3.43"
   },
   "dependencies": {
     "@swim/util": "3.11.0-dev.20201021",
