@@ -121,7 +121,7 @@ const ui = [
     id: "ui",
     name: "@swim/ui",
     title: "Swim UI",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",

@@ -30,7 +30,7 @@ const vis = [
     id: "vis",
     name: "@swim/vis",
     title: "Swim Vis",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",

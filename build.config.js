@@ -235,7 +235,7 @@ const core = [
     name: "@swim/core",
     path: "../swim-system-js/swim-core-js/@swim/core",
     title: "Swim Core",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",
@@ -292,7 +292,7 @@ const mesh = [
     name: "@swim/mesh",
     path: "../swim-system-js/swim-mesh-js/@swim/mesh",
     title: "Swim Mesh",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",
@@ -308,7 +308,7 @@ const system = [
     name: "@swim/system",
     path: "../swim-system-js/@swim/system",
     title: "Swim System",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",
@@ -454,7 +454,7 @@ const ui = [
     name: "@swim/ui",
     path: "swim-ui-js/@swim/ui",
     title: "Swim UI",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",
@@ -525,7 +525,7 @@ const ux = [
     name: "@swim/ux",
     path: "swim-ux-js/@swim/ux",
     title: "Swim UX",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",
@@ -574,7 +574,7 @@ const vis = [
     name: "@swim/vis",
     path: "swim-vis-js/@swim/vis",
     title: "Swim Vis",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",
@@ -634,7 +634,7 @@ const maps = [
     name: "@swim/maps",
     path: "swim-maps-js/@swim/maps",
     title: "Swim Maps",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",
@@ -672,7 +672,7 @@ const mvc = [
     name: "@swim/mvc",
     path: "swim-mvc-js/@swim/mvc",
     title: "Swim MVC",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",
@@ -687,11 +687,12 @@ const toolkit = [
     id: "toolkit",
     name: "@swim/toolkit",
     title: "Swim Toolkit",
-    umbrella: true,
+    framework: true,
     targets: [
       {
         id: "main",
-        deps: ["core", "mesh", "ui", "ux", "vis", "maps", "mvc"],
+        deps: ["ui", "ux", "vis", "maps", "mvc"],
+        peerDeps: ["system"],
       },
     ],
   },
