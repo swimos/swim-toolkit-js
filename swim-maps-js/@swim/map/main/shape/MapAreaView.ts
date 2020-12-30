@@ -13,11 +13,13 @@
 // limitations under the License.
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
-import {GeoPath} from "@swim/geo";
+import {GeoBox, GeoPath} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
+  FillViewInit,
+  FillView,
   StrokeViewInit,
   StrokeView,
   CanvasContext,
@@ -25,26 +27,37 @@ import {
 } from "@swim/graphics";
 import {MapPathViewInit, MapPathView} from "./MapPathView";
 
-export interface MapLineViewInit extends MapPathViewInit, StrokeViewInit {
-  hitWidth?: number;
+export interface MapAreaViewInit extends MapPathViewInit, FillViewInit, StrokeViewInit {
+  clipViewport?: true;
 }
 
-export class MapLineView extends MapPathView implements StrokeView {
+export class MapAreaView extends MapPathView implements FillView, StrokeView {
   /** @hidden */
-  _hitWidth?: number;
+  _clipViewport: boolean;
 
-  initView(init: MapLineViewInit): void {
+  constructor() {
+    super();
+    this._clipViewport = true;
+  }
+
+  initView(init: MapAreaViewInit): void {
     super.initView(init);
+    if (init.fill !== void 0) {
+      this.fill(init.fill);
+    }
     if (init.stroke !== void 0) {
       this.stroke(init.stroke);
     }
     if (init.strokeWidth !== void 0) {
       this.strokeWidth(init.strokeWidth);
     }
-    if (init.hitWidth !== void 0) {
-      this.hitWidth(init.hitWidth);
+    if (init.clipViewport !== void 0) {
+      this.clipViewport(init.clipViewport);
     }
   }
+
+  @ViewAnimator({type: Color, inherit: true})
+  fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
   stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
@@ -52,17 +65,13 @@ export class MapLineView extends MapPathView implements StrokeView {
   @ViewAnimator({type: Length, inherit: true})
   strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  hitWidth(): number | null;
-  hitWidth(hitWidth: number | null): this;
-  hitWidth(hitWidth?: number | null): number | null | this {
-    if (hitWidth === void 0) {
-      return this._hitWidth !== void 0 ? this._hitWidth : null;
+  clipViewport(): boolean;
+  clipViewport(clipViewport: boolean): this;
+  clipViewport(clipViewport?: boolean): boolean | this {
+    if (clipViewport === void 0) {
+      return this._clipViewport;
     } else {
-      if (hitWidth !== null) {
-        this._hitWidth = hitWidth;
-      } else if (this._hitWidth !== void 0) {
-        this._hitWidth = void 0;
-      }
+      this._clipViewport = clipViewport;
       return this;
     }
   }
@@ -74,22 +83,45 @@ export class MapLineView extends MapPathView implements StrokeView {
     }
   }
 
+  cullGeoFrame(geoFrame: GeoBox = this.geoFrame): void {
+    let culled: boolean;
+    if (geoFrame.intersects(this.geoBounds)) {
+      const frame = this.viewFrame;
+      const bounds = this._viewBounds;
+      // check if 9x9 view frame fully contains view bounds
+      const contained = !this._clipViewport
+                     || frame.xMin - 4 * frame.width <= bounds.xMin
+                     && bounds.xMax <= frame.xMax + 4 * frame.width
+                     && frame.yMin - 4 * frame.height <= bounds.yMin
+                     && bounds.yMax <= frame.yMax + 4 * frame.height;
+      culled = !contained || !frame.intersects(bounds);
+    } else {
+      culled = true;
+    }
+    this.setCulled(culled);
+  }
+
   protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
       const context = renderer.context;
       context.save();
-      this.renderLine(context, this.viewFrame);
+      this.renderArea(context, this.viewFrame);
       context.restore();
     }
   }
 
-  protected renderLine(context: CanvasContext, frame: BoxR2): void {
+  protected renderArea(context: CanvasContext, frame: BoxR2): void {
     const viewPath = this.viewPath.getValue();
     if (viewPath.isDefined()) {
       context.beginPath();
       viewPath.draw(context);
+      const fill = this.fill.value;
+      if (fill !== void 0) {
+        context.fillStyle = fill.toString();
+        context.fill();
+      }
       const stroke = this.stroke.value;
       const strokeWidth = this.strokeWidth.value;
       if (stroke !== void 0 && strokeWidth !== void 0) {
@@ -110,36 +142,37 @@ export class MapLineView extends MapPathView implements StrokeView {
         context.save();
         x *= renderer.pixelRatio;
         y *= renderer.pixelRatio;
-        hit = this.hitTestLine(x, y, context, this.viewFrame);
+        hit = this.hitTestArea(x, y, context, this.viewFrame);
         context.restore();
       }
     }
     return hit;
   }
 
-  protected hitTestLine(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
+  protected hitTestArea(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
     const viewPath = this.viewPath.getValue();
     if (viewPath.isDefined()) {
       context.beginPath();
       viewPath.draw(context);
+      if (this.fill.value !== void 0 && context.isPointInPath(x, y)) {
+        return this;
+      }
       if (this.stroke.value !== void 0) {
-        let hitWidth = this._hitWidth !== void 0 ? this._hitWidth : 0;
         const strokeWidth = this.strokeWidth.value;
         if (strokeWidth !== void 0) {
           const size = Math.min(frame.width, frame.height);
-          hitWidth = Math.max(hitWidth, strokeWidth.pxValue(size));
-        }
-        context.lineWidth = hitWidth;
-        if (context.isPointInStroke(x, y)) {
-          return this;
+          context.lineWidth = strokeWidth.pxValue(size);
+          if (context.isPointInStroke(x, y)) {
+            return this;
+          }
         }
       }
     }
     return null;
   }
 
-  static fromInit(init: MapLineViewInit): MapLineView {
-    const view = new MapLineView();
+  static fromInit(init: MapAreaViewInit): MapAreaView {
+    const view = new MapAreaView();
     view.initView(init);
     return view;
   }

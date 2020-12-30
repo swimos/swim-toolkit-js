@@ -101,12 +101,12 @@ require([
               let approachView = approaches[approachId];
               if (approachView === undefined) {
                 const points = item.get("coords").toAny();
-                approachView = swim.MapPolygonView.fromAny({
-                    points: points,
-                    fill: swim.Color.transparent(),
-                    stroke: swim.Color.transparent(),
-                    strokeWidth: 3,
-                  })
+                points.push(points[0]); // close path
+                const approachView = new swim.MapAreaView()
+                  .geoPath(points)
+                  .fill(swim.Color.transparent())
+                  .stroke(swim.Color.transparent())
+                  .strokeWidth(3)
                   .on("pointerenter", function (event) {
                     updateApproach(approachView);
                   })

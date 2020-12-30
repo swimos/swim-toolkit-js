@@ -32,12 +32,6 @@ export {
 } from "./MapArcView";
 
 export {
-  AnyMapLineView,
-  MapLineViewInit,
-  MapLineView,
-} from "./MapLineView";
-
-export {
   AnyMapPolylineView,
   MapPolylineViewInit,
   MapPolylineView,
@@ -48,6 +42,21 @@ export {
   MapPolygonViewInit,
   MapPolygonView,
 } from "./MapPolygonView";
+
+export {
+  MapPathViewInit,
+  MapPathView,
+} from "./MapPathView";
+
+export {
+  MapLineViewInit,
+  MapLineView,
+} from "./MapLineView";
+
+export {
+  MapAreaViewInit,
+  MapAreaView,
+} from "./MapAreaView";
 
 export {
   AnyMapIconView,
