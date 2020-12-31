@@ -24,7 +24,6 @@ import {
   ViewClass,
   View,
   ViewObserverType,
-  ViewControllerType,
   ViewService,
   LayoutAnchor,
   ViewScope,
@@ -66,12 +65,6 @@ export abstract class GraphicsView extends View {
   /** @hidden */
   _parentView: View | null;
   /** @hidden */
-  _viewController: ViewControllerType<this> | null;
-  /** @hidden */
-  _viewObservers?: ViewObserverType<this>[];
-  /** @hidden */
-  _viewFlags: ViewFlags;
-  /** @hidden */
   _viewServices?: {[serviceName: string]: ViewService<View, unknown> | undefined};
   /** @hidden */
   _viewScopes?: {[scopeName: string]: ViewScope<View, unknown> | undefined};
@@ -95,8 +88,6 @@ export abstract class GraphicsView extends View {
   constructor() {
     super();
     this._parentView = null;
-    this._viewController = null;
-    this._viewFlags = 0;
   }
 
   initView(init: GraphicsViewInit): void {
@@ -118,70 +109,19 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  get viewController(): GraphicsViewController | null {
-    return this._viewController;
-  }
+  // @ts-ignore
+  declare readonly viewClass: GraphicsViewClass;
 
-  setViewController(newViewController: ViewControllerType<this> | null): void {
-    const oldViewController = this._viewController;
-    if (oldViewController !== newViewController) {
-      this.willSetViewController(newViewController);
-      if (oldViewController !== null) {
-        oldViewController.setView(null);
-      }
-      this._viewController = newViewController;
-      if (newViewController !== null) {
-        newViewController.setView(this);
-      }
-      this.onSetViewController(newViewController);
-      this.didSetViewController(newViewController);
-    }
-  }
+  // @ts-ignore
+  declare readonly viewController: GraphicsViewController | null;
 
-  get viewObservers(): ReadonlyArray<GraphicsViewObserver> {
-    let viewObservers = this._viewObservers;
-    if (viewObservers === void 0) {
-      viewObservers = [];
-      this._viewObservers = viewObservers;
-    }
-    return viewObservers;
-  }
-
-  addViewObserver(viewObserver: ViewObserverType<this>): void {
-    let viewObservers = this._viewObservers;
-    let index: number;
-    if (viewObservers === void 0) {
-      viewObservers = [];
-      this._viewObservers = viewObservers;
-      index = -1;
-    } else {
-      index = viewObservers.indexOf(viewObserver);
-    }
-    if (index < 0) {
-      this.willAddViewObserver(viewObserver);
-      viewObservers.push(viewObserver);
-      this.onAddViewObserver(viewObserver);
-      this.didAddViewObserver(viewObserver);
-    }
-  }
-
-  removeViewObserver(viewObserver: ViewObserverType<this>): void {
-    const viewObservers = this._viewObservers;
-    if (viewObservers !== void 0) {
-      const index = viewObservers.indexOf(viewObserver);
-      if (index >= 0) {
-        this.willRemoveViewObserver(viewObserver);
-        viewObservers.splice(index, 1);
-        this.onRemoveViewObserver(viewObserver);
-        this.didRemoveViewObserver(viewObserver);
-      }
-    }
-  }
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<GraphicsViewObserver>;
 
   protected willObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
     const viewController = this._viewController;
-    if (viewController !== null) {
+    if (viewController !== void 0) {
       result = callback.call(this, viewController);
       if (result !== void 0) {
         return result;
@@ -221,7 +161,7 @@ export abstract class GraphicsView extends View {
       }
     }
     const viewController = this._viewController;
-    if (viewController !== null) {
+    if (viewController !== void 0) {
       result = callback.call(this, viewController);
       if (result !== void 0) {
         return result;
@@ -353,20 +293,6 @@ export abstract class GraphicsView extends View {
   }
 
   abstract removeAll(): void;
-
-  get viewClass(): GraphicsViewClass {
-    return this.constructor as unknown as GraphicsViewClass;
-  }
-
-  /** @hidden */
-  get viewFlags(): ViewFlags {
-    return this._viewFlags;
-  }
-
-  /** @hidden */
-  setViewFlags(viewFlags: ViewFlags): void {
-    this._viewFlags = viewFlags;
-  }
 
   cascadeMount(): void {
     if ((this._viewFlags & View.MountedFlag) === 0) {
@@ -780,11 +706,17 @@ export abstract class GraphicsView extends View {
   }
 
   protected willRender(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: GraphicsViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillRender !== void 0) {
+      viewController.viewWillRender(viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillRender !== void 0) {
         viewObserver.viewWillRender(viewContext, this);
       }
-    });
+    }
   }
 
   protected onRender(viewContext: ViewContextType<this>): void {
@@ -792,19 +724,31 @@ export abstract class GraphicsView extends View {
   }
 
   protected didRender(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: GraphicsViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidRender !== void 0) {
         viewObserver.viewDidRender(viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidRender !== void 0) {
+      viewController.viewDidRender(viewContext, this);
+    }
   }
 
   protected willComposite(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: GraphicsViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillComposite !== void 0) {
+      viewController.viewWillComposite(viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillComposite !== void 0) {
         viewObserver.viewWillComposite(viewContext, this);
       }
-    });
+    }
   }
 
   protected onComposite(viewContext: ViewContextType<this>): void {
@@ -812,11 +756,17 @@ export abstract class GraphicsView extends View {
   }
 
   protected didComposite(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: GraphicsViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidComposite !== void 0) {
         viewObserver.viewDidComposite(viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidComposite !== void 0) {
+      viewController.viewDidComposite(viewContext, this);
+    }
   }
 
   /** @hidden */
@@ -986,11 +936,17 @@ export abstract class GraphicsView extends View {
   }
 
   protected willSetHidden(hidden: boolean): void {
-    this.willObserve(function (viewObserver: GraphicsViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillSetHidden !== void 0) {
+      viewController.viewWillSetHidden(hidden, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillSetHidden !== void 0) {
         viewObserver.viewWillSetHidden(hidden, this);
       }
-    });
+    }
   }
 
   protected onSetHidden(hidden: boolean): void {
@@ -1000,11 +956,17 @@ export abstract class GraphicsView extends View {
   }
 
   protected didSetHidden(hidden: boolean): void {
-    this.didObserve(function (viewObserver: GraphicsViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidSetHidden !== void 0) {
         viewObserver.viewDidSetHidden(hidden, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidSetHidden !== void 0) {
+      viewController.viewDidSetHidden(hidden, this);
+    }
   }
 
   hasViewService(serviceName: string): boolean {

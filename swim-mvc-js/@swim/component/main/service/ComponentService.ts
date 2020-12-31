@@ -14,7 +14,8 @@
 
 import {__extends} from "tslib";
 import {Component} from "../Component";
-import {ComponentManagerObserverType, ComponentManager} from "../manager/ComponentManager";
+import {ComponentManager} from "../manager/ComponentManager";
+import {ComponentManagerObserverType} from "../manager/ComponentManagerObserver";
 import {ExecuteManager} from "../execute/ExecuteManager";
 import {HistoryManager} from "../history/HistoryManager";
 import {ComponentManagerService} from "./ComponentManagerService";

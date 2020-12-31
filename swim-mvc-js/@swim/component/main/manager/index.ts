@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export {ComponentManager} from "./ComponentManager";
 export {
   ComponentManagerObserverType,
-  ComponentManager,
-} from "./ComponentManager";
-export {ComponentManagerObserver} from "./ComponentManagerObserver";
+  ComponentManagerObserver,
+} from "./ComponentManagerObserver";

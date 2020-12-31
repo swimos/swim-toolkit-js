@@ -25,11 +25,11 @@ import {ElementViewObserver} from "./ElementViewObserver";
 import {ElementViewController} from "./ElementViewController";
 
 export interface ViewElement extends Element, ElementCSSInlineStyle {
-  viewController?: ElementViewController;
   view?: ElementView;
 }
 
 export interface ElementViewInit extends NodeViewInit {
+  viewController?: ElementViewController;
   id?: string;
   classList?: string[];
   mood?: MoodVector;
@@ -58,7 +58,10 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   // @ts-ignore
-  declare readonly node: ViewElement;
+  declare readonly node: Element & ElementCSSInlineStyle;
+
+  // @ts-ignore
+  declare readonly viewClass: ElementViewClass;
 
   // @ts-ignore
   declare readonly viewController: ElementViewController | null;
@@ -86,10 +89,6 @@ export class ElementView extends NodeView implements StyleContext {
     if (init.themeModifier !== void 0) {
       this.themeModifier(init.themeModifier);
     }
-  }
-
-  get viewClass(): ElementViewClass {
-    return this.constructor as unknown as ElementViewClass;
   }
 
   protected onChange(viewContext: ViewContextType<this>): void {
@@ -253,11 +252,17 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected willSetAttribute(attributeName: string, value: unknown): void {
-    this.willObserve(function (viewObserver: ElementViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillSetAttribute !== void 0) {
+      viewController.viewWillSetAttribute(attributeName, value, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillSetAttribute !== void 0) {
         viewObserver.viewWillSetAttribute(attributeName, value, this);
       }
-    });
+    }
   }
 
   protected onSetAttribute(attributeName: string, value: unknown): void {
@@ -265,11 +270,17 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected didSetAttribute(attributeName: string, value: unknown): void {
-    this.didObserve(function (viewObserver: ElementViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidSetAttribute !== void 0) {
         viewObserver.viewDidSetAttribute(attributeName, value, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidSetAttribute !== void 0) {
+      viewController.viewDidSetAttribute(attributeName, value, this);
+    }
   }
 
   hasAttributeAnimator(animatorName: string): boolean {
@@ -331,11 +342,17 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected willSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
-    this.willObserve(function (viewObserver: ElementViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillSetStyle !== void 0) {
+      viewController.viewWillSetStyle(propertyName, value, priority, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillSetStyle !== void 0) {
         viewObserver.viewWillSetStyle(propertyName, value, priority, this);
       }
-    });
+    }
   }
 
   protected onSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
@@ -343,11 +360,17 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected didSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
-    this.didObserve(function (viewObserver: ElementViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidSetStyle !== void 0) {
         viewObserver.viewDidSetStyle(propertyName, value, priority, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidSetStyle !== void 0) {
+      viewController.viewDidSetStyle(propertyName, value, priority, this);
+    }
   }
 
   hasStyleAnimator(animatorName: string): boolean {

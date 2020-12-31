@@ -27,7 +27,6 @@ export {HtmlViewObserver} from "./HtmlViewObserver";
 export {HtmlViewController} from "./HtmlViewController";
 
 export {
-  ViewStyle,
   StyleViewInit,
   StyleView,
 } from "./StyleView";

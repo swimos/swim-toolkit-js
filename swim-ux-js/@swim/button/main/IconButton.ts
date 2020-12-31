@@ -174,10 +174,17 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
 
   protected onClick(event: MouseEvent): void {
     event.stopPropagation();
-    this.didObserve(function (viewObserver: ButtonObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.buttonDidPress !== void 0) {
         viewObserver.buttonDidPress(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.buttonDidPress !== void 0) {
+      viewController.buttonDidPress(this);
+    }
   }
 }

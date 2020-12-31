@@ -13,8 +13,8 @@
 // limitations under the License.
 
 export {
-  ViewNode,
   ViewNodeType,
+  ViewNode,
   NodeViewInit,
   NodeViewConstructor,
   NodeViewClass,

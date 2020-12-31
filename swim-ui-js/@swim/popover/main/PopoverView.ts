@@ -142,11 +142,17 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected willSetSource(source: View | null): void {
-    this.willObserve(function (viewObserver: PopoverViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.popoverWillSetSource !== void 0) {
+      viewController.popoverWillSetSource(source, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.popoverWillSetSource !== void 0) {
         viewObserver.popoverWillSetSource(source, this);
       }
-    });
+    }
   }
 
   protected onSetSource(source: View | null): void {
@@ -154,11 +160,17 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected didSetSource(source: View | null): void {
-    this.didObserve(function (viewObserver: PopoverViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.popoverDidSetSource !== void 0) {
         viewObserver.popoverDidSetSource(source, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.popoverDidSetSource !== void 0) {
+      viewController.popoverDidSetSource(source, this);
+    }
   }
 
   get modalView(): View | null {
@@ -213,11 +225,18 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected willShow(): void {
-    this.willObserve(function (viewObserver: PopoverViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.popoverWillShow !== void 0) {
+      viewController.popoverWillShow(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.popoverWillShow !== void 0) {
         viewObserver.popoverWillShow(this);
       }
-    });
+    }
+
     this.visibility.setAutoState("visible");
     this._modalState = "showing";
   }
@@ -227,11 +246,18 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     this.pointerEvents.setAutoState("auto");
     this.marginTop.setAutoState(void 0);
     this.opacity.setAutoState(void 0);
-    this.didObserve(function (viewObserver: PopoverViewObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.popoverDidShow !== void 0) {
         viewObserver.popoverDidShow(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.popoverDidShow !== void 0) {
+      viewController.popoverDidShow(this);
+    }
   }
 
   hideModal(tween?: Tween<any>): void {
@@ -271,11 +297,18 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected willHide(): void {
-    this.willObserve(function (viewObserver: PopoverViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.popoverWillHide !== void 0) {
+      viewController.popoverWillHide(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.popoverWillHide !== void 0) {
         viewObserver.popoverWillHide(this);
       }
-    });
+    }
+
     this.pointerEvents.setAutoState("none");
     this._modalState = "hiding";
   }
@@ -285,11 +318,18 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     this.visibility.setAutoState("hidden");
     this.marginTop.setAutoState(void 0);
     this.opacity.setAutoState(void 0);
-    this.didObserve(function (viewObserver: PopoverViewObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.popoverDidHide !== void 0) {
         viewObserver.popoverDidHide(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.popoverDidHide !== void 0) {
+      viewController.popoverDidHide(this);
+    }
   }
 
   dropdown(): boolean;
@@ -623,11 +663,17 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected willPlacePopover(placement: PopoverPlacement): void {
-    this.willObserve(function (viewObserver: PopoverViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.popoverWillPlace !== void 0) {
+      viewController.popoverWillPlace(placement, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.popoverWillPlace !== void 0) {
         viewObserver.popoverWillPlace(placement, this);
       }
-    });
+    }
   }
 
   protected onPlacePopover(placement: PopoverPlacement): void {
@@ -635,11 +681,17 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected didPlacePopover(placement: PopoverPlacement): void {
-    this.didObserve(function (viewObserver: PopoverViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.popoverDidPlace !== void 0) {
         viewObserver.popoverDidPlace(placement, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.popoverDidPlace !== void 0) {
+      viewController.popoverDidPlace(placement, this);
+    }
   }
 
   /** @hidden */

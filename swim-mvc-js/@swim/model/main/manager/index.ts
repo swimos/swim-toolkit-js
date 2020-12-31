@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export {ModelManager} from "./ModelManager";
 export {
   ModelManagerObserverType,
-  ModelManager,
-} from "./ModelManager";
-export {ModelManagerObserver} from "./ModelManagerObserver";
+  ModelManagerObserver,
+} from "./ModelManagerObserver";

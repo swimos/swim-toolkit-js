@@ -88,9 +88,57 @@ export interface ViewClass {
 }
 
 export abstract class View implements AnimatorContext, ConstraintScope {
-  abstract get viewController(): ViewController | null;
+  /** @hidden */
+  _viewFlags: ViewFlags;
+  /** @hidden */
+  _viewController?: ViewControllerType<this>;
+  /** @hidden */
+  _viewObservers?: ReadonlyArray<ViewObserverType<this>>;
 
-  abstract setViewController(viewController: ViewControllerType<this> | null): void;
+  constructor() {
+    this._viewFlags = 0;
+  }
+
+  initView(init: ViewInit): void {
+    if (init.viewController !== void 0) {
+      this.setViewController(init.viewController as ViewControllerType<this>);
+    }
+  }
+
+  get viewClass(): ViewClass {
+    return this.constructor as unknown as ViewClass;
+  }
+
+  get viewFlags(): ViewFlags {
+    return this._viewFlags;
+  }
+
+  setViewFlags(viewFlags: ViewFlags): void {
+    this._viewFlags = viewFlags;
+  }
+
+  get viewController(): ViewController | null {
+    const viewController = this._viewController;
+    return viewController !== void 0 ? viewController : null;
+  }
+
+  setViewController(newViewController: ViewControllerType<this> | null): void {
+    const oldViewController = this._viewController;
+    if (oldViewController === void 0 ? newViewController !== null : oldViewController !== newViewController) {
+      this.willSetViewController(newViewController);
+      if (oldViewController !== void 0) {
+        oldViewController.setView(null);
+      }
+      if (newViewController !== null) {
+        this._viewController = newViewController;
+        newViewController.setView(this);
+      } else if (this._viewController !== void 0) {
+        this._viewController = void 0;
+      }
+      this.onSetViewController(newViewController);
+      this.didSetViewController(newViewController);
+    }
+  }
 
   protected willSetViewController(viewController: ViewControllerType<this> | null): void {
     // hook
@@ -104,9 +152,33 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     // hook
   }
 
-  abstract get viewObservers(): ReadonlyArray<ViewObserver>;
+  get viewObservers(): ReadonlyArray<ViewObserver> {
+    let viewObservers = this._viewObservers;
+    if (viewObservers === void 0) {
+      viewObservers = [];
+      this._viewObservers = viewObservers;
+    }
+    return viewObservers;
+  }
 
-  abstract addViewObserver(viewObserver: ViewObserverType<this>): void;
+  addViewObserver(newViewObserver: ViewObserverType<this>): void {
+    const oldViewObservers = this._viewObservers;
+    const n = oldViewObservers !== void 0 ? oldViewObservers.length : 0;
+    const newViewObservers = new Array<ViewObserverType<this>>(n + 1);
+    for (let i = 0; i < n; i += 1) {
+      const viewObserver = oldViewObservers![i];
+      if (viewObserver !== newViewObserver) {
+        newViewObservers[i] = viewObserver;
+      } else {
+        return;
+      }
+    }
+    newViewObservers[n] = newViewObserver;
+    this.willAddViewObserver(newViewObserver);
+    this._viewObservers = newViewObservers;
+    this.onAddViewObserver(newViewObserver);
+    this.didAddViewObserver(newViewObserver);
+  }
 
   protected willAddViewObserver(viewObserver: ViewObserverType<this>): void {
     // hook
@@ -120,7 +192,32 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     // hook
   }
 
-  abstract removeViewObserver(viewObserver: ViewObserverType<this>): void;
+  removeViewObserver(oldViewObserver: ViewObserverType<this>): void {
+    const oldViewObservers = this._viewObservers;
+    const n = oldViewObservers !== void 0 ? oldViewObservers.length : 0;
+    if (n !== 0) {
+      const newViewObservers = new Array<ViewObserverType<this>>(n - 1);
+      let i = 0;
+      while (i < n) {
+        const viewObserver = oldViewObservers![i];
+        if (viewObserver !== oldViewObserver) {
+          newViewObservers[i] = viewObserver;
+          i += 1;
+        } else {
+          i += 1;
+          while (i < n) {
+            newViewObservers[i - 1] = oldViewObservers![i];
+            i += 1
+          }
+          this.willRemoveViewObserver(oldViewObserver);
+          this._viewObservers = newViewObservers;
+          this.onRemoveViewObserver(oldViewObserver);
+          this.didRemoveViewObserver(oldViewObserver);
+          return;
+        }
+      }
+    }
+  }
 
   protected willRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
     // hook
@@ -134,60 +231,6 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     // hook
   }
 
-  protected willObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
-    let result: T | undefined;
-    const viewController = this.viewController;
-    if (viewController !== null) {
-      result = callback.call(this, viewController);
-      if (result !== void 0) {
-        return result;
-      }
-    }
-    const viewObservers = this.viewObservers;
-    let i = 0;
-    while (i < viewObservers.length) {
-      const viewObserver = viewObservers[i];
-      result = callback.call(this, viewObserver);
-      if (result !== void 0) {
-        return result;
-      }
-      if (viewObserver === viewObservers[i]) {
-        i += 1;
-      }
-    }
-    return result;
-  }
-
-  protected didObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
-    let result: T | undefined;
-    const viewObservers = this.viewObservers;
-    let i = 0;
-    while (i < viewObservers.length) {
-      const viewObserver = viewObservers[i];
-      result = callback.call(this, viewObserver);
-      if (result !== void 0) {
-        return result;
-      }
-      if (viewObserver === viewObservers[i]) {
-        i += 1;
-      }
-    }
-    const viewController = this.viewController;
-    if (viewController !== null) {
-      result = callback.call(this, viewController);
-      if (result !== void 0) {
-        return result;
-      }
-    }
-    return result;
-  }
-
-  initView(init: ViewInit): void {
-    if (init.viewController !== void 0) {
-      this.setViewController(init.viewController as ViewControllerType<this>);
-    }
-  }
-
   abstract get key(): string | undefined;
 
   /** @hidden */
@@ -199,11 +242,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   abstract setParentView(newParentView: View | null, oldParentView: View | null): void;
 
   protected willSetParentView(newParentView: View | null, oldParentView: View | null): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillSetParentView !== void 0) {
+      viewController.viewWillSetParentView(newParentView, oldParentView, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillSetParentView !== void 0) {
         viewObserver.viewWillSetParentView(newParentView, oldParentView, this);
       }
-    });
+    }
   }
 
   protected onSetParentView(newParentView: View | null, oldParentView: View | null): void {
@@ -229,11 +278,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didSetParentView(newParentView: View | null, oldParentView: View | null): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidSetParentView !== void 0) {
         viewObserver.viewDidSetParentView(newParentView, oldParentView, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidSetParentView !== void 0) {
+      viewController.viewDidSetParentView(newParentView, oldParentView, this);
+    }
   }
 
   abstract remove(): void;
@@ -268,11 +323,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected willInsertChildView(childView: View, targetView: View | null | undefined): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillInsertChildView !== void 0) {
+      viewController.viewWillInsertChildView(childView, targetView, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillInsertChildView !== void 0) {
         viewObserver.viewWillInsertChildView(childView, targetView, this);
       }
-    });
+    }
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -280,11 +341,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didInsertChildView(childView: View, targetView: View | null | undefined): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidInsertChildView !== void 0) {
         viewObserver.viewDidInsertChildView(childView, targetView, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidInsertChildView !== void 0) {
+      viewController.viewDidInsertChildView(childView, targetView, this);
+    }
   }
 
   abstract cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void;
@@ -299,11 +366,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected willRemoveChildView(childView: View): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillRemoveChildView !== void 0) {
+      viewController.viewWillRemoveChildView(childView, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillRemoveChildView !== void 0) {
         viewObserver.viewWillRemoveChildView(childView, this);
       }
-    });
+    }
   }
 
   protected onRemoveChildView(childView: View): void {
@@ -311,11 +384,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didRemoveChildView(childView: View): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidRemoveChildView !== void 0) {
         viewObserver.viewDidRemoveChildView(childView, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidRemoveChildView !== void 0) {
+      viewController.viewDidRemoveChildView(childView, this);
+    }
   }
 
   getSuperView<V extends View>(viewPrototype: ViewPrototype<V>): V | null {
@@ -353,16 +432,6 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   declare readonly modalService: ModalService<this>; // defined by ModalService
 
-  get viewClass(): ViewClass {
-    return this.constructor as unknown as ViewClass;
-  }
-
-  /** @hidden */
-  abstract get viewFlags(): ViewFlags;
-
-  /** @hidden */
-  abstract setViewFlags(viewFlags: ViewFlags): void;
-
   isMounted(): boolean {
     return (this.viewFlags & View.MountedFlag) !== 0;
   }
@@ -374,11 +443,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   abstract cascadeMount(): void;
 
   protected willMount(): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillMount !== void 0) {
+      viewController.viewWillMount(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillMount !== void 0) {
         viewObserver.viewWillMount(this);
       }
-    });
+    }
   }
 
   protected onMount(): void {
@@ -386,21 +461,33 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didMount(): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidMount !== void 0) {
         viewObserver.viewDidMount(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidMount !== void 0) {
+      viewController.viewDidMount(this);
+    }
   }
 
   abstract cascadeUnmount(): void;
 
   protected willUnmount(): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillUnmount !== void 0) {
+      viewController.viewWillUnmount(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillUnmount !== void 0) {
         viewObserver.viewWillUnmount(this);
       }
-    });
+    }
   }
 
   protected onUnmount(): void {
@@ -408,11 +495,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didUnmount(): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidUnmount !== void 0) {
         viewObserver.viewDidUnmount(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidUnmount !== void 0) {
+      viewController.viewDidUnmount(this);
+    }
   }
 
   isPowered(): boolean {
@@ -426,11 +519,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   abstract cascadePower(): void;
 
   protected willPower(): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillPower !== void 0) {
+      viewController.viewWillPower(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillPower !== void 0) {
         viewObserver.viewWillPower(this);
       }
-    });
+    }
   }
 
   protected onPower(): void {
@@ -439,21 +538,33 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didPower(): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidPower !== void 0) {
         viewObserver.viewDidPower(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidPower !== void 0) {
+      viewController.viewDidPower(this);
+    }
   }
 
   abstract cascadeUnpower(): void;
 
   protected willUnpower(): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillUnpower !== void 0) {
+      viewController.viewWillUnpower(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillUnpower !== void 0) {
         viewObserver.viewWillUnpower(this);
       }
-    });
+    }
   }
 
   protected onUnpower(): void {
@@ -461,11 +572,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didUnpower(): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidUnpower !== void 0) {
         viewObserver.viewDidUnpower(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidUnpower !== void 0) {
+      viewController.viewDidUnpower(this);
+    }
   }
 
   isCulled(): boolean {
@@ -477,11 +594,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   abstract cascadeCull(): void;
 
   protected willCull(): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillCull !== void 0) {
+      viewController.viewWillCull(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillCull !== void 0) {
         viewObserver.viewWillCull(this);
       }
-    });
+    }
   }
 
   protected onCull(): void {
@@ -489,11 +612,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didCull(): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidCull !== void 0) {
         viewObserver.viewDidCull(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidCull !== void 0) {
+      viewController.viewDidCull(this);
+    }
   }
 
   abstract cascadeUncull(): void;
@@ -503,11 +632,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected willUncull(): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillUncull !== void 0) {
+      viewController.viewWillUncull(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillUncull !== void 0) {
         viewObserver.viewWillUncull(this);
       }
-    });
+    }
   }
 
   protected onUncull(): void {
@@ -516,11 +651,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didUncull(): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidUncull !== void 0) {
         viewObserver.viewDidUncull(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidUncull !== void 0) {
+      viewController.viewDidUncull(this);
+    }
   }
 
   requireUpdate(updateFlags: ViewFlags, immediate: boolean = false): void {
@@ -606,11 +747,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   abstract cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void;
 
   protected willProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillProcess !== void 0) {
+      viewController.viewWillProcess(processFlags, viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillProcess !== void 0) {
         viewObserver.viewWillProcess(processFlags, viewContext, this);
       }
-    });
+    }
   }
 
   protected onProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
@@ -618,19 +765,31 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidProcess !== void 0) {
         viewObserver.viewDidProcess(processFlags, viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidProcess !== void 0) {
+      viewController.viewDidProcess(processFlags, viewContext, this);
+    }
   }
 
   protected willResize(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillResize !== void 0) {
+      viewController.viewWillResize(viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillResize !== void 0) {
         viewObserver.viewWillResize(viewContext, this);
       }
-    });
+    }
   }
 
   protected onResize(viewContext: ViewContextType<this>): void {
@@ -638,19 +797,31 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didResize(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidResize !== void 0) {
         viewObserver.viewDidResize(viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidResize !== void 0) {
+      viewController.viewDidResize(viewContext, this);
+    }
   }
 
   protected willScroll(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillScroll !== void 0) {
+      viewController.viewWillScroll(viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillScroll !== void 0) {
         viewObserver.viewWillScroll(viewContext, this);
       }
-    });
+    }
   }
 
   protected onScroll(viewContext: ViewContextType<this>): void {
@@ -658,19 +829,31 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didScroll(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidScroll !== void 0) {
         viewObserver.viewDidScroll(viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidScroll !== void 0) {
+      viewController.viewDidScroll(viewContext, this);
+    }
   }
 
   protected willChange(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillChange !== void 0) {
+      viewController.viewWillChange(viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillChange !== void 0) {
         viewObserver.viewWillChange(viewContext, this);
       }
-    });
+    }
   }
 
   protected onChange(viewContext: ViewContextType<this>): void {
@@ -678,19 +861,31 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didChange(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidChange !== void 0) {
         viewObserver.viewDidChange(viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidChange !== void 0) {
+      viewController.viewDidChange(viewContext, this);
+    }
   }
 
   protected willAnimate(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillAnimate !== void 0) {
+      viewController.viewWillAnimate(viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillAnimate !== void 0) {
         viewObserver.viewWillAnimate(viewContext, this);
       }
-    });
+    }
   }
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
@@ -698,39 +893,31 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didAnimate(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidAnimate !== void 0) {
         viewObserver.viewDidAnimate(viewContext, this);
       }
-    });
-  }
-
-  protected willLayout(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
-      if (viewObserver.viewWillLayout !== void 0) {
-        viewObserver.viewWillLayout(viewContext, this);
-      }
-    });
-  }
-
-  protected onLayout(viewContext: ViewContextType<this>): void {
-    // hook
-  }
-
-  protected didLayout(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
-      if (viewObserver.viewDidLayout !== void 0) {
-        viewObserver.viewDidLayout(viewContext, this);
-      }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidAnimate !== void 0) {
+      viewController.viewDidAnimate(viewContext, this);
+    }
   }
 
   protected willProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillProcessChildViews !== void 0) {
+      viewController.viewWillProcessChildViews(processFlags, viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillProcessChildViews !== void 0) {
         viewObserver.viewWillProcessChildViews(processFlags, viewContext, this);
       }
-    });
+    }
   }
 
   protected onProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
@@ -738,11 +925,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidProcessChildViews !== void 0) {
         viewObserver.viewDidProcessChildViews(processFlags, viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidProcessChildViews !== void 0) {
+      viewController.viewDidProcessChildViews(processFlags, viewContext, this);
+    }
   }
 
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
@@ -788,11 +981,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   abstract cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void;
 
   protected willDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillDisplay !== void 0) {
+      viewController.viewWillDisplay(displayFlags, viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillDisplay !== void 0) {
         viewObserver.viewWillDisplay(displayFlags, viewContext, this);
       }
-    });
+    }
   }
 
   protected onDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
@@ -800,19 +999,63 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidDisplay !== void 0) {
         viewObserver.viewDidDisplay(displayFlags, viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidDisplay !== void 0) {
+      viewController.viewDidDisplay(displayFlags, viewContext, this);
+    }
+  }
+
+  protected willLayout(viewContext: ViewContextType<this>): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillLayout !== void 0) {
+      viewController.viewWillLayout(viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
+      if (viewObserver.viewWillLayout !== void 0) {
+        viewObserver.viewWillLayout(viewContext, this);
+      }
+    }
+  }
+
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    // hook
+  }
+
+  protected didLayout(viewContext: ViewContextType<this>): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
+      if (viewObserver.viewDidLayout !== void 0) {
+        viewObserver.viewDidLayout(viewContext, this);
+      }
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidLayout !== void 0) {
+      viewController.viewDidLayout(viewContext, this);
+    }
   }
 
   protected willDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillDisplayChildViews !== void 0) {
+      viewController.viewWillDisplayChildViews(displayFlags, viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillDisplayChildViews !== void 0) {
         viewObserver.viewWillDisplayChildViews(displayFlags, viewContext, this);
       }
-    });
+    }
   }
 
   protected onDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
@@ -820,11 +1063,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidDisplayChildViews !== void 0) {
         viewObserver.viewDidDisplayChildViews(displayFlags, viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidDisplayChildViews !== void 0) {
+      viewController.viewDidDisplayChildViews(displayFlags, viewContext, this);
+    }
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
@@ -887,11 +1136,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                            transition: Transition<any> | null): void {
-    this.willObserve(function (viewObserver: ViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillApplyTheme !== void 0) {
+      viewController.viewWillApplyTheme(theme, mood, transition, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillApplyTheme !== void 0) {
         viewObserver.viewWillApplyTheme(theme, mood, transition, this);
       }
-    });
+    }
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
@@ -901,11 +1156,17 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                           transition: Transition<any> | null): void {
-    this.didObserve(function (viewObserver: ViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidApplyTheme !== void 0) {
         viewObserver.viewDidApplyTheme(theme, mood, transition, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidApplyTheme !== void 0) {
+      viewController.viewDidApplyTheme(theme, mood, transition, this);
+    }
   }
 
   abstract hasViewService(serviceName: string): boolean;

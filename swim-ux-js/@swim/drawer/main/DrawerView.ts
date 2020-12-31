@@ -190,11 +190,17 @@ export class DrawerView extends HtmlView implements Modal {
   edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
 
   protected willSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
-    this.willObserve(function (viewObserver: DrawerViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.drawerWillSetPlacement !== void 0) {
+      viewController.drawerWillSetPlacement(newPlacement, oldPlacement, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.drawerWillSetPlacement !== void 0) {
         viewObserver.drawerWillSetPlacement(newPlacement, oldPlacement, this);
       }
-    });
+    }
   }
 
   protected onSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
@@ -202,11 +208,17 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected didSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
-    this.didObserve(function (viewObserver: DrawerViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.drawerDidSetPlacement !== void 0) {
         viewObserver.drawerDidSetPlacement(newPlacement, oldPlacement, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.drawerDidSetPlacement !== void 0) {
+      viewController.drawerDidSetPlacement(newPlacement, oldPlacement, this);
+    }
   }
 
   /** @hidden */
@@ -475,11 +487,18 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected willShow(): void {
-    this.willObserve(function (viewObserver: DrawerViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.drawerWillShow !== void 0) {
+      viewController.drawerWillShow(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.drawerWillShow !== void 0) {
         viewObserver.drawerWillShow(this);
       }
-    });
+    }
+
     this.display.setAutoState("flex");
     this.place(this.viewContext as ViewContextType<this>);
   }
@@ -487,11 +506,18 @@ export class DrawerView extends HtmlView implements Modal {
   protected didShow(): void {
     this._drawerState = "shown";
     this.requireUpdate(View.NeedsAnimate);
-    this.didObserve(function (viewObserver: DrawerViewObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.drawerDidShow !== void 0) {
         viewObserver.drawerDidShow(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.drawerDidShow !== void 0) {
+      viewController.drawerDidShow(this);
+    }
   }
 
   hide(tween?: Tween<any>): void {
@@ -514,22 +540,35 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected willHide(): void {
-    this.willObserve(function (viewObserver: DrawerViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.drawerWillHide !== void 0) {
+      viewController.drawerWillHide(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.drawerWillHide !== void 0) {
         viewObserver.drawerWillHide(this);
       }
-    });
+    }
   }
 
   protected didHide(): void {
     this.display.setAutoState("none");
     this._drawerState = "hidden";
     this.requireUpdate(View.NeedsAnimate);
-    this.didObserve(function (viewObserver: DrawerViewObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.drawerDidHide !== void 0) {
         viewObserver.drawerDidHide(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.drawerDidHide !== void 0) {
+      viewController.drawerDidHide(this);
+    }
   }
 
   expand(tween?: Tween<any>): void {
@@ -558,21 +597,34 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected willExpand(): void {
-    this.willObserve(function (viewObserver: DrawerViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.drawerWillExpand !== void 0) {
+      viewController.drawerWillExpand(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.drawerWillExpand !== void 0) {
         viewObserver.drawerWillExpand(this);
       }
-    });
+    }
   }
 
   protected didExpand(): void {
     this._drawerState = "shown";
     this.requireUpdate(View.NeedsAnimate);
-    this.didObserve(function (viewObserver: DrawerViewObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.drawerDidExpand !== void 0) {
         viewObserver.drawerDidExpand(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.drawerDidExpand !== void 0) {
+      viewController.drawerDidExpand(this);
+    }
   }
 
   collapse(tween?: Tween<any>): void {
@@ -604,22 +656,36 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected willCollapse(): void {
-    this.willObserve(function (viewObserver: DrawerViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.drawerWillCollapse !== void 0) {
+      viewController.drawerWillCollapse(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.drawerWillCollapse !== void 0) {
         viewObserver.drawerWillCollapse(this);
       }
-    });
+    }
+
     this.display.setAutoState("flex");
   }
 
   protected didCollapse(): void {
     this._drawerState = "collapsed";
     this.requireUpdate(View.NeedsAnimate);
-    this.didObserve(function (viewObserver: DrawerViewObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.drawerDidCollapse !== void 0) {
         viewObserver.drawerDidCollapse(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.drawerDidCollapse !== void 0) {
+      viewController.drawerDidCollapse(this);
+    }
   }
 
   toggle(tween?: Tween<any>): void {

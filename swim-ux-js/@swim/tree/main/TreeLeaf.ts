@@ -101,11 +101,17 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected willHighlight(transition: Transition<any> | null): void {
-    this.willObserve(function (viewObserver: TreeLeafObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.leafWillHighlight !== void 0) {
+      viewController.leafWillHighlight(transition, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.leafWillHighlight !== void 0) {
         viewObserver.leafWillHighlight(transition, this);
       }
-    });
+    }
   }
 
   protected onHighlight(transition: Transition<any> | null): void {
@@ -133,11 +139,17 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected didHighlight(transition: Transition<any> | null): void {
-    this.didObserve(function (viewObserver: TreeLeafObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.leafDidHighlight !== void 0) {
         viewObserver.leafDidHighlight(transition, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.leafDidHighlight !== void 0) {
+      viewController.leafDidHighlight(transition, this);
+    }
   }
 
   unhighlight(tween?: Tween<any>): this {
@@ -156,11 +168,17 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected willUnhighlight(transition: Transition<any> | null): void {
-    this.willObserve(function (viewObserver: TreeLeafObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.leafWillUnhighlight !== void 0) {
+      viewController.leafWillUnhighlight(transition, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.leafWillUnhighlight !== void 0) {
         viewObserver.leafWillUnhighlight(transition, this);
       }
-    });
+    }
   }
 
   protected onUnhighlight(transition: Transition<any> | null): void {
@@ -183,11 +201,17 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected didUnhighlight(transition: Transition<any> | null): void {
-    this.didObserve(function (viewObserver: TreeLeafObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.leafDidUnhighlight !== void 0) {
         viewObserver.leafDidUnhighlight(transition, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.leafDidUnhighlight !== void 0) {
+      viewController.leafDidUnhighlight(transition, this);
+    }
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
@@ -300,11 +324,17 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
 
   didPress(input: PositionGestureInput, event: Event | null): void {
     if (!input.defaultPrevented) {
-      this.didObserve(function (viewObserver: TreeLeafObserver): void {
+      const viewObservers = this._viewObservers;
+      for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+        const viewObserver = viewObservers![i];
         if (viewObserver.leafDidPress !== void 0) {
           viewObserver.leafDidPress(input, event, this);
         }
-      });
+      }
+      const viewController = this._viewController;
+      if (viewController !== void 0 && viewController.leafDidPress !== void 0) {
+        viewController.leafDidPress(input, event, this);
+      }
     }
   }
 

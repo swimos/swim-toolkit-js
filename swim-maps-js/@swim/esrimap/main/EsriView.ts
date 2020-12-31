@@ -44,11 +44,17 @@ export abstract class EsriView extends MapLayerView {
   abstract get geoProjection(): EsriProjection;
 
   protected willSetGeoProjection(geoProjection: EsriProjection): void {
-    this.willObserve(function (viewObserver: EsriViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillSetGeoProjection !== void 0) {
+      viewController.viewWillSetGeoProjection(geoProjection, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillSetGeoProjection !== void 0) {
         viewObserver.viewWillSetGeoProjection(geoProjection, this);
       }
-    });
+    }
   }
 
   protected onSetGeoProjection(geoProjection: EsriProjection): void {
@@ -58,21 +64,33 @@ export abstract class EsriView extends MapLayerView {
   }
 
   protected didSetGeoProjection(geoProjection: EsriProjection): void {
-    this.didObserve(function (viewObserver: EsriViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidSetGeoProjection !== void 0) {
         viewObserver.viewDidSetGeoProjection(geoProjection, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidSetGeoProjection !== void 0) {
+      viewController.viewDidSetGeoProjection(geoProjection, this);
+    }
   }
 
   abstract get mapZoom(): number;
 
   protected willSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
-    this.didObserve(function (viewObserver: EsriViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillSetMapZoom !== void 0) {
+      viewController.viewWillSetMapZoom(newMapZoom, oldMapZoom, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillSetMapZoom !== void 0) {
         viewObserver.viewWillSetMapZoom(newMapZoom, oldMapZoom, this);
       }
-    });
+    }
   }
 
   protected onSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
@@ -80,11 +98,17 @@ export abstract class EsriView extends MapLayerView {
   }
 
   protected didSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
-    this.didObserve(function (viewObserver: EsriViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidSetMapZoom !== void 0) {
         viewObserver.viewDidSetMapZoom(newMapZoom, oldMapZoom, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidSetMapZoom !== void 0) {
+      viewController.viewDidSetMapZoom(newMapZoom, oldMapZoom, this);
+    }
   }
 
   abstract get mapHeading(): number;

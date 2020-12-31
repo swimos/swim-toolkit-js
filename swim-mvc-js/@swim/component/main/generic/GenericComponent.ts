@@ -16,7 +16,7 @@ import {View} from "@swim/view";
 import {Model, Trait} from "@swim/model";
 import {ComponentContextType, ComponentContext} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
-import {ComponentObserverType, ComponentObserver} from "../ComponentObserver";
+import {ComponentObserverType} from "../ComponentObserver";
 import {ComponentService} from "../service/ComponentService";
 import {ComponentScope} from "../scope/ComponentScope";
 import {ComponentModel} from "../model/ComponentModel";
@@ -29,10 +29,6 @@ export abstract class GenericComponent extends Component {
   _key?: string;
   /** @hidden */
   _parentComponent: Component | null;
-  /** @hidden */
-  _componentObservers?: ComponentObserverType<this>[];
-  /** @hidden */
-  _componentFlags: ComponentFlags;
   /** @hidden */
   _componentServices?: {[serviceName: string]: ComponentService<Component, unknown> | undefined};
   /** @hidden */
@@ -49,47 +45,6 @@ export abstract class GenericComponent extends Component {
   constructor() {
     super();
     this._parentComponent = null;
-    this._componentFlags = 0;
-  }
-
-  get componentObservers(): ReadonlyArray<ComponentObserver> {
-    let componentObservers = this._componentObservers;
-    if (componentObservers === void 0) {
-      componentObservers = [];
-      this._componentObservers = componentObservers;
-    }
-    return componentObservers;
-  }
-
-  addComponentObserver(componentObserver: ComponentObserverType<this>): void {
-    let componentObservers = this._componentObservers;
-    let index: number;
-    if (componentObservers === void 0) {
-      componentObservers = [];
-      this._componentObservers = componentObservers;
-      index = -1;
-    } else {
-      index = componentObservers.indexOf(componentObserver);
-    }
-    if (index < 0) {
-      this.willAddComponentObserver(componentObserver);
-      componentObservers.push(componentObserver);
-      this.onAddComponentObserver(componentObserver);
-      this.didAddComponentObserver(componentObserver);
-    }
-  }
-
-  removeComponentObserver(componentObserver: ComponentObserverType<this>): void {
-    const componentObservers = this._componentObservers;
-    if (componentObservers !== void 0) {
-      const index = componentObservers.indexOf(componentObserver);
-      if (index >= 0) {
-        this.willRemoveComponentObserver(componentObserver);
-        componentObservers.splice(index, 1);
-        this.onRemoveComponentObserver(componentObserver);
-        this.didRemoveComponentObserver(componentObserver);
-      }
-    }
   }
 
   protected willObserve<T>(callback: (this: this, componentObserver: ComponentObserverType<this>) => T | void): T | undefined {
@@ -201,16 +156,6 @@ export abstract class GenericComponent extends Component {
   }
 
   abstract removeAll(): void;
-
-  /** @hidden */
-  get componentFlags(): ComponentFlags {
-    return this._componentFlags;
-  }
-
-  /** @hidden */
-  setComponentFlags(componentFlags: ComponentFlags): void {
-    this._componentFlags = componentFlags;
-  }
 
   cascadeMount(): void {
     if ((this._componentFlags & Component.MountedFlag) === 0) {
@@ -357,7 +302,7 @@ export abstract class GenericComponent extends Component {
     this._componentFlags |= Component.TraversingFlag | Component.CompilingFlag;
     this._componentFlags &= ~Component.NeedsCompile;
     try {
-      this.willCompile(componentContext);
+      this.willCompile(cascadeFlags, componentContext);
       if (((this._componentFlags | compileFlags) & Component.NeedsResolve) !== 0) {
         this.willResolve(componentContext);
         cascadeFlags |= Component.NeedsResolve;
@@ -374,7 +319,7 @@ export abstract class GenericComponent extends Component {
         this._componentFlags &= ~Component.NeedsAssemble;
       }
 
-      this.onCompile(componentContext);
+      this.onCompile(cascadeFlags, componentContext);
       if ((cascadeFlags & Component.NeedsResolve) !== 0) {
         this.onResolve(componentContext);
       }
@@ -396,7 +341,7 @@ export abstract class GenericComponent extends Component {
       if ((cascadeFlags & Component.NeedsResolve) !== 0) {
         this.didResolve(componentContext);
       }
-      this.didCompile(componentContext);
+      this.didCompile(cascadeFlags, componentContext);
     } finally {
       this._componentFlags &= ~(Component.TraversingFlag | Component.CompilingFlag);
     }
@@ -415,7 +360,7 @@ export abstract class GenericComponent extends Component {
     this._componentFlags |= Component.TraversingFlag | Component.ExecutingFlag;
     this._componentFlags &= ~Component.NeedsExecute;
     try {
-      this.willExecute(componentContext);
+      this.willExecute(cascadeFlags, componentContext);
       if (((this._componentFlags | executeFlags) & Component.NeedsRevise) !== 0) {
         this.willRevise(componentContext);
         cascadeFlags |= Component.NeedsRevise;
@@ -427,7 +372,7 @@ export abstract class GenericComponent extends Component {
         this._componentFlags &= ~Component.NeedsCompute;
       }
 
-      this.onExecute(componentContext);
+      this.onExecute(cascadeFlags, componentContext);
       if ((cascadeFlags & Component.NeedsRevise) !== 0) {
         this.onRevise(componentContext);
       }
@@ -443,7 +388,7 @@ export abstract class GenericComponent extends Component {
       if ((cascadeFlags & Component.NeedsRevise) !== 0) {
         this.didRevise(componentContext);
       }
-      this.didExecute(componentContext);
+      this.didExecute(cascadeFlags, componentContext);
     } finally {
       this._componentFlags &= ~(Component.TraversingFlag | Component.ExecutingFlag);
     }

@@ -202,15 +202,6 @@ export class SvgView extends ElementView {
     super(node);
   }
 
-  // @ts-ignore
-  declare readonly node: ViewSvg;
-
-  // @ts-ignore
-  declare readonly viewController: SvgViewController | null;
-
-  // @ts-ignore
-  declare readonly viewObservers: ReadonlyArray<SvgViewObserver>;
-
   initView(init: SvgViewInit): void {
     super.initView(init);
     if (init.attributes !== void 0) {
@@ -383,9 +374,17 @@ export class SvgView extends ElementView {
     }
   }
 
-  get viewClass(): SvgViewClass {
-    return this.constructor as unknown as SvgViewClass;
-  }
+  // @ts-ignore
+  declare readonly node: SVGElement;
+
+  // @ts-ignore
+  declare readonly viewClass: SvgViewClass;
+
+  // @ts-ignore
+  declare readonly viewController: SvgViewController | null;
+
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<SvgViewObserver>;
 
   append<V extends View>(childView: V, key?: string): V;
   append<V extends NodeView>(viewConstructor: NodeViewConstructor<V>, key?: string): V;

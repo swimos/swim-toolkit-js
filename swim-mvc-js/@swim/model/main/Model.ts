@@ -72,9 +72,61 @@ export interface ModelClass {
 }
 
 export abstract class Model implements ModelDownlinkContext {
-  abstract get modelController(): ModelController | null;
+  /** @hidden */
+  _modelFlags: ModelFlags;
+  /** @hidden */
+  _modelController?: ModelControllerType<this>;
+  /** @hidden */
+  _modelObservers?: ReadonlyArray<ModelObserverType<this>>;
+  /** @hidden */
+  _traits?: Trait[];
+  /** @hidden */
+  _traitMap?: {[key: string]: Trait | undefined};
 
-  abstract setModelController(modelController: ModelControllerType<this> | null): void;
+  constructor() {
+    this._modelFlags = 0;
+  }
+
+  initModel(init: ModelInit): void {
+    if (init.modelController !== void 0) {
+      this.setModelController(init.modelController as ModelControllerType<this>);
+    }
+  }
+
+  get modelClass(): ModelClass {
+    return this.constructor as unknown as ModelClass;
+  }
+
+  get modelFlags(): ModelFlags {
+    return this._modelFlags;
+  }
+
+  setModelFlags(modelFlags: ModelFlags): void {
+    this._modelFlags = modelFlags;
+  }
+
+  get modelController(): ModelController | null {
+    const modelController = this._modelController;
+    return modelController !== void 0 ? modelController : null;
+  }
+
+  setModelController(newModelController: ModelControllerType<this> | null): void {
+    const oldModelController = this._modelController;
+    if (oldModelController === void 0 ? newModelController !== null : oldModelController !== newModelController) {
+      this.willSetModelController(newModelController);
+      if (oldModelController !== void 0) {
+        oldModelController.setModel(null);
+      }
+      if (newModelController !== null) {
+        this._modelController = newModelController;
+        newModelController.setModel(this);
+      } else if (this._modelController !== void 0) {
+        this._modelController = void 0;
+      }
+      this.onSetModelController(newModelController);
+      this.didSetModelController(newModelController);
+    }
+  }
 
   protected willSetModelController(modelController: ModelControllerType<this> | null): void {
     // hook
@@ -88,9 +140,33 @@ export abstract class Model implements ModelDownlinkContext {
     // hook
   }
 
-  abstract get modelObservers(): ReadonlyArray<ModelObserver>;
+  get modelObservers(): ReadonlyArray<ModelObserver> {
+    let modelObservers = this._modelObservers;
+    if (modelObservers === void 0) {
+      modelObservers = [];
+      this._modelObservers = modelObservers;
+    }
+    return modelObservers;
+  }
 
-  abstract addModelObserver(modelObserver: ModelObserverType<this>): void;
+  addModelObserver(newModelObserver: ModelObserverType<this>): void {
+    const oldModelObservers = this._modelObservers;
+    const n = oldModelObservers !== void 0 ? oldModelObservers.length : 0;
+    const newModelObservers = new Array<ModelObserverType<this>>(n + 1);
+    for (let i = 0; i < n; i += 1) {
+      const modelObserver = oldModelObservers![i];
+      if (modelObserver !== newModelObserver) {
+        newModelObservers[i] = modelObserver;
+      } else {
+        return;
+      }
+    }
+    newModelObservers[n] = newModelObserver;
+    this.willAddModelObserver(newModelObserver);
+    this._modelObservers = newModelObservers;
+    this.onAddModelObserver(newModelObserver);
+    this.didAddModelObserver(newModelObserver);
+  }
 
   protected willAddModelObserver(modelObserver: ModelObserverType<this>): void {
     // hook
@@ -104,7 +180,32 @@ export abstract class Model implements ModelDownlinkContext {
     // hook
   }
 
-  abstract removeModelObserver(modelObserver: ModelObserverType<this>): void;
+  removeModelObserver(oldModelObserver: ModelObserverType<this>): void {
+    const oldModelObservers = this._modelObservers;
+    const n = oldModelObservers !== void 0 ? oldModelObservers.length : 0;
+    if (n !== 0) {
+      const newModelObservers = new Array<ModelObserverType<this>>(n - 1);
+      let i = 0;
+      while (i < n) {
+        const modelObserver = oldModelObservers![i];
+        if (modelObserver !== oldModelObserver) {
+          newModelObservers[i] = modelObserver;
+          i += 1;
+        } else {
+          i += 1;
+          while (i < n) {
+            newModelObservers[i - 1] = oldModelObservers![i];
+            i += 1
+          }
+          this.willRemoveModelObserver(oldModelObserver);
+          this._modelObservers = newModelObservers;
+          this.onRemoveModelObserver(oldModelObserver);
+          this.didRemoveModelObserver(oldModelObserver);
+          return;
+        }
+      }
+    }
+  }
 
   protected willRemoveModelObserver(modelObserver: ModelObserverType<this>): void {
     // hook
@@ -118,60 +219,6 @@ export abstract class Model implements ModelDownlinkContext {
     // hook
   }
 
-  protected willObserve<T>(callback: (this: this, modelObserver: ModelObserverType<this>) => T | void): T | undefined {
-    let result: T | undefined;
-    const modelController = this.modelController;
-    if (modelController !== null) {
-      result = callback.call(this, modelController);
-      if (result !== void 0) {
-        return result;
-      }
-    }
-    const modelObservers = this.modelObservers;
-    let i = 0;
-    while (i < modelObservers.length) {
-      const modelObserver = modelObservers[i];
-      result = callback.call(this, modelObserver);
-      if (result !== void 0) {
-        return result;
-      }
-      if (modelObserver === modelObservers[i]) {
-        i += 1;
-      }
-    }
-    return result;
-  }
-
-  protected didObserve<T>(callback: (this: this, modelObserver: ModelObserverType<this>) => T | void): T | undefined {
-    let result: T | undefined;
-    const modelObservers = this.modelObservers;
-    let i = 0;
-    while (i < modelObservers.length) {
-      const modelObserver = modelObservers[i];
-      result = callback.call(this, modelObserver);
-      if (result !== void 0) {
-        return result;
-      }
-      if (modelObserver === modelObservers[i]) {
-        i += 1;
-      }
-    }
-    const modelController = this.modelController;
-    if (modelController !== null) {
-      result = callback.call(this, modelController);
-      if (result !== void 0) {
-        return result;
-      }
-    }
-    return result;
-  }
-
-  initModel(init: ModelInit): void {
-    if (init.modelController !== void 0) {
-      this.setModelController(init.modelController as ModelControllerType<this>);
-    }
-  }
-
   abstract get key(): string | undefined;
 
   /** @hidden */
@@ -183,20 +230,30 @@ export abstract class Model implements ModelDownlinkContext {
   abstract setParentModel(newParentModel: Model | null, oldParentModel: Model | null): void;
 
   protected willSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willSetParentModel(newParentModel, oldParentModel);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillSetParentModel !== void 0) {
+      modelController.modelWillSetParentModel(newParentModel, oldParentModel, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillSetParentModel !== void 0) {
         modelObserver.modelWillSetParentModel(newParentModel, oldParentModel, this);
       }
-    });
+    }
   }
 
   protected onSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onSetParentModel(newParentModel, oldParentModel);
-    });
+    }
     if (newParentModel !== null) {
       if (newParentModel.isMounted()) {
         this.cascadeMount();
@@ -216,14 +273,22 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidSetParentModel !== void 0) {
         modelObserver.modelDidSetParentModel(newParentModel, oldParentModel, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidSetParentModel !== void 0) {
+      modelController.modelDidSetParentModel(newParentModel, oldParentModel, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didSetParentModel(newParentModel, oldParentModel);
-    });
+    }
   }
 
   abstract remove(): void;
@@ -258,32 +323,50 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willInsertChildModel(childModel, targetModel);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillInsertChildModel !== void 0) {
+      modelController.modelWillInsertChildModel(childModel, targetModel, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillInsertChildModel !== void 0) {
         modelObserver.modelWillInsertChildModel(childModel, targetModel, this);
       }
-    });
+    }
   }
 
   protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
     this.requireUpdate(this.insertChildFlags);
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onInsertChildModel(childModel, targetModel);
-    });
+    }
   }
 
   protected didInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidInsertChildModel !== void 0) {
         modelObserver.modelDidInsertChildModel(childModel, targetModel, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidInsertChildModel !== void 0) {
+      modelController.modelDidInsertChildModel(childModel, targetModel, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didInsertChildModel(childModel, targetModel);
-    });
+    }
   }
 
   abstract cascadeInsert(updateFlags?: ModelFlags, modelContext?: ModelContext): void;
@@ -298,32 +381,50 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willRemoveChildModel(childModel: Model): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willRemoveChildModel(childModel);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillRemoveChildModel !== void 0) {
+      modelController.modelWillRemoveChildModel(childModel, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillRemoveChildModel !== void 0) {
         modelObserver.modelWillRemoveChildModel(childModel, this);
       }
-    });
+    }
   }
 
   protected onRemoveChildModel(childModel: Model): void {
     this.requireUpdate(this.removeChildFlags);
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onRemoveChildModel(childModel);
-    });
+    }
   }
 
   protected didRemoveChildModel(childModel: Model): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidRemoveChildModel !== void 0) {
         modelObserver.modelDidRemoveChildModel(childModel, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidRemoveChildModel !== void 0) {
+      modelController.modelDidRemoveChildModel(childModel, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didRemoveChildModel(childModel);
-    });
+    }
   }
 
   getSuperModel<M extends Model>(modelPrototype: ModelPrototype<M>): M | null {
@@ -351,100 +452,354 @@ export abstract class Model implements ModelDownlinkContext {
     }
   }
 
-  abstract get traitCount(): number;
+  get traitCount(): number {
+    const traits = this._traits;
+    return traits !== void 0 ? traits.length : 0;
+  }
 
-  abstract get traits(): ReadonlyArray<Trait>;
+  get traits(): ReadonlyArray<Trait> {
+    let traits = this._traits;
+    if (traits === void 0) {
+      traits = [];
+      this._traits = traits;
+    }
+    return traits;
+  }
 
-  abstract firstTrait(): Trait | null;
+  firstTrait(): Trait | null {
+    const traits = this._traits;
+    return traits !== void 0 && traits.length !== 0 ? traits[0] : null;
+  }
 
-  abstract lastTrait(): Trait | null;
+  lastTrait(): Trait | null {
+    const traits = this._traits;
+    return traits !== void 0 && traits.length !== 0 ? traits[traits.length - 1] : null;
+  }
 
-  abstract nextTrait(targetTrait: Trait): Trait | null;
+  nextTrait(targetTrait: Trait): Trait | null {
+    const traits = this._traits;
+    const targetIndex = traits !== void 0 ? traits.indexOf(targetTrait) : -1;
+    return targetIndex >= 0 && targetIndex + 1 < traits!.length ? traits![targetIndex + 1] : null;
+  }
 
-  abstract previousTrait(targetTrait: Trait): Trait | null;
+  previousTrait(targetTrait: Trait): Trait | null {
+    const traits = this._traits;
+    const targetIndex = traits !== void 0 ? traits.indexOf(targetTrait) : -1;
+    return targetIndex - 1 >= 0 ? traits![targetIndex - 1] : null;
+  }
 
-  abstract forEachTrait<T, S = unknown>(callback: (this: S, trait: Trait) => T | void,
-                                        thisArg?: S): T | undefined;
+  forEachTrait<T, S = unknown>(callback: (this: S, trait: Trait) => T | void,
+                               thisArg?: S): T | undefined {
+    let result: T | undefined;
+    const traits = this._traits;
+    if (traits !== void 0) {
+      let i = 0;
+      while (i < traits.length) {
+        const trait = traits[i];
+        result = callback.call(thisArg, trait);
+        if (result !== void 0) {
+          break;
+        }
+        if (traits[i] === trait) {
+          i += 1;
+        }
+      }
+    }
+    return result;
+  }
 
-  abstract getTrait(key: string): Trait | null;
-  abstract getTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null;
-  abstract getTrait(key: string | TraitPrototype<Trait>): Trait | null;
+  getTrait(key: string): Trait | null;
+  getTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null;
+  getTrait(key: string | TraitPrototype<Trait>): Trait | null;
+  getTrait(key: string | TraitPrototype<Trait>): Trait | null {
+    if (typeof key === "string") {
+      const traitMap = this._traitMap;
+      if (traitMap !== void 0) {
+        const trait = traitMap[key];
+        if (trait !== void 0) {
+          return trait;
+        }
+      }
+    } else {
+      const traits = this._traits;
+      if (traits !== void 0) {
+        for (let i = 0, n = traits.length; i < n; i += 1) {
+          const trait = traits[i];
+          if (trait instanceof key) {
+            return trait;
+          }
+        }
+      }
+    }
+    return null;
+  }
 
-  abstract setTrait(key: string, newTrait: Trait | null): Trait | null;
+  setTrait(key: string, newTrait: Trait | null): Trait | null {
+    if (newTrait !== null) {
+      newTrait.remove();
+    }
+    let index = -1;
+    let oldTrait: Trait | null = null;
+    let targetTrait: Trait | null = null;
+    let traits = this._traits;
+    if (traits === void 0) {
+      traits = [];
+      this._traits = traits;
+    }
+    const traitMap = this._traitMap;
+    if (traitMap !== void 0) {
+      const trait = traitMap[key];
+      if (trait !== void 0) {
+        index = traits.indexOf(trait);
+        // assert(index >= 0);
+        oldTrait = trait;
+        targetTrait = traits[index + 1] || null;
+        this.willRemoveTrait(trait);
+        trait.setModel(null, this);
+        this.removeTraitMap(trait);
+        traits.splice(index, 1);
+        this.onRemoveTrait(trait);
+        this.didRemoveTrait(trait);
+        trait.setKey(void 0);
+      }
+    }
+    if (newTrait !== null) {
+      newTrait.setKey(key);
+      this.willInsertTrait(newTrait, targetTrait);
+      if (index >= 0) {
+        traits.splice(index, 0, newTrait);
+      } else {
+        traits.push(newTrait);
+      }
+      this.insertTraitMap(newTrait);
+      newTrait.setModel(this, null);
+      this.onInsertTrait(newTrait, targetTrait);
+      this.didInsertTrait(newTrait, targetTrait);
+    }
+    return oldTrait;
+  }
 
-  abstract appendTrait(trait: Trait, key?: string): void;
+  /** @hidden */
+  protected insertTraitMap(trait: Trait): void {
+    const key = trait.key;
+    if (key !== void 0) {
+      let traitMap = this._traitMap;
+      if (traitMap === void 0) {
+        traitMap = {};
+        this._traitMap = traitMap;
+      }
+      traitMap[key] = trait;
+    }
+  }
 
-  abstract prependTrait(trait: Trait, key?: string): void;
+  /** @hidden */
+  protected removeTraitMap(trait: Trait): void {
+    const traitMap = this._traitMap;
+    if (traitMap !== void 0) {
+      const key = trait.key;
+      if (key !== void 0) {
+        delete traitMap[key];
+      }
+    }
+  }
 
-  abstract insertTrait(trait: Trait, targetTrait: Trait | null, key?: string): void;
+  appendTrait(trait: Trait, key?: string): void {
+    trait.remove();
+    if (key !== void 0) {
+      this.removeTrait(key);
+      trait.setKey(key);
+    }
+    this.willInsertTrait(trait, null);
+    let traits = this._traits;
+    if (traits === void 0) {
+      traits = [];
+      this._traits = traits;
+    }
+    traits.push(trait);
+    this.insertTraitMap(trait);
+    trait.setModel(this, null);
+    this.onInsertTrait(trait, null);
+    this.didInsertTrait(trait, null);
+  }
+
+  prependTrait(trait: Trait, key?: string): void {
+    trait.remove();
+    if (key !== void 0) {
+      this.removeTrait(key);
+      trait.setKey(key);
+    }
+    let traits = this._traits;
+    if (traits === void 0) {
+      traits = [];
+      this._traits = traits;
+    }
+    const targetTrait = traits.length !== 0 ? traits[0] : null;
+    this.willInsertTrait(trait, targetTrait);
+    traits.unshift(trait);
+    this.insertTraitMap(trait);
+    trait.setModel(this, null);
+    this.onInsertTrait(trait, targetTrait);
+    this.didInsertTrait(trait, targetTrait);
+  }
+
+  insertTrait(trait: Trait, targetTrait: Trait | null, key?: string): void {
+    if (targetTrait !== null && targetTrait.model !== this) {
+      throw new TypeError("" + targetTrait);
+    }
+    trait.remove();
+    if (key !== void 0) {
+      this.removeTrait(key);
+      trait.setKey(key);
+    }
+    this.willInsertTrait(trait, targetTrait);
+    let traits = this._traits;
+    if (traits === void 0) {
+      traits = [];
+      this._traits = traits;
+    }
+    const index = targetTrait !== null ? traits.indexOf(targetTrait) : -1;
+    if (index >= 0) {
+      traits.splice(index, 0, trait);
+    } else {
+      traits.push(trait);
+    }
+    this.insertTraitMap(trait);
+    trait.setModel(this, null);
+    this.onInsertTrait(trait, targetTrait);
+    this.didInsertTrait(trait, targetTrait);
+  }
 
   get insertTraitFlags(): ModelFlags {
     return this.modelClass.insertTraitFlags;
   }
 
   protected willInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willInsertTrait(newTrait, targetTrait);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillInsertTrait !== void 0) {
+      modelController.modelWillInsertTrait(newTrait, targetTrait, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillInsertTrait !== void 0) {
         modelObserver.modelWillInsertTrait(newTrait, targetTrait, this);
       }
-    });
+    }
   }
 
   protected onInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
     this.requireUpdate(this.insertTraitFlags);
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onInsertTrait(newTrait, targetTrait);
-    });
+    }
   }
 
   protected didInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidInsertTrait !== void 0) {
         modelObserver.modelDidInsertTrait(newTrait, targetTrait, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidInsertTrait !== void 0) {
+      modelController.modelDidInsertTrait(newTrait, targetTrait, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didInsertTrait(newTrait, targetTrait);
-    });
+    }
   }
 
-  abstract removeTrait(key: string): Trait | null;
-  abstract removeTrait(trait: Trait): void;
+  removeTrait(key: string): Trait | null;
+  removeTrait(trait: Trait): void;
+  removeTrait(key: string | Trait): Trait | null | void {
+    let trait: Trait | null;
+    if (typeof key === "string") {
+      trait = this.getTrait(key);
+      if (trait === null) {
+        return null;
+      }
+    } else {
+      trait = key;
+    }
+    if (trait.model !== this) {
+      throw new Error("not a member trait");
+    }
+    this.willRemoveTrait(trait);
+    trait.setModel(null, this);
+    this.removeTraitMap(trait);
+    const traits = this._traits;
+    const index = traits !== void 0 ? traits.indexOf(trait) : -1;
+    if (index >= 0) {
+      traits!.splice(index, 1);
+    }
+    this.onRemoveTrait(trait);
+    this.didRemoveTrait(trait);
+    trait.setKey(void 0);
+    if (typeof key === "string") {
+      return trait;
+    }
+  }
 
   get removeTraitFlags(): ModelFlags {
     return this.modelClass.removeTraitFlags;
   }
 
   protected willRemoveTrait(oldTrait: Trait): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willRemoveTrait(oldTrait);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillRemoveTrait !== void 0) {
+      modelController.modelWillRemoveTrait(oldTrait, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillRemoveTrait !== void 0) {
         modelObserver.modelWillRemoveTrait(oldTrait, this);
       }
-    });
+    }
   }
 
   protected onRemoveTrait(oldTrait: Trait): void {
     this.requireUpdate(this.removeTraitFlags);
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onRemoveTrait(oldTrait);
-    });
+    }
   }
 
   protected didRemoveTrait(oldTrait: Trait): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidRemoveTrait !== void 0) {
         modelObserver.modelDidRemoveTrait(oldTrait, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidRemoveTrait !== void 0) {
+      modelController.modelDidRemoveTrait(oldTrait, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didRemoveTrait(oldTrait);
-    });
+    }
   }
 
   getSuperTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
@@ -481,16 +836,6 @@ export abstract class Model implements ModelDownlinkContext {
 
   readonly warpRef: ModelScope<this, WarpRef | undefined>; // defined by GenericModel
 
-  get modelClass(): ModelClass {
-    return this.constructor as unknown as ModelClass;
-  }
-
-  /** @hidden */
-  abstract get modelFlags(): ModelFlags;
-
-  /** @hidden */
-  abstract setModelFlags(modelFlags: ModelFlags): void;
-
   isMounted(): boolean {
     return (this.modelFlags & Model.MountedFlag) !== 0;
   }
@@ -512,11 +857,17 @@ export abstract class Model implements ModelDownlinkContext {
   abstract cascadeMount(): void;
 
   protected willMount(): void {
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillMount !== void 0) {
+      modelController.modelWillMount(this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillMount !== void 0) {
         modelObserver.modelWillMount(this);
       }
-    });
+    }
   }
 
   protected onMount(): void {
@@ -524,21 +875,33 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didMount(): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidMount !== void 0) {
         modelObserver.modelDidMount(this);
       }
-    });
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidMount !== void 0) {
+      modelController.modelDidMount(this);
+    }
   }
 
   abstract cascadeUnmount(): void;
 
   protected willUnmount(): void {
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillUnmount !== void 0) {
+      modelController.modelWillUnmount(this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillUnmount !== void 0) {
         modelObserver.modelWillUnmount(this);
       }
-    });
+    }
   }
 
   protected onUnmount(): void {
@@ -546,11 +909,17 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didUnmount(): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidUnmount !== void 0) {
         modelObserver.modelDidUnmount(this);
       }
-    });
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidUnmount !== void 0) {
+      modelController.modelDidUnmount(this);
+    }
   }
 
   isPowered(): boolean {
@@ -564,11 +933,17 @@ export abstract class Model implements ModelDownlinkContext {
   abstract cascadePower(): void;
 
   protected willPower(): void {
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillPower !== void 0) {
+      modelController.modelWillPower(this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillPower !== void 0) {
         modelObserver.modelWillPower(this);
       }
-    });
+    }
   }
 
   protected onPower(): void {
@@ -577,21 +952,33 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didPower(): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidPower !== void 0) {
         modelObserver.modelDidPower(this);
       }
-    });
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidPower !== void 0) {
+      modelController.modelDidPower(this);
+    }
   }
 
   abstract cascadeUnpower(): void;
 
   protected willUnpower(): void {
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillUnpower !== void 0) {
+      modelController.modelWillUnpower(this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillUnpower !== void 0) {
         modelObserver.modelWillUnpower(this);
       }
-    });
+    }
   }
 
   protected onUnpower(): void {
@@ -599,11 +986,17 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didUnpower(): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidUnpower !== void 0) {
         modelObserver.modelDidUnpower(this);
       }
-    });
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidUnpower !== void 0) {
+      modelController.modelDidUnpower(this);
+    }
   }
 
   requireUpdate(updateFlags: ModelFlags, immediate: boolean = false): void {
@@ -622,15 +1015,19 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willRequireUpdate(updateFlags: ModelFlags, immediate: boolean): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willRequireUpdate(updateFlags, immediate);
-    });
+    }
   }
 
   protected didRequireUpdate(updateFlags: ModelFlags, immediate: boolean): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didRequireUpdate(updateFlags, immediate);
-    });
+    }
   }
 
   requestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
@@ -648,9 +1045,11 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): ModelFlags {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       updateFlags |= (trait as any).willRequestUpdate(targetModel, updateFlags, immediate);
-    });
+    }
     let additionalFlags = this.modifyUpdate(targetModel, updateFlags);
     additionalFlags &= ~Model.StatusMask;
     if (additionalFlags !== 0) {
@@ -661,9 +1060,11 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didRequestUpdate(targetModel, updateFlags, immediate);
-    });
+    }
   }
 
   protected modifyUpdate(targetModel: Model, updateFlags: ModelFlags): ModelFlags {
@@ -674,9 +1075,11 @@ export abstract class Model implements ModelDownlinkContext {
     if ((updateFlags & Model.RefreshMask) !== 0) {
       additionalFlags |= Model.NeedsRefresh;
     }
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       additionalFlags |= (trait as any).modifyUpdate(targetModel, updateFlags);
-    });
+    }
     return additionalFlags;
   }
 
@@ -693,124 +1096,198 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   needsAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): ModelFlags {
-    this.forEachTrait(function (trait: Trait): void {
-      analyzeFlags = trait.needsAnalyze(analyzeFlags, modelContext);
-    });
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
+      analyzeFlags = (trait as any).needsAnalyze(analyzeFlags, modelContext);
+    }
     return analyzeFlags;
   }
 
   abstract cascadeAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContext): void;
 
-  protected willAnalyze(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
-      (trait as any).willAnalyze(modelContext);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+  protected willAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
+      (trait as any).willAnalyze(analyzeFlags, modelContext);
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillAnalyze !== void 0) {
+      modelController.modelWillAnalyze(analyzeFlags, modelContext, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillAnalyze !== void 0) {
-        modelObserver.modelWillAnalyze(modelContext, this);
+        modelObserver.modelWillAnalyze(analyzeFlags, modelContext, this);
       }
-    });
+    }
   }
 
-  protected onAnalyze(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
-      (trait as any).onAnalyze(modelContext);
-    });
+  protected onAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
+      (trait as any).onAnalyze(analyzeFlags, modelContext);
+    }
   }
 
-  protected didAnalyze(modelContext: ModelContextType<this>): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+  protected didAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidAnalyze !== void 0) {
-        modelObserver.modelDidAnalyze(modelContext, this);
+        modelObserver.modelDidAnalyze(analyzeFlags, modelContext, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
-      (trait as any).didAnalyze(modelContext);
-    });
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidAnalyze !== void 0) {
+      modelController.modelDidAnalyze(analyzeFlags, modelContext, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
+      (trait as any).didAnalyze(analyzeFlags, modelContext);
+    }
   }
 
   protected willMutate(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willMutate(modelContext);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillMutate !== void 0) {
+      modelController.modelWillMutate(modelContext, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillMutate !== void 0) {
         modelObserver.modelWillMutate(modelContext, this);
       }
-    });
+    }
   }
 
   protected onMutate(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onMutate(modelContext);
-    });
+    }
   }
 
   protected didMutate(modelContext: ModelContextType<this>): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidMutate !== void 0) {
         modelObserver.modelDidMutate(modelContext, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidMutate !== void 0) {
+      modelController.modelDidMutate(modelContext, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didMutate(modelContext);
-    });
+    }
   }
 
   protected willAggregate(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willAggregate(modelContext);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillAggregate !== void 0) {
+      modelController.modelWillAggregate(modelContext, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillAggregate !== void 0) {
         modelObserver.modelWillAggregate(modelContext, this);
       }
-    });
+    }
   }
 
   protected onAggregate(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onAggregate(modelContext);
-    });
+    }
   }
 
   protected didAggregate(modelContext: ModelContextType<this>): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidAggregate !== void 0) {
         modelObserver.modelDidAggregate(modelContext, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidAggregate !== void 0) {
+      modelController.modelDidAggregate(modelContext, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didAggregate(modelContext);
-    });
+    }
   }
 
   protected willCorrelate(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willCorrelate(modelContext);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillCorrelate !== void 0) {
+      modelController.modelWillCorrelate(modelContext, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillCorrelate !== void 0) {
         modelObserver.modelWillCorrelate(modelContext, this);
       }
-    });
+    }
   }
 
   protected onCorrelate(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onCorrelate(modelContext);
-    });
+    }
   }
 
   protected didCorrelate(modelContext: ModelContextType<this>): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidCorrelate !== void 0) {
         modelObserver.modelDidCorrelate(modelContext, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidCorrelate !== void 0) {
+      modelController.modelDidCorrelate(modelContext, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didCorrelate(modelContext);
-    });
+    }
   }
 
   /** @hidden */
@@ -823,46 +1300,50 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willAnalyzeChildModels(analyzeFlags, modelContext);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillAnalyzeChildModels !== void 0) {
+      modelController.modelWillAnalyzeChildModels(analyzeFlags, modelContext, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillAnalyzeChildModels !== void 0) {
         modelObserver.modelWillAnalyzeChildModels(analyzeFlags, modelContext, this);
       }
-    });
+    }
   }
 
   protected onAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onAnalyzeChildModels(analyzeFlags, modelContext);
-    });
+    }
     this.analyzeChildModels(analyzeFlags, modelContext, this.analyzeChildModel);
   }
 
   protected didAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidAnalyzeChildModels !== void 0) {
         modelObserver.modelDidAnalyzeChildModels(analyzeFlags, modelContext, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
-      (trait as any).didAnalyzeChildModels(analyzeFlags, modelContext);
-    });
-  }
-
-  /** @hidden */
-  protected analyzeOwnChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
-                                  analyzeChildModel: (this: this, childModel: Model, analyzeFlags: ModelFlags,
-                                                      modelContext: ModelContextType<this>) => void): void {
-    function doAnalyzeChildModel(this: Model, childModel: Model): void {
-      analyzeChildModel.call(this, childModel, analyzeFlags, modelContext);
-      if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
-        childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
-        this.removeChildModel(childModel);
-      }
     }
-    this.forEachChildModel(doAnalyzeChildModel, this);
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidAnalyzeChildModels !== void 0) {
+      modelController.modelDidAnalyzeChildModels(analyzeFlags, modelContext, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
+      (trait as any).didAnalyzeChildModels(analyzeFlags, modelContext);
+    }
   }
 
   protected abstract analyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
@@ -877,22 +1358,28 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willAnalyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willAnalyzeChildModel(childModel, analyzeFlags, modelContext);
-    });
+    }
   }
 
   protected onAnalyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onAnalyzeChildModel(childModel, analyzeFlags, modelContext);
-    });
+    }
     childModel.cascadeAnalyze(analyzeFlags, modelContext);
   }
 
   protected didAnalyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didAnalyzeChildModel(childModel, analyzeFlags, modelContext);
-    });
+    }
   }
 
   isRefreshing(): boolean {
@@ -900,96 +1387,152 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   needsRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): ModelFlags {
-    this.forEachTrait(function (trait: Trait): void {
-      refreshFlags = trait.needsRefresh(refreshFlags, modelContext);
-    });
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
+      refreshFlags = (trait as any).needsRefresh(refreshFlags, modelContext);
+    }
     return refreshFlags;
   }
 
   abstract cascadeRefresh(refreshFlags: ModelFlags, modelContext: ModelContext): void;
 
-  protected willRefresh(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
-      (trait as any).willRefresh(modelContext);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+  protected willRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
+      (trait as any).willRefresh(refreshFlags, modelContext);
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillRefresh !== void 0) {
+      modelController.modelWillRefresh(refreshFlags, modelContext, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillRefresh !== void 0) {
-        modelObserver.modelWillRefresh(modelContext, this);
+        modelObserver.modelWillRefresh(refreshFlags, modelContext, this);
       }
-    });
+    }
   }
 
-  protected onRefresh(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
-      (trait as any).onRefresh(modelContext);
-    });
+  protected onRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
+      (trait as any).onRefresh(refreshFlags, modelContext);
+    }
   }
 
-  protected didRefresh(modelContext: ModelContextType<this>): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+  protected didRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidRefresh !== void 0) {
-        modelObserver.modelDidRefresh(modelContext, this);
+        modelObserver.modelDidRefresh(refreshFlags, modelContext, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
-      (trait as any).didRefresh(modelContext);
-    });
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidRefresh !== void 0) {
+      modelController.modelDidRefresh(refreshFlags, modelContext, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
+      (trait as any).didRefresh(refreshFlags, modelContext);
+    }
   }
 
   protected willValidate(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willValidate(modelContext);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillValidate !== void 0) {
+      modelController.modelWillValidate(modelContext, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillValidate !== void 0) {
         modelObserver.modelWillValidate(modelContext, this);
       }
-    });
+    }
   }
 
   protected onValidate(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onValidate(modelContext);
-    });
+    }
   }
 
   protected didValidate(modelContext: ModelContextType<this>): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidValidate !== void 0) {
         modelObserver.modelDidValidate(modelContext, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidValidate !== void 0) {
+      modelController.modelDidValidate(modelContext, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didValidate(modelContext);
-    });
+    }
   }
 
   protected willReconcile(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willReconcile(modelContext);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillReconcile !== void 0) {
+      modelController.modelWillReconcile(modelContext, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillReconcile !== void 0) {
         modelObserver.modelWillReconcile(modelContext, this);
       }
-    });
+    }
   }
 
   protected onReconcile(modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onReconcile(modelContext);
-    });
+    }
   }
 
   protected didReconcile(modelContext: ModelContextType<this>): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidReconcile !== void 0) {
         modelObserver.modelDidReconcile(modelContext, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidReconcile !== void 0) {
+      modelController.modelDidReconcile(modelContext, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didReconcile(modelContext);
-    });
+    }
   }
 
   /** @hidden */
@@ -1002,46 +1545,50 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willRefreshChildModels(refreshFlags, modelContext);
-    });
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillRefreshChildModels !== void 0) {
+      modelController.modelWillRefreshChildModels(refreshFlags, modelContext, this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillRefreshChildModels !== void 0) {
         modelObserver.modelWillRefreshChildModels(refreshFlags, modelContext, this);
       }
-    });
+    }
   }
 
   protected onRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onRefreshChildModels(refreshFlags, modelContext);
-    });
+    }
     this.refreshChildModels(refreshFlags, modelContext, this.refreshChildModel);
   }
 
   protected didRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidRefreshChildModels !== void 0) {
         modelObserver.modelDidRefreshChildModels(refreshFlags, modelContext, this);
       }
-    });
-    this.forEachTrait(function (trait: Trait): void {
-      (trait as any).didRefreshChildModels(refreshFlags, modelContext);
-    });
-  }
-
-  /** @hidden */
-  protected refreshOwnChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
-                                  refreshChildModel: (this: this, childModel: Model, refreshFlags: ModelFlags,
-                                                      modelContext: ModelContextType<this>) => void): void {
-    function doRefreshChildModel(this: Model, childModel: Model): void {
-      refreshChildModel.call(this, childModel, refreshFlags, modelContext);
-      if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
-        childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
-        this.removeChildModel(childModel);
-      }
     }
-    this.forEachChildModel(doRefreshChildModel, this);
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidRefreshChildModels !== void 0) {
+      modelController.modelDidRefreshChildModels(refreshFlags, modelContext, this);
+    }
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
+      (trait as any).didRefreshChildModels(refreshFlags, modelContext);
+    }
   }
 
   protected abstract refreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
@@ -1056,22 +1603,28 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willRefreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).willRefreshChildModel(childModel, refreshFlags, modelContext);
-    });
+    }
   }
 
   protected onRefreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).onRefreshChildModel(childModel, refreshFlags, modelContext);
-    });
+    }
     childModel.cascadeRefresh(refreshFlags, modelContext);
   }
 
   protected didRefreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    this.forEachTrait(function (trait: Trait): void {
+    const traits = this._traits;
+    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
+      const trait = traits![i];
       (trait as any).didRefreshChildModel(childModel, refreshFlags, modelContext);
-    });
+    }
   }
 
   isConsuming(): boolean {
@@ -1083,11 +1636,17 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willStartConsuming(): void {
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillStartConsuming !== void 0) {
+      modelController.modelWillStartConsuming(this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillStartConsuming !== void 0) {
         modelObserver.modelWillStartConsuming(this);
       }
-    });
+    }
   }
 
   protected onStartConsuming(): void {
@@ -1095,11 +1654,17 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didStartConsuming(): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidStartConsuming !== void 0) {
         modelObserver.modelDidStartConsuming(this);
       }
-    });
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidStartConsuming !== void 0) {
+      modelController.modelDidStartConsuming(this);
+    }
   }
 
   get stopConsumingFlags(): ModelFlags {
@@ -1107,11 +1672,17 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willStopConsuming(): void {
-    this.willObserve(function (modelObserver: ModelObserver): void {
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelWillStopConsuming !== void 0) {
+      modelController.modelWillStopConsuming(this);
+    }
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelWillStopConsuming !== void 0) {
         modelObserver.modelWillStopConsuming(this);
       }
-    });
+    }
   }
 
   protected onStopConsuming(): void {
@@ -1119,11 +1690,17 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didStopConsuming(): void {
-    this.didObserve(function (modelObserver: ModelObserver): void {
+    const modelObservers = this._modelObservers;
+    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
+      const modelObserver = modelObservers![i];
       if (modelObserver.modelDidStopConsuming !== void 0) {
         modelObserver.modelDidStopConsuming(this);
       }
-    });
+    }
+    const modelController = this._modelController;
+    if (modelController !== void 0 && modelController.modelDidStopConsuming !== void 0) {
+      modelController.modelDidStopConsuming(this);
+    }
   }
 
   abstract get modelConsumers(): ReadonlyArray<ModelConsumer>;

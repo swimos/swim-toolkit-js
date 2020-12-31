@@ -145,11 +145,17 @@ export abstract class MapGraphicsView extends GraphicsView {
   }
 
   protected willProject(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: MapGraphicsViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillProject !== void 0) {
+      viewController.viewWillProject(viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillProject !== void 0) {
         viewObserver.viewWillProject(viewContext, this);
       }
-    });
+    }
   }
 
   protected onProject(viewContext: ViewContextType<this>): void {
@@ -157,11 +163,17 @@ export abstract class MapGraphicsView extends GraphicsView {
   }
 
   protected didProject(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: MapGraphicsViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidProject !== void 0) {
         viewObserver.viewDidProject(viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidProject !== void 0) {
+      viewController.viewDidProject(viewContext, this);
+    }
   }
 
   protected onSetHidden(hidden: boolean): void {

@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Model} from "../Model";
-import {TraitModelType, TraitContextType, TraitFlags, Trait} from "../Trait";
-import {TraitObserverType, TraitObserver} from "../TraitObserver";
+import {TraitModelType, TraitContextType, Trait} from "../Trait";
+import {TraitObserverType} from "../TraitObserver";
 import {TraitConsumerType, TraitConsumer} from "../TraitConsumer";
 import {TraitService} from "../service/TraitService";
 import {TraitScope} from "../scope/TraitScope";
@@ -24,13 +24,9 @@ import {ModelDownlink} from "../downlink/ModelDownlink";
 
 export class GenericTrait extends Trait {
   /** @hidden */
-  _key?: string;
-  /** @hidden */
   _model: TraitModelType<this> | null;
   /** @hidden */
-  _traitObservers?: TraitObserverType<this>[];
-  /** @hidden */
-  _traitFlags: TraitFlags;
+  _key?: string;
   /** @hidden */
   _traitConsumers?: TraitConsumerType<this>[];
   /** @hidden */
@@ -47,47 +43,6 @@ export class GenericTrait extends Trait {
   constructor() {
     super();
     this._model = null;
-    this._traitFlags = 0;
-  }
-
-  get traitObservers(): ReadonlyArray<TraitObserver> {
-    let traitObservers = this._traitObservers;
-    if (traitObservers === void 0) {
-      traitObservers = [];
-      this._traitObservers = traitObservers;
-    }
-    return traitObservers;
-  }
-
-  addTraitObserver(traitObserver: TraitObserverType<this>): void {
-    let traitObservers = this._traitObservers;
-    let index: number;
-    if (traitObservers === void 0) {
-      traitObservers = [];
-      this._traitObservers = traitObservers;
-      index = -1;
-    } else {
-      index = traitObservers.indexOf(traitObserver);
-    }
-    if (index < 0) {
-      this.willAddTraitObserver(traitObserver);
-      traitObservers.push(traitObserver);
-      this.onAddTraitObserver(traitObserver);
-      this.didAddTraitObserver(traitObserver);
-    }
-  }
-
-  removeTraitObserver(traitObserver: TraitObserverType<this>): void {
-    const traitObservers = this._traitObservers;
-    if (traitObservers !== void 0) {
-      const index = traitObservers.indexOf(traitObserver);
-      if (index >= 0) {
-        this.willRemoveTraitObserver(traitObserver);
-        traitObservers.splice(index, 1);
-        this.onRemoveTraitObserver(traitObserver);
-        this.didRemoveTraitObserver(traitObserver);
-      }
-    }
   }
 
   protected willObserve<T>(callback: (this: this, traitObserver: TraitObserverType<this>) => T | void): T | undefined {
@@ -204,16 +159,6 @@ export class GenericTrait extends Trait {
   protected onRemoveTrait(trait: Trait): void {
     super.onRemoveTrait(trait);
     this.removeTraitBinding(trait);
-  }
-
-  /** @hidden */
-  get traitFlags(): TraitFlags {
-    return this._traitFlags;
-  }
-
-  /** @hidden */
-  setTraitFlags(traitFlags: TraitFlags): void {
-    this._traitFlags = traitFlags;
   }
 
   /** @hidden */

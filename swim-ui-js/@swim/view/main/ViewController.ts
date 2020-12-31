@@ -21,7 +21,7 @@ import {ViewIdiom} from "./viewport/ViewIdiom";
 import {Viewport} from "./viewport/Viewport";
 
 export type ViewControllerType<V extends View> =
-  V extends {readonly viewController: infer VC} ? VC : unknown;
+  V extends {readonly viewController: infer VC | null} ? VC : never;
 
 export class ViewController<V extends View = View> implements ViewObserver<V> {
   /** @hidden */

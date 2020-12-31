@@ -24,7 +24,6 @@ import {
   ViewClass,
   View,
   ViewObserverType,
-  ViewControllerType,
   ViewService,
   LayoutAnchor,
   ModalManager,
@@ -40,11 +39,11 @@ import {HtmlView} from "../html/HtmlView";
 import {StyleView} from "../html/StyleView";
 import {SvgView} from "../svg/SvgView";
 
+export type ViewNodeType<V extends NodeView> = V extends {readonly node: infer N} ? N : never;
+
 export interface ViewNode extends Node {
   view?: NodeView;
 }
-
-export type ViewNodeType<V extends NodeView> = V extends {readonly node: infer N} ? N : ViewNode;
 
 export interface NodeViewInit extends ViewInit {
   viewController?: NodeViewController;
@@ -67,12 +66,6 @@ export class NodeView extends View {
   /** @hidden */
   _childViewMap?: {[key: string]: View | undefined};
   /** @hidden */
-  _viewController: ViewControllerType<this> | null;
-  /** @hidden */
-  _viewObservers?: ViewObserverType<this>[];
-  /** @hidden */
-  _viewFlags: ViewFlags;
-  /** @hidden */
   _viewServices?: {[serviceName: string]: ViewService<View, unknown> | undefined};
   /** @hidden */
   _viewScopes?: {[scopeName: string]: ViewScope<View, unknown> | undefined};
@@ -90,18 +83,8 @@ export class NodeView extends View {
   constructor(node: Node) {
     super();
     this._node = node as ViewNodeType<this>;
-    this._node.view = this;
-    this._viewController = null;
-    this._viewFlags = 0;
+    (this._node as ViewNode).view = this;
     this.initNode(this._node);
-  }
-
-  get node(): ViewNode {
-    return this._node;
-  }
-
-  protected initNode(node: ViewNodeType<this>): void {
-    // hook
   }
 
   initView(init: NodeViewInit): void {
@@ -111,70 +94,27 @@ export class NodeView extends View {
     }
   }
 
-  get viewController(): NodeViewController | null {
-    return this._viewController;
+  protected initNode(node: ViewNodeType<this>): void {
+    // hook
   }
 
-  setViewController(newViewController: ViewControllerType<this> | null): void {
-    const oldViewController = this._viewController;
-    if (oldViewController !== newViewController) {
-      this.willSetViewController(newViewController);
-      if (oldViewController !== null) {
-        oldViewController.setView(null);
-      }
-      this._viewController = newViewController;
-      if (newViewController !== null) {
-        newViewController.setView(this);
-      }
-      this.onSetViewController(newViewController);
-      this.didSetViewController(newViewController);
-    }
+  get node(): Node {
+    return this._node;
   }
 
-  get viewObservers(): ReadonlyArray<NodeViewObserver> {
-    let viewObservers = this._viewObservers;
-    if (viewObservers === void 0) {
-      viewObservers = [];
-      this._viewObservers = viewObservers;
-    }
-    return viewObservers;
-  }
+  // @ts-ignore
+  declare readonly viewClass: NodeViewClass;
 
-  addViewObserver(viewObserver: ViewObserverType<this>): void {
-    let viewObservers = this._viewObservers;
-    let index: number;
-    if (viewObservers === void 0) {
-      viewObservers = [];
-      this._viewObservers = viewObservers;
-      index = -1;
-    } else {
-      index = viewObservers.indexOf(viewObserver);
-    }
-    if (index < 0) {
-      this.willAddViewObserver(viewObserver);
-      viewObservers.push(viewObserver);
-      this.onAddViewObserver(viewObserver);
-      this.didAddViewObserver(viewObserver);
-    }
-  }
+  // @ts-ignore
+  declare readonly viewController: NodeViewController | null;
 
-  removeViewObserver(viewObserver: ViewObserverType<this>): void {
-    const viewObservers = this._viewObservers;
-    if (viewObservers !== void 0) {
-      const index = viewObservers.indexOf(viewObserver);
-      if (index >= 0) {
-        this.willRemoveViewObserver(viewObserver);
-        viewObservers.splice(index, 1);
-        this.onRemoveViewObserver(viewObserver);
-        this.didRemoveViewObserver(viewObserver);
-      }
-    }
-  }
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<NodeViewObserver>;
 
   protected willObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
     const viewController = this._viewController;
-    if (viewController !== null) {
+    if (viewController !== void 0) {
       result = callback.call(this, viewController);
       if (result !== void 0) {
         return result;
@@ -214,7 +154,7 @@ export class NodeView extends View {
       }
     }
     const viewController = this._viewController;
-    if (viewController !== null) {
+    if (viewController !== void 0) {
       result = callback.call(this, viewController);
       if (result !== void 0) {
         return result;
@@ -684,11 +624,17 @@ export class NodeView extends View {
   }
 
   protected willInsertChildNode(childNode: Node, targetNode: Node | null): void {
-    this.willObserve(function (viewObserver: NodeViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillInsertChildNode !== void 0) {
+      viewController.viewWillInsertChildNode(childNode, targetNode, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillInsertChildNode !== void 0) {
         viewObserver.viewWillInsertChildNode(childNode, targetNode, this);
       }
-    });
+    }
   }
 
   protected onInsertChildNode(childNode: Node, targetNode: Node | null): void {
@@ -696,11 +642,17 @@ export class NodeView extends View {
   }
 
   protected didInsertChildNode(childNode: Node, targetNode: Node | null): void {
-    this.didObserve(function (viewObserver: NodeViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidInsertChildNode !== void 0) {
         viewObserver.viewDidInsertChildNode(childNode, targetNode, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidInsertChildNode !== void 0) {
+      viewController.viewDidInsertChildNode(childNode, targetNode, this);
+    }
   }
 
   cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
@@ -829,11 +781,17 @@ export class NodeView extends View {
   }
 
   protected willRemoveChildNode(childNode: Node): void {
-    this.willObserve(function (viewObserver: NodeViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillRemoveChildNode !== void 0) {
+      viewController.viewWillRemoveChildNode(childNode, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillRemoveChildNode !== void 0) {
         viewObserver.viewWillRemoveChildNode(childNode, this);
       }
-    });
+    }
   }
 
   protected onRemoveChildNode(childNode: Node): void {
@@ -841,11 +799,17 @@ export class NodeView extends View {
   }
 
   protected didRemoveChildNode(childNode: Node): void {
-    this.didObserve(function (viewObserver: NodeViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidRemoveChildNode !== void 0) {
         viewObserver.viewDidRemoveChildNode(childNode, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidRemoveChildNode !== void 0) {
+      viewController.viewDidRemoveChildNode(childNode, this);
+    }
   }
 
   text(): string | null;
@@ -857,20 +821,6 @@ export class NodeView extends View {
       this._node.textContent = value;
       return this;
     }
-  }
-
-  get viewClass(): NodeViewClass {
-    return this.constructor as unknown as NodeViewClass;
-  }
-
-  /** @hidden */
-  get viewFlags(): ViewFlags {
-    return this._viewFlags;
-  }
-
-  /** @hidden */
-  setViewFlags(viewFlags: ViewFlags): void {
-    this._viewFlags = viewFlags;
   }
 
   /** @hidden */

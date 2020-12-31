@@ -172,11 +172,17 @@ export class InputTokenView extends TokenView {
   }
 
   protected didUpdateInput(inputView: HtmlView): void {
-    this.didObserve(function (viewObserver: InputTokenViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.tokenDidUpdateInput !== void 0) {
         viewObserver.tokenDidUpdateInput(inputView, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.tokenDidUpdateInput !== void 0) {
+      viewController.tokenDidUpdateInput(inputView, this);
+    }
   }
 
   protected onInputChange(event: Event): void {
@@ -187,11 +193,17 @@ export class InputTokenView extends TokenView {
   }
 
   protected didChangeInput(inputView: HtmlView): void {
-    this.didObserve(function (viewObserver: InputTokenViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.tokenDidChangeInput !== void 0) {
         viewObserver.tokenDidChangeInput(inputView, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.tokenDidChangeInput !== void 0) {
+      viewController.tokenDidChangeInput(inputView, this);
+    }
   }
 
   protected onInputKey(event: KeyboardEvent): void {
@@ -202,10 +214,16 @@ export class InputTokenView extends TokenView {
   }
 
   protected didAcceptInput(inputView: HtmlView): void {
-    this.didObserve(function (viewObserver: InputTokenViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.tokenDidAcceptInput !== void 0) {
         viewObserver.tokenDidAcceptInput(inputView, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.tokenDidAcceptInput !== void 0) {
+      viewController.tokenDidAcceptInput(inputView, this);
+    }
   }
 }

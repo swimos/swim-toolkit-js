@@ -55,11 +55,17 @@ export class TreeCell extends HtmlView {
 
   didPress(input: PositionGestureInput, event: Event | null): void {
     if (!input.defaultPrevented) {
-      this.didObserve(function (viewObserver: TreeCellObserver): void {
+      const viewObservers = this._viewObservers;
+      for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+        const viewObserver = viewObservers![i];
         if (viewObserver.cellDidPress !== void 0) {
           viewObserver.cellDidPress(input, event, this);
         }
-      });
+      }
+      const viewController = this._viewController;
+      if (viewController !== void 0 && viewController.cellDidPress !== void 0) {
+        viewController.cellDidPress(input, event, this);
+      }
     }
   }
 

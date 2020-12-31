@@ -16,7 +16,7 @@ import {ModelFlags, Model} from "./Model";
 import {TraitModelType, TraitContextType, Trait} from "./Trait";
 
 export type TraitObserverType<R extends Trait> =
-  R extends {readonly traitObservers: ReadonlyArray<infer RO>} ? RO : unknown;
+  R extends {readonly traitObservers: ReadonlyArray<infer RO>} ? RO : never;
 
 export interface TraitObserver<R extends Trait = Trait> {
   traitWillSetModel?(newModel: TraitModelType<R> | null, oldModel: TraitModelType<R> | null, trait: R): void;
@@ -59,9 +59,9 @@ export interface TraitObserver<R extends Trait = Trait> {
 
   traitDidUnpower?(trait: R): void;
 
-  traitWillAnalyze?(modelContext: TraitContextType<R>, trait: R): void;
+  traitWillAnalyze?(analyzeFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
 
-  traitDidAnalyze?(modelContext: TraitContextType<R>, trait: R): void;
+  traitDidAnalyze?(analyzeFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
 
   traitWillMutate?(modelContext: TraitContextType<R>, trait: R): void;
 
@@ -79,9 +79,9 @@ export interface TraitObserver<R extends Trait = Trait> {
 
   traitDidAnalyzeChildModels?(analyzeFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
 
-  traitWillRefresh?(modelContext: TraitContextType<R>, trait: R): void;
+  traitWillRefresh?(refreshFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
 
-  traitDidRefresh?(modelContext: TraitContextType<R>, trait: R): void;
+  traitDidRefresh?(refreshFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
 
   traitWillValidate?(modelContext: TraitContextType<R>, trait: R): void;
 

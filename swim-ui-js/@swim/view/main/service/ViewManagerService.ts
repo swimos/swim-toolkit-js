@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import {View} from "../View";
-import {ViewManagerObserverType, ViewManager} from "../manager/ViewManager";
+import {ViewManager} from "../manager/ViewManager";
+import {ViewManagerObserverType} from "../manager/ViewManagerObserver";
 import {ViewService} from "./ViewService";
 
 export abstract class ViewManagerService<V extends View, VM extends ViewManager<V>> extends ViewService<V, VM> {

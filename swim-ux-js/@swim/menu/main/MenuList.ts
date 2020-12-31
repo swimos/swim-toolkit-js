@@ -59,10 +59,16 @@ export class MenuList extends HtmlView {
 
   /** @hidden */
   onPressItem(item: MenuItem): void {
-    this.didObserve(function (viewObserver: MenuListObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.menuDidPressItem !== void 0) {
         viewObserver.menuDidPressItem(item, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.menuDidPressItem !== void 0) {
+      viewController.menuDidPressItem(item, this);
+    }
   }
 }

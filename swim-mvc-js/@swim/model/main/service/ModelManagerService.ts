@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import {Model} from "../Model";
-import {ModelManagerObserverType, ModelManager} from "../manager/ModelManager";
+import {ModelManager} from "../manager/ModelManager";
+import {ModelManagerObserverType} from "../manager/ModelManagerObserver";
 import {ModelService} from "./ModelService";
 
 /** @hidden */

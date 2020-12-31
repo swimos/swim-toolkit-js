@@ -183,15 +183,6 @@ export class HtmlView extends ElementView {
     super(node);
   }
 
-  // @ts-ignore
-  declare readonly node: ViewHtml;
-
-  // @ts-ignore
-  declare readonly viewController: HtmlViewController | null;
-
-  // @ts-ignore
-  declare readonly viewObservers: ReadonlyArray<HtmlViewObserver>;
-
   initView(init: HtmlViewInit): void {
     super.initView(init);
     if (init.attributes !== void 0) {
@@ -239,9 +230,17 @@ export class HtmlView extends ElementView {
     StyleMap.init(this, init);
   }
 
-  get viewClass(): HtmlViewClass {
-    return this.constructor as unknown as HtmlViewClass;
-  }
+  // @ts-ignore
+  declare readonly node: HTMLElement;
+
+  // @ts-ignore
+  declare readonly viewClass: HtmlViewClass;
+
+  // @ts-ignore
+  declare readonly viewController: HtmlViewController | null;
+
+  // @ts-ignore
+  declare readonly viewObservers: ReadonlyArray<HtmlViewObserver>;
 
   append<V extends View>(childView: V, key?: string): V;
   append<V extends NodeView>(viewConstructor: NodeViewConstructor<V>, key?: string): V;

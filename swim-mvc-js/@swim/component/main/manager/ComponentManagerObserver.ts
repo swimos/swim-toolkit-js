@@ -15,6 +15,9 @@
 import {Component} from "../Component";
 import {ComponentManager} from "./ComponentManager";
 
+export type ComponentManagerObserverType<CM extends ComponentManager> =
+  CM extends {readonly componentManagerObservers: ReadonlyArray<infer CMO>} ? CMO : never;
+
 export interface ComponentManagerObserver<C extends Component = Component, CM extends ComponentManager<C> = ComponentManager<C>> {
   componentManagerWillAttach?(componentManager: CM): void;
 

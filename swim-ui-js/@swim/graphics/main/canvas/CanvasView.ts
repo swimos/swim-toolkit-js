@@ -58,10 +58,6 @@ export interface CanvasViewPointer extends ViewPointerEventInit {
 export interface CanvasViewTouch extends ViewTouchInit {
 }
 
-export interface ViewCanvas extends HTMLCanvasElement {
-  view?: CanvasView;
-}
-
 export interface CanvasViewInit extends HtmlViewInit {
   viewController?: CanvasViewController;
   renderer?: AnyGraphicsRenderer;
@@ -136,7 +132,7 @@ export class CanvasView extends HtmlView {
   }
 
   // @ts-ignore
-  declare readonly node: ViewCanvas;
+  declare readonly node: HTMLCanvasElement;
 
   // @ts-ignore
   declare readonly viewController: CanvasViewController | null;
@@ -910,11 +906,17 @@ export class CanvasView extends HtmlView {
   }
 
   protected willRender(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: CanvasViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillRender !== void 0) {
+      viewController.viewWillRender(viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillRender !== void 0) {
         viewObserver.viewWillRender(viewContext, this);
       }
-    });
+    }
   }
 
   protected onRender(viewContext: ViewContextType<this>): void {
@@ -922,19 +924,31 @@ export class CanvasView extends HtmlView {
   }
 
   protected didRender(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: CanvasViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidRender !== void 0) {
         viewObserver.viewDidRender(viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidRender !== void 0) {
+      viewController.viewDidRender(viewContext, this);
+    }
   }
 
   protected willComposite(viewContext: ViewContextType<this>): void {
-    this.willObserve(function (viewObserver: CanvasViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillComposite !== void 0) {
+      viewController.viewWillComposite(viewContext, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillComposite !== void 0) {
         viewObserver.viewWillComposite(viewContext, this);
       }
-    });
+    }
   }
 
   protected onComposite(viewContext: ViewContextType<this>): void {
@@ -942,11 +956,17 @@ export class CanvasView extends HtmlView {
   }
 
   protected didComposite(viewContext: ViewContextType<this>): void {
-    this.didObserve(function (viewObserver: CanvasViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidComposite !== void 0) {
         viewObserver.viewDidComposite(viewContext, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidComposite !== void 0) {
+      viewController.viewDidComposite(viewContext, this);
+    }
   }
 
   /** @hidden */
@@ -1009,11 +1029,17 @@ export class CanvasView extends HtmlView {
   }
 
   protected willSetHidden(hidden: boolean): void {
-    this.willObserve(function (viewObserver: CanvasViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillSetHidden !== void 0) {
+      viewController.viewWillSetHidden(hidden, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillSetHidden !== void 0) {
         viewObserver.viewWillSetHidden(hidden, this);
       }
-    });
+    }
   }
 
   protected onSetHidden(hidden: boolean): void {
@@ -1023,11 +1049,17 @@ export class CanvasView extends HtmlView {
   }
 
   protected didSetHidden(hidden: boolean): void {
-    this.didObserve(function (viewObserver: CanvasViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidSetHidden !== void 0) {
         viewObserver.viewDidSetHidden(hidden, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidSetHidden !== void 0) {
+      viewController.viewDidSetHidden(hidden, this);
+    }
   }
 
   extendViewContext(viewContext: ViewContext): ViewContextType<this> {
@@ -1896,7 +1928,7 @@ export class CanvasView extends HtmlView {
     }
   }
 
-  protected resizeCanvas(node: ViewCanvas): void {
+  protected resizeCanvas(node: HTMLCanvasElement): void {
     let width: number;
     let height: number;
     let pixelRatio: number;

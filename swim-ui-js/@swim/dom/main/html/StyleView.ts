@@ -20,10 +20,6 @@ import {HtmlViewInit, HtmlView} from "../html/HtmlView";
 import {StyleViewObserver} from "./StyleViewObserver";
 import {StyleViewController} from "./StyleViewController";
 
-export interface ViewStyle extends HTMLStyleElement {
-  view?: StyleView;
-}
-
 export interface StyleViewInit extends HtmlViewInit {
   viewController?: StyleViewController;
 }
@@ -43,7 +39,7 @@ export class StyleView extends HtmlView {
   }
 
   // @ts-ignore
-  declare readonly node: ViewStyle;
+  declare readonly node: HTMLStyleElement;
 
   // @ts-ignore
   declare readonly viewController: StyleViewController | null;

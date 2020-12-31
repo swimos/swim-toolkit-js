@@ -13,15 +13,12 @@
 // limitations under the License.
 
 import {View} from "../View";
-import {ViewManagerObserver} from "./ViewManagerObserver";
+import {ViewManagerObserverType, ViewManagerObserver} from "./ViewManagerObserver";
 import {ViewportManager} from "../viewport/ViewportManager";
 import {DisplayManager} from "../display/DisplayManager";
 import {LayoutManager} from "../layout/LayoutManager";
 import {ThemeManager} from "../theme/ThemeManager";
 import {ModalManager} from "../modal/ModalManager";
-
-export type ViewManagerObserverType<VM extends ViewManager> =
-  VM extends {readonly viewManagerObservers: ReadonlyArray<infer VMO>} ? VMO : unknown;
 
 export abstract class ViewManager<V extends View = View> {
   /** @hidden */

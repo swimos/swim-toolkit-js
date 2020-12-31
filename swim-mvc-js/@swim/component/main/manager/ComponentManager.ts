@@ -13,12 +13,9 @@
 // limitations under the License.
 
 import {Component} from "../Component";
-import {ComponentManagerObserver} from "./ComponentManagerObserver";
+import {ComponentManagerObserverType, ComponentManagerObserver} from "./ComponentManagerObserver";
 import {ExecuteManager} from "../execute/ExecuteManager";
 import {HistoryManager} from "../history/HistoryManager";
-
-export type ComponentManagerObserverType<CM extends ComponentManager> =
-  CM extends {readonly componentManagerObservers: ReadonlyArray<infer CMO>} ? CMO : unknown;
 
 export abstract class ComponentManager<C extends Component = Component> {
   /** @hidden */

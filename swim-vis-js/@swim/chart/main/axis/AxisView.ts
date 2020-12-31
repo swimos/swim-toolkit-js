@@ -411,7 +411,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   protected createTickView(tickValue: D): TickView<D> | null {
     let tickView: TickView<D> | null | undefined;
     const viewController = this._viewController;
-    if (viewController !== null) {
+    if (viewController !== void 0) {
       tickView = viewController.createTickView(tickValue);
     }
     if (tickView === void 0) {
@@ -430,7 +430,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   protected createTickLabel(tickValue: D, tickView: TickView<D>): GraphicsView | string | null {
     let tickLabel: GraphicsView | string | null | undefined;
     const viewController = this._viewController;
-    if (viewController !== null) {
+    if (viewController !== void 0) {
       tickLabel = viewController.createTickLabel(tickValue, tickView);
     }
     if (tickLabel === void 0) {
@@ -448,7 +448,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   protected formatTickLabel(tickLabel: string, tickView: TickView<D>): string | null {
     const viewController = this._viewController;
-    if (viewController !== null) {
+    if (viewController !== void 0) {
       return viewController.formatTickLabel(tickLabel, tickView);
     } else {
       return tickLabel;

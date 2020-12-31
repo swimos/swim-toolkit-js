@@ -17,7 +17,7 @@ import {ModelFlags, Model} from "./Model";
 import {Trait} from "./Trait";
 
 export type ModelObserverType<M extends Model> =
-  M extends {readonly modelObservers: ReadonlyArray<infer MO>} ? MO : unknown;
+  M extends {readonly modelObservers: ReadonlyArray<infer MO>} ? MO : never;
 
 export interface ModelObserver<M extends Model = Model> {
   modelWillSetParentModel?(newParentModel: Model | null, oldParentModel: Model | null, model: M): void;
@@ -56,9 +56,9 @@ export interface ModelObserver<M extends Model = Model> {
 
   modelDidUnpower?(model: M): void;
 
-  modelWillAnalyze?(modelContext: ModelContextType<M>, model: M): void;
+  modelWillAnalyze?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
-  modelDidAnalyze?(modelContext: ModelContextType<M>, model: M): void;
+  modelDidAnalyze?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
   modelWillMutate?(modelContext: ModelContextType<M>, model: M): void;
 
@@ -76,9 +76,9 @@ export interface ModelObserver<M extends Model = Model> {
 
   modelDidAnalyzeChildModels?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
-  modelWillRefresh?(modelContext: ModelContextType<M>, model: M): void;
+  modelWillRefresh?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
-  modelDidRefresh?(modelContext: ModelContextType<M>, model: M): void;
+  modelDidRefresh?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
   modelWillValidate?(modelContext: ModelContextType<M>, model: M): void;
 

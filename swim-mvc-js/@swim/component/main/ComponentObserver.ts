@@ -21,7 +21,7 @@ import {ComponentTrait} from "./trait/ComponentTrait";
 import {ComponentView} from "./view/ComponentView";
 
 export type ComponentObserverType<C extends Component> =
-  C extends {readonly componentObservers: ReadonlyArray<infer CO>} ? CO : unknown;
+  C extends {readonly componentObservers: ReadonlyArray<infer CO>} ? CO : never;
 
 export interface ComponentObserver<C extends Component = Component> {
   componentWillSetParentComponent?(newParentComponent: Component | null, oldParentComponent: Component | null, component: C): void;
@@ -52,9 +52,9 @@ export interface ComponentObserver<C extends Component = Component> {
 
   componentDidUnpower?(component: Component): void;
 
-  componentWillCompile?(componentContext: ComponentContextType<C>, component: C): void;
+  componentWillCompile?(compileFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
-  componentDidCompile?(componentContext: ComponentContextType<C>, component: C): void;
+  componentDidCompile?(compileFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
   componentWillResolve?(componentContext: ComponentContextType<C>, component: C): void;
 
@@ -72,9 +72,9 @@ export interface ComponentObserver<C extends Component = Component> {
 
   componentDidCompileChildComponents?(compileFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
-  componentWillExecute?(componentContext: ComponentContextType<C>, component: C): void;
+  componentWillExecute?(executeFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
-  componentDidExecute?(componentContext: ComponentContextType<C>, component: C): void;
+  componentDidExecute?(executeFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
   componentWillRevise?(componentContext: ComponentContextType<C>, component: C): void;
 
@@ -84,9 +84,9 @@ export interface ComponentObserver<C extends Component = Component> {
 
   componentDidCompute?(componentContext: ComponentContextType<C>, component: C): void;
 
-  componentWillExecuteChildComponents?(marshalFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
+  componentWillExecuteChildComponents?(executeFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
-  componentDidExecuteChildComponents?(marshalFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
+  componentDidExecuteChildComponents?(executeFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
   componentWillSetModel?<M extends Model>(componentModel: ComponentModel<C, M>, newModel: M | null, oldModel: M | null, component: C): void;
 

@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import {Component} from "../Component";
-import {ComponentManagerObserverType, ComponentManager} from "../manager/ComponentManager";
+import {ComponentManager} from "../manager/ComponentManager";
+import {ComponentManagerObserverType} from "../manager/ComponentManagerObserver";
 import {ComponentService} from "./ComponentService";
 
 /** @hidden */

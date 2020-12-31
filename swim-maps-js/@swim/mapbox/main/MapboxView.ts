@@ -84,11 +84,17 @@ export class MapboxView extends MapLayerView {
   }
 
   protected willSetGeoProjection(geoProjection: MapboxProjection): void {
-    this.willObserve(function (viewObserver: MapboxViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillSetGeoProjection !== void 0) {
+      viewController.viewWillSetGeoProjection(geoProjection, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillSetGeoProjection !== void 0) {
         viewObserver.viewWillSetGeoProjection(geoProjection, this);
       }
-    });
+    }
   }
 
   protected onSetGeoProjection(geoProjection: MapboxProjection): void {
@@ -98,11 +104,17 @@ export class MapboxView extends MapLayerView {
   }
 
   protected didSetGeoProjection(geoProjection: MapboxProjection): void {
-    this.didObserve(function (viewObserver: MapboxViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidSetGeoProjection !== void 0) {
         viewObserver.viewDidSetGeoProjection(geoProjection, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidSetGeoProjection !== void 0) {
+      viewController.viewDidSetGeoProjection(geoProjection, this);
+    }
   }
 
   get mapZoom(): number {
@@ -120,23 +132,35 @@ export class MapboxView extends MapLayerView {
   }
 
   protected willSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
-    this.didObserve(function (viewObserver: MapboxViewObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewWillSetMapZoom !== void 0) {
+      viewController.viewWillSetMapZoom(newMapZoom, oldMapZoom, this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewWillSetMapZoom !== void 0) {
         viewObserver.viewWillSetMapZoom(newMapZoom, oldMapZoom, this);
       }
-    });
+    }
   }
 
-  protected onSetMapZoom(newZoom: number, oldZoom: number): void {
+  protected onSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
     // hook
   }
 
-  protected didSetMapZoom(newZoom: number, oldZoom: number): void {
-    this.didObserve(function (viewObserver: MapboxViewObserver): void {
+  protected didSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.viewDidSetMapZoom !== void 0) {
-        viewObserver.viewDidSetMapZoom(newZoom, oldZoom, this);
+        viewObserver.viewDidSetMapZoom(newMapZoom, oldMapZoom, this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.viewDidSetMapZoom !== void 0) {
+      viewController.viewDidSetMapZoom(newMapZoom, oldMapZoom, this);
+    }
   }
 
   get mapHeading(): number {

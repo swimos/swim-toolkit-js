@@ -18,7 +18,7 @@ import {ModelObserver} from "./ModelObserver";
 import {TraitPrototype, Trait} from "./Trait";
 
 export type ModelControllerType<M extends Model> =
-  M extends {readonly modelController: infer MC} ? MC : unknown;
+  M extends {readonly modelController: infer MC | null} ? MC : never;
 
 export class ModelController<M extends Model = Model> implements ModelObserver<M> {
   /** @hidden */
@@ -420,11 +420,11 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     // hook
   }
 
-  modelWillAnalyze(modelContext: ModelContextType<M>, model: M): void {
+  modelWillAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
     // hook
   }
 
-  modelDidAnalyze(modelContext: ModelContextType<M>, model: M): void {
+  modelDidAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
     // hook
   }
 
@@ -457,11 +457,11 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     return model !== null && model.isRefreshing();
   }
 
-  modelWillRefresh(modelContext: ModelContextType<M>, model: M): void {
+  modelWillRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
     // hook
   }
 
-  modelDidRefresh(modelContext: ModelContextType<M>, model: M): void {
+  modelDidRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
     // hook
   }
 

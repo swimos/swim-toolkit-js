@@ -67,9 +67,58 @@ export interface ComponentClass {
 }
 
 export abstract class Component {
-  abstract get componentObservers(): ReadonlyArray<ComponentObserver>;
+  /** @hidden */
+  _componentFlags: ComponentFlags;
+  /** @hidden */
+  _componentObservers?: ReadonlyArray<ComponentObserverType<this>>;
 
-  abstract addComponentObserver(componentObserver: ComponentObserverType<this>): void;
+  constructor() {
+    this._componentFlags = 0;
+  }
+
+  initComponent(init: ComponentInit): void {
+    // hook
+  }
+
+  get componentClass(): ComponentClass {
+    return this.constructor as unknown as ComponentClass;
+  }
+
+  get componentFlags(): ComponentFlags {
+    return this._componentFlags;
+  }
+
+  setComponentFlags(componentFlags: ComponentFlags): void {
+    this._componentFlags = componentFlags;
+  }
+
+  get componentObservers(): ReadonlyArray<ComponentObserver> {
+    let componentObservers = this._componentObservers;
+    if (componentObservers === void 0) {
+      componentObservers = [];
+      this._componentObservers = componentObservers;
+    }
+    return componentObservers;
+  }
+
+  addComponentObserver(newComponentObserver: ComponentObserverType<this>): void {
+    const oldComponentObservers = this._componentObservers;
+    const n = oldComponentObservers !== void 0 ? oldComponentObservers.length : 0;
+    const newComponentObservers = new Array<ComponentObserverType<this>>(n + 1);
+    for (let i = 0; i < n; i += 1) {
+      const componentObserver = oldComponentObservers![i];
+      if (componentObserver !== newComponentObserver) {
+        newComponentObservers[i] = componentObserver;
+      } else {
+        return;
+      }
+    }
+    newComponentObservers[n] = newComponentObserver;
+    this.willAddComponentObserver(newComponentObserver);
+    this._componentObservers = newComponentObservers;
+    this.onAddComponentObserver(newComponentObserver);
+    this.didAddComponentObserver(newComponentObserver);
+  }
 
   protected willAddComponentObserver(componentObserver: ComponentObserverType<this>): void {
     // hook
@@ -83,7 +132,32 @@ export abstract class Component {
     // hook
   }
 
-  abstract removeComponentObserver(componentObserver: ComponentObserverType<this>): void;
+  removeComponentObserver(oldComponentObserver: ComponentObserverType<this>): void {
+    const oldComponentObservers = this._componentObservers;
+    const n = oldComponentObservers !== void 0 ? oldComponentObservers.length : 0;
+    if (n !== 0) {
+      const newComponentObservers = new Array<ComponentObserverType<this>>(n - 1);
+      let i = 0;
+      while (i < n) {
+        const componentObserver = oldComponentObservers![i];
+        if (componentObserver !== oldComponentObserver) {
+          newComponentObservers[i] = componentObserver;
+          i += 1;
+        } else {
+          i += 1;
+          while (i < n) {
+            newComponentObservers[i - 1] = oldComponentObservers![i];
+            i += 1
+          }
+          this.willRemoveComponentObserver(oldComponentObserver);
+          this._componentObservers = newComponentObservers;
+          this.onRemoveComponentObserver(oldComponentObserver);
+          this.didRemoveComponentObserver(oldComponentObserver);
+          return;
+        }
+      }
+    }
+  }
 
   protected willRemoveComponentObserver(componentObserver: ComponentObserverType<this>): void {
     // hook
@@ -94,44 +168,6 @@ export abstract class Component {
   }
 
   protected didRemoveComponentObserver(componentObserver: ComponentObserverType<this>): void {
-    // hook
-  }
-
-  protected willObserve<T>(callback: (this: this, componentObserver: ComponentObserverType<this>) => T | void): T | undefined {
-    let result: T | undefined;
-    const componentObservers = this.componentObservers;
-    let i = 0;
-    while (i < componentObservers.length) {
-      const componentObserver = componentObservers[i];
-      result = callback.call(this, componentObserver);
-      if (result !== void 0) {
-        return result;
-      }
-      if (componentObserver === componentObservers[i]) {
-        i += 1;
-      }
-    }
-    return result;
-  }
-
-  protected didObserve<T>(callback: (this: this, componentObserver: ComponentObserverType<this>) => T | void): T | undefined {
-    let result: T | undefined;
-    const componentObservers = this.componentObservers;
-    let i = 0;
-    while (i < componentObservers.length) {
-      const componentObserver = componentObservers[i];
-      result = callback.call(this, componentObserver);
-      if (result !== void 0) {
-        return result;
-      }
-      if (componentObserver === componentObservers[i]) {
-        i += 1;
-      }
-    }
-    return result;
-  }
-
-  initComponent(init: ComponentInit): void {
     // hook
   }
 
@@ -146,11 +182,13 @@ export abstract class Component {
   abstract setParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void;
 
   protected willSetParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillSetParentComponent !== void 0) {
         componentObserver.componentWillSetParentComponent(newParentComponent, oldParentComponent, this);
       }
-    });
+    }
   }
 
   protected onSetParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
@@ -173,11 +211,13 @@ export abstract class Component {
   }
 
   protected didSetParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidSetParentComponent !== void 0) {
         componentObserver.componentDidSetParentComponent(newParentComponent, oldParentComponent, this);
       }
-    });
+    }
   }
 
   abstract remove(): void;
@@ -212,11 +252,13 @@ export abstract class Component {
   }
 
   protected willInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillInsertChildComponent !== void 0) {
         componentObserver.componentWillInsertChildComponent(childComponent, targetComponent, this);
       }
-    });
+    }
   }
 
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
@@ -224,11 +266,13 @@ export abstract class Component {
   }
 
   protected didInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidInsertChildComponent !== void 0) {
         componentObserver.componentDidInsertChildComponent(childComponent, targetComponent, this);
       }
-    });
+    }
   }
 
   abstract cascadeInsert(updateFlags?: ComponentFlags, componentContext?: ComponentContext): void;
@@ -243,11 +287,13 @@ export abstract class Component {
   }
 
   protected willRemoveChildComponent(childComponent: Component): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillRemoveChildComponent !== void 0) {
         componentObserver.componentWillRemoveChildComponent(childComponent, this);
       }
-    });
+    }
   }
 
   protected onRemoveChildComponent(childComponent: Component): void {
@@ -255,11 +301,13 @@ export abstract class Component {
   }
 
   protected didRemoveChildComponent(childComponent: Component): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidRemoveChildComponent !== void 0) {
         componentObserver.componentDidRemoveChildComponent(childComponent, this);
       }
-    });
+    }
   }
 
   getSuperComponent<C extends Component>(componentPrototype: ComponentPrototype<C>): C | null {
@@ -291,16 +339,6 @@ export abstract class Component {
 
   readonly historyService: HistoryService<this>; // defined by HistoryService
 
-  get componentClass(): ComponentClass {
-    return this.constructor as unknown as ComponentClass;
-  }
-
-  /** @hidden */
-  abstract get componentFlags(): ComponentFlags;
-
-  /** @hidden */
-  abstract setComponentFlags(componentFlags: ComponentFlags): void;
-
   isMounted(): boolean {
     return (this.componentFlags & Component.MountedFlag) !== 0;
   }
@@ -322,11 +360,13 @@ export abstract class Component {
   abstract cascadeMount(): void;
 
   protected willMount(): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillMount !== void 0) {
         componentObserver.componentWillMount(this);
       }
-    });
+    }
   }
 
   protected onMount(): void {
@@ -334,21 +374,25 @@ export abstract class Component {
   }
 
   protected didMount(): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidMount !== void 0) {
         componentObserver.componentDidMount(this);
       }
-    });
+    }
   }
 
   abstract cascadeUnmount(): void;
 
   protected willUnmount(): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillUnmount !== void 0) {
         componentObserver.componentWillUnmount(this);
       }
-    });
+    }
   }
 
   protected onUnmount(): void {
@@ -356,11 +400,13 @@ export abstract class Component {
   }
 
   protected didUnmount(): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidUnmount !== void 0) {
         componentObserver.componentDidUnmount(this);
       }
-    });
+    }
   }
 
   isPowered(): boolean {
@@ -374,11 +420,13 @@ export abstract class Component {
   abstract cascadePower(): void;
 
   protected willPower(): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillPower !== void 0) {
         componentObserver.componentWillPower(this);
       }
-    });
+    }
   }
 
   protected onPower(): void {
@@ -387,21 +435,25 @@ export abstract class Component {
   }
 
   protected didPower(): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidPower !== void 0) {
         componentObserver.componentDidPower(this);
       }
-    });
+    }
   }
 
   abstract cascadeUnpower(): void;
 
   protected willUnpower(): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillUnpower !== void 0) {
         componentObserver.componentWillUnpower(this);
       }
-    });
+    }
   }
 
   protected onUnpower(): void {
@@ -409,11 +461,13 @@ export abstract class Component {
   }
 
   protected didUnpower(): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidUnpower !== void 0) {
         componentObserver.componentDidUnpower(this);
       }
-    });
+    }
   }
 
   requireUpdate(updateFlags: ComponentFlags, immediate: boolean = false): void {
@@ -496,32 +550,38 @@ export abstract class Component {
 
   abstract cascadeCompile(compileFlags: ComponentFlags, componentContext: ComponentContext): void;
 
-  protected willCompile(componentContext: ComponentContextType<this>): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+  protected willCompile(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillCompile !== void 0) {
-        componentObserver.componentWillCompile(componentContext, this);
+        componentObserver.componentWillCompile(compileFlags, componentContext, this);
       }
-    });
+    }
   }
 
-  protected onCompile(componentContext: ComponentContextType<this>): void {
+  protected onCompile(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
     // hook
   }
 
-  protected didCompile(componentContext: ComponentContextType<this>): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+  protected didCompile(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidCompile !== void 0) {
-        componentObserver.componentDidCompile(componentContext, this);
+        componentObserver.componentDidCompile(compileFlags, componentContext, this);
       }
-    });
+    }
   }
 
   protected willResolve(componentContext: ComponentContextType<this>): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillResolve !== void 0) {
         componentObserver.componentWillResolve(componentContext, this);
       }
-    });
+    }
   }
 
   protected onResolve(componentContext: ComponentContextType<this>): void {
@@ -529,19 +589,23 @@ export abstract class Component {
   }
 
   protected didResolve(componentContext: ComponentContextType<this>): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidResolve !== void 0) {
         componentObserver.componentDidResolve(componentContext, this);
       }
-    });
+    }
   }
 
   protected willGenerate(componentContext: ComponentContextType<this>): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillGenerate !== void 0) {
         componentObserver.componentWillGenerate(componentContext, this);
       }
-    });
+    }
   }
 
   protected onGenerate(componentContext: ComponentContextType<this>): void {
@@ -549,19 +613,23 @@ export abstract class Component {
   }
 
   protected didGenerate(componentContext: ComponentContextType<this>): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidGenerate !== void 0) {
         componentObserver.componentDidGenerate(componentContext, this);
       }
-    });
+    }
   }
 
   protected willAssemble(componentContext: ComponentContextType<this>): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillAssemble !== void 0) {
         componentObserver.componentWillAssemble(componentContext, this);
       }
-    });
+    }
   }
 
   protected onAssemble(componentContext: ComponentContextType<this>): void {
@@ -569,11 +637,13 @@ export abstract class Component {
   }
 
   protected didAssemble(componentContext: ComponentContextType<this>): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidAssemble !== void 0) {
         componentObserver.componentDidAssemble(componentContext, this);
       }
-    });
+    }
   }
 
   /** @hidden */
@@ -586,11 +656,13 @@ export abstract class Component {
   }
 
   protected willCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillCompileChildComponents !== void 0) {
         componentObserver.componentWillCompileChildComponents(compileFlags, componentContext, this);
       }
-    });
+    }
   }
 
   protected onCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
@@ -598,11 +670,13 @@ export abstract class Component {
   }
 
   protected didCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidCompileChildComponents !== void 0) {
         componentObserver.componentDidCompileChildComponents(compileFlags, componentContext, this);
       }
-    });
+    }
   }
 
   protected compileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>,
@@ -647,32 +721,38 @@ export abstract class Component {
 
   abstract cascadeExecute(executeFlags: ComponentFlags, componentContext: ComponentContext): void;
 
-  protected willExecute(componentContext: ComponentContextType<this>): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+  protected willExecute(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillExecute !== void 0) {
-        componentObserver.componentWillExecute(componentContext, this);
+        componentObserver.componentWillExecute(executeFlags, componentContext, this);
       }
-    });
+    }
   }
 
-  protected onExecute(componentContext: ComponentContextType<this>): void {
+  protected onExecute(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
     // hook
   }
 
-  protected didExecute(componentContext: ComponentContextType<this>): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+  protected didExecute(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidExecute !== void 0) {
-        componentObserver.componentDidExecute(componentContext, this);
+        componentObserver.componentDidExecute(executeFlags, componentContext, this);
       }
-    });
+    }
   }
 
   protected willRevise(componentContext: ComponentContextType<this>): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillRevise !== void 0) {
         componentObserver.componentWillRevise(componentContext, this);
       }
-    });
+    }
   }
 
   protected onRevise(componentContext: ComponentContextType<this>): void {
@@ -680,19 +760,23 @@ export abstract class Component {
   }
 
   protected didRevise(componentContext: ComponentContextType<this>): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidRevise !== void 0) {
         componentObserver.componentDidRevise(componentContext, this);
       }
-    });
+    }
   }
 
   protected willCompute(componentContext: ComponentContextType<this>): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillCompute !== void 0) {
         componentObserver.componentWillCompute(componentContext, this);
       }
-    });
+    }
   }
 
   protected onCompute(componentContext: ComponentContextType<this>): void {
@@ -700,11 +784,13 @@ export abstract class Component {
   }
 
   protected didCompute(componentContext: ComponentContextType<this>): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidCompute !== void 0) {
         componentObserver.componentDidCompute(componentContext, this);
       }
-    });
+    }
   }
 
   /** @hidden */
@@ -717,11 +803,13 @@ export abstract class Component {
   }
 
   protected willExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillExecuteChildComponents !== void 0) {
         componentObserver.componentWillExecuteChildComponents(executeFlags, componentContext, this);
       }
-    });
+    }
   }
 
   protected onExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
@@ -729,11 +817,13 @@ export abstract class Component {
   }
 
   protected didExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidExecuteChildComponents !== void 0) {
         componentObserver.componentDidExecuteChildComponents(executeFlags, componentContext, this);
       }
-    });
+    }
   }
 
   protected executeChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>,
@@ -830,11 +920,13 @@ export abstract class Component {
 
   /** @hidden */
   willSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillSetModel !== void 0) {
         componentObserver.componentWillSetModel(componentModel, newModel, oldModel, this);
       }
-    });
+    }
   }
 
   /** @hidden */
@@ -844,11 +936,13 @@ export abstract class Component {
 
   /** @hidden */
   didSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidSetModel !== void 0) {
         componentObserver.componentDidSetModel(componentModel, newModel, oldModel, this);
       }
-    });
+    }
   }
 
   abstract hasComponentTrait(traitName: string): boolean;
@@ -873,11 +967,13 @@ export abstract class Component {
 
   /** @hidden */
   willSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillSetTrait !== void 0) {
         componentObserver.componentWillSetTrait(componentTrait, newTrait, oldTrait, this);
       }
-    });
+    }
   }
 
   /** @hidden */
@@ -887,11 +983,13 @@ export abstract class Component {
 
   /** @hidden */
   didSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidSetTrait !== void 0) {
         componentObserver.componentDidSetTrait(componentTrait, newTrait, oldTrait, this);
       }
-    });
+    }
   }
 
   abstract hasComponentView(viewName: string): boolean;
@@ -916,11 +1014,13 @@ export abstract class Component {
 
   /** @hidden */
   willSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null): void {
-    this.willObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentWillSetView !== void 0) {
         componentObserver.componentWillSetView(componentView, newView, oldView, this);
       }
-    });
+    }
   }
 
   /** @hidden */
@@ -930,11 +1030,13 @@ export abstract class Component {
 
   /** @hidden */
   didSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null): void {
-    this.didObserve(function (componentObserver: ComponentObserver): void {
+    const componentObservers = this._componentObservers;
+    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
+      const componentObserver = componentObservers![i];
       if (componentObserver.componentDidSetView !== void 0) {
         componentObserver.componentDidSetView(componentView, newView, oldView, this);
       }
-    });
+    }
   }
 
   abstract hasComponentBinding(bindingName: string): boolean;

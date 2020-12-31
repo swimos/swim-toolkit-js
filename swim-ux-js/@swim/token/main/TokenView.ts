@@ -661,21 +661,35 @@ export class TokenView extends HtmlView {
     if (actionContainer !== null) {
       actionContainer.display.setAutoState("block");
     }
-    this.willObserve(function (viewObserver: TokenViewObserver): void {
+
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.tokenWillExpand !== void 0) {
+      viewController.tokenWillExpand(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.tokenWillExpand !== void 0) {
         viewObserver.tokenWillExpand(this);
       }
-    });
+    }
   }
 
   protected didExpand(): void {
     this._tokenState = "expanded";
     this.requireUpdate(View.NeedsLayout);
-    this.didObserve(function (viewObserver: TokenViewObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.tokenDidExpand !== void 0) {
         viewObserver.tokenDidExpand(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.tokenDidExpand !== void 0) {
+      viewController.tokenDidExpand(this);
+    }
   }
 
   collapse(tween?: Tween<any>): void {
@@ -703,21 +717,35 @@ export class TokenView extends HtmlView {
 
   protected willCollapse(): void {
     this._tokenState = "collapsing";
-    this.willObserve(function (viewObserver: TokenViewObserver): void {
+
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.tokenWillCollapse !== void 0) {
+      viewController.tokenWillCollapse(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.tokenWillCollapse !== void 0) {
         viewObserver.tokenWillCollapse(this);
       }
-    });
+    }
   }
 
   protected didCollapse(): void {
     this._tokenState = "collapsed";
     this.requireUpdate(View.NeedsLayout);
-    this.didObserve(function (viewObserver: TokenViewObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.tokenDidCollapse !== void 0) {
         viewObserver.tokenDidCollapse(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.tokenDidCollapse !== void 0) {
+      viewController.tokenDidCollapse(this);
+    }
   }
 
   toggle(tween?: Tween<any>): void {
@@ -734,11 +762,17 @@ export class TokenView extends HtmlView {
   }
 
   protected didPressHead(): void {
-    this.didObserve(function (viewObserver: TokenViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.tokenDidPressHead !== void 0) {
         viewObserver.tokenDidPressHead(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.tokenDidPressHead !== void 0) {
+      viewController.tokenDidPressHead(this);
+    }
   }
 
   protected onClickBody(event: MouseEvent): void {
@@ -746,11 +780,17 @@ export class TokenView extends HtmlView {
   }
 
   protected didPressBody(): void {
-    this.didObserve(function (viewObserver: TokenViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.tokenDidPressBody !== void 0) {
         viewObserver.tokenDidPressBody(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.tokenDidPressBody !== void 0) {
+      viewController.tokenDidPressBody(this);
+    }
   }
 
   protected onClickFoot(event: MouseEvent): void {
@@ -758,10 +798,16 @@ export class TokenView extends HtmlView {
   }
 
   protected didPressFoot(): void {
-    this.didObserve(function (viewObserver: TokenViewObserver): void {
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.tokenDidPressFoot !== void 0) {
         viewObserver.tokenDidPressFoot(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.tokenDidPressFoot !== void 0) {
+      viewController.tokenDidPressFoot(this);
+    }
   }
 }

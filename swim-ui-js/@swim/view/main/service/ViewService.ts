@@ -14,7 +14,8 @@
 
 import {__extends} from "tslib";
 import {View} from "../View";
-import {ViewManagerObserverType, ViewManager} from "../manager/ViewManager";
+import {ViewManager} from "../manager/ViewManager";
+import {ViewManagerObserverType} from "../manager/ViewManagerObserver";
 import {ViewportManager} from "../viewport/ViewportManager";
 import {DisplayManager} from "../display/DisplayManager";
 import {LayoutManager} from "../layout/LayoutManager";

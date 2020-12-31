@@ -14,7 +14,8 @@
 
 import {ViewContext} from "../ViewContext";
 import {View} from "../View";
-import {ViewManagerObserverType, ViewManager} from "../manager/ViewManager";
+import {ViewManager} from "../manager/ViewManager";
+import {ViewManagerObserverType} from "../manager/ViewManagerObserver";
 import {ViewIdiom} from "./ViewIdiom";
 import {Viewport} from "./Viewport";
 import {ViewportContext} from "./ViewportContext";

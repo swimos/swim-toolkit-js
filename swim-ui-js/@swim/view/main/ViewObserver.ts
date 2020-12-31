@@ -18,7 +18,7 @@ import {ViewContextType} from "./ViewContext";
 import {ViewFlags, View} from "./View";
 
 export type ViewObserverType<V extends View> =
-  V extends {readonly viewObservers: ReadonlyArray<infer VO>} ? VO : unknown;
+  V extends {readonly viewObservers: ReadonlyArray<infer VO>} ? VO : never;
 
 export interface ViewObserver<V extends View = View> {
   viewWillSetParentView?(newParentView: View | null, oldParentView: View | null, view: V): void;

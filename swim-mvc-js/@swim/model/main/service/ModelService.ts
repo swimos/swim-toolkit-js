@@ -15,7 +15,8 @@
 import {__extends} from "tslib";
 import {Model} from "../Model";
 import {Trait} from "../Trait";
-import {ModelManagerObserverType, ModelManager} from "../manager/ModelManager";
+import {ModelManager} from "../manager/ModelManager";
+import {ModelManagerObserverType} from "../manager/ModelManagerObserver";
 import {RefreshManager} from "../refresh/RefreshManager";
 import {WarpManager} from "../warp/WarpManager";
 import {ModelManagerService} from "./ModelManagerService";

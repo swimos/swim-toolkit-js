@@ -15,6 +15,9 @@
 import {Model} from "../Model";
 import {ModelManager} from "./ModelManager";
 
+export type ModelManagerObserverType<MM extends ModelManager> =
+  MM extends {readonly modelManagerObservers: ReadonlyArray<infer MMO>} ? MMO : never;
+
 export interface ModelManagerObserver<M extends Model = Model, MM extends ModelManager<M> = ModelManager<M>> {
   modelManagerWillAttach?(modelManager: MM): void;
 

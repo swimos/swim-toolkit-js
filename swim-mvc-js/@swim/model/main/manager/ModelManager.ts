@@ -13,12 +13,9 @@
 // limitations under the License.
 
 import {Model} from "../Model";
-import {ModelManagerObserver} from "./ModelManagerObserver";
+import {ModelManagerObserverType, ModelManagerObserver} from "./ModelManagerObserver";
 import {RefreshManager} from "../refresh/RefreshManager";
 import {WarpManager} from "../warp/WarpManager";
-
-export type ModelManagerObserverType<MM extends ModelManager> =
-  MM extends {readonly modelManagerObservers: ReadonlyArray<infer MMO>} ? MMO : unknown;
 
 export abstract class ModelManager<M extends Model = Model> {
   /** @hidden */

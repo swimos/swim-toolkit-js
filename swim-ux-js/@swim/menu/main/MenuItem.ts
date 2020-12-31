@@ -369,11 +369,19 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
 
   protected onClick(event: MouseEvent): void {
     event.stopPropagation();
-    this.didObserve(function (viewObserver: MenuItemObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.menuItemDidPress !== void 0) {
         viewObserver.menuItemDidPress(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.menuItemDidPress !== void 0) {
+      viewController.menuItemDidPress(this);
+    }
+
     const parentView = this.parentView;
     if (parentView instanceof MenuList) {
       parentView.onPressItem(this);

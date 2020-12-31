@@ -160,11 +160,18 @@ export class TreeLimb extends HtmlView {
   }
 
   protected willExpand(tween: Tween<any>): void {
-    this.willObserve(function (viewObserver: TreeLimbObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.limbWillExpand !== void 0) {
+      viewController.limbWillExpand(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.limbWillExpand !== void 0) {
         viewObserver.limbWillExpand(this);
       }
-    });
+    }
+
     this.disclosureState.setAutoState("expanding");
     this.requireUpdate(View.NeedsResize | View.NeedsChange | View.NeedsLayout);
     const subtree = this.subtree;
@@ -176,11 +183,18 @@ export class TreeLimb extends HtmlView {
   protected didExpand(tween: Tween<any>): void {
     this.disclosureState.setAutoState("expanded");
     this.disclosingPhase.setInherited(true);
-    this.didObserve(function (viewObserver: TreeLimbObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.limbDidExpand !== void 0) {
         viewObserver.limbDidExpand(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.limbDidExpand !== void 0) {
+      viewController.limbDidExpand(this);
+    }
   }
 
   collapse(tween?: Tween<any>): void {
@@ -209,11 +223,18 @@ export class TreeLimb extends HtmlView {
   }
 
   protected willCollapse(tween: Tween<any>): void {
-    this.willObserve(function (viewObserver: TreeLimbObserver): void {
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.limbWillCollapse !== void 0) {
+      viewController.limbWillCollapse(this);
+    }
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.limbWillCollapse !== void 0) {
         viewObserver.limbWillCollapse(this);
       }
-    });
+    }
+
     this.disclosureState.setAutoState("collapsing");
     const subtree = this.subtree;
     if (subtree !== null) {
@@ -229,11 +250,18 @@ export class TreeLimb extends HtmlView {
     if (subtree !== null) {
       subtree.display.setAutoState("none");
     }
-    this.didObserve(function (viewObserver: TreeLimbObserver): void {
+
+    const viewObservers = this._viewObservers;
+    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
+      const viewObserver = viewObservers![i];
       if (viewObserver.limbDidCollapse !== void 0) {
         viewObserver.limbDidCollapse(this);
       }
-    });
+    }
+    const viewController = this._viewController;
+    if (viewController !== void 0 && viewController.limbDidCollapse !== void 0) {
+      viewController.limbDidCollapse(this);
+    }
   }
 
   toggle(tween?: Tween<any>): void {
