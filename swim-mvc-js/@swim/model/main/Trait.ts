@@ -854,13 +854,7 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected willAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
-      if (traitObserver.traitWillAnalyzeChildModels !== void 0) {
-        traitObserver.traitWillAnalyzeChildModels(analyzeFlags, modelContext, this);
-      }
-    }
+    // hook
   }
 
   protected onAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): void {
@@ -868,13 +862,7 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
-      if (traitObserver.traitDidAnalyzeChildModels !== void 0) {
-        traitObserver.traitDidAnalyzeChildModels(analyzeFlags, modelContext, this);
-      }
-    }
+    // hook
   }
 
   protected analyzeChildModels(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>,
@@ -980,13 +968,7 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected willRefreshChildModels(refreshFlags: ModelFlags, modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
-      if (traitObserver.traitWillRefreshChildModels !== void 0) {
-        traitObserver.traitWillRefreshChildModels(refreshFlags, modelContext, this);
-      }
-    }
+    // hook
   }
 
   protected onRefreshChildModels(refreshFlags: ModelFlags, modelContext: TraitContextType<this>): void {
@@ -994,13 +976,7 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didRefreshChildModels(refreshFlags: ModelFlags, modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
-      if (traitObserver.traitDidRefreshChildModels !== void 0) {
-        traitObserver.traitDidRefreshChildModels(refreshFlags, modelContext, this);
-      }
-    }
+    // hook
   }
 
   protected refreshChildModels(refreshFlags: ModelFlags, modelContext: TraitContextType<this>,

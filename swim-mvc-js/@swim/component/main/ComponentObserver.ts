@@ -68,10 +68,6 @@ export interface ComponentObserver<C extends Component = Component> {
 
   componentDidAssemble?(componentContext: ComponentContextType<C>, component: C): void;
 
-  componentWillCompileChildComponents?(compileFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
-
-  componentDidCompileChildComponents?(compileFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
-
   componentWillExecute?(executeFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
   componentDidExecute?(executeFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
@@ -83,10 +79,6 @@ export interface ComponentObserver<C extends Component = Component> {
   componentWillCompute?(componentContext: ComponentContextType<C>, component: C): void;
 
   componentDidCompute?(componentContext: ComponentContextType<C>, component: C): void;
-
-  componentWillExecuteChildComponents?(executeFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
-
-  componentDidExecuteChildComponents?(executeFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
   componentWillSetModel?<M extends Model>(componentModel: ComponentModel<C, M>, newModel: M | null, oldModel: M | null, component: C): void;
 

@@ -907,17 +907,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected willProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillProcessChildViews !== void 0) {
-      viewController.viewWillProcessChildViews(processFlags, viewContext, this);
-    }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewWillProcessChildViews !== void 0) {
-        viewObserver.viewWillProcessChildViews(processFlags, viewContext, this);
-      }
-    }
+    // hook
   }
 
   protected onProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
@@ -925,17 +915,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewDidProcessChildViews !== void 0) {
-        viewObserver.viewDidProcessChildViews(processFlags, viewContext, this);
-      }
-    }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidProcessChildViews !== void 0) {
-      viewController.viewDidProcessChildViews(processFlags, viewContext, this);
-    }
+    // hook
   }
 
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
@@ -1045,17 +1025,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected willDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillDisplayChildViews !== void 0) {
-      viewController.viewWillDisplayChildViews(displayFlags, viewContext, this);
-    }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewWillDisplayChildViews !== void 0) {
-        viewObserver.viewWillDisplayChildViews(displayFlags, viewContext, this);
-      }
-    }
+    // hook
   }
 
   protected onDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
@@ -1063,17 +1033,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewDidDisplayChildViews !== void 0) {
-        viewObserver.viewDidDisplayChildViews(displayFlags, viewContext, this);
-      }
-    }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidDisplayChildViews !== void 0) {
-      viewController.viewDidDisplayChildViews(displayFlags, viewContext, this);
-    }
+    // hook
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,

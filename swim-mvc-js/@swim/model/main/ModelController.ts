@@ -444,14 +444,6 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     // hook
   }
 
-  modelWillAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
-    // hook
-  }
-
-  modelDidAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
-    // hook
-  }
-
   isRefreshing(): boolean {
     const model = this._model;
     return model !== null && model.isRefreshing();
@@ -478,14 +470,6 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   modelDidReconcile(modelContext: ModelContextType<M>, model: M): void {
-    // hook
-  }
-
-  modelWillRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
-    // hook
-  }
-
-  modelDidRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
     // hook
   }
 

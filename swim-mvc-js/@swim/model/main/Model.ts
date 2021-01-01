@@ -1305,17 +1305,6 @@ export abstract class Model implements ModelDownlinkContext {
       const trait = traits![i];
       (trait as any).willAnalyzeChildModels(analyzeFlags, modelContext);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillAnalyzeChildModels !== void 0) {
-      modelController.modelWillAnalyzeChildModels(analyzeFlags, modelContext, this);
-    }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
-      if (modelObserver.modelWillAnalyzeChildModels !== void 0) {
-        modelObserver.modelWillAnalyzeChildModels(analyzeFlags, modelContext, this);
-      }
-    }
   }
 
   protected onAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
@@ -1328,17 +1317,6 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
-      if (modelObserver.modelDidAnalyzeChildModels !== void 0) {
-        modelObserver.modelDidAnalyzeChildModels(analyzeFlags, modelContext, this);
-      }
-    }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidAnalyzeChildModels !== void 0) {
-      modelController.modelDidAnalyzeChildModels(analyzeFlags, modelContext, this);
-    }
     const traits = this._traits;
     for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
       const trait = traits![i];
@@ -1550,17 +1528,6 @@ export abstract class Model implements ModelDownlinkContext {
       const trait = traits![i];
       (trait as any).willRefreshChildModels(refreshFlags, modelContext);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillRefreshChildModels !== void 0) {
-      modelController.modelWillRefreshChildModels(refreshFlags, modelContext, this);
-    }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
-      if (modelObserver.modelWillRefreshChildModels !== void 0) {
-        modelObserver.modelWillRefreshChildModels(refreshFlags, modelContext, this);
-      }
-    }
   }
 
   protected onRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
@@ -1573,17 +1540,6 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
-      if (modelObserver.modelDidRefreshChildModels !== void 0) {
-        modelObserver.modelDidRefreshChildModels(refreshFlags, modelContext, this);
-      }
-    }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidRefreshChildModels !== void 0) {
-      modelController.modelDidRefreshChildModels(refreshFlags, modelContext, this);
-    }
     const traits = this._traits;
     for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
       const trait = traits![i];

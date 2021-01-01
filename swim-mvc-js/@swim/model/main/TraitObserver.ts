@@ -75,10 +75,6 @@ export interface TraitObserver<R extends Trait = Trait> {
 
   traitDidCorrelate?(modelContext: TraitContextType<R>, trait: R): void;
 
-  traitWillAnalyzeChildModels?(analyzeFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
-
-  traitDidAnalyzeChildModels?(analyzeFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
-
   traitWillRefresh?(refreshFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
 
   traitDidRefresh?(refreshFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
@@ -90,10 +86,6 @@ export interface TraitObserver<R extends Trait = Trait> {
   traitWillReconcile?(modelContext: TraitContextType<R>, trait: R): void;
 
   traitDidReconcile?(modelContext: TraitContextType<R>, trait: R): void;
-
-  traitWillRefreshChildModels?(refreshFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
-
-  traitDidRefreshChildModels?(refreshFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
 
   traitWillStartConsuming?(trait: R): void;
 

@@ -381,14 +381,6 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
-  viewWillProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
   isDisplaying(): boolean {
     const view = this._view;
     return view !== null && view.isDisplaying();
@@ -407,14 +399,6 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
   }
 
   viewDidLayout(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewWillDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 

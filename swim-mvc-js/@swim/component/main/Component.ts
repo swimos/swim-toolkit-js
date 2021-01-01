@@ -656,13 +656,7 @@ export abstract class Component {
   }
 
   protected willCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
-      if (componentObserver.componentWillCompileChildComponents !== void 0) {
-        componentObserver.componentWillCompileChildComponents(compileFlags, componentContext, this);
-      }
-    }
+    // hook
   }
 
   protected onCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
@@ -670,13 +664,7 @@ export abstract class Component {
   }
 
   protected didCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
-      if (componentObserver.componentDidCompileChildComponents !== void 0) {
-        componentObserver.componentDidCompileChildComponents(compileFlags, componentContext, this);
-      }
-    }
+    // hook
   }
 
   protected compileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>,
@@ -803,13 +791,7 @@ export abstract class Component {
   }
 
   protected willExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
-      if (componentObserver.componentWillExecuteChildComponents !== void 0) {
-        componentObserver.componentWillExecuteChildComponents(executeFlags, componentContext, this);
-      }
-    }
+    // hook
   }
 
   protected onExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
@@ -817,13 +799,7 @@ export abstract class Component {
   }
 
   protected didExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
-      if (componentObserver.componentDidExecuteChildComponents !== void 0) {
-        componentObserver.componentDidExecuteChildComponents(executeFlags, componentContext, this);
-      }
-    }
+    // hook
   }
 
   protected executeChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>,

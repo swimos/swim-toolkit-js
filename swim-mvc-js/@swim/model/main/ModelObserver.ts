@@ -72,10 +72,6 @@ export interface ModelObserver<M extends Model = Model> {
 
   modelDidCorrelate?(modelContext: ModelContextType<M>, model: M): void;
 
-  modelWillAnalyzeChildModels?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
-
-  modelDidAnalyzeChildModels?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
-
   modelWillRefresh?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
   modelDidRefresh?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
@@ -87,10 +83,6 @@ export interface ModelObserver<M extends Model = Model> {
   modelWillReconcile?(modelContext: ModelContextType<M>, model: M): void;
 
   modelDidReconcile?(modelContext: ModelContextType<M>, model: M): void;
-
-  modelWillRefreshChildModels?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
-
-  modelDidRefreshChildModels?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
   modelWillStartConsuming?(model: M): void;
 
