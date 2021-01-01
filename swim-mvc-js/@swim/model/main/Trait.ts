@@ -172,6 +172,20 @@ export abstract class Trait implements ModelDownlinkContext {
   /** @hidden */
   abstract setKey(key: string | undefined): void;
 
+  get modelFlags(): ModelFlags {
+    const model = this.model;
+    return model !== null ? model.modelFlags : 0;
+  }
+
+  setModelFlags(modelFlags: ModelFlags): void {
+    const model = this.model;
+    if (model !== null) {
+      model.setModelFlags(modelFlags);
+    } else {
+      throw new Error("no model");
+    }
+  }
+
   abstract get model(): Model | null;
 
   /** @hidden */
