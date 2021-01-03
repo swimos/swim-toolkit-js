@@ -15,7 +15,7 @@
 import {Transition} from "@swim/tween";
 import {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType} from "./ViewContext";
-import {ViewFlags, View} from "./View";
+import {View} from "./View";
 
 export type ViewObserverType<V extends View> =
   V extends {readonly viewObservers: ReadonlyArray<infer VO>} ? VO : never;
@@ -57,10 +57,6 @@ export interface ViewObserver<V extends View = View> {
 
   viewDidUncull?(view: V): void;
 
-  viewWillProcess?(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
-
-  viewDidProcess?(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
-
   viewWillResize?(viewContext: ViewContextType<V>, view: V): void;
 
   viewDidResize?(viewContext: ViewContextType<V>, view: V): void;
@@ -76,10 +72,6 @@ export interface ViewObserver<V extends View = View> {
   viewWillAnimate?(viewContext: ViewContextType<V>, view: V): void;
 
   viewDidAnimate?(viewContext: ViewContextType<V>, view: V): void;
-
-  viewWillDisplay?(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
-
-  viewDidDisplay?(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void;
 
   viewWillLayout?(viewContext: ViewContextType<V>, view: V): void;
 

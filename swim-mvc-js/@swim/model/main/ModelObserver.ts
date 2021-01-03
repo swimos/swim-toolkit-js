@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ModelContextType} from "./ModelContext";
-import {ModelFlags, Model} from "./Model";
+import {Model} from "./Model";
 import {Trait} from "./Trait";
 
 export type ModelObserverType<M extends Model> =
@@ -56,10 +56,6 @@ export interface ModelObserver<M extends Model = Model> {
 
   modelDidUnpower?(model: M): void;
 
-  modelWillAnalyze?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
-
-  modelDidAnalyze?(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
-
   modelWillMutate?(modelContext: ModelContextType<M>, model: M): void;
 
   modelDidMutate?(modelContext: ModelContextType<M>, model: M): void;
@@ -71,10 +67,6 @@ export interface ModelObserver<M extends Model = Model> {
   modelWillCorrelate?(modelContext: ModelContextType<M>, model: M): void;
 
   modelDidCorrelate?(modelContext: ModelContextType<M>, model: M): void;
-
-  modelWillRefresh?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
-
-  modelDidRefresh?(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void;
 
   modelWillValidate?(modelContext: ModelContextType<M>, model: M): void;
 

@@ -1133,9 +1133,12 @@ export class NodeView extends View {
 
   cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void {
     const extendedViewContext = this.extendViewContext(viewContext);
+    processFlags &= ~View.NeedsProcess;
     processFlags |= this._viewFlags & View.UpdateMask;
     processFlags = this.needsProcess(processFlags, extendedViewContext);
-    this.doProcess(processFlags, extendedViewContext);
+    if ((processFlags & View.ProcessMask) !== 0) {
+      this.doProcess(processFlags, extendedViewContext);
+    }
   }
 
   /** @hidden */
@@ -1250,9 +1253,12 @@ export class NodeView extends View {
 
   cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void {
     const extendedViewContext = this.extendViewContext(viewContext);
+    displayFlags &= ~View.NeedsDisplay;
     displayFlags |= this._viewFlags & View.UpdateMask;
     displayFlags = this.needsDisplay(displayFlags, extendedViewContext);
-    this.doDisplay(displayFlags, extendedViewContext);
+    if ((displayFlags & View.DisplayMask) !== 0) {
+      this.doDisplay(displayFlags, extendedViewContext);
+    }
   }
 
   /** @hidden */

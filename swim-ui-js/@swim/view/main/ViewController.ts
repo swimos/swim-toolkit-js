@@ -15,7 +15,7 @@
 import {Transition} from "@swim/tween";
 import {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewContext} from "./ViewContext";
-import {ViewFlags, ViewPrototype, View} from "./View";
+import {ViewPrototype, View} from "./View";
 import {ViewObserver} from "./ViewObserver";
 import {ViewIdiom} from "./viewport/ViewIdiom";
 import {Viewport} from "./viewport/Viewport";
@@ -341,14 +341,6 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     return view !== null && view.isProcessing();
   }
 
-  viewWillProcess(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidProcess(processFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
   viewWillResize(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
@@ -384,14 +376,6 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
   isDisplaying(): boolean {
     const view = this._view;
     return view !== null && view.isDisplaying();
-  }
-
-  viewWillDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<V>, view: V): void {
-    // hook
   }
 
   viewWillLayout(viewContext: ViewContextType<V>, view: V): void {

@@ -352,9 +352,12 @@ export abstract class GenericModel extends Model {
 
   cascadeAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContext): void {
     const extendedModelContext = this.extendModelContext(modelContext);
+    analyzeFlags &= ~Model.NeedsAnalyze;
     analyzeFlags |= this._modelFlags & Model.UpdateMask;
     analyzeFlags = this.needsAnalyze(analyzeFlags, extendedModelContext);
-    this.doAnalyze(analyzeFlags, extendedModelContext);
+    if ((analyzeFlags & Model.AnalyzeMask) !== 0) {
+      this.doAnalyze(analyzeFlags, extendedModelContext);
+    }
   }
 
   /** @hidden */
@@ -444,9 +447,12 @@ export abstract class GenericModel extends Model {
 
   cascadeRefresh(refreshFlags: ModelFlags, modelContext: ModelContext): void {
     const extendedModelContext = this.extendModelContext(modelContext);
+    refreshFlags &= ~Model.NeedsRefresh;
     refreshFlags |= this._modelFlags & Model.UpdateMask;
     refreshFlags = this.needsRefresh(refreshFlags, extendedModelContext);
-    this.doRefresh(refreshFlags, extendedModelContext);
+    if ((refreshFlags & Model.RefreshMask) !== 0) {
+      this.doRefresh(refreshFlags, extendedModelContext);
+    }
   }
 
   /** @hidden */

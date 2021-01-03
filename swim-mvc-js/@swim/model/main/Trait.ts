@@ -758,13 +758,7 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected willAnalyze(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
-      if (traitObserver.traitWillAnalyze !== void 0) {
-        traitObserver.traitWillAnalyze(analyzeFlags, modelContext, this);
-      }
-    }
+    // hook
   }
 
   protected onAnalyze(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): void {
@@ -772,13 +766,7 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didAnalyze(analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
-      if (traitObserver.traitDidAnalyze !== void 0) {
-        traitObserver.traitDidAnalyze(analyzeFlags, modelContext, this);
-      }
-    }
+    // hook
   }
 
   protected willMutate(modelContext: TraitContextType<this>): void {
@@ -896,13 +884,7 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected willRefresh(refreshFlags: ModelFlags, modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
-      if (traitObserver.traitWillRefresh !== void 0) {
-        traitObserver.traitWillRefresh(refreshFlags, modelContext, this);
-      }
-    }
+    // hook
   }
 
   protected onRefresh(refreshFlags: ModelFlags, modelContext: TraitContextType<this>): void {
@@ -910,13 +892,7 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didRefresh(refreshFlags: ModelFlags, modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
-      if (traitObserver.traitDidRefresh !== void 0) {
-        traitObserver.traitDidRefresh(refreshFlags, modelContext, this);
-      }
-    }
+    // hook
   }
 
   protected willValidate(modelContext: TraitContextType<this>): void {

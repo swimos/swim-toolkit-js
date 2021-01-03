@@ -15,7 +15,7 @@
 import {View} from "@swim/view";
 import {Model, Trait} from "@swim/model";
 import {ComponentContextType} from "./ComponentContext";
-import {ComponentFlags, Component} from "./Component";
+import {Component} from "./Component";
 import {ComponentModel} from "./model/ComponentModel";
 import {ComponentTrait} from "./trait/ComponentTrait";
 import {ComponentView} from "./view/ComponentView";
@@ -52,10 +52,6 @@ export interface ComponentObserver<C extends Component = Component> {
 
   componentDidUnpower?(component: Component): void;
 
-  componentWillCompile?(compileFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
-
-  componentDidCompile?(compileFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
-
   componentWillResolve?(componentContext: ComponentContextType<C>, component: C): void;
 
   componentDidResolve?(componentContext: ComponentContextType<C>, component: C): void;
@@ -67,10 +63,6 @@ export interface ComponentObserver<C extends Component = Component> {
   componentWillAssemble?(componentContext: ComponentContextType<C>, component: C): void;
 
   componentDidAssemble?(componentContext: ComponentContextType<C>, component: C): void;
-
-  componentWillExecute?(executeFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
-
-  componentDidExecute?(executeFlags: ComponentFlags, componentContext: ComponentContextType<C>, component: C): void;
 
   componentWillRevise?(componentContext: ComponentContextType<C>, component: C): void;
 

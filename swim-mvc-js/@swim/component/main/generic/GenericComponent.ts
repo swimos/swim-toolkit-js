@@ -291,9 +291,12 @@ export abstract class GenericComponent extends Component {
 
   cascadeCompile(compileFlags: ComponentFlags, componentContext: ComponentContext): void {
     const extendedComponentContext = this.extendComponentContext(componentContext);
+    compileFlags &= ~Component.NeedsCompile;
     compileFlags |= this._componentFlags & Component.UpdateMask;
     compileFlags = this.needsCompile(compileFlags, extendedComponentContext);
-    this.doCompile(compileFlags, extendedComponentContext);
+    if ((compileFlags & Component.CompileMask) !== 0) {
+      this.doCompile(compileFlags, extendedComponentContext);
+    }
   }
 
   /** @hidden */
@@ -349,9 +352,12 @@ export abstract class GenericComponent extends Component {
 
   cascadeExecute(executeFlags: ComponentFlags, componentContext: ComponentContext): void {
     const extendedComponentContext = this.extendComponentContext(componentContext);
+    executeFlags &= ~Component.NeedsExecute;
     executeFlags |= this._componentFlags & Component.UpdateMask;
     executeFlags = this.needsExecute(executeFlags, extendedComponentContext);
-    this.doExecute(executeFlags, extendedComponentContext);
+    if ((executeFlags & Component.ExecuteMask) !== 0) {
+      this.doExecute(executeFlags, extendedComponentContext);
+    }
   }
 
   /** @hidden */

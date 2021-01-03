@@ -495,6 +495,7 @@ export abstract class Component {
 
   requestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
     updateFlags = this.willRequestUpdate(targetComponent, updateFlags, immediate);
+    this._componentFlags |= updateFlags & (Component.NeedsCompile | Component.NeedsExecute);
     const parentComponent = this.parentComponent;
     if (parentComponent !== null) {
       parentComponent.requestUpdate(targetComponent, updateFlags, immediate);
@@ -551,13 +552,7 @@ export abstract class Component {
   abstract cascadeCompile(compileFlags: ComponentFlags, componentContext: ComponentContext): void;
 
   protected willCompile(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
-      if (componentObserver.componentWillCompile !== void 0) {
-        componentObserver.componentWillCompile(compileFlags, componentContext, this);
-      }
-    }
+    // hook
   }
 
   protected onCompile(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
@@ -565,13 +560,7 @@ export abstract class Component {
   }
 
   protected didCompile(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
-      if (componentObserver.componentDidCompile !== void 0) {
-        componentObserver.componentDidCompile(compileFlags, componentContext, this);
-      }
-    }
+    // hook
   }
 
   protected willResolve(componentContext: ComponentContextType<this>): void {
@@ -710,13 +699,7 @@ export abstract class Component {
   abstract cascadeExecute(executeFlags: ComponentFlags, componentContext: ComponentContext): void;
 
   protected willExecute(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
-      if (componentObserver.componentWillExecute !== void 0) {
-        componentObserver.componentWillExecute(executeFlags, componentContext, this);
-      }
-    }
+    // hook
   }
 
   protected onExecute(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
@@ -724,13 +707,7 @@ export abstract class Component {
   }
 
   protected didExecute(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
-      if (componentObserver.componentDidExecute !== void 0) {
-        componentObserver.componentDidExecute(executeFlags, componentContext, this);
-      }
-    }
+    // hook
   }
 
   protected willRevise(componentContext: ComponentContextType<this>): void {

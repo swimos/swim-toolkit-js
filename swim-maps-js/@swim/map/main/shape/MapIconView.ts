@@ -34,10 +34,13 @@ export interface MapIconViewInit extends MapGraphicsViewInit, IconViewInit {
 export class MapIconView extends MapLayerView implements IconView {
   /** @hidden */
   _canvas: HTMLCanvasElement | null;
+  /** @hidden */
+  _viewBounds: BoxR2 | null;
 
   constructor() {
     super();
     this._canvas = null;
+    this._viewBounds = null;
   }
 
   initView(init: MapIconViewInit): void {
@@ -101,6 +104,7 @@ export class MapIconView extends MapLayerView implements IconView {
     } else {
       viewCenter = this.viewCenter.getValue();
     }
+    this._viewBounds = null;
     const invalid = !isFinite(viewCenter.x) || !isFinite(viewCenter.y);
     const culled = invalid || !this.viewFrame.intersectsBox(this.viewBounds);
     this.setCulled(culled);
@@ -198,16 +202,21 @@ export class MapIconView extends MapLayerView implements IconView {
   }
 
   get viewBounds(): BoxR2 {
-    const frame = this.viewFrame;
-    const viewSize = Math.min(frame.width, frame.height);
-    const viewCenter = this.viewCenter.getValue();
-    let iconWidth: Length | number | undefined = this.iconWidth.value;
-    iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
-    let iconHeight: Length | number | undefined = this.iconHeight.value;
-    iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-    const x = viewCenter.x - iconWidth * this.xAlign.getValueOr(0.5);
-    const y = viewCenter.y - iconHeight * this.yAlign.getValueOr(0.5);
-    return new BoxR2(x, y, x + iconWidth, y + iconHeight);
+    let viewBounds = this._viewBounds;
+    if (viewBounds === null) {
+      const frame = this.viewFrame;
+      const viewSize = Math.min(frame.width, frame.height);
+      const viewCenter = this.viewCenter.getValue();
+      let iconWidth: Length | number | undefined = this.iconWidth.value;
+      iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
+      let iconHeight: Length | number | undefined = this.iconHeight.value;
+      iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
+      const x = viewCenter.x - iconWidth * this.xAlign.getValueOr(0.5);
+      const y = viewCenter.y - iconHeight * this.yAlign.getValueOr(0.5);
+      viewBounds = new BoxR2(x, y, x + iconWidth, y + iconHeight);
+      this._viewBounds = viewBounds;
+    }
+    return viewBounds;
   }
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {

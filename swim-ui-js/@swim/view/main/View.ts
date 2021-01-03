@@ -690,6 +690,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   requestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
     if ((this.viewFlags & View.CulledMask) !== View.CulledFlag) { // if not culled root
       updateFlags = this.willRequestUpdate(targetView, updateFlags, immediate);
+      this._viewFlags |= updateFlags & (View.NeedsProcess | View.NeedsDisplay);
       const parentView = this.parentView;
       if (parentView !== null) {
         parentView.requestUpdate(targetView, updateFlags, immediate);
@@ -747,17 +748,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   abstract cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void;
 
   protected willProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillProcess !== void 0) {
-      viewController.viewWillProcess(processFlags, viewContext, this);
-    }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewWillProcess !== void 0) {
-        viewObserver.viewWillProcess(processFlags, viewContext, this);
-      }
-    }
+    // hook
   }
 
   protected onProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
@@ -765,17 +756,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewDidProcess !== void 0) {
-        viewObserver.viewDidProcess(processFlags, viewContext, this);
-      }
-    }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidProcess !== void 0) {
-      viewController.viewDidProcess(processFlags, viewContext, this);
-    }
+    // hook
   }
 
   protected willResize(viewContext: ViewContextType<this>): void {
@@ -961,17 +942,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   abstract cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void;
 
   protected willDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillDisplay !== void 0) {
-      viewController.viewWillDisplay(displayFlags, viewContext, this);
-    }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewWillDisplay !== void 0) {
-        viewObserver.viewWillDisplay(displayFlags, viewContext, this);
-      }
-    }
+    // hook
   }
 
   protected onDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
@@ -979,17 +950,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected didDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewDidDisplay !== void 0) {
-        viewObserver.viewDidDisplay(displayFlags, viewContext, this);
-      }
-    }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidDisplay !== void 0) {
-      viewController.viewDidDisplay(displayFlags, viewContext, this);
-    }
+    // hook
   }
 
   protected willLayout(viewContext: ViewContextType<this>): void {
@@ -1595,22 +1556,27 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   /** @hidden */
   static readonly CulledFlag: ViewFlags = 1 << 3;
   /** @hidden */
-  static readonly HiddenFlag: ViewFlags = 1 << 4;
+  static readonly HideFlag: ViewFlags = 1 << 4;
   /** @hidden */
-  static readonly AnimatingFlag: ViewFlags = 1 << 5;
+  static readonly HiddenFlag: ViewFlags = 1 << 5;
   /** @hidden */
-  static readonly TraversingFlag: ViewFlags = 1 << 6;
+  static readonly AnimatingFlag: ViewFlags = 1 << 6;
   /** @hidden */
-  static readonly ProcessingFlag: ViewFlags = 1 << 7;
+  static readonly TraversingFlag: ViewFlags = 1 << 7;
   /** @hidden */
-  static readonly DisplayingFlag: ViewFlags = 1 << 8;
+  static readonly ProcessingFlag: ViewFlags = 1 << 8;
   /** @hidden */
-  static readonly RemovingFlag: ViewFlags = 1 << 9;
+  static readonly DisplayingFlag: ViewFlags = 1 << 9;
   /** @hidden */
-  static readonly ImmediateFlag: ViewFlags = 1 << 10;
+  static readonly RemovingFlag: ViewFlags = 1 << 10;
+  /** @hidden */
+  static readonly ImmediateFlag: ViewFlags = 1 << 11;
   /** @hidden */
   static readonly CulledMask: ViewFlags = View.CullFlag
                                         | View.CulledFlag;
+  /** @hidden */
+  static readonly HiddenMask: ViewFlags = View.HideFlag
+                                        | View.HiddenFlag;
   /** @hidden */
   static readonly UpdatingMask: ViewFlags = View.ProcessingFlag
                                           | View.DisplayingFlag;
@@ -1627,12 +1593,12 @@ export abstract class View implements AnimatorContext, ConstraintScope {
                                         | View.RemovingFlag
                                         | View.ImmediateFlag;
 
-  static readonly NeedsProcess: ViewFlags = 1 << 11;
-  static readonly NeedsResize: ViewFlags = 1 << 12;
-  static readonly NeedsScroll: ViewFlags = 1 << 13;
-  static readonly NeedsChange: ViewFlags = 1 << 14;
-  static readonly NeedsAnimate: ViewFlags = 1 << 15;
-  static readonly NeedsProject: ViewFlags = 1 << 16;
+  static readonly NeedsProcess: ViewFlags = 1 << 12;
+  static readonly NeedsResize: ViewFlags = 1 << 13;
+  static readonly NeedsScroll: ViewFlags = 1 << 14;
+  static readonly NeedsChange: ViewFlags = 1 << 15;
+  static readonly NeedsAnimate: ViewFlags = 1 << 16;
+  static readonly NeedsProject: ViewFlags = 1 << 17;
   /** @hidden */
   static readonly ProcessMask: ViewFlags = View.NeedsProcess
                                          | View.NeedsResize
@@ -1641,10 +1607,10 @@ export abstract class View implements AnimatorContext, ConstraintScope {
                                          | View.NeedsAnimate
                                          | View.NeedsProject;
 
-  static readonly NeedsDisplay: ViewFlags = 1 << 17;
-  static readonly NeedsLayout: ViewFlags = 1 << 18;
-  static readonly NeedsRender: ViewFlags = 1 << 19;
-  static readonly NeedsComposite: ViewFlags = 1 << 20;
+  static readonly NeedsDisplay: ViewFlags = 1 << 18;
+  static readonly NeedsLayout: ViewFlags = 1 << 19;
+  static readonly NeedsRender: ViewFlags = 1 << 20;
+  static readonly NeedsComposite: ViewFlags = 1 << 21;
   /** @hidden */
   static readonly DisplayMask: ViewFlags = View.NeedsDisplay
                                          | View.NeedsLayout

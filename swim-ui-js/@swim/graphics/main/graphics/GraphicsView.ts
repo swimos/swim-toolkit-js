@@ -550,9 +550,12 @@ export abstract class GraphicsView extends View {
 
   cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void {
     const extendedViewContext = this.extendViewContext(viewContext);
+    processFlags &= ~View.NeedsProcess;
     processFlags |= this._viewFlags & View.UpdateMask;
     processFlags = this.needsProcess(processFlags, extendedViewContext);
-    this.doProcess(processFlags, extendedViewContext);
+    if ((processFlags & View.ProcessMask) !== 0) {
+      this.doProcess(processFlags, extendedViewContext);
+    }
   }
 
   /** @hidden */
@@ -649,9 +652,12 @@ export abstract class GraphicsView extends View {
 
   cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void {
     const extendedViewContext = this.extendViewContext(viewContext);
+    displayFlags &= ~View.NeedsDisplay;
     displayFlags |= this._viewFlags & View.UpdateMask;
     displayFlags = this.needsDisplay(displayFlags, extendedViewContext);
-    this.doDisplay(displayFlags, extendedViewContext);
+    if ((displayFlags & View.DisplayMask) !== 0) {
+      this.doDisplay(displayFlags, extendedViewContext);
+    }
   }
 
   /** @hidden */
@@ -903,16 +909,7 @@ export abstract class GraphicsView extends View {
    * and should be excluded from its parent's layout and hit bounds.
    */
   isHidden(): boolean {
-    if ((this._viewFlags & View.HiddenFlag) !== 0) {
-      return true;
-    } else {
-      const parentView = this._parentView;
-      if (parentView instanceof GraphicsView || parentView instanceof GraphicsView.Canvas) {
-        return parentView.isHidden();
-      } else {
-        return false;
-      }
-    }
+    return (this.viewFlags & View.HiddenMask) !== 0;
   }
 
   /**
@@ -921,18 +918,93 @@ export abstract class GraphicsView extends View {
    * Makes this view eligible for rendering and hit testing, and includes this
    * view in its parent's layout and hit bounds, when `hidden` is `false`.
    */
-  setHidden(newHidden: boolean): void {
-    const oldHidden = (this._viewFlags & View.HiddenFlag) !== 0;
-    if (oldHidden !== newHidden) {
-      this.willSetHidden(newHidden);
-      if (newHidden) {
-        this._viewFlags |= View.HiddenFlag;
-      } else {
-        this._viewFlags &= ~View.HiddenFlag;
+  setHidden(hidden: boolean): void {
+    const viewFlags = this._viewFlags;
+    if (hidden && (viewFlags & View.HiddenFlag) === 0) {
+      this._viewFlags = viewFlags | View.HiddenFlag;
+      if ((viewFlags & View.HideFlag) === 0) {
+        this.doHide();
       }
-      this.onSetHidden(newHidden);
-      this.didSetHidden(newHidden);
+    } else if (!hidden && (viewFlags & View.HiddenFlag) !== 0) {
+      this._viewFlags = viewFlags & ~View.HiddenFlag;
+      if ((viewFlags & View.HideFlag) === 0) {
+        this.doUnhide();
+      }
     }
+  }
+
+  cascadeHide(): void {
+    if ((this._viewFlags & View.HideFlag) === 0) {
+      this._viewFlags |= View.HideFlag;
+      if ((this._viewFlags & View.HiddenFlag) === 0) {
+        this.doHide();
+      }
+    } else {
+      throw new Error("already hidden");
+    }
+  }
+
+  /** @hidden */
+  protected doHide(): void {
+    this._viewFlags |= View.TraversingFlag;
+    try {
+      this.willSetHidden(true);
+      this.onSetHidden(true);
+      this.doHideChildViews();
+      this.didSetHidden(true);
+    } finally {
+      this._viewFlags &= ~View.TraversingFlag;
+    }
+  }
+
+  /** @hidden */
+  protected doHideChildViews(): void {
+    this.forEachChildView(function (childView: View): void {
+      if (childView instanceof GraphicsView) {
+        childView.cascadeHide();
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+          this.removeChildView(childView);
+        }
+      }
+    }, this);
+  }
+
+  cascadeUnhide(): void {
+    if ((this._viewFlags & View.HideFlag) !== 0) {
+      this._viewFlags &= ~View.HideFlag
+      if ((this._viewFlags & View.HiddenFlag) === 0) {
+        this.doUnhide();
+      }
+    } else {
+      throw new Error("already unhidden");
+    }
+  }
+
+  /** @hidden */
+  protected doUnhide(): void {
+    this._viewFlags |= View.TraversingFlag;
+    try {
+      this.willSetHidden(false);
+      this.doUnhideChildViews();
+      this.onSetHidden(false);
+      this.didSetHidden(false);
+    } finally {
+      this._viewFlags &= ~View.TraversingFlag;
+    }
+  }
+
+  /** @hidden */
+  protected doUnhideChildViews(): void {
+    this.forEachChildView(function (childView: View): void {
+      if (childView instanceof GraphicsView) {
+        childView.cascadeUnhide();
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
+          this.removeChildView(childView);
+        }
+      }
+    }, this);
   }
 
   protected willSetHidden(hidden: boolean): void {

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ModelContextType, ModelContext} from "./ModelContext";
-import {ModelFlags, ModelPrototype, Model} from "./Model";
+import {ModelPrototype, Model} from "./Model";
 import {ModelObserver} from "./ModelObserver";
 import {TraitPrototype, Trait} from "./Trait";
 
@@ -420,14 +420,6 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     // hook
   }
 
-  modelWillAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
-    // hook
-  }
-
-  modelDidAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
-    // hook
-  }
-
   modelWillAggregate(modelContext: ModelContextType<M>, model: M): void {
     // hook
   }
@@ -447,14 +439,6 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   isRefreshing(): boolean {
     const model = this._model;
     return model !== null && model.isRefreshing();
-  }
-
-  modelWillRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
-    // hook
-  }
-
-  modelDidRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<M>, model: M): void {
-    // hook
   }
 
   modelWillValidate(modelContext: ModelContextType<M>, model: M): void {

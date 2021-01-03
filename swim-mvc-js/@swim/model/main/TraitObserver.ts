@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModelFlags, Model} from "./Model";
+import {Model} from "./Model";
 import {TraitModelType, TraitContextType, Trait} from "./Trait";
 
 export type TraitObserverType<R extends Trait> =
@@ -59,10 +59,6 @@ export interface TraitObserver<R extends Trait = Trait> {
 
   traitDidUnpower?(trait: R): void;
 
-  traitWillAnalyze?(analyzeFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
-
-  traitDidAnalyze?(analyzeFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
-
   traitWillMutate?(modelContext: TraitContextType<R>, trait: R): void;
 
   traitDidMutate?(modelContext: TraitContextType<R>, trait: R): void;
@@ -74,10 +70,6 @@ export interface TraitObserver<R extends Trait = Trait> {
   traitWillCorrelate?(modelContext: TraitContextType<R>, trait: R): void;
 
   traitDidCorrelate?(modelContext: TraitContextType<R>, trait: R): void;
-
-  traitWillRefresh?(refreshFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
-
-  traitDidRefresh?(refreshFlags: ModelFlags, modelContext: TraitContextType<R>, trait: R): void;
 
   traitWillValidate?(modelContext: TraitContextType<R>, trait: R): void;
 

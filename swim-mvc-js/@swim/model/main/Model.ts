@@ -1032,6 +1032,7 @@ export abstract class Model implements ModelDownlinkContext {
 
   requestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
     updateFlags = this.willRequestUpdate(targetModel, updateFlags, immediate);
+    this._modelFlags |= updateFlags & (Model.NeedsAnalyze | Model.NeedsRefresh);
     const parentModel = this.parentModel;
     if (parentModel !== null) {
       parentModel.requestUpdate(targetModel, updateFlags, immediate);
@@ -1112,17 +1113,6 @@ export abstract class Model implements ModelDownlinkContext {
       const trait = traits![i];
       (trait as any).willAnalyze(analyzeFlags, modelContext);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillAnalyze !== void 0) {
-      modelController.modelWillAnalyze(analyzeFlags, modelContext, this);
-    }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
-      if (modelObserver.modelWillAnalyze !== void 0) {
-        modelObserver.modelWillAnalyze(analyzeFlags, modelContext, this);
-      }
-    }
   }
 
   protected onAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
@@ -1134,17 +1124,6 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
-      if (modelObserver.modelDidAnalyze !== void 0) {
-        modelObserver.modelDidAnalyze(analyzeFlags, modelContext, this);
-      }
-    }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidAnalyze !== void 0) {
-      modelController.modelDidAnalyze(analyzeFlags, modelContext, this);
-    }
     const traits = this._traits;
     for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
       const trait = traits![i];
@@ -1381,17 +1360,6 @@ export abstract class Model implements ModelDownlinkContext {
       const trait = traits![i];
       (trait as any).willRefresh(refreshFlags, modelContext);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillRefresh !== void 0) {
-      modelController.modelWillRefresh(refreshFlags, modelContext, this);
-    }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
-      if (modelObserver.modelWillRefresh !== void 0) {
-        modelObserver.modelWillRefresh(refreshFlags, modelContext, this);
-      }
-    }
   }
 
   protected onRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
@@ -1403,17 +1371,6 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
-      if (modelObserver.modelDidRefresh !== void 0) {
-        modelObserver.modelDidRefresh(refreshFlags, modelContext, this);
-      }
-    }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidRefresh !== void 0) {
-      modelController.modelDidRefresh(refreshFlags, modelContext, this);
-    }
     const traits = this._traits;
     for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
       const trait = traits![i];
