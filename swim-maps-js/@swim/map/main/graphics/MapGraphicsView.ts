@@ -12,8 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {GeoBox, GeoProjection} from "@swim/geo";
-import {ViewContextType, ViewFlags, View} from "@swim/view";
+import {
+  ViewContextType,
+  ViewFlags,
+  View,
+  ViewObserverType,
+  WillProjectObserver,
+  DidProjectObserver,
+} from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
 import {MapGraphicsViewContext} from "./MapGraphicsViewContext";
 import {MapGraphicsViewObserver} from "./MapGraphicsViewObserver";
@@ -23,6 +31,11 @@ export interface MapGraphicsViewInit extends GraphicsViewInit {
 }
 
 export abstract class MapGraphicsView extends GraphicsView {
+  /** @hidden */
+  _willProjectObservers?: ReadonlyArray<WillProjectObserver>;
+  /** @hidden */
+  _didProjectObservers?: ReadonlyArray<DidProjectObserver>;
+
   // @ts-ignore
   declare readonly viewController: MapGraphicsViewController | null;
 
@@ -31,6 +44,26 @@ export abstract class MapGraphicsView extends GraphicsView {
 
   initView(init: MapGraphicsViewInit): void {
     super.initView(init);
+  }
+
+  protected onAddViewObserver(viewObserver: ViewObserverType<this>): void {
+    super.onAddViewObserver(viewObserver);
+    if (viewObserver.viewWillProject !== void 0) {
+      this._willProjectObservers = Arrays.inserted(viewObserver as WillProjectObserver, this._willProjectObservers);
+    }
+    if (viewObserver.viewDidProject !== void 0) {
+      this._didProjectObservers = Arrays.inserted(viewObserver as DidProjectObserver, this._didProjectObservers);
+    }
+  }
+
+  protected onRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
+    super.onRemoveViewObserver(viewObserver);
+    if (viewObserver.viewWillProject !== void 0) {
+      this._willProjectObservers = Arrays.removed(viewObserver as WillProjectObserver, this._willProjectObservers);
+    }
+    if (viewObserver.viewDidProject !== void 0) {
+      this._didProjectObservers = Arrays.removed(viewObserver as DidProjectObserver, this._didProjectObservers);
+    }
   }
 
   get geoProjection(): GeoProjection | null {
@@ -146,13 +179,13 @@ export abstract class MapGraphicsView extends GraphicsView {
 
   protected willProject(viewContext: ViewContextType<this>): void {
     const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillProject !== void 0) {
+    if (viewController !== void 0) {
       viewController.viewWillProject(viewContext, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewWillProject !== void 0) {
+    const viewObservers = this._willProjectObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0; i < viewObservers.length; i += 1) {
+        const viewObserver = viewObservers[i];
         viewObserver.viewWillProject(viewContext, this);
       }
     }
@@ -163,15 +196,15 @@ export abstract class MapGraphicsView extends GraphicsView {
   }
 
   protected didProject(viewContext: ViewContextType<this>): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewDidProject !== void 0) {
+    const viewObservers = this._didProjectObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0; i < viewObservers.length; i += 1) {
+        const viewObserver = viewObservers[i];
         viewObserver.viewDidProject(viewContext, this);
       }
     }
     const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidProject !== void 0) {
+    if (viewController !== void 0) {
       viewController.viewDidProject(viewContext, this);
     }
   }

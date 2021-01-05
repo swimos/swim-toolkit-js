@@ -13,28 +13,11 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
-import {ViewContextType} from "@swim/view";
 import {HtmlViewController} from "@swim/dom";
 import {CanvasView} from "./CanvasView";
 import {CanvasViewObserver} from "./CanvasViewObserver";
 
 export class CanvasViewController<V extends CanvasView = CanvasView> extends HtmlViewController<V> implements CanvasViewObserver<V> {
-  viewWillRender(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidRender(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewWillComposite(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidComposite(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
   isHidden(): boolean {
     const view = this._view;
     return view !== null && view.isHidden();

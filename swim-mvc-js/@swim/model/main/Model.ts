@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {WarpRef} from "@swim/client";
 import {ModelContextType, ModelContext} from "./ModelContext";
 import {ModelObserverType, ModelObserver} from "./ModelObserver";
@@ -144,28 +145,19 @@ export abstract class Model implements ModelDownlinkContext {
     let modelObservers = this._modelObservers;
     if (modelObservers === void 0) {
       modelObservers = [];
-      this._modelObservers = modelObservers;
     }
     return modelObservers;
   }
 
-  addModelObserver(newModelObserver: ModelObserverType<this>): void {
+  addModelObserver(modelObserver: ModelObserverType<this>): void {
     const oldModelObservers = this._modelObservers;
-    const n = oldModelObservers !== void 0 ? oldModelObservers.length : 0;
-    const newModelObservers = new Array<ModelObserverType<this>>(n + 1);
-    for (let i = 0; i < n; i += 1) {
-      const modelObserver = oldModelObservers![i];
-      if (modelObserver !== newModelObserver) {
-        newModelObservers[i] = modelObserver;
-      } else {
-        return;
-      }
+    const newModelObservers = Arrays.inserted(modelObserver, oldModelObservers);
+    if (oldModelObservers !== newModelObservers) {
+      this.willAddModelObserver(modelObserver);
+      this._modelObservers = newModelObservers;
+      this.onAddModelObserver(modelObserver);
+      this.didAddModelObserver(modelObserver);
     }
-    newModelObservers[n] = newModelObserver;
-    this.willAddModelObserver(newModelObserver);
-    this._modelObservers = newModelObservers;
-    this.onAddModelObserver(newModelObserver);
-    this.didAddModelObserver(newModelObserver);
   }
 
   protected willAddModelObserver(modelObserver: ModelObserverType<this>): void {
@@ -180,30 +172,14 @@ export abstract class Model implements ModelDownlinkContext {
     // hook
   }
 
-  removeModelObserver(oldModelObserver: ModelObserverType<this>): void {
+  removeModelObserver(modelObserver: ModelObserverType<this>): void {
     const oldModelObservers = this._modelObservers;
-    const n = oldModelObservers !== void 0 ? oldModelObservers.length : 0;
-    if (n !== 0) {
-      const newModelObservers = new Array<ModelObserverType<this>>(n - 1);
-      let i = 0;
-      while (i < n) {
-        const modelObserver = oldModelObservers![i];
-        if (modelObserver !== oldModelObserver) {
-          newModelObservers[i] = modelObserver;
-          i += 1;
-        } else {
-          i += 1;
-          while (i < n) {
-            newModelObservers[i - 1] = oldModelObservers![i];
-            i += 1
-          }
-          this.willRemoveModelObserver(oldModelObserver);
-          this._modelObservers = newModelObservers;
-          this.onRemoveModelObserver(oldModelObserver);
-          this.didRemoveModelObserver(oldModelObserver);
-          return;
-        }
-      }
+    const newModelObservers = Arrays.removed(modelObserver, oldModelObservers);
+    if (oldModelObservers !== newModelObservers) {
+      this.willRemoveModelObserver(modelObserver);
+      this._modelObservers = newModelObservers;
+      this.onRemoveModelObserver(modelObserver);
+      this.didRemoveModelObserver(modelObserver);
     }
   }
 
@@ -837,7 +813,7 @@ export abstract class Model implements ModelDownlinkContext {
   readonly warpRef: ModelScope<this, WarpRef | undefined>; // defined by GenericModel
 
   isMounted(): boolean {
-    return (this.modelFlags & Model.MountedFlag) !== 0;
+    return (this._modelFlags & Model.MountedFlag) !== 0;
   }
 
   get mountFlags(): ModelFlags {
@@ -923,7 +899,7 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   isPowered(): boolean {
-    return (this.modelFlags & Model.PoweredFlag) !== 0;
+    return (this._modelFlags & Model.PoweredFlag) !== 0;
   }
 
   get powerFlags(): ModelFlags {
@@ -947,7 +923,7 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected onPower(): void {
-    this.requestUpdate(this, this.modelFlags & ~Model.StatusMask, false);
+    this.requestUpdate(this, this._modelFlags & ~Model.StatusMask, false);
     this.requireUpdate(this.powerFlags);
   }
 
@@ -1003,11 +979,11 @@ export abstract class Model implements ModelDownlinkContext {
     updateFlags &= ~Model.StatusMask;
     if (updateFlags !== 0) {
       this.willRequireUpdate(updateFlags, immediate);
-      const oldUpdateFlags = this.modelFlags;
+      const oldUpdateFlags = this._modelFlags;
       const newUpdateFlags = oldUpdateFlags | updateFlags;
-      const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags;
+      const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags & ~Model.StatusMask;
       if (deltaUpdateFlags !== 0) {
-        this.setModelFlags(newUpdateFlags);
+        this._modelFlags = newUpdateFlags;
         this.requestUpdate(this, deltaUpdateFlags, immediate);
       }
       this.didRequireUpdate(updateFlags, immediate);
@@ -1055,7 +1031,7 @@ export abstract class Model implements ModelDownlinkContext {
     additionalFlags &= ~Model.StatusMask;
     if (additionalFlags !== 0) {
       updateFlags |= additionalFlags;
-      this.setModelFlags(this.modelFlags | additionalFlags);
+      this._modelFlags |= additionalFlags;
     }
     return updateFlags;
   }
@@ -1085,15 +1061,15 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   isTraversing(): boolean {
-    return (this.modelFlags & Model.TraversingFlag) !== 0;
+    return (this._modelFlags & Model.TraversingFlag) !== 0;
   }
 
   isUpdating(): boolean {
-    return (this.modelFlags & Model.UpdatingMask) !== 0;
+    return (this._modelFlags & Model.UpdatingMask) !== 0;
   }
 
   isAnalyzing(): boolean {
-    return (this.modelFlags & Model.AnalyzingFlag) !== 0;
+    return (this._modelFlags & Model.AnalyzingFlag) !== 0;
   }
 
   needsAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): ModelFlags {
@@ -1340,7 +1316,7 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   isRefreshing(): boolean {
-    return (this.modelFlags & Model.RefreshingFlag) !== 0;
+    return (this._modelFlags & Model.RefreshingFlag) !== 0;
   }
 
   needsRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): ModelFlags {
@@ -1541,7 +1517,7 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   isConsuming(): boolean {
-    return (this.modelFlags & Model.ConsumingFlag) !== 0;
+    return (this._modelFlags & Model.ConsumingFlag) !== 0;
   }
 
   get startConsumingFlags(): ModelFlags {

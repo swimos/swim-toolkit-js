@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {View} from "../View";
 import {ViewManagerObserverType, ViewManagerObserver} from "./ViewManagerObserver";
 import {ViewportManager} from "../viewport/ViewportManager";
@@ -24,7 +25,7 @@ export abstract class ViewManager<V extends View = View> {
   /** @hidden */
   readonly _rootViews: V[];
   /** @hidden */
-  _viewManagerObservers?: ViewManagerObserverType<this>[];
+  _viewManagerObservers?: ReadonlyArray<ViewManagerObserverType<this>>;
 
   constructor() {
     this._rootViews = [];
@@ -34,24 +35,16 @@ export abstract class ViewManager<V extends View = View> {
     let viewManagerObservers = this._viewManagerObservers;
     if (viewManagerObservers === void 0) {
       viewManagerObservers = [];
-      this._viewManagerObservers = viewManagerObservers;
     }
     return viewManagerObservers;
   }
 
   addViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
-    let viewManagerObservers = this._viewManagerObservers;
-    let index: number;
-    if (viewManagerObservers === void 0) {
-      viewManagerObservers = [];
-      this._viewManagerObservers = viewManagerObservers;
-      index = -1;
-    } else {
-      index = viewManagerObservers.indexOf(viewManagerObserver);
-    }
-    if (index < 0) {
+    const oldViewManagerObservers = this._viewManagerObservers;
+    const newViewManagerObservers = Arrays.inserted(viewManagerObserver, oldViewManagerObservers);
+    if (oldViewManagerObservers !== newViewManagerObservers) {
       this.willAddViewManagerObserver(viewManagerObserver);
-      viewManagerObservers.push(viewManagerObserver);
+      this._viewManagerObservers = newViewManagerObservers;
       this.onAddViewManagerObserver(viewManagerObserver);
       this.didAddViewManagerObserver(viewManagerObserver);
     }
@@ -70,15 +63,13 @@ export abstract class ViewManager<V extends View = View> {
   }
 
   removeViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
-    const viewManagerObservers = this._viewManagerObservers;
-    if (viewManagerObservers !== void 0) {
-      const index = viewManagerObservers.indexOf(viewManagerObserver);
-      if (index >= 0) {
-        this.willRemoveViewManagerObserver(viewManagerObserver);
-        viewManagerObservers.splice(index, 1);
-        this.onRemoveViewManagerObserver(viewManagerObserver);
-        this.didRemoveViewManagerObserver(viewManagerObserver);
-      }
+    const oldViewManagerObservers = this._viewManagerObservers;
+    const newViewManagerObservers = Arrays.removed(viewManagerObserver, oldViewManagerObservers);
+    if (oldViewManagerObservers !== newViewManagerObservers) {
+      this.willRemoveViewManagerObserver(viewManagerObserver);
+      this._viewManagerObservers = newViewManagerObservers;
+      this.onRemoveViewManagerObserver(viewManagerObserver);
+      this.didRemoveViewManagerObserver(viewManagerObserver);
     }
   }
 

@@ -13,27 +13,11 @@
 // limitations under the License.
 
 import {BoxR2} from "@swim/math";
-import {ViewContextType, ViewController} from "@swim/view";
+import {ViewController} from "@swim/view";
 import {GraphicsView} from "./GraphicsView";
 import {GraphicsViewObserver} from "./GraphicsViewObserver";
 
 export class GraphicsViewController<V extends GraphicsView = GraphicsView> extends ViewController<V> implements GraphicsViewObserver<V> {
-  viewWillRender(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidRender(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewWillComposite(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidComposite(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
   isHidden(): boolean {
     const view = this._view;
     return view !== null && view.isHidden();

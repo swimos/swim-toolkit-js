@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {GeoBox, GeoProjection} from "@swim/geo";
-import {ViewContextType} from "@swim/view";
 import {GraphicsViewController} from "@swim/graphics";
 import {MapGraphicsView} from "./MapGraphicsView";
 import {MapGraphicsViewObserver} from "./MapGraphicsViewObserver";
@@ -47,13 +46,5 @@ export class MapGraphicsViewController<V extends MapGraphicsView = MapGraphicsVi
   get geoBounds(): GeoBox {
     const view = this._view;
     return view !== null ? view.geoBounds : GeoBox.undefined();
-  }
-
-  viewWillProject(viewContext: ViewContextType<V>, view: V): void {
-    // hook
-  }
-
-  viewDidProject(viewContext: ViewContextType<V>, view: V): void {
-    // hook
   }
 }

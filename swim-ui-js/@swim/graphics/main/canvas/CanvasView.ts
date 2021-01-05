@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {BoxR2} from "@swim/math";
 import {
   ViewContextType,
@@ -19,6 +20,11 @@ import {
   ViewConstructor,
   ViewFlags,
   View,
+  ViewObserverType,
+  WillRenderObserver,
+  DidRenderObserver,
+  WillCompositeObserver,
+  DidCompositeObserver,
   ViewEvent,
   ViewMouseEventInit,
   ViewMouseEvent,
@@ -87,6 +93,14 @@ export class CanvasView extends HtmlView {
   readonly _pointers: {[id: string]: CanvasViewPointer | undefined};
   /** @hidden */
   readonly _touches: {[id: string]: CanvasViewTouch | undefined};
+  /** @hidden */
+  _willRenderObservers?: ReadonlyArray<WillRenderObserver<CanvasView>>;
+  /** @hidden */
+  _didRenderObservers?: ReadonlyArray<DidRenderObserver<CanvasView>>;
+  /** @hidden */
+  _willCompositeObservers?: ReadonlyArray<WillCompositeObserver<CanvasView>>;
+  /** @hidden */
+  _didCompositeObservers?: ReadonlyArray<DidCompositeObserver<CanvasView>>;
 
   constructor(node: HTMLCanvasElement) {
     super(node);
@@ -159,6 +173,38 @@ export class CanvasView extends HtmlView {
     }
     if (init.touchEventsEnabled !== void 0) {
       this.touchEventsEnabled(init.touchEventsEnabled);
+    }
+  }
+
+  protected onAddViewObserver(viewObserver: ViewObserverType<this>): void {
+    super.onAddViewObserver(viewObserver);
+    if (viewObserver.viewWillRender !== void 0) {
+      this._willRenderObservers = Arrays.inserted(viewObserver as WillRenderObserver, this._willRenderObservers);
+    }
+    if (viewObserver.viewDidRender !== void 0) {
+      this._didRenderObservers = Arrays.inserted(viewObserver as DidRenderObserver, this._didRenderObservers);
+    }
+    if (viewObserver.viewWillComposite !== void 0) {
+      this._willCompositeObservers = Arrays.inserted(viewObserver as WillCompositeObserver, this._willCompositeObservers);
+    }
+    if (viewObserver.viewDidComposite !== void 0) {
+      this._didCompositeObservers = Arrays.inserted(viewObserver as DidCompositeObserver, this._didCompositeObservers);
+    }
+  }
+
+  protected onRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
+    super.onRemoveViewObserver(viewObserver);
+    if (viewObserver.viewWillRender !== void 0) {
+      this._willRenderObservers = Arrays.removed(viewObserver as WillRenderObserver, this._willRenderObservers);
+    }
+    if (viewObserver.viewDidRender !== void 0) {
+      this._didRenderObservers = Arrays.removed(viewObserver as DidRenderObserver, this._didRenderObservers);
+    }
+    if (viewObserver.viewWillComposite !== void 0) {
+      this._willCompositeObservers = Arrays.removed(viewObserver as WillCompositeObserver, this._willCompositeObservers);
+    }
+    if (viewObserver.viewDidComposite !== void 0) {
+      this._didCompositeObservers = Arrays.removed(viewObserver as DidCompositeObserver, this._didCompositeObservers);
     }
   }
 
@@ -907,13 +953,13 @@ export class CanvasView extends HtmlView {
 
   protected willRender(viewContext: ViewContextType<this>): void {
     const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillRender !== void 0) {
+    if (viewController !== void 0) {
       viewController.viewWillRender(viewContext, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewWillRender !== void 0) {
+    const viewObservers = this._willRenderObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0; i < viewObservers.length; i += 1) {
+        const viewObserver = viewObservers[i];
         viewObserver.viewWillRender(viewContext, this);
       }
     }
@@ -924,28 +970,28 @@ export class CanvasView extends HtmlView {
   }
 
   protected didRender(viewContext: ViewContextType<this>): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewDidRender !== void 0) {
+    const viewObservers = this._didRenderObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0; i < viewObservers.length; i += 1) {
+        const viewObserver = viewObservers[i];
         viewObserver.viewDidRender(viewContext, this);
       }
     }
     const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidRender !== void 0) {
+    if (viewController !== void 0) {
       viewController.viewDidRender(viewContext, this);
     }
   }
 
   protected willComposite(viewContext: ViewContextType<this>): void {
     const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillComposite !== void 0) {
+    if (viewController !== void 0) {
       viewController.viewWillComposite(viewContext, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewWillComposite !== void 0) {
+    const viewObservers = this._willCompositeObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0; i < viewObservers.length; i += 1) {
+        const viewObserver = viewObservers[i];
         viewObserver.viewWillComposite(viewContext, this);
       }
     }
@@ -956,15 +1002,15 @@ export class CanvasView extends HtmlView {
   }
 
   protected didComposite(viewContext: ViewContextType<this>): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewDidComposite !== void 0) {
+    const viewObservers = this._didCompositeObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0; i < viewObservers.length; i += 1) {
+        const viewObserver = viewObservers[i];
         viewObserver.viewDidComposite(viewContext, this);
       }
     }
     const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidComposite !== void 0) {
+    if (viewController !== void 0) {
       viewController.viewDidComposite(viewContext, this);
     }
   }

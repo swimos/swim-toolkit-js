@@ -12,18 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContextType, ViewObserver} from "@swim/view";
+import {ViewObserver} from "@swim/view";
 import {GraphicsView} from "./GraphicsView";
 
 export interface GraphicsViewObserver<V extends GraphicsView = GraphicsView> extends ViewObserver<V> {
-  viewWillRender?(viewContext: ViewContextType<V>, view: V): void;
-
-  viewDidRender?(viewContext: ViewContextType<V>, view: V): void;
-
-  viewWillComposite?(viewContext: ViewContextType<V>, view: V): void;
-
-  viewDidComposite?(viewContext: ViewContextType<V>, view: V): void;
-
   viewWillSetHidden?(hidden: boolean, view: V): void;
 
   viewDidSetHidden?(hidden: boolean, view: V): void;

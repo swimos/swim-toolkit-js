@@ -28,6 +28,22 @@ export {
 export {
   ViewObserverType,
   ViewObserver,
+  WillResizeObserver,
+  DidResizeObserver,
+  WillScrollObserver,
+  DidScrollObserver,
+  WillChangeObserver,
+  DidChangeObserver,
+  WillAnimateObserver,
+  DidAnimateObserver,
+  WillProjectObserver,
+  DidProjectObserver,
+  WillLayoutObserver,
+  DidLayoutObserver,
+  WillRenderObserver,
+  DidRenderObserver,
+  WillCompositeObserver,
+  DidCompositeObserver,
 } from "./ViewObserver";
 export {
   ViewControllerType,

@@ -12,16 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {BoxR2} from "@swim/math";
 import {Animator} from "@swim/tween";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
-import {ViewContextType, ViewConstructor, ViewClass, View, ViewScope} from "@swim/view";
+import {ViewContextType, ViewConstructor, ViewClass, View, ViewObserverType, ViewScope} from "@swim/view";
 import {StyleContext} from "../css/StyleContext";
 import {StyleAnimator} from "../style/StyleAnimator";
 import {NodeViewInit, NodeViewConstructor, NodeViewClass, NodeView} from "../node/NodeView";
 import {AttributeAnimatorConstructor, AttributeAnimator} from "../attribute/AttributeAnimator";
-import {ElementViewObserver} from "./ElementViewObserver";
+import {
+  ElementViewObserver,
+  WillSetAttributeObserver,
+  DidSetAttributeObserver,
+  WillSetStyleObserver,
+  DidSetStyleObserver,
+} from "./ElementViewObserver";
 import {ElementViewController} from "./ElementViewController";
 
 export interface ViewElement extends Element, ElementCSSInlineStyle {
@@ -52,6 +59,14 @@ export class ElementView extends NodeView implements StyleContext {
   _attributeAnimators?: {[animatorName: string]: AttributeAnimator<ElementView, unknown> | undefined};
   /** @hidden */
   _styleAnimators?: {[animatorName: string]: StyleAnimator<ElementView, unknown> | undefined};
+  /** @hidden */
+  _willSetAttributeObservers?: ReadonlyArray<WillSetAttributeObserver>;
+  /** @hidden */
+  _didSetAttributeObservers?: ReadonlyArray<DidSetAttributeObserver>;
+  /** @hidden */
+  _willSetStyleObservers?: ReadonlyArray<WillSetStyleObserver>;
+  /** @hidden */
+  _didSetStyleObservers?: ReadonlyArray<DidSetStyleObserver>;
 
   constructor(node: Element) {
     super(node);
@@ -88,6 +103,38 @@ export class ElementView extends NodeView implements StyleContext {
     }
     if (init.themeModifier !== void 0) {
       this.themeModifier(init.themeModifier);
+    }
+  }
+
+  protected onAddViewObserver(viewObserver: ViewObserverType<this>): void {
+    super.onAddViewObserver(viewObserver);
+    if (viewObserver.viewWillSetAttribute !== void 0) {
+      this._willSetAttributeObservers = Arrays.inserted(viewObserver as WillSetAttributeObserver, this._willSetAttributeObservers);
+    }
+    if (viewObserver.viewDidSetAttribute !== void 0) {
+      this._didSetAttributeObservers = Arrays.inserted(viewObserver as DidSetAttributeObserver, this._didSetAttributeObservers);
+    }
+    if (viewObserver.viewWillSetStyle !== void 0) {
+      this._willSetStyleObservers = Arrays.inserted(viewObserver as WillSetStyleObserver, this._willSetStyleObservers);
+    }
+    if (viewObserver.viewDidSetStyle !== void 0) {
+      this._didSetStyleObservers = Arrays.inserted(viewObserver as DidSetStyleObserver, this._didSetStyleObservers);
+    }
+  }
+
+  protected onRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
+    super.onRemoveViewObserver(viewObserver);
+    if (viewObserver.viewWillSetAttribute !== void 0) {
+      this._willSetAttributeObservers = Arrays.removed(viewObserver as WillSetAttributeObserver, this._willSetAttributeObservers);
+    }
+    if (viewObserver.viewDidSetAttribute !== void 0) {
+      this._didSetAttributeObservers = Arrays.removed(viewObserver as DidSetAttributeObserver, this._didSetAttributeObservers);
+    }
+    if (viewObserver.viewWillSetStyle !== void 0) {
+      this._willSetStyleObservers = Arrays.removed(viewObserver as WillSetStyleObserver, this._willSetStyleObservers);
+    }
+    if (viewObserver.viewDidSetStyle !== void 0) {
+      this._didSetStyleObservers = Arrays.removed(viewObserver as DidSetStyleObserver, this._didSetStyleObservers);
     }
   }
 
@@ -253,13 +300,13 @@ export class ElementView extends NodeView implements StyleContext {
 
   protected willSetAttribute(attributeName: string, value: unknown): void {
     const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillSetAttribute !== void 0) {
+    if (viewController !== void 0) {
       viewController.viewWillSetAttribute(attributeName, value, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewWillSetAttribute !== void 0) {
+    const viewObservers = this._willSetAttributeObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+        const viewObserver = viewObservers[i];
         viewObserver.viewWillSetAttribute(attributeName, value, this);
       }
     }
@@ -270,15 +317,15 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected didSetAttribute(attributeName: string, value: unknown): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewDidSetAttribute !== void 0) {
+    const viewObservers = this._didSetAttributeObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+        const viewObserver = viewObservers[i];
         viewObserver.viewDidSetAttribute(attributeName, value, this);
       }
     }
     const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidSetAttribute !== void 0) {
+    if (viewController !== void 0) {
       viewController.viewDidSetAttribute(attributeName, value, this);
     }
   }
@@ -343,13 +390,13 @@ export class ElementView extends NodeView implements StyleContext {
 
   protected willSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
     const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillSetStyle !== void 0) {
+    if (viewController !== void 0) {
       viewController.viewWillSetStyle(propertyName, value, priority, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewWillSetStyle !== void 0) {
+    const viewObservers = this._willSetStyleObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+        const viewObserver = viewObservers[i];
         viewObserver.viewWillSetStyle(propertyName, value, priority, this);
       }
     }
@@ -360,15 +407,15 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected didSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
-      if (viewObserver.viewDidSetStyle !== void 0) {
+    const viewObservers = this._didSetStyleObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+        const viewObserver = viewObservers[i];
         viewObserver.viewDidSetStyle(propertyName, value, priority, this);
       }
     }
     const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidSetStyle !== void 0) {
+    if (viewController !== void 0) {
       viewController.viewDidSetStyle(propertyName, value, priority, this);
     }
   }

@@ -73,11 +73,103 @@ export interface ViewObserver<V extends View = View> {
 
   viewDidAnimate?(viewContext: ViewContextType<V>, view: V): void;
 
+  viewWillProject?(viewContext: ViewContextType<V>, view: V): void;
+
+  viewDidProject?(viewContext: ViewContextType<V>, view: V): void;
+
   viewWillLayout?(viewContext: ViewContextType<V>, view: V): void;
 
   viewDidLayout?(viewContext: ViewContextType<V>, view: V): void;
 
+  viewWillRender?(viewContext: ViewContextType<V>, view: V): void;
+
+  viewDidRender?(viewContext: ViewContextType<V>, view: V): void;
+
+  viewWillComposite?(viewContext: ViewContextType<V>, view: V): void;
+
+  viewDidComposite?(viewContext: ViewContextType<V>, view: V): void;
+
   viewWillApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, view: V): void;
 
   viewDidApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, view: V): void;
+}
+
+/** @hidden */
+export interface WillResizeObserver<V extends View = View> {
+  viewWillResize(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface DidResizeObserver<V extends View = View> {
+  viewDidResize(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface WillScrollObserver<V extends View = View> {
+  viewWillScroll(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface DidScrollObserver<V extends View = View> {
+  viewDidScroll(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface WillChangeObserver<V extends View = View> {
+  viewWillChange(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface DidChangeObserver<V extends View = View> {
+  viewDidChange(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface WillAnimateObserver<V extends View = View> {
+  viewWillAnimate(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface DidAnimateObserver<V extends View = View> {
+  viewDidAnimate(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface WillProjectObserver<V extends View = View> {
+  viewWillProject(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface DidProjectObserver<V extends View = View> {
+  viewDidProject(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface WillLayoutObserver<V extends View = View> {
+  viewWillLayout(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface DidLayoutObserver<V extends View = View> {
+  viewDidLayout(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface WillRenderObserver<V extends View = View> {
+  viewWillRender(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface DidRenderObserver<V extends View = View> {
+  viewDidRender(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface WillCompositeObserver<V extends View = View> {
+  viewWillComposite(viewContext: ViewContextType<V>, view: V): void;
+}
+
+/** @hidden */
+export interface DidCompositeObserver<V extends View = View> {
+  viewDidComposite(viewContext: ViewContextType<V>, view: V): void;
 }

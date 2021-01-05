@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {WarpRef} from "@swim/client";
 import {ModelContextType} from "./ModelContext";
 import {ModelFlags, ModelPrototype, Model} from "./Model";
@@ -92,28 +93,19 @@ export abstract class Trait implements ModelDownlinkContext {
     let traitObservers = this._traitObservers;
     if (traitObservers === void 0) {
       traitObservers = [];
-      this._traitObservers = traitObservers;
     }
     return traitObservers;
   }
 
-  addTraitObserver(newTraitObserver: TraitObserverType<this>): void {
+  addTraitObserver(traitObserver: TraitObserverType<this>): void {
     const oldTraitObservers = this._traitObservers;
-    const n = oldTraitObservers !== void 0 ? oldTraitObservers.length : 0;
-    const newTraitObservers = new Array<TraitObserverType<this>>(n + 1);
-    for (let i = 0; i < n; i += 1) {
-      const traitObserver = oldTraitObservers![i];
-      if (traitObserver !== newTraitObserver) {
-        newTraitObservers[i] = traitObserver;
-      } else {
-        return;
-      }
+    const newTraitObservers = Arrays.inserted(traitObserver, oldTraitObservers);
+    if (oldTraitObservers !== newTraitObservers) {
+      this.willAddTraitObserver(traitObserver);
+      this._traitObservers = newTraitObservers;
+      this.onAddTraitObserver(traitObserver);
+      this.didAddTraitObserver(traitObserver);
     }
-    newTraitObservers[n] = newTraitObserver;
-    this.willAddTraitObserver(newTraitObserver);
-    this._traitObservers = newTraitObservers;
-    this.onAddTraitObserver(newTraitObserver);
-    this.didAddTraitObserver(newTraitObserver);
   }
 
   protected willAddTraitObserver(traitObserver: TraitObserverType<this>): void {
@@ -128,30 +120,14 @@ export abstract class Trait implements ModelDownlinkContext {
     // hook
   }
 
-  removeTraitObserver(oldTraitObserver: TraitObserverType<this>): void {
+  removeTraitObserver(traitObserver: TraitObserverType<this>): void {
     const oldTraitObservers = this._traitObservers;
-    const n = oldTraitObservers !== void 0 ? oldTraitObservers.length : 0;
-    if (n !== 0) {
-      const newTraitObservers = new Array<TraitObserverType<this>>(n - 1);
-      let i = 0;
-      while (i < n) {
-        const traitObserver = oldTraitObservers![i];
-        if (traitObserver !== oldTraitObserver) {
-          newTraitObservers[i] = traitObserver;
-          i += 1;
-        } else {
-          i += 1;
-          while (i < n) {
-            newTraitObservers[i - 1] = oldTraitObservers![i];
-            i += 1
-          }
-          this.willRemoveTraitObserver(oldTraitObserver);
-          this._traitObservers = newTraitObservers;
-          this.onRemoveTraitObserver(oldTraitObserver);
-          this.didRemoveTraitObserver(oldTraitObserver);
-          return;
-        }
-      }
+    const newTraitObservers = Arrays.removed(traitObserver, oldTraitObservers);
+    if (oldTraitObservers !== newTraitObservers) {
+      this.willRemoveTraitObserver(traitObserver);
+      this._traitObservers = newTraitObservers;
+      this.onRemoveTraitObserver(traitObserver);
+      this.didRemoveTraitObserver(traitObserver);
     }
   }
 
@@ -577,7 +553,7 @@ export abstract class Trait implements ModelDownlinkContext {
   readonly warpRef: TraitScope<this, WarpRef | undefined>; // defined by GenericTrait
 
   isMounted(): boolean {
-    return (this.traitFlags & Trait.MountedFlag) !== 0;
+    return (this._traitFlags & Trait.MountedFlag) !== 0;
   }
 
   get mountFlags(): ModelFlags {
@@ -639,7 +615,7 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   isPowered(): boolean {
-    return (this.traitFlags & Trait.PoweredFlag) !== 0;
+    return (this._traitFlags & Trait.PoweredFlag) !== 0;
   }
 
   get powerFlags(): ModelFlags {
@@ -977,7 +953,7 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   isConsuming(): boolean {
-    return (this.traitFlags & Trait.ConsumingFlag) !== 0;
+    return (this._traitFlags & Trait.ConsumingFlag) !== 0;
   }
 
   get startConsumingFlags(): ModelFlags {

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {Model} from "../Model";
 import {ModelManagerObserverType, ModelManagerObserver} from "./ModelManagerObserver";
 import {RefreshManager} from "../refresh/RefreshManager";
@@ -21,7 +22,7 @@ export abstract class ModelManager<M extends Model = Model> {
   /** @hidden */
   readonly _rootModels: M[];
   /** @hidden */
-  _modelManagerObservers?: ModelManagerObserverType<this>[];
+  _modelManagerObservers?: ReadonlyArray<ModelManagerObserverType<this>>;
 
   constructor() {
     this._rootModels = [];
@@ -31,24 +32,16 @@ export abstract class ModelManager<M extends Model = Model> {
     let modelManagerObservers = this._modelManagerObservers;
     if (modelManagerObservers === void 0) {
       modelManagerObservers = [];
-      this._modelManagerObservers = modelManagerObservers;
     }
     return modelManagerObservers;
   }
 
   addModelManagerObserver(modelManagerObserver: ModelManagerObserverType<this>): void {
-    let modelManagerObservers = this._modelManagerObservers;
-    let index: number;
-    if (modelManagerObservers === void 0) {
-      modelManagerObservers = [];
-      this._modelManagerObservers = modelManagerObservers;
-      index = -1;
-    } else {
-      index = modelManagerObservers.indexOf(modelManagerObserver);
-    }
-    if (index < 0) {
+    const oldModelManagerObservers = this._modelManagerObservers;
+    const newModelManagerObservers = Arrays.inserted(modelManagerObserver, oldModelManagerObservers);
+    if (oldModelManagerObservers !== newModelManagerObservers) {
       this.willAddModelManagerObserver(modelManagerObserver);
-      modelManagerObservers.push(modelManagerObserver);
+      this._modelManagerObservers = newModelManagerObservers;
       this.onAddModelManagerObserver(modelManagerObserver);
       this.didAddModelManagerObserver(modelManagerObserver);
     }
@@ -67,15 +60,13 @@ export abstract class ModelManager<M extends Model = Model> {
   }
 
   removeModelManagerObserver(modelManagerObserver: ModelManagerObserverType<this>): void {
-    const modelManagerObservers = this._modelManagerObservers;
-    if (modelManagerObservers !== void 0) {
-      const index = modelManagerObservers.indexOf(modelManagerObserver);
-      if (index >= 0) {
-        this.willRemoveModelManagerObserver(modelManagerObserver);
-        modelManagerObservers.splice(index, 1);
-        this.onRemoveModelManagerObserver(modelManagerObserver);
-        this.didRemoveModelManagerObserver(modelManagerObserver);
-      }
+    const oldModelManagerObservers = this._modelManagerObservers;
+    const newModelManagerObservers = Arrays.removed(modelManagerObserver, oldModelManagerObservers);
+    if (oldModelManagerObservers !== newModelManagerObservers) {
+      this.willRemoveModelManagerObserver(modelManagerObserver);
+      this._modelManagerObservers = newModelManagerObservers;
+      this.onRemoveModelManagerObserver(modelManagerObserver);
+      this.didRemoveModelManagerObserver(modelManagerObserver);
     }
   }
 

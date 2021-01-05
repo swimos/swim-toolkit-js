@@ -19,5 +19,11 @@ export {
   ElementViewClass,
   ElementView,
 } from "./ElementView";
-export {ElementViewObserver} from "./ElementViewObserver";
+export {
+  ElementViewObserver,
+  WillSetAttributeObserver,
+  DidSetAttributeObserver,
+  WillSetStyleObserver,
+  DidSetStyleObserver,
+} from "./ElementViewObserver";
 export {ElementViewController} from "./ElementViewController";

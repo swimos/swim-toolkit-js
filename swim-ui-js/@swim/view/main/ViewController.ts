@@ -373,6 +373,14 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     // hook
   }
 
+  viewWillProject(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
+  viewDidProject(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
   isDisplaying(): boolean {
     const view = this._view;
     return view !== null && view.isDisplaying();
@@ -383,6 +391,22 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
   }
 
   viewDidLayout(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
+  viewWillRender(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
+  viewDidRender(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
+  viewWillComposite(viewContext: ViewContextType<V>, view: V): void {
+    // hook
+  }
+
+  viewDidComposite(viewContext: ViewContextType<V>, view: V): void {
     // hook
   }
 

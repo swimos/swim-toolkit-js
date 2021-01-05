@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {Component} from "../Component";
 import {ComponentManagerObserverType, ComponentManagerObserver} from "./ComponentManagerObserver";
 import {ExecuteManager} from "../execute/ExecuteManager";
@@ -21,7 +22,7 @@ export abstract class ComponentManager<C extends Component = Component> {
   /** @hidden */
   readonly _rootComponents: C[];
   /** @hidden */
-  _componentManagerObservers?: ComponentManagerObserverType<this>[];
+  _componentManagerObservers?: ReadonlyArray<ComponentManagerObserverType<this>>;
 
   constructor() {
     this._rootComponents = [];
@@ -31,24 +32,16 @@ export abstract class ComponentManager<C extends Component = Component> {
     let componentManagerObservers = this._componentManagerObservers;
     if (componentManagerObservers === void 0) {
       componentManagerObservers = [];
-      this._componentManagerObservers = componentManagerObservers;
     }
     return componentManagerObservers;
   }
 
   addComponentManagerObserver(componentManagerObserver: ComponentManagerObserverType<this>): void {
-    let componentManagerObservers = this._componentManagerObservers;
-    let index: number;
-    if (componentManagerObservers === void 0) {
-      componentManagerObservers = [];
-      this._componentManagerObservers = componentManagerObservers;
-      index = -1;
-    } else {
-      index = componentManagerObservers.indexOf(componentManagerObserver);
-    }
-    if (index < 0) {
+    const oldComponentManagerObservers = this._componentManagerObservers;
+    const newComponentManagerObservers = Arrays.inserted(componentManagerObserver, oldComponentManagerObservers);
+    if (oldComponentManagerObservers !== newComponentManagerObservers) {
       this.willAddComponentManagerObserver(componentManagerObserver);
-      componentManagerObservers.push(componentManagerObserver);
+      this._componentManagerObservers = newComponentManagerObservers;
       this.onAddComponentManagerObserver(componentManagerObserver);
       this.didAddComponentManagerObserver(componentManagerObserver);
     }
@@ -67,15 +60,13 @@ export abstract class ComponentManager<C extends Component = Component> {
   }
 
   removeComponentManagerObserver(componentManagerObserver: ComponentManagerObserverType<this>): void {
-    const componentManagerObservers = this._componentManagerObservers;
-    if (componentManagerObservers !== void 0) {
-      const index = componentManagerObservers.indexOf(componentManagerObserver);
-      if (index >= 0) {
-        this.willRemoveComponentManagerObserver(componentManagerObserver);
-        componentManagerObservers.splice(index, 1);
-        this.onRemoveComponentManagerObserver(componentManagerObserver);
-        this.didRemoveComponentManagerObserver(componentManagerObserver);
-      }
+    const oldComponentManagerObservers = this._componentManagerObservers;
+    const newComponentManagerObservers = Arrays.removed(componentManagerObserver, oldComponentManagerObservers);
+    if (oldComponentManagerObservers !== newComponentManagerObservers) {
+      this.willRemoveComponentManagerObserver(componentManagerObserver);
+      this._componentManagerObservers = newComponentManagerObservers;
+      this.onRemoveComponentManagerObserver(componentManagerObserver);
+      this.didRemoveComponentManagerObserver(componentManagerObserver);
     }
   }
 

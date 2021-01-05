@@ -24,3 +24,23 @@ export interface ElementViewObserver<V extends ElementView = ElementView> extend
 
   viewDidSetStyle?(name: string, value: unknown, priority: string | undefined, view: V): void;
 }
+
+/** @hidden */
+export interface WillSetAttributeObserver<V extends ElementView = ElementView> {
+  viewWillSetAttribute(name: string, value: unknown, view: V): void;
+}
+
+/** @hidden */
+export interface DidSetAttributeObserver<V extends ElementView = ElementView> {
+  viewDidSetAttribute(name: string, value: unknown, view: V): void;
+}
+
+/** @hidden */
+export interface WillSetStyleObserver<V extends ElementView = ElementView> {
+  viewWillSetStyle(name: string, value: unknown, priority: string | undefined, view: V): void;
+}
+
+/** @hidden */
+export interface DidSetStyleObserver<V extends ElementView = ElementView> {
+  viewDidSetStyle(name: string, value: unknown, priority: string | undefined, view: V): void;
+}

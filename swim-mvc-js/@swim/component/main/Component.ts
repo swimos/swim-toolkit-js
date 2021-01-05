@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {View} from "@swim/view";
 import {Model, Trait} from "@swim/model";
 import {ComponentContextType, ComponentContext} from "./ComponentContext";
@@ -96,28 +97,19 @@ export abstract class Component {
     let componentObservers = this._componentObservers;
     if (componentObservers === void 0) {
       componentObservers = [];
-      this._componentObservers = componentObservers;
     }
     return componentObservers;
   }
 
-  addComponentObserver(newComponentObserver: ComponentObserverType<this>): void {
+  addComponentObserver(componentObserver: ComponentObserverType<this>): void {
     const oldComponentObservers = this._componentObservers;
-    const n = oldComponentObservers !== void 0 ? oldComponentObservers.length : 0;
-    const newComponentObservers = new Array<ComponentObserverType<this>>(n + 1);
-    for (let i = 0; i < n; i += 1) {
-      const componentObserver = oldComponentObservers![i];
-      if (componentObserver !== newComponentObserver) {
-        newComponentObservers[i] = componentObserver;
-      } else {
-        return;
-      }
+    const newComponentObservers = Arrays.inserted(componentObserver, oldComponentObservers);
+    if (oldComponentObservers !== newComponentObservers) {
+      this.willAddComponentObserver(componentObserver);
+      this._componentObservers = newComponentObservers;
+      this.onAddComponentObserver(componentObserver);
+      this.didAddComponentObserver(componentObserver);
     }
-    newComponentObservers[n] = newComponentObserver;
-    this.willAddComponentObserver(newComponentObserver);
-    this._componentObservers = newComponentObservers;
-    this.onAddComponentObserver(newComponentObserver);
-    this.didAddComponentObserver(newComponentObserver);
   }
 
   protected willAddComponentObserver(componentObserver: ComponentObserverType<this>): void {
@@ -132,30 +124,14 @@ export abstract class Component {
     // hook
   }
 
-  removeComponentObserver(oldComponentObserver: ComponentObserverType<this>): void {
+  removeComponentObserver(componentObserver: ComponentObserverType<this>): void {
     const oldComponentObservers = this._componentObservers;
-    const n = oldComponentObservers !== void 0 ? oldComponentObservers.length : 0;
-    if (n !== 0) {
-      const newComponentObservers = new Array<ComponentObserverType<this>>(n - 1);
-      let i = 0;
-      while (i < n) {
-        const componentObserver = oldComponentObservers![i];
-        if (componentObserver !== oldComponentObserver) {
-          newComponentObservers[i] = componentObserver;
-          i += 1;
-        } else {
-          i += 1;
-          while (i < n) {
-            newComponentObservers[i - 1] = oldComponentObservers![i];
-            i += 1
-          }
-          this.willRemoveComponentObserver(oldComponentObserver);
-          this._componentObservers = newComponentObservers;
-          this.onRemoveComponentObserver(oldComponentObserver);
-          this.didRemoveComponentObserver(oldComponentObserver);
-          return;
-        }
-      }
+    const newComponentObservers = Arrays.removed(componentObserver, oldComponentObservers);
+    if (oldComponentObservers !== newComponentObservers) {
+      this.willRemoveComponentObserver(componentObserver);
+      this._componentObservers = newComponentObservers;
+      this.onRemoveComponentObserver(componentObserver);
+      this.didRemoveComponentObserver(componentObserver);
     }
   }
 
@@ -340,7 +316,7 @@ export abstract class Component {
   readonly historyService: HistoryService<this>; // defined by HistoryService
 
   isMounted(): boolean {
-    return (this.componentFlags & Component.MountedFlag) !== 0;
+    return (this._componentFlags & Component.MountedFlag) !== 0;
   }
 
   get mountFlags(): ComponentFlags {
@@ -410,7 +386,7 @@ export abstract class Component {
   }
 
   isPowered(): boolean {
-    return (this.componentFlags & Component.PoweredFlag) !== 0;
+    return (this._componentFlags & Component.PoweredFlag) !== 0;
   }
 
   get powerFlags(): ComponentFlags {
@@ -430,7 +406,7 @@ export abstract class Component {
   }
 
   protected onPower(): void {
-    this.requestUpdate(this, this.componentFlags & ~Component.StatusMask, false);
+    this.requestUpdate(this, this._componentFlags & ~Component.StatusMask, false);
     this.requireUpdate(this.powerFlags);
   }
 
@@ -474,11 +450,11 @@ export abstract class Component {
     updateFlags &= ~Component.StatusMask;
     if (updateFlags !== 0) {
       this.willRequireUpdate(updateFlags, immediate);
-      const oldUpdateFlags = this.componentFlags;
+      const oldUpdateFlags = this._componentFlags;
       const newUpdateFlags = oldUpdateFlags | updateFlags;
-      const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags;
+      const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags & ~Component.StatusMask;
       if (deltaUpdateFlags !== 0) {
-        this.setComponentFlags(newUpdateFlags);
+        this._componentFlags = newUpdateFlags;
         this.requestUpdate(this, deltaUpdateFlags, immediate);
       }
       this.didRequireUpdate(updateFlags, immediate);
@@ -513,7 +489,7 @@ export abstract class Component {
     additionalFlags &= ~Component.StatusMask;
     if (additionalFlags !== 0) {
       updateFlags |= additionalFlags;
-      this.setComponentFlags(this.componentFlags | additionalFlags);
+      this._componentFlags |= additionalFlags;
     }
     return updateFlags;
   }
@@ -534,15 +510,15 @@ export abstract class Component {
   }
 
   isTraversing(): boolean {
-    return (this.componentFlags & Component.TraversingFlag) !== 0;
+    return (this._componentFlags & Component.TraversingFlag) !== 0;
   }
 
   isUpdating(): boolean {
-    return (this.componentFlags & Component.UpdatingMask) !== 0;
+    return (this._componentFlags & Component.UpdatingMask) !== 0;
   }
 
   isCompiling(): boolean {
-    return (this.componentFlags & Component.CompilingFlag) !== 0;
+    return (this._componentFlags & Component.CompilingFlag) !== 0;
   }
 
   needsCompile(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): ComponentFlags {
@@ -689,7 +665,7 @@ export abstract class Component {
   }
 
   isExecuting(): boolean {
-    return (this.componentFlags & Component.ExecutingFlag) !== 0;
+    return (this._componentFlags & Component.ExecutingFlag) !== 0;
   }
 
   needsExecute(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): ComponentFlags {
