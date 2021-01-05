@@ -21,11 +21,12 @@ export interface ModelContext {
   readonly updateTime: number;
 }
 
-/** @hidden */
-export const ModelContext = {
-  default(): ModelContext {
-    return {
-      updateTime: performance.now(),
-    };
-  },
+export const ModelContext = {} as {
+  default(): ModelContext;
+};
+
+ModelContext.default = function (): ModelContext {
+  return {
+    updateTime: performance.now(),
+  };
 };

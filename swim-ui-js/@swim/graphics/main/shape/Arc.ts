@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Objects} from "@swim/util";
+import {Equals} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
@@ -167,7 +167,7 @@ export class Arc implements Graphics, Equals, Debug {
       return this._padRadius;
     } else {
       padRadius = padRadius !== null ? Length.fromAny(padRadius) : null;
-      if (Objects.equal(this._padRadius, padRadius)) {
+      if (Equals.equal(this._padRadius, padRadius)) {
         return this;
       } else {
         return this.copy(this._center, this._innerRadius, this._outerRadius, this._startAngle,
@@ -393,7 +393,7 @@ export class Arc implements Graphics, Equals, Debug {
           && this._startAngle.equals(that._startAngle)
           && this._sweepAngle.equals(that._sweepAngle)
           && this._padAngle.equals(that._padAngle)
-          && Objects.equal(this._padRadius, that._padRadius)
+          && Equals.equal(this._padRadius, that._padRadius)
           && this._cornerRadius.equals(that._cornerRadius);
     }
     return false;

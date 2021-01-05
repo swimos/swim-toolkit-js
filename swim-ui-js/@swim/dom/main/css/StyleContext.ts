@@ -34,10 +34,10 @@ export interface StyleContext extends AnimatorContext {
 }
 
 /** @hidden */
-export const StyleContext: {
+export const StyleContext = {} as {
   decorateStyleAnimator<V extends StyleContext, T, U>(constructor: StyleAnimatorConstructor<V, T, U>,
                                                       contextClass: unknown, animatorName: string): void;
-} = {} as any;
+};
 
 StyleContext.decorateStyleAnimator = function <V extends StyleContext, T, U>(constructor: StyleAnimatorConstructor<V, T, U>,
                                                                              contextClass: unknown, animatorName: string): void {

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equivalent, Equals, Objects} from "@swim/util";
+import {Equivalent, Equals} from "@swim/util";
 import {Parser, Diagnostic, Unicode} from "@swim/codec";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "../color/Color";
@@ -82,9 +82,9 @@ export class ColorStop implements Equivalent<AnyColorStop>, Equals {
 
   equivalentTo(that: AnyColorStop, epsilon?: number): boolean {
     that = ColorStop.fromAny(that);
-    return Objects.equivalent(this._color, that._color, epsilon)
-        && Objects.equivalent(this._stop, that._stop, epsilon)
-        && Objects.equivalent(this._hint, that._hint, epsilon);
+    return Equivalent.equivalent(this._color, that._color, epsilon)
+        && Equivalent.equivalent(this._stop, that._stop, epsilon)
+        && Equivalent.equivalent(this._hint, that._hint, epsilon);
   }
 
   equals(that: unknown): boolean {
@@ -92,8 +92,8 @@ export class ColorStop implements Equivalent<AnyColorStop>, Equals {
       return true;
     } else if (that instanceof ColorStop) {
       return this._color.equals(that._color)
-          && Objects.equal(this._stop, that._stop)
-          && Objects.equal(this._hint, that._hint);
+          && Equals.equal(this._stop, that._stop)
+          && Equals.equal(this._hint, that._hint);
     }
     return false;
   }

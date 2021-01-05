@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Objects} from "@swim/util";
+import {Equals} from "@swim/util";
 import {Interpolator} from "@swim/interpolate";
 import {AnyEase, Ease} from "../ease/Ease";
 import {TransitionObserver} from "./TransitionObserver";
@@ -161,7 +161,7 @@ export class Transition<T> {
       return true;
     } else if (that instanceof Transition) {
       return this._duration === that._duration && this._ease === that._ease
-          && Objects.equal(this._interpolator, that._interpolator);
+          && Equals.equal(this._interpolator, that._interpolator);
     }
     return false;
   }

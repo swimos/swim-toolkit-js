@@ -28,23 +28,27 @@ export type FontSize = Length
                      | "xx-large"
                      | "xx-small";
 
-export const FontSize = {
-  fromAny(size: AnyFontSize): FontSize {
-    if (typeof size === "string" && (size === "large" || size === "larger" || size === "medium"
-          || size === "small" || size === "smaller"  || size === "x-large" || size === "x-small"
-          || size === "xx-large" || size === "xx-small")) {
-      return size;
-    } else {
-      return Length.fromAny(size);
-    }
-  },
+export const FontSize = {} as {
+  fromAny(size: AnyFontSize): FontSize;
 
-  fromValue(value: Value): FontSize | undefined {
-    const string = value.stringValue(void 0);
-    if (string !== void 0) {
-      return FontSize.fromAny(string);
-    } else {
-      return Length.form().cast(value);
-    }
-  },
+  fromValue(value: Value): FontSize | undefined;
+};
+
+FontSize.fromAny = function (size: AnyFontSize): FontSize {
+  if (typeof size === "string" && (size === "large" || size === "larger" || size === "medium"
+      || size === "small" || size === "smaller"  || size === "x-large" || size === "x-small"
+      || size === "xx-large" || size === "xx-small")) {
+    return size;
+  } else {
+    return Length.fromAny(size);
+  }
+};
+
+FontSize.fromValue = function (value: Value): FontSize | undefined {
+  const string = value.stringValue(void 0);
+  if (string !== void 0) {
+    return FontSize.fromAny(string);
+  } else {
+    return Length.form().cast(value);
+  }
 };

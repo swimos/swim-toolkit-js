@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Objects} from "@swim/util";
+import {Values} from "@swim/util";
 import {BTree} from "@swim/collections";
 import {BoxR2} from "@swim/math";
 import {ContinuousScale} from "@swim/scale";
@@ -205,10 +205,10 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
       let yDataDomainMax: Y | undefined;
       this._data.forEachValue(function (point: DataPointView<X, Y>): void {
         const y = point.y.value;
-        if (yDataDomainMin === void 0 || Objects.compare(y, yDataDomainMin) < 0) {
+        if (yDataDomainMin === void 0 || Values.compare(y, yDataDomainMin) < 0) {
           yDataDomainMin = y;
         }
-        if (yDataDomainMax === void 0 || Objects.compare(yDataDomainMax, y) < 0) {
+        if (yDataDomainMax === void 0 || Values.compare(yDataDomainMax, y) < 0) {
           yDataDomainMax = y;
         }
       }, this);
@@ -457,22 +457,22 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
         let category: DataPointCategory;
         if (point0 !== void 0) {
           // categorize mid point
-          if (Objects.compare(y0!, y1!) < 0 && Objects.compare(y2, y1!) < 0) {
+          if (Values.compare(y0!, y1!) < 0 && Values.compare(y2, y1!) < 0) {
             category = "maxima";
-          } else if (Objects.compare(y1!, y0!) < 0 && Objects.compare(y1!, y2) < 0) {
+          } else if (Values.compare(y1!, y0!) < 0 && Values.compare(y1!, y2) < 0) {
             category = "minima";
-          } else if (Objects.compare(y0!, y1!) < 0 && Objects.compare(y1!, y2) < 0) {
+          } else if (Values.compare(y0!, y1!) < 0 && Values.compare(y1!, y2) < 0) {
             category = "increasing";
-          } else if (Objects.compare(y1!, y0!) < 0 && Objects.compare(y2, y1!) < 0) {
+          } else if (Values.compare(y1!, y0!) < 0 && Values.compare(y2, y1!) < 0) {
             category = "decreasing";
           } else {
             category = "flat";
           }
         } else {
           // categorize start point
-          if (Objects.compare(y1!, y2) < 0) {
+          if (Values.compare(y1!, y2) < 0) {
             category = "increasing";
-          } else if (Objects.compare(y2, y1!) < 0) {
+          } else if (Values.compare(y2, y1!) < 0) {
             category = "decreasing";
           } else {
             category = "flat";
@@ -481,15 +481,15 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
         point1.category(category);
 
         // compute extrema
-        if (Objects.compare(y2, yDomainMin!) < 0) {
+        if (Values.compare(y2, yDomainMin!) < 0) {
           yDomainMin = y2;
-        } else if (Objects.compare(yDomainMax!, y2) < 0) {
+        } else if (Values.compare(yDomainMax!, y2) < 0) {
           yDomainMax = y2;
         }
         if (dy2 !== void 0) {
-          if (Objects.compare(dy2, yDomainMin!) < 0) {
+          if (Values.compare(dy2, yDomainMin!) < 0) {
             yDomainMin = dy2;
-          } else if (Objects.compare(yDomainMax!, dy2) < 0) {
+          } else if (Values.compare(yDomainMax!, dy2) < 0) {
             yDomainMax = dy2;
           }
         }
@@ -522,9 +522,9 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
       let category: DataPointCategory;
       if (point0 !== void 0) {
         // categorize end point
-        if (Objects.compare(y0!, y1!) < 0) {
+        if (Values.compare(y0!, y1!) < 0) {
           category = "increasing";
-        } else if (Objects.compare(y1!, y0!) < 0) {
+        } else if (Values.compare(y1!, y0!) < 0) {
           category = "decreasing";
         } else {
           category = "flat";

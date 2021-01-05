@@ -18,7 +18,7 @@ export interface Mood {
   readonly name: string;
 }
 
-export const Mood: {
+export const Mood = {} as {
   ambient: MoodVector; // defined by moods
   default: MoodVector; // defined by moods
 
@@ -39,4 +39,4 @@ export const Mood: {
   nested: MoodVector; // defined by moods
 
   hovering: MoodVector; // defined by moods
-} = {} as any;
+};

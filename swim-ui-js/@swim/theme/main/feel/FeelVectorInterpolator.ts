@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Objects} from "@swim/util";
+import {Values} from "@swim/util";
 import {Interpolator} from "@swim/interpolate";
 import {Look} from "../look/Look";
 import {FeelVector} from "./FeelVector";
@@ -78,7 +78,7 @@ export class FeelVectorInterpolator extends Interpolator<FeelVector> {
       const n = this._array.length;
       if (n === that._array.length) {
         for (let i = 0; i < n; i += 1) {
-          if (!Objects.equal(this._array[i], that._array[i])) {
+          if (!Values.equal(this._array[i], that._array[i])) {
             return false;
           }
         }

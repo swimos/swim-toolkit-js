@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Objects} from "@swim/util";
+import {Equals, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
 import {Feel} from "../feel/Feel";
 
@@ -120,7 +120,7 @@ export class LookVector<T> implements Equals, Debug {
     if (this === that) {
       return true;
     } else if (that instanceof LookVector) {
-      return Objects.equal(this._array, that._array);
+      return Arrays.equal(this._array, that._array);
     }
     return false;
   }

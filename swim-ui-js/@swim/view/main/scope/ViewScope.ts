@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Objects, FromAny} from "@swim/util";
+import {Values, FromAny} from "@swim/util";
 import {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, View} from "../View";
 import {StringViewScope} from "./StringViewScope";
@@ -495,7 +495,7 @@ ViewScope.prototype.setOwnState = function <T, U>(this: ViewScope<View, T, U>,
     newState = this.fromAny(newState);
   }
   this._scopeFlags &= ~ViewScope.InheritedFlag;
-  if (!Objects.equal(oldState, newState)) {
+  if (!Values.equal(oldState, newState)) {
     this.willSetState(newState as T, oldState);
     this.willUpdate(newState as T, oldState);
     this._state = newState as T;
@@ -540,7 +540,7 @@ ViewScope.prototype.updateInherited = function <T>(this: ViewScope<View, T>): vo
 
 ViewScope.prototype.update = function <T>(this: ViewScope<View, T>,
                                           newState: T, oldState: T): void {
-  if (!Objects.equal(oldState, newState)) {
+  if (!Values.equal(oldState, newState)) {
     this.willUpdate(newState, oldState);
     this._state = newState;
     this._scopeFlags |= ViewScope.ChangingFlag | ViewScope.UpdatedFlag;

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Murmur3, Objects} from "@swim/util";
+import {Murmur3, Numbers, Constructors} from "@swim/util";
 import {Output} from "@swim/codec";
 import {Item, Value} from "@swim/structure";
 import {AnyAngle, Angle} from "@swim/math";
@@ -115,10 +115,10 @@ export class HslColor extends Color {
 
   equivalentTo(that: AnyColor, epsilon?: number): boolean {
     that = Color.fromAny(that).hsl();
-    return Objects.equivalent(this.h, (that as HslColor).h, epsilon)
-        && Objects.equivalent(this.s, (that as HslColor).s, epsilon)
-        && Objects.equivalent(this.l, (that as HslColor).l, epsilon)
-        && Objects.equivalent(this.a, (that as HslColor).a, epsilon);
+    return Numbers.equivalent(this.h, (that as HslColor).h, epsilon)
+        && Numbers.equivalent(this.s, (that as HslColor).s, epsilon)
+        && Numbers.equivalent(this.l, (that as HslColor).l, epsilon)
+        && Numbers.equivalent(this.a, (that as HslColor).a, epsilon);
   }
 
   equals(other: unknown): boolean {
@@ -129,11 +129,8 @@ export class HslColor extends Color {
   }
 
   hashCode(): number {
-    if (HslColor._hashSeed === void 0) {
-      HslColor._hashSeed = Murmur3.seed(HslColor);
-    }
-    return Murmur3.mash(Murmur3.mix(Murmur3.mix(Murmur3.mix(Murmur3.mix(HslColor._hashSeed,
-        Murmur3.hash(this.h)), Murmur3.hash(this.s)), Murmur3.hash(this.l)), Murmur3.hash(this.a)));
+    return Murmur3.mash(Murmur3.mix(Murmur3.mix(Murmur3.mix(Murmur3.mix(Constructors.hash(HslColor),
+        Numbers.hash(this.h)), Numbers.hash(this.s)), Numbers.hash(this.l)), Numbers.hash(this.a)));
   }
 
   debug(output: Output): void {
@@ -170,8 +167,6 @@ export class HslColor extends Color {
     }
     return s;
   }
-
-  private static _hashSeed?: number;
 
   static transparent(): HslColor {
     return new HslColor(0, 0, 0, 0);

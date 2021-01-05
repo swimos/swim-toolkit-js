@@ -20,15 +20,16 @@ export interface TransitionObserver<T = unknown> {
   onInterrupt?(value: T | undefined): void;
 }
 
-/** @hidden */
-export const TransitionObserver = {
-  is(object: unknown): object is TransitionObserver {
-    if (typeof object === "object" && object !== null) {
-      const observer = object as TransitionObserver;
-      return typeof observer.onBegin === "function"
-          || typeof observer.onEnd === "function"
-          || typeof observer.onInterrupt === "function";
-    }
-    return false;
-  },
+export const TransitionObserver = {} as {
+  is(object: unknown): object is TransitionObserver;
+};
+
+TransitionObserver.is = function (object: unknown): object is TransitionObserver {
+  if (typeof object === "object" && object !== null) {
+    const observer = object as TransitionObserver;
+    return typeof observer.onBegin === "function"
+        || typeof observer.onEnd === "function"
+        || typeof observer.onInterrupt === "function";
+  }
+  return false;
 };

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Objects, FromAny} from "@swim/util";
+import {Values, FromAny} from "@swim/util";
 import {ComponentFlags, Component} from "../Component";
 import {StringComponentScope} from "./StringComponentScope";
 import {BooleanComponentScope} from "./BooleanComponentScope";
@@ -494,7 +494,7 @@ ComponentScope.prototype.setOwnState = function <T, U>(this: ComponentScope<Comp
     newState = this.fromAny(newState);
   }
   this._scopeFlags &= ~ComponentScope.InheritedFlag;
-  if (!Objects.equal(oldState, newState)) {
+  if (!Values.equal(oldState, newState)) {
     this.willSetState(newState as T, oldState);
     this.willUpdate(newState as T, oldState);
     this._state = newState as T;
@@ -539,7 +539,7 @@ ComponentScope.prototype.updateInherited = function <T>(this: ComponentScope<Com
 
 ComponentScope.prototype.update = function <T>(this: ComponentScope<Component, T>,
                                                newState: T, oldState: T): void {
-  if (!Objects.equal(oldState, newState)) {
+  if (!Values.equal(oldState, newState)) {
     this.willUpdate(newState, oldState);
     this._state = newState;
     this._scopeFlags |= ComponentScope.RevisingFlag | ComponentScope.UpdatedFlag;

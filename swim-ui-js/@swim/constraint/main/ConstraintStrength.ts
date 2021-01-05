@@ -18,29 +18,63 @@ export type ConstraintStrengthInit = "required" | "strong" | "medium" | "weak";
 
 export type ConstraintStrength = number;
 
-export const ConstraintStrength = {
-  Required: 1001001000,
-  Strong: 1000000,
-  Medium: 1000,
-  Weak: 1,
-  Unbound: -1,
+export const ConstraintStrength = {} as {
+  readonly Required: number;
+  readonly Strong: number;
+  readonly Medium: number;
+  readonly Weak: number;
+  readonly Unbound: number;
 
-  clip(strength: ConstraintStrength): ConstraintStrength {
-    return Math.min(Math.max(0, strength), ConstraintStrength.Required);
-  },
+  clip(strength: ConstraintStrength): ConstraintStrength;
 
-  fromAny(strength: AnyConstraintStrength): ConstraintStrength {
-    if (typeof strength === "number") {
-      return ConstraintStrength.clip(strength);
-    } else if (strength === "required") {
-      return ConstraintStrength.Required;
-    } else if (strength === "strong") {
-      return ConstraintStrength.Strong;
-    } else if (strength === "medium") {
-      return ConstraintStrength.Medium;
-    } else if (strength === "weak") {
-      return ConstraintStrength.Weak;
-    }
-    throw new TypeError("" + strength);
-  },
+  fromAny(strength: AnyConstraintStrength): ConstraintStrength;
+};
+
+Object.defineProperty(ConstraintStrength, "Required", {
+  value: 1001001000,
+  configurable: true,
+  enumerable: true,
+});
+
+Object.defineProperty(ConstraintStrength, "Strong", {
+  value: 1000000,
+  configurable: true,
+  enumerable: true,
+});
+
+Object.defineProperty(ConstraintStrength, "Medium", {
+  value: 1000,
+  configurable: true,
+  enumerable: true,
+});
+
+Object.defineProperty(ConstraintStrength, "Weak", {
+  value: 1,
+  configurable: true,
+  enumerable: true,
+});
+
+Object.defineProperty(ConstraintStrength, "Unbound", {
+  value: -1,
+  configurable: true,
+  enumerable: true,
+});
+
+ConstraintStrength.clip = function (strength: ConstraintStrength): ConstraintStrength {
+  return Math.min(Math.max(0, strength), ConstraintStrength.Required);
+};
+
+ConstraintStrength.fromAny = function (strength: AnyConstraintStrength): ConstraintStrength {
+  if (typeof strength === "number") {
+    return ConstraintStrength.clip(strength);
+  } else if (strength === "required") {
+    return ConstraintStrength.Required;
+  } else if (strength === "strong") {
+    return ConstraintStrength.Strong;
+  } else if (strength === "medium") {
+    return ConstraintStrength.Medium;
+  } else if (strength === "weak") {
+    return ConstraintStrength.Weak;
+  }
+  throw new TypeError("" + strength);
 };

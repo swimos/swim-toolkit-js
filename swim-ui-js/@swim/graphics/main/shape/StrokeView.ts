@@ -28,25 +28,27 @@ export interface StrokeView extends GraphicsView {
   readonly strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 }
 
-/** @hidden */
-export const StrokeView = {
-  /** @hidden */
-  is(object: unknown): object is StrokeView {
-    if (typeof object === "object" && object !== null) {
-      const view = object as StrokeView;
-      return view instanceof GraphicsView
-          && "stroke" in view
-          && "strokeWidth" in view;;
-    }
-    return false;
-  },
+export const StrokeView = {} as {
+  is(object: unknown): object is StrokeView;
 
-  initView(view: StrokeView, init: StrokeViewInit): void {
-    if (init.stroke !== void 0) {
-      view.stroke(init.stroke);
-    }
-    if (init.strokeWidth !== void 0) {
-      view.strokeWidth(init.strokeWidth);
-    }
-  },
+  initView(view: StrokeView, init: StrokeViewInit): void;
+};
+
+StrokeView.is = function (object: unknown): object is StrokeView {
+  if (typeof object === "object" && object !== null) {
+    const view = object as StrokeView;
+    return view instanceof GraphicsView
+        && "stroke" in view
+        && "strokeWidth" in view;;
+  }
+  return false;
+};
+
+StrokeView.initView = function (view: StrokeView, init: StrokeViewInit): void {
+  if (init.stroke !== void 0) {
+    view.stroke(init.stroke);
+  }
+  if (init.strokeWidth !== void 0) {
+    view.strokeWidth(init.strokeWidth);
+  }
 };

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Objects} from "@swim/util";
+import {Equals, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
 import {Look} from "../look/Look";
 import {AnyLookVector, LookVector} from "../look/LookVector";
@@ -380,7 +380,7 @@ export class ThemeMatrix implements Equals, Debug {
     if (this === that) {
       return true;
     } else if (that instanceof ThemeMatrix) {
-      return Objects.equal(this._colArray, that._colArray);
+      return Arrays.equal(this._colArray, that._colArray);
     }
     return false;
   }

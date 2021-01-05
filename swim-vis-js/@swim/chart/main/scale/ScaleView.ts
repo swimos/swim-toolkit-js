@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Objects} from "@swim/util";
+import {Values} from "@swim/util";
 import {Interpolator} from "@swim/interpolate";
 import {BoxR2} from "@swim/math";
 import {Scale, ContinuousScale, LinearScale, TimeScale} from "@swim/scale";
@@ -907,7 +907,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     const xRange = this.xRange();
     if (xRange !== void 0) {
       const xScale = this.xScale.ownValue;
-      if (xScale !== void 0 && !Objects.equal(xScale.range(), xRange)) {
+      if (xScale !== void 0 && !Values.equal(xScale.range(), xRange)) {
         this.xScale.setRange(xRange);
         this.requireUpdate(View.NeedsAnimate);
         this._scaleFlags |= ScaleView.RescaleFlag;
@@ -925,7 +925,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     const yRange = this.yRange();
     if (yRange !== void 0) {
       const yScale = this.yScale.ownValue;
-      if (yScale !== void 0 && !Objects.equal(yScale.range(), yRange)) {
+      if (yScale !== void 0 && !Values.equal(yScale.range(), yRange)) {
         this.yScale.setRange(yRange[1], yRange[0]);
         this.requireUpdate(View.NeedsAnimate);
         this._scaleFlags |= ScaleView.RescaleFlag;

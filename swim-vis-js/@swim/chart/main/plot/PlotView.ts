@@ -82,55 +82,68 @@ export interface PlotView<X, Y> extends GraphicsView, ScaleXYView<X, Y> {
   yDataRange(): readonly [number, number] | undefined;
 }
 
-export const PlotView = {
+export const PlotView = {} as {
+  is<X, Y>(object: unknown): object is PlotView<X, Y>;
+
+  fromType<X, Y>(type: PlotType): PlotView<X, Y>;
+
+  fromInit<X, Y>(init: PlotViewInit<X, Y>): PlotView<X, Y>;
+
+  fromAny<X, Y>(value: AnyPlotView<X, Y>): PlotView<X, Y>;
+
+  // Forward type declarations
   /** @hidden */
-  is<X, Y>(object: unknown): object is PlotView<X, Y> {
-    if (typeof object === "object" && object !== null) {
-      const view = object as PlotView<X, Y>;
-      return view instanceof PlotView.Scatter
-          || view instanceof PlotView.Series
-          || view instanceof GraphicsView && "plotType" in view;
-    }
-    return false;
-  },
+  Scatter: typeof ScatterPlotView,
+  /** @hidden */
+  Series: typeof SeriesPlotView,
+  /** @hidden */
+  Bubble: typeof BubblePlotView,
+  /** @hidden */
+  Line: typeof LinePlotView,
+  /** @hidden */
+  Area: typeof AreaPlotView,
+};
 
-  fromType<X, Y>(type: PlotType): PlotView<X, Y> {
-    if (type === "bubble") {
-      return new PlotView.Bubble();
-    } else if (type === "line") {
-      return new PlotView.Line();
-    } else if (type === "area") {
-      return new PlotView.Area();
-    }
-    throw new TypeError("" + type);
-  },
+PlotView.is = function <X, Y>(object: unknown): object is PlotView<X, Y> {
+  if (typeof object === "object" && object !== null) {
+    const view = object as PlotView<X, Y>;
+    return view instanceof PlotView.Scatter
+        || view instanceof PlotView.Series
+        || view instanceof GraphicsView && "plotType" in view;
+  }
+  return false;
+};
 
-  fromInit<X, Y>(init: PlotViewInit<X, Y>): PlotView<X, Y> {
-    const type = init.plotType;
-    if (type === "bubble") {
-      return PlotView.Bubble.fromInit(init as BubblePlotViewInit<X, Y>);
-    } else if (type === "line") {
-      return PlotView.Line.fromInit(init as LinePlotViewInit<X, Y>);
-    } else if (type === "area") {
-      return PlotView.Area.fromInit(init as AreaPlotViewInit<X, Y>);
-    }
-    throw new TypeError("" + init);
-  },
+PlotView.fromType = function <X, Y>(type: PlotType): PlotView<X, Y> {
+  if (type === "bubble") {
+    return new PlotView.Bubble();
+  } else if (type === "line") {
+    return new PlotView.Line();
+  } else if (type === "area") {
+    return new PlotView.Area();
+  }
+  throw new TypeError("" + type);
+};
 
-  fromAny<X, Y>(value: AnyPlotView<X, Y>): PlotView<X, Y> {
-    if (this.is(value)) {
-      return value;
-    } else if (typeof value === "string") {
-      return this.fromType(value);
-    } else if (typeof value === "object" && value !== null) {
-      return this.fromInit(value);
-    }
-    throw new TypeError("" + value);
-  },
+PlotView.fromInit = function <X, Y>(init: PlotViewInit<X, Y>): PlotView<X, Y> {
+  const type = init.plotType;
+  if (type === "bubble") {
+    return PlotView.Bubble.fromInit(init as BubblePlotViewInit<X, Y>);
+  } else if (type === "line") {
+    return PlotView.Line.fromInit(init as LinePlotViewInit<X, Y>);
+  } else if (type === "area") {
+    return PlotView.Area.fromInit(init as AreaPlotViewInit<X, Y>);
+  }
+  throw new TypeError("" + init);
+};
 
-  Scatter: void 0 as unknown as typeof ScatterPlotView,
-  Series: void 0 as unknown as typeof SeriesPlotView,
-  Bubble: void 0 as unknown as typeof BubblePlotView,
-  Line: void 0 as unknown as typeof LinePlotView,
-  Area: void 0 as unknown as typeof AreaPlotView,
+PlotView.fromAny = function <X, Y>(value: AnyPlotView<X, Y>): PlotView<X, Y> {
+  if (this.is(value)) {
+    return value;
+  } else if (typeof value === "string") {
+    return this.fromType(value);
+  } else if (typeof value === "object" && value !== null) {
+    return this.fromInit(value);
+  }
+  throw new TypeError("" + value);
 };

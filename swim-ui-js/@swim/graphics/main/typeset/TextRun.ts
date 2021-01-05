@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Objects} from "@swim/util";
+import {Equals} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
@@ -130,7 +130,7 @@ export class TextRun implements Graphics, Equals, Debug {
       if (textOrigin !== null) {
         textOrigin = PointR2.fromAny(textOrigin);
       }
-      if (Objects.equal(this._textOrigin, textOrigin)) {
+      if (Equals.equal(this._textOrigin, textOrigin)) {
         return this;
       } else {
         return this.copy(this._text, this._font, this._textAlign,
@@ -148,7 +148,7 @@ export class TextRun implements Graphics, Equals, Debug {
       if (textColor !== null) {
         textColor = Color.fromAny(textColor);
       }
-      if (Objects.equal(this._textColor, textColor)) {
+      if (Equals.equal(this._textColor, textColor)) {
         return this;
       } else {
         return this.copy(this._text, this._font, this._textAlign,
@@ -224,11 +224,11 @@ export class TextRun implements Graphics, Equals, Debug {
       return true;
     } else if (that instanceof TextRun) {
       return this._text === that._text
-          && Objects.equal(this._font, that._font)
+          && Equals.equal(this._font, that._font)
           && this._textAlign === that._textAlign
           && this._textBaseline === that._textBaseline
-          && Objects.equal(this._textOrigin, that._textOrigin)
-          && Objects.equal(this._textColor, that._textColor);
+          && Equals.equal(this._textOrigin, that._textOrigin)
+          && Equals.equal(this._textColor, that._textColor);
     }
     return false;
   }

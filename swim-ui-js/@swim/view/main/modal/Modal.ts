@@ -34,17 +34,18 @@ export interface Modal {
   hideModal(tween?: Tween<any>): void;
 }
 
-/** @hidden */
-export const Modal = {
-  is(object: unknown): object is Modal {
-    if (typeof object === "object" && object !== null) {
-      const modal = object as Modal;
-      return "modalView" in modal
-          && "modalState" in modal
-          && "modality" in modal
-          && typeof modal.showModal === "function"
-          && typeof modal.hideModal === "function";
-    }
-    return false;
-  },
+export const Modal = {} as {
+  is(object: unknown): object is Modal;
+};
+
+Modal.is = function (object: unknown): object is Modal {
+  if (typeof object === "object" && object !== null) {
+    const modal = object as Modal;
+    return "modalView" in modal
+        && "modalState" in modal
+        && "modality" in modal
+        && typeof modal.showModal === "function"
+        && typeof modal.hideModal === "function";
+  }
+  return false;
 };

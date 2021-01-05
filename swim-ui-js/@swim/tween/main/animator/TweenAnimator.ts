@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Objects} from "@swim/util";
+import {Values} from "@swim/util";
 import {Interpolator} from "@swim/interpolate";
 import {AnyEase, Ease} from "../ease/Ease";
 import {Tween, AnyTransition, Transition} from "../transition/Transition";
@@ -198,7 +198,7 @@ export abstract class TweenAnimator<T> extends Animator {
       this.cancel();
       this.update(newState, oldValue);
       this.didSetState(newState, oldState);
-    } else if (!Objects.equal(oldState, newState)) {
+    } else if (!Values.equal(oldState, newState)) {
       this.willSetState(newState, oldState);
       if (tween !== true) {
         const interrupts = this._observers; // get current transition observers
@@ -263,7 +263,7 @@ export abstract class TweenAnimator<T> extends Animator {
       if ((this._animatorFlags & TweenAnimator.DivergedFlag) !== 0) {
         this._animatorFlags &= ~TweenAnimator.DivergedFlag;
         this.doBegin(this._value);
-        if (!Objects.equal(this._value, this._state)) {
+        if (!Values.equal(this._value, this._state)) {
           this._baseTime = t;
         } else {
           this.tween(1);
@@ -303,7 +303,7 @@ export abstract class TweenAnimator<T> extends Animator {
   }
 
   update(newValue: T, oldValue: T): void {
-    if (!Objects.equal(oldValue, newValue)) {
+    if (!Values.equal(oldValue, newValue)) {
       this.willUpdate(newValue, oldValue);
       this._value = newValue;
       this._animatorFlags |= TweenAnimator.UpdatedFlag;

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equivalent, Equals, Objects} from "@swim/util"
+import {Equivalent, Equals} from "@swim/util"
 import {AnyLength, Length} from "@swim/math";
 import {AnyTreeRoot, TreeRoot} from "./TreeRoot";
 
@@ -215,8 +215,8 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
     if (this === that) {
       return true;
     } else if (that instanceof TreeSeed) {
-      return Objects.equal(this._width, that._width) && Objects.equal(this._left, that._left)
-          && Objects.equal(this._right, that._right) && Objects.equal(this._roots, that._roots);
+      return Equals.equal(this._width, that._width) && Equals.equal(this._left, that._left)
+          && Equals.equal(this._right, that._right) && Equals.equal(this._roots, that._roots);
     }
     return false;
   }

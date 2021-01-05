@@ -27,13 +27,14 @@ export interface ViewContext {
   readonly viewport: Viewport;
 }
 
-/** @hidden */
-export const ViewContext = {
-  default(): ViewContext {
-    return {
-      updateTime: performance.now(),
-      viewIdiom: "unspecified",
-      viewport: Viewport.detect(),
-    };
-  },
+export const ViewContext = {} as {
+  default(): ViewContext;
+};
+
+ViewContext.default = function (): ViewContext {
+  return {
+    updateTime: performance.now(),
+    viewIdiom: "unspecified",
+    viewport: Viewport.detect(),
+  };
 };

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equivalent, Equals, Objects} from "@swim/util";
+import {Equivalent, Equals, Arrays, Values} from "@swim/util";
 import {Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Angle} from "@swim/math";
 import {AnyColorStop, ColorStop} from "../stop/ColorStop";
@@ -77,16 +77,16 @@ export class LinearGradient implements Equivalent<AnyLinearGradient>, Equals {
 
   equivalentTo(that: AnyLinearGradient, epsilon?: number): boolean {
     that = LinearGradient.fromAny(that);
-    return Objects.equivalent(this._angle, that._angle, epsilon)
-        && Objects.equivalent(this._stops, that._stops, epsilon);
+    return Values.equivalent(this._angle, that._angle, epsilon)
+        && Arrays.equivalent(this._stops, that._stops, epsilon);
   }
 
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
     } else if (that instanceof LinearGradient) {
-      return Objects.equal(this._angle, that._angle)
-          && Objects.equal(this._stops, that._stops);
+      return Values.equal(this._angle, that._angle)
+          && Arrays.equal(this._stops, that._stops);
     }
     return false;
   }

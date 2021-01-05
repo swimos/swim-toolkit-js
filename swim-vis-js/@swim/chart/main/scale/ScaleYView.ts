@@ -33,15 +33,15 @@ export interface ScaleYView<Y = unknown> extends GraphicsView {
   yDataRange(): readonly [number, number] | undefined;
 }
 
-/** @hidden */
-export const ScaleYView = {
-  /** @hidden */
-  is<X>(object: unknown): object is ScaleYView<X> {
-    if (typeof object === "object" && object !== null) {
-      const view = object as ScaleYView<X>;
-      return view instanceof ScaleView
-          || view instanceof GraphicsView && "yScale" in view;
-    }
-    return false;
-  },
-}
+export const ScaleYView = {} as {
+  is<Y>(object: unknown): object is ScaleYView<Y>
+};
+
+ScaleYView.is = function <Y>(object: unknown): object is ScaleYView<Y> {
+  if (typeof object === "object" && object !== null) {
+    const view = object as ScaleYView<Y>;
+    return view instanceof ScaleView
+        || view instanceof GraphicsView && "yScale" in view;
+  }
+  return false;
+};

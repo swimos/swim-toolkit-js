@@ -39,11 +39,11 @@ export interface CssContext extends AnimatorContext {
 }
 
 /** @hidden */
-export const CssContext: {
+export const CssContext = {} as {
   getCssRuleConstructor(ruleName: string, contextClass: CssContextClass | null): CssRuleConstructor<any> | null;
   decorateCssRule<V extends CssContext>(constructor: CssRuleConstructor<V>,
                                         contextClass: CssContextClass, ruleName: string): void;
-} = {} as any;
+};
 
 CssContext.getCssRuleConstructor = function (ruleName: string, contextClass: CssContextClass | null): CssRuleConstructor<any> | null {
   if (contextClass === null) {

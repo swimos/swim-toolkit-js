@@ -24,21 +24,23 @@ export interface FillView extends GraphicsView {
   readonly fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 }
 
-/** @hidden */
-export const FillView = {
-  /** @hidden */
-  is(object: unknown): object is FillView {
-    if (typeof object === "object" && object !== null) {
-      const view = object as FillView;
-      return view instanceof GraphicsView
-          && "fill" in view;
-    }
-    return false;
-  },
+export const FillView = {} as {
+  is(object: unknown): object is FillView;
 
-  initView(view: FillView, init: FillViewInit): void {
-    if (init.fill !== void 0) {
-      view.fill(init.fill);
-    }
-  },
+  initView(view: FillView, init: FillViewInit): void;
+};
+
+FillView.is = function (object: unknown): object is FillView {
+  if (typeof object === "object" && object !== null) {
+    const view = object as FillView;
+    return view instanceof GraphicsView
+        && "fill" in view;
+  }
+  return false;
+};
+
+FillView.initView = function (view: FillView, init: FillViewInit): void {
+  if (init.fill !== void 0) {
+    view.fill(init.fill);
+  }
 };

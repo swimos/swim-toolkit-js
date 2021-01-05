@@ -20,15 +20,15 @@ import {ScaleView} from "./ScaleView";
 export interface ScaleXYView<X = unknown, Y = unknown> extends GraphicsView, ScaleXView<X>, ScaleYView<Y> {
 }
 
-/** @hidden */
-export const ScaleXYView = {
-  /** @hidden */
-  is<X>(object: unknown): object is ScaleXYView<X> {
-    if (typeof object === "object" && object !== null) {
-      const view = object as ScaleXYView<X>;
-      return view instanceof ScaleView
-          || view instanceof GraphicsView && "xScale" in view && "yScale" in view;
-    }
-    return false;
-  },
-}
+export const ScaleXYView = {} as {
+  is<X, Y>(object: unknown): object is ScaleXYView<X, Y>;
+};
+
+ScaleXYView.is = function <X, Y>(object: unknown): object is ScaleXYView<X, Y> {
+  if (typeof object === "object" && object !== null) {
+    const view = object as ScaleXYView<X, Y>;
+    return view instanceof ScaleView
+        || view instanceof GraphicsView && "xScale" in view && "yScale" in view;
+  }
+  return false;
+};

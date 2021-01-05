@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equivalent, Equals, Objects} from "@swim/util";
+import {Equivalent, Equals, Values} from "@swim/util";
 import {Output, Parser, Debug, Diagnostic, Unicode} from "@swim/codec";
 import {Value, Form} from "@swim/structure";
 import {FontStyle} from "./FontStyle";
@@ -147,7 +147,7 @@ export class Font implements Equivalent<AnyFont>, Equals, Debug {
       return this._size;
     } else {
       size = size !== void 0 ? FontSize.fromAny(size) : void 0;
-      if (Objects.equal(this._size, size)) {
+      if (Values.equal(this._size, size)) {
         return this;
       } else {
         return new Font(this._style, this._variant, this._weight, this._stretch,
@@ -163,7 +163,7 @@ export class Font implements Equivalent<AnyFont>, Equals, Debug {
       return this._height;
     } else {
       height = height !== void 0 ? LineHeight.fromAny(height) : void 0;
-      if (Objects.equal(this._height, height)) {
+      if (Values.equal(this._height, height)) {
         return this;
       } else {
         return new Font(this._style, this._variant, this._weight, this._stretch,
@@ -178,7 +178,7 @@ export class Font implements Equivalent<AnyFont>, Equals, Debug {
     if (family === void 0) {
       return (Array.isArray(this._family) ? this._family.slice(0) : this._family) as FontFamily | FontFamily[];
     } else {
-      if (Objects.equal(this._family, family)) {
+      if (Values.equal(this._family, family)) {
         return this;
       } else {
         if (Array.isArray(family) && family.length === 1) {
@@ -206,9 +206,9 @@ export class Font implements Equivalent<AnyFont>, Equals, Debug {
     that = Font.fromAny(that);
     return this._style === that._style && this._variant === that._variant
         && this._weight === that._weight && this._stretch === that._stretch
-        && Objects.equivalent(this._size, that._size, epsilon)
-        && Objects.equivalent(this._height, that._height, epsilon)
-        && Objects.equivalent(this._family, that._family, epsilon);
+        && Values.equivalent(this._size, that._size, epsilon)
+        && Values.equivalent(this._height, that._height, epsilon)
+        && Values.equivalent(this._family, that._family, epsilon);
   }
 
   equals(that: unknown): boolean {
@@ -217,9 +217,9 @@ export class Font implements Equivalent<AnyFont>, Equals, Debug {
     } else if (that instanceof Font) {
       return this._style === that._style && this._variant === that._variant
           && this._weight === that._weight && this._stretch === that._stretch
-          && Objects.equal(this._size, that._size)
-          && Objects.equal(this._height, that._height)
-          && Objects.equal(this._family, that._family);
+          && Values.equal(this._size, that._size)
+          && Values.equal(this._height, that._height)
+          && Values.equal(this._family, that._family);
     }
     return false;
   }

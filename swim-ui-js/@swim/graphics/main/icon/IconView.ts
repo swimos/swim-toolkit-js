@@ -44,55 +44,57 @@ export interface IconView extends View {
   readonly graphics: ViewAnimator<this, Graphics | undefined>;
 }
 
-/** @hidden */
-export const IconView = {
-  /** @hidden */
-  is(object: unknown): object is IconView {
-    if (typeof object === "object" && object !== null) {
-      const view = object as IconView;
-      return view instanceof IconView.Graphics
-          || view instanceof IconView.Path
-          || view instanceof IconView.Svg
-          || view instanceof IconView.Html
-          || view instanceof View
-          && "xAlign" in view
-          && "yAlign" in view
-          && "iconWidth" in view
-          && "iconHeight" in view
-          && "iconColor" in view
-          && "graphics" in view;
-    }
-    return false;
-  },
+export const IconView = {} as {
+  is(object: unknown): object is IconView;
 
-  initView(view: IconView, init: IconViewInit): void {
-    if (init.xAlign !== void 0) {
-      view.xAlign(init.xAlign);
-    }
-    if (init.yAlign !== void 0) {
-      view.yAlign(init.yAlign);
-    }
-    if (init.iconWidth !== void 0) {
-      view.iconWidth(init.iconWidth);
-    }
-    if (init.iconHeight !== void 0) {
-      view.iconHeight(init.iconHeight);
-    }
-    if (init.iconColor !== void 0) {
-      view.iconColor(init.iconColor);
-    }
-    if (init.graphics !== void 0) {
-      view.graphics(init.graphics);
-    }
-  },
+  initView(view: IconView, init: IconViewInit): void;
 
   // Forward type declarations
   /** @hidden */
-  Graphics: void 0 as unknown as typeof GraphicsIconView, // defined by GraphicsIconView
+  Graphics: typeof GraphicsIconView, // defined by GraphicsIconView
   /** @hidden */
-  Path: void 0 as unknown as typeof SvgIconPathView, // defined by PathIconView
+  Path: typeof SvgIconPathView, // defined by PathIconView
   /** @hidden */
-  Svg: void 0 as unknown as typeof SvgIconView, // defined by SvgIconView
+  Svg: typeof SvgIconView, // defined by SvgIconView
   /** @hidden */
-  Html: void 0 as unknown as typeof HtmlIconView, // defined by HtmlIconView
+  Html: typeof HtmlIconView, // defined by HtmlIconView
+};
+
+IconView.is = function (object: unknown): object is IconView {
+  if (typeof object === "object" && object !== null) {
+    const view = object as IconView;
+    return view instanceof IconView.Graphics
+        || view instanceof IconView.Path
+        || view instanceof IconView.Svg
+        || view instanceof IconView.Html
+        || view instanceof View
+        && "xAlign" in view
+        && "yAlign" in view
+        && "iconWidth" in view
+        && "iconHeight" in view
+        && "iconColor" in view
+        && "graphics" in view;
+  }
+  return false;
+};
+
+IconView.initView = function (view: IconView, init: IconViewInit): void {
+  if (init.xAlign !== void 0) {
+    view.xAlign(init.xAlign);
+  }
+  if (init.yAlign !== void 0) {
+    view.yAlign(init.yAlign);
+  }
+  if (init.iconWidth !== void 0) {
+    view.iconWidth(init.iconWidth);
+  }
+  if (init.iconHeight !== void 0) {
+    view.iconHeight(init.iconHeight);
+  }
+  if (init.iconColor !== void 0) {
+    view.iconColor(init.iconColor);
+  }
+  if (init.graphics !== void 0) {
+    view.graphics(init.graphics);
+  }
 };

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Objects} from "@swim/util";
+import {Equals, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
 import {Feel} from "../feel/Feel";
 import {Mood} from "./Mood";
@@ -453,7 +453,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     if (this === that) {
       return true;
     } else if (that instanceof MoodMatrix) {
-      const equal = Objects.equal(this._colArray, that._colArray);
+      const equal = Arrays.equal(this._colArray, that._colArray);
       return equal;
     }
     return false;

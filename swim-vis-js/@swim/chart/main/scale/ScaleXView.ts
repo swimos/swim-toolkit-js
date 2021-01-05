@@ -33,15 +33,15 @@ export interface ScaleXView<X = unknown> extends GraphicsView {
   xDataRange(): readonly [number, number] | undefined;
 }
 
-/** @hidden */
-export const ScaleXView = {
-  /** @hidden */
-  is<X>(object: unknown): object is ScaleXView<X> {
-    if (typeof object === "object" && object !== null) {
-      const view = object as ScaleXView<X>;
-      return view instanceof ScaleView
-          || view instanceof GraphicsView && "xScale" in view;
-    }
-    return false;
-  },
-}
+export const ScaleXView = {} as {
+  is<X>(object: unknown): object is ScaleXView<X>;
+};
+
+ScaleXView.is = function <X>(object: unknown): object is ScaleXView<X> {
+  if (typeof object === "object" && object !== null) {
+    const view = object as ScaleXView<X>;
+    return view instanceof ScaleView
+        || view instanceof GraphicsView && "xScale" in view;
+  }
+  return false;
+};

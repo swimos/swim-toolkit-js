@@ -19,14 +19,16 @@ export interface EsriProjection extends GeoProjection {
 }
 
 /** @hidden */
-export const EsriProjection = {
-  webMercatorUtils: void 0 as __esri.webMercatorUtils | undefined,
+export const EsriProjection = {} as {
+  webMercatorUtils: __esri.webMercatorUtils | undefined;
 
-  init(): void {
-    if (EsriProjection.webMercatorUtils === void 0) {
-      (window.require as any)(["esri/geometry/support/webMercatorUtils"], function (webMercatorUtils: __esri.webMercatorUtils): void {
-        EsriProjection.webMercatorUtils = webMercatorUtils;
-      });
-    }
-  },
-}
+  init(): void;
+};
+
+EsriProjection.init = function (): void {
+  if (EsriProjection.webMercatorUtils === void 0) {
+    (window.require as any)(["esri/geometry/support/webMercatorUtils"], function (webMercatorUtils: __esri.webMercatorUtils): void {
+      EsriProjection.webMercatorUtils = webMercatorUtils;
+    });
+  }
+};

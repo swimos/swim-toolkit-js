@@ -21,11 +21,12 @@ export interface ComponentContext {
   readonly updateTime: number;
 }
 
-/** @hidden */
-export const ComponentContext = {
-  default(): ComponentContext {
-    return {
-      updateTime: performance.now(),
-    };
-  },
+export const ComponentContext = {} as {
+  default(): ComponentContext;
+};
+
+ComponentContext.default = function (): ComponentContext {
+  return {
+    updateTime: performance.now(),
+  };
 };

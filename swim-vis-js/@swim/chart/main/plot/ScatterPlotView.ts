@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Objects} from "@swim/util";
+import {Values} from "@swim/util";
 import {BoxR2} from "@swim/math";
 import {ContinuousScale} from "@swim/scale";
 import {Tween} from "@swim/tween";
@@ -168,10 +168,10 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
         const point = childViews[i];
         if (point instanceof DataPointView) {
           const x = point.x.value;
-          if (xDataDomainMin === void 0 || Objects.compare(x, xDataDomainMin) < 0) {
+          if (xDataDomainMin === void 0 || Values.compare(x, xDataDomainMin) < 0) {
             xDataDomainMin = x;
           }
-          if (xDataDomainMax === void 0 || Objects.compare(xDataDomainMax, x) < 0) {
+          if (xDataDomainMax === void 0 || Values.compare(xDataDomainMax, x) < 0) {
             xDataDomainMax = x;
           }
         }
@@ -194,10 +194,10 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
         const point = childViews[i];
         if (point instanceof DataPointView) {
           const y = point.y.value;
-          if (yDataDomainMin === void 0 || Objects.compare(y, yDataDomainMin) < 0) {
+          if (yDataDomainMin === void 0 || Values.compare(y, yDataDomainMin) < 0) {
             yDataDomainMin = y;
           }
-          if (yDataDomainMax === void 0 || Objects.compare(yDataDomainMax, y) < 0) {
+          if (yDataDomainMax === void 0 || Values.compare(yDataDomainMax, y) < 0) {
             yDataDomainMax = y;
           }
         }
@@ -310,14 +310,14 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
 
         if (point0 !== void 0) {
           // compute extrema
-          if (Objects.compare(x1, xDomainMin!) < 0) {
+          if (Values.compare(x1, xDomainMin!) < 0) {
             xDomainMin = x1;
-          } else if (Objects.compare(xDomainMax!, x1) < 0) {
+          } else if (Values.compare(xDomainMax!, x1) < 0) {
             xDomainMax = x1;
           }
-          if (Objects.compare(y1, yDomainMin!) < 0) {
+          if (Values.compare(y1, yDomainMin!) < 0) {
             yDomainMin = y1;
-          } else if (Objects.compare(yDomainMax!, y1) < 0) {
+          } else if (Values.compare(yDomainMax!, y1) < 0) {
             yDomainMax = y1;
           }
           if (sx1 < xRangeMin!) {

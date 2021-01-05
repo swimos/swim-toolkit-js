@@ -31,22 +31,60 @@ export interface Ease {
   type?: EaseType;
 }
 
-function linear(t: number): number {
+export const Ease = {} as {
+  linear: Ease;
+  quadIn: Ease;
+  quadOut: Ease;
+  quadInOut: Ease;
+  cubicIn: Ease;
+  cubicOut: Ease;
+  cubicInOut: Ease;
+  quartIn: Ease;
+  quartOut: Ease;
+  quartInOut: Ease;
+  expoIn: Ease;
+  expoOut: Ease;
+  expoInOut: Ease;
+  circIn: Ease;
+  circOut: Ease;
+  circInOut: Ease;
+  backIn: Ease;
+  backOut: Ease;
+  backInOut: Ease;
+  elasticIn: Ease;
+  elasticOut: Ease;
+  elasticInOut: Ease;
+  bounceIn: Ease;
+  bounceOut: Ease;
+  bounceInOut: Ease;
+
+  fromAny(value: AnyEase): Ease;
+
+  /** @hidden */
+  _form: Form<Ease, AnyEase> | undefined;
+  form(unit?: AnyEase): Form<Ease, AnyEase>;
+
+  // Forward type declarations
+  /** @hidden */
+  Form: typeof EaseForm, // defined by EaseForm
+};
+
+Ease.linear = function linear(t: number): number {
   return t;
 }
-linear.type = "linear";
+Ease.linear.type = "linear";
 
-function quadIn(t: number): number {
+Ease.quadIn = function quadIn(t: number): number {
   return t * t;
 }
-quadIn.type = "quad-in";
+Ease.quadIn.type = "quad-in";
 
-function quadOut(t: number): number {
+Ease.quadOut = function quadOut(t: number): number {
   return t * (2 - t);
 }
-quadOut.type = "quad-out";
+Ease.quadOut.type = "quad-out";
 
-function quadInOut(t: number): number {
+Ease.quadInOut = function quadInOut(t: number): number {
   t *= 2;
   if (t <= 1) {
     t = t * t;
@@ -58,22 +96,22 @@ function quadInOut(t: number): number {
   t /= 2;
   return t;
 }
-quadInOut.type = "quad-in-out";
+Ease.quadInOut.type = "quad-in-out";
 
-function cubicIn(t: number): number {
+Ease.cubicIn = function cubicIn(t: number): number {
   return t * t * t;
 }
-cubicIn.type = "cubic-in";
+Ease.cubicIn.type = "cubic-in";
 
-function cubicOut(t: number): number {
+Ease.cubicOut = function cubicOut(t: number): number {
   t -= 1;
   t = t * t * t;
   t += 1;
   return t;
 }
-cubicOut.type = "cubic-out";
+Ease.cubicOut.type = "cubic-out";
 
-function cubicInOut(t: number): number {
+Ease.cubicInOut = function cubicInOut(t: number): number {
   t *= 2;
   if (t <= 1) {
     t = t * t * t;
@@ -85,42 +123,42 @@ function cubicInOut(t: number): number {
   t /= 2;
   return t;
 }
-cubicInOut.type = "cubic-in-out";
+Ease.cubicInOut.type = "cubic-in-out";
 
-function quartIn(t: number): number {
+Ease.quartIn = function quartIn(t: number): number {
   return t * t * t * t;
 }
-quartIn.type = "quart-in";
+Ease.quartIn.type = "quart-in";
 
-function quartOut(t: number): number {
+Ease.quartOut = function quartOut(t: number): number {
   t -= 1;
   return 1 - t * t * t * t;
 }
-quartOut.type = "quart-out";
+Ease.quartOut.type = "quart-out";
 
-function quartInOut(t: number): number {
+Ease.quartInOut = function quartInOut(t: number): number {
   const t1 = t - 1;
   return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * t1 * t1 * t1 * t1;
 }
-quartInOut.type = "quart-in-out";
+Ease.quartInOut.type = "quart-in-out";
 
-function expoIn(t: number): number {
+Ease.expoIn = function expoIn(t: number): number {
   if (t === 0) {
     return 0;
   }
   return Math.pow(2, 10 * ( t - 1) );
 }
-expoIn.type = "expo-in";
+Ease.expoIn.type = "expo-in";
 
-function expoOut(t: number): number {
+Ease.expoOut = function expoOut(t: number): number {
   if (t === 1) {
     return 1;
   }
   return (-Math.pow(2, -10 * t) + 1);
 }
-expoOut.type = "expo-out";
+Ease.expoOut.type = "expo-out";
 
-function expoInOut(t: number): number {
+Ease.expoInOut = function expoInOut(t: number): number {
   if (t === 1 || t === 0) {
     return t;
   }
@@ -130,20 +168,20 @@ function expoInOut(t: number): number {
   }
   return 0.5 * (-Math.pow(2, -10 * (t - 1)) + 2);
 }
-expoInOut.type = "expo-in-out";
+Ease.expoInOut.type = "expo-in-out";
 
-function circIn(t: number): number {
+Ease.circIn = function circIn(t: number): number {
   return -1 * (Math.sqrt(1 - (t / 1) * t) - 1);
 }
-circIn.type = "circ-in";
+Ease.circIn.type = "circ-in";
 
-function circOut(t: number): number {
+Ease.circOut = function circOut(t: number): number {
   t -= 1;
   return Math.sqrt(1 - t * t);
 }
-circOut.type = "circ-out";
+Ease.circOut.type = "circ-out";
 
-function circInOut(t: number): number {
+Ease.circInOut = function circInOut(t: number): number {
   t *= 2;
   if (t < 1) {
     return -0.5 * (Math.sqrt(1 - t * t) - 1);
@@ -151,22 +189,22 @@ function circInOut(t: number): number {
   const st = t - 2;
   return 0.5 * (Math.sqrt(1 - st * st) + 1);
 }
-circInOut.type = "circ-in-out";
+Ease.circInOut.type = "circ-in-out";
 
-function backIn(t: number): number {
+Ease.backIn = function backIn(t: number): number {
   const m = 1.70158; // m - Magnitude
   return t * t * (( m + 1) * t - m);
 }
-backIn.type = "back-in";
+Ease.backIn.type = "back-in";
 
-function backOut(t: number): number {
+Ease.backOut = function backOut(t: number): number {
   const m = 1.70158;
   const st = (t / 1) - 1;
   return (st * st * ((m + 1) * m + m)) + 1;
 }
-backOut.type = "back-out";
+Ease.backOut.type = "back-out";
 
-function backInOut(t: number): number {
+Ease.backInOut = function backInOut(t: number): number {
   const m = 1.70158;
   const s = m * 1.525;
   if ((t *= 2) < 1) {
@@ -175,8 +213,9 @@ function backInOut(t: number): number {
   const st = t - 2;
   return 0.5 * (st * st * ((s + 1) * st + s) + 2);
 }
-backInOut.type = "back-in-out";
-function elasticIn(t: number): number {
+Ease.backInOut.type = "back-in-out";
+
+Ease.elasticIn = function elasticIn(t: number): number {
   if (t === 0 || t === 1) {
     return t;
   }
@@ -185,9 +224,9 @@ function elasticIn(t: number): number {
   const s = (1 - m) / 2 * Math.PI * Math.asin(1);
   return -(Math.pow(2, 10 * st) * Math.sin((st - s) * 2 * Math.PI / (1 - m)));
 }
-elasticIn.type = "elastic-in";
+Ease.elasticIn.type = "elastic-in";
 
-function elasticOut(t: number): number {
+Ease.elasticOut = function elasticOut(t: number): number {
   if (t === 0 || t === 1) {
     return t;
   }
@@ -196,9 +235,9 @@ function elasticOut(t: number): number {
   t *= 2;
   return (Math.pow(2, -10 * t) * Math.sin((t - s) * 2 * Math.PI / (1 - m))) + 1;
 }
-elasticOut.type = "elastic-out";
+Ease.elasticOut.type = "elastic-out";
 
-function elasticInOut(t: number): number {
+Ease.elasticInOut = function elasticInOut(t: number): number {
   if (t === 0 || t === 1) {
     return t;
   }
@@ -211,9 +250,9 @@ function elasticInOut(t: number): number {
   }
   return (Math.pow(2, -10 * st1) * Math.sin((st1 - s) * 2 * Math.PI / (1 - m)) * 0.5) + 1;
 }
-elasticInOut.type = "elastic-in-out";
+Ease.elasticInOut.type = "elastic-in-out";
 
-function bounceIn(t: number): number {
+Ease.bounceIn = function bounceIn(t: number): number {
   const p = 7.5625;
   if ((t = 1 - t) < 1 / 2.75) {
     return 1 - (p * t * t);
@@ -224,9 +263,9 @@ function bounceIn(t: number): number {
   }
   return 1 - (p * (t -= 2.625 / 2.75) * t + 0.984375);
 }
-bounceIn.type = "bounce-in";
+Ease.bounceIn.type = "bounce-in";
 
-function bounceOut(t: number): number {
+Ease.bounceOut = function bounceOut(t: number): number {
   const p = 7.5625;
   if (t < 1 / 2.75) {
     return p * t * t;
@@ -237,9 +276,9 @@ function bounceOut(t: number): number {
   }
   return p * (t -= 2.625 / 2.75) * t + 0.984375;
 }
-bounceOut.type = "bounce-out";
+Ease.bounceOut.type = "bounce-out";
 
-function bounceInOut(t: number): number {
+Ease.bounceInOut = function bounceInOut(t: number): number {
   const invert = t < 0.5;
   t = invert ? 1 - (t * 2) : (t * 2) - 1;
   const p = 7.5625;
@@ -254,87 +293,53 @@ function bounceInOut(t: number): number {
   }
   return invert ? (1 - t) * 0.5 : t * 0.5 + 0.5;
 }
-bounceInOut.type = "bounce-in-out";
+Ease.bounceInOut.type = "bounce-in-out";
 
-export const Ease = {
-  linear: linear as Ease,
-  quadIn: quadIn as Ease,
-  quadOut: quadOut as Ease,
-  quadInOut: quadInOut as Ease,
-  cubicIn: cubicIn as Ease,
-  cubicOut: cubicOut as Ease,
-  cubicInOut: cubicInOut as Ease,
-  quartIn: quartIn as Ease,
-  quartOut: quartOut as Ease,
-  quartInOut: quartInOut as Ease,
-  expoIn: expoIn as Ease,
-  expoOut: expoOut as Ease,
-  expoInOut: expoInOut as Ease,
-  circIn: circIn as Ease,
-  circOut: circOut as Ease,
-  circInOut: circInOut as Ease,
-  backIn: backIn as Ease,
-  backOut: backOut as Ease,
-  backInOut: backInOut as Ease,
-  elasticIn: elasticIn as Ease,
-  elasticOut: elasticOut as Ease,
-  elasticInOut: elasticInOut as Ease,
-  bounceIn: bounceIn as Ease,
-  bounceOut: bounceOut as Ease,
-  bounceInOut: bounceInOut as Ease,
-
-  fromAny(value: AnyEase): Ease {
-    if (typeof value === "function") {
-      return value;
-    } else if (typeof value === "string") {
-      switch (value) {
-        case "linear": return Ease.linear;
-        case "quad-in": return Ease.quadIn;
-        case "quad-out": return Ease.quadOut;
-        case "quad-in-out": return Ease.quadInOut;
-        case "cubic-in": return Ease.cubicIn;
-        case "cubic-out": return Ease.cubicOut;
-        case "cubic-in-out": return Ease.cubicInOut;
-        case "quart-in": return Ease.quartIn;
-        case "quart-out": return Ease.quartOut;
-        case "quart-in-out": return Ease.quartInOut;
-        case "expo-in": return Ease.expoIn;
-        case "expo-out": return Ease.expoOut;
-        case "expo-in-out": return Ease.expoInOut;
-        case "circ-in": return Ease.circIn;
-        case "circ-out": return Ease.circOut;
-        case "circ-in-out": return Ease.circInOut;
-        case "back-in": return Ease.backIn;
-        case "back-out": return Ease.backOut;
-        case "back-in-out": return Ease.backInOut;
-        case "elastic-in": return Ease.elasticIn;
-        case "elastic-out": return Ease.elasticOut;
-        case "elastic-in-out": return Ease.elasticInOut;
-        case "bounce-in": return Ease.bounceIn;
-        case "bounce-out": return Ease.bounceOut;
-        case "bounce-in-out": return Ease.bounceInOut;
-      }
+Ease.fromAny = function (value: AnyEase): Ease {
+  if (typeof value === "function") {
+    return value;
+  } else if (typeof value === "string") {
+    switch (value) {
+      case "linear": return Ease.linear;
+      case "quad-in": return Ease.quadIn;
+      case "quad-out": return Ease.quadOut;
+      case "quad-in-out": return Ease.quadInOut;
+      case "cubic-in": return Ease.cubicIn;
+      case "cubic-out": return Ease.cubicOut;
+      case "cubic-in-out": return Ease.cubicInOut;
+      case "quart-in": return Ease.quartIn;
+      case "quart-out": return Ease.quartOut;
+      case "quart-in-out": return Ease.quartInOut;
+      case "expo-in": return Ease.expoIn;
+      case "expo-out": return Ease.expoOut;
+      case "expo-in-out": return Ease.expoInOut;
+      case "circ-in": return Ease.circIn;
+      case "circ-out": return Ease.circOut;
+      case "circ-in-out": return Ease.circInOut;
+      case "back-in": return Ease.backIn;
+      case "back-out": return Ease.backOut;
+      case "back-in-out": return Ease.backInOut;
+      case "elastic-in": return Ease.elasticIn;
+      case "elastic-out": return Ease.elasticOut;
+      case "elastic-in-out": return Ease.elasticInOut;
+      case "bounce-in": return Ease.bounceIn;
+      case "bounce-out": return Ease.bounceOut;
+      case "bounce-in-out": return Ease.bounceInOut;
     }
-    throw new TypeError("" + value);
-  },
+  }
+  throw new TypeError("" + value);
+};
 
-  /** @hidden */
-  _form: void 0 as Form<Ease, AnyEase> | undefined,
-  form(unit?: AnyEase): Form<Ease, AnyEase> {
-    if (unit !== void 0) {
-      unit = Ease.fromAny(unit);
+Ease.form = function (unit?: AnyEase): Form<Ease, AnyEase> {
+  if (unit !== void 0) {
+    unit = Ease.fromAny(unit);
+  }
+  if (unit !== Ease.linear) {
+    return new Ease.Form(unit);
+  } else {
+    if (Ease._form === void 0) {
+      Ease._form = new Ease.Form(Ease.linear);
     }
-    if (unit !== Ease.linear) {
-      return new Ease.Form(unit);
-    } else {
-      if (Ease._form === void 0) {
-        Ease._form = new Ease.Form(Ease.linear);
-      }
-      return Ease._form;
-    }
-  },
-
-  // Forward type declarations
-  /** @hidden */
-  Form: void 0 as any as typeof EaseForm, // defined by EaseForm
+    return Ease._form;
+  }
 };

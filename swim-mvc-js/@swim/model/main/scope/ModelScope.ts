@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Objects, FromAny} from "@swim/util";
+import {Values, FromAny} from "@swim/util";
 import {ModelFlags, Model} from "../Model";
 import {Trait} from "../Trait";
 import {StringModelScope} from "./StringModelScope";
@@ -586,7 +586,7 @@ ModelScope.prototype.setOwnState = function <T, U>(this: ModelScope<Model, T, U>
       traitScope._scopeFlags &= ~ModelScope.InheritedFlag;
     }
   }
-  if (!Objects.equal(oldState, newState)) {
+  if (!Values.equal(oldState, newState)) {
     this.willSetState(newState as T, oldState);
     this.willUpdate(newState as T, oldState);
     this._state = newState as T;
@@ -632,7 +632,7 @@ ModelScope.prototype.updateInherited = function <T>(this: ModelScope<Model, T>):
 
 ModelScope.prototype.update = function <T>(this: ModelScope<Model, T>,
                                            newState: T, oldState: T): void {
-  if (!Objects.equal(oldState, newState)) {
+  if (!Values.equal(oldState, newState)) {
     this.willUpdate(newState, oldState);
     this._state = newState;
     this._scopeFlags |= ModelScope.MutatingFlag | ModelScope.UpdatedFlag;

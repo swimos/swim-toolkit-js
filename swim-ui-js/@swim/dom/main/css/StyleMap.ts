@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Objects} from "@swim/util";
+import {Equals, Values} from "@swim/util";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
 import {Tween} from "@swim/tween";
 import {AnyColor, Color, AnyLinearGradient, LinearGradient} from "@swim/color";
@@ -473,10 +473,10 @@ export interface StyleMap extends StyleContext {
 }
 
 /** @hidden */
-export const StyleMap: {
+export const StyleMap = {} as {
   init(map: StyleMap, init: StyleMapInit): void;
   define(prototype: StyleMap): void;
-} = {} as any;
+};
 
 StyleMap.init = function (map: StyleMap, init: StyleMapInit): void {
   if (init.alignContent !== void 0) {
@@ -1019,9 +1019,9 @@ function borderColor(this: StyleMap,
     const borderRightColor = this.borderRightColor();
     const borderBottomColor = this.borderBottomColor();
     const borderLeftColor = this.borderLeftColor();
-    if (Objects.equal(borderTopColor, borderRightColor)
-        && Objects.equal(borderRightColor, borderBottomColor)
-        && Objects.equal(borderBottomColor, borderLeftColor)) {
+    if (Values.equal(borderTopColor, borderRightColor)
+        && Values.equal(borderRightColor, borderBottomColor)
+        && Values.equal(borderBottomColor, borderLeftColor)) {
       return borderTopColor;
     } else {
       return [borderTopColor, borderRightColor, borderBottomColor, borderLeftColor];
@@ -1080,9 +1080,9 @@ function borderRadius(this: StyleMap,
     const borderTopRightRadius = this.borderTopRightRadius();
     const borderBottomRightRadius = this.borderBottomRightRadius();
     const borderBottomLeftRadius = this.borderBottomLeftRadius();
-    if (Objects.equal(borderTopLeftRadius, borderTopRightRadius)
-        && Objects.equal(borderTopRightRadius, borderBottomRightRadius)
-        && Objects.equal(borderBottomRightRadius, borderBottomLeftRadius)) {
+    if (Equals.equal(borderTopLeftRadius, borderTopRightRadius)
+        && Equals.equal(borderTopRightRadius, borderBottomRightRadius)
+        && Equals.equal(borderBottomRightRadius, borderBottomLeftRadius)) {
       return borderTopLeftRadius;
     } else {
       return [borderTopLeftRadius, borderTopRightRadius, borderBottomRightRadius, borderBottomLeftRadius];
@@ -1141,9 +1141,9 @@ function borderStyle(this: StyleMap,
     const borderRightStyle = this.borderRightStyle();
     const borderBottomStyle = this.borderBottomStyle();
     const borderLeftStyle = this.borderLeftStyle();
-    if (Objects.equal(borderTopStyle, borderRightStyle)
-        && Objects.equal(borderRightStyle, borderBottomStyle)
-        && Objects.equal(borderBottomStyle, borderLeftStyle)) {
+    if (borderTopStyle === borderRightStyle
+        && borderRightStyle === borderBottomStyle
+        && borderBottomStyle === borderLeftStyle) {
       return borderTopStyle;
     } else {
       return [borderTopStyle, borderRightStyle, borderBottomStyle, borderLeftStyle];
@@ -1202,9 +1202,9 @@ function borderWidth(this: StyleMap,
     const borderRightWidth = this.borderRightWidth();
     const borderBottomWidth = this.borderBottomWidth();
     const borderLeftWidth = this.borderLeftWidth();
-    if (Objects.equal(borderTopWidth, borderRightWidth)
-        && Objects.equal(borderRightWidth, borderBottomWidth)
-        && Objects.equal(borderBottomWidth, borderLeftWidth)) {
+    if (Values.equal(borderTopWidth, borderRightWidth)
+        && Values.equal(borderRightWidth, borderBottomWidth)
+        && Values.equal(borderBottomWidth, borderLeftWidth)) {
       return borderTopWidth;
     } else {
       return [borderTopWidth, borderRightWidth, borderBottomWidth, borderLeftWidth];
@@ -1304,9 +1304,9 @@ function margin(this: StyleMap,
     const marginRight = this.marginRight();
     const marginBottom = this.marginBottom();
     const marginLeft = this.marginLeft();
-    if (Objects.equal(marginTop, marginRight)
-        && Objects.equal(marginRight, marginBottom)
-        && Objects.equal(marginBottom, marginLeft)) {
+    if (Values.equal(marginTop, marginRight)
+        && Values.equal(marginRight, marginBottom)
+        && Values.equal(marginBottom, marginLeft)) {
       return marginTop;
     } else {
       return [marginTop, marginRight, marginBottom, marginLeft];
@@ -1355,7 +1355,7 @@ function overflow(this: StyleMap,
   if (value === void 0) {
     const overflowX = this.overflowX();
     const overflowY = this.overflowY();
-    if (Objects.equal(overflowX, overflowY)) {
+    if (overflowX === overflowY) {
       return overflowX;
     } else {
       return [overflowX, overflowY];
@@ -1396,7 +1396,7 @@ function overscrollBehavior(this: StyleMap,
   if (value === void 0) {
     const overscrollBehaviorX = this.overscrollBehaviorX();
     const overscrollBehaviorY = this.overscrollBehaviorY();
-    if (Objects.equal(overscrollBehaviorX, overscrollBehaviorY)) {
+    if (overscrollBehaviorX === overscrollBehaviorY) {
       return overscrollBehaviorX;
     } else {
       return [overscrollBehaviorX, overscrollBehaviorY];
@@ -1447,9 +1447,9 @@ function padding(this: StyleMap,
     const paddingRight = this.paddingRight();
     const paddingBottom = this.paddingBottom();
     const paddingLeft = this.paddingLeft();
-    if (Objects.equal(paddingTop, paddingRight)
-        && Objects.equal(paddingRight, paddingBottom)
-        && Objects.equal(paddingBottom, paddingLeft)) {
+    if (Equals.equal(paddingTop, paddingRight)
+        && Equals.equal(paddingRight, paddingBottom)
+        && Equals.equal(paddingBottom, paddingLeft)) {
       return paddingTop;
     } else {
       return [paddingTop, paddingRight, paddingBottom, paddingLeft];

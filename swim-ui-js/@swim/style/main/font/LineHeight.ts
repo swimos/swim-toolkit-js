@@ -19,21 +19,25 @@ export type AnyLineHeight = AnyLength | LineHeight;
 
 export type LineHeight = Length | "normal";
 
-export const LineHeight = {
-  fromAny(height: AnyLineHeight): LineHeight {
-    if (typeof height === "string" && height === "normal") {
-      return height;
-    } else {
-      return Length.fromAny(height);
-    }
-  },
+export const LineHeight = {} as {
+  fromAny(height: AnyLineHeight): LineHeight;
 
-  fromValue(value: Value): LineHeight | undefined {
-    const string = value.stringValue(void 0);
-    if (string !== void 0) {
-      return LineHeight.fromAny(string);
-    } else {
-      return Length.form().cast(value);
-    }
-  },
+  fromValue(value: Value): LineHeight | undefined;
+};
+
+LineHeight.fromAny = function (height: AnyLineHeight): LineHeight {
+  if (typeof height === "string" && height === "normal") {
+    return height;
+  } else {
+    return Length.fromAny(height);
+  }
+};
+
+LineHeight.fromValue = function (value: Value): LineHeight | undefined {
+  const string = value.stringValue(void 0);
+  if (string !== void 0) {
+    return LineHeight.fromAny(string);
+  } else {
+    return Length.form().cast(value);
+  }
 };

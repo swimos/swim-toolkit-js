@@ -50,7 +50,7 @@ export type StyleValue = DateTime
                        | number
                        | boolean;
 
-export interface StyleValueClass {
+export const StyleValue = {} as {
   fromAny(value: AnyStyleValue): StyleValue;
 
   parse(input: Input | string): StyleValue;
@@ -61,78 +61,68 @@ export interface StyleValueClass {
 
   // Forward type declarations
   /** @hidden */
-  Parser: typeof StyleValueParser, // defined by StyleValueParser
+  Parser: typeof StyleValueParser; // defined by StyleValueParser
   /** @hidden */
-  Form: typeof StyleValueForm, // defined by StyleValueForm
-}
+  Form: typeof StyleValueForm; // defined by StyleValueForm
+};
 
-export const StyleValue: StyleValueClass = {
-  fromAny(value: AnyStyleValue): StyleValue {
-    if (value instanceof DateTime
-        || value instanceof Angle
-        || value instanceof Length
-        || value instanceof Color
-        || value instanceof Font
-        || value instanceof BoxShadow
-        || value instanceof LinearGradient
-        || value instanceof Transform
-        || value instanceof Interpolator
-        || value instanceof Transition
-        || typeof value === "number"
-        || typeof value === "boolean") {
-      return value;
-    } else if (value instanceof Date || DateTime.isInit(value)) {
-      return DateTime.fromAny(value);
-    } else if (Color.isInit(value)) {
-      return Color.fromAny(value);
-    } else if (Font.isInit(value)) {
-      return Font.fromAny(value);
-    } else if (BoxShadow.isInit(value)) {
-      return BoxShadow.fromAny(value);
-    } else if (Transition.isInit(value)) {
-      return Transition.fromAny(value);
-    } else if (typeof value === "string") {
-      return StyleValue.parse(value);
-    }
-    throw new TypeError("" + value);
-  },
+StyleValue.fromAny = function (value: AnyStyleValue): StyleValue {
+  if (value instanceof DateTime
+      || value instanceof Angle
+      || value instanceof Length
+      || value instanceof Color
+      || value instanceof Font
+      || value instanceof BoxShadow
+      || value instanceof LinearGradient
+      || value instanceof Transform
+      || value instanceof Interpolator
+      || value instanceof Transition
+      || typeof value === "number"
+      || typeof value === "boolean") {
+    return value;
+  } else if (value instanceof Date || DateTime.isInit(value)) {
+    return DateTime.fromAny(value);
+  } else if (Color.isInit(value)) {
+    return Color.fromAny(value);
+  } else if (Font.isInit(value)) {
+    return Font.fromAny(value);
+  } else if (BoxShadow.isInit(value)) {
+    return BoxShadow.fromAny(value);
+  } else if (Transition.isInit(value)) {
+    return Transition.fromAny(value);
+  } else if (typeof value === "string") {
+    return StyleValue.parse(value);
+  }
+  throw new TypeError("" + value);
+};
 
-  parse(input: Input | string): StyleValue {
-    if (typeof input === "string") {
-      input = Unicode.stringInput(input);
-    }
+StyleValue.parse = function (input: Input | string): StyleValue {
+  if (typeof input === "string") {
+    input = Unicode.stringInput(input);
+  }
+  while (input.isCont() && Unicode.isWhitespace(input.head())) {
+    input = input.step();
+  }
+  let parser = StyleValue.Parser.parse(input);
+  if (parser.isDone()) {
     while (input.isCont() && Unicode.isWhitespace(input.head())) {
       input = input.step();
     }
-    let parser = StyleValue.Parser.parse(input);
-    if (parser.isDone()) {
-      while (input.isCont() && Unicode.isWhitespace(input.head())) {
-        input = input.step();
-      }
-    }
-    if (input.isCont() && !parser.isError()) {
-      parser = Parser.error(Diagnostic.unexpected(input));
-    }
-    return parser.bind();
-  },
+  }
+  if (input.isCont() && !parser.isError()) {
+    parser = Parser.error(Diagnostic.unexpected(input));
+  }
+  return parser.bind();
+};
 
-  /** @hidden */
-  _form: void 0 as Form<StyleValue, AnyStyleValue> | undefined,
-  form(unit?: AnyStyleValue): Form<StyleValue, AnyStyleValue> {
-    if (unit !== void 0) {
-      unit = StyleValue.fromAny(unit);
-      return new StyleValue.Form(unit as StyleValue);
-    } else {
-      if (StyleValue._form === void 0) {
-        StyleValue._form = new StyleValue.Form();
-      }
-      return StyleValue._form;
+StyleValue.form = function (unit?: AnyStyleValue): Form<StyleValue, AnyStyleValue> {
+  if (unit !== void 0) {
+    unit = StyleValue.fromAny(unit);
+    return new StyleValue.Form(unit as StyleValue);
+  } else {
+    if (StyleValue._form === void 0) {
+      StyleValue._form = new StyleValue.Form();
     }
-  },
-
-  // Forward type declarations
-  /** @hidden */
-  Parser: void 0 as any as typeof StyleValueParser, // defined by StyleValueParser
-  /** @hidden */
-  Form: void 0 as any as typeof StyleValueForm, // defined by StyleValueForm
+    return StyleValue._form;
+  }
 };

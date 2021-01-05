@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Objects} from "@swim/util";
+import {Arrays} from "@swim/util";
 import {Interpolator} from "@swim/interpolate";
 import {ColorStop} from "../stop/ColorStop";
 import {ColorStopInterpolator} from "../stop/ColorStopInterpolator";
@@ -74,7 +74,7 @@ export class LinearGradientInterpolator extends Interpolator<LinearGradient, Any
       return true;
     } else if (that instanceof LinearGradientInterpolator) {
       return this.angle.equals(that.angle)
-          && Objects.equal(this.stops, that.stops);
+          && Arrays.equal(this.stops, that.stops);
     }
     return false;
   }

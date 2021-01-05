@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Objects} from "@swim/util";
+import {Equals} from "@swim/util";
 import {AnyValue, Value, Form} from "@swim/structure";
 import {AnyUri, Uri} from "@swim/uri";
 import {DownlinkType, DownlinkObserver, Downlink, WarpRef} from "@swim/client";
@@ -326,7 +326,7 @@ ModelDownlink.prototype.hostUri = function (this: ModelDownlink<ModelDownlinkCon
     } else {
       hostUri = void 0;
     }
-    if (!Objects.equal(this._hostUri, hostUri)) {
+    if (!Equals.equal(this._hostUri, hostUri)) {
       this._hostUri = hostUri;
       this.relink();
     }
@@ -352,7 +352,7 @@ ModelDownlink.prototype.nodeUri = function (this: ModelDownlink<ModelDownlinkCon
     } else {
       nodeUri = void 0;
     }
-    if (!Objects.equal(this._nodeUri, nodeUri)) {
+    if (!Equals.equal(this._nodeUri, nodeUri)) {
       this._nodeUri = nodeUri;
       this.relink();
     }
@@ -378,7 +378,7 @@ ModelDownlink.prototype.laneUri = function (this: ModelDownlink<ModelDownlinkCon
     } else {
       laneUri = void 0;
     }
-    if (!Objects.equal(this._laneUri, laneUri)) {
+    if (!Equals.equal(this._laneUri, laneUri)) {
       this._laneUri = laneUri;
       this.relink();
     }
@@ -450,7 +450,7 @@ ModelDownlink.prototype.body = function (this: ModelDownlink<ModelDownlinkContex
     } else {
       body = void 0;
     }
-    if (!Objects.equal(this._body, body)) {
+    if (!Equals.equal(this._body, body)) {
       this._body = body;
       this.relink();
     }

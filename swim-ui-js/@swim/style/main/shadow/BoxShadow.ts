@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equivalent, Equals, Objects} from "@swim/util";
+import {Equivalent, Equals} from "@swim/util";
 import {Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Item, Value, Text, Form} from "@swim/structure";
 import {AnyLength, Length} from "@swim/math";
@@ -155,12 +155,12 @@ export class BoxShadow implements Equivalent<AnyBoxShadow>, Equals {
   equivalentTo(that: AnyBoxShadow, epsilon?: number): boolean {
     that = BoxShadow.fromAny(that);
     return this._inset === that._inset
-        && Objects.equivalent(this._offsetX, that._offsetX, epsilon)
-        && Objects.equivalent(this._offsetY, that._offsetY, epsilon)
-        && Objects.equivalent(this._blurRadius, that._blurRadius, epsilon)
-        && Objects.equivalent(this._spreadRadius, that._spreadRadius, epsilon)
-        && Objects.equivalent(this._color, that._color, epsilon)
-        && Objects.equivalent(this._next, that._next, epsilon);
+        && this._offsetX.equivalentTo(that._offsetX, epsilon)
+        && this._offsetY.equivalentTo(that._offsetY, epsilon)
+        && this._blurRadius.equivalentTo(that._blurRadius, epsilon)
+        && this._spreadRadius.equivalentTo(that._spreadRadius, epsilon)
+        && this._color.equivalentTo(that._color, epsilon)
+        && Equivalent.equivalent(this._next, that._next, epsilon);
   }
 
   equals(that: unknown): boolean {
@@ -170,7 +170,7 @@ export class BoxShadow implements Equivalent<AnyBoxShadow>, Equals {
       return this._inset === that._inset && this._offsetX.equals(that._offsetX)
           && this._offsetY.equals(that._offsetY) && this._blurRadius.equals(that._blurRadius)
           && this._spreadRadius.equals(that._spreadRadius) && this._color.equals(that._color)
-          && Objects.equal(this._next, that._next);
+          && Equals.equal(this._next, that._next);
     }
     return false;
   }

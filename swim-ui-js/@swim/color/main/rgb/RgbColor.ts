@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Murmur3, Objects} from "@swim/util";
+import {Murmur3, Numbers, Constructors} from "@swim/util";
 import {Output, Base16} from "@swim/codec";
 import {Item, Value} from "@swim/structure";
 import {AnyColor, Color} from "../color/Color";
@@ -125,10 +125,10 @@ export class RgbColor extends Color {
 
   equivalentTo(that: AnyColor, epsilon?: number): boolean {
     that = Color.fromAny(that).rgb();
-    return Objects.equivalent(this.r, (that as RgbColor).r, epsilon)
-        && Objects.equivalent(this.g, (that as RgbColor).g, epsilon)
-        && Objects.equivalent(this.b, (that as RgbColor).b, epsilon)
-        && Objects.equivalent(this.a, (that as RgbColor).a, epsilon);
+    return Numbers.equivalent(this.r, (that as RgbColor).r, epsilon)
+        && Numbers.equivalent(this.g, (that as RgbColor).g, epsilon)
+        && Numbers.equivalent(this.b, (that as RgbColor).b, epsilon)
+        && Numbers.equivalent(this.a, (that as RgbColor).a, epsilon);
   }
 
   equals(other: unknown): boolean {
@@ -139,11 +139,8 @@ export class RgbColor extends Color {
   }
 
   hashCode(): number {
-    if (RgbColor._hashSeed === void 0) {
-      RgbColor._hashSeed = Murmur3.seed(RgbColor);
-    }
-    return Murmur3.mash(Murmur3.mix(Murmur3.mix(Murmur3.mix(Murmur3.mix(RgbColor._hashSeed,
-        Murmur3.hash(this.r)), Murmur3.hash(this.g)), Murmur3.hash(this.b)), Murmur3.hash(this.a)));
+    return Murmur3.mash(Murmur3.mix(Murmur3.mix(Murmur3.mix(Murmur3.mix(Constructors.hash(RgbColor),
+        Numbers.hash(this.r)), Numbers.hash(this.g)), Numbers.hash(this.b)), Numbers.hash(this.a)));
   }
 
   debug(output: Output): void {
@@ -195,8 +192,6 @@ export class RgbColor extends Color {
     }
     return s;
   }
-
-  private static _hashSeed?: number;
 
   static transparent(): RgbColor {
     return new RgbColor(0, 0, 0, 0);

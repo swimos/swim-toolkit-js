@@ -36,10 +36,11 @@ export interface ModelDownlinkContext {
 }
 
 /** @hidden */
-export const ModelDownlinkContext: {
+export const ModelDownlinkContext = {} as {
+  /** @hidden */
   decorateModelDownlink<M extends ModelDownlinkContext>(constructor: ModelDownlinkConstructor<M>,
                                                         contextClass: unknown, downlinkName: string): void;
-} = {} as any;
+};
 
 ModelDownlinkContext.decorateModelDownlink = function <M extends ModelDownlinkContext>(constructor: ModelDownlinkConstructor<M>,
                                                                                        contextClass: unknown, downlinkName: string): void {

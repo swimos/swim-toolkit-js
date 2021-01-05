@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Objects, FromAny} from "@swim/util";
+import {Values, FromAny} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {Tween, Animator, TweenAnimator} from "@swim/tween";
@@ -539,7 +539,7 @@ ViewAnimator.prototype.onAnimateInherited = function <T>(this: ViewAnimator<View
 
 ViewAnimator.prototype.update = function <T>(this: ViewAnimator<View, T>,
                                              newValue: T, oldValue: T): void {
-  if (!Objects.equal(oldValue, newValue)) {
+  if (!Values.equal(oldValue, newValue)) {
     this.willUpdate(newValue, oldValue);
     this._value = newValue;
     this._animatorFlags |= TweenAnimator.UpdatedFlag;

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Objects} from "@swim/util";
+import {Equals, Arrays} from "@swim/util";
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {Tween, Transition} from "@swim/tween";
 import {Color} from "@swim/color";
@@ -352,7 +352,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     if (placement === void 0) {
       return this._placement;
     } else {
-      if (!Objects.equalArray(this._placement, placement)) {
+      if (!Arrays.equal(this._placement, placement)) {
         this._placement.length = 0;
         for (let i = 0, n = placement.length; i < n; i += 1) {
           this._placement.push(placement[i]);
@@ -369,7 +369,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     if (placementFrame === void 0) {
       return this._placementFrame;
     } else {
-      if (!Objects.equal(this._placementFrame, placementFrame)) {
+      if (!Equals.equal(this._placementFrame, placementFrame)) {
         this._placementFrame = placementFrame;
         this.place();
       }

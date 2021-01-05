@@ -24,8 +24,8 @@ export interface ConstraintSymbol extends ConstraintKey {
 }
 
 /** @hidden */
-export const ConstraintSymbol = {
-  Invalid: void 0 as any as ConstraintInvalid, // defined by ConstraintInvalid
+export const ConstraintSymbol = {} as {
+  Invalid: ConstraintInvalid; // defined by ConstraintInvalid
 };
 
 /** @hidden */
