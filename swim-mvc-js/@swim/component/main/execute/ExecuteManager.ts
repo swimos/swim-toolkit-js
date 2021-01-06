@@ -101,7 +101,7 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
   }
 
   requestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
-    updateFlags = this.willRequestUpdate(targetComponent, updateFlags, immediate) & Component.UpdateMask;
+    this.willRequestUpdate(targetComponent, updateFlags, immediate);
     if ((updateFlags & Component.CompileMask) !== 0) {
       this._rootFlags |= Component.NeedsCompile;
     }
@@ -109,6 +109,7 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
       this._rootFlags |= Component.NeedsExecute;
     }
     if ((this._rootFlags & Component.UpdateMask) !== 0) {
+      this.onRequestUpdate(targetComponent, updateFlags, immediate);
       if (immediate && this._updateDelay <= ExecuteManager.MaxCompileInterval
           && (this._rootFlags & (Component.TraversingFlag | Component.ImmediateFlag)) === 0) {
         this.runImmediatePass();
@@ -119,16 +120,16 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     this.didRequestUpdate(targetComponent, updateFlags, immediate);
   }
 
-  protected willRequestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): ComponentFlags {
-    return updateFlags | this.modifyUpdate(targetComponent, updateFlags);
+  protected willRequestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
+    // hook
+  }
+
+  protected onRequestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
+    // hook
   }
 
   protected didRequestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
     // hook
-  }
-
-  protected modifyUpdate(targetComponent: Component, updateFlags: ComponentFlags): ComponentFlags {
-    return 0;
   }
 
   protected scheduleUpdate(): void {

@@ -356,8 +356,8 @@ export class TreeLimb extends HtmlView {
     return treeViewContext;
   }
 
-  protected willRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
-    super.willRequireUpdate(updateFlags, immediate);
+  protected onRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+    super.onRequireUpdate(updateFlags, immediate);
     const parentView = this.parentView;
     if (parentView instanceof TreeView) {
       parentView.requireUpdate(updateFlags & (View.NeedsResize | View.NeedsLayout));

@@ -87,7 +87,7 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
   }
 
   requestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
-    updateFlags = this.willRequestUpdate(targetView, updateFlags, immediate) & View.UpdateMask;
+    this.willRequestUpdate(targetView, updateFlags, immediate);
     if ((updateFlags & View.ProcessMask) !== 0) {
       this._rootFlags |= View.NeedsProcess;
     }
@@ -95,6 +95,7 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
       this._rootFlags |= View.NeedsDisplay;
     }
     if ((this._rootFlags & View.UpdateMask) !== 0) {
+      this.onRequestUpdate(targetView, updateFlags, immediate);
       if (immediate && this._updateDelay <= DisplayManager.MaxProcessInterval
           && (this._rootFlags & (View.TraversingFlag | View.ImmediateFlag)) === 0) {
         this.runImmediatePass();
@@ -105,16 +106,16 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
     this.didRequestUpdate(targetView, updateFlags, immediate);
   }
 
-  protected willRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): ViewFlags {
-    return updateFlags | this.modifyUpdate(targetView, updateFlags);
+  protected willRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
+    // hook
+  }
+
+  protected onRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
+    // hook
   }
 
   protected didRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
     // hook
-  }
-
-  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    return 0;
   }
 
   protected scheduleUpdate(): void {

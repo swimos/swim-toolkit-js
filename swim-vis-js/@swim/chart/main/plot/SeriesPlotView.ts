@@ -353,8 +353,8 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     }, this);
   }
 
-  protected willRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
-    super.willRequireUpdate(updateFlags, immediate);
+  protected onRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+    super.onRequireUpdate(updateFlags, immediate);
     const parentView = this.parentView;
     if (parentView !== null) {
       parentView.requireUpdate(updateFlags & View.NeedsAnimate);

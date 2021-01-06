@@ -877,8 +877,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  protected willRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
-    super.willRequireUpdate(updateFlags, immediate);
+  protected onRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+    super.onRequireUpdate(updateFlags, immediate);
     const parentView = this.parentView;
     if (parentView !== null) {
       parentView.requireUpdate(updateFlags & View.NeedsAnimate);

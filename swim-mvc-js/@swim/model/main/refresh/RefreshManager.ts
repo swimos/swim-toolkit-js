@@ -101,7 +101,7 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
   }
 
   requestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
-    updateFlags = this.willRequestUpdate(targetModel, updateFlags, immediate) & Model.UpdateMask;
+    this.willRequestUpdate(targetModel, updateFlags, immediate);
     if ((updateFlags & Model.AnalyzeMask) !== 0) {
       this._rootFlags |= Model.NeedsAnalyze;
     }
@@ -109,6 +109,7 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
       this._rootFlags |= Model.NeedsRefresh;
     }
     if ((this._rootFlags & Model.UpdateMask) !== 0) {
+      this.onRequestUpdate(targetModel, updateFlags, immediate);
       if (immediate && this._updateDelay <= RefreshManager.MaxAnalyzeInterval
           && (this._rootFlags & (Model.TraversingFlag | Model.ImmediateFlag)) === 0) {
         this.runImmediatePass();
@@ -119,16 +120,16 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     this.didRequestUpdate(targetModel, updateFlags, immediate);
   }
 
-  protected willRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): ModelFlags {
-    return updateFlags | this.modifyUpdate(targetModel, updateFlags);
+  protected willRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
+    // hook
+  }
+
+  protected onRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
+    // hook
   }
 
   protected didRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
     // hook
-  }
-
-  protected modifyUpdate(targetModel: Model, updateFlags: ModelFlags): ModelFlags {
-    return 0;
   }
 
   protected scheduleUpdate(): void {

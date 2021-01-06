@@ -113,18 +113,9 @@ export class RasterView extends LayerView {
     }
   }
 
-  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.UpdateMask) !== 0) {
-      if ((updateFlags & View.ProcessMask) !== 0) {
-        additionalFlags |= View.NeedsProcess;
-      }
-      if ((updateFlags & View.DisplayMask) !== 0) {
-        additionalFlags |= View.NeedsDisplay;
-      }
-      additionalFlags |= View.NeedsRender | View.NeedsComposite;
-    }
-    return additionalFlags;
+  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+    displayFlags |= View.NeedsRender | View.NeedsComposite;
+    return displayFlags;
   }
 
   protected onLayout(viewContext: ViewContextType<this>): void {

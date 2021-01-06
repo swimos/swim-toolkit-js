@@ -689,6 +689,10 @@ export abstract class Trait implements ModelDownlinkContext {
     // hook
   }
 
+  protected onRequireUpdate(updateFlags: ModelFlags, immediate: boolean): void {
+    // hook
+  }
+
   protected didRequireUpdate(updateFlags: ModelFlags, immediate: boolean): void {
     // hook
   }
@@ -702,16 +706,16 @@ export abstract class Trait implements ModelDownlinkContext {
     }
   }
 
-  protected willRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): ModelFlags {
-    return updateFlags;
+  protected willRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
+    // hook
+  }
+
+  protected onRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
+    // hook
   }
 
   protected didRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
     // hook
-  }
-
-  protected modifyUpdate(targetModel: Model, updateFlags: ModelFlags): ModelFlags {
-    return 0;
   }
 
   isTraversing(): boolean {

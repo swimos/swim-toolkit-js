@@ -224,8 +224,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   @ViewAnimator({type: Color, inherit: true})
   textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  protected willRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
-    super.willRequireUpdate(updateFlags, immediate);
+  protected onRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+    super.onRequireUpdate(updateFlags, immediate);
     const parentView = this.parentView;
     if (parentView !== null) {
       parentView.requireUpdate(updateFlags & View.NeedsAnimate);
