@@ -356,6 +356,14 @@ export class TreeLimb extends HtmlView {
     return treeViewContext;
   }
 
+  protected willRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+    super.willRequireUpdate(updateFlags, immediate);
+    const parentView = this.parentView;
+    if (parentView instanceof TreeView) {
+      parentView.requireUpdate(updateFlags & (View.NeedsResize | View.NeedsLayout));
+    }
+  }
+
   protected onScroll(viewContext: ViewContextType<this>): void {
     super.onScroll(viewContext);
     this._viewFlags |= View.NeedsScroll; // defer to display pass

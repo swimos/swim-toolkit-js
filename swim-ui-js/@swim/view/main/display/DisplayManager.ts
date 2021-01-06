@@ -88,7 +88,12 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
 
   requestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
     updateFlags = this.willRequestUpdate(targetView, updateFlags, immediate) & View.UpdateMask;
-    this._rootFlags |= updateFlags;
+    if ((updateFlags & View.ProcessMask) !== 0) {
+      this._rootFlags |= View.NeedsProcess;
+    }
+    if ((updateFlags & View.DisplayMask) !== 0) {
+      this._rootFlags |= View.NeedsDisplay;
+    }
     if ((this._rootFlags & View.UpdateMask) !== 0) {
       if (immediate && this._updateDelay <= DisplayManager.MaxProcessInterval
           && (this._rootFlags & (View.TraversingFlag | View.ImmediateFlag)) === 0) {
@@ -109,14 +114,7 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.ProcessMask) !== 0) {
-      additionalFlags |= View.NeedsProcess;
-    }
-    if ((updateFlags & View.DisplayMask) !== 0) {
-      additionalFlags |= View.NeedsDisplay;
-    }
-    return additionalFlags;
+    return 0;
   }
 
   protected scheduleUpdate(): void {

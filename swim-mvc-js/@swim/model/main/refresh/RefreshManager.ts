@@ -102,7 +102,12 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
 
   requestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
     updateFlags = this.willRequestUpdate(targetModel, updateFlags, immediate) & Model.UpdateMask;
-    this._rootFlags |= updateFlags;
+    if ((updateFlags & Model.AnalyzeMask) !== 0) {
+      this._rootFlags |= Model.NeedsAnalyze;
+    }
+    if ((updateFlags & Model.RefreshMask) !== 0) {
+      this._rootFlags |= Model.NeedsRefresh;
+    }
     if ((this._rootFlags & Model.UpdateMask) !== 0) {
       if (immediate && this._updateDelay <= RefreshManager.MaxAnalyzeInterval
           && (this._rootFlags & (Model.TraversingFlag | Model.ImmediateFlag)) === 0) {
@@ -123,14 +128,7 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
   }
 
   protected modifyUpdate(targetModel: Model, updateFlags: ModelFlags): ModelFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & Model.AnalyzeMask) !== 0) {
-      additionalFlags |= Model.NeedsAnalyze;
-    }
-    if ((updateFlags & Model.RefreshMask) !== 0) {
-      additionalFlags |= Model.NeedsRefresh;
-    }
-    return additionalFlags;
+    return 0;
   }
 
   protected scheduleUpdate(): void {

@@ -188,23 +188,6 @@ export class PieView extends LayerView {
     this.appendChildView(slice, key);
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
-  protected onRemoveChildView(childView: View): void {
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
-  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.NeedsAnimate) !== 0) {
-      additionalFlags |= View.NeedsAnimate;
-    }
-    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
-    return additionalFlags;
-  }
-
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this._viewFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
@@ -277,4 +260,7 @@ export class PieView extends LayerView {
     }
     throw new TypeError("" + value);
   }
+
+  static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsAnimate;
+  static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;
 }

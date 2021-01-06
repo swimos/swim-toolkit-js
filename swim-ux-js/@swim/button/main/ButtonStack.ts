@@ -15,7 +15,7 @@
 import {Length} from "@swim/math";
 import {Tween, Transition} from "@swim/tween";
 import {Look} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ModalOptions, ModalState, Modal, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ModalOptions, ModalState, Modal, ViewAnimator} from "@swim/view";
 import {ViewNodeType, ViewNode, HtmlView, SvgView} from "@swim/dom";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import {FloatingButton} from "./FloatingButton";
@@ -91,7 +91,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     return this._stackState === "collapsed" || this._stackState === "collapsing";
   }
 
-  @ViewAnimator({type: Number, state: 0})
+  @ViewAnimator({type: Number, state: 0, updateFlags: View.NeedsLayout})
   stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   get modalView(): View | null {
@@ -192,15 +192,6 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   protected onUnmount(): void {
     this.off("contextmenu", this.onContextMenu);
     super.onUnmount();
-  }
-
-  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.NeedsAnimate) !== 0) {
-      additionalFlags |= View.NeedsLayout;
-    }
-    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
-    return additionalFlags;
   }
 
   protected onLayout(viewContext: ViewContextType<this>): void {

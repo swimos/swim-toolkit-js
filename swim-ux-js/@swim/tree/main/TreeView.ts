@@ -310,15 +310,12 @@ export class TreeView extends HtmlView {
     return treeViewContext;
   }
 
-  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.NeedsResize) !== 0 && targetView instanceof TreeLimb) {
-      additionalFlags |= View.NeedsResize;
+  protected willRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+    super.willRequireUpdate(updateFlags, immediate);
+    const parentView = this.parentView;
+    if (parentView instanceof TreeLimb) {
+      parentView.requireUpdate(updateFlags & (View.NeedsResize | View.NeedsLayout));
     }
-    if ((updateFlags & View.NeedsLayout) !== 0 && targetView instanceof TreeLimb) {
-      additionalFlags |= View.NeedsLayout;
-    }
-    return additionalFlags;
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {

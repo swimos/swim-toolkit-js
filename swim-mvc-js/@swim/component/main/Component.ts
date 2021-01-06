@@ -346,6 +346,7 @@ export abstract class Component {
   }
 
   protected onMount(): void {
+    this.requestUpdate(this, this._componentFlags & ~Component.StatusMask, false, true);
     this.requireUpdate(this.mountFlags);
   }
 
@@ -455,6 +456,7 @@ export abstract class Component {
       const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags & ~Component.StatusMask;
       if (deltaUpdateFlags !== 0) {
         this._componentFlags = newUpdateFlags;
+        this.onRequireUpdate(updateFlags, immediate);
         this.requestUpdate(this, deltaUpdateFlags, immediate);
       }
       this.didRequireUpdate(updateFlags, immediate);
@@ -465,16 +467,31 @@ export abstract class Component {
     // hook
   }
 
+  protected onRequireUpdate(updateFlags: ComponentFlags, immediate: boolean): void {
+    // hook
+  }
+
   protected didRequireUpdate(updateFlags: ComponentFlags, immediate: boolean): void {
     // hook
   }
 
-  requestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
+  requestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean, propagate?: boolean): void {
     updateFlags = this.willRequestUpdate(targetComponent, updateFlags, immediate);
-    this._componentFlags |= updateFlags & (Component.NeedsCompile | Component.NeedsExecute);
+    if ((updateFlags & Component.CompileMask) !== 0 && (this._componentFlags & Component.NeedsCompile) === 0) {
+      this._componentFlags |= Component.NeedsCompile;
+      propagate = true;
+    }
+    if ((updateFlags & Component.ExecuteMask) !== 0 && (this._componentFlags & Component.NeedsExecute) === 0) {
+      this._componentFlags |= Component.NeedsExecute;
+      propagate = true;
+    }
+    if (propagate === void 0) {
+      propagate = immediate;
+    }
+    this.onRequestUpdate(targetComponent, updateFlags, immediate);
     const parentComponent = this.parentComponent;
     if (parentComponent !== null) {
-      parentComponent.requestUpdate(targetComponent, updateFlags, immediate);
+      parentComponent.requestUpdate(targetComponent, updateFlags, immediate, propagate);
     } else if (this.isMounted()) {
       const executeManager = this.executeService.manager;
       if (executeManager !== void 0) {
@@ -489,9 +506,13 @@ export abstract class Component {
     additionalFlags &= ~Component.StatusMask;
     if (additionalFlags !== 0) {
       updateFlags |= additionalFlags;
-      this._componentFlags |= additionalFlags;
+      this._componentFlags |= additionalFlags & ~(Component.NeedsCompile | Component.NeedsExecute);
     }
     return updateFlags;
+  }
+
+  protected onRequestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
+    // hook
   }
 
   protected didRequestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
@@ -499,14 +520,7 @@ export abstract class Component {
   }
 
   protected modifyUpdate(targetComponent: Component, updateFlags: ComponentFlags): ComponentFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & Component.CompileMask) !== 0) {
-      additionalFlags |= Component.NeedsCompile;
-    }
-    if ((updateFlags & Component.ExecuteMask) !== 0) {
-      additionalFlags |= Component.ExecuteMask;
-    }
-    return additionalFlags;
+    return 0;
   }
 
   isTraversing(): boolean {

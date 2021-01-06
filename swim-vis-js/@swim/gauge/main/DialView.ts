@@ -15,7 +15,7 @@
 import {AnyLength, Length, AnyAngle, Angle, BoxR2, AnyPointR2, PointR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -235,14 +235,6 @@ export class DialView extends LayerView {
     }
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
-  protected onRemoveChildView(childView: View): void {
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
   protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
@@ -431,4 +423,7 @@ export class DialView extends LayerView {
     }
     throw new TypeError("" + value);
   }
+
+  static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsAnimate;
+  static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;
 }

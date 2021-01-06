@@ -202,13 +202,11 @@ export class MapPointView extends MapLayerView {
     this.requireUpdate(View.NeedsProject);
   }
 
-  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.NeedsProject) !== 0 && this.label() !== null) {
-      additionalFlags |= View.NeedsLayout;
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+    if ((processFlags & View.NeedsProject) !== 0 && this.label() !== null) {
+      this.requireUpdate(View.NeedsLayout);
     }
-    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
-    return additionalFlags;
+    return processFlags;
   }
 
   protected onProject(viewContext: ViewContextType<this>): void {

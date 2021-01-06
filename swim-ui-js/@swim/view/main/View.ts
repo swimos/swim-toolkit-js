@@ -524,6 +524,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected onMount(): void {
+    this.requestUpdate(this, this._viewFlags & ~View.StatusMask, false, true);
     this.requireUpdate(this.mountFlags);
   }
 
@@ -713,7 +714,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected onUncull(): void {
-    this.requestUpdate(this, this._viewFlags & ~View.StatusMask, false);
+    this.requestUpdate(this, this._viewFlags & ~View.StatusMask, false, true);
     this.requireUpdate(this.uncullFlags);
   }
 
@@ -740,6 +741,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
       const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags & ~View.StatusMask;
       if (deltaUpdateFlags !== 0) {
         this._viewFlags = newUpdateFlags;
+        this.onRequireUpdate(updateFlags, immediate);
         this.requestUpdate(this, deltaUpdateFlags, immediate);
       }
       this.didRequireUpdate(updateFlags, immediate);
@@ -750,17 +752,32 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     // hook
   }
 
+  protected onRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+    // hook
+  }
+
   protected didRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
     // hook
   }
 
-  requestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
+  requestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean, propagate?: boolean): void {
     if ((this._viewFlags & View.CulledMask) !== View.CulledFlag) { // if not culled root
       updateFlags = this.willRequestUpdate(targetView, updateFlags, immediate);
-      this._viewFlags |= updateFlags & (View.NeedsProcess | View.NeedsDisplay);
+      if ((updateFlags & View.ProcessMask) !== 0 && (this._viewFlags & View.NeedsProcess) === 0) {
+        this._viewFlags |= View.NeedsProcess;
+        propagate = true;
+      }
+      if ((updateFlags & View.DisplayMask) !== 0 && (this._viewFlags & View.NeedsDisplay) === 0) {
+        this._viewFlags |= View.NeedsDisplay;
+        propagate = true;
+      }
+      if (propagate === void 0) {
+        propagate = immediate;
+      }
+      this.onRequestUpdate(targetView, updateFlags, immediate);
       const parentView = this.parentView;
       if (parentView !== null) {
-        parentView.requestUpdate(targetView, updateFlags, immediate);
+        parentView.requestUpdate(targetView, updateFlags, immediate, propagate);
       } else if (this.isMounted()) {
         const displayManager = this.displayService.manager;
         if (displayManager !== void 0) {
@@ -776,9 +793,13 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     additionalFlags &= ~View.StatusMask;
     if (additionalFlags !== 0) {
       updateFlags |= additionalFlags;
-      this._viewFlags |= additionalFlags;
+      this._viewFlags |= additionalFlags & ~(View.NeedsProcess | View.NeedsDisplay);
     }
     return updateFlags;
+  }
+
+  protected onRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
+    // hook
   }
 
   protected didRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
@@ -786,14 +807,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.ProcessMask) !== 0) {
-      additionalFlags |= View.NeedsProcess;
-    }
-    if ((updateFlags & View.DisplayMask) !== 0) {
-      additionalFlags |= View.NeedsDisplay;
-    }
-    return additionalFlags;
+    return 0;
   }
 
   isTraversing(): boolean {

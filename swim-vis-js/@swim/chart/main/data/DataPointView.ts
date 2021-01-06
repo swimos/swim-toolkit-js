@@ -225,14 +225,14 @@ export class DataPointView<X, Y> extends LayerView {
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    this.requireUpdate(View.NeedsAnimate);
+    super.onInsertChildView(childView, targetView);
     if (childView.key === "label" && childView instanceof GraphicsView) {
       this.onInsertLabel(childView);
     }
   }
 
   protected onRemoveChildView(childView: View): void {
-    this.requireUpdate(View.NeedsAnimate);
+    super.onRemoveChildView(childView);
     if (childView.key === "label" && childView instanceof GraphicsView) {
       this.onRemoveLabel(childView);
     }
@@ -246,13 +246,12 @@ export class DataPointView<X, Y> extends LayerView {
     // hook
   }
 
-  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.NeedsAnimate) !== 0) {
-      additionalFlags |= View.NeedsLayout;
+  protected willRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+    super.willRequireUpdate(updateFlags, immediate);
+    const parentView = this.parentView;
+    if (parentView !== null) {
+      parentView.requireUpdate(updateFlags & View.NeedsAnimate);
     }
-    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
-    return additionalFlags;
   }
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
@@ -347,4 +346,7 @@ export class DataPointView<X, Y> extends LayerView {
     }
     throw new TypeError("" + value);
   }
+
+  static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsAnimate;
+  static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;
 }

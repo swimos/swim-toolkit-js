@@ -102,7 +102,12 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
 
   requestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
     updateFlags = this.willRequestUpdate(targetComponent, updateFlags, immediate) & Component.UpdateMask;
-    this._rootFlags |= updateFlags;
+    if ((updateFlags & Component.CompileMask) !== 0) {
+      this._rootFlags |= Component.NeedsCompile;
+    }
+    if ((updateFlags & Component.ExecuteMask) !== 0) {
+      this._rootFlags |= Component.NeedsExecute;
+    }
     if ((this._rootFlags & Component.UpdateMask) !== 0) {
       if (immediate && this._updateDelay <= ExecuteManager.MaxCompileInterval
           && (this._rootFlags & (Component.TraversingFlag | Component.ImmediateFlag)) === 0) {
@@ -123,14 +128,7 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
   }
 
   protected modifyUpdate(targetComponent: Component, updateFlags: ComponentFlags): ComponentFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & Component.CompileMask) !== 0) {
-      additionalFlags |= Component.NeedsCompile;
-    }
-    if ((updateFlags & Component.ExecuteMask) !== 0) {
-      additionalFlags |= Component.NeedsExecute;
-    }
-    return additionalFlags;
+    return 0;
   }
 
   protected scheduleUpdate(): void {

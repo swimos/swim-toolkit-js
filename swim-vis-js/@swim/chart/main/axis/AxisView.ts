@@ -350,14 +350,6 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }, this);
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
-  protected onRemoveChildView(childView: View): void {
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
   protected updateTicks(): void {
     const origin = this.origin.value;
     const scale = this.scale.value;
@@ -455,13 +447,12 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
-  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.NeedsAnimate) !== 0) {
-      additionalFlags |= View.NeedsAnimate;
+  protected willRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+    super.willRequireUpdate(updateFlags, immediate);
+    const parentView = this.parentView;
+    if (parentView !== null) {
+      parentView.requireUpdate(updateFlags & View.NeedsAnimate);
     }
-    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
-    return additionalFlags;
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
@@ -625,4 +616,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   static Bottom: typeof BottomAxisView; // defined by BottomAxisView
   /** @hidden */
   static Left: typeof LeftAxisView; // defined by LeftAxisView
+
+  static readonly insertChildFlags: ViewFlags = GraphicsView.insertChildFlags | View.NeedsAnimate;
+  static readonly removeChildFlags: ViewFlags = GraphicsView.removeChildFlags | View.NeedsAnimate;
 }

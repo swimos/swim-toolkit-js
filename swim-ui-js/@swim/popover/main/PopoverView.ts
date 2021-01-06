@@ -377,15 +377,6 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     }
   }
 
-  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & (View.NeedsScroll | View.NeedsAnimate)) !== 0) {
-      additionalFlags |= View.NeedsLayout;
-    }
-    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
-    return additionalFlags;
-  }
-
   protected onMount(): void {
     super.onMount();
     this.attachEvents();
@@ -408,6 +399,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
 
   protected detachEvents(): void {
     this.off("click", this.onClick);
+  }
+
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+    if ((processFlags & (View.NeedsScroll | View.NeedsAnimate)) !== 0) {
+      this.requireUpdate(View.NeedsLayout);
+    }
+    return processFlags;
   }
 
   protected onAnimate(viewContext: ViewContextType<this>): void {

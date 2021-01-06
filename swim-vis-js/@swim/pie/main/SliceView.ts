@@ -15,7 +15,7 @@
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -28,6 +28,7 @@ import {
   AnyTextRunView,
   TextRunView,
 } from "@swim/graphics";
+import {PieView} from "./PieView";
 
 export type AnySliceView = SliceView | SliceViewInit;
 
@@ -123,7 +124,13 @@ export class SliceView extends LayerView {
     }
   }
 
-  @ViewAnimator({type: Number, state: 0})
+  @ViewAnimator<SliceView, number>({
+    type: Number,
+    state: 0,
+    onUpdate(newValue: number, oldValue: number): void {
+      this.owner.onUpdateValue(newValue, oldValue);
+    },
+  })
   value: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 1})
@@ -210,12 +217,11 @@ export class SliceView extends LayerView {
     }
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
-  protected onRemoveChildView(childView: View): void {
-    this.requireUpdate(View.NeedsAnimate);
+  protected onUpdateValue(newValue: number, oldValue: number): void {
+    const pieView = this.getSuperView(PieView);
+    if (pieView !== null) {
+      pieView.requireUpdate(View.NeedsAnimate);
+    }
   }
 
   protected onRender(viewContext: ViewContextType<this>): void {
@@ -386,4 +392,7 @@ export class SliceView extends LayerView {
     }
     throw new TypeError("" + value);
   }
+
+  static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsAnimate;
+  static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;
 }

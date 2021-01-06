@@ -353,21 +353,12 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     }, this);
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
-  protected onRemoveChildView(childView: View): void {
-    this.requireUpdate(View.NeedsAnimate);
-  }
-
-  protected modifyUpdate(targetView: View, updateFlags: ViewFlags): ViewFlags {
-    let additionalFlags = 0;
-    if ((updateFlags & View.NeedsAnimate) !== 0) {
-      additionalFlags |= View.NeedsAnimate;
+  protected willRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
+    super.willRequireUpdate(updateFlags, immediate);
+    const parentView = this.parentView;
+    if (parentView !== null) {
+      parentView.requireUpdate(updateFlags & View.NeedsAnimate);
     }
-    additionalFlags |= super.modifyUpdate(targetView, updateFlags | additionalFlags);
-    return additionalFlags;
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
@@ -760,5 +751,8 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     }
     throw new TypeError("" + value);
   }
+
+  static readonly insertChildFlags: ViewFlags = GraphicsView.insertChildFlags | View.NeedsAnimate;
+  static readonly removeChildFlags: ViewFlags = GraphicsView.removeChildFlags | View.NeedsAnimate;
 }
 PlotView.Series = SeriesPlotView;
