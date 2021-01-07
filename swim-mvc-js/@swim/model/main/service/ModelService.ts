@@ -74,6 +74,12 @@ export declare abstract class ModelService<M extends Model, T> {
 
   constructor(owner: M, serviceName: string | undefined);
 
+  /** @hidden */
+  observe?: boolean;
+
+  /** @hidden */
+  readonly type?: unknown;
+
   get name(): string;
 
   get owner(): M;
@@ -381,9 +387,15 @@ ModelService.prototype.getManagerOr = function <T, E>(this: ModelService<Model, 
 
 ModelService.prototype.mount = function (this: ModelService<Model, unknown>): void {
   this.bindSuperService();
+  if (this._manager instanceof ModelManager && this.observe === true) {
+    this._manager.addModelManagerObserver(this as ModelManagerObserverType<ModelManager>);
+  }
 };
 
 ModelService.prototype.unmount = function (this: ModelService<Model, unknown>): void {
+  if (this._manager instanceof ModelManager && this.observe === true) {
+    this._manager.removeModelManagerObserver(this as ModelManagerObserverType<ModelManager>);
+  }
   this.unbindSuperService();
 };
 

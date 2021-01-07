@@ -70,6 +70,12 @@ export declare abstract class ComponentService<C extends Component, T> {
 
   constructor(owner: C, serviceName: string | undefined);
 
+  /** @hidden */
+  observe?: boolean;
+
+  /** @hidden */
+  readonly type?: unknown;
+
   get name(): string;
 
   get owner(): C;
@@ -345,9 +351,15 @@ ComponentService.prototype.getManagerOr = function <T, E>(this: ComponentService
 
 ComponentService.prototype.mount = function (this: ComponentService<Component, unknown>): void {
   this.bindSuperService();
+  if (this._manager instanceof ComponentManager && this.observe === true) {
+    this._manager.addComponentManagerObserver(this as ComponentManagerObserverType<ComponentManager>);
+  }
 };
 
 ComponentService.prototype.unmount = function (this: ComponentService<Component, unknown>): void {
+  if (this._manager instanceof ComponentManager && this.observe === true) {
+    this._manager.removeComponentManagerObserver(this as ComponentManagerObserverType<ComponentManager>);
+  }
   this.unbindSuperService();
 };
 

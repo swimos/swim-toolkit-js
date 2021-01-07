@@ -77,6 +77,12 @@ export declare abstract class ViewService<V extends View, T> {
 
   constructor(owner: V, serviceName: string | undefined);
 
+  /** @hidden */
+  observe?: boolean;
+
+  /** @hidden */
+  readonly type?: unknown;
+
   get name(): string;
 
   get owner(): V;
@@ -358,9 +364,15 @@ ViewService.prototype.getManagerOr = function <T, E>(this: ViewService<View, T>,
 
 ViewService.prototype.mount = function (this: ViewService<View, unknown>): void {
   this.bindSuperService();
+  if (this._manager instanceof ViewManager && this.observe === true) {
+    this._manager.addViewManagerObserver(this as ViewManagerObserverType<ViewManager>);
+  }
 };
 
 ViewService.prototype.unmount = function (this: ViewService<View, unknown>): void {
+  if (this._manager instanceof ViewManager && this.observe === true) {
+    this._manager.removeViewManagerObserver(this as ViewManagerObserverType<ViewManager>);
+  }
   this.unbindSuperService();
 };
 
