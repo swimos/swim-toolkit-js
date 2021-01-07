@@ -14,14 +14,8 @@
 
 export {AnimatorContext} from "./AnimatorContext";
 export {Animator} from "./Animator";
-export {FrameAnimator} from "./FrameAnimator";
-export {ChildAnimator} from "./ChildAnimator";
 
 export {
   TweenAnimatorFlags,
   TweenAnimator,
 } from "./TweenAnimator";
-export {TweenFrameAnimator} from "./TweenFrameAnimator";
-export {TweenChildAnimator} from "./TweenChildAnimator";
-
-export {PropertyAnimator} from "./PropertyAnimator";

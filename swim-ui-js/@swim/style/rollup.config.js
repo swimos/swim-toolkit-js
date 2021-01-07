@@ -17,7 +17,6 @@ const main = {
       "@swim/structure": "swim",
       "@swim/math": "swim",
       "@swim/time": "swim",
-      "@swim/tween": "swim",
       "@swim/color": "swim",
     },
     sourcemap: true,
@@ -31,7 +30,6 @@ const main = {
     "@swim/structure",
     "@swim/math",
     "@swim/time",
-    "@swim/tween",
     "@swim/color",
   ],
   plugins: [

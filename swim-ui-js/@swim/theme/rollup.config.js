@@ -19,6 +19,7 @@ const main = {
       "@swim/time": "swim",
       "@swim/tween": "swim",
       "@swim/color": "swim",
+      "@swim/style": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -33,6 +34,7 @@ const main = {
     "@swim/time",
     "@swim/tween",
     "@swim/color",
+    "@swim/style",
   ],
   plugins: [
     nodeResolve({moduleDirectories: ["../..", "node_modules"]}),

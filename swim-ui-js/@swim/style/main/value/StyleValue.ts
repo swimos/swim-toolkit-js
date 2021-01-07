@@ -17,7 +17,6 @@ import {Interpolator} from "@swim/interpolate";
 import {Form} from "@swim/structure";
 import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
 import {AnyDateTime, DateTime} from "@swim/time";
-import {AnyTransition, TransitionInit, Transition} from "@swim/tween";
 import {AnyColor, Color, RgbColorInit, HslColorInit, AnyLinearGradient, LinearGradient} from "@swim/color";
 import {AnyFont, Font} from "../font/Font";
 import {AnyBoxShadow, BoxShadowInit, BoxShadow} from "../shadow/BoxShadow";
@@ -33,7 +32,6 @@ export type AnyStyleValue = AnyDateTime
                           | AnyLinearGradient
                           | AnyTransform
                           | Interpolator<any>
-                          | AnyTransition<any> | TransitionInit<any>
                           | number
                           | boolean;
 
@@ -46,7 +44,6 @@ export type StyleValue = DateTime
                        | LinearGradient
                        | Transform
                        | Interpolator<any>
-                       | Transition<any>
                        | number
                        | boolean;
 
@@ -76,7 +73,6 @@ StyleValue.fromAny = function (value: AnyStyleValue): StyleValue {
       || value instanceof LinearGradient
       || value instanceof Transform
       || value instanceof Interpolator
-      || value instanceof Transition
       || typeof value === "number"
       || typeof value === "boolean") {
     return value;
@@ -88,8 +84,6 @@ StyleValue.fromAny = function (value: AnyStyleValue): StyleValue {
     return Font.fromAny(value);
   } else if (BoxShadow.isInit(value)) {
     return BoxShadow.fromAny(value);
-  } else if (Transition.isInit(value)) {
-    return Transition.fromAny(value);
   } else if (typeof value === "string") {
     return StyleValue.parse(value);
   }

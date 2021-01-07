@@ -60,7 +60,7 @@ export interface NodeViewClass extends ViewClass {
 
 export class NodeView extends View {
   /** @hidden */
-  readonly _node: ViewNodeType<this>;
+  readonly _node: this extends {readonly node: infer N} ? N : never;
   /** @hidden */
   _key?: string;
   /** @hidden */

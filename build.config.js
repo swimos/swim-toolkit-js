@@ -371,11 +371,11 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "tween", "color"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "color"],
       },
       {
         id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "tween", "color", "style"],
+        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "color", "style"],
       },
     ],
   },
@@ -386,11 +386,11 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "interpolate", "structure", "math", "time", "tween", "color"],
+        deps: ["util", "codec", "interpolate", "structure", "math", "time", "tween", "color", "style"],
       },
       {
         id: "test",
-        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "tween", "color", "theme"],
+        deps: ["util", "codec", "unit", "interpolate", "structure", "math", "time", "tween", "color", "style", "theme"],
       },
     ],
   },

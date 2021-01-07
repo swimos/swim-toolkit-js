@@ -45,11 +45,11 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["tween", "color"],
+        deps: ["color"],
       },
       {
         id: "test",
-        deps: ["tween", "color", "style"],
+        deps: ["color", "style"],
       },
     ],
   },
@@ -59,11 +59,11 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["tween", "color"],
+        deps: ["tween", "color", "style"],
       },
       {
         id: "test",
-        deps: ["tween", "color", "theme"],
+        deps: ["tween", "color", "style", "theme"],
       },
     ],
   },
