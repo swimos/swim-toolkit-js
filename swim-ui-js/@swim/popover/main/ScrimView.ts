@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween, Transition} from "@swim/tween";
+import {Tween, Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Look} from "@swim/theme";
-import {ModalState, ModalManager, ModalManagerObserver} from "@swim/view";
+import type {ModalState, ModalManager, ModalManagerObserver} from "@swim/view";
 import {ViewNodeType, HtmlView} from "@swim/dom";
 
 export class ScrimView extends HtmlView implements ModalManagerObserver {

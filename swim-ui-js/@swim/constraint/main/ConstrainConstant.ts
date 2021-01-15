@@ -16,7 +16,7 @@ import {Output, Debug, Format} from "@swim/codec";
 import {ConstraintMap} from "./ConstraintMap";
 import {Constrain} from "./Constrain";
 import {ConstrainTerm} from "./ConstrainTerm";
-import {ConstrainVariable} from "./ConstrainVariable";
+import type {ConstrainVariable} from "./ConstrainVariable";
 
 export class ConstrainConstant extends ConstrainTerm implements Debug {
   /** @hidden */

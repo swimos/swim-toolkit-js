@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModelContextType} from "./ModelContext";
-import {Model} from "./Model";
-import {Trait} from "./Trait";
+import type {ModelContextType} from "./ModelContext";
+import type {Model} from "./Model";
+import type {Trait} from "./Trait";
 
 export type ModelObserverType<M extends Model> =
   M extends {readonly modelObservers: ReadonlyArray<infer MO>} ? MO : never;

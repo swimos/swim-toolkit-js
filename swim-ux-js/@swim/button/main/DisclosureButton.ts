@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Angle, Transform} from "@swim/math";
-import {Transition} from "@swim/tween";
+import type {Transition} from "@swim/animation";
 import {AnyColor, Color, ColorInterpolator} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewAnimator} from "@swim/view";
@@ -49,13 +49,13 @@ export class DisclosureButton extends HtmlView {
   }
 
   @ViewAnimator({type: Number, inherit: true})
-  disclosurePhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
+  declare disclosurePhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   @ViewAnimator({type: Color, inherit: true})
-  collapsedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare collapsedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  expandedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare expandedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {

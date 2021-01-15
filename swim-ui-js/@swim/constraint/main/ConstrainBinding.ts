@@ -16,7 +16,7 @@ import {Output, Debug, Format} from "@swim/codec";
 import {Constrain} from "./Constrain";
 import {ConstrainVariable} from "./ConstrainVariable";
 import {AnyConstraintStrength, ConstraintStrength} from "./ConstraintStrength";
-import {ConstraintScope} from "./ConstraintScope";
+import type {ConstraintScope} from "./ConstraintScope";
 
 export class ConstrainBinding extends ConstrainVariable implements Debug {
   /** @hidden */
@@ -45,7 +45,7 @@ export class ConstrainBinding extends ConstrainVariable implements Debug {
     return this._owner;
   }
 
-  readonly name: string;
+  declare readonly name: string;
 
   get value(): number {
     return this._value;

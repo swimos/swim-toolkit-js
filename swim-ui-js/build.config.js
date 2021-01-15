@@ -13,8 +13,8 @@ const ui = [
     ],
   },
   {
-    id: "tween",
-    name: "@swim/tween",
+    id: "animation",
+    name: "@swim/animation",
     targets: [
       {
         id: "main",
@@ -22,7 +22,7 @@ const ui = [
       },
       {
         id: "test",
-        deps: ["tween"],
+        deps: ["animation"],
       },
     ],
   },
@@ -59,11 +59,11 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["tween", "color", "style"],
+        deps: ["animation", "color", "style"],
       },
       {
         id: "test",
-        deps: ["tween", "color", "style", "theme"],
+        deps: ["animation", "color", "style", "theme"],
       },
     ],
   },
@@ -73,7 +73,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "tween", "color", "style", "theme"],
+        deps: ["constraint", "animation", "color", "style", "theme"],
       },
     ],
   },
@@ -83,7 +83,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "tween", "color", "style", "theme", "view"],
+        deps: ["constraint", "animation", "color", "style", "theme", "view"],
       },
     ],
   },
@@ -93,7 +93,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "tween", "color", "style", "theme", "view", "dom"],
+        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom"],
       },
     ],
   },
@@ -103,7 +103,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "tween", "color", "style", "theme", "view"],
+        deps: ["constraint", "animation", "color", "style", "theme", "view"],
       },
     ],
   },
@@ -113,7 +113,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "tween", "color", "style", "theme", "view", "dom"],
+        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom"],
       },
     ],
   },
@@ -125,7 +125,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "tween", "color", "style", "theme", "view", "dom", "graphics", "gesture", "popover"],
+        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "popover"],
       },
     ],
   },

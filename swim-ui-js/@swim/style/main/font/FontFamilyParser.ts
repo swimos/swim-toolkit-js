@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Input, Output, Parser, Diagnostic, Unicode, Base16} from "@swim/codec";
-import {FontFamily} from "./FontFamily";
+import type {FontFamily} from "./FontFamily";
 
 /** @hidden */
 export class FontFamilyParser extends Parser<FontFamily> {

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween} from "@swim/tween";
-import {View} from "../View";
+import type {Tween} from "@swim/animation";
+import type {View} from "../View";
 
 export interface ModalOptions {
   modal?: boolean | number;

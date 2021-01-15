@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {PositionGestureDelegate} from "./PositionGestureDelegate";
-import {MomentumGestureInput} from "./MomentumGestureInput";
+import type {PositionGestureDelegate} from "./PositionGestureDelegate";
+import type {MomentumGestureInput} from "./MomentumGestureInput";
 
 export interface MomentumGestureDelegate extends PositionGestureDelegate {
   /**

@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyPointR2, PointR2} from "@swim/math";
+import type {AnyPointR2, PointR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {HtmlView} from "@swim/dom";
 import {CanvasView} from "@swim/graphics";
 import {EsriProjection} from "./EsriProjection";
 import {EsriView} from "./EsriView";
 import {EsriSceneViewProjection} from "./EsriSceneViewProjection";
-import {EsriSceneViewObserver} from "./EsriSceneViewObserver";
-import {EsriSceneViewController} from "./EsriSceneViewController";
+import type {EsriSceneViewObserver} from "./EsriSceneViewObserver";
+import type {EsriSceneViewController} from "./EsriSceneViewController";
 
 export class EsriSceneView extends EsriView {
   /** @hidden */
@@ -53,22 +53,20 @@ export class EsriSceneView extends EsriView {
     map.watch("extent", this.onMapRender);
   }
 
-  // @ts-ignore
   declare readonly viewController: EsriSceneViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<EsriSceneViewObserver>;
 
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;
   project(lng: AnyGeoPoint | number, lat?: number): PointR2 {
-    return this._geoProjection.project.apply(this._geoProjection, arguments);
+    return this._geoProjection.project.apply(this._geoProjection, arguments as any);
   }
 
   unproject(point: AnyPointR2): GeoPoint;
   unproject(x: number, y: number): GeoPoint;
   unproject(x: AnyPointR2 | number, y?: number): GeoPoint {
-    return this._geoProjection.unproject.apply(this._geoProjection, arguments);
+    return this._geoProjection.unproject.apply(this._geoProjection, arguments as any);
   }
 
   get geoProjection(): EsriSceneViewProjection {

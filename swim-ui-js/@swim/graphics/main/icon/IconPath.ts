@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {BoxR2, AnyPathR2, PathR2, Transform} from "@swim/math";
-import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import {DrawingContext} from "../drawing/DrawingContext";
+import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {DrawingContext} from "../drawing/DrawingContext";
 import {DrawingRenderer} from "../drawing/DrawingRenderer";
-import {Icon} from "../Icon";
+import {Icon} from "./Icon";
 
 export class IconPath extends Icon {
   /** @hidden */

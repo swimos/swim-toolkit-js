@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModelContext} from "../ModelContext";
+import type {ModelContext} from "../ModelContext";
 import {ModelFlags, Model} from "../Model";
 import {ModelManager} from "../manager/ModelManager";
-import {RefreshContext} from "./RefreshContext";
-import {RefreshManagerObserver} from "./RefreshManagerObserver";
+import type {RefreshContext} from "./RefreshContext";
+import type {RefreshManagerObserver} from "./RefreshManagerObserver";
 
 export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
   /** @hidden */
@@ -62,9 +62,9 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
   }
 
   protected powerRootModels(): void {
-    const rootModels = this._rootModels;
+    const rootModels = this.rootModels;
     for (let i = 0, n = rootModels.length; i < n; i += 1) {
-      const rootModel = rootModels[i];
+      const rootModel = rootModels[i]!;
       if (!rootModel.isPowered()) {
         this.powerRootModel(rootModel);
       }
@@ -83,9 +83,9 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
   }
 
   protected unpowerRootModels(): void {
-    const rootModels = this._rootModels;
+    const rootModels = this.rootModels;
     for (let i = 0, n = rootModels.length; i < n; i += 1) {
-      const rootModel = rootModels[i];
+      const rootModel = rootModels[i]!;
       if (rootModel.isPowered()) {
         this.unpowerRootModel(rootModel);
       }
@@ -170,13 +170,13 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
   }
 
   protected runAnalyzePass(immediate: boolean = false): void {
-    const rootModels = this._rootModels;
+    const rootModels = this.rootModels;
     this._rootFlags |= Model.TraversingFlag | Model.AnalyzingFlag;
     this._rootFlags &= ~Model.AnalyzeMask;
     try {
       const t0 = performance.now();
       for (let i = 0; i < rootModels.length; i += 1) {
-        const rootModel = rootModels[i];
+        const rootModel = rootModels[i]!;
         if ((rootModel.modelFlags & Model.AnalyzeMask) !== 0) {
           const modelContext = rootModel.modelContext as RefreshContext;
           modelContext.updateTime = t0;
@@ -207,13 +207,13 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
   }
 
   protected runRefreshPass(immediate: boolean = false): void {
-    const rootModels = this._rootModels;
+    const rootModels = this.rootModels;
     this._rootFlags |= Model.TraversingFlag | Model.RefreshingFlag;
     this._rootFlags &= ~Model.RefreshMask;
     try {
       const time = performance.now();
       for (let i = 0; i < rootModels.length; i += 1) {
-        const rootModel = rootModels[i];
+        const rootModel = rootModels[i]!;
         if ((rootModel.modelFlags & Model.RefreshMask) !== 0) {
           const modelContext = rootModel.modelContext as RefreshContext;
           modelContext.updateTime = time;
@@ -236,7 +236,6 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     }
   }
 
-  // @ts-ignore
   declare readonly modelManagerObservers: ReadonlyArray<RefreshManagerObserver>;
 
   protected onAttach(): void {

@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Form} from "@swim/structure";
-import {EaseForm} from "./EaseForm";
-
 export type EaseType = "linear" | "quad-in" | "quad-out" | "quad-in-out"
                      | "cubic-in" | "cubic-out" | "cubic-in-out"
                      | "quart-in" | "quart-out" | "quart-in-out"
@@ -59,14 +56,6 @@ export const Ease = {} as {
   bounceInOut: Ease;
 
   fromAny(value: AnyEase): Ease;
-
-  /** @hidden */
-  _form: Form<Ease, AnyEase> | undefined;
-  form(unit?: AnyEase): Form<Ease, AnyEase>;
-
-  // Forward type declarations
-  /** @hidden */
-  Form: typeof EaseForm, // defined by EaseForm
 };
 
 Ease.linear = function linear(t: number): number {
@@ -328,18 +317,4 @@ Ease.fromAny = function (value: AnyEase): Ease {
     }
   }
   throw new TypeError("" + value);
-};
-
-Ease.form = function (unit?: AnyEase): Form<Ease, AnyEase> {
-  if (unit !== void 0) {
-    unit = Ease.fromAny(unit);
-  }
-  if (unit !== Ease.linear) {
-    return new Ease.Form(unit);
-  } else {
-    if (Ease._form === void 0) {
-      Ease._form = new Ease.Form(Ease.linear);
-    }
-    return Ease._form;
-  }
 };

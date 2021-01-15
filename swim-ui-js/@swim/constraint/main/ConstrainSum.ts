@@ -15,7 +15,7 @@
 import {Output, Debug, Format} from "@swim/codec";
 import {ConstraintMap} from "./ConstraintMap";
 import {Constrain} from "./Constrain";
-import {ConstrainVariable} from "./ConstrainVariable";
+import type {ConstrainVariable} from "./ConstrainVariable";
 
 export class ConstrainSum extends Constrain implements Debug {
   /** @hidden */

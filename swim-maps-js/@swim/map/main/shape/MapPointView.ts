@@ -14,7 +14,7 @@
 
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint, GeoBox} from "@swim/geo";
-import {Tween} from "@swim/tween";
+import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -26,7 +26,7 @@ import {
   CanvasContext,
   CanvasRenderer,
 } from "@swim/graphics";
-import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
+import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
 import {MapLayerView} from "../layer/MapLayerView";
 
 export type MapPointLabelPlacement = "auto" | "top" | "right" | "bottom" | "left";
@@ -73,28 +73,28 @@ export class MapPointView extends MapLayerView {
       this.owner.onSetGeoPoint(newValue, oldValue);
     },
   })
-  geoPoint: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
+  declare geoPoint: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
-  viewPoint: ViewAnimator<this, PointR2, AnyPointR2>;
+  declare viewPoint: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Length})
-  radius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare radius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color})
-  color: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare color: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number})
-  opacity: ViewAnimator<this, number | undefined>;
+  declare opacity: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length})
-  labelPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare labelPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   hitRadius(): number | null;
   hitRadius(hitRadius: number | null): this;

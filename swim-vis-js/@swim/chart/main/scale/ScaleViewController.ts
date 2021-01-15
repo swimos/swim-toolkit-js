@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {GraphicsViewController} from "@swim/graphics";
-import {ScaleView} from "./ScaleView";
-import {ScaleViewObserver} from "./ScaleViewObserver";
+import type {ScaleView} from "./ScaleView";
+import type {ScaleViewObserver} from "./ScaleViewObserver";
 
 export class ScaleViewController<X = unknown, Y = unknown, V extends ScaleView<X, Y> = ScaleView<X, Y>> extends GraphicsViewController<V> implements ScaleViewObserver<X, Y, V> {
 }

@@ -14,7 +14,7 @@
 
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
 import {GeoPoint, GeoBox} from "@swim/geo";
-import {Tween} from "@swim/tween";
+import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
@@ -27,7 +27,7 @@ import {
   CanvasContext,
   CanvasRenderer,
 } from "@swim/graphics";
-import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
+import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
 import {MapLayerView} from "../layer/MapLayerView";
 import {AnyMapPointView, MapPointView} from "./MapPointView";
 
@@ -113,7 +113,7 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
       while (i < childViews.length && j < points.length) {
         const childView = childViews[i];
         if (childView instanceof MapPointView) {
-          const point = points[j];
+          const point = points[j]!;
           childView.setState(point);
           const {lng, lat} = childView.geoPoint.getValue();
           lngMid += lng;
@@ -128,7 +128,7 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
         i += 1;
       }
       while (j < points.length) {
-        const point = MapPointView.fromAny(points[j]);
+        const point = MapPointView.fromAny(points[j]!);
         this.appendChildView(point);
         const {lng, lat} = point.geoPoint.getValue();
         lngMid += lng;
@@ -198,19 +198,19 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
   }
 
   @ViewAnimator({type: Color, inherit: true})
-  fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);

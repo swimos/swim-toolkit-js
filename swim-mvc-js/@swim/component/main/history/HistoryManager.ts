@@ -15,8 +15,8 @@
 import {Uri, UriQuery, UriFragment} from "@swim/uri";
 import {Component} from "../Component";
 import {ComponentManager} from "../manager/ComponentManager";
-import {HistoryStateInit, HistoryState} from "./HistoryState";
-import {HistoryManagerObserver} from "./HistoryManagerObserver";
+import type {HistoryStateInit, HistoryState} from "./HistoryState";
+import type {HistoryManagerObserver} from "./HistoryManagerObserver";
 
 export class HistoryManager<C extends Component = Component> extends ComponentManager<C> {
   /** @hidden */
@@ -137,17 +137,19 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
   }
 
   protected willPushHistory(historyState: HistoryState): void {
-    this.willObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerWillPushHistory !== void 0) {
         componentManagerObserver.historyManagerWillPushHistory(historyState, this);
       }
-    });
+    }
   }
 
   protected onPushHistory(historyState: HistoryState): void {
-    const rootComponents = this._rootComponents;
+    const rootComponents = this.rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
-      rootComponents[i].requireUpdate(Component.NeedsRevise);
+      rootComponents[i]!.requireUpdate(Component.NeedsRevise);
     }
   }
 
@@ -157,6 +159,13 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
         componentManagerObserver.historyManagerDidPushHistory(historyState, this);
       }
     });
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
+      if (componentManagerObserver.historyManagerDidPushHistory !== void 0) {
+        componentManagerObserver.historyManagerDidPushHistory(historyState, this);
+      }
+    }
   }
 
   replaceHistory(deltaState: HistoryStateInit): void {
@@ -169,26 +178,30 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
   }
 
   protected willReplaceHistory(historyState: HistoryState): void {
-    this.willObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerWillReplaceHistory !== void 0) {
         componentManagerObserver.historyManagerWillReplaceHistory(historyState, this);
       }
-    });
+    }
   }
 
   protected onReplaceHistory(historyState: HistoryState): void {
-    const rootComponents = this._rootComponents;
+    const rootComponents = this.rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
-      rootComponents[i].requireUpdate(Component.NeedsRevise);
+      rootComponents[i]!.requireUpdate(Component.NeedsRevise);
     }
   }
 
   protected didReplaceHistory(historyState: HistoryState): void {
-    this.didObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerDidReplaceHistory !== void 0) {
         componentManagerObserver.historyManagerDidReplaceHistory(historyState, this);
       }
-    });
+    }
   }
 
   /** @hidden */
@@ -203,29 +216,32 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
   }
 
   protected willPopHistory(historyState: HistoryState): void {
-    this.willObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerWillPopHistory !== void 0) {
         componentManagerObserver.historyManagerWillPopHistory(historyState, this);
       }
-    });
+    }
   }
 
   protected onPopHistory(historyState: HistoryState): void {
-    const rootComponents = this._rootComponents;
+    const rootComponents = this.rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
-      rootComponents[i].requireUpdate(Component.NeedsRevise);
+      rootComponents[i]!.requireUpdate(Component.NeedsRevise);
     }
   }
 
   protected didPopHistory(historyState: HistoryState): void {
-    this.didObserve(function (componentManagerObserver: HistoryManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerDidPopHistory !== void 0) {
         componentManagerObserver.historyManagerDidPopHistory(historyState, this);
       }
-    });
+    }
   }
 
-  // @ts-ignore
   declare readonly componentManagerObservers: ReadonlyArray<HistoryManagerObserver>;
 
   protected onAttach(): void {

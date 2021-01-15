@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import {Interpolator} from "@swim/interpolate";
-import {FontStyle} from "./FontStyle";
-import {FontVariant} from "./FontVariant";
-import {FontWeight} from "./FontWeight";
-import {FontStretch} from "./FontStretch";
-import {FontSize} from "./FontSize";
-import {LineHeight} from "./LineHeight";
-import {FontFamily} from "./FontFamily";
+import type {FontStyle} from "./FontStyle";
+import type {FontVariant} from "./FontVariant";
+import type {FontWeight} from "./FontWeight";
+import type {FontStretch} from "./FontStretch";
+import type {FontSize} from "./FontSize";
+import type {LineHeight} from "./LineHeight";
+import type {FontFamily} from "./FontFamily";
 import {AnyFont, FontInit, Font} from "./Font";
 
 export class FontInterpolator extends Interpolator<Font, AnyFont> {

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Component} from "../Component";
-import {ComponentManager} from "./ComponentManager";
+import type {Component} from "../Component";
+import type {ComponentManager} from "./ComponentManager";
 
 export type ComponentManagerObserverType<CM extends ComponentManager> =
   CM extends {readonly componentManagerObservers: ReadonlyArray<infer CMO>} ? CMO : never;

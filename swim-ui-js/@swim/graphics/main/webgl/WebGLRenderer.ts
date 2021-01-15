@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import {WebGLContext} from "./WebGLContext";
+import type {WebGLContext} from "./WebGLContext";
 
 export class WebGLRenderer extends GraphicsRenderer {
   /** @hidden */

@@ -13,14 +13,14 @@
 // limitations under the License.
 
 import {AnyPointR2, PointR2} from "@swim/math";
-import {Tween} from "@swim/tween";
+import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import {LayerView} from "../layer/LayerView";
-import {CanvasContext} from "../canvas/CanvasContext";
+import type {CanvasContext} from "../canvas/CanvasContext";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
-import {TypesetViewInit, TypesetView} from "./TypesetView";
+import type {TypesetViewInit, TypesetView} from "./TypesetView";
 import {TextRun} from "./TextRun";
 
 export type AnyTextRunView = TextRunView | TextRun | TextRunViewInit | string;
@@ -36,22 +36,22 @@ export class TextRunView extends LayerView implements TypesetView {
   }
 
   @ViewAnimator({type: String, state: ""})
-  text: ViewAnimator<this, string>;
+  declare text: ViewAnimator<this, string>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: String, inherit: true})
-  textAlign: ViewAnimator<this, CanvasTextAlign | undefined>;
+  declare textAlign: ViewAnimator<this, CanvasTextAlign | undefined>;
 
   @ViewAnimator({type: String, inherit: true})
-  textBaseline: ViewAnimator<this, CanvasTextBaseline | undefined>;
+  declare textBaseline: ViewAnimator<this, CanvasTextBaseline | undefined>;
 
   @ViewAnimator({type: PointR2, inherit: true})
-  textOrigin: ViewAnimator<this, PointR2 | undefined, AnyPointR2 | undefined>;
+  declare textOrigin: ViewAnimator<this, PointR2 | undefined, AnyPointR2 | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   get value(): TextRun {
     return new TextRun(this.text.getValue(), this.font.getValue(), this.textAlign.getValue(),

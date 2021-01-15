@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MoodVector, ThemeMatrix} from "@swim/theme";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {View} from "../View";
 import {ThemeManager} from "../theme/ThemeManager";
 import {ViewService} from "./ViewService";

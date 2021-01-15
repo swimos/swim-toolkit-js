@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnimatorContext, Animator} from "@swim/tween";
-import {CssRuleConstructor, CssRule} from "./CssRule";
+import type {AnimatorContext, Animator} from "@swim/animation";
+import type {CssRuleConstructor, CssRule} from "./CssRule";
 
-export interface CssContextClass {
+export interface CssContextPrototype {
   /** @hidden */
-  _cssRuleConstructors?: {[ruleName: string]: CssRuleConstructor<any> | undefined};
+  _cssRuleConstructors?: {[ruleName: string]: CssRuleConstructor<CssContext> | undefined};
 }
 
 export interface CssContext extends AnimatorContext {
@@ -40,39 +40,37 @@ export interface CssContext extends AnimatorContext {
 
 /** @hidden */
 export const CssContext = {} as {
-  getCssRuleConstructor(ruleName: string, contextClass: CssContextClass | null): CssRuleConstructor<any> | null;
-  decorateCssRule<V extends CssContext>(constructor: CssRuleConstructor<V>,
-                                        contextClass: CssContextClass, ruleName: string): void;
+  getCssRuleConstructor(ruleName: string, contextPrototype: CssContextPrototype | null): CssRuleConstructor<any> | null;
+  decorateCssRule(constructor: CssRuleConstructor<CssContext>,
+                  target: Object, propertyKey: string | symbol): void;
 };
 
-CssContext.getCssRuleConstructor = function (ruleName: string, contextClass: CssContextClass | null): CssRuleConstructor<any> | null {
-  if (contextClass === null) {
-    contextClass = (this as any).prototype as CssContextClass;
-  }
-  while (contextClass !== null) {
-    if (contextClass.hasOwnProperty("_cssRuleConstructors")) {
-      const constructor = contextClass._cssRuleConstructors![ruleName];
+CssContext.getCssRuleConstructor = function (ruleName: string, contextPrototype: CssContextPrototype): CssRuleConstructor<CssContext> | null {
+  while (contextPrototype !== null) {
+    if (contextPrototype.hasOwnProperty("_cssRuleConstructors")) {
+      const constructor = contextPrototype._cssRuleConstructors![ruleName];
       if (constructor !== void 0) {
         return constructor;
       }
     }
-    contextClass = (contextClass as any).__proto__ as CssContextClass | null;
+    contextPrototype = Object.getPrototypeOf(contextPrototype);
   }
   return null;
 };
 
-CssContext.decorateCssRule = function <V extends CssContext>(constructor: CssRuleConstructor<V>,
-                                                             contextClass: CssContextClass, ruleName: string): void {
-  if (!contextClass.hasOwnProperty("_cssRuleConstructors")) {
-    contextClass._cssRuleConstructors = {};
+CssContext.decorateCssRule = function (constructor: CssRuleConstructor<any>,
+                                       target: Object, propertyKey: string | symbol): void {
+  const contextPrototype = target as CssContextPrototype;
+  if (!contextPrototype.hasOwnProperty("_cssRuleConstructors")) {
+    contextPrototype._cssRuleConstructors = {};
   }
-  contextClass._cssRuleConstructors![ruleName] = constructor;
-  Object.defineProperty(contextClass, ruleName, {
-    get: function (this: V): CssRule<V> {
-      let cssRule = this.getCssRule(ruleName) as CssRule<V> | null;
+  contextPrototype._cssRuleConstructors![propertyKey.toString()] = constructor;
+  Object.defineProperty(target, propertyKey, {
+    get: function (this: CssContext): CssRule<CssContext> {
+      let cssRule = this.getCssRule(propertyKey.toString());
       if (cssRule === null) {
-        cssRule = new constructor(this, ruleName);
-        this.setCssRule(ruleName, cssRule);
+        cssRule = new constructor(this, propertyKey.toString());
+        this.setCssRule(propertyKey.toString(), cssRule);
       }
       return cssRule;
     },

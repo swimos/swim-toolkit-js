@@ -12,23 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {Model} from "../Model";
 import {TraitModelType, TraitContextType, Trait} from "../Trait";
-import {TraitObserverType} from "../TraitObserver";
-import {TraitConsumerType, TraitConsumer} from "../TraitConsumer";
-import {TraitService} from "../service/TraitService";
+import type {TraitObserverType} from "../TraitObserver";
+import type {TraitConsumerType, TraitConsumer} from "../TraitConsumer";
+import type {TraitService} from "../service/TraitService";
 import {TraitScope} from "../scope/TraitScope";
-import {TraitModel} from "../binding/TraitModel";
-import {TraitBinding} from "../binding/TraitBinding";
-import {ModelDownlink} from "../downlink/ModelDownlink";
+import type {TraitModel} from "../binding/TraitModel";
+import type {TraitBinding} from "../binding/TraitBinding";
+import type {ModelDownlink} from "../downlink/ModelDownlink";
 
 export class GenericTrait extends Trait {
-  /** @hidden */
-  _model: TraitModelType<this> | null;
-  /** @hidden */
-  _key?: string;
-  /** @hidden */
-  _traitConsumers?: TraitConsumerType<this>[];
   /** @hidden */
   _traitServices?: {[serviceName: string]: TraitService<Trait, unknown> | undefined};
   /** @hidden */
@@ -42,23 +37,31 @@ export class GenericTrait extends Trait {
 
   constructor() {
     super();
-    this._model = null;
+    Object.defineProperty(this, "model", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "key", {
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "traitConsumers", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected willObserve<T>(callback: (this: this, traitObserver: TraitObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const traitObservers = this._traitObservers;
-    if (traitObservers !== void 0) {
-      let i = 0;
-      while (i < traitObservers.length) {
-        const traitObserver = traitObservers[i];
-        result = callback.call(this, traitObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (traitObserver === traitObservers[i]) {
-          i += 1;
-        }
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      result = callback.call(this, traitObserver as TraitObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
@@ -66,39 +69,29 @@ export class GenericTrait extends Trait {
 
   protected didObserve<T>(callback: (this: this, traitObserver: TraitObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const traitObservers = this._traitObservers;
-    if (traitObservers !== void 0) {
-      let i = 0;
-      while (i < traitObservers.length) {
-        const traitObserver = traitObservers[i];
-        result = callback.call(this, traitObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (traitObserver === traitObservers[i]) {
-          i += 1;
-        }
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      result = callback.call(this, traitObserver as TraitObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
   }
 
-  get key(): string | undefined {
-    return this._key;
-  }
+  declare readonly key: string | undefined;
 
   /** @hidden */
   setKey(key: string | undefined): void {
-    if (key !== void 0) {
-      this._key = key;
-    } else if (this._key !== void 0) {
-      this._key = void 0;
-    }
+    Object.defineProperty(this, "key", {
+      value: key,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get model(): Model | null {
-    return this._model;
-  }
+  declare readonly model: Model | null;
 
   /** @hidden */
   setModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null) {
@@ -106,7 +99,11 @@ export class GenericTrait extends Trait {
     if (oldModel !== null) {
       this.detachModel(oldModel);
     }
-    this._model = newModel;
+    Object.defineProperty(this, "model", {
+      value: newModel,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetModel(newModel, oldModel);
     if (newModel !== null) {
       this.attachModel(newModel);
@@ -135,7 +132,7 @@ export class GenericTrait extends Trait {
   }
 
   remove(): void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       model.removeTrait(this);
     }
@@ -163,8 +160,8 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   doMount(): void {
-    if ((this._traitFlags & Trait.MountedFlag) === 0) {
-      this._traitFlags |= Trait.MountedFlag;
+    if ((this.traitFlags & Trait.MountedFlag) === 0) {
+      this.setTraitFlags(this.traitFlags | Trait.MountedFlag);
       this.willMount();
       this.onMount();
       this.didMount();
@@ -182,8 +179,8 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   doUnmount(): void {
-    if ((this._traitFlags & Trait.MountedFlag) !== 0) {
-      this._traitFlags &= ~Trait.MountedFlag;
+    if ((this.traitFlags & Trait.MountedFlag) !== 0) {
+      this.setTraitFlags(this.traitFlags & ~Trait.MountedFlag);
       this.willUnmount();
       this.onUnmount();
       this.didUnmount();
@@ -200,8 +197,8 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   doPower(): void {
-    if ((this._traitFlags & Trait.PoweredFlag) === 0) {
-      this._traitFlags |= Trait.PoweredFlag;
+    if ((this.traitFlags & Trait.PoweredFlag) === 0) {
+      this.setTraitFlags(this.traitFlags | Trait.PoweredFlag);
       this.willPower();
       this.onPower();
       this.didPower();
@@ -212,8 +209,8 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   doUnpower(): void {
-    if ((this._traitFlags & Trait.PoweredFlag) !== 0) {
-      this._traitFlags &= ~Trait.PoweredFlag;
+    if ((this.traitFlags & Trait.PoweredFlag) !== 0) {
+      this.setTraitFlags(this.traitFlags & ~Trait.PoweredFlag);
       this.willUnpower();
       this.onUnpower();
       this.didUnpower();
@@ -233,65 +230,57 @@ export class GenericTrait extends Trait {
   }
 
   protected startConsuming(): void {
-    if ((this._traitFlags & Trait.ConsumingFlag) === 0) {
+    if ((this.traitFlags & Trait.ConsumingFlag) === 0) {
       this.willStartConsuming();
-      this._traitFlags |= Trait.ConsumingFlag;
+      this.setTraitFlags(this.traitFlags | Trait.ConsumingFlag);
       this.onStartConsuming();
       this.didStartConsuming();
     }
   }
 
   protected stopConsuming(): void {
-    if ((this._traitFlags & Trait.ConsumingFlag) !== 0) {
+    if ((this.traitFlags & Trait.ConsumingFlag) !== 0) {
       this.willStopConsuming();
-      this._traitFlags &= ~Trait.ConsumingFlag;
+      this.setTraitFlags(this.traitFlags & ~Trait.ConsumingFlag);
       this.onStopConsuming();
       this.didStopConsuming();
     }
   }
 
-  get traitConsumers(): ReadonlyArray<TraitConsumer> {
-    let traitConsumers = this._traitConsumers;
-    if (traitConsumers === void 0) {
-      traitConsumers = [];
-      this._traitConsumers = traitConsumers;
-    }
-    return traitConsumers;
-  }
+  declare readonly traitConsumers: ReadonlyArray<TraitConsumer>;
 
   addTraitConsumer(traitConsumer: TraitConsumerType<this>): void {
-    let traitConsumers = this._traitConsumers;
-    let index: number;
-    if (traitConsumers === void 0) {
-      traitConsumers = [];
-      this._traitConsumers = traitConsumers;
-      index = -1;
-    } else {
-      index = traitConsumers.indexOf(traitConsumer);
-    }
-    if (index < 0) {
+    const oldTraitConsumers = this.traitConsumers;
+    const newTraitConsumers = Arrays.inserted(traitConsumer, oldTraitConsumers);
+    if (oldTraitConsumers !== newTraitConsumers) {
       this.willAddTraitConsumer(traitConsumer);
-      traitConsumers.push(traitConsumer);
+      Object.defineProperty(this, "traitConsumers", {
+        value: newTraitConsumers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onAddTraitConsumer(traitConsumer);
       this.didAddTraitConsumer(traitConsumer);
-      if (traitConsumers.length === 1) {
+      if (oldTraitConsumers.length === 0) {
         this.startConsuming();
       }
     }
   }
 
   removeTraitConsumer(traitConsumer: TraitConsumerType<this>): void {
-    const traitConsumers = this._traitConsumers;
-    if (traitConsumers !== void 0) {
-      const index = traitConsumers.indexOf(traitConsumer);
-      if (index >= 0) {
-        this.willRemoveTraitConsumer(traitConsumer);
-        traitConsumers.splice(index, 1);
-        this.onRemoveTraitConsumer(traitConsumer);
-        this.didRemoveTraitConsumer(traitConsumer);
-        if (traitConsumers.length === 0) {
-          this.stopConsuming();
-        }
+    const oldTraitConsumers = this.traitConsumers;
+    const newTraitCnsumers = Arrays.removed(traitConsumer, oldTraitConsumers);
+    if (oldTraitConsumers !== newTraitCnsumers) {
+      this.willRemoveTraitConsumer(traitConsumer);
+      Object.defineProperty(this, "traitConsumers", {
+        value: newTraitCnsumers,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onRemoveTraitConsumer(traitConsumer);
+      this.didRemoveTraitConsumer(traitConsumer);
+      if (newTraitCnsumers.length === 0) {
+        this.stopConsuming();
       }
     }
   }

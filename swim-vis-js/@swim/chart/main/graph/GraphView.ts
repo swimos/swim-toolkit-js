@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {ViewContextType, View} from "@swim/view";
+import type {BoxR2} from "@swim/math";
+import type {ViewContextType, View} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {ScaleViewInit, ScaleView} from "../scale/ScaleView";
 import {AnyPlotView, PlotView} from "../plot/PlotView";
-import {GraphViewObserver} from "./GraphViewObserver";
-import {GraphViewController} from "./GraphViewController";
+import type {GraphViewObserver} from "./GraphViewObserver";
+import type {GraphViewController} from "./GraphViewController";
 
 export type AnyGraphView<X = unknown, Y = unknown> = GraphView<X, Y> | GraphViewInit<X, Y>;
 
@@ -28,10 +28,8 @@ export interface GraphViewInit<X = unknown, Y = unknown> extends ScaleViewInit<X
 }
 
 export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
-  // @ts-ignore
   declare readonly viewController: GraphViewController<X, Y> | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<GraphViewObserver<X, Y>>;
 
   initView(init: GraphViewInit<X, Y>): void {
@@ -39,7 +37,7 @@ export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     const plots = init.plots;
     if (plots !== void 0) {
       for (let i = 0, n = plots.length; i < n; i += 1) {
-        this.addPlot(plots[i]);
+        this.addPlot(plots[i]!);
       }
     }
   }

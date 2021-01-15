@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnimatorContext, Animator} from "@swim/tween";
-import {CssContextClass, CssContext} from "./CssContext";
-import {CssRule} from "./CssRule";
+import type {AnimatorContext, Animator} from "@swim/animation";
+import {CssContext} from "./CssContext";
+import type {CssRule} from "./CssRule";
 
 export class StyleSheet implements CssContext {
   /** @hidden */
@@ -86,8 +86,7 @@ export class StyleSheet implements CssContext {
   getLazyCssRule(ruleName: string): CssRule<this> | null {
     let cssRule = this.getCssRule(ruleName);
     if (cssRule === null) {
-      const contextClass = (this as any).__proto__ as CssContextClass;
-      const constructor = CssContext.getCssRuleConstructor(ruleName, contextClass);
+      const constructor = CssContext.getCssRuleConstructor(ruleName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         cssRule = new constructor(this, ruleName);
         this.setCssRule(ruleName, cssRule);

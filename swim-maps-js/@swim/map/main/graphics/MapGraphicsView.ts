@@ -23,9 +23,9 @@ import {
   DidProjectObserver,
 } from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
-import {MapGraphicsViewContext} from "./MapGraphicsViewContext";
-import {MapGraphicsViewObserver} from "./MapGraphicsViewObserver";
-import {MapGraphicsViewController} from "./MapGraphicsViewController";
+import type {MapGraphicsViewContext} from "./MapGraphicsViewContext";
+import type {MapGraphicsViewObserver} from "./MapGraphicsViewObserver";
+import type {MapGraphicsViewController} from "./MapGraphicsViewController";
 
 export interface MapGraphicsViewInit extends GraphicsViewInit {
 }
@@ -36,10 +36,8 @@ export abstract class MapGraphicsView extends GraphicsView {
   /** @hidden */
   _didProjectObservers?: ReadonlyArray<DidProjectObserver>;
 
-  // @ts-ignore
   declare readonly viewController: MapGraphicsViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<MapGraphicsViewObserver>;
 
   initView(init: MapGraphicsViewInit): void {
@@ -87,7 +85,7 @@ export abstract class MapGraphicsView extends GraphicsView {
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this._viewFlags & View.NeedsAnimate) === 0) {
+    if ((this.viewFlags & View.NeedsAnimate) === 0) {
       processFlags &= ~View.NeedsAnimate;
     }
     return processFlags;
@@ -96,39 +94,38 @@ export abstract class MapGraphicsView extends GraphicsView {
   /** @hidden */
   protected doProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = processFlags;
-    this._viewFlags |= View.TraversingFlag | View.ProcessingFlag;
-    this._viewFlags &= ~View.NeedsProcess;
+    this.setViewFlags(this.viewFlags & ~View.NeedsProcess | (View.TraversingFlag | View.ProcessingFlag));
     try {
       this.willProcess(cascadeFlags, viewContext);
-      if (((this._viewFlags | processFlags) & View.NeedsResize) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsResize) !== 0) {
         this.willResize(viewContext);
         cascadeFlags |= View.NeedsResize;
-        this._viewFlags &= ~View.NeedsResize;
+        this.setViewFlags(this.viewFlags & ~View.NeedsResize);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsScroll) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsScroll) !== 0) {
         this.willScroll(viewContext);
         cascadeFlags |= View.NeedsScroll;
-        this._viewFlags &= ~View.NeedsScroll;
+        this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsChange) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsChange) !== 0) {
         this.willChange(viewContext);
         cascadeFlags |= View.NeedsChange;
-        this._viewFlags &= ~View.NeedsChange;
+        this.setViewFlags(this.viewFlags & ~View.NeedsChange);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
         this.willAnimate(viewContext);
         cascadeFlags |= View.NeedsAnimate;
-        this._viewFlags &= ~View.NeedsAnimate;
+        this.setViewFlags(this.viewFlags & ~View.NeedsAnimate);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsLayout) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsLayout) !== 0) {
         this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
-        this._viewFlags &= ~View.NeedsLayout;
+        this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsProject) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsProject) !== 0) {
         this.willProject(viewContext);
         cascadeFlags |= View.NeedsProject;
-        this._viewFlags &= ~View.NeedsProject;
+        this.setViewFlags(this.viewFlags & ~View.NeedsProject);
       }
 
       this.onProcess(cascadeFlags, viewContext);
@@ -173,19 +170,19 @@ export abstract class MapGraphicsView extends GraphicsView {
       }
       this.didProcess(cascadeFlags, viewContext);
     } finally {
-      this._viewFlags &= ~(View.TraversingFlag | View.ProcessingFlag);
+      this.setViewFlags(this.viewFlags & ~(View.TraversingFlag | View.ProcessingFlag));
     }
   }
 
   protected willProject(viewContext: ViewContextType<this>): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null) {
       viewController.viewWillProject(viewContext, this);
     }
     const viewObservers = this._willProjectObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
-        const viewObserver = viewObservers[i];
+        const viewObserver = viewObservers[i]!;
         viewObserver.viewWillProject(viewContext, this);
       }
     }
@@ -199,12 +196,12 @@ export abstract class MapGraphicsView extends GraphicsView {
     const viewObservers = this._didProjectObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
-        const viewObserver = viewObservers[i];
+        const viewObserver = viewObservers[i]!;
         viewObserver.viewDidProject(viewContext, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null) {
       viewController.viewDidProject(viewContext, this);
     }
   }
@@ -216,7 +213,7 @@ export abstract class MapGraphicsView extends GraphicsView {
   }
 
   protected didSetHidden(hidden: boolean): void {
-    const parentView = this._parentView;
+    const parentView = this.parentView;
     if (parentView instanceof MapGraphicsView) {
       parentView.childViewDidSetHidden(this, hidden);
     }
@@ -258,7 +255,8 @@ export abstract class MapGraphicsView extends GraphicsView {
 
   deriveGeoBounds(): GeoBox {
     let geoBounds: GeoBox | null = this.ownGeoBounds;
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function accumulateGeoBounds(this: self, childView: View): void {
       if (childView instanceof MapGraphicsView && !childView.isHidden()) {
         const childGeoBounds = childView.geoBounds;
         if (childGeoBounds.isDefined()) {
@@ -269,7 +267,8 @@ export abstract class MapGraphicsView extends GraphicsView {
           }
         }
       }
-    }, this);
+    }
+    this.forEachChildView(accumulateGeoBounds, this);
     if (geoBounds === null) {
       geoBounds = this.geoFrame;
     }
@@ -277,7 +276,7 @@ export abstract class MapGraphicsView extends GraphicsView {
   }
 
   protected didSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
-    const parentView = this._parentView;
+    const parentView = this.parentView;
     if (parentView instanceof MapGraphicsView) {
       parentView.childViewDidSetGeoBounds(this, newGeoBounds, oldGeoBounds);
     }

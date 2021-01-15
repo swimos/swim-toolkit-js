@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ThemeMatrix} from "./ThemeMatrix";
+import type {ThemeMatrix} from "./ThemeMatrix";
 
 export const Theme = {} as {
   dark: ThemeMatrix, // defined by DarkTheme

@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equivalent, HashCode} from "@swim/util";
+import type {Equivalent, HashCode} from "@swim/util";
 import {Output, Parser, Debug, Diagnostic, Unicode} from "@swim/codec";
-import {Value, Form} from "@swim/structure";
+import type {Value, Form} from "@swim/structure";
 import {AnyAngle, Angle} from "@swim/math";
-import {ColorParser} from "./ColorParser";
-import {ColorInterpolator} from "./ColorInterpolator";
-import {ColorForm} from "./ColorForm";
-import {RgbColorInit, RgbColor} from "../rgb/RgbColor";
-import {HexColorParser} from "../rgb/HexColorParser";
-import {RgbColorParser} from "../rgb/RgbColorParser";
-import {RgbColorInterpolator} from "../rgb/RgbColorInterpolator";
-import {HslColorInit, HslColor} from "../hsl/HslColor";
-import {HslColorParser} from "../hsl/HslColorParser";
-import {HslColorInterpolator} from "../hsl/HslColorInterpolator";
+import type {ColorParser} from "./ColorParser";
+import type {ColorInterpolator} from "./ColorInterpolator";
+import type {ColorForm} from "./ColorForm";
+import type {RgbColorInit, RgbColor} from "../rgb/RgbColor";
+import type {HexColorParser} from "../rgb/HexColorParser";
+import type {RgbColorParser} from "../rgb/RgbColorParser";
+import type {RgbColorInterpolator} from "../rgb/RgbColorInterpolator";
+import type {HslColorInit, HslColor} from "../hsl/HslColor";
+import type {HslColorParser} from "../hsl/HslColorParser";
+import type {HslColorInterpolator} from "../hsl/HslColorInterpolator";
 
 export type AnyColor = Color | ColorInit | string;
 
 export type ColorInit = RgbColorInit | HslColorInit;
 
-export abstract class Color implements Equivalent<AnyColor>, HashCode, Debug {
+export abstract class Color implements HashCode, Equivalent, Debug {
   abstract isDefined(): boolean;
 
   abstract alpha(): number;
@@ -57,7 +57,7 @@ export abstract class Color implements Equivalent<AnyColor>, HashCode, Debug {
 
   abstract hsl(): HslColor;
 
-  abstract equivalentTo(that: AnyColor, epsilon?: number): boolean;
+  abstract equivalentTo(that: unknown, epsilon?: number): boolean;
 
   abstract equals(other: unknown): boolean;
 

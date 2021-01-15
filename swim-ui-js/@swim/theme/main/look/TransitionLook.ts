@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Interpolator} from "@swim/interpolate";
-import {AnyTransition, Transition} from "@swim/tween";
+import {AnyTransition, Transition} from "@swim/animation";
 import {Look} from "./Look";
 
 export class TransitionLook<T = any> extends Look<Transition<T>, AnyTransition<T>> {

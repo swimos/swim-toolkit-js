@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Interpolator} from "@swim/interpolate";
-import {Length} from "@swim/math";
-import {Color} from "../color/Color";
+import type {Length} from "@swim/math";
+import type {Color} from "../color/Color";
 import {AnyColorStop, ColorStopInit, ColorStopTuple, ColorStop} from "./ColorStop";
 
 export class ColorStopInterpolator extends Interpolator<ColorStop, AnyColorStop> {

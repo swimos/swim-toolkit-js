@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween, Transition} from "@swim/tween";
+import {Tween, Transition} from "@swim/animation";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewScope} from "@swim/view";
-import {ViewNode, ViewNodeType, HtmlViewConstructor, HtmlView} from "@swim/dom";
-import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
+import type {ViewNode, ViewNodeType, HtmlViewConstructor, HtmlView} from "@swim/dom";
+import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembraneInit, ButtonMembrane} from "@swim/button";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeCell, TreeCell} from "./TreeCell";
-import {TreeLeafObserver} from "./TreeLeafObserver";
-import {TreeLeafController} from "./TreeLeafController";
+import type {TreeLeafObserver} from "./TreeLeafObserver";
+import type {TreeLeafController} from "./TreeLeafController";
 
 export type AnyTreeLeaf = TreeLeaf | TreeLeafInit | HTMLElement;
 
@@ -42,10 +42,8 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     this.overflowY.setAutoState("hidden");
   }
 
-  // @ts-ignore
   declare readonly viewController: TreeLeafController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<TreeLeafObserver>;
 
   initView(init: TreeLeafInit): void {
@@ -72,18 +70,18 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
 
   addCells(cells: ReadonlyArray<AnyTreeCell>): void {
     for (let i = 0, n = cells.length; i < n; i += 1) {
-      this.addCell(cells[i]);
+      this.addCell(cells[i]!);
     }
   }
 
   @ViewScope({type: TreeSeed, inherit: true})
-  seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  declare seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
   @ViewScope({type: Number, inherit: true})
-  limbSpacing: ViewScope<this, number | undefined>;
+  declare limbSpacing: ViewScope<this, number | undefined>;
 
   @ViewScope({type: Boolean, state: false})
-  highlighted: ViewScope<this, boolean>;
+  declare highlighted: ViewScope<this, boolean>;
 
   highlight(tween?: Tween<any>): this {
     if (!this.highlighted.state) {
@@ -101,13 +99,13 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected willHighlight(transition: Transition<any> | null): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.leafWillHighlight !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.leafWillHighlight !== void 0) {
       viewController.leafWillHighlight(transition, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.leafWillHighlight !== void 0) {
         viewObserver.leafWillHighlight(transition, this);
       }
@@ -139,15 +137,15 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected didHighlight(transition: Transition<any> | null): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.leafDidHighlight !== void 0) {
         viewObserver.leafDidHighlight(transition, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.leafDidHighlight !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.leafDidHighlight !== void 0) {
       viewController.leafDidHighlight(transition, this);
     }
   }
@@ -168,13 +166,13 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected willUnhighlight(transition: Transition<any> | null): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.leafWillUnhighlight !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.leafWillUnhighlight !== void 0) {
       viewController.leafWillUnhighlight(transition, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.leafWillUnhighlight !== void 0) {
         viewObserver.leafWillUnhighlight(transition, this);
       }
@@ -201,15 +199,15 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected didUnhighlight(transition: Transition<any> | null): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.leafDidUnhighlight !== void 0) {
         viewObserver.leafDidUnhighlight(transition, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.leafDidUnhighlight !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.leafDidUnhighlight !== void 0) {
       viewController.leafDidUnhighlight(transition, this);
     }
   }
@@ -273,8 +271,9 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
                                                 viewContext: ViewContextType<this>) => void): void {
     const seed = this.seed.state;
     const height = this.height.state;
-    function layoutChildView(this: TreeLeaf, childView: View, displayFlags: ViewFlags,
-                              viewContext: ViewContextType<TreeLeaf>): void {
+    type self = this;
+    function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
+                             viewContext: ViewContextType<self>): void {
       if (childView instanceof TreeCell) {
         const key = childView.key;
         const root = seed !== void 0 && key !== void 0 ? seed.getRoot(key) : null;
@@ -299,7 +298,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
 
   didHoldPress(input: PositionGestureInput): void {
     let target = input.target;
-    while (target !== null && target !== this._node) {
+    while (target !== null && target !== this.node) {
       const targetView = (target as ViewNode).view;
       if (targetView instanceof TreeCell) {
         targetView.didPressHold(input);
@@ -312,7 +311,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   didEndPress(input: PositionGestureInput, event: Event | null): void {
     super.didEndPress(input, event);
     let target = input.target;
-    while (target !== null && target !== this._node) {
+    while (target !== null && target !== this.node) {
       const targetView = (target as ViewNode).view;
       if (targetView instanceof TreeCell) {
         targetView.didPress(input, event);
@@ -324,15 +323,15 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
 
   didPress(input: PositionGestureInput, event: Event | null): void {
     if (!input.defaultPrevented) {
-      const viewObservers = this._viewObservers;
-      for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-        const viewObserver = viewObservers![i];
+      const viewObservers = this.viewObservers;
+      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+        const viewObserver = viewObservers[i]!;
         if (viewObserver.leafDidPress !== void 0) {
           viewObserver.leafDidPress(input, event, this);
         }
       }
-      const viewController = this._viewController;
-      if (viewController !== void 0 && viewController.leafDidPress !== void 0) {
+      const viewController = this.viewController;
+      if (viewController !== null && viewController.leafDidPress !== void 0) {
         viewController.leafDidPress(input, event, this);
       }
     }

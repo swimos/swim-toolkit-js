@@ -16,11 +16,10 @@ export {
   ModelServiceMemberType,
   ModelServiceFlags,
   ModelServiceInit,
-  ModelServiceDescriptorInit,
-  ModelServiceDescriptorExtends,
   ModelServiceDescriptor,
-  ModelServicePrototype,
+  ModelServiceDescriptorExtends,
   ModelServiceConstructor,
+  ModelServiceClass,
   ModelService,
 } from "./ModelService";
 
@@ -29,11 +28,10 @@ export {ModelManagerService} from "./ModelManagerService";
 export {
   TraitServiceMemberType,
   TraitServiceInit,
-  TraitServiceDescriptorInit,
-  TraitServiceDescriptorExtends,
   TraitServiceDescriptor,
-  TraitServicePrototype,
+  TraitServiceDescriptorExtends,
   TraitServiceConstructor,
+  TraitServiceClass,
   TraitService,
 } from "./TraitService";
 

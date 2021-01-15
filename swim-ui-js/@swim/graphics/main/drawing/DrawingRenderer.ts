@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import {DrawingContext} from "./DrawingContext";
+import type {DrawingContext} from "./DrawingContext";
 
 export abstract class DrawingRenderer extends GraphicsRenderer {
   abstract readonly context: DrawingContext;

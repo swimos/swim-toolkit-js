@@ -14,14 +14,14 @@
 
 import {Input, Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Interpolator} from "@swim/interpolate";
-import {Form} from "@swim/structure";
+import type {Form} from "@swim/structure";
 import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
 import {AnyDateTime, DateTime} from "@swim/time";
 import {AnyColor, Color, RgbColorInit, HslColorInit, AnyLinearGradient, LinearGradient} from "@swim/color";
 import {AnyFont, Font} from "../font/Font";
 import {AnyBoxShadow, BoxShadowInit, BoxShadow} from "../shadow/BoxShadow";
-import {StyleValueParser} from "./StyleValueParser";
-import {StyleValueForm} from "./StyleValueForm";
+import type {StyleValueParser} from "./StyleValueParser";
+import type {StyleValueForm} from "./StyleValueForm";
 
 export type AnyStyleValue = AnyDateTime
                           | AnyAngle

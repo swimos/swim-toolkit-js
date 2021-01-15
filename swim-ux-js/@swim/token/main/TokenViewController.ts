@@ -13,12 +13,13 @@
 // limitations under the License.
 
 import {HtmlViewController} from "@swim/dom";
-import {TokenViewState, TokenView} from "./TokenView";
-import {TokenViewObserver} from "./TokenViewObserver";
+import type {TokenViewState, TokenView} from "./TokenView";
+import type {TokenViewObserver} from "./TokenViewObserver";
 
 export class TokenViewController<V extends TokenView = TokenView> extends HtmlViewController<V> implements TokenViewObserver<V> {
   get tokenState(): TokenViewState | null {
-    return this._view !== null ? this._view.tokenState : null;
+    const view = this.view;
+    return view !== null ? view.tokenState : null;
   }
 
   tokenWillExpand(view: V): void {

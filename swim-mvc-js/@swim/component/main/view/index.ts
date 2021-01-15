@@ -16,11 +16,10 @@ export {
   ComponentViewMemberType,
   ComponentViewMemberInit,
   ComponentViewInit,
-  ComponentViewDescriptorInit,
+  ComponentViewDescriptor,
   ComponentViewDescriptorExtends,
   ComponentViewDescriptorFromAny,
-  ComponentViewDescriptor,
-  ComponentViewPrototype,
   ComponentViewConstructor,
+  ComponentViewClass,
   ComponentView,
 } from "./ComponentView";

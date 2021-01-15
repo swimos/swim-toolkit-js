@@ -14,7 +14,7 @@
 
 import {Equals, Values} from "@swim/util";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {Tween} from "@swim/tween";
+import type {Tween} from "@swim/animation";
 import {AnyColor, Color, AnyLinearGradient, LinearGradient} from "@swim/color";
 import {
   AlignContent,
@@ -65,7 +65,7 @@ import {
   BoxShadow,
 } from "@swim/style";
 import {StyleAnimatorMemberInit, StyleAnimator} from "../style/StyleAnimator";
-import {StyleContext} from "./StyleContext";
+import type {StyleContext} from "./StyleContext";
 
 export interface StyleMapInit {
   alignContent?: StyleAnimatorMemberInit<StyleMap, "alignContent">;
@@ -773,7 +773,7 @@ StyleMap.init = function (map: StyleMap, init: StyleMapInit): void {
 };
 
 StyleMap.define = function (prototype: StyleMap): void {
-  StyleAnimator({propertyNames: "align-content", type: String})(prototype, "alignContent");
+  StyleAnimator<StyleMap, string | undefined>({propertyNames: "align-content", type: String})(prototype, "alignContent");
 
   StyleAnimator({propertyNames: "align-items", type: String})(prototype, "alignItems");
 

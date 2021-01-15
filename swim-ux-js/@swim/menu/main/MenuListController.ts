@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {HtmlViewController} from "@swim/dom";
-import {MenuItem} from "./MenuItem";
-import {MenuList} from "./MenuList";
-import {MenuListObserver} from "./MenuListObserver";
+import type {MenuItem} from "./MenuItem";
+import type {MenuList} from "./MenuList";
+import type {MenuListObserver} from "./MenuListObserver";
 
 export class MenuListController<V extends MenuList = MenuList> extends HtmlViewController<V> implements MenuListObserver<V> {
   /** @hidden */

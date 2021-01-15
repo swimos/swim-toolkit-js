@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
-import {GeoPath} from "@swim/geo";
+import type {GeoPath} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import {
@@ -47,10 +47,10 @@ export class MapLineView extends MapPathView implements StrokeView {
   }
 
   @ViewAnimator({type: Color, inherit: true})
-  stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   hitWidth(): number | null;
   hitWidth(hitWidth: number | null): this;

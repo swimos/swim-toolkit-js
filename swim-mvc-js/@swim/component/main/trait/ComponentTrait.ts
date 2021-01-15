@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {FromAny} from "@swim/util";
-import {Model, Trait, TraitObserverType} from "@swim/model";
+import type {FromAny} from "@swim/util";
+import type {Model, Trait, TraitObserverType} from "@swim/model";
 import {Component} from "../Component";
 
 export type ComponentTraitMemberType<C, K extends keyof C> =
@@ -23,8 +23,8 @@ export type ComponentTraitMemberType<C, K extends keyof C> =
 export type ComponentTraitMemberInit<V, K extends keyof V> =
   V extends {[P in K]: ComponentTrait<any, infer R, infer U>} ? R | U : unknown;
 
-export interface ComponentTraitInit<R extends Trait, U = R> {
-  extends?: ComponentTraitPrototype;
+export interface ComponentTraitInit<R extends Trait, U = never> {
+  extends?: ComponentTraitClass;
   observe?: boolean;
   type?: unknown;
 
@@ -36,26 +36,22 @@ export interface ComponentTraitInit<R extends Trait, U = R> {
   fromAny?(value: R | U): R | null;
 }
 
-export type ComponentTraitDescriptorInit<C extends Component, R extends Trait, U = R, I = TraitObserverType<R>> = ComponentTraitInit<R, U> & ThisType<ComponentTrait<C, R, U> & I> & I;
+export type ComponentTraitDescriptor<C extends Component, R extends Trait, U = never, I = TraitObserverType<R>> = ComponentTraitInit<R, U> & ThisType<ComponentTrait<C, R, U> & I> & I;
 
-export type ComponentTraitDescriptorExtends<C extends Component, R extends Trait, U = R, I = TraitObserverType<R>> = {extends: ComponentTraitPrototype | undefined} & ComponentTraitDescriptorInit<C, R, U, I>;
+export type ComponentTraitDescriptorExtends<C extends Component, R extends Trait, U = never, I = TraitObserverType<R>> = {extends: ComponentTraitClass | undefined} & ComponentTraitDescriptor<C, R, U, I>;
 
-export type ComponentTraitDescriptorFromAny<C extends Component, R extends Trait, U = R, I = TraitObserverType<R>> = ({type: FromAny<R, U>} | {fromAny(value: R | U): R | null}) & ComponentTraitDescriptorInit<C, R, U, I>;
+export type ComponentTraitDescriptorFromAny<C extends Component, R extends Trait, U = never, I = TraitObserverType<R>> = ({type: FromAny<R, U>} | {fromAny(value: R | U): R | null}) & ComponentTraitDescriptor<C, R, U, I>;
 
-export type ComponentTraitDescriptor<C extends Component, R extends Trait, U = R, I = TraitObserverType<R>> =
-  U extends R ? ComponentTraitDescriptorInit<C, R, U, I> :
-  ComponentTraitDescriptorFromAny<C, R, U, I>;
-
-export interface ComponentTraitPrototype extends Function {
-  readonly prototype: ComponentTrait<any, any>;
-}
-
-export interface ComponentTraitConstructor<C extends Component, R extends Trait, U = R, I = TraitObserverType<R>> {
+export interface ComponentTraitConstructor<C extends Component, R extends Trait, U = never, I = TraitObserverType<R>> {
   new(owner: C, traitName: string | undefined): ComponentTrait<C, R, U> & I;
   prototype: ComponentTrait<any, any, any> & I;
 }
 
-export declare abstract class ComponentTrait<C extends Component, R extends Trait, U = R> {
+export interface ComponentTraitClass extends Function {
+  readonly prototype: ComponentTrait<any, any, any>;
+}
+
+export declare abstract class ComponentTrait<C extends Component, R extends Trait, U = never> {
   /** @hidden */
   _owner: C;
   /** @hidden */
@@ -125,25 +121,25 @@ export declare abstract class ComponentTrait<C extends Component, R extends Trai
 
   fromAny(value: R | U): R | null;
 
-  static define<C extends Component, R extends Trait = Trait, U = R, I = TraitObserverType<R>>(descriptor: ComponentTraitDescriptorExtends<C, R, U, I>): ComponentTraitConstructor<C, R, U, I>;
-  static define<C extends Component, R extends Trait = Trait, U = R>(descriptor: ComponentTraitDescriptor<C, R, U>): ComponentTraitConstructor<C, R, U>;
+  static define<C extends Component, R extends Trait = Trait, U = never, I = TraitObserverType<R>>(descriptor: ComponentTraitDescriptorExtends<C, R, U, I>): ComponentTraitConstructor<C, R, U, I>;
+  static define<C extends Component, R extends Trait = Trait, U = never>(descriptor: ComponentTraitDescriptor<C, R, U>): ComponentTraitConstructor<C, R, U>;
 }
 
-export interface ComponentTrait<C extends Component, R extends Trait, U = R> {
+export interface ComponentTrait<C extends Component, R extends Trait, U = never> {
   (): R | null;
   (trait: R | U | null): C;
 }
 
-export function ComponentTrait<C extends Component, R extends Trait = Trait, U = R, I = TraitObserverType<R>>(descriptor: ComponentTraitDescriptorExtends<C, R, U, I>): PropertyDecorator;
-export function ComponentTrait<C extends Component, R extends Trait = Trait, U = R>(descriptor: ComponentTraitDescriptor<C, R, U>): PropertyDecorator;
+export function ComponentTrait<C extends Component, R extends Trait = Trait, U = never, I = TraitObserverType<R>>(descriptor: ComponentTraitDescriptorExtends<C, R, U, I>): PropertyDecorator;
+export function ComponentTrait<C extends Component, R extends Trait = Trait, U = never>(descriptor: ComponentTraitDescriptor<C, R, U>): PropertyDecorator;
 
-export function ComponentTrait<C extends Component, R extends Trait, U = R>(
+export function ComponentTrait<C extends Component, R extends Trait, U>(
     this: ComponentTrait<C, R, U> | typeof ComponentTrait,
     owner: C | ComponentTraitDescriptor<C, R, U>,
     traitName?: string,
   ): ComponentTrait<C, R, U> | PropertyDecorator {
   if (this instanceof ComponentTrait) { // constructor
-    return ComponentTraitConstructor.call(this, owner as C, traitName);
+    return ComponentTraitConstructor.call(this as unknown as ComponentTrait<Component, Trait, unknown>, owner as C, traitName);
   } else { // decorator factory
     return ComponentTraitDecoratorFactory(owner as ComponentTraitDescriptor<C, R, U>);
   }
@@ -151,7 +147,7 @@ export function ComponentTrait<C extends Component, R extends Trait, U = R>(
 __extends(ComponentTrait, Object);
 Component.Trait = ComponentTrait;
 
-function ComponentTraitConstructor<C extends Component, R extends Trait, U = R>(this: ComponentTrait<C, R, U>, owner: C, traitName: string | undefined): ComponentTrait<C, R, U> {
+function ComponentTraitConstructor<C extends Component, R extends Trait, U>(this: ComponentTrait<C, R, U>, owner: C, traitName: string | undefined): ComponentTrait<C, R, U> {
   if (traitName !== void 0) {
     Object.defineProperty(this, "name", {
       value: traitName,
@@ -165,8 +161,8 @@ function ComponentTraitConstructor<C extends Component, R extends Trait, U = R>(
   return this;
 }
 
-function ComponentTraitDecoratorFactory<C extends Component, R extends Trait, U = R>(descriptor: ComponentTraitDescriptor<C, R, U>): PropertyDecorator {
-  return Component.decorateComponentTrait.bind(Component, ComponentTrait.define(descriptor));
+function ComponentTraitDecoratorFactory<C extends Component, R extends Trait, U>(descriptor: ComponentTraitDescriptor<C, R, U>): PropertyDecorator {
+  return Component.decorateComponentTrait.bind(Component, ComponentTrait.define(descriptor as ComponentTraitDescriptor<Component, Trait>));
 }
 
 Object.defineProperty(ComponentTrait.prototype, "owner", {

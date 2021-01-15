@@ -76,10 +76,10 @@ export abstract class TickGenerator<D> {
       n = 10;
     }
     if (scale instanceof TimeScale) {
-      const domain = scale.domain() as unknown as DateTime[];
+      const domain = scale.domain() as unknown as [DateTime, DateTime];
       return new TimeTickGenerator(domain[0], domain[1], n) as unknown as TickGenerator<D>;
     } else {
-      const domain = scale.domain() as unknown as number[];
+      const domain = scale.domain() as unknown as [number, number];
       return new NumberTickGenerator(domain[0], domain[1], n) as unknown as TickGenerator<D>;
     }
   }

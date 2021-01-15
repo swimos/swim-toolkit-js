@@ -14,7 +14,7 @@
 
 import {Length} from "@swim/math";
 import {AnyLineHeight, LineHeight} from "@swim/style";
-import {StyleContext} from "../css/StyleContext";
+import type {StyleContext} from "../css/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */

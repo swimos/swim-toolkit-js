@@ -16,34 +16,32 @@ import {__extends} from "tslib";
 import {Cursor, OrderedMap} from "@swim/util";
 import {AnyValue, Value, Form} from "@swim/structure";
 import {Uri} from "@swim/uri";
-import {MapDownlinkObserver, MapDownlink, WarpRef} from "@swim/client";
+import type {MapDownlinkObserver, MapDownlink, WarpRef} from "@swim/client";
 import {ModelDownlinkContext} from "./ModelDownlinkContext";
 import {ModelDownlinkInit, ModelDownlink} from "./ModelDownlink";
 
-export interface ModelMapDownlinkInit<K, V, KU = K, VU = V> extends ModelDownlinkInit, MapDownlinkObserver<K, V, KU, VU> {
-  extends?: ModelMapDownlinkPrototype;
+export interface ModelMapDownlinkInit<K, V, KU = never, VU = never> extends ModelDownlinkInit, MapDownlinkObserver<K, V, KU, VU> {
+  extends?: ModelMapDownlinkClass;
   keyForm?: Form<K, KU>;
   valueForm?: Form<V, VU>;
 
   initDownlink?(downlink: MapDownlink<K, V, KU, VU>): MapDownlink<K, V, KU, VU>;
 }
 
-export type ModelMapDownlinkDescriptorInit<M extends ModelDownlinkContext, K, V, KU = K, VU = V, I = {}> = ModelMapDownlinkInit<K, V, KU, VU> & ThisType<ModelMapDownlink<M, K, V, KU, VU> & I> & I;
+export type ModelMapDownlinkDescriptor<M extends ModelDownlinkContext, K, V, KU = never, VU = never, I = {}> = ModelMapDownlinkInit<K, V, KU, VU> & ThisType<ModelMapDownlink<M, K, V, KU, VU> & I> & I;
 
-export type ModelMapDownlinkDescriptorExtends<M extends ModelDownlinkContext, K, V, KU = K, VU = V, I = {}> = {extends: ModelMapDownlinkPrototype | undefined} & ModelMapDownlinkDescriptorInit<M, K, V, KU, VU, I>;
+export type ModelMapDownlinkDescriptorExtends<M extends ModelDownlinkContext, K, V, KU = never, VU = never, I = {}> = {extends: ModelMapDownlinkClass | undefined} & ModelMapDownlinkDescriptor<M, K, V, KU, VU, I>;
 
-export type ModelMapDownlinkDescriptor<M extends ModelDownlinkContext, K, V, KU = K, VU = V, I = {}> = ModelMapDownlinkDescriptorInit<M, K, V, KU, VU, I>;
-
-export interface ModelMapDownlinkPrototype extends Function {
-  readonly prototype: ModelMapDownlink<any, any, any, any, any>;
-}
-
-export interface ModelMapDownlinkConstructor<M extends ModelDownlinkContext, K, V, KU = K, VU = V, I = {}> {
+export interface ModelMapDownlinkConstructor<M extends ModelDownlinkContext, K, V, KU = never, VU = never, I = {}> {
   new(owner: M, downlinkName: string | undefined): ModelMapDownlink<M, K, V, KU, VU> & I;
   prototype: ModelMapDownlink<any, any, any, any, any> & I;
 }
 
-export declare abstract class ModelMapDownlink<M extends ModelDownlinkContext, K = Value, V = Value, KU = K, VU = V> {
+export interface ModelMapDownlinkClass extends Function {
+  readonly prototype: ModelMapDownlink<any, any, any, any, any>;
+}
+
+export declare abstract class ModelMapDownlink<M extends ModelDownlinkContext, K = Value, V = Value, KU = never, VU = never> {
   /** @hidden */
   _downlink: MapDownlink<K, V, KU, VU> | null;
   /** @hidden */
@@ -105,8 +103,9 @@ export declare abstract class ModelMapDownlink<M extends ModelDownlinkContext, K
 
   clear(): void;
 
-  forEach<T, S = unknown>(callback: (this: S, key: K, value: V) => T | void,
-                          thisArg?: S): T | undefined;
+  forEach<T>(callback: (key: K, value: V) => T | void): T | undefined;
+  forEach<T, S>(callback: (this: S, key: K, value: V) => T | void,
+                thisArg: S): T | undefined;
 
   keys(): Cursor<K>;
 
@@ -123,18 +122,18 @@ export declare abstract class ModelMapDownlink<M extends ModelDownlinkContext, K
   /** @hidden */
   initDownlink?(downlink: MapDownlink<K, V, KU, VU>): MapDownlink<K, V, KU, VU>;
 
-  static define<M extends ModelDownlinkContext, K, V, KU = K, VU = V, I = {}>(descriptor: ModelMapDownlinkDescriptorExtends<M, K, V, KU, VU, I>): ModelMapDownlinkConstructor<M, K, V, KU, VU, I>;
-  static define<M extends ModelDownlinkContext, K, V, KU = K, VU = V>(descriptor: {keyForm: Form<K, KU>; valueForm: Form<V, VU>} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): ModelMapDownlinkConstructor<M, K, V, KU, VU>;
+  static define<M extends ModelDownlinkContext, K, V, KU = never, VU = never, I = {}>(descriptor: ModelMapDownlinkDescriptorExtends<M, K, V, KU, VU, I>): ModelMapDownlinkConstructor<M, K, V, KU, VU, I>;
+  static define<M extends ModelDownlinkContext, K, V, KU = never, VU = never>(descriptor: {keyForm: Form<K, KU>; valueForm: Form<V, VU>} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): ModelMapDownlinkConstructor<M, K, V, KU, VU>;
   static define<M extends ModelDownlinkContext, K extends Value = Value, V extends Value = Value, KU extends AnyValue = AnyValue, VU extends AnyValue = AnyValue>(descriptor: ModelMapDownlinkDescriptor<M, K, V, KU, VU>): ModelMapDownlinkConstructor<M, K, V, KU, VU>;
 }
 
-export interface ModelMapDownlink<M extends ModelDownlinkContext, K = Value, V = Value, KU = K, VU = V> extends ModelDownlink<M>, OrderedMap<K, V> {
+export interface ModelMapDownlink<M extends ModelDownlinkContext, K = Value, V = Value, KU = never, VU = never> extends ModelDownlink<M>, OrderedMap<K, V> {
   (key: K | KU): V | undefined;
   (key: K | KU, value: V | VU): M;
 }
 
-export function ModelMapDownlink<M extends ModelDownlinkContext, K, V, KU = K, VU = V, I = {}>(descriptor: ModelMapDownlinkDescriptorExtends<M, K, V, KU, VU, I>): PropertyDecorator;
-export function ModelMapDownlink<M extends ModelDownlinkContext, K, V, KU = K, VU = V>(descriptor: {keyForm: Form<K, KU>; valueForm: Form<V, VU>} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): PropertyDecorator;
+export function ModelMapDownlink<M extends ModelDownlinkContext, K, V, KU = never, VU = never, I = {}>(descriptor: ModelMapDownlinkDescriptorExtends<M, K, V, KU, VU, I>): PropertyDecorator;
+export function ModelMapDownlink<M extends ModelDownlinkContext, K, V, KU = never, VU = never>(descriptor: {keyForm: Form<K, KU>; valueForm: Form<V, VU>} & ModelMapDownlinkDescriptor<M, K, V, KU, VU>): PropertyDecorator;
 export function ModelMapDownlink<M extends ModelDownlinkContext, K extends Value = Value, V extends Value = Value, KU extends AnyValue = AnyValue, VU extends AnyValue = AnyValue>(descriptor: ModelMapDownlinkDescriptor<M, K, V, KU, VU>): PropertyDecorator;
 
 export function ModelMapDownlink<M extends ModelDownlinkContext, K, V, KU, VU>(
@@ -143,7 +142,7 @@ export function ModelMapDownlink<M extends ModelDownlinkContext, K, V, KU, VU>(
     downlinkName?: string
   ): ModelMapDownlink<M, K, V, KU, VU> | PropertyDecorator {
   if (this instanceof ModelMapDownlink) { // constructor
-    return ModelMapDownlinkConstructor.call(this, owner as M, downlinkName);
+    return ModelMapDownlinkConstructor.call(this as ModelMapDownlink<ModelDownlinkContext, unknown, unknown, unknown, unknown>, owner as M, downlinkName);
   } else { // decorator factory
     return ModelMapDownlinkDecoratorFactory(owner as ModelMapDownlinkDescriptor<M, K, V, KU, VU>);
   }
@@ -152,12 +151,12 @@ __extends(ModelMapDownlink, ModelDownlink);
 ModelDownlink.Map = ModelMapDownlink;
 
 function ModelMapDownlinkConstructor<M extends ModelDownlinkContext, K, V, KU, VU>(this: ModelMapDownlink<M, K, V, KU, VU>, owner: M, downlinkName: string | undefined): ModelMapDownlink<M, K, V, KU, VU> {
-  const _this: ModelMapDownlink<M, K, V, KU, VU> = ModelDownlink.call(this, owner, downlinkName) || this;
+  const _this: ModelMapDownlink<M, K, V, KU, VU> = (ModelDownlink as Function).call(this, owner, downlinkName) || this;
   return _this;
 }
 
 function ModelMapDownlinkDecoratorFactory<M extends ModelDownlinkContext, K, V, KU, VU>(descriptor: ModelMapDownlinkDescriptor<M, K, V, KU, VU>): PropertyDecorator {
-  return ModelDownlinkContext.decorateModelDownlink.bind(ModelDownlinkContext, ModelMapDownlink.define(descriptor as ModelMapDownlinkDescriptorExtends<M, K, V, KU, VU>));
+  return ModelDownlinkContext.decorateModelDownlink.bind(ModelDownlinkContext, ModelMapDownlink.define(descriptor as ModelMapDownlinkDescriptor<ModelDownlinkContext, Value, Value>));
 }
 
 ModelMapDownlink.prototype.keyForm = function <K, V, KU, VU>(this: ModelMapDownlink<ModelDownlinkContext, K, V, KU, VU>, keyForm?: Form<K, KU> | null): Form<K, KU> | null | ModelMapDownlink<ModelDownlinkContext, K, V, KU, VU> {
@@ -173,7 +172,7 @@ ModelMapDownlink.prototype.keyForm = function <K, V, KU, VU>(this: ModelMapDownl
     }
     return this;
   }
-} as {(): Form<any, any> | null; (valueForm: Form<any, any> | null): ModelMapDownlink<any, any, any>;};
+} as typeof ModelMapDownlink.prototype.keyForm;
 
 ModelMapDownlink.prototype.valueForm = function <K, V, KU, VU>(this: ModelMapDownlink<ModelDownlinkContext, K, V, KU, VU>, valueForm?: Form<V, VU> | null): Form<V, VU> | null | ModelMapDownlink<ModelDownlinkContext, K, V, KU, VU> {
   if (valueForm === void 0) {
@@ -188,7 +187,7 @@ ModelMapDownlink.prototype.valueForm = function <K, V, KU, VU>(this: ModelMapDow
     }
     return this;
   }
-} as {(): Form<any, any> | null; (valueForm: Form<any, any> | null): ModelMapDownlink<any, any, any>;};
+} as typeof ModelMapDownlink.prototype.valueForm;
 
 Object.defineProperty(ModelMapDownlink.prototype, "size", {
   get: function (this: ModelMapDownlink<ModelDownlinkContext, unknown, unknown>): number {
@@ -322,9 +321,9 @@ ModelMapDownlink.prototype.clear = function (this: ModelMapDownlink<ModelDownlin
   }
 };
 
-ModelMapDownlink.prototype.forEach = function <K, V, KU, VU, T, S = unknown>(this: ModelMapDownlink<ModelDownlinkContext, K, V, KU, VU>,
-                                                                             callback: (this: S, key: K, value: V) => T | void,
-                                                                             thisArg?: S): T | undefined {
+ModelMapDownlink.prototype.forEach = function <K, V, KU, VU, T, S>(this: ModelMapDownlink<ModelDownlinkContext, K, V, KU, VU>,
+                                                                   callback: (this: S | undefined, key: K, value: V) => T | void,
+                                                                   thisArg?: S): T | undefined {
   const downlink = this._downlink;
   return downlink !== null ? downlink.forEach(callback, thisArg) : void 0;
 };
@@ -356,7 +355,7 @@ ModelMapDownlink.prototype.createDownlink = function <K, V, KU, VU>(this: ModelM
 };
 
 ModelMapDownlink.define = function <M extends ModelDownlinkContext, K, V, KU, VU, I>(descriptor: ModelMapDownlinkDescriptor<M, K, V, KU, VU, I>): ModelMapDownlinkConstructor<M, K, V, KU, VU, I> {
-  let _super: ModelMapDownlinkPrototype | null | undefined = descriptor.extends;
+  let _super: ModelMapDownlinkClass | null | undefined = descriptor.extends;
   const enabled = descriptor.enabled;
   const keyForm = descriptor.keyForm;
   const valueForm = descriptor.valueForm;

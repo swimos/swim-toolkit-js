@@ -23,10 +23,10 @@ import {
   CanvasRenderer,
   WebGLRenderer,
 } from "@swim/graphics";
-import {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
-import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
+import type {MapGraphicsViewContext} from "../graphics/MapGraphicsViewContext";
+import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
 import {MapLayerView} from "../layer/MapLayerView";
-import {MapRasterViewContext} from "./MapRasterViewContext";
+import type {MapRasterViewContext} from "./MapRasterViewContext";
 
 export interface MapRasterViewInit extends MapGraphicsViewInit {
   opacity?: number;
@@ -59,10 +59,10 @@ export class MapRasterView extends MapLayerView {
   }
 
   @ViewAnimator({type: Number, state: 1})
-  opacity: ViewAnimator<this, number>;
+  declare opacity: ViewAnimator<this, number>;
 
   @ViewAnimator({type: String, state: "source-over"})
-  compositeOperation: ViewAnimator<this, CanvasCompositeOperation>;
+  declare compositeOperation: ViewAnimator<this, CanvasCompositeOperation>;
 
   get pixelRatio(): number {
     return window.devicePixelRatio || 1;
@@ -149,7 +149,7 @@ export class MapRasterView extends MapLayerView {
   get compositeFrame(): BoxR2 {
     let viewFrame = this._viewFrame;
     if (viewFrame === void 0) {
-      const parentView = this._parentView;
+      const parentView = this.parentView;
       viewFrame = parentView instanceof GraphicsView ? parentView.viewFrame : BoxR2.undefined();
     }
     return viewFrame;
@@ -175,7 +175,7 @@ export class MapRasterView extends MapLayerView {
     let hit: GraphicsView | null = null;
     const childViews = this._childViews;
     for (let i = childViews.length - 1; i >= 0; i -= 1) {
-      const childView = childViews[i];
+      const childView = childViews[i]!;
       if (childView instanceof GraphicsView && !childView.isHidden() && !childView.isCulled()) {
         const hitBounds = childView.hitBounds;
         if (hitBounds.contains(x, y)) {

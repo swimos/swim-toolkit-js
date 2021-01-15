@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
-import {Transition} from "@swim/tween";
+import type {Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewAnimator} from "@swim/view";
-import {Graphics} from "../graphics/Graphics";
-import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
-import {GraphicsViewController} from "../graphics/GraphicsViewController";
+import type {Graphics} from "../graphics/Graphics";
+import type {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
+import type {GraphicsViewController} from "../graphics/GraphicsViewController";
 import {LayerView} from "../layer/LayerView";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
 import {IconViewInit, IconView} from "./IconView";
@@ -35,22 +35,22 @@ export class GraphicsIconView extends LayerView implements IconView {
   }
 
   @ViewAnimator({type: Number})
-  xAlign: ViewAnimator<this, number | undefined>;
+  declare xAlign: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number})
-  yAlign: ViewAnimator<this, number | undefined>;
+  declare yAlign: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length})
-  iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Length})
-  iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color})
-  iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Object})
-  graphics: ViewAnimator<this, Graphics | undefined>;
+  declare graphics: ViewAnimator<this, Graphics | undefined>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {

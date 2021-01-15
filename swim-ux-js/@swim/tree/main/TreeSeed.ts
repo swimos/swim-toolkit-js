@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equivalent, Equals} from "@swim/util"
+import {Equivalent, Equals, Arrays} from "@swim/util"
 import {AnyLength, Length} from "@swim/math";
 import {AnyTreeRoot, TreeRoot} from "./TreeRoot";
 
@@ -25,7 +25,7 @@ export interface TreeSeedInit {
   roots?: AnyTreeRoot[];
 }
 
-export class TreeSeed implements Equivalent<TreeSeed>, Equals {
+export class TreeSeed implements Equals, Equivalent {
   /** @hidden */
   readonly _width: Length | null;
   /** @hidden */
@@ -62,7 +62,7 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
   getRoot(key: string): TreeRoot | null {
     const roots = this._roots;
     for (let i = 0, n = roots.length; i < n; i += 1) {
-      const root = roots[i];
+      const root = roots[i]!;
       if (key === root.key) {
         return root;
       }
@@ -98,7 +98,7 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
         basis += spacing;
         x += spacing;
       }
-      const root = oldRoots[i];
+      const root = oldRoots[i]!;
       const rootWidth = root._basis.pxValue(width);
       newRoots[i] = root.resized(rootWidth, x, width - rootWidth - x, false);
       grow += root._grow;
@@ -114,7 +114,7 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
       // Hide optional roots as needed to fit.
       let i = rootCount - 1;
       while (i >= 0 && optional > 0) {
-        const root = newRoots[i];
+        const root = newRoots[i]!;
         const rootWidth = root._width!.pxValue();
         if (root._optional) {
           newRoots[i] = root.resized(0, x, width - x, true);
@@ -139,7 +139,7 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
       // Resize trailing non-optional roots.
       i += 1;
       while (i < rootCount) {
-        const root = newRoots[i];
+        const root = newRoots[i]!;
         if (!root._optional) {
           basis += spacing;
           x += spacing;
@@ -156,7 +156,7 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
       let x = x0;
       let j = 0;
       for (let i = 0; i < rootCount; i += 1) {
-        const root = newRoots[i];
+        const root = newRoots[i]!;
         if (!root._hidden) {
           if (j !== 0) {
             basis += spacing;
@@ -176,7 +176,7 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
       let x = x0;
       let j = 0;
       for (let i = 0; i < rootCount; i += 1) {
-        const root = newRoots[i];
+        const root = newRoots[i]!;
         if (!root._hidden) {
           if (j !== 0) {
             basis += spacing;
@@ -196,17 +196,21 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
     return new TreeSeed(Length.px(width), left, right, newRoots);
   }
 
-  equivalentTo(that: TreeSeed): boolean {
-    const theseRoots = this._roots;
-    const thoseRoots = that._roots;
-    const n = theseRoots.length;
-    if (n === thoseRoots.length) {
-      for (let i = 0; i < n; i += 1) {
-        if (!theseRoots[i].equivalentTo(thoseRoots[i])) {
-          return false;
-        }
-      }
+  equivalentTo(that: TreeSeed, epsilon?: number): boolean {
+    if (this === that) {
       return true;
+    } else if (that instanceof TreeSeed) {
+      const theseRoots = this._roots;
+      const thoseRoots = that._roots;
+      const n = theseRoots.length;
+      if (n === thoseRoots.length) {
+        for (let i = 0; i < n; i += 1) {
+          if (!theseRoots[i]!.equivalentTo(thoseRoots[i]!, epsilon)) {
+            return false;
+          }
+        }
+        return true;
+      }
     }
     return false;
   }
@@ -216,7 +220,7 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
       return true;
     } else if (that instanceof TreeSeed) {
       return Equals.equal(this._width, that._width) && Equals.equal(this._left, that._left)
-          && Equals.equal(this._right, that._right) && Equals.equal(this._roots, that._roots);
+          && Equals.equal(this._right, that._right) && Arrays.equal(this._roots, that._roots);
     }
     return false;
   }
@@ -225,7 +229,7 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
     const n = treeRoots.length;
     const roots = new Array<TreeRoot>(n);
     for (let i = 0; i < n; i += 1) {
-      roots[i] = TreeRoot.fromAny(treeRoots[i]);
+      roots[i] = TreeRoot.fromAny(treeRoots[i]!);
     }
     return new TreeSeed(null, null, null, roots);
   }
@@ -267,7 +271,7 @@ export class TreeSeed implements Equivalent<TreeSeed>, Equals {
       const n = init.roots.length;
       roots = new Array<TreeRoot>(n);
       for (let i = 0; i < n; i += 1) {
-        roots[i] = TreeRoot.fromAny(init.roots[i]);
+        roots[i] = TreeRoot.fromAny(init.roots[i]!);
       }
     } else {
       roots = [];

@@ -14,8 +14,8 @@
 
 import {ViewFlags, View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
-import {DisplayContext} from "./DisplayContext";
-import {DisplayManagerObserver} from "./DisplayManagerObserver";
+import type {DisplayContext} from "./DisplayContext";
+import type {DisplayManagerObserver} from "./DisplayManagerObserver";
 
 export class DisplayManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -48,9 +48,9 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected powerRootViews(): void {
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      const rootView = rootViews[i];
+      const rootView = rootViews[i]!;
       if (!rootView.isPowered()) {
         this.powerRootView(rootView);
       }
@@ -69,9 +69,9 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected unpowerRootViews(): void {
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      const rootView = rootViews[i];
+      const rootView = rootViews[i]!;
       if (rootView.isPowered()) {
         this.unpowerRootView(rootView);
       }
@@ -156,13 +156,13 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected runProcessPass(immediate: boolean = false): void {
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     this._rootFlags |= View.TraversingFlag | View.ProcessingFlag;
     this._rootFlags &= ~View.ProcessMask;
     try {
       const t0 = performance.now();
       for (let i = 0; i < rootViews.length; i += 1) {
-        const rootView = rootViews[i];
+        const rootView = rootViews[i]!;
         if ((rootView.viewFlags & View.ProcessMask) !== 0) {
           const viewContext = rootView.viewContext as DisplayContext;
           viewContext.updateTime = t0;
@@ -193,7 +193,7 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected runDisplayPass(time?: number, immediate: boolean = false): void {
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     this._rootFlags |= View.TraversingFlag | View.DisplayingFlag;
     this._rootFlags &= ~View.DisplayMask;
     try {
@@ -201,7 +201,7 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
         time = performance.now();
       }
       for (let i = 0; i < rootViews.length; i += 1) {
-        const rootView = rootViews[i];
+        const rootView = rootViews[i]!;
         if ((rootView.viewFlags & View.DisplayMask) !== 0) {
           const viewContext = rootView.viewContext as DisplayContext;
           viewContext.updateTime = time;
@@ -224,7 +224,6 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  // @ts-ignore
   declare readonly viewManagerObservers: ReadonlyArray<DisplayManagerObserver>;
 
   protected onAttach(): void {

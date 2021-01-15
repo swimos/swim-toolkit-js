@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Input, Output, Parser, Diagnostic, Unicode} from "@swim/codec";
-import {ColorStop} from "../stop/ColorStop";
-import {ColorStopListParser} from "../stop/ColorStopListParser";
+import type {ColorStop} from "./ColorStop";
+import {ColorStopListParser} from "./ColorStopListParser";
 import {LinearGradientAngle, LinearGradient} from "./LinearGradient";
 
 /** @hidden */

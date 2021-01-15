@@ -14,8 +14,8 @@
 
 import {Equals, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
-import {Feel} from "../feel/Feel";
-import {Mood} from "./Mood";
+import type {Feel} from "../feel/Feel";
+import type {Mood} from "./Mood";
 
 export type AnyMoodVector<M extends Mood = Feel> = MoodVector<M> | MoodVectorArray<M>;
 
@@ -86,7 +86,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
       const newIndex: {[name: string]: number | undefined} = {};
       let k = 0;
       for (let j = 0, n = oldArray.length; j < n; j += 1) {
-        const entry = oldArray[j];
+        const entry = oldArray[j]!;
         if (entry[0] !== key) {
           newArray[k] = entry;
           newIndex[entry[0].name] = k;
@@ -105,14 +105,14 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     const newArray = new Array<[M, number]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, n = thisArray.length; i < n; i += 1) {
-      const entry = thisArray[i];
+      const entry = thisArray[i]!;
       const key = entry[0];
       const y = that.get(key);
       newIndex[key.name] = newArray.length;
       newArray.push(y === void 0 ? entry : [key, entry[1] + y]);
     }
     for (let i = 0, n = thatArray.length; i < n; i += 1) {
-      const entry = thatArray[i];
+      const entry = thatArray[i]!;
       const key = entry[0];
       if (newIndex[key.name] === void 0) {
         newIndex[key.name] = newArray.length;
@@ -127,7 +127,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     const n = oldArray.length;
     const newArray = new Array<[M, number]>(n);
     for (let i = 0; i < n; i += 1) {
-      const [key, x] = oldArray[i];
+      const [key, x] = oldArray[i]!;
       newArray[i] = [key, -x];
     }
     return this.copy(newArray, this._index);
@@ -139,14 +139,14 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     const newArray = new Array<[M, number]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, n = thisArray.length; i < n; i += 1) {
-      const entry = thisArray[i];
+      const entry = thisArray[i]!;
       const key = entry[0];
       const y = that.get(key);
       newIndex[key.name] = newArray.length;
       newArray.push(y === void 0 ? entry : [key, entry[1] - y]);
     }
     for (let i = 0, n = thatArray.length; i < n; i += 1) {
-      const [key, y] = thatArray[i];
+      const [key, y] = thatArray[i]!;
       if (newIndex[key.name] === void 0) {
         newIndex[key.name] = newArray.length;
         newArray.push([key, -y]);
@@ -160,7 +160,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     const n = oldArray.length;
     const newArray = new Array<[M, number]>(n);
     for (let i = 0; i < n; i += 1) {
-      const [key, x] = oldArray[i];
+      const [key, x] = oldArray[i]!;
       newArray[i] = [key, x * scalar];
     }
     return this.copy(newArray, this._index);
@@ -170,7 +170,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     const array = this._array;
     let combination: number | undefined;
     for (let i = 0, n = array.length; i < n; i += 1) {
-      const [key, x] = array[i];
+      const [key, x] = array[i]!;
       const y = that.get(key);
       if (y !== void 0) {
         if (combination === void 0) {
@@ -188,11 +188,14 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     return MoodVector.fromArray(array, index);
   }
 
-  forEach<R, S = unknown>(callback: (this: S, value: number, key: M) => R | void,
-                          thisArg?: S): R | undefined {
+  forEach<R>(callback: (value: number, key: M) => R | void): R | undefined;
+  forEach<R, S>(callback: (this: S, value: number, key: M) => R | void,
+                thisArg: S): R | undefined;
+  forEach<R, S>(callback: (this: S | undefined, value: number, key: M) => R | void,
+                thisArg?: S): R | undefined {
     const array = this._array;
     for (let i = 0, n = array.length; i < n; i += 1) {
-      const entry = array[i];
+      const entry = array[i]!;
       const result = callback.call(thisArg, entry[1], entry[0]);
       if (result !== void 0) {
         return result;
@@ -216,7 +219,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     output = output.write("MoodVector").write(46/*'.'*/)
         .write(n !== 0 ? "of" : "empty").write(40/*'('*/);
     for (let i = 0; i < n; i += 1) {
-      const [key, value] = array[i];
+      const [key, value] = array[i]!;
       if (i !== 0) {
         output = output.write(", ");
       }
@@ -262,7 +265,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
   static index<M extends Mood>(array: ReadonlyArray<[M, unknown]>): {readonly [name: string]: number | undefined} {
     const index: {[name: string]: number | undefined} = {};
     for (let i = 0, n = array.length; i < n; i += 1) {
-      const entry = array[i];
+      const entry = array[i]!;
       index[entry[0].name] = i;
     }
     return index;

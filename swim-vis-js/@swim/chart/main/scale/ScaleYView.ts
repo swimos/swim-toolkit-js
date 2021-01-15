@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/tween";
+import type {ContinuousScale} from "@swim/scale";
+import type {Tween} from "@swim/animation";
 import {GraphicsView} from "@swim/graphics";
 import {ScaleView} from "./ScaleView";
 

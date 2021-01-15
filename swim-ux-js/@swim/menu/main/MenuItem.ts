@@ -13,15 +13,15 @@
 // limitations under the License.
 
 import {AnyLength, Length} from "@swim/math";
-import {Tween, Transition} from "@swim/tween";
-import {Height} from "@swim/style";
+import {Tween, Transition} from "@swim/animation";
+import type {Height} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewEdgeInsets, ViewScope, ViewAnimator} from "@swim/view";
 import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
-import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
+import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembrane} from "@swim/button";
-import {MenuItemObserver} from "./MenuItemObserver";
-import {MenuItemController} from "./MenuItemController";
+import type {MenuItemObserver} from "./MenuItemObserver";
+import type {MenuItemController} from "./MenuItemController";
 import {MenuList} from "./MenuList";
 
 export class MenuItem extends ButtonMembrane implements PositionGestureDelegate {
@@ -45,23 +45,21 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     this.userSelect.setAutoState("none");
   }
 
-  // @ts-ignore
   declare readonly viewController: MenuItemController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<MenuItemObserver>;
 
   @ViewScope({type: Boolean, state: false})
-  highlighted: ViewScope<this, boolean>;
+  declare highlighted: ViewScope<this, boolean>;
 
   @ViewScope({type: Object, inherit: true})
-  edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
+  declare edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  collapsedWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare collapsedWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  drawerStretch: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
+  declare drawerStretch: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   protected createIconView(icon?: SvgView): HtmlView {
     const iconView = HtmlView.create("div");
@@ -370,15 +368,15 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   protected onClick(event: MouseEvent): void {
     event.stopPropagation();
 
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.menuItemDidPress !== void 0) {
         viewObserver.menuItemDidPress(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.menuItemDidPress !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.menuItemDidPress !== void 0) {
       viewController.menuItemDidPress(this);
     }
 

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlViewObserver} from "@swim/dom";
-import {TreeVein} from "./TreeVein";
+import type {HtmlViewObserver} from "@swim/dom";
+import type {TreeVein} from "./TreeVein";
 
 export interface TreeVeinObserver<V extends TreeVein = TreeVein> extends HtmlViewObserver<V> {
 }

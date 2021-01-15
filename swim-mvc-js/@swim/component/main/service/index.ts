@@ -16,11 +16,10 @@ export {
   ComponentServiceMemberType,
   ComponentServiceFlags,
   ComponentServiceInit,
-  ComponentServiceDescriptorInit,
-  ComponentServiceDescriptorExtends,
   ComponentServiceDescriptor,
-  ComponentServicePrototype,
+  ComponentServiceDescriptorExtends,
   ComponentServiceConstructor,
+  ComponentServiceClass,
   ComponentService,
 } from "./ComponentService";
 

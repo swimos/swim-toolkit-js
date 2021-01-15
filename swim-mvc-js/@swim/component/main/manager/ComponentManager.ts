@@ -14,34 +14,36 @@
 
 import {Arrays} from "@swim/util";
 import {Component} from "../Component";
-import {ComponentManagerObserverType, ComponentManagerObserver} from "./ComponentManagerObserver";
-import {ExecuteManager} from "../execute/ExecuteManager";
-import {HistoryManager} from "../history/HistoryManager";
+import type {ComponentManagerObserverType, ComponentManagerObserver} from "./ComponentManagerObserver";
+import type {ExecuteManager} from "../execute/ExecuteManager";
+import type {HistoryManager} from "../history/HistoryManager";
 
 export abstract class ComponentManager<C extends Component = Component> {
-  /** @hidden */
-  readonly _rootComponents: C[];
-  /** @hidden */
-  _componentManagerObservers?: ReadonlyArray<ComponentManagerObserverType<this>>;
-
   constructor() {
-    this._rootComponents = [];
+    Object.defineProperty(this, "rootComponents", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "componentManagerObservers", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get componentManagerObservers(): ReadonlyArray<ComponentManagerObserver> {
-    let componentManagerObservers = this._componentManagerObservers;
-    if (componentManagerObservers === void 0) {
-      componentManagerObservers = [];
-    }
-    return componentManagerObservers;
-  }
+  declare readonly componentManagerObservers: ReadonlyArray<ComponentManagerObserver>;
 
   addComponentManagerObserver(componentManagerObserver: ComponentManagerObserverType<this>): void {
-    const oldComponentManagerObservers = this._componentManagerObservers;
+    const oldComponentManagerObservers = this.componentManagerObservers;
     const newComponentManagerObservers = Arrays.inserted(componentManagerObserver, oldComponentManagerObservers);
     if (oldComponentManagerObservers !== newComponentManagerObservers) {
       this.willAddComponentManagerObserver(componentManagerObserver);
-      this._componentManagerObservers = newComponentManagerObservers;
+      Object.defineProperty(this, "componentManagerObservers", {
+        value: newComponentManagerObservers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onAddComponentManagerObserver(componentManagerObserver);
       this.didAddComponentManagerObserver(componentManagerObserver);
     }
@@ -60,11 +62,15 @@ export abstract class ComponentManager<C extends Component = Component> {
   }
 
   removeComponentManagerObserver(componentManagerObserver: ComponentManagerObserverType<this>): void {
-    const oldComponentManagerObservers = this._componentManagerObservers;
+    const oldComponentManagerObservers = this.componentManagerObservers;
     const newComponentManagerObservers = Arrays.removed(componentManagerObserver, oldComponentManagerObservers);
     if (oldComponentManagerObservers !== newComponentManagerObservers) {
       this.willRemoveComponentManagerObserver(componentManagerObserver);
-      this._componentManagerObservers = newComponentManagerObservers;
+      Object.defineProperty(this, "componentManagerObservers", {
+        value: newComponentManagerObservers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onRemoveComponentManagerObserver(componentManagerObserver);
       this.didRemoveComponentManagerObserver(componentManagerObserver);
     }
@@ -84,18 +90,12 @@ export abstract class ComponentManager<C extends Component = Component> {
 
   protected willObserve<T>(callback: (this: this, componentManagerObserver: ComponentManagerObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const componentManagerObservers = this._componentManagerObservers;
-    if (componentManagerObservers !== void 0) {
-      let i = 0;
-      while (i < componentManagerObservers.length) {
-        const componentManagerObserver = componentManagerObservers[i];
-        result = callback.call(this, componentManagerObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (componentManagerObserver === componentManagerObservers[i]) {
-          i += 1;
-        }
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i];
+      result = callback.call(this, componentManagerObserver as ComponentManagerObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
@@ -103,33 +103,29 @@ export abstract class ComponentManager<C extends Component = Component> {
 
   protected didObserve<T>(callback: (this: this, componentManagerObserver: ComponentManagerObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const componentManagerObservers = this._componentManagerObservers;
-    if (componentManagerObservers !== void 0) {
-      let i = 0;
-      while (i < componentManagerObservers.length) {
-        const componentManagerObserver = componentManagerObservers[i];
-        result = callback.call(this, componentManagerObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (componentManagerObserver === componentManagerObservers[i]) {
-          i += 1;
-        }
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i];
+      result = callback.call(this, componentManagerObserver as ComponentManagerObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
   }
 
   isAttached(): boolean {
-    return this._rootComponents.length !== 0;
+    return this.rootComponents.length !== 0;
   }
 
   protected willAttach(): void {
-    this.willObserve(function (componentManagerObserver: ComponentManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.componentManagerWillAttach !== void 0) {
         componentManagerObserver.componentManagerWillAttach(this);
       }
-    });
+    }
   }
 
   protected onAttach(): void {
@@ -137,19 +133,23 @@ export abstract class ComponentManager<C extends Component = Component> {
   }
 
   protected didAttach(): void {
-    this.didObserve(function (componentManagerObserver: ComponentManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.componentManagerDidAttach !== void 0) {
         componentManagerObserver.componentManagerDidAttach(this);
       }
-    });
+    }
   }
 
   protected willDetach(): void {
-    this.willObserve(function (componentManagerObserver: ComponentManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.componentManagerWillDetach !== void 0) {
         componentManagerObserver.componentManagerWillDetach(this);
       }
-    });
+    }
   }
 
   protected onDetach(): void {
@@ -157,27 +157,31 @@ export abstract class ComponentManager<C extends Component = Component> {
   }
 
   protected didDetach(): void {
-    this.didObserve(function (componentManagerObserver: ComponentManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.componentManagerDidDetach !== void 0) {
         componentManagerObserver.componentManagerDidDetach(this);
       }
-    });
+    }
   }
 
-  get rootComponents(): ReadonlyArray<C> {
-    return this._rootComponents;
-  }
+  declare readonly rootComponents: ReadonlyArray<C>;
 
   insertRootComponent(rootComponent: C): void {
-    const rootComponents = this._rootComponents;
-    const index = rootComponents.indexOf(rootComponent);
-    if (index < 0) {
-      const needsAttach = rootComponents.length === 0;
+    const oldRootComponents = this.rootComponents;
+    const newRootComponents = Arrays.inserted(rootComponent, oldRootComponents);
+    if (oldRootComponents !== newRootComponents) {
+      const needsAttach = oldRootComponents.length === 0;
       if (needsAttach) {
         this.willAttach();
       }
       this.willInsertRootComponent(rootComponent);
-      rootComponents.push(rootComponent);
+      Object.defineProperty(this, "rootComponents", {
+        value: newRootComponents,
+        enumerable: true,
+        configurable: true,
+      });
       if (needsAttach) {
         this.onAttach();
       }
@@ -190,11 +194,13 @@ export abstract class ComponentManager<C extends Component = Component> {
   }
 
   protected willInsertRootComponent(rootComponent: C): void {
-    this.willObserve(function (componentManagerObserver: ComponentManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.componentManagerWillInsertRootComponent !== void 0) {
         componentManagerObserver.componentManagerWillInsertRootComponent(rootComponent, this);
       }
-    });
+    }
   }
 
   protected onInsertRootComponent(rootComponent: C): void {
@@ -202,23 +208,29 @@ export abstract class ComponentManager<C extends Component = Component> {
   }
 
   protected didInsertRootComponent(rootComponent: C): void {
-    this.didObserve(function (componentManagerObserver: ComponentManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.componentManagerDidInsertRootComponent !== void 0) {
         componentManagerObserver.componentManagerDidInsertRootComponent(rootComponent, this);
       }
-    });
+    }
   }
 
   removeRootComponent(rootComponent: C): void {
-    const rootComponents = this._rootComponents;
-    const index = rootComponents.indexOf(rootComponent);
-    if (index >= 0) {
-      const needsDetach = rootComponents.length === 1;
+    const oldRootComponents = this.rootComponents;
+    const newRootComponents = Arrays.removed(rootComponent, oldRootComponents);
+    if (oldRootComponents !== newRootComponents) {
+      const needsDetach = oldRootComponents.length === 1;
       if (needsDetach) {
         this.willDetach();
       }
       this.willRemoveRootComponent(rootComponent);
-      rootComponents.splice(index, 1);
+      Object.defineProperty(this, "rootComponents", {
+        value: newRootComponents,
+        enumerable: true,
+        configurable: true,
+      });
       if (needsDetach) {
         this.onDetach();
       }
@@ -231,11 +243,13 @@ export abstract class ComponentManager<C extends Component = Component> {
   }
 
   protected willRemoveRootComponent(rootComponent: C): void {
-    this.willObserve(function (componentManagerObserver: ComponentManagerObserver): void {
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.componentManagerWillRemoveRootComponent !== void 0) {
         componentManagerObserver.componentManagerWillRemoveRootComponent(rootComponent, this);
       }
-    });
+    }
   }
 
   protected onRemoveRootComponent(rootComponent: C): void {
@@ -248,6 +262,13 @@ export abstract class ComponentManager<C extends Component = Component> {
         componentManagerObserver.componentManagerDidRemoveRootComponent(rootComponent, this);
       }
     });
+    const componentManagerObservers = this.componentManagerObservers;
+    for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
+      const componentManagerObserver = componentManagerObservers[i]!;
+      if (componentManagerObserver.componentManagerDidRemoveRootComponent !== void 0) {
+        componentManagerObserver.componentManagerDidRemoveRootComponent(rootComponent, this);
+      }
+    }
   }
 
   // Forward type declarations

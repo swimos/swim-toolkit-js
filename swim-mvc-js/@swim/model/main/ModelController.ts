@@ -13,28 +13,31 @@
 // limitations under the License.
 
 import {ModelContextType, ModelContext} from "./ModelContext";
-import {ModelPrototype, Model} from "./Model";
-import {ModelObserver} from "./ModelObserver";
-import {TraitPrototype, Trait} from "./Trait";
+import {ModelClass, Model} from "./Model";
+import type {ModelObserver} from "./ModelObserver";
+import type {TraitClass, Trait} from "./Trait";
 
 export type ModelControllerType<M extends Model> =
   M extends {readonly modelController: infer MC | null} ? MC : never;
 
 export class ModelController<M extends Model = Model> implements ModelObserver<M> {
-  /** @hidden */
-  protected _model: M | null;
-
   constructor() {
-    this._model = null;
+    Object.defineProperty(this, "model", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get model(): M | null {
-    return this._model;
-  }
+  declare readonly model: M | null;
 
   setModel(model: M | null): void {
     this.willSetModel(model);
-    this._model = model;
+    Object.defineProperty(this, "model", {
+      value: model,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetModel(model);
     this.didSetModel(model);
   }
@@ -52,12 +55,12 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   get key(): string | undefined {
-    const model = this._model;
+    const model = this.model;
     return model !== null ? model.key : void 0;
   }
 
   get parentModel(): Model | null {
-    const model = this._model;
+    const model = this.model;
     return model !== null ? model.parentModel : null;
   }
 
@@ -75,7 +78,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   remove(): void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       model.remove();
     } else {
@@ -84,12 +87,12 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   get childModelCount(): number {
-    const model = this._model;
+    const model = this.model;
     return model !== null ? model.childModelCount : 0;
   }
 
   get childModels(): ReadonlyArray<Model> {
-    const model = this._model;
+    const model = this.model;
     return model !== null ? model.childModels : [];
   }
 
@@ -100,7 +103,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   getChildModel(key: string): Model | null {
-    const model = this._model;
+    const model = this.model;
     return model !== null ? model.getChildModel(key) : null;
   }
 
@@ -110,7 +113,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   setChildModel(key: string, newChildModel: Model | null): Model | null {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       return model.setChildModel(key, newChildModel);
     } else {
@@ -129,7 +132,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   appendChildModel(childModel: Model, key?: string): void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       model.appendChildModel(childModel, key);
     } else {
@@ -138,7 +141,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   appendChildModelController(childModelController: ModelController, key?: string): void {
-    const model = this._model;
+    const model = this.model;
     const childModel = childModelController.model;
     if (model !== null && childModel !== null) {
       model.appendChildModel(childModel, key);
@@ -148,7 +151,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   prependChildModel(childModel: Model, key?: string): void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       model.prependChildModel(childModel, key);
     } else {
@@ -157,7 +160,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   prependChildModelController(childModelController: ModelController, key?: string): void {
-    const model = this._model;
+    const model = this.model;
     const childModel = childModelController.model;
     if (model !== null && childModel !== null) {
       model.prependChildModel(childModel, key);
@@ -167,7 +170,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   insertChildModel(childModel: Model, targetModel: Model | null, key?: string): void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       model.insertChildModel(childModel, targetModel, key);
     } else {
@@ -178,7 +181,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   insertChildModelController(childModelController: ModelController,
                              targetModelController: ModelController | Model | null,
                              key?: string): void {
-    const model = this._model;
+    const model = this.model;
     const childModel = childModelController.model;
     if (model !== null && childModel !== null) {
       let targetModel: Model | null;
@@ -204,7 +207,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   removeChildModel(key: string): Model | null;
   removeChildModel(childModel: Model): void;
   removeChildModel(key: string | Model): Model | null | void {
-    const model = this._model;
+    const model = this.model;
     if (typeof key === "string") {
       return model !== null ? model.removeChildModel(key) : null;
     } else if (model !== null) {
@@ -215,7 +218,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   removeChildModelController(key: string): ModelController | null;
   removeChildModelController(childModelController: ModelController): void;
   removeChildModelController(childModelController: string | ModelController): ModelController | null | void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       if (typeof childModelController === "string") {
         const childModel = model.removeChildModel(childModelController);
@@ -234,7 +237,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   removeAll(): void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       model.removeAll();
     } else {
@@ -250,36 +253,36 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     // hook
   }
 
-  getSuperModel<M extends Model>(modelClass: ModelPrototype<M>): M | null {
-    const model = this._model;
+  getSuperModel<M extends Model>(modelClass: ModelClass<M>): M | null {
+    const model = this.model;
     return model !== null ? model.getSuperModel(modelClass) : null;
   }
 
-  getBaseModel<M extends Model>(modelClass: ModelPrototype<M>): M | null {
-    const model = this._model;
+  getBaseModel<M extends Model>(modelClass: ModelClass<M>): M | null {
+    const model = this.model;
     return model !== null ? model.getBaseModel(modelClass) : null;
   }
 
   get traitCount(): number {
-    const model = this._model;
+    const model = this.model;
     return model !== null ? model.traitCount : 0;
   }
 
   get traits(): ReadonlyArray<Trait> {
-    const model = this._model;
+    const model = this.model;
     return model !== null ? model.traits : [];
   }
 
   getTrait(key: string): Trait | null;
-  getTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null;
-  getTrait(key: string | TraitPrototype<Trait>): Trait | null;
-  getTrait(key: string | TraitPrototype<Trait>): Trait | null {
-    const model = this._model;
+  getTrait<R extends Trait>(traitClass: TraitClass<R>): R | null;
+  getTrait(key: string | TraitClass): Trait | null;
+  getTrait(key: string | TraitClass): Trait | null {
+    const model = this.model;
     return model !== null ? model.getTrait(key) : null;
   }
 
   setTrait(key: string, newTrait: Trait | null): Trait | null {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       return model.setTrait(key, newTrait);
     } else {
@@ -288,7 +291,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   appendTrait(trait: Trait, key?: string): void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       model.appendTrait(trait, key);
     } else {
@@ -297,7 +300,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   prependTrait(trait: Trait, key?: string): void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       model.prependTrait(trait, key);
     } else {
@@ -306,7 +309,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   insertTrait(trait: Trait, targetTrait: Trait | null, key?: string): void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       model.insertTrait(trait, targetTrait, key);
     } else {
@@ -325,7 +328,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   removeTrait(key: string): Trait | null;
   removeTrait(trait: Trait): void;
   removeTrait(key: string | Trait): Trait | null | void {
-    const model = this._model;
+    const model = this.model;
     if (model !== null) {
       if (typeof key === "string") {
         return model.removeTrait(key);
@@ -345,18 +348,18 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     // hook
   }
 
-  getSuperTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
-    const model = this._model;
-    return model !== null ? model.getSuperTrait(traitPrototype) : null;
+  getSuperTrait<R extends Trait>(traitClass: TraitClass<R>): R | null {
+    const model = this.model;
+    return model !== null ? model.getSuperTrait(traitClass) : null;
   }
 
-  getBaseTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
-    const model = this._model;
-    return model !== null ? model.getBaseTrait(traitPrototype) : null;
+  getBaseTrait<R extends Trait>(traitClass: TraitClass<R>): R | null {
+    const model = this.model;
+    return model !== null ? model.getBaseTrait(traitClass) : null;
   }
 
   isMounted(): boolean {
-    const model = this._model;
+    const model = this.model;
     return model !== null && model.isMounted();
   }
 
@@ -377,7 +380,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   isPowered(): boolean {
-    const model = this._model;
+    const model = this.model;
     return model !== null && model.isPowered();
   }
 
@@ -398,17 +401,17 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   isTraversing(): boolean {
-    const model = this._model;
+    const model = this.model;
     return model !== null && model.isTraversing();
   }
 
   isUpdating(): boolean {
-    const model = this._model;
+    const model = this.model;
     return model !== null && model.isUpdating();
   }
 
   isAnalyzing(): boolean {
-    const model = this._model;
+    const model = this.model;
     return model !== null && model.isAnalyzing();
   }
 
@@ -437,7 +440,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   isRefreshing(): boolean {
-    const model = this._model;
+    const model = this.model;
     return model !== null && model.isRefreshing();
   }
 
@@ -474,7 +477,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
   }
 
   get modelContext(): ModelContext {
-    const model = this._model;
+    const model = this.model;
     return model !== null ? model.modelContext : ModelContext.default();
   }
 }

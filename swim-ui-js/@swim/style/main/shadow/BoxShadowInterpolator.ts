@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Interpolator} from "@swim/interpolate";
-import {Length} from "@swim/math";
-import {Color} from "@swim/color";
+import type {Length} from "@swim/math";
+import type {Color} from "@swim/color";
 import {AnyBoxShadow, BoxShadowArray, BoxShadowInit, BoxShadow} from "./BoxShadow";
 
 export class BoxShadowInterpolator extends Interpolator<BoxShadow, AnyBoxShadow> {

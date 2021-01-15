@@ -11,13 +11,13 @@
       "@swim/structure": ["../../swim-system-js/swim-core-js/@swim/structure/main"],
       "@swim/math": ["../../swim-system-js/swim-core-js/@swim/math/main"],
       "@swim/time": ["../../swim-system-js/swim-core-js/@swim/time/main"],
-      "@swim/tween": ["@swim/tween/main"],
+      "@swim/animation": ["@swim/animation/main"],
       "@swim/color": ["@swim/color/main"],
       "@swim/style": ["@swim/style/main"]
     }
   },
   "references": [
-    {"path": "../../tween/main"},
+    {"path": "../../animation/main"},
     {"path": "../../color/main"},
     {"path": "../../style/main"}
   ]

@@ -17,8 +17,8 @@ import {Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Item, Value, Text, Form} from "@swim/structure";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {BoxShadowParser} from "./BoxShadowParser";
-import {BoxShadowForm} from "./BoxShadowForm";
+import type {BoxShadowParser} from "./BoxShadowParser";
+import type {BoxShadowForm} from "./BoxShadowForm";
 
 export type AnyBoxShadow = BoxShadow | BoxShadowInit | string | BoxShadowArray;
 
@@ -33,7 +33,7 @@ export interface BoxShadowInit {
 
 export type BoxShadowArray = {[index: number]: BoxShadow | BoxShadowInit | string, length: number};
 
-export class BoxShadow implements Equivalent<AnyBoxShadow>, Equals {
+export class BoxShadow implements Equals, Equivalent {
   /** @hidden */
   readonly _inset: boolean;
   /** @hidden */
@@ -147,20 +147,24 @@ export class BoxShadow implements Equivalent<AnyBoxShadow>, Equals {
   and(inset: boolean, offsetX: AnyLength, offsetY: AnyLength, blurRadius: AnyLength, color: AnyColor): BoxShadow;
   and(inset: boolean, offsetX: AnyLength, offsetY: AnyLength, blurRadius: AnyLength, spreadRadius: AnyLength, color: AnyColor): BoxShadow;
   and(inset: AnyBoxShadow | AnyLength | boolean, offsetX?: AnyLength, offsetY?: AnyColor | AnyLength, blurRadius?: AnyColor | AnyLength, spreadRadius?: AnyColor | AnyLength, color?: AnyColor): BoxShadow {
-    const next = this._next !== null ? this._next.and.apply(this._next, arguments) : BoxShadow.of.apply(null, arguments);
+    const next = this._next !== null ? this._next.and.apply(this._next, arguments as any) : BoxShadow.of.apply(null, arguments as any);
     return new BoxShadow(this._inset, this._offsetX, this._offsetY, this._blurRadius,
                          this._spreadRadius, this._color, next);
   }
 
-  equivalentTo(that: AnyBoxShadow, epsilon?: number): boolean {
-    that = BoxShadow.fromAny(that);
-    return this._inset === that._inset
-        && this._offsetX.equivalentTo(that._offsetX, epsilon)
-        && this._offsetY.equivalentTo(that._offsetY, epsilon)
-        && this._blurRadius.equivalentTo(that._blurRadius, epsilon)
-        && this._spreadRadius.equivalentTo(that._spreadRadius, epsilon)
-        && this._color.equivalentTo(that._color, epsilon)
-        && Equivalent.equivalent(this._next, that._next, epsilon);
+  equivalentTo(that: unknown, epsilon?: number): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof BoxShadow) {
+      return this._inset === that._inset
+          && this._offsetX.equivalentTo(that._offsetX, epsilon)
+          && this._offsetY.equivalentTo(that._offsetY, epsilon)
+          && this._blurRadius.equivalentTo(that._blurRadius, epsilon)
+          && this._spreadRadius.equivalentTo(that._spreadRadius, epsilon)
+          && this._color.equivalentTo(that._color, epsilon)
+          && Equivalent.equivalent(this._next, that._next, epsilon);
+    }
+    return false;
   }
 
   equals(that: unknown): boolean {
@@ -283,9 +287,9 @@ export class BoxShadow implements Equivalent<AnyBoxShadow>, Equals {
   }
 
   static fromArray(array: BoxShadowArray): BoxShadow {
-    let boxShadow = BoxShadow.fromAny(array[0]);
+    let boxShadow = BoxShadow.fromAny(array[0]!);
     for (let i = 1; i < array.length; i += 1) {
-      boxShadow = boxShadow.and(array[i]);
+      boxShadow = boxShadow.and(array[i]!);
     }
     return boxShadow;
   }

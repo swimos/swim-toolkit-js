@@ -13,15 +13,15 @@
 // limitations under the License.
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
-import {Tween} from "@swim/tween";
+import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, ViewAnimator} from "@swim/view";
-import {GraphicsView} from "../graphics/GraphicsView";
+import type {GraphicsView} from "../graphics/GraphicsView";
 import {LayerView} from "../layer/LayerView";
-import {CanvasContext} from "../canvas/CanvasContext";
+import type {CanvasContext} from "../canvas/CanvasContext";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
-import {FillViewInit, FillView} from "./FillView";
-import {StrokeViewInit, StrokeView} from "./StrokeView";
+import type {FillViewInit, FillView} from "./FillView";
+import type {StrokeViewInit, StrokeView} from "./StrokeView";
 import {Rect} from "./Rect";
 
 export type AnyRectView = RectView | Rect | RectViewInit;
@@ -40,25 +40,25 @@ export class RectView extends LayerView implements FillView, StrokeView {
   }
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  x: ViewAnimator<this, Length, AnyLength>;
+  declare x: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  y: ViewAnimator<this, Length, AnyLength>;
+  declare y: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  width: ViewAnimator<this, Length, AnyLength>;
+  declare width: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  height: ViewAnimator<this, Length, AnyLength>;
+  declare height: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, inherit: true})
-  fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   get value(): Rect {
     return new Rect(this.x.getValue(), this.y.getValue(), this.width.getValue(), this.height.getValue());

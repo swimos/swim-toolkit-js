@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Constrain} from "./Constrain";
-import {ConstrainVariable} from "./ConstrainVariable";
+import type {ConstrainVariable} from "./ConstrainVariable";
 
 export abstract class ConstrainTerm extends Constrain {
   abstract get coefficient(): number;

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Transition} from "@swim/tween";
+import type {Transition} from "@swim/animation";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
@@ -51,7 +51,7 @@ export class ButtonItem extends HtmlView {
   }
 
   @ViewAnimator({type: Number, inherit: true})
-  stackPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
+  declare stackPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {

@@ -16,12 +16,11 @@ export {
   ModelBindingMemberType,
   ModelBindingMemberInit,
   ModelBindingInit,
-  ModelBindingDescriptorInit,
+  ModelBindingDescriptor,
   ModelBindingDescriptorExtends,
   ModelBindingDescriptorFromAny,
-  ModelBindingDescriptor,
-  ModelBindingPrototype,
   ModelBindingConstructor,
+  ModelBindingClass,
   ModelBinding,
 } from "./ModelBinding";
 
@@ -29,12 +28,11 @@ export {
   ModelTraitMemberType,
   ModelTraitMemberInit,
   ModelTraitInit,
-  ModelTraitDescriptorInit,
+  ModelTraitDescriptor,
   ModelTraitDescriptorExtends,
   ModelTraitDescriptorFromAny,
-  ModelTraitDescriptor,
-  ModelTraitPrototype,
   ModelTraitConstructor,
+  ModelTraitClass,
   ModelTrait,
 } from "./ModelTrait";
 
@@ -42,12 +40,11 @@ export {
   TraitModelMemberType,
   TraitModelMemberInit,
   TraitModelInit,
-  TraitModelDescriptorInit,
+  TraitModelDescriptor,
   TraitModelDescriptorExtends,
   TraitModelDescriptorFromAny,
-  TraitModelDescriptor,
-  TraitModelPrototype,
   TraitModelConstructor,
+  TraitModelClass,
   TraitModel,
 } from "./TraitModel";
 
@@ -55,11 +52,10 @@ export {
   TraitBindingMemberType,
   TraitBindingMemberInit,
   TraitBindingInit,
-  TraitBindingDescriptorInit,
+  TraitBindingDescriptor,
   TraitBindingDescriptorExtends,
   TraitBindingDescriptorFromAny,
-  TraitBindingDescriptor,
-  TraitBindingPrototype,
   TraitBindingConstructor,
+  TraitBindingClass,
   TraitBinding,
 } from "./TraitBinding";

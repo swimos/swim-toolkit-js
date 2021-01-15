@@ -15,18 +15,19 @@
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {Tween, Animator, TweenAnimator} from "@swim/tween";
+import {Tween, Animator, TweenAnimator} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
-import {ViewFlags} from "@swim/view";
-import {StringAttributeAnimator} from "./StringAttributeAnimator";
-import {BooleanAttributeAnimator} from "./BooleanAttributeAnimator";
-import {NumberAttributeAnimator} from "./NumberAttributeAnimator";
-import {LengthAttributeAnimator} from "./LengthAttributeAnimator";
-import {ColorAttributeAnimator} from "./ColorAttributeAnimator";
-import {TransformAttributeAnimator} from "./TransformAttributeAnimator";
-import {NumberOrStringAttributeAnimator} from "./NumberOrStringAttributeAnimator";
-import {LengthOrStringAttributeAnimator} from "./LengthOrStringAttributeAnimator";
-import {ColorOrStringAttributeAnimator} from "./ColorOrStringAttributeAnimator";
+import type {ViewFlags} from "@swim/view";
+import type {StringAttributeAnimator} from "./StringAttributeAnimator";
+import type {BooleanAttributeAnimator} from "./BooleanAttributeAnimator";
+import type {NumberAttributeAnimator} from "./NumberAttributeAnimator";
+import type {LengthAttributeAnimator} from "./LengthAttributeAnimator";
+import type {ColorAttributeAnimator} from "./ColorAttributeAnimator";
+import type {TransformAttributeAnimator} from "./TransformAttributeAnimator";
+import type {NumberOrStringAttributeAnimator} from "./NumberOrStringAttributeAnimator";
+import type {LengthOrStringAttributeAnimator} from "./LengthOrStringAttributeAnimator";
+import type {ColorOrStringAttributeAnimator} from "./ColorOrStringAttributeAnimator";
+import type {ViewNodeType} from "../node/NodeView";
 import {ElementView} from "../element/ElementView";
 
 export type AttributeAnimatorMemberType<V, K extends keyof V> =
@@ -35,9 +36,9 @@ export type AttributeAnimatorMemberType<V, K extends keyof V> =
 export type AttributeAnimatorMemberInit<V, K extends keyof V> =
   V extends {[P in K]: AttributeAnimator<any, infer T, infer U>} ? T | U : unknown;
 
-export interface AttributeAnimatorInit<T, U = T> {
+export interface AttributeAnimatorInit<T, U = never> {
   attributeName: string;
-  extends?: AttributeAnimatorPrototype;
+  extends?: AttributeAnimatorClass;
   type?: unknown;
 
   updateFlags?: ViewFlags;
@@ -48,35 +49,22 @@ export interface AttributeAnimatorInit<T, U = T> {
   fromAny?(value: T | U): T | undefined;
 }
 
-export type AttributeAnimatorDescriptorInit<V extends ElementView, T, U = T, I = {}> = AttributeAnimatorInit<T, U> & ThisType<AttributeAnimator<V, T, U> & I> & I;
+export type AttributeAnimatorDescriptor<V extends ElementView, T, U = never, I = {}> = AttributeAnimatorInit<T, U> & ThisType<AttributeAnimator<V, T, U> & I> & I;
 
-export type AttributeAnimatorDescriptorExtends<V extends ElementView, T, U = T, I = {}> = {extends: AttributeAnimatorPrototype | undefined} & AttributeAnimatorDescriptorInit<V, T, U, I>;
+export type AttributeAnimatorDescriptorExtends<V extends ElementView, T, U = never, I = {}> = {extends: AttributeAnimatorClass | undefined} & AttributeAnimatorDescriptor<V, T, U, I>;
 
-export type AttributeAnimatorDescriptorFromAny<V extends ElementView, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & AttributeAnimatorDescriptorInit<V, T, U, I>;
+export type AttributeAnimatorDescriptorFromAny<V extends ElementView, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & AttributeAnimatorDescriptor<V, T, U, I>;
 
-export type AttributeAnimatorDescriptor<V extends ElementView, T, U = T, I = {}> =
-  U extends T ? AttributeAnimatorDescriptorInit<V, T, U, I> :
-  T extends Length | undefined ? U extends AnyLength | undefined ? {type: typeof Length} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Color | undefined ? U extends AnyColor | undefined ? {type: typeof Color} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Transform | undefined ? U extends AnyTransform | undefined ? {type: typeof Transform} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
-  T extends string | undefined ? U extends string | undefined ? {type: typeof String} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
-  T extends boolean | undefined ? U extends boolean | string | undefined ? {type: typeof Boolean} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
-  T extends number | undefined ? U extends number | string | undefined ? {type: typeof Number} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Length | string | undefined ? U extends AnyLength | string | undefined ? {type: [typeof Length, typeof String]} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Color | string | undefined ? U extends AnyColor | string | undefined ? {type: [typeof Color, typeof String]} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
-  T extends number | string | undefined ? U extends number | string | undefined ? {type: [typeof Number, typeof String]} & AttributeAnimatorDescriptorInit<V, T, U, I> : AttributeAnimatorDescriptorExtends<V, T, U, I> :
-  AttributeAnimatorDescriptorFromAny<V, T, U, I>;
-
-export interface AttributeAnimatorPrototype extends Function {
-  readonly prototype: AttributeAnimator<any, any, any>;
-}
-
-export interface AttributeAnimatorConstructor<V extends ElementView, T, U = T, I = {}> {
+export interface AttributeAnimatorConstructor<V extends ElementView, T, U = never, I = {}> {
   new(owner: V, animatorName: string): AttributeAnimator<V, T, U> & I;
   prototype: AttributeAnimator<any, any, any> & I;
 }
 
-export declare abstract class AttributeAnimator<V extends ElementView, T, U = T> {
+export interface AttributeAnimatorClass extends Function {
+  readonly prototype: AttributeAnimator<any, any, any>;
+}
+
+export declare abstract class AttributeAnimator<V extends ElementView, T, U = never> {
   /** @hidden */
   _owner: V;
 
@@ -86,7 +74,7 @@ export declare abstract class AttributeAnimator<V extends ElementView, T, U = T>
 
   get owner(): V;
 
-  get node(): Element;
+  get node(): ViewNodeType<V>;
 
   updateFlags?: ViewFlags;
 
@@ -119,10 +107,10 @@ export declare abstract class AttributeAnimator<V extends ElementView, T, U = T>
   fromAny(value: T | U): T | undefined;
 
   /** @hidden */
-  static getConstructor(type: unknown): AttributeAnimatorPrototype | null;
+  static getClass(type: unknown): AttributeAnimatorClass | null;
 
-  static define<V extends ElementView, T, U = T, I = {}>(descriptor: AttributeAnimatorDescriptorExtends<V, T, U, I>): AttributeAnimatorConstructor<V, T, U, I>;
-  static define<V extends ElementView, T, U = T>(descriptor: AttributeAnimatorDescriptor<V, T, U>): AttributeAnimatorConstructor<V, T, U>;
+  static define<V extends ElementView, T, U = never, I = {}>(descriptor: AttributeAnimatorDescriptorExtends<V, T, U, I>): AttributeAnimatorConstructor<V, T, U, I>;
+  static define<V extends ElementView, T, U = never>(descriptor: AttributeAnimatorDescriptor<V, T, U>): AttributeAnimatorConstructor<V, T, U>;
 
   // Forward type declarations
   /** @hidden */
@@ -145,13 +133,23 @@ export declare abstract class AttributeAnimator<V extends ElementView, T, U = T>
   static ColorOrString: typeof ColorOrStringAttributeAnimator; // defined by ColorOrStringAttributeAnimator
 }
 
-export interface AttributeAnimator<V extends ElementView, T, U = T> extends TweenAnimator<T | undefined> {
+export interface AttributeAnimator<V extends ElementView, T, U = never> extends TweenAnimator<T | undefined> {
   (): T | undefined;
   (value: T | U | undefined, tween?: Tween<T>): V;
 }
 
-export function AttributeAnimator<V extends ElementView, T, U = T, I = {}>(descriptor: AttributeAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
-export function AttributeAnimator<V extends ElementView, T, U = T>(descriptor: AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends Length | undefined = Length | undefined, U extends AnyLength | undefined = AnyLength | undefined>(descriptor: {type: typeof Length} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends Color | undefined = Color | undefined, U extends AnyColor | undefined = AnyColor | undefined>(descriptor: {type: typeof Color} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends Transform | undefined = Transform | undefined, U extends AnyTransform | undefined = AnyTransform | undefined>(descriptor: {type: typeof Transform} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | undefined>(descriptor: {type: typeof Boolean} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends Length | string | undefined = Length | string | undefined, U extends AnyLength | string | undefined = AnyLength | string | undefined>(descriptor: {type: [typeof Length, typeof String]} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends Color | string | undefined = Color | string | undefined, U extends AnyColor | string | undefined = AnyColor | string | undefined>(descriptor: {type: [typeof Color, typeof String]} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T extends number | string | undefined = number | string | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: [typeof Number, typeof String]} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T, U = never>(descriptor: AttributeAnimatorDescriptorFromAny<V, T, U>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T, U = never, I = {}>(descriptor: AttributeAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
+export function AttributeAnimator<V extends ElementView, T, U = never>(descriptor: AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
 
 export function AttributeAnimator<V extends ElementView, T, U>(
     this: AttributeAnimator<V, T, U> | typeof AttributeAnimator,
@@ -159,7 +157,7 @@ export function AttributeAnimator<V extends ElementView, T, U>(
     animatorName?: string,
   ): AttributeAnimator<V, T, U> | PropertyDecorator {
   if (this instanceof AttributeAnimator) { // constructor
-    return AttributeAnimatorConstructor.call(this, owner as V, animatorName);
+    return AttributeAnimatorConstructor.call(this as AttributeAnimator<V, unknown, unknown>, owner as V, animatorName);
   } else { // decorator factory
     return AttributeAnimatorDecoratorFactory(owner as AttributeAnimatorDescriptor<V, T, U>);
   }
@@ -167,7 +165,7 @@ export function AttributeAnimator<V extends ElementView, T, U>(
 __extends(AttributeAnimator, TweenAnimator);
 
 function AttributeAnimatorConstructor<V extends ElementView, T, U>(this: AttributeAnimator<V, T, U>, owner: V, animatorName: string | undefined): AttributeAnimator<V, T, U> {
-  const _this: AttributeAnimator<V, T, U> = TweenAnimator.call(this, void 0, null) || this;
+  const _this: AttributeAnimator<V, T, U> = (TweenAnimator as Function).call(this, void 0, null) || this;
   if (animatorName !== void 0) {
     Object.defineProperty(_this, "name", {
       value: animatorName,
@@ -179,8 +177,8 @@ function AttributeAnimatorConstructor<V extends ElementView, T, U>(this: Attribu
   return _this;
 }
 
-function AttributeAnimatorDecoratorFactory<V extends ElementView, T, U = T>(descriptor: AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator {
-  return ElementView.decorateAttributeAnimator.bind(ElementView, AttributeAnimator.define(descriptor));
+function AttributeAnimatorDecoratorFactory<V extends ElementView, T, U = never>(descriptor: AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator {
+  return ElementView.decorateAttributeAnimator.bind(ElementView, AttributeAnimator.define(descriptor as AttributeAnimatorDescriptor<ElementView, unknown>));
 }
 
 Object.defineProperty(AttributeAnimator.prototype, "owner", {
@@ -193,7 +191,7 @@ Object.defineProperty(AttributeAnimator.prototype, "owner", {
 
 Object.defineProperty(AttributeAnimator.prototype, "node", {
   get: function (this: AttributeAnimator<ElementView, unknown, unknown>): Element {
-    return this._owner._node;
+    return this._owner.node;
   },
   enumerable: true,
   configurable: true,
@@ -321,7 +319,7 @@ AttributeAnimator.prototype.fromAny = function <T, U>(this: AttributeAnimator<El
   return void 0;
 };
 
-AttributeAnimator.getConstructor = function (type: unknown): AttributeAnimatorPrototype | null {
+AttributeAnimator.getClass = function (type: unknown): AttributeAnimatorClass | null {
   if (type === String) {
     return AttributeAnimator.String;
   } else if (type === Boolean) {
@@ -348,11 +346,11 @@ AttributeAnimator.getConstructor = function (type: unknown): AttributeAnimatorPr
 };
 
 AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor: AttributeAnimatorDescriptor<V, T, U, I>): AttributeAnimatorConstructor<V, T, U, I> {
-  let _super: AttributeAnimatorPrototype | null | undefined = descriptor.extends;
+  let _super: AttributeAnimatorClass | null | undefined = descriptor.extends;
   delete descriptor.extends;
 
   if (_super === void 0) {
-    _super = AttributeAnimator.getConstructor(descriptor.type);
+    _super = AttributeAnimator.getClass(descriptor.type);
   }
   if (_super === null) {
     _super = AttributeAnimator;

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Component} from "../Component";
-import {ComponentManagerObserver} from "../manager/ComponentManagerObserver";
-import {ExecuteManager} from "./ExecuteManager";
+import type {Component} from "../Component";
+import type {ComponentManagerObserver} from "../manager/ComponentManagerObserver";
+import type {ExecuteManager} from "./ExecuteManager";
 
 export interface ExecuteManagerObserver<C extends Component = Component, CM extends ExecuteManager<C> = ExecuteManager<C>> extends ComponentManagerObserver<C, CM> {
 }

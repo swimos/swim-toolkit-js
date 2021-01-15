@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {GraphicsView} from "@swim/graphics";
-import {ScaleXView} from "./ScaleXView";
-import {ScaleYView} from "./ScaleYView";
+import type {ScaleXView} from "./ScaleXView";
+import type {ScaleYView} from "./ScaleYView";
 import {ScaleView} from "./ScaleView";
 
 export interface ScaleXYView<X = unknown, Y = unknown> extends GraphicsView, ScaleXView<X>, ScaleYView<Y> {

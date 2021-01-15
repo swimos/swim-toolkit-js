@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {DrawingRenderer} from "../drawing/DrawingRenderer";
-import {CanvasContext} from "./CanvasContext";
+import type {CanvasContext} from "./CanvasContext";
 
 export class CanvasRenderer extends DrawingRenderer {
   /** @hidden */

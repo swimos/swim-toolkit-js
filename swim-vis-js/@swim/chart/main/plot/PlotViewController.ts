@@ -12,24 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ContinuousScale} from "@swim/scale";
+import type {ContinuousScale} from "@swim/scale";
 import {GraphicsViewController} from "@swim/graphics";
-import {PlotType, PlotView} from "./PlotView";
-import {PlotViewObserver} from "./PlotViewObserver";
+import type {PlotType, PlotView} from "./PlotView";
+import type {PlotViewObserver} from "./PlotViewObserver";
 
 export class PlotViewController<X = unknown, Y = unknown, V extends PlotView<X, Y> = PlotView<X, Y>> extends GraphicsViewController<V> implements PlotViewObserver<X, Y, V> {
   get plotType(): PlotType {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.plotType : void 0 as any;
   }
 
   xScale(): ContinuousScale<X, number> | undefined {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.xScale() : void 0;
   }
 
   yScale(): ContinuousScale<Y, number> | undefined {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.yScale() : void 0;
   }
 }

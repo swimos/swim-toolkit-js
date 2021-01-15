@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AttributeAnimator} from "./AttributeAnimator";
-import {ElementView} from "../element/ElementView";
+import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class NumberOrStringAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, number | string, number | string> {

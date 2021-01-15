@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export {
-  CssContextClass,
+  CssContextPrototype,
   CssContext,
 } from "./CssContext";
 
@@ -27,31 +27,28 @@ export {
 export {
   CssRuleType,
   CssRuleInit,
-  CssRuleDescriptorInit,
-  CssRuleDescriptorExtends,
   CssRuleDescriptor,
-  CssRulePrototype,
+  CssRuleDescriptorExtends,
   CssRuleConstructor,
+  CssRuleClass,
   CssRule,
 } from "./CssRule";
 
 export {
   StyleRuleInit,
-  StyleRuleDescriptorInit,
-  StyleRuleDescriptorExtends,
   StyleRuleDescriptor,
-  StyleRulePrototype,
+  StyleRuleDescriptorExtends,
   StyleRuleConstructor,
+  StyleRuleClass,
   StyleRule,
 } from "./StyleRule";
 
 export {
   MediaRuleInit,
-  MediaRuleDescriptorInit,
-  MediaRuleDescriptorExtends,
   MediaRuleDescriptor,
-  MediaRulePrototype,
+  MediaRuleDescriptorExtends,
   MediaRuleConstructor,
+  MediaRuleClass,
   MediaRule,
 } from "./MediaRule";
 

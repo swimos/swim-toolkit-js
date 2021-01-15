@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Color} from "@swim/color";
-import {Look} from "../look/Look";
+import type {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 
 export class OpacityFeel extends Feel {

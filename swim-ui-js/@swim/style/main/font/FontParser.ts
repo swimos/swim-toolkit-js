@@ -14,13 +14,13 @@
 
 import {Input, Output, Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Length, LengthParser} from "@swim/math";
-import {FontStyle} from "./FontStyle";
-import {FontVariant} from "./FontVariant";
-import {FontWeight} from "./FontWeight";
-import {FontStretch} from "./FontStretch";
-import {FontSize} from "./FontSize";
-import {LineHeight} from "./LineHeight";
-import {FontFamily} from "./FontFamily";
+import type {FontStyle} from "./FontStyle";
+import type {FontVariant} from "./FontVariant";
+import type {FontWeight} from "./FontWeight";
+import type {FontStretch} from "./FontStretch";
+import type {FontSize} from "./FontSize";
+import type {LineHeight} from "./LineHeight";
+import type {FontFamily} from "./FontFamily";
 import {FontFamilyParser} from "./FontFamilyParser";
 import {Font} from "./Font";
 

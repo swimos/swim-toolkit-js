@@ -14,7 +14,7 @@
 
 import {Equals, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
-import {Look} from "../look/Look";
+import type {Look} from "../look/Look";
 
 export type AnyFeelVector = FeelVector | FeelVectorArray;
 
@@ -63,7 +63,7 @@ export class FeelVector implements Equals, Debug {
     return entry !== void 0 ? entry[1] : void 0;
   }
 
-  updated<T, U = T>(look: Look<T, U>, value: T | U | undefined): FeelVector {
+  updated<T, U = never>(look: Look<T, U>, value: T | U | undefined): FeelVector {
     const oldArray = this._array;
     const oldIndex = this._index;
     const i = oldIndex[look.name];
@@ -85,7 +85,7 @@ export class FeelVector implements Equals, Debug {
       const newIndex: {[name: string]: number | undefined} = {};
       let k = 0;
       for (let j = 0, n = oldArray.length; j < n; j += 1) {
-        const entry = oldArray[j];
+        const entry = oldArray[j]!;
         if (entry[0] !== look) {
           newArray[k] = entry;
           newIndex[entry[0].name] = k;
@@ -104,14 +104,14 @@ export class FeelVector implements Equals, Debug {
     const newArray = new Array<[Look<unknown>, unknown]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, n = thisArray.length; i < n; i += 1) {
-      const entry = thisArray[i];
+      const entry = thisArray[i]!;
       const look = entry[0];
       const y = that.get(look);
       newIndex[look.name] = newArray.length;
       newArray.push(y === void 0 ? entry : [look, look.combine(entry[1], y)]);
     }
     for (let i = 0, n = thatArray.length; i < n; i += 1) {
-      const entry = thatArray[i];
+      const entry = thatArray[i]!;
       const look = entry[0];
       if (newIndex[look.name] === void 0) {
         newIndex[look.name] = newArray.length;
@@ -126,7 +126,7 @@ export class FeelVector implements Equals, Debug {
     const n = oldArray.length;
     const newArray = new Array<[Look<unknown>, unknown]>(n);
     for (let i = 0; i < n; i += 1) {
-      const [look, x] = oldArray[i];
+      const [look, x] = oldArray[i]!;
       newArray[i] = [look, look.combine(void 0, x, -1)];
     }
     return this.copy(newArray, this._index);
@@ -138,14 +138,14 @@ export class FeelVector implements Equals, Debug {
     const newArray = new Array<[Look<unknown>, unknown]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, n = thisArray.length; i < n; i += 1) {
-      const entry = thisArray[i];
+      const entry = thisArray[i]!;
       const look = entry[0];
       const y = that.get(look);
       newIndex[look.name] = newArray.length;
       newArray.push(y === void 0 ? entry : [look, look.combine(entry[1], y, -1)]);
     }
     for (let i = 0, n = thatArray.length; i < n; i += 1) {
-      const [look, y] = thatArray[i];
+      const [look, y] = thatArray[i]!;
       if (newIndex[look.name] === void 0) {
         newIndex[look.name] = newArray.length;
         newArray.push([look, look.combine(void 0, y, -1)]);
@@ -159,7 +159,7 @@ export class FeelVector implements Equals, Debug {
     const n = oldArray.length;
     const newArray = new Array<[Look<unknown>, unknown]>(n);
     for (let i = 0; i < n; i += 1) {
-      const [look, x] = oldArray[i];
+      const [look, x] = oldArray[i]!;
       newArray[i] = [look, look.combine(void 0, x, scalar)];
     }
     return this.copy(newArray, this._index);
@@ -170,11 +170,14 @@ export class FeelVector implements Equals, Debug {
     return FeelVector.fromArray(array, index);
   }
 
-  forEach<R, S = unknown>(callback: <T>(this: S, value: T, look: Look<T>) => R | void,
-                          thisArg?: S): R | undefined {
+  forEach<R>(callback: <T>(value: T, look: Look<T>) => R | void): R | undefined;
+  forEach<R, S>(callback: <T>(this: S, value: T, look: Look<T>) => R | void,
+                thisArg: S): R | undefined;
+  forEach<R, S>(callback: <T>(this: S | undefined, value: T, look: Look<T>) => R | void,
+                thisArg?: S): R | undefined {
     const array = this._array;
     for (let i = 0, n = array.length; i < n; i += 1) {
-      const entry = array[i];
+      const entry = array[i]!;
       const result = callback.call(thisArg, entry[1], entry[0]);
       if (result !== void 0) {
         return result;
@@ -198,7 +201,7 @@ export class FeelVector implements Equals, Debug {
     output = output.write("FeelVector").write(46/*'.'*/)
         .write(n !== 0 ? "of" : "empty").write(40/*'('*/);
     for (let i = 0; i < n; i += 1) {
-      const [look, value] = array[i];
+      const [look, value] = array[i]!;
       if (i !== 0) {
         output = output.write(", ");
       }
@@ -224,7 +227,7 @@ export class FeelVector implements Equals, Debug {
     const array = new Array<[Look<unknown>, unknown]>(n);
     const index: {[name: string]: number | undefined} = {};
     for (let i = 0; i < n; i += 1) {
-      const [look, value] = looks[i];
+      const [look, value] = looks[i]!;
       array[i] = [look, look.coerce(value)];
       index[look.name] = i;
     }
@@ -252,7 +255,7 @@ export class FeelVector implements Equals, Debug {
   static index<T>(array: ReadonlyArray<[Look<T>, T]>): {readonly [name: string]: number | undefined} {
     const index: {[name: string]: number | undefined} = {};
     for (let i = 0, n = array.length; i < n; i += 1) {
-      const entry = array[i];
+      const entry = array[i]!;
       index[entry[0].name] = i;
     }
     return index;

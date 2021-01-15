@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import {ConstraintKey, ConstraintMap} from "./ConstraintMap";
-import {ConstrainSum} from "./ConstrainSum";
-import {ConstrainTerm} from "./ConstrainTerm";
-import {ConstrainProduct} from "./ConstrainProduct";
-import {ConstrainConstant} from "./ConstrainConstant";
-import {ConstrainVariable} from "./ConstrainVariable";
-import {ConstrainBinding} from "./ConstrainBinding";
+import type {ConstrainSum} from "./ConstrainSum";
+import type {ConstrainTerm} from "./ConstrainTerm";
+import type {ConstrainProduct} from "./ConstrainProduct";
+import type {ConstrainConstant} from "./ConstrainConstant";
+import type {ConstrainVariable} from "./ConstrainVariable";
+import type {ConstrainBinding} from "./ConstrainBinding";
 
 export abstract class Constrain implements ConstraintKey {
   /** @hidden */
@@ -53,7 +53,7 @@ export abstract class Constrain implements ConstraintKey {
     const terms = new ConstraintMap<ConstrainVariable, number>();
     let constant = 0;
     for (let i = 0, n = args.length; i < n; i += 1) {
-      const arg = args[i];
+      const arg = args[i]!;
       if (typeof arg === "number") {
         constant += arg;
       } else if (arg instanceof Constrain.Term) {

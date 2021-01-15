@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Trait} from "./Trait";
+import type {Trait} from "./Trait";
 
 export type TraitConsumerType<R extends Trait> =
   R extends {readonly traitConsumers: ReadonlyArray<infer RC>} ? RC : unknown;

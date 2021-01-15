@@ -13,19 +13,19 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import {WarpRef} from "@swim/client";
-import {ModelContextType} from "./ModelContext";
-import {ModelFlags, ModelPrototype, Model} from "./Model";
-import {TraitObserverType, TraitObserver} from "./TraitObserver";
-import {TraitConsumerType, TraitConsumer} from "./TraitConsumer";
-import {WarpManager} from "./warp/WarpManager";
-import {TraitServiceConstructor, TraitService} from "./service/TraitService";
-import {TraitScopeConstructor, TraitScope} from "./scope/TraitScope";
-import {TraitModelConstructor, TraitModel} from "./binding/TraitModel";
-import {TraitBindingConstructor, TraitBinding} from "./binding/TraitBinding";
-import {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
-import {ModelDownlink} from "./downlink/ModelDownlink";
-import {GenericTrait} from "./generic/GenericTrait";
+import type {WarpRef} from "@swim/client";
+import type {ModelContextType} from "./ModelContext";
+import type {ModelFlags, ModelClass, Model} from "./Model";
+import type {TraitObserverType, TraitObserver} from "./TraitObserver";
+import type {TraitConsumerType, TraitConsumer} from "./TraitConsumer";
+import type {WarpManager} from "./warp/WarpManager";
+import type {TraitServiceConstructor, TraitService} from "./service/TraitService";
+import type {TraitScopeConstructor, TraitScope} from "./scope/TraitScope";
+import type {TraitModelConstructor, TraitModel} from "./binding/TraitModel";
+import type {TraitBindingConstructor, TraitBinding} from "./binding/TraitBinding";
+import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
+import type {ModelDownlink} from "./downlink/ModelDownlink";
+import type {GenericTrait} from "./generic/GenericTrait";
 
 export type TraitModelType<R extends Trait> = R extends {readonly model: infer M} ? M extends null ? never : M : Model;
 
@@ -33,11 +33,7 @@ export type TraitContextType<R extends Trait> = ModelContextType<TraitModelType<
 
 export type TraitFlags = number;
 
-export interface TraitPrototype<R extends Trait = Trait> extends Function {
-  readonly prototype: R;
-}
-
-export interface TraitClass {
+export interface TraitPrototype {
   /** @hidden */
   _traitServiceConstructors?: {[serviceName: string]: TraitServiceConstructor<Trait, unknown> | undefined};
 
@@ -49,6 +45,15 @@ export interface TraitClass {
 
   /** @hidden */
   _traitBindingConstructors?: {[bindingName: string]: TraitBindingConstructor<Trait, Trait> | undefined};
+}
+
+export interface TraitConstructor<R extends Trait = Trait> {
+  new(): R;
+  readonly prototype: R;
+}
+
+export interface TraitClass<R extends Trait = Trait> extends Function {
+  readonly prototype: R;
 
   readonly mountFlags: ModelFlags;
 
@@ -68,41 +73,41 @@ export interface TraitClass {
 }
 
 export abstract class Trait implements ModelDownlinkContext {
-  /** @hidden */
-  _traitFlags: TraitFlags;
-  /** @hidden */
-  _traitObservers?: ReadonlyArray<TraitObserverType<this>>;
-
   constructor() {
-    this._traitFlags = 0;
+    Object.defineProperty(this, "traitFlags", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "traitObservers", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get traitClass(): TraitClass {
-    return this.constructor as unknown as TraitClass;
-  }
-
-  get traitFlags(): TraitFlags {
-    return this._traitFlags;
-  }
+  declare readonly traitFlags: TraitFlags;
 
   setTraitFlags(traitFlags: TraitFlags): void {
-    this._traitFlags = traitFlags;
+    Object.defineProperty(this, "traitFlags", {
+      value: traitFlags,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get traitObservers(): ReadonlyArray<TraitObserver> {
-    let traitObservers = this._traitObservers;
-    if (traitObservers === void 0) {
-      traitObservers = [];
-    }
-    return traitObservers;
-  }
+  declare readonly traitObservers: ReadonlyArray<TraitObserver>;
 
   addTraitObserver(traitObserver: TraitObserverType<this>): void {
-    const oldTraitObservers = this._traitObservers;
+    const oldTraitObservers = this.traitObservers;
     const newTraitObservers = Arrays.inserted(traitObserver, oldTraitObservers);
     if (oldTraitObservers !== newTraitObservers) {
       this.willAddTraitObserver(traitObserver);
-      this._traitObservers = newTraitObservers;
+      Object.defineProperty(this, "traitObservers", {
+        value: newTraitObservers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onAddTraitObserver(traitObserver);
       this.didAddTraitObserver(traitObserver);
     }
@@ -121,11 +126,15 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   removeTraitObserver(traitObserver: TraitObserverType<this>): void {
-    const oldTraitObservers = this._traitObservers;
+    const oldTraitObservers = this.traitObservers;
     const newTraitObservers = Arrays.removed(traitObserver, oldTraitObservers);
     if (oldTraitObservers !== newTraitObservers) {
       this.willRemoveTraitObserver(traitObserver);
-      this._traitObservers = newTraitObservers;
+      Object.defineProperty(this, "traitObservers", {
+        value: newTraitObservers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onRemoveTraitObserver(traitObserver);
       this.didRemoveTraitObserver(traitObserver);
     }
@@ -168,9 +177,9 @@ export abstract class Trait implements ModelDownlinkContext {
   abstract setModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null): void;
 
   protected willSetModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillSetModel !== void 0) {
         traitObserver.traitWillSetModel(newModel, oldModel, this);
       }
@@ -197,9 +206,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didSetModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidSetModel !== void 0) {
         traitObserver.traitDidSetModel(newModel, oldModel, this);
       }
@@ -214,9 +223,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected willSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillSetParentModel !== void 0) {
         traitObserver.traitWillSetParentModel(newParentModel, oldParentModel, this);
       }
@@ -228,9 +237,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidSetParentModel !== void 0) {
         traitObserver.traitDidSetParentModel(newParentModel, oldParentModel, this);
       }
@@ -267,8 +276,11 @@ export abstract class Trait implements ModelDownlinkContext {
     return model !== null ? model.previousChildModel(targetModel) : null;
   }
 
-  forEachChildModel<T, S = unknown>(callback: (this: S, childModel: Model) => T | void,
-                                    thisArg?: S): T | undefined {
+  forEachChildModel<T>(callback: (childModel: Model) => T | void): T | undefined;
+  forEachChildModel<T, S>(callback: (this: S, childModel: Model) => T | void,
+                          thisArg: S): T | undefined;
+  forEachChildModel<T, S>(callback: (this: S | undefined, childModel: Model) => T | void,
+                          thisArg?: S): T | undefined {
     const model = this.model;
     return model !== null ? model.forEachChildModel(callback, thisArg) : void 0;
   }
@@ -315,13 +327,13 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   get insertChildFlags(): ModelFlags {
-    return this.traitClass.insertChildFlags;
+    return (this.constructor as TraitClass).insertChildFlags;
   }
 
   protected willInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillInsertChildModel !== void 0) {
         traitObserver.traitWillInsertChildModel(childModel, targetModel, this);
       }
@@ -333,9 +345,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidInsertChildModel !== void 0) {
         traitObserver.traitDidInsertChildModel(childModel, targetModel, this);
       }
@@ -354,13 +366,13 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   get removeChildFlags(): ModelFlags {
-    return this.traitClass.removeChildFlags;
+    return (this.constructor as TraitClass).removeChildFlags;
   }
 
   protected willRemoveChildModel(childModel: Model): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillRemoveChildModel !== void 0) {
         traitObserver.traitWillRemoveChildModel(childModel, this);
       }
@@ -372,23 +384,23 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didRemoveChildModel(childModel: Model): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidRemoveChildModel !== void 0) {
         traitObserver.traitDidRemoveChildModel(childModel, this);
       }
     }
   }
 
-  getSuperModel<M extends Model>(modelPrototype: ModelPrototype<M>): M | null {
+  getSuperModel<M extends Model>(modelClass: ModelClass<M>): M | null {
     const model = this.model;
-    return model !== null ? model.getSuperModel(modelPrototype) : null;
+    return model !== null ? model.getSuperModel(modelClass) : null;
   }
 
-  getBaseModel<M extends Model>(modelPrototype: ModelPrototype<M>): M | null {
+  getBaseModel<M extends Model>(modelClass: ModelClass<M>): M | null {
     const model = this.model;
-    return model !== null ? model.getBaseModel(modelPrototype) : null;
+    return model !== null ? model.getBaseModel(modelClass) : null;
   }
 
   get traitCount(): number {
@@ -421,16 +433,19 @@ export abstract class Trait implements ModelDownlinkContext {
     return model !== null ? model.previousTrait(targetTrait) : null;
   }
 
-  forEachTrait<T, S = unknown>(callback: (this: S, trait: Trait) => T | void,
-                               thisArg?: S): T | undefined {
+  forEachTrait<T>(callback: (trait: Trait) => T | void): T | undefined;
+  forEachTrait<T, S>(callback: (this: S, trait: Trait) => T | void,
+                     thisArg: S): T | undefined;
+  forEachTrait<T, S>(callback: (this: S | undefined, trait: Trait) => T | void,
+                     thisArg?: S): T | undefined {
     const model = this.model;
     return model !== null ? model.forEachTrait(callback, thisArg) : void 0;
   }
 
   getTrait(key: string): Trait | null;
-  getTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null;
-  getTrait(key: string | TraitPrototype<Trait>): Trait | null;
-  getTrait(key: string | TraitPrototype<Trait>): Trait | null {
+  getTrait<R extends Trait>(traitClass: TraitClass<R>): R | null;
+  getTrait(key: string | TraitClass): Trait | null;
+  getTrait(key: string | TraitClass): Trait | null {
     const model = this.model;
     return model !== null ? model.getTrait(key) : null;
   }
@@ -472,13 +487,13 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   get insertTraitFlags(): ModelFlags {
-    return this.traitClass.insertTraitFlags;
+    return (this.constructor as TraitClass).insertTraitFlags;
   }
 
   protected willInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillInsertTrait !== void 0) {
         traitObserver.traitWillInsertTrait(trait, targetTrait, this);
       }
@@ -490,9 +505,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidInsertTrait !== void 0) {
         traitObserver.traitDidInsertTrait(trait, targetTrait, this);
       }
@@ -511,13 +526,13 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   get removeTraitFlags(): ModelFlags {
-    return this.traitClass.removeTraitFlags;
+    return (this.constructor as TraitClass).removeTraitFlags;
   }
 
   protected willRemoveTrait(trait: Trait): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillRemoveTrait !== void 0) {
         traitObserver.traitWillRemoveTrait(trait, this);
       }
@@ -529,44 +544,44 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didRemoveTrait(trait: Trait): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidRemoveTrait !== void 0) {
         traitObserver.traitDidRemoveTrait(trait, this);
       }
     }
   }
 
-  getSuperTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
+  getSuperTrait<R extends Trait>(traitClass: TraitClass<R>): R | null {
     const model = this.model;
-    return model !== null ? model.getSuperTrait(traitPrototype) : null;
+    return model !== null ? model.getSuperTrait(traitClass) : null;
   }
 
-  getBaseTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
+  getBaseTrait<R extends Trait>(traitClass: TraitClass<R>): R | null {
     const model = this.model;
-    return model !== null ? model.getBaseTrait(traitPrototype) : null;
+    return model !== null ? model.getBaseTrait(traitClass) : null;
   }
 
-  readonly warpService: TraitService<this, WarpManager>; // defined by WarpService
+  declare readonly warpService: TraitService<this, WarpManager>; // defined by WarpService
 
-  readonly warpRef: TraitScope<this, WarpRef | undefined>; // defined by GenericTrait
+  declare readonly warpRef: TraitScope<this, WarpRef | undefined>; // defined by GenericTrait
 
   isMounted(): boolean {
-    return (this._traitFlags & Trait.MountedFlag) !== 0;
+    return (this.traitFlags & Trait.MountedFlag) !== 0;
   }
 
   get mountFlags(): ModelFlags {
-    return this.traitClass.mountFlags;
+    return (this.constructor as TraitClass).mountFlags;
   }
 
   /** @hidden */
   abstract doMount(): void;
 
   protected willMount(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillMount !== void 0) {
         traitObserver.traitWillMount(this);
       }
@@ -578,9 +593,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didMount(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidMount !== void 0) {
         traitObserver.traitDidMount(this);
       }
@@ -591,9 +606,9 @@ export abstract class Trait implements ModelDownlinkContext {
   abstract doUnmount(): void;
 
   protected willUnmount(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillUnmount !== void 0) {
         traitObserver.traitWillUnmount(this);
       }
@@ -605,9 +620,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didUnmount(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidUnmount !== void 0) {
         traitObserver.traitDidUnmount(this);
       }
@@ -615,20 +630,20 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   isPowered(): boolean {
-    return (this._traitFlags & Trait.PoweredFlag) !== 0;
+    return (this.traitFlags & Trait.PoweredFlag) !== 0;
   }
 
   get powerFlags(): ModelFlags {
-    return this.traitClass.powerFlags;
+    return (this.constructor as TraitClass).powerFlags;
   }
 
   /** @hidden */
   abstract doPower(): void;
 
   protected willPower(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillPower !== void 0) {
         traitObserver.traitWillPower(this);
       }
@@ -640,9 +655,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didPower(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidPower !== void 0) {
         traitObserver.traitDidPower(this);
       }
@@ -653,9 +668,9 @@ export abstract class Trait implements ModelDownlinkContext {
   abstract doUnpower(): void;
 
   protected willUnpower(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillUnpower !== void 0) {
         traitObserver.traitWillUnpower(this);
       }
@@ -667,9 +682,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didUnpower(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidUnpower !== void 0) {
         traitObserver.traitDidUnpower(this);
       }
@@ -750,9 +765,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected willMutate(modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillMutate !== void 0) {
         traitObserver.traitWillMutate(modelContext, this);
       }
@@ -764,9 +779,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didMutate(modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidMutate !== void 0) {
         traitObserver.traitDidMutate(modelContext, this);
       }
@@ -774,9 +789,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected willAggregate(modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillAggregate !== void 0) {
         traitObserver.traitWillAggregate(modelContext, this);
       }
@@ -788,9 +803,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didAggregate(modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidAggregate !== void 0) {
         traitObserver.traitDidAggregate(modelContext, this);
       }
@@ -798,9 +813,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected willCorrelate(modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillCorrelate !== void 0) {
         traitObserver.traitWillCorrelate(modelContext, this);
       }
@@ -812,9 +827,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didCorrelate(modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidCorrelate !== void 0) {
         traitObserver.traitDidCorrelate(modelContext, this);
       }
@@ -839,7 +854,8 @@ export abstract class Trait implements ModelDownlinkContext {
                                analyzeChildModels: (this: TraitModelType<this>, analyzeFlags: ModelFlags, modelContext: TraitContextType<this>,
                                                     analyzeChildModel: (this: TraitModelType<this>, childModel: Model, analyzeFlags: ModelFlags,
                                                                         modelContext: TraitContextType<this>) => void) => void): void {
-    analyzeChildModels.call(this.model, analyzeFlags, modelContext, analyzeChildModel);
+    const model = this.model as TraitModelType<this>;
+    analyzeChildModels.call(model, analyzeFlags, modelContext, analyzeChildModel);
   }
 
   protected willAnalyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: TraitContextType<this>): void {
@@ -876,9 +892,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected willValidate(modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillValidate !== void 0) {
         traitObserver.traitWillValidate(modelContext, this);
       }
@@ -890,9 +906,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didValidate(modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidValidate !== void 0) {
         traitObserver.traitDidValidate(modelContext, this);
       }
@@ -900,9 +916,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected willReconcile(modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillReconcile !== void 0) {
         traitObserver.traitWillReconcile(modelContext, this);
       }
@@ -914,9 +930,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didReconcile(modelContext: TraitContextType<this>): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidReconcile !== void 0) {
         traitObserver.traitDidReconcile(modelContext, this);
       }
@@ -941,7 +957,8 @@ export abstract class Trait implements ModelDownlinkContext {
                                refreshChildModels: (this: TraitModelType<this>, refreshFlags: ModelFlags, modelContext: TraitContextType<this>,
                                                     refreshChildModel: (this: TraitModelType<this>, childModel: Model, refreshFlags: ModelFlags,
                                                                         modelContext: TraitContextType<this>) => void) => void): void {
-    refreshChildModels.call(this.model, refreshFlags, modelContext, refreshChildModel);
+    const model = this.model as TraitModelType<this>;
+    refreshChildModels.call(model, refreshFlags, modelContext, refreshChildModel);
   }
 
   protected willRefreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: TraitContextType<this>): void {
@@ -957,17 +974,17 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   isConsuming(): boolean {
-    return (this._traitFlags & Trait.ConsumingFlag) !== 0;
+    return (this.traitFlags & Trait.ConsumingFlag) !== 0;
   }
 
   get startConsumingFlags(): ModelFlags {
-    return this.traitClass.startConsumingFlags;
+    return (this.constructor as TraitClass).startConsumingFlags;
   }
 
   protected willStartConsuming(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillStartConsuming !== void 0) {
         traitObserver.traitWillStartConsuming(this);
       }
@@ -979,9 +996,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didStartConsuming(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidStartConsuming !== void 0) {
         traitObserver.traitDidStartConsuming(this);
       }
@@ -989,13 +1006,13 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   get stopConsumingFlags(): ModelFlags {
-    return this.traitClass.stopConsumingFlags;
+    return (this.constructor as TraitClass).stopConsumingFlags;
   }
 
   protected willStopConsuming(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitWillStopConsuming !== void 0) {
         traitObserver.traitWillStopConsuming(this);
       }
@@ -1007,9 +1024,9 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   protected didStopConsuming(): void {
-    const traitObservers = this._traitObservers;
-    for (let i = 0, n = traitObservers !== void 0 ? traitObservers.length : 0; i < n; i += 1) {
-      const traitObserver = traitObservers![i];
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
       if (traitObserver.traitDidStopConsuming !== void 0) {
         traitObserver.traitDidStopConsuming(this);
       }
@@ -1056,8 +1073,7 @@ export abstract class Trait implements ModelDownlinkContext {
   getLazyTraitService(serviceName: string): TraitService<this, unknown> | null {
     let traitService = this.getTraitService(serviceName) as TraitService<this, unknown> | null;
     if (traitService === null) {
-      const traitClass = (this as any).__proto__ as TraitClass;
-      const constructor = Trait.getTraitServiceConstructor(serviceName, traitClass);
+      const constructor = Trait.getTraitServiceConstructor(serviceName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         traitService = new constructor(this, serviceName) as TraitService<this, unknown>;
         this.setTraitService(serviceName, traitService);
@@ -1076,8 +1092,7 @@ export abstract class Trait implements ModelDownlinkContext {
   getLazyTraitScope(scopeName: string): TraitScope<this, unknown> | null {
     let traitScope = this.getTraitScope(scopeName) as TraitScope<this, unknown> | null;
     if (traitScope === null) {
-      const traitClass = (this as any).__proto__ as TraitClass;
-      const constructor = Trait.getTraitScopeConstructor(scopeName, traitClass);
+      const constructor = Trait.getTraitScopeConstructor(scopeName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         traitScope = new constructor(this, scopeName) as TraitScope<this, unknown>;
         this.setTraitScope(scopeName, traitScope);
@@ -1090,14 +1105,13 @@ export abstract class Trait implements ModelDownlinkContext {
 
   abstract getTraitModel(bindingName: string): TraitModel<this, Model> | null;
 
-  abstract setTraitModel(bindingName: string, traitModel: TraitModel<this, Model, unknown> | null): void;
+  abstract setTraitModel(bindingName: string, traitModel: TraitModel<this, Model> | null): void;
 
   /** @hidden */
   getLazyTraitModel(bindingName: string): TraitModel<this, Model> | null {
     let traitModel = this.getTraitModel(bindingName) as TraitModel<this, Model> | null;
     if (traitModel === null) {
-      const traitClass = (this as any).__proto__ as TraitClass;
-      const constructor = Trait.getTraitModelConstructor(bindingName, traitClass);
+      const constructor = Trait.getTraitModelConstructor(bindingName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         traitModel = new constructor(this, bindingName) as TraitModel<this, Model>;
         this.setTraitModel(bindingName, traitModel);
@@ -1110,14 +1124,13 @@ export abstract class Trait implements ModelDownlinkContext {
 
   abstract getTraitBinding(bindingName: string): TraitBinding<this, Trait> | null;
 
-  abstract setTraitBinding(bindingName: string, traitBinding: TraitBinding<this, Trait, unknown> | null): void;
+  abstract setTraitBinding(bindingName: string, traitBinding: TraitBinding<this, Trait> | null): void;
 
   /** @hidden */
   getLazyTraitBinding(bindingName: string): TraitBinding<this, Trait> | null {
     let traitBinding = this.getTraitBinding(bindingName) as TraitBinding<this, Trait> | null;
     if (traitBinding === null) {
-      const traitClass = (this as any).__proto__ as TraitClass;
-      const constructor = Trait.getTraitBindingConstructor(bindingName, traitClass);
+      const constructor = Trait.getTraitBindingConstructor(bindingName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         traitBinding = new constructor(this, bindingName) as TraitBinding<this, Trait>;
         this.setTraitBinding(bindingName, traitBinding);
@@ -1138,35 +1151,36 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getTraitServiceConstructor(serviceName: string, traitClass: TraitClass | null = null): TraitServiceConstructor<Trait, unknown> | null {
-    if (traitClass === null) {
-      traitClass = this.prototype as unknown as TraitClass;
+  static getTraitServiceConstructor(serviceName: string, traitPrototype: TraitPrototype | null = null): TraitServiceConstructor<Trait, unknown> | null {
+    if (traitPrototype === null) {
+      traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (traitClass.hasOwnProperty("_traitServiceConstructors")) {
-        const descriptor = traitClass._traitServiceConstructors![serviceName];
+      if (traitPrototype.hasOwnProperty("_traitServiceConstructors")) {
+        const descriptor = traitPrototype._traitServiceConstructors![serviceName];
         if (descriptor !== void 0) {
           return descriptor;
         }
       }
-      traitClass = (traitClass as any).__proto__ as TraitClass | null;
-    } while (traitClass !== null);
+      traitPrototype = Object.getPrototypeOf(traitPrototype);
+    } while (traitPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateTraitService(constructor: TraitServiceConstructor<Trait, unknown>,
-                              traitClass: TraitClass, serviceName: string): void {
-    if (!traitClass.hasOwnProperty("_traitServiceConstructors")) {
-      traitClass._traitServiceConstructors = {};
+                              target: Object, propertyKey: string | symbol): void {
+    const traitPrototype = target as TraitPrototype;
+    if (!traitPrototype.hasOwnProperty("_traitServiceConstructors")) {
+      traitPrototype._traitServiceConstructors = {};
     }
-    traitClass._traitServiceConstructors![serviceName] = constructor;
-    Object.defineProperty(traitClass, serviceName, {
+    traitPrototype._traitServiceConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Trait): TraitService<Trait, unknown> {
-        let traitService = this.getTraitService(serviceName);
+        let traitService = this.getTraitService(propertyKey.toString());
         if (traitService === null) {
-          traitService = new constructor(this, serviceName);
-          this.setTraitService(serviceName, traitService);
+          traitService = new constructor(this, propertyKey.toString());
+          this.setTraitService(propertyKey.toString(), traitService);
         }
         return traitService;
       },
@@ -1176,35 +1190,36 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getTraitScopeConstructor(scopeName: string, traitClass: TraitClass | null = null): TraitScopeConstructor<Trait, unknown> | null {
-    if (traitClass === null) {
-      traitClass = this.prototype as unknown as TraitClass;
+  static getTraitScopeConstructor(scopeName: string, traitPrototype: TraitPrototype | null = null): TraitScopeConstructor<Trait, unknown> | null {
+    if (traitPrototype === null) {
+      traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (traitClass.hasOwnProperty("_traitScopeConstructors")) {
-        const constructor = traitClass._traitScopeConstructors![scopeName];
+      if (traitPrototype.hasOwnProperty("_traitScopeConstructors")) {
+        const constructor = traitPrototype._traitScopeConstructors![scopeName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      traitClass = (traitClass as any).__proto__ as TraitClass | null;
-    } while (traitClass !== null);
+      traitPrototype = Object.getPrototypeOf(traitPrototype);
+    } while (traitPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateTraitScope(constructor: TraitScopeConstructor<Trait, unknown>,
-                            traitClass: TraitClass, scopeName: string): void {
-    if (!traitClass.hasOwnProperty("_traitScopeConstructors")) {
-      traitClass._traitScopeConstructors = {};
+                            target: Object, propertyKey: string | symbol): void {
+    const traitPrototype = target as TraitPrototype;
+    if (!traitPrototype.hasOwnProperty("_traitScopeConstructors")) {
+      traitPrototype._traitScopeConstructors = {};
     }
-    traitClass._traitScopeConstructors![scopeName] = constructor;
-    Object.defineProperty(traitClass, scopeName, {
+    traitPrototype._traitScopeConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Trait): TraitScope<Trait, unknown> {
-        let traitScope = this.getTraitScope(scopeName);
+        let traitScope = this.getTraitScope(propertyKey.toString());
         if (traitScope === null) {
-          traitScope = new constructor(this, scopeName);
-          this.setTraitScope(scopeName, traitScope);
+          traitScope = new constructor(this, propertyKey.toString());
+          this.setTraitScope(propertyKey.toString(), traitScope);
         }
         return traitScope;
       },
@@ -1214,35 +1229,36 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getTraitModelConstructor(bindingName: string, traitClass: TraitClass | null = null): TraitModelConstructor<Trait, Model> | null {
-    if (traitClass === null) {
-      traitClass = this.prototype as unknown as TraitClass;
+  static getTraitModelConstructor(bindingName: string, traitPrototype: TraitPrototype | null = null): TraitModelConstructor<Trait, Model> | null {
+    if (traitPrototype === null) {
+      traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (traitClass.hasOwnProperty("_traitModelConstructors")) {
-        const constructor = traitClass._traitModelConstructors![bindingName];
+      if (traitPrototype.hasOwnProperty("_traitModelConstructors")) {
+        const constructor = traitPrototype._traitModelConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      traitClass = (traitClass as any).__proto__ as TraitClass | null;
-    } while (traitClass !== null);
+      traitPrototype = Object.getPrototypeOf(traitPrototype);
+    } while (traitPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateTraitModel(constructor: TraitModelConstructor<Trait, Model>,
-                            traitClass: TraitClass, bindingName: string): void {
-    if (!traitClass.hasOwnProperty("_traitModelConstructors")) {
-      traitClass._traitModelConstructors = {};
+                            target: Object, propertyKey: string | symbol): void {
+    const traitPrototype = target as TraitPrototype;
+    if (!traitPrototype.hasOwnProperty("_traitModelConstructors")) {
+      traitPrototype._traitModelConstructors = {};
     }
-    traitClass._traitModelConstructors![bindingName] = constructor;
-    Object.defineProperty(traitClass, bindingName, {
+    traitPrototype._traitModelConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Trait): TraitModel<Trait, Model> {
-        let traitModel = this.getTraitModel(bindingName);
+        let traitModel = this.getTraitModel(propertyKey.toString());
         if (traitModel === null) {
-          traitModel = new constructor(this, bindingName);
-          this.setTraitModel(bindingName, traitModel);
+          traitModel = new constructor(this, propertyKey.toString());
+          this.setTraitModel(propertyKey.toString(), traitModel);
         }
         return traitModel;
       },
@@ -1252,35 +1268,36 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getTraitBindingConstructor(bindingName: string, traitClass: TraitClass | null = null): TraitBindingConstructor<Trait, Trait> | null {
-    if (traitClass === null) {
-      traitClass = this.prototype as unknown as TraitClass;
+  static getTraitBindingConstructor(bindingName: string, traitPrototype: TraitPrototype | null = null): TraitBindingConstructor<Trait, Trait> | null {
+    if (traitPrototype === null) {
+      traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (traitClass.hasOwnProperty("_traitBindingConstructors")) {
-        const constructor = traitClass._traitBindingConstructors![bindingName];
+      if (traitPrototype.hasOwnProperty("_traitBindingConstructors")) {
+        const constructor = traitPrototype._traitBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      traitClass = (traitClass as any).__proto__ as TraitClass | null;
-    } while (traitClass !== null);
+      traitPrototype = Object.getPrototypeOf(traitPrototype);
+    } while (traitPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateTraitBinding(constructor: TraitBindingConstructor<Trait, Trait>,
-                              traitClass: TraitClass, bindingName: string): void {
-    if (!traitClass.hasOwnProperty("_traitBindingConstructors")) {
-      traitClass._traitBindingConstructors = {};
+                              target: Object, propertyKey: string | symbol): void {
+    const traitPrototype = target as TraitPrototype;
+    if (!traitPrototype.hasOwnProperty("_traitBindingConstructors")) {
+      traitPrototype._traitBindingConstructors = {};
     }
-    traitClass._traitBindingConstructors![bindingName] = constructor;
-    Object.defineProperty(traitClass, bindingName, {
+    traitPrototype._traitBindingConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Trait): TraitBinding<Trait, Trait> {
-        let traitBinding = this.getTraitBinding(bindingName);
+        let traitBinding = this.getTraitBinding(propertyKey.toString());
         if (traitBinding === null) {
-          traitBinding = new constructor(this, bindingName);
-          this.setTraitBinding(bindingName, traitBinding);
+          traitBinding = new constructor(this, propertyKey.toString());
+          this.setTraitBinding(propertyKey.toString(), traitBinding);
         }
         return traitBinding;
       },

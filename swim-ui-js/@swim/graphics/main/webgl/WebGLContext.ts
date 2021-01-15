@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GraphicsContext} from "../graphics/GraphicsContext";
+import type {GraphicsContext} from "../graphics/GraphicsContext";
 
 export interface WebGLContext extends GraphicsContext, WebGLRenderingContext {
 }

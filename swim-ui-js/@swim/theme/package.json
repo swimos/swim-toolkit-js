@@ -18,7 +18,7 @@
     "@swim/math": "3.11.0-dev.20201021",
     "@swim/time": "3.11.0-dev.20201021",
     "@swim/color": "3.11.0-dev.20201021",
-    "@swim/tween": "3.11.0-dev.20201021",
+    "@swim/animation": "3.11.0-dev.20201021",
     "@swim/style": "3.11.0-dev.20201021"
   }
 }

@@ -13,14 +13,14 @@
 // limitations under the License.
 
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
-import {Ease, AnyTransition, Transition} from "@swim/tween";
+import {Ease, AnyTransition, Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {View, ViewScope, ViewAnimator} from "@swim/view";
-import {ChartViewObserver} from "./ChartViewObserver";
-import {ChartViewController} from "./ChartViewController";
-import {ScaleViewInit, ScaleView} from "./scale/ScaleView";
-import {AnyGraphView, GraphView} from "./graph/GraphView";
-import {AnyAxisView, AxisView} from "./axis/AxisView";
+import type {ChartViewObserver} from "./ChartViewObserver";
+import type {ChartViewController} from "./ChartViewController";
+import {ScaleViewInit, ScaleView} from "../scale/ScaleView";
+import {AnyGraphView, GraphView} from "../graph/GraphView";
+import {AnyAxisView, AxisView} from "../axis/AxisView";
 
 export type AnyChartView<X = unknown, Y = unknown> = ChartView<X, Y> | ChartViewInit<X, Y>;
 
@@ -132,10 +132,8 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     return new GraphView();
   }
 
-  // @ts-ignore
   declare readonly viewController: ChartViewController<X, Y> | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<ChartViewObserver<X, Y>>;
 
   get graph(): GraphView<X, Y> | null {
@@ -227,37 +225,37 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
   }
 
   @ViewAnimator({type: Length, state: Length.px(20)})
-  gutterTop: ViewAnimator<this, Length, AnyLength>;
+  declare gutterTop: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(40)})
-  gutterRight: ViewAnimator<this, Length, AnyLength>;
+  declare gutterRight: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(20)})
-  gutterBottom: ViewAnimator<this, Length, AnyLength>;
+  declare gutterBottom: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(40)})
-  gutterLeft: ViewAnimator<this, Length, AnyLength>;
+  declare gutterLeft: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  borderColor: ViewAnimator<this, Color, AnyColor>;
+  declare borderColor: ViewAnimator<this, Color, AnyColor>;
 
   @ViewAnimator({type: Number, state: 1})
-  borderWidth: ViewAnimator<this, number>;
+  declare borderWidth: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 6})
-  borderSerif: ViewAnimator<this, number>;
+  declare borderSerif: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  tickMarkColor: ViewAnimator<this, Color, AnyColor>;
+  declare tickMarkColor: ViewAnimator<this, Color, AnyColor>;
 
   @ViewAnimator({type: Number, state: 1})
-  tickMarkWidth: ViewAnimator<this, number>;
+  declare tickMarkWidth: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 6})
-  tickMarkLength: ViewAnimator<this, number>;
+  declare tickMarkLength: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 2})
-  tickLabelPadding: ViewAnimator<this, number>;
+  declare tickLabelPadding: ViewAnimator<this, number>;
 
   @ViewScope({
     type: Transition,
@@ -266,13 +264,13 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
       return Transition.duration(250, Ease.cubicOut);
     },
   })
-  tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
+  declare tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
 
   @ViewAnimator({type: Color, state: Color.transparent()})
-  gridLineColor: ViewAnimator<this, Color, AnyColor>;
+  declare gridLineColor: ViewAnimator<this, Color, AnyColor>;
 
   @ViewAnimator({type: Number, state: 0})
-  gridLineWidth: ViewAnimator<this, number>;
+  declare gridLineWidth: ViewAnimator<this, number>;
 
   xRange(): readonly [number, number] | undefined {
     const frame = this.viewFrame;

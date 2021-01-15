@@ -16,9 +16,9 @@ import {__extends} from "tslib";
 import {Values, FromAny} from "@swim/util";
 import {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, View} from "../View";
-import {StringViewScope} from "./StringViewScope";
-import {BooleanViewScope} from "./BooleanViewScope";
-import {NumberViewScope} from "./NumberViewScope";
+import type {StringViewScope} from "./StringViewScope";
+import type {BooleanViewScope} from "./BooleanViewScope";
+import type {NumberViewScope} from "./NumberViewScope";
 
 export type ViewScopeMemberType<V, K extends keyof V> =
   V extends {[P in K]: ViewScope<any, infer T, any>} ? T : unknown;
@@ -28,8 +28,8 @@ export type ViewScopeMemberInit<V, K extends keyof V> =
 
 export type ViewScopeFlags = number;
 
-export interface ViewScopeInit<T, U = T> {
-  extends?: ViewScopePrototype;
+export interface ViewScopeInit<T, U = never> {
+  extends?: ViewScopeClass;
   type?: unknown;
   state?: T | U;
   inherit?: string | boolean;
@@ -42,29 +42,22 @@ export interface ViewScopeInit<T, U = T> {
   initState?(): T | U;
 }
 
-export type ViewScopeDescriptorInit<V extends View, T, U = T, I = {}> = ViewScopeInit<T, U> & ThisType<ViewScope<V, T, U> & I> & I;
+export type ViewScopeDescriptor<V extends View, T, U = never, I = {}> = ViewScopeInit<T, U> & ThisType<ViewScope<V, T, U> & I> & I;
 
-export type ViewScopeDescriptorExtends<V extends View, T, U = T, I = {}> = {extends: ViewScopePrototype | undefined} & ViewScopeDescriptorInit<V, T, U, I>;
+export type ViewScopeDescriptorExtends<V extends View, T, U = never, I = {}> = {extends: ViewScopeClass | undefined} & ViewScopeDescriptor<V, T, U, I>;
 
-export type ViewScopeDescriptorFromAny<V extends View, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ViewScopeDescriptorInit<V, T, U, I>;
+export type ViewScopeDescriptorFromAny<V extends View, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ViewScopeDescriptor<V, T, U, I>;
 
-export type ViewScopeDescriptor<V extends View, T, U = T, I = {}> =
-  U extends T ? ViewScopeDescriptorInit<V, T, U, I> :
-  T extends string | null | undefined ? U extends string | null | undefined ? {type: typeof String} & ViewScopeDescriptorInit<V, T, U, I> : ViewScopeDescriptorExtends<V, T, U, I> :
-  T extends boolean | null | undefined ? U extends boolean | string | null | undefined ? {type: typeof Boolean} & ViewScopeDescriptorInit<V, T, U, I> : ViewScopeDescriptorExtends<V, T, U, I> :
-  T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & ViewScopeDescriptorInit<V, T, U, I> : ViewScopeDescriptorExtends<V, T, U, I> :
-  ViewScopeDescriptorFromAny<V, T, U, I>;
-
-export interface ViewScopePrototype extends Function {
-  readonly prototype: ViewScope<any, any, any>;
-}
-
-export interface ViewScopeConstructor<V extends View, T, U = T, I = {}> {
+export interface ViewScopeConstructor<V extends View, T, U = never, I = {}> {
   new(owner: V, scopeName: string | undefined): ViewScope<V, T, U> & I;
   prototype: ViewScope<any, any, any> & I;
 }
 
-export declare abstract class ViewScope<V extends View, T, U = T> {
+export interface ViewScopeClass extends Function {
+  readonly prototype: ViewScope<any, any, any>;
+}
+
+export declare abstract class ViewScope<V extends View, T, U = never> {
   /** @hidden */
   _owner: V;
   /** @hidden */
@@ -181,10 +174,10 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
   initState?(): T | U;
 
   /** @hidden */
-  static getConstructor(type: unknown): ViewScopePrototype | null;
+  static getClass(type: unknown): ViewScopeClass | null;
 
-  static define<V extends View, T, U = T, I = {}>(descriptor: ViewScopeDescriptorExtends<V, T, U, I>): ViewScopeConstructor<V, T, U, I>;
-  static define<V extends View, T, U = T>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U>;
+  static define<V extends View, T, U = never, I = {}>(descriptor: ViewScopeDescriptorExtends<V, T, U, I>): ViewScopeConstructor<V, T, U, I>;
+  static define<V extends View, T, U = never>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U>;
 
   /** @hidden */
   static UpdatedFlag: ViewScopeFlags;
@@ -204,13 +197,17 @@ export declare abstract class ViewScope<V extends View, T, U = T> {
   static Number: typeof NumberViewScope; // defined by NumberViewScope
 }
 
-export interface ViewScope<V extends View, T, U = T> {
+export interface ViewScope<V extends View, T, U = never> {
   (): T;
   (state: T | U): V;
 }
 
-export function ViewScope<V extends View, T, U = T, I = {}>(descriptor: ViewScopeDescriptorExtends<V, T, U, I>): PropertyDecorator;
-export function ViewScope<V extends View, T, U = T>(descriptor: ViewScopeDescriptor<V, T, U>): PropertyDecorator;
+export function ViewScope<V extends View, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & ViewScopeDescriptor<V, T, U>): PropertyDecorator;
+export function ViewScope<V extends View, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | undefined>(descriptor: {type: typeof Boolean} & ViewScopeDescriptor<V, T, U>): PropertyDecorator;
+export function ViewScope<V extends View, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & ViewScopeDescriptor<V, T, U>): PropertyDecorator;
+export function ViewScope<V extends View, T, U = never>(descriptor: ViewScopeDescriptorFromAny<V, T, U>): PropertyDecorator;
+export function ViewScope<V extends View, T, U = never, I = {}>(descriptor: ViewScopeDescriptorExtends<V, T, U, I>): PropertyDecorator;
+export function ViewScope<V extends View, T, U = never>(descriptor: ViewScopeDescriptor<V, T, U>): PropertyDecorator;
 
 export function ViewScope<V extends View, T, U>(
     this: ViewScope<V, T, U> | typeof ViewScope,
@@ -218,7 +215,7 @@ export function ViewScope<V extends View, T, U>(
     scopeName?: string,
   ): ViewScope<V, T, U> | PropertyDecorator {
   if (this instanceof ViewScope) { // constructor
-    return ViewScopeConstructor.call(this, owner as V, scopeName);
+    return ViewScopeConstructor.call(this as ViewScope<View, unknown, unknown>, owner as V, scopeName);
   } else { // decorator factory
     return ViewScopeDecoratorFactory(owner as ViewScopeDescriptor<V, T, U>);
   }
@@ -248,7 +245,7 @@ function ViewScopeConstructor<V extends View, T, U>(this: ViewScope<V, T, U>, ow
 }
 
 function ViewScopeDecoratorFactory<V extends View, T, U>(descriptor: ViewScopeDescriptor<V, T, U>): PropertyDecorator {
-  return View.decorateViewScope.bind(View, ViewScope.define(descriptor));
+  return View.decorateViewScope.bind(View, ViewScope.define(descriptor as ViewScopeDescriptor<View, unknown>));
 }
 
 Object.defineProperty(ViewScope.prototype, "owner", {
@@ -573,7 +570,7 @@ ViewScope.prototype.updateSubScopes = function <T>(this: ViewScope<View, T>,
   const subScopes = this._subScopes;
   if (subScopes !== void 0) {
     for (let i = 0, n = subScopes.length; i < n; i += 1) {
-      const subScope = subScopes[i];
+      const subScope = subScopes[i]!;
       if (subScope.isInherited()) {
         subScope.change();
       }
@@ -606,7 +603,7 @@ ViewScope.prototype.fromAny = function <T, U>(this: ViewScope<View, T, U>, value
   return value as T;
 };
 
-ViewScope.getConstructor = function (type: unknown): ViewScopePrototype | null {
+ViewScope.getClass = function (type: unknown): ViewScopeClass | null {
   if (type === String) {
     return ViewScope.String;
   } else if (type === Boolean) {
@@ -618,7 +615,7 @@ ViewScope.getConstructor = function (type: unknown): ViewScopePrototype | null {
 };
 
 ViewScope.define = function <V extends View, T, U, I>(descriptor: ViewScopeDescriptor<V, T, U, I>): ViewScopeConstructor<V, T, U, I> {
-  let _super: ViewScopePrototype | null | undefined = descriptor.extends;
+  let _super: ViewScopeClass | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
   const initState = descriptor.initState;
@@ -627,7 +624,7 @@ ViewScope.define = function <V extends View, T, U, I>(descriptor: ViewScopeDescr
   delete descriptor.inherit;
 
   if (_super === void 0) {
-    _super = ViewScope.getConstructor(descriptor.type);
+    _super = ViewScope.getClass(descriptor.type);
   }
   if (_super === null) {
     _super = ViewScope;
@@ -671,5 +668,5 @@ ViewScope.ChangingFlag = 1 << 1;
 ViewScope.OverrideFlag = 1 << 2;
 ViewScope.InheritedFlag = 1 << 3;
 
-ViewScope({type: MoodVector, inherit: true})(View.prototype, "mood");
-ViewScope({type: ThemeMatrix, inherit: true})(View.prototype, "theme");
+ViewScope({extends: void 0, type: MoodVector, inherit: true})(View.prototype, "mood");
+ViewScope({extends: void 0, type: ThemeMatrix, inherit: true})(View.prototype, "theme");

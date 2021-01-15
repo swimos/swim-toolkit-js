@@ -21,9 +21,9 @@ component libraries:
   ([npm](https://www.npmjs.com/package/@swim/constraint),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_constraint.html)) –
   incremental solver for systems of linear layout constraints.
-- [**@swim/tween**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/tween)
-  ([npm](https://www.npmjs.com/package/@swim/tween),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_tween.html)) –
+- [**@swim/animation**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/animation)
+  ([npm](https://www.npmjs.com/package/@swim/animation),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_animation.html)) –
   procedurally animated transitions between managed states.
 - [**@swim/color**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/color)
   ([npm](https://www.npmjs.com/package/@swim/color),

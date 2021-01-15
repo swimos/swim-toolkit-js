@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GraphicsViewObserver} from "@swim/graphics";
-import {MapGraphicsView} from "./MapGraphicsView";
+import type {GraphicsViewObserver} from "@swim/graphics";
+import type {MapGraphicsView} from "./MapGraphicsView";
 
 export interface MapGraphicsViewObserver<V extends MapGraphicsView = MapGraphicsView> extends GraphicsViewObserver<V> {
 }

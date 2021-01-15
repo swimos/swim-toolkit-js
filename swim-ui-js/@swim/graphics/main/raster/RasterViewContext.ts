@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import {GraphicsViewContext} from "../graphics/GraphicsViewContext";
+import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {GraphicsViewContext} from "../graphics/GraphicsViewContext";
 
 export interface RasterViewContext extends GraphicsViewContext {
   readonly compositor: GraphicsRenderer | null;

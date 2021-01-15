@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ComponentContextType} from "../ComponentContext";
+import type {ComponentContextType} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
 import {GenericComponent} from "./GenericComponent";
 
@@ -35,14 +35,17 @@ export class CompositeComponent extends GenericComponent {
     return this._childComponents;
   }
 
-  forEachChildComponent<T, S = unknown>(callback: (this: S, childComponent: Component) => T | void,
-                                        thisArg?: S): T | undefined {
+  forEachChildComponent<T>(callback: (childComponent: Component) => T | void): T | undefined;
+  forEachChildComponent<T, S>(callback: (this: S, childComponent: Component) => T | void,
+                              thisArg: S): T | undefined;
+  forEachChildComponent<T, S>(callback: (this: S | undefined, childComponent: Component) => T | void,
+                               thisArg?: S): T | undefined {
     let result: T | undefined;
     const childComponents = this._childComponents;
     let i = 0;
     while (i < childComponents.length) {
-      const childComponent = childComponents[i];
-      result = callback.call(thisArg, childComponent);
+      const childComponent = childComponents[i]!;
+      result = callback.call(thisArg, childComponent) as T | undefined;
       if (result !== void 0) {
         break;
       }
@@ -55,24 +58,24 @@ export class CompositeComponent extends GenericComponent {
 
   firstChildComponent(): Component | null {
     const childComponents = this._childComponents;
-    return childComponents.length !== 0 ? childComponents[0] : null;
+    return childComponents.length !== 0 ? childComponents[0]! : null;
   }
 
   lastChildComponent(): Component | null {
     const childComponents = this._childComponents;
-    return childComponents.length !== 0 ? childComponents[childComponents.length - 1] : null;
+    return childComponents.length !== 0 ? childComponents[childComponents.length - 1]! : null;
   }
 
   nextChildComponent(targetComponent: Component): Component | null {
     const childComponents = this._childComponents;
     const targetIndex = childComponents.indexOf(targetComponent);
-    return targetIndex >= 0 && targetIndex + 1 < childComponents.length ? childComponents[targetIndex + 1] : null;
+    return targetIndex >= 0 && targetIndex + 1 < childComponents.length ? childComponents[targetIndex + 1]! : null;
   }
 
   previousChildComponent(targetComponent: Component): Component | null {
     const childComponents = this._childComponents;
     const targetIndex = childComponents.indexOf(targetComponent);
-    return targetIndex - 1 >= 0 ? childComponents[targetIndex - 1] : null;
+    return targetIndex - 1 >= 0 ? childComponents[targetIndex - 1]! : null;
   }
 
   getChildComponent(key: string): Component | null {
@@ -244,7 +247,7 @@ export class CompositeComponent extends GenericComponent {
     do {
       const count = childComponents.length;
       if (count > 0) {
-        const childComponent = childComponents[count - 1];
+        const childComponent = childComponents[count - 1]!;
         this.willRemoveChildComponent(childComponent);
         childComponent.setParentComponent(null, this);
         this.removeChildComponentMap(childComponent);
@@ -263,7 +266,7 @@ export class CompositeComponent extends GenericComponent {
     const childComponents = this._childComponents;
     let i = 0;
     while (i < childComponents.length) {
-      const childComponent = childComponents[i];
+      const childComponent = childComponents[i]!;
       childComponent.cascadeMount();
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
@@ -279,7 +282,7 @@ export class CompositeComponent extends GenericComponent {
     const childComponents = this._childComponents;
     let i = 0;
     while (i < childComponents.length) {
-      const childComponent = childComponents[i];
+      const childComponent = childComponents[i]!;
       childComponent.cascadeUnmount();
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
@@ -295,7 +298,7 @@ export class CompositeComponent extends GenericComponent {
     const childComponents = this._childComponents;
     let i = 0;
     while (i < childComponents.length) {
-      const childComponent = childComponents[i];
+      const childComponent = childComponents[i]!;
       childComponent.cascadePower();
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
@@ -311,7 +314,7 @@ export class CompositeComponent extends GenericComponent {
     const childComponents = this._childComponents;
     let i = 0;
     while (i < childComponents.length) {
-      const childComponent = childComponents[i];
+      const childComponent = childComponents[i]!;
       childComponent.cascadeUnpower();
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
@@ -328,7 +331,7 @@ export class CompositeComponent extends GenericComponent {
     const childComponents = this._childComponents;
     let i = 0;
     while (i < childComponents.length) {
-      const childComponent = childComponents[i];
+      const childComponent = childComponents[i]!;
       compileChildComponent.call(this, childComponent, compileFlags, componentContext);
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
@@ -345,7 +348,7 @@ export class CompositeComponent extends GenericComponent {
     const childComponents = this._childComponents;
     let i = 0;
     while (i < childComponents.length) {
-      const childComponent = childComponents[i];
+      const childComponent = childComponents[i]!;
       executeChildComponent.call(this, childComponent, executeFlags, componentContext);
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);

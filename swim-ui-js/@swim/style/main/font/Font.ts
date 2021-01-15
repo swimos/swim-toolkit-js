@@ -14,16 +14,16 @@
 
 import {Equivalent, Equals, Values} from "@swim/util";
 import {Output, Parser, Debug, Diagnostic, Unicode} from "@swim/codec";
-import {Value, Form} from "@swim/structure";
-import {FontStyle} from "./FontStyle";
-import {FontVariant} from "./FontVariant";
-import {FontWeight} from "./FontWeight";
-import {FontStretch} from "./FontStretch";
+import type {Value, Form} from "@swim/structure";
+import type {FontStyle} from "./FontStyle";
+import type {FontVariant} from "./FontVariant";
+import type {FontWeight} from "./FontWeight";
+import type {FontStretch} from "./FontStretch";
 import {AnyFontSize, FontSize} from "./FontSize";
 import {AnyLineHeight, LineHeight} from "./LineHeight";
 import {FontFamily} from "./FontFamily";
-import {FontParser} from "./FontParser";
-import {FontForm} from "./FontForm";
+import type {FontParser} from "./FontParser";
+import type {FontForm} from "./FontForm";
 
 export type AnyFont = Font | FontInit | string;
 
@@ -37,7 +37,7 @@ export interface FontInit {
   family: FontFamily | FontFamily[];
 }
 
-export class Font implements Equivalent<AnyFont>, Equals, Debug {
+export class Font implements Equals, Equivalent, Debug {
   /** @hidden */
   readonly _style?: FontStyle;
   /** @hidden */
@@ -202,13 +202,17 @@ export class Font implements Equivalent<AnyFont>, Equals, Debug {
     };
   }
 
-  equivalentTo(that: AnyFont, epsilon?: number): boolean {
-    that = Font.fromAny(that);
-    return this._style === that._style && this._variant === that._variant
-        && this._weight === that._weight && this._stretch === that._stretch
-        && Values.equivalent(this._size, that._size, epsilon)
-        && Values.equivalent(this._height, that._height, epsilon)
-        && Values.equivalent(this._family, that._family, epsilon);
+  equivalentTo(that: unknown, epsilon?: number): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof Font) {
+      return this._style === that._style && this._variant === that._variant
+          && this._weight === that._weight && this._stretch === that._stretch
+          && Values.equivalent(this._size, that._size, epsilon)
+          && Values.equivalent(this._height, that._height, epsilon)
+          && Values.equivalent(this._family, that._family, epsilon);
+    }
+    return false;
   }
 
   equals(that: unknown): boolean {

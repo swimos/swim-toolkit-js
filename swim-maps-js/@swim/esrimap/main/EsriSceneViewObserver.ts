@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {EsriViewObserver} from "./EsriViewObserver";
-import {EsriSceneViewProjection} from "./EsriSceneViewProjection";
-import {EsriSceneView} from "./EsriSceneView";
+import type {EsriViewObserver} from "./EsriViewObserver";
+import type {EsriSceneViewProjection} from "./EsriSceneViewProjection";
+import type {EsriSceneView} from "./EsriSceneView";
 
 export interface EsriSceneViewObserver<V extends EsriSceneView = EsriSceneView> extends EsriViewObserver<V> {
   viewWillSetGeoProjection?(geoProjection: EsriSceneViewProjection, view: V): void;

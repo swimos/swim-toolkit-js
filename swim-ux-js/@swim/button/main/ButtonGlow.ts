@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Length} from "@swim/math";
-import {Tween, Transition} from "@swim/tween";
+import {Tween, Transition} from "@swim/animation";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewNodeType, HtmlView} from "@swim/dom";
 
@@ -91,7 +91,7 @@ export class ButtonGlow extends HtmlView {
           tween = Transition.forTween(tween);
         }
         this.willGlow();
-        const offsetParent = this._node.offsetParent;
+        const offsetParent = this.node.offsetParent;
         if (offsetParent !== null) {
           const clientBounds = offsetParent.getBoundingClientRect();
           const cx = clientX - clientBounds.left;

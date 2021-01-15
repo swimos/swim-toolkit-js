@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {Values} from "@swim/util";
-import {BoxR2} from "@swim/math";
+import type {BoxR2} from "@swim/math";
 import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/tween";
+import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -23,8 +23,8 @@ import {LayerView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
 import {PlotViewInit, PlotView} from "./PlotView";
-import {PlotViewObserver} from "./PlotViewObserver";
-import {PlotViewController} from "./PlotViewController";
+import type {PlotViewObserver} from "./PlotViewObserver";
+import type {PlotViewController} from "./PlotViewController";
 
 export type ScatterPlotType = "bubble";
 
@@ -52,10 +52,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     this._yDataRange = void 0;
   }
 
-  // @ts-ignore
   declare readonly viewController: PlotViewController<X, Y> | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 
   initView(init: ScatterPlotViewInit<X, Y>): void {
@@ -70,7 +68,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     const data = init.data;
     if (data !== void 0) {
       for (let i = 0, n = data.length; i < n; i += 1) {
-        this.insertDataPoint(data[i]);
+        this.insertDataPoint(data[i]!);
       }
     }
 
@@ -115,10 +113,10 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   }
 
   @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
-  xScale: ScaleViewAnimator<this, X, number>;
+  declare xScale: ScaleViewAnimator<this, X, number>;
 
   @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
-  yScale: ScaleViewAnimator<this, Y, number>;
+  declare yScale: ScaleViewAnimator<this, Y, number>;
 
   xDomain(): readonly [X, X] | undefined;
   xDomain(xDomain: readonly [X, X] | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;
@@ -219,10 +217,10 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   }
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   protected onRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
     super.onRequireUpdate(updateFlags, immediate);
@@ -289,8 +287,9 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     let xRangeMax: number | undefined;
     let yRangeMax: number | undefined;
 
-    function animateChildView(this: ScatterPlotView<X, Y>, point1: View, processFlags: ViewFlags,
-                              viewContext: ViewContextType<ScatterPlotView<X, Y>>): void {
+    type self = this;
+    function animateChildView(this: self, point1: View, processFlags: ViewFlags,
+                              viewContext: ViewContextType<self>): void {
       if (point1 instanceof DataPointView) {
         const x1 = point1.x.getValue();
         const y1 = point1.y.getValue();
@@ -382,11 +381,11 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
 
     // We don't need to run the layout phase unless the view frame changes
     // between now and the display pass.
-    this._viewFlags &= ~View.NeedsLayout;
+    this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this._viewFlags & View.NeedsLayout) === 0) {
+    if ((this.viewFlags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
@@ -419,8 +418,9 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     let xRangeMax: number | undefined;
     let yRangeMax: number | undefined;
 
-    function layoutChildView(this: ScatterPlotView<X, Y>, point1: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<ScatterPlotView<X, Y>>): void {
+    type self = this;
+    function layoutChildView(this: self, point1: View, displayFlags: ViewFlags,
+                             viewContext: ViewContextType<self>): void {
       if (point1 instanceof DataPointView) {
         const x1 = point1.x.getValue();
         const y1 = point1.y.getValue();

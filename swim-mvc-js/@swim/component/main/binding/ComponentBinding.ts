@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {FromAny} from "@swim/util";
+import type {FromAny} from "@swim/util";
 import {Component} from "../Component";
-import {ComponentObserverType} from "../ComponentObserver";
+import type {ComponentObserverType} from "../ComponentObserver";
 
 export type ComponentBindingMemberType<C, K extends keyof C> =
   C extends {[P in K]: ComponentBinding<any, infer S, any>} ? S : unknown;
@@ -23,8 +23,8 @@ export type ComponentBindingMemberType<C, K extends keyof C> =
 export type ComponentBindingMemberInit<C, K extends keyof C> =
   C extends {[P in K]: ComponentBinding<any, infer T, infer U>} ? T | U : unknown;
 
-export interface ComponentBindingInit<S extends Component, U = S> {
-  extends?: ComponentBindingPrototype;
+export interface ComponentBindingInit<S extends Component, U = never> {
+  extends?: ComponentBindingClass;
   observe?: boolean;
   child?: boolean;
   type?: unknown;
@@ -37,26 +37,22 @@ export interface ComponentBindingInit<S extends Component, U = S> {
   fromAny?(value: S | U): S | null;
 }
 
-export type ComponentBindingDescriptorInit<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = ComponentBindingInit<S, U> & ThisType<ComponentBinding<C, S, U> & I> & I;
+export type ComponentBindingDescriptor<C extends Component, S extends Component, U = never, I = ComponentObserverType<S>> = ComponentBindingInit<S, U> & ThisType<ComponentBinding<C, S, U> & I> & I;
 
-export type ComponentBindingDescriptorExtends<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = {extends: ComponentBindingPrototype | undefined} & ComponentBindingDescriptorInit<C, S, U, I>;
+export type ComponentBindingDescriptorExtends<C extends Component, S extends Component, U = never, I = ComponentObserverType<S>> = {extends: ComponentBindingClass | undefined} & ComponentBindingDescriptor<C, S, U, I>;
 
-export type ComponentBindingDescriptorFromAny<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ComponentBindingDescriptorInit<C, S, U, I>;
+export type ComponentBindingDescriptorFromAny<C extends Component, S extends Component, U = never, I = ComponentObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ComponentBindingDescriptor<C, S, U, I>;
 
-export type ComponentBindingDescriptor<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> =
-  U extends S ? ComponentBindingDescriptorInit<C, S, U, I> :
-  ComponentBindingDescriptorFromAny<C, S, U, I>;
-
-export interface ComponentBindingPrototype extends Function {
-  readonly prototype: ComponentBinding<any, any>;
-}
-
-export interface ComponentBindingConstructor<C extends Component, S extends Component, U = S, I = ComponentObserverType<S>> {
+export interface ComponentBindingConstructor<C extends Component, S extends Component, U = never, I = ComponentObserverType<S>> {
   new(owner: C, bindingName: string | undefined): ComponentBinding<C, S, U> & I;
   prototype: ComponentBinding<any, any, any> & I;
 }
 
-export declare abstract class ComponentBinding<C extends Component, S extends Component, U = S> {
+export interface ComponentBindingClass extends Function {
+  readonly prototype: ComponentBinding<any, any, any>;
+}
+
+export declare abstract class ComponentBinding<C extends Component, S extends Component, U = never> {
   /** @hidden */
   _owner: C;
   /** @hidden */
@@ -122,25 +118,25 @@ export declare abstract class ComponentBinding<C extends Component, S extends Co
 
   fromAny(value: S | U): S | null;
 
-  static define<C extends Component, S extends Component = Component, U = S, I = ComponentObserverType<S>>(descriptor: ComponentBindingDescriptorExtends<C, S, U, I>): ComponentBindingConstructor<C, S, U, I>;
-  static define<C extends Component, S extends Component = Component, U = S>(descriptor: ComponentBindingDescriptor<C, S, U>): ComponentBindingConstructor<C, S, U>;
+  static define<C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: ComponentBindingDescriptorExtends<C, S, U, I>): ComponentBindingConstructor<C, S, U, I>;
+  static define<C extends Component, S extends Component = Component, U = never>(descriptor: ComponentBindingDescriptor<C, S, U>): ComponentBindingConstructor<C, S, U>;
 }
 
-export interface ComponentBinding<C extends Component, S extends Component, U = S> {
+export interface ComponentBinding<C extends Component, S extends Component, U = never> {
   (): S | null;
   (component: S | U | null): C;
 }
 
-export function ComponentBinding<C extends Component, S extends Component = Component, U = S, I = ComponentObserverType<S>>(descriptor: ComponentBindingDescriptorExtends<C, S, U, I>): PropertyDecorator;
-export function ComponentBinding<C extends Component, S extends Component = Component, U = S>(descriptor: ComponentBindingDescriptor<C, S, U>): PropertyDecorator;
+export function ComponentBinding<C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: ComponentBindingDescriptorExtends<C, S, U, I>): PropertyDecorator;
+export function ComponentBinding<C extends Component, S extends Component = Component, U = never>(descriptor: ComponentBindingDescriptor<C, S, U>): PropertyDecorator;
 
 export function ComponentBinding<C extends Component, S extends Component, U>(
-    this: ComponentBinding<C, S> | typeof ComponentBinding,
+    this: ComponentBinding<C, S, U> | typeof ComponentBinding,
     owner: C | ComponentBindingDescriptor<C, S, U>,
     bindingName?: string,
-  ): ComponentBinding<C, S> | PropertyDecorator {
+  ): ComponentBinding<C, S, U> | PropertyDecorator {
   if (this instanceof ComponentBinding) { // constructor
-    return ComponentBindingConstructor.call(this, owner as C, bindingName);
+    return ComponentBindingConstructor.call(this as unknown as ComponentBinding<Component, Component, unknown>, owner as C, bindingName);
   } else { // decorator factory
     return ComponentBindingDecoratorFactory(owner as ComponentBindingDescriptor<C, S, U>);
   }
@@ -162,7 +158,7 @@ function ComponentBindingConstructor<C extends Component, S extends Component, U
 }
 
 function ComponentBindingDecoratorFactory<C extends Component, S extends Component, U>(descriptor: ComponentBindingDescriptor<C, S, U>): PropertyDecorator {
-  return Component.decorateComponentBinding.bind(Component, ComponentBinding.define(descriptor));
+  return Component.decorateComponentBinding.bind(Component, ComponentBinding.define(descriptor as ComponentBindingDescriptor<Component, Component>));
 }
 
 Object.defineProperty(ComponentBinding.prototype, "owner", {

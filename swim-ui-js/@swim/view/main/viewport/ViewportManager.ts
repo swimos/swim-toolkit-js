@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContext} from "../ViewContext";
+import type {ViewContext} from "../ViewContext";
 import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
-import {ViewManagerObserverType} from "../manager/ViewManagerObserver";
-import {ViewIdiom} from "./ViewIdiom";
+import type {ViewManagerObserverType} from "../manager/ViewManagerObserver";
+import type {ViewIdiom} from "./ViewIdiom";
 import {Viewport} from "./Viewport";
-import {ViewportContext} from "./ViewportContext";
-import {ViewportManagerObserver} from "./ViewportManagerObserver";
+import type {ViewportContext} from "./ViewportContext";
+import type {ViewportManagerObserver} from "./ViewportManagerObserver";
 
 export class ViewportManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -74,14 +74,17 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
 
   /** @hidden */
   updateViewIdiom(viewport: Viewport): void {
-    let viewIdiom = this.willObserve(function (viewManagerObserver: ViewportManagerObserver): void | ViewIdiom {
+    let viewIdiom: ViewIdiom | undefined;
+    const viewManagerObservers = this.viewManagerObservers;
+    for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
+      const viewManagerObserver = viewManagerObservers[i]!;
       if (viewManagerObserver.detectViewIdiom !== void 0) {
-        const viewIdiom = viewManagerObserver.detectViewIdiom(viewport!, this);
+        viewIdiom = viewManagerObserver.detectViewIdiom(viewport, this) as ViewIdiom | undefined;
         if (viewIdiom !== void 0) {
-          return viewIdiom;
+          break;
         }
       }
-    });
+    }
     if (viewIdiom === void 0) {
       viewIdiom = this.detectViewIdiom(viewport);
     }
@@ -102,34 +105,40 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected willSetViewIdiom(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom): void {
-    this.willObserve(function (viewManagerObserver: ViewportManagerObserver): void {
+    const viewManagerObservers = this.viewManagerObservers;
+    for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
+      const viewManagerObserver = viewManagerObservers[i]!;
       if (viewManagerObserver.viewportManagerWillSetViewIdiom !== void 0) {
         viewManagerObserver.viewportManagerWillSetViewIdiom(newViewIdiom, oldViewIdiom, this);
       }
-    });
+    }
   }
 
   protected onSetViewIdiom(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom): void {
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsLayout);
+      rootViews[i]!.requireUpdate(View.NeedsLayout);
     }
   }
 
   protected didSetViewIdiom(newViewIdiom: ViewIdiom, oldViewIdiom: ViewIdiom): void {
-    this.didObserve(function (viewManagerObserver: ViewportManagerObserver): void {
+    const viewManagerObservers = this.viewManagerObservers;
+    for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
+      const viewManagerObserver = viewManagerObservers[i]!;
       if (viewManagerObserver.viewportManagerDidSetViewIdiom !== void 0) {
         viewManagerObserver.viewportManagerDidSetViewIdiom(newViewIdiom, oldViewIdiom, this);
       }
-    });
+    }
   }
 
   protected willReorient(orientation: OrientationType): void {
-    this.willObserve(function (viewManagerObserver: ViewportManagerObserver): void {
+    const viewManagerObservers = this.viewManagerObservers;
+    for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
+      const viewManagerObserver = viewManagerObservers[i]!;
       if (viewManagerObserver.viewportManagerWillReorient !== void 0) {
         viewManagerObserver.viewportManagerWillReorient(orientation, this);
       }
-    });
+    }
   }
 
   protected onReorient(orientation: OrientationType): void {
@@ -137,14 +146,15 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected didReorient(orientation: OrientationType): void {
-    this.didObserve(function (viewManagerObserver: ViewportManagerObserver): void {
+    const viewManagerObservers = this.viewManagerObservers;
+    for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
+      const viewManagerObserver = viewManagerObservers[i]!;
       if (viewManagerObserver.viewportManagerDidReorient !== void 0) {
         viewManagerObserver.viewportManagerDidReorient(orientation, this);
       }
-    });
+    }
   }
 
-  // @ts-ignore
   declare readonly viewManagerObservers: ReadonlyArray<ViewportManagerObserver>;
 
   protected onAddViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
@@ -183,9 +193,9 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
 
   /** @hidden */
   throttleScroll(): void {
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsScroll);
+      rootViews[i]!.requireUpdate(View.NeedsScroll);
     }
   }
 
@@ -195,9 +205,9 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     this._viewContext.viewport = viewport;
     this.updateViewIdiom(viewport);
 
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsResize | View.NeedsLayout);
+      rootViews[i]!.requireUpdate(View.NeedsResize | View.NeedsLayout);
     }
   }
 
@@ -224,9 +234,9 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     this.onReorient(viewport.orientation);
     this.didReorient(viewport.orientation);
 
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsResize | View.NeedsScroll | View.NeedsLayout);
+      rootViews[i]!.requireUpdate(View.NeedsResize | View.NeedsScroll | View.NeedsLayout);
     }
   }
 

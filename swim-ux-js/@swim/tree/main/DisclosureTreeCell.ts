@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "@swim/view";
-import {ViewNodeType} from "@swim/dom";
-import {PositionGestureInput} from "@swim/gesture";
+import type {View} from "@swim/view";
+import type {ViewNodeType} from "@swim/dom";
+import type {PositionGestureInput} from "@swim/gesture";
 import {DisclosureButton} from "@swim/button";
 import {TreeCell} from "./TreeCell";
 import {TreeLeaf} from "./TreeLeaf";

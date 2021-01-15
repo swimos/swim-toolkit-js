@@ -13,14 +13,14 @@
 // limitations under the License.
 
 import {AnyLength, Length} from "@swim/math";
-import {Transition} from "@swim/tween";
+import type {Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {ViewNodeType, HtmlViewInit, HtmlView, HtmlViewController} from "@swim/dom";
-import {Graphics} from "../graphics/Graphics";
+import type {Graphics} from "../graphics/Graphics";
 import {IconViewInit, IconView} from "./IconView";
-import {SvgIconPathView} from "./SvgIconPathView";
+import type {SvgIconPathView} from "./SvgIconPathView";
 import {SvgIconView} from "./SvgIconView";
 
 export interface HtmlIconViewInit extends HtmlViewInit, IconViewInit {
@@ -55,22 +55,22 @@ export class HtmlIconView extends HtmlView implements IconView {
   }
 
   @ViewAnimator({type: Number})
-  xAlign: ViewAnimator<this, number | undefined>;
+  declare xAlign: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number})
-  yAlign: ViewAnimator<this, number | undefined>;
+  declare yAlign: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length})
-  iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Length})
-  iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color})
-  iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Object})
-  graphics: ViewAnimator<this, Graphics | undefined>;
+  declare graphics: ViewAnimator<this, Graphics | undefined>;
 
   get svgView(): SvgIconView | null {
     const svgView = this.getChildView("svg");
@@ -116,9 +116,9 @@ export class HtmlIconView extends HtmlView implements IconView {
     const svgView = this.svgView;
     if (svgView !== null && (svgView.width.isAuto() || svgView.height.isAuto() || svgView.viewBox.isAuto())) {
       let viewWidth: Length | string | number | undefined = this.width.value;
-      viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this._node.offsetWidth;
+      viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
       let viewHeight: Length | string | number | undefined = this.height.value;
-      viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this._node.offsetHeight;
+      viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
       svgView.width.setAutoState(viewWidth);
       svgView.height.setAutoState(viewHeight);
       svgView.viewBox.setAutoState("0 0 " + viewWidth + " " + viewHeight);

@@ -14,14 +14,14 @@
 
 import {BoxR2, Transform} from "@swim/math";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
-import {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import {GraphicsViewContext} from "../graphics/GraphicsViewContext";
+import type {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {GraphicsViewContext} from "../graphics/GraphicsViewContext";
 import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
 import {LayerView} from "../layer/LayerView";
 import {WebGLRenderer} from "../webgl/WebGLRenderer";
-import {CanvasCompositeOperation} from "../canvas/CanvasContext";
+import type {CanvasCompositeOperation} from "../canvas/CanvasContext";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
-import {RasterViewContext} from "./RasterViewContext";
+import type {RasterViewContext} from "./RasterViewContext";
 
 export interface RasterViewInit extends GraphicsViewInit {
   opacity?: number;
@@ -54,10 +54,10 @@ export class RasterView extends LayerView {
   }
 
   @ViewAnimator({type: Number, state: 1})
-  opacity: ViewAnimator<this, number>;
+  declare opacity: ViewAnimator<this, number>;
 
   @ViewAnimator({type: String, state: "source-over"})
-  compositeOperation: ViewAnimator<this, CanvasCompositeOperation>;
+  declare compositeOperation: ViewAnimator<this, CanvasCompositeOperation>;
 
   get pixelRatio(): number {
     return window.devicePixelRatio || 1;
@@ -148,7 +148,7 @@ export class RasterView extends LayerView {
   get compositeFrame(): BoxR2 {
     let viewFrame = this._viewFrame;
     if (viewFrame === void 0) {
-      const parentView = this._parentView;
+      const parentView = this.parentView;
       if (parentView instanceof GraphicsView || parentView instanceof GraphicsView.Canvas) {
         viewFrame = parentView.viewFrame;
       } else {

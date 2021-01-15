@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {WarpRef} from "@swim/client";
-import {ModelFlags} from "../Model";
-import {WarpManager} from "../warp/WarpManager";
-import {ModelDownlinkConstructor, ModelDownlink} from "./ModelDownlink";
+import type {WarpRef} from "@swim/client";
+import type {ModelFlags} from "../Model";
+import type {WarpManager} from "../warp/WarpManager";
+import type {ModelDownlinkConstructor, ModelDownlink} from "./ModelDownlink";
 
 export interface ModelDownlinkContext {
   hasModelDownlink(downlinkName: string): boolean;
@@ -38,18 +38,18 @@ export interface ModelDownlinkContext {
 /** @hidden */
 export const ModelDownlinkContext = {} as {
   /** @hidden */
-  decorateModelDownlink<M extends ModelDownlinkContext>(constructor: ModelDownlinkConstructor<M>,
-                                                        contextClass: unknown, downlinkName: string): void;
+  decorateModelDownlink(constructor: ModelDownlinkConstructor<ModelDownlinkContext>,
+                        target: Object, propertyKey: string | symbol): void;
 };
 
-ModelDownlinkContext.decorateModelDownlink = function <M extends ModelDownlinkContext>(constructor: ModelDownlinkConstructor<M>,
-                                                                                       contextClass: unknown, downlinkName: string): void {
-  Object.defineProperty(contextClass, downlinkName, {
-    get: function (this: M): ModelDownlink<M> {
-      let modelDownlink = this.getModelDownlink(downlinkName) as ModelDownlink<M> | null;
+ModelDownlinkContext.decorateModelDownlink = function (constructor: ModelDownlinkConstructor<ModelDownlinkContext>,
+                                                       target: Object, propertyKey: string | symbol): void {
+  Object.defineProperty(target, propertyKey, {
+    get: function (this: ModelDownlinkContext): ModelDownlink<ModelDownlinkContext> {
+      let modelDownlink = this.getModelDownlink(propertyKey.toString());
       if (modelDownlink === null) {
-        modelDownlink = new constructor(this, downlinkName);
-        this.setModelDownlink(downlinkName, modelDownlink);
+        modelDownlink = new constructor(this, propertyKey.toString());
+        this.setModelDownlink(propertyKey.toString(), modelDownlink);
       }
       return modelDownlink;
     },

@@ -16,11 +16,10 @@ export {
   ViewServiceMemberType,
   ViewServiceFlags,
   ViewServiceInit,
-  ViewServiceDescriptorInit,
-  ViewServiceDescriptorExtends,
   ViewServiceDescriptor,
-  ViewServicePrototype,
+  ViewServiceDescriptorExtends,
   ViewServiceConstructor,
+  ViewServiceClass,
   ViewService,
 } from "./ViewService";
 

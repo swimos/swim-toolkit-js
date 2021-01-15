@@ -16,7 +16,6 @@ export {
   ViewElement,
   ElementViewInit,
   ElementViewConstructor,
-  ElementViewClass,
   ElementView,
 } from "./ElementView";
 export {

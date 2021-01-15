@@ -14,12 +14,12 @@
 
 import {BoxR2} from "@swim/math";
 import {HtmlViewController} from "@swim/dom";
-import {CanvasView} from "./CanvasView";
-import {CanvasViewObserver} from "./CanvasViewObserver";
+import type {CanvasView} from "./CanvasView";
+import type {CanvasViewObserver} from "./CanvasViewObserver";
 
 export class CanvasViewController<V extends CanvasView = CanvasView> extends HtmlViewController<V> implements CanvasViewObserver<V> {
   isHidden(): boolean {
-    const view = this._view;
+    const view = this.view;
     return view !== null && view.isHidden();
   }
 
@@ -32,17 +32,17 @@ export class CanvasViewController<V extends CanvasView = CanvasView> extends Htm
   }
 
   get viewFrame(): BoxR2 {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.viewFrame : BoxR2.undefined();
   }
 
   get viewBounds(): BoxR2 {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.viewBounds : BoxR2.undefined();
   }
 
   get hitBounds(): BoxR2 {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.hitBounds : BoxR2.undefined();
   }
 }

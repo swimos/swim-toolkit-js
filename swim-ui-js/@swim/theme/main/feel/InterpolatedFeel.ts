@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Look} from "../look/Look";
+import type {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 
 export class InterpolatedFeel extends Feel {

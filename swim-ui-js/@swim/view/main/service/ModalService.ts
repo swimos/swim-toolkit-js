@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {View} from "../View";
-import {ModalOptions, Modal} from "../modal/Modal";
+import type {ModalOptions, Modal} from "../modal/Modal";
 import {ModalManager} from "../modal/ModalManager";
 import {ViewService} from "./ViewService";
 import {ViewManagerService} from "./ViewManagerService";

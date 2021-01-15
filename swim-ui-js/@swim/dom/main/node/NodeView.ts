@@ -13,15 +13,14 @@
 // limitations under the License.
 
 import {BoxR2, Transform} from "@swim/math";
-import {ConstrainVariable, Constraint} from "@swim/constraint";
-import {Look, Feel, MoodVector} from "@swim/theme";
+import type {ConstrainVariable, Constraint} from "@swim/constraint";
+import type {Look, Feel, MoodVector} from "@swim/theme";
 import {
   ViewContextType,
   ViewContext,
   ViewFlags,
   ViewInit,
   ViewConstructor,
-  ViewClass,
   View,
   ViewObserverType,
   ViewService,
@@ -31,13 +30,13 @@ import {
   ViewAnimator,
   ViewBinding,
 } from "@swim/view";
-import {NodeViewObserver} from "./NodeViewObserver";
-import {NodeViewController} from "./NodeViewController";
-import {TextViewConstructor, TextView} from "../text/TextView";
-import {ViewElement, ElementViewConstructor, ElementView} from "../element/ElementView";
-import {HtmlView} from "../html/HtmlView";
-import {StyleView} from "../html/StyleView";
-import {SvgView} from "../svg/SvgView";
+import type {NodeViewObserver} from "./NodeViewObserver";
+import type {NodeViewController} from "./NodeViewController";
+import type {TextViewConstructor, TextView} from "../text/TextView";
+import type {ViewElement, ElementView} from "../element/ElementView";
+import type {HtmlView} from "../html/HtmlView";
+import type {StyleView} from "../html/StyleView";
+import type {SvgView} from "../svg/SvgView";
 
 export type ViewNodeType<V extends NodeView> = V extends {readonly node: infer N} ? N : never;
 
@@ -51,18 +50,11 @@ export interface NodeViewInit extends ViewInit {
 }
 
 export interface NodeViewConstructor<V extends NodeView = NodeView> {
-  new(node: Node): V;
+  new(node: ViewNodeType<V>): V;
   readonly prototype: V;
 }
 
-export interface NodeViewClass extends ViewClass {
-}
-
 export class NodeView extends View {
-  /** @hidden */
-  readonly _node: this extends {readonly node: infer N} ? N : never;
-  /** @hidden */
-  _key?: string;
   /** @hidden */
   _childViewMap?: {[key: string]: View | undefined};
   /** @hidden */
@@ -82,9 +74,18 @@ export class NodeView extends View {
 
   constructor(node: Node) {
     super();
-    this._node = node as ViewNodeType<this>;
-    (this._node as ViewNode).view = this;
-    this.initNode(this._node);
+    Object.defineProperty(this, "key", {
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "node", {
+      value: node,
+      enumerable: true,
+      configurable: true,
+    });
+    (node as ViewNode).view = this;
+    this.initNode(node as ViewNodeType<this>);
   }
 
   initView(init: NodeViewInit): void {
@@ -98,40 +99,27 @@ export class NodeView extends View {
     // hook
   }
 
-  get node(): Node {
-    return this._node;
-  }
+  declare readonly node: Node;
 
-  // @ts-ignore
-  declare readonly viewClass: NodeViewClass;
-
-  // @ts-ignore
   declare readonly viewController: NodeViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<NodeViewObserver>;
 
   protected willObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
-      result = callback.call(this, viewController);
+    const viewController = this.viewController;
+    if (viewController !== null) {
+      result = callback.call(this, viewController as ViewObserverType<this>) as T | undefined;
       if (result !== void 0) {
         return result;
       }
     }
-    const viewObservers = this._viewObservers;
-    if (viewObservers !== void 0) {
-      let i = 0;
-      while (i < viewObservers.length) {
-        const viewObserver = viewObservers[i];
-        result = callback.call(this, viewObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (viewObserver === viewObservers[i]) {
-          i += 1;
-        }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      result = callback.call(this, viewObserver as ViewObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
@@ -139,23 +127,17 @@ export class NodeView extends View {
 
   protected didObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const viewObservers = this._viewObservers;
-    if (viewObservers !== void 0) {
-      let i = 0;
-      while (i < viewObservers.length) {
-        const viewObserver = viewObservers[i];
-        result = callback.call(this, viewObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (viewObserver === viewObservers[i]) {
-          i += 1;
-        }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      result = callback.call(this, viewObserver as ViewObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
-    const viewController = this._viewController;
+    const viewController = this.viewController;
     if (viewController !== void 0) {
-      result = callback.call(this, viewController);
+      result = callback.call(this, viewController as ViewObserverType<this>) as T | undefined;
       if (result !== void 0) {
         return result;
       }
@@ -163,21 +145,19 @@ export class NodeView extends View {
     return result;
   }
 
-  get key(): string | undefined {
-    return this._key;
-  }
+  declare readonly key: string | undefined;
 
   /** @hidden */
   setKey(key: string | undefined): void {
-    if (key !== void 0) {
-      this._key = key;
-    } else if (this._key !== void 0) {
-      this._key = void 0;
-    }
+    Object.defineProperty(this, "key", {
+      value: key,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   get parentView(): View | null {
-    const parentNode: ViewNode | null = this._node.parentNode;
+    const parentNode: ViewNode | null = this.node.parentNode;
     if (parentNode !== null) {
       const parentView = parentNode.view;
       if (parentView instanceof View) {
@@ -195,15 +175,15 @@ export class NodeView extends View {
   }
 
   remove(): void {
-    const node = this._node;
+    const node = this.node;
     const parentNode: ViewNode | null = node.parentNode;
     if (parentNode !== null) {
       const parentView = parentNode.view;
       if (parentView !== void 0) {
-        if ((this._viewFlags & View.TraversingFlag) === 0) {
+        if ((this.viewFlags & View.TraversingFlag) === 0) {
           parentView.removeChildView(this);
         } else {
-          this._viewFlags |= View.RemovingFlag;
+          this.setViewFlags(this.viewFlags | View.RemovingFlag);
         }
       } else {
         parentNode.removeChild(node);
@@ -215,9 +195,9 @@ export class NodeView extends View {
 
   get childViewCount(): number {
     let childViewCount = 0;
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     for (let i = 0, n = childNodes.length; i < n; i += 1) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childViewCount += 1;
       }
@@ -226,10 +206,10 @@ export class NodeView extends View {
   }
 
   get childViews(): ReadonlyArray<View> {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     const childViews = [];
     for (let i = 0, n = childNodes.length; i < n; i += 1) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childViews.push(childView);
       }
@@ -238,9 +218,9 @@ export class NodeView extends View {
   }
 
   firstChildView(): View | null {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     for (let i = 0, n = childNodes.length; i < n; i += 1) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         return childView;
       }
@@ -249,9 +229,9 @@ export class NodeView extends View {
   }
 
   lastChildView(): View | null {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     for (let i = childNodes.length - 1; i >= 0; i -= 1) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         return childView;
       }
@@ -261,7 +241,7 @@ export class NodeView extends View {
 
   nextChildView(targetView: View): View | null {
     if (targetView instanceof NodeView && targetView.parentView === this) {
-      let targetNode: ViewNode | null = targetView._node;
+      let targetNode: ViewNode | null = targetView.node;
       do {
         targetNode = targetNode!.nextSibling;
         if (targetNode !== null) {
@@ -278,7 +258,7 @@ export class NodeView extends View {
 
   previousChildView(targetView: View): View | null {
     if (targetView instanceof NodeView && targetView.parentView === this) {
-      let targetNode: ViewNode | null = targetView._node;
+      let targetNode: ViewNode | null = targetView.node;
       do {
         targetNode = targetNode!.previousSibling;
         if (targetNode !== null) {
@@ -293,16 +273,19 @@ export class NodeView extends View {
     return null;
   }
 
-  forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
-                                   thisArg?: S): T | undefined {
+  forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
+  forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
+                         thisArg: S): T | undefined;
+  forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
+                         thisArg?: S): T | undefined {
     let result: T | undefined;
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childNode = childNodes[i] as ViewNode;
+      const childNode = childNodes[i]! as ViewNode;
       const childView = childNode.view;
       if (childView !== void 0) {
-        result = callback.call(thisArg, childView);
+        result = callback.call(thisArg, childView) as T | undefined;
         if (result !== void 0) {
           break;
         }
@@ -332,7 +315,7 @@ export class NodeView extends View {
         throw new TypeError("" + newChildView);
       }
       if (newChildView.parentView === this) {
-        targetNode = newChildView._node.nextSibling;
+        targetNode = newChildView.node.nextSibling;
       }
       newChildView.remove();
     }
@@ -345,13 +328,13 @@ export class NodeView extends View {
         if (!(childView instanceof NodeView)) {
           throw new TypeError("" + childView);
         }
-        const childNode = childView._node;
+        const childNode = childView.node;
         targetNode = childNode.nextSibling;
         this.willRemoveChildView(childView);
         this.willRemoveChildNode(childNode);
         childView.setParentView(null, this);
         this.removeChildViewMap(childView);
-        this._node.removeChild(childNode);
+        this.node.removeChild(childNode);
         this.onRemoveChildNode(childNode);
         this.onRemoveChildView(childView);
         this.didRemoveChildNode(childNode);
@@ -360,12 +343,12 @@ export class NodeView extends View {
       }
     }
     if (newChildView !== null) {
-      const newChildNode = newChildView._node;
+      const newChildNode = newChildView.node;
       const targetView = targetNode !== null ? (targetNode as ViewNode).view : null;
       newChildView.setKey(key);
       this.willInsertChildView(newChildView, targetView);
       this.willInsertChildNode(newChildNode, targetNode);
-      this._node.insertBefore(newChildNode, targetNode);
+      this.node.insertBefore(newChildNode, targetNode);
       this.insertChildViewMap(newChildView);
       newChildView.setParentView(this, null);
       this.onInsertChildNode(newChildNode, targetNode);
@@ -420,10 +403,10 @@ export class NodeView extends View {
       this.removeChildView(key);
       childView.setKey(key);
     }
-    const childNode = childView._node;
+    const childNode = childView.node;
     this.willInsertChildView(childView, null);
     this.willInsertChildNode(childNode, null);
-    this._node.appendChild(childNode);
+    this.node.appendChild(childNode);
     this.insertChildViewMap(childView);
     childView.setParentView(this, null);
     this.onInsertChildNode(childNode, null);
@@ -444,7 +427,7 @@ export class NodeView extends View {
       this.willInsertChildView(childView, null);
     }
     this.willInsertChildNode(childNode, null);
-    this._node.appendChild(childNode);
+    this.node.appendChild(childNode);
     if (childView !== void 0) {
       this.insertChildViewMap(childView);
       childView.setParentView(this, null);
@@ -479,12 +462,12 @@ export class NodeView extends View {
       this.removeChildView(key);
       childView.setKey(key);
     }
-    const childNode = childView._node;
-    const targetNode = this._node.firstChild as ViewNode | null;
+    const childNode = childView.node;
+    const targetNode = this.node.firstChild as ViewNode | null;
     const targetView = targetNode !== null ? targetNode.view : null;
     this.willInsertChildView(childView, targetView);
     this.willInsertChildNode(childNode, targetNode);
-    this._node.insertBefore(childNode, targetNode);
+    this.node.insertBefore(childNode, targetNode);
     this.insertChildViewMap(childView);
     childView.setParentView(this, null);
     this.onInsertChildNode(childNode, targetNode);
@@ -496,7 +479,7 @@ export class NodeView extends View {
 
   prependChildNode(childNode: Node, key?: string): void {
     const childView = (childNode as ViewNode).view;
-    const targetNode = this._node.firstChild as ViewNode | null;
+    const targetNode = this.node.firstChild as ViewNode | null;
     const targetView = targetNode !== null ? targetNode.view : null;
     if (childView !== void 0) {
       childView.remove();
@@ -507,7 +490,7 @@ export class NodeView extends View {
       this.willInsertChildView(childView, targetView);
     }
     this.willInsertChildNode(childNode, targetNode);
-    this._node.insertBefore(childNode, targetNode);
+    this.node.insertBefore(childNode, targetNode);
     if (childView !== void 0) {
       this.insertChildViewMap(childView);
       childView.setParentView(this, null);
@@ -528,13 +511,13 @@ export class NodeView extends View {
       if (target instanceof View) {
         this.insertChildView(child, target, key);
       } else if (target instanceof Node || target === null) {
-        this.insertChildNode(child._node, target, key);
+        this.insertChildNode(child.node, target, key);
       } else {
         throw new TypeError("" + target);
       }
     } else if (child instanceof Node) {
       if (target instanceof NodeView) {
-        this.insertChildNode(child, target._node, key);
+        this.insertChildNode(child, target.node, key);
       } else if (target instanceof Node || target === null) {
         this.insertChildNode(child, target, key);
       } else {
@@ -557,11 +540,11 @@ export class NodeView extends View {
       this.removeChildView(key);
       childView.setKey(key);
     }
-    const childNode = childView._node;
-    const targetNode = targetView !== null ? targetView._node : null;
+    const childNode = childView.node;
+    const targetNode = targetView !== null ? targetView.node : null;
     this.willInsertChildView(childView, targetView);
     this.willInsertChildNode(childNode, targetNode);
-    this._node.insertBefore(childNode, targetNode);
+    this.node.insertBefore(childNode, targetNode);
     this.insertChildViewMap(childView);
     childView.setParentView(this, null);
     this.onInsertChildNode(childNode, targetNode);
@@ -588,7 +571,7 @@ export class NodeView extends View {
       this.willInsertChildView(childView, targetView);
     }
     this.willInsertChildNode(childNode, targetNode);
-    this._node.insertBefore(childNode, targetNode);
+    this.node.insertBefore(childNode, targetNode);
     if (childView !== void 0) {
       this.insertChildViewMap(childView);
       childView.setParentView(this, null);
@@ -610,8 +593,8 @@ export class NodeView extends View {
       this.removeChildView(key);
       childView.setKey(key);
     }
-    const childNode = childView._node;
-    const targetNode = targetView !== null ? targetView._node : null;
+    const childNode = childView.node;
+    const targetNode = targetView !== null ? targetView.node : null;
     this.willInsertChildView(childView, targetView);
     this.willInsertChildNode(childNode, targetNode);
     this.insertChildViewMap(childView);
@@ -624,13 +607,13 @@ export class NodeView extends View {
   }
 
   protected willInsertChildNode(childNode: Node, targetNode: Node | null): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillInsertChildNode !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewWillInsertChildNode !== void 0) {
       viewController.viewWillInsertChildNode(childNode, targetNode, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewWillInsertChildNode !== void 0) {
         viewObserver.viewWillInsertChildNode(childNode, targetNode, this);
       }
@@ -642,32 +625,32 @@ export class NodeView extends View {
   }
 
   protected didInsertChildNode(childNode: Node, targetNode: Node | null): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewDidInsertChildNode !== void 0) {
         viewObserver.viewDidInsertChildNode(childNode, targetNode, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidInsertChildNode !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewDidInsertChildNode !== void 0) {
       viewController.viewDidInsertChildNode(childNode, targetNode, this);
     }
   }
 
   cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
-    if ((this._viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
+    if ((this.viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
       if (updateFlags === void 0) {
         updateFlags = 0;
       }
-      updateFlags |= this._viewFlags & View.UpdateMask;
+      updateFlags |= this.viewFlags & View.UpdateMask;
       if ((updateFlags & View.ProcessMask) !== 0) {
         if (viewContext === void 0) {
           viewContext = this.superViewContext;
         }
         this.cascadeProcess(updateFlags, viewContext);
       }
-      updateFlags |= this._viewFlags & View.UpdateMask;
+      updateFlags |= this.viewFlags & View.UpdateMask;
       if ((updateFlags & View.DisplayMask) !== 0) {
         if (viewContext === void 0) {
           viewContext = this.superViewContext;
@@ -702,15 +685,15 @@ export class NodeView extends View {
     if (!(childView instanceof NodeView)) {
       throw new TypeError("" + childView);
     }
-    const childNode = childView._node;
-    if (childNode.parentNode !== this._node) {
+    const childNode = childView.node;
+    if (childNode.parentNode !== this.node) {
       throw new Error("not a child view");
     }
     this.willRemoveChildView(childView);
     this.willRemoveChildNode(childNode);
     childView.setParentView(null, this);
     this.removeChildViewMap(childView);
-    this._node.removeChild(childNode);
+    this.node.removeChild(childNode);
     this.onRemoveChildNode(childNode);
     this.onRemoveChildView(childView);
     this.didRemoveChildNode(childNode);
@@ -727,7 +710,7 @@ export class NodeView extends View {
   }
 
   removeChildNode(childNode: Node): void {
-    if (childNode.parentNode !== this._node) {
+    if (childNode.parentNode !== this.node) {
       throw new Error("not a child node")
     }
     const childView = (childNode as ViewNode).view;
@@ -735,7 +718,7 @@ export class NodeView extends View {
       this.willRemoveChildView(childView);
     }
     this.willRemoveChildNode(childNode);
-    this._node.removeChild(childNode);
+    this.node.removeChild(childNode);
     if (childView !== void 0) {
       childView.setParentView(null, this);
       this.removeChildViewMap(childView);
@@ -753,14 +736,14 @@ export class NodeView extends View {
 
   removeAll(): void {
     do {
-      const childNode = this._node.lastChild as ViewNode | null;
+      const childNode = this.node.lastChild as ViewNode | null;
       if (childNode !== null) {
         const childView = childNode.view;
         if (childView !== void 0) {
           this.willRemoveChildView(childView);
         }
         this.willRemoveChildNode(childNode);
-        this._node.removeChild(childNode);
+        this.node.removeChild(childNode);
         if (childView !== void 0) {
           childView.setParentView(null, this);
           this.removeChildViewMap(childView);
@@ -781,13 +764,13 @@ export class NodeView extends View {
   }
 
   protected willRemoveChildNode(childNode: Node): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillRemoveChildNode !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewWillRemoveChildNode !== void 0) {
       viewController.viewWillRemoveChildNode(childNode, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewWillRemoveChildNode !== void 0) {
         viewObserver.viewWillRemoveChildNode(childNode, this);
       }
@@ -799,15 +782,15 @@ export class NodeView extends View {
   }
 
   protected didRemoveChildNode(childNode: Node): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewDidRemoveChildNode !== void 0) {
         viewObserver.viewDidRemoveChildNode(childNode, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidRemoveChildNode !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewDidRemoveChildNode !== void 0) {
       viewController.viewDidRemoveChildNode(childNode, this);
     }
   }
@@ -816,9 +799,9 @@ export class NodeView extends View {
   text(value: string | null): this;
   text(value?: string | null): string | null | this {
     if (value === void 0) {
-      return this._node.textContent;
+      return this.node.textContent;
     } else {
-      this._node.textContent = value;
+      this.node.textContent = value;
       return this;
     }
   }
@@ -856,7 +839,7 @@ export class NodeView extends View {
   }
 
   mount(): void {
-    if (!this.isMounted() && NodeView.isNodeMounted(this._node) && NodeView.isRootView(this._node)) {
+    if (!this.isMounted() && NodeView.isNodeMounted(this.node) && NodeView.isRootView(this.node)) {
       this.cascadeMount();
       if (!this.isPowered() && document.visibilityState === "visible") {
         this.cascadePower();
@@ -866,16 +849,15 @@ export class NodeView extends View {
   }
 
   cascadeMount(): void {
-    if ((this._viewFlags & View.MountedFlag) === 0) {
-      this._viewFlags |= View.MountedFlag;
-      this._viewFlags |= View.TraversingFlag;
+    if ((this.viewFlags & View.MountedFlag) === 0) {
+      this.setViewFlags(this.viewFlags | (View.MountedFlag | View.TraversingFlag));
       try {
         this.willMount();
         this.onMount();
         this.doMountChildViews();
         this.didMount();
       } finally {
-        this._viewFlags &= ~View.TraversingFlag;
+        this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
       }
     } else {
       throw new Error("already mounted");
@@ -898,14 +880,14 @@ export class NodeView extends View {
 
   /** @hidden */
   protected doMountChildViews(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeMount();
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -915,16 +897,15 @@ export class NodeView extends View {
   }
 
   cascadeUnmount(): void {
-    if ((this._viewFlags & View.MountedFlag) !== 0) {
-      this._viewFlags &= ~View.MountedFlag;
-      this._viewFlags |= View.TraversingFlag;
+    if ((this.viewFlags & View.MountedFlag) !== 0) {
+      this.setViewFlags(this.viewFlags & ~View.MountedFlag | View.TraversingFlag);
       try {
         this.willUnmount();
         this.doUnmountChildViews();
         this.onUnmount();
         this.didUnmount();
       } finally {
-        this._viewFlags &= ~View.TraversingFlag;
+        this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
       }
     } else {
       throw new Error("already unmounted");
@@ -941,19 +922,19 @@ export class NodeView extends View {
     this.unmountAnimators();
     this.unmountScopes();
     this.unmountServices();
-    this._viewFlags &= ~View.ViewFlagMask | View.RemovingFlag;
+    this.setViewFlags(this.viewFlags & (~View.ViewFlagMask | View.RemovingFlag));
   }
 
   /** @hidden */
   protected doUnmountChildViews(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeUnmount();
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -963,16 +944,15 @@ export class NodeView extends View {
   }
 
   cascadePower(): void {
-    if ((this._viewFlags & View.PoweredFlag) === 0) {
-      this._viewFlags |= View.PoweredFlag;
-      this._viewFlags |= View.TraversingFlag;
+    if ((this.viewFlags & View.PoweredFlag) === 0) {
+      this.setViewFlags(this.viewFlags | (View.PoweredFlag | View.TraversingFlag));
       try {
         this.willPower();
         this.onPower();
         this.doPowerChildViews();
         this.didPower();
       } finally {
-        this._viewFlags &= ~View.TraversingFlag;
+        this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
       }
     } else {
       throw new Error("already powered");
@@ -981,14 +961,14 @@ export class NodeView extends View {
 
   /** @hidden */
   protected doPowerChildViews(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadePower();
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -998,16 +978,15 @@ export class NodeView extends View {
   }
 
   cascadeUnpower(): void {
-    if ((this._viewFlags & View.PoweredFlag) !== 0) {
-      this._viewFlags &= ~View.PoweredFlag;
-      this._viewFlags |= View.TraversingFlag;
+    if ((this.viewFlags & View.PoweredFlag) !== 0) {
+      this.setViewFlags(this.viewFlags & ~View.PoweredFlag | View.TraversingFlag);
       try {
         this.willUnpower();
         this.doUnpowerChildViews();
         this.onUnpower();
         this.didUnpower();
       } finally {
-        this._viewFlags &= ~View.TraversingFlag;
+        this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
       }
     } else {
       throw new Error("already unpowered");
@@ -1016,14 +995,14 @@ export class NodeView extends View {
 
   /** @hidden */
   protected doUnpowerChildViews(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeUnpower();
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -1033,14 +1012,14 @@ export class NodeView extends View {
   }
 
   setCulled(culled: boolean): void {
-    const viewFlags = this._viewFlags;
+    const viewFlags = this.viewFlags;
     if (culled && (viewFlags & View.CulledFlag) === 0) {
-      this._viewFlags = viewFlags | View.CulledFlag;
+      this.setViewFlags(viewFlags | View.CulledFlag);
       if ((viewFlags & View.CullFlag) === 0) {
         this.doCull();
       }
     } else if (!culled && (viewFlags & View.CulledFlag) !== 0) {
-      this._viewFlags = viewFlags & ~View.CulledFlag;
+      this.setViewFlags(viewFlags & ~View.CulledFlag);
       if ((viewFlags & View.CullFlag) === 0) {
         this.doUncull();
       }
@@ -1048,9 +1027,9 @@ export class NodeView extends View {
   }
 
   cascadeCull(): void {
-    if ((this._viewFlags & View.CullFlag) === 0) {
-      this._viewFlags |= View.CullFlag;
-      if ((this._viewFlags & View.CulledFlag) === 0) {
+    if ((this.viewFlags & View.CullFlag) === 0) {
+      this.setViewFlags(this.viewFlags | View.CullFlag);
+      if ((this.viewFlags & View.CulledFlag) === 0) {
         this.doCull();
       }
     } else {
@@ -1060,27 +1039,27 @@ export class NodeView extends View {
 
   /** @hidden */
   protected doCull(): void {
-    this._viewFlags |= View.TraversingFlag;
+    this.setViewFlags(this.viewFlags | View.TraversingFlag);
     try {
       this.willCull();
       this.onCull();
       this.doCullChildViews();
       this.didCull();
     } finally {
-      this._viewFlags &= ~View.TraversingFlag;
+      this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
     }
   }
 
   /** @hidden */
   protected doCullChildViews(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeCull();
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -1090,9 +1069,9 @@ export class NodeView extends View {
   }
 
   cascadeUncull(): void {
-    if ((this._viewFlags & View.CullFlag) !== 0) {
-      this._viewFlags &= ~View.CullFlag
-      if ((this._viewFlags & View.CulledFlag) === 0) {
+    if ((this.viewFlags & View.CullFlag) !== 0) {
+      this.setViewFlags(this.viewFlags & ~View.CullFlag);
+      if ((this.viewFlags & View.CulledFlag) === 0) {
         this.doUncull();
       }
     } else {
@@ -1102,27 +1081,27 @@ export class NodeView extends View {
 
   /** @hidden */
   protected doUncull(): void {
-    this._viewFlags |= View.TraversingFlag;
+    this.setViewFlags(this.viewFlags | View.TraversingFlag);
     try {
       this.willUncull();
       this.doUncullChildViews();
       this.onUncull();
       this.didUncull();
     } finally {
-      this._viewFlags &= ~View.TraversingFlag;
+      this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
     }
   }
 
   /** @hidden */
   protected doUncullChildViews(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeUncull();
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -1134,7 +1113,7 @@ export class NodeView extends View {
   cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void {
     const extendedViewContext = this.extendViewContext(viewContext);
     processFlags &= ~View.NeedsProcess;
-    processFlags |= this._viewFlags & View.UpdateMask;
+    processFlags |= this.viewFlags & View.UpdateMask;
     processFlags = this.needsProcess(processFlags, extendedViewContext);
     if ((processFlags & View.ProcessMask) !== 0) {
       this.doProcess(processFlags, extendedViewContext);
@@ -1144,29 +1123,29 @@ export class NodeView extends View {
   /** @hidden */
   protected doProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = processFlags;
-    this._viewFlags |= View.TraversingFlag | View.ProcessingFlag;
-    this._viewFlags &= ~(View.NeedsProcess | View.NeedsProject);
+    this.setViewFlags(this.viewFlags & ~(View.NeedsProcess | View.NeedsProject)
+                                     |  (View.TraversingFlag | View.ProcessingFlag));
     try {
       this.willProcess(cascadeFlags, viewContext);
-      if (((this._viewFlags | processFlags) & View.NeedsResize) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsResize) !== 0) {
         this.willResize(viewContext);
         cascadeFlags |= View.NeedsResize;
-        this._viewFlags &= ~View.NeedsResize;
+        this.setViewFlags(this.viewFlags & ~View.NeedsResize);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsScroll) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsScroll) !== 0) {
         this.willScroll(viewContext);
         cascadeFlags |= View.NeedsScroll;
-        this._viewFlags &= ~View.NeedsScroll;
+        this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsChange) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsChange) !== 0) {
         this.willChange(viewContext);
         cascadeFlags |= View.NeedsChange;
-        this._viewFlags &= ~View.NeedsChange;
+        this.setViewFlags(this.viewFlags & ~View.NeedsChange);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
         this.willAnimate(viewContext);
         cascadeFlags |= View.NeedsAnimate;
-        this._viewFlags &= ~View.NeedsAnimate;
+        this.setViewFlags(this.viewFlags & ~View.NeedsAnimate);
       }
 
       this.onProcess(cascadeFlags, viewContext);
@@ -1199,7 +1178,7 @@ export class NodeView extends View {
       }
       this.didProcess(cascadeFlags, viewContext);
     } finally {
-      this._viewFlags &= ~(View.TraversingFlag | View.ProcessingFlag);
+      this.setViewFlags(this.viewFlags & ~(View.TraversingFlag | View.ProcessingFlag));
     }
   }
 
@@ -1225,7 +1204,7 @@ export class NodeView extends View {
 
   /** @hidden */
   protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((processFlags & View.ProcessMask) !== 0 && this._node.childNodes.length !== 0) {
+    if ((processFlags & View.ProcessMask) !== 0 && this.node.childNodes.length !== 0) {
       this.willProcessChildViews(processFlags, viewContext);
       this.onProcessChildViews(processFlags, viewContext);
       this.didProcessChildViews(processFlags, viewContext);
@@ -1235,14 +1214,14 @@ export class NodeView extends View {
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               processChildView: (this: this, childView: View, processFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         processChildView.call(this, childView, processFlags, viewContext);
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -1254,7 +1233,7 @@ export class NodeView extends View {
   cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void {
     const extendedViewContext = this.extendViewContext(viewContext);
     displayFlags &= ~View.NeedsDisplay;
-    displayFlags |= this._viewFlags & View.UpdateMask;
+    displayFlags |= this.viewFlags & View.UpdateMask;
     displayFlags = this.needsDisplay(displayFlags, extendedViewContext);
     if ((displayFlags & View.DisplayMask) !== 0) {
       this.doDisplay(displayFlags, extendedViewContext);
@@ -1264,14 +1243,14 @@ export class NodeView extends View {
   /** @hidden */
   protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = displayFlags;
-    this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
-    this._viewFlags &= ~(View.NeedsDisplay | View.NeedsRender | View.NeedsComposite);
+    this.setViewFlags(this.viewFlags & ~(View.NeedsDisplay | View.NeedsRender | View.NeedsComposite)
+                                     |  (View.TraversingFlag | View.DisplayingFlag));
     try {
       this.willDisplay(cascadeFlags, viewContext);
-      if (((this._viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
+      if (((this.viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
         this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
-        this._viewFlags &= ~View.NeedsLayout;
+        this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
       }
 
       this.onDisplay(cascadeFlags, viewContext);
@@ -1286,13 +1265,13 @@ export class NodeView extends View {
       }
       this.didDisplay(cascadeFlags, viewContext);
     } finally {
-      this._viewFlags &= ~(View.TraversingFlag | View.DisplayingFlag);
+      this.setViewFlags(this.viewFlags & ~(View.TraversingFlag | View.DisplayingFlag));
     }
   }
 
   /** @hidden */
   protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((displayFlags & View.DisplayMask) !== 0 && this._node.childNodes.length !== 0
+    if ((displayFlags & View.DisplayMask) !== 0 && this.node.childNodes.length !== 0
         && !this.isCulled()) {
       this.willDisplayChildViews(displayFlags, viewContext);
       this.onDisplayChildViews(displayFlags, viewContext);
@@ -1303,14 +1282,14 @@ export class NodeView extends View {
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         displayChildView.call(this, childView, displayFlags, viewContext);
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -1567,7 +1546,7 @@ export class NodeView extends View {
     return null;
   }
 
-  setViewBinding(bindingName: string, newViewBinding: ViewBinding<this, View> | null): void {
+  setViewBinding(bindingName: string, newViewBinding: ViewBinding<this, any> | null): void {
     let viewBindings = this._viewBindings;
     if (viewBindings === void 0) {
       viewBindings = {};
@@ -1767,7 +1746,7 @@ export class NodeView extends View {
         }
         if (constraints !== void 0) {
           for (let i = 0, n = constraints.length; i < n; i += 1) {
-            layoutManager.activateConstraint(constraints[i]);
+            layoutManager.activateConstraint(constraints[i]!);
             this.requireUpdate(View.NeedsLayout);
           }
         }
@@ -1784,13 +1763,13 @@ export class NodeView extends View {
       if (layoutManager !== void 0) {
         if (constraints !== void 0) {
           for (let i = 0, n = constraints.length; i < n; i += 1) {
-            layoutManager.deactivateConstraint(constraints[i]);
+            layoutManager.deactivateConstraint(constraints[i]!);
             this.requireUpdate(View.NeedsLayout);
           }
         }
         if (constraintVariables !== void 0) {
           for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-            layoutManager.deactivateConstraintVariable(constraintVariables[i]);
+            layoutManager.deactivateConstraintVariable(constraintVariables[i]!);
             this.requireUpdate(View.NeedsLayout);
           }
         }
@@ -1804,7 +1783,7 @@ export class NodeView extends View {
 
   get clientBounds(): BoxR2 {
     const range = document.createRange();
-    range.selectNode(this._node);
+    range.selectNode(this.node);
     const bounds = range.getBoundingClientRect();
     range.detach();
     return new BoxR2(bounds.left, bounds.top, bounds.right, bounds.bottom);
@@ -1812,7 +1791,7 @@ export class NodeView extends View {
 
   get pageBounds(): BoxR2 {
     const range = document.createRange();
-    range.selectNode(this._node);
+    range.selectNode(this.node);
     const bounds = range.getBoundingClientRect();
     range.detach();
     const scrollX = window.pageXOffset;
@@ -1822,16 +1801,16 @@ export class NodeView extends View {
   }
 
   dispatchEvent(event: Event): boolean {
-    return this._node.dispatchEvent(event);
+    return this.node.dispatchEvent(event);
   }
 
   on(type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean): this {
-    this._node.addEventListener(type, listener, options);
+    this.node.addEventListener(type, listener, options);
     return this;
   }
 
   off(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): this {
-    this._node.removeEventListener(type, listener, options);
+    this.node.removeEventListener(type, listener, options);
     return this;
   }
 
@@ -1865,9 +1844,9 @@ export class NodeView extends View {
   static fromConstructor(viewConstructor: NodeViewConstructor | ViewConstructor): View;
   static fromConstructor(viewConstructor: NodeViewConstructor | ViewConstructor): View {
     if (viewConstructor.prototype instanceof NodeView.Element) {
-      return NodeView.Element.fromConstructor(viewConstructor as ElementViewConstructor);
+      return NodeView.Element.fromConstructor(viewConstructor as NodeViewConstructor);
     } else if (viewConstructor.prototype instanceof NodeView.Text) {
-      return NodeView.Text.fromConstructor(viewConstructor as TextViewConstructor);
+      return NodeView.Text.fromConstructor(viewConstructor as unknown as TextViewConstructor);
     } else if (viewConstructor.prototype instanceof View) {
       return new (viewConstructor as ViewConstructor)();
     } else {
@@ -1886,8 +1865,6 @@ export class NodeView extends View {
 
   // Forward type declarations
   /** @hidden */
-  static Node: typeof NodeView; // defined by NodeView
-  /** @hidden */
   static Text: typeof TextView; // defined by TextView
   /** @hidden */
   static Element: typeof ElementView; // defined by ElementView
@@ -1905,7 +1882,7 @@ ModalManager.insertModalView = function (modalView: View): void {
   if (matteView !== void 0) {
     matteView.appendChildView(modalView);
   } else if (modalView instanceof NodeView) {
-    matteNode.appendChild(modalView._node);
+    matteNode.appendChild(modalView.node);
     modalView.mount();
   } else {
     throw new TypeError("" + modalView);

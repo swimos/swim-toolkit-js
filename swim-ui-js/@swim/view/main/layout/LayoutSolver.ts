@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ConstrainVariable, Constraint, ConstraintSolver} from "@swim/constraint";
-import {LayoutManager} from "./LayoutManager";
+import type {LayoutManager} from "./LayoutManager";
 
 /** @hidden */
 export class LayoutSolver extends ConstraintSolver {

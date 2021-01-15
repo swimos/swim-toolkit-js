@@ -16,12 +16,11 @@ export {
   StyleAnimatorMemberType,
   StyleAnimatorMemberInit,
   StyleAnimatorInit,
-  StyleAnimatorDescriptorInit,
+  StyleAnimatorDescriptor,
   StyleAnimatorDescriptorExtends,
   StyleAnimatorDescriptorFromAny,
-  StyleAnimatorDescriptor,
-  StyleAnimatorPrototype,
   StyleAnimatorConstructor,
+  StyleAnimatorClass,
   StyleAnimator,
 } from "./StyleAnimator";
 

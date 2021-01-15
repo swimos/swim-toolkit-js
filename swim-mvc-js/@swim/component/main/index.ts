@@ -20,6 +20,7 @@ export {
   ComponentFlags,
   ComponentInit,
   ComponentPrototype,
+  ComponentConstructor,
   ComponentClass,
   Component,
 } from "./Component";

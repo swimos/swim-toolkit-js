@@ -17,12 +17,11 @@ export {
   ViewScopeMemberInit,
   ViewScopeFlags,
   ViewScopeInit,
-  ViewScopeDescriptorInit,
+  ViewScopeDescriptor,
   ViewScopeDescriptorExtends,
   ViewScopeDescriptorFromAny,
-  ViewScopeDescriptor,
-  ViewScopePrototype,
   ViewScopeConstructor,
+  ViewScopeClass,
   ViewScope,
 } from "./ViewScope";
 

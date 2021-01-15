@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnimatorContext, Animator} from "@swim/tween";
-import {StyleAnimatorConstructor, StyleAnimator} from "../style/StyleAnimator";
+import type {AnimatorContext, Animator} from "@swim/animation";
+import type {StyleAnimatorConstructor, StyleAnimator} from "../style/StyleAnimator";
 
 export interface StyleContext extends AnimatorContext {
   readonly node?: Node;
@@ -35,18 +35,18 @@ export interface StyleContext extends AnimatorContext {
 
 /** @hidden */
 export const StyleContext = {} as {
-  decorateStyleAnimator<V extends StyleContext, T, U>(constructor: StyleAnimatorConstructor<V, T, U>,
-                                                      contextClass: unknown, animatorName: string): void;
+  decorateStyleAnimator(constructor: StyleAnimatorConstructor<StyleContext, unknown>,
+                        target: Object, propertyKey: string | symbol): void;
 };
 
-StyleContext.decorateStyleAnimator = function <V extends StyleContext, T, U>(constructor: StyleAnimatorConstructor<V, T, U>,
-                                                                             contextClass: unknown, animatorName: string): void {
-  Object.defineProperty(contextClass, animatorName, {
-    get: function (this: V): StyleAnimator<V, T, U> {
-      let animator = this.getStyleAnimator(animatorName) as StyleAnimator<V, T, U> | null;
+StyleContext.decorateStyleAnimator = function (constructor: StyleAnimatorConstructor<StyleContext, unknown>,
+                                               target: Object, propertyKey: string | symbol): void {
+  Object.defineProperty(target, propertyKey, {
+    get: function (this: StyleContext): StyleAnimator<StyleContext, unknown> {
+      let animator = this.getStyleAnimator(propertyKey.toString());
       if (animator === null) {
-        animator = new constructor(this, animatorName);
-        this.setStyleAnimator(animatorName, animator);
+        animator = new constructor(this, propertyKey.toString());
+        this.setStyleAnimator(propertyKey.toString(), animator);
       }
       return animator;
     },

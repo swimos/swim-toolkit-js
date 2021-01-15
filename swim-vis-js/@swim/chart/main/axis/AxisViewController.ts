@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import {GraphicsView, GraphicsViewController} from "@swim/graphics";
-import {TickView} from "../tick/TickView";
-import {AxisOrientation, AxisView} from "./AxisView";
-import {AxisViewObserver} from "./AxisViewObserver";
+import type {TickView} from "../tick/TickView";
+import type {AxisOrientation, AxisView} from "./AxisView";
+import type {AxisViewObserver} from "./AxisViewObserver";
 
 export class AxisViewController<D = unknown, V extends AxisView<D> = AxisView<D>> extends GraphicsViewController<V> implements AxisViewObserver<D, V> {
   get orientation(): AxisOrientation {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.orientation : void 0 as any;
   }
 

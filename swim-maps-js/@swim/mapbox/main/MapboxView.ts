@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyPointR2, PointR2} from "@swim/math";
+import type {AnyPointR2, PointR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {GraphicsViewContext, CanvasView} from "@swim/graphics";
 import {MapLayerView} from "@swim/map";
 import {MapboxProjection} from "./MapboxProjection";
-import {MapboxViewObserver} from "./MapboxViewObserver";
-import {MapboxViewController} from "./MapboxViewController";
+import type {MapboxViewObserver} from "./MapboxViewObserver";
+import type {MapboxViewController} from "./MapboxViewController";
 
 export class MapboxView extends MapLayerView {
   /** @hidden */
@@ -53,22 +53,20 @@ export class MapboxView extends MapLayerView {
     map.on("render", this.onMapRender);
   }
 
-  // @ts-ignore
   declare readonly viewController: MapboxViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<MapboxViewObserver>;
 
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;
   project(lng: AnyGeoPoint | number, lat?: number): PointR2 {
-    return this._geoProjection.project.apply(this._geoProjection, arguments);
+    return this._geoProjection.project.apply(this._geoProjection, arguments as any);
   }
 
   unproject(point: AnyPointR2): GeoPoint;
   unproject(x: number, y: number): GeoPoint;
   unproject(x: AnyPointR2 | number, y?: number): GeoPoint {
-    return this._geoProjection.unproject.apply(this._geoProjection, arguments);
+    return this._geoProjection.unproject.apply(this._geoProjection, arguments as any);
   }
 
   get geoProjection(): MapboxProjection {
@@ -83,13 +81,13 @@ export class MapboxView extends MapLayerView {
   }
 
   protected willSetGeoProjection(geoProjection: MapboxProjection): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillSetGeoProjection !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewWillSetGeoProjection !== void 0) {
       viewController.viewWillSetGeoProjection(geoProjection, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewWillSetGeoProjection !== void 0) {
         viewObserver.viewWillSetGeoProjection(geoProjection, this);
       }
@@ -103,15 +101,15 @@ export class MapboxView extends MapLayerView {
   }
 
   protected didSetGeoProjection(geoProjection: MapboxProjection): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewDidSetGeoProjection !== void 0) {
         viewObserver.viewDidSetGeoProjection(geoProjection, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidSetGeoProjection !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewDidSetGeoProjection !== void 0) {
       viewController.viewDidSetGeoProjection(geoProjection, this);
     }
   }
@@ -131,13 +129,13 @@ export class MapboxView extends MapLayerView {
   }
 
   protected willSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillSetMapZoom !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewWillSetMapZoom !== void 0) {
       viewController.viewWillSetMapZoom(newMapZoom, oldMapZoom, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewWillSetMapZoom !== void 0) {
         viewObserver.viewWillSetMapZoom(newMapZoom, oldMapZoom, this);
       }
@@ -149,15 +147,15 @@ export class MapboxView extends MapLayerView {
   }
 
   protected didSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!
       if (viewObserver.viewDidSetMapZoom !== void 0) {
         viewObserver.viewDidSetMapZoom(newMapZoom, oldMapZoom, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidSetMapZoom !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewDidSetMapZoom !== void 0) {
       viewController.viewDidSetMapZoom(newMapZoom, oldMapZoom, this);
     }
   }

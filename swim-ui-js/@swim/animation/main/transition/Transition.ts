@@ -209,7 +209,7 @@ export class Transition<T> {
     let interpolator: Interpolator<T, unknown>;
     if (y1 === void 0) {
       y0 = y0 as ReadonlyArray<T>;
-      interpolator = Interpolator.between(y0[0], y0[1]);
+      interpolator = Interpolator.between(y0[0]!, y0[1]!);
     } else {
       interpolator = Interpolator.between(y0 as T, y1);
     }

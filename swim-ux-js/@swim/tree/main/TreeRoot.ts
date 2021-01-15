@@ -29,7 +29,7 @@ export interface TreeRootInit {
   hidden?: boolean;
 }
 
-export class TreeRoot implements Equivalent<TreeRoot>, Equals {
+export class TreeRoot implements Equals, Equivalent {
   /** @hidden */
   readonly _key: string;
   /** @hidden */
@@ -190,9 +190,14 @@ export class TreeRoot implements Equivalent<TreeRoot>, Equals {
                         width, left, right, hidden);
   }
 
-  equivalentTo(that: TreeRoot): boolean {
-    return this._key === that._key && this._grow === that._grow && this._shrink === that._shrink
-        && this._basis.equals(that._basis) && this._optional === that._optional;
+  equivalentTo(that: unknown, epsilon?: number): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof TreeRoot) {
+      return this._key === that._key && this._grow === that._grow && this._shrink === that._shrink
+          && this._basis.equivalentTo(that._basis, epsilon) && this._optional === that._optional;
+    }
+    return false;
   }
 
   equals(that: unknown): boolean {

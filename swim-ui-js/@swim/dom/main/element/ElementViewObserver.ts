@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {NodeViewObserver} from "../node/NodeViewObserver";
-import {ElementView} from "./ElementView";
+import type {NodeViewObserver} from "../node/NodeViewObserver";
+import type {ElementView} from "./ElementView";
 
 export interface ElementViewObserver<V extends ElementView = ElementView> extends NodeViewObserver<V> {
   viewWillSetAttribute?(name: string, value: unknown, view: V): void;

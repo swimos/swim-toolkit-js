@@ -44,13 +44,13 @@ import {
   HtmlViewTagMap,
   HtmlView,
 } from "@swim/dom";
-import {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import {GraphicsViewContext} from "../graphics/GraphicsViewContext";
+import type {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {GraphicsViewContext} from "../graphics/GraphicsViewContext";
 import {GraphicsView} from "../graphics/GraphicsView";
 import {WebGLRenderer} from "../webgl/WebGLRenderer";
 import {CanvasRenderer} from "./CanvasRenderer";
-import {CanvasViewObserver} from "./CanvasViewObserver";
-import {CanvasViewController} from "./CanvasViewController";
+import type {CanvasViewObserver} from "./CanvasViewObserver";
+import type {CanvasViewController} from "./CanvasViewController";
 
 /** @hidden */
 export interface CanvasViewMouse extends ViewMouseEventInit {
@@ -86,7 +86,7 @@ export class CanvasView extends HtmlView {
   /** @hidden */
   _canvasFlags: number;
   /** @hidden */
-  _eventNode: Node;
+  _eventNode: HTMLElement;
   /** @hidden */
   _mouse: CanvasViewMouse | null;
   /** @hidden */
@@ -134,7 +134,7 @@ export class CanvasView extends HtmlView {
     this._viewFrame = BoxR2.undefined();
     this._canvasFlags = CanvasView.ClickEventsFlag;
 
-    this._eventNode = this._node;
+    this._eventNode = this.node;
     this._mouse = null;
     this._pointers = {};
     this._touches = {};
@@ -145,13 +145,10 @@ export class CanvasView extends HtmlView {
     this.position.setAutoState("absolute");
   }
 
-  // @ts-ignore
   declare readonly node: HTMLCanvasElement;
 
-  // @ts-ignore
   declare readonly viewController: CanvasViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<CanvasViewObserver>;
 
   initView(init: CanvasViewInit): void {
@@ -210,9 +207,9 @@ export class CanvasView extends HtmlView {
 
   get childViewCount(): number {
     let childViewCount = 0;
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     for (let i = 0, n = childNodes.length; i < n; i += 1) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childViewCount += 1;
       }
@@ -222,10 +219,10 @@ export class CanvasView extends HtmlView {
   }
 
   get childViews(): ReadonlyArray<View> {
-    const childNodes = this._node.childNodes;
-    const childViews = [];
+    const childNodes = this.node.childNodes;
+    const childViews: View[] = [];
     for (let i = 0, n = childNodes.length; i < n; i += 1) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childViews.push(childView);
       }
@@ -235,16 +232,16 @@ export class CanvasView extends HtmlView {
   }
 
   firstChildView(): View | null {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     for (let i = 0, n = childNodes.length; i < n; i += 1) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         return childView;
       }
     }
     const graphicsViews = this._graphicsViews;
     if (graphicsViews.length !== 0) {
-      return graphicsViews[0];
+      return graphicsViews[0]!;
     }
     return null;
   }
@@ -252,11 +249,11 @@ export class CanvasView extends HtmlView {
   lastChildView(): View | null {
     const graphicsViews = this._graphicsViews;
     if (graphicsViews.length !== 0) {
-      return graphicsViews[graphicsViews.length - 1];
+      return graphicsViews[graphicsViews.length - 1]!;
     }
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     for (let i = childNodes.length - 1; i >= 0; i -= 1) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         return childView;
       }
@@ -267,7 +264,7 @@ export class CanvasView extends HtmlView {
   nextChildView(targetView: View): View | null {
     const graphicsViews = this._graphicsViews;
     if (targetView instanceof NodeView && targetView.parentView === this) {
-      let targetNode: ViewNode | null = targetView._node;
+      let targetNode: ViewNode | null = targetView.node;
       do {
         targetNode = targetNode!.nextSibling;
         if (targetNode !== null) {
@@ -279,12 +276,12 @@ export class CanvasView extends HtmlView {
         break;
       } while (true);
       if (graphicsViews.length !== 0) {
-        return graphicsViews[0];
+        return graphicsViews[0]!;
       }
     } else if (targetView instanceof GraphicsView) {
       const targetIndex = graphicsViews.indexOf(targetView);
       if (targetIndex >= 0 && targetIndex + 1 < graphicsViews.length) {
-        return graphicsViews[targetIndex + 1];
+        return graphicsViews[targetIndex + 1]!;
       }
     }
     return null;
@@ -296,15 +293,15 @@ export class CanvasView extends HtmlView {
       const graphicsViews = this._graphicsViews;
       const targetIndex = graphicsViews.indexOf(targetView);
       if (targetIndex - 1 >= 0) {
-        return graphicsViews[targetIndex - 1];
+        return graphicsViews[targetIndex - 1]!;
       } else if (targetIndex === 0) {
-        targetNode = this._node.lastChild;
+        targetNode = this.node.lastChild;
         if (targetNode !== null && targetNode.view !== void 0) {
           return targetNode.view;
         }
       }
     } else if (targetView instanceof NodeView && targetView.parentView === this) {
-      targetNode = targetView._node;
+      targetNode = targetView.node;
     }
     if (targetNode !== null) {
       do {
@@ -321,16 +318,19 @@ export class CanvasView extends HtmlView {
     return null;
   }
 
-  forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
-                                   thisArg?: S): T | undefined {
+  forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
+  forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
+                         thisArg: S): T | undefined;
+  forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
+                         thisArg?: S): T | undefined {
     let result: T | undefined;
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childNode = childNodes[i] as ViewNode;
+      const childNode = childNodes[i]! as ViewNode;
       const childView = childNode.view;
       if (childView !== void 0) {
-        result = callback.call(thisArg, childView);
+        result = callback.call(thisArg, childView) as T | undefined;
         if (result !== void 0) {
           break;
         }
@@ -342,8 +342,8 @@ export class CanvasView extends HtmlView {
     const graphicsViews = this._graphicsViews;
     i = 0;
     while (i < graphicsViews.length) {
-      const childView = graphicsViews[i];
-      result = callback.call(thisArg, childView);
+      const childView = graphicsViews[i]!;
+      result = callback.call(thisArg, childView) as T | undefined;
       if (result !== void 0) {
         break;
       }
@@ -380,7 +380,7 @@ export class CanvasView extends HtmlView {
         index = childViews.indexOf(childView);
         // assert(index >= 0);
         oldChildView = childView;
-        targetView = childViews[index + 1];
+        targetView = childViews[index + 1]!;
         this.willRemoveChildView(childView);
         childView.setParentView(null, this);
         this.removeChildViewMap(childView);
@@ -393,14 +393,14 @@ export class CanvasView extends HtmlView {
         if (!(childView instanceof NodeView)) {
           throw new TypeError("" + childView);
         }
-        const childNode = childView._node;
+        const childNode = childView.node;
         const targetNode = childNode.nextSibling;
         targetView = targetNode !== null ? (targetNode as ViewNode).view || null : null;
         this.willRemoveChildView(childView);
         this.willRemoveChildNode(childNode);
         childView.setParentView(null, this);
         this.removeChildViewMap(childView);
-        this._node.removeChild(childNode);
+        this.node.removeChild(childNode);
         this.onRemoveChildNode(childNode);
         this.onRemoveChildView(childView);
         this.didRemoveChildNode(childNode);
@@ -617,7 +617,7 @@ export class CanvasView extends HtmlView {
     do {
       const count = graphicsViews.length;
       if (count > 0) {
-        const childView = graphicsViews[count - 1];
+        const childView = graphicsViews[count - 1]!;
         this.willRemoveChildView(childView);
         childView.setParentView(null, this);
         this.removeChildViewMap(childView);
@@ -654,14 +654,14 @@ export class CanvasView extends HtmlView {
 
   protected createRenderer(rendererType: GraphicsRendererType = "canvas"): GraphicsRenderer | null {
     if (rendererType === "canvas") {
-      const context = this._node.getContext("2d");
+      const context = this.node.getContext("2d");
       if (context !== null) {
         return new CanvasRenderer(context, this.pixelRatio);
       } else {
         throw new Error("Failed to create canvas rendering context");
       }
     } else if (rendererType === "webgl") {
-      const context = this._node.getContext("webgl");
+      const context = this.node.getContext("webgl");
       if (context !== null) {
         return new WebGLRenderer(context, this.pixelRatio);
       } else {
@@ -679,14 +679,14 @@ export class CanvasView extends HtmlView {
 
   /** @hidden */
   doMountChildViews(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeMount();
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -696,7 +696,7 @@ export class CanvasView extends HtmlView {
     const graphicsViews = this._graphicsViews;
     i = 0;
     while (i < graphicsViews.length) {
-      const childView = graphicsViews[i];
+      const childView = graphicsViews[i]!;
       childView.cascadeMount();
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
@@ -714,14 +714,14 @@ export class CanvasView extends HtmlView {
 
   /** @hidden */
   doUnmountChildViews(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeUnmount();
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -731,7 +731,7 @@ export class CanvasView extends HtmlView {
     const graphicsViews = this._graphicsViews;
     i = 0;
     while (i < graphicsViews.length) {
-      const childView = graphicsViews[i];
+      const childView = graphicsViews[i]!;
       childView.cascadeUnmount();
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
@@ -744,14 +744,14 @@ export class CanvasView extends HtmlView {
 
   /** @hidden */
   doPowerChildViews(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadePower();
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -761,7 +761,7 @@ export class CanvasView extends HtmlView {
     const graphicsViews = this._graphicsViews;
     i = 0;
     while (i < graphicsViews.length) {
-      const childView = graphicsViews[i];
+      const childView = graphicsViews[i]!;
       childView.cascadePower();
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
@@ -774,14 +774,14 @@ export class CanvasView extends HtmlView {
 
   /** @hidden */
   doUnpowerChildViews(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         childView.cascadeUnpower();
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -791,7 +791,7 @@ export class CanvasView extends HtmlView {
     const graphicsViews = this._graphicsViews;
     i = 0;
     while (i < graphicsViews.length) {
-      const childView = graphicsViews[i];
+      const childView = graphicsViews[i]!;
       childView.cascadeUnpower();
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
@@ -803,11 +803,11 @@ export class CanvasView extends HtmlView {
   }
 
   cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
-    if ((this._viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
+    if ((this.viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
       if (updateFlags === void 0) {
         updateFlags = 0;
       }
-      updateFlags |= this._viewFlags & View.UpdateMask;
+      updateFlags |= this.viewFlags & View.UpdateMask;
       if ((updateFlags & View.ProcessMask) !== 0) {
         if (viewContext === void 0) {
           viewContext = this.superViewContext;
@@ -826,7 +826,7 @@ export class CanvasView extends HtmlView {
 
   protected onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);
-    this.resizeCanvas(this._node);
+    this.resizeCanvas(this.node);
     this.resetRenderer();
   }
 
@@ -838,7 +838,7 @@ export class CanvasView extends HtmlView {
   /** @hidden */
   protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     if ((processFlags & View.ProcessMask) !== 0 &&
-        (this._graphicsViews.length !== 0 || this._node.childNodes.length !== 0)) {
+        (this._graphicsViews.length !== 0 || this.node.childNodes.length !== 0)) {
       this.willProcessChildViews(processFlags, viewContext);
       this.onProcessChildViews(processFlags, viewContext);
       this.didProcessChildViews(processFlags, viewContext);
@@ -848,14 +848,14 @@ export class CanvasView extends HtmlView {
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               processChildView: (this: this, childView: View, processFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         processChildView.call(this, childView, processFlags, viewContext);
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -865,7 +865,7 @@ export class CanvasView extends HtmlView {
     const graphicsViews = this._graphicsViews;
     i = 0;
     while (i < graphicsViews.length) {
-      const childView = graphicsViews[i];
+      const childView = graphicsViews[i]!;
       processChildView.call(this, childView, processFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
@@ -884,24 +884,23 @@ export class CanvasView extends HtmlView {
   /** @hidden */
   protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = displayFlags;
-    this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
-    this._viewFlags &= ~View.NeedsDisplay;
+    this.setViewFlags(this.viewFlags & ~View.NeedsDisplay | (View.TraversingFlag | View.DisplayingFlag));
     try {
       this.willDisplay(cascadeFlags, viewContext);
-      if (((this._viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
+      if (((this.viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
         this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
-        this._viewFlags &= ~View.NeedsLayout;
+        this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
       }
-      if (((this._viewFlags | displayFlags) & View.NeedsRender) !== 0) {
+      if (((this.viewFlags | displayFlags) & View.NeedsRender) !== 0) {
         this.willRender(viewContext);
         cascadeFlags |= View.NeedsRender;
-        this._viewFlags &= ~View.NeedsRender;
+        this.setViewFlags(this.viewFlags & ~View.NeedsRender);
       }
-      if (((this._viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
+      if (((this.viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
         this.willComposite(viewContext);
         cascadeFlags |= View.NeedsComposite;
-        this._viewFlags &= ~View.NeedsComposite;
+        this.setViewFlags(this.viewFlags & ~View.NeedsComposite);
       }
 
       this.onDisplay(cascadeFlags, viewContext);
@@ -928,7 +927,7 @@ export class CanvasView extends HtmlView {
       }
       this.didDisplay(cascadeFlags, viewContext);
     } finally {
-      this._viewFlags &= ~(View.TraversingFlag | View.DisplayingFlag);
+      this.setViewFlags(this.viewFlags & ~(View.TraversingFlag | View.DisplayingFlag));
     }
   }
 
@@ -938,14 +937,14 @@ export class CanvasView extends HtmlView {
   }
 
   protected willRender(viewContext: ViewContextType<this>): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null) {
       viewController.viewWillRender(viewContext, this);
     }
     const viewObservers = this._willRenderObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
-        const viewObserver = viewObservers[i];
+        const viewObserver = viewObservers[i]!;
         viewObserver.viewWillRender(viewContext, this);
       }
     }
@@ -959,25 +958,25 @@ export class CanvasView extends HtmlView {
     const viewObservers = this._didRenderObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
-        const viewObserver = viewObservers[i];
+        const viewObserver = viewObservers[i]!;
         viewObserver.viewDidRender(viewContext, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null) {
       viewController.viewDidRender(viewContext, this);
     }
   }
 
   protected willComposite(viewContext: ViewContextType<this>): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null) {
       viewController.viewWillComposite(viewContext, this);
     }
     const viewObservers = this._willCompositeObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
-        const viewObserver = viewObservers[i];
+        const viewObserver = viewObservers[i]!;
         viewObserver.viewWillComposite(viewContext, this);
       }
     }
@@ -991,12 +990,12 @@ export class CanvasView extends HtmlView {
     const viewObservers = this._didCompositeObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
-        const viewObserver = viewObservers[i];
+        const viewObserver = viewObservers[i]!;
         viewObserver.viewDidComposite(viewContext, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null) {
       viewController.viewDidComposite(viewContext, this);
     }
   }
@@ -1004,7 +1003,7 @@ export class CanvasView extends HtmlView {
   /** @hidden */
   protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     if ((displayFlags & View.DisplayMask) !== 0 &&
-        (this._graphicsViews.length !== 0 || this._node.childNodes.length !== 0)) {
+        (this._graphicsViews.length !== 0 || this.node.childNodes.length !== 0)) {
       this.willDisplayChildViews(displayFlags, viewContext);
       this.onDisplayChildViews(displayFlags, viewContext);
       this.didDisplayChildViews(displayFlags, viewContext);
@@ -1014,14 +1013,14 @@ export class CanvasView extends HtmlView {
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     let i = 0;
     while (i < childNodes.length) {
-      const childView = (childNodes[i] as ViewNode).view;
+      const childView = (childNodes[i]! as ViewNode).view;
       if (childView !== void 0) {
         displayChildView.call(this, childView, displayFlags, viewContext);
-        if ((childView._viewFlags & View.RemovingFlag) !== 0) {
-          childView._viewFlags &= ~View.RemovingFlag;
+        if ((childView.viewFlags & View.RemovingFlag) !== 0) {
+          childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
           this.removeChildView(childView);
           continue;
         }
@@ -1031,7 +1030,7 @@ export class CanvasView extends HtmlView {
     const graphicsViews = this._graphicsViews;
     i = 0;
     while (i < graphicsViews.length) {
-      const childView = graphicsViews[i];
+      const childView = graphicsViews[i]!;
       displayChildView.call(this, childView, displayFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
@@ -1043,17 +1042,17 @@ export class CanvasView extends HtmlView {
   }
 
   isHidden(): boolean {
-    return (this._viewFlags & View.HiddenFlag) !== 0
+    return (this.viewFlags & View.HiddenFlag) !== 0
   }
 
   setHidden(newHidden: boolean): void {
-    const oldHidden = (this._viewFlags & View.HiddenFlag) !== 0;
+    const oldHidden = (this.viewFlags & View.HiddenFlag) !== 0;
     if (oldHidden !== newHidden) {
       this.willSetHidden(newHidden);
       if (newHidden) {
-        this._viewFlags |= View.HiddenFlag;
+        this.setViewFlags(this.viewFlags | View.HiddenFlag);
       } else {
-        this._viewFlags &= ~View.HiddenFlag;
+        this.setViewFlags(this.viewFlags & ~View.HiddenFlag);
       }
       this.onSetHidden(newHidden);
       this.didSetHidden(newHidden);
@@ -1061,13 +1060,13 @@ export class CanvasView extends HtmlView {
   }
 
   protected willSetHidden(hidden: boolean): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillSetHidden !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewWillSetHidden !== void 0) {
       viewController.viewWillSetHidden(hidden, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length ; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewWillSetHidden !== void 0) {
         viewObserver.viewWillSetHidden(hidden, this);
       }
@@ -1081,15 +1080,15 @@ export class CanvasView extends HtmlView {
   }
 
   protected didSetHidden(hidden: boolean): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewDidSetHidden !== void 0) {
         viewObserver.viewDidSetHidden(hidden, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidSetHidden !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewDidSetHidden !== void 0) {
       viewController.viewDidSetHidden(hidden, this);
     }
   }
@@ -1131,7 +1130,7 @@ export class CanvasView extends HtmlView {
     let hit: GraphicsView | null = null;
     const graphicsViews = this._graphicsViews;
     for (let i = graphicsViews.length - 1; i >= 0; i -= 1) {
-      const childView = graphicsViews[i];
+      const childView = graphicsViews[i]!;
       if (!childView.isHidden() && !childView.isCulled()) {
         const hitBounds = childView.hitBounds;
         if (hitBounds.contains(x, y)) {
@@ -1168,13 +1167,13 @@ export class CanvasView extends HtmlView {
     }
   }
 
-  get eventNode(): Node {
+  get eventNode(): HTMLElement {
     return this._eventNode;
   }
 
-  setEventNode(eventNode: Node | null): void {
+  setEventNode(eventNode: HTMLElement | null): void {
     if (eventNode === null) {
-      eventNode = this._node;
+      eventNode = this.node;
     }
     if (this._eventNode !== eventNode) {
       this.detachEvents(this._eventNode);
@@ -1285,7 +1284,7 @@ export class CanvasView extends HtmlView {
   }
 
   /** @hidden */
-  protected attachEvents(eventNode: Node): void {
+  protected attachEvents(eventNode: HTMLElement): void {
     if ((this._canvasFlags & CanvasView.ClickEventsFlag) !== 0) {
       this.attachClickEvents(eventNode);
     }
@@ -1308,7 +1307,7 @@ export class CanvasView extends HtmlView {
   }
 
   /** @hidden */
-  protected detachEvents(eventNode: Node): void {
+  protected detachEvents(eventNode: HTMLElement): void {
     this.detachClickEvents(eventNode);
 
     this.detachWheelEvents(eventNode);
@@ -1340,51 +1339,51 @@ export class CanvasView extends HtmlView {
   }
 
   /** @hidden */
-  protected attachClickEvents(eventNode: Node): void {
+  protected attachClickEvents(eventNode: HTMLElement): void {
     eventNode.addEventListener("click", this.onClick);
     eventNode.addEventListener("dblclick", this.onDblClick);
     eventNode.addEventListener("contextmenu", this.onContextMenu);
   }
 
   /** @hidden */
-  protected detachClickEvents(eventNode: Node): void {
+  protected detachClickEvents(eventNode: HTMLElement): void {
     eventNode.removeEventListener("click", this.onClick);
     eventNode.removeEventListener("dblclick", this.onDblClick);
     eventNode.removeEventListener("contextmenu", this.onContextMenu);
   }
 
   /** @hidden */
-  protected attachWheelEvents(eventNode: Node): void {
+  protected attachWheelEvents(eventNode: HTMLElement): void {
     eventNode.addEventListener("wheel", this.onWheel);
   }
 
   /** @hidden */
-  protected detachWheelEvents(eventNode: Node): void {
+  protected detachWheelEvents(eventNode: HTMLElement): void {
     eventNode.removeEventListener("wheel", this.onWheel);
   }
 
   /** @hidden */
-  protected attachPassiveMouseEvents(eventNode: Node): void {
+  protected attachPassiveMouseEvents(eventNode: HTMLElement): void {
     eventNode.addEventListener("mouseenter", this.onMouseEnter);
     eventNode.addEventListener("mouseleave", this.onMouseLeave);
     eventNode.addEventListener("mousedown", this.onMouseDown);
   }
 
   /** @hidden */
-  protected detachPassiveMouseEvents(eventNode: Node): void {
+  protected detachPassiveMouseEvents(eventNode: HTMLElement): void {
     eventNode.removeEventListener("mouseenter", this.onMouseEnter);
     eventNode.removeEventListener("mouseleave", this.onMouseLeave);
     eventNode.removeEventListener("mousedown", this.onMouseDown);
   }
 
   /** @hidden */
-  protected attachActiveMouseEvents(eventNode: Node): void {
+  protected attachActiveMouseEvents(eventNode: HTMLElement): void {
     document.body.addEventListener("mousemove", this.onMouseMove);
     document.body.addEventListener("mouseup", this.onMouseUp);
   }
 
   /** @hidden */
-  protected detachActiveMouseEvents(eventNode: Node): void {
+  protected detachActiveMouseEvents(eventNode: HTMLElement): void {
     document.body.removeEventListener("mousemove", this.onMouseMove);
     document.body.removeEventListener("mouseup", this.onMouseUp);
   }
@@ -1548,28 +1547,28 @@ export class CanvasView extends HtmlView {
   }
 
   /** @hidden */
-  protected attachPassivePointerEvents(eventNode: Node): void {
+  protected attachPassivePointerEvents(eventNode: HTMLElement): void {
     eventNode.addEventListener("pointerenter", this.onPointerEnter);
     eventNode.addEventListener("pointerleave", this.onPointerLeave);
     eventNode.addEventListener("pointerdown", this.onPointerDown);
   }
 
   /** @hidden */
-  protected detachPassivePointerEvents(eventNode: Node): void {
+  protected detachPassivePointerEvents(eventNode: HTMLElement): void {
     eventNode.removeEventListener("pointerenter", this.onPointerEnter);
     eventNode.removeEventListener("pointerleave", this.onPointerLeave);
     eventNode.removeEventListener("pointerdown", this.onPointerDown);
   }
 
   /** @hidden */
-  protected attachActivePointerEvents(eventNode: Node): void {
+  protected attachActivePointerEvents(eventNode: HTMLElement): void {
     document.body.addEventListener("pointermove", this.onPointerMove);
     document.body.addEventListener("pointerup", this.onPointerUp);
     document.body.addEventListener("pointercancel", this.onPointerCancel);
   }
 
   /** @hidden */
-  protected detachActivePointerEvents(eventNode: Node): void {
+  protected detachActivePointerEvents(eventNode: HTMLElement): void {
     document.body.removeEventListener("pointermove", this.onPointerMove);
     document.body.removeEventListener("pointerup", this.onPointerUp);
     document.body.removeEventListener("pointercancel", this.onPointerCancel);
@@ -1761,24 +1760,24 @@ export class CanvasView extends HtmlView {
   }
 
   /** @hidden */
-  protected attachPassiveTouchEvents(eventNode: Node): void {
+  protected attachPassiveTouchEvents(eventNode: HTMLElement): void {
     eventNode.addEventListener("touchstart", this.onTouchStart);
   }
 
   /** @hidden */
-  protected detachPassiveTouchEvents(eventNode: Node): void {
+  protected detachPassiveTouchEvents(eventNode: HTMLElement): void {
     eventNode.removeEventListener("touchstart", this.onTouchStart);
   }
 
   /** @hidden */
-  protected attachActiveTouchEvents(eventNode: Node): void {
+  protected attachActiveTouchEvents(eventNode: HTMLElement): void {
     eventNode.addEventListener("touchmove", this.onTouchMove);
     eventNode.addEventListener("touchend", this.onTouchEnd);
     eventNode.addEventListener("touchcancel", this.onTouchCancel);
   }
 
   /** @hidden */
-  protected detachActiveTouchEvents(eventNode: Node): void {
+  protected detachActiveTouchEvents(eventNode: HTMLElement): void {
     eventNode.removeEventListener("touchmove", this.onTouchMove);
     eventNode.removeEventListener("touchend", this.onTouchEnd);
     eventNode.removeEventListener("touchcancel", this.onTouchCancel);
@@ -1806,7 +1805,7 @@ export class CanvasView extends HtmlView {
     const changedTouches = originalEvent.changedTouches;
     const dispatched: GraphicsView[] = [];
     for (let i = 0, n = changedTouches.length; i < n; i += 1) {
-      const changedTouch = changedTouches[i] as ViewTouch;
+      const changedTouch = changedTouches[i]! as ViewTouch;
       const targetView = changedTouch.targetView as GraphicsView | undefined;
       if (targetView !== void 0 && dispatched.indexOf(targetView) < 0) {
         const startEvent: ViewTouchEvent = new TouchEvent(type, {
@@ -1818,7 +1817,7 @@ export class CanvasView extends HtmlView {
         startEvent.targetView = targetView;
         const targetViewTouches: Touch[] = [changedTouch];
         for (let j = i + 1; j < n; j += 1) {
-          const nextTouch = changedTouches[j] as ViewTouch;
+          const nextTouch = changedTouches[j]! as ViewTouch;
           if (nextTouch.targetView === targetView) {
             targetViewTouches.push(nextTouch);
           }
@@ -1827,7 +1826,7 @@ export class CanvasView extends HtmlView {
           startEvent.targetViewTouches = (document as any).createTouchList(...targetViewTouches);
         } else {
           (targetViewTouches as unknown as TouchList).item = function (index: number): Touch {
-            return targetViewTouches[index];
+            return targetViewTouches[index]!;
           };
           startEvent.targetViewTouches = targetViewTouches as unknown as TouchList;
         }

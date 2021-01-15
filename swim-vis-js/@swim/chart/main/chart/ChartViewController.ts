@@ -12,35 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ScaleViewController} from "./scale/ScaleViewController";
-import {GraphView} from "./graph/GraphView";
-import {AxisView} from "./axis/AxisView";
-import {ChartView} from "./ChartView";
-import {ChartViewObserver} from "./ChartViewObserver";
+import {ScaleViewController} from "../scale/ScaleViewController";
+import type {GraphView} from "../graph/GraphView";
+import type {AxisView} from "../axis/AxisView";
+import type {ChartView} from "./ChartView";
+import type {ChartViewObserver} from "./ChartViewObserver";
 
 export class ChartViewController<X = unknown, Y = unknown, V extends ChartView<X, Y> = ChartView<X, Y>> extends ScaleViewController<X, Y, V> implements ChartViewObserver<X, Y, V> {
   get graph(): GraphView<X, Y> | null {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.graph : null;
   }
 
   topAxis(): AxisView<X> | null {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.topAxis() : null;
   }
 
   rightAxis(): AxisView<Y> | null {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.rightAxis() : null;
   }
 
   bottomAxis(): AxisView<X> | null {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.bottomAxis() : null;
   }
 
   leftAxis(): AxisView<Y> | null {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.leftAxis() : null;
   }
 }

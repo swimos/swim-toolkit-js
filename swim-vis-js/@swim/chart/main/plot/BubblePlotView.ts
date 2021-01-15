@@ -15,10 +15,10 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {ViewAnimator} from "@swim/view";
-import {CanvasContext, FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
+import type {CanvasContext, FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
 import {DataPointView} from "../data/DataPointView";
 import {PlotView} from "./PlotView";
-import {PlotViewController} from "./PlotViewController";
+import type {PlotViewController} from "./PlotViewController";
 import {ScatterPlotType, ScatterPlotViewInit, ScatterPlotView} from "./ScatterPlotView";
 
 export type AnyBubblePlotView<X, Y> = BubblePlotView<X, Y> | BubblePlotViewInit<X, Y>;
@@ -50,16 +50,16 @@ export class BubblePlotView<X, Y> extends ScatterPlotView<X, Y> implements FillV
   }
 
   @ViewAnimator({type: Length, state: Length.px(5)})
-  radius: ViewAnimator<this, Length, AnyLength>;
+  declare radius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  fill: ViewAnimator<this, Color, AnyColor>;
+  declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color})
-  stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length})
-  strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
     const size = Math.min(frame.width, frame.height);

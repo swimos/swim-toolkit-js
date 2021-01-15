@@ -13,15 +13,15 @@
 // limitations under the License.
 
 import {Length} from "@swim/math";
-import {Tween, Transition} from "@swim/tween";
+import {Tween, Transition} from "@swim/animation";
 import {Look} from "@swim/theme";
 import {ViewContextType, View, ModalOptions, ModalState, Modal, ViewAnimator} from "@swim/view";
 import {ViewNodeType, ViewNode, HtmlView, SvgView} from "@swim/dom";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import {FloatingButton} from "./FloatingButton";
 import {ButtonItem} from "./ButtonItem";
-import {ButtonStackObserver} from "./ButtonStackObserver";
-import {ButtonStackController} from "./ButtonStackController";
+import type {ButtonStackObserver} from "./ButtonStackObserver";
+import type {ButtonStackController} from "./ButtonStackController";
 
 export type ButtonStackState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
@@ -73,10 +73,8 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     return FloatingButton.create();
   }
 
-  // @ts-ignore
   declare readonly viewController: ButtonStackController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<ButtonStackObserver>;
 
   get stackState(): ButtonStackState {
@@ -92,7 +90,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   @ViewAnimator({type: Number, state: 0, updateFlags: View.NeedsLayout})
-  stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
+  declare stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   get modalView(): View | null {
     return null;
@@ -156,7 +154,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   get items(): ReadonlyArray<ButtonItem> {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     const childViews = [];
     for (let i = 0, n = childNodes.length; i < n; i += 1) {
       const childView = (childNodes[i] as ViewNode).view;
@@ -175,7 +173,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   removeItems(): void {
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     for (let i = childNodes.length - 1; i >= 0; i -= 1) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView instanceof ButtonItem) {
@@ -205,7 +203,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
 
   protected layoutStack(): void {
     const phase = this.stackPhase.getValue();
-    const childNodes = this._node.childNodes;
+    const childNodes = this.node.childNodes;
     const childCount = childNodes.length;
     const button = this.button;
     let zIndex = childCount - 1;
@@ -217,7 +215,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       const buttonHeight = button !== null ? button.height.value : void 0;
       y = buttonHeight instanceof Length
         ? buttonHeight.pxValue()
-        : button._node.offsetHeight;
+        : button.node.offsetHeight;
     } else {
       y = 0;
     }
@@ -234,7 +232,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
         const itemHeight = childView.height.value;
         const dy = itemHeight instanceof Length
                  ? itemHeight.pxValue()
-                 : childView._node.offsetHeight;
+                 : childView.node.offsetHeight;
         childView.display.setAutoState(phase === 0 ? "none" : "flex");
         childView.bottom.setAutoState(phase * y);
         childView.zIndex.setAutoState(zIndex);
@@ -328,13 +326,13 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   protected willExpand(): void {
     this._stackState = "expanding";
 
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.buttonStackWillExpand !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.buttonStackWillExpand !== void 0) {
       viewController.buttonStackWillExpand(this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.buttonStackWillExpand !== void 0) {
         viewObserver.buttonStackWillExpand(this);
       }
@@ -345,15 +343,15 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     this._stackState = "expanded";
     this.requireUpdate(View.NeedsLayout);
 
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.buttonStackDidExpand !== void 0) {
         viewObserver.buttonStackDidExpand(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.buttonStackDidExpand !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.buttonStackDidExpand !== void 0) {
       viewController.buttonStackDidExpand(this);
     }
   }
@@ -388,13 +386,13 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   protected willCollapse(): void {
     this._stackState = "collapsing";
 
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.buttonStackWillCollapse !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.buttonStackWillCollapse !== void 0) {
       viewController.buttonStackWillCollapse(this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.buttonStackWillCollapse !== void 0) {
         viewObserver.buttonStackWillCollapse(this);
       }
@@ -405,15 +403,15 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     this._stackState = "collapsed";
     this.requireUpdate(View.NeedsLayout);
 
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.buttonStackDidCollapse !== void 0) {
         viewObserver.buttonStackDidCollapse(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.buttonStackDidCollapse !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.buttonStackDidCollapse !== void 0) {
       viewController.buttonStackDidCollapse(this);
     }
   }
@@ -445,13 +443,13 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected willShow(): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.buttonStackWillShow !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.buttonStackWillShow !== void 0) {
       viewController.buttonStackWillShow(this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.buttonStackWillShow !== void 0) {
         viewObserver.buttonStackWillShow(this);
       }
@@ -463,15 +461,15 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   protected didShow(): void {
     this.requireUpdate(View.NeedsLayout);
 
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.buttonStackDidShow !== void 0) {
         viewObserver.buttonStackDidShow(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.buttonStackDidShow !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.buttonStackDidShow !== void 0) {
       viewController.buttonStackDidShow(this);
     }
   }
@@ -494,13 +492,13 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected willHide(): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.buttonStackWillHide !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.buttonStackWillHide !== void 0) {
       viewController.buttonStackWillHide(this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.buttonStackWillHide !== void 0) {
         viewObserver.buttonStackWillHide(this);
       }
@@ -511,15 +509,15 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     this.display("none");
     this.requireUpdate(View.NeedsLayout);
 
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.buttonStackDidHide !== void 0) {
         viewObserver.buttonStackDidHide(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.buttonStackDidHide !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.buttonStackDidHide !== void 0) {
       viewController.buttonStackDidHide(this);
     }
   }

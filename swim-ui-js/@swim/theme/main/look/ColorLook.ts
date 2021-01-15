@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Interpolator} from "@swim/interpolate";
+import type {Interpolator} from "@swim/interpolate";
 import {AnyColor, Color, ColorInterpolator} from "@swim/color";
 import {Look} from "./Look";
 

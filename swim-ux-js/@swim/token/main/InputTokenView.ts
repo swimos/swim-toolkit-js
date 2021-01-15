@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Transition} from "@swim/tween";
+import type {Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewBinding} from "@swim/view";
 import {StyleRule, StyleSheet, ViewNodeType, HtmlView, StyleView, SvgView} from "@swim/dom";
-import {PositionGesture} from "@swim/gesture";
+import type {PositionGesture} from "@swim/gesture";
 import {TokenViewInit, TokenView} from "./TokenView";
-import {InputTokenViewObserver} from "./InputTokenViewObserver";
-import {InputTokenViewController} from "./InputTokenViewController";
+import type {InputTokenViewObserver} from "./InputTokenViewObserver";
+import type {InputTokenViewController} from "./InputTokenViewController";
 
 export interface InputTokenViewInit extends TokenViewInit {
   controller?: InputTokenViewController;
@@ -39,10 +39,8 @@ export class InputTokenView extends TokenView {
     this.addClass("input-token");
   }
 
-  // @ts-ignore
   declare readonly viewController: InputTokenViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<InputTokenViewObserver>;
 
   initView(init: InputTokenViewInit): void {
@@ -96,7 +94,7 @@ export class InputTokenView extends TokenView {
       this.owner.initStylesheet(styleView);
     },
   })
-  readonly stylesheet: ViewBinding<this, StyleView>;
+  declare stylesheet: ViewBinding<this, StyleView>;
 
   @ViewBinding<InputTokenView, HtmlView>({
     child: false,
@@ -114,17 +112,17 @@ export class InputTokenView extends TokenView {
       }
     },
     viewDidMount(labelView: HtmlView): void {
-      labelView.on("input", this.owner.onInputUpdate);
+      labelView.on("input", this.owner.onInputUpdate as EventListener);
       labelView.on("change", this.owner.onInputChange);
       labelView.on("keydown", this.owner.onInputKey);
     },
     viewWillUnmount(labelView: HtmlView): void {
-      labelView.off("input", this.owner.onInputUpdate);
+      labelView.off("input", this.owner.onInputUpdate as EventListener);
       labelView.off("change", this.owner.onInputChange);
       labelView.off("keydown", this.owner.onInputKey);
     },
   })
-  readonly label: ViewBinding<this, HtmlView>;
+  declare label: ViewBinding<this, HtmlView>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {
@@ -172,15 +170,15 @@ export class InputTokenView extends TokenView {
   }
 
   protected didUpdateInput(inputView: HtmlView): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.tokenDidUpdateInput !== void 0) {
         viewObserver.tokenDidUpdateInput(inputView, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.tokenDidUpdateInput !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tokenDidUpdateInput !== void 0) {
       viewController.tokenDidUpdateInput(inputView, this);
     }
   }
@@ -193,15 +191,15 @@ export class InputTokenView extends TokenView {
   }
 
   protected didChangeInput(inputView: HtmlView): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.tokenDidChangeInput !== void 0) {
         viewObserver.tokenDidChangeInput(inputView, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.tokenDidChangeInput !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tokenDidChangeInput !== void 0) {
       viewController.tokenDidChangeInput(inputView, this);
     }
   }
@@ -214,15 +212,15 @@ export class InputTokenView extends TokenView {
   }
 
   protected didAcceptInput(inputView: HtmlView): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.tokenDidAcceptInput !== void 0) {
         viewObserver.tokenDidAcceptInput(inputView, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.tokenDidAcceptInput !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tokenDidAcceptInput !== void 0) {
       viewController.tokenDidAcceptInput(inputView, this);
     }
   }

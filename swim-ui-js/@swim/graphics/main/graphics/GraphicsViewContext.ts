@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GraphicsRenderer} from "./GraphicsRenderer";
-import {ViewContext} from "@swim/view";
+import type {GraphicsRenderer} from "./GraphicsRenderer";
+import type {ViewContext} from "@swim/view";
 
 export interface GraphicsViewContext extends ViewContext {
   readonly renderer: GraphicsRenderer | null;

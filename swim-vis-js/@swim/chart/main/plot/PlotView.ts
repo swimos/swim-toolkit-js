@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/tween";
-import {AnyColor} from "@swim/color";
-import {AnyFont} from "@swim/style";
+import type {ContinuousScale} from "@swim/scale";
+import type {Tween} from "@swim/animation";
+import type {AnyColor} from "@swim/color";
+import type {AnyFont} from "@swim/style";
 import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
-import {AnyDataPointView} from "../data/DataPointView";
-import {ScaleXYView} from "../scale/ScaleXYView";
-import {PlotViewObserver} from "./PlotViewObserver";
-import {PlotViewController} from "./PlotViewController";
-import {ScatterPlotView} from "./ScatterPlotView";
-import {SeriesPlotView} from "./SeriesPlotView";
-import {BubblePlotViewInit, BubblePlotView} from "./BubblePlotView";
-import {LinePlotViewInit, LinePlotView} from "./LinePlotView";
-import {AreaPlotViewInit, AreaPlotView} from "./AreaPlotView";
+import type {AnyDataPointView} from "../data/DataPointView";
+import type {ScaleXYView} from "../scale/ScaleXYView";
+import type {PlotViewObserver} from "./PlotViewObserver";
+import type {PlotViewController} from "./PlotViewController";
+import type {ScatterPlotView} from "./ScatterPlotView";
+import type {SeriesPlotView} from "./SeriesPlotView";
+import type {BubblePlotViewInit, BubblePlotView} from "./BubblePlotView";
+import type {LinePlotViewInit, LinePlotView} from "./LinePlotView";
+import type {AreaPlotViewInit, AreaPlotView} from "./AreaPlotView";
 
 export type PlotType = "bubble" | "line" | "area";
 
@@ -45,11 +45,9 @@ export interface PlotViewInit<X, Y> extends GraphicsViewInit {
 }
 
 export interface PlotView<X, Y> extends GraphicsView, ScaleXYView<X, Y> {
-  // @ts-ignore
-  declare readonly viewController: PlotViewController<X, Y> | null;
+  readonly viewController: PlotViewController<X, Y> | null;
 
-  // @ts-ignore
-  declare readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
+  readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 
   plotType: PlotType;
 

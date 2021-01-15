@@ -15,21 +15,21 @@
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {Tween, Animator, TweenAnimator} from "@swim/tween";
+import {Tween, Animator, TweenAnimator} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyLineHeight, LineHeight, FontFamily, AnyBoxShadow, BoxShadow} from "@swim/style";
 import {StyleContext} from "../css/StyleContext";
-import {StringStyleAnimator} from "./StringStyleAnimator";
-import {NumberStyleAnimator} from "./NumberStyleAnimator";
-import {LengthStyleAnimator} from "./LengthStyleAnimator";
-import {ColorStyleAnimator} from "./ColorStyleAnimator";
-import {LineHeightStyleAnimator} from "./LineHeightStyleAnimator";
-import {FontFamilyStyleAnimator} from "./FontFamilyStyleAnimator";
-import {TransformStyleAnimator} from "./TransformStyleAnimator";
-import {BoxShadowStyleAnimator} from "./BoxShadowStyleAnimator";
-import {NumberOrStringStyleAnimator} from "./NumberOrStringStyleAnimator";
-import {LengthOrStringStyleAnimator} from "./LengthOrStringStyleAnimator";
-import {ColorOrStringStyleAnimator} from "./ColorOrStringStyleAnimator";
+import type {StringStyleAnimator} from "./StringStyleAnimator";
+import type {NumberStyleAnimator} from "./NumberStyleAnimator";
+import type {LengthStyleAnimator} from "./LengthStyleAnimator";
+import type {ColorStyleAnimator} from "./ColorStyleAnimator";
+import type {LineHeightStyleAnimator} from "./LineHeightStyleAnimator";
+import type {FontFamilyStyleAnimator} from "./FontFamilyStyleAnimator";
+import type {TransformStyleAnimator} from "./TransformStyleAnimator";
+import type {BoxShadowStyleAnimator} from "./BoxShadowStyleAnimator";
+import type {NumberOrStringStyleAnimator} from "./NumberOrStringStyleAnimator";
+import type {LengthOrStringStyleAnimator} from "./LengthOrStringStyleAnimator";
+import type {ColorOrStringStyleAnimator} from "./ColorOrStringStyleAnimator";
 
 export type StyleAnimatorMemberType<V, K extends keyof V> =
   V extends {[P in K]: StyleAnimator<any, infer T, any>} ? T : unknown;
@@ -37,9 +37,9 @@ export type StyleAnimatorMemberType<V, K extends keyof V> =
 export type StyleAnimatorMemberInit<V, K extends keyof V> =
   V extends {[P in K]: StyleAnimator<any, infer T, infer U>} ? T | U : unknown;
 
-export interface StyleAnimatorInit<T, U = T> {
+export interface StyleAnimatorInit<T, U = never> {
   propertyNames: string | ReadonlyArray<string>;
-  extends?: StyleAnimatorPrototype;
+  extends?: StyleAnimatorClass;
   type?: unknown;
 
   updateFlags?: number;
@@ -51,37 +51,22 @@ export interface StyleAnimatorInit<T, U = T> {
   fromAny?(value: T | U): T | undefined;
 }
 
-export type StyleAnimatorDescriptorInit<V extends StyleContext, T, U = T, I = {}> = StyleAnimatorInit<T, U> & ThisType<StyleAnimator<V, T, U> & I> & I;
+export type StyleAnimatorDescriptor<V extends StyleContext, T, U = never, I = {}> = StyleAnimatorInit<T, U> & ThisType<StyleAnimator<V, T, U> & I> & I;
 
-export type StyleAnimatorDescriptorExtends<V extends StyleContext, T, U = T, I = {}> = {extends: StyleAnimatorPrototype | undefined} & StyleAnimatorDescriptorInit<V, T, U, I>;
+export type StyleAnimatorDescriptorExtends<V extends StyleContext, T, U = never, I = {}> = {extends: StyleAnimatorClass | undefined} & StyleAnimatorDescriptor<V, T, U, I>;
 
-export type StyleAnimatorDescriptorFromAny<V extends StyleContext, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & StyleAnimatorDescriptorInit<V, T, U, I>;
+export type StyleAnimatorDescriptorFromAny<V extends StyleContext, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & StyleAnimatorDescriptor<V, T, U, I>;
 
-export type StyleAnimatorDescriptor<V extends StyleContext, T, U = T, I = {}> =
-  U extends T ? StyleAnimatorDescriptorInit<V, T, U, I> :
-  T extends LineHeight | undefined ? U extends AnyLineHeight | undefined ? {type: typeof LineHeight} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Length | undefined ? U extends AnyLength | undefined ? {type: typeof Length} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Color | undefined ? U extends AnyColor | undefined ? {type: typeof Color} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  T extends BoxShadow | undefined ? U extends AnyBoxShadow | undefined ? {type: typeof BoxShadow} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Transform | undefined ? U extends AnyTransform | undefined ? {type: typeof Transform} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  T extends FontFamily | FontFamily[] | undefined ? U extends FontFamily | ReadonlyArray<FontFamily> | undefined ? {type: typeof FontFamily} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  T extends string | undefined ? U extends string | undefined ? {type: typeof String} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  T extends number | undefined ? U extends number | string | undefined ? {type: typeof Number} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Length | string | undefined ? U extends AnyLength | string | undefined ? {type: [typeof Length, typeof String]} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Color | string | undefined ? U extends AnyColor | string | undefined ? {type: [typeof Color, typeof String]} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  T extends number | string | undefined ? U extends number | string | undefined ? {type: [typeof Number, typeof String]} & StyleAnimatorDescriptorInit<V, T, U, I> : StyleAnimatorDescriptorExtends<V, T, U, I> :
-  StyleAnimatorDescriptorFromAny<V, T, U, I>;
-
-export interface StyleAnimatorPrototype extends Function {
-  readonly prototype: StyleAnimator<any, any, any>;
-}
-
-export interface StyleAnimatorConstructor<V extends StyleContext, T, U = T, I = {}> {
+export interface StyleAnimatorConstructor<V extends StyleContext, T, U = never, I = {}> {
   new(owner: V, animatorName: string): StyleAnimator<V, T, U> & I;
   prototype: StyleAnimator<any, any, any> & I;
 }
 
-export declare abstract class StyleAnimator<V extends StyleContext, T, U = T> {
+export interface StyleAnimatorClass extends Function {
+  readonly prototype: StyleAnimator<any, any, any>;
+}
+
+export declare abstract class StyleAnimator<V extends StyleContext, T, U = never> {
   /** @hidden */
   _owner: V;
   /** @hidden */
@@ -130,10 +115,10 @@ export declare abstract class StyleAnimator<V extends StyleContext, T, U = T> {
   fromAny(value: T | U): T | undefined;
 
   /** @hidden */
-  static getConstructor(type: unknown): StyleAnimatorPrototype | null;
+  static getClass(type: unknown): StyleAnimatorClass | null;
 
-  static define<V extends StyleContext, T, U = T, I = {}>(descriptor: StyleAnimatorDescriptorExtends<V, T, U, I>): StyleAnimatorConstructor<V, T, U, I>;
-  static define<V extends StyleContext, T, U = T>(descriptor: StyleAnimatorDescriptor<V, T, U>): StyleAnimatorConstructor<V, T, U>;
+  static define<V extends StyleContext, T, U = never, I = {}>(descriptor: StyleAnimatorDescriptorExtends<V, T, U, I>): StyleAnimatorConstructor<V, T, U, I>;
+  static define<V extends StyleContext, T, U = never>(descriptor: StyleAnimatorDescriptor<V, T, U>): StyleAnimatorConstructor<V, T, U>;
 
   // Forward type declarations
   /** @hidden */
@@ -160,13 +145,25 @@ export declare abstract class StyleAnimator<V extends StyleContext, T, U = T> {
   static ColorOrString: typeof ColorOrStringStyleAnimator; // defined by ColorOrStringStyleAnimator
 }
 
-export interface StyleAnimator<V extends StyleContext, T, U = T> extends TweenAnimator<T | undefined> {
+export interface StyleAnimator<V extends StyleContext, T, U = never> extends TweenAnimator<T | undefined> {
   (): T | undefined;
   (state: T | U | undefined, tween?: Tween<T>, priority?: string): V;
 }
 
-export function StyleAnimator<V extends StyleContext, T, U = T, I = {}>(descriptor: StyleAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
-export function StyleAnimator<V extends StyleContext, T, U = T>(descriptor: StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends LineHeight | undefined = LineHeight | undefined, U extends AnyLineHeight | undefined = AnyLineHeight | undefined>(descriptor: {type: typeof LineHeight} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends Length | undefined = Length | undefined, U extends AnyLength | undefined = AnyLength | undefined>(descriptor: {type: typeof Length} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends Color | undefined = Color | undefined, U extends AnyColor | undefined = AnyColor | undefined>(descriptor: {type: typeof Color} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends BoxShadow | undefined = BoxShadow | undefined, U extends AnyBoxShadow | undefined = AnyBoxShadow | undefined>(descriptor: {type: typeof BoxShadow} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends Transform | undefined = Transform | undefined, U extends AnyTransform | undefined = AnyTransform | undefined>(descriptor: {type: typeof Transform} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends FontFamily | ReadonlyArray<FontFamily> | undefined = FontFamily | ReadonlyArray<FontFamily> | undefined, U extends FontFamily | ReadonlyArray<FontFamily> | undefined = FontFamily | ReadonlyArray<FontFamily> | undefined>(descriptor: {type: typeof FontFamily} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends Length | string | undefined = Length | string | undefined, U extends AnyLength | string | undefined = AnyLength | string | undefined>(descriptor: {type: [typeof Length, typeof String]} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends Color | string | undefined = Color | string | undefined, U extends AnyColor | string | undefined = AnyColor | string | undefined>(descriptor: {type: [typeof Color, typeof String]} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T extends number | string | undefined = number | string | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: [typeof Number, typeof String]} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T, U = never>(descriptor: StyleAnimatorDescriptorFromAny<V, T, U>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T, U = never, I = {}>(descriptor: StyleAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
+export function StyleAnimator<V extends StyleContext, T, U = never>(descriptor: StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
 
 export function StyleAnimator<V extends StyleContext, T, U>(
     this: StyleAnimator<V, T, U> | typeof StyleAnimator,
@@ -174,15 +171,15 @@ export function StyleAnimator<V extends StyleContext, T, U>(
     animatorName?: string,
   ): StyleAnimator<V, T, U> | PropertyDecorator {
   if (this instanceof StyleAnimator) { // constructor
-    return StyleAnimatorConstructor.call(this, owner as V, animatorName);
+    return StyleAnimatorConstructor.call(this as StyleAnimator<V, unknown, unknown>, owner as V, animatorName!);
   } else { // decorator factory
     return StyleAnimatorDecoratorFactory(owner as StyleAnimatorDescriptor<V, T, U>);
   }
 }
 __extends(StyleAnimator, TweenAnimator);
 
-function StyleAnimatorConstructor<V extends StyleContext, T, U = T>(this: StyleAnimator<V, T, U>, owner: V, animatorName: string): StyleAnimator<V, T, U> {
-  const _this: StyleAnimator<V, T, U> = TweenAnimator.call(this, void 0, null) || this;
+function StyleAnimatorConstructor<V extends StyleContext, T, U>(this: StyleAnimator<V, T, U>, owner: V, animatorName: string): StyleAnimator<V, T, U> {
+  const _this: StyleAnimator<V, T, U> = (TweenAnimator as Function).call(this, void 0, null) || this;
   if (animatorName !== void 0) {
     Object.defineProperty(_this, "name", {
       value: animatorName,
@@ -194,8 +191,8 @@ function StyleAnimatorConstructor<V extends StyleContext, T, U = T>(this: StyleA
   return _this;
 }
 
-function StyleAnimatorDecoratorFactory<V extends StyleContext, T, U = T>(descriptor: StyleAnimatorDescriptor<V, T, U>): PropertyDecorator {
-  return StyleContext.decorateStyleAnimator.bind(StyleContext, StyleAnimator.define(descriptor));
+function StyleAnimatorDecoratorFactory<V extends StyleContext, T, U>(descriptor: StyleAnimatorDescriptor<V, T, U>): PropertyDecorator {
+  return StyleContext.decorateStyleAnimator.bind(StyleContext, StyleAnimator.define(descriptor as StyleAnimatorDescriptor<StyleContext, unknown>));
 }
 
 Object.defineProperty(StyleAnimator.prototype, "owner", {
@@ -375,7 +372,7 @@ StyleAnimator.prototype.onUpdate = function <T, U>(this: StyleAnimator<StyleCont
     this._owner.setStyle(propertyNames, newValue, this._priority);
   } else {
     for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-      this._owner.setStyle(propertyNames[i], newValue, this._priority);
+      this._owner.setStyle(propertyNames[i]!, newValue, this._priority);
     }
   }
   const updateFlags = this.updateFlags;
@@ -403,7 +400,7 @@ StyleAnimator.prototype.fromAny = function <T, U>(this: StyleAnimator<StyleConte
   return void 0;
 };
 
-StyleAnimator.getConstructor = function (type: unknown): StyleAnimatorPrototype | null {
+StyleAnimator.getClass = function (type: unknown): StyleAnimatorClass | null {
   if (type === String) {
     return StyleAnimator.String;
   } else if (type === Number) {
@@ -434,11 +431,11 @@ StyleAnimator.getConstructor = function (type: unknown): StyleAnimatorPrototype 
 };
 
 StyleAnimator.define = function <V extends StyleContext, T, U, I>(descriptor: StyleAnimatorDescriptor<V, T, U, I>): StyleAnimatorConstructor<V, T, U, I> {
-  let _super: StyleAnimatorPrototype | null | undefined = descriptor.extends;
+  let _super: StyleAnimatorClass | null | undefined = descriptor.extends;
   delete descriptor.extends;
 
   if (_super === void 0) {
-    _super = StyleAnimator.getConstructor(descriptor.type);
+    _super = StyleAnimator.getClass(descriptor.type);
   }
   if (_super === null) {
     _super = StyleAnimator;

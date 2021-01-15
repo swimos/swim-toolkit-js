@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Model} from "./Model";
+import type {Model} from "./Model";
 
 export type ModelContextType<M extends Model> =
   M extends {readonly modelContext: infer MC} ? MC : unknown;

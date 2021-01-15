@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ComponentContext} from "../ComponentContext";
+import type {ComponentContext} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
 import {ComponentManager} from "../manager/ComponentManager";
-import {ExecuteContext} from "./ExecuteContext";
-import {ExecuteManagerObserver} from "./ExecuteManagerObserver";
+import type {ExecuteContext} from "./ExecuteContext";
+import type {ExecuteManagerObserver} from "./ExecuteManagerObserver";
 
 export class ExecuteManager<C extends Component = Component> extends ComponentManager<C> {
   /** @hidden */
@@ -62,9 +62,9 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
   }
 
   protected powerRootComponents(): void {
-    const rootComponents = this._rootComponents;
+    const rootComponents = this.rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
-      const rootComponent = rootComponents[i];
+      const rootComponent = rootComponents[i]!;
       if (!rootComponent.isPowered()) {
         this.powerRootComponent(rootComponent);
       }
@@ -83,9 +83,9 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
   }
 
   protected unpowerRootComponents(): void {
-    const rootComponents = this._rootComponents;
+    const rootComponents = this.rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
-      const rootComponent = rootComponents[i];
+      const rootComponent = rootComponents[i]!;
       if (rootComponent.isPowered()) {
         this.unpowerRootComponent(rootComponent);
       }
@@ -170,13 +170,13 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
   }
 
   protected runCompilePass(immediate: boolean = false): void {
-    const rootComponents = this._rootComponents;
+    const rootComponents = this.rootComponents;
     this._rootFlags |= Component.TraversingFlag | Component.CompilingFlag;
     this._rootFlags &= ~Component.CompileMask;
     try {
       const t0 = performance.now();
       for (let i = 0; i < rootComponents.length; i += 1) {
-        const rootComponent = rootComponents[i];
+        const rootComponent = rootComponents[i]!;
         if ((rootComponent.componentFlags & Component.CompileMask) !== 0) {
           const componentContext = rootComponent.componentContext as ExecuteContext;
           componentContext.updateTime = t0;
@@ -207,13 +207,13 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
   }
 
   protected runExecutePass(immediate: boolean = false): void {
-    const rootComponents = this._rootComponents;
+    const rootComponents = this.rootComponents;
     this._rootFlags |= Component.TraversingFlag | Component.ExecutingFlag;
     this._rootFlags &= ~Component.ExecuteMask;
     try {
       const time = performance.now();
       for (let i = 0; i < rootComponents.length; i += 1) {
-        const rootComponent = rootComponents[i];
+        const rootComponent = rootComponents[i]!;
         if ((rootComponent.componentFlags & Component.ExecuteMask) !== 0) {
           const componentContext = rootComponent.componentContext as ExecuteContext;
           componentContext.updateTime = time;
@@ -236,7 +236,6 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     }
   }
 
-  // @ts-ignore
   declare readonly componentManagerObservers: ReadonlyArray<ExecuteManagerObserver>;
 
   protected onAttach(): void {

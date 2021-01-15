@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GraphicsViewObserver} from "@swim/graphics";
-import {PlotView} from "./PlotView";
+import type {GraphicsViewObserver} from "@swim/graphics";
+import type {PlotView} from "./PlotView";
 
 export interface PlotViewObserver<X = unknown, Y = unknown, V extends PlotView<X, Y> = PlotView<X, Y>> extends GraphicsViewObserver<V> {
 }

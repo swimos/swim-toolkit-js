@@ -19,7 +19,7 @@
       "@swim/warp": ["../../swim-system-js/swim-mesh-js/@swim/warp/main"],
       "@swim/client": ["../../swim-system-js/swim-mesh-js/@swim/client/main"],
       "@swim/constraint": ["../swim-ui-js/@swim/constraint/main"],
-      "@swim/tween": ["../swim-ui-js/@swim/tween/main"],
+      "@swim/animation": ["../swim-ui-js/@swim/animation/main"],
       "@swim/color": ["../swim-ui-js/@swim/color/main"],
       "@swim/style": ["../swim-ui-js/@swim/style/main"],
       "@swim/theme": ["../swim-ui-js/@swim/theme/main"],

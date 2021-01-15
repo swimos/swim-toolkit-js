@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlViewObserver} from "@swim/dom";
-import {DrawerPlacement, DrawerView} from "./DrawerView";
+import type {HtmlViewObserver} from "@swim/dom";
+import type {DrawerPlacement, DrawerView} from "./DrawerView";
 
 export interface DrawerViewObserver<V extends DrawerView = DrawerView> extends HtmlViewObserver<V> {
   drawerWillSetPlacement?(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement, view: V): void;

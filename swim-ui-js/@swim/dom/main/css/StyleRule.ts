@@ -13,15 +13,15 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Animator} from "@swim/tween";
+import type {Animator} from "@swim/animation";
 import {ToStyleString, ToCssValue} from "@swim/style";
-import {StyleAnimator} from "../style/StyleAnimator";
+import type {StyleAnimator} from "../style/StyleAnimator";
 import {CssContext} from "./CssContext";
 import {StyleMapInit, StyleMap} from "./StyleMap";
 import {CssRuleInit, CssRule} from "./CssRule";
 
 export interface StyleRuleInit extends CssRuleInit {
-  extends?: StyleRulePrototype;
+  extends?: StyleRuleClass;
 
   css?: string | (() => string);
   style?: StyleMapInit;
@@ -33,19 +33,17 @@ export interface StyleRuleInit extends CssRuleInit {
   initRule?(rule: CSSStyleRule): CSSStyleRule;
 }
 
-export type StyleRuleDescriptorInit<V extends CssContext, I = {}> = StyleRuleInit & ThisType<StyleRule<V> & I> & I;
+export type StyleRuleDescriptor<V extends CssContext, I = {}> = StyleRuleInit & ThisType<StyleRule<V> & I> & I;
 
-export type StyleRuleDescriptorExtends<V extends CssContext, I = {}> = {extends: StyleRulePrototype | undefined} & StyleRuleDescriptorInit<V, I>;
-
-export type StyleRuleDescriptor<V extends CssContext, I = {}> = StyleRuleDescriptorInit<V, I>;
-
-export interface StyleRulePrototype extends Function {
-  readonly prototype: StyleRule<any>;
-}
+export type StyleRuleDescriptorExtends<V extends CssContext, I = {}> = {extends: StyleRuleClass | undefined} & StyleRuleDescriptor<V, I>;
 
 export interface StyleRuleConstructor<V extends CssContext, I = {}> {
   new(owner: V, ruleName: string | undefined): StyleRule<V> & I;
   prototype: StyleRule<any> & I;
+}
+
+export interface StyleRuleClass extends Function {
+  readonly prototype: StyleRule<any>;
 }
 
 export declare abstract class StyleRule<V extends CssContext> {
@@ -112,7 +110,7 @@ export function StyleRule<V extends CssContext>(
     ruleName?: string,
   ): StyleRule<V> | PropertyDecorator {
   if (this instanceof StyleRule) { // constructor
-    return StyleRuleConstructor.call(this, owner as V, ruleName);
+    return StyleRuleConstructor.call(this, owner as V, ruleName) as StyleRule<V>;
   } else { // decorator factory
     return StyleRuleDecoratorFactory(owner as StyleRuleDescriptor<V>);
   }
@@ -122,12 +120,12 @@ StyleMap.define(StyleRule.prototype);
 CssRule.Style = StyleRule;
 
 function StyleRuleConstructor<V extends CssContext>(this: StyleRule<V>, owner: V, ruleName: string | undefined): StyleRule<V> {
-  const _this: StyleRule<V> = CssRule.call(this, owner, ruleName) || this;
+  const _this: StyleRule<V> = (CssRule as Function).call(this, owner, ruleName) || this;
   return _this;
 }
 
 function StyleRuleDecoratorFactory<V extends CssContext>(descriptor: StyleRuleDescriptor<V>): PropertyDecorator {
-  return CssContext.decorateCssRule.bind(CssContext, StyleRule.define(descriptor as StyleRuleDescriptorExtends<V>));
+  return CssContext.decorateCssRule.bind(CssContext, StyleRule.define(descriptor as StyleRuleDescriptor<CssContext>));
 }
 
 StyleRule.prototype.selector = function (this: StyleRule<CssContext>, selector?: string): string | StyleRule<CssContext> {
@@ -146,7 +144,7 @@ if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
       return style.get(propertyNames);
     } else {
       for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-        const value = style.get(propertyNames[i]);
+        const value = style.get(propertyNames[i]!);
         if (value !== "") {
           return value;
         }
@@ -182,7 +180,7 @@ if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
       return style.getPropertyValue(propertyNames);
     } else {
       for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-        const value = style.getPropertyValue(propertyNames[i]);
+        const value = style.getPropertyValue(propertyNames[i]!);
         if (value !== "") {
           return value;
         }

@@ -13,14 +13,14 @@
 // limitations under the License.
 
 import {Length} from "@swim/math";
-import {Tween, Transition} from "@swim/tween";
+import {Tween, Transition} from "@swim/animation";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewObserver, ViewAnimator, ViewBinding} from "@swim/view";
 import {ViewNodeType, ElementView, HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
 import {PathContext} from "@swim/graphics";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
-import {TokenViewObserver} from "./TokenViewObserver";
-import {TokenViewController} from "./TokenViewController";
+import type {TokenViewObserver} from "./TokenViewObserver";
+import type {TokenViewController} from "./TokenViewController";
 
 export type TokenViewState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
@@ -56,10 +56,8 @@ export class TokenView extends HtmlView {
     this.userSelect.setAutoState("none");
   }
 
-  // @ts-ignore
   declare readonly viewController: TokenViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<TokenViewObserver>;
 
   initView(init: TokenViewInit): void {
@@ -190,7 +188,7 @@ export class TokenView extends HtmlView {
   }
 
   @ViewAnimator({type: Number, state: 1, updateFlags: View.NeedsLayout})
-  expandedPhase: ViewAnimator<this, number>;
+  declare expandedPhase: ViewAnimator<this, number>;
 
   @ViewBinding<TokenView, SvgView>({
     type: SvgView,
@@ -200,7 +198,7 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly shape: ViewBinding<this, SvgView>;
+  declare shape: ViewBinding<this, SvgView>;
 
   @ViewBinding<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
@@ -271,7 +269,7 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly head: ViewBinding<this, SvgView> & PositionGestureDelegate;
+  declare head: ViewBinding<this, SvgView> & PositionGestureDelegate;
 
   @ViewBinding<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
@@ -336,7 +334,7 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly body: ViewBinding<this, SvgView> & PositionGestureDelegate;
+  declare body: ViewBinding<this, SvgView> & PositionGestureDelegate;
 
   @ViewBinding<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
@@ -407,7 +405,7 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly foot: ViewBinding<this, SvgView> & PositionGestureDelegate;
+  declare foot: ViewBinding<this, SvgView> & PositionGestureDelegate;
 
   @ViewBinding<TokenView, ElementView, Element, {embossed: boolean}>({
     extends: void 0,
@@ -422,7 +420,7 @@ export class TokenView extends HtmlView {
       return ElementView.fromAny(value);
     },
   })
-  readonly icon: ViewBinding<this, ElementView> & {embossed: boolean};
+  declare icon: ViewBinding<this, ElementView> & {embossed: boolean};
 
   @ViewBinding<TokenView, HtmlView>({
     type: HtmlView,
@@ -432,7 +430,7 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly labelContainer: ViewBinding<this, HtmlView>;
+  declare labelContainer: ViewBinding<this, HtmlView>;
 
   @ViewBinding<TokenView, HtmlView>({
     child: false,
@@ -450,7 +448,7 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly label: ViewBinding<this, HtmlView>;
+  declare label: ViewBinding<this, HtmlView>;
 
   @ViewBinding<TokenView, HtmlView>({
     type: HtmlView,
@@ -460,7 +458,7 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  readonly actionContainer: ViewBinding<this, HtmlView>;
+  declare actionContainer: ViewBinding<this, HtmlView>;
 
   @ViewBinding<TokenView, ElementView, Element, {embossed: boolean}>({
     extends: void 0,
@@ -483,7 +481,7 @@ export class TokenView extends HtmlView {
       return ElementView.fromAny(value);
     },
   })
-  readonly action: ViewBinding<this, ElementView> & {embossed: boolean};
+  declare action: ViewBinding<this, ElementView> & {embossed: boolean};
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {
@@ -504,7 +502,7 @@ export class TokenView extends HtmlView {
     const paddingRight = this.paddingRight.getStateOr(Length.zero()).pxValue();
     const paddingBottom = this.paddingBottom.getStateOr(Length.zero()).pxValue();
     const paddingLeft = this.paddingLeft.getStateOr(Length.zero()).pxValue();
-    const boxHeight = this._node.clientHeight;
+    const boxHeight = this.node.clientHeight;
     const tokenHeight = boxHeight - paddingTop - paddingBottom;
     const radius = tokenHeight / 2;
     const pad = Math.sqrt(gap * gap + 2 * radius * gap);
@@ -527,7 +525,7 @@ export class TokenView extends HtmlView {
     let labelWidth = 0;
     let bodyWidth = 0;
     if (labelView !== null) {
-      labelWidth = labelView._node.clientWidth;
+      labelWidth = labelView.node.clientWidth;
       bodyWidth += labelPaddingLeft + labelWidth + labelPaddingRight;
     }
 
@@ -537,7 +535,7 @@ export class TokenView extends HtmlView {
       actionWidth = actionView.width.getStateOr(Length.zero()).pxValue();
       footWidth += actionWidth + actionPaddingRight;
     } else if (actionView !== null) {
-      actionWidth = actionView._node.clientWidth;
+      actionWidth = actionView.node.clientWidth;
       footWidth += actionWidth + actionPaddingRight;
     }
 
@@ -662,13 +660,13 @@ export class TokenView extends HtmlView {
       actionContainer.display.setAutoState("block");
     }
 
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.tokenWillExpand !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tokenWillExpand !== void 0) {
       viewController.tokenWillExpand(this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.tokenWillExpand !== void 0) {
         viewObserver.tokenWillExpand(this);
       }
@@ -679,15 +677,15 @@ export class TokenView extends HtmlView {
     this._tokenState = "expanded";
     this.requireUpdate(View.NeedsLayout);
 
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.tokenDidExpand !== void 0) {
         viewObserver.tokenDidExpand(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.tokenDidExpand !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tokenDidExpand !== void 0) {
       viewController.tokenDidExpand(this);
     }
   }
@@ -718,13 +716,13 @@ export class TokenView extends HtmlView {
   protected willCollapse(): void {
     this._tokenState = "collapsing";
 
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.tokenWillCollapse !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tokenWillCollapse !== void 0) {
       viewController.tokenWillCollapse(this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.tokenWillCollapse !== void 0) {
         viewObserver.tokenWillCollapse(this);
       }
@@ -735,15 +733,15 @@ export class TokenView extends HtmlView {
     this._tokenState = "collapsed";
     this.requireUpdate(View.NeedsLayout);
 
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.tokenDidCollapse !== void 0) {
         viewObserver.tokenDidCollapse(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.tokenDidCollapse !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tokenDidCollapse !== void 0) {
       viewController.tokenDidCollapse(this);
     }
   }
@@ -762,15 +760,15 @@ export class TokenView extends HtmlView {
   }
 
   protected didPressHead(): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.tokenDidPressHead !== void 0) {
         viewObserver.tokenDidPressHead(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.tokenDidPressHead !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tokenDidPressHead !== void 0) {
       viewController.tokenDidPressHead(this);
     }
   }
@@ -780,15 +778,15 @@ export class TokenView extends HtmlView {
   }
 
   protected didPressBody(): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.tokenDidPressBody !== void 0) {
         viewObserver.tokenDidPressBody(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.tokenDidPressBody !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tokenDidPressBody !== void 0) {
       viewController.tokenDidPressBody(this);
     }
   }
@@ -798,15 +796,15 @@ export class TokenView extends HtmlView {
   }
 
   protected didPressFoot(): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.tokenDidPressFoot !== void 0) {
         viewObserver.tokenDidPressFoot(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.tokenDidPressFoot !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tokenDidPressFoot !== void 0) {
       viewController.tokenDidPressFoot(this);
     }
   }

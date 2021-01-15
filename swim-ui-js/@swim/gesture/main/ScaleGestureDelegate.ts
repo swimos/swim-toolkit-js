@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/tween";
-import {MomentumGestureDelegate} from "./MomentumGestureDelegate";
-import {ScaleGestureInput} from "./ScaleGestureInput";
+import type {ContinuousScale} from "@swim/scale";
+import type {Tween} from "@swim/animation";
+import type {MomentumGestureDelegate} from "./MomentumGestureDelegate";
+import type {ScaleGestureInput} from "./ScaleGestureInput";
 
 export interface ScaleGestureDelegate<X, Y> extends MomentumGestureDelegate {
   /**

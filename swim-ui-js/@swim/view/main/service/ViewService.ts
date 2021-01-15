@@ -15,18 +15,18 @@
 import {__extends} from "tslib";
 import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
-import {ViewManagerObserverType} from "../manager/ViewManagerObserver";
+import type {ViewManagerObserverType} from "../manager/ViewManagerObserver";
 import {ViewportManager} from "../viewport/ViewportManager";
 import {DisplayManager} from "../display/DisplayManager";
 import {LayoutManager} from "../layout/LayoutManager";
 import {ThemeManager} from "../theme/ThemeManager";
 import {ModalManager} from "../modal/ModalManager";
-import {ViewManagerService} from "./ViewManagerService";
-import {ViewportService} from "./ViewportService";
-import {DisplayService} from "./DisplayService";
-import {LayoutService} from "./LayoutService";
-import {ThemeService} from "./ThemeService";
-import {ModalService} from "./ModalService";
+import type {ViewManagerService} from "./ViewManagerService";
+import type {ViewportService} from "./ViewportService";
+import type {DisplayService} from "./DisplayService";
+import type {LayoutService} from "./LayoutService";
+import type {ThemeService} from "./ThemeService";
+import type {ModalService} from "./ModalService";
 
 export type ViewServiceMemberType<V, K extends keyof V> =
   V extends {[P in K]: ViewService<any, infer T>} ? T : unknown;
@@ -34,7 +34,7 @@ export type ViewServiceMemberType<V, K extends keyof V> =
 export type ViewServiceFlags = number;
 
 export interface ViewServiceInit<T> {
-  extends?: ViewServicePrototype;
+  extends?: ViewServiceClass;
   observe?: boolean;
   type?: unknown;
   manager?: T;
@@ -43,24 +43,17 @@ export interface ViewServiceInit<T> {
   initManager?(): T;
 }
 
-export type ViewServiceDescriptorInit<V extends View, T, I = {}> = ViewServiceInit<T> & ThisType<ViewService<V, T> & I> & I;
+export type ViewServiceDescriptor<V extends View, T, I = {}> = ViewServiceInit<T> & ThisType<ViewService<V, T> & I> & I;
 
-export type ViewServiceDescriptorExtends<V extends View, T, I = {}> = {extends: ViewServicePrototype | undefined} & ViewServiceDescriptorInit<V, T, I>;
-
-export type ViewServiceDescriptor<V extends View, T, I = {}> =
-  T extends DisplayManager ? {type: typeof DisplayManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T> & I> :
-  T extends LayoutManager ? {type: typeof LayoutManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T> & I> :
-  T extends ViewportManager ? {type: typeof ViewportManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T> & I> :
-  T extends ViewManager ? {type: typeof ViewManager} & ViewServiceDescriptorInit<V, T, ViewManagerObserverType<T> & I> :
-  ViewServiceDescriptorInit<V, T, I>;
-
-export interface ViewServicePrototype extends Function {
-  readonly prototype: ViewService<any, any>;
-}
+export type ViewServiceDescriptorExtends<V extends View, T, I = {}> = {extends: ViewServiceClass | undefined} & ViewServiceDescriptor<V, T, I>;
 
 export interface ViewServiceConstructor<V extends View, T, I = {}> {
   new(owner: V, serviceName: string | undefined): ViewService<V, T> & I;
   prototype: ViewService<any, any> & I;
+}
+
+export interface ViewServiceClass extends Function {
+  readonly prototype: ViewService<any, any>;
 }
 
 export declare abstract class ViewService<V extends View, T> {
@@ -126,7 +119,7 @@ export declare abstract class ViewService<V extends View, T> {
   initManager(): T;
 
   /** @hidden */
-  static getConstructor(type: unknown): ViewServicePrototype | null;
+  static getClass(type: unknown): ViewServiceClass | null;
 
   static define<V extends View, T, I = {}>(descriptor: ViewServiceDescriptorExtends<V, T, I>): ViewServiceConstructor<V, T, I>;
   static define<V extends View, T>(descriptor: ViewServiceDescriptor<V, T>): ViewServiceConstructor<V, T>;
@@ -153,6 +146,12 @@ export interface ViewService<V extends View, T> {
   (): T;
 }
 
+export function ViewService<V extends View, T extends ViewportManager = ViewportManager>(descriptor: {type: typeof ViewportManager} & ViewServiceDescriptor<V, T, ViewManagerObserverType<T>>): PropertyDecorator;
+export function ViewService<V extends View, T extends DisplayManager = DisplayManager>(descriptor: {type: typeof DisplayManager} & ViewServiceDescriptor<V, T, ViewManagerObserverType<T>>): PropertyDecorator;
+export function ViewService<V extends View, T extends LayoutManager = LayoutManager>(descriptor: {type: typeof LayoutManager} & ViewServiceDescriptor<V, T, ViewManagerObserverType<T>>): PropertyDecorator;
+export function ViewService<V extends View, T extends ThemeManager = ThemeManager>(descriptor: {type: typeof ThemeManager} & ViewServiceDescriptor<V, T, ViewManagerObserverType<T>>): PropertyDecorator;
+export function ViewService<V extends View, T extends ModalManager = ModalManager>(descriptor: {type: typeof ModalManager} & ViewServiceDescriptor<V, T, ViewManagerObserverType<T>>): PropertyDecorator;
+export function ViewService<V extends View, T extends ViewManager = ViewManager>(descriptor: {type: typeof ViewManager} & ViewServiceDescriptor<V, T, ViewManagerObserverType<T>>): PropertyDecorator;
 export function ViewService<V extends View, T, I = {}>(descriptor: ViewServiceDescriptorExtends<V, T, I>): PropertyDecorator;
 export function ViewService<V extends View, T>(descriptor: ViewServiceDescriptor<V, T>): PropertyDecorator;
 
@@ -187,7 +186,7 @@ function ViewServiceConstructor<V extends View, T>(this: ViewService<V, T>, owne
 }
 
 function ViewServiceDecoratorFactory<V extends View, T>(descriptor: ViewServiceDescriptor<V, T>): PropertyDecorator {
-  return View.decorateViewService.bind(View, ViewService.define(descriptor));
+  return View.decorateViewService.bind(View, ViewService.define(descriptor as ViewServiceDescriptor<View, unknown>));
 }
 
 Object.defineProperty(ViewService.prototype, "owner", {
@@ -380,7 +379,7 @@ ViewService.prototype.initManager = function <T>(this: ViewService<View, T>): T 
   return void 0 as unknown as T;
 };
 
-ViewService.getConstructor = function (type: unknown): ViewServicePrototype | null {
+ViewService.getClass = function (type: unknown): ViewServiceClass | null {
   if (type === ViewportManager) {
     return ViewService.Viewport;
   } else if (type === DisplayManager) {
@@ -398,7 +397,7 @@ ViewService.getConstructor = function (type: unknown): ViewServicePrototype | nu
 };
 
 ViewService.define = function <V extends View, T, I>(descriptor: ViewServiceDescriptor<V, T, I>): ViewServiceConstructor<V, T, I> {
-  let _super: ViewServicePrototype | null | undefined = descriptor.extends;
+  let _super: ViewServiceClass | null | undefined = descriptor.extends;
   const manager = descriptor.manager;
   const inherit = descriptor.inherit;
   const initManager = descriptor.initManager;
@@ -407,7 +406,7 @@ ViewService.define = function <V extends View, T, I>(descriptor: ViewServiceDesc
   delete descriptor.inherit;
 
   if (_super === void 0) {
-    _super = ViewService.getConstructor(descriptor.type);
+    _super = ViewService.getClass(descriptor.type);
   }
   if (_super === null) {
     _super = ViewService;

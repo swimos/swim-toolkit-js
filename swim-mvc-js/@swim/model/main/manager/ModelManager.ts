@@ -14,34 +14,36 @@
 
 import {Arrays} from "@swim/util";
 import {Model} from "../Model";
-import {ModelManagerObserverType, ModelManagerObserver} from "./ModelManagerObserver";
-import {RefreshManager} from "../refresh/RefreshManager";
-import {WarpManager} from "../warp/WarpManager";
+import type {ModelManagerObserverType, ModelManagerObserver} from "./ModelManagerObserver";
+import type {RefreshManager} from "../refresh/RefreshManager";
+import type {WarpManager} from "../warp/WarpManager";
 
 export abstract class ModelManager<M extends Model = Model> {
-  /** @hidden */
-  readonly _rootModels: M[];
-  /** @hidden */
-  _modelManagerObservers?: ReadonlyArray<ModelManagerObserverType<this>>;
-
   constructor() {
-    this._rootModels = [];
+    Object.defineProperty(this, "rootModels", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modelManagerObservers", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get modelManagerObservers(): ReadonlyArray<ModelManagerObserver> {
-    let modelManagerObservers = this._modelManagerObservers;
-    if (modelManagerObservers === void 0) {
-      modelManagerObservers = [];
-    }
-    return modelManagerObservers;
-  }
+  declare readonly modelManagerObservers: ReadonlyArray<ModelManagerObserver>;
 
   addModelManagerObserver(modelManagerObserver: ModelManagerObserverType<this>): void {
-    const oldModelManagerObservers = this._modelManagerObservers;
+    const oldModelManagerObservers = this.modelManagerObservers;
     const newModelManagerObservers = Arrays.inserted(modelManagerObserver, oldModelManagerObservers);
     if (oldModelManagerObservers !== newModelManagerObservers) {
       this.willAddModelManagerObserver(modelManagerObserver);
-      this._modelManagerObservers = newModelManagerObservers;
+      Object.defineProperty(this, "modelManagerObservers", {
+        value: newModelManagerObservers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onAddModelManagerObserver(modelManagerObserver);
       this.didAddModelManagerObserver(modelManagerObserver);
     }
@@ -60,11 +62,15 @@ export abstract class ModelManager<M extends Model = Model> {
   }
 
   removeModelManagerObserver(modelManagerObserver: ModelManagerObserverType<this>): void {
-    const oldModelManagerObservers = this._modelManagerObservers;
+    const oldModelManagerObservers = this.modelManagerObservers;
     const newModelManagerObservers = Arrays.removed(modelManagerObserver, oldModelManagerObservers);
     if (oldModelManagerObservers !== newModelManagerObservers) {
       this.willRemoveModelManagerObserver(modelManagerObserver);
-      this._modelManagerObservers = newModelManagerObservers;
+      Object.defineProperty(this, "modelManagerObservers", {
+        value: newModelManagerObservers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onRemoveModelManagerObserver(modelManagerObserver);
       this.didRemoveModelManagerObserver(modelManagerObserver);
     }
@@ -84,18 +90,12 @@ export abstract class ModelManager<M extends Model = Model> {
 
   protected willObserve<T>(callback: (this: this, modelManagerObserver: ModelManagerObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const modelManagerObservers = this._modelManagerObservers;
-    if (modelManagerObservers !== void 0) {
-      let i = 0;
-      while (i < modelManagerObservers.length) {
-        const modelManagerObserver = modelManagerObservers[i];
-        result = callback.call(this, modelManagerObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (modelManagerObserver === modelManagerObservers[i]) {
-          i += 1;
-        }
+    const modelManagerObservers = this.modelManagerObservers;
+    for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
+      const modelManagerObserver = modelManagerObservers[i]!;
+      result = callback.call(this, modelManagerObserver as ModelManagerObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
@@ -103,33 +103,29 @@ export abstract class ModelManager<M extends Model = Model> {
 
   protected didObserve<T>(callback: (this: this, modelManagerObserver: ModelManagerObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const modelManagerObservers = this._modelManagerObservers;
-    if (modelManagerObservers !== void 0) {
-      let i = 0;
-      while (i < modelManagerObservers.length) {
-        const modelManagerObserver = modelManagerObservers[i];
-        result = callback.call(this, modelManagerObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (modelManagerObserver === modelManagerObservers[i]) {
-          i += 1;
-        }
+    const modelManagerObservers = this.modelManagerObservers;
+    for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
+      const modelManagerObserver = modelManagerObservers[i]!;
+      result = callback.call(this, modelManagerObserver as ModelManagerObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
   }
 
   isAttached(): boolean {
-    return this._rootModels.length !== 0;
+    return this.rootModels.length !== 0;
   }
 
   protected willAttach(): void {
-    this.willObserve(function (modelManagerObserver: ModelManagerObserver): void {
+    const modelManagerObservers = this.modelManagerObservers;
+    for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
+      const modelManagerObserver = modelManagerObservers[i]!;
       if (modelManagerObserver.modelManagerWillAttach !== void 0) {
         modelManagerObserver.modelManagerWillAttach(this);
       }
-    });
+    }
   }
 
   protected onAttach(): void {
@@ -137,19 +133,23 @@ export abstract class ModelManager<M extends Model = Model> {
   }
 
   protected didAttach(): void {
-    this.didObserve(function (modelManagerObserver: ModelManagerObserver): void {
+    const modelManagerObservers = this.modelManagerObservers;
+    for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
+      const modelManagerObserver = modelManagerObservers[i]!;
       if (modelManagerObserver.modelManagerDidAttach !== void 0) {
         modelManagerObserver.modelManagerDidAttach(this);
       }
-    });
+    }
   }
 
   protected willDetach(): void {
-    this.willObserve(function (modelManagerObserver: ModelManagerObserver): void {
+    const modelManagerObservers = this.modelManagerObservers;
+    for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
+      const modelManagerObserver = modelManagerObservers[i]!;
       if (modelManagerObserver.modelManagerWillDetach !== void 0) {
         modelManagerObserver.modelManagerWillDetach(this);
       }
-    });
+    }
   }
 
   protected onDetach(): void {
@@ -157,27 +157,31 @@ export abstract class ModelManager<M extends Model = Model> {
   }
 
   protected didDetach(): void {
-    this.didObserve(function (modelManagerObserver: ModelManagerObserver): void {
+    const modelManagerObservers = this.modelManagerObservers;
+    for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
+      const modelManagerObserver = modelManagerObservers[i]!;
       if (modelManagerObserver.modelManagerDidDetach !== void 0) {
         modelManagerObserver.modelManagerDidDetach(this);
       }
-    });
+    }
   }
 
-  get rootModels(): ReadonlyArray<M> {
-    return this._rootModels;
-  }
+  declare readonly rootModels: ReadonlyArray<M>;
 
   insertRootModel(rootModel: M): void {
-    const rootModels = this._rootModels;
-    const index = rootModels.indexOf(rootModel);
-    if (index < 0) {
-      const needsAttach = rootModels.length === 0;
+    const oldRootModels = this.rootModels;
+    const newRootModels = Arrays.inserted(rootModel, oldRootModels);
+    if (oldRootModels !== newRootModels) {
+      const needsAttach = oldRootModels.length === 0;
       if (needsAttach) {
         this.willAttach();
       }
       this.willInsertRootModel(rootModel);
-      rootModels.push(rootModel);
+      Object.defineProperty(this, "rootModels", {
+        value: newRootModels,
+        enumerable: true,
+        configurable: true,
+      });
       if (needsAttach) {
         this.onAttach();
       }
@@ -190,11 +194,13 @@ export abstract class ModelManager<M extends Model = Model> {
   }
 
   protected willInsertRootModel(rootModel: M): void {
-    this.willObserve(function (modelManagerObserver: ModelManagerObserver): void {
+    const modelManagerObservers = this.modelManagerObservers;
+    for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
+      const modelManagerObserver = modelManagerObservers[i]!;
       if (modelManagerObserver.modelManagerWillInsertRootModel !== void 0) {
         modelManagerObserver.modelManagerWillInsertRootModel(rootModel, this);
       }
-    });
+    }
   }
 
   protected onInsertRootModel(rootModel: M): void {
@@ -202,23 +208,29 @@ export abstract class ModelManager<M extends Model = Model> {
   }
 
   protected didInsertRootModel(rootModel: M): void {
-    this.didObserve(function (modelManagerObserver: ModelManagerObserver): void {
+    const modelManagerObservers = this.modelManagerObservers;
+    for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
+      const modelManagerObserver = modelManagerObservers[i]!;
       if (modelManagerObserver.modelManagerDidInsertRootModel !== void 0) {
         modelManagerObserver.modelManagerDidInsertRootModel(rootModel, this);
       }
-    });
+    }
   }
 
   removeRootModel(rootModel: M): void {
-    const rootModels = this._rootModels;
-    const index = rootModels.indexOf(rootModel);
-    if (index >= 0) {
-      const needsDetach = rootModels.length === 1;
+    const oldRootModels = this.rootModels;
+    const newRootModels = Arrays.removed(rootModel, oldRootModels);
+    if (oldRootModels !== newRootModels) {
+      const needsDetach = oldRootModels.length === 1;
       if (needsDetach) {
         this.willDetach();
       }
       this.willRemoveRootModel(rootModel);
-      rootModels.splice(index, 1);
+      Object.defineProperty(this, "rootModels", {
+        value: newRootModels,
+        enumerable: true,
+        configurable: true,
+      });
       if (needsDetach) {
         this.onDetach();
       }
@@ -231,11 +243,13 @@ export abstract class ModelManager<M extends Model = Model> {
   }
 
   protected willRemoveRootModel(rootModel: M): void {
-    this.willObserve(function (modelManagerObserver: ModelManagerObserver): void {
+    const modelManagerObservers = this.modelManagerObservers;
+    for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
+      const modelManagerObserver = modelManagerObservers[i]!;
       if (modelManagerObserver.modelManagerWillRemoveRootModel !== void 0) {
         modelManagerObserver.modelManagerWillRemoveRootModel(rootModel, this);
       }
-    });
+    }
   }
 
   protected onRemoveRootModel(rootModel: M): void {
@@ -243,11 +257,13 @@ export abstract class ModelManager<M extends Model = Model> {
   }
 
   protected didRemoveRootModel(rootModel: M): void {
-    this.didObserve(function (modelManagerObserver: ModelManagerObserver): void {
+    const modelManagerObservers = this.modelManagerObservers;
+    for (let i = 0, n = modelManagerObservers.length; i < n; i += 1) {
+      const modelManagerObserver = modelManagerObservers[i]!;
       if (modelManagerObserver.modelManagerDidRemoveRootModel !== void 0) {
         modelManagerObserver.modelManagerDidRemoveRootModel(rootModel, this);
       }
-    });
+    }
   }
 
   // Forward type declarations

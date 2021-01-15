@@ -26,7 +26,7 @@ import {
   CanvasRenderer,
 } from "@swim/graphics";
 import {Arc} from "@swim/graphics";
-import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
+import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
 import {MapLayerView} from "../layer/MapLayerView";
 
 export type AnyMapArcView = MapArcView | MapArcViewInit;
@@ -91,40 +91,40 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
       this.owner.onSetGeoCenter(newValue, oldValue);
     },
   })
-  geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
+  declare geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
-  viewCenter: ViewAnimator<this, PointR2, AnyPointR2>;
+  declare viewCenter: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  innerRadius: ViewAnimator<this, Length, AnyLength>;
+  declare innerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  outerRadius: ViewAnimator<this, Length, AnyLength>;
+  declare outerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Angle, state: Angle.zero()})
-  startAngle: ViewAnimator<this, Angle, AnyAngle>;
+  declare startAngle: ViewAnimator<this, Angle, AnyAngle>;
 
   @ViewAnimator({type: Angle, state: Angle.zero()})
-  sweepAngle: ViewAnimator<this, Angle, AnyAngle>;
+  declare sweepAngle: ViewAnimator<this, Angle, AnyAngle>;
 
   @ViewAnimator({type: Angle, state: Angle.zero()})
-  padAngle: ViewAnimator<this, Angle, AnyAngle>;
+  declare padAngle: ViewAnimator<this, Angle, AnyAngle>;
 
   @ViewAnimator({type: Length, state: null})
-  padRadius: ViewAnimator<this, Length | null, AnyLength | null>;
+  declare padRadius: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  cornerRadius: ViewAnimator<this, Length, AnyLength>;
+  declare cornerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, inherit: true})
-  fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   get value(): Arc {
     return new Arc(this.viewCenter.getValue(), this.innerRadius.getValue(), this.outerRadius.getValue(),

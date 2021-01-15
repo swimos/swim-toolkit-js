@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Transition} from "@swim/tween";
+import type {Transition} from "@swim/animation";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewNodeType} from "@swim/dom";
+import type {ViewNodeType} from "@swim/dom";
 import {TreeCell} from "./TreeCell";
 
 export class TitleTreeCell extends TreeCell {

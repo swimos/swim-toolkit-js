@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/tween";
+import type {BoxR2} from "@swim/math";
+import type {ContinuousScale} from "@swim/scale";
+import type {Tween} from "@swim/animation";
 import {ViewContext, View, ViewObserver} from "@swim/view";
-import {GestureInputType} from "./GestureInput";
+import type {GestureInputType} from "./GestureInput";
 import {AbstractMomentumGesture} from "./MomentumGesture";
-import {ScaleGestureDelegate} from "./ScaleGestureDelegate";
+import type {ScaleGestureDelegate} from "./ScaleGestureDelegate";
 import {ScaleGestureInput} from "./ScaleGestureInput";
 
 const COS_PI_4 = Math.cos(Math.PI / 4);
@@ -26,9 +26,9 @@ const SIN_PI_4 = Math.sin(Math.PI / 4);
 
 export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentumGesture<V> implements ViewObserver<V> {
   /** @hidden */
-  _delegate: ScaleGestureDelegate<X, Y> | null;
+  declare _delegate: ScaleGestureDelegate<X, Y> | null;
   /** @hidden */
-  _inputs: {[inputId: string]: ScaleGestureInput<X, Y> | undefined};
+  declare _inputs: {[inputId: string]: ScaleGestureInput<X, Y> | undefined};
   /** @hidden */
   _needsRescale: boolean;
 
@@ -959,15 +959,15 @@ export class PointerScaleGesture<X, Y, V extends View> extends AbstractScaleGest
   }
 
   protected attachHoverEvents(view: V): void {
-    view.on("pointerenter", this.onPointerEnter);
-    view.on("pointerleave", this.onPointerLeave);
-    view.on("pointerdown", this.onPointerDown);
+    view.on("pointerenter", this.onPointerEnter as EventListener);
+    view.on("pointerleave", this.onPointerLeave as EventListener);
+    view.on("pointerdown", this.onPointerDown as EventListener);
   }
 
   protected detachHoverEvents(view: V): void {
-    view.off("pointerenter", this.onPointerEnter);
-    view.off("pointerleave", this.onPointerLeave);
-    view.off("pointerdown", this.onPointerDown);
+    view.off("pointerenter", this.onPointerEnter as EventListener);
+    view.off("pointerleave", this.onPointerLeave as EventListener);
+    view.off("pointerdown", this.onPointerDown as EventListener);
   }
 
   protected attachPressEvents(view: V): void {
@@ -985,11 +985,11 @@ export class PointerScaleGesture<X, Y, V extends View> extends AbstractScaleGest
   }
 
   protected attachWheelEvents(view: V): void {
-    view.on("wheel", this.onWheel);
+    view.on("wheel", this.onWheel as EventListener);
   }
 
   protected detachWheelEvents(view: V): void {
-    view.off("wheel", this.onWheel);
+    view.off("wheel", this.onWheel as EventListener);
   }
 
   protected updateInput(input: ScaleGestureInput<X, Y>, event: PointerEvent): void {
@@ -1117,23 +1117,23 @@ export class TouchScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
   }
 
   protected attachHoverEvents(view: V): void {
-    view.on("touchstart", this.onTouchStart);
+    view.on("touchstart", this.onTouchStart as EventListener);
   }
 
   protected detachHoverEvents(view: V): void {
-    view.off("touchstart", this.onTouchStart);
+    view.off("touchstart", this.onTouchStart as EventListener);
   }
 
   protected attachPressEvents(view: V): void {
-    view.on("touchmove", this.onTouchMove);
-    view.on("touchend", this.onTouchEnd);
-    view.on("touchcancel", this.onTouchCancel);
+    view.on("touchmove", this.onTouchMove as EventListener);
+    view.on("touchend", this.onTouchEnd as EventListener);
+    view.on("touchcancel", this.onTouchCancel as EventListener);
   }
 
   protected detachPressEvents(view: V): void {
-    view.off("touchmove", this.onTouchMove);
-    view.off("touchend", this.onTouchEnd);
-    view.off("touchcancel", this.onTouchCancel);
+    view.off("touchmove", this.onTouchMove as EventListener);
+    view.off("touchend", this.onTouchEnd as EventListener);
+    view.off("touchcancel", this.onTouchCancel as EventListener);
   }
 
   protected updateInput(input: ScaleGestureInput<X, Y>, event: TouchEvent, touch: Touch): void {
@@ -1155,7 +1155,7 @@ export class TouchScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
     event.preventDefault();
     const touches = event.targetTouches;
     for (let i = 0; i < touches.length; i += 1) {
-      const touch = touches[i];
+      const touch = touches[i]!;
       const input = this.getOrCreateInput(touch.identifier, "touch", false,
                                           touch.clientX, touch.clientY, event.timeStamp);
       this.updateInput(input, event, touch);
@@ -1168,7 +1168,7 @@ export class TouchScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
   protected onTouchMove(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
-      const touch = touches[i];
+      const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
       if (input !== null) {
         this.updateInput(input, event, touch);
@@ -1180,7 +1180,7 @@ export class TouchScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
   protected onTouchEnd(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
-      const touch = touches[i];
+      const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
       if (input !== null) {
         this.updateInput(input, event, touch);
@@ -1196,7 +1196,7 @@ export class TouchScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
   protected onTouchCancel(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
-      const touch = touches[i];
+      const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
       if (input !== null) {
         this.updateInput(input, event, touch);
@@ -1257,15 +1257,15 @@ export class MouseScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
   }
 
   protected attachHoverEvents(view: V): void {
-    view.on("mouseenter", this.onMouseEnter);
-    view.on("mouseleave", this.onMouseLeave);
-    view.on("mousedown", this.onMouseDown);
+    view.on("mouseenter", this.onMouseEnter as EventListener);
+    view.on("mouseleave", this.onMouseLeave as EventListener);
+    view.on("mousedown", this.onMouseDown as EventListener);
   }
 
   protected detachHoverEvents(view: V): void {
-    view.off("mouseenter", this.onMouseEnter);
-    view.off("mouseleave", this.onMouseLeave);
-    view.off("mousedown", this.onMouseDown);
+    view.off("mouseenter", this.onMouseEnter as EventListener);
+    view.off("mouseleave", this.onMouseLeave as EventListener);
+    view.off("mousedown", this.onMouseDown as EventListener);
   }
 
   protected attachPressEvents(view: V): void {
@@ -1281,11 +1281,11 @@ export class MouseScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
   }
 
   protected attachWheelEvents(view: V): void {
-    view.on("wheel", this.onWheel);
+    view.on("wheel", this.onWheel as EventListener);
   }
 
   protected detachWheelEvents(view: V): void {
-    view.off("wheel", this.onWheel);
+    view.off("wheel", this.onWheel as EventListener);
   }
 
   protected updateInput(input: ScaleGestureInput<X, Y>, event: MouseEvent): void {

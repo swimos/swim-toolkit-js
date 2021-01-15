@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {EsriViewController} from "./EsriViewController";
-import {EsriMapViewProjection} from "./EsriMapViewProjection";
-import {EsriMapView} from "./EsriMapView";
-import {EsriMapViewObserver} from "./EsriMapViewObserver";
+import type {EsriMapViewProjection} from "./EsriMapViewProjection";
+import type {EsriMapView} from "./EsriMapView";
+import type {EsriMapViewObserver} from "./EsriMapViewObserver";
 
 export class EsriMapViewController<V extends EsriMapView = EsriMapView> extends EsriViewController<V> implements EsriMapViewObserver<V> {
   viewWillSetGeoProjection(geoProjection: EsriMapViewProjection, view: V): void {

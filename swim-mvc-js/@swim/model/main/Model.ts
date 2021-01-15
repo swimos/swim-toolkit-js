@@ -13,23 +13,23 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import {WarpRef} from "@swim/client";
+import type {WarpRef} from "@swim/client";
 import {ModelContextType, ModelContext} from "./ModelContext";
-import {ModelObserverType, ModelObserver} from "./ModelObserver";
-import {ModelControllerType, ModelController} from "./ModelController";
-import {ModelConsumerType, ModelConsumer} from "./ModelConsumer";
-import {TraitPrototype, Trait} from "./Trait";
-import {ModelManager} from "./manager/ModelManager";
-import {ModelServiceConstructor, ModelService} from "./service/ModelService";
-import {RefreshService} from "./service/RefreshService";
-import {WarpService} from "./service/WarpService";
-import {ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
-import {ModelBindingConstructor, ModelBinding} from "./binding/ModelBinding";
-import {ModelTraitConstructor, ModelTrait} from "./binding/ModelTrait";
-import {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
-import {ModelDownlink} from "./downlink/ModelDownlink";
-import {GenericModel} from "./generic/GenericModel";
-import {CompoundModel} from "./generic/CompoundModel";
+import type {ModelObserverType, ModelObserver} from "./ModelObserver";
+import type {ModelControllerType, ModelController} from "./ModelController";
+import type {ModelConsumerType, ModelConsumer} from "./ModelConsumer";
+import type {TraitClass, Trait} from "./Trait";
+import type {ModelManager} from "./manager/ModelManager";
+import type {ModelServiceConstructor, ModelService} from "./service/ModelService";
+import type {RefreshService} from "./service/RefreshService";
+import type {WarpService} from "./service/WarpService";
+import type {ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
+import type {ModelBindingConstructor, ModelBinding} from "./binding/ModelBinding";
+import type {ModelTraitConstructor, ModelTrait} from "./binding/ModelTrait";
+import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
+import type {ModelDownlink} from "./downlink/ModelDownlink";
+import type {GenericModel} from "./generic/GenericModel";
+import type {CompoundModel} from "./generic/CompoundModel";
 
 export type ModelFlags = number;
 
@@ -38,11 +38,7 @@ export interface ModelInit {
   modelController?: ModelController;
 }
 
-export interface ModelPrototype<M extends Model = Model> extends Function {
-  readonly prototype: M;
-}
-
-export interface ModelClass {
+export interface ModelPrototype {
   /** @hidden */
   _modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<Model, unknown> | undefined};
 
@@ -54,6 +50,15 @@ export interface ModelClass {
 
   /** @hidden */
   _modelTraitConstructors?: {[bindingName: string]: ModelTraitConstructor<Model, Trait> | undefined};
+}
+
+export interface ModelConstructor<M extends Model = Model> {
+  new(): M;
+  readonly prototype: M;
+}
+
+export interface ModelClass<M extends Model = Model> extends Function {
+  readonly prototype: M;
 
   readonly mountFlags: ModelFlags;
 
@@ -73,19 +78,32 @@ export interface ModelClass {
 }
 
 export abstract class Model implements ModelDownlinkContext {
-  /** @hidden */
-  _modelFlags: ModelFlags;
-  /** @hidden */
-  _modelController?: ModelControllerType<this>;
-  /** @hidden */
-  _modelObservers?: ReadonlyArray<ModelObserverType<this>>;
-  /** @hidden */
-  _traits?: Trait[];
-  /** @hidden */
-  _traitMap?: {[key: string]: Trait | undefined};
-
   constructor() {
-    this._modelFlags = 0;
+    Object.defineProperty(this, "modelFlags", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modelController", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modelObservers", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "traits", {
+      value: [],
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "traitMap", {
+      value: {},
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   initModel(init: ModelInit): void {
@@ -94,35 +112,32 @@ export abstract class Model implements ModelDownlinkContext {
     }
   }
 
-  get modelClass(): ModelClass {
-    return this.constructor as unknown as ModelClass;
-  }
-
-  get modelFlags(): ModelFlags {
-    return this._modelFlags;
-  }
+  declare readonly modelFlags: ModelFlags;
 
   setModelFlags(modelFlags: ModelFlags): void {
-    this._modelFlags = modelFlags;
+    Object.defineProperty(this, "modelFlags", {
+      value: modelFlags,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get modelController(): ModelController | null {
-    const modelController = this._modelController;
-    return modelController !== void 0 ? modelController : null;
-  }
+  declare readonly modelController: ModelController | null;
 
   setModelController(newModelController: ModelControllerType<this> | null): void {
-    const oldModelController = this._modelController;
-    if (oldModelController === void 0 ? newModelController !== null : oldModelController !== newModelController) {
+    const oldModelController = this.modelController;
+    if (oldModelController !== newModelController) {
       this.willSetModelController(newModelController);
-      if (oldModelController !== void 0) {
+      if (oldModelController !== null) {
         oldModelController.setModel(null);
       }
+      Object.defineProperty(this, "modelController", {
+        value: newModelController,
+        enumerable: true,
+        configurable: true,
+      });
       if (newModelController !== null) {
-        this._modelController = newModelController;
         newModelController.setModel(this);
-      } else if (this._modelController !== void 0) {
-        this._modelController = void 0;
       }
       this.onSetModelController(newModelController);
       this.didSetModelController(newModelController);
@@ -141,20 +156,18 @@ export abstract class Model implements ModelDownlinkContext {
     // hook
   }
 
-  get modelObservers(): ReadonlyArray<ModelObserver> {
-    let modelObservers = this._modelObservers;
-    if (modelObservers === void 0) {
-      modelObservers = [];
-    }
-    return modelObservers;
-  }
+  declare readonly modelObservers: ReadonlyArray<ModelObserver>;
 
   addModelObserver(modelObserver: ModelObserverType<this>): void {
-    const oldModelObservers = this._modelObservers;
+    const oldModelObservers = this.modelObservers;
     const newModelObservers = Arrays.inserted(modelObserver, oldModelObservers);
     if (oldModelObservers !== newModelObservers) {
       this.willAddModelObserver(modelObserver);
-      this._modelObservers = newModelObservers;
+      Object.defineProperty(this, "modelObservers", {
+        value: newModelObservers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onAddModelObserver(modelObserver);
       this.didAddModelObserver(modelObserver);
     }
@@ -173,11 +186,15 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   removeModelObserver(modelObserver: ModelObserverType<this>): void {
-    const oldModelObservers = this._modelObservers;
+    const oldModelObservers = this.modelObservers;
     const newModelObservers = Arrays.removed(modelObserver, oldModelObservers);
     if (oldModelObservers !== newModelObservers) {
       this.willRemoveModelObserver(modelObserver);
-      this._modelObservers = newModelObservers;
+      Object.defineProperty(this, "modelObservers", {
+        value: newModelObservers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onRemoveModelObserver(modelObserver);
       this.didRemoveModelObserver(modelObserver);
     }
@@ -195,29 +212,28 @@ export abstract class Model implements ModelDownlinkContext {
     // hook
   }
 
-  abstract get key(): string | undefined;
+  abstract readonly key: string | undefined;
 
   /** @hidden */
   abstract setKey(key: string | undefined): void;
 
-  abstract get parentModel(): Model | null;
+  abstract readonly parentModel: Model | null;
 
   /** @hidden */
   abstract setParentModel(newParentModel: Model | null, oldParentModel: Model | null): void;
 
   protected willSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willSetParentModel(newParentModel, oldParentModel);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willSetParentModel(newParentModel, oldParentModel);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillSetParentModel !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillSetParentModel !== void 0) {
       modelController.modelWillSetParentModel(newParentModel, oldParentModel, this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillSetParentModel !== void 0) {
         modelObserver.modelWillSetParentModel(newParentModel, oldParentModel, this);
       }
@@ -225,10 +241,9 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected onSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onSetParentModel(newParentModel, oldParentModel);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onSetParentModel(newParentModel, oldParentModel);
     }
     if (newParentModel !== null) {
       if (newParentModel.isMounted()) {
@@ -249,21 +264,20 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidSetParentModel !== void 0) {
         modelObserver.modelDidSetParentModel(newParentModel, oldParentModel, this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidSetParentModel !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidSetParentModel !== void 0) {
       modelController.modelDidSetParentModel(newParentModel, oldParentModel, this);
     }
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didSetParentModel(newParentModel, oldParentModel);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didSetParentModel(newParentModel, oldParentModel);
     }
   }
 
@@ -271,7 +285,7 @@ export abstract class Model implements ModelDownlinkContext {
 
   abstract get childModelCount(): number;
 
-  abstract get childModels(): ReadonlyArray<Model>;
+  abstract readonly childModels: ReadonlyArray<Model>;
 
   abstract firstChildModel(): Model | null;
 
@@ -281,8 +295,9 @@ export abstract class Model implements ModelDownlinkContext {
 
   abstract previousChildModel(targetModel: Model): Model | null;
 
-  abstract forEachChildModel<T, S = unknown>(callback: (this: S, childModel: Model) => T | void,
-                                             thisArg?: S): T | undefined;
+  abstract forEachChildModel<T>(callback: (childModel: Model) => T | void): T | undefined;
+  abstract forEachChildModel<T, S>(callback: (this: S, childModel: Model) => T | void,
+                                   thisArg: S): T | undefined;
 
   abstract getChildModel(key: string): Model | null;
 
@@ -295,22 +310,21 @@ export abstract class Model implements ModelDownlinkContext {
   abstract insertChildModel(childModel: Model, targetModel: Model | null, key?: string): void;
 
   get insertChildFlags(): ModelFlags {
-    return this.modelClass.insertChildFlags;
+    return (this.constructor as ModelClass).insertChildFlags;
   }
 
   protected willInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willInsertChildModel(childModel, targetModel);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willInsertChildModel(childModel, targetModel);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillInsertChildModel !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillInsertChildModel !== void 0) {
       modelController.modelWillInsertChildModel(childModel, targetModel, this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillInsertChildModel !== void 0) {
         modelObserver.modelWillInsertChildModel(childModel, targetModel, this);
       }
@@ -319,29 +333,27 @@ export abstract class Model implements ModelDownlinkContext {
 
   protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
     this.requireUpdate(this.insertChildFlags);
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onInsertChildModel(childModel, targetModel);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onInsertChildModel(childModel, targetModel);
     }
   }
 
   protected didInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidInsertChildModel !== void 0) {
         modelObserver.modelDidInsertChildModel(childModel, targetModel, this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidInsertChildModel !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidInsertChildModel !== void 0) {
       modelController.modelDidInsertChildModel(childModel, targetModel, this);
     }
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didInsertChildModel(childModel, targetModel);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didInsertChildModel(childModel, targetModel);
     }
   }
 
@@ -353,22 +365,21 @@ export abstract class Model implements ModelDownlinkContext {
   abstract removeAll(): void;
 
   get removeChildFlags(): ModelFlags {
-    return this.modelClass.removeChildFlags;
+    return (this.constructor as ModelClass).removeChildFlags;
   }
 
   protected willRemoveChildModel(childModel: Model): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willRemoveChildModel(childModel);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willRemoveChildModel(childModel);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillRemoveChildModel !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillRemoveChildModel !== void 0) {
       modelController.modelWillRemoveChildModel(childModel, this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillRemoveChildModel !== void 0) {
         modelObserver.modelWillRemoveChildModel(childModel, this);
       }
@@ -377,133 +388,118 @@ export abstract class Model implements ModelDownlinkContext {
 
   protected onRemoveChildModel(childModel: Model): void {
     this.requireUpdate(this.removeChildFlags);
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onRemoveChildModel(childModel);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onRemoveChildModel(childModel);
     }
   }
 
   protected didRemoveChildModel(childModel: Model): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidRemoveChildModel !== void 0) {
         modelObserver.modelDidRemoveChildModel(childModel, this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidRemoveChildModel !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidRemoveChildModel !== void 0) {
       modelController.modelDidRemoveChildModel(childModel, this);
     }
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didRemoveChildModel(childModel);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didRemoveChildModel(childModel);
     }
   }
 
-  getSuperModel<M extends Model>(modelPrototype: ModelPrototype<M>): M | null {
+  getSuperModel<M extends Model>(modelClass: ModelClass<M>): M | null {
     const parentModel = this.parentModel;
     if (parentModel === null) {
       return null;
-    } else if (parentModel instanceof modelPrototype) {
+    } else if (parentModel instanceof modelClass) {
       return parentModel;
     } else {
-      return parentModel.getSuperModel(modelPrototype);
+      return parentModel.getSuperModel(modelClass);
     }
   }
 
-  getBaseModel<M extends Model>(modelPrototype: ModelPrototype<M>): M | null {
+  getBaseModel<M extends Model>(modelClass: ModelClass<M>): M | null {
     const parentModel = this.parentModel;
     if (parentModel === null) {
       return null;
     } else {
-      const baseModel = parentModel.getBaseModel(modelPrototype);
+      const baseModel = parentModel.getBaseModel(modelClass);
       if (baseModel !== null) {
         return baseModel;
       } else {
-        return parentModel instanceof modelPrototype ? parentModel : null;
+        return parentModel instanceof modelClass ? parentModel : null;
       }
     }
   }
 
   get traitCount(): number {
-    const traits = this._traits;
-    return traits !== void 0 ? traits.length : 0;
+    return this.traits.length;
   }
 
-  get traits(): ReadonlyArray<Trait> {
-    let traits = this._traits;
-    if (traits === void 0) {
-      traits = [];
-      this._traits = traits;
-    }
-    return traits;
-  }
+  declare readonly traits: ReadonlyArray<Trait>;
+
+  /** @hidden */
+  declare readonly traitMap: {[traitName: string]: Trait | undefined};
 
   firstTrait(): Trait | null {
-    const traits = this._traits;
-    return traits !== void 0 && traits.length !== 0 ? traits[0] : null;
+    const traits = this.traits;
+    return traits.length !== 0 ? traits[0]! : null;
   }
 
   lastTrait(): Trait | null {
-    const traits = this._traits;
-    return traits !== void 0 && traits.length !== 0 ? traits[traits.length - 1] : null;
+    const traits = this.traits;
+    return traits.length !== 0 ? traits[traits.length - 1]! : null;
   }
 
   nextTrait(targetTrait: Trait): Trait | null {
-    const traits = this._traits;
-    const targetIndex = traits !== void 0 ? traits.indexOf(targetTrait) : -1;
-    return targetIndex >= 0 && targetIndex + 1 < traits!.length ? traits![targetIndex + 1] : null;
+    const traits = this.traits;
+    const targetIndex = traits.indexOf(targetTrait);
+    return targetIndex >= 0 && targetIndex + 1 < traits.length ? traits[targetIndex + 1]! : null;
   }
 
   previousTrait(targetTrait: Trait): Trait | null {
-    const traits = this._traits;
-    const targetIndex = traits !== void 0 ? traits.indexOf(targetTrait) : -1;
-    return targetIndex - 1 >= 0 ? traits![targetIndex - 1] : null;
+    const traits = this.traits;
+    const targetIndex = traits.indexOf(targetTrait);
+    return targetIndex - 1 >= 0 ? traits[targetIndex - 1]! : null;
   }
 
-  forEachTrait<T, S = unknown>(callback: (this: S, trait: Trait) => T | void,
-                               thisArg?: S): T | undefined {
+  forEachTrait<T>(callback: (trait: Trait) => T | void): T | undefined;
+  forEachTrait<T, S>(callback: (this: S, trait: Trait) => T | void,
+                     thisArg: S): T | undefined;
+  forEachTrait<T, S>(callback: (this: S | undefined, trait: Trait) => T | void,
+                     thisArg?: S): T | undefined {
     let result: T | undefined;
-    const traits = this._traits;
-    if (traits !== void 0) {
-      let i = 0;
-      while (i < traits.length) {
-        const trait = traits[i];
-        result = callback.call(thisArg, trait);
-        if (result !== void 0) {
-          break;
-        }
-        if (traits[i] === trait) {
-          i += 1;
-        }
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      const trait = traits[i]!;
+      result = callback.call(thisArg, trait) as T | undefined;
+      if (result !== void 0) {
+        break;
       }
     }
     return result;
   }
 
   getTrait(key: string): Trait | null;
-  getTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null;
-  getTrait(key: string | TraitPrototype<Trait>): Trait | null;
-  getTrait(key: string | TraitPrototype<Trait>): Trait | null {
+  getTrait<R extends Trait>(traitClass: TraitClass<R>): R | null;
+  getTrait(key: string | TraitClass): Trait | null;
+  getTrait(key: string | TraitClass): Trait | null {
     if (typeof key === "string") {
-      const traitMap = this._traitMap;
-      if (traitMap !== void 0) {
-        const trait = traitMap[key];
-        if (trait !== void 0) {
-          return trait;
-        }
+      const trait = this.traitMap[key];
+      if (trait !== void 0) {
+        return trait;
       }
     } else {
-      const traits = this._traits;
-      if (traits !== void 0) {
-        for (let i = 0, n = traits.length; i < n; i += 1) {
-          const trait = traits[i];
-          if (trait instanceof key) {
-            return trait;
-          }
+      const traits = this.traits;
+      for (let i = 0, n = traits.length; i < n; i += 1) {
+        const trait = traits[i];
+        if (trait instanceof key) {
+          return trait;
         }
       }
     }
@@ -515,37 +511,28 @@ export abstract class Model implements ModelDownlinkContext {
       newTrait.remove();
     }
     let index = -1;
-    let oldTrait: Trait | null = null;
     let targetTrait: Trait | null = null;
-    let traits = this._traits;
-    if (traits === void 0) {
-      traits = [];
-      this._traits = traits;
-    }
-    const traitMap = this._traitMap;
-    if (traitMap !== void 0) {
-      const trait = traitMap[key];
-      if (trait !== void 0) {
-        index = traits.indexOf(trait);
-        // assert(index >= 0);
-        oldTrait = trait;
-        targetTrait = traits[index + 1] || null;
-        this.willRemoveTrait(trait);
-        trait.setModel(null, this);
-        this.removeTraitMap(trait);
-        traits.splice(index, 1);
-        this.onRemoveTrait(trait);
-        this.didRemoveTrait(trait);
-        trait.setKey(void 0);
-      }
+    const traits = this.traits;
+    const oldTrait = this.getTrait(key);
+    if (oldTrait !== null) {
+      index = traits.indexOf(oldTrait);
+      // assert(index >= 0);
+      targetTrait = traits[index + 1] || null;
+      this.willRemoveTrait(oldTrait);
+      oldTrait.setModel(null, this);
+      this.removeTraitMap(oldTrait);
+      (traits as Trait[]).splice(index, 1);
+      this.onRemoveTrait(oldTrait);
+      this.didRemoveTrait(oldTrait);
+      oldTrait.setKey(void 0);
     }
     if (newTrait !== null) {
       newTrait.setKey(key);
       this.willInsertTrait(newTrait, targetTrait);
       if (index >= 0) {
-        traits.splice(index, 0, newTrait);
+        (traits as Trait[]).splice(index, 0, newTrait);
       } else {
-        traits.push(newTrait);
+        (traits as Trait[]).push(newTrait);
       }
       this.insertTraitMap(newTrait);
       newTrait.setModel(this, null);
@@ -559,23 +546,15 @@ export abstract class Model implements ModelDownlinkContext {
   protected insertTraitMap(trait: Trait): void {
     const key = trait.key;
     if (key !== void 0) {
-      let traitMap = this._traitMap;
-      if (traitMap === void 0) {
-        traitMap = {};
-        this._traitMap = traitMap;
-      }
-      traitMap[key] = trait;
+      this.traitMap[key] = trait;
     }
   }
 
   /** @hidden */
   protected removeTraitMap(trait: Trait): void {
-    const traitMap = this._traitMap;
-    if (traitMap !== void 0) {
-      const key = trait.key;
-      if (key !== void 0) {
-        delete traitMap[key];
-      }
+    const key = trait.key;
+    if (key !== void 0) {
+      delete this.traitMap[key];
     }
   }
 
@@ -586,12 +565,8 @@ export abstract class Model implements ModelDownlinkContext {
       trait.setKey(key);
     }
     this.willInsertTrait(trait, null);
-    let traits = this._traits;
-    if (traits === void 0) {
-      traits = [];
-      this._traits = traits;
-    }
-    traits.push(trait);
+    const traits = this.traits;
+    (traits as Trait[]).push(trait);
     this.insertTraitMap(trait);
     trait.setModel(this, null);
     this.onInsertTrait(trait, null);
@@ -604,14 +579,10 @@ export abstract class Model implements ModelDownlinkContext {
       this.removeTrait(key);
       trait.setKey(key);
     }
-    let traits = this._traits;
-    if (traits === void 0) {
-      traits = [];
-      this._traits = traits;
-    }
+    const traits = this.traits;
     const targetTrait = traits.length !== 0 ? traits[0] : null;
     this.willInsertTrait(trait, targetTrait);
-    traits.unshift(trait);
+    (traits as Trait[]).unshift(trait);
     this.insertTraitMap(trait);
     trait.setModel(this, null);
     this.onInsertTrait(trait, targetTrait);
@@ -628,16 +599,12 @@ export abstract class Model implements ModelDownlinkContext {
       trait.setKey(key);
     }
     this.willInsertTrait(trait, targetTrait);
-    let traits = this._traits;
-    if (traits === void 0) {
-      traits = [];
-      this._traits = traits;
-    }
+    const traits = this.traits;
     const index = targetTrait !== null ? traits.indexOf(targetTrait) : -1;
     if (index >= 0) {
-      traits.splice(index, 0, trait);
+      (traits as Trait[]).splice(index, 0, trait);
     } else {
-      traits.push(trait);
+      (traits as Trait[]).push(trait);
     }
     this.insertTraitMap(trait);
     trait.setModel(this, null);
@@ -646,22 +613,21 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   get insertTraitFlags(): ModelFlags {
-    return this.modelClass.insertTraitFlags;
+    return (this.constructor as ModelClass).insertTraitFlags;
   }
 
   protected willInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willInsertTrait(newTrait, targetTrait);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willInsertTrait(newTrait, targetTrait);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillInsertTrait !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillInsertTrait !== void 0) {
       modelController.modelWillInsertTrait(newTrait, targetTrait, this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillInsertTrait !== void 0) {
         modelObserver.modelWillInsertTrait(newTrait, targetTrait, this);
       }
@@ -670,29 +636,27 @@ export abstract class Model implements ModelDownlinkContext {
 
   protected onInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
     this.requireUpdate(this.insertTraitFlags);
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onInsertTrait(newTrait, targetTrait);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onInsertTrait(newTrait, targetTrait);
     }
   }
 
   protected didInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidInsertTrait !== void 0) {
         modelObserver.modelDidInsertTrait(newTrait, targetTrait, this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidInsertTrait !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidInsertTrait !== void 0) {
       modelController.modelDidInsertTrait(newTrait, targetTrait, this);
     }
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didInsertTrait(newTrait, targetTrait);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didInsertTrait(newTrait, targetTrait);
     }
   }
 
@@ -714,10 +678,10 @@ export abstract class Model implements ModelDownlinkContext {
     this.willRemoveTrait(trait);
     trait.setModel(null, this);
     this.removeTraitMap(trait);
-    const traits = this._traits;
-    const index = traits !== void 0 ? traits.indexOf(trait) : -1;
+    const traits = this.traits;
+    const index = traits.indexOf(trait);
     if (index >= 0) {
-      traits!.splice(index, 1);
+      (traits as Trait[]).splice(index, 1);
     }
     this.onRemoveTrait(trait);
     this.didRemoveTrait(trait);
@@ -728,22 +692,21 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   get removeTraitFlags(): ModelFlags {
-    return this.modelClass.removeTraitFlags;
+    return (this.constructor as ModelClass).removeTraitFlags;
   }
 
   protected willRemoveTrait(oldTrait: Trait): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willRemoveTrait(oldTrait);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willRemoveTrait(oldTrait);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillRemoveTrait !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillRemoveTrait !== void 0) {
       modelController.modelWillRemoveTrait(oldTrait, this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillRemoveTrait !== void 0) {
         modelObserver.modelWillRemoveTrait(oldTrait, this);
       }
@@ -752,72 +715,70 @@ export abstract class Model implements ModelDownlinkContext {
 
   protected onRemoveTrait(oldTrait: Trait): void {
     this.requireUpdate(this.removeTraitFlags);
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onRemoveTrait(oldTrait);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onRemoveTrait(oldTrait);
     }
   }
 
   protected didRemoveTrait(oldTrait: Trait): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidRemoveTrait !== void 0) {
         modelObserver.modelDidRemoveTrait(oldTrait, this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidRemoveTrait !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidRemoveTrait !== void 0) {
       modelController.modelDidRemoveTrait(oldTrait, this);
     }
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didRemoveTrait(oldTrait);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didRemoveTrait(oldTrait);
     }
   }
 
-  getSuperTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
+  getSuperTrait<R extends Trait>(traitClass: TraitClass<R>): R | null {
     const parentModel = this.parentModel;
     if (parentModel === null) {
       return null;
     } else {
-      const trait = parentModel.getTrait(traitPrototype);
+      const trait = parentModel.getTrait(traitClass);
       if (trait !== null) {
         return trait;
       } else {
-        return parentModel.getSuperTrait(traitPrototype);
+        return parentModel.getSuperTrait(traitClass);
       }
     }
   }
 
-  getBaseTrait<R extends Trait>(traitPrototype: TraitPrototype<R>): R | null {
+  getBaseTrait<R extends Trait>(traitClass: TraitClass<R>): R | null {
     const parentModel = this.parentModel;
     if (parentModel === null) {
       return null;
     } else {
-      const baseTrait = parentModel.getBaseTrait(traitPrototype);
+      const baseTrait = parentModel.getBaseTrait(traitClass);
       if (baseTrait !== null) {
         return baseTrait;
       } else {
-        return parentModel.getTrait(traitPrototype);
+        return parentModel.getTrait(traitClass);
       }
     }
   }
 
-  readonly refreshService: RefreshService<this>; // defined by RefreshService
+  declare readonly refreshService: RefreshService<this>; // defined by RefreshService
 
-  readonly warpService: WarpService<this>; // defined by WarpService
+  declare readonly warpService: WarpService<this>; // defined by WarpService
 
-  readonly warpRef: ModelScope<this, WarpRef | undefined>; // defined by GenericModel
+  declare readonly warpRef: ModelScope<this, WarpRef | undefined>; // defined by GenericModel
 
   isMounted(): boolean {
-    return (this._modelFlags & Model.MountedFlag) !== 0;
+    return (this.modelFlags & Model.MountedFlag) !== 0;
   }
 
   get mountFlags(): ModelFlags {
-    return this.modelClass.mountFlags;
+    return (this.constructor as ModelClass).mountFlags;
   }
 
   mount(): void {
@@ -833,13 +794,13 @@ export abstract class Model implements ModelDownlinkContext {
   abstract cascadeMount(): void;
 
   protected willMount(): void {
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillMount !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillMount !== void 0) {
       modelController.modelWillMount(this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillMount !== void 0) {
         modelObserver.modelWillMount(this);
       }
@@ -847,20 +808,20 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected onMount(): void {
-    this.requestUpdate(this, this._modelFlags & ~Model.StatusMask, false);
+    this.requestUpdate(this, this.modelFlags & ~Model.StatusMask, false);
     this.requireUpdate(this.mountFlags);
   }
 
   protected didMount(): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidMount !== void 0) {
         modelObserver.modelDidMount(this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidMount !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidMount !== void 0) {
       modelController.modelDidMount(this);
     }
   }
@@ -868,13 +829,13 @@ export abstract class Model implements ModelDownlinkContext {
   abstract cascadeUnmount(): void;
 
   protected willUnmount(): void {
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillUnmount !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillUnmount !== void 0) {
       modelController.modelWillUnmount(this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillUnmount !== void 0) {
         modelObserver.modelWillUnmount(this);
       }
@@ -886,37 +847,37 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didUnmount(): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidUnmount !== void 0) {
         modelObserver.modelDidUnmount(this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidUnmount !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidUnmount !== void 0) {
       modelController.modelDidUnmount(this);
     }
   }
 
   isPowered(): boolean {
-    return (this._modelFlags & Model.PoweredFlag) !== 0;
+    return (this.modelFlags & Model.PoweredFlag) !== 0;
   }
 
   get powerFlags(): ModelFlags {
-    return this.modelClass.powerFlags;
+    return (this.constructor as ModelClass).powerFlags;
   }
 
   abstract cascadePower(): void;
 
   protected willPower(): void {
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillPower !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillPower !== void 0) {
       modelController.modelWillPower(this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillPower !== void 0) {
         modelObserver.modelWillPower(this);
       }
@@ -924,20 +885,20 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected onPower(): void {
-    this.requestUpdate(this, this._modelFlags & ~Model.StatusMask, false);
+    this.requestUpdate(this, this.modelFlags & ~Model.StatusMask, false);
     this.requireUpdate(this.powerFlags);
   }
 
   protected didPower(): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidPower !== void 0) {
         modelObserver.modelDidPower(this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidPower !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidPower !== void 0) {
       modelController.modelDidPower(this);
     }
   }
@@ -945,13 +906,13 @@ export abstract class Model implements ModelDownlinkContext {
   abstract cascadeUnpower(): void;
 
   protected willUnpower(): void {
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillUnpower !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillUnpower !== void 0) {
       modelController.modelWillUnpower(this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillUnpower !== void 0) {
         modelObserver.modelWillUnpower(this);
       }
@@ -963,15 +924,15 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didUnpower(): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidUnpower !== void 0) {
         modelObserver.modelDidUnpower(this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidUnpower !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidUnpower !== void 0) {
       modelController.modelDidUnpower(this);
     }
   }
@@ -980,11 +941,11 @@ export abstract class Model implements ModelDownlinkContext {
     updateFlags &= ~Model.StatusMask;
     if (updateFlags !== 0) {
       this.willRequireUpdate(updateFlags, immediate);
-      const oldUpdateFlags = this._modelFlags;
+      const oldUpdateFlags = this.modelFlags;
       const newUpdateFlags = oldUpdateFlags | updateFlags;
       const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags & ~Model.StatusMask;
       if (deltaUpdateFlags !== 0) {
-        this._modelFlags = newUpdateFlags;
+        this.setModelFlags(newUpdateFlags);
         this.onRequireUpdate(updateFlags, immediate);
         this.requestUpdate(this, deltaUpdateFlags, immediate);
       }
@@ -993,38 +954,35 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willRequireUpdate(updateFlags: ModelFlags, immediate: boolean): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willRequireUpdate(updateFlags, immediate);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willRequireUpdate(updateFlags, immediate);
     }
   }
 
   protected onRequireUpdate(updateFlags: ModelFlags, immediate: boolean): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onRequireUpdate(updateFlags, immediate);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onRequireUpdate(updateFlags, immediate);
     }
   }
 
   protected didRequireUpdate(updateFlags: ModelFlags, immediate: boolean): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didRequireUpdate(updateFlags, immediate);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didRequireUpdate(updateFlags, immediate);
     }
   }
 
   requestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
     this.willRequestUpdate(targetModel, updateFlags, immediate);
     let propagateFlags = updateFlags & (Model.NeedsAnalyze | Model.NeedsRefresh);
-    if ((updateFlags & Model.AnalyzeMask) !== 0 && (this._modelFlags & Model.NeedsAnalyze) === 0) {
-      this._modelFlags |= Model.NeedsAnalyze;
+    if ((updateFlags & Model.AnalyzeMask) !== 0 && (this.modelFlags & Model.NeedsAnalyze) === 0) {
+      this.setModelFlags(this.modelFlags | Model.NeedsAnalyze);
       propagateFlags |= Model.NeedsAnalyze;
     }
-    if ((updateFlags & Model.RefreshMask) !== 0 && (this._modelFlags & Model.NeedsRefresh) === 0) {
-      this._modelFlags |= Model.NeedsRefresh;
+    if ((updateFlags & Model.RefreshMask) !== 0 && (this.modelFlags & Model.NeedsRefresh) === 0) {
+      this.setModelFlags(this.modelFlags | Model.NeedsRefresh);
       propagateFlags |= Model.NeedsRefresh;
     }
     if ((propagateFlags & (Model.NeedsAnalyze | Model.NeedsRefresh)) !== 0 || immediate) {
@@ -1043,46 +1001,42 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      updateFlags |= (trait as any).willRequestUpdate(targetModel, updateFlags, immediate);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      updateFlags |= (traits[i]! as any).willRequestUpdate(targetModel, updateFlags, immediate);
     }
   }
 
   protected onRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onRequestUpdate(targetModel, updateFlags, immediate);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onRequestUpdate(targetModel, updateFlags, immediate);
     }
   }
 
   protected didRequestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didRequestUpdate(targetModel, updateFlags, immediate);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didRequestUpdate(targetModel, updateFlags, immediate);
     }
   }
 
   isTraversing(): boolean {
-    return (this._modelFlags & Model.TraversingFlag) !== 0;
+    return (this.modelFlags & Model.TraversingFlag) !== 0;
   }
 
   isUpdating(): boolean {
-    return (this._modelFlags & Model.UpdatingMask) !== 0;
+    return (this.modelFlags & Model.UpdatingMask) !== 0;
   }
 
   isAnalyzing(): boolean {
-    return (this._modelFlags & Model.AnalyzingFlag) !== 0;
+    return (this.modelFlags & Model.AnalyzingFlag) !== 0;
   }
 
   needsAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): ModelFlags {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      analyzeFlags = (trait as any).needsAnalyze(analyzeFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      analyzeFlags = (traits[i]! as any).needsAnalyze(analyzeFlags, modelContext);
     }
     return analyzeFlags;
   }
@@ -1090,42 +1044,38 @@ export abstract class Model implements ModelDownlinkContext {
   abstract cascadeAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContext): void;
 
   protected willAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willAnalyze(analyzeFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willAnalyze(analyzeFlags, modelContext);
     }
   }
 
   protected onAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onAnalyze(analyzeFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onAnalyze(analyzeFlags, modelContext);
     }
   }
 
   protected didAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didAnalyze(analyzeFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didAnalyze(analyzeFlags, modelContext);
     }
   }
 
   protected willMutate(modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willMutate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willMutate(modelContext);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillMutate !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillMutate !== void 0) {
       modelController.modelWillMutate(modelContext, this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillMutate !== void 0) {
         modelObserver.modelWillMutate(modelContext, this);
       }
@@ -1133,45 +1083,42 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected onMutate(modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onMutate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onMutate(modelContext);
     }
   }
 
   protected didMutate(modelContext: ModelContextType<this>): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidMutate !== void 0) {
         modelObserver.modelDidMutate(modelContext, this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidMutate !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidMutate !== void 0) {
       modelController.modelDidMutate(modelContext, this);
     }
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didMutate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didMutate(modelContext);
     }
   }
 
   protected willAggregate(modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willAggregate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willAggregate(modelContext);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillAggregate !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillAggregate !== void 0) {
       modelController.modelWillAggregate(modelContext, this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillAggregate !== void 0) {
         modelObserver.modelWillAggregate(modelContext, this);
       }
@@ -1179,45 +1126,42 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected onAggregate(modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onAggregate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onAggregate(modelContext);
     }
   }
 
   protected didAggregate(modelContext: ModelContextType<this>): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidAggregate !== void 0) {
         modelObserver.modelDidAggregate(modelContext, this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidAggregate !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidAggregate !== void 0) {
       modelController.modelDidAggregate(modelContext, this);
     }
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didAggregate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didAggregate(modelContext);
     }
   }
 
   protected willCorrelate(modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willCorrelate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willCorrelate(modelContext);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillCorrelate !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillCorrelate !== void 0) {
       modelController.modelWillCorrelate(modelContext, this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillCorrelate !== void 0) {
         modelObserver.modelWillCorrelate(modelContext, this);
       }
@@ -1225,29 +1169,27 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected onCorrelate(modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onCorrelate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onCorrelate(modelContext);
     }
   }
 
   protected didCorrelate(modelContext: ModelContextType<this>): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidCorrelate !== void 0) {
         modelObserver.modelDidCorrelate(modelContext, this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidCorrelate !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidCorrelate !== void 0) {
       modelController.modelDidCorrelate(modelContext, this);
     }
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didCorrelate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didCorrelate(modelContext);
     }
   }
 
@@ -1261,27 +1203,24 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willAnalyzeChildModels(analyzeFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willAnalyzeChildModels(analyzeFlags, modelContext);
     }
   }
 
   protected onAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onAnalyzeChildModels(analyzeFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onAnalyzeChildModels(analyzeFlags, modelContext);
     }
     this.analyzeChildModels(analyzeFlags, modelContext, this.analyzeChildModel);
   }
 
   protected didAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didAnalyzeChildModels(analyzeFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didAnalyzeChildModels(analyzeFlags, modelContext);
     }
   }
 
@@ -1297,39 +1236,35 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willAnalyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willAnalyzeChildModel(childModel, analyzeFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willAnalyzeChildModel(childModel, analyzeFlags, modelContext);
     }
   }
 
   protected onAnalyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onAnalyzeChildModel(childModel, analyzeFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onAnalyzeChildModel(childModel, analyzeFlags, modelContext);
     }
     childModel.cascadeAnalyze(analyzeFlags, modelContext);
   }
 
   protected didAnalyzeChildModel(childModel: Model, analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didAnalyzeChildModel(childModel, analyzeFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didAnalyzeChildModel(childModel, analyzeFlags, modelContext);
     }
   }
 
   isRefreshing(): boolean {
-    return (this._modelFlags & Model.RefreshingFlag) !== 0;
+    return (this.modelFlags & Model.RefreshingFlag) !== 0;
   }
 
   needsRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): ModelFlags {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      refreshFlags = (trait as any).needsRefresh(refreshFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      refreshFlags = (traits[i]! as any).needsRefresh(refreshFlags, modelContext);
     }
     return refreshFlags;
   }
@@ -1337,42 +1272,38 @@ export abstract class Model implements ModelDownlinkContext {
   abstract cascadeRefresh(refreshFlags: ModelFlags, modelContext: ModelContext): void;
 
   protected willRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willRefresh(refreshFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willRefresh(refreshFlags, modelContext);
     }
   }
 
   protected onRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onRefresh(refreshFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onRefresh(refreshFlags, modelContext);
     }
   }
 
   protected didRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didRefresh(refreshFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didRefresh(refreshFlags, modelContext);
     }
   }
 
   protected willValidate(modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willValidate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willValidate(modelContext);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillValidate !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillValidate !== void 0) {
       modelController.modelWillValidate(modelContext, this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillValidate !== void 0) {
         modelObserver.modelWillValidate(modelContext, this);
       }
@@ -1380,45 +1311,42 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected onValidate(modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onValidate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onValidate(modelContext);
     }
   }
 
   protected didValidate(modelContext: ModelContextType<this>): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidValidate !== void 0) {
         modelObserver.modelDidValidate(modelContext, this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidValidate !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidValidate !== void 0) {
       modelController.modelDidValidate(modelContext, this);
     }
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didValidate(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didValidate(modelContext);
     }
   }
 
   protected willReconcile(modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willReconcile(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willReconcile(modelContext);
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillReconcile !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillReconcile !== void 0) {
       modelController.modelWillReconcile(modelContext, this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillReconcile !== void 0) {
         modelObserver.modelWillReconcile(modelContext, this);
       }
@@ -1426,29 +1354,27 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected onReconcile(modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onReconcile(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i] as any).onReconcile(modelContext);
     }
   }
 
   protected didReconcile(modelContext: ModelContextType<this>): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidReconcile !== void 0) {
         modelObserver.modelDidReconcile(modelContext, this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidReconcile !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidReconcile !== void 0) {
       modelController.modelDidReconcile(modelContext, this);
     }
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didReconcile(modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didReconcile(modelContext);
     }
   }
 
@@ -1462,27 +1388,24 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willRefreshChildModels(refreshFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willRefreshChildModels(refreshFlags, modelContext);
     }
   }
 
   protected onRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onRefreshChildModels(refreshFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onRefreshChildModels(refreshFlags, modelContext);
     }
     this.refreshChildModels(refreshFlags, modelContext, this.refreshChildModel);
   }
 
   protected didRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didRefreshChildModels(refreshFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didRefreshChildModels(refreshFlags, modelContext);
     }
   }
 
@@ -1498,46 +1421,43 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected willRefreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).willRefreshChildModel(childModel, refreshFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).willRefreshChildModel(childModel, refreshFlags, modelContext);
     }
   }
 
   protected onRefreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).onRefreshChildModel(childModel, refreshFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).onRefreshChildModel(childModel, refreshFlags, modelContext);
     }
     childModel.cascadeRefresh(refreshFlags, modelContext);
   }
 
   protected didRefreshChildModel(childModel: Model, refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).didRefreshChildModel(childModel, refreshFlags, modelContext);
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).didRefreshChildModel(childModel, refreshFlags, modelContext);
     }
   }
 
   isConsuming(): boolean {
-    return (this._modelFlags & Model.ConsumingFlag) !== 0;
+    return (this.modelFlags & Model.ConsumingFlag) !== 0;
   }
 
   get startConsumingFlags(): ModelFlags {
-    return this.modelClass.startConsumingFlags;
+    return (this.constructor as ModelClass).startConsumingFlags;
   }
 
   protected willStartConsuming(): void {
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillStartConsuming !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillStartConsuming !== void 0) {
       modelController.modelWillStartConsuming(this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillStartConsuming !== void 0) {
         modelObserver.modelWillStartConsuming(this);
       }
@@ -1549,31 +1469,31 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didStartConsuming(): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidStartConsuming !== void 0) {
         modelObserver.modelDidStartConsuming(this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidStartConsuming !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidStartConsuming !== void 0) {
       modelController.modelDidStartConsuming(this);
     }
   }
 
   get stopConsumingFlags(): ModelFlags {
-    return this.modelClass.stopConsumingFlags;
+    return (this.constructor as ModelClass).stopConsumingFlags;
   }
 
   protected willStopConsuming(): void {
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelWillStopConsuming !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelWillStopConsuming !== void 0) {
       modelController.modelWillStopConsuming(this);
     }
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelWillStopConsuming !== void 0) {
         modelObserver.modelWillStopConsuming(this);
       }
@@ -1585,15 +1505,15 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   protected didStopConsuming(): void {
-    const modelObservers = this._modelObservers;
-    for (let i = 0, n = modelObservers !== void 0 ? modelObservers.length : 0; i < n; i += 1) {
-      const modelObserver = modelObservers![i];
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
       if (modelObserver.modelDidStopConsuming !== void 0) {
         modelObserver.modelDidStopConsuming(this);
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0 && modelController.modelDidStopConsuming !== void 0) {
+    const modelController = this.modelController;
+    if (modelController !== null && modelController.modelDidStopConsuming !== void 0) {
       modelController.modelDidStopConsuming(this);
     }
   }
@@ -1638,8 +1558,7 @@ export abstract class Model implements ModelDownlinkContext {
   getLazyModelService(serviceName: string): ModelService<this, unknown> | null {
     let modelService = this.getModelService(serviceName) as ModelService<this, unknown> | null;
     if (modelService === null) {
-      const modelClass = (this as any).__proto__ as ModelClass;
-      const constructor = Model.getModelServiceConstructor(serviceName, modelClass);
+      const constructor = Model.getModelServiceConstructor(serviceName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         modelService = new constructor(this, serviceName) as ModelService<this, unknown>;
         this.setModelService(serviceName, modelService);
@@ -1658,8 +1577,7 @@ export abstract class Model implements ModelDownlinkContext {
   getLazyModelScope(scopeName: string): ModelScope<this, unknown> | null {
     let modelScope = this.getModelScope(scopeName) as ModelScope<this, unknown> | null;
     if (modelScope === null) {
-      const modelClass = (this as any).__proto__ as ModelClass;
-      const constructor = Model.getModelScopeConstructor(scopeName, modelClass);
+      const constructor = Model.getModelScopeConstructor(scopeName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         modelScope = new constructor(this, scopeName) as ModelScope<this, unknown>;
         this.setModelScope(scopeName, modelScope);
@@ -1672,14 +1590,13 @@ export abstract class Model implements ModelDownlinkContext {
 
   abstract getModelBinding(bindingName: string): ModelBinding<this, Model> | null;
 
-  abstract setModelBinding(bindingName: string, modelBinding: ModelBinding<this, Model, unknown> | null): void;
+  abstract setModelBinding(bindingName: string, modelBinding: ModelBinding<this, any> | null): void;
 
   /** @hidden */
   getLazyModelBinding(bindingName: string): ModelBinding<this, Model> | null {
     let modelBinding = this.getModelBinding(bindingName) as ModelBinding<this, Model> | null;
     if (modelBinding === null) {
-      const modelClass = (this as any).__proto__ as ModelClass;
-      const constructor = Model.getModelBindingConstructor(bindingName, modelClass);
+      const constructor = Model.getModelBindingConstructor(bindingName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         modelBinding = new constructor(this, bindingName) as ModelBinding<this, Model>;
         this.setModelBinding(bindingName, modelBinding);
@@ -1692,14 +1609,13 @@ export abstract class Model implements ModelDownlinkContext {
 
   abstract getModelTrait(bindingName: string): ModelTrait<this, Trait> | null;
 
-  abstract setModelTrait(bindingName: string, modelTrait: ModelTrait<this, Trait, unknown> | null): void;
+  abstract setModelTrait(bindingName: string, modelTrait: ModelTrait<this, any> | null): void;
 
   /** @hidden */
   getLazyModelTrait(bindingName: string): ModelTrait<this, Trait> | null {
     let modelTrait = this.getModelTrait(bindingName) as ModelTrait<this, Trait> | null;
     if (modelTrait === null) {
-      const modelClass = (this as any).__proto__ as ModelClass;
-      const constructor = Model.getModelTraitConstructor(bindingName, modelClass);
+      const constructor = Model.getModelTraitConstructor(bindingName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         modelTrait = new constructor(this, bindingName) as ModelTrait<this, Trait>;
         this.setModelTrait(bindingName, modelTrait);
@@ -1742,35 +1658,36 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getModelServiceConstructor(serviceName: string, modelClass: ModelClass | null = null): ModelServiceConstructor<Model, unknown> | null {
-    if (modelClass === null) {
-      modelClass = this.prototype as unknown as ModelClass;
+  static getModelServiceConstructor(serviceName: string, modelPrototype: ModelPrototype | null = null): ModelServiceConstructor<Model, unknown> | null {
+    if (modelPrototype === null) {
+      modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (modelClass.hasOwnProperty("_modelServiceConstructors")) {
-        const descriptor = modelClass._modelServiceConstructors![serviceName];
-        if (descriptor !== void 0) {
-          return descriptor;
+      if (modelPrototype.hasOwnProperty("_modelServiceConstructors")) {
+        const constructor = modelPrototype._modelServiceConstructors![serviceName];
+        if (constructor !== void 0) {
+          return constructor;
         }
       }
-      modelClass = (modelClass as any).__proto__ as ModelClass | null;
-    } while (modelClass !== null);
+      modelPrototype = Object.getPrototypeOf(modelPrototype);
+    } while (modelPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateModelService(constructor: ModelServiceConstructor<Model, unknown>,
-                              modelClass: ModelClass, serviceName: string): void {
-    if (!modelClass.hasOwnProperty("_modelServiceConstructors")) {
-      modelClass._modelServiceConstructors = {};
+                              target: Object, propertyKey: string | symbol): void {
+    const modelPrototype = target as ModelPrototype;
+    if (!modelPrototype.hasOwnProperty("_modelServiceConstructors")) {
+      modelPrototype._modelServiceConstructors = {};
     }
-    modelClass._modelServiceConstructors![serviceName] = constructor;
-    Object.defineProperty(modelClass, serviceName, {
+    modelPrototype._modelServiceConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Model): ModelService<Model, unknown> {
-        let modelService = this.getModelService(serviceName);
+        let modelService = this.getModelService(propertyKey.toString());
         if (modelService === null) {
-          modelService = new constructor(this, serviceName);
-          this.setModelService(serviceName, modelService);
+          modelService = new constructor(this, propertyKey.toString());
+          this.setModelService(propertyKey.toString(), modelService);
         }
         return modelService;
       },
@@ -1780,35 +1697,36 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getModelScopeConstructor(scopeName: string, modelClass: ModelClass | null = null): ModelScopeConstructor<Model, unknown> | null {
-    if (modelClass === null) {
-      modelClass = this.prototype as unknown as ModelClass;
+  static getModelScopeConstructor(scopeName: string, modelPrototype: ModelPrototype | null = null): ModelScopeConstructor<Model, unknown> | null {
+    if (modelPrototype === null) {
+      modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (modelClass.hasOwnProperty("_modelScopeConstructors")) {
-        const constructor = modelClass._modelScopeConstructors![scopeName];
+      if (modelPrototype.hasOwnProperty("_modelScopeConstructors")) {
+        const constructor = modelPrototype._modelScopeConstructors![scopeName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      modelClass = (modelClass as any).__proto__ as ModelClass | null;
-    } while (modelClass !== null);
+      modelPrototype = Object.getPrototypeOf(modelPrototype);
+    } while (modelPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateModelScope(constructor: ModelScopeConstructor<Model, unknown>,
-                            modelClass: ModelClass, scopeName: string): void {
-    if (!modelClass.hasOwnProperty("_modelScopeConstructors")) {
-      modelClass._modelScopeConstructors = {};
+                            target: Object, propertyKey: string | symbol): void {
+    const modelPrototype = target as ModelPrototype;
+    if (!modelPrototype.hasOwnProperty("_modelScopeConstructors")) {
+      modelPrototype._modelScopeConstructors = {};
     }
-    modelClass._modelScopeConstructors![scopeName] = constructor;
-    Object.defineProperty(modelClass, scopeName, {
+    modelPrototype._modelScopeConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Model): ModelScope<Model, unknown> {
-        let modelScope = this.getModelScope(scopeName);
+        let modelScope = this.getModelScope(propertyKey.toString());
         if (modelScope === null) {
-          modelScope = new constructor(this, scopeName);
-          this.setModelScope(scopeName, modelScope);
+          modelScope = new constructor(this, propertyKey.toString());
+          this.setModelScope(propertyKey.toString(), modelScope);
         }
         return modelScope;
       },
@@ -1818,35 +1736,36 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getModelBindingConstructor(bindingName: string, modelClass: ModelClass | null = null): ModelBindingConstructor<Model, Model> | null {
-    if (modelClass === null) {
-      modelClass = this.prototype as unknown as ModelClass;
+  static getModelBindingConstructor(bindingName: string, modelPrototype: ModelPrototype | null = null): ModelBindingConstructor<Model, Model> | null {
+    if (modelPrototype === null) {
+      modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (modelClass.hasOwnProperty("_modelBindingConstructors")) {
-        const constructor = modelClass._modelBindingConstructors![bindingName];
+      if (modelPrototype.hasOwnProperty("_modelBindingConstructors")) {
+        const constructor = modelPrototype._modelBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      modelClass = (modelClass as any).__proto__ as ModelClass | null;
-    } while (modelClass !== null);
+      modelPrototype = Object.getPrototypeOf(modelPrototype);
+    } while (modelPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateModelBinding(constructor: ModelBindingConstructor<Model, Model>,
-                              modelClass: ModelClass, bindingName: string): void {
-    if (!modelClass.hasOwnProperty("_modelBindingConstructors")) {
-      modelClass._modelBindingConstructors = {};
+                              target: Object, propertyKey: string | symbol): void {
+    const modelPrototype = target as ModelPrototype;
+    if (!modelPrototype.hasOwnProperty("_modelBindingConstructors")) {
+      modelPrototype._modelBindingConstructors = {};
     }
-    modelClass._modelBindingConstructors![bindingName] = constructor;
-    Object.defineProperty(modelClass, bindingName, {
+    modelPrototype._modelBindingConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Model): ModelBinding<Model, Model> {
-        let modelBinding = this.getModelBinding(bindingName);
+        let modelBinding = this.getModelBinding(propertyKey.toString());
         if (modelBinding === null) {
-          modelBinding = new constructor(this, bindingName);
-          this.setModelBinding(bindingName, modelBinding);
+          modelBinding = new constructor(this, propertyKey.toString());
+          this.setModelBinding(propertyKey.toString(), modelBinding);
         }
         return modelBinding;
       },
@@ -1856,35 +1775,36 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getModelTraitConstructor(bindingName: string, modelClass: ModelClass | null = null): ModelTraitConstructor<Model, Trait> | null {
-    if (modelClass === null) {
-      modelClass = this.prototype as unknown as ModelClass;
+  static getModelTraitConstructor(bindingName: string, modelPrototype: ModelPrototype | null = null): ModelTraitConstructor<Model, Trait> | null {
+    if (modelPrototype === null) {
+      modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (modelClass.hasOwnProperty("_modelTraitConstructors")) {
-        const constructor = modelClass._modelTraitConstructors![bindingName];
+      if (modelPrototype.hasOwnProperty("_modelTraitConstructors")) {
+        const constructor = modelPrototype._modelTraitConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      modelClass = (modelClass as any).__proto__ as ModelClass | null;
-    } while (modelClass !== null);
+      modelPrototype = Object.getPrototypeOf(modelPrototype);
+    } while (modelPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateModelTrait(constructor: ModelTraitConstructor<Model, Trait>,
-                            modelClass: ModelClass, bindingName: string): void {
-    if (!modelClass.hasOwnProperty("_modelTraitConstructors")) {
-      modelClass._modelTraitConstructors = {};
+                            target: Object, propertyKey: string | symbol): void {
+    const modelPrototype = target as ModelPrototype;
+    if (!modelPrototype.hasOwnProperty("_modelTraitConstructors")) {
+      modelPrototype._modelTraitConstructors = {};
     }
-    modelClass._modelTraitConstructors![bindingName] = constructor;
-    Object.defineProperty(modelClass, bindingName, {
+    modelPrototype._modelTraitConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Model): ModelTrait<Model, Trait> {
-        let modelTrait = this.getModelTrait(bindingName);
+        let modelTrait = this.getModelTrait(propertyKey.toString());
         if (modelTrait === null) {
-          modelTrait = new constructor(this, bindingName);
-          this.setModelTrait(bindingName, modelTrait);
+          modelTrait = new constructor(this, propertyKey.toString());
+          this.setModelTrait(propertyKey.toString(), modelTrait);
         }
         return modelTrait;
       },

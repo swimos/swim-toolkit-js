@@ -17,7 +17,7 @@ import {ConstrainVariable, AnyConstraintStrength, ConstraintStrength} from "@swi
 import {View} from "../View";
 
 export interface LayoutAnchorInit {
-  extends?: LayoutAnchorPrototype;
+  extends?: LayoutAnchorClass;
   value?: number;
   strength?: AnyConstraintStrength;
   constrained?: boolean;
@@ -29,17 +29,17 @@ export interface LayoutAnchorInit {
 
 export type LayoutAnchorDescriptorInit<V extends View, I = {}> = LayoutAnchorInit & ThisType<LayoutAnchor<V> & I> & I;
 
-export type LayoutAnchorDescriptorExtends<V extends View, I = {}> = {extends: LayoutAnchorPrototype | undefined} & LayoutAnchorDescriptorInit<V, I>;
+export type LayoutAnchorDescriptorExtends<V extends View, I = {}> = {extends: LayoutAnchorClass | undefined} & LayoutAnchorDescriptorInit<V, I>;
 
 export type LayoutAnchorDescriptor<V extends View, I = {}> = LayoutAnchorDescriptorInit<V, I>;
-
-export interface LayoutAnchorPrototype extends Function {
-  readonly prototype: LayoutAnchor<any>;
-}
 
 export interface LayoutAnchorConstructor<V extends View, I = {}> {
   new(owner: V, anchorName: string | undefined): LayoutAnchor<V> & I;
   prototype: LayoutAnchor<any> & I;
+}
+
+export interface LayoutAnchorClass extends Function {
+  readonly prototype: LayoutAnchor<any>;
 }
 
 export declare abstract class LayoutAnchor<V extends View> {
@@ -112,7 +112,7 @@ export function LayoutAnchor<V extends View>(
 __extends(LayoutAnchor, ConstrainVariable);
 
 function LayoutAnchorConstructor<V extends View>(this: LayoutAnchor<V>, owner: V, anchorName: string | undefined): LayoutAnchor<V> {
-  const _this: LayoutAnchor<V> = ConstrainVariable.call(this) || this;
+  const _this: LayoutAnchor<V> = (ConstrainVariable as Function).call(this) || this;
   if (anchorName !== void 0) {
     Object.defineProperty(_this, "name", {
       value: anchorName,
@@ -129,7 +129,7 @@ function LayoutAnchorConstructor<V extends View>(this: LayoutAnchor<V>, owner: V
 }
 
 function LayoutAnchorDecoratorFactory<V extends View>(descriptor: LayoutAnchorDescriptor<V>): PropertyDecorator {
-  return View.decorateLayoutAnchor.bind(View, LayoutAnchor.define(descriptor));
+  return View.decorateLayoutAnchor.bind(View, LayoutAnchor.define<View>(descriptor));
 }
 
 Object.defineProperty(LayoutAnchor.prototype, "owner", {

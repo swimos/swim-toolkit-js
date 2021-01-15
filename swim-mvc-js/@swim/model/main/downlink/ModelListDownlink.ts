@@ -16,33 +16,31 @@ import {__extends} from "tslib";
 import {Cursor} from "@swim/util";
 import {AnyValue, Value, Form} from "@swim/structure";
 import {Uri} from "@swim/uri";
-import {ListDownlinkObserver, ListDownlink, WarpRef} from "@swim/client";
+import type {ListDownlinkObserver, ListDownlink, WarpRef} from "@swim/client";
 import {ModelDownlinkContext} from "./ModelDownlinkContext";
 import {ModelDownlinkInit, ModelDownlink} from "./ModelDownlink";
 
-export interface ModelListDownlinkInit<V, VU = V> extends ModelDownlinkInit, ListDownlinkObserver<V, VU> {
-  extends?: ModelListDownlinkPrototype;
+export interface ModelListDownlinkInit<V, VU = never> extends ModelDownlinkInit, ListDownlinkObserver<V, VU> {
+  extends?: ModelListDownlinkClass;
   valueForm?: Form<V, VU>;
 
   initDownlink?(downlink: ListDownlink<V, VU>): ListDownlink<V, VU>;
 }
 
-export type ModelListDownlinkDescriptorInit<M extends ModelDownlinkContext, V, VU = V, I = {}> = ModelListDownlinkInit<V, VU> & ThisType<ModelListDownlink<M, V, VU> & I> & I;
+export type ModelListDownlinkDescriptor<M extends ModelDownlinkContext, V, VU = never, I = {}> = ModelListDownlinkInit<V, VU> & ThisType<ModelListDownlink<M, V, VU> & I> & I;
 
-export type ModelListDownlinkDescriptorExtends<M extends ModelDownlinkContext, V, VU = V, I = {}> = {extends: ModelListDownlinkPrototype | undefined} & ModelListDownlinkDescriptorInit<M, V, VU, I>;
+export type ModelListDownlinkDescriptorExtends<M extends ModelDownlinkContext, V, VU = never, I = {}> = {extends: ModelListDownlinkClass | undefined} & ModelListDownlinkDescriptor<M, V, VU, I>;
 
-export type ModelListDownlinkDescriptor<M extends ModelDownlinkContext, V, VU = V, I = {}> = ModelListDownlinkDescriptorInit<M, V, VU, I>;
-
-export interface ModelListDownlinkPrototype extends Function {
-  readonly prototype: ModelListDownlink<any, any, any>;
-}
-
-export interface ModelListDownlinkConstructor<M extends ModelDownlinkContext, V, VU = V, I = {}> {
+export interface ModelListDownlinkConstructor<M extends ModelDownlinkContext, V, VU = never, I = {}> {
   new(owner: M, downlinkName: string | undefined): ModelListDownlink<M, V, VU> & I;
   prototype: ModelListDownlink<any, any, any> & I;
 }
 
-export declare abstract class ModelListDownlink<M extends ModelDownlinkContext, V = Value, VU = V> {
+export interface ModelListDownlinkClass extends Function {
+  readonly prototype: ModelListDownlink<any, any, any>;
+}
+
+export declare abstract class ModelListDownlink<M extends ModelDownlinkContext, V = Value, VU = never> {
   /** @hidden */
   _downlink: ListDownlink<V, VU> | null;
   /** @hidden */
@@ -83,8 +81,9 @@ export declare abstract class ModelListDownlink<M extends ModelDownlinkContext, 
 
   clear(): void;
 
-  forEach<T, S = unknown>(callback: (this: S, value: V, index: number, id: Value) => T | void,
-                          thisArg?: S): T | undefined;
+  forEach<T>(callback: (value: V, index: number, id: Value) => T | void): T | undefined;
+  forEach<T, S>(callback: (this: S, value: V, index: number, id: Value) => T | void,
+                thisArg: S): T | undefined;
 
   values(): Cursor<V>;
 
@@ -101,18 +100,18 @@ export declare abstract class ModelListDownlink<M extends ModelDownlinkContext, 
   /** @hidden */
   initDownlink?(downlink: ListDownlink<V, VU>): ListDownlink<V, VU>;
 
-  static define<M extends ModelDownlinkContext, V, VU = V, I = {}>(descriptor: ModelListDownlinkDescriptorExtends<M, V, VU, I>): ModelListDownlinkConstructor<M, V, VU, I>;
-  static define<M extends ModelDownlinkContext, V, VU = V>(descriptor: {valueForm: Form<V, VU>} & ModelListDownlinkDescriptor<M, V, VU>): ModelListDownlinkConstructor<M, V, VU>;
+  static define<M extends ModelDownlinkContext, V, VU = never, I = {}>(descriptor: ModelListDownlinkDescriptorExtends<M, V, VU, I>): ModelListDownlinkConstructor<M, V, VU, I>;
+  static define<M extends ModelDownlinkContext, V, VU = never>(descriptor: {valueForm: Form<V, VU>} & ModelListDownlinkDescriptor<M, V, VU>): ModelListDownlinkConstructor<M, V, VU>;
   static define<M extends ModelDownlinkContext, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: ModelListDownlinkDescriptor<M, V, VU>): ModelListDownlinkConstructor<M, V, VU>;
 }
 
-export interface ModelListDownlink<M extends ModelDownlinkContext, V = Value, VU = V> extends ModelDownlink<M> {
+export interface ModelListDownlink<M extends ModelDownlinkContext, V = Value, VU = never> extends ModelDownlink<M> {
   (index: number): V | undefined;
   (index: number, newObject: V | VU): M;
 }
 
-export function ModelListDownlink<M extends ModelDownlinkContext, V, VU = V, I = {}>(descriptor: ModelListDownlinkDescriptorExtends<M, V, VU, I>): PropertyDecorator;
-export function ModelListDownlink<M extends ModelDownlinkContext, V, VU = V>(descriptor: {valueForm: Form<V, VU>} & ModelListDownlinkDescriptor<M, V, VU>): PropertyDecorator;
+export function ModelListDownlink<M extends ModelDownlinkContext, V, VU = never, I = {}>(descriptor: ModelListDownlinkDescriptorExtends<M, V, VU, I>): PropertyDecorator;
+export function ModelListDownlink<M extends ModelDownlinkContext, V, VU = never>(descriptor: {valueForm: Form<V, VU>} & ModelListDownlinkDescriptor<M, V, VU>): PropertyDecorator;
 export function ModelListDownlink<M extends ModelDownlinkContext, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: ModelListDownlinkDescriptor<M, V, VU>): PropertyDecorator;
 
 export function ModelListDownlink<M extends ModelDownlinkContext, V, VU>(
@@ -121,7 +120,7 @@ export function ModelListDownlink<M extends ModelDownlinkContext, V, VU>(
     downlinkName?: string
   ): ModelListDownlink<M, V, VU> | PropertyDecorator {
   if (this instanceof ModelListDownlink) { // constructor
-    return ModelListDownlinkConstructor.call(this, owner as M, downlinkName);
+    return ModelListDownlinkConstructor.call(this as ModelListDownlink<ModelDownlinkContext, unknown, unknown>, owner as M, downlinkName) as ModelListDownlink<M, V, VU>;
   } else { // decorator factory
     return ModelListDownlinkDecoratorFactory(owner as ModelListDownlinkDescriptor<M, V, VU>);
   }
@@ -130,12 +129,12 @@ __extends(ModelListDownlink, ModelDownlink);
 ModelDownlink.List = ModelListDownlink;
 
 function ModelListDownlinkConstructor<M extends ModelDownlinkContext, V, VU>(this: ModelListDownlink<M, V, VU>, owner: M, downlinkName: string | undefined): ModelListDownlink<M, V, VU> {
-  const _this: ModelListDownlink<M, V, VU> = ModelDownlink.call(this, owner, downlinkName) || this;
+  const _this: ModelListDownlink<M, V, VU> = (ModelDownlink as Function).call(this, owner, downlinkName) || this;
   return _this;
 }
 
 function ModelListDownlinkDecoratorFactory<M extends ModelDownlinkContext, V, VU>(descriptor: ModelListDownlinkDescriptor<M, V, VU>): PropertyDecorator {
-  return ModelDownlinkContext.decorateModelDownlink.bind(ModelDownlinkContext, ModelListDownlink.define(descriptor as ModelListDownlinkDescriptorExtends<M, V, VU>));
+  return ModelDownlinkContext.decorateModelDownlink.bind(ModelDownlinkContext, ModelListDownlink.define(descriptor as ModelListDownlinkDescriptor<ModelDownlinkContext, Value>));
 }
 
 ModelListDownlink.prototype.valueForm = function <V, VU>(this: ModelListDownlink<ModelDownlinkContext, V, VU>, valueForm?: Form<V, VU> | null): Form<V, VU> | null | ModelListDownlink<ModelDownlinkContext, V, VU> {
@@ -151,7 +150,7 @@ ModelListDownlink.prototype.valueForm = function <V, VU>(this: ModelListDownlink
     }
     return this;
   }
-} as {(): Form<any, any> | null; (valueForm: Form<any, any> | null): ModelListDownlink<any, any, any>;};
+} as typeof ModelListDownlink.prototype.valueForm;
 
 Object.defineProperty(ModelListDownlink.prototype, "length", {
   get: function <M extends ModelDownlinkContext>(this: ModelListDownlink<M, unknown>): number {
@@ -241,9 +240,9 @@ ModelListDownlink.prototype.clear = function (this: ModelListDownlink<ModelDownl
   }
 };
 
-ModelListDownlink.prototype.forEach = function <V, VU, T, S = unknown>(this: ModelListDownlink<ModelDownlinkContext, V, VU>,
-                                                                       callback: (this: S, value: V, index: number, id: Value) => T | void,
-                                                                       thisArg?: S): T | undefined {
+ModelListDownlink.prototype.forEach = function <V, VU, T, S>(this: ModelListDownlink<ModelDownlinkContext, V, VU>,
+                                                             callback: (this: S | undefined, value: V, index: number, id: Value) => T | void,
+                                                             thisArg?: S): T | undefined {
   const downlink = this._downlink;
   return downlink !== null ? downlink.forEach(callback, thisArg) : void 0;
 };
@@ -272,7 +271,7 @@ ModelListDownlink.prototype.createDownlink = function <V, VU>(this: ModelListDow
 };
 
 ModelListDownlink.define = function <M extends ModelDownlinkContext, V, VU, I>(descriptor: ModelListDownlinkDescriptor<M, V, VU, I>): ModelListDownlinkConstructor<M, V, VU, I> {
-  let _super: ModelListDownlinkPrototype | null | undefined = descriptor.extends;
+  let _super: ModelListDownlinkClass | null | undefined = descriptor.extends;
   const enabled = descriptor.enabled;
   const valueForm = descriptor.valueForm;
   let hostUri = descriptor.hostUri;

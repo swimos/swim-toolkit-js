@@ -16,8 +16,8 @@ import {ViewContextType, ViewFlags, View, ViewScope} from "@swim/view";
 import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeVein, TreeVein} from "./TreeVein";
-import {TreeStemObserver} from "./TreeStemObserver";
-import {TreeStemController} from "./TreeStemController";
+import type {TreeStemObserver} from "./TreeStemObserver";
+import type {TreeStemController} from "./TreeStemController";
 
 export type AnyTreeStem = TreeStem | TreeStemInit | HTMLElement;
 
@@ -37,10 +37,8 @@ export class TreeStem extends HtmlView {
     this.overflowY.setAutoState("hidden");
   }
 
-  // @ts-ignore
   declare readonly viewController: TreeStemController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<TreeStemObserver>;
 
   initView(init: TreeStemInit): void {
@@ -61,12 +59,12 @@ export class TreeStem extends HtmlView {
 
   addVeins(veins: ReadonlyArray<AnyTreeVein>): void {
     for (let i = 0, n = veins.length; i < n; i += 1) {
-      this.addVein(veins[i]);
+      this.addVein(veins[i]!);
     }
   }
 
   @ViewScope({type: TreeSeed, inherit: true})
-  seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  declare seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
@@ -107,8 +105,9 @@ export class TreeStem extends HtmlView {
                                                 viewContext: ViewContextType<this>) => void): void {
     const seed = this.seed.state;
     const height = this.height.state;
-    function layoutChildView(this: TreeStem, childView: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<TreeStem>): void {
+    type self = this;
+    function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
+                             viewContext: ViewContextType<self>): void {
       if (childView instanceof TreeVein) {
         const key = childView.key;
         const root = seed !== void 0 && key !== void 0 ? seed.getRoot(key) : null;

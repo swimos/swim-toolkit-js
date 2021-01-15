@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyPointR2, PointR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/style";
-import {ViewAnimator} from "@swim/view";
+import type {AnyPointR2, PointR2} from "@swim/math";
+import type {AnyColor, Color} from "@swim/color";
+import type {AnyFont, Font} from "@swim/style";
+import type {ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
 
 export interface TypesetViewInit extends GraphicsViewInit {

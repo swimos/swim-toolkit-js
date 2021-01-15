@@ -15,10 +15,10 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {ViewAnimator} from "@swim/view";
-import {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
-import {DataPointView} from "../data/DataPointView";
+import type {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
+import type {DataPointView} from "../data/DataPointView";
 import {PlotView} from "./PlotView";
-import {PlotViewController} from "./PlotViewController";
+import type {PlotViewController} from "./PlotViewController";
 import {SeriesPlotType, SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";
 
 export type AnyLinePlotView<X, Y> = LinePlotView<X, Y> | LinePlotViewInit<X, Y>;
@@ -56,10 +56,10 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
   }
 
   @ViewAnimator({type: Color, state: Color.black()})
-  stroke: ViewAnimator<this, Color, AnyColor>;
+  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, state: Length.px(1)})
-  strokeWidth: ViewAnimator<this, Length, AnyLength>;
+  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   hitWidth(): number;
   hitWidth(hitWidth: number): this;

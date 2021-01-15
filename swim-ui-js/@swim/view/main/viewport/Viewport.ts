@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewEdgeInsets} from "./ViewEdgeInsets";
-import {ViewColorScheme} from "./ViewColorScheme";
+import type {ViewEdgeInsets} from "./ViewEdgeInsets";
+import type {ViewColorScheme} from "./ViewColorScheme";
 
 export interface Viewport {
   readonly width: number;

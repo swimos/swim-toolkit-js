@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
-import {GeoBox, GeoPath} from "@swim/geo";
+import type {GeoBox, GeoPath} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import {
@@ -57,13 +57,13 @@ export class MapAreaView extends MapPathView implements FillView, StrokeView {
   }
 
   @ViewAnimator({type: Color, inherit: true})
-  fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   clipViewport(): boolean;
   clipViewport(clipViewport: boolean): this;

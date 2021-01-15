@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "../View";
-import {ViewManager} from "../manager/ViewManager";
-import {ViewManagerObserverType} from "../manager/ViewManagerObserver";
+import type {View} from "../View";
+import type {ViewManager} from "../manager/ViewManager";
+import type {ViewManagerObserverType} from "../manager/ViewManagerObserver";
 import {ViewService} from "./ViewService";
 
 export abstract class ViewManagerService<V extends View, VM extends ViewManager<V>> extends ViewService<V, VM> {

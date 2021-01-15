@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GestureInputType} from "./GestureInput";
+import type {GestureInputType} from "./GestureInput";
 import {PositionGestureInput} from "./PositionGestureInput";
 
 export class MomentumGestureInput extends PositionGestureInput {
@@ -43,15 +43,15 @@ export class MomentumGestureInput extends PositionGestureInput {
     const y = this.y;
     const t = this.t;
     path.push({x, y, t});
-    while (path.length > 1 && t - path[0].t > hysteresis) {
+    while (path.length > 1 && t - path[0]!.t > hysteresis) {
       path.shift();
     }
   }
 
   /** @hidden */
   deriveVelocity(vMax: number): void {
-    const p0 = this.path[0];
-    const p1 = this.path[this.path.length - 1];
+    const p0 = this.path[0]!;
+    const p1 = this.path[this.path.length - 1]!;
     if (p1 !== void 0 && p1 !== p0) {
       const dt = p1.t - p0.t;
       let vx: number;

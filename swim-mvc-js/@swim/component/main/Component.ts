@@ -13,21 +13,21 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import {View} from "@swim/view";
-import {Model, Trait} from "@swim/model";
+import type {View} from "@swim/view";
+import type {Model, Trait} from "@swim/model";
 import {ComponentContextType, ComponentContext} from "./ComponentContext";
-import {ComponentObserverType, ComponentObserver} from "./ComponentObserver";
-import {ComponentManager} from "./manager/ComponentManager";
-import {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";
-import {ExecuteService} from "./service/ExecuteService";
-import {HistoryService} from "./service/HistoryService";
-import {ComponentScopeConstructor, ComponentScope} from "./scope/ComponentScope";
-import {ComponentModelConstructor, ComponentModel} from "./model/ComponentModel";
-import {ComponentTraitConstructor, ComponentTrait} from "./trait/ComponentTrait";
-import {ComponentViewConstructor, ComponentView} from "./view/ComponentView";
-import {ComponentBindingConstructor, ComponentBinding} from "./binding/ComponentBinding";
-import {GenericComponent} from "./generic/GenericComponent";
-import {CompositeComponent} from "./generic/CompositeComponent";
+import type {ComponentObserverType, ComponentObserver} from "./ComponentObserver";
+import type {ComponentManager} from "./manager/ComponentManager";
+import type {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";
+import type {ExecuteService} from "./service/ExecuteService";
+import type {HistoryService} from "./service/HistoryService";
+import type {ComponentScopeConstructor, ComponentScope} from "./scope/ComponentScope";
+import type {ComponentModelConstructor, ComponentModel} from "./model/ComponentModel";
+import type {ComponentTraitConstructor, ComponentTrait} from "./trait/ComponentTrait";
+import type {ComponentViewConstructor, ComponentView} from "./view/ComponentView";
+import type {ComponentBindingConstructor, ComponentBinding} from "./binding/ComponentBinding";
+import type {GenericComponent} from "./generic/GenericComponent";
+import type {CompositeComponent} from "./generic/CompositeComponent";
 
 export type ComponentFlags = number;
 
@@ -35,19 +35,7 @@ export interface ComponentInit {
   key?: string;
 }
 
-export interface ComponentPrototype<C extends Component = Component> extends Function {
-  readonly prototype: C;
-}
-
-export interface ComponentClass {
-  readonly mountFlags: ComponentFlags;
-
-  readonly powerFlags: ComponentFlags;
-
-  readonly insertChildFlags: ComponentFlags;
-
-  readonly removeChildFlags: ComponentFlags;
-
+export interface ComponentPrototype {
   /** @hidden */
   _componentServiceConstructors?: {[serviceName: string]: ComponentServiceConstructor<Component, unknown> | undefined};
 
@@ -67,46 +55,63 @@ export interface ComponentClass {
   _componentBindingConstructors?: {[bindingName: string]: ComponentBindingConstructor<Component, Component> | undefined};
 }
 
-export abstract class Component {
-  /** @hidden */
-  _componentFlags: ComponentFlags;
-  /** @hidden */
-  _componentObservers?: ReadonlyArray<ComponentObserverType<this>>;
+export interface ComponentConstructor<C extends Component = Component> {
+  new(): C;
+  readonly prototype: C;
+}
 
+export interface ComponentClass<C extends Component = Component> extends Function {
+  readonly prototype: C;
+
+  readonly mountFlags: ComponentFlags;
+
+  readonly powerFlags: ComponentFlags;
+
+  readonly insertChildFlags: ComponentFlags;
+
+  readonly removeChildFlags: ComponentFlags;
+}
+
+export abstract class Component {
   constructor() {
-    this._componentFlags = 0;
+    Object.defineProperty(this, "componentFlags", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "componentObservers", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   initComponent(init: ComponentInit): void {
     // hook
   }
 
-  get componentClass(): ComponentClass {
-    return this.constructor as unknown as ComponentClass;
-  }
-
-  get componentFlags(): ComponentFlags {
-    return this._componentFlags;
-  }
+  declare readonly componentFlags: ComponentFlags;
 
   setComponentFlags(componentFlags: ComponentFlags): void {
-    this._componentFlags = componentFlags;
+    Object.defineProperty(this, "componentFlags", {
+      value: componentFlags,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get componentObservers(): ReadonlyArray<ComponentObserver> {
-    let componentObservers = this._componentObservers;
-    if (componentObservers === void 0) {
-      componentObservers = [];
-    }
-    return componentObservers;
-  }
+  declare readonly componentObservers: ReadonlyArray<ComponentObserver>;
 
   addComponentObserver(componentObserver: ComponentObserverType<this>): void {
-    const oldComponentObservers = this._componentObservers;
+    const oldComponentObservers = this.componentObservers;
     const newComponentObservers = Arrays.inserted(componentObserver, oldComponentObservers);
     if (oldComponentObservers !== newComponentObservers) {
       this.willAddComponentObserver(componentObserver);
-      this._componentObservers = newComponentObservers;
+      Object.defineProperty(this, "componentObservers", {
+        value: newComponentObservers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onAddComponentObserver(componentObserver);
       this.didAddComponentObserver(componentObserver);
     }
@@ -125,11 +130,15 @@ export abstract class Component {
   }
 
   removeComponentObserver(componentObserver: ComponentObserverType<this>): void {
-    const oldComponentObservers = this._componentObservers;
+    const oldComponentObservers = this.componentObservers;
     const newComponentObservers = Arrays.removed(componentObserver, oldComponentObservers);
     if (oldComponentObservers !== newComponentObservers) {
       this.willRemoveComponentObserver(componentObserver);
-      this._componentObservers = newComponentObservers;
+      Object.defineProperty(this, "componentObservers", {
+        value: newComponentObservers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onRemoveComponentObserver(componentObserver);
       this.didRemoveComponentObserver(componentObserver);
     }
@@ -147,20 +156,20 @@ export abstract class Component {
     // hook
   }
 
-  abstract get key(): string | undefined;
+  abstract readonly key: string | undefined;
 
   /** @hidden */
   abstract setKey(key: string | undefined): void;
 
-  abstract get parentComponent(): Component | null;
+  abstract readonly parentComponent: Component | null;
 
   /** @hidden */
   abstract setParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void;
 
   protected willSetParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillSetParentComponent !== void 0) {
         componentObserver.componentWillSetParentComponent(newParentComponent, oldParentComponent, this);
       }
@@ -187,9 +196,9 @@ export abstract class Component {
   }
 
   protected didSetParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidSetParentComponent !== void 0) {
         componentObserver.componentDidSetParentComponent(newParentComponent, oldParentComponent, this);
       }
@@ -200,7 +209,7 @@ export abstract class Component {
 
   abstract get childComponentCount(): number;
 
-  abstract get childComponents(): ReadonlyArray<Component>;
+  abstract readonly childComponents: ReadonlyArray<Component>;
 
   abstract firstChildComponent(): Component | null;
 
@@ -210,8 +219,9 @@ export abstract class Component {
 
   abstract previousChildComponent(targetComponent: Component): Component | null;
 
-  abstract forEachChildComponent<T, S = unknown>(callback: (this: S, childComponent: Component) => T | void,
-                                                 thisArg?: S): T | undefined;
+  abstract forEachChildComponent<T>(callback: (childComponent: Component) => T | void): T | undefined;
+  abstract forEachChildComponent<T, S>(callback: (this: S, childComponent: Component) => T | void,
+                                       thisArg: S): T | undefined;
 
   abstract getChildComponent(key: string): Component | null;
 
@@ -224,13 +234,13 @@ export abstract class Component {
   abstract insertChildComponent(childComponent: Component, targetComponent: Component | null, key?: string): void;
 
   get insertChildFlags(): ComponentFlags {
-    return this.componentClass.insertChildFlags;
+    return (this.constructor as ComponentClass).insertChildFlags;
   }
 
   protected willInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillInsertChildComponent !== void 0) {
         componentObserver.componentWillInsertChildComponent(childComponent, targetComponent, this);
       }
@@ -242,9 +252,9 @@ export abstract class Component {
   }
 
   protected didInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidInsertChildComponent !== void 0) {
         componentObserver.componentDidInsertChildComponent(childComponent, targetComponent, this);
       }
@@ -259,13 +269,13 @@ export abstract class Component {
   abstract removeAll(): void;
 
   get removeChildFlags(): ComponentFlags {
-    return this.componentClass.removeChildFlags;
+    return (this.constructor as ComponentClass).removeChildFlags;
   }
 
   protected willRemoveChildComponent(childComponent: Component): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillRemoveChildComponent !== void 0) {
         componentObserver.componentWillRemoveChildComponent(childComponent, this);
       }
@@ -277,50 +287,50 @@ export abstract class Component {
   }
 
   protected didRemoveChildComponent(childComponent: Component): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidRemoveChildComponent !== void 0) {
         componentObserver.componentDidRemoveChildComponent(childComponent, this);
       }
     }
   }
 
-  getSuperComponent<C extends Component>(componentPrototype: ComponentPrototype<C>): C | null {
+  getSuperComponent<C extends Component>(componentClass: ComponentClass<C>): C | null {
     const parentComponent = this.parentComponent;
     if (parentComponent === null) {
       return null;
-    } else if (parentComponent instanceof componentPrototype) {
+    } else if (parentComponent instanceof componentClass) {
       return parentComponent;
     } else {
-      return parentComponent.getSuperComponent(componentPrototype);
+      return parentComponent.getSuperComponent(componentClass);
     }
   }
 
-  getBaseComponent<C extends Component>(componentPrototype: ComponentPrototype<C>): C | null {
+  getBaseComponent<C extends Component>(componentClass: ComponentClass<C>): C | null {
     const parentComponent = this.parentComponent;
     if (parentComponent === null) {
       return null;
     } else {
-      const baseComponent = parentComponent.getBaseComponent(componentPrototype);
+      const baseComponent = parentComponent.getBaseComponent(componentClass);
       if (baseComponent !== null) {
         return baseComponent;
       } else {
-        return parentComponent instanceof componentPrototype ? parentComponent : null;
+        return parentComponent instanceof componentClass ? parentComponent : null;
       }
     }
   }
 
-  readonly executeService: ExecuteService<this>; // defined by ExecuteService
+  declare readonly executeService: ExecuteService<this>; // defined by ExecuteService
 
-  readonly historyService: HistoryService<this>; // defined by HistoryService
+  declare readonly historyService: HistoryService<this>; // defined by HistoryService
 
   isMounted(): boolean {
-    return (this._componentFlags & Component.MountedFlag) !== 0;
+    return (this.componentFlags & Component.MountedFlag) !== 0;
   }
 
   get mountFlags(): ComponentFlags {
-    return this.componentClass.mountFlags;
+    return (this.constructor as ComponentClass).mountFlags;
   }
 
   mount(): void {
@@ -336,9 +346,9 @@ export abstract class Component {
   abstract cascadeMount(): void;
 
   protected willMount(): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillMount !== void 0) {
         componentObserver.componentWillMount(this);
       }
@@ -346,14 +356,14 @@ export abstract class Component {
   }
 
   protected onMount(): void {
-    this.requestUpdate(this, this._componentFlags & ~Component.StatusMask, false);
+    this.requestUpdate(this, this.componentFlags & ~Component.StatusMask, false);
     this.requireUpdate(this.mountFlags);
   }
 
   protected didMount(): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidMount !== void 0) {
         componentObserver.componentDidMount(this);
       }
@@ -363,9 +373,9 @@ export abstract class Component {
   abstract cascadeUnmount(): void;
 
   protected willUnmount(): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillUnmount !== void 0) {
         componentObserver.componentWillUnmount(this);
       }
@@ -377,9 +387,9 @@ export abstract class Component {
   }
 
   protected didUnmount(): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidUnmount !== void 0) {
         componentObserver.componentDidUnmount(this);
       }
@@ -387,19 +397,19 @@ export abstract class Component {
   }
 
   isPowered(): boolean {
-    return (this._componentFlags & Component.PoweredFlag) !== 0;
+    return (this.componentFlags & Component.PoweredFlag) !== 0;
   }
 
   get powerFlags(): ComponentFlags {
-    return this.componentClass.powerFlags;
+    return (this.constructor as ComponentClass).powerFlags;
   }
 
   abstract cascadePower(): void;
 
   protected willPower(): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillPower !== void 0) {
         componentObserver.componentWillPower(this);
       }
@@ -407,14 +417,14 @@ export abstract class Component {
   }
 
   protected onPower(): void {
-    this.requestUpdate(this, this._componentFlags & ~Component.StatusMask, false);
+    this.requestUpdate(this, this.componentFlags & ~Component.StatusMask, false);
     this.requireUpdate(this.powerFlags);
   }
 
   protected didPower(): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidPower !== void 0) {
         componentObserver.componentDidPower(this);
       }
@@ -424,9 +434,9 @@ export abstract class Component {
   abstract cascadeUnpower(): void;
 
   protected willUnpower(): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillUnpower !== void 0) {
         componentObserver.componentWillUnpower(this);
       }
@@ -438,9 +448,9 @@ export abstract class Component {
   }
 
   protected didUnpower(): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidUnpower !== void 0) {
         componentObserver.componentDidUnpower(this);
       }
@@ -451,11 +461,11 @@ export abstract class Component {
     updateFlags &= ~Component.StatusMask;
     if (updateFlags !== 0) {
       this.willRequireUpdate(updateFlags, immediate);
-      const oldUpdateFlags = this._componentFlags;
+      const oldUpdateFlags = this.componentFlags;
       const newUpdateFlags = oldUpdateFlags | updateFlags;
       const deltaUpdateFlags = newUpdateFlags & ~oldUpdateFlags & ~Component.StatusMask;
       if (deltaUpdateFlags !== 0) {
-        this._componentFlags = newUpdateFlags;
+        this.setComponentFlags(newUpdateFlags);
         this.onRequireUpdate(updateFlags, immediate);
         this.requestUpdate(this, deltaUpdateFlags, immediate);
       }
@@ -478,12 +488,12 @@ export abstract class Component {
   requestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
     this.willRequestUpdate(targetComponent, updateFlags, immediate);
     let propagateFlags = updateFlags & (Component.NeedsCompile | Component.NeedsExecute);
-    if ((updateFlags & Component.CompileMask) !== 0 && (this._componentFlags & Component.NeedsCompile) === 0) {
-      this._componentFlags |= Component.NeedsCompile;
+    if ((updateFlags & Component.CompileMask) !== 0 && (this.componentFlags & Component.NeedsCompile) === 0) {
+      this.setComponentFlags(this.componentFlags | Component.NeedsCompile);
       propagateFlags |= Component.NeedsCompile;
     }
-    if ((updateFlags & Component.ExecuteMask) !== 0 && (this._componentFlags & Component.NeedsExecute) === 0) {
-      this._componentFlags |= Component.NeedsExecute;
+    if ((updateFlags & Component.ExecuteMask) !== 0 && (this.componentFlags & Component.NeedsExecute) === 0) {
+      this.setComponentFlags(this.componentFlags | Component.NeedsExecute);
       propagateFlags |= Component.NeedsExecute;
     }
     if ((propagateFlags & (Component.NeedsCompile | Component.NeedsExecute)) !== 0 || immediate) {
@@ -514,15 +524,15 @@ export abstract class Component {
   }
 
   isTraversing(): boolean {
-    return (this._componentFlags & Component.TraversingFlag) !== 0;
+    return (this.componentFlags & Component.TraversingFlag) !== 0;
   }
 
   isUpdating(): boolean {
-    return (this._componentFlags & Component.UpdatingMask) !== 0;
+    return (this.componentFlags & Component.UpdatingMask) !== 0;
   }
 
   isCompiling(): boolean {
-    return (this._componentFlags & Component.CompilingFlag) !== 0;
+    return (this.componentFlags & Component.CompilingFlag) !== 0;
   }
 
   needsCompile(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): ComponentFlags {
@@ -544,9 +554,9 @@ export abstract class Component {
   }
 
   protected willResolve(componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillResolve !== void 0) {
         componentObserver.componentWillResolve(componentContext, this);
       }
@@ -558,9 +568,9 @@ export abstract class Component {
   }
 
   protected didResolve(componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidResolve !== void 0) {
         componentObserver.componentDidResolve(componentContext, this);
       }
@@ -568,9 +578,9 @@ export abstract class Component {
   }
 
   protected willGenerate(componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillGenerate !== void 0) {
         componentObserver.componentWillGenerate(componentContext, this);
       }
@@ -582,9 +592,9 @@ export abstract class Component {
   }
 
   protected didGenerate(componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidGenerate !== void 0) {
         componentObserver.componentDidGenerate(componentContext, this);
       }
@@ -592,9 +602,9 @@ export abstract class Component {
   }
 
   protected willAssemble(componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillAssemble !== void 0) {
         componentObserver.componentWillAssemble(componentContext, this);
       }
@@ -606,9 +616,9 @@ export abstract class Component {
   }
 
   protected didAssemble(componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidAssemble !== void 0) {
         componentObserver.componentDidAssemble(componentContext, this);
       }
@@ -639,7 +649,8 @@ export abstract class Component {
   protected compileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>,
                                    compileChildComponent: (this: this, childComponent: Component, compileFlags: ComponentFlags,
                                                            componentContext: ComponentContextType<this>) => void): void {
-    function doCompileChildComponent(this: Component, childComponent: Component): void {
+    type self = this;
+    function doCompileChildComponent(this: self, childComponent: Component): void {
       compileChildComponent.call(this, childComponent, compileFlags, componentContext);
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
@@ -669,7 +680,7 @@ export abstract class Component {
   }
 
   isExecuting(): boolean {
-    return (this._componentFlags & Component.ExecutingFlag) !== 0;
+    return (this.componentFlags & Component.ExecutingFlag) !== 0;
   }
 
   needsExecute(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): ComponentFlags {
@@ -691,9 +702,9 @@ export abstract class Component {
   }
 
   protected willRevise(componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillRevise !== void 0) {
         componentObserver.componentWillRevise(componentContext, this);
       }
@@ -705,9 +716,9 @@ export abstract class Component {
   }
 
   protected didRevise(componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidRevise !== void 0) {
         componentObserver.componentDidRevise(componentContext, this);
       }
@@ -715,9 +726,9 @@ export abstract class Component {
   }
 
   protected willCompute(componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillCompute !== void 0) {
         componentObserver.componentWillCompute(componentContext, this);
       }
@@ -729,9 +740,9 @@ export abstract class Component {
   }
 
   protected didCompute(componentContext: ComponentContextType<this>): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidCompute !== void 0) {
         componentObserver.componentDidCompute(componentContext, this);
       }
@@ -762,7 +773,8 @@ export abstract class Component {
   protected executeChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>,
                                    executeChildComponent: (this: this, childComponent: Component, executeFlags: ComponentFlags,
                                                            componentContext: ComponentContextType<this>) => void): void {
-    function doExecuteChildComponent(this: Component, childComponent: Component): void {
+    type self = this;
+    function doExecuteChildComponent(this: self, childComponent: Component): void {
       executeChildComponent.call(this, childComponent, executeFlags, componentContext);
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
@@ -801,8 +813,7 @@ export abstract class Component {
   getLazyComponentService(serviceName: string): ComponentService<this, unknown> | null {
     let componentService = this.getComponentService(serviceName);
     if (componentService === null) {
-      const componentClass = (this as any).__proto__ as ComponentClass;
-      const constructor = Component.getComponentServiceConstructor(serviceName, componentClass);
+      const constructor = Component.getComponentServiceConstructor(serviceName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         componentService = new constructor(this, serviceName) as ComponentService<this, unknown>;
         this.setComponentService(serviceName, componentService);
@@ -821,8 +832,7 @@ export abstract class Component {
   getLazyComponentScope(scopeName: string): ComponentScope<this, unknown> | null {
     let componentScope = this.getComponentScope(scopeName);
     if (componentScope === null) {
-      const componentClass = (this as any).__proto__ as ComponentClass;
-      const constructor = Component.getComponentScopeConstructor(scopeName, componentClass);
+      const constructor = Component.getComponentScopeConstructor(scopeName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         componentScope = new constructor(this, scopeName) as ComponentScope<this, unknown>;
         this.setComponentScope(scopeName, componentScope);
@@ -835,14 +845,13 @@ export abstract class Component {
 
   abstract getComponentModel(modelName: string): ComponentModel<this, Model> | null;
 
-  abstract setComponentModel(modelName: string, componentModel: ComponentModel<this, Model> | null): void;
+  abstract setComponentModel(modelName: string, componentModel: ComponentModel<this, any> | null): void;
 
   /** @hidden */
   getLazyComponentModel(modelName: string): ComponentModel<this, Model> | null {
     let componentModel = this.getComponentModel(modelName);
     if (componentModel === null) {
-      const componentClass = (this as any).__proto__ as ComponentClass;
-      const constructor = Component.getComponentModelConstructor(modelName, componentClass);
+      const constructor = Component.getComponentModelConstructor(modelName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         componentModel = new constructor(this, modelName) as ComponentModel<this, Model>;
         this.setComponentModel(modelName, componentModel);
@@ -853,9 +862,9 @@ export abstract class Component {
 
   /** @hidden */
   willSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillSetModel !== void 0) {
         componentObserver.componentWillSetModel(componentModel, newModel, oldModel, this);
       }
@@ -869,9 +878,9 @@ export abstract class Component {
 
   /** @hidden */
   didSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidSetModel !== void 0) {
         componentObserver.componentDidSetModel(componentModel, newModel, oldModel, this);
       }
@@ -882,14 +891,13 @@ export abstract class Component {
 
   abstract getComponentTrait(traitName: string): ComponentTrait<this, Trait> | null;
 
-  abstract setComponentTrait(traitName: string, componentTrait: ComponentTrait<this, Trait> | null): void;
+  abstract setComponentTrait(traitName: string, componentTrait: ComponentTrait<this, any> | null): void;
 
   /** @hidden */
   getLazyComponentTrait(traitName: string): ComponentTrait<this, Trait> | null {
     let componentTrait = this.getComponentTrait(traitName);
     if (componentTrait === null) {
-      const componentClass = (this as any).__proto__ as ComponentClass;
-      const constructor = Component.getComponentTraitConstructor(traitName, componentClass);
+      const constructor = Component.getComponentTraitConstructor(traitName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         componentTrait = new constructor(this, traitName) as ComponentTrait<this, Trait>;
         this.setComponentTrait(traitName, componentTrait);
@@ -900,9 +908,9 @@ export abstract class Component {
 
   /** @hidden */
   willSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillSetTrait !== void 0) {
         componentObserver.componentWillSetTrait(componentTrait, newTrait, oldTrait, this);
       }
@@ -916,9 +924,9 @@ export abstract class Component {
 
   /** @hidden */
   didSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidSetTrait !== void 0) {
         componentObserver.componentDidSetTrait(componentTrait, newTrait, oldTrait, this);
       }
@@ -929,14 +937,13 @@ export abstract class Component {
 
   abstract getComponentView(viewName: string): ComponentView<this, View> | null;
 
-  abstract setComponentView(viewName: string, componentView: ComponentView<this, View> | null): void;
+  abstract setComponentView(viewName: string, componentView: ComponentView<this, any> | null): void;
 
   /** @hidden */
   getLazyComponentView(viewName: string): ComponentView<this, View> | null {
     let componentView = this.getComponentView(viewName);
     if (componentView === null) {
-      const componentClass = (this as any).__proto__ as ComponentClass;
-      const constructor = Component.getComponentViewConstructor(viewName, componentClass);
+      const constructor = Component.getComponentViewConstructor(viewName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         componentView = new constructor(this, viewName) as ComponentView<this, View>;
         this.setComponentView(viewName, componentView);
@@ -947,9 +954,9 @@ export abstract class Component {
 
   /** @hidden */
   willSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillSetView !== void 0) {
         componentObserver.componentWillSetView(componentView, newView, oldView, this);
       }
@@ -963,9 +970,9 @@ export abstract class Component {
 
   /** @hidden */
   didSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null): void {
-    const componentObservers = this._componentObservers;
-    for (let i = 0, n = componentObservers !== void 0 ? componentObservers.length : 0; i < n; i += 1) {
-      const componentObserver = componentObservers![i];
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidSetView !== void 0) {
         componentObserver.componentDidSetView(componentView, newView, oldView, this);
       }
@@ -976,14 +983,13 @@ export abstract class Component {
 
   abstract getComponentBinding(bindingName: string): ComponentBinding<this, Component> | null;
 
-  abstract setComponentBinding(bindingName: string, componentBinding: ComponentBinding<this, Component> | null): void;
+  abstract setComponentBinding(bindingName: string, componentBinding: ComponentBinding<this, any> | null): void;
 
   /** @hidden */
   getLazyComponentBinding(bindingName: string): ComponentBinding<this, Component> | null {
     let componentBinding = this.getComponentBinding(bindingName);
     if (componentBinding === null) {
-      const componentClass = (this as any).__proto__ as ComponentClass;
-      const constructor = Component.getComponentBindingConstructor(bindingName, componentClass);
+      const constructor = Component.getComponentBindingConstructor(bindingName, Object.getPrototypeOf(this));
       if (constructor !== null) {
         componentBinding = new constructor(this, bindingName) as ComponentBinding<this, Component>;
         this.setComponentBinding(bindingName, componentBinding);
@@ -1020,35 +1026,36 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentServiceConstructor(serviceName: string, componentClass: ComponentClass | null = null): ComponentServiceConstructor<Component, unknown> | null {
-    if (componentClass === null) {
-      componentClass = this.prototype as unknown as ComponentClass;
+  static getComponentServiceConstructor(serviceName: string, componentPrototype: ComponentPrototype | null = null): ComponentServiceConstructor<Component, unknown> | null {
+    if (componentPrototype === null) {
+      componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentClass.hasOwnProperty("_componentServiceConstructors")) {
-        const constructor = componentClass._componentServiceConstructors![serviceName];
+      if (componentPrototype.hasOwnProperty("_componentServiceConstructors")) {
+        const constructor = componentPrototype._componentServiceConstructors![serviceName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
-    } while (componentClass !== null);
+      componentPrototype = Object.getPrototypeOf(componentPrototype);
+    } while (componentPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateComponentService(constructor: ComponentServiceConstructor<Component, unknown>,
-                                  componentClass: ComponentClass, serviceName: string): void {
-    if (!componentClass.hasOwnProperty("_componentServiceConstructors")) {
-      componentClass._componentServiceConstructors = {};
+                                  target: Object, propertyKey: string | symbol): void {
+    const componentPrototype = target as ComponentPrototype;
+    if (!componentPrototype.hasOwnProperty("_componentServiceConstructors")) {
+      componentPrototype._componentServiceConstructors = {};
     }
-    componentClass._componentServiceConstructors![serviceName] = constructor;
-    Object.defineProperty(componentClass, serviceName, {
+    componentPrototype._componentServiceConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentService<Component, unknown> {
-        let componentService = this.getComponentService(serviceName);
+        let componentService = this.getComponentService(propertyKey.toString());
         if (componentService === null) {
-          componentService = new constructor(this, serviceName);
-          this.setComponentService(serviceName, componentService);
+          componentService = new constructor(this, propertyKey.toString());
+          this.setComponentService(propertyKey.toString(), componentService);
         }
         return componentService;
       },
@@ -1058,35 +1065,36 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentScopeConstructor(scopeName: string, componentClass: ComponentClass | null = null): ComponentScopeConstructor<Component, unknown> | null {
-    if (componentClass === null) {
-      componentClass = this.prototype as unknown as ComponentClass;
+  static getComponentScopeConstructor(scopeName: string, componentPrototype: ComponentPrototype | null = null): ComponentScopeConstructor<Component, unknown> | null {
+    if (componentPrototype === null) {
+      componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentClass.hasOwnProperty("_componentScopeConstructors")) {
-        const constructor = componentClass._componentScopeConstructors![scopeName];
+      if (componentPrototype.hasOwnProperty("_componentScopeConstructors")) {
+        const constructor = componentPrototype._componentScopeConstructors![scopeName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
-    } while (componentClass !== null);
+      componentPrototype = Object.getPrototypeOf(componentPrototype);
+    } while (componentPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateComponentScope(constructor: ComponentScopeConstructor<Component, unknown>,
-                                componentClass: ComponentClass, scopeName: string): void {
-    if (!componentClass.hasOwnProperty("_componentScopeConstructors")) {
-      componentClass._componentScopeConstructors = {};
+                                target: Object, propertyKey: string | symbol): void {
+    const componentPrototype = target as ComponentPrototype;
+    if (!componentPrototype.hasOwnProperty("_componentScopeConstructors")) {
+      componentPrototype._componentScopeConstructors = {};
     }
-    componentClass._componentScopeConstructors![scopeName] = constructor;
-    Object.defineProperty(componentClass, scopeName, {
+    componentPrototype._componentScopeConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentScope<Component, unknown> {
-        let componentScope = this.getComponentScope(scopeName);
+        let componentScope = this.getComponentScope(propertyKey.toString());
         if (componentScope === null) {
-          componentScope = new constructor(this, scopeName);
-          this.setComponentScope(scopeName, componentScope);
+          componentScope = new constructor(this, propertyKey.toString());
+          this.setComponentScope(propertyKey.toString(), componentScope);
         }
         return componentScope;
       },
@@ -1096,35 +1104,36 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentModelConstructor(modelName: string, componentClass: ComponentClass | null = null): ComponentModelConstructor<Component, Model> | null {
-    if (componentClass === null) {
-      componentClass = this.prototype as unknown as ComponentClass;
+  static getComponentModelConstructor(modelName: string, componentPrototype: ComponentPrototype | null = null): ComponentModelConstructor<Component, Model> | null {
+    if (componentPrototype === null) {
+      componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentClass.hasOwnProperty("_componentModelConstructors")) {
-        const constructor = componentClass._componentModelConstructors![modelName];
+      if (componentPrototype.hasOwnProperty("_componentModelConstructors")) {
+        const constructor = componentPrototype._componentModelConstructors![modelName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
-    } while (componentClass !== null);
+      componentPrototype = Object.getPrototypeOf(componentPrototype);
+    } while (componentPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateComponentModel(constructor: ComponentModelConstructor<Component, Model>,
-                                componentClass: ComponentClass, modelName: string): void {
-    if (!componentClass.hasOwnProperty("_componentModelConstructors")) {
-      componentClass._componentModelConstructors = {};
+                                target: Object, propertyKey: string | symbol): void {
+    const componentPrototype = target as ComponentPrototype;
+    if (!componentPrototype.hasOwnProperty("_componentModelConstructors")) {
+      componentPrototype._componentModelConstructors = {};
     }
-    componentClass._componentModelConstructors![modelName] = constructor;
-    Object.defineProperty(componentClass, modelName, {
+    componentPrototype._componentModelConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentModel<Component, Model> {
-        let componentModel = this.getComponentModel(modelName);
+        let componentModel = this.getComponentModel(propertyKey.toString());
         if (componentModel === null) {
-          componentModel = new constructor(this, modelName);
-          this.setComponentModel(modelName, componentModel);
+          componentModel = new constructor(this, propertyKey.toString());
+          this.setComponentModel(propertyKey.toString(), componentModel);
         }
         return componentModel;
       },
@@ -1134,35 +1143,36 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentTraitConstructor(traitName: string, componentClass: ComponentClass | null = null): ComponentTraitConstructor<Component, Trait> | null {
-    if (componentClass === null) {
-      componentClass = this.prototype as unknown as ComponentClass;
+  static getComponentTraitConstructor(traitName: string, componentPrototype: ComponentPrototype | null = null): ComponentTraitConstructor<Component, Trait> | null {
+    if (componentPrototype === null) {
+      componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentClass.hasOwnProperty("_componentTraitConstructors")) {
-        const constructor = componentClass._componentTraitConstructors![traitName];
+      if (componentPrototype.hasOwnProperty("_componentTraitConstructors")) {
+        const constructor = componentPrototype._componentTraitConstructors![traitName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
-    } while (componentClass !== null);
+      componentPrototype = Object.getPrototypeOf(componentPrototype);
+    } while (componentPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateComponentTrait(constructor: ComponentTraitConstructor<Component, Trait>,
-                                componentClass: ComponentClass, traitName: string): void {
-    if (!componentClass.hasOwnProperty("_componentTraitConstructors")) {
-      componentClass._componentTraitConstructors = {};
+                                target: Object, propertyKey: string | symbol): void {
+    const componentPrototype = target as ComponentPrototype;
+    if (!componentPrototype.hasOwnProperty("_componentTraitConstructors")) {
+      componentPrototype._componentTraitConstructors = {};
     }
-    componentClass._componentTraitConstructors![traitName] = constructor;
-    Object.defineProperty(componentClass, traitName, {
+    componentPrototype._componentTraitConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentTrait<Component, Trait> {
-        let componentTrait = this.getComponentTrait(traitName);
+        let componentTrait = this.getComponentTrait(propertyKey.toString());
         if (componentTrait === null) {
-          componentTrait = new constructor(this, traitName);
-          this.setComponentTrait(traitName, componentTrait);
+          componentTrait = new constructor(this, propertyKey.toString());
+          this.setComponentTrait(propertyKey.toString(), componentTrait);
         }
         return componentTrait;
       },
@@ -1172,35 +1182,36 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentViewConstructor(viewName: string, componentClass: ComponentClass | null = null): ComponentViewConstructor<Component, View> | null {
-    if (componentClass === null) {
-      componentClass = this.prototype as unknown as ComponentClass;
+  static getComponentViewConstructor(viewName: string, componentPrototype: ComponentPrototype | null = null): ComponentViewConstructor<Component, View> | null {
+    if (componentPrototype === null) {
+      componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentClass.hasOwnProperty("_componentViewConstructors")) {
-        const constructor = componentClass._componentViewConstructors![viewName];
+      if (componentPrototype.hasOwnProperty("_componentViewConstructors")) {
+        const constructor = componentPrototype._componentViewConstructors![viewName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
-    } while (componentClass !== null);
+      componentPrototype = Object.getPrototypeOf(componentPrototype);
+    } while (componentPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateComponentView(constructor: ComponentViewConstructor<Component, View>,
-                               componentClass: ComponentClass, viewName: string): void {
-    if (!componentClass.hasOwnProperty("_componentViewConstructors")) {
-      componentClass._componentViewConstructors = {};
+                               target: Object, propertyKey: string | symbol): void {
+    const componentPrototype = target as ComponentPrototype;
+    if (!componentPrototype.hasOwnProperty("_componentViewConstructors")) {
+      componentPrototype._componentViewConstructors = {};
     }
-    componentClass._componentViewConstructors![viewName] = constructor;
-    Object.defineProperty(componentClass, viewName, {
+    componentPrototype._componentViewConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentView<Component, View> {
-        let componentView = this.getComponentView(viewName);
+        let componentView = this.getComponentView(propertyKey.toString());
         if (componentView === null) {
-          componentView = new constructor(this, viewName);
-          this.setComponentView(viewName, componentView);
+          componentView = new constructor(this, propertyKey.toString());
+          this.setComponentView(propertyKey.toString(), componentView);
         }
         return componentView;
       },
@@ -1210,35 +1221,36 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentBindingConstructor(bindingName: string, componentClass: ComponentClass | null = null): ComponentBindingConstructor<Component, Component> | null {
-    if (componentClass === null) {
-      componentClass = this.prototype as unknown as ComponentClass;
+  static getComponentBindingConstructor(bindingName: string, componentPrototype: ComponentPrototype | null = null): ComponentBindingConstructor<Component, Component> | null {
+    if (componentPrototype === null) {
+      componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentClass.hasOwnProperty("_componentBindingConstructors")) {
-        const constructor = componentClass._componentBindingConstructors![bindingName];
+      if (componentPrototype.hasOwnProperty("_componentBindingConstructors")) {
+        const constructor = componentPrototype._componentBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
       }
-      componentClass = (componentClass as any).__proto__ as ComponentClass | null;
-    } while (componentClass !== null);
+      componentPrototype = Object.getPrototypeOf(componentPrototype);
+    } while (componentPrototype !== null);
     return null;
   }
 
   /** @hidden */
   static decorateComponentBinding(constructor: ComponentBindingConstructor<Component, Component>,
-                                  componentClass: ComponentClass, bindingName: string): void {
-    if (!componentClass.hasOwnProperty("_componentBindingConstructors")) {
-      componentClass._componentBindingConstructors = {};
+                                  target: Object, propertyKey: string | symbol): void {
+    const componentPrototype = target as ComponentPrototype;
+    if (!componentPrototype.hasOwnProperty("_componentBindingConstructors")) {
+      componentPrototype._componentBindingConstructors = {};
     }
-    componentClass._componentBindingConstructors![bindingName] = constructor;
-    Object.defineProperty(componentClass, bindingName, {
+    componentPrototype._componentBindingConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentBinding<Component, Component> {
-        let componentBinding = this.getComponentBinding(bindingName);
+        let componentBinding = this.getComponentBinding(propertyKey.toString());
         if (componentBinding === null) {
-          componentBinding = new constructor(this, bindingName);
-          this.setComponentBinding(bindingName, componentBinding);
+          componentBinding = new constructor(this, propertyKey.toString());
+          this.setComponentBinding(propertyKey.toString(), componentBinding);
         }
         return componentBinding;
       },

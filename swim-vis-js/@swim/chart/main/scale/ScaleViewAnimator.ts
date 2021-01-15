@@ -14,7 +14,7 @@
 
 import {Interpolator} from "@swim/interpolate";
 import {Scale, ContinuousScale} from "@swim/scale";
-import {Tween, Transition, TweenAnimator} from "@swim/tween";
+import {Tween, Transition, TweenAnimator} from "@swim/animation";
 import {View, ViewAnimator} from "@swim/view";
 
 export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimator<V, ContinuousScale<X, Y> | undefined, ContinuousScale<X, Y> | string | undefined> {
@@ -115,7 +115,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
   setBaseScale(xMin?: readonly [X, X] | X | string, xMax?: readonly [Y, Y] | X,
                yMin?: Y | Tween<ContinuousScale<X, Y>>, yMax?: Y,
                tween?: Tween<ContinuousScale<X, Y>>): void {
-    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined, ContinuousScale<X, Y> | string | undefined> | null | undefined;
+    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined> | null | undefined;
     if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ScaleViewAnimator)) {
       superAnimator.setBaseScale(xMin as any, xMax as any, yMin as any, yMax as any, tween);
     } else {
@@ -127,7 +127,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
   setBaseDomain(xMin: X, xMax: X, tween?: Tween<ContinuousScale<X, Y>>): void;
   setBaseDomain(xMin?: readonly [X, X] | X | string, xMax?: X | Tween<ContinuousScale<X, Y>>,
                 tween?: Tween<ContinuousScale<X, Y>>): void {
-    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined, ContinuousScale<X, Y> | string | undefined> | null | undefined;
+    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined> | null | undefined;
     if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ScaleViewAnimator)) {
       superAnimator.setBaseDomain(xMin as any, xMax as any, tween);
     } else {
@@ -139,7 +139,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
   setBaseRange(yMin: Y, yMax: Y, tween?: Tween<ContinuousScale<X, Y>>): void;
   setBaseRange(yMin?: readonly [Y, Y] | Y, yMax?: Y | Tween<ContinuousScale<X, Y>>,
                tween?: Tween<ContinuousScale<X, Y>>): void {
-    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined, ContinuousScale<X, Y> | string | undefined> | null | undefined;
+    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined> | null | undefined;
     if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ScaleViewAnimator)) {
       superAnimator.setBaseRange(yMin as any, yMax as any, tween);
     } else {

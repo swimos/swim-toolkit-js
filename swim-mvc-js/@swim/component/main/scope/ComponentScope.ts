@@ -15,9 +15,9 @@
 import {__extends} from "tslib";
 import {Values, FromAny} from "@swim/util";
 import {ComponentFlags, Component} from "../Component";
-import {StringComponentScope} from "./StringComponentScope";
-import {BooleanComponentScope} from "./BooleanComponentScope";
-import {NumberComponentScope} from "./NumberComponentScope";
+import type {StringComponentScope} from "./StringComponentScope";
+import type {BooleanComponentScope} from "./BooleanComponentScope";
+import type {NumberComponentScope} from "./NumberComponentScope";
 
 export type ComponentScopeMemberType<C, K extends keyof C> =
   C extends {[P in K]: ComponentScope<any, infer T, any>} ? T : unknown;
@@ -27,8 +27,8 @@ export type ComponentScopeMemberInit<C, K extends keyof C> =
 
 export type ComponentScopeFlags = number;
 
-export interface ComponentScopeInit<T, U = T> {
-  extends?: ComponentScopePrototype;
+export interface ComponentScopeInit<T, U = never> {
+  extends?: ComponentScopeClass;
   type?: unknown;
   state?: T | U;
   inherit?: string | boolean;
@@ -41,29 +41,22 @@ export interface ComponentScopeInit<T, U = T> {
   initState?(): T | U;
 }
 
-export type ComponentScopeDescriptorInit<C extends Component, T, U = T, I = {}> = ComponentScopeInit<T, U> & ThisType<ComponentScope<C, T, U> & I> & I;
+export type ComponentScopeDescriptor<C extends Component, T, U = never, I = {}> = ComponentScopeInit<T, U> & ThisType<ComponentScope<C, T, U> & I> & I;
 
-export type ComponentScopeDescriptorExtends<C extends Component, T, U = T, I = {}> = {extends: ComponentScopePrototype | undefined} & ComponentScopeDescriptorInit<C, T, U, I>;
+export type ComponentScopeDescriptorExtends<C extends Component, T, U = never, I = {}> = {extends: ComponentScopeClass | undefined} & ComponentScopeDescriptor<C, T, U, I>;
 
-export type ComponentScopeDescriptorFromAny<C extends Component, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ComponentScopeDescriptorInit<C, T, U, I>;
+export type ComponentScopeDescriptorFromAny<C extends Component, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ComponentScopeDescriptor<C, T, U, I>;
 
-export type ComponentScopeDescriptor<C extends Component, T, U = T, I = {}> =
-  U extends T ? ComponentScopeDescriptorInit<C, T, U, I> :
-  T extends string | null | undefined ? U extends string | null | undefined ? {type: typeof String} & ComponentScopeDescriptorInit<C, T, U, I> : ComponentScopeDescriptorExtends<C, T, U, I> :
-  T extends boolean | null | undefined ? U extends boolean | string | null | undefined ? {type: typeof Boolean} & ComponentScopeDescriptorInit<C, T, U, I> : ComponentScopeDescriptorExtends<C, T, U, I> :
-  T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & ComponentScopeDescriptorInit<C, T, U, I> : ComponentScopeDescriptorExtends<C, T, U, I> :
-  ComponentScopeDescriptorFromAny<C, T, U, I>;
-
-export interface ComponentScopePrototype extends Function {
-  readonly prototype: ComponentScope<any, any, any>;
-}
-
-export interface ComponentScopeConstructor<C extends Component, T, U = T, I = {}> {
+export interface ComponentScopeConstructor<C extends Component, T, U = never, I = {}> {
   new(owner: C, scopeName: string | undefined): ComponentScope<C, T, U> & I;
   prototype: ComponentScope<any, any, any> & I;
 }
 
-export declare abstract class ComponentScope<C extends Component, T, U = T> {
+export interface ComponentScopeClass extends Function {
+  readonly prototype: ComponentScope<any, any, any>;
+}
+
+export declare abstract class ComponentScope<C extends Component, T, U = never> {
   /** @hidden */
   _owner: C;
   /** @hidden */
@@ -180,10 +173,10 @@ export declare abstract class ComponentScope<C extends Component, T, U = T> {
   initState?(): T | U;
 
   /** @hidden */
-  static getConstructor(type: unknown): ComponentScopePrototype | null;
+  static getConstructor(type: unknown): ComponentScopeClass | null;
 
-  static define<C extends Component, T, U = T, I = {}>(descriptor: ComponentScopeDescriptorExtends<C, T, U, I>): ComponentScopeConstructor<C, T, U, I>;
-  static define<C extends Component, T, U = T>(descriptor: ComponentScopeDescriptor<C, T, U>): ComponentScopeConstructor<C, T, U>;
+  static define<C extends Component, T, U = never, I = {}>(descriptor: ComponentScopeDescriptorExtends<C, T, U, I>): ComponentScopeConstructor<C, T, U, I>;
+  static define<C extends Component, T, U = never>(descriptor: ComponentScopeDescriptor<C, T, U>): ComponentScopeConstructor<C, T, U>;
 
   /** @hidden */
   static UpdatedFlag: ComponentScopeFlags;
@@ -203,13 +196,17 @@ export declare abstract class ComponentScope<C extends Component, T, U = T> {
   static Number: typeof NumberComponentScope; // defined by NumberComponentScope
 }
 
-export interface ComponentScope<C extends Component, T, U = T> {
+export interface ComponentScope<C extends Component, T, U = never> {
   (): T;
   (state: T | U): C;
 }
 
-export function ComponentScope<C extends Component, T, U = T, I = {}>(descriptor: ComponentScopeDescriptorExtends<C, T, U, I>): PropertyDecorator;
-export function ComponentScope<C extends Component, T, U = T>(descriptor: ComponentScopeDescriptor<C, T, U>): PropertyDecorator;
+export function ComponentScope<C extends Component, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & ComponentScopeDescriptor<C, T, U>): PropertyDecorator;
+export function ComponentScope<C extends Component, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | undefined>(descriptor: {type: typeof Boolean} & ComponentScopeDescriptor<C, T, U>): PropertyDecorator;
+export function ComponentScope<C extends Component, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & ComponentScopeDescriptor<C, T, U>): PropertyDecorator;
+export function ComponentScope<C extends Component, T, U = never>(descriptor: ComponentScopeDescriptorFromAny<C, T, U>): PropertyDecorator;
+export function ComponentScope<C extends Component, T, U = never, I = {}>(descriptor: ComponentScopeDescriptorExtends<C, T, U, I>): PropertyDecorator;
+export function ComponentScope<C extends Component, T, U = never>(descriptor: ComponentScopeDescriptor<C, T, U>): PropertyDecorator;
 
 export function ComponentScope<C extends Component, T, U>(
     this: ComponentScope<C, T, U> | typeof ComponentScope,
@@ -217,7 +214,7 @@ export function ComponentScope<C extends Component, T, U>(
     scopeName?: string,
   ): ComponentScope<C, T, U> | PropertyDecorator {
   if (this instanceof ComponentScope) { // constructor
-    return ComponentScopeConstructor.call(this, owner as C, scopeName);
+    return ComponentScopeConstructor.call(this as ComponentScope<Component, unknown, unknown>, owner as C, scopeName);
   } else { // decorator factory
     return ComponentScopeDecoratorFactory(owner as ComponentScopeDescriptor<C, T, U>);
   }
@@ -247,7 +244,7 @@ function ComponentScopeConstructor<C extends Component, T, U>(this: ComponentSco
 }
 
 function ComponentScopeDecoratorFactory<C extends Component, T, U>(descriptor: ComponentScopeDescriptor<C, T, U>): PropertyDecorator {
-  return Component.decorateComponentScope.bind(Component, ComponentScope.define(descriptor));
+  return Component.decorateComponentScope.bind(Component, ComponentScope.define(descriptor as ComponentScopeDescriptor<Component, unknown>));
 }
 
 Object.defineProperty(ComponentScope.prototype, "owner", {
@@ -572,7 +569,7 @@ ComponentScope.prototype.updateSubScopes = function <T>(this: ComponentScope<Com
   const subScopes = this._subScopes;
   if (subScopes !== void 0) {
     for (let i = 0, n = subScopes.length; i < n; i += 1) {
-      const subScope = subScopes[i];
+      const subScope = subScopes[i]!;
       if (subScope.isInherited()) {
         subScope.revise();
       }
@@ -605,7 +602,7 @@ ComponentScope.prototype.fromAny = function <T, U>(this: ComponentScope<Componen
   return value as T;
 };
 
-ComponentScope.getConstructor = function (type: unknown): ComponentScopePrototype | null {
+ComponentScope.getConstructor = function (type: unknown): ComponentScopeClass | null {
   if (type === String) {
     return ComponentScope.String;
   } else if (type === Boolean) {
@@ -617,7 +614,7 @@ ComponentScope.getConstructor = function (type: unknown): ComponentScopePrototyp
 };
 
 ComponentScope.define = function <C extends Component, T, U, I>(descriptor: ComponentScopeDescriptor<C, T, U, I>): ComponentScopeConstructor<C, T, U, I> {
-  let _super: ComponentScopePrototype | null | undefined = descriptor.extends;
+  let _super: ComponentScopeClass | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
   const initState = descriptor.initState;

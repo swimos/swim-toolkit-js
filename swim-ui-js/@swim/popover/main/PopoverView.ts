@@ -14,7 +14,7 @@
 
 import {Equals, Arrays} from "@swim/util";
 import {AnyLength, Length, BoxR2} from "@swim/math";
-import {Tween, Transition} from "@swim/tween";
+import {Tween, Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Look} from "@swim/theme";
 import {
@@ -28,8 +28,8 @@ import {
   Modal,
 } from "@swim/view";
 import {HtmlViewInit, HtmlView, HtmlViewObserver} from "@swim/dom";
-import {PopoverViewObserver} from "./PopoverViewObserver";
-import {PopoverViewController} from "./PopoverViewController";
+import type {PopoverViewObserver} from "./PopoverViewObserver";
+import type {PopoverViewController} from "./PopoverViewController";
 
 export type PopoverPlacement = "none" | "above" | "below" | "over" | "top" | "bottom" | "right" | "left";
 
@@ -88,10 +88,8 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     return arrow;
   }
 
-  // @ts-ignore
   declare readonly viewController: PopoverViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<PopoverViewObserver>;
 
   initView(init: PopoverViewInit): void {
@@ -114,13 +112,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  placementGap: ViewAnimator<this, Length, AnyLength>;
+  declare placementGap: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(10)})
-  arrowWidth: ViewAnimator<this, Length, AnyLength>;
+  declare arrowWidth: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(8)})
-  arrowHeight: ViewAnimator<this, Length, AnyLength>;
+  declare arrowHeight: ViewAnimator<this, Length, AnyLength>;
 
   get source(): View | null {
     return this._source;
@@ -142,13 +140,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected willSetSource(source: View | null): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.popoverWillSetSource !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.popoverWillSetSource !== void 0) {
       viewController.popoverWillSetSource(source, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.popoverWillSetSource !== void 0) {
         viewObserver.popoverWillSetSource(source, this);
       }
@@ -160,15 +158,15 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected didSetSource(source: View | null): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.popoverDidSetSource !== void 0) {
         viewObserver.popoverDidSetSource(source, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.popoverDidSetSource !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.popoverDidSetSource !== void 0) {
       viewController.popoverDidSetSource(source, this);
     }
   }
@@ -202,13 +200,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
         if (placement === "above") {
           this.opacity.setAutoState(void 0);
           if (this.marginTop.value === void 0) {
-            this.marginTop.setAutoState(-this._node.clientHeight);
+            this.marginTop.setAutoState(-this.node.clientHeight);
           }
           this.marginTop.setAutoState(0, tween);
         } else if (placement === "below") {
           this.opacity.setAutoState(void 0);
           if (this.marginTop.value === void 0) {
-            this.marginTop.setAutoState(this._node.clientHeight);
+            this.marginTop.setAutoState(this.node.clientHeight);
           }
           this.marginTop.setAutoState(0, tween);
         } else {
@@ -225,13 +223,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected willShow(): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.popoverWillShow !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.popoverWillShow !== void 0) {
       viewController.popoverWillShow(this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.popoverWillShow !== void 0) {
         viewObserver.popoverWillShow(this);
       }
@@ -247,15 +245,15 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     this.marginTop.setAutoState(void 0);
     this.opacity.setAutoState(void 0);
 
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.popoverDidShow !== void 0) {
         viewObserver.popoverDidShow(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.popoverDidShow !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.popoverDidShow !== void 0) {
       viewController.popoverDidShow(this);
     }
   }
@@ -276,13 +274,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
           if (this.marginTop.value === void 0) {
             this.marginTop.setAutoState(0);
           }
-          this.marginTop.setAutoState(-this._node.clientHeight, tween);
+          this.marginTop.setAutoState(-this.node.clientHeight, tween);
         } else if (placement === "below") {
           this.opacity.setAutoState(void 0);
           if (this.marginTop.value === void 0) {
             this.marginTop.setAutoState(0);
           }
-          this.marginTop.setAutoState(this._node.clientHeight, tween);
+          this.marginTop.setAutoState(this.node.clientHeight, tween);
         } else {
           this.marginTop.setAutoState(void 0);
           if (this.opacity.value === void 0) {
@@ -297,13 +295,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected willHide(): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.popoverWillHide !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.popoverWillHide !== void 0) {
       viewController.popoverWillHide(this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.popoverWillHide !== void 0) {
         viewObserver.popoverWillHide(this);
       }
@@ -319,15 +317,15 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     this.marginTop.setAutoState(void 0);
     this.opacity.setAutoState(void 0);
 
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.popoverDidHide !== void 0) {
         viewObserver.popoverDidHide(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.popoverDidHide !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.popoverDidHide !== void 0) {
       viewController.popoverDidHide(this);
     }
   }
@@ -355,7 +353,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       if (!Arrays.equal(this._placement, placement)) {
         this._placement.length = 0;
         for (let i = 0, n = placement.length; i < n; i += 1) {
-          this._placement.push(placement[i]);
+          this._placement.push(placement[i]!);
         }
         this.place();
       }
@@ -439,7 +437,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
 
   /** @hidden */
   protected placePopover(source: View, sourceFrame: BoxR2): PopoverPlacement {
-    const node = this._node;
+    const node = this.node;
     const parent = node.offsetParent;
     if (parent === null) {
       return "none";
@@ -661,13 +659,13 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected willPlacePopover(placement: PopoverPlacement): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.popoverWillPlace !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.popoverWillPlace !== void 0) {
       viewController.popoverWillPlace(placement, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.popoverWillPlace !== void 0) {
         viewObserver.popoverWillPlace(placement, this);
       }
@@ -679,15 +677,15 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   protected didPlacePopover(placement: PopoverPlacement): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.popoverDidPlace !== void 0) {
         viewObserver.popoverDidPlace(placement, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.popoverDidPlace !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.popoverDidPlace !== void 0) {
       viewController.popoverDidPlace(placement, this);
     }
   }
@@ -695,7 +693,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   /** @hidden */
   protected placeArrow(source: View, sourceFrame: BoxR2, arrow: HtmlView,
                        placement: PopoverPlacement): void {
-    const node = this._node;
+    const node = this.node;
     const parent = node.offsetParent;
     if (parent === null) {
       return;

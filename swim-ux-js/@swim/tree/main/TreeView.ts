@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Length, BoxR2} from "@swim/math";
-import {Transition} from "@swim/tween";
+import type {Transition} from "@swim/animation";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
@@ -26,11 +26,11 @@ import {
 } from "@swim/view";
 import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
-import {TreeViewContext} from "./TreeViewContext";
+import type {TreeViewContext} from "./TreeViewContext";
 import {AnyTreeLimb, TreeLimb, TreeLimbState} from "./TreeLimb";
 import {AnyTreeStem, TreeStem} from "./TreeStem";
-import {TreeViewObserver} from "./TreeViewObserver";
-import {TreeViewController} from "./TreeViewController";
+import type {TreeViewObserver} from "./TreeViewObserver";
+import type {TreeViewController} from "./TreeViewController";
 
 export type AnyTreeView = TreeView | TreeViewInit | HTMLElement;
 
@@ -64,10 +64,8 @@ export class TreeView extends HtmlView {
     this.opacity.setAutoState(0);
   }
 
-  // @ts-ignore
   declare readonly viewController: TreeViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<TreeViewObserver>;
 
   // @ts-ignore
@@ -116,12 +114,12 @@ export class TreeView extends HtmlView {
 
   addLimbs(limbs: ReadonlyArray<AnyTreeLimb>): void {
     for (let i = 0, n = limbs.length; i < n; i += 1) {
-      this.addLimb(limbs[i]);
+      this.addLimb(limbs[i]!);
     }
   }
 
   @ViewScope({type: TreeSeed, inherit: true})
-  seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  declare seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
   @ViewScope<TreeView, number>({
     type: Number,
@@ -130,22 +128,22 @@ export class TreeView extends HtmlView {
       this.owner.onUpdateDepth(depth);
     },
   })
-  depth: ViewScope<this, number>;
+  declare depth: ViewScope<this, number>;
 
   @ViewScope({type: Object, inherit: true})
-  edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
+  declare edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
 
   @ViewScope({type: Number, state: 2})
-  limbSpacing: ViewScope<this, number>;
+  declare limbSpacing: ViewScope<this, number>;
 
   @ViewScope({type: String, inherit: true})
-  disclosureState: ViewScope<this, TreeLimbState | undefined>;
+  declare disclosureState: ViewScope<this, TreeLimbState | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  disclosurePhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
+  declare disclosurePhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   @ViewAnimator({type: Number, inherit: true})
-  disclosingPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
+  declare disclosingPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
@@ -296,7 +294,7 @@ export class TreeView extends HtmlView {
       return new BoxR2(parentVisibleFrame.xMin - x - xBleed, parentVisibleFrame.yMin - y - yBleed,
                        parentVisibleFrame.xMax - x + xBleed, parentVisibleFrame.yMax - y + yBleed);
     } else {
-      const {x, y} = this._node.getBoundingClientRect();
+      const {x, y} = this.node.getBoundingClientRect();
       return new BoxR2(-x - xBleed,
                        -y - yBleed,
                        window.innerWidth - x + xBleed,
@@ -340,7 +338,7 @@ export class TreeView extends HtmlView {
       }
       if (width === void 0) {
         width = this.width.state;
-        width = width instanceof Length ? width.pxValue() : this._node.offsetWidth;
+        width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
       }
       const edgeInsets = this.edgeInsets.state;
       const left = edgeInsets !== void 0 ? edgeInsets.insetLeft : 0;
@@ -353,13 +351,13 @@ export class TreeView extends HtmlView {
 
   protected onScroll(viewContext: ViewContextType<this>): void {
     super.onScroll(viewContext);
-    this._viewFlags |= View.NeedsScroll; // defer to display pass
+    this.setViewFlags(this.viewFlags | View.NeedsScroll); // defer to display pass
     this.requireUpdate(View.NeedsDisplay);
   }
 
   protected onChange(viewContext: ViewContextType<this>): void {
     super.onChange(viewContext);
-    this._viewFlags |= View.NeedsChange; // defer to display pass
+    this.setViewFlags(this.viewFlags | View.NeedsChange); // defer to display pass
     this.requireUpdate(View.NeedsDisplay);
   }
 
@@ -375,7 +373,7 @@ export class TreeView extends HtmlView {
     const visibleViews = this._visibleViews;
     let i = 0;
     while (i < visibleViews.length) {
-      const childView = visibleViews[i];
+      const childView = visibleViews[i]!;
       processChildView.call(this, childView, processFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
@@ -400,7 +398,7 @@ export class TreeView extends HtmlView {
     const visibleViews = this._visibleViews;
     let i = 0;
     while (i < visibleViews.length) {
-      const childView = visibleViews[i];
+      const childView = visibleViews[i]!;
       displayChildView.call(this, childView, displayFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
@@ -428,10 +426,11 @@ export class TreeView extends HtmlView {
   protected changeChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                 viewContext: ViewContextType<this>) => void): void {
-    this._viewFlags &= ~View.NeedsChange;
+    this.setViewFlags(this.viewFlags & ~View.NeedsChange);
     const depth = this.depth.getState();
-    function changeChildView(this: TreeView, childView: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<TreeView>): void {
+    type self = this;
+    function changeChildView(this: self, childView: View, displayFlags: ViewFlags,
+                             viewContext: ViewContextType<self>): void {
       if (childView instanceof TreeLimb) {
         const subtree = childView.subtree;
         if (subtree !== null) {
@@ -452,7 +451,7 @@ export class TreeView extends HtmlView {
   protected layoutChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                 viewContext: ViewContextType<this>) => void): void {
-    this._viewFlags &= ~View.NeedsScroll;
+    this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
     const disclosingPhase = this.disclosingPhase.getValueOr(1);
     let seed = this.seed.state;
     if (seed !== void 0 && seed._width === null) {
@@ -470,12 +469,13 @@ export class TreeView extends HtmlView {
     (viewContext as any).visibleFrame = visibleFrame;
     this._visibleFrame = visibleFrame;
 
-    function layoutChildView(this: TreeView, childView: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<TreeView>): void {
+    type self = this;
+    function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
+                             viewContext: ViewContextType<self>): void {
       displayChildView.call(this, childView, displayFlags, viewContext);
       if (childView instanceof TreeLimb || childView instanceof TreeStem) {
         let dy: Length | string | number | undefined = childView.height.value;
-        dy = dy instanceof Length ? dy.pxValue() : childView._node.offsetHeight;
+        dy = dy instanceof Length ? dy.pxValue() : childView.node.offsetHeight;
         childView.top.setAutoState(y * disclosingPhase);
         y += dy * disclosingPhase;
       }
@@ -510,14 +510,15 @@ export class TreeView extends HtmlView {
   protected scrollChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                 viewContext: ViewContextType<this>) => void): void {
-    this._viewFlags &= ~View.NeedsScroll;
+    this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
     const visibleViews = this._visibleViews;
     visibleViews.length = 0;
     const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
     (viewContext as any).visibleFrame = visibleFrame;
     this._visibleFrame = visibleFrame;
-    function scrollChildView(this: TreeView, childView: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<TreeView>): void {
+    type self = this;
+    function scrollChildView(this: self, childView: View, displayFlags: ViewFlags,
+                             viewContext: ViewContextType<self>): void {
       displayChildView.call(this, childView, displayFlags, viewContext);
       if (childView instanceof HtmlView) {
         const top = childView.top.state;

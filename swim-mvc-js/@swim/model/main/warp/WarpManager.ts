@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {WarpClient, client} from "@swim/client";
-import {Model} from "../Model";
+import type {Model} from "../Model";
 import {ModelManager} from "../manager/ModelManager";
-import {WarpManagerObserver} from "./WarpManagerObserver";
+import type {WarpManagerObserver} from "./WarpManagerObserver";
 
 export class WarpManager<M extends Model = Model> extends ModelManager<M> {
   /** @hidden */
@@ -30,7 +30,6 @@ export class WarpManager<M extends Model = Model> extends ModelManager<M> {
     return this._client;
   }
 
-  // @ts-ignore
   declare readonly modelManagerObservers: ReadonlyArray<WarpManagerObserver>;
 
   private static _global?: WarpManager<any>;

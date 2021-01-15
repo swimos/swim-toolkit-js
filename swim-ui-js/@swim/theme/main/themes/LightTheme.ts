@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Length} from "@swim/math";
-import {Ease, Transition} from "@swim/tween";
+import {Ease, Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Font, BoxShadow} from "@swim/style";
 import {Look} from "../look/Look";

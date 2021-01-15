@@ -25,7 +25,7 @@ import {
 } from "@swim/math";
 import {DateTimeInit, DateTimeFormat} from "@swim/time";
 import {Color, HexColorParser, RgbColorParser, HslColorParser, LinearGradientParser} from "@swim/color";
-import {FontWeight} from "../font/FontWeight";
+import type {FontWeight} from "../font/FontWeight";
 import {FontParser} from "../font/FontParser";
 import {StyleValue} from "./StyleValue";
 

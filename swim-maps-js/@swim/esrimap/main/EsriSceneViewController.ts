@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {EsriViewController} from "./EsriViewController";
-import {EsriSceneViewProjection} from "./EsriSceneViewProjection";
-import {EsriSceneView} from "./EsriSceneView";
-import {EsriSceneViewObserver} from "./EsriSceneViewObserver";
+import type {EsriSceneViewProjection} from "./EsriSceneViewProjection";
+import type {EsriSceneView} from "./EsriSceneView";
+import type {EsriSceneViewObserver} from "./EsriSceneViewObserver";
 
 export class EsriSceneViewController<V extends EsriSceneView = EsriSceneView> extends EsriViewController<V> implements EsriSceneViewObserver<V> {
   viewWillSetGeoProjection(geoProjection: EsriSceneViewProjection, view: V): void {

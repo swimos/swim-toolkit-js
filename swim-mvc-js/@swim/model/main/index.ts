@@ -20,6 +20,7 @@ export {
   ModelFlags,
   ModelInit,
   ModelPrototype,
+  ModelConstructor,
   ModelClass,
   Model,
 } from "./Model";
@@ -41,6 +42,7 @@ export {
   TraitContextType,
   TraitFlags,
   TraitPrototype,
+  TraitConstructor,
   TraitClass,
   Trait,
 } from "./Trait";

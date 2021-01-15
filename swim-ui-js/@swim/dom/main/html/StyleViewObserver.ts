@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlViewObserver} from "../html/HtmlViewObserver";
-import {StyleView} from "./StyleView";
+import type {HtmlViewObserver} from "../html/HtmlViewObserver";
+import type {StyleView} from "./StyleView";
 
 export interface StyleViewObserver<V extends StyleView = StyleView> extends HtmlViewObserver<V> {
 }

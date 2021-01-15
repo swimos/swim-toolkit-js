@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Interpolator} from "@swim/interpolate";
-import {AnyLength, Length} from "@swim/math";
-import {AnyTransition, Transition} from "@swim/tween";
-import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font, AnyBoxShadow, BoxShadow} from "@swim/style";
+import type {Interpolator} from "@swim/interpolate";
+import type {AnyLength, Length} from "@swim/math";
+import type {AnyTransition, Transition} from "@swim/animation";
+import type {AnyColor, Color} from "@swim/color";
+import type {AnyFont, Font, AnyBoxShadow, BoxShadow} from "@swim/style";
 import {LookVector} from "./LookVector";
-import {Feel} from "../feel/Feel";
-import {Mood} from "../mood/Mood";
-import {MoodVector} from "../mood/MoodVector";
+import type {Feel} from "../feel/Feel";
+import type {Mood} from "../mood/Mood";
+import type {MoodVector} from "../mood/MoodVector";
 
-export abstract class Look<T, U = T> implements Mood {
-  readonly name: string;
+export abstract class Look<T, U = never> implements Mood {
+  declare readonly name: string;
 
   constructor(name: string) {
     Object.defineProperty(this, "name", {
@@ -39,14 +39,14 @@ export abstract class Look<T, U = T> implements Mood {
     const newArray = new Array<[Feel, T]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, n = aArray.length; i < n; i += 1) {
-      const entry = aArray[i];
+      const entry = aArray[i]!;
       const feel = entry[0];
       const y = b.get(feel);
       newIndex[feel.name] = newArray.length;
       newArray.push(y === void 0 ? entry : [feel, feel.combine(this, entry[1], y)]);
     }
     for (let i = 0, n = bArray.length; i < n; i += 1) {
-      const entry = bArray[i];
+      const entry = bArray[i]!;
       const feel = entry[0];
       if (newIndex[feel.name] === void 0) {
         newIndex[feel.name] = newArray.length;
@@ -61,7 +61,7 @@ export abstract class Look<T, U = T> implements Mood {
     const n = oldArray.length;
     const newArray = new Array<[Feel, T]>(n);
     for (let i = 0; i < n; i += 1) {
-      const [feel, x] = oldArray[i];
+      const [feel, x] = oldArray[i]!;
       newArray[i] = [feel, feel.combine(this, void 0, x, -1)];
     }
     return this.fromArray(newArray, a._index);
@@ -73,14 +73,14 @@ export abstract class Look<T, U = T> implements Mood {
     const newArray = new Array<[Feel, T]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, n = aArray.length; i < n; i += 1) {
-      const entry = aArray[i];
+      const entry = aArray[i]!;
       const feel = entry[0];
       const y = b.get(feel);
       newIndex[feel.name] = newArray.length;
       newArray.push(y === void 0 ? entry : [feel, feel.combine(this, entry[1], y, -1)]);
     }
     for (let i = 0, n = bArray.length; i < n; i += 1) {
-      const [feel, y] = bArray[i];
+      const [feel, y] = bArray[i]!;
       if (newIndex[feel.name] === void 0) {
         newIndex[feel.name] = newArray.length;
         newArray.push([feel, feel.combine(this, void 0, y, -1)]);
@@ -94,7 +94,7 @@ export abstract class Look<T, U = T> implements Mood {
     const n = oldArray.length;
     const newArray = new Array<[Feel, T]>(n);
     for (let i = 0; i < n; i += 1) {
-      const [feel, x] = oldArray[i];
+      const [feel, x] = oldArray[i]!;
       newArray[i] = [feel, feel.combine(this, void 0, x, scalar)];
     }
     return this.fromArray(newArray, a._index);
@@ -104,7 +104,7 @@ export abstract class Look<T, U = T> implements Mood {
     const array = a._array;
     let combination: T | undefined;
     for (let i = 0, n = array.length; i < n; i += 1) {
-      const [feel, value] = array[i];
+      const [feel, value] = array[i]!;
       const weight = b.get(feel);
       if (weight !== void 0 && weight !== 0) {
         combination = feel.combine(this, combination, value, weight);
@@ -128,7 +128,7 @@ export abstract class Look<T, U = T> implements Mood {
     const array = new Array<[Feel, T]>(n);
     const index: {[name: string]: number | undefined} = {};
     for (let i = 0; i < n; i += 1) {
-      const [feel, value] = feels[i];
+      const [feel, value] = feels[i]!;
       array[i] = [feel, this.coerce(value)];
       index[feel.name] = i;
     }

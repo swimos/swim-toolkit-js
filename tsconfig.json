@@ -3,7 +3,7 @@
   "include": [],
   "references": [
     {"path": "./swim-ui-js/@swim/constraint"},
-    {"path": "./swim-ui-js/@swim/tween"},
+    {"path": "./swim-ui-js/@swim/animation"},
     {"path": "./swim-ui-js/@swim/color"},
     {"path": "./swim-ui-js/@swim/style"},
     {"path": "./swim-ui-js/@swim/theme"},

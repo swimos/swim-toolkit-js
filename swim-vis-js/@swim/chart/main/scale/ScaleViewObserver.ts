@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GraphicsViewObserver} from "@swim/graphics";
-import {ScaleView} from "./ScaleView";
+import type {GraphicsViewObserver} from "@swim/graphics";
+import type {ScaleView} from "./ScaleView";
 
 export interface ScaleViewObserver<X = unknown, Y = unknown, V extends ScaleView<X, Y> = ScaleView<X, Y>> extends GraphicsViewObserver<V> {
 }

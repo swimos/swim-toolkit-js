@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Model} from "../Model";
-import {ModelManagerObserver} from "../manager/ModelManagerObserver";
-import {RefreshManager} from "./RefreshManager";
+import type {Model} from "../Model";
+import type {ModelManagerObserver} from "../manager/ModelManagerObserver";
+import type {RefreshManager} from "./RefreshManager";
 
 export interface RefreshManagerObserver<M extends Model = Model, MM extends RefreshManager<M> = RefreshManager<M>> extends ModelManagerObserver<M, MM> {
 }

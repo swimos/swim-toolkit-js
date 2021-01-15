@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Model} from "../Model";
+import type {Model} from "../Model";
 import {Trait} from "../Trait";
 import {ModelManager} from "../manager/ModelManager";
-import {ModelManagerObserverType} from "../manager/ModelManagerObserver";
+import type {ModelManagerObserverType} from "../manager/ModelManagerObserver";
 import {
   ModelServiceFlags,
   ModelServiceDescriptorExtends,
@@ -29,7 +29,7 @@ export type TraitServiceMemberType<R, K extends keyof R> =
   R extends {[P in K]: TraitService<any, infer T>} ? T : unknown;
 
 export interface TraitServiceInit<T> {
-  extends?: TraitServicePrototype;
+  extends?: TraitServiceClass;
   observe?: boolean;
   type?: unknown;
   manager?: T;
@@ -45,21 +45,17 @@ export interface TraitServiceInit<T> {
   createModelService?(): ModelService<Model, T>;
 }
 
-export type TraitServiceDescriptorInit<R extends Trait, T, I = {}> = TraitServiceInit<T> & ThisType<TraitService<R, T> & I> & I;
+export type TraitServiceDescriptor<R extends Trait, T, I = {}> = TraitServiceInit<T> & ThisType<TraitService<R, T> & I> & I;
 
-export type TraitServiceDescriptorExtends<R extends Trait, T, I = {}> = {extends: TraitServicePrototype | undefined} & TraitServiceDescriptorInit<R, T, I>;
-
-export type TraitServiceDescriptor<R extends Trait, T, I = {}> =
-  T extends ModelManager ? {type: typeof ModelManager} & TraitServiceDescriptorInit<R, T, ModelManagerObserverType<T> & I> :
-  TraitServiceDescriptorInit<R, T, I>;
-
-export interface TraitServicePrototype extends Function {
-  readonly prototype: TraitService<any, any>;
-}
+export type TraitServiceDescriptorExtends<R extends Trait, T, I = {}> = {extends: TraitServiceClass | undefined} & TraitServiceDescriptor<R, T, I>;
 
 export interface TraitServiceConstructor<R extends Trait, T, I = {}> {
   new(owner: R, serviceName: string | undefined): TraitService<R, T> & I;
   prototype: TraitService<any, any> & I;
+}
+
+export interface TraitServiceClass extends Function {
+  readonly prototype: TraitService<any, any>;
 }
 
 export declare abstract class TraitService<R extends Trait, T> {
@@ -75,6 +71,12 @@ export declare abstract class TraitService<R extends Trait, T> {
   _manager: T;
 
   constructor(owner: R, serviceName: string | undefined);
+
+  /** @hidden */
+  observe?: boolean;
+
+  /** @hidden */
+  readonly type?: unknown;
 
   get name(): string;
 
@@ -134,6 +136,7 @@ export interface TraitService<R extends Trait, T> {
   (): T;
 }
 
+export function TraitService<R extends Trait, T extends ModelManager = ModelManager>(descriptor: {type: typeof ModelManager} & TraitServiceDescriptor<R, T, ModelManagerObserverType<T>>): PropertyDecorator;
 export function TraitService<R extends Trait, T, I = {}>(descriptor: TraitServiceDescriptorExtends<R, T, I>): PropertyDecorator;
 export function TraitService<R extends Trait, T>(descriptor: TraitServiceDescriptor<R, T>): PropertyDecorator;
 
@@ -169,7 +172,7 @@ function TraitServiceConstructor<R extends Trait, T>(this: TraitService<R, T>, o
 }
 
 function TraitServiceDecoratorFactory<R extends Trait, T>(descriptor: TraitServiceDescriptor<R, T>): PropertyDecorator {
-  return Trait.decorateTraitService.bind(Trait, TraitService.define(descriptor));
+  return Trait.decorateTraitService.bind(Trait, TraitService.define(descriptor as TraitServiceDescriptor<Trait, unknown>));
 }
 
 Object.defineProperty(TraitService.prototype, "owner", {
@@ -325,14 +328,20 @@ TraitService.prototype.getManagerOr = function <T, E>(this: TraitService<Trait, 
 
 TraitService.prototype.attach = function (this: TraitService<Trait, unknown>): void {
   this.bindModelService();
+  if (this._manager instanceof ModelManager && this.observe === true) {
+    this._manager.addModelManagerObserver(this as ModelManagerObserverType<ModelManager>);
+  }
 };
 
 TraitService.prototype.detach = function (this: TraitService<Trait, unknown>): void {
+  if (this._manager instanceof ModelManager && this.observe === true) {
+    this._manager.removeModelManagerObserver(this as ModelManagerObserverType<ModelManager>);
+  }
   this.unbindModelService();
 };
 
 TraitService.define = function <R extends Trait, T, I>(descriptor: TraitServiceDescriptor<R, T, I>): TraitServiceConstructor<R, T, I> {
-  let _super: TraitServicePrototype | null | undefined = descriptor.extends;
+  let _super: TraitServiceClass | null | undefined = descriptor.extends;
   const type = descriptor.type;
   const manager = descriptor.manager;
   const inherit = descriptor.inherit;

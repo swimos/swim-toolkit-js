@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewObserver} from "@swim/view";
-import {GraphicsView} from "./GraphicsView";
+import type {ViewObserver} from "@swim/view";
+import type {GraphicsView} from "./GraphicsView";
 
 export interface GraphicsViewObserver<V extends GraphicsView = GraphicsView> extends ViewObserver<V> {
   viewWillSetHidden?(hidden: boolean, view: V): void;

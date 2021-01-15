@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals} from "@swim/util";
+import type {Equals} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import {AnyLength, Length, BoxR2} from "@swim/math";
-import {Graphics} from "../graphics/Graphics";
-import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import {DrawingContext} from "../drawing/DrawingContext";
+import type {Graphics} from "../graphics/Graphics";
+import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {DrawingContext} from "../drawing/DrawingContext";
 import {PathContext} from "../path/PathContext";
 import {PathRenderer} from "../path/PathRenderer";
 

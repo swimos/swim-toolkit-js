@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {FromAny} from "@swim/util";
+import type {FromAny} from "@swim/util";
 import {Model} from "../Model";
-import {ModelObserverType} from "../ModelObserver";
+import type {ModelObserverType} from "../ModelObserver";
 
 export type ModelBindingMemberType<M, K extends keyof M> =
   M extends {[P in K]: ModelBinding<any, infer S, any>} ? S : unknown;
@@ -23,8 +23,8 @@ export type ModelBindingMemberType<M, K extends keyof M> =
 export type ModelBindingMemberInit<M, K extends keyof M> =
   M extends {[P in K]: ModelBinding<any, infer T, infer U>} ? T | U : unknown;
 
-export interface ModelBindingInit<S extends Model, U = S> {
-  extends?: ModelBindingPrototype;
+export interface ModelBindingInit<S extends Model, U = never> {
+  extends?: ModelBindingClass;
   observe?: boolean;
   child?: boolean;
   type?: unknown;
@@ -37,26 +37,22 @@ export interface ModelBindingInit<S extends Model, U = S> {
   fromAny?(value: S | U): S | null;
 }
 
-export type ModelBindingDescriptorInit<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = ModelBindingInit<S, U> & ThisType<ModelBinding<M, S, U> & I> & I;
+export type ModelBindingDescriptor<M extends Model, S extends Model, U = never, I = ModelObserverType<S>> = ModelBindingInit<S, U> & ThisType<ModelBinding<M, S, U> & I> & I;
 
-export type ModelBindingDescriptorExtends<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = {extends: ModelBindingPrototype | undefined} & ModelBindingDescriptorInit<M, S, U, I>;
+export type ModelBindingDescriptorExtends<M extends Model, S extends Model, U = never, I = ModelObserverType<S>> = {extends: ModelBindingClass | undefined} & ModelBindingDescriptor<M, S, U, I>;
 
-export type ModelBindingDescriptorFromAny<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ModelBindingDescriptorInit<M, S, U, I>;
+export type ModelBindingDescriptorFromAny<M extends Model, S extends Model, U = never, I = ModelObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ModelBindingDescriptor<M, S, U, I>;
 
-export type ModelBindingDescriptor<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> =
-  U extends S ? ModelBindingDescriptorInit<M, S, U, I> :
-  ModelBindingDescriptorFromAny<M, S, U, I>;
-
-export interface ModelBindingPrototype extends Function {
-  readonly prototype: ModelBinding<any, any>;
-}
-
-export interface ModelBindingConstructor<M extends Model, S extends Model, U = S, I = ModelObserverType<S>> {
+export interface ModelBindingConstructor<M extends Model, S extends Model, U = never, I = ModelObserverType<S>> {
   new(owner: M, bindingName: string | undefined): ModelBinding<M, S, U> & I;
   prototype: ModelBinding<any, any, any> & I;
 }
 
-export declare abstract class ModelBinding<M extends Model, S extends Model, U = S> {
+export interface ModelBindingClass extends Function {
+  readonly prototype: ModelBinding<any, any, any>;
+}
+
+export declare abstract class ModelBinding<M extends Model, S extends Model, U = never> {
   /** @hidden */
   _owner: M;
   /** @hidden */
@@ -122,25 +118,25 @@ export declare abstract class ModelBinding<M extends Model, S extends Model, U =
 
   fromAny(value: S | U): S | null;
 
-  static define<M extends Model, S extends Model = Model, U = S, I = ModelObserverType<S>>(descriptor: ModelBindingDescriptorExtends<M, S, U, I>): ModelBindingConstructor<M, S, U>;
-  static define<M extends Model, S extends Model = Model, U = S>(descriptor: ModelBindingDescriptor<M, S, U>): ModelBindingConstructor<M, S, U>;
+  static define<M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: ModelBindingDescriptorExtends<M, S, U, I>): ModelBindingConstructor<M, S, U>;
+  static define<M extends Model, S extends Model = Model, U = never>(descriptor: ModelBindingDescriptor<M, S, U>): ModelBindingConstructor<M, S, U>;
 }
 
-export interface ModelBinding<M extends Model, S extends Model, U = S> {
+export interface ModelBinding<M extends Model, S extends Model, U = never> {
   (): S | null;
   (model: S | U | null): M;
 }
 
-export function ModelBinding<M extends Model, S extends Model = Model, U = S, I = ModelObserverType<S>>(descriptor: ModelBindingDescriptorExtends<M, S, U, I>): PropertyDecorator;
-export function ModelBinding<M extends Model, S extends Model = Model, U = S>(descriptor: ModelBindingDescriptor<M, S, U>): PropertyDecorator;
+export function ModelBinding<M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: ModelBindingDescriptorExtends<M, S, U, I>): PropertyDecorator;
+export function ModelBinding<M extends Model, S extends Model = Model, U = never>(descriptor: ModelBindingDescriptor<M, S, U>): PropertyDecorator;
 
 export function ModelBinding<M extends Model, S extends Model, U>(
-    this: ModelBinding<M, S> | typeof ModelBinding,
+    this: ModelBinding<M, S, U> | typeof ModelBinding,
     owner: M | ModelBindingDescriptor<M, S, U>,
     bindingName?: string,
-  ): ModelBinding<M, S> | PropertyDecorator {
+  ): ModelBinding<M, S, U> | PropertyDecorator {
   if (this instanceof ModelBinding) { // constructor
-    return ModelBindingConstructor.call(this, owner as M, bindingName);
+    return ModelBindingConstructor.call(this as unknown as ModelBinding<Model, Model, unknown>, owner as M, bindingName);
   } else { // decorator factory
     return ModelBindingDecoratorFactory(owner as ModelBindingDescriptor<M, S, U>);
   }
@@ -162,7 +158,7 @@ function ModelBindingConstructor<M extends Model, S extends Model, U>(this: Mode
 }
 
 function ModelBindingDecoratorFactory<M extends Model, S extends Model, U>(descriptor: ModelBindingDescriptor<M, S, U>): PropertyDecorator {
-  return Model.decorateModelBinding.bind(Model, ModelBinding.define(descriptor));
+  return Model.decorateModelBinding.bind(Model, ModelBinding.define(descriptor as ModelBindingDescriptor<Model, Model>));
 }
 
 Object.defineProperty(ModelBinding.prototype, "owner", {

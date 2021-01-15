@@ -13,31 +13,29 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Animator} from "@swim/tween";
+import type {Animator} from "@swim/animation";
 import {CssContext} from "./CssContext";
 import {CssRuleInit, CssRule} from "./CssRule";
 
 export interface MediaRuleInit extends CssRuleInit {
-  extends?: MediaRulePrototype;
+  extends?: MediaRuleClass;
 
   css?: string | (() => string);
 
   initRule?(rule: CSSMediaRule): CSSMediaRule;
 }
 
-export type MediaRuleDescriptorInit<V extends CssContext, I = {}> = MediaRuleInit & ThisType<MediaRule<V> & I> & I;
+export type MediaRuleDescriptor<V extends CssContext, I = {}> = MediaRuleInit & ThisType<MediaRule<V> & I> & I;
 
-export type MediaRuleDescriptorExtends<V extends CssContext, I = {}> = {extends: MediaRulePrototype | undefined} & MediaRuleDescriptorInit<V, I>;
-
-export type MediaRuleDescriptor<V extends CssContext, I = {}> = MediaRuleDescriptorInit<V, I>;
-
-export interface MediaRulePrototype extends Function {
-  readonly prototype: MediaRule<any>;
-}
+export type MediaRuleDescriptorExtends<V extends CssContext, I = {}> = {extends: MediaRuleClass | undefined} & MediaRuleDescriptor<V, I>;
 
 export interface MediaRuleConstructor<V extends CssContext, I = {}> {
   new(owner: V, ruleName: string | undefined): MediaRule<V> & I;
   prototype: MediaRule<any> & I;
+}
+
+export interface MediaRuleClass extends Function {
+  readonly prototype: MediaRule<any>;
 }
 
 export declare abstract class MediaRule<V extends CssContext> {
@@ -95,7 +93,7 @@ export function MediaRule<V extends CssContext>(
     ruleName?: string,
   ): MediaRule<V> | PropertyDecorator {
   if (this instanceof MediaRule) { // constructor
-    return MediaRuleConstructor.call(this, owner as V, ruleName);
+    return MediaRuleConstructor.call(this, owner as V, ruleName) as MediaRule<V>;
   } else { // decorator factory
     return MediaRuleDecoratorFactory(owner as MediaRuleDescriptor<V>);
   }
@@ -104,12 +102,12 @@ __extends(MediaRule, CssRule);
 CssRule.Media = MediaRule;
 
 function MediaRuleConstructor<V extends CssContext>(this: MediaRule<V>, owner: V, ruleName: string | undefined): MediaRule<V> {
-  const _this: MediaRule<V> = CssRule.call(this, owner, ruleName) || this;
+  const _this: MediaRule<V> = (CssRule as Function).call(this, owner, ruleName) || this;
   return _this;
 }
 
 function MediaRuleDecoratorFactory<V extends CssContext>(descriptor: MediaRuleDescriptor<V>): PropertyDecorator {
-  return CssContext.decorateCssRule.bind(CssContext, MediaRule.define(descriptor as MediaRuleDescriptorExtends<V>));
+  return CssContext.decorateCssRule.bind(CssContext, MediaRule.define(descriptor as MediaRuleDescriptor<CssContext>));
 }
 
 MediaRule.prototype.getRule = function (index: number): CSSRule | null {

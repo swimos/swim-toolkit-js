@@ -14,9 +14,9 @@
 
 import {Values} from "@swim/util";
 import {Interpolator} from "@swim/interpolate";
-import {BoxR2} from "@swim/math";
+import type {BoxR2} from "@swim/math";
 import {Scale, ContinuousScale, LinearScale, TimeScale} from "@swim/scale";
-import {Ease, Tween, AnyTransition, Transition} from "@swim/tween";
+import {Ease, Tween, AnyTransition, Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
@@ -24,10 +24,10 @@ import {GraphicsViewInit, LayerView} from "@swim/graphics";
 import {ScaleGestureInput, ScaleGestureDelegate, ScaleGesture} from "@swim/gesture";
 import {ScaleXView} from "./ScaleXView";
 import {ScaleYView} from "./ScaleYView";
-import {ScaleXYView} from "./ScaleXYView";
+import type {ScaleXYView} from "./ScaleXYView";
 import {ScaleViewAnimator} from "./ScaleViewAnimator";
-import {ScaleViewObserver} from "./ScaleViewObserver";
-import {ScaleViewController} from "./ScaleViewController";
+import type {ScaleViewObserver} from "./ScaleViewObserver";
+import type {ScaleViewController} from "./ScaleViewController";
 
 /** @hidden */
 export type ScaleFlags = number;
@@ -230,17 +230,15 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     }
   }
 
-  // @ts-ignore
   declare readonly viewController: ScaleViewController<X, Y> | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<ScaleViewObserver<X, Y>>;
 
   @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
-  xScale: ScaleViewAnimator<this, X, number>;
+  declare xScale: ScaleViewAnimator<this, X, number>;
 
   @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
-  yScale: ScaleViewAnimator<this, Y, number>;
+  declare yScale: ScaleViewAnimator<this, Y, number>;
 
   xDomain(): readonly [X, X] | undefined;
   xDomain(xDomain: readonly [X, X] | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;
@@ -795,7 +793,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
     }
   })
-  scaleGesture: ViewScope<this, ScaleGesture<X, Y> | undefined, ScaleGesture<X, Y> | boolean | undefined>;
+  declare scaleGesture: ViewScope<this, ScaleGesture<X, Y> | undefined, ScaleGesture<X, Y> | boolean | undefined>;
 
   @ViewScope({
     type: Transition,
@@ -804,7 +802,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       return Transition.duration(250, Ease.linear);
     },
   })
-  rescaleTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
+  declare rescaleTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
 
   @ViewScope({
     type: Transition,
@@ -813,13 +811,13 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       return Transition.duration(250, Ease.cubicOut);
     },
   })
-  reboundTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
+  declare reboundTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   xDomainInRange(): boolean {
     return (this._scaleFlags & ScaleView.XInRangeMask) === ScaleView.XInRangeMask;
@@ -946,7 +944,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this._viewFlags & View.NeedsLayout) === 0) {
+    if ((this.viewFlags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;

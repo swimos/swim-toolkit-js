@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {MapGraphicsViewController} from "@swim/map";
-import {MapboxProjection} from "./MapboxProjection";
-import {MapboxView} from "./MapboxView";
-import {MapboxViewObserver} from "./MapboxViewObserver";
+import type {MapboxProjection} from "./MapboxProjection";
+import type {MapboxView} from "./MapboxView";
+import type {MapboxViewObserver} from "./MapboxViewObserver";
 
 export class MapboxViewController<V extends MapboxView = MapboxView> extends MapGraphicsViewController<V> implements MapboxViewObserver<V> {
   viewWillSetGeoProjection(geoProjection: MapboxProjection, view: V): void {

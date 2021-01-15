@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Model} from "../Model";
-import {ModelManager} from "./ModelManager";
+import type {Model} from "../Model";
+import type {ModelManager} from "./ModelManager";
 
 export type ModelManagerObserverType<MM extends ModelManager> =
   MM extends {readonly modelManagerObservers: ReadonlyArray<infer MMO>} ? MMO : never;

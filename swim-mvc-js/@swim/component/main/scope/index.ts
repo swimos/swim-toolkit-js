@@ -17,12 +17,11 @@ export {
   ComponentScopeMemberInit,
   ComponentScopeFlags,
   ComponentScopeInit,
-  ComponentScopeDescriptorInit,
+  ComponentScopeDescriptor,
   ComponentScopeDescriptorExtends,
   ComponentScopeDescriptorFromAny,
-  ComponentScopeDescriptor,
-  ComponentScopePrototype,
   ComponentScopeConstructor,
+  ComponentScopeClass,
   ComponentScope,
 } from "./ComponentScope";
 

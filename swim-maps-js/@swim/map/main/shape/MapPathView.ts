@@ -15,7 +15,7 @@
 import {AnyPointR2, PointR2, BoxR2, PathR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, AnyGeoPath, GeoPath} from "@swim/geo";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
+import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
 import {MapLayerView} from "../layer/MapLayerView";
 
 export interface MapPathViewInit extends MapGraphicsViewInit {
@@ -45,16 +45,16 @@ export class MapPathView extends MapLayerView {
       this.owner.onSetGeoPath(newValue, oldValue);
     },
   })
-  geoPath: ViewAnimator<this, GeoPath, AnyGeoPath>;
+  declare geoPath: ViewAnimator<this, GeoPath, AnyGeoPath>;
 
   @ViewAnimator({type: PathR2, state: PathR2.empty()})
-  viewPath: ViewAnimator<this, PathR2>;
+  declare viewPath: ViewAnimator<this, PathR2>;
 
   @ViewAnimator({type: GeoPoint, state: GeoPoint.undefined()})
-  geoCentroid: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
+  declare geoCentroid: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
   @ViewAnimator({type: PointR2, state: PointR2.undefined()})
-  viewCentroid: ViewAnimator<this, PointR2, AnyPointR2>;
+  declare viewCentroid: ViewAnimator<this, PointR2, AnyPointR2>;
 
   protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
     const oldGeoBounds = this._geoBounds;

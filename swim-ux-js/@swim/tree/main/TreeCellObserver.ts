@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlViewObserver} from "@swim/dom";
-import {PositionGestureInput} from "@swim/gesture";
-import {TreeCell} from "./TreeCell";
+import type {HtmlViewObserver} from "@swim/dom";
+import type {PositionGestureInput} from "@swim/gesture";
+import type {TreeCell} from "./TreeCell";
 
 export interface TreeCellObserver<V extends TreeCell = TreeCell> extends HtmlViewObserver<V> {
   cellDidPress?(input: PositionGestureInput, event: Event | null, view: V): void;

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GestureInputType} from "./GestureInput";
+import type {GestureInputType} from "./GestureInput";
 import {MomentumGestureInput} from "./MomentumGestureInput";
 
 export class ScaleGestureInput<X, Y> extends MomentumGestureInput {

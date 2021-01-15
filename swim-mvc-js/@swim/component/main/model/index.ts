@@ -16,11 +16,10 @@ export {
   ComponentModelMemberType,
   ComponentModelMemberInit,
   ComponentModelInit,
-  ComponentModelDescriptorInit,
+  ComponentModelDescriptor,
   ComponentModelDescriptorExtends,
   ComponentModelDescriptorFromAny,
-  ComponentModelDescriptor,
-  ComponentModelPrototype,
   ComponentModelConstructor,
+  ComponentModelClass,
   ComponentModel,
 } from "./ComponentModel";

@@ -14,7 +14,7 @@
 
 import {ViewNodeType, SvgView} from "@swim/dom";
 import {IconButton} from "@swim/button";
-import {DrawerView} from "./DrawerView";
+import type {DrawerView} from "./DrawerView";
 
 export class DrawerButton extends IconButton {
   /** @hidden */

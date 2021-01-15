@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween, Transition} from "@swim/tween";
+import type {Tween, Transition} from "@swim/animation";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
-import {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
+import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMorph} from "./ButtonMorph";
 import {ButtonMembrane} from "./ButtonMembrane";
 
@@ -81,7 +81,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
   }
 
   @ViewAnimator({type: Number, inherit: true})
-  stackPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
+  declare stackPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {

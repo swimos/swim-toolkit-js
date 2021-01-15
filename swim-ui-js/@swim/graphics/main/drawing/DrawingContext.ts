@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {PathR2Context} from "@swim/math";
-import {GraphicsContext} from "../graphics/GraphicsContext";
+import type {PathR2Context} from "@swim/math";
+import type {GraphicsContext} from "../graphics/GraphicsContext";
 
 export interface DrawingContext extends GraphicsContext, PathR2Context {
   moveTo(x: number, y: number): void;

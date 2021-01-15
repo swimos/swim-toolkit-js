@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Component} from "../Component";
-import {ComponentManagerObserver} from "../manager/ComponentManagerObserver";
-import {HistoryState} from "./HistoryState";
-import {HistoryManager} from "./HistoryManager";
+import type {Component} from "../Component";
+import type {ComponentManagerObserver} from "../manager/ComponentManagerObserver";
+import type {HistoryState} from "./HistoryState";
+import type {HistoryManager} from "./HistoryManager";
 
 export interface HistoryManagerObserver<C extends Component = Component, CM extends HistoryManager<C> = HistoryManager<C>> extends ComponentManagerObserver<C, CM> {
   historyManagerWillPushHistory?(historyState: HistoryState, historyManager: CM): void;

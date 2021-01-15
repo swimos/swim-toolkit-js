@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Value} from "@swim/structure";
+import type {Value} from "@swim/structure";
 import {AnyLength, Length} from "@swim/math";
 
 export type AnyLineHeight = AnyLength | LineHeight;

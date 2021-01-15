@@ -12,24 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModelContextType, ModelContext} from "../ModelContext";
+import {Arrays} from "@swim/util";
+import type {ModelContextType, ModelContext} from "../ModelContext";
 import {ModelFlags, Model} from "../Model";
-import {ModelObserverType} from "../ModelObserver";
-import {ModelConsumerType, ModelConsumer} from "../ModelConsumer";
-import {Trait} from "../Trait";
-import {ModelService} from "../service/ModelService";
+import type {ModelObserverType} from "../ModelObserver";
+import type {ModelConsumerType, ModelConsumer} from "../ModelConsumer";
+import type {Trait} from "../Trait";
+import type {ModelService} from "../service/ModelService";
 import {ModelScope} from "../scope/ModelScope";
-import {ModelBinding} from "../binding/ModelBinding";
-import {ModelTrait} from "../binding/ModelTrait";
-import {ModelDownlink} from "../downlink/ModelDownlink";
+import type {ModelBinding} from "../binding/ModelBinding";
+import type {ModelTrait} from "../binding/ModelTrait";
+import type {ModelDownlink} from "../downlink/ModelDownlink";
 
 export abstract class GenericModel extends Model {
-  /** @hidden */
-  _key?: string;
-  /** @hidden */
-  _parentModel: Model | null;
-  /** @hidden */
-  _modelConsumers?: ModelConsumerType<this>[];
   /** @hidden */
   _modelServices?: {[serviceName: string]: ModelService<Model, unknown> | undefined};
   /** @hidden */
@@ -43,30 +38,38 @@ export abstract class GenericModel extends Model {
 
   constructor() {
     super();
-    this._parentModel = null;
+    Object.defineProperty(this, "key", {
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "parentModel", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modelConsumers", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected willObserve<T>(callback: (this: this, modelObserver: ModelObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const modelController = this._modelController;
-    if (modelController !== void 0) {
-      result = callback.call(this, modelController);
+    const modelController = this.modelController;
+    if (modelController !== null) {
+      result = callback.call(this, modelController as ModelObserverType<this>) as T | undefined;
       if (result !== void 0) {
         return result;
       }
     }
-    const modelObservers = this._modelObservers;
-    if (modelObservers !== void 0) {
-      let i = 0;
-      while (i < modelObservers.length) {
-        const modelObserver = modelObservers[i];
-        result = callback.call(this, modelObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (modelObserver === modelObservers[i]) {
-          i += 1;
-        }
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
+      result = callback.call(this, modelObserver as ModelObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
@@ -74,23 +77,17 @@ export abstract class GenericModel extends Model {
 
   protected didObserve<T>(callback: (this: this, modelObserver: ModelObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const modelObservers = this._modelObservers;
-    if (modelObservers !== void 0) {
-      let i = 0;
-      while (i < modelObservers.length) {
-        const modelObserver = modelObservers[i];
-        result = callback.call(this, modelObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (modelObserver === modelObservers[i]) {
-          i += 1;
-        }
+    const modelObservers = this.modelObservers;
+    for (let i = 0, n = modelObservers.length; i < n; i += 1) {
+      const modelObserver = modelObservers[i]!;
+      result = callback.call(this, modelObserver as ModelObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
-    const modelController = this._modelController;
-    if (modelController !== void 0) {
-      result = callback.call(this, modelController);
+    const modelController = this.modelController;
+    if (modelController !== null) {
+      result = callback.call(this, modelController as ModelObserverType<this>) as T | undefined;
       if (result !== void 0) {
         return result;
       }
@@ -98,48 +95,57 @@ export abstract class GenericModel extends Model {
     return result;
   }
 
-  get key(): string | undefined {
-    return this._key;
-  }
+  declare readonly key: string | undefined;
 
   /** @hidden */
   setKey(key: string | undefined): void {
-    if (key !== void 0) {
-      this._key = key;
-    } else if (this._key !== void 0) {
-      this._key = void 0;
-    }
+    Object.defineProperty(this, "key", {
+      value: key,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get parentModel(): Model | null {
-    return this._parentModel;
-  }
+  declare readonly parentModel: Model | null;
 
   /** @hidden */
   setParentModel(newParentModel: Model | null, oldParentModel: Model | null) {
     this.willSetParentModel(newParentModel, oldParentModel);
-    this._parentModel = newParentModel;
+    Object.defineProperty(this, "parentModel", {
+      value: newParentModel,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetParentModel(newParentModel, oldParentModel);
     this.didSetParentModel(newParentModel, oldParentModel);
   }
 
   remove(): void {
-    const parentModel = this._parentModel;
+    const parentModel = this.parentModel;
     if (parentModel !== null) {
-      if ((this._modelFlags & Model.TraversingFlag) === 0) {
+      if ((this.modelFlags & Model.TraversingFlag) === 0) {
         parentModel.removeChildModel(this);
       } else {
-        this._modelFlags |= Model.RemovingFlag;
+        this.setModelFlags(this.modelFlags | Model.RemovingFlag);
       }
     }
   }
 
   abstract get childModelCount(): number;
 
-  abstract get childModels(): ReadonlyArray<Model>;
+  abstract readonly childModels: ReadonlyArray<Model>;
 
-  abstract forEachChildModel<T, S = unknown>(callback: (this: S, childModel: Model) => T | void,
-                                             thisArg?: S): T | undefined;
+  abstract firstChildModel(): Model | null;
+
+  abstract lastChildModel(): Model | null;
+
+  abstract nextChildModel(targetModel: Model): Model | null;
+
+  abstract previousChildModel(targetModel: Model): Model | null;
+
+  abstract forEachChildModel<T>(callback: (childModel: Model) => T | void): T | undefined;
+  abstract forEachChildModel<T, S>(callback: (this: S, childModel: Model) => T | void,
+                                   thisArg: S): T | undefined;
 
   abstract getChildModel(key: string): Model | null;
 
@@ -181,9 +187,8 @@ export abstract class GenericModel extends Model {
   }
 
   cascadeMount(): void {
-    if ((this._modelFlags & Model.MountedFlag) === 0) {
-      this._modelFlags |= Model.MountedFlag;
-      this._modelFlags |= Model.TraversingFlag;
+    if ((this.modelFlags & Model.MountedFlag) === 0) {
+      this.setModelFlags(this.modelFlags | (Model.MountedFlag | Model.TraversingFlag));
       try {
         this.willMount();
         this.onMount();
@@ -191,7 +196,7 @@ export abstract class GenericModel extends Model {
         this.doMountChildModels();
         this.didMount();
       } finally {
-        this._modelFlags &= ~Model.TraversingFlag;
+        this.setModelFlags(this.modelFlags & ~Model.TraversingFlag);
       }
     } else {
       throw new Error("already mounted");
@@ -209,28 +214,28 @@ export abstract class GenericModel extends Model {
 
   /** @hidden */
   protected doMountTraits(): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).doMount();
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).doMount();
     }
   }
 
   /** @hidden */
   protected doMountChildModels(): void {
-    this.forEachChildModel(function (childModel: Model): void {
+    type self = this;
+    function doMountChildModel(this: self, childModel: Model): void {
       childModel.cascadeMount();
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
         this.removeChildModel(childModel);
       }
-    }, this);
+    }
+    this.forEachChildModel(doMountChildModel, this);
   }
 
   cascadeUnmount(): void {
-    if ((this._modelFlags & Model.MountedFlag) !== 0) {
-      this._modelFlags &= ~Model.MountedFlag;
-      this._modelFlags |= Model.TraversingFlag;
+    if ((this.modelFlags & Model.MountedFlag) !== 0) {
+      this.setModelFlags(this.modelFlags & ~Model.MountedFlag | Model.TraversingFlag);
       try {
         this.willUnmount();
         this.doUnmountChildModels();
@@ -238,7 +243,7 @@ export abstract class GenericModel extends Model {
         this.onUnmount();
         this.didUnmount();
       } finally {
-        this._modelFlags &= ~Model.TraversingFlag;
+        this.setModelFlags(this.modelFlags & ~Model.TraversingFlag);
       }
     } else {
       throw new Error("already unmounted");
@@ -251,33 +256,33 @@ export abstract class GenericModel extends Model {
     this.unmountModelBindings();
     this.unmountScopes();
     this.unmountServices();
-    this._modelFlags &= ~Model.ModelFlagMask | Model.RemovingFlag;
+    this.setModelFlags(this.modelFlags & (~Model.ModelFlagMask | Model.RemovingFlag));
   }
 
   /** @hidden */
   protected doUnmountTraits(): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).doUnmount();
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).doUnmount();
     }
   }
 
   /** @hidden */
   protected doUnmountChildModels(): void {
-    this.forEachChildModel(function (childModel: Model): void {
+    type self = this;
+    function doUnmountChildModel(this: self, childModel: Model): void {
       childModel.cascadeUnmount();
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
         this.removeChildModel(childModel);
       }
-    }, this);
+    }
+    this.forEachChildModel(doUnmountChildModel, this);
   }
 
   cascadePower(): void {
-    if ((this._modelFlags & Model.PoweredFlag) === 0) {
-      this._modelFlags |= Model.PoweredFlag;
-      this._modelFlags |= Model.TraversingFlag;
+    if ((this.modelFlags & Model.PoweredFlag) === 0) {
+      this.setModelFlags(this.modelFlags | (Model.PoweredFlag | Model.TraversingFlag));
       try {
         this.willPower();
         this.onPower();
@@ -285,7 +290,7 @@ export abstract class GenericModel extends Model {
         this.doPowerChildModels();
         this.didPower();
       } finally {
-        this._modelFlags &= ~Model.TraversingFlag;
+        this.setModelFlags(this.modelFlags & ~Model.TraversingFlag);
       }
     } else {
       throw new Error("already powered");
@@ -294,28 +299,28 @@ export abstract class GenericModel extends Model {
 
   /** @hidden */
   protected doPowerTraits(): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).doPower();
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).doPower();
     }
   }
 
   /** @hidden */
   protected doPowerChildModels(): void {
-    this.forEachChildModel(function (childModel: Model): void {
+    type self = this;
+    function doPowerChildModel(this: self, childModel: Model): void {
       childModel.cascadePower();
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
         this.removeChildModel(childModel);
       }
-    }, this);
+    }
+    this.forEachChildModel(doPowerChildModel, this);
   }
 
   cascadeUnpower(): void {
-    if ((this._modelFlags & Model.PoweredFlag) !== 0) {
-      this._modelFlags &= ~Model.PoweredFlag;
-      this._modelFlags |= Model.TraversingFlag;
+    if ((this.modelFlags & Model.PoweredFlag) !== 0) {
+      this.setModelFlags(this.modelFlags & ~Model.PoweredFlag | Model.TraversingFlag);
       try {
         this.willUnpower();
         this.doUnpowerChildModels();
@@ -323,7 +328,7 @@ export abstract class GenericModel extends Model {
         this.onUnpower();
         this.didUnpower();
       } finally {
-        this._modelFlags &= ~Model.TraversingFlag;
+        this.setModelFlags(this.modelFlags & ~Model.TraversingFlag);
       }
     } else {
       throw new Error("already unpowered");
@@ -332,28 +337,29 @@ export abstract class GenericModel extends Model {
 
   /** @hidden */
   protected doUnpowerTraits(): void {
-    const traits = this._traits;
-    for (let i = 0, n = traits !== void 0 ? traits.length : 0; i < n; i += 1) {
-      const trait = traits![i];
-      (trait as any).doUnpower();
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).doUnpower();
     }
   }
 
   /** @hidden */
   protected doUnpowerChildModels(): void {
-    this.forEachChildModel(function (childModel: Model): void {
+    type self = this;
+    function doUnpowerChildModel(this: self, childModel: Model): void {
       childModel.cascadeUnpower();
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
         this.removeChildModel(childModel);
       }
-    }, this);
+    }
+    this.forEachChildModel(doUnpowerChildModel, this);
   }
 
   cascadeAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContext): void {
     const extendedModelContext = this.extendModelContext(modelContext);
     analyzeFlags &= ~Model.NeedsAnalyze;
-    analyzeFlags |= this._modelFlags & Model.UpdateMask;
+    analyzeFlags |= this.modelFlags & Model.UpdateMask;
     analyzeFlags = this.needsAnalyze(analyzeFlags, extendedModelContext);
     if ((analyzeFlags & Model.AnalyzeMask) !== 0) {
       this.doAnalyze(analyzeFlags, extendedModelContext);
@@ -363,24 +369,23 @@ export abstract class GenericModel extends Model {
   /** @hidden */
   protected doAnalyze(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
     let cascadeFlags = analyzeFlags;
-    this._modelFlags |= Model.TraversingFlag | Model.AnalyzingFlag;
-    this._modelFlags &= ~Model.NeedsAnalyze;
+    this.setModelFlags(this.modelFlags & ~Model.NeedsAnalyze | (Model.TraversingFlag | Model.AnalyzingFlag));
     try {
       this.willAnalyze(cascadeFlags, modelContext);
-      if (((this._modelFlags | analyzeFlags) & Model.NeedsMutate) !== 0) {
+      if (((this.modelFlags | analyzeFlags) & Model.NeedsMutate) !== 0) {
         this.willMutate(modelContext);
         cascadeFlags |= Model.NeedsMutate;
-        this._modelFlags &= ~Model.NeedsMutate;
+        this.setModelFlags(this.modelFlags & ~Model.NeedsMutate);
       }
-      if (((this._modelFlags | analyzeFlags) & Model.NeedsAggregate) !== 0) {
+      if (((this.modelFlags | analyzeFlags) & Model.NeedsAggregate) !== 0) {
         this.willAggregate(modelContext);
         cascadeFlags |= Model.NeedsAggregate;
-        this._modelFlags &= ~Model.NeedsAggregate;
+        this.setModelFlags(this.modelFlags & ~Model.NeedsAggregate);
       }
-      if (((this._modelFlags | analyzeFlags) & Model.NeedsCorrelate) !== 0) {
+      if (((this.modelFlags | analyzeFlags) & Model.NeedsCorrelate) !== 0) {
         this.willCorrelate(modelContext);
         cascadeFlags |= Model.NeedsCorrelate;
-        this._modelFlags &= ~Model.NeedsCorrelate;
+        this.setModelFlags(this.modelFlags & ~Model.NeedsCorrelate);
       }
 
       this.onAnalyze(cascadeFlags, modelContext);
@@ -407,7 +412,7 @@ export abstract class GenericModel extends Model {
       }
       this.didAnalyze(cascadeFlags, modelContext);
     } finally {
-      this._modelFlags &= ~(Model.TraversingFlag | Model.AnalyzingFlag);
+      this.setModelFlags(this.modelFlags & ~(Model.TraversingFlag | Model.AnalyzingFlag));
     }
   }
 
@@ -426,9 +431,8 @@ export abstract class GenericModel extends Model {
                                     analyzeChildModel: (this: this, childModel: Model, analyzeFlags: ModelFlags,
                                                         modelContext: ModelContextType<this>) => void): void {
     if (traitIndex < traits.length) {
-      const trait = traits[traitIndex];
-      (trait as any).analyzeChildModels(analyzeFlags, modelContext, analyzeChildModel,
-                                        this.analyzeTraitChildModels.bind(this, traits, traitIndex + 1));
+      (traits[traitIndex] as any).analyzeChildModels(analyzeFlags, modelContext, analyzeChildModel,
+                                                     this.analyzeTraitChildModels.bind(this, traits, traitIndex + 1));
     } else {
       this.analyzeOwnChildModels(analyzeFlags, modelContext, analyzeChildModel);
     }
@@ -437,8 +441,8 @@ export abstract class GenericModel extends Model {
   protected analyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
                                analyzeChildModel: (this: this, childModel: Model, analyzeFlags: ModelFlags,
                                                    modelContext: ModelContextType<this>) => void): void {
-    const traits = this._traits;
-    if (traits !== void 0 && traits.length !== 0) {
+    const traits = this.traits;
+    if (traits.length !== 0) {
       this.analyzeTraitChildModels(traits, 0, analyzeFlags, modelContext, analyzeChildModel);
     } else {
       this.analyzeOwnChildModels(analyzeFlags, modelContext, analyzeChildModel);
@@ -448,7 +452,7 @@ export abstract class GenericModel extends Model {
   cascadeRefresh(refreshFlags: ModelFlags, modelContext: ModelContext): void {
     const extendedModelContext = this.extendModelContext(modelContext);
     refreshFlags &= ~Model.NeedsRefresh;
-    refreshFlags |= this._modelFlags & Model.UpdateMask;
+    refreshFlags |= this.modelFlags & Model.UpdateMask;
     refreshFlags = this.needsRefresh(refreshFlags, extendedModelContext);
     if ((refreshFlags & Model.RefreshMask) !== 0) {
       this.doRefresh(refreshFlags, extendedModelContext);
@@ -458,19 +462,18 @@ export abstract class GenericModel extends Model {
   /** @hidden */
   protected doRefresh(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
     let cascadeFlags = refreshFlags;
-    this._modelFlags |= Model.TraversingFlag | Model.RefreshingFlag;
-    this._modelFlags &= ~Model.NeedsRefresh;
+    this.setModelFlags(this.modelFlags & ~Model.NeedsRefresh | (Model.TraversingFlag | Model.RefreshingFlag));
     try {
       this.willRefresh(cascadeFlags, modelContext);
-      if (((this._modelFlags | refreshFlags) & Model.NeedsValidate) !== 0) {
+      if (((this.modelFlags | refreshFlags) & Model.NeedsValidate) !== 0) {
         this.willValidate(modelContext);
         cascadeFlags |= Model.NeedsValidate;
-        this._modelFlags &= ~Model.NeedsValidate;
+        this.setModelFlags(this.modelFlags & ~Model.NeedsValidate);
       }
-      if (((this._modelFlags | refreshFlags) & Model.NeedsReconcile) !== 0) {
+      if (((this.modelFlags | refreshFlags) & Model.NeedsReconcile) !== 0) {
         this.willReconcile(modelContext);
         cascadeFlags |= Model.NeedsReconcile;
-        this._modelFlags &= ~Model.NeedsReconcile;
+        this.setModelFlags(this.modelFlags & ~Model.NeedsReconcile);
       }
 
       this.onRefresh(cascadeFlags, modelContext);
@@ -491,7 +494,7 @@ export abstract class GenericModel extends Model {
       }
       this.didRefresh(cascadeFlags, modelContext);
     } finally {
-      this._modelFlags &= ~(Model.TraversingFlag | Model.RefreshingFlag);
+      this.setModelFlags(this.modelFlags & ~(Model.TraversingFlag | Model.RefreshingFlag));
     }
   }
 
@@ -505,9 +508,8 @@ export abstract class GenericModel extends Model {
                                     refreshChildModel: (this: this, childModel: Model, refreshFlags: ModelFlags,
                                                         modelContext: ModelContextType<this>) => void): void {
     if (traitIndex < traits.length) {
-      const trait = traits[traitIndex];
-      (trait as any).refreshChildModels(refreshFlags, modelContext, refreshChildModel,
-                                        this.refreshTraitChildModels.bind(this, traits, traitIndex + 1));
+      (traits[traitIndex] as any).refreshChildModels(refreshFlags, modelContext, refreshChildModel,
+                                                     this.refreshTraitChildModels.bind(this, traits, traitIndex + 1));
     } else {
       this.refreshOwnChildModels(refreshFlags, modelContext, refreshChildModel);
     }
@@ -516,8 +518,8 @@ export abstract class GenericModel extends Model {
   protected refreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
                                refreshChildModel: (this: this, childModel: Model, refreshFlags: ModelFlags,
                                                    modelContext: ModelContextType<this>) => void): void {
-    const traits = this._traits;
-    if (traits !== void 0 && traits.length !== 0) {
+    const traits = this.traits;
+    if (traits.length !== 0) {
       this.refreshTraitChildModels(traits, 0, refreshFlags, modelContext, refreshChildModel);
     } else {
       this.refreshOwnChildModels(refreshFlags, modelContext, refreshChildModel);
@@ -530,65 +532,57 @@ export abstract class GenericModel extends Model {
   }
 
   protected startConsuming(): void {
-    if ((this._modelFlags & Model.ConsumingFlag) === 0) {
+    if ((this.modelFlags & Model.ConsumingFlag) === 0) {
       this.willStartConsuming();
-      this._modelFlags |= Model.ConsumingFlag;
+      this.setModelFlags(this.modelFlags | Model.ConsumingFlag);
       this.onStartConsuming();
       this.didStartConsuming();
     }
   }
 
   protected stopConsuming(): void {
-    if ((this._modelFlags & Model.ConsumingFlag) !== 0) {
+    if ((this.modelFlags & Model.ConsumingFlag) !== 0) {
       this.willStopConsuming();
-      this._modelFlags &= ~Model.ConsumingFlag;
+      this.setModelFlags(this.modelFlags & ~Model.ConsumingFlag);
       this.onStopConsuming();
       this.didStopConsuming();
     }
   }
 
-  get modelConsumers(): ReadonlyArray<ModelConsumer> {
-    let modelConsumers = this._modelConsumers;
-    if (modelConsumers === void 0) {
-      modelConsumers = [];
-      this._modelConsumers = modelConsumers;
-    }
-    return modelConsumers;
-  }
+  declare readonly modelConsumers: ReadonlyArray<ModelConsumer>;
 
   addModelConsumer(modelConsumer: ModelConsumerType<this>): void {
-    let modelConsumers = this._modelConsumers;
-    let index: number;
-    if (modelConsumers === void 0) {
-      modelConsumers = [];
-      this._modelConsumers = modelConsumers;
-      index = -1;
-    } else {
-      index = modelConsumers.indexOf(modelConsumer);
-    }
-    if (index < 0) {
+    const oldModelConsumers = this.modelConsumers;
+    const newModelConsumers = Arrays.inserted(modelConsumer, oldModelConsumers);
+    if (oldModelConsumers !== newModelConsumers) {
       this.willAddModelConsumer(modelConsumer);
-      modelConsumers.push(modelConsumer);
+      Object.defineProperty(this, "modelConsumers", {
+        value: newModelConsumers,
+        enumerable: true,
+        configurable: true,
+      });
       this.onAddModelConsumer(modelConsumer);
       this.didAddModelConsumer(modelConsumer);
-      if (modelConsumers.length === 1) {
+      if (oldModelConsumers.length === 0) {
         this.startConsuming();
       }
     }
   }
 
   removeModelConsumer(modelConsumer: ModelConsumerType<this>): void {
-    const modelConsumers = this._modelConsumers;
-    if (modelConsumers !== void 0) {
-      const index = modelConsumers.indexOf(modelConsumer);
-      if (index >= 0) {
-        this.willRemoveModelConsumer(modelConsumer);
-        modelConsumers.splice(index, 1);
-        this.onRemoveModelConsumer(modelConsumer);
-        this.didRemoveModelConsumer(modelConsumer);
-        if (modelConsumers.length === 0) {
-          this.stopConsuming();
-        }
+    const oldModelConsumers = this.modelConsumers;
+    const newModelConsumers = Arrays.removed(modelConsumer, oldModelConsumers);
+    if (oldModelConsumers !== newModelConsumers) {
+      this.willRemoveModelConsumer(modelConsumer);
+      Object.defineProperty(this, "modelConsumers", {
+        value: newModelConsumers,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onRemoveModelConsumer(modelConsumer);
+      this.didRemoveModelConsumer(modelConsumer);
+      if (newModelConsumers.length === 0) {
+        this.stopConsuming();
       }
     }
   }

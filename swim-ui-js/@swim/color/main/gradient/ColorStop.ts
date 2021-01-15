@@ -16,8 +16,8 @@ import {Equivalent, Equals} from "@swim/util";
 import {Parser, Diagnostic, Unicode} from "@swim/codec";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "../color/Color";
-import {ColorStopParser} from "./ColorStopParser";
-import {ColorStopListParser} from "./ColorStopListParser";
+import type {ColorStopParser} from "./ColorStopParser";
+import type {ColorStopListParser} from "./ColorStopListParser";
 
 export type AnyColorStop = ColorStop | ColorStopInit | ColorStopTuple | string;
 
@@ -29,7 +29,7 @@ export interface ColorStopInit {
 
 export type ColorStopTuple = [AnyColor, AnyLength | null];
 
-export class ColorStop implements Equivalent<AnyColorStop>, Equals {
+export class ColorStop implements Equals, Equivalent {
   /** @hidden */
   readonly _color: Color;
   /** @hidden */
@@ -80,11 +80,15 @@ export class ColorStop implements Equivalent<AnyColorStop>, Equals {
     }
   }
 
-  equivalentTo(that: AnyColorStop, epsilon?: number): boolean {
-    that = ColorStop.fromAny(that);
-    return Equivalent.equivalent(this._color, that._color, epsilon)
-        && Equivalent.equivalent(this._stop, that._stop, epsilon)
-        && Equivalent.equivalent(this._hint, that._hint, epsilon);
+  equivalentTo(that: unknown, epsilon?: number): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof ColorStop) {
+      return Equivalent.equivalent(this._color, that._color, epsilon)
+          && Equivalent.equivalent(this._stop, that._stop, epsilon)
+          && Equivalent.equivalent(this._hint, that._hint, epsilon);
+    }
+    return false;
   }
 
   equals(that: unknown): boolean {

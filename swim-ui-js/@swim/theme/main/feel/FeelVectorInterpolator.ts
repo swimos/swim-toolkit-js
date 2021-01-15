@@ -14,7 +14,7 @@
 
 import {Values} from "@swim/util";
 import {Interpolator} from "@swim/interpolate";
-import {Look} from "../look/Look";
+import type {Look} from "../look/Look";
 import {FeelVector} from "./FeelVector";
 
 export class FeelVectorInterpolator extends Interpolator<FeelVector> {
@@ -45,7 +45,7 @@ export class FeelVectorInterpolator extends Interpolator<FeelVector> {
     const array = new Array<[Look<unknown>, unknown]>(n);
     const index = this._index;
     for (let i = 0; i < n; i += 1) {
-      const [look, interpolator] = interpolators[i];
+      const [look, interpolator] = interpolators[i]!;
       const value = interpolator.interpolate(u);
       array[i] = [look, value];
     }
@@ -78,7 +78,7 @@ export class FeelVectorInterpolator extends Interpolator<FeelVector> {
       const n = this._array.length;
       if (n === that._array.length) {
         for (let i = 0; i < n; i += 1) {
-          if (!Values.equal(this._array[i], that._array[i])) {
+          if (!Values.equal(this._array[i]!, that._array[i]!)) {
             return false;
           }
         }

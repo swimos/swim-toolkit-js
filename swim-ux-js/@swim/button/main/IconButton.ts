@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween, Transition} from "@swim/tween";
+import type {Tween, Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {View} from "@swim/view";
+import type {View} from "@swim/view";
 import {ViewNodeType, HtmlView, HtmlViewObserver, HtmlViewController, SvgView} from "@swim/dom";
-import {PositionGestureDelegate} from "@swim/gesture";
-import {ButtonObserver} from "./ButtonObserver";
+import type {PositionGestureDelegate} from "@swim/gesture";
+import type {ButtonObserver} from "./ButtonObserver";
 import {ButtonMorph} from "./ButtonMorph";
 import {ButtonMembrane} from "./ButtonMembrane";
 
@@ -47,10 +47,8 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
     this.cursor.setAutoState("pointer");
   }
 
-  // @ts-ignore
   declare readonly viewController: HtmlViewController & ButtonObserver | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<HtmlViewObserver & ButtonObserver>;
 
   get morph(): ButtonMorph | null {
@@ -175,15 +173,15 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
   protected onClick(event: MouseEvent): void {
     event.stopPropagation();
 
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.buttonDidPress !== void 0) {
         viewObserver.buttonDidPress(this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.buttonDidPress !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.buttonDidPress !== void 0) {
       viewController.buttonDidPress(this);
     }
   }

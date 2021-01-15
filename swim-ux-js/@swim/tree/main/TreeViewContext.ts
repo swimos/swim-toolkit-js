@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
-import {ViewContext} from "@swim/view";
+import type {BoxR2} from "@swim/math";
+import type {ViewContext} from "@swim/view";
 
 export interface TreeViewContext extends ViewContext {
   /**

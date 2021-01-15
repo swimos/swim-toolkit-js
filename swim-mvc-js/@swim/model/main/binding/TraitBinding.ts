@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {FromAny} from "@swim/util";
-import {Model} from "../Model";
+import type {FromAny} from "@swim/util";
+import type {Model} from "../Model";
 import {Trait} from "../Trait";
-import {TraitObserverType} from "../TraitObserver";
+import type {TraitObserverType} from "../TraitObserver";
 
 export type TraitBindingMemberType<R, K extends keyof R> =
   R extends {[P in K]: TraitBinding<any, infer S, any>} ? S : unknown;
@@ -24,8 +24,8 @@ export type TraitBindingMemberType<R, K extends keyof R> =
 export type TraitBindingMemberInit<R, K extends keyof R> =
   R extends {[P in K]: TraitBinding<any, infer T, infer U>} ? T | U : unknown;
 
-export interface TraitBindingInit<S extends Trait, U = S> {
-  extends?: TraitBindingPrototype;
+export interface TraitBindingInit<S extends Trait, U = never> {
+  extends?: TraitBindingClass;
   observe?: boolean;
   sibling?: boolean;
   type?: unknown;
@@ -38,26 +38,22 @@ export interface TraitBindingInit<S extends Trait, U = S> {
   fromAny?(value: S | U): S | null;
 }
 
-export type TraitBindingDescriptorInit<R extends Trait, S extends Trait, U = S, I = TraitObserverType<S>> = TraitBindingInit<S, U> & ThisType<TraitBinding<R, S, U> & I> & I;
+export type TraitBindingDescriptor<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = TraitBindingInit<S, U> & ThisType<TraitBinding<R, S, U> & I> & I;
 
-export type TraitBindingDescriptorExtends<R extends Trait, S extends Trait, U = S, I = TraitObserverType<S>> = {extends: TraitBindingPrototype | undefined} & TraitBindingDescriptorInit<R, S, U, I>;
+export type TraitBindingDescriptorExtends<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = {extends: TraitBindingClass | undefined} & TraitBindingDescriptor<R, S, U, I>;
 
-export type TraitBindingDescriptorFromAny<R extends Trait, S extends Trait, U = S, I = TraitObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & TraitBindingDescriptorInit<R, S, U, I>;
+export type TraitBindingDescriptorFromAny<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & TraitBindingDescriptor<R, S, U, I>;
 
-export type TraitBindingDescriptor<R extends Trait, S extends Trait, U = S, I = TraitObserverType<S>> =
-  U extends S ? TraitBindingDescriptorInit<R, S, U, I> :
-  TraitBindingDescriptorFromAny<R, S, U, I>;
-
-export interface TraitBindingPrototype extends Function {
-  readonly prototype: TraitBinding<any, any>;
-}
-
-export interface TraitBindingConstructor<R extends Trait, S extends Trait, U = S, I = TraitObserverType<S>> {
+export interface TraitBindingConstructor<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> {
   new(owner: R, bindingName: string | undefined): TraitBinding<R, S, U> & I;
   prototype: TraitBinding<any, any, any> & I;
 }
 
-export declare abstract class TraitBinding<R extends Trait, S extends Trait, U = S> {
+export interface TraitBindingClass extends Function {
+  readonly prototype: TraitBinding<any, any, any>;
+}
+
+export declare abstract class TraitBinding<R extends Trait, S extends Trait, U = never> {
   /** @hidden */
   _owner: R;
   /** @hidden */
@@ -123,25 +119,25 @@ export declare abstract class TraitBinding<R extends Trait, S extends Trait, U =
 
   fromAny(value: S | U): S | null;
 
-  static define<R extends Trait, S extends Trait = Trait, U = S, I = TraitObserverType<S>>(descriptor: TraitBindingDescriptorExtends<R, S, U, I>): TraitBindingConstructor<R, S, U>;
-  static define<R extends Trait, S extends Trait = Trait, U = S>(descriptor: TraitBindingDescriptor<R, S, U>): TraitBindingConstructor<R, S, U>;
+  static define<R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitBindingDescriptorExtends<R, S, U, I>): TraitBindingConstructor<R, S, U>;
+  static define<R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitBindingDescriptor<R, S, U>): TraitBindingConstructor<R, S, U>;
 }
 
-export interface TraitBinding<R extends Trait, S extends Trait, U = S> {
+export interface TraitBinding<R extends Trait, S extends Trait, U = never> {
   (): S | null;
   (trait: S | U | null): R;
 }
 
-export function TraitBinding<R extends Trait, S extends Trait = Trait, U = S, I = TraitObserverType<S>>(descriptor: TraitBindingDescriptorExtends<R, S, U, I>): PropertyDecorator;
-export function TraitBinding<R extends Trait, S extends Trait = Trait, U = S>(descriptor: TraitBindingDescriptor<R, S, U>): PropertyDecorator;
+export function TraitBinding<R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitBindingDescriptorExtends<R, S, U, I>): PropertyDecorator;
+export function TraitBinding<R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitBindingDescriptor<R, S, U>): PropertyDecorator;
 
 export function TraitBinding<R extends Trait, S extends Trait, U>(
-    this: TraitBinding<R, S> | typeof TraitBinding,
+    this: TraitBinding<R, S, U> | typeof TraitBinding,
     owner: R | TraitBindingDescriptor<R, S, U>,
     bindingName?: string,
-  ): TraitBinding<R, S> | PropertyDecorator {
+  ): TraitBinding<R, S, U> | PropertyDecorator {
   if (this instanceof TraitBinding) { // constructor
-    return TraitBindingConstructor.call(this, owner as R, bindingName);
+    return TraitBindingConstructor.call(this as unknown as TraitBinding<Trait, Trait, unknown>, owner as R, bindingName);
   } else { // decorator factory
     return TraitBindingDecoratorFactory(owner as TraitBindingDescriptor<R, S, U>);
   }
@@ -163,7 +159,7 @@ function TraitBindingConstructor<R extends Trait, S extends Trait, U>(this: Trai
 }
 
 function TraitBindingDecoratorFactory<R extends Trait, S extends Trait, U>(descriptor: TraitBindingDescriptor<R, S, U>): PropertyDecorator {
-  return Trait.decorateTraitBinding.bind(Trait, TraitBinding.define(descriptor));
+  return Trait.decorateTraitBinding.bind(Trait, TraitBinding.define(descriptor as TraitBindingDescriptor<Trait, Trait>));
 }
 
 Object.defineProperty(TraitBinding.prototype, "owner", {

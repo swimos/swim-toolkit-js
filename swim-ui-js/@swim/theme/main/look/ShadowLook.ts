@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Interpolator} from "@swim/interpolate";
+import type {Interpolator} from "@swim/interpolate";
 import {AnyBoxShadow, BoxShadow, BoxShadowInterpolator} from "@swim/style";
 import {Look} from "./Look";
 

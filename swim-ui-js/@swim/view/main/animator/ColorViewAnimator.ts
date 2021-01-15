@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyColor, Color} from "@swim/color";
-import {View} from "../View";
+import type {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */

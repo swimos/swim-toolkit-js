@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {GeoPoint, GeoBox} from "@swim/geo";
-import {MapGraphicsView} from "../graphics/MapGraphicsView";
+import type {MapGraphicsView} from "../graphics/MapGraphicsView";
 
 export class MapGridTile {
   /** @hidden */
@@ -476,7 +476,9 @@ export class MapGridTile {
     return this;
   }
 
-  forEach<T, S>(callback: (this: S, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
+  forEach<T>(callback: (view: MapGraphicsView) => T | void): T | undefined;
+  forEach<T, S>(callback: (this: S, view: MapGraphicsView) => T | void, thisArg: S): T | undefined;
+  forEach<T, S>(callback: (this: S | undefined, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
     if (this._southWest !== null) {
       const result = this._southWest.forEach(callback, thisArg);
       if (result !== void 0) {
@@ -503,7 +505,7 @@ export class MapGridTile {
     }
     const views = this._views;
     for (let i = 0; i < views.length; i += 1) {
-      const result = callback.call(thisArg, views[i]);
+      const result = callback.call(thisArg, views[i]!);
       if (result !== void 0) {
         return result;
       }
@@ -511,10 +513,12 @@ export class MapGridTile {
     return void 0;
   }
 
-  forEachReverse<T, S>(callback: (this: S, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
+  forEachReverse<T>(callback: (view: MapGraphicsView) => T | void): T | undefined;
+  forEachReverse<T, S>(callback: (this: S, view: MapGraphicsView) => T | void, thisArg: S): T | undefined;
+  forEachReverse<T, S>(callback: (this: S | undefined, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
     const views = this._views;
     for (let i = views.length - 1; i >= 0; i -= 1) {
-      const result = callback.call(thisArg, views[i]);
+      const result = callback.call(thisArg, views[i]!);
       if (result !== void 0) {
         return result;
       }
@@ -546,7 +550,9 @@ export class MapGridTile {
     return void 0;
   }
 
-  forEachIntersecting<T, S>(bounds: GeoBox, callback: (this: S, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
+  forEachIntersecting<T>(bounds: GeoBox, callback: (view: MapGraphicsView) => T | void): T | undefined;
+  forEachIntersecting<T, S>(bounds: GeoBox, callback: (this: S, view: MapGraphicsView) => T | void, thisArg: S): T | undefined;
+  forEachIntersecting<T, S>(bounds: GeoBox, callback: (this: S | undefined, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
     if (this._geoFrame.intersects(bounds)) {
       if (this._southWest !== null) {
         const result = this._southWest.forEachIntersecting(bounds, callback, thisArg);
@@ -574,7 +580,7 @@ export class MapGridTile {
       }
       const views = this._views;
       for (let i = 0; i < views.length; i += 1) {
-        const result = callback.call(thisArg, views[i]);
+        const result = callback.call(thisArg, views[i]!);
         if (result !== void 0) {
           return result;
         }
@@ -583,7 +589,9 @@ export class MapGridTile {
     return void 0;
   }
 
-  forEachNonIntersecting<T, S>(bounds: GeoBox, callback: (this: S, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
+  forEachNonIntersecting<T>(bounds: GeoBox, callback: (view: MapGraphicsView) => T | void): T | undefined;
+  forEachNonIntersecting<T, S>(bounds: GeoBox, callback: (this: S, view: MapGraphicsView) => T | void, thisArg: S): T | undefined;
+  forEachNonIntersecting<T, S>(bounds: GeoBox, callback: (this: S | undefined, view: MapGraphicsView) => T | void, thisArg?: S): T | undefined {
     if (!this._geoFrame.intersects(bounds)) {
       if (this._southWest !== null) {
         const result = this._southWest.forEachNonIntersecting(bounds, callback, thisArg);
@@ -611,7 +619,7 @@ export class MapGridTile {
       }
       const views = this._views;
       for (let i = 0; i < views.length; i += 1) {
-        const result = callback.call(thisArg, views[i]);
+        const result = callback.call(thisArg, views[i]!);
         if (result !== void 0) {
           return result;
         }
@@ -642,7 +650,7 @@ export class MapGridTile {
         geoBounds = geoBounds !== void 0 ? geoBounds.union(northEast._geoBounds) : northEast._geoBounds;
       }
       for (let i = 0; i < views.length; i += 1) {
-        const view = views[i];
+        const view = views[i]!;
         geoBounds = geoBounds !== void 0 ? geoBounds.union(view.geoBounds) : view.geoBounds;
       }
       if (geoBounds === void 0) {

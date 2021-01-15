@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {HtmlViewController} from "@swim/dom";
-import {TreeLimb} from "./TreeLimb";
-import {TreeLimbObserver} from "./TreeLimbObserver";
+import type {TreeLimb} from "./TreeLimb";
+import type {TreeLimbObserver} from "./TreeLimbObserver";
 
 export class TreeLimbController<V extends TreeLimb = TreeLimb> extends HtmlViewController<V> implements TreeLimbObserver<V> {
   limbWillExpand(view: V): void {

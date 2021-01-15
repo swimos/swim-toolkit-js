@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
+import type {AnyLength, Length} from "@swim/math";
+import type {AnyColor, Color} from "@swim/color";
 import {ViewInit, View, ViewAnimator} from "@swim/view";
-import {Graphics} from "../graphics/Graphics";
-import {GraphicsIconView} from "./GraphicsIconView";
-import {SvgIconPathView} from "./SvgIconPathView";
-import {SvgIconView} from "./SvgIconView";
-import {HtmlIconView} from "./HtmlIconView";
+import type {Graphics} from "../graphics/Graphics";
+import type {GraphicsIconView} from "./GraphicsIconView";
+import type {SvgIconPathView} from "./SvgIconPathView";
+import type {SvgIconView} from "./SvgIconView";
+import type {HtmlIconView} from "./HtmlIconView";
 
 export interface IconViewInit extends ViewInit {
   xAlign?: number;

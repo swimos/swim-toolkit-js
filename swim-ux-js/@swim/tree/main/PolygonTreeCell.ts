@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {AnyLength, Length, AnyAngle, Angle} from "@swim/math";
-import {Transition} from "@swim/tween";
-import {Height, Width} from "@swim/style";
+import type {Transition} from "@swim/animation";
+import type {Height, Width} from "@swim/style";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {StyleAnimator, ViewNodeType, SvgView} from "@swim/dom";
@@ -80,16 +80,16 @@ export class PolygonTreeCell extends TreeCell {
   }
 
   @StyleAnimator({propertyNames: "height", type: [Length, String], updateFlags: View.NeedsLayout})
-  height: StyleAnimator<this, Height>;
+  declare height: StyleAnimator<this, Height, AnyLength | Height>;
 
   @StyleAnimator({propertyNames: "width", type: [Length, String], updateFlags: View.NeedsLayout})
-  width: StyleAnimator<this, Width>;
+  declare width: StyleAnimator<this, Width, AnyLength | Width>;
 
   @ViewAnimator({type: Length, state: Length.pct(50), updateFlags: View.NeedsLayout})
-  radius: ViewAnimator<this, Length, AnyLength>;
+  declare radius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Angle, state: Angle.zero(), updateFlags: View.NeedsLayout})
-  rotation: ViewAnimator<this, Angle, AnyAngle>;
+  declare rotation: ViewAnimator<this, Angle, AnyAngle>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          transition: Transition<any> | null): void {

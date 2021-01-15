@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GestureInput} from "./GestureInput";
+import type {GestureInput} from "./GestureInput";
 
 export interface GestureDelegate {
   willStartHovering?(): void;

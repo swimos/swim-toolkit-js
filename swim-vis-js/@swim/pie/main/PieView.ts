@@ -107,64 +107,64 @@ export class PieView extends LayerView {
     const slices = init.slices;
     if (slices !== void 0) {
       for (let i = 0, n = slices.length; i < n; i += 1) {
-        this.addSlice(slices[i]);
+        this.addSlice(slices[i]!);
       }
     }
   }
 
   @ViewAnimator({type: Number, state: 0})
-  limit: ViewAnimator<this, number>;
+  declare limit: ViewAnimator<this, number>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
-  center: ViewAnimator<this, PointR2, AnyPointR2>;
+  declare center: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Angle, state: Angle.rad(-Math.PI / 2)})
-  baseAngle: ViewAnimator<this, Angle, AnyAngle>;
+  declare baseAngle: ViewAnimator<this, Angle, AnyAngle>;
 
   @ViewAnimator({type: Length, state: Length.pct(3)})
-  innerRadius: ViewAnimator<this, Length, AnyLength>;
+  declare innerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.pct(25)})
-  outerRadius: ViewAnimator<this, Length, AnyLength>;
+  declare outerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Angle, state: Angle.deg(2)})
-  padAngle: ViewAnimator<this, Angle, AnyAngle>;
+  declare padAngle: ViewAnimator<this, Angle, AnyAngle>;
 
   @ViewAnimator({type: Length, state: null})
-  padRadius: ViewAnimator<this, Length | null, AnyLength | null>;
+  declare padRadius: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  cornerRadius: ViewAnimator<this, Length, AnyLength>;
+  declare cornerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.pct(50)})
-  labelRadius: ViewAnimator<this, Length, AnyLength>;
+  declare labelRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  sliceColor: ViewAnimator<this, Color, AnyColor>;
+  declare sliceColor: ViewAnimator<this, Color, AnyColor>;
 
   @ViewAnimator({type: Number, state: 0.5})
-  tickAlign: ViewAnimator<this, number>;
+  declare tickAlign: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Length, state: Length.pct(30)})
-  tickRadius: ViewAnimator<this, Length, AnyLength>;
+  declare tickRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.pct(50)})
-  tickLength: ViewAnimator<this, Length, AnyLength>;
+  declare tickLength: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(1)})
-  tickWidth: ViewAnimator<this, Length, AnyLength>;
+  declare tickWidth: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(1)})
-  tickPadding: ViewAnimator<this, Length, AnyLength>;
+  declare tickPadding: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  tickColor: ViewAnimator<this, Color, AnyColor>;
+  declare tickColor: ViewAnimator<this, Color, AnyColor>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   title(): View | null;
   title(title: View | AnyTextRunView | null): this;
@@ -189,7 +189,7 @@ export class PieView extends LayerView {
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this._viewFlags & View.NeedsLayout) !== 0) {
+    if ((this.viewFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
@@ -243,7 +243,7 @@ export class PieView extends LayerView {
       title.textOrigin.setAutoState(this.center.state);
     }
 
-    this._viewFlags &= ~View.NeedsLayout;
+    this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
   }
 
   static fromInit(init: PieViewInit): PieView {

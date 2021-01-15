@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {WarpClient} from "@swim/client";
+import type {WarpClient} from "@swim/client";
 import {Model} from "../Model";
 import {Trait} from "../Trait";
 import {WarpManager} from "../warp/WarpManager";

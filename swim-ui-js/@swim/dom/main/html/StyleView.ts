@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {CssRule} from "../css/CssRule";
+import type {CssRule} from "../css/CssRule";
 import {StyleSheet} from "../css/StyleSheet";
 import {View} from "@swim/view";
 import {ViewNodeType, NodeView} from "../node/NodeView";
 import {HtmlViewInit, HtmlView} from "../html/HtmlView";
-import {StyleViewObserver} from "./StyleViewObserver";
-import {StyleViewController} from "./StyleViewController";
+import type {StyleViewObserver} from "./StyleViewObserver";
+import type {StyleViewController} from "./StyleViewController";
 
 export interface StyleViewInit extends HtmlViewInit {
   viewController?: StyleViewController;
@@ -38,13 +38,10 @@ export class StyleView extends HtmlView {
     node.setAttribute("type", "text/css");
   }
 
-  // @ts-ignore
   declare readonly node: HTMLStyleElement;
 
-  // @ts-ignore
   declare readonly viewController: StyleViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<StyleViewObserver>;
 
   initView(init: StyleViewInit): void {
@@ -56,7 +53,7 @@ export class StyleView extends HtmlView {
   }
 
   protected createSheet(): StyleSheet | null {
-    const stylesheet = this._node.sheet;
+    const stylesheet = this.node.sheet;
     return stylesheet !== null ? new StyleSheet(this, stylesheet) : null;
   }
 
@@ -73,8 +70,8 @@ export class StyleView extends HtmlView {
   /** @hidden */
   updateAnimators(t: number): void {
     this.updateViewAnimators(t);
-    if ((this._viewFlags & View.AnimatingFlag) !== 0) {
-      this._viewFlags &= ~View.AnimatingFlag;
+    if ((this.viewFlags & View.AnimatingFlag) !== 0) {
+      this.setViewFlags(this.viewFlags & ~View.AnimatingFlag);
       this.updateAttributeAnimators(t);
       this.updateStyleAnimators(t);
       this.updateSheetAnimators(t);

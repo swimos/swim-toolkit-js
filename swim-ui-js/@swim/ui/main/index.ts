@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export * from "@swim/constraint";
-export * from "@swim/tween";
+export * from "@swim/animation";
 export * from "@swim/color";
 export * from "@swim/style";
 export * from "@swim/theme";

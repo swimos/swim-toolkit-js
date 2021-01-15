@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween} from "@swim/tween";
+import type {Tween} from "@swim/animation";
 import {HtmlViewController} from "@swim/dom";
-import {PositionGestureInput} from "@swim/gesture";
-import {TreeLeaf} from "./TreeLeaf";
-import {TreeLeafObserver} from "./TreeLeafObserver";
+import type {PositionGestureInput} from "@swim/gesture";
+import type {TreeLeaf} from "./TreeLeaf";
+import type {TreeLeafObserver} from "./TreeLeafObserver";
 
 export class TreeLeafController<V extends TreeLeaf = TreeLeaf> extends HtmlViewController<V> implements TreeLeafObserver<V> {
   leafDidPress(input: PositionGestureInput, event: Event | null, view: V): void {

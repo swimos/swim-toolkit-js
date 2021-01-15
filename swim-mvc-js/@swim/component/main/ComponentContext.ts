@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Component} from "./Component";
+import type {Component} from "./Component";
 
 export type ComponentContextType<C extends Component> =
   C extends {readonly componentContext: infer C} ? C : unknown;

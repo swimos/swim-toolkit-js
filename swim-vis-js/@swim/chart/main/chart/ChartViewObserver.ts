@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  EaseType,
-  AnyEase,
-  Ease,
-} from "./Ease";
-export {EaseForm} from "./EaseForm";
+import type {ScaleViewObserver} from "../scale/ScaleViewObserver";
+import type {ChartView} from "./ChartView";
+
+export interface ChartViewObserver<X = unknown, Y = unknown, V extends ChartView<X, Y> = ChartView<X, Y>> extends ScaleViewObserver<X, Y, V> {
+}

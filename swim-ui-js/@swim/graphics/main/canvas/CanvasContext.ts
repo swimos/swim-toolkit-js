@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DrawingContext} from "../drawing/DrawingContext";
+import type {DrawingContext} from "../drawing/DrawingContext";
 
 export type CanvasCompositeOperation = "source-over"
                                      | "source-in"

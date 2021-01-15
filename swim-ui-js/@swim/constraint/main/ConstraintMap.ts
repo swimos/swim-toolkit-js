@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Iterator, Map} from "@swim/util";
+import type {Iterator, Map} from "@swim/util";
 
 /** @hidden */
 export interface ConstraintKey {
@@ -45,7 +45,7 @@ export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
 
   get(key: K): V | undefined {
     const index = this._index[key.id];
-    return index !== void 0 ? this._array[index][1] : void 0;
+    return index !== void 0 ? this._array[index]![1] : void 0;
   }
 
   getField(key: K): [K, V] | undefined {
@@ -60,7 +60,7 @@ export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
   set(key: K, newValue: V): this {
     const index = this._index[key.id];
     if (index !== void 0) {
-      this._array[index][1] = newValue;
+      this._array[index]![1] = newValue;
     } else {
       this._index[key.id] = this._array.length;
       this._array.push([key, newValue]);
@@ -88,7 +88,7 @@ export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
     const index = this._index[key.id];
     if (index !== void 0) {
       delete this._index[key.id];
-      const item = this._array[index];
+      const item = this._array[index]!;
       const last = this._array.pop()!;
       if (item !== last) {
         this._array[index] = last;
@@ -105,11 +105,14 @@ export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
     this._array.length = 0;
   }
 
-  forEach<T, S = unknown>(callback: (this: S, key: K, value: V) => T | void,
-                          thisArg?: S): T | undefined {
+  forEach<T>(callback: (key: K, value: V) => T | void): T | undefined;
+  forEach<T, S>(callback: (this: S, key: K, value: V) => T | void,
+                thisArg: S): T | undefined;
+  forEach<T, S>(callback: (this: S | undefined, key: K, value: V) => T | void,
+                thisArg?: S): T | undefined {
     const array = this._array;
     for (let i = 0, n = array.length; i < n; i += 1) {
-      const item = array[i];
+      const item = array[i]!;
       const result = callback.call(thisArg, item[0], item[1]);
       if (result !== void 0) {
         return result;
@@ -119,15 +122,15 @@ export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
   }
 
   keys(): Iterator<K> {
-    return void 0 as any; // not implemented
+    throw new Error(); // not implemented
   }
 
   values(): Iterator<V> {
-    return void 0 as any; // not implemented
+    throw new Error(); // not implemented
   }
 
   entries(): Iterator<[K, V]> {
-    return void 0 as any; // not implemented
+    throw new Error(); // not implemented
   }
 
   clone(): ConstraintMap<K, V> {
@@ -136,7 +139,7 @@ export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
     const newIndex = {} as {[id: number]: number | undefined};
     const newArray = new Array<[K, V]>(n);
     for (let i = 0; i < n; i += 1) {
-      const [key, value] = oldArray[i];
+      const [key, value] = oldArray[i]!;
       newArray[i] = [key, value];
       newIndex[key.id] = i;
     }

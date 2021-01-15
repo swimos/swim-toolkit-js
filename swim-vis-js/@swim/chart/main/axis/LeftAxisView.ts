@@ -15,9 +15,9 @@
 import {PointR2, BoxR2} from "@swim/math";
 import {ContinuousScale} from "@swim/scale";
 import {ViewAnimator} from "@swim/view";
-import {CanvasContext} from "@swim/graphics";
+import type {CanvasContext} from "@swim/graphics";
 import {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
-import {TickView} from "../tick/TickView";
+import type {TickView} from "../tick/TickView";
 import {AxisOrientation, AxisView} from "./AxisView";
 
 export class LeftAxisView<Y = unknown> extends AxisView<Y> {
@@ -26,7 +26,7 @@ export class LeftAxisView<Y = unknown> extends AxisView<Y> {
   }
 
   @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: "yScale"})
-  scale: ScaleViewAnimator<this, Y, number>;
+  declare scale: ScaleViewAnimator<this, Y, number>;
 
   protected layoutTick(tick: TickView<Y>, origin: PointR2, frame: BoxR2,
                        scale: ContinuousScale<Y, number>): void {

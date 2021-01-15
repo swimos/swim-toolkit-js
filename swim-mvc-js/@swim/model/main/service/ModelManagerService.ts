@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Model} from "../Model";
-import {ModelManager} from "../manager/ModelManager";
-import {ModelManagerObserverType} from "../manager/ModelManagerObserver";
+import type {Model} from "../Model";
+import type {ModelManager} from "../manager/ModelManager";
+import type {ModelManagerObserverType} from "../manager/ModelManagerObserver";
 import {ModelService} from "./ModelService";
 
 /** @hidden */

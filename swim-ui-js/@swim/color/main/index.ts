@@ -14,12 +14,8 @@
 
 export * from "./color";
 
-export * from "./channel";
-
 export * from "./rgb";
 
 export * from "./hsl";
 
-export * from "./stop";
-
-export * from "./linear";
+export * from "./gradient";

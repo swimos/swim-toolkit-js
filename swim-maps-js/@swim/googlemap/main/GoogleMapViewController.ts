@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {MapGraphicsViewController} from "@swim/map";
-import {GoogleMapProjection} from "./GoogleMapProjection";
-import {GoogleMapView} from "./GoogleMapView";
-import {GoogleMapViewObserver} from "./GoogleMapViewObserver";
+import type {GoogleMapProjection} from "./GoogleMapProjection";
+import type {GoogleMapView} from "./GoogleMapView";
+import type {GoogleMapViewObserver} from "./GoogleMapViewObserver";
 
 export class GoogleMapViewController<V extends GoogleMapView = GoogleMapView> extends MapGraphicsViewController<V> implements GoogleMapViewObserver<V> {
   viewWillSetGeoProjection(geoProjection: GoogleMapProjection, view: V): void {

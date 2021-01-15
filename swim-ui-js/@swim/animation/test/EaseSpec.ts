@@ -12,5 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {ColorChannel} from "./ColorChannel";
-export {ColorChannelParser} from "./ColorChannelParser";
+import {Spec, Test, Exam} from "@swim/unit";
+import {Ease} from "@swim/animation";
+
+export class EaseSpec extends Spec {
+  @Test
+  easeLinear(exam: Exam): void {
+    exam.equal(Ease.linear(0.5), 0.5);
+  }
+
+  @Test
+  easeQuadIn(exam: Exam): void {
+    exam.equal(Ease.quadIn(0.5), 0.25);
+  }
+
+  @Test
+  easeQuadOut(exam: Exam): void {
+    exam.equal(Ease.quadOut(0.5), 0.75);
+  }
+
+  @Test
+  easeQuadInOut(exam: Exam): void {
+    exam.equal(Ease.quadInOut(0.25), 0.125);
+    exam.equal(Ease.quadInOut(0.5), 0.5);
+    exam.equal(Ease.quadInOut(0.75), 0.875);
+  }
+}

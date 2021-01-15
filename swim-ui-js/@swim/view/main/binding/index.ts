@@ -16,11 +16,10 @@ export {
   ViewBindingMemberType,
   ViewBindingMemberInit,
   ViewBindingInit,
-  ViewBindingDescriptorInit,
+  ViewBindingDescriptor,
   ViewBindingDescriptorExtends,
   ViewBindingDescriptorFromAny,
-  ViewBindingDescriptor,
-  ViewBindingPrototype,
   ViewBindingConstructor,
+  ViewBindingClass,
   ViewBinding,
 } from "./ViewBinding";

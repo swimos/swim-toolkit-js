@@ -14,15 +14,15 @@
 
 import {__extends} from "tslib";
 import {Model} from "../Model";
-import {Trait} from "../Trait";
+import type {Trait} from "../Trait";
 import {ModelManager} from "../manager/ModelManager";
-import {ModelManagerObserverType} from "../manager/ModelManagerObserver";
+import type {ModelManagerObserverType} from "../manager/ModelManagerObserver";
 import {RefreshManager} from "../refresh/RefreshManager";
 import {WarpManager} from "../warp/WarpManager";
-import {ModelManagerService} from "./ModelManagerService";
-import {TraitService} from "./TraitService";
-import {RefreshService} from "./RefreshService";
-import {WarpService} from "./WarpService";
+import type {ModelManagerService} from "./ModelManagerService";
+import type {TraitService} from "./TraitService";
+import type {RefreshService} from "./RefreshService";
+import type {WarpService} from "./WarpService";
 
 export type ModelServiceMemberType<M, K extends keyof M> =
   M extends {[P in K]: ModelService<any, infer T>} ? T : unknown;
@@ -30,7 +30,7 @@ export type ModelServiceMemberType<M, K extends keyof M> =
 export type ModelServiceFlags = number;
 
 export interface ModelServiceInit<T> {
-  extends?: ModelServicePrototype;
+  extends?: ModelServiceClass;
   observe?: boolean;
   type?: unknown;
   manager?: T;
@@ -39,23 +39,17 @@ export interface ModelServiceInit<T> {
   initManager?(): T;
 }
 
-export type ModelServiceDescriptorInit<M extends Model, T, I = {}> = ModelServiceInit<T> & ThisType<ModelService<M, T> & I> & I;
+export type ModelServiceDescriptor<M extends Model, T, I = {}> = ModelServiceInit<T> & ThisType<ModelService<M, T> & I> & I;
 
-export type ModelServiceDescriptorExtends<M extends Model, T, I = {}> = {extends: ModelServicePrototype | undefined} & ModelServiceDescriptorInit<M, T, I>;
-
-export type ModelServiceDescriptor<M extends Model, T, I = {}> =
-  T extends RefreshManager ? {type: typeof RefreshManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T> & I> :
-  T extends WarpManager ? {type: typeof WarpManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T> & I> :
-  T extends ModelManager ? {type: typeof ModelManager} & ModelServiceDescriptorInit<M, T, ModelManagerObserverType<T> & I> :
-  ModelServiceDescriptorInit<M, T, I>;
-
-export interface ModelServicePrototype extends Function {
-  readonly prototype: ModelService<any, any>;
-}
+export type ModelServiceDescriptorExtends<M extends Model, T, I = {}> = {extends: ModelServiceClass | undefined} & ModelServiceDescriptor<M, T, I>;
 
 export interface ModelServiceConstructor<M extends Model, T, I = {}> {
   new(owner: M, serviceName: string | undefined): ModelService<M, T> & I;
   prototype: ModelService<any, any> & I;
+}
+
+export interface ModelServiceClass extends Function {
+  readonly prototype: ModelService<any, any>;
 }
 
 export declare abstract class ModelService<M extends Model, T> {
@@ -129,7 +123,7 @@ export declare abstract class ModelService<M extends Model, T> {
   initManager(): T;
 
   /** @hidden */
-  static getConstructor(type: unknown): ModelServicePrototype | null;
+  static getClass(type: unknown): ModelServiceClass | null;
 
   static define<M extends Model, T, I = {}>(descriptor: ModelServiceDescriptorExtends<M, T, I>): ModelServiceConstructor<M, T, I>;
   static define<M extends Model, T>(descriptor: ModelServiceDescriptor<M, T>): ModelServiceConstructor<M, T>;
@@ -150,6 +144,9 @@ export interface ModelService<M extends Model, T> {
   (): T;
 }
 
+export function ModelService<M extends Model, T extends RefreshManager = RefreshManager>(descriptor: {type: typeof RefreshManager} & ModelServiceDescriptor<M, T, ModelManagerObserverType<T>>): PropertyDecorator;
+export function ModelService<M extends Model, T extends WarpManager = WarpManager>(descriptor: {type: typeof WarpManager} & ModelServiceDescriptor<M, T, ModelManagerObserverType<T>>): PropertyDecorator;
+export function ModelService<M extends Model, T extends ModelManager = ModelManager>(descriptor: {type: typeof ModelManager} & ModelServiceDescriptor<M, T, ModelManagerObserverType<T>>): PropertyDecorator;
 export function ModelService<M extends Model, T, I = {}>(descriptor: ModelServiceDescriptorExtends<M, T, I>): PropertyDecorator;
 export function ModelService<M extends Model, T>(descriptor: ModelServiceDescriptor<M, T>): PropertyDecorator;
 
@@ -184,7 +181,7 @@ function ModelServiceConstructor<M extends Model, T>(this: ModelService<M, T>, o
 }
 
 function ModelServiceDecoratorFactory<M extends Model, T>(descriptor: ModelServiceDescriptor<M, T>): PropertyDecorator {
-  return Model.decorateModelService.bind(Model, ModelService.define(descriptor));
+  return Model.decorateModelService.bind(Model, ModelService.define(descriptor as ModelServiceDescriptor<Model, unknown>));
 }
 
 Object.defineProperty(ModelService.prototype, "owner", {
@@ -309,7 +306,7 @@ ModelService.prototype.bindSuperService = function (this: ModelService<Model, un
     }
     const traitServices = this._traitServices;
     for (let i = 0, n = traitServices !== void 0 ? traitServices.length : 0; i < n; i += 1) {
-      const traitService = traitServices![i];
+      const traitService = traitServices![i]!;
       traitService._manager = this._manager;
     }
   }
@@ -403,7 +400,7 @@ ModelService.prototype.initManager = function <T>(this: ModelService<Model, T>):
   return void 0 as unknown as T;
 };
 
-ModelService.getConstructor = function (type: unknown): ModelServicePrototype | null {
+ModelService.getClass = function (type: unknown): ModelServiceClass | null {
   if (type === RefreshManager) {
     return ModelService.Refresh;
   } else if (type === WarpManager) {
@@ -415,7 +412,7 @@ ModelService.getConstructor = function (type: unknown): ModelServicePrototype | 
 };
 
 ModelService.define = function <M extends Model, T, I>(descriptor: ModelServiceDescriptor<M, T, I>): ModelServiceConstructor<M, T, I> {
-  let _super: ModelServicePrototype | null | undefined = descriptor.extends;
+  let _super: ModelServiceClass | null | undefined = descriptor.extends;
   const manager = descriptor.manager;
   const inherit = descriptor.inherit;
   const initManager = descriptor.initManager;
@@ -424,7 +421,7 @@ ModelService.define = function <M extends Model, T, I>(descriptor: ModelServiceD
   delete descriptor.inherit;
 
   if (_super === void 0) {
-    _super = ModelService.getConstructor(descriptor.type);
+    _super = ModelService.getClass(descriptor.type);
   }
   if (_super === null) {
     _super = ModelService;

@@ -15,29 +15,27 @@
 import {__extends} from "tslib";
 import {Value} from "@swim/structure";
 import {Uri} from "@swim/uri";
-import {EventDownlinkObserver, EventDownlink, WarpRef} from "@swim/client";
+import type {EventDownlinkObserver, EventDownlink, WarpRef} from "@swim/client";
 import {ModelDownlinkContext} from "./ModelDownlinkContext";
 import {ModelDownlinkInit, ModelDownlink} from "./ModelDownlink";
 
 export interface ModelEventDownlinkInit extends ModelDownlinkInit, EventDownlinkObserver {
-  extends?: ModelEventDownlinkPrototype;
+  extends?: ModelEventDownlinkClass;
 
   initDownlink?(downlink: EventDownlink): EventDownlink;
 }
 
-export type ModelEventDownlinkDescriptorInit<M extends ModelDownlinkContext, I = {}> = ModelEventDownlinkInit & ThisType<ModelEventDownlink<M> & I> & I;
+export type ModelEventDownlinkDescriptor<M extends ModelDownlinkContext, I = {}> = ModelEventDownlinkInit & ThisType<ModelEventDownlink<M> & I> & I;
 
-export type ModelEventDownlinkDescriptorExtends<M extends ModelDownlinkContext, I = {}> = {extends: ModelEventDownlinkPrototype | undefined} & ModelEventDownlinkDescriptorInit<M, I>;
-
-export type ModelEventDownlinkDescriptor<M extends ModelDownlinkContext, I = {}> = ModelEventDownlinkDescriptorInit<M, I>;
-
-export interface ModelEventDownlinkPrototype extends Function {
-  readonly prototype: ModelEventDownlink<any>;
-}
+export type ModelEventDownlinkDescriptorExtends<M extends ModelDownlinkContext, I = {}> = {extends: ModelEventDownlinkClass | undefined} & ModelEventDownlinkDescriptor<M, I>;
 
 export interface ModelEventDownlinkConstructor<M extends ModelDownlinkContext, I = {}> {
   new(owner: M, downlinkName: string | undefined): ModelEventDownlink<M> & I;
   prototype: ModelEventDownlink<any> & I;
+}
+
+export interface ModelEventDownlinkClass extends Function {
+  readonly prototype: ModelEventDownlink<any>;
 }
 
 export declare abstract class ModelEventDownlink<M extends ModelDownlinkContext> {
@@ -73,7 +71,7 @@ export function ModelEventDownlink<M extends ModelDownlinkContext>(
     downlinkName?: string
   ): ModelEventDownlink<M> | PropertyDecorator {
   if (this instanceof ModelEventDownlink) { // constructor
-    return ModelEventDownlinkConstructor.call(this, owner as M, downlinkName);
+    return ModelEventDownlinkConstructor.call(this, owner as M, downlinkName) as ModelEventDownlink<M>;
   } else { // decorator factory
     return ModelEventDownlinkDecoratorFactory(owner as ModelEventDownlinkDescriptor<M>);
   }
@@ -82,12 +80,12 @@ __extends(ModelEventDownlink, ModelDownlink);
 ModelDownlink.Event = ModelEventDownlink;
 
 function ModelEventDownlinkConstructor<M extends ModelDownlinkContext>(this: ModelEventDownlink<M>, owner: M, downlinkName: string | undefined): ModelEventDownlink<M> {
-  const _this: ModelEventDownlink<M> = ModelDownlink.call(this, owner, downlinkName) || this;
+  const _this: ModelEventDownlink<M> = (ModelDownlink as Function).call(this, owner, downlinkName) || this;
   return _this;
 }
 
 function ModelEventDownlinkDecoratorFactory<M extends ModelDownlinkContext>(descriptor: ModelEventDownlinkDescriptor<M>): PropertyDecorator {
-  return ModelDownlinkContext.decorateModelDownlink.bind(ModelDownlinkContext, ModelEventDownlink.define(descriptor));
+  return ModelDownlinkContext.decorateModelDownlink.bind(ModelDownlinkContext, ModelEventDownlink.define(descriptor as ModelEventDownlinkDescriptor<ModelDownlinkContext>));
 }
 
 ModelEventDownlink.prototype.createDownlink = function <V, VU>(this: ModelEventDownlink<ModelDownlinkContext>, warp: WarpRef): EventDownlink {
@@ -95,7 +93,7 @@ ModelEventDownlink.prototype.createDownlink = function <V, VU>(this: ModelEventD
 };
 
 ModelEventDownlink.define = function <M extends ModelDownlinkContext, V, VU, I>(descriptor: ModelEventDownlinkDescriptor<M, I>): ModelEventDownlinkConstructor<M, I> {
-  let _super: ModelEventDownlinkPrototype | null | undefined = descriptor.extends;
+  let _super: ModelEventDownlinkClass | null | undefined = descriptor.extends;
   const enabled = descriptor.enabled;
   let hostUri = descriptor.hostUri;
   let nodeUri = descriptor.nodeUri;

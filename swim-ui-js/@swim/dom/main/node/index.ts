@@ -17,7 +17,6 @@ export {
   ViewNode,
   NodeViewInit,
   NodeViewConstructor,
-  NodeViewClass,
   NodeView,
 } from "./NodeView";
 export {NodeViewObserver} from "./NodeViewObserver";

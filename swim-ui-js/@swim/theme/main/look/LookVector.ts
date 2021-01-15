@@ -14,7 +14,7 @@
 
 import {Equals, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
-import {Feel} from "../feel/Feel";
+import type {Feel} from "../feel/Feel";
 
 export type AnyLookVector<T> = LookVector<T> | LookVectorArray<T>;
 
@@ -85,7 +85,7 @@ export class LookVector<T> implements Equals, Debug {
       const newIndex: {[name: string]: number | undefined} = {};
       let k = 0;
       for (let j = 0, n = oldArray.length; j < n; j += 1) {
-        const entry = oldArray[j];
+        const entry = oldArray[j]!;
         if (entry[0] !== feel) {
           newArray[k] = entry;
           newIndex[entry[0].name] = k;
@@ -103,11 +103,14 @@ export class LookVector<T> implements Equals, Debug {
     return LookVector.fromArray(array, index);
   }
 
-  forEach<R, S = unknown>(callback: (this: S, value: T, feel: Feel) => R | void,
-                          thisArg?: S): R | undefined {
+  forEach<R>(callback: (value: T, feel: Feel) => R | void): R | undefined;
+  forEach<R, S>(callback: (this: S, value: T, feel: Feel) => R | void,
+                thisArg: S): R | undefined;
+  forEach<R, S>(callback: (this: S | undefined, value: T, feel: Feel) => R | void,
+                thisArg?: S): R | undefined {
     const array = this._array;
     for (let i = 0, n = array.length; i < n; i += 1) {
-      const entry = array[i];
+      const entry = array[i]!;
       const result = callback.call(thisArg, entry[1], entry[0]);
       if (result !== void 0) {
         return result;
@@ -131,7 +134,7 @@ export class LookVector<T> implements Equals, Debug {
     output = output.write("LookVector").write(46/*'.'*/)
         .write(n !== 0 ? "of" : "empty").write(40/*'('*/);
     for (let i = 0; i < n; i += 1) {
-      const [feel, value] = array[i];
+      const [feel, value] = array[i]!;
       if (i !== 0) {
         output = output.write(", ");
       }
@@ -177,7 +180,7 @@ export class LookVector<T> implements Equals, Debug {
   static index<T>(array: ReadonlyArray<[Feel, T]>): {readonly [name: string]: number | undefined} {
     const index: {[name: string]: number | undefined} = {};
     for (let i = 0, n = array.length; i < n; i += 1) {
-      const entry = array[i];
+      const entry = array[i]!;
       index[entry[0].name] = i;
     }
     return index

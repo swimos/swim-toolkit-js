@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Transition} from "@swim/tween";
-import {MoodVector, ThemeMatrix} from "@swim/theme";
-import {View} from "../View";
-import {ViewManagerObserver} from "../manager/ViewManagerObserver";
-import {ThemeManager} from "./ThemeManager";
+import type {Transition} from "@swim/animation";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import type {View} from "../View";
+import type {ViewManagerObserver} from "../manager/ViewManagerObserver";
+import type {ThemeManager} from "./ThemeManager";
 
 export interface ThemeManagerObserver<V extends View = View, VM extends ThemeManager<V> = ThemeManager<V>> extends ViewManagerObserver<V, VM> {
   themeManagerWillApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, themeManager: VM): void;

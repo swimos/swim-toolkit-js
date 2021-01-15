@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {ConstraintMap} from "./ConstraintMap";
-import {ConstraintSymbol} from "./ConstraintSymbol";
+import type {ConstraintSymbol} from "./ConstraintSymbol";
 import {Constrain} from "./Constrain";
 import {ConstrainTerm} from "./ConstrainTerm";
-import {AnyConstraintStrength, ConstraintStrength} from "./ConstraintStrength";
+import type {AnyConstraintStrength, ConstraintStrength} from "./ConstraintStrength";
 
 export abstract class ConstrainVariable extends ConstrainTerm implements ConstraintSymbol {
   /** @hidden */

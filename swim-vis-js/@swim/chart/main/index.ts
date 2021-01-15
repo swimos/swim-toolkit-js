@@ -24,10 +24,4 @@ export * from "./tick";
 
 export * from "./axis";
 
-export {
-  AnyChartView,
-  ChartViewInit,
-  ChartView,
-} from "./ChartView";
-export {ChartViewObserver} from "./ChartViewObserver";
-export {ChartViewController} from "./ChartViewController";
+export * from "./chart";

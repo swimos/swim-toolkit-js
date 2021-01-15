@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import {Transition, TweenAnimator} from "@swim/tween";
+import {Transition, TweenAnimator} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -26,10 +26,10 @@ import {
   AnyTextRunView,
   TextRunView,
 } from "@swim/graphics";
-import {TopTickView} from "./TopTickView";
-import {RightTickView} from "./RightTickView";
-import {BottomTickView} from "./BottomTickView";
-import {LeftTickView} from "./LeftTickView";
+import type {TopTickView} from "./TopTickView";
+import type {RightTickView} from "./RightTickView";
+import type {BottomTickView} from "./BottomTickView";
+import type {LeftTickView} from "./LeftTickView";
 
 /** @hidden */
 export const enum TickState {
@@ -124,37 +124,37 @@ export abstract class TickView<D> extends LayerView {
   }
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
-  anchor: ViewAnimator<this, PointR2, AnyPointR2>;
+  declare anchor: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Number, state: 1})
-  opacity: ViewAnimator<this, number>;
+  declare opacity: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickMarkSpacing: ViewAnimator<this, number | undefined>;
+  declare tickMarkSpacing: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  tickMarkColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare tickMarkColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickMarkWidth: ViewAnimator<this, number | undefined>;
+  declare tickMarkWidth: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickMarkLength: ViewAnimator<this, number | undefined>;
+  declare tickMarkLength: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  tickLabelPadding: ViewAnimator<this, number | undefined>;
+  declare tickLabelPadding: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  gridLineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare gridLineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  gridLineWidth: ViewAnimator<this, number | undefined>;
+  declare gridLineWidth: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   tickLabel(): GraphicsView | null;
   tickLabel(tickLabel: GraphicsView | AnyTextRunView | null): this;

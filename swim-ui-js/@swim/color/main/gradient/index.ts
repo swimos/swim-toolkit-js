@@ -13,6 +13,18 @@
 // limitations under the License.
 
 export {
+  AnyColorStop,
+  ColorStopInit,
+  ColorStopTuple,
+  ColorStop,
+} from "./ColorStop";
+
+export {ColorStopParser} from "./ColorStopParser";
+export {ColorStopListParser} from "./ColorStopListParser";
+
+export {ColorStopInterpolator} from "./ColorStopInterpolator";
+
+export {
   AnyLinearGradient,
   AnyLinearGradientAngle,
   LinearGradientAngle,

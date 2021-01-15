@@ -9,10 +9,10 @@
       "@swim/unit": ["../../swim-system-js/swim-core-js/@swim/unit/main"],
       "@swim/interpolate": ["../../swim-system-js/swim-core-js/@swim/interpolate/main"],
       "@swim/structure": ["../../swim-system-js/swim-core-js/@swim/structure/main"],
-      "@swim/tween": ["@swim/tween/main"]
+      "@swim/animation": ["@swim/animation/main"]
     }
   },
   "references": [
-    {"path": "../../tween/main"}
+    {"path": "../../animation/main"}
   ]
 }

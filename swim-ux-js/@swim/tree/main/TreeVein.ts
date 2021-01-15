@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Transition} from "@swim/tween";
+import type {Transition} from "@swim/animation";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
-import {TreeVeinObserver} from "./TreeVeinObserver";
-import {TreeVeinController} from "./TreeVeinController";
+import type {TreeVeinObserver} from "./TreeVeinObserver";
+import type {TreeVeinController} from "./TreeVeinController";
 
 export type AnyTreeVein = TreeVein | TreeVeinInit | HTMLElement;
 
@@ -34,10 +34,8 @@ export class TreeVein extends HtmlView {
     this.overflowY.setAutoState("hidden");
   }
 
-  // @ts-ignore
   declare readonly viewController: TreeVeinController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<TreeVeinObserver>;
 
   initView(init: TreeVeinInit): void {

@@ -14,7 +14,7 @@
 
 import {AnyColor, Color} from "@swim/color";
 import {AttributeAnimator} from "./AttributeAnimator";
-import {ElementView} from "../element/ElementView";
+import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class ColorOrStringAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Color | string, AnyColor | string> {

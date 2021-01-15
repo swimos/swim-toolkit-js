@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length} from "@swim/math";
-import {StyleContext} from "../css/StyleContext";
+import type {StyleContext} from "../css/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */

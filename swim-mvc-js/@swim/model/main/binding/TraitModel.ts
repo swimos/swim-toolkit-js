@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {FromAny} from "@swim/util";
-import {Model} from "../Model";
+import type {FromAny} from "@swim/util";
+import type {Model} from "../Model";
 import {Trait} from "../Trait";
-import {ModelObserverType} from "../ModelObserver";
+import type {ModelObserverType} from "../ModelObserver";
 
 export type TraitModelMemberType<R, K extends keyof R> =
   R extends {[P in K]: TraitModel<any, infer S, any>} ? S : unknown;
@@ -24,8 +24,8 @@ export type TraitModelMemberType<R, K extends keyof R> =
 export type TraitModelMemberInit<R, K extends keyof R> =
   R extends {[P in K]: TraitModel<any, infer T, infer U>} ? T | U : unknown;
 
-export interface TraitModelInit<S extends Model, U = S> {
-  extends?: TraitModelPrototype;
+export interface TraitModelInit<S extends Model, U = never> {
+  extends?: TraitModelClass;
   observe?: boolean;
   child?: boolean;
   type?: unknown;
@@ -38,26 +38,22 @@ export interface TraitModelInit<S extends Model, U = S> {
   fromAny?(value: S | U): S | null;
 }
 
-export type TraitModelDescriptorInit<R extends Trait, S extends Model, U = S, I = ModelObserverType<S>> = TraitModelInit<S, U> & ThisType<TraitModel<R, S, U> & I> & I;
+export type TraitModelDescriptor<R extends Trait, S extends Model, U = never, I = ModelObserverType<S>> = TraitModelInit<S, U> & ThisType<TraitModel<R, S, U> & I> & I;
 
-export type TraitModelDescriptorExtends<R extends Trait, S extends Model, U = S, I = ModelObserverType<S>> = {extends: TraitModelPrototype | undefined} & TraitModelDescriptorInit<R, S, U, I>;
+export type TraitModelDescriptorExtends<R extends Trait, S extends Model, U = never, I = ModelObserverType<S>> = {extends: TraitModelClass | undefined} & TraitModelDescriptor<R, S, U, I>;
 
-export type TraitModelDescriptorFromAny<R extends Trait, S extends Model, U = S, I = ModelObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & TraitModelDescriptorInit<R, S, U, I>;
+export type TraitModelDescriptorFromAny<R extends Trait, S extends Model, U = never, I = ModelObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & TraitModelDescriptor<R, S, U, I>;
 
-export type TraitModelDescriptor<R extends Trait, S extends Model, U = S, I = ModelObserverType<S>> =
-  U extends S ? TraitModelDescriptorInit<R, S, U, I> :
-  TraitModelDescriptorFromAny<R, S, U, I>;
-
-export interface TraitModelPrototype extends Function {
-  readonly prototype: TraitModel<any, any>;
-}
-
-export interface TraitModelConstructor<R extends Trait, S extends Model, U = S, I = ModelObserverType<S>> {
+export interface TraitModelConstructor<R extends Trait, S extends Model, U = never, I = ModelObserverType<S>> {
   new(owner: R, bindingName: string | undefined): TraitModel<R, S, U> & I;
   prototype: TraitModel<any, any, any> & I;
 }
 
-export declare abstract class TraitModel<R extends Trait, S extends Model, U = S> {
+export interface TraitModelClass extends Function {
+  readonly prototype: TraitModel<any, any, any>;
+}
+
+export declare abstract class TraitModel<R extends Trait, S extends Model, U = never> {
   /** @hidden */
   _owner: R;
   /** @hidden */
@@ -123,25 +119,25 @@ export declare abstract class TraitModel<R extends Trait, S extends Model, U = S
 
   fromAny(value: S | U): S | null;
 
-  static define<R extends Trait, S extends Model = Model, U = S, I = ModelObserverType<S>>(descriptor: TraitModelDescriptorExtends<R, S, U, I>): TraitModelConstructor<R, S, U>;
-  static define<R extends Trait, S extends Model = Model, U = S>(descriptor: TraitModelDescriptor<R, S, U>): TraitModelConstructor<R, S, U>;
+  static define<R extends Trait, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: TraitModelDescriptorExtends<R, S, U, I>): TraitModelConstructor<R, S, U>;
+  static define<R extends Trait, S extends Model = Model, U = never>(descriptor: TraitModelDescriptor<R, S, U>): TraitModelConstructor<R, S, U>;
 }
 
-export interface TraitModel<R extends Trait, S extends Model, U = S> {
+export interface TraitModel<R extends Trait, S extends Model, U = never> {
   (): S | null;
   (model: S | U | null): R;
 }
 
-export function TraitModel<R extends Trait, S extends Model = Model, U = S, I = ModelObserverType<S>>(descriptor: TraitModelDescriptorExtends<R, S, U, I>): PropertyDecorator;
-export function TraitModel<R extends Trait, S extends Model = Model, U = S>(descriptor: TraitModelDescriptor<R, S, U>): PropertyDecorator;
+export function TraitModel<R extends Trait, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: TraitModelDescriptorExtends<R, S, U, I>): PropertyDecorator;
+export function TraitModel<R extends Trait, S extends Model = Model, U = never>(descriptor: TraitModelDescriptor<R, S, U>): PropertyDecorator;
 
 export function TraitModel<R extends Trait, S extends Model, U>(
-    this: TraitModel<R, S> | typeof TraitModel,
+    this: TraitModel<R, S, U> | typeof TraitModel,
     owner: R | TraitModelDescriptor<R, S, U>,
     bindingName?: string,
-  ): TraitModel<R, S> | PropertyDecorator {
+  ): TraitModel<R, S, U> | PropertyDecorator {
   if (this instanceof TraitModel) { // constructor
-    return TraitModelConstructor.call(this, owner as R, bindingName);
+    return TraitModelConstructor.call(this as unknown as TraitModel<Trait, Model, unknown>, owner as R, bindingName);
   } else { // decorator factory
     return TraitModelDecoratorFactory(owner as TraitModelDescriptor<R, S, U>);
   }
@@ -162,7 +158,7 @@ function TraitModelConstructor<R extends Trait, S extends Model, U>(this: TraitM
 }
 
 function TraitModelDecoratorFactory<R extends Trait, S extends Model, U>(descriptor: TraitModelDescriptor<R, S, U>): PropertyDecorator {
-  return Trait.decorateTraitModel.bind(Trait, TraitModel.define(descriptor));
+  return Trait.decorateTraitModel.bind(Trait, TraitModel.define(descriptor as TraitModelDescriptor<Trait, Model>));
 }
 
 Object.defineProperty(TraitModel.prototype, "owner", {

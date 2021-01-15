@@ -14,7 +14,7 @@
 
 import {AnyLength, Length} from "@swim/math";
 import {AttributeAnimator} from "./AttributeAnimator";
-import {ElementView} from "../element/ElementView";
+import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class LengthAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Length, AnyLength> {

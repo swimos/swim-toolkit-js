@@ -14,8 +14,8 @@
 
 import {Arrays} from "@swim/util";
 import {Interpolator} from "@swim/interpolate";
-import {ColorStop} from "../stop/ColorStop";
-import {ColorStopInterpolator} from "../stop/ColorStopInterpolator";
+import type {ColorStop} from "./ColorStop";
+import {ColorStopInterpolator} from "./ColorStopInterpolator";
 import {AnyLinearGradient, LinearGradientAngle, LinearGradientInit, LinearGradient} from "./LinearGradient";
 
 export class LinearGradientInterpolator extends Interpolator<LinearGradient, AnyLinearGradient> {
@@ -32,7 +32,7 @@ export class LinearGradientInterpolator extends Interpolator<LinearGradient, Any
     const stopCount = Math.min(stops0.length, stops1.length);
     const interpolators = new Array<ColorStopInterpolator>(stopCount);
     for (let i = 0; i < stopCount; i += 1) {
-      interpolators[i] = ColorStopInterpolator.between(stops0[i], stops1[i]);
+      interpolators[i] = ColorStopInterpolator.between(stops0[i]!, stops1[i]!);
     }
     this.stops = interpolators;
   }
@@ -43,7 +43,7 @@ export class LinearGradientInterpolator extends Interpolator<LinearGradient, Any
     const interpolatorCount = interpolators.length;
     const stops = new Array<ColorStop>(interpolatorCount);
     for (let i = 0; i < interpolatorCount; i += 1) {
-      stops[i] = interpolators[i].interpolate(u);
+      stops[i] = interpolators[i]!.interpolate(u);
     }
     return new LinearGradient(angle, stops);
   }

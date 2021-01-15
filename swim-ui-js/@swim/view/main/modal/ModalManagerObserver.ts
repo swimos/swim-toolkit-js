@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "../View";
-import {ViewManagerObserver} from "../manager/ViewManagerObserver";
-import {ModalOptions, Modal} from "./Modal";
-import {ModalManager} from "./ModalManager";
+import type {View} from "../View";
+import type {ViewManagerObserver} from "../manager/ViewManagerObserver";
+import type {ModalOptions, Modal} from "./Modal";
+import type {ModalManager} from "./ModalManager";
 
 export interface ModalManagerObserver<V extends View = View, VM extends ModalManager<V> = ModalManager<V>> extends ViewManagerObserver<V, VM> {
   modalManagerWillPresentModal?(modal: Modal, options: ModalOptions, modalManager: VM): void;

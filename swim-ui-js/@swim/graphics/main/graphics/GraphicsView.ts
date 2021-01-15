@@ -14,7 +14,7 @@
 
 import {Arrays} from "@swim/util";
 import {BoxR2, Transform} from "@swim/math";
-import {ConstrainVariable, Constraint} from "@swim/constraint";
+import type {ConstrainVariable, Constraint} from "@swim/constraint";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
@@ -22,7 +22,6 @@ import {
   ViewInit,
   ViewFlags,
   ViewConstructor,
-  ViewClass,
   View,
   ViewObserverType,
   WillRenderObserver,
@@ -39,13 +38,13 @@ import {
   ViewPointerEvent,
   ViewEventHandler,
 } from "@swim/view";
-import {GraphicsRenderer} from "./GraphicsRenderer";
-import {GraphicsViewContext} from "./GraphicsViewContext";
-import {GraphicsViewObserver} from "./GraphicsViewObserver";
-import {GraphicsViewController} from "./GraphicsViewController";
-import {LayerView} from "../layer/LayerView";
-import {RasterView} from "../raster/RasterView";
-import {CanvasView} from "../canvas/CanvasView";
+import type {GraphicsRenderer} from "./GraphicsRenderer";
+import type {GraphicsViewContext} from "./GraphicsViewContext";
+import type {GraphicsViewObserver} from "./GraphicsViewObserver";
+import type {GraphicsViewController} from "./GraphicsViewController";
+import type {LayerView} from "../layer/LayerView";
+import type {RasterView} from "../raster/RasterView";
+import type {CanvasView} from "../canvas/CanvasView";
 
 export interface GraphicsViewInit extends ViewInit {
   viewController?: GraphicsViewController;
@@ -61,14 +60,7 @@ export interface GraphicsViewConstructor<V extends GraphicsView = GraphicsView> 
   readonly prototype: V;
 }
 
-export interface GraphicsViewClass extends ViewClass {
-}
-
 export abstract class GraphicsView extends View {
-  /** @hidden */
-  _key?: string;
-  /** @hidden */
-  _parentView: View | null;
   /** @hidden */
   _viewServices?: {[serviceName: string]: ViewService<View, unknown> | undefined};
   /** @hidden */
@@ -100,7 +92,16 @@ export abstract class GraphicsView extends View {
 
   constructor() {
     super();
-    this._parentView = null;
+    Object.defineProperty(this, "key", {
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "parentView", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   initView(init: GraphicsViewInit): void {
@@ -122,13 +123,8 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  // @ts-ignore
-  declare readonly viewClass: GraphicsViewClass;
-
-  // @ts-ignore
   declare readonly viewController: GraphicsViewController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<GraphicsViewObserver>;
 
   protected onAddViewObserver(viewObserver: ViewObserverType<this>): void {
@@ -165,25 +161,19 @@ export abstract class GraphicsView extends View {
 
   protected willObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
-      result = callback.call(this, viewController);
+    const viewController = this.viewController;
+    if (viewController !== null) {
+      result = callback.call(this, viewController as ViewObserverType<this>) as T | undefined;
       if (result !== void 0) {
         return result;
       }
     }
-    const viewObservers = this._viewObservers;
-    if (viewObservers !== void 0) {
-      let i = 0;
-      while (i < viewObservers.length) {
-        const viewObserver = viewObservers[i];
-        result = callback.call(this, viewObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (viewObserver === viewObservers[i]) {
-          i += 1;
-        }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      result = callback.call(this, viewObserver as ViewObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
@@ -191,23 +181,17 @@ export abstract class GraphicsView extends View {
 
   protected didObserve<T>(callback: (this: this, viewObserver: ViewObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const viewObservers = this._viewObservers;
-    if (viewObservers !== void 0) {
-      let i = 0;
-      while (i < viewObservers.length) {
-        const viewObserver = viewObservers[i];
-        result = callback.call(this, viewObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (viewObserver === viewObservers[i]) {
-          i += 1;
-        }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      result = callback.call(this, viewObserver as ViewObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
-      result = callback.call(this, viewController);
+    const viewController = this.viewController;
+    if (viewController !== null) {
+      result = callback.call(this, viewController as ViewObserverType<this>) as T | undefined;
       if (result !== void 0) {
         return result;
       }
@@ -215,45 +199,45 @@ export abstract class GraphicsView extends View {
     return result;
   }
 
-  get key(): string | undefined {
-    return this._key;
-  }
+  declare readonly key: string | undefined;
 
   /** @hidden */
   setKey(key: string | undefined): void {
-    if (key !== void 0) {
-      this._key = key;
-    } else if (this._key !== void 0) {
-      this._key = void 0;
-    }
+    Object.defineProperty(this, "key", {
+      value: key,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get parentView(): View | null {
-    return this._parentView;
-  }
+  declare readonly parentView: View | null;
 
   /** @hidden */
   setParentView(newParentView: View | null, oldParentView: View | null) {
     this.willSetParentView(newParentView, oldParentView);
-    this._parentView = newParentView;
+    Object.defineProperty(this, "parentView", {
+      value: newParentView,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetParentView(newParentView, oldParentView);
     this.didSetParentView(newParentView, oldParentView);
   }
 
   remove(): void {
-    const parentView = this._parentView;
+    const parentView = this.parentView;
     if (parentView !== null) {
-      if ((this._viewFlags & View.TraversingFlag) === 0) {
+      if ((this.viewFlags & View.TraversingFlag) === 0) {
         parentView.removeChildView(this);
       } else {
-        this._viewFlags |= View.RemovingFlag;
+        this.setViewFlags(this.viewFlags | View.RemovingFlag);
       }
     }
   }
 
   abstract get childViewCount(): number;
 
-  abstract get childViews(): ReadonlyArray<View>;
+  abstract readonly childViews: ReadonlyArray<View>;
 
   abstract firstChildView(): View | null;
 
@@ -263,8 +247,9 @@ export abstract class GraphicsView extends View {
 
   abstract previousChildView(targetView: View): View | null;
 
-  abstract forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
-                                            thisArg?: S): T | undefined;
+  abstract forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
+  abstract forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
+                                  thisArg: S): T | undefined;
 
   abstract getChildView(key: string): View | null;
 
@@ -315,11 +300,11 @@ export abstract class GraphicsView extends View {
   }
 
   cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
-    if ((this._viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
+    if ((this.viewFlags & (View.MountedFlag | View.PoweredFlag)) === (View.MountedFlag | View.PoweredFlag)) {
       if (updateFlags === void 0) {
         updateFlags = 0;
       }
-      updateFlags |= this._viewFlags & View.UpdateMask;
+      updateFlags |= this.viewFlags & View.UpdateMask;
       if ((updateFlags & View.ProcessMask) !== 0) {
         if (viewContext === void 0) {
           viewContext = this.superViewContext;
@@ -340,16 +325,15 @@ export abstract class GraphicsView extends View {
   abstract removeAll(): void;
 
   cascadeMount(): void {
-    if ((this._viewFlags & View.MountedFlag) === 0) {
-      this._viewFlags |= View.MountedFlag;
-      this._viewFlags |= View.TraversingFlag;
+    if ((this.viewFlags & View.MountedFlag) === 0) {
+      this.setViewFlags(this.viewFlags | (View.MountedFlag | View.TraversingFlag));
       try {
         this.willMount();
         this.onMount();
         this.doMountChildViews();
         this.didMount();
       } finally {
-        this._viewFlags &= ~View.TraversingFlag;
+        this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
       }
     } else {
       throw new Error("already mounted");
@@ -372,26 +356,27 @@ export abstract class GraphicsView extends View {
 
   /** @hidden */
   protected doMountChildViews(): void {
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function doMountChildView(this: self, childView: View): void {
       childView.cascadeMount();
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
       }
-    }, this);
+    }
+    this.forEachChildView(doMountChildView, this);
   }
 
   cascadeUnmount(): void {
-    if ((this._viewFlags & View.MountedFlag) !== 0) {
-      this._viewFlags &= ~View.MountedFlag;
-      this._viewFlags |= View.TraversingFlag;
+    if ((this.viewFlags & View.MountedFlag) !== 0) {
+      this.setViewFlags(this.viewFlags & ~View.MountedFlag | View.TraversingFlag);
       try {
         this.willUnmount();
         this.doUnmountChildViews();
         this.onUnmount();
         this.didUnmount();
       } finally {
-        this._viewFlags &= ~View.TraversingFlag;
+        this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
       }
     } else {
       throw new Error("already unmounted");
@@ -408,31 +393,32 @@ export abstract class GraphicsView extends View {
     this.unmountAnimators();
     this.unmountScopes();
     this.unmountServices();
-    this._viewFlags &= ~View.ViewFlagMask | View.RemovingFlag;
+    this.setViewFlags(this.viewFlags & (~View.ViewFlagMask | View.RemovingFlag));
   }
 
   /** @hidden */
   protected doUnmountChildViews(): void {
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function doUnmountChildView(this: self, childView: View): void {
       childView.cascadeUnmount();
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
       }
-    }, this);
+    }
+    this.forEachChildView(doUnmountChildView, this);
   }
 
   cascadePower(): void {
-    if ((this._viewFlags & View.PoweredFlag) === 0) {
-      this._viewFlags |= View.PoweredFlag;
-      this._viewFlags |= View.TraversingFlag;
+    if ((this.viewFlags & View.PoweredFlag) === 0) {
+      this.setViewFlags(this.viewFlags | (View.PoweredFlag | View.TraversingFlag));
       try {
         this.willPower();
         this.onPower();
         this.doPowerChildViews();
         this.didPower();
       } finally {
-        this._viewFlags &= ~View.TraversingFlag;
+        this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
       }
     } else {
       throw new Error("already powered");
@@ -441,26 +427,27 @@ export abstract class GraphicsView extends View {
 
   /** @hidden */
   protected doPowerChildViews(): void {
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function doPowerChildView(this: self, childView: View): void {
       childView.cascadePower();
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
       }
-    }, this);
+    }
+    this.forEachChildView(doPowerChildView, this);
   }
 
   cascadeUnpower(): void {
-    if ((this._viewFlags & View.PoweredFlag) !== 0) {
-      this._viewFlags &= ~View.PoweredFlag;
-      this._viewFlags |= View.TraversingFlag;
+    if ((this.viewFlags & View.PoweredFlag) !== 0) {
+      this.setViewFlags(this.viewFlags & ~View.PoweredFlag | View.TraversingFlag);
       try {
         this.willUnpower();
         this.doUnpowerChildViews();
         this.onUnpower();
         this.didUnpower();
       } finally {
-        this._viewFlags &= ~View.TraversingFlag;
+        this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
       }
     } else {
       throw new Error("already unpowered");
@@ -469,24 +456,26 @@ export abstract class GraphicsView extends View {
 
   /** @hidden */
   protected doUnpowerChildViews(): void {
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function doUnpowerChildView(this: self, childView: View): void {
       childView.cascadeUnpower();
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
       }
-    }, this);
+    }
+    this.forEachChildView(doUnpowerChildView, this);
   }
 
   setCulled(culled: boolean): void {
-    const viewFlags = this._viewFlags;
+    const viewFlags = this.viewFlags;
     if (culled && (viewFlags & View.CulledFlag) === 0) {
-      this._viewFlags = viewFlags | View.CulledFlag;
+      this.setViewFlags(viewFlags | View.CulledFlag);
       if ((viewFlags & View.CullFlag) === 0) {
         this.doCull();
       }
     } else if (!culled && (viewFlags & View.CulledFlag) !== 0) {
-      this._viewFlags = viewFlags & ~View.CulledFlag;
+      this.setViewFlags(viewFlags & ~View.CulledFlag);
       if ((viewFlags & View.CullFlag) === 0) {
         this.doUncull();
       }
@@ -494,9 +483,9 @@ export abstract class GraphicsView extends View {
   }
 
   cascadeCull(): void {
-    if ((this._viewFlags & View.CullFlag) === 0) {
-      this._viewFlags |= View.CullFlag;
-      if ((this._viewFlags & View.CulledFlag) === 0) {
+    if ((this.viewFlags & View.CullFlag) === 0) {
+      this.setViewFlags(this.viewFlags | View.CullFlag);
+      if ((this.viewFlags & View.CulledFlag) === 0) {
         this.doCull();
       }
     } else {
@@ -506,32 +495,34 @@ export abstract class GraphicsView extends View {
 
   /** @hidden */
   protected doCull(): void {
-    this._viewFlags |= View.TraversingFlag;
+    this.setViewFlags(this.viewFlags | View.TraversingFlag);
     try {
       this.willCull();
       this.onCull();
       this.doCullChildViews();
       this.didCull();
     } finally {
-      this._viewFlags &= ~View.TraversingFlag;
+      this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
     }
   }
 
   /** @hidden */
   protected doCullChildViews(): void {
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function doCullChildView(this: self, childView: View): void {
       childView.cascadeCull();
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
       }
-    }, this);
+    }
+    this.forEachChildView(doCullChildView, this);
   }
 
   cascadeUncull(): void {
-    if ((this._viewFlags & View.CullFlag) !== 0) {
-      this._viewFlags &= ~View.CullFlag
-      if ((this._viewFlags & View.CulledFlag) === 0) {
+    if ((this.viewFlags & View.CullFlag) !== 0) {
+      this.setViewFlags(this.viewFlags & ~View.CullFlag);
+      if ((this.viewFlags & View.CulledFlag) === 0) {
         this.doUncull();
       }
     } else {
@@ -541,26 +532,28 @@ export abstract class GraphicsView extends View {
 
   /** @hidden */
   protected doUncull(): void {
-    this._viewFlags |= View.TraversingFlag;
+    this.setViewFlags(this.viewFlags | View.TraversingFlag);
     try {
       this.willUncull();
       this.doUncullChildViews();
       this.onUncull();
       this.didUncull();
     } finally {
-      this._viewFlags &= ~View.TraversingFlag;
+      this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
     }
   }
 
   /** @hidden */
   protected doUncullChildViews(): void {
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function doUncullChildView(this: self, childView: View): void {
       childView.cascadeUncull();
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
         this.removeChildView(childView);
       }
-    }, this);
+    }
+    this.forEachChildView(doUncullChildView, this);
   }
 
   protected onUncull(): void {
@@ -578,7 +571,7 @@ export abstract class GraphicsView extends View {
   }
 
   get renderer(): GraphicsRenderer | null {
-    const parentView = this._parentView;
+    const parentView = this.parentView;
     if (parentView instanceof GraphicsView || parentView instanceof GraphicsView.Canvas) {
       return parentView.renderer;
     } else {
@@ -587,7 +580,7 @@ export abstract class GraphicsView extends View {
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this._viewFlags & View.NeedsAnimate) === 0) {
+    if ((this.viewFlags & View.NeedsAnimate) === 0) {
       processFlags &= ~View.NeedsAnimate;
     }
     return processFlags;
@@ -596,7 +589,7 @@ export abstract class GraphicsView extends View {
   cascadeProcess(processFlags: ViewFlags, viewContext: ViewContext): void {
     const extendedViewContext = this.extendViewContext(viewContext);
     processFlags &= ~View.NeedsProcess;
-    processFlags |= this._viewFlags & View.UpdateMask;
+    processFlags |= this.viewFlags & View.UpdateMask;
     processFlags = this.needsProcess(processFlags, extendedViewContext);
     if ((processFlags & View.ProcessMask) !== 0) {
       this.doProcess(processFlags, extendedViewContext);
@@ -606,29 +599,29 @@ export abstract class GraphicsView extends View {
   /** @hidden */
   protected doProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = processFlags;
-    this._viewFlags |= View.TraversingFlag | View.ProcessingFlag;
-    this._viewFlags &= ~(View.NeedsProcess | View.NeedsProject);
+    this.setViewFlags(this.viewFlags & ~(View.NeedsProcess | View.NeedsProject)
+                                     |  (View.TraversingFlag | View.ProcessingFlag));
     try {
       this.willProcess(cascadeFlags, viewContext);
-      if (((this._viewFlags | processFlags) & View.NeedsResize) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsResize) !== 0) {
         this.willResize(viewContext);
         cascadeFlags |= View.NeedsResize;
-        this._viewFlags &= ~View.NeedsResize;
+        this.setViewFlags(this.viewFlags & ~View.NeedsResize);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsScroll) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsScroll) !== 0) {
         this.willScroll(viewContext);
         cascadeFlags |= View.NeedsScroll;
-        this._viewFlags &= ~View.NeedsScroll;
+        this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsChange) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsChange) !== 0) {
         this.willChange(viewContext);
         cascadeFlags |= View.NeedsChange;
-        this._viewFlags &= ~View.NeedsChange;
+        this.setViewFlags(this.viewFlags & ~View.NeedsChange);
       }
-      if (((this._viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
+      if (((this.viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
         this.willAnimate(viewContext);
         cascadeFlags |= View.NeedsAnimate;
-        this._viewFlags &= ~View.NeedsAnimate;
+        this.setViewFlags(this.viewFlags & ~View.NeedsAnimate);
       }
 
       this.onProcess(cascadeFlags, viewContext);
@@ -661,7 +654,7 @@ export abstract class GraphicsView extends View {
       }
       this.didProcess(cascadeFlags, viewContext);
     } finally {
-      this._viewFlags &= ~(View.TraversingFlag | View.ProcessingFlag);
+      this.setViewFlags(this.viewFlags & ~(View.TraversingFlag | View.ProcessingFlag));
     }
   }
 
@@ -698,7 +691,7 @@ export abstract class GraphicsView extends View {
   cascadeDisplay(displayFlags: ViewFlags, viewContext: ViewContext): void {
     const extendedViewContext = this.extendViewContext(viewContext);
     displayFlags &= ~View.NeedsDisplay;
-    displayFlags |= this._viewFlags & View.UpdateMask;
+    displayFlags |= this.viewFlags & View.UpdateMask;
     displayFlags = this.needsDisplay(displayFlags, extendedViewContext);
     if ((displayFlags & View.DisplayMask) !== 0) {
       this.doDisplay(displayFlags, extendedViewContext);
@@ -708,24 +701,23 @@ export abstract class GraphicsView extends View {
   /** @hidden */
   protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = displayFlags;
-    this._viewFlags |= View.TraversingFlag | View.DisplayingFlag;
-    this._viewFlags &= ~View.NeedsDisplay;
+    this.setViewFlags(this.viewFlags & ~View.NeedsDisplay | (View.TraversingFlag | View.DisplayingFlag));
     try {
       this.willDisplay(cascadeFlags, viewContext);
-      if (((this._viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
+      if (((this.viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
         this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
-        this._viewFlags &= ~View.NeedsLayout;
+        this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
       }
-      if (((this._viewFlags | displayFlags) & View.NeedsRender) !== 0) {
+      if (((this.viewFlags | displayFlags) & View.NeedsRender) !== 0) {
         this.willRender(viewContext);
         cascadeFlags |= View.NeedsRender;
-        this._viewFlags &= ~View.NeedsRender;
+        this.setViewFlags(this.viewFlags & ~View.NeedsRender);
       }
-      if (((this._viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
+      if (((this.viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
         this.willComposite(viewContext);
         cascadeFlags |= View.NeedsComposite;
-        this._viewFlags &= ~View.NeedsComposite;
+        this.setViewFlags(this.viewFlags & ~View.NeedsComposite);
       }
 
       this.onDisplay(cascadeFlags, viewContext);
@@ -752,19 +744,19 @@ export abstract class GraphicsView extends View {
       }
       this.didDisplay(cascadeFlags, viewContext);
     } finally {
-      this._viewFlags &= ~(View.TraversingFlag | View.DisplayingFlag);
+      this.setViewFlags(this.viewFlags & ~(View.TraversingFlag | View.DisplayingFlag));
     }
   }
 
   protected willRender(viewContext: ViewContextType<this>): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewWillRender !== void 0) {
       viewController.viewWillRender(viewContext, this);
     }
     const viewObservers = this._willRenderObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
-        const viewObserver = viewObservers[i];
+        const viewObserver = viewObservers[i]!;
         viewObserver.viewWillRender(viewContext, this);
       }
     }
@@ -778,25 +770,25 @@ export abstract class GraphicsView extends View {
     const viewObservers = this._didRenderObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
-        const viewObserver = viewObservers[i];
+        const viewObserver = viewObservers[i]!;
         viewObserver.viewDidRender(viewContext, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewDidRender !== void 0) {
       viewController.viewDidRender(viewContext, this);
     }
   }
 
   protected willComposite(viewContext: ViewContextType<this>): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewWillComposite !== void 0) {
       viewController.viewWillComposite(viewContext, this);
     }
     const viewObservers = this._willCompositeObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
-        const viewObserver = viewObservers[i];
+        const viewObserver = viewObservers[i]!;
         viewObserver.viewWillComposite(viewContext, this);
       }
     }
@@ -810,12 +802,12 @@ export abstract class GraphicsView extends View {
     const viewObservers = this._didCompositeObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
-        const viewObserver = viewObservers[i];
+        const viewObserver = viewObservers[i]!;
         viewObserver.viewDidComposite(viewContext, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewDidComposite !== void 0) {
       viewController.viewDidComposite(viewContext, this);
     }
   }
@@ -831,10 +823,10 @@ export abstract class GraphicsView extends View {
   }
 
   @ViewScope({type: MoodMatrix})
-  moodModifier: ViewScope<this, MoodMatrix | undefined>;
+  declare moodModifier: ViewScope<this, MoodMatrix | undefined>;
 
   @ViewScope({type: MoodMatrix})
-  themeModifier: ViewScope<this, MoodMatrix | undefined>;
+  declare themeModifier: ViewScope<this, MoodMatrix | undefined>;
 
   getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined {
     const theme = this.theme.state;
@@ -964,14 +956,14 @@ export abstract class GraphicsView extends View {
    * view in its parent's layout and hit bounds, when `hidden` is `false`.
    */
   setHidden(hidden: boolean): void {
-    const viewFlags = this._viewFlags;
+    const viewFlags = this.viewFlags;
     if (hidden && (viewFlags & View.HiddenFlag) === 0) {
-      this._viewFlags = viewFlags | View.HiddenFlag;
+      this.setViewFlags(viewFlags | View.HiddenFlag);
       if ((viewFlags & View.HideFlag) === 0) {
         this.doHide();
       }
     } else if (!hidden && (viewFlags & View.HiddenFlag) !== 0) {
-      this._viewFlags = viewFlags & ~View.HiddenFlag;
+      this.setViewFlags(viewFlags & ~View.HiddenFlag);
       if ((viewFlags & View.HideFlag) === 0) {
         this.doUnhide();
       }
@@ -979,9 +971,9 @@ export abstract class GraphicsView extends View {
   }
 
   cascadeHide(): void {
-    if ((this._viewFlags & View.HideFlag) === 0) {
-      this._viewFlags |= View.HideFlag;
-      if ((this._viewFlags & View.HiddenFlag) === 0) {
+    if ((this.viewFlags & View.HideFlag) === 0) {
+      this.setViewFlags(this.viewFlags | View.HideFlag);
+      if ((this.viewFlags & View.HiddenFlag) === 0) {
         this.doHide();
       }
     } else {
@@ -991,20 +983,21 @@ export abstract class GraphicsView extends View {
 
   /** @hidden */
   protected doHide(): void {
-    this._viewFlags |= View.TraversingFlag;
+    this.setViewFlags(this.viewFlags | View.TraversingFlag);
     try {
       this.willSetHidden(true);
       this.onSetHidden(true);
       this.doHideChildViews();
       this.didSetHidden(true);
     } finally {
-      this._viewFlags &= ~View.TraversingFlag;
+      this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
     }
   }
 
   /** @hidden */
   protected doHideChildViews(): void {
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function doHideChildView(this: self, childView: View): void {
       if (childView instanceof GraphicsView) {
         childView.cascadeHide();
         if ((childView.viewFlags & View.RemovingFlag) !== 0) {
@@ -1012,13 +1005,14 @@ export abstract class GraphicsView extends View {
           this.removeChildView(childView);
         }
       }
-    }, this);
+    }
+    this.forEachChildView(doHideChildView, this);
   }
 
   cascadeUnhide(): void {
-    if ((this._viewFlags & View.HideFlag) !== 0) {
-      this._viewFlags &= ~View.HideFlag
-      if ((this._viewFlags & View.HiddenFlag) === 0) {
+    if ((this.viewFlags & View.HideFlag) !== 0) {
+      this.setViewFlags(this.viewFlags & ~View.HideFlag);
+      if ((this.viewFlags & View.HiddenFlag) === 0) {
         this.doUnhide();
       }
     } else {
@@ -1028,20 +1022,21 @@ export abstract class GraphicsView extends View {
 
   /** @hidden */
   protected doUnhide(): void {
-    this._viewFlags |= View.TraversingFlag;
+    this.setViewFlags(this.viewFlags | View.TraversingFlag);
     try {
       this.willSetHidden(false);
       this.doUnhideChildViews();
       this.onSetHidden(false);
       this.didSetHidden(false);
     } finally {
-      this._viewFlags &= ~View.TraversingFlag;
+      this.setViewFlags(this.viewFlags & ~View.TraversingFlag);
     }
   }
 
   /** @hidden */
   protected doUnhideChildViews(): void {
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function doUnhideChildView(this: self, childView: View): void {
       if (childView instanceof GraphicsView) {
         childView.cascadeUnhide();
         if ((childView.viewFlags & View.RemovingFlag) !== 0) {
@@ -1049,17 +1044,18 @@ export abstract class GraphicsView extends View {
           this.removeChildView(childView);
         }
       }
-    }, this);
+    }
+    this.forEachChildView(doUnhideChildView, this);
   }
 
   protected willSetHidden(hidden: boolean): void {
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewWillSetHidden !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewWillSetHidden !== void 0) {
       viewController.viewWillSetHidden(hidden, this);
     }
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewWillSetHidden !== void 0) {
         viewObserver.viewWillSetHidden(hidden, this);
       }
@@ -1073,15 +1069,15 @@ export abstract class GraphicsView extends View {
   }
 
   protected didSetHidden(hidden: boolean): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.viewDidSetHidden !== void 0) {
         viewObserver.viewDidSetHidden(hidden, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.viewDidSetHidden !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewDidSetHidden !== void 0) {
       viewController.viewDidSetHidden(hidden, this);
     }
   }
@@ -1313,7 +1309,7 @@ export abstract class GraphicsView extends View {
     return null;
   }
 
-  setViewBinding(bindingName: string, newViewBinding: ViewBinding<this, View> | null): void {
+  setViewBinding(bindingName: string, newViewBinding: ViewBinding<this, any> | null): void {
     let viewBindings = this._viewBindings;
     if (viewBindings === void 0) {
       viewBindings = {};
@@ -1513,7 +1509,7 @@ export abstract class GraphicsView extends View {
         }
         if (constraints !== void 0) {
           for (let i = 0, n = constraints.length; i < n; i += 1) {
-            layoutManager.activateConstraint(constraints[i]);
+            layoutManager.activateConstraint(constraints[i]!);
             this.requireUpdate(View.NeedsLayout);
           }
         }
@@ -1530,13 +1526,13 @@ export abstract class GraphicsView extends View {
       if (layoutManager !== void 0) {
         if (constraints !== void 0) {
           for (let i = 0, n = constraints.length; i < n; i += 1) {
-            layoutManager.deactivateConstraint(constraints[i]);
+            layoutManager.deactivateConstraint(constraints[i]!);
             this.requireUpdate(View.NeedsLayout);
           }
         }
         if (constraintVariables !== void 0) {
           for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-            layoutManager.deactivateConstraintVariable(constraintVariables[i]);
+            layoutManager.deactivateConstraintVariable(constraintVariables[i]!);
             this.requireUpdate(View.NeedsLayout);
           }
         }
@@ -1554,7 +1550,7 @@ export abstract class GraphicsView extends View {
   get viewFrame(): BoxR2 {
     let viewFrame = this._viewFrame;
     if (viewFrame === void 0) {
-      const parentView = this._parentView;
+      const parentView = this.parentView;
       if (parentView instanceof GraphicsView || parentView instanceof GraphicsView.Canvas) {
         viewFrame = parentView.viewFrame;
       } else {
@@ -1591,7 +1587,8 @@ export abstract class GraphicsView extends View {
 
   deriveViewBounds(): BoxR2 {
     let viewBounds: BoxR2 | null = this.ownViewBounds;
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function accumulateViewBounds(this: self, childView: View): void {
       if (childView instanceof GraphicsView && !childView.isHidden()) {
         const childViewBounds = childView.viewBounds;
         if (childViewBounds.isDefined()) {
@@ -1602,7 +1599,8 @@ export abstract class GraphicsView extends View {
           }
         }
       }
-    }, this);
+    }
+    this.forEachChildView(accumulateViewBounds, this);
     if (viewBounds === null) {
       viewBounds = this.viewFrame;
     }
@@ -1619,7 +1617,8 @@ export abstract class GraphicsView extends View {
 
   deriveHitBounds(): BoxR2 {
     let hitBounds: BoxR2 | undefined;
-    this.forEachChildView(function (childView: View): void {
+    type self = this;
+    function accumulateHitBounds(this: self, childView: View): void {
       if (childView instanceof GraphicsView && !childView.isHidden()) {
         const childHitBounds = childView.hitBounds;
         if (hitBounds === void 0) {
@@ -1628,7 +1627,8 @@ export abstract class GraphicsView extends View {
           hitBounds = hitBounds.union(childHitBounds);
         }
       }
-    }, this);
+    }
+    this.forEachChildView(accumulateHitBounds, this);
     if (hitBounds === void 0) {
       hitBounds = this.viewBounds;
     }
@@ -1641,7 +1641,8 @@ export abstract class GraphicsView extends View {
   }
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
-    return this.forEachChildView(function (childView: View): GraphicsView | void {
+    type self = this;
+    function hitTestChildView(this: self, childView: View): GraphicsView | void {
       if (childView instanceof GraphicsView && !childView.isHidden() && !childView.isCulled()) {
         const hitBounds = childView.hitBounds;
         if (hitBounds.contains(x, y)) {
@@ -1651,7 +1652,8 @@ export abstract class GraphicsView extends View {
           }
         }
       }
-    }, this) || null;
+    }
+    return this.forEachChildView(hitTestChildView, this) || null;
   }
 
   get parentTransform(): Transform {
@@ -1689,7 +1691,7 @@ export abstract class GraphicsView extends View {
       const n = handlers.length;
       let i = 0;
       while (i < n) {
-        handler = handlers[i];
+        handler = handlers[i]!;
         if (handler.listener === listener && handler.capture === capture) {
           break;
         }
@@ -1717,7 +1719,7 @@ export abstract class GraphicsView extends View {
         const n = handlers.length;
         let i = 0;
         while (i < n) {
-          const handler = handlers[i];
+          const handler = handlers[i]!;
           if (handler.listener === listener && handler.capture === capture) {
             handlers.splice(i, 1);
             if (handlers.length === 0) {
@@ -1741,7 +1743,7 @@ export abstract class GraphicsView extends View {
       if (handlers !== void 0) {
         let i = 0;
         while (i < handlers.length) {
-          const handler = handlers[i];
+          const handler = handlers[i]!;
           if (!handler.capture) {
             const listener = handler.listener;
             if (typeof listener === "function") {
@@ -1783,7 +1785,7 @@ export abstract class GraphicsView extends View {
     this.handleEvent(event);
     let next: View | null;
     if (event.bubbles && !event.cancelBubble) {
-      const parentView = this._parentView;
+      const parentView = this.parentView;
       if (parentView instanceof GraphicsView || parentView instanceof GraphicsView.Canvas) {
         next = parentView.bubbleEvent(event);
       } else {

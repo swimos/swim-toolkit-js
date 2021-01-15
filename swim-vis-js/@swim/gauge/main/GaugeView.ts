@@ -108,67 +108,67 @@ export class GaugeView extends LayerView {
     const dials = init.dials;
     if (dials !== void 0) {
       for (let i = 0, n = dials.length; i < n; i += 1) {
-        this.addDial(dials[i]);
+        this.addDial(dials[i]!);
       }
     }
   }
 
   @ViewAnimator({type: Number, state: 0})
-  limit: ViewAnimator<this, number>;
+  declare limit: ViewAnimator<this, number>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
-  center: ViewAnimator<this, PointR2, AnyPointR2>;
+  declare center: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Length, state: Length.pct(30)})
-  innerRadius: ViewAnimator<this, Length, AnyLength>;
+  declare innerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.pct(40)})
-  outerRadius: ViewAnimator<this, Length, AnyLength>;
+  declare outerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Angle, state: Angle.rad(-Math.PI / 2)})
-  startAngle: ViewAnimator<this, Angle, AnyAngle>;
+  declare startAngle: ViewAnimator<this, Angle, AnyAngle>;
 
   @ViewAnimator({type: Angle, state: Angle.rad(2 * Math.PI)})
-  sweepAngle: ViewAnimator<this, Angle, AnyAngle>;
+  declare sweepAngle: ViewAnimator<this, Angle, AnyAngle>;
 
   @ViewAnimator({type: Length, state: Length.pct(50)})
-  cornerRadius: ViewAnimator<this, Length, AnyLength>;
+  declare cornerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(1)})
-  dialSpacing: ViewAnimator<this, Length, AnyLength>;
+  declare dialSpacing: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: Color.transparent()})
-  dialColor: ViewAnimator<this, Color, AnyColor>;
+  declare dialColor: ViewAnimator<this, Color, AnyColor>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  meterColor: ViewAnimator<this, Color, AnyColor>;
+  declare meterColor: ViewAnimator<this, Color, AnyColor>;
 
   @ViewAnimator({type: Length, state: Length.pct(25)})
-  labelPadding: ViewAnimator<this, Length, AnyLength>;
+  declare labelPadding: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Number, state: 0.5})
-  tickAlign: ViewAnimator<this, number>;
+  declare tickAlign: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Length, state: Length.pct(45)})
-  tickRadius: ViewAnimator<this, Length, AnyLength>;
+  declare tickRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.pct(50)})
-  tickLength: ViewAnimator<this, Length, AnyLength>;
+  declare tickLength: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(1)})
-  tickWidth: ViewAnimator<this, Length, AnyLength>;
+  declare tickWidth: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(1)})
-  tickPadding: ViewAnimator<this, Length, AnyLength>;
+  declare tickPadding: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  tickColor: ViewAnimator<this, Color, AnyColor>;
+  declare tickColor: ViewAnimator<this, Color, AnyColor>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   title(): View | null;
   title(title: View | AnyTextRunView | null): this;
@@ -193,7 +193,7 @@ export class GaugeView extends LayerView {
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this._viewFlags & View.NeedsLayout) !== 0) {
+    if ((this.viewFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
@@ -285,7 +285,7 @@ export class GaugeView extends LayerView {
       }
     }
 
-    this._viewFlags &= ~View.NeedsLayout;
+    this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
   }
 
   static fromInit(init: GaugeViewInit): GaugeView {

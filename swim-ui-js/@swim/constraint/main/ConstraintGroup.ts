@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {Constrain} from "./Constrain";
-import {ConstraintRelation} from "./ConstraintRelation";
+import type {ConstraintRelation} from "./ConstraintRelation";
 import {AnyConstraintStrength, ConstraintStrength} from "./ConstraintStrength";
 import {Constraint} from "./Constraint";
-import {ConstraintScope} from "./ConstraintScope";
+import type {ConstraintScope} from "./ConstraintScope";
 
 export class ConstraintGroup {
   /** @hidden */
@@ -87,7 +87,7 @@ export class ConstraintGroup {
   enableConstraints(): void {
     const constraints = this._constraints;
     for (let i = 0, n = constraints.length ; i < n; i += 1) {
-      constraints[i].enabled(true);
+      constraints[i]!.enabled(true);
     }
   }
 
@@ -95,7 +95,7 @@ export class ConstraintGroup {
   disableConstraints(): void {
     const constraints = this._constraints;
     for (let i = 0, n = constraints.length ; i < n; i += 1) {
-      constraints[i].enabled(false);
+      constraints[i]!.enabled(false);
     }
   }
 

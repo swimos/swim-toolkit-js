@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {MapGraphicsViewController} from "@swim/map";
-import {EsriProjection} from "./EsriProjection";
-import {EsriView} from "./EsriView";
-import {EsriViewObserver} from "./EsriViewObserver";
+import type {EsriProjection} from "./EsriProjection";
+import type {EsriView} from "./EsriView";
+import type {EsriViewObserver} from "./EsriViewObserver";
 
 export class EsriViewController<V extends EsriView = EsriView> extends MapGraphicsViewController<V> implements EsriViewObserver<V> {
   viewWillSetGeoProjection(geoProjection: EsriProjection, view: V): void {

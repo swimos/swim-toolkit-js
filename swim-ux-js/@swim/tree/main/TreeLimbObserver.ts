@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlViewObserver} from "@swim/dom";
-import {TreeLimb} from "./TreeLimb";
+import type {HtmlViewObserver} from "@swim/dom";
+import type {TreeLimb} from "./TreeLimb";
 
 export interface TreeLimbObserver<V extends TreeLimb = TreeLimb> extends HtmlViewObserver<V> {
   limbWillExpand?(view: V): void;

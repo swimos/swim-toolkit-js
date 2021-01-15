@@ -14,10 +14,10 @@
 
 import {Output, Debug, Format} from "@swim/codec";
 import {ConstraintKey, ConstraintMap} from "./ConstraintMap";
-import {Constrain} from "./Constrain";
-import {ConstraintRelation} from "./ConstraintRelation";
+import type {Constrain} from "./Constrain";
+import type {ConstraintRelation} from "./ConstraintRelation";
 import {ConstraintStrength} from "./ConstraintStrength";
-import {ConstraintScope} from "./ConstraintScope";
+import type {ConstraintScope} from "./ConstraintScope";
 
 export class Constraint implements ConstraintKey, Debug {
   /** @hidden */

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ConstrainVariable, Constraint, ConstraintSolver} from "@swim/constraint";
+import type {ConstrainVariable, Constraint, ConstraintSolver} from "@swim/constraint";
 import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
 import {LayoutSolver} from "./LayoutSolver";
-import {LayoutManagerObserver} from "./LayoutManagerObserver";
+import type {LayoutManagerObserver} from "./LayoutManagerObserver";
 
 export class LayoutManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -61,43 +61,42 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
   }
 
   didAddConstraint(constraint: Constraint): void {
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsLayout);
+      rootViews[i]!.requireUpdate(View.NeedsLayout);
     }
   }
 
   didRemoveConstraint(constraint: Constraint): void {
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsLayout);
+      rootViews[i]!.requireUpdate(View.NeedsLayout);
     }
   }
 
   didAddConstraintVariable(constraintVariable: ConstrainVariable): void {
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsLayout);
+      rootViews[i]!.requireUpdate(View.NeedsLayout);
     }
   }
 
   didRemoveConstraintVariable(constraintVariable: ConstrainVariable): void {
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i].requireUpdate(View.NeedsLayout);
+      rootViews[i]!.requireUpdate(View.NeedsLayout);
     }
   }
 
   didUpdateConstraintVariable(constraintVariable: ConstrainVariable, newValue: number, oldValue: number): void {
     if (oldValue !== newValue) {
-      const rootViews = this._rootViews;
+      const rootViews = this.rootViews;
       for (let i = 0, n = rootViews.length; i < n; i += 1) {
-        rootViews[i].requireUpdate(View.NeedsLayout);
+        rootViews[i]!.requireUpdate(View.NeedsLayout);
       }
     }
   }
 
-  // @ts-ignore
   declare readonly viewManagerObservers: ReadonlyArray<LayoutManagerObserver>;
 
   private static _global?: LayoutManager<any>;

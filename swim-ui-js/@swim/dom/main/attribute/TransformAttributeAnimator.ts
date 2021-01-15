@@ -14,7 +14,7 @@
 
 import {AnyTransform, Transform} from "@swim/math";
 import {AttributeAnimator} from "./AttributeAnimator";
-import {ElementView} from "../element/ElementView";
+import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class TransformAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Transform, AnyTransform> {

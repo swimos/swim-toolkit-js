@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GestureDelegate} from "./GestureDelegate";
-import {PositionGestureInput} from "./PositionGestureInput";
+import type {GestureDelegate} from "./GestureDelegate";
+import type {PositionGestureInput} from "./PositionGestureInput";
 
 export interface PositionGestureDelegate extends GestureDelegate {
   willStartHovering?(): void;

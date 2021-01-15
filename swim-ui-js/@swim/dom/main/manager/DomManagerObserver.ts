@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewManagerObserver} from "@swim/view";
-import {ElementView} from "../element/ElementView";
-import {DomManager} from "./DomManager";
+import type {ViewManagerObserver} from "@swim/view";
+import type {ElementView} from "../element/ElementView";
+import type {DomManager} from "./DomManager";
 
 export interface DomManagerObserver<V extends ElementView = ElementView, VM extends DomManager<V> = DomManager<V>> extends ViewManagerObserver<V, VM> {
 }

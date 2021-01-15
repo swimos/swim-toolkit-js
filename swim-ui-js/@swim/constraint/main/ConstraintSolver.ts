@@ -17,10 +17,10 @@ import {ConstraintSymbol, ConstraintSlack, ConstraintError, ConstraintDummy} fro
 import {Constrain} from "./Constrain";
 import {ConstrainVariable} from "./ConstrainVariable";
 import {ConstrainBinding} from "./ConstrainBinding";
-import {ConstraintRelation} from "./ConstraintRelation";
+import type {ConstraintRelation} from "./ConstraintRelation";
 import {AnyConstraintStrength, ConstraintStrength} from "./ConstraintStrength";
 import {Constraint} from "./Constraint";
-import {ConstraintScope} from "./ConstraintScope";
+import type {ConstraintScope} from "./ConstraintScope";
 
 const EPSILON = 1.0e-8;
 

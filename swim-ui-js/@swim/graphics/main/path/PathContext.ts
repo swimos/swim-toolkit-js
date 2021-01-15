@@ -14,7 +14,7 @@
 
 /* tslint:disable: variable-name */
 
-import {DrawingContext} from "../drawing/DrawingContext";
+import type {DrawingContext} from "../drawing/DrawingContext";
 
 export class PathContext implements DrawingContext {
   private x0: number | null;

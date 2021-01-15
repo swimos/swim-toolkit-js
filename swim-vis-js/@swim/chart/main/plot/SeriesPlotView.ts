@@ -14,19 +14,19 @@
 
 import {Values} from "@swim/util";
 import {BTree} from "@swim/collections";
-import {BoxR2} from "@swim/math";
+import type {BoxR2} from "@swim/math";
 import {ContinuousScale} from "@swim/scale";
-import {Tween} from "@swim/tween";
+import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
-import {DataPointCategory} from "../data/DataPoint";
+import type {DataPointCategory} from "../data/DataPoint";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
 import {PlotViewInit, PlotView} from "./PlotView";
-import {PlotViewObserver} from "./PlotViewObserver";
-import {PlotViewController} from "./PlotViewController";
+import type {PlotViewObserver} from "./PlotViewObserver";
+import type {PlotViewController} from "./PlotViewController";
 
 export type SeriesPlotHitMode = "domain" | "plot" | "data" | "none";
 
@@ -66,10 +66,8 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     this._gradientStops = 0;
   }
 
-  // @ts-ignore
   declare readonly viewController: PlotViewController<X, Y> | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 
   initView(init: SeriesPlotViewInit<X, Y>): void {
@@ -84,7 +82,7 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     const data = init.data;
     if (data !== void 0) {
       for (let i = 0, n = data.length; i < n; i += 1) {
-        this.insertDataPoint(data[i]);
+        this.insertDataPoint(data[i]!);
       }
     }
 
@@ -142,10 +140,10 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
   }
 
   @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
-  xScale: ScaleViewAnimator<this, X, number>;
+  declare xScale: ScaleViewAnimator<this, X, number>;
 
   @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
-  yScale: ScaleViewAnimator<this, Y, number>;
+  declare yScale: ScaleViewAnimator<this, Y, number>;
 
   xDomain(): readonly [X, X] | undefined;
   xDomain(xDomain: readonly [X, X] | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;
@@ -240,10 +238,10 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
   }
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   get childViewCount(): number {
     return this._data.size;
@@ -287,8 +285,11 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     return null;
   }
 
-  forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
-                                   thisArg?: S): T | undefined {
+  forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
+  forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
+                         thisArg: S): T | undefined;
+  forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
+                         thisArg?: S): T | undefined {
     return this._data.forEachValue(callback, thisArg);
   }
 
@@ -422,8 +423,10 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     let yRangeMax: number | undefined;
     let gradientStops = 0;
 
-    function animateChildView(this: SeriesPlotView<X, Y>, point2: DataPointView<X, Y>, processFlags: ViewFlags,
-                              viewContext: ViewContextType<SeriesPlotView<X, Y>>): void {
+    type self = this;
+    function animateChildView(this: self, childView: View, processFlags: ViewFlags,
+                              viewContext: ViewContextType<self>): void {
+      const point2 = childView as DataPointView<X, Y>;
       const x2 = point2.x.getValue();
       const y2 = point2.y.getValue();
       const dy2 = point2.y2.value;
@@ -505,7 +508,7 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
       xDomainMax = x2;
       xRangeMax = sx2;
 
-      processChildView.call(this, point2, processFlags, viewContext);
+      processChildView.call(this, childView, processFlags, viewContext);
     }
     super.processChildViews(processFlags, viewContext, animateChildView);
 
@@ -569,11 +572,11 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
 
     // We don't need to run the layout phase unless the view frame changes
     // between now and the display pass.
-    this._viewFlags &= ~View.NeedsLayout;
+    this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this._viewFlags & View.NeedsLayout) === 0) {
+    if ((this.viewFlags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
@@ -606,8 +609,10 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     let xRangeMax: number | undefined;
     let yRangeMax: number | undefined;
 
-    function layoutChildView(this: SeriesPlotView<X, Y>, point1: DataPointView<X, Y>, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<SeriesPlotView<X, Y>>): void {
+    type self = this;
+    function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
+                             viewContext: ViewContextType<self>): void {
+      const point1 = childView as DataPointView<X, Y>;
       const x1 = point1.x.getValue();
       const y1 = point1.y.getValue();
       const dy1 = point1.y2.value;
@@ -640,7 +645,7 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
       point0 = point1;
       xRangeMax = sx1;
 
-      displayChildView.call(this, point1, displayFlags, viewContext);
+      displayChildView.call(this, childView, displayFlags, viewContext);
     }
     super.displayChildViews(displayFlags, viewContext, layoutChildView);
 

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Mood} from "../mood/Mood";
-import {Look} from "../look/Look";
+import type {Mood} from "../mood/Mood";
+import type {Look} from "../look/Look";
 import {FeelVector} from "./FeelVector";
 
 export abstract class Feel implements Mood {
-  readonly name: string;
+  declare readonly name: string;
 
   constructor(name: string) {
     Object.defineProperty(this, "name", {

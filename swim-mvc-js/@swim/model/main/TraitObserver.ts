@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Model} from "./Model";
-import {TraitModelType, TraitContextType, Trait} from "./Trait";
+import type {Model} from "./Model";
+import type {TraitModelType, TraitContextType, Trait} from "./Trait";
 
 export type TraitObserverType<R extends Trait> =
   R extends {readonly traitObservers: ReadonlyArray<infer RO>} ? RO : never;

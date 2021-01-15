@@ -25,7 +25,7 @@ import {
   ConstraintScope,
 } from "@swim/constraint";
 import {ViewFactory, View} from "../View";
-import {ViewObserverType} from "../ViewObserver";
+import type {ViewObserverType} from "../ViewObserver";
 
 export type ViewBindingMemberType<V, K extends keyof V> =
   V extends {[P in K]: ViewBinding<any, infer S, any>} ? S : unknown;
@@ -33,8 +33,8 @@ export type ViewBindingMemberType<V, K extends keyof V> =
 export type ViewBindingMemberInit<V, K extends keyof V> =
   V extends {[P in K]: ViewBinding<any, infer T, infer U>} ? T | U : unknown;
 
-export interface ViewBindingInit<S extends View, U = S> {
-  extends?: ViewBindingPrototype;
+export interface ViewBindingInit<S extends View, U = never> {
+  extends?: ViewBindingClass;
   observe?: boolean;
   child?: boolean;
   type?: ViewFactory<S, U>;
@@ -47,26 +47,22 @@ export interface ViewBindingInit<S extends View, U = S> {
   fromAny?(value: S | U): S | null;
 }
 
-export type ViewBindingDescriptorInit<V extends View, S extends View, U = S, I = ViewObserverType<S>> = ViewBindingInit<S, U> & ThisType<ViewBinding<V, S, U> & I> & I;
+export type ViewBindingDescriptor<V extends View, S extends View, U = never, I = ViewObserverType<S>> = ViewBindingInit<S, U> & ThisType<ViewBinding<V, S, U> & I> & I;
 
-export type ViewBindingDescriptorExtends<V extends View, S extends View, U = S, I = ViewObserverType<S>> = {extends: ViewBindingPrototype | undefined} & ViewBindingDescriptorInit<V, S, U, I>;
+export type ViewBindingDescriptorExtends<V extends View, S extends View, U = never, I = ViewObserverType<S>> = {extends: ViewBindingClass | undefined} & ViewBindingDescriptor<V, S, U, I>;
 
-export type ViewBindingDescriptorFromAny<V extends View, S extends View, U = S, I = ViewObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ViewBindingDescriptorInit<V, S, U, I>;
+export type ViewBindingDescriptorFromAny<V extends View, S extends View, U = never, I = ViewObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ViewBindingDescriptor<V, S, U, I>;
 
-export type ViewBindingDescriptor<V extends View, S extends View, U = S, I = ViewObserverType<S>> =
-  U extends S ? ViewBindingDescriptorInit<V, S, U, I> :
-  ViewBindingDescriptorFromAny<V, S, U, I>;
-
-export interface ViewBindingPrototype extends Function {
-  readonly prototype: ViewBinding<any, any>;
-}
-
-export interface ViewBindingConstructor<V extends View, S extends View, U = S, I = ViewObserverType<S>> {
+export interface ViewBindingConstructor<V extends View, S extends View, U = never, I = ViewObserverType<S>> {
   new(owner: V, bindingName: string | undefined): ViewBinding<V, S, U> & I;
   prototype: ViewBinding<any, any, any> & I;
 }
 
-export declare abstract class ViewBinding<V extends View, S extends View, U = S> {
+export interface ViewBindingClass extends Function {
+  readonly prototype: ViewBinding<any, any, any>;
+}
+
+export declare abstract class ViewBinding<V extends View, S extends View, U = never> {
   /** @hidden */
   _owner: V;
   /** @hidden */
@@ -178,25 +174,25 @@ export declare abstract class ViewBinding<V extends View, S extends View, U = S>
 
   fromAny(value: S | U): S | null;
 
-  static define<V extends View, S extends View = View, U = S, I = ViewObserverType<S>>(descriptor: ViewBindingDescriptorExtends<V, S, U, I>): ViewBindingConstructor<V, S, U, I>;
-  static define<V extends View, S extends View = View, U = S>(descriptor: ViewBindingDescriptor<V, S, U>): ViewBindingConstructor<V, S, U>;
+  static define<V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: ViewBindingDescriptorExtends<V, S, U, I>): ViewBindingConstructor<V, S, U, I>;
+  static define<V extends View, S extends View = View, U = never>(descriptor: ViewBindingDescriptor<V, S, U>): ViewBindingConstructor<V, S, U>;
 }
 
-export interface ViewBinding<V extends View, S extends View, U = S> extends ConstraintScope {
+export interface ViewBinding<V extends View, S extends View, U = never> extends ConstraintScope {
   (): S | null;
   (view: S | U | null): V;
 }
 
-export function ViewBinding<V extends View, S extends View = View, U = S, I = ViewObserverType<S>>(descriptor: ViewBindingDescriptorExtends<V, S, U, I>): PropertyDecorator;
-export function ViewBinding<V extends View, S extends View = View, U = S>(descriptor: ViewBindingDescriptor<V, S, U>): PropertyDecorator;
+export function ViewBinding<V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: ViewBindingDescriptorExtends<V, S, U, I>): PropertyDecorator;
+export function ViewBinding<V extends View, S extends View = View, U = never>(descriptor: ViewBindingDescriptor<V, S, U>): PropertyDecorator;
 
 export function ViewBinding<V extends View, S extends View, U>(
-    this: ViewBinding<V, S> | typeof ViewBinding,
+    this: ViewBinding<V, S, U> | typeof ViewBinding,
     owner: V | ViewBindingDescriptor<V, S, U>,
     bindingName?: string,
-  ): ViewBinding<V, S> | PropertyDecorator {
+  ): ViewBinding<V, S, U> | PropertyDecorator {
   if (this instanceof ViewBinding) { // constructor
-    return ViewBindingConstructor.call(this, owner as V, bindingName);
+    return ViewBindingConstructor.call(this as unknown as ViewBinding<View, View, unknown>, owner as V, bindingName);
   } else { // decorator factory
     return ViewBindingDecoratorFactory(owner as ViewBindingDescriptor<V, S, U>);
   }
@@ -218,7 +214,7 @@ function ViewBindingConstructor<V extends View, S extends View, U>(this: ViewBin
 }
 
 function ViewBindingDecoratorFactory<V extends View, S extends View, U>(descriptor: ViewBindingDescriptor<V, S, U>): PropertyDecorator {
-  return View.decorateViewBinding.bind(View, ViewBinding.define(descriptor));
+  return View.decorateViewBinding.bind(View, ViewBinding.define(descriptor as ViewBindingDescriptor<View, View>));
 }
 
 Object.defineProperty(ViewBinding.prototype, "owner", {
@@ -468,12 +464,12 @@ ViewBinding.prototype.activateLayout = function (this: ViewBinding<View, View>):
   if (constraints !== void 0 || constraintVariables !== void 0) {
     if (constraintVariables !== void 0) {
       for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-        this._owner.activateConstraintVariable(constraintVariables[i]);
+        this._owner.activateConstraintVariable(constraintVariables[i]!);
       }
     }
     if (constraints !== void 0) {
       for (let i = 0, n = constraints.length; i < n; i += 1) {
-        this._owner.activateConstraint(constraints[i]);
+        this._owner.activateConstraint(constraints[i]!);
       }
     }
   }
@@ -485,12 +481,12 @@ ViewBinding.prototype.deactivateLayout = function (this: ViewBinding<View, View>
   if (constraints !== void 0 || constraintVariables !== void 0) {
     if (constraints !== void 0) {
       for (let i = 0, n = constraints.length; i < n; i += 1) {
-        this._owner.deactivateConstraint(constraints[i]);
+        this._owner.deactivateConstraint(constraints[i]!);
       }
     }
     if (constraintVariables !== void 0) {
       for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-        this._owner.deactivateConstraintVariable(constraintVariables[i]);
+        this._owner.deactivateConstraintVariable(constraintVariables[i]!);
       }
     }
   }

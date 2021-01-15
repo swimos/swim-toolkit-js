@@ -16,12 +16,11 @@ export {
   AttributeAnimatorMemberType,
   AttributeAnimatorMemberInit,
   AttributeAnimatorInit,
-  AttributeAnimatorDescriptorInit,
+  AttributeAnimatorDescriptor,
   AttributeAnimatorDescriptorExtends,
   AttributeAnimatorDescriptorFromAny,
-  AttributeAnimatorDescriptor,
-  AttributeAnimatorPrototype,
   AttributeAnimatorConstructor,
+  AttributeAnimatorClass,
   AttributeAnimator,
 } from "./AttributeAnimator";
 

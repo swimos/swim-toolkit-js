@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Component} from "../Component";
-import {ComponentManager} from "../manager/ComponentManager";
-import {ComponentManagerObserverType} from "../manager/ComponentManagerObserver";
+import type {Component} from "../Component";
+import type {ComponentManager} from "../manager/ComponentManager";
+import type {ComponentManagerObserverType} from "../manager/ComponentManagerObserver";
 import {ComponentService} from "./ComponentService";
 
 /** @hidden */

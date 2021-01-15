@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {HtmlViewController} from "../html/HtmlViewController";
-import {StyleView} from "./StyleView";
-import {StyleViewObserver} from "./StyleViewObserver";
+import type {StyleView} from "./StyleView";
+import type {StyleViewObserver} from "./StyleViewObserver";
 
 export class StyleViewController<V extends StyleView = StyleView> extends HtmlViewController<V> implements StyleViewObserver<V> {
 }

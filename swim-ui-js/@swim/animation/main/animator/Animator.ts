@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnimatorContext} from "./AnimatorContext";
+import type {AnimatorContext} from "./AnimatorContext";
 
 export abstract class Animator implements AnimatorContext {
   abstract onAnimate(t: number): void;

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween, Transition} from "@swim/tween";
+import {Tween, Transition} from "@swim/animation";
 import {Look, Mood, MoodVector, Theme, ThemeMatrix} from "@swim/theme";
 import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
 import {Viewport} from "../viewport/Viewport";
-import {ThemeManagerObserver} from "./ThemeManagerObserver";
+import type {ThemeManagerObserver} from "./ThemeManagerObserver";
 
 export class ThemeManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
@@ -52,9 +52,9 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
   setMood(mood: MoodVector): void {
     this._mood = mood;
     this.applyTheme(this._theme, this._mood);
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      const rootView = rootViews[i];
+      const rootView = rootViews[i]!;
       if (rootView.mood.isAuto()) {
         rootView.mood.setAutoState(mood);
         rootView.requireUpdate(View.NeedsChange);
@@ -69,9 +69,9 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
   setTheme(theme: ThemeMatrix): void {
     this._theme = theme;
     this.applyTheme(this._theme, this._mood);
-    const rootViews = this._rootViews;
+    const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      const rootView = rootViews[i];
+      const rootView = rootViews[i]!;
       if (rootView.theme.isAuto()) {
         rootView.theme.setAutoState(theme);
         rootView.requireUpdate(View.NeedsChange);
@@ -95,11 +95,13 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
 
   protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                            transition: Transition<any> | null): void {
-    this.willObserve(function (viewManagerObserver: ThemeManagerObserver): void {
+    const viewManagerObservers = this.viewManagerObservers;
+    for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
+      const viewManagerObserver = viewManagerObservers[i]!;
       if (viewManagerObserver.themeManagerWillApplyTheme !== void 0) {
         viewManagerObserver.themeManagerWillApplyTheme(theme, mood, transition, this);
       }
-    });
+    }
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
@@ -109,14 +111,15 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
 
   protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                           transition: Transition<any> | null): void {
-    this.didObserve(function (viewManagerObserver: ThemeManagerObserver): void {
+    const viewManagerObservers = this.viewManagerObservers;
+    for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
+      const viewManagerObserver = viewManagerObservers[i]!;
       if (viewManagerObserver.themeManagerDidApplyTheme !== void 0) {
         viewManagerObserver.themeManagerDidApplyTheme(theme, mood, transition, this);
       }
-    });
+    }
   }
 
-  // @ts-ignore
   declare readonly viewManagerObservers: ReadonlyArray<ThemeManagerObserver>;
 
   protected onInsertRootView(rootView: V): void {

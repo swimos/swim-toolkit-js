@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {HtmlViewController} from "@swim/dom";
-import {MenuItem} from "./MenuItem";
-import {MenuItemObserver} from "./MenuItemObserver";
+import type {MenuItem} from "./MenuItem";
+import type {MenuItemObserver} from "./MenuItemObserver";
 
 export class MenuItemController<V extends MenuItem = MenuItem> extends HtmlViewController<V> implements MenuItemObserver<V> {
   menuItemDidPress(view: V): void {

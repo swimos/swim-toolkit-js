@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "@swim/view";
-import {Model, Trait} from "@swim/model";
-import {ComponentContextType} from "./ComponentContext";
-import {Component} from "./Component";
-import {ComponentModel} from "./model/ComponentModel";
-import {ComponentTrait} from "./trait/ComponentTrait";
-import {ComponentView} from "./view/ComponentView";
+import type {View} from "@swim/view";
+import type {Model, Trait} from "@swim/model";
+import type {ComponentContextType} from "./ComponentContext";
+import type {Component} from "./Component";
+import type {ComponentModel} from "./model/ComponentModel";
+import type {ComponentTrait} from "./trait/ComponentTrait";
+import type {ComponentView} from "./view/ComponentView";
 
 export type ComponentObserverType<C extends Component> =
   C extends {readonly componentObservers: ReadonlyArray<infer CO>} ? CO : never;

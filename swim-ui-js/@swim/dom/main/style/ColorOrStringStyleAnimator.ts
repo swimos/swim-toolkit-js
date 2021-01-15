@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyColor, Color} from "@swim/color";
-import {StyleContext} from "../css/StyleContext";
+import type {StyleContext} from "../css/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */

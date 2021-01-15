@@ -24,8 +24,8 @@ export type ComponentViewMemberType<C, K extends keyof C> =
 export type ComponentViewMemberInit<V, K extends keyof V> =
   V extends {[P in K]: ComponentView<any, infer V, infer U>} ? V | U : unknown;
 
-export interface ComponentViewInit<V extends View, U = V> {
-  extends?: ComponentViewPrototype;
+export interface ComponentViewInit<V extends View, U = never> {
+  extends?: ComponentViewClass;
   observe?: boolean;
   type?: ViewFactory<V, U>;
 
@@ -37,26 +37,22 @@ export interface ComponentViewInit<V extends View, U = V> {
   fromAny?(value: V | U): V | null;
 }
 
-export type ComponentViewDescriptorInit<C extends Component, V extends View, U = V, I = ViewObserverType<V>> = ComponentViewInit<V, U> & ThisType<ComponentView<C, V, U> & I> & I;
+export type ComponentViewDescriptor<C extends Component, V extends View, U = never, I = ViewObserverType<V>> = ComponentViewInit<V, U> & ThisType<ComponentView<C, V, U> & I> & I;
 
-export type ComponentViewDescriptorExtends<C extends Component, V extends View, U = V, I = ViewObserverType<V>> = {extends: ComponentViewPrototype | undefined} & ComponentViewDescriptorInit<C, V, U, I>;
+export type ComponentViewDescriptorExtends<C extends Component, V extends View, U = never, I = ViewObserverType<V>> = {extends: ComponentViewClass | undefined} & ComponentViewDescriptor<C, V, U, I>;
 
-export type ComponentViewDescriptorFromAny<C extends Component, V extends View, U = V, I = ViewObserverType<V>> = ({type: FromAny<V, U>} | {fromAny(value: V | U): V | null}) & ComponentViewDescriptorInit<C, V, U, I>;
+export type ComponentViewDescriptorFromAny<C extends Component, V extends View, U = never, I = ViewObserverType<V>> = ({type: FromAny<V, U>} | {fromAny(value: V | U): V | null}) & ComponentViewDescriptor<C, V, U, I>;
 
-export type ComponentViewDescriptor<C extends Component, V extends View, U = V, I = ViewObserverType<V>> =
-  U extends V ? ComponentViewDescriptorInit<C, V, U, I> :
-  ComponentViewDescriptorFromAny<C, V, U, I>;
-
-export interface ComponentViewPrototype extends Function {
-  readonly prototype: ComponentView<any, any>;
-}
-
-export interface ComponentViewConstructor<C extends Component, V extends View, U = V, I = ViewObserverType<V>> {
+export interface ComponentViewConstructor<C extends Component, V extends View, U = never, I = ViewObserverType<V>> {
   new(owner: C, viewName: string | undefined): ComponentView<C, V, U> & I;
   prototype: ComponentView<any, any, any> & I;
 }
 
-export declare abstract class ComponentView<C extends Component, V extends View, U = V> {
+export interface ComponentViewClass extends Function {
+  readonly prototype: ComponentView<any, any, any>;
+}
+
+export declare abstract class ComponentView<C extends Component, V extends View, U = never> {
   /** @hidden */
   _owner: C;
   /** @hidden */
@@ -128,25 +124,25 @@ export declare abstract class ComponentView<C extends Component, V extends View,
 
   fromAny(value: V | U): V | null;
 
-  static define<C extends Component, V extends View = View, U = V, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptorExtends<C, V, U, I>): ComponentViewConstructor<C, V, U, I>;
-  static define<C extends Component, V extends View = View, U = V>(descriptor: ComponentViewDescriptor<C, V, U>): ComponentViewConstructor<C, V, U>;
+  static define<C extends Component, V extends View = View, U = never, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptorExtends<C, V, U, I>): ComponentViewConstructor<C, V, U, I>;
+  static define<C extends Component, V extends View = View, U = never>(descriptor: ComponentViewDescriptor<C, V, U>): ComponentViewConstructor<C, V, U>;
 }
 
-export interface ComponentView<C extends Component, V extends View, U = V> {
+export interface ComponentView<C extends Component, V extends View, U = never> {
   (): V | null;
   (view: V | U | null): C;
 }
 
-export function ComponentView<C extends Component, V extends View = View, U = V, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptorExtends<C, V, U, I>): PropertyDecorator;
-export function ComponentView<C extends Component, V extends View = View, U = V>(descriptor: ComponentViewDescriptor<C, V, U>): PropertyDecorator;
+export function ComponentView<C extends Component, V extends View = View, U = never, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptorExtends<C, V, U, I>): PropertyDecorator;
+export function ComponentView<C extends Component, V extends View = View, U = never>(descriptor: ComponentViewDescriptor<C, V, U>): PropertyDecorator;
 
-export function ComponentView<C extends Component, V extends View = View, U = V>(
+export function ComponentView<C extends Component, V extends View = View, U = never>(
     this: ComponentView<C, V, U> | typeof ComponentView,
     owner: C | ComponentViewDescriptor<C, V, U>,
     viewName?: string,
   ): ComponentView<C, V, U> | PropertyDecorator {
   if (this instanceof ComponentView) { // constructor
-    return ComponentViewConstructor.call(this, owner as C, viewName);
+    return ComponentViewConstructor.call(this as unknown as ComponentView<Component, View, unknown>, owner as C, viewName);
   } else { // decorator factory
     return ComponentViewDecoratorFactory(owner as ComponentViewDescriptor<C, V, U>);
   }
@@ -154,7 +150,7 @@ export function ComponentView<C extends Component, V extends View = View, U = V>
 __extends(ComponentView, Object);
 Component.View = ComponentView;
 
-function ComponentViewConstructor<C extends Component, V extends View, U = V>(this: ComponentView<C, V, U>, owner: C, viewName: string | undefined): ComponentView<C, V, U> {
+function ComponentViewConstructor<C extends Component, V extends View, U>(this: ComponentView<C, V, U>, owner: C, viewName: string | undefined): ComponentView<C, V, U> {
   if (viewName !== void 0) {
     Object.defineProperty(this, "name", {
       value: viewName,
@@ -168,8 +164,8 @@ function ComponentViewConstructor<C extends Component, V extends View, U = V>(th
   return this;
 }
 
-function ComponentViewDecoratorFactory<C extends Component, V extends View, U = V>(descriptor: ComponentViewDescriptor<C, V, U>): PropertyDecorator {
-  return Component.decorateComponentView.bind(Component, ComponentView.define(descriptor));
+function ComponentViewDecoratorFactory<C extends Component, V extends View, U>(descriptor: ComponentViewDescriptor<C, V, U>): PropertyDecorator {
+  return Component.decorateComponentView.bind(Component, ComponentView.define(descriptor as ComponentViewDescriptor<Component, View>));
 }
 
 Object.defineProperty(ComponentView.prototype, "owner", {

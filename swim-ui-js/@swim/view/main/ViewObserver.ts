@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Transition} from "@swim/tween";
-import {MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType} from "./ViewContext";
-import {View} from "./View";
+import type {Transition} from "@swim/animation";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import type {ViewContextType} from "./ViewContext";
+import type {View} from "./View";
 
 export type ViewObserverType<V extends View> =
   V extends {readonly viewObservers: ReadonlyArray<infer VO>} ? VO : never;

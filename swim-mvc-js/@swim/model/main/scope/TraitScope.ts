@@ -23,9 +23,9 @@ import {
   ModelScopeConstructor,
   ModelScope,
 } from "./ModelScope";
-import {StringTraitScope} from "./StringTraitScope";
-import {BooleanTraitScope} from "./BooleanTraitScope";
-import {NumberTraitScope} from "./NumberTraitScope";
+import type {StringTraitScope} from "./StringTraitScope";
+import type {BooleanTraitScope} from "./BooleanTraitScope";
+import type {NumberTraitScope} from "./NumberTraitScope";
 
 export type TraitScopeMemberType<R, K extends keyof R> =
   R extends {[P in K]: TraitScope<any, infer T, any>} ? T : unknown;
@@ -33,8 +33,8 @@ export type TraitScopeMemberType<R, K extends keyof R> =
 export type TraitScopeMemberInit<R, K extends keyof R> =
   R extends {[P in K]: TraitScope<any, infer T, infer U>} ? T | U : unknown;
 
-export interface TraitScopeInit<T, U = T> {
-  extends?: TraitScopePrototype;
+export interface TraitScopeInit<T, U = never> {
+  extends?: TraitScopeClass;
   type?: unknown;
   state?: T | U;
   inherit?: string | boolean;
@@ -54,29 +54,22 @@ export interface TraitScopeInit<T, U = T> {
   createModelScope?(): ModelScope<Model, T>;
 }
 
-export type TraitScopeDescriptorInit<R extends Trait, T, U = T, I = {}> = TraitScopeInit<T, U> & ThisType<TraitScope<R, T, U> & I> & I;
+export type TraitScopeDescriptor<R extends Trait, T, U = never, I = {}> = TraitScopeInit<T, U> & ThisType<TraitScope<R, T, U> & I> & I;
 
-export type TraitScopeDescriptorExtends<R extends Trait, T, U = T, I = {}> = {extends: TraitScopePrototype | undefined} & TraitScopeDescriptorInit<R, T, U, I>;
+export type TraitScopeDescriptorExtends<R extends Trait, T, U = never, I = {}> = {extends: TraitScopeClass | undefined} & TraitScopeDescriptor<R, T, U, I>;
 
-export type TraitScopeDescriptorFromAny<R extends Trait, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & TraitScopeDescriptorInit<R, T, U, I>;
+export type TraitScopeDescriptorFromAny<R extends Trait, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & TraitScopeDescriptor<R, T, U, I>;
 
-export type TraitScopeDescriptor<R extends Trait, T, U = T, I = {}> =
-  U extends T ? TraitScopeDescriptorInit<R, T, U, I> :
-  T extends string | null | undefined ? U extends string | null | undefined ? {type: typeof String} & TraitScopeDescriptorInit<R, T, U, I> : TraitScopeDescriptorExtends<R, T, U, I> :
-  T extends boolean | null | undefined ? U extends boolean | string | null | undefined ? {type: typeof Boolean} & TraitScopeDescriptorInit<R, T, U, I> : TraitScopeDescriptorExtends<R, T, U, I> :
-  T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & TraitScopeDescriptorInit<R, T, U, I> : TraitScopeDescriptorExtends<R, T, U, I> :
-  TraitScopeDescriptorFromAny<R, T, U, I>;
-
-export interface TraitScopePrototype extends Function {
-  readonly prototype: TraitScope<any, any, any>;
-}
-
-export interface TraitScopeConstructor<R extends Trait, T, U = T, I = {}> {
+export interface TraitScopeConstructor<R extends Trait, T, U = never, I = {}> {
   new(owner: R, scopeName: string | undefined): TraitScope<R, T, U> & I;
   prototype: TraitScope<any, any, any> & I;
 }
 
-export declare abstract class TraitScope<R extends Trait, T, U = T> {
+export interface TraitScopeClass extends Function {
+  readonly prototype: TraitScope<any, any, any>;
+}
+
+export declare abstract class TraitScope<R extends Trait, T, U = never> {
   /** @hidden */
   _owner: R;
   /** @hidden */
@@ -190,10 +183,10 @@ export declare abstract class TraitScope<R extends Trait, T, U = T> {
   initState?(): T | U;
 
   /** @hidden */
-  static getConstructor(type: unknown): TraitScopePrototype | null;
+  static getClass(type: unknown): TraitScopeClass | null;
 
-  static define<R extends Trait, T, U = T, I = {}>(descriptor: TraitScopeDescriptorExtends<R, T, U, I>): TraitScopeConstructor<R, T, U, I>;
-  static define<R extends Trait, T, U = T>(descriptor: TraitScopeDescriptor<R, T, U>): TraitScopeConstructor<R, T, U>;
+  static define<R extends Trait, T, U = never, I = {}>(descriptor: TraitScopeDescriptorExtends<R, T, U, I>): TraitScopeConstructor<R, T, U, I>;
+  static define<R extends Trait, T, U = never>(descriptor: TraitScopeDescriptor<R, T, U>): TraitScopeConstructor<R, T, U>;
 
   // Forward type declarations
   /** @hidden */
@@ -204,13 +197,17 @@ export declare abstract class TraitScope<R extends Trait, T, U = T> {
   static Number: typeof NumberTraitScope; // defined by NumberTraitScope
 }
 
-export interface TraitScope<R extends Trait, T, U = T> {
+export interface TraitScope<R extends Trait, T, U = never> {
   (): T;
   (state: T | U): R;
 }
 
-export function TraitScope<R extends Trait, T, U = T, I = {}>(descriptor: TraitScopeDescriptorExtends<R, T, U, I>): PropertyDecorator;
-export function TraitScope<R extends Trait, T, U = T>(descriptor: TraitScopeDescriptor<R, T, U>): PropertyDecorator;
+export function TraitScope<R extends Trait, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & TraitScopeDescriptor<R, T, U>): PropertyDecorator;
+export function TraitScope<R extends Trait, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | undefined>(descriptor: {type: typeof Boolean} & TraitScopeDescriptor<R, T, U>): PropertyDecorator;
+export function TraitScope<R extends Trait, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & TraitScopeDescriptor<R, T, U>): PropertyDecorator;
+export function TraitScope<R extends Trait, T, U = never>(descriptor: TraitScopeDescriptorFromAny<R, T, U>): PropertyDecorator;
+export function TraitScope<R extends Trait, T, U = never, I = {}>(descriptor: TraitScopeDescriptorExtends<R, T, U, I>): PropertyDecorator;
+export function TraitScope<R extends Trait, T, U = never>(descriptor: TraitScopeDescriptor<R, T, U>): PropertyDecorator;
 
 export function TraitScope<R extends Trait, T, U>(
     this: TraitScope<R, T, U> | typeof TraitScope,
@@ -218,7 +215,7 @@ export function TraitScope<R extends Trait, T, U>(
     scopeName?: string,
   ): TraitScope<R, T, U> | PropertyDecorator {
   if (this instanceof TraitScope) { // constructor
-    return TraitScopeConstructor.call(this, owner as R, scopeName);
+    return TraitScopeConstructor.call(this as TraitScope<Trait, unknown, unknown>, owner as R, scopeName);
   } else { // decorator factory
     return TraitScopeDecoratorFactory(owner as TraitScopeDescriptor<R, T, U>);
   }
@@ -249,7 +246,7 @@ function TraitScopeConstructor<R extends Trait, T, U>(this: TraitScope<R, T, U>,
 }
 
 function TraitScopeDecoratorFactory<R extends Trait, T, U>(descriptor: TraitScopeDescriptor<R, T, U>): PropertyDecorator {
-  return Trait.decorateTraitScope.bind(Trait, TraitScope.define(descriptor));
+  return Trait.decorateTraitScope.bind(Trait, TraitScope.define(descriptor as TraitScopeDescriptor<Trait, unknown>));
 }
 
 Object.defineProperty(TraitScope.prototype, "owner", {
@@ -589,7 +586,7 @@ TraitScope.prototype.fromAny = function <T, U>(this: TraitScope<Trait, T, U>, va
   return value as T;
 };
 
-TraitScope.getConstructor = function (type: unknown): TraitScopePrototype | null {
+TraitScope.getClass = function (type: unknown): TraitScopeClass | null {
   if (type === String) {
     return TraitScope.String;
   } else if (type === Boolean) {
@@ -601,7 +598,7 @@ TraitScope.getConstructor = function (type: unknown): TraitScopePrototype | null
 };
 
 TraitScope.define = function <R extends Trait, T, U, I>(descriptor: TraitScopeDescriptor<R, T, U, I>): TraitScopeConstructor<R, T, U, I> {
-  let _super: TraitScopePrototype | null | undefined = descriptor.extends;
+  let _super: TraitScopeClass | null | undefined = descriptor.extends;
   const type = descriptor.type;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
@@ -613,7 +610,7 @@ TraitScope.define = function <R extends Trait, T, U, I>(descriptor: TraitScopeDe
   delete descriptor.modelScope;
 
   if (_super === void 0) {
-    _super = TraitScope.getConstructor(type);
+    _super = TraitScope.getClass(type);
   }
   if (_super === null) {
     _super = TraitScope;

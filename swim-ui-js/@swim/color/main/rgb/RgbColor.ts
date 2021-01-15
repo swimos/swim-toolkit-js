@@ -16,7 +16,7 @@ import {Murmur3, Numbers, Constructors} from "@swim/util";
 import {Output, Base16} from "@swim/codec";
 import {Item, Value} from "@swim/structure";
 import {AnyColor, Color} from "../color/Color";
-import {HslColor} from "../hsl/HslColor";
+import type {HslColor} from "../hsl/HslColor";
 
 export type AnyRgbColor = RgbColor | RgbColorInit | string;
 
@@ -123,17 +123,24 @@ export class RgbColor extends Color {
     return new Color.Hsl(h, s, l, this.a);
   }
 
-  equivalentTo(that: AnyColor, epsilon?: number): boolean {
-    that = Color.fromAny(that).rgb();
-    return Numbers.equivalent(this.r, (that as RgbColor).r, epsilon)
-        && Numbers.equivalent(this.g, (that as RgbColor).g, epsilon)
-        && Numbers.equivalent(this.b, (that as RgbColor).b, epsilon)
-        && Numbers.equivalent(this.a, (that as RgbColor).a, epsilon);
+  equivalentTo(that: unknown, epsilon?: number): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof Color) {
+      that = that.rgb();
+      return Numbers.equivalent(this.r, (that as RgbColor).r, epsilon)
+          && Numbers.equivalent(this.g, (that as RgbColor).g, epsilon)
+          && Numbers.equivalent(this.b, (that as RgbColor).b, epsilon)
+          && Numbers.equivalent(this.a, (that as RgbColor).a, epsilon);
+    }
+    return false;
   }
 
-  equals(other: unknown): boolean {
-    if (other instanceof RgbColor) {
-      return this.r === other.r && this.g === other.g && this.b === other.b && this.a === other.a;
+  equals(that: unknown): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof RgbColor) {
+      return this.r === that.r && this.g === that.g && this.b === that.b && this.a === that.a;
     }
     return false;
   }

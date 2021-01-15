@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {HtmlViewController} from "@swim/dom";
-import {PositionGestureInput} from "@swim/gesture";
-import {TreeCell} from "./TreeCell";
-import {TreeCellObserver} from "./TreeCellObserver";
+import type {PositionGestureInput} from "@swim/gesture";
+import type {TreeCell} from "./TreeCell";
+import type {TreeCellObserver} from "./TreeCellObserver";
 
 export class TreeCellController<V extends TreeCell = TreeCell> extends HtmlViewController<V> implements TreeCellObserver<V> {
   cellDidPress(input: PositionGestureInput, event: Event | null, view: V): void {

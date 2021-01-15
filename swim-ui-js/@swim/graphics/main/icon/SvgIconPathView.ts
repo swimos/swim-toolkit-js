@@ -16,7 +16,7 @@ import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {SvgViewInit, SvgView, SvgViewController} from "@swim/dom";
-import {Graphics} from "../graphics/Graphics";
+import type {Graphics} from "../graphics/Graphics";
 import {PathContext} from "../path/PathContext";
 import {PathRenderer} from "../path/PathRenderer";
 import {Icon} from "./Icon";
@@ -33,22 +33,22 @@ export class SvgIconPathView extends SvgView implements IconView {
   }
 
   @ViewAnimator({type: Number, inherit: true})
-  xAlign: ViewAnimator<this, number | undefined>;
+  declare xAlign: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
-  yAlign: ViewAnimator<this, number | undefined>;
+  declare yAlign: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
-  iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Object, inherit: true})
-  graphics: ViewAnimator<this, Graphics | undefined>;
+  declare graphics: ViewAnimator<this, Graphics | undefined>;
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
@@ -86,11 +86,11 @@ export class SvgIconPathView extends SvgView implements IconView {
       }
     }
     this.d.setAutoState(path);
-    this._viewFlags &= ~View.NeedsLayout;
+    this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
   }
 
   get iconBounds(): BoxR2 {
-    const viewportElement = this._node.viewportElement;
+    const viewportElement = this.node.viewportElement;
     if (viewportElement instanceof SVGSVGElement) {
       const viewBox = viewportElement.viewBox.animVal;
       const viewWidth = viewBox.width;

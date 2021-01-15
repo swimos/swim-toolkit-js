@@ -13,16 +13,15 @@
 // limitations under the License.
 
 import {ViewManager} from "@swim/view";
-import {ViewNode, NodeView} from "../node/NodeView";
-import {TextView} from "../text/TextView";
+import type {ViewNode, NodeView} from "../node/NodeView";
+import type {TextView} from "../text/TextView";
 import {ElementView} from "../element/ElementView";
-import {ElementViewController} from "../element/ElementViewController";
+import type {ElementViewController} from "../element/ElementViewController";
 import {HtmlView} from "../html/HtmlView";
 import {SvgView} from "../svg/SvgView";
-import {DomManagerObserver} from "./DomManagerObserver";
+import type {DomManagerObserver} from "./DomManagerObserver";
 
 export class DomManager<V extends NodeView = NodeView> extends ViewManager<V> {
-  // @ts-ignore
   declare readonly viewManagerObservers: ReadonlyArray<DomManagerObserver>;
 
   protected onInsertRootView(rootView: V): void {
@@ -36,7 +35,7 @@ export class DomManager<V extends NodeView = NodeView> extends ViewManager<V> {
   materializeView(parentView: NodeView): void {
     const childNodes = parentView.node.childNodes;
     for (let i = 0; i < childNodes.length; i += 1) {
-      const childNode = childNodes[i];
+      const childNode = childNodes[i]!;
       const childView = this.materializeNode(parentView, childNode);
       if (childView !== null) {
         this.materializeView(childView);
@@ -57,24 +56,24 @@ export class DomManager<V extends NodeView = NodeView> extends ViewManager<V> {
   }
 
   materializeElement(parentView: NodeView, childNode: Element): ElementView | null {
-    let ViewClass: typeof ElementView | undefined;
+    let viewClass: typeof ElementView | undefined;
     const viewClassName = childNode.getAttribute("swim-view");
     if (viewClassName !== null) {
-      ViewClass = DomManager.eval(viewClassName) as typeof ElementView | undefined;
-      if (typeof ViewClass !== "function") {
+      viewClass = DomManager.eval(viewClassName) as typeof ElementView | undefined;
+      if (typeof viewClass !== "function") {
         throw new TypeError(viewClassName);
       }
     }
-    if (ViewClass === void 0) {
+    if (viewClass === void 0) {
       if (childNode instanceof HTMLElement) {
-        ViewClass = HtmlView;
+        viewClass = HtmlView;
       } else if (childNode instanceof SVGElement) {
-        ViewClass = SvgView;
+        viewClass = SvgView;
       } else {
-        ViewClass = ElementView;
+        viewClass = ElementView;
       }
     }
-    const childView = new ViewClass(childNode);
+    const childView = new viewClass(childNode);
     this.materializeViewController(childView);
     const key = childNode.getAttribute("key");
     parentView.injectChildView(childView, null, key !== null ? key : void 0);
@@ -119,25 +118,25 @@ export class DomManager<V extends NodeView = NodeView> extends ViewManager<V> {
   }
 
   static bootElement(node: Element): ElementView {
-    let ViewClass: typeof ElementView | undefined;
+    let viewClass: typeof ElementView | undefined;
     const viewClassName = node.getAttribute("swim-app");
     if (viewClassName !== null && viewClassName !== "") {
-      ViewClass = DomManager.eval(viewClassName) as typeof ElementView | undefined;
-      if (typeof ViewClass !== "function") {
+      viewClass = DomManager.eval(viewClassName) as typeof ElementView | undefined;
+      if (typeof viewClass !== "function") {
         throw new TypeError(viewClassName);
       }
     }
-    if (ViewClass === void 0) {
+    if (viewClass === void 0) {
       if (node instanceof HTMLElement) {
-        ViewClass = HtmlView;
+        viewClass = HtmlView;
       } else if (node instanceof SVGElement) {
-        ViewClass = SvgView;
+        viewClass = SvgView;
       } else {
-        ViewClass = ElementView;
+        viewClass = ElementView;
       }
     }
-    const view = new ViewClass(node);
-    ViewClass.mount(view);
+    const view = new viewClass(node);
+    viewClass.mount(view);
     if ((view as any).domService === void 0) {
       throw new Error("DomService not available");
     }
@@ -153,7 +152,7 @@ export class DomManager<V extends NodeView = NodeView> extends ViewManager<V> {
                    : void 0;
     const idents = qname.split(".");
     for (let i = 0, n = idents.length; typeof value === "object" && value !== null && i < n; i += 1) {
-      const ident = idents[i];
+      const ident = idents[i]!;
       value = value[ident];
     }
     return value;

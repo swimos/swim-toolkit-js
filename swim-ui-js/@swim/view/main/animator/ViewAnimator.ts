@@ -16,17 +16,17 @@ import {__extends} from "tslib";
 import {Values, FromAny} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {Tween, Animator, TweenAnimator} from "@swim/tween";
+import {Tween, Animator, TweenAnimator} from "@swim/animation";
 import {AnyFont, Font} from "@swim/style";
 import {ViewFlags, View} from "../View";
-import {StringViewAnimator} from "./StringViewAnimator";
-import {BooleanViewAnimator} from "./BooleanViewAnimator";
-import {NumberViewAnimator} from "./NumberViewAnimator";
-import {AngleViewAnimator} from "./AngleViewAnimator";
-import {LengthViewAnimator} from "./LengthViewAnimator";
-import {ColorViewAnimator} from "./ColorViewAnimator";
-import {FontViewAnimator} from "./FontViewAnimator";
-import {TransformViewAnimator} from "./TransformViewAnimator";
+import type {StringViewAnimator} from "./StringViewAnimator";
+import type {BooleanViewAnimator} from "./BooleanViewAnimator";
+import type {NumberViewAnimator} from "./NumberViewAnimator";
+import type {AngleViewAnimator} from "./AngleViewAnimator";
+import type {LengthViewAnimator} from "./LengthViewAnimator";
+import type {ColorViewAnimator} from "./ColorViewAnimator";
+import type {FontViewAnimator} from "./FontViewAnimator";
+import type {TransformViewAnimator} from "./TransformViewAnimator";
 
 export type ViewAnimatorMemberType<V, K extends keyof V> =
   V extends {[P in K]: ViewAnimator<any, infer T, any>} ? T : unknown;
@@ -34,8 +34,8 @@ export type ViewAnimatorMemberType<V, K extends keyof V> =
 export type ViewAnimatorMemberInit<V, K extends keyof V> =
   V extends {[P in K]: ViewAnimator<any, infer T, infer U>} ? T | U : unknown;
 
-export interface ViewAnimatorInit<T, U = T> {
-  extends?: ViewAnimatorPrototype;
+export interface ViewAnimatorInit<T, U = never> {
+  extends?: ViewAnimatorClass;
   type?: unknown;
   state?: T | U;
   inherit?: string | boolean;
@@ -48,34 +48,22 @@ export interface ViewAnimatorInit<T, U = T> {
   initState?(): T | U;
 }
 
-export type ViewAnimatorDescriptorInit<V extends View, T, U = T, I = {}> = ViewAnimatorInit<T, U> & ThisType<ViewAnimator<V, T, U> & I> & I;
+export type ViewAnimatorDescriptor<V extends View, T, U = never, I = {}> = ViewAnimatorInit<T, U> & ThisType<ViewAnimator<V, T, U> & I> & I;
 
-export type ViewAnimatorDescriptorExtends<V extends View, T, U = T, I = {}> = {extends: ViewAnimatorPrototype | undefined} & ViewAnimatorDescriptorInit<V, T, U, I>;
+export type ViewAnimatorDescriptorExtends<V extends View, T, U = never, I = {}> = {extends: ViewAnimatorClass | undefined} & ViewAnimatorDescriptor<V, T, U, I>;
 
-export type ViewAnimatorDescriptorFromAny<V extends View, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ViewAnimatorDescriptorInit<V, T, U, I>;
+export type ViewAnimatorDescriptorFromAny<V extends View, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ViewAnimatorDescriptor<V, T, U, I>;
 
-export type ViewAnimatorDescriptor<V extends View, T, U = T, I = {}> =
-  U extends T ? ViewAnimatorDescriptorInit<V, T, U, I> :
-  T extends Angle | null | undefined ? U extends AnyAngle | null | undefined ? {type: typeof Angle} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Length | null | undefined ? U extends AnyLength | null | undefined ? {type: typeof Length} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Color | null | undefined ? U extends AnyColor | null | undefined ? {type: typeof Color} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Font | null | undefined ? U extends AnyFont | null | undefined ? {type: typeof Font} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
-  T extends Transform | null | undefined ? U extends AnyTransform | null | undefined ? {type: typeof Transform} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
-  T extends string | null | undefined ? U extends string | null | undefined ? {type: typeof String} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
-  T extends boolean | null | undefined ? U extends boolean | string | null | undefined ? {type: typeof Boolean} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
-  T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & ViewAnimatorDescriptorInit<V, T, U, I> : ViewAnimatorDescriptorExtends<V, T, U, I> :
-  ViewAnimatorDescriptorFromAny<V, T, U, I>;
-
-export interface ViewAnimatorPrototype extends Function {
-  readonly prototype: ViewAnimator<any, any, any>;
-}
-
-export interface ViewAnimatorConstructor<V extends View, T, U = T, I = {}> {
+export interface ViewAnimatorConstructor<V extends View, T, U = never, I = {}> {
   new(owner: V, animatorName: string | undefined): ViewAnimator<V, T, U> & I;
   prototype: ViewAnimator<any, any, any> & I;
 }
 
-export declare abstract class ViewAnimator<V extends View, T, U = T> {
+export interface ViewAnimatorClass extends Function {
+  readonly prototype: ViewAnimator<any, any, any>;
+}
+
+export declare abstract class ViewAnimator<V extends View, T, U = never> {
   /** @hidden */
   _owner: V;
   /** @hidden */
@@ -173,10 +161,10 @@ export declare abstract class ViewAnimator<V extends View, T, U = T> {
   initState?(): T | U;
 
   /** @hidden */
-  static getConstructor(type: unknown): ViewAnimatorPrototype | null;
+  static getClass(type: unknown): ViewAnimatorClass | null;
 
-  static define<V extends View, T, U = T, I = {}>(descriptor: ViewAnimatorDescriptorExtends<V, T, U, I>): ViewAnimatorConstructor<V, T, U, I>;
-  static define<V extends View, T, U = T>(descriptor: ViewAnimatorDescriptor<V, T, U>): ViewAnimatorConstructor<V, T, U>;
+  static define<V extends View, T, U = never, I = {}>(descriptor: ViewAnimatorDescriptorExtends<V, T, U, I>): ViewAnimatorConstructor<V, T, U, I>;
+  static define<V extends View, T, U = never>(descriptor: ViewAnimatorDescriptor<V, T, U>): ViewAnimatorConstructor<V, T, U>;
 
   // Forward type declarations
   /** @hidden */
@@ -197,13 +185,22 @@ export declare abstract class ViewAnimator<V extends View, T, U = T> {
   static Transform: typeof TransformViewAnimator; // defined by TransformViewAnimator
 }
 
-export interface ViewAnimator<V extends View, T, U = T> extends TweenAnimator<T> {
+export interface ViewAnimator<V extends View, T, U = never> extends TweenAnimator<T> {
   (): T;
   (state: T | U, tween?: Tween<T>): V;
 }
 
-export function ViewAnimator<V extends View, T, U = T, I = {}>(descriptor: ViewAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
-export function ViewAnimator<V extends View, T, U = T>(descriptor: ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Angle | undefined = Angle | undefined, U extends AnyAngle | undefined = AnyAngle | undefined>(descriptor: {type: typeof Angle} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Length | undefined = Length | undefined, U extends AnyLength | undefined = AnyLength | undefined>(descriptor: {type: typeof Length} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Color | undefined = Color | undefined, U extends AnyColor | undefined = AnyColor | undefined>(descriptor: {type: typeof Color} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Font | undefined = Font | undefined, U extends AnyFont | undefined = AnyFont | undefined>(descriptor: {type: typeof Font} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends Transform | undefined = Transform | undefined, U extends AnyTransform | undefined = AnyTransform | undefined>(descriptor: {type: typeof Transform} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | undefined>(descriptor: {type: typeof Boolean} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function ViewAnimator<V extends View, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+export function ViewAnimator<V extends View, T, U = never>(descriptor: ViewAnimatorDescriptorFromAny<V, T, U>): PropertyDecorator;
+export function ViewAnimator<V extends View, T, U = never, I = {}>(descriptor: ViewAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
+export function ViewAnimator<V extends View, T, U = never>(descriptor: ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
 
 export function ViewAnimator<V extends View, T, U>(
     this: ViewAnimator<V, T, U> | typeof ViewAnimator,
@@ -211,7 +208,7 @@ export function ViewAnimator<V extends View, T, U>(
     animatorName?: string,
   ): ViewAnimator<V, T, U> | PropertyDecorator {
   if (this instanceof ViewAnimator) { // constructor
-    return ViewAnimatorConstructor.call(this, owner as V, animatorName);
+    return ViewAnimatorConstructor.call(this as ViewAnimator<V, unknown, unknown>, owner as V, animatorName);
   } else { // decorator factory
     return ViewAnimatorDecoratorFactory(owner as ViewAnimatorDescriptor<V, T, U>);
   }
@@ -220,7 +217,7 @@ __extends(ViewAnimator, TweenAnimator);
 View.Animator = ViewAnimator;
 
 function ViewAnimatorConstructor<V extends View, T, U>(this: ViewAnimator<V, T, U>, owner: V, animatorName: string | undefined): ViewAnimator<V, T, U> {
-  const _this: ViewAnimator<V, T, U> = TweenAnimator.call(this, void 0, null) || this;
+  const _this: ViewAnimator<V, T, U> = (TweenAnimator as Function).call(this, void 0, null) || this;
   if (animatorName !== void 0) {
     Object.defineProperty(_this, "name", {
       value: animatorName,
@@ -242,7 +239,7 @@ function ViewAnimatorConstructor<V extends View, T, U>(this: ViewAnimator<V, T, 
 }
 
 function ViewAnimatorDecoratorFactory<V extends View, T, U>(descriptor: ViewAnimatorDescriptor<V, T, U>): PropertyDecorator {
-  return View.decorateViewAnimator.bind(ViewAnimator, ViewAnimator.define(descriptor));
+  return View.decorateViewAnimator.bind(ViewAnimator, ViewAnimator.define(descriptor as ViewAnimatorDescriptor<View, unknown>));
 }
 
 Object.defineProperty(ViewAnimator.prototype, "owner", {
@@ -562,7 +559,7 @@ ViewAnimator.prototype.updateSubAnimators = function <T>(this: ViewAnimator<View
   const subAnimators = this._subAnimators;
   if (subAnimators !== void 0) {
     for (let i = 0, n = subAnimators.length; i < n; i += 1) {
-      const subAnimator = subAnimators[i];
+      const subAnimator = subAnimators[i]!;
       if (subAnimator.isInherited()) {
         subAnimator._animatorFlags |= TweenAnimator.UpdatedFlag;
         subAnimator.animate();
@@ -590,7 +587,7 @@ ViewAnimator.prototype.fromAny = function <T, U>(this: ViewAnimator<View, T, U>,
   return value as T;
 };
 
-ViewAnimator.getConstructor = function (type: unknown): ViewAnimatorPrototype | null {
+ViewAnimator.getClass = function (type: unknown): ViewAnimatorClass | null {
   if (type === String) {
     return ViewAnimator.String;
   } else if (type === Boolean) {
@@ -612,7 +609,7 @@ ViewAnimator.getConstructor = function (type: unknown): ViewAnimatorPrototype | 
 };
 
 ViewAnimator.define = function <V extends View, T, U, I>(descriptor: ViewAnimatorDescriptor<V, T, U, I>): ViewAnimatorConstructor<V, T, U, I> {
-  let _super: ViewAnimatorPrototype | null | undefined = descriptor.extends;
+  let _super: ViewAnimatorClass | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
   const initState = descriptor.initState;
@@ -621,7 +618,7 @@ ViewAnimator.define = function <V extends View, T, U, I>(descriptor: ViewAnimato
   delete descriptor.inherit;
 
   if (_super === void 0) {
-    _super = ViewAnimator.getConstructor(descriptor.type);
+    _super = ViewAnimator.getClass(descriptor.type);
   }
   if (_super === null) {
     _super = ViewAnimator;

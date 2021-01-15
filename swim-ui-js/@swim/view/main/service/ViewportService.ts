@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContext} from "../ViewContext";
+import type {ViewContext} from "../ViewContext";
 import {View} from "../View";
-import {ViewIdiom} from "../viewport/ViewIdiom";
-import {Viewport} from "../viewport/Viewport";
+import type {ViewIdiom} from "../viewport/ViewIdiom";
+import type {Viewport} from "../viewport/Viewport";
 import {ViewportManager} from "../viewport/ViewportManager";
 import {ViewService} from "./ViewService";
 import {ViewManagerService} from "./ViewManagerService";

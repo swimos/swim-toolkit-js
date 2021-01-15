@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {Murmur3, Numbers, Constructors} from "@swim/util";
-import {Output} from "@swim/codec";
+import type {Output} from "@swim/codec";
 import {Item, Value} from "@swim/structure";
 import {AnyAngle, Angle} from "@swim/math";
 import {AnyColor, Color} from "../color/Color";
-import {RgbColor} from "../rgb/RgbColor";
+import type {RgbColor} from "../rgb/RgbColor";
 
 export type AnyHslColor = HslColor | HslColorInit | string;
 
@@ -113,17 +113,24 @@ export class HslColor extends Color {
     return this;
   }
 
-  equivalentTo(that: AnyColor, epsilon?: number): boolean {
-    that = Color.fromAny(that).hsl();
-    return Numbers.equivalent(this.h, (that as HslColor).h, epsilon)
-        && Numbers.equivalent(this.s, (that as HslColor).s, epsilon)
-        && Numbers.equivalent(this.l, (that as HslColor).l, epsilon)
-        && Numbers.equivalent(this.a, (that as HslColor).a, epsilon);
+  equivalentTo(that: unknown, epsilon?: number): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof Color) {
+      that = that.hsl();
+      return Numbers.equivalent(this.h, (that as HslColor).h, epsilon)
+          && Numbers.equivalent(this.s, (that as HslColor).s, epsilon)
+          && Numbers.equivalent(this.l, (that as HslColor).l, epsilon)
+          && Numbers.equivalent(this.a, (that as HslColor).a, epsilon);
+    }
+    return false;
   }
 
-  equals(other: unknown): boolean {
-    if (other instanceof HslColor) {
-      return this.h === other.h && this.s === other.s && this.l === other.l && this.a === other.a;
+  equals(that: unknown): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof HslColor) {
+      return this.h === that.h && this.s === that.s && this.l === that.l && this.a === that.a;
     }
     return false;
   }

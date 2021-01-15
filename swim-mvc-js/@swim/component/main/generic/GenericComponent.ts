@@ -12,23 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "@swim/view";
-import {Model, Trait} from "@swim/model";
-import {ComponentContextType, ComponentContext} from "../ComponentContext";
+import type {View} from "@swim/view";
+import type {Model, Trait} from "@swim/model";
+import type {ComponentContextType, ComponentContext} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
-import {ComponentObserverType} from "../ComponentObserver";
-import {ComponentService} from "../service/ComponentService";
-import {ComponentScope} from "../scope/ComponentScope";
-import {ComponentModel} from "../model/ComponentModel";
-import {ComponentTrait} from "../trait/ComponentTrait";
-import {ComponentView} from "../view/ComponentView";
-import {ComponentBinding} from "../binding/ComponentBinding";
+import type {ComponentObserverType} from "../ComponentObserver";
+import type {ComponentService} from "../service/ComponentService";
+import type {ComponentScope} from "../scope/ComponentScope";
+import type {ComponentModel} from "../model/ComponentModel";
+import type {ComponentTrait} from "../trait/ComponentTrait";
+import type {ComponentView} from "../view/ComponentView";
+import type {ComponentBinding} from "../binding/ComponentBinding";
 
 export abstract class GenericComponent extends Component {
-  /** @hidden */
-  _key?: string;
-  /** @hidden */
-  _parentComponent: Component | null;
   /** @hidden */
   _componentServices?: {[serviceName: string]: ComponentService<Component, unknown> | undefined};
   /** @hidden */
@@ -44,23 +40,26 @@ export abstract class GenericComponent extends Component {
 
   constructor() {
     super();
-    this._parentComponent = null;
+    Object.defineProperty(this, "key", {
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "parentComponent", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected willObserve<T>(callback: (this: this, componentObserver: ComponentObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const componentObservers = this._componentObservers;
-    if (componentObservers !== void 0) {
-      let i = 0;
-      while (i < componentObservers.length) {
-        const componentObserver = componentObservers[i];
-        result = callback.call(this, componentObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (componentObserver === componentObservers[i]) {
-          i += 1;
-        }
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      result = callback.call(this, componentObserver as ComponentObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
@@ -68,65 +67,60 @@ export abstract class GenericComponent extends Component {
 
   protected didObserve<T>(callback: (this: this, componentObserver: ComponentObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const componentObservers = this._componentObservers;
-    if (componentObservers !== void 0) {
-      let i = 0;
-      while (i < componentObservers.length) {
-        const componentObserver = componentObservers[i];
-        result = callback.call(this, componentObserver);
-        if (result !== void 0) {
-          return result;
-        }
-        if (componentObserver === componentObservers[i]) {
-          i += 1;
-        }
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      result = callback.call(this, componentObserver as ComponentObserverType<this>) as T | undefined;
+      if (result !== void 0) {
+        return result;
       }
     }
     return result;
   }
 
-  get key(): string | undefined {
-    return this._key;
-  }
+  declare readonly key: string | undefined;
 
   /** @hidden */
   setKey(key: string | undefined): void {
-    if (key !== void 0) {
-      this._key = key;
-    } else if (this._key !== void 0) {
-      this._key = void 0;
-    }
+    Object.defineProperty(this, "key", {
+      value: key,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get parentComponent(): Component | null {
-    return this._parentComponent;
-  }
+  declare readonly parentComponent: Component | null;
 
   /** @hidden */
   setParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null) {
     this.willSetParentComponent(newParentComponent, oldParentComponent);
-    this._parentComponent = newParentComponent;
+    Object.defineProperty(this, "parentComponent", {
+      value: newParentComponent,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetParentComponent(newParentComponent, oldParentComponent);
     this.didSetParentComponent(newParentComponent, oldParentComponent);
   }
 
   remove(): void {
-    const parentComponent = this._parentComponent;
+    const parentComponent = this.parentComponent;
     if (parentComponent !== null) {
-      if ((this._componentFlags & Component.TraversingFlag) === 0) {
+      if ((this.componentFlags & Component.TraversingFlag) === 0) {
         parentComponent.removeChildComponent(this);
       } else {
-        this._componentFlags |= Component.RemovingFlag;
+        this.setComponentFlags(this.componentFlags | Component.RemovingFlag);
       }
     }
   }
 
   abstract get childComponentCount(): number;
 
-  abstract get childComponents(): ReadonlyArray<Component>;
+  abstract readonly childComponents: ReadonlyArray<Component>;
 
-  abstract forEachChildComponent<T, S = unknown>(callback: (this: S, childComponent: Component) => T | void,
-                                                 thisArg?: S): T | undefined;
+  abstract forEachChildComponent<T>(callback: (childComponent: Component) => T | void): T | undefined;
+  abstract forEachChildComponent<T, S>(callback: (this: S, childComponent: Component) => T | void,
+                                       thisArg: S): T | undefined;
 
   abstract getChildComponent(key: string): Component | null;
 
@@ -158,16 +152,15 @@ export abstract class GenericComponent extends Component {
   abstract removeAll(): void;
 
   cascadeMount(): void {
-    if ((this._componentFlags & Component.MountedFlag) === 0) {
-      this._componentFlags |= Component.MountedFlag;
-      this._componentFlags |= Component.TraversingFlag;
+    if ((this.componentFlags & Component.MountedFlag) === 0) {
+      this.setComponentFlags(this.componentFlags | (Component.MountedFlag | Component.TraversingFlag));
       try {
         this.willMount();
         this.onMount();
         this.doMountChildComponents();
         this.didMount();
       } finally {
-        this._componentFlags &= ~Component.TraversingFlag;
+        this.setComponentFlags(this.componentFlags & ~Component.TraversingFlag);
       }
     } else {
       throw new Error("already mounted");
@@ -186,26 +179,27 @@ export abstract class GenericComponent extends Component {
 
   /** @hidden */
   protected doMountChildComponents(): void {
-    this.forEachChildComponent(function (childComponent: Component): void {
+    type self = this;
+    function doMountChildComponent(this: self, childComponent: Component): void {
       childComponent.cascadeMount();
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
         this.removeChildComponent(childComponent);
       }
-    }, this);
+    }
+    this.forEachChildComponent(doMountChildComponent, this);
   }
 
   cascadeUnmount(): void {
-    if ((this._componentFlags & Component.MountedFlag) !== 0) {
-      this._componentFlags &= ~Component.MountedFlag;
-      this._componentFlags |= Component.TraversingFlag;
+    if ((this.componentFlags & Component.MountedFlag) !== 0) {
+      this.setComponentFlags(this.componentFlags & ~Component.MountedFlag | Component.TraversingFlag);
       try {
         this.willUnmount();
         this.doUnmountChildComponents();
         this.onUnmount();
         this.didUnmount();
       } finally {
-        this._componentFlags &= ~Component.TraversingFlag;
+        this.setComponentFlags(this.componentFlags & ~Component.TraversingFlag);
       }
     } else {
       throw new Error("already unmounted");
@@ -219,31 +213,32 @@ export abstract class GenericComponent extends Component {
     this.unmountModels();
     this.unmountScopes();
     this.unmountServices();
-    this._componentFlags &= ~Component.ComponentFlagMask | Component.RemovingFlag;
+    this.setComponentFlags(this.componentFlags & (~Component.ComponentFlagMask | Component.RemovingFlag));
   }
 
   /** @hidden */
   protected doUnmountChildComponents(): void {
-    this.forEachChildComponent(function (childComponent: Component): void {
+    type self = this;
+    function doUnmountChildComponent(this: self, childComponent: Component): void {
       childComponent.cascadeUnmount();
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
         this.removeChildComponent(childComponent);
       }
-    }, this);
+    }
+    this.forEachChildComponent(doUnmountChildComponent, this);
   }
 
   cascadePower(): void {
-    if ((this._componentFlags & Component.PoweredFlag) === 0) {
-      this._componentFlags |= Component.PoweredFlag;
-      this._componentFlags |= Component.TraversingFlag;
+    if ((this.componentFlags & Component.PoweredFlag) === 0) {
+      this.setComponentFlags(this.componentFlags | (Component.PoweredFlag | Component.TraversingFlag));
       try {
         this.willPower();
         this.onPower();
         this.doPowerChildComponents();
         this.didPower();
       } finally {
-        this._componentFlags &= ~Component.TraversingFlag;
+        this.setComponentFlags(this.componentFlags & ~Component.TraversingFlag);
       }
     } else {
       throw new Error("already powered");
@@ -252,26 +247,27 @@ export abstract class GenericComponent extends Component {
 
   /** @hidden */
   protected doPowerChildComponents(): void {
-    this.forEachChildComponent(function (childComponent: Component): void {
+    type self = this;
+    function doPowerChildComponent(this: self, childComponent: Component): void {
       childComponent.cascadePower();
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
         this.removeChildComponent(childComponent);
       }
-    }, this);
+    }
+    this.forEachChildComponent(doPowerChildComponent, this);
   }
 
   cascadeUnpower(): void {
-    if ((this._componentFlags & Component.PoweredFlag) !== 0) {
-      this._componentFlags &= ~Component.PoweredFlag;
-      this._componentFlags |= Component.TraversingFlag;
+    if ((this.componentFlags & Component.PoweredFlag) !== 0) {
+      this.setComponentFlags(this.componentFlags & ~Component.PoweredFlag | Component.TraversingFlag);
       try {
         this.willUnpower();
         this.doUnpowerChildComponents();
         this.onUnpower();
         this.didUnpower();
       } finally {
-        this._componentFlags &= ~Component.TraversingFlag;
+        this.setComponentFlags(this.componentFlags & ~Component.TraversingFlag);
       }
     } else {
       throw new Error("already unpowered");
@@ -280,19 +276,21 @@ export abstract class GenericComponent extends Component {
 
   /** @hidden */
   protected doUnpowerChildComponents(): void {
-    this.forEachChildComponent(function (childComponent: Component): void {
+    type self = this;
+    function doUnpowerChildComponent(this: self, childComponent: Component): void {
       childComponent.cascadeUnpower();
       if ((childComponent.componentFlags & Component.RemovingFlag) !== 0) {
         childComponent.setComponentFlags(childComponent.componentFlags & ~Component.RemovingFlag);
         this.removeChildComponent(childComponent);
       }
-    }, this);
+    }
+    this.forEachChildComponent(doUnpowerChildComponent, this);
   }
 
   cascadeCompile(compileFlags: ComponentFlags, componentContext: ComponentContext): void {
     const extendedComponentContext = this.extendComponentContext(componentContext);
     compileFlags &= ~Component.NeedsCompile;
-    compileFlags |= this._componentFlags & Component.UpdateMask;
+    compileFlags |= this.componentFlags & Component.UpdateMask;
     compileFlags = this.needsCompile(compileFlags, extendedComponentContext);
     if ((compileFlags & Component.CompileMask) !== 0) {
       this.doCompile(compileFlags, extendedComponentContext);
@@ -302,24 +300,24 @@ export abstract class GenericComponent extends Component {
   /** @hidden */
   protected doCompile(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
     let cascadeFlags = compileFlags;
-    this._componentFlags |= Component.TraversingFlag | Component.CompilingFlag;
-    this._componentFlags &= ~Component.NeedsCompile;
+    this.setComponentFlags(this.componentFlags & ~Component.NeedsCompile
+                                               | (Component.TraversingFlag | Component.CompilingFlag));
     try {
       this.willCompile(cascadeFlags, componentContext);
-      if (((this._componentFlags | compileFlags) & Component.NeedsResolve) !== 0) {
+      if (((this.componentFlags | compileFlags) & Component.NeedsResolve) !== 0) {
         this.willResolve(componentContext);
         cascadeFlags |= Component.NeedsResolve;
-        this._componentFlags &= ~Component.NeedsResolve;
+        this.setComponentFlags(this.componentFlags & ~Component.NeedsResolve);
       }
-      if (((this._componentFlags | compileFlags) & Component.NeedsGenerate) !== 0) {
+      if (((this.componentFlags | compileFlags) & Component.NeedsGenerate) !== 0) {
         this.willGenerate(componentContext);
         cascadeFlags |= Component.NeedsGenerate;
-        this._componentFlags &= ~Component.NeedsGenerate;
+        this.setComponentFlags(this.componentFlags & ~Component.NeedsGenerate);
       }
-      if (((this._componentFlags | compileFlags) & Component.NeedsAssemble) !== 0) {
+      if (((this.componentFlags | compileFlags) & Component.NeedsAssemble) !== 0) {
         this.willAssemble(componentContext);
         cascadeFlags |= Component.NeedsAssemble;
-        this._componentFlags &= ~Component.NeedsAssemble;
+        this.setComponentFlags(this.componentFlags & ~Component.NeedsAssemble);
       }
 
       this.onCompile(cascadeFlags, componentContext);
@@ -346,14 +344,14 @@ export abstract class GenericComponent extends Component {
       }
       this.didCompile(cascadeFlags, componentContext);
     } finally {
-      this._componentFlags &= ~(Component.TraversingFlag | Component.CompilingFlag);
+      this.setComponentFlags(this.componentFlags & ~(Component.TraversingFlag | Component.CompilingFlag));
     }
   }
 
   cascadeExecute(executeFlags: ComponentFlags, componentContext: ComponentContext): void {
     const extendedComponentContext = this.extendComponentContext(componentContext);
     executeFlags &= ~Component.NeedsExecute;
-    executeFlags |= this._componentFlags & Component.UpdateMask;
+    executeFlags |= this.componentFlags & Component.UpdateMask;
     executeFlags = this.needsExecute(executeFlags, extendedComponentContext);
     if ((executeFlags & Component.ExecuteMask) !== 0) {
       this.doExecute(executeFlags, extendedComponentContext);
@@ -363,19 +361,19 @@ export abstract class GenericComponent extends Component {
   /** @hidden */
   protected doExecute(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
     let cascadeFlags = executeFlags;
-    this._componentFlags |= Component.TraversingFlag | Component.ExecutingFlag;
-    this._componentFlags &= ~Component.NeedsExecute;
+    this.setComponentFlags(this.componentFlags & ~Component.NeedsExecute
+                                               | (Component.TraversingFlag | Component.ExecutingFlag));
     try {
       this.willExecute(cascadeFlags, componentContext);
-      if (((this._componentFlags | executeFlags) & Component.NeedsRevise) !== 0) {
+      if (((this.componentFlags | executeFlags) & Component.NeedsRevise) !== 0) {
         this.willRevise(componentContext);
         cascadeFlags |= Component.NeedsRevise;
-        this._componentFlags &= ~Component.NeedsRevise;
+        this.setComponentFlags(this.componentFlags & ~Component.NeedsRevise);
       }
-      if (((this._componentFlags | executeFlags) & Component.NeedsCompute) !== 0) {
+      if (((this.componentFlags | executeFlags) & Component.NeedsCompute) !== 0) {
         this.willCompute(componentContext);
         cascadeFlags |= Component.NeedsCompute;
-        this._componentFlags &= ~Component.NeedsCompute;
+        this.setComponentFlags(this.componentFlags & ~Component.NeedsCompute);
       }
 
       this.onExecute(cascadeFlags, componentContext);
@@ -396,7 +394,7 @@ export abstract class GenericComponent extends Component {
       }
       this.didExecute(cascadeFlags, componentContext);
     } finally {
-      this._componentFlags &= ~(Component.TraversingFlag | Component.ExecutingFlag);
+      this.setComponentFlags(this.componentFlags & ~(Component.TraversingFlag | Component.ExecutingFlag));
     }
   }
 
@@ -548,7 +546,7 @@ export abstract class GenericComponent extends Component {
     return null;
   }
 
-  setComponentModel(modelName: string, newComponentModel: ComponentModel<this, Model> | null): void {
+  setComponentModel(modelName: string, newComponentModel: ComponentModel<this, any> | null): void {
     let componentModels = this._componentModels;
     if (componentModels === void 0) {
       componentModels = {};
@@ -606,7 +604,7 @@ export abstract class GenericComponent extends Component {
     return null;
   }
 
-  setComponentTrait(traitName: string, newComponentTrait: ComponentTrait<this, Trait> | null): void {
+  setComponentTrait(traitName: string, newComponentTrait: ComponentTrait<this, any> | null): void {
     let componentTraits = this._componentTraits;
     if (componentTraits === void 0) {
       componentTraits = {};
@@ -664,7 +662,7 @@ export abstract class GenericComponent extends Component {
     return null;
   }
 
-  setComponentView(viewName: string, newComponentView: ComponentView<this, View> | null): void {
+  setComponentView(viewName: string, newComponentView: ComponentView<this, any> | null): void {
     let componentViews = this._componentViews;
     if (componentViews === void 0) {
       componentViews = {};
@@ -722,7 +720,7 @@ export abstract class GenericComponent extends Component {
     return null;
   }
 
-  setComponentBinding(bindingName: string, newComponentBinding: ComponentBinding<this, Component> | null): void {
+  setComponentBinding(bindingName: string, newComponentBinding: ComponentBinding<this, any> | null): void {
     let componentBindings = this._componentBindings;
     if (componentBindings === void 0) {
       componentBindings = {};

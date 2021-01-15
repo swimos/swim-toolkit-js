@@ -15,8 +15,8 @@
 import {Input, Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Angle, AngleParser} from "@swim/math";
 import {Color} from "../color/Color";
-import {ColorChannel} from "../channel/ColorChannel";
-import {ColorChannelParser} from "../channel/ColorChannelParser";
+import type {ColorChannel} from "../color/ColorChannel";
+import {ColorChannelParser} from "../color/ColorChannelParser";
 import {HslColor} from "./HslColor";
 
 /** @hidden */

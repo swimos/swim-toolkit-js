@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Component} from "../Component";
-import {HistoryStateInit, HistoryState} from "../history/HistoryState";
+import type {HistoryStateInit, HistoryState} from "../history/HistoryState";
 import {HistoryManager} from "../history/HistoryManager";
 import {ComponentService} from "./ComponentService";
 import {ComponentManagerService} from "./ComponentManagerService";

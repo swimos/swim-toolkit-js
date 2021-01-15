@@ -14,12 +14,12 @@
 
 import {BoxR2} from "@swim/math";
 import {ViewController} from "@swim/view";
-import {GraphicsView} from "./GraphicsView";
-import {GraphicsViewObserver} from "./GraphicsViewObserver";
+import type {GraphicsView} from "./GraphicsView";
+import type {GraphicsViewObserver} from "./GraphicsViewObserver";
 
 export class GraphicsViewController<V extends GraphicsView = GraphicsView> extends ViewController<V> implements GraphicsViewObserver<V> {
   isHidden(): boolean {
-    const view = this._view;
+    const view = this.view;
     return view !== null && view.isHidden();
   }
 
@@ -32,17 +32,17 @@ export class GraphicsViewController<V extends GraphicsView = GraphicsView> exten
   }
 
   get viewFrame(): BoxR2 {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.viewFrame : BoxR2.undefined();
   }
 
   get viewBounds(): BoxR2 {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.viewBounds : BoxR2.undefined();
   }
 
   get hitBounds(): BoxR2 {
-    const view = this._view;
+    const view = this.view;
     return view !== null ? view.hitBounds : BoxR2.undefined();
   }
 }

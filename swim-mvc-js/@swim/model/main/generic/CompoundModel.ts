@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ModelContextType} from "../ModelContext";
+import type {ModelContextType} from "../ModelContext";
 import {ModelFlags, Model} from "../Model";
 import {GenericModel} from "./GenericModel";
 
@@ -37,34 +37,37 @@ export class CompoundModel extends GenericModel {
 
   firstChildModel(): Model | null {
     const childModels = this._childModels;
-    return childModels.length !== 0 ? childModels[0] : null;
+    return childModels.length !== 0 ? childModels[0]! : null;
   }
 
   lastChildModel(): Model | null {
     const childModels = this._childModels;
-    return childModels.length !== 0 ? childModels[childModels.length - 1] : null;
+    return childModels.length !== 0 ? childModels[childModels.length - 1]! : null;
   }
 
   nextChildModel(targetModel: Model): Model | null {
     const childModels = this._childModels;
     const targetIndex = childModels.indexOf(targetModel);
-    return targetIndex >= 0 && targetIndex + 1 < childModels.length ? childModels[targetIndex + 1] : null;
+    return targetIndex >= 0 && targetIndex + 1 < childModels.length ? childModels[targetIndex + 1]! : null;
   }
 
   previousChildModel(targetModel: Model): Model | null {
     const childModels = this._childModels;
     const targetIndex = childModels.indexOf(targetModel);
-    return targetIndex - 1 >= 0 ? childModels[targetIndex - 1] : null;
+    return targetIndex - 1 >= 0 ? childModels[targetIndex - 1]! : null;
   }
 
-  forEachChildModel<T, S = unknown>(callback: (this: S, childModel: Model) => T | void,
-                                    thisArg?: S): T | undefined {
+  forEachChildModel<T>(callback: (childModel: Model) => T | void): T | undefined;
+  forEachChildModel<T, S>(callback: (this: S, childModel: Model) => T | void,
+                          thisArg: S): T | undefined;
+  forEachChildModel<T, S>(callback: (this: S | undefined, childModel: Model) => T | void,
+                          thisArg?: S): T | undefined {
     let result: T | undefined;
     const childModels = this._childModels;
     let i = 0;
     while (i < childModels.length) {
-      const childModel = childModels[i];
-      result = callback.call(thisArg, childModel);
+      const childModel = childModels[i]!;
+      result = callback.call(thisArg, childModel) as T | undefined;
       if (result !== void 0) {
         break;
       }
@@ -244,7 +247,7 @@ export class CompoundModel extends GenericModel {
     do {
       const count = childModels.length;
       if (count > 0) {
-        const childModel = childModels[count - 1];
+        const childModel = childModels[count - 1]!;
         this.willRemoveChildModel(childModel);
         childModel.setParentModel(null, this);
         this.removeChildModelMap(childModel);
@@ -263,7 +266,7 @@ export class CompoundModel extends GenericModel {
     const childModels = this._childModels;
     let i = 0;
     while (i < childModels.length) {
-      const childModel = childModels[i];
+      const childModel = childModels[i]!;
       childModel.cascadeMount();
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
@@ -279,7 +282,7 @@ export class CompoundModel extends GenericModel {
     const childModels = this._childModels;
     let i = 0;
     while (i < childModels.length) {
-      const childModel = childModels[i];
+      const childModel = childModels[i]!;
       childModel.cascadeUnmount();
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
@@ -295,7 +298,7 @@ export class CompoundModel extends GenericModel {
     const childModels = this._childModels;
     let i = 0;
     while (i < childModels.length) {
-      const childModel = childModels[i];
+      const childModel = childModels[i]!;
       childModel.cascadePower();
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
@@ -311,7 +314,7 @@ export class CompoundModel extends GenericModel {
     const childModels = this._childModels;
     let i = 0;
     while (i < childModels.length) {
-      const childModel = childModels[i];
+      const childModel = childModels[i]!;
       childModel.cascadeUnpower();
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
@@ -329,7 +332,7 @@ export class CompoundModel extends GenericModel {
     const childModels = this._childModels;
     let i = 0;
     while (i < childModels.length) {
-      const childModel = childModels[i];
+      const childModel = childModels[i]!;
       analyzeChildModel.call(this, childModel, analyzeFlags, modelContext);
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);
@@ -347,7 +350,7 @@ export class CompoundModel extends GenericModel {
     const childModels = this._childModels;
     let i = 0;
     while (i < childModels.length) {
-      const childModel = childModels[i];
+      const childModel = childModels[i]!;
       refreshChildModel.call(this, childModel, refreshFlags, modelContext);
       if ((childModel.modelFlags & Model.RemovingFlag) !== 0) {
         childModel.setModelFlags(childModel.modelFlags & ~Model.RemovingFlag);

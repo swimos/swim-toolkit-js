@@ -16,11 +16,10 @@ export {
   ComponentTraitMemberType,
   ComponentTraitMemberInit,
   ComponentTraitInit,
-  ComponentTraitDescriptorInit,
+  ComponentTraitDescriptor,
   ComponentTraitDescriptorExtends,
   ComponentTraitDescriptorFromAny,
-  ComponentTraitDescriptor,
-  ComponentTraitPrototype,
   ComponentTraitConstructor,
+  ComponentTraitClass,
   ComponentTrait,
 } from "./ComponentTrait";

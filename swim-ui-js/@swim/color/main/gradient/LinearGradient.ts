@@ -15,9 +15,9 @@
 import {Equivalent, Equals, Arrays, Values} from "@swim/util";
 import {Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Angle} from "@swim/math";
-import {AnyColorStop, ColorStop} from "../stop/ColorStop";
-import {LinearGradientAngleParser} from "./LinearGradientAngleParser";
-import {LinearGradientParser} from "./LinearGradientParser";
+import {AnyColorStop, ColorStop} from "./ColorStop";
+import type {LinearGradientAngleParser} from "./LinearGradientAngleParser";
+import type {LinearGradientParser} from "./LinearGradientParser";
 
 export type AnyLinearGradient = LinearGradient | LinearGradientInit | string;
 
@@ -34,7 +34,7 @@ export interface LinearGradientInit {
   stops: AnyColorStop[];
 }
 
-export class LinearGradient implements Equivalent<AnyLinearGradient>, Equals {
+export class LinearGradient implements Equals, Equivalent {
   /** @hidden */
   readonly _angle: LinearGradientAngle;
   /** @hidden */
@@ -69,16 +69,20 @@ export class LinearGradient implements Equivalent<AnyLinearGradient>, Equals {
       const n = stops.length;
       const array = new Array<ColorStop>(n);
       for (let i = 0; i < n; i += 1) {
-        array[i] = ColorStop.fromAny(stops[i]);
+        array[i] = ColorStop.fromAny(stops[i]!);
       }
       return new LinearGradient(this._angle, array);
     }
   }
 
-  equivalentTo(that: AnyLinearGradient, epsilon?: number): boolean {
-    that = LinearGradient.fromAny(that);
-    return Values.equivalent(this._angle, that._angle, epsilon)
-        && Arrays.equivalent(this._stops, that._stops, epsilon);
+  equivalentTo(that: unknown, epsilon?: number): boolean {
+    if (this === that) {
+      return true;
+    } else if (that instanceof LinearGradient) {
+      return Values.equivalent(this._angle, that._angle, epsilon)
+          && Arrays.equivalent(this._stops, that._stops, epsilon);
+    }
+    return false;
   }
 
   equals(that: unknown): boolean {
@@ -111,7 +115,7 @@ export class LinearGradient implements Equivalent<AnyLinearGradient>, Equals {
       }
       for (let i = 0, n = this._stops.length; i < n; i += 1) {
         s += ", ";
-        s += this._stops[i].toString();
+        s += this._stops[i]!.toString();
       }
       s += ")";
       this._string = s;
@@ -134,7 +138,7 @@ export class LinearGradient implements Equivalent<AnyLinearGradient>, Equals {
           array[i] = ColorStop.parseHint(stop);
         }
       } else {
-        array[i] = ColorStop.fromAny(stops[i]);
+        array[i] = ColorStop.fromAny(stops[i]!);
       }
     }
     return new LinearGradient(angle, array);
@@ -148,7 +152,7 @@ export class LinearGradient implements Equivalent<AnyLinearGradient>, Equals {
     const n = init.stops.length;
     const array = new Array<ColorStop>(n);
     for (let i = 0; i < n; i += 1) {
-      array[i] = ColorStop.fromAny(init.stops[i]);
+      array[i] = ColorStop.fromAny(init.stops[i]!);
     }
     return new LinearGradient(angle as LinearGradientAngle, array);
   }

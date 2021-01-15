@@ -15,11 +15,11 @@
 import {__extends} from "tslib";
 import {Values, FromAny} from "@swim/util";
 import {ModelFlags, Model} from "../Model";
-import {Trait} from "../Trait";
-import {StringModelScope} from "./StringModelScope";
-import {BooleanModelScope} from "./BooleanModelScope";
-import {NumberModelScope} from "./NumberModelScope";
-import {TraitScope} from "./TraitScope";
+import type {Trait} from "../Trait";
+import type {StringModelScope} from "./StringModelScope";
+import type {BooleanModelScope} from "./BooleanModelScope";
+import type {NumberModelScope} from "./NumberModelScope";
+import type {TraitScope} from "./TraitScope";
 
 export type ModelScopeMemberType<M, K extends keyof M> =
   M extends {[P in K]: ModelScope<any, infer T, any>} ? T : unknown;
@@ -29,8 +29,8 @@ export type ModelScopeMemberInit<M, K extends keyof M> =
 
 export type ModelScopeFlags = number;
 
-export interface ModelScopeInit<T, U = T> {
-  extends?: ModelScopePrototype;
+export interface ModelScopeInit<T, U = never> {
+  extends?: ModelScopeClass;
   type?: unknown;
   state?: T | U;
   inherit?: string | boolean;
@@ -43,29 +43,22 @@ export interface ModelScopeInit<T, U = T> {
   initState?(): T | U;
 }
 
-export type ModelScopeDescriptorInit<M extends Model, T, U = T, I = {}> = ModelScopeInit<T, U> & ThisType<ModelScope<M, T, U> & I> & I;
+export type ModelScopeDescriptor<M extends Model, T, U = never, I = {}> = ModelScopeInit<T, U> & ThisType<ModelScope<M, T, U> & I> & I;
 
-export type ModelScopeDescriptorExtends<M extends Model, T, U = T, I = {}> = {extends: ModelScopePrototype | undefined} & ModelScopeDescriptorInit<M, T, U, I>;
+export type ModelScopeDescriptorExtends<M extends Model, T, U = never, I = {}> = {extends: ModelScopeClass | undefined} & ModelScopeDescriptor<M, T, U, I>;
 
-export type ModelScopeDescriptorFromAny<M extends Model, T, U = T, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ModelScopeDescriptorInit<M, T, U, I>;
+export type ModelScopeDescriptorFromAny<M extends Model, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & ModelScopeDescriptor<M, T, U, I>;
 
-export type ModelScopeDescriptor<M extends Model, T, U = T, I = {}> =
-  U extends T ? ModelScopeDescriptorInit<M, T, U, I> :
-  T extends string | null | undefined ? U extends string | null | undefined ? {type: typeof String} & ModelScopeDescriptorInit<M, T, U, I> : ModelScopeDescriptorExtends<M, T, U, I> :
-  T extends boolean | null | undefined ? U extends boolean | string | null | undefined ? {type: typeof Boolean} & ModelScopeDescriptorInit<M, T, U, I> : ModelScopeDescriptorExtends<M, T, U, I> :
-  T extends number | null | undefined ? U extends number | string | null | undefined ? {type: typeof Number} & ModelScopeDescriptorInit<M, T, U, I> : ModelScopeDescriptorExtends<M, T, U, I> :
-  ModelScopeDescriptorFromAny<M, T, U, I>;
-
-export interface ModelScopePrototype extends Function {
-  readonly prototype: ModelScope<any, any, any>;
-}
-
-export interface ModelScopeConstructor<M extends Model, T, U = T, I = {}> {
+export interface ModelScopeConstructor<M extends Model, T, U = never, I = {}> {
   new(owner: M, scopeName: string | undefined): ModelScope<M, T, U> & I;
   prototype: ModelScope<any, any, any> & I;
 }
 
-export declare abstract class ModelScope<M extends Model, T, U = T> {
+export interface ModelScopeClass extends Function {
+  readonly prototype: ModelScope<any, any, any>;
+}
+
+export declare abstract class ModelScope<M extends Model, T, U = never> {
   /** @hidden */
   _owner: M;
   /** @hidden */
@@ -193,10 +186,10 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
   initState?(): T | U;
 
   /** @hidden */
-  static getConstructor(type: unknown): ModelScopePrototype | null;
+  static getClass(type: unknown): ModelScopeClass | null;
 
-  static define<M extends Model, T, U = T, I = {}>(descriptor: ModelScopeDescriptorExtends<M, T, U, I>): ModelScopeConstructor<M, T, U, I>;
-  static define<M extends Model, T, U = T>(descriptor: ModelScopeDescriptor<M, T, U>): ModelScopeConstructor<M, T, U>;
+  static define<M extends Model, T, U = never, I = {}>(descriptor: ModelScopeDescriptorExtends<M, T, U, I>): ModelScopeConstructor<M, T, U, I>;
+  static define<M extends Model, T, U = never>(descriptor: ModelScopeDescriptor<M, T, U>): ModelScopeConstructor<M, T, U>;
 
   /** @hidden */
   static UpdatedFlag: ModelScopeFlags;
@@ -216,13 +209,17 @@ export declare abstract class ModelScope<M extends Model, T, U = T> {
   static Number: typeof NumberModelScope; // defined by NumberModelScope
 }
 
-export interface ModelScope<M extends Model, T, U = T> {
+export interface ModelScope<M extends Model, T, U = never> {
   (): T;
   (state: T | U): M;
 }
 
-export function ModelScope<M extends Model, T, U = T, I = {}>(descriptor: ModelScopeDescriptorExtends<M, T, U, I>): PropertyDecorator;
-export function ModelScope<M extends Model, T, U = T>(descriptor: ModelScopeDescriptor<M, T, U>): PropertyDecorator;
+export function ModelScope<M extends Model, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & ModelScopeDescriptor<M, T, U>): PropertyDecorator;
+export function ModelScope<M extends Model, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | undefined>(descriptor: {type: typeof Boolean} & ModelScopeDescriptor<M, T, U>): PropertyDecorator;
+export function ModelScope<M extends Model, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & ModelScopeDescriptor<M, T, U>): PropertyDecorator;
+export function ModelScope<M extends Model, T, U = never>(descriptor: ModelScopeDescriptorFromAny<M, T, U>): PropertyDecorator;
+export function ModelScope<M extends Model, T, U = never, I = {}>(descriptor: ModelScopeDescriptorExtends<M, T, U, I>): PropertyDecorator;
+export function ModelScope<M extends Model, T, U = never>(descriptor: ModelScopeDescriptor<M, T, U>): PropertyDecorator;
 
 export function ModelScope<M extends Model, T, U>(
     this: ModelScope<M, T, U> | typeof ModelScope,
@@ -230,7 +227,7 @@ export function ModelScope<M extends Model, T, U>(
     scopeName?: string,
   ): ModelScope<M, T, U> | PropertyDecorator {
   if (this instanceof ModelScope) { // constructor
-    return ModelScopeConstructor.call(this, owner as M, scopeName);
+    return ModelScopeConstructor.call(this as ModelScope<Model, unknown, unknown>, owner as M, scopeName);
   } else { // decorator factory
     return ModelScopeDecoratorFactory(owner as ModelScopeDescriptor<M, T, U>);
   }
@@ -260,7 +257,7 @@ function ModelScopeConstructor<M extends Model, T, U>(this: ModelScope<M, T, U>,
 }
 
 function ModelScopeDecoratorFactory<M extends Model, T, U>(descriptor: ModelScopeDescriptor<M, T, U>): PropertyDecorator {
-  return Model.decorateModelScope.bind(Model, ModelScope.define(descriptor));
+  return Model.decorateModelScope.bind(Model, ModelScope.define(descriptor as ModelScopeDescriptor<Model, unknown>));
 }
 
 Object.defineProperty(ModelScope.prototype, "owner", {
@@ -292,7 +289,7 @@ ModelScope.prototype.setInherit = function (this: ModelScope<Model, unknown>,
       }
       const traitScopes = this._traitScopes;
       for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
-        const traitScope = traitScopes![i];
+        const traitScope = traitScopes![i]!;
         traitScope._inherit = inherit;
         if ((traitScope._scopeFlags & ModelScope.OverrideFlag) === 0) {
           traitScope._scopeFlags |= ModelScope.UpdatedFlag | ModelScope.InheritedFlag;
@@ -304,7 +301,7 @@ ModelScope.prototype.setInherit = function (this: ModelScope<Model, unknown>,
       this._scopeFlags &= ~ModelScope.InheritedFlag;
       const traitScopes = this._traitScopes;
       for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
-        const traitScope = traitScopes![i];
+        const traitScope = traitScopes![i]!;
         traitScope._inherit = false;
         traitScope._scopeFlags &= ~ModelScope.InheritedFlag;
       }
@@ -323,7 +320,7 @@ ModelScope.prototype.setInherited = function (this: ModelScope<Model, unknown>,
     this._owner.requireUpdate(Model.NeedsMutate);
     const traitScopes = this._traitScopes;
     for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
-      const traitScope = traitScopes![i];
+      const traitScope = traitScopes![i]!;
       traitScope._scopeFlags |= ModelScope.InheritedFlag;
       traitScope.mutate();
     }
@@ -333,7 +330,7 @@ ModelScope.prototype.setInherited = function (this: ModelScope<Model, unknown>,
     this._owner.requireUpdate(Model.NeedsMutate);
     const traitScopes = this._traitScopes;
     for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
-      const traitScope = traitScopes![i];
+      const traitScope = traitScopes![i]!;
       traitScope._scopeFlags &= ~ModelScope.InheritedFlag;
       traitScope.mutate();
     }
@@ -399,7 +396,7 @@ ModelScope.prototype.bindSuperScope = function (this: ModelScope<Model, unknown>
               this._owner.requireUpdate(Model.NeedsMutate);
               const traitScopes = this._traitScopes;
               for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
-                const traitScope = traitScopes![i];
+                const traitScope = traitScopes![i]!;
                 traitScope._scopeFlags |= ModelScope.UpdatedFlag;
                 traitScope.mutate();
               }
@@ -474,14 +471,14 @@ ModelScope.prototype.setAuto = function (this: ModelScope<Model, unknown>,
     this._scopeFlags &= ~ModelScope.OverrideFlag;
     const traitScopes = this._traitScopes;
     for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
-      const traitScope = traitScopes![i];
+      const traitScope = traitScopes![i]!;
       traitScope._scopeFlags &= ~ModelScope.OverrideFlag;
     }
   } else if (!auto && (this._scopeFlags & ModelScope.OverrideFlag) === 0) {
     this._scopeFlags |= ModelScope.OverrideFlag;
     const traitScopes = this._traitScopes;
     for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
-      const traitScope = traitScopes![i];
+      const traitScope = traitScopes![i]!;
       traitScope._scopeFlags |= ModelScope.OverrideFlag;
     }
   }
@@ -543,7 +540,7 @@ ModelScope.prototype.setState = function <T, U>(this: ModelScope<Model, T, U>,
     this._scopeFlags |= ModelScope.OverrideFlag;
     const traitScopes = this._traitScopes;
     for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
-      const traitScope = traitScopes![i];
+      const traitScope = traitScopes![i]!;
       traitScope._scopeFlags |= ModelScope.OverrideFlag;
     }
   }
@@ -582,7 +579,7 @@ ModelScope.prototype.setOwnState = function <T, U>(this: ModelScope<Model, T, U>
     this._scopeFlags &= ~ModelScope.InheritedFlag;
     const traitScopes = this._traitScopes;
     for (let i = 0, n = traitScopes !== void 0 ? traitScopes.length : 0; i < n; i += 1) {
-      const traitScope = traitScopes![i];
+      const traitScope = traitScopes![i]!;
       traitScope._scopeFlags &= ~ModelScope.InheritedFlag;
     }
   }
@@ -666,7 +663,7 @@ ModelScope.prototype.updateSubScopes = function <T>(this: ModelScope<Model, T>,
   const subScopes = this._subScopes;
   if (subScopes !== void 0) {
     for (let i = 0, n = subScopes.length; i < n; i += 1) {
-      const subScope = subScopes[i];
+      const subScope = subScopes[i]!;
       if (subScope.isInherited()) {
         subScope.mutate();
       }
@@ -679,7 +676,7 @@ ModelScope.prototype.updateTraitScopes = function <T>(this: ModelScope<Model, T>
   const traitScopes = this._traitScopes;
   if (traitScopes !== void 0) {
     for (let i = 0, n = traitScopes.length; i < n; i += 1) {
-      const traitScope = traitScopes[i];
+      const traitScope = traitScopes[i]!;
       traitScope.mutate();
     }
   }
@@ -700,7 +697,7 @@ ModelScope.prototype.mutate = function (this: ModelScope<Model, unknown>): void 
     const traitScopes = this._traitScopes;
     if (traitScopes !== void 0) {
       for (let i = 0, n = traitScopes.length; i < n; i += 1) {
-        const traitScope = traitScopes[i];
+        const traitScope = traitScopes[i]!;
         traitScope.mutate();
       }
     }
@@ -719,7 +716,7 @@ ModelScope.prototype.fromAny = function <T, U>(this: ModelScope<Model, T, U>, va
   return value as T;
 };
 
-ModelScope.getConstructor = function (type: unknown): ModelScopePrototype | null {
+ModelScope.getClass = function (type: unknown): ModelScopeClass | null {
   if (type === String) {
     return ModelScope.String;
   } else if (type === Boolean) {
@@ -731,7 +728,7 @@ ModelScope.getConstructor = function (type: unknown): ModelScopePrototype | null
 };
 
 ModelScope.define = function <M extends Model, T, U, I>(descriptor: ModelScopeDescriptor<M, T, U, I>): ModelScopeConstructor<M, T, U, I> {
-  let _super: ModelScopePrototype | null | undefined = descriptor.extends;
+  let _super: ModelScopeClass | null | undefined = descriptor.extends;
   const state = descriptor.state;
   const inherit = descriptor.inherit;
   const initState = descriptor.initState;
@@ -740,7 +737,7 @@ ModelScope.define = function <M extends Model, T, U, I>(descriptor: ModelScopeDe
   delete descriptor.inherit;
 
   if (_super === void 0) {
-    _super = ModelScope.getConstructor(descriptor.type);
+    _super = ModelScope.getClass(descriptor.type);
   }
   if (_super === null) {
     _super = ModelScope;

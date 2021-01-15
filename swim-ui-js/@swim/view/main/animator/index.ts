@@ -16,12 +16,11 @@ export {
   ViewAnimatorMemberType,
   ViewAnimatorMemberInit,
   ViewAnimatorInit,
-  ViewAnimatorDescriptorInit,
+  ViewAnimatorDescriptor,
   ViewAnimatorDescriptorExtends,
   ViewAnimatorDescriptorFromAny,
-  ViewAnimatorDescriptor,
-  ViewAnimatorPrototype,
   ViewAnimatorConstructor,
+  ViewAnimatorClass,
   ViewAnimator,
 } from "./ViewAnimator";
 

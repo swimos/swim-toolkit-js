@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
+import type {BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {ViewAnimator} from "@swim/view";
-import {GraphicsView, CanvasContext, CanvasRenderer, FillViewInit, FillView} from "@swim/graphics";
+import type {GraphicsView, CanvasContext, CanvasRenderer, FillViewInit, FillView} from "@swim/graphics";
 import {PlotView} from "./PlotView";
-import {PlotViewController} from "./PlotViewController";
+import type {PlotViewController} from "./PlotViewController";
 import {SeriesPlotType, SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";
 
 export type AnyAreaPlotView<X, Y> = AreaPlotView<X, Y> | AreaPlotViewInit<X, Y>;
@@ -39,7 +39,7 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
   }
 
   @ViewAnimator({type: Color, state: Color.black()})
-  fill: ViewAnimator<this, Color, AnyColor>;
+  declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
     const data = this._data;

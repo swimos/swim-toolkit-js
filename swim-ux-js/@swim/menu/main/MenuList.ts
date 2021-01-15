@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {View} from "@swim/view";
+import type {View} from "@swim/view";
 import {ViewNodeType, HtmlView} from "@swim/dom";
 import {MenuItem} from "./MenuItem";
-import {MenuListObserver} from "./MenuListObserver";
-import {MenuListController} from "./MenuListController";
+import type {MenuListObserver} from "./MenuListObserver";
+import type {MenuListController} from "./MenuListController";
 
 export class MenuList extends HtmlView {
   protected initNode(node: ViewNodeType<this>): void {
@@ -29,10 +29,8 @@ export class MenuList extends HtmlView {
     this.userSelect.setAutoState("none");
   }
 
-  // @ts-ignore
   declare readonly viewController: MenuListController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<MenuListObserver>;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -59,15 +57,15 @@ export class MenuList extends HtmlView {
 
   /** @hidden */
   onPressItem(item: MenuItem): void {
-    const viewObservers = this._viewObservers;
-    for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-      const viewObserver = viewObservers![i];
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
       if (viewObserver.menuDidPressItem !== void 0) {
         viewObserver.menuDidPressItem(item, this);
       }
     }
-    const viewController = this._viewController;
-    if (viewController !== void 0 && viewController.menuDidPressItem !== void 0) {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.menuDidPressItem !== void 0) {
       viewController.menuDidPressItem(item, this);
     }
   }

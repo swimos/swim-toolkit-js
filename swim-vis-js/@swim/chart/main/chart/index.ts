@@ -13,13 +13,9 @@
 // limitations under the License.
 
 export {
-  AnyColorStop,
-  ColorStopInit,
-  ColorStopTuple,
-  ColorStop,
-} from "./ColorStop";
-
-export {ColorStopParser} from "./ColorStopParser";
-export {ColorStopListParser} from "./ColorStopListParser";
-
-export {ColorStopInterpolator} from "./ColorStopInterpolator";
+  AnyChartView,
+  ChartViewInit,
+  ChartView,
+} from "./ChartView";
+export {ChartViewObserver} from "./ChartViewObserver";
+export {ChartViewController} from "./ChartViewController";

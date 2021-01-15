@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyColor, Color} from "@swim/color";
-import {ViewAnimator} from "@swim/view";
+import type {AnyColor, Color} from "@swim/color";
+import type {ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
 
 export interface FillViewInit extends GraphicsViewInit {

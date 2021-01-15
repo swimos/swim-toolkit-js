@@ -20,7 +20,6 @@ export {
   HtmlViewTagMap,
   HtmlViewFactory,
   HtmlViewConstructor,
-  HtmlViewClass,
   HtmlView,
 } from "./HtmlView";
 export {HtmlViewObserver} from "./HtmlViewObserver";

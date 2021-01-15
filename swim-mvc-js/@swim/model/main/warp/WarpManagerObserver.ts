@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Model} from "../Model";
-import {ModelManagerObserver} from "../manager/ModelManagerObserver";
-import {WarpManager} from "./WarpManager";
+import type {Model} from "../Model";
+import type {ModelManagerObserver} from "../manager/ModelManagerObserver";
+import type {WarpManager} from "./WarpManager";
 
 export interface WarpManagerObserver<M extends Model = Model, MM extends WarpManager<M> = WarpManager<M>> extends ModelManagerObserver<M, MM> {
 }

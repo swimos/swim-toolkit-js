@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HtmlViewObserver} from "@swim/dom";
-import {CanvasView} from "./CanvasView";
+import type {HtmlViewObserver} from "@swim/dom";
+import type {CanvasView} from "./CanvasView";
 
 export interface CanvasViewObserver<V extends CanvasView = CanvasView> extends HtmlViewObserver<V> {
   viewWillSetHidden?(hidden: boolean, view: V): void;

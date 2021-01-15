@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
-import {ViewAnimator} from "@swim/view";
+import type {AnyLength, Length} from "@swim/math";
+import type {AnyColor, Color} from "@swim/color";
+import type {ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
 
 export interface StrokeViewInit extends GraphicsViewInit {

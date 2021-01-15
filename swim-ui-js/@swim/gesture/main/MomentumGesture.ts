@@ -13,16 +13,16 @@
 // limitations under the License.
 
 import {ViewContext, View, ViewObserver} from "@swim/view";
-import {GestureInputType} from "./GestureInput";
+import type {GestureInputType} from "./GestureInput";
 import {AbstractPositionGesture} from "./PositionGesture";
 import {MomentumGestureInput} from "./MomentumGestureInput";
-import {MomentumGestureDelegate} from "./MomentumGestureDelegate";
+import type {MomentumGestureDelegate} from "./MomentumGestureDelegate";
 
 export class AbstractMomentumGesture<V extends View> extends AbstractPositionGesture<V> implements ViewObserver<V> {
   /** @hidden */
-  _delegate: MomentumGestureDelegate | null;
+  declare _delegate: MomentumGestureDelegate | null;
   /** @hidden */
-  _inputs: {[inputId: string]: MomentumGestureInput | undefined};
+  declare _inputs: {[inputId: string]: MomentumGestureInput | undefined};
   /** @hidden */
   _coastCount: number;
 
@@ -434,15 +434,15 @@ export class PointerMomentumGesture<V extends View> extends AbstractMomentumGest
   }
 
   protected attachHoverEvents(view: V): void {
-    view.on("pointerenter", this.onPointerEnter);
-    view.on("pointerleave", this.onPointerLeave);
-    view.on("pointerdown", this.onPointerDown);
+    view.on("pointerenter", this.onPointerEnter as EventListener);
+    view.on("pointerleave", this.onPointerLeave as EventListener);
+    view.on("pointerdown", this.onPointerDown as EventListener);
   }
 
   protected detachHoverEvents(view: V): void {
-    view.off("pointerenter", this.onPointerEnter);
-    view.off("pointerleave", this.onPointerLeave);
-    view.off("pointerdown", this.onPointerDown);
+    view.off("pointerenter", this.onPointerEnter as EventListener);
+    view.off("pointerleave", this.onPointerLeave as EventListener);
+    view.off("pointerdown", this.onPointerDown as EventListener);
   }
 
   protected attachPressEvents(view: V): void {
@@ -575,23 +575,23 @@ export class TouchMomentumGesture<V extends View> extends AbstractMomentumGestur
   }
 
   protected attachHoverEvents(view: V): void {
-    view.on("touchstart", this.onTouchStart);
+    view.on("touchstart", this.onTouchStart as EventListener);
   }
 
   protected detachHoverEvents(view: V): void {
-    view.off("touchstart", this.onTouchStart);
+    view.off("touchstart", this.onTouchStart as EventListener);
   }
 
   protected attachPressEvents(view: V): void {
-    view.on("touchmove", this.onTouchMove);
-    view.on("touchend", this.onTouchEnd);
-    view.on("touchcancel", this.onTouchCancel);
+    view.on("touchmove", this.onTouchMove as EventListener);
+    view.on("touchend", this.onTouchEnd as EventListener);
+    view.on("touchcancel", this.onTouchCancel as EventListener);
   }
 
   protected detachPressEvents(view: V): void {
-    view.off("touchmove", this.onTouchMove);
-    view.off("touchend", this.onTouchEnd);
-    view.off("touchcancel", this.onTouchCancel);
+    view.off("touchmove", this.onTouchMove as EventListener);
+    view.off("touchend", this.onTouchEnd as EventListener);
+    view.off("touchcancel", this.onTouchCancel as EventListener);
   }
 
   protected updateInput(input: MomentumGestureInput, event: TouchEvent, touch: Touch): void {
@@ -613,7 +613,7 @@ export class TouchMomentumGesture<V extends View> extends AbstractMomentumGestur
     event.preventDefault();
     const touches = event.targetTouches;
     for (let i = 0; i < touches.length; i += 1) {
-      const touch = touches[i];
+      const touch = touches[i]!;
       const input = this.getOrCreateInput(touch.identifier, "touch", false,
                                           touch.clientX, touch.clientY, event.timeStamp);
       this.updateInput(input, event, touch);
@@ -626,7 +626,7 @@ export class TouchMomentumGesture<V extends View> extends AbstractMomentumGestur
   protected onTouchMove(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
-      const touch = touches[i];
+      const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
       if (input !== null) {
         this.updateInput(input, event, touch);
@@ -638,7 +638,7 @@ export class TouchMomentumGesture<V extends View> extends AbstractMomentumGestur
   protected onTouchEnd(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
-      const touch = touches[i];
+      const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
       if (input !== null) {
         this.updateInput(input, event, touch);
@@ -654,7 +654,7 @@ export class TouchMomentumGesture<V extends View> extends AbstractMomentumGestur
   protected onTouchCancel(event: TouchEvent): void {
     const touches = event.changedTouches;
     for (let i = 0; i < touches.length; i += 1) {
-      const touch = touches[i];
+      const touch = touches[i]!;
       const input = this.getInput(touch.identifier);
       if (input !== null) {
         this.updateInput(input, event, touch);
@@ -678,15 +678,15 @@ export class MouseMomentumGesture<V extends View> extends AbstractMomentumGestur
   }
 
   protected attachHoverEvents(view: V): void {
-    view.on("mouseenter", this.onMouseEnter);
-    view.on("mouseleave", this.onMouseLeave);
-    view.on("mousedown", this.onMouseDown);
+    view.on("mouseenter", this.onMouseEnter as EventListener);
+    view.on("mouseleave", this.onMouseLeave as EventListener);
+    view.on("mousedown", this.onMouseDown as EventListener);
   }
 
   protected detachHoverEvents(view: V): void {
-    view.off("mouseenter", this.onMouseEnter);
-    view.off("mouseleave", this.onMouseLeave);
-    view.off("mousedown", this.onMouseDown);
+    view.off("mouseenter", this.onMouseEnter as EventListener);
+    view.off("mouseleave", this.onMouseLeave as EventListener);
+    view.off("mousedown", this.onMouseDown as EventListener);
   }
 
   protected attachPressEvents(view: V): void {

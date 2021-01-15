@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Constrain} from "./Constrain";
-import {ConstrainVariable} from "./ConstrainVariable";
-import {ConstraintRelation} from "./ConstraintRelation";
-import {AnyConstraintStrength} from "./ConstraintStrength";
-import {Constraint} from "./Constraint";
+import type {Constrain} from "./Constrain";
+import type {ConstrainVariable} from "./ConstrainVariable";
+import type {ConstraintRelation} from "./ConstraintRelation";
+import type {AnyConstraintStrength} from "./ConstraintStrength";
+import type {Constraint} from "./Constraint";
 
 export interface ConstraintScope {
   constraint(lhs: Constrain | number, relation: ConstraintRelation,

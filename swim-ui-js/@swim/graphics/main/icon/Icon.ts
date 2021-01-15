@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2, PathR2} from "@swim/math";
-import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import {Graphics} from "../graphics/GRaphics";
+import type {BoxR2, PathR2} from "@swim/math";
+import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {Graphics} from "../graphics/Graphics";
 
 export abstract class Icon implements Graphics {
   abstract render(renderer: GraphicsRenderer, frame: BoxR2): void;

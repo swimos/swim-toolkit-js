@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyFont, Font} from "@swim/style";
-import {View} from "../View";
+import type {View} from "../View";
 import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */

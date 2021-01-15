@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {HtmlViewController} from "@swim/dom";
-import {TreeVein} from "./TreeVein";
-import {TreeVeinObserver} from "./TreeVeinObserver";
+import type {TreeVein} from "./TreeVein";
+import type {TreeVeinObserver} from "./TreeVeinObserver";
 
 export class TreeVeinController<V extends TreeVein = TreeVein> extends HtmlViewController<V> implements TreeVeinObserver<V> {
 }

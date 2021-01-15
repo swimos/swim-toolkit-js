@@ -15,9 +15,9 @@
 import {Equals} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import {GraphicsRenderer} from "../graphics/GraphicsRenderer";
-import {Graphics} from "../graphics/Graphics";
-import {DrawingContext} from "../drawing/DrawingContext";
+import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import type {Graphics} from "../graphics/Graphics";
+import type {DrawingContext} from "../drawing/DrawingContext";
 import {PathContext} from "../path/PathContext";
 import {PathRenderer} from "../path/PathRenderer";
 
@@ -297,14 +297,14 @@ export class Arc implements Graphics, Equals, Debug {
         if (da < Math.PI) {
           // limit corner radius to sector angle
           const oc = da0 > Arc.Epsilon ? Arc.intersect(x01, y01, x00, y00, x11, y11, x10, y10) : [x10, y10];
-          const ax = x01 - oc[0];
-          const ay = y01 - oc[1];
-          const bx = x11 - oc[0];
-          const by = y11 - oc[1];
+          const ax = x01 - oc[0]!;
+          const ay = y01 - oc[1]!;
+          const bx = x11 - oc[0]!;
+          const by = y11 - oc[1]!;
           const kc = 1 / Math.sin(0.5 * Math.acos((ax * bx + ay * by) /
                                                   (Math.sqrt(ax * ax + ay * ay) *
                                                    Math.sqrt(bx * bx + by * by))));
-          const lc = Math.sqrt(oc[0] * oc[0] + oc[1] * oc[1]);
+          const lc = Math.sqrt(oc[0]! * oc[0]! + oc[1]! * oc[1]!);
           rc0 = Math.min(rc, (r0 - lc) / (kc - 1));
           rc1 = Math.min(rc, (r1 - lc) / (kc + 1));
         }

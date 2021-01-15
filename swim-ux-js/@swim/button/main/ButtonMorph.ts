@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Angle, Transform} from "@swim/math";
-import {Tween, Transition} from "@swim/tween";
+import {Tween, Transition} from "@swim/animation";
 import {Look} from "@swim/theme";
 import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
 

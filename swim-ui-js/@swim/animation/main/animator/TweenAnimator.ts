@@ -16,7 +16,7 @@ import {Values} from "@swim/util";
 import {Interpolator} from "@swim/interpolate";
 import {AnyEase, Ease} from "../ease/Ease";
 import {Tween, AnyTransition, Transition} from "../transition/Transition";
-import {TransitionObserver} from "../transition/TransitionObserver";
+import type {TransitionObserver} from "../transition/TransitionObserver";
 import {Animator} from "./Animator";
 
 export type TweenAnimatorFlags = number;
@@ -55,10 +55,8 @@ export abstract class TweenAnimator<T> extends Animator {
       this._observers = null;
     }
     this._interrupts = null;
-    if (value !== void 0) {
-      this._value = value;
-      this._state = value;
-    }
+    this._value = value;
+    this._state = value;
     this._baseTime = 0;
     this._animatorFlags = TweenAnimator.UpdatedFlag;
   }
@@ -118,7 +116,7 @@ export abstract class TweenAnimator<T> extends Animator {
           observers = [];
           this._observers = observers;
         }
-        Array.prototype.push.apply(observers, transition._observers);
+        Array.prototype.push.apply(observers, transition._observers as TransitionObserver<T>[]);
       }
       return this;
     }
@@ -232,7 +230,7 @@ export abstract class TweenAnimator<T> extends Animator {
         observers = [];
         this._observers = observers;
       }
-      Array.prototype.push.apply(observers, tween._observers);
+      Array.prototype.push.apply(observers, tween._observers as TransitionObserver<T>[]);
       // immediately complete quiesced transitions
       if ((this._animatorFlags & TweenAnimator.TweeningFlag) === 0) {
         this.doEnd(this._value);
@@ -330,7 +328,7 @@ export abstract class TweenAnimator<T> extends Animator {
     const observers = this._observers;
     if (observers !== null) {
       for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i];
+        const observer = observers[i]!;
         if (observer.onBegin !== void 0) {
           observer.onBegin(value);
         }
@@ -349,7 +347,7 @@ export abstract class TweenAnimator<T> extends Animator {
     if (observers !== null) {
       this._observers = null;
       for (let i = 0, n = observers.length; i < n; i += 1) {
-        const observer = observers[i];
+        const observer = observers[i]!;
         if (observer.onEnd !== void 0) {
           observer.onEnd(value);
         }
@@ -368,7 +366,7 @@ export abstract class TweenAnimator<T> extends Animator {
     if (interrupts !== null) {
       this._interrupts = null;
       for (let i = 0, n = interrupts.length; i < n; i += 1) {
-        const interrupt = interrupts[i];
+        const interrupt = interrupts[i]!;
         if (interrupt.onInterrupt !== void 0) {
           interrupt.onInterrupt(value);
         }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {MoodVector} from "./MoodVector";
+import type {MoodVector} from "./MoodVector";
 
 export interface Mood {
   readonly name: string;

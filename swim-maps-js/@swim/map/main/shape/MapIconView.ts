@@ -14,13 +14,13 @@
 
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
-import {Transition} from "@swim/tween";
+import type {Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {Graphics, GraphicsView, IconViewInit, IconView, CanvasRenderer} from "@swim/graphics";
-import {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
-import {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
+import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
+import type {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
 import {MapLayerView} from "../layer/MapLayerView";
 
 export type AnyMapIconView = MapIconView | MapIconViewInit;
@@ -61,28 +61,28 @@ export class MapIconView extends MapLayerView implements IconView {
       this.owner.onSetGeoCenter(newValue, oldValue);
     },
   })
-  geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
+  declare geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
-  viewCenter: ViewAnimator<this, PointR2, AnyPointR2>;
+  declare viewCenter: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Number})
-  xAlign: ViewAnimator<this, number | undefined>;
+  declare xAlign: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Number})
-  yAlign: ViewAnimator<this, number | undefined>;
+  declare yAlign: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length, updateFlags: View.NeedsRender | View.NeedsComposite})
-  iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Length, updateFlags: View.NeedsRender | View.NeedsComposite})
-  iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color, updateFlags: View.NeedsRender | View.NeedsComposite})
-  iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Object, updateFlags: View.NeedsRender | View.NeedsComposite})
-  graphics: ViewAnimator<this, Graphics | undefined>;
+  declare graphics: ViewAnimator<this, Graphics | undefined>;
 
   protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
     if (newGeoCenter.isDefined()) {
@@ -119,7 +119,7 @@ export class MapIconView extends MapLayerView implements IconView {
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this._viewFlags & View.NeedsRender) === 0) {
+    if ((this.viewFlags & View.NeedsRender) === 0) {
       displayFlags &= ~View.NeedsRender;
     }
     return displayFlags;

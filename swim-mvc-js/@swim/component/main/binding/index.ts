@@ -16,11 +16,10 @@ export {
   ComponentBindingMemberType,
   ComponentBindingMemberInit,
   ComponentBindingInit,
-  ComponentBindingDescriptorInit,
+  ComponentBindingDescriptor,
   ComponentBindingDescriptorExtends,
   ComponentBindingDescriptorFromAny,
-  ComponentBindingDescriptor,
-  ComponentBindingPrototype,
   ComponentBindingConstructor,
+  ComponentBindingClass,
   ComponentBinding,
 } from "./ComponentBinding";

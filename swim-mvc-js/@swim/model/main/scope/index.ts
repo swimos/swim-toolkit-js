@@ -17,12 +17,11 @@ export {
   ModelScopeMemberInit,
   ModelScopeFlags,
   ModelScopeInit,
-  ModelScopeDescriptorInit,
+  ModelScopeDescriptor,
   ModelScopeDescriptorExtends,
   ModelScopeDescriptorFromAny,
-  ModelScopeDescriptor,
-  ModelScopePrototype,
   ModelScopeConstructor,
+  ModelScopeClass,
   ModelScope,
 } from "./ModelScope";
 
@@ -36,12 +35,11 @@ export {
   TraitScopeMemberType,
   TraitScopeMemberInit,
   TraitScopeInit,
-  TraitScopeDescriptorInit,
+  TraitScopeDescriptor,
   TraitScopeDescriptorExtends,
   TraitScopeDescriptorFromAny,
-  TraitScopeDescriptor,
-  TraitScopePrototype,
   TraitScopeConstructor,
+  TraitScopeClass,
   TraitScope,
 } from "./TraitScope";
 

@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
-import {PositionGestureInput} from "@swim/gesture";
-import {TreeCellObserver} from "./TreeCellObserver";
-import {TreeCellController} from "./TreeCellController";
-import {TitleTreeCell} from "./TitleTreeCell";
-import {DisclosureTreeCell} from "./DisclosureTreeCell";
-import {PolygonTreeCell} from "./PolygonTreeCell";
+import type {PositionGestureInput} from "@swim/gesture";
+import type {TreeCellObserver} from "./TreeCellObserver";
+import type {TreeCellController} from "./TreeCellController";
+import type {TitleTreeCell} from "./TitleTreeCell";
+import type {DisclosureTreeCell} from "./DisclosureTreeCell";
+import type {PolygonTreeCell} from "./PolygonTreeCell";
 
 export type AnyTreeCell = TreeCell | TreeCellInit | HTMLElement;
 
@@ -39,10 +39,8 @@ export class TreeCell extends HtmlView {
     this.overflowY.setAutoState("hidden");
   }
 
-  // @ts-ignore
   declare readonly viewController: TreeCellController | null;
 
-  // @ts-ignore
   declare readonly viewObservers: ReadonlyArray<TreeCellObserver>;
 
   initView(init: TreeCellInit): void {
@@ -55,15 +53,15 @@ export class TreeCell extends HtmlView {
 
   didPress(input: PositionGestureInput, event: Event | null): void {
     if (!input.defaultPrevented) {
-      const viewObservers = this._viewObservers;
-      for (let i = 0, n = viewObservers !== void 0 ? viewObservers.length : 0; i < n; i += 1) {
-        const viewObserver = viewObservers![i];
+      const viewObservers = this.viewObservers;
+      for (let i = 0, n =viewObservers.length; i < n; i += 1) {
+        const viewObserver = viewObservers[i]!;
         if (viewObserver.cellDidPress !== void 0) {
           viewObserver.cellDidPress(input, event, this);
         }
       }
-      const viewController = this._viewController;
-      if (viewController !== void 0 && viewController.cellDidPress !== void 0) {
+      const viewController = this.viewController;
+      if (viewController !== null && viewController.cellDidPress !== void 0) {
         viewController.cellDidPress(input, event, this);
       }
     }

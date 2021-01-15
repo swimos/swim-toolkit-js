@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
-import {Tween} from "@swim/tween";
+import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -27,7 +27,7 @@ import {
   AnyTextRunView,
   TextRunView,
 } from "@swim/graphics";
-import {DataPointCategory, DataPointLabelPlacement} from "./DataPoint";
+import type {DataPointCategory, DataPointLabelPlacement} from "./DataPoint";
 
 export type AnyDataPointView<X, Y> = DataPointView<X, Y> | DataPointViewInit<X, Y>;
 
@@ -95,31 +95,31 @@ export class DataPointView<X, Y> extends LayerView {
   }
 
   @ViewAnimator({type: Object})
-  x: ViewAnimator<this, X | undefined>;
+  declare x: ViewAnimator<this, X | undefined>;
 
   @ViewAnimator({type: Object})
-  y: ViewAnimator<this, Y | undefined>;
+  declare y: ViewAnimator<this, Y | undefined>;
 
   @ViewAnimator({type: Object})
-  y2: ViewAnimator<this, Y | undefined>;
+  declare y2: ViewAnimator<this, Y | undefined>;
 
   @ViewAnimator({type: Length})
-  r: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare r: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color})
-  color: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare color: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number})
-  opacity: ViewAnimator<this, number | undefined>;
+  declare opacity: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length})
-  labelPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare labelPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
-  font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
 
   @ViewAnimator({type: Color, inherit: true})
-  textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   hitRadius(): number;
   hitRadius(hitRadius: number): this;

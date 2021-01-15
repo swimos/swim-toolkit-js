@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {GeoPoint, GeoBox, GeoProjection} from "@swim/geo";
+import type {GeoPoint, GeoBox, GeoProjection} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
@@ -42,7 +42,7 @@ export class MapGridView extends MapGraphicsView {
   }
 
   @ViewAnimator({type: Color})
-  tileOutlineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare tileOutlineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   get childViewCount(): number {
     return this._childViews.size;
@@ -102,8 +102,11 @@ export class MapGridView extends MapGraphicsView {
     return null;
   }
 
-  forEachChildView<T, S = unknown>(callback: (this: S, childView: View) => T | void,
-                                   thisArg?: S): T | undefined {
+  forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
+  forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
+                         thisArg: S): T | undefined;
+  forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
+                         thisArg?: S): T | undefined {
     return this._childViews.forEach(callback, thisArg);
   }
 
@@ -341,7 +344,7 @@ export class MapGridView extends MapGraphicsView {
     }
     const childViews = tile._views;
     for (let i = 0; i < childViews.length; i += 1) {
-      const childView = childViews[i];
+      const childView = childViews[i]!;
       processChildView.call(this, childView, processFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
@@ -424,7 +427,7 @@ export class MapGridView extends MapGraphicsView {
     }
     const childViews = tile._views;
     for (let i = 0; i < childViews.length; i += 1) {
-      const childView = childViews[i];
+      const childView = childViews[i]!;
       displayChildView.call(this, childView, displayFlags, viewContext);
       if ((childView.viewFlags & View.RemovingFlag) !== 0) {
         childView.setViewFlags(childView.viewFlags & ~View.RemovingFlag);
@@ -469,7 +472,7 @@ export class MapGridView extends MapGraphicsView {
     if (hit === null) {
       const childViews = tile._views;
       for (let i = 0; i < childViews.length; i += 1) {
-        const childView = childViews[i];
+        const childView = childViews[i]!;
         if (childView.hitBounds.contains(x, y)) {
           hit = childView.hitTest(x, y, viewContext);
           if (hit !== null) {

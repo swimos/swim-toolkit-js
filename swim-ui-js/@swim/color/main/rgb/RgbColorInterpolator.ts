@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Interpolator} from "@swim/interpolate";
+import type {Interpolator} from "@swim/interpolate";
 import {AnyColor, Color} from "../color/Color";
 import {ColorInterpolator} from "../color/ColorInterpolator";
 import {RgbColorInit, RgbColor} from "./RgbColor";

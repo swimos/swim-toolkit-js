@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {FromAny} from "@swim/util";
-import {Model, ModelObserverType} from "@swim/model";
+import type {FromAny} from "@swim/util";
+import type {Model, ModelObserverType} from "@swim/model";
 import {Component} from "../Component";
 
 export type ComponentModelMemberType<C, K extends keyof C> =
@@ -23,8 +23,8 @@ export type ComponentModelMemberType<C, K extends keyof C> =
 export type ComponentModelMemberInit<V, K extends keyof V> =
   V extends {[P in K]: ComponentModel<any, infer M, infer U>} ? M | U : unknown;
 
-export interface ComponentModelInit<M extends Model, U = M> {
-  extends?: ComponentModelPrototype;
+export interface ComponentModelInit<M extends Model, U = never> {
+  extends?: ComponentModelClass;
   observe?: boolean;
   type?: unknown;
 
@@ -36,26 +36,22 @@ export interface ComponentModelInit<M extends Model, U = M> {
   fromAny?(value: M | U): M | null;
 }
 
-export type ComponentModelDescriptorInit<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> = ComponentModelInit<M, U> & ThisType<ComponentModel<C, M, U> & I> & I;
+export type ComponentModelDescriptor<C extends Component, M extends Model, U = never, I = ModelObserverType<M>> = ComponentModelInit<M, U> & ThisType<ComponentModel<C, M, U> & I> & I;
 
-export type ComponentModelDescriptorExtends<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> = {extends: ComponentModelPrototype | undefined} & ComponentModelDescriptorInit<C, M, U, I>;
+export type ComponentModelDescriptorExtends<C extends Component, M extends Model, U = never, I = ModelObserverType<M>> = {extends: ComponentModelClass | undefined} & ComponentModelDescriptor<C, M, U, I>;
 
-export type ComponentModelDescriptorFromAny<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> = ({type: FromAny<M, U>} | {fromAny(value: M | U): M | null}) & ComponentModelDescriptorInit<C, M, U, I>;
+export type ComponentModelDescriptorFromAny<C extends Component, M extends Model, U = never, I = ModelObserverType<M>> = ({type: FromAny<M, U>} | {fromAny(value: M | U): M | null}) & ComponentModelDescriptor<C, M, U, I>;
 
-export type ComponentModelDescriptor<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> =
-  U extends M ? ComponentModelDescriptorInit<C, M, U, I> :
-  ComponentModelDescriptorFromAny<C, M, U, I>;
-
-export interface ComponentModelPrototype extends Function {
-  readonly prototype: ComponentModel<any, any>;
-}
-
-export interface ComponentModelConstructor<C extends Component, M extends Model, U = M, I = ModelObserverType<M>> {
+export interface ComponentModelConstructor<C extends Component, M extends Model, U = never, I = ModelObserverType<M>> {
   new(owner: C, modelName: string | undefined): ComponentModel<C, M, U> & I;
   prototype: ComponentModel<any, any, any> & I;
 }
 
-export declare abstract class ComponentModel<C extends Component, M extends Model, U = M> {
+export interface ComponentModelClass extends Function {
+  readonly prototype: ComponentModel<any, any, any>;
+}
+
+export declare abstract class ComponentModel<C extends Component, M extends Model, U = never> {
   /** @hidden */
   _owner: C;
   /** @hidden */
@@ -125,25 +121,25 @@ export declare abstract class ComponentModel<C extends Component, M extends Mode
 
   fromAny(value: M | U): M | null;
 
-  static define<C extends Component, M extends Model = Model, U = M, I = ModelObserverType<M>>(descriptor: ComponentModelDescriptorExtends<C, M, U, I>): ComponentModelConstructor<C, M, U, I>;
-  static define<C extends Component, M extends Model = Model, U = M>(descriptor: ComponentModelDescriptor<C, M, U>): ComponentModelConstructor<C, M, U>;
+  static define<C extends Component, M extends Model = Model, U = never, I = ModelObserverType<M>>(descriptor: ComponentModelDescriptorExtends<C, M, U, I>): ComponentModelConstructor<C, M, U, I>;
+  static define<C extends Component, M extends Model = Model, U = never>(descriptor: ComponentModelDescriptor<C, M, U>): ComponentModelConstructor<C, M, U>;
 }
 
-export interface ComponentModel<C extends Component, M extends Model, U = M> {
+export interface ComponentModel<C extends Component, M extends Model, U = never> {
   (): M | null;
   (model: M | U | null): C;
 }
 
-export function ComponentModel<C extends Component, M extends Model = Model, U = M, I = ModelObserverType<M>>(descriptor: ComponentModelDescriptorExtends<C, M, U, I>): PropertyDecorator;
-export function ComponentModel<C extends Component, M extends Model = Model, U = M>(descriptor: ComponentModelDescriptor<C, M, U>): PropertyDecorator;
+export function ComponentModel<C extends Component, M extends Model = Model, U = never, I = ModelObserverType<M>>(descriptor: ComponentModelDescriptorExtends<C, M, U, I>): PropertyDecorator;
+export function ComponentModel<C extends Component, M extends Model = Model, U = never>(descriptor: ComponentModelDescriptor<C, M, U>): PropertyDecorator;
 
-export function ComponentModel<C extends Component, M extends Model, U = M>(
+export function ComponentModel<C extends Component, M extends Model, U>(
     this: ComponentModel<C, M, U> | typeof ComponentModel,
     owner: C | ComponentModelDescriptor<C, M, U>,
     modelName?: string,
   ): ComponentModel<C, M, U> | PropertyDecorator {
   if (this instanceof ComponentModel) { // constructor
-    return ComponentModelConstructor.call(this, owner as C, modelName);
+    return ComponentModelConstructor.call(this as unknown as ComponentModel<Component, Model, unknown>, owner as C, modelName);
   } else { // decorator factory
     return ComponentModelDecoratorFactory(owner as ComponentModelDescriptor<C, M, U>);
   }
@@ -151,7 +147,7 @@ export function ComponentModel<C extends Component, M extends Model, U = M>(
 __extends(ComponentModel, Object);
 Component.Model = ComponentModel;
 
-function ComponentModelConstructor<C extends Component, M extends Model, U = M>(this: ComponentModel<C, M, U>, owner: C, modelName: string | undefined): ComponentModel<C, M, U> {
+function ComponentModelConstructor<C extends Component, M extends Model, U>(this: ComponentModel<C, M, U>, owner: C, modelName: string | undefined): ComponentModel<C, M, U> {
   if (modelName !== void 0) {
     Object.defineProperty(this, "name", {
       value: modelName,
@@ -165,8 +161,8 @@ function ComponentModelConstructor<C extends Component, M extends Model, U = M>(
   return this;
 }
 
-function ComponentModelDecoratorFactory<C extends Component, M extends Model, U = M>(descriptor: ComponentModelDescriptor<C, M, U>): PropertyDecorator {
-  return Component.decorateComponentModel.bind(Component, ComponentModel.define(descriptor));
+function ComponentModelDecoratorFactory<C extends Component, M extends Model, U = never>(descriptor: ComponentModelDescriptor<C, M, U>): PropertyDecorator {
+  return Component.decorateComponentModel.bind(Component, ComponentModel.define(descriptor as ComponentModelDescriptor<Component, Model>));
 }
 
 Object.defineProperty(ComponentModel.prototype, "owner", {

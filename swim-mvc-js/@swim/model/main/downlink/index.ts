@@ -17,50 +17,45 @@ export {ModelDownlinkContext} from "./ModelDownlinkContext";
 export {
   ModelDownlinkInit,
   ModelDownlinkFlags,
-  ModelDownlinkDescriptorInit,
-  ModelDownlinkDescriptorExtends,
   ModelDownlinkDescriptor,
-  ModelDownlinkPrototype,
+  ModelDownlinkDescriptorExtends,
   ModelDownlinkConstructor,
+  ModelDownlinkClass,
   ModelDownlink,
 } from "./ModelDownlink";
 
 export {
   ModelEventDownlinkInit,
-  ModelEventDownlinkDescriptorInit,
-  ModelEventDownlinkDescriptorExtends,
   ModelEventDownlinkDescriptor,
-  ModelEventDownlinkPrototype,
+  ModelEventDownlinkDescriptorExtends,
   ModelEventDownlinkConstructor,
+  ModelEventDownlinkClass,
   ModelEventDownlink,
 } from "./ModelEventDownlink";
 
 export {
   ModelListDownlinkInit,
-  ModelListDownlinkDescriptorInit,
-  ModelListDownlinkDescriptorExtends,
   ModelListDownlinkDescriptor,
-  ModelListDownlinkPrototype,
+  ModelListDownlinkDescriptorExtends,
   ModelListDownlinkConstructor,
+  ModelListDownlinkClass,
   ModelListDownlink,
 } from "./ModelListDownlink";
 
 export {
   ModelMapDownlinkInit,
-  ModelMapDownlinkDescriptorInit,
-  ModelMapDownlinkDescriptorExtends,
   ModelMapDownlinkDescriptor,
-  ModelMapDownlinkPrototype,
+  ModelMapDownlinkDescriptorExtends,
   ModelMapDownlinkConstructor,
+  ModelMapDownlinkClass,
   ModelMapDownlink,
 } from "./ModelMapDownlink";
 
 export {
   ModelValueDownlinkInit,
-  ModelValueDownlinkDescriptorInit,
-  ModelValueDownlinkDescriptorExtends,
   ModelValueDownlinkDescriptor,
-  ModelValueDownlinkPrototype,
+  ModelValueDownlinkDescriptorExtends,
   ModelValueDownlinkConstructor,
+  ModelValueDownlinkClass,
   ModelValueDownlink,
 } from "./ModelValueDownlink";
