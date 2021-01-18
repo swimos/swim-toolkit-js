@@ -76,7 +76,7 @@ FontFamily.format = function (family: FontFamily): string {
       } else if (c >= 0x20) {
         output.write(c);
       } else {
-        const base16 = Base16.uppercase();
+        const base16 = Base16.uppercase;
         output.write(92/*'\\'*/).write(base16.encodeDigit(c >>> 20 & 0xf))
                                 .write(base16.encodeDigit(c >>> 16 & 0xf))
                                 .write(base16.encodeDigit(c >>> 12 & 0xf))

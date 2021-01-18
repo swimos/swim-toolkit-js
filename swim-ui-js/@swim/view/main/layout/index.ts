@@ -14,9 +14,8 @@
 
 export {
   LayoutAnchorInit,
-  LayoutAnchorDescriptorInit,
-  LayoutAnchorDescriptorExtends,
   LayoutAnchorDescriptor,
+  LayoutAnchorDescriptorExtends,
   LayoutAnchorConstructor,
   LayoutAnchorClass,
   LayoutAnchor,

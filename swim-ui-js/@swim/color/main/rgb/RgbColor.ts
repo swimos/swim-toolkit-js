@@ -164,7 +164,7 @@ export class RgbColor extends Color {
     const g = Math.min(Math.max(0, Math.round(this.g || 0)), 255);
     const b = Math.min(Math.max(0, Math.round(this.b || 0)), 255);
     let s = "#";
-    const base16Alphabet = Base16.lowercase().alphabet();
+    const base16Alphabet = Base16.lowercase.alphabet;
     s += base16Alphabet.charAt(r >>> 4 & 0xf);
     s += base16Alphabet.charAt(r & 0xf);
     s += base16Alphabet.charAt(g >>> 4 & 0xf);

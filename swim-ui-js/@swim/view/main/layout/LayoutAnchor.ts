@@ -27,11 +27,9 @@ export interface LayoutAnchorInit {
   initValue?(): number;
 }
 
-export type LayoutAnchorDescriptorInit<V extends View, I = {}> = LayoutAnchorInit & ThisType<LayoutAnchor<V> & I> & I;
+export type LayoutAnchorDescriptor<V extends View, I = {}> = LayoutAnchorInit & ThisType<LayoutAnchor<V> & I> & I;
 
-export type LayoutAnchorDescriptorExtends<V extends View, I = {}> = {extends: LayoutAnchorClass | undefined} & LayoutAnchorDescriptorInit<V, I>;
-
-export type LayoutAnchorDescriptor<V extends View, I = {}> = LayoutAnchorDescriptorInit<V, I>;
+export type LayoutAnchorDescriptorExtends<V extends View, I = {}> = {extends: LayoutAnchorClass | undefined} & LayoutAnchorDescriptor<V, I>;
 
 export interface LayoutAnchorConstructor<V extends View, I = {}> {
   new(owner: V, anchorName: string | undefined): LayoutAnchor<V> & I;
