@@ -1156,7 +1156,7 @@ export abstract class Trait implements ModelDownlinkContext {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (traitPrototype.hasOwnProperty("_traitServiceConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "_traitServiceConstructors")) {
         const descriptor = traitPrototype._traitServiceConstructors![serviceName];
         if (descriptor !== void 0) {
           return descriptor;
@@ -1171,7 +1171,7 @@ export abstract class Trait implements ModelDownlinkContext {
   static decorateTraitService(constructor: TraitServiceConstructor<Trait, unknown>,
                               target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!traitPrototype.hasOwnProperty("_traitServiceConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "_traitServiceConstructors")) {
       traitPrototype._traitServiceConstructors = {};
     }
     traitPrototype._traitServiceConstructors![propertyKey.toString()] = constructor;
@@ -1195,7 +1195,7 @@ export abstract class Trait implements ModelDownlinkContext {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (traitPrototype.hasOwnProperty("_traitScopeConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "_traitScopeConstructors")) {
         const constructor = traitPrototype._traitScopeConstructors![scopeName];
         if (constructor !== void 0) {
           return constructor;
@@ -1210,7 +1210,7 @@ export abstract class Trait implements ModelDownlinkContext {
   static decorateTraitScope(constructor: TraitScopeConstructor<Trait, unknown>,
                             target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!traitPrototype.hasOwnProperty("_traitScopeConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "_traitScopeConstructors")) {
       traitPrototype._traitScopeConstructors = {};
     }
     traitPrototype._traitScopeConstructors![propertyKey.toString()] = constructor;
@@ -1234,7 +1234,7 @@ export abstract class Trait implements ModelDownlinkContext {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (traitPrototype.hasOwnProperty("_traitModelConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "_traitModelConstructors")) {
         const constructor = traitPrototype._traitModelConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
@@ -1249,7 +1249,7 @@ export abstract class Trait implements ModelDownlinkContext {
   static decorateTraitModel(constructor: TraitModelConstructor<Trait, Model>,
                             target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!traitPrototype.hasOwnProperty("_traitModelConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "_traitModelConstructors")) {
       traitPrototype._traitModelConstructors = {};
     }
     traitPrototype._traitModelConstructors![propertyKey.toString()] = constructor;
@@ -1273,7 +1273,7 @@ export abstract class Trait implements ModelDownlinkContext {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (traitPrototype.hasOwnProperty("_traitBindingConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "_traitBindingConstructors")) {
         const constructor = traitPrototype._traitBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
@@ -1288,7 +1288,7 @@ export abstract class Trait implements ModelDownlinkContext {
   static decorateTraitBinding(constructor: TraitBindingConstructor<Trait, Trait>,
                               target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!traitPrototype.hasOwnProperty("_traitBindingConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "_traitBindingConstructors")) {
       traitPrototype._traitBindingConstructors = {};
     }
     traitPrototype._traitBindingConstructors![propertyKey.toString()] = constructor;

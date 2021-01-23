@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {EaseSpec} from "./EaseSpec";
-export {TweenSuite} from "./TweenSuite";
+export {AnimationSuite} from "./AnimationSuite";
 
-import {TweenSuite} from "./TweenSuite";
-TweenSuite.run();
+import {AnimationSuite} from "./AnimationSuite";
+AnimationSuite.run();

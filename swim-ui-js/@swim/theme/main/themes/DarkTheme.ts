@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Easing} from "@swim/mapping";
 import {Length} from "@swim/math";
-import {Ease, Transition} from "@swim/animation";
+import {Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Font, BoxShadow} from "@swim/style";
 import {Look} from "../look/Look";
@@ -43,7 +44,7 @@ const DarkWarningColor = Color.parse("#f9f070");
 const DarkAlertColor = Color.parse("#f6511d");
 
 const DarkSpacing = Length.px(10);
-const DarkTransition = Transition.duration(250, Ease.cubicOut);
+const DarkTransition = Transition.duration(250, Easing.cubicOut);
 
 const DarkAmbient = FeelVector.of(
   [Look.font, DarkFont],
@@ -59,7 +60,7 @@ const DarkAmbient = FeelVector.of(
   [Look.borderColor, DarkBorderColor],
 
   [Look.spacing, DarkSpacing],
-  [Look.transition, Transition.duration(1000, Ease.linear)],
+  [Look.transition, Transition.duration(1000, Easing.linear)],
 );
 
 const DarkDefault = FeelVector.of(
@@ -120,7 +121,7 @@ const DarkOverlay = FeelVector.of(
 );
 
 const DarkFloating = FeelVector.of(
-  [Look.shadow, BoxShadow.of(0, 2, 4, 0, Color.black(0.5))],
+  [Look.shadow, BoxShadow.create(0, 2, 4, 0, Color.black(0.5))],
 );
 
 const DarkTransparent = FeelVector.of(

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Interpolator} from "@swim/interpolate";
+import type {Interpolator} from "@swim/mapping";
 import {AnyLength, Length, LengthInterpolator} from "@swim/math";
 import {Look} from "./Look";
 
@@ -24,7 +24,7 @@ export class LengthLook extends Look<Length, AnyLength> {
       } else if (weight === 0) {
         return combination;
       } else {
-        return LengthInterpolator.between(combination, value).interpolate(weight);
+        return LengthInterpolator(combination, value)(weight);
       }
     } else if (weight !== void 0 && weight !== 1) {
       return value.times(weight);
@@ -33,8 +33,8 @@ export class LengthLook extends Look<Length, AnyLength> {
     }
   }
 
-  between(a: Length, b: Length): Interpolator<Length, AnyLength> {
-    return LengthInterpolator.between(a, b);
+  between(a: Length, b: Length): Interpolator<Length> {
+    return LengthInterpolator(a, b);
   }
 
   coerce(value: AnyLength): Length {

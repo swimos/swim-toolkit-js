@@ -14,24 +14,23 @@
 
 import type {Equivalent, HashCode} from "@swim/util";
 import {Output, Parser, Debug, Diagnostic, Unicode} from "@swim/codec";
+import type {Interpolate, Interpolator} from "@swim/mapping";
 import type {Value, Form} from "@swim/structure";
 import {AnyAngle, Angle} from "@swim/math";
 import type {ColorParser} from "./ColorParser";
-import type {ColorInterpolator} from "./ColorInterpolator";
 import type {ColorForm} from "./ColorForm";
 import type {RgbColorInit, RgbColor} from "../rgb/RgbColor";
 import type {HexColorParser} from "../rgb/HexColorParser";
 import type {RgbColorParser} from "../rgb/RgbColorParser";
-import type {RgbColorInterpolator} from "../rgb/RgbColorInterpolator";
+import {RgbColorInterpolator} from "../"; // forward import
 import type {HslColorInit, HslColor} from "../hsl/HslColor";
 import type {HslColorParser} from "../hsl/HslColorParser";
-import type {HslColorInterpolator} from "../hsl/HslColorInterpolator";
 
 export type AnyColor = Color | ColorInit | string;
 
 export type ColorInit = RgbColorInit | HslColorInit;
 
-export abstract class Color implements HashCode, Equivalent, Debug {
+export abstract class Color implements Interpolate<Color>, HashCode, Equivalent, Debug {
   abstract isDefined(): boolean;
 
   abstract alpha(): number;
@@ -56,6 +55,16 @@ export abstract class Color implements HashCode, Equivalent, Debug {
   abstract rgb(): RgbColor;
 
   abstract hsl(): HslColor;
+
+  interpolateTo(that: Color): Interpolator<Color>;
+  interpolateTo(that: unknown): Interpolator<Color> | null;
+  interpolateTo(that: unknown): Interpolator<Color> | null {
+    if (that instanceof Color) {
+      return RgbColorInterpolator(this.rgb(), that.rgb());
+    } else {
+      return null;
+    }
+  }
 
   abstract equivalentTo(that: unknown, epsilon?: number): boolean;
 
@@ -195,8 +204,6 @@ export abstract class Color implements HashCode, Equivalent, Debug {
   /** @hidden */
   static Parser: typeof ColorParser; // defined by ColorParser
   /** @hidden */
-  static Interpolator: typeof ColorInterpolator; // defined by ColorInterpolator
-  /** @hidden */
   static Form: typeof ColorForm; // defined by ColorForm
   /** @hidden */
   static Rgb: typeof RgbColor; // defined by RgbColor
@@ -205,11 +212,7 @@ export abstract class Color implements HashCode, Equivalent, Debug {
   /** @hidden */
   static RgbParser: typeof RgbColorParser; // defined by RgbColorParser
   /** @hidden */
-  static RgbInterpolator: typeof RgbColorInterpolator; // defined by RgbColorInterpolator
-  /** @hidden */
   static Hsl: typeof HslColor; // defined by HslColor
   /** @hidden */
   static HslParser: typeof HslColorParser; // defined by HslColorParser
-  /** @hidden */
-  static HslInterpolator: typeof HslColorInterpolator; // defined by HslColorInterpolator
 }

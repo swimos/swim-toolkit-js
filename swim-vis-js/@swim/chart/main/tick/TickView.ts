@@ -267,7 +267,7 @@ export abstract class TickView<D> extends LayerView {
     }
     const tickSpacing = view.tickMarkSpacing.getValue() / 2;
     const v = Math.min(Math.abs(offset - view._offset0) / tickSpacing, 1);
-    const opacity = this._interpolator!.interpolate(Math.max(u, v));
+    const opacity = this._interpolator!(Math.max(u, v));
     if (u === 1 || v === 1) {
       this._animatorFlags &= ~TweenAnimator.TweeningFlag;
     }

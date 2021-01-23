@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Interpolator} from "@swim/interpolate";
-import {AnyColor, Color, ColorInterpolator} from "@swim/color";
+import type {Interpolator} from "@swim/mapping";
+import {AnyColor, Color} from "@swim/color";
 import {Look} from "./Look";
 
 export class ColorLook extends Look<Color, AnyColor> {
@@ -24,7 +24,7 @@ export class ColorLook extends Look<Color, AnyColor> {
       } else if (weight === 0) {
         return combination;
       } else {
-        return ColorInterpolator.between(combination, value).interpolate(weight);
+        return combination.interpolateTo(value)(weight);
       }
     } else if (weight !== void 0 && weight !== 1) {
       return value.times(weight);
@@ -33,8 +33,8 @@ export class ColorLook extends Look<Color, AnyColor> {
     }
   }
 
-  between(a: Color, b: Color): Interpolator<Color, AnyColor> {
-    return ColorInterpolator.between(a, b);
+  between(a: Color, b: Color): Interpolator<Color> {
+    return a.interpolateTo(b);
   }
 
   coerce(value: AnyColor): Color {

@@ -31,3 +31,9 @@ export * from "./shape";
 export * from "./typeset";
 
 export * from "./icon";
+
+declare global {
+  interface Document {
+    createTouchList?(...touches: Touch[]): TouchList;
+  }
+}

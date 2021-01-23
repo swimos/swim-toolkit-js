@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Range, Easing, LinearRange} from "@swim/mapping";
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
-import {Ease, AnyTransition, Transition} from "@swim/animation";
+import {AnyTransition, Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {View, ViewScope, ViewAnimator} from "@swim/view";
 import type {ChartViewObserver} from "./ChartViewObserver";
@@ -261,7 +262,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     type: Transition,
     inherit: true,
     initState(): Transition<any> {
-      return Transition.duration(250, Ease.cubicOut);
+      return Transition.duration(250, Easing.cubicOut);
     },
   })
   declare tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
@@ -272,22 +273,22 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
   @ViewAnimator({type: Number, state: 0})
   declare gridLineWidth: ViewAnimator<this, number>;
 
-  xRange(): readonly [number, number] | undefined {
+  xRange(): Range<number> | undefined {
     const frame = this.viewFrame;
     const gutterLeft = this.gutterLeft.getValue().pxValue(frame.width);
     const gutterRight = this.gutterRight.getValue().pxValue(frame.width);
     const xRangeMin = this._xRangePadding[0];
     const xRangeMax = this.viewFrame.width - gutterRight - gutterLeft - this._xRangePadding[1];
-    return [xRangeMin, xRangeMax];
+    return LinearRange(xRangeMin, xRangeMax);
   }
 
-  yRange(): readonly [number, number] | undefined {
+  yRange(): Range<number> | undefined {
     const frame = this.viewFrame;
     const gutterTop = this.gutterTop.getValue().pxValue(frame.height);
     const gutterBottom = this.gutterBottom.getValue().pxValue(frame.height);
     const yRangeMin = this._yRangePadding[0];
     const yRangeMax = this.viewFrame.height - gutterBottom - gutterTop - this._yRangePadding[1];
-    return [yRangeMin, yRangeMax];
+    return LinearRange(yRangeMin, yRangeMax);
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {

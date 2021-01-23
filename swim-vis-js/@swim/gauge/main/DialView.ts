@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Equivalent} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, BoxR2, AnyPointR2, PointR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
@@ -283,8 +284,8 @@ export class DialView extends LayerView {
     const label = this.label();
     if (label !== null && !label.isHidden()) {
       const r = (innerRadius.value + outerRadius.value) / 2;
-      const rx = r * Math.cos(startAngle.value + 1e-12);
-      const ry = r * Math.sin(startAngle.value + 1e-12);
+      const rx = r * Math.cos(startAngle.value + Equivalent.Epsilon);
+      const ry = r * Math.sin(startAngle.value + Equivalent.Epsilon);
 
       let textAlign: CanvasTextAlign;
       if (rx >= 0) {
@@ -323,10 +324,10 @@ export class DialView extends LayerView {
 
       const cx = center.x;
       const cy = center.y;
-      const r1x = outerRadius.value * Math.cos(tickAngle + 1e-12);
-      const r1y = outerRadius.value * Math.sin(tickAngle + 1e-12);
-      const r2x = tickRadius * Math.cos(tickAngle + 1e-12);
-      const r2y = tickRadius * Math.sin(tickAngle + 1e-12);
+      const r1x = outerRadius.value * Math.cos(tickAngle + Equivalent.Epsilon);
+      const r1y = outerRadius.value * Math.sin(tickAngle + Equivalent.Epsilon);
+      const r2x = tickRadius * Math.cos(tickAngle + Equivalent.Epsilon);
+      const r2y = tickRadius * Math.sin(tickAngle + Equivalent.Epsilon);
       let dx = 0;
 
       context.beginPath();

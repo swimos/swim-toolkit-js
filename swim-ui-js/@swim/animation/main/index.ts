@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./ease";
-
 export * from "./transition";
 
 export * from "./animator";

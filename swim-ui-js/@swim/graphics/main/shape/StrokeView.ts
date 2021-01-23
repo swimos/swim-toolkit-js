@@ -39,7 +39,7 @@ StrokeView.is = function (object: unknown): object is StrokeView {
     const view = object as StrokeView;
     return view instanceof GraphicsView
         && "stroke" in view
-        && "strokeWidth" in view;;
+        && "strokeWidth" in view;
   }
   return false;
 };

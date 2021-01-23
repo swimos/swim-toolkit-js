@@ -14,8 +14,10 @@
 
 import {Murmur3, Numbers, Constructors} from "@swim/util";
 import {Output, Base16} from "@swim/codec";
+import type {Interpolator} from "@swim/mapping";
 import {Item, Value} from "@swim/structure";
 import {AnyColor, Color} from "../color/Color";
+import {RgbColorInterpolator} from "../"; // forward import
 import type {HslColor} from "../hsl/HslColor";
 
 export type AnyRgbColor = RgbColor | RgbColorInit | string;
@@ -121,6 +123,17 @@ export class RgbColor extends Color {
       s = l > 0 && l < 1 ? 0 : h;
     }
     return new Color.Hsl(h, s, l, this.a);
+  }
+
+  interpolateTo(that: RgbColor): Interpolator<RgbColor>;
+  interpolateTo(that: Color): Interpolator<Color>;
+  interpolateTo(that: unknown): Interpolator<Color> | null;
+  interpolateTo(that: unknown): Interpolator<Color> | null {
+    if (that instanceof RgbColor) {
+      return RgbColorInterpolator(this, that);
+    } else {
+      return super.interpolateTo(that);
+    }
   }
 
   equivalentTo(that: unknown, epsilon?: number): boolean {

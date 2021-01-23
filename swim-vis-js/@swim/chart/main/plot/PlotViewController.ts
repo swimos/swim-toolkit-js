@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ContinuousScale} from "@swim/scale";
+import type {ContinuousScale} from "@swim/mapping";
 import {GraphicsViewController} from "@swim/graphics";
 import type {PlotType, PlotView} from "./PlotView";
 import type {PlotViewObserver} from "./PlotViewObserver";

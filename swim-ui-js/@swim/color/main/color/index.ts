@@ -20,8 +20,6 @@ export {
 
 export {ColorParser} from "./ColorParser";
 
-export {ColorInterpolator} from "./ColorInterpolator";
-
 export {ColorForm} from "./ColorForm";
 
 export {ColorChannel} from "./ColorChannel";

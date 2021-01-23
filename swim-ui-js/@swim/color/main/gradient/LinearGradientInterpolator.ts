@@ -12,90 +12,105 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Arrays} from "@swim/util";
-import {Interpolator} from "@swim/interpolate";
+import {__extends} from "tslib";
+import {Interpolator} from "@swim/mapping";
 import type {ColorStop} from "./ColorStop";
-import {ColorStopInterpolator} from "./ColorStopInterpolator";
-import {AnyLinearGradient, LinearGradientAngle, LinearGradientInit, LinearGradient} from "./LinearGradient";
+import {LinearGradientAngle, LinearGradient} from "./LinearGradient";
 
-export class LinearGradientInterpolator extends Interpolator<LinearGradient, AnyLinearGradient> {
+/** @hidden */
+export declare abstract class LinearGradientInterpolator {
   /** @hidden */
-  readonly angle: Interpolator<LinearGradientAngle>;
+  declare readonly angleInterpolator: Interpolator<LinearGradientAngle>;
   /** @hidden */
-  readonly stops: ReadonlyArray<ColorStopInterpolator>;
+  declare readonly stopInterpolators: ReadonlyArray<Interpolator<ColorStop>>;
 
-  constructor(g0: LinearGradient, g1: LinearGradient) {
-    super();
-    this.angle = Interpolator.between(g0._angle, g1._angle);
-    const stops0 = g0._stops;
-    const stops1 = g1._stops;
-    const stopCount = Math.min(stops0.length, stops1.length);
-    const interpolators = new Array<ColorStopInterpolator>(stopCount);
+  get 0(): LinearGradient;
+
+  get 1(): LinearGradient;
+
+  equals(that: unknown): boolean;
+}
+
+export interface LinearGradientInterpolator extends Interpolator<LinearGradient> {
+}
+
+/** @hidden */
+export function LinearGradientInterpolator(g0: LinearGradient, g1: LinearGradient): LinearGradientInterpolator {
+  const interpolator = function (u: number): LinearGradient {
+    const angle = interpolator.angleInterpolator(u);
+    const stopInterpolators = interpolator.stopInterpolators;
+    const stopCount = stopInterpolators.length;
+    const stops = new Array<ColorStop>(stopCount);
     for (let i = 0; i < stopCount; i += 1) {
-      interpolators[i] = ColorStopInterpolator.between(stops0[i]!, stops1[i]!);
-    }
-    this.stops = interpolators;
-  }
-
-  interpolate(u: number): LinearGradient {
-    const angle = this.angle.interpolate(u);
-    const interpolators = this.stops;
-    const interpolatorCount = interpolators.length;
-    const stops = new Array<ColorStop>(interpolatorCount);
-    for (let i = 0; i < interpolatorCount; i += 1) {
-      stops[i] = interpolators[i]!.interpolate(u);
+      stops[i] = stopInterpolators[i]!(u);
     }
     return new LinearGradient(angle, stops);
+  } as LinearGradientInterpolator;
+  Object.setPrototypeOf(interpolator, LinearGradientInterpolator.prototype);
+  Object.defineProperty(interpolator, "angleInterpolator", {
+    value: Interpolator(g0._angle, g1._angle),
+    enumerable: true,
+  });
+  const stops0 = g0._stops;
+  const stops1 = g1._stops;
+  const stopCount = Math.min(stops0.length, stops1.length);
+  const stopInterpolators = new Array<Interpolator<ColorStop>>(stopCount);
+  for (let i = 0; i < stopCount; i += 1) {
+    stopInterpolators[i] = stops0[i]!.interpolateTo(stops1[i]!);
   }
-
-  deinterpolate(b: AnyLinearGradient): number {
-    return 0; // not implemented
-  }
-
-  range(): readonly [LinearGradient, LinearGradient];
-  range(gs: readonly [LinearGradient | LinearGradientInit, LinearGradient | LinearGradientInit]): LinearGradientInterpolator;
-  range(g0: LinearGradient | LinearGradientInit, g1: LinearGradient | LinearGradientInit): LinearGradientInterpolator;
-  range(gs: readonly [AnyLinearGradient, AnyLinearGradient]): Interpolator<LinearGradient, AnyLinearGradient>;
-  range(g0: AnyLinearGradient, g1: AnyLinearGradient): Interpolator<LinearGradient, AnyLinearGradient>;
-  range(g0?: readonly [AnyLinearGradient, AnyLinearGradient] | AnyLinearGradient,
-        g1?: AnyLinearGradient): readonly [LinearGradient, LinearGradient] | Interpolator<LinearGradient, AnyLinearGradient> {
-    if (arguments.length === 0) {
-      return [this.interpolate(0), this.interpolate(1)];
-    } else if (arguments.length === 1) {
-      g0 = g0 as readonly [AnyLinearGradient, AnyLinearGradient];
-      return LinearGradientInterpolator.between(g0[0], g0[1]);
-    } else {
-      return LinearGradientInterpolator.between(g0 as AnyLinearGradient, g1 as AnyLinearGradient);
-    }
-  }
-
-  equals(that: unknown): boolean {
-    if (this === that) {
-      return true;
-    } else if (that instanceof LinearGradientInterpolator) {
-      return this.angle.equals(that.angle)
-          && Arrays.equal(this.stops, that.stops);
-    }
-    return false;
-  }
-
-  static between(g0: LinearGradient | LinearGradientInit, g1: LinearGradient | LinearGradientInit): LinearGradientInterpolator;
-  static between(g0: AnyLinearGradient, g1: AnyLinearGradient): Interpolator<LinearGradient, AnyLinearGradient>;
-  static between(a: unknown, b: unknown): Interpolator<unknown>;
-  static between(a: unknown, b: unknown): Interpolator<unknown> {
-    if (a instanceof LinearGradient && b instanceof LinearGradient) {
-      return new LinearGradientInterpolator(a, b);
-    } else if (LinearGradient.isAny(a) && LinearGradient.isAny(b)) {
-      return new LinearGradientInterpolator(LinearGradient.fromAny(a), LinearGradient.fromAny(b));
-    }
-    return Interpolator.between(a, b);
-  }
-
-  static tryBetween(a: unknown, b: unknown): LinearGradientInterpolator | null {
-    if (a instanceof LinearGradient && b instanceof LinearGradient) {
-      return new LinearGradientInterpolator(a, b);
-    }
-    return null;
-  }
+  Object.defineProperty(interpolator, "stopInterpolators", {
+    value: stopInterpolators,
+    enumerable: true,
+  });
+  return interpolator;
 }
-Interpolator.registerFactory(LinearGradientInterpolator);
+__extends(LinearGradientInterpolator, Interpolator);
+
+Object.defineProperty(LinearGradientInterpolator.prototype, 0, {
+  get(this: LinearGradientInterpolator): LinearGradient {
+    const angle = this.angleInterpolator[0];
+    const stopInterpolators = this.stopInterpolators;
+    const stopCount = stopInterpolators.length;
+    const stops = new Array<ColorStop>(stopCount);
+    for (let i = 0; i < stopCount; i += 1) {
+      stops[i] = stopInterpolators[i]![0];
+    }
+    return new LinearGradient(angle, stops);
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+Object.defineProperty(LinearGradientInterpolator.prototype, 1, {
+  get(this: LinearGradientInterpolator): LinearGradient {
+    const angle = this.angleInterpolator[1];
+    const stopInterpolators = this.stopInterpolators;
+    const stopCount = stopInterpolators.length;
+    const stops = new Array<ColorStop>(stopCount);
+    for (let i = 0; i < stopCount; i += 1) {
+      stops[i] = stopInterpolators[i]![1];
+    }
+    return new LinearGradient(angle, stops);
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+LinearGradientInterpolator.prototype.equals = function (that: unknown): boolean {
+  if (this === that) {
+    return true;
+  } else if (that instanceof LinearGradientInterpolator) {
+    if (this.angleInterpolator.equals(that.angleInterpolator)) {
+      const n = this.stopInterpolators.length;
+      if (n === that.stopInterpolators.length) {
+        for (let i = 0; i < n; i += 1) {
+          if (!this.stopInterpolators[i]!.equals(that.stopInterpolators[i]!)) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+  }
+  return false;
+};

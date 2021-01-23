@@ -227,7 +227,7 @@ export class CanvasView extends HtmlView {
         childViews.push(childView);
       }
     }
-    childViews.push.apply(childViews, this._graphicsViews);
+    childViews.push(...this._graphicsViews);
     return childViews;
   }
 
@@ -1822,8 +1822,8 @@ export class CanvasView extends HtmlView {
             targetViewTouches.push(nextTouch);
           }
         }
-        if (typeof (document as any).createTouchList) {
-          startEvent.targetViewTouches = (document as any).createTouchList(...targetViewTouches);
+        if (document.createTouchList !== void 0) {
+          startEvent.targetViewTouches = document.createTouchList(...targetViewTouches);
         } else {
           (targetViewTouches as unknown as TouchList).item = function (index: number): Touch {
             return targetViewTouches[index]!;

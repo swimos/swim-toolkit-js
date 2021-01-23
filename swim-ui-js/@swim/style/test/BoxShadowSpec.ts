@@ -21,21 +21,21 @@ export class BoxShadowSpec extends Spec {
   parseBoxShadows(exam: Exam): void {
     exam.equal(BoxShadow.parse("none"), BoxShadow.none());
     exam.equal(BoxShadow.parse("0px 2px 3px 0px rgb(0, 0, 0, 0.3)"),
-               BoxShadow.of(0, 2, 3, 0, Color.rgb(0, 0, 0, 0.3)));
+               BoxShadow.create(0, 2, 3, 0, Color.rgb(0, 0, 0, 0.3)));
     exam.equal(BoxShadow.parse("0px 2px 4px 0px rgb(0, 0, 0, 0.12), 0px 0px 4px 0px rgb(0, 0, 0, 0.08)"),
-               BoxShadow.of(0, 2, 4, 0, Color.rgb(0, 0, 0, 0.12)).and(0, 0, 4, 0, Color.rgb(0, 0, 0, 0.08)));
+               BoxShadow.create(0, 2, 4, 0, Color.rgb(0, 0, 0, 0.12)).and(0, 0, 4, 0, Color.rgb(0, 0, 0, 0.08)));
     exam.equal(BoxShadow.parse("inset 1px 2px 3px 4px rgb(255, 255, 255, 0.5)"),
-               BoxShadow.of(true, 1, 2, 3, 4, Color.rgb(255, 255, 255, 0.5)));
+               BoxShadow.create(true, 1, 2, 3, 4, Color.rgb(255, 255, 255, 0.5)));
   }
 
   @Test
   writeBoxShadows(exam: Exam): void {
     exam.equal(BoxShadow.none().toString(), "none");
-    exam.equal(BoxShadow.of(0, 2, 3, 0, Color.rgb(0, 0, 0, 0.3)).toString(),
+    exam.equal(BoxShadow.create(0, 2, 3, 0, Color.rgb(0, 0, 0, 0.3)).toString(),
                "0px 2px 3px 0px rgba(0,0,0,0.3)");
-    exam.equal(BoxShadow.of(0, 2, 4, 0, Color.rgb(0, 0, 0, 0.12)).and(0, 0, 4, 0, Color.rgb(0, 0, 0, 0.08)).toString(),
+    exam.equal(BoxShadow.create(0, 2, 4, 0, Color.rgb(0, 0, 0, 0.12)).and(0, 0, 4, 0, Color.rgb(0, 0, 0, 0.08)).toString(),
               "0px 2px 4px 0px rgba(0,0,0,0.12), 0px 0px 4px 0px rgba(0,0,0,0.08)");
-    exam.equal(BoxShadow.of(true, 1, 2, 3, 4, Color.rgb(255, 255, 255, 0.5)).toString(),
+    exam.equal(BoxShadow.create(true, 1, 2, 3, 4, Color.rgb(255, 255, 255, 0.5)).toString(),
               "inset 1px 2px 3px 4px rgba(255,255,255,0.5)");
   }
 }

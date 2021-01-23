@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Interpolator} from "@swim/interpolate";
+import type {Interpolator} from "@swim/mapping";
 import {AnyFont, Font, FontInterpolator} from "@swim/style";
 import {Look} from "./Look";
 
@@ -27,8 +27,8 @@ export class FontLook extends Look<Font, AnyFont> {
     }
   }
 
-  between(a: Font, b: Font): Interpolator<Font, AnyFont> {
-    return FontInterpolator.between(a, b);
+  between(a: Font, b: Font): Interpolator<Font> {
+    return FontInterpolator(a, b);
   }
 
   coerce(value: AnyFont): Font {

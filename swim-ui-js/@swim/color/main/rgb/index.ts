@@ -17,8 +17,8 @@ export {
   RgbColorInit,
   RgbColor,
 } from "./RgbColor";
+export {RgbColorInterpolator} from "./RgbColorInterpolator";
 
 export {HexColorParser} from "./HexColorParser";
 export {RgbColorParser} from "./RgbColorParser";
 
-export {RgbColorInterpolator} from "./RgbColorInterpolator";

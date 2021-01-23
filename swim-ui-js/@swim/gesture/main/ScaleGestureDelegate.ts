@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ContinuousScale} from "@swim/scale";
+import type {ContinuousScale} from "@swim/mapping";
 import type {Tween} from "@swim/animation";
 import type {MomentumGestureDelegate} from "./MomentumGestureDelegate";
 import type {ScaleGestureInput} from "./ScaleGestureInput";

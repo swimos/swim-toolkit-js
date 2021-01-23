@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Equivalent} from "@swim/util";
 import {ConstraintMap} from "./ConstraintMap";
 import {ConstraintSymbol, ConstraintSlack, ConstraintError, ConstraintDummy} from "./ConstraintSymbol";
 import {Constrain} from "./Constrain";
@@ -21,8 +22,6 @@ import type {ConstraintRelation} from "./ConstraintRelation";
 import {AnyConstraintStrength, ConstraintStrength} from "./ConstraintStrength";
 import {Constraint} from "./Constraint";
 import type {ConstraintScope} from "./ConstraintScope";
-
-const EPSILON = 1.0e-8;
 
 /** @hidden */
 export interface ConstraintTag {
@@ -74,7 +73,7 @@ export class ConstraintRow {
 
   insertSymbol(symbol: ConstraintSymbol, coefficient: number = 1): void {
     coefficient += this._cells.get(symbol) || 0;
-    if (Math.abs(coefficient) < EPSILON) {
+    if (Math.abs(coefficient) < Equivalent.Epsilon) {
       this._cells.remove(symbol);
     } else {
       this._cells.set(symbol, coefficient);
@@ -192,7 +191,7 @@ export class ConstraintSolver implements ConstraintScope {
     // and the new dummy marker can enter the basis. If the constant is
     // non-zero, then it represents an unsatisfiable constraint.
     if (subject.isInvalid() && row.isDummy()) {
-      if (Math.abs(row._constant) < EPSILON) {
+      if (Math.abs(row._constant) < Equivalent.Epsilon) {
         subject = tag.marker;
       } else {
         throw new Error("unsatisfiable constraint");
@@ -431,7 +430,7 @@ export class ConstraintSolver implements ConstraintScope {
     const terms = constrain.terms;
     for (let i = 0, n = terms.size; i < n; i += 1) {
       const [variable, coefficient] = terms.getEntry(i)!;
-      if (variable !== null && Math.abs(coefficient) >= EPSILON) {
+      if (variable !== null && Math.abs(coefficient) >= Equivalent.Epsilon) {
         const basic = this._rows.get(variable);
         if (basic !== void 0) {
           row.insertRow(basic, coefficient);
@@ -524,7 +523,7 @@ export class ConstraintSolver implements ConstraintScope {
     // Optimize the artificial objective. This is successful
     // only if the artificial objective is optimized to zero.
     this.optimize(this._artificial);
-    const success = Math.abs(this._artificial._constant) < EPSILON;
+    const success = Math.abs(this._artificial._constant) < Equivalent.Epsilon;
     this._artificial = null;
 
     // If the artificial variable is basic, pivot the row so that
@@ -597,7 +596,7 @@ export class ConstraintSolver implements ConstraintScope {
   // optimal and feasible.
   private dualOptimize(): void {
     let leaving: ConstraintSymbol | undefined;
-    while (leaving = this._infeasible.pop()) {
+    while ((leaving = this._infeasible.pop(), leaving !== void 0)) {
       const row = this._rows.get(leaving);
       if (row !== void 0 && row._constant < 0) {
         const entering = this.getDualEnteringSymbol(row);

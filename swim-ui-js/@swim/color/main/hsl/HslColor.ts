@@ -14,10 +14,12 @@
 
 import {Murmur3, Numbers, Constructors} from "@swim/util";
 import type {Output} from "@swim/codec";
+import type {Interpolator} from "@swim/mapping";
 import {Item, Value} from "@swim/structure";
 import {AnyAngle, Angle} from "@swim/math";
 import {AnyColor, Color} from "../color/Color";
 import type {RgbColor} from "../rgb/RgbColor";
+import {HslColorInterpolator} from "../"; // forward import
 
 export type AnyHslColor = HslColor | HslColorInit | string;
 
@@ -111,6 +113,17 @@ export class HslColor extends Color {
 
   hsl(): HslColor {
     return this;
+  }
+
+  interpolateTo(that: HslColor): Interpolator<HslColor>;
+  interpolateTo(that: Color): Interpolator<Color>;
+  interpolateTo(that: unknown): Interpolator<Color> | null;
+  interpolateTo(that: unknown): Interpolator<Color> | null {
+    if (that instanceof HslColor) {
+      return HslColorInterpolator(this, that);
+    } else {
+      return super.interpolateTo(that);
+    }
   }
 
   equivalentTo(that: unknown, epsilon?: number): boolean {

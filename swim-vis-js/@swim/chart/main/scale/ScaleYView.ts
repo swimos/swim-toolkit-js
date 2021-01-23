@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ContinuousScale} from "@swim/scale";
+import type {Domain, Range, ContinuousScale} from "@swim/mapping";
 import type {Tween} from "@swim/animation";
 import {GraphicsView} from "@swim/graphics";
 import {ScaleView} from "./ScaleView";
@@ -22,11 +22,11 @@ export interface ScaleYView<Y = unknown> extends GraphicsView {
   yScale(yScale: ContinuousScale<Y, number> | undefined,
          tween?: Tween<ContinuousScale<Y, number>>): this;
 
-  yDomain(): readonly [Y, Y] | undefined;
-  yDomain(yDomain: readonly [Y, Y] | undefined, tween?: Tween<any>): this;
+  yDomain(): Domain<Y> | undefined;
+  yDomain(yDomain: Domain<Y> | undefined, tween?: Tween<any>): this;
   yDomain(yMin: Y, yMax: Y, tween: Tween<any>): this;
 
-  yRange(): readonly [number, number] | undefined;
+  yRange(): Range<number> | undefined;
 
   yDataDomain(): readonly [Y, Y] | undefined;
 

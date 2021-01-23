@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* tslint:disable: variable-name */
-
 import type {DrawingContext} from "../drawing/DrawingContext";
 
 export class PathContext implements DrawingContext {

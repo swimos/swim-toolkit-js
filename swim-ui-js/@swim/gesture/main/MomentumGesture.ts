@@ -333,7 +333,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
     }
   }
 
-  endCoast(input: MomentumGestureInput, event: Event | null) {
+  endCoast(input: MomentumGestureInput, event: Event | null): void {
     if (input.coasting) {
       this.willEndCoast(input, event);
       input.coasting = false;

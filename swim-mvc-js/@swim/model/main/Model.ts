@@ -1663,7 +1663,7 @@ export abstract class Model implements ModelDownlinkContext {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (modelPrototype.hasOwnProperty("_modelServiceConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "_modelServiceConstructors")) {
         const constructor = modelPrototype._modelServiceConstructors![serviceName];
         if (constructor !== void 0) {
           return constructor;
@@ -1678,7 +1678,7 @@ export abstract class Model implements ModelDownlinkContext {
   static decorateModelService(constructor: ModelServiceConstructor<Model, unknown>,
                               target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!modelPrototype.hasOwnProperty("_modelServiceConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "_modelServiceConstructors")) {
       modelPrototype._modelServiceConstructors = {};
     }
     modelPrototype._modelServiceConstructors![propertyKey.toString()] = constructor;
@@ -1702,7 +1702,7 @@ export abstract class Model implements ModelDownlinkContext {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (modelPrototype.hasOwnProperty("_modelScopeConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "_modelScopeConstructors")) {
         const constructor = modelPrototype._modelScopeConstructors![scopeName];
         if (constructor !== void 0) {
           return constructor;
@@ -1717,7 +1717,7 @@ export abstract class Model implements ModelDownlinkContext {
   static decorateModelScope(constructor: ModelScopeConstructor<Model, unknown>,
                             target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!modelPrototype.hasOwnProperty("_modelScopeConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "_modelScopeConstructors")) {
       modelPrototype._modelScopeConstructors = {};
     }
     modelPrototype._modelScopeConstructors![propertyKey.toString()] = constructor;
@@ -1741,7 +1741,7 @@ export abstract class Model implements ModelDownlinkContext {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (modelPrototype.hasOwnProperty("_modelBindingConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "_modelBindingConstructors")) {
         const constructor = modelPrototype._modelBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
@@ -1756,7 +1756,7 @@ export abstract class Model implements ModelDownlinkContext {
   static decorateModelBinding(constructor: ModelBindingConstructor<Model, Model>,
                               target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!modelPrototype.hasOwnProperty("_modelBindingConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "_modelBindingConstructors")) {
       modelPrototype._modelBindingConstructors = {};
     }
     modelPrototype._modelBindingConstructors![propertyKey.toString()] = constructor;
@@ -1780,7 +1780,7 @@ export abstract class Model implements ModelDownlinkContext {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (modelPrototype.hasOwnProperty("_modelTraitConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "_modelTraitConstructors")) {
         const constructor = modelPrototype._modelTraitConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
@@ -1795,7 +1795,7 @@ export abstract class Model implements ModelDownlinkContext {
   static decorateModelTrait(constructor: ModelTraitConstructor<Model, Trait>,
                             target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!modelPrototype.hasOwnProperty("_modelTraitConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "_modelTraitConstructors")) {
       modelPrototype._modelTraitConstructors = {};
     }
     modelPrototype._modelTraitConstructors![propertyKey.toString()] = constructor;

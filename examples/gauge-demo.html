@@ -188,6 +188,17 @@ function createDial() {
       .meterColor(meterColor)
       .label(new swim.TextRunView().textColor("#4a4a4a"))
       .legend("");
+  dial.label().setHidden(!showLabels.checked);
+  dial.legend().setHidden(!showLegend.checked);
+  dial.value.onUpdate = function (newValue) {
+    // Update the dial label.
+    dial.label().text(Math.round(100 * newValue / dial.total()) + "%")
+                 .setHidden(!showLabels.checked);
+
+    // Update the dial legend.
+    dial.legend().text(dial.key + " (" + Math.round(100 * newValue) + ")")
+                 .setHidden(!showLegend.checked);
+  };
   // Add mouse event handlers.
   dial.on("pointerenter", function (event) {
         dial.meterColor(hoverColors[Math.floor(Math.random() * hoverColors.length)], {duration: 200});
@@ -254,18 +265,6 @@ function updateGauge() {
     if (!dial.isHovering()) {
       dial.meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", tween);
     }
-
-    // Update the dial label.
-    const labelInterpolator = swim.Interpolator.between(oldValue, newValue)
-                                               .map((value) => Math.round(100 * value / dial.total()) + "%");
-    dial.label().text(newValue, tween.interpolator(labelInterpolator))
-                 .setHidden(!showLabels.checked);
-
-    // Update the dial legend.
-    const legendInterpolator = swim.Interpolator.between(oldValue, newValue)
-                                                 .map((value) => dial.key + " (" + Math.round(100 * value) + ")");
-    dial.legend().text(newValue, tween.interpolator(legendInterpolator))
-                 .setHidden(!showLegend.checked);
   }
 
   // Make sure we never schedule multiple timers.

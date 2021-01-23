@@ -1461,7 +1461,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
       viewPrototype = this.prototype as ViewPrototype;
     }
     do {
-      if (viewPrototype.hasOwnProperty("_viewBindingConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(viewPrototype, "_viewBindingConstructors")) {
         const constructor = viewPrototype._viewBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
@@ -1476,7 +1476,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   static decorateViewBinding(constructor: ViewBindingConstructor<View, View>,
                              target: Object, propertyKey: string | symbol): void {
     const viewPrototype = target as ViewPrototype;
-    if (!viewPrototype.hasOwnProperty("_viewBindingConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "_viewBindingConstructors")) {
       viewPrototype._viewBindingConstructors = {};
     }
     viewPrototype._viewBindingConstructors![propertyKey.toString()] = constructor;
@@ -1500,7 +1500,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
       viewPrototype = this.prototype as ViewPrototype;
     }
     do {
-      if (viewPrototype.hasOwnProperty("_viewServiceConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(viewPrototype, "_viewServiceConstructors")) {
         const constructor = viewPrototype._viewServiceConstructors![serviceName];
         if (constructor !== void 0) {
           return constructor;
@@ -1515,7 +1515,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   static decorateViewService(constructor: ViewServiceConstructor<View, unknown>,
                              target: Object, propertyKey: string | symbol): void {
     const viewPrototype = target as ViewPrototype;
-    if (!viewPrototype.hasOwnProperty("_viewServiceConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "_viewServiceConstructors")) {
       viewPrototype._viewServiceConstructors = {};
     }
     viewPrototype._viewServiceConstructors![propertyKey.toString()] = constructor;
@@ -1539,7 +1539,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
       viewPrototype = this.prototype as ViewPrototype;
     }
     do {
-      if (viewPrototype.hasOwnProperty("_viewScopeConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(viewPrototype, "_viewScopeConstructors")) {
         const constructor = viewPrototype._viewScopeConstructors![scopeName];
         if (constructor !== void 0) {
           return constructor;
@@ -1554,7 +1554,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   static decorateViewScope(constructor: ViewScopeConstructor<View, unknown>,
                            target: Object, propertyKey: string | symbol): void {
     const viewPrototype = target as ViewPrototype;
-    if (!viewPrototype.hasOwnProperty("_viewScopeConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "_viewScopeConstructors")) {
       viewPrototype._viewScopeConstructors = {};
     }
     viewPrototype._viewScopeConstructors![propertyKey.toString()] = constructor;
@@ -1578,7 +1578,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
       viewPrototype = this.prototype as ViewPrototype;
     }
     while (viewPrototype !== null) {
-      if (viewPrototype.hasOwnProperty("_viewAnimatorConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(viewPrototype, "_viewAnimatorConstructors")) {
         const constructor = viewPrototype._viewAnimatorConstructors![animatorName];
         if (constructor !== void 0) {
           return constructor;
@@ -1593,7 +1593,7 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   static decorateViewAnimator(constructor: ViewAnimatorConstructor<View, unknown>,
                               target: Object, propertyKey: string | symbol): void {
     const viewPrototype = target as ViewPrototype;
-    if (!viewPrototype.hasOwnProperty("_viewAnimatorConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "_viewAnimatorConstructors")) {
       viewPrototype._viewAnimatorConstructors = {};
     }
     viewPrototype._viewAnimatorConstructors![propertyKey.toString()] = constructor;

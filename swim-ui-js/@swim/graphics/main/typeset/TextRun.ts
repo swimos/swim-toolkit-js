@@ -130,7 +130,7 @@ export class TextRun implements Graphics, Equals, Debug {
       if (textOrigin !== null) {
         textOrigin = PointR2.fromAny(textOrigin);
       }
-      if (Equals.equal(this._textOrigin, textOrigin)) {
+      if (Equals(this._textOrigin, textOrigin)) {
         return this;
       } else {
         return this.copy(this._text, this._font, this._textAlign,
@@ -148,7 +148,7 @@ export class TextRun implements Graphics, Equals, Debug {
       if (textColor !== null) {
         textColor = Color.fromAny(textColor);
       }
-      if (Equals.equal(this._textColor, textColor)) {
+      if (Equals(this._textColor, textColor)) {
         return this;
       } else {
         return this.copy(this._text, this._font, this._textAlign,
@@ -163,7 +163,7 @@ export class TextRun implements Graphics, Equals, Debug {
     }
   }
 
-  draw(context: CanvasContext, frame: BoxR2) {
+  draw(context: CanvasContext, frame: BoxR2): void {
     this.renderText(context, frame);
   }
 
@@ -224,11 +224,11 @@ export class TextRun implements Graphics, Equals, Debug {
       return true;
     } else if (that instanceof TextRun) {
       return this._text === that._text
-          && Equals.equal(this._font, that._font)
+          && Equals(this._font, that._font)
           && this._textAlign === that._textAlign
           && this._textBaseline === that._textBaseline
-          && Equals.equal(this._textOrigin, that._textOrigin)
-          && Equals.equal(this._textColor, that._textColor);
+          && Equals(this._textOrigin, that._textOrigin)
+          && Equals(this._textColor, that._textColor);
     }
     return false;
   }

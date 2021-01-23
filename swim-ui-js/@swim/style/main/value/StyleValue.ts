@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Input, Parser, Diagnostic, Unicode} from "@swim/codec";
-import {Interpolator} from "@swim/interpolate";
+import {Interpolator} from "@swim/mapping";
 import type {Form} from "@swim/structure";
 import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
 import {AnyDateTime, DateTime} from "@swim/time";

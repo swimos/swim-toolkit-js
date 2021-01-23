@@ -33,11 +33,11 @@ import {StyleValue} from "./StyleValue";
 export class StyleValueParser extends Parser<StyleValue> {
   private readonly identOutput: Output<string> | undefined;
   private readonly valueParser: Parser<number> | undefined;
-  private readonly unitsOutput: Output<String> | undefined;
+  private readonly unitsOutput: Output<string> | undefined;
   private readonly step: number | undefined;
 
   constructor(identOutput?: Output<string>, valueParser?: Parser<number>,
-              unitsOutput?: Output<String>, step?: number) {
+              unitsOutput?: Output<string>, step?: number) {
     super();
     this.identOutput = identOutput;
     this.valueParser = valueParser;
@@ -51,7 +51,7 @@ export class StyleValueParser extends Parser<StyleValue> {
   }
 
   static parse(input: Input, identOutput?: Output<string>, valueParser?: Parser<number>,
-               unitsOutput?: Output<String>, step: number = 1): Parser<StyleValue> {
+               unitsOutput?: Output<string>, step: number = 1): Parser<StyleValue> {
     let c = 0;
     if (step === 1) {
       while (input.isCont() && (c = input.head(), Unicode.isSpace(c))) {
@@ -126,12 +126,13 @@ export class StyleValueParser extends Parser<StyleValue> {
 
           case "true": return Parser.done(true);
           case "false": return Parser.done(false);
-          default:
+          default: {
             const color = Color.fromName(ident);
             if (color !== void 0) {
               return Parser.done(color);
             }
             return Parser.error(Diagnostic.message("unknown style value: " + ident, input));
+          }
         }
       }
     }

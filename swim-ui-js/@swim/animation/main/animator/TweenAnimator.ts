@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import {Values} from "@swim/util";
-import {Interpolator} from "@swim/interpolate";
-import {AnyEase, Ease} from "../ease/Ease";
+import {Interpolator, AnyEasing, Easing} from "@swim/mapping";
 import {Tween, AnyTransition, Transition} from "../transition/Transition";
 import type {TransitionObserver} from "../transition/TransitionObserver";
 import {Animator} from "./Animator";
@@ -25,9 +24,9 @@ export abstract class TweenAnimator<T> extends Animator {
   /** @hidden */
   _duration: number;
   /** @hidden */
-  _ease: Ease;
+  _easing: Easing;
   /** @hidden */
-  _interpolator: Interpolator<T, unknown> | null;
+  _interpolator: Interpolator<T> | null;
   /** @hidden */
   _observers: TransitionObserver<T>[] | null;
   /** @hidden */
@@ -45,12 +44,12 @@ export abstract class TweenAnimator<T> extends Animator {
     super();
     if (transition !== null) {
       this._duration = transition._duration !== void 0 ? transition._duration : 0;
-      this._ease = transition._ease !== void 0 ? transition._ease : Ease.linear;
+      this._easing = transition._easing !== void 0 ? transition._easing : Easing.linear;
       this._interpolator = transition._interpolator !== void 0 ? transition._interpolator : null;
       this._observers = transition._observers !== void 0 ? transition._observers.slice(0) : null;
     } else {
       this._duration = 0;
-      this._ease = Ease.linear;
+      this._easing = Easing.linear;
       this._interpolator = null;
       this._observers = null;
     }
@@ -72,20 +71,20 @@ export abstract class TweenAnimator<T> extends Animator {
     }
   }
 
-  ease(): Ease;
-  ease(ease: AnyEase): this;
-  ease(ease?: AnyEase): Ease | this {
-    if (ease === void 0) {
-      return this._ease;
+  easing(): Easing;
+  easing(easing: AnyEasing): this;
+  easing(easing?: AnyEasing): Easing | this {
+    if (easing === void 0) {
+      return this._easing;
     } else {
-      this._ease = Ease.fromAny(ease);
+      this._easing = Easing.fromAny(easing);
       return this;
     }
   }
 
-  interpolator(): Interpolator<T, unknown> | null;
-  interpolator(interpolator: Interpolator<T, unknown> | null): this;
-  interpolator(interpolator?: Interpolator<T, unknown> | null): Interpolator<T, unknown> | null | this {
+  interpolator(): Interpolator<T> | null;
+  interpolator(interpolator: Interpolator<T> | null): this;
+  interpolator(interpolator?: Interpolator<T> | null): Interpolator<T> | null | this {
     if (interpolator === void 0) {
       return this._interpolator;
     } else {
@@ -98,14 +97,14 @@ export abstract class TweenAnimator<T> extends Animator {
   transition(transition: AnyTransition<T>): this;
   transition(transition?: AnyTransition<T>): Transition<T> | this {
     if (transition === void 0) {
-      return new Transition(this._duration, this._ease, this._interpolator, null);
+      return new Transition(this._duration, this._easing, this._interpolator, null);
     } else {
       transition = Transition.fromAny(transition);
       if (transition._duration !== void 0) {
         this._duration = transition._duration;
       }
-      if (transition._ease !== void 0) {
-        this._ease = transition._ease;
+      if (transition._easing !== void 0) {
+        this._easing = transition._easing;
       }
       if (transition._interpolator !== void 0) {
         this._interpolator = transition._interpolator;
@@ -205,12 +204,10 @@ export abstract class TweenAnimator<T> extends Animator {
         this._interrupts = interrupts; // stash interrupted transition observers
       }
       const value = this.value;
-      if (this._interpolator !== null && value !== void 0) {
-        this._interpolator = this._interpolator.range(value, newState);
-      } else if (value !== void 0) {
-        this._interpolator = Interpolator.between<T, unknown>(value, newState);
+      if (value !== void 0) {
+        this._interpolator = Interpolator(value, newState);
       } else {
-        this._interpolator = Interpolator.between<T, unknown>(newState, newState);
+        this._interpolator = Interpolator(newState, newState);
       }
       this._state = newState;
       this._baseTime = 0;
@@ -287,11 +284,11 @@ export abstract class TweenAnimator<T> extends Animator {
 
   interpolate(u: number): T {
     const interpolator = this._interpolator;
-    return interpolator !== null ? interpolator.interpolate(u) : this._state;
+    return interpolator !== null ? interpolator(u) : this._state;
   }
 
   tween(u: number): void {
-    u = this._ease(u);
+    u = this._easing(u);
     const oldValue = this._value;
     const newValue = this.interpolate(u);
     this.update(newValue, oldValue);

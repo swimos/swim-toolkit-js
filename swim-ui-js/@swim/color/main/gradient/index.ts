@@ -18,11 +18,10 @@ export {
   ColorStopTuple,
   ColorStop,
 } from "./ColorStop";
+export {ColorStopInterpolator} from "./ColorStopInterpolator";
 
 export {ColorStopParser} from "./ColorStopParser";
 export {ColorStopListParser} from "./ColorStopListParser";
-
-export {ColorStopInterpolator} from "./ColorStopInterpolator";
 
 export {
   AnyLinearGradient,
@@ -33,8 +32,8 @@ export {
   LinearGradientInit,
   LinearGradient,
 } from "./LinearGradient";
+export {LinearGradientInterpolator} from "./LinearGradientInterpolator";
 
 export {LinearGradientAngleParser} from "./LinearGradientAngleParser";
 export {LinearGradientParser} from "./LinearGradientParser";
 
-export {LinearGradientInterpolator} from "./LinearGradientInterpolator";

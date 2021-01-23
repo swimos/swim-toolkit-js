@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Spec, Test, Exam} from "@swim/unit";
-import {Interpolator} from "@swim/interpolate";
 import {ColorStop} from "@swim/color";
 
 export class ColorStopSpec extends Spec {
@@ -105,17 +104,11 @@ export class ColorStopSpec extends Spec {
 
   @Test
   interpolateColorStops(exam: Exam): void {
-    exam.equal(Interpolator.between(ColorStop.create("#000000"),
-                                    ColorStop.create("#888888"))
-                           .interpolate(0.5),
+    exam.equal(ColorStop.create("#000000").interpolateTo(ColorStop.create("#888888"))(0.5),
                ColorStop.create("#444444"));
-    exam.equal(Interpolator.between(ColorStop.create("#000000", 25),
-                                    ColorStop.create("#888888", 75))
-                           .interpolate(0.5),
+    exam.equal(ColorStop.create("#000000", 25).interpolateTo(ColorStop.create("#888888", 75))(0.5),
                ColorStop.create("#444444", 50));
-    exam.equal(Interpolator.between(ColorStop.create("#000000", 25, 10),
-                                    ColorStop.create("#888888", 75, 30))
-                           .interpolate(0.5),
+    exam.equal(ColorStop.create("#000000", 25, 10).interpolateTo(ColorStop.create("#888888", 75, 30))(0.5),
                ColorStop.create("#444444", 50, 20));
   }
 }

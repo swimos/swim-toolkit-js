@@ -109,7 +109,7 @@ export abstract class GenericModel extends Model {
   declare readonly parentModel: Model | null;
 
   /** @hidden */
-  setParentModel(newParentModel: Model | null, oldParentModel: Model | null) {
+  setParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
     this.willSetParentModel(newParentModel, oldParentModel);
     Object.defineProperty(this, "parentModel", {
       value: newParentModel,

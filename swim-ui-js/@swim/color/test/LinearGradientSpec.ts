@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Spec, Test, Exam} from "@swim/unit";
-import {Interpolator} from "@swim/interpolate";
 import {Angle} from "@swim/math";
 import {LinearGradient} from "@swim/color";
 
@@ -82,17 +81,14 @@ export class LinearGradientSpec extends Spec {
 
   @Test
   interpolateLinearGradients(exam: Exam): void {
-    exam.equal(Interpolator.between(LinearGradient.create(0, "#000000", "#888888"),
-                                    LinearGradient.create(90, "#222222", "#444444"))
-                           .interpolate(0.5),
+    exam.equal(LinearGradient.create(0, "#000000", "#888888").interpolateTo(
+               LinearGradient.create(90, "#222222", "#444444"))(0.5),
                LinearGradient.create(45, "#111111", "#666666"));
-    exam.equal(Interpolator.between(LinearGradient.create(0, ["#000000", 20], ["#888888", 80]),
-                                    LinearGradient.create(90, ["#222222", 40], ["#444444", 60]))
-                           .interpolate(0.5),
+    exam.equal(LinearGradient.create(0, ["#000000", 20], ["#888888", 80]).interpolateTo(
+               LinearGradient.create(90, ["#222222", 40], ["#444444", 60]))(0.5),
                LinearGradient.create(45, "#111111 30%", "#666666 70%"));
-    exam.equal(Interpolator.between(LinearGradient.create(0, "#000000 20%", "40%, #888888 80%"),
-                                    LinearGradient.create(90, "#222222 40%", "50%, #444444 60%"))
-                           .interpolate(0.5),
+    exam.equal(LinearGradient.create(0, "#000000 20%", "40%, #888888 80%").interpolateTo(
+               LinearGradient.create(90, "#222222 40%", "50%, #444444 60%"))(0.5),
                LinearGradient.create(45, "#111111 30%", "45%, #666666 70%"));
   }
 }

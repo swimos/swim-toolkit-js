@@ -1080,9 +1080,9 @@ function borderRadius(this: StyleMap,
     const borderTopRightRadius = this.borderTopRightRadius();
     const borderBottomRightRadius = this.borderBottomRightRadius();
     const borderBottomLeftRadius = this.borderBottomLeftRadius();
-    if (Equals.equal(borderTopLeftRadius, borderTopRightRadius)
-        && Equals.equal(borderTopRightRadius, borderBottomRightRadius)
-        && Equals.equal(borderBottomRightRadius, borderBottomLeftRadius)) {
+    if (Equals(borderTopLeftRadius, borderTopRightRadius)
+        && Equals(borderTopRightRadius, borderBottomRightRadius)
+        && Equals(borderBottomRightRadius, borderBottomLeftRadius)) {
       return borderTopLeftRadius;
     } else {
       return [borderTopLeftRadius, borderTopRightRadius, borderBottomRightRadius, borderBottomLeftRadius];
@@ -1447,9 +1447,9 @@ function padding(this: StyleMap,
     const paddingRight = this.paddingRight();
     const paddingBottom = this.paddingBottom();
     const paddingLeft = this.paddingLeft();
-    if (Equals.equal(paddingTop, paddingRight)
-        && Equals.equal(paddingRight, paddingBottom)
-        && Equals.equal(paddingBottom, paddingLeft)) {
+    if (Equals(paddingTop, paddingRight)
+        && Equals(paddingRight, paddingBottom)
+        && Equals(paddingBottom, paddingLeft)) {
       return paddingTop;
     } else {
       return [paddingTop, paddingRight, paddingBottom, paddingLeft];

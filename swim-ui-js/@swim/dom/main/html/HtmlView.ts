@@ -742,7 +742,7 @@ export class HtmlView extends ElementView {
   static fromTag(tag: string): ElementView;
   static fromTag(tag: string): ElementView {
     let viewConstructor: HtmlViewConstructor | undefined;
-    if (this.hasOwnProperty("tags")) {
+    if (Object.prototype.hasOwnProperty.call(this, "tags")) {
       viewConstructor = this.tags[tag];
     }
     if (viewConstructor === void 0) {
@@ -759,7 +759,7 @@ export class HtmlView extends ElementView {
       return node.view;
     } else {
       let viewConstructor: HtmlViewConstructor | undefined;
-      if (this.hasOwnProperty("tags")) {
+      if (Object.prototype.hasOwnProperty.call(this, "tags")) {
         viewConstructor = this.tags[node.tagName];
       }
       if (viewConstructor === void 0) {

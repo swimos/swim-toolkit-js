@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Spec, Unit} from "@swim/unit";
-
 import {FontParserSpec} from "./FontParserSpec";
 import {FontWriterSpec} from "./FontWriterSpec";
 import {BoxShadowSpec} from "./BoxShadowSpec";

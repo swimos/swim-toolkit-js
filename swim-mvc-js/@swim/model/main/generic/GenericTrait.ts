@@ -94,7 +94,7 @@ export class GenericTrait extends Trait {
   declare readonly model: Model | null;
 
   /** @hidden */
-  setModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null) {
+  setModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null): void {
     this.willSetModel(newModel, oldModel);
     if (oldModel !== null) {
       this.detachModel(oldModel);

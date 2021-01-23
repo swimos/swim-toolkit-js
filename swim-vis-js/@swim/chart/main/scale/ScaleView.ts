@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Values} from "@swim/util";
-import {Interpolator} from "@swim/interpolate";
+import {Equivalent, Values} from "@swim/util";
+import {AnyDomain, Domain, Range, Easing, LinearDomain, LinearRange, ContinuousScale, LinearScale} from "@swim/mapping";
 import type {BoxR2} from "@swim/math";
-import {Scale, ContinuousScale, LinearScale, TimeScale} from "@swim/scale";
-import {Ease, Tween, AnyTransition, Transition} from "@swim/animation";
+import {DateTime, TimeDomain, TimeScale} from "@swim/time";
+import {Tween, AnyTransition, Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
@@ -240,27 +240,27 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
   declare yScale: ScaleViewAnimator<this, Y, number>;
 
-  xDomain(): readonly [X, X] | undefined;
-  xDomain(xDomain: readonly [X, X] | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;
+  xDomain(): Domain<X> | undefined;
+  xDomain(xDomain: Domain<X> | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;
   xDomain(xMin: X, xMax: X, tween?: Tween<ContinuousScale<X, number>>): this;
-  xDomain(xMin?: readonly [X, X] | X | string, xMax?: X | Tween<ContinuousScale<X, number>>,
-          tween?: Tween<ContinuousScale<X, number>>): readonly [X, X] | undefined | this {
-    if (xMin === null) {
+  xDomain(xMin?: Domain<X> | X | string, xMax?: X | Tween<ContinuousScale<X, number>>,
+          tween?: Tween<ContinuousScale<X, number>>): Domain<X> | undefined | this {
+    if (xMin === void 0) {
       const xScale = this.xScale.value;
-      return xScale !== void 0 ? xScale.domain() : void 0;
+      return xScale !== void 0 ? xScale.domain : void 0;
     } else {
-      if (Array.isArray(xMin) || typeof xMin === "string") {
+      if (xMin instanceof Domain || typeof xMin === "string") {
         tween = xMax as Tween<ContinuousScale<X, number>>;
       }
       if (tween === true) {
         tween = this.rescaleTransition.state;
       }
       const xRange = this.xRange();
-      if (Array.isArray(xMin) || typeof xMin === "string") {
+      if (xMin instanceof Domain || typeof xMin === "string") {
         if (xRange !== void 0) {
-          this.xScale.setBaseScale(xMin as readonly [X, X] | string, xRange, tween);
+          this.xScale.setBaseScale(xMin as Domain<X> | string, xRange, tween);
         } else {
-          this.xScale.setBaseDomain(xMin as readonly [X, X] | string, tween);
+          this.xScale.setBaseDomain(xMin as Domain<X> | string, tween);
         }
       } else {
         if (xRange !== void 0) {
@@ -273,27 +273,27 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     }
   }
 
-  yDomain(): readonly [Y, Y] | undefined;
-  yDomain(yDomain: readonly [Y, Y] | string | undefined, tween?: Tween<ContinuousScale<Y, number>>): this;
+  yDomain(): Domain<Y> | undefined;
+  yDomain(yDomain: Domain<Y> | string | undefined, tween?: Tween<ContinuousScale<Y, number>>): this;
   yDomain(yMin: Y, yMax: Y, tween?: Tween<ContinuousScale<Y, number>>): this;
-  yDomain(yMin?: readonly [Y, Y] | Y | string, yMax?: Y | Tween<ContinuousScale<Y, number>>,
-          tween?: Tween<ContinuousScale<Y, number>>): readonly [Y, Y] | undefined | this {
-    if (yMin === null) {
+  yDomain(yMin?: Domain<Y> | Y | string, yMax?: Y | Tween<ContinuousScale<Y, number>>,
+          tween?: Tween<ContinuousScale<Y, number>>): Domain<Y> | undefined | this {
+    if (yMin === void 0) {
       const yScale = this.yScale.value;
-      return yScale !== void 0 ? yScale.domain() : void 0;
+      return yScale !== void 0 ? yScale.domain : void 0;
     } else {
-      if (Array.isArray(yMin) || typeof yMin === "string") {
+      if (yMin instanceof Domain || typeof yMin === "string") {
         tween = yMax as Tween<ContinuousScale<Y, number>>;
       }
       if (tween === true) {
         tween = this.rescaleTransition.state;
       }
       const yRange = this.yRange();
-      if (Array.isArray(yMin) || typeof yMin === "string") {
+      if (yMin instanceof Domain || typeof yMin === "string") {
         if (yRange !== void 0) {
-          this.yScale.setBaseScale(yMin as readonly [Y, Y] | string, [yRange[1], yRange[0]], tween);
+          this.yScale.setBaseScale(yMin as Domain<Y> | string, LinearRange(yRange[1], yRange[0]), tween);
         } else {
-          this.yScale.setBaseDomain(yMin as readonly [Y, Y] | string, tween);
+          this.yScale.setBaseDomain(yMin as Domain<Y>| string, tween);
         }
       } else {
         if (yRange !== void 0) {
@@ -306,16 +306,16 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     }
   }
 
-  xRange(): readonly [number, number] | undefined {
+  xRange(): Range<number> | undefined {
     const xRangeMin = this._xRangePadding[0];
     const xRangeMax = this.viewFrame.width - this._xRangePadding[1];
-    return [xRangeMin, xRangeMax];
+    return LinearRange(xRangeMin, xRangeMax);
   }
 
-  yRange(): readonly [number, number] | undefined {
+  yRange(): Range<number> | undefined {
     const yRangeMin = this._yRangePadding[0];
     const yRangeMax = this.viewFrame.height - this._yRangePadding[1];
-    return [yRangeMin, yRangeMax];
+    return LinearRange(yRangeMin, yRangeMax);
   }
 
   xDomainBounds(): readonly [X | boolean, X | boolean];
@@ -799,7 +799,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     type: Transition,
     inherit: true,
     initState(): Transition<any> | undefined {
-      return Transition.duration(250, Ease.linear);
+      return Transition.duration(250, Easing.linear);
     },
   })
   declare rescaleTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
@@ -808,7 +808,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     type: Transition,
     inherit: true,
     initState(): Transition<any> | undefined {
-      return Transition.duration(250, Ease.cubicOut);
+      return Transition.duration(250, Easing.cubicOut);
     },
   })
   declare reboundTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
@@ -904,15 +904,14 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     const xRange = this.xRange();
     if (xRange !== void 0) {
       const xScale = this.xScale.ownValue;
-      if (xScale !== void 0 && !Values.equal(xScale.range(), xRange)) {
+      if (xScale !== void 0 && !Values.equal(xScale.range, xRange)) {
         this.xScale.setRange(xRange);
         this.requireUpdate(View.NeedsAnimate);
         this._scaleFlags |= ScaleView.RescaleFlag;
       } else if (this.xScale.superValue === void 0) {
         const xDataDomain = this.xDataDomain();
         if (xDataDomain !== void 0) {
-          const xScale = Scale.from(xDataDomain[0], xDataDomain[1],
-                                    Interpolator.between(xRange[0], xRange[1]));
+          const xScale = ScaleView.createScale(xDataDomain[0], xDataDomain[1], xRange[0], xRange[1]);
           this.xScale.setState(xScale);
           this._scaleFlags |= ScaleView.XFitFlag;
         }
@@ -922,15 +921,14 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     const yRange = this.yRange();
     if (yRange !== void 0) {
       const yScale = this.yScale.ownValue;
-      if (yScale !== void 0 && !Values.equal(yScale.range(), yRange)) {
+      if (yScale !== void 0 && !Values.equal(yScale.range, yRange)) {
         this.yScale.setRange(yRange[1], yRange[0]);
         this.requireUpdate(View.NeedsAnimate);
         this._scaleFlags |= ScaleView.RescaleFlag;
       } else if (this.yScale.superValue === void 0) {
         const yDataDomain = this.yDataDomain();
         if (yDataDomain !== void 0) {
-          const yScale = Scale.from(yDataDomain[0], yDataDomain[1],
-                                    Interpolator.between(yRange[1], yRange[0]));
+          const yScale = ScaleView.createScale(yDataDomain[0], yDataDomain[1], yRange[1], yRange[0]);
           this.yScale.setState(yScale);
           this._scaleFlags |= ScaleView.YFitFlag;
         }
@@ -1151,10 +1149,10 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
    */
   protected fitScales(oldXScale: ContinuousScale<X, number>, oldYScale: ContinuousScale<Y, number>): void {
     const xDataDomain = this._xDataDomain;
-    let oldXDomain: readonly [X, X] | undefined;
-    let newXDomain: readonly [X, X] | undefined;
+    let oldXDomain: AnyDomain<X> | undefined;
+    let newXDomain: AnyDomain<X> | undefined;
     if (xDataDomain !== void 0 && (this._scaleFlags & ScaleView.XFitFlag) !== 0) {
-      oldXDomain = oldXScale.domain();
+      oldXDomain = oldXScale.domain;
       if (+oldXDomain[0] !== +xDataDomain[0] ||
           +oldXDomain[1] !== +xDataDomain[1]) {
         newXDomain = xDataDomain;
@@ -1162,10 +1160,10 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     }
 
     const yDataDomain = this._yDataDomain;
-    let oldYDomain: readonly [Y, Y] | undefined;
-    let newYDomain: readonly [Y, Y] | undefined;
+    let oldYDomain: AnyDomain<Y> | undefined;
+    let newYDomain: AnyDomain<Y> | undefined;
     if (yDataDomain !== void 0 && (this._scaleFlags & ScaleView.YFitFlag) !== 0) {
-      oldYDomain = oldYScale.domain();
+      oldYDomain = oldYScale.domain;
       if (+oldYDomain[0] !== +yDataDomain[0] ||
           +oldYDomain[1] !== +yDataDomain[1]) {
         newYDomain = yDataDomain;
@@ -1174,16 +1172,16 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
 
     const fitAspectRatio = this._fitAspectRatio;
     if (fitAspectRatio !== void 0) {
-      const xDomain = newXDomain !== void 0 ? newXDomain : oldXScale.domain();
-      const yDomain = newYDomain !== void 0 ? newYDomain : oldYScale.domain();
-      const xRange = oldXScale.range();
-      const yRange = oldYScale.range();
+      const xDomain = newXDomain !== void 0 ? newXDomain : oldXScale.domain;
+      const yDomain = newYDomain !== void 0 ? newYDomain : oldYScale.domain;
+      const xRange = oldXScale.range;
+      const yRange = oldYScale.range;
       const oldDomainWidth = +xDomain[1] - +xDomain[0];
       const oldDomainHeight = +yDomain[1] - +yDomain[0];
       const domainAspectRatio = oldDomainWidth / oldDomainHeight;
       const rangeAspectRatio = (xRange[1] - xRange[0]) / (yRange[0] - yRange[1]);
       const anamorphicAspectRatio = Math.abs(fitAspectRatio * rangeAspectRatio);
-      if (Math.abs(domainAspectRatio - anamorphicAspectRatio) > 1e-12) {
+      if (Math.abs(domainAspectRatio - anamorphicAspectRatio) >= Equivalent.Epsilon) {
         const fitAlign = this._fitAlign;
         if (fitAspectRatio < 0 && domainAspectRatio < anamorphicAspectRatio ||
             fitAspectRatio > 0 && domainAspectRatio > anamorphicAspectRatio) {
@@ -1203,14 +1201,14 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     if (xDataDomain !== void 0) {
       const xDomain = newXDomain !== void 0 ? newXDomain :
                       oldXDomain !== void 0 ? oldXDomain :
-                      (oldXDomain = oldXScale.domain(), oldXDomain);
+                      (oldXDomain = oldXScale.domain, oldXDomain);
       const xDomainBounds = this._xDomainBounds;
       const xDomainMin = typeof xDomainBounds[0] === "boolean" ? xDataDomain[0] : xDomainBounds[0];
       const xDomainMax = typeof xDomainBounds[1] === "boolean" ? xDataDomain[1] : xDomainBounds[1];
-      if (+xDomain[0] - 1e-12 <= +xDomainMin + 1e-12) {
+      if (+xDomain[0] - Equivalent.Epsilon <= +xDomainMin + Equivalent.Epsilon) {
         this._scaleFlags |= ScaleView.XMinInRangeFlag;
       }
-      if (+xDomainMax - 1e-12 <= +xDomain[1] + 1e-12) {
+      if (+xDomainMax - Equivalent.Epsilon <= +xDomain[1] + Equivalent.Epsilon) {
         this._scaleFlags |= ScaleView.XMaxInRangeFlag;
       }
     }
@@ -1218,14 +1216,14 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     if (yDataDomain !== void 0) {
       const yDomain = newYDomain !== void 0 ? newYDomain :
                       oldYDomain !== void 0 ? oldYDomain :
-                      (oldYDomain = oldYScale.domain(), oldYDomain);
+                      (oldYDomain = oldYScale.domain, oldYDomain);
       const yDomainBounds = this._yDomainBounds;
       const yDomainMin = typeof yDomainBounds[0] === "boolean" ? yDataDomain[0] : yDomainBounds[0];
       const yDomainMax = typeof yDomainBounds[1] === "boolean" ? yDataDomain[1] : yDomainBounds[1];
-      if (+yDomain[0] - 1e-12 <= +yDomainMin + 1e-12) {
+      if (+yDomain[0] - Equivalent.Epsilon <= +yDomainMin + Equivalent.Epsilon) {
         this._scaleFlags |= ScaleView.YMinInRangeFlag;
       }
-      if (+yDomainMax - 1e-12 <= +yDomain[1] + 1e-12) {
+      if (+yDomainMax - Equivalent.Epsilon <= +yDomain[1] + Equivalent.Epsilon) {
         this._scaleFlags |= ScaleView.YMaxInRangeFlag;
       }
     }
@@ -1241,7 +1239,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         });
       }
       this.willFitX(oldXScale);
-      this.xDomain(newXDomain, transition);
+      this.xDomain(newXDomain instanceof Domain ? newXDomain : Domain(newXDomain[0], newXDomain[1]), transition);
       this.requireUpdate(View.NeedsLayout);
       this._scaleFlags &= ~ScaleView.XFitFlag;
       if (transition === void 0) {
@@ -1260,7 +1258,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         });
       }
       this.willFitY(oldYScale);
-      this.yDomain(newYDomain, transition);
+      this.yDomain(newYDomain instanceof Domain ? newYDomain : Domain(newYDomain[0], newYDomain[1]), transition);
       this.requireUpdate(View.NeedsLayout);
       this._scaleFlags &= ~ScaleView.YFitFlag;
       if (transition === void 0) {
@@ -1326,18 +1324,18 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     this._scaleFlags &= ~ScaleView.ClampedMask;
 
     const xDataDomainPadded = this._xDataDomainPadded;
-    let xZoomMin: number | boolean | null = this._xZoomBounds[0];
-    let xZoomMax: number | boolean | null = this._xZoomBounds[1];
+    let xZoomMin: number | boolean | undefined = this._xZoomBounds[0];
+    let xZoomMax: number | boolean | undefined = this._xZoomBounds[1];
     if (xZoomMin === true) {
       if (oldXScale instanceof LinearScale) {
         xZoomMin = ScaleView.LinearZoomMin;
       } else if (oldXScale instanceof TimeScale) {
         xZoomMin = ScaleView.TimeZoomMin;
       } else {
-        xZoomMin = null;
+        xZoomMin = void 0;
       }
     } else if (xZoomMin === false) {
-      xZoomMin = null;
+      xZoomMin = void 0;
     }
     if (xZoomMax === true) {
       if (oldXScale instanceof LinearScale) {
@@ -1345,44 +1343,43 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       } else if (oldXScale instanceof TimeScale) {
         xZoomMax = ScaleView.TimeZoomMax;
       } else {
-        xZoomMax = null;
+        xZoomMax = void 0;
       }
     } else if (xZoomMax === false) {
-      xZoomMax = null;
+      xZoomMax = void 0;
     }
-    const oldXDomain = oldXScale.domain();
+    const oldXDomain = oldXScale.domain;
     const xDomainBounds = this._xDomainBounds;
     const xDomainPadded = xDataDomainPadded !== void 0 ? xDataDomainPadded : oldXDomain;
-    const xDomainMin = xDomainBounds[0] === false ? null
+    const xDomainMin = xDomainBounds[0] === false ? void 0
                      : xDomainBounds[0] === true ? xDomainPadded[0]
                      : xDomainBounds[0];
-    const xDomainMax = xDomainBounds[1] === false ? null
+    const xDomainMax = xDomainBounds[1] === false ? void 0
                      : xDomainBounds[1] === true ? xDomainPadded[1]
                      : xDomainBounds[1];
-    const xDomainClamped = oldXScale.clampDomain(xDomainMin, xDomainMax,
-                                                 xZoomMin, xZoomMax).domain();
-    let newXDomain: readonly [X, X] | undefined;
-    if (Math.abs(+oldXDomain[0] - +xDomainClamped[0]) >= 1e-12 ||
-        Math.abs(+oldXDomain[1] - +xDomainClamped[1]) >= 1e-12) {
+    const xDomainClamped = oldXScale.clampDomain(xDomainMin, xDomainMax, xZoomMin, xZoomMax).domain;
+    let newXDomain: AnyDomain<X> | undefined;
+    if (Math.abs(+oldXDomain[0] - +xDomainClamped[0]) >= Equivalent.Epsilon ||
+        Math.abs(+oldXDomain[1] - +xDomainClamped[1]) >= Equivalent.Epsilon) {
       newXDomain = xDomainClamped;
-      if (Math.abs((+oldXDomain[1] - +oldXDomain[0]) - (+newXDomain[1] - +newXDomain[0])) >= 1e-12) {
+      if (Math.abs((+oldXDomain[1] - +oldXDomain[0]) - (+newXDomain[1] - +newXDomain[0])) >= Equivalent.Epsilon) {
         this._scaleFlags |= ScaleView.XClampedFlag;
       }
     }
 
     const yDataDomainPadded = this._yDataDomainPadded;
-    let yZoomMin: number | boolean | null = this._yZoomBounds[0];
-    let yZoomMax: number | boolean | null = this._yZoomBounds[1];
+    let yZoomMin: number | boolean | undefined = this._yZoomBounds[0];
+    let yZoomMax: number | boolean | undefined = this._yZoomBounds[1];
     if (yZoomMin === true) {
       if (oldYScale instanceof LinearScale) {
         yZoomMin = ScaleView.LinearZoomMin;
       } else if (oldYScale instanceof TimeScale) {
         yZoomMin = ScaleView.TimeZoomMin;
       } else {
-        yZoomMin = null;
+        yZoomMin = void 0;
       }
     } else if (yZoomMin === false) {
-      yZoomMin = null;
+      yZoomMin = void 0;
     }
     if (yZoomMax === true) {
       if (oldYScale instanceof LinearScale) {
@@ -1390,27 +1387,26 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       } else if (oldYScale instanceof TimeScale) {
         yZoomMax = ScaleView.TimeZoomMax;
       } else {
-        yZoomMax = null;
+        yZoomMax = void 0;
       }
     } else if (yZoomMax === false) {
-      yZoomMax = null;
+      yZoomMax = void 0;
     }
-    const oldYDomain = oldYScale.domain();
+    const oldYDomain = oldYScale.domain;
     const yDomainBounds = this._yDomainBounds;
     const yDomainPadded = yDataDomainPadded !== void 0 ? yDataDomainPadded : oldYDomain;
-    const yDomainMin = yDomainBounds[0] === false ? null
+    const yDomainMin = yDomainBounds[0] === false ? void 0
                      : yDomainBounds[0] === true ? yDomainPadded[0]
                      : yDomainBounds[0];
-    const yDomainMax = yDomainBounds[1] === false ? null
+    const yDomainMax = yDomainBounds[1] === false ? void 0
                      : yDomainBounds[1] === true ? yDomainPadded[1]
                      : yDomainBounds[1];
-    const yDomainClamped = oldYScale.clampDomain(yDomainMin, yDomainMax,
-                                                 yZoomMin, yZoomMax).domain();
-    let newYDomain: readonly [Y, Y] | undefined;
-    if (Math.abs(+oldYDomain[0] - +yDomainClamped[0]) >= 1e-12 ||
-        Math.abs(+oldYDomain[1] - +yDomainClamped[1]) >= 1e-12) {
+    const yDomainClamped = oldYScale.clampDomain(yDomainMin, yDomainMax, yZoomMin, yZoomMax).domain;
+    let newYDomain: AnyDomain<Y> | undefined;
+    if (Math.abs(+oldYDomain[0] - +yDomainClamped[0]) >= Equivalent.Epsilon ||
+        Math.abs(+oldYDomain[1] - +yDomainClamped[1]) >= Equivalent.Epsilon) {
       newYDomain = yDomainClamped;
-      if (Math.abs((+oldYDomain[1] - +oldYDomain[0]) - (+newYDomain[1] - +newYDomain[0])) >= 1e-12) {
+      if (Math.abs((+oldYDomain[1] - +oldYDomain[0]) - (+newYDomain[1] - +newYDomain[0])) >= Equivalent.Epsilon) {
         this._scaleFlags |= ScaleView.YClampedFlag;
       }
     }
@@ -1436,8 +1432,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
           xDomainMax = xDataDomain[1];
         }
       }
-      if (Math.abs(+xDomain[0] - +xDomainMin) >= 1e-12 ||
-          Math.abs(+xDomain[1] - +xDomainMax) >= 1e-12) {
+      if (Math.abs(+xDomain[0] - +xDomainMin) >= Equivalent.Epsilon ||
+          Math.abs(+xDomain[1] - +xDomainMax) >= Equivalent.Epsilon) {
         newXDomain = [xDomainMin, xDomainMax];
       }
     }
@@ -1463,8 +1459,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
           yDomainMax = yDataDomain[1];
         }
       }
-      if (Math.abs(+yDomain[0] - +yDomainMin) >= 1e-12 ||
-          Math.abs(+yDomain[1] - +yDomainMax) >= 1e-12) {
+      if (Math.abs(+yDomain[0] - +yDomainMin) >= Equivalent.Epsilon ||
+          Math.abs(+yDomain[1] - +yDomainMax) >= Equivalent.Epsilon) {
         newYDomain = [yDomainMin, yDomainMax];
       }
     }
@@ -1474,14 +1470,14 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         (newXDomain !== void 0 || newYDomain !== void 0 || (this._scaleFlags & ScaleView.RescaleFlag) !== 0)) {
       const xDomain = newXDomain !== void 0 ? newXDomain : oldXDomain;
       const yDomain = newYDomain !== void 0 ? newYDomain : oldYDomain;
-      const xRange = oldXScale.range();
-      const yRange = oldYScale.range();
+      const xRange = oldXScale.range;
+      const yRange = oldYScale.range;
       const oldDomainWidth = +xDomain[1] - +xDomain[0];
       const oldDomainHeight = +yDomain[1] - +yDomain[0];
       const domainAspectRatio = oldDomainWidth / oldDomainHeight;
       const rangeAspectRatio = (xRange[1] - xRange[0]) / (yRange[0] - yRange[1]);
       const anamorphicAspectRatio = Math.abs(fitAspectRatio * rangeAspectRatio);
-      if (Math.abs(domainAspectRatio - anamorphicAspectRatio) >= 1e-12 ||
+      if (Math.abs(domainAspectRatio - anamorphicAspectRatio) >= Equivalent.Epsilon ||
           (this._scaleFlags & ScaleView.RescaleFlag) !== 0) {
         const fitAlign = this._fitAlign;
         if (fitAspectRatio < 0 && domainAspectRatio < anamorphicAspectRatio) {
@@ -1505,12 +1501,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         const xDomainBounds = this._xDomainBounds;
         const xDomainMin = typeof xDomainBounds[0] === "boolean" ? xDataDomain[0] : xDomainBounds[0];
         const xDomainMax = typeof xDomainBounds[1] === "boolean" ? xDataDomain[1] : xDomainBounds[1];
-        if (+xDomain[0] - 1e-12 <= +xDomainMin + 1e-12) {
+        if (+xDomain[0] - Equivalent.Epsilon <= +xDomainMin + Equivalent.Epsilon) {
           this._scaleFlags |= ScaleView.XMinInRangeFlag;
         } else {
           this._scaleFlags &= ~ScaleView.XMinInRangeFlag;
         }
-        if (+xDomainMax - 1e-12 <= +xDomain[1] + 1e-12) {
+        if (+xDomainMax - Equivalent.Epsilon <= +xDomain[1] + Equivalent.Epsilon) {
           this._scaleFlags |= ScaleView.XMaxInRangeFlag;
         } else {
           this._scaleFlags &= ~ScaleView.XMaxInRangeFlag;
@@ -1527,12 +1523,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         const yDomainBounds = this._yDomainBounds;
         const yDomainMin = typeof yDomainBounds[0] === "boolean" ? yDataDomain[0] : yDomainBounds[0];
         const yDomainMax = typeof yDomainBounds[1] === "boolean" ? yDataDomain[1] : yDomainBounds[1];
-        if (+yDomain[0] - 1e-12 <= +yDomainMin + 1e-12) {
+        if (+yDomain[0] - Equivalent.Epsilon <= +yDomainMin + Equivalent.Epsilon) {
           this._scaleFlags |= ScaleView.YMinInRangeFlag;
         } else {
           this._scaleFlags &= ~ScaleView.YMinInRangeFlag;
         }
-        if (+yDomainMax - 1e-12 <= +yDomain[1] + 1e-12) {
+        if (+yDomainMax - Equivalent.Epsilon <= +yDomain[1] + Equivalent.Epsilon) {
           this._scaleFlags |= ScaleView.YMaxInRangeFlag;
         } else {
           this._scaleFlags &= ~ScaleView.YMaxInRangeFlag;
@@ -1543,8 +1539,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     }
 
     if (newXDomain !== void 0 && !isPressing && (this._scaleFlags & ScaleView.XTweeningMask) === 0 &&
-        (Math.abs(+newXDomain[0] - +oldXDomain[0]) >= 1e-12 ||
-         Math.abs(+newXDomain[1] - +oldXDomain[1]) >= 1e-12)) {
+        (Math.abs(+newXDomain[0] - +oldXDomain[0]) >= Equivalent.Epsilon ||
+         Math.abs(+newXDomain[1] - +oldXDomain[1]) >= Equivalent.Epsilon)) {
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & (ScaleView.XBoundingFlag | ScaleView.RescaleFlag)) === 0) {
         transition = (this._scaleFlags & ScaleView.InteractingMask) !== 0
@@ -1558,7 +1554,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         }
       }
       this.willReboundX(oldXScale);
-      this.xDomain(newXDomain, transition);
+      this.xDomain(newXDomain instanceof Domain ? newXDomain : Domain(newXDomain[0], newXDomain[1]), transition);
       this.requireUpdate(View.NeedsLayout);
       if (transition === void 0) {
         this.didReboundX(this.xScale.getState());
@@ -1566,8 +1562,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     }
 
     if (newYDomain !== void 0 && !isPressing && (this._scaleFlags & ScaleView.YTweeningMask) === 0 &&
-        (Math.abs(+newYDomain[0] - +oldYDomain[0]) >= 1e-12 ||
-         Math.abs(+newYDomain[1] - +oldYDomain[1]) >= 1e-12)) {
+        (Math.abs(+newYDomain[0] - +oldYDomain[0]) >= Equivalent.Epsilon ||
+         Math.abs(+newYDomain[1] - +oldYDomain[1]) >= Equivalent.Epsilon)) {
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & (ScaleView.YBoundingFlag | ScaleView.RescaleFlag)) === 0) {
         transition = (this._scaleFlags & ScaleView.InteractingMask) !== 0
@@ -1581,7 +1577,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         }
       }
       this.willReboundY(oldYScale);
-      this.yDomain(newYDomain, transition);
+      this.yDomain(newYDomain instanceof Domain ? newYDomain : Domain(newYDomain[0], newYDomain[1]), transition);
       this.requireUpdate(View.NeedsLayout);
       if (transition === void 0) {
         this.didReboundY(this.yScale.getState());
@@ -1670,6 +1666,46 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       input.vy = 0;
       input.ay = 0;
     }
+  }
+
+  /** @hidden */
+  static createScale<X, Y>(x0: X, x1: X, y0: Y | undefined, y1: Y | undefined): ContinuousScale<X, Y> {
+    let range: LinearRange;
+    if (typeof y0 === "number" && typeof y1 === "number") {
+      range = LinearRange(y0, y1);
+    } else {
+      range = LinearRange(0, 1);
+    }
+    if (typeof x0 === "number" && typeof x1 === "number") {
+      return LinearScale(LinearDomain(x0, x1), range) as unknown as ContinuousScale<X, Y>;
+    } else if (x0 instanceof DateTime && x1 instanceof DateTime) {
+      return TimeScale(TimeDomain(x0, x1), range) as unknown as ContinuousScale<X, Y>;
+    } else {
+      throw new TypeError(x0 + ", " + x1 + ", " + y0 + ", " + y1);
+    }
+  }
+
+  /** @hidden */
+  static parseScale<X, Y>(string: string): ContinuousScale<X, Y> {
+    if (string === "linear") {
+      return LinearScale(LinearDomain(0, 1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
+    } else if (string === "time") {
+      const d1 = DateTime.current();
+      const d0 = d1.day(d1.day() - 1);
+      return TimeScale(TimeDomain(d0, d1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
+    } else {
+      const domain = string.split("...");
+      const x0 = +domain[0]!;
+      const x1 = +domain[1]!;
+      if (isFinite(x0) && isFinite(x1)) {
+        return LinearScale(LinearDomain(x0, x1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
+      } else {
+        const d0 = DateTime.parse(domain[0]!);
+        const d1 = DateTime.parse(domain[1]!);
+        return TimeScale(TimeDomain(d0, d1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
+      }
+    }
+    throw new TypeError("" + string);
   }
 
   /** @hidden */

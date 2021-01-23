@@ -31,6 +31,8 @@ export * from "./svg";
 export * from "./manager";
 
 declare global { // CSS Typed OM shim
+  /* eslint-disable no-var */
+
   interface CSSStyleValue {
   }
   var CSSStyleValue: {

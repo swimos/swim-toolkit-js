@@ -206,8 +206,8 @@ export class TreeRoot implements Equals, Equivalent {
     } else if (that instanceof TreeRoot) {
       return this._key === that._key && this._grow === that._grow && this._shrink === that._shrink
           && this._basis.equals(that._basis) && this._optional === that._optional
-          && Equals.equal(this._width, that._width) && Equals.equal(this._left, that._left)
-          && Equals.equal(this._right, that._right) && this._hidden === that._hidden;
+          && Equals(this._width, that._width) && Equals(this._left, that._left)
+          && Equals(this._right, that._right) && this._hidden === that._hidden;
     }
     return false;
   }

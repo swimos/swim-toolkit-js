@@ -60,13 +60,21 @@ export class MapboxView extends MapLayerView {
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;
   project(lng: AnyGeoPoint | number, lat?: number): PointR2 {
-    return this._geoProjection.project.apply(this._geoProjection, arguments as any);
+    if (arguments.length === 1) {
+      return this._geoProjection.project(lng as AnyGeoPoint);
+    } else {
+      return this._geoProjection.project(lng as number, lat!);
+    }
   }
 
   unproject(point: AnyPointR2): GeoPoint;
   unproject(x: number, y: number): GeoPoint;
   unproject(x: AnyPointR2 | number, y?: number): GeoPoint {
-    return this._geoProjection.unproject.apply(this._geoProjection, arguments as any);
+    if (arguments.length === 1) {
+      return this._geoProjection.unproject(x as AnyPointR2);
+    } else {
+      return this._geoProjection.unproject(x as number, y!);
+    }
   }
 
   get geoProjection(): MapboxProjection {

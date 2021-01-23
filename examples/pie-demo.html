@@ -188,6 +188,17 @@ function createSlice() {
       .sliceColor(sliceColor)
       .label(new swim.TextRunView().textColor("#ffffff"))
       .legend("");
+  slice.label().setHidden(!showLabels.checked);
+  slice.legend().setHidden(!showLegend.checked);
+  slice.value.didUpdate = function (newValue) {
+    // Update the slice label.
+    slice.label().text(Math.round(100 * newValue / slice.total()) + "%")
+                 .setHidden(!showLabels.checked);
+
+    // Update the slice legend.
+    slice.legend().text(slice.key + " (" + Math.round(100 * newValue) + ")")
+                  .setHidden(!showLegend.checked);
+  };
   // Add mouse event handlers.
   slice.on("pointerenter", function (event) {
         slice.sliceColor(hoverColors[Math.floor(Math.random() * hoverColors.length)], {duration: 200});
@@ -253,18 +264,6 @@ function updatePie() {
     if (!slice.isHovering()) {
       slice.sliceColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", tween);
     }
-
-    // Update the slice label.
-    const labelInterpolator = swim.Interpolator.between(oldValue, newValue)
-                                               .map((value) => Math.round(100 * value / slice.total()) + "%");
-    slice.label().text(newValue, tween.interpolator(labelInterpolator))
-                 .setHidden(!showLabels.checked);
-
-    // Update the slice legend.
-    const legendInterpolator = swim.Interpolator.between(oldValue, newValue)
-                                                 .map((value) => slice.key + " (" + Math.round(100 * value) + ")");
-    slice.legend().text(newValue, tween.interpolator(legendInterpolator))
-                  .setHidden(!showLegend.checked);
   }
 
   // Make sure we never schedule multiple timers.

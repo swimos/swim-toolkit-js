@@ -12,96 +12,113 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Values} from "@swim/util";
-import {Interpolator} from "@swim/interpolate";
+import {__extends} from "tslib";
+import {Arrays} from "@swim/util";
+import {Interpolator} from "@swim/mapping";
 import type {Look} from "../look/Look";
 import {FeelVector} from "./FeelVector";
 
-export class FeelVectorInterpolator extends Interpolator<FeelVector> {
+/** @hidden */
+export declare abstract class FeelVectorInterpolator {
   /** @hidden */
-  readonly _array: ReadonlyArray<[Look<unknown>, Interpolator<unknown>]>;
+  readonly interpolators: ReadonlyArray<[Look<unknown>, Interpolator<unknown>]>;
   /** @hidden */
-  readonly _index: {readonly [name: string]: number | undefined};
+  readonly index: {readonly [name: string]: number | undefined};
 
-  constructor(v0: FeelVector, v1: FeelVector) {
-    super();
-    const array = new Array<[Look<unknown>, Interpolator<unknown>]>();
-    const index: {[name: string]: number | undefined} = {};
-    v0.forEach(function <T>(a: T, look: Look<T>): void {
-      const b = v1.get(look);
-      if (b !== void 0) {
-        const interpolator = look.between(a, b);
-        index[look.name] = array.length;
-        array.push([look, interpolator]);
-      }
-    }, this);
-    this._array = array;
-    this._index = index;
-  }
+  get 0(): FeelVector;
 
-  interpolate(u: number): FeelVector {
-    const interpolators = this._array;
-    const n = interpolators.length;
-    const array = new Array<[Look<unknown>, unknown]>(n);
-    const index = this._index;
-    for (let i = 0; i < n; i += 1) {
+  get 1(): FeelVector;
+
+  equals(that: unknown): boolean;
+}
+
+export interface FeelVectorInterpolator extends Interpolator<FeelVector> {
+}
+
+/** @hidden */
+export function FeelVectorInterpolator(v0: FeelVector, v1: FeelVector): FeelVectorInterpolator {
+  const interpolator = function (u: number): FeelVector {
+    const interpolators = interpolator.interpolators;
+    const interpolatorCount = interpolators.length;
+    const array = new Array<[Look<unknown>, unknown]>(interpolatorCount);
+    const index = interpolator.index;
+    for (let i = 0; i < interpolatorCount; i += 1) {
       const [look, interpolator] = interpolators[i]!;
-      const value = interpolator.interpolate(u);
+      const value = interpolator(u);
       array[i] = [look, value];
     }
     return FeelVector.fromArray(array, index);
-  }
-
-  deinterpolate(v: FeelVector): number {
-    return 0; // not implemented
-  }
-
-  range(): readonly [FeelVector, FeelVector];
-  range(vs: readonly [FeelVector, FeelVector]): FeelVectorInterpolator;
-  range(v0: FeelVector, v1: FeelVector): FeelVectorInterpolator;
-  range(v0?: readonly [FeelVector, FeelVector] | FeelVector,
-        v1?: FeelVector): readonly[FeelVector, FeelVector] | FeelVectorInterpolator {
-    if (arguments.length === 0) {
-      return [this.interpolate(0), this.interpolate(1)];
-    } else if (arguments.length === 1) {
-      v0 = v0 as readonly [FeelVector, FeelVector];
-      return FeelVectorInterpolator.between(v0[0], v0[1]);
-    } else {
-      return FeelVectorInterpolator.between(v0 as FeelVector, v1 as FeelVector);
+  } as FeelVectorInterpolator;
+  Object.setPrototypeOf(interpolator, FeelVectorInterpolator.prototype);
+  const interpolators = new Array<[Look<unknown>, Interpolator<unknown>]>();
+  const index: {[name: string]: number | undefined} = {};
+  v0.forEach(function <T>(a: T, look: Look<T>): void {
+    const b = v1.get(look);
+    if (b !== void 0) {
+      const interpolator = look.between(a, b);
+      index[look.name] = interpolators.length;
+      interpolators.push([look, interpolator]);
     }
-  }
-
-  equals(that: unknown): boolean {
-    if (this === that) {
-      return true;
-    } else if (that instanceof FeelVectorInterpolator) {
-      const n = this._array.length;
-      if (n === that._array.length) {
-        for (let i = 0; i < n; i += 1) {
-          if (!Values.equal(this._array[i]!, that._array[i]!)) {
-            return false;
-          }
-        }
-        return true;
-      }
-    }
-    return false;
-  }
-
-  static between(v0: FeelVector, v1: FeelVector): FeelVectorInterpolator;
-  static between(a: unknown, b: unknown): Interpolator<unknown>;
-  static between(a: unknown, b: unknown): Interpolator<unknown> {
-    if (a instanceof FeelVector && b instanceof FeelVector) {
-      return new FeelVectorInterpolator(a, b);
-    }
-    return Interpolator.between(a, b);
-  }
-
-  static tryBetween(a: unknown, b: unknown): FeelVectorInterpolator | null {
-    if (a instanceof FeelVector && b instanceof FeelVector) {
-      return new FeelVectorInterpolator(a, b);
-    }
-    return null;
-  }
+  });
+  Object.defineProperty(interpolator, "interpolators", {
+    value: interpolators,
+    enumerable: true,
+  });
+  Object.defineProperty(interpolator, "index", {
+    value: index,
+    enumerable: true,
+  });
+  return interpolator;
 }
-Interpolator.registerFactory(FeelVectorInterpolator);
+__extends(FeelVectorInterpolator, Interpolator);
+
+Object.defineProperty(FeelVectorInterpolator.prototype, 0, {
+  get(this: FeelVectorInterpolator): FeelVector {
+    const interpolators = this.interpolators;
+    const interpolatorCount = interpolators.length;
+    const array = new Array<[Look<unknown>, unknown]>(interpolatorCount);
+    const index = this.index;
+    for (let i = 0; i < interpolatorCount; i += 1) {
+      const [look, interpolator] = interpolators[i]!;
+      const value = interpolator[0];
+      array[i] = [look, value];
+    }
+    return FeelVector.fromArray(array, index);
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+Object.defineProperty(FeelVectorInterpolator.prototype, 1, {
+  get(this: FeelVectorInterpolator): FeelVector {
+    const interpolators = this.interpolators;
+    const interpolatorCount = interpolators.length;
+    const array = new Array<[Look<unknown>, unknown]>(interpolatorCount);
+    const index = this.index;
+    for (let i = 0; i < interpolatorCount; i += 1) {
+      const [look, interpolator] = interpolators[i]!;
+      const value = interpolator[1];
+      array[i] = [look, value];
+    }
+    return FeelVector.fromArray(array, index);
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+FeelVectorInterpolator.prototype.equals = function (that: unknown): boolean {
+  if (this === that) {
+    return true;
+  } else if (that instanceof FeelVectorInterpolator) {
+    const n = this.interpolators.length;
+    if (n === that.interpolators.length) {
+      for (let i = 0; i < n; i += 1) {
+        if (!Arrays.equal(this.interpolators[i]!, that.interpolators[i]!)) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+  return false;
+};

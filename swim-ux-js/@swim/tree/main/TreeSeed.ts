@@ -219,8 +219,8 @@ export class TreeSeed implements Equals, Equivalent {
     if (this === that) {
       return true;
     } else if (that instanceof TreeSeed) {
-      return Equals.equal(this._width, that._width) && Equals.equal(this._left, that._left)
-          && Equals.equal(this._right, that._right) && Arrays.equal(this._roots, that._roots);
+      return Equals(this._width, that._width) && Equals(this._left, that._left)
+          && Equals(this._right, that._right) && Arrays.equal(this._roots, that._roots);
     }
     return false;
   }

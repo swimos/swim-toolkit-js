@@ -14,6 +14,7 @@
 
 import {Equivalent, Equals, Values} from "@swim/util";
 import {Output, Parser, Debug, Diagnostic, Unicode} from "@swim/codec";
+import type {Interpolate, Interpolator} from "@swim/mapping";
 import type {Value, Form} from "@swim/structure";
 import type {FontStyle} from "./FontStyle";
 import type {FontVariant} from "./FontVariant";
@@ -22,6 +23,7 @@ import type {FontStretch} from "./FontStretch";
 import {AnyFontSize, FontSize} from "./FontSize";
 import {AnyLineHeight, LineHeight} from "./LineHeight";
 import {FontFamily} from "./FontFamily";
+import {FontInterpolator} from "../"; // forward import
 import type {FontParser} from "./FontParser";
 import type {FontForm} from "./FontForm";
 
@@ -37,7 +39,7 @@ export interface FontInit {
   family: FontFamily | FontFamily[];
 }
 
-export class Font implements Equals, Equivalent, Debug {
+export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
   /** @hidden */
   readonly _style?: FontStyle;
   /** @hidden */
@@ -200,6 +202,16 @@ export class Font implements Equals, Equivalent, Debug {
       height: this._height,
       family: (Array.isArray(this._family) ? this._family.slice(0) : this._family) as FontFamily | FontFamily[],
     };
+  }
+
+  interpolateTo(that: Font): Interpolator<Font>;
+  interpolateTo(that: unknown): Interpolator<Font> | null;
+  interpolateTo(that: unknown): Interpolator<Font> | null {
+    if (that instanceof Font) {
+      return FontInterpolator(this, that);
+    } else {
+      return null;
+    }
   }
 
   equivalentTo(that: unknown, epsilon?: number): boolean {

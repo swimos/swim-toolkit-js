@@ -45,7 +45,7 @@ export class DrawerButton extends IconButton {
     return this._drawerView;
   }
 
-  setDrawerView(drawerView: DrawerView | null) {
+  setDrawerView(drawerView: DrawerView | null): void {
     this._drawerView = drawerView;
   }
 

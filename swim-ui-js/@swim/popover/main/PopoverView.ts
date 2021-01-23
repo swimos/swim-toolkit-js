@@ -367,7 +367,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     if (placementFrame === void 0) {
       return this._placementFrame;
     } else {
-      if (!Equals.equal(this._placementFrame, placementFrame)) {
+      if (!Equals(this._placementFrame, placementFrame)) {
         this._placementFrame = placementFrame;
         this.place();
       }

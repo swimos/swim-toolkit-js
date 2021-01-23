@@ -14,13 +14,15 @@
 
 import {Equals, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
+import type {Interpolate, Interpolator} from "@swim/mapping";
 import type {Look} from "../look/Look";
+import {FeelVectorInterpolator} from "../"; // forward import
 
 export type AnyFeelVector = FeelVector | FeelVectorArray;
 
 export type FeelVectorArray = ReadonlyArray<[Look<unknown>, unknown]>;
 
-export class FeelVector implements Equals, Debug {
+export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
   /** @hidden */
   readonly _array: ReadonlyArray<[Look<unknown>, unknown]>;
   /** @hidden */
@@ -184,6 +186,16 @@ export class FeelVector implements Equals, Debug {
       }
     }
     return void 0;
+  }
+
+  interpolateTo(that: FeelVector): Interpolator<FeelVector>;
+  interpolateTo(that: unknown): Interpolator<FeelVector> | null;
+  interpolateTo(that: unknown): Interpolator<FeelVector> | null {
+    if (that instanceof FeelVector) {
+      return FeelVectorInterpolator(this, that);
+    } else {
+      return null;
+    }
   }
 
   equals(that: unknown): boolean {

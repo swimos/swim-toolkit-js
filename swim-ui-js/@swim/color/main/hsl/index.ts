@@ -17,7 +17,7 @@ export {
   HslColorInit,
   HslColor,
 } from "./HslColor";
+export {HslColorInterpolator} from "./HslColorInterpolator";
 
 export {HslColorParser} from "./HslColorParser";
 
-export {HslColorInterpolator} from "./HslColorInterpolator";

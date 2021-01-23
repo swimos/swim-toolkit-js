@@ -92,7 +92,7 @@ export abstract class GenericComponent extends Component {
   declare readonly parentComponent: Component | null;
 
   /** @hidden */
-  setParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null) {
+  setParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
     this.willSetParentComponent(newParentComponent, oldParentComponent);
     Object.defineProperty(this, "parentComponent", {
       value: newParentComponent,

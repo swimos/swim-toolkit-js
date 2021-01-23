@@ -14,8 +14,10 @@
 
 import {Equivalent, Equals, Arrays, Values} from "@swim/util";
 import {Parser, Diagnostic, Unicode} from "@swim/codec";
+import type {Interpolate, Interpolator} from "@swim/mapping";
 import {Angle} from "@swim/math";
 import {AnyColorStop, ColorStop} from "./ColorStop";
+import {LinearGradientInterpolator} from "../"; // forward import
 import type {LinearGradientAngleParser} from "./LinearGradientAngleParser";
 import type {LinearGradientParser} from "./LinearGradientParser";
 
@@ -34,7 +36,7 @@ export interface LinearGradientInit {
   stops: AnyColorStop[];
 }
 
-export class LinearGradient implements Equals, Equivalent {
+export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equivalent {
   /** @hidden */
   readonly _angle: LinearGradientAngle;
   /** @hidden */
@@ -72,6 +74,16 @@ export class LinearGradient implements Equals, Equivalent {
         array[i] = ColorStop.fromAny(stops[i]!);
       }
       return new LinearGradient(this._angle, array);
+    }
+  }
+
+  interpolateTo(that: LinearGradient): Interpolator<LinearGradient>;
+  interpolateTo(that: unknown): Interpolator<LinearGradient> | null;
+  interpolateTo(that: unknown): Interpolator<LinearGradient> | null {
+    if (that instanceof LinearGradient) {
+      return LinearGradientInterpolator(this, that);
+    } else {
+      return null;
     }
   }
 

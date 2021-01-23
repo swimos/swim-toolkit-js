@@ -213,7 +213,7 @@ export abstract class GraphicsView extends View {
   declare readonly parentView: View | null;
 
   /** @hidden */
-  setParentView(newParentView: View | null, oldParentView: View | null) {
+  setParentView(newParentView: View | null, oldParentView: View | null): void {
     this.willSetParentView(newParentView, oldParentView);
     Object.defineProperty(this, "parentView", {
       value: newParentView,

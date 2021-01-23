@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Interpolator} from "@swim/interpolate";
+import type {Interpolator} from "@swim/mapping";
 import type {AnyLength, Length} from "@swim/math";
 import type {AnyTransition, Transition} from "@swim/animation";
 import type {AnyColor, Color} from "@swim/color";

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Spec, Unit} from "@swim/unit";
-
 import {ColorParserSpec} from "./ColorParserSpec";
 import {ColorStopSpec} from "./ColorStopSpec";
 import {LinearGradientSpec} from "./LinearGradientSpec";

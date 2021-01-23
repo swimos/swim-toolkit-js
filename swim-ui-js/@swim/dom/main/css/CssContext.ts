@@ -47,7 +47,7 @@ export const CssContext = {} as {
 
 CssContext.getCssRuleConstructor = function (ruleName: string, contextPrototype: CssContextPrototype): CssRuleConstructor<CssContext> | null {
   while (contextPrototype !== null) {
-    if (contextPrototype.hasOwnProperty("_cssRuleConstructors")) {
+    if (Object.prototype.hasOwnProperty.call(contextPrototype, "_cssRuleConstructors")) {
       const constructor = contextPrototype._cssRuleConstructors![ruleName];
       if (constructor !== void 0) {
         return constructor;
@@ -61,7 +61,7 @@ CssContext.getCssRuleConstructor = function (ruleName: string, contextPrototype:
 CssContext.decorateCssRule = function (constructor: CssRuleConstructor<any>,
                                        target: Object, propertyKey: string | symbol): void {
   const contextPrototype = target as CssContextPrototype;
-  if (!contextPrototype.hasOwnProperty("_cssRuleConstructors")) {
+  if (!Object.prototype.hasOwnProperty.call(contextPrototype, "_cssRuleConstructors")) {
     contextPrototype._cssRuleConstructors = {};
   }
   contextPrototype._cssRuleConstructors![propertyKey.toString()] = constructor;

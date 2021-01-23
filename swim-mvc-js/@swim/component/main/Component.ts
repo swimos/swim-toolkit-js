@@ -1031,7 +1031,7 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentPrototype.hasOwnProperty("_componentServiceConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentServiceConstructors")) {
         const constructor = componentPrototype._componentServiceConstructors![serviceName];
         if (constructor !== void 0) {
           return constructor;
@@ -1046,7 +1046,7 @@ export abstract class Component {
   static decorateComponentService(constructor: ComponentServiceConstructor<Component, unknown>,
                                   target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!componentPrototype.hasOwnProperty("_componentServiceConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentServiceConstructors")) {
       componentPrototype._componentServiceConstructors = {};
     }
     componentPrototype._componentServiceConstructors![propertyKey.toString()] = constructor;
@@ -1070,7 +1070,7 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentPrototype.hasOwnProperty("_componentScopeConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentScopeConstructors")) {
         const constructor = componentPrototype._componentScopeConstructors![scopeName];
         if (constructor !== void 0) {
           return constructor;
@@ -1085,7 +1085,7 @@ export abstract class Component {
   static decorateComponentScope(constructor: ComponentScopeConstructor<Component, unknown>,
                                 target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!componentPrototype.hasOwnProperty("_componentScopeConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentScopeConstructors")) {
       componentPrototype._componentScopeConstructors = {};
     }
     componentPrototype._componentScopeConstructors![propertyKey.toString()] = constructor;
@@ -1109,7 +1109,7 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentPrototype.hasOwnProperty("_componentModelConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentModelConstructors")) {
         const constructor = componentPrototype._componentModelConstructors![modelName];
         if (constructor !== void 0) {
           return constructor;
@@ -1124,7 +1124,7 @@ export abstract class Component {
   static decorateComponentModel(constructor: ComponentModelConstructor<Component, Model>,
                                 target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!componentPrototype.hasOwnProperty("_componentModelConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentModelConstructors")) {
       componentPrototype._componentModelConstructors = {};
     }
     componentPrototype._componentModelConstructors![propertyKey.toString()] = constructor;
@@ -1148,7 +1148,7 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentPrototype.hasOwnProperty("_componentTraitConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentTraitConstructors")) {
         const constructor = componentPrototype._componentTraitConstructors![traitName];
         if (constructor !== void 0) {
           return constructor;
@@ -1163,7 +1163,7 @@ export abstract class Component {
   static decorateComponentTrait(constructor: ComponentTraitConstructor<Component, Trait>,
                                 target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!componentPrototype.hasOwnProperty("_componentTraitConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentTraitConstructors")) {
       componentPrototype._componentTraitConstructors = {};
     }
     componentPrototype._componentTraitConstructors![propertyKey.toString()] = constructor;
@@ -1187,7 +1187,7 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentPrototype.hasOwnProperty("_componentViewConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentViewConstructors")) {
         const constructor = componentPrototype._componentViewConstructors![viewName];
         if (constructor !== void 0) {
           return constructor;
@@ -1202,7 +1202,7 @@ export abstract class Component {
   static decorateComponentView(constructor: ComponentViewConstructor<Component, View>,
                                target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!componentPrototype.hasOwnProperty("_componentViewConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentViewConstructors")) {
       componentPrototype._componentViewConstructors = {};
     }
     componentPrototype._componentViewConstructors![propertyKey.toString()] = constructor;
@@ -1226,7 +1226,7 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (componentPrototype.hasOwnProperty("_componentBindingConstructors")) {
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentBindingConstructors")) {
         const constructor = componentPrototype._componentBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
@@ -1241,7 +1241,7 @@ export abstract class Component {
   static decorateComponentBinding(constructor: ComponentBindingConstructor<Component, Component>,
                                   target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!componentPrototype.hasOwnProperty("_componentBindingConstructors")) {
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentBindingConstructors")) {
       componentPrototype._componentBindingConstructors = {};
     }
     componentPrototype._componentBindingConstructors![propertyKey.toString()] = constructor;

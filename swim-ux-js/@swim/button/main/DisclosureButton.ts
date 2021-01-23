@@ -14,7 +14,7 @@
 
 import {Angle, Transform} from "@swim/math";
 import type {Transition} from "@swim/animation";
-import {AnyColor, Color, ColorInterpolator} from "@swim/color";
+import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
@@ -71,8 +71,8 @@ export class DisclosureButton extends HtmlView {
       const collapsedColor = this.collapsedColor.value;
       const expandedColor = this.expandedColor.value;
       if (collapsedColor !== void 0 && expandedColor !== void 0 && this.arrow.fill.isAuto()) {
-        const colorInterpolator = ColorInterpolator.between(collapsedColor, expandedColor);
-        this.arrow.fill.setAutoState(colorInterpolator.interpolate(disclosurePhase));
+        const colorInterpolator = collapsedColor.interpolateTo(expandedColor);
+        this.arrow.fill.setAutoState(colorInterpolator(disclosurePhase));
       }
       const transform = Transform.translate(12, 12).rotate(Angle.deg(-180 * disclosurePhase));
       this.arrow.transform.setAutoState(transform);

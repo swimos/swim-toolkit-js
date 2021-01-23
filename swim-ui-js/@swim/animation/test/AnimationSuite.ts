@@ -14,12 +14,6 @@
 
 import {Spec, Unit} from "@swim/unit";
 
-import {EaseSpec} from "./EaseSpec";
-
 @Unit
-export class TweenSuite extends Spec {
-  @Unit
-  easeSpec(): Spec {
-    return new EaseSpec();
-  }
+export class AnimationSuite extends Spec {
 }

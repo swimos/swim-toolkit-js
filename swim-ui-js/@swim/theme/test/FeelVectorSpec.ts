@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Spec, Test, Exam} from "@swim/unit";
-import {Interpolator} from "@swim/interpolate";
 import {Color} from "@swim/color";
 import {Look, FeelVector} from "@swim/theme";
 
@@ -35,10 +34,9 @@ export class FeelVectorSpec extends Spec {
   testInterpolate(exam: Exam): void {
     const a = FeelVector.of([Look.backgroundColor, "#000000"], [Look.opacity, 1]);
     const b = FeelVector.of([Look.backgroundColor, "#222222"], [Look.opacity, 0.8]);
-    const interpolator = Interpolator.between(a, b);
-    exam.equal(interpolator.interpolate(0), a);
-    exam.equal(interpolator.interpolate(1), b);
-    exam.equal(interpolator.interpolate(0.5),
-               FeelVector.of([Look.backgroundColor, "#111111"], [Look.opacity, 0.9]));
+    const interpolator = a.interpolateTo(b);
+    exam.equal(interpolator(0), a);
+    exam.equal(interpolator(1), b);
+    exam.equal(interpolator(0.5), FeelVector.of([Look.backgroundColor, "#111111"], [Look.opacity, 0.9]));
   }
 }

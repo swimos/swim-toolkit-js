@@ -13,12 +13,11 @@
   "dependencies": {
     "@swim/util": "3.11.0-dev.20201021",
     "@swim/codec": "3.11.0-dev.20201021",
-    "@swim/interpolate": "3.11.0-dev.20201021",
+    "@swim/mapping": "3.11.0-dev.20201021",
     "@swim/structure": "3.11.0-dev.20201021",
     "@swim/math": "3.11.0-dev.20201021",
     "@swim/geo": "3.11.0-dev.20201021",
     "@swim/time": "3.11.0-dev.20201021",
-    "@swim/scale": "3.11.0-dev.20201021",
     "@swim/constraint": "3.11.0-dev.20201021",
     "@swim/animation": "3.11.0-dev.20201021",
     "@swim/color": "3.11.0-dev.20201021",

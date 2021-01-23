@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ContinuousScale} from "@swim/mapping";
 import {PointR2, BoxR2} from "@swim/math";
-import {ContinuousScale} from "@swim/scale";
 import {ViewAnimator} from "@swim/view";
 import type {CanvasContext} from "@swim/graphics";
 import {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
@@ -31,7 +31,7 @@ export class RightAxisView<Y = unknown> extends AxisView<Y> {
   protected layoutTick(tick: TickView<Y>, origin: PointR2, frame: BoxR2,
                        scale: ContinuousScale<Y, number>): void {
     if (tick.anchor.isAuto()) {
-      tick._offset = scale.scale(tick._value);
+      tick._offset = scale(tick._value);
       tick.anchor.setAutoState(new PointR2(origin.x, frame.yMin + tick._offset));
     }
   }

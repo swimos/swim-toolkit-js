@@ -14,8 +14,10 @@
 
 import {Equivalent, Equals} from "@swim/util";
 import {Parser, Diagnostic, Unicode} from "@swim/codec";
+import type {Interpolate, Interpolator} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "../color/Color";
+import {ColorStopInterpolator} from "../"; // forward import
 import type {ColorStopParser} from "./ColorStopParser";
 import type {ColorStopListParser} from "./ColorStopListParser";
 
@@ -29,7 +31,7 @@ export interface ColorStopInit {
 
 export type ColorStopTuple = [AnyColor, AnyLength | null];
 
-export class ColorStop implements Equals, Equivalent {
+export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
   /** @hidden */
   readonly _color: Color;
   /** @hidden */
@@ -80,13 +82,23 @@ export class ColorStop implements Equals, Equivalent {
     }
   }
 
+  interpolateTo(that: ColorStop): Interpolator<ColorStop>;
+  interpolateTo(that: unknown): Interpolator<ColorStop> | null;
+  interpolateTo(that: unknown): Interpolator<ColorStop> | null {
+    if (that instanceof ColorStop) {
+      return ColorStopInterpolator(this, that);
+    } else {
+      return null;
+    }
+  }
+
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
     } else if (that instanceof ColorStop) {
-      return Equivalent.equivalent(this._color, that._color, epsilon)
-          && Equivalent.equivalent(this._stop, that._stop, epsilon)
-          && Equivalent.equivalent(this._hint, that._hint, epsilon);
+      return Equivalent(this._color, that._color, epsilon)
+          && Equivalent(this._stop, that._stop, epsilon)
+          && Equivalent(this._hint, that._hint, epsilon);
     }
     return false;
   }
@@ -96,8 +108,8 @@ export class ColorStop implements Equals, Equivalent {
       return true;
     } else if (that instanceof ColorStop) {
       return this._color.equals(that._color)
-          && Equals.equal(this._stop, that._stop)
-          && Equals.equal(this._hint, that._hint);
+          && Equals(this._stop, that._stop)
+          && Equals(this._hint, that._hint);
     }
     return false;
   }

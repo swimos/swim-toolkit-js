@@ -13,16 +13,13 @@
 // limitations under the License.
 
 import type {BoxR2} from "@swim/math";
-import type {ContinuousScale} from "@swim/scale";
+import type {ContinuousScale} from "@swim/mapping";
 import type {Tween} from "@swim/animation";
 import {ViewContext, View, ViewObserver} from "@swim/view";
 import type {GestureInputType} from "./GestureInput";
 import {AbstractMomentumGesture} from "./MomentumGesture";
 import type {ScaleGestureDelegate} from "./ScaleGestureDelegate";
 import {ScaleGestureInput} from "./ScaleGestureInput";
-
-const COS_PI_4 = Math.cos(Math.PI / 4);
-const SIN_PI_4 = Math.sin(Math.PI / 4);
 
 export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentumGesture<V> implements ViewObserver<V> {
   /** @hidden */
@@ -168,7 +165,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
 
   protected clientToRangeX(clientX: number, xScale: ContinuousScale<X, number>, bounds: BoxR2): number {
     const viewX = clientX - bounds.xMin;
-    const xRange = xScale.range();
+    const xRange = xScale.range;
     if (xRange[0] <= xRange[1]) {
       return xRange[0] + viewX;
     } else {
@@ -178,7 +175,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
 
   protected clientToRangeY(clientY: number, yScale: ContinuousScale<Y, number>, bounds: BoxR2): number {
     const viewY = clientY - bounds.yMin;
-    const yRange = yScale.range();
+    const yRange = yScale.range;
     if (yRange[0] <= yRange[1]) {
       return yRange[0] + viewY;
     } else {
@@ -187,11 +184,11 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   }
 
   protected unscaleX(clientX: number, xScale: ContinuousScale<X, number>, bounds: BoxR2): X {
-    return xScale.unscale(this.clientToRangeX(clientX, xScale, bounds));
+    return xScale.inverse(this.clientToRangeX(clientX, xScale, bounds));
   }
 
   protected unscaleY(clientY: number, yScale: ContinuousScale<Y, number>, bounds: BoxR2): Y {
-    return yScale.unscale(this.clientToRangeY(clientY, yScale, bounds));
+    return yScale.inverse(this.clientToRangeY(clientY, yScale, bounds));
   }
 
   viewWillAnimate(viewContext: ViewContext): void {
@@ -826,11 +823,11 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     }
     const t = event !== null ? event.timeStamp : performance.now();
     const a = this.acceleration();
-    let ax = a * COS_PI_4;
-    let ay = a * SIN_PI_4;
+    let ax = a * Math.cos(Math.PI / 4);
+    let ay = a * Math.sin(Math.PI / 4);
     const vMax = this.velocityMax();
-    const vx = 0.5 * vMax * COS_PI_4;
-    const vy = 0.5 * vMax * SIN_PI_4;
+    const vx = 0.5 * vMax * Math.cos(Math.PI / 4);
+    const vy = 0.5 * vMax * Math.sin(Math.PI / 4);
     const dx = (4 * vx * vx) / ax;
     const dy = (4 * vy * vy) / ay;
 
@@ -842,8 +839,8 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
         const dzx = Math.abs(zoom1.x - zoom0.x) / 2;
         const dzy = Math.abs(zoom1.y - zoom0.y) / 2;
         dz = Math.min(Math.max(-vMax * dt, dz), vMax * dt);
-        const zx = (dz * dzx * COS_PI_4) / dx;
-        const zy = (dz * dzy * SIN_PI_4) / dy;
+        const zx = (dz * dzx * Math.cos(Math.PI / 4)) / dx;
+        const zy = (dz * dzy * Math.sin(Math.PI / 4)) / dy;
         ax = (ax * dzx) / dx;
         ay = (ay * dzy) / dy;
 

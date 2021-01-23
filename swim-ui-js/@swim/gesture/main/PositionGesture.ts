@@ -417,7 +417,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
     }
   }
 
-  endPress(input: PositionGestureInput, event: Event | null) {
+  endPress(input: PositionGestureInput, event: Event | null): void {
     if (input.pressing) {
       input.clearHoldTimer();
       this.willEndPress(input, event);

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Interpolator} from "@swim/interpolate";
+import {Interpolator} from "@swim/mapping";
 import {AnyTransition, Transition} from "@swim/animation";
 import {Look} from "./Look";
 
-export class TransitionLook<T = any> extends Look<Transition<T>, AnyTransition<T>> {
-  combine(combination: Transition<any> | undefined, value: Transition<any>, weight: number): Transition<any> {
+export class TransitionLook<T = unknown> extends Look<Transition<T>, AnyTransition<T>> {
+  combine(combination: Transition<T> | undefined, value: Transition<T>, weight: number): Transition<T> {
     if (weight === void 0 || weight !== 0) {
       return value;
     } else if (combination !== void 0) {
@@ -27,11 +27,11 @@ export class TransitionLook<T = any> extends Look<Transition<T>, AnyTransition<T
     }
   }
 
-  between(a: Transition<any>, b: Transition<any>): Interpolator<Transition<any>> {
-    return Interpolator.between(a, b);
+  between(a: Transition<T>, b: Transition<T>): Interpolator<Transition<T>> {
+    return Interpolator(a, b);
   }
 
-  coerce(value: AnyTransition<any>): Transition<any> {
+  coerce(value: AnyTransition<T>): Transition<T> {
     return Transition.fromAny(value);
   }
 }

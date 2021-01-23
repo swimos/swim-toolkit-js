@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Easing, ContinuousScale} from "@swim/mapping";
 import {BTree} from "@swim/collections";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import type {ContinuousScale} from "@swim/scale";
-import {Ease, AnyTransition, Transition} from "@swim/animation";
+import {AnyTransition, Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
@@ -223,7 +223,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     type: Transition,
     inherit: true,
     initState(): Transition<any> {
-      return Transition.duration(250, Ease.cubicOut);
+      return Transition.duration(250, Easing.cubicOut);
     },
   })
   declare tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
@@ -368,12 +368,12 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
                           scale: ContinuousScale<D, number>): void {
     const tickMarkSpacing = this.tickMarkSpacing.getValue();
     if (tickMarkSpacing !== 0) {
-      const [y0, y1] = scale.range();
-      const dy = Math.abs(y1 - y0);
+      const range = scale.range;
+      const dy = Math.abs(range[1] - range[0]);
       const n = Math.max(1, Math.floor(dy / tickMarkSpacing));
       tickGenerator.count(n);
     }
-    tickGenerator.domain(scale.domain());
+    tickGenerator.domain(scale.domain);
 
     const oldTicks = this._ticks.clone();
     const tickValues = tickGenerator.generate();

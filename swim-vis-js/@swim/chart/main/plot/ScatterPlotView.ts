@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Values} from "@swim/util";
+import {Domain, Range, ContinuousScale} from "@swim/mapping";
 import type {BoxR2} from "@swim/math";
-import {ContinuousScale} from "@swim/scale";
 import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
@@ -97,8 +97,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   }
 
   insertDataPoints(...points: AnyDataPointView<X, Y>[]): void {
-    for (let i = 0, n = arguments.length; i < n; i += 1) {
-      this.insertDataPoint(arguments[i]);
+    for (let i = 0, n = points.length; i < n; i += 1) {
+      this.insertDataPoint(points[i]!);
     }
   }
 
@@ -118,42 +118,42 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
   declare yScale: ScaleViewAnimator<this, Y, number>;
 
-  xDomain(): readonly [X, X] | undefined;
-  xDomain(xDomain: readonly [X, X] | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;
+  xDomain(): Domain<X> | undefined;
+  xDomain(xDomain: Domain<X> | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;
   xDomain(xMin: X, xMax: X, tween: Tween<ContinuousScale<X, number>>): this;
-  xDomain(xMin?: readonly [X, X] | X | string, xMax?: X | Tween<ContinuousScale<X, number>>,
-          tween?: Tween<ContinuousScale<X, number>>): readonly [X, X] | undefined | this {
+  xDomain(xMin?: Domain<X> | X | string, xMax?: X | Tween<ContinuousScale<X, number>>,
+          tween?: Tween<ContinuousScale<X, number>>): Domain<X> | undefined | this {
     if (arguments.length === 0) {
       const xScale = this.xScale.value;
-      return xScale !== void 0 ? xScale.domain() : void 0;
+      return xScale !== void 0 ? xScale.domain : void 0;
     } else {
       this.xScale.setDomain(xMin as any, xMax as any, tween);
       return this;
     }
   }
 
-  yDomain(): readonly [Y, Y] | undefined;
-  yDomain(yDomain: readonly [Y, Y] | string | undefined, tween?: Tween<ContinuousScale<Y, number>>): this;
+  yDomain(): Domain<Y> | undefined;
+  yDomain(yDomain: Domain<Y> | string | undefined, tween?: Tween<ContinuousScale<Y, number>>): this;
   yDomain(yMin: Y, yMax: Y, tween: Tween<ContinuousScale<Y, number>>): this;
-  yDomain(yMin?: readonly [Y, Y] | Y | string, yMax?: Y | Tween<ContinuousScale<Y, number>>,
-          tween?: Tween<ContinuousScale<Y, number>>): readonly [Y, Y] | undefined | this {
+  yDomain(yMin?: Domain<Y> | Y | string, yMax?: Y | Tween<ContinuousScale<Y, number>>,
+          tween?: Tween<ContinuousScale<Y, number>>): Domain<Y> | undefined | this {
     if (arguments.length === 0) {
       const yScale = this.yScale.value;
-      return yScale !== void 0 ? yScale.domain() : void 0;
+      return yScale !== void 0 ? yScale.domain : void 0;
     } else {
       this.yScale.setDomain(yMin as any, yMax as any, tween);
       return this;
     }
   }
 
-  xRange(): readonly [number, number] | undefined {
+  xRange(): Range<number> | undefined {
     const xScale = this.xScale.value;
-    return xScale !== void 0 ? xScale.range() : void 0;
+    return xScale !== void 0 ? xScale.range : void 0;
   }
 
-  yRange(): readonly [number, number] | undefined {
+  yRange(): Range<number> | undefined {
     const yScale = this.yScale.value;
-    return yScale !== void 0 ? yScale.range() : void 0;
+    return yScale !== void 0 ? yScale.range : void 0;
   }
 
   xDataDomain(): readonly [X, X] | undefined {
@@ -247,11 +247,11 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
    */
   protected resizeScales(frame: BoxR2): void {
     const xScale = this.xScale.ownValue;
-    if (xScale !== void 0 && xScale.range()[1] !== frame.width) {
+    if (xScale !== void 0 && xScale.range[1] !== frame.width) {
       this.xScale.setRange(0, frame.width);
     }
     const yScale = this.yScale.ownValue;
-    if (yScale !== void 0 && yScale.range()[1] !== frame.height) {
+    if (yScale !== void 0 && yScale.range[1] !== frame.height) {
       this.yScale.setRange(0, frame.height);
     }
   }
@@ -293,8 +293,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
       if (point1 instanceof DataPointView) {
         const x1 = point1.x.getValue();
         const y1 = point1.y.getValue();
-        const sx1 = xScale.scale(x1);
-        const sy1 = yScale.scale(y1);
+        const sx1 = xScale(x1);
+        const sy1 = yScale(y1);
         point1._xCoord = frame.xMin + sx1;
         point1._yCoord = frame.yMin + sy1;
 
@@ -424,8 +424,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
       if (point1 instanceof DataPointView) {
         const x1 = point1.x.getValue();
         const y1 = point1.y.getValue();
-        const sx1 = xScale.scale(x1);
-        const sy1 = yScale.scale(y1);
+        const sx1 = xScale(x1);
+        const sy1 = yScale(y1);
         point1._xCoord = frame.xMin + sx1;
         point1._yCoord = frame.yMin + sy1;
 

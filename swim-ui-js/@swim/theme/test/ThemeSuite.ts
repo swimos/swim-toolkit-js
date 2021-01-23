@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Spec, Unit} from "@swim/unit";
-
 import {LookVectorSpec} from "./LookVectorSpec";
 import {FeelVectorSpec} from "./FeelVectorSpec";
 import {MoodVectorSpec} from "./MoodVectorSpec";

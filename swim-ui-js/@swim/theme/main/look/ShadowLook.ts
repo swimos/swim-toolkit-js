@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Interpolator} from "@swim/interpolate";
+import type {Interpolator} from "@swim/mapping";
 import {AnyBoxShadow, BoxShadow, BoxShadowInterpolator} from "@swim/style";
 import {Look} from "./Look";
 
@@ -27,8 +27,8 @@ export class ShadowLook extends Look<BoxShadow, AnyBoxShadow> {
     }
   }
 
-  between(a: BoxShadow, b: BoxShadow): Interpolator<BoxShadow, AnyBoxShadow> {
-    return BoxShadowInterpolator.between(a, b);
+  between(a: BoxShadow, b: BoxShadow): Interpolator<BoxShadow> {
+    return BoxShadowInterpolator(a, b);
   }
 
   coerce(value: AnyBoxShadow): BoxShadow {

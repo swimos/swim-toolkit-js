@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ContinuousScale} from "@swim/scale";
+import type {Domain, Range, ContinuousScale} from "@swim/mapping";
 import type {Tween} from "@swim/animation";
 import type {AnyColor} from "@swim/color";
 import type {AnyFont} from "@swim/style";
@@ -59,17 +59,17 @@ export interface PlotView<X, Y> extends GraphicsView, ScaleXYView<X, Y> {
   yScale(yScale: ContinuousScale<Y, number> | undefined,
          tween?: Tween<ContinuousScale<Y, number>>): this;
 
-  xDomain(): readonly [X, X] | undefined;
-  xDomain(xDomain: readonly [X, X] | undefined, tween?: Tween<any>): this;
+  xDomain(): Domain<X> | undefined;
+  xDomain(xDomain: Domain<X> | undefined, tween?: Tween<any>): this;
   xDomain(xMin: X, xMax: X, tween: Tween<any>): this;
 
-  yDomain(): readonly [Y, Y] | undefined;
-  yDomain(yDomain: readonly [Y, Y] | undefined, tween?: Tween<any>): this;
+  yDomain(): Domain<Y> | undefined;
+  yDomain(yDomain: Domain<Y> | undefined, tween?: Tween<any>): this;
   yDomain(yMin: Y, yMax: Y, tween: Tween<any>): this;
 
-  xRange(): readonly [number, number] | undefined;
+  xRange(): Range<number> | undefined;
 
-  yRange(): readonly [number, number] | undefined;
+  yRange(): Range<number> | undefined;
 
   xDataDomain(): readonly [X, X] | undefined;
 
@@ -136,7 +136,7 @@ PlotView.fromInit = function <X, Y>(init: PlotViewInit<X, Y>): PlotView<X, Y> {
 };
 
 PlotView.fromAny = function <X, Y>(value: AnyPlotView<X, Y>): PlotView<X, Y> {
-  if (this.is(value)) {
+  if (this.is<X, Y>(value)) {
     return value;
   } else if (typeof value === "string") {
     return this.fromType(value);

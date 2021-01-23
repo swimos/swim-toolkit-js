@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Easing} from "@swim/mapping";
 import {Length} from "@swim/math";
-import {Ease, Transition} from "@swim/animation";
+import {Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Font, BoxShadow} from "@swim/style";
 import {Look} from "../look/Look";
@@ -43,7 +44,7 @@ const LightWarningColor = Color.parse("#e6dd51");
 const LightAlertColor = Color.parse("#f6511d");
 
 const LightSpacing = Length.px(10);
-const LightTransition = Transition.duration(250, Ease.cubicOut);
+const LightTransition = Transition.duration(250, Easing.cubicOut);
 
 const LightAmbient = FeelVector.of(
   [Look.font, LightFont],
@@ -59,7 +60,7 @@ const LightAmbient = FeelVector.of(
   [Look.borderColor, LightBorderColor],
 
   [Look.spacing, LightSpacing],
-  [Look.transition, Transition.duration(1000, Ease.linear)],
+  [Look.transition, Transition.duration(1000, Easing.linear)],
 );
 
 const LightDefault = FeelVector.of(
@@ -120,7 +121,7 @@ const LightOverlay = FeelVector.of(
 );
 
 const LightFloating = FeelVector.of(
-  [Look.shadow, BoxShadow.of(0, 2, 4, 0, Color.black(0.5))],
+  [Look.shadow, BoxShadow.create(0, 2, 4, 0, Color.black(0.5))],
 );
 
 const LightTransparent = FeelVector.of(

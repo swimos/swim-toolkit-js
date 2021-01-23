@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AnyDomain, Domain, LinearDomain, ContinuousScale, LinearScale} from "@swim/mapping";
 import {BTree} from "@swim/collections";
-import {TimeZone, AnyDateTime, DateTime, DateTimeFormat, TimeInterval} from "@swim/time";
-import {ContinuousScale, TimeScale} from "@swim/scale";
+import {TimeZone, AnyDateTime, DateTime, TimeDomain, DateTimeFormat, TimeInterval, TimeScale} from "@swim/time";
 
 const ERROR_10 = Math.sqrt(50);
 const ERROR_5 = Math.sqrt(10);
@@ -61,8 +61,8 @@ export abstract class TickGenerator<D> {
   abstract count(): number;
   abstract count(n: number): this;
 
-  abstract domain(): readonly [D, D];
-  abstract domain(xs: readonly [D, D]): this;
+  abstract domain(): Domain<D>;
+  abstract domain(xs: AnyDomain<D>): this;
   abstract domain(x0: D, x1: D): this;
 
   abstract generate(): D[];
@@ -76,11 +76,13 @@ export abstract class TickGenerator<D> {
       n = 10;
     }
     if (scale instanceof TimeScale) {
-      const domain = scale.domain() as unknown as [DateTime, DateTime];
+      const domain = scale.domain;
       return new TimeTickGenerator(domain[0], domain[1], n) as unknown as TickGenerator<D>;
-    } else {
-      const domain = scale.domain() as unknown as [number, number];
+    } else if (scale instanceof LinearScale) {
+      const domain = scale.domain;
       return new NumberTickGenerator(domain[0], domain[1], n) as unknown as TickGenerator<D>;
+    } else {
+      throw new TypeError("" + scale);
     }
   }
 
@@ -126,15 +128,15 @@ export class NumberTickGenerator extends TickGenerator<number> {
     }
   }
 
-  domain(): readonly [number, number];
-  domain(xs: readonly [number, number]): this;
+  domain(): Domain<number>;
+  domain(xs: AnyDomain<number>): this;
   domain(x0: number, x1: number): this;
-  domain(x0?: readonly [number, number] | number, x1?: number): readonly [number, number] | this {
+  domain(x0?: AnyDomain<number> | number, x1?: number): Domain<number> | this {
     if (x0 === void 0) {
-      return [this.x0, this.x0 + this.dx];
+      return LinearDomain(this.x0, this.x0 + this.dx);
     } else if (x1 === void 0) {
-      this.x0 = (x0 as readonly [number, number])[0];
-      this.dx = (x0 as readonly [number, number])[1] - this.x0;
+      this.x0 = (x0 as AnyDomain<number>)[0];
+      this.dx = (x0 as AnyDomain<number>)[1] - this.x0;
       return this;
     } else {
       this.x0 = x0 as number;
@@ -227,17 +229,17 @@ export class TimeTickGenerator extends TickGenerator<DateTime> {
     }
   }
 
-  domain(): readonly [DateTime, DateTime];
-  domain(ts: readonly [AnyDateTime, AnyDateTime]): this;
+  domain(): Domain<DateTime>;
+  domain(ts: AnyDomain<DateTime>): this;
   domain(d0: AnyDateTime, d1: AnyDateTime): this;
-  domain(d0?: readonly [AnyDateTime, AnyDateTime] | AnyDateTime,
-         d1?: AnyDateTime): readonly [DateTime, DateTime] | this {
+  domain(d0?: AnyDomain<DateTime> | AnyDateTime,
+         d1?: AnyDateTime): Domain<DateTime> | this {
     if (d0 === void 0) {
-      return [new DateTime(this.t0, this.zone), new DateTime(this.t0 + this.dt, this.zone)];
+      return TimeDomain(new DateTime(this.t0, this.zone), new DateTime(this.t0 + this.dt, this.zone));
     } else {
       if (d1 === void 0) {
-        d1 = (d0 as readonly [AnyDateTime, AnyDateTime])[1];
-        d0 = (d0 as readonly [AnyDateTime, AnyDateTime])[0];
+        d1 = (d0 as AnyDomain<DateTime>)[1];
+        d0 = (d0 as AnyDomain<DateTime>)[0];
       } else {
         d0 = d0 as AnyDateTime;
       }

@@ -56,13 +56,14 @@ export class ColorParser extends Parser<Color> {
           case "rgba": return Color.RgbParser.parseRest(input);
           case "hsl":
           case "hsla": return Color.HslParser.parseRest(input);
-          default:
+          default: {
             const color = Color.fromName(ident);
             if (color !== void 0) {
               return Parser.done(color);
             } else {
               return Parser.error(Diagnostic.message("unknown color: " + ident, input));
             }
+          }
         }
       }
     }

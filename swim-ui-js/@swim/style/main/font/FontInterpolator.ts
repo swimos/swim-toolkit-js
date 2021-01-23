@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Interpolator} from "@swim/interpolate";
+import {__extends} from "tslib";
+import {Interpolator} from "@swim/mapping";
 import type {FontStyle} from "./FontStyle";
 import type {FontVariant} from "./FontVariant";
 import type {FontWeight} from "./FontWeight";
@@ -20,99 +21,121 @@ import type {FontStretch} from "./FontStretch";
 import type {FontSize} from "./FontSize";
 import type {LineHeight} from "./LineHeight";
 import type {FontFamily} from "./FontFamily";
-import {AnyFont, FontInit, Font} from "./Font";
+import {Font} from "./Font";
 
-export class FontInterpolator extends Interpolator<Font, AnyFont> {
+/** @hidden */
+export declare abstract class FontInterpolator {
   /** @hidden */
-  readonly style: Interpolator<FontStyle | undefined>;
+  declare readonly styleInterpolator: Interpolator<FontStyle | undefined>;
   /** @hidden */
-  readonly variant: Interpolator<FontVariant | undefined>;
+  declare readonly variantInterpolator: Interpolator<FontVariant | undefined>;
   /** @hidden */
-  readonly weight: Interpolator<FontWeight | undefined>;
+  declare readonly weightInterpolator: Interpolator<FontWeight | undefined>;
   /** @hidden */
-  readonly stretch: Interpolator<FontStretch | undefined>;
+  declare readonly stretchInterpolator: Interpolator<FontStretch | undefined>;
   /** @hidden */
-  readonly size: Interpolator<FontSize | undefined>;
+  declare readonly sizeInterpolator: Interpolator<FontSize | undefined>;
   /** @hidden */
-  readonly height: Interpolator<LineHeight | undefined>;
+  declare readonly heightInterpolator: Interpolator<LineHeight | undefined>;
   /** @hidden */
-  readonly family: Interpolator<FontFamily | ReadonlyArray<FontFamily>>;
+  declare readonly familyInterpolator: Interpolator<FontFamily | ReadonlyArray<FontFamily>>;
 
-  constructor(f0: Font, f1: Font) {
-    super();
-    this.style = Interpolator.between(f0._style, f1._style);
-    this.variant = Interpolator.between(f0._variant, f1._variant);
-    this.weight = Interpolator.between(f0._weight, f1._weight);
-    this.stretch = Interpolator.between(f0._stretch, f1._stretch);
-    this.size = Interpolator.between(f0._size, f1._size);
-    this.height = Interpolator.between(f0._height, f1._height);
-    this.family = Interpolator.between(f0._family, f1._family);
-  }
+  get 0(): Font;
 
-  interpolate(u: number): Font {
-    const style = this.style.interpolate(u);
-    const variant = this.variant.interpolate(u);
-    const weight = this.weight.interpolate(u);
-    const stretch = this.stretch.interpolate(u);
-    const size = this.size.interpolate(u);
-    const height = this.height.interpolate(u);
-    const family = this.family.interpolate(u);
-    return new Font(style, variant, weight, stretch, size, height, family);
-  }
+  get 1(): Font;
 
-  deinterpolate(f: AnyFont): number {
-    return 0; // not implemented
-  }
-
-  range(): readonly [Font, Font];
-  range(fs: readonly [Font | FontInit, Font | FontInit]): FontInterpolator;
-  range(f0: Font | FontInit, f1: Font | FontInit): FontInterpolator;
-  range(fs: readonly [AnyFont, AnyFont]): Interpolator<Font, AnyFont>;
-  range(f0: AnyFont, f1: AnyFont): Interpolator<Font, AnyFont>;
-  range(f0?: readonly [AnyFont, AnyFont] | AnyFont,
-        f1?: AnyFont): readonly [Font, Font] | Interpolator<Font, AnyFont> {
-    if (arguments.length === 0) {
-      return [this.interpolate(0), this.interpolate(1)];
-    } else if (arguments.length === 1) {
-      f0 = f0 as readonly [AnyFont, AnyFont];
-      return FontInterpolator.between(f0[0], f0[1]);
-    } else {
-      return FontInterpolator.between(f0 as AnyFont, f1 as AnyFont);
-    }
-  }
-
-  equals(that: unknown): boolean {
-    if (this === that) {
-      return true;
-    } else if (that instanceof FontInterpolator) {
-      return this.style.equals(that.style)
-          && this.variant.equals(that.variant)
-          && this.weight.equals(that.weight)
-          && this.stretch.equals(that.stretch)
-          && this.size.equals(that.size)
-          && this.height.equals(that.height)
-          && this.family.equals(that.family);
-    }
-    return false;
-  }
-
-  static between(f0: Font | FontInit, f1: Font | FontInit): FontInterpolator;
-  static between(f0: AnyFont, f1: AnyFont): Interpolator<Font, AnyFont>;
-  static between(a: unknown, b: unknown): Interpolator<unknown>;
-  static between(a: unknown, b: unknown): Interpolator<unknown> {
-    if (a instanceof Font && b instanceof Font) {
-      return new FontInterpolator(a, b);
-    } else if (Font.isAny(a) && Font.isAny(b)) {
-      return new FontInterpolator(Font.fromAny(a), Font.fromAny(b));
-    }
-    return Interpolator.between(a, b);
-  }
-
-  static tryBetween(a: unknown, b: unknown): FontInterpolator | null {
-    if (a instanceof Font && b instanceof Font) {
-      return new FontInterpolator(a, b);
-    }
-    return null;
-  }
+  equals(that: unknown): boolean;
 }
-Interpolator.registerFactory(FontInterpolator);
+
+export interface FontInterpolator extends Interpolator<Font> {
+}
+
+/** @hidden */
+export function FontInterpolator(y0: Font, y1: Font): FontInterpolator {
+  const interpolator = function (u: number): Font {
+    const style = interpolator.styleInterpolator(u);
+    const variant = interpolator.variantInterpolator(u);
+    const weight = interpolator.weightInterpolator(u);
+    const stretch = interpolator.stretchInterpolator(u);
+    const size = interpolator.sizeInterpolator(u);
+    const height = interpolator.heightInterpolator(u);
+    const family = interpolator.familyInterpolator(u);
+    return new Font(style, variant, weight, stretch, size, height, family);
+  } as FontInterpolator;
+  Object.setPrototypeOf(interpolator, FontInterpolator.prototype);
+  Object.defineProperty(interpolator, "styleInterpolator", {
+    value: Interpolator(y0._style, y1._style),
+    enumerable: true,
+  });
+  Object.defineProperty(interpolator, "variantInterpolator", {
+    value: Interpolator(y0._variant, y1._variant),
+    enumerable: true,
+  });
+  Object.defineProperty(interpolator, "weightInterpolator", {
+    value: Interpolator(y0._weight, y1._weight),
+    enumerable: true,
+  });
+  Object.defineProperty(interpolator, "stretchInterpolator", {
+    value: Interpolator(y0._stretch, y1._stretch),
+    enumerable: true,
+  });
+  Object.defineProperty(interpolator, "sizeInterpolator", {
+    value: Interpolator(y0._size, y1._size),
+    enumerable: true,
+  });
+  Object.defineProperty(interpolator, "heightInterpolator", {
+    value: Interpolator(y0._height, y1._height),
+    enumerable: true,
+  });
+  Object.defineProperty(interpolator, "familyInterpolator", {
+    value: Interpolator(y0._family, y1._family),
+    enumerable: true,
+  });
+  return interpolator;
+}
+__extends(FontInterpolator, Interpolator);
+
+Object.defineProperty(FontInterpolator.prototype, 0, {
+  get(this: FontInterpolator): Font {
+    const style = this.styleInterpolator[0];
+    const variant = this.variantInterpolator[0];
+    const weight = this.weightInterpolator[0];
+    const stretch = this.stretchInterpolator[0];
+    const size = this.sizeInterpolator[0];
+    const height = this.heightInterpolator[0];
+    const family = this.familyInterpolator[0];
+    return new Font(style, variant, weight, stretch, size, height, family);
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+Object.defineProperty(FontInterpolator.prototype, 1, {
+  get(this: FontInterpolator): Font {
+    const style = this.styleInterpolator[1];
+    const variant = this.variantInterpolator[1];
+    const weight = this.weightInterpolator[1];
+    const stretch = this.stretchInterpolator[1];
+    const size = this.sizeInterpolator[1];
+    const height = this.heightInterpolator[1];
+    const family = this.familyInterpolator[1];
+    return new Font(style, variant, weight, stretch, size, height, family);
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+FontInterpolator.prototype.equals = function (that: unknown): boolean {
+  if (this === that) {
+    return true;
+  } else if (that instanceof FontInterpolator) {
+    return this.styleInterpolator.equals(that.styleInterpolator)
+        && this.variantInterpolator.equals(that.variantInterpolator)
+        && this.weightInterpolator.equals(that.weightInterpolator)
+        && this.stretchInterpolator.equals(that.stretchInterpolator)
+        && this.sizeInterpolator.equals(that.sizeInterpolator)
+        && this.heightInterpolator.equals(that.heightInterpolator)
+        && this.familyInterpolator.equals(that.familyInterpolator);
+  }
+  return false;
+};

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Interpolator, NumberInterpolator} from "@swim/interpolate";
+import {Interpolator, NumberInterpolator} from "@swim/mapping";
 import {Look} from "./Look";
 
 export class NumberLook extends Look<number> {
@@ -33,7 +33,7 @@ export class NumberLook extends Look<number> {
   }
 
   between(a: number, b: number): Interpolator<number> {
-    return NumberInterpolator.between(a, b);
+    return NumberInterpolator(a, b);
   }
 
   coerce(value: number): number {

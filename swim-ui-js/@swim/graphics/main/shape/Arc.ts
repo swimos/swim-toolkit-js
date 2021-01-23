@@ -167,7 +167,7 @@ export class Arc implements Graphics, Equals, Debug {
       return this._padRadius;
     } else {
       padRadius = padRadius !== null ? Length.fromAny(padRadius) : null;
-      if (Equals.equal(this._padRadius, padRadius)) {
+      if (Equals(this._padRadius, padRadius)) {
         return this;
       } else {
         return this.copy(this._center, this._innerRadius, this._outerRadius, this._startAngle,
@@ -393,7 +393,7 @@ export class Arc implements Graphics, Equals, Debug {
           && this._startAngle.equals(that._startAngle)
           && this._sweepAngle.equals(that._sweepAngle)
           && this._padAngle.equals(that._padAngle)
-          && Equals.equal(this._padRadius, that._padRadius)
+          && Equals(this._padRadius, that._padRadius)
           && this._cornerRadius.equals(that._cornerRadius);
     }
     return false;
