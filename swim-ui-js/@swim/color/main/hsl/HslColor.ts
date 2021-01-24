@@ -217,7 +217,7 @@ export class HslColor extends Color {
   }
 
   static fromValue(value: Value): HslColor | undefined {
-    const tag = value.tag();
+    const tag = value.tag;
     let positional: boolean;
     if (tag === "hsl" || tag === "hsla") {
       value = value.header(tag);

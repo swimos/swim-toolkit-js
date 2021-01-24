@@ -241,7 +241,7 @@ export class RgbColor extends Color {
   }
 
   static fromValue(value: Value): RgbColor | undefined {
-    const tag = value.tag();
+    const tag = value.tag;
     let positional: boolean;
     if (tag === "rgb" || tag === "rgba") {
       value = value.header(tag);
