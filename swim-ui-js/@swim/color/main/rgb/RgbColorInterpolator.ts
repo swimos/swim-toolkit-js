@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Interpolator} from "@swim/mapping";
 import {RgbColor} from "./RgbColor";
 
 /** @hidden */
-export function RgbColorInterpolator(c0: RgbColor, c1: RgbColor): Interpolator<RgbColor> {
+export const RgbColorInterpolator = function (c0: RgbColor, c1: RgbColor): Interpolator<RgbColor> {
   const interpolator = function (u: number): RgbColor {
     const c0 = interpolator[0];
     const c1 = interpolator[1];
@@ -37,5 +36,11 @@ export function RgbColorInterpolator(c0: RgbColor, c1: RgbColor): Interpolator<R
     enumerable: true,
   });
   return interpolator;
-}
-__extends(RgbColorInterpolator, Interpolator);
+} as {
+  (c0: RgbColor, c1: RgbColor): Interpolator<RgbColor>;
+
+  /** @hidden */
+  prototype: Interpolator<RgbColor>;
+};
+
+RgbColorInterpolator.prototype = Object.create(Interpolator.prototype);

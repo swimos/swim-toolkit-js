@@ -12,30 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Interpolator} from "@swim/mapping";
 import type {ColorStop} from "./ColorStop";
 import {LinearGradientAngle, LinearGradient} from "./LinearGradient";
 
 /** @hidden */
-export declare abstract class LinearGradientInterpolator {
+export interface LinearGradientInterpolator extends Interpolator<LinearGradient> {
   /** @hidden */
-  declare readonly angleInterpolator: Interpolator<LinearGradientAngle>;
+  readonly angleInterpolator: Interpolator<LinearGradientAngle>;
   /** @hidden */
-  declare readonly stopInterpolators: ReadonlyArray<Interpolator<ColorStop>>;
+  readonly stopInterpolators: ReadonlyArray<Interpolator<ColorStop>>;
 
-  get 0(): LinearGradient;
+  readonly 0: LinearGradient;
 
-  get 1(): LinearGradient;
+  readonly 1: LinearGradient;
 
   equals(that: unknown): boolean;
 }
 
-export interface LinearGradientInterpolator extends Interpolator<LinearGradient> {
-}
-
 /** @hidden */
-export function LinearGradientInterpolator(g0: LinearGradient, g1: LinearGradient): LinearGradientInterpolator {
+export const LinearGradientInterpolator = function (g0: LinearGradient, g1: LinearGradient): LinearGradientInterpolator {
   const interpolator = function (u: number): LinearGradient {
     const angle = interpolator.angleInterpolator(u);
     const stopInterpolators = interpolator.stopInterpolators;
@@ -63,8 +59,14 @@ export function LinearGradientInterpolator(g0: LinearGradient, g1: LinearGradien
     enumerable: true,
   });
   return interpolator;
-}
-__extends(LinearGradientInterpolator, Interpolator);
+} as {
+  (g0: LinearGradient, g1: LinearGradient): LinearGradientInterpolator;
+
+  /** @hidden */
+  prototype: LinearGradientInterpolator;
+};
+
+LinearGradientInterpolator.prototype = Object.create(Interpolator.prototype);
 
 Object.defineProperty(LinearGradientInterpolator.prototype, 0, {
   get(this: LinearGradientInterpolator): LinearGradient {

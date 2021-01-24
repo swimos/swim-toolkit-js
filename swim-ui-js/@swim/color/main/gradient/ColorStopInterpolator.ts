@@ -12,33 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {__extends} from "tslib";
 import {Interpolator} from "@swim/mapping";
 import type {Length} from "@swim/math";
 import type {Color} from "../color/Color";
 import {ColorStop} from "./ColorStop";
 
 /** @hidden */
-export declare abstract class ColorStopInterpolator {
+export interface ColorStopInterpolator extends Interpolator<ColorStop> {
   /** @hidden */
-  declare readonly colorInterpolator: Interpolator<Color>;
+  readonly colorInterpolator: Interpolator<Color>;
   /** @hidden */
-  declare readonly stopInterpolator: Interpolator<Length | null>;
+  readonly stopInterpolator: Interpolator<Length | null>;
   /** @hidden */
-  declare readonly hintInterpolator: Interpolator<Length | null>;
+  readonly hintInterpolator: Interpolator<Length | null>;
 
-  get 0(): ColorStop;
+  readonly 0: ColorStop;
 
-  get 1(): ColorStop;
+  readonly 1: ColorStop;
 
   equals(that: unknown): boolean;
 }
 
-export interface ColorStopInterpolator extends Interpolator<ColorStop> {
-}
-
 /** @hidden */
-export function ColorStopInterpolator(y0: ColorStop, y1: ColorStop): ColorStopInterpolator {
+export const ColorStopInterpolator = function (y0: ColorStop, y1: ColorStop): ColorStopInterpolator {
   const interpolator = function (u: number): ColorStop {
     const color = interpolator.colorInterpolator(u);
     const stop = interpolator.stopInterpolator(u);
@@ -59,8 +55,14 @@ export function ColorStopInterpolator(y0: ColorStop, y1: ColorStop): ColorStopIn
     enumerable: true,
   });
   return interpolator;
-}
-__extends(ColorStopInterpolator, Interpolator);
+} as {
+  (y0: ColorStop, y1: ColorStop): ColorStopInterpolator;
+
+  /** @hidden */
+  prototype: ColorStopInterpolator;
+};
+
+ColorStopInterpolator.prototype = Object.create(Interpolator.prototype);
 
 Object.defineProperty(ColorStopInterpolator.prototype, 0, {
   get(this: ColorStopInterpolator): ColorStop {
