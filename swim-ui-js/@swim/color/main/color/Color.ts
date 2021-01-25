@@ -185,13 +185,13 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
     if (unit !== void 0) {
       unit = Color.fromAny(unit);
     }
-    if (unit !== Color.transparent()) {
-      return new Color.Form(unit);
-    } else {
+    if (unit === void 0 || unit === Color.transparent()) {
       if (Color._form === void 0) {
         Color._form = new Color.Form(Color.transparent());
       }
       return Color._form;
+    } else {
+      return new Color.Form(unit);
     }
   }
 

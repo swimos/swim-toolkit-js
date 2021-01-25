@@ -448,14 +448,14 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
 
   private static _form?: Form<Font, AnyFont>;
   static form(unit?: Font): Form<Font, AnyFont> {
-    if (unit !== void 0) {
-      unit = Font.fromAny(unit);
-      return new Font.Form(unit);
-    } else {
+    if (unit === void 0) {
       if (Font._form === void 0) {
-        Font._form = new Font.Form();
+        Font._form = new Font.Form(void 0);
       }
       return Font._form;
+    } else {
+      unit = Font.fromAny(unit);
+      return new Font.Form(unit);
     }
   }
 

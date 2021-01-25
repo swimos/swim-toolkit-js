@@ -453,13 +453,13 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
     if (unit !== void 0) {
       unit = BoxShadow.fromAny(unit);
     }
-    if (unit !== BoxShadow.none()) {
-      return new BoxShadow.Form(unit);
-    } else {
+    if (unit === void 0 || unit === BoxShadow.none()) {
       if (BoxShadow._form === void 0) {
         BoxShadow._form = new BoxShadow.Form(BoxShadow.none());
       }
       return BoxShadow._form;
+    } else {
+      return new BoxShadow.Form(unit);
     }
   }
 

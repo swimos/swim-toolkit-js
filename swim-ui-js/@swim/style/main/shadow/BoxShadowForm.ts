@@ -19,25 +19,27 @@ import {AnyBoxShadow, BoxShadow} from "./BoxShadow";
 
 /** @hidden */
 export class BoxShadowForm extends Form<BoxShadow, AnyBoxShadow> {
-  private readonly _unit: BoxShadow | undefined;
-
-  constructor(unit?: BoxShadow) {
+  constructor(unit: BoxShadow | undefined) {
     super();
-    this._unit = unit;
+    Object.defineProperty(this, "unit", {
+      value: unit,
+      enumerable: true,
+    });
   }
 
-  unit(): BoxShadow | undefined;
-  unit(unit: BoxShadow | undefined): Form<BoxShadow, AnyBoxShadow>;
-  unit(unit?: BoxShadow): BoxShadow | undefined | Form<BoxShadow, AnyBoxShadow> {
-    if (arguments.length === 0) {
-      return this._unit;
-    } else {
+  // @ts-ignore
+  declare readonly unit: BoxShadow | undefined;
+
+  withUnit(unit: BoxShadow | undefined): Form<BoxShadow, AnyBoxShadow> {
+    if (unit !== this.unit) {
       return new BoxShadowForm(unit);
+    } else {
+      return this;
     }
   }
 
   mold(boxShadow: AnyBoxShadow): Item {
-    let shadow = BoxShadow.fromAny(boxShadow) as BoxShadow;
+    let shadow = BoxShadow.fromAny(boxShadow);
     const record = Record.create();
     do {
       const header = Record.create(5);

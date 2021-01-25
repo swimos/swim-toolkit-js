@@ -110,13 +110,13 @@ StyleValue.parse = function (input: Input | string): StyleValue {
 };
 
 StyleValue.form = function (unit?: AnyStyleValue): Form<StyleValue, AnyStyleValue> {
-  if (unit !== void 0) {
-    unit = StyleValue.fromAny(unit);
-    return new StyleValue.Form(unit as StyleValue);
-  } else {
+  if (unit === void 0) {
     if (StyleValue._form === void 0) {
-      StyleValue._form = new StyleValue.Form();
+      StyleValue._form = new StyleValue.Form(void 0);
     }
     return StyleValue._form;
+  } else {
+    unit = StyleValue.fromAny(unit);
+    return new StyleValue.Form(unit as StyleValue);
   }
 };

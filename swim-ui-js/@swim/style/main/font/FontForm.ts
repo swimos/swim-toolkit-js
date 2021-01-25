@@ -18,20 +18,22 @@ import {AnyFont, Font} from "./Font";
 
 /** @hidden */
 export class FontForm extends Form<Font, AnyFont> {
-  private readonly _unit: Font | undefined;
-
-  constructor(unit?: Font) {
+  constructor(unit: Font | undefined) {
     super();
-    this._unit = unit;
+    Object.defineProperty(this, "unit", {
+      value: unit,
+      enumerable: true,
+    });
   }
 
-  unit(): Font | undefined;
-  unit(unit: Font | undefined): Form<Font, AnyFont>;
-  unit(unit?: Font): Font | undefined | Form<Font, AnyFont> {
-    if (arguments.length === 0) {
-      return this._unit;
-    } else {
+  // @ts-ignore
+  declare readonly unit: Font | undefined;
+
+  withUnit(unit: Font | undefined): Form<Font, AnyFont> {
+    if (unit !== this.unit) {
       return new FontForm(unit);
+    } else {
+      return this;
     }
   }
 

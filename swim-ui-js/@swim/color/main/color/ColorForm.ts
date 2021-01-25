@@ -17,20 +17,22 @@ import {AnyColor, Color} from "./Color";
 
 /** @hidden */
 export class ColorForm extends Form<Color, AnyColor> {
-  private readonly _unit: Color | undefined;
-
-  constructor(unit?: Color) {
+  constructor(unit: Color | undefined) {
     super();
-    this._unit = unit;
+    Object.defineProperty(this, "unit", {
+      value: unit,
+      enumerable: true,
+    });
   }
 
-  unit(): Color | undefined;
-  unit(unit: Color | undefined): Form<Color, AnyColor>;
-  unit(unit?: Color | undefined): Color | undefined | Form<Color, AnyColor> {
-    if (arguments.length === 0) {
-      return this._unit;
-    } else {
+  // @ts-ignore
+  declare readonly unit: Color | undefined;
+
+  withUnit(unit: Color | undefined): Form<Color, AnyColor> {
+    if (unit !== this.unit) {
       return new ColorForm(unit);
+    } else {
+      return this;
     }
   }
 

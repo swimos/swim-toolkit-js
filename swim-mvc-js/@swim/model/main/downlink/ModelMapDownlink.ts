@@ -215,7 +215,7 @@ ModelMapDownlink.prototype.get = function <K, V, KU, VU>(this: ModelMapDownlink<
     value = downlink.get(key);
   }
   if (value === void 0 && this._valueForm !== void 0) {
-    value = this._valueForm.unit();
+    value = this._valueForm.unit;
   }
   return value;
 };

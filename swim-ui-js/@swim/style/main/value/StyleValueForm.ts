@@ -22,21 +22,22 @@ import {AnyStyleValue, StyleValue} from "./StyleValue";
 
 /** @hidden */
 export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
-  readonly _unit: StyleValue | undefined;
-
-  constructor(unit?: StyleValue) {
+  constructor(unit: StyleValue | undefined) {
     super();
-    this._unit = unit;
+    Object.defineProperty(this, "unit", {
+      value: unit,
+      enumerable: true,
+    });
   }
 
-  unit(): StyleValue | undefined;
-  unit(unit: AnyStyleValue | undefined): Form<StyleValue, AnyStyleValue>;
-  unit(unit?: AnyStyleValue | undefined): StyleValue | undefined | Form<StyleValue, AnyStyleValue> {
-    if (arguments.length === 0) {
-      return this._unit as StyleValue;
+  // @ts-ignore
+  declare readonly unit: StyleValue | undefined;
+
+  withUnit(unit: StyleValue | undefined): Form<StyleValue, AnyStyleValue> {
+    if (unit !== this.unit) {
+      return new StyleValueForm(unit);
     } else {
-      unit = unit !== void 0 ? StyleValue.fromAny(unit) : void 0;
-      return new StyleValueForm(unit as StyleValue | undefined);
+      return this;
     }
   }
 
