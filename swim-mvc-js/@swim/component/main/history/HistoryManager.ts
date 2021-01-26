@@ -49,20 +49,20 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
     const historyState = this._historyState;
     const queryBuilder = UriQuery.builder();
     if (historyState.fragment !== void 0) {
-      queryBuilder.add(null, historyState.fragment);
+      queryBuilder.add(void 0, historyState.fragment);
     }
     for (const key in historyState.permanent) {
       const value = historyState.permanent[key]!;
       queryBuilder.add(key, value);
     }
-    return Uri.fragment(UriFragment.from(queryBuilder.bind().toString())).toString();
+    return Uri.fragment(UriFragment.create(queryBuilder.bind().toString())).toString();
   }
 
   protected updateHistoryUrl(historyUrl: string): void {
     try {
       const uri = Uri.parse(historyUrl);
-      const fragment = uri.fragmentIdentifier();
-      if (fragment !== null) {
+      const fragment = uri.fragmentIdentifier;
+      if (fragment !== void 0) {
         this.updateHistoryUrlFragment(fragment);
       }
     } catch (e) {
@@ -74,9 +74,9 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
     const historyState = this._historyState;
     let query = UriQuery.parse(fragment);
     while (!query.isEmpty()) {
-      const key = query.key();
-      const value = query.value();
-      if (key !== null) {
+      const key = query.key;
+      const value = query.value;
+      if (key !== void 0) {
         historyState.permanent[key] = value;
       } else {
         historyState.fragment = value;

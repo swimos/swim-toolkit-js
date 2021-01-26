@@ -315,9 +315,9 @@ ModelDownlink.prototype.hostUri = function (this: ModelDownlink<ModelDownlinkCon
       hostUri = this.initHostUri !== void 0 ? this.initHostUri() : null;
       if (hostUri !== null) {
         hostUri = Uri.fromAny(hostUri);
-        this._hostUri = hostUri;
+        this._hostUri = hostUri as Uri;
       }
-      return hostUri;
+      return hostUri as Uri | null;
     }
   } else {
     if (hostUri !== null) {
@@ -326,7 +326,7 @@ ModelDownlink.prototype.hostUri = function (this: ModelDownlink<ModelDownlinkCon
       hostUri = void 0;
     }
     if (!Equals(this._hostUri, hostUri)) {
-      this._hostUri = hostUri;
+      this._hostUri = hostUri as Uri | undefined;
       this.relink();
     }
     return this;
@@ -341,9 +341,9 @@ ModelDownlink.prototype.nodeUri = function (this: ModelDownlink<ModelDownlinkCon
       nodeUri = this.initNodeUri !== void 0 ? this.initNodeUri() : null;
       if (nodeUri !== null) {
         nodeUri = Uri.fromAny(nodeUri);
-        this._nodeUri = nodeUri;
+        this._nodeUri = nodeUri as Uri;
       }
-      return nodeUri;
+      return nodeUri as Uri | null;
     }
   } else {
     if (nodeUri !== null) {
@@ -352,7 +352,7 @@ ModelDownlink.prototype.nodeUri = function (this: ModelDownlink<ModelDownlinkCon
       nodeUri = void 0;
     }
     if (!Equals(this._nodeUri, nodeUri)) {
-      this._nodeUri = nodeUri;
+      this._nodeUri = nodeUri as Uri | undefined;
       this.relink();
     }
     return this;
@@ -367,9 +367,9 @@ ModelDownlink.prototype.laneUri = function (this: ModelDownlink<ModelDownlinkCon
       laneUri = this.initLaneUri !== void 0 ? this.initLaneUri() : null;
       if (laneUri !== null) {
         laneUri = Uri.fromAny(laneUri);
-        this._laneUri = laneUri;
+        this._laneUri = laneUri as Uri;
       }
-      return laneUri;
+      return laneUri as Uri | null;
     }
   } else {
     if (laneUri !== null) {
@@ -378,7 +378,7 @@ ModelDownlink.prototype.laneUri = function (this: ModelDownlink<ModelDownlinkCon
       laneUri = void 0;
     }
     if (!Equals(this._laneUri, laneUri)) {
-      this._laneUri = laneUri;
+      this._laneUri = laneUri as Uri | undefined;
       this.relink();
     }
     return this;
