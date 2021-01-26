@@ -223,8 +223,8 @@ export class MapGridTile {
         let newSouthWest = oldSouthWest;
         if (newSouthWest === null) {
           newSouthWest = this.createTile(this._depth + 1, this._maxDepth, this._density,
-                                         new GeoBox(this._geoFrame._lngMin, this._geoFrame._latMin,
-                                                    this._geoCenter._lng, this._geoCenter._lat));
+                                         new GeoBox(this._geoFrame.lngMin, this._geoFrame.latMin,
+                                                    this._geoCenter.lng, this._geoCenter.lat));
         }
         newSouthWest = newSouthWest.inserted(view, bounds);
         if (oldSouthWest !== newSouthWest) {
@@ -239,8 +239,8 @@ export class MapGridTile {
         let newNorthWest = oldNorthWest;
         if (newNorthWest === null) {
           newNorthWest = this.createTile(this._depth + 1, this._maxDepth, this._density,
-                                         new GeoBox(this._geoFrame._lngMin, this._geoCenter._lat,
-                                                    this._geoCenter._lng, this._geoFrame._latMax));
+                                         new GeoBox(this._geoFrame.lngMin, this._geoCenter.lat,
+                                                    this._geoCenter.lng, this._geoFrame.latMax));
         }
         newNorthWest = newNorthWest.inserted(view, bounds);
         if (oldNorthWest !== newNorthWest) {
@@ -255,8 +255,8 @@ export class MapGridTile {
         let newSouthEast = oldSouthEast;
         if (newSouthEast === null) {
           newSouthEast = this.createTile(this._depth + 1, this._maxDepth, this._density,
-                                         new GeoBox(this._geoCenter._lng, this._geoFrame._latMin,
-                                                    this._geoFrame._lngMax, this._geoCenter._lat));
+                                         new GeoBox(this._geoCenter.lng, this._geoFrame.latMin,
+                                                    this._geoFrame.lngMax, this._geoCenter.lat));
         }
         newSouthEast = newSouthEast.inserted(view, bounds);
         if (oldSouthEast !== newSouthEast) {
@@ -271,8 +271,8 @@ export class MapGridTile {
         let newNorthEast = oldNorthEast;
         if (newNorthEast === null) {
           newNorthEast = this.createTile(this._depth + 1, this._maxDepth, this._density,
-                                         new GeoBox(this._geoCenter._lng, this._geoCenter._lat,
-                                                    this._geoFrame._lngMax, this._geoFrame._latMax));
+                                         new GeoBox(this._geoCenter.lng, this._geoCenter.lat,
+                                                    this._geoFrame.lngMax, this._geoFrame.latMax));
         }
         newNorthEast = newNorthEast.inserted(view, bounds);
         if (oldNorthEast !== newNorthEast) {

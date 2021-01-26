@@ -195,7 +195,7 @@ export class MapPointView extends MapLayerView {
   protected onSetGeoPoint(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
     if (newGeoPoint.isDefined()) {
       const oldGeoBounds = this._geoBounds;
-      const newGeoBounds = new GeoBox(newGeoPoint._lng, newGeoPoint._lat, newGeoPoint._lng, newGeoPoint._lat);
+      const newGeoBounds = new GeoBox(newGeoPoint.lng, newGeoPoint.lat, newGeoPoint.lng, newGeoPoint.lat);
       this._geoBounds = newGeoBounds;
       this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     }

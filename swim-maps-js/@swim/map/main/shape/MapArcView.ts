@@ -141,7 +141,7 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
   protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
     if (newGeoCenter.isDefined()) {
       const oldGeoBounds = this._geoBounds;
-      const newGeoBounds = new GeoBox(newGeoCenter._lng, newGeoCenter._lat, newGeoCenter._lng, newGeoCenter._lat);
+      const newGeoBounds = new GeoBox(newGeoCenter.lng, newGeoCenter.lat, newGeoCenter.lng, newGeoCenter.lat);
       this._geoBounds = newGeoBounds;
       this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     }
