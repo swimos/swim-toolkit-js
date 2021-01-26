@@ -20,15 +20,15 @@ import {StyleAnimator} from "./StyleAnimator";
 export abstract class LengthOrStringStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Length | string, AnyLength | string> {
   parse(value: string): Length | string | undefined {
     try {
-      return Length.parse(value, this.node);
+      return Length.parse(value);
     } catch (swallow) {
       return value;
     }
   }
 
-  fromCss(value: CSSStyleValue): Length | undefined {
+  fromCssValue(value: CSSStyleValue): Length | undefined {
     if (value instanceof CSSNumericValue) {
-      return Length.fromCss(value, this.node);
+      return Length.fromCssValue(value);
     } else {
       return void 0;
     }
@@ -37,12 +37,12 @@ export abstract class LengthOrStringStyleAnimator<V extends StyleContext> extend
   fromAny(value: AnyLength | string): Length | string | undefined {
     if (typeof value === "string") {
       try {
-        return Length.parse(value, this.node);
+        return Length.parse(value);
       } catch (swallow) {
         return value;
       }
     } else {
-      return Length.fromAny(value, this.node);
+      return Length.fromAny(value);
     }
   }
 }

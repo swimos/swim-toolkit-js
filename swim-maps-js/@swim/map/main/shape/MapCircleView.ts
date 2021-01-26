@@ -178,7 +178,8 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
     const size = Math.min(frame.width, frame.height);
     const inversePageTransform = this.pageTransform.inverse();
     const viewCenter = this.viewCenter.getValue();
-    const [px, py] = inversePageTransform.transform(viewCenter.x, viewCenter.y);
+    const px = inversePageTransform.transformX(viewCenter.x, viewCenter.y);
+    const py = inversePageTransform.transformY(viewCenter.x, viewCenter.y);
     const radius = this.radius.getValue().pxValue(size);
     return new BoxR2(px - radius, py - radius, px + radius, py + radius);
   }

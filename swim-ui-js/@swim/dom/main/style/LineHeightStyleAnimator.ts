@@ -23,9 +23,9 @@ export abstract class LineHeightStyleAnimator<V extends StyleContext> extends St
     return LineHeight.fromAny(value);
   }
 
-  fromCss(value: CSSStyleValue): LineHeight | undefined {
+  fromCssValue(value: CSSStyleValue): LineHeight | undefined {
     if (value instanceof CSSNumericValue) {
-      return Length.fromCss(value);
+      return Length.fromCssValue(value);
     } else {
       return void 0;
     }

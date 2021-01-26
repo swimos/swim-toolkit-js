@@ -26,7 +26,7 @@ export abstract class NumberStyleAnimator<V extends StyleContext> extends StyleA
     }
   }
 
-  fromCss(value: CSSStyleValue): number | undefined {
+  fromCssValue(value: CSSStyleValue): number | undefined {
     if (value instanceof CSSNumericValue) {
       return value.to("number").value;
     } else {

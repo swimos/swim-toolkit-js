@@ -22,8 +22,8 @@ export abstract class TransformStyleAnimator<V extends StyleContext> extends Sty
     return Transform.parse(value);
   }
 
-  fromCss(value: CSSStyleValue): Transform | undefined {
-    return Transform.fromCss(value);
+  fromCssValue(value: CSSStyleValue): Transform | undefined {
+    return Transform.fromCssValue(value);
   }
 
   fromAny(value: AnyTransform): Transform | undefined {

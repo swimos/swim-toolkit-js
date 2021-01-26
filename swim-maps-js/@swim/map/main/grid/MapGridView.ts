@@ -391,10 +391,10 @@ export class MapGridView extends MapGraphicsView {
       const northEast = geoProjection.project(tile._geoFrame.northEast);
       const southEast = geoProjection.project(tile._geoFrame.southEast);
       context.beginPath();
-      context.moveTo(southWest._x, southWest._y);
-      context.lineTo(northWest._x, northWest._y);
-      context.lineTo(northEast._x, northEast._y);
-      context.lineTo(southEast._x, southEast._y);
+      context.moveTo(southWest.x, southWest.y);
+      context.lineTo(northWest.x, northWest.y);
+      context.lineTo(northEast.x, northEast.y);
+      context.lineTo(southEast.x, southEast.y);
       context.closePath();
       const u = (tile._depth - minDepth) / (tile._maxDepth - minDepth)
       context.lineWidth = 4 * (1 - u) + 0.5 * u;

@@ -58,7 +58,7 @@ export class MapPathView extends MapLayerView {
 
   protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
     const oldGeoBounds = this._geoBounds;
-    const newGeoBounds = newGeoPath.boundingBox();
+    const newGeoBounds = newGeoPath.bounds;
     this._geoBounds = newGeoBounds;
     this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     this.requireUpdate(View.NeedsProject);
@@ -83,7 +83,7 @@ export class MapPathView extends MapLayerView {
       this.viewCentroid.setAutoState(viewCentroid);
     }
 
-    this._viewBounds = viewPath.boundingBox();
+    this._viewBounds = viewPath.bounds;
 
     this.cullGeoFrame(viewContext.geoFrame);
   }
@@ -96,7 +96,8 @@ export class MapPathView extends MapLayerView {
     const inversePageTransform = this.pageTransform.inverse();
     const viewCentroid = this.viewCentroid.getValue();
     if (viewCentroid.isDefined()) {
-      const [px, py] = inversePageTransform.transform(viewCentroid.x, viewCentroid.y);
+      const px = inversePageTransform.transformX(viewCentroid.x, viewCentroid.y);
+      const py = inversePageTransform.transformY(viewCentroid.x, viewCentroid.y);
       return new BoxR2(px, py, px, py);
     } else {
       return this._viewBounds.transform(inversePageTransform);

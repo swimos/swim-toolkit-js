@@ -20,7 +20,7 @@ import type {ElementView} from "../element/ElementView";
 export abstract class LengthOrStringAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Length | string, AnyLength | string> {
   parse(value: string): Length | string {
     try {
-      return Length.parse(value, this.node);
+      return Length.parse(value);
     } catch (swallow) {
       return value;
     }
@@ -29,12 +29,12 @@ export abstract class LengthOrStringAttributeAnimator<V extends ElementView> ext
   fromAny(value: AnyLength | string): Length | string {
     if (typeof value === "string") {
       try {
-        return Length.parse(value, this.node);
+        return Length.parse(value);
       } catch (swallow) {
         return value;
       }
     } else {
-      return Length.fromAny(value, this.node);
+      return Length.fromAny(value);
     }
   }
 }

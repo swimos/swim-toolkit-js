@@ -19,11 +19,11 @@ import type {ElementView} from "../element/ElementView";
 /** @hidden */
 export abstract class LengthAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Length, AnyLength> {
   parse(value: string): Length {
-    return Length.parse(value, this.node);
+    return Length.parse(value);
   }
 
   fromAny(value: AnyLength): Length {
-    return Length.fromAny(value, this.node);
+    return Length.fromAny(value);
   }
 }
 AttributeAnimator.Length = LengthAttributeAnimator;

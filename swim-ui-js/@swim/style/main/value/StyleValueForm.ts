@@ -89,11 +89,11 @@ export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
         return date;
       }
       const angle = Angle.fromValue(value);
-      if (angle !== void 0) {
+      if (angle !== null) {
         return angle;
       }
       const length = Length.fromValue(value);
-      if (length !== void 0) {
+      if (length !== null) {
         return length;
       }
       const color = Color.fromValue(value);
@@ -109,7 +109,7 @@ export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
         return boxShadow;
       }
       const transform = Transform.fromValue(value);
-      if (transform !== void 0) {
+      if (transform !== null) {
         return transform;
       }
     }

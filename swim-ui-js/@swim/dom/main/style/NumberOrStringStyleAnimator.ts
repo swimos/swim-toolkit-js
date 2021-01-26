@@ -22,7 +22,7 @@ export abstract class NumberOrStringStyleAnimator<V extends StyleContext> extend
     return isFinite(number) ? number : value;
   }
 
-  fromCss(value: CSSStyleValue): number | undefined {
+  fromCssValue(value: CSSStyleValue): number | undefined {
     if (value instanceof CSSNumericValue) {
       return value.to("number").value;
     } else {

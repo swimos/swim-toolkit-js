@@ -206,7 +206,8 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
     const size = Math.min(frame.width, frame.height);
     const inversePageTransform = this.pageTransform.inverse();
     const viewCenter = this.viewCenter.getValue();
-    const [px, py] = inversePageTransform.transform(viewCenter.x, viewCenter.y);
+    const px = inversePageTransform.transformX(viewCenter.x, viewCenter.y);
+    const py = inversePageTransform.transformY(viewCenter.x, viewCenter.y);
     const r = (this.innerRadius.getValue().pxValue(size) + this.outerRadius.getValue().pxValue(size)) / 2;
     const a = this.startAngle.getValue().radValue() + this.sweepAngle.getValue().radValue() / 2;
     const x = px + r * Math.cos(a);

@@ -21,7 +21,7 @@ export abstract class StringStyleAnimator<V extends StyleContext> extends StyleA
     return value;
   }
 
-  fromCss(value: CSSStyleValue): string | undefined {
+  fromCssValue(value: CSSStyleValue): string | undefined {
     return value.toString();
   }
 

@@ -47,7 +47,7 @@ export interface StyleAnimatorInit<T, U = never> {
   onUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
   didUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
   parse?(value: string): T | undefined;
-  fromCss?(value: CSSStyleValue): T | undefined;
+  fromCssValue?(value: CSSStyleValue): T | undefined;
   fromAny?(value: T | U): T | undefined;
 }
 
@@ -110,7 +110,7 @@ export declare abstract class StyleAnimator<V extends StyleContext, T, U = never
 
   parse(value: string): T | undefined;
 
-  fromCss(value: CSSStyleValue): T | undefined;
+  fromCssValue(value: CSSStyleValue): T | undefined;
 
   fromAny(value: T | U): T | undefined;
 
@@ -218,7 +218,7 @@ if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
       let value = this._owner.getStyle(this.propertyNames);
       if (value instanceof CSSStyleValue) {
         try {
-          propertyValue = this.fromCss(value);
+          propertyValue = this.fromCssValue(value);
         } catch (e) {
           // swallow decode errors
         }
@@ -392,7 +392,7 @@ StyleAnimator.prototype.parse = function <T, U>(this: StyleAnimator<StyleContext
   return void 0;
 };
 
-StyleAnimator.prototype.fromCss = function <T, U>(this: StyleAnimator<StyleContext, T, U>, value: CSSStyleValue): T | undefined {
+StyleAnimator.prototype.fromCssValue = function <T, U>(this: StyleAnimator<StyleContext, T, U>, value: CSSStyleValue): T | undefined {
   return void 0;
 };
 

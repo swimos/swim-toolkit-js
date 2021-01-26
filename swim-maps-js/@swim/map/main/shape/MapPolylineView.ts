@@ -389,7 +389,8 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   get popoverFrame(): BoxR2 {
     const viewCentroid = this._viewCentroid;
     const inversePageTransform = this.pageTransform.inverse();
-    const [px, py] = inversePageTransform.transform(viewCentroid.x, viewCentroid.y);
+    const px = inversePageTransform.transformX(viewCentroid.x, viewCentroid.y);
+    const py = inversePageTransform.transformY(viewCentroid.x, viewCentroid.y);
     return new BoxR2(px, py, px, py);
   }
 

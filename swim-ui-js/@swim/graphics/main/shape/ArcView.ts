@@ -155,7 +155,8 @@ export class ArcView extends LayerView implements FillView, StrokeView {
     const size = Math.min(frame.width, frame.height);
     const inversePageTransform = this.pageTransform.inverse();
     const center = this.center.getValue();
-    const [px, py] = inversePageTransform.transform(center.x, center.y);
+    const px = inversePageTransform.transformX(center.x, center.y);
+    const py = inversePageTransform.transformY(center.x, center.y);
     const r = (this.innerRadius.getValue().pxValue(size) + this.outerRadius.getValue().pxValue(size)) / 2;
     const a = this.startAngle.getValue().radValue() + this.sweepAngle.getValue().radValue() / 2;
     const x = px + r * Math.cos(a);
