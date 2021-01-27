@@ -38,17 +38,17 @@ export abstract class ConstrainVariable extends ConstrainTerm implements Constra
     return false;
   }
 
-  abstract get name(): string;
+  abstract readonly name: string;
 
-  abstract get value(): number;
+  abstract readonly value: number;
 
   abstract updateValue(value: number): void;
 
-  abstract get state(): number;
+  abstract readonly state: number;
 
   abstract setState(state: number): void;
 
-  abstract get strength(): ConstraintStrength;
+  abstract readonly strength: ConstraintStrength;
 
   abstract setStrength(strength: AnyConstraintStrength): void;
 
@@ -104,4 +104,3 @@ export abstract class ConstrainVariable extends ConstrainTerm implements Constra
     return Constrain.product(1 / scalar, this);
   }
 }
-Constrain.Variable = ConstrainVariable;

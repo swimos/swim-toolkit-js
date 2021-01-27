@@ -13,81 +13,89 @@
 // limitations under the License.
 
 import {Output, Debug, Format} from "@swim/codec";
-import {Constrain} from "./Constrain";
 import {ConstrainVariable} from "./ConstrainVariable";
 import {AnyConstraintStrength, ConstraintStrength} from "./ConstraintStrength";
 import type {ConstraintScope} from "./ConstraintScope";
 
 export class ConstrainBinding extends ConstrainVariable implements Debug {
-  /** @hidden */
-  readonly _owner: ConstraintScope;
-  /** @hidden */
-  _value: number;
-  /** @hidden */
-  _state: number;
-  /** @hidden */
-  _strength: ConstraintStrength;
-
   constructor(owner: ConstraintScope, name: string, value: number, strength: ConstraintStrength) {
     super();
-    this._owner = owner;
+    Object.defineProperty(this, "owner", {
+      value: owner,
+      enumerable: true,
+    });
     Object.defineProperty(this, "name", {
       value: name,
       enumerable: true,
+    });
+    Object.defineProperty(this, "value", {
+      value: value,
+      enumerable: true,
       configurable: true,
     });
-    this._value = value;
-    this._state = NaN;
-    this._strength = strength;
+    Object.defineProperty(this, "state", {
+      value: NaN,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "strength", {
+      value: strength,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get owner(): ConstraintScope {
-    return this._owner;
-  }
+  declare readonly owner: ConstraintScope;
 
   declare readonly name: string;
 
-  get value(): number {
-    return this._value;
-  }
+  declare readonly value: number;
 
   updateValue(value: number): void {
-    this._value = value;
+    Object.defineProperty(this, "value", {
+      value: value,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get state(): number {
-    return this._state;
-  }
+  declare readonly state: number;
 
   setState(newState: number): void {
-    const oldState = this._state;
+    const oldState = this.state;
     if (isFinite(oldState) && !isFinite(newState)) {
-      this._owner.removeConstraintVariable(this);
+      this.owner.removeConstraintVariable(this);
     }
-    this._state = newState;
+    Object.defineProperty(this, "state", {
+      value: newState,
+      enumerable: true,
+      configurable: true,
+    });
     if (isFinite(newState)) {
       if (!isFinite(oldState)) {
-        this._owner.addConstraintVariable(this);
+        this.owner.addConstraintVariable(this);
       } else {
-        this._owner.setConstraintVariable(this, newState);
+        this.owner.setConstraintVariable(this, newState);
       }
     }
   }
 
-  get strength(): ConstraintStrength {
-    return this._strength;
-  }
+  declare readonly strength: ConstraintStrength;
 
   setStrength(newStrength: AnyConstraintStrength): void {
-    const state = this._state;
-    const oldStrength = this._strength;
+    const state = this.state;
+    const oldStrength = this.strength;
     newStrength = ConstraintStrength.fromAny(newStrength);
     if (isFinite(state) && oldStrength !== newStrength) {
-      this._owner.removeConstraintVariable(this);
+      this.owner.removeConstraintVariable(this);
     }
-    this._strength = newStrength;
+    Object.defineProperty(this, "strength", {
+      value: newStrength,
+      enumerable: true,
+      configurable: true,
+    });
     if (isFinite(state) && oldStrength !== newStrength) {
-      this._owner.addConstraintVariable(this);
+      this.owner.addConstraintVariable(this);
     }
   }
 
@@ -100,4 +108,3 @@ export class ConstrainBinding extends ConstrainVariable implements Debug {
     return Format.debug(this);
   }
 }
-Constrain.Binding = ConstrainBinding;

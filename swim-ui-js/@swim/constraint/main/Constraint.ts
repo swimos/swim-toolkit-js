@@ -20,75 +20,68 @@ import {ConstraintStrength} from "./ConstraintStrength";
 import type {ConstraintScope} from "./ConstraintScope";
 
 export class Constraint implements ConstraintKey, Debug {
-  /** @hidden */
-  readonly _id: number;
-  /** @hidden */
-  readonly _scope: ConstraintScope;
-  /** @hidden */
-  readonly _constrain: Constrain;
-  /** @hidden */
-  readonly _relation: ConstraintRelation;
-  /** @hidden */
-  readonly _strength: ConstraintStrength;
-
   constructor(scope: ConstraintScope, constrain: Constrain,
               relation: ConstraintRelation, strength: ConstraintStrength) {
-    this._id = ConstraintMap.nextId();
-    this._scope = scope;
-    this._constrain = constrain;
-    this._relation = relation;
-    this._strength = strength;
+    Object.defineProperty(this, "id", {
+      value: ConstraintMap.nextId(),
+      enumerable: true,
+    });
+    Object.defineProperty(this, "scope", {
+      value: scope,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "constrain", {
+      value: constrain,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "relation", {
+      value: relation,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "strength", {
+      value: strength,
+      enumerable: true,
+    });
   }
 
-  /** @hidden */
-  get id(): number {
-    return this._id;
-  }
+  declare readonly id: number;
 
-  get scope(): ConstraintScope {
-    return this._scope;
-  }
+  declare readonly scope: ConstraintScope;
 
-  get constrain(): Constrain {
-    return this._constrain;
-  }
+  declare readonly constrain: Constrain;
 
-  get relation(): ConstraintRelation {
-    return this._relation;
-  }
+  declare readonly relation: ConstraintRelation;
 
-  get strength(): ConstraintStrength {
-    return this._strength;
-  }
+  declare readonly strength: ConstraintStrength;
 
   enabled(): boolean;
   enabled(enabled: boolean): this;
   enabled(enabled?: boolean): boolean | this {
     if (enabled === void 0) {
-      return this._scope.hasConstraint(this);
+      return this.scope.hasConstraint(this);
     } else {
       if (enabled) {
-        this._scope.addConstraint(this);
+        this.scope.addConstraint(this);
       } else {
-        this._scope.removeConstraint(this);
+        this.scope.removeConstraint(this);
       }
       return this;
     }
   }
 
   debug(output: Output): void {
-    output = output.debug(this._scope).write(46/*'.'*/).write("constraint").write(40/*'('*/)
-        .debug(this._constrain).write(", ").debug(this._relation).write(", ").debug(void 0).write(", ");
-    if (this._strength === ConstraintStrength.Required) {
+    output = output.debug(this.scope).write(46/*'.'*/).write("constraint").write(40/*'('*/)
+        .debug(this.constrain).write(", ").debug(this.relation).write(", ").debug(void 0).write(", ");
+    if (this.strength === ConstraintStrength.Required) {
       output = output.debug("required");
-    } else if (this._strength === ConstraintStrength.Strong) {
+    } else if (this.strength === ConstraintStrength.Strong) {
       output = output.debug("strong");
-    } else if (this._strength === ConstraintStrength.Medium) {
+    } else if (this.strength === ConstraintStrength.Medium) {
       output = output.debug("medium");
-    } else if (this._strength === ConstraintStrength.Weak) {
+    } else if (this.strength === ConstraintStrength.Weak) {
       output = output.debug("weak");
     } else {
-      output = output.debug(this._strength);
+      output = output.debug(this.strength);
     }
     output = output.write(41/*')'*/);
   }

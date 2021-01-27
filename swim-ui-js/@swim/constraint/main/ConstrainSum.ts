@@ -18,41 +18,38 @@ import {Constrain} from "./Constrain";
 import type {ConstrainVariable} from "./ConstrainVariable";
 
 export class ConstrainSum extends Constrain implements Debug {
-  /** @hidden */
-  readonly _terms: ConstraintMap<ConstrainVariable, number>;
-  /** @hidden */
-  readonly _constant: number;
-
   constructor(terms: ConstraintMap<ConstrainVariable, number>, constant: number) {
     super();
-    this._terms = terms;
-    this._constant = constant;
+    Object.defineProperty(this, "terms", {
+      value: terms,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "constant", {
+      value: constant,
+      enumerable: true,
+    });
   }
 
   isConstant(): boolean {
-    return this._terms.isEmpty();
+    return this.terms.isEmpty();
   }
 
-  get terms(): ConstraintMap<ConstrainVariable, number> {
-    return this._terms;
-  }
+  declare readonly terms: ConstraintMap<ConstrainVariable, number>;
 
-  get constant(): number {
-    return this._constant;
-  }
+  declare readonly constant: number;
 
   plus(that: Constrain | number): Constrain {
     return Constrain.sum(this, that);
   }
 
   opposite(): Constrain {
-    const oldTerms = this._terms;
+    const oldTerms = this.terms;
     const newTerms = new ConstraintMap<ConstrainVariable, number>();
     for (let i = 0, n = oldTerms.size; i < n; i += 1) {
       const [variable, coefficient] = oldTerms.getEntry(i)!;
       newTerms.set(variable, -coefficient);
     }
-    return new ConstrainSum(newTerms, -this._constant);
+    return new ConstrainSum(newTerms, -this.constant);
   }
 
   minus(that: Constrain | number): Constrain {
@@ -65,30 +62,30 @@ export class ConstrainSum extends Constrain implements Debug {
   }
 
   times(scalar: number): Constrain {
-    const oldTerms = this._terms;
+    const oldTerms = this.terms;
     const newTerms = new ConstraintMap<ConstrainVariable, number>();
     for (let i = 0, n = oldTerms.size; i < n; i += 1) {
       const [variable, coefficient] = oldTerms.getEntry(i)!;
       newTerms.set(variable, coefficient * scalar);
     }
-    return new ConstrainSum(newTerms, this._constant * scalar);
+    return new ConstrainSum(newTerms, this.constant * scalar);
   }
 
   divide(scalar: number): Constrain {
-    const oldTerms = this._terms;
+    const oldTerms = this.terms;
     const newTerms = new ConstraintMap<ConstrainVariable, number>();
     for (let i = 0, n = oldTerms.size; i < n; i += 1) {
       const [variable, coefficient] = oldTerms.getEntry(i)!;
       newTerms.set(variable, coefficient / scalar);
     }
-    return new ConstrainSum(newTerms, this._constant / scalar);
+    return new ConstrainSum(newTerms, this.constant / scalar);
   }
 
   debug(output: Output): void {
     output = output.write("Constrain").write(46/*'.'*/).write("sum").write(40/*'('*/);
-    const n = this._terms.size;
+    const n = this.terms.size;
     for (let i = 0; i < n; i += 1) {
-      const [variable, coefficient] = this._terms.getEntry(i)!;
+      const [variable, coefficient] = this.terms.getEntry(i)!;
       if (i > 0) {
         output = output.write(", ");
       }
@@ -98,11 +95,11 @@ export class ConstrainSum extends Constrain implements Debug {
         output = output.debug(Constrain.product(coefficient, variable));
       }
     }
-    if (this._constant !== 0) {
+    if (this.constant !== 0) {
       if (n > 0) {
         output = output.write(", ");
       }
-      output = output.debug(this._constant);
+      output = output.debug(this.constant);
     }
     output = output.write(41/*')'*/);
   }
@@ -111,4 +108,3 @@ export class ConstrainSum extends Constrain implements Debug {
     return Format.debug(this);
   }
 }
-Constrain.Sum = ConstrainSum;

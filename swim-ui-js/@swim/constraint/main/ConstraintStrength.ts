@@ -32,32 +32,32 @@ export const ConstraintStrength = {} as {
 
 Object.defineProperty(ConstraintStrength, "Required", {
   value: 1001001000,
-  configurable: true,
   enumerable: true,
+  configurable: true,
 });
 
 Object.defineProperty(ConstraintStrength, "Strong", {
   value: 1000000,
-  configurable: true,
   enumerable: true,
+  configurable: true,
 });
 
 Object.defineProperty(ConstraintStrength, "Medium", {
   value: 1000,
-  configurable: true,
   enumerable: true,
+  configurable: true,
 });
 
 Object.defineProperty(ConstraintStrength, "Weak", {
   value: 1,
-  configurable: true,
   enumerable: true,
+  configurable: true,
 });
 
 Object.defineProperty(ConstraintStrength, "Unbound", {
   value: -1,
-  configurable: true,
   enumerable: true,
+  configurable: true,
 });
 
 ConstraintStrength.clip = function (strength: ConstraintStrength): ConstraintStrength {

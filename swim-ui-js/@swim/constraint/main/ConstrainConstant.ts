@@ -19,21 +19,19 @@ import {ConstrainTerm} from "./ConstrainTerm";
 import type {ConstrainVariable} from "./ConstrainVariable";
 
 export class ConstrainConstant extends ConstrainTerm implements Debug {
-  /** @hidden */
-  readonly _value: number;
-
   constructor(value: number) {
     super();
-    this._value = value;
+    Object.defineProperty(this, "value", {
+      value: value,
+      enumerable: true,
+    });
   }
 
   isConstant(): boolean {
     return true;
   }
 
-  get value(): number {
-    return this._value;
-  }
+  declare readonly value: number;
 
   get coefficient(): number {
     return 0;
@@ -48,7 +46,7 @@ export class ConstrainConstant extends ConstrainTerm implements Debug {
   }
 
   get constant(): number {
-    return this._value;
+    return this.value;
   }
 
   plus(that: Constrain | number): Constrain {
@@ -56,14 +54,14 @@ export class ConstrainConstant extends ConstrainTerm implements Debug {
       that = Constrain.constant(that);
     }
     if (that instanceof ConstrainConstant) {
-      return Constrain.constant(this._value + that._value);
+      return Constrain.constant(this.value + that.value);
     } else {
       return Constrain.sum(this, that);
     }
   }
 
   opposite(): ConstrainTerm {
-    return Constrain.constant(-this._value);
+    return Constrain.constant(-this.value);
   }
 
   minus(that: Constrain | number): Constrain {
@@ -71,27 +69,26 @@ export class ConstrainConstant extends ConstrainTerm implements Debug {
       that = Constrain.constant(that);
     }
     if (that instanceof ConstrainConstant) {
-      return Constrain.constant(this._value - that._value);
+      return Constrain.constant(this.value - that.value);
     } else {
       return Constrain.sum(this, that.opposite());
     }
   }
 
   times(scalar: number): Constrain {
-    return Constrain.constant(this._value * scalar);
+    return Constrain.constant(this.value * scalar);
   }
 
   divide(scalar: number): Constrain {
-    return Constrain.constant(this._value / scalar);
+    return Constrain.constant(this.value / scalar);
   }
 
   debug(output: Output): void {
-    output = output.write("Constrain").write(46/*'.'*/).write("constant").write(40/*'('*/)
-        .debug(this._value).write(41/*')'*/);
+    output = output.write("Constrain").write(46/*'.'*/).write("constant")
+        .write(40/*'('*/).debug(this.value).write(41/*')'*/);
   }
 
   toString(): string {
     return Format.debug(this);
   }
 }
-Constrain.Constant = ConstrainConstant;

@@ -19,22 +19,23 @@ import {Constraint} from "./Constraint";
 import type {ConstraintScope} from "./ConstraintScope";
 
 export class ConstraintGroup {
-  /** @hidden */
-  readonly _scope: ConstraintScope;
-  /** @hidden */
-  readonly _constraints: Constraint[];
-  /** @hidden */
-  _enabled: boolean;
-
   constructor(scope: ConstraintScope) {
-    this._scope = scope;
-    this._constraints = [];
-    this._enabled = false;
+    Object.defineProperty(this, "scope", {
+      value: scope,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "constraints", {
+      value: [],
+      enumerable: true,
+    });
+    Object.defineProperty(this, "active", {
+      value: false,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get scope(): ConstraintScope {
-    return this._scope;
-  }
+  declare readonly scope: ConstraintScope;
 
   constraint(lhs: Constrain | number, relation: ConstraintRelation,
              rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
@@ -50,34 +51,32 @@ export class ConstraintGroup {
     } else {
       strength = ConstraintStrength.fromAny(strength);
     }
-    const constraint = new Constraint(this._scope, constrain, relation, strength);
+    const constraint = new Constraint(this.scope, constrain, relation, strength);
     this.addConstraint(constraint);
     return constraint;
   }
 
-  get constraints(): ReadonlyArray<Constraint> {
-    return this._constraints;
-  }
+  declare readonly constraints: ReadonlyArray<Constraint>;
 
   hasConstraint(constraint: Constraint): boolean {
-    const constraints = this._constraints;
-    return constraints !== void 0 && constraints.indexOf(constraint) >= 0;
+    const constraints = this.constraints;
+    return constraints.indexOf(constraint) >= 0;
   }
 
   addConstraint(constraint: Constraint): void {
-    const constraints = this._constraints;
+    const constraints = this.constraints;
     if (constraints.indexOf(constraint) < 0) {
-      constraints.push(constraint);
-      constraint.enabled(this._enabled);
+      (constraints as Constraint[]).push(constraint);
+      constraint.enabled(this.active);
     }
   }
 
   removeConstraint(constraint: Constraint): void {
-    const constraints = this._constraints;
+    const constraints = this.constraints;
     if (constraints !== void 0) {
       const index = constraints.indexOf(constraint);
       if (index >= 0) {
-        constraints.splice(index, 1);
+        (constraints as Constraint[]).splice(index, 1);
         constraint.enabled(false);
       }
     }
@@ -85,7 +84,7 @@ export class ConstraintGroup {
 
   /** @hidden */
   enableConstraints(): void {
-    const constraints = this._constraints;
+    const constraints = this.constraints;
     for (let i = 0, n = constraints.length ; i < n; i += 1) {
       constraints[i]!.enabled(true);
     }
@@ -93,23 +92,34 @@ export class ConstraintGroup {
 
   /** @hidden */
   disableConstraints(): void {
-    const constraints = this._constraints;
+    const constraints = this.constraints;
     for (let i = 0, n = constraints.length ; i < n; i += 1) {
       constraints[i]!.enabled(false);
     }
   }
 
+  /** @hidden */
+  declare readonly active: boolean;
+
   enabled(): boolean;
   enabled(enabled: boolean): this;
   enabled(enabled?: boolean): boolean | this {
     if (enabled === void 0) {
-      return this._enabled;
+      return this.active;
     } else {
-      if (enabled && !this._enabled) {
-        this._enabled = true;
+      if (enabled && !this.active) {
+        Object.defineProperty(this, "active", {
+          value: true,
+          enumerable: true,
+          configurable: true,
+        });
         this.enableConstraints();
-      } else if (!enabled && this._enabled) {
-        this._enabled = false;
+      } else if (!enabled && this.active) {
+        Object.defineProperty(this, "active", {
+          value: false,
+          enumerable: true,
+          configurable: true,
+        });
         this.disableConstraints();
       }
       return this;

@@ -16,10 +16,9 @@ import {Constrain} from "./Constrain";
 import type {ConstrainVariable} from "./ConstrainVariable";
 
 export abstract class ConstrainTerm extends Constrain {
-  abstract get coefficient(): number;
+  abstract readonly coefficient: number;
 
-  abstract get variable(): ConstrainVariable | null;
+  abstract readonly variable: ConstrainVariable | null;
 
   abstract opposite(): ConstrainTerm;
 }
-Constrain.Term = ConstrainTerm;

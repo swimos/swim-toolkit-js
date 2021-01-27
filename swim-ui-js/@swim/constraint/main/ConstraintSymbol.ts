@@ -30,16 +30,14 @@ export const ConstraintSymbol = {} as {
 
 /** @hidden */
 export class ConstraintSlack implements ConstraintSymbol {
-  /** @hidden */
-  readonly _id: number;
-
   constructor() {
-    this._id = ConstraintMap.nextId();
+    Object.defineProperty(this, "id", {
+      value: ConstraintMap.nextId(),
+      enumerable: true,
+    });
   }
 
-  get id(): number {
-    return this._id;
-  }
+  declare readonly id: number;
 
   isExternal(): boolean {
     return false;
@@ -56,16 +54,14 @@ export class ConstraintSlack implements ConstraintSymbol {
 
 /** @hidden */
 export class ConstraintDummy implements ConstraintSymbol {
-  /** @hidden */
-  readonly _id: number;
-
   constructor() {
-    this._id = ConstraintMap.nextId();
+    Object.defineProperty(this, "id", {
+      value: ConstraintMap.nextId(),
+      enumerable: true,
+    });
   }
 
-  get id(): number {
-    return this._id;
-  }
+  declare readonly id: number;
 
   isExternal(): boolean {
     return false;
@@ -82,16 +78,14 @@ export class ConstraintDummy implements ConstraintSymbol {
 
 /** @hidden */
 export class ConstraintError implements ConstraintSymbol {
-  /** @hidden */
-  readonly _id: number;
-
   constructor() {
-    this._id = ConstraintMap.nextId();
+    Object.defineProperty(this, "id", {
+      value: ConstraintMap.nextId(),
+      enumerable: true,
+    });
   }
 
-  get id(): number {
-    return this._id;
-  }
+  declare readonly id: number;
 
   isExternal(): boolean {
     return false;

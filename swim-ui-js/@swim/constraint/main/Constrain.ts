@@ -13,31 +13,27 @@
 // limitations under the License.
 
 import {ConstraintKey, ConstraintMap} from "./ConstraintMap";
-import type {ConstrainSum} from "./ConstrainSum";
-import type {ConstrainTerm} from "./ConstrainTerm";
-import type {ConstrainProduct} from "./ConstrainProduct";
-import type {ConstrainConstant} from "./ConstrainConstant";
+import {ConstrainSum} from "./"; // forward import
+import {ConstrainTerm} from "./"; // forward import
+import {ConstrainProduct} from "./"; // forward import
+import {ConstrainConstant} from "./"; // forward import
 import type {ConstrainVariable} from "./ConstrainVariable";
-import type {ConstrainBinding} from "./ConstrainBinding";
 
 export abstract class Constrain implements ConstraintKey {
-  /** @hidden */
-  readonly _id: number;
-
   constructor() {
-    this._id = ConstraintMap.nextId();
+    Object.defineProperty(this, "id", {
+      value: ConstraintMap.nextId(),
+      enumerable: true,
+    });
   }
 
-  /** @hidden */
-  get id(): number {
-    return this._id;
-  }
+  declare readonly id: number;
 
   abstract isConstant(): boolean;
 
-  abstract get terms(): ConstraintMap<ConstrainVariable, number>;
+  abstract readonly terms: ConstraintMap<ConstrainVariable, number>;
 
-  abstract get constant(): number;
+  abstract readonly constant: number;
 
   abstract plus(that: Constrain | number): Constrain;
 
@@ -56,7 +52,7 @@ export abstract class Constrain implements ConstraintKey {
       const arg = args[i]!;
       if (typeof arg === "number") {
         constant += arg;
-      } else if (arg instanceof Constrain.Term) {
+      } else if (arg instanceof ConstrainTerm) {
         const variable = arg.variable;
         if (variable !== null) {
           const field = terms.getField(variable);
@@ -82,32 +78,18 @@ export abstract class Constrain implements ConstraintKey {
         constant += arg.constant;
       }
     }
-    return new Constrain.Sum(terms, constant);
+    return new ConstrainSum(terms, constant);
   }
 
   static product(coefficient: number, variable: ConstrainVariable): ConstrainProduct {
-    return new Constrain.Product(coefficient, variable);
+    return new ConstrainProduct(coefficient, variable);
   }
 
   static constant(value: number): ConstrainConstant {
-    return new Constrain.Constant(value);
+    return new ConstrainConstant(value);
   }
 
   static zero(): ConstrainConstant {
-    return new Constrain.Constant(0);
+    return new ConstrainConstant(0);
   }
-
-  // Forward type declarations
-  /** @hidden */
-  static Sum: typeof ConstrainSum; // defined by ConstrainSum
-  /** @hidden */
-  static Term: typeof ConstrainTerm; // defined by ConstrainTerm
-  /** @hidden */
-  static Product: typeof ConstrainProduct; // defined by ConstrainProduct
-  /** @hidden */
-  static Constant: typeof ConstrainConstant; // defined by ConstrainConstant
-  /** @hidden */
-  static Variable: typeof ConstrainVariable; // defined by ConstrainVariable
-  /** @hidden */
-  static Binding: typeof ConstrainBinding; // defined by ConstrainBinding
 }
