@@ -44,9 +44,9 @@ export abstract class TweenAnimator<T> extends Animator {
     super();
     if (transition !== null) {
       this._duration = transition._duration !== void 0 ? transition._duration : 0;
-      this._easing = transition._easing !== void 0 ? transition._easing : Easing.linear;
-      this._interpolator = transition._interpolator !== void 0 ? transition._interpolator : null;
-      this._observers = transition._observers !== void 0 ? transition._observers.slice(0) : null;
+      this._easing = transition._easing !== null ? transition._easing : Easing.linear;
+      this._interpolator = transition._interpolator !== null ? transition._interpolator : null;
+      this._observers = transition._observers !== null ? transition._observers.slice(0) : null;
     } else {
       this._duration = 0;
       this._easing = Easing.linear;
@@ -103,13 +103,13 @@ export abstract class TweenAnimator<T> extends Animator {
       if (transition._duration !== void 0) {
         this._duration = transition._duration;
       }
-      if (transition._easing !== void 0) {
+      if (transition._easing !== null) {
         this._easing = transition._easing;
       }
-      if (transition._interpolator !== void 0) {
+      if (transition._interpolator !== null) {
         this._interpolator = transition._interpolator;
       }
-      if (transition._observers !== void 0) {
+      if (transition._observers !== null) {
         let observers = this._observers;
         if (observers === null) {
           observers = [];

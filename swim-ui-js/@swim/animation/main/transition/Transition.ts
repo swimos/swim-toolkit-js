@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals} from "@swim/util";
+import {Equals, Arrays} from "@swim/util";
 import {AnyRange, Range, Interpolator, IdentityInterpolator, AnyEasing, Easing} from "@swim/mapping";
 import {TransitionObserver} from "./TransitionObserver";
 
@@ -21,7 +21,7 @@ export type Tween<T> = AnyTransition<T> | boolean | null;
 export type AnyTransition<T> = Transition<T> | TransitionInit<T>;
 
 export interface TransitionInit<T> extends TransitionObserver<T> {
-  duration?: number | null;
+  duration?: number;
   easing?: AnyEasing | null;
   interpolator?: Interpolator<T> | null;
 }
@@ -32,36 +32,40 @@ export type TransitionInterrupt<T> = (value: T) => void;
 
 export class Transition<T> {
   /** @hidden */
-  readonly _duration?: number;
+  declare readonly _duration: number | undefined;
   /** @hidden */
-  readonly _easing?: Easing;
+  declare readonly _easing: Easing | null;
   /** @hidden */
-  readonly _interpolator?: Interpolator<T>;
+  declare readonly _interpolator: Interpolator<T> | null;
   /** @hidden */
-  readonly _observers?: ReadonlyArray<TransitionObserver<T>>;
+  declare readonly _observers: ReadonlyArray<TransitionObserver<T>> | null;
 
-  constructor(duration: number | null, easing: Easing | null,
+  constructor(duration: number | undefined, easing: Easing | null,
               interpolator: Interpolator<T> | null,
               observers: ReadonlyArray<TransitionObserver<T>> | null) {
-    if (duration !== null) {
-      this._duration = duration;
-    }
-    if (easing !== null) {
-      this._easing = easing;
-    }
-    if (interpolator !== null) {
-      this._interpolator = interpolator;
-    }
-    if (observers !== null) {
-      this._observers = observers;
-    }
+    Object.defineProperty(this, "_duration", {
+      value: duration,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "_easing", {
+      value: easing,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "_interpolator", {
+      value: interpolator,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "_observers", {
+      value: observers,
+      enumerable: true,
+    });
   }
 
-  duration(): number | null;
-  duration(duration: number | null): Transition<T>;
-  duration(duration?: number | null): number | null | Transition<T> {
-    if (duration === void 0) {
-      return this._duration !== void 0 ? this._duration : null;
+  duration(): number | undefined;
+  duration(duration: number | undefined): Transition<T>;
+  duration(duration?: number | undefined): number | undefined | Transition<T> {
+    if (arguments.length === 0) {
+      return this._duration;
     } else {
       return Transition.create(duration, this._easing, this._interpolator, this._observers);
     }
@@ -71,7 +75,7 @@ export class Transition<T> {
   easing(easing: AnyEasing | null): Transition<T>;
   easing(easing?: AnyEasing | null): Easing | null | Transition<T> {
     if (easing === void 0) {
-      return this._easing !== void 0 ? this._easing : null;
+      return this._easing;
     } else {
       return Transition.create(this._duration, easing, this._interpolator, this._observers);
     }
@@ -81,7 +85,7 @@ export class Transition<T> {
   interpolator(interpolator: Interpolator<T> | null): Transition<T>;
   interpolator(interpolator?: Interpolator<T> | null): Interpolator<T> | null | Transition<T> {
     if (interpolator === void 0) {
-      return this._interpolator !== void 0 ? this._interpolator : null;
+      return this._interpolator;
     } else {
       return Transition.create(this._duration, this._easing, interpolator, this._observers);
     }
@@ -92,7 +96,7 @@ export class Transition<T> {
   range(y0: T, y1: T): Transition<T>;
   range(y0?: AnyRange<T> | T, y1?: T): Range<T> | null | Transition<T> {
     if (y0 === void 0) {
-      return this._interpolator !== void 0 ? this._interpolator : null;
+      return this._interpolator;
     } else {
       let interpolator: Interpolator<T>;
       if (arguments.length === 1) {
@@ -112,36 +116,32 @@ export class Transition<T> {
   observers(observers: ReadonlyArray<TransitionObserver<T>> | null): Transition<T>;
   observers(observers?: ReadonlyArray<TransitionObserver<T>> | null): ReadonlyArray<TransitionObserver<T>> | null | Transition<T> {
     if (observers === void 0) {
-      return this._observers !== void 0 ? this._observers : null;
+      return this._observers;
     } else {
       return Transition.create(this._duration, this._easing, this._interpolator, observers);
     }
   }
 
   observer(observer: TransitionObserver<T>): Transition<T> {
-    const observers = this._observers !== void 0 ? this._observers.slice(0) : [];
-    observers.push(observer);
+    const observers = this._observers !== null ? Arrays.inserted(observer, this._observers) : [observer];
     return Transition.create(this._duration, this._easing, this._interpolator, observers);
   }
 
   onBegin(onBegin: TransitionBegin<T>): Transition<T> {
     const observer: TransitionObserver<T> = {onBegin};
-    const observers = this._observers !== void 0 ? this._observers.slice(0) : [];
-    observers.push(observer);
+    const observers = this._observers !== null ? Arrays.inserted(observer, this._observers) : [observer];
     return Transition.create(this._duration, this._easing, this._interpolator, observers);
   }
 
   onEnd(onEnd: TransitionEnd<T>): Transition<T> {
     const observer: TransitionObserver<T> = {onEnd};
-    const observers = this._observers !== void 0 ? this._observers.slice(0) : [];
-    observers.push(observer);
+    const observers = this._observers !== null ? Arrays.inserted(observer, this._observers) : [observer];
     return Transition.create(this._duration, this._easing, this._interpolator, observers);
   }
 
   onInterrupt(onInterrupt: TransitionInterrupt<T>): Transition<T> {
     const observer: TransitionObserver<T> = {onInterrupt};
-    const observers = this._observers !== void 0 ? this._observers.slice(0) : [];
-    observers.push(observer);
+    const observers = this._observers !== null ? Arrays.inserted(observer, this._observers) : [observer];
     return Transition.create(this._duration, this._easing, this._interpolator, observers);
   }
 
@@ -150,10 +150,10 @@ export class Transition<T> {
     if (this._duration !== void 0) {
       init.duration = this._duration;
     }
-    if (this._easing !== void 0) {
+    if (this._easing !== null) {
       init.easing = this._easing;
     }
-    if (this._interpolator !== void 0) {
+    if (this._interpolator !== null) {
       init.interpolator = this._interpolator;
     }
     return init;
@@ -169,12 +169,9 @@ export class Transition<T> {
     return false;
   }
 
-  static create<T>(duration?: number | null, easing?: AnyEasing | null,
+  static create<T>(duration?: number, easing?: AnyEasing | null,
                    interpolator?: Interpolator<T> | null,
                    observers?: ReadonlyArray<TransitionObserver<T>> | null): Transition<T> {
-    if (duration === void 0) {
-      duration = null;
-    }
     easing = easing !== void 0 && easing !== null ? Easing.fromAny(easing) : null;
     if (interpolator === void 0) {
       interpolator = null;
@@ -199,11 +196,11 @@ export class Transition<T> {
     if (interpolator === void 0) {
       interpolator = null;
     }
-    return new Transition(null, easing, interpolator, null);
+    return new Transition(void 0, easing, interpolator, null);
   }
 
   static interpolator<T>(interpolator: Interpolator<T>): Transition<T> {
-    return new Transition(null, null, interpolator, null);
+    return new Transition(void 0, null, interpolator, null);
   }
 
   static range<T>(y0: AnyRange<T>): Transition<T>;
@@ -219,7 +216,7 @@ export class Transition<T> {
     } else {
       interpolator = Interpolator(y0 as T, y1!);
     }
-    return new Transition(null, null, interpolator, null);
+    return new Transition(void 0, null, interpolator, null);
   }
 
   static fromInit<T>(transition: TransitionInit<T>): Transition<T> {
@@ -250,8 +247,7 @@ export class Transition<T> {
   }
 
   static forTween<T>(tween: Tween<T> | undefined, value?: T extends undefined ? never : T,
-                     duration: number | null = null,
-                     easing: AnyEasing | null = null): Transition<T> | null {
+                     duration?: number, easing: AnyEasing | null = null): Transition<T> | null {
     if (tween instanceof Transition) {
       return tween;
     } else if (Transition.isInit(tween)) {
@@ -266,9 +262,7 @@ export class Transition<T> {
   static isInit(value: unknown): value is TransitionInit<any> {
     if (typeof value === "object" && value !== null) {
       const init = value as TransitionInit<any>;
-      return init.duration !== void 0
-          || init.easing !== void 0
-          || init.interpolator !== void 0;
+      return "duration" in init || "easing" in init || "interpolator" in init;
     }
     return false;
   }
