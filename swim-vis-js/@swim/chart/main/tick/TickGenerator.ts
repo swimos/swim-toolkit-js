@@ -29,24 +29,24 @@ const MONTH = 30 * DAY;
 const YEAR = 365 * DAY;
 
 const TIME_TICK_INTERVALS = new BTree<number, TimeInterval>()
-  .set(SECOND, TimeInterval.second())
-  .set(5 * SECOND, TimeInterval.second(5))
-  .set(15 * SECOND, TimeInterval.second(15))
-  .set(30 * SECOND, TimeInterval.second(30))
-  .set(MINUTE, TimeInterval.minute(1))
-  .set(5 * MINUTE, TimeInterval.minute(5))
-  .set(15 * MINUTE, TimeInterval.minute(15))
-  .set(30 * MINUTE, TimeInterval.minute(30))
-  .set(HOUR, TimeInterval.hour())
-  .set(3 * HOUR, TimeInterval.hour(3))
-  .set(6 * HOUR, TimeInterval.hour(6))
-  .set(12 * HOUR, TimeInterval.hour(12))
-  .set(DAY, TimeInterval.day())
-  .set(2 * DAY, TimeInterval.day(2))
-  .set(WEEK, TimeInterval.week())
-  .set(MONTH, TimeInterval.month())
-  .set(3 * MONTH, TimeInterval.month(3))
-  .set(YEAR, TimeInterval.year());
+  .set(SECOND, TimeInterval.second)
+  .set(5 * SECOND, TimeInterval.second.every(5))
+  .set(15 * SECOND, TimeInterval.second.every(15))
+  .set(30 * SECOND, TimeInterval.second.every(30))
+  .set(MINUTE, TimeInterval.minute)
+  .set(5 * MINUTE, TimeInterval.minute.every(5))
+  .set(15 * MINUTE, TimeInterval.minute.every(15))
+  .set(30 * MINUTE, TimeInterval.minute.every(30))
+  .set(HOUR, TimeInterval.hour)
+  .set(3 * HOUR, TimeInterval.hour.every(3))
+  .set(6 * HOUR, TimeInterval.hour.every(6))
+  .set(12 * HOUR, TimeInterval.hour.every(12))
+  .set(DAY, TimeInterval.day)
+  .set(2 * DAY, TimeInterval.day.every(2))
+  .set(WEEK, TimeInterval.week)
+  .set(MONTH, TimeInterval.month)
+  .set(3 * MONTH, TimeInterval.month.every(3))
+  .set(YEAR, TimeInterval.year);
 
 const MILLISECOND_FORMAT = DateTimeFormat.pattern(".%L");
 const SECOND_FORMAT = DateTimeFormat.pattern(":%S");
@@ -166,7 +166,7 @@ export class NumberTickGenerator extends TickGenerator<number> {
       x0 = Math.ceil(x0 / step);
       x1 = Math.floor(x1 / step);
       const n = Math.ceil(x1 - x0 + 1);
-      ticks = new Array(n);
+      ticks = new Array<number>(n);
       for (let i = 0; i < n; i += 1) {
         ticks[i] = (x0 + i) * step;
       }
@@ -174,7 +174,7 @@ export class NumberTickGenerator extends TickGenerator<number> {
       x0 = Math.floor(x0 * step);
       x1 = Math.ceil(x1 * step);
       const n = Math.ceil(x0 - x1 + 1);
-      ticks = new Array(n);
+      ticks = new Array<number>(n);
       for (let i = 0; i < n; i += 1) {
         ticks[i] = (x0 - i) / step;
       }
@@ -208,13 +208,13 @@ export class TimeTickGenerator extends TickGenerator<DateTime> {
   /** @hidden */
   protected n: number;
 
-  constructor(d0: AnyDateTime, d1: AnyDateTime, n: number, zone?: TimeZone) {
+  constructor(t0: AnyDateTime, t1: AnyDateTime, n: number, zone?: TimeZone) {
     super();
-    d0 = DateTime.fromAny(d0);
-    d1 = DateTime.fromAny(d1);
-    this.t0 = d0.time();
-    this.dt = d1.time() - this.t0;
-    this.zone = zone || d0.zone();
+    const d0 = DateTime.fromAny(t0);
+    const d1 = DateTime.fromAny(t1);
+    this.t0 = d0.time;
+    this.dt = d1.time - this.t0;
+    this.zone = zone !== void 0 ? zone : d0.zone;
     this.n = Math.max(0, n);
   }
 
@@ -245,8 +245,8 @@ export class TimeTickGenerator extends TickGenerator<DateTime> {
       }
       d0 = DateTime.fromAny(d0);
       d1 = DateTime.fromAny(d1);
-      this.t0 = d0.time();
-      this.dt = d1.time() - this.t0;
+      this.t0 = (d0 as DateTime).time;
+      this.dt = (d1 as DateTime).time - this.t0;
       return this;
     }
   }
@@ -276,21 +276,21 @@ export class TimeTickGenerator extends TickGenerator<DateTime> {
   }
 
   format(tickValue: DateTime): string {
-    if (TimeInterval.second().floor(tickValue) < tickValue) {
+    if (TimeInterval.second.floor(tickValue) < tickValue) {
       return MILLISECOND_FORMAT.format(tickValue);
-    } else if (TimeInterval.minute().floor(tickValue) < tickValue) {
+    } else if (TimeInterval.minute.floor(tickValue) < tickValue) {
       return SECOND_FORMAT.format(tickValue);
-    } else if (TimeInterval.hour().floor(tickValue) < tickValue) {
+    } else if (TimeInterval.hour.floor(tickValue) < tickValue) {
       return MINUTE_FORMAT.format(tickValue);
-    } else if (TimeInterval.day().floor(tickValue) < tickValue) {
+    } else if (TimeInterval.day.floor(tickValue) < tickValue) {
       return HOUR_FORMAT.format(tickValue);
-    } else if (TimeInterval.month().floor(tickValue) < tickValue) {
-      if (TimeInterval.week().floor(tickValue) < tickValue) {
+    } else if (TimeInterval.month.floor(tickValue) < tickValue) {
+      if (TimeInterval.week.floor(tickValue) < tickValue) {
         return WEEKDAY_FORMAT.format(tickValue);
       } else {
         return MONTHDAY_FORMAT.format(tickValue);
       }
-    } else if (TimeInterval.year().floor(tickValue) < tickValue) {
+    } else if (TimeInterval.year.floor(tickValue) < tickValue) {
       return MONTH_FORMAT.format(tickValue);
     } else {
       return YEAR_FORMAT.format(tickValue);
@@ -304,7 +304,7 @@ export class TimeTickGenerator extends TickGenerator<DateTime> {
       const duration = TIME_TICK_INTERVALS.nextKey(t);
       if (duration === void 0) {
         const k = TickGenerator.step(dt / YEAR, interval);
-        interval = TimeInterval.year(k);
+        interval = TimeInterval.year.every(k);
       } else if (duration > SECOND) {
         if (t / TIME_TICK_INTERVALS.previousKey(t)! < duration / t) {
           interval = TIME_TICK_INTERVALS.previousValue(t)!;
@@ -313,7 +313,7 @@ export class TimeTickGenerator extends TickGenerator<DateTime> {
         }
       } else {
         const k = Math.max(1, TickGenerator.step(dt, interval));
-        interval = TimeInterval.millisecond(k);
+        interval = TimeInterval.millisecond.every(k);
       }
     }
     return interval;

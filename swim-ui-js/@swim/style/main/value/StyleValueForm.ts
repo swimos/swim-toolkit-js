@@ -85,7 +85,7 @@ export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
     }
     if (value instanceof Record) {
       const date = DateTime.fromValue(value);
-      if (date !== void 0) {
+      if (date !== null) {
         return date;
       }
       const angle = Angle.fromValue(value);

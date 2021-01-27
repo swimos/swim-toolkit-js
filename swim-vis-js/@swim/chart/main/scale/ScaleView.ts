@@ -1691,7 +1691,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       return LinearScale(LinearDomain(0, 1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
     } else if (string === "time") {
       const d1 = DateTime.current();
-      const d0 = d1.day(d1.day() - 1);
+      const d0 = d1.withDay(d1.day - 1);
       return TimeScale(TimeDomain(d0, d1), LinearRange(0, 1)) as unknown as ContinuousScale<X, Y>;
     } else {
       const domain = string.split("...");
