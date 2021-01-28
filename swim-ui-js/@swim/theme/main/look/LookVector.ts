@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Arrays} from "@swim/util";
+import {Equals, Lazy, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
 import type {Feel} from "../feel/Feel";
 
@@ -21,23 +21,30 @@ export type AnyLookVector<T> = LookVector<T> | LookVectorArray<T>;
 export type LookVectorArray<T> = ReadonlyArray<[Feel, T]>;
 
 export class LookVector<T> implements Equals, Debug {
-  /** @hidden */
-  readonly _array: ReadonlyArray<[Feel, T]>;
-  /** @hidden */
-  readonly _index: {readonly [name: string]: number | undefined};
-
   constructor(array: ReadonlyArray<[Feel, T]>,
               index: {readonly [name: string]: number | undefined}) {
-    this._array = array;
-    this._index = index;
+    Object.defineProperty(this, "array", {
+      value: array,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "index", {
+      value: index,
+      enumerable: true,
+    });
   }
 
+  /** @hidden */
+  declare readonly array: ReadonlyArray<[Feel, T]>;
+
+  /** @hidden */
+  declare readonly index: {readonly [name: string]: number | undefined};
+
   get size(): number {
-    return this._array.length;
+    return this.array.length;
   }
 
   isEmpty(): boolean {
-    return this._array.length === 0;
+    return this.array.length === 0;
   }
 
   has(feel: Feel): boolean;
@@ -46,7 +53,7 @@ export class LookVector<T> implements Equals, Debug {
     if (typeof feel === "object" && feel !== null || typeof feel === "function") {
       feel = feel.name;
     }
-    return this._index[feel] !== void 0;
+    return this.index[feel] !== void 0;
   }
 
   get(feel: Feel): T | undefined;
@@ -57,15 +64,15 @@ export class LookVector<T> implements Equals, Debug {
       feel = feel.name;
     }
     if (typeof feel === "string") {
-      feel = this._index[feel];
+      feel = this.index[feel];
     }
-    const entry = typeof feel === "number" ? this._array[feel] : void 0;
+    const entry = typeof feel === "number" ? this.array[feel] : void 0;
     return entry !== void 0 ? entry[1] : void 0;
   }
 
   updated(feel: Feel, value: T | undefined): LookVector<T> {
-    const oldArray = this._array;
-    const oldIndex = this._index;
+    const oldArray = this.array;
+    const oldIndex = this.index;
     const i = oldIndex[feel.name];
     if (value !== void 0 && i !== void 0) { // update
       const newArray = oldArray.slice(0);
@@ -108,7 +115,7 @@ export class LookVector<T> implements Equals, Debug {
                 thisArg: S): R | undefined;
   forEach<R, S>(callback: (this: S | undefined, value: T, feel: Feel) => R | void,
                 thisArg?: S): R | undefined {
-    const array = this._array;
+    const array = this.array;
     for (let i = 0, n = array.length; i < n; i += 1) {
       const entry = array[i]!;
       const result = callback.call(thisArg, entry[1], entry[0]);
@@ -123,13 +130,13 @@ export class LookVector<T> implements Equals, Debug {
     if (this === that) {
       return true;
     } else if (that instanceof LookVector) {
-      return Arrays.equal(this._array, that._array);
+      return Arrays.equal(this.array, that.array);
     }
     return false;
   }
 
   debug(output: Output): void {
-    const array = this._array;
+    const array = this.array;
     const n = array.length;
     output = output.write("LookVector").write(46/*'.'*/)
         .write(n !== 0 ? "of" : "empty").write(40/*'('*/);
@@ -147,12 +154,9 @@ export class LookVector<T> implements Equals, Debug {
     return Format.debug(this);
   }
 
-  private static _empty?: LookVector<any>;
+  @Lazy
   static empty<T>(): LookVector<T> {
-    if (LookVector._empty === void 0) {
-      LookVector._empty = new LookVector([], {});
-    }
-    return LookVector._empty;
+    return new LookVector(Arrays.empty, {});
   }
 
   static of<T>(...feels: [Feel, T][]): LookVector<T> {

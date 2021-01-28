@@ -34,8 +34,8 @@ export abstract class Look<T, U = never> implements Mood {
   }
 
   add(a: LookVector<T>, b: LookVector<T>): LookVector<T> {
-    const aArray = a._array;
-    const bArray = b._array;
+    const aArray = a.array;
+    const bArray = b.array;
     const newArray = new Array<[Feel, T]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, n = aArray.length; i < n; i += 1) {
@@ -57,19 +57,19 @@ export abstract class Look<T, U = never> implements Mood {
   }
 
   negate(a: LookVector<T>): LookVector<T> {
-    const oldArray = a._array;
+    const oldArray = a.array;
     const n = oldArray.length;
     const newArray = new Array<[Feel, T]>(n);
     for (let i = 0; i < n; i += 1) {
       const [feel, x] = oldArray[i]!;
       newArray[i] = [feel, feel.combine(this, void 0, x, -1)];
     }
-    return this.fromArray(newArray, a._index);
+    return this.fromArray(newArray, a.index);
   }
 
   subtract(a: LookVector<T>, b: LookVector<T>): LookVector<T> {
-    const aArray = a._array;
-    const bArray = b._array;
+    const aArray = a.array;
+    const bArray = b.array;
     const newArray = new Array<[Feel, T]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, n = aArray.length; i < n; i += 1) {
@@ -90,18 +90,18 @@ export abstract class Look<T, U = never> implements Mood {
   }
 
   multiply(a: LookVector<T>, scalar: number): LookVector<T> {
-    const oldArray = a._array;
+    const oldArray = a.array;
     const n = oldArray.length;
     const newArray = new Array<[Feel, T]>(n);
     for (let i = 0; i < n; i += 1) {
       const [feel, x] = oldArray[i]!;
       newArray[i] = [feel, feel.combine(this, void 0, x, scalar)];
     }
-    return this.fromArray(newArray, a._index);
+    return this.fromArray(newArray, a.index);
   }
 
   dot(a: LookVector<T>, b: MoodVector): T | undefined {
-    const array = a._array;
+    const array = a.array;
     let combination: T | undefined;
     for (let i = 0, n = array.length; i < n; i += 1) {
       const [feel, value] = array[i]!;

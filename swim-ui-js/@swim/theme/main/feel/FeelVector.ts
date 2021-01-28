@@ -23,23 +23,30 @@ export type AnyFeelVector = FeelVector | FeelVectorArray;
 export type FeelVectorArray = ReadonlyArray<[Look<unknown>, unknown]>;
 
 export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
-  /** @hidden */
-  readonly _array: ReadonlyArray<[Look<unknown>, unknown]>;
-  /** @hidden */
-  readonly _index: {readonly [name: string]: number | undefined};
-
   constructor(array: ReadonlyArray<[Look<unknown>, unknown]>,
               index: {readonly [name: string]: number | undefined}) {
-    this._array = array;
-    this._index = index;
+    Object.defineProperty(this, "array", {
+      value: array,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "index", {
+      value: index,
+      enumerable: true,
+    });
   }
 
+  /** @hidden */
+  declare readonly array: ReadonlyArray<[Look<unknown>, unknown]>;
+
+  /** @hidden */
+  declare readonly index: {readonly [name: string]: number | undefined};
+
   get size(): number {
-    return this._array.length;
+    return this.array.length;
   }
 
   isEmpty(): boolean {
-    return this._array.length === 0;
+    return this.array.length === 0;
   }
 
   has(look: Look<any>): boolean;
@@ -48,7 +55,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     if (typeof look === "object" && look !== null || typeof look === "function") {
       look = look.name;
     }
-    return this._index[look] !== void 0;
+    return this.index[look] !== void 0;
   }
 
   get<T>(look: Look<T, any>): T | undefined;
@@ -59,15 +66,15 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
       look = look.name;
     }
     if (typeof look === "string") {
-      look = this._index[look];
+      look = this.index[look];
     }
-    const entry = typeof look === "number" ? this._array[look] : void 0;
+    const entry = typeof look === "number" ? this.array[look] : void 0;
     return entry !== void 0 ? entry[1] : void 0;
   }
 
   updated<T, U = never>(look: Look<T, U>, value: T | U | undefined): FeelVector {
-    const oldArray = this._array;
-    const oldIndex = this._index;
+    const oldArray = this.array;
+    const oldIndex = this.index;
     const i = oldIndex[look.name];
     if (value !== void 0 && i !== void 0) { // update
       const newArray = oldArray.slice(0);
@@ -101,8 +108,8 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
   }
 
   plus(that: FeelVector): FeelVector {
-    const thisArray = this._array;
-    const thatArray = that._array;
+    const thisArray = this.array;
+    const thatArray = that.array;
     const newArray = new Array<[Look<unknown>, unknown]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, n = thisArray.length; i < n; i += 1) {
@@ -124,19 +131,19 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
   }
 
   opposite(): FeelVector {
-    const oldArray = this._array;
+    const oldArray = this.array;
     const n = oldArray.length;
     const newArray = new Array<[Look<unknown>, unknown]>(n);
     for (let i = 0; i < n; i += 1) {
       const [look, x] = oldArray[i]!;
       newArray[i] = [look, look.combine(void 0, x, -1)];
     }
-    return this.copy(newArray, this._index);
+    return this.copy(newArray, this.index);
   }
 
   minus(that: FeelVector): FeelVector {
-    const thisArray = this._array;
-    const thatArray = that._array;
+    const thisArray = this.array;
+    const thatArray = that.array;
     const newArray = new Array<[Look<unknown>, unknown]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, n = thisArray.length; i < n; i += 1) {
@@ -157,14 +164,14 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
   }
 
   times(scalar: number): FeelVector {
-    const oldArray = this._array;
+    const oldArray = this.array;
     const n = oldArray.length;
     const newArray = new Array<[Look<unknown>, unknown]>(n);
     for (let i = 0; i < n; i += 1) {
       const [look, x] = oldArray[i]!;
       newArray[i] = [look, look.combine(void 0, x, scalar)];
     }
-    return this.copy(newArray, this._index);
+    return this.copy(newArray, this.index);
   }
 
   protected copy(array: ReadonlyArray<[Look<unknown>, unknown]>,
@@ -177,7 +184,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
                 thisArg: S): R | undefined;
   forEach<R, S>(callback: <T>(this: S | undefined, value: T, look: Look<T>) => R | void,
                 thisArg?: S): R | undefined {
-    const array = this._array;
+    const array = this.array;
     for (let i = 0, n = array.length; i < n; i += 1) {
       const entry = array[i]!;
       const result = callback.call(thisArg, entry[1], entry[0]);
@@ -202,13 +209,13 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     if (this === that) {
       return true;
     } else if (that instanceof FeelVector) {
-      return Arrays.equal(this._array, that._array);
+      return Arrays.equal(this.array, that.array);
     }
     return false;
   }
 
   debug(output: Output): void {
-    const array = this._array;
+    const array = this.array;
     const n = array.length;
     output = output.write("FeelVector").write(46/*'.'*/)
         .write(n !== 0 ? "of" : "empty").write(40/*'('*/);

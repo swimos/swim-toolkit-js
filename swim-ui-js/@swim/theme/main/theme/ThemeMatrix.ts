@@ -22,31 +22,46 @@ import {MoodVector} from "../mood/MoodVector";
 import {MoodMatrix} from "../mood/MoodMatrix";
 
 export class ThemeMatrix implements Equals, Debug {
-  /** @hidden */
-  readonly _rowArray: ReadonlyArray<[Look<unknown>, LookVector<unknown>]>;
-  /** @hidden */
-  readonly _rowIndex: {readonly [name: string]: number | undefined};
-  /** @hidden */
-  readonly _colArray: ReadonlyArray<[Feel, FeelVector]>;
-  /** @hidden */
-  readonly _colIndex: {readonly [name: string]: number | undefined};
-
   constructor(rowArray: ReadonlyArray<[Look<unknown>, LookVector<unknown>]>,
               rowIndex: {readonly [name: string]: number | undefined},
               colArray: ReadonlyArray<[Feel, FeelVector]>,
               colIndex: {readonly [name: string]: number | undefined}) {
-    this._rowArray = rowArray;
-    this._rowIndex = rowIndex;
-    this._colArray = colArray;
-    this._colIndex = colIndex;
+    Object.defineProperty(this, "rowArray", {
+      value: rowArray,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "rowIndex", {
+      value: rowIndex,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "colArray", {
+      value: colArray,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "colIndex", {
+      value: colIndex,
+      enumerable: true,
+    });
   }
 
+  /** @hidden */
+  declare readonly rowArray: ReadonlyArray<[Look<unknown>, LookVector<unknown>]>;
+
+  /** @hidden */
+  declare readonly rowIndex: {readonly [name: string]: number | undefined};
+
+  /** @hidden */
+  declare readonly colArray: ReadonlyArray<[Feel, FeelVector]>;
+
+  /** @hidden */
+  declare readonly colIndex: {readonly [name: string]: number | undefined};
+
   get rowCount(): number {
-    return this._rowArray.length;
+    return this.rowArray.length;
   }
 
   get colCount(): number {
-    return this._colArray.length;
+    return this.colArray.length;
   }
 
   hasRow(look: Look<any>): boolean;
@@ -55,7 +70,7 @@ export class ThemeMatrix implements Equals, Debug {
     if (typeof look === "object" && look !== null || typeof look === "function") {
       look = look.name;
     }
-    return this._rowIndex[look] !== void 0;
+    return this.rowIndex[look] !== void 0;
   }
 
   hasCol(feel: Feel): boolean;
@@ -64,7 +79,7 @@ export class ThemeMatrix implements Equals, Debug {
     if (typeof feel === "object" && feel !== null || typeof feel === "function") {
       feel = feel.name;
     }
-    return this._colIndex[feel] !== void 0;
+    return this.colIndex[feel] !== void 0;
   }
 
   getRow<T>(look: Look<T, any>): LookVector<T> | undefined;
@@ -75,9 +90,9 @@ export class ThemeMatrix implements Equals, Debug {
       look = look.name;
     }
     if (typeof look === "string") {
-      look = this._rowIndex[look];
+      look = this.rowIndex[look];
     }
-    const entry = typeof look === "number" ? this._rowArray[look] : void 0;
+    const entry = typeof look === "number" ? this.rowArray[look] : void 0;
     return entry !== void 0 ? entry[1] : void 0;
   }
 
@@ -89,15 +104,15 @@ export class ThemeMatrix implements Equals, Debug {
       feel = feel.name;
     }
     if (typeof feel === "string") {
-      feel = this._colIndex[feel];
+      feel = this.colIndex[feel];
     }
-    const entry = typeof feel === "number" ? this._colArray[feel] : void 0;
+    const entry = typeof feel === "number" ? this.colArray[feel] : void 0;
     return entry !== void 0 ? entry[1] : void 0;
   }
 
   plus(that: ThemeMatrix): ThemeMatrix {
-    const thisColArray = this._colArray;
-    const thatColArray = that._colArray;
+    const thisColArray = this.colArray;
+    const thatColArray = that.colArray;
     const newColArray = new Array<[Feel, FeelVector]>();
     const newColIndex: {[name: string]: number | undefined} = {};
     for (let j = 0, n = thisColArray.length; j < n; j += 1) {
@@ -119,19 +134,19 @@ export class ThemeMatrix implements Equals, Debug {
   }
 
   opposite(): ThemeMatrix {
-    const oldColArray = this._colArray;
+    const oldColArray = this.colArray;
     const n = oldColArray.length;
     const newColArray = new Array<[Feel, FeelVector]>(n);
     for (let j = 0; j < n; j += 1) {
       const [feel, a] = oldColArray[j]!;
       newColArray[j] = [feel, a.opposite()];
     }
-    return ThemeMatrix.fromColArray(newColArray, this._colIndex);
+    return ThemeMatrix.fromColArray(newColArray, this.colIndex);
   }
 
   minus(that: ThemeMatrix): ThemeMatrix {
-    const thisColArray = this._colArray;
-    const thatColArray = that._colArray;
+    const thisColArray = this.colArray;
+    const thatColArray = that.colArray;
     const newColArray = new Array<[Feel, FeelVector]>();
     const newColIndex: {[name: string]: number | undefined} = {};
     for (let j = 0, n = thisColArray.length; j < n; j += 1) {
@@ -152,14 +167,14 @@ export class ThemeMatrix implements Equals, Debug {
   }
 
   times(scalar: number): ThemeMatrix {
-    const oldColArray = this._colArray;
+    const oldColArray = this.colArray;
     const n = oldColArray.length;
     const newColArray = new Array<[Feel, FeelVector]>(n);
     for (let j = 0; j < n; j += 1) {
       const [feel, a] = oldColArray[j]!;
       newColArray[j] = [feel, a.times(scalar)];
     }
-    return ThemeMatrix.fromColArray(newColArray, this._colIndex);
+    return ThemeMatrix.fromColArray(newColArray, this.colIndex);
   }
 
   inner<T>(that: MoodVector, look: Look<T, any>): T | undefined;
@@ -170,9 +185,9 @@ export class ThemeMatrix implements Equals, Debug {
       look = look.name;
     }
     if (typeof look === "string") {
-      look = this._rowIndex[look];
+      look = this.rowIndex[look];
     }
-    const entry = typeof look === "number" ? this._rowArray[look] : void 0;
+    const entry = typeof look === "number" ? this.rowArray[look] : void 0;
     if (entry !== void 0) {
       look = entry[0];
       const row = entry[1];
@@ -196,7 +211,7 @@ export class ThemeMatrix implements Equals, Debug {
 
   /** @hidden */
   transformVector(that: MoodVector): FeelVector {
-    const rowArray = this._rowArray;
+    const rowArray = this.rowArray;
     const newArray = new Array<[Look<unknown>, unknown]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, m = rowArray.length; i < m; i += 1) {
@@ -212,8 +227,8 @@ export class ThemeMatrix implements Equals, Debug {
 
   /** @hidden */
   transformMatrix(that: MoodMatrix, implicitIdentity: boolean = true): ThemeMatrix {
-    const thisRowArray = this._rowArray;
-    const thisColArray = this._colArray;
+    const thisRowArray = this.rowArray;
+    const thisColArray = this.colArray;
     const newRowArray = new Array<[Look<unknown>, LookVector<unknown>]>();
     const newRowIndex: {[name: string]: number | undefined} = {};
     const newColArray = new Array<[Feel, FeelVector]>();
@@ -232,8 +247,8 @@ export class ThemeMatrix implements Equals, Debug {
             const i2 = newRowIndex[look.name];
             if (i2 !== void 0) {
               const newRow = newRowArray[i2]![1];
-              (newRow._index as {[name: string]: number | undefined})[look.name] = newRow._array.length;
-              (newRow._array as [Feel, unknown][]).push([feel, value]);
+              (newRow.index as {[name: string]: number | undefined})[look.name] = newRow.array.length;
+              (newRow.array as [Feel, unknown][]).push([feel, value]);
             } else {
               newRowIndex[look.name] = newRowArray.length;
               newRowArray.push([look, LookVector.of([feel, value])]);
@@ -241,8 +256,8 @@ export class ThemeMatrix implements Equals, Debug {
             const j2 = newColIndex[feel.name];
             if (j2 !== void 0) {
               const newCol = newColArray[j2]![1];
-              (newCol._index as {[name: string]: number | undefined})[feel.name] = newCol._array.length;
-              (newCol._array as [Look<unknown>, unknown][]).push([look, value]);
+              (newCol.index as {[name: string]: number | undefined})[feel.name] = newCol.array.length;
+              (newCol.array as [Look<unknown>, unknown][]).push([look, value]);
             } else {
               newColIndex[feel.name] = newColArray.length;
               newColArray.push([feel, FeelVector.of([look, value])]);
@@ -258,8 +273,8 @@ export class ThemeMatrix implements Equals, Debug {
     if (row !== void 0) {
       row = LookVector.fromAny(row);
     }
-    const oldRowArray = this._rowArray;
-    const oldRowIndex = this._rowIndex;
+    const oldRowArray = this.rowArray;
+    const oldRowIndex = this.rowIndex;
     const i = oldRowIndex[look.name];
     if (row !== void 0 && i !== void 0) { // update
       const newRowArray = oldRowArray.slice(0);
@@ -296,8 +311,8 @@ export class ThemeMatrix implements Equals, Debug {
     if (col !== void 0) {
       col = FeelVector.fromAny(col);
     }
-    const oldColArray = this._colArray;
-    const oldColIndex = this._colIndex;
+    const oldColArray = this.colArray;
+    const oldColIndex = this.colIndex;
     const i = oldColIndex[feel.name];
     if (col !== void 0 && i !== void 0) { // update
       const newColArray = oldColArray.slice(0);
@@ -380,13 +395,13 @@ export class ThemeMatrix implements Equals, Debug {
     if (this === that) {
       return true;
     } else if (that instanceof ThemeMatrix) {
-      return Arrays.equal(this._colArray, that._colArray);
+      return Arrays.equal(this.colArray, that.colArray);
     }
     return false;
   }
 
   debug(output: Output): void {
-    const cols = this._colArray;
+    const cols = this.colArray;
     const n = cols.length;
     output = output.write("ThemeMatrix").write(46/*'.'*/)
         .write(n !== 0 ? "forCols" : "empty").write(40/*'('*/);
