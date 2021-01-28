@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Input, Parser, Unicode} from "@swim/codec";
-import {ColorStop} from "./ColorStop";
+import type {ColorStop} from "./ColorStop";
 import {ColorStopParser} from "./ColorStopParser";
 
 /** @hidden */
@@ -100,4 +100,3 @@ export class ColorStopListParser extends Parser<ColorStop[]> {
     return new ColorStopListParser(stops, stopParser, step);
   }
 }
-ColorStop.ListParser = ColorStopListParser;

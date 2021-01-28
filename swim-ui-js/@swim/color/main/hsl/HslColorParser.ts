@@ -14,7 +14,6 @@
 
 import {Input, Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Angle, AngleParser} from "@swim/math";
-import {Color} from "../color/Color";
 import type {ColorChannel} from "../color/ColorChannel";
 import {ColorChannelParser} from "../color/ColorChannelParser";
 import {HslColor} from "./HslColor";
@@ -240,4 +239,3 @@ export class HslColorParser extends Parser<HslColor> {
     return HslColorParser.parse(input, void 0, void 0, void 0, void 0, 5);
   }
 }
-Color.HslParser = HslColorParser;

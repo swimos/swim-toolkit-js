@@ -127,8 +127,8 @@ export class StyleValueParser extends Parser<StyleValue> {
           case "true": return Parser.done(true);
           case "false": return Parser.done(false);
           default: {
-            const color = Color.fromName(ident);
-            if (color !== void 0) {
+            const color = Color.forName(ident);
+            if (color !== null) {
               return Parser.done(color);
             }
             return Parser.error(Diagnostic.message("unknown style value: " + ident, input));

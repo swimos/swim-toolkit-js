@@ -43,7 +43,7 @@ export class ColorForm extends Form<Color, AnyColor> {
 
   cast(item: Item): Color | undefined {
     const value = item.toValue();
-    let color: Color | undefined;
+    let color: Color | null = null;
     try {
       color = Color.fromValue(value);
       if (color === void 0) {
@@ -55,7 +55,6 @@ export class ColorForm extends Form<Color, AnyColor> {
     } catch (e) {
       // swallow
     }
-    return color;
+    return color !== null ? color : void 0;
   }
 }
-Color.Form = ColorForm;

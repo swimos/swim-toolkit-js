@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Input, Parser, Diagnostic, Unicode} from "@swim/codec";
-import {Color} from "../color/Color";
 import type {ColorChannel} from "../color/ColorChannel";
 import {ColorChannelParser} from "../color/ColorChannelParser";
 import {RgbColor} from "./RgbColor";
@@ -231,4 +230,3 @@ export class RgbColorParser extends Parser<RgbColor> {
     return RgbColorParser.parse(input, void 0, void 0, void 0, void 0, 5);
   }
 }
-Color.RgbParser = RgbColorParser;

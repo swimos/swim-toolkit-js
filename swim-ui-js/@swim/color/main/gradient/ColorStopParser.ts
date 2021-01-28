@@ -177,4 +177,3 @@ export class ColorStopParser extends Parser<ColorStop> {
     return ColorStopParser.parse(input, void 0, void 0, void 0, 1);
   }
 }
-ColorStop.Parser = ColorStopParser;

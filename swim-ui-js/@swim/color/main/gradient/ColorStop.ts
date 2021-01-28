@@ -18,8 +18,8 @@ import type {Interpolate, Interpolator} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "../color/Color";
 import {ColorStopInterpolator} from "../"; // forward import
-import type {ColorStopParser} from "./ColorStopParser";
-import type {ColorStopListParser} from "./ColorStopListParser";
+import {ColorStopParser} from "../"; // forward import
+import {ColorStopListParser} from "../"; // forward import
 
 export type AnyColorStop = ColorStop | ColorStopInit | ColorStopTuple | string;
 
@@ -32,54 +32,44 @@ export interface ColorStopInit {
 export type ColorStopTuple = [AnyColor, AnyLength | null];
 
 export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
-  /** @hidden */
-  readonly _color: Color;
-  /** @hidden */
-  readonly _stop: Length | null;
-  /** @hidden */
-  readonly _hint: Length | null
-
   constructor(color: Color, stop: Length | null, hint: Length | null) {
-    this._color = color;
-    this._stop = stop;
-    this._hint = hint;
+    Object.defineProperty(this, "color", {
+      value: color,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "stop", {
+      value: stop,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "hint", {
+      value: hint,
+      enumerable: true,
+    });
   }
 
-  color(): Color;
-  color(color: AnyColor): ColorStop;
-  color(color?: AnyColor): Color | ColorStop {
-    if (color === void 0) {
-      return this._color;
-    } else {
-      color = Color.fromAny(color);
-      return new ColorStop(color, this._stop, this._hint);
-    }
+  declare readonly color: Color;
+
+  withColor(color: AnyColor): ColorStop {
+    color = Color.fromAny(color);
+    return new ColorStop(color, this.stop, this.hint);
   }
 
-  stop(): Length | null;
-  stop(stop: AnyLength | null): ColorStop;
-  stop(stop?: AnyLength | null): Length | null | ColorStop {
-    if (stop === void 0) {
-      return this._stop;
-    } else {
-      if (stop !== null) {
-        stop = Length.fromAny(stop, "%");
-      }
-      return new ColorStop(this._color, stop, this._hint);
+  declare readonly stop: Length | null;
+
+  withStop(stop: AnyLength | null): ColorStop {
+    if (stop !== null) {
+      stop = Length.fromAny(stop, "%");
     }
+    return new ColorStop(this.color, stop, this.hint);
   }
 
-  hint(): Length | null;
-  hint(hint: AnyLength | null): ColorStop;
-  hint(hint?: AnyLength | null): Length | null | ColorStop {
-    if (hint === void 0) {
-      return this._hint;
-    } else {
-      if (hint !== null) {
-        hint = Length.fromAny(hint, "%");
-      }
-      return new ColorStop(this._color, this._stop, hint);
+  declare readonly hint: Length | null
+
+  withHint(hint: AnyLength | null): ColorStop {
+    if (hint !== null) {
+      hint = Length.fromAny(hint, "%");
     }
+    return new ColorStop(this.color, this.stop, hint);
   }
 
   interpolateTo(that: ColorStop): Interpolator<ColorStop>;
@@ -96,9 +86,9 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
     if (this === that) {
       return true;
     } else if (that instanceof ColorStop) {
-      return Equivalent(this._color, that._color, epsilon)
-          && Equivalent(this._stop, that._stop, epsilon)
-          && Equivalent(this._hint, that._hint, epsilon);
+      return Equivalent(this.color, that.color, epsilon)
+          && Equivalent(this.stop, that.stop, epsilon)
+          && Equivalent(this.hint, that.hint, epsilon);
     }
     return false;
   }
@@ -107,23 +97,23 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
     if (this === that) {
       return true;
     } else if (that instanceof ColorStop) {
-      return this._color.equals(that._color)
-          && Equals(this._stop, that._stop)
-          && Equals(this._hint, that._hint);
+      return this.color.equals(that.color)
+          && Equals(this.stop, that.stop)
+          && Equals(this.hint, that.hint);
     }
     return false;
   }
 
   toString(): string {
     let s = "";
-    if (this._hint !== null) {
-      s += this._hint.toString();
+    if (this.hint !== null) {
+      s += this.hint.toString();
       s += ", ";
     }
-    s += this._color.toString();
-    if (this._stop !== null) {
+    s += this.color.toString();
+    if (this.stop !== null) {
       s += " ";
-      s += this._stop.toString();
+      s += this.stop.toString();
     }
     return s;
   }
@@ -171,7 +161,7 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
     while (input.isCont() && Unicode.isWhitespace(input.head())) {
       input = input.step();
     }
-    let parser = ColorStop.Parser.parse(input);
+    let parser = ColorStopParser.parse(input);
     if (parser.isDone()) {
       while (input.isCont() && Unicode.isWhitespace(input.head())) {
         input = input.step();
@@ -188,7 +178,7 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
     while (input.isCont() && Unicode.isWhitespace(input.head())) {
       input = input.step();
     }
-    let parser = ColorStop.Parser.parseHint(input);
+    let parser = ColorStopParser.parseHint(input);
     if (parser.isDone()) {
       while (input.isCont() && Unicode.isWhitespace(input.head())) {
         input = input.step();
@@ -205,7 +195,7 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
     while (input.isCont() && Unicode.isWhitespace(input.head())) {
       input = input.step();
     }
-    let parser = ColorStop.ListParser.parse(input);
+    let parser = ColorStopListParser.parse(input);
     if (parser.isDone()) {
       while (input.isCont() && Unicode.isWhitespace(input.head())) {
         input = input.step();
@@ -241,10 +231,4 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
         || ColorStop.isTuple(value)
         || typeof value === "string";
   }
-
-  // Forward type declarations
-  /** @hidden */
-  static Parser: typeof ColorStopParser; // defined by ColorStopParser
-  /** @hidden */
-  static ListParser: typeof ColorStopListParser; // defined by ColorStopListParser
 }

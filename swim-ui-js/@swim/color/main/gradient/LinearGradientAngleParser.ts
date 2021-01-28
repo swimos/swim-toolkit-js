@@ -14,7 +14,7 @@
 
 import {Input, Output, Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Angle, AngleParser} from "@swim/math";
-import {LinearGradientAngle, LinearGradientSide, LinearGradient} from "./LinearGradient";
+import type {LinearGradientAngle, LinearGradientSide} from "./LinearGradient";
 
 /** @hidden */
 export class LinearGradientAngleParser extends Parser<LinearGradientAngle> {
@@ -181,4 +181,3 @@ export class LinearGradientAngleParser extends Parser<LinearGradientAngle> {
     return new LinearGradientAngleParser(identOutput, angleParser, side, step);
   }
 }
-LinearGradient.AngleParser = LinearGradientAngleParser;

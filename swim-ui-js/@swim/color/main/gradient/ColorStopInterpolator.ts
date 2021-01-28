@@ -43,15 +43,15 @@ export const ColorStopInterpolator = function (y0: ColorStop, y1: ColorStop): Co
   } as ColorStopInterpolator;
   Object.setPrototypeOf(interpolator, ColorStopInterpolator.prototype);
   Object.defineProperty(interpolator, "colorInterpolator", {
-    value: y0._color.interpolateTo(y1._color),
+    value: y0.color.interpolateTo(y1.color),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "stopInterpolator", {
-    value: Interpolator(y0._stop, y1._stop),
+    value: Interpolator(y0.stop, y1.stop),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "hintInterpolator", {
-    value: Interpolator(y0._hint, y1._hint),
+    value: Interpolator(y0.hint, y1.hint),
     enumerable: true,
   });
   return interpolator;

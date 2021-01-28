@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Murmur3, Numbers, Constructors} from "@swim/util";
+import {Lazy, Murmur3, Numbers, Constructors} from "@swim/util";
 import type {Output} from "@swim/codec";
 import type {Interpolator} from "@swim/mapping";
 import {Item, Value} from "@swim/structure";
 import {AnyAngle, Angle} from "@swim/math";
 import {AnyColor, Color} from "../color/Color";
-import type {RgbColor} from "../rgb/RgbColor";
+import {RgbColor} from "../rgb/RgbColor";
 import {HslColorInterpolator} from "../"; // forward import
 
 export type AnyHslColor = HslColor | HslColorInit | string;
@@ -31,24 +31,43 @@ export interface HslColorInit {
 }
 
 export class HslColor extends Color {
-  readonly h: number;
-  readonly s: number;
-  readonly l: number;
-  readonly a: number;
-  /** @hidden */
-  _string?: string;
-
   constructor(h: number, s: number, l: number, a: number = 1) {
     super();
-    this.h = h;
-    this.s = s;
-    this.l = l;
-    this.a = a;
+    Object.defineProperty(this, "h", {
+      value: h,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "s", {
+      value: s,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "l", {
+      value: l,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "a", {
+      value: a,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "stringValue", {
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   isDefined(): boolean {
-    return this.h !== 0 || this.s !== 0 || this.l !== 0 || this.a !== 1;
+    return isFinite(this.h) && isFinite(this.s)
+        && isFinite(this.l) && isFinite(this.a);
   }
+
+  declare readonly h: number;
+
+  declare readonly s: number;
+
+  declare readonly l: number;
+
+  declare readonly a: number;
 
   alpha(): number;
   alpha(a: number): HslColor;
@@ -62,7 +81,7 @@ export class HslColor extends Color {
     }
   }
 
-  lightness(): number {
+  get lightness(): number {
     return this.l;
   }
 
@@ -105,10 +124,10 @@ export class HslColor extends Color {
     const l = this.l;
     const m2 = l + (l < 0.5 ? l : 1 - l) * s;
     const m1 = 2 * l - m2;
-    return new Color.Rgb(HslColor.toRgb(h >= 240 ? h - 240 : h + 120, m1, m2),
-                         HslColor.toRgb(h, m1, m2),
-                         HslColor.toRgb(h < 120 ? h + 240 : h - 120, m1, m2),
-                         this.a);
+    return new RgbColor(HslColor.toRgb(h >= 240 ? h - 240 : h + 120, m1, m2),
+                        HslColor.toRgb(h, m1, m2),
+                        HslColor.toRgb(h < 120 ? h + 240 : h - 120, m1, m2),
+                        this.a);
   }
 
   hsl(): HslColor {
@@ -166,8 +185,11 @@ export class HslColor extends Color {
     return this.rgb().toHexString();
   }
 
+  /** @hidden */
+  declare readonly stringValue: string | undefined;
+
   toString(): string {
-    let s = this._string;
+    let s = this.stringValue;
     if (s === void 0) {
       let a = this.a;
       a = isNaN(a) ? 1 : Math.max(0, Math.min(this.a, 1));
@@ -183,11 +205,16 @@ export class HslColor extends Color {
         s += a;
       }
       s += ")";
-      this._string = s;
+      Object.defineProperty(this, "stringValue", {
+        value: s,
+        enumerable: true,
+        configurable: true,
+      });
     }
     return s;
   }
 
+  @Lazy
   static transparent(): HslColor {
     return new HslColor(0, 0, 0, 0);
   }
@@ -216,7 +243,7 @@ export class HslColor extends Color {
     throw new TypeError("" + value);
   }
 
-  static fromValue(value: Value): HslColor | undefined {
+  static fromValue(value: Value): HslColor | null {
     const tag = value.tag;
     let positional: boolean;
     if (tag === "hsl" || tag === "hsla") {
@@ -254,9 +281,9 @@ export class HslColor extends Color {
       }
     });
     if (h !== void 0 && s !== void 0 && l !== void 0) {
-      return Color.hsl(h, s, l, a);
+      return new HslColor(h.degValue(), s, l, a);
     }
-    return void 0;
+    return null;
   }
 
   static parse(str: string): HslColor {
@@ -282,4 +309,3 @@ export class HslColor extends Color {
         || typeof value === "string";
   }
 }
-Color.Hsl = HslColor;

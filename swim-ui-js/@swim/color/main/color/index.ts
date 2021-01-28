@@ -18,9 +18,9 @@ export {
   Color,
 } from "./Color";
 
-export {ColorParser} from "./ColorParser";
-
 export {ColorForm} from "./ColorForm";
+
+export {ColorParser} from "./ColorParser";
 
 export {ColorChannel} from "./ColorChannel";
 export {ColorChannelParser} from "./ColorChannelParser";

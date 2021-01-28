@@ -14,6 +14,9 @@
 
 import {Input, Output, Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Color} from "./Color";
+import {HexColorParser} from "../"; // forward import
+import {RgbColorParser} from "../"; // forward import
+import {HslColorParser} from "../"; // forward import
 
 /** @hidden */
 export class ColorParser extends Parser<Color> {
@@ -35,7 +38,7 @@ export class ColorParser extends Parser<Color> {
     if (step === 1) {
       if (input.isCont()) {
         if (input.head() === 35/*'#'*/) {
-          return Color.HexParser.parse(input);
+          return HexColorParser.parse(input);
         } else {
           step = 2;
         }
@@ -53,12 +56,12 @@ export class ColorParser extends Parser<Color> {
         const ident = identOutput.bind();
         switch (ident) {
           case "rgb":
-          case "rgba": return Color.RgbParser.parseRest(input);
+          case "rgba": return RgbColorParser.parseRest(input);
           case "hsl":
-          case "hsla": return Color.HslParser.parseRest(input);
+          case "hsla": return HslColorParser.parseRest(input);
           default: {
-            const color = Color.fromName(ident);
-            if (color !== void 0) {
+            const color = Color.forName(ident);
+            if (color !== null) {
               return Parser.done(color);
             } else {
               return Parser.error(Diagnostic.message("unknown color: " + ident, input));
@@ -70,4 +73,3 @@ export class ColorParser extends Parser<Color> {
     return new ColorParser(identOutput, step);
   }
 }
-Color.Parser = ColorParser;

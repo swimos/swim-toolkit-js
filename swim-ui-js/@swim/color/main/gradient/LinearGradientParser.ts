@@ -16,6 +16,7 @@ import {Input, Output, Parser, Diagnostic, Unicode} from "@swim/codec";
 import type {ColorStop} from "./ColorStop";
 import {ColorStopListParser} from "./ColorStopListParser";
 import {LinearGradientAngle, LinearGradient} from "./LinearGradient";
+import {LinearGradientAngleParser} from "./LinearGradientAngleParser";
 
 /** @hidden */
 export class LinearGradientParser extends Parser<LinearGradient> {
@@ -72,7 +73,7 @@ export class LinearGradientParser extends Parser<LinearGradient> {
     }
     if (step === 3) {
       if (angleParser === void 0) {
-        angleParser = LinearGradient.AngleParser.parse(input);
+        angleParser = LinearGradientAngleParser.parse(input);
       } else {
         angleParser = angleParser.feed(input);
       }
@@ -128,4 +129,3 @@ export class LinearGradientParser extends Parser<LinearGradient> {
     return LinearGradientParser.parse(input, identOutput, void 0, void 0, 2);
   }
 }
-LinearGradient.Parser = LinearGradientParser;

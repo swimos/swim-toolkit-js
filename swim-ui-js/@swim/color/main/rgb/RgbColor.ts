@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Murmur3, Numbers, Constructors} from "@swim/util";
+import {Lazy, Murmur3, Numbers, Constructors} from "@swim/util";
 import {Output, Base16} from "@swim/codec";
 import type {Interpolator} from "@swim/mapping";
 import {Item, Value} from "@swim/structure";
 import {AnyColor, Color} from "../color/Color";
 import {RgbColorInterpolator} from "../"; // forward import
-import type {HslColor} from "../hsl/HslColor";
+import {HslColor} from "../"; // forward import
 
 export type AnyRgbColor = RgbColor | RgbColorInit | string;
 
@@ -30,24 +30,43 @@ export interface RgbColorInit {
 }
 
 export class RgbColor extends Color {
-  readonly r: number;
-  readonly g: number;
-  readonly b: number;
-  readonly a: number;
-  /** @hidden */
-  _string?: string;
-
   constructor(r: number, g: number, b: number, a: number = 1) {
     super();
-    this.r = r;
-    this.g = g;
-    this.b = b;
-    this.a = a;
+    Object.defineProperty(this, "r", {
+      value: r,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "g", {
+      value: g,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "b", {
+      value: b,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "a", {
+      value: a,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "stringValue", {
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   isDefined(): boolean {
-    return this.r !== 0 || this.g !== 0 || this.b !== 0 || this.a !== 1;
+    return isFinite(this.r) && isFinite(this.g)
+        && isFinite(this.b) && isFinite(this.a);
   }
+
+  declare readonly r: number;
+
+  declare readonly g: number;
+
+  declare readonly b: number;
+
+  declare readonly a: number;
 
   alpha(): number;
   alpha(a: number): RgbColor;
@@ -61,7 +80,7 @@ export class RgbColor extends Color {
     }
   }
 
-  lightness(): number {
+  get lightness(): number {
     const r = this.r / 255;
     const g = this.g / 255;
     const b = this.b / 255;
@@ -122,7 +141,7 @@ export class RgbColor extends Color {
     } else {
       s = l > 0 && l < 1 ? 0 : h;
     }
-    return new Color.Hsl(h, s, l, this.a);
+    return new HslColor(h, s, l, this.a);
   }
 
   interpolateTo(that: RgbColor): Interpolator<RgbColor>;
@@ -187,8 +206,11 @@ export class RgbColor extends Color {
     return s;
   }
 
+  /** @hidden */
+  declare readonly stringValue: string | undefined;
+
   toString(): string {
-    let s = this._string;
+    let s = this.stringValue;
     if (s === void 0) {
       let a = this.a;
       a = isNaN(a) ? 1 : Math.max(0, Math.min(this.a, 1));
@@ -208,11 +230,16 @@ export class RgbColor extends Color {
         }
         s += ")";
       }
-      this._string = s;
+      Object.defineProperty(this, "stringValue", {
+        value: s,
+        enumerable: true,
+        configurable: true,
+      });
     }
     return s;
   }
 
+  @Lazy
   static transparent(): RgbColor {
     return new RgbColor(0, 0, 0, 0);
   }
@@ -240,7 +267,7 @@ export class RgbColor extends Color {
     throw new TypeError("" + value);
   }
 
-  static fromValue(value: Value): RgbColor | undefined {
+  static fromValue(value: Value): RgbColor | null {
     const tag = value.tag;
     let positional: boolean;
     if (tag === "rgb" || tag === "rgba") {
@@ -278,9 +305,9 @@ export class RgbColor extends Color {
       }
     });
     if (r !== void 0 && g !== void 0 && b !== void 0) {
-      return Color.rgb(r, g, b, a);
+      return new RgbColor(r, g, b, a);
     }
-    return void 0;
+    return null;
   }
 
   static parse(str: string): RgbColor {
@@ -306,4 +333,3 @@ export class RgbColor extends Color {
         || typeof value === "string";
   }
 }
-Color.Rgb = RgbColor;

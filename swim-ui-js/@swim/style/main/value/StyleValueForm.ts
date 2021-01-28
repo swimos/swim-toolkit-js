@@ -97,7 +97,7 @@ export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
         return length;
       }
       const color = Color.fromValue(value);
-      if (color !== void 0) {
+      if (color !== null) {
         return color;
       }
       const font = Font.fromValue(value);

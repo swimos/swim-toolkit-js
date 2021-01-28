@@ -13,22 +13,21 @@
 // limitations under the License.
 
 import {Input, Parser, Diagnostic, Base16} from "@swim/codec";
-import {Color} from "../color/Color";
 import {RgbColor} from "./RgbColor";
 
 /** @hidden */
 export class HexColorParser extends Parser<RgbColor> {
-  private readonly _value: number | undefined;
-  private readonly _step: number | undefined;
+  private readonly value: number | undefined;
+  private readonly step: number | undefined;
 
   constructor(value?: number, step?: number) {
     super();
-    this._value = value;
-    this._step = step;
+    this.value = value;
+    this.step = step;
   }
 
   feed(input: Input): Parser<RgbColor> {
-    return HexColorParser.parse(input, this._value, this._step);
+    return HexColorParser.parse(input, this.value, this.step);
   }
 
   static parse(input: Input, value: number = 0, step: number = 1): Parser<RgbColor> {
@@ -79,4 +78,3 @@ export class HexColorParser extends Parser<RgbColor> {
     return new HexColorParser(value, step);
   }
 }
-Color.HexParser = HexColorParser;

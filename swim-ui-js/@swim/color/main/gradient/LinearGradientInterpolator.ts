@@ -44,11 +44,11 @@ export const LinearGradientInterpolator = function (g0: LinearGradient, g1: Line
   } as LinearGradientInterpolator;
   Object.setPrototypeOf(interpolator, LinearGradientInterpolator.prototype);
   Object.defineProperty(interpolator, "angleInterpolator", {
-    value: Interpolator(g0._angle, g1._angle),
+    value: Interpolator(g0.angle, g1.angle),
     enumerable: true,
   });
-  const stops0 = g0._stops;
-  const stops1 = g1._stops;
+  const stops0 = g0.stops;
+  const stops1 = g1.stops;
   const stopCount = Math.min(stops0.length, stops1.length);
   const stopInterpolators = new Array<Interpolator<ColorStop>>(stopCount);
   for (let i = 0; i < stopCount; i += 1) {
