@@ -27,7 +27,7 @@ import {DateTimeInit, DateTimeFormat} from "@swim/time";
 import {Color, HexColorParser, RgbColorParser, HslColorParser, LinearGradientParser} from "@swim/color";
 import type {FontWeight} from "../font/FontWeight";
 import {FontParser} from "../font/FontParser";
-import {StyleValue} from "./StyleValue";
+import type {StyleValue} from "./StyleValue";
 
 /** @hidden */
 export class StyleValueParser extends Parser<StyleValue> {
@@ -210,4 +210,3 @@ export class StyleValueParser extends Parser<StyleValue> {
     return new StyleValueParser(identOutput, valueParser, unitsOutput, step);
   }
 }
-StyleValue.Parser = StyleValueParser;

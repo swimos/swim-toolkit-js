@@ -23,7 +23,7 @@ export class FontLook extends Look<Font, AnyFont> {
     } else if (combination !== void 0) {
       return combination;
     } else {
-      return Font.family(value.family());
+      return Font.family(value.family);
     }
   }
 

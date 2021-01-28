@@ -308,25 +308,25 @@ export class HtmlView extends ElementView {
                  transition: Transition<any> | null): void {
     const font = theme.inner(Mood.ambient, Look.font);
     if (font !== void 0) {
-      if (font._style !== void 0) {
-        this.fontStyle.setAutoState(font._style);
+      if (font.style !== void 0) {
+        this.fontStyle.setAutoState(font.style);
       }
-      if (font._variant !== void 0) {
-        this.fontVariant.setAutoState(font._variant);
+      if (font.variant !== void 0) {
+        this.fontVariant.setAutoState(font.variant);
       }
-      if (font._weight !== void 0) {
-        this.fontWeight.setAutoState(font._weight);
+      if (font.weight !== void 0) {
+        this.fontWeight.setAutoState(font.weight);
       }
-      if (font._stretch !== void 0) {
-        this.fontStretch.setAutoState(font._stretch);
+      if (font.stretch !== void 0) {
+        this.fontStretch.setAutoState(font.stretch);
       }
-      if (font._size !== void 0) {
-        this.fontSize.setAutoState(font._size);
+      if (font.size !== void 0) {
+        this.fontSize.setAutoState(font.size);
       }
-      if (font._height !== void 0) {
-        this.lineHeight.setAutoState(font._height);
+      if (font.height !== void 0) {
+        this.lineHeight.setAutoState(font.height);
       }
-      this.fontFamily.setAutoState(font._family);
+      this.fontFamily.setAutoState(font.family);
     }
     this.backgroundColor.setAutoState(theme.inner(Mood.ambient, Look.backgroundColor), transition);
     this.color.setAutoState(theme.inner(Mood.ambient, Look.color), transition);

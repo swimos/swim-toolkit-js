@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equivalent, Equals, Values} from "@swim/util";
+import {Equivalent, Equals, Lazy, Values} from "@swim/util";
 import {Output, Parser, Debug, Diagnostic, Unicode} from "@swim/codec";
 import type {Interpolate, Interpolator} from "@swim/mapping";
 import type {Value, Form} from "@swim/structure";
@@ -24,8 +24,8 @@ import {AnyFontSize, FontSize} from "./FontSize";
 import {AnyLineHeight, LineHeight} from "./LineHeight";
 import {FontFamily} from "./FontFamily";
 import {FontInterpolator} from "../"; // forward import
-import type {FontParser} from "./FontParser";
-import type {FontForm} from "./FontForm";
+import {FontForm} from "../"; // forward import
+import {FontParser} from "../"; // forward import
 
 export type AnyFont = Font | FontInit | string;
 
@@ -40,167 +40,136 @@ export interface FontInit {
 }
 
 export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
-  /** @hidden */
-  readonly _style?: FontStyle;
-  /** @hidden */
-  readonly _variant?: FontVariant;
-  /** @hidden */
-  readonly _weight?: FontWeight;
-  /** @hidden */
-  readonly _stretch?: FontStretch;
-  /** @hidden */
-  readonly _size?: FontSize;
-  /** @hidden */
-  readonly _height?: LineHeight;
-  /** @hidden */
-  readonly _family: FontFamily | ReadonlyArray<FontFamily>;
-  /** @hidden */
-  _string?: string;
-
   constructor(style: FontStyle | undefined, variant: FontVariant | undefined,
               weight: FontWeight | undefined, stretch: FontStretch | undefined,
               size: FontSize | undefined, height: LineHeight | undefined,
               family: FontFamily | ReadonlyArray<FontFamily>) {
-    if (style !== void 0) {
-      this._style = style;
-    }
-    if (variant !== void 0) {
-      this._variant = variant;
-    }
-    if (weight !== void 0) {
-      this._weight = weight;
-    }
-    if (stretch !== void 0) {
-      this._stretch = stretch;
-    }
-    if (size !== void 0) {
-      this._size = size;
-    }
-    if (height !== void 0) {
-      this._height = height;
-    }
-    this._family = family;
+    Object.defineProperty(this, "style", {
+      value: style,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "variant", {
+      value: variant,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "weight", {
+      value: weight,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "stretch", {
+      value: stretch,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "size", {
+      value: size,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "height", {
+      value: height,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "family", {
+      value: family,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "stringValue", {
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  style(): FontStyle | undefined;
-  style(style: FontStyle | undefined): Font;
-  style(style?: FontStyle): FontStyle | undefined | Font {
-    if (arguments.length === 0) {
-      return this._style;
-    } else {
-      if (this._style === style) {
-        return this;
-      } else {
-        return new Font(style, this._variant, this._weight, this._stretch,
-                        this._size, this._height, this._family);
-      }
-    }
-  }
+  declare readonly style: FontStyle | undefined;
 
-  variant(): FontVariant | undefined;
-  variant(variant: FontVariant | undefined): Font;
-  variant(variant?: FontVariant): FontVariant | undefined | Font {
-    if (arguments.length === 0) {
-      return this._variant;
+  withStyle(style: FontStyle | undefined): Font {
+    if (style === this.style) {
+      return this;
     } else {
-      if (this._variant === variant) {
-        return this;
-      } else {
-        return new Font(this._style, variant, this._weight, this._stretch,
-                        this._size, this._height, this._family);
-      }
+      return new Font(style, this.variant, this.weight, this.stretch,
+                      this.size, this.height, this.family);
     }
   }
 
-  weight(): FontWeight | undefined;
-  weight(weight: FontWeight | undefined): Font;
-  weight(weight?: FontWeight): FontWeight | undefined | Font {
-    if (arguments.length === 0) {
-      return this._weight;
+  declare readonly variant: FontVariant | undefined;
+
+  withVariant(variant: FontVariant | undefined): Font {
+    if (variant === this.variant) {
+      return this;
     } else {
-      if (this._weight === weight) {
-        return this;
-      } else {
-        return new Font(this._style, this._variant, weight, this._stretch,
-                        this._size, this._height, this._family);
-      }
+      return new Font(this.style, variant, this.weight, this.stretch,
+                      this.size, this.height, this.family);
     }
   }
 
-  stretch(): FontStretch | undefined;
-  stretch(stretch: FontStretch | undefined): Font;
-  stretch(stretch?: FontStretch): FontStretch | undefined | Font {
-    if (arguments.length === 0) {
-      return this._stretch;
+  declare readonly weight: FontWeight | undefined;
+
+  withWeight(weight: FontWeight | undefined): Font {
+    if (weight === this.weight) {
+      return this;
     } else {
-      if (this._stretch === stretch) {
-        return this;
-      } else {
-        return new Font(this._style, this._variant, this._weight, stretch,
-                        this._size, this._height, this._family);
-      }
+      return new Font(this.style, this.variant, weight, this.stretch,
+                      this.size, this.height, this.family);
     }
   }
 
-  size(): FontSize | undefined;
-  size(size: AnyFontSize | undefined): Font;
-  size(size?: AnyFontSize): FontSize | undefined | Font {
-    if (arguments.length === 0) {
-      return this._size;
+  declare readonly stretch: FontStretch | undefined;
+
+  withStretch(stretch: FontStretch | undefined): Font {
+    if (stretch === this.stretch) {
+      return this;
     } else {
-      size = size !== void 0 ? FontSize.fromAny(size) : void 0;
-      if (Values.equal(this._size, size)) {
-        return this;
-      } else {
-        return new Font(this._style, this._variant, this._weight, this._stretch,
-                        size as FontSize | undefined, this._height, this._family);
-      }
+      return new Font(this.style, this.variant, this.weight, stretch,
+                      this.size, this.height, this.family);
     }
   }
 
-  height(): LineHeight | undefined;
-  height(height: AnyLineHeight | undefined): Font;
-  height(height?: AnyLineHeight): LineHeight | undefined | Font {
-    if (arguments.length === 0) {
-      return this._height;
+  declare readonly size: FontSize | undefined;
+
+  withSize(size: AnyFontSize | undefined): Font{
+    size = size !== void 0 ? FontSize.fromAny(size) : void 0;
+    if (Values.equal(size, this.size)) {
+      return this;
     } else {
-      height = height !== void 0 ? LineHeight.fromAny(height) : void 0;
-      if (Values.equal(this._height, height)) {
-        return this;
-      } else {
-        return new Font(this._style, this._variant, this._weight, this._stretch,
-                        this._size, height as LineHeight | undefined, this._family);
-      }
+      return new Font(this.style, this.variant, this.weight, this.stretch,
+                      size as FontSize | undefined, this.height, this.family);
     }
   }
 
-  family(): FontFamily | FontFamily[];
-  family(family: FontFamily | ReadonlyArray<FontFamily>): Font;
-  family(family?: FontFamily | ReadonlyArray<FontFamily>): FontFamily | FontFamily[] | Font {
-    if (family === void 0) {
-      return (Array.isArray(this._family) ? this._family.slice(0) : this._family) as FontFamily | FontFamily[];
+  declare readonly height: LineHeight | undefined;
+
+  withHeight(height: AnyLineHeight | undefined): Font {
+    height = height !== void 0 ? LineHeight.fromAny(height) : void 0;
+    if (Values.equal(height, this.height)) {
+      return this;
     } else {
-      if (Values.equal(this._family, family)) {
-        return this;
-      } else {
-        if (Array.isArray(family) && family.length === 1) {
-          family = family[0];
-        }
-        return new Font(this._style, this._variant, this._weight, this._stretch,
-                        this._size, this._height, family as FontFamily | ReadonlyArray<FontFamily>);
-      }
+      return new Font(this.style, this.variant, this.weight, this.stretch,
+                      this.size, height as LineHeight | undefined, this.family);
+    }
+  }
+
+  declare readonly family: FontFamily | ReadonlyArray<FontFamily>;
+
+  withFamily(family: FontFamily | ReadonlyArray<FontFamily>): Font {
+    if (Array.isArray(family) && family.length === 1) {
+      family = family[0];
+    }
+    if (Values.equal(family, this.family)) {
+      return this;
+    } else {
+      return new Font(this.style, this.variant, this.weight, this.stretch,
+                      this.size, this.height, family);
     }
   }
 
   toAny(): FontInit {
     return {
-      style: this._style,
-      variant: this._variant,
-      weight: this._weight,
-      stretch: this._stretch,
-      size: this._size,
-      height: this._height,
-      family: (Array.isArray(this._family) ? this._family.slice(0) : this._family) as FontFamily | FontFamily[],
+      style: this.style,
+      variant: this.variant,
+      weight: this.weight,
+      stretch: this.stretch,
+      size: this.size,
+      height: this.height,
+      family: (Array.isArray(this.family) ? this.family.slice(0) : this.family) as FontFamily | FontFamily[],
     };
   }
 
@@ -218,11 +187,11 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     if (this === that) {
       return true;
     } else if (that instanceof Font) {
-      return this._style === that._style && this._variant === that._variant
-          && this._weight === that._weight && this._stretch === that._stretch
-          && Values.equivalent(this._size, that._size, epsilon)
-          && Values.equivalent(this._height, that._height, epsilon)
-          && Values.equivalent(this._family, that._family, epsilon);
+      return this.style === that.style && this.variant === that.variant
+          && this.weight === that.weight && this.stretch === that.stretch
+          && Values.equivalent(this.size, that.size, epsilon)
+          && Values.equivalent(this.height, that.height, epsilon)
+          && Values.equivalent(this.family, that.family, epsilon);
     }
     return false;
   }
@@ -231,97 +200,104 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     if (this === that) {
       return true;
     } else if (that instanceof Font) {
-      return this._style === that._style && this._variant === that._variant
-          && this._weight === that._weight && this._stretch === that._stretch
-          && Values.equal(this._size, that._size)
-          && Values.equal(this._height, that._height)
-          && Values.equal(this._family, that._family);
+      return this.style === that.style && this.variant === that.variant
+          && this.weight === that.weight && this.stretch === that.stretch
+          && Values.equal(this.size, that.size)
+          && Values.equal(this.height, that.height)
+          && Values.equal(this.family, that.family);
     }
     return false;
   }
 
   debug(output: Output): void {
     output = output.write("Font").write(46/*'.'*/).write("family").write(40/*'('*/);
-    if (typeof this._family === "string") {
-      output = output.debug(this._family);
-    } else if (Array.isArray(this._family) && this._family.length !== 0) {
-      output = output.debug(this._family[0]);
-      for (let i = 1; i < this._family.length; i += 1) {
-        output = output.write(", ").debug(this._family[i]);
+    if (typeof this.family === "string") {
+      output = output.debug(this.family);
+    } else if (Array.isArray(this.family) && this.family.length !== 0) {
+      output = output.debug(this.family[0]);
+      for (let i = 1; i < this.family.length; i += 1) {
+        output = output.write(", ").debug(this.family[i]);
       }
     }
     output = output.write(41/*')'*/);
-    if (this._style !== void 0) {
-      output = output.write(46/*'.'*/).write("style").write(40/*'('*/).debug(this._style).write(41/*')'*/);
+    if (this.style !== void 0) {
+      output = output.write(46/*'.'*/).write("style").write(40/*'('*/).debug(this.style).write(41/*')'*/);
     }
-    if (this._variant !== void 0) {
-      output = output.write(46/*'.'*/).write("variant").write(40/*'('*/).debug(this._variant).write(41/*')'*/);
+    if (this.variant !== void 0) {
+      output = output.write(46/*'.'*/).write("variant").write(40/*'('*/).debug(this.variant).write(41/*')'*/);
     }
-    if (this._weight !== void 0) {
-      output = output.write(46/*'.'*/).write("weight").write(40/*'('*/).debug(this._weight).write(41/*')'*/);
+    if (this.weight !== void 0) {
+      output = output.write(46/*'.'*/).write("weight").write(40/*'('*/).debug(this.weight).write(41/*')'*/);
     }
-    if (this._stretch !== void 0) {
-      output = output.write(46/*'.'*/).write("stretch").write(40/*'('*/).debug(this._stretch).write(41/*')'*/);
+    if (this.stretch !== void 0) {
+      output = output.write(46/*'.'*/).write("stretch").write(40/*'('*/).debug(this.stretch).write(41/*')'*/);
     }
-    if (this._size !== void 0) {
-      output = output.write(46/*'.'*/).write("size").write(40/*'('*/).debug(this._size).write(41/*')'*/);
+    if (this.size !== void 0) {
+      output = output.write(46/*'.'*/).write("size").write(40/*'('*/).debug(this.size).write(41/*')'*/);
     }
-    if (this._height !== void 0) {
-      output = output.write(46/*'.'*/).write("height").write(40/*'('*/).debug(this._height).write(41/*')'*/);
+    if (this.height !== void 0) {
+      output = output.write(46/*'.'*/).write("height").write(40/*'('*/).debug(this.height).write(41/*')'*/);
     }
   }
 
+  /* @hidden */
+  declare readonly stringValue: string | undefined;
+
   toString(): string {
-    let s = this._string;
+    let s = this.stringValue;
     if (s === void 0) {
       s = "";
-      if (this._style !== void 0 || this._variant === "normal" || this._weight === "normal" || this._stretch === "normal") {
-        s += this._style || "normal";
+      if (this.style !== void 0 || this.variant === "normal" || this.weight === "normal" || this.stretch === "normal") {
+        s += this.style ?? "normal";
       }
-      if (this._variant !== void 0 || this._weight === "normal" || this._stretch === "normal") {
+      if (this.variant !== void 0 || this.weight === "normal" || this.stretch === "normal") {
         if (s.length !== 0) {
           s += " ";
         }
-        s += this._variant || "normal";
+        s += this.variant ?? "normal";
       }
-      if (this._weight !== void 0 || this._stretch === "normal") {
+      if (this.weight !== void 0 || this.stretch === "normal") {
         if (s.length !== 0) {
           s += " ";
         }
-        s += this._weight || "normal";
+        s += this.weight ?? "normal";
       }
-      if (this._stretch !== void 0) {
+      if (this.stretch !== void 0) {
         if (s.length !== 0) {
           s += " ";
         }
-        s += this._stretch;
+        s += this.stretch;
       }
-      if (this._size !== void 0) {
+      if (this.size !== void 0) {
         if (s.length !== 0) {
           s += " ";
         }
-        s += this._size.toString();
-        if (this._height !== void 0) {
+        s += this.size.toString();
+        if (this.height !== void 0) {
           s += "/";
-          s += this._height.toString();
+          s += this.height.toString();
         }
       }
-      if (typeof this._family === "string") {
+      if (typeof this.family === "string") {
         if (s.length !== 0) {
           s += " ";
         }
-        s += FontFamily.format(this._family);
-      } else if (Array.isArray(this._family) && this._family.length !== 0) {
+        s += FontFamily.format(this.family);
+      } else if (Array.isArray(this.family) && this.family.length !== 0) {
         if (s.length !== 0) {
           s += " ";
         }
-        s += FontFamily.format(this._family[0]);
-        for (let i = 1; i < this._family.length; i += 1) {
+        s += FontFamily.format(this.family[0]);
+        for (let i = 1; i < this.family.length; i += 1) {
           s += ", ";
-          s += FontFamily.format(this._family[i]);
+          s += FontFamily.format(this.family[i]);
         }
       }
-      this._string = s;
+      Object.defineProperty(this, "stringValue", {
+        value: s,
+        enumerable: true,
+        configurable: true,
+      });
     }
     return s;
   }
@@ -369,10 +345,10 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     return new Font(void 0, void 0, void 0, void 0, void 0, void 0, family);
   }
 
-  static from(style: FontStyle | undefined, variant: FontVariant | undefined,
-              weight: FontWeight | undefined, stretch: FontStretch | undefined,
-              size: AnyFontSize | undefined, height: AnyLineHeight | undefined,
-              family: FontFamily | ReadonlyArray<FontFamily>): Font {
+  static create(style: FontStyle | undefined, variant: FontVariant | undefined,
+                weight: FontWeight | undefined, stretch: FontStretch | undefined,
+                size: AnyFontSize | undefined, height: AnyLineHeight | undefined,
+                family: FontFamily | ReadonlyArray<FontFamily>): Font {
     size = size !== void 0 ? FontSize.fromAny(size) : void 0;
     height = height !== void 0 ? LineHeight.fromAny(height) : void 0;
     if (Array.isArray(family) && family.length === 1) {
@@ -383,11 +359,11 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
   }
 
   static fromInit(init: FontInit): Font {
-    return Font.from(init.style, init.variant, init.weight, init.stretch,
-                     init.size, init.height, init.family);
+    return Font.create(init.style, init.variant, init.weight, init.stretch,
+                       init.size, init.height, init.family);
   }
 
-  static fromValue(value: Value): Font | undefined {
+  static fromValue(value: Value): Font | null {
     const header = value.header("font");
     if (header.isDefined()) {
       const style = header.get("style").stringValue(void 0) as FontStyle | undefined;
@@ -397,11 +373,11 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
       const size = FontSize.fromValue(header.get("size"));
       const height = LineHeight.fromValue(header.get("height"));
       const family = FontFamily.fromValue(header.get("family"));
-      if (family !== void 0) {
-        return Font.from(style, variant, weight, stretch, size, height, family);
+      if (family !== null) {
+        return Font.create(style, variant, weight, stretch, size, height, family);
       }
     }
-    return void 0;
+    return null;
   }
 
   static fromAny(value: AnyFont): Font {
@@ -420,7 +396,7 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     while (input.isCont() && Unicode.isWhitespace(input.head())) {
       input = input.step();
     }
-    let parser = Font.Parser.parse(input);
+    let parser = FontParser.parse(input);
     if (parser.isDone()) {
       while (input.isCont() && Unicode.isWhitespace(input.head())) {
         input = input.step();
@@ -446,22 +422,8 @@ export class Font implements Interpolate<Font>, Equals, Equivalent, Debug {
     return value instanceof Font || Font.isInit(value);
   }
 
-  private static _form?: Form<Font, AnyFont>;
+  @Lazy
   static form(unit?: Font): Form<Font, AnyFont> {
-    if (unit === void 0) {
-      if (Font._form === void 0) {
-        Font._form = new Font.Form(void 0);
-      }
-      return Font._form;
-    } else {
-      unit = Font.fromAny(unit);
-      return new Font.Form(unit);
-    }
+    return new FontForm(void 0);
   }
-
-  // Forward type declarations
-  /** @hidden */
-  static Parser: typeof FontParser; // defined by FontParser
-  /** @hidden */
-  static Form: typeof FontForm; // defined by FontForm
 }

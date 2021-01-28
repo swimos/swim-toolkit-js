@@ -139,25 +139,25 @@ export class InputTokenView extends TokenView {
     if (labelView !== null) {
       const font = theme.inner(mood, Look.font);
       if (font !== void 0) {
-        if (font._style !== void 0) {
-          labelView.fontStyle.setAutoState(font._style);
+        if (font.style !== void 0) {
+          labelView.fontStyle.setAutoState(font.style);
         }
-        if (font._variant !== void 0) {
-          labelView.fontVariant.setAutoState(font._variant);
+        if (font.variant !== void 0) {
+          labelView.fontVariant.setAutoState(font.variant);
         }
-        if (font._weight !== void 0) {
-          labelView.fontWeight.setAutoState(font._weight);
+        if (font.weight !== void 0) {
+          labelView.fontWeight.setAutoState(font.weight);
         }
-        if (font._stretch !== void 0) {
-          labelView.fontStretch.setAutoState(font._stretch);
+        if (font.stretch !== void 0) {
+          labelView.fontStretch.setAutoState(font.stretch);
         }
-        if (font._size !== void 0) {
-          labelView.fontSize.setAutoState(font._size);
+        if (font.size !== void 0) {
+          labelView.fontSize.setAutoState(font.size);
         }
-        if (font._height !== void 0) {
-          labelView.lineHeight.setAutoState(font._height);
+        if (font.height !== void 0) {
+          labelView.lineHeight.setAutoState(font.height);
         }
-        labelView.fontFamily.setAutoState(font._family);
+        labelView.fontFamily.setAutoState(font.family);
       }
     }
   }

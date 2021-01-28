@@ -17,12 +17,12 @@ import type {StyleContext} from "../css/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
-export abstract class BoxShadowStyleAnimator<V extends StyleContext> extends StyleAnimator<V, BoxShadow, AnyBoxShadow> {
-  parse(value: string): BoxShadow | undefined {
+export abstract class BoxShadowStyleAnimator<V extends StyleContext> extends StyleAnimator<V, BoxShadow | null, AnyBoxShadow | null> {
+  parse(value: string): BoxShadow | null | undefined {
     return BoxShadow.parse(value);
   }
 
-  fromAny(value: AnyBoxShadow): BoxShadow | undefined {
+  fromAny(value: AnyBoxShadow): BoxShadow | null | undefined {
     return BoxShadow.fromAny(value);
   }
 }

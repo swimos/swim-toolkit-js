@@ -40,46 +40,46 @@ export class FontForm extends Form<Font, AnyFont> {
   mold(font: AnyFont): Item {
     font = Font.fromAny(font);
     const header = Record.create(7);
-    if (font._style !== void 0) {
-      header.slot("style", font._style);
+    if (font.style !== void 0) {
+      header.slot("style", font.style);
     }
-    if (font._variant !== void 0) {
-      header.slot("variant", font._variant);
+    if (font.variant !== void 0) {
+      header.slot("variant", font.variant);
     }
-    if (font._weight !== void 0) {
-      header.slot("weight", font._weight);
+    if (font.weight !== void 0) {
+      header.slot("weight", font.weight);
     }
-    if (font._stretch !== void 0) {
-      header.slot("stretch", font._stretch);
+    if (font.stretch !== void 0) {
+      header.slot("stretch", font.stretch);
     }
-    if (font._size instanceof Length) {
-      header.slot("size", Length.form().mold(font._size));
-    } else if (font._size !== void 0) {
-      header.slot("size", font._size);
+    if (font.size instanceof Length) {
+      header.slot("size", Length.form().mold(font.size));
+    } else if (font.size !== void 0) {
+      header.slot("size", font.size);
     }
-    if (font._height instanceof Length) {
-      header.slot("height", Length.form().mold(font._height));
-    } else if (font._height !== void 0) {
-      header.slot("height", font._height);
+    if (font.height instanceof Length) {
+      header.slot("height", Length.form().mold(font.height));
+    } else if (font.height !== void 0) {
+      header.slot("height", font.height);
     }
-    if (Array.isArray(font._family)) {
-      const family = Record.create(font._family.length);
-      for (let i = 0; i < font._family.length; i += 1) {
-        family.push(font._family[i]);
+    if (Array.isArray(font.family)) {
+      const family = Record.create(font.family.length);
+      for (let i = 0; i < font.family.length; i += 1) {
+        family.push(font.family[i]);
       }
       header.slot("family", family);
     } else {
-      header.slot("family", font._family);
+      header.slot("family", font.family);
     }
     return Record.of(Attr.of("font", header));
   }
 
   cast(item: Item): Font | undefined {
     const value = item.toValue();
-    let font: Font | undefined;
+    let font: Font | null = null;
     try {
       font = Font.fromValue(value);
-      if (font === void 0) {
+      if (font === null) {
         const string = value.stringValue();
         if (string !== void 0) {
           font = Font.parse(string);
@@ -88,7 +88,6 @@ export class FontForm extends Form<Font, AnyFont> {
     } catch (e) {
       // swallow
     }
-    return font;
+    return font !== null ? font : void 0;
   }
 }
-Font.Form = FontForm;

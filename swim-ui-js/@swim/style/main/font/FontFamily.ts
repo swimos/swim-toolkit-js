@@ -28,18 +28,18 @@ export type GenericFamily = "serif"
 export type FontFamily = string | GenericFamily;
 
 export const FontFamily = {} as {
-  fromValue(value: Value): FontFamily | FontFamily[] | undefined;
+  fromValue(value: Value): FontFamily | FontFamily[] | null;
 
   format(family: FontFamily): string;
 };
 
-FontFamily.fromValue = function (value: Value): FontFamily | FontFamily[] | undefined {
-  let family: FontFamily | FontFamily[] | undefined;
+FontFamily.fromValue = function (value: Value): FontFamily | FontFamily[] | null {
+  let family: FontFamily | FontFamily[] | null = null;
   value.forEach(function (item: Item): void {
     if (item instanceof Value) {
       const string = item.stringValue(void 0);
       if (string !== void 0) {
-        if (family === void 0) {
+        if (family === null) {
           family = string;
         } else if (typeof family === "string") {
           family = [family, string];

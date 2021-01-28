@@ -18,8 +18,8 @@ import {Color} from "@swim/color";
 import {AnyBoxShadow, BoxShadow} from "./BoxShadow";
 
 /** @hidden */
-export class BoxShadowForm extends Form<BoxShadow, AnyBoxShadow> {
-  constructor(unit: BoxShadow | undefined) {
+export class BoxShadowForm extends Form<BoxShadow | null, AnyBoxShadow> {
+  constructor(unit: BoxShadow | null | undefined) {
     super();
     Object.defineProperty(this, "unit", {
       value: unit,
@@ -28,9 +28,9 @@ export class BoxShadowForm extends Form<BoxShadow, AnyBoxShadow> {
   }
 
   // @ts-ignore
-  declare readonly unit: BoxShadow | undefined;
+  declare readonly unit: BoxShadow | null | undefined;
 
-  withUnit(unit: BoxShadow | undefined): Form<BoxShadow, AnyBoxShadow> {
+  withUnit(unit: BoxShadow | null | undefined): Form<BoxShadow | null, AnyBoxShadow> {
     if (unit !== this.unit) {
       return new BoxShadowForm(unit);
     } else {
@@ -39,21 +39,21 @@ export class BoxShadowForm extends Form<BoxShadow, AnyBoxShadow> {
   }
 
   mold(boxShadow: AnyBoxShadow): Item {
-    let shadow = BoxShadow.fromAny(boxShadow);
+    let shadow = BoxShadow.fromAny(boxShadow)!;
     const record = Record.create();
     do {
       const header = Record.create(5);
-      if (shadow._inset) {
+      if (shadow.inset) {
         header.push("inset");
       }
-      header.push(Length.form().mold(shadow._offsetX));
-      header.push(Length.form().mold(shadow._offsetY));
-      header.push(Length.form().mold(shadow._blurRadius));
-      header.push(Length.form().mold(shadow._spreadRadius));
-      header.push(Color.form().mold(shadow._color));
+      header.push(Length.form().mold(shadow.offsetX));
+      header.push(Length.form().mold(shadow.offsetY));
+      header.push(Length.form().mold(shadow.blurRadius));
+      header.push(Length.form().mold(shadow.spreadRadius));
+      header.push(Color.form().mold(shadow.color));
       record.attr("boxShadow", header);
-      if (shadow._next !== null) {
-        shadow = shadow._next;
+      if (shadow.next !== null) {
+        shadow = shadow.next;
         continue;
       }
       break;
@@ -61,9 +61,9 @@ export class BoxShadowForm extends Form<BoxShadow, AnyBoxShadow> {
     return record;
   }
 
-  cast(item: Item): BoxShadow | undefined {
+  cast(item: Item): BoxShadow | null | undefined {
     const value = item.toValue();
-    let boxShadow: BoxShadow | undefined;
+    let boxShadow: BoxShadow | null | undefined;
     try {
       boxShadow = BoxShadow.fromValue(value);
       if (boxShadow === void 0) {
@@ -78,4 +78,3 @@ export class BoxShadowForm extends Form<BoxShadow, AnyBoxShadow> {
     return boxShadow;
   }
 }
-BoxShadow.Form = BoxShadowForm;

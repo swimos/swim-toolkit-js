@@ -345,7 +345,7 @@ export class FontParser extends Parser<Font> {
           step = 11;
           continue;
         } else if (!input.isEmpty()) {
-          return Parser.done(Font.from(style, variant, weight, stretch, size, height, family!));
+          return Parser.done(Font.create(style, variant, weight, stretch, size, height, family!));
         }
       }
       break;
@@ -362,4 +362,3 @@ export class FontParser extends Parser<Font> {
                             family, void 0, void 0, void 0, step);
   }
 }
-Font.Parser = FontParser;

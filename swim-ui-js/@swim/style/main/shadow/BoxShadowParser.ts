@@ -18,7 +18,7 @@ import {Color, ColorParser} from "@swim/color";
 import {BoxShadow} from "./BoxShadow";
 
 /** @hidden */
-export class BoxShadowParser extends Parser<BoxShadow> {
+export class BoxShadowParser extends Parser<BoxShadow | null> {
   private readonly boxShadow: BoxShadow | undefined;
   private readonly identOutput: Output<string> | undefined;
   private readonly offsetXParser: Parser<Length> | undefined;
@@ -43,7 +43,7 @@ export class BoxShadowParser extends Parser<BoxShadow> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<BoxShadow> {
+  feed(input: Input): Parser<BoxShadow | null> {
     return BoxShadowParser.parse(input, this.boxShadow, this.identOutput, this.offsetXParser,
                                  this.offsetYParser, this.blurRadiusParser, this.spreadRadiusParser,
                                  this.colorParser, this.step);
@@ -52,7 +52,7 @@ export class BoxShadowParser extends Parser<BoxShadow> {
   static parse(input: Input, boxShadow?: BoxShadow, identOutput?: Output<string>,
                offsetXParser?: Parser<Length>, offsetYParser?: Parser<Length>,
                blurRadiusParser?: Parser<Length>, spreadRadiusParser?: Parser<Length>,
-               colorParser?: Parser<Color>, step: number = 1): Parser<BoxShadow> {
+               colorParser?: Parser<Color>, step: number = 1): Parser<BoxShadow | null> {
     let c = 0;
     do {
       if (step === 1) {
@@ -79,7 +79,7 @@ export class BoxShadowParser extends Parser<BoxShadow> {
           const ident = identOutput.bind();
           switch (ident) {
             case "inset": step = 3; break;
-            case "none": return Parser.done(BoxShadow.none());
+            case "none": return Parser.done(null);
             default: return Parser.error(Diagnostic.message("unknown box-shadow: " + ident, input));
           }
         }
@@ -279,4 +279,3 @@ export class BoxShadowParser extends Parser<BoxShadow> {
                                blurRadiusParser, spreadRadiusParser, colorParser, step);
   }
 }
-BoxShadow.Parser = BoxShadowParser;

@@ -601,7 +601,7 @@ export class SvgView extends ElementView {
       const height = this.lineHeight();
       const family = this.fontFamily();
       if (family !== void 0) {
-        return Font.from(style, variant, weight, stretch, size, height, family);
+        return Font.create(style, variant, weight, stretch, size, height, family);
       } else {
         return void 0;
       }
@@ -609,25 +609,25 @@ export class SvgView extends ElementView {
       if (value !== void 0) {
         value = Font.fromAny(value);
       }
-      if (value === void 0 || value.style() !== null) {
-        this.fontStyle(value !== void 0 ? value.style() || void 0 : void 0, tween, priority);
+      if (value === void 0 || value.style !== void 0) {
+        this.fontStyle(value !== void 0 ? value.style : void 0, tween, priority);
       }
-      if (value === void 0 || value.variant() !== null) {
-        this.fontVariant(value !== void 0 ? value.variant() || void 0 : void 0, tween, priority);
+      if (value === void 0 || value.variant !== void 0) {
+        this.fontVariant(value !== void 0 ? value.variant : void 0, tween, priority);
       }
-      if (value === void 0 || value.weight() !== null) {
-        this.fontWeight(value !== void 0 ? value.weight() || void 0 : void 0, tween, priority);
+      if (value === void 0 || value.weight !== void 0) {
+        this.fontWeight(value !== void 0 ? value.weight : void 0, tween, priority);
       }
-      if (value === void 0 || value.stretch() !== null) {
-        this.fontStretch(value !== void 0 ? value.stretch() || void 0 : void 0, tween, priority);
+      if (value === void 0 || value.stretch !== void 0) {
+        this.fontStretch(value !== void 0 ? value.stretch : void 0, tween, priority);
       }
-      if (value === void 0 || value.size() !== null) {
-        this.fontSize(value !== void 0 ? value.size() || void 0 : void 0, tween, priority);
+      if (value === void 0 || value.size !== void 0) {
+        this.fontSize(value !== void 0 ? value.size : void 0, tween, priority);
       }
-      if (value === void 0 || value.height() !== null) {
-        this.lineHeight(value !== void 0 ? value.height() || void 0 : void 0, tween, priority);
+      if (value === void 0 || value.height !== void 0) {
+        this.lineHeight(value !== void 0 ? value.height : void 0, tween, priority);
       }
-      this.fontFamily(value !== void 0 ? value.family() : void 0, tween, priority);
+      this.fontFamily(value !== void 0 ? value.family : void 0, tween, priority);
       return this;
     }
   }

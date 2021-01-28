@@ -64,31 +64,31 @@ export function FontInterpolator(y0: Font, y1: Font): FontInterpolator {
   } as FontInterpolator;
   Object.setPrototypeOf(interpolator, FontInterpolator.prototype);
   Object.defineProperty(interpolator, "styleInterpolator", {
-    value: Interpolator(y0._style, y1._style),
+    value: Interpolator(y0.style, y1.style),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "variantInterpolator", {
-    value: Interpolator(y0._variant, y1._variant),
+    value: Interpolator(y0.variant, y1.variant),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "weightInterpolator", {
-    value: Interpolator(y0._weight, y1._weight),
+    value: Interpolator(y0.weight, y1.weight),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "stretchInterpolator", {
-    value: Interpolator(y0._stretch, y1._stretch),
+    value: Interpolator(y0.stretch, y1.stretch),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "sizeInterpolator", {
-    value: Interpolator(y0._size, y1._size),
+    value: Interpolator(y0.size, y1.size),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "heightInterpolator", {
-    value: Interpolator(y0._height, y1._height),
+    value: Interpolator(y0.height, y1.height),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "familyInterpolator", {
-    value: Interpolator(y0._family, y1._family),
+    value: Interpolator(y0.family, y1.family),
     enumerable: true,
   });
   return interpolator;

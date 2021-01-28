@@ -16,8 +16,8 @@ export {
   AnyStyleValue,
   StyleValue,
 } from "./StyleValue";
-export {StyleValueParser} from "./StyleValueParser";
 export {StyleValueForm} from "./StyleValueForm";
+export {StyleValueParser} from "./StyleValueParser";
 
 export {ToAttributeString} from "./ToAttributeString";
 export {ToStyleString} from "./ToStyleString";

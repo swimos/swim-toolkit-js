@@ -19,7 +19,7 @@ import {BoxShadow} from "@swim/style";
 export class BoxShadowSpec extends Spec {
   @Test
   parseBoxShadows(exam: Exam): void {
-    exam.equal(BoxShadow.parse("none"), BoxShadow.none());
+    exam.equal(BoxShadow.parse("none"), null);
     exam.equal(BoxShadow.parse("0px 2px 3px 0px rgb(0, 0, 0, 0.3)"),
                BoxShadow.create(0, 2, 3, 0, Color.rgb(0, 0, 0, 0.3)));
     exam.equal(BoxShadow.parse("0px 2px 4px 0px rgb(0, 0, 0, 0.12), 0px 0px 4px 0px rgb(0, 0, 0, 0.08)"),
@@ -30,7 +30,6 @@ export class BoxShadowSpec extends Spec {
 
   @Test
   writeBoxShadows(exam: Exam): void {
-    exam.equal(BoxShadow.none().toString(), "none");
     exam.equal(BoxShadow.create(0, 2, 3, 0, Color.rgb(0, 0, 0, 0.3)).toString(),
                "0px 2px 3px 0px rgba(0,0,0,0.3)");
     exam.equal(BoxShadow.create(0, 2, 4, 0, Color.rgb(0, 0, 0, 0.12)).and(0, 0, 4, 0, Color.rgb(0, 0, 0, 0.08)).toString(),

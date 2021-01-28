@@ -17,13 +17,13 @@ import type {StyleContext} from "../css/StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
-export abstract class FontFamilyStyleAnimator<V extends StyleContext> extends StyleAnimator<V, FontFamily | FontFamily[], FontFamily | ReadonlyArray<FontFamily>> {
-  parse(value: string): FontFamily | FontFamily[] | undefined {
-    return Font.parse(value).family();
+export abstract class FontFamilyStyleAnimator<V extends StyleContext> extends StyleAnimator<V, FontFamily | ReadonlyArray<FontFamily>> {
+  parse(value: string): FontFamily | ReadonlyArray<FontFamily> | undefined {
+    return Font.parse(value).family;
   }
 
-  fromAny(value: FontFamily | ReadonlyArray<FontFamily>): FontFamily | FontFamily[] | undefined {
-    return Font.family(value).family();
+  fromAny(value: FontFamily | ReadonlyArray<FontFamily>): FontFamily | ReadonlyArray<FontFamily> | undefined {
+    return Font.family(value).family;
   }
 }
 StyleAnimator.FontFamily = FontFamilyStyleAnimator;

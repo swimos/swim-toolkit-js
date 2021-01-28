@@ -99,9 +99,9 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
     let shadow = theme.inner(Mood.floating, Look.shadow);
     if (shadow !== void 0) {
-      const shadowColor = shadow.color();
+      const shadowColor = shadow.color;
       const phase = this.stackPhase.getValueOr(1);
-      shadow = shadow.color(shadowColor.alpha(shadowColor.alpha() * phase));
+      shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * phase));
     }
     this.boxShadow.setAutoState(shadow, transition);
 
@@ -116,9 +116,9 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
     let shadow = this.getLook(Look.shadow, Mood.floating);
     if (shadow !== void 0) {
-      const shadowColor = shadow.color();
+      const shadowColor = shadow.color;
       const phase = this.stackPhase.getValueOr(1);
-      shadow = shadow.color(shadowColor.alpha(shadowColor.alpha() * phase));
+      shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * phase));
     }
     this.boxShadow.setAutoState(shadow);
   }

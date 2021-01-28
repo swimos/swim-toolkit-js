@@ -20,8 +20,8 @@ import {AnyDateTime, DateTime} from "@swim/time";
 import {AnyColor, Color, RgbColorInit, HslColorInit, AnyLinearGradient, LinearGradient} from "@swim/color";
 import {AnyFont, Font} from "../font/Font";
 import {AnyBoxShadow, BoxShadowInit, BoxShadow} from "../shadow/BoxShadow";
-import type {StyleValueParser} from "./StyleValueParser";
-import type {StyleValueForm} from "./StyleValueForm";
+import {StyleValueForm} from "../"; // forward import
+import {StyleValueParser} from "../"; // forward import
 
 export type AnyStyleValue = AnyDateTime
                           | AnyAngle
@@ -52,15 +52,7 @@ export const StyleValue = {} as {
 
   parse(input: Input | string): StyleValue;
 
-  /** @hidden */
-  _form: Form<StyleValue, AnyStyleValue> | undefined;
-  form(unit?: AnyStyleValue): Form<StyleValue, AnyStyleValue>;
-
-  // Forward type declarations
-  /** @hidden */
-  Parser: typeof StyleValueParser; // defined by StyleValueParser
-  /** @hidden */
-  Form: typeof StyleValueForm; // defined by StyleValueForm
+  form(): Form<StyleValue, AnyStyleValue>;
 };
 
 StyleValue.fromAny = function (value: AnyStyleValue): StyleValue {
@@ -83,7 +75,7 @@ StyleValue.fromAny = function (value: AnyStyleValue): StyleValue {
   } else if (Font.isInit(value)) {
     return Font.fromAny(value);
   } else if (BoxShadow.isInit(value)) {
-    return BoxShadow.fromAny(value);
+    return BoxShadow.fromAny(value)!;
   } else if (typeof value === "string") {
     return StyleValue.parse(value);
   }
@@ -97,7 +89,7 @@ StyleValue.parse = function (input: Input | string): StyleValue {
   while (input.isCont() && Unicode.isWhitespace(input.head())) {
     input = input.step();
   }
-  let parser = StyleValue.Parser.parse(input);
+  let parser = StyleValueParser.parse(input);
   if (parser.isDone()) {
     while (input.isCont() && Unicode.isWhitespace(input.head())) {
       input = input.step();
@@ -109,14 +101,18 @@ StyleValue.parse = function (input: Input | string): StyleValue {
   return parser.bind();
 };
 
-StyleValue.form = function (unit?: AnyStyleValue): Form<StyleValue, AnyStyleValue> {
-  if (unit === void 0) {
-    if (StyleValue._form === void 0) {
-      StyleValue._form = new StyleValue.Form(void 0);
-    }
-    return StyleValue._form;
-  } else {
-    unit = StyleValue.fromAny(unit);
-    return new StyleValue.Form(unit as StyleValue);
-  }
-};
+Object.defineProperty(StyleValue, "form", {
+  value: function (): Form<StyleValue, AnyStyleValue> {
+    const form = new StyleValueForm(void 0);
+    Object.defineProperty(StyleValue, "form", {
+      value: function (): Form<StyleValue, AnyStyleValue> {
+        return form;
+      },
+      enumerable: true,
+      configurable: true,
+    });
+    return form;
+  },
+  enumerable: true,
+  configurable: true,
+});

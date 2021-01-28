@@ -23,7 +23,7 @@ export class ShadowLook extends Look<BoxShadow, AnyBoxShadow> {
     } else if (combination !== void 0) {
       return combination;
     } else {
-      return BoxShadow.none();
+      return value;
     }
   }
 
@@ -32,6 +32,6 @@ export class ShadowLook extends Look<BoxShadow, AnyBoxShadow> {
   }
 
   coerce(value: AnyBoxShadow): BoxShadow {
-    return BoxShadow.fromAny(value);
+    return BoxShadow.fromAny(value)!;
   }
 }

@@ -59,31 +59,31 @@ export function BoxShadowInterpolator(y0: BoxShadow, y1: BoxShadow): BoxShadowIn
   } as BoxShadowInterpolator;
   Object.setPrototypeOf(interpolator, BoxShadowInterpolator.prototype);
   Object.defineProperty(interpolator, "insetInterpolator", {
-    value: Interpolator(y0._inset, y1._inset),
+    value: Interpolator(y0.inset, y1.inset),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "offsetXInterpolator", {
-    value: Interpolator(y0._offsetX, y1._offsetX),
+    value: Interpolator(y0.offsetX, y1.offsetX),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "offsetYInterpolator", {
-    value: Interpolator(y0._offsetY, y1._offsetY),
+    value: Interpolator(y0.offsetY, y1.offsetY),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "blurRadiusInterpolator", {
-    value: Interpolator(y0._blurRadius, y1._blurRadius),
+    value: Interpolator(y0.blurRadius, y1.blurRadius),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "spreadRadiusInterpolator", {
-    value: Interpolator(y0._spreadRadius, y1._spreadRadius),
+    value: Interpolator(y0.spreadRadius, y1.spreadRadius),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "colorInterpolator", {
-    value: Interpolator(y0._color, y1._color),
+    value: Interpolator(y0.color, y1.color),
     enumerable: true,
   });
   Object.defineProperty(interpolator, "nextInterpolator", {
-    value: Interpolator(y0._next, y1._next),
+    value: Interpolator(y0.next, y1.next),
     enumerable: true,
   });
   return interpolator;

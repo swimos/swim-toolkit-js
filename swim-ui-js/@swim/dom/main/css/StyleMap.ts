@@ -1245,31 +1245,31 @@ function font(this: StyleMap, value?: AnyFont, tween?: Tween<any>, priority?: st
     const height = this.lineHeight();
     const family = this.fontFamily();
     if (family !== void 0) {
-      return Font.from(style, variant, weight, stretch, size, height, family);
+      return Font.create(style, variant, weight, stretch, size, height, family);
     } else {
       return void 0;
     }
   } else {
     value = Font.fromAny(value);
-    if (value._style !== void 0) {
-      this.fontStyle(value._style, tween, priority);
+    if (value.style !== void 0) {
+      this.fontStyle(value.style, tween, priority);
     }
-    if (value._variant !== void 0) {
-      this.fontVariant(value._variant, tween, priority);
+    if (value.variant !== void 0) {
+      this.fontVariant(value.variant, tween, priority);
     }
-    if (value._weight !== void 0) {
-      this.fontWeight(value._weight, tween, priority);
+    if (value.weight !== void 0) {
+      this.fontWeight(value.weight, tween, priority);
     }
-    if (value._stretch !== void 0) {
-      this.fontStretch(value._stretch, tween, priority);
+    if (value.stretch !== void 0) {
+      this.fontStretch(value.stretch, tween, priority);
     }
-    if (value._size !== void 0) {
-      this.fontSize(value._size, tween, priority);
+    if (value.size !== void 0) {
+      this.fontSize(value.size, tween, priority);
     }
-    if (value._height !== void 0) {
-      this.lineHeight(value._height, tween, priority);
+    if (value.height !== void 0) {
+      this.lineHeight(value.height, tween, priority);
     }
-    this.fontFamily(value._family, tween, priority);
+    this.fontFamily(value.family, tween, priority);
     return this;
   }
 }

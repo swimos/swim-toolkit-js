@@ -40,62 +40,62 @@ export class FontWriterSpec extends Spec {
 
   @Test
   writeFontSizes(exam: Exam): void {
-    exam.equal(Font.family("sans-serif").size(Length.px(12)).toString(), "12px sans-serif");
+    exam.equal(Font.family("sans-serif").withSize(Length.px(12)).toString(), "12px sans-serif");
   }
 
   @Test
   writeLineHeights(exam: Exam): void {
-    exam.equal(Font.family("sans-serif").size(Length.px(12)).height(Length.px(16)).toString(), "12px/16px sans-serif");
+    exam.equal(Font.family("sans-serif").withSize(Length.px(12)).withHeight(Length.px(16)).toString(), "12px/16px sans-serif");
   }
 
   @Test
   writeFontStyles(exam: Exam): void {
-    exam.equal(Font.family("sans-serif").style("normal").toString(), "normal sans-serif");
-    exam.equal(Font.family("sans-serif").style("italic").toString(), "italic sans-serif");
-    exam.equal(Font.family("sans-serif").style("oblique").toString(), "oblique sans-serif");
+    exam.equal(Font.family("sans-serif").withStyle("normal").toString(), "normal sans-serif");
+    exam.equal(Font.family("sans-serif").withStyle("italic").toString(), "italic sans-serif");
+    exam.equal(Font.family("sans-serif").withStyle("oblique").toString(), "oblique sans-serif");
   }
 
   @Test
   writeFontVariants(exam: Exam): void {
-    exam.equal(Font.family("sans-serif").variant("small-caps").toString(), "small-caps sans-serif");
+    exam.equal(Font.family("sans-serif").withVariant("small-caps").toString(), "small-caps sans-serif");
   }
 
   @Test
   writeFontWeights(exam: Exam): void {
-    exam.equal(Font.family("sans-serif").weight("bold").toString(), "bold sans-serif");
-    exam.equal(Font.family("sans-serif").weight("bolder").toString(), "bolder sans-serif");
-    exam.equal(Font.family("sans-serif").weight("lighter").toString(), "lighter sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("bold").toString(), "bold sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("bolder").toString(), "bolder sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("lighter").toString(), "lighter sans-serif");
 
-    exam.equal(Font.family("sans-serif").weight("100").toString(), "100 sans-serif");
-    exam.equal(Font.family("sans-serif").weight("200").toString(), "200 sans-serif");
-    exam.equal(Font.family("sans-serif").weight("300").toString(), "300 sans-serif");
-    exam.equal(Font.family("sans-serif").weight("400").toString(), "400 sans-serif");
-    exam.equal(Font.family("sans-serif").weight("500").toString(), "500 sans-serif");
-    exam.equal(Font.family("sans-serif").weight("600").toString(), "600 sans-serif");
-    exam.equal(Font.family("sans-serif").weight("700").toString(), "700 sans-serif");
-    exam.equal(Font.family("sans-serif").weight("800").toString(), "800 sans-serif");
-    exam.equal(Font.family("sans-serif").weight("900").toString(), "900 sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("100").toString(), "100 sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("200").toString(), "200 sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("300").toString(), "300 sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("400").toString(), "400 sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("500").toString(), "500 sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("600").toString(), "600 sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("700").toString(), "700 sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("800").toString(), "800 sans-serif");
+    exam.equal(Font.family("sans-serif").withWeight("900").toString(), "900 sans-serif");
   }
 
   @Test
   writeFontStretches(exam: Exam): void {
-    exam.equal(Font.family("sans-serif").stretch("ultra-condensed").toString(), "ultra-condensed sans-serif");
-    exam.equal(Font.family("sans-serif").stretch("extra-condensed").toString(), "extra-condensed sans-serif");
-    exam.equal(Font.family("sans-serif").stretch("semi-condensed").toString(), "semi-condensed sans-serif");
-    exam.equal(Font.family("sans-serif").stretch("condensed").toString(), "condensed sans-serif");
-    exam.equal(Font.family("sans-serif").stretch("expanded").toString(), "expanded sans-serif");
-    exam.equal(Font.family("sans-serif").stretch("semi-expanded").toString(), "semi-expanded sans-serif");
-    exam.equal(Font.family("sans-serif").stretch("extra-expanded").toString(), "extra-expanded sans-serif");
-    exam.equal(Font.family("sans-serif").stretch("ultra-expanded").toString(), "ultra-expanded sans-serif");
+    exam.equal(Font.family("sans-serif").withStretch("ultra-condensed").toString(), "ultra-condensed sans-serif");
+    exam.equal(Font.family("sans-serif").withStretch("extra-condensed").toString(), "extra-condensed sans-serif");
+    exam.equal(Font.family("sans-serif").withStretch("semi-condensed").toString(), "semi-condensed sans-serif");
+    exam.equal(Font.family("sans-serif").withStretch("condensed").toString(), "condensed sans-serif");
+    exam.equal(Font.family("sans-serif").withStretch("expanded").toString(), "expanded sans-serif");
+    exam.equal(Font.family("sans-serif").withStretch("semi-expanded").toString(), "semi-expanded sans-serif");
+    exam.equal(Font.family("sans-serif").withStretch("extra-expanded").toString(), "extra-expanded sans-serif");
+    exam.equal(Font.family("sans-serif").withStretch("ultra-expanded").toString(), "ultra-expanded sans-serif");
   }
 
   @Test
   parseFonts(exam: Exam): void {
-    exam.equal(Font.family(["Open Sans", "sans-serif"]).style("normal").variant("normal")
-                   .weight("normal").stretch("normal").size(Length.px(12)).height("normal").toString(),
+    exam.equal(Font.family(["Open Sans", "sans-serif"]).withStyle("normal").withVariant("normal")
+                   .withWeight("normal").withStretch("normal").withSize(Length.px(12)).withHeight("normal").toString(),
                "normal normal normal normal 12px/normal \"Open Sans\", sans-serif");
-    exam.equal(Font.family(["Open Sans", "sans-serif"]).style("italic").variant("small-caps")
-                   .weight("bold").stretch("expanded").size(Length.px(12)).height(Length.px(16)).toString(),
+    exam.equal(Font.family(["Open Sans", "sans-serif"]).withStyle("italic").withVariant("small-caps")
+                   .withWeight("bold").withStretch("expanded").withSize(Length.px(12)).withHeight(Length.px(16)).toString(),
                "italic small-caps bold expanded 12px/16px \"Open Sans\", sans-serif");
   }
 }

@@ -42,6 +42,5 @@ export {
   Font,
 } from "./Font";
 export {FontInterpolator} from "./FontInterpolator";
-
-export {FontParser} from "./FontParser";
 export {FontForm} from "./FontForm";
+export {FontParser} from "./FontParser";

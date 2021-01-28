@@ -101,11 +101,11 @@ export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
         return color;
       }
       const font = Font.fromValue(value);
-      if (font !== void 0) {
+      if (font !== null) {
         return font;
       }
       const boxShadow = BoxShadow.fromValue(value);
-      if (boxShadow !== void 0) {
+      if (boxShadow !== null) {
         return boxShadow;
       }
       const transform = Transform.fromValue(value);
@@ -116,4 +116,3 @@ export class StyleValueForm extends Form<StyleValue, AnyStyleValue> {
     return void 0;
   }
 }
-StyleValue.Form = StyleValueForm;
