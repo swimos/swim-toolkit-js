@@ -491,7 +491,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     if (xDataDomain === void 0) {
       let xDataDomainMin: X | undefined;
       let xDataDomainMax: X | undefined;
-      const childViews = this._childViews;
+      const childViews = this.childViews;
       for (let i = 0, n = childViews.length; i < n; i += 1) {
         const childView = childViews[i];
         if (ScaleXView.is<X>(childView)) {
@@ -521,7 +521,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     if (yDataDomain === void 0) {
       let yDataDomainMin: Y | undefined;
       let yDataDomainMax: Y | undefined;
-      const childViews = this._childViews;
+      const childViews = this.childViews;
       for (let i = 0, n = childViews.length; i < n; i += 1) {
         const childView = childViews[i];
         if (ScaleYView.is<Y>(childView)) {
@@ -973,7 +973,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     let xDataRangeMax = -Infinity;
     let yDataRangeMin = Infinity;
     let yDataRangeMax = -Infinity;
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
       const childView = childViews[i];
       if (ScaleXView.is<X>(childView)) {

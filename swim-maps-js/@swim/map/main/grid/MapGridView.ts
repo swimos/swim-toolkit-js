@@ -24,14 +24,18 @@ export interface MapGridViewInit extends MapGraphicsViewInit {
 }
 
 export class MapGridView extends MapGraphicsView {
-  /** @hidden */
-  _childViews: MapGridTile;
-  /** @hidden */
-  _childViewMap?: {[key: string]: MapGraphicsView | undefined};
-
   constructor(geoFrame?: GeoBox, depth?: number, maxDepth?: number, density?: number) {
     super();
-    this._childViews = MapGridTile.empty(geoFrame, depth, maxDepth, density);
+    Object.defineProperty(this, "quadtree", {
+      value: MapGridTile.empty(geoFrame, depth, maxDepth, density),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "childViewMap", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   initView(init: MapGridViewInit): void {
@@ -44,27 +48,30 @@ export class MapGridView extends MapGraphicsView {
   @ViewAnimator({type: Color})
   declare tileOutlineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
+  /** @hidden */
+  declare readonly quadtree: MapGridTile;
+
   get childViewCount(): number {
-    return this._childViews.size;
+    return this.quadtree.size;
   }
 
   get childViews(): ReadonlyArray<View> {
     const childViews: View[] = [];
-    this._childViews.forEach(function (childView: MapGraphicsView): void {
+    this.quadtree.forEach(function (childView: MapGraphicsView): void {
       childViews.push(childView);
     }, this);
     return childViews;
   }
 
   firstChildView(): View | null {
-    const childView = this._childViews.forEach(function (childView: MapGraphicsView): MapGraphicsView {
+    const childView = this.quadtree.forEach(function (childView: MapGraphicsView): MapGraphicsView {
       return childView;
     }, this);
     return childView !== void 0 ? childView : null;
   }
 
   lastChildView(): View | null {
-    const childView = this._childViews.forEachReverse(function (childView: MapGraphicsView): MapGraphicsView {
+    const childView = this.quadtree.forEachReverse(function (childView: MapGraphicsView): MapGraphicsView {
       return childView;
     }, this);
     return childView !== void 0 ? childView : null;
@@ -73,7 +80,7 @@ export class MapGridView extends MapGraphicsView {
   nextChildView(targetView: View): View | null {
     if (targetView.parentView === this) {
       let nextChildView: MapGraphicsView | null = null;
-      const childView = this._childViews.forEachReverse(function (childView: MapGraphicsView): MapGraphicsView | null | void {
+      const childView = this.quadtree.forEachReverse(function (childView: MapGraphicsView): MapGraphicsView | null | void {
         if (childView === targetView) {
           return nextChildView;
         }
@@ -89,7 +96,7 @@ export class MapGridView extends MapGraphicsView {
   previousChildView(targetView: View): View | null {
     if (targetView.parentView === this) {
       let previousChildView: MapGraphicsView | null = null;
-      const childView = this._childViews.forEach(function (childView: MapGraphicsView): MapGraphicsView | null | void {
+      const childView = this.quadtree.forEach(function (childView: MapGraphicsView): MapGraphicsView | null | void {
         if (childView === targetView) {
           return previousChildView;
         }
@@ -107,12 +114,15 @@ export class MapGridView extends MapGraphicsView {
                          thisArg: S): T | undefined;
   forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
                          thisArg?: S): T | undefined {
-    return this._childViews.forEach(callback, thisArg);
+    return this.quadtree.forEach(callback, thisArg);
   }
 
-  getChildView(key: string): View | null {
-    const childViewMap = this._childViewMap;
-    if (childViewMap !== void 0) {
+  /** @hidden */
+  declare readonly childViewMap: {[key: string]: MapGraphicsView | undefined} | null;
+
+  getChildView(key: string): MapGraphicsView | null {
+    const childViewMap = this.childViewMap;
+    if (childViewMap !== null) {
       const childView = childViewMap[key];
       if (childView !== void 0) {
         return childView;
@@ -128,32 +138,36 @@ export class MapGridView extends MapGraphicsView {
       }
       newChildView.remove();
     }
-    let oldChildView: MapGraphicsView | null = null;
-    if (this._childViewMap !== void 0) {
-      const childView = this._childViewMap[key];
-      if (childView !== void 0) {
-        oldChildView = childView;
-        const oldChildGeoBounds = oldChildView.geoBounds;
-        this.willRemoveChildView(childView);
-        childView.setParentView(null, this);
-        this.removeChildViewMap(childView);
-        const oldGeoBounds = this._childViews._geoBounds;
-        this._childViews = this._childViews.removed(oldChildView, oldChildGeoBounds);
-        const newGeoBounds = this._childViews._geoBounds;
-        if (!newGeoBounds.equals(oldGeoBounds)) {
-          this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
-        }
-        this.onRemoveChildView(childView);
-        this.didRemoveChildView(childView);
-        childView.setKey(void 0);
+    const oldChildView = this.getChildView(key);
+    if (oldChildView !== null) {
+      const oldChildGeoBounds = oldChildView.geoBounds;
+      this.willRemoveChildView(oldChildView);
+      oldChildView.setParentView(null, this);
+      this.removeChildViewMap(oldChildView);
+      const oldGeoBounds = this.quadtree._geoBounds;
+      Object.defineProperty(this, "quadtree", {
+        value: this.quadtree.removed(oldChildView, oldChildGeoBounds),
+        enumerable: true,
+        configurable: true,
+      });
+      const newGeoBounds = this.quadtree._geoBounds;
+      if (!newGeoBounds.equals(oldGeoBounds)) {
+        this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
       }
+      this.onRemoveChildView(oldChildView);
+      this.didRemoveChildView(oldChildView);
+      oldChildView.setKey(void 0);
     }
     if (newChildView !== null) {
       const newChildGeoBounds = newChildView.geoBounds;
       newChildView.setKey(key);
-      const oldGeoBounds = this._childViews._geoBounds;
-      this._childViews = this._childViews.inserted(newChildView, newChildGeoBounds);
-      const newGeoBounds = this._childViews._geoBounds;
+      const oldGeoBounds = this.quadtree._geoBounds;
+      Object.defineProperty(this, "quadtree", {
+        value: this.quadtree.inserted(newChildView, newChildGeoBounds),
+        enumerable: true,
+        configurable: true,
+      });
+      const newGeoBounds = this.quadtree._geoBounds;
       if (!newGeoBounds.equals(oldGeoBounds)) {
         this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
       }
@@ -170,10 +184,14 @@ export class MapGridView extends MapGraphicsView {
   protected insertChildViewMap(childView: MapGraphicsView): void {
     const key = childView.key;
     if (key !== void 0) {
-      let childViewMap = this._childViewMap;
-      if (childViewMap === void 0) {
+      let childViewMap = this.childViewMap;
+      if (childViewMap === null) {
         childViewMap = {};
-        this._childViewMap = childViewMap;
+        Object.defineProperty(this, "childViewMap", {
+          value: childViewMap,
+          enumerable: true,
+          configurable: true,
+        });
       }
       childViewMap[key] = childView;
     }
@@ -181,10 +199,10 @@ export class MapGridView extends MapGraphicsView {
 
   /** @hidden */
   protected removeChildViewMap(childView: MapGraphicsView): void {
-    const childViewMap = this._childViewMap;
-    if (childViewMap !== void 0) {
-      const key = childView.key;
-      if (key !== void 0) {
+    const key = childView.key;
+    if (key !== void 0) {
+      const childViewMap = this.childViewMap;
+      if (childViewMap !== null) {
         delete childViewMap[key];
       }
     }
@@ -201,9 +219,13 @@ export class MapGridView extends MapGraphicsView {
     }
     const childViewBounds = childView.geoBounds;
     this.willInsertChildView(childView, null);
-    const oldGeoBounds = this._childViews._geoBounds;
-    this._childViews = this._childViews.inserted(childView, childViewBounds);
-    const newGeoBounds = this._childViews._geoBounds;
+    const oldGeoBounds = this.quadtree._geoBounds;
+    Object.defineProperty(this, "quadtree", {
+      value: this.quadtree.inserted(childView, childViewBounds),
+      enumerable: true,
+      configurable: true,
+    });
+    const newGeoBounds = this.quadtree._geoBounds;
     if (!newGeoBounds.equals(oldGeoBounds)) {
       this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     }
@@ -225,9 +247,13 @@ export class MapGridView extends MapGraphicsView {
     }
     const childViewBounds = childView.geoBounds;
     this.willInsertChildView(childView, null);
-    const oldGeoBounds = this._childViews._geoBounds;
-    this._childViews = this._childViews.inserted(childView, childViewBounds);
-    const newGeoBounds = this._childViews._geoBounds;
+    const oldGeoBounds = this.quadtree._geoBounds;
+    Object.defineProperty(this, "quadtree", {
+      value: this.quadtree.inserted(childView, childViewBounds),
+      enumerable: true,
+      configurable: true,
+    });
+    const newGeoBounds = this.quadtree._geoBounds;
     if (!newGeoBounds.equals(oldGeoBounds)) {
       this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     }
@@ -255,9 +281,13 @@ export class MapGridView extends MapGraphicsView {
     }
     const childViewBounds = childView.geoBounds;
     this.willInsertChildView(childView, targetView);
-    const oldGeoBounds = this._childViews._geoBounds;
-    this._childViews = this._childViews.inserted(childView, childViewBounds);
-    const newGeoBounds = this._childViews._geoBounds;
+    const oldGeoBounds = this.quadtree._geoBounds;
+    Object.defineProperty(this, "quadtree", {
+      value: this.quadtree.inserted(childView, childViewBounds),
+      enumerable: true,
+      configurable: true,
+    });
+    const newGeoBounds = this.quadtree._geoBounds;
     if (!newGeoBounds.equals(oldGeoBounds)) {
       this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     }
@@ -290,9 +320,13 @@ export class MapGridView extends MapGraphicsView {
     this.willRemoveChildView(childView);
     childView.setParentView(null, this);
     this.removeChildViewMap(childView);
-    const oldGeoBounds = this._childViews._geoBounds;
-    this._childViews = this._childViews.removed(childView, childViewBounds);
-    const newGeoBounds = this._childViews._geoBounds;
+    const oldGeoBounds = this.quadtree._geoBounds;
+    Object.defineProperty(this, "quadtree", {
+      value: this.quadtree.removed(childView, childViewBounds),
+      enumerable: true,
+      configurable: true,
+    });
+    const newGeoBounds = this.quadtree._geoBounds;
     if (!newGeoBounds.equals(oldGeoBounds)) {
       this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     }
@@ -305,14 +339,14 @@ export class MapGridView extends MapGraphicsView {
   }
 
   removeAll(): void {
-    this._childViews.forEach(function (childView: MapGraphicsView): void {
+    this.quadtree.forEach(function (childView: MapGraphicsView): void {
       this.removeChildView(childView);
     }, this);
   }
 
   /** @hidden */
   protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((processFlags & View.ProcessMask) !== 0 && !this._childViews.isEmpty()
+    if ((processFlags & View.ProcessMask) !== 0 && !this.quadtree.isEmpty()
         && !this.isHidden() && !this.isCulled()) {
       this.willProcessChildViews(processFlags, viewContext);
       this.onProcessChildViews(processFlags, viewContext);
@@ -323,7 +357,7 @@ export class MapGridView extends MapGraphicsView {
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               processChildView: (this: this, childView: View, processFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
-    this.processTile(this._childViews, processFlags, viewContext, processChildView);
+    this.processTile(this.quadtree, processFlags, viewContext, processChildView);
   }
 
   /** @hidden */
@@ -365,7 +399,7 @@ export class MapGridView extends MapGraphicsView {
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
       const context = renderer.context;
       context.save();
-      this.renderTile(this._childViews, context, viewContext.geoProjection, outlineColor);
+      this.renderTile(this.quadtree, context, viewContext.geoProjection, outlineColor);
       context.restore();
     }
   }
@@ -406,7 +440,7 @@ export class MapGridView extends MapGraphicsView {
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
-    this.displayTile(this._childViews, displayFlags, viewContext, displayChildView);
+    this.displayTile(this.quadtree, displayFlags, viewContext, displayChildView);
   }
 
   /** @hidden */
@@ -437,21 +471,25 @@ export class MapGridView extends MapGraphicsView {
   }
 
   childViewDidSetGeoBounds(childView: MapGraphicsView, newChildViewGeoBounds: GeoBox, oldChildViewGeoBounds: GeoBox): void {
-    const oldGeoBounds = this._childViews._geoBounds;
-    this._childViews = this._childViews.moved(childView, newChildViewGeoBounds, oldChildViewGeoBounds);
-    const newGeoBounds = this._childViews._geoBounds;
+    const oldGeoBounds = this.quadtree._geoBounds;
+    Object.defineProperty(this, "quadtree", {
+      value: this.quadtree.moved(childView, newChildViewGeoBounds, oldChildViewGeoBounds),
+      enumerable: true,
+      configurable: true,
+    });
+    const newGeoBounds = this.quadtree._geoBounds;
     if (!newGeoBounds.equals(oldGeoBounds)) {
       this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     }
   }
 
   get geoBounds(): GeoBox {
-    return this._childViews._geoBounds;
+    return this.quadtree._geoBounds;
   }
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     const geoPoint = viewContext.geoProjection.unproject(x, y);
-    return this.hitTestTile(this._childViews, x, y, geoPoint, viewContext);
+    return this.hitTestTile(this.quadtree, x, y, geoPoint, viewContext);
   }
 
   protected hitTestTile(tile: MapGridTile, x: number, y: number, geoPoint: GeoPoint,

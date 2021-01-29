@@ -86,7 +86,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   points(): ReadonlyArray<MapPointView>;
   points(points: ReadonlyArray<AnyMapPointView>, tween?: Tween<GeoPoint>): this;
   points(points?: ReadonlyArray<AnyMapPointView>, tween?: Tween<GeoPoint>): ReadonlyArray<MapPointView> | this {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     if (points === void 0) {
       const points: MapPointView[] = [];
       for (let i = 0; i < childViews.length; i += 1) {
@@ -97,7 +97,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
       }
       return points;
     } else {
-      const oldGeoBounds = this._geoBounds;
+      const oldGeoBounds = this.geoBounds;
       let lngMin = Infinity;
       let latMin = Infinity;
       let lngMax = -Infinity;
@@ -150,12 +150,20 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
         lngMid /= j;
         latMid /= j;
         this._geoCenter = new GeoPoint(lngMid, latMid);
-        this._geoBounds = new GeoBox(lngMin, latMin, lngMax, latMax);
+        Object.defineProperty(this, "geoBounds", {
+          value: new GeoBox(lngMin, latMin, lngMax, latMax),
+          enumerable: true,
+          configurable: true,
+        });
       } else {
         this._geoCenter = GeoPoint.origin();
-        this._geoBounds = GeoBox.undefined();
+        Object.defineProperty(this, "geoBounds", {
+          value: GeoBox.undefined(),
+          enumerable: true,
+          configurable: true,
+        });
       }
-      const newGeoBounds = this._geoBounds;
+      const newGeoBounds = this.geoBounds;
       if (!oldGeoBounds.equals(newGeoBounds)) {
         this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
       }
@@ -222,7 +230,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   }
 
   protected didProject(viewContext: ViewContextType<this>): void {
-    const oldGeoBounds = this._geoBounds;
+    const oldGeoBounds = this.geoBounds;
     let lngMin = Infinity;
     let latMin = Infinity;
     let lngMax = -Infinity;
@@ -238,7 +246,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     let invalid = false;
     let gradientStops = 0;
     let pointCount = 0;
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
       if (childView instanceof MapPointView) {
@@ -268,7 +276,11 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
       lngMid /= pointCount;
       latMid /= pointCount;
       this._geoCenter = new GeoPoint(lngMid, latMid);
-      this._geoBounds = new GeoBox(lngMin, latMin, lngMax, latMax);
+      Object.defineProperty(this, "geoBounds", {
+        value: new GeoBox(lngMin, latMin, lngMax, latMax),
+        enumerable: true,
+        configurable: true,
+      });
       xMid /= pointCount;
       yMid /= pointCount;
       this._viewCentroid = new PointR2(xMid, yMid);
@@ -276,13 +288,17 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
       this.cullGeoFrame(viewContext.geoFrame);
     } else {
       this._geoCenter = GeoPoint.origin();
-      this._geoBounds = GeoBox.undefined();
+      Object.defineProperty(this, "geoBounds", {
+        value: GeoBox.undefined(),
+        enumerable: true,
+        configurable: true,
+      });
       this._viewCentroid = PointR2.origin();
       this._viewBounds = BoxR2.undefined();
       this.setCulled(true);
     }
     this._gradientStops = gradientStops;
-    const newGeoBounds = this._geoBounds;
+    const newGeoBounds = this.geoBounds;
     if (!oldGeoBounds.equals(newGeoBounds)) {
       this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     }
@@ -305,7 +321,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   }
 
   protected renderPolylineStroke(context: CanvasContext, frame: BoxR2): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     const childCount = childViews.length;
     let pointCount = 0;
     context.beginPath();
@@ -337,7 +353,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     const stroke = this.stroke.getValue();
     const size = Math.min(frame.width, frame.height);
     const strokeWidth = this.strokeWidth.getValue().pxValue(size);
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     const childCount = childViews.length;
     let p0: MapPointView | undefined;
     for (let i = 0; i < childCount; i += 1) {
@@ -415,12 +431,12 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   }
 
   protected hitTestPolyline(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     const childCount = childViews.length;
     let pointCount = 0;
     context.beginPath();
     for (let i = 0; i < childCount; i += 1) {
-      const childView = this._childViews[i];
+      const childView = this.childViews[i];
       if (childView instanceof MapPointView) {
         const {x, y} = childView.viewPoint.getValue();
         if (i === 0) {

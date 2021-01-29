@@ -89,7 +89,7 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
   points(): ReadonlyArray<MapPointView>;
   points(points: ReadonlyArray<AnyMapPointView>, tween?: Tween<GeoPoint>): this;
   points(points?: ReadonlyArray<AnyMapPointView>, tween?: Tween<GeoPoint>): ReadonlyArray<MapPointView> | this {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     if (points === void 0) {
       const points: MapPointView[] = [];
       for (let i = 0; i < childViews.length; i += 1) {
@@ -100,7 +100,7 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
       }
       return points;
     } else {
-      const oldGeoBounds = this._geoBounds;
+      const oldGeoBounds = this.geoBounds;
       let lngMin = Infinity;
       let latMin = Infinity;
       let lngMax = -Infinity;
@@ -153,12 +153,20 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
         lngMid /= j;
         latMid /= j;
         this._geoCentroid = new GeoPoint(lngMid, latMid);
-        this._geoBounds = new GeoBox(lngMin, latMin, lngMax, latMax);
+        Object.defineProperty(this, "geoBounds", {
+          value: new GeoBox(lngMin, latMin, lngMax, latMax),
+          enumerable: true,
+          configurable: true,
+        });
       } else {
         this._geoCentroid = GeoPoint.origin();
-        this._geoBounds = GeoBox.undefined();
+        Object.defineProperty(this, "geoBounds", {
+          value: GeoBox.undefined(),
+          enumerable: true,
+          configurable: true,
+        });
       }
-      const newGeoBounds = this._geoBounds;
+      const newGeoBounds = this.geoBounds;
       if (!oldGeoBounds.equals(newGeoBounds)) {
         this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
       }
@@ -224,7 +232,7 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
   }
 
   protected didProject(viewContext: ViewContextType<this>): void {
-    const oldGeoBounds = this._geoBounds;
+    const oldGeoBounds = this.geoBounds;
     let lngMin = Infinity;
     let latMin = Infinity;
     let lngMax = -Infinity;
@@ -239,7 +247,7 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
     let yMid = 0;
     let invalid = false;
     let pointCount = 0;
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     for (let i = 0; i < childViews.length; i += 1) {
       const childView = childViews[i];
       if (childView instanceof MapPointView) {
@@ -266,12 +274,16 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
       lngMid /= pointCount;
       latMid /= pointCount;
       this._geoCentroid = new GeoPoint(lngMid, latMid);
-      this._geoBounds = new GeoBox(lngMin, latMin, lngMax, latMax);
+      Object.defineProperty(this, "geoBounds", {
+        value: new GeoBox(lngMin, latMin, lngMax, latMax),
+        enumerable: true,
+        configurable: true,
+      });
       xMid /= pointCount;
       yMid /= pointCount;
       this._viewCentroid = new PointR2(xMid, yMid);
       this._viewBounds = new BoxR2(xMin, yMin, xMax, yMax);
-      if (viewContext.geoFrame.intersects(this._geoBounds)) {
+      if (viewContext.geoFrame.intersects(this.geoBounds)) {
         const frame = this.viewFrame;
         const bounds = this._viewBounds;
         // check if 9x9 view frame fully contains view bounds
@@ -287,12 +299,16 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
       }
     } else {
       this._geoCentroid = GeoPoint.origin();
-      this._geoBounds = GeoBox.undefined();
+      Object.defineProperty(this, "geoBounds", {
+        value: GeoBox.undefined(),
+        enumerable: true,
+        configurable: true,
+      });
       this._viewCentroid = PointR2.origin();
       this._viewBounds = BoxR2.undefined();
       this.setCulled(true);
     }
-    const newGeoBounds = this._geoBounds;
+    const newGeoBounds = this.geoBounds;
     if (!oldGeoBounds.equals(newGeoBounds)) {
       this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     }
@@ -311,7 +327,7 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
   }
 
   protected renderPolygon(context: CanvasContext, frame: BoxR2): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     const childCount = childViews.length;
     let pointCount = 0;
     context.beginPath();
@@ -378,12 +394,12 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
   }
 
   protected hitTestPolygon(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     const childCount = childViews.length;
     let pointCount = 0;
     context.beginPath();
     for (let i = 0; i < childCount; i += 1) {
-      const childView = this._childViews[i];
+      const childView = this.childViews[i];
       if (childView instanceof MapPointView) {
         const {x, y} = childView.viewPoint.getValue();
         if (i === 0) {

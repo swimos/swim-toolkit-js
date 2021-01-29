@@ -16,22 +16,21 @@ import {DrawingRenderer} from "../drawing/DrawingRenderer";
 import type {CanvasContext} from "./CanvasContext";
 
 export class CanvasRenderer extends DrawingRenderer {
-  /** @hidden */
-  readonly _context: CanvasContext;
-  /** @hidden */
-  readonly _pixelRatio: number;
-
-  constructor(context: CanvasContext, pixelRatio: number = window.devicePixelRatio || 1) {
+  constructor(context: CanvasContext, pixelRatio?: number) {
     super();
-    this._context = context;
-    this._pixelRatio = pixelRatio;
+    Object.defineProperty(this, "context", {
+      value: context,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "pixelRatio", {
+      value: pixelRatio !== void 0 ? pixelRatio : window.devicePixelRatio || 1,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get context(): CanvasContext {
-    return this._context;
-  }
+  declare readonly context: CanvasContext;
 
-  get pixelRatio(): number {
-    return this._pixelRatio;
-  }
+  declare readonly pixelRatio: number;
 }

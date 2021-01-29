@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Arrays} from "@swim/util";
 import {GeoPoint, GeoBox} from "@swim/geo";
 import type {MapGraphicsView} from "../graphics/MapGraphicsView";
 
@@ -632,7 +633,7 @@ export class MapGridTile {
                        geoFrame: GeoBox, geoBounds?: GeoBox, geoCenter?: GeoPoint,
                        southWest: MapGridTile | null = null, northWest: MapGridTile | null = null,
                        southEast: MapGridTile | null = null, northEast: MapGridTile | null = null,
-                       views: ReadonlyArray<MapGraphicsView> = [], size: number = 0): MapGridTile {
+                       views: ReadonlyArray<MapGraphicsView> = Arrays.empty, size: number = 0): MapGridTile {
     if (geoCenter === void 0) {
       geoCenter = geoFrame.center;
     }
@@ -676,6 +677,6 @@ export class MapGridTile {
       density = 8;
     }
     return new MapGridTile(depth, maxDepth, density, geoFrame, geoFrame,
-                           geoFrame.center, null, null, null, null, [], 0);
+                           geoFrame.center, null, null, null, null, Arrays.empty, 0);
   }
 }

@@ -92,4 +92,3 @@ export class SvgIconView extends SvgView implements IconView {
 
   static readonly mountFlags: ViewFlags = SvgView.mountFlags | View.NeedsAnimate;
 }
-IconView.Svg = SvgIconView;

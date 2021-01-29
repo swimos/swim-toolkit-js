@@ -16,15 +16,14 @@ import {DrawingRenderer} from "../drawing/DrawingRenderer";
 import {PathContext} from "./PathContext";
 
 export class PathRenderer extends DrawingRenderer {
-  /** @hidden */
-  readonly _context: PathContext;
-
-  constructor(context: PathContext = new PathContext()) {
+  constructor(context?: PathContext) {
     super();
-    this._context = context;
+    Object.defineProperty(this, "context", {
+      value: context !== void 0 ? context : new PathContext(),
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get context(): PathContext {
-    return this._context;
-  }
+  declare readonly context: PathContext;
 }

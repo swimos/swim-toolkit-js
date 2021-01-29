@@ -201,7 +201,7 @@ export class PieView extends LayerView {
   }
 
   protected layoutPie(frame: BoxR2): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     const childCount = childViews.length;
 
     if (this.center.isAuto()) {

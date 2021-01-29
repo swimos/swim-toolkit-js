@@ -68,7 +68,7 @@ export class BubblePlotView<X, Y> extends ScatterPlotView<X, Y> implements FillV
     const stroke = this.stroke.value;
     const strokeWidth = this.strokeWidth.value;
 
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
       const p = childViews[i];
       if (p instanceof DataPointView) {

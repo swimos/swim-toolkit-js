@@ -16,10 +16,10 @@ import type {AnyLength, Length} from "@swim/math";
 import type {AnyColor, Color} from "@swim/color";
 import {ViewInit, View, ViewAnimator} from "@swim/view";
 import type {Graphics} from "../graphics/Graphics";
-import type {GraphicsIconView} from "./GraphicsIconView";
-import type {SvgIconPathView} from "./SvgIconPathView";
-import type {SvgIconView} from "./SvgIconView";
-import type {HtmlIconView} from "./HtmlIconView";
+import {GraphicsIconView} from "../"; // forward import
+import {SvgIconPathView} from "../"; // forward import
+import {SvgIconView} from "../"; // forward import
+import {HtmlIconView} from "../"; // forward import
 
 export interface IconViewInit extends ViewInit {
   xAlign?: number;
@@ -48,25 +48,15 @@ export const IconView = {} as {
   is(object: unknown): object is IconView;
 
   initView(view: IconView, init: IconViewInit): void;
-
-  // Forward type declarations
-  /** @hidden */
-  Graphics: typeof GraphicsIconView, // defined by GraphicsIconView
-  /** @hidden */
-  Path: typeof SvgIconPathView, // defined by PathIconView
-  /** @hidden */
-  Svg: typeof SvgIconView, // defined by SvgIconView
-  /** @hidden */
-  Html: typeof HtmlIconView, // defined by HtmlIconView
 };
 
 IconView.is = function (object: unknown): object is IconView {
   if (typeof object === "object" && object !== null) {
     const view = object as IconView;
-    return view instanceof IconView.Graphics
-        || view instanceof IconView.Path
-        || view instanceof IconView.Svg
-        || view instanceof IconView.Html
+    return view instanceof GraphicsIconView
+        || view instanceof SvgIconPathView
+        || view instanceof SvgIconView
+        || view instanceof HtmlIconView
         || view instanceof View
         && "xAlign" in view
         && "yAlign" in view

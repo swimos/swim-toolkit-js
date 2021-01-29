@@ -161,7 +161,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     if (xDataDomain === void 0) {
       let xDataDomainMin: X | undefined;
       let xDataDomainMax: X | undefined;
-      const childViews = this._childViews;
+      const childViews = this.childViews;
       for (let i = 0, n = childViews.length; i < n; i += 1) {
         const point = childViews[i];
         if (point instanceof DataPointView) {
@@ -187,7 +187,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     if (yDataDomain === void 0) {
       let yDataDomainMin: Y | undefined;
       let yDataDomainMax: Y | undefined;
-      const childViews = this._childViews;
+      const childViews = this.childViews;
       for (let i = 0, n = childViews.length; i < n; i += 1) {
         const point = childViews[i];
         if (point instanceof DataPointView) {

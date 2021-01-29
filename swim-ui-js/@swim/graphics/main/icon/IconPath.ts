@@ -19,17 +19,15 @@ import {DrawingRenderer} from "../drawing/DrawingRenderer";
 import {Icon} from "./Icon";
 
 export class IconPath extends Icon {
-  /** @hidden */
-  readonly _path: PathR2;
-
   constructor(path: PathR2) {
     super();
-    this._path = path;
+    Object.defineProperty(this, "path", {
+      value: path,
+      enumerable: true,
+    });
   }
 
-  get path(): PathR2 {
-    return this._path;
-  }
+  declare readonly path: PathR2;
 
   render(renderer: GraphicsRenderer, frame: BoxR2): void {
     if (renderer instanceof DrawingRenderer) {
@@ -38,13 +36,13 @@ export class IconPath extends Icon {
   }
 
   draw(context: DrawingContext, frame: BoxR2): void {
-    this._path.transformDraw(context, Transform.scale(frame.width, frame.height)
-                                               .translate(frame.x, frame.y));
+    this.path.transformDraw(context, Transform.scale(frame.width, frame.height)
+                                              .translate(frame.x, frame.y));
   }
 
   toPath(frame: BoxR2): PathR2 {
-    return this._path.transform(Transform.scale(frame.width, frame.height)
-                                         .translate(frame.x, frame.y));
+    return this.path.transform(Transform.scale(frame.width, frame.height)
+                                        .translate(frame.x, frame.y));
   }
 
   static create(width: number, height: number, path: AnyPathR2): IconPath {

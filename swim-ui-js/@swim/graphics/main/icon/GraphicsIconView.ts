@@ -135,4 +135,3 @@ export class GraphicsIconView extends LayerView implements IconView {
     return new GraphicsIconView();
   }
 }
-IconView.Graphics = GraphicsIconView;

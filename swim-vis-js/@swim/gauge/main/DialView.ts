@@ -264,7 +264,7 @@ export class DialView extends LayerView {
     const cornerRadius = this.cornerRadius.getValue().px(deltaRadius);
     const dial = new Arc(center, innerRadius, outerRadius, startAngle,
                          sweepAngle, Angle.zero(), null, cornerRadius);
-    const meter = dial.sweepAngle(sweepAngle.times(delta));
+    const meter = dial.withSweepAngle(sweepAngle.times(delta));
 
     context.save();
 

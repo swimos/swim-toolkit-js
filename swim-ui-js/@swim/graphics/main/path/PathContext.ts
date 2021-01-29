@@ -15,17 +15,17 @@
 import type {DrawingContext} from "../drawing/DrawingContext";
 
 export class PathContext implements DrawingContext {
-  private x0: number | null;
-  private y0: number | null;
-  private x1: number | null;
-  private y1: number | null;
+  private x0: number | undefined;
+  private y0: number | undefined;
+  private x1: number | undefined;
+  private y1: number | undefined;
   private d: string;
 
   constructor() {
-    this.x0 = null;
-    this.y0 = null;
-    this.x1 = null;
-    this.y1 = null;
+    this.x0 = void 0;
+    this.y0 = void 0;
+    this.x1 = void 0;
+    this.y1 = void 0;
     this.d = "";
   }
 
@@ -56,7 +56,7 @@ export class PathContext implements DrawingContext {
 
     if (r < 0) {
       throw new Error("negative radius: " + r);
-    } else if (this.x1 === null) {
+    } else if (this.x1 === void 0) {
       // empty path
       this.d += "M" + (this.x1 = x1) + "," + (this.y1 = y1);
     } else if (!(l01_2 > PathContext.Epsilon)) {
@@ -93,7 +93,7 @@ export class PathContext implements DrawingContext {
 
     if (r < 0) {
       throw new Error("negative radius: " + r);
-    } else if (this.x1 === null) {
+    } else if (this.x1 === void 0) {
       // empty path
       this.d += "M" + x0 + "," + y0;
     } else if (Math.abs(+(this.x1 as any) - x0) > PathContext.Epsilon || Math.abs(+(this.y1 as any) - y0) > PathContext.Epsilon) {
@@ -142,7 +142,7 @@ export class PathContext implements DrawingContext {
   }
 
   closePath(): void {
-    if (this.x1 !== undefined) {
+    if (this.x1 !== void 0) {
       this.x1 = this.x0;
       this.y1 = this.y0;
       this.d += "Z";

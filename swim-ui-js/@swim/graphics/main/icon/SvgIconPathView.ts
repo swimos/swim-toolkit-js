@@ -111,4 +111,3 @@ export class SvgIconPathView extends SvgView implements IconView {
   /** @hidden */
   static readonly tag: string = "path";
 }
-IconView.Path = SvgIconPathView;

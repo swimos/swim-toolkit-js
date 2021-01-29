@@ -107,12 +107,18 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
 
   protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
     if (newGeoCenter.isDefined()) {
-      const oldGeoBounds = this._geoBounds;
+      const oldGeoBounds = this.geoBounds;
       const newGeoBounds = new GeoBox(newGeoCenter.lng, newGeoCenter.lat, newGeoCenter.lng, newGeoCenter.lat);
-      this._geoBounds = newGeoBounds;
-      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+      if (!oldGeoBounds.equals(newGeoBounds)) {
+        Object.defineProperty(this, "geoBounds", {
+          value: newGeoBounds,
+          enumerable: true,
+          configurable: true,
+        });
+        this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+        this.requireUpdate(View.NeedsProject);
+      }
     }
-    this.requireUpdate(View.NeedsProject);
   }
 
   protected onProject(viewContext: ViewContextType<this>): void {

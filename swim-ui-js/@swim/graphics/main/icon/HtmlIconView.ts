@@ -125,4 +125,3 @@ export class HtmlIconView extends HtmlView implements IconView {
     }
   }
 }
-IconView.Html = HtmlIconView;

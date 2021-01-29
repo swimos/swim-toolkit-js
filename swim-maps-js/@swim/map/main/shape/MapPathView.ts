@@ -57,11 +57,17 @@ export class MapPathView extends MapLayerView {
   declare viewCentroid: ViewAnimator<this, PointR2, AnyPointR2>;
 
   protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
-    const oldGeoBounds = this._geoBounds;
+    const oldGeoBounds = this.geoBounds;
     const newGeoBounds = newGeoPath.bounds;
-    this._geoBounds = newGeoBounds;
-    this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
-    this.requireUpdate(View.NeedsProject);
+    if (!oldGeoBounds.equals(newGeoBounds)) {
+      Object.defineProperty(this, "geoBounds", {
+        value: newGeoBounds,
+        enumerable: true,
+        configurable: true,
+      });
+      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+      this.requireUpdate(View.NeedsProject);
+    }
   }
 
   protected onProject(viewContext: ViewContextType<this>): void {

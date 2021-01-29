@@ -17,42 +17,43 @@ import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {GraphicsView} from "../graphics/GraphicsView";
 
 export class LayerView extends GraphicsView {
-  /** @hidden */
-  readonly _childViews: View[];
-  /** @hidden */
-  _childViewMap?: {[key: string]: View | undefined};
-
   constructor() {
     super();
-    this._childViews = [];
+    Object.defineProperty(this, "childViews", {
+      value: [],
+      enumerable: true,
+    });
+    Object.defineProperty(this, "childViewMap", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
+
+  declare readonly childViews: ReadonlyArray<View>;
 
   get childViewCount(): number {
-    return this._childViews.length;
-  }
-
-  get childViews(): ReadonlyArray<View> {
-    return this._childViews;
+    return this.childViews.length;
   }
 
   firstChildView(): View | null {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     return childViews.length !== 0 ? childViews[0]! : null;
   }
 
   lastChildView(): View | null {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     return childViews.length !== 0 ? childViews[childViews.length - 1]! : null;
   }
 
   nextChildView(targetView: View): View | null {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     const targetIndex = childViews.indexOf(targetView);
     return targetIndex >= 0 && targetIndex + 1 < childViews.length ? childViews[targetIndex + 1]! : null;
   }
 
   previousChildView(targetView: View): View | null {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     const targetIndex = childViews.indexOf(targetView);
     return targetIndex - 1 >= 0 ? childViews[targetIndex - 1]! : null;
   }
@@ -63,7 +64,7 @@ export class LayerView extends GraphicsView {
   forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
                          thisArg?: S): T | undefined {
     let result: T | undefined;
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i]!;
@@ -78,9 +79,12 @@ export class LayerView extends GraphicsView {
     return result;
   }
 
+  /** @hidden */
+  declare readonly childViewMap: {[key: string]: View | undefined} | null;
+
   getChildView(key: string): View | null {
-    const childViewMap = this._childViewMap;
-    if (childViewMap !== void 0) {
+    const childViewMap = this.childViewMap;
+    if (childViewMap !== null) {
       const childView = childViewMap[key];
       if (childView !== void 0) {
         return childView;
@@ -91,7 +95,7 @@ export class LayerView extends GraphicsView {
 
   setChildView(key: string, newChildView: View | null): View | null {
     let targetView: View | null = null;
-    const childViews = this._childViews;
+    const childViews = this.childViews as View[];
     if (newChildView !== null) {
       if (!(newChildView instanceof GraphicsView)) {
         throw new TypeError("" + newChildView);
@@ -102,23 +106,18 @@ export class LayerView extends GraphicsView {
       newChildView.remove();
     }
     let index = -1;
-    let oldChildView: View | null = null;
-    const childViewMap = this._childViewMap;
-    if (childViewMap !== void 0) {
-      const childView = childViewMap[key];
-      if (childView !== void 0) {
-        index = childViews.indexOf(childView);
-        // assert(index >= 0);
-        oldChildView = childView;
-        targetView = childViews[index + 1] || null;
-        this.willRemoveChildView(childView);
-        childView.setParentView(null, this);
-        this.removeChildViewMap(childView);
-        childViews.splice(index, 1);
-        this.onRemoveChildView(childView);
-        this.didRemoveChildView(childView);
-        childView.setKey(void 0);
-      }
+    const oldChildView = this.getChildView(key);
+    if (oldChildView !== null) {
+      index = childViews.indexOf(oldChildView);
+      // assert(index >= 0);
+      targetView = childViews[index + 1] || null;
+      this.willRemoveChildView(oldChildView);
+      oldChildView.setParentView(null, this);
+      this.removeChildViewMap(oldChildView);
+      childViews.splice(index, 1);
+      this.onRemoveChildView(oldChildView);
+      this.didRemoveChildView(oldChildView);
+      oldChildView.setKey(void 0);
     }
     if (newChildView !== null) {
       newChildView.setKey(key);
@@ -141,10 +140,14 @@ export class LayerView extends GraphicsView {
   protected insertChildViewMap(childView: View): void {
     const key = childView.key;
     if (key !== void 0) {
-      let childViewMap = this._childViewMap;
-      if (childViewMap === void 0) {
+      let childViewMap = this.childViewMap;
+      if (childViewMap === null) {
         childViewMap = {};
-        this._childViewMap = childViewMap;
+        Object.defineProperty(this, "childViewMap", {
+          value: childViewMap,
+          enumerable: true,
+          configurable: true,
+        });
       }
       childViewMap[key] = childView;
     }
@@ -152,10 +155,10 @@ export class LayerView extends GraphicsView {
 
   /** @hidden */
   protected removeChildViewMap(childView: View): void {
-    const childViewMap = this._childViewMap;
-    if (childViewMap !== void 0) {
-      const key = childView.key;
-      if (key !== void 0) {
+    const key = childView.key;
+    if (key !== void 0) {
+      const childViewMap = this.childViewMap;
+      if (childViewMap !== null) {
         delete childViewMap[key];
       }
     }
@@ -171,7 +174,7 @@ export class LayerView extends GraphicsView {
       childView.setKey(key);
     }
     this.willInsertChildView(childView, null);
-    this._childViews.push(childView);
+    (this.childViews as View[]).push(childView);
     this.insertChildViewMap(childView);
     childView.setParentView(this, null);
     this.onInsertChildView(childView, null);
@@ -188,7 +191,7 @@ export class LayerView extends GraphicsView {
       this.removeChildView(key);
       childView.setKey(key);
     }
-    const childViews = this._childViews;
+    const childViews = this.childViews as View[];
     const targetView = childViews.length !== 0 ? childViews[0] : null;
     this.willInsertChildView(childView, targetView);
     childViews.unshift(childView);
@@ -215,7 +218,7 @@ export class LayerView extends GraphicsView {
       childView.setKey(key);
     }
     this.willInsertChildView(childView, targetView);
-    const childViews = this._childViews;
+    const childViews = this.childViews as View[];
     const index = targetView !== null ? childViews.indexOf(targetView) : -1;
     if (index >= 0) {
       childViews.splice(index, 0, childView);
@@ -250,7 +253,7 @@ export class LayerView extends GraphicsView {
     this.willRemoveChildView(childView);
     childView.setParentView(null, this);
     this.removeChildViewMap(childView);
-    const childViews = this._childViews;
+    const childViews = this.childViews as View[];
     const index = childViews.indexOf(childView);
     if (index >= 0) {
       childViews.splice(index, 1);
@@ -264,7 +267,7 @@ export class LayerView extends GraphicsView {
   }
 
   removeAll(): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews as View[];
     do {
       const count = childViews.length;
       if (count > 0) {
@@ -284,7 +287,7 @@ export class LayerView extends GraphicsView {
 
   /** @hidden */
   protected doMountChildViews(): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i]!;
@@ -300,7 +303,7 @@ export class LayerView extends GraphicsView {
 
   /** @hidden */
   protected doUnmountChildViews(): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i]!;
@@ -316,7 +319,7 @@ export class LayerView extends GraphicsView {
 
   /** @hidden */
   protected doPowerChildViews(): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i]!;
@@ -332,7 +335,7 @@ export class LayerView extends GraphicsView {
 
   /** @hidden */
   protected doUnpowerChildViews(): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i]!;
@@ -349,7 +352,7 @@ export class LayerView extends GraphicsView {
   protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                               processChildView: (this: this, childView: View, processFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i]!;
@@ -366,7 +369,7 @@ export class LayerView extends GraphicsView {
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
       const childView = childViews[i]!;
@@ -382,7 +385,7 @@ export class LayerView extends GraphicsView {
 
   deriveViewBounds(): BoxR2 {
     let viewBounds: BoxR2 | undefined;
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
       const childView = childViews[i]!;
       if (childView instanceof GraphicsView && !childView.isHidden()) {
@@ -404,7 +407,7 @@ export class LayerView extends GraphicsView {
 
   deriveHitBounds(): BoxR2 {
     let hitBounds: BoxR2 | undefined;
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
       const childView = childViews[i]!;
       if (childView instanceof GraphicsView && !childView.isHidden()) {
@@ -424,7 +427,7 @@ export class LayerView extends GraphicsView {
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit: GraphicsView | null = null;
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     for (let i = childViews.length - 1; i >= 0; i -= 1) {
       const childView = childViews[i]!;
       if (childView instanceof GraphicsView && !childView.isHidden() && !childView.isCulled()) {
@@ -444,4 +447,3 @@ export class LayerView extends GraphicsView {
     return new LayerView();
   }
 }
-GraphicsView.Layer = LayerView;

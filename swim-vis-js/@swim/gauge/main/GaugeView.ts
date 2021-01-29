@@ -211,7 +211,7 @@ export class GaugeView extends LayerView {
       this.center.setAutoState(new PointR2(cx, cy));
     }
 
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     const childCount = childViews.length;
     const innerRadius = this.innerRadius.value;
     const outerRadius = this.outerRadius.value;
@@ -260,7 +260,7 @@ export class GaugeView extends LayerView {
   }
 
   protected layoutGauge(): void {
-    const childViews = this._childViews;
+    const childViews = this.childViews;
     const childCount = childViews.length;
 
     const limit = this.limit.value;

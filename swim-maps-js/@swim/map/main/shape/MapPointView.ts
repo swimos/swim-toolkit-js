@@ -194,12 +194,18 @@ export class MapPointView extends MapLayerView {
 
   protected onSetGeoPoint(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
     if (newGeoPoint.isDefined()) {
-      const oldGeoBounds = this._geoBounds;
+      const oldGeoBounds = this.geoBounds;
       const newGeoBounds = new GeoBox(newGeoPoint.lng, newGeoPoint.lat, newGeoPoint.lng, newGeoPoint.lat);
-      this._geoBounds = newGeoBounds;
-      this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+      if (!oldGeoBounds.equals(newGeoBounds)) {
+        Object.defineProperty(this, "geoBounds", {
+          value: newGeoBounds,
+          enumerable: true,
+          configurable: true,
+        });
+        this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
+        this.requireUpdate(View.NeedsProject);
+      }
     }
-    this.requireUpdate(View.NeedsProject);
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
