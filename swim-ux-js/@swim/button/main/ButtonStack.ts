@@ -16,7 +16,7 @@ import {Length} from "@swim/math";
 import {Tween, Transition} from "@swim/animation";
 import {Look} from "@swim/theme";
 import {ViewContextType, View, ModalOptions, ModalState, Modal, ViewAnimator} from "@swim/view";
-import {ViewNodeType, ViewNode, HtmlView, SvgView} from "@swim/dom";
+import {ViewNode, HtmlView, SvgView} from "@swim/dom";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import {FloatingButton} from "./FloatingButton";
 import {ButtonItem} from "./ButtonItem";
@@ -48,10 +48,11 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     this._itemSpacing = 20;
     this._stackHeight = 0;
     this._gesture = null;
+    this.initNode(node);
     this.initChildren();
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
+  protected initNode(node: HTMLElement): void {
     this.addClass("button-stack");
     this.display.setAutoState("block");
     this.position.setAutoState("relative");

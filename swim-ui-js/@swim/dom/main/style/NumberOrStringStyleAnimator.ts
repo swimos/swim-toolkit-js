@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {StyleContext} from "../css/StyleContext";
+import type {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
@@ -39,4 +39,3 @@ export abstract class NumberOrStringStyleAnimator<V extends StyleContext> extend
     }
   }
 }
-StyleAnimator.NumberOrString = NumberOrStringStyleAnimator;

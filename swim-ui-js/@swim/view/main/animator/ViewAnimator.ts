@@ -185,11 +185,11 @@ export const ViewAnimator = function <V extends View, T, U>(
   /** @hiddem */
   prototype: ViewAnimator<any, any>;
 
-  define<V extends View, T, U = never, I = {}>(descriptor: ViewAnimatorDescriptorExtends<V, T, U, I>): ViewAnimatorConstructor<V, T, U, I>;
-  define<V extends View, T, U = never>(descriptor: ViewAnimatorDescriptor<V, T, U>): ViewAnimatorConstructor<V, T, U>;
-
   /** @hidden */
   getClass(type: unknown): ViewAnimatorClass | null;
+
+  define<V extends View, T, U = never, I = {}>(descriptor: ViewAnimatorDescriptorExtends<V, T, U, I>): ViewAnimatorConstructor<V, T, U, I>;
+  define<V extends View, T, U = never>(descriptor: ViewAnimatorDescriptor<V, T, U>): ViewAnimatorConstructor<V, T, U>;
 };
 __extends(ViewAnimator, TweenAnimator);
 
@@ -241,7 +241,7 @@ function ViewAnimatorDecoratorFactory<V extends View, T, U>(descriptor: ViewAnim
   return View.decorateViewAnimator.bind(ViewAnimator, ViewAnimator.define(descriptor as ViewAnimatorDescriptor<View, unknown>));
 }
 
-ViewAnimator.prototype.setInherit = function (inherit: string | boolean): void {
+ViewAnimator.prototype.setInherit = function (this: ViewAnimator<View, unknown>, inherit: string | boolean): void {
   if (this.inherit !== inherit) {
     this.unbindSuperAnimator();
     Object.defineProperty(this, "inherit", {
@@ -261,11 +261,11 @@ ViewAnimator.prototype.setInherit = function (inherit: string | boolean): void {
   }
 };
 
-ViewAnimator.prototype.isInherited = function (): boolean {
+ViewAnimator.prototype.isInherited = function (this: ViewAnimator<View, unknown>): boolean {
   return (this.animatorFlags & TweenAnimator.InheritedFlag) !== 0;
 };
 
-ViewAnimator.prototype.setInherited = function (inherited: boolean): void {
+ViewAnimator.prototype.setInherited = function (this: ViewAnimator<View, unknown>, inherited: boolean): void {
   if (inherited && (this.animatorFlags & TweenAnimator.InheritedFlag) === 0) {
     this.setAnimatorFlags(this.animatorFlags | TweenAnimator.InheritedFlag);
     this.animate();
@@ -284,7 +284,7 @@ Object.defineProperty(ViewAnimator.prototype, "superName", {
   configurable: true,
 });
 
-ViewAnimator.prototype.bindSuperAnimator = function (): void {
+ViewAnimator.prototype.bindSuperAnimator = function (this: ViewAnimator<View, unknown>): void {
   let view = this.owner;
   if (view.isMounted()) {
     const superName = this.superName;
@@ -317,7 +317,7 @@ ViewAnimator.prototype.bindSuperAnimator = function (): void {
   }
 };
 
-ViewAnimator.prototype.unbindSuperAnimator = function (): void {
+ViewAnimator.prototype.unbindSuperAnimator = function (this: ViewAnimator<View, unknown>): void {
   const superAnimator = this.superAnimator;
   if (superAnimator !== null) {
     superAnimator.removeSubAnimator(this);
@@ -352,11 +352,11 @@ ViewAnimator.prototype.removeSubAnimator = function <T>(this: ViewAnimator<View,
   }
 };
 
-ViewAnimator.prototype.isAuto = function (): boolean {
+ViewAnimator.prototype.isAuto = function (this: ViewAnimator<View, unknown>): boolean {
   return (this.animatorFlags & TweenAnimator.OverrideFlag) === 0;
 };
 
-ViewAnimator.prototype.setAuto = function (auto: boolean): void {
+ViewAnimator.prototype.setAuto = function (this: ViewAnimator<View, unknown>, auto: boolean): void {
   if (auto && (this.animatorFlags & TweenAnimator.OverrideFlag) !== 0) {
     this.setAnimatorFlags(this.animatorFlags & ~TweenAnimator.OverrideFlag);
   } else if (!auto && (this.animatorFlags & TweenAnimator.OverrideFlag) === 0) {
@@ -364,7 +364,7 @@ ViewAnimator.prototype.setAuto = function (auto: boolean): void {
   }
 };
 
-ViewAnimator.prototype.isTweening = function (): boolean {
+ViewAnimator.prototype.isTweening = function (this: ViewAnimator<View, unknown>): boolean {
   if (!this.isInherited()) {
     return (this.animatorFlags & TweenAnimator.TweeningFlag) !== 0;
   } else {
@@ -527,15 +527,15 @@ ViewAnimator.prototype.animate = function (this: ViewAnimator<View, unknown>, an
   }
 };
 
-ViewAnimator.prototype.mount = function (): void {
+ViewAnimator.prototype.mount = function (this: ViewAnimator<View, unknown>): void {
   this.bindSuperAnimator();
 };
 
-ViewAnimator.prototype.unmount = function (): void {
+ViewAnimator.prototype.unmount = function (this: ViewAnimator<View, unknown>): void {
   this.unbindSuperAnimator();
 };
 
-ViewAnimator.prototype.fromAny = function <T, U>(value: T | U): T {
+ViewAnimator.prototype.fromAny = function <T, U>(this: ViewAnimator<View, T, U>, value: T | U): T {
   return value as T;
 };
 

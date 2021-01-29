@@ -26,4 +26,3 @@ export abstract class ColorAttributeAnimator<V extends ElementView> extends Attr
     return Color.fromAny(value);
   }
 }
-AttributeAnimator.Color = ColorAttributeAnimator;

@@ -26,4 +26,3 @@ export abstract class TransformAttributeAnimator<V extends ElementView> extends 
     return Transform.fromAny(value);
   }
 }
-AttributeAnimator.Transform = TransformAttributeAnimator;

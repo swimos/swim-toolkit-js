@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
+import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import type {PositionGestureInput} from "@swim/gesture";
 import type {TreeCellObserver} from "./TreeCellObserver";
 import type {TreeCellController} from "./TreeCellController";
@@ -30,8 +30,12 @@ export interface TreeCellInit extends HtmlViewInit {
 export type TreeCellType = "title" | "disclosure" | "polygon";
 
 export class TreeCell extends HtmlView {
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  constructor(node: HTMLElement) {
+    super(node);
+    this.initNode(node);
+  }
+
+  protected initNode(node: HTMLElement): void {
     this.addClass("tree-cell");
     this.display.setAutoState("none");
     this.alignItems.setAutoState("center");

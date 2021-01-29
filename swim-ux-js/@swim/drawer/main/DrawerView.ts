@@ -26,7 +26,7 @@ import {
   ViewScope,
   ViewAnimator,
 } from "@swim/view";
-import {ViewNodeType, HtmlViewInit, HtmlView} from "@swim/dom";
+import {HtmlViewInit, HtmlView} from "@swim/dom";
 import type {DrawerViewObserver} from "./DrawerViewObserver";
 import type {DrawerViewController} from "./DrawerViewController";
 
@@ -56,11 +56,11 @@ export class DrawerView extends HtmlView implements Modal {
     this._drawerPlacement = "left";
     this._drawerState = "hidden";
     this._modality = true;
+    this.initNode(node);
     this.initTheme();
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  protected initNode(node: HTMLElement): void {
     this.addClass("drawer");
     this.display.setAutoState("none");
     this.flexDirection.setAutoState("column");

@@ -31,4 +31,3 @@ export abstract class NumberOrStringAttributeAnimator<V extends ElementView> ext
     }
   }
 }
-AttributeAnimator.NumberOrString = NumberOrStringAttributeAnimator;

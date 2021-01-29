@@ -38,4 +38,3 @@ export abstract class LengthOrStringAttributeAnimator<V extends ElementView> ext
     }
   }
 }
-AttributeAnimator.LengthOrString = LengthOrStringAttributeAnimator;

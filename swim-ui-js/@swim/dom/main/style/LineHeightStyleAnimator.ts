@@ -14,7 +14,7 @@
 
 import {Length} from "@swim/math";
 import {AnyLineHeight, LineHeight} from "@swim/style";
-import type {StyleContext} from "../css/StyleContext";
+import type {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
@@ -35,4 +35,3 @@ export abstract class LineHeightStyleAnimator<V extends StyleContext> extends St
     return LineHeight.fromAny(value);
   }
 }
-StyleAnimator.LineHeight = LineHeightStyleAnimator;

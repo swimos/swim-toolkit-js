@@ -25,4 +25,3 @@ export abstract class StringAttributeAnimator<V extends ElementView> extends Att
     return value;
   }
 }
-AttributeAnimator.String = StringAttributeAnimator;

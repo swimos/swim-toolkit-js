@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {View} from "@swim/view";
-import type {ViewNodeType} from "@swim/dom";
 import type {PositionGestureInput} from "@swim/gesture";
 import {DisclosureButton} from "@swim/button";
 import {TreeCell} from "./TreeCell";
@@ -21,7 +20,7 @@ import {TreeLeaf} from "./TreeLeaf";
 import {TreeLimb} from "./TreeLimb";
 
 export class DisclosureTreeCell extends TreeCell {
-  protected initNode(node: ViewNodeType<this>): void {
+  protected initNode(node: HTMLElement): void {
     super.initNode(node);
     this.addClass("disclosure-tree-cell");
     this.append(DisclosureButton, "button");

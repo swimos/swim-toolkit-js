@@ -35,7 +35,6 @@ import {
   ViewTouchEvent,
 } from "@swim/view";
 import {
-  ViewNodeType,
   ViewNode,
   NodeViewConstructor,
   NodeView,
@@ -130,10 +129,11 @@ export class CanvasView extends HtmlView {
     this._mouse = null;
     this._pointers = {};
     this._touches = {};
+
+    this.initNode(node);
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  protected initNode(node: HTMLCanvasElement): void {
     this.position.setAutoState("absolute");
   }
 
@@ -364,41 +364,35 @@ export class CanvasView extends HtmlView {
       newChildView.remove();
     }
     let index = -1;
-    let oldChildView: View | null = null;
-    const childViewMap = this._childViewMap;
-    if (childViewMap !== void 0) {
-      const childView = childViewMap[key];
-      if (childView instanceof GraphicsView) {
-        index = childViews.indexOf(childView);
-        // assert(index >= 0);
-        oldChildView = childView;
-        targetView = childViews[index + 1]!;
-        this.willRemoveChildView(childView);
-        childView.setParentView(null, this);
-        this.removeChildViewMap(childView);
-        childViews.splice(index, 1);
-        this.onRemoveChildView(childView);
-        this.didRemoveChildView(childView);
-        childView.setKey(void 0);
-      } else if (childView !== void 0) {
-        oldChildView = childView;
-        if (!(childView instanceof NodeView)) {
-          throw new TypeError("" + childView);
-        }
-        const childNode = childView.node;
-        const targetNode = childNode.nextSibling;
-        targetView = targetNode !== null ? (targetNode as ViewNode).view || null : null;
-        this.willRemoveChildView(childView);
-        this.willRemoveChildNode(childNode);
-        childView.setParentView(null, this);
-        this.removeChildViewMap(childView);
-        this.node.removeChild(childNode);
-        this.onRemoveChildNode(childNode);
-        this.onRemoveChildView(childView);
-        this.didRemoveChildNode(childNode);
-        this.didRemoveChildView(childView);
-        childView.setKey(void 0);
+    const oldChildView = this.getChildView(key);
+    if (oldChildView instanceof GraphicsView) {
+      index = childViews.indexOf(oldChildView);
+      // assert(index >= 0);
+      targetView = childViews[index + 1]!;
+      this.willRemoveChildView(oldChildView);
+      oldChildView.setParentView(null, this);
+      this.removeChildViewMap(oldChildView);
+      childViews.splice(index, 1);
+      this.onRemoveChildView(oldChildView);
+      this.didRemoveChildView(oldChildView);
+      oldChildView.setKey(void 0);
+    } else if (oldChildView !== void 0) {
+      if (!(oldChildView instanceof NodeView)) {
+        throw new TypeError("" + oldChildView);
       }
+      const oldChildNode = oldChildView.node;
+      const targetNode = oldChildNode.nextSibling;
+      targetView = targetNode !== null ? (targetNode as ViewNode).view || null : null;
+      this.willRemoveChildView(oldChildView);
+      this.willRemoveChildNode(oldChildNode);
+      oldChildView.setParentView(null, this);
+      this.removeChildViewMap(oldChildView);
+      this.node.removeChild(oldChildNode);
+      this.onRemoveChildNode(oldChildNode);
+      this.onRemoveChildView(oldChildView);
+      this.didRemoveChildNode(oldChildNode);
+      this.didRemoveChildView(oldChildView);
+      oldChildView.setKey(void 0);
     }
     if (newChildView !== null) {
       newChildView.setKey(key);

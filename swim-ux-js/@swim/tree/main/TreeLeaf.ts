@@ -15,7 +15,7 @@
 import {Tween, Transition} from "@swim/animation";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewScope} from "@swim/view";
-import type {ViewNode, ViewNodeType, HtmlViewConstructor, HtmlView} from "@swim/dom";
+import type {ViewNode, HtmlViewConstructor, HtmlView} from "@swim/dom";
 import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembraneInit, ButtonMembrane} from "@swim/button";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
@@ -33,7 +33,7 @@ export interface TreeLeafInit extends ButtonMembraneInit {
 }
 
 export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate {
-  protected initNode(node: ViewNodeType<this>): void {
+  protected initNode(node: HTMLElement): void {
     super.initNode(node);
     this.addClass("tree-leaf");
     this.position.setAutoState("relative");

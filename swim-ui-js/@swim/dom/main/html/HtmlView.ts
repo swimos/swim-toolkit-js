@@ -17,7 +17,7 @@ import {Length, Transform} from "@swim/math";
 import type {Transition} from "@swim/animation";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, ViewFactory, ViewConstructor, View, LayoutAnchor} from "@swim/view";
-import {StyleMapInit, StyleMap} from "../css/StyleMap";
+import {StyleMapInit, StyleMap} from "../style/StyleMap";
 import {ViewNodeType, NodeViewConstructor, NodeView} from "../node/NodeView";
 import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";
 import {ElementViewInit, ElementViewConstructor, ElementView} from "../element/ElementView";
@@ -1139,4 +1139,3 @@ export interface HtmlView extends StyleMap {
   requireUpdate(updateFlags: ViewFlags): void;
 }
 StyleMap.define(HtmlView.prototype);
-NodeView.Html = HtmlView;

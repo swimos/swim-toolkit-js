@@ -38,4 +38,3 @@ export abstract class ColorOrStringAttributeAnimator<V extends ElementView> exte
     }
   }
 }
-AttributeAnimator.ColorOrString = ColorOrStringAttributeAnimator;

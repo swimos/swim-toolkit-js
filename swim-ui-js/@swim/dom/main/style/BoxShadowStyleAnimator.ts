@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyBoxShadow, BoxShadow} from "@swim/style";
-import type {StyleContext} from "../css/StyleContext";
+import type {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
@@ -26,4 +26,3 @@ export abstract class BoxShadowStyleAnimator<V extends StyleContext> extends Sty
     return BoxShadow.fromAny(value);
   }
 }
-StyleAnimator.BoxShadow = BoxShadowStyleAnimator;

@@ -17,68 +17,59 @@ import {CssContext} from "./CssContext";
 import type {CssRule} from "./CssRule";
 
 export class StyleSheet implements CssContext {
-  /** @hidden */
-  readonly _owner: AnimatorContext;
-  /** @hidden */
-  readonly _stylesheet: CSSStyleSheet;
-  /** @hidden */
-  _cssRules?: {[ruleName: string]: CssRule<StyleSheet> | undefined};
-
   constructor(owner: AnimatorContext, stylesheet?: CSSStyleSheet) {
-    this._owner = owner;
-    this._stylesheet = stylesheet !== void 0 ? stylesheet : this.createStylesheet();
+    Object.defineProperty(this, "owner", {
+      value: owner,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "stylesheet", {
+      value: stylesheet !== void 0 ? stylesheet : this.createStylesheet(),
+      enumerable: true,
+    });
+    Object.defineProperty(this, "cssRules", {
+      value: {},
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get owner(): AnimatorContext {
-    return this._owner;
-  }
+  declare readonly owner: AnimatorContext;
 
-  get stylesheet(): CSSStyleSheet {
-    return this._stylesheet;
-  }
+  declare readonly stylesheet: CSSStyleSheet;
 
   protected createStylesheet(): CSSStyleSheet {
     return new CSSStyleSheet();
   }
 
   getRule(index: number): CSSRule | null {
-    return this._stylesheet.cssRules.item(index);
+    return this.stylesheet.cssRules.item(index);
   }
 
   insertRule(cssText: string, index?: number): number {
-    return this._stylesheet.insertRule(cssText, index);
+    return this.stylesheet.insertRule(cssText, index);
   }
 
   removeRule(index: number): void {
-    this._stylesheet.deleteRule(index);
+    this.stylesheet.deleteRule(index);
   }
 
+  /** @hidden */
+  declare readonly cssRules: {[ruleName: string]: CssRule<StyleSheet> | undefined};
+
   hasCssRule(ruleName: string): boolean {
-    const cssRules = this._cssRules;
-    return cssRules !== void 0 && cssRules[ruleName] !== void 0;
+    return this.cssRules[ruleName] !== void 0;
   }
 
   getCssRule(ruleName: string): CssRule<this> | null {
-    const cssRules = this._cssRules;
-    if (cssRules !== void 0) {
-      const cssRule = cssRules[ruleName];
-      if (cssRule !== void 0) {
-        return cssRule as CssRule<this>;
-      }
-    }
-    return null;
+    const cssRule = this.cssRules[ruleName] as CssRule<this> | undefined;
+    return cssRule !== void 0 ? cssRule : null;
   }
 
   setCssRule(ruleName: string, cssRule: CssRule<this> | null): void {
-    let cssRules = this._cssRules;
-    if (cssRules === void 0) {
-      cssRules = {};
-      this._cssRules = cssRules;
-    }
     if (cssRule !== null) {
-      cssRules[ruleName] = cssRule;
+      this.cssRules[ruleName] = cssRule;
     } else {
-      delete cssRules[ruleName];
+      delete this.cssRules[ruleName];
     }
   }
 
@@ -96,22 +87,20 @@ export class StyleSheet implements CssContext {
   }
 
   onAnimate(t: number): void {
-    const cssRules = this._cssRules;
-    if (cssRules !== void 0) {
-      for (const ruleName in cssRules) {
-        const cssRule = cssRules[ruleName]!;
-        cssRule.onAnimate(t);
-      }
+    const cssRules = this.cssRules;
+    for (const ruleName in cssRules) {
+      const cssRule = cssRules[ruleName]!;
+      cssRule.onAnimate(t);
     }
   }
 
   animate(animator: Animator): void {
-    this._owner.animate(animator);
+    this.owner.animate(animator);
   }
 
   requireUpdate(updateFlags: number): void {
-    if (typeof (this._owner as any).requireUpdate === "function") {
-      (this._owner as any).requireUpdate(updateFlags);
+    if (typeof (this.owner as any).requireUpdate === "function") {
+      (this.owner as any).requireUpdate(updateFlags);
     }
   }
 }

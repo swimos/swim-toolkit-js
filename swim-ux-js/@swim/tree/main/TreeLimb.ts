@@ -16,7 +16,7 @@ import {Length, BoxR2} from "@swim/math";
 import {Tween, Transition} from "@swim/animation";
 import {Look} from "@swim/theme";
 import {ViewContextType, ViewContext, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
-import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
+import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import type {TreeViewContext} from "./TreeViewContext";
 import {AnyTreeLeaf, TreeLeaf} from "./TreeLeaf";
@@ -43,10 +43,10 @@ export class TreeLimb extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
     this._visibleFrame = new BoxR2(0, 0, window.innerWidth, window.innerHeight);
+    this.initNode(node);
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  protected initNode(node: HTMLElement): void {
     this.addClass("tree-limb");
     this.position.setAutoState("relative");
   }

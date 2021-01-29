@@ -15,7 +15,6 @@
 import type {CssRule} from "../css/CssRule";
 import {StyleSheet} from "../css/StyleSheet";
 import {View} from "@swim/view";
-import {ViewNodeType, NodeView} from "../node/NodeView";
 import {HtmlViewInit, HtmlView} from "../html/HtmlView";
 import type {StyleViewObserver} from "./StyleViewObserver";
 import type {StyleViewController} from "./StyleViewController";
@@ -25,17 +24,13 @@ export interface StyleViewInit extends HtmlViewInit {
 }
 
 export class StyleView extends HtmlView {
-  /** @hidden */
-  _sheet: StyleSheet | null;
-
   constructor(node: HTMLStyleElement) {
     super(node);
-    this._sheet = this.createSheet();
-  }
-
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
-    node.setAttribute("type", "text/css");
+    Object.defineProperty(this, "sheet", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   declare readonly node: HTMLStyleElement;
@@ -48,9 +43,7 @@ export class StyleView extends HtmlView {
     super.initView(init);
   }
 
-  get sheet(): StyleSheet | null {
-    return this._sheet;
-  }
+  declare readonly sheet: StyleSheet | null;
 
   protected createSheet(): StyleSheet | null {
     const stylesheet = this.node.sheet;
@@ -58,12 +51,12 @@ export class StyleView extends HtmlView {
   }
 
   hasCssRule(ruleName: string): boolean {
-    const sheet = this._sheet;
+    const sheet = this.sheet;
     return sheet !== null && sheet.hasCssRule(ruleName);
   }
 
   getCssRule(ruleName: string): CssRule<StyleSheet> | null {
-    const sheet = this._sheet;
+    const sheet = this.sheet;
     return sheet !== null ? sheet.getCssRule(ruleName) : null;
   }
 
@@ -80,7 +73,7 @@ export class StyleView extends HtmlView {
 
   /** @hidden */
   updateSheetAnimators(t: number): void {
-    const sheet = this._sheet;
+    const sheet = this.sheet;
     if (sheet !== null) {
       sheet.onAnimate(t);
     }
@@ -88,17 +81,24 @@ export class StyleView extends HtmlView {
 
   protected onMount(): void {
     super.onMount();
-    this._sheet = this.createSheet();
+    Object.defineProperty(this, "sheet", {
+      value: this.createSheet(),
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onUnmount(): void {
-    this._sheet = null;
+    Object.defineProperty(this, "sheet", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
     super.onUnmount();
   }
 
   /** @hidden */
   static readonly tag: string = "style";
 }
-NodeView.Style = StyleView;
 
 HtmlView.Tag("style")(StyleView, "style");

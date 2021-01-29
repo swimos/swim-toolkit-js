@@ -17,7 +17,7 @@ import type {CssRuleConstructor, CssRule} from "./CssRule";
 
 export interface CssContextPrototype {
   /** @hidden */
-  _cssRuleConstructors?: {[ruleName: string]: CssRuleConstructor<CssContext> | undefined};
+  cssRuleConstructors?: {[ruleName: string]: CssRuleConstructor<CssContext> | undefined};
 }
 
 export interface CssContext extends AnimatorContext {
@@ -47,8 +47,8 @@ export const CssContext = {} as {
 
 CssContext.getCssRuleConstructor = function (ruleName: string, contextPrototype: CssContextPrototype): CssRuleConstructor<CssContext> | null {
   while (contextPrototype !== null) {
-    if (Object.prototype.hasOwnProperty.call(contextPrototype, "_cssRuleConstructors")) {
-      const constructor = contextPrototype._cssRuleConstructors![ruleName];
+    if (Object.prototype.hasOwnProperty.call(contextPrototype, "cssRuleConstructors")) {
+      const constructor = contextPrototype.cssRuleConstructors![ruleName];
       if (constructor !== void 0) {
         return constructor;
       }
@@ -61,10 +61,10 @@ CssContext.getCssRuleConstructor = function (ruleName: string, contextPrototype:
 CssContext.decorateCssRule = function (constructor: CssRuleConstructor<any>,
                                        target: Object, propertyKey: string | symbol): void {
   const contextPrototype = target as CssContextPrototype;
-  if (!Object.prototype.hasOwnProperty.call(contextPrototype, "_cssRuleConstructors")) {
-    contextPrototype._cssRuleConstructors = {};
+  if (!Object.prototype.hasOwnProperty.call(contextPrototype, "cssRuleConstructors")) {
+    contextPrototype.cssRuleConstructors = {};
   }
-  contextPrototype._cssRuleConstructors![propertyKey.toString()] = constructor;
+  contextPrototype.cssRuleConstructors![propertyKey.toString()] = constructor;
   Object.defineProperty(target, propertyKey, {
     get: function (this: CssContext): CssRule<CssContext> {
       let cssRule = this.getCssRule(propertyKey.toString());

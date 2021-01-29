@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Lazy} from "@swim/util";
 import {ViewManager} from "@swim/view";
 import type {ViewNode, NodeView} from "../node/NodeView";
 import type {TextView} from "../text/TextView";
@@ -96,12 +97,9 @@ export class DomManager<V extends NodeView = NodeView> extends ViewManager<V> {
     }
   }
 
-  private static _global?: DomManager<any>;
+  @Lazy
   static global<V extends NodeView>(): DomManager<V> {
-    if (DomManager._global === void 0) {
-      DomManager._global = new DomManager();
-    }
-    return DomManager._global;
+    return new DomManager();
   }
 
   static boot(): ElementView[] {

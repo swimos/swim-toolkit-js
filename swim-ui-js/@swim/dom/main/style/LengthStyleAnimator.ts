@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length} from "@swim/math";
-import type {StyleContext} from "../css/StyleContext";
+import type {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
@@ -30,4 +30,3 @@ export abstract class LengthStyleAnimator<V extends StyleContext> extends StyleA
     return Length.fromAny(value);
   }
 }
-StyleAnimator.Length = LengthStyleAnimator;

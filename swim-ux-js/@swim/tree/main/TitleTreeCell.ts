@@ -14,11 +14,10 @@
 
 import type {Transition} from "@swim/animation";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import type {ViewNodeType} from "@swim/dom";
 import {TreeCell} from "./TreeCell";
 
 export class TitleTreeCell extends TreeCell {
-  protected initNode(node: ViewNodeType<this>): void {
+  protected initNode(node: HTMLElement): void {
     super.initNode(node);
     this.addClass("title-tree-cell");
   }

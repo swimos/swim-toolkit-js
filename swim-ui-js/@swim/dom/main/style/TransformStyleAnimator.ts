@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyTransform, Transform} from "@swim/math";
-import type {StyleContext} from "../css/StyleContext";
+import type {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
@@ -30,4 +30,3 @@ export abstract class TransformStyleAnimator<V extends StyleContext> extends Sty
     return Transform.fromAny(value);
   }
 }
-StyleAnimator.Transform = TransformStyleAnimator;

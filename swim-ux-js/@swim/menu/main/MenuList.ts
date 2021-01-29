@@ -13,14 +13,18 @@
 // limitations under the License.
 
 import type {View} from "@swim/view";
-import {ViewNodeType, HtmlView} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
 import {MenuItem} from "./MenuItem";
 import type {MenuListObserver} from "./MenuListObserver";
 import type {MenuListController} from "./MenuListController";
 
 export class MenuList extends HtmlView {
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  constructor(node: HTMLElement) {
+    super(node);
+    this.initNode(node);
+  }
+
+  protected initNode(node: HTMLElement): void {
     this.addClass("menu-list");
     this.flexGrow.setAutoState(1);
     this.flexShrink.setAutoState(0);

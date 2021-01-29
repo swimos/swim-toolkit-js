@@ -60,4 +60,3 @@ export class TextView extends NodeView {
     }
   }
 }
-NodeView.Text = TextView;

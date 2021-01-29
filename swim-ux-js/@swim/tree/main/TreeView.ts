@@ -24,7 +24,7 @@ import {
   ViewScope,
   ViewAnimator,
 } from "@swim/view";
-import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
+import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import type {TreeViewContext} from "./TreeViewContext";
 import {AnyTreeLimb, TreeLimb, TreeLimbState} from "./TreeLimb";
@@ -54,10 +54,10 @@ export class TreeView extends HtmlView {
     super(node);
     this._visibleViews = [];
     this._visibleFrame = new BoxR2(0, 0, window.innerWidth, window.innerHeight);
+    this.initNode(node);
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  protected initNode(node: HTMLElement): void {
     this.addClass("tree");
     this.display.setAutoState("block");
     this.position.setAutoState("relative");

@@ -39,4 +39,3 @@ export abstract class NumberAttributeAnimator<V extends ElementView> extends Att
     }
   }
 }
-AttributeAnimator.Number = NumberAttributeAnimator;

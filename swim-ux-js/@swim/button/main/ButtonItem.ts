@@ -15,12 +15,16 @@
 import type {Transition} from "@swim/animation";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
+import {HtmlView, SvgView} from "@swim/dom";
 import {FloatingButton} from "./FloatingButton";
 
 export class ButtonItem extends HtmlView {
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  constructor(node: HTMLElement) {
+    super(node);
+    this.initNode(node);
+  }
+
+  protected initNode(node: HTMLElement): void {
     this.addClass("button-item");
     this.position.setAutoState("relative");
     const button = this.createButton();

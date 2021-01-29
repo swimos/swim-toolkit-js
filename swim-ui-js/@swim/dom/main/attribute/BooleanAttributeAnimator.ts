@@ -25,4 +25,3 @@ export abstract class BooleanAttributeAnimator<V extends ElementView> extends At
     return !!value;
   }
 }
-AttributeAnimator.Boolean = BooleanAttributeAnimator;

@@ -195,11 +195,11 @@ export const ViewScope = function <V extends View, T, U>(
   /** @hidden */
   prototype: ViewScope<any, any>;
 
-  define<V extends View, T, U = never, I = {}>(descriptor: ViewScopeDescriptorExtends<V, T, U, I>): ViewScopeConstructor<V, T, U, I>;
-  define<V extends View, T, U = never>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U>;
-
   /** @hidden */
   getClass(type: unknown): ViewScopeClass | null;
+
+  define<V extends View, T, U = never, I = {}>(descriptor: ViewScopeDescriptorExtends<V, T, U, I>): ViewScopeConstructor<V, T, U, I>;
+  define<V extends View, T, U = never>(descriptor: ViewScopeDescriptor<V, T, U>): ViewScopeConstructor<V, T, U>;
 
   /** @hidden */
   UpdatedFlag: ViewScopeFlags;
@@ -266,7 +266,7 @@ function ViewScopeDecoratorFactory<V extends View, T, U>(descriptor: ViewScopeDe
   return View.decorateViewScope.bind(View, ViewScope.define(descriptor as ViewScopeDescriptor<View, unknown>));
 }
 
-ViewScope.prototype.setInherit = function (inherit: string | boolean): void {
+ViewScope.prototype.setInherit = function (this: ViewScope<View, unknown>, inherit: string | boolean): void {
   if (this.inherit !== inherit) {
     this.unbindSuperScope();
     Object.defineProperty(this, "inherit", {
@@ -286,11 +286,11 @@ ViewScope.prototype.setInherit = function (inherit: string | boolean): void {
   }
 };
 
-ViewScope.prototype.isInherited = function (): boolean {
+ViewScope.prototype.isInherited = function (this: ViewScope<View, unknown>): boolean {
   return (this.scopeFlags & ViewScope.InheritedFlag) !== 0;
 };
 
-ViewScope.prototype.setInherited = function (inherited: boolean): void {
+ViewScope.prototype.setInherited = function (this: ViewScope<View, unknown>, inherited: boolean): void {
   if (inherited && (this.scopeFlags & ViewScope.InheritedFlag) === 0) {
     this.setScopeFlags(this.scopeFlags | ViewScope.InheritedFlag);
     this.change();
@@ -300,7 +300,7 @@ ViewScope.prototype.setInherited = function (inherited: boolean): void {
   }
 };
 
-ViewScope.prototype.setScopeFlags = function (scopeFlags: ViewScopeFlags): void {
+ViewScope.prototype.setScopeFlags = function (this: ViewScope<View, unknown>, scopeFlags: ViewScopeFlags): void {
   Object.defineProperty(this, "scopeFlags", {
     value: scopeFlags,
     enumerable: true,
@@ -317,7 +317,7 @@ Object.defineProperty(ViewScope.prototype, "superName", {
   configurable: true,
 });
 
-ViewScope.prototype.bindSuperScope = function (): void {
+ViewScope.prototype.bindSuperScope = function (this: ViewScope<View, unknown>): void {
   let view = this.owner;
   if (view.isMounted()) {
     const superName = this.superName;
@@ -353,7 +353,7 @@ ViewScope.prototype.bindSuperScope = function (): void {
   }
 };
 
-ViewScope.prototype.unbindSuperScope = function (): void {
+ViewScope.prototype.unbindSuperScope = function (this: ViewScope<View, unknown>): void {
   const superScope = this.superScope;
   if (superScope !== null) {
     superScope.removeSubScope(this);
@@ -388,11 +388,11 @@ ViewScope.prototype.removeSubScope = function <T>(this: ViewScope<View, T>, subS
   }
 };
 
-ViewScope.prototype.isAuto = function (): boolean {
+ViewScope.prototype.isAuto = function (this: ViewScope<View, unknown>): boolean {
   return (this.scopeFlags & ViewScope.OverrideFlag) === 0;
 };
 
-ViewScope.prototype.setAuto = function (auto: boolean): void {
+ViewScope.prototype.setAuto = function (this: ViewScope<View, unknown>, auto: boolean): void {
   if (auto && (this.scopeFlags & ViewScope.OverrideFlag) !== 0) {
     this.setScopeFlags(this.scopeFlags & ~ViewScope.OverrideFlag);
   } else if (!auto && (this.scopeFlags & ViewScope.OverrideFlag) === 0) {
@@ -400,11 +400,11 @@ ViewScope.prototype.setAuto = function (auto: boolean): void {
   }
 };
 
-ViewScope.prototype.isUpdated = function (): boolean {
+ViewScope.prototype.isUpdated = function (this: ViewScope<View, unknown>): boolean {
   return (this.scopeFlags & ViewScope.UpdatedFlag) !== 0;
 };
 
-ViewScope.prototype.isChanging = function (): boolean {
+ViewScope.prototype.isChanging = function (this: ViewScope<View, unknown>): boolean {
   return (this.scopeFlags & ViewScope.ChangingFlag) !== 0;
 };
 
@@ -499,7 +499,7 @@ ViewScope.prototype.setBaseState = function <T, U>(this: ViewScope<View, T, U>, 
   }
 };
 
-ViewScope.prototype.onChange = function (): void {
+ViewScope.prototype.onChange = function (this: ViewScope<View, unknown>): void {
   if (this.isInherited()) {
     this.updateInherited();
   } else {
@@ -507,7 +507,7 @@ ViewScope.prototype.onChange = function (): void {
   }
 };
 
-ViewScope.prototype.updateInherited = function (): void {
+ViewScope.prototype.updateInherited = function (this: ViewScope<View, unknown>): void {
   const superScope = this.superScope;
   if (superScope !== null && this.isChanging()) {
     this.update(superScope.state, this.state);
@@ -558,7 +558,7 @@ ViewScope.prototype.updateSubScopes = function <T>(this: ViewScope<View, T>, new
   }
 };
 
-ViewScope.prototype.onIdle = function (): void {
+ViewScope.prototype.onIdle = function (this: ViewScope<View, unknown>): void {
   if ((this.scopeFlags & ViewScope.UpdatedFlag) !== 0) {
     this.setScopeFlags(this.scopeFlags & ~ViewScope.UpdatedFlag);
   } else {
@@ -566,20 +566,20 @@ ViewScope.prototype.onIdle = function (): void {
   }
 };
 
-ViewScope.prototype.change = function (): void {
+ViewScope.prototype.change = function (this: ViewScope<View, unknown>): void {
   this.setScopeFlags(this.scopeFlags | ViewScope.ChangingFlag);
   this.owner.requireUpdate(View.NeedsChange);
 };
 
-ViewScope.prototype.mount = function (): void {
+ViewScope.prototype.mount = function (this: ViewScope<View, unknown>): void {
   this.bindSuperScope();
 };
 
-ViewScope.prototype.unmount = function (): void {
+ViewScope.prototype.unmount = function (this: ViewScope<View, unknown>): void {
   this.unbindSuperScope();
 };
 
-ViewScope.prototype.fromAny = function <T, U>(value: T | U): T {
+ViewScope.prototype.fromAny = function <T, U>(this: ViewScope<View, T, U>, value: T | U): T {
   return value as T;
 };
 

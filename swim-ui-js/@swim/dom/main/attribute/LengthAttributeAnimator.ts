@@ -26,4 +26,3 @@ export abstract class LengthAttributeAnimator<V extends ElementView> extends Att
     return Length.fromAny(value);
   }
 }
-AttributeAnimator.Length = LengthAttributeAnimator;

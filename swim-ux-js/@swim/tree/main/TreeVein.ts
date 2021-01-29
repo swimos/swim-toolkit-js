@@ -14,7 +14,7 @@
 
 import type {Transition} from "@swim/animation";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewNodeType, HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
+import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import type {TreeVeinObserver} from "./TreeVeinObserver";
 import type {TreeVeinController} from "./TreeVeinController";
 
@@ -25,8 +25,12 @@ export interface TreeVeinInit extends HtmlViewInit {
 }
 
 export class TreeVein extends HtmlView {
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  constructor(node: HTMLElement) {
+    super(node);
+    this.initNode(node);
+  }
+
+  protected initNode(node: HTMLElement): void {
     this.addClass("tree-vein");
     this.display.setAutoState("none");
     this.alignItems.setAutoState("center");

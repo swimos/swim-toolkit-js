@@ -15,7 +15,7 @@
 import {Length} from "@swim/math";
 import {Tween, Transition} from "@swim/animation";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewNodeType, HtmlView} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
 
 export type ButtonGlowState = "ready" | "glowing" | "pulsing" | "fading";
 
@@ -29,10 +29,10 @@ export class ButtonGlow extends HtmlView {
     super(node);
     this._glowState = "ready";
     this._glowTimer = 0;
+    this.initNode(node);
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  protected initNode(node: HTMLElement): void {
     this.addClass("button-glow");
     this.position.setAutoState("absolute");
     this.width.setAutoState(Length.zero());

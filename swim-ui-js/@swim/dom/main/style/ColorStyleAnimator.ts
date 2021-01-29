@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyColor, Color} from "@swim/color";
-import type {StyleContext} from "../css/StyleContext";
+import type {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
@@ -26,4 +26,3 @@ export abstract class ColorStyleAnimator<V extends StyleContext> extends StyleAn
     return Color.fromAny(value);
   }
 }
-StyleAnimator.Color = ColorStyleAnimator;

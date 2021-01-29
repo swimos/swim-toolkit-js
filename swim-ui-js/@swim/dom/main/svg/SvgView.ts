@@ -951,4 +951,3 @@ export class SvgView extends ElementView {
   @SvgView.Tag("view")
   static view: SvgViewFactory;
 }
-NodeView.Svg = SvgView;

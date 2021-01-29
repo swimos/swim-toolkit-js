@@ -17,7 +17,7 @@ import {Tween, Transition} from "@swim/animation";
 import type {Height} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewEdgeInsets, ViewScope, ViewAnimator} from "@swim/view";
-import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
+import {HtmlView, SvgView} from "@swim/dom";
 import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembrane} from "@swim/button";
 import type {MenuItemObserver} from "./MenuItemObserver";
@@ -30,7 +30,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     this.onClick = this.onClick.bind(this);
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
+  protected initNode(node: HTMLElement): void {
     super.initNode(node);
     this.addClass("memu-item");
     this.position.setAutoState("relative");

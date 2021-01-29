@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export {StyleContext} from "./StyleContext";
+
 export {
   StyleAnimatorMemberType,
   StyleAnimatorMemberInit,
@@ -45,3 +47,8 @@ export {NumberOrStringStyleAnimator} from "./NumberOrStringStyleAnimator";
 export {LengthOrStringStyleAnimator} from "./LengthOrStringStyleAnimator";
 
 export {ColorOrStringStyleAnimator} from "./ColorOrStringStyleAnimator";
+
+export {
+  StyleMapInit,
+  StyleMap,
+} from "./StyleMap";

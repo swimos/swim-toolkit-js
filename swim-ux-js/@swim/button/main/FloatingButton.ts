@@ -15,7 +15,7 @@
 import type {Tween, Transition} from "@swim/animation";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
+import {HtmlView, SvgView} from "@swim/dom";
 import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMorph} from "./ButtonMorph";
 import {ButtonMembrane} from "./ButtonMembrane";
@@ -31,7 +31,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     this._buttonType = "regular";
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
+  protected initNode(node: HTMLElement): void {
     super.initNode(node);
     this.addClass("floating-button");
     this.position.setAutoState("relative");

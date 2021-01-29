@@ -16,8 +16,8 @@ import {__extends} from "tslib";
 import type {Animator} from "@swim/animation";
 import {ToStyleString, ToCssValue} from "@swim/style";
 import type {StyleAnimator} from "../style/StyleAnimator";
+import {StyleMapInit, StyleMap} from "../style/StyleMap";
 import {CssContext} from "./CssContext";
-import {StyleMapInit, StyleMap} from "./StyleMap";
 import {CssRuleInit, CssRule} from "./CssRule";
 
 export interface StyleRuleInit extends CssRuleInit {
@@ -46,20 +46,17 @@ export interface StyleRuleClass extends Function {
   readonly prototype: StyleRule<any>;
 }
 
-export declare abstract class StyleRule<V extends CssContext> {
-  /** @hidden */
-  _rule: CSSStyleRule;
-  /** @hidden */
-  _styleAnimators?: {[animatorName: string]: StyleAnimator<StyleRule<CssContext>, unknown> | undefined};
+export interface StyleRule<V extends CssContext> extends CssRule<V>, StyleMap {
+  (property: string): unknown;
+  (property: string, value: unknown): V;
 
-  constructor(owner: V, ruleName: string | undefined);
+  readonly rule: CSSStyleRule;
 
-  get rule(): CSSStyleRule;
+  readonly node: Node | undefined;
 
-  get node(): Node | undefined;
+  readonly selector: string;
 
-  selector(): string;
-  selector(selector: string): this;
+  setSelector(selector: string): void;
 
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined;
 
@@ -70,6 +67,9 @@ export declare abstract class StyleRule<V extends CssContext> {
   onSetStyle(propertyName: string, value: unknown, priority: string | undefined): void;
 
   didSetStyle(propertyName: string, value: unknown, priority: string | undefined): void;
+
+  /** @hidden */
+  styleAnimators: {[animatorName: string]: StyleAnimator<StyleRule<CssContext>, unknown> | undefined};
 
   hasStyleAnimator(animatorName: string): boolean;
 
@@ -91,20 +91,9 @@ export declare abstract class StyleRule<V extends CssContext> {
 
   /** @hidden */
   initRule?(rule: CSSStyleRule): CSSStyleRule;
-
-  static define<V extends CssContext, I = {}>(descriptor: StyleRuleDescriptorExtends<V, I>): StyleRuleConstructor<V, I>;
-  static define<V extends CssContext>(descriptor: StyleRuleDescriptor<V>): StyleRuleConstructor<V>;
 }
 
-export interface StyleRule<V extends CssContext> extends CssRule<V>, StyleMap {
-  (property: string): unknown;
-  (property: string, value: unknown): V;
-}
-
-export function StyleRule<V extends CssContext, I = {}>(descriptor: StyleRuleDescriptorExtends<V, I>): PropertyDecorator;
-export function StyleRule<V extends CssContext>(descriptor: StyleRuleDescriptor<V>): PropertyDecorator;
-
-export function StyleRule<V extends CssContext>(
+export const StyleRule = function <V extends CssContext>(
     this: StyleRule<V> | typeof StyleRule,
     owner: V | StyleRuleDescriptor<V>,
     ruleName?: string,
@@ -114,13 +103,29 @@ export function StyleRule<V extends CssContext>(
   } else { // decorator factory
     return StyleRuleDecoratorFactory(owner as StyleRuleDescriptor<V>);
   }
-}
+} as {
+  /** @hidden */
+  new<V extends CssContext>(owner: V, ruleName: string | undefined): StyleRule<V>;
+
+  <V extends CssContext, I = {}>(descriptor: StyleRuleDescriptorExtends<V, I>): PropertyDecorator;
+  <V extends CssContext>(descriptor: StyleRuleDescriptor<V>): PropertyDecorator;
+
+  /** @hidden */
+  prototype: StyleRule<any>;
+
+  define<V extends CssContext, I = {}>(descriptor: StyleRuleDescriptorExtends<V, I>): StyleRuleConstructor<V, I>;
+  define<V extends CssContext>(descriptor: StyleRuleDescriptor<V>): StyleRuleConstructor<V>;
+};
 __extends(StyleRule, CssRule);
 StyleMap.define(StyleRule.prototype);
-CssRule.Style = StyleRule;
 
 function StyleRuleConstructor<V extends CssContext>(this: StyleRule<V>, owner: V, ruleName: string | undefined): StyleRule<V> {
   const _this: StyleRule<V> = (CssRule as Function).call(this, owner, ruleName) || this;
+  Object.defineProperty(_this, "styleAnimators", {
+    value: {},
+    enumerable: true,
+    configurable: true,
+  });
   return _this;
 }
 
@@ -128,18 +133,21 @@ function StyleRuleDecoratorFactory<V extends CssContext>(descriptor: StyleRuleDe
   return CssContext.decorateCssRule.bind(CssContext, StyleRule.define(descriptor as StyleRuleDescriptor<CssContext>));
 }
 
-StyleRule.prototype.selector = function (this: StyleRule<CssContext>, selector?: string): string | StyleRule<CssContext> {
-  if (selector === void 0) {
-    return this._rule.selectorText;
-  } else {
-    this._rule.selectorText = selector;
-    return this;
-  }
-} as {(): string; (selector: string): StyleRule<CssContext>};
+Object.defineProperty(StyleRule.prototype, "selector", {
+  get: function (this: StyleRule<CssContext>): string {
+    return this.rule.selectorText;
+  },
+  enumerable: true,
+  configurable: true,
+});
 
-if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
-  StyleRule.prototype.getStyle = function (this: StyleRule<CssContext>, propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
-    const style = this._rule.styleMap;
+StyleRule.prototype.setSelector = function (this: StyleRule<CssContext>, selector: string): void {
+  this.rule.selectorText = selector;
+};
+
+StyleRule.prototype.getStyle = function (this: StyleRule<CssContext>, propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
+  if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+    const style = this.rule.styleMap;
     if (typeof propertyNames === "string") {
       return style.get(propertyNames);
     } else {
@@ -151,31 +159,8 @@ if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
       }
       return "";
     }
-  };
-  StyleRule.prototype.setStyle = function (this: StyleRule<CssContext>, propertyName: string,
-                                           value: unknown, priority?: string): StyleRule<CssContext> {
-    this.willSetStyle(propertyName, value, priority);
-    if (value !== void 0) {
-      const cssValue = ToCssValue(value);
-      if (cssValue !== void 0) {
-        try {
-          this._rule.styleMap.set(propertyName, cssValue);
-        } catch (e) {
-          // swallow
-        }
-      } else {
-        this._rule.style.setProperty(propertyName, ToStyleString(value), priority);
-      }
-    } else {
-      this._rule.styleMap.delete(propertyName);
-    }
-    this.onSetStyle(propertyName, value, priority);
-    this.didSetStyle(propertyName, value, priority);
-    return this;
-  };
-} else {
-  StyleRule.prototype.getStyle = function (this: StyleRule<CssContext>, propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
-    const style = this._rule.style;
+  } else {
+    const style = this.rule.style;
     if (typeof propertyNames === "string") {
       return style.getPropertyValue(propertyNames);
     } else {
@@ -187,20 +172,38 @@ if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
       }
       return "";
     }
-  };
-  StyleRule.prototype.setStyle = function (this: StyleRule<CssContext>, propertyName: string, 
-                                           value: unknown, priority?: string): StyleRule<CssContext> {
-    this.willSetStyle(propertyName, value, priority);
+  }
+};
+
+StyleRule.prototype.setStyle = function (this: StyleRule<CssContext>, propertyName: string,
+                                         value: unknown, priority?: string): StyleRule<CssContext> {
+  this.willSetStyle(propertyName, value, priority);
+  if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
     if (value !== void 0) {
-      this._rule.style.setProperty(propertyName, ToStyleString(value), priority);
+      const cssValue = ToCssValue(value);
+      if (cssValue !== void 0) {
+        try {
+          this.rule.styleMap.set(propertyName, cssValue);
+        } catch (e) {
+          // swallow
+        }
+      } else {
+        this.rule.style.setProperty(propertyName, ToStyleString(value), priority);
+      }
     } else {
-      this._rule.style.removeProperty(propertyName);
+      this.rule.styleMap.delete(propertyName);
     }
-    this.onSetStyle(propertyName, value, priority);
-    this.didSetStyle(propertyName, value, priority);
-    return this;
-  };
-}
+  } else {
+    if (value !== void 0) {
+      this.rule.style.setProperty(propertyName, ToStyleString(value), priority);
+    } else {
+      this.rule.style.removeProperty(propertyName);
+    }
+  }
+  this.onSetStyle(propertyName, value, priority);
+  this.didSetStyle(propertyName, value, priority);
+  return this;
+};
 
 StyleRule.prototype.willSetStyle = function (this: StyleRule<CssContext>, propertyName: string, value: unknown, priority: string | undefined): void {
   // hook
@@ -215,27 +218,16 @@ StyleRule.prototype.didSetStyle = function (this: StyleRule<CssContext>, propert
 };
 
 StyleRule.prototype.hasStyleAnimator = function (this: StyleRule<CssContext>, animatorName: string): boolean {
-  const styleAnimators = this._styleAnimators;
-  return styleAnimators !== void 0 && styleAnimators[animatorName] !== void 0;
+  return this.styleAnimators[animatorName] !== void 0;
 };
 
 StyleRule.prototype.getStyleAnimator = function (this: StyleRule<CssContext>, animatorName: string): StyleAnimator<StyleRule<CssContext>, unknown> | null {
-  const styleAnimators = this._styleAnimators;
-  if (styleAnimators !== void 0) {
-    const styleAnimator = styleAnimators[animatorName];
-    if (styleAnimator !== void 0) {
-      return styleAnimator as StyleAnimator<StyleRule<CssContext>, unknown>;
-    }
-  }
-  return null;
+  const styleAnimator = this.styleAnimators[animatorName] as StyleAnimator<StyleRule<CssContext>, unknown> | undefined;
+  return styleAnimator !== void 0 ? styleAnimator : null;
 };
 
 StyleRule.prototype.setStyleAnimator = function (this: StyleRule<CssContext>, animatorName: string, animator: StyleAnimator<StyleRule<CssContext>, unknown> | null): void {
-  let styleAnimators = this._styleAnimators;
-  if (styleAnimators === void 0) {
-    styleAnimators = {};
-    this._styleAnimators = styleAnimators;
-  }
+  const styleAnimators = this.styleAnimators;
   if (animator !== null) {
     styleAnimators[animatorName] = animator;
   } else {
@@ -244,26 +236,24 @@ StyleRule.prototype.setStyleAnimator = function (this: StyleRule<CssContext>, an
 };
 
 StyleRule.prototype.onAnimate = function (this: StyleRule<CssContext>, t: number): void {
-  const styleAnimators = this._styleAnimators;
-  if (styleAnimators !== void 0) {
-    for (const animatorName in styleAnimators) {
-      const animator = styleAnimators[animatorName]!;
-      animator.onAnimate(t);
-    }
+  const styleAnimators = this.styleAnimators;
+  for (const animatorName in styleAnimators) {
+    const animator = styleAnimators[animatorName]!;
+    animator.onAnimate(t);
   }
 };
 
 StyleRule.prototype.animate = function (this: StyleRule<CssContext>, animator: Animator): void {
-  return this._owner.animate(animator);
+  return this.owner.animate(animator);
 };
 
 StyleRule.prototype.requireUpdate = function (this: StyleRule<CssContext>, updateFlags: number): void {
-  return this._owner.requireUpdate(updateFlags);
+  return this.owner.requireUpdate(updateFlags);
 };
 
 StyleRule.prototype.createRule = function (this: StyleRule<CssContext>, cssText: string): CSSStyleRule {
-  const index = this._owner.insertRule(cssText);
-  const rule = this._owner.getRule(index);
+  const index = this.owner.insertRule(cssText);
+  const rule = this.owner.getRule(index);
   if (rule instanceof CSSStyleRule) {
     return rule;
   } else {
@@ -283,13 +273,13 @@ StyleRule.define = function <V extends CssContext, I>(descriptor: StyleRuleDescr
     _super = StyleRule;
   }
 
-  const _constructor = function CssRuleAccessor(this: StyleRule<V>, owner: V, ruleName: string | undefined): StyleRule<V> {
-    let _this: StyleRule<V> = function accessor(property: string, value: unknown): unknown | V {
+  const _constructor = function DecoratedStyleRule(this: StyleRule<V>, owner: V, ruleName: string | undefined): StyleRule<V> {
+    let _this: StyleRule<V> = function StyleRuleAccessor(property: string, value: unknown): unknown | V {
       if (value === void 0) {
         return _this.getStyle(property);
       } else {
         _this.setStyle(property, value);
-        return _this._owner;
+        return _this.owner;
       }
     } as StyleRule<V>;
     Object.setPrototypeOf(_this, this);
@@ -306,7 +296,11 @@ StyleRule.define = function <V extends CssContext, I>(descriptor: StyleRuleDescr
     if (_this.initRule !== void 0) {
       rule = _this.initRule(rule);
     }
-    _this._rule = rule;
+    Object.defineProperty(_this, "rule", {
+      value: rule,
+      enumerable: true,
+      configurable: true,
+    });
     if (style !== void 0) {
       StyleMap.init(_this, style);
     }

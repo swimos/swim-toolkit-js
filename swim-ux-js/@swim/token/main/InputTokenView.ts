@@ -16,7 +16,7 @@ import type {Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewBinding} from "@swim/view";
-import {StyleRule, StyleSheet, ViewNodeType, HtmlView, StyleView, SvgView} from "@swim/dom";
+import {StyleRule, StyleSheet, HtmlView, StyleView, SvgView} from "@swim/dom";
 import type {PositionGesture} from "@swim/gesture";
 import {TokenViewInit, TokenView} from "./TokenView";
 import type {InputTokenViewObserver} from "./InputTokenViewObserver";
@@ -34,7 +34,7 @@ export class InputTokenView extends TokenView {
     this.onInputKey = this.onInputKey.bind(this);
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
+  protected initNode(node: HTMLElement): void {
     super.initNode(node);
     this.addClass("input-token");
   }

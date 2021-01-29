@@ -16,7 +16,7 @@ import {Tween, Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Look} from "@swim/theme";
 import type {ModalState, ModalManager, ModalManagerObserver} from "@swim/view";
-import {ViewNodeType, HtmlView} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
 
 export class ScrimView extends HtmlView implements ModalManagerObserver {
   /** @hidden */
@@ -37,10 +37,10 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
     } else {
       this.on("click", this.onClick);
     }
+    this.initNode(node);
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  protected initNode(node: HTMLElement): void {
     this.addClass("scrim");
     this.display.setAutoState("none");
     this.position.setAutoState("absolute");

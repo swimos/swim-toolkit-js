@@ -298,7 +298,7 @@ ViewBinding.prototype.didSetOwnView = function <S extends View>(this: ViewBindin
   // hook
 };
 
-ViewBinding.prototype.constraint = function (lhs: Constrain | number, relation: ConstraintRelation,
+ViewBinding.prototype.constraint = function (this: ViewBinding<View, View>, lhs: Constrain | number, relation: ConstraintRelation,
                                              rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
   if (typeof lhs === "number") {
     lhs = Constrain.constant(lhs);
@@ -336,20 +336,20 @@ ViewBinding.prototype.removeConstraint = function (constraint: Constraint): void
   const oldConstraints = this.constraints;
   const newConstraints = Arrays.removed(constraint, oldConstraints);
   if (oldConstraints !== newConstraints) {
+    this.deactivateConstraint(constraint);
     Object.defineProperty(this, "constraints", {
       value: newConstraints,
       enumerable: true,
       configurable: true,
     });
-    this.deactivateConstraint(constraint);
   }
 };
 
-ViewBinding.prototype.activateConstraint = function (constraint: Constraint): void {
+ViewBinding.prototype.activateConstraint = function (this: ViewBinding<View, View>, constraint: Constraint): void {
   this.owner.activateConstraint(constraint);
 };
 
-ViewBinding.prototype.deactivateConstraint = function (constraint: Constraint): void {
+ViewBinding.prototype.deactivateConstraint = function (this: ViewBinding<View, View>, constraint: Constraint): void {
   this.owner.deactivateConstraint(constraint);
 };
 
@@ -386,24 +386,24 @@ ViewBinding.prototype.removeConstraintVariable = function (constraintVariable: C
   const oldConstraintVariables = this.constraintVariables;
   const newConstraintVariables = Arrays.removed(constraintVariable, oldConstraintVariables);
   if (oldConstraintVariables !== newConstraintVariables) {
+    this.deactivateConstraintVariable(constraintVariable);
     Object.defineProperty(this, "constraintVariables", {
       value: newConstraintVariables,
       enumerable: true,
       configurable: true,
     });
-    this.deactivateConstraintVariable(constraintVariable);
   }
 };
 
-ViewBinding.prototype.activateConstraintVariable = function (constraintVariable: ConstrainVariable): void {
+ViewBinding.prototype.activateConstraintVariable = function (this: ViewBinding<View, View>, constraintVariable: ConstrainVariable): void {
   this.owner.activateConstraintVariable(constraintVariable);
 };
 
-ViewBinding.prototype.deactivateConstraintVariable = function (constraintVariable: ConstrainVariable): void {
+ViewBinding.prototype.deactivateConstraintVariable = function (this: ViewBinding<View, View>, constraintVariable: ConstrainVariable): void {
   this.owner.deactivateConstraintVariable(constraintVariable);
 };
 
-ViewBinding.prototype.setConstraintVariable = function (constraintVariable: ConstrainVariable, state: number): void {
+ViewBinding.prototype.setConstraintVariable = function (this: ViewBinding<View, View>, constraintVariable: ConstrainVariable, state: number): void {
   this.owner.setConstraintVariable(constraintVariable, state);
 };
 
@@ -433,14 +433,14 @@ ViewBinding.prototype.mount = function (): void {
   this.activateLayout();
   const view = this.view;
   if (view !== null && this.observe === true) {
-    view.addViewObserver(this);
+    view.addViewObserver(this as ViewObserverType<View>);
   }
 };
 
 ViewBinding.prototype.unmount = function (): void {
   const view = this.view;
   if (view !== null && this.observe === true) {
-    view.removeViewObserver(this);
+    view.removeViewObserver(this as ViewObserverType<View>);
   }
   this.deactivateLayout();
 };

@@ -16,7 +16,7 @@ import type {Tween, Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {View} from "@swim/view";
-import {ViewNodeType, HtmlView, HtmlViewObserver, HtmlViewController, SvgView} from "@swim/dom";
+import {HtmlView, HtmlViewObserver, HtmlViewController, SvgView} from "@swim/dom";
 import type {PositionGestureDelegate} from "@swim/gesture";
 import type {ButtonObserver} from "./ButtonObserver";
 import {ButtonMorph} from "./ButtonMorph";
@@ -28,7 +28,7 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
     this.onClick = this.onClick.bind(this);
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
+  protected initNode(node: HTMLElement): void {
     super.initNode(node);
     this.addClass("icon-button");
     this.position.setAutoState("relative");

@@ -140,11 +140,11 @@ export const ViewService = function <V extends View, T>(
   /** @hidden */
   prototype: ViewService<any, any>;
 
-  define<V extends View, T, I = {}>(descriptor: ViewServiceDescriptorExtends<V, T, I>): ViewServiceConstructor<V, T, I>;
-  define<V extends View, T>(descriptor: ViewServiceDescriptor<V, T>): ViewServiceConstructor<V, T>;
-
   /** @hidden */
   getClass(type: unknown): ViewServiceClass | null;
+
+  define<V extends View, T, I = {}>(descriptor: ViewServiceDescriptorExtends<V, T, I>): ViewServiceConstructor<V, T, I>;
+  define<V extends View, T>(descriptor: ViewServiceDescriptor<V, T>): ViewServiceConstructor<V, T>;
 
   /** @hidden */
   InheritedFlag: ViewServiceFlags;
@@ -190,7 +190,7 @@ function ViewServiceDecoratorFactory<V extends View, T>(descriptor: ViewServiceD
   return View.decorateViewService.bind(View, ViewService.define(descriptor as ViewServiceDescriptor<View, unknown>));
 }
 
-ViewService.prototype.setInherit = function (inherit: string | boolean): void {
+ViewService.prototype.setInherit = function (this: ViewService<View, unknown>, inherit: string | boolean): void {
   if (this.inherit !== inherit) {
     this.unbindSuperService();
     Object.defineProperty(this, "inherit", {
@@ -204,11 +204,11 @@ ViewService.prototype.setInherit = function (inherit: string | boolean): void {
   }
 };
 
-ViewService.prototype.isInherited = function (): boolean {
+ViewService.prototype.isInherited = function (this: ViewService<View, unknown>): boolean {
   return (this.serviceFlags & ViewService.InheritedFlag) !== 0;
 };
 
-ViewService.prototype.setInherited = function (inherited: boolean): void {
+ViewService.prototype.setInherited = function (this: ViewService<View, unknown>, inherited: boolean): void {
   if (inherited && (this.serviceFlags & ViewService.InheritedFlag) === 0) {
     this.setServiceFlags(this.serviceFlags | ViewService.InheritedFlag);
   } else if (!inherited && (this.serviceFlags & ViewService.InheritedFlag) !== 0) {
@@ -216,7 +216,7 @@ ViewService.prototype.setInherited = function (inherited: boolean): void {
   }
 };
 
-ViewService.prototype.setServiceFlags = function (serviceFlags: ViewServiceFlags): void {
+ViewService.prototype.setServiceFlags = function (this: ViewService<View, unknown>, serviceFlags: ViewServiceFlags): void {
   Object.defineProperty(this, "serviceFlags", {
     value: serviceFlags,
     enumerable: true,
@@ -233,7 +233,7 @@ Object.defineProperty(ViewService.prototype, "superName", {
   configurable: true,
 });
 
-ViewService.prototype.bindSuperService = function (): void {
+ViewService.prototype.bindSuperService = function (this: ViewService<View, unknown>): void {
   let view = this.owner;
   if (view.isMounted()) {
     let superService: ViewService<View, unknown> | null = null
@@ -285,7 +285,7 @@ ViewService.prototype.bindSuperService = function (): void {
   }
 };
 
-ViewService.prototype.unbindSuperService = function (): void {
+ViewService.prototype.unbindSuperService = function (this: ViewService<View, unknown>): void {
   Object.defineProperty(this, "superService", {
     value: null,
     enumerable: true,
@@ -326,7 +326,7 @@ ViewService.prototype.getManagerOr = function <T, E>(this: ViewService<View, T>,
   return manager as (T extends undefined ? never : T) | E;
 };
 
-ViewService.prototype.mount = function (): void {
+ViewService.prototype.mount = function (this: ViewService<View, unknown>): void {
   this.bindSuperService();
 };
 

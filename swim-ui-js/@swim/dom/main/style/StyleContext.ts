@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {AnimatorContext, Animator} from "@swim/animation";
-import type {StyleAnimatorConstructor, StyleAnimator} from "../style/StyleAnimator";
+import type {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
 
 export interface StyleContext extends AnimatorContext {
   readonly node?: Node;

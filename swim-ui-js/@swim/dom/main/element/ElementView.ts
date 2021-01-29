@@ -18,16 +18,17 @@ import type {Animator} from "@swim/animation";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
 import {ViewContextType, ViewConstructor, View, ViewObserverType, ViewScope} from "@swim/view";
-import type {StyleContext} from "../css/StyleContext";
+import type {StyleContext} from "../style/StyleContext";
 import {StyleAnimator} from "../style/StyleAnimator";
 import {NodeViewInit, NodeViewConstructor, NodeView} from "../node/NodeView";
 import {AttributeAnimatorConstructor, AttributeAnimator} from "../attribute/AttributeAnimator";
 import type {
   ElementViewObserver,
-  WillSetAttributeObserver,
-  DidSetAttributeObserver,
-  WillSetStyleObserver,
-  DidSetStyleObserver,
+  ElementViewObserverCache,
+  ViewWillSetAttribute,
+  ViewDidSetAttribute,
+  ViewWillSetStyle,
+  ViewDidSetStyle,
 } from "./ElementViewObserver";
 import type {ElementViewController} from "./ElementViewController";
 
@@ -51,21 +52,18 @@ export interface ElementViewConstructor<V extends ElementView = ElementView> ext
 }
 
 export class ElementView extends NodeView implements StyleContext {
-  /** @hidden */
-  _attributeAnimators?: {[animatorName: string]: AttributeAnimator<ElementView, unknown> | undefined};
-  /** @hidden */
-  _styleAnimators?: {[animatorName: string]: StyleAnimator<ElementView, unknown> | undefined};
-  /** @hidden */
-  _willSetAttributeObservers?: ReadonlyArray<WillSetAttributeObserver>;
-  /** @hidden */
-  _didSetAttributeObservers?: ReadonlyArray<DidSetAttributeObserver>;
-  /** @hidden */
-  _willSetStyleObservers?: ReadonlyArray<WillSetStyleObserver>;
-  /** @hidden */
-  _didSetStyleObservers?: ReadonlyArray<DidSetStyleObserver>;
-
   constructor(node: Element) {
     super(node);
+    Object.defineProperty(this, "attributeAnimators", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "styleAnimators", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   declare readonly node: Element & ElementCSSInlineStyle;
@@ -96,35 +94,38 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
+  /** @hidden */
+  declare readonly viewObserverCache: ElementViewObserverCache<this>;
+
   protected onAddViewObserver(viewObserver: ViewObserverType<this>): void {
     super.onAddViewObserver(viewObserver);
     if (viewObserver.viewWillSetAttribute !== void 0) {
-      this._willSetAttributeObservers = Arrays.inserted(viewObserver as WillSetAttributeObserver, this._willSetAttributeObservers);
+      this.viewObserverCache.viewWillSetAttributeObservers = Arrays.inserted(viewObserver as ViewWillSetAttribute, this.viewObserverCache.viewWillSetAttributeObservers);
     }
     if (viewObserver.viewDidSetAttribute !== void 0) {
-      this._didSetAttributeObservers = Arrays.inserted(viewObserver as DidSetAttributeObserver, this._didSetAttributeObservers);
+      this.viewObserverCache.viewDidSetAttributeObservers = Arrays.inserted(viewObserver as ViewDidSetAttribute, this.viewObserverCache.viewDidSetAttributeObservers);
     }
     if (viewObserver.viewWillSetStyle !== void 0) {
-      this._willSetStyleObservers = Arrays.inserted(viewObserver as WillSetStyleObserver, this._willSetStyleObservers);
+      this.viewObserverCache.viewWillSetStyleObservers = Arrays.inserted(viewObserver as ViewWillSetStyle, this.viewObserverCache.viewWillSetStyleObservers);
     }
     if (viewObserver.viewDidSetStyle !== void 0) {
-      this._didSetStyleObservers = Arrays.inserted(viewObserver as DidSetStyleObserver, this._didSetStyleObservers);
+      this.viewObserverCache.viewDidSetStyleObservers = Arrays.inserted(viewObserver as ViewDidSetStyle, this.viewObserverCache.viewDidSetStyleObservers);
     }
   }
 
   protected onRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
     super.onRemoveViewObserver(viewObserver);
     if (viewObserver.viewWillSetAttribute !== void 0) {
-      this._willSetAttributeObservers = Arrays.removed(viewObserver as WillSetAttributeObserver, this._willSetAttributeObservers);
+      this.viewObserverCache.viewWillSetAttributeObservers = Arrays.removed(viewObserver as ViewWillSetAttribute, this.viewObserverCache.viewWillSetAttributeObservers);
     }
     if (viewObserver.viewDidSetAttribute !== void 0) {
-      this._didSetAttributeObservers = Arrays.removed(viewObserver as DidSetAttributeObserver, this._didSetAttributeObservers);
+      this.viewObserverCache.viewDidSetAttributeObservers = Arrays.removed(viewObserver as ViewDidSetAttribute, this.viewObserverCache.viewDidSetAttributeObservers);
     }
     if (viewObserver.viewWillSetStyle !== void 0) {
-      this._willSetStyleObservers = Arrays.removed(viewObserver as WillSetStyleObserver, this._willSetStyleObservers);
+      this.viewObserverCache.viewWillSetStyleObservers = Arrays.removed(viewObserver as ViewWillSetStyle, this.viewObserverCache.viewWillSetStyleObservers);
     }
     if (viewObserver.viewDidSetStyle !== void 0) {
-      this._didSetStyleObservers = Arrays.removed(viewObserver as DidSetStyleObserver, this._didSetStyleObservers);
+      this.viewObserverCache.viewDidSetStyleObservers = Arrays.removed(viewObserver as ViewDidSetStyle, this.viewObserverCache.viewDidSetStyleObservers);
     }
   }
 
@@ -293,7 +294,7 @@ export class ElementView extends NodeView implements StyleContext {
     if (viewController !== null) {
       viewController.viewWillSetAttribute(attributeName, value, this);
     }
-    const viewObservers = this._willSetAttributeObservers;
+    const viewObservers = this.viewObserverCache.viewWillSetAttributeObservers;
     if (viewObservers !== void 0) {
       for (let i = 0, n = viewObservers.length; i < n; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -307,7 +308,7 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected didSetAttribute(attributeName: string, value: unknown): void {
-    const viewObservers = this._didSetAttributeObservers;
+    const viewObservers = this.viewObserverCache.viewDidSetAttributeObservers;
     if (viewObservers !== void 0) {
       for (let i = 0, n = viewObservers.length; i < n; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -320,14 +321,17 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
+  /** @hidden */
+  declare readonly attributeAnimators: {[animatorName: string]: AttributeAnimator<ElementView, unknown> | undefined} | null;
+
   hasAttributeAnimator(animatorName: string): boolean {
-    const attributeAnimators = this._attributeAnimators;
-    return attributeAnimators !== void 0 && attributeAnimators[animatorName] !== void 0;
+    const attributeAnimators = this.attributeAnimators;
+    return attributeAnimators !== null && attributeAnimators[animatorName] !== void 0;
   }
 
   getAttributeAnimator(animatorName: string): AttributeAnimator<this, unknown> | null {
-    const attributeAnimators = this._attributeAnimators;
-    if (attributeAnimators !== void 0) {
+    const attributeAnimators = this.attributeAnimators;
+    if (attributeAnimators !== null) {
       const attributeAnimator = attributeAnimators[animatorName];
       if (attributeAnimator !== void 0) {
         return attributeAnimator as AttributeAnimator<this, unknown>;
@@ -337,10 +341,14 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   setAttributeAnimator(animatorName: string, attributeAnimator: AttributeAnimator<this, unknown> | null): void {
-    let attributeAnimators = this._attributeAnimators;
-    if (attributeAnimators === void 0) {
+    let attributeAnimators = this.attributeAnimators;
+    if (attributeAnimators === null) {
       attributeAnimators = {};
-      this._attributeAnimators = attributeAnimators;
+      Object.defineProperty(this, "attributeAnimators", {
+        value: attributeAnimators,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (attributeAnimator !== null) {
       attributeAnimators[animatorName] = attributeAnimator;
@@ -350,28 +358,58 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
-    // Conditionally overridden when CSS Typed OM is available.
-    const style = this.node.style;
-    if (typeof propertyNames === "string") {
-      return style.getPropertyValue(propertyNames);
-    } else {
-      for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-        const value = style.getPropertyValue(propertyNames[i]!);
-        if (value !== "") {
-          return value;
+    if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+      const style = this.node.attributeStyleMap;
+      if (typeof propertyNames === "string") {
+        return style.get(propertyNames);
+      } else {
+        for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+          const value = style.get(propertyNames[i]!);
+          if (value !== "") {
+            return value;
+          }
         }
+        return "";
       }
-      return "";
+    } else {
+      const style = this.node.style;
+      if (typeof propertyNames === "string") {
+        return style.getPropertyValue(propertyNames);
+      } else {
+        for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+          const value = style.getPropertyValue(propertyNames[i]!);
+          if (value !== "") {
+            return value;
+          }
+        }
+        return "";
+      }
     }
   }
 
   setStyle(propertyName: string, value: unknown, priority?: string): this {
-    // Conditionally overridden when CSS Typed OM is available.
     this.willSetStyle(propertyName, value, priority);
-    if (value !== void 0) {
-      this.node.style.setProperty(propertyName, ToStyleString(value), priority);
+    if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
+      if (value !== void 0) {
+        const cssValue = ToCssValue(value);
+        if (cssValue !== void 0) {
+          try {
+            this.node.attributeStyleMap.set(propertyName, cssValue);
+          } catch (e) {
+            // swallow
+          }
+        } else {
+          this.node.style.setProperty(propertyName, ToStyleString(value), priority);
+        }
+      } else {
+        this.node.attributeStyleMap.delete(propertyName);
+      }
     } else {
-      this.node.style.removeProperty(propertyName);
+      if (value !== void 0) {
+        this.node.style.setProperty(propertyName, ToStyleString(value), priority);
+      } else {
+        this.node.style.removeProperty(propertyName);
+      }
     }
     this.onSetStyle(propertyName, value, priority);
     this.didSetStyle(propertyName, value, priority);
@@ -383,7 +421,7 @@ export class ElementView extends NodeView implements StyleContext {
     if (viewController !== null) {
       viewController.viewWillSetStyle(propertyName, value, priority, this);
     }
-    const viewObservers = this._willSetStyleObservers;
+    const viewObservers = this.viewObserverCache.viewWillSetStyleObservers;
     if (viewObservers !== void 0) {
       for (let i = 0, n = viewObservers.length; i < n; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -397,7 +435,7 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected didSetStyle(propertyName: string, value: unknown, priority: string | undefined): void {
-    const viewObservers = this._didSetStyleObservers;
+    const viewObservers = this.viewObserverCache.viewDidSetStyleObservers;
     if (viewObservers !== void 0) {
       for (let i = 0, n = viewObservers.length; i < n; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -410,14 +448,17 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
+  /** @hidden */
+  declare readonly styleAnimators: {[animatorName: string]: StyleAnimator<ElementView, unknown> | undefined} | null;
+
   hasStyleAnimator(animatorName: string): boolean {
-    const styleAnimators = this._styleAnimators;
-    return styleAnimators !== void 0 && styleAnimators[animatorName] !== void 0;
+    const styleAnimators = this.styleAnimators;
+    return styleAnimators !== null && styleAnimators[animatorName] !== void 0;
   }
 
   getStyleAnimator(animatorName: string): StyleAnimator<this, unknown> | null {
-    const styleAnimators = this._styleAnimators;
-    if (styleAnimators !== void 0) {
+    const styleAnimators = this.styleAnimators;
+    if (styleAnimators !== null) {
       const styleAnimator = styleAnimators[animatorName];
       if (styleAnimator !== void 0) {
         return styleAnimator as StyleAnimator<this, unknown>;
@@ -427,10 +468,14 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   setStyleAnimator(animatorName: string, animator: StyleAnimator<this, unknown> | null): void {
-    let styleAnimators = this._styleAnimators;
-    if (styleAnimators === void 0) {
+    let styleAnimators = this.styleAnimators;
+    if (styleAnimators === null) {
       styleAnimators = {};
-      this._styleAnimators = styleAnimators;
+      Object.defineProperty(this, "styleAnimators", {
+        value: styleAnimators,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (animator !== null) {
       styleAnimators[animatorName] = animator;
@@ -459,7 +504,7 @@ export class ElementView extends NodeView implements StyleContext {
 
   /** @hidden */
   updateAttributeAnimators(t: number): void {
-    const attributeAnimators = this._attributeAnimators;
+    const attributeAnimators = this.attributeAnimators;
     if (attributeAnimators !== void 0) {
       for (const animatorName in attributeAnimators) {
         const attributeAnimator = attributeAnimators[animatorName]!;
@@ -470,7 +515,7 @@ export class ElementView extends NodeView implements StyleContext {
 
   /** @hidden */
   updateStyleAnimators(t: number): void {
-    const styleAnimators = this._styleAnimators;
+    const styleAnimators = this.styleAnimators;
     if (styleAnimators !== void 0) {
       for (const animatorName in styleAnimators) {
         const styleAnimator = styleAnimators[animatorName]!;
@@ -659,41 +704,3 @@ export class ElementView extends NodeView implements StyleContext {
     });
   }
 }
-if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
-  ElementView.prototype.getStyle = function (this: ElementView, propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
-    const style = this.node.attributeStyleMap;
-    if (typeof propertyNames === "string") {
-      return style.get(propertyNames);
-    } else {
-      for (let i = 0, n = propertyNames.length; i < n; i += 1) {
-        const value = style.get(propertyNames[i]!);
-        if (value !== "") {
-          return value;
-        }
-      }
-      return "";
-    }
-  };
-  ElementView.prototype.setStyle = function (this: ElementView, propertyName: string,
-                                             value: unknown, priority?: string): ElementView {
-    this.willSetStyle(propertyName, value, priority);
-    if (value !== void 0) {
-      const cssValue = ToCssValue(value);
-      if (cssValue !== void 0) {
-        try {
-          this.node.attributeStyleMap.set(propertyName, cssValue);
-        } catch (e) {
-          // swallow
-        }
-      } else {
-        this.node.style.setProperty(propertyName, ToStyleString(value), priority);
-      }
-    } else {
-      this.node.attributeStyleMap.delete(propertyName);
-    }
-    this.onSetStyle(propertyName, value, priority);
-    this.didSetStyle(propertyName, value, priority);
-    return this;
-  };
-}
-NodeView.Element = ElementView;

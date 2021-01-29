@@ -64,8 +64,8 @@ import {
   AnyBoxShadow,
   BoxShadow,
 } from "@swim/style";
-import {StyleAnimatorMemberInit, StyleAnimator} from "../style/StyleAnimator";
 import type {StyleContext} from "./StyleContext";
+import {StyleAnimatorMemberInit, StyleAnimator} from "./StyleAnimator";
 
 export interface StyleMapInit {
   alignContent?: StyleAnimatorMemberInit<StyleMap, "alignContent">;

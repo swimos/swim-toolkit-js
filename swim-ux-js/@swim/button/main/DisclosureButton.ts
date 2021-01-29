@@ -17,11 +17,15 @@ import type {Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewAnimator} from "@swim/view";
-import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
+import {HtmlView, SvgView} from "@swim/dom";
 
 export class DisclosureButton extends HtmlView {
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  constructor(node: HTMLElement) {
+    super(node);
+    this.initNode(node);
+  }
+
+  protected initNode(node: HTMLElement): void {
     this.addClass("disclosure-button");
     this.display.setAutoState("flex");
     this.justifyContent.setAutoState("center");

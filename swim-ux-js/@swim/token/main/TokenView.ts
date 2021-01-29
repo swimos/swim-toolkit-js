@@ -16,7 +16,7 @@ import {Length} from "@swim/math";
 import {Tween, Transition} from "@swim/animation";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewObserver, ViewAnimator, ViewBinding} from "@swim/view";
-import {ViewNodeType, ElementView, HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
+import {ElementView, HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
 import {PathContext} from "@swim/graphics";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import type {TokenViewObserver} from "./TokenViewObserver";
@@ -44,11 +44,11 @@ export class TokenView extends HtmlView {
     this.onClickBody = this.onClickBody.bind(this);
     this.onClickFoot = this.onClickFoot.bind(this);
     this._tokenState = "expanded";
+    this.initNode(node);
     this.initChildViews();
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  protected initNode(node: HTMLElement): void {
     this.addClass("token");
     this.position.setAutoState("relative");
     this.height.setAutoState(32);

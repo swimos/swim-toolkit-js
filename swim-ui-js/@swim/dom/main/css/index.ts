@@ -17,13 +17,6 @@ export {
   CssContext,
 } from "./CssContext";
 
-export {StyleContext} from "./StyleContext";
-
-export {
-  StyleMapInit,
-  StyleMap,
-} from "./StyleMap";
-
 export {
   CssRuleType,
   CssRuleInit,

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewNodeType, HtmlViewInit, HtmlView} from "@swim/dom";
+import {HtmlViewInit, HtmlView} from "@swim/dom";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonGlow} from "./ButtonGlow";
 
@@ -26,10 +26,10 @@ export class ButtonMembrane extends HtmlView implements PositionGestureDelegate 
   constructor(node: HTMLElement) {
     super(node);
     this._gesture = this.createGesture();
+    this.initNode(node);
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  protected initNode(node: HTMLElement): void {
     this.addClass("membrane");
   }
 

@@ -17,7 +17,7 @@ import type {Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {ViewNodeType, HtmlViewInit, HtmlView, HtmlViewController} from "@swim/dom";
+import {HtmlViewInit, HtmlView, HtmlViewController} from "@swim/dom";
 import type {Graphics} from "../graphics/Graphics";
 import {IconViewInit, IconView} from "./IconView";
 import type {SvgIconPathView} from "./SvgIconPathView";
@@ -30,11 +30,11 @@ export interface HtmlIconViewInit extends HtmlViewInit, IconViewInit {
 export class HtmlIconView extends HtmlView implements IconView {
   constructor(node: HTMLElement) {
     super(node);
+    this.initNode(node);
     this.initChildViews();
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  protected initNode(node: HTMLElement): void {
     this.position.setAutoState("relative");
   }
 

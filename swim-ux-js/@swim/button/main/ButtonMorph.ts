@@ -15,11 +15,15 @@
 import {Angle, Transform} from "@swim/math";
 import {Tween, Transition} from "@swim/animation";
 import {Look} from "@swim/theme";
-import {ViewNodeType, HtmlView, SvgView} from "@swim/dom";
+import {HtmlView, SvgView} from "@swim/dom";
 
 export class ButtonMorph extends HtmlView {
-  protected initNode(node: ViewNodeType<this>): void {
-    super.initNode(node);
+  constructor(node: HTMLElement) {
+    super(node);
+    this.initNode(node);
+  }
+
+  protected initNode(node: HTMLElement): void {
     this.addClass("button-morph");
     this.display.setAutoState("flex");
     this.justifyContent.setAutoState("center");

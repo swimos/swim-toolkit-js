@@ -14,18 +14,18 @@
 
 import {__extends} from "tslib";
 import {CssContext} from "./CssContext";
-import type {
+import {
   StyleRuleDescriptorExtends,
   StyleRuleDescriptor,
   StyleRuleConstructor,
   StyleRule,
-} from "./StyleRule";
-import type {
+} from "../"; // forward import
+import {
   MediaRuleDescriptorExtends,
   MediaRuleDescriptor,
   MediaRuleConstructor,
   MediaRule,
-} from "./MediaRule";
+} from "../"; // forward import
 
 export type CssRuleType = "style" | "media";
 
@@ -51,19 +51,12 @@ export interface CssRuleClass extends Function {
   readonly prototype: CssRule<any>;
 }
 
-export declare abstract class CssRule<V extends CssContext> {
-  /** @hidden */
-  _owner: V;
-  /** @hidden */
-  _rule: CSSRule;
+export interface CssRule<V extends CssContext> {
+  readonly name: string | undefined;
 
-  constructor(owner: V, ruleName: string | undefined);
+  readonly owner: V;
 
-  get name(): string | undefined;
-
-  get owner(): V;
-
-  get rule(): CSSRule;
+  readonly rule: CSSRule;
 
   onAnimate(t: number): void;
 
@@ -75,36 +68,9 @@ export declare abstract class CssRule<V extends CssContext> {
 
   /** @hidden */
   initRule?(rule: CSSRule): CSSRule;
-
-  static define<V extends CssContext, I = {}>(descriptor: {type: "style"} & StyleRuleDescriptorExtends<V, I>): StyleRuleConstructor<V, I>;
-  static define<V extends CssContext>(descriptor: {type: "style"} & StyleRuleDescriptor<V>): StyleRuleConstructor<V>;
-
-  static define<V extends CssContext, I = {}>(descriptor: {type: "media"} & MediaRuleDescriptorExtends<V, I>): MediaRuleConstructor<V, I>;
-  static define<V extends CssContext>(descriptor: {type: "media"} & MediaRuleDescriptor<V>): MediaRuleConstructor<V>;
-
-  static define<V extends CssContext, I = {}>(descriptor: CssRuleDescriptorExtends<V, I>): CssRuleConstructor<V, I>;
-  static define<V extends CssContext>(descriptor: CssRuleDescriptor<V>): CssRuleConstructor<V>;
-
-  // Forward type declarations
-  /** @hidden */
-  static Style: typeof StyleRule; // defined by StyleRule
-  /** @hidden */
-  static Media: typeof MediaRule; // defined by MediaRule
 }
 
-export interface CssRule<V extends CssContext> {
-}
-
-export function CssRule<V extends CssContext, I = {}>(descriptor: {type: "style"} & StyleRuleDescriptorExtends<V, I>): PropertyDecorator;
-export function CssRule<V extends CssContext>(descriptor: {type: "style"} & StyleRuleDescriptor<V>): PropertyDecorator;
-
-export function CssRule<V extends CssContext, I = {}>(descriptor: {type: "media"} & MediaRuleDescriptorExtends<V, I>): PropertyDecorator;
-export function CssRule<V extends CssContext>(descriptor: {type: "media"} & MediaRuleDescriptor<V>): PropertyDecorator;
-
-export function CssRule<V extends CssContext, I = {}>(descriptor: CssRuleDescriptorExtends<V, I>): PropertyDecorator;
-export function CssRule<V extends CssContext>(descriptor: CssRuleDescriptor<V>): PropertyDecorator;
-
-export function CssRule<V extends CssContext>(
+export const CssRule = function <V extends CssContext>(
     this: CssRule<V> | typeof CssRule,
     owner: V | CssRuleDescriptor<V>,
     ruleName?: string,
@@ -114,7 +80,31 @@ export function CssRule<V extends CssContext>(
   } else { // decorator factory
     return CssRuleDecoratorFactory(owner as CssRuleDescriptor<V>);
   }
-}
+} as {
+  /** @hidden */
+  new<V extends CssContext>(owner: V, ruleName: string | undefined): CssRule<V>;
+
+  <V extends CssContext, I = {}>(descriptor: {type: "style"} & StyleRuleDescriptorExtends<V, I>): PropertyDecorator;
+  <V extends CssContext>(descriptor: {type: "style"} & StyleRuleDescriptor<V>): PropertyDecorator;
+
+  <V extends CssContext, I = {}>(descriptor: {type: "media"} & MediaRuleDescriptorExtends<V, I>): PropertyDecorator;
+  <V extends CssContext>(descriptor: {type: "media"} & MediaRuleDescriptor<V>): PropertyDecorator;
+
+  <V extends CssContext, I = {}>(descriptor: CssRuleDescriptorExtends<V, I>): PropertyDecorator;
+  <V extends CssContext>(descriptor: CssRuleDescriptor<V>): PropertyDecorator;
+
+  /** @hidden */
+  prototype: CssRule<any>;
+
+  define<V extends CssContext, I = {}>(descriptor: {type: "style"} & StyleRuleDescriptorExtends<V, I>): StyleRuleConstructor<V, I>;
+  define<V extends CssContext>(descriptor: {type: "style"} & StyleRuleDescriptor<V>): StyleRuleConstructor<V>;
+
+  define<V extends CssContext, I = {}>(descriptor: {type: "media"} & MediaRuleDescriptorExtends<V, I>): MediaRuleConstructor<V, I>;
+  define<V extends CssContext>(descriptor: {type: "media"} & MediaRuleDescriptor<V>): MediaRuleConstructor<V>;
+
+  define<V extends CssContext, I = {}>(descriptor: CssRuleDescriptorExtends<V, I>): CssRuleConstructor<V, I>;
+  define<V extends CssContext>(descriptor: CssRuleDescriptor<V>): CssRuleConstructor<V>;
+};
 __extends(CssRule, Object);
 
 function CssRuleConstructor<V extends CssContext>(this: CssRule<V>, owner: V, ruleName: string | undefined): CssRule<V> {
@@ -125,7 +115,10 @@ function CssRuleConstructor<V extends CssContext>(this: CssRule<V>, owner: V, ru
       configurable: true,
     });
   }
-  this._owner = owner;
+  Object.defineProperty(this, "owner", {
+    value: owner,
+    enumerable: true,
+  });
   return this;
 }
 
@@ -133,37 +126,21 @@ function CssRuleDecoratorFactory<V extends CssContext>(descriptor: CssRuleDescri
   return CssContext.decorateCssRule.bind(CssContext, CssRule.define(descriptor as CssRuleDescriptor<CssContext>));
 }
 
-Object.defineProperty(CssRule.prototype, "owner", {
-  get: function <V extends CssContext>(this: CssRule<V>): V {
-    return this._owner;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-Object.defineProperty(CssRule.prototype, "rule", {
-  get: function (this: CssRule<CssContext>): CSSRule {
-    return this._rule;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
 CssRule.prototype.onAnimate = function (this: CssRule<CssContext>, t: number): void {
   // hook
 };
 
 CssRule.prototype.createRule = function (this: CssRule<CssContext>, cssText?: string): CSSRule {
   if (cssText !== void 0) {
-    const index = this._owner.insertRule(cssText);
-    const rule = this._owner.getRule(index);
+    const index = this.owner.insertRule(cssText);
+    const rule = this.owner.getRule(index);
     if (rule instanceof CSSRule) {
       return rule;
     } else {
       throw new TypeError("" + rule);
     }
   } else {
-    throw new Error("undefined css");
+    throw new Error("undefined css rule");
   }
 };
 
@@ -172,9 +149,9 @@ CssRule.define = function <V extends CssContext, I>(descriptor: CssRuleDescripto
   delete descriptor.type;
 
   if (type === void 0 || type === "style") {
-    return CssRule.Style.define(descriptor as unknown as StyleRuleDescriptor<V>) as unknown as CssRuleConstructor<V, I>;
+    return StyleRule.define(descriptor as unknown as StyleRuleDescriptor<V>) as unknown as CssRuleConstructor<V, I>;
   } else if (type === "media") {
-    return CssRule.Media.define(descriptor as unknown as MediaRuleDescriptor<V>) as unknown as CssRuleConstructor<V, I>;
+    return MediaRule.define(descriptor as unknown as MediaRuleDescriptor<V>) as unknown as CssRuleConstructor<V, I>;
   } else {
     let _super = descriptor.extends;
     let css = descriptor.css;
@@ -185,7 +162,7 @@ CssRule.define = function <V extends CssContext, I>(descriptor: CssRuleDescripto
       _super = CssRule;
     }
 
-    const _constructor = function CssRuleAccessor(this: CssRule<V>, owner: V, ruleName: string | undefined): CssRule<V> {
+    const _constructor = function DecoratedCssRule(this: CssRule<V>, owner: V, ruleName: string | undefined): CssRule<V> {
       const _this: CssRule<V> = _super!.call(this, owner, ruleName) || this;
       let cssText: string | undefined;
       if (css !== void 0) {
@@ -197,7 +174,11 @@ CssRule.define = function <V extends CssContext, I>(descriptor: CssRuleDescripto
       if (_this.initRule !== void 0) {
         rule = _this.initRule(rule);
       }
-      _this._rule = rule;
+      Object.defineProperty(_this, "rule", {
+        value: rule,
+        enumerable: true,
+        configurable: true,
+      });
       return _this;
     } as unknown as CssRuleConstructor<V, I>;
 

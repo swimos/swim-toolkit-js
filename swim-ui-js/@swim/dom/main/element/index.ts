@@ -20,9 +20,10 @@ export {
 } from "./ElementView";
 export {
   ElementViewObserver,
-  WillSetAttributeObserver,
-  DidSetAttributeObserver,
-  WillSetStyleObserver,
-  DidSetStyleObserver,
+  ElementViewObserverCache,
+  ViewWillSetAttribute,
+  ViewDidSetAttribute,
+  ViewWillSetStyle,
+  ViewDidSetStyle,
 } from "./ElementViewObserver";
 export {ElementViewController} from "./ElementViewController";

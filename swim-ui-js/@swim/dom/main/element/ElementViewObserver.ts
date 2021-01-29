@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {ViewObserverCache} from "@swim/view";
 import type {NodeViewObserver} from "../node/NodeViewObserver";
 import type {ElementView} from "./ElementView";
 
@@ -26,21 +27,29 @@ export interface ElementViewObserver<V extends ElementView = ElementView> extend
 }
 
 /** @hidden */
-export interface WillSetAttributeObserver<V extends ElementView = ElementView> {
+export interface ElementViewObserverCache<V extends ElementView> extends ViewObserverCache<V> {
+  viewWillSetAttributeObservers?: ReadonlyArray<ViewWillSetAttribute<V>>;
+  viewDidSetAttributeObservers?: ReadonlyArray<ViewDidSetAttribute<V>>;
+  viewWillSetStyleObservers?: ReadonlyArray<ViewWillSetStyle<V>>;
+  viewDidSetStyleObservers?: ReadonlyArray<ViewDidSetStyle<V>>;
+}
+
+/** @hidden */
+export interface ViewWillSetAttribute<V extends ElementView = ElementView> {
   viewWillSetAttribute(name: string, value: unknown, view: V): void;
 }
 
 /** @hidden */
-export interface DidSetAttributeObserver<V extends ElementView = ElementView> {
+export interface ViewDidSetAttribute<V extends ElementView = ElementView> {
   viewDidSetAttribute(name: string, value: unknown, view: V): void;
 }
 
 /** @hidden */
-export interface WillSetStyleObserver<V extends ElementView = ElementView> {
+export interface ViewWillSetStyle<V extends ElementView = ElementView> {
   viewWillSetStyle(name: string, value: unknown, priority: string | undefined, view: V): void;
 }
 
 /** @hidden */
-export interface DidSetStyleObserver<V extends ElementView = ElementView> {
+export interface ViewDidSetStyle<V extends ElementView = ElementView> {
   viewDidSetStyle(name: string, value: unknown, priority: string | undefined, view: V): void;
 }

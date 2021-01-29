@@ -17,7 +17,7 @@ import type {Transition} from "@swim/animation";
 import type {Height, Width} from "@swim/style";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {StyleAnimator, ViewNodeType, SvgView} from "@swim/dom";
+import {StyleAnimator, SvgView} from "@swim/dom";
 import {PathContext} from "@swim/graphics";
 import {TreeCellInit, TreeCell} from "./TreeCell";
 
@@ -36,7 +36,7 @@ export class PolygonTreeCell extends TreeCell {
     this._sides = 0;
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
+  protected initNode(node: HTMLElement): void {
     super.initNode(node);
     this.addClass("polygon-tree-cell")
     this.justifyContent.setAutoState("center");

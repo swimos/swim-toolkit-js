@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewNodeType, SvgView} from "@swim/dom";
+import {SvgView} from "@swim/dom";
 import {IconButton} from "@swim/button";
 import type {DrawerView} from "./DrawerView";
 
@@ -26,7 +26,7 @@ export class DrawerButton extends IconButton {
     this.initChildren();
   }
 
-  protected initNode(node: ViewNodeType<this>): void {
+  protected initNode(node: HTMLElement): void {
     super.initNode(node);
     this.addClass("drawer-button");
   }
