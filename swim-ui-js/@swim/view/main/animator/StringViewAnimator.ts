@@ -21,4 +21,3 @@ export abstract class StringViewAnimator<V extends View> extends ViewAnimator<V,
     return value;
   }
 }
-ViewAnimator.String = StringViewAnimator;

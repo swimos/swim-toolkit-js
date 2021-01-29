@@ -19,8 +19,8 @@ import {
   ViewFlags,
   View,
   ViewObserverType,
-  WillProjectObserver,
-  DidProjectObserver,
+  ViewWillProject,
+  ViewDidProject,
 } from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
 import type {MapGraphicsViewContext} from "./MapGraphicsViewContext";
@@ -31,11 +31,6 @@ export interface MapGraphicsViewInit extends GraphicsViewInit {
 }
 
 export abstract class MapGraphicsView extends GraphicsView {
-  /** @hidden */
-  _willProjectObservers?: ReadonlyArray<WillProjectObserver>;
-  /** @hidden */
-  _didProjectObservers?: ReadonlyArray<DidProjectObserver>;
-
   declare readonly viewController: MapGraphicsViewController | null;
 
   declare readonly viewObservers: ReadonlyArray<MapGraphicsViewObserver>;
@@ -47,20 +42,20 @@ export abstract class MapGraphicsView extends GraphicsView {
   protected onAddViewObserver(viewObserver: ViewObserverType<this>): void {
     super.onAddViewObserver(viewObserver);
     if (viewObserver.viewWillProject !== void 0) {
-      this._willProjectObservers = Arrays.inserted(viewObserver as WillProjectObserver, this._willProjectObservers);
+      this.viewObserverCache.viewWillProjectObservers = Arrays.inserted(viewObserver as ViewWillProject, this.viewObserverCache.viewWillProjectObservers);
     }
     if (viewObserver.viewDidProject !== void 0) {
-      this._didProjectObservers = Arrays.inserted(viewObserver as DidProjectObserver, this._didProjectObservers);
+      this.viewObserverCache.viewDidProjectObservers = Arrays.inserted(viewObserver as ViewDidProject, this.viewObserverCache.viewDidProjectObservers);
     }
   }
 
   protected onRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
     super.onRemoveViewObserver(viewObserver);
     if (viewObserver.viewWillProject !== void 0) {
-      this._willProjectObservers = Arrays.removed(viewObserver as WillProjectObserver, this._willProjectObservers);
+      this.viewObserverCache.viewWillProjectObservers = Arrays.removed(viewObserver as ViewWillProject, this.viewObserverCache.viewWillProjectObservers);
     }
     if (viewObserver.viewDidProject !== void 0) {
-      this._didProjectObservers = Arrays.removed(viewObserver as DidProjectObserver, this._didProjectObservers);
+      this.viewObserverCache.viewDidProjectObservers = Arrays.removed(viewObserver as ViewDidProject, this.viewObserverCache.viewDidProjectObservers);
     }
   }
 
@@ -179,7 +174,7 @@ export abstract class MapGraphicsView extends GraphicsView {
     if (viewController !== null) {
       viewController.viewWillProject(viewContext, this);
     }
-    const viewObservers = this._willProjectObservers;
+    const viewObservers = this.viewObserverCache.viewWillProjectObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -193,7 +188,7 @@ export abstract class MapGraphicsView extends GraphicsView {
   }
 
   protected didProject(viewContext: ViewContextType<this>): void {
-    const viewObservers = this._didProjectObservers;
+    const viewObservers = this.viewObserverCache.viewDidProjectObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
         const viewObserver = viewObservers[i]!;

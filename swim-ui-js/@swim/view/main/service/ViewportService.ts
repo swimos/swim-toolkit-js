@@ -41,6 +41,5 @@ export abstract class ViewportService<V extends View> extends ViewManagerService
     this.manager.setViewIdiom(viewIdiom);
   }
 }
-ViewService.Viewport = ViewportService;
 
 ViewService({type: ViewportManager, observe: false})(View.prototype, "viewportService");

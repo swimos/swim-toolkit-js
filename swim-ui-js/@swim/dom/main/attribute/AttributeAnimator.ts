@@ -229,15 +229,15 @@ Object.defineProperty(AttributeAnimator.prototype, "value", {
 });
 
 AttributeAnimator.prototype.isAuto = function (this: AttributeAnimator<ElementView, unknown, unknown>): boolean {
-  return (this._animatorFlags & TweenAnimator.OverrideFlag) === 0;
+  return (this.animatorFlags & TweenAnimator.OverrideFlag) === 0;
 };
 
 AttributeAnimator.prototype.setAuto = function (this: AttributeAnimator<ElementView, unknown, unknown>,
                                                 auto: boolean): void {
-  if (auto && (this._animatorFlags & TweenAnimator.OverrideFlag) !== 0) {
-    this._animatorFlags &= ~TweenAnimator.OverrideFlag;
-  } else if (!auto && (this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
-    this._animatorFlags |= TweenAnimator.OverrideFlag;
+  if (auto && (this.animatorFlags & TweenAnimator.OverrideFlag) !== 0) {
+    this.setAnimatorFlags(this.animatorFlags & ~TweenAnimator.OverrideFlag);
+  } else if (!auto && (this.animatorFlags & TweenAnimator.OverrideFlag) === 0) {
+    this.setAnimatorFlags(this.animatorFlags | TweenAnimator.OverrideFlag);
   }
 };
 
@@ -280,13 +280,13 @@ AttributeAnimator.prototype.setState = function <T, U>(this: AttributeAnimator<E
   if (state !== void 0) {
     state = this.fromAny(state);
   }
-  this._animatorFlags |= TweenAnimator.OverrideFlag;
+  this.setAnimatorFlags(this.animatorFlags | TweenAnimator.OverrideFlag);
   TweenAnimator.prototype.setState.call(this, state, tween);
 };
 
 AttributeAnimator.prototype.setAutoState = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
                                                            state: T | U | undefined, tween?: Tween<T>): void {
-  if ((this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
+  if ((this.animatorFlags & TweenAnimator.OverrideFlag) === 0) {
     if (state !== void 0) {
       state = this.fromAny(state);
     }
@@ -306,7 +306,7 @@ AttributeAnimator.prototype.onUpdate = function <T, U>(this: AttributeAnimator<E
 
 AttributeAnimator.prototype.animate = function <T, U>(this: AttributeAnimator<ElementView, T, U>,
                                                       animator: Animator = this): void {
-  if (animator !== this || (this._animatorFlags & TweenAnimator.DisabledFlag) === 0) {
+  if (animator !== this || (this.animatorFlags & TweenAnimator.DisabledFlag) === 0) {
     this._owner.animate(animator);
   }
 };

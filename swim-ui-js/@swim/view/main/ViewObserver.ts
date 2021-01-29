@@ -95,81 +95,101 @@ export interface ViewObserver<V extends View = View> {
 }
 
 /** @hidden */
-export interface WillResizeObserver<V extends View = View> {
+export interface ViewObserverCache<V extends View> {
+  viewWillResizeObservers?: ReadonlyArray<ViewWillResize<V>>;
+  viewDidResizeObservers?: ReadonlyArray<ViewDidResize<V>>;
+  viewWillScrollObservers?: ReadonlyArray<ViewWillScroll<V>>;
+  viewDidScrollObservers?: ReadonlyArray<ViewDidScroll<V>>;
+  viewWillChangeObservers?: ReadonlyArray<ViewWillChange<V>>;
+  viewDidChangeObservers?: ReadonlyArray<ViewDidChange<V>>;
+  viewWillAnimateObservers?: ReadonlyArray<ViewWillAnimate<V>>;
+  viewDidAnimateObservers?: ReadonlyArray<ViewDidAnimate<V>>;
+  viewWillProjectObservers?: ReadonlyArray<ViewWillProject<V>>;
+  viewDidProjectObservers?: ReadonlyArray<ViewDidProject<V>>;
+  viewWillLayoutObservers?: ReadonlyArray<ViewWillLayout<V>>;
+  viewDidLayoutObservers?: ReadonlyArray<ViewDidLayout<V>>;
+  viewWillRenderObservers?: ReadonlyArray<ViewWillRender<V>>;
+  viewDidRenderObservers?: ReadonlyArray<ViewDidRender<V>>;
+  viewWillCompositeObservers?: ReadonlyArray<ViewWillComposite<V>>;
+  viewDidCompositeObservers?: ReadonlyArray<ViewDidComposite<V>>;
+}
+
+/** @hidden */
+export interface ViewWillResize<V extends View = View> {
   viewWillResize(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface DidResizeObserver<V extends View = View> {
+export interface ViewDidResize<V extends View = View> {
   viewDidResize(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface WillScrollObserver<V extends View = View> {
+export interface ViewWillScroll<V extends View = View> {
   viewWillScroll(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface DidScrollObserver<V extends View = View> {
+export interface ViewDidScroll<V extends View = View> {
   viewDidScroll(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface WillChangeObserver<V extends View = View> {
+export interface ViewWillChange<V extends View = View> {
   viewWillChange(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface DidChangeObserver<V extends View = View> {
+export interface ViewDidChange<V extends View = View> {
   viewDidChange(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface WillAnimateObserver<V extends View = View> {
+export interface ViewWillAnimate<V extends View = View> {
   viewWillAnimate(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface DidAnimateObserver<V extends View = View> {
+export interface ViewDidAnimate<V extends View = View> {
   viewDidAnimate(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface WillProjectObserver<V extends View = View> {
+export interface ViewWillProject<V extends View = View> {
   viewWillProject(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface DidProjectObserver<V extends View = View> {
+export interface ViewDidProject<V extends View = View> {
   viewDidProject(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface WillLayoutObserver<V extends View = View> {
+export interface ViewWillLayout<V extends View = View> {
   viewWillLayout(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface DidLayoutObserver<V extends View = View> {
+export interface ViewDidLayout<V extends View = View> {
   viewDidLayout(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface WillRenderObserver<V extends View = View> {
+export interface ViewWillRender<V extends View = View> {
   viewWillRender(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface DidRenderObserver<V extends View = View> {
+export interface ViewDidRender<V extends View = View> {
   viewDidRender(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface WillCompositeObserver<V extends View = View> {
+export interface ViewWillComposite<V extends View = View> {
   viewWillComposite(viewContext: ViewContextType<V>, view: V): void;
 }
 
 /** @hidden */
-export interface DidCompositeObserver<V extends View = View> {
+export interface ViewDidComposite<V extends View = View> {
   viewDidComposite(viewContext: ViewContextType<V>, view: V): void;
 }

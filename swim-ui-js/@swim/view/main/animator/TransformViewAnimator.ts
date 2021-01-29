@@ -22,4 +22,3 @@ export abstract class TransformViewAnimator<V extends View> extends ViewAnimator
     return value !== void 0 && value !== null ? Transform.fromAny(value) : null;
   }
 }
-ViewAnimator.Transform = TransformViewAnimator;

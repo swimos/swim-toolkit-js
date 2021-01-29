@@ -22,6 +22,5 @@ export abstract class DisplayService<V extends View> extends ViewManagerService<
     return DisplayManager.global();
   }
 }
-ViewService.Display = DisplayService;
 
 ViewService({type: DisplayManager, observe: false})(View.prototype, "displayService");

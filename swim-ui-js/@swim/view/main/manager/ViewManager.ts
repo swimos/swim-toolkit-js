@@ -13,13 +13,8 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import {View} from "../View";
+import type {View} from "../View";
 import type {ViewManagerObserverType, ViewManagerObserver} from "./ViewManagerObserver";
-import type {ViewportManager} from "../viewport/ViewportManager";
-import type {DisplayManager} from "../display/DisplayManager";
-import type {LayoutManager} from "../layout/LayoutManager";
-import type {ThemeManager} from "../theme/ThemeManager";
-import type {ModalManager} from "../modal/ModalManager";
 
 export abstract class ViewManager<V extends View = View> {
   constructor() {
@@ -268,17 +263,4 @@ export abstract class ViewManager<V extends View = View> {
       }
     }
   }
-
-  // Forward type declarations
-  /** @hidden */
-  static Viewport: typeof ViewportManager; // defined by ViewportManager
-  /** @hidden */
-  static Display: typeof DisplayManager; // defined by DisplayManager
-  /** @hidden */
-  static Layout: typeof LayoutManager; // defined by LayoutManager
-  /** @hidden */
-  static Theme: typeof ThemeManager; // defined by ThemeManager
-  /** @hidden */
-  static Modal: typeof ModalManager; // defined by ModalManager
 }
-View.Manager = ViewManager;

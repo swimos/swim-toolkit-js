@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ViewContext} from "../ViewContext";
+import {Lazy} from "@swim/util";
 import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
 import type {ViewManagerObserverType} from "../manager/ViewManagerObserver";
@@ -22,21 +22,22 @@ import type {ViewportContext} from "./ViewportContext";
 import type {ViewportManagerObserver} from "./ViewportManagerObserver";
 
 export class ViewportManager<V extends View = View> extends ViewManager<V> {
-  /** @hidden */
-  readonly _viewContext: ViewportContext;
-  /** @hidden */
-  _reorientationTimer: number;
-
   constructor() {
     super();
+    Object.defineProperty(this, "viewContext", {
+      value: this.initViewContext(),
+      enumerable: true,
+      configurable: true,
+    });
+    this.reorientationTimer = 0;
+
     this.throttleScroll = this.throttleScroll.bind(this);
     this.throttleResize = this.throttleResize.bind(this);
     this.debounceReorientation = this.debounceReorientation.bind(this);
     this.throttleReorientation = this.throttleReorientation.bind(this);
-
-    this._reorientationTimer = 0;
-    this._viewContext = this.initViewContext();
   }
+
+  declare readonly viewContext: ViewportContext;
 
   protected initViewContext(): ViewportContext {
     return {
@@ -46,16 +47,12 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     };
   }
 
-  get viewContext(): ViewContext {
-    return this._viewContext;
-  }
-
   get viewport(): Viewport {
-    return this._viewContext.viewport;
+    return this.viewContext.viewport;
   }
 
   get viewIdiom(): ViewIdiom {
-    return this._viewContext.viewIdiom;
+    return this.viewContext.viewIdiom;
   }
 
   /** @hidden */
@@ -94,7 +91,7 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   }
 
   setViewIdiom(newViewIdiom: ViewIdiom): void {
-    const viewContext = this._viewContext;
+    const viewContext = this.viewContext;
     const oldViewIdiom = viewContext.viewIdiom;
     if (oldViewIdiom !== newViewIdiom) {
       this.willSetViewIdiom(newViewIdiom, oldViewIdiom);
@@ -202,7 +199,7 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
   throttleResize(): void {
     const viewport = this.detectViewport();
-    this._viewContext.viewport = viewport;
+    this.viewContext.viewport = viewport;
     this.updateViewIdiom(viewport);
 
     const rootViews = this.rootViews;
@@ -212,23 +209,26 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   }
 
   /** @hidden */
+  reorientationTimer: number;
+
+  /** @hidden */
   protected debounceReorientation(): void {
-    if (this._reorientationTimer !== 0) {
-      clearTimeout(this._reorientationTimer);
-      this._reorientationTimer = 0;
+    if (this.reorientationTimer !== 0) {
+      clearTimeout(this.reorientationTimer);
+      this.reorientationTimer = 0;
     }
-    this._reorientationTimer = setTimeout(this.throttleReorientation, ViewportManager.ReorientationDelay) as any;
+    this.reorientationTimer = setTimeout(this.throttleReorientation, ViewportManager.ReorientationDelay) as any;
   }
 
   /** @hidden */
   protected throttleReorientation(): void {
-    if (this._reorientationTimer !== 0) {
-      clearTimeout(this._reorientationTimer);
-      this._reorientationTimer = 0;
+    if (this.reorientationTimer !== 0) {
+      clearTimeout(this.reorientationTimer);
+      this.reorientationTimer = 0;
     }
 
     const viewport = this.detectViewport();
-    this._viewContext.viewport = viewport;
+    this.viewContext.viewport = viewport;
     this.willReorient(viewport.orientation);
     this.updateViewIdiom(viewport);
     this.onReorient(viewport.orientation);
@@ -243,12 +243,8 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
   /** @hidden */
   static ReorientationDelay: number = 100;
 
-  private static _global?: ViewportManager<any>;
+  @Lazy
   static global<V extends View>(): ViewportManager<V> {
-    if (ViewportManager._global === void 0) {
-      ViewportManager._global = new ViewportManager();
-    }
-    return ViewportManager._global;
+    return new ViewportManager();
   }
 }
-ViewManager.Viewport = ViewportManager;

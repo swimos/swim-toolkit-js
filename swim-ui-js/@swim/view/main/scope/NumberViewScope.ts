@@ -32,4 +32,3 @@ export abstract class NumberViewScope<V extends View> extends ViewScope<V, numbe
     }
   }
 }
-ViewScope.Number = NumberViewScope;

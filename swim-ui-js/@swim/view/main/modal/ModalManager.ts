@@ -12,49 +12,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Lazy, Arrays} from "@swim/util";
 import type {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
 import type {ModalOptions, Modal} from "./Modal";
 import type {ModalManagerObserver} from "./ModalManagerObserver";
 
 export class ModalManager<V extends View = View> extends ViewManager<V> {
-  /** @hidden */
-  readonly _modals: Modal[];
-  /** @hidden */
-  _modality: number;
-  /** @hidden */
-  _matteView: View | null;
-
   constructor() {
     super();
+    Object.defineProperty(this, "modals", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modality", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "matteView", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+
     this.onClick = this.onClick.bind(this);
-    this._modals = [];
-    this._modality = 0;
-    this._matteView = null;
   }
 
-  get modals(): ReadonlyArray<Modal> {
-    return this._modals;
-  }
+  declare readonly modals: ReadonlyArray<Modal>;
 
   isModal(): boolean {
-    return this._modality !== 0;
+    return this.modality !== 0;
   }
 
-  get modality(): number {
-    return this._modality;
-  }
+  declare readonly modality: number;
 
-  get matteView(): View | null {
-    return this._matteView;
-  }
+  declare readonly matteView: View | null;
 
   setMatteView(matteView: View | null): void {
-    this._matteView = matteView;
+    Object.defineProperty(this, "matteView", {
+      value: matteView,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected insertModalView(modalView: View): void {
-    const matteView = this._matteView;
+    const matteView = this.matteView;
     if (matteView !== null) {
       matteView.appendChildView(modalView);
     } else {
@@ -64,13 +69,18 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   presentModal(modal: Modal, options: ModalOptions = {}): void {
-    const modals = this._modals;
-    if (modals.indexOf(modal) < 0) {
+    const oldModals = this.modals;
+    const newModals = Arrays.inserted(modal, oldModals);
+    if (oldModals !== newModals) {
       if (!options.multi) {
         this.dismissModals();
       }
       this.willPresentModal(modal, options);
-      modals.push(modal);
+      Object.defineProperty(this, "modals", {
+        value: newModals,
+        enumerable: true,
+        configurable: true,
+      });
       const modalView = modal.modalView;
       if (modalView !== null && !modalView.isMounted()) {
         this.insertModalView(modalView);
@@ -107,11 +117,15 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   dismissModal(modal: Modal): void {
-    const modals = this._modals;
-    const index = modals.indexOf(modal);
-    if (index >= 0) {
+    const oldModals = this.modals;
+    const newModals = Arrays.removed(modal, oldModals);
+    if (oldModals !== newModals) {
       this.willDismissModal(modal);
-      modals.splice(index, 1);
+      Object.defineProperty(this, "modals", {
+        value: newModals,
+        enumerable: true,
+        configurable: true,
+      });
       modal.hideModal(true);
       this.onDismissModal(modal);
       this.updateModality();
@@ -144,9 +158,9 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   dismissModals(): void {
-    const modals = this._modals;
-    while (modals.length !== 0) {
-      this.dismissModal(modals[0]!);
+    const modals = this.modals;
+    for (let i = 0, n = modals.length; i < n; i += 1) {
+      this.dismissModal(this.modals[i]!);
     }
   }
 
@@ -160,9 +174,9 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   updateModality(): void {
-    const oldModality = this._modality;
+    const oldModality = this.modality;
     let newModality = 0;
-    const modals = this._modals;
+    const modals = this.modals;
     for (let i = 0, n = modals.length; i < n; i += 1) {
       const modal = modals[i]!;
       const modality = +modal.modality;
@@ -170,7 +184,11 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
     }
     if (oldModality !== newModality) {
       this.willUpdateModality(newModality, oldModality);
-      this._modality = newModality;
+      Object.defineProperty(this, "modality", {
+        value: newModality,
+        enumerable: true,
+        configurable: true,
+      });
       this.onUpdateModality(newModality, oldModality);
       this.didUpdateModality(newModality, oldModality);
     }
@@ -221,7 +239,7 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
   }
 
   protected onDisplaceModals(event: Event | null): void {
-    const modals = this._modals;
+    const modals = this.modals;
     let i = 0;
     while (i < modals.length) {
       const modal = modals[i]!;
@@ -271,12 +289,8 @@ export class ModalManager<V extends View = View> extends ViewManager<V> {
     throw new TypeError("" + modalView);
   }
 
-  private static _global?: ModalManager<any>;
+  @Lazy
   static global<V extends View>(): ModalManager<V> {
-    if (ModalManager._global === void 0) {
-      ModalManager._global = new ModalManager();
-    }
-    return ModalManager._global;
+    return new ModalManager();
   }
 }
-ViewManager.Modal = ModalManager;

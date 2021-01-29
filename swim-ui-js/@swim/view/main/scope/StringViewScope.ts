@@ -21,4 +21,3 @@ export abstract class StringViewScope<V extends View> extends ViewScope<V, strin
     return value;
   }
 }
-ViewScope.String = StringViewScope;

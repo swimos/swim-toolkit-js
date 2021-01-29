@@ -32,4 +32,3 @@ export abstract class NumberViewAnimator<V extends View> extends ViewAnimator<V,
     }
   }
 }
-ViewAnimator.Number = NumberViewAnimator;

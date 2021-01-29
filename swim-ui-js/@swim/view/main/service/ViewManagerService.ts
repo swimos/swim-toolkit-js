@@ -18,14 +18,11 @@ import type {ViewManagerObserverType} from "../manager/ViewManagerObserver";
 import {ViewService} from "./ViewService";
 
 export abstract class ViewManagerService<V extends View, VM extends ViewManager<V>> extends ViewService<V, VM> {
-  /** @hidden */
-  readonly observe?: boolean;
-
   mount(): void {
     super.mount();
-    const manager = this._manager;
+    const manager = this.manager;
     if (manager !== void 0 && !this.isInherited()) {
-      manager.insertRootView(this._owner);
+      manager.insertRootView(this.owner);
       if (this.observe !== false) {
         manager.addViewManagerObserver(this as ViewManagerObserverType<VM>);
       }
@@ -33,14 +30,13 @@ export abstract class ViewManagerService<V extends View, VM extends ViewManager<
   }
 
   unmount(): void {
-    const manager = this._manager;
+    const manager = this.manager;
     if (manager !== void 0 && !this.isInherited()) {
       if (this.observe !== false) {
         manager.removeViewManagerObserver(this as ViewManagerObserverType<VM>);
       }
-      manager.removeRootView(this._owner);
+      manager.removeRootView(this.owner);
     }
     super.unmount();
   }
 }
-ViewService.Manager = ViewManagerService;

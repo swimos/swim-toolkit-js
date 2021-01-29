@@ -21,4 +21,3 @@ export abstract class BooleanViewScope<V extends View> extends ViewScope<V, bool
     return !!value;
   }
 }
-ViewScope.Boolean = BooleanViewScope;

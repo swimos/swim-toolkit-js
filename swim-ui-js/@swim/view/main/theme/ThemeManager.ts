@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Lazy} from "@swim/util";
 import {Tween, Transition} from "@swim/animation";
 import {Look, Mood, MoodVector, Theme, ThemeMatrix} from "@swim/theme";
 import {View} from "../View";
@@ -20,20 +21,44 @@ import {Viewport} from "../viewport/Viewport";
 import type {ThemeManagerObserver} from "./ThemeManagerObserver";
 
 export class ThemeManager<V extends View = View> extends ViewManager<V> {
-  /** @hidden */
-  _mood: MoodVector;
-  /** @hidden */
-  _theme: ThemeMatrix;
-
   constructor() {
     super();
-    this._mood = this.initMood();
-    this._theme = this.initTheme();
+    Object.defineProperty(this, "mood", {
+      value: this.initMood(),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "theme", {
+      value: this.initTheme(),
+      enumerable: true,
+      configurable: true,
+    });
   }
+
+  declare readonly mood: MoodVector;
 
   protected initMood(): MoodVector {
     return Mood.default;
   }
+
+  setMood(mood: MoodVector): void {
+    Object.defineProperty(this, "mood", {
+      value: mood,
+      enumerable: true,
+      configurable: true,
+    });
+    this.applyTheme(this.theme, mood);
+    const rootViews = this.rootViews;
+    for (let i = 0, n = rootViews.length; i < n; i += 1) {
+      const rootView = rootViews[i]!;
+      if (rootView.mood.isAuto()) {
+        rootView.mood.setAutoState(mood);
+        rootView.requireUpdate(View.NeedsChange);
+      }
+    }
+  }
+
+  declare readonly theme: ThemeMatrix;
 
   protected initTheme(): ThemeMatrix {
     const viewport = Viewport.detect();
@@ -45,30 +70,13 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  get mood(): MoodVector {
-    return this._mood;
-  }
-
-  setMood(mood: MoodVector): void {
-    this._mood = mood;
-    this.applyTheme(this._theme, this._mood);
-    const rootViews = this.rootViews;
-    for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      const rootView = rootViews[i]!;
-      if (rootView.mood.isAuto()) {
-        rootView.mood.setAutoState(mood);
-        rootView.requireUpdate(View.NeedsChange);
-      }
-    }
-  }
-
-  get theme(): ThemeMatrix {
-    return this._theme;
-  }
-
   setTheme(theme: ThemeMatrix): void {
-    this._theme = theme;
-    this.applyTheme(this._theme, this._mood);
+    Object.defineProperty(this, "theme", {
+      value: theme,
+      enumerable: true,
+      configurable: true,
+    });
+    this.applyTheme(theme, this.mood);
     const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
       const rootView = rootViews[i]!;
@@ -124,15 +132,11 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
 
   protected onInsertRootView(rootView: V): void {
     super.onInsertRootView(rootView);
-    this.applyTheme(this._theme, this._mood);
+    this.applyTheme(this.theme, this.mood);
   }
 
-  private static _global?: ThemeManager<any>;
+  @Lazy
   static global<V extends View>(): ThemeManager<V> {
-    if (ThemeManager._global === void 0) {
-      ThemeManager._global = new ThemeManager();
-    }
-    return ThemeManager._global;
+    return new ThemeManager();
   }
 }
-ViewManager.Theme = ThemeManager;

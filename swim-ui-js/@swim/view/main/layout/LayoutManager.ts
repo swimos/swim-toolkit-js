@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Lazy} from "@swim/util";
 import type {ConstrainVariable, Constraint, ConstraintSolver} from "@swim/constraint";
 import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
@@ -19,45 +20,43 @@ import {LayoutSolver} from "./LayoutSolver";
 import type {LayoutManagerObserver} from "./LayoutManagerObserver";
 
 export class LayoutManager<V extends View = View> extends ViewManager<V> {
-  /** @hidden */
-  readonly _solver: LayoutSolver;
-
   constructor() {
     super();
-    this._solver = this.createSolver();
+    Object.defineProperty(this, "solver", {
+      value: this.createSolver(),
+      enumerable: true,
+    });
   }
 
+  declare readonly solver: ConstraintSolver;
+
   /** @hidden */
-  protected createSolver(): LayoutSolver {
+  protected createSolver(): ConstraintSolver {
     return new LayoutSolver(this);
   }
 
-  get solver(): ConstraintSolver {
-    return this._solver;
-  }
-
   activateConstraint(constraint: Constraint): void {
-    this._solver.addConstraint(constraint);
+    this.solver.addConstraint(constraint);
   }
 
   deactivateConstraint(constraint: Constraint): void {
-    this._solver.removeConstraint(constraint);
+    this.solver.removeConstraint(constraint);
   }
 
   activateConstraintVariable(constraintVariable: ConstrainVariable): void {
-    this._solver.addConstraintVariable(constraintVariable);
+    this.solver.addConstraintVariable(constraintVariable);
   }
 
   deactivateConstraintVariable(constraintVariable: ConstrainVariable): void {
-    this._solver.removeConstraintVariable(constraintVariable);
+    this.solver.removeConstraintVariable(constraintVariable);
   }
 
   setConstraintVariable(constraintVariable: ConstrainVariable, state: number): void {
-    this._solver.setConstraintVariable(constraintVariable, state);
+    this.solver.setConstraintVariable(constraintVariable, state);
   }
 
   updateConstraintVariables(): void {
-    this._solver.updateConstraintVariables();
+    this.solver.updateConstraintVariables();
   }
 
   didAddConstraint(constraint: Constraint): void {
@@ -99,12 +98,8 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
 
   declare readonly viewManagerObservers: ReadonlyArray<LayoutManagerObserver>;
 
-  private static _global?: LayoutManager<any>;
+  @Lazy
   static global<V extends View>(): LayoutManager<V> {
-    if (LayoutManager._global === void 0) {
-      LayoutManager._global = new LayoutManager();
-    }
-    return LayoutManager._global;
+    return new LayoutManager();
   }
 }
-ViewManager.Layout = LayoutManager;

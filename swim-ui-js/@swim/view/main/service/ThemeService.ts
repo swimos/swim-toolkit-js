@@ -39,6 +39,5 @@ export abstract class ThemeService<V extends View> extends ViewManagerService<V,
     return ThemeManager.global();
   }
 }
-ViewService.Theme = ThemeService;
 
 ViewService({type: ThemeManager, observe: false})(View.prototype, "themeService");

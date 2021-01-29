@@ -527,14 +527,14 @@ export class HtmlView extends ElementView {
       if (offsetBounds !== null) {
         const bounds = node.getBoundingClientRect();
         const leftAnchor = this.owner.getLayoutAnchor("leftAnchor");
-        if (leftAnchor !== null && leftAnchor.constrained()) {
+        if (leftAnchor !== null && leftAnchor.constrained) {
           const newState = offsetBounds.left + newValue - 0.5 * bounds.width;
           this.owner.left.setState(newState);
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
           return;
         }
         const rightAnchor = this.owner.getLayoutAnchor("rightAnchor");
-        if (rightAnchor !== null && rightAnchor.constrained()) {
+        if (rightAnchor !== null && rightAnchor.constrained) {
           const newState = offsetBounds.right - newValue - 0.5 * bounds.width;
           this.owner.right.setState(newState);
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
@@ -571,14 +571,14 @@ export class HtmlView extends ElementView {
       if (offsetBounds !== null) {
         const bounds = node.getBoundingClientRect();
         const topAnchor = this.owner.getLayoutAnchor("topAnchor");
-        if (topAnchor !== null && topAnchor.constrained()) {
+        if (topAnchor !== null && topAnchor.constrained) {
           const newState = offsetBounds.top + newValue - 0.5 * bounds.height;
           this.owner.top.setState(newState);
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
           return;
         }
         const bottomAnchor = this.owner.getLayoutAnchor("bottomAnchor");
-        if (bottomAnchor !== null && bottomAnchor.constrained()) {
+        if (bottomAnchor !== null && bottomAnchor.constrained) {
           const newState = offsetBounds.bottom - newValue - 0.5 * bounds.height;
           this.owner.bottom.setState(newState);
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);

@@ -21,10 +21,10 @@ import {
   ViewFlags,
   View,
   ViewObserverType,
-  WillRenderObserver,
-  DidRenderObserver,
-  WillCompositeObserver,
-  DidCompositeObserver,
+  ViewWillRender,
+  ViewDidRender,
+  ViewWillComposite,
+  ViewDidComposite,
   ViewEvent,
   ViewMouseEventInit,
   ViewMouseEvent,
@@ -93,14 +93,6 @@ export class CanvasView extends HtmlView {
   readonly _pointers: {[id: string]: CanvasViewPointer | undefined};
   /** @hidden */
   readonly _touches: {[id: string]: CanvasViewTouch | undefined};
-  /** @hidden */
-  _willRenderObservers?: ReadonlyArray<WillRenderObserver<CanvasView>>;
-  /** @hidden */
-  _didRenderObservers?: ReadonlyArray<DidRenderObserver<CanvasView>>;
-  /** @hidden */
-  _willCompositeObservers?: ReadonlyArray<WillCompositeObserver<CanvasView>>;
-  /** @hidden */
-  _didCompositeObservers?: ReadonlyArray<DidCompositeObserver<CanvasView>>;
 
   constructor(node: HTMLCanvasElement) {
     super(node);
@@ -176,32 +168,32 @@ export class CanvasView extends HtmlView {
   protected onAddViewObserver(viewObserver: ViewObserverType<this>): void {
     super.onAddViewObserver(viewObserver);
     if (viewObserver.viewWillRender !== void 0) {
-      this._willRenderObservers = Arrays.inserted(viewObserver as WillRenderObserver, this._willRenderObservers);
+      this.viewObserverCache.viewWillRenderObservers = Arrays.inserted(viewObserver as ViewWillRender, this.viewObserverCache.viewWillRenderObservers);
     }
     if (viewObserver.viewDidRender !== void 0) {
-      this._didRenderObservers = Arrays.inserted(viewObserver as DidRenderObserver, this._didRenderObservers);
+      this.viewObserverCache.viewDidRenderObservers = Arrays.inserted(viewObserver as ViewDidRender, this.viewObserverCache.viewDidRenderObservers);
     }
     if (viewObserver.viewWillComposite !== void 0) {
-      this._willCompositeObservers = Arrays.inserted(viewObserver as WillCompositeObserver, this._willCompositeObservers);
+      this.viewObserverCache.viewWillCompositeObservers = Arrays.inserted(viewObserver as ViewWillComposite, this.viewObserverCache.viewWillCompositeObservers);
     }
     if (viewObserver.viewDidComposite !== void 0) {
-      this._didCompositeObservers = Arrays.inserted(viewObserver as DidCompositeObserver, this._didCompositeObservers);
+      this.viewObserverCache.viewDidCompositeObservers = Arrays.inserted(viewObserver as ViewDidComposite, this.viewObserverCache.viewDidCompositeObservers);
     }
   }
 
   protected onRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
     super.onRemoveViewObserver(viewObserver);
     if (viewObserver.viewWillRender !== void 0) {
-      this._willRenderObservers = Arrays.removed(viewObserver as WillRenderObserver, this._willRenderObservers);
+      this.viewObserverCache.viewWillRenderObservers = Arrays.removed(viewObserver as ViewWillRender, this.viewObserverCache.viewWillRenderObservers);
     }
     if (viewObserver.viewDidRender !== void 0) {
-      this._didRenderObservers = Arrays.removed(viewObserver as DidRenderObserver, this._didRenderObservers);
+      this.viewObserverCache.viewDidRenderObservers = Arrays.removed(viewObserver as ViewDidRender, this.viewObserverCache.viewDidRenderObservers);
     }
     if (viewObserver.viewWillComposite !== void 0) {
-      this._willCompositeObservers = Arrays.removed(viewObserver as WillCompositeObserver, this._willCompositeObservers);
+      this.viewObserverCache.viewWillCompositeObservers = Arrays.removed(viewObserver as ViewWillComposite, this.viewObserverCache.viewWillCompositeObservers);
     }
     if (viewObserver.viewDidComposite !== void 0) {
-      this._didCompositeObservers = Arrays.removed(viewObserver as DidCompositeObserver, this._didCompositeObservers);
+      this.viewObserverCache.viewDidCompositeObservers = Arrays.removed(viewObserver as ViewDidComposite, this.viewObserverCache.viewDidCompositeObservers);
     }
   }
 
@@ -941,7 +933,7 @@ export class CanvasView extends HtmlView {
     if (viewController !== null) {
       viewController.viewWillRender(viewContext, this);
     }
-    const viewObservers = this._willRenderObservers;
+    const viewObservers = this.viewObserverCache.viewWillRenderObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -955,7 +947,7 @@ export class CanvasView extends HtmlView {
   }
 
   protected didRender(viewContext: ViewContextType<this>): void {
-    const viewObservers = this._didRenderObservers;
+    const viewObservers = this.viewObserverCache.viewDidRenderObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -973,7 +965,7 @@ export class CanvasView extends HtmlView {
     if (viewController !== null) {
       viewController.viewWillComposite(viewContext, this);
     }
-    const viewObservers = this._willCompositeObservers;
+    const viewObservers = this.viewObserverCache.viewWillCompositeObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -987,7 +979,7 @@ export class CanvasView extends HtmlView {
   }
 
   protected didComposite(viewContext: ViewContextType<this>): void {
-    const viewObservers = this._didCompositeObservers;
+    const viewObservers = this.viewObserverCache.viewDidCompositeObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
         const viewObserver = viewObservers[i]!;

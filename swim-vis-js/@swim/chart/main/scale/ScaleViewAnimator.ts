@@ -42,7 +42,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
       if (yMin !== void 0 && yMax !== void 0) {
         newState = newState.overRange(yMin as Y, yMax);
       }
-      if ((tween === void 0 || tween === null || tween === false) && (this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
+      if ((tween === void 0 || tween === null || tween === false) && (this.animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         const oldValue = this.getValue();
         const newValue = oldValue.withDomain(xMin as X, xMax as X);
         const duration = this._duration - this._baseTime;
@@ -51,8 +51,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
     } else {
       newState = ScaleView.createScale(xMin as X, xMax as X, yMin as Y, yMax as Y);
     }
-    this._animatorFlags |= TweenAnimator.OverrideFlag;
-    this._animatorFlags &= ~TweenAnimator.InheritedFlag;
+    this.setAnimatorFlags(this.animatorFlags & ~TweenAnimator.InheritedFlag | TweenAnimator.OverrideFlag);
     super.setState(newState, tween);
   }
 
@@ -72,7 +71,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
     let newState: ContinuousScale<X, Y>;
     if (oldState !== void 0) {
       newState = oldState.withDomain(xMin as X, xMax as X);
-      if ((tween === void 0 || tween === null || tween === false) && (this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
+      if ((tween === void 0 || tween === null || tween === false) && (this.animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         const oldValue = this.getValue();
         const newValue = oldValue.withDomain(xMin as X, xMax as X);
         const duration = this._duration - this._baseTime;
@@ -81,8 +80,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
     } else {
       newState = ScaleView.createScale(xMin as X, xMax as X, 0 as unknown as Y, 1 as unknown as Y);
     }
-    this._animatorFlags |= TweenAnimator.OverrideFlag;
-    this._animatorFlags &= ~TweenAnimator.InheritedFlag;
+    this.setAnimatorFlags(this.animatorFlags & ~TweenAnimator.InheritedFlag | TweenAnimator.OverrideFlag);
     super.setState(newState, tween);
   }
 
@@ -98,14 +96,13 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
         yMin = (yMin as Range<Y>)[0];
       }
       const newState = oldState.overRange(yMin as Y, yMax as Y);
-      if ((tween === void 0 || tween === null || tween === false) && (this._animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
+      if ((tween === void 0 || tween === null || tween === false) && (this.animatorFlags & TweenAnimator.TweeningFlag) !== 0) {
         const oldValue = this.getValue();
         const newValue = oldValue.overRange(yMin as Y, yMax as Y);
         const duration = this._duration - this._baseTime;
         tween = Transition.duration(duration, void 0, Interpolator(newValue, newState));
       }
-      this._animatorFlags |= TweenAnimator.OverrideFlag;
-      this._animatorFlags &= ~TweenAnimator.InheritedFlag;
+      this.setAnimatorFlags(this.animatorFlags & ~TweenAnimator.InheritedFlag | TweenAnimator.OverrideFlag);
       super.setState(newState, tween);
     }
   }

@@ -22,4 +22,3 @@ export abstract class AngleViewAnimator<V extends View> extends ViewAnimator<V, 
     return value !== void 0 && value !== null ? Angle.fromAny(value) : value;
   }
 }
-ViewAnimator.Angle = AngleViewAnimator;

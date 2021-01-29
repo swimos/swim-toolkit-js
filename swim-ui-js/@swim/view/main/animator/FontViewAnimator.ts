@@ -22,4 +22,3 @@ export abstract class FontViewAnimator<V extends View> extends ViewAnimator<V, F
     return value !== void 0 && value !== null ? Font.fromAny(value) : value;
   }
 }
-ViewAnimator.Font = FontViewAnimator;

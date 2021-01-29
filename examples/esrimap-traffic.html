@@ -95,7 +95,7 @@ require([
         .laneUri("intersection/schematic")
         .didSet(function (value) {
           value.forEach(function (item) {
-            if (item.tag() === "approach") {
+            if (item.tag === "approach") {
               const approachId = item.get("id").stringValue();
               const approachKey = intersectionId + "-" + approachId;
               let approachView = approaches[approachId];

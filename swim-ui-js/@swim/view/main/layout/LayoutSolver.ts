@@ -17,35 +17,33 @@ import type {LayoutManager} from "./LayoutManager";
 
 /** @hidden */
 export class LayoutSolver extends ConstraintSolver {
-  /** @hidden */
-  readonly _layoutManager: LayoutManager;
-
   constructor(layoutManager: LayoutManager) {
     super();
-    this._layoutManager = layoutManager;
+    Object.defineProperty(this, "layoutManager", {
+      value: layoutManager,
+      enumerable: true,
+    });
   }
 
-  get layoutManager(): LayoutManager {
-    return this._layoutManager;
-  }
+  declare readonly layoutManager: LayoutManager;
 
   protected didAddConstraint(constraint: Constraint): void {
-    this._layoutManager.didAddConstraint(constraint);
+    this.layoutManager.didAddConstraint(constraint);
   }
 
   protected didRemoveConstraint(constraint: Constraint): void {
-    this._layoutManager.didRemoveConstraint(constraint);
+    this.layoutManager.didRemoveConstraint(constraint);
   }
 
   protected didAddConstraintVariable(constraintVariable: ConstrainVariable): void {
-    this._layoutManager.didAddConstraintVariable(constraintVariable);
+    this.layoutManager.didAddConstraintVariable(constraintVariable);
   }
 
   protected didRemoveConstraintVariable(constraintVariable: ConstrainVariable): void {
-    this._layoutManager.didRemoveConstraintVariable(constraintVariable);
+    this.layoutManager.didRemoveConstraintVariable(constraintVariable);
   }
 
   protected didUpdateConstraintVariable(constraintVariable: ConstrainVariable, newValue: number, oldValue: number): void {
-    this._layoutManager.didUpdateConstraintVariable(constraintVariable, newValue, oldValue);
+    this.layoutManager.didUpdateConstraintVariable(constraintVariable, newValue, oldValue);
   }
 }

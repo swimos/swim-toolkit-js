@@ -22,4 +22,3 @@ export abstract class ColorViewAnimator<V extends View> extends ViewAnimator<V, 
     return value !== void 0 && value !== null ? Color.fromAny(value) : value;
   }
 }
-ViewAnimator.Color = ColorViewAnimator;

@@ -47,6 +47,5 @@ export abstract class ModalService<V extends View> extends ViewManagerService<V,
     return ModalManager.global();
   }
 }
-ViewService.Modal = ModalService;
 
 ViewService({type: ModalManager, observe: false})(View.prototype, "modalService");

@@ -283,15 +283,15 @@ Object.defineProperty(StyleAnimator.prototype, "value", {
 });
 
 StyleAnimator.prototype.isAuto = function (this: StyleAnimator<StyleContext, unknown, unknown>): boolean {
-  return (this._animatorFlags & TweenAnimator.OverrideFlag) === 0;
+  return (this.animatorFlags & TweenAnimator.OverrideFlag) === 0;
 };
 
 StyleAnimator.prototype.setAuto = function (this: StyleAnimator<StyleContext, unknown, unknown>,
                                             auto: boolean): void {
-  if (auto && (this._animatorFlags & TweenAnimator.OverrideFlag) !== 0) {
-    this._animatorFlags &= ~TweenAnimator.OverrideFlag;
-  } else if (!auto && (this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
-    this._animatorFlags |= TweenAnimator.OverrideFlag;
+  if (auto && (this.animatorFlags & TweenAnimator.OverrideFlag) !== 0) {
+    this.setAnimatorFlags(this.animatorFlags & ~TweenAnimator.OverrideFlag);
+  } else if (!auto && (this.animatorFlags & TweenAnimator.OverrideFlag) === 0) {
+    this.setAnimatorFlags(this.animatorFlags | TweenAnimator.OverrideFlag);
   }
 };
 
@@ -342,14 +342,14 @@ StyleAnimator.prototype.setState = function <T, U>(this: StyleAnimator<StyleCont
       this._priority = void 0;
     }
   }
-  this._animatorFlags |= TweenAnimator.OverrideFlag;
+  this.setAnimatorFlags(this.animatorFlags | TweenAnimator.OverrideFlag);
   TweenAnimator.prototype.setState.call(this, state, tween);
 };
 
 StyleAnimator.prototype.setAutoState = function <T, U>(this: StyleAnimator<StyleContext, T, U>,
                                                        state: T | U | undefined, tween?: Tween<T>,
                                                        priority?: string): void {
-  if ((this._animatorFlags & TweenAnimator.OverrideFlag) === 0) {
+  if ((this.animatorFlags & TweenAnimator.OverrideFlag) === 0) {
     if (state !== void 0) {
       state = this.fromAny(state);
     }
@@ -383,7 +383,7 @@ StyleAnimator.prototype.onUpdate = function <T, U>(this: StyleAnimator<StyleCont
 
 StyleAnimator.prototype.animate = function <T, U>(this: StyleAnimator<StyleContext, T, U>,
                                                   animator: Animator = this): void {
-  if (animator !== this || (this._animatorFlags & TweenAnimator.DisabledFlag) === 0) {
+  if (animator !== this || (this.animatorFlags & TweenAnimator.DisabledFlag) === 0) {
     this._owner.animate(animator);
   }
 };

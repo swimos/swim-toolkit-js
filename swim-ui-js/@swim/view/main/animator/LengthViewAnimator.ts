@@ -22,4 +22,3 @@ export abstract class LengthViewAnimator<V extends View> extends ViewAnimator<V,
     return value !== void 0 && value !== null ? Length.fromAny(value) : null;
   }
 }
-ViewAnimator.Length = LengthViewAnimator;

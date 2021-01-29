@@ -24,10 +24,10 @@ import {
   ViewConstructor,
   View,
   ViewObserverType,
-  WillRenderObserver,
-  DidRenderObserver,
-  WillCompositeObserver,
-  DidCompositeObserver,
+  ViewWillRender,
+  ViewDidRender,
+  ViewWillComposite,
+  ViewDidComposite,
   ViewService,
   LayoutAnchor,
   ViewScope,
@@ -81,14 +81,6 @@ export abstract class GraphicsView extends View {
   _hoverSet?: {[id: string]: null | undefined};
   /** @hidden */
   _eventHandlers?: {[type: string]: ViewEventHandler[] | undefined};
-  /** @hidden */
-  _willRenderObservers?: ReadonlyArray<WillRenderObserver>;
-  /** @hidden */
-  _didRenderObservers?: ReadonlyArray<DidRenderObserver>;
-  /** @hidden */
-  _willCompositeObservers?: ReadonlyArray<WillCompositeObserver>;
-  /** @hidden */
-  _didCompositeObservers?: ReadonlyArray<DidCompositeObserver>;
 
   constructor() {
     super();
@@ -130,32 +122,32 @@ export abstract class GraphicsView extends View {
   protected onAddViewObserver(viewObserver: ViewObserverType<this>): void {
     super.onAddViewObserver(viewObserver);
     if (viewObserver.viewWillRender !== void 0) {
-      this._willRenderObservers = Arrays.inserted(viewObserver as WillRenderObserver, this._willRenderObservers);
+      this.viewObserverCache.viewWillRenderObservers = Arrays.inserted(viewObserver as ViewWillRender, this.viewObserverCache.viewWillRenderObservers);
     }
     if (viewObserver.viewDidRender !== void 0) {
-      this._didRenderObservers = Arrays.inserted(viewObserver as DidRenderObserver, this._didRenderObservers);
+      this.viewObserverCache.viewDidRenderObservers = Arrays.inserted(viewObserver as ViewDidRender, this.viewObserverCache.viewDidRenderObservers);
     }
     if (viewObserver.viewWillComposite !== void 0) {
-      this._willCompositeObservers = Arrays.inserted(viewObserver as WillCompositeObserver, this._willCompositeObservers);
+      this.viewObserverCache.viewWillCompositeObservers = Arrays.inserted(viewObserver as ViewWillComposite, this.viewObserverCache.viewWillCompositeObservers);
     }
     if (viewObserver.viewDidComposite !== void 0) {
-      this._didCompositeObservers = Arrays.inserted(viewObserver as DidCompositeObserver, this._didCompositeObservers);
+      this.viewObserverCache.viewDidCompositeObservers = Arrays.inserted(viewObserver as ViewDidComposite, this.viewObserverCache.viewDidCompositeObservers);
     }
   }
 
   protected onRemoveViewObserver(viewObserver: ViewObserverType<this>): void {
     super.onRemoveViewObserver(viewObserver);
     if (viewObserver.viewWillRender !== void 0) {
-      this._willRenderObservers = Arrays.removed(viewObserver as WillRenderObserver, this._willRenderObservers);
+      this.viewObserverCache.viewWillRenderObservers = Arrays.removed(viewObserver as ViewWillRender, this.viewObserverCache.viewWillRenderObservers);
     }
     if (viewObserver.viewDidRender !== void 0) {
-      this._didRenderObservers = Arrays.removed(viewObserver as DidRenderObserver, this._didRenderObservers);
+      this.viewObserverCache.viewDidRenderObservers = Arrays.removed(viewObserver as ViewDidRender, this.viewObserverCache.viewDidRenderObservers);
     }
     if (viewObserver.viewWillComposite !== void 0) {
-      this._willCompositeObservers = Arrays.removed(viewObserver as WillCompositeObserver, this._willCompositeObservers);
+      this.viewObserverCache.viewWillCompositeObservers = Arrays.removed(viewObserver as ViewWillComposite, this.viewObserverCache.viewWillCompositeObservers);
     }
     if (viewObserver.viewDidComposite !== void 0) {
-      this._didCompositeObservers = Arrays.removed(viewObserver as DidCompositeObserver, this._didCompositeObservers);
+      this.viewObserverCache.viewDidCompositeObservers = Arrays.removed(viewObserver as ViewDidComposite, this.viewObserverCache.viewDidCompositeObservers);
     }
   }
 
@@ -753,7 +745,7 @@ export abstract class GraphicsView extends View {
     if (viewController !== null && viewController.viewWillRender !== void 0) {
       viewController.viewWillRender(viewContext, this);
     }
-    const viewObservers = this._willRenderObservers;
+    const viewObservers = this.viewObserverCache.viewWillRenderObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -767,7 +759,7 @@ export abstract class GraphicsView extends View {
   }
 
   protected didRender(viewContext: ViewContextType<this>): void {
-    const viewObservers = this._didRenderObservers;
+    const viewObservers = this.viewObserverCache.viewDidRenderObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -785,7 +777,7 @@ export abstract class GraphicsView extends View {
     if (viewController !== null && viewController.viewWillComposite !== void 0) {
       viewController.viewWillComposite(viewContext, this);
     }
-    const viewObservers = this._willCompositeObservers;
+    const viewObservers = this.viewObserverCache.viewWillCompositeObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
         const viewObserver = viewObservers[i]!;
@@ -799,7 +791,7 @@ export abstract class GraphicsView extends View {
   }
 
   protected didComposite(viewContext: ViewContextType<this>): void {
-    const viewObservers = this._didCompositeObservers;
+    const viewObservers = this.viewObserverCache.viewDidCompositeObservers;
     if (viewObservers !== void 0) {
       for (let i = 0; i < viewObservers.length; i += 1) {
         const viewObserver = viewObservers[i]!;

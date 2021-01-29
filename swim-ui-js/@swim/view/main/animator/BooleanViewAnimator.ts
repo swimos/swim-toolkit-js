@@ -21,4 +21,3 @@ export abstract class BooleanViewAnimator<V extends View> extends ViewAnimator<V
     return !!value;
   }
 }
-ViewAnimator.Boolean = BooleanViewAnimator;
