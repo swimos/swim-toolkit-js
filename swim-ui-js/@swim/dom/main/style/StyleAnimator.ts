@@ -46,6 +46,9 @@ export interface StyleAnimatorInit<T, U = never> {
   willUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
   onUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
   didUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
+  onBegin?(value: T): void;
+  onEnd?(value: T): void;
+  onInterrupt?(value: T): void;
   parse?(value: string): T | undefined;
   fromCssValue?(value: CSSStyleValue): T | undefined;
   fromAny?(value: T | U): T | undefined;
@@ -313,10 +316,8 @@ StyleAnimator.prototype.onUpdate = function <T>(this: StyleAnimator<StyleContext
   }
 };
 
-StyleAnimator.prototype.animate = function (this: StyleAnimator<StyleContext, unknown>, animator: Animator = this): void {
-  if (animator !== this || (this.animatorFlags & TweenAnimator.DisabledFlag) === 0) {
-    this.owner.animate(animator);
-  }
+StyleAnimator.prototype.animate = function (this: StyleAnimator<StyleContext, unknown>, animator?: Animator): void {
+  this.owner.animate(animator !== void 0 ? animator : this);
 };
 
 StyleAnimator.prototype.parse = function <T>(this: StyleAnimator<StyleContext, T>, value: string): T | undefined {

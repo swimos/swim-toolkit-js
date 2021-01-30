@@ -54,7 +54,10 @@ export class ButtonMorph extends HtmlView {
       if (tween !== null) {
         this.removeChildViewMap(oldForm);
         oldForm.setKey(void 0);
-        oldForm.opacity.setAutoState(0, tween.onEnd(oldForm.remove.bind(oldForm)));
+        oldForm.opacity.setAutoState(0, tween);
+        oldForm.opacity.onEnd = function (): void {
+          oldForm.remove();
+        };
         oldForm.transform.setAutoState(Transform.rotate(Angle.deg(ccw ? -90 : 90)), tween);
       } else {
         oldForm.remove();

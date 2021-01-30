@@ -123,7 +123,18 @@ export class TreeLimb extends HtmlView {
   @ViewScope({type: String, state: "collapsed"})
   declare disclosureState: ViewScope<this, TreeLimbState>;
 
-  @ViewAnimator({type: Number, state: 0})
+  @ViewAnimator<TreeLimb, number>({
+    type: Number,
+    state: 0,
+    onEnd(disclosurePhase: number): void {
+      const disclosureState = this.owner.disclosureState.state;
+      if (disclosureState === "expanding" && disclosurePhase === 1) {
+        this.owner.didExpand();
+      } else if (disclosureState === "collapsing" && disclosurePhase === 0) {
+        this.owner.didCollapse();
+      }
+    },
+  })
   declare disclosurePhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   @ViewAnimator({type: Number, inherit: true})
@@ -143,21 +154,24 @@ export class TreeLimb extends HtmlView {
       this.willExpand(tween);
       if (tween !== null) {
         if (disclosurePhase !== 1) {
-          this.disclosurePhase.setState(1, tween.onEnd(this.didExpand.bind(this, tween)));
+          this.disclosurePhase.setState(1, tween);
           this.disclosingPhase.setState(this.disclosurePhase.value);
           this.disclosingPhase.setState(1, tween);
         } else {
-          setTimeout(this.didExpand.bind(this, tween));
+          setTimeout(this.didExpand.bind(this));
         }
       } else {
         this.disclosurePhase.setState(1);
         this.disclosingPhase.setState(1);
-        this.didExpand(tween);
+        this.didExpand();
       }
     }
   }
 
   protected willExpand(tween: Tween<any>): void {
+    this.disclosureState.setAutoState("expanding");
+    this.requireUpdate(View.NeedsResize | View.NeedsChange | View.NeedsLayout);
+
     const viewController = this.viewController;
     if (viewController !== null && viewController.limbWillExpand !== void 0) {
       viewController.limbWillExpand(this);
@@ -170,15 +184,13 @@ export class TreeLimb extends HtmlView {
       }
     }
 
-    this.disclosureState.setAutoState("expanding");
-    this.requireUpdate(View.NeedsResize | View.NeedsChange | View.NeedsLayout);
     const subtree = this.subtree;
     if (subtree !== null) {
       subtree.display.setAutoState("block");
     }
   }
 
-  protected didExpand(tween: Tween<any>): void {
+  protected didExpand(): void {
     this.disclosureState.setAutoState("expanded");
     this.disclosingPhase.setInherited(true);
 
@@ -206,21 +218,23 @@ export class TreeLimb extends HtmlView {
       this.willCollapse(tween);
       if (tween !== null) {
         if (disclosurePhase !== 0) {
-          this.disclosurePhase.setState(0, tween.onEnd(this.didCollapse.bind(this, tween)));
+          this.disclosurePhase.setState(0, tween);
           this.disclosingPhase.setState(this.disclosurePhase.value);
           this.disclosingPhase.setState(0, tween);
         } else {
-          setTimeout(this.didCollapse.bind(this, tween));
+          setTimeout(this.didCollapse.bind(this));
         }
       } else {
         this.disclosurePhase.setState(0);
         this.disclosingPhase.setState(0);
-        this.didCollapse(tween);
+        this.didCollapse();
       }
     }
   }
 
   protected willCollapse(tween: Tween<any>): void {
+    this.disclosureState.setAutoState("collapsing");
+
     const viewController = this.viewController;
     if (viewController !== null && viewController.limbWillCollapse !== void 0) {
       viewController.limbWillCollapse(this);
@@ -233,14 +247,13 @@ export class TreeLimb extends HtmlView {
       }
     }
 
-    this.disclosureState.setAutoState("collapsing");
     const subtree = this.subtree;
     if (subtree !== null) {
       subtree.height.setAutoState(0, tween);
     }
   }
 
-  protected didCollapse(tween: Tween<any>): void {
+  protected didCollapse(): void {
     this.disclosureState.setAutoState("collapsed");
     this.disclosingPhase.setInherited(true);
     this.requireUpdate(View.NeedsResize | View.NeedsLayout);

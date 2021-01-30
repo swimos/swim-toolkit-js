@@ -32,8 +32,8 @@ import type {DrawerViewController} from "./DrawerViewController";
 
 export type DrawerPlacement = "top" | "right" | "bottom" | "left";
 
-export type DrawerState = "shown" | "showing"
-                        | "hidden" | "hiding"
+export type DrawerState = "hidden" | "hiding"
+                        | "shown" | "showing"
                         | "collapsed" | "collapsing";
 
 export interface DrawerViewInit extends HtmlViewInit {
@@ -44,18 +44,23 @@ export interface DrawerViewInit extends HtmlViewInit {
 }
 
 export class DrawerView extends HtmlView implements Modal {
-  /** @hidden */
-  _drawerPlacement: DrawerPlacement;
-  /** @hidden */
-  _drawerState: DrawerState;
-  /** @hidden */
-  _modality: boolean | number;
-
   constructor(node: HTMLElement) {
     super(node);
-    this._drawerPlacement = "left";
-    this._drawerState = "hidden";
-    this._modality = true;
+    Object.defineProperty(this, "displayState", {
+      value: DrawerView.HiddenState,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "placement", {
+      value: "left",
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modality", {
+      value: true,
+      enumerable: true,
+      configurable: true,
+    });
     this.initNode(node);
     this.initTheme();
   }
@@ -91,20 +96,62 @@ export class DrawerView extends HtmlView implements Modal {
     }
   }
 
+  /** @hidden */
+  declare readonly displayState: number;
+
+  /** @hidden */
+  setDisplayState(displayState: number): void {
+    Object.defineProperty(this, "displayState", {
+      value: displayState,
+      enumerable: true,
+      configurable: true,
+    });
+  }
+
   get drawerState(): DrawerState {
-    return this._drawerState;
+    switch (this.displayState) {
+      case DrawerView.HiddenState: return "hidden";
+      case DrawerView.HidingState:
+      case DrawerView.HideState: return "hiding";
+      case DrawerView.ShownState: return "shown";
+      case DrawerView.ShowingState:
+      case DrawerView.ShowState: return "showing";
+      case DrawerView.CollapsedState: return "collapsed";
+      case DrawerView.CollapsingState:
+      case DrawerView.CollapseState: return "collapsing";
+      case DrawerView.ExpandingState:
+      case DrawerView.ExpandState: return "shown";
+      default: throw new Error("" + this.displayState);
+    }
   }
 
   isShown(): boolean {
-    return this._drawerState === "shown" || this._drawerState === "showing";
+    switch (this.displayState) {
+      case DrawerView.ShownState:
+      case DrawerView.ShowingState:
+      case DrawerView.ShowState:
+      case DrawerView.ExpandingState:
+      case DrawerView.ExpandState: return true;
+      default: return false;
+    }
   }
 
   isHidden(): boolean {
-    return this._drawerState === "hidden" || this._drawerState === "hiding";
+    switch (this.displayState) {
+      case DrawerView.HiddenState:
+      case DrawerView.HidingState:
+      case DrawerView.HideState: return true;
+      default: return false;
+    }
   }
 
   isCollapsed(): boolean {
-    return this._drawerState === "collapsed" || this._drawerState === "collapsing";
+    switch (this.displayState) {
+      case DrawerView.CollapsedState:
+      case DrawerView.CollapsingState:
+      case DrawerView.CollapseState: return true;
+      default: return false;
+    }
   }
 
   @ViewAnimator({type: Length, state: Length.px(60)})
@@ -119,16 +166,23 @@ export class DrawerView extends HtmlView implements Modal {
   @ViewAnimator({type: Number, state: 1})
   declare drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
+  /** @hidden */
+  declare readonly placement: DrawerPlacement;
+
   drawerPlacement(): DrawerPlacement;
   drawerPlacement(drawerPlacement: DrawerPlacement): this;
   drawerPlacement(newPlacement?: DrawerPlacement): DrawerPlacement | this {
-    const oldPlacement = this._drawerPlacement;
+    const oldPlacement = this.placement;
     if (newPlacement === void 0) {
       return oldPlacement;
     } else {
       if (oldPlacement !== newPlacement) {
         this.willSetDrawerPlacement(newPlacement, oldPlacement);
-        this._drawerPlacement = newPlacement;
+        Object.defineProperty(this, "placement", {
+          value: newPlacement,
+          enumerable: true,
+          configurable: true,
+        });
         this.onSetDrawerPlacement(newPlacement, oldPlacement);
         this.didSetDrawerPlacement(newPlacement, oldPlacement);
       }
@@ -137,21 +191,21 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   isHorizontal(): boolean {
-    return this._drawerPlacement === "top" || this._drawerPlacement === "bottom";
+    return this.placement === "top" || this.placement === "bottom";
   }
 
   isVertical(): boolean {
-    return this._drawerPlacement === "left" || this._drawerPlacement === "right";
+    return this.placement === "left" || this.placement === "right";
   }
 
   get effectiveWidth(): Length {
     const width = this.width.value;
-    if (this._drawerPlacement === "left") {
+    if (this.placement === "left") {
       const left = this.left.value;
       if (width instanceof Length && left instanceof Length) {
         return width.plus(left);
       }
-    } else if (this._drawerPlacement === "right") {
+    } else if (this.placement === "right") {
       const right = this.left.value;
       if (width instanceof Length && right instanceof Length) {
         return width.plus(right);
@@ -166,12 +220,12 @@ export class DrawerView extends HtmlView implements Modal {
 
   get effectiveHeight(): Length {
     const height = this.height.value;
-    if (this._drawerPlacement === "top") {
+    if (this.placement === "top") {
       const top = this.top.value;
       if (height instanceof Length && top instanceof Length) {
         return height.plus(top);
       }
-    } else if (this._drawerPlacement === "bottom") {
+    } else if (this.placement === "bottom") {
       const bottom = this.bottom.value;
       if (height instanceof Length && bottom instanceof Length) {
         return height.plus(bottom);
@@ -221,14 +275,14 @@ export class DrawerView extends HtmlView implements Modal {
 
   /** @hidden */
   protected updateDrawerSlide(drawerSlide: number): void {
-    const drawerPlacement = this._drawerPlacement;
-    if (drawerPlacement === "top") {
+    const placement = this.placement;
+    if (placement === "top") {
       this.updateDrawerSlideTop(drawerSlide);
-    } else if (drawerPlacement === "right") {
+    } else if (placement === "right") {
       this.updateDrawerSlideRight(drawerSlide);
-    } else if (drawerPlacement === "bottom") {
+    } else if (placement === "bottom") {
       this.updateDrawerSlideBottom(drawerSlide);
-    } else if (drawerPlacement === "left") {
+    } else if (placement === "left") {
       this.updateDrawerSlideLeft(drawerSlide);
     }
   }
@@ -271,6 +325,20 @@ export class DrawerView extends HtmlView implements Modal {
     }
   }
 
+  protected willAnimate(viewContext: ViewContextType<this>): void {
+    super.willAnimate(viewContext);
+    const displayState = this.displayState;
+    if (displayState === DrawerView.ShowState) {
+      this.willShow();
+    } else if (displayState === DrawerView.HideState) {
+      this.willHide();
+    } else if (displayState === DrawerView.ExpandState) {
+      this.willExpand();
+    } else if (displayState === DrawerView.CollapseState) {
+      this.willCollapse();
+    }
+  }
+
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     if (this.drawerSlide.isUpdated()) {
@@ -279,6 +347,22 @@ export class DrawerView extends HtmlView implements Modal {
     if (this.drawerStretch.isUpdated()) {
       this.updateDrawerStretch(this.drawerStretch.getValue());
     }
+  }
+
+  protected didAnimate(viewContext: ViewContextType<this>): void {
+    const displayState = this.displayState;
+    const drawerStretch = this.drawerStretch.value;
+    const drawerSlide = this.drawerSlide.value;
+    if (displayState === DrawerView.ShowingState && drawerSlide === 1) {
+      this.didShow();
+    } else if (displayState === DrawerView.HidingState && drawerSlide === 0) {
+      this.didHide();
+    } else if (displayState === DrawerView.ExpandingState && drawerStretch === 1) {
+      this.didExpand();
+    } else if (displayState === DrawerView.CollapsingState && drawerStretch === 0) {
+      this.didCollapse();
+    }
+    super.didAnimate(viewContext);
   }
 
   protected onLayout(viewContext: ViewContextType<this>): void {
@@ -294,14 +378,14 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected place(viewContext: ViewContextType<this>): void {
-    const drawerPlacement = this._drawerPlacement;
-    if (drawerPlacement === "top") {
+    const placement = this.placement;
+    if (placement === "top") {
       this.placeTop(viewContext);
-    } else if (drawerPlacement === "right") {
+    } else if (placement === "right") {
       this.placeRight(viewContext);
-    } else if (drawerPlacement === "bottom") {
+    } else if (placement === "bottom") {
       this.placeBottom(viewContext);
-    } else if (drawerPlacement === "left") {
+    } else if (placement === "left") {
       this.placeLeft(viewContext);
     }
   }
@@ -437,21 +521,31 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   get modalState(): ModalState {
-    const drawerState = this._drawerState;
-    if (drawerState === "collapsed" || drawerState === "collapsing") {
-      return "shown";
-    } else {
-      return drawerState;
+    switch (this.displayState) {
+      case DrawerView.HiddenState: return "hidden";
+      case DrawerView.HidingState:
+      case DrawerView.HideState: return "hiding";
+      case DrawerView.ShownState: return "shown";
+      case DrawerView.ShowingState:
+      case DrawerView.ShowState: return "showing";
+      case DrawerView.CollapsedState:
+      case DrawerView.CollapsingState:
+      case DrawerView.CollapseState:
+      case DrawerView.ExpandingState:
+      case DrawerView.ExpandState: return "shown";
+      default: throw new Error("" + this.displayState);
     }
   }
 
-  get modality(): boolean | number {
-    return this._modality;
-  }
+  declare readonly modality: boolean | number;
 
   showModal(options: ModalOptions, tween?: Tween<any>): void {
     if (options.modal !== void 0) {
-      this._modality = options.modal;
+      Object.defineProperty(this, "modality", {
+        value: options.modal,
+        enumerable: true,
+        configurable: true,
+      });
     }
     this.show(tween);
   }
@@ -467,13 +561,13 @@ export class DrawerView extends HtmlView implements Modal {
       } else {
         tween = Transition.forTween(tween);
       }
-      this._drawerState = "showing";
+      this.setDisplayState(DrawerView.ShowState);
       if (tween !== null) {
         if (this.drawerSlide.value !== 1) {
           this.drawerStretch.setAutoState(1, tween);
-          this.drawerSlide.setAutoState(1, tween.onBegin(this.willShow.bind(this)).onEnd(this.didShow.bind(this)));
+          this.drawerSlide.setAutoState(1, tween);
         } else {
-          this.drawerStretch.setAutoState(1, tween.onBegin(this.willShow.bind(this)).onEnd(this.didShow.bind(this)));
+          this.drawerStretch.setAutoState(1, tween);
         }
       } else {
         this.willShow();
@@ -485,6 +579,8 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected willShow(): void {
+    this.setDisplayState(DrawerView.ShowingState);
+
     const viewController = this.viewController;
     if (viewController !== null && viewController.drawerWillShow !== void 0) {
       viewController.drawerWillShow(this);
@@ -502,7 +598,7 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected didShow(): void {
-    this._drawerState = "shown";
+    this.setDisplayState(DrawerView.ShownState);
     this.requireUpdate(View.NeedsAnimate);
 
     const viewObservers = this.viewObservers;
@@ -525,10 +621,10 @@ export class DrawerView extends HtmlView implements Modal {
       } else {
         tween = Transition.forTween(tween);
       }
-      this._drawerState = "hiding";
+      this.setDisplayState(DrawerView.HideState);
       this.modalService.dismissModal(this);
       if (tween !== null) {
-        this.drawerSlide.setAutoState(0, tween.onBegin(this.willHide.bind(this)).onEnd(this.didHide.bind(this)));
+        this.drawerSlide.setAutoState(0, tween);
       } else {
         this.willHide();
         this.drawerSlide.setAutoState(0);
@@ -538,6 +634,8 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected willHide(): void {
+    this.setDisplayState(DrawerView.HidingState);
+
     const viewController = this.viewController;
     if (viewController !== null && viewController.drawerWillHide !== void 0) {
       viewController.drawerWillHide(this);
@@ -552,9 +650,10 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected didHide(): void {
-    this.display.setAutoState("none");
-    this._drawerState = "hidden";
+    this.setDisplayState(DrawerView.HiddenState);
     this.requireUpdate(View.NeedsAnimate);
+
+    this.display.setAutoState("none");
 
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
@@ -576,14 +675,14 @@ export class DrawerView extends HtmlView implements Modal {
       } else {
         tween = Transition.forTween(tween);
       }
-      this._drawerState = "showing";
+      this.setDisplayState(DrawerView.ExpandState);
       this.modalService.dismissModal(this);
       if (tween !== null) {
         if (this.drawerStretch.value !== 1) {
           this.drawerSlide.setAutoState(1, tween);
-          this.drawerStretch.setAutoState(1, tween.onBegin(this.willExpand.bind(this)).onEnd(this.didExpand.bind(this)));
+          this.drawerStretch.setAutoState(1, tween);
         } else {
-          this.drawerSlide.setAutoState(1, tween.onBegin(this.willExpand.bind(this)).onEnd(this.didExpand.bind(this)));
+          this.drawerSlide.setAutoState(1, tween);
         }
       } else {
         this.willExpand();
@@ -595,6 +694,8 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected willExpand(): void {
+    this.setDisplayState(DrawerView.ExpandingState);
+
     const viewController = this.viewController;
     if (viewController !== null && viewController.drawerWillExpand !== void 0) {
       viewController.drawerWillExpand(this);
@@ -609,7 +710,7 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected didExpand(): void {
-    this._drawerState = "shown";
+    this.setDisplayState(DrawerView.ShownState);
     this.requireUpdate(View.NeedsAnimate);
 
     const viewObservers = this.viewObservers;
@@ -632,7 +733,7 @@ export class DrawerView extends HtmlView implements Modal {
       } else {
         tween = Transition.forTween(tween);
       }
-      this._drawerState = "collapsing";
+      this.setDisplayState(DrawerView.CollapseState);
       this.modalService.dismissModal(this);
       if (this.drawerSlide.value === 0) {
         this.drawerStretch.setAutoState(0);
@@ -640,9 +741,9 @@ export class DrawerView extends HtmlView implements Modal {
       if (tween !== null) {
         if (this.drawerStretch.value !== 0) {
           this.drawerSlide.setAutoState(1, tween);
-          this.drawerStretch.setAutoState(0, tween.onBegin(this.willCollapse.bind(this)).onEnd(this.didCollapse.bind(this)));
+          this.drawerStretch.setAutoState(0, tween);
         } else {
-          this.drawerSlide.setAutoState(1, tween.onBegin(this.willCollapse.bind(this)).onEnd(this.didCollapse.bind(this)));
+          this.drawerSlide.setAutoState(1, tween);
         }
       } else {
         this.willCollapse();
@@ -654,6 +755,8 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected willCollapse(): void {
+    this.setDisplayState(DrawerView.CollapsingState);
+
     const viewController = this.viewController;
     if (viewController !== null && viewController.drawerWillCollapse !== void 0) {
       viewController.drawerWillCollapse(this);
@@ -670,7 +773,7 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected didCollapse(): void {
-    this._drawerState = "collapsed";
+    this.setDisplayState(DrawerView.CollapsedState);
     this.requireUpdate(View.NeedsAnimate);
 
     const viewObservers = this.viewObservers;
@@ -687,7 +790,7 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   toggle(tween?: Tween<any>): void {
-    const drawerState = this._drawerState;
+    const drawerState = this.drawerState;
     if (this.viewIdiom === "mobile" && (drawerState === "hidden" || drawerState === "hiding")) {
       this.modalService.presentModal(this, {modal: true});
     } else if (drawerState === "hidden" || drawerState === "hiding") {
@@ -700,4 +803,27 @@ export class DrawerView extends HtmlView implements Modal {
       this.collapse(tween);
     }
   }
+
+  /** @hidden */
+  static readonly HiddenState: number = 0;
+  /** @hidden */
+  static readonly HidingState: number = 1;
+  /** @hidden */
+  static readonly HideState: number = 2;
+  /** @hidden */
+  static readonly ShownState: number = 3;
+  /** @hidden */
+  static readonly ShowingState: number = 4;
+  /** @hidden */
+  static readonly ShowState: number = 5;
+  /** @hidden */
+  static readonly CollapsedState: number = 6;
+  /** @hidden */
+  static readonly CollapsingState: number = 7;
+  /** @hidden */
+  static readonly CollapseState: number = 8;
+  /** @hidden */
+  static readonly ExpandingState: number = 9;
+  /** @hidden */
+  static readonly ExpandState: number = 10;
 }

@@ -12,6 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./transition";
+export {
+  Tween,
+  AnyTransition,
+  TransitionInit,
+  Transition,
+} from "./Transition";
 
-export * from "./animator";
+export {AnimatorContext} from "./AnimatorContext";
+export {Animator} from "./Animator";
+
+export {
+  TweenAnimatorFlags,
+  TweenAnimator,
+} from "./TweenAnimator";

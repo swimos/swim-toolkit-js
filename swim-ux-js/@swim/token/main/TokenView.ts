@@ -187,7 +187,19 @@ export class TokenView extends HtmlView {
     return this._tokenState === "collapsed" || this._tokenState === "collapsing";
   }
 
-  @ViewAnimator({type: Number, state: 1, updateFlags: View.NeedsLayout})
+  @ViewAnimator<TokenView, number>({
+    type: Number,
+    state: 1,
+    updateFlags: View.NeedsLayout,
+    onEnd(expandedPhase: number): void {
+      const tokenState = this.owner._tokenState;
+      if (tokenState === "expanding" && expandedPhase === 1) {
+        this.owner.didExpand();
+      } else if (tokenState === "collapsing" && expandedPhase === 0) {
+        this.owner.didCollapse();
+      }
+    },
+  })
   declare expandedPhase: ViewAnimator<this, number>;
 
   @ViewBinding<TokenView, SvgView>({
@@ -638,7 +650,7 @@ export class TokenView extends HtmlView {
       }
       if (tween !== null) {
         if (this.expandedPhase.value !== 1) {
-          this.expandedPhase.setAutoState(1, tween.onEnd(this.didExpand.bind(this)));
+          this.expandedPhase.setAutoState(1, tween);
         } else {
           setTimeout(this.didExpand.bind(this));
         }
@@ -702,7 +714,7 @@ export class TokenView extends HtmlView {
       }
       if (tween !== null) {
         if (this.expandedPhase.value !== 0) {
-          this.expandedPhase.setAutoState(0, tween.onEnd(this.didCollapse.bind(this)));
+          this.expandedPhase.setAutoState(0, tween);
         } else {
           setTimeout(this.didCollapse.bind(this));
         }

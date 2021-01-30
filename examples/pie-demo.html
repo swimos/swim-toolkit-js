@@ -234,7 +234,10 @@ function updatePie() {
   for (let i = slices.length - 1; i >= count; i -= 1) {
     const slice = slices[i];
     slices.splice(i, 1);
-    slice.value(0, tween.onEnd(() => slice.remove()));
+    slice.value(0, tween);
+    slice.value.onEnd = function () {
+      slice.remove();
+    };
   }
 
   // Update pie chart properties.

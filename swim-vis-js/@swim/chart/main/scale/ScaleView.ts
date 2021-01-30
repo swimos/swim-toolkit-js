@@ -126,18 +126,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     this._xDataRange = void 0;
     this._yDataRange = void 0;
     this._fitAspectRatio = void 0;
-    this.onBeginFittingXScale = this.onBeginFittingXScale.bind(this);
-    this.onEndFittingXScale = this.onEndFittingXScale.bind(this);
-    this.onInterruptFittingXScale = this.onInterruptFittingXScale.bind(this);
-    this.onBeginFittingYScale = this.onBeginFittingYScale.bind(this);
-    this.onEndFittingYScale = this.onEndFittingYScale.bind(this);
-    this.onInterruptFittingYScale = this.onInterruptFittingYScale.bind(this);
-    this.onBeginBoundingXScale = this.onBeginBoundingXScale.bind(this);
-    this.onEndBoundingXScale = this.onEndBoundingXScale.bind(this);
-    this.onInterruptBoundingXScale = this.onInterruptBoundingXScale.bind(this);
-    this.onBeginBoundingYScale = this.onBeginBoundingYScale.bind(this);
-    this.onEndBoundingYScale = this.onEndBoundingYScale.bind(this);
-    this.onInterruptBoundingYScale = this.onInterruptBoundingYScale.bind(this);
   }
 
   initView(init: ScaleViewInit<X, Y>): void {
@@ -234,10 +222,66 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
 
   declare readonly viewObservers: ReadonlyArray<ScaleViewObserver<X, Y>>;
 
-  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
+  @ViewAnimator<ScaleView<X, Y>, ContinuousScale<X, number>>({
+    extends: ScaleViewAnimator,
+    type: ContinuousScale,
+    inherit: true,
+    onBegin(xScale: ContinuousScale<X, number>): void {
+      if ((this.owner._scaleFlags & ScaleView.XFittingFlag) !== 0) {
+        this.owner.onBeginFittingXScale(xScale);
+      }
+      if ((this.owner._scaleFlags & ScaleView.XBoundingFlag) !== 0) {
+        this.owner.onBeginBoundingXScale(xScale);
+      }
+    },
+    onEnd(xScale: ContinuousScale<X, number>): void {
+      if ((this.owner._scaleFlags & ScaleView.XFittingFlag) !== 0) {
+        this.owner.onEndFittingXScale(xScale);
+      }
+      if ((this.owner._scaleFlags & ScaleView.XBoundingFlag) !== 0) {
+        this.owner.onEndBoundingXScale(xScale);
+      }
+    },
+    onInterrupt(xScale: ContinuousScale<X, number>): void {
+      if ((this.owner._scaleFlags & ScaleView.XFittingFlag) !== 0) {
+        this.owner.onInterruptFittingXScale(xScale);
+      }
+      if ((this.owner._scaleFlags & ScaleView.XBoundingFlag) !== 0) {
+        this.owner.onInterruptBoundingXScale(xScale);
+      }
+    },
+  })
   declare xScale: ScaleViewAnimator<this, X, number>;
 
-  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
+  @ViewAnimator<ScaleView<X, Y>, ContinuousScale<Y, number>>({
+    extends: ScaleViewAnimator,
+    type: ContinuousScale,
+    inherit: true,
+    onBegin(yScale: ContinuousScale<Y, number>): void {
+      if ((this.owner._scaleFlags & ScaleView.YFittingFlag) !== 0) {
+        this.owner.onBeginFittingYScale(yScale);
+      }
+      if ((this.owner._scaleFlags & ScaleView.YBoundingFlag) !== 0) {
+        this.owner.onBeginBoundingYScale(yScale);
+      }
+    },
+    onEnd(yScale: ContinuousScale<Y, number>): void {
+      if ((this.owner._scaleFlags & ScaleView.YFittingFlag) !== 0) {
+        this.owner.onEndFittingYScale(yScale);
+      }
+      if ((this.owner._scaleFlags & ScaleView.YBoundingFlag) !== 0) {
+        this.owner.onEndBoundingYScale(yScale);
+      }
+    },
+    onInterrupt(yScale: ContinuousScale<Y, number>): void {
+      if ((this.owner._scaleFlags & ScaleView.YFittingFlag) !== 0) {
+        this.owner.onInterruptFittingYScale(yScale);
+      }
+      if ((this.owner._scaleFlags & ScaleView.YBoundingFlag) !== 0) {
+        this.owner.onInterruptBoundingYScale(yScale);
+      }
+    },
+  })
   declare yScale: ScaleViewAnimator<this, Y, number>;
 
   xDomain(): Domain<X> | undefined;
@@ -1232,11 +1276,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & ScaleView.XFitTweenFlag) !== 0 &&
           (transition = this.rescaleTransition.state, transition !== void 0)) {
-        transition = transition.observer({
-          onBegin: this.onBeginFittingXScale,
-          onEnd: this.onEndFittingXScale,
-          onInterrupt: this.onInterruptFittingXScale,
-        });
+        this._scaleFlags |= ScaleView.XFittingFlag;
       }
       this.willFitX(oldXScale);
       this.xDomain(newXDomain instanceof Domain ? newXDomain : Domain(newXDomain[0], newXDomain[1]), transition);
@@ -1251,11 +1291,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       let transition: Transition<any> | undefined;
       if ((this._scaleFlags & ScaleView.YFitTweenFlag) !== 0 &&
           (transition = this.rescaleTransition.state, transition !== void 0)) {
-        transition = transition.observer({
-          onBegin: this.onBeginFittingYScale,
-          onEnd: this.onEndFittingYScale,
-          onInterrupt: this.onInterruptFittingYScale,
-        });
+        this._scaleFlags |= ScaleView.YFittingFlag;
       }
       this.willFitY(oldYScale);
       this.yDomain(newYDomain instanceof Domain ? newYDomain : Domain(newYDomain[0], newYDomain[1]), transition);
@@ -1270,7 +1306,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   protected onBeginFittingXScale(xScale: ContinuousScale<X, number>): void {
-    this._scaleFlags |= ScaleView.XFittingFlag;
+    // hook
   }
 
   protected onEndFittingXScale(xScale: ContinuousScale<X, number>): void {
@@ -1284,7 +1320,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   protected onBeginFittingYScale(yScale: ContinuousScale<Y, number>): void {
-    this._scaleFlags |= ScaleView.YFittingFlag;
+    // hook
   }
 
   protected onEndFittingYScale(yScale: ContinuousScale<Y, number>): void {
@@ -1546,11 +1582,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         transition = (this._scaleFlags & ScaleView.InteractingMask) !== 0
                    ? this.reboundTransition.state : this.rescaleTransition.state;
         if (transition !== void 0) {
-          transition = transition.observer({
-            onBegin: this.onBeginBoundingXScale,
-            onEnd: this.onEndBoundingXScale,
-            onInterrupt: this.onInterruptBoundingXScale,
-          });
+          this._scaleFlags |= ScaleView.XBoundingFlag;
         }
       }
       this.willReboundX(oldXScale);
@@ -1569,11 +1601,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         transition = (this._scaleFlags & ScaleView.InteractingMask) !== 0
                    ? this.reboundTransition.state : this.rescaleTransition.state;
         if (transition !== void 0) {
-          transition = transition.observer({
-            onBegin: this.onBeginBoundingYScale,
-            onEnd: this.onEndBoundingYScale,
-            onInterrupt: this.onInterruptBoundingYScale,
-          });
+          this._scaleFlags |= ScaleView.YBoundingFlag;
         }
       }
       this.willReboundY(oldYScale);
@@ -1594,7 +1622,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   protected onBeginBoundingXScale(xScale: ContinuousScale<X, number>): void {
-    this._scaleFlags |= ScaleView.XBoundingFlag;
+    // hook
   }
 
   protected onEndBoundingXScale(xScale: ContinuousScale<X, number>): void {
@@ -1608,7 +1636,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   protected onBeginBoundingYScale(yScale: ContinuousScale<Y, number>): void {
-    this._scaleFlags |= ScaleView.YBoundingFlag;
+    // hook
   }
 
   protected onEndBoundingYScale(yScale: ContinuousScale<Y, number>): void {

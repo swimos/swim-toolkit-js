@@ -23,7 +23,7 @@ export class TransitionLook<T = unknown> extends Look<Transition<T>, AnyTransiti
     } else if (combination !== void 0) {
       return combination;
     } else {
-      return new Transition(void 0, null, null, null);
+      return new Transition(void 0, null, null);
     }
   }
 

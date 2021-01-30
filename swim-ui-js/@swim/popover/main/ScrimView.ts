@@ -13,16 +13,16 @@
 // limitations under the License.
 
 import {Tween, Transition} from "@swim/animation";
-import {Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/color";
 import {Look} from "@swim/theme";
-import type {ModalState, ModalManager, ModalManagerObserver} from "@swim/view";
-import {HtmlView} from "@swim/dom";
+import type {ModalManager, ModalManagerObserver,} from "@swim/view";
+import {StyleAnimator, HtmlView} from "@swim/dom";
 
 export class ScrimView extends HtmlView implements ModalManagerObserver {
   constructor(node: HTMLElement) {
     super(node);
-    Object.defineProperty(this, "scrimState", {
-      value: "hidden",
+    Object.defineProperty(this, "displayState", {
+      value: ScrimView.HiddenState,
       enumerable: true,
       configurable: true,
     });
@@ -54,29 +54,71 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
     this.backgroundColor.setAutoState(Color.black(0));
   }
 
-  declare readonly scrimState: ModalState;
+  /** @hidden */
+  declare readonly displayState: number;
 
-  isShown(): boolean {
-    return this.scrimState === "shown" || this.scrimState === "showing";
+  /** @hidden */
+  setDisplayState(displayState: number): void {
+    Object.defineProperty(this, "displayState", {
+      value: displayState,
+      enumerable: true,
+      configurable: true,
+    });
+  }
+
+  @StyleAnimator<ScrimView, Color, AnyColor>({
+    propertyNames: "background-color",
+    type: Color,
+    onBegin(backgroundColor: Color | undefined): void {
+      const displayState = this.owner.displayState;
+      if (displayState === ScrimView.ShowState) {
+        this.owner.willShow();
+      } else if (displayState === ScrimView.HideState) {
+        this.owner.willHide();
+      }
+    },
+    onEnd(backgroundColor: Color | undefined): void {
+      const displayState = this.owner.displayState;
+      if (displayState === ScrimView.ShowingState) {
+        this.owner.didShow();
+      } else if (displayState === ScrimView.HidingState) {
+        this.owner.didHide();
+      }
+    },
+  })
+  declare backgroundColor: StyleAnimator<this, Color, AnyColor>;
+
+  isShown(): boolean {  
+    switch (this.displayState) {
+      case ScrimView.ShownState:
+      case ScrimView.ShowingState:
+      case ScrimView.ShowState: return true;
+      default: return false;
+    }
   }
 
   isHidden(): boolean {
-    return this.scrimState === "hidden" || this.scrimState === "hiding";
+    switch (this.displayState) {
+      case ScrimView.HiddenState:
+      case ScrimView.HidingState:
+      case ScrimView.HideState: return true;
+      default: return false;
+    }
   }
 
   show(opacity: number, tween?: Tween<any>): void {
-    if (this.scrimState === "hidden" || this.scrimState === "hiding") {
+    if (this.isHidden()) {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
-      this.willShow();
-      this.display.setAutoState("block");
+      this.setDisplayState(ScrimView.ShowState);
       if (tween !== null) {
         this.backgroundColor.setAutoState(Color.black(0));
-        this.backgroundColor.setAutoState(Color.black(opacity), tween.onEnd(this.didShow.bind(this)));
+        this.backgroundColor.setAutoState(Color.black(opacity), tween);
       } else {
+        this.willShow();
         this.backgroundColor.setAutoState(Color.black(opacity));
         this.didShow();
       }
@@ -84,51 +126,40 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
   }
 
   protected willShow(): void {
-    Object.defineProperty(this, "scrimState", {
-      value: "showing",
-      enumerable: true,
-      configurable: true,
-    });
+    this.setDisplayState(ScrimView.ShowingState);
+
+    this.display.setAutoState("block");
   }
 
   protected didShow(): void {
-    Object.defineProperty(this, "scrimState", {
-      value: "shown",
-      enumerable: true,
-      configurable: true,
-    });
+    this.setDisplayState(ScrimView.ShownState);
   }
 
   hide(tween?: Tween<any>): void {
-    if (this.scrimState === "shown" || this.scrimState === "showing") {
+    if (this.isShown()) {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
-      this.willHide();
+      this.setDisplayState(ScrimView.HideState);
       if (tween !== null) {
-        this.backgroundColor.setAutoState(Color.black(0), tween.onEnd(this.didHide.bind(this)));
+        this.backgroundColor.setAutoState(Color.black(0), tween);
       } else {
+        this.willHide();
         this.backgroundColor.setAutoState(Color.black(0));
         this.didHide();
       }
     }
   }
 
-  protected willHide(): void {    Object.defineProperty(this, "scrimState", {
-      value: "hiding",
-      enumerable: true,
-      configurable: true,
-    });
+  protected willHide(): void {
+    this.setDisplayState(ScrimView.HidingState);
   }
 
   protected didHide(): void {
-    Object.defineProperty(this, "scrimState", {
-      value: "hidden",
-      enumerable: true,
-      configurable: true,
-    });
+    this.setDisplayState(ScrimView.HiddenState);
+
     this.display.setAutoState("none");
   }
 
@@ -146,7 +177,7 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
     if (modalManager !== void 0) {
       modalManager.removeViewManagerObserver(this);
     }
-    this.hide();
+    this.hide(false);
     super.onUnmount();
   }
 
@@ -157,6 +188,9 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
         this.show(opacity);
       } else {
         this.backgroundColor.setAutoState(Color.black(opacity));
+        if (this.displayState === ScrimView.ShowingState) {
+          this.didShow();
+        }
       }
     } else {
       this.hide();
@@ -174,4 +208,17 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
     event.preventDefault();
     event.stopPropagation();
   }
+
+  /** @hidden */
+  static readonly HiddenState: number = 0;
+  /** @hidden */
+  static readonly HidingState: number = 1;
+  /** @hidden */
+  static readonly HideState: number = 2;
+  /** @hidden */
+  static readonly ShownState: number = 3;
+  /** @hidden */
+  static readonly ShowingState: number = 4;
+  /** @hidden */
+  static readonly ShowState: number = 5;
 }

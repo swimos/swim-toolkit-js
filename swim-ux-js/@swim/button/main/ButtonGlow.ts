@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Length} from "@swim/math";
+import {AnyLength, Length} from "@swim/math";
 import {Tween, Transition} from "@swim/animation";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {HtmlView} from "@swim/dom";
+import {StyleAnimator, HtmlView} from "@swim/dom";
 
 export type ButtonGlowState = "ready" | "glowing" | "pulsing" | "fading";
 
@@ -47,6 +47,28 @@ export class ButtonGlow extends HtmlView {
   get glowState(): ButtonGlowState {
     return this._glowState;
   }
+
+  @StyleAnimator<ButtonGlow, Length | "auto", AnyLength | "auto">({
+    propertyNames: "left",
+    type: [Length, String],
+    onEnd(left: Length | "auto"): void {
+      this.owner.didGlow();
+    }
+  })
+  declare left: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
+
+  @StyleAnimator<ButtonGlow, number, number | string>({
+    propertyNames: "opacity",
+    type: Number,
+    onEnd(opacity: number): void {
+      if (this.owner._glowState === "pulsing" && opacity === 0) {
+        this.owner.didPulse();
+      } else if (this.owner._glowState === "fading" && opacity === 0) {
+        this.owner.didFade();
+      }
+    },
+  })
+  declare opacity: StyleAnimator<this, number, number | string>;
 
   protected didMount(): void {
     if (this.backgroundColor.isAuto()) {
@@ -105,7 +127,7 @@ export class ButtonGlow extends HtmlView {
           if (tween !== null) {
             this.left.setAutoState(cx);
             this.top.setAutoState(cy);
-            this.left.setAutoState(cx - r, tween.onEnd(this.didGlow.bind(this)));
+            this.left.setAutoState(cx - r, tween);
             this.top.setAutoState(cy - r, tween);
             this.width.setAutoState(2 * r, tween);
             this.height.setAutoState(2 * r, tween);
@@ -149,7 +171,7 @@ export class ButtonGlow extends HtmlView {
     if (this._glowState === "glowing") {
       this.willPulse();
       if (tween !== null) {
-        this.opacity.setAutoState(0, tween.onEnd(this.didPulse.bind(this)));
+        this.opacity.setAutoState(0, tween);
       } else {
         this.opacity.setAutoState(0);
         this.didPulse();
@@ -178,7 +200,7 @@ export class ButtonGlow extends HtmlView {
       }
       this.willFade();
       if (tween !== null) {
-        this.opacity.setAutoState(0, tween.onEnd(this.didFade.bind(this)));
+        this.opacity.setAutoState(0, tween);
       } else {
         this.opacity.setAutoState(0);
         this.didFade();

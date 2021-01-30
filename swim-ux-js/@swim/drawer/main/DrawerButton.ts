@@ -17,12 +17,13 @@ import {IconButton} from "@swim/button";
 import type {DrawerView} from "./DrawerView";
 
 export class DrawerButton extends IconButton {
-  /** @hidden */
-  _drawerView: DrawerView | null;
-
   constructor(node: HTMLElement) {
     super(node);
-    this._drawerView = null;
+    Object.defineProperty(this, "drawerView", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
     this.initChildren();
   }
 
@@ -41,17 +42,19 @@ export class DrawerButton extends IconButton {
     return icon;
   }
 
-  get drawerView(): DrawerView | null {
-    return this._drawerView;
-  }
+  declare readonly drawerView: DrawerView | null;
 
   setDrawerView(drawerView: DrawerView | null): void {
-    this._drawerView = drawerView;
+    Object.defineProperty(this, "drawerView", {
+      value: drawerView,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onClick(event: MouseEvent): void {
     super.onClick(event);
-    const drawerView = this._drawerView;
+    const drawerView = this.drawerView;
     if (drawerView !== null) {
       drawerView.toggle();
     }

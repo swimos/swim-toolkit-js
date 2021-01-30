@@ -234,7 +234,10 @@ function updateGauge() {
   for (let i = dials.length - 1; i >= count; i -= 1) {
     const dial = dials[i];
     dials.splice(i, 1);
-    dial.value(0, tween.onEnd(() => dial.remove()));
+    dial.value(0, tween);
+    dial.value.onEnd = function () {
+      dial.remove();
+    };
   }
 
   // Update gauge properties.

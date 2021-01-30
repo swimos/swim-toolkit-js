@@ -16,7 +16,7 @@ import {Length} from "@swim/math";
 import {Tween, Transition} from "@swim/animation";
 import {Look} from "@swim/theme";
 import {ViewContextType, View, ModalOptions, ModalState, Modal, ViewAnimator} from "@swim/view";
-import {ViewNode, HtmlView, SvgView} from "@swim/dom";
+import {StyleAnimator, ViewNode, HtmlView, SvgView} from "@swim/dom";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import {FloatingButton} from "./FloatingButton";
 import {ButtonItem} from "./ButtonItem";
@@ -90,8 +90,33 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     return this._stackState === "collapsed" || this._stackState === "collapsing";
   }
 
-  @ViewAnimator({type: Number, state: 0, updateFlags: View.NeedsLayout})
+  @ViewAnimator<ButtonStack, number>({
+    type: Number,
+    state: 0,
+    updateFlags: View.NeedsLayout,
+    onEnd(stackPhase: number): void {
+      const stackState = this.owner._stackState;
+      if (stackState === "expanding" && stackPhase === 1) {
+        this.owner.didExpand();
+      } else if (stackState === "collapsing" && stackPhase === 0) {
+        this.owner.didCollapse();
+      }
+    },
+  })
   declare stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
+
+  @StyleAnimator<ButtonStack, number, number | string>({
+    propertyNames: "opacity",
+    type: Number,
+    onEnd(opacity: number): void {
+      if (opacity === 1) {
+        this.owner.didShow();
+      } else if (opacity === 0) {
+        this.owner.didHide();
+      }
+    },
+  })
+  declare opacity: StyleAnimator<this, number, number | string>;
 
   get modalView(): View | null {
     return null;
@@ -313,7 +338,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       }
       if (tween !== null) {
         if (this.stackPhase.value !== 1) {
-          this.stackPhase.setAutoState(1, tween.onEnd(this.didExpand.bind(this)));
+          this.stackPhase.setAutoState(1, tween);
         } else {
           setTimeout(this.didExpand.bind(this));
         }
@@ -373,7 +398,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       }
       if (tween !== null) {
         if (this.stackPhase.value !== 0) {
-          this.stackPhase.setAutoState(0, tween.onEnd(this.didCollapse.bind(this)));
+          this.stackPhase.setAutoState(0, tween);
         } else {
           setTimeout(this.didCollapse.bind(this));
         }
@@ -435,7 +460,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       }
       this.willShow();
       if (tween !== null) {
-        this.opacity.setAutoState(1, tween.onEnd(this.didShow.bind(this)));
+        this.opacity.setAutoState(1, tween);
       } else {
         this.opacity.setAutoState(1);
         this.didShow();
@@ -484,7 +509,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       }
       this.willHide();
       if (tween !== null) {
-        this.opacity.setAutoState(0, tween.onEnd(this.didHide.bind(this)));
+        this.opacity.setAutoState(0, tween);
       } else {
         this.opacity.setAutoState(0);
         this.didHide();

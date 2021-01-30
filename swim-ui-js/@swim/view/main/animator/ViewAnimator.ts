@@ -44,6 +44,9 @@ export interface ViewAnimatorInit<T, U = never> {
   willUpdate?(newValue: T, oldValue: T): void;
   onUpdate?(newValue: T, oldValue: T): void;
   didUpdate?(newValue: T, oldValue: T): void;
+  onBegin?(value: T): void;
+  onEnd?(value: T): void;
+  onInterrupt?(value: T): void;
   fromAny?(value: T | U): T;
   initState?(): T | U;
 }
@@ -521,10 +524,8 @@ ViewAnimator.prototype.updateSubAnimators = function <T>(this: ViewAnimator<View
   }
 };
 
-ViewAnimator.prototype.animate = function (this: ViewAnimator<View, unknown>, animator: Animator = this): void {
-  if (animator !== this || (this.animatorFlags & TweenAnimator.DisabledFlag) === 0) {
-    this.owner.animate(animator);
-  }
+ViewAnimator.prototype.animate = function (this: ViewAnimator<View, unknown>, animator?: Animator): void {
+  this.owner.animate(animator !== void 0 ? animator : this);
 };
 
 ViewAnimator.prototype.mount = function (this: ViewAnimator<View, unknown>): void {

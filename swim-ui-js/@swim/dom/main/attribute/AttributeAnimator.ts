@@ -45,6 +45,9 @@ export interface AttributeAnimatorInit<T, U = never> {
   willUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
   onUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
   didUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
+  onBegin?(value: T): void;
+  onEnd?(value: T): void;
+  onInterrupt?(value: T): void;
   parse?(value: string): T | undefined
   fromAny?(value: T | U): T | undefined;
 }
@@ -271,10 +274,8 @@ AttributeAnimator.prototype.onUpdate = function <T>(this: AttributeAnimator<Elem
   }
 };
 
-AttributeAnimator.prototype.animate = function (this: AttributeAnimator<ElementView, unknown>, animator: Animator = this): void {
-  if (animator !== this || (this.animatorFlags & TweenAnimator.DisabledFlag) === 0) {
-    this.owner.animate(animator);
-  }
+AttributeAnimator.prototype.animate = function (this: AttributeAnimator<ElementView, unknown>, animator?: Animator): void {
+  this.owner.animate(animator !== void 0 ? animator : this);
 };
 
 AttributeAnimator.prototype.parse = function <T>(this: AttributeAnimator<ElementView, T>): T | undefined {

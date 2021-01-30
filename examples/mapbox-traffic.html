@@ -197,7 +197,10 @@ function linkIntersection(intersectionId, node, intersectionView) {
     const radius = Math.min(frame.width, frame.height) / 8;
     const tween = swim.Transition.duration(2000);
     ripple.stroke(RIPPLE_COLOR.alpha(0), tween)
-          .radius(radius, tween.onEnd(function () { ripple.remove(); }));
+          .radius(radius, tween);
+    ripple.radius.onEnd = function () {
+      ripple.remove();
+    };
   }
 }
 
