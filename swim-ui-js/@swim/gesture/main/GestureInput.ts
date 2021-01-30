@@ -78,5 +78,7 @@ export class GestureInput {
     this.x = x;
     this.y = y;
     this.t = t;
+
+    this.detail = void 0;
   }
 }

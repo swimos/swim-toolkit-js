@@ -22,35 +22,32 @@ import type {ScaleGestureDelegate} from "./ScaleGestureDelegate";
 import {ScaleGestureInput} from "./ScaleGestureInput";
 
 export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentumGesture<V> implements ViewObserver<V> {
-  /** @hidden */
-  declare _delegate: ScaleGestureDelegate<X, Y> | null;
-  /** @hidden */
-  declare _inputs: {[inputId: string]: ScaleGestureInput<X, Y> | undefined};
-  /** @hidden */
-  _needsRescale: boolean;
-
   constructor(view: V | null, delegate: ScaleGestureDelegate<X, Y> | null = null) {
     super(view, delegate);
-    this._needsRescale = false;
+    Object.defineProperty(this, "needsRescale", {
+      value: false,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get delegate(): ScaleGestureDelegate<X, Y> | null {
-    return this._delegate;
-  }
+  declare readonly delegate: ScaleGestureDelegate<X, Y> | null
 
   setDelegate(delegate: ScaleGestureDelegate<X, Y> | null): void {
-    this._delegate = delegate;
+    Object.defineProperty(this, "delegate", {
+      value: delegate,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get inputs(): {readonly [inputId: string]: ScaleGestureInput<X, Y> | undefined} {
-    return this._inputs;
-  }
+  declare readonly inputs: {readonly [inputId: string]: ScaleGestureInput<X, Y> | undefined};
 
   getInput(inputId: string | number): ScaleGestureInput<X, Y> | null {
     if (typeof inputId === "number") {
       inputId = "" + inputId;
     }
-    const input = this._inputs[inputId];
+    const input = this.inputs[inputId];
     return input !== void 0 ? input : null;
   }
 
@@ -64,11 +61,16 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     if (typeof inputId === "number") {
       inputId = "" + inputId;
     }
-    let input = this._inputs[inputId];
+    const inputs = this.inputs as {[inputId: string]: ScaleGestureInput<X, Y> | undefined};
+    let input = inputs[inputId];
     if (input === void 0) {
       input = this.createInput(inputId, inputType, isPrimary, x, y, t);
-      this._inputs[inputId] = input;
-      this._inputCount += 1;
+      inputs[inputId] = input;
+      Object.defineProperty(this, "inputCount", {
+        value: this.inputCount + 1,
+        enumerable: true,
+        configurable: true,
+      });
     }
     return input;
   }
@@ -83,8 +85,8 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     }
   }
 
-  protected distanceMin(): number {
-    const delegate = this._delegate;
+  protected get distanceMin(): number {
+    const delegate = this.delegate;
     if (delegate !== null && delegate.distanceMin !== void 0) {
       return delegate.distanceMin();
     } else {
@@ -92,8 +94,8 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     }
   }
 
-  protected preserveAspectRatio(): boolean {
-    const delegate = this._delegate;
+  protected get preserveAspectRatio(): boolean {
+    const delegate = this.delegate;
     if (delegate !== null && delegate.preserveAspectRatio !== void 0) {
       return delegate.preserveAspectRatio();
     } else {
@@ -102,7 +104,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   }
 
   xGestures(): boolean {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.xGestures !== void 0) {
       return delegate.xGestures();
     } else {
@@ -111,7 +113,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   }
 
   yGestures(): boolean {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.yGestures !== void 0) {
       return delegate.yGestures();
     } else {
@@ -123,7 +125,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   xScale(xScale: ContinuousScale<X, number> | undefined, tween?: Tween<any>): this;
   xScale(xScale?: ContinuousScale<X, number> | undefined,
          tween?: Tween<any>): ContinuousScale<X, number> | undefined | this {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (xScale === void 0) {
       if (delegate !== null && delegate.xScale !== void 0) {
         if (delegate.xGestures === void 0 || delegate.xGestures()) {
@@ -145,7 +147,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   yScale(yScale: ContinuousScale<Y, number> | undefined, tween?: Tween<any>): this;
   yScale(yScale?: ContinuousScale<Y, number> | undefined,
          tween?: Tween<any>): ContinuousScale<Y, number> | undefined | this {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (yScale === void 0) {
       if (delegate !== null && delegate.yScale !== void 0) {
         if (delegate.yGestures === void 0 || delegate.yGestures()) {
@@ -191,9 +193,12 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     return yScale.inverse(this.clientToRangeY(clientY, yScale, bounds));
   }
 
+  /** @hidden */
+  declare readonly needsRescale: boolean;
+
   viewWillAnimate(viewContext: ViewContext): void {
     super.viewWillAnimate(viewContext);
-    if (this._needsRescale) {
+    if (this.needsRescale) {
       this.rescale();
     }
   }
@@ -201,32 +206,48 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   protected onBeginPress(input: ScaleGestureInput<X, Y>, event: Event | null): void {
     super.onBeginPress(input, event);
     this.updateInputDomain(input);
-    this._view!.requireUpdate(View.NeedsAnimate);
-    this._needsRescale = true;
+    this.view!.requireUpdate(View.NeedsAnimate);
+    Object.defineProperty(this, "needsRescale", {
+      value: true,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onMovePress(input: ScaleGestureInput<X, Y>, event: Event | null): void {
     super.onMovePress(input, event);
-    this._view!.requireUpdate(View.NeedsAnimate);
-    this._needsRescale = true;
+    this.view!.requireUpdate(View.NeedsAnimate);
+    Object.defineProperty(this, "needsRescale", {
+      value: true,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onEndPress(input: ScaleGestureInput<X, Y>, event: Event | null): void {
     super.onEndPress(input, event);
     this.updateInputDomain(input);
-    this._view!.requireUpdate(View.NeedsAnimate);
-    this._needsRescale = true;
+    this.view!.requireUpdate(View.NeedsAnimate);
+    Object.defineProperty(this, "needsRescale", {
+      value: true,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onCancelPress(input: ScaleGestureInput<X, Y>, event: Event | null): void {
     super.onCancelPress(input, event);
     this.updateInputDomain(input);
-    this._view!.requireUpdate(View.NeedsAnimate);
-    this._needsRescale = true;
+    this.view!.requireUpdate(View.NeedsAnimate);
+    Object.defineProperty(this, "needsRescale", {
+      value: true,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   beginCoast(input: ScaleGestureInput<X, Y>, event: Event | null): void {
-    if (this._coastCount < 2) {
+    if (this.coastCount < 2) {
       super.beginCoast(input, event);
     }
   }
@@ -235,22 +256,34 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     super.onBeginCoast(input, event);
     this.updateInputDomain(input);
     this.conserveMomentum(input);
-    this._view!.requireUpdate(View.NeedsAnimate);
-    this._needsRescale = true;
+    this.view!.requireUpdate(View.NeedsAnimate);
+    Object.defineProperty(this, "needsRescale", {
+      value: true,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onEndCoast(input: ScaleGestureInput<X, Y>, event: Event | null): void {
     super.onEndCoast(input, event);
     input.disableX = false;
     input.disableY = false;
-    this._view!.requireUpdate(View.NeedsAnimate);
-    this._needsRescale = true;
+    this.view!.requireUpdate(View.NeedsAnimate);
+    Object.defineProperty(this, "needsRescale", {
+      value: true,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onCoast(): void {
     super.onCoast();
-    this._view!.requireUpdate(View.NeedsAnimate);
-    this._needsRescale = true;
+    this.view!.requireUpdate(View.NeedsAnimate);
+    Object.defineProperty(this, "needsRescale", {
+      value: true,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected updateInputDomain(input: ScaleGestureInput<X, Y>,
@@ -262,7 +295,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     }
     if (xScale !== void 0) {
       if (bounds === void 0) {
-        bounds = this._view!.clientBounds;
+        bounds = this.view!.clientBounds;
       }
       input.xCoord = this.unscaleX(input.x0, xScale, bounds);
     }
@@ -271,15 +304,16 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     }
     if (yScale !== void 0) {
       if (bounds === void 0) {
-        bounds = this._view!.clientBounds;
+        bounds = this.view!.clientBounds;
       }
       input.yCoord = this.unscaleY(input.y0, yScale, bounds);
     }
   }
 
   neutralizeX(): void {
-    for (const inputId in this._inputs) {
-      const input = this._inputs[inputId]!;
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
       if (input.coasting) {
         input.disableX = true;
         input.vx = 0;
@@ -289,8 +323,9 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   }
 
   neutralizeY(): void {
-    for (const inputId in this._inputs) {
-      const input = this._inputs[inputId]!;
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
       if (input.coasting) {
         input.disableY = true;
         input.vy = 0;
@@ -302,8 +337,9 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   protected rescale(): void {
     let input0: ScaleGestureInput<X, Y> | undefined;
     let input1: ScaleGestureInput<X, Y> | undefined;
-    for (const inputId in this._inputs) {
-      const input = this._inputs[inputId]!;
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
       if (input.pressing || input.coasting) {
         if (input0 === void 0) {
           input0 = input;
@@ -317,11 +353,11 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
       }
     }
     if (input0 !== void 0) {
-      const bounds = this._view!.clientBounds;
+      const bounds = this.view!.clientBounds;
       const xScale = this.xScale();
       const yScale = this.yScale();
       if (xScale !== void 0 && yScale !== void 0) {
-        if (input1 !== void 0 && this.preserveAspectRatio()) {
+        if (input1 !== void 0 && this.preserveAspectRatio) {
           this.rescaleRadial(xScale, yScale, input0, input1, bounds);
         } else {
           this.rescaleXY(xScale, yScale, input0, input1, bounds);
@@ -332,7 +368,11 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
         this.rescaleY(yScale, input0, input1, bounds);
       }
     }
-    this._needsRescale = false;
+    Object.defineProperty(this, "needsRescale", {
+      value: false,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected rescaleRadial(oldXScale: ContinuousScale<X, number>,
@@ -366,7 +406,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     const dpx = px1 - px0;
     const dpy = py1 - py0;
     // Normalize the previous input distance vector.
-    const dp = Math.max(this.distanceMin(), Math.sqrt(dpx * dpx + dpy * dpy));
+    const dp = Math.max(this.distanceMin, Math.sqrt(dpx * dpx + dpy * dpy));
     const upx = dpx / dp;
     const upy = dpy / dp;
 
@@ -498,9 +538,10 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
         input1.yCoord = this.unscaleY(input1.y0, newYScale, bounds);
       }
 
-      if (this._inputCount > 2) {
-        for (const inputId in this._inputs) {
-          const input = this._inputs[inputId]!;
+      if (this.inputCount > 2) {
+        const inputs = this.inputs;
+        for (const inputId in inputs) {
+          const input = inputs[inputId]!;
           if (input !== input0 && input !== input1) {
             if (newXScale !== void 0) {
               input.x0 = input.x;
@@ -545,7 +586,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
       const dsx = Math.abs(sx1 - sx0);
       const dsy = Math.abs(sy1 - sy0);
 
-      const distanceMin = this.distanceMin();
+      const distanceMin = this.distanceMin;
       if (dsx < distanceMin) {
         const esx = (distanceMin - dsx) / 2;
         if (sx0 <= sx1) {
@@ -584,9 +625,10 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
       }
     }
 
-    if ((newXScale !== void 0 || newYScale !== void 0) && this.preserveAspectRatio()) {
-      for (const inputId in this._inputs) {
-        const input = this._inputs[inputId]!;
+    if ((newXScale !== void 0 || newYScale !== void 0) && this.preserveAspectRatio) {
+      const inputs = this.inputs;
+      for (const inputId in inputs) {
+        const input = inputs[inputId]!;
         if (newXScale !== void 0) {
           input.x0 = input.x;
           input.dx = 0;
@@ -615,7 +657,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
       sx1 = this.clientToRangeX(input1.x, oldXScale, bounds);
       disableX = disableX || input1.disableX;
       const dsx = Math.abs(sx1 - sx0);
-      const distanceMin = this.distanceMin();
+      const distanceMin = this.distanceMin;
       if (dsx < distanceMin) {
         const esx = (distanceMin - dsx) / 2;
         if (sx0 <= sx1) {
@@ -649,7 +691,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
       sy1 = this.clientToRangeY(input1.y, oldYScale, bounds);
       disableY = disableY || input1.disableY;
       const dsy = Math.abs(sy1 - sy0);
-      const distanceMin = this.distanceMin();
+      const distanceMin = this.distanceMin;
       if (dsy < distanceMin) {
         const esy = (distanceMin - dsy) / 2;
         if (sy0 <= sy1) {
@@ -672,8 +714,9 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   /** @hidden */
   protected conserveMomentum(input0: ScaleGestureInput<X, Y>): void {
     let input1: ScaleGestureInput<X, Y> | undefined;
-    for (const inputId in this._inputs) {
-      const input = this._inputs[inputId]!;
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
       if (input.coasting) {
         if (input1 === void 0) {
           input1 = input;
@@ -783,8 +826,9 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   protected integrate(t: number): void {
     let coast0: ScaleGestureInput<X, Y> | undefined;
     let coast1: ScaleGestureInput<X, Y> | undefined;
-    for (const inputId in this._inputs) {
-      const input = this._inputs[inputId]!;
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
       if (input.coasting) {
         if (coast0 === void 0) {
           coast0 = input;
@@ -822,17 +866,18 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
       return;
     }
     const t = event !== null ? event.timeStamp : performance.now();
-    const a = this.acceleration();
+    const a = this.acceleration;
     let ax = a * Math.cos(Math.PI / 4);
     let ay = a * Math.sin(Math.PI / 4);
-    const vMax = this.velocityMax();
+    const vMax = this.velocityMax;
     const vx = 0.5 * vMax * Math.cos(Math.PI / 4);
     const vy = 0.5 * vMax * Math.sin(Math.PI / 4);
     const dx = (4 * vx * vx) / ax;
     const dy = (4 * vy * vy) / ay;
 
-    let zoom0 = this._inputs.zoom0;
-    let zoom1 = this._inputs.zoom1;
+    const inputs = this.inputs as {[inputId: string]: ScaleGestureInput<X, Y> | undefined};
+    let zoom0 = inputs.zoom0;
+    let zoom1 = inputs.zoom1;
     if (zoom0 !== void 0 && zoom1 !== void 0) {
       const dt = t - zoom0.t;
       if (dt > 0) {
@@ -893,9 +938,13 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
         zoom1.ay = ay;
       }
 
-      this._inputs.zoom0 = zoom0;
-      this._inputs.zoom1 = zoom1;
-      this._inputCount += 2;
+      inputs.zoom0 = zoom0;
+      inputs.zoom1 = zoom1;
+      Object.defineProperty(this, "inputCount", {
+        value: this.inputCount + 2,
+        enumerable: true,
+        configurable: true,
+      });
       this.beginCoast(zoom0, event);
       this.beginCoast(zoom1, event);
     }
@@ -931,11 +980,11 @@ export class PointerScaleGesture<X, Y, V extends View> extends AbstractScaleGest
     } else {
       if (this._wheel !== wheel) {
         this._wheel = wheel;
-        if (this._view !== null) {
+        if (this.view !== null) {
           if (wheel) {
-            this.attachWheelEvents(this._view);
+            this.attachWheelEvents(this.view);
           } else {
-            this.detachWheelEvents(this._view);
+            this.detachWheelEvents(this.view);
           }
         }
       }
@@ -1229,11 +1278,11 @@ export class MouseScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
     } else {
       if (this._wheel !== wheel) {
         this._wheel = wheel;
-        if (this._view !== null) {
+        if (this.view !== null) {
           if (wheel) {
-            this.attachWheelEvents(this._view);
+            this.attachWheelEvents(this.view);
           } else {
-            this.detachWheelEvents(this._view);
+            this.detachWheelEvents(this.view);
           }
         }
       }

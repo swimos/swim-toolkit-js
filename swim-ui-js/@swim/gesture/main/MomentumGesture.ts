@@ -19,35 +19,32 @@ import {MomentumGestureInput} from "./MomentumGestureInput";
 import type {MomentumGestureDelegate} from "./MomentumGestureDelegate";
 
 export class AbstractMomentumGesture<V extends View> extends AbstractPositionGesture<V> implements ViewObserver<V> {
-  /** @hidden */
-  declare _delegate: MomentumGestureDelegate | null;
-  /** @hidden */
-  declare _inputs: {[inputId: string]: MomentumGestureInput | undefined};
-  /** @hidden */
-  _coastCount: number;
-
   constructor(view: V | null, delegate: MomentumGestureDelegate | null = null) {
     super(view, delegate);
-    this._coastCount = 0;
+    Object.defineProperty(this, "coastCount", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get delegate(): MomentumGestureDelegate | null {
-    return this._delegate;
-  }
+  declare readonly delegate: MomentumGestureDelegate | null;
 
   setDelegate(delegate: MomentumGestureDelegate | null): void {
-    this._delegate = delegate;
+    Object.defineProperty(this, "delegate", {
+      value: delegate,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get inputs(): {readonly [inputId: string]: MomentumGestureInput | undefined} {
-    return this._inputs;
-  }
+  declare readonly inputs: {readonly [inputId: string]: MomentumGestureInput | undefined};
 
   getInput(inputId: string | number): MomentumGestureInput | null {
     if (typeof inputId === "number") {
       inputId = "" + inputId;
     }
-    const input = this._inputs[inputId];
+    const input = this.inputs[inputId];
     return input !== void 0 ? input : null;
   }
 
@@ -61,24 +58,34 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
     if (typeof inputId === "number") {
       inputId = "" + inputId;
     }
-    let input = this._inputs[inputId];
+    const inputs = this.inputs as {[inputId: string]: MomentumGestureInput | undefined};
+    let input = inputs[inputId];
     if (input === void 0) {
       input = this.createInput(inputId, inputType, isPrimary, x, y, t);
-      this._inputs[inputId] = input;
-      this._inputCount += 1;
+      inputs[inputId] = input;
+      Object.defineProperty(this, "inputCount", {
+        value: this.inputCount + 1,
+        enumerable: true,
+        configurable: true,
+      });
     }
     return input;
   }
 
   protected clearInput(input: MomentumGestureInput): void {
     if (!input.hovering && !input.pressing && !input.coasting) {
-      delete this._inputs[input.inputId];
-      this._inputCount -= 1;
+      const inputs = this.inputs as {[inputId: string]: MomentumGestureInput | undefined};
+      delete inputs[input.inputId];
+      Object.defineProperty(this, "inputCount", {
+        value: this.inputCount - 1,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
 
-  protected hysteresis(): number {
-    const delegate = this._delegate;
+  protected get hysteresis(): number {
+    const delegate = this.delegate;
     if (delegate !== null && delegate.hysteresis !== void 0) {
       return delegate.hysteresis();
     } else {
@@ -86,8 +93,8 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
     }
   }
 
-  protected acceleration(): number {
-    const delegate = this._delegate;
+  protected get acceleration(): number {
+    const delegate = this.delegate;
     if (delegate !== null && delegate.acceleration !== void 0) {
       return delegate.acceleration();
     } else {
@@ -95,8 +102,8 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
     }
   }
 
-  protected velocityMax(): number {
-    const delegate = this._delegate;
+  protected get velocityMax(): number {
+    const delegate = this.delegate;
     if (delegate !== null && delegate.velocityMax !== void 0) {
       return delegate.velocityMax();
     } else {
@@ -106,7 +113,11 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
 
   viewWillUnmount(view: V): void {
     super.viewWillUnmount(view);
-    this._coastCount = 0;
+    Object.defineProperty(this, "coastCount", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   viewWillAnimate(viewContext: ViewContext): void {
@@ -114,15 +125,17 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   interrupt(event: Event | null): void {
-    for (const inputId in this._inputs) {
-      const input = this._inputs[inputId]!;
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
       this.endCoast(input, event);
     }
   }
 
   cancel(event: Event | null): void {
-    for (const inputId in this._inputs) {
-      const input = this._inputs[inputId]!;
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
       this.endPress(input, event);
       this.endCoast(input, event);
     }
@@ -135,7 +148,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected willStartInteracting(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willStartInteracting !== void 0) {
       delegate.willStartInteracting();
     }
@@ -146,7 +159,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected didStartInteracting(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didStartInteracting !== void 0) {
       delegate.didStartInteracting();
     }
@@ -159,7 +172,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected willStopInteracting(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willStopInteracting !== void 0) {
       delegate.willStopInteracting();
     }
@@ -170,7 +183,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected didStopInteracting(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didStopInteracting !== void 0) {
       delegate.didStopInteracting();
     }
@@ -178,14 +191,14 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
 
   protected onStartPressing(): void {
     super.onStartPressing();
-    if (this._coastCount === 0) {
+    if (this.coastCount === 0) {
       this.startInteracting();
     }
   }
 
   protected onStopPressing(): void {
     super.onStopPressing();
-    if (this._coastCount === 0) {
+    if (this.coastCount === 0) {
       this.stopInteracting();
     }
   }
@@ -197,14 +210,14 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
 
   protected onBeginPress(input: MomentumGestureInput, event: Event | null): void {
     super.onBeginPress(input, event);
-    input.updatePosition(this.hysteresis());
-    input.deriveVelocity(this.velocityMax());
+    input.updatePosition(this.hysteresis);
+    input.deriveVelocity(this.velocityMax);
   }
 
   protected onMovePress(input: MomentumGestureInput, event: Event | null): void {
     super.onMovePress(input, event);
-    input.updatePosition(this.hysteresis());
-    input.deriveVelocity(this.velocityMax());
+    input.updatePosition(this.hysteresis);
+    input.deriveVelocity(this.velocityMax);
   }
 
   protected willEndPress(input: MomentumGestureInput, event: Event | null): void {
@@ -214,18 +227,20 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
 
   protected onEndPress(input: MomentumGestureInput, event: Event | null): void {
     super.onEndPress(input, event);
-    input.updatePosition(this.hysteresis());
-    input.deriveVelocity(this.velocityMax());
+    input.updatePosition(this.hysteresis);
+    input.deriveVelocity(this.velocityMax);
   }
 
   protected onCancelPress(input: MomentumGestureInput, event: Event | null): void {
     super.onCancelPress(input, event);
-    input.updatePosition(this.hysteresis());
-    input.deriveVelocity(this.velocityMax());
+    input.updatePosition(this.hysteresis);
+    input.deriveVelocity(this.velocityMax);
   }
 
+  declare readonly coastCount: number;
+
   isCoasting(): boolean {
-    return this._coastCount !== 0;
+    return this.coastCount !== 0;
   }
 
   protected startCoasting(): void {
@@ -235,23 +250,23 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected willStartCoasting(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willStartCoasting !== void 0) {
       delegate.willStartCoasting();
     }
   }
 
   protected onStartCoasting(): void {
-    if (this._pressCount === 0) {
+    if (this.pressCount === 0) {
       this.startInteracting();
     }
-    if (this._view !== null) {
-      this._view.requireUpdate(View.NeedsAnimate);
+    if (this.view !== null) {
+      this.view.requireUpdate(View.NeedsAnimate);
     }
   }
 
   protected didStartCoasting(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didStartCoasting !== void 0) {
       delegate.didStartCoasting();
     }
@@ -264,20 +279,20 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected willStopCoasting(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willStopCoasting !== void 0) {
       delegate.willStopCoasting();
     }
   }
 
   protected onStopCoasting(): void {
-    if (this._pressCount === 0) {
+    if (this.pressCount === 0) {
       this.stopInteracting();
     }
   }
 
   protected didStopCoasting(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didStopCoasting !== void 0) {
       delegate.didStopCoasting();
     }
@@ -286,7 +301,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   beginCoast(input: MomentumGestureInput, event: Event | null): void {
     if (!input.coasting && (input.vx !== 0 || input.vy !== 0)) {
       const angle = Math.atan2(Math.abs(input.vy), Math.abs(input.vx));
-      const a = this.acceleration();
+      const a = this.acceleration;
       const ax = (input.vx < 0 ? a : input.vx > 0 ? -a : 0) * Math.cos(angle);
       const ay = (input.vy < 0 ? a : input.vy > 0 ? -a : 0) * Math.sin(angle);
       if (ax !== 0 || ay !== 0) {
@@ -295,10 +310,14 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
         const allowCoast = this.willBeginCoast(input, event);
         if (allowCoast) {
           input.coasting = true;
-          this._coastCount += 1;
+          Object.defineProperty(this, "coastCount", {
+            value: this.coastCount + 1,
+            enumerable: true,
+            configurable: true,
+          });
           this.onBeginCoast(input, event);
           this.didBeginCoast(input, event);
-          if (this._coastCount === 1) {
+          if (this.coastCount === 1) {
             this.startCoasting();
           }
         }
@@ -307,7 +326,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected willBeginCoast(input: MomentumGestureInput, event: Event | null): boolean {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willBeginCoast !== void 0) {
       const allowCoast = delegate.willBeginCoast(input, event);
       if (allowCoast === false) {
@@ -327,7 +346,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected didBeginCoast(input: MomentumGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didBeginCoast !== void 0) {
       delegate.didBeginCoast(input, event);
     }
@@ -337,10 +356,14 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
     if (input.coasting) {
       this.willEndCoast(input, event);
       input.coasting = false;
-      this._coastCount -= 1;
+      Object.defineProperty(this, "coastCount", {
+        value: this.coastCount - 1,
+        enumerable: true,
+        configurable: true,
+      });
       this.onEndCoast(input, event);
       this.didEndCoast(input, event);
-      if (this._coastCount === 0) {
+      if (this.coastCount === 0) {
         this.stopCoasting();
       }
       this.clearInput(input);
@@ -348,7 +371,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected willEndCoast(input: MomentumGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willEndCoast !== void 0) {
       delegate.willEndCoast(input, event);
     }
@@ -359,7 +382,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected didEndCoast(input: MomentumGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didEndCoast !== void 0) {
       delegate.didEndCoast(input, event);
     }
@@ -367,25 +390,26 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
 
   /** @hidden */
   protected doCoast(t: number): void {
-    if (this._coastCount !== 0) {
+    if (this.coastCount !== 0) {
       this.willCoast();
       this.integrate(t);
       this.onCoast();
-      for (const inputId in this._inputs) {
-        const input = this._inputs[inputId]!;
+      const inputs = this.inputs;
+      for (const inputId in inputs) {
+        const input = inputs[inputId]!;
         if (input.coasting && input.ax === 0 && input.ay === 0) {
           this.endCoast(input, null);
         }
       }
       this.didCoast();
-      if (this._coastCount !== 0 && this._view !== null) {
-        this._view.requireUpdate(View.NeedsAnimate);
+      if (this.coastCount !== 0 && this.view !== null) {
+        this.view.requireUpdate(View.NeedsAnimate);
       }
     }
   }
 
   protected willCoast(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willCoast !== void 0) {
       delegate.willCoast();
     }
@@ -396,7 +420,7 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
   }
 
   protected didCoast(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didCoast !== void 0) {
       delegate.didCoast();
     }
@@ -404,8 +428,9 @@ export class AbstractMomentumGesture<V extends View> extends AbstractPositionGes
 
   /** @hidden */
   protected integrate(t: number): void {
-    for (const inputId in this._inputs) {
-      const input = this._inputs[inputId]!;
+    const inputs = this.inputs;
+    for (const inputId in inputs) {
+      const input = inputs[inputId]!;
       if (input.coasting) {
         input.integrateVelocity(t);
       }

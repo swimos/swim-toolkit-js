@@ -18,27 +18,40 @@ import {PositionGestureInput} from "./PositionGestureInput";
 import type {PositionGestureDelegate} from "./PositionGestureDelegate";
 
 export class AbstractPositionGesture<V extends View> implements ViewObserver<V> {
-  /** @hidden */
-  _view: V | null;
-  /** @hidden */
-  _delegate: PositionGestureDelegate | null;
-  /** @hidden */
-  _inputs: {[inputId: string]: PositionGestureInput | undefined};
-  /** @hidden */
-  _inputCount: number;
-  /** @hidden */
-  _hoverCount: number;
-  /** @hidden */
-  _pressCount: number;
-
   constructor(view: V | null, delegate: PositionGestureDelegate | null = null) {
-    this._view = view;
-    this._delegate = delegate;
-    this._inputs = {};
-    this._inputCount = 0;
-    this._hoverCount = 0;
-    this._pressCount = 0;
+    Object.defineProperty(this, "view", {
+      value: view,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "delegate", {
+      value: delegate,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "inputs", {
+      value: {},
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "inputCount", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "hoverCount", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "pressCount", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
   }
+
+  declare readonly view: V | null;
 
   protected initView(view: V | null): void {
     if (view !== null) {
@@ -49,43 +62,46 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
     }
   }
 
-  get view(): V | null {
-    return this._view;
-  }
-
-  setView(view: V | null): void {
-    if (this._view !== view) {
-      if (this._view !== null) {
-        this.detachEvents(this._view);
-        this._view.removeViewObserver(this as ViewObserverType<V>);
+  setView(newView: V | null): void {
+    const oldView = this.view;
+    if (oldView !== newView) {
+      if (oldView!== null) {
+        this.detachEvents(oldView);
+        oldView.removeViewObserver(this as ViewObserverType<V>);
       }
-      this._view = view;
-      if (this._view !== null) {
-        this._view.addViewObserver(this as ViewObserverType<V>);
-        if (this._view.isMounted()) {
-          this.attachEvents(this._view);
+      Object.defineProperty(this, "view", {
+        value: newView,
+        enumerable: true,
+        configurable: true,
+      });
+      if (newView !== null) {
+        newView.addViewObserver(this as ViewObserverType<V>);
+        if (newView.isMounted()) {
+          this.attachEvents(newView);
         }
       }
     }
   }
 
-  get delegate(): PositionGestureDelegate | null {
-    return this._delegate;
-  }
+  declare readonly delegate: PositionGestureDelegate | null;
 
   setDelegate(delegate: PositionGestureDelegate | null): void {
-    this._delegate = delegate;
+    Object.defineProperty(this, "delegate", {
+      value: delegate,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get inputs(): {readonly [inputId: string]: PositionGestureInput | undefined} {
-    return this._inputs;
-  }
+  declare readonly inputs: {readonly [inputId: string]: PositionGestureInput | undefined};
+
+  declare readonly inputCount: number;
 
   getInput(inputId: string | number): PositionGestureInput | null {
     if (typeof inputId === "number") {
       inputId = "" + inputId;
     }
-    const input = this._inputs[inputId];
+    const input = this.inputs[inputId];
     return input !== void 0 ? input : null;
   }
 
@@ -99,19 +115,29 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
     if (typeof inputId === "number") {
       inputId = "" + inputId;
     }
-    let input = this._inputs[inputId];
+    const inputs = this.inputs as {[inputId: string]: PositionGestureInput | undefined};
+    let input = inputs[inputId];
     if (input === void 0) {
       input = this.createInput(inputId, inputType, isPrimary, x, y, t);
-      this._inputs[inputId] = input;
-      this._inputCount += 1;
+      inputs[inputId] = input;
+      Object.defineProperty(this, "inputCount", {
+        value: this.inputCount + 1,
+        enumerable: true,
+        configurable: true,
+      });
     }
     return input;
   }
 
   protected clearInput(input: PositionGestureInput): void {
     if (!input.hovering && !input.pressing) {
-      delete this._inputs[input.inputId];
-      this._inputCount -= 1;
+      const inputs = this.inputs as {[inputId: string]: PositionGestureInput | undefined};
+      delete inputs[input.inputId];
+      Object.defineProperty(this, "inputCount", {
+        value: this.inputCount - 1,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
 
@@ -121,10 +147,26 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
 
   viewWillUnmount(view: V): void {
     this.detachEvents(view);
-    this._inputs = {};
-    this._inputCount = 0;
-    this._hoverCount = 0;
-    this._pressCount = 0;
+    Object.defineProperty(this, "inputs", {
+      value: {},
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "inputCount", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "hoverCount", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "pressCount", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected attachEvents(view: V): void {
@@ -152,8 +194,10 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
     // hook
   }
 
+  declare readonly hoverCount: number;
+
   isHovering(): boolean {
-    return this._hoverCount !== 0;
+    return this.hoverCount !== 0;
   }
 
   protected startHovering(): void {
@@ -163,7 +207,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willStartHovering(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willStartHovering !== void 0) {
       delegate.willStartHovering();
     }
@@ -174,7 +218,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected didStartHovering(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didStartHovering !== void 0) {
       delegate.didStartHovering();
     }
@@ -187,7 +231,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willStopHovering(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willStopHovering !== void 0) {
       delegate.willStopHovering();
     }
@@ -198,7 +242,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected didStopHovering(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didStopHovering !== void 0) {
       delegate.didStopHovering();
     }
@@ -208,17 +252,21 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
     if (!input.hovering) {
       this.willBeginHover(input, event);
       input.hovering = true;
-      this._hoverCount += 1;
+      Object.defineProperty(this, "hoverCount", {
+        value: this.hoverCount + 1,
+        enumerable: true,
+        configurable: true,
+      });
       this.onBeginHover(input, event);
       this.didBeginHover(input, event);
-      if (this._hoverCount === 1) {
+      if (this.hoverCount === 1) {
         this.startHovering();
       }
     }
   }
 
   protected willBeginHover(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willBeginHover !== void 0) {
       delegate.willBeginHover(input, event);
     }
@@ -229,7 +277,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected didBeginHover(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didBeginHover !== void 0) {
       delegate.didBeginHover(input, event);
     }
@@ -239,10 +287,14 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
     if (input.hovering) {
       this.willEndHover(input, event);
       input.hovering = false;
-      this._hoverCount -= 1;
+      Object.defineProperty(this, "hoverCount", {
+        value: this.hoverCount - 1,
+        enumerable: true,
+        configurable: true,
+      });
       this.onEndHover(input, event);
       this.didEndHover(input, event);
-      if (this._hoverCount === 0) {
+      if (this.hoverCount === 0) {
         this.stopHovering();
       }
       this.clearInput(input);
@@ -250,7 +302,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willEndHover(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willEndHover !== void 0) {
       delegate.willEndHover(input, event);
     }
@@ -261,14 +313,16 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected didEndHover(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didEndHover !== void 0) {
       delegate.didEndHover(input, event);
     }
   }
 
+  declare readonly pressCount: number;
+
   isPressing(): boolean {
-    return this._pressCount !== 0;
+    return this.pressCount !== 0;
   }
 
   protected startPressing(): void {
@@ -278,18 +332,18 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willStartPressing(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willStartPressing !== void 0) {
       delegate.willStartPressing();
     }
   }
 
   protected onStartPressing(): void {
-    this.attachPressEvents(this._view!);
+    this.attachPressEvents(this.view!);
   }
 
   protected didStartPressing(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didStartPressing !== void 0) {
       delegate.didStartPressing();
     }
@@ -302,18 +356,18 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willStopPressing(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willStopPressing !== void 0) {
       delegate.willStopPressing();
     }
   }
 
   protected onStopPressing(): void {
-    this.detachPressEvents(this._view!);
+    this.detachPressEvents(this.view!);
   }
 
   protected didStopPressing(): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didStopPressing !== void 0) {
       delegate.didStopPressing();
     }
@@ -324,11 +378,15 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
       const allowPress = this.willBeginPress(input, event);
       if (allowPress) {
         input.pressing = true;
-        this._pressCount += 1;
+        Object.defineProperty(this, "pressCount", {
+          value: this.pressCount + 1,
+          enumerable: true,
+          configurable: true,
+        });
         this.onBeginPress(input, event);
         input.setHoldTimer(this.holdPress.bind(this, input));
         this.didBeginPress(input, event);
-        if (this._pressCount === 1) {
+        if (this.pressCount === 1) {
           this.startPressing();
         }
       }
@@ -336,7 +394,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willBeginPress(input: PositionGestureInput, event: Event | null): boolean {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willBeginPress !== void 0) {
       const allowPress = delegate.willBeginPress(input, event);
       if (allowPress === false) {
@@ -356,7 +414,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected didBeginPress(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didBeginPress !== void 0) {
       delegate.didBeginPress(input, event);
     }
@@ -372,7 +430,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willHoldPress(input: PositionGestureInput): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willHoldPress !== void 0) {
       delegate.willHoldPress(input);
     }
@@ -385,7 +443,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected didHoldPress(input: PositionGestureInput): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didHoldPress !== void 0) {
       delegate.didHoldPress(input);
     }
@@ -400,7 +458,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willMovePress(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willMovePress !== void 0) {
       delegate.willMovePress(input, event);
     }
@@ -411,7 +469,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected didMovePress(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didMovePress !== void 0) {
       delegate.didMovePress(input, event);
     }
@@ -422,10 +480,14 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
       input.clearHoldTimer();
       this.willEndPress(input, event);
       input.pressing = false;
-      this._pressCount -= 1;
+      Object.defineProperty(this, "pressCount", {
+        value: this.pressCount - 1,
+        enumerable: true,
+        configurable: true,
+      });
       this.onEndPress(input, event);
       this.didEndPress(input, event);
-      if (this._pressCount === 0) {
+      if (this.pressCount === 0) {
         this.stopPressing();
       }
       this.clearInput(input);
@@ -433,7 +495,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willEndPress(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willEndPress !== void 0) {
       delegate.willEndPress(input, event);
     }
@@ -444,7 +506,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected didEndPress(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didEndPress !== void 0) {
       delegate.didEndPress(input, event);
     }
@@ -455,10 +517,14 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
       input.clearHoldTimer();
       this.willCancelPress(input, event);
       input.pressing = false;
-      this._pressCount -= 1;
+      Object.defineProperty(this, "pressCount", {
+        value: this.pressCount - 1,
+        enumerable: true,
+        configurable: true,
+      });
       this.onCancelPress(input, event);
       this.didCancelPress(input, event);
-      if (this._pressCount === 0) {
+      if (this.pressCount === 0) {
         this.stopPressing();
       }
       this.clearInput(input);
@@ -466,7 +532,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willCancelPress(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willCancelPress !== void 0) {
       delegate.willCancelPress(input, event);
     }
@@ -477,7 +543,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected didCancelPress(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didCancelPress !== void 0) {
       delegate.didCancelPress(input, event);
     }
@@ -490,7 +556,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected willPress(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.willPress !== void 0) {
       delegate.willPress(input, event);
     }
@@ -501,7 +567,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   protected didPress(input: PositionGestureInput, event: Event | null): void {
-    const delegate = this._delegate;
+    const delegate = this.delegate;
     if (delegate !== null && delegate.didPress !== void 0) {
       delegate.didPress(input, event);
     }
