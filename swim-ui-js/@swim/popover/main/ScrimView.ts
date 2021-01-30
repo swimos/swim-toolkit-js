@@ -19,12 +19,13 @@ import type {ModalState, ModalManager, ModalManagerObserver} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 
 export class ScrimView extends HtmlView implements ModalManagerObserver {
-  /** @hidden */
-  _scrimState: ModalState;
-
   constructor(node: HTMLElement) {
     super(node);
-    this._scrimState = "hidden";
+    Object.defineProperty(this, "scrimState", {
+      value: "hidden",
+      enumerable: true,
+      configurable: true,
+    });
     this.onClick = this.onClick.bind(this);
     if (typeof PointerEvent !== "undefined") {
       this.onSyntheticClick = this.onSyntheticClick.bind(this);
@@ -53,20 +54,18 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
     this.backgroundColor.setAutoState(Color.black(0));
   }
 
-  get scrimState(): ModalState {
-    return this._scrimState;
-  }
+  declare readonly scrimState: ModalState;
 
   isShown(): boolean {
-    return this._scrimState === "shown" || this._scrimState === "showing";
+    return this.scrimState === "shown" || this.scrimState === "showing";
   }
 
   isHidden(): boolean {
-    return this._scrimState === "hidden" || this._scrimState === "hiding";
+    return this.scrimState === "hidden" || this.scrimState === "hiding";
   }
 
   show(opacity: number, tween?: Tween<any>): void {
-    if (this._scrimState === "hidden" || this._scrimState === "hiding") {
+    if (this.scrimState === "hidden" || this.scrimState === "hiding") {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
@@ -85,15 +84,23 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
   }
 
   protected willShow(): void {
-    this._scrimState = "showing";
+    Object.defineProperty(this, "scrimState", {
+      value: "showing",
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected didShow(): void {
-    this._scrimState = "shown";
+    Object.defineProperty(this, "scrimState", {
+      value: "shown",
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   hide(tween?: Tween<any>): void {
-    if (this._scrimState === "shown" || this._scrimState === "showing") {
+    if (this.scrimState === "shown" || this.scrimState === "showing") {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
@@ -109,12 +116,19 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
     }
   }
 
-  protected willHide(): void {
-    this._scrimState = "hiding";
+  protected willHide(): void {    Object.defineProperty(this, "scrimState", {
+      value: "hiding",
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected didHide(): void {
-    this._scrimState = "hidden";
+    Object.defineProperty(this, "scrimState", {
+      value: "hidden",
+      enumerable: true,
+      configurable: true,
+    });
     this.display.setAutoState("none");
   }
 

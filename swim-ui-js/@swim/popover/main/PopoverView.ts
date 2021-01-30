@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Arrays} from "@swim/util";
-import {AnyLength, Length, BoxR2} from "@swim/math";
+import {Arrays} from "@swim/util";
+import {AnyLength, Length, AnyBoxR2, BoxR2} from "@swim/math";
 import {Tween, Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Look} from "@swim/theme";
@@ -22,6 +22,7 @@ import {
   ViewContext,
   ViewFlags,
   View,
+  ViewScope,
   ViewAnimator,
   ModalOptions,
   ModalState,
@@ -43,31 +44,34 @@ export interface PopoverViewInit extends HtmlViewInit {
 }
 
 export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
-  /** @hidden */
-  _source: View | null;
-  /** @hidden */
-  _sourceFrame: BoxR2 | null;
-  /** @hidden */
-  _modalState: ModalState;
-  /** @hidden */
-  _modality: boolean | number;
-  /** @hidden */
-  _dropdown: boolean;
-  /** @hidden */
-  readonly _placement: PopoverPlacement[];
-  /** @hidden */
-  _placementFrame: BoxR2 | null;
-
   constructor(node: HTMLElement) {
     super(node);
+    Object.defineProperty(this, "source", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "sourceFrame", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modalState", {
+      value: "shown",
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modality", {
+      value: false,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "allowedPlacement", {
+      value: ["top", "bottom", "right", "left"],
+      enumerable: true,
+      configurable: true,
+    });
     this.onClick = this.onClick.bind(this);
-    this._source = null;
-    this._sourceFrame = null;
-    this._modalState = "shown";
-    this._modality = false;
-    this._dropdown = false;
-    this._placement = ["top", "bottom", "right", "left"];
-    this._placementFrame = null;
     this.initArrow();
   }
 
@@ -120,22 +124,25 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   @ViewAnimator({type: Length, state: Length.px(8)})
   declare arrowHeight: ViewAnimator<this, Length, AnyLength>;
 
-  get source(): View | null {
-    return this._source;
-  }
+  declare readonly source: View | null;
 
-  setSource(source: View | null): void {
-    if (this._source !== source) {
-      this.willSetSource(source);
-      if (this._source !== null && this.isMounted()) {
-        this._source.removeViewObserver(this);
+  setSource(newSource: View | null): void {
+    const oldSource = this.source;
+    if (oldSource !== newSource) {
+      this.willSetSource(newSource);
+      if (oldSource !== null && this.isMounted()) {
+        oldSource.removeViewObserver(this);
       }
-      this._source = source;
-      this.onSetSource(source);
-      if (this._source !== null && this.isMounted()) {
-        this._source.addViewObserver(this);
+      Object.defineProperty(this, "source", {
+        value: newSource,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetSource(newSource);
+      if (newSource !== null && this.isMounted()) {
+        newSource.addViewObserver(this);
       }
-      this.didSetSource(source);
+      this.didSetSource(newSource);
     }
   }
 
@@ -175,23 +182,23 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     return this;
   }
 
-  get modalState(): ModalState {
-    return this._modalState;
-  }
+  declare readonly modalState: ModalState;
 
-  get modality(): boolean | number {
-    return this._modality;
-  }
+  declare readonly modality: boolean | number;
 
   showModal(options: ModalOptions, tween?: Tween<any>): void {
-    if (this._modalState === "hidden" || this._modalState === "hiding") {
+    if (this.modalState === "hidden" || this.modalState === "hiding") {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
         tween = Transition.forTween(tween);
       }
       if (options.modal !== void 0) {
-        this._modality = options.modal;
+        Object.defineProperty(this, "modality", {
+          value: options.modal,
+          enumerable: true,
+          configurable: true,
+        });
       }
       this.willShow();
       const placement = this.place();
@@ -236,11 +243,19 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     }
 
     this.visibility.setAutoState("visible");
-    this._modalState = "showing";
+    Object.defineProperty(this, "modalState", {
+      value: "showing",
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected didShow(): void {
-    this._modalState = "shown";
+    Object.defineProperty(this, "modalState", {
+      value: "shown",
+      enumerable: true,
+      configurable: true,
+    });
     this.pointerEvents.setAutoState("auto");
     this.marginTop.setAutoState(void 0);
     this.opacity.setAutoState(void 0);
@@ -259,7 +274,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   hideModal(tween?: Tween<any>): void {
-    if (this._modalState === "shown" || this._modalState === "showing") {
+    if (this.modalState === "shown" || this.modalState === "showing") {
       if (tween === void 0 || tween === true) {
         tween = this.getLookOr(Look.transition, null);
       } else {
@@ -308,11 +323,19 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     }
 
     this.pointerEvents.setAutoState("none");
-    this._modalState = "hiding";
+    Object.defineProperty(this, "modalState", {
+      value: "hiding",
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected didHide(): void {
-    this._modalState = "hidden";
+    Object.defineProperty(this, "modalState", {
+      value: "hidden",
+      enumerable: true,
+      configurable: true,
+    });
     this.visibility.setAutoState("hidden");
     this.marginTop.setAutoState(void 0);
     this.opacity.setAutoState(void 0);
@@ -330,64 +353,58 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     }
   }
 
-  dropdown(): boolean;
-  dropdown(dropdown: boolean): this;
-  dropdown(dropdown?: boolean): boolean | this {
-    if (dropdown === void 0) {
-      return this._dropdown;
-    } else {
-      if (this._dropdown !== dropdown) {
-        this._dropdown = dropdown;
-        this.place();
-      }
-      return this;
-    }
-  }
+  /** @hidden */
+  declare readonly allowedPlacement: PopoverPlacement[];
 
   placement(): ReadonlyArray<PopoverPlacement>;
   placement(placement: ReadonlyArray<PopoverPlacement>): this;
   placement(placement?: ReadonlyArray<PopoverPlacement>): ReadonlyArray<PopoverPlacement> | this {
     if (placement === void 0) {
-      return this._placement;
+      return this.allowedPlacement;
     } else {
-      if (!Arrays.equal(this._placement, placement)) {
-        this._placement.length = 0;
-        for (let i = 0, n = placement.length; i < n; i += 1) {
-          this._placement.push(placement[i]!);
-        }
+      if (!Arrays.equal(this.allowedPlacement, placement)) {
+        this.allowedPlacement.length = 0;
+        this.allowedPlacement.push(...placement);
         this.place();
       }
       return this;
     }
   }
 
-  placementFrame(): BoxR2 | null;
-  placementFrame(placementFrame: BoxR2 | null): this;
-  placementFrame(placementFrame?: BoxR2 | null): BoxR2 | null | this {
-    if (placementFrame === void 0) {
-      return this._placementFrame;
-    } else {
-      if (!Equals(this._placementFrame, placementFrame)) {
-        this._placementFrame = placementFrame;
-        this.place();
-      }
-      return this;
+  @ViewScope<PopoverView, BoxR2 | null, AnyBoxR2 | null>({
+    type: BoxR2,
+    state: null,
+    onUpdate(placementFrame: BoxR2 | null): void {
+      this.owner.place();
+    },
+    fromAny(value: AnyBoxR2 | null): BoxR2 | null {
+      return value !== null ? BoxR2.fromAny(value) : null;
+    },
+  })
+  declare placementFrame: ViewScope<this, BoxR2 | null, AnyBoxR2 | null>;
+
+  @ViewScope<PopoverView, boolean>({
+    type: Boolean,
+    state: false,
+    onUpdate(dropdown: boolean): void {
+      this.owner.place();
     }
-  }
+  })
+  declare dropdown: ViewScope<this, boolean>;
 
   protected onMount(): void {
     super.onMount();
     this.attachEvents();
-    if (this._source !== null) {
-      this._source.addViewObserver(this);
+    if (this.source !== null) {
+      this.source.addViewObserver(this);
     }
   }
 
   protected onUnmount(): void {
     super.onUnmount();
     this.detachEvents();
-    if (this._source !== null) {
-      this._source.removeViewObserver(this);
+    if (this.source !== null) {
+      this.source.removeViewObserver(this);
     }
   }
 
@@ -418,12 +435,20 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     this.place();
   }
 
+  /** @hidden */
+  declare readonly sourceFrame: BoxR2 | null;
+
   place(force: boolean = true): PopoverPlacement {
-    const source = this._source;
-    const oldSourceFrame = this._sourceFrame;
+    const source = this.source;
+    const oldSourceFrame = this.sourceFrame;
     const newSourceFrame = source !== null ? source.popoverFrame : null;
-    if (newSourceFrame !== null && this._placement.length !== 0 &&
+    if (newSourceFrame !== null && this.allowedPlacement.length !== 0 &&
         (force || !newSourceFrame.equals(oldSourceFrame))) {
+      Object.defineProperty(this, "newSourceFrame", {
+        value: null,
+        enumerable: true,
+        configurable: true,
+      });
       const placement = this.placePopover(source!, newSourceFrame);
       const arrow = this.getChildView("arrow");
       if (arrow instanceof HtmlView) {
@@ -461,7 +486,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     const sourceY = sourceTop + sourceHeight / 2;
 
     // placement frame in offsetParent coordinates (transformed from client coordinates)
-    const placementFrame = this._placementFrame;
+    const placementFrame = this.placementFrame.state;
     const placementLeft = (placementFrame !== null ? placementFrame.left : 0);
     const placementRight = (placementFrame !== null ? placementFrame.right : window.innerWidth) - parentLeft;
     const placementTop = (placementFrame !== null ? placementFrame.top : 0);
@@ -473,13 +498,14 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     const marginTop = sourceTop - placementTop - window.pageYOffset;
     const marginBottom = placementBottom - sourceTop - sourceHeight;
 
-    const dropdown = this._dropdown;
+    const dropdown = this.dropdown.state;
     const arrowHeight = this.arrowHeight.getValue().pxValue();
     const placementGap = this.placementGap.getValue().pxValue();
 
     let placement: PopoverPlacement | undefined;
-    for (let i = 0; i < this._placement.length; i += 1) { // first fit
-      const p = this._placement[i];
+    const allowedPlacement = this.allowedPlacement;
+    for (let i = 0, n = allowedPlacement.length; i < n; i += 1) { // first fit
+      const p = allowedPlacement[i]!;
       if (p === "above" || p === "below" || p === "over") {
         placement = p;
         break;
@@ -499,8 +525,8 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     }
     if (placement === void 0) {
       placement = "none";
-      for (let i = 0, n = this._placement.length; i < n; i += 1) { // best fit
-        const p = this._placement[i];
+      for (let i = 0, n = allowedPlacement.length; i < n; i += 1) { // best fit
+        const p = allowedPlacement[i]!;
         if (p === "top" && marginTop >= marginBottom) {
           placement = p;
           break;
