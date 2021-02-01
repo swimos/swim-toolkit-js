@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Transition} from "@swim/animation";
+import type {Timing} from "@swim/mapping";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {TreeCell} from "./TreeCell";
 
@@ -23,9 +23,9 @@ export class TitleTreeCell extends TreeCell {
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
-    this.color.setAutoState(theme.inner(mood, Look.accentColor), transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
+    this.color.setAutoState(theme.inner(mood, Look.accentColor), timing);
   }
 }
 TreeCell.Title = TitleTreeCell;

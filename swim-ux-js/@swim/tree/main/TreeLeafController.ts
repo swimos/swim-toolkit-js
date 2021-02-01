@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Tween} from "@swim/animation";
+import type {AnyTiming} from "@swim/mapping";
 import {HtmlViewController} from "@swim/dom";
 import type {PositionGestureInput} from "@swim/gesture";
 import type {TreeLeaf} from "./TreeLeaf";
@@ -23,19 +23,19 @@ export class TreeLeafController<V extends TreeLeaf = TreeLeaf> extends HtmlViewC
     // hook
   }
 
-  leafWillHighlight(tween: Tween<any>, view: V): void {
+  leafWillHighlight(timing: AnyTiming | boolean, view: V): void {
     // hook
   }
 
-  leafDidHighlight(tween: Tween<any>, view: V): void {
+  leafDidHighlight(timing: AnyTiming | boolean, view: V): void {
     // hook
   }
 
-  leafWillUnhighlight(tween: Tween<any>, view: V): void {
+  leafWillUnhighlight(timing: AnyTiming | boolean, view: V): void {
     // hook
   }
 
-  leafDidUnhighlight(tween: Tween<any>, view: V): void {
+  leafDidUnhighlight(timing: AnyTiming | boolean, view: V): void {
     // hook
   }
 }

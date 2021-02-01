@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Interpolator} from "@swim/mapping";
+import type {AnyTiming, Timing, Interpolator} from "@swim/mapping";
 import type {AnyLength, Length} from "@swim/math";
-import type {AnyTransition, Transition} from "@swim/animation";
 import type {AnyColor, Color} from "@swim/color";
 import type {AnyFont, Font, AnyBoxShadow, BoxShadow} from "@swim/style";
 import {LookVector} from "./LookVector";
@@ -159,5 +158,5 @@ export abstract class Look<T, U = never> implements Mood {
   static opacity: Look<number>; // defined by looks
   static shadow: Look<BoxShadow, AnyBoxShadow>; // defined by looks
   static spacing: Look<Length, AnyLength>; // defined by looks
-  static transition: Look<Transition<any>, AnyTransition<any>>; // defined by looks
+  static timing: Look<Timing, AnyTiming>; // defined by looks
 }

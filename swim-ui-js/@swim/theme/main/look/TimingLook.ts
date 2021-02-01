@@ -12,26 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Interpolator} from "@swim/mapping";
-import {AnyTransition, Transition} from "@swim/animation";
+import {AnyTiming, Timing, Interpolator} from "@swim/mapping";
 import {Look} from "./Look";
 
-export class TransitionLook<T = unknown> extends Look<Transition<T>, AnyTransition<T>> {
-  combine(combination: Transition<T> | undefined, value: Transition<T>, weight: number): Transition<T> {
+export class TimingLook extends Look<Timing, AnyTiming> {
+  combine(combination: Timing | undefined, value: Timing, weight: number): Timing {
     if (weight === void 0 || weight !== 0) {
       return value;
     } else if (combination !== void 0) {
       return combination;
     } else {
-      return new Transition(void 0, null, null);
+      return value
     }
   }
 
-  between(a: Transition<T>, b: Transition<T>): Interpolator<Transition<T>> {
+  between(a: Timing, b: Timing): Interpolator<Timing> {
     return Interpolator(a, b);
   }
 
-  coerce(value: AnyTransition<T>): Transition<T> {
-    return Transition.fromAny(value);
+  coerce(value: AnyTiming): Timing {
+    return Timing.fromAny(value);
   }
 }

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Timing} from "@swim/mapping";
 import {Angle, Transform} from "@swim/math";
-import type {Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {HtmlView, SvgView} from "@swim/dom";
 
 export class DisclosureButton extends HtmlView {
@@ -52,28 +52,28 @@ export class DisclosureButton extends HtmlView {
     return icon.getChildView("arrow") as SvgView;
   }
 
-  @ViewAnimator({type: Number, inherit: true})
+  @ViewAnimator({type: Number, inherit: true, updateFlags: View.NeedsAnimate})
   declare disclosurePhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
-  @ViewAnimator({type: Color, inherit: true})
+  @ViewAnimator({type: Color, inherit: true, updateFlags: View.NeedsAnimate})
   declare collapsedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewAnimator({type: Color, inherit: true})
+  @ViewAnimator({type: Color, inherit: true, updateFlags: View.NeedsAnimate})
   declare expandedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
-    this.collapsedColor.setAutoState(theme.inner(mood, Look.color), transition);
-    this.expandedColor.setAutoState(theme.inner(mood, Look.accentColor), transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
+    this.collapsedColor.setAutoState(theme.inner(mood, Look.color), timing);
+    this.expandedColor.setAutoState(theme.inner(mood, Look.accentColor), timing);
   }
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
-    if (this.disclosurePhase.isUpdated()) {
-      const disclosurePhase = this.disclosurePhase.getValueOr(0);
-      const collapsedColor = this.collapsedColor.value;
-      const expandedColor = this.expandedColor.value;
+    if (this.disclosurePhase.isUpdated() || this.collapsedColor.isUpdated() || this.expandedColor.isUpdated()) {
+      const disclosurePhase = this.disclosurePhase.takeValue()!;
+      const collapsedColor = this.collapsedColor.takeValue();
+      const expandedColor = this.expandedColor.takeValue();
       if (collapsedColor !== void 0 && expandedColor !== void 0 && this.arrow.fill.isAuto()) {
         const colorInterpolator = collapsedColor.interpolateTo(expandedColor);
         this.arrow.fill.setAutoState(colorInterpolator(disclosurePhase));

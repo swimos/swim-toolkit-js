@@ -371,11 +371,11 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "animation", "color", "style"],
+        deps: ["util", "codec", "mapping", "structure", "math", "time", "color", "style"],
       },
       {
         id: "test",
-        deps: ["util", "codec", "unit", "mapping", "structure", "math", "time", "animation", "color", "style", "theme"],
+        deps: ["util", "codec", "unit", "mapping", "structure", "math", "time", "color", "style", "theme"],
       },
     ],
   },

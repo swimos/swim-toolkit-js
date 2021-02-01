@@ -30,7 +30,7 @@ const pie = new swim.PieView()
     .textColor("#4a4a4a");
 canvas.append(pie);
 
-const tween = swim.Transition.duration(1000);
+const timing = swim.Easing.linear.withDuration(1000);
 
 const vehiclesLink = swim.downlinkMap()
     .hostUri("warp://transit.swim.services")
@@ -44,7 +44,7 @@ const vehiclesLink = swim.downlinkMap()
       if (sliceValue > 0) {
         let slice = pie.getChildView(id);
         if (slice) {
-          slice.value(sliceValue, tween);
+          slice.value(sliceValue, timing);
           slice.label().text(sliceValue.toFixed());
         } else {
           slice = new swim.SliceView()

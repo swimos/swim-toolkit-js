@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Equals, Values} from "@swim/util";
+import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import type {Tween} from "@swim/animation";
 import {AnyColor, Color, AnyLinearGradient, LinearGradient} from "@swim/color";
 import {
   AlignContent,
@@ -224,7 +224,7 @@ export interface StyleMap extends StyleContext {
                       AnyColor | "currentColor" | undefined,
                       AnyColor | "currentColor" | undefined] |
                      AnyColor | "currentColor" | undefined,
-              tween?: Tween<Color | "currentColor">,
+              timing?: AnyTiming | boolean,
               priority?: string): this;
 
   borderTopColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
@@ -245,7 +245,7 @@ export interface StyleMap extends StyleContext {
                        AnyLength | undefined,
                        AnyLength | undefined] |
                       AnyLength | undefined,
-               tween?: Tween<Length>,
+               timing?: AnyTiming | boolean,
                priority?: string): this;
 
   borderTopLeftRadius: StyleAnimator<this, Length, AnyLength>;
@@ -268,8 +268,8 @@ export interface StyleMap extends StyleContext {
                       BorderStyle | undefined,
                       BorderStyle | undefined] |
                      BorderStyle | undefined,
-              tween?: Tween<BorderStyle>,
-              priority?: string ): this;
+              timing?: AnyTiming | boolean,
+              priority?: string): this;
 
   borderTopStyle: StyleAnimator<this, BorderStyle>;
 
@@ -289,7 +289,7 @@ export interface StyleMap extends StyleContext {
                       BorderWidth | AnyLength | undefined,
                       BorderWidth | AnyLength | undefined] |
                      BorderWidth | AnyLength | undefined,
-              tween?: Tween<BorderWidth>,
+              timing?: AnyTiming | boolean,
               priority?: string): this;
 
   borderTopWidth: StyleAnimator<this, Length | BorderWidth, AnyLength | BorderWidth>;
@@ -325,7 +325,7 @@ export interface StyleMap extends StyleContext {
   flexWrap: StyleAnimator<this, FlexWrap>;
 
   font(): Font | undefined;
-  font(value: AnyFont | undefined, tween?: Tween<any>, priority?: string): this;
+  font(value: AnyFont | undefined, timing?: AnyTiming | boolean, priority?: string): this;
 
   fontFamily: StyleAnimator<this, FontFamily | FontFamily[], FontFamily | ReadonlyArray<FontFamily>>;
 
@@ -357,7 +357,7 @@ export interface StyleMap extends StyleContext {
                  AnyLength | "auto" | undefined,
                  AnyLength | "auto" | undefined] |
                 AnyLength | "auto" | undefined,
-         tween?: Tween<Length | "auto">,
+         timing?: AnyTiming | boolean,
          priority?: string): this;
 
   marginTop: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
@@ -392,7 +392,7 @@ export interface StyleMap extends StyleContext {
   overflow(value: [Overflow | undefined,
                    Overflow | undefined] |
                   Overflow | undefined,
-          tween?: Tween<Overflow>,
+          timing?: AnyTiming | boolean,
           priority?: string): this;
 
   overflowX: StyleAnimator<this, Overflow>;
@@ -407,7 +407,7 @@ export interface StyleMap extends StyleContext {
   overscrollBehavior(value: [OverscrollBehavior | undefined,
                              OverscrollBehavior | undefined] |
                             OverscrollBehavior | undefined,
-          tween?: Tween<OverscrollBehavior>,
+          timing?: AnyTiming | boolean,
           priority?: string): this;
 
   overscrollBehaviorX: StyleAnimator<this, OverscrollBehavior>;
@@ -424,7 +424,7 @@ export interface StyleMap extends StyleContext {
                   AnyLength | undefined,
                   AnyLength | undefined] |
                  AnyLength | undefined,
-          tween?: Tween<Length>,
+          timing?: AnyTiming | boolean,
           priority?: string): this;
 
   paddingTop: StyleAnimator<this, Length, AnyLength>;
@@ -1000,7 +1000,7 @@ function borderColor(this: StyleMap,
                              AnyColor | "currentColor" | undefined,
                              AnyColor | "currentColor" | undefined] |
                             AnyColor | "currentColor" | undefined,
-                     tween?: Tween<Color | "currentColor">,
+                     timing?: AnyTiming | boolean,
                      priority?: string): StyleMap;
 function borderColor(this: StyleMap,
                      value?: [AnyColor | "currentColor" | undefined,
@@ -1008,7 +1008,7 @@ function borderColor(this: StyleMap,
                               AnyColor | "currentColor" | undefined,
                               AnyColor | "currentColor" | undefined] |
                              AnyColor | "currentColor" | undefined,
-                     tween?: Tween<Color | "currentColor">,
+                     timing?: AnyTiming | boolean,
                      priority?: string): [Color | "currentColor" | undefined,
                                           Color | "currentColor" | undefined,
                                           Color | "currentColor" | undefined,
@@ -1029,22 +1029,22 @@ function borderColor(this: StyleMap,
   } else {
     if (Array.isArray(value)) {
       if (value.length >= 1) {
-        this.borderTopColor(value[0], tween, priority);
+        this.borderTopColor(value[0], timing, priority);
       }
       if (value.length >= 2) {
-        this.borderRightColor(value[1], tween, priority);
+        this.borderRightColor(value[1], timing, priority);
       }
       if (value.length >= 3) {
-        this.borderBottomColor(value[2], tween, priority);
+        this.borderBottomColor(value[2], timing, priority);
       }
       if (value.length >= 4) {
-        this.borderLeftColor(value[3], tween, priority);
+        this.borderLeftColor(value[3], timing, priority);
       }
     } else {
-      this.borderTopColor(value, tween, priority);
-      this.borderRightColor(value, tween, priority);
-      this.borderBottomColor(value, tween, priority);
-      this.borderLeftColor(value, tween, priority);
+      this.borderTopColor(value, timing, priority);
+      this.borderRightColor(value, timing, priority);
+      this.borderBottomColor(value, timing, priority);
+      this.borderLeftColor(value, timing, priority);
     }
     return this;
   }
@@ -1061,7 +1061,7 @@ function borderRadius(this: StyleMap,
                               AnyLength | undefined,
                               AnyLength | undefined] |
                              AnyLength | undefined,
-                      tween?: Tween<Length>,
+                      timing?: AnyTiming | boolean,
                       priority?: string): StyleMap;
 function borderRadius(this: StyleMap,
                       value?: [AnyLength | undefined,
@@ -1069,7 +1069,7 @@ function borderRadius(this: StyleMap,
                                AnyLength | undefined,
                                AnyLength | undefined] |
                               AnyLength | undefined,
-                      tween?: Tween<Length>,
+                      timing?: AnyTiming | boolean,
                       priority?: string): [Length | undefined,
                                            Length | undefined,
                                            Length | undefined,
@@ -1090,22 +1090,22 @@ function borderRadius(this: StyleMap,
   } else {
     if (Array.isArray(value)) {
       if (value.length >= 1) {
-        this.borderTopLeftRadius(value[0], tween, priority);
+        this.borderTopLeftRadius(value[0], timing, priority);
       }
       if (value.length >= 2) {
-        this.borderTopRightRadius(value[1], tween, priority);
+        this.borderTopRightRadius(value[1], timing, priority);
       }
       if (value.length >= 3) {
-        this.borderBottomRightRadius(value[2], tween, priority);
+        this.borderBottomRightRadius(value[2], timing, priority);
       }
       if (value.length >= 4) {
-        this.borderBottomLeftRadius(value[3], tween, priority);
+        this.borderBottomLeftRadius(value[3], timing, priority);
       }
     } else {
-      this.borderTopLeftRadius(value, tween, priority);
-      this.borderTopRightRadius(value, tween, priority);
-      this.borderBottomRightRadius(value, tween, priority);
-      this.borderBottomLeftRadius(value, tween, priority);
+      this.borderTopLeftRadius(value, timing, priority);
+      this.borderTopRightRadius(value, timing, priority);
+      this.borderBottomRightRadius(value, timing, priority);
+      this.borderBottomLeftRadius(value, timing, priority);
     }
     return this;
   }
@@ -1122,7 +1122,7 @@ function borderStyle(this: StyleMap,
                              BorderStyle | undefined,
                              BorderStyle | undefined] |
                             BorderStyle | undefined,
-                     tween?: Tween<BorderStyle>,
+                     timing?: AnyTiming | boolean,
                      priority?: string ): StyleMap;
 function borderStyle(this: StyleMap,
                      value?: [BorderStyle | undefined,
@@ -1130,7 +1130,7 @@ function borderStyle(this: StyleMap,
                               BorderStyle | undefined,
                               BorderStyle | undefined] |
                              BorderStyle | undefined,
-                     tween?: Tween<BorderStyle>,
+                     timing?: AnyTiming | boolean,
                      priority?: string): [BorderStyle | undefined,
                                           BorderStyle | undefined,
                                           BorderStyle | undefined,
@@ -1151,22 +1151,22 @@ function borderStyle(this: StyleMap,
   } else {
     if (Array.isArray(value)) {
       if (value.length >= 1) {
-        this.borderTopStyle(value[0], tween, priority);
+        this.borderTopStyle(value[0], timing, priority);
       }
       if (value.length >= 2) {
-        this.borderRightStyle(value[1], tween, priority);
+        this.borderRightStyle(value[1], timing, priority);
       }
       if (value.length >= 3) {
-        this.borderBottomStyle(value[2], tween, priority);
+        this.borderBottomStyle(value[2], timing, priority);
       }
       if (value.length >= 4) {
-        this.borderLeftStyle(value[3], tween, priority);
+        this.borderLeftStyle(value[3], timing, priority);
       }
     } else {
-      this.borderTopStyle(value, tween, priority);
-      this.borderRightStyle(value, tween, priority);
-      this.borderBottomStyle(value, tween, priority);
-      this.borderLeftStyle(value, tween, priority);
+      this.borderTopStyle(value, timing, priority);
+      this.borderRightStyle(value, timing, priority);
+      this.borderBottomStyle(value, timing, priority);
+      this.borderLeftStyle(value, timing, priority);
     }
     return this;
   }
@@ -1183,7 +1183,7 @@ function borderWidth(this: StyleMap,
                              BorderWidth | AnyLength | undefined,
                              BorderWidth | AnyLength | undefined] |
                             BorderWidth | AnyLength | undefined,
-                     tween?: Tween<BorderWidth>,
+                     timing?: AnyTiming | boolean,
                      priority?: string): StyleMap;
 function borderWidth(this: StyleMap,
                      value?: [BorderWidth | AnyLength | undefined,
@@ -1191,7 +1191,7 @@ function borderWidth(this: StyleMap,
                               BorderWidth | AnyLength | undefined,
                               BorderWidth | AnyLength | undefined] |
                              BorderWidth | AnyLength | undefined,
-                     tween?: Tween<BorderWidth>,
+                     timing?: AnyTiming | boolean,
                      priority?: string): [BorderWidth | undefined,
                                           BorderWidth | undefined,
                                           BorderWidth | undefined,
@@ -1212,30 +1212,30 @@ function borderWidth(this: StyleMap,
   } else {
     if (Array.isArray(value)) {
       if (value.length >= 1) {
-        this.borderTopWidth(value[0], tween, priority);
+        this.borderTopWidth(value[0], timing, priority);
       }
       if (value.length >= 2) {
-        this.borderRightWidth(value[1], tween, priority);
+        this.borderRightWidth(value[1], timing, priority);
       }
       if (value.length >= 3) {
-        this.borderBottomWidth(value[2], tween, priority);
+        this.borderBottomWidth(value[2], timing, priority);
       }
       if (value.length >= 4) {
-        this.borderLeftWidth(value[3], tween, priority);
+        this.borderLeftWidth(value[3], timing, priority);
       }
     } else {
-      this.borderTopWidth(value, tween, priority);
-      this.borderRightWidth(value, tween, priority);
-      this.borderBottomWidth(value, tween, priority);
-      this.borderLeftWidth(value, tween, priority);
+      this.borderTopWidth(value, timing, priority);
+      this.borderRightWidth(value, timing, priority);
+      this.borderBottomWidth(value, timing, priority);
+      this.borderLeftWidth(value, timing, priority);
     }
     return this;
   }
 }
 
 function font(this: StyleMap, ): Font | undefined;
-function font(this: StyleMap, value: AnyFont | undefined, tween?: Tween<any>, priority?: string): StyleMap;
-function font(this: StyleMap, value?: AnyFont, tween?: Tween<any>, priority?: string): Font | undefined | StyleMap {
+function font(this: StyleMap, value: AnyFont | undefined, timing?: AnyTiming | boolean, priority?: string): StyleMap;
+function font(this: StyleMap, value?: AnyFont, timing?: AnyTiming | boolean, priority?: string): Font | undefined | StyleMap {
   if (value === void 0) {
     const style = this.fontStyle();
     const variant = this.fontVariant();
@@ -1252,24 +1252,24 @@ function font(this: StyleMap, value?: AnyFont, tween?: Tween<any>, priority?: st
   } else {
     value = Font.fromAny(value);
     if (value.style !== void 0) {
-      this.fontStyle(value.style, tween, priority);
+      this.fontStyle(value.style, timing, priority);
     }
     if (value.variant !== void 0) {
-      this.fontVariant(value.variant, tween, priority);
+      this.fontVariant(value.variant, timing, priority);
     }
     if (value.weight !== void 0) {
-      this.fontWeight(value.weight, tween, priority);
+      this.fontWeight(value.weight, timing, priority);
     }
     if (value.stretch !== void 0) {
-      this.fontStretch(value.stretch, tween, priority);
+      this.fontStretch(value.stretch, timing, priority);
     }
     if (value.size !== void 0) {
-      this.fontSize(value.size, tween, priority);
+      this.fontSize(value.size, timing, priority);
     }
     if (value.height !== void 0) {
-      this.lineHeight(value.height, tween, priority);
+      this.lineHeight(value.height, timing, priority);
     }
-    this.fontFamily(value.family, tween, priority);
+    this.fontFamily(value.family, timing, priority);
     return this;
   }
 }
@@ -1285,7 +1285,7 @@ function margin(this: StyleMap,
                         AnyLength | "auto" | undefined,
                         AnyLength | "auto" | undefined] |
                        AnyLength | "auto" | undefined,
-                tween?: Tween<Length | "auto">,
+                timing?: AnyTiming | boolean,
                 priority?: string): StyleMap;
 function margin(this: StyleMap,
                 value?: [AnyLength | "auto" |undefined,
@@ -1293,7 +1293,7 @@ function margin(this: StyleMap,
                          AnyLength | "auto" |undefined,
                          AnyLength | "auto" |undefined] |
                         AnyLength | "auto" | undefined,
-                tween?: Tween<Length | "auto">,
+                timing?: AnyTiming | boolean,
                 priority?: string): [Length | "auto" | undefined,
                                      Length | "auto" | undefined,
                                      Length | "auto" | undefined,
@@ -1314,22 +1314,22 @@ function margin(this: StyleMap,
   } else {
     if (Array.isArray(value)) {
       if (value.length >= 1) {
-        this.marginTop(value[0], tween, priority);
+        this.marginTop(value[0], timing, priority);
       }
       if (value.length >= 2) {
-        this.marginRight(value[1], tween, priority);
+        this.marginRight(value[1], timing, priority);
       }
       if (value.length >= 3) {
-        this.marginBottom(value[2], tween, priority);
+        this.marginBottom(value[2], timing, priority);
       }
       if (value.length >= 4) {
-        this.marginLeft(value[3], tween, priority);
+        this.marginLeft(value[3], timing, priority);
       }
     } else {
-      this.marginTop(value, tween, priority);
-      this.marginRight(value, tween, priority);
-      this.marginBottom(value, tween, priority);
-      this.marginLeft(value, tween, priority);
+      this.marginTop(value, timing, priority);
+      this.marginRight(value, timing, priority);
+      this.marginBottom(value, timing, priority);
+      this.marginLeft(value, timing, priority);
     }
     return this;
   }
@@ -1342,13 +1342,13 @@ function overflow(this: StyleMap,
                   value: [Overflow | undefined,
                           Overflow | undefined] |
                          Overflow | undefined,
-                  tween?: Tween<Overflow>,
+                  timing?: AnyTiming | boolean,
                   priority?: string): StyleMap;
 function overflow(this: StyleMap,
                   value?: [Overflow | undefined,
                            Overflow | undefined] |
                           Overflow | undefined,
-                  tween?: Tween<Overflow>,
+                  timing?: AnyTiming | boolean,
                   priority?: string): [Overflow | undefined,
                                        Overflow | undefined] |
                                       Overflow | undefined | StyleMap {
@@ -1363,14 +1363,14 @@ function overflow(this: StyleMap,
   } else {
     if (Array.isArray(value)) {
       if (value.length >= 1) {
-        this.overflowX(value[0], tween, priority);
+        this.overflowX(value[0], timing, priority);
       }
       if (value.length >= 2) {
-        this.overflowY(value[1], tween, priority);
+        this.overflowY(value[1], timing, priority);
       }
     } else {
-      this.overflowX(value, tween, priority);
-      this.overflowY(value, tween, priority);
+      this.overflowX(value, timing, priority);
+      this.overflowY(value, timing, priority);
     }
     return this;
   }
@@ -1383,13 +1383,13 @@ function overscrollBehavior(this: StyleMap,
                             value: [OverscrollBehavior | undefined,
                                     OverscrollBehavior | undefined] |
                                    OverscrollBehavior | undefined,
-                            tween?: Tween<OverscrollBehavior>,
+                            timing?: AnyTiming | boolean,
                             priority?: string): StyleMap;
 function overscrollBehavior(this: StyleMap,
                             value?: [OverscrollBehavior | undefined,
                                      OverscrollBehavior | undefined] |
                                     OverscrollBehavior | undefined,
-                            tween?: Tween<OverscrollBehavior>,
+                            timing?: AnyTiming | boolean,
                             priority?: string): [OverscrollBehavior | undefined,
                                                  OverscrollBehavior | undefined] |
                                                 OverscrollBehavior | undefined | StyleMap {
@@ -1404,14 +1404,14 @@ function overscrollBehavior(this: StyleMap,
   } else {
     if (Array.isArray(value)) {
       if (value.length >= 1) {
-        this.overscrollBehaviorX(value[0], tween, priority);
+        this.overscrollBehaviorX(value[0], timing, priority);
       }
       if (value.length >= 2) {
-        this.overscrollBehaviorY(value[1], tween, priority);
+        this.overscrollBehaviorY(value[1], timing, priority);
       }
     } else {
-      this.overscrollBehaviorX(value, tween, priority);
-      this.overscrollBehaviorY(value, tween, priority);
+      this.overscrollBehaviorX(value, timing, priority);
+      this.overscrollBehaviorY(value, timing, priority);
     }
     return this;
   }
@@ -1428,7 +1428,7 @@ function padding(this: StyleMap,
                          AnyLength | undefined,
                          AnyLength | undefined] |
                         AnyLength | undefined,
-                 tween?: Tween<Length>,
+                 timing?: AnyTiming | boolean,
                  priority?: string): StyleMap;
 function padding(this: StyleMap,
                  value?: [AnyLength | undefined,
@@ -1436,7 +1436,7 @@ function padding(this: StyleMap,
                           AnyLength | undefined,
                           AnyLength | undefined] |
                          AnyLength | undefined,
-                 tween?: Tween<Length>,
+                 timing?: AnyTiming | boolean,
                  priority?: string): [Length | undefined,
                                       Length | undefined,
                                       Length | undefined,
@@ -1457,22 +1457,22 @@ function padding(this: StyleMap,
   } else {
     if (Array.isArray(value)) {
       if (value.length >= 1) {
-        this.paddingTop(value[0], tween, priority);
+        this.paddingTop(value[0], timing, priority);
       }
       if (value.length >= 2) {
-        this.paddingRight(value[1], tween, priority);
+        this.paddingRight(value[1], timing, priority);
       }
       if (value.length >= 3) {
-        this.paddingBottom(value[2], tween, priority);
+        this.paddingBottom(value[2], timing, priority);
       }
       if (value.length >= 4) {
-        this.paddingLeft(value[3], tween, priority);
+        this.paddingLeft(value[3], timing, priority);
       }
     } else {
-      this.paddingTop(value, tween, priority);
-      this.paddingRight(value, tween, priority);
-      this.paddingBottom(value, tween, priority);
-      this.paddingLeft(value, tween, priority);
+      this.paddingTop(value, timing, priority);
+      this.paddingRight(value, timing, priority);
+      this.paddingBottom(value, timing, priority);
+      this.paddingLeft(value, timing, priority);
     }
     return this;
   }

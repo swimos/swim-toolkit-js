@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween, Transition} from "@swim/animation";
+import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyColor, Color} from "@swim/color";
 import {Look} from "@swim/theme";
 import type {ModalManager, ModalManagerObserver,} from "@swim/view";
@@ -106,17 +106,17 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
     }
   }
 
-  show(opacity: number, tween?: Tween<any>): void {
+  show(opacity: number, timing?: AnyTiming | boolean): void {
     if (this.isHidden()) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       this.setDisplayState(ScrimView.ShowState);
-      if (tween !== null) {
+      if (timing !== null) {
         this.backgroundColor.setAutoState(Color.black(0));
-        this.backgroundColor.setAutoState(Color.black(opacity), tween);
+        this.backgroundColor.setAutoState(Color.black(opacity), timing);
       } else {
         this.willShow();
         this.backgroundColor.setAutoState(Color.black(opacity));
@@ -135,16 +135,16 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
     this.setDisplayState(ScrimView.ShownState);
   }
 
-  hide(tween?: Tween<any>): void {
+  hide(timing?: AnyTiming | boolean): void {
     if (this.isShown()) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       this.setDisplayState(ScrimView.HideState);
-      if (tween !== null) {
-        this.backgroundColor.setAutoState(Color.black(0), tween);
+      if (timing !== null) {
+        this.backgroundColor.setAutoState(Color.black(0), timing);
       } else {
         this.willHide();
         this.backgroundColor.setAutoState(Color.black(0));

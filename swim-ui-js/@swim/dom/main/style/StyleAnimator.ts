@@ -14,8 +14,9 @@
 
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
+import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {Tween, Animator, TweenAnimator} from "@swim/animation";
+import {Animator} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyLineHeight, LineHeight, FontFamily, AnyBoxShadow, BoxShadow} from "@swim/style";
 import {StyleContext} from "./StyleContext";
@@ -43,9 +44,9 @@ export interface StyleAnimatorInit<T, U = never> {
   type?: unknown;
 
   updateFlags?: number;
-  willUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
-  onUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
-  didUpdate?(newValue: T | undefined, oldValue: T | undefined): void;
+  willSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
+  onSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
+  didSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
   onBegin?(value: T): void;
   onEnd?(value: T): void;
   onInterrupt?(value: T): void;
@@ -69,9 +70,9 @@ export interface StyleAnimatorClass extends Function {
   readonly prototype: StyleAnimator<any, any>;
 }
 
-export interface StyleAnimator<V extends StyleContext, T, U = never> extends TweenAnimator<T | undefined> {
+export interface StyleAnimator<V extends StyleContext, T, U = never> extends Animator<T | undefined> {
   (): T | undefined;
-  (state: T | U | undefined, tween?: Tween<T>, priority?: string): V;
+  (state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): V;
 
   readonly name: string;
 
@@ -91,21 +92,23 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Twe
 
   setAuto(auto: boolean): void;
 
-  getValue(): T;
+  getValue(): T extends undefined ? never : T;
 
-  getState(): T;
+  getState(): T extends undefined ? never : T;
 
-  getValueOr<E>(elseValue: E): T | E;
+  setState(state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void;
 
-  getStateOr<E>(elseState: E): T | E;
+  setAutoState(state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void;
 
-  setState(state: T | U | undefined, tween?: Tween<T>, priority?: string): void;
+  onSetValue(newValue: T | undefined, oldValue: T | undefined): void;
 
-  setAutoState(state: T | U | undefined, tween?: Tween<T>, priority?: string): void;
+  willStartAnimating(): void;
 
-  onUpdate(newValue: T | undefined, oldValue: T | undefined): void;
+  didStartAnimating(): void;
 
-  animate(animator?: Animator): void;
+  willStopAnimating(): void;
+
+  didStopAnimating(): void;
 
   parse(value: string): T | undefined;
 
@@ -152,10 +155,10 @@ export const StyleAnimator = function <V extends StyleContext, T, U>(
   define<V extends StyleContext, T, U = never, I = {}>(descriptor: StyleAnimatorDescriptorExtends<V, T, U, I>): StyleAnimatorConstructor<V, T, U, I>;
   define<V extends StyleContext, T, U = never>(descriptor: StyleAnimatorDescriptor<V, T, U>): StyleAnimatorConstructor<V, T, U>;
 };
-__extends(StyleAnimator, TweenAnimator);
+__extends(StyleAnimator, Animator);
 
 function StyleAnimatorConstructor<V extends StyleContext, T, U>(this: StyleAnimator<V, T, U>, owner: V, animatorName: string): StyleAnimator<V, T, U> {
-  const _this: StyleAnimator<V, T, U> = (TweenAnimator as Function).call(this, void 0, null) || this;
+  const _this: StyleAnimator<V, T, U> = (Animator as Function).call(this, void 0, null) || this;
   if (animatorName !== void 0) {
     Object.defineProperty(_this, "name", {
       value: animatorName,
@@ -215,7 +218,7 @@ Object.defineProperty(StyleAnimator.prototype, "propertyValue", {
 
 Object.defineProperty(StyleAnimator.prototype, "value", {
   get: function <T>(this: StyleAnimator<StyleContext, T>): T | undefined {
-    let value = this._value;
+    let value = this.ownValue;
     if (value === void 0) {
       value = this.propertyValue;
       if (value !== void 0) {
@@ -229,14 +232,14 @@ Object.defineProperty(StyleAnimator.prototype, "value", {
 });
 
 StyleAnimator.prototype.isAuto = function (this: StyleAnimator<StyleContext, unknown>): boolean {
-  return (this.animatorFlags & TweenAnimator.OverrideFlag) === 0;
+  return (this.animatorFlags & Animator.OverrideFlag) === 0;
 };
 
 StyleAnimator.prototype.setAuto = function (this: StyleAnimator<StyleContext, unknown>, auto: boolean): void {
-  if (auto && (this.animatorFlags & TweenAnimator.OverrideFlag) !== 0) {
-    this.setAnimatorFlags(this.animatorFlags & ~TweenAnimator.OverrideFlag);
-  } else if (!auto && (this.animatorFlags & TweenAnimator.OverrideFlag) === 0) {
-    this.setAnimatorFlags(this.animatorFlags | TweenAnimator.OverrideFlag);
+  if (auto && (this.animatorFlags & Animator.OverrideFlag) !== 0) {
+    this.setAnimatorFlags(this.animatorFlags & ~Animator.OverrideFlag);
+  } else if (!auto && (this.animatorFlags & Animator.OverrideFlag) === 0) {
+    this.setAnimatorFlags(this.animatorFlags | Animator.OverrideFlag);
   }
 };
 
@@ -256,23 +259,7 @@ StyleAnimator.prototype.getState = function <T>(this: StyleAnimator<StyleContext
   return state;
 };
 
-StyleAnimator.prototype.getValueOr = function <T, E>(this: StyleAnimator<StyleContext, T>, elseValue: E): T | E {
-  let value: T | E | undefined = this.value;
-  if (value === void 0) {
-    value = elseValue;
-  }
-  return value;
-};
-
-StyleAnimator.prototype.getStateOr = function <T, E>(this: StyleAnimator<StyleContext, T>, elseState: E): T | E {
-  let state: T | E | undefined = this.state;
-  if (state === void 0) {
-    state = elseState
-  }
-  return state;
-};
-
-StyleAnimator.prototype.setState = function <T, U>(this: StyleAnimator<StyleContext, T, U>, state: T | U | undefined, tween?: Tween<T>, priority?: string): void {
+StyleAnimator.prototype.setState = function <T, U>(this: StyleAnimator<StyleContext, T, U>, state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void {
   if (state !== void 0) {
     state = this.fromAny(state);
   }
@@ -282,12 +269,12 @@ StyleAnimator.prototype.setState = function <T, U>(this: StyleAnimator<StyleCont
       enumerable: true,
     });
   }
-  this.setAnimatorFlags(this.animatorFlags | TweenAnimator.OverrideFlag);
-  TweenAnimator.prototype.setState.call(this, state, tween);
+  this.setAnimatorFlags(this.animatorFlags | Animator.OverrideFlag);
+  Animator.prototype.setState.call(this, state, timing);
 };
 
-StyleAnimator.prototype.setAutoState = function <T, U>(this: StyleAnimator<StyleContext, T, U>, state: T | U | undefined, tween?: Tween<T>, priority?: string): void {
-  if ((this.animatorFlags & TweenAnimator.OverrideFlag) === 0) {
+StyleAnimator.prototype.setAutoState = function <T, U>(this: StyleAnimator<StyleContext, T, U>, state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void {
+  if ((this.animatorFlags & Animator.OverrideFlag) === 0) {
     if (state !== void 0) {
       state = this.fromAny(state);
     }
@@ -297,11 +284,11 @@ StyleAnimator.prototype.setAutoState = function <T, U>(this: StyleAnimator<Style
         enumerable: true,
       });
     }
-    TweenAnimator.prototype.setState.call(this, state, tween);
+    Animator.prototype.setState.call(this, state, timing);
   }
 };
 
-StyleAnimator.prototype.onUpdate = function <T>(this: StyleAnimator<StyleContext, T>, newValue: T | undefined, oldValue: T | undefined): void {
+StyleAnimator.prototype.onSetValue = function <T>(this: StyleAnimator<StyleContext, T>, newValue: T | undefined, oldValue: T | undefined): void {
   const propertyNames = this.propertyNames;
   if (typeof propertyNames === "string") {
     this.owner.setStyle(propertyNames, newValue, this.priority);
@@ -316,8 +303,20 @@ StyleAnimator.prototype.onUpdate = function <T>(this: StyleAnimator<StyleContext
   }
 };
 
-StyleAnimator.prototype.animate = function (this: StyleAnimator<StyleContext, unknown>, animator?: Animator): void {
-  this.owner.animate(animator !== void 0 ? animator : this);
+StyleAnimator.prototype.willStartAnimating = function (this: StyleAnimator<StyleContext, unknown>): void {
+  this.owner.trackWillStartAnimating(this);
+};
+
+StyleAnimator.prototype.didStartAnimating = function (this: StyleAnimator<StyleContext, unknown>): void {
+  this.owner.trackDidStartAnimating(this);
+};
+
+StyleAnimator.prototype.willStopAnimating = function (this: StyleAnimator<StyleContext, unknown>): void {
+  this.owner.trackWillStopAnimating(this);
+};
+
+StyleAnimator.prototype.didStopAnimating = function (this: StyleAnimator<StyleContext, unknown>): void {
+  this.owner.trackDidStopAnimating(this);
 };
 
 StyleAnimator.prototype.parse = function <T>(this: StyleAnimator<StyleContext, T>, value: string): T | undefined {
@@ -377,11 +376,11 @@ StyleAnimator.define = function <V extends StyleContext, T, U, I>(descriptor: St
   }
 
   const _constructor = function DecoratedStyleAnimator(this: StyleAnimator<V, T, U>, owner: V, animatorName: string): StyleAnimator<V, T, U> {
-    let _this: StyleAnimator<V, T, U> = function StyleAnimatorAccessor(state?: T | U, tween?: Tween<T>, priority?: string): T | undefined | V {
+    let _this: StyleAnimator<V, T, U> = function StyleAnimatorAccessor(state?: T | U, timing?: AnyTiming | boolean, priority?: string): T | undefined | V {
       if (arguments.length === 0) {
         return _this.value;
       } else {
-        _this.setState(state, tween, priority);
+        _this.setState(state, timing, priority);
         return _this.owner;
       }
     } as StyleAnimator<V, T, U>;

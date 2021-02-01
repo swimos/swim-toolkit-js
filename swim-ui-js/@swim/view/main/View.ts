@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
+import {AnyTiming, Timing} from "@swim/mapping";
 import {BoxR2, Transform} from "@swim/math";
 import {
   Constrain,
@@ -24,7 +25,7 @@ import {
   Constraint,
   ConstraintScope,
 } from "@swim/constraint";
-import {Tween, Transition, AnimatorContext, Animator} from "@swim/animation";
+import type {AnimationTrack, AnimationTimeline} from "@swim/animation";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewContext} from "./ViewContext";
 import type {
@@ -101,7 +102,7 @@ export interface ViewClass<V extends View = View> extends Function {
   readonly removeChildFlags: ViewFlags;
 }
 
-export abstract class View implements AnimatorContext, ConstraintScope {
+export abstract class View implements AnimationTimeline, ConstraintScope {
   constructor() {
     Object.defineProperty(this, "viewFlags", {
       value: 0,
@@ -120,6 +121,11 @@ export abstract class View implements AnimatorContext, ConstraintScope {
     });
     Object.defineProperty(this, "viewObserverCache", {
       value: {},
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "animationTracks", {
+      value: Arrays.empty,
       enumerable: true,
       configurable: true,
     });
@@ -521,6 +527,9 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   protected onMount(): void {
     this.requestUpdate(this, this.viewFlags & ~View.StatusMask, false);
     this.requireUpdate(this.mountFlags);
+    if (this.animationTracks.length !== 0) {
+      this.requireUpdate(View.NeedsAnimate);
+    }
   }
 
   protected didMount(): void {
@@ -936,7 +945,19 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
-    // hook
+    this.updateAnimations(viewContext.updateTime);
+  }
+
+  /** @hidden */
+  updateAnimations(t: number): void {
+    const animationTracks = this.animationTracks;
+    for (let i = 0, n = animationTracks.length; i < n; i += 1) {
+      const track = animationTracks[i]!;
+      track.onAnimate(t);
+    }
+    if (this.animationTracks.length !== 0) {
+      this.requireUpdate(View.NeedsAnimate);
+    }
   }
 
   protected didAnimate(viewContext: ViewContextType<this>): void {
@@ -1109,52 +1130,52 @@ export abstract class View implements AnimatorContext, ConstraintScope {
 
   abstract modifyTheme(feel: Feel, ...entries: [Feel, number | undefined][]): void;
 
-  applyTheme(theme: ThemeMatrix, mood: MoodVector, tween?: Tween<any>): void {
-    if (tween === void 0 || tween === true) {
-      tween = theme.inner(Mood.ambient, Look.transition);
-      if (tween === void 0) {
-        tween = null;
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
+    if (timing === void 0 || timing === true) {
+      timing = theme.inner(Mood.ambient, Look.timing);
+      if (timing === void 0) {
+        timing = false;
       }
     } else {
-      tween = Transition.forTween(tween);
+      timing = Timing.fromAny(timing);
     }
-    this.willApplyTheme(theme, mood, tween);
-    this.onApplyTheme(theme, mood, tween);
-    this.didApplyTheme(theme, mood, tween);
+    this.willApplyTheme(theme, mood, timing);
+    this.onApplyTheme(theme, mood, timing);
+    this.didApplyTheme(theme, mood, timing);
   }
 
   protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                           transition: Transition<any> | null): void {
+                           timing: Timing | boolean): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.viewWillApplyTheme !== void 0) {
-      viewController.viewWillApplyTheme(theme, mood, transition, this);
+      viewController.viewWillApplyTheme(theme, mood, timing, this);
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
       if (viewObserver.viewWillApplyTheme !== void 0) {
-        viewObserver.viewWillApplyTheme(theme, mood, transition, this);
+        viewObserver.viewWillApplyTheme(theme, mood, timing, this);
       }
     }
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
+                         timing: Timing | boolean): void {
     // hook
   }
 
   protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                          transition: Transition<any> | null): void {
+                          timing: Timing | boolean): void {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
       if (viewObserver.viewDidApplyTheme !== void 0) {
-        viewObserver.viewDidApplyTheme(theme, mood, transition, this);
+        viewObserver.viewDidApplyTheme(theme, mood, timing, this);
       }
     }
     const viewController = this.viewController;
     if (viewController !== null && viewController.viewDidApplyTheme !== void 0) {
-      viewController.viewDidApplyTheme(theme, mood, transition, this);
+      viewController.viewDidApplyTheme(theme, mood, timing, this);
     }
   }
 
@@ -1216,8 +1237,31 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   }
 
   /** @hidden */
-  animate(animator: Animator): void {
+  declare readonly animationTracks: ReadonlyArray<AnimationTrack>;
+
+  trackWillStartAnimating(track: AnimationTrack): void {
+    Object.defineProperty(this, "animationTracks", {
+      value: Arrays.inserted(track, this.animationTracks),
+      enumerable: true,
+      configurable: true,
+    });
     this.requireUpdate(View.NeedsAnimate);
+  }
+
+  trackDidStartAnimating(track: AnimationTrack): void {
+    // hook
+  }
+
+  trackWillStopAnimating(track: AnimationTrack): void {
+    // hook
+  }
+
+  trackDidStopAnimating(track: AnimationTrack): void {
+    Object.defineProperty(this, "animationTracks", {
+      value: Arrays.removed(track, this.animationTracks),
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   abstract hasViewBinding(bindingName: string): boolean;
@@ -1628,17 +1672,15 @@ export abstract class View implements AnimatorContext, ConstraintScope {
   /** @hidden */
   static readonly HiddenFlag: ViewFlags = 1 << 5;
   /** @hidden */
-  static readonly AnimatingFlag: ViewFlags = 1 << 6;
+  static readonly TraversingFlag: ViewFlags = 1 << 6;
   /** @hidden */
-  static readonly TraversingFlag: ViewFlags = 1 << 7;
+  static readonly ProcessingFlag: ViewFlags = 1 << 7;
   /** @hidden */
-  static readonly ProcessingFlag: ViewFlags = 1 << 8;
+  static readonly DisplayingFlag: ViewFlags = 1 << 8;
   /** @hidden */
-  static readonly DisplayingFlag: ViewFlags = 1 << 9;
+  static readonly RemovingFlag: ViewFlags = 1 << 9;
   /** @hidden */
-  static readonly RemovingFlag: ViewFlags = 1 << 10;
-  /** @hidden */
-  static readonly ImmediateFlag: ViewFlags = 1 << 11;
+  static readonly ImmediateFlag: ViewFlags = 1 << 10;
   /** @hidden */
   static readonly CulledMask: ViewFlags = View.CullFlag
                                         | View.CulledFlag;
@@ -1654,19 +1696,18 @@ export abstract class View implements AnimatorContext, ConstraintScope {
                                         | View.CullFlag
                                         | View.CulledFlag
                                         | View.HiddenFlag
-                                        | View.AnimatingFlag
                                         | View.TraversingFlag
                                         | View.ProcessingFlag
                                         | View.DisplayingFlag
                                         | View.RemovingFlag
                                         | View.ImmediateFlag;
 
-  static readonly NeedsProcess: ViewFlags = 1 << 12;
-  static readonly NeedsResize: ViewFlags = 1 << 13;
-  static readonly NeedsScroll: ViewFlags = 1 << 14;
-  static readonly NeedsChange: ViewFlags = 1 << 15;
-  static readonly NeedsAnimate: ViewFlags = 1 << 16;
-  static readonly NeedsProject: ViewFlags = 1 << 17;
+  static readonly NeedsProcess: ViewFlags = 1 << 11;
+  static readonly NeedsResize: ViewFlags = 1 << 12;
+  static readonly NeedsScroll: ViewFlags = 1 << 13;
+  static readonly NeedsChange: ViewFlags = 1 << 14;
+  static readonly NeedsAnimate: ViewFlags = 1 << 15;
+  static readonly NeedsProject: ViewFlags = 1 << 16;
   /** @hidden */
   static readonly ProcessMask: ViewFlags = View.NeedsProcess
                                          | View.NeedsResize
@@ -1675,10 +1716,10 @@ export abstract class View implements AnimatorContext, ConstraintScope {
                                          | View.NeedsAnimate
                                          | View.NeedsProject;
 
-  static readonly NeedsDisplay: ViewFlags = 1 << 18;
-  static readonly NeedsLayout: ViewFlags = 1 << 19;
-  static readonly NeedsRender: ViewFlags = 1 << 20;
-  static readonly NeedsComposite: ViewFlags = 1 << 21;
+  static readonly NeedsDisplay: ViewFlags = 1 << 17;
+  static readonly NeedsLayout: ViewFlags = 1 << 18;
+  static readonly NeedsRender: ViewFlags = 1 << 19;
+  static readonly NeedsComposite: ViewFlags = 1 << 20;
   /** @hidden */
   static readonly DisplayMask: ViewFlags = View.NeedsDisplay
                                          | View.NeedsLayout

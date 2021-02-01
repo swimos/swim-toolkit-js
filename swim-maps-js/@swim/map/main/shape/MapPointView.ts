@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint, GeoBox} from "@swim/geo";
-import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -69,7 +69,7 @@ export class MapPointView extends MapLayerView {
   @ViewAnimator<MapPointView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
     state: GeoPoint.origin(),
-    onUpdate(newValue: GeoPoint, oldValue: GeoPoint): void {
+    onSetValue(newValue: GeoPoint, oldValue: GeoPoint): void {
       this.owner.onSetGeoPoint(newValue, oldValue);
     },
   })
@@ -141,7 +141,7 @@ export class MapPointView extends MapLayerView {
     return !!this.color.value || typeof this.opacity.value === "number";
   }
 
-  setState(point: AnyMapPointView, tween?: Tween<any>): void {
+  setState(point: AnyMapPointView, timing?: AnyTiming | boolean): void {
     let init: MapPointViewInit;
     if (point instanceof MapPointView) {
       init = point.toAny();
@@ -153,13 +153,13 @@ export class MapPointView extends MapLayerView {
       init = point;
     }
     if (init.lng !== void 0 && init.lat !== void 0) {
-      this.geoPoint(new GeoPoint(init.lng, init.lat), tween);
+      this.geoPoint(new GeoPoint(init.lng, init.lat), timing);
     } else if (init.x !== void 0 && init.y !== void 0) {
-      this.viewPoint(new PointR2(init.x, init.y), tween);
+      this.viewPoint(new PointR2(init.x, init.y), timing);
     }
 
     if (init.radius !== void 0) {
-      this.radius(init.radius, tween);
+      this.radius(init.radius, timing);
     }
 
     if (init.hitRadius !== void 0) {
@@ -167,24 +167,24 @@ export class MapPointView extends MapLayerView {
     }
 
     if (init.color !== void 0) {
-      this.color(init.color, tween);
+      this.color(init.color, timing);
     }
     if (init.opacity !== void 0) {
-      this.opacity(init.opacity, tween);
+      this.opacity(init.opacity, timing);
     }
 
     if (init.labelPadding !== void 0) {
-      this.labelPadding(init.labelPadding, tween);
+      this.labelPadding(init.labelPadding, timing);
     }
     if (init.labelPlacement !== void 0) {
       this.labelPlacement(init.labelPlacement);
     }
 
     if (init.font !== void 0) {
-      this.font(init.font, tween);
+      this.font(init.font, timing);
     }
     if (init.textColor !== void 0) {
-      this.textColor(init.textColor, tween);
+      this.textColor(init.textColor, timing);
     }
 
     if (init.label !== void 0) {
@@ -220,8 +220,16 @@ export class MapPointView extends MapLayerView {
     if (this.viewPoint.isAuto()) {
       const viewPoint = viewContext.geoProjection.project(this.geoPoint.getValue());
       //this.viewPoint.setAutoState(viewPoint);
-      this.viewPoint._value = viewPoint;
-      this.viewPoint._state = viewPoint;
+      Object.defineProperty(this.viewPoint, "ownValue", {
+        value: viewPoint,
+        enumerable: true,
+        configurable: true,
+      });
+      Object.defineProperty(this.viewPoint, "ownState", {
+        value: viewPoint,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
 

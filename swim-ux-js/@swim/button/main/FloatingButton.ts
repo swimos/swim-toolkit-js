@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Tween, Transition} from "@swim/animation";
+import type {AnyTiming, Timing} from "@swim/mapping";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {HtmlView, SvgView} from "@swim/dom";
@@ -69,33 +69,33 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     return morph !== null ? morph.icon : null;
   }
 
-  setIcon(icon: HtmlView | SvgView | null, tween?: Tween<any>, ccw: boolean = false): void {
+  setIcon(icon: HtmlView | SvgView | null, timing?: AnyTiming | boolean, ccw: boolean = false): void {
     let morph = this.morph;
     if (morph === null) {
       morph = this.append(ButtonMorph, "morph");
     }
     if (icon instanceof SvgView) {
-      icon.fill.setAutoState(this.getLook(Look.backgroundColor), tween);
+      icon.fill.setAutoState(this.getLook(Look.backgroundColor), timing);
     }
-    morph.setIcon(icon, tween, ccw);
+    morph.setIcon(icon, timing, ccw);
   }
 
   @ViewAnimator({type: Number, inherit: true})
   declare stackPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
 
     if (this._buttonType === "regular") {
-      this.width.setAutoState(56, transition);
-      this.height.setAutoState(56, transition);
+      this.width.setAutoState(56, timing);
+      this.height.setAutoState(56, timing);
     } else if (this._buttonType === "mini") {
-      this.width.setAutoState(40, transition);
-      this.height.setAutoState(40, transition);
+      this.width.setAutoState(40, timing);
+      this.height.setAutoState(40, timing);
     }
 
-    this.backgroundColor.setAutoState(theme.inner(mood, Look.accentColor), transition);
+    this.backgroundColor.setAutoState(theme.inner(mood, Look.accentColor), timing);
 
     let shadow = theme.inner(Mood.floating, Look.shadow);
     if (shadow !== void 0) {
@@ -103,11 +103,11 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
       const phase = this.stackPhase.getValueOr(1);
       shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * phase));
     }
-    this.boxShadow.setAutoState(shadow, transition);
+    this.boxShadow.setAutoState(shadow, timing);
 
     const icon = this.icon;
     if (icon instanceof SvgView) {
-      icon.fill.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
+      icon.fill.setAutoState(theme.inner(mood, Look.backgroundColor), timing);
     }
   }
 
@@ -150,16 +150,16 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
   didStartHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, 1]);
     if (this.backgroundColor.isAuto()) {
-      const transition = this.getLook(Look.transition);
-      this.backgroundColor.setAutoState(this.getLook(Look.accentColor), transition);
+      const timing = this.getLook(Look.timing);
+      this.backgroundColor.setAutoState(this.getLook(Look.accentColor), timing);
     }
   }
 
   didStopHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
     if (this.backgroundColor.isAuto()) {
-      const transition = this.getLook(Look.transition);
-      this.backgroundColor.setAutoState(this.getLook(Look.accentColor), transition);
+      const timing = this.getLook(Look.timing);
+      this.backgroundColor.setAutoState(this.getLook(Look.accentColor), timing);
     }
   }
 

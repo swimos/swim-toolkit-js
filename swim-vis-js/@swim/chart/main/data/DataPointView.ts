@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
-import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -173,12 +173,12 @@ export class DataPointView<X, Y> extends LayerView {
     }
   }
 
-  setState(point: DataPointViewInit<X, Y>, tween?: Tween<any>): void {
+  setState(point: DataPointViewInit<X, Y>, timing?: AnyTiming | boolean): void {
     if (point.y2 !== void 0) {
-      this.y2(point.y2, tween);
+      this.y2(point.y2, timing);
     }
     if (point.r !== void 0) {
-      this.r(point.r, tween);
+      this.r(point.r, timing);
     }
 
     if (point.hitRadius !== void 0) {
@@ -190,24 +190,24 @@ export class DataPointView<X, Y> extends LayerView {
     }
 
     if (point.color !== void 0) {
-      this.color(point.color, tween);
+      this.color(point.color, timing);
     }
     if (point.opacity !== void 0) {
-      this.opacity(point.opacity, tween);
+      this.opacity(point.opacity, timing);
     }
 
     if (point.labelPadding !== void 0) {
-      this.labelPadding(point.labelPadding, tween);
+      this.labelPadding(point.labelPadding, timing);
     }
     if (point.labelPlacement !== void 0) {
       this.labelPlacement(point.labelPlacement);
     }
 
     if (point.font !== void 0) {
-      this.font(point.font, tween);
+      this.font(point.font, timing);
     }
     if (point.textColor !== void 0) {
-      this.textColor(point.textColor, tween);
+      this.textColor(point.textColor, timing);
     }
 
     if (point.label !== void 0) {

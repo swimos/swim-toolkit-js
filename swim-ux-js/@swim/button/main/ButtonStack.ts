@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AnyTiming, Timing} from "@swim/mapping";
 import {Length} from "@swim/math";
-import {Tween, Transition} from "@swim/animation";
 import {Look} from "@swim/theme";
 import {ViewContextType, View, ModalOptions, ModalState, Modal, ViewAnimator} from "@swim/view";
 import {StyleAnimator, ViewNode, HtmlView, SvgView} from "@swim/dom";
@@ -141,12 +141,12 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     return this.stackPhase.getValue();
   }
 
-  showModal(options: ModalOptions, tween?: Tween<any>): void {
-    this.expand(tween);
+  showModal(options: ModalOptions, timing?: AnyTiming | boolean): void {
+    this.expand(timing);
   }
 
-  hideModal(tween?: Tween<any>): void {
-    this.collapse(tween);
+  hideModal(timing?: AnyTiming | boolean): void {
+    this.collapse(timing);
   }
 
   get button(): HtmlView | null {
@@ -158,16 +158,16 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     return this._buttonIcon;
   }
 
-  setButtonIcon(buttonIcon: HtmlView | SvgView | null, tween?: Tween<any>, ccw?: boolean): void {
+  setButtonIcon(buttonIcon: HtmlView | SvgView | null, timing?: AnyTiming | boolean, ccw?: boolean): void {
     this._buttonIcon = buttonIcon;
     const button = this.button;
     if (button instanceof FloatingButton) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
-      button.setIcon(buttonIcon, tween, ccw);
+      button.setIcon(buttonIcon, timing, ccw);
     }
   }
 
@@ -322,23 +322,23 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     // hook
   }
 
-  expand(tween?: Tween<any>): void {
+  expand(timing?: AnyTiming | boolean): void {
     if (this._stackState !== "expanded" || this.stackPhase.value !== 1) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       if (this._stackState !== "expanding") {
         this.willExpand();
         const button = this.button;
         if (button instanceof FloatingButton) {
-          button.setIcon(this.createCloseIcon(), tween);
+          button.setIcon(this.createCloseIcon(), timing);
         }
       }
-      if (tween !== null) {
+      if (timing !== null) {
         if (this.stackPhase.value !== 1) {
-          this.stackPhase.setAutoState(1, tween);
+          this.stackPhase.setAutoState(1, timing);
         } else {
           setTimeout(this.didExpand.bind(this));
         }
@@ -382,23 +382,23 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     }
   }
 
-  collapse(tween?: Tween<any>): void {
+  collapse(timing?: AnyTiming | boolean): void {
     if (this._stackState !== "collapsed" || this.stackPhase.value !== 0) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       if (this._stackState !== "collapsing") {
         this.willCollapse();
         const button = this.button;
         if (button instanceof FloatingButton) {
-          button.setIcon(this._buttonIcon, tween, true);
+          button.setIcon(this._buttonIcon, timing, true);
         }
       }
-      if (tween !== null) {
+      if (timing !== null) {
         if (this.stackPhase.value !== 0) {
-          this.stackPhase.setAutoState(0, tween);
+          this.stackPhase.setAutoState(0, timing);
         } else {
           setTimeout(this.didCollapse.bind(this));
         }
@@ -442,25 +442,25 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     }
   }
 
-  toggle(tween?: Tween<any>): void {
+  toggle(timing?: AnyTiming | boolean): void {
     const stackState = this._stackState;
     if (stackState === "collapsed" || stackState === "collapsing") {
-      this.expand(tween);
+      this.expand(timing);
     } else if (stackState === "expanded" || stackState === "expanding") {
-      this.collapse(tween);
+      this.collapse(timing);
     }
   }
 
-  show(tween?: Tween<any>): void {
+  show(timing?: AnyTiming | boolean): void {
     if (this.opacity.state !== 1) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       this.willShow();
-      if (tween !== null) {
-        this.opacity.setAutoState(1, tween);
+      if (timing !== null) {
+        this.opacity.setAutoState(1, timing);
       } else {
         this.opacity.setAutoState(1);
         this.didShow();
@@ -500,16 +500,16 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     }
   }
 
-  hide(tween?: Tween<any>): void {
+  hide(timing?: AnyTiming | boolean): void {
     if (this.opacity.state !== 0) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       this.willHide();
-      if (tween !== null) {
-        this.opacity.setAutoState(0, tween);
+      if (timing !== null) {
+        this.opacity.setAutoState(0, timing);
       } else {
         this.opacity.setAutoState(0);
         this.didHide();

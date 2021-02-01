@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
+import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {
   FontStyle,
@@ -590,8 +590,8 @@ export class SvgView extends ElementView {
   declare filter: StyleAnimator<this, string>;
 
   font(): Font | undefined;
-  font(value: AnyFont | undefined, tween?: Tween<any>, priority?: string): this;
-  font(value?: AnyFont | undefined, tween?: Tween<any>, priority?: string): Font | undefined | this {
+  font(value: AnyFont | undefined, timing?: AnyTiming | boolean, priority?: string): this;
+  font(value?: AnyFont | undefined, timing?: AnyTiming | boolean, priority?: string): Font | undefined | this {
     if (value === void 0) {
       const style = this.fontStyle();
       const variant = this.fontVariant();
@@ -610,24 +610,24 @@ export class SvgView extends ElementView {
         value = Font.fromAny(value);
       }
       if (value === void 0 || value.style !== void 0) {
-        this.fontStyle(value !== void 0 ? value.style : void 0, tween, priority);
+        this.fontStyle(value !== void 0 ? value.style : void 0, timing, priority);
       }
       if (value === void 0 || value.variant !== void 0) {
-        this.fontVariant(value !== void 0 ? value.variant : void 0, tween, priority);
+        this.fontVariant(value !== void 0 ? value.variant : void 0, timing, priority);
       }
       if (value === void 0 || value.weight !== void 0) {
-        this.fontWeight(value !== void 0 ? value.weight : void 0, tween, priority);
+        this.fontWeight(value !== void 0 ? value.weight : void 0, timing, priority);
       }
       if (value === void 0 || value.stretch !== void 0) {
-        this.fontStretch(value !== void 0 ? value.stretch : void 0, tween, priority);
+        this.fontStretch(value !== void 0 ? value.stretch : void 0, timing, priority);
       }
       if (value === void 0 || value.size !== void 0) {
-        this.fontSize(value !== void 0 ? value.size : void 0, tween, priority);
+        this.fontSize(value !== void 0 ? value.size : void 0, timing, priority);
       }
       if (value === void 0 || value.height !== void 0) {
-        this.lineHeight(value !== void 0 ? value.height : void 0, tween, priority);
+        this.lineHeight(value !== void 0 ? value.height : void 0, timing, priority);
       }
-      this.fontFamily(value !== void 0 ? value.family : void 0, tween, priority);
+      this.fontFamily(value !== void 0 ? value.family : void 0, timing, priority);
       return this;
     }
   }

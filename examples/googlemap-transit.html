@@ -40,11 +40,11 @@ const vehiclesLink = swim.downlinkMap()
       key = key.stringValue();
       const lng = value.get("longitude").numberValue(0);
       const lat = value.get("latitude").numberValue(0);
-      const tween = swim.Transition.duration(10000);
+      const timing = swim.Easing.linear.withDuration(10000);
 
       let vehicleView = mapGrid.getChildView(key);
       if (vehicleView !== null) {
-        vehicleView.geoCenter([lng, lat], tween);
+        vehicleView.geoCenter([lng, lat], timing);
         if (!document.hidden && mapView.geoBounds.contains(lng, lat)) {
           ripple(lng, lat);
         }
@@ -70,9 +70,9 @@ function ripple(lng, lat) {
   mapView.append(ripple);
   const frame = mapView.viewFrame;
   const radius = Math.min(frame.width, frame.height) / 8;
-  const tween = swim.Transition.duration(2000);
-  ripple.stroke(RIPPLE_COLOR.alpha(0), tween)
-        .radius(radius, tween);
+  const timing = swim.Easing.linear.withDuration(2000);
+  ripple.stroke(RIPPLE_COLOR.alpha(0), timing)
+        .radius(radius, timing);
   ripple.radius.onEnd = function () {
     ripple.remove();
   };

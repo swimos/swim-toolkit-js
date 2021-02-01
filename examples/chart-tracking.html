@@ -49,10 +49,10 @@ const plot = graph.append(swim.LinePlotView)
     .stroke("#4a4a4a")
     .strokeWidth(4)
     .on("pointerenter", function (event) {
-      plot.stroke("#1db0ef", {duration: 250});
+      plot.stroke("#1db0ef", {dt: 250});
     })
     .on("pointerleave", function (event) {
-      plot.stroke("#4a4a4a", {duration: 250});
+      plot.stroke("#4a4a4a", {dt: 250});
     });
 
 const cycles = 4;

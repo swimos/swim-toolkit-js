@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
+import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyBoxR2, BoxR2} from "@swim/math";
-import {Tween, Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Look} from "@swim/theme";
 import {
@@ -254,12 +254,12 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
 
   declare readonly modality: boolean | number;
 
-  showModal(options: ModalOptions, tween?: Tween<any>): void {
+  showModal(options: ModalOptions, timing?: AnyTiming | boolean): void {
     if (this.isHidden()) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       if (options.modal !== void 0) {
         Object.defineProperty(this, "modality", {
@@ -269,8 +269,8 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
         });
       }
       this.setDisplayState(PopoverView.ShowState);
-      if (tween !== null) {
-        this.displayPhase.setState(1, tween);
+      if (timing !== null) {
+        this.displayPhase.setState(1, timing);
       } else {
         this.willShow();
         this.didShow();
@@ -317,16 +317,16 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     }
   }
 
-  hideModal(tween?: Tween<any>): void {
+  hideModal(timing?: AnyTiming | boolean): void {
     if (this.isShown()) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       this.setDisplayState(PopoverView.HideState);
-      if (tween !== null) {
-        this.displayPhase.setState(0, tween);
+      if (timing !== null) {
+        this.displayPhase.setState(0, timing);
       } else {
         this.willHide();
         this.didHide();
@@ -447,11 +447,12 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
-    if (this.backgroundColor.isUpdated()) {
+    if (this.backgroundColor.takeUpdatedValue() !== void 0) {
       this.place(true);
     }
-    if (this.displayPhase.isUpdated()) {
-      this.updateDisplayPhase(this.displayPhase.getValue());
+    const displayPhase = this.displayPhase.takeUpdatedValue();
+    if (displayPhase !== void 0) {
+      this.updateDisplayPhase(displayPhase);
     }
   }
 

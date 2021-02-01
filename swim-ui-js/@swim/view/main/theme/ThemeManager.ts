@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Lazy} from "@swim/util";
-import {Tween, Transition} from "@swim/animation";
+import {AnyTiming, Timing} from "@swim/mapping";
 import {Look, Mood, MoodVector, Theme, ThemeMatrix} from "@swim/theme";
 import {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
@@ -87,43 +87,43 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  protected applyTheme(theme: ThemeMatrix, mood: MoodVector, tween?: Tween<any>): void {
-    if (tween === void 0 || tween === true) {
-      tween = theme.inner(Mood.ambient, Look.transition);
-      if (tween === void 0) {
-        tween = null;
+  protected applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
+    if (timing === void 0 || timing === true) {
+      timing = theme.inner(Mood.ambient, Look.timing);
+      if (timing === void 0) {
+        timing = false;
       }
     } else {
-      tween = Transition.forTween(tween);
+      timing = Timing.fromAny(timing);
     }
-    this.willApplyTheme(theme, mood, tween);
-    this.onApplyTheme(theme, mood, tween);
-    this.didApplyTheme(theme, mood, tween);
+    this.willApplyTheme(theme, mood, timing);
+    this.onApplyTheme(theme, mood, timing);
+    this.didApplyTheme(theme, mood, timing);
   }
 
   protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                           transition: Transition<any> | null): void {
+                           timing: Timing | boolean): void {
     const viewManagerObservers = this.viewManagerObservers;
     for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
       const viewManagerObserver = viewManagerObservers[i]!;
       if (viewManagerObserver.themeManagerWillApplyTheme !== void 0) {
-        viewManagerObserver.themeManagerWillApplyTheme(theme, mood, transition, this);
+        viewManagerObserver.themeManagerWillApplyTheme(theme, mood, timing, this);
       }
     }
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
+                         timing: Timing | boolean): void {
     // hook
   }
 
   protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                          transition: Transition<any> | null): void {
+                          timing: Timing | boolean): void {
     const viewManagerObservers = this.viewManagerObservers;
     for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
       const viewManagerObserver = viewManagerObservers[i]!;
       if (viewManagerObserver.themeManagerDidApplyTheme !== void 0) {
-        viewManagerObserver.themeManagerDidApplyTheme(theme, mood, transition, this);
+        viewManagerObserver.themeManagerDidApplyTheme(theme, mood, timing, this);
       }
     }
   }

@@ -28,12 +28,12 @@ const gauge = new swim.GaugeView()
     .textColor("#4a4a4a")
     .on("pointerover", function (event) {
       if (event.targetView instanceof swim.DialView) {
-        event.targetView.dialColor("#dddddd", {duration: 200});
+        event.targetView.dialColor("#dddddd", {dt: 200});
       }
     })
     .on("pointerout", function (event) {
       if (event.targetView instanceof swim.DialView) {
-        event.targetView.dialColor("#cccccc", {duration: 200});
+        event.targetView.dialColor("#cccccc", {dt: 200});
       }
     });
 canvas.append(gauge);
@@ -57,13 +57,13 @@ const dial2 = new swim.DialView()
 gauge.append(dial2);
 
 setInterval(function () {
-  const tween = swim.Transition.duration(1000);
-  dial0.value(Math.random(), tween)
-        .meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", tween);
-  dial1.value(Math.random(), tween)
-        .meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", tween);
-  dial2.value(Math.random(), tween)
-        .meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", tween);
+  const timing = swim.Easing.linear.withDuration(1000);
+  dial0.value(Math.random(), timing)
+        .meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", timing);
+  dial1.value(Math.random(), timing)
+        .meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", timing);
+  dial2.value(Math.random(), timing)
+        .meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", timing);
 }, 1000);
 
     </script>

@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Domain, Range, ContinuousScale} from "@swim/mapping";
-import type {Tween} from "@swim/animation";
+import type {Domain, Range, AnyTiming, ContinuousScale} from "@swim/mapping";
 import type {AnyColor} from "@swim/color";
 import type {AnyFont} from "@swim/style";
 import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
@@ -53,19 +52,19 @@ export interface PlotView<X, Y> extends GraphicsView, ScaleXYView<X, Y> {
 
   xScale(): ContinuousScale<X, number> | undefined;
   xScale(xScale: ContinuousScale<X, number> | undefined,
-         tween?: Tween<ContinuousScale<X, number>>): this;
+         timing?: AnyTiming | boolean): this;
 
   yScale(): ContinuousScale<Y, number> | undefined;
   yScale(yScale: ContinuousScale<Y, number> | undefined,
-         tween?: Tween<ContinuousScale<Y, number>>): this;
+         timing?: AnyTiming | boolean): this;
 
   xDomain(): Domain<X> | undefined;
-  xDomain(xDomain: Domain<X> | undefined, tween?: Tween<any>): this;
-  xDomain(xMin: X, xMax: X, tween: Tween<any>): this;
+  xDomain(xDomain: Domain<X> | undefined, timing?: AnyTiming | boolean): this;
+  xDomain(xMin: X, xMax: X, timing?: AnyTiming | boolean): this;
 
   yDomain(): Domain<Y> | undefined;
-  yDomain(yDomain: Domain<Y> | undefined, tween?: Tween<any>): this;
-  yDomain(yMin: Y, yMax: Y, tween: Tween<any>): this;
+  yDomain(yDomain: Domain<Y> | undefined, timing?: AnyTiming | boolean): this;
+  yDomain(yMin: Y, yMax: Y, timingtimingtiming?: AnyTiming | boolean): this;
 
   xRange(): Range<number> | undefined;
 

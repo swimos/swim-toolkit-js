@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AnyTiming, Timing} from "@swim/mapping";
 import {Length, BoxR2} from "@swim/math";
-import {Tween, Transition} from "@swim/animation";
 import {Look} from "@swim/theme";
 import {ViewContextType, ViewContext, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
 import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
@@ -143,20 +143,20 @@ export class TreeLimb extends HtmlView {
   @ViewScope({type: Number, inherit: true})
   declare limbSpacing: ViewScope<this, number | undefined>;
 
-  expand(tween?: Tween<any>): void {
+  expand(timing?: AnyTiming | boolean): void {
     const disclosurePhase = this.disclosurePhase.value;
     if (this.isCollapsed() || disclosurePhase !== 1) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
-      this.willExpand(tween);
-      if (tween !== null) {
+      this.willExpand(timing);
+      if (timing !== null) {
         if (disclosurePhase !== 1) {
-          this.disclosurePhase.setState(1, tween);
+          this.disclosurePhase.setState(1, timing);
           this.disclosingPhase.setState(this.disclosurePhase.value);
-          this.disclosingPhase.setState(1, tween);
+          this.disclosingPhase.setState(1, timing);
         } else {
           setTimeout(this.didExpand.bind(this));
         }
@@ -168,7 +168,7 @@ export class TreeLimb extends HtmlView {
     }
   }
 
-  protected willExpand(tween: Tween<any>): void {
+  protected willExpand(timing: AnyTiming | boolean): void {
     this.disclosureState.setAutoState("expanding");
     this.requireUpdate(View.NeedsResize | View.NeedsChange | View.NeedsLayout);
 
@@ -207,20 +207,20 @@ export class TreeLimb extends HtmlView {
     }
   }
 
-  collapse(tween?: Tween<any>): void {
+  collapse(timing?: AnyTiming | boolean): void {
     const disclosurePhase = this.disclosurePhase.value;
     if (this.isExpanded() || disclosurePhase !== 0) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
-      this.willCollapse(tween);
-      if (tween !== null) {
+      this.willCollapse(timing);
+      if (timing !== null) {
         if (disclosurePhase !== 0) {
-          this.disclosurePhase.setState(0, tween);
+          this.disclosurePhase.setState(0, timing);
           this.disclosingPhase.setState(this.disclosurePhase.value);
-          this.disclosingPhase.setState(0, tween);
+          this.disclosingPhase.setState(0, timing);
         } else {
           setTimeout(this.didCollapse.bind(this));
         }
@@ -232,7 +232,7 @@ export class TreeLimb extends HtmlView {
     }
   }
 
-  protected willCollapse(tween: Tween<any>): void {
+  protected willCollapse(timing: AnyTiming | boolean): void {
     this.disclosureState.setAutoState("collapsing");
 
     const viewController = this.viewController;
@@ -249,7 +249,7 @@ export class TreeLimb extends HtmlView {
 
     const subtree = this.subtree;
     if (subtree !== null) {
-      subtree.height.setAutoState(0, tween);
+      subtree.height.setAutoState(0, timing);
     }
   }
 
@@ -275,12 +275,12 @@ export class TreeLimb extends HtmlView {
     }
   }
 
-  toggle(tween?: Tween<any>): void {
+  toggle(timing?: AnyTiming | boolean): void {
     const disclosureState = this.disclosureState.getStateOr("collapsed");
     if (disclosureState === "collapsed" || disclosureState === "collapsing") {
-      this.expand(tween);
+      this.expand(timing);
     } else if (disclosureState === "expanded" || disclosureState === "expanding") {
-      this.collapse(tween);
+      this.collapse(timing);
     }
   }
 
@@ -383,7 +383,8 @@ export class TreeLimb extends HtmlView {
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
-    if (this.disclosingPhase.isUpdated()) {
+    const disclosingPhase = this.disclosingPhase.takeUpdatedValue();
+    if (disclosingPhase !== void 0) {
       this.requireUpdate(View.NeedsLayout);
     }
   }

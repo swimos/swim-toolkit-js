@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnimatorContext, Animator} from "@swim/animation";
+import type {AnimationTimeline} from "@swim/animation";
 import type {CssRuleConstructor, CssRule} from "./CssRule";
 
 export interface CssContextPrototype {
@@ -20,7 +20,7 @@ export interface CssContextPrototype {
   cssRuleConstructors?: {[ruleName: string]: CssRuleConstructor<CssContext> | undefined};
 }
 
-export interface CssContext extends AnimatorContext {
+export interface CssContext extends AnimationTimeline {
   getRule(index: number): CSSRule | null;
 
   insertRule(cssText: string, index?: number): number;
@@ -32,10 +32,6 @@ export interface CssContext extends AnimatorContext {
   getCssRule(ruleName: string): CssRule<this> | null;
 
   setCssRule(ruleName: string, cssRule: CssRule<this> | null): void;
-
-  animate(animator: Animator): void;
-
-  requireUpdate(updateFlags: number): void;
 }
 
 /** @hidden */

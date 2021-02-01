@@ -14,7 +14,6 @@
 
 import type {CssRule} from "../css/CssRule";
 import {StyleSheet} from "../css/StyleSheet";
-import {View} from "@swim/view";
 import {HtmlViewInit, HtmlView} from "../html/HtmlView";
 import type {StyleViewObserver} from "./StyleViewObserver";
 import type {StyleViewController} from "./StyleViewController";
@@ -58,25 +57,6 @@ export class StyleView extends HtmlView {
   getCssRule(ruleName: string): CssRule<StyleSheet> | null {
     const sheet = this.sheet;
     return sheet !== null ? sheet.getCssRule(ruleName) : null;
-  }
-
-  /** @hidden */
-  updateAnimators(t: number): void {
-    this.updateViewAnimators(t);
-    if ((this.viewFlags & View.AnimatingFlag) !== 0) {
-      this.setViewFlags(this.viewFlags & ~View.AnimatingFlag);
-      this.updateAttributeAnimators(t);
-      this.updateStyleAnimators(t);
-      this.updateSheetAnimators(t);
-    }
-  }
-
-  /** @hidden */
-  updateSheetAnimators(t: number): void {
-    const sheet = this.sheet;
-    if (sheet !== null) {
-      sheet.onAnimate(t);
-    }
   }
 
   protected onMount(): void {

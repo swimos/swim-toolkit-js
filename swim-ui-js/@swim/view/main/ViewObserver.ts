@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Transition} from "@swim/animation";
+import type {Timing} from "@swim/mapping";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import type {ViewContextType} from "./ViewContext";
 import type {View} from "./View";
@@ -89,9 +89,9 @@ export interface ViewObserver<V extends View = View> {
 
   viewDidComposite?(viewContext: ViewContextType<V>, view: V): void;
 
-  viewWillApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, view: V): void;
+  viewWillApplyTheme?(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, view: V): void;
 
-  viewDidApplyTheme?(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, view: V): void;
+  viewDidApplyTheme?(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, view: V): void;
 }
 
 /** @hidden */

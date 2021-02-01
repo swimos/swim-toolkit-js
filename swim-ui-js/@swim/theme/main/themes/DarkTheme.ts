@@ -14,7 +14,6 @@
 
 import {Easing} from "@swim/mapping";
 import {Length} from "@swim/math";
-import {Transition} from "@swim/animation";
 import {Color} from "@swim/color";
 import {Font, BoxShadow} from "@swim/style";
 import {Look} from "../look/Look";
@@ -44,7 +43,7 @@ const DarkWarningColor = Color.parse("#f9f070");
 const DarkAlertColor = Color.parse("#f6511d");
 
 const DarkSpacing = Length.px(10);
-const DarkTransition = Transition.duration(250, Easing.cubicOut);
+const DarkTiming = Easing.cubicOut.withDuration(250);
 
 const DarkAmbient = FeelVector.of(
   [Look.font, DarkFont],
@@ -60,7 +59,7 @@ const DarkAmbient = FeelVector.of(
   [Look.borderColor, DarkBorderColor],
 
   [Look.spacing, DarkSpacing],
-  [Look.transition, Transition.duration(1000, Easing.linear)],
+  [Look.timing, Easing.linear.withDuration(1000)],
 );
 
 const DarkDefault = FeelVector.of(
@@ -77,7 +76,7 @@ const DarkDefault = FeelVector.of(
   [Look.borderColor, DarkBorderColor],
 
   [Look.spacing, DarkSpacing],
-  [Look.transition, DarkTransition],
+  [Look.timing, DarkTiming],
 );
 
 const DarkPrimary = FeelVector.of(

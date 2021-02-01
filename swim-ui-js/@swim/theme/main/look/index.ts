@@ -25,4 +25,4 @@ export {LengthLook} from "./LengthLook";
 export {ColorLook} from "./ColorLook";
 export {FontLook} from "./FontLook";
 export {ShadowLook} from "./ShadowLook";
-export {TransitionLook} from "./TransitionLook";
+export {TimingLook} from "./TimingLook";

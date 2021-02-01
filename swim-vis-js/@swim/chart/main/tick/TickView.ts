@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Timing} from "@swim/mapping";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import {Transition, TweenAnimator} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -80,7 +80,7 @@ export abstract class TickView<D> extends LayerView {
     this._offset0 = NaN;
     this._state = TickState.Excluded;
     this._preserve = true;
-    this.opacity.interpolate = TickView.interpolateOpacity;
+    //this.opacity.interpolate = TickView.interpolateOpacity;
   }
 
   initView(init: TickViewInit<D>): void {
@@ -182,16 +182,16 @@ export abstract class TickView<D> extends LayerView {
     }
   }
 
-  fadeIn(transition?: Transition<any>): void {
+  fadeIn(timing?: Timing | boolean): void {
     if (this._state === TickState.Excluded || this._state === TickState.Leaving) {
-      this.opacity.setState(1, transition);
+      this.opacity.setState(1, timing);
       this._state = TickState.Entering;
     }
   }
 
-  fadeOut(transition?: Transition<any>): void {
+  fadeOut(timing?: Timing | boolean): void {
     if (this._state === TickState.Entering || this._state === TickState.Included) {
-      this.opacity.setState(0, transition);
+      this.opacity.setState(0, timing);
       this._state = TickState.Leaving;
     }
   }
@@ -258,29 +258,29 @@ export abstract class TickView<D> extends LayerView {
 
   protected abstract renderTick(context: CanvasContext, frame: BoxR2): void;
 
-  private static interpolateOpacity<D>(this: ViewAnimator<TickView<D>, number>, u: number): number {
-    // Interpolate over max of time and distance translated
-    const view = this.owner;
-    const offset = view._offset;
-    if (isNaN(view._offset0)) {
-      view._offset0 = offset;
-    }
-    const tickSpacing = view.tickMarkSpacing.getValue() / 2;
-    const v = Math.min(Math.abs(offset - view._offset0) / tickSpacing, 1);
-    const opacity = this._interpolator!(Math.max(u, v));
-    if (u === 1 || v === 1) {
-      this.setAnimatorFlags(this.animatorFlags & ~TweenAnimator.TweeningFlag);
-    }
-    if (opacity === 0 && view._state === TickState.Leaving) {
-      view._state = TickState.Excluded;
-      view._offset0 = NaN;
-      view.remove();
-    } else if (opacity === 1 && view._state === TickState.Entering) {
-      view._state = TickState.Included;
-      view._offset0 = NaN;
-    }
-    return opacity;
-  }
+  //private static interpolateOpacity<D>(this: ViewAnimator<TickView<D>, number>, u: number): number {
+  //  // Interpolate over max of time and distance translated
+  //  const view = this.owner;
+  //  const offset = view._offset;
+  //  if (isNaN(view._offset0)) {
+  //    view._offset0 = offset;
+  //  }
+  //  const tickSpacing = view.tickMarkSpacing.getValue() / 2;
+  //  const v = Math.min(Math.abs(offset - view._offset0) / tickSpacing, 1);
+  //  const opacity = this._interpolator!(Math.max(u, v));
+  //  if (u === 1 || v === 1) {
+  //    this.setAnimatorFlags(this.animatorFlags & ~Animator.AnimatingFlag);
+  //  }
+  //  if (opacity === 0 && view._state === TickState.Leaving) {
+  //    view._state = TickState.Excluded;
+  //    view._offset0 = NaN;
+  //    view.remove();
+  //  } else if (opacity === 1 && view._state === TickState.Entering) {
+  //    view._state = TickState.Included;
+  //    view._offset0 = NaN;
+  //  }
+  //  return opacity;
+  //}
 
   static top<D>(value: D): TopTickView<D> {
     return new TickView.Top(value);

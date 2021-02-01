@@ -13,10 +13,20 @@
 // limitations under the License.
 
 import {Equivalent, Values} from "@swim/util";
-import {AnyDomain, Domain, Range, Easing, LinearDomain, LinearRange, ContinuousScale, LinearScale} from "@swim/mapping";
+import {
+  AnyDomain,
+  Domain,
+  Range,
+  AnyTiming,
+  Timing,
+  Easing,
+  LinearDomain,
+  LinearRange,
+  ContinuousScale,
+  LinearScale,
+} from "@swim/mapping";
 import type {BoxR2} from "@swim/math";
 import {DateTime, TimeDomain, TimeScale} from "@swim/time";
-import {Tween, AnyTransition, Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
@@ -62,8 +72,8 @@ export interface ScaleViewInit<X = unknown, Y = unknown> extends GraphicsViewIni
   yGestures?: boolean;
 
   scaleGesture?: ScaleGesture<X, Y>;
-  rescaleTransition?: AnyTransition<any>;
-  reboundTransition?: AnyTransition<any>;
+  rescaleTransition?: AnyTiming;
+  reboundTransition?: AnyTiming;
 
   font?: AnyFont;
   textColor?: AnyColor;
@@ -226,6 +236,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     extends: ScaleViewAnimator,
     type: ContinuousScale,
     inherit: true,
+    updateFlags: View.NeedsAnimate,
     onBegin(xScale: ContinuousScale<X, number>): void {
       if ((this.owner._scaleFlags & ScaleView.XFittingFlag) !== 0) {
         this.owner.onBeginFittingXScale(xScale);
@@ -257,6 +268,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     extends: ScaleViewAnimator,
     type: ContinuousScale,
     inherit: true,
+    updateFlags: View.NeedsAnimate,
     onBegin(yScale: ContinuousScale<Y, number>): void {
       if ((this.owner._scaleFlags & ScaleView.YFittingFlag) !== 0) {
         this.owner.onBeginFittingYScale(yScale);
@@ -285,32 +297,32 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   declare yScale: ScaleViewAnimator<this, Y, number>;
 
   xDomain(): Domain<X> | undefined;
-  xDomain(xDomain: Domain<X> | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;
-  xDomain(xMin: X, xMax: X, tween?: Tween<ContinuousScale<X, number>>): this;
-  xDomain(xMin?: Domain<X> | X | string, xMax?: X | Tween<ContinuousScale<X, number>>,
-          tween?: Tween<ContinuousScale<X, number>>): Domain<X> | undefined | this {
+  xDomain(xDomain: Domain<X> | string | undefined, timing?: AnyTiming | boolean): this;
+  xDomain(xMin: X, xMax: X, timing?: AnyTiming | boolean): this;
+  xDomain(xMin?: Domain<X> | X | string, xMax?: X | AnyTiming | boolean,
+          timing?: AnyTiming | boolean): Domain<X> | undefined | this {
     if (xMin === void 0) {
       const xScale = this.xScale.value;
       return xScale !== void 0 ? xScale.domain : void 0;
     } else {
       if (xMin instanceof Domain || typeof xMin === "string") {
-        tween = xMax as Tween<ContinuousScale<X, number>>;
+        timing = xMax as AnyTiming | boolean;
       }
-      if (tween === true) {
-        tween = this.rescaleTransition.state;
+      if (timing === true) {
+        timing = this.rescaleTransition.state;
       }
       const xRange = this.xRange();
       if (xMin instanceof Domain || typeof xMin === "string") {
         if (xRange !== void 0) {
-          this.xScale.setBaseScale(xMin as Domain<X> | string, xRange, tween);
+          this.xScale.setBaseScale(xMin as Domain<X> | string, xRange, timing);
         } else {
-          this.xScale.setBaseDomain(xMin as Domain<X> | string, tween);
+          this.xScale.setBaseDomain(xMin as Domain<X> | string, timing);
         }
       } else {
         if (xRange !== void 0) {
-          this.xScale.setBaseScale(xMin as X, xMax as X, xRange[0], xRange[1], tween);
+          this.xScale.setBaseScale(xMin as X, xMax as X, xRange[0], xRange[1], timing);
         } else {
-          this.xScale.setBaseDomain(xMin as X, xMax as X, tween);
+          this.xScale.setBaseDomain(xMin as X, xMax as X, timing);
         }
       }
       return this;
@@ -318,32 +330,32 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   yDomain(): Domain<Y> | undefined;
-  yDomain(yDomain: Domain<Y> | string | undefined, tween?: Tween<ContinuousScale<Y, number>>): this;
-  yDomain(yMin: Y, yMax: Y, tween?: Tween<ContinuousScale<Y, number>>): this;
-  yDomain(yMin?: Domain<Y> | Y | string, yMax?: Y | Tween<ContinuousScale<Y, number>>,
-          tween?: Tween<ContinuousScale<Y, number>>): Domain<Y> | undefined | this {
+  yDomain(yDomain: Domain<Y> | string | undefined, timing?: AnyTiming | boolean): this;
+  yDomain(yMin: Y, yMax: Y, timing?: AnyTiming | boolean): this;
+  yDomain(yMin?: Domain<Y> | Y | string, yMax?: Y | AnyTiming | boolean,
+          timing?: AnyTiming | boolean): Domain<Y> | undefined | this {
     if (yMin === void 0) {
       const yScale = this.yScale.value;
       return yScale !== void 0 ? yScale.domain : void 0;
     } else {
       if (yMin instanceof Domain || typeof yMin === "string") {
-        tween = yMax as Tween<ContinuousScale<Y, number>>;
+        timing = yMax as AnyTiming | boolean;
       }
-      if (tween === true) {
-        tween = this.rescaleTransition.state;
+      if (timing === true) {
+        timing = this.rescaleTransition.state;
       }
       const yRange = this.yRange();
       if (yMin instanceof Domain || typeof yMin === "string") {
         if (yRange !== void 0) {
-          this.yScale.setBaseScale(yMin as Domain<Y> | string, LinearRange(yRange[1], yRange[0]), tween);
+          this.yScale.setBaseScale(yMin as Domain<Y> | string, LinearRange(yRange[1], yRange[0]), timing);
         } else {
-          this.yScale.setBaseDomain(yMin as Domain<Y>| string, tween);
+          this.yScale.setBaseDomain(yMin as Domain<Y>| string, timing);
         }
       } else {
         if (yRange !== void 0) {
-          this.yScale.setBaseScale(yMin as Y, yMax as Y, yRange[1], yRange[0], tween);
+          this.yScale.setBaseScale(yMin as Y, yMax as Y, yRange[1], yRange[0], timing);
         } else {
-          this.yScale.setBaseDomain(yMin as Y, yMax as Y, tween);
+          this.yScale.setBaseDomain(yMin as Y, yMax as Y, timing);
         }
       }
       return this;
@@ -840,22 +852,22 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   declare scaleGesture: ViewScope<this, ScaleGesture<X, Y> | undefined, ScaleGesture<X, Y> | boolean | undefined>;
 
   @ViewScope({
-    type: Transition,
+    type: Timing,
     inherit: true,
-    initState(): Transition<any> | undefined {
-      return Transition.duration(250, Easing.linear);
+    initState(): Timing | undefined {
+      return Easing.linear.withDuration(250);
     },
   })
-  declare rescaleTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
+  declare rescaleTransition: ViewScope<this, Timing | undefined, AnyTiming | undefined>;
 
   @ViewScope({
-    type: Transition,
+    type: Timing,
     inherit: true,
-    initState(): Transition<any> | undefined {
-      return Transition.duration(250, Easing.cubicOut);
+    initState(): Timing | undefined {
+      return Easing.cubicOut.withDuration(250);
     },
   })
-  declare reboundTransition: ViewScope<this, Transition<any> | undefined, AnyTransition<any> | undefined>;
+  declare reboundTransition: ViewScope<this, Timing | undefined, AnyTiming | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
   declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
@@ -895,25 +907,25 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     return (this._scaleFlags & ScaleView.YMaxInRangeFlag) !== 0;
   }
 
-  fitX(tween: boolean = false): void {
+  fitX(timing: boolean = false): void {
     this._scaleFlags |= ScaleView.XFitFlag;
-    if (tween === true) {
+    if (timing === true) {
       this._scaleFlags |= ScaleView.XFitTweenFlag;
     }
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  fitY(tween: boolean = false): void {
+  fitY(timing: boolean = false): void {
     this._scaleFlags |= ScaleView.YFitFlag;
-    if (tween === true) {
+    if (timing === true) {
       this._scaleFlags |= ScaleView.YFitTweenFlag;
     }
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  fit(tween: boolean = false): void {
+  fit(timing: boolean = false): void {
     this._scaleFlags |= ScaleView.XFitFlag | ScaleView.YFitFlag;
-    if (tween === true) {
+    if (timing === true) {
       this._scaleFlags |= ScaleView.FitTweenMask;
     }
     this.requireUpdate(View.NeedsAnimate);
@@ -947,7 +959,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   protected resizeScales(frame: BoxR2): void {
     const xRange = this.xRange();
     if (xRange !== void 0) {
-      const xScale = this.xScale.ownValue;
+      const xScale = !this.xScale.isInherited() ? this.xScale.ownValue : void 0;
       if (xScale !== void 0 && !Values.equal(xScale.range, xRange)) {
         this.xScale.setRange(xRange);
         this.requireUpdate(View.NeedsAnimate);
@@ -964,7 +976,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
 
     const yRange = this.yRange();
     if (yRange !== void 0) {
-      const yScale = this.yScale.ownValue;
+      const yScale = !this.yScale.isInherited() ? this.yScale.ownValue : void 0;
       if (yScale !== void 0 && !Values.equal(yScale.range, yRange)) {
         this.yScale.setRange(yRange[1], yRange[0]);
         this.requireUpdate(View.NeedsAnimate);
@@ -997,8 +1009,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     let yScale = this.yScale.value;
     this.updateDataBounds(xScale, yScale);
 
-    xScale = this.xScale.ownValue;
-    yScale = this.yScale.ownValue;
+    xScale = !this.xScale.isInherited() ? this.xScale.ownValue : void 0;
+    yScale = !this.yScale.isInherited() ? this.yScale.ownValue : void 0;
     if (xScale !== void 0 && yScale !== void 0) {
       this.updateOwnScales(xScale, yScale);
     }
@@ -1273,31 +1285,31 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     }
 
     if (newXDomain !== void 0) {
-      let transition: Transition<any> | undefined;
+      let timing: Timing | undefined;
       if ((this._scaleFlags & ScaleView.XFitTweenFlag) !== 0 &&
-          (transition = this.rescaleTransition.state, transition !== void 0)) {
+          (timing = this.rescaleTransition.state, timing !== void 0)) {
         this._scaleFlags |= ScaleView.XFittingFlag;
       }
       this.willFitX(oldXScale);
-      this.xDomain(newXDomain instanceof Domain ? newXDomain : Domain(newXDomain[0], newXDomain[1]), transition);
+      this.xDomain(newXDomain instanceof Domain ? newXDomain : Domain(newXDomain[0], newXDomain[1]), timing);
       this.requireUpdate(View.NeedsLayout);
       this._scaleFlags &= ~ScaleView.XFitFlag;
-      if (transition === void 0) {
+      if (timing === void 0) {
         this.didFitX(this.xScale.getState());
       }
     }
 
     if (newYDomain !== void 0) {
-      let transition: Transition<any> | undefined;
+      let timing: Timing | undefined;
       if ((this._scaleFlags & ScaleView.YFitTweenFlag) !== 0 &&
-          (transition = this.rescaleTransition.state, transition !== void 0)) {
+          (timing = this.rescaleTransition.state, timing !== void 0)) {
         this._scaleFlags |= ScaleView.YFittingFlag;
       }
       this.willFitY(oldYScale);
-      this.yDomain(newYDomain instanceof Domain ? newYDomain : Domain(newYDomain[0], newYDomain[1]), transition);
+      this.yDomain(newYDomain instanceof Domain ? newYDomain : Domain(newYDomain[0], newYDomain[1]), timing);
       this.requireUpdate(View.NeedsLayout);
       this._scaleFlags &= ~ScaleView.YFitFlag;
-      if (transition === void 0) {
+      if (timing === void 0) {
         this.didFitY(this.yScale.getState());
       }
     }
@@ -1577,18 +1589,18 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     if (newXDomain !== void 0 && !isPressing && (this._scaleFlags & ScaleView.XTweeningMask) === 0 &&
         (Math.abs(+newXDomain[0] - +oldXDomain[0]) >= Equivalent.Epsilon ||
          Math.abs(+newXDomain[1] - +oldXDomain[1]) >= Equivalent.Epsilon)) {
-      let transition: Transition<any> | undefined;
+      let timing: Timing | undefined;
       if ((this._scaleFlags & (ScaleView.XBoundingFlag | ScaleView.RescaleFlag)) === 0) {
-        transition = (this._scaleFlags & ScaleView.InteractingMask) !== 0
-                   ? this.reboundTransition.state : this.rescaleTransition.state;
-        if (transition !== void 0) {
+        timing = (this._scaleFlags & ScaleView.InteractingMask) !== 0
+               ? this.reboundTransition.state : this.rescaleTransition.state;
+        if (timing !== void 0) {
           this._scaleFlags |= ScaleView.XBoundingFlag;
         }
       }
       this.willReboundX(oldXScale);
-      this.xDomain(newXDomain instanceof Domain ? newXDomain : Domain(newXDomain[0], newXDomain[1]), transition);
+      this.xDomain(newXDomain instanceof Domain ? newXDomain : Domain(newXDomain[0], newXDomain[1]), timing);
       this.requireUpdate(View.NeedsLayout);
-      if (transition === void 0) {
+      if (timing === void 0) {
         this.didReboundX(this.xScale.getState());
       }
     }
@@ -1596,18 +1608,18 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     if (newYDomain !== void 0 && !isPressing && (this._scaleFlags & ScaleView.YTweeningMask) === 0 &&
         (Math.abs(+newYDomain[0] - +oldYDomain[0]) >= Equivalent.Epsilon ||
          Math.abs(+newYDomain[1] - +oldYDomain[1]) >= Equivalent.Epsilon)) {
-      let transition: Transition<any> | undefined;
+      let timing: Timing | undefined;
       if ((this._scaleFlags & (ScaleView.YBoundingFlag | ScaleView.RescaleFlag)) === 0) {
-        transition = (this._scaleFlags & ScaleView.InteractingMask) !== 0
-                   ? this.reboundTransition.state : this.rescaleTransition.state;
-        if (transition !== void 0) {
+        timing = (this._scaleFlags & ScaleView.InteractingMask) !== 0
+               ? this.reboundTransition.state : this.rescaleTransition.state;
+        if (timing !== void 0) {
           this._scaleFlags |= ScaleView.YBoundingFlag;
         }
       }
       this.willReboundY(oldYScale);
-      this.yDomain(newYDomain instanceof Domain ? newYDomain : Domain(newYDomain[0], newYDomain[1]), transition);
+      this.yDomain(newYDomain instanceof Domain ? newYDomain : Domain(newYDomain[0], newYDomain[1]), timing);
       this.requireUpdate(View.NeedsLayout);
-      if (transition === void 0) {
+      if (timing === void 0) {
         this.didReboundY(this.yScale.getState());
       }
     }
@@ -1865,7 +1877,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   /** @hidden */
   static TimeZoomMax: number = 1;
 
-  static readonly powerFlags: ViewFlags = LayerView.powerFlags | View.NeedsResize;
+  static readonly mountFlags: ViewFlags = LayerView.mountFlags | View.NeedsAnimate;
+  static readonly powerFlags: ViewFlags = LayerView.powerFlags | View.NeedsResize | View.NeedsAnimate;
 
   static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsResize | View.NeedsAnimate;
   static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;

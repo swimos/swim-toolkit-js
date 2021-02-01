@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import type {Animator} from "@swim/animation";
 import {CssContext} from "./CssContext";
 import {CssRuleInit, CssRule} from "./CssRule";
 
@@ -57,12 +56,6 @@ export interface MediaRule<V extends CssContext> extends CssRule<V>, CssContext 
   getCssRule(ruleName: string): CssRule<this> | null;
 
   setCssRule(ruleName: string, cssRule: CssRule<this> | null): void;
-
-  onAnimate(t: number): void;
-
-  animate(animator: Animator): void;
-
-  requireUpdate(updateFlags: number): void;
 
   /** @hidden */
   initCss?(): string;
@@ -140,22 +133,6 @@ MediaRule.prototype.setCssRule = function (this: MediaRule<CssContext>, ruleName
   } else {
     delete this.cssRules[ruleName];
   }
-};
-
-MediaRule.prototype.onAnimate = function (this: MediaRule<CssContext>, t: number): void {
-  const cssRules = this.cssRules;
-  for (const ruleName in cssRules) {
-    const cssRule = cssRules[ruleName]!;
-    cssRule.onAnimate(t);
-  }
-};
-
-MediaRule.prototype.animate = function (this: MediaRule<CssContext>, animator: Animator): void {
-  return this.owner.animate(animator);
-};
-
-MediaRule.prototype.requireUpdate = function (this: MediaRule<CssContext>, updateFlags: number): void {
-  return this.owner.requireUpdate(updateFlags);
 };
 
 MediaRule.prototype.createRule = function (this: MediaRule<CssContext>, cssText: string): CSSMediaRule {

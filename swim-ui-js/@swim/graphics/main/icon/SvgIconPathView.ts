@@ -44,10 +44,10 @@ export class SvgIconPathView extends SvgView implements IconView {
   @ViewAnimator({type: Length, inherit: true})
   declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewAnimator({type: Color, inherit: true})
+  @ViewAnimator({type: Color, inherit: true, updateFlags: View.NeedsAnimate})
   declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewAnimator({type: Object, inherit: true})
+  @ViewAnimator({type: Object, inherit: true, updateFlags: View.NeedsAnimate})
   declare graphics: ViewAnimator<this, Graphics | undefined>;
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
@@ -57,20 +57,19 @@ export class SvgIconPathView extends SvgView implements IconView {
 
   protected animateIcon(): void {
     if (this.iconColor.isUpdated()) {
-      this.fill.setAutoState(this.iconColor.value);
+      this.fill.setAutoState(this.iconColor.takeValue());
     }
     if (this.graphics.isUpdated()) {
-      this.renderIcon();
+      this.renderIcon(this.graphics.takeValue());
     }
   }
 
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
-    this.renderIcon();
+    this.renderIcon(this.graphics.takeValue());
   }
 
-  protected renderIcon(): void {
-    const graphics = this.graphics.value;
+  protected renderIcon(graphics: Graphics | undefined): void {
     let path = "";
     if (graphics !== void 0) {
       const frame = this.iconBounds;

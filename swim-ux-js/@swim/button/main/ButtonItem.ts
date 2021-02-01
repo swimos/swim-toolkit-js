@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Transition} from "@swim/animation";
+import type {Timing} from "@swim/mapping";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {HtmlView, SvgView} from "@swim/dom";
@@ -58,11 +58,11 @@ export class ButtonItem extends HtmlView {
   declare stackPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     const label = this.label;
     if (label !== null && label.color.isAuto()) {
-      label.color.setAutoState(theme.inner(mood, Look.mutedColor), transition);
+      label.color.setAutoState(theme.inner(mood, Look.mutedColor), timing);
     }
   }
 

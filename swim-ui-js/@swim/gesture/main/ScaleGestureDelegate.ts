@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ContinuousScale} from "@swim/mapping";
-import type {Tween} from "@swim/animation";
+import type {AnyTiming, ContinuousScale} from "@swim/mapping";
 import type {MomentumGestureDelegate} from "./MomentumGestureDelegate";
 import type {ScaleGestureInput} from "./ScaleGestureInput";
 
@@ -31,10 +30,10 @@ export interface ScaleGestureDelegate<X, Y> extends MomentumGestureDelegate {
   yGestures?(): boolean;
 
   xScale?(): ContinuousScale<X, number> | undefined;
-  xScale?(xScale: ContinuousScale<X, number> | undefined, tween?: Tween<any>): unknown;
+  xScale?(xScale: ContinuousScale<X, number> | undefined, timing?: AnyTiming | boolean): unknown;
 
   yScale?(): ContinuousScale<Y, number> | undefined;
-  yScale?(yScale: ContinuousScale<Y, number> | undefined, tween?: Tween<any>): unknown;
+  yScale?(yScale: ContinuousScale<Y, number> | undefined, timing?: AnyTiming | boolean): unknown;
 
   willBeginHover?(input: ScaleGestureInput<X, Y>, event: Event | null): void;
 

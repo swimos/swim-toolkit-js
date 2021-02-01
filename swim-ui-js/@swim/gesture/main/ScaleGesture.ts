@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import type {BoxR2} from "@swim/math";
-import type {ContinuousScale} from "@swim/mapping";
-import type {Tween} from "@swim/animation";
+import type {AnyTiming, ContinuousScale} from "@swim/mapping";
 import {ViewContext, View, ViewObserver} from "@swim/view";
 import type {GestureInputType} from "./GestureInput";
 import {AbstractMomentumGesture} from "./MomentumGesture";
@@ -122,9 +121,9 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   }
 
   xScale(): ContinuousScale<X, number> | undefined;
-  xScale(xScale: ContinuousScale<X, number> | undefined, tween?: Tween<any>): this;
+  xScale(xScale: ContinuousScale<X, number> | undefined, timing?: AnyTiming | boolean): this;
   xScale(xScale?: ContinuousScale<X, number> | undefined,
-         tween?: Tween<any>): ContinuousScale<X, number> | undefined | this {
+         timing?: AnyTiming | boolean): ContinuousScale<X, number> | undefined | this {
     const delegate = this.delegate;
     if (xScale === void 0) {
       if (delegate !== null && delegate.xScale !== void 0) {
@@ -144,9 +143,9 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   }
 
   yScale(): ContinuousScale<Y, number> | undefined;
-  yScale(yScale: ContinuousScale<Y, number> | undefined, tween?: Tween<any>): this;
+  yScale(yScale: ContinuousScale<Y, number> | undefined, timing?: AnyTiming | boolean): this;
   yScale(yScale?: ContinuousScale<Y, number> | undefined,
-         tween?: Tween<any>): ContinuousScale<Y, number> | undefined | this {
+         timing?: AnyTiming | boolean): ContinuousScale<Y, number> | undefined | this {
     const delegate = this.delegate;
     if (yScale === void 0) {
       if (delegate !== null && delegate.yScale !== void 0) {

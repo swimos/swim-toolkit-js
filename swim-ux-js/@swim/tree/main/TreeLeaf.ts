@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Tween, Transition} from "@swim/animation";
+import {AnyTiming, Timing} from "@swim/mapping";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewScope} from "@swim/view";
 import type {ViewNode, HtmlViewConstructor, HtmlView} from "@swim/dom";
@@ -83,39 +83,39 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   @ViewScope({type: Boolean, state: false})
   declare highlighted: ViewScope<this, boolean>;
 
-  highlight(tween?: Tween<any>): this {
+  highlight(timing?: AnyTiming | boolean): this {
     if (!this.highlighted.state) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
-      this.willHighlight(tween);
+      this.willHighlight(timing);
       this.highlighted.setState(true);
-      this.onHighlight(tween);
-      this.didHighlight(tween);
+      this.onHighlight(timing);
+      this.didHighlight(timing);
     }
     return this;
   }
 
-  protected willHighlight(transition: Transition<any> | null): void {
+  protected willHighlight(timing: Timing | boolean): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.leafWillHighlight !== void 0) {
-      viewController.leafWillHighlight(transition, this);
+      viewController.leafWillHighlight(timing, this);
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
       if (viewObserver.leafWillHighlight !== void 0) {
-        viewObserver.leafWillHighlight(transition, this);
+        viewObserver.leafWillHighlight(timing, this);
       }
     }
   }
 
-  protected onHighlight(transition: Transition<any> | null): void {
+  protected onHighlight(timing: Timing | boolean): void {
     this.modifyMood(Feel.default, [Feel.selected, 1]);
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), transition);
+      this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), timing);
     }
     const selectedColor = this.getLook(Look.accentColor);
     let selectedView = this.getChildView("selected") as HtmlView | null;
@@ -132,61 +132,61 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       }
     }
     if (selectedView !== null) {
-      selectedView.backgroundColor.setAutoState(selectedColor, transition);
+      selectedView.backgroundColor.setAutoState(selectedColor, timing);
     }
   }
 
-  protected didHighlight(transition: Transition<any> | null): void {
+  protected didHighlight(timing: Timing | boolean): void {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
       if (viewObserver.leafDidHighlight !== void 0) {
-        viewObserver.leafDidHighlight(transition, this);
+        viewObserver.leafDidHighlight(timing, this);
       }
     }
     const viewController = this.viewController;
     if (viewController !== null && viewController.leafDidHighlight !== void 0) {
-      viewController.leafDidHighlight(transition, this);
+      viewController.leafDidHighlight(timing, this);
     }
   }
 
-  unhighlight(tween?: Tween<any>): this {
+  unhighlight(timing?: AnyTiming | boolean): this {
     if (this.highlighted.state) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
-      this.willUnhighlight(tween);
+      this.willUnhighlight(timing);
       this.highlighted.setState(false);
-      this.onUnhighlight(tween);
-      this.didUnhighlight(tween);
+      this.onUnhighlight(timing);
+      this.didUnhighlight(timing);
     }
     return this;
   }
 
-  protected willUnhighlight(transition: Transition<any> | null): void {
+  protected willUnhighlight(timing: Timing | boolean): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.leafWillUnhighlight !== void 0) {
-      viewController.leafWillUnhighlight(transition, this);
+      viewController.leafWillUnhighlight(timing, this);
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
       if (viewObserver.leafWillUnhighlight !== void 0) {
-        viewObserver.leafWillUnhighlight(transition, this);
+        viewObserver.leafWillUnhighlight(timing, this);
       }
     }
   }
 
-  protected onUnhighlight(transition: Transition<any> | null): void {
+  protected onUnhighlight(timing: Timing | boolean): void {
     this.modifyMood(Feel.default, [Feel.selected, void 0]);
     if (this.backgroundColor.isAuto()) {
       let backgroundColor = this.getLook(Look.backgroundColor);
       if (backgroundColor !== void 0) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      this.backgroundColor.setAutoState(backgroundColor, transition);
+      this.backgroundColor.setAutoState(backgroundColor, timing);
     }
     const selectedView = this.getChildView("selected") as HtmlView | null;
     if (selectedView !== null) {
@@ -194,33 +194,33 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       if (selectedColor !== void 0) {
         selectedColor = selectedColor.alpha(0);
       }
-      selectedView.backgroundColor.setAutoState(selectedColor, transition);
+      selectedView.backgroundColor.setAutoState(selectedColor, timing);
     }
   }
 
-  protected didUnhighlight(transition: Transition<any> | null): void {
+  protected didUnhighlight(timing: Timing | boolean): void {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
       if (viewObserver.leafDidUnhighlight !== void 0) {
-        viewObserver.leafDidUnhighlight(transition, this);
+        viewObserver.leafDidUnhighlight(timing, this);
       }
     }
     const viewController = this.viewController;
     if (viewController !== null && viewController.leafDidUnhighlight !== void 0) {
-      viewController.leafDidUnhighlight(transition, this);
+      viewController.leafDidUnhighlight(timing, this);
     }
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
       let backgroundColor = this.getLook(Look.backgroundColor);
       if (backgroundColor !== void 0 && !this.highlighted.state) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      this.backgroundColor.setAutoState(backgroundColor, transition);
+      this.backgroundColor.setAutoState(backgroundColor, timing);
     }
     const selectedView = this.getChildView("selected") as HtmlView | null;
     if (selectedView !== null) {
@@ -228,7 +228,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       if (selectedColor !== void 0 && !this.highlighted.state) {
         selectedColor = selectedColor.alpha(0);
       }
-      selectedView.backgroundColor.setAutoState(selectedColor, transition);
+      selectedView.backgroundColor.setAutoState(selectedColor, timing);
     }
   }
 

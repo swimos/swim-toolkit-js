@@ -12,19 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Domain, Range, ContinuousScale} from "@swim/mapping";
-import type {Tween} from "@swim/animation";
+import type {Domain, Range, AnyTiming, ContinuousScale} from "@swim/mapping";
 import {GraphicsView} from "@swim/graphics";
 import {ScaleView} from "./ScaleView";
 
 export interface ScaleXView<X = unknown> extends GraphicsView {
   xScale(): ContinuousScale<X, number> | undefined;
   xScale(xScale: ContinuousScale<X, number> | undefined,
-         tween?: Tween<ContinuousScale<X, number>>): this;
+         timing?: AnyTiming | boolean): this;
 
   xDomain(): Domain<X> | undefined;
-  xDomain(xDomain: Domain<X> | undefined, tween?: Tween<any>): this;
-  xDomain(xMin: X, xMax: X, tween: Tween<any>): this;
+  xDomain(xDomain: Domain<X> | undefined, timing?: AnyTiming | boolean): this;
+  xDomain(xMin: X, xMax: X, timing: AnyTiming | boolean): this;
 
   xRange(): Range<number> | undefined;
 

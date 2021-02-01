@@ -14,14 +14,13 @@
 
 import {Arrays} from "@swim/util";
 import {BoxR2} from "@swim/math";
-import type {Animator} from "@swim/animation";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
 import {ViewContextType, ViewConstructor, View, ViewObserverType, ViewScope} from "@swim/view";
 import type {StyleContext} from "../style/StyleContext";
-import {StyleAnimator} from "../style/StyleAnimator";
+import type {StyleAnimator} from "../style/StyleAnimator";
 import {NodeViewInit, NodeViewConstructor, NodeView} from "../node/NodeView";
-import {AttributeAnimatorConstructor, AttributeAnimator} from "../attribute/AttributeAnimator";
+import type {AttributeAnimatorConstructor, AttributeAnimator} from "../attribute/AttributeAnimator";
 import type {
   ElementViewObserver,
   ElementViewObserverCache,
@@ -246,12 +245,11 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected updateTheme(): void {
-    if (this.theme.isChanging() || this.mood.isChanging()) {
+    if (this.theme.isUpdated() || this.mood.isUpdated()) {
       this.changeMood();
       this.changeTheme();
-
-      const theme = this.theme.state;
-      const mood = this.mood.state;
+      const theme = this.theme.takeState();
+      const mood = this.mood.takeState();
       if (theme !== void 0 && mood !== void 0) {
         this.applyTheme(theme, mood);
       }
@@ -361,7 +359,11 @@ export class ElementView extends NodeView implements StyleContext {
     if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
       const style = this.node.attributeStyleMap;
       if (typeof propertyNames === "string") {
-        return style.get(propertyNames);
+        try {
+          return style.get(propertyNames);
+        } catch (e) {
+          return void 0;
+        }
       } else {
         for (let i = 0, n = propertyNames.length; i < n; i += 1) {
           const value = style.get(propertyNames[i]!);
@@ -481,46 +483,6 @@ export class ElementView extends NodeView implements StyleContext {
       styleAnimators[animatorName] = animator;
     } else {
       delete styleAnimators[animatorName];
-    }
-  }
-
-  /** @hidden */
-  animate(animator: Animator): void {
-    super.animate(animator);
-    if (animator instanceof AttributeAnimator || animator instanceof StyleAnimator) {
-      this.setViewFlags(this.viewFlags | View.AnimatingFlag);
-    }
-  }
-
-  /** @hidden */
-  updateAnimators(t: number): void {
-    this.updateViewAnimators(t);
-    if ((this.viewFlags & View.AnimatingFlag) !== 0) {
-      this.setViewFlags(this.viewFlags & ~View.AnimatingFlag);
-      this.updateAttributeAnimators(t);
-      this.updateStyleAnimators(t);
-    }
-  }
-
-  /** @hidden */
-  updateAttributeAnimators(t: number): void {
-    const attributeAnimators = this.attributeAnimators;
-    if (attributeAnimators !== void 0) {
-      for (const animatorName in attributeAnimators) {
-        const attributeAnimator = attributeAnimators[animatorName]!;
-        attributeAnimator.onAnimate(t);
-      }
-    }
-  }
-
-  /** @hidden */
-  updateStyleAnimators(t: number): void {
-    const styleAnimators = this.styleAnimators;
-    if (styleAnimators !== void 0) {
-      for (const animatorName in styleAnimators) {
-        const styleAnimator = styleAnimators[animatorName]!;
-        styleAnimator.onAnimate(t);
-      }
     }
   }
 

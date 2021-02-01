@@ -166,12 +166,12 @@ function linkIntersection(intersectionId, node, intersectionView) {
     if (approachView.occupied === false) {
       phaseColor = phaseColor.alpha(0.25);
     }
-    const tween = swim.Transition.duration(250, "cubic-out");
-    approachView.fill(phaseColor, tween);
+    const timing = swim.Easing.cubicOut.withDuration(250);
+    approachView.fill(phaseColor, timing);
     if (approachView.isHovering()) {
-      approachView.stroke("#ffffff", tween);
+      approachView.stroke("#ffffff", timing);
     } else {
-      approachView.stroke(swim.Color.transparent(), tween);
+      approachView.stroke(swim.Color.transparent(), timing);
     }
   }
 
@@ -187,9 +187,9 @@ function linkIntersection(intersectionId, node, intersectionView) {
     mapView.append(ripple);
     const frame = mapView.viewFrame;
     const radius = Math.min(frame.width, frame.height) / 8;
-    const tween = swim.Transition.duration(2000);
-    ripple.stroke(RIPPLE_COLOR.alpha(0), tween)
-          .radius(radius, tween);
+    const timing = swim.Easing.linear.withDuration(2000);
+    ripple.stroke(RIPPLE_COLOR.alpha(0), timing)
+          .radius(radius, timing);
     ripple.radius.onEnd = function () {
       ripple.remove();
     };

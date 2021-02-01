@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
 import {GeoPoint, GeoBox} from "@swim/geo";
-import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
@@ -84,8 +84,8 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   }
 
   points(): ReadonlyArray<MapPointView>;
-  points(points: ReadonlyArray<AnyMapPointView>, tween?: Tween<GeoPoint>): this;
-  points(points?: ReadonlyArray<AnyMapPointView>, tween?: Tween<GeoPoint>): ReadonlyArray<MapPointView> | this {
+  points(points: ReadonlyArray<AnyMapPointView>, timing?: AnyTiming | boolean): this;
+  points(points?: ReadonlyArray<AnyMapPointView>, timing?: AnyTiming | boolean): ReadonlyArray<MapPointView> | this {
     const childViews = this.childViews;
     if (points === void 0) {
       const points: MapPointView[] = [];

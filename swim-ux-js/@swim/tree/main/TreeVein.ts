@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Transition} from "@swim/animation";
+import type {Timing} from "@swim/mapping";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import type {TreeVeinObserver} from "./TreeVeinObserver";
@@ -47,9 +47,9 @@ export class TreeVein extends HtmlView {
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
-    this.color.setAutoState(theme.inner(mood, Look.neutralColor), transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
+    this.color.setAutoState(theme.inner(mood, Look.neutralColor), timing);
   }
 
   static fromInit(init: TreeVeinInit): TreeVein {

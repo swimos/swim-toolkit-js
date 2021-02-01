@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyAngle, Angle} from "@swim/math";
-import type {Transition} from "@swim/animation";
 import type {Height, Width} from "@swim/style";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
@@ -92,11 +92,11 @@ export class PolygonTreeCell extends TreeCell {
   declare rotation: ViewAnimator<this, Angle, AnyAngle>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     const shape = this.shape;
     if (shape !== null && shape.fill.isAuto()) {
-      shape.fill.setAutoState(theme.inner(mood, Look.accentColor), transition);
+      shape.fill.setAutoState(theme.inner(mood, Look.accentColor), timing);
     }
   }
 

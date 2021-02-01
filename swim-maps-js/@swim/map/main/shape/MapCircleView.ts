@@ -69,7 +69,7 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
   @ViewAnimator<MapCircleView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
     state: GeoPoint.origin(),
-    onUpdate(newValue: GeoPoint, oldValue: GeoPoint): void {
+    onSetValue(newValue: GeoPoint, oldValue: GeoPoint): void {
       this.owner.onSetGeoCenter(newValue, oldValue);
     },
   })

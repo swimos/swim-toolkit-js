@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Tween} from "@swim/animation";
+import type {AnyTiming} from "@swim/mapping";
 import type {View} from "../View";
 
 export interface ModalOptions {
@@ -29,9 +29,9 @@ export interface Modal {
 
   readonly modality: boolean | number;
 
-  showModal(options: ModalOptions, tween?: Tween<any>): void;
+  showModal(options: ModalOptions, timing?: AnyTiming | boolean): void;
 
-  hideModal(tween?: Tween<any>): void;
+  hideModal(timing?: AnyTiming | boolean): void;
 }
 
 export const Modal = {} as {

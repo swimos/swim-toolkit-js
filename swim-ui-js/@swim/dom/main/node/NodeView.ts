@@ -1204,11 +1204,6 @@ export class NodeView extends View {
     this.changeScopes();
   }
 
-  protected onAnimate(viewContext: ViewContextType<this>): void {
-    super.onAnimate(viewContext);
-    this.updateAnimators(viewContext.updateTime);
-  }
-
   protected willLayout(viewContext: ViewContextType<this>): void {
     super.willLayout(viewContext);
     this.updateConstraints();
@@ -1507,20 +1502,6 @@ export class NodeView extends View {
       }
     } else {
       delete viewAnimators[animatorName];
-    }
-  }
-
-  /** @hidden */
-  updateAnimators(t: number): void {
-    this.updateViewAnimators(t);
-  }
-
-  /** @hidden */
-  updateViewAnimators(t: number): void {
-    const viewAnimators = this.viewAnimators;
-    for (const animatorName in viewAnimators) {
-      const viewAnimator = viewAnimators[animatorName]!;
-      viewAnimator.onAnimate(t);
     }
   }
 

@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Easing, ContinuousScale} from "@swim/mapping";
+import {AnyTiming, Timing, Easing, ContinuousScale} from "@swim/mapping";
 import {BTree} from "@swim/collections";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import {AnyTransition, Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
@@ -51,7 +50,7 @@ export interface AxisViewInit<D = unknown> extends GraphicsViewInit {
   tickMarkWidth?: number;
   tickMarkLength?: number;
   tickLabelPadding?: number;
-  tickTransition?: AnyTransition<any>;
+  tickTransition?: AnyTiming;
 
   gridLineColor?: AnyColor;
   gridLineWidth?: number;
@@ -220,13 +219,13 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   declare tickLabelPadding: ViewAnimator<this, number | undefined>;
 
   @ViewScope({
-    type: Transition,
+    type: Timing,
     inherit: true,
-    initState(): Transition<any> {
-      return Transition.duration(250, Easing.cubicOut);
+    initState(): Timing {
+      return Easing.cubicOut.withDuration(250);
     },
   })
-  declare tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
+  declare tickTransition: ViewScope<this, Timing, AnyTiming>;
 
   @ViewAnimator({type: Color, inherit: true})
   declare gridLineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
@@ -388,8 +387,16 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
         const newTick = this.createTickView(tickValue);
         if (newTick !== null) {
           this.insertTick(newTick);
-          newTick.opacity._value = 0;
-          newTick.opacity._state = 0;
+          Object.defineProperty(newTick.opacity, "ownValue", {
+            value: 0,
+            enumerable: true,
+            configurable: true,
+          });
+          Object.defineProperty(newTick.opacity, "ownState", {
+            value: 0,
+            enumerable: true,
+            configurable: true,
+          });
           newTick.fadeIn(tickTransition);
         }
       }

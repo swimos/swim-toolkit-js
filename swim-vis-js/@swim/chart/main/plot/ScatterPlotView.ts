@@ -13,9 +13,8 @@
 // limitations under the License.
 
 import {Values} from "@swim/util";
-import {Domain, Range, ContinuousScale} from "@swim/mapping";
+import {Domain, Range, AnyTiming, ContinuousScale} from "@swim/mapping";
 import type {BoxR2} from "@swim/math";
-import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -112,36 +111,36 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     }
   }
 
-  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
+  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true, updateFlags: View.NeedsAnimate})
   declare xScale: ScaleViewAnimator<this, X, number>;
 
-  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true})
+  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true, updateFlags: View.NeedsAnimate})
   declare yScale: ScaleViewAnimator<this, Y, number>;
 
   xDomain(): Domain<X> | undefined;
-  xDomain(xDomain: Domain<X> | string | undefined, tween?: Tween<ContinuousScale<X, number>>): this;
-  xDomain(xMin: X, xMax: X, tween: Tween<ContinuousScale<X, number>>): this;
-  xDomain(xMin?: Domain<X> | X | string, xMax?: X | Tween<ContinuousScale<X, number>>,
-          tween?: Tween<ContinuousScale<X, number>>): Domain<X> | undefined | this {
+  xDomain(xDomain: Domain<X> | string | undefined, timing?: AnyTiming | boolean): this;
+  xDomain(xMin: X, xMax: X, timing?: AnyTiming | boolean): this;
+  xDomain(xMin?: Domain<X> | X | string, xMax?: X | AnyTiming | boolean,
+          timing?: AnyTiming | boolean): Domain<X> | undefined | this {
     if (arguments.length === 0) {
       const xScale = this.xScale.value;
       return xScale !== void 0 ? xScale.domain : void 0;
     } else {
-      this.xScale.setDomain(xMin as any, xMax as any, tween);
+      this.xScale.setDomain(xMin as any, xMax as any, timing);
       return this;
     }
   }
 
   yDomain(): Domain<Y> | undefined;
-  yDomain(yDomain: Domain<Y> | string | undefined, tween?: Tween<ContinuousScale<Y, number>>): this;
-  yDomain(yMin: Y, yMax: Y, tween: Tween<ContinuousScale<Y, number>>): this;
-  yDomain(yMin?: Domain<Y> | Y | string, yMax?: Y | Tween<ContinuousScale<Y, number>>,
-          tween?: Tween<ContinuousScale<Y, number>>): Domain<Y> | undefined | this {
+  yDomain(yDomain: Domain<Y> | string | undefined, timing?: AnyTiming | boolean): this;
+  yDomain(yMin: Y, yMax: Y, timing: AnyTiming | boolean): this;
+  yDomain(yMin?: Domain<Y> | Y | string, yMax?: Y | AnyTiming | boolean,
+          timing?: AnyTiming | boolean): Domain<Y> | undefined | this {
     if (arguments.length === 0) {
       const yScale = this.yScale.value;
       return yScale !== void 0 ? yScale.domain : void 0;
     } else {
-      this.yScale.setDomain(yMin as any, yMax as any, tween);
+      this.yScale.setDomain(yMin as any, yMax as any, timing);
       return this;
     }
   }
@@ -246,11 +245,11 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
    * Updates own scale ranges to project onto view frame.
    */
   protected resizeScales(frame: BoxR2): void {
-    const xScale = this.xScale.ownValue;
+    const xScale = !this.xScale.isInherited() ? this.xScale.ownValue : void 0;
     if (xScale !== void 0 && xScale.range[1] !== frame.width) {
       this.xScale.setRange(0, frame.width);
     }
-    const yScale = this.yScale.ownValue;
+    const yScale = !this.yScale.isInherited() ? this.yScale.ownValue : void 0;
     if (yScale !== void 0 && yScale.range[1] !== frame.height) {
       this.yScale.setRange(0, frame.height);
     }
@@ -516,6 +515,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     throw new TypeError("" + value);
   }
 
+  static readonly mountFlags: ViewFlags = LayerView.mountFlags | View.NeedsAnimate;
+  static readonly powerFlags: ViewFlags = LayerView.powerFlags | View.NeedsAnimate;
   static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsAnimate;
   static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;
 }

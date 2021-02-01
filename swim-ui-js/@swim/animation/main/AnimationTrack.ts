@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Animator} from "./Animator";
-
-export interface AnimatorContext {
-  animate(animator: Animator): void;
+export interface AnimationTrack {
+  onAnimate(t: number): void;
 }

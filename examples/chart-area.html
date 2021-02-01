@@ -38,10 +38,10 @@ const plot = graph.append(swim.AreaPlotView)
     .hitMode("plot")
     .fill("#4a4a4a")
     .on("pointerenter", function (event) {
-      plot.fill("#1db0ef", {duration: 250});
+      plot.fill("#1db0ef", {dt: 250});
     })
     .on("pointerleave", function (event) {
-      plot.fill("#4a4a4a", {duration: 250});
+      plot.fill("#4a4a4a", {dt: 250});
     });
 
 const cycles = 2;

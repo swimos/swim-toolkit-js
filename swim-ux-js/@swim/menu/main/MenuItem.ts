@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
-import {Tween, Transition} from "@swim/animation";
 import type {Height} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewEdgeInsets, ViewScope, ViewAnimator} from "@swim/view";
@@ -58,7 +58,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   @ViewAnimator({type: Length, inherit: true})
   declare collapsedWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewAnimator({type: Number, inherit: true})
+  @ViewAnimator({type: Number, inherit: true, updateFlags: View.NeedsAnimate})
   declare drawerStretch: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   protected createIconView(icon?: SvgView): HtmlView {
@@ -150,8 +150,8 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     const itemColor = theme.inner(mood, this.highlighted.state ? Look.color : Look.mutedColor);
 
     if (this.backgroundColor.isAuto()) {
@@ -159,20 +159,20 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
       if (backgroundColor !== void 0 && !this.highlighted.state && !this._gesture.isHovering()) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      this.backgroundColor.setAutoState(backgroundColor, transition);
+      this.backgroundColor.setAutoState(backgroundColor, timing);
     }
 
     const iconView = this.iconView();
     if (iconView !== null) {
       const icon = iconView.getChildView("icon");
       if (icon instanceof SvgView) {
-        icon.fill.setAutoState(itemColor, transition);
+        icon.fill.setAutoState(itemColor, timing);
       }
     }
 
     const titleView = this.titleView();
     if (titleView !== null) {
-      titleView.color.setAutoState(itemColor, transition);
+      titleView.color.setAutoState(itemColor, timing);
     }
   }
 
@@ -265,14 +265,14 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     // hook
   }
 
-  highlight(tween?: Tween<any>): this {
+  highlight(timing?: AnyTiming | boolean): this {
     if (!this.highlighted.state) {
       this.highlighted.setState(true);
       this.modifyMood(Feel.default, [Feel.selected, 1], [Feel.hovering, void 0]);
-      if (tween === true) {
-        tween = this.getLook(Look.transition);
+      if (timing === true) {
+        timing = this.getLook(Look.timing);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       if (this.backgroundColor.isAuto()) {
         this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor));
@@ -281,43 +281,43 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
       if (iconView !== null) {
         const icon = iconView.getChildView("icon");
         if (icon instanceof SvgView && icon.fill.isAuto()) {
-          icon.fill.setAutoState(this.getLook(Look.color), tween);
+          icon.fill.setAutoState(this.getLook(Look.color), timing);
         }
       }
       const titleView = this.titleView();
       if (titleView !== null && titleView.color.isAuto()) {
-        titleView.color.setAutoState(this.getLook(Look.color), tween);
+        titleView.color.setAutoState(this.getLook(Look.color), timing);
       }
     }
     return this;
   }
 
-  unhighlight(tween?: Tween<any>): this {
+  unhighlight(timing?: AnyTiming | boolean): this {
     if (this.highlighted.state) {
       this.highlighted.setState(false);
       this.modifyMood(Feel.default, [Feel.selected, void 0]);
-      if (tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       if (this.backgroundColor.isAuto()) {
         let backgroundColor = this.getLook(Look.backgroundColor);
         if (backgroundColor !== void 0 && !this._gesture.isHovering()) {
           backgroundColor = backgroundColor.alpha(0);
         }
-        this.backgroundColor.setAutoState(backgroundColor, tween);
+        this.backgroundColor.setAutoState(backgroundColor, timing);
       }
       const iconView = this.iconView();
       if (iconView !== null) {
         const icon = iconView.getChildView("icon");
         if (icon instanceof SvgView) {
-          icon.fill.setAutoState(this.getLook(Look.mutedColor), tween);
+          icon.fill.setAutoState(this.getLook(Look.mutedColor), timing);
         }
       }
       const titleView = this.titleView();
       if (titleView !== null && titleView.color.isAuto()) {
-        titleView.color.setAutoState(this.getLook(Look.mutedColor), tween);
+        titleView.color.setAutoState(this.getLook(Look.mutedColor), timing);
       }
     }
     return this;
@@ -347,8 +347,8 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     if (!this.highlighted.state && this.hovers) {
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
       if (this.backgroundColor.isAuto()) {
-        const transition = this._gesture.isPressing() ? this.getLook(Look.transition) : null;
-        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), transition);
+        const timing = this._gesture.isPressing() ? this.getLook(Look.timing) : false;
+        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), timing);
       }
     }
   }
@@ -360,8 +360,8 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
       if (backgroundColor !== void 0 && !this.highlighted.state) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      const transition = this.getLook(Look.transition);
-      this.backgroundColor.setAutoState(backgroundColor, transition);
+      const timing = this.getLook(Look.timing);
+      this.backgroundColor.setAutoState(backgroundColor, timing);
     }
   }
 

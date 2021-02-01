@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
+import type {Timing} from "@swim/mapping";
 import {Length, Transform} from "@swim/math";
-import type {Transition} from "@swim/animation";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, ViewFactory, ViewConstructor, View, LayoutAnchor} from "@swim/view";
 import {StyleMapInit, StyleMap} from "../style/StyleMap";
@@ -296,16 +296,16 @@ export class HtmlView extends ElementView {
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     if (this.node === document.body) {
-      this.applyRootTheme(theme, mood, transition);
+      this.applyRootTheme(theme, mood, timing);
     }
   }
 
   /** @hidden */
   applyRootTheme(theme: ThemeMatrix, mood: MoodVector,
-                 transition: Transition<any> | null): void {
+                 timing: Timing | boolean): void {
     const font = theme.inner(Mood.ambient, Look.font);
     if (font !== void 0) {
       if (font.style !== void 0) {
@@ -328,8 +328,8 @@ export class HtmlView extends ElementView {
       }
       this.fontFamily.setAutoState(font.family);
     }
-    this.backgroundColor.setAutoState(theme.inner(Mood.ambient, Look.backgroundColor), transition);
-    this.color.setAutoState(theme.inner(Mood.ambient, Look.color), transition);
+    this.backgroundColor.setAutoState(theme.inner(Mood.ambient, Look.backgroundColor), timing);
+    this.color.setAutoState(theme.inner(Mood.ambient, Look.color), timing);
   }
 
   isPositioned(): boolean {

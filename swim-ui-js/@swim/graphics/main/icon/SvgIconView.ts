@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
-import type {Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -83,10 +83,10 @@ export class SvgIconView extends SvgView implements IconView {
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     if (this.iconColor.isAuto() && !this.iconColor.isInherited()) {
-      this.iconColor.setAutoState(theme.inner(mood, Look.accentColor), transition);
+      this.iconColor.setAutoState(theme.inner(mood, Look.accentColor), timing);
     }
   }
 

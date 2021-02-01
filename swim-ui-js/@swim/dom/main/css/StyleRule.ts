@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import type {Animator} from "@swim/animation";
 import {ToStyleString, ToCssValue} from "@swim/style";
 import type {StyleAnimator} from "../style/StyleAnimator";
 import {StyleMapInit, StyleMap} from "../style/StyleMap";
@@ -76,12 +75,6 @@ export interface StyleRule<V extends CssContext> extends CssRule<V>, StyleMap {
   getStyleAnimator(animatorName: string): StyleAnimator<this, unknown> | null;
 
   setStyleAnimator(animatorName: string, animator: StyleAnimator<this, unknown> | null): void;
-
-  onAnimate(t: number): void;
-
-  animate(animator: Animator): void;
-
-  requireUpdate(updateFlags: number): void;
 
   /** @hidden */
   initCss?(): string;
@@ -233,22 +226,6 @@ StyleRule.prototype.setStyleAnimator = function (this: StyleRule<CssContext>, an
   } else {
     delete styleAnimators[animatorName];
   }
-};
-
-StyleRule.prototype.onAnimate = function (this: StyleRule<CssContext>, t: number): void {
-  const styleAnimators = this.styleAnimators;
-  for (const animatorName in styleAnimators) {
-    const animator = styleAnimators[animatorName]!;
-    animator.onAnimate(t);
-  }
-};
-
-StyleRule.prototype.animate = function (this: StyleRule<CssContext>, animator: Animator): void {
-  return this.owner.animate(animator);
-};
-
-StyleRule.prototype.requireUpdate = function (this: StyleRule<CssContext>, updateFlags: number): void {
-  return this.owner.requireUpdate(updateFlags);
 };
 
 StyleRule.prototype.createRule = function (this: StyleRule<CssContext>, cssText: string): CSSStyleRule {

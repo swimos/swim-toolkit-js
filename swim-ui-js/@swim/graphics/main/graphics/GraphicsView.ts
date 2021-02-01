@@ -683,11 +683,6 @@ export abstract class GraphicsView extends View {
     this.updateTheme();
   }
 
-  protected onAnimate(viewContext: ViewContextType<this>): void {
-    super.onAnimate(viewContext);
-    this.updateAnimators(viewContext.updateTime);
-  }
-
   protected willLayout(viewContext: ViewContextType<this>): void {
     super.willLayout(viewContext);
     this.updateConstraints();
@@ -943,12 +938,11 @@ export abstract class GraphicsView extends View {
   }
 
   protected updateTheme(): void {
-    if (this.theme.isChanging() || this.mood.isChanging()) {
+    if (this.theme.isUpdated() || this.mood.isUpdated()) {
       this.changeMood();
       this.changeTheme();
-
-      const theme = this.theme.state;
-      const mood = this.mood.state;
+      const theme = this.theme.takeState();
+      const mood = this.mood.takeState();
       if (theme !== void 0 && mood !== void 0) {
         this.applyTheme(theme, mood);
       }
@@ -1272,20 +1266,6 @@ export abstract class GraphicsView extends View {
       }
     } else {
       delete viewAnimators[animatorName];
-    }
-  }
-
-  /** @hidden */
-  updateAnimators(t: number): void {
-    this.updateViewAnimators(t);
-  }
-
-  /** @hidden */
-  updateViewAnimators(t: number): void {
-    const viewAnimators = this.viewAnimators;
-    for (const animatorName in viewAnimators) {
-      const viewAnimator = viewAnimators[animatorName]!;
-      viewAnimator.onAnimate(t);
     }
   }
 

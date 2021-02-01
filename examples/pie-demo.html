@@ -190,7 +190,7 @@ function createSlice() {
       .legend("");
   slice.label().setHidden(!showLabels.checked);
   slice.legend().setHidden(!showLegend.checked);
-  slice.value.didUpdate = function (newValue) {
+  slice.value.didSetValue = function (newValue) {
     // Update the slice label.
     slice.label().text(Math.round(100 * newValue / slice.total()) + "%")
                  .setHidden(!showLabels.checked);
@@ -201,10 +201,10 @@ function createSlice() {
   };
   // Add mouse event handlers.
   slice.on("pointerenter", function (event) {
-        slice.sliceColor(hoverColors[Math.floor(Math.random() * hoverColors.length)], {duration: 200});
+        slice.sliceColor(hoverColors[Math.floor(Math.random() * hoverColors.length)], {dt: 200});
       })
       .on("pointerleave", function (event) {
-        slice.sliceColor(sliceColor, {duration: 200});
+        slice.sliceColor(sliceColor, {dt: 200});
       });
   // Return the initialized slice.
   return slice;
@@ -219,13 +219,13 @@ function updatePie() {
   // and animation duration.
   const duration = +updateRate.value;
 
-  // Configure animation transition.
-  const tween = swim.Transition.duration(duration);
+  // Configure animation timing.
+  const timing = swim.Easing.linear.withDuration(duration);
 
   // Insert any missing slices.
   for (let i = slices.length; i < count; i += 1) {
     const slice = createSlice()
-        .value(Math.random(), tween);
+        .value(Math.random(), timing);
     slices[i] = slice;
     pie.append(slice, "Slice " + String.fromCharCode(65/*'A'*/ + (i % 26)) + (Math.floor(i / 26) + 1));
   }
@@ -234,20 +234,20 @@ function updatePie() {
   for (let i = slices.length - 1; i >= count; i -= 1) {
     const slice = slices[i];
     slices.splice(i, 1);
-    slice.value(0, tween);
+    slice.value(0, timing);
     slice.value.onEnd = function () {
       slice.remove();
     };
   }
 
   // Update pie chart properties.
-  pie.baseAngle(swim.Angle.rad(-0.5 * Math.PI + (baseAngle.checked ? Math.PI * Math.random() : 0)), tween)
-     .padAngle(swim.Angle.deg(padAngle.checked ? 5 * Math.random() : count >= 26 ? 0.5 : 2), tween)
-     .cornerRadius(swim.Length.pct(cornerRadius.checked ? 10 * Math.random() : 0), tween)
-     .tickRadius(swim.Length.pct(tickRadius.checked ? 25 + 20 * Math.random() : 30), tween)
-     .tickLength(swim.Length.pct(tickLength.checked ? 40 + 10 * Math.random() : 50), tween)
-     .tickWidth(swim.Length.px(tickWidth.checked ? 0.5 + Math.random() : 1), tween)
-     .tickPadding(swim.Length.px(pie.tickWidth.state.pxValue() + 1 + (tickPadding.checked ? 4 * Math.random() : 0)), tween);
+  pie.baseAngle(swim.Angle.rad(-0.5 * Math.PI + (baseAngle.checked ? Math.PI * Math.random() : 0)), timing)
+     .padAngle(swim.Angle.deg(padAngle.checked ? 5 * Math.random() : count >= 26 ? 0.5 : 2), timing)
+     .cornerRadius(swim.Length.pct(cornerRadius.checked ? 10 * Math.random() : 0), timing)
+     .tickRadius(swim.Length.pct(tickRadius.checked ? 25 + 20 * Math.random() : 30), timing)
+     .tickLength(swim.Length.pct(tickLength.checked ? 40 + 10 * Math.random() : 50), timing)
+     .tickWidth(swim.Length.px(tickWidth.checked ? 0.5 + Math.random() : 1), timing)
+     .tickPadding(swim.Length.px(pie.tickWidth.state.pxValue() + 1 + (tickPadding.checked ? 4 * Math.random() : 0)), timing);
 
   // Update the pie chart title.
   pie.title().setHidden(!showTitle.checked);
@@ -259,13 +259,13 @@ function updatePie() {
     const newValue = Math.random();
 
     // Update slice properties.
-    slice.value(newValue, tween)
-         .innerRadius(swim.Length.pct((showTitle.checked ? 5 : 3) + (innerRadius.checked ? 7 * Math.random() : 0)), tween)
-         .outerRadius(swim.Length.pct(outerRadius.checked ? 20 + 10 * Math.random() : 25), tween)
-         .labelRadius(swim.Length.pct(labelRadius.checked ? 33 + 34 * Math.random() : 50), tween)
-         .tickAlign(tickAlign.checked ? Math.random() : 0.5, tween);
+    slice.value(newValue, timing)
+         .innerRadius(swim.Length.pct((showTitle.checked ? 5 : 3) + (innerRadius.checked ? 7 * Math.random() : 0)), timing)
+         .outerRadius(swim.Length.pct(outerRadius.checked ? 20 + 10 * Math.random() : 25), timing)
+         .labelRadius(swim.Length.pct(labelRadius.checked ? 33 + 34 * Math.random() : 50), timing)
+         .tickAlign(tickAlign.checked ? Math.random() : 0.5, timing);
     if (!slice.isHovering()) {
-      slice.sliceColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", tween);
+      slice.sliceColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", timing);
     }
   }
 

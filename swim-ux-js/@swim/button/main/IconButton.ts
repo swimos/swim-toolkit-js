@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Tween, Transition} from "@swim/animation";
+import type {AnyTiming, Timing} from "@swim/mapping";
 import {Color} from "@swim/color";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {View} from "@swim/view";
@@ -61,34 +61,34 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
     return morph !== null ? morph.icon : null;
   }
 
-  setIcon(icon: HtmlView | SvgView | null, tween?: Tween<any>, ccw: boolean = false): void {
+  setIcon(icon: HtmlView | SvgView | null, timing?: AnyTiming | boolean, ccw: boolean = false): void {
     let morph = this.morph;
     if (morph === null) {
       morph = this.append(ButtonMorph, "morph");
     }
     if (icon instanceof SvgView && icon.fill.isAuto()) {
       const iconLook = this._gesture.isHovering() ? Look.color : Look.mutedColor;
-      icon.fill.setAutoState(this.getLook(iconLook), tween);
+      icon.fill.setAutoState(this.getLook(iconLook), timing);
     }
-    morph.setIcon(icon, tween, ccw);
+    morph.setIcon(icon, timing, ccw);
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
 
     if (this.backgroundColor.isAuto()) {
       let backgroundColor = this.getLook(Look.backgroundColor);
       if (!this._gesture.isHovering() && backgroundColor instanceof Color) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      this.backgroundColor.setAutoState(backgroundColor, transition);
+      this.backgroundColor.setAutoState(backgroundColor, timing);
     }
 
     const icon = this.icon;
     if (icon instanceof SvgView && icon.fill.isAuto()) {
       const iconLook = this._gesture.isHovering() ? Look.color : Look.mutedColor;
-      icon.fill.setAutoState(theme.inner(mood, iconLook), transition);
+      icon.fill.setAutoState(theme.inner(mood, iconLook), timing);
     }
   }
 
@@ -143,30 +143,30 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
   didStartHovering(): void {
     if (this.hovers) {
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
-      const transition = this.getLook(Look.transition);
+      const timing = this.getLook(Look.timing);
       if (this.backgroundColor.isAuto()) {
-        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), transition);
+        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), timing);
       }
       const icon = this.icon;
       if (icon instanceof SvgView && icon.fill.isAuto()) {
-        icon.fill.setAutoState(this.getLook(Look.color), transition);
+        icon.fill.setAutoState(this.getLook(Look.color), timing);
       }
     }
   }
 
   didStopHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
-    const transition = this.getLook(Look.transition);
+    const timing = this.getLook(Look.timing);
     if (this.backgroundColor.isAuto()) {
       let backgroundColor = this.getLook(Look.backgroundColor);
       if (backgroundColor instanceof Color) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      this.backgroundColor.setAutoState(backgroundColor, transition);
+      this.backgroundColor.setAutoState(backgroundColor, timing);
     }
     const icon = this.icon;
     if (icon instanceof SvgView && icon.fill.isAuto()) {
-      icon.fill.setAutoState(this.getLook(Look.mutedColor), transition);
+      icon.fill.setAutoState(this.getLook(Look.mutedColor), timing);
     }
   }
 

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {AnyTiming} from "@swim/mapping";
 import {AnyPointR2, PointR2} from "@swim/math";
-import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewAnimator} from "@swim/view";
@@ -63,30 +63,30 @@ export class TextRunView extends LayerView implements TypesetView {
                        this.textBaseline.getState(), this.textOrigin.getState(), this.textColor.getState());
   }
 
-  setState(run: TextRun | TextRunViewInit | string, tween?: Tween<any>): void {
+  setState(run: TextRun | TextRunViewInit | string, timing?: AnyTiming | boolean): void {
     if (typeof run === "string") {
-      this.text(run, tween);
+      this.text(run, timing);
     } else {
       if (run instanceof TextRun) {
         run = run.toAny();
       }
       if (run.text !== void 0) {
-        this.text(run.text, tween);
+        this.text(run.text, timing);
       }
       if (run.font !== void 0) {
-        this.font(run.font, tween);
+        this.font(run.font, timing);
       }
       if (run.textAlign !== void 0) {
-        this.textAlign(run.textAlign, tween);
+        this.textAlign(run.textAlign, timing);
       }
       if (run.textBaseline !== void 0) {
-        this.textBaseline(run.textBaseline, tween);
+        this.textBaseline(run.textBaseline, timing);
       }
       if (run.textOrigin !== void 0) {
-        this.textOrigin(run.textOrigin, tween);
+        this.textOrigin(run.textOrigin, timing);
       }
       if (run.textColor !== void 0) {
-        this.textColor(run.textColor, tween);
+        this.textColor(run.textColor, timing);
       }
     }
   }

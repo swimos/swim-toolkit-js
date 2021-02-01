@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {AnimationTrack} from "./AnimationTrack";
+import type {AnimationTrack} from "./AnimationTrack";
 
-export {AnimationTimeline} from "./AnimationTimeline";
+export interface AnimationTimeline {
+  trackWillStartAnimating(track: AnimationTrack): void;
 
-export {
-  AnimatorFlags,
-  Animator,
-} from "./Animator";
+  trackDidStartAnimating(track: AnimationTrack): void;
+
+  trackWillStopAnimating(track: AnimationTrack): void;
+
+  trackDidStopAnimating(track: AnimationTrack): void;
+}

@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Range, Easing, LinearRange} from "@swim/mapping";
+import {Range, AnyTiming, Timing, Easing, LinearRange} from "@swim/mapping";
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
-import {AnyTransition, Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {View, ViewScope, ViewAnimator} from "@swim/view";
 import type {ChartViewObserver} from "./ChartViewObserver";
@@ -47,7 +46,7 @@ export interface ChartViewInit<X = unknown, Y = unknown> extends ScaleViewInit<X
   tickMarkWidth?: number;
   tickMarkLength?: number;
   tickLabelPadding?: number;
-  tickTransition?: AnyTransition<any>;
+  tickTransition?: AnyTiming;
 
   gridLineColor?: AnyColor;
   gridLineWidth?: number;
@@ -259,13 +258,13 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
   declare tickLabelPadding: ViewAnimator<this, number>;
 
   @ViewScope({
-    type: Transition,
+    type: Timing,
     inherit: true,
-    initState(): Transition<any> {
-      return Transition.duration(250, Easing.cubicOut);
+    initState(): Timing {
+      return Easing.cubicOut.withDuration(250);
     },
   })
-  declare tickTransition: ViewScope<this, Transition<any>, AnyTransition<any>>;
+  declare tickTransition: ViewScope<this, Timing, AnyTiming>;
 
   @ViewAnimator({type: Color, state: Color.transparent()})
   declare gridLineColor: ViewAnimator<this, Color, AnyColor>;

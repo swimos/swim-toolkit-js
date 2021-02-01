@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import {Color} from "@swim/color";
-import {Tween, Transition} from "@swim/animation";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
@@ -160,10 +160,10 @@ export class DrawerView extends HtmlView implements Modal {
   @ViewAnimator({type: Length, state: Length.px(200)})
   declare expandedWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Number, state: 0})
+  @ViewAnimator({type: Number, state: 0, updateFlags: View.NeedsAnimate})
   declare drawerSlide: ViewAnimator<this, number>; // 0 = hidden; 1 = shown
 
-  @ViewAnimator({type: Number, state: 1})
+  @ViewAnimator({type: Number, state: 1, updateFlags: View.NeedsAnimate})
   declare drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   /** @hidden */
@@ -318,10 +318,10 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
+      this.backgroundColor.setAutoState(theme.inner(mood, Look.backgroundColor), timing);
     }
   }
 
@@ -341,11 +341,13 @@ export class DrawerView extends HtmlView implements Modal {
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
-    if (this.drawerSlide.isUpdated()) {
-      this.updateDrawerSlide(this.drawerSlide.getValue());
+    const drawerSlide = this.drawerSlide.takeUpdatedValue();
+    if (drawerSlide !== void 0) {
+      this.updateDrawerSlide(drawerSlide);
     }
-    if (this.drawerStretch.isUpdated()) {
-      this.updateDrawerStretch(this.drawerStretch.getValue());
+    const drawerStretch = this.drawerStretch.takeUpdatedValue();
+    if (drawerStretch !== void 0) {
+      this.updateDrawerStretch(drawerStretch);
     }
   }
 
@@ -539,7 +541,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   declare readonly modality: boolean | number;
 
-  showModal(options: ModalOptions, tween?: Tween<any>): void {
+  showModal(options: ModalOptions, timing?: AnyTiming | boolean): void {
     if (options.modal !== void 0) {
       Object.defineProperty(this, "modality", {
         value: options.modal,
@@ -547,27 +549,27 @@ export class DrawerView extends HtmlView implements Modal {
         configurable: true,
       });
     }
-    this.show(tween);
+    this.show(timing);
   }
 
-  hideModal(tween?: Tween<any>): void {
-    this.hide(tween);
+  hideModal(timing?: AnyTiming | boolean): void {
+    this.hide(timing);
   }
 
-  show(tween?: Tween<any>): void {
+  show(timing?: AnyTiming | boolean): void {
     if (!this.isShown() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 1) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       this.setDisplayState(DrawerView.ShowState);
-      if (tween !== null) {
+      if (timing !== null) {
         if (this.drawerSlide.value !== 1) {
-          this.drawerStretch.setAutoState(1, tween);
-          this.drawerSlide.setAutoState(1, tween);
+          this.drawerStretch.setAutoState(1, timing);
+          this.drawerSlide.setAutoState(1, timing);
         } else {
-          this.drawerStretch.setAutoState(1, tween);
+          this.drawerStretch.setAutoState(1, timing);
         }
       } else {
         this.willShow();
@@ -614,17 +616,17 @@ export class DrawerView extends HtmlView implements Modal {
     }
   }
 
-  hide(tween?: Tween<any>): void {
+  hide(timing?: AnyTiming | boolean): void {
     if (!this.isHidden() || this.drawerSlide.value !== 0) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       this.setDisplayState(DrawerView.HideState);
       this.modalService.dismissModal(this);
-      if (tween !== null) {
-        this.drawerSlide.setAutoState(0, tween);
+      if (timing !== null) {
+        this.drawerSlide.setAutoState(0, timing);
       } else {
         this.willHide();
         this.drawerSlide.setAutoState(0);
@@ -668,21 +670,21 @@ export class DrawerView extends HtmlView implements Modal {
     }
   }
 
-  expand(tween?: Tween<any>): void {
+  expand(timing?: AnyTiming | boolean): void {
     if (!this.isShown() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 1) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       this.setDisplayState(DrawerView.ExpandState);
       this.modalService.dismissModal(this);
-      if (tween !== null) {
+      if (timing !== null) {
         if (this.drawerStretch.value !== 1) {
-          this.drawerSlide.setAutoState(1, tween);
-          this.drawerStretch.setAutoState(1, tween);
+          this.drawerSlide.setAutoState(1, timing);
+          this.drawerStretch.setAutoState(1, timing);
         } else {
-          this.drawerSlide.setAutoState(1, tween);
+          this.drawerSlide.setAutoState(1, timing);
         }
       } else {
         this.willExpand();
@@ -726,24 +728,24 @@ export class DrawerView extends HtmlView implements Modal {
     }
   }
 
-  collapse(tween?: Tween<any>): void {
+  collapse(timing?: AnyTiming | boolean): void {
     if (this.isVertical() && (!this.isCollapsed() || this.drawerSlide.value !== 1 || this.drawerStretch.value !== 0)) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       this.setDisplayState(DrawerView.CollapseState);
       this.modalService.dismissModal(this);
       if (this.drawerSlide.value === 0) {
         this.drawerStretch.setAutoState(0);
       }
-      if (tween !== null) {
+      if (timing !== null) {
         if (this.drawerStretch.value !== 0) {
-          this.drawerSlide.setAutoState(1, tween);
-          this.drawerStretch.setAutoState(0, tween);
+          this.drawerSlide.setAutoState(1, timing);
+          this.drawerStretch.setAutoState(0, timing);
         } else {
-          this.drawerSlide.setAutoState(1, tween);
+          this.drawerSlide.setAutoState(1, timing);
         }
       } else {
         this.willCollapse();
@@ -789,18 +791,18 @@ export class DrawerView extends HtmlView implements Modal {
     }
   }
 
-  toggle(tween?: Tween<any>): void {
+  toggle(timing?: AnyTiming | boolean): void {
     const drawerState = this.drawerState;
     if (this.viewIdiom === "mobile" && (drawerState === "hidden" || drawerState === "hiding")) {
       this.modalService.presentModal(this, {modal: true});
     } else if (drawerState === "hidden" || drawerState === "hiding") {
-      this.show(tween);
+      this.show(timing);
     } else if (drawerState === "collapsed" || drawerState === "collapsing") {
-      this.expand(tween);
+      this.expand(timing);
     } else if (this.viewIdiom === "mobile") {
-      this.hide(tween);
+      this.hide(timing);
     } else {
-      this.collapse(tween);
+      this.collapse(timing);
     }
   }
 

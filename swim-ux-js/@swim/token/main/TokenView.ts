@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AnyTiming, Timing} from "@swim/mapping";
 import {Length} from "@swim/math";
-import {Tween, Transition} from "@swim/animation";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewObserver, ViewAnimator, ViewBinding} from "@swim/view";
 import {ElementView, HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
@@ -227,37 +227,37 @@ export class TokenView extends HtmlView {
     viewWillUnmount(headView: SvgView): void {
       headView.off("click", this.owner.onClickHead);
     },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, headView: SvgView): void {
-      headView.fill.setAutoState(theme.inner(mood, Look.accentColor), transition);
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, headView: SvgView): void {
+      headView.fill.setAutoState(theme.inner(mood, Look.accentColor), timing);
       const iconView = this.owner.icon.view;
       if (iconView instanceof SvgView && iconView.fill.isAuto()) {
         const iconColor = this.owner.icon.embossed ? theme.inner(mood.updated(Feel.embossed, 1), Look.accentColor)
                                                    : theme.inner(mood, Look.backgroundColor);
-        iconView.fill.setAutoState(iconColor, transition);
+        iconView.fill.setAutoState(iconColor, timing);
       }
     },
     didStartHovering(): void {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [Feel.hovering, 1]);
-      const transition = headView.getLook(Look.transition);
-      headView.fill.setAutoState(headView.getLook(Look.accentColor), transition);
+      const timing = headView.getLook(Look.timing);
+      headView.fill.setAutoState(headView.getLook(Look.accentColor), timing);
       const iconView = this.owner.icon.view;
       if (iconView instanceof SvgView && iconView.fill.isAuto()) {
         const iconColor = this.owner.icon.embossed ? headView.getLook(Look.accentColor, headView.mood.getState().updated(Feel.embossed, 1))
                                                    : headView.getLook(Look.backgroundColor);
-        iconView.fill.setAutoState(iconColor, transition);
+        iconView.fill.setAutoState(iconColor, timing);
       }
     },
     didStopHovering(): void {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [Feel.hovering, void 0]);
-      const transition = headView.getLook(Look.transition);
-      headView.fill.setAutoState(headView.getLook(Look.accentColor), transition);
+      const timing = headView.getLook(Look.timing);
+      headView.fill.setAutoState(headView.getLook(Look.accentColor), timing);
       const iconView = this.owner.icon.view;
       if (iconView instanceof SvgView && iconView.fill.isAuto()) {
         const iconColor = this.owner.icon.embossed ? headView.getLook(Look.accentColor, headView.mood.getState().updated(Feel.embossed, 1))
                                                    : headView.getLook(Look.backgroundColor);
-        iconView.fill.setAutoState(iconColor, transition);
+        iconView.fill.setAutoState(iconColor, timing);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -298,31 +298,31 @@ export class TokenView extends HtmlView {
     viewWillUnmount(headView: SvgView): void {
       headView.off("click", this.owner.onClickBody);
     },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, bodyView: SvgView): void {
-      bodyView.fill.setAutoState(theme.inner(mood, Look.accentColor), transition);
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, bodyView: SvgView): void {
+      bodyView.fill.setAutoState(theme.inner(mood, Look.accentColor), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(theme.inner(mood, Look.backgroundColor), transition);
+        labelView.color.setAutoState(theme.inner(mood, Look.backgroundColor), timing);
       }
     },
     didStartHovering(): void {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [Feel.hovering, 1]);
-      const transition = bodyView.getLook(Look.transition);
-      bodyView.fill.setAutoState(bodyView.getLook(Look.accentColor), transition);
+      const timing = bodyView.getLook(Look.timing);
+      bodyView.fill.setAutoState(bodyView.getLook(Look.accentColor), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(bodyView.getLook(Look.backgroundColor), transition);
+        labelView.color.setAutoState(bodyView.getLook(Look.backgroundColor), timing);
       }
     },
     didStopHovering(): void {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [Feel.hovering, void 0]);
-      const transition = bodyView.getLook(Look.transition);
-      bodyView.fill.setAutoState(bodyView.getLook(Look.accentColor), transition);
+      const timing = bodyView.getLook(Look.timing);
+      bodyView.fill.setAutoState(bodyView.getLook(Look.accentColor), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(bodyView.getLook(Look.backgroundColor), transition);
+        labelView.color.setAutoState(bodyView.getLook(Look.backgroundColor), timing);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -363,37 +363,37 @@ export class TokenView extends HtmlView {
     viewWillUnmount(footView: SvgView): void {
       footView.off("click", this.owner.onClickFoot);
     },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, transition: Transition<any> | null, footView: SvgView): void {
-      footView.fill.setAutoState(theme.inner(mood, Look.accentColor), transition);
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, footView: SvgView): void {
+      footView.fill.setAutoState(theme.inner(mood, Look.accentColor), timing);
       const actionView = this.owner.action.view;
       if (actionView instanceof SvgView && actionView.fill.isAuto()) {
         const iconColor = this.owner.action.embossed ? theme.inner(mood.updated(Feel.embossed, 1), Look.accentColor)
                                                      : theme.inner(mood, Look.backgroundColor);
-        actionView.fill.setAutoState(iconColor, transition);
+        actionView.fill.setAutoState(iconColor, timing);
       }
     },
     didStartHovering(): void {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [Feel.hovering, 1]);
-      const transition = footView.getLook(Look.transition);
-      footView.fill.setAutoState(footView.getLook(Look.accentColor), transition);
+      const timing = footView.getLook(Look.timing);
+      footView.fill.setAutoState(footView.getLook(Look.accentColor), timing);
       const actionView = this.owner.action.view;
       if (actionView instanceof SvgView && actionView.fill.isAuto()) {
         const iconColor = this.owner.action.embossed ? footView.getLook(Look.accentColor, footView.mood.getState().updated(Feel.embossed, 1))
                                                      : footView.getLook(Look.backgroundColor);
-        actionView.fill.setAutoState(iconColor, transition);
+        actionView.fill.setAutoState(iconColor, timing);
       }
     },
     didStopHovering(): void {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [Feel.hovering, void 0]);
-      const transition = footView.getLook(Look.transition);
-      footView.fill.setAutoState(footView.getLook(Look.accentColor), transition);
+      const timing = footView.getLook(Look.timing);
+      footView.fill.setAutoState(footView.getLook(Look.accentColor), timing);
       const actionView = this.owner.action.view;
       if (actionView instanceof SvgView && actionView.fill.isAuto()) {
         const iconColor = this.owner.action.embossed ? footView.getLook(Look.accentColor, footView.mood.getState().updated(Feel.embossed, 1))
                                                      : footView.getLook(Look.backgroundColor);
-        actionView.fill.setAutoState(iconColor, transition);
+        actionView.fill.setAutoState(iconColor, timing);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -638,19 +638,19 @@ export class TokenView extends HtmlView {
     }
   }
 
-  expand(tween?: Tween<any>): void {
+  expand(timing?: AnyTiming | boolean): void {
     if (this._tokenState !== "expanded" || this.expandedPhase.value !== 1) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       if (this._tokenState !== "expanding") {
         this.willExpand();
       }
-      if (tween !== null) {
+      if (timing !== null) {
         if (this.expandedPhase.value !== 1) {
-          this.expandedPhase.setAutoState(1, tween);
+          this.expandedPhase.setAutoState(1, timing);
         } else {
           setTimeout(this.didExpand.bind(this));
         }
@@ -702,19 +702,19 @@ export class TokenView extends HtmlView {
     }
   }
 
-  collapse(tween?: Tween<any>): void {
+  collapse(timing?: AnyTiming | boolean): void {
     if (this._tokenState !== "collapsed" || this.expandedPhase.value !== 0) {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       if (this._tokenState !== "collapsing") {
         this.willCollapse();
       }
-      if (tween !== null) {
+      if (timing !== null) {
         if (this.expandedPhase.value !== 0) {
-          this.expandedPhase.setAutoState(0, tween);
+          this.expandedPhase.setAutoState(0, timing);
         } else {
           setTimeout(this.didCollapse.bind(this));
         }
@@ -758,12 +758,12 @@ export class TokenView extends HtmlView {
     }
   }
 
-  toggle(tween?: Tween<any>): void {
+  toggle(timing?: AnyTiming | boolean): void {
     const tokenState = this._tokenState;
     if (tokenState === "collapsed" || tokenState === "collapsing") {
-      this.expand(tween);
+      this.expand(timing);
     } else if (tokenState === "expanded" || tokenState === "expanding") {
-      this.collapse(tween);
+      this.collapse(timing);
     }
   }
 

@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnimatorContext, Animator} from "@swim/animation";
+import {Arrays} from "@swim/util";
+import type {AnimationTrack, AnimationTimeline} from "@swim/animation";
 import {CssContext} from "./CssContext";
 import type {CssRule} from "./CssRule";
 
-export class StyleSheet implements CssContext {
-  constructor(owner: AnimatorContext, stylesheet?: CSSStyleSheet) {
+export class StyleSheet implements AnimationTrack, CssContext {
+  constructor(owner: AnimationTimeline, stylesheet?: CSSStyleSheet) {
     Object.defineProperty(this, "owner", {
       value: owner,
       enumerable: true,
@@ -31,9 +32,14 @@ export class StyleSheet implements CssContext {
       enumerable: true,
       configurable: true,
     });
+    Object.defineProperty(this, "animationTracks", {
+      value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  declare readonly owner: AnimatorContext;
+  declare readonly owner: AnimationTimeline;
 
   declare readonly stylesheet: CSSStyleSheet;
 
@@ -87,15 +93,59 @@ export class StyleSheet implements CssContext {
   }
 
   onAnimate(t: number): void {
-    const cssRules = this.cssRules;
-    for (const ruleName in cssRules) {
-      const cssRule = cssRules[ruleName]!;
-      cssRule.onAnimate(t);
+    this.updateAnimations(t);
+  }
+
+  /** @hidden */
+  updateAnimations(t: number): void {
+    const animationTracks = this.animationTracks;
+    for (let i = 0, n = animationTracks.length; i < n; i += 1) {
+      const track = animationTracks[i]!;
+      track.onAnimate(t);
     }
   }
 
-  animate(animator: Animator): void {
-    this.owner.animate(animator);
+  /** @hidden */
+  declare readonly animationTracks: ReadonlyArray<AnimationTrack>;
+
+  trackWillStartAnimating(track: AnimationTrack): void {
+    const oldTracks = this.animationTracks;
+    const newTracks = Arrays.inserted(track, oldTracks);
+    if (oldTracks !== newTracks) {
+      Object.defineProperty(this, "animationTracks", {
+        value: newTracks,
+        enumerable: true,
+        configurable: true,
+      });
+      if (oldTracks.length === 0) {
+        this.owner.trackWillStartAnimating(this);
+        this.owner.trackDidStartAnimating(this);
+      }
+    }
+  }
+
+  trackDidStartAnimating(track: AnimationTrack): void {
+    // hook
+  }
+
+  trackWillStopAnimating(track: AnimationTrack): void {
+    // hook
+  }
+
+  trackDidStopAnimating(track: AnimationTrack): void {
+    const oldTracks = this.animationTracks;
+    const newTracks = Arrays.removed(track, oldTracks);
+    if (oldTracks !== newTracks) {
+      Object.defineProperty(this, "animationTracks", {
+        value: newTracks,
+        enumerable: true,
+        configurable: true,
+      });
+      if (newTracks.length === 0) {
+        this.owner.trackWillStopAnimating(this);
+        this.owner.trackDidStopAnimating(this);
+      }
+    }
   }
 
   requireUpdate(updateFlags: number): void {

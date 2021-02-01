@@ -18,7 +18,7 @@ import {LengthLook} from "../look/LengthLook";
 import {ColorLook} from "../look/ColorLook";
 import {FontLook} from "../look/FontLook";
 import {ShadowLook} from "../look/ShadowLook";
-import {TransitionLook} from "../look/TransitionLook";
+import {TimingLook} from "../look/TimingLook";
 
 Look.font = new FontLook("font");
 
@@ -35,4 +35,4 @@ Look.borderColor = new ColorLook("borderColor");
 Look.opacity = new NumberLook("opacity");
 Look.shadow = new ShadowLook("shadow");
 Look.spacing = new LengthLook("spacing");
-Look.transition = new TransitionLook("transition");
+Look.timing = new TimingLook("timing");

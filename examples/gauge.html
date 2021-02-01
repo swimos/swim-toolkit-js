@@ -31,17 +31,17 @@ const dial = new swim.DialView()
     .meterColor("#989898")
     .legend("Legend")
     .on("pointerenter", function (event) {
-      dial.dialColor("#dddddd", {duration: 200});
+      dial.dialColor("#dddddd", {dt: 200});
     })
     .on("pointerleave", function (event) {
-      dial.dialColor("#cccccc", {duration: 200});
+      dial.dialColor("#cccccc", {dt: 200});
     });
 gauge.append(dial);
 
 setInterval(function () {
-  const tween = swim.Transition.duration(1000);
-  dial.value(Math.random(), tween)
-      .meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", tween);
+  const timing = swim.Easing.linear.withDuration(1000);
+  dial.value(Math.random(), timing)
+      .meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", timing);
 }, 1000);
 
     </script>

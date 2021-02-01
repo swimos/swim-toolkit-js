@@ -190,7 +190,7 @@ function createDial() {
       .legend("");
   dial.label().setHidden(!showLabels.checked);
   dial.legend().setHidden(!showLegend.checked);
-  dial.value.onUpdate = function (newValue) {
+  dial.value.didSetValue = function (newValue) {
     // Update the dial label.
     dial.label().text(Math.round(100 * newValue / dial.total()) + "%")
                  .setHidden(!showLabels.checked);
@@ -201,10 +201,10 @@ function createDial() {
   };
   // Add mouse event handlers.
   dial.on("pointerenter", function (event) {
-        dial.meterColor(hoverColors[Math.floor(Math.random() * hoverColors.length)], {duration: 200});
+        dial.meterColor(hoverColors[Math.floor(Math.random() * hoverColors.length)], {dt: 200});
       })
       .on("pointerleave", function (event) {
-        dial.meterColor(meterColor, {duration: 200});
+        dial.meterColor(meterColor, {dt: 200});
       });
   // Return the initialized dial.
   return dial;
@@ -219,13 +219,13 @@ function updateGauge() {
   // and animation duration.
   const duration = +updateRate.value;
 
-  // Configure animation transition.
-  const tween = swim.Transition.duration(duration);
+  // Configure animation timing.
+  const timing = swim.Easing.linear.withDuration(duration);
 
   // Insert any missing dials.
   for (let i = dials.length; i < count; i += 1) {
     const dial = createDial()
-        .value(Math.random(), tween);
+        .value(Math.random(), timing);
     dials[i] = dial;
     gauge.append(dial, "Dial " + String.fromCharCode(65/*'A'*/ + (i % 26)) + (Math.floor(i / 26) + 1));
   }
@@ -234,23 +234,23 @@ function updateGauge() {
   for (let i = dials.length - 1; i >= count; i -= 1) {
     const dial = dials[i];
     dials.splice(i, 1);
-    dial.value(0, tween);
+    dial.value(0, timing);
     dial.value.onEnd = function () {
       dial.remove();
     };
   }
 
   // Update gauge properties.
-  gauge.innerRadius(swim.Length.pct(innerRadius.checked ? 15 + 10 * Math.random() : 35 - 5 * count), tween)
-       .outerRadius(swim.Length.pct(outerRadius.checked ? 30 + 10 * Math.random() : 40), tween)
-       .startAngle(swim.Angle.rad((count === 1 ? -Math.PI / 2 : 3 * Math.PI / 4) + (startAngle.checked ? 2 * Math.PI * Math.random() : 0)), tween)
-       .sweepAngle(swim.Angle.rad((count === 1 ? 2 * Math.PI : 3 * Math.PI / 2) * (sweepAngle.checked ? 0.5 + 0.5 * Math.random() : 1)), tween)
-       .cornerRadius(swim.Length.pct(cornerRadius.checked ? 50 * Math.random() : 50), tween)
-       .dialSpacing(swim.Length.px(dialSpacing.checked ? 5 * Math.random() : 1), tween)
-       .tickRadius(swim.Length.pct(tickRadius.checked ? 40 + 5 * Math.random() : 45), tween)
-       .tickLength(swim.Length.pct(tickLength.checked ? 45 + 5 * Math.random() : 50), tween)
-       .tickWidth(swim.Length.px(tickWidth.checked ? 0.5 + Math.random() : 1), tween)
-       .tickPadding(swim.Length.px(gauge.tickWidth.state.pxValue() + 1 + (tickPadding.checked ? 4 * Math.random() : 0)), tween);
+  gauge.innerRadius(swim.Length.pct(innerRadius.checked ? 15 + 10 * Math.random() : 35 - 5 * count), timing)
+       .outerRadius(swim.Length.pct(outerRadius.checked ? 30 + 10 * Math.random() : 40), timing)
+       .startAngle(swim.Angle.rad((count === 1 ? -Math.PI / 2 : 3 * Math.PI / 4) + (startAngle.checked ? 2 * Math.PI * Math.random() : 0)), timing)
+       .sweepAngle(swim.Angle.rad((count === 1 ? 2 * Math.PI : 3 * Math.PI / 2) * (sweepAngle.checked ? 0.5 + 0.5 * Math.random() : 1)), timing)
+       .cornerRadius(swim.Length.pct(cornerRadius.checked ? 50 * Math.random() : 50), timing)
+       .dialSpacing(swim.Length.px(dialSpacing.checked ? 5 * Math.random() : 1), timing)
+       .tickRadius(swim.Length.pct(tickRadius.checked ? 40 + 5 * Math.random() : 45), timing)
+       .tickLength(swim.Length.pct(tickLength.checked ? 45 + 5 * Math.random() : 50), timing)
+       .tickWidth(swim.Length.px(tickWidth.checked ? 0.5 + Math.random() : 1), timing)
+       .tickPadding(swim.Length.px(gauge.tickWidth.state.pxValue() + 1 + (tickPadding.checked ? 4 * Math.random() : 0)), timing);
 
   // Update the gauge title.
   gauge.title().setHidden(!showTitle.checked);
@@ -262,11 +262,11 @@ function updateGauge() {
     const newValue = Math.random();
 
     // Update dial properties.
-    dial.value(newValue, tween)
-        .labelPadding(swim.Length.pct(labelPadding.checked ? 10 + 40 * Math.random() : 25), tween)
-        .tickAlign(tickAlign.checked ? Math.random() : 0.5, tween);
+    dial.value(newValue, timing)
+        .labelPadding(swim.Length.pct(labelPadding.checked ? 10 + 40 * Math.random() : 25), timing)
+        .tickAlign(tickAlign.checked ? Math.random() : 0.5, timing);
     if (!dial.isHovering()) {
-      dial.meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", tween);
+      dial.meterColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", timing);
     }
   }
 

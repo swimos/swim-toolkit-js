@@ -30,10 +30,10 @@ const slice0 = new swim.SliceView()
     .label(new swim.TextRunView().text("Label 0").textColor("#ffffff"))
     .legend("Legend 0")
     .on("pointerenter", function (event) {
-      slice0.sliceColor("#1db0ef", {duration: 200});
+      slice0.sliceColor("#1db0ef", {dt: 200});
     })
     .on("pointerleave", function (event) {
-      slice0.sliceColor("#4a4a4a", {duration: 200});
+      slice0.sliceColor("#4a4a4a", {dt: 200});
     });
 pie.append(slice0, "slice0");
 
@@ -43,24 +43,24 @@ const slice1 = new swim.SliceView()
     .label(new swim.TextRunView().text("Label 1").textColor("#ffffff"))
     .legend("Legend 1")
     .on("pointerenter", function (event) {
-      slice1.sliceColor("#71d600", {duration: 200});
+      slice1.sliceColor("#71d600", {dt: 200});
     })
     .on("pointerleave", function (event) {
-      slice1.sliceColor("#989898", {duration: 200});
+      slice1.sliceColor("#989898", {dt: 200});
     });
 pie.append(slice1, "slice1");
 
 setInterval(function () {
-  const tween = swim.Transition.duration(1000);
-  slice0.value(Math.random(), tween)
-        .outerRadius(swim.Length.pct(20 + 10 * Math.random()), tween);
+  const timing = swim.Easing.linear.withDuration(1000);
+  slice0.value(Math.random(), timing)
+        .outerRadius(swim.Length.pct(20 + 10 * Math.random()), timing);
   if (!slice0.isHovering()) {
-    slice0.sliceColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", tween);
+    slice0.sliceColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", timing);
   }
-  slice1.value(Math.random(), tween)
-        .outerRadius(swim.Length.pct(20 + 10 * Math.random()), tween);
+  slice1.value(Math.random(), timing)
+        .outerRadius(swim.Length.pct(20 + 10 * Math.random()), timing);
    if (!slice1.isHovering()) {
-    slice1.sliceColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", tween);
+    slice1.sliceColor(Math.random() < 0.5 ? "#4a4a4a" : "#989898", timing);
   }
 }, 1000);
 

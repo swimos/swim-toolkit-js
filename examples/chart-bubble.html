@@ -48,12 +48,12 @@ const plot = graph.append(swim.BubblePlotView)
     .fill("#4a4a4a")
     .on("pointerover", function (event) {
       if (event.targetView instanceof swim.DataPointView) {
-        event.targetView.color("#1db0ef", {duration: 200});
+        event.targetView.color("#1db0ef", {dt: 200});
       }
     })
     .on("pointerout", function (event) {
       if (event.targetView instanceof swim.DataPointView) {
-        event.targetView.color("#4a4a4a", {duration: 200});
+        event.targetView.color("#4a4a4a", {dt: 200});
       }
     });
 
@@ -70,7 +70,7 @@ for (let i = 0; i < n; i += 1) {
 }
 
 setInterval(function () {
-  const tween = swim.Transition.duration(2000);
+  const timing = swim.Easing.linear.withDuration(2000);
   for (let i = 0; i < n; i += 1) {
     const key = "p" + i;
     const x = Math.round(100 * Math.random());
@@ -78,10 +78,10 @@ setInterval(function () {
     const r = 10 + Math.round(Math.random() * 10);
     const opacity = 0.5 + 0.5 * Math.random();
     plot.getDataPoint(key)
-        .x(x, tween)
-        .y(y, tween)
-        .r(r, tween)
-        .opacity(opacity, tween);
+        .x(x, timing)
+        .y(y, timing)
+        .r(r, timing)
+        .opacity(opacity, timing);
   }
 }, 2000);
 

@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
+import {Arrays} from "@swim/util";
+import type {AnimationTrack, AnimationTimeline} from "@swim/animation";
 import {CssContext} from "./CssContext";
 import {
   StyleRuleDescriptorExtends,
@@ -51,7 +53,7 @@ export interface CssRuleClass extends Function {
   readonly prototype: CssRule<any>;
 }
 
-export interface CssRule<V extends CssContext> {
+export interface CssRule<V extends CssContext> extends AnimationTrack, AnimationTimeline {
   readonly name: string | undefined;
 
   readonly owner: V;
@@ -59,6 +61,20 @@ export interface CssRule<V extends CssContext> {
   readonly rule: CSSRule;
 
   onAnimate(t: number): void;
+
+  /** @hidden */
+  updateAnimations(t: number): void;
+
+  /** @hidden */
+  readonly animationTracks: ReadonlyArray<AnimationTrack>;
+
+  trackWillStartAnimating(track: AnimationTrack): void;
+
+  trackDidStartAnimating(track: AnimationTrack): void;
+
+  trackWillStopAnimating(track: AnimationTrack): void;
+
+  trackDidStopAnimating(track: AnimationTrack): void;
 
   /** @hidden */
   initCss?(): string | undefined;
@@ -119,6 +135,11 @@ function CssRuleConstructor<V extends CssContext>(this: CssRule<V>, owner: V, ru
     value: owner,
     enumerable: true,
   });
+  Object.defineProperty(this, "animationTracks", {
+    value: Arrays.empty,
+    enumerable: true,
+    configurable: true,
+  });
   return this;
 }
 
@@ -127,7 +148,55 @@ function CssRuleDecoratorFactory<V extends CssContext>(descriptor: CssRuleDescri
 }
 
 CssRule.prototype.onAnimate = function (this: CssRule<CssContext>, t: number): void {
+  this.updateAnimations(t);
+};
+
+CssRule.prototype.updateAnimations = function (t: number): void {
+  const animationTracks = this.animationTracks;
+  for (let i = 0, n = animationTracks.length; i < n; i += 1) {
+    const track = animationTracks[i]!;
+    track.onAnimate(t);
+  }
+};
+
+CssRule.prototype.trackWillStartAnimating = function (track: AnimationTrack): void {
+  const oldTracks = this.animationTracks;
+  const newTracks = Arrays.inserted(track, oldTracks);
+  if (oldTracks !== newTracks) {
+    Object.defineProperty(this, "animationTracks", {
+      value: newTracks,
+      enumerable: true,
+      configurable: true,
+    });
+    if (oldTracks.length === 0) {
+      this.owner.trackWillStartAnimating(this);
+      this.owner.trackDidStartAnimating(this);
+    }
+  }
+};
+
+CssRule.prototype.trackDidStartAnimating = function (track: AnimationTrack): void {
   // hook
+};
+
+CssRule.prototype.trackWillStopAnimating = function (track: AnimationTrack): void {
+  // hook
+};
+
+CssRule.prototype.trackDidStopAnimating = function (track: AnimationTrack): void {
+  const oldTracks = this.animationTracks;
+  const newTracks = Arrays.removed(track, oldTracks);
+  if (oldTracks !== newTracks) {
+    Object.defineProperty(this, "animationTracks", {
+      value: newTracks,
+      enumerable: true,
+      configurable: true,
+    });
+    if (newTracks.length === 0) {
+      this.owner.trackWillStopAnimating(this);
+      this.owner.trackDidStopAnimating(this);
+    }
+  }
 };
 
 CssRule.prototype.createRule = function (this: CssRule<CssContext>, cssText?: string): CSSRule {

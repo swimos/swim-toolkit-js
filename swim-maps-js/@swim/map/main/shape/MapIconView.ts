@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
-import type {Transition} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -57,7 +57,7 @@ export class MapIconView extends MapLayerView implements IconView {
   @ViewAnimator<MapIconView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
     state: GeoPoint.origin(),
-    onUpdate(newValue: GeoPoint, oldValue: GeoPoint): void {
+    onSetValue(newValue: GeoPoint, oldValue: GeoPoint): void {
       this.owner.onSetGeoCenter(newValue, oldValue);
     },
   })
@@ -117,10 +117,10 @@ export class MapIconView extends MapLayerView implements IconView {
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     if (this.iconColor.isAuto() && !this.iconColor.isInherited()) {
-      this.iconColor.setAutoState(theme.inner(mood, Look.accentColor), transition);
+      this.iconColor.setAutoState(theme.inner(mood, Look.accentColor), timing);
     }
   }
 

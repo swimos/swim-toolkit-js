@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Timing} from "@swim/mapping";
 import {Length, BoxR2} from "@swim/math";
-import type {Transition} from "@swim/animation";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
@@ -241,8 +241,8 @@ export class TreeView extends HtmlView {
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     const depth = this.depth.state;
     if (depth !== void 0 && depth !== 0) {
       let superTheme = this.theme.superState;
@@ -255,7 +255,7 @@ export class TreeView extends HtmlView {
       const superMood = leafMood !== void 0 ? leafMood.transform(mood) : mood;
 
       const backgroundColor = theme.inner(mood, Look.backgroundColor);
-      this.backgroundColor.setAutoState(backgroundColor, transition);
+      this.backgroundColor.setAutoState(backgroundColor, timing);
 
       const accentColor = superTheme.inner(superMood, Look.accentColor);
       const borderColor = superTheme.inner(superMood, Look.borderColor);
@@ -265,16 +265,16 @@ export class TreeView extends HtmlView {
       if (bottomBranch === null) {
         bottomBranch = this.prepend("div", "bottomBranch");
       }
-      bottomBranch.height.setAutoState(limbSpacing / 2, transition);
-      bottomBranch.backgroundColor.setAutoState(borderColor, transition);
+      bottomBranch.height.setAutoState(limbSpacing / 2, timing);
+      bottomBranch.backgroundColor.setAutoState(borderColor, timing);
       bottomBranch.zIndex.setAutoState(1000 - depth);
 
       let topBranch = this.getChildView("topBranch") as HtmlView | null;
       if (topBranch === null) {
         topBranch = this.prepend("div", "topBranch");
       }
-      topBranch.height.setAutoState(limbSpacing, transition);
-      topBranch.backgroundColor.setAutoState(accentColor, transition);
+      topBranch.height.setAutoState(limbSpacing, timing);
+      topBranch.backgroundColor.setAutoState(accentColor, timing);
       topBranch.zIndex.setAutoState(1000 - depth);
     } else {
       this.removeChildView("topBranch");
@@ -329,7 +329,7 @@ export class TreeView extends HtmlView {
   }
 
   protected resizeTree(): void {
-    const oldSeed = this.seed.ownState;
+    const oldSeed = !this.seed.isInherited() ? this.seed.state : void 0;
     if (oldSeed !== void 0) {
       const superSeed = this.seed.superState;
       let width: Length | string | number | undefined = void 0;

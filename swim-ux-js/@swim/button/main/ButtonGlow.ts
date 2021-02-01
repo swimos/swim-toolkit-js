@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
-import {Tween, Transition} from "@swim/animation";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {StyleAnimator, HtmlView} from "@swim/dom";
 
@@ -89,8 +89,8 @@ export class ButtonGlow extends HtmlView {
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
       let highlightColor = theme.inner(mood, Look.highlightColor);
       if (highlightColor !== void 0) {
@@ -100,17 +100,17 @@ export class ButtonGlow extends HtmlView {
     }
   }
 
-  glow(clientX: number, clientY: number, tween?: Tween<any> | undefined, delay: number = 0): void {
+  glow(clientX: number, clientY: number, timing?: AnyTiming | boolean, delay: number = 0): void {
     if (this._glowState === "ready") {
       this.cancelGlow();
       if (delay !== 0) {
-        const glow = this.glow.bind(this, clientX, clientY, tween, 0);
+        const glow = this.glow.bind(this, clientX, clientY, timing, 0);
         this._glowTimer = setTimeout(glow, delay) as any;
       } else {
-        if (tween === void 0 || tween === true) {
-          tween = this.getLookOr(Look.transition, null);
+        if (timing === void 0 || timing === true) {
+          timing = this.getLookOr(Look.timing, false);
         } else {
-          tween = Transition.forTween(tween);
+          timing = Timing.fromAny(timing);
         }
         this.willGlow();
         const offsetParent = this.node.offsetParent;
@@ -124,13 +124,13 @@ export class ButtonGlow extends HtmlView {
           const highlightColor = this.getLook(Look.highlightColor);
           const opacity = highlightColor !== void 0 ? highlightColor.alpha() : 0.1;
           this.opacity.setAutoState(opacity);
-          if (tween !== null) {
+          if (timing !== null) {
             this.left.setAutoState(cx);
             this.top.setAutoState(cy);
-            this.left.setAutoState(cx - r, tween);
-            this.top.setAutoState(cy - r, tween);
-            this.width.setAutoState(2 * r, tween);
-            this.height.setAutoState(2 * r, tween);
+            this.left.setAutoState(cx - r, timing);
+            this.top.setAutoState(cy - r, timing);
+            this.width.setAutoState(2 * r, timing);
+            this.height.setAutoState(2 * r, timing);
           } else {
             this.left.setAutoState(cx - r);
             this.top.setAutoState(cy - r);
@@ -159,19 +159,19 @@ export class ButtonGlow extends HtmlView {
     }
   }
 
-  pulse(clientX: number, clientY: number, tween?: Tween<any> | undefined): void {
-    if (tween === void 0 || tween === true) {
-      tween = this.getLookOr(Look.transition, null);
+  pulse(clientX: number, clientY: number, timing?: AnyTiming | boolean): void {
+    if (timing === void 0 || timing === true) {
+      timing = this.getLookOr(Look.timing, false);
     } else {
-      tween = Transition.forTween(tween);
+      timing = Timing.fromAny(timing);
     }
     if (this._glowState === "ready") {
-      this.glow(clientX, clientY, tween);
+      this.glow(clientX, clientY, timing);
     }
     if (this._glowState === "glowing") {
       this.willPulse();
-      if (tween !== null) {
-        this.opacity.setAutoState(0, tween);
+      if (timing !== null) {
+        this.opacity.setAutoState(0, timing);
       } else {
         this.opacity.setAutoState(0);
         this.didPulse();
@@ -188,19 +188,19 @@ export class ButtonGlow extends HtmlView {
     this.remove();
   }
 
-  fade(clientX: number, clientY: number, tween?: Tween<any> | undefined): void {
+  fade(clientX: number, clientY: number, timing?: AnyTiming | boolean): void {
     if (this._glowState === "ready") {
       this.cancelGlow();
       this.didFade()
     } else if (this._glowState === "glowing") {
-      if (tween === void 0 || tween === true) {
-        tween = this.getLookOr(Look.transition, null);
+      if (timing === void 0 || timing === true) {
+        timing = this.getLookOr(Look.timing, false);
       } else {
-        tween = Transition.forTween(tween);
+        timing = Timing.fromAny(timing);
       }
       this.willFade();
-      if (tween !== null) {
-        this.opacity.setAutoState(0, tween);
+      if (timing !== null) {
+        this.opacity.setAutoState(0, timing);
       } else {
         this.opacity.setAutoState(0);
         this.didFade();

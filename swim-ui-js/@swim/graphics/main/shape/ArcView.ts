@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import type {GraphicsView} from "../graphics/GraphicsView";
@@ -80,42 +80,42 @@ export class ArcView extends LayerView implements FillView, StrokeView {
                    this.padRadius.getState(), this.cornerRadius.getState());
   }
 
-  setState(arc: Arc | ArcViewInit, tween?: Tween<any>): void {
+  setState(arc: Arc | ArcViewInit, timing?: AnyTiming | boolean): void {
     if (arc instanceof Arc) {
       arc = arc.toAny();
     }
     if (arc.center !== void 0) {
-      this.center(arc.center, tween);
+      this.center(arc.center, timing);
     }
     if (arc.innerRadius !== void 0) {
-      this.innerRadius(arc.innerRadius, tween);
+      this.innerRadius(arc.innerRadius, timing);
     }
     if (arc.outerRadius !== void 0) {
-      this.outerRadius(arc.outerRadius, tween);
+      this.outerRadius(arc.outerRadius, timing);
     }
     if (arc.startAngle !== void 0) {
-      this.startAngle(arc.startAngle, tween);
+      this.startAngle(arc.startAngle, timing);
     }
     if (arc.sweepAngle !== void 0) {
-      this.sweepAngle(arc.sweepAngle, tween);
+      this.sweepAngle(arc.sweepAngle, timing);
     }
     if (arc.padAngle !== void 0) {
-      this.padAngle(arc.padAngle, tween);
+      this.padAngle(arc.padAngle, timing);
     }
     if (arc.padRadius !== void 0) {
-      this.padRadius(arc.padRadius, tween);
+      this.padRadius(arc.padRadius, timing);
     }
     if (arc.cornerRadius !== void 0) {
-      this.cornerRadius(arc.cornerRadius, tween);
+      this.cornerRadius(arc.cornerRadius, timing);
     }
     if (arc.fill !== void 0) {
-      this.fill(arc.fill, tween);
+      this.fill(arc.fill, timing);
     }
     if (arc.stroke !== void 0) {
-      this.stroke(arc.stroke, tween);
+      this.stroke(arc.stroke, timing);
     }
     if (arc.strokeWidth !== void 0) {
-      this.strokeWidth(arc.strokeWidth, tween);
+      this.strokeWidth(arc.strokeWidth, timing);
     }
   }
 

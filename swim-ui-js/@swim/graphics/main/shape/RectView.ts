@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, BoxR2} from "@swim/math";
-import type {Tween} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import type {GraphicsView} from "../graphics/GraphicsView";
@@ -68,30 +68,30 @@ export class RectView extends LayerView implements FillView, StrokeView {
     return new Rect(this.x.getState(), this.y.getState(), this.width.getState(), this.height.getState());
   }
 
-  setState(rect: Rect | RectViewInit, tween?: Tween<any>): void {
+  setState(rect: Rect | RectViewInit, timing?: AnyTiming | boolean): void {
     if (rect instanceof Rect) {
       rect = rect.toAny();
     }
     if (rect.x !== void 0) {
-      this.x(rect.x, tween);
+      this.x(rect.x, timing);
     }
     if (rect.y !== void 0) {
-      this.y(rect.y, tween);
+      this.y(rect.y, timing);
     }
     if (rect.width !== void 0) {
-      this.width(rect.width, tween);
+      this.width(rect.width, timing);
     }
     if (rect.height !== void 0) {
-      this.height(rect.height, tween);
+      this.height(rect.height, timing);
     }
     if (rect.fill !== void 0) {
-      this.fill(rect.fill, tween);
+      this.fill(rect.fill, timing);
     }
     if (rect.stroke !== void 0) {
-      this.stroke(rect.stroke, tween);
+      this.stroke(rect.stroke, timing);
     }
     if (rect.strokeWidth !== void 0) {
-      this.strokeWidth(rect.strokeWidth, tween);
+      this.strokeWidth(rect.strokeWidth, timing);
     }
   }
 

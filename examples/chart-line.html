@@ -45,10 +45,10 @@ const plot = graph.append(swim.LinePlotView)
     .stroke("#4a4a4a")
     .strokeWidth(4)
     .on("pointerenter", function (event) {
-      plot.stroke("#1db0ef", {duration: 250});
+      plot.stroke("#1db0ef", {dt: 250});
     })
     .on("pointerleave", function (event) {
-      plot.stroke("#4a4a4a", {duration: 250});
+      plot.stroke("#4a4a4a", {dt: 250});
     });
 
 const cycles = 4;
@@ -63,8 +63,8 @@ while (i <= n) {
 }
 
 //setTimeout(function () {
-//  chart.xDomain(0, Math.PI, {duration: 10000, easing: "cubic-in-out"});
-//  chart.yDomain(-1, 1, {duration: 10000, easing: "cubic-in-out"});
+//  chart.xDomain(0, Math.PI, {dt: 10000, easing: "cubic-in-out"});
+//  chart.yDomain(-1, 1, {dt: 10000, easing: "cubic-in-out"});
 //}, 1000);
 
     </script>

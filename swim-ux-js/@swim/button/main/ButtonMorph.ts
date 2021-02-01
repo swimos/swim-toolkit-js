@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {AnyTiming, Timing} from "@swim/mapping";
 import {Angle, Transform} from "@swim/math";
-import {Tween, Transition} from "@swim/animation";
 import {Look} from "@swim/theme";
 import {HtmlView, SvgView} from "@swim/dom";
 
@@ -43,31 +43,31 @@ export class ButtonMorph extends HtmlView {
     return childView instanceof SvgView || childView instanceof HtmlView ? childView : null;
   }
 
-  setIcon(icon: HtmlView | SvgView | null, tween?: Tween<any>, ccw: boolean = false): void {
-    if (tween === void 0 || tween === true) {
-      tween = this.getLookOr(Look.transition, null);
+  setIcon(icon: HtmlView | SvgView | null, timing?: AnyTiming | boolean, ccw: boolean = false): void {
+    if (timing === void 0 || timing === true) {
+      timing = this.getLookOr(Look.timing, false);
     } else {
-      tween = Transition.forTween(tween);
+      timing = Timing.fromAny(timing);
     }
     const oldForm = this.getChildView("form");
     if (oldForm instanceof HtmlView) {
-      if (tween !== null) {
+      if (timing !== null) {
         this.removeChildViewMap(oldForm);
         oldForm.setKey(void 0);
-        oldForm.opacity.setAutoState(0, tween);
+        oldForm.opacity.setAutoState(0, timing);
         oldForm.opacity.onEnd = function (): void {
           oldForm.remove();
         };
-        oldForm.transform.setAutoState(Transform.rotate(Angle.deg(ccw ? -90 : 90)), tween);
+        oldForm.transform.setAutoState(Transform.rotate(Angle.deg(ccw ? -90 : 90)), timing);
       } else {
         oldForm.remove();
       }
     }
     const newForm = this.createForm(icon);
     newForm.opacity.setAutoState(0);
-    newForm.opacity.setAutoState(1, tween);
+    newForm.opacity.setAutoState(1, timing);
     newForm.transform.setAutoState(Transform.rotate(Angle.deg(ccw ? 90 : -90)));
-    newForm.transform.setAutoState(Transform.rotate(Angle.deg(0)), tween);
+    newForm.transform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
     this.appendChildView(newForm, "form");
   }
 

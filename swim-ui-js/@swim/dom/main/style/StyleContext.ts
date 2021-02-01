@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnimatorContext, Animator} from "@swim/animation";
+import type {AnimationTimeline} from "@swim/animation";
 import type {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
 
-export interface StyleContext extends AnimatorContext {
+export interface StyleContext extends AnimationTimeline {
   readonly node?: Node;
 
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined;
@@ -27,8 +27,6 @@ export interface StyleContext extends AnimatorContext {
   getStyleAnimator(animatorName: string): StyleAnimator<this, unknown> | null;
 
   setStyleAnimator(animatorName: string, animator: StyleAnimator<this, unknown> | null): void;
-
-  animate(animator: Animator): void;
 
   requireUpdate(updateFlags: number): void;
 }

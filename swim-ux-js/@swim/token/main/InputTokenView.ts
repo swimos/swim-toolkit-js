@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Transition} from "@swim/animation";
+import type {Timing} from "@swim/mapping";
 import {Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewBinding} from "@swim/view";
@@ -125,13 +125,13 @@ export class InputTokenView extends TokenView {
   declare label: ViewBinding<this, HtmlView>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         transition: Transition<any> | null): void {
-    super.onApplyTheme(theme, mood, transition);
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
     const styleView = this.stylesheet.view;
     if (styleView !== null) {
       const placeholder = styleView.getCssRule("placeholder") as StyleRule<StyleSheet> | null;
       if (placeholder !== null) {
-        placeholder.color.setAutoState(theme.inner(mood, Look.mutedColor), transition);
+        placeholder.color.setAutoState(theme.inner(mood, Look.mutedColor), timing);
       }
     }
 
