@@ -17,7 +17,7 @@ import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, LayerView, TypesetView, AnyTextRunView, TextRunView} from "@swim/graphics";
-import {AnyDialView, DialView} from "./DialView";
+import {AnyDialView, DialView} from "./"; // forward import
 
 export type AnyGaugeView = GaugeView | GaugeViewInit;
 
@@ -224,7 +224,7 @@ export class GaugeView extends LayerView {
       let dialCount = 0;
       for (let i = 0; i < childCount; i += 1) {
         const childView = childViews[i];
-        if (childView instanceof DialView && childView._arrangement === "auto") {
+        if (childView instanceof DialView && childView.arrangement.state === "auto") {
           dialCount += 1;
         }
       }
@@ -237,7 +237,7 @@ export class GaugeView extends LayerView {
 
     for (let i = 0; i < childCount; i += 1) {
       const childView = childViews[i];
-      if (childView instanceof DialView && childView._arrangement === "auto") {
+      if (childView instanceof DialView && childView.arrangement.state === "auto") {
         if (innerRadius !== void 0 && outerRadius !== void 0) {
           childView.innerRadius.setAutoState(Length.px(r0!));
           childView.outerRadius.setAutoState(Length.px(r0! + dr!));
@@ -269,7 +269,7 @@ export class GaugeView extends LayerView {
 
     for (let i = 0; i < childCount; i += 1) {
       const childView = childViews[i];
-      if (childView instanceof DialView && childView._arrangement === "auto") {
+      if (childView instanceof DialView && childView.arrangement.state === "auto") {
         if (limit !== void 0 && isFinite(limit)) {
           const total = childView.total.value;
           if (total !== void 0) {

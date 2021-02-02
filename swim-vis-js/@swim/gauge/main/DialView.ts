@@ -16,7 +16,7 @@ import {Equivalent} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, BoxR2, AnyPointR2, PointR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -60,14 +60,6 @@ export interface DialViewInit extends GraphicsViewInit {
 }
 
 export class DialView extends LayerView {
-  /** @hidden */
-  _arrangement: DialViewArrangement;
-
-  constructor() {
-    super();
-    this._arrangement = "auto";
-  }
-
   initView(init: DialViewInit): void {
     super.initView(init);
     if (init.value !== void 0) {
@@ -225,16 +217,8 @@ export class DialView extends LayerView {
     }
   }
 
-  arrangement(): DialViewArrangement;
-  arrangement(arrangement: DialViewArrangement): this;
-  arrangement(arrangement?: DialViewArrangement): DialViewArrangement | this {
-    if (arrangement === void 0) {
-      return this._arrangement;
-    } else {
-      this._arrangement = arrangement;
-      return this;
-    }
-  }
+  @ViewScope({type: String, state: "auto"})
+  declare arrangement: ViewScope<this, DialViewArrangement>;
 
   protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);

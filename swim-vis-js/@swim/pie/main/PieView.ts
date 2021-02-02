@@ -17,7 +17,7 @@ import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, LayerView, TypesetView, AnyTextRunView, TextRunView} from "@swim/graphics";
-import {AnySliceView, SliceView} from "./SliceView";
+import {AnySliceView, SliceView} from "./"; // forward import
 
 export type AnyPieView = PieView | PieViewInit;
 
