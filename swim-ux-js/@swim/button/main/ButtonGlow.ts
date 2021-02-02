@@ -20,15 +20,14 @@ import {StyleAnimator, HtmlView} from "@swim/dom";
 export type ButtonGlowState = "ready" | "glowing" | "pulsing" | "fading";
 
 export class ButtonGlow extends HtmlView {
-  /** @hidden */
-  _glowState: ButtonGlowState;
-  /** @hidden */
-  _glowTimer: number;
-
   constructor(node: HTMLElement) {
     super(node);
-    this._glowState = "ready";
-    this._glowTimer = 0;
+    Object.defineProperty(this, "glowState", {
+      value: "ready",
+      enumerable: true,
+      configurable: true,
+    });
+    this.glowTimer = 0;
     this.initNode(node);
   }
 
@@ -44,9 +43,10 @@ export class ButtonGlow extends HtmlView {
     this.pointerEvents.setAutoState("none");
   }
 
-  get glowState(): ButtonGlowState {
-    return this._glowState;
-  }
+  declare readonly glowState: ButtonGlowState;
+
+  /** @hidden */
+  glowTimer: number;
 
   @StyleAnimator<ButtonGlow, Length | "auto", AnyLength | "auto">({
     propertyNames: "left",
@@ -61,9 +61,9 @@ export class ButtonGlow extends HtmlView {
     propertyNames: "opacity",
     type: Number,
     onEnd(opacity: number): void {
-      if (this.owner._glowState === "pulsing" && opacity === 0) {
+      if (this.owner.glowState === "pulsing" && opacity === 0) {
         this.owner.didPulse();
-      } else if (this.owner._glowState === "fading" && opacity === 0) {
+      } else if (this.owner.glowState === "fading" && opacity === 0) {
         this.owner.didFade();
       }
     },
@@ -82,7 +82,11 @@ export class ButtonGlow extends HtmlView {
   }
 
   protected onUnmount(): void {
-    this._glowState = "ready";
+    Object.defineProperty(this, "glowState", {
+      value: "ready",
+      enumerable: true,
+      configurable: true,
+    });
     this.cancelGlow();
     this.remove();
     super.onUnmount();
@@ -101,11 +105,11 @@ export class ButtonGlow extends HtmlView {
   }
 
   glow(clientX: number, clientY: number, timing?: AnyTiming | boolean, delay: number = 0): void {
-    if (this._glowState === "ready") {
+    if (this.glowState === "ready") {
       this.cancelGlow();
       if (delay !== 0) {
         const glow = this.glow.bind(this, clientX, clientY, timing, 0);
-        this._glowTimer = setTimeout(glow, delay) as any;
+        this.glowTimer = setTimeout(glow, delay) as any;
       } else {
         if (timing === void 0 || timing === true) {
           timing = this.getLookOr(Look.timing, false);
@@ -138,7 +142,11 @@ export class ButtonGlow extends HtmlView {
             this.height.setAutoState(2 * r);
             this.didGlow();
           }
-          this._glowState = "glowing";
+          Object.defineProperty(this, "glowState", {
+            value: "glowing",
+            enumerable: true,
+            configurable: true,
+          });
         }
       }
     }
@@ -153,9 +161,9 @@ export class ButtonGlow extends HtmlView {
   }
 
   cancelGlow(): void {
-    if (this._glowTimer !== 0) {
-      clearTimeout(this._glowTimer);
-      this._glowTimer = 0;
+    if (this.glowTimer !== 0) {
+      clearTimeout(this.glowTimer);
+      this.glowTimer = 0;
     }
   }
 
@@ -165,10 +173,10 @@ export class ButtonGlow extends HtmlView {
     } else {
       timing = Timing.fromAny(timing);
     }
-    if (this._glowState === "ready") {
+    if (this.glowState === "ready") {
       this.glow(clientX, clientY, timing);
     }
-    if (this._glowState === "glowing") {
+    if (this.glowState === "glowing") {
       this.willPulse();
       if (timing !== null) {
         this.opacity.setAutoState(0, timing);
@@ -176,7 +184,11 @@ export class ButtonGlow extends HtmlView {
         this.opacity.setAutoState(0);
         this.didPulse();
       }
-      this._glowState = "pulsing";
+      Object.defineProperty(this, "glowState", {
+        value: "pulsing",
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
 
@@ -189,10 +201,10 @@ export class ButtonGlow extends HtmlView {
   }
 
   fade(clientX: number, clientY: number, timing?: AnyTiming | boolean): void {
-    if (this._glowState === "ready") {
+    if (this.glowState === "ready") {
       this.cancelGlow();
       this.didFade()
-    } else if (this._glowState === "glowing") {
+    } else if (this.glowState === "glowing") {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
@@ -206,7 +218,11 @@ export class ButtonGlow extends HtmlView {
         this.didFade();
       }
     }
-    this._glowState = "fading";
+    Object.defineProperty(this, "glowState", {
+      value: "fading",
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected willFade(): void {

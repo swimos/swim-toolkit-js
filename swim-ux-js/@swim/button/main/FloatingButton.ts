@@ -23,12 +23,13 @@ import {ButtonMembrane} from "./ButtonMembrane";
 export type FloatingButtonType = "regular" | "mini";
 
 export class FloatingButton extends ButtonMembrane implements PositionGestureDelegate {
-  /** @hidden */
-  _buttonType: FloatingButtonType;
-
   constructor(node: HTMLElement) {
     super(node);
-    this._buttonType = "regular";
+    Object.defineProperty(this, "buttonType", {
+      value: "regular",
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected initNode(node: HTMLElement): void {
@@ -48,13 +49,15 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     this.cursor.setAutoState("pointer");
   }
 
-  get buttonType(): FloatingButtonType {
-    return this._buttonType;
-  }
+  declare readonly buttonType: FloatingButtonType;
 
   setButtonType(buttonType: FloatingButtonType): void {
-    if (this._buttonType !== buttonType) {
-      this._buttonType = buttonType;
+    if (this.buttonType !== buttonType) {
+      Object.defineProperty(this, "buttonType", {
+        value: buttonType,
+        enumerable: true,
+        configurable: true,
+      });
       this.requireUpdate(View.NeedsChange);
     }
   }
@@ -87,10 +90,10 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
 
-    if (this._buttonType === "regular") {
+    if (this.buttonType === "regular") {
       this.width.setAutoState(56, timing);
       this.height.setAutoState(56, timing);
-    } else if (this._buttonType === "mini") {
+    } else if (this.buttonType === "mini") {
       this.width.setAutoState(40, timing);
       this.height.setAutoState(40, timing);
     }

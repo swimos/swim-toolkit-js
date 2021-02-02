@@ -26,28 +26,29 @@ import type {ButtonStackController} from "./ButtonStackController";
 export type ButtonStackState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
 export class ButtonStack extends HtmlView implements Modal, PositionGestureDelegate {
-  /** @hidden */
-  _stackState: ButtonStackState;
-  /** @hidden */
-  _buttonIcon: HtmlView | SvgView | null;
-  /** @hidden */
-  _buttonSpacing: number;
-  /** @hidden */
-  _itemSpacing: number;
-  /** @hidden */
-  _stackHeight: number;
-  /** @hidden */
-  _gesture: PositionGesture<HtmlView> | null;
-
   constructor(node: HTMLElement) {
     super(node);
+    Object.defineProperty(this, "stackState", {
+      value: "collapsed",
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "stackHeight", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "buttonIcon", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "gesture", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
     this.onContextMenu = this.onContextMenu.bind(this);
-    this._stackState = "collapsed";
-    this._buttonIcon = null;
-    this._buttonSpacing = 28;
-    this._itemSpacing = 20;
-    this._stackHeight = 0;
-    this._gesture = null;
     this.initNode(node);
     this.initChildren();
   }
@@ -70,24 +71,28 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     }
   }
 
-  protected createButton(): HtmlView | null {
-    return FloatingButton.create();
-  }
-
   declare readonly viewController: ButtonStackController | null;
 
   declare readonly viewObservers: ReadonlyArray<ButtonStackObserver>;
 
-  get stackState(): ButtonStackState {
-    return this._stackState;
+  declare readonly stackState: ButtonStackState
+
+  /** @hidden */
+  declare readonly stackHeight: number;
+
+  protected createButton(): HtmlView | null {
+    return FloatingButton.create();
   }
 
+  /** @hidden */
+  declare readonly gesture: PositionGesture<HtmlView> | null;
+
   isExpanded(): boolean {
-    return this._stackState === "expanded" || this._stackState === "expanding";
+    return this.stackState === "expanded" || this.stackState === "expanding";
   }
 
   isCollapsed(): boolean {
-    return this._stackState === "collapsed" || this._stackState === "collapsing";
+    return this.stackState === "collapsed" || this.stackState === "collapsing";
   }
 
   @ViewAnimator<ButtonStack, number>({
@@ -95,7 +100,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     state: 0,
     updateFlags: View.NeedsLayout,
     onEnd(stackPhase: number): void {
-      const stackState = this.owner._stackState;
+      const stackState = this.owner.stackState;
       if (stackState === "expanding" && stackPhase === 1) {
         this.owner.didExpand();
       } else if (stackState === "collapsing" && stackPhase === 0) {
@@ -104,6 +109,12 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     },
   })
   declare stackPhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
+
+  @ViewAnimator({type: Number, state: 28, updateFlags: View.NeedsLayout})
+  declare buttonSpacing: ViewAnimator<this, number>;
+
+  @ViewAnimator({type: Number, state: 20, updateFlags: View.NeedsLayout})
+  declare itemSpacing: ViewAnimator<this, number>;
 
   @StyleAnimator<ButtonStack, number, number | string>({
     propertyNames: "opacity",
@@ -123,7 +134,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   get modalState(): ModalState {
-    const stackState = this._stackState;
+    const stackState = this.stackState;
     if (stackState === "collapsed") {
       return "hidden";
     } else if (stackState === "expanding") {
@@ -154,12 +165,14 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     return childView instanceof HtmlView ? childView : null;
   }
 
-  get buttonIcon(): HtmlView | SvgView | null {
-    return this._buttonIcon;
-  }
+  declare readonly buttonIcon: HtmlView | SvgView | null;
 
   setButtonIcon(buttonIcon: HtmlView | SvgView | null, timing?: AnyTiming | boolean, ccw?: boolean): void {
-    this._buttonIcon = buttonIcon;
+    Object.defineProperty(this, "buttonIcon", {
+      value: buttonIcon,
+      enumerable: true,
+      configurable: true,
+    });
     const button = this.button;
     if (button instanceof FloatingButton) {
       if (timing === void 0 || timing === true) {
@@ -245,15 +258,17 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     } else {
       y = 0;
     }
+    const buttonSpacing = this.buttonSpacing.value;
+    const itemSpacing = this.itemSpacing.value;
     for (let i = 0; i < childCount; i += 1) {
       const childView = (childNodes[i] as ViewNode).view;
       if (childView instanceof ButtonItem) {
         if (itemIndex === 0) {
-          stackHeight += this._buttonSpacing;
-          y += this._buttonSpacing;
+          stackHeight += buttonSpacing;
+          y += buttonSpacing;
         } else {
-          stackHeight += this._itemSpacing;
-          y += this._itemSpacing;
+          stackHeight += itemSpacing;
+          y += itemSpacing;
         }
         const itemHeight = childView.height.value;
         const dy = itemHeight instanceof Length
@@ -268,7 +283,11 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
         zIndex -= 1;
       }
     }
-    this._stackHeight = stackHeight;
+    Object.defineProperty(this, "stackHeight", {
+      value: stackHeight,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -292,12 +311,17 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected onInsertButton(button: HtmlView): void {
-    this._gesture = new PositionGesture(button, this);
-    button.addViewObserver(this._gesture);
+    const gesture = new PositionGesture(button, this);
+    Object.defineProperty(this, "gesture", {
+      value: gesture,
+      enumerable: true,
+      configurable: true,
+    });
+    button.addViewObserver(gesture);
     if (button instanceof FloatingButton) {
       button.stackPhase.setAutoState(1);
-      if (this.isCollapsed && this._buttonIcon !== null) {
-        button.setIcon(this._buttonIcon);
+      if (this.isCollapsed && this.buttonIcon !== null) {
+        button.setIcon(this.buttonIcon);
       } else if (this.isExpanded()) {
         button.setIcon(this.createCloseIcon());
       }
@@ -306,8 +330,12 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected onRemoveButton(button: HtmlView): void {
-    button.removeViewObserver(this._gesture!);
-    this._gesture = null;
+    button.removeViewObserver(this.gesture!);
+    Object.defineProperty(this, "gesture", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onInsertItem(item: ButtonItem): void {
@@ -323,13 +351,13 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   expand(timing?: AnyTiming | boolean): void {
-    if (this._stackState !== "expanded" || this.stackPhase.value !== 1) {
+    if (this.stackState !== "expanded" || this.stackPhase.value !== 1) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
         timing = Timing.fromAny(timing);
       }
-      if (this._stackState !== "expanding") {
+      if (this.stackState !== "expanding") {
         this.willExpand();
         const button = this.button;
         if (button instanceof FloatingButton) {
@@ -350,7 +378,11 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected willExpand(): void {
-    this._stackState = "expanding";
+    Object.defineProperty(this, "stackState", {
+      value: "expanding",
+      enumerable: true,
+      configurable: true,
+    });
 
     const viewController = this.viewController;
     if (viewController !== null && viewController.buttonStackWillExpand !== void 0) {
@@ -366,7 +398,11 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected didExpand(): void {
-    this._stackState = "expanded";
+    Object.defineProperty(this, "stackState", {
+      value: "expanded",
+      enumerable: true,
+      configurable: true,
+    });
     this.requireUpdate(View.NeedsLayout);
 
     const viewObservers = this.viewObservers;
@@ -383,17 +419,17 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   collapse(timing?: AnyTiming | boolean): void {
-    if (this._stackState !== "collapsed" || this.stackPhase.value !== 0) {
+    if (this.stackState !== "collapsed" || this.stackPhase.value !== 0) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
         timing = Timing.fromAny(timing);
       }
-      if (this._stackState !== "collapsing") {
+      if (this.stackState !== "collapsing") {
         this.willCollapse();
         const button = this.button;
         if (button instanceof FloatingButton) {
-          button.setIcon(this._buttonIcon, timing, true);
+          button.setIcon(this.buttonIcon, timing, true);
         }
       }
       if (timing !== null) {
@@ -410,7 +446,11 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected willCollapse(): void {
-    this._stackState = "collapsing";
+    Object.defineProperty(this, "stackState", {
+      value: "collapsing",
+      enumerable: true,
+      configurable: true,
+    });
 
     const viewController = this.viewController;
     if (viewController !== null && viewController.buttonStackWillCollapse !== void 0) {
@@ -426,7 +466,11 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected didCollapse(): void {
-    this._stackState = "collapsed";
+    Object.defineProperty(this, "stackState", {
+      value: "collapsed",
+      enumerable: true,
+      configurable: true,
+    });
     this.requireUpdate(View.NeedsLayout);
 
     const viewObservers = this.viewObservers;
@@ -443,7 +487,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   toggle(timing?: AnyTiming | boolean): void {
-    const stackState = this._stackState;
+    const stackState = this.stackState;
     if (stackState === "collapsed" || stackState === "collapsing") {
       this.expand(timing);
     } else if (stackState === "expanded" || stackState === "expanding") {
@@ -558,14 +602,14 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   didMovePress(input: PositionGestureInput, event: Event | null): void {
-    if (!input.defaultPrevented && this._stackState !== "expanded") {
-      const stackHeight = this._stackHeight;
+    if (!input.defaultPrevented && this.stackState !== "expanded") {
+      const stackHeight = this.stackHeight;
       const stackPhase = Math.min(Math.max(0, -(input.y - input.y0) / (0.5 * stackHeight)), 1);
       this.stackPhase.setAutoState(stackPhase);
       this.requireUpdate(View.NeedsLayout);
       if (stackPhase > 0.1) {
         input.clearHoldTimer();
-        if (this._stackState === "collapsed") {
+        if (this.stackState === "collapsed") {
           this.willExpand();
           const button = this.button;
           if (button instanceof FloatingButton) {

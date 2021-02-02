@@ -39,7 +39,7 @@ const bodyView = swim.HtmlView.fromNode(document.body);
 
 bodyView.append(swim.ScrimView);
 
-const buttonStack = bodyView.append(swim.ButtonStack)
+const buttonStack = swim.ButtonStack.create()
   .position("absolute")
   .top("60%")
   .right("50%")
@@ -75,6 +75,8 @@ buttonItem3.button.modifyMood(swim.Feel.default, [swim.Feel.secondary, 1]);
 buttonItem3.button.setIcon(buttonIcon3);
 buttonItem3.append("span", "label").text("Action 3");
 buttonStack.append(buttonItem3);
+
+bodyView.append(buttonStack);
 
     </script>
   </body>

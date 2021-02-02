@@ -156,7 +156,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
 
     if (this.backgroundColor.isAuto()) {
       let backgroundColor = this.getLook(Look.backgroundColor);
-      if (backgroundColor !== void 0 && !this.highlighted.state && !this._gesture.isHovering()) {
+      if (backgroundColor !== void 0 && !this.highlighted.state && !this.gesture.isHovering()) {
         backgroundColor = backgroundColor.alpha(0);
       }
       this.backgroundColor.setAutoState(backgroundColor, timing);
@@ -303,7 +303,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
       }
       if (this.backgroundColor.isAuto()) {
         let backgroundColor = this.getLook(Look.backgroundColor);
-        if (backgroundColor !== void 0 && !this._gesture.isHovering()) {
+        if (backgroundColor !== void 0 && !this.gesture.isHovering()) {
           backgroundColor = backgroundColor.alpha(0);
         }
         this.backgroundColor.setAutoState(backgroundColor, timing);
@@ -347,7 +347,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     if (!this.highlighted.state && this.hovers) {
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
       if (this.backgroundColor.isAuto()) {
-        const timing = this._gesture.isPressing() ? this.getLook(Look.timing) : false;
+        const timing = this.gesture.isPressing() ? this.getLook(Look.timing) : false;
         this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), timing);
       }
     }
