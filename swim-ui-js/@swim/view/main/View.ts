@@ -55,7 +55,7 @@ import type {ThemeService} from "./service/ThemeService";
 import type {ModalService} from "./service/ModalService";
 import type {ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
 import type {ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
-import type {ViewBindingConstructor, ViewBinding} from "./binding/ViewBinding";
+import type {ViewRelationConstructor, ViewRelation} from "./relation/ViewRelation";
 
 export type ViewFlags = number;
 
@@ -80,7 +80,7 @@ export interface ViewPrototype {
   viewAnimatorConstructors?: {[animatorName: string]: ViewAnimatorConstructor<View, unknown> | undefined};
 
   /** @hidden */
-  viewBindingConstructors?: {[bindingName: string]: ViewBindingConstructor<View, View> | undefined};
+  viewRelationConstructors?: {[relationName: string]: ViewRelationConstructor<View, View> | undefined};
 }
 
 export interface ViewConstructor<V extends View = View> {
@@ -1264,23 +1264,23 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     });
   }
 
-  abstract hasViewBinding(bindingName: string): boolean;
+  abstract hasViewRelation(relationName: string): boolean;
 
-  abstract getViewBinding(bindingName: string): ViewBinding<this, View> | null;
+  abstract getViewRelation(relationName: string): ViewRelation<this, View> | null;
 
-  abstract setViewBinding(bindingName: string, viewBinding: ViewBinding<this, any> | null): void;
+  abstract setViewRelation(relationName: string, viewRelation: ViewRelation<this, any> | null): void;
 
   /** @hidden */
-  getLazyViewBinding(bindingName: string): ViewBinding<this, View> | null {
-    let viewBinding = this.getViewBinding(bindingName);
-    if (viewBinding === null) {
-      const constructor = View.getViewBindingConstructor(bindingName, Object.getPrototypeOf(this));
+  getLazyViewRelation(relationName: string): ViewRelation<this, View> | null {
+    let viewRelation = this.getViewRelation(relationName);
+    if (viewRelation === null) {
+      const constructor = View.getViewRelationConstructor(relationName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        viewBinding = new constructor(this, bindingName);
-        this.setViewBinding(bindingName, viewBinding);
+        viewRelation = new constructor(this, relationName);
+        this.setViewRelation(relationName, viewRelation);
       }
     }
-    return viewBinding;
+    return viewRelation;
   }
 
   abstract hasLayoutAnchor(anchorName: string): boolean;
@@ -1487,13 +1487,13 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
                options?: EventListenerOptions | boolean): this;
 
   /** @hidden */
-  static getViewBindingConstructor(bindingName: string, viewPrototype: ViewPrototype | null = null): ViewBindingConstructor<any, any> | null {
+  static getViewRelationConstructor(relationName: string, viewPrototype: ViewPrototype | null = null): ViewRelationConstructor<any, any> | null {
     if (viewPrototype === null) {
       viewPrototype = this.prototype as ViewPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(viewPrototype, "viewBindingConstructors")) {
-        const constructor = viewPrototype.viewBindingConstructors![bindingName];
+      if (Object.prototype.hasOwnProperty.call(viewPrototype, "viewRelationConstructors")) {
+        const constructor = viewPrototype.viewRelationConstructors![relationName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1504,21 +1504,21 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   /** @hidden */
-  static decorateViewBinding(constructor: ViewBindingConstructor<View, View>,
-                             target: Object, propertyKey: string | symbol): void {
+  static decorateViewRelation(constructor: ViewRelationConstructor<View, View>,
+                              target: Object, propertyKey: string | symbol): void {
     const viewPrototype = target as ViewPrototype;
-    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "viewBindingConstructors")) {
-      viewPrototype.viewBindingConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "viewRelationConstructors")) {
+      viewPrototype.viewRelationConstructors = {};
     }
-    viewPrototype.viewBindingConstructors![propertyKey.toString()] = constructor;
+    viewPrototype.viewRelationConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: View): ViewBinding<View, View> {
-        let viewBinding = this.getViewBinding(propertyKey.toString());
-        if (viewBinding === null) {
-          viewBinding = new constructor(this, propertyKey.toString());
-          this.setViewBinding(propertyKey.toString(), viewBinding);
+      get: function (this: View): ViewRelation<View, View> {
+        let viewRelation = this.getViewRelation(propertyKey.toString());
+        if (viewRelation === null) {
+          viewRelation = new constructor(this, propertyKey.toString());
+          this.setViewRelation(propertyKey.toString(), viewRelation);
         }
-        return viewBinding;
+        return viewRelation;
       },
       enumerable: true,
       configurable: true,

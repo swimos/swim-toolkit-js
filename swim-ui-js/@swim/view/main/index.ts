@@ -69,6 +69,6 @@ export * from "./scope";
 
 export * from "./animator";
 
-export * from "./binding";
+export * from "./relation";
 
 export * from "./event";

@@ -15,7 +15,7 @@
 import type {Timing} from "@swim/mapping";
 import {Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewBinding} from "@swim/view";
+import {ViewRelation} from "@swim/view";
 import {StyleRule, StyleSheet, HtmlView, StyleView, SvgView} from "@swim/dom";
 import type {PositionGesture} from "@swim/gesture";
 import {TokenViewInit, TokenView} from "./TokenView";
@@ -87,16 +87,16 @@ export class InputTokenView extends TokenView {
     return null;
   }
 
-  @ViewBinding<InputTokenView, StyleView>({
+  @ViewRelation<InputTokenView, StyleView>({
     child: true,
     type: HtmlView.style,
     viewDidMount(styleView: StyleView): void {
       this.owner.initStylesheet(styleView);
     },
   })
-  declare stylesheet: ViewBinding<this, StyleView>;
+  declare stylesheet: ViewRelation<this, StyleView>;
 
-  @ViewBinding<InputTokenView, HtmlView>({
+  @ViewRelation<InputTokenView, HtmlView>({
     child: false,
     type: HtmlView.input,
     onSetView(labelView: HtmlView | null): void {
@@ -122,7 +122,7 @@ export class InputTokenView extends TokenView {
       labelView.off("keydown", this.owner.onInputKey);
     },
   })
-  declare label: ViewBinding<this, HtmlView>;
+  declare label: ViewRelation<this, HtmlView>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {

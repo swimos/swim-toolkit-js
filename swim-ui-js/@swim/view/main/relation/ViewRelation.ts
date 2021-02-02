@@ -27,14 +27,14 @@ import {
 import {ViewFactory, View} from "../View";
 import type {ViewObserverType} from "../ViewObserver";
 
-export type ViewBindingMemberType<V, K extends keyof V> =
-  V extends {[P in K]: ViewBinding<any, infer S, any>} ? S : unknown;
+export type ViewRelationMemberType<V, K extends keyof V> =
+  V extends {[P in K]: ViewRelation<any, infer S, any>} ? S : unknown;
 
-export type ViewBindingMemberInit<V, K extends keyof V> =
-  V extends {[P in K]: ViewBinding<any, infer T, infer U>} ? T | U : unknown;
+export type ViewRelationMemberInit<V, K extends keyof V> =
+  V extends {[P in K]: ViewRelation<any, infer T, infer U>} ? T | U : unknown;
 
-export interface ViewBindingInit<S extends View, U = never> {
-  extends?: ViewBindingClass;
+export interface ViewRelationInit<S extends View, U = never> {
+  extends?: ViewRelationClass;
   observe?: boolean;
   child?: boolean;
   type?: ViewFactory<S, U>;
@@ -47,22 +47,22 @@ export interface ViewBindingInit<S extends View, U = never> {
   fromAny?(value: S | U): S | null;
 }
 
-export type ViewBindingDescriptor<V extends View, S extends View, U = never, I = ViewObserverType<S>> = ViewBindingInit<S, U> & ThisType<ViewBinding<V, S, U> & I> & I;
+export type ViewRelationDescriptor<V extends View, S extends View, U = never, I = ViewObserverType<S>> = ViewRelationInit<S, U> & ThisType<ViewRelation<V, S, U> & I> & I;
 
-export type ViewBindingDescriptorExtends<V extends View, S extends View, U = never, I = ViewObserverType<S>> = {extends: ViewBindingClass | undefined} & ViewBindingDescriptor<V, S, U, I>;
+export type ViewRelationDescriptorExtends<V extends View, S extends View, U = never, I = ViewObserverType<S>> = {extends: ViewRelationClass | undefined} & ViewRelationDescriptor<V, S, U, I>;
 
-export type ViewBindingDescriptorFromAny<V extends View, S extends View, U = never, I = ViewObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ViewBindingDescriptor<V, S, U, I>;
+export type ViewRelationDescriptorFromAny<V extends View, S extends View, U = never, I = ViewObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ViewRelationDescriptor<V, S, U, I>;
 
-export interface ViewBindingConstructor<V extends View, S extends View, U = never, I = ViewObserverType<S>> {
-  new(owner: V, bindingName: string | undefined): ViewBinding<V, S, U> & I;
-  prototype: ViewBinding<any, any> & I;
+export interface ViewRelationConstructor<V extends View, S extends View, U = never, I = ViewObserverType<S>> {
+  new(owner: V, relationName: string | undefined): ViewRelation<V, S, U> & I;
+  prototype: ViewRelation<any, any> & I;
 }
 
-export interface ViewBindingClass extends Function {
-  readonly prototype: ViewBinding<any, any>;
+export interface ViewRelationClass extends Function {
+  readonly prototype: ViewRelation<any, any>;
 }
 
-export interface ViewBinding<V extends View, S extends View, U = never> extends ConstraintScope {
+export interface ViewRelation<V extends View, S extends View, U = never> extends ConstraintScope {
   (): S | null;
   (view: S | U | null): V;
 
@@ -167,35 +167,35 @@ export interface ViewBinding<V extends View, S extends View, U = never> extends 
   fromAny(value: S | U): S | null;
 }
 
-export const ViewBinding = function <V extends View, S extends View, U>(
-    this: ViewBinding<V, S, U> | typeof ViewBinding,
-    owner: V | ViewBindingDescriptor<V, S, U>,
-    bindingName?: string,
-  ): ViewBinding<V, S, U> | PropertyDecorator {
-  if (this instanceof ViewBinding) { // constructor
-    return ViewBindingConstructor.call(this as unknown as ViewBinding<View, View, unknown>, owner as V, bindingName);
+export const ViewRelation = function <V extends View, S extends View, U>(
+    this: ViewRelation<V, S, U> | typeof ViewRelation,
+    owner: V | ViewRelationDescriptor<V, S, U>,
+    relationName?: string,
+  ): ViewRelation<V, S, U> | PropertyDecorator {
+  if (this instanceof ViewRelation) { // constructor
+    return ViewRelationConstructor.call(this as unknown as ViewRelation<View, View, unknown>, owner as V, relationName);
   } else { // decorator factory
-    return ViewBindingDecoratorFactory(owner as ViewBindingDescriptor<V, S, U>);
+    return ViewRelationDecoratorFactory(owner as ViewRelationDescriptor<V, S, U>);
   }
 } as {
   /** @hidden */
-  new<V extends View, S extends View, U = never>(owner: V, bindingName: string | undefined): ViewBinding<V, S, U>;
+  new<V extends View, S extends View, U = never>(owner: V, relationName: string | undefined): ViewRelation<V, S, U>;
 
-  <V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: ViewBindingDescriptorExtends<V, S, U, I>): PropertyDecorator;
-  <V extends View, S extends View = View, U = never>(descriptor: ViewBindingDescriptor<V, S, U>): PropertyDecorator;
+  <V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: ViewRelationDescriptorExtends<V, S, U, I>): PropertyDecorator;
+  <V extends View, S extends View = View, U = never>(descriptor: ViewRelationDescriptor<V, S, U>): PropertyDecorator;
 
   /** @hidden */
-  prototype: ViewBinding<any, any>;
+  prototype: ViewRelation<any, any>;
 
-  define<V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: ViewBindingDescriptorExtends<V, S, U, I>): ViewBindingConstructor<V, S, U, I>;
-  define<V extends View, S extends View = View, U = never>(descriptor: ViewBindingDescriptor<V, S, U>): ViewBindingConstructor<V, S, U>;
+  define<V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: ViewRelationDescriptorExtends<V, S, U, I>): ViewRelationConstructor<V, S, U, I>;
+  define<V extends View, S extends View = View, U = never>(descriptor: ViewRelationDescriptor<V, S, U>): ViewRelationConstructor<V, S, U>;
 };
-__extends(ViewBinding, Object);
+__extends(ViewRelation, Object);
 
-function ViewBindingConstructor<V extends View, S extends View, U>(this: ViewBinding<V, S, U>, owner: V, bindingName: string | undefined): ViewBinding<V, S, U> {
-  if (bindingName !== void 0) {
+function ViewRelationConstructor<V extends View, S extends View, U>(this: ViewRelation<V, S, U>, owner: V, relationName: string | undefined): ViewRelation<V, S, U> {
+  if (relationName !== void 0) {
     Object.defineProperty(this, "name", {
-      value: bindingName,
+      value: relationName,
       enumerable: true,
       configurable: true,
     });
@@ -222,11 +222,11 @@ function ViewBindingConstructor<V extends View, S extends View, U>(this: ViewBin
   return this;
 }
 
-function ViewBindingDecoratorFactory<V extends View, S extends View, U>(descriptor: ViewBindingDescriptor<V, S, U>): PropertyDecorator {
-  return View.decorateViewBinding.bind(View, ViewBinding.define(descriptor as ViewBindingDescriptor<View, View>));
+function ViewRelationDecoratorFactory<V extends View, S extends View, U>(descriptor: ViewRelationDescriptor<V, S, U>): PropertyDecorator {
+  return View.decorateViewRelation.bind(View, ViewRelation.define(descriptor as ViewRelationDescriptor<View, View>));
 }
 
-ViewBinding.prototype.getView = function <S extends View>(this: ViewBinding<View, S>): S {
+ViewRelation.prototype.getView = function <S extends View>(this: ViewRelation<View, S>): S {
   const view = this.view;
   if (view === null) {
     throw new TypeError("null " + this.name + " view");
@@ -234,7 +234,7 @@ ViewBinding.prototype.getView = function <S extends View>(this: ViewBinding<View
   return view;
 };
 
-ViewBinding.prototype.setView = function <S extends View, U>(this: ViewBinding<View, S, U>, view: S | U | null): void {
+ViewRelation.prototype.setView = function <S extends View, U>(this: ViewRelation<View, S, U>, view: S | U | null): void {
   if (view !== null) {
     view = this.fromAny(view);
   }
@@ -249,7 +249,7 @@ ViewBinding.prototype.setView = function <S extends View, U>(this: ViewBinding<V
   }
 };
 
-ViewBinding.prototype.doSetView = function <S extends View>(this: ViewBinding<View, S>, newView: S | null): void {
+ViewRelation.prototype.doSetView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null): void {
   const oldView = this.view;
   if (oldView !== newView) {
     this.deactivateLayout();
@@ -267,23 +267,23 @@ ViewBinding.prototype.doSetView = function <S extends View>(this: ViewBinding<Vi
   }
 };
 
-ViewBinding.prototype.willSetView = function <S extends View>(this: ViewBinding<View, S>, newView: S | null, oldView: S | null): void {
+ViewRelation.prototype.willSetView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
   // hook
 };
 
-ViewBinding.prototype.onSetView = function <S extends View>(this: ViewBinding<View, S>, newView: S | null, oldView: S | null): void {
+ViewRelation.prototype.onSetView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
   // hook
 };
 
-ViewBinding.prototype.didSetView = function <S extends View>(this: ViewBinding<View, S>, newView: S | null, oldView: S | null): void {
+ViewRelation.prototype.didSetView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
   // hook
 };
 
-ViewBinding.prototype.willSetOwnView = function <S extends View>(this: ViewBinding<View, S>, newView: S | null, oldView: S | null): void {
+ViewRelation.prototype.willSetOwnView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
   // hook
 };
 
-ViewBinding.prototype.onSetOwnView = function <S extends View>(this: ViewBinding<View, S>, newView: S | null, oldView: S | null): void {
+ViewRelation.prototype.onSetOwnView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
   if (this.observe === true && this.owner.isMounted()) {
     if (oldView !== null) {
       oldView.removeViewObserver(this as ViewObserverType<S>);
@@ -294,12 +294,12 @@ ViewBinding.prototype.onSetOwnView = function <S extends View>(this: ViewBinding
   }
 };
 
-ViewBinding.prototype.didSetOwnView = function <S extends View>(this: ViewBinding<View, S>, newView: S | null, oldView: S | null): void {
+ViewRelation.prototype.didSetOwnView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
   // hook
 };
 
-ViewBinding.prototype.constraint = function (this: ViewBinding<View, View>, lhs: Constrain | number, relation: ConstraintRelation,
-                                             rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
+ViewRelation.prototype.constraint = function (this: ViewRelation<View, View>, lhs: Constrain | number, relation: ConstraintRelation,
+                                              rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
   if (typeof lhs === "number") {
     lhs = Constrain.constant(lhs);
   }
@@ -315,11 +315,11 @@ ViewBinding.prototype.constraint = function (this: ViewBinding<View, View>, lhs:
   return new Constraint(this.owner, constrain, relation, strength);
 };
 
-ViewBinding.prototype.hasConstraint = function (constraint: Constraint): boolean {
+ViewRelation.prototype.hasConstraint = function (constraint: Constraint): boolean {
   return this.constraints.indexOf(constraint) >= 0;
 };
 
-ViewBinding.prototype.addConstraint = function (constraint: Constraint): void {
+ViewRelation.prototype.addConstraint = function (constraint: Constraint): void {
   const oldConstraints = this.constraints;
   const newConstraints = Arrays.inserted(constraint, oldConstraints);
   if (oldConstraints !== newConstraints) {
@@ -332,7 +332,7 @@ ViewBinding.prototype.addConstraint = function (constraint: Constraint): void {
   }
 };
 
-ViewBinding.prototype.removeConstraint = function (constraint: Constraint): void {
+ViewRelation.prototype.removeConstraint = function (constraint: Constraint): void {
   const oldConstraints = this.constraints;
   const newConstraints = Arrays.removed(constraint, oldConstraints);
   if (oldConstraints !== newConstraints) {
@@ -345,15 +345,15 @@ ViewBinding.prototype.removeConstraint = function (constraint: Constraint): void
   }
 };
 
-ViewBinding.prototype.activateConstraint = function (this: ViewBinding<View, View>, constraint: Constraint): void {
+ViewRelation.prototype.activateConstraint = function (this: ViewRelation<View, View>, constraint: Constraint): void {
   this.owner.activateConstraint(constraint);
 };
 
-ViewBinding.prototype.deactivateConstraint = function (this: ViewBinding<View, View>, constraint: Constraint): void {
+ViewRelation.prototype.deactivateConstraint = function (this: ViewRelation<View, View>, constraint: Constraint): void {
   this.owner.deactivateConstraint(constraint);
 };
 
-ViewBinding.prototype.constraintVariable = function (name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable {
+ViewRelation.prototype.constraintVariable = function (name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable {
   if (value === void 0) {
     value = 0;
   }
@@ -365,11 +365,11 @@ ViewBinding.prototype.constraintVariable = function (name: string, value?: numbe
   return new ConstrainBinding(this, name, value, strength);
 };
 
-ViewBinding.prototype.hasConstraintVariable = function (constraintVariable: ConstrainVariable): boolean {
+ViewRelation.prototype.hasConstraintVariable = function (constraintVariable: ConstrainVariable): boolean {
   return this.constraintVariables.indexOf(constraintVariable) >= 0;
 };
 
-ViewBinding.prototype.addConstraintVariable = function (constraintVariable: ConstrainVariable): void {
+ViewRelation.prototype.addConstraintVariable = function (constraintVariable: ConstrainVariable): void {
   const oldConstraintVariables = this.constraintVariables;
   const newConstraintVariables = Arrays.inserted(constraintVariable, oldConstraintVariables);
   if (oldConstraintVariables !== newConstraintVariables) {
@@ -382,7 +382,7 @@ ViewBinding.prototype.addConstraintVariable = function (constraintVariable: Cons
   }
 };
 
-ViewBinding.prototype.removeConstraintVariable = function (constraintVariable: ConstrainVariable): void {
+ViewRelation.prototype.removeConstraintVariable = function (constraintVariable: ConstrainVariable): void {
   const oldConstraintVariables = this.constraintVariables;
   const newConstraintVariables = Arrays.removed(constraintVariable, oldConstraintVariables);
   if (oldConstraintVariables !== newConstraintVariables) {
@@ -395,19 +395,19 @@ ViewBinding.prototype.removeConstraintVariable = function (constraintVariable: C
   }
 };
 
-ViewBinding.prototype.activateConstraintVariable = function (this: ViewBinding<View, View>, constraintVariable: ConstrainVariable): void {
+ViewRelation.prototype.activateConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable): void {
   this.owner.activateConstraintVariable(constraintVariable);
 };
 
-ViewBinding.prototype.deactivateConstraintVariable = function (this: ViewBinding<View, View>, constraintVariable: ConstrainVariable): void {
+ViewRelation.prototype.deactivateConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable): void {
   this.owner.deactivateConstraintVariable(constraintVariable);
 };
 
-ViewBinding.prototype.setConstraintVariable = function (this: ViewBinding<View, View>, constraintVariable: ConstrainVariable, state: number): void {
+ViewRelation.prototype.setConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable, state: number): void {
   this.owner.setConstraintVariable(constraintVariable, state);
 };
 
-ViewBinding.prototype.activateLayout = function (this: ViewBinding<View, View>): void {
+ViewRelation.prototype.activateLayout = function (this: ViewRelation<View, View>): void {
   const constraintVariables = this.constraintVariables;
   for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
     this.owner.activateConstraintVariable(constraintVariables[i]!);
@@ -418,7 +418,7 @@ ViewBinding.prototype.activateLayout = function (this: ViewBinding<View, View>):
   }
 };
 
-ViewBinding.prototype.deactivateLayout = function (this: ViewBinding<View, View>): void {
+ViewRelation.prototype.deactivateLayout = function (this: ViewRelation<View, View>): void {
   const constraints = this.constraints;
   for (let i = 0, n = constraints.length; i < n; i += 1) {
     this.owner.deactivateConstraint(constraints[i]!);
@@ -429,7 +429,7 @@ ViewBinding.prototype.deactivateLayout = function (this: ViewBinding<View, View>
   }
 };
 
-ViewBinding.prototype.mount = function (): void {
+ViewRelation.prototype.mount = function (): void {
   this.activateLayout();
   const view = this.view;
   if (view !== null && this.observe === true) {
@@ -437,7 +437,7 @@ ViewBinding.prototype.mount = function (): void {
   }
 };
 
-ViewBinding.prototype.unmount = function (): void {
+ViewRelation.prototype.unmount = function (): void {
   const view = this.view;
   if (view !== null && this.observe === true) {
     view.removeViewObserver(this as ViewObserverType<View>);
@@ -445,7 +445,7 @@ ViewBinding.prototype.unmount = function (): void {
   this.deactivateLayout();
 };
 
-ViewBinding.prototype.insert = function <S extends View>(this: ViewBinding<View, S>, parentView?: View | string | null, key?: string | null): S | null {
+ViewRelation.prototype.insert = function <S extends View>(this: ViewRelation<View, S>, parentView?: View | string | null, key?: string | null): S | null {
   let view = this.view;
   if (view === null) {
     view = this.createView();
@@ -473,7 +473,7 @@ ViewBinding.prototype.insert = function <S extends View>(this: ViewBinding<View,
   return view;
 };
 
-ViewBinding.prototype.remove = function <S extends View>(this: ViewBinding<View, S>): S | null {
+ViewRelation.prototype.remove = function <S extends View>(this: ViewRelation<View, S>): S | null {
   const view = this.view;
   if (view !== null) {
     view.remove();
@@ -481,7 +481,7 @@ ViewBinding.prototype.remove = function <S extends View>(this: ViewBinding<View,
   return view;
 };
 
-ViewBinding.prototype.createView = function <S extends View, U>(this: ViewBinding<View, S, U>): S | U | null {
+ViewRelation.prototype.createView = function <S extends View, U>(this: ViewRelation<View, S, U>): S | U | null {
   const type = this.type;
   if (type !== void 0) {
     return type.create();
@@ -489,7 +489,7 @@ ViewBinding.prototype.createView = function <S extends View, U>(this: ViewBindin
   return null;
 };
 
-ViewBinding.prototype.insertView = function <S extends View>(this: ViewBinding<View, S>, parentView: View, childView: S, key: string | undefined): void {
+ViewRelation.prototype.insertView = function <S extends View>(this: ViewRelation<View, S>, parentView: View, childView: S, key: string | undefined): void {
   if (key !== void 0) {
     parentView.setChildView(key, childView);
   } else {
@@ -497,7 +497,7 @@ ViewBinding.prototype.insertView = function <S extends View>(this: ViewBinding<V
   }
 };
 
-ViewBinding.prototype.fromAny = function <S extends View, U>(this: ViewBinding<View, S, U>, value: S | U): S | null {
+ViewRelation.prototype.fromAny = function <S extends View, U>(this: ViewRelation<View, S, U>, value: S | U): S | null {
   const type = this.type;
   if (FromAny.is<S, U>(type)) {
     return type.fromAny(value);
@@ -507,29 +507,29 @@ ViewBinding.prototype.fromAny = function <S extends View, U>(this: ViewBinding<V
   return null;
 };
 
-ViewBinding.define = function <V extends View, S extends View, U, I>(descriptor: ViewBindingDescriptor<V, S, U, I>): ViewBindingConstructor<V, S, U, I> {
+ViewRelation.define = function <V extends View, S extends View, U, I>(descriptor: ViewRelationDescriptor<V, S, U, I>): ViewRelationConstructor<V, S, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 
   if (_super === void 0) {
-    _super = ViewBinding;
+    _super = ViewRelation;
   }
 
-  const _constructor = function DecoratedViewBinding(this: ViewBinding<V, S>, owner: V, bindingName: string | undefined): ViewBinding<V, S, U> {
-    let _this: ViewBinding<V, S, U> = function ViewBindingAccessor(view?: S | U | null): S | null | V {
+  const _constructor = function DecoratedViewRelation(this: ViewRelation<V, S>, owner: V, relationName: string | undefined): ViewRelation<V, S, U> {
+    let _this: ViewRelation<V, S, U> = function ViewRelationAccessor(view?: S | U | null): S | null | V {
       if (view === void 0) {
         return _this.view;
       } else {
         _this.setView(view);
         return _this.owner;
       }
-    } as ViewBinding<V, S, U>;
+    } as ViewRelation<V, S, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, bindingName) || _this;
+    _this = _super!.call(_this, owner, relationName) || _this;
     return _this;
-  } as unknown as ViewBindingConstructor<V, S, U, I>;
+  } as unknown as ViewRelationConstructor<V, S, U, I>;
 
-  const _prototype = descriptor as unknown as ViewBinding<any, any> & I;
+  const _prototype = descriptor as unknown as ViewRelation<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

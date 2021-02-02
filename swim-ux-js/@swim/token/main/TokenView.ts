@@ -15,7 +15,7 @@
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Length} from "@swim/math";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewObserver, ViewAnimator, ViewBinding} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewObserver, ViewAnimator, ViewRelation} from "@swim/view";
 import {ElementView, HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
 import {PathContext} from "@swim/graphics";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
@@ -202,7 +202,7 @@ export class TokenView extends HtmlView {
   })
   declare expandedPhase: ViewAnimator<this, number>;
 
-  @ViewBinding<TokenView, SvgView>({
+  @ViewRelation<TokenView, SvgView>({
     type: SvgView,
     onSetView(shapeView: SvgView | null): void {
       if (shapeView !== null) {
@@ -210,9 +210,9 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare shape: ViewBinding<this, SvgView>;
+  declare shape: ViewRelation<this, SvgView>;
 
-  @ViewBinding<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
+  @ViewRelation<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -281,9 +281,9 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare head: ViewBinding<this, SvgView> & PositionGestureDelegate;
+  declare head: ViewRelation<this, SvgView> & PositionGestureDelegate;
 
-  @ViewBinding<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
+  @ViewRelation<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -346,9 +346,9 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare body: ViewBinding<this, SvgView> & PositionGestureDelegate;
+  declare body: ViewRelation<this, SvgView> & PositionGestureDelegate;
 
-  @ViewBinding<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
+  @ViewRelation<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -417,9 +417,9 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare foot: ViewBinding<this, SvgView> & PositionGestureDelegate;
+  declare foot: ViewRelation<this, SvgView> & PositionGestureDelegate;
 
-  @ViewBinding<TokenView, ElementView, Element, {embossed: boolean}>({
+  @ViewRelation<TokenView, ElementView, Element, {embossed: boolean}>({
     extends: void 0,
     type: SvgView.path,
     embossed: true,
@@ -432,9 +432,9 @@ export class TokenView extends HtmlView {
       return ElementView.fromAny(value);
     },
   })
-  declare icon: ViewBinding<this, ElementView> & {embossed: boolean};
+  declare icon: ViewRelation<this, ElementView> & {embossed: boolean};
 
-  @ViewBinding<TokenView, HtmlView>({
+  @ViewRelation<TokenView, HtmlView>({
     type: HtmlView,
     onSetView(labelContainer: HtmlView | null): void {
       if (labelContainer !== null) {
@@ -442,9 +442,9 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare labelContainer: ViewBinding<this, HtmlView>;
+  declare labelContainer: ViewRelation<this, HtmlView>;
 
-  @ViewBinding<TokenView, HtmlView>({
+  @ViewRelation<TokenView, HtmlView>({
     child: false,
     type: HtmlView,
     onSetView(labelView: HtmlView | null): void {
@@ -460,9 +460,9 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare label: ViewBinding<this, HtmlView>;
+  declare label: ViewRelation<this, HtmlView>;
 
-  @ViewBinding<TokenView, HtmlView>({
+  @ViewRelation<TokenView, HtmlView>({
     type: HtmlView,
     onSetView(actionContainer: HtmlView | null): void {
       if (actionContainer !== null) {
@@ -470,9 +470,9 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare actionContainer: ViewBinding<this, HtmlView>;
+  declare actionContainer: ViewRelation<this, HtmlView>;
 
-  @ViewBinding<TokenView, ElementView, Element, {embossed: boolean}>({
+  @ViewRelation<TokenView, ElementView, Element, {embossed: boolean}>({
     extends: void 0,
     child: false,
     type: HtmlView,
@@ -493,7 +493,7 @@ export class TokenView extends HtmlView {
       return ElementView.fromAny(value);
     },
   })
-  declare action: ViewBinding<this, ElementView> & {embossed: boolean};
+  declare action: ViewRelation<this, ElementView> & {embossed: boolean};
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {

@@ -32,7 +32,7 @@ import {
   LayoutAnchor,
   ViewScope,
   ViewAnimator,
-  ViewBinding,
+  ViewRelation,
   ViewEvent,
   ViewMouseEvent,
   ViewPointerEvent,
@@ -86,7 +86,7 @@ export abstract class GraphicsView extends View {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "viewBindings", {
+    Object.defineProperty(this, "viewRelations", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -315,7 +315,7 @@ export abstract class GraphicsView extends View {
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
-    this.insertViewBinding(childView);
+    this.insertViewRelation(childView);
   }
 
   cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
@@ -338,7 +338,7 @@ export abstract class GraphicsView extends View {
 
   protected onRemoveChildView(childView: View): void {
     super.onRemoveChildView(childView);
-    this.removeViewBinding(childView);
+    this.removeViewRelation(childView);
   }
 
   abstract removeAll(): void;
@@ -364,7 +364,7 @@ export abstract class GraphicsView extends View {
     this.mountServices();
     this.mountScopes();
     this.mountAnimators();
-    this.mountBindings();
+    this.mountRelations();
     this.mountTheme();
   }
 
@@ -408,7 +408,7 @@ export abstract class GraphicsView extends View {
   }
 
   protected onUnmount(): void {
-    this.unmountBindings();
+    this.unmountRelations();
     this.unmountAnimators();
     this.unmountScopes();
     this.unmountServices();
@@ -1298,84 +1298,84 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
-  declare readonly viewBindings: {[bindingName: string]: ViewBinding<View, View> | undefined} | null;
+  declare readonly viewRelations: {[relationName: string]: ViewRelation<View, View> | undefined} | null;
 
-  hasViewBinding(bindingName: string): boolean {
-    const viewBindings = this.viewBindings;
-    return viewBindings !== null && viewBindings[bindingName] !== void 0;
+  hasViewRelation(relationName: string): boolean {
+    const viewRelations = this.viewRelations;
+    return viewRelations !== null && viewRelations[relationName] !== void 0;
   }
 
-  getViewBinding(bindingName: string): ViewBinding<this, View> | null {
-    const viewBindings = this.viewBindings;
-    if (viewBindings !== null) {
-      const viewBinding = viewBindings[bindingName];
-      if (viewBinding !== void 0) {
-        return viewBinding as ViewBinding<this, View>;
+  getViewRelation(relationName: string): ViewRelation<this, View> | null {
+    const viewRelations = this.viewRelations;
+    if (viewRelations !== null) {
+      const viewRelation = viewRelations[relationName];
+      if (viewRelation !== void 0) {
+        return viewRelation as ViewRelation<this, View>;
       }
     }
     return null;
   }
 
-  setViewBinding(bindingName: string, newViewBinding: ViewBinding<this, any> | null): void {
-    let viewBindings = this.viewBindings;
-    if (viewBindings === null) {
-      viewBindings = {};
-      Object.defineProperty(this, "viewBindings", {
-        value: viewBindings,
+  setViewRelation(relationName: string, newViewRelation: ViewRelation<this, any> | null): void {
+    let viewRelations = this.viewRelations;
+    if (viewRelations === null) {
+      viewRelations = {};
+      Object.defineProperty(this, "viewRelations", {
+        value: viewRelations,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldViewBinding = viewBindings[bindingName];
-    if (oldViewBinding !== void 0 && this.isMounted()) {
-      oldViewBinding.unmount();
+    const oldViewRelation = viewRelations[relationName];
+    if (oldViewRelation !== void 0 && this.isMounted()) {
+      oldViewRelation.unmount();
     }
-    if (newViewBinding !== null) {
-      viewBindings[bindingName] = newViewBinding;
+    if (newViewRelation !== null) {
+      viewRelations[relationName] = newViewRelation;
       if (this.isMounted()) {
-        newViewBinding.mount();
+        newViewRelation.mount();
       }
     } else {
-      delete viewBindings[bindingName];
+      delete viewRelations[relationName];
     }
   }
 
   /** @hidden */
-  protected mountBindings(): void {
-    const viewBindings = this.viewBindings;
-    for (const bindingName in viewBindings) {
-      const viewBinding = viewBindings[bindingName]!;
-      viewBinding.mount();
+  protected mountRelations(): void {
+    const viewRelations = this.viewRelations;
+    for (const relationName in viewRelations) {
+      const viewRelation = viewRelations[relationName]!;
+      viewRelation.mount();
     }
   }
 
   /** @hidden */
-  protected unmountBindings(): void {
-    const viewBindings = this.viewBindings;
-    for (const bindingName in viewBindings) {
-      const viewBinding = viewBindings[bindingName]!;
-      viewBinding.unmount();
+  protected unmountRelations(): void {
+    const viewRelations = this.viewRelations;
+    for (const relationName in viewRelations) {
+      const viewRelation = viewRelations[relationName]!;
+      viewRelation.unmount();
     }
   }
 
   /** @hidden */
-  protected insertViewBinding(childView: View): void {
-    const bindingName = childView.key;
-    if (bindingName !== void 0) {
-      const viewBinding = this.getLazyViewBinding(bindingName);
-      if (viewBinding !== null && viewBinding.child === true) {
-        viewBinding.doSetView(childView);
+  protected insertViewRelation(childView: View): void {
+    const relationName = childView.key;
+    if (relationName !== void 0) {
+      const viewRelation = this.getLazyViewRelation(relationName);
+      if (viewRelation !== null && viewRelation.child === true) {
+        viewRelation.doSetView(childView);
       }
     }
   }
 
   /** @hidden */
-  protected removeViewBinding(childView: View): void {
-    const bindingName = childView.key;
-    if (bindingName !== void 0) {
-      const viewBinding = this.getViewBinding(bindingName);
-      if (viewBinding !== null && viewBinding.child === true) {
-        viewBinding.doSetView(null);
+  protected removeViewRelation(childView: View): void {
+    const relationName = childView.key;
+    if (relationName !== void 0) {
+      const viewRelation = this.getViewRelation(relationName);
+      if (viewRelation !== null && viewRelation.child === true) {
+        viewRelation.doSetView(null);
       }
     }
   }

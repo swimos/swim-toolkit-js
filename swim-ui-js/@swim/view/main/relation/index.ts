@@ -13,13 +13,13 @@
 // limitations under the License.
 
 export {
-  ViewBindingMemberType,
-  ViewBindingMemberInit,
-  ViewBindingInit,
-  ViewBindingDescriptor,
-  ViewBindingDescriptorExtends,
-  ViewBindingDescriptorFromAny,
-  ViewBindingConstructor,
-  ViewBindingClass,
-  ViewBinding,
-} from "./ViewBinding";
+  ViewRelationMemberType,
+  ViewRelationMemberInit,
+  ViewRelationInit,
+  ViewRelationDescriptor,
+  ViewRelationDescriptorExtends,
+  ViewRelationDescriptorFromAny,
+  ViewRelationConstructor,
+  ViewRelationClass,
+  ViewRelation,
+} from "./ViewRelation";
