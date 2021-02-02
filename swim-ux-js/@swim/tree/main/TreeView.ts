@@ -45,15 +45,18 @@ export interface TreeViewInit extends HtmlViewInit {
 }
 
 export class TreeView extends HtmlView {
-  /** @hidden */
-  readonly _visibleViews: View[];
-  /** @hidden */
-  _visibleFrame: BoxR2;
-
   constructor(node: HTMLElement) {
     super(node);
-    this._visibleViews = [];
-    this._visibleFrame = new BoxR2(0, 0, window.innerWidth, window.innerHeight);
+    Object.defineProperty(this, "visibleViews", {
+      value: [],
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "visibleFrame", {
+      value: new BoxR2(0, 0, window.innerWidth, window.innerHeight),
+      enumerable: true,
+      configurable: true,
+    });
     this.initNode(node);
   }
 
@@ -145,6 +148,9 @@ export class TreeView extends HtmlView {
   @ViewAnimator({type: Number, inherit: true})
   declare disclosingPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
+  /** @hidden */
+  declare readonly visibleViews: View[];
+
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
     const key = childView.key;
@@ -170,7 +176,7 @@ export class TreeView extends HtmlView {
     } else if (key === "bottomBranch" && childView instanceof HtmlView) {
       this.onRemoveBottomBranch(childView);
     }
-    const visibleViews = this._visibleViews;
+    const visibleViews = this.visibleViews;
     const visibleIndex = visibleViews.indexOf(childView);
     if (visibleIndex >= 0) {
       visibleViews.splice(visibleIndex, 1);
@@ -182,7 +188,7 @@ export class TreeView extends HtmlView {
     stem.position.setAutoState("absolute");
     stem.left.setAutoState(0);
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
+    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
     stem.width.setAutoState(width);
     stem.visibility.setAutoState("hidden");
   }
@@ -195,7 +201,7 @@ export class TreeView extends HtmlView {
     limb.position.setAutoState("absolute");
     limb.left.setAutoState(0);
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
+    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
     limb.width.setAutoState(width);
     limb.depth.setAutoState(this.depth.state + 1);
     limb.visibility.setAutoState("hidden");
@@ -212,7 +218,7 @@ export class TreeView extends HtmlView {
     topBranch.top.setAutoState(0);
     topBranch.left.setAutoState(0);
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
+    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
     topBranch.width.setAutoState(width);
     topBranch.visibility.setAutoState("hidden");
   }
@@ -227,7 +233,7 @@ export class TreeView extends HtmlView {
     bottomBranch.bottom.setAutoState(0);
     bottomBranch.left.setAutoState(0);
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
+    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
     bottomBranch.width.setAutoState(width);
     bottomBranch.visibility.setAutoState("hidden");
   }
@@ -282,6 +288,9 @@ export class TreeView extends HtmlView {
     }
   }
 
+  /** @hidden */
+  declare readonly visibleFrame: BoxR2;
+
   protected detectVisibleFrame(viewContext: ViewContext): BoxR2 {
     const xBleed = 0;
     const yBleed = 64;
@@ -304,7 +313,7 @@ export class TreeView extends HtmlView {
 
   extendViewContext(viewContext: ViewContext): ViewContextType<this> {
     const treeViewContext = Object.create(viewContext);
-    treeViewContext.visibleFrame = this._visibleFrame;
+    treeViewContext.visibleFrame = this.visibleFrame;
     return treeViewContext;
   }
 
@@ -333,8 +342,8 @@ export class TreeView extends HtmlView {
     if (oldSeed !== void 0) {
       const superSeed = this.seed.superState;
       let width: Length | string | number | undefined = void 0;
-      if (superSeed !== void 0 && superSeed._width !== null) {
-        width = superSeed._width.pxValue();
+      if (superSeed !== void 0 && superSeed.width !== null) {
+        width = superSeed.width.pxValue();
       }
       if (width === void 0) {
         width = this.width.state;
@@ -370,7 +379,7 @@ export class TreeView extends HtmlView {
   protected processVisibleViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
                                 processChildView: (this: this, childView: View, processFlags: ViewFlags,
                                                    viewContext: ViewContextType<this>) => void): void {
-    const visibleViews = this._visibleViews;
+    const visibleViews = this.visibleViews;
     let i = 0;
     while (i < visibleViews.length) {
       const childView = visibleViews[i]!;
@@ -395,7 +404,7 @@ export class TreeView extends HtmlView {
   protected displayVisibleViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                                 displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                    viewContext: ViewContextType<this>) => void): void {
-    const visibleViews = this._visibleViews;
+    const visibleViews = this.visibleViews;
     let i = 0;
     while (i < visibleViews.length) {
       const childView = visibleViews[i]!;
@@ -454,20 +463,24 @@ export class TreeView extends HtmlView {
     this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
     const disclosingPhase = this.disclosingPhase.getValueOr(1);
     let seed = this.seed.state;
-    if (seed !== void 0 && seed._width === null) {
+    if (seed !== void 0 && seed.width === null) {
       this.resizeTree();
       seed = this.seed.state;
     }
     let width: Length | undefined;
-    if (seed !== void 0 && seed._width !== null) {
-      width = seed._width;
+    if (seed !== void 0 && seed.width !== null) {
+      width = seed.width;
     }
     let y = this.limbSpacing.getState();
-    const visibleViews = this._visibleViews;
+    const visibleViews = this.visibleViews;
     visibleViews.length = 0;
     const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
     (viewContext as any).visibleFrame = visibleFrame;
-    this._visibleFrame = visibleFrame;
+    Object.defineProperty(this, "visibleFrame", {
+      value: visibleFrame,
+      enumerable: true,
+      configurable: true,
+    });
 
     type self = this;
     function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
@@ -511,11 +524,15 @@ export class TreeView extends HtmlView {
                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                 viewContext: ViewContextType<this>) => void): void {
     this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
-    const visibleViews = this._visibleViews;
+    const visibleViews = this.visibleViews;
     visibleViews.length = 0;
     const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
     (viewContext as any).visibleFrame = visibleFrame;
-    this._visibleFrame = visibleFrame;
+    Object.defineProperty(this, "visibleFrame", {
+      value: visibleFrame,
+      enumerable: true,
+      configurable: true,
+    });
     type self = this;
     function scrollChildView(this: self, childView: View, displayFlags: ViewFlags,
                              viewContext: ViewContextType<self>): void {

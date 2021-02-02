@@ -30,139 +30,89 @@ export interface TreeRootInit {
 }
 
 export class TreeRoot implements Equals, Equivalent {
-  /** @hidden */
-  readonly _key: string;
-  /** @hidden */
-  readonly _grow: number;
-  /** @hidden */
-  readonly _shrink: number;
-  /** @hidden */
-  readonly _basis: Length;
-  /** @hidden */
-  readonly _optional: boolean;
-  /** @hidden */
-  readonly _width: Length | null;
-  /** @hidden */
-  readonly _left: Length | null;
-  /** @hidden */
-  readonly _right: Length | null;
-  /** @hidden */
-  readonly _hidden: boolean;
-
   constructor(key: string, grow: number, shrink: number, basis: Length,
               optional: boolean, width: Length | null, left: Length | null,
               right: Length | null, hidden: boolean) {
-    this._key = key;
-    this._grow = grow;
-    this._shrink = shrink;
-    this._basis = basis;
-    this._optional = optional;
-    this._width = width;
-    this._left = left;
-    this._right = right;
-    this._hidden = hidden;
+    Object.defineProperty(this, "key", {
+      value: key,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "grow", {
+      value: grow,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "shrink", {
+      value: shrink,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "basis", {
+      value: basis,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "optional", {
+      value: optional,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "width", {
+      value: width,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "left", {
+      value: left,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "right", {
+      value: right,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "hidden", {
+      value: hidden,
+      enumerable: true,
+    });
   }
 
-  get key(): string {
-    return this._key;
+  declare readonly key: string;
+
+  declare readonly grow: number;
+
+  withGrow(grow: number): TreeRoot {
+    return this.copy(this.key, grow, this.shrink, this.basis, this.optional,
+                     this.width, this.left, this.right, this.hidden);
   }
 
-  grow(): number;
-  grow(grow: number): TreeRoot;
-  grow(grow?: number): number | TreeRoot {
-    if (grow === void 0) {
-      return this._grow;
-    } else {
-      return this.copy(this._key, grow, this._shrink, this._basis, this._optional,
-                       this._width, this._left, this._right, this._hidden);
-    }
+  declare readonly shrink: number;
+
+  withShrink(shrink: number): TreeRoot {
+      return this.copy(this.key, this.grow, shrink, this.basis, this.optional,
+                       this.width, this.left, this.right, this.hidden);
   }
 
-  shrink(): number;
-  shrink(shrink: number): TreeRoot;
-  shrink(shrink?: number): number | TreeRoot {
-    if (shrink === void 0) {
-      return this._shrink;
-    } else {
-      return this.copy(this._key, this._grow, shrink, this._basis, this._optional,
-                       this._width, this._left, this._right, this._hidden);
-    }
+  declare readonly basis: Length;
+
+  withBasis(basis: AnyLength): TreeRoot {
+    basis = Length.fromAny(basis);
+    return this.copy(this.key, this.grow, this.shrink, basis, this.optional,
+                     this.width, this.left, this.right, this.hidden);
   }
 
-  basis(): Length;
-  basis(basis: AnyLength): TreeRoot;
-  basis(basis?: AnyLength): Length | TreeRoot {
-    if (basis === void 0) {
-      return this._basis;
-    } else {
-      basis = Length.fromAny(basis);
-      return this.copy(this._key, this._grow, this._shrink, basis, this._optional,
-                       this._width, this._left, this._right, this._hidden);
-    }
+  declare readonly optional: boolean;
+
+  asOptional(optional: boolean): TreeRoot {
+    return this.copy(this.key, this.grow, this.shrink, this.basis, optional,
+                     this.width, this.left, this.right, this.hidden);
   }
 
-  optional(): boolean;
-  optional(optional: boolean): TreeRoot;
-  optional(optional?: boolean): boolean | TreeRoot {
-    if (optional === void 0) {
-      return this._optional;
-    } else {
-      return this.copy(this._key, this._grow, this._shrink, this._basis, optional,
-                       this._width, this._left, this._right, this._hidden);
-    }
-  }
+  declare readonly width: Length | null;
 
-  width(): Length | null;
-  width(width: AnyLength | null): TreeRoot;
-  width(width?: AnyLength | null): Length | null | TreeRoot {
-    if (width === void 0) {
-      return this._width;
-    } else {
-      if (width !== null) {
-        width = Length.fromAny(width);
-      }
-      return this.copy(this._key, this._grow, this._shrink, this._basis,
-                       this._optional, width, this._left, this._right, this._hidden);
-    }
-  }
+  declare readonly left: Length | null;
 
-  left(): Length | null;
-  left(left: AnyLength | null): TreeRoot;
-  left(left?: AnyLength | null): Length | null | TreeRoot {
-    if (left === void 0) {
-      return this._left;
-    } else {
-      if (left !== null) {
-        left = Length.fromAny(left);
-      }
-      return this.copy(this._key, this._grow, this._shrink, this._basis,
-                       this._optional, this._width, left, this._right, this._hidden);
-    }
-  }
+  declare readonly right: Length | null;
 
-  right(): Length | null;
-  right(right: AnyLength | null): TreeRoot;
-  right(right?: AnyLength | null): Length | null | TreeRoot {
-    if (right === void 0) {
-      return this._right;
-    } else {
-      if (right !== null) {
-        right = Length.fromAny(right);
-      }
-      return this.copy(this._key, this._grow, this._shrink, this._basis,
-                       this._optional, this._width, this._left, right, this._hidden);
-    }
-  }
+  declare readonly hidden: boolean;
 
-  hidden(): boolean;
-  hidden(hidden: boolean): TreeRoot;
-  hidden(hidden?: boolean): boolean | TreeRoot {
-    if (hidden === void 0) {
-      return this._hidden;
-    } else {
-      return this.copy(this._key, this._grow, this._shrink, this._basis,
-                       this._optional, this._width, this._left, this._right, hidden);
-    }
+  asHidden(hidden: boolean): TreeRoot {
+    return this.copy(this.key, this.grow, this.shrink, this.basis,
+                     this.optional, this.width, this.left, this.right, hidden);
   }
 
   resized(width: AnyLength | null, left: AnyLength | null,
@@ -177,10 +127,10 @@ export class TreeRoot implements Equals, Equivalent {
       right = Length.fromAny(right);
     }
     if (hidden === void 0) {
-      hidden = this._hidden;
+      hidden = this.hidden;
     }
-    return this.copy(this._key, this._grow, this._shrink, this._basis,
-                     this._optional, width, left, right, hidden);
+    return this.copy(this.key, this.grow, this.shrink, this.basis,
+                     this.optional, width, left, right, hidden);
   }
 
   protected copy(key: string, grow: number, shrink: number, basis: Length,
@@ -194,8 +144,8 @@ export class TreeRoot implements Equals, Equivalent {
     if (this === that) {
       return true;
     } else if (that instanceof TreeRoot) {
-      return this._key === that._key && this._grow === that._grow && this._shrink === that._shrink
-          && this._basis.equivalentTo(that._basis, epsilon) && this._optional === that._optional;
+      return this.key === that.key && this.grow === that.grow && this.shrink === that.shrink
+          && this.basis.equivalentTo(that.basis, epsilon) && this.optional === that.optional;
     }
     return false;
   }
@@ -204,10 +154,10 @@ export class TreeRoot implements Equals, Equivalent {
     if (this === that) {
       return true;
     } else if (that instanceof TreeRoot) {
-      return this._key === that._key && this._grow === that._grow && this._shrink === that._shrink
-          && this._basis.equals(that._basis) && this._optional === that._optional
-          && Equals(this._width, that._width) && Equals(this._left, that._left)
-          && Equals(this._right, that._right) && this._hidden === that._hidden;
+      return this.key === that.key && this.grow === that.grow && this.shrink === that.shrink
+          && this.basis.equals(that.basis) && this.optional === that.optional
+          && Equals(this.width, that.width) && Equals(this.left, that.left)
+          && Equals(this.right, that.right) && this.hidden === that.hidden;
     }
     return false;
   }

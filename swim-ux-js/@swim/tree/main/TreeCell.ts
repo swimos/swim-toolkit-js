@@ -16,9 +16,9 @@ import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import type {PositionGestureInput} from "@swim/gesture";
 import type {TreeCellObserver} from "./TreeCellObserver";
 import type {TreeCellController} from "./TreeCellController";
-import type {TitleTreeCell} from "./TitleTreeCell";
-import type {DisclosureTreeCell} from "./DisclosureTreeCell";
-import type {PolygonTreeCell} from "./PolygonTreeCell";
+import {TitleTreeCell} from "./"; // forward import
+import {DisclosureTreeCell} from "./"; // forward import
+import {PolygonTreeCell} from "./"; // forward import
 
 export type AnyTreeCell = TreeCell | TreeCellInit | HTMLElement;
 
@@ -74,11 +74,11 @@ export class TreeCell extends HtmlView {
   static fromInit(init: TreeCellInit): TreeCell {
     let view: TreeCell;
     if (init.cellType === "title") {
-      view = TreeCell.Title.create();
+      view = TitleTreeCell.create();
     } else if (init.cellType === "disclosure") {
-      view = TreeCell.Disclosure.create();
+      view = DisclosureTreeCell.create();
     } else if (init.cellType === "polygon") {
-      view = TreeCell.Polygon.create();
+      view = PolygonTreeCell.create();
     } else {
       view = TreeCell.create();
     }
@@ -98,12 +98,4 @@ export class TreeCell extends HtmlView {
     }
     throw new TypeError("" + value);
   }
-
-  // Forward type declarations
-  /** @hidden */
-  static Title: typeof TitleTreeCell; // defined by TitleTreeCell
-  /** @hidden */
-  static Disclosure: typeof DisclosureTreeCell; // defined by DisclosureTreeCell
-  /** @hidden */
-  static Polygon: typeof PolygonTreeCell; // defined by PolygonTreeCell
 }

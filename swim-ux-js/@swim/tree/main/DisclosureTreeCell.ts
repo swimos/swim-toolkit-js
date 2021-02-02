@@ -64,4 +64,3 @@ export class DisclosureTreeCell extends TreeCell {
     // hook
   }
 }
-TreeCell.Disclosure = DisclosureTreeCell;

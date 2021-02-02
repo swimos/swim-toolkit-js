@@ -28,4 +28,3 @@ export class TitleTreeCell extends TreeCell {
     this.color.setAutoState(theme.inner(mood, Look.accentColor), timing);
   }
 }
-TreeCell.Title = TitleTreeCell;

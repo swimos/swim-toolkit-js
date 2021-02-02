@@ -28,12 +28,13 @@ export interface PolygonTreeCellInit extends TreeCellInit {
 }
 
 export class PolygonTreeCell extends TreeCell {
-  /** @hidden */
-  _sides: number;
-
   constructor(node: HTMLElement) {
     super(node);
-    this._sides = 0;
+    Object.defineProperty(this, "sides", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected initNode(node: HTMLElement): void {
@@ -48,7 +49,7 @@ export class PolygonTreeCell extends TreeCell {
   initView(init: PolygonTreeCellInit): void {
     super.initView(init);
     if (init.sides !== void 0) {
-      this._sides = Math.round(init.sides);
+      this.setSides(init.sides);
     }
     if (init.radius !== void 0) {
       this.radius(init.radius);
@@ -67,14 +68,16 @@ export class PolygonTreeCell extends TreeCell {
     return icon.getChildView("shape") as SvgView;
   }
 
-  sides(): number {
-    return this._sides;
-  }
+  declare readonly sides: number;
 
   setSides(sides: number): void {
     sides = Math.round(sides);
-    if (this._sides !== sides) {
-      this._sides = sides;
+    if (this.sides !== sides) {
+      Object.defineProperty(this, "sides", {
+        value: sides,
+        enumerable: true,
+        configurable: true,
+      });
       this.requireUpdate(View.NeedsLayout);
     }
   }
@@ -122,7 +125,7 @@ export class PolygonTreeCell extends TreeCell {
     }
     const radius = this.radius.value.pxValue(Math.min(width, height));
     const size = 2 * radius;
-    const sides = this._sides;
+    const sides = this.sides;
     const sector = 2 * Math.PI / sides;
     let angle = this.rotation.value.radValue();
 
@@ -147,4 +150,3 @@ export class PolygonTreeCell extends TreeCell {
     shape.d.setAutoState(context.toString());
   }
 }
-TreeCell.Polygon = PolygonTreeCell;

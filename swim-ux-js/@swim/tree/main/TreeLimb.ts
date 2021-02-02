@@ -37,12 +37,13 @@ export interface TreeLimbInit extends HtmlViewInit {
 export type TreeLimbState = "collapsed" | "expanding" | "expanded" | "collapsing";
 
 export class TreeLimb extends HtmlView {
-  /** @hidden */
-  _visibleFrame: BoxR2;
-
   constructor(node: HTMLElement) {
     super(node);
-    this._visibleFrame = new BoxR2(0, 0, window.innerWidth, window.innerHeight);
+    Object.defineProperty(this, "visibleFrame", {
+      value: new BoxR2(0, 0, window.innerWidth, window.innerHeight),
+      enumerable: true,
+      configurable: true,
+    });
     this.initNode(node);
   }
 
@@ -325,7 +326,7 @@ export class TreeLimb extends HtmlView {
     subtree.position.setAutoState("absolute");
     subtree.left.setAutoState(0);
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
+    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
     subtree.width.setAutoState(width);
     subtree.depth.setAutoState(this.depth.state);
   }
@@ -340,6 +341,9 @@ export class TreeLimb extends HtmlView {
       subtree.depth.setAutoState(depth);
     }
   }
+
+  /** @hidden */
+  declare readonly visibleFrame: BoxR2;
 
   protected detectVisibleFrame(viewContext: ViewContext): BoxR2 {
     const xBleed = 0;
@@ -363,7 +367,7 @@ export class TreeLimb extends HtmlView {
 
   extendViewContext(viewContext: ViewContext): ViewContextType<this> {
     const treeViewContext = Object.create(viewContext);
-    treeViewContext.visibleFrame = this._visibleFrame;
+    treeViewContext.visibleFrame = this.visibleFrame;
     return treeViewContext;
   }
 
@@ -392,8 +396,13 @@ export class TreeLimb extends HtmlView {
   protected onDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     super.onDisplay(displayFlags, viewContext);
     if ((displayFlags & (View.NeedsScroll | View.NeedsLayout)) !== 0) {
-      this._visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
-      (viewContext as any).visibleFrame = this._visibleFrame;
+      const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
+      Object.defineProperty(this, "visibleFrame", {
+        value: visibleFrame,
+        enumerable: true,
+        configurable: true,
+      });
+      (viewContext as any).visibleFrame = this.visibleFrame;
       this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
     }
   }
@@ -408,7 +417,7 @@ export class TreeLimb extends HtmlView {
                           ? this.disclosingPhase.getValueOr(1)
                           : 1;
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed._width !== null ? seed._width : void 0;
+    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
     const limbSpacing = this.limbSpacing.getStateOr(0);
     let y = 0;
     const leaf = this.leaf;

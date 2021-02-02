@@ -116,10 +116,10 @@ export class TreeStem extends HtmlView {
         const key = childView.key;
         const root = seed !== void 0 && key !== void 0 ? seed.getRoot(key) : null;
         if (root !== null) {
-          childView.display.setAutoState(!root._hidden ? "flex" : "none");
-          const left = root._left;
+          childView.display.setAutoState(!root.hidden ? "flex" : "none");
+          const left = root.left;
           childView.left.setAutoState(left !== null ? left : void 0);
-          const width = root._width;
+          const width = root.width;
           childView.width.setAutoState(width !== null ? width : void 0);
           childView.height.setAutoState(height);
         } else {
