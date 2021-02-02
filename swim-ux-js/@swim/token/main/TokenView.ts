@@ -29,21 +29,31 @@ export interface TokenViewInit extends HtmlViewInit {
 }
 
 export class TokenView extends HtmlView {
-  /** @hidden */
-  _tokenState: TokenViewState;
-  /** @hidden */
-  _headGesture?: PositionGesture<SvgView>;
-  /** @hidden */
-  _bodyGesture?: PositionGesture<SvgView>;
-  /** @hidden */
-  _footGesture?: PositionGesture<SvgView>;
-
   constructor(node: HTMLElement) {
     super(node);
+    Object.defineProperty(this, "tokenState", {
+      value: "expanded",
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "headGesture", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "bodyGesture", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "footGesture", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
     this.onClickHead = this.onClickHead.bind(this);
     this.onClickBody = this.onClickBody.bind(this);
     this.onClickFoot = this.onClickFoot.bind(this);
-    this._tokenState = "expanded";
     this.initNode(node);
     this.initChildViews();
   }
@@ -85,9 +95,16 @@ export class TokenView extends HtmlView {
     headView.cursor.setAutoState("pointer");
     const headGesture = this.createHeadGesture(headView);
     if (headGesture !== null) {
-      this._headGesture = headGesture;
+      Object.defineProperty(this, "headGesture", {
+        value: headGesture,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
+
+  /** @hidden */
+  declare readonly headGesture: PositionGesture<SvgView> | null;
 
   protected createHeadGesture(headView: SvgView): PositionGesture<SvgView> | null {
     return new PositionGesture(headView, this.head);
@@ -99,9 +116,16 @@ export class TokenView extends HtmlView {
     bodyView.cursor.setAutoState("pointer");
     const bodyGesture = this.createBodyGesture(bodyView);
     if (bodyGesture !== null) {
-      this._bodyGesture = bodyGesture;
+      Object.defineProperty(this, "bodyGesture", {
+        value: bodyGesture,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
+
+  /** @hidden */
+  declare readonly bodyGesture: PositionGesture<SvgView> | null;
 
   protected createBodyGesture(bodyView: SvgView): PositionGesture<SvgView> | null {
     return new PositionGesture(bodyView, this.body);
@@ -113,9 +137,16 @@ export class TokenView extends HtmlView {
     footView.cursor.setAutoState("pointer");
     const footGesture = this.createFootGesture(footView);
     if (footGesture !== null) {
-      this._footGesture = footGesture;
+      Object.defineProperty(this, "footGesture", {
+        value: footGesture,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
+
+  /** @hidden */
+  declare readonly footGesture: PositionGesture<SvgView> | null;
 
   protected createFootGesture(footView: SvgView): PositionGesture<SvgView> | null {
     return new PositionGesture(footView, this.foot);
@@ -175,16 +206,14 @@ export class TokenView extends HtmlView {
     }
   }
 
-  get tokenState(): TokenViewState {
-    return this._tokenState;
-  }
+  declare readonly tokenState: TokenViewState;
 
   isExpanded(): boolean {
-    return this._tokenState === "expanded" || this._tokenState === "expanding";
+    return this.tokenState === "expanded" || this.tokenState === "expanding";
   }
 
   isCollapsed(): boolean {
-    return this._tokenState === "collapsed" || this._tokenState === "collapsing";
+    return this.tokenState === "collapsed" || this.tokenState === "collapsing";
   }
 
   @ViewAnimator<TokenView, number>({
@@ -192,7 +221,7 @@ export class TokenView extends HtmlView {
     state: 1,
     updateFlags: View.NeedsLayout,
     onEnd(expandedPhase: number): void {
-      const tokenState = this.owner._tokenState;
+      const tokenState = this.owner.tokenState;
       if (tokenState === "expanding" && expandedPhase === 1) {
         this.owner.didExpand();
       } else if (tokenState === "collapsing" && expandedPhase === 0) {
@@ -261,23 +290,27 @@ export class TokenView extends HtmlView {
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._headGesture !== void 0 && input.inputType !== "mouse") {
-        this.owner._headGesture.beginHover(input, event);
+      const headGesture = this.owner.headGesture;
+      if (headGesture !== null && input.inputType !== "mouse") {
+        headGesture.beginHover(input, event);
       }
     },
     didMovePress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._headGesture !== void 0 && input.isRunaway()) {
-        this.owner._headGesture.cancelPress(input, event);
+      const headGesture = this.owner.headGesture;
+      if (headGesture !== null && input.isRunaway()) {
+        headGesture.cancelPress(input, event);
       }
     },
     didEndPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._headGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
-        this.owner._headGesture.endHover(input, event);
+      const headGesture = this.owner.headGesture;
+      if (headGesture !== null && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        headGesture.endHover(input, event);
       }
     },
     didCancelPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._headGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
-        this.owner._headGesture.endHover(input, event);
+      const headGesture = this.owner.headGesture;
+      if (headGesture !== null && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        headGesture.endHover(input, event);
       }
     },
   })
@@ -326,23 +359,27 @@ export class TokenView extends HtmlView {
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._bodyGesture !== void 0 && input.inputType !== "mouse") {
-        this.owner._bodyGesture.beginHover(input, event);
+      const bodyGesture = this.owner.bodyGesture;
+      if (bodyGesture !== null && input.inputType !== "mouse") {
+        bodyGesture.beginHover(input, event);
       }
     },
     didMovePress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._bodyGesture !== void 0 && input.isRunaway()) {
-        this.owner._bodyGesture.cancelPress(input, event);
+      const bodyGesture = this.owner.bodyGesture;
+      if (bodyGesture !== null && input.isRunaway()) {
+        bodyGesture.cancelPress(input, event);
       }
     },
     didEndPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._bodyGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
-        this.owner._bodyGesture.endHover(input, event);
+      const bodyGesture = this.owner.bodyGesture;
+      if (bodyGesture !== null && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        bodyGesture.endHover(input, event);
       }
     },
     didCancelPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._bodyGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
-        this.owner._bodyGesture.endHover(input, event);
+      const bodyGesture = this.owner.bodyGesture;
+      if (bodyGesture !== null && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        bodyGesture.endHover(input, event);
       }
     },
   })
@@ -397,23 +434,27 @@ export class TokenView extends HtmlView {
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._footGesture !== void 0 && input.inputType !== "mouse") {
-        this.owner._footGesture.beginHover(input, event);
+      const footGesture = this.owner.footGesture;
+      if (footGesture !== null && input.inputType !== "mouse") {
+        footGesture.beginHover(input, event);
       }
     },
     didMovePress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._footGesture !== void 0 && input.isRunaway()) {
-        this.owner._footGesture.cancelPress(input, event);
+      const footGesture = this.owner.footGesture;
+      if (footGesture !== null && input.isRunaway()) {
+        footGesture.cancelPress(input, event);
       }
     },
     didEndPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._footGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
-        this.owner._footGesture.endHover(input, event);
+      const footGesture = this.owner.footGesture;
+      if (footGesture !== null && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        footGesture.endHover(input, event);
       }
     },
     didCancelPress(input: PositionGestureInput, event: Event | null): void {
-      if (this.owner._footGesture !== void 0 && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
-        this.owner._footGesture.endHover(input, event);
+      const footGesture = this.owner.footGesture;
+      if (footGesture !== null && (input.inputType !== "mouse" || !this.view!.clientBounds.contains(input.x, input.y))) {
+        footGesture.endHover(input, event);
       }
     },
   })
@@ -639,13 +680,13 @@ export class TokenView extends HtmlView {
   }
 
   expand(timing?: AnyTiming | boolean): void {
-    if (this._tokenState !== "expanded" || this.expandedPhase.value !== 1) {
+    if (this.tokenState !== "expanded" || this.expandedPhase.value !== 1) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
         timing = Timing.fromAny(timing);
       }
-      if (this._tokenState !== "expanding") {
+      if (this.tokenState !== "expanding") {
         this.willExpand();
       }
       if (timing !== null) {
@@ -662,7 +703,11 @@ export class TokenView extends HtmlView {
   }
 
   protected willExpand(): void {
-    this._tokenState = "expanding";
+    Object.defineProperty(this, "tokenState", {
+      value: "expanding",
+      enumerable: true,
+      configurable: true,
+    });
     const labelContainer = this.labelContainer.view;
     if (labelContainer !== null) {
       labelContainer.display.setAutoState("block");
@@ -686,7 +731,11 @@ export class TokenView extends HtmlView {
   }
 
   protected didExpand(): void {
-    this._tokenState = "expanded";
+    Object.defineProperty(this, "tokenState", {
+      value: "expanded",
+      enumerable: true,
+      configurable: true,
+    });
     this.requireUpdate(View.NeedsLayout);
 
     const viewObservers = this.viewObservers;
@@ -703,13 +752,13 @@ export class TokenView extends HtmlView {
   }
 
   collapse(timing?: AnyTiming | boolean): void {
-    if (this._tokenState !== "collapsed" || this.expandedPhase.value !== 0) {
+    if (this.tokenState !== "collapsed" || this.expandedPhase.value !== 0) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
         timing = Timing.fromAny(timing);
       }
-      if (this._tokenState !== "collapsing") {
+      if (this.tokenState !== "collapsing") {
         this.willCollapse();
       }
       if (timing !== null) {
@@ -726,7 +775,11 @@ export class TokenView extends HtmlView {
   }
 
   protected willCollapse(): void {
-    this._tokenState = "collapsing";
+    Object.defineProperty(this, "tokenState", {
+      value: "collapsing",
+      enumerable: true,
+      configurable: true,
+    });
 
     const viewController = this.viewController;
     if (viewController !== null && viewController.tokenWillCollapse !== void 0) {
@@ -742,7 +795,11 @@ export class TokenView extends HtmlView {
   }
 
   protected didCollapse(): void {
-    this._tokenState = "collapsed";
+    Object.defineProperty(this, "tokenState", {
+      value: "collapsed",
+      enumerable: true,
+      configurable: true,
+    });
     this.requireUpdate(View.NeedsLayout);
 
     const viewObservers = this.viewObservers;
@@ -759,7 +816,7 @@ export class TokenView extends HtmlView {
   }
 
   toggle(timing?: AnyTiming | boolean): void {
-    const tokenState = this._tokenState;
+    const tokenState = this.tokenState;
     if (tokenState === "collapsed" || tokenState === "collapsing") {
       this.expand(timing);
     } else if (tokenState === "expanded" || tokenState === "expanding") {
