@@ -58,31 +58,14 @@ export interface TraitServiceClass extends Function {
   readonly prototype: TraitService<any, any>;
 }
 
-export declare abstract class TraitService<R extends Trait, T> {
-  /** @hidden */
-  _owner: R;
-  /** @hidden */
-  _modelService: ModelService<Model, T> | null;
-  /** @hidden */
-  _inherit: string | boolean;
-  /** @hidden */
-  _serviceFlags: ModelServiceFlags;
-  /** @hidden */
-  _manager: T;
+export interface TraitService<R extends Trait, T> {
+  (): T;
 
-  constructor(owner: R, serviceName: string | undefined);
+  readonly name: string;
 
-  /** @hidden */
-  observe?: boolean;
+  readonly owner: R;
 
-  /** @hidden */
-  readonly type?: unknown;
-
-  get name(): string;
-
-  get owner(): R;
-
-  get modelService(): ModelService<Model, T> | null;
+  readonly modelService: ModelService<Model, T> | null;
 
   /** @hidden */
   modelServiceConstructor?: ModelServiceConstructor<Model, T>;
@@ -96,7 +79,7 @@ export declare abstract class TraitService<R extends Trait, T> {
   /** @hidden */
   unbindModelService(): void;
 
-  get inherit(): string | boolean;
+  readonly inherit: string | boolean;
 
   setInherit(inherit: string | boolean): void;
 
@@ -105,15 +88,21 @@ export declare abstract class TraitService<R extends Trait, T> {
   setInherited(inherited: boolean): void;
 
   /** @hidden */
-  get superName(): string | undefined;
+  readonly serviceFlags: ModelServiceFlags;
 
-  get superService(): ModelService<Model, T> | null;
+  /** @hidden */
+  setServiceFlags(serviceFlags: ModelServiceFlags): void;
 
-  get manager(): T;
+  /** @hidden */
+  readonly superName: string | undefined;
 
-  get ownManager(): T | undefined;
+  readonly superService: ModelService<Model, T> | null;
 
-  get superManager(): T | undefined;
+  readonly manager: T;
+
+  readonly ownManager: T | undefined;
+
+  readonly superManager: T | undefined;
 
   getManager(): T extends undefined ? never : T;
 
@@ -126,21 +115,16 @@ export declare abstract class TraitService<R extends Trait, T> {
   detach(): void;
 
   /** @hidden */
+  observe?: boolean;
+
+  /** @hidden */
+  readonly type?: unknown;
+
+  /** @hidden */
   initManager?(): T;
-
-  static define<R extends Trait, T, I = {}>(descriptor: TraitServiceDescriptorExtends<R, T, I>): TraitServiceConstructor<R, T, I>;
-  static define<R extends Trait, T>(descriptor: TraitServiceDescriptor<R, T>): TraitServiceConstructor<R, T>;
 }
 
-export interface TraitService<R extends Trait, T> {
-  (): T;
-}
-
-export function TraitService<R extends Trait, T extends ModelManager = ModelManager>(descriptor: {type: typeof ModelManager} & TraitServiceDescriptor<R, T, ModelManagerObserverType<T>>): PropertyDecorator;
-export function TraitService<R extends Trait, T, I = {}>(descriptor: TraitServiceDescriptorExtends<R, T, I>): PropertyDecorator;
-export function TraitService<R extends Trait, T>(descriptor: TraitServiceDescriptor<R, T>): PropertyDecorator;
-
-export function TraitService<R extends Trait, T>(
+export const TraitService = function <R extends Trait, T>(
     this: TraitService<R, T> | typeof TraitService,
     owner: R | TraitServiceDescriptor<R, T>,
     serviceName?: string,
@@ -150,9 +134,21 @@ export function TraitService<R extends Trait, T>(
   } else { // decorator factory
     return TraitServiceDecoratorFactory(owner as TraitServiceDescriptor<R, T>);
   }
+} as {
+  /** @hidden */
+  new<R extends Trait, T>(owner: R, serviceName: string | undefined): TraitService<R, T>;
+
+  <R extends Trait, T extends ModelManager = ModelManager>(descriptor: {type: typeof ModelManager} & TraitServiceDescriptor<R, T, ModelManagerObserverType<T>>): PropertyDecorator;
+  <R extends Trait, T, I = {}>(descriptor: TraitServiceDescriptorExtends<R, T, I>): PropertyDecorator;
+  <R extends Trait, T>(descriptor: TraitServiceDescriptor<R, T>): PropertyDecorator;
+
+  /** @hidden */
+  prototype: TraitService<any, any>;
+
+  define<R extends Trait, T, I = {}>(descriptor: TraitServiceDescriptorExtends<R, T, I>): TraitServiceConstructor<R, T, I>;
+  define<R extends Trait, T>(descriptor: TraitServiceDescriptor<R, T>): TraitServiceConstructor<R, T>;
 }
 __extends(TraitService, Object);
-Trait.Service = TraitService;
 
 function TraitServiceConstructor<R extends Trait, T>(this: TraitService<R, T>, owner: R, serviceName: string | undefined): TraitService<R, T> {
   if (serviceName !== void 0) {
@@ -162,12 +158,30 @@ function TraitServiceConstructor<R extends Trait, T>(this: TraitService<R, T>, o
       configurable: true,
     });
   }
-  this._owner = owner;
-  this._modelService = null;
-  this._serviceFlags = 0;
-  if (this._inherit !== false) {
-    this._serviceFlags |= ModelService.InheritedFlag;
-  }
+  Object.defineProperty(this, "owner", {
+    value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "modelService", {
+    value: null,
+    enumerable: true,
+    configurable: true,
+  });
+  Object.defineProperty(this, "inherit", {
+    value: this.inherit ?? false, // seed from prototype
+    enumerable: true,
+    configurable: true,
+  });
+  Object.defineProperty(this, "serviceFlags", {
+    value: this.inherit !== false ? ModelService.InheritedFlag : 0,
+    enumerable: true,
+    configurable: true,
+  });
+  Object.defineProperty(this, "manager", {
+    value: void 0,
+    enumerable: true,
+    configurable: true,
+  });
   return this;
 }
 
@@ -175,30 +189,18 @@ function TraitServiceDecoratorFactory<R extends Trait, T>(descriptor: TraitServi
   return Trait.decorateTraitService.bind(Trait, TraitService.define(descriptor as TraitServiceDescriptor<Trait, unknown>));
 }
 
-Object.defineProperty(TraitService.prototype, "owner", {
-  get: function <R extends Trait>(this: TraitService<R, unknown>): R {
-    return this._owner;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-Object.defineProperty(TraitService.prototype, "modelService", {
-  get: function (this: TraitService<Trait, unknown>): ModelService<Model, unknown> | null {
-    return this._modelService;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
 TraitService.prototype.createModelService = function <T>(this: TraitService<Trait, T>): ModelService<Model, T> {
   const modelServiceConstructor = this.modelServiceConstructor;
   if (modelServiceConstructor !== void 0) {
-    const model = this._owner.model;
+    const model = this.owner.model;
     if (model !== null) {
       const modelService = new modelServiceConstructor(model, this.name);
-      modelService._inherit = this._inherit;
-      modelService._serviceFlags = this._serviceFlags;
+      Object.defineProperty(modelService, "inherit", {
+        value: this.inherit,
+        enumerable: true,
+        configurable: true,
+      });
+      modelService.setServiceFlags(this.serviceFlags);
       return modelService;
     } else {
       throw new Error("no model");
@@ -209,66 +211,84 @@ TraitService.prototype.createModelService = function <T>(this: TraitService<Trai
 };
 
 TraitService.prototype.bindModelService = function (this: TraitService<Trait, unknown>): void {
-  const model = this._owner.model;
+  const model = this.owner.model;
   if (model !== null) {
     let modelService = model.getLazyModelService(this.name);
     if (modelService === null) {
       modelService = this.createModelService();
       model.setModelService(this.name, modelService);
     }
-    this._modelService = modelService;
+    Object.defineProperty(this, "modelService", {
+      value: modelService,
+      enumerable: true,
+      configurable: true,
+    });
     modelService.addTraitService(this);
-    this._inherit = modelService._inherit;
-    this._serviceFlags = modelService._serviceFlags;
-    this._manager = modelService._manager;
+    Object.defineProperty(this, "inherit", {
+      value: modelService.inherit,
+      enumerable: true,
+      configurable: true,
+    });
+    this.setServiceFlags(modelService.serviceFlags);
+    Object.defineProperty(this, "manager", {
+      value: modelService.manager,
+      enumerable: true,
+      configurable: true,
+    });
   }
 };
 
 TraitService.prototype.unbindModelService = function (this: TraitService<Trait, unknown>): void {
-  const modelService = this._modelService;
+  const modelService = this.modelService;
   if (modelService !== null) {
     modelService.removeTraitService(this);
-    this._modelService = null;
+    Object.defineProperty(this, "modelService", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 };
 
-Object.defineProperty(TraitService.prototype, "inherit", {
-  get: function (this: TraitService<Trait, unknown>): string | boolean {
-    return this._inherit;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-TraitService.prototype.setInherit = function (this: TraitService<Trait, unknown>,
-                                              inherit: string | boolean): void {
-  const modelService = this._modelService;
+TraitService.prototype.setInherit = function (this: TraitService<Trait, unknown>, inherit: string | boolean): void {
+  const modelService = this.modelService;
   if (modelService !== null) {
     modelService.setInherit(inherit);
   } else {
-    this._inherit = inherit;
+    Object.defineProperty(this, "inherit", {
+      value: inherit,
+      enumerable: true,
+      configurable: true,
+    });
   }
 };
 
 TraitService.prototype.isInherited = function (this: TraitService<Trait, unknown>): boolean {
-  return (this._serviceFlags & ModelService.InheritedFlag) !== 0;
+  return (this.serviceFlags & ModelService.InheritedFlag) !== 0;
 };
 
-TraitService.prototype.setInherited = function (this: TraitService<Trait, unknown>,
-                                                inherited: boolean): void {
-  const modelService = this._modelService;
+TraitService.prototype.setInherited = function (this: TraitService<Trait, unknown>, inherited: boolean): void {
+  const modelService = this.modelService;
   if (modelService !== null) {
     modelService.setInherited(inherited);
-  } else if (inherited && (this._serviceFlags & ModelService.InheritedFlag) === 0) {
-    this._serviceFlags |= ModelService.InheritedFlag;
-  } else if (!inherited && (this._serviceFlags & ModelService.InheritedFlag) !== 0) {
-    this._serviceFlags &= ~ModelService.InheritedFlag;
+  } else if (inherited && (this.serviceFlags & ModelService.InheritedFlag) === 0) {
+    this.setServiceFlags(this.serviceFlags | ModelService.InheritedFlag);
+  } else if (!inherited && (this.serviceFlags & ModelService.InheritedFlag) !== 0) {
+    this.setServiceFlags(this.serviceFlags & ~ModelService.InheritedFlag);
   }
+};
+
+TraitService.prototype.setServiceFlags = function (this: TraitService<Trait, unknown>, serviceFlags: ModelServiceFlags): void {
+  Object.defineProperty(this, "serviceFlags", {
+    value: serviceFlags,
+    enumerable: true,
+    configurable: true,
+  });
 };
 
 Object.defineProperty(TraitService.prototype, "superName", {
   get: function (this: TraitService<Trait, unknown>): string | undefined {
-    const modelService = this._modelService;
+    const modelService = this.modelService;
     return modelService !== null ? modelService.superName : void 0;
   },
   enumerable: true,
@@ -277,16 +297,8 @@ Object.defineProperty(TraitService.prototype, "superName", {
 
 Object.defineProperty(TraitService.prototype, "superService", {
   get: function (this: TraitService<Trait, unknown>): ModelService<Model, unknown> | null {
-    const modelService = this._modelService;
+    const modelService = this.modelService;
     return modelService !== null ? modelService.superService : null;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-Object.defineProperty(TraitService.prototype, "manager", {
-  get: function <T>(this: TraitService<Trait, T>): T {
-    return this._manager;
   },
   enumerable: true,
   configurable: true,
@@ -302,7 +314,7 @@ Object.defineProperty(TraitService.prototype, "ownManager", {
 
 Object.defineProperty(TraitService.prototype, "superManager", {
   get: function <T>(this: TraitService<Trait, T>): T | undefined {
-    const modelService = this._modelService;
+    const modelService = this.modelService;
     return modelService !== null ? modelService.superManager : void 0;
   },
   enumerable: true,
@@ -317,8 +329,7 @@ TraitService.prototype.getManager = function <T>(this: TraitService<Trait, T>): 
   return manager as T extends undefined ? never : T;
 };
 
-TraitService.prototype.getManagerOr = function <T, E>(this: TraitService<Trait, T>,
-                                                      elseManager: E): (T extends undefined ? never : T) | E {
+TraitService.prototype.getManagerOr = function <T, E>(this: TraitService<Trait, T>, elseManager: E): (T extends undefined ? never : T) | E {
   let manager: T | E | undefined = this.manager;
   if (manager === void 0) {
     manager = elseManager;
@@ -328,14 +339,14 @@ TraitService.prototype.getManagerOr = function <T, E>(this: TraitService<Trait, 
 
 TraitService.prototype.attach = function (this: TraitService<Trait, unknown>): void {
   this.bindModelService();
-  if (this._manager instanceof ModelManager && this.observe === true) {
-    this._manager.addModelManagerObserver(this as ModelManagerObserverType<ModelManager>);
+  if (this.manager instanceof ModelManager && this.observe === true) {
+    this.manager.addModelManagerObserver(this as ModelManagerObserverType<ModelManager>);
   }
 };
 
 TraitService.prototype.detach = function (this: TraitService<Trait, unknown>): void {
-  if (this._manager instanceof ModelManager && this.observe === true) {
-    this._manager.removeModelManagerObserver(this as ModelManagerObserverType<ModelManager>);
+  if (this.manager instanceof ModelManager && this.observe === true) {
+    this.manager.removeModelManagerObserver(this as ModelManagerObserverType<ModelManager>);
   }
   this.unbindModelService();
 };
@@ -356,16 +367,16 @@ TraitService.define = function <R extends Trait, T, I>(descriptor: TraitServiceD
     _super = TraitService;
   }
 
-  const _constructor = function TraitServiceAccessor(this: TraitService<R, T>, owner: R, serviceName: string | undefined): TraitService<R, T> {
-    let _this: TraitService<R, T> = function accessor(): T | undefined {
-      return _this._manager;
+  const _constructor = function DecoratedTraitService(this: TraitService<R, T>, owner: R, serviceName: string | undefined): TraitService<R, T> {
+    let _this: TraitService<R, T> = function TraitServiceAccessor(): T | undefined {
+      return _this.manager;
     } as TraitService<R, T>;
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, owner, serviceName) || _this;
     return _this;
   } as unknown as TraitServiceConstructor<R, T, I>;
 
-  const _prototype = descriptor as unknown as TraitService<R, T> & I;
+  const _prototype = descriptor as unknown as TraitService<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
@@ -377,7 +388,11 @@ TraitService.define = function <R extends Trait, T, I>(descriptor: TraitServiceD
     };
     _prototype.initManager = initManager;
   }
-  _prototype._inherit = inherit !== void 0 ? inherit : true;
+  Object.defineProperty(_prototype, "inherit", {
+    value: inherit ?? true,
+    enumerable: true,
+    configurable: true,
+  });
   if (_prototype.modelServiceConstructor === void 0) {
     if (modelService === void 0) {
       modelService = {

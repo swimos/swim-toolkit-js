@@ -25,17 +25,6 @@ import type {ModelTrait} from "../binding/ModelTrait";
 import type {ModelDownlink} from "../downlink/ModelDownlink";
 
 export abstract class GenericModel extends Model {
-  /** @hidden */
-  _modelServices?: {[serviceName: string]: ModelService<Model, unknown> | undefined};
-  /** @hidden */
-  _modelScopes?: {[scopeName: string]: ModelScope<Model, unknown> | undefined};
-  /** @hidden */
-  _modelBindings?: {[bindingName: string]: ModelBinding<Model, Model> | undefined};
-  /** @hidden */
-  _modelTraits?: {[bindingName: string]: ModelTrait<Model, Trait> | undefined};
-  /** @hidden */
-  _modelDownlinks?: {[downlinkName: string]: ModelDownlink<Model> | undefined};
-
   constructor() {
     super();
     Object.defineProperty(this, "key", {
@@ -50,6 +39,31 @@ export abstract class GenericModel extends Model {
     });
     Object.defineProperty(this, "modelConsumers", {
       value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modelServices", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modelScopes", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modelBindings", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modelTraits", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "modelDownlinks", {
+      value: null,
       enumerable: true,
       configurable: true,
     });
@@ -587,14 +601,17 @@ export abstract class GenericModel extends Model {
     }
   }
 
+  /** @hidden */
+  declare readonly modelServices: {[serviceName: string]: ModelService<Model, unknown> | undefined} | null;
+
   hasModelService(serviceName: string): boolean {
-    const modelServices = this._modelServices;
-    return modelServices !== void 0 && modelServices[serviceName] !== void 0;
+    const modelServices = this.modelServices;
+    return modelServices !== null && modelServices[serviceName] !== void 0;
   }
 
   getModelService(serviceName: string): ModelService<this, unknown> | null {
-    const modelServices = this._modelServices;
-    if (modelServices !== void 0) {
+    const modelServices = this.modelServices;
+    if (modelServices !== null) {
       const modelService = modelServices[serviceName];
       if (modelService !== void 0) {
         return modelService as ModelService<this, unknown>;
@@ -604,10 +621,14 @@ export abstract class GenericModel extends Model {
   }
 
   setModelService(serviceName: string, newModelService: ModelService<this, unknown> | null): void {
-    let modelServices = this._modelServices;
-    if (modelServices === void 0) {
+    let modelServices = this.modelServices;
+    if (modelServices === null) {
       modelServices = {};
-      this._modelServices = modelServices;
+      Object.defineProperty(this, "modelServices", {
+        value: modelServices,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldModelService = modelServices[serviceName];
     if (oldModelService !== void 0 && this.isMounted()) {
@@ -625,34 +646,33 @@ export abstract class GenericModel extends Model {
 
   /** @hidden */
   protected mountServices(): void {
-    const modelServices = this._modelServices;
-    if (modelServices !== void 0) {
-      for (const serviceName in modelServices) {
-        const modelService = modelServices[serviceName]!;
-        modelService.mount();
-      }
+    const modelServices = this.modelServices;
+    for (const serviceName in modelServices) {
+      const modelService = modelServices[serviceName]!;
+      modelService.mount();
     }
   }
 
   /** @hidden */
   protected unmountServices(): void {
-    const modelServices = this._modelServices;
-    if (modelServices !== void 0) {
-      for (const serviceName in modelServices) {
-        const modelService = modelServices[serviceName]!;
-        modelService.unmount();
-      }
+    const modelServices = this.modelServices;
+    for (const serviceName in modelServices) {
+      const modelService = modelServices[serviceName]!;
+      modelService.unmount();
     }
   }
 
+  /** @hidden */
+  declare readonly modelScopes: {[scopeName: string]: ModelScope<Model, unknown> | undefined} | null;
+
   hasModelScope(scopeName: string): boolean {
-    const modelScopes = this._modelScopes;
-    return modelScopes !== void 0 && modelScopes[scopeName] !== void 0;
+    const modelScopes = this.modelScopes;
+    return modelScopes !== null && modelScopes[scopeName] !== void 0;
   }
 
   getModelScope(scopeName: string): ModelScope<this, unknown> | null {
-    const modelScopes = this._modelScopes;
-    if (modelScopes !== void 0) {
+    const modelScopes = this.modelScopes;
+    if (modelScopes !== null) {
       const modelScope = modelScopes[scopeName];
       if (modelScope !== void 0) {
         return modelScope as ModelScope<this, unknown>;
@@ -662,10 +682,14 @@ export abstract class GenericModel extends Model {
   }
 
   setModelScope(scopeName: string, newModelScope: ModelScope<this, unknown> | null): void {
-    let modelScopes = this._modelScopes;
-    if (modelScopes === void 0) {
+    let modelScopes = this.modelScopes;
+    if (modelScopes === null) {
       modelScopes = {};
-      this._modelScopes = modelScopes;
+      Object.defineProperty(this, "modelScopes", {
+        value: modelScopes,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldModelScope = modelScopes[scopeName];
     if (oldModelScope !== void 0 && this.isMounted()) {
@@ -683,45 +707,42 @@ export abstract class GenericModel extends Model {
 
   /** @hidden */
   mutateScopes(): void {
-    const modelScopes = this._modelScopes;
-    if (modelScopes !== void 0) {
-      for (const scopeName in modelScopes) {
-        const modelScope = modelScopes[scopeName]!;
-        modelScope.onMutate();
-      }
+    const modelScopes = this.modelScopes;
+    for (const scopeName in modelScopes) {
+      const modelScope = modelScopes[scopeName]!;
+      modelScope.onMutate();
     }
   }
 
   /** @hidden */
   protected mountScopes(): void {
-    const modelScopes = this._modelScopes;
-    if (modelScopes !== void 0) {
-      for (const scopeName in modelScopes) {
-        const modelScope = modelScopes[scopeName]!;
-        modelScope.mount();
-      }
+    const modelScopes = this.modelScopes;
+    for (const scopeName in modelScopes) {
+      const modelScope = modelScopes[scopeName]!;
+      modelScope.mount();
     }
   }
 
   /** @hidden */
   protected unmountScopes(): void {
-    const modelScopes = this._modelScopes;
-    if (modelScopes !== void 0) {
-      for (const scopeName in modelScopes) {
-        const modelScope = modelScopes[scopeName]!;
-        modelScope.unmount();
-      }
+    const modelScopes = this.modelScopes;
+    for (const scopeName in modelScopes) {
+      const modelScope = modelScopes[scopeName]!;
+      modelScope.unmount();
     }
   }
 
+  /** @hidden */
+  declare readonly modelBindings: {[bindingName: string]: ModelBinding<Model, Model> | undefined} | null;
+
   hasModelBinding(bindingName: string): boolean {
-    const modelBindings = this._modelBindings;
-    return modelBindings !== void 0 && modelBindings[bindingName] !== void 0;
+    const modelBindings = this.modelBindings;
+    return modelBindings !== null && modelBindings[bindingName] !== void 0;
   }
 
   getModelBinding(bindingName: string): ModelBinding<this, Model> | null {
-    const modelBindings = this._modelBindings;
-    if (modelBindings !== void 0) {
+    const modelBindings = this.modelBindings;
+    if (modelBindings !== null) {
       const modelBinding = modelBindings[bindingName];
       if (modelBinding !== void 0) {
         return modelBinding as ModelBinding<this, Model>;
@@ -731,10 +752,14 @@ export abstract class GenericModel extends Model {
   }
 
   setModelBinding(bindingName: string, newModelBinding: ModelBinding<this, any> | null): void {
-    let modelBindings = this._modelBindings;
-    if (modelBindings === void 0) {
+    let modelBindings = this.modelBindings;
+    if (modelBindings === null) {
       modelBindings = {};
-      this._modelBindings = modelBindings;
+      Object.defineProperty(this, "modelBindings", {
+        value: modelBindings,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldModelBinding = modelBindings[bindingName];
     if (oldModelBinding !== void 0 && this.isMounted()) {
@@ -752,23 +777,19 @@ export abstract class GenericModel extends Model {
 
   /** @hidden */
   protected mountModelBindings(): void {
-    const modelBindings = this._modelBindings;
-    if (modelBindings !== void 0) {
-      for (const bindingName in modelBindings) {
-        const modelBinding = modelBindings[bindingName]!;
-        modelBinding.mount();
-      }
+    const modelBindings = this.modelBindings;
+    for (const bindingName in modelBindings) {
+      const modelBinding = modelBindings[bindingName]!;
+      modelBinding.mount();
     }
   }
 
   /** @hidden */
   protected unmountModelBindings(): void {
-    const modelBindings = this._modelBindings;
-    if (modelBindings !== void 0) {
-      for (const bindingName in modelBindings) {
-        const modelBinding = modelBindings[bindingName]!;
-        modelBinding.unmount();
-      }
+    const modelBindings = this.modelBindings;
+    for (const bindingName in modelBindings) {
+      const modelBinding = modelBindings[bindingName]!;
+      modelBinding.unmount();
     }
   }
 
@@ -794,14 +815,17 @@ export abstract class GenericModel extends Model {
     }
   }
 
+  /** @hidden */
+  declare readonly modelTraits: {[bindingName: string]: ModelTrait<Model, Trait> | undefined} | null;
+
   hasModelTrait(bindingName: string): boolean {
-    const modelTraits = this._modelTraits;
-    return modelTraits !== void 0 && modelTraits[bindingName] !== void 0;
+    const modelTraits = this.modelTraits;
+    return modelTraits !== null && modelTraits[bindingName] !== void 0;
   }
 
   getModelTrait(bindingName: string): ModelTrait<this, Trait> | null {
-    const modelTraits = this._modelTraits;
-    if (modelTraits !== void 0) {
+    const modelTraits = this.modelTraits;
+    if (modelTraits !== null) {
       const modelTrait = modelTraits[bindingName];
       if (modelTrait !== void 0) {
         return modelTrait as ModelTrait<this, Trait>;
@@ -811,10 +835,14 @@ export abstract class GenericModel extends Model {
   }
 
   setModelTrait(bindingName: string, newModelTrait: ModelTrait<this, any> | null): void {
-    let modelTraits = this._modelTraits;
-    if (modelTraits === void 0) {
+    let modelTraits = this.modelTraits;
+    if (modelTraits === null) {
       modelTraits = {};
-      this._modelTraits = modelTraits;
+      Object.defineProperty(this, "modelTraits", {
+        value: modelTraits,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldModelTrait = modelTraits[bindingName];
     if (oldModelTrait !== void 0 && this.isMounted()) {
@@ -832,23 +860,19 @@ export abstract class GenericModel extends Model {
 
   /** @hidden */
   protected mountModelTraits(): void {
-    const modelTraits = this._modelTraits;
-    if (modelTraits !== void 0) {
-      for (const bindingName in modelTraits) {
-        const modelTrait = modelTraits[bindingName]!;
-        modelTrait.mount();
-      }
+    const modelTraits = this.modelTraits;
+    for (const bindingName in modelTraits) {
+      const modelTrait = modelTraits[bindingName]!;
+      modelTrait.mount();
     }
   }
 
   /** @hidden */
   protected unmountModelTraits(): void {
-    const modelTraits = this._modelTraits;
-    if (modelTraits !== void 0) {
-      for (const bindingName in modelTraits) {
-        const modelTrait = modelTraits[bindingName]!;
-        modelTrait.unmount();
-      }
+    const modelTraits = this.modelTraits;
+    for (const bindingName in modelTraits) {
+      const modelTrait = modelTraits[bindingName]!;
+      modelTrait.unmount();
     }
   }
 
@@ -874,14 +898,17 @@ export abstract class GenericModel extends Model {
     }
   }
 
+  /** @hidden */
+  declare readonly modelDownlinks: {[downlinkName: string]: ModelDownlink<Model> | undefined} | null;
+
   hasModelDownlink(downlinkName: string): boolean {
-    const modelDownlinks = this._modelDownlinks;
-    return modelDownlinks !== void 0 && modelDownlinks[downlinkName] !== void 0;
+    const modelDownlinks = this.modelDownlinks;
+    return modelDownlinks !== null && modelDownlinks[downlinkName] !== void 0;
   }
 
   getModelDownlink(downlinkName: string): ModelDownlink<this> | null {
-    const modelDownlinks = this._modelDownlinks;
-    if (modelDownlinks !== void 0) {
+    const modelDownlinks = this.modelDownlinks;
+    if (modelDownlinks !== null) {
       const modelDownlink = modelDownlinks[downlinkName];
       if (modelDownlink !== void 0) {
         return modelDownlink as ModelDownlink<this>;
@@ -891,10 +918,14 @@ export abstract class GenericModel extends Model {
   }
 
   setModelDownlink(downlinkName: string, newModelDownlink: ModelDownlink<this> | null): void {
-    let modelDownlinks = this._modelDownlinks;
-    if (modelDownlinks === void 0) {
+    let modelDownlinks = this.modelDownlinks;
+    if (modelDownlinks === null) {
       modelDownlinks = {};
-      this._modelDownlinks = modelDownlinks;
+      Object.defineProperty(this, "modelDownlinks", {
+        value: modelDownlinks,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldModelDownlink = modelDownlinks[downlinkName];
     if (oldModelDownlink !== void 0 && this.isMounted()) {
@@ -912,38 +943,31 @@ export abstract class GenericModel extends Model {
 
   /** @hidden */
   protected mountDownlinks(): void {
-    const modelDownlinks = this._modelDownlinks;
-    if (modelDownlinks !== void 0) {
-      for (const downlinkName in modelDownlinks) {
-        const modelDownlink = modelDownlinks[downlinkName]!;
-        modelDownlink.mount();
-      }
+    const modelDownlinks = this.modelDownlinks;
+    for (const downlinkName in modelDownlinks) {
+      const modelDownlink = modelDownlinks[downlinkName]!;
+      modelDownlink.mount();
     }
   }
 
   /** @hidden */
   protected unmountDownlinks(): void {
-    const modelDownlinks = this._modelDownlinks;
-    if (modelDownlinks !== void 0) {
-      for (const downlinkName in modelDownlinks) {
-        const modelDownlink = modelDownlinks[downlinkName]!;
-        modelDownlink.unmount();
-      }
+    const modelDownlinks = this.modelDownlinks;
+    for (const downlinkName in modelDownlinks) {
+      const modelDownlink = modelDownlinks[downlinkName]!;
+      modelDownlink.unmount();
     }
   }
 
   /** @hidden */
   protected reconcileDownlinks(): void {
-    const modelDownlinks = this._modelDownlinks;
-    if (modelDownlinks !== void 0) {
-      for (const downlinkName in modelDownlinks) {
-        const modelDownlink = modelDownlinks[downlinkName]!;
-        modelDownlink.reconcile();
-      }
+    const modelDownlinks = this.modelDownlinks;
+    for (const downlinkName in modelDownlinks) {
+      const modelDownlink = modelDownlinks[downlinkName]!;
+      modelDownlink.reconcile();
     }
   }
 }
-Model.Generic = GenericModel;
 
 ModelScope({
   type: Object,

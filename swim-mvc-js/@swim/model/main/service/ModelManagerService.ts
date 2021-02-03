@@ -17,16 +17,12 @@ import type {ModelManager} from "../manager/ModelManager";
 import type {ModelManagerObserverType} from "../manager/ModelManagerObserver";
 import {ModelService} from "./ModelService";
 
-/** @hidden */
 export abstract class ModelManagerService<M extends Model, MM extends ModelManager<M>> extends ModelService<M, MM> {
-  /** @hidden */
-  readonly observe?: boolean;
-
   mount(): void {
     super.mount();
-    const manager = this._manager;
+    const manager = this.manager;
     if (manager !== void 0 && !this.isInherited()) {
-      manager.insertRootModel(this._owner);
+      manager.insertRootModel(this.owner);
       if (this.observe !== false) {
         manager.addModelManagerObserver(this as ModelManagerObserverType<MM>);
       }
@@ -34,14 +30,13 @@ export abstract class ModelManagerService<M extends Model, MM extends ModelManag
   }
 
   unmount(): void {
-    const manager = this._manager;
+    const manager = this.manager;
     if (manager !== void 0 && !this.isInherited()) {
       if (this.observe !== false) {
         manager.removeModelManagerObserver(this as ModelManagerObserverType<MM>);
       }
-      manager.removeRootModel(this._owner);
+      manager.removeRootModel(this.owner);
     }
     super.unmount();
   }
 }
-ModelService.Manager = ModelManagerService;

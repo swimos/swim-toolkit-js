@@ -21,4 +21,3 @@ export abstract class BooleanModelScope<M extends Model> extends ModelScope<M, b
     return !!value;
   }
 }
-ModelScope.Boolean = BooleanModelScope;

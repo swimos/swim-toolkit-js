@@ -21,4 +21,3 @@ export abstract class BooleanTraitScope<R extends Trait> extends TraitScope<R, b
     return !!value;
   }
 }
-TraitScope.Boolean = BooleanTraitScope;

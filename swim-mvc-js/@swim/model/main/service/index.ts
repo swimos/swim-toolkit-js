@@ -25,6 +25,10 @@ export {
 
 export {ModelManagerService} from "./ModelManagerService";
 
+export {RefreshService} from "./RefreshService";
+
+export {WarpService} from "./WarpService";
+
 export {
   TraitServiceMemberType,
   TraitServiceInit,
@@ -34,7 +38,3 @@ export {
   TraitServiceClass,
   TraitService,
 } from "./TraitService";
-
-export {RefreshService} from "./RefreshService";
-
-export {WarpService} from "./WarpService";

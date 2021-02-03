@@ -21,4 +21,3 @@ export abstract class StringModelScope<M extends Model> extends ModelScope<M, st
     return value;
   }
 }
-ModelScope.String = StringModelScope;

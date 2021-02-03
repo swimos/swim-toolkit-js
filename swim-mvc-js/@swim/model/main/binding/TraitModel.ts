@@ -46,35 +46,22 @@ export type TraitModelDescriptorFromAny<R extends Trait, S extends Model, U = ne
 
 export interface TraitModelConstructor<R extends Trait, S extends Model, U = never, I = ModelObserverType<S>> {
   new(owner: R, bindingName: string | undefined): TraitModel<R, S, U> & I;
-  prototype: TraitModel<any, any, any> & I;
+  prototype: TraitModel<any, any> & I;
 }
 
 export interface TraitModelClass extends Function {
-  readonly prototype: TraitModel<any, any, any>;
+  readonly prototype: TraitModel<any, any>;
 }
 
-export declare abstract class TraitModel<R extends Trait, S extends Model, U = never> {
-  /** @hidden */
-  _owner: R;
-  /** @hidden */
-  _model: S | null;
+export interface TraitModel<R extends Trait, S extends Model, U = never> {
+  (): S | null;
+  (model: S | U | null): R;
 
-  constructor(owner: R, bindingName: string | undefined);
+  readonly name: string;
 
-  /** @hidden */
-  observe?: boolean;
+  readonly owner: R;
 
-  /** @hidden */
-  child?: boolean;
-
-  /** @hidden */
-  readonly type?: unknown;
-
-  get name(): string;
-
-  get owner(): R;
-
-  get model(): S | null;
+  readonly model: S | null;
 
   getModel(): S;
 
@@ -117,21 +104,19 @@ export declare abstract class TraitModel<R extends Trait, S extends Model, U = n
   /** @hidden */
   insertModel(parentModel: Model, childModel: S, key: string | undefined): void;
 
+  /** @hidden */
+  observe?: boolean;
+
+  /** @hidden */
+  child?: boolean;
+
+  /** @hidden */
+  readonly type?: unknown;
+
   fromAny(value: S | U): S | null;
-
-  static define<R extends Trait, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: TraitModelDescriptorExtends<R, S, U, I>): TraitModelConstructor<R, S, U>;
-  static define<R extends Trait, S extends Model = Model, U = never>(descriptor: TraitModelDescriptor<R, S, U>): TraitModelConstructor<R, S, U>;
 }
 
-export interface TraitModel<R extends Trait, S extends Model, U = never> {
-  (): S | null;
-  (model: S | U | null): R;
-}
-
-export function TraitModel<R extends Trait, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: TraitModelDescriptorExtends<R, S, U, I>): PropertyDecorator;
-export function TraitModel<R extends Trait, S extends Model = Model, U = never>(descriptor: TraitModelDescriptor<R, S, U>): PropertyDecorator;
-
-export function TraitModel<R extends Trait, S extends Model, U>(
+export const TraitModel = function TraitModel<R extends Trait, S extends Model, U>(
     this: TraitModel<R, S, U> | typeof TraitModel,
     owner: R | TraitModelDescriptor<R, S, U>,
     bindingName?: string,
@@ -141,7 +126,19 @@ export function TraitModel<R extends Trait, S extends Model, U>(
   } else { // decorator factory
     return TraitModelDecoratorFactory(owner as TraitModelDescriptor<R, S, U>);
   }
-}
+} as {
+  /** @hidden */
+  new<R extends Trait, S extends Model, U = never>(owner: R, bindingName: string | undefined): TraitModel<R, S, U>;
+
+  <R extends Trait, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: TraitModelDescriptorExtends<R, S, U, I>): PropertyDecorator;
+  <R extends Trait, S extends Model = Model, U = never>(descriptor: TraitModelDescriptor<R, S, U>): PropertyDecorator;
+
+  /** @hidden */
+  prototype: TraitModel<any, any>;
+
+  define<R extends Trait, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: TraitModelDescriptorExtends<R, S, U, I>): TraitModelConstructor<R, S, U>;
+  define<R extends Trait, S extends Model = Model, U = never>(descriptor: TraitModelDescriptor<R, S, U>): TraitModelConstructor<R, S, U>;
+};
 __extends(TraitModel, Object);
 
 function TraitModelConstructor<R extends Trait, S extends Model, U>(this: TraitModel<R, S, U>, owner: R, bindingName: string | undefined): TraitModel<R, S, U> {
@@ -152,30 +149,21 @@ function TraitModelConstructor<R extends Trait, S extends Model, U>(this: TraitM
       configurable: true,
     });
   }
-  this._owner = owner;
-  this._model = null;
+  Object.defineProperty(this, "owner", {
+    value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "model", {
+    value: null,
+    enumerable: true,
+    configurable: true,
+  });
   return this;
 }
 
 function TraitModelDecoratorFactory<R extends Trait, S extends Model, U>(descriptor: TraitModelDescriptor<R, S, U>): PropertyDecorator {
   return Trait.decorateTraitModel.bind(Trait, TraitModel.define(descriptor as TraitModelDescriptor<Trait, Model>));
 }
-
-Object.defineProperty(TraitModel.prototype, "owner", {
-  get: function <R extends Trait>(this: TraitModel<R, Model>): R {
-    return this._owner;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-Object.defineProperty(TraitModel.prototype, "model", {
-  get: function <S extends Model>(this: TraitModel<Trait, S>): S | null {
-    return this._model;
-  },
-  enumerable: true,
-  configurable: true,
-});
 
 TraitModel.prototype.getModel = function <S extends Model>(this: TraitModel<Trait, S>): S {
   const model = this.model;
@@ -185,13 +173,12 @@ TraitModel.prototype.getModel = function <S extends Model>(this: TraitModel<Trai
   return model;
 };
 
-TraitModel.prototype.setModel = function <S extends Model, U>(this: TraitModel<Trait, S, U>,
-                                                              model: S | U | null): void {
+TraitModel.prototype.setModel = function <S extends Model, U>(this: TraitModel<Trait, S, U>, model: S | U | null): void {
   if (model !== null) {
     model = this.fromAny(model);
   }
   let ownModel: Model | null | undefined;
-  if (this.child === true && (ownModel = this._owner.model, ownModel !== null)) {
+  if (this.child === true && (ownModel = this.owner.model, ownModel !== null)) {
     if (model === null) {
       ownModel.setChildModel(this.name, null);
     } else if ((model as S).parentModel !== ownModel || (model as S).key !== this.name) {
@@ -202,13 +189,16 @@ TraitModel.prototype.setModel = function <S extends Model, U>(this: TraitModel<T
   }
 };
 
-TraitModel.prototype.doSetModel = function <S extends Model>(this: TraitModel<Trait, S>,
-                                                             newModel: S | null): void {
-  const oldModel = this._model;
+TraitModel.prototype.doSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null): void {
+  const oldModel = this.model;
   if (oldModel !== newModel) {
     this.willSetOwnModel(newModel, oldModel);
     this.willSetModel(newModel, oldModel);
-    this._model = newModel;
+    Object.defineProperty(this, "model", {
+      value: newModel,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetOwnModel(newModel, oldModel);
     this.onSetModel(newModel, oldModel);
     this.didSetModel(newModel, oldModel);
@@ -216,34 +206,24 @@ TraitModel.prototype.doSetModel = function <S extends Model>(this: TraitModel<Tr
   }
 };
 
-TraitModel.prototype.willSetModel = function <S extends Model>(this: TraitModel<Trait, S>,
-                                                               newModel: S | null,
-                                                               oldModel: S | null): void {
+TraitModel.prototype.willSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
   // hook
 };
 
-TraitModel.prototype.onSetModel = function <S extends Model>(this: TraitModel<Trait, S>,
-                                                             newModel: S | null,
-                                                             oldModel: S | null): void {
+TraitModel.prototype.onSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
   // hook
 };
 
-TraitModel.prototype.didSetModel = function <S extends Model>(this: TraitModel<Trait, S>,
-                                                              newModel: S | null,
-                                                              oldModel: S | null): void {
+TraitModel.prototype.didSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
   // hook
 };
 
-TraitModel.prototype.willSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>,
-                                                                  newModel: S | null,
-                                                                  oldModel: S | null): void {
+TraitModel.prototype.willSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
   // hook
 };
 
-TraitModel.prototype.onSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>,
-                                                                newModel: S | null,
-                                                                oldModel: S | null): void {
-  if (this.observe === true && this._owner.isMounted()) {
+TraitModel.prototype.onSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
+  if (this.observe === true && this.owner.isMounted()) {
     if (oldModel !== null) {
       oldModel.removeModelObserver(this as ModelObserverType<S>);
     }
@@ -253,30 +233,26 @@ TraitModel.prototype.onSetOwnModel = function <S extends Model>(this: TraitModel
   }
 };
 
-TraitModel.prototype.didSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>,
-                                                                 newModel: S | null,
-                                                                 oldModel: S | null): void {
+TraitModel.prototype.didSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
   // hook
 };
 
 TraitModel.prototype.mount = function <S extends Model>(this: TraitModel<Trait, S>): void {
-  const model = this._model;
+  const model = this.model;
   if (model !== null && this.observe === true) {
     model.addModelObserver(this as ModelObserverType<S>);
   }
 };
 
 TraitModel.prototype.unmount = function <S extends Model>(this: TraitModel<Trait, S>): void {
-  const model = this._model;
+  const model = this.model;
   if (model !== null && this.observe === true) {
     model.removeModelObserver(this as ModelObserverType<S>);
   }
 };
 
-TraitModel.prototype.insert = function <S extends Model>(this: TraitModel<Trait, S>,
-                                                         parentModel?: Model | string | null,
-                                                         key?: string | null): S | null {
-  let model = this._model;
+TraitModel.prototype.insert = function <S extends Model>(this: TraitModel<Trait, S>, parentModel?: Model | string | null, key?: string | null): S | null {
+  let model = this.model;
   if (model === null) {
     model = this.createModel();
   }
@@ -286,7 +262,7 @@ TraitModel.prototype.insert = function <S extends Model>(this: TraitModel<Trait,
       parentModel = void 0;
     }
     if (parentModel === void 0) {
-      parentModel = this._owner.model;
+      parentModel = this.owner.model;
     }
     if (key === void 0) {
       key = this.name;
@@ -296,7 +272,7 @@ TraitModel.prototype.insert = function <S extends Model>(this: TraitModel<Trait,
     if (parentModel !== null && (model.parentModel !== parentModel || model.key !== key)) {
       this.insertModel(parentModel, model, key);
     }
-    if (this._model === null) {
+    if (this.model === null) {
       this.doSetModel(model);
     }
   }
@@ -304,7 +280,7 @@ TraitModel.prototype.insert = function <S extends Model>(this: TraitModel<Trait,
 };
 
 TraitModel.prototype.remove = function <S extends Model>(this: TraitModel<Trait, S>): S | null {
-  const model = this._model;
+  const model = this.model;
   if (model !== null) {
     model.remove();
   }
@@ -315,9 +291,7 @@ TraitModel.prototype.createModel = function <S extends Model, U>(this: TraitMode
   return null;
 };
 
-TraitModel.prototype.insertModel = function <S extends Model>(this: TraitModel<Trait, S>,
-                                                              parentModel: Model, childModel: S,
-                                                              key: string | undefined): void {
+TraitModel.prototype.insertModel = function <S extends Model>(this: TraitModel<Trait, S>, parentModel: Model, childModel: S, key: string | undefined): void {
   if (key !== void 0) {
     parentModel.setChildModel(key, childModel);
   } else {
@@ -337,13 +311,13 @@ TraitModel.define = function <R extends Trait, S extends Model, U, I>(descriptor
     _super = TraitModel;
   }
 
-  const _constructor = function TraitModelAccessor(this: TraitModel<R, S>, owner: R, bindingName: string | undefined): TraitModel<R, S, U> {
-    let _this: TraitModel<R, S, U> = function accessor(model?: S | U | null): S | null | R {
+  const _constructor = function DecoratedTraitModel(this: TraitModel<R, S>, owner: R, bindingName: string | undefined): TraitModel<R, S, U> {
+    let _this: TraitModel<R, S, U> = function TraitModelAccessor(model?: S | U | null): S | null | R {
       if (model === void 0) {
-        return _this._model;
+        return _this.model;
       } else {
         _this.setModel(model);
-        return _this._owner;
+        return _this.owner;
       }
     } as TraitModel<R, S, U>;
     Object.setPrototypeOf(_this, this);
@@ -351,7 +325,7 @@ TraitModel.define = function <R extends Trait, S extends Model, U, I>(descriptor
     return _this;
   } as unknown as TraitModelConstructor<R, S, U, I>;
 
-  const _prototype = descriptor as unknown as TraitModel<R, S, U> & I;
+  const _prototype = descriptor as unknown as TraitModel<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

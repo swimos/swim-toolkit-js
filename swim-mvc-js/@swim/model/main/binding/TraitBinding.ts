@@ -46,35 +46,22 @@ export type TraitBindingDescriptorFromAny<R extends Trait, S extends Trait, U = 
 
 export interface TraitBindingConstructor<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> {
   new(owner: R, bindingName: string | undefined): TraitBinding<R, S, U> & I;
-  prototype: TraitBinding<any, any, any> & I;
+  prototype: TraitBinding<any, any> & I;
 }
 
 export interface TraitBindingClass extends Function {
-  readonly prototype: TraitBinding<any, any, any>;
+  readonly prototype: TraitBinding<any, any>;
 }
 
-export declare abstract class TraitBinding<R extends Trait, S extends Trait, U = never> {
-  /** @hidden */
-  _owner: R;
-  /** @hidden */
-  _trait: S | null;
+export interface TraitBinding<R extends Trait, S extends Trait, U = never> {
+  (): S | null;
+  (trait: S | U | null): R;
 
-  constructor(owner: R, bindingName: string | undefined);
+  readonly name: string;
 
-  /** @hidden */
-  observe?: boolean;
+  readonly owner: R;
 
-  /** @hidden */
-  sibling?: boolean;
-
-  /** @hidden */
-  readonly type?: unknown;
-
-  get name(): string;
-
-  get owner(): R;
-
-  get trait(): S | null;
+  readonly trait: S | null;
 
   getTrait(): S;
 
@@ -117,21 +104,19 @@ export declare abstract class TraitBinding<R extends Trait, S extends Trait, U =
   /** @hidden */
   insertTrait(model: Model, trait: S, key: string | undefined): void;
 
+  /** @hidden */
+  observe?: boolean;
+
+  /** @hidden */
+  sibling?: boolean;
+
+  /** @hidden */
+  readonly type?: unknown;
+
   fromAny(value: S | U): S | null;
-
-  static define<R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitBindingDescriptorExtends<R, S, U, I>): TraitBindingConstructor<R, S, U>;
-  static define<R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitBindingDescriptor<R, S, U>): TraitBindingConstructor<R, S, U>;
 }
 
-export interface TraitBinding<R extends Trait, S extends Trait, U = never> {
-  (): S | null;
-  (trait: S | U | null): R;
-}
-
-export function TraitBinding<R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitBindingDescriptorExtends<R, S, U, I>): PropertyDecorator;
-export function TraitBinding<R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitBindingDescriptor<R, S, U>): PropertyDecorator;
-
-export function TraitBinding<R extends Trait, S extends Trait, U>(
+export const TraitBinding = function <R extends Trait, S extends Trait, U>(
     this: TraitBinding<R, S, U> | typeof TraitBinding,
     owner: R | TraitBindingDescriptor<R, S, U>,
     bindingName?: string,
@@ -141,9 +126,20 @@ export function TraitBinding<R extends Trait, S extends Trait, U>(
   } else { // decorator factory
     return TraitBindingDecoratorFactory(owner as TraitBindingDescriptor<R, S, U>);
   }
-}
+} as {
+  /** @hidden */
+  new<R extends Trait, S extends Trait, U = never>(owner: R, bindingName: string | undefined): TraitBinding<R, S, U>;
+
+  <R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitBindingDescriptorExtends<R, S, U, I>): PropertyDecorator;
+  <R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitBindingDescriptor<R, S, U>): PropertyDecorator;
+
+  /** @hidden */
+  prototype: TraitBinding<any, any>;
+
+  define<R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitBindingDescriptorExtends<R, S, U, I>): TraitBindingConstructor<R, S, U>;
+  define<R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitBindingDescriptor<R, S, U>): TraitBindingConstructor<R, S, U>;
+};
 __extends(TraitBinding, Object);
-Trait.Binding = TraitBinding;
 
 function TraitBindingConstructor<R extends Trait, S extends Trait, U>(this: TraitBinding<R, S, U>, owner: R, bindingName: string | undefined): TraitBinding<R, S, U> {
   if (bindingName !== void 0) {
@@ -153,30 +149,21 @@ function TraitBindingConstructor<R extends Trait, S extends Trait, U>(this: Trai
       configurable: true,
     });
   }
-  this._owner = owner;
-  this._trait = null;
+  Object.defineProperty(this, "owner", {
+    value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "trait", {
+    value: null,
+    enumerable: true,
+    configurable: true,
+  });
   return this;
 }
 
 function TraitBindingDecoratorFactory<R extends Trait, S extends Trait, U>(descriptor: TraitBindingDescriptor<R, S, U>): PropertyDecorator {
   return Trait.decorateTraitBinding.bind(Trait, TraitBinding.define(descriptor as TraitBindingDescriptor<Trait, Trait>));
 }
-
-Object.defineProperty(TraitBinding.prototype, "owner", {
-  get: function <R extends Trait>(this: TraitBinding<R, Trait>): R {
-    return this._owner;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-Object.defineProperty(TraitBinding.prototype, "trait", {
-  get: function <S extends Trait>(this: TraitBinding<Trait, S>): S | null {
-    return this._trait;
-  },
-  enumerable: true,
-  configurable: true,
-});
 
 TraitBinding.prototype.getTrait = function <S extends Trait>(this: TraitBinding<Trait, S>): S {
   const trait = this.trait;
@@ -186,13 +173,12 @@ TraitBinding.prototype.getTrait = function <S extends Trait>(this: TraitBinding<
   return trait;
 };
 
-TraitBinding.prototype.setTrait = function <S extends Trait, U>(this: TraitBinding<Trait, S, U>,
-                                                                trait: S | U | null): void {
+TraitBinding.prototype.setTrait = function <S extends Trait, U>(this: TraitBinding<Trait, S, U>, trait: S | U | null): void {
   if (trait !== null) {
     trait = this.fromAny(trait);
   }
   let model: Model | null | undefined;
-  if (this.sibling === true && (model = this._owner.model, model !== null)) {
+  if (this.sibling === true && (model = this.owner.model, model !== null)) {
     if (trait === null) {
       model.setTrait(this.name, null);
     } else if ((trait as S).model !== model || (trait as S).key !== this.name) {
@@ -203,13 +189,16 @@ TraitBinding.prototype.setTrait = function <S extends Trait, U>(this: TraitBindi
   }
 };
 
-TraitBinding.prototype.doSetTrait = function <S extends Trait>(this: TraitBinding<Trait, S>,
-                                                               newTrait: S | null): void {
-  const oldTrait = this._trait;
+TraitBinding.prototype.doSetTrait = function <S extends Trait>(this: TraitBinding<Trait, S>, newTrait: S | null): void {
+  const oldTrait = this.trait;
   if (oldTrait !== newTrait) {
     this.willSetOwnTrait(newTrait, oldTrait);
     this.willSetTrait(newTrait, oldTrait);
-    this._trait = newTrait;
+    Object.defineProperty(this, "model", {
+      value: newTrait,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetOwnTrait(newTrait, oldTrait);
     this.onSetTrait(newTrait, oldTrait);
     this.didSetTrait(newTrait, oldTrait);
@@ -217,34 +206,24 @@ TraitBinding.prototype.doSetTrait = function <S extends Trait>(this: TraitBindin
   }
 };
 
-TraitBinding.prototype.willSetTrait = function <S extends Trait>(this: TraitBinding<Trait, S>,
-                                                                 newTrait: S | null,
-                                                                 oldTrait: S | null): void {
+TraitBinding.prototype.willSetTrait = function <S extends Trait>(this: TraitBinding<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   // hook
 };
 
-TraitBinding.prototype.onSetTrait = function <S extends Trait>(this: TraitBinding<Trait, S>,
-                                                               newTrait: S | null,
-                                                               oldTrait: S | null): void {
+TraitBinding.prototype.onSetTrait = function <S extends Trait>(this: TraitBinding<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   // hook
 };
 
-TraitBinding.prototype.didSetTrait = function <S extends Trait>(this: TraitBinding<Trait, S>,
-                                                                newTrait: S | null,
-                                                                oldTrait: S | null): void {
+TraitBinding.prototype.didSetTrait = function <S extends Trait>(this: TraitBinding<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   // hook
 };
 
-TraitBinding.prototype.willSetOwnTrait = function <S extends Trait>(this: TraitBinding<Trait, S>,
-                                                                    newTrait: S | null,
-                                                                    oldTrait: S | null): void {
+TraitBinding.prototype.willSetOwnTrait = function <S extends Trait>(this: TraitBinding<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   // hook
 };
 
-TraitBinding.prototype.onSetOwnTrait = function <S extends Trait>(this: TraitBinding<Trait, S>,
-                                                                  newTrait: S | null,
-                                                                  oldTrait: S | null): void {
-  if (this.observe === true && this._owner.isMounted()) {
+TraitBinding.prototype.onSetOwnTrait = function <S extends Trait>(this: TraitBinding<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
+  if (this.observe === true && this.owner.isMounted()) {
     if (oldTrait !== null) {
       oldTrait.removeTraitObserver(this as TraitObserverType<S>);
     }
@@ -254,30 +233,26 @@ TraitBinding.prototype.onSetOwnTrait = function <S extends Trait>(this: TraitBin
   }
 };
 
-TraitBinding.prototype.didSetOwnTrait = function <S extends Trait>(this: TraitBinding<Trait, S>,
-                                                                   newTrait: S | null,
-                                                                   oldTrait: S | null): void {
+TraitBinding.prototype.didSetOwnTrait = function <S extends Trait>(this: TraitBinding<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   // hook
 };
 
 TraitBinding.prototype.mount = function <S extends Trait>(this: TraitBinding<Trait, S>): void {
-  const trait = this._trait;
+  const trait = this.trait;
   if (trait !== null && this.observe === true) {
     trait.addTraitObserver(this as TraitObserverType<S>);
   }
 };
 
 TraitBinding.prototype.unmount = function <S extends Trait>(this: TraitBinding<Trait, S>): void {
-  const trait = this._trait;
+  const trait = this.trait;
   if (trait !== null && this.observe === true) {
     trait.removeTraitObserver(this as TraitObserverType<S>);
   }
 };
 
-TraitBinding.prototype.insert = function <S extends Trait>(this: TraitBinding<Trait, S>,
-                                                           model?: Model | string | null,
-                                                           key?: string | null): S | null {
-  let trait = this._trait;
+TraitBinding.prototype.insert = function <S extends Trait>(this: TraitBinding<Trait, S>, model?: Model | string | null, key?: string | null): S | null {
+  let trait = this.trait;
   if (trait === null) {
     trait = this.createTrait();
   }
@@ -287,7 +262,7 @@ TraitBinding.prototype.insert = function <S extends Trait>(this: TraitBinding<Tr
       model = void 0;
     }
     if (model === void 0) {
-      model = this._owner.model;
+      model = this.owner.model;
     }
     if (key === void 0) {
       key = this.name;
@@ -297,7 +272,7 @@ TraitBinding.prototype.insert = function <S extends Trait>(this: TraitBinding<Tr
     if (model !== null && (trait.model !== model || trait.key !== key)) {
       this.insertTrait(model, trait, key);
     }
-    if (this._trait === null) {
+    if (this.trait === null) {
       this.doSetTrait(trait);
     }
   }
@@ -305,7 +280,7 @@ TraitBinding.prototype.insert = function <S extends Trait>(this: TraitBinding<Tr
 };
 
 TraitBinding.prototype.remove = function <S extends Trait>(this: TraitBinding<Trait, S>): S | null {
-  const trait = this._trait;
+  const trait = this.trait;
   if (trait !== null) {
     trait.remove();
   }
@@ -316,9 +291,7 @@ TraitBinding.prototype.createTrait = function <S extends Trait, U>(this: TraitBi
   return null;
 };
 
-TraitBinding.prototype.insertTrait = function <S extends Trait>(this: TraitBinding<Trait, S>,
-                                                                model: Model, trait: S,
-                                                                key: string | undefined): void {
+TraitBinding.prototype.insertTrait = function <S extends Trait>(this: TraitBinding<Trait, S>, model: Model, trait: S, key: string | undefined): void {
   if (key !== void 0) {
     model.setTrait(key, trait);
   } else {
@@ -338,13 +311,13 @@ TraitBinding.define = function <R extends Trait, S extends Trait, U, I>(descript
     _super = TraitBinding;
   }
 
-  const _constructor = function TraitBindingAccessor(this: TraitBinding<R, S>, owner: R, bindingName: string | undefined): TraitBinding<R, S, U> {
-    let _this: TraitBinding<R, S, U> = function accessor(trait?: S | U | null): S | null | R {
+  const _constructor = function DecoratedTraitBinding(this: TraitBinding<R, S>, owner: R, bindingName: string | undefined): TraitBinding<R, S, U> {
+    let _this: TraitBinding<R, S, U> = function TraitBindingAccessor(trait?: S | U | null): S | null | R {
       if (trait === void 0) {
-        return _this._trait;
+        return _this.trait;
       } else {
         _this.setTrait(trait);
-        return _this._owner;
+        return _this.owner;
       }
     } as TraitBinding<R, S, U>;
     Object.setPrototypeOf(_this, this);
@@ -352,7 +325,7 @@ TraitBinding.define = function <R extends Trait, S extends Trait, U, I>(descript
     return _this;
   } as unknown as TraitBindingConstructor<R, S, U, I>;
 
-  const _prototype = descriptor as unknown as TraitBinding<R, S, U> & I;
+  const _prototype = descriptor as unknown as TraitBinding<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

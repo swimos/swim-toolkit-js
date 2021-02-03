@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Arrays} from "@swim/util";
+import {Equals, Lazy, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
 import type {Interpolate, Interpolator} from "@swim/mapping";
 import type {Look} from "../look/Look";
@@ -233,12 +233,9 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return Format.debug(this);
   }
 
-  private static _empty?: FeelVector;
+  @Lazy
   static empty(): FeelVector {
-    if (FeelVector._empty === void 0) {
-      FeelVector._empty = new FeelVector([], {});
-    }
-    return FeelVector._empty;
+    return new FeelVector([], {});
   }
 
   static of(...looks: [Look<unknown>, unknown][]): FeelVector {

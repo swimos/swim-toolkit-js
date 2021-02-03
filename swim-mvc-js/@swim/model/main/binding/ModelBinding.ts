@@ -45,35 +45,22 @@ export type ModelBindingDescriptorFromAny<M extends Model, S extends Model, U = 
 
 export interface ModelBindingConstructor<M extends Model, S extends Model, U = never, I = ModelObserverType<S>> {
   new(owner: M, bindingName: string | undefined): ModelBinding<M, S, U> & I;
-  prototype: ModelBinding<any, any, any> & I;
+  prototype: ModelBinding<any, any> & I;
 }
 
 export interface ModelBindingClass extends Function {
-  readonly prototype: ModelBinding<any, any, any>;
+  readonly prototype: ModelBinding<any, any>;
 }
 
-export declare abstract class ModelBinding<M extends Model, S extends Model, U = never> {
-  /** @hidden */
-  _owner: M;
-  /** @hidden */
-  _model: S | null;
+export interface ModelBinding<M extends Model, S extends Model, U = never> {
+  (): S | null;
+  (model: S | U | null): M;
 
-  constructor(owner: M, bindingName: string | undefined);
+  readonly name: string;
 
-  /** @hidden */
-  observe?: boolean;
+  readonly owner: M;
 
-  /** @hidden */
-  child?: boolean;
-
-  /** @hidden */
-  readonly type?: unknown;
-
-  get name(): string;
-
-  get owner(): M;
-
-  get model(): S | null;
+  readonly model: S | null;
 
   getModel(): S;
 
@@ -116,21 +103,19 @@ export declare abstract class ModelBinding<M extends Model, S extends Model, U =
   /** @hidden */
   insertModel(parentModel: Model, childModel: S, key: string | undefined): void;
 
+  /** @hidden */
+  observe?: boolean;
+
+  /** @hidden */
+  child?: boolean;
+
+  /** @hidden */
+  readonly type?: unknown;
+
   fromAny(value: S | U): S | null;
-
-  static define<M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: ModelBindingDescriptorExtends<M, S, U, I>): ModelBindingConstructor<M, S, U>;
-  static define<M extends Model, S extends Model = Model, U = never>(descriptor: ModelBindingDescriptor<M, S, U>): ModelBindingConstructor<M, S, U>;
 }
 
-export interface ModelBinding<M extends Model, S extends Model, U = never> {
-  (): S | null;
-  (model: S | U | null): M;
-}
-
-export function ModelBinding<M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: ModelBindingDescriptorExtends<M, S, U, I>): PropertyDecorator;
-export function ModelBinding<M extends Model, S extends Model = Model, U = never>(descriptor: ModelBindingDescriptor<M, S, U>): PropertyDecorator;
-
-export function ModelBinding<M extends Model, S extends Model, U>(
+export const ModelBinding = function <M extends Model, S extends Model, U>(
     this: ModelBinding<M, S, U> | typeof ModelBinding,
     owner: M | ModelBindingDescriptor<M, S, U>,
     bindingName?: string,
@@ -140,9 +125,20 @@ export function ModelBinding<M extends Model, S extends Model, U>(
   } else { // decorator factory
     return ModelBindingDecoratorFactory(owner as ModelBindingDescriptor<M, S, U>);
   }
-}
+} as {
+  /** @hidden */
+  new<M extends Model, S extends Model, U = never>(owner: M, bindingName: string | undefined): ModelBinding<M, S, U>;
+
+  <M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: ModelBindingDescriptorExtends<M, S, U, I>): PropertyDecorator;
+  <M extends Model, S extends Model = Model, U = never>(descriptor: ModelBindingDescriptor<M, S, U>): PropertyDecorator;
+
+  /** @hidden */
+  prototype: ModelBinding<any, any>;
+
+  define<M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: ModelBindingDescriptorExtends<M, S, U, I>): ModelBindingConstructor<M, S, U>;
+  define<M extends Model, S extends Model = Model, U = never>(descriptor: ModelBindingDescriptor<M, S, U>): ModelBindingConstructor<M, S, U>;
+};
 __extends(ModelBinding, Object);
-Model.Binding = ModelBinding;
 
 function ModelBindingConstructor<M extends Model, S extends Model, U>(this: ModelBinding<M, S, U>, owner: M, bindingName: string | undefined): ModelBinding<M, S, U> {
   if (bindingName !== void 0) {
@@ -152,30 +148,21 @@ function ModelBindingConstructor<M extends Model, S extends Model, U>(this: Mode
       configurable: true,
     });
   }
-  this._owner = owner;
-  this._model = null;
+  Object.defineProperty(this, "owner", {
+    value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "model", {
+    value: null,
+    enumerable: true,
+    configurable: true,
+  });
   return this;
 }
 
 function ModelBindingDecoratorFactory<M extends Model, S extends Model, U>(descriptor: ModelBindingDescriptor<M, S, U>): PropertyDecorator {
   return Model.decorateModelBinding.bind(Model, ModelBinding.define(descriptor as ModelBindingDescriptor<Model, Model>));
 }
-
-Object.defineProperty(ModelBinding.prototype, "owner", {
-  get: function <M extends Model>(this: ModelBinding<M, Model>): M {
-    return this._owner;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-Object.defineProperty(ModelBinding.prototype, "model", {
-  get: function <S extends Model>(this: ModelBinding<Model, S>): S | null {
-    return this._model;
-  },
-  enumerable: true,
-  configurable: true,
-});
 
 ModelBinding.prototype.getModel = function <S extends Model>(this: ModelBinding<Model, S>): S {
   const model = this.model;
@@ -185,29 +172,31 @@ ModelBinding.prototype.getModel = function <S extends Model>(this: ModelBinding<
   return model;
 };
 
-ModelBinding.prototype.setModel = function <S extends Model, U>(this: ModelBinding<Model, S, U>,
-                                                                model: S | U | null): void {
+ModelBinding.prototype.setModel = function <S extends Model, U>(this: ModelBinding<Model, S, U>, model: S | U | null): void {
   if (model !== null) {
     model = this.fromAny(model);
   }
   if (this.child === true) {
     if (model === null) {
-      this._owner.setChildModel(this.name, null);
-    } else if ((model as S).parentModel !== this._owner || (model as S).key !== this.name) {
-      this.insertModel(this._owner, model as S, this.name);
+      this.owner.setChildModel(this.name, null);
+    } else if ((model as S).parentModel !== this.owner || (model as S).key !== this.name) {
+      this.insertModel(this.owner, model as S, this.name);
     }
   } else {
     this.doSetModel(model as S | null);
   }
 };
 
-ModelBinding.prototype.doSetModel = function <S extends Model>(this: ModelBinding<Model, S>,
-                                                               newModel: S | null): void {
-  const oldModel = this._model;
+ModelBinding.prototype.doSetModel = function <S extends Model>(this: ModelBinding<Model, S>, newModel: S | null): void {
+  const oldModel = this.model;
   if (oldModel !== newModel) {
     this.willSetOwnModel(newModel, oldModel);
     this.willSetModel(newModel, oldModel);
-    this._model = newModel;
+    Object.defineProperty(this, "model", {
+      value: newModel,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetOwnModel(newModel, oldModel);
     this.onSetModel(newModel, oldModel);
     this.didSetModel(newModel, oldModel);
@@ -215,34 +204,24 @@ ModelBinding.prototype.doSetModel = function <S extends Model>(this: ModelBindin
   }
 };
 
-ModelBinding.prototype.willSetModel = function <S extends Model>(this: ModelBinding<Model, S>,
-                                                                 newModel: S | null,
-                                                                 oldModel: S | null): void {
+ModelBinding.prototype.willSetModel = function <S extends Model>(this: ModelBinding<Model, S>, newModel: S | null, oldModel: S | null): void {
   // hook
 };
 
-ModelBinding.prototype.onSetModel = function <S extends Model>(this: ModelBinding<Model, S>,
-                                                               newModel: S | null,
-                                                               oldModel: S | null): void {
+ModelBinding.prototype.onSetModel = function <S extends Model>(this: ModelBinding<Model, S>, newModel: S | null, oldModel: S | null): void {
   // hook
 };
 
-ModelBinding.prototype.didSetModel = function <S extends Model>(this: ModelBinding<Model, S>,
-                                                                newModel: S | null,
-                                                                oldModel: S | null): void {
+ModelBinding.prototype.didSetModel = function <S extends Model>(this: ModelBinding<Model, S>, newModel: S | null, oldModel: S | null): void {
   // hook
 };
 
-ModelBinding.prototype.willSetOwnModel = function <S extends Model>(this: ModelBinding<Model, S>,
-                                                                    newModel: S | null,
-                                                                    oldModel: S | null): void {
+ModelBinding.prototype.willSetOwnModel = function <S extends Model>(this: ModelBinding<Model, S>, newModel: S | null, oldModel: S | null): void {
   // hook
 };
 
-ModelBinding.prototype.onSetOwnModel = function <S extends Model>(this: ModelBinding<Model, S>,
-                                                                  newModel: S | null,
-                                                                  oldModel: S | null): void {
-  if (this.observe === true && this._owner.isMounted()) {
+ModelBinding.prototype.onSetOwnModel = function <S extends Model>(this: ModelBinding<Model, S>, newModel: S | null, oldModel: S | null): void {
+  if (this.observe === true && this.owner.isMounted()) {
     if (oldModel !== null) {
       oldModel.removeModelObserver(this as ModelObserverType<S>);
     }
@@ -252,30 +231,26 @@ ModelBinding.prototype.onSetOwnModel = function <S extends Model>(this: ModelBin
   }
 };
 
-ModelBinding.prototype.didSetOwnModel = function <S extends Model>(this: ModelBinding<Model, S>,
-                                                                   newModel: S | null,
-                                                                   oldModel: S | null): void {
+ModelBinding.prototype.didSetOwnModel = function <S extends Model>(this: ModelBinding<Model, S>, newModel: S | null, oldModel: S | null): void {
   // hook
 };
 
 ModelBinding.prototype.mount = function <S extends Model>(this: ModelBinding<Model, S>): void {
-  const model = this._model;
+  const model = this.model;
   if (model !== null && this.observe === true) {
     model.addModelObserver(this as ModelObserverType<S>);
   }
 };
 
 ModelBinding.prototype.unmount = function <S extends Model>(this: ModelBinding<Model, S>): void {
-  const model = this._model;
+  const model = this.model;
   if (model !== null && this.observe === true) {
     model.removeModelObserver(this as ModelObserverType<S>);
   }
 };
 
-ModelBinding.prototype.insert = function <S extends Model>(this: ModelBinding<Model, S>,
-                                                           parentModel?: Model | string | null,
-                                                           key?: string | null): S | null {
-  let model = this._model;
+ModelBinding.prototype.insert = function <S extends Model>(this: ModelBinding<Model, S>, parentModel?: Model | string | null, key?: string | null): S | null {
+  let model = this.model;
   if (model === null) {
     model = this.createModel();
   }
@@ -285,7 +260,7 @@ ModelBinding.prototype.insert = function <S extends Model>(this: ModelBinding<Mo
       parentModel = void 0;
     }
     if (parentModel === void 0) {
-      parentModel = this._owner;
+      parentModel = this.owner;
     }
     if (key === void 0) {
       key = this.name;
@@ -295,7 +270,7 @@ ModelBinding.prototype.insert = function <S extends Model>(this: ModelBinding<Mo
     if (model.parentModel !== parentModel || model.key !== key) {
       this.insertModel(parentModel, model, key);
     }
-    if (this._model === null) {
+    if (this.model === null) {
       this.doSetModel(model);
     }
   }
@@ -303,7 +278,7 @@ ModelBinding.prototype.insert = function <S extends Model>(this: ModelBinding<Mo
 };
 
 ModelBinding.prototype.remove = function <S extends Model>(this: ModelBinding<Model, S>): S | null {
-  const model = this._model;
+  const model = this.model;
   if (model !== null) {
     model.remove();
   }
@@ -314,9 +289,7 @@ ModelBinding.prototype.createModel = function <S extends Model, U>(this: ModelBi
   return null;
 };
 
-ModelBinding.prototype.insertModel = function <S extends Model>(this: ModelBinding<Model, S>,
-                                                                parentModel: Model, childModel: S,
-                                                                key: string | undefined): void {
+ModelBinding.prototype.insertModel = function <S extends Model>(this: ModelBinding<Model, S>, parentModel: Model, childModel: S, key: string | undefined): void {
   if (key !== void 0) {
     parentModel.setChildModel(key, childModel);
   } else {
@@ -336,13 +309,13 @@ ModelBinding.define = function <M extends Model, S extends Model, U, I>(descript
     _super = ModelBinding;
   }
 
-  const _constructor = function ModelBindingAccessor(this: ModelBinding<M, S>, owner: M, bindingName: string | undefined): ModelBinding<M, S, U> {
-    let _this: ModelBinding<M, S, U> = function accessor(model?: S | U | null): S | null | M {
+  const _constructor = function DecoratedModelBinding(this: ModelBinding<M, S>, owner: M, bindingName: string | undefined): ModelBinding<M, S, U> {
+    let _this: ModelBinding<M, S, U> = function ModelBindingAccessor(model?: S | U | null): S | null | M {
       if (model === void 0) {
-        return _this._model;
+        return _this.model;
       } else {
         _this.setModel(model);
-        return _this._owner;
+        return _this.owner;
       }
     } as ModelBinding<M, S, U>;
     Object.setPrototypeOf(_this, this);
@@ -350,7 +323,7 @@ ModelBinding.define = function <M extends Model, S extends Model, U, I>(descript
     return _this;
   } as unknown as ModelBindingConstructor<M, S, U, I>;
 
-  const _prototype = descriptor as unknown as ModelBinding<M, S, U> & I;
+  const _prototype = descriptor as unknown as ModelBinding<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

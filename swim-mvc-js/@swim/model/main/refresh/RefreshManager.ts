@@ -12,45 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ModelContext} from "../ModelContext";
+import {Lazy} from "@swim/util";
 import {ModelFlags, Model} from "../Model";
 import {ModelManager} from "../manager/ModelManager";
 import type {RefreshContext} from "./RefreshContext";
 import type {RefreshManagerObserver} from "./RefreshManagerObserver";
 
 export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
-  /** @hidden */
-  readonly _modelContext: RefreshContext;
-  /** @hidden */
-  _rootFlags: ModelFlags;
-  /** @hidden */
-  _analyzeTimer: number;
-  /** @hidden */
-  _refreshTimer: number;
-  /** @hidden */
-  _updateDelay: number;
-
   constructor() {
     super();
+    Object.defineProperty(this, "modelContext", {
+      value: this.initModelContext(),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "rootFlags", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    this.analyzeTimer = 0;
+    this.refreshTimer = 0;
+    this.updateDelay = RefreshManager.MinUpdateDelay;
+
     this.runAnalyzePass = this.runAnalyzePass.bind(this);
     this.runRefreshPass = this.runRefreshPass.bind(this);
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
-
-    this._modelContext = this.initModelContext();
-    this._rootFlags = 0;
-    this._analyzeTimer = 0;
-    this._refreshTimer = 0;
-    this._updateDelay = RefreshManager.MinUpdateDelay;
   }
+
+  declare readonly modelContext: RefreshContext;
 
   protected initModelContext(): RefreshContext {
     return {
       updateTime: 0,
     };
-  }
-
-  get modelContext(): ModelContext {
-    return this._modelContext;
   }
 
   get powerFlags(): ModelFlags {
@@ -78,7 +73,7 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
 
   protected onUnpower(): void {
     this.cancelUpdate();
-    this._updateDelay = RefreshManager.MinUpdateDelay;
+    this.updateDelay = RefreshManager.MinUpdateDelay;
     this.unpowerRootModels();
   }
 
@@ -96,22 +91,38 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     rootModel.cascadeUnpower();
   }
 
-  get rootFlags(): ModelFlags {
-    return this._rootFlags;
+  declare readonly rootFlags: ModelFlags;
+
+  /** @hidden */
+  setRootFlags(rootFlags: ModelFlags): void {
+    Object.defineProperty(this, "rootFlags", {
+      value: rootFlags,
+      enumerable: true,
+      configurable: true,
+    });
   }
+
+  /** @hidden */
+  analyzeTimer: number;
+
+  /** @hidden */
+  refreshTimer: number;
+
+  /** @hidden */
+  updateDelay: number;
 
   requestUpdate(targetModel: Model, updateFlags: ModelFlags, immediate: boolean): void {
     this.willRequestUpdate(targetModel, updateFlags, immediate);
     if ((updateFlags & Model.AnalyzeMask) !== 0) {
-      this._rootFlags |= Model.NeedsAnalyze;
+      this.setRootFlags(this.rootFlags | Model.NeedsAnalyze);
     }
     if ((updateFlags & Model.RefreshMask) !== 0) {
-      this._rootFlags |= Model.NeedsRefresh;
+      this.setRootFlags(this.rootFlags | Model.NeedsRefresh);
     }
-    if ((this._rootFlags & Model.UpdateMask) !== 0) {
+    if ((this.rootFlags & Model.UpdateMask) !== 0) {
       this.onRequestUpdate(targetModel, updateFlags, immediate);
-      if (immediate && this._updateDelay <= RefreshManager.MaxAnalyzeInterval
-          && (this._rootFlags & (Model.TraversingFlag | Model.ImmediateFlag)) === 0) {
+      if (immediate && this.updateDelay <= RefreshManager.MaxAnalyzeInterval
+          && (this.rootFlags & (Model.TraversingFlag | Model.ImmediateFlag)) === 0) {
         this.runImmediatePass();
       } else {
         this.scheduleUpdate();
@@ -133,46 +144,45 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
   }
 
   protected scheduleUpdate(): void {
-    const updateFlags = this._rootFlags;
-    if (this._analyzeTimer === 0 && this._refreshTimer === 0
+    const updateFlags = this.rootFlags;
+    if (this.analyzeTimer === 0 && this.refreshTimer === 0
         && (updateFlags & Model.UpdatingMask) === 0
         && (updateFlags & Model.UpdateMask) !== 0) {
-      this._analyzeTimer = setTimeout(this.runAnalyzePass, this._updateDelay) as any;
+      this.analyzeTimer = setTimeout(this.runAnalyzePass, this.updateDelay) as any;
     }
   }
 
   protected cancelUpdate(): void {
-    if (this._analyzeTimer !== 0) {
-      clearTimeout(this._analyzeTimer);
-      this._analyzeTimer = 0;
+    if (this.analyzeTimer !== 0) {
+      clearTimeout(this.analyzeTimer);
+      this.analyzeTimer = 0;
     }
-    if (this._refreshTimer !== 0) {
-      clearTimeout(this._refreshTimer);
-      this._refreshTimer = 0;
+    if (this.refreshTimer !== 0) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = 0;
     }
   }
 
   protected runImmediatePass(): void {
-    this._rootFlags |= Model.ImmediateFlag;
+    this.setRootFlags(this.rootFlags | Model.ImmediateFlag);
     try {
-      if ((this._rootFlags & Model.AnalyzeMask) !== 0) {
+      if ((this.rootFlags & Model.AnalyzeMask) !== 0) {
         this.cancelUpdate();
         this.runAnalyzePass(true);
       }
-      if ((this._rootFlags & Model.RefreshMask) !== 0
-          && this._updateDelay <= RefreshManager.MaxAnalyzeInterval) {
+      if ((this.rootFlags & Model.RefreshMask) !== 0
+          && this.updateDelay <= RefreshManager.MaxAnalyzeInterval) {
         this.cancelUpdate();
         this.runRefreshPass(true);
       }
     } finally {
-      this._rootFlags &= ~Model.ImmediateFlag;
+      this.setRootFlags(this.rootFlags & ~Model.ImmediateFlag);
     }
   }
 
   protected runAnalyzePass(immediate: boolean = false): void {
     const rootModels = this.rootModels;
-    this._rootFlags |= Model.TraversingFlag | Model.AnalyzingFlag;
-    this._rootFlags &= ~Model.AnalyzeMask;
+    this.setRootFlags(this.rootFlags & ~Model.AnalyzeMask | (Model.TraversingFlag | Model.AnalyzingFlag));
     try {
       const t0 = performance.now();
       for (let i = 0; i < rootModels.length; i += 1) {
@@ -185,31 +195,30 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
       }
 
       const t1 = performance.now();
-      let analyzeDelay = Math.max(RefreshManager.MinAnalyzeInterval, this._updateDelay);
+      let analyzeDelay = Math.max(RefreshManager.MinAnalyzeInterval, this.updateDelay);
       if (t1 - t0 > analyzeDelay) {
-        this._updateDelay = Math.min(Math.max(2, this._updateDelay * 2), RefreshManager.MaxUpdateDelay);
+        this.updateDelay = Math.min(Math.max(2, this.updateDelay * 2), RefreshManager.MaxUpdateDelay);
       } else {
-        this._updateDelay = Math.min(RefreshManager.MinUpdateDelay, this._updateDelay / 2);
+        this.updateDelay = Math.min(RefreshManager.MinUpdateDelay, this.updateDelay / 2);
       }
 
       this.cancelUpdate();
-      if ((this._rootFlags & Model.RefreshMask) !== 0) {
-        this._refreshTimer = setTimeout(this.runRefreshPass, RefreshManager.MinRefreshInterval) as any;
-      } else if ((this._rootFlags & Model.AnalyzeMask) !== 0) {
+      if ((this.rootFlags & Model.RefreshMask) !== 0) {
+        this.refreshTimer = setTimeout(this.runRefreshPass, RefreshManager.MinRefreshInterval) as any;
+      } else if ((this.rootFlags & Model.AnalyzeMask) !== 0) {
         if (immediate) {
           analyzeDelay = Math.max(RefreshManager.MaxAnalyzeInterval, analyzeDelay);
         }
-        this._analyzeTimer = setTimeout(this.runAnalyzePass, analyzeDelay) as any;
+        this.analyzeTimer = setTimeout(this.runAnalyzePass, analyzeDelay) as any;
       }
     } finally {
-      this._rootFlags &= ~(Model.TraversingFlag | Model.AnalyzingFlag);
+      this.setRootFlags(this.rootFlags & ~(Model.TraversingFlag | Model.AnalyzingFlag));
     }
   }
 
   protected runRefreshPass(immediate: boolean = false): void {
     const rootModels = this.rootModels;
-    this._rootFlags |= Model.TraversingFlag | Model.RefreshingFlag;
-    this._rootFlags &= ~Model.RefreshMask;
+    this.setRootFlags(this.rootFlags & ~Model.RefreshMask | (Model.TraversingFlag | Model.RefreshingFlag));
     try {
       const time = performance.now();
       for (let i = 0; i < rootModels.length; i += 1) {
@@ -222,17 +231,17 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
       }
 
       this.cancelUpdate();
-      if ((this._rootFlags & Model.AnalyzeMask) !== 0) {
-        let analyzeDelay = this._updateDelay;
+      if ((this.rootFlags & Model.AnalyzeMask) !== 0) {
+        let analyzeDelay = this.updateDelay;
         if (immediate) {
           analyzeDelay = Math.max(RefreshManager.MaxAnalyzeInterval, analyzeDelay);
         }
-        this._analyzeTimer = setTimeout(this.runAnalyzePass, analyzeDelay) as any;
-      } else if ((this._rootFlags & Model.RefreshMask) !== 0) {
-        this._refreshTimer = setTimeout(this.runRefreshPass, RefreshManager.MaxRefreshInterval) as any;
+        this.analyzeTimer = setTimeout(this.runAnalyzePass, analyzeDelay) as any;
+      } else if ((this.rootFlags & Model.RefreshMask) !== 0) {
+        this.refreshTimer = setTimeout(this.runRefreshPass, RefreshManager.MaxRefreshInterval) as any;
       }
     } finally {
-      this._rootFlags &= ~(Model.TraversingFlag | Model.RefreshingFlag);
+      this.setRootFlags(this.rootFlags & ~(Model.TraversingFlag | Model.RefreshingFlag));
     }
   }
 
@@ -274,12 +283,9 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     }
   }
 
-  private static _global?: RefreshManager<any>;
+  @Lazy
   static global<M extends Model>(): RefreshManager<M> {
-    if (RefreshManager._global === void 0) {
-      RefreshManager._global = new RefreshManager();
-    }
-    return RefreshManager._global;
+    return new RefreshManager();
   }
 
   /** @hidden */
@@ -295,4 +301,3 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
   /** @hidden */
   static MaxRefreshInterval: number = 16;
 }
-ModelManager.Refresh = RefreshManager;

@@ -106,7 +106,7 @@ export abstract class GraphicsView extends View {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "_viewFrame", {
+    Object.defineProperty(this, "ownViewFrame", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -254,7 +254,7 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  abstract get childViewCount(): number;
+  abstract readonly childViewCount: number;
 
   abstract readonly childViews: ReadonlyArray<View>;
 
@@ -1534,14 +1534,14 @@ export abstract class GraphicsView extends View {
   declare readonly viewContext: GraphicsViewContext;
 
   /** @hidden */
-  declare readonly _viewFrame: BoxR2 | null;
+  declare readonly ownViewFrame: BoxR2 | null;
 
   /**
    * The parent-specified view-coordinate bounding box in which this view
    * should layout and render graphics.
    */
   get viewFrame(): BoxR2 {
-    let viewFrame = this._viewFrame;
+    let viewFrame = this.ownViewFrame;
     if (viewFrame === null) {
       const parentView = this.parentView;
       if (parentView instanceof GraphicsView || parentView instanceof CanvasView) {
@@ -1558,7 +1558,7 @@ export abstract class GraphicsView extends View {
    * and render graphics.  Should only be invoked by the view's parent view.
    */
   setViewFrame(viewFrame: BoxR2 | null): void {
-    Object.defineProperty(this, "_viewFrame", {
+    Object.defineProperty(this, "ownViewFrame", {
       value: viewFrame,
       enumerable: true,
       configurable: true,

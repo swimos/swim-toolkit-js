@@ -149,7 +149,7 @@ export class MapRasterView extends MapLayerView {
 
   /** @hidden */
   get compositeFrame(): BoxR2 {
-    let viewFrame = this._viewFrame;
+    let viewFrame = this.ownViewFrame;
     if (viewFrame === null) {
       const parentView = this.parentView;
       viewFrame = parentView instanceof GraphicsView ? parentView.viewFrame : BoxR2.undefined();
@@ -165,7 +165,7 @@ export class MapRasterView extends MapLayerView {
   }
 
   setViewFrame(viewFrame: BoxR2 | null): void {
-    Object.defineProperty(this, "_viewFrame", {
+    Object.defineProperty(this, "ownViewFrame", {
       value: viewFrame,
       enumerable: true,
       configurable: true,

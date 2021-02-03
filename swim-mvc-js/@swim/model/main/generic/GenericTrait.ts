@@ -24,17 +24,6 @@ import type {TraitBinding} from "../binding/TraitBinding";
 import type {ModelDownlink} from "../downlink/ModelDownlink";
 
 export class GenericTrait extends Trait {
-  /** @hidden */
-  _traitServices?: {[serviceName: string]: TraitService<Trait, unknown> | undefined};
-  /** @hidden */
-  _traitScopes?: {[scopeName: string]: TraitScope<Trait, unknown> | undefined};
-  /** @hidden */
-  _traitModels?: {[bindingName: string]: TraitModel<Trait, Model> | undefined};
-  /** @hidden */
-  _traitBindings?: {[bindingName: string]: TraitBinding<Trait, Trait> | undefined};
-  /** @hidden */
-  _traitDownlinks?: {[downlinkName: string]: ModelDownlink<Trait> | undefined};
-
   constructor() {
     super();
     Object.defineProperty(this, "model", {
@@ -49,6 +38,31 @@ export class GenericTrait extends Trait {
     });
     Object.defineProperty(this, "traitConsumers", {
       value: Arrays.empty,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "traitServices", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "traitScopes", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "traitModels", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "traitBindings", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "traitDownlinks", {
+      value: null,
       enumerable: true,
       configurable: true,
     });
@@ -285,14 +299,17 @@ export class GenericTrait extends Trait {
     }
   }
 
+  /** @hidden */
+  declare readonly traitServices: {[serviceName: string]: TraitService<Trait, unknown> | undefined} | null;
+
   hasTraitService(serviceName: string): boolean {
-    const traitServices = this._traitServices;
-    return traitServices !== void 0 && traitServices[serviceName] !== void 0;
+    const traitServices = this.traitServices;
+    return traitServices !== null && traitServices[serviceName] !== void 0;
   }
 
   getTraitService(serviceName: string): TraitService<this, unknown> | null {
-    const traitServices = this._traitServices;
-    if (traitServices !== void 0) {
+    const traitServices = this.traitServices;
+    if (traitServices !== null) {
       const traitService = traitServices[serviceName];
       if (traitService !== void 0) {
         return traitService as TraitService<this, unknown>;
@@ -302,10 +319,14 @@ export class GenericTrait extends Trait {
   }
 
   setTraitService(serviceName: string, newTraitService: TraitService<this, unknown> | null): void {
-    let traitServices = this._traitServices;
-    if (traitServices === void 0) {
+    let traitServices = this.traitServices;
+    if (traitServices === null) {
       traitServices = {};
-      this._traitServices = traitServices;
+      Object.defineProperty(this, "traitServices", {
+        value: traitServices,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldTraitService = traitServices[serviceName];
     if (oldTraitService !== void 0 && this.isMounted()) {
@@ -323,34 +344,33 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   protected attachServices(): void {
-    const traitServices = this._traitServices;
-    if (traitServices !== void 0) {
-      for (const serviceName in traitServices) {
-        const traitService = traitServices[serviceName]!;
-        traitService.attach();
-      }
+    const traitServices = this.traitServices;
+    for (const serviceName in traitServices) {
+      const traitService = traitServices[serviceName]!;
+      traitService.attach();
     }
   }
 
   /** @hidden */
   protected detachServices(): void {
-    const traitServices = this._traitServices;
-    if (traitServices !== void 0) {
-      for (const serviceName in traitServices) {
-        const traitService = traitServices[serviceName]!;
-        traitService.detach();
-      }
+    const traitServices = this.traitServices;
+    for (const serviceName in traitServices) {
+      const traitService = traitServices[serviceName]!;
+      traitService.detach();
     }
   }
 
+  /** @hidden */
+  declare readonly traitScopes: {[scopeName: string]: TraitScope<Trait, unknown> | undefined} | null;
+
   hasTraitScope(scopeName: string): boolean {
-    const traitScopes = this._traitScopes;
-    return traitScopes !== void 0 && traitScopes[scopeName] !== void 0;
+    const traitScopes = this.traitScopes;
+    return traitScopes !== null && traitScopes[scopeName] !== void 0;
   }
 
   getTraitScope(scopeName: string): TraitScope<this, unknown> | null {
-    const traitScopes = this._traitScopes;
-    if (traitScopes !== void 0) {
+    const traitScopes = this.traitScopes;
+    if (traitScopes !== null) {
       const traitScope = traitScopes[scopeName];
       if (traitScope !== void 0) {
         return traitScope as TraitScope<this, unknown>;
@@ -360,10 +380,14 @@ export class GenericTrait extends Trait {
   }
 
   setTraitScope(scopeName: string, newTraitScope: TraitScope<this, unknown> | null): void {
-    let traitScopes = this._traitScopes;
-    if (traitScopes === void 0) {
+    let traitScopes = this.traitScopes;
+    if (traitScopes === null) {
       traitScopes = {};
-      this._traitScopes = traitScopes;
+      Object.defineProperty(this, "traitScopes", {
+        value: traitScopes,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldTraitScope = traitScopes[scopeName];
     if (oldTraitScope !== void 0 && this.isMounted()) {
@@ -381,45 +405,42 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   mutateScopes(): void {
-    const traitScopes = this._traitScopes;
-    if (traitScopes !== void 0) {
-      for (const scopeName in traitScopes) {
-        const traitScope = traitScopes[scopeName]!;
-        traitScope.onMutate();
-      }
+    const traitScopes = this.traitScopes;
+    for (const scopeName in traitScopes) {
+      const traitScope = traitScopes[scopeName]!;
+      traitScope.onMutate();
     }
   }
 
   /** @hidden */
   protected attachScopes(): void {
-    const traitScopes = this._traitScopes;
-    if (traitScopes !== void 0) {
-      for (const scopeName in traitScopes) {
-        const traitScope = traitScopes[scopeName]!;
-        traitScope.attach();
-      }
+    const traitScopes = this.traitScopes;
+    for (const scopeName in traitScopes) {
+      const traitScope = traitScopes[scopeName]!;
+      traitScope.attach();
     }
   }
 
   /** @hidden */
   protected detachScopes(): void {
-    const traitScopes = this._traitScopes;
-    if (traitScopes !== void 0) {
-      for (const scopeName in traitScopes) {
-        const traitScope = traitScopes[scopeName]!;
-        traitScope.detach();
-      }
+    const traitScopes = this.traitScopes;
+    for (const scopeName in traitScopes) {
+      const traitScope = traitScopes[scopeName]!;
+      traitScope.detach();
     }
   }
 
+  /** @hidden */
+  declare readonly traitModels: {[bindingName: string]: TraitModel<Trait, Model> | undefined} | null;
+
   hasTraitModel(bindingName: string): boolean {
-    const traitModels = this._traitModels;
-    return traitModels !== void 0 && traitModels[bindingName] !== void 0;
+    const traitModels = this.traitModels;
+    return traitModels !== null && traitModels[bindingName] !== void 0;
   }
 
   getTraitModel(bindingName: string): TraitModel<this, Model> | null {
-    const traitModels = this._traitModels;
-    if (traitModels !== void 0) {
+    const traitModels = this.traitModels;
+    if (traitModels !== null) {
       const traitModel = traitModels[bindingName];
       if (traitModel !== void 0) {
         return traitModel as TraitModel<this, Model>;
@@ -429,10 +450,14 @@ export class GenericTrait extends Trait {
   }
 
   setTraitModel(bindingName: string, newTraitModel: TraitModel<this, any> | null): void {
-    let traitModels = this._traitModels;
-    if (traitModels === void 0) {
+    let traitModels = this.traitModels;
+    if (traitModels === null) {
       traitModels = {};
-      this._traitModels = traitModels;
+      Object.defineProperty(this, "traitModels", {
+        value: traitModels,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldTraitModel = traitModels[bindingName];
     if (oldTraitModel !== void 0 && this.isMounted()) {
@@ -456,16 +481,14 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   protected mountTraitModels(): void {
-    const traitModels = this._traitModels;
-    if (traitModels !== void 0) {
-      for (const bindingName in traitModels) {
-        const traitModel = traitModels[bindingName]!;
-        traitModel.mount();
-        if (traitModel.child === true) {
-          const childModel = this.getChildModel(traitModel.name);
-          if (childModel !== null) {
-            traitModel.doSetModel(childModel);
-          }
+    const traitModels = this.traitModels;
+    for (const bindingName in traitModels) {
+      const traitModel = traitModels[bindingName]!;
+      traitModel.mount();
+      if (traitModel.child === true) {
+        const childModel = this.getChildModel(traitModel.name);
+        if (childModel !== null) {
+          traitModel.doSetModel(childModel);
         }
       }
     }
@@ -473,12 +496,10 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   protected unmountTraitModels(): void {
-    const traitModels = this._traitModels;
-    if (traitModels !== void 0) {
-      for (const bindingName in traitModels) {
-        const traitModel = traitModels[bindingName]!;
-        traitModel.unmount();
-      }
+    const traitModels = this.traitModels;
+    for (const bindingName in traitModels) {
+      const traitModel = traitModels[bindingName]!;
+      traitModel.unmount();
     }
   }
 
@@ -504,14 +525,17 @@ export class GenericTrait extends Trait {
     }
   }
 
+  /** @hidden */
+  declare readonly traitBindings: {[bindingName: string]: TraitBinding<Trait, Trait> | undefined} | null;
+
   hasTraitBinding(bindingName: string): boolean {
-    const traitBindings = this._traitBindings;
-    return traitBindings !== void 0 && traitBindings[bindingName] !== void 0;
+    const traitBindings = this.traitBindings;
+    return traitBindings !== null && traitBindings[bindingName] !== void 0;
   }
 
   getTraitBinding(bindingName: string): TraitBinding<this, Trait> | null {
-    const traitBindings = this._traitBindings;
-    if (traitBindings !== void 0) {
+    const traitBindings = this.traitBindings;
+    if (traitBindings !== null) {
       const traitBinding = traitBindings[bindingName];
       if (traitBinding !== void 0) {
         return traitBinding as TraitBinding<this, Trait>;
@@ -521,10 +545,14 @@ export class GenericTrait extends Trait {
   }
 
   setTraitBinding(bindingName: string, newTraitBinding: TraitBinding<this, any> | null): void {
-    let traitBindings = this._traitBindings;
-    if (traitBindings === void 0) {
+    let traitBindings = this.traitBindings;
+    if (traitBindings === null) {
       traitBindings = {};
-      this._traitBindings = traitBindings;
+      Object.defineProperty(this, "traitBindings", {
+        value: traitBindings,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldTraitBinding = traitBindings[bindingName];
     if (oldTraitBinding !== void 0 && this.isMounted()) {
@@ -548,16 +576,14 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   protected mountTraitBindings(): void {
-    const traitBindings = this._traitBindings;
-    if (traitBindings !== void 0) {
-      for (const bindingName in traitBindings) {
-        const traitBinding = traitBindings[bindingName]!;
-        traitBinding.mount();
-        if (traitBinding.sibling === true) {
-          const trait = this.getTrait(traitBinding.name);
-          if (trait !== null) {
-            traitBinding.doSetTrait(trait);
-          }
+    const traitBindings = this.traitBindings;
+    for (const bindingName in traitBindings) {
+      const traitBinding = traitBindings[bindingName]!;
+      traitBinding.mount();
+      if (traitBinding.sibling === true) {
+        const trait = this.getTrait(traitBinding.name);
+        if (trait !== null) {
+          traitBinding.doSetTrait(trait);
         }
       }
     }
@@ -565,12 +591,10 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   protected unmountTraitBindings(): void {
-    const traitBindings = this._traitBindings;
-    if (traitBindings !== void 0) {
-      for (const bindingName in traitBindings) {
-        const traitBinding = traitBindings[bindingName]!;
-        traitBinding.unmount();
-      }
+    const traitBindings = this.traitBindings;
+    for (const bindingName in traitBindings) {
+      const traitBinding = traitBindings[bindingName]!;
+      traitBinding.unmount();
     }
   }
 
@@ -596,14 +620,17 @@ export class GenericTrait extends Trait {
     }
   }
 
+  /** @hidden */
+  declare readonly traitDownlinks: {[downlinkName: string]: ModelDownlink<Trait> | undefined} | null;
+
   hasModelDownlink(downlinkName: string): boolean {
-    const traitDownlinks = this._traitDownlinks;
-    return traitDownlinks !== void 0 && traitDownlinks[downlinkName] !== void 0;
+    const traitDownlinks = this.traitDownlinks;
+    return traitDownlinks !== null && traitDownlinks[downlinkName] !== void 0;
   }
 
   getModelDownlink(downlinkName: string): ModelDownlink<this> | null {
-    const traitDownlinks = this._traitDownlinks;
-    if (traitDownlinks !== void 0) {
+    const traitDownlinks = this.traitDownlinks;
+    if (traitDownlinks !== null) {
       const traitDownlink = traitDownlinks[downlinkName];
       if (traitDownlink !== void 0) {
         return traitDownlink as ModelDownlink<this>;
@@ -613,10 +640,14 @@ export class GenericTrait extends Trait {
   }
 
   setModelDownlink(downlinkName: string, newTraitDownlink: ModelDownlink<this> | null): void {
-    let traitDownlinks = this._traitDownlinks;
-    if (traitDownlinks === void 0) {
+    let traitDownlinks = this.traitDownlinks;
+    if (traitDownlinks === null) {
       traitDownlinks = {};
-      this._traitDownlinks = traitDownlinks;
+      Object.defineProperty(this, "traitDownlinks", {
+        value: traitDownlinks,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldTraitDownlink = traitDownlinks[downlinkName];
     if (oldTraitDownlink !== void 0 && this.isMounted()) {
@@ -634,38 +665,31 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   protected mountDownlinks(): void {
-    const traitDownlinks = this._traitDownlinks;
-    if (traitDownlinks !== void 0) {
-      for (const downlinkName in traitDownlinks) {
-        const traitDownlink = traitDownlinks[downlinkName]!;
-        traitDownlink.mount();
-      }
+    const traitDownlinks = this.traitDownlinks;
+    for (const downlinkName in traitDownlinks) {
+      const traitDownlink = traitDownlinks[downlinkName]!;
+      traitDownlink.mount();
     }
   }
 
   /** @hidden */
   protected unmountDownlinks(): void {
-    const traitDownlinks = this._traitDownlinks;
-    if (traitDownlinks !== void 0) {
-      for (const downlinkName in traitDownlinks) {
-        const traitDownlink = traitDownlinks[downlinkName]!;
-        traitDownlink.unmount();
-      }
+    const traitDownlinks = this.traitDownlinks;
+    for (const downlinkName in traitDownlinks) {
+      const traitDownlink = traitDownlinks[downlinkName]!;
+      traitDownlink.unmount();
     }
   }
 
   /** @hidden */
   protected reconcileDownlinks(): void {
-    const traitDownlinks = this._traitDownlinks;
-    if (traitDownlinks !== void 0) {
-      for (const downlinkName in traitDownlinks) {
-        const traitDownlink = traitDownlinks[downlinkName]!;
-        traitDownlink.reconcile();
-      }
+    const traitDownlinks = this.traitDownlinks;
+    for (const downlinkName in traitDownlinks) {
+      const traitDownlink = traitDownlinks[downlinkName]!;
+      traitDownlink.reconcile();
     }
   }
 }
-Trait.Generic = GenericTrait
 
 TraitScope({
   type: Object,

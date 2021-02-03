@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Arrays} from "@swim/util";
+import {Equals, Lazy, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
 import type {Look} from "../look/Look";
 import {AnyLookVector, LookVector} from "../look/LookVector";
@@ -419,12 +419,9 @@ export class ThemeMatrix implements Equals, Debug {
     return Format.debug(this);
   }
 
-  private static _empty?: ThemeMatrix;
+  @Lazy
   static empty(): ThemeMatrix {
-    if (ThemeMatrix._empty === void 0) {
-      ThemeMatrix._empty = new ThemeMatrix([], {}, [], {});
-    }
-    return ThemeMatrix._empty;
+    return new ThemeMatrix([], {}, [], {});
   }
 
   static forRows(...rows: [Look<unknown>, AnyLookVector<unknown>][]): ThemeMatrix {

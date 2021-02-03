@@ -32,4 +32,3 @@ export abstract class NumberTraitScope<R extends Trait> extends TraitScope<R, nu
     }
   }
 }
-TraitScope.Number = NumberTraitScope;

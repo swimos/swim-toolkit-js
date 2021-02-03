@@ -25,7 +25,6 @@ import type {TraitModelConstructor, TraitModel} from "./binding/TraitModel";
 import type {TraitBindingConstructor, TraitBinding} from "./binding/TraitBinding";
 import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
 import type {ModelDownlink} from "./downlink/ModelDownlink";
-import type {GenericTrait} from "./generic/GenericTrait";
 
 export type TraitModelType<R extends Trait> = R extends {readonly model: infer M} ? M extends null ? never : M : Model;
 
@@ -35,16 +34,16 @@ export type TraitFlags = number;
 
 export interface TraitPrototype {
   /** @hidden */
-  _traitServiceConstructors?: {[serviceName: string]: TraitServiceConstructor<Trait, unknown> | undefined};
+  traitServiceConstructors?: {[serviceName: string]: TraitServiceConstructor<Trait, unknown> | undefined};
 
   /** @hidden */
-  _traitScopeConstructors?: {[scopeName: string]: TraitScopeConstructor<Trait, unknown> | undefined};
+  traitScopeConstructors?: {[scopeName: string]: TraitScopeConstructor<Trait, unknown> | undefined};
 
   /** @hidden */
-  _traitModelConstructors?: {[bindingName: string]: TraitModelConstructor<Trait, Model> | undefined};
+  traitModelConstructors?: {[bindingName: string]: TraitModelConstructor<Trait, Model> | undefined};
 
   /** @hidden */
-  _traitBindingConstructors?: {[bindingName: string]: TraitBindingConstructor<Trait, Trait> | undefined};
+  traitBindingConstructors?: {[bindingName: string]: TraitBindingConstructor<Trait, Trait> | undefined};
 }
 
 export interface TraitConstructor<R extends Trait = Trait> {
@@ -1156,8 +1155,8 @@ export abstract class Trait implements ModelDownlinkContext {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(traitPrototype, "_traitServiceConstructors")) {
-        const descriptor = traitPrototype._traitServiceConstructors![serviceName];
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitServiceConstructors")) {
+        const descriptor = traitPrototype.traitServiceConstructors![serviceName];
         if (descriptor !== void 0) {
           return descriptor;
         }
@@ -1171,10 +1170,10 @@ export abstract class Trait implements ModelDownlinkContext {
   static decorateTraitService(constructor: TraitServiceConstructor<Trait, unknown>,
                               target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "_traitServiceConstructors")) {
-      traitPrototype._traitServiceConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "traitServiceConstructors")) {
+      traitPrototype.traitServiceConstructors = {};
     }
-    traitPrototype._traitServiceConstructors![propertyKey.toString()] = constructor;
+    traitPrototype.traitServiceConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Trait): TraitService<Trait, unknown> {
         let traitService = this.getTraitService(propertyKey.toString());
@@ -1195,8 +1194,8 @@ export abstract class Trait implements ModelDownlinkContext {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(traitPrototype, "_traitScopeConstructors")) {
-        const constructor = traitPrototype._traitScopeConstructors![scopeName];
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitScopeConstructors")) {
+        const constructor = traitPrototype.traitScopeConstructors![scopeName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1210,10 +1209,10 @@ export abstract class Trait implements ModelDownlinkContext {
   static decorateTraitScope(constructor: TraitScopeConstructor<Trait, unknown>,
                             target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "_traitScopeConstructors")) {
-      traitPrototype._traitScopeConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "traitScopeConstructors")) {
+      traitPrototype.traitScopeConstructors = {};
     }
-    traitPrototype._traitScopeConstructors![propertyKey.toString()] = constructor;
+    traitPrototype.traitScopeConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Trait): TraitScope<Trait, unknown> {
         let traitScope = this.getTraitScope(propertyKey.toString());
@@ -1234,8 +1233,8 @@ export abstract class Trait implements ModelDownlinkContext {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(traitPrototype, "_traitModelConstructors")) {
-        const constructor = traitPrototype._traitModelConstructors![bindingName];
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitModelConstructors")) {
+        const constructor = traitPrototype.traitModelConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1249,10 +1248,10 @@ export abstract class Trait implements ModelDownlinkContext {
   static decorateTraitModel(constructor: TraitModelConstructor<Trait, Model>,
                             target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "_traitModelConstructors")) {
-      traitPrototype._traitModelConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "traitModelConstructors")) {
+      traitPrototype.traitModelConstructors = {};
     }
-    traitPrototype._traitModelConstructors![propertyKey.toString()] = constructor;
+    traitPrototype.traitModelConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Trait): TraitModel<Trait, Model> {
         let traitModel = this.getTraitModel(propertyKey.toString());
@@ -1273,8 +1272,8 @@ export abstract class Trait implements ModelDownlinkContext {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(traitPrototype, "_traitBindingConstructors")) {
-        const constructor = traitPrototype._traitBindingConstructors![bindingName];
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitBindingConstructors")) {
+        const constructor = traitPrototype.traitBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1288,10 +1287,10 @@ export abstract class Trait implements ModelDownlinkContext {
   static decorateTraitBinding(constructor: TraitBindingConstructor<Trait, Trait>,
                               target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "_traitBindingConstructors")) {
-      traitPrototype._traitBindingConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "traitBindingConstructors")) {
+      traitPrototype.traitBindingConstructors = {};
     }
-    traitPrototype._traitBindingConstructors![propertyKey.toString()] = constructor;
+    traitPrototype.traitBindingConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Trait): TraitBinding<Trait, Trait> {
         let traitBinding = this.getTraitBinding(propertyKey.toString());
@@ -1321,14 +1320,4 @@ export abstract class Trait implements ModelDownlinkContext {
   static readonly removeTraitFlags: ModelFlags = 0;
   static readonly startConsumingFlags: TraitFlags = 0;
   static readonly stopConsumingFlags: TraitFlags = 0;
-
-  // Forward type declarations
-  /** @hidden */
-  static Service: typeof TraitService; // defined by TraitService
-  /** @hidden */
-  static Scope: typeof TraitScope; // defined by TraitScope
-  /** @hidden */
-  static Binding: typeof TraitBinding; // defined by TraitBinding
-  /** @hidden */
-  static Generic: typeof GenericTrait; // defined by GenericTrait
 }

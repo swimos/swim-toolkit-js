@@ -149,7 +149,7 @@ export class RasterView extends LayerView {
 
   /** @hidden */
   get compositeFrame(): BoxR2 {
-    let viewFrame = this._viewFrame;
+    let viewFrame = this.ownViewFrame;
     if (viewFrame === null) {
       const parentView = this.parentView;
       if (parentView instanceof GraphicsView || parentView instanceof CanvasView) {
@@ -169,7 +169,7 @@ export class RasterView extends LayerView {
   }
 
   setViewFrame(viewFrame: BoxR2 | null): void {
-    Object.defineProperty(this, "_viewFrame", {
+    Object.defineProperty(this, "ownViewFrame", {
       value: viewFrame,
       enumerable: true,
       configurable: true,

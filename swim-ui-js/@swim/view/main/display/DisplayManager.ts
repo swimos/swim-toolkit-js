@@ -81,7 +81,7 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
   declare readonly rootFlags: ViewFlags;
 
   /** @hidden */
-  setRootFlags(rootFlags: number): void {
+  setRootFlags(rootFlags: ViewFlags): void {
     Object.defineProperty(this, "rootFlags", {
       value: rootFlags,
       enumerable: true,

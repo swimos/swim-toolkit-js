@@ -19,7 +19,6 @@ import type {ModelObserverType, ModelObserver} from "./ModelObserver";
 import type {ModelControllerType, ModelController} from "./ModelController";
 import type {ModelConsumerType, ModelConsumer} from "./ModelConsumer";
 import type {TraitClass, Trait} from "./Trait";
-import type {ModelManager} from "./manager/ModelManager";
 import type {ModelServiceConstructor, ModelService} from "./service/ModelService";
 import type {RefreshService} from "./service/RefreshService";
 import type {WarpService} from "./service/WarpService";
@@ -28,8 +27,6 @@ import type {ModelBindingConstructor, ModelBinding} from "./binding/ModelBinding
 import type {ModelTraitConstructor, ModelTrait} from "./binding/ModelTrait";
 import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
 import type {ModelDownlink} from "./downlink/ModelDownlink";
-import type {GenericModel} from "./generic/GenericModel";
-import type {CompoundModel} from "./generic/CompoundModel";
 
 export type ModelFlags = number;
 
@@ -40,16 +37,16 @@ export interface ModelInit {
 
 export interface ModelPrototype {
   /** @hidden */
-  _modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<Model, unknown> | undefined};
+  modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<Model, unknown> | undefined};
 
   /** @hidden */
-  _modelScopeConstructors?: {[scopeName: string]: ModelScopeConstructor<Model, unknown> | undefined};
+  modelScopeConstructors?: {[scopeName: string]: ModelScopeConstructor<Model, unknown> | undefined};
 
   /** @hidden */
-  _modelBindingConstructors?: {[bindingName: string]: ModelBindingConstructor<Model, Model> | undefined};
+  modelBindingConstructors?: {[bindingName: string]: ModelBindingConstructor<Model, Model> | undefined};
 
   /** @hidden */
-  _modelTraitConstructors?: {[bindingName: string]: ModelTraitConstructor<Model, Trait> | undefined};
+  modelTraitConstructors?: {[bindingName: string]: ModelTraitConstructor<Model, Trait> | undefined};
 }
 
 export interface ModelConstructor<M extends Model = Model> {
@@ -283,7 +280,7 @@ export abstract class Model implements ModelDownlinkContext {
 
   abstract remove(): void;
 
-  abstract get childModelCount(): number;
+  abstract readonly childModelCount: number;
 
   abstract readonly childModels: ReadonlyArray<Model>;
 
@@ -1663,8 +1660,8 @@ export abstract class Model implements ModelDownlinkContext {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(modelPrototype, "_modelServiceConstructors")) {
-        const constructor = modelPrototype._modelServiceConstructors![serviceName];
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelServiceConstructors")) {
+        const constructor = modelPrototype.modelServiceConstructors![serviceName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1678,10 +1675,10 @@ export abstract class Model implements ModelDownlinkContext {
   static decorateModelService(constructor: ModelServiceConstructor<Model, unknown>,
                               target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "_modelServiceConstructors")) {
-      modelPrototype._modelServiceConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelServiceConstructors")) {
+      modelPrototype.modelServiceConstructors = {};
     }
-    modelPrototype._modelServiceConstructors![propertyKey.toString()] = constructor;
+    modelPrototype.modelServiceConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Model): ModelService<Model, unknown> {
         let modelService = this.getModelService(propertyKey.toString());
@@ -1702,8 +1699,8 @@ export abstract class Model implements ModelDownlinkContext {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(modelPrototype, "_modelScopeConstructors")) {
-        const constructor = modelPrototype._modelScopeConstructors![scopeName];
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelScopeConstructors")) {
+        const constructor = modelPrototype.modelScopeConstructors![scopeName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1717,10 +1714,10 @@ export abstract class Model implements ModelDownlinkContext {
   static decorateModelScope(constructor: ModelScopeConstructor<Model, unknown>,
                             target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "_modelScopeConstructors")) {
-      modelPrototype._modelScopeConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelScopeConstructors")) {
+      modelPrototype.modelScopeConstructors = {};
     }
-    modelPrototype._modelScopeConstructors![propertyKey.toString()] = constructor;
+    modelPrototype.modelScopeConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Model): ModelScope<Model, unknown> {
         let modelScope = this.getModelScope(propertyKey.toString());
@@ -1741,8 +1738,8 @@ export abstract class Model implements ModelDownlinkContext {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(modelPrototype, "_modelBindingConstructors")) {
-        const constructor = modelPrototype._modelBindingConstructors![bindingName];
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelBindingConstructors")) {
+        const constructor = modelPrototype.modelBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1756,10 +1753,10 @@ export abstract class Model implements ModelDownlinkContext {
   static decorateModelBinding(constructor: ModelBindingConstructor<Model, Model>,
                               target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "_modelBindingConstructors")) {
-      modelPrototype._modelBindingConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelBindingConstructors")) {
+      modelPrototype.modelBindingConstructors = {};
     }
-    modelPrototype._modelBindingConstructors![propertyKey.toString()] = constructor;
+    modelPrototype.modelBindingConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Model): ModelBinding<Model, Model> {
         let modelBinding = this.getModelBinding(propertyKey.toString());
@@ -1780,8 +1777,8 @@ export abstract class Model implements ModelDownlinkContext {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(modelPrototype, "_modelTraitConstructors")) {
-        const constructor = modelPrototype._modelTraitConstructors![bindingName];
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelTraitConstructors")) {
+        const constructor = modelPrototype.modelTraitConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1795,10 +1792,10 @@ export abstract class Model implements ModelDownlinkContext {
   static decorateModelTrait(constructor: ModelTraitConstructor<Model, Trait>,
                             target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "_modelTraitConstructors")) {
-      modelPrototype._modelTraitConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelTraitConstructors")) {
+      modelPrototype.modelTraitConstructors = {};
     }
-    modelPrototype._modelTraitConstructors![propertyKey.toString()] = constructor;
+    modelPrototype.modelTraitConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Model): ModelTrait<Model, Trait> {
         let modelTrait = this.getModelTrait(propertyKey.toString());
@@ -1877,18 +1874,4 @@ export abstract class Model implements ModelDownlinkContext {
   static readonly removeTraitFlags: ModelFlags = 0;
   static readonly startConsumingFlags: ModelFlags = 0;
   static readonly stopConsumingFlags: ModelFlags = 0;
-
-  // Forward type declarations
-  /** @hidden */
-  static Manager: typeof ModelManager; // defined by ModelManager
-  /** @hidden */
-  static Service: typeof ModelService; // defined by ModelService
-  /** @hidden */
-  static Scope: typeof ModelScope; // defined by ModelScope
-  /** @hidden */
-  static Binding: typeof ModelBinding; // defined by ModelBinding
-  /** @hidden */
-  static Generic: typeof GenericModel; // defined by GenericModel
-  /** @hidden */
-  static Compound: typeof CompoundModel; // defined by CompoundModel
 }

@@ -955,7 +955,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
 
 export class PointerScaleGesture<X, Y, V extends View> extends AbstractScaleGesture<X, Y, V> {
   /** @hidden */
-  protected _wheel: boolean;
+  protected wheelZoom: boolean;
 
   constructor(view: V | null, delegate?: ScaleGestureDelegate<X, Y> | null) {
     super(view, delegate);
@@ -967,7 +967,7 @@ export class PointerScaleGesture<X, Y, V extends View> extends AbstractScaleGest
     this.onPointerCancel = this.onPointerCancel.bind(this);
     this.onPointerLeaveDocument = this.onPointerLeaveDocument.bind(this);
     this.onWheel = this.onWheel.bind(this);
-    this._wheel = true;
+    this.wheelZoom = true;
     this.initView(view);
   }
 
@@ -975,10 +975,10 @@ export class PointerScaleGesture<X, Y, V extends View> extends AbstractScaleGest
   wheel(wheel: boolean): this;
   wheel(wheel?: boolean): boolean | this {
     if (wheel === void 0) {
-      return this._wheel;
+      return this.wheelZoom;
     } else {
-      if (this._wheel !== wheel) {
-        this._wheel = wheel;
+      if (this.wheelZoom !== wheel) {
+        this.wheelZoom = wheel;
         if (this.view !== null) {
           if (wheel) {
             this.attachWheelEvents(this.view);
@@ -993,7 +993,7 @@ export class PointerScaleGesture<X, Y, V extends View> extends AbstractScaleGest
 
   protected attachEvents(view: V): void {
     super.attachEvents(view);
-    if (this._wheel) {
+    if (this.wheelZoom) {
       this.attachWheelEvents(view);
     }
   }
@@ -1254,7 +1254,7 @@ export class TouchScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
 
 export class MouseScaleGesture<X, Y, V extends View> extends AbstractScaleGesture<X, Y, V> {
   /** @hidden */
-  protected _wheel: boolean;
+  protected wheelZoom: boolean;
 
   constructor(view: V | null, delegate?: ScaleGestureDelegate<X, Y> | null) {
     super(view, delegate);
@@ -1265,7 +1265,7 @@ export class MouseScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onMouseLeaveDocument = this.onMouseLeaveDocument.bind(this);
     this.onWheel = this.onWheel.bind(this);
-    this._wheel = true;
+    this.wheelZoom = true;
     this.initView(view);
   }
 
@@ -1273,10 +1273,10 @@ export class MouseScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
   wheel(wheel: boolean): this;
   wheel(wheel?: boolean): boolean | this {
     if (wheel === void 0) {
-      return this._wheel;
+      return this.wheelZoom;
     } else {
-      if (this._wheel !== wheel) {
-        this._wheel = wheel;
+      if (this.wheelZoom !== wheel) {
+        this.wheelZoom = wheel;
         if (this.view !== null) {
           if (wheel) {
             this.attachWheelEvents(this.view);
@@ -1291,7 +1291,7 @@ export class MouseScaleGesture<X, Y, V extends View> extends AbstractScaleGestur
 
   protected attachEvents(view: V): void {
     super.attachEvents(view);
-    if (this._wheel) {
+    if (this.wheelZoom) {
       this.attachWheelEvents(view);
     }
   }

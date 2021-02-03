@@ -21,4 +21,3 @@ export abstract class StringTraitScope<R extends Trait> extends TraitScope<R, st
     return value;
   }
 }
-TraitScope.String = StringTraitScope;

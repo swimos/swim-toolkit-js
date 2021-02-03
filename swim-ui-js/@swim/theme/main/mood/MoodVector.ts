@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Arrays} from "@swim/util";
+import {Equals, Lazy, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
 import type {Feel} from "../feel/Feel";
 import type {Mood} from "./Mood";
@@ -239,12 +239,9 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     return Format.debug(this);
   }
 
-  private static _empty?: MoodVector<any>;
+  @Lazy
   static empty<M extends Mood>(): MoodVector<M> {
-    if (MoodVector._empty === void 0) {
-      MoodVector._empty = new MoodVector([], {});
-    }
-    return MoodVector._empty;
+    return new MoodVector([], {});
   }
 
   static of<M extends Mood>(...keys: [M, number][]): MoodVector<M> {

@@ -38,13 +38,8 @@ export interface ModelEventDownlinkClass extends Function {
   readonly prototype: ModelEventDownlink<any>;
 }
 
-export declare abstract class ModelEventDownlink<M extends ModelDownlinkContext> {
-  /** @hidden */
-  _downlink: EventDownlink | null;
-
-  constructor(owner: M, downlinkName: string | undefined);
-
-  get downlink(): EventDownlink | null;
+export interface ModelEventDownlink<M extends ModelDownlinkContext> extends ModelDownlink<M> {
+  readonly downlink: EventDownlink | null;
 
   /** @hidden */
   createDownlink(warp: WarpRef): EventDownlink;
@@ -54,18 +49,9 @@ export declare abstract class ModelEventDownlink<M extends ModelDownlinkContext>
 
   /** @hidden */
   initDownlink?(downlink: EventDownlink): EventDownlink;
-
-  static define<M extends ModelDownlinkContext, I = {}>(descriptor: ModelEventDownlinkDescriptorExtends<M, I>): ModelEventDownlinkConstructor<M, I>;
-  static define<M extends ModelDownlinkContext>(descriptor: ModelEventDownlinkDescriptor<M>): ModelEventDownlinkConstructor<M>;
 }
 
-export interface ModelEventDownlink<M extends ModelDownlinkContext> extends ModelDownlink<M> {
-}
-
-export function ModelEventDownlink<M extends ModelDownlinkContext, I = {}>(descriptor: ModelEventDownlinkDescriptorExtends<M, I>): PropertyDecorator;
-export function ModelEventDownlink<M extends ModelDownlinkContext>(descriptor: ModelEventDownlinkDescriptor<M>): PropertyDecorator;
-
-export function ModelEventDownlink<M extends ModelDownlinkContext>(
+export const ModelEventDownlink = function <M extends ModelDownlinkContext>(
     this: ModelEventDownlink<M> | typeof ModelEventDownlink,
     owner: M | ModelEventDownlinkDescriptor<M>,
     downlinkName?: string
@@ -75,9 +61,20 @@ export function ModelEventDownlink<M extends ModelDownlinkContext>(
   } else { // decorator factory
     return ModelEventDownlinkDecoratorFactory(owner as ModelEventDownlinkDescriptor<M>);
   }
-}
+} as {
+  /** @hidden */
+  new<M extends ModelDownlinkContext>(owner: M, downlinkName: string | undefined): ModelEventDownlink<M>;
+
+  <M extends ModelDownlinkContext, I = {}>(descriptor: ModelEventDownlinkDescriptorExtends<M, I>): PropertyDecorator;
+  <M extends ModelDownlinkContext>(descriptor: ModelEventDownlinkDescriptor<M>): PropertyDecorator;
+
+  /** @hidden */
+  prototype: ModelEventDownlink<any>;
+
+  define<M extends ModelDownlinkContext, I = {}>(descriptor: ModelEventDownlinkDescriptorExtends<M, I>): ModelEventDownlinkConstructor<M, I>;
+  define<M extends ModelDownlinkContext>(descriptor: ModelEventDownlinkDescriptor<M>): ModelEventDownlinkConstructor<M>;
+};
 __extends(ModelEventDownlink, ModelDownlink);
-ModelDownlink.Event = ModelEventDownlink;
 
 function ModelEventDownlinkConstructor<M extends ModelDownlinkContext>(this: ModelEventDownlink<M>, owner: M, downlinkName: string | undefined): ModelEventDownlink<M> {
   const _this: ModelEventDownlink<M> = (ModelDownlink as Function).call(this, owner, downlinkName) || this;
@@ -114,33 +111,61 @@ ModelEventDownlink.define = function <M extends ModelDownlinkContext, V, VU, I>(
     _super = ModelEventDownlink;
   }
 
-  const _constructor = function ModelEventDownlinkAccessor(this: ModelDownlink<M>, owner: M, downlinkName: string | undefined): ModelEventDownlink<M> {
+  const _constructor = function DecoratedModelEventDownlink(this: ModelDownlink<M>, owner: M, downlinkName: string | undefined): ModelEventDownlink<M> {
     const _this: ModelEventDownlink<M> = _super!.call(this, owner, downlinkName) || this;
     if (enabled === true) {
-      _this._downlinkFlags |= ModelDownlink.EnabledFlag;
+      Object.defineProperty(_this, "downlinkFlags", {
+        value: _this.downlinkFlags | ModelDownlink.EnabledFlag,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (hostUri !== void 0) {
-      _this._hostUri = hostUri as Uri;
+      Object.defineProperty(_this, "ownHostUri", {
+        value: hostUri as Uri,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (nodeUri !== void 0) {
-      _this._nodeUri = nodeUri as Uri;
+      Object.defineProperty(_this, "ownNodeUri", {
+        value: nodeUri as Uri,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (laneUri !== void 0) {
-      _this._laneUri = laneUri as Uri;
+      Object.defineProperty(_this, "ownLaneUri", {
+        value: laneUri as Uri,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (prio !== void 0) {
-      _this._prio = prio as number;
+      Object.defineProperty(_this, "ownPrio", {
+        value: prio as number,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (rate !== void 0) {
-      _this._rate = rate as number;
+      Object.defineProperty(_this, "ownRate", {
+        value: rate as number,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (body !== void 0) {
-      _this._body = body as Value;
+      Object.defineProperty(_this, "ownBody", {
+        value: body as Value,
+        enumerable: true,
+        configurable: true,
+      });
     }
     return _this;
   } as unknown as ModelEventDownlinkConstructor<M, I>;
 
-  const _prototype = descriptor as unknown as ModelEventDownlink<M> & I;
+  const _prototype = descriptor as unknown as ModelEventDownlink<any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

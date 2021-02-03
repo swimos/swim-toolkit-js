@@ -32,4 +32,3 @@ export abstract class NumberModelScope<M extends Model> extends ModelScope<M, nu
     }
   }
 }
-ModelScope.Number = NumberModelScope;

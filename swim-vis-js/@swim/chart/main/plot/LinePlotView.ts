@@ -14,7 +14,7 @@
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {ViewAnimator} from "@swim/view";
+import {ViewScope, ViewAnimator} from "@swim/view";
 import type {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";
 import type {PlotViewController} from "./PlotViewController";
@@ -28,14 +28,6 @@ export interface LinePlotViewInit<X, Y> extends SeriesPlotViewInit<X, Y>, Stroke
 }
 
 export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeView {
-  /** @hidden */
-  _hitWidth: number;
-
-  constructor() {
-    super();
-    this._hitWidth = 5;
-  }
-
   initView(init: LinePlotViewInit<X, Y>): void {
     super.initView(init);
      if (init.hitWidth !== void 0) {
@@ -60,16 +52,8 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
   @ViewAnimator({type: Length, state: Length.px(1)})
   declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  hitWidth(): number;
-  hitWidth(hitWidth: number): this;
-  hitWidth(hitWidth?: number): number | this {
-    if (hitWidth === void 0) {
-      return this._hitWidth;
-    } else {
-      this._hitWidth = hitWidth;
-      return this;
-    }
-  }
+  @ViewScope({type: Number, state: 5})
+  declare hitWidth: ViewScope<this, number>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
     const data = this.data;
@@ -127,7 +111,7 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
 
   protected hitTestPlot(x: number, y: number, renderer: CanvasRenderer): GraphicsView | null {
     const context = renderer.context;
-    let hitWidth = this._hitWidth;
+    let hitWidth = this.hitWidth.state;
     const strokeWidth = this.strokeWidth.value;
     if (strokeWidth !== void 0) {
       const frame = this.viewFrame;

@@ -12,32 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Lazy} from "@swim/util";
 import {WarpClient, client} from "@swim/client";
 import type {Model} from "../Model";
 import {ModelManager} from "../manager/ModelManager";
 import type {WarpManagerObserver} from "./WarpManagerObserver";
 
 export class WarpManager<M extends Model = Model> extends ModelManager<M> {
-  /** @hidden */
-  _client: WarpClient;
-
   constructor(client: WarpClient) {
     super();
-    this._client = client;
+    Object.defineProperty(this, "client", {
+      value: client,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get client(): WarpClient {
-    return this._client;
-  }
+  declare readonly client: WarpClient;
 
   declare readonly modelManagerObservers: ReadonlyArray<WarpManagerObserver>;
 
-  private static _global?: WarpManager<any>;
+  @Lazy
   static global<M extends Model>(): WarpManager<M> {
-    if (WarpManager._global === void 0) {
-      WarpManager._global = new WarpManager(client);
-    }
-    return WarpManager._global;
+    return new WarpManager(client);
   }
 }
-ModelManager.Warp = WarpManager;

@@ -18,23 +18,26 @@ import type {MenuList} from "./MenuList";
 import type {MenuListObserver} from "./MenuListObserver";
 
 export class MenuListController<V extends MenuList = MenuList> extends HtmlViewController<V> implements MenuListObserver<V> {
-  /** @hidden */
-  _selectedItem: MenuItem | null;
-
   constructor() {
     super();
-    this._selectedItem = null;
+    Object.defineProperty(this, "selectedItem", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get selectedItem(): MenuItem | null {
-    return this._selectedItem;
-  }
+  declare readonly selectedItem: MenuItem | null;
 
   selectItem(newItem: MenuItem | null): void {
-    const oldItem = this._selectedItem;
+    const oldItem = this.selectedItem;
     if (oldItem !== newItem) {
       this.willSelectItem(newItem, oldItem);
-      this._selectedItem = newItem;
+      Object.defineProperty(this, "selectedItem", {
+        value: newItem,
+        enumerable: true,
+        configurable: true,
+      });
       this.onSelectItem(newItem, oldItem);
       this.didSelectItem(newItem, oldItem);
     }

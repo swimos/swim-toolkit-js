@@ -236,7 +236,7 @@ Object.defineProperty(ViewService.prototype, "superName", {
 ViewService.prototype.bindSuperService = function (this: ViewService<View, unknown>): void {
   let view = this.owner;
   if (view.isMounted()) {
-    let superService: ViewService<View, unknown> | null = null
+    let superService: ViewService<View, unknown> | null = null;
     const superName = this.superName;
     if (superName !== void 0) {
       do {

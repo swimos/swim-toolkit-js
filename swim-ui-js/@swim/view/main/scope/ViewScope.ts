@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import {Values, FromAny} from "@swim/util";
+import {Equals, FromAny} from "@swim/util";
 import {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, View} from "../View";
 import {StringViewScope} from "../"; // forward import
@@ -465,7 +465,7 @@ ViewScope.prototype.setOwnState = function <T, U>(this: ViewScope<View, T, U>, n
     newState = this.fromAny(newState);
   }
   this.setScopeFlags(this.scopeFlags & ~ViewScope.InheritedFlag);
-  if (!Values.equal(oldState, newState)) {
+  if (!Equals(oldState, newState)) {
     this.willSetState(newState as T, oldState);
     this.willUpdate(newState as T, oldState);
     Object.defineProperty(this, "state", {
@@ -535,7 +535,7 @@ ViewScope.prototype.updateInherited = function (this: ViewScope<View, unknown>):
 };
 
 ViewScope.prototype.update = function <T>(this: ViewScope<View, T>, newState: T, oldState: T): void {
-  if (!Values.equal(oldState, newState)) {
+  if (!Equals(oldState, newState)) {
     this.willUpdate(newState, oldState);
     Object.defineProperty(this, "state", {
       value: newState,
@@ -566,12 +566,10 @@ ViewScope.prototype.didUpdate = function <T>(this: ViewScope<View, T>, newState:
 
 ViewScope.prototype.updateSubScopes = function <T>(this: ViewScope<View, T>, newState: T, oldState: T): void {
   const subScopes = this.subScopes;
-  if (subScopes !== null) {
-    for (let i = 0, n = subScopes.length; i < n; i += 1) {
-      const subScope = subScopes[i]!;
-      if (subScope.isInherited()) {
-        subScope.change();
-      }
+  for (let i = 0, n = subScopes !== null ? subScopes.length : 0; i < n; i += 1) {
+    const subScope = subScopes![i]!;
+    if (subScope.isInherited()) {
+      subScope.change();
     }
   }
 };

@@ -29,7 +29,6 @@ export abstract class WarpService<M extends Model> extends ModelManagerService<M
     return WarpManager.global();
   }
 }
-ModelService.Warp = WarpService;
 
 ModelService({
   type: WarpManager,

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Arrays} from "@swim/util";
+import {Equals, Lazy, Arrays} from "@swim/util";
 import {Debug, Format, Output} from "@swim/codec";
 import type {Feel} from "../feel/Feel";
 import type {Mood} from "./Mood";
@@ -493,12 +493,9 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     return Format.debug(this);
   }
 
-  private static _empty?: MoodMatrix<any, any>;
+  @Lazy
   static empty<M extends Mood = Feel, N extends Mood = Feel>(): MoodMatrix<M, N> {
-    if (MoodMatrix._empty === void 0) {
-      MoodMatrix._empty = new MoodMatrix([], {}, [], {});
-    }
-    return MoodMatrix._empty;
+    return new MoodMatrix([], {}, [], {});
   }
 
   static forRows<M extends Mood, N extends Mood>(...rows: [M, AnyMoodVector<N>][]): MoodMatrix<M, N> {

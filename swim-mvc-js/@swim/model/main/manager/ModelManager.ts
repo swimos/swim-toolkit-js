@@ -13,10 +13,8 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import {Model} from "../Model";
+import type {Model} from "../Model";
 import type {ModelManagerObserverType, ModelManagerObserver} from "./ModelManagerObserver";
-import type {RefreshManager} from "../refresh/RefreshManager";
-import type {WarpManager} from "../warp/WarpManager";
 
 export abstract class ModelManager<M extends Model = Model> {
   constructor() {
@@ -265,11 +263,4 @@ export abstract class ModelManager<M extends Model = Model> {
       }
     }
   }
-
-  // Forward type declarations
-  /** @hidden */
-  static Refresh: typeof RefreshManager; // defined by RefreshManager
-  /** @hidden */
-  static Warp: typeof WarpManager; // defined by WarpManager
 }
-Model.Manager = ModelManager;

@@ -32,22 +32,21 @@ export type ModelValueDownlinkDescriptorExtends<M extends ModelDownlinkContext, 
 
 export interface ModelValueDownlinkConstructor<M extends ModelDownlinkContext, V, VU = never, I = {}> {
   new(owner: M, downlinkName: string | undefined): ModelValueDownlink<M, V, VU> & I;
-  prototype: ModelValueDownlink<any, any, any> & I;
+  prototype: ModelValueDownlink<any, any> & I;
 }
 
 export interface ModelValueDownlinkClass extends Function {
-  readonly prototype: ModelValueDownlink<any, any, any>;
+  readonly prototype: ModelValueDownlink<any, any>;
 }
 
-export declare abstract class ModelValueDownlink<M extends ModelDownlinkContext, V = Value, VU = never> {
-  /** @hidden */
-  _downlink: ValueDownlink<V, VU> | null;
-  /** @hidden */
-  _valueForm?: Form<V, VU>;
+export interface ModelValueDownlink<M extends ModelDownlinkContext, V = Value, VU = never> extends ModelDownlink<M> {
+  (): V | undefined;
+  (value: V | VU): M;
 
-  constructor(owner: M, downlinkName: string | undefined);
+  readonly downlink: ValueDownlink<V, VU> | null;
 
-  get downlink(): ValueDownlink<V, VU> | null;
+  /** @hidden */
+  ownValueForm: Form<V, VU> | null;
 
   valueForm(): Form<V, VU> | null;
   valueForm(valueForm: Form<V, VU> | null): this;
@@ -64,22 +63,9 @@ export declare abstract class ModelValueDownlink<M extends ModelDownlinkContext,
 
   /** @hidden */
   initDownlink?(downlink: ValueDownlink<V, VU>): ValueDownlink<V, VU>;
-
-  static define<M extends ModelDownlinkContext, V, VU = never, I = {}>(descriptor: ModelValueDownlinkDescriptorExtends<M, V, VU, I>): ModelValueDownlinkConstructor<M, V, VU, I>;
-  static define<M extends ModelDownlinkContext, V, VU = never>(descriptor: {valueForm: Form<V, VU>} & ModelValueDownlinkDescriptor<M, V, VU>): ModelValueDownlinkConstructor<M, V, VU>;
-  static define<M extends ModelDownlinkContext, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: ModelValueDownlinkDescriptor<M, V, VU>): ModelValueDownlinkConstructor<M, V, VU>;
 }
 
-export interface ModelValueDownlink<M extends ModelDownlinkContext, V = Value, VU = never> extends ModelDownlink<M> {
-  (): V | undefined;
-  (value: V | VU): M;
-}
-
-export function ModelValueDownlink<M extends ModelDownlinkContext, V, VU = never, I = {}>(descriptor: ModelValueDownlinkDescriptorExtends<M, V, VU, I>): PropertyDecorator;
-export function ModelValueDownlink<M extends ModelDownlinkContext, V, VU = never>(descriptor: {valueForm: Form<V, VU>} & ModelValueDownlinkDescriptor<M, V, VU>): PropertyDecorator;
-export function ModelValueDownlink<M extends ModelDownlinkContext, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: ModelValueDownlinkDescriptor<M, V, VU>): PropertyDecorator;
-
-export function ModelValueDownlink<M extends ModelDownlinkContext, V, VU>(
+export const ModelValueDownlink = function <M extends ModelDownlinkContext, V, VU>(
     this: ModelValueDownlink<M, V, VU> | typeof ModelValueDownlink,
     owner: M | ModelValueDownlinkDescriptor<M, V, VU>,
     downlinkName?: string
@@ -89,12 +75,30 @@ export function ModelValueDownlink<M extends ModelDownlinkContext, V, VU>(
   } else { // decorator factory
     return ModelValueDownlinkDecoratorFactory(owner as ModelValueDownlinkDescriptor<M, V, VU>);
   }
-}
+} as {
+  /** @hidden */
+  new<M extends ModelDownlinkContext, V, VU = never>(owner: M, downlinkName: string | undefined): ModelValueDownlink<M, V, VU>;
+
+  <M extends ModelDownlinkContext, V, VU = never, I = {}>(descriptor: ModelValueDownlinkDescriptorExtends<M, V, VU, I>): PropertyDecorator;
+  <M extends ModelDownlinkContext, V, VU = never>(descriptor: {valueForm: Form<V, VU>} & ModelValueDownlinkDescriptor<M, V, VU>): PropertyDecorator;
+  <M extends ModelDownlinkContext, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: ModelValueDownlinkDescriptor<M, V, VU>): PropertyDecorator;
+
+  /** @hidden */
+  prototype: ModelValueDownlink<any, any>;
+
+  define<M extends ModelDownlinkContext, V, VU = never, I = {}>(descriptor: ModelValueDownlinkDescriptorExtends<M, V, VU, I>): ModelValueDownlinkConstructor<M, V, VU, I>;
+  define<M extends ModelDownlinkContext, V, VU = never>(descriptor: {valueForm: Form<V, VU>} & ModelValueDownlinkDescriptor<M, V, VU>): ModelValueDownlinkConstructor<M, V, VU>;
+  define<M extends ModelDownlinkContext, V extends Value = Value, VU extends AnyValue = AnyValue>(descriptor: ModelValueDownlinkDescriptor<M, V, VU>): ModelValueDownlinkConstructor<M, V, VU>;
+};
 __extends(ModelValueDownlink, ModelDownlink);
-ModelDownlink.Value = ModelValueDownlink;
 
 function ModelValueDownlinkConstructor<M extends ModelDownlinkContext, V, VU>(this: ModelValueDownlink<M, V, VU>, owner: M, downlinkName: string | undefined): ModelValueDownlink<M, V, VU> {
   const _this: ModelValueDownlink<M, V, VU> = (ModelDownlink as Function).call(this, owner, downlinkName) || this;
+  Object.defineProperty(_this, "ownValueForm", {
+    value: null,
+    enumerable: true,
+    configurable: true,
+  });
   return _this;
 }
 
@@ -104,13 +108,14 @@ function ModelValueDownlinkDecoratorFactory<M extends ModelDownlinkContext, V, V
 
 ModelValueDownlink.prototype.valueForm = function <V, VU>(this: ModelValueDownlink<ModelDownlinkContext, V, VU>, valueForm?: Form<V, VU> | null): Form<V, VU> | null | ModelValueDownlink<ModelDownlinkContext, V, VU> {
   if (valueForm === void 0) {
-    return this._valueForm !== void 0 ? this._valueForm : null;
+    return this.ownValueForm;
   } else {
-    if (valueForm === null) {
-      valueForm = void 0;
-    }
-    if (this._valueForm !== valueForm) {
-      this._valueForm = valueForm;
+    if (this.ownValueForm !== valueForm) {
+      Object.defineProperty(this, "ownValueForm", {
+        value: valueForm,
+        enumerable: true,
+        configurable: true,
+      });
       this.relink();
     }
     return this;
@@ -118,12 +123,12 @@ ModelValueDownlink.prototype.valueForm = function <V, VU>(this: ModelValueDownli
 } as typeof ModelValueDownlink.prototype.valueForm;
 
 ModelValueDownlink.prototype.get = function <V>(this: ModelValueDownlink<ModelDownlinkContext, V>): V | undefined {
-  const downlink = this._downlink;
+  const downlink = this.downlink;
   return downlink !== null ? downlink.get() : void 0;
 };
 
 ModelValueDownlink.prototype.set = function <V, VU>(this: ModelValueDownlink<ModelDownlinkContext, V, VU>, value: V | VU): void {
-  const downlink = this._downlink;
+  const downlink = this.downlink;
   if (downlink !== null) {
     downlink.set(value);
   }
@@ -131,8 +136,8 @@ ModelValueDownlink.prototype.set = function <V, VU>(this: ModelValueDownlink<Mod
 
 ModelValueDownlink.prototype.createDownlink = function <V, VU>(this: ModelValueDownlink<ModelDownlinkContext, V, VU>, warp: WarpRef): ValueDownlink<V, VU> {
   let downlink = warp.downlinkValue() as unknown as ValueDownlink<V, VU>;
-  if (this._valueForm !== void 0) {
-    downlink = downlink.valueForm(this._valueForm);
+  if (this.ownValueForm !== null) {
+    downlink = downlink.valueForm(this.ownValueForm);
   }
   return downlink;
 };
@@ -161,45 +166,77 @@ ModelValueDownlink.define = function <M extends ModelDownlinkContext, V, VU, I>(
     _super = ModelValueDownlink;
   }
 
-  const _constructor = function ModelValueDownlinkAccessor(this: ModelValueDownlink<M, V, VU>, owner: M, downlinkName: string | undefined): ModelValueDownlink<M, V, VU> {
-    let _this: ModelValueDownlink<M, V, VU> = function accessor(value?: V | VU): V | undefined | M {
+  const _constructor = function DecoratedModelValueDownlink(this: ModelValueDownlink<M, V, VU>, owner: M, downlinkName: string | undefined): ModelValueDownlink<M, V, VU> {
+    let _this: ModelValueDownlink<M, V, VU> = function ModelValueDownlinkAccessor(value?: V | VU): V | undefined | M {
       if (arguments.length === 0) {
         return _this.get();
       } else {
         _this.set(value!);
-        return _this._owner;
+        return _this.owner;
       }
     } as ModelValueDownlink<M, V, VU>;
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, owner, downlinkName) || _this;
     if (enabled === true) {
-      _this._downlinkFlags |= ModelDownlink.EnabledFlag;
+      Object.defineProperty(_this, "downlinkFlags", {
+        value: _this.downlinkFlags | ModelDownlink.EnabledFlag,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (valueForm !== void 0) {
-      _this._valueForm = valueForm;
+      Object.defineProperty(_this, "ownValueForm", {
+        value: valueForm,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (hostUri !== void 0) {
-      _this._hostUri = hostUri as Uri;
+      Object.defineProperty(_this, "ownHostUri", {
+        value: hostUri as Uri,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (nodeUri !== void 0) {
-      _this._nodeUri = nodeUri as Uri;
+      Object.defineProperty(_this, "ownNodeUri", {
+        value: nodeUri as Uri,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (laneUri !== void 0) {
-      _this._laneUri = laneUri as Uri;
+      Object.defineProperty(_this, "ownLaneUri", {
+        value: laneUri as Uri,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (prio !== void 0) {
-      _this._prio = prio as number;
+      Object.defineProperty(_this, "ownPrio", {
+        value: prio as number,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (rate !== void 0) {
-      _this._rate = rate as number;
+      Object.defineProperty(_this, "ownRate", {
+        value: rate as number,
+        enumerable: true,
+        configurable: true,
+      });
     }
     if (body !== void 0) {
-      _this._body = body as Value;
+      Object.defineProperty(_this, "ownBody", {
+        value: body as Value,
+        enumerable: true,
+        configurable: true,
+      });
     }
     return _this;
   } as unknown as ModelValueDownlinkConstructor<M, V, VU, I>;
 
-  const _prototype = descriptor as unknown as ModelValueDownlink<M, V, VU> & I;
+  const _prototype = descriptor as unknown as ModelValueDownlink<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

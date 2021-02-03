@@ -22,6 +22,5 @@ export abstract class RefreshService<M extends Model> extends ModelManagerServic
     return RefreshManager.global();
   }
 }
-ModelService.Refresh = RefreshService;
 
 ModelService({type: RefreshManager, observe: false})(Model.prototype, "refreshService");

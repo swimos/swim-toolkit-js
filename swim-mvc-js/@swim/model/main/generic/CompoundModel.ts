@@ -17,42 +17,43 @@ import {ModelFlags, Model} from "../Model";
 import {GenericModel} from "./GenericModel";
 
 export class CompoundModel extends GenericModel {
-  /** @hidden */
-  readonly _childModels: Model[];
-  /** @hidden */
-  _childModelMap?: {[key: string]: Model | undefined};
-
   constructor() {
     super();
-    this._childModels = [];
+    Object.defineProperty(this, "childModels", {
+      value: [],
+      enumerable: true,
+    });
+    Object.defineProperty(this, "childModelMap", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
+
+  declare readonly childModels: ReadonlyArray<Model>;
 
   get childModelCount(): number {
-    return this._childModels.length;
-  }
-
-  get childModels(): ReadonlyArray<Model> {
-    return this._childModels;
+    return this.childModels.length;
   }
 
   firstChildModel(): Model | null {
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     return childModels.length !== 0 ? childModels[0]! : null;
   }
 
   lastChildModel(): Model | null {
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     return childModels.length !== 0 ? childModels[childModels.length - 1]! : null;
   }
 
   nextChildModel(targetModel: Model): Model | null {
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     const targetIndex = childModels.indexOf(targetModel);
     return targetIndex >= 0 && targetIndex + 1 < childModels.length ? childModels[targetIndex + 1]! : null;
   }
 
   previousChildModel(targetModel: Model): Model | null {
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     const targetIndex = childModels.indexOf(targetModel);
     return targetIndex - 1 >= 0 ? childModels[targetIndex - 1]! : null;
   }
@@ -63,7 +64,7 @@ export class CompoundModel extends GenericModel {
   forEachChildModel<T, S>(callback: (this: S | undefined, childModel: Model) => T | void,
                           thisArg?: S): T | undefined {
     let result: T | undefined;
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     let i = 0;
     while (i < childModels.length) {
       const childModel = childModels[i]!;
@@ -78,9 +79,12 @@ export class CompoundModel extends GenericModel {
     return result;
   }
 
+  /** @hidden */
+  declare readonly childModelMap: {[key: string]: Model | undefined} | null;
+
   getChildModel(key: string): Model | null {
-    const childModelMap = this._childModelMap;
-    if (childModelMap !== void 0) {
+    const childModelMap = this.childModelMap;
+    if (childModelMap !== null) {
       const childModel = childModelMap[key];
       if (childModel !== void 0) {
         return childModel;
@@ -90,29 +94,27 @@ export class CompoundModel extends GenericModel {
   }
 
   setChildModel(key: string, newChildModel: Model | null): Model | null {
+    let targetModel: Model | null = null;
+    const childModels = this.childModels as Model[];
     if (newChildModel !== null) {
+      if (newChildModel.parentModel === this) {
+        targetModel = childModels[childModels.indexOf(newChildModel) + 1] || null;
+      }
       newChildModel.remove();
     }
     let index = -1;
-    let oldChildModel: Model | null = null;
-    let targetModel: Model | null = null;
-    const childModels = this._childModels;
-    const childModelMap = this._childModelMap;
-    if (childModelMap !== void 0) {
-      const childModel = childModelMap[key];
-      if (childModel !== void 0) {
-        index = childModels.indexOf(childModel);
-        // assert(index >= 0);
-        oldChildModel = childModel;
-        targetModel = childModels[index + 1] || null;
-        this.willRemoveChildModel(childModel);
-        childModel.setParentModel(null, this);
-        this.removeChildModelMap(childModel);
-        childModels.splice(index, 1);
-        this.onRemoveChildModel(childModel);
-        this.didRemoveChildModel(childModel);
-        childModel.setKey(void 0);
-      }
+    const oldChildModel = this.getChildModel(key);
+    if (oldChildModel !== null) {
+      index = childModels.indexOf(oldChildModel);
+      // assert(index >= 0);
+      targetModel = childModels[index + 1] || null;
+      this.willRemoveChildModel(oldChildModel);
+      oldChildModel.setParentModel(null, this);
+      this.removeChildModelMap(oldChildModel);
+      childModels.splice(index, 1);
+      this.onRemoveChildModel(oldChildModel);
+      this.didRemoveChildModel(oldChildModel);
+      oldChildModel.setKey(void 0);
     }
     if (newChildModel !== null) {
       newChildModel.setKey(key);
@@ -135,10 +137,14 @@ export class CompoundModel extends GenericModel {
   protected insertChildModelMap(childModel: Model): void {
     const key = childModel.key;
     if (key !== void 0) {
-      let childModelMap = this._childModelMap;
-      if (childModelMap === void 0) {
+      let childModelMap = this.childModelMap;
+      if (childModelMap === null) {
         childModelMap = {};
-        this._childModelMap = childModelMap;
+        Object.defineProperty(this, "childModelMap", {
+          value: childModelMap,
+          enumerable: true,
+          configurable: true,
+        });
       }
       childModelMap[key] = childModel;
     }
@@ -146,10 +152,10 @@ export class CompoundModel extends GenericModel {
 
   /** @hidden */
   protected removeChildModelMap(childModel: Model): void {
-    const childModelMap = this._childModelMap;
-    if (childModelMap !== void 0) {
-      const key = childModel.key;
-      if (key !== void 0) {
+    const key = childModel.key;
+    if (key !== void 0) {
+      const childModelMap = this.childModelMap;
+      if (childModelMap !== null) {
         delete childModelMap[key];
       }
     }
@@ -162,7 +168,7 @@ export class CompoundModel extends GenericModel {
       childModel.setKey(key);
     }
     this.willInsertChildModel(childModel, null);
-    this._childModels.push(childModel);
+    (this.childModels as Model[]).push(childModel);
     this.insertChildModelMap(childModel);
     childModel.setParentModel(this, null);
     this.onInsertChildModel(childModel, null);
@@ -176,7 +182,7 @@ export class CompoundModel extends GenericModel {
       this.removeChildModel(key);
       childModel.setKey(key);
     }
-    const childModels = this._childModels;
+    const childModels = this.childModels as Model[];
     const targetModel = childModels.length !== 0 ? childModels[0] : null;
     this.willInsertChildModel(childModel, targetModel);
     childModels.unshift(childModel);
@@ -197,7 +203,7 @@ export class CompoundModel extends GenericModel {
       childModel.setKey(key);
     }
     this.willInsertChildModel(childModel, targetModel);
-    const childModels = this._childModels;
+    const childModels = this.childModels as Model[];
     const index = targetModel !== null ? childModels.indexOf(targetModel) : -1;
     if (index >= 0) {
       childModels.splice(index, 0, childModel);
@@ -229,7 +235,7 @@ export class CompoundModel extends GenericModel {
     this.willRemoveChildModel(childModel);
     childModel.setParentModel(null, this);
     this.removeChildModelMap(childModel);
-    const childModels = this._childModels;
+    const childModels = this.childModels as Model[];
     const index = childModels.indexOf(childModel);
     if (index >= 0) {
       childModels.splice(index, 1);
@@ -243,7 +249,7 @@ export class CompoundModel extends GenericModel {
   }
 
   removeAll(): void {
-    const childModels = this._childModels;
+    const childModels = this.childModels as Model[];
     do {
       const count = childModels.length;
       if (count > 0) {
@@ -263,7 +269,7 @@ export class CompoundModel extends GenericModel {
 
   /** @hidden */
   protected doMountChildModels(): void {
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     let i = 0;
     while (i < childModels.length) {
       const childModel = childModels[i]!;
@@ -279,7 +285,7 @@ export class CompoundModel extends GenericModel {
 
   /** @hidden */
   protected doUnmountChildModels(): void {
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     let i = 0;
     while (i < childModels.length) {
       const childModel = childModels[i]!;
@@ -295,7 +301,7 @@ export class CompoundModel extends GenericModel {
 
   /** @hidden */
   protected doPowerChildModels(): void {
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     let i = 0;
     while (i < childModels.length) {
       const childModel = childModels[i]!;
@@ -311,7 +317,7 @@ export class CompoundModel extends GenericModel {
 
   /** @hidden */
   protected doUnpowerChildModels(): void {
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     let i = 0;
     while (i < childModels.length) {
       const childModel = childModels[i]!;
@@ -329,7 +335,7 @@ export class CompoundModel extends GenericModel {
   protected analyzeOwnChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>,
                                   analyzeChildModel: (this: this, childModel: Model, analyzeFlags: ModelFlags,
                                                       modelContext: ModelContextType<this>) => void): void {
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     let i = 0;
     while (i < childModels.length) {
       const childModel = childModels[i]!;
@@ -347,7 +353,7 @@ export class CompoundModel extends GenericModel {
   protected refreshOwnChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>,
                                   refreshChildModel: (this: this, childModel: Model, refreshFlags: ModelFlags,
                                                       modelContext: ModelContextType<this>) => void): void {
-    const childModels = this._childModels;
+    const childModels = this.childModels;
     let i = 0;
     while (i < childModels.length) {
       const childModel = childModels[i]!;
@@ -361,4 +367,3 @@ export class CompoundModel extends GenericModel {
     }
   }
 }
-Model.Compound = CompoundModel;
