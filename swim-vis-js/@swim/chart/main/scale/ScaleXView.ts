@@ -29,6 +29,9 @@ export interface ScaleXView<X = unknown> extends GraphicsView {
 
   xDataDomain(): readonly [X, X] | undefined;
 
+  /** @hidden */
+  getXDataDomain(): readonly [X, X] | undefined;
+
   xDataRange(): readonly [number, number] | undefined;
 }
 

@@ -82,60 +82,13 @@ export interface ScaleViewInit<X = unknown, Y = unknown> extends GraphicsViewIni
 export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   implements ScaleXYView<X, Y>, ScaleGestureDelegate<X, Y> {
 
-  /** @hidden */
-  _scaleFlags: ScaleFlags;
-  /** @hidden */
-  readonly _xDomainBounds: [X | boolean, X | boolean];
-  /** @hidden */
-  readonly _yDomainBounds: [Y | boolean, Y | boolean];
-  /** @hidden */
-  readonly _xZoomBounds: [number | boolean, number | boolean];
-  /** @hidden */
-  readonly _yZoomBounds: [number | boolean, number | boolean];
-  /** @hidden */
-  readonly _xDomainPadding: [X | boolean, X | boolean];
-  /** @hidden */
-  readonly _yDomainPadding: [Y | boolean, Y | boolean];
-  /** @hidden */
-  readonly _xRangePadding: [number, number];
-  /** @hidden */
-  readonly _yRangePadding: [number, number];
-  /** @hidden */
-  readonly _fitAlign: [number, number];
-  /** @hidden */
-  _xDataDomain: [X, X] | undefined;
-  /** @hiddenData */
-  _yDataDomain: [Y, Y] | undefined;
-  /** @hidden */
-  _xDataDomainPadded: [X, X] | undefined;
-  /** @hidden */
-  _yDataDomainPadded: [Y, Y] | undefined;
-  /** @hidden */
-  _xDataRange: [number, number] | undefined;
-  /** @hidden */
-  _yDataRange: [number, number] | undefined;
-  /** @hidden */
-  _fitAspectRatio: number | undefined;
-
   constructor() {
     super();
-    this._scaleFlags = 0;
-    this._xDomainBounds = [true, true];
-    this._yDomainBounds = [true, true];
-    this._xZoomBounds = [true, true];
-    this._yZoomBounds = [true, true];
-    this._xDomainPadding = [false, false];
-    this._yDomainPadding = [false, false];
-    this._xRangePadding = [0, 0];
-    this._yRangePadding = [0, 0];
-    this._fitAlign = [1, 0.5];
-    this._xDataDomain = void 0;
-    this._yDataDomain = void 0;
-    this._xDataDomainPadded = void 0;
-    this._yDataDomainPadded = void 0;
-    this._xDataRange = void 0;
-    this._yDataRange = void 0;
-    this._fitAspectRatio = void 0;
+    Object.defineProperty(this, "scaleFlags", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   initView(init: ScaleViewInit<X, Y>): void {
@@ -232,32 +185,44 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
 
   declare readonly viewObservers: ReadonlyArray<ScaleViewObserver<X, Y>>;
 
+  /** @hidden */
+  declare readonly scaleFlags: ScaleFlags;
+
+  /** @hidden */
+  setScaleFlags(scaleFlags: ScaleFlags): void {
+    Object.defineProperty(this, "scaleFlags", {
+      value: scaleFlags,
+      enumerable: true,
+      configurable: true,
+    });
+  }
+
   @ViewAnimator<ScaleView<X, Y>, ContinuousScale<X, number>>({
     extends: ScaleViewAnimator,
     type: ContinuousScale,
     inherit: true,
     updateFlags: View.NeedsAnimate,
     onBegin(xScale: ContinuousScale<X, number>): void {
-      if ((this.owner._scaleFlags & ScaleView.XFittingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.XFittingFlag) !== 0) {
         this.owner.onBeginFittingXScale(xScale);
       }
-      if ((this.owner._scaleFlags & ScaleView.XBoundingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.XBoundingFlag) !== 0) {
         this.owner.onBeginBoundingXScale(xScale);
       }
     },
     onEnd(xScale: ContinuousScale<X, number>): void {
-      if ((this.owner._scaleFlags & ScaleView.XFittingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.XFittingFlag) !== 0) {
         this.owner.onEndFittingXScale(xScale);
       }
-      if ((this.owner._scaleFlags & ScaleView.XBoundingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.XBoundingFlag) !== 0) {
         this.owner.onEndBoundingXScale(xScale);
       }
     },
     onInterrupt(xScale: ContinuousScale<X, number>): void {
-      if ((this.owner._scaleFlags & ScaleView.XFittingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.XFittingFlag) !== 0) {
         this.owner.onInterruptFittingXScale(xScale);
       }
-      if ((this.owner._scaleFlags & ScaleView.XBoundingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.XBoundingFlag) !== 0) {
         this.owner.onInterruptBoundingXScale(xScale);
       }
     },
@@ -270,26 +235,26 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     inherit: true,
     updateFlags: View.NeedsAnimate,
     onBegin(yScale: ContinuousScale<Y, number>): void {
-      if ((this.owner._scaleFlags & ScaleView.YFittingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.YFittingFlag) !== 0) {
         this.owner.onBeginFittingYScale(yScale);
       }
-      if ((this.owner._scaleFlags & ScaleView.YBoundingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.YBoundingFlag) !== 0) {
         this.owner.onBeginBoundingYScale(yScale);
       }
     },
     onEnd(yScale: ContinuousScale<Y, number>): void {
-      if ((this.owner._scaleFlags & ScaleView.YFittingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.YFittingFlag) !== 0) {
         this.owner.onEndFittingYScale(yScale);
       }
-      if ((this.owner._scaleFlags & ScaleView.YBoundingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.YBoundingFlag) !== 0) {
         this.owner.onEndBoundingYScale(yScale);
       }
     },
     onInterrupt(yScale: ContinuousScale<Y, number>): void {
-      if ((this.owner._scaleFlags & ScaleView.YFittingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.YFittingFlag) !== 0) {
         this.owner.onInterruptFittingYScale(yScale);
       }
-      if ((this.owner._scaleFlags & ScaleView.YBoundingFlag) !== 0) {
+      if ((this.owner.scaleFlags & ScaleView.YBoundingFlag) !== 0) {
         this.owner.onInterruptBoundingYScale(yScale);
       }
     },
@@ -363,187 +328,96 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   xRange(): Range<number> | undefined {
-    const xRangeMin = this._xRangePadding[0];
-    const xRangeMax = this.viewFrame.width - this._xRangePadding[1];
+    const xRangePadding = this.xRangePadding.state;
+    const xRangeMin = xRangePadding[0];
+    const xRangeMax = this.viewFrame.width - xRangePadding[1];
     return LinearRange(xRangeMin, xRangeMax);
   }
 
   yRange(): Range<number> | undefined {
-    const yRangeMin = this._yRangePadding[0];
-    const yRangeMax = this.viewFrame.height - this._yRangePadding[1];
+    const yRangePadding = this.yRangePadding.state;
+    const yRangeMin = yRangePadding[0];
+    const yRangeMax = this.viewFrame.height - yRangePadding[1];
     return LinearRange(yRangeMin, yRangeMax);
   }
 
-  xDomainBounds(): readonly [X | boolean, X | boolean];
-  xDomainBounds(xDomainBounds: readonly [X | boolean, X | boolean] | boolean): this;
-  xDomainBounds(xDomainMin: X | boolean, xDomainMax: X | boolean): this;
-  xDomainBounds(xDomainMin?: readonly [X | boolean, X | boolean] | X | boolean,
-                xDomainMax?: X | boolean): readonly [X | boolean, X | boolean] | this {
-    if (xDomainMin === void 0) {
-      return this._xDomainBounds;
-    } else {
-      if (Array.isArray(xDomainMin)) {
-        xDomainMax = (xDomainMin as readonly [X | boolean, X | boolean])[1];
-        xDomainMin = (xDomainMin as readonly [X | boolean, X | boolean])[0];
-      } else if (xDomainMax === void 0) {
-        xDomainMax = xDomainMin as boolean;
-      }
-      this._xDomainBounds[0] = xDomainMin as X | boolean;
-      this._xDomainBounds[1] = xDomainMax;
-      this.requireUpdate(View.NeedsAnimate);
-      return this;
-    }
-  }
+  @ViewScope<ScaleView<X, Y>, readonly [X | boolean, X | boolean]>({
+    type: Object,
+    updateFlags: View.NeedsAnimate,
+    initState: function (): readonly [X | boolean, X | boolean] {
+      return [true, true];
+    },
+  })
+  declare xDomainBounds: ViewScope<this, readonly [X | boolean, X | boolean]>
 
-  yDomainBounds(): readonly [Y | boolean, Y | boolean];
-  yDomainBounds(yDomainBounds: readonly [Y | boolean, Y | boolean] | boolean): this;
-  yDomainBounds(yDomainMin: Y | boolean, yDomainMax: Y | boolean): this;
-  yDomainBounds(yDomainMin?: readonly [Y | boolean, Y | boolean] | Y | boolean,
-                yDomainMax?: Y | boolean): readonly [Y | boolean, Y | boolean] | this {
-    if (yDomainMin === void 0) {
-      return this._yDomainBounds;
-    } else {
-      if (Array.isArray(yDomainMin)) {
-        yDomainMax = (yDomainMin as readonly [Y | boolean, Y | boolean])[1];
-        yDomainMin = (yDomainMin as readonly [Y | boolean, Y | boolean])[0];
-      } else if (yDomainMax === void 0) {
-        yDomainMax = yDomainMin as boolean;
-      }
-      this._yDomainBounds[0] = yDomainMin as Y | boolean;
-      this._yDomainBounds[1] = yDomainMax;
-      this.requireUpdate(View.NeedsAnimate);
-      return this;
-    }
-  }
+  @ViewScope<ScaleView<X, Y>, readonly [Y | boolean, Y | boolean]>({
+    type: Object,
+    updateFlags: View.NeedsAnimate,
+    initState: function (): readonly [Y | boolean, Y | boolean] {
+      return [true, true];
+    },
+  })
+  declare yDomainBounds: ViewScope<this, readonly [Y | boolean, Y | boolean]>
 
-  xZoomBounds(): readonly [number | boolean, number | boolean];
-  xZoomBounds(xZoomBounds: readonly [number | boolean, number | boolean] | boolean): this;
-  xZoomBounds(xZoomMin: number | boolean, xZoomMax: number | boolean): this;
-  xZoomBounds(xZoomMin?: readonly [number | boolean, number | boolean] | number | boolean,
-              xZoomMax?: number | boolean): readonly [number | boolean, number | boolean] | this {
-    if (xZoomMin === void 0) {
-      return this._xZoomBounds;
-    } else {
-      if (Array.isArray(xZoomMin)) {
-        xZoomMax = (xZoomMin as readonly [number | boolean, number | boolean])[1];
-        xZoomMin = (xZoomMin as readonly [number | boolean, number | boolean])[0];
-      } else if (xZoomMax === void 0) {
-        xZoomMax = xZoomMin as boolean;
-      }
-      this._xZoomBounds[0] = xZoomMin as number | boolean;
-      this._xZoomBounds[1] = xZoomMax;
-      this.requireUpdate(View.NeedsAnimate);
-      return this;
-    }
-  }
+  @ViewScope<ScaleView<X, Y>, readonly [number | boolean, number | boolean]>({
+    type: Object,
+    updateFlags: View.NeedsAnimate,
+    initState: function (): readonly [number | boolean, number | boolean] {
+      return [true, true];
+    },
+  })
+  declare xZoomBounds: ViewScope<this, readonly [number | boolean, number | boolean]>
 
-  yZoomBounds(): readonly [number | boolean, number | boolean];
-  yZoomBounds(yZoomBounds: readonly [number | boolean, number | boolean] | boolean): this;
-  yZoomBounds(yZoomMin: number | boolean, yZoomMax: number | boolean): this;
-  yZoomBounds(yZoomMin?: readonly [number | boolean, number | boolean] | number | boolean,
-              yZoomMax?: number | boolean): readonly [number | boolean, number | boolean] | this {
-    if (yZoomMin === void 0) {
-      return this._yZoomBounds;
-    } else {
-      if (Array.isArray(yZoomMin)) {
-        yZoomMax = (yZoomMin as readonly [number | boolean, number | boolean])[1];
-        yZoomMin = (yZoomMin as readonly [number | boolean, number | boolean])[0];
-      } else if (yZoomMax === void 0) {
-        yZoomMax = yZoomMin as boolean;
-      }
-      this._yZoomBounds[0] = yZoomMin as number | boolean;
-      this._yZoomBounds[1] = yZoomMax;
-      this.requireUpdate(View.NeedsAnimate);
-      return this;
-    }
-  }
+  @ViewScope<ScaleView<X, Y>, readonly [number | boolean, number | boolean]>({
+    type: Object,
+    updateFlags: View.NeedsAnimate,
+    initState: function (): readonly [number | boolean, number | boolean] {
+      return [true, true];
+    },
+  })
+  declare yZoomBounds: ViewScope<this, readonly [number | boolean, number | boolean]>
 
-  xDomainPadding(): readonly [X | boolean, X | boolean];
-  xDomainPadding(xDomainPadding: readonly [X | boolean, X | boolean] | boolean): this;
-  xDomainPadding(xDomainPaddingMin: X | boolean, xDomainPaddingMax: X | boolean): this;
-  xDomainPadding(xDomainPaddingMin?: readonly [X | boolean, X | boolean] | X | boolean,
-                 xDomainPaddingMax?: X | boolean): readonly [X | boolean, X | boolean] | this {
-    if (xDomainPaddingMin === void 0) {
-      return this._xDomainPadding;
-    } else {
-      if (Array.isArray(xDomainPaddingMin)) {
-        xDomainPaddingMax = (xDomainPaddingMin as readonly [X | boolean, X | boolean])[1];
-        xDomainPaddingMin = (xDomainPaddingMin as readonly [X | boolean, X | boolean])[0];
-      } else if (xDomainPaddingMax === void 0) {
-        xDomainPaddingMax = xDomainPaddingMin as boolean;
-      }
-      this._xDomainPadding[0] = xDomainPaddingMin as X | boolean;
-      this._xDomainPadding[1] = xDomainPaddingMax;
-      this.requireUpdate(View.NeedsAnimate);
-      return this;
-    }
-  }
+  @ViewScope<ScaleView<X, Y>, readonly [X | boolean, X | boolean]>({
+    type: Object,
+    updateFlags: View.NeedsAnimate,
+    initState: function (): readonly [X | boolean, X | boolean] {
+      return [false, false];
+    },
+  })
+  declare xDomainPadding: ViewScope<this, readonly [X | boolean, X | boolean]>
 
-  yDomainPadding(): readonly [Y | boolean, Y | boolean];
-  yDomainPadding(yDomainPadding: readonly [Y | boolean, Y | boolean] | boolean): this;
-  yDomainPadding(yDomainPaddingMin: Y | boolean, yDomainPaddingMax: Y | boolean): this;
-  yDomainPadding(yDomainPaddingMin?: readonly [Y | boolean, Y | boolean] | Y | boolean,
-                 yDomainPaddingMax?: Y | boolean): readonly [Y | boolean, Y | boolean] | this {
-    if (yDomainPaddingMin === void 0) {
-      return this._yDomainPadding;
-    } else {
-      if (Array.isArray(yDomainPaddingMin)) {
-        yDomainPaddingMax = (yDomainPaddingMin as readonly [Y | boolean, Y | boolean])[1];
-        yDomainPaddingMin = (yDomainPaddingMin as readonly [Y | boolean, Y | boolean])[0];
-      } else if (yDomainPaddingMax === void 0) {
-        yDomainPaddingMax = yDomainPaddingMin as boolean;
-      }
-      this._yDomainPadding[0] = yDomainPaddingMin as Y | boolean;
-      this._yDomainPadding[1] = yDomainPaddingMax;
-      this.requireUpdate(View.NeedsAnimate);
-      return this;
-    }
-  }
+  @ViewScope<ScaleView<X, Y>, readonly [Y | boolean, Y | boolean]>({
+    type: Object,
+    updateFlags: View.NeedsAnimate,
+    initState: function (): readonly [Y | boolean, Y | boolean] {
+      return [false, false];
+    },
+  })
+  declare yDomainPadding: ViewScope<this, readonly [Y | boolean, Y | boolean]>
 
-  xRangePadding(): readonly [number, number];
-  xRangePadding(xRangePadding: readonly [number, number] | number): this;
-  xRangePadding(xRangePaddingMin: number, xRangePaddingMax: number): this;
-  xRangePadding(xRangePaddingMin?: readonly [number, number] | number,
-                xRangePaddingMax?: number): readonly [number, number] | this {
-    if (xRangePaddingMin === void 0) {
-      return this._xRangePadding;
-    } else {
-      if (Array.isArray(xRangePaddingMin)) {
-        xRangePaddingMax = (xRangePaddingMin as readonly [number, number])[1];
-        xRangePaddingMin = (xRangePaddingMin as readonly [number, number])[0];
-      } else if (xRangePaddingMax === void 0) {
-        xRangePaddingMax = xRangePaddingMin as number;
-      }
-      this._xRangePadding[0] = xRangePaddingMin as number;
-      this._xRangePadding[1] = xRangePaddingMax;
-      this.requireUpdate(View.NeedsAnimate);
-      return this;
-    }
-  }
+  @ViewScope<ScaleView<X, Y>, readonly [number, number]>({
+    type: Object,
+    updateFlags: View.NeedsAnimate,
+    initState: function (): readonly [number, number] {
+      return [0, 0];
+    },
+  })
+  declare xRangePadding: ViewScope<this, readonly [number, number]>
 
-  yRangePadding(): readonly [number, number];
-  yRangePadding(yRangePadding: readonly [number, number] | number): this;
-  yRangePadding(yRangePaddingMin: number, yRangePaddingMax: number): this;
-  yRangePadding(yRangePaddingMin?: readonly [number, number] | number,
-                yRangePaddingMax?: number): readonly [number, number] | this {
-    if (yRangePaddingMin === void 0) {
-      return this._yRangePadding;
-    } else {
-      if (Array.isArray(yRangePaddingMin)) {
-        yRangePaddingMax = (yRangePaddingMin as readonly [number, number])[1];
-        yRangePaddingMin = (yRangePaddingMin as readonly [number, number])[0];
-      } else if (yRangePaddingMax === void 0) {
-        yRangePaddingMax = yRangePaddingMin as number;
-      }
-      this._yRangePadding[0] = yRangePaddingMin as number;
-      this._yRangePadding[1] = yRangePaddingMax;
-      this.requireUpdate(View.NeedsAnimate);
-      return this;
-    }
-  }
+  @ViewScope<ScaleView<X, Y>, readonly [number, number]>({
+    type: Object,
+    updateFlags: View.NeedsAnimate,
+    initState: function (): readonly [number, number] {
+      return [0, 0];
+    },
+  })
+  declare yRangePadding: ViewScope<this, readonly [number, number]>
 
-  xDataDomain(): readonly [X, X] | undefined {
-    let xDataDomain = this._xDataDomain;
+  @ViewScope({type: Object})
+  declare xDataDomain: ViewScope<this, readonly [X, X] | undefined>;
+
+  getXDataDomain(): readonly [X, X] | undefined {
+    let xDataDomain = this.xDataDomain.state;
     if (xDataDomain === void 0) {
       let xDataDomainMin: X | undefined;
       let xDataDomainMax: X | undefined;
@@ -552,13 +426,13 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         const childView = childViews[i];
         if (ScaleXView.is<X>(childView)) {
           if (childView.xScale() === void 0) {
-            const xDataDomain = childView.xDataDomain();
-            if (xDataDomain !== void 0) {
-              if (xDataDomainMin === void 0 || +xDataDomain[0] < +xDataDomainMin) {
-                xDataDomainMin = xDataDomain[0];
+            const childXDataDomain = childView.getXDataDomain();
+            if (childXDataDomain !== void 0) {
+              if (xDataDomainMin === void 0 || childXDataDomain[0] !== void 0 && +childXDataDomain[0] < +xDataDomainMin) {
+                xDataDomainMin = childXDataDomain[0];
               }
-              if (xDataDomainMax === void 0 || +xDataDomainMax < +xDataDomain[1]) {
-                xDataDomainMax = xDataDomain[1];
+              if (xDataDomainMax === void 0 || childXDataDomain[1] !== void 0 && +xDataDomainMax < +childXDataDomain[1]) {
+                xDataDomainMax = childXDataDomain[1];
               }
             }
           }
@@ -566,14 +440,17 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
       if (xDataDomainMin !== void 0 && xDataDomainMax !== void 0) {
         xDataDomain = [xDataDomainMin, xDataDomainMax];
-        this._xDataDomain = xDataDomain;
+        this.xDataDomain.setState(xDataDomain);
       }
     }
     return xDataDomain;
   }
 
-  yDataDomain(): readonly [Y, Y] | undefined {
-    let yDataDomain = this._yDataDomain;
+  @ViewScope({type: Object})
+  declare yDataDomain: ViewScope<this, readonly [Y, Y] | undefined>;
+
+  getYDataDomain(): readonly [Y, Y] | undefined {
+    let yDataDomain = this.yDataDomain.state;
     if (yDataDomain === void 0) {
       let yDataDomainMin: Y | undefined;
       let yDataDomainMax: Y | undefined;
@@ -582,13 +459,13 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         const childView = childViews[i];
         if (ScaleYView.is<Y>(childView)) {
           if (childView.yScale() === void 0) {
-            const yDataDomain = childView.yDataDomain();
-            if (yDataDomain !== void 0) {
-              if (yDataDomainMin === void 0 || +yDataDomain[0] < +yDataDomainMin) {
-                yDataDomainMin = yDataDomain[0];
+            const childYDataDomain = childView.getYDataDomain();
+            if (childYDataDomain !== void 0) {
+              if (yDataDomainMin === void 0 || childYDataDomain[0] !== void 0 && +childYDataDomain[0] < +yDataDomainMin) {
+                yDataDomainMin = childYDataDomain[0];
               }
-              if (yDataDomainMax === void 0 || +yDataDomainMax < +yDataDomain[1]) {
-                yDataDomainMax = yDataDomain[1];
+              if (yDataDomainMax === void 0 || childYDataDomain[1] !== void 0 && +yDataDomainMax < +childYDataDomain[1]) {
+                yDataDomainMax = childYDataDomain[1];
               }
             }
           }
@@ -596,55 +473,47 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
       if (yDataDomainMin !== void 0 && yDataDomainMax !== void 0) {
         yDataDomain = [yDataDomainMin, yDataDomainMax];
-        this._yDataDomain = yDataDomain;
+        this.yDataDomain.setState(yDataDomain);
       }
     }
     return yDataDomain;
   }
 
-  xDataDomainPadded(): readonly [X, X] | undefined {
-    return this._xDataDomainPadded;
-  }
+  @ViewScope({type: Object})
+  declare xDataDomainPadded: ViewScope<this, readonly [X, X] | undefined>;
 
-  yDataDomainPadded(): readonly [Y, Y] | undefined {
-    return this._yDataDomainPadded;
-  }
+  @ViewScope({type: Object})
+  declare yDataDomainPadded: ViewScope<this, readonly [Y, Y] | undefined>;
 
-  xDataRange(): readonly [number, number] | undefined {
-    return this._xDataRange;
-  }
+  @ViewScope({type: Object})
+  declare xDataRange: ViewScope<this, readonly [number, number] | undefined>;
 
-  yDataRange(): readonly [number, number] | undefined {
-    return this._yDataRange;
-  }
+  @ViewScope({type: Object})
+  declare yDataRange: ViewScope<this, readonly [number, number] | undefined>;
 
-  fitAlign(): readonly [number, number];
-  fitAlign(fitAlign: readonly [number, number] | number): this;
-  fitAlign(xFitAlign: number, yFitAlign: number): this;
-  fitAlign(xFitAlign?: readonly [number, number] | number,
-           yFitAlign?: number): readonly [number, number] | this {
-    if (xFitAlign === void 0) {
-      return this._fitAlign;
-    } else {
-      if (Array.isArray(xFitAlign)) {
-        yFitAlign = xFitAlign[1] as number;
-        xFitAlign = xFitAlign[0] as number;
-      } else if (yFitAlign === void 0) {
-        yFitAlign = xFitAlign as number;
+  @ViewScope<ScaleView<X, Y>, readonly [number, number], number>({
+    type: Object,
+    initState: function (): readonly [number, number] {
+      return [1.0, 0.5];
+    },
+    fromAny(value: readonly [number, number] | number): readonly [number, number] {
+      if (typeof value === "number") {
+        return [value, value];
+      } else {
+        return value;
       }
-      this._fitAlign[0] = xFitAlign as number;
-      this._fitAlign[1] = yFitAlign;
-      return this;
-    }
-  }
+    },
+  })
+  declare fitAlign: ViewScope<this, readonly [number, number], number>;
 
   xFitAlign(): number;
   xFitAlign(xFitAlign: number): this;
   xFitAlign(xFitAlign?: number): number | this {
+    const fitAlign = this.fitAlign.state;
     if (xFitAlign === void 0) {
-      return this._fitAlign[0];
+      return fitAlign[0];
     } else {
-      this._fitAlign[0] = xFitAlign;
+      this.fitAlign.setState([xFitAlign, fitAlign[1]]);
       return this;
     }
   }
@@ -652,35 +521,28 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   yFitAlign(): number;
   yFitAlign(yFitAlign: number): this;
   yFitAlign(yFitAlign?: number): number | this {
+    const fitAlign = this.fitAlign.state;
     if (yFitAlign === void 0) {
-      return this._fitAlign[1];
+      return fitAlign[0];
     } else {
-      this._fitAlign[1] = yFitAlign;
+      this.fitAlign.setState([fitAlign[0], yFitAlign]);
       return this;
     }
   }
 
-  fitAspectRatio(): number | undefined;
-  fitAspectRatio(fitAspectRatio: number | undefined): this;
-  fitAspectRatio(fitAspectRatio?: number): number | undefined | this {
-    if (arguments.length === 0) {
-      return this._fitAspectRatio;
-    } else {
-      this._fitAspectRatio = fitAspectRatio;
-      return this;
-    }
-  }
+  @ViewScope({type: Number})
+  declare fitAspectRatio: ViewScope<this, number | undefined>;
 
   preserveAspectRatio(): boolean;
   preserveAspectRatio(preserveAspectRatio: boolean): this;
   preserveAspectRatio(preserveAspectRatio?: boolean): boolean | this {
     if (preserveAspectRatio === void 0) {
-      return (this._scaleFlags & ScaleView.PreserveAspectRatioFlag) !== 0;
+      return (this.scaleFlags & ScaleView.PreserveAspectRatioFlag) !== 0;
     } else {
       if (preserveAspectRatio) {
-        this._scaleFlags |= ScaleView.PreserveAspectRatioFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.PreserveAspectRatioFlag);
       } else {
-        this._scaleFlags &= ~ScaleView.PreserveAspectRatioFlag;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.PreserveAspectRatioFlag);
       }
       return this;
     }
@@ -692,8 +554,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   domainTracking(xDomainTracking?: readonly [boolean, boolean] | boolean,
                  yDomainTracking?: boolean): readonly [boolean, boolean] | this {
     if (xDomainTracking === void 0) {
-      return [(this._scaleFlags & ScaleView.XDomainTrackingFlag) !== 0,
-              (this._scaleFlags & ScaleView.YDomainTrackingFlag) !== 0];
+      return [(this.scaleFlags & ScaleView.XDomainTrackingFlag) !== 0,
+              (this.scaleFlags & ScaleView.YDomainTrackingFlag) !== 0];
     } else {
       if (Array.isArray(xDomainTracking)) {
         yDomainTracking = xDomainTracking[1] as boolean;
@@ -702,14 +564,14 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         yDomainTracking = xDomainTracking as boolean;
       }
       if (xDomainTracking as boolean) {
-        this._scaleFlags |= ScaleView.XDomainTrackingFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.XDomainTrackingFlag);
       } else {
-        this._scaleFlags &= ~ScaleView.XDomainTrackingFlag;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.XDomainTrackingFlag);
       }
       if (yDomainTracking) {
-        this._scaleFlags |= ScaleView.YDomainTrackingFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.YDomainTrackingFlag);
       } else {
-        this._scaleFlags &= ~ScaleView.YDomainTrackingFlag;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.YDomainTrackingFlag);
       }
       return this;
     }
@@ -719,12 +581,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   xDomainTracking(xDomainTracking: boolean): this;
   xDomainTracking(xDomainTracking?: boolean): boolean | this {
     if (xDomainTracking === void 0) {
-      return (this._scaleFlags & ScaleView.XDomainTrackingFlag) !== 0;
+      return (this.scaleFlags & ScaleView.XDomainTrackingFlag) !== 0;
     } else {
       if (xDomainTracking) {
-        this._scaleFlags |= ScaleView.XDomainTrackingFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.XDomainTrackingFlag);
       } else {
-        this._scaleFlags &= ~ScaleView.XDomainTrackingFlag;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.XDomainTrackingFlag);
       }
       return this;
     }
@@ -734,12 +596,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   yDomainTracking(yDomainTracking: boolean): this;
   yDomainTracking(yDomainTracking?: boolean): boolean | this {
     if (yDomainTracking === void 0) {
-      return (this._scaleFlags & ScaleView.YDomainTrackingFlag) !== 0;
+      return (this.scaleFlags & ScaleView.YDomainTrackingFlag) !== 0;
     } else {
       if (yDomainTracking) {
-        this._scaleFlags |= ScaleView.YDomainTrackingFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.YDomainTrackingFlag);
       } else {
-        this._scaleFlags &= ~ScaleView.YDomainTrackingFlag;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.YDomainTrackingFlag);
       }
       return this;
     }
@@ -751,8 +613,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   gestures(xGestures?: readonly [boolean, boolean] | boolean,
            yGestures?: boolean): readonly [boolean, boolean] | this {
     if (xGestures === void 0) {
-      return [(this._scaleFlags & ScaleView.XGesturesFlag) !== 0,
-              (this._scaleFlags & ScaleView.YGesturesFlag) !== 0];
+      return [(this.scaleFlags & ScaleView.XGesturesFlag) !== 0,
+              (this.scaleFlags & ScaleView.YGesturesFlag) !== 0];
     } else {
       if (Array.isArray(xGestures)) {
         yGestures = xGestures[1] as boolean;
@@ -761,17 +623,17 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         yGestures = xGestures as boolean;
       }
       if (xGestures as boolean) {
-        this._scaleFlags |= ScaleView.XGesturesFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.XGesturesFlag);
         this.didEnableXGestures();
       } else {
-        this._scaleFlags &= ~ScaleView.XGesturesFlag;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.XGesturesFlag);
         this.didDisableXGestures();
       }
       if (yGestures) {
-        this._scaleFlags |= ScaleView.YGesturesFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.YGesturesFlag);
         this.didEnableYGestures();
       } else {
-        this._scaleFlags &= ~ScaleView.YGesturesFlag;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.YGesturesFlag);
         this.didDisableYGestures();
       }
       return this;
@@ -782,13 +644,13 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   xGestures(xGestures: boolean): this;
   xGestures(xGestures?: boolean): boolean | this {
     if (xGestures === void 0) {
-      return (this._scaleFlags & ScaleView.XGesturesFlag) !== 0;
+      return (this.scaleFlags & ScaleView.XGesturesFlag) !== 0;
     } else {
       if (xGestures) {
-        this._scaleFlags |= ScaleView.XGesturesFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.XGesturesFlag);
         this.didEnableXGestures();
       } else {
-        this._scaleFlags &= ~ScaleView.XGesturesFlag;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.XGesturesFlag);
         this.didDisableXGestures();
       }
       return this;
@@ -799,13 +661,13 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   yGestures(yGestures: boolean): this;
   yGestures(yGestures?: boolean): boolean | this {
     if (yGestures === void 0) {
-      return (this._scaleFlags & ScaleView.YGesturesFlag) !== 0;
+      return (this.scaleFlags & ScaleView.YGesturesFlag) !== 0;
     } else {
       if (yGestures) {
-        this._scaleFlags |= ScaleView.YGesturesFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.YGesturesFlag);
         this.didEnableYGestures();
       } else {
-        this._scaleFlags &= ~ScaleView.YGesturesFlag;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.YGesturesFlag);
         this.didDisableYGestures();
       }
       return this;
@@ -876,57 +738,57 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   xDomainInRange(): boolean {
-    return (this._scaleFlags & ScaleView.XInRangeMask) === ScaleView.XInRangeMask;
+    return (this.scaleFlags & ScaleView.XInRangeMask) === ScaleView.XInRangeMask;
   }
 
   xInRange(): boolean {
-    return (this._scaleFlags & ScaleView.XInRangeMask) !== 0;
+    return (this.scaleFlags & ScaleView.XInRangeMask) !== 0;
   }
 
   xMinInRange(): boolean {
-    return (this._scaleFlags & ScaleView.XMinInRangeFlag) !== 0;
+    return (this.scaleFlags & ScaleView.XMinInRangeFlag) !== 0;
   }
 
   xMaxInRange(): boolean {
-    return (this._scaleFlags & ScaleView.XMaxInRangeFlag) !== 0;
+    return (this.scaleFlags & ScaleView.XMaxInRangeFlag) !== 0;
   }
 
   yDomainInRange(): boolean {
-    return (this._scaleFlags & ScaleView.XInRangeMask) === ScaleView.YInRangeMask;
+    return (this.scaleFlags & ScaleView.XInRangeMask) === ScaleView.YInRangeMask;
   }
 
   yInRange(): boolean {
-    return (this._scaleFlags & ScaleView.YInRangeMask) !== 0;
+    return (this.scaleFlags & ScaleView.YInRangeMask) !== 0;
   }
 
   yMinInRange(): boolean {
-    return (this._scaleFlags & ScaleView.YMinInRangeFlag) !== 0;
+    return (this.scaleFlags & ScaleView.YMinInRangeFlag) !== 0;
   }
 
   yMaxInRange(): boolean {
-    return (this._scaleFlags & ScaleView.YMaxInRangeFlag) !== 0;
+    return (this.scaleFlags & ScaleView.YMaxInRangeFlag) !== 0;
   }
 
-  fitX(timing: boolean = false): void {
-    this._scaleFlags |= ScaleView.XFitFlag;
-    if (timing === true) {
-      this._scaleFlags |= ScaleView.XFitTweenFlag;
+  fitX(tween: boolean = false): void {
+    this.setScaleFlags(this.scaleFlags | ScaleView.XFitFlag);
+    if (tween === true) {
+      this.setScaleFlags(this.scaleFlags | ScaleView.XFitTweenFlag);
     }
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  fitY(timing: boolean = false): void {
-    this._scaleFlags |= ScaleView.YFitFlag;
-    if (timing === true) {
-      this._scaleFlags |= ScaleView.YFitTweenFlag;
+  fitY(tween: boolean = false): void {
+    this.setScaleFlags(this.scaleFlags | ScaleView.YFitFlag);
+    if (tween === true) {
+      this.setScaleFlags(this.scaleFlags | ScaleView.YFitTweenFlag);
     }
     this.requireUpdate(View.NeedsAnimate);
   }
 
-  fit(timing: boolean = false): void {
-    this._scaleFlags |= ScaleView.XFitFlag | ScaleView.YFitFlag;
-    if (timing === true) {
-      this._scaleFlags |= ScaleView.FitTweenMask;
+  fit(tween: boolean = false): void {
+    this.setScaleFlags(this.scaleFlags | (ScaleView.XFitFlag | ScaleView.YFitFlag));
+    if (tween === true) {
+      this.setScaleFlags(this.scaleFlags | ScaleView.FitTweenMask);
     }
     this.requireUpdate(View.NeedsAnimate);
   }
@@ -949,7 +811,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   protected willResize(viewContext: ViewContextType<this>): void {
     super.willResize(viewContext);
     this.resizeScales(this.viewFrame);
-    this._scaleFlags |= ScaleView.RescaleFlag;
+    this.setScaleFlags(this.scaleFlags | ScaleView.RescaleFlag);
   }
 
   /**
@@ -963,13 +825,13 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       if (xScale !== void 0 && !Values.equal(xScale.range, xRange)) {
         this.xScale.setRange(xRange);
         this.requireUpdate(View.NeedsAnimate);
-        this._scaleFlags |= ScaleView.RescaleFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.RescaleFlag);
       } else if (this.xScale.superValue === void 0) {
-        const xDataDomain = this.xDataDomain();
+        const xDataDomain = this.getXDataDomain();
         if (xDataDomain !== void 0) {
           const xScale = ScaleView.createScale(xDataDomain[0], xDataDomain[1], xRange[0], xRange[1]);
           this.xScale.setState(xScale);
-          this._scaleFlags |= ScaleView.XFitFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.XFitFlag);
         }
       }
     }
@@ -980,13 +842,13 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       if (yScale !== void 0 && !Values.equal(yScale.range, yRange)) {
         this.yScale.setRange(yRange[1], yRange[0]);
         this.requireUpdate(View.NeedsAnimate);
-        this._scaleFlags |= ScaleView.RescaleFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.RescaleFlag);
       } else if (this.yScale.superValue === void 0) {
-        const yDataDomain = this.yDataDomain();
+        const yDataDomain = this.getYDataDomain();
         if (yDataDomain !== void 0) {
           const yScale = ScaleView.createScale(yDataDomain[0], yDataDomain[1], yRange[1], yRange[0]);
           this.yScale.setState(yScale);
-          this._scaleFlags |= ScaleView.YFitFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.YFitFlag);
         }
       }
     }
@@ -1034,37 +896,37 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       const childView = childViews[i];
       if (ScaleXView.is<X>(childView)) {
         if (childView.xScale() === xScale) {
-          const xDataDomain = childView.xDataDomain();
-          if (xDataDomain !== void 0) {
-            if (xDataDomainMin === void 0 || +xDataDomain[0] < +xDataDomainMin) {
-              xDataDomainMin = xDataDomain[0];
+          const childXDataDomain = childView.getXDataDomain();
+          if (childXDataDomain !== void 0) {
+            if (xDataDomainMin === void 0 || +childXDataDomain[0] < +xDataDomainMin) {
+              xDataDomainMin = childXDataDomain[0];
             }
-            if (xDataDomainMax === void 0 || +xDataDomainMax < +xDataDomain[1]) {
-              xDataDomainMax = xDataDomain[1];
+            if (xDataDomainMax === void 0 || +xDataDomainMax < +childXDataDomain[1]) {
+              xDataDomainMax = childXDataDomain[1];
             }
           }
-          const xDataRange = childView.xDataRange();
-          if (xDataRange !== void 0) {
-            xDataRangeMin = Math.min(xDataRangeMin, xDataRange[0]);
-            xDataRangeMax = Math.max(xDataRangeMax, xDataRange[1]);
+          const childXDataRange = childView.xDataRange();
+          if (childXDataRange !== void 0) {
+            xDataRangeMin = Math.min(xDataRangeMin, childXDataRange[0]);
+            xDataRangeMax = Math.max(xDataRangeMax, childXDataRange[1]);
           }
         }
       }
       if (ScaleYView.is<Y>(childView)) {
         if (childView.yScale() === yScale) {
-          const yDataDomain = childView.yDataDomain();
-          if (yDataDomain !== void 0) {
-            if (yDataDomainMin === void 0 || +yDataDomain[0] < +yDataDomainMin) {
-              yDataDomainMin = yDataDomain[0];
+          const childYDataDomain = childView.getYDataDomain();
+          if (childYDataDomain !== void 0) {
+            if (yDataDomainMin === void 0 || +childYDataDomain[0] < +yDataDomainMin) {
+              yDataDomainMin = childYDataDomain[0];
             }
-            if (yDataDomainMax === void 0 || +yDataDomainMax < +yDataDomain[1]) {
-              yDataDomainMax = yDataDomain[1];
+            if (yDataDomainMax === void 0 || +yDataDomainMax < +childYDataDomain[1]) {
+              yDataDomainMax = childYDataDomain[1];
             }
           }
-          const yDataRange = childView.yDataRange();
-          if (yDataRange !== void 0) {
-            yDataRangeMin = Math.min(yDataRangeMin, yDataRange[0]);
-            yDataRangeMax = Math.max(yDataRangeMax, yDataRange[1]);
+          const childYDataRange = childView.yDataRange();
+          if (childYDataRange !== void 0) {
+            yDataRangeMin = Math.min(yDataRangeMin, childYDataRange[0]);
+            yDataRangeMax = Math.max(yDataRangeMax, childYDataRange[1]);
           }
         }
       }
@@ -1074,55 +936,39 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         yDataDomainMin !== void 0 && yDataDomainMax !== void 0 &&
         isFinite(xDataRangeMin) && isFinite(xDataRangeMax) &&
         isFinite(yDataRangeMin) && isFinite(yDataRangeMax)) {
-      let xDataDomain = this._xDataDomain;
+      const xDataDomain = this.xDataDomain.state as [X, X] | undefined;
       if (xDataDomain === void 0) {
-        xDataDomain = [xDataDomainMin, xDataDomainMax];
-        this._xDataDomain = xDataDomain;
-        this._scaleFlags |= ScaleView.XChangingMask;
+        this.xDataDomain.setState([xDataDomainMin, xDataDomainMax]);
+        this.setScaleFlags(this.scaleFlags | ScaleView.XChangingMask);
       } else {
         if (+xDataDomain[0] !== +xDataDomainMin) {
           xDataDomain[0] = xDataDomainMin;
-          this._scaleFlags |= ScaleView.XMinChangingFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.XMinChangingFlag);
         }
         if (+xDataDomain[1] !== +xDataDomainMax) {
           xDataDomain[1] = xDataDomainMax;
-          this._scaleFlags |= ScaleView.XMaxChangingFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.XMaxChangingFlag);
         }
       }
-      let yDataDomain = this._yDataDomain;
+      const yDataDomain = this.yDataDomain.state as [Y, Y] | undefined;
       if (yDataDomain === void 0) {
-        yDataDomain = [yDataDomainMin, yDataDomainMax];
-        this._yDataDomain = yDataDomain;
-        this._scaleFlags |= ScaleView.YChangingMask;
+        this.yDataDomain.setState([yDataDomainMin, yDataDomainMax]);
+        this.setScaleFlags(this.scaleFlags | ScaleView.YChangingMask);
       } else {
         if (+yDataDomain[0] !== +yDataDomainMin) {
           yDataDomain[0] = yDataDomainMin;
-          this._scaleFlags |= ScaleView.YMinChangingFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.YMinChangingFlag);
         }
         if (+yDataDomain[1] !== +yDataDomainMax) {
           yDataDomain[1] = yDataDomainMax;
-          this._scaleFlags |= ScaleView.YMaxChangingFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.YMaxChangingFlag);
         }
       }
 
-      let xDataRange = this._xDataRange;
-      if (xDataRange === void 0) {
-        xDataRange = [xDataRangeMin, xDataRangeMax];
-        this._xDataRange = xDataRange;
-      } else {
-        xDataRange[0] = xDataRangeMin;
-        xDataRange[1] = xDataRangeMax;
-      }
-      let yDataRange = this._yDataRange;
-      if (yDataRange === void 0) {
-        yDataRange = [yDataRangeMin, yDataRangeMax];
-        this._yDataRange = yDataRange;
-      } else {
-        yDataRange[0] = yDataRangeMin;
-        yDataRange[1] = yDataRangeMax;
-      }
+      this.xDataRange.setState([xDataRangeMin, xDataRangeMax]);
+      this.yDataRange.setState([yDataRangeMin, yDataRangeMax]);
 
-      const xDomainPadding = this._xDomainPadding;
+      const xDomainPadding = this.xDomainPadding.state;
       let xDataDomainPaddedMin: X;
       if (typeof xDomainPadding[0] !== "boolean") {
         xDataDomainPaddedMin = (+xDataDomainMin - +xDomainPadding[0]) as unknown as X;
@@ -1135,23 +981,22 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       } else {
         xDataDomainPaddedMax = xDataDomainMax;
       }
-      let xDataDomainPadded = this._xDataDomainPadded;
+      const xDataDomainPadded = this.xDataDomainPadded.state as [X, X] | undefined;
       if (xDataDomainPadded === void 0) {
-        xDataDomainPadded = [xDataDomainPaddedMin, xDataDomainPaddedMax];
-        this._xDataDomainPadded = xDataDomainPadded;
-        this._scaleFlags |= ScaleView.XChangingMask;
+        this.xDataDomainPadded.setState([xDataDomainPaddedMin, xDataDomainPaddedMax]);
+        this.setScaleFlags(this.scaleFlags | ScaleView.XChangingMask);
       } else {
         if (+xDataDomainPadded[0] !== +xDataDomainPaddedMin) {
           xDataDomainPadded[0] = xDataDomainPaddedMin;
-          this._scaleFlags |= ScaleView.XMinChangingFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.XMinChangingFlag);
         }
         if (+xDataDomainPadded[1] !== +xDataDomainPaddedMax) {
           xDataDomainPadded[1] = xDataDomainPaddedMax;
-          this._scaleFlags |= ScaleView.XMaxChangingFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.XMaxChangingFlag);
         }
       }
 
-      const yDomainPadding = this._yDomainPadding;
+      const yDomainPadding = this.yDomainPadding.state;
       let yDataDomainPaddedMin: Y;
       if (typeof yDomainPadding[0] !== "boolean") {
         yDataDomainPaddedMin = (+yDataDomainMin - +yDomainPadding[0]) as unknown as Y;
@@ -1164,34 +1009,33 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       } else {
         yDataDomainPaddedMax = yDataDomainMax;
       }
-      let yDataDomainPadded = this._yDataDomainPadded;
+      const yDataDomainPadded = this.yDataDomainPadded.state as [Y, Y] | undefined;
       if (yDataDomainPadded === void 0) {
-        yDataDomainPadded = [yDataDomainPaddedMin, yDataDomainPaddedMax];
-        this._yDataDomainPadded = yDataDomainPadded;
-        this._scaleFlags |= ScaleView.YChangingMask;
+        this.yDataDomainPadded.setState([yDataDomainPaddedMin, yDataDomainPaddedMax]);
+        this.setScaleFlags(this.scaleFlags | ScaleView.YChangingMask);
       } else {
         if (+yDataDomainPadded[0] !== +yDataDomainPaddedMin) {
           yDataDomainPadded[0] = yDataDomainPaddedMin;
-          this._scaleFlags |= ScaleView.YMinChangingFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.YMinChangingFlag);
         }
         if (+yDataDomainPadded[1] !== +yDataDomainPaddedMax) {
           yDataDomainPadded[1] = yDataDomainPaddedMax;
-          this._scaleFlags |= ScaleView.YMaxChangingFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.YMaxChangingFlag);
         }
       }
     } else {
-      this._xDataDomain = void 0;
-      this._yDataDomain = void 0;
-      this._xDataDomainPadded = void 0;
-      this._yDataDomainPadded = void 0;
-      this._xDataRange = void 0;
-      this._yDataRange = void 0;
+      this.xDataDomain.setState(void 0);
+      this.yDataDomain.setState(void 0);
+      this.xDataDomainPadded.setState(void 0);
+      this.yDataDomainPadded.setState(void 0);
+      this.xDataRange.setState(void 0);
+      this.yDataRange.setState(void 0);
     }
   }
 
   protected updateOwnScales(xScale: ContinuousScale<X, number>,
                             yScale: ContinuousScale<Y, number>): void {
-    if ((this._scaleFlags & ScaleView.FitMask) !== 0) {
+    if ((this.scaleFlags & ScaleView.FitMask) !== 0) {
       this.fitScales(xScale, yScale);
     }
 
@@ -1204,29 +1048,29 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
    * Fits scales to domains, and corrects aspect ratio.
    */
   protected fitScales(oldXScale: ContinuousScale<X, number>, oldYScale: ContinuousScale<Y, number>): void {
-    const xDataDomain = this._xDataDomain;
+    const xDataDomain = this.xDataDomain.state;
     let oldXDomain: AnyDomain<X> | undefined;
     let newXDomain: AnyDomain<X> | undefined;
-    if (xDataDomain !== void 0 && (this._scaleFlags & ScaleView.XFitFlag) !== 0) {
+    if (xDataDomain !== void 0 && (this.scaleFlags & ScaleView.XFitFlag) !== 0) {
       oldXDomain = oldXScale.domain;
       if (+oldXDomain[0] !== +xDataDomain[0] ||
           +oldXDomain[1] !== +xDataDomain[1]) {
-        newXDomain = xDataDomain;
+        newXDomain = xDataDomain as [X, X];
       }
     }
 
-    const yDataDomain = this._yDataDomain;
+    const yDataDomain = this.yDataDomain.state;
     let oldYDomain: AnyDomain<Y> | undefined;
     let newYDomain: AnyDomain<Y> | undefined;
-    if (yDataDomain !== void 0 && (this._scaleFlags & ScaleView.YFitFlag) !== 0) {
+    if (yDataDomain !== void 0 && (this.scaleFlags & ScaleView.YFitFlag) !== 0) {
       oldYDomain = oldYScale.domain;
       if (+oldYDomain[0] !== +yDataDomain[0] ||
           +oldYDomain[1] !== +yDataDomain[1]) {
-        newYDomain = yDataDomain;
+        newYDomain = yDataDomain as [Y, Y];
       }
     }
 
-    const fitAspectRatio = this._fitAspectRatio;
+    const fitAspectRatio = this.fitAspectRatio.state;
     if (fitAspectRatio !== void 0) {
       const xDomain = newXDomain !== void 0 ? newXDomain : oldXScale.domain;
       const yDomain = newYDomain !== void 0 ? newYDomain : oldYScale.domain;
@@ -1238,7 +1082,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       const rangeAspectRatio = (xRange[1] - xRange[0]) / (yRange[0] - yRange[1]);
       const anamorphicAspectRatio = Math.abs(fitAspectRatio * rangeAspectRatio);
       if (Math.abs(domainAspectRatio - anamorphicAspectRatio) >= Equivalent.Epsilon) {
-        const fitAlign = this._fitAlign;
+        const fitAlign = this.fitAlign.state;
         if (fitAspectRatio < 0 && domainAspectRatio < anamorphicAspectRatio ||
             fitAspectRatio > 0 && domainAspectRatio > anamorphicAspectRatio) {
           const newDomainWidth = oldDomainHeight * anamorphicAspectRatio;
@@ -1258,14 +1102,14 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       const xDomain = newXDomain !== void 0 ? newXDomain :
                       oldXDomain !== void 0 ? oldXDomain :
                       (oldXDomain = oldXScale.domain, oldXDomain);
-      const xDomainBounds = this._xDomainBounds;
+      const xDomainBounds = this.xDomainBounds.state;
       const xDomainMin = typeof xDomainBounds[0] === "boolean" ? xDataDomain[0] : xDomainBounds[0];
       const xDomainMax = typeof xDomainBounds[1] === "boolean" ? xDataDomain[1] : xDomainBounds[1];
       if (+xDomain[0] - Equivalent.Epsilon <= +xDomainMin + Equivalent.Epsilon) {
-        this._scaleFlags |= ScaleView.XMinInRangeFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.XMinInRangeFlag);
       }
       if (+xDomainMax - Equivalent.Epsilon <= +xDomain[1] + Equivalent.Epsilon) {
-        this._scaleFlags |= ScaleView.XMaxInRangeFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.XMaxInRangeFlag);
       }
     }
 
@@ -1273,27 +1117,27 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       const yDomain = newYDomain !== void 0 ? newYDomain :
                       oldYDomain !== void 0 ? oldYDomain :
                       (oldYDomain = oldYScale.domain, oldYDomain);
-      const yDomainBounds = this._yDomainBounds;
+      const yDomainBounds = this.yDomainBounds.state;
       const yDomainMin = typeof yDomainBounds[0] === "boolean" ? yDataDomain[0] : yDomainBounds[0];
       const yDomainMax = typeof yDomainBounds[1] === "boolean" ? yDataDomain[1] : yDomainBounds[1];
       if (+yDomain[0] - Equivalent.Epsilon <= +yDomainMin + Equivalent.Epsilon) {
-        this._scaleFlags |= ScaleView.YMinInRangeFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.YMinInRangeFlag);
       }
       if (+yDomainMax - Equivalent.Epsilon <= +yDomain[1] + Equivalent.Epsilon) {
-        this._scaleFlags |= ScaleView.YMaxInRangeFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.YMaxInRangeFlag);
       }
     }
 
     if (newXDomain !== void 0) {
       let timing: Timing | undefined;
-      if ((this._scaleFlags & ScaleView.XFitTweenFlag) !== 0 &&
+      if ((this.scaleFlags & ScaleView.XFitTweenFlag) !== 0 &&
           (timing = this.rescaleTransition.state, timing !== void 0)) {
-        this._scaleFlags |= ScaleView.XFittingFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.XFittingFlag);
       }
       this.willFitX(oldXScale);
       this.xDomain(newXDomain instanceof Domain ? newXDomain : Domain(newXDomain[0], newXDomain[1]), timing);
       this.requireUpdate(View.NeedsLayout);
-      this._scaleFlags &= ~ScaleView.XFitFlag;
+      this.setScaleFlags(this.scaleFlags & ~ScaleView.XFitFlag);
       if (timing === void 0) {
         this.didFitX(this.xScale.getState());
       }
@@ -1301,20 +1145,20 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
 
     if (newYDomain !== void 0) {
       let timing: Timing | undefined;
-      if ((this._scaleFlags & ScaleView.YFitTweenFlag) !== 0 &&
+      if ((this.scaleFlags & ScaleView.YFitTweenFlag) !== 0 &&
           (timing = this.rescaleTransition.state, timing !== void 0)) {
-        this._scaleFlags |= ScaleView.YFittingFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.YFittingFlag);
       }
       this.willFitY(oldYScale);
       this.yDomain(newYDomain instanceof Domain ? newYDomain : Domain(newYDomain[0], newYDomain[1]), timing);
       this.requireUpdate(View.NeedsLayout);
-      this._scaleFlags &= ~ScaleView.YFitFlag;
+      this.setScaleFlags(this.scaleFlags & ~ScaleView.YFitFlag);
       if (timing === void 0) {
         this.didFitY(this.yScale.getState());
       }
     }
 
-    this._scaleFlags &= ~(ScaleView.FitMask | ScaleView.FitTweenMask);
+    this.setScaleFlags(this.scaleFlags & ~(ScaleView.FitMask | ScaleView.FitTweenMask));
   }
 
   protected onBeginFittingXScale(xScale: ContinuousScale<X, number>): void {
@@ -1322,12 +1166,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   protected onEndFittingXScale(xScale: ContinuousScale<X, number>): void {
-    this._scaleFlags &= ~ScaleView.XFittingFlag;
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.XFittingFlag);
     this.didFitX(xScale);
   }
 
   protected onInterruptFittingXScale(xScale: ContinuousScale<X, number>): void {
-    this._scaleFlags &= ~ScaleView.XFittingFlag;
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.XFittingFlag);
     this.didFitX(xScale);
   }
 
@@ -1336,12 +1180,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   protected onEndFittingYScale(yScale: ContinuousScale<Y, number>): void {
-    this._scaleFlags &= ~ScaleView.YFittingFlag;
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.YFittingFlag);
     this.didFitY(yScale);
   }
 
   protected onInterruptFittingYScale(yScale: ContinuousScale<Y, number>): void {
-    this._scaleFlags &= ~ScaleView.YFittingFlag;
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.YFittingFlag);
     this.didFitY(yScale);
   }
 
@@ -1369,11 +1213,11 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     const scaleGesture = this.scaleGesture.state;
     const isPressing = scaleGesture !== void 0 && scaleGesture.isPressing();
     const isCoasting = scaleGesture !== void 0 && scaleGesture.isCoasting();
-    this._scaleFlags &= ~ScaleView.ClampedMask;
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.ClampedMask);
 
-    const xDataDomainPadded = this._xDataDomainPadded;
-    let xZoomMin: number | boolean | undefined = this._xZoomBounds[0];
-    let xZoomMax: number | boolean | undefined = this._xZoomBounds[1];
+    const xZoomBounds = this.xZoomBounds.state;
+    let xZoomMin: number | boolean | undefined = xZoomBounds[0];
+    let xZoomMax: number | boolean | undefined = xZoomBounds[1];
     if (xZoomMin === true) {
       if (oldXScale instanceof LinearScale) {
         xZoomMin = ScaleView.LinearZoomMin;
@@ -1397,7 +1241,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       xZoomMax = void 0;
     }
     const oldXDomain = oldXScale.domain;
-    const xDomainBounds = this._xDomainBounds;
+    const xDomainBounds = this.xDomainBounds.state;
+    const xDataDomainPadded = this.xDataDomainPadded.state;
     const xDomainPadded = xDataDomainPadded !== void 0 ? xDataDomainPadded : oldXDomain;
     const xDomainMin = xDomainBounds[0] === false ? void 0
                      : xDomainBounds[0] === true ? xDomainPadded[0]
@@ -1411,13 +1256,13 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         Math.abs(+oldXDomain[1] - +xDomainClamped[1]) >= Equivalent.Epsilon) {
       newXDomain = xDomainClamped;
       if (Math.abs((+oldXDomain[1] - +oldXDomain[0]) - (+newXDomain[1] - +newXDomain[0])) >= Equivalent.Epsilon) {
-        this._scaleFlags |= ScaleView.XClampedFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.XClampedFlag);
       }
     }
 
-    const yDataDomainPadded = this._yDataDomainPadded;
-    let yZoomMin: number | boolean | undefined = this._yZoomBounds[0];
-    let yZoomMax: number | boolean | undefined = this._yZoomBounds[1];
+    const yZoomBounds = this.yZoomBounds.state;
+    let yZoomMin: number | boolean | undefined = yZoomBounds[0];
+    let yZoomMax: number | boolean | undefined = yZoomBounds[1];
     if (yZoomMin === true) {
       if (oldYScale instanceof LinearScale) {
         yZoomMin = ScaleView.LinearZoomMin;
@@ -1441,7 +1286,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       yZoomMax = void 0;
     }
     const oldYDomain = oldYScale.domain;
-    const yDomainBounds = this._yDomainBounds;
+    const yDomainBounds = this.yDomainBounds.state;
+    const yDataDomainPadded = this.yDataDomainPadded.state;
     const yDomainPadded = yDataDomainPadded !== void 0 ? yDataDomainPadded : oldYDomain;
     const yDomainMin = yDomainBounds[0] === false ? void 0
                      : yDomainBounds[0] === true ? yDomainPadded[0]
@@ -1455,24 +1301,24 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
         Math.abs(+oldYDomain[1] - +yDomainClamped[1]) >= Equivalent.Epsilon) {
       newYDomain = yDomainClamped;
       if (Math.abs((+oldYDomain[1] - +oldYDomain[0]) - (+newYDomain[1] - +newYDomain[0])) >= Equivalent.Epsilon) {
-        this._scaleFlags |= ScaleView.YClampedFlag;
+        this.setScaleFlags(this.scaleFlags | ScaleView.YClampedFlag);
       }
     }
 
-    const xDataDomain = this._xDataDomain;
+    const xDataDomain = this.xDataDomain.state;
     if (xDataDomain !== void 0 && !isPressing && !isCoasting &&
-        (this._scaleFlags & ScaleView.XDomainTrackingFlag) !== 0 &&
-        ((this._scaleFlags & ScaleView.XMinReboundMask) === ScaleView.XMinReboundMask ||
-         (this._scaleFlags & ScaleView.XMaxReboundMask) === ScaleView.XMaxReboundMask)) {
+        (this.scaleFlags & ScaleView.XDomainTrackingFlag) !== 0 &&
+        ((this.scaleFlags & ScaleView.XMinReboundMask) === ScaleView.XMinReboundMask ||
+         (this.scaleFlags & ScaleView.XMaxReboundMask) === ScaleView.XMaxReboundMask)) {
       const xDomain = newXDomain !== void 0 ? newXDomain : oldXDomain;
       let xDomainMin: X;
       let xDomainMax: X;
-      if ((this._scaleFlags & ScaleView.XInRangeMask) === ScaleView.XInRangeMask) {
+      if ((this.scaleFlags & ScaleView.XInRangeMask) === ScaleView.XInRangeMask) {
         xDomainMin = xDataDomain[0];
         xDomainMax = xDataDomain[1];
       } else {
         const xDomainWidth = +xDomain[1] - +xDomain[0] as unknown as X;
-        if ((this._scaleFlags & ScaleView.XMinReboundMask) === ScaleView.XMinReboundMask) {
+        if ((this.scaleFlags & ScaleView.XMinReboundMask) === ScaleView.XMinReboundMask) {
           xDomainMin = xDataDomain[0];
           xDomainMax = +xDataDomain[0] + +xDomainWidth as unknown as X;
         } else {
@@ -1486,20 +1332,20 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
     }
 
-    const yDataDomain = this._yDataDomain;
+    const yDataDomain = this.yDataDomain.state;
     if (yDataDomain !== void 0 && !isPressing && !isCoasting &&
-        (this._scaleFlags & ScaleView.YDomainTrackingFlag) !== 0 &&
-        ((this._scaleFlags & ScaleView.YMinReboundMask) === ScaleView.YMinReboundMask ||
-         (this._scaleFlags & ScaleView.YMaxReboundMask) === ScaleView.YMaxReboundMask)) {
+        (this.scaleFlags & ScaleView.YDomainTrackingFlag) !== 0 &&
+        ((this.scaleFlags & ScaleView.YMinReboundMask) === ScaleView.YMinReboundMask ||
+         (this.scaleFlags & ScaleView.YMaxReboundMask) === ScaleView.YMaxReboundMask)) {
       const yDomain = newYDomain !== void 0 ? newYDomain : oldYDomain;
       let yDomainMin: Y;
       let yDomainMax: Y;
-      if ((this._scaleFlags & ScaleView.YInRangeMask) === ScaleView.YInRangeMask) {
+      if ((this.scaleFlags & ScaleView.YInRangeMask) === ScaleView.YInRangeMask) {
         yDomainMin = yDataDomain[0];
         yDomainMax = yDataDomain[1];
       } else {
         const yDomainHeight = +yDomain[1] - +yDomain[0] as unknown as Y;
-        if ((this._scaleFlags & ScaleView.YMinReboundMask) === ScaleView.YMinReboundMask) {
+        if ((this.scaleFlags & ScaleView.YMinReboundMask) === ScaleView.YMinReboundMask) {
           yDomainMin = yDataDomain[0];
           yDomainMax = +yDataDomain[0] + +yDomainHeight as unknown as Y;
         } else {
@@ -1513,9 +1359,9 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
     }
 
-    const fitAspectRatio = this._fitAspectRatio;
-    if (fitAspectRatio !== void 0 && (this._scaleFlags & ScaleView.PreserveAspectRatioFlag) !== 0 &&
-        (newXDomain !== void 0 || newYDomain !== void 0 || (this._scaleFlags & ScaleView.RescaleFlag) !== 0)) {
+    const fitAspectRatio = this.fitAspectRatio.state;
+    if (fitAspectRatio !== void 0 && (this.scaleFlags & ScaleView.PreserveAspectRatioFlag) !== 0 &&
+        (newXDomain !== void 0 || newYDomain !== void 0 || (this.scaleFlags & ScaleView.RescaleFlag) !== 0)) {
       const xDomain = newXDomain !== void 0 ? newXDomain : oldXDomain;
       const yDomain = newYDomain !== void 0 ? newYDomain : oldYDomain;
       const xRange = oldXScale.range;
@@ -1526,8 +1372,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       const rangeAspectRatio = (xRange[1] - xRange[0]) / (yRange[0] - yRange[1]);
       const anamorphicAspectRatio = Math.abs(fitAspectRatio * rangeAspectRatio);
       if (Math.abs(domainAspectRatio - anamorphicAspectRatio) >= Equivalent.Epsilon ||
-          (this._scaleFlags & ScaleView.RescaleFlag) !== 0) {
-        const fitAlign = this._fitAlign;
+          (this.scaleFlags & ScaleView.RescaleFlag) !== 0) {
+        const fitAlign = this.fitAlign.state;
         if (fitAspectRatio < 0 && domainAspectRatio < anamorphicAspectRatio) {
           const newDomainWidth = oldDomainHeight * anamorphicAspectRatio;
           const dx = newDomainWidth - oldDomainWidth;
@@ -1542,59 +1388,59 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
     }
 
-    if (!isPressing && !isCoasting && (this._scaleFlags & (ScaleView.XTweeningMask)) === 0) {
-      const xDataDomain = this._xDataDomain;
+    if (!isPressing && !isCoasting && (this.scaleFlags & (ScaleView.XTweeningMask)) === 0) {
+      const xDataDomain = this.xDataDomain.state;
       if (xDataDomain !== void 0) {
         const xDomain = newXDomain !== void 0 ? newXDomain : oldXDomain;
-        const xDomainBounds = this._xDomainBounds;
+        const xDomainBounds = this.xDomainBounds.state;
         const xDomainMin = typeof xDomainBounds[0] === "boolean" ? xDataDomain[0] : xDomainBounds[0];
         const xDomainMax = typeof xDomainBounds[1] === "boolean" ? xDataDomain[1] : xDomainBounds[1];
         if (+xDomain[0] - Equivalent.Epsilon <= +xDomainMin + Equivalent.Epsilon) {
-          this._scaleFlags |= ScaleView.XMinInRangeFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.XMinInRangeFlag);
         } else {
-          this._scaleFlags &= ~ScaleView.XMinInRangeFlag;
+          this.setScaleFlags(this.scaleFlags & ~ScaleView.XMinInRangeFlag);
         }
         if (+xDomainMax - Equivalent.Epsilon <= +xDomain[1] + Equivalent.Epsilon) {
-          this._scaleFlags |= ScaleView.XMaxInRangeFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.XMaxInRangeFlag);
         } else {
-          this._scaleFlags &= ~ScaleView.XMaxInRangeFlag;
+          this.setScaleFlags(this.scaleFlags & ~ScaleView.XMaxInRangeFlag);
         }
       } else {
-        this._scaleFlags &= ~ScaleView.XInRangeMask;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.XInRangeMask);
       }
     }
 
-    if (!isPressing && !isCoasting && (this._scaleFlags & (ScaleView.YTweeningMask)) === 0) {
-      const yDataDomain = this._yDataDomain;
+    if (!isPressing && !isCoasting && (this.scaleFlags & (ScaleView.YTweeningMask)) === 0) {
+      const yDataDomain = this.yDataDomain.state;
       if (yDataDomain !== void 0) {
         const yDomain = newYDomain !== void 0 ? newYDomain : oldYDomain;
-        const yDomainBounds = this._yDomainBounds;
+        const yDomainBounds = this.yDomainBounds.state;
         const yDomainMin = typeof yDomainBounds[0] === "boolean" ? yDataDomain[0] : yDomainBounds[0];
         const yDomainMax = typeof yDomainBounds[1] === "boolean" ? yDataDomain[1] : yDomainBounds[1];
         if (+yDomain[0] - Equivalent.Epsilon <= +yDomainMin + Equivalent.Epsilon) {
-          this._scaleFlags |= ScaleView.YMinInRangeFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.YMinInRangeFlag);
         } else {
-          this._scaleFlags &= ~ScaleView.YMinInRangeFlag;
+          this.setScaleFlags(this.scaleFlags & ~ScaleView.YMinInRangeFlag);
         }
         if (+yDomainMax - Equivalent.Epsilon <= +yDomain[1] + Equivalent.Epsilon) {
-          this._scaleFlags |= ScaleView.YMaxInRangeFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.YMaxInRangeFlag);
         } else {
-          this._scaleFlags &= ~ScaleView.YMaxInRangeFlag;
+          this.setScaleFlags(this.scaleFlags & ~ScaleView.YMaxInRangeFlag);
         }
       } else {
-        this._scaleFlags &= ~ScaleView.YInRangeMask;
+        this.setScaleFlags(this.scaleFlags & ~ScaleView.YInRangeMask);
       }
     }
 
-    if (newXDomain !== void 0 && !isPressing && (this._scaleFlags & ScaleView.XTweeningMask) === 0 &&
+    if (newXDomain !== void 0 && !isPressing && (this.scaleFlags & ScaleView.XTweeningMask) === 0 &&
         (Math.abs(+newXDomain[0] - +oldXDomain[0]) >= Equivalent.Epsilon ||
          Math.abs(+newXDomain[1] - +oldXDomain[1]) >= Equivalent.Epsilon)) {
       let timing: Timing | undefined;
-      if ((this._scaleFlags & (ScaleView.XBoundingFlag | ScaleView.RescaleFlag)) === 0) {
-        timing = (this._scaleFlags & ScaleView.InteractingMask) !== 0
+      if ((this.scaleFlags & (ScaleView.XBoundingFlag | ScaleView.RescaleFlag)) === 0) {
+        timing = (this.scaleFlags & ScaleView.InteractingMask) !== 0
                ? this.reboundTransition.state : this.rescaleTransition.state;
         if (timing !== void 0) {
-          this._scaleFlags |= ScaleView.XBoundingFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.XBoundingFlag);
         }
       }
       this.willReboundX(oldXScale);
@@ -1605,15 +1451,15 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
     }
 
-    if (newYDomain !== void 0 && !isPressing && (this._scaleFlags & ScaleView.YTweeningMask) === 0 &&
+    if (newYDomain !== void 0 && !isPressing && (this.scaleFlags & ScaleView.YTweeningMask) === 0 &&
         (Math.abs(+newYDomain[0] - +oldYDomain[0]) >= Equivalent.Epsilon ||
          Math.abs(+newYDomain[1] - +oldYDomain[1]) >= Equivalent.Epsilon)) {
       let timing: Timing | undefined;
-      if ((this._scaleFlags & (ScaleView.YBoundingFlag | ScaleView.RescaleFlag)) === 0) {
-        timing = (this._scaleFlags & ScaleView.InteractingMask) !== 0
+      if ((this.scaleFlags & (ScaleView.YBoundingFlag | ScaleView.RescaleFlag)) === 0) {
+        timing = (this.scaleFlags & ScaleView.InteractingMask) !== 0
                ? this.reboundTransition.state : this.rescaleTransition.state;
         if (timing !== void 0) {
-          this._scaleFlags |= ScaleView.YBoundingFlag;
+          this.setScaleFlags(this.scaleFlags | ScaleView.YBoundingFlag);
         }
       }
       this.willReboundY(oldYScale);
@@ -1624,13 +1470,13 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
     }
 
-    if ((this._scaleFlags & ScaleView.XBoundingFlag) === 0) {
-      this._scaleFlags &= ~ScaleView.XChangingMask;
+    if ((this.scaleFlags & ScaleView.XBoundingFlag) === 0) {
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.XChangingMask);
     }
-    if ((this._scaleFlags & ScaleView.YBoundingFlag) === 0) {
-      this._scaleFlags &= ~ScaleView.YChangingMask;
+    if ((this.scaleFlags & ScaleView.YBoundingFlag) === 0) {
+      this.setScaleFlags(this.scaleFlags & ~ScaleView.YChangingMask);
     }
-    this._scaleFlags &= ~(ScaleView.InteractedFlag | ScaleView.RescaleFlag);
+    this.setScaleFlags(this.scaleFlags & ~(ScaleView.InteractedFlag | ScaleView.RescaleFlag));
   }
 
   protected onBeginBoundingXScale(xScale: ContinuousScale<X, number>): void {
@@ -1638,12 +1484,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   protected onEndBoundingXScale(xScale: ContinuousScale<X, number>): void {
-    this._scaleFlags &= ~ScaleView.XBoundingFlag;
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.XBoundingFlag);
     this.didReboundX(xScale);
   }
 
   protected onInterruptBoundingXScale(xScale: ContinuousScale<X, number>): void {
-    this._scaleFlags &= ~ScaleView.XBoundingFlag;
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.XBoundingFlag);
     this.didReboundX(xScale);
   }
 
@@ -1652,12 +1498,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   protected onEndBoundingYScale(yScale: ContinuousScale<Y, number>): void {
-    this._scaleFlags &= ~ScaleView.YBoundingFlag;
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.YBoundingFlag);
     this.didReboundY(yScale);
   }
 
   protected onInterruptBoundingYScale(yScale: ContinuousScale<Y, number>): void {
-    this._scaleFlags &= ~ScaleView.YBoundingFlag;
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.YBoundingFlag);
     this.didReboundY(yScale);
   }
 
@@ -1684,11 +1530,11 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   willStartInteracting(): void {
-    this._scaleFlags |= ScaleView.InteractingFlag;
+    this.setScaleFlags(this.scaleFlags | ScaleView.InteractingFlag);
   }
 
   didStopInteracting(): void {
-    this._scaleFlags = this._scaleFlags & ~ScaleView.InteractingFlag | ScaleView.InteractedFlag;
+    this.setScaleFlags(this.scaleFlags & ~ScaleView.InteractingFlag | ScaleView.InteractedFlag);
   }
 
   didStopPressing(): void {
@@ -1696,12 +1542,12 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   willBeginCoast(input: ScaleGestureInput<X, Y>, event: Event | null): boolean | void {
-    if ((this._scaleFlags & ScaleView.XGesturesFlag) === 0) {
+    if ((this.scaleFlags & ScaleView.XGesturesFlag) === 0) {
       input.disableX = true;
       input.vx = 0;
       input.ax = 0;
     }
-    if ((this._scaleFlags & ScaleView.YGesturesFlag) === 0) {
+    if ((this.scaleFlags & ScaleView.YGesturesFlag) === 0) {
       input.disableY = true;
       input.vy = 0;
       input.ay = 0;

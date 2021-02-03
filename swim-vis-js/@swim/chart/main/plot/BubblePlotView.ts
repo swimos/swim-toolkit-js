@@ -17,7 +17,6 @@ import {AnyColor, Color} from "@swim/color";
 import {ViewAnimator} from "@swim/view";
 import type {CanvasContext, FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
 import {DataPointView} from "../data/DataPointView";
-import {PlotView} from "./PlotView";
 import type {PlotViewController} from "./PlotViewController";
 import {ScatterPlotType, ScatterPlotViewInit, ScatterPlotView} from "./ScatterPlotView";
 
@@ -74,7 +73,7 @@ export class BubblePlotView<X, Y> extends ScatterPlotView<X, Y> implements FillV
       if (p instanceof DataPointView) {
         context.beginPath();
         const r = p.r.value || radius;
-        context.arc(p._xCoord, p._yCoord, r.pxValue(size), 0, 2 * Math.PI);
+        context.arc(p.xCoord, p.yCoord, r.pxValue(size), 0, 2 * Math.PI);
         let fillStyle = p.color.value || fill;
         if (fillStyle !== void 0) {
           const opacity = p.opacity.value;
@@ -95,6 +94,10 @@ export class BubblePlotView<X, Y> extends ScatterPlotView<X, Y> implements FillV
     }
   }
 
+  static create<X, Y>(): BubblePlotView<X, Y> {
+    return new BubblePlotView<X, Y>();
+  }
+
   static fromInit<X, Y>(init: BubblePlotViewInit<X, Y>): BubblePlotView<X, Y> {
     const view = new BubblePlotView<X, Y>();
     view.initView(init);
@@ -110,4 +113,3 @@ export class BubblePlotView<X, Y> extends ScatterPlotView<X, Y> implements FillV
     throw new TypeError("" + value);
   }
 }
-PlotView.Bubble = BubblePlotView;

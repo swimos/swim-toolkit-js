@@ -31,8 +31,9 @@ export class TopAxisView<X = unknown> extends AxisView<X> {
   protected layoutTick(tick: TickView<X>, origin: PointR2, frame: BoxR2,
                        scale: ContinuousScale<X, number>): void {
     if (tick.anchor.isAuto()) {
-      tick._offset = scale(tick._value);
-      tick.anchor.setAutoState(new PointR2(frame.xMin + tick._offset, origin.y));
+      const offset = scale(tick.value);
+      tick.setOffset(offset);
+      tick.anchor.setAutoState(new PointR2(frame.xMin + offset, origin.y));
     }
   }
 
@@ -60,4 +61,3 @@ export class TopAxisView<X = unknown> extends AxisView<X> {
     }
   }
 }
-AxisView.Top = TopAxisView;

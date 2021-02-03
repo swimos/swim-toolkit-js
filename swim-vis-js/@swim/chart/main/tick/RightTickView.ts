@@ -67,4 +67,3 @@ export class RightTickView<Y> extends TickView<Y> {
     }
   }
 }
-TickView.Right = RightTickView;

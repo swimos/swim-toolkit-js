@@ -26,10 +26,10 @@ import {
   AnyTextRunView,
   TextRunView,
 } from "@swim/graphics";
-import type {TopTickView} from "./TopTickView";
-import type {RightTickView} from "./RightTickView";
-import type {BottomTickView} from "./BottomTickView";
-import type {LeftTickView} from "./LeftTickView";
+import {TopTickView} from "../"; // forward import
+import {RightTickView} from "../"; // forward import
+import {BottomTickView} from "../"; // forward import
+import {LeftTickView} from "../"; // forward import
 
 /** @hidden */
 export const enum TickState {
@@ -62,25 +62,34 @@ export interface TickViewInit<D> extends GraphicsViewInit {
 }
 
 export abstract class TickView<D> extends LayerView {
-  /** @hidden */
-  readonly _value: D;
-  /** @hidden */
-  _offset: number;
-  /** @hidden */
-  _offset0: number;
-  /** @hidden */
-  _state: TickState;
-  /** @hidden */
-  _preserve: boolean;
-
   constructor(value: D) {
     super();
-    this._value = value;
-    this._offset = 0;
-    this._offset0 = NaN;
-    this._state = TickState.Excluded;
-    this._preserve = true;
-    //this.opacity.interpolate = TickView.interpolateOpacity;
+    Object.defineProperty(this, "value", {
+      value: value,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "offset", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    //Object.defineProperty(this, "offset0", {
+    //  value: NaN,
+    //  enumerable: true,
+    //  configurable: true,
+    //});
+    Object.defineProperty(this, "tickState", {
+      value: TickState.Excluded,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "preserved", {
+      value: true,
+      enumerable: true,
+      configurable: true,
+    });
+    //this.opacity.interpolator = TickView.interpolateOpacity;
   }
 
   initView(init: TickViewInit<D>): void {
@@ -117,11 +126,27 @@ export abstract class TickView<D> extends LayerView {
     }
   }
 
-  abstract get orientation(): TickOrientation;
+  abstract readonly orientation: TickOrientation;
 
-  get value(): D {
-    return this._value;
+  declare readonly value: D;
+
+  /** @hidden */
+  declare readonly offset: number;
+
+  /** @hidden */
+  setOffset(offset: number): void {
+    Object.defineProperty(this, "offset", {
+      value: offset,
+      enumerable: true,
+      configurable: true,
+    });
   }
+
+  ///** @hidden */
+  //declare readonly offset0: number;
+
+  /** @hidden */
+  declare readonly tickState: TickState;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
   declare anchor: ViewAnimator<this, PointR2, AnyPointR2>;
@@ -171,28 +196,43 @@ export abstract class TickView<D> extends LayerView {
     }
   }
 
+  /** @hidden */
+  declare readonly preserved: boolean;
+
   preserve(): boolean;
   preserve(preserve: boolean): this;
   preserve(preserve?: boolean): this | boolean {
     if (preserve === void 0) {
-      return this._preserve;
+      return this.preserved;
     } else {
-      this._preserve = preserve;
+      Object.defineProperty(this, "preserved", {
+        value: preserve,
+        enumerable: true,
+        configurable: true,
+      });
       return this;
     }
   }
 
   fadeIn(timing?: Timing | boolean): void {
-    if (this._state === TickState.Excluded || this._state === TickState.Leaving) {
+    if (this.tickState === TickState.Excluded || this.tickState === TickState.Leaving) {
       this.opacity.setState(1, timing);
-      this._state = TickState.Entering;
+      Object.defineProperty(this, "tickState", {
+        value: TickState.Entering,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
 
   fadeOut(timing?: Timing | boolean): void {
-    if (this._state === TickState.Entering || this._state === TickState.Included) {
+    if (this.tickState === TickState.Entering || this.tickState === TickState.Included) {
       this.opacity.setState(0, timing);
-      this._state = TickState.Leaving;
+      Object.defineProperty(this, "tickState", {
+        value: TickState.Leaving,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
 
@@ -261,41 +301,61 @@ export abstract class TickView<D> extends LayerView {
   //private static interpolateOpacity<D>(this: ViewAnimator<TickView<D>, number>, u: number): number {
   //  // Interpolate over max of time and distance translated
   //  const view = this.owner;
-  //  const offset = view._offset;
-  //  if (isNaN(view._offset0)) {
-  //    view._offset0 = offset;
+  //  const offset = view.offset;
+  //  if (isNaN(view.offset0)) {
+  //    Object.defineProperty(this, "offset0", {
+  //      value: offset,
+  //      enumerable: true,
+  //      configurable: true,
+  //    });
   //  }
   //  const tickSpacing = view.tickMarkSpacing.getValue() / 2;
-  //  const v = Math.min(Math.abs(offset - view._offset0) / tickSpacing, 1);
-  //  const opacity = this._interpolator!(Math.max(u, v));
+  //  const v = Math.min(Math.abs(offset - view.offset0) / tickSpacing, 1);
+  //  const opacity = this.interpolator!(Math.max(u, v));
   //  if (u === 1 || v === 1) {
   //    this.setAnimatorFlags(this.animatorFlags & ~Animator.AnimatingFlag);
   //  }
-  //  if (opacity === 0 && view._state === TickState.Leaving) {
-  //    view._state = TickState.Excluded;
-  //    view._offset0 = NaN;
+  //  if (opacity === 0 && view.tickState === TickState.Leaving) {
+  //    Object.defineProperty(view, "tickState", {
+  //      value: TickState.Excluded,
+  //      enumerable: true,
+  //      configurable: true,
+  //    });
+  //    Object.defineProperty(view, "offset0", {
+  //      value: NaN,
+  //      enumerable: true,
+  //      configurable: true,
+  //    });
   //    view.remove();
-  //  } else if (opacity === 1 && view._state === TickState.Entering) {
-  //    view._state = TickState.Included;
-  //    view._offset0 = NaN;
+  //  } else if (opacity === 1 && view.tickState === TickState.Entering) {
+  //    Object.defineProperty(view, "tickState", {
+  //      value: TickState.Included,
+  //      enumerable: true,
+  //      configurable: true,
+  //    });
+  //    Object.defineProperty(view, "offset0", {
+  //      value: NaN,
+  //      enumerable: true,
+  //      configurable: true,
+  //    });
   //  }
   //  return opacity;
   //}
 
   static top<D>(value: D): TopTickView<D> {
-    return new TickView.Top(value);
+    return new TopTickView(value);
   }
 
   static right<D>(value: D): RightTickView<D> {
-    return new TickView.Right(value);
+    return new RightTickView(value);
   }
 
   static bottom<D>(value: D): BottomTickView<D> {
-    return new TickView.Bottom(value);
+    return new BottomTickView(value);
   }
 
   static left<D>(value: D): LeftTickView<D> {
-    return new TickView.Left(value);
+    return new LeftTickView(value);
   }
 
   static from<D>(value: D, orientation: TickOrientation): TickView<D> {
@@ -332,16 +392,6 @@ export abstract class TickView<D> extends LayerView {
     }
     throw new TypeError("" + value);
   }
-
-  // Forward type declarations
-  /** @hidden */
-  static Top: typeof TopTickView; // defined by TopTickView
-  /** @hidden */
-  static Right: typeof RightTickView; // defined by RightTickView
-  /** @hidden */
-  static Bottom: typeof BottomTickView; // defined by BottomTickView
-  /** @hidden */
-  static Left: typeof LeftTickView; // defined by LeftTickView
 
   static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsAnimate;
   static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;

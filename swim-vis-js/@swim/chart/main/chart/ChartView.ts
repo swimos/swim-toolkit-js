@@ -276,8 +276,9 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     const frame = this.viewFrame;
     const gutterLeft = this.gutterLeft.getValue().pxValue(frame.width);
     const gutterRight = this.gutterRight.getValue().pxValue(frame.width);
-    const xRangeMin = this._xRangePadding[0];
-    const xRangeMax = this.viewFrame.width - gutterRight - gutterLeft - this._xRangePadding[1];
+    const xRangePadding = this.xRangePadding.state;
+    const xRangeMin = xRangePadding[0];
+    const xRangeMax = this.viewFrame.width - gutterRight - gutterLeft - xRangePadding[1];
     return LinearRange(xRangeMin, xRangeMax);
   }
 
@@ -285,8 +286,9 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     const frame = this.viewFrame;
     const gutterTop = this.gutterTop.getValue().pxValue(frame.height);
     const gutterBottom = this.gutterBottom.getValue().pxValue(frame.height);
-    const yRangeMin = this._yRangePadding[0];
-    const yRangeMax = this.viewFrame.height - gutterBottom - gutterTop - this._yRangePadding[1];
+    const yRangePadding = this.yRangePadding.state;
+    const yRangeMin = yRangePadding[0];
+    const yRangeMax = this.viewFrame.height - gutterBottom - gutterTop - yRangePadding[1];
     return LinearRange(yRangeMin, yRangeMax);
   }
 
@@ -390,6 +392,10 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
         graph.requireUpdate(View.NeedsLayout);
       }
     }
+  }
+
+  static create<X, Y>(): ChartView<X, Y> {
+    return new ChartView<X, Y>();
   }
 
   static fromInit<X, Y>(init: ChartViewInit<X, Y>): ChartView<X, Y> {

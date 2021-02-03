@@ -20,11 +20,11 @@ import type {AnyDataPointView} from "../data/DataPointView";
 import type {ScaleXYView} from "../scale/ScaleXYView";
 import type {PlotViewObserver} from "./PlotViewObserver";
 import type {PlotViewController} from "./PlotViewController";
-import type {ScatterPlotView} from "./ScatterPlotView";
-import type {SeriesPlotView} from "./SeriesPlotView";
-import type {BubblePlotViewInit, BubblePlotView} from "./BubblePlotView";
-import type {LinePlotViewInit, LinePlotView} from "./LinePlotView";
-import type {AreaPlotViewInit, AreaPlotView} from "./AreaPlotView";
+import {ScatterPlotView} from "../"; // forward import
+import {SeriesPlotView} from "../"; // forward import
+import {BubblePlotViewInit, BubblePlotView} from "../"; // forward import
+import {LinePlotViewInit, LinePlotView} from "../"; // forward import
+import {AreaPlotViewInit, AreaPlotView} from "../"; // forward import
 
 export type PlotType = "bubble" | "line" | "area";
 
@@ -72,7 +72,13 @@ export interface PlotView<X, Y> extends GraphicsView, ScaleXYView<X, Y> {
 
   xDataDomain(): readonly [X, X] | undefined;
 
+  /** @hidden */
+  getXDataDomain(): readonly [X, X] | undefined;
+
   yDataDomain(): readonly [Y, Y] | undefined;
+
+  /** @hidden */
+  getYDataDomain(): readonly [Y, Y] | undefined;
 
   xDataRange(): readonly [number, number] | undefined;
 
@@ -87,25 +93,13 @@ export const PlotView = {} as {
   fromInit<X, Y>(init: PlotViewInit<X, Y>): PlotView<X, Y>;
 
   fromAny<X, Y>(value: AnyPlotView<X, Y>): PlotView<X, Y>;
-
-  // Forward type declarations
-  /** @hidden */
-  Scatter: typeof ScatterPlotView,
-  /** @hidden */
-  Series: typeof SeriesPlotView,
-  /** @hidden */
-  Bubble: typeof BubblePlotView,
-  /** @hidden */
-  Line: typeof LinePlotView,
-  /** @hidden */
-  Area: typeof AreaPlotView,
 };
 
 PlotView.is = function <X, Y>(object: unknown): object is PlotView<X, Y> {
   if (typeof object === "object" && object !== null) {
     const view = object as PlotView<X, Y>;
-    return view instanceof PlotView.Scatter
-        || view instanceof PlotView.Series
+    return view instanceof ScatterPlotView
+        || view instanceof SeriesPlotView
         || view instanceof GraphicsView && "plotType" in view;
   }
   return false;
@@ -113,11 +107,11 @@ PlotView.is = function <X, Y>(object: unknown): object is PlotView<X, Y> {
 
 PlotView.fromType = function <X, Y>(type: PlotType): PlotView<X, Y> {
   if (type === "bubble") {
-    return new PlotView.Bubble();
+    return new BubblePlotView();
   } else if (type === "line") {
-    return new PlotView.Line();
+    return new LinePlotView();
   } else if (type === "area") {
-    return new PlotView.Area();
+    return new AreaPlotView();
   }
   throw new TypeError("" + type);
 };
@@ -125,11 +119,11 @@ PlotView.fromType = function <X, Y>(type: PlotType): PlotView<X, Y> {
 PlotView.fromInit = function <X, Y>(init: PlotViewInit<X, Y>): PlotView<X, Y> {
   const type = init.plotType;
   if (type === "bubble") {
-    return PlotView.Bubble.fromInit(init as BubblePlotViewInit<X, Y>);
+    return BubblePlotView.fromInit(init as BubblePlotViewInit<X, Y>);
   } else if (type === "line") {
-    return PlotView.Line.fromInit(init as LinePlotViewInit<X, Y>);
+    return LinePlotView.fromInit(init as LinePlotViewInit<X, Y>);
   } else if (type === "area") {
-    return PlotView.Area.fromInit(init as AreaPlotViewInit<X, Y>);
+    return AreaPlotView.fromInit(init as AreaPlotViewInit<X, Y>);
   }
   throw new TypeError("" + init);
 };

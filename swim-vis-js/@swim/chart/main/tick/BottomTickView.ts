@@ -67,4 +67,3 @@ export class BottomTickView<X> extends TickView<X> {
     }
   }
 }
-TickView.Bottom = BottomTickView;

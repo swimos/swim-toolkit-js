@@ -31,8 +31,9 @@ export class LeftAxisView<Y = unknown> extends AxisView<Y> {
   protected layoutTick(tick: TickView<Y>, origin: PointR2, frame: BoxR2,
                        scale: ContinuousScale<Y, number>): void {
     if (tick.anchor.isAuto()) {
-      tick._offset = scale(tick._value);
-      tick.anchor.setAutoState(new PointR2(origin.x, frame.yMin + tick._offset));
+      const offset = scale(tick.value);
+      tick.setOffset(offset);
+      tick.anchor.setAutoState(new PointR2(origin.x, frame.yMin + offset));
     }
   }
 
@@ -60,4 +61,3 @@ export class LeftAxisView<Y = unknown> extends AxisView<Y> {
     }
   }
 }
-AxisView.Left = LeftAxisView;

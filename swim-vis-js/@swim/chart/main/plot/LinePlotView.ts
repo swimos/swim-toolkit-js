@@ -17,7 +17,6 @@ import {AnyColor, Color} from "@swim/color";
 import {ViewAnimator} from "@swim/view";
 import type {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";
-import {PlotView} from "./PlotView";
 import type {PlotViewController} from "./PlotViewController";
 import {SeriesPlotType, SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";
 
@@ -73,12 +72,12 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
   }
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
-    const data = this._data;
+    const data = this.data;
     const n = data.size;
 
     const stroke = this.stroke.getValue();
     const strokeWidth = this.strokeWidth.getValue().pxValue(Math.min(frame.width, frame.height));
-    const gradientStops = this._gradientStops;
+    const gradientStops = this.gradientStops;
     let gradient: CanvasGradient | undefined;
 
     let x0: number;
@@ -87,8 +86,8 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
     if (n > 0) {
       const p0 = data.firstValue()!;
       const p1 = data.lastValue()!;
-      x0 = p0._xCoord;
-      x1 = p1._xCoord;
+      x0 = p0.xCoord;
+      x1 = p1.xCoord;
       dx = x1 - x0;
       if (gradientStops !== 0) {
         gradient = context.createLinearGradient(x0, 0, x1, 0);
@@ -102,8 +101,8 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
     context.beginPath();
     let i = 0;
     data.forEach(function (x: X, p: DataPointView<X, Y>): void {
-      const xCoord = p._xCoord;
-      const yCoord = p._yCoord;
+      const xCoord = p.xCoord;
+      const yCoord = p.yCoord;
       if (i === 0) {
         context.moveTo(xCoord, yCoord);
       } else {
@@ -138,9 +137,9 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
 
     context.beginPath();
     let i = 0;
-    this._data.forEach(function (x: X, p: DataPointView<X, Y>): void {
-      const xCoord = p._xCoord;
-      const yCoord = p._yCoord;
+    this.data.forEach(function (x: X, p: DataPointView<X, Y>): void {
+      const xCoord = p.xCoord;
+      const yCoord = p.yCoord;
       if (i === 0) {
         context.moveTo(xCoord, yCoord);
       } else {
@@ -151,13 +150,18 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
 
     context.lineWidth = hitWidth;
     if (context.isPointInStroke(x, y)) {
-      if (this._hitMode === "plot") {
+      const hitMode = this.hitMode.state;
+      if (hitMode === "plot") {
         return this;
-      } else if (this._hitMode === "data") {
+      } else if (hitMode === "data") {
         return this.hitTestDomain(x, y, renderer);
       }
     }
     return null;
+  }
+
+  static create<X, Y>(): LinePlotView<X, Y> {
+    return new LinePlotView<X, Y>();
   }
 
   static fromInit<X, Y>(init: LinePlotViewInit<X, Y>): LinePlotView<X, Y> {
@@ -175,4 +179,3 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
     throw new TypeError("" + value);
   }
 }
-PlotView.Line = LinePlotView;

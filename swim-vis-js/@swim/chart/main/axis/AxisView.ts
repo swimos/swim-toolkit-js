@@ -24,10 +24,10 @@ import {AnyTickView, TickView} from "../tick/TickView";
 import {TickGenerator} from "../tick/TickGenerator";
 import type {AxisViewObserver} from "./AxisViewObserver";
 import type {AxisViewController} from "./AxisViewController";
-import type {TopAxisView} from "./TopAxisView";
-import type {RightAxisView} from "./RightAxisView";
-import type {BottomAxisView} from "./BottomAxisView";
-import type {LeftAxisView} from "./LeftAxisView";
+import {TopAxisView} from "../"; // forward import
+import {RightAxisView} from "../"; // forward import
+import {BottomAxisView} from "../"; // forward import
+import {LeftAxisView} from "../"; // forward import
 
 export type AxisOrientation = "top" | "right" | "bottom" | "left";
 
@@ -60,15 +60,13 @@ export interface AxisViewInit<D = unknown> extends GraphicsViewInit {
 }
 
 export abstract class AxisView<D = unknown> extends GraphicsView {
-  /** @hidden */
-  readonly _ticks: BTree<D, TickView<D>>;
-  /** @hidden */
-  _tickGenerator: TickGenerator<D> | true | null;
-
   constructor() {
     super();
-    this._ticks = new BTree();
-    this._tickGenerator = true;
+    Object.defineProperty(this, "ticks", {
+      value: new BTree(),
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   declare readonly viewController: AxisViewController<D> | null;
@@ -135,19 +133,22 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
-  abstract get orientation(): AxisOrientation;
+  abstract readonly orientation: AxisOrientation;
 
   abstract scale: ScaleViewAnimator<this, D, number>;
 
+  /** @hidden */
+  declare readonly ticks: BTree<D, TickView<D>>;
+
   getTick(value: D): TickView<D> | undefined {
-    return this._ticks.get(value);
+    return this.ticks.get(value);
   }
 
   insertTick(tick: AnyTickView<D>): TickView<D> {
     tick = TickView.fromAny(tick, this.orientation);
     tick.remove();
     this.willInsertChildView(tick, null);
-    this._ticks.set(tick.value, tick);
+    this.ticks.set(tick.value, tick);
     tick.setParentView(this, null);
     this.onInsertChildView(tick, null);
     this.didInsertChildView(tick, null);
@@ -156,14 +157,14 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   removeTick(value: D): TickView<D> | null {
-    const tick = this._ticks.get(value);
+    const tick = this.ticks.get(value);
     if (tick !== void 0) {
       if (tick.parentView !== this) {
         throw new Error("not a child view");
       }
       this.willRemoveChildView(tick);
       tick.setParentView(null, this);
-      this._ticks.delete(value);
+      this.ticks.delete(value);
       this.onRemoveChildView(tick);
       this.didRemoveChildView(tick);
       tick.setKey(void 0);
@@ -172,24 +173,8 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     return null;
   }
 
-  tickGenerator(): TickGenerator<D> | true | null;
-  tickGenerator(tickGenerator: TickGenerator<D> | true | null): this;
-  tickGenerator(tickGenerator?: TickGenerator<D> | true | null): TickGenerator<D> | true | null | this {
-    if (tickGenerator === void 0) {
-      let tickGenerator = this._tickGenerator;
-      if (tickGenerator === true) {
-        const scale = this.scale.value;
-        if (scale !== void 0) {
-          tickGenerator = TickGenerator.fromScale(scale);
-          this._tickGenerator = tickGenerator;
-        }
-      }
-      return tickGenerator;
-    } else {
-      this._tickGenerator = tickGenerator;
-      return this;
-    }
-  }
+  @ViewScope({type: TickGenerator, state: true})
+  declare tickGenerator: ViewScope<this, TickGenerator<D> | true | null>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
   declare origin: ViewAnimator<this, PointR2, AnyPointR2>;
@@ -240,30 +225,30 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   get childViewCount(): number {
-    return this._ticks.size;
+    return this.ticks.size;
   }
 
   get childViews(): ReadonlyArray<View> {
     const childViews: View[] = [];
-    this._ticks.forEachValue(function (childView: TickView<D>): void {
+    this.ticks.forEachValue(function (childView: TickView<D>): void {
       childViews.push(childView);
     }, this);
     return childViews;
   }
 
   firstChildView(): View | null {
-    const childView = this._ticks.firstValue();
+    const childView = this.ticks.firstValue();
     return childView !== void 0 ? childView : null;
   }
 
   lastChildView(): View | null {
-    const childView = this._ticks.lastValue();
+    const childView = this.ticks.lastValue();
     return childView !== void 0 ? childView : null;
   }
 
   nextChildView(targetView: View): View | null {
     if (targetView instanceof TickView) {
-      const childView = this._ticks.nextValue(targetView.value);
+      const childView = this.ticks.nextValue(targetView.value);
       if (childView !== void 0) {
         return childView;
       }
@@ -273,7 +258,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   previousChildView(targetView: View): View | null {
     if (targetView instanceof TickView) {
-      const childView = this._ticks.previousValue(targetView.value);
+      const childView = this.ticks.previousValue(targetView.value);
       if (childView !== void 0) {
         return childView;
       }
@@ -286,7 +271,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
                          thisArg: S): T | undefined;
   forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
                          thisArg?: S): T | undefined {
-    return this._ticks.forEachValue(callback, thisArg);
+    return this.ticks.forEachValue(callback, thisArg);
   }
 
   getChildView(key: string): View | null {
@@ -340,10 +325,10 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   removeAll(): void {
-    this._ticks.forEach(function (key: D, childView: TickView<D>): void {
+    this.ticks.forEach(function (key: D, childView: TickView<D>): void {
       this.willRemoveChildView(childView);
       childView.setParentView(null, this);
-      this._ticks.delete(key);
+      this.ticks.delete(key);
       this.onRemoveChildView(childView);
       this.didRemoveChildView(childView);
       childView.setKey(void 0);
@@ -353,11 +338,11 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   protected updateTicks(): void {
     const origin = this.origin.value;
     const scale = this.scale.value;
-    let tickGenerator = this._tickGenerator;
+    let tickGenerator = this.tickGenerator.state;
     if (origin !== void 0 && scale !== void 0 && tickGenerator !== null) {
       if (tickGenerator === true) {
         tickGenerator = TickGenerator.fromScale(scale);
-        this._tickGenerator = tickGenerator;
+        this.tickGenerator.setState(tickGenerator);
       }
       this.generateTicks(tickGenerator, scale);
     }
@@ -374,7 +359,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
     tickGenerator.domain(scale.domain);
 
-    const oldTicks = this._ticks.clone();
+    const oldTicks = this.ticks.clone();
     const tickValues = tickGenerator.generate();
     const tickTransition = this.tickTransition.state;
     for (let i = 0, n = tickValues.length; i < n; i += 1) {
@@ -402,7 +387,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
       }
     }
     oldTicks.forEachValue(function (oldTick: TickView<D>): void {
-      if (!oldTick._preserve) {
+      if (!oldTick.preserved) {
         oldTick.fadeOut(tickTransition);
       }
     }, this);
@@ -421,7 +406,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
       const tickLabel = this.createTickLabel(tickValue, tickView);
       if (tickLabel !== null) {
         tickView.tickLabel(tickLabel);
-        tickView._preserve = false;
+        tickView.preserve(false);
       }
     }
     return tickView;
@@ -434,8 +419,9 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
       tickLabel = viewController.createTickLabel(tickValue, tickView);
     }
     if (tickLabel === void 0) {
-      if (this._tickGenerator instanceof TickGenerator) {
-        tickLabel = this._tickGenerator.format(tickValue);
+      const tickGenerator = this.tickGenerator.state;
+      if (tickGenerator instanceof TickGenerator) {
+        tickLabel = tickGenerator.format(tickValue);
       } else {
         tickLabel = "" + tickValue;
       }
@@ -544,7 +530,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   protected abstract renderDomain(context: CanvasContext, origin: PointR2, frame: BoxR2): void;
 
   static top<X>(init?: AxisViewInit<X>): TopAxisView<X> {
-    const view = new AxisView.Top<X>();
+    const view = new TopAxisView<X>();
     if (init !== void 0) {
       view.initView(init);
     }
@@ -552,7 +538,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   static right<Y>(init?: AxisViewInit<Y>): RightAxisView<Y> {
-    const view = new AxisView.Right<Y>();
+    const view = new RightAxisView<Y>();
     if (init !== void 0) {
       view.initView(init);
     }
@@ -560,7 +546,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   static bottom<X>(init?: AxisViewInit<X>): BottomAxisView<X> {
-    const view = new AxisView.Bottom<X>();
+    const view = new BottomAxisView<X>();
     if (init !== void 0) {
       view.initView(init);
     }
@@ -568,7 +554,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   static left<Y>(init?: AxisViewInit<Y>): LeftAxisView<Y> {
-    const view = new AxisView.Left<Y>();
+    const view = new LeftAxisView<Y>();
     if (init !== void 0) {
       view.initView(init);
     }
@@ -614,16 +600,6 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
     throw new TypeError("" + value);
   }
-
-  // Forward type declarations
-  /** @hidden */
-  static Top: typeof TopAxisView; // defined by TopAxisView
-  /** @hidden */
-  static Right: typeof RightAxisView; // defined by RightAxisView
-  /** @hidden */
-  static Bottom: typeof BottomAxisView; // defined by BottomAxisView
-  /** @hidden */
-  static Left: typeof LeftAxisView; // defined by LeftAxisView
 
   static readonly insertChildFlags: ViewFlags = GraphicsView.insertChildFlags | View.NeedsAnimate;
   static readonly removeChildFlags: ViewFlags = GraphicsView.removeChildFlags | View.NeedsAnimate;

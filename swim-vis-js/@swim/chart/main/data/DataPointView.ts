@@ -16,7 +16,7 @@ import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -39,7 +39,7 @@ export interface DataPointViewInit<X, Y> extends GraphicsViewInit {
 
   hitRadius?: number;
 
-  category?: DataPointCategory | null;
+  category?: DataPointCategory;
 
   color?: AnyColor;
   opacity?: number;
@@ -50,29 +50,32 @@ export interface DataPointViewInit<X, Y> extends GraphicsViewInit {
   font?: AnyFont;
   textColor?: AnyColor;
 
-  label?: GraphicsView | string | null;
+  label?: GraphicsView | string;
 }
 
 export class DataPointView<X, Y> extends LayerView {
-  /** @hidden */
-  _xCoord: number;
-  /** @hidden */
-  _yCoord: number;
-  /** @hidden */
-  _y2Coord?: number;
-  /** @hidden */
-  _hitRadius?: number;
-  /** @hidden */
-  _gradientStop?: boolean;
-  /** @hidden */
-  _category?: DataPointCategory;
-  /** @hidden */
-  _labelPlacement?: DataPointLabelPlacement;
-
   constructor(x: X, y: Y) {
     super();
-    this._xCoord = NaN;
-    this._yCoord = NaN;
+    Object.defineProperty(this, "xCoord", {
+      value: NaN,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "yCoord", {
+      value: NaN,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "y2Coord", {
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "gradientStop", {
+      value: false,
+      enumerable: true,
+      configurable: true,
+    });
     this.x.setAutoState(x);
     this.y.setAutoState(y);
   }
@@ -82,16 +85,37 @@ export class DataPointView<X, Y> extends LayerView {
     this.setState(init);
   }
 
-  get xCoord(): number {
-    return this._xCoord;
+  declare readonly xCoord: number
+
+  /** @hidden */
+  setXCoord(xCoord: number): void {
+    Object.defineProperty(this, "xCoord", {
+      value: xCoord,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get yCoord(): number {
-    return this._yCoord;
+  declare readonly yCoord: number
+
+  /** @hidden */
+  setYCoord(yCoord: number): void {
+    Object.defineProperty(this, "yCoord", {
+      value: yCoord,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  get y2Coord(): number | undefined {
-    return this._y2Coord;
+  declare readonly y2Coord: number | undefined;
+
+  /** @hidden */
+  setY2Coord(y2Coord: number | undefined): void {
+    Object.defineProperty(this, "y2Coord", {
+      value: y2Coord,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   @ViewAnimator({type: Object})
@@ -106,10 +130,10 @@ export class DataPointView<X, Y> extends LayerView {
   @ViewAnimator({type: Length})
   declare r: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewAnimator({type: Color})
+  @ViewAnimator({type: Color, updateFlags: View.NeedsAnimate})
   declare color: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewAnimator({type: Number})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsAnimate})
   declare opacity: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length})
@@ -121,31 +145,11 @@ export class DataPointView<X, Y> extends LayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  hitRadius(): number;
-  hitRadius(hitRadius: number): this;
-  hitRadius(hitRadius?: number): number | this {
-    if (hitRadius === void 0) {
-      return this._hitRadius !== void 0 ? this._hitRadius : 5;
-    } else {
-      this._hitRadius = hitRadius;
-      return this;
-    }
-  }
+  @ViewScope({type: Number, state: 5})
+  declare hitRadius: ViewScope<this, number>;
 
-  category(): DataPointCategory | null;
-  category(category: DataPointCategory | null): this;
-  category(category?: DataPointCategory | null): DataPointCategory | null | this {
-    if (category === void 0) {
-      return this._category !== void 0 ? this._category : null;
-    } else {
-      if (category !== null) {
-        this._category = category;
-      } else if (this._category !== void 0) {
-        this._category = void 0;
-      }
-      return this;
-    }
-  }
+  @ViewScope({type: String})
+  declare category: ViewScope<this, DataPointCategory | undefined>;
 
   label(): GraphicsView | null;
   label(label: GraphicsView | AnyTextRunView | null): this;
@@ -162,16 +166,8 @@ export class DataPointView<X, Y> extends LayerView {
     }
   }
 
-  labelPlacement(): DataPointLabelPlacement;
-  labelPlacement(labelPlacement: DataPointLabelPlacement): this;
-  labelPlacement(labelPlacement?: DataPointLabelPlacement): DataPointLabelPlacement | this {
-    if (labelPlacement === void 0) {
-      return this._labelPlacement !== void 0 ? this._labelPlacement : "auto";
-    } else {
-      this._labelPlacement = labelPlacement;
-      return this;
-    }
-  }
+  @ViewScope({type: String, state: "auto"})
+  declare labelPlacement: ViewScope<this, DataPointLabelPlacement>;
 
   setState(point: DataPointViewInit<X, Y>, timing?: AnyTiming | boolean): void {
     if (point.y2 !== void 0) {
@@ -215,13 +211,11 @@ export class DataPointView<X, Y> extends LayerView {
     }
   }
 
+  /** @hidden */
+  declare readonly gradientStop: boolean;
+
   isGradientStop(): boolean {
-    let gradientStop = this._gradientStop;
-    if (gradientStop === void 0) {
-      gradientStop = this.color.value !== void 0 || this.opacity.value !== void 0;
-      this._gradientStop = gradientStop;
-    }
-    return gradientStop;
+    return this.gradientStop;
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -256,7 +250,11 @@ export class DataPointView<X, Y> extends LayerView {
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
-    this._gradientStop = this.color.value !== void 0 || this.opacity.value !== void 0;
+    Object.defineProperty(this, "gradientStop", {
+      value: this.color.value !== void 0 || this.opacity.value !== void 0,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onLayout(viewContext: ViewContextType<this>): void {
@@ -268,9 +266,9 @@ export class DataPointView<X, Y> extends LayerView {
   }
 
   protected layoutLabel(label: GraphicsView, frame: BoxR2): void {
-    let placement = this._labelPlacement;
+    let placement = this.labelPlacement.state;
     if (placement !== "above" && placement !== "below" && placement !== "middle") {
-      const category = this._category;
+      const category = this.category.state;
       if (category === "increasing" || category === "maxima") {
         placement = "above";
       } else if (category === "decreasing" || category === "minima") {
@@ -282,8 +280,8 @@ export class DataPointView<X, Y> extends LayerView {
 
     const labelPadding = this.labelPadding.value;
     const padding = labelPadding !== void 0 ? labelPadding.pxValue(Math.min(frame.width, frame.height)) : 0;
-    const x = this._xCoord;
-    const y0 = this._yCoord;
+    const x = this.xCoord;
+    const y0 = this.yCoord;
     let y1 = y0;
     if (placement === "above") {
       y1 -= padding;
@@ -324,8 +322,8 @@ export class DataPointView<X, Y> extends LayerView {
       hitRadius = Math.max(hitRadius, radius.pxValue(size));
     }
 
-    const dx = this._xCoord - x;
-    const dy = this._yCoord - y;
+    const dx = this.xCoord - x;
+    const dy = this.yCoord - y;
     if (dx * dx + dy * dy < hitRadius * hitRadius) {
       return this;
     }

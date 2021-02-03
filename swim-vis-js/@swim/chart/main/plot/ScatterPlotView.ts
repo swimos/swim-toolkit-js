@@ -17,13 +17,14 @@ import {Domain, Range, AnyTiming, ContinuousScale} from "@swim/mapping";
 import type {BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
 import {LayerView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
-import {PlotViewInit, PlotView} from "./PlotView";
+import type {PlotViewInit, PlotView} from "./PlotView";
 import type {PlotViewObserver} from "./PlotViewObserver";
 import type {PlotViewController} from "./PlotViewController";
+import {BubblePlotView} from "../"; // forward import
 
 export type ScatterPlotType = "bubble";
 
@@ -34,23 +35,6 @@ export interface ScatterPlotViewInit<X, Y> extends PlotViewInit<X, Y> {
 }
 
 export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotView<X, Y> {
-  /** @hidden */
-  _xDataDomain: [X, X] | undefined;
-  /** @hidden */
-  _yDataDomain: [Y, Y] | undefined;
-  /** @hidden */
-  _xDataRange: [number, number] | undefined;
-  /** @hidden */
-  _yDataRange: [number, number] | undefined;
-
-  constructor() {
-    super();
-    this._xDataDomain = void 0;
-    this._yDataDomain = void 0;
-    this._xDataRange = void 0;
-    this._yDataRange = void 0;
-  }
-
   declare readonly viewController: PlotViewController<X, Y> | null;
 
   declare readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
@@ -79,7 +63,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     }
   }
 
-  abstract get plotType(): ScatterPlotType;
+  abstract readonly plotType: ScatterPlotType;
 
   getDataPoint(key: string): DataPointView<X, Y> | undefined {
     const point = this.getChildView(key);
@@ -155,8 +139,12 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     return yScale !== void 0 ? yScale.range : void 0;
   }
 
-  xDataDomain(): readonly [X, X] | undefined {
-    let xDataDomain = this._xDataDomain;
+  @ViewScope({type: Object})
+  declare xDataDomain: ViewScope<this, readonly [X, X] | undefined>;
+
+  /** @hidden */
+  getXDataDomain(): readonly [X, X] | undefined {
+    let xDataDomain = this.xDataDomain.state;
     if (xDataDomain === void 0) {
       let xDataDomainMin: X | undefined;
       let xDataDomainMax: X | undefined;
@@ -175,14 +163,18 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
       }
       if (xDataDomainMin !== void 0 && xDataDomainMax !== void 0) {
         xDataDomain = [xDataDomainMin, xDataDomainMax];
-        this._xDataDomain = xDataDomain;
+        this.xDataDomain.setState(xDataDomain);
       }
     }
     return xDataDomain;
   }
 
-  yDataDomain(): readonly [Y, Y] | undefined {
-    let yDataDomain = this._yDataDomain;
+  @ViewScope({type: Object})
+  declare yDataDomain: ViewScope<this, readonly [Y, Y] | undefined>;
+
+  /** @hidden */
+  getYDataDomain(): readonly [Y, Y] | undefined {
+    let yDataDomain = this.yDataDomain.state;
     if (yDataDomain === void 0) {
       let yDataDomainMin: Y | undefined;
       let yDataDomainMax: Y | undefined;
@@ -201,19 +193,17 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
       }
       if (yDataDomainMin !== void 0 && yDataDomainMax !== void 0) {
         yDataDomain = [yDataDomainMin, yDataDomainMax];
-        this._yDataDomain = yDataDomain;
+        this.yDataDomain.setState(yDataDomain);
       }
     }
     return yDataDomain;
   }
 
-  xDataRange(): readonly [number, number] | undefined {
-    return this._xDataRange;
-  }
+  @ViewScope({type: Object})
+  declare xDataRange: ViewScope<this, readonly [number, number] | undefined>;
 
-  yDataRange(): readonly [number, number] | undefined {
-    return this._yDataRange;
-  }
+  @ViewScope({type: Object})
+  declare yDataRange: ViewScope<this, readonly [number, number] | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
   declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
@@ -294,8 +284,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
         const y1 = point1.y.getValue();
         const sx1 = xScale(x1);
         const sy1 = yScale(y1);
-        point1._xCoord = frame.xMin + sx1;
-        point1._yCoord = frame.yMin + sy1;
+        point1.setXCoord(frame.xMin + sx1);
+        point1.setYCoord(frame.yMin + sy1);
 
         if (point0 !== void 0) {
           // compute extrema
@@ -339,43 +329,15 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
 
     if (point0 !== void 0) {
       // update extrema
-      let xDataDomain = this._xDataDomain;
-      if (xDataDomain === void 0) {
-        xDataDomain = [xDomainMin!, xDomainMax!];
-        this._xDataDomain = xDataDomain;
-      } else {
-        xDataDomain[0] = xDomainMin!;
-        xDataDomain[1] = xDomainMax!;
-      }
-      let yDataDomain = this._yDataDomain;
-      if (yDataDomain === void 0) {
-        yDataDomain = [yDomainMin!, yDomainMax!];
-        this._yDataDomain = yDataDomain;
-      } else {
-        yDataDomain[0] = yDomainMin!;
-        yDataDomain[1] = yDomainMax!;
-      }
-      let xDataRange = this._xDataRange;
-      if (xDataRange === void 0) {
-        xDataRange = [xRangeMin!, xRangeMax!];
-        this._xDataRange = xDataRange;
-      } else {
-        xDataRange[0] = xRangeMin!;
-        xDataRange[1] = xRangeMax!;
-      }
-      let yDataRange = this._yDataRange;
-      if (yDataRange === void 0) {
-        yDataRange = [yRangeMin!, yRangeMax!];
-        this._yDataRange = yDataRange;
-      } else {
-        yDataRange[0] = yRangeMin!;
-        yDataRange[1] = yRangeMax!;
-      }
+      this.xDataDomain.setState([xDomainMin!, xDomainMax!]);
+      this.yDataDomain.setState([yDomainMin!, yDomainMax!]);
+      this.xDataRange.setState([xRangeMin!, xRangeMax!]);
+      this.yDataRange.setState([yRangeMin!, yRangeMax!]);
     } else {
-      this._xDataDomain = void 0;
-      this._yDataDomain = void 0;
-      this._xDataRange = void 0;
-      this._yDataRange = void 0;
+      this.xDataDomain.setState(void 0);
+      this.yDataDomain.setState(void 0);
+      this.xDataRange.setState(void 0);
+      this.yDataRange.setState(void 0);
     }
 
     // We don't need to run the layout phase unless the view frame changes
@@ -425,8 +387,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
         const y1 = point1.y.getValue();
         const sx1 = xScale(x1);
         const sy1 = yScale(y1);
-        point1._xCoord = frame.xMin + sx1;
-        point1._yCoord = frame.yMin + sy1;
+        point1.setXCoord(frame.xMin + sx1);
+        point1.setYCoord(frame.yMin + sy1);
 
         if (point0 !== void 0) {
           // compute extrema
@@ -456,25 +418,11 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
 
     if (point0 !== void 0) {
       // update extrema
-      let xDataRange = this._xDataRange;
-      if (xDataRange === void 0) {
-        xDataRange = [xRangeMin!, xRangeMax!];
-        this._xDataRange = xDataRange;
-      } else {
-        xDataRange[0] = xRangeMin!;
-        xDataRange[1] = xRangeMax!;
-      }
-      let yDataRange = this._yDataRange;
-      if (yDataRange === void 0) {
-        yDataRange = [yRangeMin!, yRangeMax!];
-        this._yDataRange = yDataRange;
-      } else {
-        yDataRange[0] = yRangeMin!;
-        yDataRange[1] = yRangeMax!;
-      }
+      this.xDataRange.setState([xRangeMin!, xRangeMax!]);
+      this.yDataRange.setState([yRangeMin!, yRangeMax!]);
     } else {
-      this._xDataRange = void 0;
-      this._yDataRange = void 0;
+      this.xDataRange.setState(void 0);
+      this.yDataRange.setState(void 0);
     }
   }
 
@@ -491,7 +439,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
 
   static fromType<X, Y>(type: ScatterPlotType): ScatterPlotView<X, Y> {
     if (type === "bubble") {
-      return new PlotView.Bubble();
+      return new BubblePlotView();
     }
     throw new TypeError("" + type);
   }
@@ -499,7 +447,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   static fromInit<X, Y>(init: ScatterPlotViewInit<X, Y>): ScatterPlotView<X, Y> {
     const type = init.plotType;
     if (type === "bubble") {
-      return PlotView.Bubble.fromInit(init);
+      return BubblePlotView.fromInit(init);
     }
     throw new TypeError("" + init);
   }
@@ -520,4 +468,3 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsAnimate;
   static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;
 }
-PlotView.Scatter = ScatterPlotView;

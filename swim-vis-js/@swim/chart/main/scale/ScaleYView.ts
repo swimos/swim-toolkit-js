@@ -29,6 +29,9 @@ export interface ScaleYView<Y = unknown> extends GraphicsView {
 
   yDataDomain(): readonly [Y, Y] | undefined;
 
+  /** @hidden */
+  getYDataDomain(): readonly [Y, Y] | undefined;
+
   yDataRange(): readonly [number, number] | undefined;
 }
 

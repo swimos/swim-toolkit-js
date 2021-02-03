@@ -16,7 +16,6 @@ import type {BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {ViewAnimator} from "@swim/view";
 import type {GraphicsView, CanvasContext, CanvasRenderer, FillViewInit, FillView} from "@swim/graphics";
-import {PlotView} from "./PlotView";
 import type {PlotViewController} from "./PlotViewController";
 import {SeriesPlotType, SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";
 
@@ -42,11 +41,11 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
   declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
-    const data = this._data;
+    const data = this.data;
     const n = data.size;
 
     const fill = this.fill.getValue();
-    const gradientStops = this._gradientStops;
+    const gradientStops = this.gradientStops;
     let gradient: CanvasGradient | undefined;
 
     context.beginPath();
@@ -57,10 +56,10 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
     if (n > 0) {
       const p0 = data.firstValue()!;
       const p1 = data.lastValue()!;
-      x0 = p0._xCoord;
-      x1 = p1._xCoord;
+      x0 = p0.xCoord;
+      x1 = p1.xCoord;
       dx = x1 - x0;
-      context.moveTo(p0._xCoord, p0._yCoord);
+      context.moveTo(p0.xCoord, p0.yCoord);
       if (gradientStops !== 0) {
         gradient = context.createLinearGradient(x0, 0, x1, 0);
         if (p0.isGradientStop()) {
@@ -82,20 +81,20 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
     cursor.next();
     while (cursor.hasNext()) {
       const p = cursor.next().value!;
-      context.lineTo(p._xCoord, p._yCoord);
+      context.lineTo(p.xCoord, p.yCoord);
       if (gradient !== void 0 && p.isGradientStop()) {
         let color = p.color.value || fill;
         const opacity = p.opacity.value;
         if (typeof opacity === "number") {
           color = color.alpha(opacity);
         }
-        const offset = (p._xCoord - x0) / (dx || 1);
+        const offset = (p.xCoord - x0) / (dx || 1);
         gradient.addColorStop(offset, color.toString());
       }
     }
     while (cursor.hasPrevious()) {
       const p = cursor.previous().value!;
-      context.lineTo(p._xCoord, p._y2Coord!);
+      context.lineTo(p.xCoord, p.y2Coord!);
     }
     if (n > 0) {
       context.closePath();
@@ -107,35 +106,40 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
 
   protected hitTestPlot(x: number, y: number, renderer: CanvasRenderer): GraphicsView | null {
     const context = renderer.context;
-    const data = this._data;
+    const data = this.data;
     const n = data.size;
 
     context.beginPath();
     const cursor = data.values();
     if (cursor.hasNext()) {
       const p = cursor.next().value!;
-      context.moveTo(p._xCoord, p._yCoord);
+      context.moveTo(p.xCoord, p.yCoord);
     }
     while (cursor.hasNext()) {
       const p = cursor.next().value!;
-      context.lineTo(p._xCoord, p._yCoord);
+      context.lineTo(p.xCoord, p.yCoord);
     }
     while (cursor.hasPrevious()) {
       const p = cursor.previous().value!;
-      context.lineTo(p._xCoord, p._y2Coord!);
+      context.lineTo(p.xCoord, p.y2Coord!);
     }
     if (n > 0) {
       context.closePath();
     }
 
     if (context.isPointInPath(x, y)) {
-      if (this._hitMode === "plot") {
+      const hitMode = this.hitMode.state;
+      if (hitMode === "plot") {
         return this;
-      } else if (this._hitMode === "data") {
+      } else if (hitMode === "data") {
         return this.hitTestDomain(x, y, renderer);
       }
     }
     return null;
+  }
+
+  static create<X, Y>(): AreaPlotView<X, Y> {
+    return new AreaPlotView<X, Y>();
   }
 
   static fromInit<X, Y>(init: AreaPlotViewInit<X, Y>): AreaPlotView<X, Y> {
@@ -153,4 +157,3 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
     throw new TypeError("" + value);
   }
 }
-PlotView.Area = AreaPlotView;

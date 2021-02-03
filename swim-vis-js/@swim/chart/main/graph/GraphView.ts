@@ -105,6 +105,10 @@ export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     return hit;
   }
 
+  static create<X, Y>(): GraphView<X, Y> {
+    return new GraphView<X, Y>();
+  }
+
   static fromInit<X, Y>(init: GraphViewInit<X, Y>): GraphView<X, Y> {
     const view = new GraphView<X, Y>();
     view.initView(init);
