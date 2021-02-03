@@ -15,7 +15,7 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import type {GeoPath} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
-import {ViewContextType, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewScope, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   StrokeViewInit,
@@ -30,9 +30,6 @@ export interface MapLineViewInit extends MapPathViewInit, StrokeViewInit {
 }
 
 export class MapLineView extends MapPathView implements StrokeView {
-  /** @hidden */
-  _hitWidth?: number;
-
   initView(init: MapLineViewInit): void {
     super.initView(init);
     if (init.stroke !== void 0) {
@@ -52,20 +49,8 @@ export class MapLineView extends MapPathView implements StrokeView {
   @ViewAnimator({type: Length, inherit: true})
   declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  hitWidth(): number | null;
-  hitWidth(hitWidth: number | null): this;
-  hitWidth(hitWidth?: number | null): number | null | this {
-    if (hitWidth === void 0) {
-      return this._hitWidth !== void 0 ? this._hitWidth : null;
-    } else {
-      if (hitWidth !== null) {
-        this._hitWidth = hitWidth;
-      } else if (this._hitWidth !== void 0) {
-        this._hitWidth = void 0;
-      }
-      return this;
-    }
-  }
+  @ViewScope({type: Number})
+  declare hitWidth: ViewScope<this, number | undefined>;
 
   protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
     super.onSetGeoPath(newGeoPath, oldGeoPath);
@@ -123,7 +108,7 @@ export class MapLineView extends MapPathView implements StrokeView {
       context.beginPath();
       viewPath.draw(context);
       if (this.stroke.value !== void 0) {
-        let hitWidth = this._hitWidth !== void 0 ? this._hitWidth : 0;
+        let hitWidth = this.hitWidth.getStateOr(0);
         const strokeWidth = this.strokeWidth.value;
         if (strokeWidth !== void 0) {
           const size = Math.min(frame.width, frame.height);
@@ -136,6 +121,10 @@ export class MapLineView extends MapPathView implements StrokeView {
       }
     }
     return null;
+  }
+
+  static create(): MapLineView {
+    return new MapLineView();
   }
 
   static fromInit(init: MapLineViewInit): MapLineView {

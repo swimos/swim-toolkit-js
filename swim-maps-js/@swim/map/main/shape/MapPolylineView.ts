@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/mapping";
-import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
-import {GeoPoint, GeoBox} from "@swim/geo";
+import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ViewScope, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   StrokeViewInit,
@@ -41,23 +41,18 @@ export interface MapPolylineViewInit extends MapGraphicsViewInit, StrokeViewInit
 }
 
 export class MapPolylineView extends MapLayerView implements StrokeView {
-  /** @hidden */
-  _hitWidth?: number;
-  /** @hidden */
-  _geoCenter: GeoPoint;
-  /** @hidden */
-  _viewCentroid: PointR2;
-  /** @hidden */
-  _gradientStops: number;
-  /** @hidden */
-  _viewBounds: BoxR2;
-
   constructor() {
     super();
-    this._geoCenter = GeoPoint.origin();
-    this._viewCentroid = PointR2.origin();
-    this._gradientStops = 0;
-    this._viewBounds = BoxR2.undefined();
+    Object.defineProperty(this, "gradientStops", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "viewBounds", {
+      value: BoxR2.undefined(),
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   initView(init: MapPolylineViewInit): void {
@@ -149,14 +144,14 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
       if (!invalid && j !== 0) {
         lngMid /= j;
         latMid /= j;
-        this._geoCenter = new GeoPoint(lngMid, latMid);
+        this.geoCentroid.setAutoState(new GeoPoint(lngMid, latMid));
         Object.defineProperty(this, "geoBounds", {
           value: new GeoBox(lngMin, latMin, lngMax, latMax),
           enumerable: true,
           configurable: true,
         });
       } else {
-        this._geoCenter = GeoPoint.origin();
+        this.geoCentroid.setAutoState(GeoPoint.origin());
         Object.defineProperty(this, "geoBounds", {
           value: GeoBox.undefined(),
           enumerable: true,
@@ -183,13 +178,11 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     return point;
   }
 
-  get geoCentroid(): GeoPoint {
-    return this._geoCenter;
-  }
+  @ViewScope({type: GeoPoint, state: GeoPoint.origin()})
+  declare geoCentroid: ViewScope<this, GeoPoint, AnyGeoPoint>;
 
-  get viewCentroid(): PointR2 {
-    return this._viewCentroid;
-  }
+  @ViewScope({type: PointR2, state: PointR2.origin()})
+  declare viewCentroid: ViewScope<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Color, inherit: true})
   declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
@@ -203,20 +196,11 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  hitWidth(): number | null;
-  hitWidth(hitWidth: number | null): this;
-  hitWidth(hitWidth?: number | null): number | null | this {
-    if (hitWidth === void 0) {
-      return this._hitWidth !== void 0 ? this._hitWidth : null;
-    } else {
-      if (hitWidth !== null) {
-        this._hitWidth = hitWidth;
-      } else if (this._hitWidth !== void 0) {
-        this._hitWidth = void 0;
-      }
-      return this;
-    }
-  }
+  @ViewScope({type: Number})
+  declare hitWidth: ViewScope<this, number | undefined>;
+
+  /** @hidden */
+  declare readonly gradientStops: number;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
@@ -275,7 +259,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     if (!invalid && pointCount !== 0) {
       lngMid /= pointCount;
       latMid /= pointCount;
-      this._geoCenter = new GeoPoint(lngMid, latMid);
+      this.geoCentroid.setAutoState(new GeoPoint(lngMid, latMid));
       Object.defineProperty(this, "geoBounds", {
         value: new GeoBox(lngMin, latMin, lngMax, latMax),
         enumerable: true,
@@ -283,21 +267,33 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
       });
       xMid /= pointCount;
       yMid /= pointCount;
-      this._viewCentroid = new PointR2(xMid, yMid);
-      this._viewBounds = new BoxR2(xMin, yMin, xMax, yMax);
+      this.viewCentroid.setAutoState(new PointR2(xMid, yMid));
+      Object.defineProperty(this, "viewBounds", {
+        value: new BoxR2(xMin, yMin, xMax, yMax),
+        enumerable: true,
+        configurable: true,
+      });
       this.cullGeoFrame(viewContext.geoFrame);
     } else {
-      this._geoCenter = GeoPoint.origin();
+      this.geoCentroid.setAutoState(GeoPoint.origin());
       Object.defineProperty(this, "geoBounds", {
         value: GeoBox.undefined(),
         enumerable: true,
         configurable: true,
       });
-      this._viewCentroid = PointR2.origin();
-      this._viewBounds = BoxR2.undefined();
+      this.viewCentroid.setAutoState(PointR2.origin());
+      Object.defineProperty(this, "viewBounds", {
+        value: BoxR2.undefined(),
+        enumerable: true,
+        configurable: true,
+      });
       this.setCulled(true);
     }
-    this._gradientStops = gradientStops;
+    Object.defineProperty(this, "gradientStops", {
+      value: gradientStops,
+      enumerable: true,
+      configurable: true,
+    });
     const newGeoBounds = this.geoBounds;
     if (!oldGeoBounds.equals(newGeoBounds)) {
       this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
@@ -311,7 +307,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
       const context = renderer.context;
       context.save();
-      if (this._gradientStops !== 0) {
+      if (this.gradientStops !== 0) {
         this.renderPolylineGradient(context, this.viewFrame);
       } else {
         this.renderPolylineStroke(context, this.viewFrame);
@@ -403,16 +399,15 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   }
 
   get popoverFrame(): BoxR2 {
-    const viewCentroid = this._viewCentroid;
+    const viewCentroid = this.viewCentroid.state;
     const inversePageTransform = this.pageTransform.inverse();
     const px = inversePageTransform.transformX(viewCentroid.x, viewCentroid.y);
     const py = inversePageTransform.transformY(viewCentroid.x, viewCentroid.y);
     return new BoxR2(px, py, px, py);
   }
 
-  get viewBounds(): BoxR2 {
-    return this._viewBounds;
-  }
+  // @ts-ignore
+  declare readonly viewBounds: BoxR2;
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
@@ -448,7 +443,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
       }
     }
     if (pointCount !== 0) {
-      let hitWidth = this._hitWidth !== void 0 ? this._hitWidth : 0;
+      let hitWidth = this.hitWidth.getStateOr(0);
       const strokeWidth = this.strokeWidth.value;
       if (strokeWidth !== void 0) {
         const size = Math.min(frame.width, frame.height);
@@ -460,6 +455,10 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
       }
     }
     return null;
+  }
+
+  static create(): MapPolylineView {
+    return new MapPolylineView();
   }
 
   static fromInit(init: MapPolylineViewInit): MapPolylineView {

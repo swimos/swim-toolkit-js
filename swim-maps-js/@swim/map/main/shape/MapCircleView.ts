@@ -15,7 +15,7 @@
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2, CircleR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
-import {ViewContextType, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ViewScope, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   FillViewInit,
@@ -38,9 +38,6 @@ export interface MapCircleViewInit extends MapGraphicsViewInit, FillViewInit, St
 }
 
 export class MapCircleView extends MapLayerView implements FillView, StrokeView {
-  /** @hidden */
-  _hitRadius?: number;
-
   initView(init: MapCircleViewInit): void {
     super.initView(init);
     if (init.geoCenter !== void 0) {
@@ -90,20 +87,8 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
   @ViewAnimator({type: Length, inherit: true})
   declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  hitRadius(): number | null;
-  hitRadius(hitRadius: number | null): this;
-  hitRadius(hitRadius?: number | null): number | null | this {
-    if (hitRadius === void 0) {
-      return this._hitRadius !== void 0 ? this._hitRadius : null;
-    } else {
-      if (hitRadius !== null) {
-        this._hitRadius = hitRadius;
-      } else if (this._hitRadius !== void 0) {
-        this._hitRadius = void 0;
-      }
-      return this;
-    }
-  }
+  @ViewScope({type: Number})
+  declare hitRadius: ViewScope<this, number | undefined>;
 
   protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
     if (newGeoCenter.isDefined()) {
@@ -204,7 +189,7 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
     const size = Math.min(frame.width, frame.height);
     const viewCenter = this.viewCenter.getValue();
     const radius = this.radius.getValue().pxValue(size);
-    const hitRadius = this._hitRadius !== void 0 ? Math.max(this._hitRadius, radius) : radius;
+    const hitRadius = Math.max(this.hitRadius.getStateOr(radius), radius);
     return new BoxR2(viewCenter.x - hitRadius, viewCenter.y - hitRadius,
                      viewCenter.x + hitRadius, viewCenter.y + hitRadius);
   }
@@ -228,7 +213,7 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
     const radius = this.radius.getValue().pxValue(size);
 
     if (this.fill.value !== void 0) {
-      const hitRadius = this._hitRadius !== void 0 ? Math.max(this._hitRadius, radius) : radius;
+      const hitRadius = Math.max(this.hitRadius.getStateOr(radius), radius);
       const dx = viewCenter.x - x;
       const dy = viewCenter.y - y;
       if (dx * dx + dy * dy < hitRadius * hitRadius) {
@@ -253,6 +238,10 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
       }
     }
     return null;
+  }
+
+  static create(): MapCircleView {
+    return new MapCircleView();
   }
 
   static fromInit(init: MapCircleViewInit): MapCircleView {

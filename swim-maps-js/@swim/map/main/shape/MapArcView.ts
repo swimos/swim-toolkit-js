@@ -265,6 +265,10 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
     return null;
   }
 
+  static create(): MapArcView {
+    return new MapArcView();
+  }
+
   static fromInit(init: MapArcViewInit): MapArcView {
     const view = new MapArcView();
     view.initView(init);

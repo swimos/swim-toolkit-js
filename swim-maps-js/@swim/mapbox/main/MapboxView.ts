@@ -23,47 +23,54 @@ import type {MapboxViewObserver} from "./MapboxViewObserver";
 import type {MapboxViewController} from "./MapboxViewController";
 
 export class MapboxView extends MapLayerView {
-  /** @hidden */
-  readonly _map: mapboxgl.Map;
-  /** @hidden */
-  _geoProjection: MapboxProjection;
-  /** @hidden */
-  _mapZoom: number;
-  /** @hidden */
-  _mapHeading: number;
-  /** @hidden */
-  _mapTilt: number;
-
   constructor(map: mapboxgl.Map) {
     super();
+    Object.defineProperty(this, "map", {
+      value: map,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "geoProjection", {
+      value: new MapboxProjection(map),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "mapZoom", {
+      value: map.getZoom(),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "mapHeading", {
+      value: map.getBearing(),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "mapTilt", {
+      value: map.getPitch(),
+      enumerable: true,
+      configurable: true,
+    });
     this.onMapRender = this.onMapRender.bind(this);
-    this._map = map;
-    this._geoProjection = new MapboxProjection(this._map);
-    this._mapZoom = map.getZoom();
-    this._mapHeading = map.getBearing();
-    this._mapTilt = map.getPitch();
-    this.initMap(this._map);
-  }
-
-  get map(): mapboxgl.Map {
-    return this._map;
-  }
-
-  protected initMap(map: mapboxgl.Map): void {
-    map.on("render", this.onMapRender);
+    this.initMap(map);
   }
 
   declare readonly viewController: MapboxViewController | null;
 
   declare readonly viewObservers: ReadonlyArray<MapboxViewObserver>;
 
+  declare readonly map: mapboxgl.Map;
+
+  protected initMap(map: mapboxgl.Map): void {
+    map.on("render", this.onMapRender);
+  }
+
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;
   project(lng: AnyGeoPoint | number, lat?: number): PointR2 {
     if (arguments.length === 1) {
-      return this._geoProjection.project(lng as AnyGeoPoint);
+      return this.geoProjection.project(lng as AnyGeoPoint);
     } else {
-      return this._geoProjection.project(lng as number, lat!);
+      return this.geoProjection.project(lng as number, lat!);
     }
   }
 
@@ -71,19 +78,22 @@ export class MapboxView extends MapLayerView {
   unproject(x: number, y: number): GeoPoint;
   unproject(x: AnyPointR2 | number, y?: number): GeoPoint {
     if (arguments.length === 1) {
-      return this._geoProjection.unproject(x as AnyPointR2);
+      return this.geoProjection.unproject(x as AnyPointR2);
     } else {
-      return this._geoProjection.unproject(x as number, y!);
+      return this.geoProjection.unproject(x as number, y!);
     }
   }
 
-  get geoProjection(): MapboxProjection {
-    return this._geoProjection;
-  }
+  // @ts-ignore
+  declare readonly geoProjection: MapboxProjection;
 
   setGeoProjection(geoProjection: MapboxProjection): void {
     this.willSetGeoProjection(geoProjection);
-    this._geoProjection = geoProjection;
+    Object.defineProperty(this, "geoProjection", {
+      value: geoProjection,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetGeoProjection(geoProjection);
     this.didSetGeoProjection(geoProjection);
   }
@@ -122,15 +132,18 @@ export class MapboxView extends MapLayerView {
     }
   }
 
-  get mapZoom(): number {
-    return this._mapZoom;
-  }
+  // @ts-ignore
+  declare readonly mapZoom: number;
 
   setMapZoom(newMapZoom: number): void {
-    const oldMapZoom = this._mapZoom;
+    const oldMapZoom = this.mapZoom;
     if (oldMapZoom !== newMapZoom) {
       this.willSetMapZoom(newMapZoom, oldMapZoom);
-      this._mapZoom = newMapZoom;
+      Object.defineProperty(this, "mapZoom", {
+        value: newMapZoom,
+        enumerable: true,
+        configurable: true,
+      });
       this.onSetMapZoom(newMapZoom, oldMapZoom);
       this.didSetMapZoom(newMapZoom, oldMapZoom);
     }
@@ -168,42 +181,49 @@ export class MapboxView extends MapLayerView {
     }
   }
 
-  get mapHeading(): number {
-    return this._mapHeading;
-  }
+  // @ts-ignore
+  declare readonly mapHeading: number;
 
-  get mapTilt(): number {
-    return this._mapTilt;
-  }
+  // @ts-ignore
+  declare readonly mapTilt: number;
 
   extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
     const mapViewContext = Object.create(viewContext);
-    mapViewContext.geoProjection = this._geoProjection;
+    mapViewContext.geoProjection = this.geoProjection;
     mapViewContext.geoFrame = this.geoFrame;
-    mapViewContext.mapZoom = this._mapZoom;
-    mapViewContext.mapHeading = this._mapHeading;
-    mapViewContext.mapTilt = this._mapTilt;
+    mapViewContext.mapZoom = this.mapZoom;
+    mapViewContext.mapHeading = this.mapHeading;
+    mapViewContext.mapTilt = this.mapTilt;
     return mapViewContext;
   }
 
   get geoFrame(): GeoBox {
-    const bounds = this._map.getBounds();
+    const bounds = this.map.getBounds();
     return new GeoBox(bounds.getWest(), bounds.getSouth(),
                       bounds.getEast(), bounds.getNorth());
   }
 
   protected onMapRender(): void {
-    this._mapHeading = this._map.getBearing();
-    this._mapTilt = this._map.getPitch();
-    this.setMapZoom(this._map.getZoom());
-    this.setGeoProjection(this._geoProjection);
+    const map = this.map;
+    Object.defineProperty(this, "mapHeading", {
+      value: map.getBearing(),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "mapTilt", {
+      value: map.getPitch(),
+      enumerable: true,
+      configurable: true,
+    });
+    this.setMapZoom(map.getZoom());
+    this.setGeoProjection(this.geoProjection);
   }
 
   overlayCanvas(): CanvasView | null {
     if (this.isMounted()) {
       return this.getSuperView(CanvasView);
     } else {
-      const map = this._map;
+      const map = this.map;
       HtmlView.fromNode(map.getContainer());
       const canvasContainer = HtmlView.fromNode(map.getCanvasContainer());
       const canvas = canvasContainer.append(CanvasView);

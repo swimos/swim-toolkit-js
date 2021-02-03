@@ -27,11 +27,11 @@ export abstract class EsriView extends MapLayerView {
     EsriProjection.init();
   }
 
-  abstract get map(): __esri.View;
-
   declare readonly viewController: EsriViewController | null;
 
   declare readonly viewObservers: ReadonlyArray<EsriViewObserver>;
+
+  abstract readonly map: __esri.View;
 
   abstract project(lnglat: AnyGeoPoint): PointR2;
   abstract project(lng: number, lat: number): PointR2;
@@ -39,7 +39,8 @@ export abstract class EsriView extends MapLayerView {
   abstract unproject(point: AnyPointR2): GeoPoint;
   abstract unproject(x: number, y: number): GeoPoint;
 
-  abstract get geoProjection(): EsriProjection;
+  // @ts-ignore
+  abstract readonly geoProjection: EsriProjection;
 
   protected willSetGeoProjection(geoProjection: EsriProjection): void {
     const viewController = this.viewController;
@@ -75,7 +76,8 @@ export abstract class EsriView extends MapLayerView {
     }
   }
 
-  abstract get mapZoom(): number;
+  // @ts-ignore
+  abstract readonly mapZoom: number;
 
   protected willSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
     const viewController = this.viewController;
@@ -109,9 +111,11 @@ export abstract class EsriView extends MapLayerView {
     }
   }
 
-  abstract get mapHeading(): number;
+  // @ts-ignore
+  abstract readonly mapHeading: number;
 
-  abstract get mapTilt(): number;
+  // @ts-ignore
+  abstract readonly mapTilt: number;
 
   extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
     const mapViewContext = Object.create(viewContext);

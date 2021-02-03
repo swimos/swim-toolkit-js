@@ -32,15 +32,18 @@ export interface MapIconViewInit extends MapGraphicsViewInit, IconViewInit {
 }
 
 export class MapIconView extends MapLayerView implements IconView {
-  /** @hidden */
-  _canvas: HTMLCanvasElement | null;
-  /** @hidden */
-  _viewBounds: BoxR2 | null;
-
   constructor() {
     super();
-    this._canvas = null;
-    this._viewBounds = null;
+    Object.defineProperty(this, "canvas", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "iconBounds", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   initView(init: MapIconViewInit): void {
@@ -53,6 +56,9 @@ export class MapIconView extends MapLayerView implements IconView {
       this.viewCenter(init.viewCenter);
     }
   }
+
+  /** @hidden */
+  declare readonly canvas: HTMLCanvasElement | null;
 
   @ViewAnimator<MapIconView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
@@ -110,7 +116,11 @@ export class MapIconView extends MapLayerView implements IconView {
     } else {
       viewCenter = this.viewCenter.getValue();
     }
-    this._viewBounds = null;
+    Object.defineProperty(this, "iconBounds", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
     const invalid = !isFinite(viewCenter.x) || !isFinite(viewCenter.y);
     const culled = invalid || !this.viewFrame.intersectsBox(this.viewBounds);
     this.setCulled(culled);
@@ -142,10 +152,14 @@ export class MapIconView extends MapLayerView implements IconView {
   protected renderIcon(renderer: CanvasRenderer, frame: BoxR2): void {
     const graphics = this.graphics.value;
     if (graphics !== void 0) {
-      let canvas = this._canvas;
+      let canvas = this.canvas;
       if (canvas === null) {
         canvas = document.createElement("canvas");
-        this._canvas = canvas;
+        Object.defineProperty(this, "canvas", {
+          value: canvas,
+          enumerable: true,
+          configurable: true,
+        });
       }
       const pixelRatio = renderer.pixelRatio;
       const width = frame.width;
@@ -169,7 +183,11 @@ export class MapIconView extends MapLayerView implements IconView {
         context.fill();
       }
     } else {
-      this._canvas = null;
+      Object.defineProperty(this, "canvas", {
+        value: null,
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
 
@@ -182,7 +200,7 @@ export class MapIconView extends MapLayerView implements IconView {
   }
 
   protected compositeIcon(renderer: CanvasRenderer, frame: BoxR2): void {
-    const canvas = this._canvas;
+    const canvas = this.canvas;
     if (canvas !== null) {
       renderer.context.drawImage(canvas, frame.x, frame.y, frame.width, frame.height);
     }
@@ -208,9 +226,12 @@ export class MapIconView extends MapLayerView implements IconView {
     return new BoxR2(x, y, x + iconWidth, y + iconHeight);
   }
 
+  /** @hidden */
+  declare readonly iconBounds: BoxR2 | null;
+
   get viewBounds(): BoxR2 {
-    let viewBounds = this._viewBounds;
-    if (viewBounds === null) {
+    let iconBounds = this.iconBounds;
+    if (iconBounds === null) {
       const frame = this.viewFrame;
       const viewSize = Math.min(frame.width, frame.height);
       const viewCenter = this.viewCenter.getValue();
@@ -220,10 +241,14 @@ export class MapIconView extends MapLayerView implements IconView {
       iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
       const x = viewCenter.x - iconWidth * this.xAlign.getValueOr(0.5);
       const y = viewCenter.y - iconHeight * this.yAlign.getValueOr(0.5);
-      viewBounds = new BoxR2(x, y, x + iconWidth, y + iconHeight);
-      this._viewBounds = viewBounds;
+      iconBounds = new BoxR2(x, y, x + iconWidth, y + iconHeight);
+      Object.defineProperty(this, "iconBounds", {
+        value: iconBounds,
+        enumerable: true,
+        configurable: true,
+      });
     }
-    return viewBounds;
+    return iconBounds;
   }
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
@@ -254,6 +279,10 @@ export class MapIconView extends MapLayerView implements IconView {
     //  }
     //}
     return null;
+  }
+
+  static create(): MapIconView {
+    return new MapIconView();
   }
 
   static fromInit(init: MapIconViewInit): MapIconView {

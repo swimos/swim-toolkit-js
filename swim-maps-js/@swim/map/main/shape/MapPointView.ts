@@ -17,7 +17,7 @@ import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   TypesetView,
@@ -56,11 +56,6 @@ export interface MapPointViewInit extends MapGraphicsViewInit {
 }
 
 export class MapPointView extends MapLayerView {
-  /** @hidden */
-  _hitRadius?: number;
-  /** @hidden */
-  _labelPlacement?: MapPointLabelPlacement;
-
   initView(init: MapPointViewInit): void {
     super.initView(init);
     this.setState(init);
@@ -96,20 +91,8 @@ export class MapPointView extends MapLayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  hitRadius(): number | null;
-  hitRadius(hitRadius: number | null): this;
-  hitRadius(hitRadius?: number | null): number | null | this {
-    if (hitRadius === void 0) {
-      return this._hitRadius !== void 0 ? this._hitRadius : null;
-    } else {
-      if (hitRadius !== null) {
-        this._hitRadius = hitRadius;
-      } else if (this._hitRadius !== void 0) {
-        this._hitRadius = void 0;
-      }
-      return this;
-    }
-  }
+  @ViewScope({type: Number})
+  declare hitRadius: ViewScope<this, number | undefined>;
 
   label(): GraphicsView | null;
   label(label: GraphicsView | AnyTextRunView | null): this;
@@ -126,16 +109,8 @@ export class MapPointView extends MapLayerView {
     }
   }
 
-  labelPlacement(): MapPointLabelPlacement;
-  labelPlacement(labelPlacement: MapPointLabelPlacement): this;
-  labelPlacement(labelPlacement?: MapPointLabelPlacement): MapPointLabelPlacement | this {
-    if (labelPlacement === void 0) {
-      return this._labelPlacement !== void 0 ? this._labelPlacement : "auto";
-    } else {
-      this._labelPlacement = labelPlacement;
-      return this;
-    }
-  }
+  @ViewScope({type: String, state: "auto"})
+  declare labelPlacement: ViewScope<this, MapPointLabelPlacement>;
 
   isGradientStop(): boolean {
     return !!this.color.value || typeof this.opacity.value === "number";
@@ -242,7 +217,7 @@ export class MapPointView extends MapLayerView {
   }
 
   protected layoutLabel(label: GraphicsView, frame: BoxR2): void {
-    const placement = this._labelPlacement !== void 0 ? this._labelPlacement : "auto";
+    const placement = this.labelPlacement.state;
     // TODO: auto placement
 
     const size = Math.min(frame.width, frame.height);
@@ -273,7 +248,7 @@ export class MapPointView extends MapLayerView {
 
   get hitBounds(): BoxR2 {
     const {x, y} = this.viewPoint.getValue();
-    const hitRadius = this._hitRadius !== void 0 ? this._hitRadius : 0;
+    const hitRadius = this.hitRadius.getStateOr(0);
     return new BoxR2(x - hitRadius, y - hitRadius, x + hitRadius, y + hitRadius);
   }
 
@@ -293,7 +268,7 @@ export class MapPointView extends MapLayerView {
     const {x, y} = this.viewPoint.getValue();
     const radius = this.radius.value;
 
-    let hitRadius = this._hitRadius !== void 0 ? this._hitRadius : 0;
+    let hitRadius = this.hitRadius.getStateOr(0);
     if (radius !== void 0) {
       const size = Math.min(frame.width, frame.height);
       hitRadius = Math.max(hitRadius, radius.pxValue(size));
@@ -320,8 +295,8 @@ export class MapPointView extends MapLayerView {
     if (this.radius.value !== void 0) {
       init.radius = this.radius.value;
     }
-    if (this._hitRadius !== null) {
-      init.hitRadius = this._hitRadius;
+    if (this.hitRadius.state !== void 0) {
+      init.hitRadius = this.hitRadius.state;
     }
     if (this.color.value !== void 0) {
       init.color = this.color.value;
@@ -332,10 +307,14 @@ export class MapPointView extends MapLayerView {
     if (this.labelPadding.value !== void 0) {
       init.labelPadding = this.labelPadding.value;
     }
-    if (this._labelPlacement !== void 0) {
-      init.labelPlacement = this._labelPlacement;
+    if (this.labelPlacement.state !== void 0) {
+      init.labelPlacement = this.labelPlacement.state;
     }
     return init;
+  }
+
+  static create(): MapPointView {
+    return new MapPointView();
   }
 
   static fromGeoPoint(point: AnyGeoPoint): MapPointView {

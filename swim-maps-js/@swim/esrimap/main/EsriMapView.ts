@@ -23,44 +23,49 @@ import type {EsriMapViewObserver} from "./EsriMapViewObserver";
 import type {EsriMapViewController} from "./EsriMapViewController";
 
 export class EsriMapView extends EsriView {
-  /** @hidden */
-  readonly _map: __esri.MapView;
-  /** @hidden */
-  _geoProjection: EsriMapViewProjection;
-  /** @hidden */
-  _mapZoom: number;
-  /** @hidden */
-  _mapHeading: number;
-
   constructor(map: __esri.MapView) {
     super();
+    Object.defineProperty(this, "map", {
+      value: map,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "geoProjection", {
+      value: new EsriMapViewProjection(map),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "mapZoom", {
+      value: map.zoom,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "mapHeading", {
+      value: map.rotation,
+      enumerable: true,
+      configurable: true,
+    });
     this.onMapRender = this.onMapRender.bind(this);
-    this._map = map;
-    this._geoProjection = new EsriMapViewProjection(this._map);
-    this._mapZoom = map.zoom;
-    this._mapHeading = map.rotation;
-    this.initMap(this._map);
-  }
-
-  get map(): __esri.MapView {
-    return this._map;
-  }
-
-  protected initMap(map: __esri.MapView): void {
-    map.watch("extent", this.onMapRender);
+    this.initMap(map);
   }
 
   declare readonly viewController: EsriMapViewController | null;
 
   declare readonly viewObservers: ReadonlyArray<EsriMapViewObserver>;
 
+  declare readonly map: __esri.MapView;
+
+  protected initMap(map: __esri.MapView): void {
+    map.watch("extent", this.onMapRender);
+  }
+
   project(lnglat: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;
   project(lng: AnyGeoPoint | number, lat?: number): PointR2 {
     if (arguments.length === 1) {
-      return this._geoProjection.project(lng as AnyGeoPoint);
+      return this.geoProjection.project(lng as AnyGeoPoint);
     } else {
-      return this._geoProjection.project(lng as number, lat!);
+      return this.geoProjection.project(lng as number, lat!);
     }
   }
 
@@ -68,47 +73,49 @@ export class EsriMapView extends EsriView {
   unproject(x: number, y: number): GeoPoint;
   unproject(x: AnyPointR2 | number, y?: number): GeoPoint {
     if (arguments.length === 1) {
-      return this._geoProjection.unproject(x as AnyPointR2);
+      return this.geoProjection.unproject(x as AnyPointR2);
     } else {
-      return this._geoProjection.unproject(x as number, y!);
+      return this.geoProjection.unproject(x as number, y!);
     }
   }
 
-  get geoProjection(): EsriMapViewProjection {
-    return this._geoProjection;
-  }
+  declare readonly geoProjection: EsriMapViewProjection;
 
   setGeoProjection(geoProjection: EsriMapViewProjection): void {
     this.willSetGeoProjection(geoProjection);
-    this._geoProjection = geoProjection;
+    Object.defineProperty(this, "geoProjection", {
+      value: geoProjection,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetGeoProjection(geoProjection);
     this.didSetGeoProjection(geoProjection);
   }
 
-  get mapZoom(): number {
-    return this._mapZoom;
-  }
+  declare readonly mapZoom: number
 
   setMapZoom(newMapZoom: number): void {
-    const oldMapZoom = this._mapZoom;
+    const oldMapZoom = this.mapZoom;
     if (oldMapZoom !== newMapZoom) {
       this.willSetMapZoom(newMapZoom, oldMapZoom);
-      this._mapZoom = newMapZoom;
+      Object.defineProperty(this, "mapZoom", {
+        value: newMapZoom,
+        enumerable: true,
+        configurable: true,
+      });
       this.onSetMapZoom(newMapZoom, oldMapZoom);
       this.didSetMapZoom(newMapZoom, oldMapZoom);
     }
   }
 
-  get mapHeading(): number {
-    return this._mapHeading;
-  }
+  declare readonly mapHeading: number;
 
   get mapTilt(): number {
     return 0;
   }
 
   get geoFrame(): GeoBox {
-    let extent = this._map.extent;
+    let extent = this.map.extent;
     if (extent !== null) {
       extent = EsriProjection.webMercatorUtils!.webMercatorToGeographic(extent) as __esri.Extent;
     }
@@ -120,16 +127,21 @@ export class EsriMapView extends EsriView {
   }
 
   protected onMapRender(): void {
-    this._mapHeading = this._map.rotation;
-    this.setMapZoom(this._map.zoom);
-    this.setGeoProjection(this._geoProjection);
+    const map = this.map;
+    Object.defineProperty(this, "mapHeading", {
+      value: map.rotation,
+      enumerable: true,
+      configurable: true,
+    });
+    this.setMapZoom(map.zoom);
+    this.setGeoProjection(this.geoProjection);
   }
 
   overlayCanvas(): CanvasView | null {
     if (this.isMounted()) {
       return this.getSuperView(CanvasView);
     } else {
-      const map = this._map;
+      const map = this.map;
       const container = HtmlView.fromNode(map.container);
       const esriViewRoot = HtmlView.fromNode(container.node.querySelector(".esri-view-root") as HTMLDivElement);
       const esriOverlaySurface = HtmlView.fromNode(esriViewRoot.node.querySelector(".esri-overlay-surface") as HTMLDivElement);

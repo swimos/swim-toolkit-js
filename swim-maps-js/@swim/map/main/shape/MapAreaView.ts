@@ -15,7 +15,7 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import type {GeoBox, GeoPath} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
-import {ViewContextType, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewScope, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   FillViewInit,
@@ -32,14 +32,6 @@ export interface MapAreaViewInit extends MapPathViewInit, FillViewInit, StrokeVi
 }
 
 export class MapAreaView extends MapPathView implements FillView, StrokeView {
-  /** @hidden */
-  _clipViewport: boolean;
-
-  constructor() {
-    super();
-    this._clipViewport = true;
-  }
-
   initView(init: MapAreaViewInit): void {
     super.initView(init);
     if (init.fill !== void 0) {
@@ -65,16 +57,8 @@ export class MapAreaView extends MapPathView implements FillView, StrokeView {
   @ViewAnimator({type: Length, inherit: true})
   declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  clipViewport(): boolean;
-  clipViewport(clipViewport: boolean): this;
-  clipViewport(clipViewport?: boolean): boolean | this {
-    if (clipViewport === void 0) {
-      return this._clipViewport;
-    } else {
-      this._clipViewport = clipViewport;
-      return this;
-    }
-  }
+  @ViewScope({type: Boolean, state: true})
+  declare clipViewport: ViewScope<this, boolean>;
 
   protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
     super.onSetGeoPath(newGeoPath, oldGeoPath);
@@ -87,9 +71,9 @@ export class MapAreaView extends MapPathView implements FillView, StrokeView {
     let culled: boolean;
     if (geoFrame.intersects(this.geoBounds)) {
       const frame = this.viewFrame;
-      const bounds = this._viewBounds;
+      const bounds = this.viewBounds;
       // check if 9x9 view frame fully contains view bounds
-      const contained = !this._clipViewport
+      const contained = !this.clipViewport.state
                      || frame.xMin - 4 * frame.width <= bounds.xMin
                      && bounds.xMax <= frame.xMax + 4 * frame.width
                      && frame.yMin - 4 * frame.height <= bounds.yMin
@@ -169,6 +153,10 @@ export class MapAreaView extends MapPathView implements FillView, StrokeView {
       }
     }
     return null;
+  }
+
+  static create(): MapAreaView {
+    return new MapAreaView();
   }
 
   static fromInit(init: MapAreaViewInit): MapAreaView {

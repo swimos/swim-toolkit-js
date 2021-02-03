@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/mapping";
-import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
-import {GeoPoint, GeoBox} from "@swim/geo";
+import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ViewScope, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   FillViewInit,
@@ -43,21 +43,13 @@ export interface MapPolygonViewInit extends MapGraphicsViewInit, FillViewInit, S
 }
 
 export class MapPolygonView extends MapLayerView implements FillView, StrokeView {
-  /** @hidden */
-  _geoCentroid: GeoPoint;
-  /** @hidden */
-  _viewCentroid: PointR2;
-  /** @hidden */
-  _clipViewport: boolean;
-  /** @hidden */
-  _viewBounds: BoxR2;
-
   constructor() {
     super();
-    this._geoCentroid = GeoPoint.origin();
-    this._viewCentroid = PointR2.origin();
-    this._clipViewport = true;
-    this._viewBounds = BoxR2.undefined();
+    Object.defineProperty(this, "viewBounds", {
+      value: BoxR2.undefined(),
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   initView(init: MapPolygonViewInit): void {
@@ -152,14 +144,14 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
       if (!invalid && j !== 0) {
         lngMid /= j;
         latMid /= j;
-        this._geoCentroid = new GeoPoint(lngMid, latMid);
+        this.geoCentroid.setAutoState(new GeoPoint(lngMid, latMid));
         Object.defineProperty(this, "geoBounds", {
           value: new GeoBox(lngMin, latMin, lngMax, latMax),
           enumerable: true,
           configurable: true,
         });
       } else {
-        this._geoCentroid = GeoPoint.origin();
+        this.geoCentroid.setAutoState(GeoPoint.origin());
         Object.defineProperty(this, "geoBounds", {
           value: GeoBox.undefined(),
           enumerable: true,
@@ -186,24 +178,14 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
     return point;
   }
 
-  clipViewport(): boolean;
-  clipViewport(clipViewport: boolean): this;
-  clipViewport(clipViewport?: boolean): boolean | this {
-    if (clipViewport === void 0) {
-      return this._clipViewport;
-    } else {
-      this._clipViewport = clipViewport;
-      return this;
-    }
-  }
+  @ViewScope({type: Boolean, state: true})
+  declare clipViewport: ViewScope<this, boolean>;
 
-  get geoCentroid(): GeoPoint {
-    return this._geoCentroid;
-  }
+  @ViewScope({type: GeoPoint, state: GeoPoint.origin()})
+  declare geoCentroid: ViewScope<this, GeoPoint, AnyGeoPoint>;
 
-  get viewCentroid(): PointR2 {
-    return this._viewCentroid;
-  }
+  @ViewScope({type: PointR2, state: PointR2.origin()})
+  declare viewCentroid: ViewScope<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Color, inherit: true})
   declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
@@ -273,7 +255,7 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
     if (!invalid && pointCount !== 0) {
       lngMid /= pointCount;
       latMid /= pointCount;
-      this._geoCentroid = new GeoPoint(lngMid, latMid);
+      this.geoCentroid.setAutoState(new GeoPoint(lngMid, latMid));
       Object.defineProperty(this, "geoBounds", {
         value: new GeoBox(lngMin, latMin, lngMax, latMax),
         enumerable: true,
@@ -281,13 +263,17 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
       });
       xMid /= pointCount;
       yMid /= pointCount;
-      this._viewCentroid = new PointR2(xMid, yMid);
-      this._viewBounds = new BoxR2(xMin, yMin, xMax, yMax);
+      this.viewCentroid.setAutoState(new PointR2(xMid, yMid));
+      Object.defineProperty(this, "viewBounds", {
+        value: new BoxR2(xMin, yMin, xMax, yMax),
+        enumerable: true,
+        configurable: true,
+      });
       if (viewContext.geoFrame.intersects(this.geoBounds)) {
         const frame = this.viewFrame;
-        const bounds = this._viewBounds;
+        const bounds = this.viewBounds;
         // check if 9x9 view frame fully contains view bounds
-        const contained = !this._clipViewport
+        const contained = !this.clipViewport.state
                        || frame.xMin - 4 * frame.width <= bounds.xMin
                        && bounds.xMax <= frame.xMax + 4 * frame.width
                        && frame.yMin - 4 * frame.height <= bounds.yMin
@@ -298,14 +284,18 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
         this.setCulled(true);
       }
     } else {
-      this._geoCentroid = GeoPoint.origin();
+      this.geoCentroid.setAutoState(GeoPoint.origin());
       Object.defineProperty(this, "geoBounds", {
         value: GeoBox.undefined(),
         enumerable: true,
         configurable: true,
       });
-      this._viewCentroid = PointR2.origin();
-      this._viewBounds = BoxR2.undefined();
+      this.viewCentroid.setAutoState(PointR2.origin());
+      Object.defineProperty(this, "viewBounds", {
+        value: BoxR2.undefined(),
+        enumerable: true,
+        configurable: true,
+      });
       this.setCulled(true);
     }
     const newGeoBounds = this.geoBounds;
@@ -366,16 +356,15 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
   }
 
   get popoverFrame(): BoxR2 {
-    const viewCentroid = this._viewCentroid;
+    const viewCentroid = this.viewCentroid.state;
     const inversePageTransform = this.pageTransform.inverse();
     const px = inversePageTransform.transformX(viewCentroid.x, viewCentroid.y);
     const py = inversePageTransform.transformY(viewCentroid.x, viewCentroid.y);
     return new BoxR2(px, py, px, py);
   }
 
-  get viewBounds(): BoxR2 {
-    return this._viewBounds;
-  }
+  // @ts-ignore
+  declare readonly viewBounds: BoxR2;
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
@@ -427,6 +416,10 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
       }
     }
     return null;
+  }
+
+  static create(): MapPolygonView {
+    return new MapPolygonView();
   }
 
   static fromInit(init: MapPolygonViewInit): MapPolygonView {

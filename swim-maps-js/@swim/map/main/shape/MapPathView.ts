@@ -23,12 +23,13 @@ export interface MapPathViewInit extends MapGraphicsViewInit {
 }
 
 export class MapPathView extends MapLayerView {
-  /** @hidden */
-  _viewBounds: BoxR2;
-
   constructor() {
     super();
-    this._viewBounds = BoxR2.undefined();
+    Object.defineProperty(this, "viewBounds", {
+      value: BoxR2.undefined(),
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   initView(init: MapPathViewInit): void {
@@ -89,7 +90,11 @@ export class MapPathView extends MapLayerView {
       this.viewCentroid.setAutoState(viewCentroid);
     }
 
-    this._viewBounds = viewPath.bounds;
+    Object.defineProperty(this, "viewBounds", {
+      value: viewPath.bounds,
+      enumerable: true,
+      configurable: true,
+    });
 
     this.cullGeoFrame(viewContext.geoFrame);
   }
@@ -106,11 +111,10 @@ export class MapPathView extends MapLayerView {
       const py = inversePageTransform.transformY(viewCentroid.x, viewCentroid.y);
       return new BoxR2(px, py, px, py);
     } else {
-      return this._viewBounds.transform(inversePageTransform);
+      return this.viewBounds.transform(inversePageTransform);
     }
   }
 
-  get viewBounds(): BoxR2 {
-    return this._viewBounds;
-  }
+  // @ts-ignore
+  declare readonly viewBounds: BoxR2;
 }
