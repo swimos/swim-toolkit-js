@@ -121,11 +121,11 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   titleView(): HtmlView | null;
-  titleView(titleView: HtmlView | string | null): this;
-  titleView(newTitleView?: HtmlView | string | null): HtmlView | null | this {
+  titleView(titleView: HtmlView | string | null | undefined): this;
+  titleView(newTitleView?: HtmlView | string | null | undefined): HtmlView | null | this {
     const childView = this.getChildView("title");
     const oldTitleView = childView instanceof HtmlView ? childView : null;
-    if (newTitleView === void 0) {
+    if (arguments.length === 0) {
       return oldTitleView;
     } else {
       if (typeof newTitleView === "string") {
@@ -136,7 +136,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
           oldTitleView.text(newTitleView);
           newTitleView = oldTitleView;
         }
-      } else if (newTitleView !== null) {
+      } else if (newTitleView !== void 0 && newTitleView !== null) {
         if (oldTitleView === null) {
           this.appendChildView(newTitleView, "title");
         } else {

@@ -812,12 +812,19 @@ export class NodeView extends View {
     }
   }
 
-  text(): string | null;
-  text(value: string | null): this;
-  text(value?: string | null): string | null | this {
-    if (value === void 0) {
-      return this.node.textContent;
+  text(): string | undefined;
+  text(value: string | null | undefined): this;
+  text(value?: string | null | undefined): string | undefined | this {
+    if (arguments.length === 0) {
+      value = this.node.textContent;
+      if (value === null) {
+        value = void 0;
+      }
+      return value;
     } else {
+      if (value === void 0) {
+        value = null;
+      }
       this.node.textContent = value;
       return this;
     }
