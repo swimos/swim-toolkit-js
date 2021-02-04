@@ -21,8 +21,10 @@ export abstract class ViewManagerService<V extends View, VM extends ViewManager<
   mount(): void {
     super.mount();
     const manager = this.manager;
-    if (manager !== void 0 && !this.isInherited()) {
-      manager.insertRootView(this.owner);
+    if (manager !== void 0) {
+      if (!this.isInherited()) {
+        manager.insertRootView(this.owner);
+      }
       if (this.observe !== false) {
         manager.addViewManagerObserver(this as ViewManagerObserverType<VM>);
       }
@@ -31,11 +33,13 @@ export abstract class ViewManagerService<V extends View, VM extends ViewManager<
 
   unmount(): void {
     const manager = this.manager;
-    if (manager !== void 0 && !this.isInherited()) {
+    if (manager !== void 0) {
       if (this.observe !== false) {
         manager.removeViewManagerObserver(this as ViewManagerObserverType<VM>);
       }
-      manager.removeRootView(this.owner);
+      if (!this.isInherited()) {
+        manager.removeRootView(this.owner);
+      }
     }
     super.unmount();
   }
