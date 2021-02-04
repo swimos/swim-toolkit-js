@@ -23,3 +23,39 @@ export {
   ComponentModelClass,
   ComponentModel,
 } from "./ComponentModel";
+
+export {
+  ComponentTraitMemberType,
+  ComponentTraitMemberInit,
+  ComponentTraitInit,
+  ComponentTraitDescriptor,
+  ComponentTraitDescriptorExtends,
+  ComponentTraitDescriptorFromAny,
+  ComponentTraitConstructor,
+  ComponentTraitClass,
+  ComponentTrait,
+} from "./ComponentTrait";
+
+export {
+  ComponentViewMemberType,
+  ComponentViewMemberInit,
+  ComponentViewInit,
+  ComponentViewDescriptor,
+  ComponentViewDescriptorExtends,
+  ComponentViewDescriptorFromAny,
+  ComponentViewConstructor,
+  ComponentViewClass,
+  ComponentView,
+} from "./ComponentView";
+
+export {
+  ComponentRelationMemberType,
+  ComponentRelationMemberInit,
+  ComponentRelationInit,
+  ComponentRelationDescriptor,
+  ComponentRelationDescriptorExtends,
+  ComponentRelationDescriptorFromAny,
+  ComponentRelationConstructor,
+  ComponentRelationClass,
+  ComponentRelation,
+} from "./ComponentRelation";

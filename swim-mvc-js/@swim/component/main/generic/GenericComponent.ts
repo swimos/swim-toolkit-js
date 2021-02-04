@@ -19,10 +19,10 @@ import {ComponentFlags, Component} from "../Component";
 import type {ComponentObserverType} from "../ComponentObserver";
 import type {ComponentService} from "../service/ComponentService";
 import type {ComponentScope} from "../scope/ComponentScope";
-import type {ComponentModel} from "../model/ComponentModel";
-import type {ComponentTrait} from "../trait/ComponentTrait";
-import type {ComponentView} from "../view/ComponentView";
-import type {ComponentBinding} from "../binding/ComponentBinding";
+import type {ComponentModel} from "../relation/ComponentModel";
+import type {ComponentTrait} from "../relation/ComponentTrait";
+import type {ComponentView} from "../relation/ComponentView";
+import type {ComponentRelation} from "../relation/ComponentRelation";
 
 export abstract class GenericComponent extends Component {
   constructor() {
@@ -62,7 +62,7 @@ export abstract class GenericComponent extends Component {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "componentBindings", {
+    Object.defineProperty(this, "componentRelations", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -151,7 +151,7 @@ export abstract class GenericComponent extends Component {
 
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
     super.onInsertChildComponent(childComponent, targetComponent);
-    this.insertComponentBinding(childComponent);
+    this.insertComponentRelation(childComponent);
   }
 
   cascadeInsert(updateFlags?: ComponentFlags, componentContext?: ComponentContext): void {
@@ -163,7 +163,7 @@ export abstract class GenericComponent extends Component {
 
   protected onRemoveChildComponent(childComponent: Component): void {
     super.onRemoveChildComponent(childComponent);
-    this.removeComponentBinding(childComponent);
+    this.removeComponentRelation(childComponent);
   }
 
   abstract removeAll(): void;
@@ -191,7 +191,7 @@ export abstract class GenericComponent extends Component {
     this.mountModels();
     this.mountTraits();
     this.mountViews();
-    this.mountBindings();
+    this.mountRelations();
   }
 
   /** @hidden */
@@ -224,7 +224,7 @@ export abstract class GenericComponent extends Component {
   }
 
   protected onUnmount(): void {
-    this.unmountBindings();
+    this.unmountRelations();
     this.unmountViews();
     this.unmountTraits();
     this.unmountModels();
@@ -735,84 +735,84 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  declare readonly componentBindings: {[bindingName: string]: ComponentBinding<Component, Component> | undefined} | null;
+  declare readonly componentRelations: {[relationName: string]: ComponentRelation<Component, Component> | undefined} | null;
 
-  hasComponentBinding(bindingName: string): boolean {
-    const componentBindings = this.componentBindings;
-    return componentBindings !== null && componentBindings[bindingName] !== void 0;
+  hasComponentRelation(relationName: string): boolean {
+    const componentRelations = this.componentRelations;
+    return componentRelations !== null && componentRelations[relationName] !== void 0;
   }
 
-  getComponentBinding(bindingName: string): ComponentBinding<this, Component> | null {
-    const componentBindings = this.componentBindings;
-    if (componentBindings !== null) {
-      const componentBinding = componentBindings[bindingName];
-      if (componentBinding !== void 0) {
-        return componentBinding as ComponentBinding<this, Component>;
+  getComponentRelation(relationName: string): ComponentRelation<this, Component> | null {
+    const componentRelations = this.componentRelations;
+    if (componentRelations !== null) {
+      const componentRelation = componentRelations[relationName];
+      if (componentRelation !== void 0) {
+        return componentRelation as ComponentRelation<this, Component>;
       }
     }
     return null;
   }
 
-  setComponentBinding(bindingName: string, newComponentBinding: ComponentBinding<this, any> | null): void {
-    let componentBindings = this.componentBindings;
-    if (componentBindings === null) {
-      componentBindings = {};
-      Object.defineProperty(this, "componentBindings", {
-        value: componentBindings,
+  setComponentRelation(relationName: string, newComponentRelation: ComponentRelation<this, any> | null): void {
+    let componentRelations = this.componentRelations;
+    if (componentRelations === null) {
+      componentRelations = {};
+      Object.defineProperty(this, "componentRelations", {
+        value: componentRelations,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldComponentBinding = componentBindings[bindingName];
-    if (oldComponentBinding !== void 0 && this.isMounted()) {
-      oldComponentBinding.unmount();
+    const oldComponentRelation = componentRelations[relationName];
+    if (oldComponentRelation !== void 0 && this.isMounted()) {
+      oldComponentRelation.unmount();
     }
-    if (newComponentBinding !== null) {
-      componentBindings[bindingName] = newComponentBinding;
+    if (newComponentRelation !== null) {
+      componentRelations[relationName] = newComponentRelation;
       if (this.isMounted()) {
-        newComponentBinding.mount();
+        newComponentRelation.mount();
       }
     } else {
-      delete componentBindings[bindingName];
+      delete componentRelations[relationName];
     }
   }
 
   /** @hidden */
-  protected mountBindings(): void {
-    const componentBindings = this.componentBindings;
-    for (const bindingName in componentBindings) {
-      const componentBinding = componentBindings[bindingName]!;
-      componentBinding.mount();
+  protected mountRelations(): void {
+    const componentRelations = this.componentRelations;
+    for (const relationName in componentRelations) {
+      const componentRelation = componentRelations[relationName]!;
+      componentRelation.mount();
     }
   }
 
   /** @hidden */
-  protected unmountBindings(): void {
-    const componentBindings = this.componentBindings;
-    for (const bindingName in componentBindings) {
-      const componentBinding = componentBindings[bindingName]!;
-      componentBinding.unmount();
+  protected unmountRelations(): void {
+    const componentRelations = this.componentRelations;
+    for (const relationName in componentRelations) {
+      const componentRelation = componentRelations[relationName]!;
+      componentRelation.unmount();
     }
   }
 
   /** @hidden */
-  protected insertComponentBinding(childComponent: Component): void {
-    const bindingName = childComponent.key;
-    if (bindingName !== void 0) {
-      const componentBinding = this.getLazyComponentBinding(bindingName);
-      if (componentBinding !== null && componentBinding.child === true) {
-        componentBinding.doSetComponent(childComponent);
+  protected insertComponentRelation(childComponent: Component): void {
+    const relationName = childComponent.key;
+    if (relationName !== void 0) {
+      const componentRelation = this.getLazyComponentRelation(relationName);
+      if (componentRelation !== null && componentRelation.child === true) {
+        componentRelation.doSetComponent(childComponent);
       }
     }
   }
 
   /** @hidden */
-  protected removeComponentBinding(childComponent: Component): void {
-    const bindingName = childComponent.key;
-    if (bindingName !== void 0) {
-      const componentBinding = this.getComponentBinding(bindingName);
-      if (componentBinding !== null && componentBinding.child === true) {
-        componentBinding.doSetComponent(null);
+  protected removeComponentRelation(childComponent: Component): void {
+    const relationName = childComponent.key;
+    if (relationName !== void 0) {
+      const componentRelation = this.getComponentRelation(relationName);
+      if (componentRelation !== null && componentRelation.child === true) {
+        componentRelation.doSetComponent(null);
       }
     }
   }

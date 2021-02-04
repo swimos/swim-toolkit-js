@@ -21,10 +21,10 @@ import type {ComponentServiceConstructor, ComponentService} from "./service/Comp
 import type {ExecuteService} from "./service/ExecuteService";
 import type {HistoryService} from "./service/HistoryService";
 import type {ComponentScopeConstructor, ComponentScope} from "./scope/ComponentScope";
-import type {ComponentModelConstructor, ComponentModel} from "./model/ComponentModel";
-import type {ComponentTraitConstructor, ComponentTrait} from "./trait/ComponentTrait";
-import type {ComponentViewConstructor, ComponentView} from "./view/ComponentView";
-import type {ComponentBindingConstructor, ComponentBinding} from "./binding/ComponentBinding";
+import type {ComponentModelConstructor, ComponentModel} from "./relation/ComponentModel";
+import type {ComponentTraitConstructor, ComponentTrait} from "./relation/ComponentTrait";
+import type {ComponentViewConstructor, ComponentView} from "./relation/ComponentView";
+import type {ComponentRelationConstructor, ComponentRelation} from "./relation/ComponentRelation";
 
 export type ComponentFlags = number;
 
@@ -49,7 +49,7 @@ export interface ComponentPrototype {
   componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<Component, View> | undefined};
 
   /** @hidden */
-  componentBindingConstructors?: {[bindingName: string]: ComponentBindingConstructor<Component, Component> | undefined};
+  componentRelationConstructors?: {[relationName: string]: ComponentRelationConstructor<Component, Component> | undefined};
 }
 
 export interface ComponentConstructor<C extends Component = Component> {
@@ -976,23 +976,23 @@ export abstract class Component {
     }
   }
 
-  abstract hasComponentBinding(bindingName: string): boolean;
+  abstract hasComponentRelation(relationName: string): boolean;
 
-  abstract getComponentBinding(bindingName: string): ComponentBinding<this, Component> | null;
+  abstract getComponentRelation(relationName: string): ComponentRelation<this, Component> | null;
 
-  abstract setComponentBinding(bindingName: string, componentBinding: ComponentBinding<this, any> | null): void;
+  abstract setComponentRelation(relationName: string, componentRelation: ComponentRelation<this, any> | null): void;
 
   /** @hidden */
-  getLazyComponentBinding(bindingName: string): ComponentBinding<this, Component> | null {
-    let componentBinding = this.getComponentBinding(bindingName);
-    if (componentBinding === null) {
-      const constructor = Component.getComponentBindingConstructor(bindingName, Object.getPrototypeOf(this));
+  getLazyComponentRelation(relationName: string): ComponentRelation<this, Component> | null {
+    let componentRelation = this.getComponentRelation(relationName);
+    if (componentRelation === null) {
+      const constructor = Component.getComponentRelationConstructor(relationName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        componentBinding = new constructor(this, bindingName) as ComponentBinding<this, Component>;
-        this.setComponentBinding(bindingName, componentBinding);
+        componentRelation = new constructor(this, relationName) as ComponentRelation<this, Component>;
+        this.setComponentRelation(relationName, componentRelation);
       }
     }
-    return componentBinding;
+    return componentRelation;
   }
 
   /** @hidden */
@@ -1218,13 +1218,13 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentBindingConstructor(bindingName: string, componentPrototype: ComponentPrototype | null = null): ComponentBindingConstructor<Component, Component> | null {
+  static getComponentRelationConstructor(relationName: string, componentPrototype: ComponentPrototype | null = null): ComponentRelationConstructor<Component, Component> | null {
     if (componentPrototype === null) {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentBindingConstructors")) {
-        const constructor = componentPrototype.componentBindingConstructors![bindingName];
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentRelationConstructors")) {
+        const constructor = componentPrototype.componentRelationConstructors![relationName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1235,21 +1235,21 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentBinding(constructor: ComponentBindingConstructor<Component, Component>,
-                                  target: Object, propertyKey: string | symbol): void {
+  static decorateComponentRelation(constructor: ComponentRelationConstructor<Component, Component>,
+                                   target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentBindingConstructors")) {
-      componentPrototype.componentBindingConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentRelationConstructors")) {
+      componentPrototype.componentRelationConstructors = {};
     }
-    componentPrototype.componentBindingConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentRelationConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: Component): ComponentBinding<Component, Component> {
-        let componentBinding = this.getComponentBinding(propertyKey.toString());
-        if (componentBinding === null) {
-          componentBinding = new constructor(this, propertyKey.toString());
-          this.setComponentBinding(propertyKey.toString(), componentBinding);
+      get: function (this: Component): ComponentRelation<Component, Component> {
+        let componentRelation = this.getComponentRelation(propertyKey.toString());
+        if (componentRelation === null) {
+          componentRelation = new constructor(this, propertyKey.toString());
+          this.setComponentRelation(propertyKey.toString(), componentRelation);
         }
-        return componentBinding;
+        return componentRelation;
       },
       configurable: true,
       enumerable: true,

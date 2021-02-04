@@ -16,9 +16,9 @@ import type {View} from "@swim/view";
 import type {Model, Trait} from "@swim/model";
 import type {ComponentContextType} from "./ComponentContext";
 import type {Component} from "./Component";
-import type {ComponentModel} from "./model/ComponentModel";
-import type {ComponentTrait} from "./trait/ComponentTrait";
-import type {ComponentView} from "./view/ComponentView";
+import type {ComponentModel} from "./relation/ComponentModel";
+import type {ComponentTrait} from "./relation/ComponentTrait";
+import type {ComponentView} from "./relation/ComponentView";
 
 export type ComponentObserverType<C extends Component> =
   C extends {readonly componentObservers: ReadonlyArray<infer CO>} ? CO : never;

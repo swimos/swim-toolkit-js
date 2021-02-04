@@ -39,12 +39,6 @@ export * from "./service";
 
 export * from "./scope";
 
-export * from "./model";
-
-export * from "./trait";
-
-export * from "./view";
-
-export * from "./binding";
+export * from "./relation";
 
 export * from "./generic";
