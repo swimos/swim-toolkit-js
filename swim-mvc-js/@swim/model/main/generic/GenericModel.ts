@@ -19,7 +19,7 @@ import type {ModelObserverType} from "../ModelObserver";
 import type {ModelConsumerType, ModelConsumer} from "../ModelConsumer";
 import type {Trait} from "../Trait";
 import type {ModelService} from "../service/ModelService";
-import {ModelScope} from "../scope/ModelScope";
+import {ModelProperty} from "../property/ModelProperty";
 import type {ModelRelation} from "../relation/ModelRelation";
 import type {ModelTrait} from "../relation/ModelTrait";
 import type {ModelDownlink} from "../downlink/ModelDownlink";
@@ -47,7 +47,7 @@ export abstract class GenericModel extends Model {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "modelScopes", {
+    Object.defineProperty(this, "modelProperties", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -219,11 +219,11 @@ export abstract class GenericModel extends Model {
 
   protected onMount(): void {
     super.onMount();
-    this.mountServices();
-    this.mountScopes();
+    this.mountModelServices();
+    this.mountModelProperties();
     this.mountModelRelations();
     this.mountModelTraits();
-    this.mountDownlinks();
+    this.mountModelDownlinks();
   }
 
   /** @hidden */
@@ -265,11 +265,11 @@ export abstract class GenericModel extends Model {
   }
 
   protected onUnmount(): void {
-    this.unmountDownlinks();
+    this.unmountModelDownlinks();
     this.unmountModelTraits();
     this.unmountModelRelations();
-    this.unmountScopes();
-    this.unmountServices();
+    this.unmountModelProperties();
+    this.unmountModelServices();
     this.setModelFlags(this.modelFlags & (~Model.ModelFlagMask | Model.RemovingFlag));
   }
 
@@ -432,7 +432,7 @@ export abstract class GenericModel extends Model {
 
   protected onMutate(modelContext: ModelContextType<this>): void {
     super.onMutate(modelContext);
-    this.mutateScopes();
+    this.mutateModelProperties();
   }
 
   /** @hidden */
@@ -542,7 +542,7 @@ export abstract class GenericModel extends Model {
 
   protected onReconcile(modelContext: ModelContextType<this>): void {
     super.onReconcile(modelContext);
-    this.reconcileDownlinks();
+    this.reconcileModelDownlinks();
   }
 
   protected startConsuming(): void {
@@ -645,7 +645,7 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  protected mountServices(): void {
+  protected mountModelServices(): void {
     const modelServices = this.modelServices;
     for (const serviceName in modelServices) {
       const modelService = modelServices[serviceName]!;
@@ -654,7 +654,7 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  protected unmountServices(): void {
+  protected unmountModelServices(): void {
     const modelServices = this.modelServices;
     for (const serviceName in modelServices) {
       const modelService = modelServices[serviceName]!;
@@ -663,72 +663,72 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  declare readonly modelScopes: {[scopeName: string]: ModelScope<Model, unknown> | undefined} | null;
+  declare readonly modelProperties: {[propertyName: string]: ModelProperty<Model, unknown> | undefined} | null;
 
-  hasModelScope(scopeName: string): boolean {
-    const modelScopes = this.modelScopes;
-    return modelScopes !== null && modelScopes[scopeName] !== void 0;
+  hasModelProperty(propertyName: string): boolean {
+    const modelProperties = this.modelProperties;
+    return modelProperties !== null && modelProperties[propertyName] !== void 0;
   }
 
-  getModelScope(scopeName: string): ModelScope<this, unknown> | null {
-    const modelScopes = this.modelScopes;
-    if (modelScopes !== null) {
-      const modelScope = modelScopes[scopeName];
-      if (modelScope !== void 0) {
-        return modelScope as ModelScope<this, unknown>;
+  getModelProperty(propertyName: string): ModelProperty<this, unknown> | null {
+    const modelProperties = this.modelProperties;
+    if (modelProperties !== null) {
+      const modelProperty = modelProperties[propertyName];
+      if (modelProperty !== void 0) {
+        return modelProperty as ModelProperty<this, unknown>;
       }
     }
     return null;
   }
 
-  setModelScope(scopeName: string, newModelScope: ModelScope<this, unknown> | null): void {
-    let modelScopes = this.modelScopes;
-    if (modelScopes === null) {
-      modelScopes = {};
-      Object.defineProperty(this, "modelScopes", {
-        value: modelScopes,
+  setModelProperty(propertyName: string, newModelProperty: ModelProperty<this, unknown> | null): void {
+    let modelProperties = this.modelProperties;
+    if (modelProperties === null) {
+      modelProperties = {};
+      Object.defineProperty(this, "modelProperties", {
+        value: modelProperties,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldModelScope = modelScopes[scopeName];
-    if (oldModelScope !== void 0 && this.isMounted()) {
-      oldModelScope.unmount();
+    const oldModelProperty = modelProperties[propertyName];
+    if (oldModelProperty !== void 0 && this.isMounted()) {
+      oldModelProperty.unmount();
     }
-    if (newModelScope !== null) {
-      modelScopes[scopeName] = newModelScope;
+    if (newModelProperty !== null) {
+      modelProperties[propertyName] = newModelProperty;
       if (this.isMounted()) {
-        newModelScope.mount();
+        newModelProperty.mount();
       }
     } else {
-      delete modelScopes[scopeName];
+      delete modelProperties[propertyName];
     }
   }
 
   /** @hidden */
-  mutateScopes(): void {
-    const modelScopes = this.modelScopes;
-    for (const scopeName in modelScopes) {
-      const modelScope = modelScopes[scopeName]!;
-      modelScope.onMutate();
+  mutateModelProperties(): void {
+    const modelProperties = this.modelProperties;
+    for (const propertyName in modelProperties) {
+      const modelProperty = modelProperties[propertyName]!;
+      modelProperty.onMutate();
     }
   }
 
   /** @hidden */
-  protected mountScopes(): void {
-    const modelScopes = this.modelScopes;
-    for (const scopeName in modelScopes) {
-      const modelScope = modelScopes[scopeName]!;
-      modelScope.mount();
+  protected mountModelProperties(): void {
+    const modelProperties = this.modelProperties;
+    for (const propertyName in modelProperties) {
+      const modelProperty = modelProperties[propertyName]!;
+      modelProperty.mount();
     }
   }
 
   /** @hidden */
-  protected unmountScopes(): void {
-    const modelScopes = this.modelScopes;
-    for (const scopeName in modelScopes) {
-      const modelScope = modelScopes[scopeName]!;
-      modelScope.unmount();
+  protected unmountModelProperties(): void {
+    const modelProperties = this.modelProperties;
+    for (const propertyName in modelProperties) {
+      const modelProperty = modelProperties[propertyName]!;
+      modelProperty.unmount();
     }
   }
 
@@ -942,7 +942,7 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  protected mountDownlinks(): void {
+  protected mountModelDownlinks(): void {
     const modelDownlinks = this.modelDownlinks;
     for (const downlinkName in modelDownlinks) {
       const modelDownlink = modelDownlinks[downlinkName]!;
@@ -951,7 +951,7 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  protected unmountDownlinks(): void {
+  protected unmountModelDownlinks(): void {
     const modelDownlinks = this.modelDownlinks;
     for (const downlinkName in modelDownlinks) {
       const modelDownlink = modelDownlinks[downlinkName]!;
@@ -960,7 +960,7 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  protected reconcileDownlinks(): void {
+  protected reconcileModelDownlinks(): void {
     const modelDownlinks = this.modelDownlinks;
     for (const downlinkName in modelDownlinks) {
       const modelDownlink = modelDownlinks[downlinkName]!;
@@ -969,7 +969,7 @@ export abstract class GenericModel extends Model {
   }
 }
 
-ModelScope({
+ModelProperty({
   type: Object,
   inherit: true,
   updateFlags: Model.NeedsReconcile,

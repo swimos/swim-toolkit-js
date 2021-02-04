@@ -65,7 +65,7 @@ export * from "./modal";
 
 export * from "./service";
 
-export * from "./scope";
+export * from "./property";
 
 export * from "./animator";
 

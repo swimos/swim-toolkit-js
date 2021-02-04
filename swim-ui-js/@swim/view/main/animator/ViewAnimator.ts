@@ -83,8 +83,6 @@ export interface ViewAnimator<V extends View, T, U = never> extends Animator<T> 
 
   setInherited(inherited: boolean): void;
 
-  updateFlags?: ViewFlags;
-
   /** @hidden */
   readonly superName: string | undefined;
 
@@ -147,6 +145,8 @@ export interface ViewAnimator<V extends View, T, U = never> extends Animator<T> 
 
   /** @hidden */
   unmount(): void;
+
+  updateFlags?: ViewFlags;
 
   fromAny(value: T | U): T;
 

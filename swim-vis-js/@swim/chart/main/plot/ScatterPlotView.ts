@@ -17,7 +17,7 @@ import {Domain, Range, AnyTiming, ContinuousScale} from "@swim/mapping";
 import type {BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {LayerView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
@@ -139,8 +139,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     return yScale !== void 0 ? yScale.range : void 0;
   }
 
-  @ViewScope({type: Object})
-  declare xDataDomain: ViewScope<this, readonly [X, X] | undefined>;
+  @ViewProperty({type: Object})
+  declare xDataDomain: ViewProperty<this, readonly [X, X] | undefined>;
 
   /** @hidden */
   getXDataDomain(): readonly [X, X] | undefined {
@@ -169,8 +169,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     return xDataDomain;
   }
 
-  @ViewScope({type: Object})
-  declare yDataDomain: ViewScope<this, readonly [Y, Y] | undefined>;
+  @ViewProperty({type: Object})
+  declare yDataDomain: ViewProperty<this, readonly [Y, Y] | undefined>;
 
   /** @hidden */
   getYDataDomain(): readonly [Y, Y] | undefined {
@@ -199,11 +199,11 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     return yDataDomain;
   }
 
-  @ViewScope({type: Object})
-  declare xDataRange: ViewScope<this, readonly [number, number] | undefined>;
+  @ViewProperty({type: Object})
+  declare xDataRange: ViewProperty<this, readonly [number, number] | undefined>;
 
-  @ViewScope({type: Object})
-  declare yDataRange: ViewScope<this, readonly [number, number] | undefined>;
+  @ViewProperty({type: Object})
+  declare yDataRange: ViewProperty<this, readonly [number, number] | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
   declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;

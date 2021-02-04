@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Component} from "../Component";
-import {ComponentScope} from "./ComponentScope";
+import type {Model} from "../Model";
+import {ModelProperty} from "./ModelProperty";
 
 /** @hidden */
-export abstract class BooleanComponentScope<C extends Component> extends ComponentScope<C, boolean | null | undefined, boolean | string | null | undefined> {
-  fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
-    return !!value;
+export abstract class StringModelProperty<M extends Model> extends ModelProperty<M, string | null | undefined> {
+  fromAny(value: string | null | undefined): string | null | undefined {
+    return value;
   }
 }

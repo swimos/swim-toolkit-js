@@ -21,7 +21,7 @@ import {
   ViewFlags,
   View,
   ViewEdgeInsets,
-  ViewScope,
+  ViewProperty,
   ViewAnimator,
 } from "@swim/view";
 import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
@@ -121,26 +121,26 @@ export class TreeView extends HtmlView {
     }
   }
 
-  @ViewScope({type: TreeSeed, inherit: true})
-  declare seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  @ViewProperty({type: TreeSeed, inherit: true})
+  declare seed: ViewProperty<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
-  @ViewScope<TreeView, number>({
+  @ViewProperty<TreeView, number>({
     type: Number,
     state: 0,
     onUpdate(depth: number): void {
       this.owner.onUpdateDepth(depth);
     },
   })
-  declare depth: ViewScope<this, number>;
+  declare depth: ViewProperty<this, number>;
 
-  @ViewScope({type: Object, inherit: true})
-  declare edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
+  @ViewProperty({type: Object, inherit: true})
+  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | undefined>;
 
-  @ViewScope({type: Number, state: 2})
-  declare limbSpacing: ViewScope<this, number>;
+  @ViewProperty({type: Number, state: 2})
+  declare limbSpacing: ViewProperty<this, number>;
 
-  @ViewScope({type: String, inherit: true})
-  declare disclosureState: ViewScope<this, TreeLimbState | undefined>;
+  @ViewProperty({type: String, inherit: true})
+  declare disclosureState: ViewProperty<this, TreeLimbState | undefined>;
 
   @ViewAnimator({type: Number, inherit: true})
   declare disclosurePhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded

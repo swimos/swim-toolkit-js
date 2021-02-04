@@ -12,12 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Trait} from "../Trait";
-import {TraitScope} from "./TraitScope";
+import type {View} from "../View";
+import {ViewProperty} from "./ViewProperty";
 
 /** @hidden */
-export abstract class BooleanTraitScope<R extends Trait> extends TraitScope<R, boolean | null | undefined, boolean | string | null | undefined> {
-  fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
-    return !!value;
+export abstract class NumberViewProperty<V extends View> extends ViewProperty<V, number | null | undefined, number | string | null | undefined> {
+  fromAny(value: number | string | null | undefined): number | null | undefined {
+    if (typeof value === "number") {
+      return value;
+    } else if (typeof value === "string") {
+      const number = +value;
+      if (isFinite(number)) {
+        return number;
+      } else {
+        throw new Error(value);
+      }
+    } else {
+      return value;
+    }
   }
 }

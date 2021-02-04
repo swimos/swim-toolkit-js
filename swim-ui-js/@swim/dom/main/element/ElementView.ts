@@ -16,7 +16,7 @@ import {Arrays} from "@swim/util";
 import {BoxR2} from "@swim/math";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
-import {ViewContextType, ViewConstructor, View, ViewObserverType, ViewScope} from "@swim/view";
+import {ViewContextType, ViewConstructor, View, ViewObserverType, ViewProperty} from "@swim/view";
 import type {StyleContext} from "../style/StyleContext";
 import type {StyleAnimator} from "../style/StyleAnimator";
 import {NodeViewInit, NodeViewConstructor, NodeView} from "../node/NodeView";
@@ -143,11 +143,11 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
-  @ViewScope({type: MoodMatrix})
-  declare moodModifier: ViewScope<this, MoodMatrix | undefined>;
+  @ViewProperty({type: MoodMatrix})
+  declare moodModifier: ViewProperty<this, MoodMatrix | undefined>;
 
-  @ViewScope({type: MoodMatrix})
-  declare themeModifier: ViewScope<this, MoodMatrix | undefined>;
+  @ViewProperty({type: MoodMatrix})
+  declare themeModifier: ViewProperty<this, MoodMatrix | undefined>;
 
   getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined {
     const theme = this.theme.state;
@@ -201,9 +201,9 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected changeMood(): void {
-    const moodModifierScope = this.getViewScope("moodModifier") as ViewScope<this, MoodMatrix | undefined> | null;
-    if (moodModifierScope !== null && this.mood.isAuto()) {
-      const moodModifier = moodModifierScope.state;
+    const moodModifierProperty = this.getViewProperty("moodModifier") as ViewProperty<this, MoodMatrix | undefined> | null;
+    if (moodModifierProperty !== null && this.mood.isAuto()) {
+      const moodModifier = moodModifierProperty.state;
       if (moodModifier !== void 0) {
         let superMood = this.mood.superState;
         if (superMood === void 0) {
@@ -223,9 +223,9 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected changeTheme(): void {
-    const themeModifierScope = this.getViewScope("themeModifier") as ViewScope<this, MoodMatrix | undefined> | null;
-    if (themeModifierScope !== null && this.theme.isAuto()) {
-      const themeModifier = themeModifierScope.state;
+    const themeModifierProperty = this.getViewProperty("themeModifier") as ViewProperty<this, MoodMatrix | undefined> | null;
+    if (themeModifierProperty !== null && this.theme.isAuto()) {
+      const themeModifier = themeModifierProperty.state;
       if (themeModifier !== void 0) {
         let superTheme = this.theme.superState;
         if (superTheme === void 0) {

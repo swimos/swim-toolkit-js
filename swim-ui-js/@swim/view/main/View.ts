@@ -53,7 +53,7 @@ import type {DisplayService} from "./service/DisplayService";
 import type {LayoutService} from "./service/LayoutService";
 import type {ThemeService} from "./service/ThemeService";
 import type {ModalService} from "./service/ModalService";
-import type {ViewScopeConstructor, ViewScope} from "./scope/ViewScope";
+import type {ViewPropertyConstructor, ViewProperty} from "./property/ViewProperty";
 import type {ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
 import type {ViewRelationConstructor, ViewRelation} from "./relation/ViewRelation";
 
@@ -74,7 +74,7 @@ export interface ViewPrototype {
   viewServiceConstructors?: {[serviceName: string]: ViewServiceConstructor<View, unknown> | undefined};
 
   /** @hidden */
-  viewScopeConstructors?: {[scopeName: string]: ViewScopeConstructor<View, unknown> | undefined};
+  viewPropertyConstructors?: {[propertyName: string]: ViewPropertyConstructor<View, unknown> | undefined};
 
   /** @hidden */
   viewAnimatorConstructors?: {[animatorName: string]: ViewAnimatorConstructor<View, unknown> | undefined};
@@ -1118,9 +1118,9 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     // hook
   }
 
-  declare readonly mood: ViewScope<this, MoodVector | undefined>; // defined by ViewScope
+  declare readonly mood: ViewProperty<this, MoodVector | undefined>; // defined by ViewProperty
 
-  declare readonly theme: ViewScope<this, ThemeMatrix | undefined>; // defined by ViewScope
+  declare readonly theme: ViewProperty<this, ThemeMatrix | undefined>; // defined by ViewProperty
 
   abstract getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined;
 
@@ -1198,23 +1198,23 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     return viewService;
   }
 
-  abstract hasViewScope(scopeName: string): boolean;
+  abstract hasViewProperty(propertyName: string): boolean;
 
-  abstract getViewScope(scopeName: string): ViewScope<this, unknown> | null;
+  abstract getViewProperty(propertyName: string): ViewProperty<this, unknown> | null;
 
-  abstract setViewScope(scopeName: string, viewScope: ViewScope<this, unknown> | null): void;
+  abstract setViewProperty(propertyName: string, viewProperty: ViewProperty<this, unknown> | null): void;
 
   /** @hidden */
-  getLazyViewScope(scopeName: string): ViewScope<this, unknown> | null {
-    let viewScope = this.getViewScope(scopeName);
-    if (viewScope === null) {
-      const constructor = View.getViewScopeConstructor(scopeName, Object.getPrototypeOf(this));
+  getLazyViewProperty(propertyName: string): ViewProperty<this, unknown> | null {
+    let viewProperty = this.getViewProperty(propertyName);
+    if (viewProperty === null) {
+      const constructor = View.getViewPropertyConstructor(propertyName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        viewScope = new constructor(this, scopeName);
-        this.setViewScope(scopeName, viewScope);
+        viewProperty = new constructor(this, propertyName);
+        this.setViewProperty(propertyName, viewProperty);
       }
     }
-    return viewScope;
+    return viewProperty;
   }
 
   abstract hasViewAnimator(animatorName: string): boolean;
@@ -1487,45 +1487,6 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
                options?: EventListenerOptions | boolean): this;
 
   /** @hidden */
-  static getViewRelationConstructor(relationName: string, viewPrototype: ViewPrototype | null = null): ViewRelationConstructor<any, any> | null {
-    if (viewPrototype === null) {
-      viewPrototype = this.prototype as ViewPrototype;
-    }
-    do {
-      if (Object.prototype.hasOwnProperty.call(viewPrototype, "viewRelationConstructors")) {
-        const constructor = viewPrototype.viewRelationConstructors![relationName];
-        if (constructor !== void 0) {
-          return constructor;
-        }
-      }
-      viewPrototype = Object.getPrototypeOf(viewPrototype);
-    } while (viewPrototype !== null);
-    return null;
-  }
-
-  /** @hidden */
-  static decorateViewRelation(constructor: ViewRelationConstructor<View, View>,
-                              target: Object, propertyKey: string | symbol): void {
-    const viewPrototype = target as ViewPrototype;
-    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "viewRelationConstructors")) {
-      viewPrototype.viewRelationConstructors = {};
-    }
-    viewPrototype.viewRelationConstructors![propertyKey.toString()] = constructor;
-    Object.defineProperty(target, propertyKey, {
-      get: function (this: View): ViewRelation<View, View> {
-        let viewRelation = this.getViewRelation(propertyKey.toString());
-        if (viewRelation === null) {
-          viewRelation = new constructor(this, propertyKey.toString());
-          this.setViewRelation(propertyKey.toString(), viewRelation);
-        }
-        return viewRelation;
-      },
-      enumerable: true,
-      configurable: true,
-    });
-  }
-
-  /** @hidden */
   static getViewServiceConstructor(serviceName: string, viewPrototype: ViewPrototype | null = null): ViewServiceConstructor<any, unknown> | null {
     if (viewPrototype === null) {
       viewPrototype = this.prototype as ViewPrototype;
@@ -1565,13 +1526,13 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   /** @hidden */
-  static getViewScopeConstructor(scopeName: string, viewPrototype: ViewPrototype | null = null): ViewScopeConstructor<any, unknown> | null {
+  static getViewPropertyConstructor(propertyName: string, viewPrototype: ViewPrototype | null = null): ViewPropertyConstructor<any, unknown> | null {
     if (viewPrototype === null) {
       viewPrototype = this.prototype as ViewPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(viewPrototype, "viewScopeConstructors")) {
-        const constructor = viewPrototype.viewScopeConstructors![scopeName];
+      if (Object.prototype.hasOwnProperty.call(viewPrototype, "viewPropertyConstructors")) {
+        const constructor = viewPrototype.viewPropertyConstructors![propertyName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1582,21 +1543,21 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   /** @hidden */
-  static decorateViewScope(constructor: ViewScopeConstructor<View, unknown>,
-                           target: Object, propertyKey: string | symbol): void {
+  static decorateViewProperty(constructor: ViewPropertyConstructor<View, unknown>,
+                              target: Object, propertyKey: string | symbol): void {
     const viewPrototype = target as ViewPrototype;
-    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "viewScopeConstructors")) {
-      viewPrototype.viewScopeConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "viewPropertyConstructors")) {
+      viewPrototype.viewPropertyConstructors = {};
     }
-    viewPrototype.viewScopeConstructors![propertyKey.toString()] = constructor;
+    viewPrototype.viewPropertyConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: View): ViewScope<View, unknown> {
-        let viewScope = this.getViewScope(propertyKey.toString());
-        if (viewScope === null) {
-          viewScope = new constructor(this, propertyKey.toString());
-          this.setViewScope(propertyKey.toString(), viewScope);
+      get: function (this: View): ViewProperty<View, unknown> {
+        let viewProperty = this.getViewProperty(propertyKey.toString());
+        if (viewProperty === null) {
+          viewProperty = new constructor(this, propertyKey.toString());
+          this.setViewProperty(propertyKey.toString(), viewProperty);
         }
-        return viewScope;
+        return viewProperty;
       },
       enumerable: true,
       configurable: true,
@@ -1636,6 +1597,45 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
           this.setViewAnimator(propertyKey.toString(), viewAnimator);
         }
         return viewAnimator;
+      },
+      enumerable: true,
+      configurable: true,
+    });
+  }
+
+  /** @hidden */
+  static getViewRelationConstructor(relationName: string, viewPrototype: ViewPrototype | null = null): ViewRelationConstructor<any, any> | null {
+    if (viewPrototype === null) {
+      viewPrototype = this.prototype as ViewPrototype;
+    }
+    do {
+      if (Object.prototype.hasOwnProperty.call(viewPrototype, "viewRelationConstructors")) {
+        const constructor = viewPrototype.viewRelationConstructors![relationName];
+        if (constructor !== void 0) {
+          return constructor;
+        }
+      }
+      viewPrototype = Object.getPrototypeOf(viewPrototype);
+    } while (viewPrototype !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateViewRelation(constructor: ViewRelationConstructor<View, View>,
+                              target: Object, propertyKey: string | symbol): void {
+    const viewPrototype = target as ViewPrototype;
+    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "viewRelationConstructors")) {
+      viewPrototype.viewRelationConstructors = {};
+    }
+    viewPrototype.viewRelationConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
+      get: function (this: View): ViewRelation<View, View> {
+        let viewRelation = this.getViewRelation(propertyKey.toString());
+        if (viewRelation === null) {
+          viewRelation = new constructor(this, propertyKey.toString());
+          this.setViewRelation(propertyKey.toString(), viewRelation);
+        }
+        return viewRelation;
       },
       enumerable: true,
       configurable: true,

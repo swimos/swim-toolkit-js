@@ -20,7 +20,7 @@ import type {ComponentObserverType, ComponentObserver} from "./ComponentObserver
 import type {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";
 import type {ExecuteService} from "./service/ExecuteService";
 import type {HistoryService} from "./service/HistoryService";
-import type {ComponentScopeConstructor, ComponentScope} from "./scope/ComponentScope";
+import type {ComponentPropertyConstructor, ComponentProperty} from "./property/ComponentProperty";
 import type {ComponentModelConstructor, ComponentModel} from "./relation/ComponentModel";
 import type {ComponentTraitConstructor, ComponentTrait} from "./relation/ComponentTrait";
 import type {ComponentViewConstructor, ComponentView} from "./relation/ComponentView";
@@ -37,7 +37,7 @@ export interface ComponentPrototype {
   componentServiceConstructors?: {[serviceName: string]: ComponentServiceConstructor<Component, unknown> | undefined};
 
   /** @hidden */
-  componentScopeConstructors?: {[scopeName: string]: ComponentScopeConstructor<Component, unknown> | undefined};
+  componentPropertyConstructors?: {[propertyName: string]: ComponentPropertyConstructor<Component, unknown> | undefined};
 
   /** @hidden */
   componentModelConstructors?: {[modelName: string]: ComponentModelConstructor<Component, Model> | undefined};
@@ -819,23 +819,23 @@ export abstract class Component {
     return componentService;
   }
 
-  abstract hasComponentScope(scopeName: string): boolean;
+  abstract hasComponentProperty(propertyName: string): boolean;
 
-  abstract getComponentScope(scopeName: string): ComponentScope<this, unknown> | null;
+  abstract getComponentProperty(propertyName: string): ComponentProperty<this, unknown> | null;
 
-  abstract setComponentScope(scopeName: string, componentScope: ComponentScope<this, unknown> | null): void;
+  abstract setComponentProperty(propertyName: string, componentProperty: ComponentProperty<this, unknown> | null): void;
 
   /** @hidden */
-  getLazyComponentScope(scopeName: string): ComponentScope<this, unknown> | null {
-    let componentScope = this.getComponentScope(scopeName);
-    if (componentScope === null) {
-      const constructor = Component.getComponentScopeConstructor(scopeName, Object.getPrototypeOf(this));
+  getLazyComponentProperty(propertyName: string): ComponentProperty<this, unknown> | null {
+    let componentProperty = this.getComponentProperty(propertyName);
+    if (componentProperty === null) {
+      const constructor = Component.getComponentPropertyConstructor(propertyName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        componentScope = new constructor(this, scopeName) as ComponentScope<this, unknown>;
-        this.setComponentScope(scopeName, componentScope);
+        componentProperty = new constructor(this, propertyName) as ComponentProperty<this, unknown>;
+        this.setComponentProperty(propertyName, componentProperty);
       }
     }
-    return componentScope;
+    return componentProperty
   }
 
   abstract hasComponentModel(modelName: string): boolean;
@@ -1062,13 +1062,13 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentScopeConstructor(scopeName: string, componentPrototype: ComponentPrototype | null = null): ComponentScopeConstructor<Component, unknown> | null {
+  static getComponentPropertyConstructor(propertyName: string, componentPrototype: ComponentPrototype | null = null): ComponentPropertyConstructor<Component, unknown> | null {
     if (componentPrototype === null) {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentScopeConstructors")) {
-        const constructor = componentPrototype.componentScopeConstructors![scopeName];
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentPropertyConstructors")) {
+        const constructor = componentPrototype.componentPropertyConstructors![propertyName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1079,21 +1079,21 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentScope(constructor: ComponentScopeConstructor<Component, unknown>,
-                                target: Object, propertyKey: string | symbol): void {
+  static decorateComponentProperty(constructor: ComponentPropertyConstructor<Component, unknown>,
+                                   target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentScopeConstructors")) {
-      componentPrototype.componentScopeConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentPropertyConstructors")) {
+      componentPrototype.componentPropertyConstructors = {};
     }
-    componentPrototype.componentScopeConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentPropertyConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: Component): ComponentScope<Component, unknown> {
-        let componentScope = this.getComponentScope(propertyKey.toString());
-        if (componentScope === null) {
-          componentScope = new constructor(this, propertyKey.toString());
-          this.setComponentScope(propertyKey.toString(), componentScope);
+      get: function (this: Component): ComponentProperty<Component, unknown> {
+        let componentProperty = this.getComponentProperty(propertyKey.toString());
+        if (componentProperty === null) {
+          componentProperty = new constructor(this, propertyKey.toString());
+          this.setComponentProperty(propertyKey.toString(), componentProperty);
         }
-        return componentScope;
+        return componentProperty;
       },
       configurable: true,
       enumerable: true,

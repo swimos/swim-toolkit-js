@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewContextType, ViewFlags, View, ViewScope} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty} from "@swim/view";
 import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeVein, TreeVein} from "./TreeVein";
@@ -67,8 +67,8 @@ export class TreeStem extends HtmlView {
     }
   }
 
-  @ViewScope({type: TreeSeed, inherit: true})
-  declare seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  @ViewProperty({type: TreeSeed, inherit: true})
+  declare seed: ViewProperty<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);

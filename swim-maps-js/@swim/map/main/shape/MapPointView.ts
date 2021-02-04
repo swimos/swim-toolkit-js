@@ -17,7 +17,7 @@ import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   TypesetView,
@@ -91,8 +91,8 @@ export class MapPointView extends MapLayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewScope({type: Number})
-  declare hitRadius: ViewScope<this, number | undefined>;
+  @ViewProperty({type: Number})
+  declare hitRadius: ViewProperty<this, number | undefined>;
 
   label(): GraphicsView | null;
   label(label: GraphicsView | AnyTextRunView | null): this;
@@ -109,8 +109,8 @@ export class MapPointView extends MapLayerView {
     }
   }
 
-  @ViewScope({type: String, state: "auto"})
-  declare labelPlacement: ViewScope<this, MapPointLabelPlacement>;
+  @ViewProperty({type: String, state: "auto"})
+  declare labelPlacement: ViewProperty<this, MapPointLabelPlacement>;
 
   isGradientStop(): boolean {
     return !!this.color.value || typeof this.opacity.value === "number";

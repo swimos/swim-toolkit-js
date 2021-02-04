@@ -15,7 +15,7 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import type {GeoPath} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
-import {ViewContextType, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewProperty, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   StrokeViewInit,
@@ -49,8 +49,8 @@ export class MapLineView extends MapPathView implements StrokeView {
   @ViewAnimator({type: Length, inherit: true})
   declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewScope({type: Number})
-  declare hitWidth: ViewScope<this, number | undefined>;
+  @ViewProperty({type: Number})
+  declare hitWidth: ViewProperty<this, number | undefined>;
 
   protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
     super.onSetGeoPath(newGeoPath, oldGeoPath);

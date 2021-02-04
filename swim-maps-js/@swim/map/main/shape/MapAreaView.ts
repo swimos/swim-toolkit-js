@@ -15,7 +15,7 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import type {GeoBox, GeoPath} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
-import {ViewContextType, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewProperty, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   FillViewInit,
@@ -57,8 +57,8 @@ export class MapAreaView extends MapPathView implements FillView, StrokeView {
   @ViewAnimator({type: Length, inherit: true})
   declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewScope({type: Boolean, state: true})
-  declare clipViewport: ViewScope<this, boolean>;
+  @ViewProperty({type: Boolean, state: true})
+  declare clipViewport: ViewProperty<this, boolean>;
 
   protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
     super.onSetGeoPath(newGeoPath, oldGeoPath);

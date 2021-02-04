@@ -37,7 +37,7 @@ export * from "./history";
 
 export * from "./service";
 
-export * from "./scope";
+export * from "./property";
 
 export * from "./relation";
 

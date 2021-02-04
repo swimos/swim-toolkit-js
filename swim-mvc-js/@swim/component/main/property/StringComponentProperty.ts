@@ -12,23 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {View} from "../View";
-import {ViewScope} from "./ViewScope";
+import type {Component} from "../Component";
+import {ComponentProperty} from "./ComponentProperty";
 
 /** @hidden */
-export abstract class NumberViewScope<V extends View> extends ViewScope<V, number | null | undefined, number | string | null | undefined> {
-  fromAny(value: number | string | null | undefined): number | null | undefined {
-    if (typeof value === "number") {
-      return value;
-    } else if (typeof value === "string") {
-      const number = +value;
-      if (isFinite(number)) {
-        return number;
-      } else {
-        throw new Error(value);
-      }
-    } else {
-      return value;
-    }
+export abstract class StringComponentProperty<C extends Component> extends ComponentProperty<C, string | null | undefined> {
+  fromAny(value: string | null | undefined): string | null | undefined {
+    return value;
   }
 }

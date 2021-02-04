@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Model} from "../Model";
-import {ModelScope} from "./ModelScope";
+export {
+  ViewPropertyMemberType,
+  ViewPropertyMemberInit,
+  ViewPropertyFlags,
+  ViewPropertyInit,
+  ViewPropertyDescriptor,
+  ViewPropertyDescriptorExtends,
+  ViewPropertyDescriptorFromAny,
+  ViewPropertyConstructor,
+  ViewPropertyClass,
+  ViewProperty,
+} from "./ViewProperty";
 
-/** @hidden */
-export abstract class StringModelScope<M extends Model> extends ModelScope<M, string | null | undefined> {
-  fromAny(value: string | null | undefined): string | null | undefined {
-    return value;
-  }
-}
+export {StringViewProperty} from "./StringViewProperty";
+
+export {BooleanViewProperty} from "./BooleanViewProperty";
+
+export {NumberViewProperty} from "./NumberViewProperty";

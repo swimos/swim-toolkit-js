@@ -18,7 +18,7 @@ import type {ComponentContextType, ComponentContext} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
 import type {ComponentObserverType} from "../ComponentObserver";
 import type {ComponentService} from "../service/ComponentService";
-import type {ComponentScope} from "../scope/ComponentScope";
+import type {ComponentProperty} from "../property/ComponentProperty";
 import type {ComponentModel} from "../relation/ComponentModel";
 import type {ComponentTrait} from "../relation/ComponentTrait";
 import type {ComponentView} from "../relation/ComponentView";
@@ -42,7 +42,7 @@ export abstract class GenericComponent extends Component {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "componentScopes", {
+    Object.defineProperty(this, "componentProperties", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -186,12 +186,12 @@ export abstract class GenericComponent extends Component {
 
   protected onMount(): void {
     super.onMount();
-    this.mountServices();
-    this.mountScopes();
-    this.mountModels();
-    this.mountTraits();
-    this.mountViews();
-    this.mountRelations();
+    this.mountComponentServices();
+    this.mountComponentProperties();
+    this.mountComponentModels();
+    this.mountComponentTraits();
+    this.mountComponentViews();
+    this.mountComponentRelations();
   }
 
   /** @hidden */
@@ -224,12 +224,12 @@ export abstract class GenericComponent extends Component {
   }
 
   protected onUnmount(): void {
-    this.unmountRelations();
-    this.unmountViews();
-    this.unmountTraits();
-    this.unmountModels();
-    this.unmountScopes();
-    this.unmountServices();
+    this.unmountComponentRelations();
+    this.unmountComponentViews();
+    this.unmountComponentTraits();
+    this.unmountComponentModels();
+    this.unmountComponentProperties();
+    this.unmountComponentServices();
     this.setComponentFlags(this.componentFlags & (~Component.ComponentFlagMask | Component.RemovingFlag));
   }
 
@@ -417,7 +417,7 @@ export abstract class GenericComponent extends Component {
 
   protected onRevise(componentContext: ComponentContextType<this>): void {
     super.onRevise(componentContext);
-    this.reviseScopes();
+    this.reviseComponentProperties();
   }
 
   /** @hidden */
@@ -464,7 +464,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected mountServices(): void {
+  protected mountComponentServices(): void {
     const componentServices = this.componentServices;
     for (const serviceName in componentServices) {
       const componentService = componentServices[serviceName]!;
@@ -473,7 +473,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected unmountServices(): void {
+  protected unmountComponentServices(): void {
     const componentServices = this.componentServices;
     for (const serviceName in componentServices) {
       const componentService = componentServices[serviceName]!;
@@ -482,72 +482,72 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  declare readonly componentScopes: {[scopeName: string]: ComponentScope<Component, unknown> | undefined} | null;
+  declare readonly componentProperties: {[propertyName: string]: ComponentProperty<Component, unknown> | undefined} | null;
 
-  hasComponentScope(scopeName: string): boolean {
-    const componentScopes = this.componentScopes;
-    return componentScopes !== null && componentScopes[scopeName] !== void 0;
+  hasComponentProperty(propertyName: string): boolean {
+    const componentProperties = this.componentProperties;
+    return componentProperties !== null && componentProperties[propertyName] !== void 0;
   }
 
-  getComponentScope(scopeName: string): ComponentScope<this, unknown> | null {
-    const componentScopes = this.componentScopes;
-    if (componentScopes !== null) {
-      const componentScope = componentScopes[scopeName];
-      if (componentScope !== void 0) {
-        return componentScope as ComponentScope<this, unknown>;
+  getComponentProperty(propertyName: string): ComponentProperty<this, unknown> | null {
+    const componentProperties = this.componentProperties;
+    if (componentProperties !== null) {
+      const componentProperty = componentProperties[propertyName];
+      if (componentProperty !== void 0) {
+        return componentProperty as ComponentProperty<this, unknown>;
       }
     }
     return null;
   }
 
-  setComponentScope(scopeName: string, newComponentScope: ComponentScope<this, unknown> | null): void {
-    let componentScopes = this.componentScopes;
-    if (componentScopes === null) {
-      componentScopes = {};
-      Object.defineProperty(this, "componentScopes", {
-        value: componentScopes,
+  setComponentProperty(propertyName: string, newComponentProperty: ComponentProperty<this, unknown> | null): void {
+    let componentProperties = this.componentProperties;
+    if (componentProperties === null) {
+      componentProperties = {};
+      Object.defineProperty(this, "componentProperties", {
+        value: componentProperties,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldComponentScope = componentScopes[scopeName];
-    if (oldComponentScope !== void 0 && this.isMounted()) {
-      oldComponentScope.unmount();
+    const oldComponentProperty = componentProperties[propertyName];
+    if (oldComponentProperty !== void 0 && this.isMounted()) {
+      oldComponentProperty.unmount();
     }
-    if (newComponentScope !== null) {
-      componentScopes[scopeName] = newComponentScope;
+    if (newComponentProperty !== null) {
+      componentProperties[propertyName] = newComponentProperty;
       if (this.isMounted()) {
-        newComponentScope.mount();
+        newComponentProperty.mount();
       }
     } else {
-      delete componentScopes[scopeName];
+      delete componentProperties[propertyName];
     }
   }
 
   /** @hidden */
-  reviseScopes(): void {
-    const componentScopes = this.componentScopes;
-    for (const scopeName in componentScopes) {
-      const componentScope = componentScopes[scopeName]!;
-      componentScope.onRevise();
+  reviseComponentProperties(): void {
+    const componentProperties = this.componentProperties;
+    for (const propertyName in componentProperties) {
+      const componentProperty = componentProperties[propertyName]!;
+      componentProperty.onRevise();
     }
   }
 
   /** @hidden */
-  protected mountScopes(): void {
-    const componentScopes = this.componentScopes;
-    for (const scopeName in componentScopes) {
-      const componentScope = componentScopes[scopeName]!;
-      componentScope.mount();
+  protected mountComponentProperties(): void {
+    const componentProperties = this.componentProperties;
+    for (const propertyName in componentProperties) {
+      const componentProperty = componentProperties[propertyName]!;
+      componentProperty.mount();
     }
   }
 
   /** @hidden */
-  protected unmountScopes(): void {
-    const componentScopes = this.componentScopes;
-    for (const scopeName in componentScopes) {
-      const componentScope = componentScopes[scopeName]!;
-      componentScope.unmount();
+  protected unmountComponentProperties(): void {
+    const componentProperties = this.componentProperties;
+    for (const propertyName in componentProperties) {
+      const componentProperty = componentProperties[propertyName]!;
+      componentProperty.unmount();
     }
   }
 
@@ -595,7 +595,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected mountModels(): void {
+  protected mountComponentModels(): void {
     const componentModels = this.componentModels;
     for (const modelName in componentModels) {
       const componentModel = componentModels[modelName]!;
@@ -604,7 +604,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected unmountModels(): void {
+  protected unmountComponentModels(): void {
     const componentModels = this.componentModels;
     for (const modelName in componentModels) {
       const componentModel = componentModels[modelName]!;
@@ -656,7 +656,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected mountTraits(): void {
+  protected mountComponentTraits(): void {
     const componentTraits = this.componentTraits;
     for (const traitName in componentTraits) {
       const componentTrait = componentTraits[traitName]!;
@@ -665,7 +665,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected unmountTraits(): void {
+  protected unmountComponentTraits(): void {
     const componentTraits = this.componentTraits;
     for (const traitName in componentTraits) {
       const componentTrait = componentTraits[traitName]!;
@@ -717,7 +717,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected mountViews(): void {
+  protected mountComponentViews(): void {
     const componentViews = this.componentViews;
     for (const viewName in componentViews) {
       const componentView = componentViews[viewName]!;
@@ -726,7 +726,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected unmountViews(): void {
+  protected unmountComponentViews(): void {
     const componentViews = this.componentViews;
     for (const viewName in componentViews) {
       const componentView = componentViews[viewName]!;
@@ -778,7 +778,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected mountRelations(): void {
+  protected mountComponentRelations(): void {
     const componentRelations = this.componentRelations;
     for (const relationName in componentRelations) {
       const componentRelation = componentRelations[relationName]!;
@@ -787,7 +787,7 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected unmountRelations(): void {
+  protected unmountComponentRelations(): void {
     const componentRelations = this.componentRelations;
     for (const relationName in componentRelations) {
       const componentRelation = componentRelations[relationName]!;

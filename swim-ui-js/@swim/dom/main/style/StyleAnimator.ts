@@ -86,8 +86,6 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
 
   readonly priority: string | undefined;
 
-  updateFlags?: number;
-
   isAuto(): boolean;
 
   setAuto(auto: boolean): void;
@@ -109,6 +107,8 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
   willStopAnimating(): void;
 
   didStopAnimating(): void;
+
+  updateFlags?: number;
 
   parse(value: string): T | undefined;
 

@@ -30,7 +30,7 @@ import {
   ViewDidComposite,
   ViewService,
   LayoutAnchor,
-  ViewScope,
+  ViewProperty,
   ViewAnimator,
   ViewRelation,
   ViewEvent,
@@ -76,7 +76,7 @@ export abstract class GraphicsView extends View {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "viewScopes", {
+    Object.defineProperty(this, "viewProperties", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -361,10 +361,10 @@ export abstract class GraphicsView extends View {
 
   protected onMount(): void {
     super.onMount();
-    this.mountServices();
-    this.mountScopes();
-    this.mountAnimators();
-    this.mountRelations();
+    this.mountViewServices();
+    this.mountViewProperties();
+    this.mountViewAnimators();
+    this.mountViewRelations();
     this.mountTheme();
   }
 
@@ -408,10 +408,10 @@ export abstract class GraphicsView extends View {
   }
 
   protected onUnmount(): void {
-    this.unmountRelations();
-    this.unmountAnimators();
-    this.unmountScopes();
-    this.unmountServices();
+    this.unmountViewRelations();
+    this.unmountViewAnimators();
+    this.unmountViewProperties();
+    this.unmountViewServices();
     this.setViewFlags(this.viewFlags & (~View.ViewFlagMask | View.RemovingFlag));
   }
 
@@ -679,7 +679,7 @@ export abstract class GraphicsView extends View {
 
   protected onChange(viewContext: ViewContextType<this>): void {
     super.onChange(viewContext);
-    this.changeScopes();
+    this.changeViewProperties();
     this.updateTheme();
   }
 
@@ -836,11 +836,11 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  @ViewScope({type: MoodMatrix})
-  declare moodModifier: ViewScope<this, MoodMatrix | undefined>;
+  @ViewProperty({type: MoodMatrix})
+  declare moodModifier: ViewProperty<this, MoodMatrix | undefined>;
 
-  @ViewScope({type: MoodMatrix})
-  declare themeModifier: ViewScope<this, MoodMatrix | undefined>;
+  @ViewProperty({type: MoodMatrix})
+  declare themeModifier: ViewProperty<this, MoodMatrix | undefined>;
 
   getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined {
     const theme = this.theme.state;
@@ -894,9 +894,9 @@ export abstract class GraphicsView extends View {
   }
 
   protected changeMood(): void {
-    const moodModifierScope = this.getViewScope("moodModifier") as ViewScope<this, MoodMatrix | undefined> | null;
-    if (moodModifierScope !== null && this.mood.isAuto()) {
-      const moodModifier = moodModifierScope.state;
+    const moodModifierProperty = this.getViewProperty("moodModifier") as ViewProperty<this, MoodMatrix | undefined> | null;
+    if (moodModifierProperty !== null && this.mood.isAuto()) {
+      const moodModifier = moodModifierProperty.state;
       if (moodModifier !== void 0) {
         let superMood = this.mood.superState;
         if (superMood === void 0) {
@@ -916,9 +916,9 @@ export abstract class GraphicsView extends View {
   }
 
   protected changeTheme(): void {
-    const themeModifierScope = this.getViewScope("themeModifier") as ViewScope<this, MoodMatrix | undefined> | null;
-    if (themeModifierScope !== null && this.theme.isAuto()) {
-      const themeModifier = themeModifierScope.state;
+    const themeModifierProperty = this.getViewProperty("themeModifier") as ViewProperty<this, MoodMatrix | undefined> | null;
+    if (themeModifierProperty !== null && this.theme.isAuto()) {
+      const themeModifier = themeModifierProperty.state;
       if (themeModifier !== void 0) {
         let superTheme = this.theme.superState;
         if (superTheme === void 0) {
@@ -1139,7 +1139,7 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
-  protected mountServices(): void {
+  protected mountViewServices(): void {
     const viewServices = this.viewServices;
     for (const serviceName in viewServices) {
       const viewService = viewServices[serviceName]!;
@@ -1148,7 +1148,7 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
-  protected unmountServices(): void {
+  protected unmountViewServices(): void {
     const viewServices = this.viewServices;
     for (const serviceName in viewServices) {
       const viewService = viewServices[serviceName]!;
@@ -1157,72 +1157,72 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
-  declare readonly viewScopes: {[scopeName: string]: ViewScope<View, unknown> | undefined} | null;
+  declare readonly viewProperties: {[propertyName: string]: ViewProperty<View, unknown> | undefined} | null;
 
-  hasViewScope(scopeName: string): boolean {
-    const viewScopes = this.viewScopes;
-    return viewScopes !== null && viewScopes[scopeName] !== void 0;
+  hasViewProperty(propertyName: string): boolean {
+    const viewProperties = this.viewProperties;
+    return viewProperties !== null && viewProperties[propertyName] !== void 0;
   }
 
-  getViewScope(scopeName: string): ViewScope<this, unknown> | null {
-    const viewScopes = this.viewScopes;
-    if (viewScopes !== null) {
-      const viewScope = viewScopes[scopeName];
-      if (viewScope !== void 0) {
-        return viewScope as ViewScope<this, unknown>;
+  getViewProperty(propertyName: string): ViewProperty<this, unknown> | null {
+    const viewProperties = this.viewProperties;
+    if (viewProperties !== null) {
+      const viewProperty = viewProperties[propertyName];
+      if (viewProperty !== void 0) {
+        return viewProperty as ViewProperty<this, unknown>;
       }
     }
     return null;
   }
 
-  setViewScope(scopeName: string, newViewScope: ViewScope<this, unknown> | null): void {
-    let viewScopes = this.viewScopes;
-    if (viewScopes === null) {
-      viewScopes = {};
-      Object.defineProperty(this, "viewScopes", {
-        value: viewScopes,
+  setViewProperty(propertyName: string, newViewProperty: ViewProperty<this, unknown> | null): void {
+    let viewProperties = this.viewProperties;
+    if (viewProperties === null) {
+      viewProperties = {};
+      Object.defineProperty(this, "viewProperties", {
+        value: viewProperties,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldViewScope = viewScopes[scopeName];
-    if (oldViewScope !== void 0 && this.isMounted()) {
-      oldViewScope.unmount();
+    const oldViewProperty = viewProperties[propertyName];
+    if (oldViewProperty !== void 0 && this.isMounted()) {
+      oldViewProperty.unmount();
     }
-    if (newViewScope !== null) {
-      viewScopes[scopeName] = newViewScope;
+    if (newViewProperty !== null) {
+      viewProperties[propertyName] = newViewProperty;
       if (this.isMounted()) {
-        newViewScope.mount();
+        newViewProperty.mount();
       }
     } else {
-      delete viewScopes[scopeName];
+      delete viewProperties[propertyName];
     }
   }
 
   /** @hidden */
-  changeScopes(): void {
-    const viewScopes = this.viewScopes;
-    for (const scopeName in viewScopes) {
-      const viewScope = viewScopes[scopeName]!;
-      viewScope.onChange();
+  changeViewProperties(): void {
+    const viewProperties = this.viewProperties;
+    for (const propertyName in viewProperties) {
+      const viewProperty = viewProperties[propertyName]!;
+      viewProperty.onChange();
     }
   }
 
   /** @hidden */
-  protected mountScopes(): void {
-    const viewScopes = this.viewScopes;
-    for (const scopeName in viewScopes) {
-      const viewScope = viewScopes[scopeName]!;
-      viewScope.mount();
+  protected mountViewProperties(): void {
+    const viewProperties = this.viewProperties;
+    for (const propertyName in viewProperties) {
+      const viewProperty = viewProperties[propertyName]!;
+      viewProperty.mount();
     }
   }
 
   /** @hidden */
-  protected unmountScopes(): void {
-    const viewScopes = this.viewScopes;
-    for (const scopeName in viewScopes) {
-      const viewScope = viewScopes[scopeName]!;
-      viewScope.unmount();
+  protected unmountViewProperties(): void {
+    const viewProperties = this.viewProperties;
+    for (const propertyName in viewProperties) {
+      const viewProperty = viewProperties[propertyName]!;
+      viewProperty.unmount();
     }
   }
 
@@ -1270,22 +1270,12 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
-  protected mountAnimators(): void {
-    this.mountViewAnimators();
-  }
-
-  /** @hidden */
   protected mountViewAnimators(): void {
     const viewAnimators = this.viewAnimators;
     for (const animatorName in viewAnimators) {
       const viewAnimator = viewAnimators[animatorName]!;
       viewAnimator.mount();
     }
-  }
-
-  /** @hidden */
-  protected unmountAnimators(): void {
-    this.unmountViewAnimators();
   }
 
   /** @hidden */
@@ -1341,7 +1331,7 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
-  protected mountRelations(): void {
+  protected mountViewRelations(): void {
     const viewRelations = this.viewRelations;
     for (const relationName in viewRelations) {
       const viewRelation = viewRelations[relationName]!;
@@ -1350,7 +1340,7 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
-  protected unmountRelations(): void {
+  protected unmountViewRelations(): void {
     const viewRelations = this.viewRelations;
     for (const relationName in viewRelations) {
       const viewRelation = viewRelations[relationName]!;

@@ -14,7 +14,7 @@
 
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewScope} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty} from "@swim/view";
 import type {ViewNode, HtmlViewConstructor, HtmlView} from "@swim/dom";
 import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembraneInit, ButtonMembrane} from "@swim/button";
@@ -74,14 +74,14 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     }
   }
 
-  @ViewScope({type: TreeSeed, inherit: true})
-  declare seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  @ViewProperty({type: TreeSeed, inherit: true})
+  declare seed: ViewProperty<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
-  @ViewScope({type: Number, inherit: true})
-  declare limbSpacing: ViewScope<this, number | undefined>;
+  @ViewProperty({type: Number, inherit: true})
+  declare limbSpacing: ViewProperty<this, number | undefined>;
 
-  @ViewScope({type: Boolean, state: false})
-  declare highlighted: ViewScope<this, boolean>;
+  @ViewProperty({type: Boolean, state: false})
+  declare highlighted: ViewProperty<this, boolean>;
 
   highlight(timing?: AnyTiming | boolean): this {
     if (!this.highlighted.state) {

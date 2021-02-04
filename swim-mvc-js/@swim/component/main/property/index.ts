@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Component} from "../Component";
-import {ComponentScope} from "./ComponentScope";
+export {
+  ComponentPropertyMemberType,
+  ComponentPropertyMemberInit,
+  ComponentPropertyFlags,
+  ComponentPropertyInit,
+  ComponentPropertyDescriptor,
+  ComponentPropertyDescriptorExtends,
+  ComponentPropertyDescriptorFromAny,
+  ComponentPropertyConstructor,
+  ComponentPropertyClass,
+  ComponentProperty,
+} from "./ComponentProperty";
 
-/** @hidden */
-export abstract class StringComponentScope<C extends Component> extends ComponentScope<C, string | null | undefined> {
-  fromAny(value: string | null | undefined): string | null | undefined {
-    return value;
-  }
-}
+export {StringComponentProperty} from "./StringComponentProperty";
+
+export {BooleanComponentProperty} from "./BooleanComponentProperty";
+
+export {NumberComponentProperty} from "./NumberComponentProperty";

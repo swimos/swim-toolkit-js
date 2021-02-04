@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import type {Trait} from "../Trait";
-import {TraitScope} from "./TraitScope";
+import {TraitProperty} from "./TraitProperty";
 
 /** @hidden */
-export abstract class NumberTraitScope<R extends Trait> extends TraitScope<R, number | null | undefined, number | string | null | undefined> {
+export abstract class NumberTraitProperty<R extends Trait> extends TraitProperty<R, number | null | undefined, number | string | null | undefined> {
   fromAny(value: number | string | null | undefined): number | null | undefined {
     if (typeof value === "number") {
       return value;

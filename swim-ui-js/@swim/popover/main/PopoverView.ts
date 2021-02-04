@@ -22,7 +22,7 @@ import {
   ViewContext,
   ViewFlags,
   View,
-  ViewScope,
+  ViewProperty,
   ViewAnimator,
   ModalOptions,
   ModalState,
@@ -393,7 +393,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   /** @hidden */
   declare readonly currentPlacement: PopoverPlacement;
 
-  @ViewScope<PopoverView, BoxR2 | null, AnyBoxR2 | null>({
+  @ViewProperty<PopoverView, BoxR2 | null, AnyBoxR2 | null>({
     type: BoxR2,
     state: null,
     onUpdate(placementFrame: BoxR2 | null): void {
@@ -403,16 +403,16 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       return value !== null ? BoxR2.fromAny(value) : null;
     },
   })
-  declare placementFrame: ViewScope<this, BoxR2 | null, AnyBoxR2 | null>;
+  declare placementFrame: ViewProperty<this, BoxR2 | null, AnyBoxR2 | null>;
 
-  @ViewScope<PopoverView, boolean>({
+  @ViewProperty<PopoverView, boolean>({
     type: Boolean,
     state: false,
     onUpdate(dropdown: boolean): void {
       this.owner.place();
     }
   })
-  declare dropdown: ViewScope<this, boolean>;
+  declare dropdown: ViewProperty<this, boolean>;
 
   protected onMount(): void {
     super.onMount();

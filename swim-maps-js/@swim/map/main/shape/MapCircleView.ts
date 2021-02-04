@@ -15,7 +15,7 @@
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2, CircleR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
-import {ViewContextType, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   FillViewInit,
@@ -87,8 +87,8 @@ export class MapCircleView extends MapLayerView implements FillView, StrokeView 
   @ViewAnimator({type: Length, inherit: true})
   declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewScope({type: Number})
-  declare hitRadius: ViewScope<this, number | undefined>;
+  @ViewProperty({type: Number})
+  declare hitRadius: ViewProperty<this, number | undefined>;
 
   protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
     if (newGeoCenter.isDefined()) {

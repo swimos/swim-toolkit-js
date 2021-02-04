@@ -117,7 +117,7 @@ export interface ModelMapDownlink<M extends ModelDownlinkContext, K = Value, V =
   createDownlink(warp: WarpRef): MapDownlink<K, V, KU, VU>;
 
   /** @hidden */
-  scopeDownlink(downlink: MapDownlink<K, V, KU, VU>): MapDownlink<K, V, KU, VU>;
+  bindDownlink(downlink: MapDownlink<K, V, KU, VU>): MapDownlink<K, V, KU, VU>;
 
   /** @hidden */
   initDownlink?(downlink: MapDownlink<K, V, KU, VU>): MapDownlink<K, V, KU, VU>;

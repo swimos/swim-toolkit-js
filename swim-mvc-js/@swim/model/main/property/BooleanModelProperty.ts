@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {View} from "../View";
-import {ViewScope} from "./ViewScope";
+import type {Model} from "../Model";
+import {ModelProperty} from "./ModelProperty";
 
 /** @hidden */
-export abstract class BooleanViewScope<V extends View> extends ViewScope<V, boolean | null | undefined, boolean | string | null | undefined> {
+export abstract class BooleanModelProperty<M extends Model> extends ModelProperty<M, boolean | null | undefined, boolean | string | null | undefined> {
   fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
     return !!value;
   }

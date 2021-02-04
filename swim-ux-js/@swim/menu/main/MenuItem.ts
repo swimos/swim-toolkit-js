@@ -16,7 +16,7 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import type {Height} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, View, ViewEdgeInsets, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ViewEdgeInsets, ViewProperty, ViewAnimator} from "@swim/view";
 import {HtmlView, SvgView} from "@swim/dom";
 import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembrane} from "@swim/button";
@@ -49,11 +49,11 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
 
   declare readonly viewObservers: ReadonlyArray<MenuItemObserver>;
 
-  @ViewScope({type: Boolean, state: false})
-  declare highlighted: ViewScope<this, boolean>;
+  @ViewProperty({type: Boolean, state: false})
+  declare highlighted: ViewProperty<this, boolean>;
 
-  @ViewScope({type: Object, inherit: true})
-  declare edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
+  @ViewProperty({type: Object, inherit: true})
+  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | undefined>;
 
   @ViewAnimator({type: Length, inherit: true})
   declare collapsedWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;

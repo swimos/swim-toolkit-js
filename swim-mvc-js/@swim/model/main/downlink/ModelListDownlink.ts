@@ -94,7 +94,7 @@ export interface ModelListDownlink<M extends ModelDownlinkContext, V = Value, VU
   createDownlink(warp: WarpRef): ListDownlink<V, VU>;
 
   /** @hidden */
-  scopeDownlink(downlink: ListDownlink<V, VU>): ListDownlink<V, VU>;
+  bindDownlink(downlink: ListDownlink<V, VU>): ListDownlink<V, VU>;
 
   /** @hidden */
   initDownlink?(downlink: ListDownlink<V, VU>): ListDownlink<V, VU>;

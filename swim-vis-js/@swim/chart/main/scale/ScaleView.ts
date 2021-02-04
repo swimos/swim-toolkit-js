@@ -29,7 +29,7 @@ import type {BoxR2} from "@swim/math";
 import {DateTime, TimeDomain, TimeScale} from "@swim/time";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, LayerView} from "@swim/graphics";
 import {ScaleGestureInput, ScaleGestureDelegate, ScaleGesture} from "@swim/gesture";
 import {ScaleXView} from "./ScaleXView";
@@ -341,80 +341,80 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     return LinearRange(yRangeMin, yRangeMax);
   }
 
-  @ViewScope<ScaleView<X, Y>, readonly [X | boolean, X | boolean]>({
+  @ViewProperty<ScaleView<X, Y>, readonly [X | boolean, X | boolean]>({
     type: Object,
     updateFlags: View.NeedsAnimate,
     initState: function (): readonly [X | boolean, X | boolean] {
       return [true, true];
     },
   })
-  declare xDomainBounds: ViewScope<this, readonly [X | boolean, X | boolean]>
+  declare xDomainBounds: ViewProperty<this, readonly [X | boolean, X | boolean]>
 
-  @ViewScope<ScaleView<X, Y>, readonly [Y | boolean, Y | boolean]>({
+  @ViewProperty<ScaleView<X, Y>, readonly [Y | boolean, Y | boolean]>({
     type: Object,
     updateFlags: View.NeedsAnimate,
     initState: function (): readonly [Y | boolean, Y | boolean] {
       return [true, true];
     },
   })
-  declare yDomainBounds: ViewScope<this, readonly [Y | boolean, Y | boolean]>
+  declare yDomainBounds: ViewProperty<this, readonly [Y | boolean, Y | boolean]>
 
-  @ViewScope<ScaleView<X, Y>, readonly [number | boolean, number | boolean]>({
+  @ViewProperty<ScaleView<X, Y>, readonly [number | boolean, number | boolean]>({
     type: Object,
     updateFlags: View.NeedsAnimate,
     initState: function (): readonly [number | boolean, number | boolean] {
       return [true, true];
     },
   })
-  declare xZoomBounds: ViewScope<this, readonly [number | boolean, number | boolean]>
+  declare xZoomBounds: ViewProperty<this, readonly [number | boolean, number | boolean]>
 
-  @ViewScope<ScaleView<X, Y>, readonly [number | boolean, number | boolean]>({
+  @ViewProperty<ScaleView<X, Y>, readonly [number | boolean, number | boolean]>({
     type: Object,
     updateFlags: View.NeedsAnimate,
     initState: function (): readonly [number | boolean, number | boolean] {
       return [true, true];
     },
   })
-  declare yZoomBounds: ViewScope<this, readonly [number | boolean, number | boolean]>
+  declare yZoomBounds: ViewProperty<this, readonly [number | boolean, number | boolean]>
 
-  @ViewScope<ScaleView<X, Y>, readonly [X | boolean, X | boolean]>({
+  @ViewProperty<ScaleView<X, Y>, readonly [X | boolean, X | boolean]>({
     type: Object,
     updateFlags: View.NeedsAnimate,
     initState: function (): readonly [X | boolean, X | boolean] {
       return [false, false];
     },
   })
-  declare xDomainPadding: ViewScope<this, readonly [X | boolean, X | boolean]>
+  declare xDomainPadding: ViewProperty<this, readonly [X | boolean, X | boolean]>
 
-  @ViewScope<ScaleView<X, Y>, readonly [Y | boolean, Y | boolean]>({
+  @ViewProperty<ScaleView<X, Y>, readonly [Y | boolean, Y | boolean]>({
     type: Object,
     updateFlags: View.NeedsAnimate,
     initState: function (): readonly [Y | boolean, Y | boolean] {
       return [false, false];
     },
   })
-  declare yDomainPadding: ViewScope<this, readonly [Y | boolean, Y | boolean]>
+  declare yDomainPadding: ViewProperty<this, readonly [Y | boolean, Y | boolean]>
 
-  @ViewScope<ScaleView<X, Y>, readonly [number, number]>({
+  @ViewProperty<ScaleView<X, Y>, readonly [number, number]>({
     type: Object,
     updateFlags: View.NeedsAnimate,
     initState: function (): readonly [number, number] {
       return [0, 0];
     },
   })
-  declare xRangePadding: ViewScope<this, readonly [number, number]>
+  declare xRangePadding: ViewProperty<this, readonly [number, number]>
 
-  @ViewScope<ScaleView<X, Y>, readonly [number, number]>({
+  @ViewProperty<ScaleView<X, Y>, readonly [number, number]>({
     type: Object,
     updateFlags: View.NeedsAnimate,
     initState: function (): readonly [number, number] {
       return [0, 0];
     },
   })
-  declare yRangePadding: ViewScope<this, readonly [number, number]>
+  declare yRangePadding: ViewProperty<this, readonly [number, number]>
 
-  @ViewScope({type: Object})
-  declare xDataDomain: ViewScope<this, readonly [X, X] | undefined>;
+  @ViewProperty({type: Object})
+  declare xDataDomain: ViewProperty<this, readonly [X, X] | undefined>;
 
   getXDataDomain(): readonly [X, X] | undefined {
     let xDataDomain = this.xDataDomain.state;
@@ -446,8 +446,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     return xDataDomain;
   }
 
-  @ViewScope({type: Object})
-  declare yDataDomain: ViewScope<this, readonly [Y, Y] | undefined>;
+  @ViewProperty({type: Object})
+  declare yDataDomain: ViewProperty<this, readonly [Y, Y] | undefined>;
 
   getYDataDomain(): readonly [Y, Y] | undefined {
     let yDataDomain = this.yDataDomain.state;
@@ -479,19 +479,19 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     return yDataDomain;
   }
 
-  @ViewScope({type: Object})
-  declare xDataDomainPadded: ViewScope<this, readonly [X, X] | undefined>;
+  @ViewProperty({type: Object})
+  declare xDataDomainPadded: ViewProperty<this, readonly [X, X] | undefined>;
 
-  @ViewScope({type: Object})
-  declare yDataDomainPadded: ViewScope<this, readonly [Y, Y] | undefined>;
+  @ViewProperty({type: Object})
+  declare yDataDomainPadded: ViewProperty<this, readonly [Y, Y] | undefined>;
 
-  @ViewScope({type: Object})
-  declare xDataRange: ViewScope<this, readonly [number, number] | undefined>;
+  @ViewProperty({type: Object})
+  declare xDataRange: ViewProperty<this, readonly [number, number] | undefined>;
 
-  @ViewScope({type: Object})
-  declare yDataRange: ViewScope<this, readonly [number, number] | undefined>;
+  @ViewProperty({type: Object})
+  declare yDataRange: ViewProperty<this, readonly [number, number] | undefined>;
 
-  @ViewScope<ScaleView<X, Y>, readonly [number, number], number>({
+  @ViewProperty<ScaleView<X, Y>, readonly [number, number], number>({
     type: Object,
     initState: function (): readonly [number, number] {
       return [1.0, 0.5];
@@ -504,7 +504,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
     },
   })
-  declare fitAlign: ViewScope<this, readonly [number, number], number>;
+  declare fitAlign: ViewProperty<this, readonly [number, number], number>;
 
   xFitAlign(): number;
   xFitAlign(xFitAlign: number): this;
@@ -530,8 +530,8 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     }
   }
 
-  @ViewScope({type: Number})
-  declare fitAspectRatio: ViewScope<this, number | undefined>;
+  @ViewProperty({type: Number})
+  declare fitAspectRatio: ViewProperty<this, number | undefined>;
 
   preserveAspectRatio(): boolean;
   preserveAspectRatio(preserveAspectRatio: boolean): this;
@@ -698,7 +698,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     return new ScaleGesture(this, this);
   }
 
-  @ViewScope<ScaleView<X, Y>, ScaleGesture<X, Y> | undefined, ScaleGesture<X, Y> | boolean | undefined>({
+  @ViewProperty<ScaleView<X, Y>, ScaleGesture<X, Y> | undefined, ScaleGesture<X, Y> | boolean | undefined>({
     type: ScaleGesture,
     inherit: true,
     fromAny(value: ScaleGesture<X, Y> | boolean | undefined): ScaleGesture<X, Y> | undefined {
@@ -711,25 +711,25 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       }
     }
   })
-  declare scaleGesture: ViewScope<this, ScaleGesture<X, Y> | undefined, ScaleGesture<X, Y> | boolean | undefined>;
+  declare scaleGesture: ViewProperty<this, ScaleGesture<X, Y> | undefined, ScaleGesture<X, Y> | boolean | undefined>;
 
-  @ViewScope({
+  @ViewProperty({
     type: Timing,
     inherit: true,
     initState(): Timing | undefined {
       return Easing.linear.withDuration(250);
     },
   })
-  declare rescaleTransition: ViewScope<this, Timing | undefined, AnyTiming | undefined>;
+  declare rescaleTransition: ViewProperty<this, Timing | undefined, AnyTiming | undefined>;
 
-  @ViewScope({
+  @ViewProperty({
     type: Timing,
     inherit: true,
     initState(): Timing | undefined {
       return Easing.cubicOut.withDuration(250);
     },
   })
-  declare reboundTransition: ViewScope<this, Timing | undefined, AnyTiming | undefined>;
+  declare reboundTransition: ViewProperty<this, Timing | undefined, AnyTiming | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
   declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;

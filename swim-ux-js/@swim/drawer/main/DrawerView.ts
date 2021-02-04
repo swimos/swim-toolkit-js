@@ -23,7 +23,7 @@ import {
   ModalOptions,
   ModalState,
   Modal,
-  ViewScope,
+  ViewProperty,
   ViewAnimator,
 } from "@swim/view";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
@@ -238,8 +238,8 @@ export class DrawerView extends HtmlView implements Modal {
     }
   }
 
-  @ViewScope({type: Object, inherit: true})
-  declare edgeInsets: ViewScope<this, ViewEdgeInsets | undefined>;
+  @ViewProperty({type: Object, inherit: true})
+  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | undefined>;
 
   protected willSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
     const viewController = this.viewController;

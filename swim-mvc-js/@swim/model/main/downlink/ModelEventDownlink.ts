@@ -45,7 +45,7 @@ export interface ModelEventDownlink<M extends ModelDownlinkContext> extends Mode
   createDownlink(warp: WarpRef): EventDownlink;
 
   /** @hidden */
-  scopeDownlink(downlink: EventDownlink): EventDownlink;
+  bindDownlink(downlink: EventDownlink): EventDownlink;
 
   /** @hidden */
   initDownlink?(downlink: EventDownlink): EventDownlink;

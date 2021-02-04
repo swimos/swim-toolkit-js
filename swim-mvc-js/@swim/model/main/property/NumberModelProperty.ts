@@ -13,11 +13,22 @@
 // limitations under the License.
 
 import type {Model} from "../Model";
-import {ModelScope} from "./ModelScope";
+import {ModelProperty} from "./ModelProperty";
 
 /** @hidden */
-export abstract class BooleanModelScope<M extends Model> extends ModelScope<M, boolean | null | undefined, boolean | string | null | undefined> {
-  fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
-    return !!value;
+export abstract class NumberModelProperty<M extends Model> extends ModelProperty<M, number | null | undefined, number | string | null | undefined> {
+  fromAny(value: number | string | null | undefined): number | null | undefined {
+    if (typeof value === "number") {
+      return value;
+    } else if (typeof value === "string") {
+      const number = +value;
+      if (isFinite(number)) {
+        return number;
+      } else {
+        throw new Error(value);
+      }
+    } else {
+      return value;
+    }
   }
 }

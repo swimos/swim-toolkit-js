@@ -82,8 +82,6 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
 
   readonly attributeValue: T | undefined;
 
-  updateFlags?: ViewFlags;
-
   isAuto(): boolean;
 
   setAuto(auto: boolean): void;
@@ -105,6 +103,8 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
   willStopAnimating(): void;
 
   didStopAnimating(): void;
+
+  updateFlags?: ViewFlags;
 
   parse(value: string): T | undefined;
 

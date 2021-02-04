@@ -20,7 +20,7 @@ import type {TraitObserverType, TraitObserver} from "./TraitObserver";
 import type {TraitConsumerType, TraitConsumer} from "./TraitConsumer";
 import type {WarpManager} from "./warp/WarpManager";
 import type {TraitServiceConstructor, TraitService} from "./service/TraitService";
-import type {TraitScopeConstructor, TraitScope} from "./scope/TraitScope";
+import type {TraitPropertyConstructor, TraitProperty} from "./property/TraitProperty";
 import type {TraitModelConstructor, TraitModel} from "./relation/TraitModel";
 import type {TraitRelationConstructor, TraitRelation} from "./relation/TraitRelation";
 import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
@@ -37,7 +37,7 @@ export interface TraitPrototype {
   traitServiceConstructors?: {[serviceName: string]: TraitServiceConstructor<Trait, unknown> | undefined};
 
   /** @hidden */
-  traitScopeConstructors?: {[scopeName: string]: TraitScopeConstructor<Trait, unknown> | undefined};
+  traitPropertyConstructors?: {[propertyName: string]: TraitPropertyConstructor<Trait, unknown> | undefined};
 
   /** @hidden */
   traitModelConstructors?: {[relationName: string]: TraitModelConstructor<Trait, Model> | undefined};
@@ -564,7 +564,7 @@ export abstract class Trait implements ModelDownlinkContext {
 
   declare readonly warpService: TraitService<this, WarpManager>; // defined by WarpService
 
-  declare readonly warpRef: TraitScope<this, WarpRef | undefined>; // defined by GenericTrait
+  declare readonly warpRef: TraitProperty<this, WarpRef | undefined>; // defined by GenericTrait
 
   isMounted(): boolean {
     return (this.traitFlags & Trait.MountedFlag) !== 0;
@@ -1081,23 +1081,23 @@ export abstract class Trait implements ModelDownlinkContext {
     return traitService;
   }
 
-  abstract hasTraitScope(scopeName: string): boolean;
+  abstract hasTraitProperty(propertyName: string): boolean;
 
-  abstract getTraitScope(scopeName: string): TraitScope<this, unknown> | null;
+  abstract getTraitProperty(propertyName: string): TraitProperty<this, unknown> | null;
 
-  abstract setTraitScope(scopeName: string, traitScope: TraitScope<this, unknown> | null): void;
+  abstract setTraitProperty(propertyName: string, traitProperty: TraitProperty<this, unknown> | null): void;
 
   /** @hidden */
-  getLazyTraitScope(scopeName: string): TraitScope<this, unknown> | null {
-    let traitScope = this.getTraitScope(scopeName) as TraitScope<this, unknown> | null;
-    if (traitScope === null) {
-      const constructor = Trait.getTraitScopeConstructor(scopeName, Object.getPrototypeOf(this));
+  getLazyTraitProperty(propertyName: string): TraitProperty<this, unknown> | null {
+    let traitProperty = this.getTraitProperty(propertyName) as TraitProperty<this, unknown> | null;
+    if (traitProperty === null) {
+      const constructor = Trait.getTraitPropertyConstructor(propertyName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        traitScope = new constructor(this, scopeName) as TraitScope<this, unknown>;
-        this.setTraitScope(scopeName, traitScope);
+        traitProperty = new constructor(this, propertyName) as TraitProperty<this, unknown>;
+        this.setTraitProperty(propertyName, traitProperty);
       }
     }
-    return traitScope;
+    return traitProperty;
   }
 
   abstract hasTraitModel(relationName: string): boolean;
@@ -1189,13 +1189,13 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getTraitScopeConstructor(scopeName: string, traitPrototype: TraitPrototype | null = null): TraitScopeConstructor<Trait, unknown> | null {
+  static getTraitPropertyConstructor(propertyName: string, traitPrototype: TraitPrototype | null = null): TraitPropertyConstructor<Trait, unknown> | null {
     if (traitPrototype === null) {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitScopeConstructors")) {
-        const constructor = traitPrototype.traitScopeConstructors![scopeName];
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitPropertyConstructors")) {
+        const constructor = traitPrototype.traitPropertyConstructors![propertyName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1206,21 +1206,21 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static decorateTraitScope(constructor: TraitScopeConstructor<Trait, unknown>,
-                            target: Object, propertyKey: string | symbol): void {
+  static decorateTraitProperty(constructor: TraitPropertyConstructor<Trait, unknown>,
+                               target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "traitScopeConstructors")) {
-      traitPrototype.traitScopeConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "traitPropertyConstructors")) {
+      traitPrototype.traitPropertyConstructors = {};
     }
-    traitPrototype.traitScopeConstructors![propertyKey.toString()] = constructor;
+    traitPrototype.traitPropertyConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: Trait): TraitScope<Trait, unknown> {
-        let traitScope = this.getTraitScope(propertyKey.toString());
-        if (traitScope === null) {
-          traitScope = new constructor(this, propertyKey.toString());
-          this.setTraitScope(propertyKey.toString(), traitScope);
+      get: function (this: Trait): TraitProperty<Trait, unknown> {
+        let traitProperty = this.getTraitProperty(propertyKey.toString());
+        if (traitProperty === null) {
+          traitProperty = new constructor(this, propertyKey.toString());
+          this.setTraitProperty(propertyKey.toString(), traitProperty);
         }
-        return traitScope;
+        return traitProperty;
       },
       configurable: true,
       enumerable: true,

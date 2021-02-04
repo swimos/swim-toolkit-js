@@ -16,7 +16,7 @@ import {Equivalent} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, BoxR2, AnyPointR2, PointR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -217,8 +217,8 @@ export class DialView extends LayerView {
     }
   }
 
-  @ViewScope({type: String, state: "auto"})
-  declare arrangement: ViewScope<this, DialViewArrangement>;
+  @ViewProperty({type: String, state: "auto"})
+  declare arrangement: ViewProperty<this, DialViewArrangement>;
 
   protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);

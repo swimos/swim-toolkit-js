@@ -17,7 +17,7 @@ import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   StrokeViewInit,
@@ -178,11 +178,11 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     return point;
   }
 
-  @ViewScope({type: GeoPoint, state: GeoPoint.origin()})
-  declare geoCentroid: ViewScope<this, GeoPoint, AnyGeoPoint>;
+  @ViewProperty({type: GeoPoint, state: GeoPoint.origin()})
+  declare geoCentroid: ViewProperty<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewScope({type: PointR2, state: PointR2.origin()})
-  declare viewCentroid: ViewScope<this, PointR2, AnyPointR2>;
+  @ViewProperty({type: PointR2, state: PointR2.origin()})
+  declare viewCentroid: ViewProperty<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Color, inherit: true})
   declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
@@ -196,8 +196,8 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewScope({type: Number})
-  declare hitWidth: ViewScope<this, number | undefined>;
+  @ViewProperty({type: Number})
+  declare hitWidth: ViewProperty<this, number | undefined>;
 
   /** @hidden */
   declare readonly gradientStops: number;

@@ -22,7 +22,7 @@ import type {TraitClass, Trait} from "./Trait";
 import type {ModelServiceConstructor, ModelService} from "./service/ModelService";
 import type {RefreshService} from "./service/RefreshService";
 import type {WarpService} from "./service/WarpService";
-import type {ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
+import type {ModelPropertyConstructor, ModelProperty} from "./property/ModelProperty";
 import type {ModelRelationConstructor, ModelRelation} from "./relation/ModelRelation";
 import type {ModelTraitConstructor, ModelTrait} from "./relation/ModelTrait";
 import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
@@ -40,7 +40,7 @@ export interface ModelPrototype {
   modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<Model, unknown> | undefined};
 
   /** @hidden */
-  modelScopeConstructors?: {[scopeName: string]: ModelScopeConstructor<Model, unknown> | undefined};
+  modelPropertyConstructors?: {[propertyName: string]: ModelPropertyConstructor<Model, unknown> | undefined};
 
   /** @hidden */
   modelRelationConstructors?: {[relationName: string]: ModelRelationConstructor<Model, Model> | undefined};
@@ -768,7 +768,7 @@ export abstract class Model implements ModelDownlinkContext {
 
   declare readonly warpService: WarpService<this>; // defined by WarpService
 
-  declare readonly warpRef: ModelScope<this, WarpRef | undefined>; // defined by GenericModel
+  declare readonly warpRef: ModelProperty<this, WarpRef | undefined>; // defined by GenericModel
 
   isMounted(): boolean {
     return (this.modelFlags & Model.MountedFlag) !== 0;
@@ -1564,23 +1564,23 @@ export abstract class Model implements ModelDownlinkContext {
     return modelService;
   }
 
-  abstract hasModelScope(scopeName: string): boolean;
+  abstract hasModelProperty(propertyName: string): boolean;
 
-  abstract getModelScope(scopeName: string): ModelScope<this, unknown> | null;
+  abstract getModelProperty(propertyName: string): ModelProperty<this, unknown> | null;
 
-  abstract setModelScope(scopeName: string, modelScope: ModelScope<this, unknown> | null): void;
+  abstract setModelProperty(propertyName: string, modelProperty: ModelProperty<this, unknown> | null): void;
 
   /** @hidden */
-  getLazyModelScope(scopeName: string): ModelScope<this, unknown> | null {
-    let modelScope = this.getModelScope(scopeName) as ModelScope<this, unknown> | null;
-    if (modelScope === null) {
-      const constructor = Model.getModelScopeConstructor(scopeName, Object.getPrototypeOf(this));
+  getLazyModelProperty(propertyName: string): ModelProperty<this, unknown> | null {
+    let modelProperty = this.getModelProperty(propertyName) as ModelProperty<this, unknown> | null;
+    if (modelProperty === null) {
+      const constructor = Model.getModelPropertyConstructor(propertyName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        modelScope = new constructor(this, scopeName) as ModelScope<this, unknown>;
-        this.setModelScope(scopeName, modelScope);
+        modelProperty = new constructor(this, propertyName) as ModelProperty<this, unknown>;
+        this.setModelProperty(propertyName, modelProperty);
       }
     }
-    return modelScope;
+    return modelProperty;
   }
 
   abstract hasModelRelation(relationName: string): boolean;
@@ -1694,13 +1694,13 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getModelScopeConstructor(scopeName: string, modelPrototype: ModelPrototype | null = null): ModelScopeConstructor<Model, unknown> | null {
+  static getModelPropertyConstructor(propertyName: string, modelPrototype: ModelPrototype | null = null): ModelPropertyConstructor<Model, unknown> | null {
     if (modelPrototype === null) {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelScopeConstructors")) {
-        const constructor = modelPrototype.modelScopeConstructors![scopeName];
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelPropertyConstructors")) {
+        const constructor = modelPrototype.modelPropertyConstructors![propertyName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1711,21 +1711,21 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static decorateModelScope(constructor: ModelScopeConstructor<Model, unknown>,
-                            target: Object, propertyKey: string | symbol): void {
+  static decorateModelProperty(constructor: ModelPropertyConstructor<Model, unknown>,
+                               target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelScopeConstructors")) {
-      modelPrototype.modelScopeConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelPropertyConstructors")) {
+      modelPrototype.modelPropertyConstructors = {};
     }
-    modelPrototype.modelScopeConstructors![propertyKey.toString()] = constructor;
+    modelPrototype.modelPropertyConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: Model): ModelScope<Model, unknown> {
-        let modelScope = this.getModelScope(propertyKey.toString());
-        if (modelScope === null) {
-          modelScope = new constructor(this, propertyKey.toString());
-          this.setModelScope(propertyKey.toString(), modelScope);
+      get: function (this: Model): ModelProperty<Model, unknown> {
+        let modelProperty = this.getModelProperty(propertyKey.toString());
+        if (modelProperty === null) {
+          modelProperty = new constructor(this, propertyKey.toString());
+          this.setModelProperty(propertyKey.toString(), modelProperty);
         }
-        return modelScope;
+        return modelProperty;
       },
       configurable: true,
       enumerable: true,

@@ -17,7 +17,7 @@ import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   FillViewInit,
@@ -178,14 +178,14 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
     return point;
   }
 
-  @ViewScope({type: Boolean, state: true})
-  declare clipViewport: ViewScope<this, boolean>;
+  @ViewProperty({type: Boolean, state: true})
+  declare clipViewport: ViewProperty<this, boolean>;
 
-  @ViewScope({type: GeoPoint, state: GeoPoint.origin()})
-  declare geoCentroid: ViewScope<this, GeoPoint, AnyGeoPoint>;
+  @ViewProperty({type: GeoPoint, state: GeoPoint.origin()})
+  declare geoCentroid: ViewProperty<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewScope({type: PointR2, state: PointR2.origin()})
-  declare viewCentroid: ViewScope<this, PointR2, AnyPointR2>;
+  @ViewProperty({type: PointR2, state: PointR2.origin()})
+  declare viewCentroid: ViewProperty<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Color, inherit: true})
   declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;

@@ -12,21 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ComponentScopeMemberType,
-  ComponentScopeMemberInit,
-  ComponentScopeFlags,
-  ComponentScopeInit,
-  ComponentScopeDescriptor,
-  ComponentScopeDescriptorExtends,
-  ComponentScopeDescriptorFromAny,
-  ComponentScopeConstructor,
-  ComponentScopeClass,
-  ComponentScope,
-} from "./ComponentScope";
+import type {View} from "../View";
+import {ViewProperty} from "./ViewProperty";
 
-export {StringComponentScope} from "./StringComponentScope";
-
-export {BooleanComponentScope} from "./BooleanComponentScope";
-
-export {NumberComponentScope} from "./NumberComponentScope";
+/** @hidden */
+export abstract class StringViewProperty<V extends View> extends ViewProperty<V, string | null | undefined> {
+  fromAny(value: string | null | undefined): string | null | undefined {
+    return value;
+  }
+}

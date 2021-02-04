@@ -157,7 +157,7 @@ export interface ModelDownlink<M extends ModelDownlinkContext> {
   createDownlink(warp: WarpRef): Downlink;
 
   /** @hidden */
-  scopeDownlink(downlink: Downlink): Downlink;
+  bindDownlink(downlink: Downlink): Downlink;
 
   /** @hidden */
   initDownlink?(downlink: Downlink): Downlink;
@@ -543,7 +543,7 @@ ModelDownlink.prototype.link = function (this: ModelDownlink<ModelDownlinkContex
       warp = this.owner.warpService.manager.client;
     }
     let downlink = this.createDownlink(warp);
-    downlink = this.scopeDownlink(downlink);
+    downlink = this.bindDownlink(downlink);
     if (this.initDownlink !== void 0) {
       downlink = this.initDownlink(downlink);
     }
@@ -596,7 +596,7 @@ ModelDownlink.prototype.reconcile = function (this: ModelDownlink<ModelDownlinkC
   }
 };
 
-ModelDownlink.prototype.scopeDownlink = function (this: ModelDownlink<ModelDownlinkContext>, downlink: Downlink): Downlink {
+ModelDownlink.prototype.bindDownlink = function (this: ModelDownlink<ModelDownlinkContext>, downlink: Downlink): Downlink {
   const hostUri = this.hostUri();
   if (hostUri !== null) {
     downlink = downlink.hostUri(hostUri);

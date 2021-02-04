@@ -15,7 +15,7 @@
 import {Range, AnyTiming, Timing, Easing, LinearRange} from "@swim/mapping";
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {View, ViewScope, ViewAnimator} from "@swim/view";
+import {View, ViewProperty, ViewAnimator} from "@swim/view";
 import type {ChartViewObserver} from "./ChartViewObserver";
 import type {ChartViewController} from "./ChartViewController";
 import {ScaleViewInit, ScaleView} from "../scale/ScaleView";
@@ -257,14 +257,14 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
   @ViewAnimator({type: Number, state: 2})
   declare tickLabelPadding: ViewAnimator<this, number>;
 
-  @ViewScope({
+  @ViewProperty({
     type: Timing,
     inherit: true,
     initState(): Timing {
       return Easing.cubicOut.withDuration(250);
     },
   })
-  declare tickTransition: ViewScope<this, Timing, AnyTiming>;
+  declare tickTransition: ViewProperty<this, Timing, AnyTiming>;
 
   @ViewAnimator({type: Color, state: Color.transparent()})
   declare gridLineColor: ViewAnimator<this, Color, AnyColor>;

@@ -18,7 +18,7 @@ import {TraitModelType, TraitContextType, Trait} from "../Trait";
 import type {TraitObserverType} from "../TraitObserver";
 import type {TraitConsumerType, TraitConsumer} from "../TraitConsumer";
 import type {TraitService} from "../service/TraitService";
-import {TraitScope} from "../scope/TraitScope";
+import {TraitProperty} from "../property/TraitProperty";
 import type {TraitModel} from "../relation/TraitModel";
 import type {TraitRelation} from "../relation/TraitRelation";
 import type {ModelDownlink} from "../downlink/ModelDownlink";
@@ -46,7 +46,7 @@ export class GenericTrait extends Trait {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "traitScopes", {
+    Object.defineProperty(this, "traitProperties", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -126,23 +126,23 @@ export class GenericTrait extends Trait {
   }
 
   protected attachModel(newModel: TraitModelType<this>): void {
-    this.attachServices();
-    this.attachScopes();
+    this.attachTraitServices();
+    this.attachTraitProperties();
     if (this.isMounted()) {
       this.mountTraitModels();
       this.mountTraitRelations();
-      this.mountDownlinks();
+      this.mountTraitDownlinks();
     }
   }
 
   protected detachModel(oldModel: TraitModelType<this>): void {
     if (this.isMounted()) {
-      this.unmountDownlinks();
+      this.unmountTraitDownlinks();
       this.unmountTraitRelations();
       this.unmountTraitModels();
     }
-    this.detachScopes();
-    this.detachServices();
+    this.detachTraitProperties();
+    this.detachTraitServices();
   }
 
   remove(): void {
@@ -188,7 +188,7 @@ export class GenericTrait extends Trait {
     super.onMount();
     this.mountTraitModels();
     this.mountTraitRelations();
-    this.mountDownlinks();
+    this.mountTraitDownlinks();
   }
 
   /** @hidden */
@@ -204,7 +204,7 @@ export class GenericTrait extends Trait {
   }
 
   protected onUnmount(): void {
-    this.unmountDownlinks();
+    this.unmountTraitDownlinks();
     this.unmountTraitRelations();
     this.unmountTraitModels();
   }
@@ -235,12 +235,12 @@ export class GenericTrait extends Trait {
 
   protected onMutate(modelContext: TraitContextType<this>): void {
     super.onMutate(modelContext);
-    this.mutateScopes();
+    this.mutateTraitProperties();
   }
 
   protected onReconcile(modelContext: TraitContextType<this>): void {
     super.onReconcile(modelContext);
-    this.reconcileDownlinks();
+    this.reconcileTraitDownlinks();
   }
 
   protected startConsuming(): void {
@@ -343,7 +343,7 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  protected attachServices(): void {
+  protected attachTraitServices(): void {
     const traitServices = this.traitServices;
     for (const serviceName in traitServices) {
       const traitService = traitServices[serviceName]!;
@@ -352,7 +352,7 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  protected detachServices(): void {
+  protected detachTraitServices(): void {
     const traitServices = this.traitServices;
     for (const serviceName in traitServices) {
       const traitService = traitServices[serviceName]!;
@@ -361,72 +361,72 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  declare readonly traitScopes: {[scopeName: string]: TraitScope<Trait, unknown> | undefined} | null;
+  declare readonly traitProperties: {[propertyName: string]: TraitProperty<Trait, unknown> | undefined} | null;
 
-  hasTraitScope(scopeName: string): boolean {
-    const traitScopes = this.traitScopes;
-    return traitScopes !== null && traitScopes[scopeName] !== void 0;
+  hasTraitProperty(propertyName: string): boolean {
+    const traitProperties = this.traitProperties;
+    return traitProperties !== null && traitProperties[propertyName] !== void 0;
   }
 
-  getTraitScope(scopeName: string): TraitScope<this, unknown> | null {
-    const traitScopes = this.traitScopes;
-    if (traitScopes !== null) {
-      const traitScope = traitScopes[scopeName];
-      if (traitScope !== void 0) {
-        return traitScope as TraitScope<this, unknown>;
+  getTraitProperty(propertyName: string): TraitProperty<this, unknown> | null {
+    const traitProperties = this.traitProperties;
+    if (traitProperties !== null) {
+      const traitProperty = traitProperties[propertyName];
+      if (traitProperty !== void 0) {
+        return traitProperty as TraitProperty<this, unknown>;
       }
     }
     return null;
   }
 
-  setTraitScope(scopeName: string, newTraitScope: TraitScope<this, unknown> | null): void {
-    let traitScopes = this.traitScopes;
-    if (traitScopes === null) {
-      traitScopes = {};
-      Object.defineProperty(this, "traitScopes", {
-        value: traitScopes,
+  setTraitProperty(propertyName: string, newTraitProperty: TraitProperty<this, unknown> | null): void {
+    let traitProperties = this.traitProperties;
+    if (traitProperties === null) {
+      traitProperties = {};
+      Object.defineProperty(this, "traitProperties", {
+        value: traitProperties,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldTraitScope = traitScopes[scopeName];
-    if (oldTraitScope !== void 0 && this.isMounted()) {
-      oldTraitScope.detach();
+    const oldTraitProperty = traitProperties[propertyName];
+    if (oldTraitProperty !== void 0 && this.isMounted()) {
+      oldTraitProperty.detach();
     }
-    if (newTraitScope !== null) {
-      traitScopes[scopeName] = newTraitScope;
+    if (newTraitProperty !== null) {
+      traitProperties[propertyName] = newTraitProperty;
       if (this.isMounted()) {
-        newTraitScope.attach();
+        newTraitProperty.attach();
       }
     } else {
-      delete traitScopes[scopeName];
+      delete traitProperties[propertyName];
     }
   }
 
   /** @hidden */
-  mutateScopes(): void {
-    const traitScopes = this.traitScopes;
-    for (const scopeName in traitScopes) {
-      const traitScope = traitScopes[scopeName]!;
-      traitScope.onMutate();
+  mutateTraitProperties(): void {
+    const traitProperties = this.traitProperties;
+    for (const propertyName in traitProperties) {
+      const traitProperty = traitProperties[propertyName]!;
+      traitProperty.onMutate();
     }
   }
 
   /** @hidden */
-  protected attachScopes(): void {
-    const traitScopes = this.traitScopes;
-    for (const scopeName in traitScopes) {
-      const traitScope = traitScopes[scopeName]!;
-      traitScope.attach();
+  protected attachTraitProperties(): void {
+    const traitProperties = this.traitProperties;
+    for (const propertyName in traitProperties) {
+      const traitProperty = traitProperties[propertyName]!;
+      traitProperty.attach();
     }
   }
 
   /** @hidden */
-  protected detachScopes(): void {
-    const traitScopes = this.traitScopes;
-    for (const scopeName in traitScopes) {
-      const traitScope = traitScopes[scopeName]!;
-      traitScope.detach();
+  protected detachTraitProperties(): void {
+    const traitProperties = this.traitProperties;
+    for (const propertyName in traitProperties) {
+      const traitProperty = traitProperties[propertyName]!;
+      traitProperty.detach();
     }
   }
 
@@ -664,7 +664,7 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  protected mountDownlinks(): void {
+  protected mountTraitDownlinks(): void {
     const traitDownlinks = this.traitDownlinks;
     for (const downlinkName in traitDownlinks) {
       const traitDownlink = traitDownlinks[downlinkName]!;
@@ -673,7 +673,7 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  protected unmountDownlinks(): void {
+  protected unmountTraitDownlinks(): void {
     const traitDownlinks = this.traitDownlinks;
     for (const downlinkName in traitDownlinks) {
       const traitDownlink = traitDownlinks[downlinkName]!;
@@ -682,7 +682,7 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  protected reconcileDownlinks(): void {
+  protected reconcileTraitDownlinks(): void {
     const traitDownlinks = this.traitDownlinks;
     for (const downlinkName in traitDownlinks) {
       const traitDownlink = traitDownlinks[downlinkName]!;
@@ -691,10 +691,10 @@ export class GenericTrait extends Trait {
   }
 }
 
-TraitScope({
+TraitProperty({
   type: Object,
   inherit: true,
-  modelScope: {
+  modelProperty: {
     type: Object,
     inherit: true,
     updateFlags: Model.NeedsReconcile,

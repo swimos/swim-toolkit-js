@@ -63,7 +63,7 @@ export * from "./warp";
 
 export * from "./service";
 
-export * from "./scope";
+export * from "./property";
 
 export * from "./relation";
 

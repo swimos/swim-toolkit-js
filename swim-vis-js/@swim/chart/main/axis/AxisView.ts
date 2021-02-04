@@ -17,7 +17,7 @@ import {BTree} from "@swim/collections";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import type {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
 import {AnyTickView, TickView} from "../tick/TickView";
@@ -173,8 +173,8 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     return null;
   }
 
-  @ViewScope({type: TickGenerator, state: true})
-  declare tickGenerator: ViewScope<this, TickGenerator<D> | true | null>;
+  @ViewProperty({type: TickGenerator, state: true})
+  declare tickGenerator: ViewProperty<this, TickGenerator<D> | true | null>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
   declare origin: ViewAnimator<this, PointR2, AnyPointR2>;
@@ -203,14 +203,14 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   @ViewAnimator({type: Number, inherit: true})
   declare tickLabelPadding: ViewAnimator<this, number | undefined>;
 
-  @ViewScope({
+  @ViewProperty({
     type: Timing,
     inherit: true,
     initState(): Timing {
       return Easing.cubicOut.withDuration(250);
     },
   })
-  declare tickTransition: ViewScope<this, Timing, AnyTiming>;
+  declare tickTransition: ViewProperty<this, Timing, AnyTiming>;
 
   @ViewAnimator({type: Color, inherit: true})
   declare gridLineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;

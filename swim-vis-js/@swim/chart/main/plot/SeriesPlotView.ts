@@ -18,7 +18,7 @@ import {BTree} from "@swim/collections";
 import type {BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import type {DataPointCategory} from "../data/DataPoint";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
@@ -175,8 +175,8 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     return yScale !== void 0 ? yScale.range : void 0;
   }
 
-  @ViewScope({type: Object})
-  declare xDataDomain: ViewScope<this, readonly [X, X] | undefined>;
+  @ViewProperty({type: Object})
+  declare xDataDomain: ViewProperty<this, readonly [X, X] | undefined>;
 
   /** @hidden */
   getXDataDomain(): readonly [X, X] | undefined {
@@ -192,8 +192,8 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     return xDataDomain;
   }
 
-  @ViewScope({type: Object})
-  declare yDataDomain: ViewScope<this, readonly [Y, Y] | undefined>;
+  @ViewProperty({type: Object})
+  declare yDataDomain: ViewProperty<this, readonly [Y, Y] | undefined>;
 
   /** @hidden */
   getYDataDomain(): readonly [Y, Y] | undefined {
@@ -218,14 +218,14 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     return yDataDomain;
   }
 
-  @ViewScope({type: Object})
-  declare xDataRange: ViewScope<this, readonly [number, number] | undefined>;
+  @ViewProperty({type: Object})
+  declare xDataRange: ViewProperty<this, readonly [number, number] | undefined>;
 
-  @ViewScope({type: Object})
-  declare yDataRange: ViewScope<this, readonly [number, number] | undefined>;
+  @ViewProperty({type: Object})
+  declare yDataRange: ViewProperty<this, readonly [number, number] | undefined>;
 
-  @ViewScope({type: String, state: "domain"})
-  declare hitMode: ViewScope<this, SeriesPlotHitMode>;
+  @ViewProperty({type: String, state: "domain"})
+  declare hitMode: ViewProperty<this, SeriesPlotHitMode>;
 
   /** @hidden */
   declare readonly gradientStops: number;

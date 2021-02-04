@@ -16,7 +16,7 @@ import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -145,11 +145,11 @@ export class DataPointView<X, Y> extends LayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewScope({type: Number, state: 5})
-  declare hitRadius: ViewScope<this, number>;
+  @ViewProperty({type: Number, state: 5})
+  declare hitRadius: ViewProperty<this, number>;
 
-  @ViewScope({type: String})
-  declare category: ViewScope<this, DataPointCategory | undefined>;
+  @ViewProperty({type: String})
+  declare category: ViewProperty<this, DataPointCategory | undefined>;
 
   label(): GraphicsView | null;
   label(label: GraphicsView | AnyTextRunView | null): this;
@@ -166,8 +166,8 @@ export class DataPointView<X, Y> extends LayerView {
     }
   }
 
-  @ViewScope({type: String, state: "auto"})
-  declare labelPlacement: ViewScope<this, DataPointLabelPlacement>;
+  @ViewProperty({type: String, state: "auto"})
+  declare labelPlacement: ViewProperty<this, DataPointLabelPlacement>;
 
   setState(point: DataPointViewInit<X, Y>, timing?: AnyTiming | boolean): void {
     if (point.y2 !== void 0) {

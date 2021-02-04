@@ -14,7 +14,7 @@
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {ViewScope, ViewAnimator} from "@swim/view";
+import {ViewProperty, ViewAnimator} from "@swim/view";
 import type {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";
 import type {PlotViewController} from "./PlotViewController";
@@ -52,8 +52,8 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
   @ViewAnimator({type: Length, state: Length.px(1)})
   declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewScope({type: Number, state: 5})
-  declare hitWidth: ViewScope<this, number>;
+  @ViewProperty({type: Number, state: 5})
+  declare hitWidth: ViewProperty<this, number>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
     const data = this.data;

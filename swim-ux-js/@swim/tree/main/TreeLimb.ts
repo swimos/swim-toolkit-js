@@ -15,7 +15,7 @@
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Length, BoxR2} from "@swim/math";
 import {Look} from "@swim/theme";
-import {ViewContextType, ViewContext, ViewFlags, View, ViewScope, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewContext, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import type {TreeViewContext} from "./TreeViewContext";
@@ -109,20 +109,20 @@ export class TreeLimb extends HtmlView {
     return disclosureState === "collapsed" || disclosureState === "collapsing";
   }
 
-  @ViewScope({type: TreeSeed, inherit: true})
-  declare seed: ViewScope<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  @ViewProperty({type: TreeSeed, inherit: true})
+  declare seed: ViewProperty<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
-  @ViewScope<TreeLimb, number>({
+  @ViewProperty<TreeLimb, number>({
     type: Number,
     state: 0,
     onUpdate(depth: number): void {
       this.owner.onUpdateDepth(depth);
     },
   })
-  declare depth: ViewScope<this, number>;
+  declare depth: ViewProperty<this, number>;
 
-  @ViewScope({type: String, state: "collapsed"})
-  declare disclosureState: ViewScope<this, TreeLimbState>;
+  @ViewProperty({type: String, state: "collapsed"})
+  declare disclosureState: ViewProperty<this, TreeLimbState>;
 
   @ViewAnimator<TreeLimb, number>({
     type: Number,
@@ -141,8 +141,8 @@ export class TreeLimb extends HtmlView {
   @ViewAnimator({type: Number, inherit: true})
   declare disclosingPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
-  @ViewScope({type: Number, inherit: true})
-  declare limbSpacing: ViewScope<this, number | undefined>;
+  @ViewProperty({type: Number, inherit: true})
+  declare limbSpacing: ViewProperty<this, number | undefined>;
 
   expand(timing?: AnyTiming | boolean): void {
     const disclosurePhase = this.disclosurePhase.value;
