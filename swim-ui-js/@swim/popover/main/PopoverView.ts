@@ -133,26 +133,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   /** @hidden */
-  @ViewAnimator<PopoverView, number>({
-    type: Number,
-    state: 0,
-    onBegin(phase: number): void {
-      const displayState = this.owner.displayState;
-      if (displayState === PopoverView.ShowState) {
-        this.owner.willShow();
-      } else if (displayState === PopoverView.HideState) {
-        this.owner.willHide();
-      }
-    },
-    onEnd(phase: number): void {
-      const displayState = this.owner.displayState;
-      if (displayState === PopoverView.ShowingState) {
-        this.owner.didShow();
-      } else if (displayState === PopoverView.HidingState) {
-        this.owner.didHide();
-      }
-    },
-  })
+  @ViewAnimator({type: Number, state: 0})
   declare displayPhase: ViewAnimator<this, number>; // 0 = hidden; 1 = shown
 
   @ViewAnimator({type: Length, state: Length.zero()})
@@ -293,8 +274,8 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       }
     }
 
-    this.visibility.setAutoState("visible");
     this.place();
+    this.visibility.setAutoState("visible");
   }
 
   protected didShow(): void {
@@ -450,13 +431,22 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     if (this.backgroundColor.takeUpdatedValue() !== void 0) {
       this.place(true);
     }
-    const displayPhase = this.displayPhase.takeUpdatedValue();
-    if (displayPhase !== void 0) {
-      this.updateDisplayPhase(displayPhase);
+    const displayState = this.displayState;
+    if (displayState === PopoverView.ShowState) {
+      this.willShow();
+    } else if (displayState === PopoverView.HideState) {
+      this.willHide();
+    } else if (displayState === PopoverView.ShowingState && !this.displayPhase.isAnimating()) {
+      this.didShow();
+    } else if (displayState === PopoverView.HidingState && !this.displayPhase.isAnimating()) {
+      this.didHide();
+    }
+    if (this.displayPhase.isAnimating() || this.displayPhase.isUpdated()) {
+      this.applyDisplayPhase(this.displayPhase.takeValue());
     }
   }
 
-  protected updateDisplayPhase(displayPhase: number): void {
+  protected applyDisplayPhase(displayPhase: number): void {
     const placement = this.currentPlacement;
     if (placement === "above") {
       this.opacity.setAutoState(void 0);
@@ -478,7 +468,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   /** @hidden */
   declare readonly sourceFrame: BoxR2 | null;
 
-  place(force: boolean = true): PopoverPlacement {
+  place(force: boolean = false): PopoverPlacement {
     const source = this.source;
     const oldSourceFrame = this.sourceFrame;
     const newSourceFrame = source !== null ? source.popoverFrame : null;
