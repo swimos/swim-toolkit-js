@@ -19,14 +19,11 @@ import {ComponentService} from "./ComponentService";
 
 /** @hidden */
 export abstract class ComponentManagerService<C extends Component, CM extends ComponentManager<C>> extends ComponentService<C, CM> {
-  /** @hidden */
-  readonly observe?: boolean;
-
   mount(): void {
     super.mount();
-    const manager = this._manager;
+    const manager = this.manager;
     if (manager !== void 0 && !this.isInherited()) {
-      manager.insertRootComponent(this._owner);
+      manager.insertRootComponent(this.owner);
       if (this.observe !== false) {
         manager.addComponentManagerObserver(this as ComponentManagerObserverType<CM>);
       }
@@ -34,14 +31,13 @@ export abstract class ComponentManagerService<C extends Component, CM extends Co
   }
 
   unmount(): void {
-    const manager = this._manager;
+    const manager = this.manager;
     if (manager !== void 0 && !this.isInherited()) {
       if (this.observe !== false) {
         manager.removeComponentManagerObserver(this as ComponentManagerObserverType<CM>);
       }
-      manager.removeRootComponent(this._owner);
+      manager.removeRootComponent(this.owner);
     }
     super.unmount();
   }
 }
-ComponentService.Manager = ComponentManagerService;

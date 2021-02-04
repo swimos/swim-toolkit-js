@@ -12,28 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Lazy} from "@swim/util";
 import {Uri, UriQuery, UriFragment} from "@swim/uri";
 import {Component} from "../Component";
 import {ComponentManager} from "../manager/ComponentManager";
-import type {HistoryStateInit, HistoryState} from "./HistoryState";
+import type {HistoryStateInit, HistoryState, MutableHistoryState} from "./HistoryState";
 import type {HistoryManagerObserver} from "./HistoryManagerObserver";
 
 export class HistoryManager<C extends Component = Component> extends ComponentManager<C> {
-  /** @hidden */
-  readonly _historyState: {
-    fragment: string | undefined;
-    readonly permanent: {[key: string]: string | undefined};
-    readonly ephemeral: {[key: string]: string | undefined};
-  };
-
   constructor() {
     super();
+    Object.defineProperty(this, "historyState", {
+      value: {
+        fragment: void 0,
+        permanent: {},
+        ephemeral: {},
+      },
+      enumerable: true,
+      configurable: true,
+    });
     this.popHistory = this.popHistory.bind(this);
-    this._historyState = {
-      fragment: void 0,
-      permanent: {},
-      ephemeral: {},
-    };
     this.initHistory();
   }
 
@@ -41,12 +39,11 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
     this.updateHistoryUrl(window.location.href);
   }
 
-  get historyState(): HistoryState {
-    return this._historyState;
-  }
+  /** @hidden */
+  declare readonly historyState: HistoryState;
 
   get historyUrl(): string | undefined {
-    const historyState = this._historyState;
+    const historyState = this.historyState;
     const queryBuilder = UriQuery.builder();
     if (historyState.fragment !== void 0) {
       queryBuilder.add(void 0, historyState.fragment);
@@ -71,7 +68,7 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
   }
 
   protected updateHistoryUrlFragment(fragment: string): void {
-    const historyState = this._historyState;
+    const historyState = this.historyState as MutableHistoryState;
     let query = UriQuery.parse(fragment);
     while (!query.isEmpty()) {
       const key = query.key;
@@ -86,7 +83,7 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
   }
 
   protected clearHistoryState(): void {
-    const historyState = this._historyState;
+    const historyState = this.historyState as MutableHistoryState;
     for (const key in historyState.permanent) {
       delete historyState.permanent[key];
     }
@@ -97,7 +94,7 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
 
   /** @hidden */
   updateHistoryState(deltaState: HistoryStateInit): HistoryState {
-    const historyState = this._historyState;
+    const historyState = this.historyState as MutableHistoryState;
     if ("fragment" in deltaState) {
       historyState.fragment = deltaState.fragment;
     }
@@ -206,7 +203,7 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
 
   /** @hidden */
   popHistory(event: PopStateEvent): void {
-    const historyState = this._historyState;
+    const historyState = this.historyState;
     this.willPopHistory(historyState);
     this.setHistoryState({
       ephemeral: typeof event.state === "object" && event.state !== null ? event.state : {},
@@ -266,12 +263,8 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
     }
   }
 
-  private static _global?: HistoryManager<any>;
+  @Lazy
   static global<C extends Component>(): HistoryManager<C> {
-    if (HistoryManager._global === void 0) {
-      HistoryManager._global = new HistoryManager();
-    }
-    return HistoryManager._global;
+    return new HistoryManager();
   }
 }
-ComponentManager.History = HistoryManager;

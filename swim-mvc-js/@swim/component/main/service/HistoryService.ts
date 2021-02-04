@@ -35,6 +35,5 @@ export abstract class HistoryService<C extends Component> extends ComponentManag
     return HistoryManager.global();
   }
 }
-ComponentService.History = HistoryService;
 
 ComponentService({type: HistoryManager, observe: false})(Component.prototype, "historyService");

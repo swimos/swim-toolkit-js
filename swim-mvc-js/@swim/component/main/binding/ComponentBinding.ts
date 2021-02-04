@@ -45,35 +45,22 @@ export type ComponentBindingDescriptorFromAny<C extends Component, S extends Com
 
 export interface ComponentBindingConstructor<C extends Component, S extends Component, U = never, I = ComponentObserverType<S>> {
   new(owner: C, bindingName: string | undefined): ComponentBinding<C, S, U> & I;
-  prototype: ComponentBinding<any, any, any> & I;
+  prototype: ComponentBinding<any, any> & I;
 }
 
 export interface ComponentBindingClass extends Function {
-  readonly prototype: ComponentBinding<any, any, any>;
+  readonly prototype: ComponentBinding<any, any>;
 }
 
-export declare abstract class ComponentBinding<C extends Component, S extends Component, U = never> {
-  /** @hidden */
-  _owner: C;
-  /** @hidden */
-  _component: S | null;
+export interface ComponentBinding<C extends Component, S extends Component, U = never> {
+  (): S | null;
+  (component: S | U | null): C;
 
-  constructor(owner: C, bindingName: string | undefined);
+  readonly name: string;
 
-  /** @hidden */
-  observe?: boolean;
+  readonly owner: C;
 
-  /** @hidden */
-  child?: boolean;
-
-  /** @hidden */
-  readonly type?: unknown;
-
-  get name(): string;
-
-  get owner(): C;
-
-  get component(): S | null;
+  readonly component: S | null;
 
   getComponent(): S;
 
@@ -116,21 +103,19 @@ export declare abstract class ComponentBinding<C extends Component, S extends Co
   /** @hidden */
   insertComponent(parentComponent: Component, childComponent: S, key: string | undefined): void;
 
+  /** @hidden */
+  observe?: boolean;
+
+  /** @hidden */
+  child?: boolean;
+
+  /** @hidden */
+  readonly type?: unknown;
+
   fromAny(value: S | U): S | null;
-
-  static define<C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: ComponentBindingDescriptorExtends<C, S, U, I>): ComponentBindingConstructor<C, S, U, I>;
-  static define<C extends Component, S extends Component = Component, U = never>(descriptor: ComponentBindingDescriptor<C, S, U>): ComponentBindingConstructor<C, S, U>;
 }
 
-export interface ComponentBinding<C extends Component, S extends Component, U = never> {
-  (): S | null;
-  (component: S | U | null): C;
-}
-
-export function ComponentBinding<C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: ComponentBindingDescriptorExtends<C, S, U, I>): PropertyDecorator;
-export function ComponentBinding<C extends Component, S extends Component = Component, U = never>(descriptor: ComponentBindingDescriptor<C, S, U>): PropertyDecorator;
-
-export function ComponentBinding<C extends Component, S extends Component, U>(
+export const ComponentBinding = function <C extends Component, S extends Component, U>(
     this: ComponentBinding<C, S, U> | typeof ComponentBinding,
     owner: C | ComponentBindingDescriptor<C, S, U>,
     bindingName?: string,
@@ -140,9 +125,20 @@ export function ComponentBinding<C extends Component, S extends Component, U>(
   } else { // decorator factory
     return ComponentBindingDecoratorFactory(owner as ComponentBindingDescriptor<C, S, U>);
   }
-}
+} as {
+  /** @hidden */
+  new<C extends Component, S extends Component, U = never>(owner: C, bindingName: string | undefined): ComponentBinding<C, S, U>;
+
+  <C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: ComponentBindingDescriptorExtends<C, S, U, I>): PropertyDecorator;
+  <C extends Component, S extends Component = Component, U = never>(descriptor: ComponentBindingDescriptor<C, S, U>): PropertyDecorator;
+
+  /** @hidden */
+  prototype: ComponentBinding<any, any>;
+
+  define<C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: ComponentBindingDescriptorExtends<C, S, U, I>): ComponentBindingConstructor<C, S, U, I>;
+  define<C extends Component, S extends Component = Component, U = never>(descriptor: ComponentBindingDescriptor<C, S, U>): ComponentBindingConstructor<C, S, U>;
+};
 __extends(ComponentBinding, Object);
-Component.Binding = ComponentBinding;
 
 function ComponentBindingConstructor<C extends Component, S extends Component, U>(this: ComponentBinding<C, S, U>, owner: C, bindingName: string | undefined): ComponentBinding<C, S, U> {
   if (bindingName !== void 0) {
@@ -152,30 +148,21 @@ function ComponentBindingConstructor<C extends Component, S extends Component, U
       configurable: true,
     });
   }
-  this._owner = owner;
-  this._component = null;
+  Object.defineProperty(this, "owner", {
+    value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "component", {
+    value: null,
+    enumerable: true,
+    configurable: true,
+  });
   return this;
 }
 
 function ComponentBindingDecoratorFactory<C extends Component, S extends Component, U>(descriptor: ComponentBindingDescriptor<C, S, U>): PropertyDecorator {
   return Component.decorateComponentBinding.bind(Component, ComponentBinding.define(descriptor as ComponentBindingDescriptor<Component, Component>));
 }
-
-Object.defineProperty(ComponentBinding.prototype, "owner", {
-  get: function <C extends Component>(this: ComponentBinding<C, Component>): C {
-    return this._owner;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-Object.defineProperty(ComponentBinding.prototype, "component", {
-  get: function <S extends Component>(this: ComponentBinding<Component, S>): S | null {
-    return this._component;
-  },
-  enumerable: true,
-  configurable: true,
-});
 
 ComponentBinding.prototype.getComponent = function <S extends Component>(this: ComponentBinding<Component, S>): S {
   const component = this.component;
@@ -185,29 +172,31 @@ ComponentBinding.prototype.getComponent = function <S extends Component>(this: C
   return component;
 };
 
-ComponentBinding.prototype.setComponent = function <S extends Component, U>(this: ComponentBinding<Component, S, U>,
-                                                                            component: S | U | null): void {
+ComponentBinding.prototype.setComponent = function <S extends Component, U>(this: ComponentBinding<Component, S, U>, component: S | U | null): void {
   if (component !== null) {
     component = this.fromAny(component);
   }
   if (this.child === true) {
     if (component === null) {
-      this._owner.setChildComponent(this.name, null);
-    } else if ((component as S).parentComponent !== this._owner || (component as S).key !== this.name) {
-      this.insertComponent(this._owner, component as S, this.name);
+      this.owner.setChildComponent(this.name, null);
+    } else if ((component as S).parentComponent !== this.owner || (component as S).key !== this.name) {
+      this.insertComponent(this.owner, component as S, this.name);
     }
   } else {
     this.doSetComponent(component as S | null);
   }
 };
 
-ComponentBinding.prototype.doSetComponent = function <S extends Component>(this: ComponentBinding<Component, S>,
-                                                                           newComponent: S | null): void {
-  const oldComponent = this._component;
+ComponentBinding.prototype.doSetComponent = function <S extends Component>(this: ComponentBinding<Component, S>, newComponent: S | null): void {
+  const oldComponent = this.component;
   if (oldComponent !== newComponent) {
     this.willSetOwnComponent(newComponent, oldComponent);
     this.willSetComponent(newComponent, oldComponent);
-    this._component = newComponent;
+    Object.defineProperty(this, "component", {
+      value: newComponent,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetOwnComponent(newComponent, oldComponent);
     this.onSetComponent(newComponent, oldComponent);
     this.didSetComponent(newComponent, oldComponent);
@@ -215,34 +204,24 @@ ComponentBinding.prototype.doSetComponent = function <S extends Component>(this:
   }
 };
 
-ComponentBinding.prototype.willSetComponent = function <S extends Component>(this: ComponentBinding<Component, S>,
-                                                                             newComponent: S | null,
-                                                                             oldComponent: S | null): void {
+ComponentBinding.prototype.willSetComponent = function <S extends Component>(this: ComponentBinding<Component, S>, newComponent: S | null, oldComponent: S | null): void {
   // hook
 };
 
-ComponentBinding.prototype.onSetComponent = function <S extends Component>(this: ComponentBinding<Component, S>,
-                                                                           newComponent: S | null,
-                                                                           oldComponent: S | null): void {
+ComponentBinding.prototype.onSetComponent = function <S extends Component>(this: ComponentBinding<Component, S>, newComponent: S | null, oldComponent: S | null): void {
   // hook
 };
 
-ComponentBinding.prototype.didSetComponent = function <S extends Component>(this: ComponentBinding<Component, S>,
-                                                                            newComponent: S | null,
-                                                                            oldComponent: S | null): void {
+ComponentBinding.prototype.didSetComponent = function <S extends Component>(this: ComponentBinding<Component, S>, newComponent: S | null, oldComponent: S | null): void {
   // hook
 };
 
-ComponentBinding.prototype.willSetOwnComponent = function <S extends Component>(this: ComponentBinding<Component, S>,
-                                                                                newComponent: S | null,
-                                                                                oldComponent: S | null): void {
+ComponentBinding.prototype.willSetOwnComponent = function <S extends Component>(this: ComponentBinding<Component, S>, newComponent: S | null, oldComponent: S | null): void {
   // hook
 };
 
-ComponentBinding.prototype.onSetOwnComponent = function <S extends Component>(this: ComponentBinding<Component, S>,
-                                                                              newComponent: S | null,
-                                                                              oldComponent: S | null): void {
-  if (this.observe === true && this._owner.isMounted()) {
+ComponentBinding.prototype.onSetOwnComponent = function <S extends Component>(this: ComponentBinding<Component, S>, newComponent: S | null, oldComponent: S | null): void {
+  if (this.observe === true && this.owner.isMounted()) {
     if (oldComponent !== null) {
       oldComponent.removeComponentObserver(this as ComponentObserverType<S>);
     }
@@ -252,30 +231,26 @@ ComponentBinding.prototype.onSetOwnComponent = function <S extends Component>(th
   }
 };
 
-ComponentBinding.prototype.didSetOwnComponent = function <S extends Component>(this: ComponentBinding<Component, S>,
-                                                                               newComponent: S | null,
-                                                                               oldComponent: S | null): void {
+ComponentBinding.prototype.didSetOwnComponent = function <S extends Component>(this: ComponentBinding<Component, S>, newComponent: S | null, oldComponent: S | null): void {
   // hook
 };
 
 ComponentBinding.prototype.mount = function <S extends Component>(this: ComponentBinding<Component, S>): void {
-  const component = this._component;
+  const component = this.component;
   if (component !== null && this.observe === true) {
     component.addComponentObserver(this as ComponentObserverType<S>);
   }
 };
 
 ComponentBinding.prototype.unmount = function <S extends Component>(this: ComponentBinding<Component, S>): void {
-  const component = this._component;
+  const component = this.component;
   if (component !== null && this.observe === true) {
     component.removeComponentObserver(this as ComponentObserverType<S>);
   }
 };
 
-ComponentBinding.prototype.insert = function <S extends Component>(this: ComponentBinding<Component, S>,
-                                                                   parentComponent?: Component | string | null,
-                                                                   key?: string | null): S | null {
-  let component = this._component;
+ComponentBinding.prototype.insert = function <S extends Component>(this: ComponentBinding<Component, S>, parentComponent?: Component | string | null, key?: string | null): S | null {
+  let component = this.component;
   if (component === null) {
     component = this.createComponent();
   }
@@ -285,7 +260,7 @@ ComponentBinding.prototype.insert = function <S extends Component>(this: Compone
       parentComponent = void 0;
     }
     if (parentComponent === void 0) {
-      parentComponent = this._owner;
+      parentComponent = this.owner;
     }
     if (key === void 0) {
       key = this.name;
@@ -295,7 +270,7 @@ ComponentBinding.prototype.insert = function <S extends Component>(this: Compone
     if (component.parentComponent !== parentComponent || component.key !== key) {
       this.insertComponent(parentComponent, component, key);
     }
-    if (this._component === null) {
+    if (this.component === null) {
       this.doSetComponent(component);
     }
   }
@@ -303,7 +278,7 @@ ComponentBinding.prototype.insert = function <S extends Component>(this: Compone
 };
 
 ComponentBinding.prototype.remove = function <S extends Component>(this: ComponentBinding<Component, S>): S | null {
-  const component = this._component;
+  const component = this.component;
   if (component !== null) {
     component.remove();
   }
@@ -314,9 +289,7 @@ ComponentBinding.prototype.createComponent = function <S extends Component, U>(t
   return null;
 };
 
-ComponentBinding.prototype.insertComponent = function <S extends Component>(this: ComponentBinding<Component, S>,
-                                                                            parentComponent: Component, childComponent: S,
-                                                                            key: string | undefined): void {
+ComponentBinding.prototype.insertComponent = function <S extends Component>(this: ComponentBinding<Component, S>, parentComponent: Component, childComponent: S, key: string | undefined): void {
   if (key !== void 0) {
     parentComponent.setChildComponent(key, childComponent);
   } else {
@@ -336,13 +309,13 @@ ComponentBinding.define = function <C extends Component, S extends Component, U,
     _super = ComponentBinding;
   }
 
-  const _constructor = function ComponentBindingAccessor(this: ComponentBinding<C, S>, owner: C, bindingName: string | undefined): ComponentBinding<C, S, U> {
-    let _this: ComponentBinding<C, S, U> = function accessor(component?: S | U | null): S | null | C {
+  const _constructor = function DecoratedComponentBinding(this: ComponentBinding<C, S>, owner: C, bindingName: string | undefined): ComponentBinding<C, S, U> {
+    let _this: ComponentBinding<C, S, U> = function ComponentBindingAccessor(component?: S | U | null): S | null | C {
       if (component === void 0) {
-        return _this._component;
+        return _this.component;
       } else {
         _this.setComponent(component);
-        return _this._owner;
+        return _this.owner;
       }
     } as ComponentBinding<C, S, U>;
     Object.setPrototypeOf(_this, this);
@@ -350,7 +323,7 @@ ComponentBinding.define = function <C extends Component, S extends Component, U,
     return _this;
   } as unknown as ComponentBindingConstructor<C, S, U, I>;
 
-  const _prototype = descriptor as unknown as ComponentBinding<C, S, U> & I;
+  const _prototype = descriptor as unknown as ComponentBinding<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

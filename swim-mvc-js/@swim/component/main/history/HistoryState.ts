@@ -27,3 +27,12 @@ export interface HistoryState {
 
   readonly ephemeral: {readonly [key: string]: string | undefined};
 }
+
+/** @hidden */
+export interface MutableHistoryState {
+  fragment: string | undefined;
+
+  readonly permanent: {[key: string]: string | undefined};
+
+  readonly ephemeral: {[key: string]: string | undefined};
+}

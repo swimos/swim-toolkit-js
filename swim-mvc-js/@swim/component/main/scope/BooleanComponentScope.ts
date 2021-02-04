@@ -21,4 +21,3 @@ export abstract class BooleanComponentScope<C extends Component> extends Compone
     return !!value;
   }
 }
-ComponentScope.Boolean = BooleanComponentScope;

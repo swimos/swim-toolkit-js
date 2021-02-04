@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Lazy} from "@swim/util";
 import type {ComponentContext} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
 import {ComponentManager} from "../manager/ComponentManager";
@@ -19,38 +20,33 @@ import type {ExecuteContext} from "./ExecuteContext";
 import type {ExecuteManagerObserver} from "./ExecuteManagerObserver";
 
 export class ExecuteManager<C extends Component = Component> extends ComponentManager<C> {
-  /** @hidden */
-  readonly _componentContext: ExecuteContext;
-  /** @hidden */
-  _rootFlags: ComponentFlags;
-  /** @hidden */
-  _compileTimer: number;
-  /** @hidden */
-  _executeTimer: number;
-  /** @hidden */
-  _updateDelay: number;
-
   constructor() {
     super();
+    Object.defineProperty(this, "componentContext", {
+      value: this.initComponentContext(),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "rootFlags", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    this.compileTimer = 0;
+    this.executeTimer = 0;
+    this.updateDelay = ExecuteManager.MinUpdateDelay;
+
     this.runCompilePass = this.runCompilePass.bind(this);
     this.runExecutePass = this.runExecutePass.bind(this);
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
-
-    this._componentContext = this.initComponentContext();
-    this._rootFlags = 0;
-    this._compileTimer = 0;
-    this._executeTimer = 0;
-    this._updateDelay = ExecuteManager.MinUpdateDelay;
   }
+
+  declare readonly componentContext: ComponentContext;
 
   protected initComponentContext(): ExecuteContext {
     return {
       updateTime: 0,
     };
-  }
-
-  get componentContext(): ComponentContext {
-    return this._componentContext;
   }
 
   get powerFlags(): ComponentFlags {
@@ -78,7 +74,7 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
 
   protected onUnpower(): void {
     this.cancelUpdate();
-    this._updateDelay = ExecuteManager.MinUpdateDelay;
+    this.updateDelay = ExecuteManager.MinUpdateDelay;
     this.unpowerRootComponents();
   }
 
@@ -96,22 +92,38 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     rootComponent.cascadeUnpower();
   }
 
-  get rootFlags(): ComponentFlags {
-    return this._rootFlags;
+  declare readonly rootFlags: ComponentFlags;
+
+  /** @hidden */
+  setRootFlags(rootFlags: ComponentFlags): void {
+    Object.defineProperty(this, "rootFlags", {
+      value: rootFlags,
+      enumerable: true,
+      configurable: true,
+    });
   }
+
+  /** @hidden */
+  compileTimer: number;
+
+  /** @hidden */
+  executeTimer: number;
+
+  /** @hidden */
+  updateDelay: number;
 
   requestUpdate(targetComponent: Component, updateFlags: ComponentFlags, immediate: boolean): void {
     this.willRequestUpdate(targetComponent, updateFlags, immediate);
     if ((updateFlags & Component.CompileMask) !== 0) {
-      this._rootFlags |= Component.NeedsCompile;
+      this.setRootFlags(this.rootFlags | Component.NeedsCompile);
     }
     if ((updateFlags & Component.ExecuteMask) !== 0) {
-      this._rootFlags |= Component.NeedsExecute;
+      this.setRootFlags(this.rootFlags | Component.NeedsExecute);
     }
-    if ((this._rootFlags & Component.UpdateMask) !== 0) {
+    if ((this.rootFlags & Component.UpdateMask) !== 0) {
       this.onRequestUpdate(targetComponent, updateFlags, immediate);
-      if (immediate && this._updateDelay <= ExecuteManager.MaxCompileInterval
-          && (this._rootFlags & (Component.TraversingFlag | Component.ImmediateFlag)) === 0) {
+      if (immediate && this.updateDelay <= ExecuteManager.MaxCompileInterval
+          && (this.rootFlags & (Component.TraversingFlag | Component.ImmediateFlag)) === 0) {
         this.runImmediatePass();
       } else {
         this.scheduleUpdate();
@@ -133,46 +145,45 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
   }
 
   protected scheduleUpdate(): void {
-    const updateFlags = this._rootFlags;
-    if (this._compileTimer === 0 && this._executeTimer === 0
+    const updateFlags = this.rootFlags;
+    if (this.compileTimer === 0 && this.executeTimer === 0
         && (updateFlags & Component.UpdatingMask) === 0
         && (updateFlags & Component.UpdateMask) !== 0) {
-      this._compileTimer = setTimeout(this.runCompilePass, this._updateDelay) as any;
+      this.compileTimer = setTimeout(this.runCompilePass, this.updateDelay) as any;
     }
   }
 
   protected cancelUpdate(): void {
-    if (this._compileTimer !== 0) {
-      clearTimeout(this._compileTimer);
-      this._compileTimer = 0;
+    if (this.compileTimer !== 0) {
+      clearTimeout(this.compileTimer);
+      this.compileTimer = 0;
     }
-    if (this._executeTimer !== 0) {
-      clearTimeout(this._executeTimer);
-      this._executeTimer = 0;
+    if (this.executeTimer !== 0) {
+      clearTimeout(this.executeTimer);
+      this.executeTimer = 0;
     }
   }
 
   protected runImmediatePass(): void {
-    this._rootFlags |= Component.ImmediateFlag;
+    this.setRootFlags(this.rootFlags | Component.ImmediateFlag);
     try {
-      if ((this._rootFlags & Component.CompileMask) !== 0) {
+      if ((this.rootFlags & Component.CompileMask) !== 0) {
         this.cancelUpdate();
         this.runCompilePass(true);
       }
-      if ((this._rootFlags & Component.ExecuteMask) !== 0
-          && this._updateDelay <= ExecuteManager.MaxCompileInterval) {
+      if ((this.rootFlags & Component.ExecuteMask) !== 0
+          && this.updateDelay <= ExecuteManager.MaxCompileInterval) {
         this.cancelUpdate();
         this.runExecutePass(true);
       }
     } finally {
-      this._rootFlags &= ~Component.ImmediateFlag;
+      this.setRootFlags(this.rootFlags & ~Component.ImmediateFlag);
     }
   }
 
   protected runCompilePass(immediate: boolean = false): void {
     const rootComponents = this.rootComponents;
-    this._rootFlags |= Component.TraversingFlag | Component.CompilingFlag;
-    this._rootFlags &= ~Component.CompileMask;
+    this.setRootFlags(this.rootFlags & ~Component.CompileMask | (Component.TraversingFlag | Component.CompilingFlag));
     try {
       const t0 = performance.now();
       for (let i = 0; i < rootComponents.length; i += 1) {
@@ -185,31 +196,30 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
       }
 
       const t1 = performance.now();
-      let compileDelay = Math.max(ExecuteManager.MinCompileInterval, this._updateDelay);
+      let compileDelay = Math.max(ExecuteManager.MinCompileInterval, this.updateDelay);
       if (t1 - t0 > compileDelay) {
-        this._updateDelay = Math.min(Math.max(2, this._updateDelay * 2), ExecuteManager.MaxUpdateDelay);
+        this.updateDelay = Math.min(Math.max(2, this.updateDelay * 2), ExecuteManager.MaxUpdateDelay);
       } else {
-        this._updateDelay = Math.min(ExecuteManager.MinUpdateDelay, this._updateDelay / 2);
+        this.updateDelay = Math.min(ExecuteManager.MinUpdateDelay, this.updateDelay / 2);
       }
 
       this.cancelUpdate();
-      if ((this._rootFlags & Component.ExecuteMask) !== 0) {
-        this._executeTimer = setTimeout(this.runExecutePass, ExecuteManager.MinExecuteInterval) as any;
-      } else if ((this._rootFlags & Component.CompileMask) !== 0) {
+      if ((this.rootFlags & Component.ExecuteMask) !== 0) {
+        this.executeTimer = setTimeout(this.runExecutePass, ExecuteManager.MinExecuteInterval) as any;
+      } else if ((this.rootFlags & Component.CompileMask) !== 0) {
         if (immediate) {
           compileDelay = Math.max(ExecuteManager.MaxCompileInterval, compileDelay);
         }
-        this._compileTimer = setTimeout(this.runCompilePass, compileDelay) as any;
+        this.compileTimer = setTimeout(this.runCompilePass, compileDelay) as any;
       }
     } finally {
-      this._rootFlags &= ~(Component.TraversingFlag | Component.CompilingFlag);
+      this.setRootFlags(this.rootFlags & ~(Component.TraversingFlag | Component.CompilingFlag));
     }
   }
 
   protected runExecutePass(immediate: boolean = false): void {
     const rootComponents = this.rootComponents;
-    this._rootFlags |= Component.TraversingFlag | Component.ExecutingFlag;
-    this._rootFlags &= ~Component.ExecuteMask;
+    this.setRootFlags(this.rootFlags & ~Component.ExecuteMask | (Component.TraversingFlag | Component.ExecutingFlag));
     try {
       const time = performance.now();
       for (let i = 0; i < rootComponents.length; i += 1) {
@@ -222,17 +232,17 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
       }
 
       this.cancelUpdate();
-      if ((this._rootFlags & Component.CompileMask) !== 0) {
-        let compileDelay = this._updateDelay;
+      if ((this.rootFlags & Component.CompileMask) !== 0) {
+        let compileDelay = this.updateDelay;
         if (immediate) {
           compileDelay = Math.max(ExecuteManager.MaxCompileInterval, compileDelay);
         }
-        this._compileTimer = setTimeout(this.runCompilePass, compileDelay) as any;
-      } else if ((this._rootFlags & Component.ExecuteMask) !== 0) {
-        this._executeTimer = setTimeout(this.runExecutePass, ExecuteManager.MaxExecuteInterval) as any;
+        this.compileTimer = setTimeout(this.runCompilePass, compileDelay) as any;
+      } else if ((this.rootFlags & Component.ExecuteMask) !== 0) {
+        this.executeTimer = setTimeout(this.runExecutePass, ExecuteManager.MaxExecuteInterval) as any;
       }
     } finally {
-      this._rootFlags &= ~(Component.TraversingFlag | Component.ExecutingFlag);
+      this.setRootFlags(this.rootFlags & ~(Component.TraversingFlag | Component.ExecutingFlag));
     }
   }
 
@@ -274,12 +284,9 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     }
   }
 
-  private static _global?: ExecuteManager<any>;
+  @Lazy
   static global<C extends Component>(): ExecuteManager<C> {
-    if (ExecuteManager._global === void 0) {
-      ExecuteManager._global = new ExecuteManager();
-    }
-    return ExecuteManager._global;
+    return new ExecuteManager();
   }
 
   /** @hidden */
@@ -295,4 +302,3 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
   /** @hidden */
   static MaxExecuteInterval: number = 16;
 }
-ComponentManager.Execute = ExecuteManager;

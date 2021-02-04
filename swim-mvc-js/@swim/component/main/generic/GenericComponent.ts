@@ -25,19 +25,6 @@ import type {ComponentView} from "../view/ComponentView";
 import type {ComponentBinding} from "../binding/ComponentBinding";
 
 export abstract class GenericComponent extends Component {
-  /** @hidden */
-  _componentServices?: {[serviceName: string]: ComponentService<Component, unknown> | undefined};
-  /** @hidden */
-  _componentScopes?: {[scopeName: string]: ComponentScope<Component, unknown> | undefined};
-  /** @hidden */
-  _componentModels?: {[modelName: string]: ComponentModel<Component, Model> | undefined};
-  /** @hidden */
-  _componentTraits?: {[traitName: string]: ComponentTrait<Component, Trait> | undefined};
-  /** @hidden */
-  _componentViews?: {[viewName: string]: ComponentView<Component, View> | undefined};
-  /** @hidden */
-  _componentBindings?: {[bindingName: string]: ComponentBinding<Component, Component> | undefined};
-
   constructor() {
     super();
     Object.defineProperty(this, "key", {
@@ -46,6 +33,36 @@ export abstract class GenericComponent extends Component {
       configurable: true,
     });
     Object.defineProperty(this, "parentComponent", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "componentServices", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "componentScopes", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "componentModels", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "componentTraits", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "componentViews", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "componentBindings", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -403,14 +420,17 @@ export abstract class GenericComponent extends Component {
     this.reviseScopes();
   }
 
+  /** @hidden */
+  declare readonly componentServices: {[serviceName: string]: ComponentService<Component, unknown> | undefined} | null;
+
   hasComponentService(serviceName: string): boolean {
-    const componentServices = this._componentServices;
-    return componentServices !== void 0 && componentServices[serviceName] !== void 0;
+    const componentServices = this.componentServices;
+    return componentServices !== null && componentServices[serviceName] !== void 0;
   }
 
   getComponentService(serviceName: string): ComponentService<this, unknown> | null {
-    const componentServices = this._componentServices;
-    if (componentServices !== void 0) {
+    const componentServices = this.componentServices;
+    if (componentServices !== null) {
       const componentService = componentServices[serviceName];
       if (componentService !== void 0) {
         return componentService as ComponentService<this, unknown>;
@@ -420,10 +440,14 @@ export abstract class GenericComponent extends Component {
   }
 
   setComponentService(serviceName: string, newComponentService: ComponentService<this, unknown> | null): void {
-    let componentServices = this._componentServices;
-    if (componentServices === void 0) {
+    let componentServices = this.componentServices;
+    if (componentServices === null) {
       componentServices = {};
-      this._componentServices = componentServices;
+      Object.defineProperty(this, "componentServices", {
+        value: componentServices,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldComponentService = componentServices[serviceName];
     if (oldComponentService !== void 0 && this.isMounted()) {
@@ -441,34 +465,33 @@ export abstract class GenericComponent extends Component {
 
   /** @hidden */
   protected mountServices(): void {
-    const componentServices = this._componentServices;
-    if (componentServices !== void 0) {
-      for (const serviceName in componentServices) {
-        const componentService = componentServices[serviceName]!;
-        componentService.mount();
-      }
+    const componentServices = this.componentServices;
+    for (const serviceName in componentServices) {
+      const componentService = componentServices[serviceName]!;
+      componentService.mount();
     }
   }
 
   /** @hidden */
   protected unmountServices(): void {
-    const componentServices = this._componentServices;
-    if (componentServices !== void 0) {
-      for (const serviceName in componentServices) {
-        const componentService = componentServices[serviceName]!;
-        componentService.unmount();
-      }
+    const componentServices = this.componentServices;
+    for (const serviceName in componentServices) {
+      const componentService = componentServices[serviceName]!;
+      componentService.unmount();
     }
   }
 
+  /** @hidden */
+  declare readonly componentScopes: {[scopeName: string]: ComponentScope<Component, unknown> | undefined} | null;
+
   hasComponentScope(scopeName: string): boolean {
-    const componentScopes = this._componentScopes;
-    return componentScopes !== void 0 && componentScopes[scopeName] !== void 0;
+    const componentScopes = this.componentScopes;
+    return componentScopes !== null && componentScopes[scopeName] !== void 0;
   }
 
   getComponentScope(scopeName: string): ComponentScope<this, unknown> | null {
-    const componentScopes = this._componentScopes;
-    if (componentScopes !== void 0) {
+    const componentScopes = this.componentScopes;
+    if (componentScopes !== null) {
       const componentScope = componentScopes[scopeName];
       if (componentScope !== void 0) {
         return componentScope as ComponentScope<this, unknown>;
@@ -478,10 +501,14 @@ export abstract class GenericComponent extends Component {
   }
 
   setComponentScope(scopeName: string, newComponentScope: ComponentScope<this, unknown> | null): void {
-    let componentScopes = this._componentScopes;
-    if (componentScopes === void 0) {
+    let componentScopes = this.componentScopes;
+    if (componentScopes === null) {
       componentScopes = {};
-      this._componentScopes = componentScopes;
+      Object.defineProperty(this, "componentScopes", {
+        value: componentScopes,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldComponentScope = componentScopes[scopeName];
     if (oldComponentScope !== void 0 && this.isMounted()) {
@@ -499,45 +526,42 @@ export abstract class GenericComponent extends Component {
 
   /** @hidden */
   reviseScopes(): void {
-    const componentScopes = this._componentScopes;
-    if (componentScopes !== void 0) {
-      for (const scopeName in componentScopes) {
-        const componentScope = componentScopes[scopeName]!;
-        componentScope.onRevise();
-      }
+    const componentScopes = this.componentScopes;
+    for (const scopeName in componentScopes) {
+      const componentScope = componentScopes[scopeName]!;
+      componentScope.onRevise();
     }
   }
 
   /** @hidden */
   protected mountScopes(): void {
-    const componentScopes = this._componentScopes;
-    if (componentScopes !== void 0) {
-      for (const scopeName in componentScopes) {
-        const componentScope = componentScopes[scopeName]!;
-        componentScope.mount();
-      }
+    const componentScopes = this.componentScopes;
+    for (const scopeName in componentScopes) {
+      const componentScope = componentScopes[scopeName]!;
+      componentScope.mount();
     }
   }
 
   /** @hidden */
   protected unmountScopes(): void {
-    const componentScopes = this._componentScopes;
-    if (componentScopes !== void 0) {
-      for (const scopeName in componentScopes) {
-        const componentScope = componentScopes[scopeName]!;
-        componentScope.unmount();
-      }
+    const componentScopes = this.componentScopes;
+    for (const scopeName in componentScopes) {
+      const componentScope = componentScopes[scopeName]!;
+      componentScope.unmount();
     }
   }
 
+  /** @hidden */
+  declare readonly componentModels: {[modelName: string]: ComponentModel<Component, Model> | undefined} | null;
+
   hasComponentModel(modelName: string): boolean {
-    const componentModels = this._componentModels;
-    return componentModels !== void 0 && componentModels[modelName] !== void 0;
+    const componentModels = this.componentModels;
+    return componentModels !== null && componentModels[modelName] !== void 0;
   }
 
   getComponentModel(modelName: string): ComponentModel<this, Model> | null {
-    const componentModels = this._componentModels;
-    if (componentModels !== void 0) {
+    const componentModels = this.componentModels;
+    if (componentModels !== null) {
       const componentModel = componentModels[modelName];
       if (componentModel !== void 0) {
         return componentModel as ComponentModel<this, Model>;
@@ -547,10 +571,14 @@ export abstract class GenericComponent extends Component {
   }
 
   setComponentModel(modelName: string, newComponentModel: ComponentModel<this, any> | null): void {
-    let componentModels = this._componentModels;
-    if (componentModels === void 0) {
+    let componentModels = this.componentModels;
+    if (componentModels === null) {
       componentModels = {};
-      this._componentModels = componentModels;
+      Object.defineProperty(this, "componentModels", {
+        value: componentModels,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldComponentModel = componentModels[modelName];
     if (oldComponentModel !== void 0 && this.isMounted()) {
@@ -568,34 +596,33 @@ export abstract class GenericComponent extends Component {
 
   /** @hidden */
   protected mountModels(): void {
-    const componentModels = this._componentModels;
-    if (componentModels !== void 0) {
-      for (const modelName in componentModels) {
-        const componentModel = componentModels[modelName]!;
-        componentModel.mount();
-      }
+    const componentModels = this.componentModels;
+    for (const modelName in componentModels) {
+      const componentModel = componentModels[modelName]!;
+      componentModel.mount();
     }
   }
 
   /** @hidden */
   protected unmountModels(): void {
-    const componentModels = this._componentModels;
-    if (componentModels !== void 0) {
-      for (const modelName in componentModels) {
-        const componentModel = componentModels[modelName]!;
-        componentModel.unmount();
-      }
+    const componentModels = this.componentModels;
+    for (const modelName in componentModels) {
+      const componentModel = componentModels[modelName]!;
+      componentModel.unmount();
     }
   }
 
+  /** @hidden */
+  declare readonly componentTraits: {[traitName: string]: ComponentTrait<Component, Trait> | undefined} | null;
+
   hasComponentTrait(traitName: string): boolean {
-    const componentTraits = this._componentTraits;
-    return componentTraits !== void 0 && componentTraits[traitName] !== void 0;
+    const componentTraits = this.componentTraits;
+    return componentTraits !== null && componentTraits[traitName] !== void 0;
   }
 
   getComponentTrait(traitName: string): ComponentTrait<this, Trait> | null {
-    const componentTraits = this._componentTraits;
-    if (componentTraits !== void 0) {
+    const componentTraits = this.componentTraits;
+    if (componentTraits !== null) {
       const componentTrait = componentTraits[traitName];
       if (componentTrait !== void 0) {
         return componentTrait as ComponentTrait<this, Trait>;
@@ -605,10 +632,14 @@ export abstract class GenericComponent extends Component {
   }
 
   setComponentTrait(traitName: string, newComponentTrait: ComponentTrait<this, any> | null): void {
-    let componentTraits = this._componentTraits;
-    if (componentTraits === void 0) {
+    let componentTraits = this.componentTraits;
+    if (componentTraits === null) {
       componentTraits = {};
-      this._componentTraits = componentTraits;
+      Object.defineProperty(this, "componentTraits", {
+        value: componentTraits,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldComponentTrait = componentTraits[traitName];
     if (oldComponentTrait !== void 0 && this.isMounted()) {
@@ -626,34 +657,33 @@ export abstract class GenericComponent extends Component {
 
   /** @hidden */
   protected mountTraits(): void {
-    const componentTraits = this._componentTraits;
-    if (componentTraits !== void 0) {
-      for (const traitName in componentTraits) {
-        const componentTrait = componentTraits[traitName]!;
-        componentTrait.mount();
-      }
+    const componentTraits = this.componentTraits;
+    for (const traitName in componentTraits) {
+      const componentTrait = componentTraits[traitName]!;
+      componentTrait.mount();
     }
   }
 
   /** @hidden */
   protected unmountTraits(): void {
-    const componentTraits = this._componentTraits;
-    if (componentTraits !== void 0) {
-      for (const traitName in componentTraits) {
-        const componentTrait = componentTraits[traitName]!;
-        componentTrait.unmount();
-      }
+    const componentTraits = this.componentTraits;
+    for (const traitName in componentTraits) {
+      const componentTrait = componentTraits[traitName]!;
+      componentTrait.unmount();
     }
   }
 
+  /** @hidden */
+  declare readonly componentViews: {[viewName: string]: ComponentView<Component, View> | undefined} | null;
+
   hasComponentView(viewName: string): boolean {
-    const componentViews = this._componentViews;
-    return componentViews !== void 0 && componentViews[viewName] !== void 0;
+    const componentViews = this.componentViews;
+    return componentViews !== null && componentViews[viewName] !== void 0;
   }
 
   getComponentView(viewName: string): ComponentView<this, View> | null {
-    const componentViews = this._componentViews;
-    if (componentViews !== void 0) {
+    const componentViews = this.componentViews;
+    if (componentViews !== null) {
       const componentView = componentViews[viewName];
       if (componentView !== void 0) {
         return componentView as ComponentView<this, View>;
@@ -663,10 +693,14 @@ export abstract class GenericComponent extends Component {
   }
 
   setComponentView(viewName: string, newComponentView: ComponentView<this, any> | null): void {
-    let componentViews = this._componentViews;
-    if (componentViews === void 0) {
+    let componentViews = this.componentViews;
+    if (componentViews === null) {
       componentViews = {};
-      this._componentViews = componentViews;
+      Object.defineProperty(this, "componentViews", {
+        value: componentViews,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldComponentView = componentViews[viewName];
     if (oldComponentView !== void 0 && this.isMounted()) {
@@ -684,34 +718,33 @@ export abstract class GenericComponent extends Component {
 
   /** @hidden */
   protected mountViews(): void {
-    const componentViews = this._componentViews;
-    if (componentViews !== void 0) {
-      for (const viewName in componentViews) {
-        const componentView = componentViews[viewName]!;
-        componentView.mount();
-      }
+    const componentViews = this.componentViews;
+    for (const viewName in componentViews) {
+      const componentView = componentViews[viewName]!;
+      componentView.mount();
     }
   }
 
   /** @hidden */
   protected unmountViews(): void {
-    const componentViews = this._componentViews;
-    if (componentViews !== void 0) {
-      for (const viewName in componentViews) {
-        const componentView = componentViews[viewName]!;
-        componentView.unmount();
-      }
+    const componentViews = this.componentViews;
+    for (const viewName in componentViews) {
+      const componentView = componentViews[viewName]!;
+      componentView.unmount();
     }
   }
 
+  /** @hidden */
+  declare readonly componentBindings: {[bindingName: string]: ComponentBinding<Component, Component> | undefined} | null;
+
   hasComponentBinding(bindingName: string): boolean {
-    const componentBindings = this._componentBindings;
-    return componentBindings !== void 0 && componentBindings[bindingName] !== void 0;
+    const componentBindings = this.componentBindings;
+    return componentBindings !== null && componentBindings[bindingName] !== void 0;
   }
 
   getComponentBinding(bindingName: string): ComponentBinding<this, Component> | null {
-    const componentBindings = this._componentBindings;
-    if (componentBindings !== void 0) {
+    const componentBindings = this.componentBindings;
+    if (componentBindings !== null) {
       const componentBinding = componentBindings[bindingName];
       if (componentBinding !== void 0) {
         return componentBinding as ComponentBinding<this, Component>;
@@ -721,10 +754,14 @@ export abstract class GenericComponent extends Component {
   }
 
   setComponentBinding(bindingName: string, newComponentBinding: ComponentBinding<this, any> | null): void {
-    let componentBindings = this._componentBindings;
-    if (componentBindings === void 0) {
+    let componentBindings = this.componentBindings;
+    if (componentBindings === null) {
       componentBindings = {};
-      this._componentBindings = componentBindings;
+      Object.defineProperty(this, "componentBindings", {
+        value: componentBindings,
+        enumerable: true,
+        configurable: true,
+      });
     }
     const oldComponentBinding = componentBindings[bindingName];
     if (oldComponentBinding !== void 0 && this.isMounted()) {
@@ -742,23 +779,19 @@ export abstract class GenericComponent extends Component {
 
   /** @hidden */
   protected mountBindings(): void {
-    const componentBindings = this._componentBindings;
-    if (componentBindings !== void 0) {
-      for (const bindingName in componentBindings) {
-        const componentBinding = componentBindings[bindingName]!;
-        componentBinding.mount();
-      }
+    const componentBindings = this.componentBindings;
+    for (const bindingName in componentBindings) {
+      const componentBinding = componentBindings[bindingName]!;
+      componentBinding.mount();
     }
   }
 
   /** @hidden */
   protected unmountBindings(): void {
-    const componentBindings = this._componentBindings;
-    if (componentBindings !== void 0) {
-      for (const bindingName in componentBindings) {
-        const componentBinding = componentBindings[bindingName]!;
-        componentBinding.unmount();
-      }
+    const componentBindings = this.componentBindings;
+    for (const bindingName in componentBindings) {
+      const componentBinding = componentBindings[bindingName]!;
+      componentBinding.unmount();
     }
   }
 
@@ -784,4 +817,3 @@ export abstract class GenericComponent extends Component {
     }
   }
 }
-Component.Generic = GenericComponent;

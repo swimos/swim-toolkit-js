@@ -45,40 +45,22 @@ export type ComponentViewDescriptorFromAny<C extends Component, V extends View, 
 
 export interface ComponentViewConstructor<C extends Component, V extends View, U = never, I = ViewObserverType<V>> {
   new(owner: C, viewName: string | undefined): ComponentView<C, V, U> & I;
-  prototype: ComponentView<any, any, any> & I;
+  prototype: ComponentView<any, any> & I;
 }
 
 export interface ComponentViewClass extends Function {
-  readonly prototype: ComponentView<any, any, any>;
+  readonly prototype: ComponentView<any, any>;
 }
 
-export declare abstract class ComponentView<C extends Component, V extends View, U = never> {
-  /** @hidden */
-  _owner: C;
-  /** @hidden */
-  _view: V | null;
-  /** @hidden */
-  _auto: boolean;
+export interface ComponentView<C extends Component, V extends View, U = never> {
+  (): V | null;
+  (view: V | U | null): C;
 
-  constructor(owner: C, viewName: string | undefined);
+  readonly name: string;
 
-  /** @hidden */
-  observe?: boolean;
+  readonly owner: C;
 
-  /** @hidden */
-  readonly type?: ViewFactory<V>;
-
-  readonly tag?: string;
-
-  get name(): string;
-
-  get owner(): C;
-
-  get view(): V | null;
-
-  isAuto(): boolean;
-
-  setAuto(auto: boolean): void;
+  readonly view: V | null;
 
   getView(): V;
 
@@ -92,11 +74,6 @@ export declare abstract class ComponentView<C extends Component, V extends View,
 
   /** @hidden */
   didSetView(newView: V | null, oldView: V | null): void;
-
-  setAutoView(view: V | U | null): void;
-
-  /** @hidden */
-  setOwnView(view: V | U | null): void;
 
   /** @hidden */
   willSetOwnView(newView: V | null, oldView: V | null): void;
@@ -122,21 +99,19 @@ export declare abstract class ComponentView<C extends Component, V extends View,
   /** @hidden */
   insertView(parentView: View, childView: V, key: string | undefined): void;
 
+  /** @hidden */
+  observe?: boolean;
+
+  /** @hidden */
+  readonly type?: ViewFactory<V>;
+
+  /** @hidden */
+  readonly tag?: string;
+
   fromAny(value: V | U): V | null;
-
-  static define<C extends Component, V extends View = View, U = never, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptorExtends<C, V, U, I>): ComponentViewConstructor<C, V, U, I>;
-  static define<C extends Component, V extends View = View, U = never>(descriptor: ComponentViewDescriptor<C, V, U>): ComponentViewConstructor<C, V, U>;
 }
 
-export interface ComponentView<C extends Component, V extends View, U = never> {
-  (): V | null;
-  (view: V | U | null): C;
-}
-
-export function ComponentView<C extends Component, V extends View = View, U = never, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptorExtends<C, V, U, I>): PropertyDecorator;
-export function ComponentView<C extends Component, V extends View = View, U = never>(descriptor: ComponentViewDescriptor<C, V, U>): PropertyDecorator;
-
-export function ComponentView<C extends Component, V extends View = View, U = never>(
+export const ComponentView = function <C extends Component, V extends View = View, U = never>(
     this: ComponentView<C, V, U> | typeof ComponentView,
     owner: C | ComponentViewDescriptor<C, V, U>,
     viewName?: string,
@@ -146,9 +121,20 @@ export function ComponentView<C extends Component, V extends View = View, U = ne
   } else { // decorator factory
     return ComponentViewDecoratorFactory(owner as ComponentViewDescriptor<C, V, U>);
   }
-}
+} as {
+  /** @hidden */
+  new<C extends Component, V extends View, U = never>(owner: C, viewName: string | undefined): ComponentView<C, V, U>;
+
+  <C extends Component, V extends View = View, U = never, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptorExtends<C, V, U, I>): PropertyDecorator;
+  <C extends Component, V extends View = View, U = never>(descriptor: ComponentViewDescriptor<C, V, U>): PropertyDecorator;
+
+  /** @hidden */
+  prototype: ComponentView<any, any>;
+
+  define<C extends Component, V extends View = View, U = never, I = ViewObserverType<V>>(descriptor: ComponentViewDescriptorExtends<C, V, U, I>): ComponentViewConstructor<C, V, U, I>;
+  define<C extends Component, V extends View = View, U = never>(descriptor: ComponentViewDescriptor<C, V, U>): ComponentViewConstructor<C, V, U>;
+};
 __extends(ComponentView, Object);
-Component.View = ComponentView;
 
 function ComponentViewConstructor<C extends Component, V extends View, U>(this: ComponentView<C, V, U>, owner: C, viewName: string | undefined): ComponentView<C, V, U> {
   if (viewName !== void 0) {
@@ -158,40 +144,21 @@ function ComponentViewConstructor<C extends Component, V extends View, U>(this: 
       configurable: true,
     });
   }
-  this._owner = owner;
-  this._view = null;
-  this._auto = true;
+  Object.defineProperty(this, "owner", {
+    value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "view", {
+    value: null,
+    enumerable: true,
+    configurable: true,
+  });
   return this;
 }
 
 function ComponentViewDecoratorFactory<C extends Component, V extends View, U>(descriptor: ComponentViewDescriptor<C, V, U>): PropertyDecorator {
   return Component.decorateComponentView.bind(Component, ComponentView.define(descriptor as ComponentViewDescriptor<Component, View>));
 }
-
-Object.defineProperty(ComponentView.prototype, "owner", {
-  get: function <C extends Component>(this: ComponentView<C, View>): C {
-    return this._owner;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-Object.defineProperty(ComponentView.prototype, "view", {
-  get: function <V extends View>(this: ComponentView<Component, V>): V | null {
-    return this._view;
-  },
-  enumerable: true,
-  configurable: true,
-});
-
-ComponentView.prototype.isAuto = function (this: ComponentView<Component, View>): boolean {
-  return this._auto;
-};
-
-ComponentView.prototype.setAuto = function (this: ComponentView<Component, View>,
-                                            auto: boolean): void {
-  this._auto = auto;
-};
 
 ComponentView.prototype.getView = function <V extends View>(this: ComponentView<Component, V>): V {
   const view = this.view;
@@ -201,51 +168,23 @@ ComponentView.prototype.getView = function <V extends View>(this: ComponentView<
   return view;
 };
 
-ComponentView.prototype.setView = function <V extends View, U>(this: ComponentView<Component, V, U>,
-                                                               view: V | U | null): void {
-  this._auto = false;
-  this.setOwnView(view);
-};
-
-ComponentView.prototype.willSetView = function <V extends View>(this: ComponentView<Component, V>,
-                                                                newView: V | null,
-                                                                oldView: V | null): void {
-  // hook
-};
-
-ComponentView.prototype.onSetView = function <V extends View>(this: ComponentView<Component, V>,
-                                                              newView: V | null,
-                                                              oldView: V | null): void {
-  // hook
-};
-
-ComponentView.prototype.didSetView = function <V extends View>(this: ComponentView<Component, V>,
-                                                               newView: V | null,
-                                                               oldView: V | null): void {
-  // hook
-};
-
-ComponentView.prototype.setAutoView = function <V extends View, U>(this: ComponentView<Component, V, U>,
-                                                                   view: V | U | null): void {
-  if (this._auto === true) {
-    this.setOwnView(view);
-  }
-};
-
-ComponentView.prototype.setOwnView = function <V extends View, U>(this: ComponentView<Component, V, U>,
-                                                                  newView: V | U | null): void {
+ComponentView.prototype.setView = function <V extends View, U>(this: ComponentView<Component, V, U>, newView: V | U | null): void {
   if (newView instanceof NodeView && newView.isMounted() ||
       newView instanceof Node && NodeView.isNodeMounted(newView) && NodeView.isRootView(newView)) {
-    this._owner.mount();
+    this.owner.mount();
   }
-  const oldView = this._view;
+  const oldView = this.view;
   if (newView !== null) {
     newView = this.fromAny(newView);
   }
   if (oldView !== newView) {
     this.willSetOwnView(newView as V | null, oldView);
     this.willSetView(newView as V | null, oldView);
-    this._view = newView as V | null;
+    Object.defineProperty(this, "view", {
+      value: newView as V | null,
+      enumerable: true,
+      configurable: true,
+    });
     this.onSetOwnView(newView as V | null, oldView);
     this.onSetView(newView as V | null, oldView);
     this.didSetView(newView as V | null, oldView);
@@ -253,17 +192,25 @@ ComponentView.prototype.setOwnView = function <V extends View, U>(this: Componen
   }
 };
 
-ComponentView.prototype.willSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
-                                                                   newView: V | null,
-                                                                   oldView: V | null): void {
-  this._owner.willSetComponentView(this, newView, oldView);
+ComponentView.prototype.willSetView = function <V extends View>(this: ComponentView<Component, V>, newView: V | null, oldView: V | null): void {
+  // hook
 };
 
-ComponentView.prototype.onSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
-                                                                 newView: V | null,
-                                                                 oldView: V | null): void {
-  this._owner.onSetComponentView(this, newView, oldView);
-  if (this.observe === true && this._owner.isMounted()) {
+ComponentView.prototype.onSetView = function <V extends View>(this: ComponentView<Component, V>, newView: V | null, oldView: V | null): void {
+  // hook
+};
+
+ComponentView.prototype.didSetView = function <V extends View>(this: ComponentView<Component, V>, newView: V | null, oldView: V | null): void {
+  // hook
+};
+
+ComponentView.prototype.willSetOwnView = function <V extends View>(this: ComponentView<Component, V>, newView: V | null, oldView: V | null): void {
+  this.owner.willSetComponentView(this, newView, oldView);
+};
+
+ComponentView.prototype.onSetOwnView = function <V extends View>(this: ComponentView<Component, V>, newView: V | null, oldView: V | null): void {
+  this.owner.onSetComponentView(this, newView, oldView);
+  if (this.observe === true && this.owner.isMounted()) {
     if (oldView !== null) {
       oldView.removeViewObserver(this as ViewObserverType<V>);
     }
@@ -273,30 +220,26 @@ ComponentView.prototype.onSetOwnView = function <V extends View>(this: Component
   }
 };
 
-ComponentView.prototype.didSetOwnView = function <V extends View>(this: ComponentView<Component, V>,
-                                                                  newView: V | null,
-                                                                  oldView: V | null): void {
-  this._owner.didSetComponentView(this, newView, oldView);
+ComponentView.prototype.didSetOwnView = function <V extends View>(this: ComponentView<Component, V>, newView: V | null, oldView: V | null): void {
+  this.owner.didSetComponentView(this, newView, oldView);
 };
 
 ComponentView.prototype.mount = function <V extends View>(this: ComponentView<Component, V>): void {
-  const view = this._view;
+  const view = this.view;
   if (view !== null && this.observe === true) {
     view.addViewObserver(this as ViewObserverType<V>);
   }
 };
 
 ComponentView.prototype.unmount = function <V extends View>(this: ComponentView<Component, V>): void {
-  const view = this._view;
+  const view = this.view;
   if (view !== null && this.observe === true) {
     view.removeViewObserver(this as ViewObserverType<V>);
   }
 };
 
-ComponentView.prototype.insert = function <V extends View>(this: ComponentView<Component, V>,
-                                                           parentView: View,
-                                                           key?: string | null): V | null {
-  let view = this._view;
+ComponentView.prototype.insert = function <V extends View>(this: ComponentView<Component, V>, parentView: View, key?: string | null): V | null {
+  let view = this.view;
   if (view === null) {
     view = this.createView();
   }
@@ -309,7 +252,7 @@ ComponentView.prototype.insert = function <V extends View>(this: ComponentView<C
     if (view.parentView !== parentView || view.key !== key) {
       this.insertView(parentView, view, key);
     }
-    if (this._view === null) {
+    if (this.view === null) {
       this.setView(view);
     }
   }
@@ -317,7 +260,7 @@ ComponentView.prototype.insert = function <V extends View>(this: ComponentView<C
 };
 
 ComponentView.prototype.remove = function <V extends View>(this: ComponentView<Component, V>): V | null {
-  const view = this._view;
+  const view = this.view;
   if (view !== null) {
     view.remove();
   }
@@ -332,9 +275,7 @@ ComponentView.prototype.createView = function <V extends View, U>(this: Componen
   return null;
 };
 
-ComponentView.prototype.insertView = function <V extends View>(this: ComponentView<Component, V>,
-                                                               parentView: View, childView: V,
-                                                               key: string | undefined): void {
+ComponentView.prototype.insertView = function <V extends View>(this: ComponentView<Component, V>, parentView: View, childView: V, key: string | undefined): void {
   if (key !== void 0) {
     parentView.setChildView(key, childView);
   } else {
@@ -342,8 +283,7 @@ ComponentView.prototype.insertView = function <V extends View>(this: ComponentVi
   }
 }
 
-ComponentView.prototype.fromAny = function <V extends View, U>(this: ComponentView<Component, V, U>,
-                                                               value: V | U): V | null {
+ComponentView.prototype.fromAny = function <V extends View, U>(this: ComponentView<Component, V, U>, value: V | U): V | null {
   const type = this.type;
   if (FromAny.is<V, U>(type)) {
     return type.fromAny(value);
@@ -361,13 +301,13 @@ ComponentView.define = function <C extends Component, V extends View, U, I>(desc
     _super = ComponentView;
   }
 
-  const _constructor = function ComponentViewAccessor(this: ComponentView<C, V, U>, owner: C, viewName: string | undefined): ComponentView<C, V, U> {
-    let _this: ComponentView<C, V, U> = function accessor(view?: V | null): V | null | C {
+  const _constructor = function DecoratedComponentView(this: ComponentView<C, V, U>, owner: C, viewName: string | undefined): ComponentView<C, V, U> {
+    let _this: ComponentView<C, V, U> = function ComponentViewAccessor(view?: V | null): V | null | C {
       if (view === void 0) {
-        return _this._view;
+        return _this.view;
       } else {
         _this.setView(view);
-        return _this._owner;
+        return _this.owner;
       }
     } as ComponentView<C, V, U>;
     Object.setPrototypeOf(_this, this);
@@ -375,7 +315,7 @@ ComponentView.define = function <C extends Component, V extends View, U, I>(desc
     return _this;
   } as unknown as ComponentViewConstructor<C, V, U, I>;
 
-  const _prototype = descriptor as unknown as ComponentView<C, V, U> & I;
+  const _prototype = descriptor as unknown as ComponentView<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

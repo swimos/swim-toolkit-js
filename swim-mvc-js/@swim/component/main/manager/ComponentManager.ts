@@ -13,10 +13,8 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import {Component} from "../Component";
+import type {Component} from "../Component";
 import type {ComponentManagerObserverType, ComponentManagerObserver} from "./ComponentManagerObserver";
-import type {ExecuteManager} from "../execute/ExecuteManager";
-import type {HistoryManager} from "../history/HistoryManager";
 
 export abstract class ComponentManager<C extends Component = Component> {
   constructor() {
@@ -270,11 +268,4 @@ export abstract class ComponentManager<C extends Component = Component> {
       }
     }
   }
-
-  // Forward type declarations
-  /** @hidden */
-  static Execute: typeof ExecuteManager; // defined by ExecuteManager
-  /** @hidden */
-  static History: typeof HistoryManager; // defined by HistoryManager
 }
-Component.Manager = ComponentManager;

@@ -32,4 +32,3 @@ export abstract class NumberComponentScope<C extends Component> extends Componen
     }
   }
 }
-ComponentScope.Number = NumberComponentScope;

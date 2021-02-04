@@ -17,22 +17,23 @@ import {ComponentFlags, Component} from "../Component";
 import {GenericComponent} from "./GenericComponent";
 
 export class CompositeComponent extends GenericComponent {
-  /** @hidden */
-  readonly _childComponents: Component[];
-  /** @hidden */
-  _childComponentMap?: {[key: string]: Component | undefined};
-
   constructor() {
     super();
-    this._childComponents = [];
+    Object.defineProperty(this, "childComponents", {
+      value: [],
+      enumerable: true,
+    });
+    Object.defineProperty(this, "childComponentMap", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
+
+  declare readonly childComponents: ReadonlyArray<Component>;
 
   get childComponentCount(): number {
-    return this._childComponents.length;
-  }
-
-  get childComponents(): ReadonlyArray<Component> {
-    return this._childComponents;
+    return this.childComponents.length;
   }
 
   forEachChildComponent<T>(callback: (childComponent: Component) => T | void): T | undefined;
@@ -41,7 +42,7 @@ export class CompositeComponent extends GenericComponent {
   forEachChildComponent<T, S>(callback: (this: S | undefined, childComponent: Component) => T | void,
                                thisArg?: S): T | undefined {
     let result: T | undefined;
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     let i = 0;
     while (i < childComponents.length) {
       const childComponent = childComponents[i]!;
@@ -57,30 +58,33 @@ export class CompositeComponent extends GenericComponent {
   }
 
   firstChildComponent(): Component | null {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     return childComponents.length !== 0 ? childComponents[0]! : null;
   }
 
   lastChildComponent(): Component | null {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     return childComponents.length !== 0 ? childComponents[childComponents.length - 1]! : null;
   }
 
   nextChildComponent(targetComponent: Component): Component | null {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     const targetIndex = childComponents.indexOf(targetComponent);
     return targetIndex >= 0 && targetIndex + 1 < childComponents.length ? childComponents[targetIndex + 1]! : null;
   }
 
   previousChildComponent(targetComponent: Component): Component | null {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     const targetIndex = childComponents.indexOf(targetComponent);
     return targetIndex - 1 >= 0 ? childComponents[targetIndex - 1]! : null;
   }
 
+  /** @hidden */
+  declare readonly childComponentMap: {[key: string]: Component | undefined} | null;
+
   getChildComponent(key: string): Component | null {
-    const childComponentMap = this._childComponentMap;
-    if (childComponentMap !== void 0) {
+    const childComponentMap = this.childComponentMap;
+    if (childComponentMap !== null) {
       const childComponent = childComponentMap[key];
       if (childComponent !== void 0) {
         return childComponent;
@@ -90,29 +94,27 @@ export class CompositeComponent extends GenericComponent {
   }
 
   setChildComponent(key: string, newChildComponent: Component | null): Component | null {
+    let targetComponent: Component | null = null;
+    const childComponents = this.childComponents as Component[];
     if (newChildComponent !== null) {
+      if (newChildComponent.parentComponent === this) {
+        targetComponent = childComponents[childComponents.indexOf(newChildComponent) + 1] || null;
+      }
       newChildComponent.remove();
     }
     let index = -1;
-    let oldChildComponent: Component | null = null;
-    let targetComponent: Component | null = null;
-    const childComponents = this._childComponents;
-    const childComponentMap = this._childComponentMap;
-    if (childComponentMap !== void 0) {
-      const childComponent = childComponentMap[key];
-      if (childComponent !== void 0) {
-        index = childComponents.indexOf(childComponent);
-        // assert(index >= 0);
-        oldChildComponent = childComponent;
-        targetComponent = childComponents[index + 1] || null;
-        this.willRemoveChildComponent(childComponent);
-        childComponent.setParentComponent(null, this);
-        this.removeChildComponentMap(childComponent);
-        childComponents.splice(index, 1);
-        this.onRemoveChildComponent(childComponent);
-        this.didRemoveChildComponent(childComponent);
-        childComponent.setKey(void 0);
-      }
+    const oldChildComponent = this.getChildComponent(key);
+    if (oldChildComponent !== null) {
+      index = childComponents.indexOf(oldChildComponent);
+      // assert(index >= 0);
+      targetComponent = childComponents[index + 1] || null;
+      this.willRemoveChildComponent(oldChildComponent);
+      oldChildComponent.setParentComponent(null, this);
+      this.removeChildComponentMap(oldChildComponent);
+      childComponents.splice(index, 1);
+      this.onRemoveChildComponent(oldChildComponent);
+      this.didRemoveChildComponent(oldChildComponent);
+      oldChildComponent.setKey(void 0);
     }
     if (newChildComponent !== null) {
       newChildComponent.setKey(key);
@@ -135,10 +137,14 @@ export class CompositeComponent extends GenericComponent {
   protected insertChildComponentMap(childComponent: Component): void {
     const key = childComponent.key;
     if (key !== void 0) {
-      let childComponentMap = this._childComponentMap;
-      if (childComponentMap === void 0) {
+      let childComponentMap = this.childComponentMap;
+      if (childComponentMap === null) {
         childComponentMap = {};
-        this._childComponentMap = childComponentMap;
+        Object.defineProperty(this, "childComponentMap", {
+          value: childComponentMap,
+          enumerable: true,
+          configurable: true,
+        });
       }
       childComponentMap[key] = childComponent;
     }
@@ -146,10 +152,10 @@ export class CompositeComponent extends GenericComponent {
 
   /** @hidden */
   protected removeChildComponentMap(childComponent: Component): void {
-    const childComponentMap = this._childComponentMap;
-    if (childComponentMap !== void 0) {
-      const key = childComponent.key;
-      if (key !== void 0) {
+    const key = childComponent.key;
+    if (key !== void 0) {
+      const childComponentMap = this.childComponentMap;
+      if (childComponentMap !== null) {
         delete childComponentMap[key];
       }
     }
@@ -162,7 +168,7 @@ export class CompositeComponent extends GenericComponent {
       childComponent.setKey(key);
     }
     this.willInsertChildComponent(childComponent, null);
-    this._childComponents.push(childComponent);
+    (this.childComponents as Component[]).push(childComponent);
     this.insertChildComponentMap(childComponent);
     childComponent.setParentComponent(this, null);
     this.onInsertChildComponent(childComponent, null);
@@ -176,7 +182,7 @@ export class CompositeComponent extends GenericComponent {
       this.removeChildComponent(key);
       childComponent.setKey(key);
     }
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents as Component[];
     const targetComponent = childComponents.length !== 0 ? childComponents[0] : null;
     this.willInsertChildComponent(childComponent, targetComponent);
     childComponents.unshift(childComponent);
@@ -197,7 +203,7 @@ export class CompositeComponent extends GenericComponent {
       childComponent.setKey(key);
     }
     this.willInsertChildComponent(childComponent, targetComponent);
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents as Component[];
     const index = targetComponent !== null ? childComponents.indexOf(targetComponent) : -1;
     if (index >= 0) {
       childComponents.splice(index, 0, childComponent);
@@ -229,7 +235,7 @@ export class CompositeComponent extends GenericComponent {
     this.willRemoveChildComponent(childComponent);
     childComponent.setParentComponent(null, this);
     this.removeChildComponentMap(childComponent);
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents as Component[];
     const index = childComponents.indexOf(childComponent);
     if (index >= 0) {
       childComponents.splice(index, 1);
@@ -243,7 +249,7 @@ export class CompositeComponent extends GenericComponent {
   }
 
   removeAll(): void {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents as Component[];
     do {
       const count = childComponents.length;
       if (count > 0) {
@@ -263,7 +269,7 @@ export class CompositeComponent extends GenericComponent {
 
   /** @hidden */
   protected doMountChildComponents(): void {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     let i = 0;
     while (i < childComponents.length) {
       const childComponent = childComponents[i]!;
@@ -279,7 +285,7 @@ export class CompositeComponent extends GenericComponent {
 
   /** @hidden */
   protected doUnmountChildComponents(): void {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     let i = 0;
     while (i < childComponents.length) {
       const childComponent = childComponents[i]!;
@@ -295,7 +301,7 @@ export class CompositeComponent extends GenericComponent {
 
   /** @hidden */
   protected doPowerChildComponents(): void {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     let i = 0;
     while (i < childComponents.length) {
       const childComponent = childComponents[i]!;
@@ -311,7 +317,7 @@ export class CompositeComponent extends GenericComponent {
 
   /** @hidden */
   protected doUnpowerChildComponents(): void {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     let i = 0;
     while (i < childComponents.length) {
       const childComponent = childComponents[i]!;
@@ -328,7 +334,7 @@ export class CompositeComponent extends GenericComponent {
   protected compileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>,
                                    compileChildComponent: (this: this, childComponent: Component, compileFlags: ComponentFlags,
                                                            componentContext: ComponentContextType<this>) => void): void {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     let i = 0;
     while (i < childComponents.length) {
       const childComponent = childComponents[i]!;
@@ -345,7 +351,7 @@ export class CompositeComponent extends GenericComponent {
   protected executeChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>,
                                    executeChildComponent: (this: this, childComponent: Component, executeFlags: ComponentFlags,
                                                            componentContext: ComponentContextType<this>) => void): void {
-    const childComponents = this._childComponents;
+    const childComponents = this.childComponents;
     let i = 0;
     while (i < childComponents.length) {
       const childComponent = childComponents[i]!;
@@ -359,4 +365,3 @@ export class CompositeComponent extends GenericComponent {
     }
   }
 }
-Component.Composite = CompositeComponent;

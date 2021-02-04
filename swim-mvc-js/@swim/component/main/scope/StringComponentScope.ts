@@ -21,4 +21,3 @@ export abstract class StringComponentScope<C extends Component> extends Componen
     return value;
   }
 }
-ComponentScope.String = StringComponentScope;

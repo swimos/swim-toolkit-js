@@ -17,7 +17,6 @@ import type {View} from "@swim/view";
 import type {Model, Trait} from "@swim/model";
 import {ComponentContextType, ComponentContext} from "./ComponentContext";
 import type {ComponentObserverType, ComponentObserver} from "./ComponentObserver";
-import type {ComponentManager} from "./manager/ComponentManager";
 import type {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";
 import type {ExecuteService} from "./service/ExecuteService";
 import type {HistoryService} from "./service/HistoryService";
@@ -26,8 +25,6 @@ import type {ComponentModelConstructor, ComponentModel} from "./model/ComponentM
 import type {ComponentTraitConstructor, ComponentTrait} from "./trait/ComponentTrait";
 import type {ComponentViewConstructor, ComponentView} from "./view/ComponentView";
 import type {ComponentBindingConstructor, ComponentBinding} from "./binding/ComponentBinding";
-import type {GenericComponent} from "./generic/GenericComponent";
-import type {CompositeComponent} from "./generic/CompositeComponent";
 
 export type ComponentFlags = number;
 
@@ -37,22 +34,22 @@ export interface ComponentInit {
 
 export interface ComponentPrototype {
   /** @hidden */
-  _componentServiceConstructors?: {[serviceName: string]: ComponentServiceConstructor<Component, unknown> | undefined};
+  componentServiceConstructors?: {[serviceName: string]: ComponentServiceConstructor<Component, unknown> | undefined};
 
   /** @hidden */
-  _componentScopeConstructors?: {[scopeName: string]: ComponentScopeConstructor<Component, unknown> | undefined};
+  componentScopeConstructors?: {[scopeName: string]: ComponentScopeConstructor<Component, unknown> | undefined};
 
   /** @hidden */
-  _componentModelConstructors?: {[modelName: string]: ComponentModelConstructor<Component, Model> | undefined};
+  componentModelConstructors?: {[modelName: string]: ComponentModelConstructor<Component, Model> | undefined};
 
   /** @hidden */
-  _componentTraitConstructors?: {[traitName: string]: ComponentTraitConstructor<Component, Trait> | undefined};
+  componentTraitConstructors?: {[traitName: string]: ComponentTraitConstructor<Component, Trait> | undefined};
 
   /** @hidden */
-  _componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<Component, View> | undefined};
+  componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<Component, View> | undefined};
 
   /** @hidden */
-  _componentBindingConstructors?: {[bindingName: string]: ComponentBindingConstructor<Component, Component> | undefined};
+  componentBindingConstructors?: {[bindingName: string]: ComponentBindingConstructor<Component, Component> | undefined};
 }
 
 export interface ComponentConstructor<C extends Component = Component> {
@@ -207,7 +204,7 @@ export abstract class Component {
 
   abstract remove(): void;
 
-  abstract get childComponentCount(): number;
+  abstract readonly childComponentCount: number;
 
   abstract readonly childComponents: ReadonlyArray<Component>;
 
@@ -1031,8 +1028,8 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentServiceConstructors")) {
-        const constructor = componentPrototype._componentServiceConstructors![serviceName];
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentServiceConstructors")) {
+        const constructor = componentPrototype.componentServiceConstructors![serviceName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1046,10 +1043,10 @@ export abstract class Component {
   static decorateComponentService(constructor: ComponentServiceConstructor<Component, unknown>,
                                   target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentServiceConstructors")) {
-      componentPrototype._componentServiceConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentServiceConstructors")) {
+      componentPrototype.componentServiceConstructors = {};
     }
-    componentPrototype._componentServiceConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentServiceConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentService<Component, unknown> {
         let componentService = this.getComponentService(propertyKey.toString());
@@ -1070,8 +1067,8 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentScopeConstructors")) {
-        const constructor = componentPrototype._componentScopeConstructors![scopeName];
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentScopeConstructors")) {
+        const constructor = componentPrototype.componentScopeConstructors![scopeName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1085,10 +1082,10 @@ export abstract class Component {
   static decorateComponentScope(constructor: ComponentScopeConstructor<Component, unknown>,
                                 target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentScopeConstructors")) {
-      componentPrototype._componentScopeConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentScopeConstructors")) {
+      componentPrototype.componentScopeConstructors = {};
     }
-    componentPrototype._componentScopeConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentScopeConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentScope<Component, unknown> {
         let componentScope = this.getComponentScope(propertyKey.toString());
@@ -1109,8 +1106,8 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentModelConstructors")) {
-        const constructor = componentPrototype._componentModelConstructors![modelName];
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentModelConstructors")) {
+        const constructor = componentPrototype.componentModelConstructors![modelName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1124,10 +1121,10 @@ export abstract class Component {
   static decorateComponentModel(constructor: ComponentModelConstructor<Component, Model>,
                                 target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentModelConstructors")) {
-      componentPrototype._componentModelConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentModelConstructors")) {
+      componentPrototype.componentModelConstructors = {};
     }
-    componentPrototype._componentModelConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentModelConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentModel<Component, Model> {
         let componentModel = this.getComponentModel(propertyKey.toString());
@@ -1148,8 +1145,8 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentTraitConstructors")) {
-        const constructor = componentPrototype._componentTraitConstructors![traitName];
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentTraitConstructors")) {
+        const constructor = componentPrototype.componentTraitConstructors![traitName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1163,10 +1160,10 @@ export abstract class Component {
   static decorateComponentTrait(constructor: ComponentTraitConstructor<Component, Trait>,
                                 target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentTraitConstructors")) {
-      componentPrototype._componentTraitConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentTraitConstructors")) {
+      componentPrototype.componentTraitConstructors = {};
     }
-    componentPrototype._componentTraitConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentTraitConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentTrait<Component, Trait> {
         let componentTrait = this.getComponentTrait(propertyKey.toString());
@@ -1187,8 +1184,8 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentViewConstructors")) {
-        const constructor = componentPrototype._componentViewConstructors![viewName];
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentViewConstructors")) {
+        const constructor = componentPrototype.componentViewConstructors![viewName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1202,10 +1199,10 @@ export abstract class Component {
   static decorateComponentView(constructor: ComponentViewConstructor<Component, View>,
                                target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentViewConstructors")) {
-      componentPrototype._componentViewConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentViewConstructors")) {
+      componentPrototype.componentViewConstructors = {};
     }
-    componentPrototype._componentViewConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentViewConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentView<Component, View> {
         let componentView = this.getComponentView(propertyKey.toString());
@@ -1226,8 +1223,8 @@ export abstract class Component {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(componentPrototype, "_componentBindingConstructors")) {
-        const constructor = componentPrototype._componentBindingConstructors![bindingName];
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentBindingConstructors")) {
+        const constructor = componentPrototype.componentBindingConstructors![bindingName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1241,10 +1238,10 @@ export abstract class Component {
   static decorateComponentBinding(constructor: ComponentBindingConstructor<Component, Component>,
                                   target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "_componentBindingConstructors")) {
-      componentPrototype._componentBindingConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentBindingConstructors")) {
+      componentPrototype.componentBindingConstructors = {};
     }
-    componentPrototype._componentBindingConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentBindingConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentBinding<Component, Component> {
         let componentBinding = this.getComponentBinding(propertyKey.toString());
@@ -1316,24 +1313,4 @@ export abstract class Component {
   static readonly powerFlags: ComponentFlags = 0;
   static readonly insertChildFlags: ComponentFlags = 0;
   static readonly removeChildFlags: ComponentFlags = 0;
-
-  // Forward type declarations
-  /** @hidden */
-  static Manager: typeof ComponentManager; // defined by ComponentManager
-  /** @hidden */
-  static Service: typeof ComponentService; // defined by ComponentService
-  /** @hidden */
-  static Scope: typeof ComponentScope; // defined by ComponentScope
-  /** @hidden */
-  static Model: typeof ComponentModel; // defined by ComponentModel
-  /** @hidden */
-  static Trait: typeof ComponentTrait; // defined by ComponentTrait
-  /** @hidden */
-  static View: typeof ComponentView; // defined by ComponentView
-  /** @hidden */
-  static Binding: typeof ComponentBinding; // defined by ComponentBinding
-  /** @hidden */
-  static Generic: typeof GenericComponent; // defined by GenericComponent
-  /** @hidden */
-  static Composite: typeof CompositeComponent; // defined by CompositeComponent
 }

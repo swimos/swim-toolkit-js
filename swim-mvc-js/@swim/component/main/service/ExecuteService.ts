@@ -22,6 +22,5 @@ export abstract class ExecuteService<C extends Component> extends ComponentManag
     return ExecuteManager.global();
   }
 }
-ComponentService.Execute = ExecuteService;
 
 ComponentService({type: ExecuteManager, observe: false})(Component.prototype, "executeService");

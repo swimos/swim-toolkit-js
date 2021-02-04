@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {HistoryStateInit, HistoryState} from "./HistoryState";
+export {
+  HistoryStateInit,
+  HistoryState,
+  MutableHistoryState,
+} from "./HistoryState";
 
 export {HistoryManager} from "./HistoryManager";
 export {HistoryManagerObserver} from "./HistoryManagerObserver";
