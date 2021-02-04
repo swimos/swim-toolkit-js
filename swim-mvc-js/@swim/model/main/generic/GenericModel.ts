@@ -20,8 +20,8 @@ import type {ModelConsumerType, ModelConsumer} from "../ModelConsumer";
 import type {Trait} from "../Trait";
 import type {ModelService} from "../service/ModelService";
 import {ModelScope} from "../scope/ModelScope";
-import type {ModelBinding} from "../binding/ModelBinding";
-import type {ModelTrait} from "../binding/ModelTrait";
+import type {ModelRelation} from "../relation/ModelRelation";
+import type {ModelTrait} from "../relation/ModelTrait";
 import type {ModelDownlink} from "../downlink/ModelDownlink";
 
 export abstract class GenericModel extends Model {
@@ -52,7 +52,7 @@ export abstract class GenericModel extends Model {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "modelBindings", {
+    Object.defineProperty(this, "modelRelations", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -173,7 +173,7 @@ export abstract class GenericModel extends Model {
 
   protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
     super.onInsertChildModel(childModel, targetModel);
-    this.insertModelBinding(childModel);
+    this.insertModelRelation(childModel);
   }
 
   cascadeInsert(updateFlags?: ModelFlags, modelContext?: ModelContext): void {
@@ -185,7 +185,7 @@ export abstract class GenericModel extends Model {
 
   protected onRemoveChildModel(childModel: Model): void {
     super.onRemoveChildModel(childModel);
-    this.removeModelBinding(childModel);
+    this.removeModelRelation(childModel);
   }
 
   abstract removeAll(): void;
@@ -221,7 +221,7 @@ export abstract class GenericModel extends Model {
     super.onMount();
     this.mountServices();
     this.mountScopes();
-    this.mountModelBindings();
+    this.mountModelRelations();
     this.mountModelTraits();
     this.mountDownlinks();
   }
@@ -267,7 +267,7 @@ export abstract class GenericModel extends Model {
   protected onUnmount(): void {
     this.unmountDownlinks();
     this.unmountModelTraits();
-    this.unmountModelBindings();
+    this.unmountModelRelations();
     this.unmountScopes();
     this.unmountServices();
     this.setModelFlags(this.modelFlags & (~Model.ModelFlagMask | Model.RemovingFlag));
@@ -733,100 +733,100 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  declare readonly modelBindings: {[bindingName: string]: ModelBinding<Model, Model> | undefined} | null;
+  declare readonly modelRelations: {[relationName: string]: ModelRelation<Model, Model> | undefined} | null;
 
-  hasModelBinding(bindingName: string): boolean {
-    const modelBindings = this.modelBindings;
-    return modelBindings !== null && modelBindings[bindingName] !== void 0;
+  hasModelRelation(relationName: string): boolean {
+    const modelRelations = this.modelRelations;
+    return modelRelations !== null && modelRelations[relationName] !== void 0;
   }
 
-  getModelBinding(bindingName: string): ModelBinding<this, Model> | null {
-    const modelBindings = this.modelBindings;
-    if (modelBindings !== null) {
-      const modelBinding = modelBindings[bindingName];
-      if (modelBinding !== void 0) {
-        return modelBinding as ModelBinding<this, Model>;
+  getModelRelation(relationName: string): ModelRelation<this, Model> | null {
+    const modelRelations = this.modelRelations;
+    if (modelRelations !== null) {
+      const modelRelation = modelRelations[relationName];
+      if (modelRelation !== void 0) {
+        return modelRelation as ModelRelation<this, Model>;
       }
     }
     return null;
   }
 
-  setModelBinding(bindingName: string, newModelBinding: ModelBinding<this, any> | null): void {
-    let modelBindings = this.modelBindings;
-    if (modelBindings === null) {
-      modelBindings = {};
-      Object.defineProperty(this, "modelBindings", {
-        value: modelBindings,
+  setModelRelation(relationName: string, newModelRelation: ModelRelation<this, any> | null): void {
+    let modelRelations = this.modelRelations;
+    if (modelRelations === null) {
+      modelRelations = {};
+      Object.defineProperty(this, "modelRelations", {
+        value: modelRelations,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldModelBinding = modelBindings[bindingName];
-    if (oldModelBinding !== void 0 && this.isMounted()) {
-      oldModelBinding.unmount();
+    const oldModelRelation = modelRelations[relationName];
+    if (oldModelRelation !== void 0 && this.isMounted()) {
+      oldModelRelation.unmount();
     }
-    if (newModelBinding !== null) {
-      modelBindings[bindingName] = newModelBinding;
+    if (newModelRelation !== null) {
+      modelRelations[relationName] = newModelRelation;
       if (this.isMounted()) {
-        newModelBinding.mount();
+        newModelRelation.mount();
       }
     } else {
-      delete modelBindings[bindingName];
+      delete modelRelations[relationName];
     }
   }
 
   /** @hidden */
-  protected mountModelBindings(): void {
-    const modelBindings = this.modelBindings;
-    for (const bindingName in modelBindings) {
-      const modelBinding = modelBindings[bindingName]!;
-      modelBinding.mount();
+  protected mountModelRelations(): void {
+    const modelRelations = this.modelRelations;
+    for (const relationName in modelRelations) {
+      const modelRelation = modelRelations[relationName]!;
+      modelRelation.mount();
     }
   }
 
   /** @hidden */
-  protected unmountModelBindings(): void {
-    const modelBindings = this.modelBindings;
-    for (const bindingName in modelBindings) {
-      const modelBinding = modelBindings[bindingName]!;
-      modelBinding.unmount();
+  protected unmountModelRelations(): void {
+    const modelRelations = this.modelRelations;
+    for (const relationName in modelRelations) {
+      const modelRelation = modelRelations[relationName]!;
+      modelRelation.unmount();
     }
   }
 
   /** @hidden */
-  protected insertModelBinding(childModel: Model): void {
-    const bindingName = childModel.key;
-    if (bindingName !== void 0) {
-      const modelBinding = this.getLazyModelBinding(bindingName);
-      if (modelBinding !== null && modelBinding.child === true) {
-        modelBinding.doSetModel(childModel);
+  protected insertModelRelation(childModel: Model): void {
+    const relationName = childModel.key;
+    if (relationName !== void 0) {
+      const modelRelation = this.getLazyModelRelation(relationName);
+      if (modelRelation !== null && modelRelation.child === true) {
+        modelRelation.doSetModel(childModel);
       }
     }
   }
 
   /** @hidden */
-  protected removeModelBinding(childModel: Model): void {
-    const bindingName = childModel.key;
-    if (bindingName !== void 0) {
-      const modelBinding = this.getModelBinding(bindingName);
-      if (modelBinding !== null && modelBinding.child === true) {
-        modelBinding.doSetModel(null);
+  protected removeModelRelation(childModel: Model): void {
+    const relationName = childModel.key;
+    if (relationName !== void 0) {
+      const modelRelation = this.getModelRelation(relationName);
+      if (modelRelation !== null && modelRelation.child === true) {
+        modelRelation.doSetModel(null);
       }
     }
   }
 
   /** @hidden */
-  declare readonly modelTraits: {[bindingName: string]: ModelTrait<Model, Trait> | undefined} | null;
+  declare readonly modelTraits: {[relationName: string]: ModelTrait<Model, Trait> | undefined} | null;
 
-  hasModelTrait(bindingName: string): boolean {
+  hasModelTrait(relationName: string): boolean {
     const modelTraits = this.modelTraits;
-    return modelTraits !== null && modelTraits[bindingName] !== void 0;
+    return modelTraits !== null && modelTraits[relationName] !== void 0;
   }
 
-  getModelTrait(bindingName: string): ModelTrait<this, Trait> | null {
+  getModelTrait(relationName: string): ModelTrait<this, Trait> | null {
     const modelTraits = this.modelTraits;
     if (modelTraits !== null) {
-      const modelTrait = modelTraits[bindingName];
+      const modelTrait = modelTraits[relationName];
       if (modelTrait !== void 0) {
         return modelTrait as ModelTrait<this, Trait>;
       }
@@ -834,7 +834,7 @@ export abstract class GenericModel extends Model {
     return null;
   }
 
-  setModelTrait(bindingName: string, newModelTrait: ModelTrait<this, any> | null): void {
+  setModelTrait(relationName: string, newModelTrait: ModelTrait<this, any> | null): void {
     let modelTraits = this.modelTraits;
     if (modelTraits === null) {
       modelTraits = {};
@@ -844,25 +844,25 @@ export abstract class GenericModel extends Model {
         configurable: true,
       });
     }
-    const oldModelTrait = modelTraits[bindingName];
+    const oldModelTrait = modelTraits[relationName];
     if (oldModelTrait !== void 0 && this.isMounted()) {
       oldModelTrait.unmount();
     }
     if (newModelTrait !== null) {
-      modelTraits[bindingName] = newModelTrait;
+      modelTraits[relationName] = newModelTrait;
       if (this.isMounted()) {
         newModelTrait.mount();
       }
     } else {
-      delete modelTraits[bindingName];
+      delete modelTraits[relationName];
     }
   }
 
   /** @hidden */
   protected mountModelTraits(): void {
     const modelTraits = this.modelTraits;
-    for (const bindingName in modelTraits) {
-      const modelTrait = modelTraits[bindingName]!;
+    for (const relationName in modelTraits) {
+      const modelTrait = modelTraits[relationName]!;
       modelTrait.mount();
     }
   }
@@ -870,17 +870,17 @@ export abstract class GenericModel extends Model {
   /** @hidden */
   protected unmountModelTraits(): void {
     const modelTraits = this.modelTraits;
-    for (const bindingName in modelTraits) {
-      const modelTrait = modelTraits[bindingName]!;
+    for (const relationName in modelTraits) {
+      const modelTrait = modelTraits[relationName]!;
       modelTrait.unmount();
     }
   }
 
   /** @hidden */
   protected insertModelTrait(trait: Trait): void {
-    const bindingName = trait.key;
-    if (bindingName !== void 0) {
-      const modelTrait = this.getLazyModelTrait(bindingName);
+    const relationName = trait.key;
+    if (relationName !== void 0) {
+      const modelTrait = this.getLazyModelTrait(relationName);
       if (modelTrait !== null && modelTrait.sibling === true) {
         modelTrait.doSetTrait(trait);
       }
@@ -889,9 +889,9 @@ export abstract class GenericModel extends Model {
 
   /** @hidden */
   protected removeModelTrait(trait: Trait): void {
-    const bindingName = trait.key;
-    if (bindingName !== void 0) {
-      const modelTrait = this.getModelTrait(bindingName);
+    const relationName = trait.key;
+    if (relationName !== void 0) {
+      const modelTrait = this.getModelTrait(relationName);
       if (modelTrait !== null && modelTrait.sibling === true) {
         modelTrait.doSetTrait(null);
       }

@@ -23,8 +23,8 @@ import type {ModelServiceConstructor, ModelService} from "./service/ModelService
 import type {RefreshService} from "./service/RefreshService";
 import type {WarpService} from "./service/WarpService";
 import type {ModelScopeConstructor, ModelScope} from "./scope/ModelScope";
-import type {ModelBindingConstructor, ModelBinding} from "./binding/ModelBinding";
-import type {ModelTraitConstructor, ModelTrait} from "./binding/ModelTrait";
+import type {ModelRelationConstructor, ModelRelation} from "./relation/ModelRelation";
+import type {ModelTraitConstructor, ModelTrait} from "./relation/ModelTrait";
 import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
 import type {ModelDownlink} from "./downlink/ModelDownlink";
 
@@ -43,10 +43,10 @@ export interface ModelPrototype {
   modelScopeConstructors?: {[scopeName: string]: ModelScopeConstructor<Model, unknown> | undefined};
 
   /** @hidden */
-  modelBindingConstructors?: {[bindingName: string]: ModelBindingConstructor<Model, Model> | undefined};
+  modelRelationConstructors?: {[relationName: string]: ModelRelationConstructor<Model, Model> | undefined};
 
   /** @hidden */
-  modelTraitConstructors?: {[bindingName: string]: ModelTraitConstructor<Model, Trait> | undefined};
+  modelTraitConstructors?: {[relationName: string]: ModelTraitConstructor<Model, Trait> | undefined};
 }
 
 export interface ModelConstructor<M extends Model = Model> {
@@ -1583,39 +1583,39 @@ export abstract class Model implements ModelDownlinkContext {
     return modelScope;
   }
 
-  abstract hasModelBinding(bindingName: string): boolean;
+  abstract hasModelRelation(relationName: string): boolean;
 
-  abstract getModelBinding(bindingName: string): ModelBinding<this, Model> | null;
+  abstract getModelRelation(relationName: string): ModelRelation<this, Model> | null;
 
-  abstract setModelBinding(bindingName: string, modelBinding: ModelBinding<this, any> | null): void;
+  abstract setModelRelation(relationName: string, modelRelation: ModelRelation<this, any> | null): void;
 
   /** @hidden */
-  getLazyModelBinding(bindingName: string): ModelBinding<this, Model> | null {
-    let modelBinding = this.getModelBinding(bindingName) as ModelBinding<this, Model> | null;
-    if (modelBinding === null) {
-      const constructor = Model.getModelBindingConstructor(bindingName, Object.getPrototypeOf(this));
+  getLazyModelRelation(relationName: string): ModelRelation<this, Model> | null {
+    let modelRelation = this.getModelRelation(relationName) as ModelRelation<this, Model> | null;
+    if (modelRelation === null) {
+      const constructor = Model.getModelRelationConstructor(relationName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        modelBinding = new constructor(this, bindingName) as ModelBinding<this, Model>;
-        this.setModelBinding(bindingName, modelBinding);
+        modelRelation = new constructor(this, relationName) as ModelRelation<this, Model>;
+        this.setModelRelation(relationName, modelRelation);
       }
     }
-    return modelBinding;
+    return modelRelation;
   }
 
-  abstract hasModelTrait(bindingName: string): boolean;
+  abstract hasModelTrait(relationName: string): boolean;
 
-  abstract getModelTrait(bindingName: string): ModelTrait<this, Trait> | null;
+  abstract getModelTrait(relationName: string): ModelTrait<this, Trait> | null;
 
-  abstract setModelTrait(bindingName: string, modelTrait: ModelTrait<this, any> | null): void;
+  abstract setModelTrait(relationName: string, modelTrait: ModelTrait<this, any> | null): void;
 
   /** @hidden */
-  getLazyModelTrait(bindingName: string): ModelTrait<this, Trait> | null {
-    let modelTrait = this.getModelTrait(bindingName) as ModelTrait<this, Trait> | null;
+  getLazyModelTrait(relationName: string): ModelTrait<this, Trait> | null {
+    let modelTrait = this.getModelTrait(relationName) as ModelTrait<this, Trait> | null;
     if (modelTrait === null) {
-      const constructor = Model.getModelTraitConstructor(bindingName, Object.getPrototypeOf(this));
+      const constructor = Model.getModelTraitConstructor(relationName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        modelTrait = new constructor(this, bindingName) as ModelTrait<this, Trait>;
-        this.setModelTrait(bindingName, modelTrait);
+        modelTrait = new constructor(this, relationName) as ModelTrait<this, Trait>;
+        this.setModelTrait(relationName, modelTrait);
       }
     }
     return modelTrait;
@@ -1733,13 +1733,13 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getModelBindingConstructor(bindingName: string, modelPrototype: ModelPrototype | null = null): ModelBindingConstructor<Model, Model> | null {
+  static getModelRelationConstructor(relationName: string, modelPrototype: ModelPrototype | null = null): ModelRelationConstructor<Model, Model> | null {
     if (modelPrototype === null) {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelBindingConstructors")) {
-        const constructor = modelPrototype.modelBindingConstructors![bindingName];
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelRelationConstructors")) {
+        const constructor = modelPrototype.modelRelationConstructors![relationName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1750,21 +1750,21 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static decorateModelBinding(constructor: ModelBindingConstructor<Model, Model>,
-                              target: Object, propertyKey: string | symbol): void {
+  static decorateModelRelation(constructor: ModelRelationConstructor<Model, Model>,
+                               target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelBindingConstructors")) {
-      modelPrototype.modelBindingConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelRelationConstructors")) {
+      modelPrototype.modelRelationConstructors = {};
     }
-    modelPrototype.modelBindingConstructors![propertyKey.toString()] = constructor;
+    modelPrototype.modelRelationConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: Model): ModelBinding<Model, Model> {
-        let modelBinding = this.getModelBinding(propertyKey.toString());
-        if (modelBinding === null) {
-          modelBinding = new constructor(this, propertyKey.toString());
-          this.setModelBinding(propertyKey.toString(), modelBinding);
+      get: function (this: Model): ModelRelation<Model, Model> {
+        let modelRelation = this.getModelRelation(propertyKey.toString());
+        if (modelRelation === null) {
+          modelRelation = new constructor(this, propertyKey.toString());
+          this.setModelRelation(propertyKey.toString(), modelRelation);
         }
-        return modelBinding;
+        return modelRelation;
       },
       configurable: true,
       enumerable: true,
@@ -1772,13 +1772,13 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getModelTraitConstructor(bindingName: string, modelPrototype: ModelPrototype | null = null): ModelTraitConstructor<Model, Trait> | null {
+  static getModelTraitConstructor(relationName: string, modelPrototype: ModelPrototype | null = null): ModelTraitConstructor<Model, Trait> | null {
     if (modelPrototype === null) {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
       if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelTraitConstructors")) {
-        const constructor = modelPrototype.modelTraitConstructors![bindingName];
+        const constructor = modelPrototype.modelTraitConstructors![relationName];
         if (constructor !== void 0) {
           return constructor;
         }

@@ -21,8 +21,8 @@ import type {TraitConsumerType, TraitConsumer} from "./TraitConsumer";
 import type {WarpManager} from "./warp/WarpManager";
 import type {TraitServiceConstructor, TraitService} from "./service/TraitService";
 import type {TraitScopeConstructor, TraitScope} from "./scope/TraitScope";
-import type {TraitModelConstructor, TraitModel} from "./binding/TraitModel";
-import type {TraitBindingConstructor, TraitBinding} from "./binding/TraitBinding";
+import type {TraitModelConstructor, TraitModel} from "./relation/TraitModel";
+import type {TraitRelationConstructor, TraitRelation} from "./relation/TraitRelation";
 import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
 import type {ModelDownlink} from "./downlink/ModelDownlink";
 
@@ -40,10 +40,10 @@ export interface TraitPrototype {
   traitScopeConstructors?: {[scopeName: string]: TraitScopeConstructor<Trait, unknown> | undefined};
 
   /** @hidden */
-  traitModelConstructors?: {[bindingName: string]: TraitModelConstructor<Trait, Model> | undefined};
+  traitModelConstructors?: {[relationName: string]: TraitModelConstructor<Trait, Model> | undefined};
 
   /** @hidden */
-  traitBindingConstructors?: {[bindingName: string]: TraitBindingConstructor<Trait, Trait> | undefined};
+  traitRelationConstructors?: {[relationName: string]: TraitRelationConstructor<Trait, Trait> | undefined};
 }
 
 export interface TraitConstructor<R extends Trait = Trait> {
@@ -1100,42 +1100,42 @@ export abstract class Trait implements ModelDownlinkContext {
     return traitScope;
   }
 
-  abstract hasTraitModel(bindingName: string): boolean;
+  abstract hasTraitModel(relationName: string): boolean;
 
-  abstract getTraitModel(bindingName: string): TraitModel<this, Model> | null;
+  abstract getTraitModel(relationName: string): TraitModel<this, Model> | null;
 
-  abstract setTraitModel(bindingName: string, traitModel: TraitModel<this, Model> | null): void;
+  abstract setTraitModel(relationName: string, traitModel: TraitModel<this, Model> | null): void;
 
   /** @hidden */
-  getLazyTraitModel(bindingName: string): TraitModel<this, Model> | null {
-    let traitModel = this.getTraitModel(bindingName) as TraitModel<this, Model> | null;
+  getLazyTraitModel(relationName: string): TraitModel<this, Model> | null {
+    let traitModel = this.getTraitModel(relationName) as TraitModel<this, Model> | null;
     if (traitModel === null) {
-      const constructor = Trait.getTraitModelConstructor(bindingName, Object.getPrototypeOf(this));
+      const constructor = Trait.getTraitModelConstructor(relationName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        traitModel = new constructor(this, bindingName) as TraitModel<this, Model>;
-        this.setTraitModel(bindingName, traitModel);
+        traitModel = new constructor(this, relationName) as TraitModel<this, Model>;
+        this.setTraitModel(relationName, traitModel);
       }
     }
     return traitModel;
   }
 
-  abstract hasTraitBinding(bindingName: string): boolean;
+  abstract hasTraitRelation(relationName: string): boolean;
 
-  abstract getTraitBinding(bindingName: string): TraitBinding<this, Trait> | null;
+  abstract getTraitRelation(relationName: string): TraitRelation<this, Trait> | null;
 
-  abstract setTraitBinding(bindingName: string, traitBinding: TraitBinding<this, Trait> | null): void;
+  abstract setTraitRelation(relationName: string, traitRelation: TraitRelation<this, Trait> | null): void;
 
   /** @hidden */
-  getLazyTraitBinding(bindingName: string): TraitBinding<this, Trait> | null {
-    let traitBinding = this.getTraitBinding(bindingName) as TraitBinding<this, Trait> | null;
-    if (traitBinding === null) {
-      const constructor = Trait.getTraitBindingConstructor(bindingName, Object.getPrototypeOf(this));
+  getLazyTraitRelation(relationName: string): TraitRelation<this, Trait> | null {
+    let traitRelation = this.getTraitRelation(relationName) as TraitRelation<this, Trait> | null;
+    if (traitRelation === null) {
+      const constructor = Trait.getTraitRelationConstructor(relationName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        traitBinding = new constructor(this, bindingName) as TraitBinding<this, Trait>;
-        this.setTraitBinding(bindingName, traitBinding);
+        traitRelation = new constructor(this, relationName) as TraitRelation<this, Trait>;
+        this.setTraitRelation(relationName, traitRelation);
       }
     }
-    return traitBinding;
+    return traitRelation;
   }
 
   abstract hasModelDownlink(downlinkName: string): boolean;
@@ -1228,13 +1228,13 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getTraitModelConstructor(bindingName: string, traitPrototype: TraitPrototype | null = null): TraitModelConstructor<Trait, Model> | null {
+  static getTraitModelConstructor(relationName: string, traitPrototype: TraitPrototype | null = null): TraitModelConstructor<Trait, Model> | null {
     if (traitPrototype === null) {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
       if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitModelConstructors")) {
-        const constructor = traitPrototype.traitModelConstructors![bindingName];
+        const constructor = traitPrototype.traitModelConstructors![relationName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1267,13 +1267,13 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getTraitBindingConstructor(bindingName: string, traitPrototype: TraitPrototype | null = null): TraitBindingConstructor<Trait, Trait> | null {
+  static getTraitRelationConstructor(relationName: string, traitPrototype: TraitPrototype | null = null): TraitRelationConstructor<Trait, Trait> | null {
     if (traitPrototype === null) {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitBindingConstructors")) {
-        const constructor = traitPrototype.traitBindingConstructors![bindingName];
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitRelationConstructors")) {
+        const constructor = traitPrototype.traitRelationConstructors![relationName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1284,21 +1284,21 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static decorateTraitBinding(constructor: TraitBindingConstructor<Trait, Trait>,
-                              target: Object, propertyKey: string | symbol): void {
+  static decorateTraitRelation(constructor: TraitRelationConstructor<Trait, Trait>,
+                               target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "traitBindingConstructors")) {
-      traitPrototype.traitBindingConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "traitRelationConstructors")) {
+      traitPrototype.traitRelationConstructors = {};
     }
-    traitPrototype.traitBindingConstructors![propertyKey.toString()] = constructor;
+    traitPrototype.traitRelationConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: Trait): TraitBinding<Trait, Trait> {
-        let traitBinding = this.getTraitBinding(propertyKey.toString());
-        if (traitBinding === null) {
-          traitBinding = new constructor(this, propertyKey.toString());
-          this.setTraitBinding(propertyKey.toString(), traitBinding);
+      get: function (this: Trait): TraitRelation<Trait, Trait> {
+        let traitRelation = this.getTraitRelation(propertyKey.toString());
+        if (traitRelation === null) {
+          traitRelation = new constructor(this, propertyKey.toString());
+          this.setTraitRelation(propertyKey.toString(), traitRelation);
         }
-        return traitBinding;
+        return traitRelation;
       },
       configurable: true,
       enumerable: true,

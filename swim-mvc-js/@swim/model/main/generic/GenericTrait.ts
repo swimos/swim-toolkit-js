@@ -19,8 +19,8 @@ import type {TraitObserverType} from "../TraitObserver";
 import type {TraitConsumerType, TraitConsumer} from "../TraitConsumer";
 import type {TraitService} from "../service/TraitService";
 import {TraitScope} from "../scope/TraitScope";
-import type {TraitModel} from "../binding/TraitModel";
-import type {TraitBinding} from "../binding/TraitBinding";
+import type {TraitModel} from "../relation/TraitModel";
+import type {TraitRelation} from "../relation/TraitRelation";
 import type {ModelDownlink} from "../downlink/ModelDownlink";
 
 export class GenericTrait extends Trait {
@@ -56,7 +56,7 @@ export class GenericTrait extends Trait {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "traitBindings", {
+    Object.defineProperty(this, "traitRelations", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -130,7 +130,7 @@ export class GenericTrait extends Trait {
     this.attachScopes();
     if (this.isMounted()) {
       this.mountTraitModels();
-      this.mountTraitBindings();
+      this.mountTraitRelations();
       this.mountDownlinks();
     }
   }
@@ -138,7 +138,7 @@ export class GenericTrait extends Trait {
   protected detachModel(oldModel: TraitModelType<this>): void {
     if (this.isMounted()) {
       this.unmountDownlinks();
-      this.unmountTraitBindings();
+      this.unmountTraitRelations();
       this.unmountTraitModels();
     }
     this.detachScopes();
@@ -164,12 +164,12 @@ export class GenericTrait extends Trait {
 
   protected onInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
     super.onInsertTrait(trait, targetTrait);
-    this.insertTraitBinding(trait);
+    this.insertTraitRelation(trait);
   }
 
   protected onRemoveTrait(trait: Trait): void {
     super.onRemoveTrait(trait);
-    this.removeTraitBinding(trait);
+    this.removeTraitRelation(trait);
   }
 
   /** @hidden */
@@ -187,7 +187,7 @@ export class GenericTrait extends Trait {
   protected onMount(): void {
     super.onMount();
     this.mountTraitModels();
-    this.mountTraitBindings();
+    this.mountTraitRelations();
     this.mountDownlinks();
   }
 
@@ -205,7 +205,7 @@ export class GenericTrait extends Trait {
 
   protected onUnmount(): void {
     this.unmountDownlinks();
-    this.unmountTraitBindings();
+    this.unmountTraitRelations();
     this.unmountTraitModels();
   }
 
@@ -431,17 +431,17 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  declare readonly traitModels: {[bindingName: string]: TraitModel<Trait, Model> | undefined} | null;
+  declare readonly traitModels: {[relationName: string]: TraitModel<Trait, Model> | undefined} | null;
 
-  hasTraitModel(bindingName: string): boolean {
+  hasTraitModel(relationName: string): boolean {
     const traitModels = this.traitModels;
-    return traitModels !== null && traitModels[bindingName] !== void 0;
+    return traitModels !== null && traitModels[relationName] !== void 0;
   }
 
-  getTraitModel(bindingName: string): TraitModel<this, Model> | null {
+  getTraitModel(relationName: string): TraitModel<this, Model> | null {
     const traitModels = this.traitModels;
     if (traitModels !== null) {
-      const traitModel = traitModels[bindingName];
+      const traitModel = traitModels[relationName];
       if (traitModel !== void 0) {
         return traitModel as TraitModel<this, Model>;
       }
@@ -449,7 +449,7 @@ export class GenericTrait extends Trait {
     return null;
   }
 
-  setTraitModel(bindingName: string, newTraitModel: TraitModel<this, any> | null): void {
+  setTraitModel(relationName: string, newTraitModel: TraitModel<this, any> | null): void {
     let traitModels = this.traitModels;
     if (traitModels === null) {
       traitModels = {};
@@ -459,12 +459,12 @@ export class GenericTrait extends Trait {
         configurable: true,
       });
     }
-    const oldTraitModel = traitModels[bindingName];
+    const oldTraitModel = traitModels[relationName];
     if (oldTraitModel !== void 0 && this.isMounted()) {
       oldTraitModel.unmount();
     }
     if (newTraitModel !== null) {
-      traitModels[bindingName] = newTraitModel;
+      traitModels[relationName] = newTraitModel;
       if (this.isMounted()) {
         newTraitModel.mount();
         if (newTraitModel.child === true) {
@@ -475,15 +475,15 @@ export class GenericTrait extends Trait {
         }
       }
     } else {
-      delete traitModels[bindingName];
+      delete traitModels[relationName];
     }
   }
 
   /** @hidden */
   protected mountTraitModels(): void {
     const traitModels = this.traitModels;
-    for (const bindingName in traitModels) {
-      const traitModel = traitModels[bindingName]!;
+    for (const relationName in traitModels) {
+      const traitModel = traitModels[relationName]!;
       traitModel.mount();
       if (traitModel.child === true) {
         const childModel = this.getChildModel(traitModel.name);
@@ -497,17 +497,17 @@ export class GenericTrait extends Trait {
   /** @hidden */
   protected unmountTraitModels(): void {
     const traitModels = this.traitModels;
-    for (const bindingName in traitModels) {
-      const traitModel = traitModels[bindingName]!;
+    for (const relationName in traitModels) {
+      const traitModel = traitModels[relationName]!;
       traitModel.unmount();
     }
   }
 
   /** @hidden */
   protected insertTraitModel(childModel: Model): void {
-    const bindingName = childModel.key;
-    if (bindingName !== void 0) {
-      const traitModel = this.getLazyTraitModel(bindingName);
+    const relationName = childModel.key;
+    if (relationName !== void 0) {
+      const traitModel = this.getLazyTraitModel(relationName);
       if (traitModel !== null && traitModel.child === true) {
         traitModel.doSetModel(childModel);
       }
@@ -516,9 +516,9 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   protected removeTraitModel(childModel: Model): void {
-    const bindingName = childModel.key;
-    if (bindingName !== void 0) {
-      const traitModel = this.getTraitModel(bindingName);
+    const relationName = childModel.key;
+    if (relationName !== void 0) {
+      const traitModel = this.getTraitModel(relationName);
       if (traitModel !== null && traitModel.child === true) {
         traitModel.doSetModel(null);
       }
@@ -526,96 +526,96 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  declare readonly traitBindings: {[bindingName: string]: TraitBinding<Trait, Trait> | undefined} | null;
+  declare readonly traitRelations: {[relationName: string]: TraitRelation<Trait, Trait> | undefined} | null;
 
-  hasTraitBinding(bindingName: string): boolean {
-    const traitBindings = this.traitBindings;
-    return traitBindings !== null && traitBindings[bindingName] !== void 0;
+  hasTraitRelation(relationName: string): boolean {
+    const traitRelations = this.traitRelations;
+    return traitRelations !== null && traitRelations[relationName] !== void 0;
   }
 
-  getTraitBinding(bindingName: string): TraitBinding<this, Trait> | null {
-    const traitBindings = this.traitBindings;
-    if (traitBindings !== null) {
-      const traitBinding = traitBindings[bindingName];
-      if (traitBinding !== void 0) {
-        return traitBinding as TraitBinding<this, Trait>;
+  getTraitRelation(relationName: string): TraitRelation<this, Trait> | null {
+    const traitRelations = this.traitRelations;
+    if (traitRelations !== null) {
+      const traitRelation = traitRelations[relationName];
+      if (traitRelation !== void 0) {
+        return traitRelation as TraitRelation<this, Trait>;
       }
     }
     return null;
   }
 
-  setTraitBinding(bindingName: string, newTraitBinding: TraitBinding<this, any> | null): void {
-    let traitBindings = this.traitBindings;
-    if (traitBindings === null) {
-      traitBindings = {};
-      Object.defineProperty(this, "traitBindings", {
-        value: traitBindings,
+  setTraitRelation(relationName: string, newTraitRelation: TraitRelation<this, any> | null): void {
+    let traitRelations = this.traitRelations;
+    if (traitRelations === null) {
+      traitRelations = {};
+      Object.defineProperty(this, "traitRelations", {
+        value: traitRelations,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldTraitBinding = traitBindings[bindingName];
-    if (oldTraitBinding !== void 0 && this.isMounted()) {
-      oldTraitBinding.unmount();
+    const oldTraitRelation = traitRelations[relationName];
+    if (oldTraitRelation !== void 0 && this.isMounted()) {
+      oldTraitRelation.unmount();
     }
-    if (newTraitBinding !== null) {
-      traitBindings[bindingName] = newTraitBinding;
+    if (newTraitRelation !== null) {
+      traitRelations[relationName] = newTraitRelation;
       if (this.isMounted()) {
-        newTraitBinding.mount();
-        if (newTraitBinding.sibling === true) {
-          const trait = this.getTrait(newTraitBinding.name);
+        newTraitRelation.mount();
+        if (newTraitRelation.sibling === true) {
+          const trait = this.getTrait(newTraitRelation.name);
           if (trait !== null) {
-            newTraitBinding.doSetTrait(trait);
+            newTraitRelation.doSetTrait(trait);
           }
         }
       }
     } else {
-      delete traitBindings[bindingName];
+      delete traitRelations[relationName];
     }
   }
 
   /** @hidden */
-  protected mountTraitBindings(): void {
-    const traitBindings = this.traitBindings;
-    for (const bindingName in traitBindings) {
-      const traitBinding = traitBindings[bindingName]!;
-      traitBinding.mount();
-      if (traitBinding.sibling === true) {
-        const trait = this.getTrait(traitBinding.name);
+  protected mountTraitRelations(): void {
+    const traitRelations = this.traitRelations;
+    for (const relationName in traitRelations) {
+      const traitRelation = traitRelations[relationName]!;
+      traitRelation.mount();
+      if (traitRelation.sibling === true) {
+        const trait = this.getTrait(traitRelation.name);
         if (trait !== null) {
-          traitBinding.doSetTrait(trait);
+          traitRelation.doSetTrait(trait);
         }
       }
     }
   }
 
   /** @hidden */
-  protected unmountTraitBindings(): void {
-    const traitBindings = this.traitBindings;
-    for (const bindingName in traitBindings) {
-      const traitBinding = traitBindings[bindingName]!;
-      traitBinding.unmount();
+  protected unmountTraitRelations(): void {
+    const traitRelations = this.traitRelations;
+    for (const relationName in traitRelations) {
+      const traitRelation = traitRelations[relationName]!;
+      traitRelation.unmount();
     }
   }
 
   /** @hidden */
-  protected insertTraitBinding(trait: Trait): void {
-    const bindingName = trait.key;
-    if (bindingName !== void 0) {
-      const traitBinding = this.getLazyTraitBinding(bindingName);
-      if (traitBinding !== null && traitBinding.sibling === true) {
-        traitBinding.doSetTrait(trait);
+  protected insertTraitRelation(trait: Trait): void {
+    const relationName = trait.key;
+    if (relationName !== void 0) {
+      const traitRelation = this.getLazyTraitRelation(relationName);
+      if (traitRelation !== null && traitRelation.sibling === true) {
+        traitRelation.doSetTrait(trait);
       }
     }
   }
 
   /** @hidden */
-  protected removeTraitBinding(trait: Trait): void {
-    const bindingName = trait.key;
-    if (bindingName !== void 0) {
-      const traitBinding = this.getTraitBinding(bindingName);
-      if (traitBinding !== null && traitBinding.sibling === true) {
-        traitBinding.doSetTrait(null);
+  protected removeTraitRelation(trait: Trait): void {
+    const relationName = trait.key;
+    if (relationName !== void 0) {
+      const traitRelation = this.getTraitRelation(relationName);
+      if (traitRelation !== null && traitRelation.sibling === true) {
+        traitRelation.doSetTrait(null);
       }
     }
   }

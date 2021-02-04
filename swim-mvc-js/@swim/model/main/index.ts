@@ -65,7 +65,7 @@ export * from "./service";
 
 export * from "./scope";
 
-export * from "./binding";
+export * from "./relation";
 
 export * from "./downlink";
 

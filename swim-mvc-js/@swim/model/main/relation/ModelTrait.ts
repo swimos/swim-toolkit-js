@@ -45,7 +45,7 @@ export type ModelTraitDescriptorExtends<M extends Model, S extends Trait, U = ne
 export type ModelTraitDescriptorFromAny<M extends Model, S extends Trait, U = never, I = TraitObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ModelTraitDescriptor<M, S, U, I>;
 
 export interface ModelTraitConstructor<M extends Model, S extends Trait, U = never, I = TraitObserverType<S>> {
-  new(owner: M, bindingName: string | undefined): ModelTrait<M, S, U> & I;
+  new(owner: M, relationName: string | undefined): ModelTrait<M, S, U> & I;
   prototype: ModelTrait<any, any> & I;
 }
 
@@ -119,16 +119,16 @@ export interface ModelTrait<M extends Model, S extends Trait, U = never> {
 export const ModelTrait = function <M extends Model, S extends Trait, U>(
     this: ModelTrait<M, S, U> | typeof ModelTrait,
     owner: M | ModelTraitDescriptor<M, S, U>,
-    bindingName?: string,
+    relationName?: string,
   ): ModelTrait<M, S, U> | PropertyDecorator {
   if (this instanceof ModelTrait) { // constructor
-    return ModelTraitConstructor.call(this as unknown as ModelTrait<Model, Trait, unknown>, owner as M, bindingName);
+    return ModelTraitConstructor.call(this as unknown as ModelTrait<Model, Trait, unknown>, owner as M, relationName);
   } else { // decorator factory
     return ModelTraitDecoratorFactory(owner as ModelTraitDescriptor<M, S, U>);
   }
 } as {
   /** @hidden */
-  new<M extends Model, S extends Trait, U = never>(owner: M, bindingName: string | undefined): ModelTrait<M, S, U>;
+  new<M extends Model, S extends Trait, U = never>(owner: M, relationName: string | undefined): ModelTrait<M, S, U>;
 
   <M extends Model, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: ModelTraitDescriptorExtends<M, S, U, I>): PropertyDecorator;
   <M extends Model, S extends Trait = Trait, U = never>(descriptor: ModelTraitDescriptor<M, S, U>): PropertyDecorator;
@@ -141,10 +141,10 @@ export const ModelTrait = function <M extends Model, S extends Trait, U>(
 };
 __extends(ModelTrait, Object);
 
-function ModelTraitConstructor<M extends Model, S extends Trait, U>(this: ModelTrait<M, S, U>, owner: M, bindingName: string | undefined): ModelTrait<M, S, U> {
-  if (bindingName !== void 0) {
+function ModelTraitConstructor<M extends Model, S extends Trait, U>(this: ModelTrait<M, S, U>, owner: M, relationName: string | undefined): ModelTrait<M, S, U> {
+  if (relationName !== void 0) {
     Object.defineProperty(this, "name", {
-      value: bindingName,
+      value: relationName,
       enumerable: true,
       configurable: true,
     });
@@ -310,7 +310,7 @@ ModelTrait.define = function <M extends Model, S extends Trait, U, I>(descriptor
     _super = ModelTrait;
   }
 
-  const _constructor = function DecoratedModelTrait(this: ModelTrait<M, S>, owner: M, bindingName: string | undefined): ModelTrait<M, S, U> {
+  const _constructor = function DecoratedModelTrait(this: ModelTrait<M, S>, owner: M, relationName: string | undefined): ModelTrait<M, S, U> {
     let _this: ModelTrait<M, S, U> = function ModelTraitAccessor(trait?: S | U | null): S | null | M {
       if (trait === void 0) {
         return _this.trait;
@@ -320,7 +320,7 @@ ModelTrait.define = function <M extends Model, S extends Trait, U, I>(descriptor
       }
     } as ModelTrait<M, S, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, bindingName) || _this;
+    _this = _super!.call(_this, owner, relationName) || _this;
     return _this;
   } as unknown as ModelTraitConstructor<M, S, U, I>;
 

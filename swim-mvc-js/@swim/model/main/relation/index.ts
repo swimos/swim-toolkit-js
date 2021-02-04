@@ -13,16 +13,16 @@
 // limitations under the License.
 
 export {
-  ModelBindingMemberType,
-  ModelBindingMemberInit,
-  ModelBindingInit,
-  ModelBindingDescriptor,
-  ModelBindingDescriptorExtends,
-  ModelBindingDescriptorFromAny,
-  ModelBindingConstructor,
-  ModelBindingClass,
-  ModelBinding,
-} from "./ModelBinding";
+  ModelRelationMemberType,
+  ModelRelationMemberInit,
+  ModelRelationInit,
+  ModelRelationDescriptor,
+  ModelRelationDescriptorExtends,
+  ModelRelationDescriptorFromAny,
+  ModelRelationConstructor,
+  ModelRelationClass,
+  ModelRelation,
+} from "./ModelRelation";
 
 export {
   ModelTraitMemberType,
@@ -49,13 +49,13 @@ export {
 } from "./TraitModel";
 
 export {
-  TraitBindingMemberType,
-  TraitBindingMemberInit,
-  TraitBindingInit,
-  TraitBindingDescriptor,
-  TraitBindingDescriptorExtends,
-  TraitBindingDescriptorFromAny,
-  TraitBindingConstructor,
-  TraitBindingClass,
-  TraitBinding,
-} from "./TraitBinding";
+  TraitRelationMemberType,
+  TraitRelationMemberInit,
+  TraitRelationInit,
+  TraitRelationDescriptor,
+  TraitRelationDescriptorExtends,
+  TraitRelationDescriptorFromAny,
+  TraitRelationConstructor,
+  TraitRelationClass,
+  TraitRelation,
+} from "./TraitRelation";
