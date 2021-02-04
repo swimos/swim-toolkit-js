@@ -16,7 +16,7 @@ import type {Timing} from "@swim/mapping";
 import {Angle, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {HtmlView, SvgView} from "@swim/dom";
 
 export class DisclosureButton extends HtmlView {
@@ -82,4 +82,6 @@ export class DisclosureButton extends HtmlView {
       this.arrow.transform.setAutoState(transform);
     }
   }
+
+  static readonly uncullFlags: ViewFlags = HtmlView.uncullFlags | View.NeedsAnimate;
 }
