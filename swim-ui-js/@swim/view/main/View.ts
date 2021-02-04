@@ -27,7 +27,7 @@ import {
 } from "@swim/constraint";
 import type {AnimationTrack, AnimationTimeline} from "@swim/animation";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewContext} from "./ViewContext";
+import type {ViewContextType, ViewContext} from "./ViewContext";
 import type {
   ViewObserverType,
   ViewObserver,
@@ -46,6 +46,7 @@ import type {
 import type {ViewControllerType, ViewController} from "./ViewController";
 import type {ViewIdiom} from "./viewport/ViewIdiom";
 import type {Viewport} from "./viewport/Viewport";
+import {ViewportManager} from "./"; // forward import
 import type {LayoutAnchorConstructor, LayoutAnchor} from "./layout/LayoutAnchor";
 import type {ViewServiceConstructor, ViewService} from "./service/ViewService";
 import type {ViewportService} from "./service/ViewportService";
@@ -1400,10 +1401,10 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
       if (viewportManager !== void 0) {
         superViewContext = viewportManager.viewContext;
       } else {
-        superViewContext = ViewContext.default();
+        superViewContext = ViewportManager.global().viewContext;
       }
     } else {
-      superViewContext = ViewContext.default();
+      superViewContext = ViewportManager.global().viewContext;
     }
     return superViewContext;
   }

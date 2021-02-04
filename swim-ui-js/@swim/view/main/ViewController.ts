@@ -14,11 +14,12 @@
 
 import type {Timing} from "@swim/mapping";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewContext} from "./ViewContext";
+import type {ViewContextType, ViewContext} from "./ViewContext";
 import {ViewClass, View} from "./View";
 import type {ViewObserver} from "./ViewObserver";
 import type {ViewIdiom} from "./viewport/ViewIdiom";
 import type {Viewport} from "./viewport/Viewport";
+import {ViewportManager} from "./"; // forward import
 
 export type ViewControllerType<V extends View> =
   V extends {readonly viewController: infer VC | null} ? VC : never;
@@ -423,7 +424,7 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
 
   get viewContext(): ViewContext {
     const view = this.view;
-    return view !== null ? view.viewContext : ViewContext.default();
+    return view !== null ? view.viewContext : ViewportManager.global().viewContext;
   }
 
   get viewIdiom(): ViewIdiom {

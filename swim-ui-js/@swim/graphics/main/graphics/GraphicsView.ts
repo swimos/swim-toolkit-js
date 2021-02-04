@@ -938,14 +938,12 @@ export abstract class GraphicsView extends View {
   }
 
   protected updateTheme(): void {
-    if (this.theme.isUpdated() || this.mood.isUpdated()) {
-      this.changeMood();
-      this.changeTheme();
-      const theme = this.theme.takeState();
-      const mood = this.mood.takeState();
-      if (theme !== void 0 && mood !== void 0) {
-        this.applyTheme(theme, mood);
-      }
+    this.changeMood();
+    this.changeTheme();
+    const theme = this.theme.state;
+    const mood = this.mood.state;
+    if (theme !== void 0 && mood !== void 0) {
+      this.applyTheme(theme, mood);
     }
   }
 
