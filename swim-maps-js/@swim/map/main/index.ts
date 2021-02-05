@@ -14,6 +14,8 @@
 
 export * from "./graphics";
 
+export * from "./map";
+
 export * from "./layer";
 
 export * from "./grid";

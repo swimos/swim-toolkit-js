@@ -12,17 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Equivalent} from "@swim/util";
+import {AnyTiming, Timing} from "@swim/mapping";
 import type {AnyPointR2, PointR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
+import {Look, Mood} from "@swim/theme";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {GraphicsViewContext, CanvasView} from "@swim/graphics";
-import {MapLayerView} from "@swim/map";
+import {MapView, MapLayerView} from "@swim/map";
 import {MapboxProjection} from "./MapboxProjection";
 import type {MapboxViewObserver} from "./MapboxViewObserver";
 import type {MapboxViewController} from "./MapboxViewController";
 
-export class MapboxView extends MapLayerView {
+export class MapboxView extends MapLayerView implements MapView {
   constructor(map: mapboxgl.Map) {
     super();
     Object.defineProperty(this, "map", {
@@ -32,6 +35,12 @@ export class MapboxView extends MapLayerView {
     });
     Object.defineProperty(this, "geoProjection", {
       value: new MapboxProjection(map),
+      enumerable: true,
+      configurable: true,
+    });
+    const center = map.getCenter();
+    Object.defineProperty(this, "mapCenter", {
+      value: new GeoPoint(center.lng, center.lat),
       enumerable: true,
       configurable: true,
     });
@@ -51,6 +60,8 @@ export class MapboxView extends MapLayerView {
       configurable: true,
     });
     this.onMapRender = this.onMapRender.bind(this);
+    this.startRepositioning = this.startRepositioning.bind(this);
+    this.stopRepositioning = this.stopRepositioning.bind(this);
     this.initMap(map);
   }
 
@@ -62,6 +73,8 @@ export class MapboxView extends MapLayerView {
 
   protected initMap(map: mapboxgl.Map): void {
     map.on("render", this.onMapRender);
+    map.on("movestart", this.startRepositioning);
+    map.on("moveend", this.stopRepositioning);
   }
 
   project(lnglat: AnyGeoPoint): PointR2;
@@ -87,105 +100,67 @@ export class MapboxView extends MapLayerView {
   // @ts-ignore
   declare readonly geoProjection: MapboxProjection;
 
-  setGeoProjection(geoProjection: MapboxProjection): void {
-    this.willSetGeoProjection(geoProjection);
-    Object.defineProperty(this, "geoProjection", {
-      value: geoProjection,
-      enumerable: true,
-      configurable: true,
-    });
-    this.onSetGeoProjection(geoProjection);
-    this.didSetGeoProjection(geoProjection);
-  }
-
-  protected willSetGeoProjection(geoProjection: MapboxProjection): void {
-    const viewController = this.viewController;
-    if (viewController !== null && viewController.viewWillSetGeoProjection !== void 0) {
-      viewController.viewWillSetGeoProjection(geoProjection, this);
-    }
-    const viewObservers = this.viewObservers;
-    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-      const viewObserver = viewObservers[i]!;
-      if (viewObserver.viewWillSetGeoProjection !== void 0) {
-        viewObserver.viewWillSetGeoProjection(geoProjection, this);
-      }
-    }
-  }
-
-  protected onSetGeoProjection(geoProjection: MapboxProjection): void {
-    if (!this.isHidden() && !this.isCulled()) {
-      this.requireUpdate(View.NeedsProject, true);
-    }
-  }
-
-  protected didSetGeoProjection(geoProjection: MapboxProjection): void {
-    const viewObservers = this.viewObservers;
-    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-      const viewObserver = viewObservers[i]!;
-      if (viewObserver.viewDidSetGeoProjection !== void 0) {
-        viewObserver.viewDidSetGeoProjection(geoProjection, this);
-      }
-    }
-    const viewController = this.viewController;
-    if (viewController !== null && viewController.viewDidSetGeoProjection !== void 0) {
-      viewController.viewDidSetGeoProjection(geoProjection, this);
-    }
-  }
+  declare readonly mapCenter: GeoPoint;
 
   // @ts-ignore
   declare readonly mapZoom: number;
-
-  setMapZoom(newMapZoom: number): void {
-    const oldMapZoom = this.mapZoom;
-    if (oldMapZoom !== newMapZoom) {
-      this.willSetMapZoom(newMapZoom, oldMapZoom);
-      Object.defineProperty(this, "mapZoom", {
-        value: newMapZoom,
-        enumerable: true,
-        configurable: true,
-      });
-      this.onSetMapZoom(newMapZoom, oldMapZoom);
-      this.didSetMapZoom(newMapZoom, oldMapZoom);
-    }
-  }
-
-  protected willSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
-    const viewController = this.viewController;
-    if (viewController !== null && viewController.viewWillSetMapZoom !== void 0) {
-      viewController.viewWillSetMapZoom(newMapZoom, oldMapZoom, this);
-    }
-    const viewObservers = this.viewObservers;
-    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-      const viewObserver = viewObservers[i]!;
-      if (viewObserver.viewWillSetMapZoom !== void 0) {
-        viewObserver.viewWillSetMapZoom(newMapZoom, oldMapZoom, this);
-      }
-    }
-  }
-
-  protected onSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
-    // hook
-  }
-
-  protected didSetMapZoom(newMapZoom: number, oldMapZoom: number): void {
-    const viewObservers = this.viewObservers;
-    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
-      const viewObserver = viewObservers[i]!
-      if (viewObserver.viewDidSetMapZoom !== void 0) {
-        viewObserver.viewDidSetMapZoom(newMapZoom, oldMapZoom, this);
-      }
-    }
-    const viewController = this.viewController;
-    if (viewController !== null && viewController.viewDidSetMapZoom !== void 0) {
-      viewController.viewDidSetMapZoom(newMapZoom, oldMapZoom, this);
-    }
-  }
 
   // @ts-ignore
   declare readonly mapHeading: number;
 
   // @ts-ignore
   declare readonly mapTilt: number;
+
+  moveTo(mapCenter: AnyGeoPoint | undefined, mapZoom: number | undefined,
+         timing?: AnyTiming | boolean): void {
+    if (timing === void 0 || timing === true) {
+      timing = this.getLookOr(Look.timing, false, Mood.ambient);
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+    const options: mapboxgl.FlyToOptions = {};
+    if (mapCenter !== void 0) {
+      mapCenter = GeoPoint.fromAny(mapCenter);
+      if (!this.mapCenter.equivalentTo(mapCenter, 1e-5)) {
+        options.center = mapCenter;
+      }
+    }
+    if (mapZoom !== void 0 && !Equivalent(this.mapZoom, mapZoom, 1e-5)) {
+      options.zoom = mapZoom;
+    }
+    if (timing instanceof Timing) {
+      options.duration = timing.duration;
+    }
+    this.map.flyTo(options);
+  }
+
+  protected mapWillMove(mapCenter: GeoPoint, mapZoom: number): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.mapViewWillMove !== void 0) {
+      viewController.mapViewWillMove(mapCenter, mapZoom, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.mapViewWillMove !== void 0) {
+        viewObserver.mapViewWillMove(mapCenter, mapZoom, this);
+      }
+    }
+  }
+
+  protected mapDidMove(mapCenter: GeoPoint, mapZoom: number): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!
+      if (viewObserver.mapViewDidMove !== void 0) {
+        viewObserver.mapViewDidMove(mapCenter, mapZoom, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.mapViewDidMove !== void 0) {
+      viewController.mapViewDidMove(mapCenter, mapZoom, this);
+    }
+  }
 
   extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
     const mapViewContext = Object.create(viewContext);
@@ -205,6 +180,17 @@ export class MapboxView extends MapLayerView {
 
   protected onMapRender(): void {
     const map = this.map;
+    const center = map.getCenter();
+    Object.defineProperty(this, "mapCenter", {
+      value: new GeoPoint(center.lng, center.lat),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "mapZoom", {
+      value: map.getZoom(),
+      enumerable: true,
+      configurable: true,
+    });
     Object.defineProperty(this, "mapHeading", {
       value: map.getBearing(),
       enumerable: true,
@@ -215,8 +201,17 @@ export class MapboxView extends MapLayerView {
       enumerable: true,
       configurable: true,
     });
-    this.setMapZoom(map.getZoom());
-    this.setGeoProjection(this.geoProjection);
+    if (!this.isHidden() && !this.isCulled()) {
+      this.requireUpdate(View.NeedsProject, true);
+    }
+  }
+
+  protected startRepositioning(): void {
+    this.mapWillMove(this.mapCenter, this.mapZoom);
+  }
+
+  protected stopRepositioning(): void {
+    this.mapDidMove(this.mapCenter, this.mapZoom);
   }
 
   overlayCanvas(): CanvasView | null {

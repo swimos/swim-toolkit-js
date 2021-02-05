@@ -12,16 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {MapGraphicsViewObserver} from "@swim/map";
-import type {EsriProjection} from "./EsriProjection";
+import type {MapViewObserver} from "@swim/map";
 import type {EsriView} from "./EsriView";
 
-export interface EsriViewObserver<V extends EsriView = EsriView> extends MapGraphicsViewObserver<V> {
-  viewWillSetGeoProjection?(geoProjection: EsriProjection, view: V): void;
-
-  viewDidSetGeoProjection?(geoProjection: EsriProjection, view: V): void;
-
-  viewWillSetMapZoom?(newMapZoom: number, oldMapZoom: number, view: V): void;
-
-  viewDidSetMapZoom?(newMapZoom: number, oldMapZoom: number, view: V): void;
+export interface EsriViewObserver<V extends EsriView = EsriView> extends MapViewObserver<V> {
 }

@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {EsriViewController} from "./EsriViewController";
-import type {EsriSceneView} from "./EsriSceneView";
-import type {EsriSceneViewObserver} from "./EsriSceneViewObserver";
+import type {GeoPoint} from "@swim/geo";
+import type {MapGraphicsViewObserver} from "../graphics/MapGraphicsViewObserver";
+import type {MapView} from "./MapView";
 
-export class EsriSceneViewController<V extends EsriSceneView = EsriSceneView> extends EsriViewController<V> implements EsriSceneViewObserver<V> {
+export interface MapViewObserver<V extends MapView = MapView> extends MapGraphicsViewObserver<V> {
+  mapViewWillMove?(mapCenter: GeoPoint, mapZoom: number, view: V): void;
+
+  mapViewDidMove?(mapCenter: GeoPoint, mapZoom: number, view: V): void;
 }

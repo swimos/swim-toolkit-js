@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {EsriViewController} from "./EsriViewController";
-import type {EsriSceneView} from "./EsriSceneView";
-import type {EsriSceneViewObserver} from "./EsriSceneViewObserver";
-
-export class EsriSceneViewController<V extends EsriSceneView = EsriSceneView> extends EsriViewController<V> implements EsriSceneViewObserver<V> {
-}
+export {MapView} from "./MapView";
+export {MapViewObserver} from "./MapViewObserver";
+export {MapViewController} from "./MapViewController";
