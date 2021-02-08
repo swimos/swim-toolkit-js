@@ -25,7 +25,7 @@ export class ButtonStackController<V extends ButtonStack = ButtonStack> extends 
 
   get button(): HtmlView | null {
     const view = this.view;
-    return view!== null ? view.button : null;
+    return view !== null ? view.button : null;
   }
 
   get items(): ReadonlyArray<ButtonItem> {

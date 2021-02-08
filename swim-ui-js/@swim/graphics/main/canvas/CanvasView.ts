@@ -143,10 +143,10 @@ export class CanvasView extends HtmlView {
     this.onTouchEnd = this.onTouchEnd.bind(this);
     this.onTouchCancel = this.onTouchCancel.bind(this);
 
-    this.initNode(node);
+    this.initCanvas(node);
   }
 
-  protected initNode(node: HTMLCanvasElement): void {
+  protected initCanvas(node: HTMLCanvasElement): void {
     this.position.setAutoState("absolute");
   }
 

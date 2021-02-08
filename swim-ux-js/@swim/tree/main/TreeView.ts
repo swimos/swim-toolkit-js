@@ -57,10 +57,10 @@ export class TreeView extends HtmlView {
       enumerable: true,
       configurable: true,
     });
-    this.initNode(node);
+    this.initTree();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initTree(): void {
     this.addClass("tree");
     this.display.setAutoState("block");
     this.position.setAutoState("relative");

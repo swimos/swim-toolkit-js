@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {SvgView} from "@swim/dom";
+import {Lazy} from "@swim/util";
+import {Graphics, IconPath} from "@swim/graphics";
 import {IconButton} from "@swim/button";
 import type {DrawerView} from "./DrawerView";
 
@@ -24,22 +25,16 @@ export class DrawerButton extends IconButton {
       enumerable: true,
       configurable: true,
     });
-    this.initChildren();
+    this.initIcon();
   }
 
-  protected initNode(node: HTMLElement): void {
-    super.initNode(node);
+  protected initButton(): void {
+    super.initButton();
     this.addClass("drawer-button");
   }
 
-  protected initChildren(): void {
-    this.setIcon(this.createIcon());
-  }
-
-  protected createIcon(): SvgView {
-    const icon = SvgView.create().width(24).height(24).viewBox("0 0 24 24");
-    icon.append("path").d("M21,17 L21,19 L3,19 L3,17 L21,17 Z M21,11 L21,13 L3,13 L3,11 L21,11 Z M3,5 L3,7 L21,7 L21,5 L3,5 Z");
-    return icon;
+  protected initIcon(): void {
+    this.pushIcon(DrawerButton.hamburgerIcon);
   }
 
   declare readonly drawerView: DrawerView | null;
@@ -58,5 +53,10 @@ export class DrawerButton extends IconButton {
     if (drawerView !== null) {
       drawerView.toggle();
     }
+  }
+
+  @Lazy
+  static get hamburgerIcon(): Graphics {
+    return IconPath.create(24, 24, "M21,17L21,19L3,19L3,17L21,17ZM21,11L21,13L3,13L3,11L21,11ZM3,5L3,7L21,7L21,5L3,5Z");
   }
 }

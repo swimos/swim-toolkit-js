@@ -315,11 +315,11 @@ ViewRelation.prototype.constraint = function (this: ViewRelation<View, View>, lh
   return new Constraint(this.owner, constrain, relation, strength);
 };
 
-ViewRelation.prototype.hasConstraint = function (constraint: Constraint): boolean {
+ViewRelation.prototype.hasConstraint = function (this: ViewRelation<View, View>, constraint: Constraint): boolean {
   return this.constraints.indexOf(constraint) >= 0;
 };
 
-ViewRelation.prototype.addConstraint = function (constraint: Constraint): void {
+ViewRelation.prototype.addConstraint = function (this: ViewRelation<View, View>, constraint: Constraint): void {
   const oldConstraints = this.constraints;
   const newConstraints = Arrays.inserted(constraint, oldConstraints);
   if (oldConstraints !== newConstraints) {
@@ -332,7 +332,7 @@ ViewRelation.prototype.addConstraint = function (constraint: Constraint): void {
   }
 };
 
-ViewRelation.prototype.removeConstraint = function (constraint: Constraint): void {
+ViewRelation.prototype.removeConstraint = function (this: ViewRelation<View, View>, constraint: Constraint): void {
   const oldConstraints = this.constraints;
   const newConstraints = Arrays.removed(constraint, oldConstraints);
   if (oldConstraints !== newConstraints) {
@@ -353,7 +353,7 @@ ViewRelation.prototype.deactivateConstraint = function (this: ViewRelation<View,
   this.owner.deactivateConstraint(constraint);
 };
 
-ViewRelation.prototype.constraintVariable = function (name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable {
+ViewRelation.prototype.constraintVariable = function (this: ViewRelation<View, View>, name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable {
   if (value === void 0) {
     value = 0;
   }
@@ -365,11 +365,11 @@ ViewRelation.prototype.constraintVariable = function (name: string, value?: numb
   return new ConstrainBinding(this, name, value, strength);
 };
 
-ViewRelation.prototype.hasConstraintVariable = function (constraintVariable: ConstrainVariable): boolean {
+ViewRelation.prototype.hasConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable): boolean {
   return this.constraintVariables.indexOf(constraintVariable) >= 0;
 };
 
-ViewRelation.prototype.addConstraintVariable = function (constraintVariable: ConstrainVariable): void {
+ViewRelation.prototype.addConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable): void {
   const oldConstraintVariables = this.constraintVariables;
   const newConstraintVariables = Arrays.inserted(constraintVariable, oldConstraintVariables);
   if (oldConstraintVariables !== newConstraintVariables) {
@@ -382,7 +382,7 @@ ViewRelation.prototype.addConstraintVariable = function (constraintVariable: Con
   }
 };
 
-ViewRelation.prototype.removeConstraintVariable = function (constraintVariable: ConstrainVariable): void {
+ViewRelation.prototype.removeConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable): void {
   const oldConstraintVariables = this.constraintVariables;
   const newConstraintVariables = Arrays.removed(constraintVariable, oldConstraintVariables);
   if (oldConstraintVariables !== newConstraintVariables) {

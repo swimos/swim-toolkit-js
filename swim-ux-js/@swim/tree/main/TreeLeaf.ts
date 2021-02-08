@@ -33,8 +33,12 @@ export interface TreeLeafInit extends ButtonMembraneInit {
 }
 
 export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate {
-  protected initNode(node: HTMLElement): void {
-    super.initNode(node);
+  constructor(node: HTMLElement) {
+    super(node);
+    this.initLeaf();
+  }
+
+  protected initLeaf(): void {
     this.addClass("tree-leaf");
     this.position.setAutoState("relative");
     this.height.setAutoState(58);

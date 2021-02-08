@@ -38,10 +38,10 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
     } else {
       this.on("click", this.onClick);
     }
-    this.initNode(node);
+    this.initScrim();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initScrim(): void {
     this.addClass("scrim");
     this.display.setAutoState("none");
     this.position.setAutoState("absolute");
@@ -114,7 +114,7 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
         timing = Timing.fromAny(timing);
       }
       this.setDisplayState(ScrimView.ShowState);
-      if (timing !== null) {
+      if (timing !== false) {
         this.backgroundColor.setAutoState(Color.black(0));
         this.backgroundColor.setAutoState(Color.black(opacity), timing);
       } else {
@@ -143,7 +143,7 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
         timing = Timing.fromAny(timing);
       }
       this.setDisplayState(ScrimView.HideState);
-      if (timing !== null) {
+      if (timing !== false) {
         this.backgroundColor.setAutoState(Color.black(0), timing);
       } else {
         this.willHide();

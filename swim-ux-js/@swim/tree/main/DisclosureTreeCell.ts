@@ -20,8 +20,8 @@ import {TreeLeaf} from "./TreeLeaf";
 import {TreeLimb} from "./TreeLimb";
 
 export class DisclosureTreeCell extends TreeCell {
-  protected initNode(node: HTMLElement): void {
-    super.initNode(node);
+  protected initCell(): void {
+    super.initCell();
     this.addClass("disclosure-tree-cell");
     this.append(DisclosureButton, "button");
   }
@@ -31,7 +31,6 @@ export class DisclosureTreeCell extends TreeCell {
   }
 
   didPress(input: PositionGestureInput, event: Event | null): void {
-    super.didPress(input, event);
     input.preventDefault();
     const leaf = this.parentView;
     if (leaf instanceof TreeLeaf) {
@@ -40,6 +39,7 @@ export class DisclosureTreeCell extends TreeCell {
         limb.toggle();
       }
     }
+    super.didPress(input, event);
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {

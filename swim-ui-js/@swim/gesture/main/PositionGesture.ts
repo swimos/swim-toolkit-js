@@ -378,6 +378,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
       const allowPress = this.willBeginPress(input, event);
       if (allowPress) {
         input.pressing = true;
+        input.defaultPrevented = false;
         Object.defineProperty(this, "pressCount", {
           value: this.pressCount + 1,
           enumerable: true,

@@ -59,6 +59,10 @@ export abstract class Feel implements Mood {
   static warning: Feel; // defined by feels
   static alert: Feel; // defined by feels
 
+  static darker: Feel; // defined by feels
+  static lighter: Feel; // defined by feels
+  static contrasted: Feel; // defined by feels
+
   static overlay: Feel; // defined by feels
   static floating: Feel; // defined by feels
   static transparent: Feel; // defined by feels

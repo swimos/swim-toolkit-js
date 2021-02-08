@@ -30,6 +30,8 @@ Look.neutralColor = new ColorLook("neutralColor");
 Look.highlightColor = new ColorLook("highlightColor");
 
 Look.backgroundColor = new ColorLook("backgroundColor");
+Look.lowContrastColor = new ColorLook("lowContrastColor");
+Look.highContrastColor = new ColorLook("highContrastColor");
 Look.borderColor = new ColorLook("borderColor");
 
 Look.opacity = new NumberLook("opacity");

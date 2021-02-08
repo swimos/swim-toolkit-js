@@ -29,6 +29,10 @@ Feel.inactive = new InterpolatedFeel("inactive");
 Feel.warning = new InterpolatedFeel("warning");
 Feel.alert = new InterpolatedFeel("alert");
 
+Feel.darker = new BrightnessFeel("darker");
+Feel.lighter = new BrightnessFeel("lighter");
+Feel.contrasted = new BrightnessFeel("contrasted");
+
 Feel.overlay = new InterpolatedFeel("overlay");
 Feel.floating = new InterpolatedFeel("floating");
 Feel.transparent = new InterpolatedFeel("transparent");

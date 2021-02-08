@@ -15,16 +15,17 @@
 import type {Timing} from "@swim/mapping";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {HtmlView, SvgView} from "@swim/dom";
+import {HtmlView} from "@swim/dom";
+import type {HtmlIconView} from "@swim/graphics";
 import {FloatingButton} from "./FloatingButton";
 
 export class ButtonItem extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
-    this.initNode(node);
+    this.initButtonItem();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initButtonItem(): void {
     this.addClass("button-item");
     this.position.setAutoState("relative");
     const button = this.createButton();
@@ -44,9 +45,10 @@ export class ButtonItem extends HtmlView {
     return childView instanceof FloatingButton ? childView : null;
   }
 
-  get icon(): HtmlView | SvgView | null {
+  get icon(): HtmlIconView | null {
     const button = this.button;
-    return button !== null ? button.icon : null;
+    const buttonIcon = button !== null ? button.icon : null;
+    return buttonIcon !== null ? buttonIcon.view : null;
   }
 
   get label(): HtmlView | null {

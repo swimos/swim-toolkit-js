@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Lazy} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Length} from "@swim/math";
 import {Look} from "@swim/theme";
 import {ViewContextType, View, ModalOptions, ModalState, Modal, ViewAnimator} from "@swim/view";
-import {StyleAnimator, ViewNode, HtmlView, SvgView} from "@swim/dom";
+import {StyleAnimator, ViewNode, HtmlView} from "@swim/dom";
+import {Graphics, IconPath} from "@swim/graphics";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import {FloatingButton} from "./FloatingButton";
 import {ButtonItem} from "./ButtonItem";
@@ -38,22 +40,18 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "buttonIcon", {
-      value: null,
-      enumerable: true,
-      configurable: true,
-    });
     Object.defineProperty(this, "gesture", {
       value: null,
       enumerable: true,
       configurable: true,
     });
+    this.onClick = this.onClick.bind(this);
     this.onContextMenu = this.onContextMenu.bind(this);
-    this.initNode(node);
-    this.initChildren();
+    this.initButtonStack();
+    this.initButton();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initButtonStack(): void {
     this.addClass("button-stack");
     this.display.setAutoState("block");
     this.position.setAutoState("relative");
@@ -64,7 +62,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     this.cursor.setAutoState("pointer");
   }
 
-  protected initChildren(): void {
+  protected initButton(): void {
     const button = this.createButton();
     if (button !== null) {
       this.append(button, "button");
@@ -165,31 +163,8 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     return childView instanceof HtmlView ? childView : null;
   }
 
-  declare readonly buttonIcon: HtmlView | SvgView | null;
-
-  setButtonIcon(buttonIcon: HtmlView | SvgView | null, timing?: AnyTiming | boolean, ccw?: boolean): void {
-    Object.defineProperty(this, "buttonIcon", {
-      value: buttonIcon,
-      enumerable: true,
-      configurable: true,
-    });
-    const button = this.button;
-    if (button instanceof FloatingButton) {
-      if (timing === void 0 || timing === true) {
-        timing = this.getLookOr(Look.timing, false);
-      } else {
-        timing = Timing.fromAny(timing);
-      }
-      button.setIcon(buttonIcon, timing, ccw);
-    }
-  }
-
-  protected createCloseIcon(): SvgView {
-    const icon = SvgView.create().width(24).height(24).viewBox("0 0 24 24");
-    icon.append("path")
-        .fill(this.getLook(Look.backgroundColor))
-        .d("M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z");
-    return icon;
+  get closeIcon(): Graphics {
+    return ButtonStack.closeIcon;
   }
 
   get items(): ReadonlyArray<ButtonItem> {
@@ -223,10 +198,12 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
 
   protected onMount(): void {
     super.onMount();
+    this.on("click", this.onClick);
     this.on("contextmenu", this.onContextMenu);
   }
 
   protected onUnmount(): void {
+    this.off("click", this.onClick);
     this.off("contextmenu", this.onContextMenu);
     super.onUnmount();
   }
@@ -241,7 +218,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected layoutStack(): void {
-    const phase = this.stackPhase.getValue();
+    const stackPhase = this.stackPhase.getValue();
     const childNodes = this.node.childNodes;
     const childCount = childNodes.length;
     const button = this.button;
@@ -274,8 +251,8 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
         const dy = itemHeight instanceof Length
                  ? itemHeight.pxValue()
                  : childView.node.offsetHeight;
-        childView.display.setAutoState(phase === 0 ? "none" : "flex");
-        childView.bottom.setAutoState(phase * y);
+        childView.display.setAutoState(stackPhase === 0 ? "none" : "flex");
+        childView.bottom.setAutoState(stackPhase * y);
         childView.zIndex.setAutoState(zIndex);
         y += dy;
         stackHeight += dy;
@@ -320,10 +297,8 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     button.addViewObserver(gesture);
     if (button instanceof FloatingButton) {
       button.stackPhase.setAutoState(1);
-      if (this.isCollapsed && this.buttonIcon !== null) {
-        button.setIcon(this.buttonIcon);
-      } else if (this.isExpanded()) {
-        button.setIcon(this.createCloseIcon());
+      if (this.isExpanded()) {
+        button.pushIcon(this.closeIcon);
       }
     }
     button.zIndex.setAutoState(0);
@@ -361,10 +336,10 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
         this.willExpand();
         const button = this.button;
         if (button instanceof FloatingButton) {
-          button.setIcon(this.createCloseIcon(), timing);
+          button.pushIcon(this.closeIcon, timing);
         }
       }
-      if (timing !== null) {
+      if (timing !== false) {
         if (this.stackPhase.value !== 1) {
           this.stackPhase.setAutoState(1, timing);
         } else {
@@ -428,11 +403,11 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       if (this.stackState !== "collapsing") {
         this.willCollapse();
         const button = this.button;
-        if (button instanceof FloatingButton) {
-          button.setIcon(this.buttonIcon, timing, true);
+        if (button instanceof FloatingButton && button.iconCount > 1) {
+          button.popIcon(timing);
         }
       }
-      if (timing !== null) {
+      if (timing !== false) {
         if (this.stackPhase.value !== 0) {
           this.stackPhase.setAutoState(0, timing);
         } else {
@@ -503,7 +478,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
         timing = Timing.fromAny(timing);
       }
       this.willShow();
-      if (timing !== null) {
+      if (timing !== false) {
         this.opacity.setAutoState(1, timing);
       } else {
         this.opacity.setAutoState(1);
@@ -552,7 +527,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
         timing = Timing.fromAny(timing);
       }
       this.willHide();
-      if (timing !== null) {
+      if (timing !== false) {
         this.opacity.setAutoState(0, timing);
       } else {
         this.opacity.setAutoState(0);
@@ -613,7 +588,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
           this.willExpand();
           const button = this.button;
           if (button instanceof FloatingButton) {
-            button.setIcon(this.createCloseIcon(), true);
+            button.pushIcon(this.closeIcon);
           }
         }
       }
@@ -622,9 +597,6 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
 
   didEndPress(input: PositionGestureInput, event: Event | null): void {
     if (!input.defaultPrevented) {
-      if (event !== null) {
-        event.stopPropagation();
-      }
       const stackPhase = this.stackPhase.getValue();
       if (input.t - input.t0 < input.holdDelay) {
         if (stackPhase < 0.1 || this.stackState === "expanded") {
@@ -655,7 +627,18 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     }
   }
 
+  protected onClick(event: MouseEvent): void {
+    if (event.target === this.button?.node) {
+      event.stopPropagation();
+    }
+  }
+
   protected onContextMenu(event: MouseEvent): void {
     event.preventDefault();
+  }
+
+  @Lazy
+  static get closeIcon(): Graphics {
+    return IconPath.create(24, 24, "M19,6.4L17.6,5L12,10.6L6.4,5L5,6.4L10.6,12L5,17.6L6.4,19L12,13.4L17.6,19L19,17.6L13.4,12Z");
   }
 }

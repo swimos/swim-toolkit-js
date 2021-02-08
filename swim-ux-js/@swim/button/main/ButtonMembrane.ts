@@ -27,10 +27,10 @@ export class ButtonMembrane extends HtmlView implements PositionGestureDelegate 
       enumerable: true,
       configurable: true,
     });
-    this.initNode(node);
+    this.initMembrane(node);
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initMembrane(node: HTMLElement): void {
     this.addClass("membrane");
   }
 

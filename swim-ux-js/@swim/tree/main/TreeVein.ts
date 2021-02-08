@@ -27,10 +27,10 @@ export interface TreeVeinInit extends HtmlViewInit {
 export class TreeVein extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
-    this.initNode(node);
+    this.initVein();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initVein(): void {
     this.addClass("tree-vein");
     this.display.setAutoState("none");
     this.alignItems.setAutoState("center");

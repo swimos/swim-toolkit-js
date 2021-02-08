@@ -250,7 +250,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
         });
       }
       this.setDisplayState(PopoverView.ShowState);
-      if (timing !== null) {
+      if (timing !== false) {
         this.displayPhase.setState(1, timing);
       } else {
         this.willShow();
@@ -306,7 +306,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
         timing = Timing.fromAny(timing);
       }
       this.setDisplayState(PopoverView.HideState);
-      if (timing !== null) {
+      if (timing !== false) {
         this.displayPhase.setState(0, timing);
       } else {
         this.willHide();

@@ -32,8 +32,8 @@ import {
   CssCursor,
   FillRule,
   Paint,
-  PointerEvents,
   StrokeLinecap,
+  SvgPointerEvents,
   TextAnchor,
   TouchAction,
 } from "@swim/style";
@@ -518,7 +518,7 @@ export class SvgView extends ElementView {
   declare opacity: AttributeAnimator<this, number>;
 
   @AttributeAnimator({attributeName: "pointer-events", type: String})
-  declare pointerEvents: AttributeAnimator<this, PointerEvents>;
+  declare pointerEvents: AttributeAnimator<this, SvgPointerEvents>;
 
   @AttributeAnimator({attributeName: "points", type: String})
   declare points: AttributeAnimator<this, string>;

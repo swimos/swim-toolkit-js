@@ -72,3 +72,30 @@ export * from "./animator";
 export * from "./relation";
 
 export * from "./event";
+
+declare global {
+  interface VisualViewportEventMap {
+    "resize": UIEvent;
+    "scroll": Event;
+  }
+
+  interface VisualViewport extends EventTarget {
+    readonly width: number;
+    readonly height: number;
+    readonly offsetLeft: number;
+    readonly offsetTop: number;
+    readonly pageLeft: number;
+    readonly pageTop: number;
+    readonly scale: number;
+    onresize: ((this: VisualViewport, event: UIEvent) => any) | null;
+    onscroll: ((this: VisualViewport, event: Event) => any) | null;
+    addEventListener<K extends keyof VisualViewportEventMap>(type: K, listener: (this: VisualViewport, event: VisualViewportEventMap[K]) => unknown, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof VisualViewportEventMap>(type: K, listener: (this: VisualViewport, event: VisualViewportEventMap[K]) => unknown, options?: boolean | EventListenerOptions): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+  }
+
+  interface Window {
+    readonly visualViewport: VisualViewport;
+  }
+}

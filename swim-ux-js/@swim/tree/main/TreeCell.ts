@@ -18,7 +18,7 @@ import type {TreeCellObserver} from "./TreeCellObserver";
 import type {TreeCellController} from "./TreeCellController";
 import {TitleTreeCell} from "./"; // forward import
 import {DisclosureTreeCell} from "./"; // forward import
-import {PolygonTreeCell} from "./"; // forward import
+import {IconTreeCell} from "./"; // forward import
 
 export type AnyTreeCell = TreeCell | TreeCellInit | HTMLElement;
 
@@ -27,15 +27,15 @@ export interface TreeCellInit extends HtmlViewInit {
   cellType?: TreeCellType;
 }
 
-export type TreeCellType = "title" | "disclosure" | "polygon";
+export type TreeCellType = "title" | "disclosure" | "icon";
 
 export class TreeCell extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
-    this.initNode(node);
+    this.initCell();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initCell(): void {
     this.addClass("tree-cell");
     this.display.setAutoState("none");
     this.alignItems.setAutoState("center");
@@ -77,8 +77,8 @@ export class TreeCell extends HtmlView {
       view = TitleTreeCell.create();
     } else if (init.cellType === "disclosure") {
       view = DisclosureTreeCell.create();
-    } else if (init.cellType === "polygon") {
-      view = PolygonTreeCell.create();
+    } else if (init.cellType === "icon") {
+      view = IconTreeCell.create();
     } else {
       view = TreeCell.create();
     }

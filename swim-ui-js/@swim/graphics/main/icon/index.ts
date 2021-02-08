@@ -16,6 +16,8 @@ export {Icon} from "./Icon";
 
 export {IconPath} from "./IconPath";
 
+export {PolygonIcon} from "./PolygonIcon";
+
 export {
   IconViewInit,
   IconView,

@@ -44,10 +44,10 @@ export class TreeLimb extends HtmlView {
       enumerable: true,
       configurable: true,
     });
-    this.initNode(node);
+    this.initLimb();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initLimb(): void {
     this.addClass("tree-limb");
     this.position.setAutoState("relative");
   }
@@ -153,7 +153,7 @@ export class TreeLimb extends HtmlView {
         timing = Timing.fromAny(timing);
       }
       this.willExpand(timing);
-      if (timing !== null) {
+      if (timing !== false) {
         if (disclosurePhase !== 1) {
           this.disclosurePhase.setState(1, timing);
           this.disclosingPhase.setState(this.disclosurePhase.value);
@@ -217,7 +217,7 @@ export class TreeLimb extends HtmlView {
         timing = Timing.fromAny(timing);
       }
       this.willCollapse(timing);
-      if (timing !== null) {
+      if (timing !== false) {
         if (disclosurePhase !== 0) {
           this.disclosurePhase.setState(0, timing);
           this.disclosingPhase.setState(this.disclosurePhase.value);

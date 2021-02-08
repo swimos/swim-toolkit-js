@@ -21,10 +21,10 @@ import type {MenuListController} from "./MenuListController";
 export class MenuList extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
-    this.initNode(node);
+    this.initMenuList();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initMenuList(): void {
     this.addClass("menu-list");
     this.flexGrow.setAutoState(1);
     this.flexShrink.setAutoState(0);

@@ -22,10 +22,10 @@ import {HtmlView, SvgView} from "@swim/dom";
 export class DisclosureButton extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
-    this.initNode(node);
+    this.initDisclosureButton();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initDisclosureButton(): void {
     this.addClass("disclosure-button");
     this.display.setAutoState("flex");
     this.justifyContent.setAutoState("center");

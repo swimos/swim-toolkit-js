@@ -13,11 +13,12 @@
 // limitations under the License.
 
 import {AnyTiming, Timing} from "@swim/mapping";
-import {Length} from "@swim/math";
+import {Length, BoxR2} from "@swim/math";
+import type {Color} from "@swim/color";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewObserver, ViewAnimator, ViewRelation} from "@swim/view";
-import {ElementView, HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
-import {PathContext} from "@swim/graphics";
+import {ViewContextType, ViewFlags, View, ViewObserver, ViewProperty, ViewAnimator, ViewRelation} from "@swim/view";
+import {HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
+import {Graphics, PathContext, PathRenderer} from "@swim/graphics";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import type {TokenViewObserver} from "./TokenViewObserver";
 import type {TokenViewController} from "./TokenViewController";
@@ -54,16 +55,16 @@ export class TokenView extends HtmlView {
     this.onClickHead = this.onClickHead.bind(this);
     this.onClickBody = this.onClickBody.bind(this);
     this.onClickFoot = this.onClickFoot.bind(this);
-    this.initNode(node);
-    this.initChildViews();
+    this.initToken();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initToken(): void {
     this.addClass("token");
     this.position.setAutoState("relative");
     this.height.setAutoState(32);
     this.boxSizing.setAutoState("content-box");
     this.userSelect.setAutoState("none");
+    this.shape.insert();
   }
 
   declare readonly viewController: TokenViewController | null;
@@ -74,10 +75,6 @@ export class TokenView extends HtmlView {
     super.initView(init);
   }
 
-  protected initChildViews(): void {
-    this.shape.insert();
-  }
-
   protected initShape(shapeView: SvgView): void {
     shapeView.addClass("shape");
     shapeView.setStyle("position", "absolute");
@@ -85,13 +82,16 @@ export class TokenView extends HtmlView {
     shapeView.setStyle("left", "0");
 
     this.head.insert(shapeView, "head");
+    this.headIcon.setView(this.headIcon.createView());
     this.body.insert(shapeView, "body");
     this.foot.insert(shapeView, "foot");
+    this.footIcon.setView(this.footIcon.createView());
   }
 
   protected initHead(headView: SvgView): void {
     headView.addClass("head");
-    headView.pointerEvents.setAutoState("fill");
+    headView.fillRule.setAutoState("evenodd");
+    headView.pointerEvents.setAutoState("bounding-box");
     headView.cursor.setAutoState("pointer");
     const headGesture = this.createHeadGesture(headView);
     if (headGesture !== null) {
@@ -108,6 +108,11 @@ export class TokenView extends HtmlView {
 
   protected createHeadGesture(headView: SvgView): PositionGesture<SvgView> | null {
     return new PositionGesture(headView, this.head);
+  }
+
+  protected initHeadIcon(headIconView: SvgView): void {
+    headIconView.addClass("head-icon");
+    headIconView.pointerEvents.setAutoState("none");
   }
 
   protected initBody(bodyView: SvgView): void {
@@ -133,7 +138,8 @@ export class TokenView extends HtmlView {
 
   protected initFoot(footView: SvgView): void {
     footView.addClass("foot");
-    footView.pointerEvents.setAutoState("fill");
+    footView.fillRule.setAutoState("evenodd");
+    footView.pointerEvents.setAutoState("bounding-box");
     footView.cursor.setAutoState("pointer");
     const footGesture = this.createFootGesture(footView);
     if (footGesture !== null) {
@@ -152,15 +158,9 @@ export class TokenView extends HtmlView {
     return new PositionGesture(footView, this.foot);
   }
 
-  protected initIcon(iconView: ElementView): void {
-    iconView.addClass("icon");
-    if (iconView instanceof HtmlView) {
-      iconView.position.setAutoState("absolute");
-      iconView.pointerEvents.setAutoState("none");
-    } else if (iconView instanceof SvgView) {
-      iconView.setStyle("position", "absolute");
-      iconView.pointerEvents.setAutoState("none");
-    }
+  protected initFootIcon(footIconView: SvgView): void {
+    footIconView.addClass("foot-icon");
+    footIconView.pointerEvents.setAutoState("none");
   }
 
   protected initLabelContainer(labelContainer: HtmlView): void {
@@ -179,31 +179,6 @@ export class TokenView extends HtmlView {
     labelView.top.setAutoState(0);
     labelView.bottom.setAutoState(0);
     labelView.left.setAutoState(0);
-  }
-
-  protected initActionContainer(actionContainer: HtmlView): void {
-    actionContainer.addClass("action");
-    actionContainer.display.setAutoState("block");
-    actionContainer.position.setAutoState("absolute");
-    actionContainer.top.setAutoState(0);
-    actionContainer.left.setAutoState(0);
-    actionContainer.overflowX.setAutoState("hidden");
-    actionContainer.overflowY.setAutoState("hidden");
-    actionContainer.pointerEvents.setAutoState("none");
-  }
-
-  protected initAction(actionView: ElementView): void {
-    if (actionView instanceof HtmlView) {
-      actionView.position.setAutoState("absolute");
-      actionView.top.setAutoState(0);
-      actionView.bottom.setAutoState(0);
-      actionView.left.setAutoState(0);
-    } else if (actionView instanceof SvgView) {
-      actionView.setStyle("position", "absolute");
-      actionView.setStyle("top", "0");
-      actionView.setStyle("bottom", "0");
-      actionView.setStyle("left", "0");
-    }
   }
 
   declare readonly tokenState: TokenViewState;
@@ -241,7 +216,12 @@ export class TokenView extends HtmlView {
   })
   declare shape: ViewRelation<this, SvgView>;
 
-  @ViewRelation<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
+  /** @hidden */
+  get tokenColorLook(): Look<Color> {
+    return Look.accentColor;
+  }
+
+  @ViewRelation<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -257,36 +237,33 @@ export class TokenView extends HtmlView {
       headView.off("click", this.owner.onClickHead);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, headView: SvgView): void {
-      headView.fill.setAutoState(theme.inner(mood, Look.accentColor), timing);
-      const iconView = this.owner.icon.view;
-      if (iconView instanceof SvgView && iconView.fill.isAuto()) {
-        const iconColor = this.owner.icon.embossed ? theme.inner(mood.updated(Feel.embossed, 1), Look.accentColor)
-                                                   : theme.inner(mood, Look.backgroundColor);
-        iconView.fill.setAutoState(iconColor, timing);
+      headView.fill.setAutoState(theme.inner(mood, this.owner.tokenColorLook), timing);
+      const headIconView = this.owner.headIcon.view;
+      if (headIconView !== null && headIconView.fill.isAuto()) {
+        const iconColor = theme.inner(mood.updated(Feel.embossed, 1), this.owner.tokenColorLook);
+        headIconView.fill.setAutoState(iconColor, timing);
       }
     },
     didStartHovering(): void {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = headView.getLook(Look.timing);
-      headView.fill.setAutoState(headView.getLook(Look.accentColor), timing);
-      const iconView = this.owner.icon.view;
-      if (iconView instanceof SvgView && iconView.fill.isAuto()) {
-        const iconColor = this.owner.icon.embossed ? headView.getLook(Look.accentColor, headView.mood.getState().updated(Feel.embossed, 1))
-                                                   : headView.getLook(Look.backgroundColor);
-        iconView.fill.setAutoState(iconColor, timing);
+      headView.fill.setAutoState(headView.getLook(this.owner.tokenColorLook), timing);
+      const headIconView = this.owner.headIcon.view;
+      if (headIconView !== null && headIconView.fill.isAuto()) {
+        const iconColor = headView.getLook(this.owner.tokenColorLook, headView.mood.getState().updated(Feel.embossed, 1));
+        headIconView.fill.setAutoState(iconColor, timing);
       }
     },
     didStopHovering(): void {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const timing = headView.getLook(Look.timing);
-      headView.fill.setAutoState(headView.getLook(Look.accentColor), timing);
-      const iconView = this.owner.icon.view;
-      if (iconView instanceof SvgView && iconView.fill.isAuto()) {
-        const iconColor = this.owner.icon.embossed ? headView.getLook(Look.accentColor, headView.mood.getState().updated(Feel.embossed, 1))
-                                                   : headView.getLook(Look.backgroundColor);
-        iconView.fill.setAutoState(iconColor, timing);
+      headView.fill.setAutoState(headView.getLook(this.owner.tokenColorLook), timing);
+      const headIconView = this.owner.headIcon.view;
+      if (headIconView !== null && headIconView.fill.isAuto()) {
+        const iconColor = headView.getLook(this.owner.tokenColorLook, headView.mood.getState().updated(Feel.embossed, 1));
+        headIconView.fill.setAutoState(iconColor, timing);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -316,7 +293,35 @@ export class TokenView extends HtmlView {
   })
   declare head: ViewRelation<this, SvgView> & PositionGestureDelegate;
 
-  @ViewRelation<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
+  /** @hidden */
+  @ViewRelation<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
+    extends: void 0,
+    child: false,
+    type: SvgView.path,
+    onSetView(headIconView: SvgView | null): void {
+      if (headIconView !== null) {
+        this.owner.initHeadIcon(headIconView);
+      }
+    },
+    insertView(parentView: View, childView: SvgView, key: string | undefined): void {
+      const shapeView = this.owner.shape.view;
+      if (shapeView !== null) {
+        shapeView.insertChildView(childView, this.owner.body.view, key);
+      }
+    },
+  })
+  declare headIcon: ViewRelation<this, SvgView> & PositionGestureDelegate;
+
+  @ViewProperty<TokenView, Graphics | null, never, {embossed: boolean}>({
+    extends: void 0,
+    type: Object,
+    state: null,
+    updateFlags: View.NeedsLayout,
+    embossed: true,
+  })
+  declare icon: ViewProperty<this, Graphics | null> & {embossed: boolean};
+
+  @ViewRelation<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -332,7 +337,7 @@ export class TokenView extends HtmlView {
       headView.off("click", this.owner.onClickBody);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, bodyView: SvgView): void {
-      bodyView.fill.setAutoState(theme.inner(mood, Look.accentColor), timing);
+      bodyView.fill.setAutoState(theme.inner(mood, this.owner.tokenColorLook), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
         labelView.color.setAutoState(theme.inner(mood, Look.backgroundColor), timing);
@@ -342,7 +347,7 @@ export class TokenView extends HtmlView {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = bodyView.getLook(Look.timing);
-      bodyView.fill.setAutoState(bodyView.getLook(Look.accentColor), timing);
+      bodyView.fill.setAutoState(bodyView.getLook(this.owner.tokenColorLook), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
         labelView.color.setAutoState(bodyView.getLook(Look.backgroundColor), timing);
@@ -352,7 +357,7 @@ export class TokenView extends HtmlView {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const timing = bodyView.getLook(Look.timing);
-      bodyView.fill.setAutoState(bodyView.getLook(Look.accentColor), timing);
+      bodyView.fill.setAutoState(bodyView.getLook(this.owner.tokenColorLook), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
         labelView.color.setAutoState(bodyView.getLook(Look.backgroundColor), timing);
@@ -385,7 +390,7 @@ export class TokenView extends HtmlView {
   })
   declare body: ViewRelation<this, SvgView> & PositionGestureDelegate;
 
-  @ViewRelation<TokenView, SvgView, SvgView, ViewObserver & PositionGestureDelegate>({
+  @ViewRelation<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -401,36 +406,33 @@ export class TokenView extends HtmlView {
       footView.off("click", this.owner.onClickFoot);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, footView: SvgView): void {
-      footView.fill.setAutoState(theme.inner(mood, Look.accentColor), timing);
-      const actionView = this.owner.action.view;
-      if (actionView instanceof SvgView && actionView.fill.isAuto()) {
-        const iconColor = this.owner.action.embossed ? theme.inner(mood.updated(Feel.embossed, 1), Look.accentColor)
-                                                     : theme.inner(mood, Look.backgroundColor);
-        actionView.fill.setAutoState(iconColor, timing);
+      footView.fill.setAutoState(theme.inner(mood, this.owner.tokenColorLook), timing);
+      const footIconView = this.owner.footIcon.view;
+      if (footIconView !== null && footIconView.fill.isAuto()) {
+        const iconColor = theme.inner(mood.updated(Feel.embossed, 1), this.owner.tokenColorLook);
+        footIconView.fill.setAutoState(iconColor, timing);
       }
     },
     didStartHovering(): void {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = footView.getLook(Look.timing);
-      footView.fill.setAutoState(footView.getLook(Look.accentColor), timing);
-      const actionView = this.owner.action.view;
-      if (actionView instanceof SvgView && actionView.fill.isAuto()) {
-        const iconColor = this.owner.action.embossed ? footView.getLook(Look.accentColor, footView.mood.getState().updated(Feel.embossed, 1))
-                                                     : footView.getLook(Look.backgroundColor);
-        actionView.fill.setAutoState(iconColor, timing);
+      footView.fill.setAutoState(footView.getLook(this.owner.tokenColorLook), timing);
+      const footIconView = this.owner.footIcon.view;
+      if (footIconView !== null && footIconView.fill.isAuto()) {
+        const iconColor = footView.getLook(this.owner.tokenColorLook, footView.mood.getState().updated(Feel.embossed, 1));
+        footIconView.fill.setAutoState(iconColor, timing);
       }
     },
     didStopHovering(): void {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const timing = footView.getLook(Look.timing);
-      footView.fill.setAutoState(footView.getLook(Look.accentColor), timing);
-      const actionView = this.owner.action.view;
-      if (actionView instanceof SvgView && actionView.fill.isAuto()) {
-        const iconColor = this.owner.action.embossed ? footView.getLook(Look.accentColor, footView.mood.getState().updated(Feel.embossed, 1))
-                                                     : footView.getLook(Look.backgroundColor);
-        actionView.fill.setAutoState(iconColor, timing);
+      footView.fill.setAutoState(footView.getLook(this.owner.tokenColorLook), timing);
+      const footIconView = this.owner.footIcon.view;
+      if (footIconView !== null && footIconView.fill.isAuto()) {
+        const iconColor = footView.getLook(this.owner.tokenColorLook, footView.mood.getState().updated(Feel.embossed, 1));
+        footIconView.fill.setAutoState(iconColor, timing);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -460,20 +462,33 @@ export class TokenView extends HtmlView {
   })
   declare foot: ViewRelation<this, SvgView> & PositionGestureDelegate;
 
-  @ViewRelation<TokenView, ElementView, Element, {embossed: boolean}>({
+  /** @hidden */
+  @ViewRelation<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
+    child: false,
     type: SvgView.path,
-    embossed: true,
-    onSetView(iconView: ElementView | null): void {
-      if (iconView !== null) {
-        this.owner.initIcon(iconView);
+    onSetView(footIconView: SvgView | null): void {
+      if (footIconView !== null) {
+        this.owner.initFootIcon(footIconView);
       }
     },
-    fromAny(value: ElementView | Element): ElementView {
-      return ElementView.fromAny(value);
+    insertView(parentView: View, childView: SvgView, key: string | undefined): void {
+      const shapeView = this.owner.shape.view;
+      if (shapeView !== null) {
+        shapeView.appendChildView(childView, key);
+      }
     },
   })
-  declare icon: ViewRelation<this, ElementView> & {embossed: boolean};
+  declare footIcon: ViewRelation<this, SvgView> & PositionGestureDelegate;
+
+  @ViewProperty<TokenView, Graphics | null, never, {embossed: boolean}>({
+    extends: void 0,
+    type: Object,
+    state: null,
+    updateFlags: View.NeedsLayout,
+    embossed: true,
+  })
+  declare accessory: ViewProperty<this, Graphics | null> & {embossed: boolean};
 
   @ViewRelation<TokenView, HtmlView>({
     type: HtmlView,
@@ -503,39 +518,6 @@ export class TokenView extends HtmlView {
   })
   declare label: ViewRelation<this, HtmlView>;
 
-  @ViewRelation<TokenView, HtmlView>({
-    type: HtmlView,
-    onSetView(actionContainer: HtmlView | null): void {
-      if (actionContainer !== null) {
-        this.owner.initActionContainer(actionContainer);
-      }
-    },
-  })
-  declare actionContainer: ViewRelation<this, HtmlView>;
-
-  @ViewRelation<TokenView, ElementView, Element, {embossed: boolean}>({
-    extends: void 0,
-    child: false,
-    type: HtmlView,
-    embossed: true,
-    onSetView(actionView: ElementView | null): void {
-      if (actionView !== null) {
-        if (actionView.parentView === null) {
-          this.owner.actionContainer.insert();
-          const actionContainer = this.owner.actionContainer.view;
-          if (actionContainer !== null) {
-            actionContainer.appendChildView(actionView);
-          }
-        }
-        this.owner.initAction(actionView);
-      }
-    },
-    fromAny(value: ElementView | Element): ElementView {
-      return ElementView.fromAny(value);
-    },
-  })
-  declare action: ViewRelation<this, ElementView> & {embossed: boolean};
-
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {
       processFlags |= View.NeedsAnimate;
@@ -562,34 +544,25 @@ export class TokenView extends HtmlView {
     const padAngle = Math.asin(pad / (radius + gap));
     const labelPaddingLeft = radius / 2;
     const labelPaddingRight = radius;
-    const actionPaddingRight = radius / 2;
+    const accessoryPaddingRight = radius / 2;
     const expandedPhase = this.expandedPhase.value;
 
-    const shapeView = this.shape.view;
-    const headView = this.head.view;
-    const bodyView = this.body.view;
-    const footView = this.foot.view;
-    const iconView = this.icon.view;
-    const labelContainer = this.labelContainer.view;
-    const labelView = this.label.view;
-    const actionContainer = this.actionContainer.view;
-    const actionView = this.action.view;
+    const icon = this.icon.state;
+    const accessoryIcon = this.accessory.state;
 
     let labelWidth = 0;
     let bodyWidth = 0;
+    const labelView = this.label.view;
     if (labelView !== null) {
       labelWidth = labelView.node.clientWidth;
       bodyWidth += labelPaddingLeft + labelWidth + labelPaddingRight;
     }
 
-    let actionWidth = 0;
+    let accessoryWidth = 0;
     let footWidth = 0;
-    if (actionView instanceof SvgView) {
-      actionWidth = actionView.width.getStateOr(Length.zero()).pxValue();
-      footWidth += actionWidth + actionPaddingRight;
-    } else if (actionView !== null) {
-      actionWidth = actionView.node.clientWidth;
-      footWidth += actionWidth + actionPaddingRight;
+    if (accessoryIcon !== null) {
+      accessoryWidth = 2 * radius;
+      footWidth += accessoryWidth + accessoryPaddingRight;
     }
 
     let tokenWidth = tokenHeight
@@ -606,6 +579,7 @@ export class TokenView extends HtmlView {
 
     this.width.setAutoState(tokenWidth);
 
+    const labelContainer = this.labelContainer.view;
     if (labelContainer !== null) {
       labelContainer.display.setAutoState(expandedPhase !== 0 ? "block" : "none");
       labelContainer.left.setAutoState(paddingLeft + tokenHeight + gap + labelPaddingLeft);
@@ -614,26 +588,41 @@ export class TokenView extends HtmlView {
       labelContainer.height.setAutoState(tokenHeight);
     }
 
-    if (actionContainer !== null) {
-      actionContainer.display.setAutoState(expandedPhase !== 0 ? "block" : "none");
-      actionContainer.left.setAutoState(paddingLeft + bodyRight + gap);
-      actionContainer.top.setAutoState(paddingTop);
-      actionContainer.width.setAutoState(expandedPhase * actionWidth);
-      actionContainer.height.setAutoState(tokenHeight);
-    }
-
+    const shapeView = this.shape.view;
     if (shapeView !== null) {
       shapeView.width.setAutoState(width);
       shapeView.height.setAutoState(height);
       shapeView.viewBox.setAutoState("0 0 " + width + " " + height);
     }
 
+    const headView = this.head.view;
     if (headView !== null) {
       const context = new PathContext();
       context.arc(paddingLeft + radius, paddingTop + radius, radius, -(Math.PI / 2), 3 * (Math.PI / 2));
+      context.closePath();
+      if (icon !== null && !this.icon.embossed) {
+        const renderer = new PathRenderer(context);
+        const frame = new BoxR2(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
+        icon.render(renderer, frame);
+        this.headIcon.remove();
+      }
       headView.d.setAutoState(context.toString());
     }
+    const headIconView = this.headIcon.view;
+    if (headIconView !== null) {
+      if (icon !== null && this.icon.embossed) {
+        const context = new PathContext();
+        const renderer = new PathRenderer(context);
+        const frame = new BoxR2(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
+        icon.render(renderer, frame);
+        headIconView.d.setAutoState(context.toString());
+        this.headIcon.insert();
+      } else {
+        this.headIcon.remove();
+      }
+    }
 
+    const bodyView = this.body.view;
     if (bodyView !== null) {
       const context = new PathContext();
       if (expandedPhase !== 0) {
@@ -645,37 +634,37 @@ export class TokenView extends HtmlView {
       bodyView.d.setAutoState(context.toString());
     }
 
-    if (footView !== null && actionView !== null) {
+    const footView = this.foot.view;
+    if (footView !== null && accessoryIcon !== null) {
       const context = new PathContext();
       if (expandedPhase !== 0) {
         const u = 1 - expandedPhase;
         context.arc(paddingLeft + bodyRight - radius, paddingTop + radius, radius + gap, -(Math.PI / 2) + padAngle, Math.PI / 2 - padAngle);
         context.arc(paddingLeft + tokenWidth - radius - u * gap, paddingTop + radius, radius + u * gap, Math.PI / 2 - u * padAngle, -(Math.PI / 2) + u * padAngle, true);
         context.closePath();
+        if (accessoryIcon !== null && !this.accessory.embossed) {
+          const renderer = new PathRenderer(context);
+          const frame = new BoxR2(paddingLeft + bodyRight + gap, paddingTop, paddingLeft + bodyRight + gap + 2 * radius, paddingTop + 2 * radius);
+          accessoryIcon.render(renderer, frame);
+          this.headIcon.remove();
+        }
       }
       footView.d.setAutoState(context.toString());
     }
-
-    if (iconView instanceof HtmlView) {
-      iconView.left.setAutoState(paddingLeft);
-      iconView.top.setAutoState(paddingTop);
-      iconView.width.setAutoState(tokenHeight);
-      iconView.height.setAutoState(tokenHeight);
-    } else if (iconView instanceof SvgView) {
-      iconView.setStyle("left", paddingLeft + "px");
-      iconView.setStyle("top", paddingTop + "px");
-      iconView.setStyle("width", tokenHeight + "px");
-      iconView.setStyle("height", tokenHeight + "px");
-    }
-
-    if (actionView instanceof HtmlView) {
-      actionView.top.setAutoState(0);
-      actionView.bottom.setAutoState(0);
-    } else if (actionView instanceof SvgView) {
-      const actionHeight = actionView.height.getStateOr(Length.zero()).pxValue();
-      const actionPadding = (height - actionHeight) / 2;
-      actionView.setStyle("top", actionPadding + "px");
-      actionView.setStyle("bottom", actionPadding + "px");
+    const footIconView = this.footIcon.view;
+    if (footIconView !== null) {
+      if (accessoryIcon !== null && this.accessory.embossed) {
+        const context = new PathContext();
+        if (expandedPhase !== 0) {
+          const renderer = new PathRenderer(context);
+          const frame = new BoxR2(paddingLeft + bodyRight + gap, paddingTop, paddingLeft + bodyRight + gap + tokenHeight, paddingTop + tokenHeight);
+          accessoryIcon.render(renderer, frame);
+        }
+        footIconView.d.setAutoState(context.toString());
+        this.footIcon.insert();
+      } else {
+        this.footIcon.remove();
+      }
     }
   }
 
@@ -689,7 +678,7 @@ export class TokenView extends HtmlView {
       if (this.tokenState !== "expanding") {
         this.willExpand();
       }
-      if (timing !== null) {
+      if (timing !== false) {
         if (this.expandedPhase.value !== 1) {
           this.expandedPhase.setAutoState(1, timing);
         } else {
@@ -711,10 +700,6 @@ export class TokenView extends HtmlView {
     const labelContainer = this.labelContainer.view;
     if (labelContainer !== null) {
       labelContainer.display.setAutoState("block");
-    }
-    const actionContainer = this.actionContainer.view;
-    if (actionContainer !== null) {
-      actionContainer.display.setAutoState("block");
     }
 
     const viewController = this.viewController;
@@ -761,7 +746,7 @@ export class TokenView extends HtmlView {
       if (this.tokenState !== "collapsing") {
         this.willCollapse();
       }
-      if (timing !== null) {
+      if (timing !== false) {
         if (this.expandedPhase.value !== 0) {
           this.expandedPhase.setAutoState(0, timing);
         } else {

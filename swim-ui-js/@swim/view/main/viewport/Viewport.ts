@@ -14,10 +14,12 @@
 
 import type {ViewEdgeInsets} from "./ViewEdgeInsets";
 import type {ViewColorScheme} from "./ViewColorScheme";
+import type {VisualViewport} from "./VisualViewport";
 
 export interface Viewport {
   readonly width: number;
   readonly height: number;
+  readonly visual: VisualViewport;
   readonly safeArea: ViewEdgeInsets;
   readonly orientation: OrientationType;
   readonly colorScheme: ViewColorScheme;
@@ -53,6 +55,31 @@ Viewport.detect = function (): Viewport {
   const style = window.getComputedStyle(div);
   const width = parseFloat(style.getPropertyValue("width"));
   const height = parseFloat(style.getPropertyValue("height"));
+  let visualWidth = width;
+  let visualHeight = height;
+  let visualOffsetLeft = 0;
+  let visualOffsetTop = 0;
+  let visualPageLeft = 0;
+  let visualPageTop = 0;
+  let visualScale = 1;
+  if (window.visualViewport !== void 0) {
+    visualWidth = window.visualViewport.width;
+    visualHeight = window.visualViewport.height;
+    visualOffsetLeft = window.visualViewport.offsetLeft;
+    visualOffsetTop = window.visualViewport.offsetTop;
+    visualPageLeft = window.visualViewport.pageLeft;
+    visualPageTop = window.visualViewport.pageTop;
+    visualScale = window.visualViewport.scale;
+  }
+  const visual: VisualViewport = {
+    width: visualWidth,
+    height: visualHeight,
+    offsetLeft: visualOffsetLeft,
+    offsetTop: visualOffsetTop,
+    pageLeft: visualPageLeft,
+    pageTop: visualPageTop,
+    scale: visualScale,
+  };
   if (typeof CSS !== "undefined" && typeof CSS.supports === "function"
       && CSS.supports("padding-top: env(safe-area-inset-top)")) {
     insetTop = parseFloat(style.getPropertyValue("padding-top"));
@@ -85,5 +112,5 @@ Viewport.detect = function (): Viewport {
   } else {
     colorScheme = "no-preference";
   }
-  return {width, height, safeArea, orientation, colorScheme};
+  return {width, height, visual, safeArea, orientation, colorScheme};
 };

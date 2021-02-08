@@ -37,9 +37,9 @@ export {TreeCellController} from "./TreeCellController";
 export {TitleTreeCell} from "./TitleTreeCell";
 export {DisclosureTreeCell} from "./DisclosureTreeCell";
 export {
-  PolygonTreeCellInit,
-  PolygonTreeCell,
-} from "./PolygonTreeCell";
+  IconTreeCellInit,
+  IconTreeCell,
+} from "./IconTreeCell";
 
 export {
   AnyTreeLeaf,

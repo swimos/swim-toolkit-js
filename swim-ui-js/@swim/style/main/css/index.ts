@@ -275,6 +275,18 @@ export type PointerEvents = "all"
                           | "visiblePainted"
                           | "visibleStroke";
 
+export type SvgPointerEvents = "all"
+                             | "auto"
+                             | "bounding-box"
+                             | "fill"
+                             | "none"
+                             | "painted"
+                             | "stroke"
+                             | "visible"
+                             | "visibleFill"
+                             | "visiblePainted"
+                             | "visibleStroke";
+
 export type Position = "absolute"
                      | "fixed"
                      | "relative"

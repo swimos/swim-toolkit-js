@@ -34,9 +34,11 @@ export class InputTokenView extends TokenView {
     this.onInputKey = this.onInputKey.bind(this);
   }
 
-  protected initNode(node: HTMLElement): void {
-    super.initNode(node);
+  protected initToken(): void {
+    this.stylesheet.insert();
+    super.initToken();
     this.addClass("input-token");
+    this.label.setView(this.label.createView());
   }
 
   declare readonly viewController: InputTokenViewController | null;
@@ -45,12 +47,6 @@ export class InputTokenView extends TokenView {
 
   initView(init: InputTokenViewInit): void {
     super.initView(init);
-  }
-
-  protected initChildViews(): void {
-    this.stylesheet.insert();
-    super.initChildViews();
-    this.label.setView(this.label.createView());
   }
 
   protected initStylesheet(styleView: StyleView): void {
@@ -124,6 +120,11 @@ export class InputTokenView extends TokenView {
   })
   declare label: ViewRelation<this, HtmlView>;
 
+  /** @hidden */
+  get placeholderColorLook(): Look<Color> {
+    return Look.mutedColor;
+  }
+
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
@@ -131,7 +132,7 @@ export class InputTokenView extends TokenView {
     if (styleView !== null) {
       const placeholder = styleView.getCssRule("placeholder") as StyleRule<StyleSheet> | null;
       if (placeholder !== null) {
-        placeholder.color.setAutoState(theme.inner(mood, Look.mutedColor), timing);
+        placeholder.color.setAutoState(theme.inner(mood, this.placeholderColorLook), timing);
       }
     }
 

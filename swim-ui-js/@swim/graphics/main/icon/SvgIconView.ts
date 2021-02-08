@@ -29,19 +29,19 @@ export interface SvgIconViewInit extends SvgViewInit, IconViewInit {
 export class SvgIconView extends SvgView implements IconView {
   constructor(node: SVGElement) {
     super(node);
-    this.initChildViews();
+    this.initIcon();
+  }
+
+  protected initIcon(): void {
+    const pathView = this.createPathView();
+    if (pathView !== null) {
+      this.setChildView("path", pathView);
+    }
   }
 
   initView(init: SvgIconViewInit): void {
     super.initView(init);
     IconView.initView(this, init);
-  }
-
-  protected initChildViews(): void {
-    const pathView = this.createPathView();
-    if (pathView !== null) {
-      this.setChildView("path", pathView);
-    }
   }
 
   protected createPathView(): SvgIconPathView | null {
@@ -82,11 +82,16 @@ export class SvgIconView extends SvgView implements IconView {
     // hook
   }
 
+  /** @hidden */
+  get iconColorLook(): Look<Color> {
+    return Look.highContrastColor;
+  }
+
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.iconColor.isAuto() && !this.iconColor.isInherited()) {
-      this.iconColor.setAutoState(theme.inner(mood, Look.accentColor), timing);
+      this.iconColor.setAutoState(theme.inner(mood, this.iconColorLook), timing);
     }
   }
 

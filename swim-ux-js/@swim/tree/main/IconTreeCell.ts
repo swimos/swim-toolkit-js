@@ -17,31 +17,29 @@ import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {HtmlViewInit, HtmlView, HtmlViewController} from "@swim/dom";
-import type {Graphics} from "../graphics/Graphics";
-import {IconViewInit, IconView} from "./IconView";
-import type {SvgIconPathView} from "./SvgIconPathView";
-import {SvgIconView} from "./SvgIconView";
+import {Graphics, IconViewInit, IconView, SvgIconView, SvgIconPathView} from "@swim/graphics";
+import {TreeCellInit, TreeCell} from "./TreeCell";
+import type {TreeCellController} from "./TreeCellController";
 
-export interface HtmlIconViewInit extends HtmlViewInit, IconViewInit {
-  viewController?: HtmlViewController;
+export interface IconTreeCellInit extends TreeCellInit, IconViewInit {
+  viewController?: TreeCellController;
 }
 
-export class HtmlIconView extends HtmlView implements IconView {
+export class IconTreeCell extends TreeCell implements IconView {
   constructor(node: HTMLElement) {
     super(node);
     this.initIcon();
   }
 
   protected initIcon(): void {
-    this.position.setAutoState("relative");
+    this.addClass("icon-tree-cell")
     const svgView = this.createSvgView();
     if (svgView !== null) {
       this.setChildView("svg", svgView);
     }
   }
 
-  initView(init: HtmlIconViewInit): void {
+  initView(init: IconTreeCellInit): void {
     super.initView(init);
     IconView.initView(this, init);
   }
@@ -95,16 +93,11 @@ export class HtmlIconView extends HtmlView implements IconView {
     pathView.setStyle("position", "absolute");
   }
 
-  /** @hidden */
-  get iconColorLook(): Look<Color> {
-    return Look.highContrastColor;
-  }
-
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.iconColor.isAuto() && !this.iconColor.isInherited()) {
-      this.iconColor.setAutoState(theme.inner(mood, this.iconColorLook), timing);
+      this.iconColor.setAutoState(theme.inner(mood, Look.accentColor), timing);
     }
   }
 

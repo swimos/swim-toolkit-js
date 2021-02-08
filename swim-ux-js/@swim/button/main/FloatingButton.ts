@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming, Timing} from "@swim/mapping";
+import {AnyTiming, Timing} from "@swim/mapping";
+import {Length, Angle, Transform} from "@swim/math";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {HtmlView, SvgView} from "@swim/dom";
+import {ViewContextType, ViewContext, ViewObserverType, ViewAnimator, ViewRelation} from "@swim/view";
+import {Graphics, HtmlIconView} from "@swim/graphics";
 import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
-import {ButtonMorph} from "./ButtonMorph";
 import {ButtonMembrane} from "./ButtonMembrane";
 
 export type FloatingButtonType = "regular" | "mini";
@@ -30,19 +30,25 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
       enumerable: true,
       configurable: true,
     });
+    this.iconCount = 0;
+    this.icon = null;
+    this.initButton();
   }
 
-  protected initNode(node: HTMLElement): void {
-    super.initNode(node);
+  protected initButton(): void {
     this.addClass("floating-button");
     this.position.setAutoState("relative");
-    this.display.setAutoState("flex");
-    this.justifyContent.setAutoState("center");
-    this.alignItems.setAutoState("center");
-    this.borderTopLeftRadius.setAutoState("50%");
-    this.borderTopRightRadius.setAutoState("50%");
-    this.borderBottomLeftRadius.setAutoState("50%");
-    this.borderBottomRightRadius.setAutoState("50%");
+    if (this.buttonType === "regular") {
+      this.width.setAutoState(56);
+      this.height.setAutoState(56);
+    } else if (this.buttonType === "mini") {
+      this.width.setAutoState(40);
+      this.height.setAutoState(40);
+    }
+    this.borderTopLeftRadius.setAutoState(Length.pct(50));
+    this.borderTopRightRadius.setAutoState(Length.pct(50));
+    this.borderBottomLeftRadius.setAutoState(Length.pct(50));
+    this.borderBottomRightRadius.setAutoState(Length.pct(50));
     this.overflowX.setAutoState("hidden");
     this.overflowY.setAutoState("hidden");
     this.userSelect.setAutoState("none");
@@ -58,29 +64,120 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
         enumerable: true,
         configurable: true,
       });
-      this.requireUpdate(View.NeedsChange);
+      if (buttonType === "regular") {
+        this.width.setAutoState(56);
+        this.height.setAutoState(56);
+      } else if (buttonType === "mini") {
+        this.width.setAutoState(40);
+        this.height.setAutoState(40);
+      }
     }
   }
 
-  get morph(): ButtonMorph | null {
-    const childView = this.getChildView("morph");
-    return childView instanceof ButtonMorph ? childView : null;
+  /** @hidden */
+  static IconRelation = ViewRelation.define<FloatingButton, HtmlIconView, never, ViewObserverType<HtmlIconView> & {iconIndex: number}>({
+    extends: void 0,
+    type: HtmlIconView,
+    child: false,
+    iconIndex: 0,
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                      timing: Timing | boolean, iconView: HtmlIconView): void {
+      iconView.iconColor.setState(theme.inner(mood, Look.backgroundColor), timing);
+    },
+    viewDidAnimate(viewContext: ViewContext, iconView: HtmlIconView): void {
+      if (!iconView.opacity.isAnimating() && this.iconIndex !== this.owner.iconCount) {
+        iconView.remove();
+        if (this.iconIndex > this.owner.iconCount) {
+          this.owner.setViewRelation(this.name, null);
+        }
+      }
+    },
+  });
+
+  /** @hidden */
+  iconCount: number;
+
+  icon: ViewRelation<this, HtmlIconView> | null;
+
+  pushIcon(icon: Graphics, timing?: AnyTiming | boolean): void {
+    if (timing === void 0 || timing === true) {
+      timing = this.getLookOr(Look.timing, false);
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+
+    const oldIconCount = this.iconCount;
+    const oldIconKey = "icon" + oldIconCount;
+    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, HtmlIconView> | null;
+    const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
+    if (oldIconView !== null) {
+      if (timing !== false) {
+        oldIconView.opacity.setAutoState(0, timing);
+        oldIconView.transform.setAutoState(Transform.rotate(Angle.deg(90)), timing);
+      } else {
+        oldIconView.remove();
+      }
+    }
+
+    const newIconCount = oldIconCount + 1;
+    const newIconKey = "icon" + newIconCount;
+    const newIconRelation = new FloatingButton.IconRelation(this, newIconKey) as ViewRelation<this, HtmlIconView> & {iconIndex: number};
+    newIconRelation.iconIndex = newIconCount;
+    const newIconView = HtmlIconView.create();
+    newIconView.position.setAutoState("absolute");
+    newIconView.left.setAutoState(0);
+    newIconView.top.setAutoState(0);
+    newIconView.width.setAutoState(this.width.state);
+    newIconView.height.setAutoState(this.height.state);
+    newIconView.opacity.setAutoState(0);
+    newIconView.opacity.setAutoState(1, timing);
+    newIconView.transform.setAutoState(Transform.rotate(Angle.deg(-90)));
+    newIconView.transform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
+    newIconView.pointerEvents.setAutoState("none");
+    newIconView.iconWidth.setAutoState(24);
+    newIconView.iconHeight.setAutoState(24);
+    newIconView.iconColor.setAuto(false);
+    newIconView.graphics.setAutoState(icon);
+    newIconRelation.setView(newIconView);
+    this.setViewRelation(newIconKey, newIconRelation);
+    this.appendChildView(newIconView, newIconKey);
+
+    this.iconCount = newIconCount;
+    this.icon = newIconRelation;
   }
 
-  get icon(): HtmlView | SvgView | null {
-    const morph = this.morph;
-    return morph !== null ? morph.icon : null;
-  }
+  popIcon(timing?: AnyTiming | boolean): void {
+    if (timing === void 0 || timing === true) {
+      timing = this.getLookOr(Look.timing, false);
+    } else {
+      timing = Timing.fromAny(timing);
+    }
 
-  setIcon(icon: HtmlView | SvgView | null, timing?: AnyTiming | boolean, ccw: boolean = false): void {
-    let morph = this.morph;
-    if (morph === null) {
-      morph = this.append(ButtonMorph, "morph");
+    const oldIconCount = this.iconCount;
+    const oldIconKey = "icon" + oldIconCount;
+    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, HtmlIconView> | null;
+    const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
+    if (oldIconView !== null) {
+      if (timing !== false) {
+        oldIconView.opacity.setAutoState(0, timing);
+        oldIconView.transform.setAutoState(Transform.rotate(Angle.deg(-90)), timing);
+      } else {
+        oldIconView.remove();
+      }
     }
-    if (icon instanceof SvgView) {
-      icon.fill.setAutoState(this.getLook(Look.backgroundColor), timing);
+
+    const newIconCount = oldIconCount - 1;
+    const newIconKey = "icon" + newIconCount;
+    const newIconRelation = this.getViewRelation(newIconKey) as ViewRelation<this, HtmlIconView> | null;
+    const newIconView = newIconRelation !== null ? newIconRelation.view : null;
+    if (newIconView !== null) {
+      newIconView.opacity.setAutoState(1, timing);
+      newIconView.transform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
+      this.appendChildView(newIconView, newIconKey);
     }
-    morph.setIcon(icon, timing, ccw);
+
+    this.iconCount = newIconCount;
+    this.icon = newIconRelation;
   }
 
   @ViewAnimator({type: Number, inherit: true})
@@ -90,28 +187,15 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
 
-    if (this.buttonType === "regular") {
-      this.width.setAutoState(56, timing);
-      this.height.setAutoState(56, timing);
-    } else if (this.buttonType === "mini") {
-      this.width.setAutoState(40, timing);
-      this.height.setAutoState(40, timing);
-    }
-
     this.backgroundColor.setAutoState(theme.inner(mood, Look.accentColor), timing);
 
     let shadow = theme.inner(Mood.floating, Look.shadow);
     if (shadow !== void 0) {
       const shadowColor = shadow.color;
-      const phase = this.stackPhase.getValueOr(1);
-      shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * phase));
+      const stackPhase = this.stackPhase.getValueOr(1);
+      shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * stackPhase));
     }
     this.boxShadow.setAutoState(shadow, timing);
-
-    const icon = this.icon;
-    if (icon instanceof SvgView) {
-      icon.fill.setAutoState(theme.inner(mood, Look.backgroundColor), timing);
-    }
   }
 
   protected onLayout(viewContext: ViewContextType<this>): void {
@@ -120,34 +204,10 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     let shadow = this.getLook(Look.shadow, Mood.floating);
     if (shadow !== void 0) {
       const shadowColor = shadow.color;
-      const phase = this.stackPhase.getValueOr(1);
-      shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * phase));
+      const stackPhase = this.stackPhase.getValueOr(1);
+      shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * stackPhase));
     }
     this.boxShadow.setAutoState(shadow);
-  }
-
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    super.onInsertChildView(childView, targetView);
-    const childKey = childView.key;
-    if (childKey === "morph" && childView instanceof ButtonMorph) {
-      this.onInsertMorph(childView);
-    }
-  }
-
-  protected onRemoveChildView(childView: View): void {
-    const childKey = childView.key;
-    if (childKey === "morph" && childView instanceof ButtonMorph) {
-      this.onRemoveMorph(childView);
-    }
-    super.onRemoveChildView(childView);
-  }
-
-  protected onInsertMorph(morph: ButtonMorph): void {
-    // hook
-  }
-
-  protected onRemoveMorph(morph: ButtonMorph): void {
-    // hook
   }
 
   didStartHovering(): void {

@@ -12,28 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./graphics";
-
-export * from "./layer";
-
-export * from "./drawing";
-
-export * from "./path";
-
-export * from "./webgl";
-
-export * from "./canvas";
-
-export * from "./raster";
-
-export * from "./shape";
-
-export * from "./typeset";
-
-export * from "./icon";
-
-declare global {
-  interface Document {
-    createTouchList?(...touches: Touch[]): TouchList;
-  }
+export interface VisualViewport {
+  readonly width: number;
+  readonly height: number;
+  readonly offsetLeft: number;
+  readonly offsetTop: number;
+  readonly pageLeft: number;
+  readonly pageTop: number;
+  readonly scale: number;
 }

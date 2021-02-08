@@ -52,11 +52,16 @@ export class GraphicsIconView extends LayerView implements IconView {
   @ViewAnimator({type: Object})
   declare graphics: ViewAnimator<this, Graphics | undefined>;
 
+  /** @hidden */
+  get iconColorLook(): Look<Color> {
+    return Look.highContrastColor;
+  }
+
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.iconColor.isAuto() && !this.iconColor.isInherited()) {
-      this.iconColor.setAutoState(theme.inner(mood, Look.accentColor), timing);
+      this.iconColor.setAutoState(theme.inner(mood, this.iconColorLook), timing);
     }
   }
 

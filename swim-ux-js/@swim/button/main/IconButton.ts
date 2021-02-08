@@ -12,24 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyTiming, Timing} from "@swim/mapping";
+import {AnyTiming, Timing} from "@swim/mapping";
+import {Angle, Transform} from "@swim/math";
 import {Color} from "@swim/color";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import type {View} from "@swim/view";
-import {HtmlView, HtmlViewObserver, HtmlViewController, SvgView} from "@swim/dom";
+import {ViewContextType, ViewContext, ViewObserverType, ViewRelation} from "@swim/view";
+import type {HtmlViewObserver, HtmlViewController} from "@swim/dom";
+import {Graphics, HtmlIconView} from "@swim/graphics";
 import type {PositionGestureDelegate} from "@swim/gesture";
 import type {ButtonObserver} from "./ButtonObserver";
-import {ButtonMorph} from "./ButtonMorph";
 import {ButtonMembrane} from "./ButtonMembrane";
 
 export class IconButton extends ButtonMembrane implements PositionGestureDelegate {
   constructor(node: HTMLElement) {
     super(node);
+    this.iconCount = 0;
+    this.icon = null;
     this.onClick = this.onClick.bind(this);
+    this.initButton();
   }
 
-  protected initNode(node: HTMLElement): void {
-    super.initNode(node);
+  protected initButton(): void {
     this.addClass("icon-button");
     this.position.setAutoState("relative");
     this.width.setAutoState(44);
@@ -51,26 +54,105 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
 
   declare readonly viewObservers: ReadonlyArray<HtmlViewObserver & ButtonObserver>;
 
-  get morph(): ButtonMorph | null {
-    const childView = this.getChildView("morph");
-    return childView instanceof ButtonMorph ? childView : null;
+  /** @hidden */
+  static IconRelation = ViewRelation.define<IconButton, HtmlIconView, never, ViewObserverType<HtmlIconView> & {iconIndex: number}>({
+    extends: void 0,
+    type: HtmlIconView,
+    child: false,
+    iconIndex: 0,
+    viewDidAnimate(viewContext: ViewContext, iconView: HtmlIconView): void {
+      if (!iconView.opacity.isAnimating() && this.iconIndex !== this.owner.iconCount) {
+        iconView.remove();
+        if (this.iconIndex > this.owner.iconCount) {
+          this.owner.setViewRelation(this.name, null);
+        }
+      }
+    },
+  });
+
+  /** @hidden */
+  iconCount: number;
+
+  icon: ViewRelation<this, HtmlIconView> | null;
+
+  pushIcon(icon: Graphics, timing?: AnyTiming | boolean): void {
+    if (timing === void 0 || timing === true) {
+      timing = this.getLookOr(Look.timing, false);
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+
+    const oldIconCount = this.iconCount;
+    const oldIconKey = "icon" + oldIconCount;
+    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, HtmlIconView> | null;
+    const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
+    if (oldIconView !== null) {
+      if (timing !== false) {
+        oldIconView.opacity.setAutoState(0, timing);
+        oldIconView.transform.setAutoState(Transform.rotate(Angle.deg(90)), timing);
+      } else {
+        oldIconView.remove();
+      }
+    }
+
+    const newIconCount = oldIconCount + 1;
+    const newIconKey = "icon" + newIconCount;
+    const newIconRelation = new IconButton.IconRelation(this, newIconKey) as ViewRelation<this, HtmlIconView> & {iconIndex: number};
+    newIconRelation.iconIndex = newIconCount;
+    const newIconView = HtmlIconView.create();
+    newIconView.position.setAutoState("absolute");
+    newIconView.left.setAutoState(0);
+    newIconView.top.setAutoState(0);
+    newIconView.width.setAutoState(this.width.state);
+    newIconView.height.setAutoState(this.height.state);
+    newIconView.opacity.setAutoState(0);
+    newIconView.opacity.setAutoState(1, timing);
+    newIconView.transform.setAutoState(Transform.rotate(Angle.deg(-90)));
+    newIconView.transform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
+    newIconView.pointerEvents.setAutoState("none");
+    newIconView.iconWidth.setAutoState(24);
+    newIconView.iconHeight.setAutoState(24);
+    newIconView.graphics.setAutoState(icon);
+    newIconRelation.setView(newIconView);
+    this.setViewRelation(newIconKey, newIconRelation);
+    this.appendChildView(newIconView, newIconKey);
+
+    this.iconCount = newIconCount;
+    this.icon = newIconRelation;
   }
 
-  get icon(): HtmlView | SvgView | null {
-    const morph = this.morph;
-    return morph !== null ? morph.icon : null;
-  }
+  popIcon(timing?: AnyTiming | boolean): void {
+    if (timing === void 0 || timing === true) {
+      timing = this.getLookOr(Look.timing, false);
+    } else {
+      timing = Timing.fromAny(timing);
+    }
 
-  setIcon(icon: HtmlView | SvgView | null, timing?: AnyTiming | boolean, ccw: boolean = false): void {
-    let morph = this.morph;
-    if (morph === null) {
-      morph = this.append(ButtonMorph, "morph");
+    const oldIconCount = this.iconCount;
+    const oldIconKey = "icon" + oldIconCount;
+    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, HtmlIconView> | null;
+    const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
+    if (oldIconView !== null) {
+      if (timing !== false) {
+        oldIconView.opacity.setAutoState(0, timing);
+        oldIconView.transform.setAutoState(Transform.rotate(Angle.deg(-90)), timing);
+      } else {
+        oldIconView.remove();
+      }
     }
-    if (icon instanceof SvgView && icon.fill.isAuto()) {
-      const iconLook = this.gesture.isHovering() ? Look.color : Look.mutedColor;
-      icon.fill.setAutoState(this.getLook(iconLook), timing);
+
+    const newIconCount = oldIconCount - 1;
+    const newIconKey = "icon" + newIconCount;
+    const newIconRelation = this.getViewRelation(newIconKey) as ViewRelation<this, HtmlIconView> | null;
+    const newIconView = newIconRelation !== null ? newIconRelation.view : null;
+    if (newIconView !== null) {
+      newIconView.opacity.setAutoState(1, timing);
+      newIconView.transform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
+      this.appendChildView(newIconView, newIconKey);
     }
-    morph.setIcon(icon, timing, ccw);
+
+    this.iconCount = newIconCount;
+    this.icon = newIconRelation;
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
@@ -84,12 +166,6 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
       }
       this.backgroundColor.setAutoState(backgroundColor, timing);
     }
-
-    const icon = this.icon;
-    if (icon instanceof SvgView && icon.fill.isAuto()) {
-      const iconLook = this.gesture.isHovering() ? Look.color : Look.mutedColor;
-      icon.fill.setAutoState(theme.inner(mood, iconLook), timing);
-    }
   }
 
   protected onMount(): void {
@@ -102,28 +178,19 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
     super.onUnmount();
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    super.onInsertChildView(childView, targetView);
-    const childKey = childView.key;
-    if (childKey === "morph" && childView instanceof ButtonMorph) {
-      this.onInsertMorph(childView);
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
+    const viewRelations = this.viewRelations;
+    for (const relationName in viewRelations) {
+      const viewRelation = viewRelations[relationName];
+      if (viewRelation instanceof IconButton.IconRelation) {
+        const iconView = viewRelation.view;
+        if (iconView !== null) {
+          iconView.width.setAutoState(this.width.state);
+          iconView.height.setAutoState(this.height.state);
+        }
+      }
     }
-  }
-
-  protected onRemoveChildView(childView: View): void {
-    const childKey = childView.key;
-    if (childKey === "morph" && childView instanceof ButtonMorph) {
-      this.onRemoveMorph(childView);
-    }
-    super.onRemoveChildView(childView);
-  }
-
-  protected onInsertMorph(morph: ButtonMorph): void {
-    // hook
-  }
-
-  protected onRemoveMorph(morph: ButtonMorph): void {
-    // hook
   }
 
   get hovers(): boolean {
@@ -147,10 +214,6 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
       if (this.backgroundColor.isAuto()) {
         this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), timing);
       }
-      const icon = this.icon;
-      if (icon instanceof SvgView && icon.fill.isAuto()) {
-        icon.fill.setAutoState(this.getLook(Look.color), timing);
-      }
     }
   }
 
@@ -163,10 +226,6 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
         backgroundColor = backgroundColor.alpha(0);
       }
       this.backgroundColor.setAutoState(backgroundColor, timing);
-    }
-    const icon = this.icon;
-    if (icon instanceof SvgView && icon.fill.isAuto()) {
-      icon.fill.setAutoState(this.getLook(Look.mutedColor), timing);
     }
   }
 

@@ -28,6 +28,10 @@ Mood.inactive = MoodVector.of([Feel.inactive, 1]);
 Mood.warning = MoodVector.of([Feel.warning, 1]);
 Mood.alert = MoodVector.of([Feel.alert, 1]);
 
+Mood.darker = MoodVector.of([Feel.darker, 1]);
+Mood.lighter = MoodVector.of([Feel.lighter, 1]);
+Mood.contrasted = MoodVector.of([Feel.contrasted, 1]);
+
 Mood.overlay = MoodVector.of([Feel.overlay, 1]);
 Mood.floating = MoodVector.of([Feel.floating, 1]);
 Mood.transparent = MoodVector.of([Feel.transparent, 1]);

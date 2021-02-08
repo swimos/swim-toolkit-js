@@ -61,11 +61,11 @@ export class DrawerView extends HtmlView implements Modal {
       enumerable: true,
       configurable: true,
     });
-    this.initNode(node);
+    this.initDrawer();
     this.initTheme();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initDrawer(): void {
     this.addClass("drawer");
     this.display.setAutoState("none");
     this.flexDirection.setAutoState("column");
@@ -564,7 +564,7 @@ export class DrawerView extends HtmlView implements Modal {
         timing = Timing.fromAny(timing);
       }
       this.setDisplayState(DrawerView.ShowState);
-      if (timing !== null) {
+      if (timing !== false) {
         if (this.drawerSlide.value !== 1) {
           this.drawerStretch.setAutoState(1, timing);
           this.drawerSlide.setAutoState(1, timing);
@@ -625,7 +625,7 @@ export class DrawerView extends HtmlView implements Modal {
       }
       this.setDisplayState(DrawerView.HideState);
       this.modalService.dismissModal(this);
-      if (timing !== null) {
+      if (timing !== false) {
         this.drawerSlide.setAutoState(0, timing);
       } else {
         this.willHide();
@@ -679,7 +679,7 @@ export class DrawerView extends HtmlView implements Modal {
       }
       this.setDisplayState(DrawerView.ExpandState);
       this.modalService.dismissModal(this);
-      if (timing !== null) {
+      if (timing !== false) {
         if (this.drawerStretch.value !== 1) {
           this.drawerSlide.setAutoState(1, timing);
           this.drawerStretch.setAutoState(1, timing);
@@ -740,7 +740,7 @@ export class DrawerView extends HtmlView implements Modal {
       if (this.drawerSlide.value === 0) {
         this.drawerStretch.setAutoState(0);
       }
-      if (timing !== null) {
+      if (timing !== false) {
         if (this.drawerStretch.value !== 0) {
           this.drawerSlide.setAutoState(1, timing);
           this.drawerStretch.setAutoState(0, timing);

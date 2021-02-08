@@ -29,10 +29,13 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
       enumerable: true,
       configurable: true,
     });
+    this.viewportResizeTimer = 0;
     this.reorientationTimer = 0;
 
     this.throttleScroll = this.throttleScroll.bind(this);
     this.throttleResize = this.throttleResize.bind(this);
+    this.debounceViewportResize = this.debounceViewportResize.bind(this);
+    this.throttleViewportResize = this.throttleViewportResize.bind(this);
     this.debounceReorientation = this.debounceReorientation.bind(this);
     this.throttleReorientation = this.throttleReorientation.bind(this);
   }
@@ -177,6 +180,9 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
       window.addEventListener("scroll", this.throttleScroll, {passive: true});
       window.addEventListener("resize", this.throttleResize);
       window.addEventListener("orientationchange", this.debounceReorientation);
+      if (window.visualViewport !== void 0) {
+        window.visualViewport.addEventListener('resize', this.debounceViewportResize);
+      }
     }
   }
 
@@ -185,6 +191,9 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
       window.removeEventListener("scroll", this.throttleScroll);
       window.removeEventListener("resize", this.throttleResize);
       window.removeEventListener("orientationchange", this.debounceReorientation);
+      if (window.visualViewport !== void 0) {
+        window.visualViewport.removeEventListener('resize', this.debounceViewportResize);
+      }
     }
   }
 
@@ -205,6 +214,35 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     const rootViews = this.rootViews;
     for (let i = 0, n = rootViews.length; i < n; i += 1) {
       rootViews[i]!.requireUpdate(View.NeedsResize | View.NeedsLayout);
+    }
+  }
+
+  /** @hidden */
+  viewportResizeTimer: number;
+
+  /** @hidden */
+  protected debounceViewportResize(): void {
+    if (this.viewportResizeTimer !== 0) {
+      clearTimeout(this.viewportResizeTimer);
+      this.viewportResizeTimer = 0;
+    }
+    this.viewportResizeTimer = setTimeout(this.throttleViewportResize, ViewportManager.ViewportResizeDelay) as any;
+  }
+
+  /** @hidden */
+  protected throttleViewportResize(): void {
+    if (this.viewportResizeTimer !== 0) {
+      clearTimeout(this.viewportResizeTimer);
+      this.viewportResizeTimer = 0;
+    }
+
+    const viewport = this.detectViewport();
+    this.viewContext.viewport = viewport;
+    this.updateViewIdiom(viewport);
+
+    const rootViews = this.rootViews;
+    for (let i = 0, n = rootViews.length; i < n; i += 1) {
+      rootViews[i]!.requireUpdate(View.NeedsResize | View.NeedsScroll | View.NeedsLayout);
     }
   }
 
@@ -240,6 +278,8 @@ export class ViewportManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
+  /** @hidden */
+  static ViewportResizeDelay: number = 200;
   /** @hidden */
   static ReorientationDelay: number = 100;
 

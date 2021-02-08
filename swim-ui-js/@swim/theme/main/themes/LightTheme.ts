@@ -31,6 +31,8 @@ const LightNeutralColor = Color.parse("#808080");
 const LightHighlightColor = Color.black(0.05);
 
 const LightBackgroundColor = Color.parse("#fcfcfc");
+const LightLowContrastColor = Color.parse("#e7e6e7");
+const LightHighContrastColor = Color.parse("#4a4a4a");
 const LightBorderColor = LightBackgroundColor.darker(1 / 2);
 
 const LightPrimaryColor = Color.parse("#49cbad");
@@ -56,6 +58,8 @@ const LightAmbient = FeelVector.of(
   [Look.highlightColor, LightHighlightColor],
 
   [Look.backgroundColor, LightBackgroundColor],
+  [Look.lowContrastColor, LightLowContrastColor],
+  [Look.highContrastColor, LightHighContrastColor],
   [Look.borderColor, LightBorderColor],
 
   [Look.spacing, LightSpacing],
@@ -73,6 +77,8 @@ const LightDefault = FeelVector.of(
   [Look.highlightColor, LightHighlightColor],
 
   [Look.backgroundColor, LightBackgroundColor],
+  [Look.lowContrastColor, LightLowContrastColor],
+  [Look.highContrastColor, LightHighContrastColor],
   [Look.borderColor, LightBorderColor],
 
   [Look.spacing, LightSpacing],
@@ -136,6 +142,21 @@ const LightTranslucent = FeelVector.of(
   [Look.borderColor, Color.black(0.8)],
 );
 
+const LightDarker = FeelVector.of(
+  [Look.statusColor, Color.black(1)],
+  [Look.accentColor, Color.black(1)],
+);
+
+const LightLighter = FeelVector.of(
+  [Look.statusColor, Color.black(-1)],
+  [Look.accentColor, Color.black(-1)],
+);
+
+const LightContrasted = FeelVector.of(
+  [Look.statusColor, Color.black(1)],
+  [Look.accentColor, Color.black(1)],
+);
+
 const LightEmbossed = FeelVector.of(
   [Look.statusColor, Color.black(1)],
   [Look.accentColor, Color.black(1)],
@@ -166,6 +187,10 @@ const LightTheme = ThemeMatrix.forCols(
   [Feel.inactive, LightInactive],
   [Feel.warning, LightWarning],
   [Feel.alert, LightAlert],
+
+  [Feel.darker, LightDarker],
+  [Feel.lighter, LightLighter],
+  [Feel.contrasted, LightContrasted],
 
   [Feel.overlay, LightOverlay],
   [Feel.floating, LightFloating],

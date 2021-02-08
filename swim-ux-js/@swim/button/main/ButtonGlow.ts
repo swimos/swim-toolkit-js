@@ -28,10 +28,10 @@ export class ButtonGlow extends HtmlView {
       configurable: true,
     });
     this.glowTimer = 0;
-    this.initNode(node);
+    this.initGlow();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initGlow(): void {
     this.addClass("button-glow");
     this.position.setAutoState("absolute");
     this.width.setAutoState(Length.zero());
@@ -128,7 +128,7 @@ export class ButtonGlow extends HtmlView {
           const highlightColor = this.getLook(Look.highlightColor);
           const opacity = highlightColor !== void 0 ? highlightColor.alpha() : 0.1;
           this.opacity.setAutoState(opacity);
-          if (timing !== null) {
+          if (timing !== false) {
             this.left.setAutoState(cx);
             this.top.setAutoState(cy);
             this.left.setAutoState(cx - r, timing);
@@ -178,7 +178,7 @@ export class ButtonGlow extends HtmlView {
     }
     if (this.glowState === "glowing") {
       this.willPulse();
-      if (timing !== null) {
+      if (timing !== false) {
         this.opacity.setAutoState(0, timing);
       } else {
         this.opacity.setAutoState(0);
@@ -211,7 +211,7 @@ export class ButtonGlow extends HtmlView {
         timing = Timing.fromAny(timing);
       }
       this.willFade();
-      if (timing !== null) {
+      if (timing !== false) {
         this.opacity.setAutoState(0, timing);
       } else {
         this.opacity.setAutoState(0);

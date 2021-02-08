@@ -30,10 +30,10 @@ export interface TreeStemInit extends HtmlViewInit {
 export class TreeStem extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
-    this.initNode(node);
+    this.initStem();
   }
 
-  protected initNode(node: HTMLElement): void {
+  protected initStem(): void {
     this.addClass("tree-stem");
     this.position.setAutoState("relative");
     this.height.setAutoState(60);

@@ -17,8 +17,8 @@ import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {TreeCell} from "./TreeCell";
 
 export class TitleTreeCell extends TreeCell {
-  protected initNode(node: HTMLElement): void {
-    super.initNode(node);
+  protected initCell(): void {
+    super.initCell();
     this.addClass("title-tree-cell");
   }
 

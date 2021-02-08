@@ -31,6 +31,10 @@ export const Mood = {} as {
   warning: MoodVector; // defined by moods
   alert: MoodVector; // defined by moods
 
+  darker: MoodVector; // defined by moods
+  lighter: MoodVector; // defined by moods
+  contrasted: MoodVector; // defined by moods
+
   overlay: MoodVector; // defined by moods
   floating: MoodVector; // defined by moods
   transparent: MoodVector; // defined by moods

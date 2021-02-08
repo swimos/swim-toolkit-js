@@ -16,8 +16,9 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import type {Height} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, View, ViewEdgeInsets, ViewProperty, ViewAnimator} from "@swim/view";
-import {HtmlView, SvgView} from "@swim/dom";
+import {ViewContextType, View, ViewEdgeInsets, ViewProperty, ViewAnimator, ViewRelation} from "@swim/view";
+import {HtmlView} from "@swim/dom";
+import {Graphics, HtmlIconView} from "@swim/graphics";
 import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembrane} from "@swim/button";
 import type {MenuItemObserver} from "./MenuItemObserver";
@@ -28,10 +29,10 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   constructor(node: HTMLElement) {
     super(node);
     this.onClick = this.onClick.bind(this);
+    this.initMenuItem();
   }
 
-  protected initNode(node: HTMLElement): void {
-    super.initNode(node);
+  protected initMenuItem(): void {
     this.addClass("memu-item");
     this.position.setAutoState("relative");
     this.display.setAutoState("flex");
@@ -61,91 +62,153 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   @ViewAnimator({type: Number, inherit: true, updateFlags: View.NeedsAnimate})
   declare drawerStretch: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
-  protected createIconView(icon?: SvgView): HtmlView {
-    const iconView = HtmlView.create("div");
-    iconView.display.setAutoState("flex");
-    iconView.justifyContent.setAutoState("center");
-    iconView.alignItems.setAutoState("center");
+  @ViewRelation<MenuItem, HtmlView, Graphics>({
+    type: HtmlView,
+    observe: false,
+    onSetView(iconView: HtmlView | null): void {
+      if (iconView !== null) {
+        this.owner.initIconView(iconView);
+      }
+    },
+    createView(): HtmlView | null {
+      return this.owner.createIconView();
+    },
+    insertView(parentView: View, childView: HtmlView, key: string | undefined): void {
+      parentView.prependChildView(childView, key);
+    },
+    fromAny(value: HtmlView | Graphics): HtmlView | null {
+      if (value instanceof HtmlView) {
+        return value;
+      } else {
+        const iconView = this.owner.createIconView();
+        iconView.graphics.setAutoState(value);
+        return iconView;
+      }
+    },
+  })
+  declare icon: ViewRelation<MenuItem, HtmlView, Graphics>;
+
+  protected createIconView(): HtmlIconView {
+    return HtmlIconView.create();
+  }
+
+  protected initIconView(iconView: HtmlView): void {
+    iconView.flexShrink.setAutoState(0);
     iconView.width.setAutoState(this.collapsedWidth.getStateOr(MenuItem.DefaultCollapsedWidth));
-    iconView.height.setAutoState("100%");
-    iconView.boxSizing.setAutoState("border-box");
-    if (icon !== void 0) {
-      iconView.append(icon, "icon");
+    iconView.height.setAutoState(this.height.state);
+    if (iconView instanceof HtmlIconView) {
+      iconView.iconWidth.setAutoState(24);
+      iconView.iconHeight.setAutoState(24);
+      iconView.iconColor.setState(this.getLook(Look.mutedColor));
     }
-    return iconView;
   }
 
-  protected createTitleView(text?: string): HtmlView {
-    const titleView = HtmlView.create("span");
-    titleView.display.setAutoState("block");
-    titleView.fontFamily.setAutoState("system-ui, 'Open Sans', sans-serif");
-    titleView.fontSize.setAutoState(17);
-    titleView.whiteSpace.setAutoState("nowrap");
-    titleView.textOverflow.setAutoState("ellipsis");
-    titleView.overflowX.setAutoState("hidden");
-    titleView.overflowY.setAutoState("hidden");
-    if (text !== void 0) {
-      titleView.text(text);
-    }
-    return titleView;
-  }
-
-  iconView(): HtmlView | null;
-  iconView(iconView: HtmlView | SvgView | null): this;
-  iconView(newIconView?: HtmlView | SvgView | null): HtmlView | null | this {
-    const childView = this.getChildView("icon");
-    const oldIconView = childView instanceof HtmlView ? childView : null;
-    if (newIconView === void 0) {
-      return oldIconView;
-    } else {
-      if (newIconView instanceof SvgView) {
-        if (oldIconView === null) {
-          newIconView = this.createIconView(newIconView);
-          this.appendChildView(newIconView, "icon");
-        } else {
-          oldIconView.removeAll();
-          oldIconView.append(newIconView);
-          newIconView = oldIconView;
-        }
-      } else if (newIconView !== null) {
-        if (oldIconView === null) {
-          this.appendChildView(newIconView, "icon");
-        } else {
-          this.setChildView("icon", newIconView);
-        }
-      } else if (oldIconView !== null) {
-        oldIconView.remove();
+  @ViewRelation<MenuItem, HtmlView, string | undefined>({
+    type: HtmlView,
+    observe: false,
+    onSetView(labelView: HtmlView | null): void {
+      if (labelView !== null) {
+        this.owner.initLabelView(labelView);
       }
-      return this;
+    },
+    createView(): HtmlView | null {
+      return this.owner.createLabelView();
+    },
+    insertView(parentView: View, childView: HtmlView, key: string | undefined): void {
+      const targetView = this.owner.accessory.view;
+      parentView.insertChildView(childView, targetView, key);
+    },
+    fromAny(value: HtmlView | string | undefined): HtmlView | null {
+      if (value instanceof HtmlView) {
+        return value;
+      } else if (typeof value === "string") {
+        const labelView = this.owner.createLabelView();
+        labelView.text(value);
+        return labelView;
+      } else {
+        return null;
+      }
+    },
+  })
+  declare label: ViewRelation<MenuItem, HtmlView, string | undefined>;
+
+  protected createLabelView(): HtmlView {
+    const labelView = HtmlView.span.create();
+    labelView.display.setAutoState("block");
+    labelView.fontFamily.setAutoState("system-ui, 'Open Sans', sans-serif");
+    labelView.fontSize.setAutoState(17);
+    labelView.whiteSpace.setAutoState("nowrap");
+    labelView.textOverflow.setAutoState("ellipsis");
+    labelView.overflowX.setAutoState("hidden");
+    labelView.overflowY.setAutoState("hidden");
+    return labelView;
+  }
+
+  protected initLabelView(labelView: HtmlView): void {
+    labelView.flexGrow.setAutoState(1);
+    labelView.flexShrink.setAutoState(0);
+    if (labelView.color.isAuto()) {
+      const itemColor = this.getLook(this.highlighted.state ? Look.color : Look.mutedColor);
+      labelView.color.setAutoState(itemColor);
     }
   }
 
-  titleView(): HtmlView | null;
-  titleView(titleView: HtmlView | string | null | undefined): this;
-  titleView(newTitleView?: HtmlView | string | null | undefined): HtmlView | null | this {
-    const childView = this.getChildView("title");
-    const oldTitleView = childView instanceof HtmlView ? childView : null;
-    if (arguments.length === 0) {
-      return oldTitleView;
-    } else {
-      if (typeof newTitleView === "string") {
-        if (oldTitleView === null) {
-          newTitleView = this.createTitleView(newTitleView);
-          this.appendChildView(newTitleView, "title");
-        } else {
-          oldTitleView.text(newTitleView);
-          newTitleView = oldTitleView;
-        }
-      } else if (newTitleView !== void 0 && newTitleView !== null) {
-        if (oldTitleView === null) {
-          this.appendChildView(newTitleView, "title");
-        } else {
-          this.setChildView("title", newTitleView);
-        }
-      } else if (oldTitleView !== null) {
-        oldTitleView.remove();
+  @ViewRelation<MenuItem, HtmlView, Graphics | string>({
+    type: HtmlView,
+    observe: false,
+    onSetView(accessoryView: HtmlView | null): void {
+      if (accessoryView !== null) {
+        this.owner.initAccessoryView(accessoryView);
       }
-      return this;
+    },
+    createView(): HtmlView | null {
+      return this.owner.createAccessoryView();
+    },
+    insertView(parentView: View, childView: HtmlView, key: string | undefined): void {
+      parentView.appendChildView(childView, key);
+    },
+    fromAny(value: HtmlView | Graphics | string): HtmlView | null {
+      if (value instanceof HtmlView) {
+        return value;
+      } else if (typeof value === "string") {
+        const accessoryView = this.owner.createAccessoryView();
+        accessoryView.text(value);
+        return accessoryView;
+      } else {
+        const accessoryView = this.owner.createAccessoryIconView();
+        accessoryView.graphics.setAutoState(value);
+        return accessoryView;
+      }
+    },
+  })
+  declare accessory: ViewRelation<MenuItem, HtmlView, Graphics | string>;
+
+  protected createAccessoryIconView(): HtmlIconView {
+    return HtmlIconView.create();
+  }
+
+  protected createAccessoryView(): HtmlView {
+    const accessoryView = HtmlView.span.create();
+    accessoryView.display.setAutoState("block");
+    accessoryView.fontFamily.setAutoState("system-ui, 'Open Sans', sans-serif");
+    accessoryView.fontSize.setAutoState(17);
+    accessoryView.whiteSpace.setAutoState("nowrap");
+    accessoryView.textOverflow.setAutoState("ellipsis");
+    accessoryView.overflowX.setAutoState("hidden");
+    accessoryView.overflowY.setAutoState("hidden");
+    return accessoryView;
+  }
+
+  protected initAccessoryView(accessoryView: HtmlView): void {
+    accessoryView.flexShrink.setAutoState(0);
+    accessoryView.width.setAutoState(this.collapsedWidth.getStateOr(MenuItem.DefaultCollapsedWidth));
+    if (accessoryView instanceof HtmlIconView) {
+      accessoryView.iconWidth.setAutoState(24);
+      accessoryView.iconHeight.setAutoState(24);
+      accessoryView.iconColor.setState(this.getLook(Look.mutedColor));
+    } else if (accessoryView.color.isAuto()) {
+      const itemColor = this.getLook(this.highlighted.state ? Look.color : Look.mutedColor);
+      accessoryView.color.setAutoState(itemColor);
     }
   }
 
@@ -162,17 +225,21 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
       this.backgroundColor.setAutoState(backgroundColor, timing);
     }
 
-    const iconView = this.iconView();
-    if (iconView !== null) {
-      const icon = iconView.getChildView("icon");
-      if (icon instanceof SvgView) {
-        icon.fill.setAutoState(itemColor, timing);
-      }
+    const iconView = this.icon.view;
+    if (iconView instanceof HtmlIconView) {
+      iconView.iconColor.setState(itemColor, timing);
     }
 
-    const titleView = this.titleView();
-    if (titleView !== null) {
-      titleView.color.setAutoState(itemColor, timing);
+    const labelView = this.label.view;
+    if (labelView !== null) {
+      labelView.color.setAutoState(itemColor, timing);
+    }
+
+    const accessoryView = this.accessory.view;
+    if (accessoryView instanceof HtmlIconView) {
+      accessoryView.iconColor.setState(itemColor, timing);
+    } else if (accessoryView !== null) {
+      accessoryView.color.setAutoState(itemColor, timing);
     }
   }
 
@@ -190,11 +257,16 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
     super.onAnimate(viewContext);
     this.lineHeight.setAutoState(this.height.state);
     const drawerStretch = this.drawerStretch.value;
-    if (typeof drawerStretch === "number") {
-      const titleView = this.titleView();
-      if (titleView !== null) {
-        titleView.display.setAutoState(drawerStretch === 0 ? "none" : "block");
-        titleView.opacity.setAutoState(drawerStretch);
+    if (drawerStretch !== void 0) {
+      const labelView = this.label.view;
+      if (labelView !== null) {
+        labelView.display.setAutoState(drawerStretch === 0 ? "none" : "block");
+        labelView.opacity.setAutoState(drawerStretch);
+      }
+      const accessoryView = this.accessory.view;
+      if (accessoryView !== null) {
+        accessoryView.display.setAutoState(drawerStretch === 0 ? "none" : "block");
+        accessoryView.opacity.setAutoState(drawerStretch);
       }
     }
   }
@@ -210,59 +282,22 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
       const iconPadding = Math.max(0, (collapsedWidth - height) / 2);
 
       this.paddingLeft.setAutoState(Math.max(0, edgeInsets.insetLeft - iconPadding));
-      const iconView = this.iconView();
+      const iconView = this.icon.view;
       if (iconView !== null) {
         iconView.width.setAutoState(collapsedWidth);
+        iconView.height.setAutoState(this.height.state);
       }
-      const titleView = this.titleView();
-      if (titleView !== null) {
-        titleView.paddingRight.setAutoState(edgeInsets.insetRight);
+      const labelView = this.label.view;
+      const accessoryView = this.accessory.view;
+      if (accessoryView !== null) {
+        accessoryView.paddingRight.setAutoState(edgeInsets.insetRight);
+        if (labelView !== null) {
+          labelView.paddingRight.setAutoState(void 0);
+        }
+      } else if (labelView !== null) {
+        labelView.paddingRight.setAutoState(edgeInsets.insetRight);
       }
     }
-  }
-
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    super.onInsertChildView(childView, targetView);
-    const childKey = childView.key;
-    if (childKey === "icon" && childView instanceof HtmlView) {
-      this.onInsertIconView(childView);
-    } else if (childKey === "title" && childView instanceof HtmlView) {
-      this.onInsertTitleView(childView);
-    }
-  }
-
-  protected onRemoveChildView(childView: View): void {
-    const childKey = childView.key;
-    if (childKey === "icon" && childView instanceof HtmlView) {
-      this.onRemoveIconView(childView);
-    } else if (childKey === "title" && childView instanceof HtmlView) {
-      this.onRemoveTitleView(childView);
-    }
-    super.onRemoveChildView(childView);
-  }
-
-  protected onInsertIconView(iconView: HtmlView): void {
-    iconView.flexShrink.setAutoState(0);
-    const icon = iconView.getChildView("icon");
-    if (icon instanceof SvgView && icon.fill.isAuto()) {
-      icon.fill.setAutoState(this.getLook(Look.mutedColor));
-    }
-  }
-
-  protected onRemoveIconView(iconView: HtmlView): void {
-    // hook
-  }
-
-  protected onInsertTitleView(title: HtmlView): void {
-    title.flexShrink.setAutoState(0);
-    if (title.color.isAuto()) {
-      const itemColor = this.getLook(this.highlighted.state ? Look.color : Look.mutedColor);
-      title.color.setAutoState(itemColor);
-    }
-  }
-
-  protected onRemoveTitleView(title: HtmlView): void {
-    // hook
   }
 
   highlight(timing?: AnyTiming | boolean): this {
@@ -277,16 +312,19 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
       if (this.backgroundColor.isAuto()) {
         this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor));
       }
-      const iconView = this.iconView();
-      if (iconView !== null) {
-        const icon = iconView.getChildView("icon");
-        if (icon instanceof SvgView && icon.fill.isAuto()) {
-          icon.fill.setAutoState(this.getLook(Look.color), timing);
-        }
+      const iconView = this.icon.view;
+      if (iconView instanceof HtmlIconView) {
+        iconView.iconColor.setState(this.getLook(Look.color), timing);
       }
-      const titleView = this.titleView();
-      if (titleView !== null && titleView.color.isAuto()) {
-        titleView.color.setAutoState(this.getLook(Look.color), timing);
+      const labelView = this.label.view;
+      if (labelView !== null && labelView.color.isAuto()) {
+        labelView.color.setAutoState(this.getLook(Look.color), timing);
+      }
+      const accessoryView = this.accessory.view;
+      if (accessoryView instanceof HtmlIconView) {
+        accessoryView.iconColor.setState(this.getLook(Look.color), timing);
+      } else if (accessoryView !== null && accessoryView.color.isAuto()) {
+        accessoryView.color.setAutoState(this.getLook(Look.color), timing);
       }
     }
     return this;
@@ -308,16 +346,19 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
         }
         this.backgroundColor.setAutoState(backgroundColor, timing);
       }
-      const iconView = this.iconView();
-      if (iconView !== null) {
-        const icon = iconView.getChildView("icon");
-        if (icon instanceof SvgView) {
-          icon.fill.setAutoState(this.getLook(Look.mutedColor), timing);
-        }
+      const iconView = this.icon.view;
+      if (iconView instanceof HtmlIconView) {
+        iconView.iconColor.setState(this.getLook(Look.mutedColor), timing);
       }
-      const titleView = this.titleView();
-      if (titleView !== null && titleView.color.isAuto()) {
-        titleView.color.setAutoState(this.getLook(Look.mutedColor), timing);
+      const labelView = this.label.view;
+      if (labelView !== null && labelView.color.isAuto()) {
+        labelView.color.setAutoState(this.getLook(Look.mutedColor), timing);
+      }
+      const accessoryView = this.accessory.view;
+      if (accessoryView instanceof HtmlIconView) {
+        accessoryView.iconColor.setState(this.getLook(Look.mutedColor), timing);
+      } else if (accessoryView !== null && accessoryView.color.isAuto()) {
+        accessoryView.color.setAutoState(this.getLook(Look.mutedColor), timing);
       }
     }
     return this;
