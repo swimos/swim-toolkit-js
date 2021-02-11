@@ -17,4 +17,6 @@ import type {DrawingContext} from "./DrawingContext";
 
 export abstract class DrawingRenderer extends GraphicsRenderer {
   abstract readonly context: DrawingContext;
+
+  abstract readonly pixelRatio: number;
 }

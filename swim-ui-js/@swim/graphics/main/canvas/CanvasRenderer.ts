@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DrawingRenderer} from "../drawing/DrawingRenderer";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import {PaintingRenderer} from "../painting/PaintingRenderer";
 import type {CanvasContext} from "./CanvasContext";
 
-export class CanvasRenderer extends DrawingRenderer {
-  constructor(context: CanvasContext, pixelRatio?: number) {
+export class CanvasRenderer extends PaintingRenderer {
+  constructor(context: CanvasContext, pixelRatio: number,
+              theme: ThemeMatrix | null | undefined,
+              mood: MoodVector | null | undefined) {
     super();
     Object.defineProperty(this, "context", {
       value: context,
@@ -24,7 +27,17 @@ export class CanvasRenderer extends DrawingRenderer {
       configurable: true,
     });
     Object.defineProperty(this, "pixelRatio", {
-      value: pixelRatio !== void 0 ? pixelRatio : window.devicePixelRatio || 1,
+      value: pixelRatio,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "theme", {
+      value: theme !== void 0 ? theme : null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "mood", {
+      value: mood !== void 0 ? mood : null,
       enumerable: true,
       configurable: true,
     });
@@ -33,4 +46,8 @@ export class CanvasRenderer extends DrawingRenderer {
   declare readonly context: CanvasContext;
 
   declare readonly pixelRatio: number;
+
+  declare readonly theme: ThemeMatrix | null;
+
+  declare readonly mood: MoodVector | null;
 }

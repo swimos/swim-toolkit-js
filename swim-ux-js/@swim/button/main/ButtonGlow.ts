@@ -96,7 +96,7 @@ export class ButtonGlow extends HtmlView {
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
-      let highlightColor = theme.inner(mood, Look.highlightColor);
+      let highlightColor = theme.dot(Look.highlightColor, mood);
       if (highlightColor !== void 0) {
         highlightColor = highlightColor.alpha(1);
       }

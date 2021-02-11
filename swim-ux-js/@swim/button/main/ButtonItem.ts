@@ -64,7 +64,7 @@ export class ButtonItem extends HtmlView {
     super.onApplyTheme(theme, mood, timing);
     const label = this.label;
     if (label !== null && label.color.isAuto()) {
-      label.color.setAutoState(theme.inner(mood, Look.mutedColor), timing);
+      label.color.setAutoState(theme.dot(Look.mutedColor, mood), timing);
     }
   }
 

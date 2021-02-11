@@ -850,7 +850,7 @@ export abstract class GraphicsView extends View {
         mood = this.mood.state;
       }
       if (mood !== void 0) {
-        value = theme.inner(mood, look);
+        value = theme.dot(look, mood);
       }
     }
     return value;
@@ -864,7 +864,7 @@ export abstract class GraphicsView extends View {
         mood = this.mood.state;
       }
       if (mood !== void 0) {
-        value = theme.inner(mood, look);
+        value = theme.dot(look, mood);
       }
     }
     if (value === void 0) {
@@ -906,7 +906,7 @@ export abstract class GraphicsView extends View {
           }
         }
         if (superMood !== void 0) {
-          const mood = moodModifier.transform(superMood, true);
+          const mood = moodModifier.timesCol(superMood, true);
           this.mood.setAutoState(mood);
         }
       } else {
@@ -1617,8 +1617,12 @@ export abstract class GraphicsView extends View {
   }
 
   hitTest(x: number, y: number, viewContext: ViewContext): GraphicsView | null {
-    const extendedViewContext = this.extendViewContext(viewContext);
-    return this.doHitTest(x, y, extendedViewContext);
+    if (!this.isHidden() && !this.isCulled()) {
+      const extendedViewContext = this.extendViewContext(viewContext);
+      return this.doHitTest(x, y, extendedViewContext);
+    } else {
+      return null;
+    }
   }
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {

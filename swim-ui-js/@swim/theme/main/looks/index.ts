@@ -23,6 +23,7 @@ import {TimingLook} from "../look/TimingLook";
 Look.font = new FontLook("font");
 
 Look.color = new ColorLook("color");
+Look.iconColor = new ColorLook("iconColor");
 Look.statusColor = new ColorLook("statusColor");
 Look.accentColor = new ColorLook("accentColor");
 Look.mutedColor = new ColorLook("mutedColor");
@@ -30,8 +31,6 @@ Look.neutralColor = new ColorLook("neutralColor");
 Look.highlightColor = new ColorLook("highlightColor");
 
 Look.backgroundColor = new ColorLook("backgroundColor");
-Look.lowContrastColor = new ColorLook("lowContrastColor");
-Look.highContrastColor = new ColorLook("highContrastColor");
 Look.borderColor = new ColorLook("borderColor");
 
 Look.opacity = new NumberLook("opacity");

@@ -14,7 +14,7 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = uiView.append("canvas")
+const canvas = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
@@ -68,6 +68,8 @@ for (let i = 0; i < n; i += 1) {
   const bubble = swim.DataPointView.fromAny({x: x, y: y, r: r, color: "#4a4a4a", opacity: opacity});
   plot.insertDataPoint(bubble, key);
 }
+
+uiView.append(canvas);
 
 setInterval(function () {
   const timing = swim.Easing.linear.withDuration(2000);

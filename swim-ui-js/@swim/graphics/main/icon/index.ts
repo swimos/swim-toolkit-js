@@ -14,24 +14,25 @@
 
 export {Icon} from "./Icon";
 
-export {IconPath} from "./IconPath";
+export {VectorIcon} from "./VectorIcon";
+export {VectorIconInterpolator} from "./VectorIconInterpolator";
 
 export {PolygonIcon} from "./PolygonIcon";
+export {PolygonIconInterpolator} from "./PolygonIconInterpolator";
+
+export {EnclosedIcon} from "./EnclosedIcon";
+export {EnclosedIconInterpolator} from "./EnclosedIconInterpolator";
 
 export {
   IconViewInit,
   IconView,
 } from "./IconView";
+export {IconViewAnimator} from "./IconViewAnimator";
 
 export {
   GraphicsIconViewInit,
   GraphicsIconView,
 } from "./GraphicsIconView";
-
-export {
-  SvgIconPathViewInit,
-  SvgIconPathView,
-} from "./SvgIconPathView";
 
 export {
   SvgIconViewInit,

@@ -25,14 +25,13 @@ import {ThemeMatrix} from "../theme/ThemeMatrix";
 const DarkFont = Font.parse("14px -apple-system, system-ui, sans-serif");
 
 const DarkColor = Color.parse("#d8d8d8");
+const DarkIconColor = Color.parse("#e7e6e7");
 const DarkAccentColor = Color.parse("#6c6d6e");
 const DarkMutedColor = Color.parse("#989898");
 const DarkNeutralColor = Color.parse("#808080");
 const DarkHighlightColor = Color.white(0.1);
 
 const DarkBackgroundColor = Color.parse("#1e2022");
-const DarkLowContrastColor = Color.parse("#4a4a4a");
-const DarkHighContrastColor = Color.parse("#e7e6e7");
 const DarkBorderColor = DarkBackgroundColor.lighter(2 / 3);
 
 const DarkPrimaryColor = Color.parse("#66ffdd");
@@ -51,6 +50,7 @@ const DarkAmbient = FeelVector.of(
   [Look.font, DarkFont],
 
   [Look.color, DarkColor],
+  [Look.iconColor, DarkIconColor],
   [Look.statusColor, DarkColor],
   [Look.accentColor, DarkAccentColor],
   [Look.mutedColor, DarkMutedColor],
@@ -58,8 +58,6 @@ const DarkAmbient = FeelVector.of(
   [Look.highlightColor, DarkHighlightColor],
 
   [Look.backgroundColor, DarkBackgroundColor],
-  [Look.lowContrastColor, DarkLowContrastColor],
-  [Look.highContrastColor, DarkHighContrastColor],
   [Look.borderColor, DarkBorderColor],
 
   [Look.spacing, DarkSpacing],
@@ -70,6 +68,7 @@ const DarkDefault = FeelVector.of(
   [Look.font, DarkFont],
 
   [Look.color, DarkColor],
+  [Look.iconColor, DarkIconColor],
   [Look.statusColor, DarkColor],
   [Look.accentColor, DarkAccentColor],
   [Look.mutedColor, DarkMutedColor],
@@ -77,8 +76,6 @@ const DarkDefault = FeelVector.of(
   [Look.highlightColor, DarkHighlightColor],
 
   [Look.backgroundColor, DarkBackgroundColor],
-  [Look.lowContrastColor, DarkLowContrastColor],
-  [Look.highContrastColor, DarkHighContrastColor],
   [Look.borderColor, DarkBorderColor],
 
   [Look.spacing, DarkSpacing],
@@ -99,6 +96,7 @@ const DarkSelected = FeelVector.of(
 
 const DarkDisabled = FeelVector.of(
   [Look.color, DarkDisabledColor],
+  [Look.iconColor, DarkDisabledColor],
   [Look.statusColor, DarkDisabledColor],
   [Look.accentColor, DarkDisabledColor],
 );

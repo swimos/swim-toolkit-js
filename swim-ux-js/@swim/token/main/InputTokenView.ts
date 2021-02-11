@@ -121,7 +121,7 @@ export class InputTokenView extends TokenView {
   declare label: ViewRelation<this, HtmlView>;
 
   /** @hidden */
-  get placeholderColorLook(): Look<Color> {
+  get placeholderLook(): Look<Color> {
     return Look.mutedColor;
   }
 
@@ -132,13 +132,13 @@ export class InputTokenView extends TokenView {
     if (styleView !== null) {
       const placeholder = styleView.getCssRule("placeholder") as StyleRule<StyleSheet> | null;
       if (placeholder !== null) {
-        placeholder.color.setAutoState(theme.inner(mood, this.placeholderColorLook), timing);
+        placeholder.color.setAutoState(theme.dot(this.placeholderLook, mood), timing);
       }
     }
 
     const labelView = this.label.view;
     if (labelView !== null) {
-      const font = theme.inner(mood, Look.font);
+      const font = theme.dot(Look.font, mood);
       if (font !== void 0) {
         if (font.style !== void 0) {
           labelView.fontStyle.setAutoState(font.style);

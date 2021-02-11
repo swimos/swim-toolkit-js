@@ -174,10 +174,8 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     return MoodMatrix.fromColArray(newColArray, this.colIndex);
   }
 
-  inner(that: MoodVector<N>, rowKey: M): number | undefined;
-  inner(that: MoodVector<N>, rowKey: string): number | undefined;
-  inner(that: MoodVector<N>, rowKey: number): number | undefined;
-  inner(that: MoodVector<N>, rowKey: M | string | number | undefined): number | undefined {
+  dot(rowKey: M | string | number, col: MoodVector<N>): number | undefined;
+  dot(rowKey: M | string | number | undefined, col: MoodVector<N>): number | undefined {
     if (typeof rowKey === "object" && rowKey !== null || typeof rowKey === "function") {
       rowKey = rowKey.name;
     }
@@ -188,71 +186,66 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     if (entry !== void 0) {
       rowKey = entry[0];
       const row = entry[1];
-      return row.dot(that);
+      return row.dot(col);
     }
     return void 0;
   }
 
-  transform(that: MoodVector<N>): MoodVector<M>;
-  transform(that: MoodVector<M & N>, implicitIdentity?: boolean): MoodVector<M | M>;
-  transform(that: MoodMatrix<N, N>, implicitIdentity?: boolean): MoodMatrix<M, N>;
-  transform(that: MoodVector<N> | MoodVector<M & N> | MoodMatrix<N, N>,
-            implicitIdentity?: boolean): MoodVector<M> | MoodVector<M | N> | MoodMatrix<M, N> {
-    if (that instanceof MoodVector) {
-      if (implicitIdentity !== true) {
-        return this.transformVector(that);
-      } else {
-        return this.transformVectorIdentity(that as MoodVector<M & N>);
-      }
-    } else if (that instanceof MoodMatrix) {
-      return this.transformMatrix(that, implicitIdentity);
-    } else {
-      throw new TypeError("" + that);
-    }
-  }
-
-  /** @hidden */
-  transformVector(that: MoodVector<N>): MoodVector<M> {
+  timesCol(col: MoodVector<N>): MoodVector<M>;
+  timesCol(col: MoodVector<M & N>, implicitIdentity?: boolean): MoodVector<M | M>;
+  timesCol(col: MoodVector<M & N>, implicitIdentity: boolean = false): MoodVector<M | N> {
     const rowArray = this.rowArray;
     const newArray = new Array<[M, number]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, m = rowArray.length; i < m; i += 1) {
       const [rowKey, row] = rowArray[i]!;
-      const value = row.dot(that);
+      const value = row.dot(col);
       if (value !== void 0) {
         newIndex[rowKey.name] = newArray.length;
         newArray.push([rowKey, value]);
       }
     }
+    if (implicitIdentity) {
+      const thatArray = col.array;
+      for (let i = 0, m = thatArray.length; i < m; i += 1) {
+        const rowKey = thatArray[i]![0];
+        if (!this.hasRow(rowKey)) {
+          newIndex[rowKey.name] = newArray.length;
+          newArray.push(thatArray[i]!);
+        }
+      }
+    }
     return MoodVector.fromArray(newArray, newIndex);
   }
 
-  /** @hidden */
-  transformVectorIdentity(that: MoodVector<M & N>): MoodVector<M | N> {
-    const rowArray = this.rowArray;
-    const newArray = new Array<[M & N, number]>();
+  timesRow(row: MoodVector<M>): MoodVector<N>;
+  timesRow(row: MoodVector<M & N>, implicitIdentity?: boolean): MoodVector<M | M>;
+  timesRow(row: MoodVector<M & N>, implicitIdentity: boolean = false): MoodVector<M | N> {
+    const colArray = this.colArray;
+    const newArray = new Array<[N, number]>();
     const newIndex: {[name: string]: number | undefined} = {};
-    for (let i = 0, m = rowArray.length; i < m; i += 1) {
-      const [rowKey, row] = rowArray[i]!;
-      const value = row.dot(that);
+    for (let i = 0, n = colArray.length; i < n; i += 1) {
+      const [colKey, col] = colArray[i]!;
+      const value = row.dot(col as MoodVector<M & N>);
       if (value !== void 0) {
-        newIndex[rowKey.name] = newArray.length;
-        newArray.push([rowKey as M & N, value]);
+        newIndex[colKey.name] = newArray.length;
+        newArray.push([colKey, value]);
       }
     }
-    const thatArray = that.array;
-    for (let i = 0, m = thatArray.length; i < m; i += 1) {
-      const rowKey = thatArray[i]![0];
-      if (!this.hasRow(rowKey)) {
-        newIndex[rowKey.name] = newArray.length;
-        newArray.push(thatArray[i]!);
+    if (implicitIdentity) {
+      const thatArray = row.array;
+      for (let i = 0, n = thatArray.length; i < n; i += 1) {
+        const colKey = thatArray[i]![0];
+        if (!this.hasCol(colKey)) {
+          newIndex[colKey.name] = newArray.length;
+          newArray.push(thatArray[i]!);
+        }
       }
     }
     return MoodVector.fromArray(newArray, newIndex);
   }
 
-  /** @hidden */
-  transformMatrix(that: MoodMatrix<N, N>, implicitIdentity: boolean = true): MoodMatrix<M, N> {
+  transform(that: MoodMatrix<N, N>, implicitIdentity: boolean = true): MoodMatrix<M, N> {
     const thisRowArray = this.rowArray;
     const thisColArray = this.colArray;
     const newRowArray = new Array<[M, MoodVector<N>]>();

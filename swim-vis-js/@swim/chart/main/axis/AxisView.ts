@@ -340,16 +340,19 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     const scale = this.scale.value;
     let tickGenerator = this.tickGenerator.state;
     if (origin !== void 0 && scale !== void 0 && tickGenerator !== null) {
+      let timing: Timing | boolean = this.tickTransition.state;
       if (tickGenerator === true) {
         tickGenerator = TickGenerator.fromScale(scale);
         this.tickGenerator.setState(tickGenerator);
+        timing = false;
       }
-      this.generateTicks(tickGenerator, scale);
+      this.generateTicks(tickGenerator, scale, timing);
     }
   }
 
   protected generateTicks(tickGenerator: TickGenerator<D>,
-                          scale: ContinuousScale<D, number>): void {
+                          scale: ContinuousScale<D, number>,
+                          timing: Timing | boolean): void {
     const tickMarkSpacing = this.tickMarkSpacing.getValue();
     if (tickMarkSpacing !== 0) {
       const range = scale.range;
@@ -361,13 +364,12 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
     const oldTicks = this.ticks.clone();
     const tickValues = tickGenerator.generate();
-    const tickTransition = this.tickTransition.state;
     for (let i = 0, n = tickValues.length; i < n; i += 1) {
       const tickValue = tickValues[i]!;
       const oldTick = oldTicks.get(tickValue);
       if (oldTick !== void 0) {
         oldTicks.delete(tickValue);
-        oldTick.fadeIn(tickTransition);
+        oldTick.fadeIn(timing);
       } else {
         const newTick = this.createTickView(tickValue);
         if (newTick !== null) {
@@ -382,13 +384,13 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
             enumerable: true,
             configurable: true,
           });
-          newTick.fadeIn(tickTransition);
+          newTick.fadeIn(timing);
         }
       }
     }
     oldTicks.forEachValue(function (oldTick: TickView<D>): void {
       if (!oldTick.preserved) {
-        oldTick.fadeOut(tickTransition);
+        oldTick.fadeOut(timing);
       }
     }, this);
   }
@@ -441,50 +443,18 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
-  protected onRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
-    super.onRequireUpdate(updateFlags, immediate);
-    const parentView = this.parentView;
-    if (parentView !== null) {
-      parentView.requireUpdate(updateFlags & View.NeedsAnimate);
-    }
-  }
-
-  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((processFlags & View.NeedsLayout) !== 0) {
-      processFlags |= View.NeedsAnimate;
-    }
-    return processFlags;
-  }
-
-  protected willAnimate(viewContext: ViewContextType<this>): void {
-    super.willAnimate(viewContext);
-    this.updateTicks();
-  }
-
-  protected didAnimate(viewContext: ViewContextType<this>): void {
-    // We don't need to run the layout phase unless the view frame changes
-    // between now and the display pass.
-    this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
-    super.didAnimate(viewContext);
-  }
-
-  protected willProcessChildView(childView: View, processFlags: ViewFlags,
-                                 viewContext: ViewContextType<this>): void {
-    super.willProcessChildView(childView, processFlags, viewContext);
-    if ((processFlags & View.NeedsAnimate) !== 0 && childView instanceof TickView) {
-      const origin = this.origin.value;
-      const scale = this.scale.value;
-      if (origin !== void 0 && scale !== void 0) {
-        this.layoutTick(childView, origin, this.viewFrame, scale);
-      }
-    }
-  }
-
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this.viewFlags & View.NeedsLayout) === 0) {
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
+  }
+
+  protected willDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
+    super.willDisplay(displayFlags, viewContext);
+    if (this.scale.isInherited() && this.scale.isAnimating()) {
+      this.scale.onAnimate(viewContext.updateTime);
+    }
   }
 
   protected onLayout(viewContext: ViewContextType<this>): void {
@@ -600,7 +570,4 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
     throw new TypeError("" + value);
   }
-
-  static readonly insertChildFlags: ViewFlags = GraphicsView.insertChildFlags | View.NeedsAnimate;
-  static readonly removeChildFlags: ViewFlags = GraphicsView.removeChildFlags | View.NeedsAnimate;
 }

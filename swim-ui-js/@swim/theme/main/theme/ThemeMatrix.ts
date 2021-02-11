@@ -19,7 +19,7 @@ import {AnyLookVector, LookVector} from "../look/LookVector";
 import type {Feel} from "../feel/Feel";
 import {AnyFeelVector, FeelVector} from "../feel/FeelVector";
 import {MoodVector} from "../mood/MoodVector";
-import {MoodMatrix} from "../mood/MoodMatrix";
+import type {MoodMatrix} from "../mood/MoodMatrix";
 
 export class ThemeMatrix implements Equals, Debug {
   constructor(rowArray: ReadonlyArray<[Look<unknown>, LookVector<unknown>]>,
@@ -64,9 +64,9 @@ export class ThemeMatrix implements Equals, Debug {
     return this.colArray.length;
   }
 
-  hasRow(look: Look<any>): boolean;
+  hasRow(look: Look<unknown>): boolean;
   hasRow(name: string): boolean;
-  hasRow(look: Look<any> | string): boolean {
+  hasRow(look: Look<unknown> | string): boolean {
     if (typeof look === "object" && look !== null || typeof look === "function") {
       look = look.name;
     }
@@ -82,10 +82,10 @@ export class ThemeMatrix implements Equals, Debug {
     return this.colIndex[feel] !== void 0;
   }
 
-  getRow<T>(look: Look<T, any>): LookVector<T> | undefined;
+  getRow<T>(look: Look<T>): LookVector<T> | undefined;
   getRow(name: string): LookVector<unknown> | undefined;
   getRow(index: number): LookVector<unknown> | undefined;
-  getRow<T>(look: Look<T, any> | string | number | undefined): LookVector<unknown> | undefined {
+  getRow<T>(look: Look<T> | string | number | undefined): LookVector<unknown> | undefined {
     if (typeof look === "object" && look !== null || typeof look === "function") {
       look = look.name;
     }
@@ -177,10 +177,9 @@ export class ThemeMatrix implements Equals, Debug {
     return ThemeMatrix.fromColArray(newColArray, this.colIndex);
   }
 
-  inner<T>(that: MoodVector, look: Look<T, any>): T | undefined;
-  inner(that: MoodVector, look: string): unknown | undefined;
-  inner(that: MoodVector, look: number): unknown | undefined;
-  inner(that: MoodVector, look: Look<unknown, any> | string | number | undefined): unknown | undefined {
+  dot<T>(look: Look<T>, col: MoodVector): T | undefined;
+  dot(look: string | number, col: MoodVector): unknown | undefined;
+  dot(look: Look<unknown> | string | number | undefined, col: MoodVector): unknown | undefined {
     if (typeof look === "object" && look !== null || typeof look === "function") {
       look = look.name;
     }
@@ -191,32 +190,18 @@ export class ThemeMatrix implements Equals, Debug {
     if (entry !== void 0) {
       look = entry[0];
       const row = entry[1];
-      return look.dot(row, that);
+      return look.dot(row, col);
     }
     return void 0;
   }
 
-  transform(that: MoodVector): FeelVector;
-  transform(that: MoodMatrix, implicitIdentity?: boolean): ThemeMatrix;
-  transform(that: MoodVector | MoodMatrix,
-            implicitIdentity?: boolean): FeelVector | ThemeMatrix {
-    if (that instanceof MoodVector) {
-      return this.transformVector(that);
-    } else if (that instanceof MoodMatrix) {
-      return this.transformMatrix(that, implicitIdentity);
-    } else {
-      throw new TypeError("" + that);
-    }
-  }
-
-  /** @hidden */
-  transformVector(that: MoodVector): FeelVector {
+  timesCol(col: MoodVector): FeelVector {
     const rowArray = this.rowArray;
     const newArray = new Array<[Look<unknown>, unknown]>();
     const newIndex: {[name: string]: number | undefined} = {};
     for (let i = 0, m = rowArray.length; i < m; i += 1) {
       const [look, row] = rowArray[i]!;
-      const value = look.dot(row, that);
+      const value = look.dot(row, col);
       if (value !== void 0) {
         newIndex[look.name] = newArray.length;
         newArray.push([look, value]);
@@ -225,8 +210,7 @@ export class ThemeMatrix implements Equals, Debug {
     return FeelVector.fromArray(newArray, newIndex);
   }
 
-  /** @hidden */
-  transformMatrix(that: MoodMatrix, implicitIdentity: boolean = true): ThemeMatrix {
+  transform(that: MoodMatrix, implicitIdentity: boolean = true): ThemeMatrix {
     const thisRowArray = this.rowArray;
     const thisColArray = this.colArray;
     const newRowArray = new Array<[Look<unknown>, LookVector<unknown>]>();

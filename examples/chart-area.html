@@ -14,7 +14,7 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = uiView.append("canvas")
+const canvas = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
@@ -53,6 +53,8 @@ for (let i = 0, n = cycles * samples; i <= n; i += 1) {
   const opacity = i === 0 ? 0.75 : i === n ? 0.25 : void 0;
   plot.insertDataPoint({x: x, y: y, y2: y2, opacity: opacity});
 }
+
+uiView.append(canvas);
 
     </script>
   </body>

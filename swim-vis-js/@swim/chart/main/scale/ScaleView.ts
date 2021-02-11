@@ -201,7 +201,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     extends: ScaleViewAnimator,
     type: ContinuousScale,
     inherit: true,
-    updateFlags: View.NeedsAnimate,
+    updateFlags: View.NeedsAnimate | View.NeedsLayout,
     onBegin(xScale: ContinuousScale<X, number>): void {
       if ((this.owner.scaleFlags & ScaleView.XFittingFlag) !== 0) {
         this.owner.onBeginFittingXScale(xScale);
@@ -233,7 +233,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
     extends: ScaleViewAnimator,
     type: ContinuousScale,
     inherit: true,
-    updateFlags: View.NeedsAnimate,
+    updateFlags: View.NeedsAnimate | View.NeedsLayout,
     onBegin(yScale: ContinuousScale<Y, number>): void {
       if ((this.owner.scaleFlags & ScaleView.YFittingFlag) !== 0) {
         this.owner.onBeginFittingYScale(yScale);
@@ -802,7 +802,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((processFlags & View.NeedsLayout) !== 0) {
+    if ((processFlags & (View.NeedsResize | View.NeedsLayout)) !== 0) {
       processFlags |= View.NeedsAnimate;
     }
     return processFlags;
@@ -811,7 +811,6 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
   protected willResize(viewContext: ViewContextType<this>): void {
     super.willResize(viewContext);
     this.resizeScales(this.viewFrame);
-    this.setScaleFlags(this.scaleFlags | ScaleView.RescaleFlag);
   }
 
   /**
@@ -819,9 +818,10 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
    * from child view data domains if inherited x/y scales are undefined.
    */
   protected resizeScales(frame: BoxR2): void {
+    let xScale: ContinuousScale<X, number> | undefined;
     const xRange = this.xRange();
     if (xRange !== void 0) {
-      const xScale = !this.xScale.isInherited() ? this.xScale.ownValue : void 0;
+      xScale = !this.xScale.isInherited() ? this.xScale.ownValue : void 0;
       if (xScale !== void 0 && !Values.equal(xScale.range, xRange)) {
         this.xScale.setRange(xRange);
         this.requireUpdate(View.NeedsAnimate);
@@ -829,16 +829,17 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       } else if (this.xScale.superValue === void 0) {
         const xDataDomain = this.getXDataDomain();
         if (xDataDomain !== void 0) {
-          const xScale = ScaleView.createScale(xDataDomain[0], xDataDomain[1], xRange[0], xRange[1]);
+          xScale = ScaleView.createScale(xDataDomain[0], xDataDomain[1], xRange[0], xRange[1]);
           this.xScale.setState(xScale);
           this.setScaleFlags(this.scaleFlags | ScaleView.XFitFlag);
         }
       }
     }
 
+    let yScale: ContinuousScale<Y, number> | undefined;
     const yRange = this.yRange();
     if (yRange !== void 0) {
-      const yScale = !this.yScale.isInherited() ? this.yScale.ownValue : void 0;
+      yScale = !this.yScale.isInherited() ? this.yScale.ownValue : void 0;
       if (yScale !== void 0 && !Values.equal(yScale.range, yRange)) {
         this.yScale.setRange(yRange[1], yRange[0]);
         this.requireUpdate(View.NeedsAnimate);
@@ -846,7 +847,7 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       } else if (this.yScale.superValue === void 0) {
         const yDataDomain = this.getYDataDomain();
         if (yDataDomain !== void 0) {
-          const yScale = ScaleView.createScale(yDataDomain[0], yDataDomain[1], yRange[1], yRange[0]);
+          yScale = ScaleView.createScale(yDataDomain[0], yDataDomain[1], yRange[1], yRange[0]);
           this.yScale.setState(yScale);
           this.setScaleFlags(this.scaleFlags | ScaleView.YFitFlag);
         }
@@ -864,6 +865,16 @@ export abstract class ScaleView<X = unknown, Y = unknown> extends LayerView
       displayFlags &= ~View.NeedsLayout;
     }
     return displayFlags;
+  }
+
+  protected willDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
+    super.willDisplay(displayFlags, viewContext);
+    if (this.xScale.isInherited() && this.xScale.isAnimating()) {
+      this.xScale.onAnimate(viewContext.updateTime);
+    }
+    if (this.yScale.isInherited() && this.yScale.isAnimating()) {
+      this.yScale.onAnimate(viewContext.updateTime);
+    }
   }
 
   protected updateScales(): void {

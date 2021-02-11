@@ -15,14 +15,16 @@
 import type {Timing} from "@swim/mapping";
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewAnimator} from "@swim/view";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import type {Graphics} from "../graphics/Graphics";
 import type {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
 import type {GraphicsViewController} from "../graphics/GraphicsViewController";
 import {LayerView} from "../layer/LayerView";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
+import {Icon} from "./Icon";
 import {IconViewInit, IconView} from "./IconView";
+import {IconViewAnimator} from "./IconViewAnimator";
 
 export interface GraphicsIconViewInit extends GraphicsViewInit, IconViewInit {
   viewController?: GraphicsViewController;
@@ -34,34 +36,33 @@ export class GraphicsIconView extends LayerView implements IconView {
     IconView.initView(this, init);
   }
 
-  @ViewAnimator({type: Number})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
   declare xAlign: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Number})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
   declare yAlign: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Length})
+  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout})
   declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewAnimator({type: Length})
+  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout})
   declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewAnimator({type: Color})
+  @ViewAnimator({type: Color, updateFlags: View.NeedsLayout})
   declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewAnimator({type: Object})
+  @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsLayout})
   declare graphics: ViewAnimator<this, Graphics | undefined>;
-
-  /** @hidden */
-  get iconColorLook(): Look<Color> {
-    return Look.highContrastColor;
-  }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (this.iconColor.isAuto() && !this.iconColor.isInherited()) {
-      this.iconColor.setAutoState(theme.inner(mood, this.iconColorLook), timing);
+    if (!this.graphics.isInherited()) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof Icon) {
+        const newGraphics = oldGraphics.withTheme(theme, mood);
+        this.graphics.setOwnState(newGraphics, oldGraphics.isThemed() ? timing : false);
+      }
     }
   }
 
@@ -86,9 +87,6 @@ export class GraphicsIconView extends LayerView implements IconView {
         context.fillStyle = iconColor.toString();
       }
       graphics.render(renderer, frame);
-      if (iconColor !== void 0) {
-        context.fill();
-      }
     }
   }
 

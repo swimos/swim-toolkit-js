@@ -25,7 +25,7 @@ export class TopAxisView<X = unknown> extends AxisView<X> {
     return "top";
   }
 
-  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: "xScale", updateFlags: View.NeedsAnimate})
+  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: "xScale", updateFlags: View.NeedsLayout})
   declare scale: ScaleViewAnimator<this, X, number>;
 
   protected layoutTick(tick: TickView<X>, origin: PointR2, frame: BoxR2,

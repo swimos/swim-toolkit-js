@@ -1133,7 +1133,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
 
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
     if (timing === void 0 || timing === true) {
-      timing = theme.inner(Mood.ambient, Look.timing);
+      timing = theme.dot(Look.timing, Mood.ambient);
       if (timing === void 0) {
         timing = false;
       }

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Lazy} from "@swim/util";
-import {Graphics, IconPath} from "@swim/graphics";
+import {Graphics, VectorIcon} from "@swim/graphics";
 import {IconButton} from "@swim/button";
 import type {DrawerView} from "./DrawerView";
 
@@ -57,6 +57,6 @@ export class DrawerButton extends IconButton {
 
   @Lazy
   static get hamburgerIcon(): Graphics {
-    return IconPath.create(24, 24, "M21,17L21,19L3,19L3,17L21,17ZM21,11L21,13L3,13L3,11L21,11ZM3,5L3,7L21,7L21,5L3,5Z");
+    return VectorIcon.create(24, 24, "M21,17L21,19L3,19L3,17L21,17ZM21,11L21,13L3,13L3,11L21,11ZM3,5L3,7L21,7L21,5L3,5Z");
   }
 }

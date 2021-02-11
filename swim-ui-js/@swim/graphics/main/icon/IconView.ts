@@ -17,7 +17,6 @@ import type {AnyColor, Color} from "@swim/color";
 import {ViewInit, View, ViewAnimator} from "@swim/view";
 import type {Graphics} from "../graphics/Graphics";
 import {GraphicsIconView} from "../"; // forward import
-import {SvgIconPathView} from "../"; // forward import
 import {SvgIconView} from "../"; // forward import
 import {HtmlIconView} from "../"; // forward import
 
@@ -54,7 +53,6 @@ IconView.is = function (object: unknown): object is IconView {
   if (typeof object === "object" && object !== null) {
     const view = object as IconView;
     return view instanceof GraphicsIconView
-        || view instanceof SvgIconPathView
         || view instanceof SvgIconView
         || view instanceof HtmlIconView
         || view instanceof View

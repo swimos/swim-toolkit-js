@@ -215,7 +215,7 @@ export class MenuItem extends ButtonMembrane implements PositionGestureDelegate 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    const itemColor = theme.inner(mood, this.highlighted.state ? Look.color : Look.mutedColor);
+    const itemColor = theme.dot(this.highlighted.state ? Look.color : Look.mutedColor, mood);
 
     if (this.backgroundColor.isAuto()) {
       let backgroundColor = this.getLook(Look.backgroundColor);

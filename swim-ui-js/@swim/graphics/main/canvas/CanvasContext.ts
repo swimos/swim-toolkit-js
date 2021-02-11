@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {DrawingContext} from "../drawing/DrawingContext";
+import type {PaintingContext} from "../painting/PaintingContext";
 
 export type CanvasCompositeOperation = "source-over"
                                      | "source-in"
@@ -41,7 +41,7 @@ export type CanvasCompositeOperation = "source-over"
                                      | "color"
                                      | "luminosity";
 
-export interface CanvasContext extends DrawingContext {
+export interface CanvasContext extends PaintingContext {
   save(): void;
   restore(): void;
 

@@ -100,7 +100,7 @@ export class MapRasterView extends MapLayerView {
     if (rendererType === "canvas") {
       const context = this.canvas.getContext("2d");
       if (context !== null) {
-        return new CanvasRenderer(context, this.pixelRatio);
+        return new CanvasRenderer(context, this.pixelRatio, this.theme.state, this.mood.state);
       } else {
         throw new Error("Failed to create canvas rendering context");
       }

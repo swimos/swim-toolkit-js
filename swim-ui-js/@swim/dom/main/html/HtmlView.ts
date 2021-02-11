@@ -306,7 +306,7 @@ export class HtmlView extends ElementView {
   /** @hidden */
   applyRootTheme(theme: ThemeMatrix, mood: MoodVector,
                  timing: Timing | boolean): void {
-    const font = theme.inner(Mood.ambient, Look.font);
+    const font = theme.dot(Look.font, Mood.ambient);
     if (font !== void 0) {
       if (font.style !== void 0) {
         this.fontStyle.setAutoState(font.style);
@@ -328,8 +328,8 @@ export class HtmlView extends ElementView {
       }
       this.fontFamily.setAutoState(font.family);
     }
-    this.backgroundColor.setAutoState(theme.inner(Mood.ambient, Look.backgroundColor), timing);
-    this.color.setAutoState(theme.inner(Mood.ambient, Look.color), timing);
+    this.backgroundColor.setAutoState(theme.dot(Look.backgroundColor, Mood.ambient), timing);
+    this.color.setAutoState(theme.dot(Look.color, Mood.ambient), timing);
   }
 
   isPositioned(): boolean {

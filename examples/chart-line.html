@@ -14,7 +14,7 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = uiView.append("canvas")
+const canvas = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
@@ -61,6 +61,8 @@ while (i <= n) {
   plot.insertDataPoint({x: x, y: y});
   i += 1;
 }
+
+uiView.append(canvas);
 
 //setTimeout(function () {
 //  chart.xDomain(0, Math.PI, {dt: 10000, easing: "cubic-in-out"});

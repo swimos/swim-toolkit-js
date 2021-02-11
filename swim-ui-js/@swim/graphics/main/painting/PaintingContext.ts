@@ -12,22 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DrawingRenderer} from "../drawing/DrawingRenderer";
-import type {PathContext} from "./PathContext";
+import type {DrawingContext} from "../drawing/DrawingContext";
 
-export class PathRenderer extends DrawingRenderer {
-  constructor(context: PathContext) {
-    super();
-    Object.defineProperty(this, "context", {
-      value: context,
-      enumerable: true,
-      configurable: true,
-    });
-  }
+export type PaintingFillRule = "nonzero" | "evenodd";
 
-  declare readonly context: PathContext;
+export interface PaintingContext extends DrawingContext {
+  fillStyle: string | CanvasGradient | CanvasPattern;
+  strokeStyle: string | CanvasGradient | CanvasPattern;
 
-  get pixelRatio(): number {
-    return 1;
-  }
+  beginPath(): void;
+  fill(fillRule?: PaintingFillRule): void;
+  stroke(): void;
 }

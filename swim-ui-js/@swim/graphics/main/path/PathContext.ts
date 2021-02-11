@@ -12,42 +12,89 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Format} from "@swim/codec";
 import type {DrawingContext} from "../drawing/DrawingContext";
 
 export class PathContext implements DrawingContext {
-  private x0: number | undefined;
-  private y0: number | undefined;
-  private x1: number | undefined;
-  private y1: number | undefined;
-  private d: string;
-
   constructor() {
-    this.x0 = void 0;
-    this.y0 = void 0;
-    this.x1 = void 0;
-    this.y1 = void 0;
+    Object.defineProperty(this, "precision", {
+      value: -1,
+      enumerable: true,
+      configurable: true,
+    });
+    this.x0 = NaN;
+    this.y0 = NaN;
+    this.x1 = NaN;
+    this.y1 = NaN;
     this.d = "";
   }
 
+  declare readonly precision: number;
+
+  setPrecision(precision: number): void {
+    Object.defineProperty(this, "precision", {
+      value: precision,
+      enumerable: true,
+      configurable: true,
+    });
+  }
+
+  /** @hidden */
+  get anglePrecision(): number {
+    const precision = this.precision;
+    return precision > 0 ? Math.max(3, precision) : precision;
+  }
+
+  /** @hidden */
+  x0: number;
+  /** @hidden */
+  y0: number;
+  /** @hidden */
+  x1: number;
+  /** @hidden */
+  y1: number;
+  /** @hidden */
+  d: string;
+
   moveTo(x: number, y: number): void {
-    this.d += "M" + (this.x0 = this.x1 = x) + "," + (this.y0 = this.y1 = y);
+    this.d += "M" + Format.decimal(x, this.precision)
+            + "," + Format.decimal(y, this.precision);
+    this.x0 = x;
+    this.y0 = y;
+    this.x1 = x;
+    this.y1 = y;
   }
 
   lineTo(x: number, y: number): void {
-    this.d += "L" + (this.x1 = x) + "," + (this.y1 = y);
+    this.d += "L" + Format.decimal(x, this.precision)
+            + "," + Format.decimal(y, this.precision);
+    this.x1 = x;
+    this.y1 = y;
   }
 
   quadraticCurveTo(x1: number, y1: number, x: number, y: number): void {
-    this.d += "Q" + x1 + "," + y1 + "," + (this.x1 = x) + "," + (this.y1 = y);
+    this.d += "Q" + Format.decimal(x1, this.precision)
+            + "," + Format.decimal(y1, this.precision)
+            + "," + Format.decimal(x, this.precision)
+            + "," + Format.decimal(y, this.precision);
+    this.x1 = x;
+    this.y1 = y;
   }
 
   bezierCurveTo(x1: number, y1: number, x2: number, y2: number, x: number, y: number): void {
-    this.d += "C" + x1 + "," + y1 + "," + x2 + "," + y2 + "," + (this.x1 = x) + "," + (this.y1 = y);
+    this.d += "C" + Format.decimal(x1, this.precision)
+            + "," + Format.decimal(y1, this.precision)
+            + "," + Format.decimal(x2, this.precision)
+            + "," + Format.decimal(y2, this.precision)
+            + "," + Format.decimal(x, this.precision)
+            + "," + Format.decimal(y, this.precision);
+    this.x1 = x;
+    this.y1 = y;
   }
 
   arcTo(x1: number, y1: number, x2: number, y2: number, r: number): void {
-    const x0 = +(this.x1 as any);
-    const y0 = +(this.y1 as any);
+    const x0 = this.x1;
+    const y0 = this.y1;
     const x21 = x2 - x1;
     const y21 = y2 - y1;
     const x01 = x0 - x1;
@@ -56,14 +103,20 @@ export class PathContext implements DrawingContext {
 
     if (r < 0) {
       throw new Error("negative radius: " + r);
-    } else if (this.x1 === void 0) {
+    } else if (isNaN(this.x1)) {
       // empty path
-      this.d += "M" + (this.x1 = x1) + "," + (this.y1 = y1);
+      this.d += "M" + Format.decimal(x1, this.precision)
+              + "," + Format.decimal(y1, this.precision);
+      this.x1 = x1;
+      this.y1 = y1;
     } else if (!(l01_2 > PathContext.Epsilon)) {
       // coincident endpoints
     } else if (!(Math.abs(y01 * x21 - y21 * x01) > PathContext.Epsilon) || r === 0) {
       // colinear control points
-      this.d += "L" + (this.x1 = x1) + "," + (this.y1 = y1);
+      this.d += "L" + Format.decimal(x1, this.precision)
+              + "," + Format.decimal(y1, this.precision);
+      this.x1 = x1;
+      this.y1 = y1;
     } else {
       const x20 = x2 - x0;
       const y20 = y2 - y0;
@@ -76,10 +129,21 @@ export class PathContext implements DrawingContext {
       const t21 = l / l21;
       if (Math.abs(t01 - 1) > PathContext.Epsilon) {
         // line to start tangent
-        this.d += "L" + (x1 + t01 * x01) + "," + (y1 + t01 * y01);
+        this.d += "L" + Format.decimal(x1 + t01 * x01, this.precision)
+                + "," + Format.decimal(y1 + t01 * y01, this.precision);
       }
-      this.d += "A" + r + "," + r + ",0,0," + (+(y01 * x20 > x01 * y20)) + "," +
-                (this.x1 = x1 + t21 * x21) + "," + (this.y1 = y1 + t21 * y21);
+      x1 = x1 + t21 * x21;
+      y1 = y1 + t21 * y21;
+      const rs = Format.decimal(r, this.precision);
+      this.d += "A" + rs
+              + "," + rs
+              + ",0"
+              + ",0"
+              + "," + (y01 * x20 > x01 * y20 ? "1" : "0")
+              + "," + Format.decimal(x1, this.precision)
+              + "," + Format.decimal(y1, this.precision);
+      this.x1 = x1;
+      this.y1 = y1;
     }
   }
 
@@ -93,12 +157,14 @@ export class PathContext implements DrawingContext {
 
     if (r < 0) {
       throw new Error("negative radius: " + r);
-    } else if (this.x1 === void 0) {
+    } else if (isNaN(this.x1)) {
       // empty path
-      this.d += "M" + x0 + "," + y0;
-    } else if (Math.abs(+(this.x1 as any) - x0) > PathContext.Epsilon || Math.abs(+(this.y1 as any) - y0) > PathContext.Epsilon) {
+      this.d += "M" + Format.decimal(x0, this.precision)
+              + "," + Format.decimal(y0, this.precision);
+    } else if (Math.abs(this.x1 - x0) > PathContext.Epsilon || Math.abs(this.y1 - y0) > PathContext.Epsilon) {
       // line to start point
-      this.d += "L" + x0 + "," + y0;
+      this.d += "L" + Format.decimal(x0, this.precision)
+              + "," + Format.decimal(y0, this.precision);
     }
 
     if (r === 0) {
@@ -108,19 +174,52 @@ export class PathContext implements DrawingContext {
       da = da % (2 * Math.PI) + 2 * Math.PI;
     }
 
+    const rs = Format.decimal(r, this.precision);
     if (da > 2 * Math.PI - PathContext.Epsilon) {
       // complete circle
-      this.d += "A" + r + "," + r + ",0,1," + cw + "," + (cx - dx) + "," + (cy - dy) +
-                "A" + r + "," + r + ",0,1," + cw + "," + (this.x1 = x0) + "," + (this.y1 = y0);
+      this.d += "A" + rs
+              + "," + rs
+              + ",0"
+              + ",1"
+              + "," + (cw ? "1" : "0")
+              + "," + Format.decimal(cx - dx, this.precision)
+              + "," + Format.decimal(cy - dy, this.precision);
+      this.d += "A" + Format.decimal(r, this.precision)
+              + "," + Format.decimal(r, this.precision)
+              + ",0"
+              + ",1"
+              + "," + (cw ? "1" : "0")
+              + "," + Format.decimal(x0, this.precision)
+              + "," + Format.decimal(y0, this.precision);
+      this.x1 = x0;
+      this.y1 = y0;
     } else if (da > PathContext.Epsilon) {
       // non-zero arc angle
-      this.d += "A" + r + "," + r + ",0," + (+(da >= Math.PI)) + "," + cw + "," +
-                (this.x1 = cx + r * Math.cos(a1)) + "," + (this.y1 = cy + r * Math.sin(a1));
+      const x1 = cx + r * Math.cos(a1);
+      const y1 = cy + r * Math.sin(a1);
+      this.d += "A" + rs
+              + "," + rs
+              + ",0"
+              + "," + (da >= Math.PI ? "1" : "0")
+              + "," + (cw ? "1" : "0")
+              + "," + Format.decimal(x1, this.precision)
+              + "," + Format.decimal(y1, this.precision);
+      this.x1 = x1;
+      this.y1 = y1;
     }
   }
 
   rect(x: number, y: number, w: number, h: number): void {
-    this.d += "M" + (this.x0 = this.x1 = x) + "," + (this.y0 = this.y1 = y) + "h" + w + "v" + h + "h" + -w + "Z";
+    this.d += "M" + Format.decimal(x, this.precision)
+            + "," + Format.decimal(y, this.precision)
+            + "h" + Format.decimal(w, this.precision)
+            + "v" + Format.decimal(h, this.precision)
+            + "h" + Format.decimal(-w, this.precision)
+            + "Z";
+    this.x0 = x;
+    this.y0 = y;
+    this.x1 = x;
+    this.y1 = y;
   }
 
   ellipse(cx: number, cy: number, rx: number, ry: number, phi: number, a0: number, a1: number, ccw?: boolean): void {
@@ -138,14 +237,22 @@ export class PathContext implements DrawingContext {
     const y1 = sinPhi * rx * cosA1 + cosPhi * ry * sinA1 + cy;
     const large = Math.abs(da) > Math.PI;
     const sweep = da > 0;
-    this.d += "A" + rx + "," + ry + " " + phi + " " + (large ? "1" : "0") + " " + (sweep ? "1" : "0") + (this.x1 = x1) + "," + (this.y1 = y1);
+    this.d += "A" + Format.decimal(rx, this.precision)
+            + "," + Format.decimal(ry, this.precision)
+            + "," + Format.decimal(phi, this.anglePrecision);
+            + "," + (large ? "1" : "0")
+            + "," + (sweep ? "1" : "0")
+            + "," + Format.decimal(x1, this.precision)
+            + "," + Format.decimal(y1, this.precision);
+    this.x1 = x1;
+    this.y1 = y1;
   }
 
   closePath(): void {
-    if (this.x1 !== void 0) {
+    if (!isNaN(this.x1)) {
+      this.d += "Z";
       this.x1 = this.x0;
       this.y1 = this.y0;
-      this.d += "Z";
     }
   }
 

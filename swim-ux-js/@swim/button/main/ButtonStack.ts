@@ -18,7 +18,7 @@ import {Length} from "@swim/math";
 import {Look} from "@swim/theme";
 import {ViewContextType, View, ModalOptions, ModalState, Modal, ViewAnimator} from "@swim/view";
 import {StyleAnimator, ViewNode, HtmlView} from "@swim/dom";
-import {Graphics, IconPath} from "@swim/graphics";
+import {Graphics, VectorIcon} from "@swim/graphics";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import {FloatingButton} from "./FloatingButton";
 import {ButtonItem} from "./ButtonItem";
@@ -639,6 +639,6 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
 
   @Lazy
   static get closeIcon(): Graphics {
-    return IconPath.create(24, 24, "M19,6.4L17.6,5L12,10.6L6.4,5L5,6.4L10.6,12L5,17.6L6.4,19L12,13.4L17.6,19L19,17.6L13.4,12Z");
+    return VectorIcon.create(24, 24, "M19,6.4L17.6,5L12,10.6L6.4,5L5,6.4L10.6,12L5,17.6L6.4,19L12,13.4L17.6,19L19,17.6L13.4,12Z");
   }
 }

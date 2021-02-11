@@ -13,14 +13,17 @@
 // limitations under the License.
 
 import type {Timing} from "@swim/mapping";
-import {AnyLength, Length} from "@swim/math";
+import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewFlags, View, ViewAnimator} from "@swim/view";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {SvgViewInit, SvgView, SvgViewController} from "@swim/dom";
 import type {Graphics} from "../graphics/Graphics";
+import {SvgContext} from "../svg/SvgContext";
+import {SvgRenderer} from "../svg/SvgRenderer";
+import {Icon} from "./Icon";
 import {IconViewInit, IconView} from "./IconView";
-import {SvgIconPathView} from "./SvgIconPathView";
+import {IconViewAnimator} from "./IconViewAnimator";
 
 export interface SvgIconViewInit extends SvgViewInit, IconViewInit {
   viewController?: SvgViewController;
@@ -29,14 +32,6 @@ export interface SvgIconViewInit extends SvgViewInit, IconViewInit {
 export class SvgIconView extends SvgView implements IconView {
   constructor(node: SVGElement) {
     super(node);
-    this.initIcon();
-  }
-
-  protected initIcon(): void {
-    const pathView = this.createPathView();
-    if (pathView !== null) {
-      this.setChildView("path", pathView);
-    }
   }
 
   initView(init: SvgIconViewInit): void {
@@ -44,54 +39,81 @@ export class SvgIconView extends SvgView implements IconView {
     IconView.initView(this, init);
   }
 
-  protected createPathView(): SvgIconPathView | null {
-    return SvgIconPathView.create();
-  }
-
-  @ViewAnimator({type: Number})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
   declare xAlign: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Number})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
   declare yAlign: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Length})
+  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout})
   declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewAnimator({type: Length})
+  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout})
   declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewAnimator({type: Color})
+  @ViewAnimator({type: Color, updateFlags: View.NeedsLayout})
   declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewAnimator({type: Object})
+  @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsLayout})
   declare graphics: ViewAnimator<this, Graphics | undefined>;
-
-  get pathView(): SvgIconPathView | null {
-    const pathView = this.getChildView("path");
-    return pathView instanceof SvgIconPathView ? pathView : null;
-  }
-
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
-    super.onInsertChildView(childView, targetView);
-    if (childView.key === "path" && childView instanceof SvgIconPathView) {
-      this.onInsertPath(childView);
-    }
-  }
-
-  protected onInsertPath(pathView: SvgIconPathView): void {
-    // hook
-  }
-
-  /** @hidden */
-  get iconColorLook(): Look<Color> {
-    return Look.highContrastColor;
-  }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (this.iconColor.isAuto() && !this.iconColor.isInherited()) {
-      this.iconColor.setAutoState(theme.inner(mood, this.iconColorLook), timing);
+    if (!this.graphics.isInherited()) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof Icon) {
+        const newGraphics = oldGraphics.withTheme(theme, mood);
+        this.graphics.setOwnState(newGraphics, oldGraphics.isThemed() ? timing : false);
+      }
+    }
+  }
+
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
+    this.renderIcon();
+  }
+
+  protected renderIcon(): void {
+    const context = new SvgContext(this);
+    context.setPrecision(2);
+    context.beginSvg();
+    const graphics = this.graphics.takeValue();
+    if (graphics !== void 0) {
+      const frame = this.iconBounds;
+      if (frame.isDefined() && frame.width > 0 && frame.height > 0) {
+        context.beginPath();
+        const iconColor = this.iconColor.takeValue();
+        if (iconColor !== void 0) {
+          context.fillStyle = iconColor.toString();
+        }
+        const renderer = new SvgRenderer(context, this.theme.state, this.mood.state);
+        graphics.render(renderer, frame);
+      }
+    }
+    context.finalizeSvg();
+    this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
+  }
+
+  get iconBounds(): BoxR2 {
+    let viewportElement = this.node.viewportElement;
+    if (viewportElement === null) {
+      viewportElement = this.node;
+    }
+    if (viewportElement instanceof SVGSVGElement) {
+      const viewBox = viewportElement.viewBox.animVal;
+      const viewWidth = viewBox.width;
+      const viewHeight = viewBox.height;
+      const viewSize = Math.min(viewWidth, viewHeight);
+      let iconWidth: Length | number | undefined = this.iconWidth.value;
+      iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
+      let iconHeight: Length | number | undefined = this.iconHeight.value;
+      iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
+      const x = viewBox.x + (viewWidth - iconWidth) * this.xAlign.getValueOr(0.5);
+      const y = viewBox.y + (viewHeight - iconHeight) * this.yAlign.getValueOr(0.5);
+      return new BoxR2(x, y, x + iconWidth, y + iconHeight);
+    } else {
+      return BoxR2.undefined();
     }
   }
 

@@ -16,7 +16,7 @@ import type {Timing} from "@swim/mapping";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewAnimator} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -236,29 +236,6 @@ export abstract class TickView<D> extends LayerView {
     }
   }
 
-  protected onRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
-    super.onRequireUpdate(updateFlags, immediate);
-    const parentView = this.parentView;
-    if (parentView !== null) {
-      parentView.requireUpdate(updateFlags & View.NeedsAnimate);
-    }
-  }
-
-  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((processFlags & View.NeedsLayout) !== 0) {
-      processFlags |= View.NeedsAnimate;
-    }
-    return processFlags;
-  }
-
-  protected onAnimate(viewContext: ViewContextType<this>): void {
-    super.onAnimate(viewContext);
-    const tickLabel = this.tickLabel();
-    if (tickLabel !== null) {
-      this.layoutTickLabel(tickLabel);
-    }
-  }
-
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     const tickLabel = this.tickLabel();
@@ -392,7 +369,4 @@ export abstract class TickView<D> extends LayerView {
     }
     throw new TypeError("" + value);
   }
-
-  static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsAnimate;
-  static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;
 }

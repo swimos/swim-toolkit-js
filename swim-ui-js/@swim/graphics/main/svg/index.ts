@@ -12,22 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DrawingRenderer} from "../drawing/DrawingRenderer";
-import type {PathContext} from "./PathContext";
-
-export class PathRenderer extends DrawingRenderer {
-  constructor(context: PathContext) {
-    super();
-    Object.defineProperty(this, "context", {
-      value: context,
-      enumerable: true,
-      configurable: true,
-    });
-  }
-
-  declare readonly context: PathContext;
-
-  get pixelRatio(): number {
-    return 1;
-  }
-}
+export {SvgContext} from "./SvgContext";
+export {SvgRenderer} from "./SvgRenderer";

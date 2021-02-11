@@ -14,7 +14,7 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = uiView.append("canvas")
+const canvas = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
@@ -44,6 +44,8 @@ chart.leftAxis().gridLineColor("#d8d8d8")
 
 chart.bottomAxis().gridLineColor("#d8d8d8")
                   .gridLineWidth(1);
+
+uiView.append(canvas);
 
     </script>
   </body>

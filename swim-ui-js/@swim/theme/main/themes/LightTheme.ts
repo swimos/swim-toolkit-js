@@ -25,14 +25,13 @@ import {ThemeMatrix} from "../theme/ThemeMatrix";
 const LightFont = Font.parse("14px -apple-system, system-ui, sans-serif");
 
 const LightColor = Color.parse("#4a4a4a");
+const LightIconColor = Color.parse("#4a4a4a");
 const LightAccentColor = Color.parse("#5c5d5e");
 const LightMutedColor = Color.parse("#989898");
 const LightNeutralColor = Color.parse("#808080");
 const LightHighlightColor = Color.black(0.05);
 
 const LightBackgroundColor = Color.parse("#fcfcfc");
-const LightLowContrastColor = Color.parse("#e7e6e7");
-const LightHighContrastColor = Color.parse("#4a4a4a");
 const LightBorderColor = LightBackgroundColor.darker(1 / 2);
 
 const LightPrimaryColor = Color.parse("#49cbad");
@@ -51,6 +50,7 @@ const LightAmbient = FeelVector.of(
   [Look.font, LightFont],
 
   [Look.color, LightColor],
+  [Look.iconColor, LightIconColor],
   [Look.statusColor, LightColor],
   [Look.accentColor, LightAccentColor],
   [Look.mutedColor, LightMutedColor],
@@ -58,8 +58,6 @@ const LightAmbient = FeelVector.of(
   [Look.highlightColor, LightHighlightColor],
 
   [Look.backgroundColor, LightBackgroundColor],
-  [Look.lowContrastColor, LightLowContrastColor],
-  [Look.highContrastColor, LightHighContrastColor],
   [Look.borderColor, LightBorderColor],
 
   [Look.spacing, LightSpacing],
@@ -70,6 +68,7 @@ const LightDefault = FeelVector.of(
   [Look.font, LightFont],
 
   [Look.color, LightColor],
+  [Look.iconColor, LightIconColor],
   [Look.statusColor, LightColor],
   [Look.accentColor, LightAccentColor],
   [Look.mutedColor, LightMutedColor],
@@ -77,8 +76,6 @@ const LightDefault = FeelVector.of(
   [Look.highlightColor, LightHighlightColor],
 
   [Look.backgroundColor, LightBackgroundColor],
-  [Look.lowContrastColor, LightLowContrastColor],
-  [Look.highContrastColor, LightHighContrastColor],
   [Look.borderColor, LightBorderColor],
 
   [Look.spacing, LightSpacing],
@@ -99,6 +96,7 @@ const LightSelected = FeelVector.of(
 
 const LightDisabled = FeelVector.of(
   [Look.color, LightDisabledColor],
+  [Look.iconColor, LightDisabledColor],
   [Look.statusColor, LightDisabledColor],
   [Look.accentColor, LightDisabledColor],
 );

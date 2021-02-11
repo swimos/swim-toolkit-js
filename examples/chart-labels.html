@@ -14,7 +14,7 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = uiView.append("canvas")
+const canvas = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
@@ -66,6 +66,8 @@ for (let i = 0, n = cycles * samples; i <= n; i += 1) {
     labelPlacement: y > 0 ? "above" : y < 0 ? "below" : "middle",
   });
 }
+
+uiView.append(canvas);
 
     </script>
   </body>

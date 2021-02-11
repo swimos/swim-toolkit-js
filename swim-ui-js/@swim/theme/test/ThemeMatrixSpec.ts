@@ -40,20 +40,20 @@ export class ThemeMatrixSpec extends Spec {
   testInnerProduct(exam: Exam): void {
     const matrix = ThemeMatrix.forCols([Feel.default, FeelVector.of([Look.opacity, 1])],
                                        [Feel.warning, FeelVector.of([Look.opacity, 0.8])]);
-    exam.equal(matrix.inner(MoodVector.of([Feel.default, 1], [Feel.warning, 0]), Look.opacity), 1);
-    exam.equal(matrix.inner(MoodVector.of([Feel.default, 0], [Feel.warning, 1]), Look.opacity), 0.8);
-    exam.equal(matrix.inner(MoodVector.of([Feel.default, 1], [Feel.warning, 0.5]), Look.opacity), 0.9);
+    exam.equal(matrix.dot(Look.opacity, MoodVector.of([Feel.default, 1], [Feel.warning, 0])), 1);
+    exam.equal(matrix.dot(Look.opacity, MoodVector.of([Feel.default, 0], [Feel.warning, 1])), 0.8);
+    exam.equal(matrix.dot(Look.opacity, MoodVector.of([Feel.default, 1], [Feel.warning, 0.5])), 0.9);
   }
 
   @Test
   testTransformVector(exam: Exam): void {
     const matrix = ThemeMatrix.forCols([Feel.default, FeelVector.of([Look.opacity, 1])],
                                        [Feel.warning, FeelVector.of([Look.opacity, 0.8])]);
-    exam.equal(matrix.transform(MoodVector.of([Feel.default, 1], [Feel.warning, 0])),
+    exam.equal(matrix.timesCol(MoodVector.of([Feel.default, 1], [Feel.warning, 0])),
                FeelVector.of([Look.opacity, 1]));
-    exam.equal(matrix.transform(MoodVector.of([Feel.default, 0], [Feel.warning, 1])),
+    exam.equal(matrix.timesCol(MoodVector.of([Feel.default, 0], [Feel.warning, 1])),
                FeelVector.of([Look.opacity, 0.8]));
-    exam.equal(matrix.transform(MoodVector.of([Feel.default, 1], [Feel.warning, 0.5])),
+    exam.equal(matrix.timesCol(MoodVector.of([Feel.default, 1], [Feel.warning, 0.5])),
                FeelVector.of([Look.opacity, 0.9]));
   }
 

@@ -39,38 +39,38 @@ export class MoodMatrixSpec extends Spec {
   testInnerProduct(exam: Exam): void {
     const matrix = MoodMatrix.forCols([Look.color, MoodVector.of([Feel.default, 0], [Feel.selected, 1])],
                                       [Look.accentColor, MoodVector.of([Feel.default, 1], [Feel.selected, 0])]);
-    exam.equal(matrix.inner(MoodVector.of([Look.color, 1], [Look.accentColor, 0]), Feel.default), 0);
-    exam.equal(matrix.inner(MoodVector.of([Look.color, 0], [Look.accentColor, 1]), Feel.default), 1);
-    exam.equal(matrix.inner(MoodVector.of([Look.color, 1], [Look.accentColor, 0]), Feel.selected), 1);
-    exam.equal(matrix.inner(MoodVector.of([Look.color, 0], [Look.accentColor, 1]), Feel.selected), 0);
-    exam.equal(matrix.inner(MoodVector.of([Look.color, 0.5], [Look.accentColor, 0.5]), Feel.default), 0.5);
-    exam.equal(matrix.inner(MoodVector.of([Look.color, 0.5], [Look.accentColor, 0.5]), Feel.selected), 0.5);
+    exam.equal(matrix.dot(Feel.default, MoodVector.of([Look.color, 1], [Look.accentColor, 0])), 0);
+    exam.equal(matrix.dot(Feel.default, MoodVector.of([Look.color, 0], [Look.accentColor, 1])), 1);
+    exam.equal(matrix.dot(Feel.selected, MoodVector.of([Look.color, 1], [Look.accentColor, 0])), 1);
+    exam.equal(matrix.dot(Feel.selected, MoodVector.of([Look.color, 0], [Look.accentColor, 1])), 0);
+    exam.equal(matrix.dot(Feel.default, MoodVector.of([Look.color, 0.5], [Look.accentColor, 0.5])), 0.5);
+    exam.equal(matrix.dot(Feel.selected, MoodVector.of([Look.color, 0.5], [Look.accentColor, 0.5])), 0.5);
   }
 
   @Test
   testTransformVector(exam: Exam): void {
     const matrix = MoodMatrix.forCols([Look.color, MoodVector.of([Feel.default, 0], [Feel.selected, 1])],
                                       [Look.accentColor, MoodVector.of([Feel.default, 1], [Feel.selected, 0])]);
-    exam.equal(matrix.transform(MoodVector.of([Look.color, 1], [Look.accentColor, 0])),
+    exam.equal(matrix.timesCol(MoodVector.of([Look.color, 1], [Look.accentColor, 0])),
                MoodVector.of([Feel.default, 0], [Feel.selected, 1]));
-    exam.equal(matrix.transform(MoodVector.of([Look.color, 0], [Look.accentColor, 1])),
+    exam.equal(matrix.timesCol(MoodVector.of([Look.color, 0], [Look.accentColor, 1])),
                MoodVector.of([Feel.default, 1], [Feel.selected, 0]));
-    exam.equal(matrix.transform(MoodVector.of([Look.color, 0.5], [Look.accentColor, 0.5])),
+    exam.equal(matrix.timesCol(MoodVector.of([Look.color, 0.5], [Look.accentColor, 0.5])),
                MoodVector.of([Feel.default, 0.5], [Feel.selected, 0.5]));
   }
 
   @Test
   testTransformVectorIdentity(exam: Exam): void {
     const matrix = MoodMatrix.forCols([Feel.default, MoodVector.of([Feel.default, 1], [Feel.selected, 1])]);
-    exam.equal(matrix.transform(MoodVector.of([Feel.default, 1], [Feel.selected, 0]), true),
+    exam.equal(matrix.timesCol(MoodVector.of([Feel.default, 1], [Feel.selected, 0]), true),
                MoodVector.of([Feel.default, 1], [Feel.selected, 1]));
-    exam.equal(matrix.transform(MoodVector.of([Feel.default, 0], [Feel.selected, 1]), true),
+    exam.equal(matrix.timesCol(MoodVector.of([Feel.default, 0], [Feel.selected, 1]), true),
                MoodVector.of([Feel.default, 0], [Feel.selected, 0]));
-    exam.equal(matrix.transform(MoodVector.of([Feel.default, 0.5], [Feel.selected, 0.5]), true),
+    exam.equal(matrix.timesCol(MoodVector.of([Feel.default, 0.5], [Feel.selected, 0.5]), true),
                MoodVector.of([Feel.default, 0.5], [Feel.selected, 0.5]));
-    exam.equal(matrix.transform(MoodVector.of([Feel.default, 1], [Feel.ambient, 1.5]), true),
+    exam.equal(matrix.timesCol(MoodVector.of([Feel.default, 1], [Feel.ambient, 1.5]), true),
                MoodVector.of([Feel.default, 1], [Feel.selected, 1], [Feel.ambient, 1.5]));
-    exam.equal(matrix.transform(MoodVector.of([Feel.ambient, 1.5]), true),
+    exam.equal(matrix.timesCol(MoodVector.of([Feel.ambient, 1.5]), true),
                MoodVector.of([Feel.ambient, 1.5]));
   }
 

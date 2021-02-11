@@ -157,7 +157,7 @@ export class ElementView extends NodeView implements StyleContext {
         mood = this.mood.state;
       }
       if (mood !== void 0) {
-        value = theme.inner(mood, look);
+        value = theme.dot(look, mood);
       }
     }
     return value;
@@ -171,7 +171,7 @@ export class ElementView extends NodeView implements StyleContext {
         mood = this.mood.state;
       }
       if (mood !== void 0) {
-        value = theme.inner(mood, look);
+        value = theme.dot(look, mood);
       }
     }
     if (value === void 0) {
@@ -213,7 +213,7 @@ export class ElementView extends NodeView implements StyleContext {
           }
         }
         if (superMood !== void 0) {
-          const mood = moodModifier.transform(superMood, true);
+          const mood = moodModifier.timesCol(superMood, true);
           this.mood.setAutoState(mood);
         }
       } else {

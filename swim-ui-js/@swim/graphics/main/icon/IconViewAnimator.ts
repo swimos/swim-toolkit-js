@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {BoxR2} from "@swim/math";
-import type {MoodVector, ThemeMatrix} from "@swim/theme";
-import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
+import {ViewAnimator} from "@swim/view";
 import type {Graphics} from "../graphics/Graphics";
-import type {DrawingContext} from "../drawing/DrawingContext";
-import type {PaintingContext} from "../painting/PaintingContext";
+import {Icon} from "./Icon";
+import type {IconView} from "./IconView";
 
-export abstract class Icon implements Graphics {
-  abstract isThemed(): boolean;
-
-  abstract withTheme(theme: ThemeMatrix, mood: MoodVector): Icon;
-
-  abstract render(renderer: GraphicsRenderer, frame: BoxR2): void;
-
-  abstract paint(context: PaintingContext, frame: BoxR2): void;
-
-  abstract draw(context: DrawingContext, frame: BoxR2): void;
+/** @hidden */
+export abstract class IconViewAnimator<V extends IconView> extends ViewAnimator<V, Graphics | null | undefined> {
+  fromAny(value: Graphics | null | undefined): Graphics | null | undefined {
+    if (value instanceof Icon) {
+      const theme = this.owner.theme.state;
+      const mood = this.owner.mood.state;
+      if (theme !== void 0 && mood !== void 0) {
+        value = value.withTheme(theme, mood);
+      }
+    }
+    return value;
+  }
 }

@@ -15,13 +15,14 @@
 import type {Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {HtmlViewInit, HtmlView, HtmlViewController} from "@swim/dom";
 import type {Graphics} from "../graphics/Graphics";
+import {Icon} from "./Icon";
 import {IconViewInit, IconView} from "./IconView";
-import type {SvgIconPathView} from "./SvgIconPathView";
 import {SvgIconView} from "./SvgIconView";
+import {IconViewAnimator} from "./IconViewAnimator";
 
 export interface HtmlIconViewInit extends HtmlViewInit, IconViewInit {
   viewController?: HtmlViewController;
@@ -50,32 +51,27 @@ export class HtmlIconView extends HtmlView implements IconView {
     return SvgIconView.create();
   }
 
-  @ViewAnimator({type: Number})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
   declare xAlign: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Number})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
   declare yAlign: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Length})
+  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout})
   declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewAnimator({type: Length})
+  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout})
   declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewAnimator({type: Color})
+  @ViewAnimator({type: Color, updateFlags: View.NeedsLayout})
   declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewAnimator({type: Object})
+  @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsLayout})
   declare graphics: ViewAnimator<this, Graphics | undefined>;
 
   get svgView(): SvgIconView | null {
     const svgView = this.getChildView("svg");
     return svgView instanceof SvgIconView ? svgView : null;
-  }
-
-  get pathView(): SvgIconPathView | null {
-    const svgView = this.svgView;
-    return svgView !== null ? svgView.pathView : null;
   }
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
@@ -95,16 +91,15 @@ export class HtmlIconView extends HtmlView implements IconView {
     pathView.setStyle("position", "absolute");
   }
 
-  /** @hidden */
-  get iconColorLook(): Look<Color> {
-    return Look.highContrastColor;
-  }
-
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (this.iconColor.isAuto() && !this.iconColor.isInherited()) {
-      this.iconColor.setAutoState(theme.inner(mood, this.iconColorLook), timing);
+    if (!this.graphics.isInherited()) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof Icon) {
+        const newGraphics = oldGraphics.withTheme(theme, mood);
+        this.graphics.setOwnState(newGraphics, oldGraphics.isThemed() ? timing : false);
+      }
     }
   }
 

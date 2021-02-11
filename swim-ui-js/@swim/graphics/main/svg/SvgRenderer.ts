@@ -12,22 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {DrawingRenderer} from "../drawing/DrawingRenderer";
-import type {PathContext} from "./PathContext";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import {PaintingRenderer} from "../painting/PaintingRenderer";
+import type {SvgContext} from "./SvgContext";
 
-export class PathRenderer extends DrawingRenderer {
-  constructor(context: PathContext) {
+export class SvgRenderer extends PaintingRenderer {
+  constructor(context: SvgContext,
+              theme: ThemeMatrix | null | undefined,
+              mood: MoodVector | null | undefined) {
     super();
     Object.defineProperty(this, "context", {
       value: context,
       enumerable: true,
       configurable: true,
     });
+    Object.defineProperty(this, "theme", {
+      value: theme !== void 0 ? theme : null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "mood", {
+      value: mood !== void 0 ? mood : null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
-  declare readonly context: PathContext;
+  declare readonly context: SvgContext;
 
   get pixelRatio(): number {
     return 1;
   }
+
+  declare readonly theme: ThemeMatrix | null;
+
+  declare readonly mood: MoodVector | null;
 }

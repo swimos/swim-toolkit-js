@@ -15,27 +15,27 @@
 import {Equals, Equivalent} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import type {Interpolate, Interpolator} from "@swim/mapping";
-import {AnyAngle, Angle, BoxR2} from "@swim/math";
+import {BoxR2, AnyPathR2, PathR2, Transform} from "@swim/math";
 import type {Color} from "@swim/color";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {DrawingContext} from "../drawing/DrawingContext";
 import {DrawingRenderer} from "../drawing/DrawingRenderer";
-import type {PaintingContext} from "../painting/PaintingContext";
+import type {PaintingFillRule, PaintingContext} from "../painting/PaintingContext";
 import {PaintingRenderer} from "../painting/PaintingRenderer";
 import {Icon} from "./Icon";
-import {PolygonIconInterpolator} from "../"; // forward import
+import {VectorIconInterpolator} from "../"; // forward import
 
-export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equals, Equivalent, Debug {
-  constructor(sides: number, rotation: Angle, fillColor: Color | null,
+export class VectorIcon extends Icon implements Interpolate<VectorIcon>, Equals, Equivalent, Debug {
+  constructor(path: PathR2, fillRule: PaintingFillRule, fillColor: Color | null,
               fillLook: Look<Color> | null, moodModifier: MoodMatrix | null) {
     super();
-    Object.defineProperty(this, "sides", {
-      value: sides,
+    Object.defineProperty(this, "path", {
+      value: path,
       enumerable: true,
     });
-    Object.defineProperty(this, "rotation", {
-      value: rotation,
+    Object.defineProperty(this, "fillRule", {
+      value: fillRule,
       enumerable: true,
     });
     Object.defineProperty(this, "fillColor", {
@@ -52,44 +52,53 @@ export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equal
     });
   }
 
-  declare readonly sides: number;
+  declare readonly path: PathR2;
 
-  declare readonly rotation: Angle;
+  declare readonly fillRule: PaintingFillRule;
+
+  withFillRule(fillRule: PaintingFillRule): VectorIcon {
+    if (Equals(this.fillRule, fillRule)) {
+      return this;
+    } else {
+      return this.copy(this.path, fillRule, this.fillColor,
+                       this.fillLook, this.moodModifier);
+    }
+  }
 
   declare readonly fillColor: Color | null;
 
-  withFillColor(fillColor: Color | null): PolygonIcon {
+  withFillColor(fillColor: Color | null): VectorIcon {
     if (Equals(this.fillColor, fillColor)) {
       return this;
     } else {
-      return this.copy(this.sides, this.rotation, fillColor,
+      return this.copy(this.path, this.fillRule, fillColor,
                        this.fillLook, this.moodModifier);
     }
   }
 
   declare readonly fillLook: Look<Color> | null;
 
-  withFillLook(fillLook: Look<Color> | null): PolygonIcon {
+  withFillLook(fillLook: Look<Color> | null): VectorIcon {
     if (this.fillLook === fillLook) {
       return this;
     } else {
-      return this.copy(this.sides, this.rotation, this.fillColor,
+      return this.copy(this.path, this.fillRule, this.fillColor,
                        fillLook, this.moodModifier);
     }
   }
 
   declare readonly moodModifier: MoodMatrix | null;
 
-  withMoodModifier(moodModifier: MoodMatrix | null): PolygonIcon {
+  withMoodModifier(moodModifier: MoodMatrix | null): VectorIcon {
     if (Equals(this.moodModifier, moodModifier)) {
       return this;
     } else {
-      return this.copy(this.sides, this.rotation, this.fillColor,
+      return this.copy(this.path, this.fillRule, this.fillColor,
                        this.fillLook, moodModifier);
     }
   }
 
-  modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): PolygonIcon {
+  modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): VectorIcon {
     let oldMoodModifier = this.moodModifier;
     if (oldMoodModifier === null) {
       oldMoodModifier = MoodMatrix.empty();
@@ -106,7 +115,7 @@ export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equal
     return this.fillColor !== null;
   }
 
-  withTheme(theme: ThemeMatrix, mood: MoodVector): PolygonIcon {
+  withTheme(theme: ThemeMatrix, mood: MoodVector): VectorIcon {
     const fillLook = this.fillLook;
     if (fillLook !== null) {
       const moodModifier = this.moodModifier;
@@ -137,41 +146,24 @@ export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equal
     if (context.fillStyle === "" && this.fillColor !== null) {
       context.fillStyle = this.fillColor.toString();
     }
-    context.fill();
+    context.fill(this.fillRule);
   }
 
   draw(context: DrawingContext, frame: BoxR2): void {
-    const sides = this.sides;
-    if (sides >= 3) {
-      const centerX = (frame.xMin + frame.xMax) / 2;
-      const centerY = (frame.yMin + frame.yMax) / 2;
-      const width = frame.width;
-      const height = frame.height;
-      const radius = Math.min(width, height) / 2;
-      const sector = 2 * Math.PI / sides;
-      let angle = this.rotation.radValue();
-      context.moveTo(centerX + radius * Math.cos(angle),
-                     centerY + radius * Math.sin(angle));
-      angle += sector;
-      for (let i = 1; i < sides; i += 1) {
-        context.lineTo(centerX + radius * Math.cos(angle),
-                       centerY + radius * Math.sin(angle));
-        angle += sector;
-      }
-      context.closePath();
-    }
+    this.path.transformDraw(context, Transform.scale(frame.width, frame.height)
+                                              .translate(frame.x, frame.y));
   }
 
-  protected copy(sides: number, rotation: Angle, fillColor: Color | null,
-                 fillLook: Look<Color> | null, moodModifier: MoodMatrix | null): PolygonIcon {
-    return new PolygonIcon(sides, rotation, fillColor, fillLook, moodModifier);
+  protected copy(path: PathR2, fillRule: PaintingFillRule, fillColor: Color | null,
+                 fillLook: Look<Color> | null, moodModifier: MoodMatrix | null): VectorIcon {
+    return new VectorIcon(path, fillRule, fillColor, fillLook, moodModifier);
   }
 
-  interpolateTo(that: PolygonIcon): Interpolator<PolygonIcon>;
-  interpolateTo(that: unknown): Interpolator<PolygonIcon> | null;
-  interpolateTo(that: unknown): Interpolator<PolygonIcon> | null {
-    if (that instanceof PolygonIcon) {
-      return PolygonIconInterpolator(this, that);
+  interpolateTo(that: VectorIcon): Interpolator<VectorIcon>;
+  interpolateTo(that: unknown): Interpolator<VectorIcon> | null;
+  interpolateTo(that: unknown): Interpolator<VectorIcon> | null {
+    if (that instanceof VectorIcon) {
+      return VectorIconInterpolator(this, that);
     } else {
       return null;
     }
@@ -180,11 +172,12 @@ export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equal
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
-    } else if (that instanceof PolygonIcon) {
-      return this.sides === that.sides
-          && this.rotation.equivalentTo(that.rotation, epsilon)
+    } else if (that instanceof VectorIcon) {
+      return this.path.equivalentTo(that.path, epsilon)
+          && this.fillRule === that.fillRule
           && Equivalent(this.fillColor, that.fillColor, epsilon)
-          && this.fillLook === that.fillLook;
+          && this.fillLook === that.fillLook
+          && Equivalent(this.moodModifier, that.moodModifier, epsilon);
     }
     return false;
   }
@@ -192,33 +185,38 @@ export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equal
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
-    } else if (that instanceof PolygonIcon) {
-      return this.sides === that.sides
-          && this.rotation.equals(that.rotation)
+    } else if (that instanceof VectorIcon) {
+      return this.path.equals(that.path)
+          && this.fillRule === that.fillRule
           && Equals(this.fillColor, that.fillColor)
-          && this.fillLook === that.fillLook;
+          && this.fillLook === that.fillLook
+          && Equals(this.moodModifier, that.moodModifier);
     }
     return false;
   }
 
   debug(output: Output): void {
-    output = output.write("new").write(32/*' '*/).write("PolygonIcon").write(40/*'('*/)
-        .debug(this.sides).write(", ")
-        .debug(this.rotation).write(", ")
+    output = output.write("new").write(32/*' '*/).write("VectorIcon").write(40/*'('*/)
+        .debug(this.path).write(", ")
+        .debug(this.fillRule).write(", ")
         .debug(this.fillColor).write(", ")
-        .debug(this.fillLook).write(41/*')'*/);
+        .debug(this.fillLook).write(", ")
+        .debug(this.moodModifier).write(41/*')'*/);
   }
 
   toString(): string {
     return Format.debug(this);
   }
 
-  static create(sides: number, rotation?: AnyAngle): PolygonIcon {
-    if (rotation !== void 0) {
-      rotation = Angle.fromAny(rotation);
-    } else {
-      rotation = Angle.zero();
+  static create(width: number, height: number, path: AnyPathR2,
+                fillRule?: PaintingFillRule): VectorIcon {
+    path = PathR2.fromAny(path);
+    if (width !== 1 || height !== 1) {
+      path = path.transform(Transform.scale(1 / width, 1 / height));
     }
-    return new PolygonIcon(sides, rotation, null, Look.accentColor, null);
+    if (fillRule === void 0) {
+      fillRule = "nonzero";
+    }
+    return new VectorIcon(path, fillRule, null, Look.iconColor, null);
   }
 }

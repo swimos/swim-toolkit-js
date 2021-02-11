@@ -131,10 +131,10 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     return null;
   }
 
-  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true, updateFlags: View.NeedsAnimate})
+  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true, updateFlags: View.NeedsAnimate | View.NeedsLayout})
   declare xScale: ScaleViewAnimator<this, X, number>;
 
-  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true, updateFlags: View.NeedsAnimate})
+  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: true, updateFlags: View.NeedsAnimate | View.NeedsLayout})
   declare yScale: ScaleViewAnimator<this, Y, number>;
 
   xDomain(): Domain<X> | undefined;
@@ -551,6 +551,16 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     return displayFlags;
   }
 
+  protected willDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
+    super.willDisplay(displayFlags, viewContext);
+    if (this.xScale.isInherited() && this.xScale.isAnimating()) {
+      this.xScale.onAnimate(viewContext.updateTime);
+    }
+    if (this.yScale.isInherited() && this.yScale.isAnimating()) {
+      this.yScale.onAnimate(viewContext.updateTime);
+    }
+  }
+
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
@@ -628,13 +638,13 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     }
   }
 
-  protected onRender(viewContext: ViewContextType<this>): void {
-    super.onRender(viewContext);
+  protected didRender(viewContext: ViewContextType<this>): void {
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
       const context = renderer.context;
       this.renderPlot(context, this.viewFrame);
     }
+    super.didRender(viewContext);
   }
 
   protected abstract renderPlot(context: CanvasContext, frame: BoxR2): void;

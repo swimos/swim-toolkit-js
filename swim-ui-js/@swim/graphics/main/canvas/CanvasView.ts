@@ -651,7 +651,7 @@ export class CanvasView extends HtmlView {
     if (rendererType === "canvas") {
       const context = this.node.getContext("2d");
       if (context !== null) {
-        return new CanvasRenderer(context, this.pixelRatio);
+        return new CanvasRenderer(context, this.pixelRatio, this.theme.state, this.mood.state);
       } else {
         throw new Error("Failed to create canvas rendering context");
       }
@@ -1125,11 +1125,15 @@ export class CanvasView extends HtmlView {
   }
 
   hitTest(x: number, y: number, viewContext?: ViewContext): GraphicsView | null {
-    if (viewContext === void 0) {
-      viewContext = this.superViewContext;
+    if (!this.isHidden() && !this.isCulled()) {
+      if (viewContext === void 0) {
+        viewContext = this.superViewContext;
+      }
+      const extendedViewContext = this.extendViewContext(viewContext);
+      return this.doHitTest(x, y, extendedViewContext);
+    } else {
+      return null;
     }
-    const extendedViewContext = this.extendViewContext(viewContext);
-    return this.doHitTest(x, y, extendedViewContext);
   }
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {

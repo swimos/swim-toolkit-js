@@ -82,7 +82,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     iconIndex: 0,
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                       timing: Timing | boolean, iconView: HtmlIconView): void {
-      iconView.iconColor.setState(theme.inner(mood, Look.backgroundColor), timing);
+      iconView.iconColor.setState(theme.dot(Look.backgroundColor, mood), timing);
     },
     viewDidAnimate(viewContext: ViewContext, iconView: HtmlIconView): void {
       if (!iconView.opacity.isAnimating() && this.iconIndex !== this.owner.iconCount) {
@@ -187,9 +187,9 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
 
-    this.backgroundColor.setAutoState(theme.inner(mood, Look.accentColor), timing);
+    this.backgroundColor.setAutoState(theme.dot(Look.accentColor, mood), timing);
 
-    let shadow = theme.inner(Mood.floating, Look.shadow);
+    let shadow = theme.dot(Look.shadow, Mood.floating);
     if (shadow !== void 0) {
       const shadowColor = shadow.color;
       const stackPhase = this.stackPhase.getValueOr(1);

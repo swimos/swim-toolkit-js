@@ -16,9 +16,9 @@ import type {Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
-import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
-import {Graphics, GraphicsView, IconViewInit, IconView, CanvasRenderer} from "@swim/graphics";
+import {Graphics, GraphicsView, Icon, IconViewInit, IconView, IconViewAnimator, CanvasRenderer} from "@swim/graphics";
 import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
 import type {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
 import {MapLayerView} from "../layer/MapLayerView";
@@ -72,10 +72,10 @@ export class MapIconView extends MapLayerView implements IconView {
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
   declare viewCenter: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Number})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsRender | View.NeedsComposite})
   declare xAlign: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Number})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsRender | View.NeedsComposite})
   declare yAlign: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length, updateFlags: View.NeedsRender | View.NeedsComposite})
@@ -87,7 +87,7 @@ export class MapIconView extends MapLayerView implements IconView {
   @ViewAnimator({type: Color, updateFlags: View.NeedsRender | View.NeedsComposite})
   declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewAnimator({type: Object, updateFlags: View.NeedsRender | View.NeedsComposite})
+  @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsRender | View.NeedsComposite})
   declare graphics: ViewAnimator<this, Graphics | undefined>;
 
   protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
@@ -102,6 +102,18 @@ export class MapIconView extends MapLayerView implements IconView {
         });
         this.didSetGeoBounds(newGeoBounds, oldGeoBounds);
         this.requireUpdate(View.NeedsProject);
+      }
+    }
+  }
+
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
+    if (!this.graphics.isInherited()) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof Icon) {
+        const newGraphics = oldGraphics.withTheme(theme, mood);
+        this.graphics.setOwnState(newGraphics, oldGraphics.isThemed() ? timing : false);
       }
     }
   }
@@ -124,14 +136,6 @@ export class MapIconView extends MapLayerView implements IconView {
     const invalid = !isFinite(viewCenter.x) || !isFinite(viewCenter.y);
     const culled = invalid || !this.viewFrame.intersectsBox(this.viewBounds);
     this.setCulled(culled);
-  }
-
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
-    super.onApplyTheme(theme, mood, timing);
-    if (this.iconColor.isAuto() && !this.iconColor.isInherited()) {
-      this.iconColor.setAutoState(theme.inner(mood, Look.accentColor), timing);
-    }
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
@@ -165,23 +169,22 @@ export class MapIconView extends MapLayerView implements IconView {
       const width = frame.width;
       const height = frame.height;
 
-      const context = canvas.getContext("2d")!;
+      const iconContext = canvas.getContext("2d")!;
       if (canvas.width !== pixelRatio * width || canvas.height !== pixelRatio * height) {
         canvas.width = pixelRatio * width;
         canvas.height = pixelRatio * height;
-        context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        iconContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
       }
-      context.clearRect(0, 0, width, height);
+      iconContext.clearRect(0, 0, width, height);
 
-      context.beginPath();
+      iconContext.beginPath();
       const iconColor = this.iconColor.value;
       if (iconColor !== void 0) {
-        context.fillStyle = iconColor.toString();
+        iconContext.fillStyle = iconColor.toString();
       }
-      graphics.render(new CanvasRenderer(context, pixelRatio), new BoxR2(0, 0, width, height));
-      if (iconColor !== void 0) {
-        context.fill();
-      }
+      const iconRenderer = new CanvasRenderer(iconContext, pixelRatio, this.theme.state, this.mood.state);
+      const iconFrame = new BoxR2(0, 0, width, height);
+      graphics.render(iconRenderer, iconFrame);
     } else {
       Object.defineProperty(this, "canvas", {
         value: null,

@@ -20,7 +20,7 @@ export * from "./drawing";
 
 export * from "./path";
 
-export * from "./webgl";
+export * from "./painting";
 
 export * from "./canvas";
 
@@ -31,6 +31,8 @@ export * from "./shape";
 export * from "./typeset";
 
 export * from "./icon";
+
+export * from "./webgl";
 
 declare global {
   interface Document {
