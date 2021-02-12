@@ -20,9 +20,10 @@ import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {HtmlViewInit, HtmlView, HtmlViewController} from "@swim/dom";
 import type {Graphics} from "../graphics/Graphics";
 import {Icon} from "./Icon";
+import {FilledIcon} from "./FilledIcon";
 import {IconViewInit, IconView} from "./IconView";
-import {SvgIconView} from "./SvgIconView";
 import {IconViewAnimator} from "./IconViewAnimator";
+import {SvgIconView} from "./SvgIconView";
 
 export interface HtmlIconViewInit extends HtmlViewInit, IconViewInit {
   viewController?: HtmlViewController;
@@ -99,6 +100,18 @@ export class HtmlIconView extends HtmlView implements IconView {
       if (oldGraphics instanceof Icon) {
         const newGraphics = oldGraphics.withTheme(theme, mood);
         this.graphics.setOwnState(newGraphics, oldGraphics.isThemed() ? timing : false);
+      }
+    }
+  }
+
+  protected onAnimate(viewContext: ViewContextType<this>): void {
+    super.onAnimate(viewContext);
+    const iconColor = this.iconColor.takeUpdatedValue();
+    if (iconColor !== void 0) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof FilledIcon) {
+        const newGraphics = oldGraphics.withFillColor(iconColor);
+        this.graphics.setOwnState(newGraphics);
       }
     }
   }

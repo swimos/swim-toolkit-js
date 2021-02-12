@@ -87,7 +87,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   @ViewProperty({type: Boolean, state: false})
   declare highlighted: ViewProperty<this, boolean>;
 
-  highlight(timing?: AnyTiming | boolean): this {
+  highlight(timing?: AnyTiming | boolean): void {
     if (!this.highlighted.state) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
@@ -99,7 +99,6 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       this.onHighlight(timing);
       this.didHighlight(timing);
     }
-    return this;
   }
 
   protected willHighlight(timing: Timing | boolean): void {
@@ -154,7 +153,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     }
   }
 
-  unhighlight(timing?: AnyTiming | boolean): this {
+  unhighlight(timing?: AnyTiming | boolean): void {
     if (this.highlighted.state) {
       if (timing === void 0 || timing === true) {
         timing = this.getLookOr(Look.timing, false);
@@ -166,7 +165,6 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       this.onUnhighlight(timing);
       this.didUnhighlight(timing);
     }
-    return this;
   }
 
   protected willUnhighlight(timing: Timing | boolean): void {
@@ -300,18 +298,6 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     super.displayChildViews(displayFlags, viewContext, layoutChildView);
   }
 
-  didHoldPress(input: PositionGestureInput): void {
-    let target = input.target;
-    while (target !== null && target !== this.node) {
-      const targetView = (target as ViewNode).view;
-      if (targetView instanceof TreeCell) {
-        targetView.didPressHold(input);
-        break;
-      }
-      target = target instanceof Node ? target.parentNode : null;
-    }
-  }
-
   didEndPress(input: PositionGestureInput, event: Event | null): void {
     super.didEndPress(input, event);
     let target = input.target;
@@ -337,6 +323,32 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       const viewController = this.viewController;
       if (viewController !== null && viewController.leafDidPress !== void 0) {
         viewController.leafDidPress(input, event, this);
+      }
+    }
+  }
+
+  didLongPress(input: PositionGestureInput): void {
+    let target = input.target;
+    while (target !== null && target !== this.node) {
+      const targetView = (target as ViewNode).view;
+      if (targetView instanceof TreeCell) {
+        targetView.didLongPress(input);
+        break;
+      }
+      target = target instanceof Node ? target.parentNode : null;
+    }
+
+    if (!input.defaultPrevented) {
+      const viewObservers = this.viewObservers;
+      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+        const viewObserver = viewObservers[i]!;
+        if (viewObserver.leafDidLongPress !== void 0) {
+          viewObserver.leafDidLongPress(input, this);
+        }
+      }
+      const viewController = this.viewController;
+      if (viewController !== null && viewController.leafDidLongPress !== void 0) {
+        viewController.leafDidLongPress(input, this);
       }
     }
   }

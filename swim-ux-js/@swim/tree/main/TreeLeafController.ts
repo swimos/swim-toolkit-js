@@ -23,6 +23,10 @@ export class TreeLeafController<V extends TreeLeaf = TreeLeaf> extends HtmlViewC
     // hook
   }
 
+  leafDidLongPress(input: PositionGestureInput, view: V): void {
+    // hook
+  }
+
   leafWillHighlight(timing: AnyTiming | boolean, view: V): void {
     // hook
   }

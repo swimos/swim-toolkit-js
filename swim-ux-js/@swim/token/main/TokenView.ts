@@ -598,7 +598,7 @@ export class TokenView extends HtmlView {
     const headView = this.head.view;
     if (headView !== null) {
       const context = new PathContext();
-      context.setPrecision(2);
+      context.setPrecision(3);
       context.arc(paddingLeft + radius, paddingTop + radius, radius, -(Math.PI / 2), 3 * (Math.PI / 2));
       context.closePath();
       if (icon !== null && !this.icon.embossed) {
@@ -613,7 +613,7 @@ export class TokenView extends HtmlView {
     if (headIconView !== null) {
       if (icon !== null && this.icon.embossed) {
         const context = new PathContext();
-        context.setPrecision(2);
+        context.setPrecision(3);
         const renderer = new PathRenderer(context);
         const frame = new BoxR2(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
         icon.render(renderer, frame);
@@ -627,7 +627,7 @@ export class TokenView extends HtmlView {
     const bodyView = this.body.view;
     if (bodyView !== null) {
       const context = new PathContext();
-      context.setPrecision(2);
+      context.setPrecision(3);
       if (expandedPhase !== 0) {
         const u = 1 - expandedPhase;
         context.arc(paddingLeft + radius, paddingTop + radius, radius + gap, -(Math.PI / 2) + padAngle, Math.PI / 2 - padAngle);
@@ -640,7 +640,7 @@ export class TokenView extends HtmlView {
     const footView = this.foot.view;
     if (footView !== null && accessoryIcon !== null) {
       const context = new PathContext();
-      context.setPrecision(2);
+      context.setPrecision(3);
       if (expandedPhase !== 0) {
         const u = 1 - expandedPhase;
         context.arc(paddingLeft + bodyRight - radius, paddingTop + radius, radius + gap, -(Math.PI / 2) + padAngle, Math.PI / 2 - padAngle);
@@ -659,7 +659,7 @@ export class TokenView extends HtmlView {
     if (footIconView !== null) {
       if (accessoryIcon !== null && this.accessory.embossed) {
         const context = new PathContext();
-        context.setPrecision(2);
+        context.setPrecision(3);
         if (expandedPhase !== 0) {
           const renderer = new PathRenderer(context);
           const frame = new BoxR2(paddingLeft + bodyRight + gap, paddingTop, paddingLeft + bodyRight + gap + tokenHeight, paddingTop + tokenHeight);

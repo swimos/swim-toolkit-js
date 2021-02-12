@@ -531,7 +531,6 @@ export class PointerMomentumGesture<V extends View> extends AbstractMomentumGest
   }
 
   protected onPointerDown(event: PointerEvent): void {
-    event.preventDefault();
     const input = this.getOrCreateInput(event.pointerId, PointerMomentumGesture.inputType(event.pointerType),
                                         event.isPrimary, event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
@@ -635,7 +634,6 @@ export class TouchMomentumGesture<V extends View> extends AbstractMomentumGestur
   }
 
   protected onTouchStart(event: TouchEvent): void {
-    event.preventDefault();
     const touches = event.targetTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;

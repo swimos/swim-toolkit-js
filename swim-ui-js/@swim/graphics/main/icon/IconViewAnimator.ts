@@ -15,16 +15,22 @@
 import {ViewAnimator} from "@swim/view";
 import type {Graphics} from "../graphics/Graphics";
 import {Icon} from "./Icon";
+import {FilledIcon} from "./FilledIcon";
 import type {IconView} from "./IconView";
 
 /** @hidden */
 export abstract class IconViewAnimator<V extends IconView> extends ViewAnimator<V, Graphics | null | undefined> {
   fromAny(value: Graphics | null | undefined): Graphics | null | undefined {
     if (value instanceof Icon) {
-      const theme = this.owner.theme.state;
-      const mood = this.owner.mood.state;
-      if (theme !== void 0 && mood !== void 0) {
-        value = value.withTheme(theme, mood);
+      const iconColor = this.owner.iconColor.state;
+      if (iconColor !== void 0 && value instanceof FilledIcon) {
+        value = value.withFillColor(iconColor);
+      } else {
+        const theme = this.owner.theme.state;
+        const mood = this.owner.mood.state;
+        if (theme !== void 0 && mood !== void 0) {
+          value = value.withTheme(theme, mood);
+        }
       }
     }
     return value;

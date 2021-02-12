@@ -21,4 +21,8 @@ export class TreeCellController<V extends TreeCell = TreeCell> extends HtmlViewC
   cellDidPress(input: PositionGestureInput, event: Event | null, view: V): void {
     // hook
   }
+
+  cellDidLongPress(input: PositionGestureInput, view: V): void {
+    // hook
+  }
 }

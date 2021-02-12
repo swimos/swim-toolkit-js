@@ -43,10 +43,6 @@ export interface GestureDelegate {
 
   didBeginPress?(input: GestureInput, event: Event | null): void;
 
-  willHoldPress?(input: GestureInput): void;
-
-  didHoldPress?(input: GestureInput): void;
-
   willMovePress?(input: GestureInput, event: Event | null): void;
 
   didMovePress?(input: GestureInput, event: Event | null): void;
@@ -62,4 +58,8 @@ export interface GestureDelegate {
   willPress?(input: GestureInput, event: Event | null): void;
 
   didPress?(input: GestureInput, event: Event | null): void;
+
+  willLongPress?(input: GestureInput): void;
+
+  didLongPress?(input: GestureInput): void;
 }

@@ -23,6 +23,7 @@ import type {GraphicsViewController} from "../graphics/GraphicsViewController";
 import {LayerView} from "../layer/LayerView";
 import {CanvasRenderer} from "../canvas/CanvasRenderer";
 import {Icon} from "./Icon";
+import {FilledIcon} from "./FilledIcon";
 import {IconViewInit, IconView} from "./IconView";
 import {IconViewAnimator} from "./IconViewAnimator";
 
@@ -66,6 +67,18 @@ export class GraphicsIconView extends LayerView implements IconView {
     }
   }
 
+  protected onAnimate(viewContext: ViewContextType<this>): void {
+    super.onAnimate(viewContext);
+    const iconColor = this.iconColor.takeUpdatedValue();
+    if (iconColor !== void 0) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof FilledIcon) {
+        const newGraphics = oldGraphics.withFillColor(iconColor);
+        this.graphics.setOwnState(newGraphics);
+      }
+    }
+  }
+
   protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
@@ -82,10 +95,6 @@ export class GraphicsIconView extends LayerView implements IconView {
     if (graphics !== void 0) {
       const context = renderer.context;
       context.beginPath();
-      const iconColor = this.iconColor.value;
-      if (iconColor !== void 0) {
-        context.fillStyle = iconColor.toString();
-      }
       graphics.render(renderer, frame);
     }
   }

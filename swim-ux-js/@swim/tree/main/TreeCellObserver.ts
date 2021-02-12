@@ -18,4 +18,6 @@ import type {TreeCell} from "./TreeCell";
 
 export interface TreeCellObserver<V extends TreeCell = TreeCell> extends HtmlViewObserver<V> {
   cellDidPress?(input: PositionGestureInput, event: Event | null, view: V): void;
+
+  cellDidLongPress?(input: PositionGestureInput, view: V): void;
 }

@@ -45,7 +45,9 @@ export class GestureInput {
   y: number;
   t: number;
 
-  detail?: unknown;
+  detail: unknown;
+
+  defaultPrevented: boolean;
 
   constructor(inputId: string, inputType: GestureInputType, isPrimary: boolean,
               x: number, y: number, t: number) {
@@ -80,5 +82,11 @@ export class GestureInput {
     this.t = t;
 
     this.detail = void 0;
+
+    this.defaultPrevented = false;
+  }
+
+  preventDefault(): void {
+    this.defaultPrevented = true;
   }
 }

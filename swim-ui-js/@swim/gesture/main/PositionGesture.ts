@@ -385,7 +385,7 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
           configurable: true,
         });
         this.onBeginPress(input, event);
-        input.setHoldTimer(this.holdPress.bind(this, input));
+        input.setHoldTimer(this.longPress.bind(this, input));
         this.didBeginPress(input, event);
         if (this.pressCount === 1) {
           this.startPressing();
@@ -418,35 +418,6 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
     const delegate = this.delegate;
     if (delegate !== null && delegate.didBeginPress !== void 0) {
       delegate.didBeginPress(input, event);
-    }
-  }
-
-  holdPress(input: PositionGestureInput): void {
-    if (input.pressing) {
-      input.clearHoldTimer();
-      this.willHoldPress(input);
-      this.onHoldPress(input);
-      this.didHoldPress(input);
-    }
-  }
-
-  protected willHoldPress(input: PositionGestureInput): void {
-    const delegate = this.delegate;
-    if (delegate !== null && delegate.willHoldPress !== void 0) {
-      delegate.willHoldPress(input);
-    }
-  }
-
-  protected onHoldPress(input: PositionGestureInput): void {
-    const t = performance.now();
-    input.dt = t - input.t;
-    input.t = t;
-  }
-
-  protected didHoldPress(input: PositionGestureInput): void {
-    const delegate = this.delegate;
-    if (delegate !== null && delegate.didHoldPress !== void 0) {
-      delegate.didHoldPress(input);
     }
   }
 
@@ -573,6 +544,35 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
       delegate.didPress(input, event);
     }
   }
+
+  longPress(input: PositionGestureInput): void {
+    if (input.pressing) {
+      input.clearHoldTimer();
+      this.willLongPress(input);
+      this.onLongPress(input);
+      this.didLongPress(input);
+    }
+  }
+
+  protected willLongPress(input: PositionGestureInput): void {
+    const delegate = this.delegate;
+    if (delegate !== null && delegate.willLongPress !== void 0) {
+      delegate.willLongPress(input);
+    }
+  }
+
+  protected onLongPress(input: PositionGestureInput): void {
+    const t = performance.now();
+    input.dt = t - input.t;
+    input.t = t;
+  }
+
+  protected didLongPress(input: PositionGestureInput): void {
+    const delegate = this.delegate;
+    if (delegate !== null && delegate.didLongPress !== void 0) {
+      delegate.didLongPress(input);
+    }
+  }
 }
 
 /** @hidden */
@@ -662,7 +662,6 @@ export class PointerPositionGesture<V extends View> extends AbstractPositionGest
   }
 
   protected onPointerDown(event: PointerEvent): void {
-    event.preventDefault();
     const input = this.getOrCreateInput(event.pointerId, PointerPositionGesture.inputType(event.pointerType),
                                         event.isPrimary, event.clientX, event.clientY, event.timeStamp);
     this.updateInput(input, event);
@@ -766,7 +765,6 @@ export class TouchPositionGesture<V extends View> extends AbstractPositionGestur
   }
 
   protected onTouchStart(event: TouchEvent): void {
-    event.preventDefault();
     const touches = event.targetTouches;
     for (let i = 0; i < touches.length; i += 1) {
       const touch = touches[i]!;

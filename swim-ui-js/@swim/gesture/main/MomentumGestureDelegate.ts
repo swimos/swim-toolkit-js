@@ -53,10 +53,6 @@ export interface MomentumGestureDelegate extends PositionGestureDelegate {
 
   didBeginPress?(input: MomentumGestureInput, event: Event | null): void;
 
-  willHoldPress?(input: MomentumGestureInput): void;
-
-  didHoldPress?(input: MomentumGestureInput): void;
-
   willMovePress?(input: MomentumGestureInput, event: Event | null): void;
 
   didMovePress?(input: MomentumGestureInput, event: Event | null): void;
@@ -72,6 +68,10 @@ export interface MomentumGestureDelegate extends PositionGestureDelegate {
   willPress?(input: MomentumGestureInput, event: Event | null): void;
 
   didPress?(input: MomentumGestureInput, event: Event | null): void;
+
+  willLongPress?(input: MomentumGestureInput): void;
+
+  didLongPress?(input: MomentumGestureInput): void;
 
   willStartCoasting?(): void;
 

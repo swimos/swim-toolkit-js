@@ -17,7 +17,7 @@ import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import {Graphics, Icon, IconViewInit, IconView, IconViewAnimator, SvgIconView} from "@swim/graphics";
+import {Graphics, Icon, FilledIcon, IconViewInit, IconView, IconViewAnimator, SvgIconView} from "@swim/graphics";
 import {TreeCellInit, TreeCell} from "./TreeCell";
 import type {TreeCellController} from "./TreeCellController";
 
@@ -96,6 +96,18 @@ export class IconTreeCell extends TreeCell implements IconView {
       if (oldGraphics instanceof Icon) {
         const newGraphics = oldGraphics.withTheme(theme, mood);
         this.graphics.setOwnState(newGraphics, oldGraphics.isThemed() ? timing : false);
+      }
+    }
+  }
+
+  protected onAnimate(viewContext: ViewContextType<this>): void {
+    super.onAnimate(viewContext);
+    const iconColor = this.iconColor.takeUpdatedValue();
+    if (iconColor !== void 0) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof FilledIcon) {
+        const newGraphics = oldGraphics.withFillColor(iconColor);
+        this.graphics.setOwnState(newGraphics);
       }
     }
   }

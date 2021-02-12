@@ -13,13 +13,19 @@
 // limitations under the License.
 
 import type {BoxR2} from "@swim/math";
-import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import type {Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {Graphics} from "../graphics/Graphics";
 import type {DrawingContext} from "../drawing/DrawingContext";
 import type {PaintingContext} from "../painting/PaintingContext";
 
 export abstract class Icon implements Graphics {
+  abstract readonly moodModifier: MoodMatrix | null;
+
+  abstract withMoodModifier(moodModifier: MoodMatrix | null): Icon;
+
+  abstract modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): Icon;
+
   abstract isThemed(): boolean;
 
   abstract withTheme(theme: ThemeMatrix, mood: MoodVector): Icon;

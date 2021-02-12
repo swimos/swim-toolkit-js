@@ -23,10 +23,10 @@ import type {DrawingContext} from "../drawing/DrawingContext";
 import {DrawingRenderer} from "../drawing/DrawingRenderer";
 import type {PaintingContext} from "../painting/PaintingContext";
 import {PaintingRenderer} from "../painting/PaintingRenderer";
-import {Icon} from "./Icon";
+import {FilledIcon} from "./FilledIcon";
 import {PolygonIconInterpolator} from "../"; // forward import
 
-export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equals, Equivalent, Debug {
+export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>, Equals, Equivalent, Debug {
   constructor(sides: number, rotation: Angle, fillColor: Color | null,
               fillLook: Look<Color> | null, moodModifier: MoodMatrix | null) {
     super();
@@ -134,7 +134,7 @@ export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equal
   paint(context: PaintingContext, frame: BoxR2): void {
     context.beginPath();
     this.draw(context, frame);
-    if (context.fillStyle === "" && this.fillColor !== null) {
+    if (this.fillColor !== null) {
       context.fillStyle = this.fillColor.toString();
     }
     context.fill();
@@ -184,7 +184,8 @@ export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equal
       return this.sides === that.sides
           && this.rotation.equivalentTo(that.rotation, epsilon)
           && Equivalent(this.fillColor, that.fillColor, epsilon)
-          && this.fillLook === that.fillLook;
+          && this.fillLook === that.fillLook
+          && Equivalent(this.moodModifier, that.moodModifier, epsilon);
     }
     return false;
   }
@@ -196,7 +197,8 @@ export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equal
       return this.sides === that.sides
           && this.rotation.equals(that.rotation)
           && Equals(this.fillColor, that.fillColor)
-          && this.fillLook === that.fillLook;
+          && this.fillLook === that.fillLook
+          && Equals(this.moodModifier, that.moodModifier);
     }
     return false;
   }
@@ -206,7 +208,8 @@ export class PolygonIcon extends Icon implements Interpolate<PolygonIcon>, Equal
         .debug(this.sides).write(", ")
         .debug(this.rotation).write(", ")
         .debug(this.fillColor).write(", ")
-        .debug(this.fillLook).write(41/*')'*/);
+        .debug(this.fillLook).write(", ")
+        .debug(this.moodModifier).write(41/*')'*/);
   }
 
   toString(): string {

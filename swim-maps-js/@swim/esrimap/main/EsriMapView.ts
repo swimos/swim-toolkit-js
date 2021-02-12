@@ -172,7 +172,7 @@ export class EsriMapView extends EsriView {
       const esriOverlaySurface = HtmlView.fromNode(esriViewRoot.node.querySelector(".esri-overlay-surface") as HTMLDivElement);
       const canvas = esriOverlaySurface.append(CanvasView);
       canvas.setEventNode(esriViewRoot.node);
-      canvas.append(this);
+      canvas.appendChildView(this);
       return canvas;
     }
   }

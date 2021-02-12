@@ -220,12 +220,10 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
   }
 
   paint(context: PaintingContext, frame: BoxR2): void {
-    const fillStyle = context.fillStyle;
     const outer = this.outer;
     if (outer !== null) {
       outer.paint(context, this.outerFrame(frame));
     }
-    context.fillStyle = fillStyle;
     const inner = this.inner;
     if (inner !== null) {
       inner.paint(context, this.innerFrame(frame));
@@ -300,6 +298,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
       return Equivalent(this.outer, that.outer, epsilon)
           && Equivalent(this.inner, that.inner, epsilon)
           && Equivalent(this.innerScale, that.innerScale, epsilon)
+          && Equivalent(this.moodModifier, that.moodModifier, epsilon)
           && Equivalent(this.outerMoodModifier, that.outerMoodModifier, epsilon)
           && Equivalent(this.innerMoodModifier, that.innerMoodModifier, epsilon);
     }
@@ -313,6 +312,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
       return Equals(this.outer, that.outer)
           && Equals(this.inner, that.inner)
           && Equals(this.innerScale, that.innerScale)
+          && Equals(this.moodModifier, that.moodModifier)
           && Equals(this.outerMoodModifier, that.outerMoodModifier)
           && Equals(this.innerMoodModifier, that.innerMoodModifier);
     }
@@ -324,6 +324,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
         .debug(this.outer).write(", ")
         .debug(this.inner).write(", ")
         .debug(this.innerScale).write(", ")
+        .debug(this.moodModifier).write(", ")
         .debug(this.outerMoodModifier).write(", ")
         .debug(this.innerMoodModifier).write(41/*')'*/);
   }

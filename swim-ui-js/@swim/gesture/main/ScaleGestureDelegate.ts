@@ -47,10 +47,6 @@ export interface ScaleGestureDelegate<X, Y> extends MomentumGestureDelegate {
 
   didBeginPress?(input: ScaleGestureInput<X, Y>, event: Event | null): void;
 
-  willHoldPress?(input: ScaleGestureInput<X, Y>): void;
-
-  didHoldPress?(input: ScaleGestureInput<X, Y>): void;
-
   willMovePress?(input: ScaleGestureInput<X, Y>, event: Event | null): void;
 
   didMovePress?(input: ScaleGestureInput<X, Y>, event: Event | null): void;
@@ -66,6 +62,10 @@ export interface ScaleGestureDelegate<X, Y> extends MomentumGestureDelegate {
   willPress?(input: ScaleGestureInput<X, Y>, event: Event | null): void;
 
   didPress?(input: ScaleGestureInput<X, Y>, event: Event | null): void;
+
+  willLongPress?(input: ScaleGestureInput<X, Y>): void;
+
+  didLongPress?(input: ScaleGestureInput<X, Y>): void;
 
   willBeginCoast?(input: ScaleGestureInput<X, Y>, event: Event | null): boolean | void;
 

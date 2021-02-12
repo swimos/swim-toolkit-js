@@ -42,7 +42,7 @@ export class PathContext implements DrawingContext {
   /** @hidden */
   get anglePrecision(): number {
     const precision = this.precision;
-    return precision > 0 ? Math.max(3, precision) : precision;
+    return precision > 0 ? Math.max(5, precision) : precision;
   }
 
   /** @hidden */

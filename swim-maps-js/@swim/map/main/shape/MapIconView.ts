@@ -18,7 +18,7 @@ import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/color";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
-import {Graphics, GraphicsView, Icon, IconViewInit, IconView, IconViewAnimator, CanvasRenderer} from "@swim/graphics";
+import {Graphics, GraphicsView, Icon, FilledIcon, IconViewInit, IconView, IconViewAnimator, CanvasRenderer} from "@swim/graphics";
 import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
 import type {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
 import {MapLayerView} from "../layer/MapLayerView";
@@ -72,16 +72,16 @@ export class MapIconView extends MapLayerView implements IconView {
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
   declare viewCenter: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Number, updateFlags: View.NeedsRender | View.NeedsComposite})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
   declare xAlign: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Number, updateFlags: View.NeedsRender | View.NeedsComposite})
+  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
   declare yAlign: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Length, updateFlags: View.NeedsRender | View.NeedsComposite})
+  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
   declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
-  @ViewAnimator({type: Length, updateFlags: View.NeedsRender | View.NeedsComposite})
+  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
   declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   @ViewAnimator({type: Color, updateFlags: View.NeedsRender | View.NeedsComposite})
@@ -118,6 +118,18 @@ export class MapIconView extends MapLayerView implements IconView {
     }
   }
 
+  protected onAnimate(viewContext: ViewContextType<this>): void {
+    super.onAnimate(viewContext);
+    const iconColor = this.iconColor.takeUpdatedValue();
+    if (iconColor !== void 0) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof FilledIcon) {
+        const newGraphics = oldGraphics.withFillColor(iconColor);
+        this.graphics.setOwnState(newGraphics);
+      }
+    }
+  }
+
   protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
     let viewCenter: PointR2;
@@ -139,10 +151,22 @@ export class MapIconView extends MapLayerView implements IconView {
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+    if ((this.viewFlags & View.NeedsLayout) === 0) {
+      displayFlags &= ~View.NeedsLayout;
+    }
     if ((this.viewFlags & View.NeedsRender) === 0) {
       displayFlags &= ~View.NeedsRender;
     }
     return displayFlags;
+  }
+
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
+    Object.defineProperty(this, "iconBounds", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   protected onRender(viewContext: ViewContextType<this>): void {
@@ -178,10 +202,6 @@ export class MapIconView extends MapLayerView implements IconView {
       iconContext.clearRect(0, 0, width, height);
 
       iconContext.beginPath();
-      const iconColor = this.iconColor.value;
-      if (iconColor !== void 0) {
-        iconContext.fillStyle = iconColor.toString();
-      }
       const iconRenderer = new CanvasRenderer(iconContext, pixelRatio, this.theme.state, this.mood.state);
       const iconFrame = new BoxR2(0, 0, width, height);
       graphics.render(iconRenderer, iconFrame);

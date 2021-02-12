@@ -179,7 +179,7 @@ export class EsriSceneView extends EsriView {
       const esriViewRoot = HtmlView.fromNode(container.node.querySelector(".esri-view-root") as HTMLDivElement);
       const esriViewSurface = HtmlView.fromNode(esriViewRoot.node.querySelector(".esri-view-surface") as HTMLDivElement);
       const canvas = esriViewSurface.append(CanvasView);
-      canvas.append(this);
+      canvas.appendChildView(this);
       return canvas;
     }
   }

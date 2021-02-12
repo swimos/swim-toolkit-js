@@ -14,8 +14,13 @@
 
 export {Icon} from "./Icon";
 
+export {FilledIcon} from "./FilledIcon";
+
 export {VectorIcon} from "./VectorIcon";
 export {VectorIconInterpolator} from "./VectorIconInterpolator";
+
+export {CircleIcon} from "./CircleIcon";
+export {CircleIconInterpolator} from "./CircleIconInterpolator";
 
 export {PolygonIcon} from "./PolygonIcon";
 export {PolygonIconInterpolator} from "./PolygonIconInterpolator";

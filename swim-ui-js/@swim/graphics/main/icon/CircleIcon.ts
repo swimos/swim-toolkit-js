@@ -12,32 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals, Equivalent} from "@swim/util";
+import {Equals, Equivalent, Lazy} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import type {Interpolate, Interpolator} from "@swim/mapping";
-import {BoxR2, AnyPathR2, PathR2, Transform} from "@swim/math";
+import type {BoxR2} from "@swim/math";
 import type {Color} from "@swim/color";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {DrawingContext} from "../drawing/DrawingContext";
 import {DrawingRenderer} from "../drawing/DrawingRenderer";
-import type {PaintingFillRule, PaintingContext} from "../painting/PaintingContext";
+import type {PaintingContext} from "../painting/PaintingContext";
 import {PaintingRenderer} from "../painting/PaintingRenderer";
 import {FilledIcon} from "./FilledIcon";
-import {VectorIconInterpolator} from "../"; // forward import
+import {CircleIconInterpolator} from "../"; // forward import
 
-export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, Equals, Equivalent, Debug {
-  constructor(path: PathR2, fillRule: PaintingFillRule, fillColor: Color | null,
-              fillLook: Look<Color> | null, moodModifier: MoodMatrix | null) {
+export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, Equals, Equivalent, Debug {
+  constructor(fillColor: Color | null, fillLook: Look<Color> | null,
+              moodModifier: MoodMatrix | null) {
     super();
-    Object.defineProperty(this, "path", {
-      value: path,
-      enumerable: true,
-    });
-    Object.defineProperty(this, "fillRule", {
-      value: fillRule,
-      enumerable: true,
-    });
     Object.defineProperty(this, "fillColor", {
       value: fillColor,
       enumerable: true,
@@ -52,53 +44,37 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     });
   }
 
-  declare readonly path: PathR2;
-
-  declare readonly fillRule: PaintingFillRule;
-
-  withFillRule(fillRule: PaintingFillRule): VectorIcon {
-    if (Equals(this.fillRule, fillRule)) {
-      return this;
-    } else {
-      return this.copy(this.path, fillRule, this.fillColor,
-                       this.fillLook, this.moodModifier);
-    }
-  }
-
   declare readonly fillColor: Color | null;
 
-  withFillColor(fillColor: Color | null): VectorIcon {
+  withFillColor(fillColor: Color | null): CircleIcon {
     if (Equals(this.fillColor, fillColor)) {
       return this;
     } else {
-      return this.copy(this.path, this.fillRule, fillColor,
-                       this.fillLook, this.moodModifier);
+      return this.copy(fillColor, this.fillLook, this.moodModifier);
     }
   }
 
   declare readonly fillLook: Look<Color> | null;
 
-  withFillLook(fillLook: Look<Color> | null): VectorIcon {
+  withFillLook(fillLook: Look<Color> | null): CircleIcon {
     if (this.fillLook === fillLook) {
       return this;
     } else {
-      return this.copy(this.path, this.fillRule, this.fillColor,
-                       fillLook, this.moodModifier);
+      return this.copy(this.fillColor, fillLook, this.moodModifier);
     }
   }
 
   declare readonly moodModifier: MoodMatrix | null;
 
-  withMoodModifier(moodModifier: MoodMatrix | null): VectorIcon {
+  withMoodModifier(moodModifier: MoodMatrix | null): CircleIcon {
     if (Equals(this.moodModifier, moodModifier)) {
       return this;
     } else {
-      return this.copy(this.path, this.fillRule, this.fillColor,
-                       this.fillLook, moodModifier);
+      return this.copy(this.fillColor, this.fillLook, moodModifier);
     }
   }
 
-  modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): VectorIcon {
+  modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): CircleIcon {
     let oldMoodModifier = this.moodModifier;
     if (oldMoodModifier === null) {
       oldMoodModifier = MoodMatrix.empty();
@@ -115,7 +91,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     return this.fillColor !== null;
   }
 
-  withTheme(theme: ThemeMatrix, mood: MoodVector): VectorIcon {
+  withTheme(theme: ThemeMatrix, mood: MoodVector): CircleIcon {
     const fillLook = this.fillLook;
     if (fillLook !== null) {
       const moodModifier = this.moodModifier;
@@ -146,24 +122,29 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     if (this.fillColor !== null) {
       context.fillStyle = this.fillColor.toString();
     }
-    context.fill(this.fillRule);
+    context.fill();
   }
 
   draw(context: DrawingContext, frame: BoxR2): void {
-    this.path.transformDraw(context, Transform.scale(frame.width, frame.height)
-                                              .translate(frame.x, frame.y));
+    const centerX = (frame.xMin + frame.xMax) / 2;
+    const centerY = (frame.yMin + frame.yMax) / 2;
+    const width = frame.width;
+    const height = frame.height;
+    const radius = Math.min(width, height) / 2;
+    context.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    context.closePath();
   }
 
-  protected copy(path: PathR2, fillRule: PaintingFillRule, fillColor: Color | null,
-                 fillLook: Look<Color> | null, moodModifier: MoodMatrix | null): VectorIcon {
-    return new VectorIcon(path, fillRule, fillColor, fillLook, moodModifier);
+  protected copy(fillColor: Color | null, fillLook: Look<Color> | null,
+                 moodModifier: MoodMatrix | null): CircleIcon {
+    return new CircleIcon(fillColor, fillLook, moodModifier);
   }
 
-  interpolateTo(that: VectorIcon): Interpolator<VectorIcon>;
-  interpolateTo(that: unknown): Interpolator<VectorIcon> | null;
-  interpolateTo(that: unknown): Interpolator<VectorIcon> | null {
-    if (that instanceof VectorIcon) {
-      return VectorIconInterpolator(this, that);
+  interpolateTo(that: CircleIcon): Interpolator<CircleIcon>;
+  interpolateTo(that: unknown): Interpolator<CircleIcon> | null;
+  interpolateTo(that: unknown): Interpolator<CircleIcon> | null {
+    if (that instanceof CircleIcon) {
+      return CircleIconInterpolator(this, that);
     } else {
       return null;
     }
@@ -172,10 +153,8 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
   equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
-    } else if (that instanceof VectorIcon) {
-      return this.path.equivalentTo(that.path, epsilon)
-          && this.fillRule === that.fillRule
-          && Equivalent(this.fillColor, that.fillColor, epsilon)
+    } else if (that instanceof CircleIcon) {
+      return Equivalent(this.fillColor, that.fillColor, epsilon)
           && this.fillLook === that.fillLook
           && Equivalent(this.moodModifier, that.moodModifier, epsilon);
     }
@@ -185,10 +164,8 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
   equals(that: unknown): boolean {
     if (this === that) {
       return true;
-    } else if (that instanceof VectorIcon) {
-      return this.path.equals(that.path)
-          && this.fillRule === that.fillRule
-          && Equals(this.fillColor, that.fillColor)
+    } else if (that instanceof CircleIcon) {
+      return Equals(this.fillColor, that.fillColor)
           && this.fillLook === that.fillLook
           && Equals(this.moodModifier, that.moodModifier);
     }
@@ -196,9 +173,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
   }
 
   debug(output: Output): void {
-    output = output.write("new").write(32/*' '*/).write("VectorIcon").write(40/*'('*/)
-        .debug(this.path).write(", ")
-        .debug(this.fillRule).write(", ")
+    output = output.write("new").write(32/*' '*/).write("CircleIcon").write(40/*'('*/)
         .debug(this.fillColor).write(", ")
         .debug(this.fillLook).write(", ")
         .debug(this.moodModifier).write(41/*')'*/);
@@ -208,15 +183,8 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     return Format.debug(this);
   }
 
-  static create(width: number, height: number, path: AnyPathR2,
-                fillRule?: PaintingFillRule): VectorIcon {
-    path = PathR2.fromAny(path);
-    if (width !== 1 || height !== 1) {
-      path = path.transform(Transform.scale(1 / width, 1 / height));
-    }
-    if (fillRule === void 0) {
-      fillRule = "nonzero";
-    }
-    return new VectorIcon(path, fillRule, null, Look.iconColor, null);
+  @Lazy
+  static create(): CircleIcon {
+    return new CircleIcon(null, Look.accentColor, null);
   }
 }

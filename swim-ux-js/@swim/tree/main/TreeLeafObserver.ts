@@ -20,6 +20,8 @@ import type {TreeLeaf} from "./TreeLeaf";
 export interface TreeLeafObserver<V extends TreeLeaf = TreeLeaf> extends HtmlViewObserver<V> {
   leafDidPress?(input: PositionGestureInput, event: Event | null, view: V): void;
 
+  leafDidLongPress?(input: PositionGestureInput, view: V): void;
+
   leafWillHighlight?(timing: AnyTiming | boolean, view: V): void;
 
   leafDidHighlight?(timing: AnyTiming | boolean, view: V): void;

@@ -174,7 +174,7 @@ export class Arc implements Graphics, Equals, Debug {
   render(renderer?: GraphicsRenderer, frame?: BoxR2): string | void {
     if (renderer === void 0) {
       const context = new PathContext();
-      context.setPrecision(2);
+      context.setPrecision(3);
       this.draw(context, frame);
       return context.toString();
     } else if (renderer instanceof PathRenderer) {

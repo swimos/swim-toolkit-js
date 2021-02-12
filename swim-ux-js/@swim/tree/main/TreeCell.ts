@@ -51,14 +51,10 @@ export class TreeCell extends HtmlView {
     super.initView(init);
   }
 
-  didPressHold(input: PositionGestureInput): void {
-    // hook
-  }
-
   didPress(input: PositionGestureInput, event: Event | null): void {
     if (!input.defaultPrevented) {
       const viewObservers = this.viewObservers;
-      for (let i = 0, n =viewObservers.length; i < n; i += 1) {
+      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
         const viewObserver = viewObservers[i]!;
         if (viewObserver.cellDidPress !== void 0) {
           viewObserver.cellDidPress(input, event, this);
@@ -67,6 +63,22 @@ export class TreeCell extends HtmlView {
       const viewController = this.viewController;
       if (viewController !== null && viewController.cellDidPress !== void 0) {
         viewController.cellDidPress(input, event, this);
+      }
+    }
+  }
+
+  didLongPress(input: PositionGestureInput): void {
+    if (!input.defaultPrevented) {
+      const viewObservers = this.viewObservers;
+      for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+        const viewObserver = viewObservers[i]!;
+        if (viewObserver.cellDidLongPress !== void 0) {
+          viewObserver.cellDidLongPress(input, this);
+        }
+      }
+      const viewController = this.viewController;
+      if (viewController !== null && viewController.cellDidLongPress !== void 0) {
+        viewController.cellDidLongPress(input, this);
       }
     }
   }

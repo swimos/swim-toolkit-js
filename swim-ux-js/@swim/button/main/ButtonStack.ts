@@ -571,11 +571,6 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     // hook
   }
 
-  didHoldPress(input: PositionGestureInput): void {
-    input.preventDefault();
-    this.toggle();
-  }
-
   didMovePress(input: PositionGestureInput, event: Event | null): void {
     if (!input.defaultPrevented && this.stackState !== "expanded") {
       const stackHeight = this.stackHeight;
@@ -625,6 +620,11 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
         this.expand();
       }
     }
+  }
+
+  didLongPress(input: PositionGestureInput): void {
+    input.preventDefault();
+    this.toggle();
   }
 
   protected onClick(event: MouseEvent): void {

@@ -225,7 +225,7 @@ export class GoogleMapView extends MapLayerView implements MapView {
             enumerable: true,
             configurable: true,
           });
-          this.canvasView.append(mapView);
+          this.canvasView.appendChildView(mapView);
         }
         declare readonly mapView: GoogleMapView;
         declare readonly canvasView: CanvasView;
@@ -234,7 +234,7 @@ export class GoogleMapView extends MapLayerView implements MapView {
           const overlayMouseTarget = GoogleMapView.materializeAncestors(panes.overlayMouseTarget as HTMLElement);
           const overlayContainer = overlayMouseTarget.parentView as HtmlView;
           const container = overlayContainer.parentView as HtmlView;
-          container.append(this.canvasView!);
+          container.appendChildView(this.canvasView!);
         }
         onRemove(): void {
           this.canvasView.remove();

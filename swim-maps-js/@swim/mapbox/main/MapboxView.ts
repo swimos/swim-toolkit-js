@@ -223,7 +223,7 @@ export class MapboxView extends MapLayerView implements MapView {
       const canvasContainer = HtmlView.fromNode(map.getCanvasContainer());
       const canvas = canvasContainer.append(CanvasView);
       canvas.setEventNode(canvasContainer.node);
-      canvas.append(this);
+      canvas.appendChildView(this);
       return canvas;
     }
   }

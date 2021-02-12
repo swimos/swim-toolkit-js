@@ -17,7 +17,6 @@ import {GestureInputType, GestureInput} from "./GestureInput";
 export class PositionGestureInput extends GestureInput {
   hovering: boolean;
   pressing: boolean;
-  defaultPrevented: boolean;
   holdTimer: number;
   holdDelay: number;
 
@@ -26,7 +25,6 @@ export class PositionGestureInput extends GestureInput {
     super(inputId, inputType, isPrimary, x, y, t);
     this.hovering = false;
     this.pressing = false;
-    this.defaultPrevented = false;
     this.holdTimer = 0;
     this.holdDelay = 400;
   }
@@ -37,10 +35,6 @@ export class PositionGestureInput extends GestureInput {
     const dt = this.t - this.t0;
     return this.inputType !== "mouse" && dt < 100
         && dx * dx + dy * dy > 10 * 10;
-  }
-
-  preventDefault(): void {
-    this.defaultPrevented = true;
   }
 
   setHoldTimer(f: () => void): void {

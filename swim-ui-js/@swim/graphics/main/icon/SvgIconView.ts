@@ -22,6 +22,7 @@ import type {Graphics} from "../graphics/Graphics";
 import {SvgContext} from "../svg/SvgContext";
 import {SvgRenderer} from "../svg/SvgRenderer";
 import {Icon} from "./Icon";
+import {FilledIcon} from "./FilledIcon";
 import {IconViewInit, IconView} from "./IconView";
 import {IconViewAnimator} from "./IconViewAnimator";
 
@@ -69,6 +70,18 @@ export class SvgIconView extends SvgView implements IconView {
     }
   }
 
+  protected onAnimate(viewContext: ViewContextType<this>): void {
+    super.onAnimate(viewContext);
+    const iconColor = this.iconColor.takeUpdatedValue();
+    if (iconColor !== void 0) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof FilledIcon) {
+        const newGraphics = oldGraphics.withFillColor(iconColor);
+        this.graphics.setOwnState(newGraphics);
+      }
+    }
+  }
+
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.renderIcon();
@@ -76,17 +89,13 @@ export class SvgIconView extends SvgView implements IconView {
 
   protected renderIcon(): void {
     const context = new SvgContext(this);
-    context.setPrecision(2);
+    context.setPrecision(3);
     context.beginSvg();
     const graphics = this.graphics.takeValue();
     if (graphics !== void 0) {
       const frame = this.iconBounds;
       if (frame.isDefined() && frame.width > 0 && frame.height > 0) {
         context.beginPath();
-        const iconColor = this.iconColor.takeValue();
-        if (iconColor !== void 0) {
-          context.fillStyle = iconColor.toString();
-        }
         const renderer = new SvgRenderer(context, this.theme.state, this.mood.state);
         graphics.render(renderer, frame);
       }
