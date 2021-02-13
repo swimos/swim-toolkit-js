@@ -361,7 +361,6 @@ ViewProperty.prototype.unbindSuperProperty = function (this: ViewProperty<View, 
       enumerable: true,
       configurable: true,
     });
-    this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag);
   }
 };
 

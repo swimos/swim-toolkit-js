@@ -342,7 +342,6 @@ ViewAnimator.prototype.unbindSuperAnimator = function (this: ViewAnimator<View, 
       enumerable: true,
       configurable: true,
     });
-    this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag);
   }
 };
 

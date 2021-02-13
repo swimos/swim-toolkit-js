@@ -362,7 +362,6 @@ ComponentProperty.prototype.unbindSuperProperty = function (this: ComponentPrope
       enumerable: true,
       configurable: true,
     });
-    this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag);
   }
 };
 
