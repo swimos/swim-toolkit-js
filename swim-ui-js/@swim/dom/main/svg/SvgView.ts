@@ -95,6 +95,7 @@ export interface SvgViewAttributesInit {
 }
 
 export interface SvgViewStyleInit {
+  cssTransform?: StyleAnimatorMemberInit<SvgView, "cssTransform">;
   filter?: StyleAnimatorMemberInit<SvgView, "filter">;
   fontFamily?: StyleAnimatorMemberInit<SvgView, "fontFamily">;
   fontSize?: StyleAnimatorMemberInit<SvgView, "fontSize">;
@@ -341,6 +342,9 @@ export class SvgView extends ElementView {
   }
 
   initStyle(init: SvgViewStyleInit): void {
+    if (init.cssTransform !== void 0) {
+      this.cssTransform(init.cssTransform);
+    }
     if (init.filter !== void 0) {
       this.filter(init.filter);
     }
@@ -585,6 +589,9 @@ export class SvgView extends ElementView {
 
   @AttributeAnimator({attributeName: "y2", type: Number})
   declare y2: AttributeAnimator<this, number, number | string>;
+
+  @StyleAnimator({propertyNames: "transform", type: Transform})
+  declare cssTransform: StyleAnimator<this, Transform, AnyTransform>;
 
   @StyleAnimator({propertyNames: "filter", type: String})
   declare filter: StyleAnimator<this, string>;

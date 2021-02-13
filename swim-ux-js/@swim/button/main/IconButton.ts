@@ -13,17 +13,21 @@
 // limitations under the License.
 
 import {AnyTiming, Timing} from "@swim/mapping";
-import {Angle, Transform} from "@swim/math";
-import {Color} from "@swim/color";
+import {AnyLength, Length, Angle, Transform} from "@swim/math";
+import {AnyColor, Color} from "@swim/color";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewContext, ViewObserverType, ViewRelation} from "@swim/view";
+import {ViewContextType, ViewContext, View, ViewObserverType, ViewAnimator, ViewRelation} from "@swim/view";
 import type {HtmlViewObserver, HtmlViewController} from "@swim/dom";
-import {Graphics, HtmlIconView} from "@swim/graphics";
+import {Graphics, Icon, FilledIcon, IconViewInit, IconView, IconViewAnimator, SvgIconView} from "@swim/graphics";
 import type {PositionGestureDelegate} from "@swim/gesture";
 import type {ButtonObserver} from "./ButtonObserver";
-import {ButtonMembrane} from "./ButtonMembrane";
+import {ButtonMembraneInit, ButtonMembrane} from "./ButtonMembrane";
 
-export class IconButton extends ButtonMembrane implements PositionGestureDelegate {
+export interface IconButtonInit extends ButtonMembraneInit, IconViewInit {
+  viewController?: HtmlViewController;
+}
+
+export class IconButton extends ButtonMembrane implements IconView, PositionGestureDelegate {
   constructor(node: HTMLElement) {
     super(node);
     this.iconCount = 0;
@@ -50,17 +54,40 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
     this.cursor.setAutoState("pointer");
   }
 
+  initView(init: IconButtonInit): void {
+    super.initView(init);
+    IconView.initView(this, init);
+  }
+
   declare readonly viewController: HtmlViewController & ButtonObserver | null;
 
   declare readonly viewObservers: ReadonlyArray<HtmlViewObserver & ButtonObserver>;
 
+  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
+  declare xAlign: ViewAnimator<this, number | undefined>;
+
+  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
+  declare yAlign: ViewAnimator<this, number | undefined>;
+
+  @ViewAnimator({type: Length, state: Length.px(24), updateFlags: View.NeedsLayout})
+  declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+
+  @ViewAnimator({type: Length, state: Length.px(24), updateFlags: View.NeedsLayout})
+  declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+
+  @ViewAnimator({type: Color, updateFlags: View.NeedsLayout})
+  declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+
+  @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsLayout})
+  declare graphics: ViewAnimator<this, Graphics | undefined>;
+
   /** @hidden */
-  static IconRelation = ViewRelation.define<IconButton, HtmlIconView, never, ViewObserverType<HtmlIconView> & {iconIndex: number}>({
+  static IconRelation = ViewRelation.define<IconButton, SvgIconView, never, ViewObserverType<SvgIconView> & {iconIndex: number}>({
     extends: void 0,
-    type: HtmlIconView,
+    type: SvgIconView,
     child: false,
     iconIndex: 0,
-    viewDidAnimate(viewContext: ViewContext, iconView: HtmlIconView): void {
+    viewDidAnimate(viewContext: ViewContext, iconView: SvgIconView): void {
       if (!iconView.opacity.isAnimating() && this.iconIndex !== this.owner.iconCount) {
         iconView.remove();
         if (this.iconIndex > this.owner.iconCount) {
@@ -73,7 +100,7 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
   /** @hidden */
   iconCount: number;
 
-  icon: ViewRelation<this, HtmlIconView> | null;
+  icon: ViewRelation<this, SvgIconView> | null;
 
   pushIcon(icon: Graphics, timing?: AnyTiming | boolean): void {
     if (timing === void 0 || timing === true) {
@@ -84,12 +111,12 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
 
     const oldIconCount = this.iconCount;
     const oldIconKey = "icon" + oldIconCount;
-    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, HtmlIconView> | null;
+    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, SvgIconView> | null;
     const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
     if (oldIconView !== null) {
       if (timing !== false) {
         oldIconView.opacity.setAutoState(0, timing);
-        oldIconView.transform.setAutoState(Transform.rotate(Angle.deg(90)), timing);
+        oldIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(90)), timing);
       } else {
         oldIconView.remove();
       }
@@ -97,21 +124,23 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
 
     const newIconCount = oldIconCount + 1;
     const newIconKey = "icon" + newIconCount;
-    const newIconRelation = new IconButton.IconRelation(this, newIconKey) as ViewRelation<this, HtmlIconView> & {iconIndex: number};
+    const newIconRelation = new IconButton.IconRelation(this, newIconKey) as ViewRelation<this, SvgIconView> & {iconIndex: number};
     newIconRelation.iconIndex = newIconCount;
-    const newIconView = HtmlIconView.create();
-    newIconView.position.setAutoState("absolute");
-    newIconView.left.setAutoState(0);
-    newIconView.top.setAutoState(0);
-    newIconView.width.setAutoState(this.width.state);
-    newIconView.height.setAutoState(this.height.state);
+    const newIconView = SvgIconView.create();
+
+    newIconView.setStyle("position", "absolute");
+    newIconView.setStyle("left", "0");
+    newIconView.setStyle("top", "0");
     newIconView.opacity.setAutoState(0);
     newIconView.opacity.setAutoState(1, timing);
-    newIconView.transform.setAutoState(Transform.rotate(Angle.deg(-90)));
-    newIconView.transform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
+    newIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(-90)));
+    newIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
     newIconView.pointerEvents.setAutoState("none");
-    newIconView.iconWidth.setAutoState(24);
-    newIconView.iconHeight.setAutoState(24);
+    newIconView.xAlign.setInherit(true);
+    newIconView.yAlign.setInherit(true);
+    newIconView.iconWidth.setInherit(true);
+    newIconView.iconHeight.setInherit(true);
+    newIconView.iconColor.setInherit(true);
     newIconView.graphics.setAutoState(icon);
     newIconRelation.setView(newIconView);
     this.setViewRelation(newIconKey, newIconRelation);
@@ -130,12 +159,12 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
 
     const oldIconCount = this.iconCount;
     const oldIconKey = "icon" + oldIconCount;
-    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, HtmlIconView> | null;
+    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, SvgIconView> | null;
     const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
     if (oldIconView !== null) {
       if (timing !== false) {
         oldIconView.opacity.setAutoState(0, timing);
-        oldIconView.transform.setAutoState(Transform.rotate(Angle.deg(-90)), timing);
+        oldIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(-90)), timing);
       } else {
         oldIconView.remove();
       }
@@ -143,11 +172,11 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
 
     const newIconCount = oldIconCount - 1;
     const newIconKey = "icon" + newIconCount;
-    const newIconRelation = this.getViewRelation(newIconKey) as ViewRelation<this, HtmlIconView> | null;
+    const newIconRelation = this.getViewRelation(newIconKey) as ViewRelation<this, SvgIconView> | null;
     const newIconView = newIconRelation !== null ? newIconRelation.view : null;
     if (newIconView !== null) {
       newIconView.opacity.setAutoState(1, timing);
-      newIconView.transform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
+      newIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
       this.appendChildView(newIconView, newIconKey);
     }
 
@@ -158,13 +187,57 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-
     if (this.backgroundColor.isAuto()) {
       let backgroundColor = this.getLook(Look.backgroundColor);
       if (!this.gesture.isHovering() && backgroundColor instanceof Color) {
         backgroundColor = backgroundColor.alpha(0);
       }
       this.backgroundColor.setAutoState(backgroundColor, timing);
+    }
+    if (!this.graphics.isInherited()) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof Icon) {
+        const newGraphics = oldGraphics.withTheme(theme, mood);
+        this.graphics.setOwnState(newGraphics, oldGraphics.isThemed() ? timing : false);
+      }
+    }
+  }
+
+  protected onAnimate(viewContext: ViewContextType<this>): void {
+    super.onAnimate(viewContext);
+    const iconColor = this.iconColor.takeUpdatedValue();
+    if (iconColor !== void 0) {
+      const oldGraphics = this.graphics.value;
+      if (oldGraphics instanceof FilledIcon) {
+        const newGraphics = oldGraphics.withFillColor(iconColor);
+        this.graphics.setOwnState(newGraphics);
+      }
+    }
+  }
+
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
+    this.layoutIcon();
+  }
+
+  protected layoutIcon(): void {
+    const viewRelations = this.viewRelations;
+    if (viewRelations !== null) {
+      let viewWidth: Length | string | number | undefined = this.width.value;
+      viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
+      let viewHeight: Length | string | number | undefined = this.height.value;
+      viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
+      for (const relationName in viewRelations) {
+        const viewRelation = viewRelations[relationName];
+        if (viewRelation instanceof IconButton.IconRelation) {
+          const iconView = viewRelation.view;
+          if (iconView !== null) {
+            iconView.width.setAutoState(viewWidth);
+            iconView.height.setAutoState(viewHeight);
+            iconView.viewBox.setAutoState("0 0 " + viewWidth + " " + viewHeight);
+          }
+        }
+      }
     }
   }
 
@@ -176,21 +249,6 @@ export class IconButton extends ButtonMembrane implements PositionGestureDelegat
   protected onUnmount(): void {
     this.off("click", this.onClick);
     super.onUnmount();
-  }
-
-  protected onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    const viewRelations = this.viewRelations;
-    for (const relationName in viewRelations) {
-      const viewRelation = viewRelations[relationName];
-      if (viewRelation instanceof IconButton.IconRelation) {
-        const iconView = viewRelation.view;
-        if (iconView !== null) {
-          iconView.width.setAutoState(this.width.state);
-          iconView.height.setAutoState(this.height.state);
-        }
-      }
-    }
   }
 
   get hovers(): boolean {

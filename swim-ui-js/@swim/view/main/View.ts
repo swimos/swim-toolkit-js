@@ -46,7 +46,6 @@ import type {
 import type {ViewControllerType, ViewController} from "./ViewController";
 import type {ViewIdiom} from "./viewport/ViewIdiom";
 import type {Viewport} from "./viewport/Viewport";
-import {ViewportManager} from "./"; // forward import
 import type {LayoutAnchorConstructor, LayoutAnchor} from "./layout/LayoutAnchor";
 import type {ViewServiceConstructor, ViewService} from "./service/ViewService";
 import type {ViewportService} from "./service/ViewportService";
@@ -1392,21 +1391,13 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   get superViewContext(): ViewContext {
-    let superViewContext: ViewContext;
     const parentView = this.parentView;
     if (parentView !== null) {
-      superViewContext = parentView.viewContext;
-    } else if (this.isMounted()) {
-      const viewportManager = this.viewportService.manager;
-      if (viewportManager !== void 0) {
-        superViewContext = viewportManager.viewContext;
-      } else {
-        superViewContext = ViewportManager.global().viewContext;
-      }
+      return parentView.viewContext;
     } else {
-      superViewContext = ViewportManager.global().viewContext;
+      const viewContext = this.viewportService.viewContext;
+      return this.displayService.updatedViewContext(viewContext);
     }
-    return superViewContext;
   }
 
   get viewContext(): ViewContext {

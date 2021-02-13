@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {Lazy} from "@swim/util";
-import type {ComponentContext} from "../ComponentContext";
 import {ComponentFlags, Component} from "../Component";
 import {ComponentManager} from "../manager/ComponentManager";
 import type {ExecuteContext} from "./ExecuteContext";
@@ -41,12 +40,18 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
   }
 
-  declare readonly componentContext: ComponentContext;
+  declare readonly componentContext: ExecuteContext;
 
   protected initComponentContext(): ExecuteContext {
     return {
       updateTime: 0,
     };
+  }
+
+  updatedComponentContext(): ExecuteContext {
+    const componentContext = this.componentContext;
+    componentContext.updateTime = performance.now();
+    return componentContext;
   }
 
   get powerFlags(): ComponentFlags {
@@ -186,11 +191,12 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     this.setRootFlags(this.rootFlags & ~Component.CompileMask | (Component.TraversingFlag | Component.CompilingFlag));
     try {
       const t0 = performance.now();
+      const componentContext = this.componentContext;
+      componentContext.updateTime = t0;
+
       for (let i = 0; i < rootComponents.length; i += 1) {
         const rootComponent = rootComponents[i]!;
         if ((rootComponent.componentFlags & Component.CompileMask) !== 0) {
-          const componentContext = rootComponent.componentContext as ExecuteContext;
-          componentContext.updateTime = t0;
           rootComponent.cascadeCompile(0, componentContext);
         }
       }
@@ -222,11 +228,12 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     this.setRootFlags(this.rootFlags & ~Component.ExecuteMask | (Component.TraversingFlag | Component.ExecutingFlag));
     try {
       const time = performance.now();
+      const componentContext = this.componentContext;
+      componentContext.updateTime = time;
+
       for (let i = 0; i < rootComponents.length; i += 1) {
         const rootComponent = rootComponents[i]!;
         if ((rootComponent.componentFlags & Component.ExecuteMask) !== 0) {
-          const componentContext = rootComponent.componentContext as ExecuteContext;
-          componentContext.updateTime = time;
           rootComponent.cascadeExecute(0, componentContext);
         }
       }

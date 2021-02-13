@@ -48,6 +48,12 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     };
   }
 
+  updatedModelContext(): RefreshContext {
+    const modelContext = this.modelContext;
+    modelContext.updateTime = performance.now();
+    return modelContext;
+  }
+
   get powerFlags(): ModelFlags {
     return 0;
   }
@@ -185,11 +191,12 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     this.setRootFlags(this.rootFlags & ~Model.AnalyzeMask | (Model.TraversingFlag | Model.AnalyzingFlag));
     try {
       const t0 = performance.now();
+      const modelContext = this.modelContext;
+      modelContext.updateTime = t0;
+
       for (let i = 0; i < rootModels.length; i += 1) {
         const rootModel = rootModels[i]!;
         if ((rootModel.modelFlags & Model.AnalyzeMask) !== 0) {
-          const modelContext = rootModel.modelContext as RefreshContext;
-          modelContext.updateTime = t0;
           rootModel.cascadeAnalyze(0, modelContext);
         }
       }
@@ -221,11 +228,12 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     this.setRootFlags(this.rootFlags & ~Model.RefreshMask | (Model.TraversingFlag | Model.RefreshingFlag));
     try {
       const time = performance.now();
+      const modelContext = this.modelContext;
+      modelContext.updateTime = time;
+
       for (let i = 0; i < rootModels.length; i += 1) {
         const rootModel = rootModels[i]!;
         if ((rootModel.modelFlags & Model.RefreshMask) !== 0) {
-          const modelContext = rootModel.modelContext as RefreshContext;
-          modelContext.updateTime = time;
           rootModel.cascadeRefresh(0, modelContext);
         }
       }

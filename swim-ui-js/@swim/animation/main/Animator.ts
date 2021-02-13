@@ -353,9 +353,14 @@ export abstract class Animator<T> implements AnimationTrack {
       const newValue = interpolator(u);
       this.setValue(newValue);
 
-      if (t >= timing[1]) {
+      if (u >= 1) {
         this.onEnd(newValue);
         this.stopAnimating();
+        Object.defineProperty(this, "interpolator", {
+          value: null,
+          enumerable: true,
+          configurable: true,
+        });
       }
     }
   }

@@ -14,7 +14,7 @@
 
 import {Arrays} from "@swim/util";
 import type {WarpRef} from "@swim/client";
-import {ModelContextType, ModelContext} from "./ModelContext";
+import type {ModelContextType, ModelContext} from "./ModelContext";
 import type {ModelObserverType, ModelObserver} from "./ModelObserver";
 import type {ModelControllerType, ModelController} from "./ModelController";
 import type {ModelConsumerType, ModelConsumer} from "./ModelConsumer";
@@ -1633,21 +1633,12 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   get superModelContext(): ModelContext {
-    let superModelContext: ModelContext;
     const parentModel = this.parentModel;
     if (parentModel !== null) {
-      superModelContext = parentModel.modelContext;
-    } else if (this.isMounted()) {
-      const refreshManager = this.refreshService.manager;
-      if (refreshManager !== void 0) {
-        superModelContext = refreshManager.modelContext;
-      } else {
-        superModelContext = ModelContext.default();
-      }
+      return parentModel.modelContext;
     } else {
-      superModelContext = ModelContext.default();
+      return this.refreshService.updatedModelContext();
     }
-    return superModelContext;
   }
 
   get modelContext(): ModelContext {

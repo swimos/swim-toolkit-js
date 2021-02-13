@@ -21,24 +21,40 @@ import {ViewService} from "./ViewService";
 import {ViewManagerService} from "./ViewManagerService";
 
 export abstract class ViewportService<V extends View> extends ViewManagerService<V, ViewportManager<V>> {
-  initManager(): ViewportManager<V> {
-    return ViewportManager.global();
-  }
-
   get viewContext(): ViewContext {
-    return this.manager.viewContext;
+    let manager = this.manager;
+    if (manager === void 0) {
+      manager = ViewportManager.global();
+    }
+    return manager.viewContext;
   }
 
   get viewport(): Viewport {
-    return this.manager.viewport;
+    let manager = this.manager;
+    if (manager === void 0) {
+      manager = ViewportManager.global();
+    }
+    return manager.viewport;
   }
 
   get viewIdiom(): ViewIdiom {
-    return this.manager.viewIdiom;
+    let manager = this.manager;
+    if (manager === void 0) {
+      manager = ViewportManager.global();
+    }
+    return manager.viewIdiom;
   }
 
   setViewIdiom(viewIdiom: ViewIdiom): void {
-    this.manager.setViewIdiom(viewIdiom);
+    let manager = this.manager;
+    if (manager === void 0) {
+      manager = ViewportManager.global();
+    }
+    manager.setViewIdiom(viewIdiom);
+  }
+
+  initManager(): ViewportManager<V> {
+    return ViewportManager.global();
   }
 }
 

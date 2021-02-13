@@ -15,7 +15,7 @@
 import {Arrays} from "@swim/util";
 import type {View} from "@swim/view";
 import type {Model, Trait} from "@swim/model";
-import {ComponentContextType, ComponentContext} from "./ComponentContext";
+import type {ComponentContextType, ComponentContext} from "./ComponentContext";
 import type {ComponentObserverType, ComponentObserver} from "./ComponentObserver";
 import type {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";
 import type {ExecuteService} from "./service/ExecuteService";
@@ -1001,21 +1001,12 @@ export abstract class Component {
   }
 
   get superComponentContext(): ComponentContext {
-    let superComponentContext: ComponentContext;
     const parentComponent = this.parentComponent;
     if (parentComponent !== null) {
-      superComponentContext = parentComponent.componentContext;
-    } else if (this.isMounted()) {
-      const executeManager = this.executeService.manager;
-      if (executeManager !== void 0) {
-        superComponentContext = executeManager.componentContext;
-      } else {
-        superComponentContext = ComponentContext.default();
-      }
+      return parentComponent.componentContext;
     } else {
-      superComponentContext = ComponentContext.default();
+      return this.executeService.updatedComponentContext();
     }
-    return superComponentContext;
   }
 
   get componentContext(): ComponentContext {

@@ -484,6 +484,36 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
+  /** @hidden */
+  protected mountViewAnimators(): void {
+    super.mountViewAnimators();
+    const attributeAnimators = this.attributeAnimators;
+    for (const animatorName in attributeAnimators) {
+      const attributeAnimator = attributeAnimators[animatorName]!;
+      attributeAnimator.mount();
+    }
+    const styleAnimators = this.styleAnimators;
+    for (const animatorName in styleAnimators) {
+      const styleAnimator = styleAnimators[animatorName]!;
+      styleAnimator.mount();
+    }
+  }
+
+  /** @hidden */
+  protected unmountViewAnimators(): void {
+    const styleAnimators = this.styleAnimators;
+    for (const animatorName in styleAnimators) {
+      const styleAnimator = styleAnimators[animatorName]!;
+      styleAnimator.unmount();
+    }
+    const attributeAnimators = this.attributeAnimators;
+    for (const animatorName in attributeAnimators) {
+      const attributeAnimator = attributeAnimators[animatorName]!;
+      attributeAnimator.unmount();
+    }
+    super.unmountViewAnimators();
+  }
+
   id(): string | null;
   id(value: string | null): this;
   id(value?: string | null): string | null | this {

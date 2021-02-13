@@ -12,12 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {ModelContext} from "../ModelContext";
 import {Model} from "../Model";
 import {RefreshManager} from "../refresh/RefreshManager";
 import {ModelService} from "./ModelService";
 import {ModelManagerService} from "./ModelManagerService";
 
 export abstract class RefreshService<M extends Model> extends ModelManagerService<M, RefreshManager<M>> {
+  get modelContext(): ModelContext {
+    let manager = this.manager;
+    if (manager === void 0) {
+      manager = RefreshManager.global();
+    }
+    return manager.modelContext;
+  }
+
+  updatedModelContext(): ModelContext {
+    let manager = this.manager;
+    if (manager === void 0) {
+      manager = RefreshManager.global();
+    }
+    return manager.updatedModelContext();
+  }
+
   initManager(): RefreshManager<M> {
     return RefreshManager.global();
   }

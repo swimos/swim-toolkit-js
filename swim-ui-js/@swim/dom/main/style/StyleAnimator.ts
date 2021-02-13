@@ -108,6 +108,12 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
 
   didStopAnimating(): void;
 
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
+
   updateFlags?: number;
 
   parse(value: string): T | undefined;
@@ -317,6 +323,14 @@ StyleAnimator.prototype.willStopAnimating = function (this: StyleAnimator<StyleC
 
 StyleAnimator.prototype.didStopAnimating = function (this: StyleAnimator<StyleContext, unknown>): void {
   this.owner.trackDidStopAnimating(this);
+};
+
+StyleAnimator.prototype.mount = function (this: StyleAnimator<StyleContext, unknown>): void {
+  // hook
+};
+
+StyleAnimator.prototype.unmount = function (this: StyleAnimator<StyleContext, unknown>): void {
+  this.stopAnimating();
 };
 
 StyleAnimator.prototype.parse = function <T>(this: StyleAnimator<StyleContext, T>, value: string): T | undefined {

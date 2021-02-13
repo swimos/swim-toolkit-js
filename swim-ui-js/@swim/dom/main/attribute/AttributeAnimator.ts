@@ -104,6 +104,12 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
 
   didStopAnimating(): void;
 
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
+
   updateFlags?: ViewFlags;
 
   parse(value: string): T | undefined;
@@ -275,6 +281,14 @@ AttributeAnimator.prototype.willStopAnimating = function (this: AttributeAnimato
 
 AttributeAnimator.prototype.didStopAnimating = function (this: AttributeAnimator<ElementView, unknown>): void {
   this.owner.trackDidStopAnimating(this);
+};
+
+AttributeAnimator.prototype.mount = function (this: AttributeAnimator<ElementView, unknown>): void {
+  // hook
+};
+
+AttributeAnimator.prototype.unmount = function (this: AttributeAnimator<ElementView, unknown>): void {
+  this.stopAnimating();
 };
 
 AttributeAnimator.prototype.parse = function <T>(this: AttributeAnimator<ElementView, T>): T | undefined {

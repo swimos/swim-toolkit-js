@@ -12,12 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {ComponentContext} from "../ComponentContext";
 import {Component} from "../Component";
 import {ExecuteManager} from "../execute/ExecuteManager";
 import {ComponentService} from "./ComponentService";
 import {ComponentManagerService} from "./ComponentManagerService";
 
 export abstract class ExecuteService<C extends Component> extends ComponentManagerService<C, ExecuteManager<C>> {
+  get componentContext(): ComponentContext {
+    let manager = this.manager;
+    if (manager === void 0) {
+      manager = ExecuteManager.global();
+    }
+    return manager.componentContext;
+  }
+
+  updatedComponentContext(): ComponentContext {
+    let manager = this.manager;
+    if (manager === void 0) {
+      manager = ExecuteManager.global();
+    }
+    return manager.updatedComponentContext();
+  }
+
   initManager(): ExecuteManager<C> {
     return ExecuteManager.global();
   }

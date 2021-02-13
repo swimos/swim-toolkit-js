@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Lazy} from "@swim/util";
+import type {ViewContext} from "../ViewContext";
 import {ViewFlags, View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
 import type {DisplayContext} from "./DisplayContext";
@@ -33,6 +34,11 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
     this.runProcessPass = this.runProcessPass.bind(this);
     this.runDisplayPass = this.runDisplayPass.bind(this);
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
+  }
+
+  updatedViewContext(viewContext: ViewContext): ViewContext {
+    (viewContext as DisplayContext).updateTime = performance.now();
+    return viewContext;
   }
 
   get powerFlags(): ViewFlags {
@@ -175,7 +181,7 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
       for (let i = 0; i < rootViews.length; i += 1) {
         const rootView = rootViews[i]!;
         if ((rootView.viewFlags & View.ProcessMask) !== 0) {
-          const viewContext = rootView.viewContext as DisplayContext;
+          const viewContext = rootView.viewportService.viewContext as DisplayContext;
           viewContext.updateTime = t0;
           rootView.cascadeProcess(0, viewContext);
         }
@@ -213,7 +219,7 @@ export class DisplayManager<V extends View = View> extends ViewManager<V> {
       for (let i = 0; i < rootViews.length; i += 1) {
         const rootView = rootViews[i]!;
         if ((rootView.viewFlags & View.DisplayMask) !== 0) {
-          const viewContext = rootView.viewContext as DisplayContext;
+          const viewContext = rootView.viewportService.viewContext as DisplayContext;
           viewContext.updateTime = time;
           rootView.cascadeDisplay(0, viewContext);
         }

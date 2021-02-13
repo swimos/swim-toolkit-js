@@ -342,6 +342,7 @@ ViewAnimator.prototype.unbindSuperAnimator = function (this: ViewAnimator<View, 
       enumerable: true,
       configurable: true,
     });
+    this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag);
   }
 };
 
@@ -520,6 +521,7 @@ ViewAnimator.prototype.mount = function (this: ViewAnimator<View, unknown>): voi
 };
 
 ViewAnimator.prototype.unmount = function (this: ViewAnimator<View, unknown>): void {
+  this.stopAnimating();
   this.unbindSuperAnimator();
 };
 

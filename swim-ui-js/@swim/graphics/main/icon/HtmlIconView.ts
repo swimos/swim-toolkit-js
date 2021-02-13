@@ -82,14 +82,14 @@ export class HtmlIconView extends HtmlView implements IconView {
     }
   }
 
-  protected onInsertSvg(pathView: SvgIconView): void {
-    pathView.xAlign.setInherit(true);
-    pathView.yAlign.setInherit(true);
-    pathView.iconWidth.setInherit(true);
-    pathView.iconHeight.setInherit(true);
-    pathView.iconColor.setInherit(true);
-    pathView.graphics.setInherit(true);
-    pathView.setStyle("position", "absolute");
+  protected onInsertSvg(svgView: SvgIconView): void {
+    svgView.xAlign.setInherit(true);
+    svgView.yAlign.setInherit(true);
+    svgView.iconWidth.setInherit(true);
+    svgView.iconHeight.setInherit(true);
+    svgView.iconColor.setInherit(true);
+    svgView.graphics.setInherit(true);
+    svgView.setStyle("position", "absolute");
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,

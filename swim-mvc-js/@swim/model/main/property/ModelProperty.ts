@@ -420,6 +420,7 @@ ModelProperty.prototype.unbindSuperProperty = function (this: ModelProperty<Mode
       enumerable: true,
       configurable: true,
     });
+    this.setPropertyFlags(this.propertyFlags & ~ModelProperty.InheritedFlag);
   }
 };
 
