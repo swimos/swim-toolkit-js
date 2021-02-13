@@ -19,7 +19,6 @@
       "@swim/dom": ["../swim-ui-js/@swim/dom/main"],
       "@swim/graphics": ["../swim-ui-js/@swim/graphics/main"],
       "@swim/gesture": ["../swim-ui-js/@swim/gesture/main"],
-      "@swim/popover": ["../swim-ui-js/@swim/popover/main"],
       "@swim/button": ["@swim/button/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
@@ -40,7 +39,6 @@
     {"path": "../../../../swim-ui-js/@swim/dom/main"},
     {"path": "../../../../swim-ui-js/@swim/graphics/main"},
     {"path": "../../../../swim-ui-js/@swim/gesture/main"},
-    {"path": "../../../../swim-ui-js/@swim/popover/main"},
     {"path": "../../button/main"}
   ]
 }

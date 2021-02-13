@@ -26,7 +26,6 @@ const main = {
       "@swim/dom": "swim",
       "@swim/graphics": "swim",
       "@swim/gesture": "swim",
-      "@swim/popover": "swim",
       "@swim/button": "swim",
     },
     sourcemap: true,
@@ -49,7 +48,6 @@ const main = {
     "@swim/dom",
     "@swim/graphics",
     "@swim/gesture",
-    "@swim/popover",
     "@swim/button",
   ],
   plugins: [

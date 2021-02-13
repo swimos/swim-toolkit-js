@@ -31,17 +31,19 @@ const LightMutedColor = Color.parse("#989898");
 const LightNeutralColor = Color.parse("#808080");
 const LightHighlightColor = Color.black(0.05);
 
-const LightBackgroundColor = Color.parse("#fcfcfc");
+const LightBackgroundColor = Color.parse("#f9f8f6");
 const LightBorderColor = LightBackgroundColor.darker(1 / 2);
 
-const LightPrimaryColor = Color.parse("#49cbad");
-const LightSecondaryColor = Color.parse("#00a6ed");
+const LightRaisedColor = Color.parse("#f7f6f4");
+const LightCoveredColor = Color.parse("#f1efed");
 
-const LightOverlayColor = Color.parse("#efefef");
+const LightPrimaryColor = Color.parse("#4fcfb3");
+const LightSecondaryColor = Color.parse("#008cc7");
+
 const LightDisabledColor = Color.parse("#7b7c7d");
 const LightInactiveColor = Color.parse("#7b7c7d");
-const LightWarningColor = Color.parse("#e6dd51");
-const LightAlertColor = Color.parse("#f6511d");
+const LightWarningColor = Color.parse("#e6de65");
+const LightAlertColor = Color.parse("#df4616");
 
 const LightSpacing = Length.px(10);
 const LightTiming = Easing.cubicOut.withDuration(250);
@@ -116,11 +118,18 @@ const LightAlert = FeelVector.of(
   [Look.accentColor, LightAlertColor],
 );
 
-const LightOverlay = FeelVector.of(
+const LightRaised = FeelVector.of(
   [Look.mutedColor, LightMutedColor.darker(1 / 3)],
   [Look.neutralColor, LightNeutralColor.darker(1 / 3)],
 
-  [Look.backgroundColor, LightOverlayColor],
+  [Look.backgroundColor, LightRaisedColor],
+);
+
+const LightCovered = FeelVector.of(
+  [Look.mutedColor, LightMutedColor.darker(1 / 3)],
+  [Look.neutralColor, LightNeutralColor.darker(1 / 3)],
+
+  [Look.backgroundColor, LightCoveredColor],
 );
 
 const LightFloating = FeelVector.of(
@@ -133,6 +142,7 @@ const LightTransparent = FeelVector.of(
 );
 
 const LightTranslucent = FeelVector.of(
+  [Look.iconColor, Color.black(0.8)],
   [Look.statusColor, Color.black(0.8)],
   [Look.accentColor, Color.black(0.8)],
 
@@ -141,23 +151,27 @@ const LightTranslucent = FeelVector.of(
 );
 
 const LightDarker = FeelVector.of(
+  [Look.iconColor, Color.black(1)],
   [Look.statusColor, Color.black(1)],
   [Look.accentColor, Color.black(1)],
 );
 
 const LightLighter = FeelVector.of(
+  [Look.iconColor, Color.black(-1)],
   [Look.statusColor, Color.black(-1)],
   [Look.accentColor, Color.black(-1)],
 );
 
 const LightContrasted = FeelVector.of(
+  [Look.iconColor, Color.black(1)],
   [Look.statusColor, Color.black(1)],
   [Look.accentColor, Color.black(1)],
 );
 
 const LightEmbossed = FeelVector.of(
-  [Look.statusColor, Color.black(2)],
-  [Look.accentColor, Color.black(2)],
+  [Look.iconColor, Color.black(1)],
+  [Look.statusColor, Color.black(1)],
+  [Look.accentColor, Color.black(1)],
 );
 
 const LightNested = FeelVector.of(
@@ -190,7 +204,9 @@ const LightTheme = ThemeMatrix.forCols(
   [Feel.lighter, LightLighter],
   [Feel.contrasted, LightContrasted],
 
-  [Feel.overlay, LightOverlay],
+  [Feel.raised, LightRaised],
+  [Feel.covered, LightCovered],
+
   [Feel.floating, LightFloating],
   [Feel.transparent, LightTransparent],
   [Feel.translucent, LightTranslucent],

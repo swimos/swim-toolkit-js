@@ -26,7 +26,6 @@
     "@swim/dom": "3.11.0-dev.20201021",
     "@swim/graphics": "3.11.0-dev.20201021",
     "@swim/gesture": "3.11.0-dev.20201021",
-    "@swim/popover": "3.11.0-dev.20201021",
     "@swim/button": "3.11.0-dev.20201021"
   }
 }

@@ -103,13 +103,18 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   icon: ViewRelation<this, SvgIconView> | null;
 
   pushIcon(icon: Graphics, timing?: AnyTiming | boolean): void {
-    if (timing === void 0 || timing === true) {
+    const oldIconCount = this.iconCount;
+    const newIconCount = oldIconCount + 1;
+    this.iconCount = newIconCount;
+
+    if (timing === void 0 && oldIconCount === 0) {
+      timing = false;
+    } else if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, false);
     } else {
       timing = Timing.fromAny(timing);
     }
 
-    const oldIconCount = this.iconCount;
     const oldIconKey = "icon" + oldIconCount;
     const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, SvgIconView> | null;
     const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
@@ -122,10 +127,10 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
       }
     }
 
-    const newIconCount = oldIconCount + 1;
     const newIconKey = "icon" + newIconCount;
     const newIconRelation = new IconButton.IconRelation(this, newIconKey) as ViewRelation<this, SvgIconView> & {iconIndex: number};
     newIconRelation.iconIndex = newIconCount;
+    this.icon = newIconRelation;
     const newIconView = SvgIconView.create();
 
     newIconView.setStyle("position", "absolute");
@@ -145,19 +150,19 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     newIconRelation.setView(newIconView);
     this.setViewRelation(newIconKey, newIconRelation);
     this.appendChildView(newIconView, newIconKey);
-
-    this.iconCount = newIconCount;
-    this.icon = newIconRelation;
   }
 
   popIcon(timing?: AnyTiming | boolean): void {
+    const oldIconCount = this.iconCount;
+    const newIconCount = oldIconCount - 1;
+    this.iconCount = newIconCount;
+
     if (timing === void 0 || timing === true) {
       timing = this.getLookOr(Look.timing, false);
     } else {
       timing = Timing.fromAny(timing);
     }
 
-    const oldIconCount = this.iconCount;
     const oldIconKey = "icon" + oldIconCount;
     const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, SvgIconView> | null;
     const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
@@ -167,21 +172,19 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
         oldIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(-90)), timing);
       } else {
         oldIconView.remove();
+        this.setViewRelation(oldIconKey, null);
       }
     }
 
-    const newIconCount = oldIconCount - 1;
     const newIconKey = "icon" + newIconCount;
     const newIconRelation = this.getViewRelation(newIconKey) as ViewRelation<this, SvgIconView> | null;
+    this.icon = newIconRelation;
     const newIconView = newIconRelation !== null ? newIconRelation.view : null;
     if (newIconView !== null) {
       newIconView.opacity.setAutoState(1, timing);
       newIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
       this.appendChildView(newIconView, newIconKey);
     }
-
-    this.iconCount = newIconCount;
-    this.icon = newIconRelation;
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,

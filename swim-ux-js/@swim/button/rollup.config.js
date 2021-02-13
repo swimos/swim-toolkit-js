@@ -26,7 +26,6 @@ const main = {
       "@swim/dom": "swim",
       "@swim/graphics": "swim",
       "@swim/gesture": "swim",
-      "@swim/popover": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -48,7 +47,6 @@ const main = {
     "@swim/dom",
     "@swim/graphics",
     "@swim/gesture",
-    "@swim/popover",
   ],
   plugins: [
     nodeResolve({moduleDirectories: ["../..", "node_modules"]}),

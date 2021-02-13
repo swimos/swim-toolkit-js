@@ -76,7 +76,7 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected initTheme(): void {
-    this.modifyTheme(Feel.default, [Feel.overlay, 1]);
+    this.modifyTheme(Feel.default, [Feel.raised, 1]);
   }
 
   declare readonly viewController: DrawerViewController | null;

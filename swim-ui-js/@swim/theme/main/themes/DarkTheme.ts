@@ -25,19 +25,21 @@ import {ThemeMatrix} from "../theme/ThemeMatrix";
 const DarkFont = Font.parse("14px -apple-system, system-ui, sans-serif");
 
 const DarkColor = Color.parse("#d8d8d8");
-const DarkIconColor = Color.parse("#e7e6e7");
+const DarkIconColor = Color.parse("#d8d8d8");
 const DarkAccentColor = Color.parse("#6c6d6e");
 const DarkMutedColor = Color.parse("#989898");
 const DarkNeutralColor = Color.parse("#808080");
 const DarkHighlightColor = Color.white(0.1);
 
-const DarkBackgroundColor = Color.parse("#1e2022");
+const DarkBackgroundColor = Color.parse("#161719");
 const DarkBorderColor = DarkBackgroundColor.lighter(2 / 3);
+
+const DarkRaisedColor = Color.parse("#18191b");
+const DarkCoveredColor = Color.parse("#1e2022");
 
 const DarkPrimaryColor = Color.parse("#66ffdd");
 const DarkSecondaryColor = Color.parse("#32c5ff");
 
-const DarkOverlayColor = Color.parse("#26282a");
 const DarkDisabledColor = Color.parse("#7b7c7d");
 const DarkInactiveColor = Color.parse("#7b7c7d");
 const DarkWarningColor = Color.parse("#f9f070");
@@ -116,11 +118,18 @@ const DarkAlert = FeelVector.of(
   [Look.accentColor, DarkAlertColor],
 );
 
-const DarkOverlay = FeelVector.of(
+const DarkRaised = FeelVector.of(
   [Look.mutedColor, DarkMutedColor.darker(1 / 3)],
   [Look.neutralColor, DarkNeutralColor.darker(1 / 3)],
 
-  [Look.backgroundColor, DarkOverlayColor],
+  [Look.backgroundColor, DarkRaisedColor],
+);
+
+const DarkCovered = FeelVector.of(
+  [Look.mutedColor, DarkMutedColor.darker(1 / 3)],
+  [Look.neutralColor, DarkNeutralColor.darker(1 / 3)],
+
+  [Look.backgroundColor, DarkCoveredColor],
 );
 
 const DarkFloating = FeelVector.of(
@@ -133,6 +142,7 @@ const DarkTransparent = FeelVector.of(
 );
 
 const DarkTranslucent = FeelVector.of(
+  [Look.iconColor, Color.black(0.8)],
   [Look.statusColor, Color.black(0.8)],
   [Look.accentColor, Color.black(0.8)],
 
@@ -141,21 +151,25 @@ const DarkTranslucent = FeelVector.of(
 );
 
 const DarkDarker = FeelVector.of(
+  [Look.iconColor, Color.black(1)],
   [Look.statusColor, Color.black(1)],
   [Look.accentColor, Color.black(1)],
 );
 
 const DarkLighter = FeelVector.of(
+  [Look.iconColor, Color.black(-1)],
   [Look.statusColor, Color.black(-1)],
   [Look.accentColor, Color.black(-1)],
 );
 
 const DarkContrasted = FeelVector.of(
+  [Look.iconColor, Color.black(-1)],
   [Look.statusColor, Color.black(-1)],
   [Look.accentColor, Color.black(-1)],
 );
 
 const DarkEmbossed = FeelVector.of(
+  [Look.iconColor, Color.black(2)],
   [Look.statusColor, Color.black(2)],
   [Look.accentColor, Color.black(2)],
 );
@@ -189,7 +203,9 @@ const DarkTheme = ThemeMatrix.forCols(
   [Feel.lighter, DarkLighter],
   [Feel.contrasted, DarkContrasted],
 
-  [Feel.overlay, DarkOverlay],
+  [Feel.raised, DarkRaised],
+  [Feel.covered, DarkCovered],
+
   [Feel.floating, DarkFloating],
   [Feel.transparent, DarkTransparent],
   [Feel.translucent, DarkTranslucent],

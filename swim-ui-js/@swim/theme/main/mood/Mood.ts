@@ -35,7 +35,9 @@ export const Mood = {} as {
   lighter: MoodVector; // defined by moods
   contrasted: MoodVector; // defined by moods
 
-  overlay: MoodVector; // defined by moods
+  raised: MoodVector; // defined by moods
+  covered: MoodVector; // defined by moods
+
   floating: MoodVector; // defined by moods
   transparent: MoodVector; // defined by moods
   translucent: MoodVector; // defined by moods

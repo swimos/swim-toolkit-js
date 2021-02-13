@@ -122,7 +122,7 @@ export class InputTokenView extends TokenView {
 
   /** @hidden */
   get placeholderLook(): Look<Color> {
-    return Look.mutedColor;
+    return Look.neutralColor;
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
