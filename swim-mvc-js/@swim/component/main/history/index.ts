@@ -13,9 +13,9 @@
 // limitations under the License.
 
 export {
+  MutableHistoryState,
   HistoryStateInit,
   HistoryState,
-  MutableHistoryState,
 } from "./HistoryState";
 
 export {HistoryManager} from "./HistoryManager";

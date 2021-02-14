@@ -12,229 +12,158 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Lazy} from "@swim/util";
-import {Uri, UriQuery, UriFragment} from "@swim/uri";
+import {Lazy, Objects} from "@swim/util";
+import type {Uri} from "@swim/uri";
 import {Component} from "../Component";
 import {ComponentManager} from "../manager/ComponentManager";
-import type {HistoryStateInit, HistoryState, MutableHistoryState} from "./HistoryState";
+import {HistoryStateInit, HistoryState} from "./HistoryState";
 import type {HistoryManagerObserver} from "./HistoryManagerObserver";
 
 export class HistoryManager<C extends Component = Component> extends ComponentManager<C> {
   constructor() {
     super();
     Object.defineProperty(this, "historyState", {
-      value: {
-        fragment: void 0,
-        permanent: {},
-        ephemeral: {},
-      },
+      value: HistoryState.current(),
       enumerable: true,
       configurable: true,
     });
     this.popHistory = this.popHistory.bind(this);
-    this.initHistory();
-  }
-
-  protected initHistory(): void {
-    this.updateHistoryUrl(window.location.href);
   }
 
   /** @hidden */
   declare readonly historyState: HistoryState;
 
-  get historyUrl(): string | undefined {
-    const historyState = this.historyState;
-    const queryBuilder = UriQuery.builder();
-    if (historyState.fragment !== void 0) {
-      queryBuilder.add(void 0, historyState.fragment);
-    }
-    for (const key in historyState.permanent) {
-      const value = historyState.permanent[key]!;
-      queryBuilder.add(key, value);
-    }
-    return Uri.fragment(UriFragment.create(queryBuilder.bind().toString())).toString();
-  }
-
-  protected updateHistoryUrl(historyUrl: string): void {
-    try {
-      const uri = Uri.parse(historyUrl);
-      const fragment = uri.fragmentIdentifier;
-      if (fragment !== void 0) {
-        this.updateHistoryUrlFragment(fragment);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  protected updateHistoryUrlFragment(fragment: string): void {
-    const historyState = this.historyState as MutableHistoryState;
-    let query = UriQuery.parse(fragment);
-    while (!query.isEmpty()) {
-      const key = query.key;
-      const value = query.value;
-      if (key !== void 0) {
-        historyState.permanent[key] = value;
-      } else {
-        historyState.fragment = value;
-      }
-      query = query.tail();
-    }
-  }
-
-  protected clearHistoryState(): void {
-    const historyState = this.historyState as MutableHistoryState;
-    for (const key in historyState.permanent) {
-      delete historyState.permanent[key];
-    }
-    for (const key in historyState.ephemeral) {
-      delete historyState.ephemeral[key];
-    }
-  }
-
-  /** @hidden */
-  updateHistoryState(deltaState: HistoryStateInit): HistoryState {
-    const historyState = this.historyState as MutableHistoryState;
-    if ("fragment" in deltaState) {
-      historyState.fragment = deltaState.fragment;
-    }
-    for (const key in deltaState.permanent) {
-      const value = deltaState.permanent[key];
-      if (value !== void 0) {
-        historyState.permanent[key] = value;
-      } else {
-        delete historyState.permanent[key];
-      }
-    }
-    for (const key in deltaState.ephemeral) {
-      const value = deltaState.ephemeral[key];
-      if (value !== void 0) {
-        historyState.ephemeral[key] = value;
-      } else {
-        delete historyState.ephemeral[key];
-      }
-    }
-    return historyState;
-  }
-
-  /** @hidden */
-  setHistoryState(newState: HistoryStateInit): void {
-    this.clearHistoryState();
-    this.updateHistoryUrl(document.location.href);
-    this.updateHistoryState(newState);
+  get historyUri(): Uri {
+    return HistoryState.toUri(this.historyState);
   }
 
   pushHistory(deltaState: HistoryStateInit): void {
-    const historyState = this.updateHistoryState(deltaState);
-    const historyUrl = this.historyUrl;
-    this.willPushHistory(historyState);
-    window.history.pushState(historyState, "", historyUrl);
-    this.onPushHistory(historyState);
-    this.didPushHistory(historyState);
+    const oldState = this.historyState;
+    const newState = HistoryState.updated(deltaState, HistoryState.cloned(oldState));
+    const newUri = HistoryState.toUri(newState);
+    this.willPushHistory(newState, oldState);
+    Object.defineProperty(this, "historyState", {
+      value: newState,
+      enumerable: true,
+      configurable: true,
+    });
+    window.history.pushState(newState.ephemeral, "", newUri.toString());
+    this.onPushHistory(newState, oldState);
+    this.didPushHistory(newState, oldState);
   }
 
-  protected willPushHistory(historyState: HistoryState): void {
+  protected willPushHistory(newState: HistoryState, oldState: HistoryState): void {
     const componentManagerObservers = this.componentManagerObservers;
     for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
       const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerWillPushHistory !== void 0) {
-        componentManagerObserver.historyManagerWillPushHistory(historyState, this);
+        componentManagerObserver.historyManagerWillPushHistory(newState, oldState, this);
       }
     }
   }
 
-  protected onPushHistory(historyState: HistoryState): void {
+  protected onPushHistory(newState: HistoryState, oldState: HistoryState): void {
     const rootComponents = this.rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
       rootComponents[i]!.requireUpdate(Component.NeedsRevise);
     }
   }
 
-  protected didPushHistory(historyState: HistoryState): void {
-    this.didObserve(function (componentManagerObserver: HistoryManagerObserver): void {
-      if (componentManagerObserver.historyManagerDidPushHistory !== void 0) {
-        componentManagerObserver.historyManagerDidPushHistory(historyState, this);
-      }
-    });
+  protected didPushHistory(newState: HistoryState, oldState: HistoryState): void {
     const componentManagerObservers = this.componentManagerObservers;
     for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
       const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerDidPushHistory !== void 0) {
-        componentManagerObserver.historyManagerDidPushHistory(historyState, this);
+        componentManagerObserver.historyManagerDidPushHistory(newState, oldState, this);
       }
     }
   }
 
   replaceHistory(deltaState: HistoryStateInit): void {
-    const historyState = this.updateHistoryState(deltaState);
-    const historyUrl = this.historyUrl;
-    this.willReplaceHistory(historyState);
-    window.history.replaceState(historyState, "", historyUrl);
-    this.onReplaceHistory(historyState);
-    this.didReplaceHistory(historyState);
+    const oldState = this.historyState;
+    const newState = HistoryState.updated(deltaState, HistoryState.cloned(oldState));
+    if (!Objects.equal(oldState, newState)) {
+      const newUri = HistoryState.toUri(newState);
+      this.willReplaceHistory(newState, oldState);
+      Object.defineProperty(this, "historyState", {
+        value: newState,
+        enumerable: true,
+        configurable: true,
+      });
+      window.history.replaceState(newState.ephemeral, "", newUri.toString());
+      this.onReplaceHistory(newState, oldState);
+      this.didReplaceHistory(newState, oldState);
+    }
   }
 
-  protected willReplaceHistory(historyState: HistoryState): void {
+  protected willReplaceHistory(newState: HistoryState, oldState: HistoryState): void {
     const componentManagerObservers = this.componentManagerObservers;
     for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
       const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerWillReplaceHistory !== void 0) {
-        componentManagerObserver.historyManagerWillReplaceHistory(historyState, this);
+        componentManagerObserver.historyManagerWillReplaceHistory(newState, oldState, this);
       }
     }
   }
 
-  protected onReplaceHistory(historyState: HistoryState): void {
+  protected onReplaceHistory(newState: HistoryState, oldState: HistoryState): void {
     const rootComponents = this.rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
       rootComponents[i]!.requireUpdate(Component.NeedsRevise);
     }
   }
 
-  protected didReplaceHistory(historyState: HistoryState): void {
+  protected didReplaceHistory(newState: HistoryState, oldState: HistoryState): void {
     const componentManagerObservers = this.componentManagerObservers;
     for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
       const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerDidReplaceHistory !== void 0) {
-        componentManagerObserver.historyManagerDidReplaceHistory(historyState, this);
+        componentManagerObserver.historyManagerDidReplaceHistory(newState, oldState, this);
       }
     }
   }
 
   /** @hidden */
   popHistory(event: PopStateEvent): void {
-    const historyState = this.historyState;
-    this.willPopHistory(historyState);
-    this.setHistoryState({
-      ephemeral: typeof event.state === "object" && event.state !== null ? event.state : {},
+    const deltaState: HistoryStateInit = {};
+    if (typeof event.state === "object" && event.state !== null) {
+      deltaState.ephemeral = event.state;
+    }
+    const oldState = HistoryState.current();
+    const newState = HistoryState.updated(deltaState, oldState);
+    this.willPopHistory(newState, oldState);
+    Object.defineProperty(this, "historyState", {
+      value: newState,
+      enumerable: true,
+      configurable: true,
     });
-    this.onPopHistory(historyState);
-    this.didPopHistory(historyState);
+    this.onPopHistory(newState, oldState);
+    this.didPopHistory(newState, oldState);
   }
 
-  protected willPopHistory(historyState: HistoryState): void {
+  protected willPopHistory(newState: HistoryState, oldState: HistoryState): void {
     const componentManagerObservers = this.componentManagerObservers;
     for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
       const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerWillPopHistory !== void 0) {
-        componentManagerObserver.historyManagerWillPopHistory(historyState, this);
+        componentManagerObserver.historyManagerWillPopHistory(newState, oldState, this);
       }
     }
   }
 
-  protected onPopHistory(historyState: HistoryState): void {
+  protected onPopHistory(newState: HistoryState, oldState: HistoryState): void {
     const rootComponents = this.rootComponents;
     for (let i = 0, n = rootComponents.length; i < n; i += 1) {
       rootComponents[i]!.requireUpdate(Component.NeedsRevise);
     }
   }
 
-  protected didPopHistory(historyState: HistoryState): void {
+  protected didPopHistory(newState: HistoryState, oldState: HistoryState): void {
     const componentManagerObservers = this.componentManagerObservers;
     for (let i = 0, n = componentManagerObservers.length; i < n; i += 1) {
       const componentManagerObserver = componentManagerObservers[i]!;
       if (componentManagerObserver.historyManagerDidPopHistory !== void 0) {
-        componentManagerObserver.historyManagerDidPopHistory(historyState, this);
+        componentManagerObserver.historyManagerDidPopHistory(newState, oldState, this);
       }
     }
   }

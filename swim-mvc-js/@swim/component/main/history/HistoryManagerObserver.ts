@@ -18,15 +18,15 @@ import type {HistoryState} from "./HistoryState";
 import type {HistoryManager} from "./HistoryManager";
 
 export interface HistoryManagerObserver<C extends Component = Component, CM extends HistoryManager<C> = HistoryManager<C>> extends ComponentManagerObserver<C, CM> {
-  historyManagerWillPushHistory?(historyState: HistoryState, historyManager: CM): void;
+  historyManagerWillPushHistory?(newState: HistoryState, oldState: HistoryState, historyManager: CM): void;
 
-  historyManagerDidPushHistory?(historyState: HistoryState, historyManager: CM): void;
+  historyManagerDidPushHistory?(newState: HistoryState, oldState: HistoryState, historyManager: CM): void;
 
-  historyManagerWillReplaceHistory?(historyState: HistoryState, historyManager: CM): void;
+  historyManagerWillReplaceHistory?(newState: HistoryState, oldState: HistoryState, historyManager: CM): void;
 
-  historyManagerDidReplaceHistory?(historyState: HistoryState, historyManager: CM): void;
+  historyManagerDidReplaceHistory?(newState: HistoryState, oldState: HistoryState, historyManager: CM): void;
 
-  historyManagerWillPopHistory?(historyState: HistoryState, historyManager: CM): void | boolean;
+  historyManagerWillPopHistory?(newState: HistoryState, oldState: HistoryState, historyManager: CM): void | boolean;
 
-  historyManagerDidPopHistory?(historyState: HistoryState, historyManager: CM): void;
+  historyManagerDidPopHistory?(newState: HistoryState, oldState: HistoryState, historyManager: CM): void;
 }
