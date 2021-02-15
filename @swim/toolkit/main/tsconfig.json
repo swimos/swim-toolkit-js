@@ -29,14 +29,11 @@
       "@swim/dom": ["swim-ui-js/@swim/dom/main"],
       "@swim/graphics": ["swim-ui-js/@swim/graphics/main"],
       "@swim/gesture": ["swim-ui-js/@swim/gesture/main"],
-      "@swim/popover": ["swim-ui-js/@swim/popover/main"],
       "@swim/ui": ["swim-ui-js/@swim/ui/main"],
 
-      "@swim/button": ["swim-ux-js/@swim/button/main"],
-      "@swim/token": ["swim-ux-js/@swim/token/main"],
-      "@swim/drawer": ["swim-ux-js/@swim/drawer/main"],
-      "@swim/menu": ["swim-ux-js/@swim/menu/main"],
-      "@swim/tree": ["swim-ux-js/@swim/tree/main"],
+      "@swim/controls": ["swim-ux-js/@swim/controls/main"],
+      "@swim/displays": ["swim-ux-js/@swim/displays/main"],
+      "@swim/surfaces": ["swim-ux-js/@swim/surfaces/main"],
       "@swim/ux": ["swim-ux-js/@swim/ux/main"],
 
       "@swim/gauge": ["swim-vis-js/@swim/gauge/main"],
@@ -66,8 +63,12 @@
     {"path": "../../../swim-ui-js/@swim/dom/main"},
     {"path": "../../../swim-ui-js/@swim/graphics/main"},
     {"path": "../../../swim-ui-js/@swim/gesture/main"},
-    {"path": "../../../swim-ui-js/@swim/popover/main"},
     {"path": "../../../swim-ui-js/@swim/ui/main"},
+
+    {"path": "../../../swim-ux-js/@swim/controls/main"},
+    {"path": "../../../swim-ux-js/@swim/surfaces/main"},
+    {"path": "../../../swim-ux-js/@swim/displays/main"},
+    {"path": "../../../swim-ux-js/@swim/ux/main"},
 
     {"path": "../../../swim-vis-js/@swim/gauge/main"},
     {"path": "../../../swim-vis-js/@swim/pie/main"},
@@ -79,13 +80,6 @@
     {"path": "../../../swim-maps-js/@swim/googlemap/main"},
     {"path": "../../../swim-maps-js/@swim/esrimap/main"},
     {"path": "../../../swim-maps-js/@swim/maps/main"},
-
-    {"path": "../../../swim-ux-js/@swim/button/main"},
-    {"path": "../../../swim-ux-js/@swim/token/main"},
-    {"path": "../../../swim-ux-js/@swim/drawer/main"},
-    {"path": "../../../swim-ux-js/@swim/menu/main"},
-    {"path": "../../../swim-ux-js/@swim/tree/main"},
-    {"path": "../../../swim-ux-js/@swim/ux/main"},
 
     {"path": "../../../swim-mvc-js/@swim/model/main"},
     {"path": "../../../swim-mvc-js/@swim/component/main"},

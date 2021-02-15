@@ -55,8 +55,6 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
   styled typesetters.
 - [**@swim/gesture**](swim-ui-js/@swim/gesture) –
   multitouch gesture recognizers, with kinematic surface modeling.
-- [**@swim/popover**](swim-ui-js/@swim/popover) –
-  auto-placed, source-tracking popover views.
 
 ### [**Swim UX** Framework](swim-ux-js)
 
@@ -67,16 +65,12 @@ toolbars, controls, and other interactive application views and controllers.
 
 - [**@swim/ux**](swim-ux-js/@swim/ux) –
   umbrella package that depends on, and re-exports, all **Swim UX** libraries.
-- [**@swim/button**](swim-ux-js/@swim/button) –
-  procedurally styled multitouch buttons.
-- [**@swim/token**](swim-ux-js/@swim/token) –
-  compact, editable pin and chip token views.
-- [**@swim/drawer**](swim-ux-js/@swim/drawer) –
-  responsive, minifiable drawer views.
-- [**@swim/menu**](swim-ux-js/@swim/menu) –
-  context-sensitive menu lists and menu items.
-- [**@swim/tree**](swim-ux-js/@swim/tree) –
-  disclosable tree views with tabular columns.
+- [**@swim/controls**](swim-ux-js/@swim/controls) –
+  buttons, switches, and other user input controls.
+- [**@swim/displays**](swim-ux-js/@swim/displays) –
+  lists, trees, and other structured display views.
+- [**@swim/surfaces**](swim-ux-js/@swim/surfaces) –
+  popovers, drawers, and other view containers.
 
 ### [**Swim Visualizations** Framework](swim-vis-js)
 

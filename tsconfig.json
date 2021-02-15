@@ -11,14 +11,11 @@
     {"path": "./swim-ui-js/@swim/dom"},
     {"path": "./swim-ui-js/@swim/graphics"},
     {"path": "./swim-ui-js/@swim/gesture"},
-    {"path": "./swim-ui-js/@swim/popover"},
     {"path": "./swim-ui-js/@swim/ui"},
 
-    {"path": "./swim-ux-js/@swim/button"},
-    {"path": "./swim-ux-js/@swim/token"},
-    {"path": "./swim-ux-js/@swim/drawer"},
-    {"path": "./swim-ux-js/@swim/menu"},
-    {"path": "./swim-ux-js/@swim/tree"},
+    {"path": "./swim-ux-js/@swim/controls"},
+    {"path": "./swim-ux-js/@swim/displays"},
+    {"path": "./swim-ux-js/@swim/surfaces"},
     {"path": "./swim-ux-js/@swim/ux"},
 
     {"path": "./swim-vis-js/@swim/gauge"},

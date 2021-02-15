@@ -40,8 +40,6 @@ The **Swim UI** framework consists of the following component libraries:
   styled typesetters.
 - [**@swim/gesture**](@swim/gesture) –
   multitouch gesture recognizers, with kinematic surface modeling.
-- [**@swim/popover**](@swim/popover) –
-  auto-placed, source-tracking popover views.
 
 **Swim UI** builds on the [**Swim Core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js)
 framework; it has no additional dependencies.

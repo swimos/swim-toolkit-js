@@ -18,16 +18,12 @@ The **Swim UX** framework consists of the following component libraries:
 
 - [**@swim/ux**](@swim/ux) –
   umbrella package that depends on, and re-exports, all **Swim UX** libraries.
-- [**@swim/button**](@swim/button) –
-  procedurally styled multitouch buttons.
-- [**@swim/token**](@swim/token) –
-  compact, editable pin and chip token views.
-- [**@swim/drawer**](@swim/drawer) –
-  responsive, minifiable drawer views.
-- [**@swim/menu**](@swim/menu) –
-  context-sensitive menu lists and menu items.
-- [**@swim/tree**](@swim/tree) –
-  disclosable tree views with tabular columns.
+- [**@swim/controls**](@swim/controls) –
+  buttons, switches, and other user input controls.
+- [**@swim/displays**](@swim/displays) –
+  lists, trees, and other structured display views.
+- [**@swim/surfaces**](@swim/surfaces) –
+  popovers, drawers, and other view containers.
 
 **Swim UX** builds on the [**Swim Core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js)
 and [**Swim UI**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js)
@@ -166,10 +162,10 @@ swim-ux-js $ bin/build.js compile -p tree:main,ux
 ### Running tests
 
 Use the `test` build script command to compile and run unit tests.
-For example, to compile and test the `button` project, run:
+For example, to compile and test the `controls` project, run:
 
 ```sh
-swim-ux-js $ bin/build.js test -p button
+swim-ux-js $ bin/build.js test -p controls
 ```
 
 ### Continuous development builds
@@ -186,9 +182,9 @@ swim-ux-js $ bin/build.js watch -p tree:main
 Pass the `--devel` (`-d`) option to expedite recompilation by skipping the
 minification step.  Add the `--test` (`-t`) option to automatically run unit
 tests after each successful compilation.  For example, to continuosly compile
-and test the `button` project, bypassing minification, and skipping generation
+and test the `controls` project, bypassing minification, and skipping generation
 of the main script, run:
 
 ```sh
-swim-ux-js $ bin/build.js watch -p button:test -d -t
+swim-ux-js $ bin/build.js watch -p controls:test -d -t
 ```

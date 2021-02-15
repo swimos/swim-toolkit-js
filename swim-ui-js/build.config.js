@@ -59,11 +59,11 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["animation", "color", "style"],
+        deps: ["color", "style"],
       },
       {
         id: "test",
-        deps: ["animation", "color", "style", "theme"],
+        deps: ["color", "style", "theme"],
       },
     ],
   },
@@ -108,16 +108,6 @@ const ui = [
     ],
   },
   {
-    id: "popover",
-    name: "@swim/popover",
-    targets: [
-      {
-        id: "main",
-        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom"],
-      },
-    ],
-  },
-  {
     id: "ui",
     name: "@swim/ui",
     title: "Swim UI",
@@ -125,7 +115,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "popover"],
+        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture"],
       },
     ],
   },

@@ -424,17 +424,6 @@ const ui = [
     ],
   },
   {
-    id: "popover",
-    name: "@swim/popover",
-    path: "swim-ui-js/@swim/popover",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom"],
-      },
-    ],
-  },
-  {
     id: "ui",
     name: "@swim/ui",
     path: "swim-ui-js/@swim/ui",
@@ -443,7 +432,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "popover"],
+        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture"],
       },
     ],
   },
@@ -451,9 +440,9 @@ const ui = [
 
 const ux = [
   {
-    id: "button",
-    name: "@swim/button",
-    path: "swim-ux-js/@swim/button",
+    id: "controls",
+    name: "@swim/controls",
+    path: "swim-ux-js/@swim/controls",
     targets: [
       {
         id: "main",
@@ -462,46 +451,24 @@ const ux = [
     ],
   },
   {
-    id: "token",
-    name: "@swim/token",
-    path: "swim-ux-js/@swim/token",
+    id: "displays",
+    name: "@swim/displays",
+    path: "swim-ux-js/@swim/displays",
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "button"],
+        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "controls"],
       },
     ],
   },
   {
-    id: "drawer",
-    name: "@swim/drawer",
-    path: "swim-ux-js/@swim/drawer",
+    id: "surfaces",
+    name: "@swim/surfaces",
+    path: "swim-ux-js/@swim/surfaces",
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "button"],
-      },
-    ],
-  },
-  {
-    id: "menu",
-    name: "@swim/menu",
-    path: "swim-ux-js/@swim/menu",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "button"],
-      },
-    ],
-  },
-  {
-    id: "tree",
-    name: "@swim/tree",
-    path: "swim-ux-js/@swim/tree",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "button"],
+        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "controls"],
       },
     ],
   },
@@ -514,7 +481,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["button", "token", "drawer", "menu", "tree"],
+        deps: ["controls", "displays", "surfaces"],
       },
     ],
   },

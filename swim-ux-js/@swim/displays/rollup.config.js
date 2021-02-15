@@ -1,7 +1,7 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 
-const script = "swim-ux";
+const script = "swim-displays";
 const namespace = "swim";
 
 const main = {
@@ -26,6 +26,7 @@ const main = {
       "@swim/dom": "swim",
       "@swim/graphics": "swim",
       "@swim/gesture": "swim",
+      "@swim/controls": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -47,6 +48,7 @@ const main = {
     "@swim/dom",
     "@swim/graphics",
     "@swim/gesture",
+    "@swim/controls",
   ],
   plugins: [
     nodeResolve({moduleDirectories: ["../..", "node_modules"]}),

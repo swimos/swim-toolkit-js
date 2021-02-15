@@ -56,10 +56,6 @@ component libraries:
   ([npm](https://www.npmjs.com/package/@swim/gesture),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_gesture.html)) –
   multitouch gesture recognizers, with kinematic surface modeling.
-- [**@swim/popover**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/popover)
-  ([npm](https://www.npmjs.com/package/@swim/popover),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_popover.html)) –
-  auto-placed, source-tracking popover views.
 
 **@swim/ui** builds on the [**@swim/core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js/@swim/core)
 framework; it has no additional dependencies.

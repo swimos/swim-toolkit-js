@@ -18,8 +18,7 @@
       "@swim/view": ["@swim/view/main"],
       "@swim/dom": ["@swim/dom/main"],
       "@swim/graphics": ["@swim/graphics/main"],
-      "@swim/gesture": ["@swim/gesture/main"],
-      "@swim/popover": ["@swim/popover/main"]
+      "@swim/gesture": ["@swim/gesture/main"]
     },
     "tsBuildInfoFile": "../lib/main/.tsbuildinfo"
   },
@@ -32,7 +31,6 @@
     {"path": "../../view/main"},
     {"path": "../../dom/main"},
     {"path": "../../graphics/main"},
-    {"path": "../../gesture/main"},
-    {"path": "../../popover/main"}
+    {"path": "../../gesture/main"}
   ]
 }

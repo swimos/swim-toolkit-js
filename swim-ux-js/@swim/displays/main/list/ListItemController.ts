@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/constraint";
-export * from "@swim/animation";
-export * from "@swim/color";
-export * from "@swim/style";
-export * from "@swim/theme";
-export * from "@swim/view";
-export * from "@swim/dom";
-export * from "@swim/graphics";
-export * from "@swim/gesture";
+import {HtmlViewController} from "@swim/dom";
+import type {ListItem} from "./ListItem";
+import type {ListItemObserver} from "./ListItemObserver";
+
+export class ListItemController<V extends ListItem = ListItem> extends HtmlViewController<V> implements ListItemObserver<V> {
+  listItemDidPress(view: V): void {
+    // hook
+  }
+}

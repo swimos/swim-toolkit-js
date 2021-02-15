@@ -17,26 +17,18 @@ controls, and other interactive application views and controllers.
 The **@swim/ux** umbrella package depends on, and re-exports, the following
 component libraries:
 
-- [**@swim/button**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/button)
-  ([npm](https://www.npmjs.com/package/@swim/button),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_button.html)) –
-  procedurally styled multitouch buttons.
-- [**@swim/token**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/token)
-  ([npm](https://www.npmjs.com/package/@swim/token),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_token.html)) –
-  compact, editable pin and chip token views.
-- [**@swim/drawer**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/drawer)
-  ([npm](https://www.npmjs.com/package/@swim/drawer),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_drawer.html)) –
-  responsive, minifiable drawer views.
-- [**@swim/menu**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/menu)
-  ([npm](https://www.npmjs.com/package/@swim/menu),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_menu.html)) –
-  context-sensitive menu lists and menu items.
-- [**@swim/tree**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/tree)
-  ([npm](https://www.npmjs.com/package/@swim/tree),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_tree.html)) –
-  disclosable tree views with tabular columns.
+- [**@swim/controls**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/controls)
+  ([npm](https://www.npmjs.com/package/@swim/controls),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_controls.html)) –
+  buttons, switches, and other user input controls.
+- [**@swim/displays**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/displays)
+  ([npm](https://www.npmjs.com/package/@swim/displays),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_displays.html)) –
+  lists, trees, and other structured display views.
+- [**@swim/surfaces**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/surfaces)
+  ([npm](https://www.npmjs.com/package/@swim/surfaces),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_surfaces.html)) –
+  popovers, drawers, and other view containers.
 
 **@swim/ux** builds on the [**@swim/core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js/@swim/core)
 and [**@swim/ui**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/ui)
