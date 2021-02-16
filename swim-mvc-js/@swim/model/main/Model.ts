@@ -23,8 +23,8 @@ import type {ModelServiceConstructor, ModelService} from "./service/ModelService
 import type {RefreshService} from "./service/RefreshService";
 import type {WarpService} from "./service/WarpService";
 import type {ModelPropertyConstructor, ModelProperty} from "./property/ModelProperty";
-import type {ModelRelationConstructor, ModelRelation} from "./relation/ModelRelation";
-import type {ModelTraitConstructor, ModelTrait} from "./relation/ModelTrait";
+import type {ModelFastenerConstructor, ModelFastener} from "./fastener/ModelFastener";
+import type {ModelTraitConstructor, ModelTrait} from "./fastener/ModelTrait";
 import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
 import type {ModelDownlink} from "./downlink/ModelDownlink";
 
@@ -43,10 +43,10 @@ export interface ModelPrototype {
   modelPropertyConstructors?: {[propertyName: string]: ModelPropertyConstructor<Model, unknown> | undefined};
 
   /** @hidden */
-  modelRelationConstructors?: {[relationName: string]: ModelRelationConstructor<Model, Model> | undefined};
+  modelFastenerConstructors?: {[fastenerName: string]: ModelFastenerConstructor<Model, Model> | undefined};
 
   /** @hidden */
-  modelTraitConstructors?: {[relationName: string]: ModelTraitConstructor<Model, Trait> | undefined};
+  modelTraitConstructors?: {[fastenerName: string]: ModelTraitConstructor<Model, Trait> | undefined};
 }
 
 export interface ModelConstructor<M extends Model = Model> {
@@ -1583,39 +1583,39 @@ export abstract class Model implements ModelDownlinkContext {
     return modelProperty;
   }
 
-  abstract hasModelRelation(relationName: string): boolean;
+  abstract hasModelFastener(fastenerName: string): boolean;
 
-  abstract getModelRelation(relationName: string): ModelRelation<this, Model> | null;
+  abstract getModelFastener(fastenerName: string): ModelFastener<this, Model> | null;
 
-  abstract setModelRelation(relationName: string, modelRelation: ModelRelation<this, any> | null): void;
+  abstract setModelFastener(fastenerName: string, modelFastener: ModelFastener<this, any> | null): void;
 
   /** @hidden */
-  getLazyModelRelation(relationName: string): ModelRelation<this, Model> | null {
-    let modelRelation = this.getModelRelation(relationName) as ModelRelation<this, Model> | null;
-    if (modelRelation === null) {
-      const constructor = Model.getModelRelationConstructor(relationName, Object.getPrototypeOf(this));
+  getLazyModelFastener(fastenerName: string): ModelFastener<this, Model> | null {
+    let modelFastener = this.getModelFastener(fastenerName) as ModelFastener<this, Model> | null;
+    if (modelFastener === null) {
+      const constructor = Model.getModelFastenerConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        modelRelation = new constructor(this, relationName) as ModelRelation<this, Model>;
-        this.setModelRelation(relationName, modelRelation);
+        modelFastener = new constructor(this, fastenerName) as ModelFastener<this, Model>;
+        this.setModelFastener(fastenerName, modelFastener);
       }
     }
-    return modelRelation;
+    return modelFastener;
   }
 
-  abstract hasModelTrait(relationName: string): boolean;
+  abstract hasModelTrait(fastenerName: string): boolean;
 
-  abstract getModelTrait(relationName: string): ModelTrait<this, Trait> | null;
+  abstract getModelTrait(fastenerName: string): ModelTrait<this, Trait> | null;
 
-  abstract setModelTrait(relationName: string, modelTrait: ModelTrait<this, any> | null): void;
+  abstract setModelTrait(fastenerName: string, modelTrait: ModelTrait<this, any> | null): void;
 
   /** @hidden */
-  getLazyModelTrait(relationName: string): ModelTrait<this, Trait> | null {
-    let modelTrait = this.getModelTrait(relationName) as ModelTrait<this, Trait> | null;
+  getLazyModelTrait(fastenerName: string): ModelTrait<this, Trait> | null {
+    let modelTrait = this.getModelTrait(fastenerName) as ModelTrait<this, Trait> | null;
     if (modelTrait === null) {
-      const constructor = Model.getModelTraitConstructor(relationName, Object.getPrototypeOf(this));
+      const constructor = Model.getModelTraitConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        modelTrait = new constructor(this, relationName) as ModelTrait<this, Trait>;
-        this.setModelTrait(relationName, modelTrait);
+        modelTrait = new constructor(this, fastenerName) as ModelTrait<this, Trait>;
+        this.setModelTrait(fastenerName, modelTrait);
       }
     }
     return modelTrait;
@@ -1724,13 +1724,13 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getModelRelationConstructor(relationName: string, modelPrototype: ModelPrototype | null = null): ModelRelationConstructor<Model, Model> | null {
+  static getModelFastenerConstructor(fastenerName: string, modelPrototype: ModelPrototype | null = null): ModelFastenerConstructor<Model, Model> | null {
     if (modelPrototype === null) {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelRelationConstructors")) {
-        const constructor = modelPrototype.modelRelationConstructors![relationName];
+      if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelFastenerConstructors")) {
+        const constructor = modelPrototype.modelFastenerConstructors![fastenerName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1741,21 +1741,21 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static decorateModelRelation(constructor: ModelRelationConstructor<Model, Model>,
+  static decorateModelFastener(constructor: ModelFastenerConstructor<Model, Model>,
                                target: Object, propertyKey: string | symbol): void {
     const modelPrototype = target as ModelPrototype;
-    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelRelationConstructors")) {
-      modelPrototype.modelRelationConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelFastenerConstructors")) {
+      modelPrototype.modelFastenerConstructors = {};
     }
-    modelPrototype.modelRelationConstructors![propertyKey.toString()] = constructor;
+    modelPrototype.modelFastenerConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: Model): ModelRelation<Model, Model> {
-        let modelRelation = this.getModelRelation(propertyKey.toString());
-        if (modelRelation === null) {
-          modelRelation = new constructor(this, propertyKey.toString());
-          this.setModelRelation(propertyKey.toString(), modelRelation);
+      get: function (this: Model): ModelFastener<Model, Model> {
+        let modelFastener = this.getModelFastener(propertyKey.toString());
+        if (modelFastener === null) {
+          modelFastener = new constructor(this, propertyKey.toString());
+          this.setModelFastener(propertyKey.toString(), modelFastener);
         }
-        return modelRelation;
+        return modelFastener;
       },
       configurable: true,
       enumerable: true,
@@ -1763,13 +1763,13 @@ export abstract class Model implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getModelTraitConstructor(relationName: string, modelPrototype: ModelPrototype | null = null): ModelTraitConstructor<Model, Trait> | null {
+  static getModelTraitConstructor(fastenerName: string, modelPrototype: ModelPrototype | null = null): ModelTraitConstructor<Model, Trait> | null {
     if (modelPrototype === null) {
       modelPrototype = this.prototype as ModelPrototype;
     }
     do {
       if (Object.prototype.hasOwnProperty.call(modelPrototype, "modelTraitConstructors")) {
-        const constructor = modelPrototype.modelTraitConstructors![relationName];
+        const constructor = modelPrototype.modelTraitConstructors![fastenerName];
         if (constructor !== void 0) {
           return constructor;
         }

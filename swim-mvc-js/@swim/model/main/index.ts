@@ -65,7 +65,7 @@ export * from "./service";
 
 export * from "./property";
 
-export * from "./relation";
+export * from "./fastener";
 
 export * from "./downlink";
 

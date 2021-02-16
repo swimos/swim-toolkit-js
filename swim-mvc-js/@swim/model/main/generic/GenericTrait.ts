@@ -19,8 +19,8 @@ import type {TraitObserverType} from "../TraitObserver";
 import type {TraitConsumerType, TraitConsumer} from "../TraitConsumer";
 import type {TraitService} from "../service/TraitService";
 import {TraitProperty} from "../property/TraitProperty";
-import type {TraitModel} from "../relation/TraitModel";
-import type {TraitRelation} from "../relation/TraitRelation";
+import type {TraitModel} from "../fastener/TraitModel";
+import type {TraitFastener} from "../fastener/TraitFastener";
 import type {ModelDownlink} from "../downlink/ModelDownlink";
 
 export class GenericTrait extends Trait {
@@ -56,7 +56,7 @@ export class GenericTrait extends Trait {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "traitRelations", {
+    Object.defineProperty(this, "traitFasteners", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -130,7 +130,7 @@ export class GenericTrait extends Trait {
     this.attachTraitProperties();
     if (this.isMounted()) {
       this.mountTraitModels();
-      this.mountTraitRelations();
+      this.mountTraitFasteners();
       this.mountTraitDownlinks();
     }
   }
@@ -138,7 +138,7 @@ export class GenericTrait extends Trait {
   protected detachModel(oldModel: TraitModelType<this>): void {
     if (this.isMounted()) {
       this.unmountTraitDownlinks();
-      this.unmountTraitRelations();
+      this.unmountTraitFasteners();
       this.unmountTraitModels();
     }
     this.detachTraitProperties();
@@ -164,12 +164,12 @@ export class GenericTrait extends Trait {
 
   protected onInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
     super.onInsertTrait(trait, targetTrait);
-    this.insertTraitRelation(trait);
+    this.insertTraitFastener(trait);
   }
 
   protected onRemoveTrait(trait: Trait): void {
     super.onRemoveTrait(trait);
-    this.removeTraitRelation(trait);
+    this.removeTraitFastener(trait);
   }
 
   /** @hidden */
@@ -187,7 +187,7 @@ export class GenericTrait extends Trait {
   protected onMount(): void {
     super.onMount();
     this.mountTraitModels();
-    this.mountTraitRelations();
+    this.mountTraitFasteners();
     this.mountTraitDownlinks();
   }
 
@@ -205,7 +205,7 @@ export class GenericTrait extends Trait {
 
   protected onUnmount(): void {
     this.unmountTraitDownlinks();
-    this.unmountTraitRelations();
+    this.unmountTraitFasteners();
     this.unmountTraitModels();
   }
 
@@ -431,17 +431,17 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  declare readonly traitModels: {[relationName: string]: TraitModel<Trait, Model> | undefined} | null;
+  declare readonly traitModels: {[fastenerName: string]: TraitModel<Trait, Model> | undefined} | null;
 
-  hasTraitModel(relationName: string): boolean {
+  hasTraitModel(fastenerName: string): boolean {
     const traitModels = this.traitModels;
-    return traitModels !== null && traitModels[relationName] !== void 0;
+    return traitModels !== null && traitModels[fastenerName] !== void 0;
   }
 
-  getTraitModel(relationName: string): TraitModel<this, Model> | null {
+  getTraitModel(fastenerName: string): TraitModel<this, Model> | null {
     const traitModels = this.traitModels;
     if (traitModels !== null) {
-      const traitModel = traitModels[relationName];
+      const traitModel = traitModels[fastenerName];
       if (traitModel !== void 0) {
         return traitModel as TraitModel<this, Model>;
       }
@@ -449,7 +449,7 @@ export class GenericTrait extends Trait {
     return null;
   }
 
-  setTraitModel(relationName: string, newTraitModel: TraitModel<this, any> | null): void {
+  setTraitModel(fastenerName: string, newTraitModel: TraitModel<this, any> | null): void {
     let traitModels = this.traitModels;
     if (traitModels === null) {
       traitModels = {};
@@ -459,12 +459,12 @@ export class GenericTrait extends Trait {
         configurable: true,
       });
     }
-    const oldTraitModel = traitModels[relationName];
+    const oldTraitModel = traitModels[fastenerName];
     if (oldTraitModel !== void 0 && this.isMounted()) {
       oldTraitModel.unmount();
     }
     if (newTraitModel !== null) {
-      traitModels[relationName] = newTraitModel;
+      traitModels[fastenerName] = newTraitModel;
       if (this.isMounted()) {
         newTraitModel.mount();
         if (newTraitModel.child === true) {
@@ -475,15 +475,15 @@ export class GenericTrait extends Trait {
         }
       }
     } else {
-      delete traitModels[relationName];
+      delete traitModels[fastenerName];
     }
   }
 
   /** @hidden */
   protected mountTraitModels(): void {
     const traitModels = this.traitModels;
-    for (const relationName in traitModels) {
-      const traitModel = traitModels[relationName]!;
+    for (const fastenerName in traitModels) {
+      const traitModel = traitModels[fastenerName]!;
       traitModel.mount();
       if (traitModel.child === true) {
         const childModel = this.getChildModel(traitModel.name);
@@ -497,17 +497,17 @@ export class GenericTrait extends Trait {
   /** @hidden */
   protected unmountTraitModels(): void {
     const traitModels = this.traitModels;
-    for (const relationName in traitModels) {
-      const traitModel = traitModels[relationName]!;
+    for (const fastenerName in traitModels) {
+      const traitModel = traitModels[fastenerName]!;
       traitModel.unmount();
     }
   }
 
   /** @hidden */
   protected insertTraitModel(childModel: Model): void {
-    const relationName = childModel.key;
-    if (relationName !== void 0) {
-      const traitModel = this.getLazyTraitModel(relationName);
+    const fastenerName = childModel.key;
+    if (fastenerName !== void 0) {
+      const traitModel = this.getLazyTraitModel(fastenerName);
       if (traitModel !== null && traitModel.child === true) {
         traitModel.doSetModel(childModel);
       }
@@ -516,9 +516,9 @@ export class GenericTrait extends Trait {
 
   /** @hidden */
   protected removeTraitModel(childModel: Model): void {
-    const relationName = childModel.key;
-    if (relationName !== void 0) {
-      const traitModel = this.getTraitModel(relationName);
+    const fastenerName = childModel.key;
+    if (fastenerName !== void 0) {
+      const traitModel = this.getTraitModel(fastenerName);
       if (traitModel !== null && traitModel.child === true) {
         traitModel.doSetModel(null);
       }
@@ -526,96 +526,96 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  declare readonly traitRelations: {[relationName: string]: TraitRelation<Trait, Trait> | undefined} | null;
+  declare readonly traitFasteners: {[fastenerName: string]: TraitFastener<Trait, Trait> | undefined} | null;
 
-  hasTraitRelation(relationName: string): boolean {
-    const traitRelations = this.traitRelations;
-    return traitRelations !== null && traitRelations[relationName] !== void 0;
+  hasTraitFastener(fastenerName: string): boolean {
+    const traitFasteners = this.traitFasteners;
+    return traitFasteners !== null && traitFasteners[fastenerName] !== void 0;
   }
 
-  getTraitRelation(relationName: string): TraitRelation<this, Trait> | null {
-    const traitRelations = this.traitRelations;
-    if (traitRelations !== null) {
-      const traitRelation = traitRelations[relationName];
-      if (traitRelation !== void 0) {
-        return traitRelation as TraitRelation<this, Trait>;
+  getTraitFastener(fastenerName: string): TraitFastener<this, Trait> | null {
+    const traitFasteners = this.traitFasteners;
+    if (traitFasteners !== null) {
+      const traitFastener = traitFasteners[fastenerName];
+      if (traitFastener !== void 0) {
+        return traitFastener as TraitFastener<this, Trait>;
       }
     }
     return null;
   }
 
-  setTraitRelation(relationName: string, newTraitRelation: TraitRelation<this, any> | null): void {
-    let traitRelations = this.traitRelations;
-    if (traitRelations === null) {
-      traitRelations = {};
-      Object.defineProperty(this, "traitRelations", {
-        value: traitRelations,
+  setTraitFastener(fastenerName: string, newTraitFastener: TraitFastener<this, any> | null): void {
+    let traitFasteners = this.traitFasteners;
+    if (traitFasteners === null) {
+      traitFasteners = {};
+      Object.defineProperty(this, "traitFasteners", {
+        value: traitFasteners,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldTraitRelation = traitRelations[relationName];
-    if (oldTraitRelation !== void 0 && this.isMounted()) {
-      oldTraitRelation.unmount();
+    const oldTraitFastener = traitFasteners[fastenerName];
+    if (oldTraitFastener !== void 0 && this.isMounted()) {
+      oldTraitFastener.unmount();
     }
-    if (newTraitRelation !== null) {
-      traitRelations[relationName] = newTraitRelation;
+    if (newTraitFastener !== null) {
+      traitFasteners[fastenerName] = newTraitFastener;
       if (this.isMounted()) {
-        newTraitRelation.mount();
-        if (newTraitRelation.sibling === true) {
-          const trait = this.getTrait(newTraitRelation.name);
+        newTraitFastener.mount();
+        if (newTraitFastener.sibling === true) {
+          const trait = this.getTrait(newTraitFastener.name);
           if (trait !== null) {
-            newTraitRelation.doSetTrait(trait);
+            newTraitFastener.doSetTrait(trait);
           }
         }
       }
     } else {
-      delete traitRelations[relationName];
+      delete traitFasteners[fastenerName];
     }
   }
 
   /** @hidden */
-  protected mountTraitRelations(): void {
-    const traitRelations = this.traitRelations;
-    for (const relationName in traitRelations) {
-      const traitRelation = traitRelations[relationName]!;
-      traitRelation.mount();
-      if (traitRelation.sibling === true) {
-        const trait = this.getTrait(traitRelation.name);
+  protected mountTraitFasteners(): void {
+    const traitFasteners = this.traitFasteners;
+    for (const fastenerName in traitFasteners) {
+      const traitFastener = traitFasteners[fastenerName]!;
+      traitFastener.mount();
+      if (traitFastener.sibling === true) {
+        const trait = this.getTrait(traitFastener.name);
         if (trait !== null) {
-          traitRelation.doSetTrait(trait);
+          traitFastener.doSetTrait(trait);
         }
       }
     }
   }
 
   /** @hidden */
-  protected unmountTraitRelations(): void {
-    const traitRelations = this.traitRelations;
-    for (const relationName in traitRelations) {
-      const traitRelation = traitRelations[relationName]!;
-      traitRelation.unmount();
+  protected unmountTraitFasteners(): void {
+    const traitFasteners = this.traitFasteners;
+    for (const fastenerName in traitFasteners) {
+      const traitFastener = traitFasteners[fastenerName]!;
+      traitFastener.unmount();
     }
   }
 
   /** @hidden */
-  protected insertTraitRelation(trait: Trait): void {
-    const relationName = trait.key;
-    if (relationName !== void 0) {
-      const traitRelation = this.getLazyTraitRelation(relationName);
-      if (traitRelation !== null && traitRelation.sibling === true) {
-        traitRelation.doSetTrait(trait);
+  protected insertTraitFastener(trait: Trait): void {
+    const fastenerName = trait.key;
+    if (fastenerName !== void 0) {
+      const traitFastener = this.getLazyTraitFastener(fastenerName);
+      if (traitFastener !== null && traitFastener.sibling === true) {
+        traitFastener.doSetTrait(trait);
       }
     }
   }
 
   /** @hidden */
-  protected removeTraitRelation(trait: Trait): void {
-    const relationName = trait.key;
-    if (relationName !== void 0) {
-      const traitRelation = this.getTraitRelation(relationName);
-      if (traitRelation !== null && traitRelation.sibling === true) {
-        traitRelation.doSetTrait(null);
+  protected removeTraitFastener(trait: Trait): void {
+    const fastenerName = trait.key;
+    if (fastenerName !== void 0) {
+      const traitFastener = this.getTraitFastener(fastenerName);
+      if (traitFastener !== null && traitFastener.sibling === true) {
+        traitFastener.doSetTrait(null);
       }
     }
   }

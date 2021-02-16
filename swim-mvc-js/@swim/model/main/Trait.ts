@@ -21,8 +21,8 @@ import type {TraitConsumerType, TraitConsumer} from "./TraitConsumer";
 import type {WarpManager} from "./warp/WarpManager";
 import type {TraitServiceConstructor, TraitService} from "./service/TraitService";
 import type {TraitPropertyConstructor, TraitProperty} from "./property/TraitProperty";
-import type {TraitModelConstructor, TraitModel} from "./relation/TraitModel";
-import type {TraitRelationConstructor, TraitRelation} from "./relation/TraitRelation";
+import type {TraitModelConstructor, TraitModel} from "./fastener/TraitModel";
+import type {TraitFastenerConstructor, TraitFastener} from "./fastener/TraitFastener";
 import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
 import type {ModelDownlink} from "./downlink/ModelDownlink";
 
@@ -40,10 +40,10 @@ export interface TraitPrototype {
   traitPropertyConstructors?: {[propertyName: string]: TraitPropertyConstructor<Trait, unknown> | undefined};
 
   /** @hidden */
-  traitModelConstructors?: {[relationName: string]: TraitModelConstructor<Trait, Model> | undefined};
+  traitModelConstructors?: {[fastenerName: string]: TraitModelConstructor<Trait, Model> | undefined};
 
   /** @hidden */
-  traitRelationConstructors?: {[relationName: string]: TraitRelationConstructor<Trait, Trait> | undefined};
+  traitFastenerConstructors?: {[fastenerName: string]: TraitFastenerConstructor<Trait, Trait> | undefined};
 }
 
 export interface TraitConstructor<R extends Trait = Trait> {
@@ -1100,42 +1100,42 @@ export abstract class Trait implements ModelDownlinkContext {
     return traitProperty;
   }
 
-  abstract hasTraitModel(relationName: string): boolean;
+  abstract hasTraitModel(fastenerName: string): boolean;
 
-  abstract getTraitModel(relationName: string): TraitModel<this, Model> | null;
+  abstract getTraitModel(fastenerName: string): TraitModel<this, Model> | null;
 
-  abstract setTraitModel(relationName: string, traitModel: TraitModel<this, Model> | null): void;
+  abstract setTraitModel(fastenerName: string, traitModel: TraitModel<this, Model> | null): void;
 
   /** @hidden */
-  getLazyTraitModel(relationName: string): TraitModel<this, Model> | null {
-    let traitModel = this.getTraitModel(relationName) as TraitModel<this, Model> | null;
+  getLazyTraitModel(fastenerName: string): TraitModel<this, Model> | null {
+    let traitModel = this.getTraitModel(fastenerName) as TraitModel<this, Model> | null;
     if (traitModel === null) {
-      const constructor = Trait.getTraitModelConstructor(relationName, Object.getPrototypeOf(this));
+      const constructor = Trait.getTraitModelConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        traitModel = new constructor(this, relationName) as TraitModel<this, Model>;
-        this.setTraitModel(relationName, traitModel);
+        traitModel = new constructor(this, fastenerName) as TraitModel<this, Model>;
+        this.setTraitModel(fastenerName, traitModel);
       }
     }
     return traitModel;
   }
 
-  abstract hasTraitRelation(relationName: string): boolean;
+  abstract hasTraitFastener(fastenerName: string): boolean;
 
-  abstract getTraitRelation(relationName: string): TraitRelation<this, Trait> | null;
+  abstract getTraitFastener(fastenerName: string): TraitFastener<this, Trait> | null;
 
-  abstract setTraitRelation(relationName: string, traitRelation: TraitRelation<this, Trait> | null): void;
+  abstract setTraitFastener(fastenerName: string, traitFastener: TraitFastener<this, Trait> | null): void;
 
   /** @hidden */
-  getLazyTraitRelation(relationName: string): TraitRelation<this, Trait> | null {
-    let traitRelation = this.getTraitRelation(relationName) as TraitRelation<this, Trait> | null;
-    if (traitRelation === null) {
-      const constructor = Trait.getTraitRelationConstructor(relationName, Object.getPrototypeOf(this));
+  getLazyTraitFastener(fastenerName: string): TraitFastener<this, Trait> | null {
+    let traitFastener = this.getTraitFastener(fastenerName) as TraitFastener<this, Trait> | null;
+    if (traitFastener === null) {
+      const constructor = Trait.getTraitFastenerConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        traitRelation = new constructor(this, relationName) as TraitRelation<this, Trait>;
-        this.setTraitRelation(relationName, traitRelation);
+        traitFastener = new constructor(this, fastenerName) as TraitFastener<this, Trait>;
+        this.setTraitFastener(fastenerName, traitFastener);
       }
     }
-    return traitRelation;
+    return traitFastener;
   }
 
   abstract hasModelDownlink(downlinkName: string): boolean;
@@ -1228,13 +1228,13 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getTraitModelConstructor(relationName: string, traitPrototype: TraitPrototype | null = null): TraitModelConstructor<Trait, Model> | null {
+  static getTraitModelConstructor(fastenerName: string, traitPrototype: TraitPrototype | null = null): TraitModelConstructor<Trait, Model> | null {
     if (traitPrototype === null) {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
       if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitModelConstructors")) {
-        const constructor = traitPrototype.traitModelConstructors![relationName];
+        const constructor = traitPrototype.traitModelConstructors![fastenerName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1267,13 +1267,13 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static getTraitRelationConstructor(relationName: string, traitPrototype: TraitPrototype | null = null): TraitRelationConstructor<Trait, Trait> | null {
+  static getTraitFastenerConstructor(fastenerName: string, traitPrototype: TraitPrototype | null = null): TraitFastenerConstructor<Trait, Trait> | null {
     if (traitPrototype === null) {
       traitPrototype = this.prototype as TraitPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitRelationConstructors")) {
-        const constructor = traitPrototype.traitRelationConstructors![relationName];
+      if (Object.prototype.hasOwnProperty.call(traitPrototype, "traitFastenerConstructors")) {
+        const constructor = traitPrototype.traitFastenerConstructors![fastenerName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1284,21 +1284,21 @@ export abstract class Trait implements ModelDownlinkContext {
   }
 
   /** @hidden */
-  static decorateTraitRelation(constructor: TraitRelationConstructor<Trait, Trait>,
+  static decorateTraitFastener(constructor: TraitFastenerConstructor<Trait, Trait>,
                                target: Object, propertyKey: string | symbol): void {
     const traitPrototype = target as TraitPrototype;
-    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "traitRelationConstructors")) {
-      traitPrototype.traitRelationConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(traitPrototype, "traitFastenerConstructors")) {
+      traitPrototype.traitFastenerConstructors = {};
     }
-    traitPrototype.traitRelationConstructors![propertyKey.toString()] = constructor;
+    traitPrototype.traitFastenerConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: Trait): TraitRelation<Trait, Trait> {
-        let traitRelation = this.getTraitRelation(propertyKey.toString());
-        if (traitRelation === null) {
-          traitRelation = new constructor(this, propertyKey.toString());
-          this.setTraitRelation(propertyKey.toString(), traitRelation);
+      get: function (this: Trait): TraitFastener<Trait, Trait> {
+        let traitFastener = this.getTraitFastener(propertyKey.toString());
+        if (traitFastener === null) {
+          traitFastener = new constructor(this, propertyKey.toString());
+          this.setTraitFastener(propertyKey.toString(), traitFastener);
         }
-        return traitRelation;
+        return traitFastener;
       },
       configurable: true,
       enumerable: true,

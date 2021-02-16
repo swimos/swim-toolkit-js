@@ -13,16 +13,16 @@
 // limitations under the License.
 
 export {
-  ModelRelationMemberType,
-  ModelRelationMemberInit,
-  ModelRelationInit,
-  ModelRelationDescriptor,
-  ModelRelationDescriptorExtends,
-  ModelRelationDescriptorFromAny,
-  ModelRelationConstructor,
-  ModelRelationClass,
-  ModelRelation,
-} from "./ModelRelation";
+  ModelFastenerMemberType,
+  ModelFastenerMemberInit,
+  ModelFastenerInit,
+  ModelFastenerDescriptor,
+  ModelFastenerDescriptorExtends,
+  ModelFastenerDescriptorFromAny,
+  ModelFastenerConstructor,
+  ModelFastenerClass,
+  ModelFastener,
+} from "./ModelFastener";
 
 export {
   ModelTraitMemberType,
@@ -49,13 +49,13 @@ export {
 } from "./TraitModel";
 
 export {
-  TraitRelationMemberType,
-  TraitRelationMemberInit,
-  TraitRelationInit,
-  TraitRelationDescriptor,
-  TraitRelationDescriptorExtends,
-  TraitRelationDescriptorFromAny,
-  TraitRelationConstructor,
-  TraitRelationClass,
-  TraitRelation,
-} from "./TraitRelation";
+  TraitFastenerMemberType,
+  TraitFastenerMemberInit,
+  TraitFastenerInit,
+  TraitFastenerDescriptor,
+  TraitFastenerDescriptorExtends,
+  TraitFastenerDescriptorFromAny,
+  TraitFastenerConstructor,
+  TraitFastenerClass,
+  TraitFastener,
+} from "./TraitFastener";

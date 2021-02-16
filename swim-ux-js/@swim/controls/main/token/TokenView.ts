@@ -16,7 +16,7 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import {Length, BoxR2} from "@swim/math";
 import type {Color} from "@swim/color";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewObserver, ViewProperty, ViewAnimator, ViewRelation} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewObserver, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
 import {Graphics, PathContext, PathRenderer} from "@swim/graphics";
 import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
@@ -206,7 +206,7 @@ export class TokenView extends HtmlView {
   })
   declare expandedPhase: ViewAnimator<this, number>;
 
-  @ViewRelation<TokenView, SvgView>({
+  @ViewFastener<TokenView, SvgView>({
     type: SvgView,
     onSetView(shapeView: SvgView | null): void {
       if (shapeView !== null) {
@@ -214,14 +214,14 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare shape: ViewRelation<this, SvgView>;
+  declare shape: ViewFastener<this, SvgView>;
 
   /** @hidden */
   get fillLook(): Look<Color> {
     return Look.accentColor;
   }
 
-  @ViewRelation<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
+  @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -291,10 +291,10 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare head: ViewRelation<this, SvgView> & PositionGestureDelegate;
+  declare head: ViewFastener<this, SvgView> & PositionGestureDelegate;
 
   /** @hidden */
-  @ViewRelation<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
+  @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -310,7 +310,7 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare headIcon: ViewRelation<this, SvgView> & PositionGestureDelegate;
+  declare headIcon: ViewFastener<this, SvgView> & PositionGestureDelegate;
 
   @ViewProperty<TokenView, Graphics | null, never, {embossed: boolean}>({
     extends: void 0,
@@ -321,7 +321,7 @@ export class TokenView extends HtmlView {
   })
   declare icon: ViewProperty<this, Graphics | null> & {embossed: boolean};
 
-  @ViewRelation<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
+  @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -388,9 +388,9 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare body: ViewRelation<this, SvgView> & PositionGestureDelegate;
+  declare body: ViewFastener<this, SvgView> & PositionGestureDelegate;
 
-  @ViewRelation<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
+  @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -460,10 +460,10 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare foot: ViewRelation<this, SvgView> & PositionGestureDelegate;
+  declare foot: ViewFastener<this, SvgView> & PositionGestureDelegate;
 
   /** @hidden */
-  @ViewRelation<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
+  @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
     child: false,
     type: SvgView.path,
@@ -479,7 +479,7 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare footIcon: ViewRelation<this, SvgView> & PositionGestureDelegate;
+  declare footIcon: ViewFastener<this, SvgView> & PositionGestureDelegate;
 
   @ViewProperty<TokenView, Graphics | null, never, {embossed: boolean}>({
     extends: void 0,
@@ -490,7 +490,7 @@ export class TokenView extends HtmlView {
   })
   declare accessory: ViewProperty<this, Graphics | null> & {embossed: boolean};
 
-  @ViewRelation<TokenView, HtmlView>({
+  @ViewFastener<TokenView, HtmlView>({
     type: HtmlView,
     onSetView(labelContainer: HtmlView | null): void {
       if (labelContainer !== null) {
@@ -498,9 +498,9 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare labelContainer: ViewRelation<this, HtmlView>;
+  declare labelContainer: ViewFastener<this, HtmlView>;
 
-  @ViewRelation<TokenView, HtmlView>({
+  @ViewFastener<TokenView, HtmlView>({
     child: false,
     type: HtmlView,
     onSetView(labelView: HtmlView | null): void {
@@ -516,7 +516,7 @@ export class TokenView extends HtmlView {
       }
     },
   })
-  declare label: ViewRelation<this, HtmlView>;
+  declare label: ViewFastener<this, HtmlView>;
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsLayout) !== 0) {

@@ -13,13 +13,13 @@
 // limitations under the License.
 
 export {
-  ViewRelationMemberType,
-  ViewRelationMemberInit,
-  ViewRelationInit,
-  ViewRelationDescriptor,
-  ViewRelationDescriptorExtends,
-  ViewRelationDescriptorFromAny,
-  ViewRelationConstructor,
-  ViewRelationClass,
-  ViewRelation,
-} from "./ViewRelation";
+  ViewFastenerMemberType,
+  ViewFastenerMemberInit,
+  ViewFastenerInit,
+  ViewFastenerDescriptor,
+  ViewFastenerDescriptorExtends,
+  ViewFastenerDescriptorFromAny,
+  ViewFastenerConstructor,
+  ViewFastenerClass,
+  ViewFastener,
+} from "./ViewFastener";

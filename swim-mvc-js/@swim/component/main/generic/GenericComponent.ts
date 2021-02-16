@@ -19,10 +19,10 @@ import {ComponentFlags, Component} from "../Component";
 import type {ComponentObserverType} from "../ComponentObserver";
 import type {ComponentService} from "../service/ComponentService";
 import type {ComponentProperty} from "../property/ComponentProperty";
-import type {ComponentModel} from "../relation/ComponentModel";
-import type {ComponentTrait} from "../relation/ComponentTrait";
-import type {ComponentView} from "../relation/ComponentView";
-import type {ComponentRelation} from "../relation/ComponentRelation";
+import type {ComponentModel} from "../fastener/ComponentModel";
+import type {ComponentTrait} from "../fastener/ComponentTrait";
+import type {ComponentView} from "../fastener/ComponentView";
+import type {ComponentFastener} from "../fastener/ComponentFastener";
 
 export abstract class GenericComponent extends Component {
   constructor() {
@@ -62,7 +62,7 @@ export abstract class GenericComponent extends Component {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "componentRelations", {
+    Object.defineProperty(this, "componentFasteners", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -151,7 +151,7 @@ export abstract class GenericComponent extends Component {
 
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
     super.onInsertChildComponent(childComponent, targetComponent);
-    this.insertComponentRelation(childComponent);
+    this.insertComponentFastener(childComponent);
   }
 
   cascadeInsert(updateFlags?: ComponentFlags, componentContext?: ComponentContext): void {
@@ -163,7 +163,7 @@ export abstract class GenericComponent extends Component {
 
   protected onRemoveChildComponent(childComponent: Component): void {
     super.onRemoveChildComponent(childComponent);
-    this.removeComponentRelation(childComponent);
+    this.removeComponentFastener(childComponent);
   }
 
   abstract removeAll(): void;
@@ -191,7 +191,7 @@ export abstract class GenericComponent extends Component {
     this.mountComponentModels();
     this.mountComponentTraits();
     this.mountComponentViews();
-    this.mountComponentRelations();
+    this.mountComponentFasteners();
   }
 
   /** @hidden */
@@ -224,7 +224,7 @@ export abstract class GenericComponent extends Component {
   }
 
   protected onUnmount(): void {
-    this.unmountComponentRelations();
+    this.unmountComponentFasteners();
     this.unmountComponentViews();
     this.unmountComponentTraits();
     this.unmountComponentModels();
@@ -735,84 +735,84 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  declare readonly componentRelations: {[relationName: string]: ComponentRelation<Component, Component> | undefined} | null;
+  declare readonly componentFasteners: {[fastenerName: string]: ComponentFastener<Component, Component> | undefined} | null;
 
-  hasComponentRelation(relationName: string): boolean {
-    const componentRelations = this.componentRelations;
-    return componentRelations !== null && componentRelations[relationName] !== void 0;
+  hasComponentFastener(fastenerName: string): boolean {
+    const componentFasteners = this.componentFasteners;
+    return componentFasteners !== null && componentFasteners[fastenerName] !== void 0;
   }
 
-  getComponentRelation(relationName: string): ComponentRelation<this, Component> | null {
-    const componentRelations = this.componentRelations;
-    if (componentRelations !== null) {
-      const componentRelation = componentRelations[relationName];
-      if (componentRelation !== void 0) {
-        return componentRelation as ComponentRelation<this, Component>;
+  getComponentFastener(fastenerName: string): ComponentFastener<this, Component> | null {
+    const componentFasteners = this.componentFasteners;
+    if (componentFasteners !== null) {
+      const componentFastener = componentFasteners[fastenerName];
+      if (componentFastener !== void 0) {
+        return componentFastener as ComponentFastener<this, Component>;
       }
     }
     return null;
   }
 
-  setComponentRelation(relationName: string, newComponentRelation: ComponentRelation<this, any> | null): void {
-    let componentRelations = this.componentRelations;
-    if (componentRelations === null) {
-      componentRelations = {};
-      Object.defineProperty(this, "componentRelations", {
-        value: componentRelations,
+  setComponentFastener(fastenerName: string, newComponentFastener: ComponentFastener<this, any> | null): void {
+    let componentFasteners = this.componentFasteners;
+    if (componentFasteners === null) {
+      componentFasteners = {};
+      Object.defineProperty(this, "componentFasteners", {
+        value: componentFasteners,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldComponentRelation = componentRelations[relationName];
-    if (oldComponentRelation !== void 0 && this.isMounted()) {
-      oldComponentRelation.unmount();
+    const oldComponentFastener = componentFasteners[fastenerName];
+    if (oldComponentFastener !== void 0 && this.isMounted()) {
+      oldComponentFastener.unmount();
     }
-    if (newComponentRelation !== null) {
-      componentRelations[relationName] = newComponentRelation;
+    if (newComponentFastener !== null) {
+      componentFasteners[fastenerName] = newComponentFastener;
       if (this.isMounted()) {
-        newComponentRelation.mount();
+        newComponentFastener.mount();
       }
     } else {
-      delete componentRelations[relationName];
+      delete componentFasteners[fastenerName];
     }
   }
 
   /** @hidden */
-  protected mountComponentRelations(): void {
-    const componentRelations = this.componentRelations;
-    for (const relationName in componentRelations) {
-      const componentRelation = componentRelations[relationName]!;
-      componentRelation.mount();
+  protected mountComponentFasteners(): void {
+    const componentFasteners = this.componentFasteners;
+    for (const fastenerName in componentFasteners) {
+      const componentFastener = componentFasteners[fastenerName]!;
+      componentFastener.mount();
     }
   }
 
   /** @hidden */
-  protected unmountComponentRelations(): void {
-    const componentRelations = this.componentRelations;
-    for (const relationName in componentRelations) {
-      const componentRelation = componentRelations[relationName]!;
-      componentRelation.unmount();
+  protected unmountComponentFasteners(): void {
+    const componentFasteners = this.componentFasteners;
+    for (const fastenerName in componentFasteners) {
+      const componentFastener = componentFasteners[fastenerName]!;
+      componentFastener.unmount();
     }
   }
 
   /** @hidden */
-  protected insertComponentRelation(childComponent: Component): void {
-    const relationName = childComponent.key;
-    if (relationName !== void 0) {
-      const componentRelation = this.getLazyComponentRelation(relationName);
-      if (componentRelation !== null && componentRelation.child === true) {
-        componentRelation.doSetComponent(childComponent);
+  protected insertComponentFastener(childComponent: Component): void {
+    const fastenerName = childComponent.key;
+    if (fastenerName !== void 0) {
+      const componentFastener = this.getLazyComponentFastener(fastenerName);
+      if (componentFastener !== null && componentFastener.child === true) {
+        componentFastener.doSetComponent(childComponent);
       }
     }
   }
 
   /** @hidden */
-  protected removeComponentRelation(childComponent: Component): void {
-    const relationName = childComponent.key;
-    if (relationName !== void 0) {
-      const componentRelation = this.getComponentRelation(relationName);
-      if (componentRelation !== null && componentRelation.child === true) {
-        componentRelation.doSetComponent(null);
+  protected removeComponentFastener(childComponent: Component): void {
+    const fastenerName = childComponent.key;
+    if (fastenerName !== void 0) {
+      const componentFastener = this.getComponentFastener(fastenerName);
+      if (componentFastener !== null && componentFastener.child === true) {
+        componentFastener.doSetComponent(null);
       }
     }
   }

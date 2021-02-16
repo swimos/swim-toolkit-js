@@ -16,7 +16,7 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import type {Height} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, View, ViewEdgeInsets, ViewProperty, ViewAnimator, ViewRelation} from "@swim/view";
+import {ViewContextType, View, ViewEdgeInsets, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {Graphics, HtmlIconView} from "@swim/graphics";
 import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
@@ -62,7 +62,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
   @ViewAnimator({type: Number, inherit: true, updateFlags: View.NeedsAnimate})
   declare drawerStretch: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
-  @ViewRelation<ListItem, HtmlView, Graphics>({
+  @ViewFastener<ListItem, HtmlView, Graphics>({
     type: HtmlView,
     observe: false,
     onSetView(iconView: HtmlView | null): void {
@@ -86,7 +86,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
       }
     },
   })
-  declare icon: ViewRelation<ListItem, HtmlView, Graphics>;
+  declare icon: ViewFastener<ListItem, HtmlView, Graphics>;
 
   protected createIconView(): HtmlIconView {
     return HtmlIconView.create();
@@ -103,7 +103,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
     }
   }
 
-  @ViewRelation<ListItem, HtmlView, string | undefined>({
+  @ViewFastener<ListItem, HtmlView, string | undefined>({
     type: HtmlView,
     observe: false,
     onSetView(labelView: HtmlView | null): void {
@@ -130,7 +130,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
       }
     },
   })
-  declare label: ViewRelation<ListItem, HtmlView, string | undefined>;
+  declare label: ViewFastener<ListItem, HtmlView, string | undefined>;
 
   protected createLabelView(): HtmlView {
     const labelView = HtmlView.span.create();
@@ -153,7 +153,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
     }
   }
 
-  @ViewRelation<ListItem, HtmlView, Graphics | string>({
+  @ViewFastener<ListItem, HtmlView, Graphics | string>({
     type: HtmlView,
     observe: false,
     onSetView(accessoryView: HtmlView | null): void {
@@ -181,7 +181,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
       }
     },
   })
-  declare accessory: ViewRelation<ListItem, HtmlView, Graphics | string>;
+  declare accessory: ViewFastener<ListItem, HtmlView, Graphics | string>;
 
   protected createAccessoryIconView(): HtmlIconView {
     return HtmlIconView.create();

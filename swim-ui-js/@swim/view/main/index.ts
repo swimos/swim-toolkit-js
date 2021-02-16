@@ -69,7 +69,7 @@ export * from "./property";
 
 export * from "./animator";
 
-export * from "./relation";
+export * from "./fastener";
 
 export * from "./event";
 

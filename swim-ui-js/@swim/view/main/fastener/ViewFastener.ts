@@ -27,14 +27,14 @@ import {
 import {ViewFactory, View} from "../View";
 import type {ViewObserverType} from "../ViewObserver";
 
-export type ViewRelationMemberType<V, K extends keyof V> =
-  V extends {[P in K]: ViewRelation<any, infer S, any>} ? S : unknown;
+export type ViewFastenerMemberType<V, K extends keyof V> =
+  V extends {[P in K]: ViewFastener<any, infer S, any>} ? S : unknown;
 
-export type ViewRelationMemberInit<V, K extends keyof V> =
-  V extends {[P in K]: ViewRelation<any, infer T, infer U>} ? T | U : unknown;
+export type ViewFastenerMemberInit<V, K extends keyof V> =
+  V extends {[P in K]: ViewFastener<any, infer T, infer U>} ? T | U : unknown;
 
-export interface ViewRelationInit<S extends View, U = never> {
-  extends?: ViewRelationClass;
+export interface ViewFastenerInit<S extends View, U = never> {
+  extends?: ViewFastenerClass;
   observe?: boolean;
   child?: boolean;
   type?: ViewFactory<S, U>;
@@ -47,22 +47,22 @@ export interface ViewRelationInit<S extends View, U = never> {
   fromAny?(value: S | U): S | null;
 }
 
-export type ViewRelationDescriptor<V extends View, S extends View, U = never, I = ViewObserverType<S>> = ViewRelationInit<S, U> & ThisType<ViewRelation<V, S, U> & I> & I;
+export type ViewFastenerDescriptor<V extends View, S extends View, U = never, I = ViewObserverType<S>> = ViewFastenerInit<S, U> & ThisType<ViewFastener<V, S, U> & I> & I;
 
-export type ViewRelationDescriptorExtends<V extends View, S extends View, U = never, I = ViewObserverType<S>> = {extends: ViewRelationClass | undefined} & ViewRelationDescriptor<V, S, U, I>;
+export type ViewFastenerDescriptorExtends<V extends View, S extends View, U = never, I = ViewObserverType<S>> = {extends: ViewFastenerClass | undefined} & ViewFastenerDescriptor<V, S, U, I>;
 
-export type ViewRelationDescriptorFromAny<V extends View, S extends View, U = never, I = ViewObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ViewRelationDescriptor<V, S, U, I>;
+export type ViewFastenerDescriptorFromAny<V extends View, S extends View, U = never, I = ViewObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ViewFastenerDescriptor<V, S, U, I>;
 
-export interface ViewRelationConstructor<V extends View, S extends View, U = never, I = ViewObserverType<S>> {
-  new(owner: V, relationName: string | undefined): ViewRelation<V, S, U> & I;
-  prototype: ViewRelation<any, any> & I;
+export interface ViewFastenerConstructor<V extends View, S extends View, U = never, I = ViewObserverType<S>> {
+  new(owner: V, fastenerName: string | undefined): ViewFastener<V, S, U> & I;
+  prototype: ViewFastener<any, any> & I;
 }
 
-export interface ViewRelationClass extends Function {
-  readonly prototype: ViewRelation<any, any>;
+export interface ViewFastenerClass extends Function {
+  readonly prototype: ViewFastener<any, any>;
 }
 
-export interface ViewRelation<V extends View, S extends View, U = never> extends ConstraintScope {
+export interface ViewFastener<V extends View, S extends View, U = never> extends ConstraintScope {
   (): S | null;
   (view: S | U | null): V;
 
@@ -167,35 +167,35 @@ export interface ViewRelation<V extends View, S extends View, U = never> extends
   fromAny(value: S | U): S | null;
 }
 
-export const ViewRelation = function <V extends View, S extends View, U>(
-    this: ViewRelation<V, S, U> | typeof ViewRelation,
-    owner: V | ViewRelationDescriptor<V, S, U>,
-    relationName?: string,
-  ): ViewRelation<V, S, U> | PropertyDecorator {
-  if (this instanceof ViewRelation) { // constructor
-    return ViewRelationConstructor.call(this as unknown as ViewRelation<View, View, unknown>, owner as V, relationName);
+export const ViewFastener = function <V extends View, S extends View, U>(
+    this: ViewFastener<V, S, U> | typeof ViewFastener,
+    owner: V | ViewFastenerDescriptor<V, S, U>,
+    fastenerName?: string,
+  ): ViewFastener<V, S, U> | PropertyDecorator {
+  if (this instanceof ViewFastener) { // constructor
+    return ViewFastenerConstructor.call(this as unknown as ViewFastener<View, View, unknown>, owner as V, fastenerName);
   } else { // decorator factory
-    return ViewRelationDecoratorFactory(owner as ViewRelationDescriptor<V, S, U>);
+    return ViewFastenerDecoratorFactory(owner as ViewFastenerDescriptor<V, S, U>);
   }
 } as {
   /** @hidden */
-  new<V extends View, S extends View, U = never>(owner: V, relationName: string | undefined): ViewRelation<V, S, U>;
+  new<V extends View, S extends View, U = never>(owner: V, fastenerName: string | undefined): ViewFastener<V, S, U>;
 
-  <V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: ViewRelationDescriptorExtends<V, S, U, I>): PropertyDecorator;
-  <V extends View, S extends View = View, U = never>(descriptor: ViewRelationDescriptor<V, S, U>): PropertyDecorator;
+  <V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: ViewFastenerDescriptorExtends<V, S, U, I>): PropertyDecorator;
+  <V extends View, S extends View = View, U = never>(descriptor: ViewFastenerDescriptor<V, S, U>): PropertyDecorator;
 
   /** @hidden */
-  prototype: ViewRelation<any, any>;
+  prototype: ViewFastener<any, any>;
 
-  define<V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: ViewRelationDescriptorExtends<V, S, U, I>): ViewRelationConstructor<V, S, U, I>;
-  define<V extends View, S extends View = View, U = never>(descriptor: ViewRelationDescriptor<V, S, U>): ViewRelationConstructor<V, S, U>;
+  define<V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: ViewFastenerDescriptorExtends<V, S, U, I>): ViewFastenerConstructor<V, S, U, I>;
+  define<V extends View, S extends View = View, U = never>(descriptor: ViewFastenerDescriptor<V, S, U>): ViewFastenerConstructor<V, S, U>;
 };
-__extends(ViewRelation, Object);
+__extends(ViewFastener, Object);
 
-function ViewRelationConstructor<V extends View, S extends View, U>(this: ViewRelation<V, S, U>, owner: V, relationName: string | undefined): ViewRelation<V, S, U> {
-  if (relationName !== void 0) {
+function ViewFastenerConstructor<V extends View, S extends View, U>(this: ViewFastener<V, S, U>, owner: V, fastenerName: string | undefined): ViewFastener<V, S, U> {
+  if (fastenerName !== void 0) {
     Object.defineProperty(this, "name", {
-      value: relationName,
+      value: fastenerName,
       enumerable: true,
       configurable: true,
     });
@@ -222,11 +222,11 @@ function ViewRelationConstructor<V extends View, S extends View, U>(this: ViewRe
   return this;
 }
 
-function ViewRelationDecoratorFactory<V extends View, S extends View, U>(descriptor: ViewRelationDescriptor<V, S, U>): PropertyDecorator {
-  return View.decorateViewRelation.bind(View, ViewRelation.define(descriptor as ViewRelationDescriptor<View, View>));
+function ViewFastenerDecoratorFactory<V extends View, S extends View, U>(descriptor: ViewFastenerDescriptor<V, S, U>): PropertyDecorator {
+  return View.decorateViewFastener.bind(View, ViewFastener.define(descriptor as ViewFastenerDescriptor<View, View>));
 }
 
-ViewRelation.prototype.getView = function <S extends View>(this: ViewRelation<View, S>): S {
+ViewFastener.prototype.getView = function <S extends View>(this: ViewFastener<View, S>): S {
   const view = this.view;
   if (view === null) {
     throw new TypeError("null " + this.name + " view");
@@ -234,7 +234,7 @@ ViewRelation.prototype.getView = function <S extends View>(this: ViewRelation<Vi
   return view;
 };
 
-ViewRelation.prototype.setView = function <S extends View, U>(this: ViewRelation<View, S, U>, view: S | U | null): void {
+ViewFastener.prototype.setView = function <S extends View, U>(this: ViewFastener<View, S, U>, view: S | U | null): void {
   if (view !== null) {
     view = this.fromAny(view);
   }
@@ -249,7 +249,7 @@ ViewRelation.prototype.setView = function <S extends View, U>(this: ViewRelation
   }
 };
 
-ViewRelation.prototype.doSetView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null): void {
+ViewFastener.prototype.doSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null): void {
   const oldView = this.view;
   if (oldView !== newView) {
     this.deactivateLayout();
@@ -267,23 +267,23 @@ ViewRelation.prototype.doSetView = function <S extends View>(this: ViewRelation<
   }
 };
 
-ViewRelation.prototype.willSetView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.willSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
   // hook
 };
 
-ViewRelation.prototype.onSetView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.onSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
   // hook
 };
 
-ViewRelation.prototype.didSetView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.didSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
   // hook
 };
 
-ViewRelation.prototype.willSetOwnView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.willSetOwnView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
   // hook
 };
 
-ViewRelation.prototype.onSetOwnView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.onSetOwnView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
   if (this.observe === true && this.owner.isMounted()) {
     if (oldView !== null) {
       oldView.removeViewObserver(this as ViewObserverType<S>);
@@ -294,11 +294,11 @@ ViewRelation.prototype.onSetOwnView = function <S extends View>(this: ViewRelati
   }
 };
 
-ViewRelation.prototype.didSetOwnView = function <S extends View>(this: ViewRelation<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.didSetOwnView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
   // hook
 };
 
-ViewRelation.prototype.constraint = function (this: ViewRelation<View, View>, lhs: Constrain | number, relation: ConstraintRelation,
+ViewFastener.prototype.constraint = function (this: ViewFastener<View, View>, lhs: Constrain | number, relation: ConstraintRelation,
                                               rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
   if (typeof lhs === "number") {
     lhs = Constrain.constant(lhs);
@@ -315,11 +315,11 @@ ViewRelation.prototype.constraint = function (this: ViewRelation<View, View>, lh
   return new Constraint(this.owner, constrain, relation, strength);
 };
 
-ViewRelation.prototype.hasConstraint = function (this: ViewRelation<View, View>, constraint: Constraint): boolean {
+ViewFastener.prototype.hasConstraint = function (this: ViewFastener<View, View>, constraint: Constraint): boolean {
   return this.constraints.indexOf(constraint) >= 0;
 };
 
-ViewRelation.prototype.addConstraint = function (this: ViewRelation<View, View>, constraint: Constraint): void {
+ViewFastener.prototype.addConstraint = function (this: ViewFastener<View, View>, constraint: Constraint): void {
   const oldConstraints = this.constraints;
   const newConstraints = Arrays.inserted(constraint, oldConstraints);
   if (oldConstraints !== newConstraints) {
@@ -332,7 +332,7 @@ ViewRelation.prototype.addConstraint = function (this: ViewRelation<View, View>,
   }
 };
 
-ViewRelation.prototype.removeConstraint = function (this: ViewRelation<View, View>, constraint: Constraint): void {
+ViewFastener.prototype.removeConstraint = function (this: ViewFastener<View, View>, constraint: Constraint): void {
   const oldConstraints = this.constraints;
   const newConstraints = Arrays.removed(constraint, oldConstraints);
   if (oldConstraints !== newConstraints) {
@@ -345,15 +345,15 @@ ViewRelation.prototype.removeConstraint = function (this: ViewRelation<View, Vie
   }
 };
 
-ViewRelation.prototype.activateConstraint = function (this: ViewRelation<View, View>, constraint: Constraint): void {
+ViewFastener.prototype.activateConstraint = function (this: ViewFastener<View, View>, constraint: Constraint): void {
   this.owner.activateConstraint(constraint);
 };
 
-ViewRelation.prototype.deactivateConstraint = function (this: ViewRelation<View, View>, constraint: Constraint): void {
+ViewFastener.prototype.deactivateConstraint = function (this: ViewFastener<View, View>, constraint: Constraint): void {
   this.owner.deactivateConstraint(constraint);
 };
 
-ViewRelation.prototype.constraintVariable = function (this: ViewRelation<View, View>, name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable {
+ViewFastener.prototype.constraintVariable = function (this: ViewFastener<View, View>, name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable {
   if (value === void 0) {
     value = 0;
   }
@@ -365,11 +365,11 @@ ViewRelation.prototype.constraintVariable = function (this: ViewRelation<View, V
   return new ConstrainBinding(this, name, value, strength);
 };
 
-ViewRelation.prototype.hasConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable): boolean {
+ViewFastener.prototype.hasConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable): boolean {
   return this.constraintVariables.indexOf(constraintVariable) >= 0;
 };
 
-ViewRelation.prototype.addConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable): void {
+ViewFastener.prototype.addConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable): void {
   const oldConstraintVariables = this.constraintVariables;
   const newConstraintVariables = Arrays.inserted(constraintVariable, oldConstraintVariables);
   if (oldConstraintVariables !== newConstraintVariables) {
@@ -382,7 +382,7 @@ ViewRelation.prototype.addConstraintVariable = function (this: ViewRelation<View
   }
 };
 
-ViewRelation.prototype.removeConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable): void {
+ViewFastener.prototype.removeConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable): void {
   const oldConstraintVariables = this.constraintVariables;
   const newConstraintVariables = Arrays.removed(constraintVariable, oldConstraintVariables);
   if (oldConstraintVariables !== newConstraintVariables) {
@@ -395,19 +395,19 @@ ViewRelation.prototype.removeConstraintVariable = function (this: ViewRelation<V
   }
 };
 
-ViewRelation.prototype.activateConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable): void {
+ViewFastener.prototype.activateConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable): void {
   this.owner.activateConstraintVariable(constraintVariable);
 };
 
-ViewRelation.prototype.deactivateConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable): void {
+ViewFastener.prototype.deactivateConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable): void {
   this.owner.deactivateConstraintVariable(constraintVariable);
 };
 
-ViewRelation.prototype.setConstraintVariable = function (this: ViewRelation<View, View>, constraintVariable: ConstrainVariable, state: number): void {
+ViewFastener.prototype.setConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable, state: number): void {
   this.owner.setConstraintVariable(constraintVariable, state);
 };
 
-ViewRelation.prototype.activateLayout = function (this: ViewRelation<View, View>): void {
+ViewFastener.prototype.activateLayout = function (this: ViewFastener<View, View>): void {
   const constraintVariables = this.constraintVariables;
   for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
     this.owner.activateConstraintVariable(constraintVariables[i]!);
@@ -418,7 +418,7 @@ ViewRelation.prototype.activateLayout = function (this: ViewRelation<View, View>
   }
 };
 
-ViewRelation.prototype.deactivateLayout = function (this: ViewRelation<View, View>): void {
+ViewFastener.prototype.deactivateLayout = function (this: ViewFastener<View, View>): void {
   const constraints = this.constraints;
   for (let i = 0, n = constraints.length; i < n; i += 1) {
     this.owner.deactivateConstraint(constraints[i]!);
@@ -429,7 +429,7 @@ ViewRelation.prototype.deactivateLayout = function (this: ViewRelation<View, Vie
   }
 };
 
-ViewRelation.prototype.mount = function (): void {
+ViewFastener.prototype.mount = function (): void {
   this.activateLayout();
   const view = this.view;
   if (view !== null && this.observe === true) {
@@ -437,7 +437,7 @@ ViewRelation.prototype.mount = function (): void {
   }
 };
 
-ViewRelation.prototype.unmount = function (): void {
+ViewFastener.prototype.unmount = function (): void {
   const view = this.view;
   if (view !== null && this.observe === true) {
     view.removeViewObserver(this as ViewObserverType<View>);
@@ -445,7 +445,7 @@ ViewRelation.prototype.unmount = function (): void {
   this.deactivateLayout();
 };
 
-ViewRelation.prototype.insert = function <S extends View>(this: ViewRelation<View, S>, parentView?: View | string | null, key?: string | null): S | null {
+ViewFastener.prototype.insert = function <S extends View>(this: ViewFastener<View, S>, parentView?: View | string | null, key?: string | null): S | null {
   let view = this.view;
   if (view === null) {
     view = this.createView();
@@ -473,7 +473,7 @@ ViewRelation.prototype.insert = function <S extends View>(this: ViewRelation<Vie
   return view;
 };
 
-ViewRelation.prototype.remove = function <S extends View>(this: ViewRelation<View, S>): S | null {
+ViewFastener.prototype.remove = function <S extends View>(this: ViewFastener<View, S>): S | null {
   const view = this.view;
   if (view !== null) {
     view.remove();
@@ -481,7 +481,7 @@ ViewRelation.prototype.remove = function <S extends View>(this: ViewRelation<Vie
   return view;
 };
 
-ViewRelation.prototype.createView = function <S extends View, U>(this: ViewRelation<View, S, U>): S | U | null {
+ViewFastener.prototype.createView = function <S extends View, U>(this: ViewFastener<View, S, U>): S | U | null {
   const type = this.type;
   if (type !== void 0) {
     return type.create();
@@ -489,7 +489,7 @@ ViewRelation.prototype.createView = function <S extends View, U>(this: ViewRelat
   return null;
 };
 
-ViewRelation.prototype.insertView = function <S extends View>(this: ViewRelation<View, S>, parentView: View, childView: S, key: string | undefined): void {
+ViewFastener.prototype.insertView = function <S extends View>(this: ViewFastener<View, S>, parentView: View, childView: S, key: string | undefined): void {
   if (key !== void 0) {
     parentView.setChildView(key, childView);
   } else {
@@ -497,7 +497,7 @@ ViewRelation.prototype.insertView = function <S extends View>(this: ViewRelation
   }
 };
 
-ViewRelation.prototype.fromAny = function <S extends View, U>(this: ViewRelation<View, S, U>, value: S | U): S | null {
+ViewFastener.prototype.fromAny = function <S extends View, U>(this: ViewFastener<View, S, U>, value: S | U): S | null {
   const type = this.type;
   if (FromAny.is<S, U>(type)) {
     return type.fromAny(value);
@@ -507,29 +507,29 @@ ViewRelation.prototype.fromAny = function <S extends View, U>(this: ViewRelation
   return null;
 };
 
-ViewRelation.define = function <V extends View, S extends View, U, I>(descriptor: ViewRelationDescriptor<V, S, U, I>): ViewRelationConstructor<V, S, U, I> {
+ViewFastener.define = function <V extends View, S extends View, U, I>(descriptor: ViewFastenerDescriptor<V, S, U, I>): ViewFastenerConstructor<V, S, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 
   if (_super === void 0) {
-    _super = ViewRelation;
+    _super = ViewFastener;
   }
 
-  const _constructor = function DecoratedViewRelation(this: ViewRelation<V, S>, owner: V, relationName: string | undefined): ViewRelation<V, S, U> {
-    let _this: ViewRelation<V, S, U> = function ViewRelationAccessor(view?: S | U | null): S | null | V {
+  const _constructor = function DecoratedViewFastener(this: ViewFastener<V, S>, owner: V, fastenerName: string | undefined): ViewFastener<V, S, U> {
+    let _this: ViewFastener<V, S, U> = function ViewFastenerAccessor(view?: S | U | null): S | null | V {
       if (view === void 0) {
         return _this.view;
       } else {
         _this.setView(view);
         return _this.owner;
       }
-    } as ViewRelation<V, S, U>;
+    } as ViewFastener<V, S, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, relationName) || _this;
+    _this = _super!.call(_this, owner, fastenerName) || _this;
     return _this;
-  } as unknown as ViewRelationConstructor<V, S, U, I>;
+  } as unknown as ViewFastenerConstructor<V, S, U, I>;
 
-  const _prototype = descriptor as unknown as ViewRelation<any, any> & I;
+  const _prototype = descriptor as unknown as ViewFastener<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

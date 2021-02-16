@@ -29,7 +29,7 @@ import {
   ModalManager,
   ViewProperty,
   ViewAnimator,
-  ViewRelation,
+  ViewFastener,
 } from "@swim/view";
 import type {NodeViewObserver} from "./NodeViewObserver";
 import type {NodeViewController} from "./NodeViewController";
@@ -84,7 +84,7 @@ export class NodeView extends View {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "viewRelations", {
+    Object.defineProperty(this, "viewFasteners", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -573,7 +573,7 @@ export class NodeView extends View {
 
   protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
     super.onInsertChildView(childView, targetView);
-    this.insertViewRelation(childView);
+    this.insertViewFastener(childView);
   }
 
   insertChildNode(childNode: Node, targetNode: Node | null, key?: string): void {
@@ -723,7 +723,7 @@ export class NodeView extends View {
 
   protected onRemoveChildView(childView: View): void {
     super.onRemoveChildView(childView);
-    this.removeViewRelation(childView);
+    this.removeViewFastener(childView);
   }
 
   removeChildNode(childNode: Node): void {
@@ -893,7 +893,7 @@ export class NodeView extends View {
     this.mountViewServices();
     this.mountViewProperties();
     this.mountViewAnimators();
-    this.mountViewRelations();
+    this.mountViewFasteners();
     this.mountTheme();
   }
 
@@ -942,7 +942,7 @@ export class NodeView extends View {
   }
 
   protected onUnmount(): void {
-    this.unmountViewRelations();
+    this.unmountViewFasteners();
     this.unmountViewAnimators();
     this.unmountViewProperties();
     this.unmountViewServices();
@@ -1531,84 +1531,84 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  declare readonly viewRelations: {[relationName: string]: ViewRelation<View, View> | undefined} | null;
+  declare readonly viewFasteners: {[fastenerName: string]: ViewFastener<View, View> | undefined} | null;
 
-  hasViewRelation(relationName: string): boolean {
-    const viewRelations = this.viewRelations;
-    return viewRelations !== null && viewRelations[relationName] !== void 0;
+  hasViewFastener(fastenerName: string): boolean {
+    const viewFasteners = this.viewFasteners;
+    return viewFasteners !== null && viewFasteners[fastenerName] !== void 0;
   }
 
-  getViewRelation(relationName: string): ViewRelation<this, View> | null {
-    const viewRelations = this.viewRelations;
-    if (viewRelations !== null) {
-      const viewRelation = viewRelations[relationName];
-      if (viewRelation !== void 0) {
-        return viewRelation as ViewRelation<this, View>;
+  getViewFastener(fastenerName: string): ViewFastener<this, View> | null {
+    const viewFasteners = this.viewFasteners;
+    if (viewFasteners !== null) {
+      const viewFastener = viewFasteners[fastenerName];
+      if (viewFastener !== void 0) {
+        return viewFastener as ViewFastener<this, View>;
       }
     }
     return null;
   }
 
-  setViewRelation(relationName: string, newViewRelation: ViewRelation<this, any> | null): void {
-    let viewRelations = this.viewRelations;
-    if (viewRelations === null) {
-      viewRelations = {};
-      Object.defineProperty(this, "viewRelations", {
-        value: viewRelations,
+  setViewFastener(fastenerName: string, newViewFastener: ViewFastener<this, any> | null): void {
+    let viewFasteners = this.viewFasteners;
+    if (viewFasteners === null) {
+      viewFasteners = {};
+      Object.defineProperty(this, "viewFasteners", {
+        value: viewFasteners,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldViewRelation = viewRelations[relationName];
-    if (oldViewRelation !== void 0 && this.isMounted()) {
-      oldViewRelation.unmount();
+    const oldViewFastener = viewFasteners[fastenerName];
+    if (oldViewFastener !== void 0 && this.isMounted()) {
+      oldViewFastener.unmount();
     }
-    if (newViewRelation !== null) {
-      viewRelations[relationName] = newViewRelation;
+    if (newViewFastener !== null) {
+      viewFasteners[fastenerName] = newViewFastener;
       if (this.isMounted()) {
-        newViewRelation.mount();
+        newViewFastener.mount();
       }
     } else {
-      delete viewRelations[relationName];
+      delete viewFasteners[fastenerName];
     }
   }
 
   /** @hidden */
-  protected mountViewRelations(): void {
-    const viewRelations = this.viewRelations;
-    for (const relationName in viewRelations) {
-      const viewRelation = viewRelations[relationName]!;
-      viewRelation.mount();
+  protected mountViewFasteners(): void {
+    const viewFasteners = this.viewFasteners;
+    for (const fastenerName in viewFasteners) {
+      const viewFastener = viewFasteners[fastenerName]!;
+      viewFastener.mount();
     }
   }
 
   /** @hidden */
-  protected unmountViewRelations(): void {
-    const viewRelations = this.viewRelations;
-    for (const relationName in viewRelations) {
-      const viewRelation = viewRelations[relationName]!;
-      viewRelation.unmount();
+  protected unmountViewFasteners(): void {
+    const viewFasteners = this.viewFasteners;
+    for (const fastenerName in viewFasteners) {
+      const viewFastener = viewFasteners[fastenerName]!;
+      viewFastener.unmount();
     }
   }
 
   /** @hidden */
-  protected insertViewRelation(childView: View): void {
-    const relationName = childView.key;
-    if (relationName !== void 0) {
-      const viewRelation = this.getLazyViewRelation(relationName);
-      if (viewRelation !== null && viewRelation.child === true) {
-        viewRelation.doSetView(childView);
+  protected insertViewFastener(childView: View): void {
+    const fastenerName = childView.key;
+    if (fastenerName !== void 0) {
+      const viewFastener = this.getLazyViewFastener(fastenerName);
+      if (viewFastener !== null && viewFastener.child === true) {
+        viewFastener.doSetView(childView);
       }
     }
   }
 
   /** @hidden */
-  protected removeViewRelation(childView: View): void {
-    const relationName = childView.key;
-    if (relationName !== void 0) {
-      const viewRelation = this.getViewRelation(relationName);
-      if (viewRelation !== null && viewRelation.child === true) {
-        viewRelation.doSetView(null);
+  protected removeViewFastener(childView: View): void {
+    const fastenerName = childView.key;
+    if (fastenerName !== void 0) {
+      const viewFastener = this.getViewFastener(fastenerName);
+      if (viewFastener !== null && viewFastener.child === true) {
+        viewFastener.doSetView(null);
       }
     }
   }

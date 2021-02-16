@@ -49,13 +49,13 @@ export {
 } from "./ComponentView";
 
 export {
-  ComponentRelationMemberType,
-  ComponentRelationMemberInit,
-  ComponentRelationInit,
-  ComponentRelationDescriptor,
-  ComponentRelationDescriptorExtends,
-  ComponentRelationDescriptorFromAny,
-  ComponentRelationConstructor,
-  ComponentRelationClass,
-  ComponentRelation,
-} from "./ComponentRelation";
+  ComponentFastenerMemberType,
+  ComponentFastenerMemberInit,
+  ComponentFastenerInit,
+  ComponentFastenerDescriptor,
+  ComponentFastenerDescriptorExtends,
+  ComponentFastenerDescriptorFromAny,
+  ComponentFastenerConstructor,
+  ComponentFastenerClass,
+  ComponentFastener,
+} from "./ComponentFastener";

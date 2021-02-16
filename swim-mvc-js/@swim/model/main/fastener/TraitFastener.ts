@@ -18,14 +18,14 @@ import type {Model} from "../Model";
 import {Trait} from "../Trait";
 import type {TraitObserverType} from "../TraitObserver";
 
-export type TraitRelationMemberType<R, K extends keyof R> =
-  R extends {[P in K]: TraitRelation<any, infer S, any>} ? S : unknown;
+export type TraitFastenerMemberType<R, K extends keyof R> =
+  R extends {[P in K]: TraitFastener<any, infer S, any>} ? S : unknown;
 
-export type TraitRelationMemberInit<R, K extends keyof R> =
-  R extends {[P in K]: TraitRelation<any, infer T, infer U>} ? T | U : unknown;
+export type TraitFastenerMemberInit<R, K extends keyof R> =
+  R extends {[P in K]: TraitFastener<any, infer T, infer U>} ? T | U : unknown;
 
-export interface TraitRelationInit<S extends Trait, U = never> {
-  extends?: TraitRelationClass;
+export interface TraitFastenerInit<S extends Trait, U = never> {
+  extends?: TraitFastenerClass;
   observe?: boolean;
   sibling?: boolean;
   type?: unknown;
@@ -38,22 +38,22 @@ export interface TraitRelationInit<S extends Trait, U = never> {
   fromAny?(value: S | U): S | null;
 }
 
-export type TraitRelationDescriptor<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = TraitRelationInit<S, U> & ThisType<TraitRelation<R, S, U> & I> & I;
+export type TraitFastenerDescriptor<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = TraitFastenerInit<S, U> & ThisType<TraitFastener<R, S, U> & I> & I;
 
-export type TraitRelationDescriptorExtends<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = {extends: TraitRelationClass | undefined} & TraitRelationDescriptor<R, S, U, I>;
+export type TraitFastenerDescriptorExtends<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = {extends: TraitFastenerClass | undefined} & TraitFastenerDescriptor<R, S, U, I>;
 
-export type TraitRelationDescriptorFromAny<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & TraitRelationDescriptor<R, S, U, I>;
+export type TraitFastenerDescriptorFromAny<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & TraitFastenerDescriptor<R, S, U, I>;
 
-export interface TraitRelationConstructor<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> {
-  new(owner: R, relationName: string | undefined): TraitRelation<R, S, U> & I;
-  prototype: TraitRelation<any, any> & I;
+export interface TraitFastenerConstructor<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> {
+  new(owner: R, fastenerName: string | undefined): TraitFastener<R, S, U> & I;
+  prototype: TraitFastener<any, any> & I;
 }
 
-export interface TraitRelationClass extends Function {
-  readonly prototype: TraitRelation<any, any>;
+export interface TraitFastenerClass extends Function {
+  readonly prototype: TraitFastener<any, any>;
 }
 
-export interface TraitRelation<R extends Trait, S extends Trait, U = never> {
+export interface TraitFastener<R extends Trait, S extends Trait, U = never> {
   (): S | null;
   (trait: S | U | null): R;
 
@@ -116,35 +116,35 @@ export interface TraitRelation<R extends Trait, S extends Trait, U = never> {
   fromAny(value: S | U): S | null;
 }
 
-export const TraitRelation = function <R extends Trait, S extends Trait, U>(
-    this: TraitRelation<R, S, U> | typeof TraitRelation,
-    owner: R | TraitRelationDescriptor<R, S, U>,
-    relationName?: string,
-  ): TraitRelation<R, S, U> | PropertyDecorator {
-  if (this instanceof TraitRelation) { // constructor
-    return TraitRelationConstructor.call(this as unknown as TraitRelation<Trait, Trait, unknown>, owner as R, relationName);
+export const TraitFastener = function <R extends Trait, S extends Trait, U>(
+    this: TraitFastener<R, S, U> | typeof TraitFastener,
+    owner: R | TraitFastenerDescriptor<R, S, U>,
+    fastenerName?: string,
+  ): TraitFastener<R, S, U> | PropertyDecorator {
+  if (this instanceof TraitFastener) { // constructor
+    return TraitFastenerConstructor.call(this as unknown as TraitFastener<Trait, Trait, unknown>, owner as R, fastenerName);
   } else { // decorator factory
-    return TraitRelationDecoratorFactory(owner as TraitRelationDescriptor<R, S, U>);
+    return TraitFastenerDecoratorFactory(owner as TraitFastenerDescriptor<R, S, U>);
   }
 } as {
   /** @hidden */
-  new<R extends Trait, S extends Trait, U = never>(owner: R, relationName: string | undefined): TraitRelation<R, S, U>;
+  new<R extends Trait, S extends Trait, U = never>(owner: R, fastenerName: string | undefined): TraitFastener<R, S, U>;
 
-  <R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitRelationDescriptorExtends<R, S, U, I>): PropertyDecorator;
-  <R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitRelationDescriptor<R, S, U>): PropertyDecorator;
+  <R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitFastenerDescriptorExtends<R, S, U, I>): PropertyDecorator;
+  <R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitFastenerDescriptor<R, S, U>): PropertyDecorator;
 
   /** @hidden */
-  prototype: TraitRelation<any, any>;
+  prototype: TraitFastener<any, any>;
 
-  define<R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitRelationDescriptorExtends<R, S, U, I>): TraitRelationConstructor<R, S, U>;
-  define<R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitRelationDescriptor<R, S, U>): TraitRelationConstructor<R, S, U>;
+  define<R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitFastenerDescriptorExtends<R, S, U, I>): TraitFastenerConstructor<R, S, U>;
+  define<R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitFastenerDescriptor<R, S, U>): TraitFastenerConstructor<R, S, U>;
 };
-__extends(TraitRelation, Object);
+__extends(TraitFastener, Object);
 
-function TraitRelationConstructor<R extends Trait, S extends Trait, U>(this: TraitRelation<R, S, U>, owner: R, relationName: string | undefined): TraitRelation<R, S, U> {
-  if (relationName !== void 0) {
+function TraitFastenerConstructor<R extends Trait, S extends Trait, U>(this: TraitFastener<R, S, U>, owner: R, fastenerName: string | undefined): TraitFastener<R, S, U> {
+  if (fastenerName !== void 0) {
     Object.defineProperty(this, "name", {
-      value: relationName,
+      value: fastenerName,
       enumerable: true,
       configurable: true,
     });
@@ -161,11 +161,11 @@ function TraitRelationConstructor<R extends Trait, S extends Trait, U>(this: Tra
   return this;
 }
 
-function TraitRelationDecoratorFactory<R extends Trait, S extends Trait, U>(descriptor: TraitRelationDescriptor<R, S, U>): PropertyDecorator {
-  return Trait.decorateTraitRelation.bind(Trait, TraitRelation.define(descriptor as TraitRelationDescriptor<Trait, Trait>));
+function TraitFastenerDecoratorFactory<R extends Trait, S extends Trait, U>(descriptor: TraitFastenerDescriptor<R, S, U>): PropertyDecorator {
+  return Trait.decorateTraitFastener.bind(Trait, TraitFastener.define(descriptor as TraitFastenerDescriptor<Trait, Trait>));
 }
 
-TraitRelation.prototype.getTrait = function <S extends Trait>(this: TraitRelation<Trait, S>): S {
+TraitFastener.prototype.getTrait = function <S extends Trait>(this: TraitFastener<Trait, S>): S {
   const trait = this.trait;
   if (trait === null) {
     throw new TypeError("null " + this.name + " trait");
@@ -173,7 +173,7 @@ TraitRelation.prototype.getTrait = function <S extends Trait>(this: TraitRelatio
   return trait;
 };
 
-TraitRelation.prototype.setTrait = function <S extends Trait, U>(this: TraitRelation<Trait, S, U>, trait: S | U | null): void {
+TraitFastener.prototype.setTrait = function <S extends Trait, U>(this: TraitFastener<Trait, S, U>, trait: S | U | null): void {
   if (trait !== null) {
     trait = this.fromAny(trait);
   }
@@ -189,7 +189,7 @@ TraitRelation.prototype.setTrait = function <S extends Trait, U>(this: TraitRela
   }
 };
 
-TraitRelation.prototype.doSetTrait = function <S extends Trait>(this: TraitRelation<Trait, S>, newTrait: S | null): void {
+TraitFastener.prototype.doSetTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null): void {
   const oldTrait = this.trait;
   if (oldTrait !== newTrait) {
     this.willSetOwnTrait(newTrait, oldTrait);
@@ -206,23 +206,23 @@ TraitRelation.prototype.doSetTrait = function <S extends Trait>(this: TraitRelat
   }
 };
 
-TraitRelation.prototype.willSetTrait = function <S extends Trait>(this: TraitRelation<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
+TraitFastener.prototype.willSetTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   // hook
 };
 
-TraitRelation.prototype.onSetTrait = function <S extends Trait>(this: TraitRelation<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
+TraitFastener.prototype.onSetTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   // hook
 };
 
-TraitRelation.prototype.didSetTrait = function <S extends Trait>(this: TraitRelation<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
+TraitFastener.prototype.didSetTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   // hook
 };
 
-TraitRelation.prototype.willSetOwnTrait = function <S extends Trait>(this: TraitRelation<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
+TraitFastener.prototype.willSetOwnTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   // hook
 };
 
-TraitRelation.prototype.onSetOwnTrait = function <S extends Trait>(this: TraitRelation<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
+TraitFastener.prototype.onSetOwnTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   if (this.observe === true && this.owner.isMounted()) {
     if (oldTrait !== null) {
       oldTrait.removeTraitObserver(this as TraitObserverType<S>);
@@ -233,25 +233,25 @@ TraitRelation.prototype.onSetOwnTrait = function <S extends Trait>(this: TraitRe
   }
 };
 
-TraitRelation.prototype.didSetOwnTrait = function <S extends Trait>(this: TraitRelation<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
+TraitFastener.prototype.didSetOwnTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null, oldTrait: S | null): void {
   // hook
 };
 
-TraitRelation.prototype.mount = function <S extends Trait>(this: TraitRelation<Trait, S>): void {
+TraitFastener.prototype.mount = function <S extends Trait>(this: TraitFastener<Trait, S>): void {
   const trait = this.trait;
   if (trait !== null && this.observe === true) {
     trait.addTraitObserver(this as TraitObserverType<S>);
   }
 };
 
-TraitRelation.prototype.unmount = function <S extends Trait>(this: TraitRelation<Trait, S>): void {
+TraitFastener.prototype.unmount = function <S extends Trait>(this: TraitFastener<Trait, S>): void {
   const trait = this.trait;
   if (trait !== null && this.observe === true) {
     trait.removeTraitObserver(this as TraitObserverType<S>);
   }
 };
 
-TraitRelation.prototype.insert = function <S extends Trait>(this: TraitRelation<Trait, S>, model?: Model | string | null, key?: string | null): S | null {
+TraitFastener.prototype.insert = function <S extends Trait>(this: TraitFastener<Trait, S>, model?: Model | string | null, key?: string | null): S | null {
   let trait = this.trait;
   if (trait === null) {
     trait = this.createTrait();
@@ -279,7 +279,7 @@ TraitRelation.prototype.insert = function <S extends Trait>(this: TraitRelation<
   return trait;
 };
 
-TraitRelation.prototype.remove = function <S extends Trait>(this: TraitRelation<Trait, S>): S | null {
+TraitFastener.prototype.remove = function <S extends Trait>(this: TraitFastener<Trait, S>): S | null {
   const trait = this.trait;
   if (trait !== null) {
     trait.remove();
@@ -287,11 +287,11 @@ TraitRelation.prototype.remove = function <S extends Trait>(this: TraitRelation<
   return trait;
 };
 
-TraitRelation.prototype.createTrait = function <S extends Trait, U>(this: TraitRelation<Trait, S, U>): S | U | null {
+TraitFastener.prototype.createTrait = function <S extends Trait, U>(this: TraitFastener<Trait, S, U>): S | U | null {
   return null;
 };
 
-TraitRelation.prototype.insertTrait = function <S extends Trait>(this: TraitRelation<Trait, S>, model: Model, trait: S, key: string | undefined): void {
+TraitFastener.prototype.insertTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, model: Model, trait: S, key: string | undefined): void {
   if (key !== void 0) {
     model.setTrait(key, trait);
   } else {
@@ -299,33 +299,33 @@ TraitRelation.prototype.insertTrait = function <S extends Trait>(this: TraitRela
   }
 };
 
-TraitRelation.prototype.fromAny = function <S extends Trait, U>(this: TraitRelation<Trait, S, U>, value: S | U): S | null {
+TraitFastener.prototype.fromAny = function <S extends Trait, U>(this: TraitFastener<Trait, S, U>, value: S | U): S | null {
   return value as S | null;
 };
 
-TraitRelation.define = function <R extends Trait, S extends Trait, U, I>(descriptor: TraitRelationDescriptor<R, S, U, I>): TraitRelationConstructor<R, S, U, I> {
+TraitFastener.define = function <R extends Trait, S extends Trait, U, I>(descriptor: TraitFastenerDescriptor<R, S, U, I>): TraitFastenerConstructor<R, S, U, I> {
   let _super = descriptor.extends;
   delete descriptor.extends;
 
   if (_super === void 0) {
-    _super = TraitRelation;
+    _super = TraitFastener;
   }
 
-  const _constructor = function DecoratedTraitRelation(this: TraitRelation<R, S>, owner: R, relationName: string | undefined): TraitRelation<R, S, U> {
-    let _this: TraitRelation<R, S, U> = function TraitRelationAccessor(trait?: S | U | null): S | null | R {
+  const _constructor = function DecoratedTraitFastener(this: TraitFastener<R, S>, owner: R, fastenerName: string | undefined): TraitFastener<R, S, U> {
+    let _this: TraitFastener<R, S, U> = function TraitFastenerAccessor(trait?: S | U | null): S | null | R {
       if (trait === void 0) {
         return _this.trait;
       } else {
         _this.setTrait(trait);
         return _this.owner;
       }
-    } as TraitRelation<R, S, U>;
+    } as TraitFastener<R, S, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, relationName) || _this;
+    _this = _super!.call(_this, owner, fastenerName) || _this;
     return _this;
-  } as unknown as TraitRelationConstructor<R, S, U, I>;
+  } as unknown as TraitFastenerConstructor<R, S, U, I>;
 
-  const _prototype = descriptor as unknown as TraitRelation<any, any> & I;
+  const _prototype = descriptor as unknown as TraitFastener<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

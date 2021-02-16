@@ -15,7 +15,7 @@
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Length, Angle, Transform} from "@swim/math";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewContext, ViewObserverType, ViewAnimator, ViewRelation} from "@swim/view";
+import {ViewContextType, ViewContext, ViewObserverType, ViewAnimator, ViewFastener} from "@swim/view";
 import {Graphics, HtmlIconView} from "@swim/graphics";
 import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembrane} from "./ButtonMembrane";
@@ -75,7 +75,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
   }
 
   /** @hidden */
-  static IconRelation = ViewRelation.define<FloatingButton, HtmlIconView, never, ViewObserverType<HtmlIconView> & {iconIndex: number}>({
+  static IconFastener = ViewFastener.define<FloatingButton, HtmlIconView, never, ViewObserverType<HtmlIconView> & {iconIndex: number}>({
     extends: void 0,
     type: HtmlIconView,
     child: false,
@@ -88,7 +88,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
       if (!iconView.opacity.isAnimating() && this.iconIndex !== this.owner.iconCount) {
         iconView.remove();
         if (this.iconIndex > this.owner.iconCount) {
-          this.owner.setViewRelation(this.name, null);
+          this.owner.setViewFastener(this.name, null);
         }
       }
     },
@@ -97,7 +97,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
   /** @hidden */
   iconCount: number;
 
-  icon: ViewRelation<this, HtmlIconView> | null;
+  icon: ViewFastener<this, HtmlIconView> | null;
 
   pushIcon(icon: Graphics, timing?: AnyTiming | boolean): void {
     if (timing === void 0 || timing === true) {
@@ -108,8 +108,8 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
     const oldIconCount = this.iconCount;
     const oldIconKey = "icon" + oldIconCount;
-    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, HtmlIconView> | null;
-    const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
+    const oldIconFastener = this.getViewFastener(oldIconKey) as ViewFastener<this, HtmlIconView> | null;
+    const oldIconView = oldIconFastener !== null ? oldIconFastener.view : null;
     if (oldIconView !== null) {
       if (timing !== false) {
         oldIconView.opacity.setAutoState(0, timing);
@@ -121,8 +121,8 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
     const newIconCount = oldIconCount + 1;
     const newIconKey = "icon" + newIconCount;
-    const newIconRelation = new FloatingButton.IconRelation(this, newIconKey) as ViewRelation<this, HtmlIconView> & {iconIndex: number};
-    newIconRelation.iconIndex = newIconCount;
+    const newIconFastener = new FloatingButton.IconFastener(this, newIconKey) as ViewFastener<this, HtmlIconView> & {iconIndex: number};
+    newIconFastener.iconIndex = newIconCount;
     const newIconView = HtmlIconView.create();
     newIconView.position.setAutoState("absolute");
     newIconView.left.setAutoState(0);
@@ -138,12 +138,12 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     newIconView.iconHeight.setAutoState(24);
     newIconView.iconColor.setAuto(false);
     newIconView.graphics.setAutoState(icon);
-    newIconRelation.setView(newIconView);
-    this.setViewRelation(newIconKey, newIconRelation);
+    newIconFastener.setView(newIconView);
+    this.setViewFastener(newIconKey, newIconFastener);
     this.appendChildView(newIconView, newIconKey);
 
     this.iconCount = newIconCount;
-    this.icon = newIconRelation;
+    this.icon = newIconFastener;
   }
 
   popIcon(timing?: AnyTiming | boolean): void {
@@ -155,8 +155,8 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
     const oldIconCount = this.iconCount;
     const oldIconKey = "icon" + oldIconCount;
-    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, HtmlIconView> | null;
-    const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
+    const oldIconFastener = this.getViewFastener(oldIconKey) as ViewFastener<this, HtmlIconView> | null;
+    const oldIconView = oldIconFastener !== null ? oldIconFastener.view : null;
     if (oldIconView !== null) {
       if (timing !== false) {
         oldIconView.opacity.setAutoState(0, timing);
@@ -168,8 +168,8 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
     const newIconCount = oldIconCount - 1;
     const newIconKey = "icon" + newIconCount;
-    const newIconRelation = this.getViewRelation(newIconKey) as ViewRelation<this, HtmlIconView> | null;
-    const newIconView = newIconRelation !== null ? newIconRelation.view : null;
+    const newIconFastener = this.getViewFastener(newIconKey) as ViewFastener<this, HtmlIconView> | null;
+    const newIconView = newIconFastener !== null ? newIconFastener.view : null;
     if (newIconView !== null) {
       newIconView.opacity.setAutoState(1, timing);
       newIconView.transform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
@@ -177,7 +177,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     }
 
     this.iconCount = newIconCount;
-    this.icon = newIconRelation;
+    this.icon = newIconFastener;
   }
 
   @ViewAnimator({type: Number, inherit: true})

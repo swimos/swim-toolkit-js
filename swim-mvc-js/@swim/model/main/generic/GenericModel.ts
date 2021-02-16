@@ -20,8 +20,8 @@ import type {ModelConsumerType, ModelConsumer} from "../ModelConsumer";
 import type {Trait} from "../Trait";
 import type {ModelService} from "../service/ModelService";
 import {ModelProperty} from "../property/ModelProperty";
-import type {ModelRelation} from "../relation/ModelRelation";
-import type {ModelTrait} from "../relation/ModelTrait";
+import type {ModelFastener} from "../fastener/ModelFastener";
+import type {ModelTrait} from "../fastener/ModelTrait";
 import type {ModelDownlink} from "../downlink/ModelDownlink";
 
 export abstract class GenericModel extends Model {
@@ -52,7 +52,7 @@ export abstract class GenericModel extends Model {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "modelRelations", {
+    Object.defineProperty(this, "modelFasteners", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -173,7 +173,7 @@ export abstract class GenericModel extends Model {
 
   protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
     super.onInsertChildModel(childModel, targetModel);
-    this.insertModelRelation(childModel);
+    this.insertModelFastener(childModel);
   }
 
   cascadeInsert(updateFlags?: ModelFlags, modelContext?: ModelContext): void {
@@ -185,7 +185,7 @@ export abstract class GenericModel extends Model {
 
   protected onRemoveChildModel(childModel: Model): void {
     super.onRemoveChildModel(childModel);
-    this.removeModelRelation(childModel);
+    this.removeModelFastener(childModel);
   }
 
   abstract removeAll(): void;
@@ -221,7 +221,7 @@ export abstract class GenericModel extends Model {
     super.onMount();
     this.mountModelServices();
     this.mountModelProperties();
-    this.mountModelRelations();
+    this.mountModelFasteners();
     this.mountModelTraits();
     this.mountModelDownlinks();
   }
@@ -267,7 +267,7 @@ export abstract class GenericModel extends Model {
   protected onUnmount(): void {
     this.unmountModelDownlinks();
     this.unmountModelTraits();
-    this.unmountModelRelations();
+    this.unmountModelFasteners();
     this.unmountModelProperties();
     this.unmountModelServices();
     this.setModelFlags(this.modelFlags & (~Model.ModelFlagMask | Model.RemovingFlag));
@@ -733,100 +733,100 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  declare readonly modelRelations: {[relationName: string]: ModelRelation<Model, Model> | undefined} | null;
+  declare readonly modelFasteners: {[fastenerName: string]: ModelFastener<Model, Model> | undefined} | null;
 
-  hasModelRelation(relationName: string): boolean {
-    const modelRelations = this.modelRelations;
-    return modelRelations !== null && modelRelations[relationName] !== void 0;
+  hasModelFastener(fastenerName: string): boolean {
+    const modelFasteners = this.modelFasteners;
+    return modelFasteners !== null && modelFasteners[fastenerName] !== void 0;
   }
 
-  getModelRelation(relationName: string): ModelRelation<this, Model> | null {
-    const modelRelations = this.modelRelations;
-    if (modelRelations !== null) {
-      const modelRelation = modelRelations[relationName];
-      if (modelRelation !== void 0) {
-        return modelRelation as ModelRelation<this, Model>;
+  getModelFastener(fastenerName: string): ModelFastener<this, Model> | null {
+    const modelFasteners = this.modelFasteners;
+    if (modelFasteners !== null) {
+      const modelFastener = modelFasteners[fastenerName];
+      if (modelFastener !== void 0) {
+        return modelFastener as ModelFastener<this, Model>;
       }
     }
     return null;
   }
 
-  setModelRelation(relationName: string, newModelRelation: ModelRelation<this, any> | null): void {
-    let modelRelations = this.modelRelations;
-    if (modelRelations === null) {
-      modelRelations = {};
-      Object.defineProperty(this, "modelRelations", {
-        value: modelRelations,
+  setModelFastener(fastenerName: string, newModelFastener: ModelFastener<this, any> | null): void {
+    let modelFasteners = this.modelFasteners;
+    if (modelFasteners === null) {
+      modelFasteners = {};
+      Object.defineProperty(this, "modelFasteners", {
+        value: modelFasteners,
         enumerable: true,
         configurable: true,
       });
     }
-    const oldModelRelation = modelRelations[relationName];
-    if (oldModelRelation !== void 0 && this.isMounted()) {
-      oldModelRelation.unmount();
+    const oldModelFastener = modelFasteners[fastenerName];
+    if (oldModelFastener !== void 0 && this.isMounted()) {
+      oldModelFastener.unmount();
     }
-    if (newModelRelation !== null) {
-      modelRelations[relationName] = newModelRelation;
+    if (newModelFastener !== null) {
+      modelFasteners[fastenerName] = newModelFastener;
       if (this.isMounted()) {
-        newModelRelation.mount();
+        newModelFastener.mount();
       }
     } else {
-      delete modelRelations[relationName];
+      delete modelFasteners[fastenerName];
     }
   }
 
   /** @hidden */
-  protected mountModelRelations(): void {
-    const modelRelations = this.modelRelations;
-    for (const relationName in modelRelations) {
-      const modelRelation = modelRelations[relationName]!;
-      modelRelation.mount();
+  protected mountModelFasteners(): void {
+    const modelFasteners = this.modelFasteners;
+    for (const fastenerName in modelFasteners) {
+      const modelFastener = modelFasteners[fastenerName]!;
+      modelFastener.mount();
     }
   }
 
   /** @hidden */
-  protected unmountModelRelations(): void {
-    const modelRelations = this.modelRelations;
-    for (const relationName in modelRelations) {
-      const modelRelation = modelRelations[relationName]!;
-      modelRelation.unmount();
+  protected unmountModelFasteners(): void {
+    const modelFasteners = this.modelFasteners;
+    for (const fastenerName in modelFasteners) {
+      const modelFastener = modelFasteners[fastenerName]!;
+      modelFastener.unmount();
     }
   }
 
   /** @hidden */
-  protected insertModelRelation(childModel: Model): void {
-    const relationName = childModel.key;
-    if (relationName !== void 0) {
-      const modelRelation = this.getLazyModelRelation(relationName);
-      if (modelRelation !== null && modelRelation.child === true) {
-        modelRelation.doSetModel(childModel);
+  protected insertModelFastener(childModel: Model): void {
+    const fastenerName = childModel.key;
+    if (fastenerName !== void 0) {
+      const modelFastener = this.getLazyModelFastener(fastenerName);
+      if (modelFastener !== null && modelFastener.child === true) {
+        modelFastener.doSetModel(childModel);
       }
     }
   }
 
   /** @hidden */
-  protected removeModelRelation(childModel: Model): void {
-    const relationName = childModel.key;
-    if (relationName !== void 0) {
-      const modelRelation = this.getModelRelation(relationName);
-      if (modelRelation !== null && modelRelation.child === true) {
-        modelRelation.doSetModel(null);
+  protected removeModelFastener(childModel: Model): void {
+    const fastenerName = childModel.key;
+    if (fastenerName !== void 0) {
+      const modelFastener = this.getModelFastener(fastenerName);
+      if (modelFastener !== null && modelFastener.child === true) {
+        modelFastener.doSetModel(null);
       }
     }
   }
 
   /** @hidden */
-  declare readonly modelTraits: {[relationName: string]: ModelTrait<Model, Trait> | undefined} | null;
+  declare readonly modelTraits: {[fastenerName: string]: ModelTrait<Model, Trait> | undefined} | null;
 
-  hasModelTrait(relationName: string): boolean {
+  hasModelTrait(fastenerName: string): boolean {
     const modelTraits = this.modelTraits;
-    return modelTraits !== null && modelTraits[relationName] !== void 0;
+    return modelTraits !== null && modelTraits[fastenerName] !== void 0;
   }
 
-  getModelTrait(relationName: string): ModelTrait<this, Trait> | null {
+  getModelTrait(fastenerName: string): ModelTrait<this, Trait> | null {
     const modelTraits = this.modelTraits;
     if (modelTraits !== null) {
-      const modelTrait = modelTraits[relationName];
+      const modelTrait = modelTraits[fastenerName];
       if (modelTrait !== void 0) {
         return modelTrait as ModelTrait<this, Trait>;
       }
@@ -834,7 +834,7 @@ export abstract class GenericModel extends Model {
     return null;
   }
 
-  setModelTrait(relationName: string, newModelTrait: ModelTrait<this, any> | null): void {
+  setModelTrait(fastenerName: string, newModelTrait: ModelTrait<this, any> | null): void {
     let modelTraits = this.modelTraits;
     if (modelTraits === null) {
       modelTraits = {};
@@ -844,25 +844,25 @@ export abstract class GenericModel extends Model {
         configurable: true,
       });
     }
-    const oldModelTrait = modelTraits[relationName];
+    const oldModelTrait = modelTraits[fastenerName];
     if (oldModelTrait !== void 0 && this.isMounted()) {
       oldModelTrait.unmount();
     }
     if (newModelTrait !== null) {
-      modelTraits[relationName] = newModelTrait;
+      modelTraits[fastenerName] = newModelTrait;
       if (this.isMounted()) {
         newModelTrait.mount();
       }
     } else {
-      delete modelTraits[relationName];
+      delete modelTraits[fastenerName];
     }
   }
 
   /** @hidden */
   protected mountModelTraits(): void {
     const modelTraits = this.modelTraits;
-    for (const relationName in modelTraits) {
-      const modelTrait = modelTraits[relationName]!;
+    for (const fastenerName in modelTraits) {
+      const modelTrait = modelTraits[fastenerName]!;
       modelTrait.mount();
     }
   }
@@ -870,17 +870,17 @@ export abstract class GenericModel extends Model {
   /** @hidden */
   protected unmountModelTraits(): void {
     const modelTraits = this.modelTraits;
-    for (const relationName in modelTraits) {
-      const modelTrait = modelTraits[relationName]!;
+    for (const fastenerName in modelTraits) {
+      const modelTrait = modelTraits[fastenerName]!;
       modelTrait.unmount();
     }
   }
 
   /** @hidden */
   protected insertModelTrait(trait: Trait): void {
-    const relationName = trait.key;
-    if (relationName !== void 0) {
-      const modelTrait = this.getLazyModelTrait(relationName);
+    const fastenerName = trait.key;
+    if (fastenerName !== void 0) {
+      const modelTrait = this.getLazyModelTrait(fastenerName);
       if (modelTrait !== null && modelTrait.sibling === true) {
         modelTrait.doSetTrait(trait);
       }
@@ -889,9 +889,9 @@ export abstract class GenericModel extends Model {
 
   /** @hidden */
   protected removeModelTrait(trait: Trait): void {
-    const relationName = trait.key;
-    if (relationName !== void 0) {
-      const modelTrait = this.getModelTrait(relationName);
+    const fastenerName = trait.key;
+    if (fastenerName !== void 0) {
+      const modelTrait = this.getModelTrait(fastenerName);
       if (modelTrait !== null && modelTrait.sibling === true) {
         modelTrait.doSetTrait(null);
       }

@@ -16,7 +16,7 @@ import {AnyTiming, Timing, Interpolator} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import {Color} from "@swim/color";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType,ViewContext, View, ViewProperty, ViewAnimator, ViewRelation} from "@swim/view";
+import {ViewContextType,ViewContext, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
 import {SvgIconView} from "@swim/graphics";
 import {DeckSlot} from "./DeckSlot";
@@ -78,18 +78,18 @@ export class DeckButton extends DeckSlot {
     this.labelCount = newLabelCount;
 
     const oldLabelKey = "label" + oldLabelCount;
-    const oldLabelRelation = this.getViewRelation(oldLabelKey) as DeckButtonLabel<this, HtmlView> | null;
-    const oldLabelView = oldLabelRelation !== null ? oldLabelRelation.view : null;
+    const oldLabelFastener = this.getViewFastener(oldLabelKey) as DeckButtonLabel<this, HtmlView> | null;
+    const oldLabelView = oldLabelFastener !== null ? oldLabelFastener.view : null;
 
     const newLabelKey = "label" + newLabelCount;
-    const newLabelRelation = new DeckButtonLabelRelation(this, newLabelKey) as unknown as DeckButtonLabel<this, HtmlView>;
-    newLabelRelation.labelIndex = newLabelCount;
+    const newLabelFastener = new DeckButtonLabelFastener(this, newLabelKey) as unknown as DeckButtonLabel<this, HtmlView>;
+    newLabelFastener.labelIndex = newLabelCount;
     this.willPushLabel(newLabelView, oldLabelView);
-    this.label = newLabelRelation;
+    this.label = newLabelFastener;
 
-    this.setViewRelation(newLabelKey, newLabelRelation);
-    newLabelRelation.setView(newLabelView);
-    newLabelRelation.insert();
+    this.setViewFastener(newLabelKey, newLabelFastener);
+    newLabelFastener.setView(newLabelView);
+    newLabelFastener.insert();
 
     if (timing === void 0 && oldLabelCount === 0) {
       timing = false;
@@ -132,17 +132,17 @@ export class DeckButton extends DeckSlot {
     this.labelCount = newLabelCount;
 
     const oldLabelKey = "label" + oldLabelCount;
-    const oldLabelRelation = this.getViewRelation(oldLabelKey) as DeckButtonLabel<this, HtmlView> | null;
-    const oldLabelView = oldLabelRelation !== null ? oldLabelRelation.view : null;
+    const oldLabelFastener = this.getViewFastener(oldLabelKey) as DeckButtonLabel<this, HtmlView> | null;
+    const oldLabelView = oldLabelFastener !== null ? oldLabelFastener.view : null;
 
     if (oldLabelView !== null) {
       const newLabelKey = "label" + newLabelCount;
-      const newLabelRelation = this.getViewRelation(newLabelKey) as DeckButtonLabel<this, HtmlView> | null;
-      const newLabelView = newLabelRelation !== null ? newLabelRelation.view : null;
+      const newLabelFastener = this.getViewFastener(newLabelKey) as DeckButtonLabel<this, HtmlView> | null;
+      const newLabelView = newLabelFastener !== null ? newLabelFastener.view : null;
       this.willPopLabel(newLabelView, oldLabelView);
-      this.label = newLabelRelation;
-      if (newLabelRelation !== null) {
-        newLabelRelation.insert();
+      this.label = newLabelFastener;
+      if (newLabelFastener !== null) {
+        newLabelFastener.insert();
       }
 
       if (timing === void 0 || timing === true) {
@@ -174,9 +174,9 @@ export class DeckButton extends DeckSlot {
     const oldLabelKey = oldLabelView.key;
     oldLabelView.remove();
     if (oldLabelKey !== void 0) {
-      const oldLabelRelation = this.getViewRelation(oldLabelKey) as DeckButtonLabel<this, HtmlView> | null;
-      if (oldLabelRelation !== null && oldLabelRelation.labelIndex > this.labelCount) {
-        this.setViewRelation(oldLabelKey, null);
+      const oldLabelFastener = this.getViewFastener(oldLabelKey) as DeckButtonLabel<this, HtmlView> | null;
+      if (oldLabelFastener !== null && oldLabelFastener.labelIndex > this.labelCount) {
+        this.setViewFastener(oldLabelKey, null);
       }
     }
     this.didObserve(function (viewObserver: DeckButtonObserver): void {
@@ -192,15 +192,15 @@ export class DeckButton extends DeckSlot {
       if (deckPhase !== void 0) {
         const nextLabelIndex = Math.round(deckPhase + 1);
         const nextLabelKey = "label" + nextLabelIndex;
-        const nextLabelRelation = this.getViewRelation(nextLabelKey) as DeckButtonLabel<this, HtmlView> | null;
-        const nextLabelView = nextLabelRelation !== null ? nextLabelRelation.view : null;
+        const nextLabelFastener = this.getViewFastener(nextLabelKey) as DeckButtonLabel<this, HtmlView> | null;
+        const nextLabelView = nextLabelFastener !== null ? nextLabelFastener.view : null;
         if (nextLabelView !== null) {
           this.didPopLabel(this.label !== null ? this.label.view : null, nextLabelView);
         } else if (this.label !== null && this.label.view !== null && Math.round(deckPhase) > 0) {
           const prevLabelIndex = Math.round(deckPhase - 1);
           const prevLabelKey = "label" + prevLabelIndex;
-          const prevLabelRelation = this.getViewRelation(prevLabelKey) as DeckButtonLabel<this, HtmlView> | null;
-          const prevLabelView = prevLabelRelation !== null ? prevLabelRelation.view : null;
+          const prevLabelFastener = this.getViewFastener(prevLabelKey) as DeckButtonLabel<this, HtmlView> | null;
+          const prevLabelView = prevLabelFastener !== null ? prevLabelFastener.view : null;
           this.didPushLabel(this.label.view, prevLabelView);
         }
       }
@@ -210,7 +210,7 @@ export class DeckButton extends DeckSlot {
 }
 
 /** @hidden */
-export abstract class DeckButtonCloseIcon<V extends DeckButton, S extends SvgIconView> extends ViewRelation<V, S> {
+export abstract class DeckButtonCloseIcon<V extends DeckButton, S extends SvgIconView> extends ViewFastener<V, S> {
   onSetView(iconView: S | null): void {
     if (iconView !== null) {
       this.initIcon(iconView);
@@ -255,10 +255,10 @@ export abstract class DeckButtonCloseIcon<V extends DeckButton, S extends SvgIco
     iconView.opacity.setAutoState(1 - iconPhase);
   }
 }
-ViewRelation({extends: DeckButtonCloseIcon, type: SvgIconView})(DeckButton.prototype, "closeIcon");
+ViewFastener({extends: DeckButtonCloseIcon, type: SvgIconView})(DeckButton.prototype, "closeIcon");
 
 /** @hidden */
-export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIconView> extends ViewRelation<V, S> {
+export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIconView> extends ViewFastener<V, S> {
   onSetView(iconView: S | null): void {
     if (iconView !== null) {
       this.initIcon(iconView);
@@ -302,7 +302,7 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
     let iconOpacity: number | undefined;
     if (deckPhase <= 1) {
       iconOpacity = 0;
-    } else if (labelView !== null && deckPhase <= 2) {
+    } else if (labelView !== null && deckPhase < 2) {
       const parentView = this.owner.parentView;
       const nextPost = this.owner.nextPost.state;
       const nextSlot = parentView !== null && nextPost !== void 0 ? parentView.getChildView(nextPost.key) : null;
@@ -340,12 +340,12 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
     iconView.opacity.setAutoState(iconOpacity);
   }
 }
-ViewRelation({extends: DeckButtonBackIcon, type: SvgIconView})(DeckButton.prototype, "backIcon");
+ViewFastener({extends: DeckButtonBackIcon, type: SvgIconView})(DeckButton.prototype, "backIcon");
 
 /** @hidden */
-export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> extends ViewRelation<V, S> {
-  constructor(owner: V, relationName: string | undefined) {
-    super(owner, relationName);
+export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> extends ViewFastener<V, S> {
+  constructor(owner: V, fastenerName: string | undefined) {
+    super(owner, fastenerName);
     this.labelIndex = 0;
     this.labelWidth = void 0;
     this.colorInterpolator = null;
@@ -497,7 +497,7 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
 }
 
 /** @hidden */
-export const DeckButtonLabelRelation = ViewRelation.define<DeckButton, HtmlView>({
+export const DeckButtonLabelFastener = ViewFastener.define<DeckButton, HtmlView>({
   extends: DeckButtonLabel,
   type: HtmlView,
   child: false,

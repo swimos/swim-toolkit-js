@@ -16,7 +16,7 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length, Angle, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewContext, View, ViewObserverType, ViewAnimator, ViewRelation} from "@swim/view";
+import {ViewContextType, ViewContext, View, ViewObserverType, ViewAnimator, ViewFastener} from "@swim/view";
 import type {HtmlViewObserver, HtmlViewController} from "@swim/dom";
 import {Graphics, Icon, FilledIcon, IconViewInit, IconView, IconViewAnimator, SvgIconView} from "@swim/graphics";
 import type {PositionGestureDelegate} from "@swim/gesture";
@@ -87,7 +87,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   declare graphics: ViewAnimator<this, Graphics | undefined>;
 
   /** @hidden */
-  static IconRelation = ViewRelation.define<IconButton, SvgIconView, never, ViewObserverType<SvgIconView> & {iconIndex: number}>({
+  static IconFastener = ViewFastener.define<IconButton, SvgIconView, never, ViewObserverType<SvgIconView> & {iconIndex: number}>({
     extends: void 0,
     type: SvgIconView,
     child: false,
@@ -96,7 +96,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
       if (!iconView.opacity.isAnimating() && this.iconIndex !== this.owner.iconCount) {
         iconView.remove();
         if (this.iconIndex > this.owner.iconCount) {
-          this.owner.setViewRelation(this.name, null);
+          this.owner.setViewFastener(this.name, null);
         }
       }
     },
@@ -105,7 +105,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   /** @hidden */
   iconCount: number;
 
-  icon: ViewRelation<this, SvgIconView> | null;
+  icon: ViewFastener<this, SvgIconView> | null;
 
   pushIcon(icon: Graphics, timing?: AnyTiming | boolean): void {
     const oldIconCount = this.iconCount;
@@ -121,8 +121,8 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     }
 
     const oldIconKey = "icon" + oldIconCount;
-    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, SvgIconView> | null;
-    const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
+    const oldIconFastener = this.getViewFastener(oldIconKey) as ViewFastener<this, SvgIconView> | null;
+    const oldIconView = oldIconFastener !== null ? oldIconFastener.view : null;
     if (oldIconView !== null) {
       if (timing !== false) {
         oldIconView.opacity.setAutoState(0, timing);
@@ -133,9 +133,9 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     }
 
     const newIconKey = "icon" + newIconCount;
-    const newIconRelation = new IconButton.IconRelation(this, newIconKey) as ViewRelation<this, SvgIconView> & {iconIndex: number};
-    newIconRelation.iconIndex = newIconCount;
-    this.icon = newIconRelation;
+    const newIconFastener = new IconButton.IconFastener(this, newIconKey) as ViewFastener<this, SvgIconView> & {iconIndex: number};
+    newIconFastener.iconIndex = newIconCount;
+    this.icon = newIconFastener;
     const newIconView = SvgIconView.create();
 
     newIconView.setStyle("position", "absolute");
@@ -152,8 +152,8 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     newIconView.iconHeight.setInherit(true);
     newIconView.iconColor.setInherit(true);
     newIconView.graphics.setAutoState(icon);
-    newIconRelation.setView(newIconView);
-    this.setViewRelation(newIconKey, newIconRelation);
+    newIconFastener.setView(newIconView);
+    this.setViewFastener(newIconKey, newIconFastener);
     this.appendChildView(newIconView, newIconKey);
   }
 
@@ -169,22 +169,22 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     }
 
     const oldIconKey = "icon" + oldIconCount;
-    const oldIconRelation = this.getViewRelation(oldIconKey) as ViewRelation<this, SvgIconView> | null;
-    const oldIconView = oldIconRelation !== null ? oldIconRelation.view : null;
+    const oldIconFastener = this.getViewFastener(oldIconKey) as ViewFastener<this, SvgIconView> | null;
+    const oldIconView = oldIconFastener !== null ? oldIconFastener.view : null;
     if (oldIconView !== null) {
       if (timing !== false) {
         oldIconView.opacity.setAutoState(0, timing);
         oldIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(-90)), timing);
       } else {
         oldIconView.remove();
-        this.setViewRelation(oldIconKey, null);
+        this.setViewFastener(oldIconKey, null);
       }
     }
 
     const newIconKey = "icon" + newIconCount;
-    const newIconRelation = this.getViewRelation(newIconKey) as ViewRelation<this, SvgIconView> | null;
-    this.icon = newIconRelation;
-    const newIconView = newIconRelation !== null ? newIconRelation.view : null;
+    const newIconFastener = this.getViewFastener(newIconKey) as ViewFastener<this, SvgIconView> | null;
+    this.icon = newIconFastener;
+    const newIconView = newIconFastener !== null ? newIconFastener.view : null;
     if (newIconView !== null) {
       newIconView.opacity.setAutoState(1, timing);
       newIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
@@ -231,16 +231,16 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   }
 
   protected layoutIcon(): void {
-    const viewRelations = this.viewRelations;
-    if (viewRelations !== null) {
+    const viewFasteners = this.viewFasteners;
+    if (viewFasteners !== null) {
       let viewWidth: Length | string | number | undefined = this.width.value;
       viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
       let viewHeight: Length | string | number | undefined = this.height.value;
       viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
-      for (const relationName in viewRelations) {
-        const viewRelation = viewRelations[relationName];
-        if (viewRelation instanceof IconButton.IconRelation) {
-          const iconView = viewRelation.view;
+      for (const fastenerName in viewFasteners) {
+        const viewFastener = viewFasteners[fastenerName];
+        if (viewFastener instanceof IconButton.IconFastener) {
+          const iconView = viewFastener.view;
           if (iconView !== null) {
             iconView.width.setAutoState(viewWidth);
             iconView.height.setAutoState(viewHeight);

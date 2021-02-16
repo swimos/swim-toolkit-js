@@ -16,7 +16,7 @@ import {Lazy} from "@swim/util";
 import type {AnyTiming} from "@swim/mapping";
 import {Length} from "@swim/math";
 import {Look} from "@swim/theme";
-import {ViewContextType, ViewRelation} from "@swim/view";
+import {ViewContextType, ViewFastener} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import {Graphics, VectorIcon, SvgIconView} from "@swim/graphics";
 import {ButtonMembrane} from "@swim/controls";
@@ -111,11 +111,11 @@ export class TitleDeckBar extends DeckBar {
     const titleSlider = this.titleSlider.view;
     const backButton = this.backButton.view;
     if (titleSlider !== null && backButton !== null) {
-      const titleRelation = titleSlider.item;
+      const titleFastener = titleSlider.item;
       let titleView: HtmlView | null = null;
-      if (titleRelation !== null) {
-        titleView = titleRelation.view;
-        titleRelation.setView(null);
+      if (titleFastener !== null) {
+        titleView = titleFastener.view;
+        titleFastener.setView(null);
         titleSlider.item = null;
       }
       titleSlider.pushItem(title, timing);
@@ -143,24 +143,24 @@ export class TitleDeckBar extends DeckBar {
   }
 
   didPopBackButton(newLabelView: HtmlView | null, oldLabelView: HtmlView, backButton: DeckButton): void {
-    const backRelation = backButton.getViewRelation(oldLabelView.key!);
-    if (backRelation !== null) {
-      backRelation.setView(null);
-      backButton.setViewRelation(backRelation.name, null);
+    const backFastener = backButton.getViewFastener(oldLabelView.key!);
+    if (backFastener !== null) {
+      backFastener.setView(null);
+      backButton.setViewFastener(backFastener.name, null);
     }
     const titleSlider = this.titleSlider.view;
     if (titleSlider !== null) {
       const titleKey = "item" + titleSlider.itemCount;
-      const titleRelation = titleSlider.getViewRelation(titleKey) as DeckSliderItem<DeckSlider, HtmlView> | null;
-      if (titleRelation !== null) {
-        titleRelation.setView(oldLabelView);
+      const titleFastener = titleSlider.getViewFastener(titleKey) as DeckSliderItem<DeckSlider, HtmlView> | null;
+      if (titleFastener !== null) {
+        titleFastener.setView(oldLabelView);
       }
-      titleSlider.item = titleRelation;
+      titleSlider.item = titleFastener;
       titleSlider.appendChildView(oldLabelView, titleKey);
     }
   }
 
-  @ViewRelation<TitleDeckBar, ButtonMembrane>({
+  @ViewFastener<TitleDeckBar, ButtonMembrane>({
     type: ButtonMembrane,
     onSetView(newBackMembrane: ButtonMembrane | null, oldBackMembrane: ButtonMembrane | null): void {
       if (oldBackMembrane !== null) {
@@ -172,9 +172,9 @@ export class TitleDeckBar extends DeckBar {
       }
     },
   })
-  declare backMembrane: ViewRelation<this, ButtonMembrane>;
+  declare backMembrane: ViewFastener<this, ButtonMembrane>;
 
-  @ViewRelation<TitleDeckBar, DeckButton>({
+  @ViewFastener<TitleDeckBar, DeckButton>({
     type: DeckButton,
     onSetView(backButton: DeckButton | null): void {
       if (backButton !== null) {
@@ -188,9 +188,9 @@ export class TitleDeckBar extends DeckBar {
       this.owner.didPopBackButton(newLabelView, oldLabelView, backButton);
     },
   })
-  declare backButton: ViewRelation<this, DeckButton>;
+  declare backButton: ViewFastener<this, DeckButton>;
 
-  @ViewRelation<TitleDeckBar, DeckSlider>({
+  @ViewFastener<TitleDeckBar, DeckSlider>({
     type: DeckSlider,
     onSetView(titleSlider: DeckSlider | null): void {
       if (titleSlider !== null) {
@@ -198,9 +198,9 @@ export class TitleDeckBar extends DeckBar {
       }
     },
   })
-  declare titleSlider: ViewRelation<this, DeckSlider>;
+  declare titleSlider: ViewFastener<this, DeckSlider>;
 
-  @ViewRelation<TitleDeckBar, DeckSlider>({
+  @ViewFastener<TitleDeckBar, DeckSlider>({
     type: DeckSlider,
     onSetView(moreSlider: DeckSlider | null): void {
       if (moreSlider !== null) {
@@ -208,7 +208,7 @@ export class TitleDeckBar extends DeckBar {
       }
     },
   })
-  declare moreSlider: ViewRelation<this, DeckSlider>;
+  declare moreSlider: ViewFastener<this, DeckSlider>;
 
   protected didLayout(viewContext: ViewContextType<this>): void {
     const backMembrane = this.backMembrane.view;

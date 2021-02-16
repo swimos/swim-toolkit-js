@@ -21,10 +21,10 @@ import type {ComponentServiceConstructor, ComponentService} from "./service/Comp
 import type {ExecuteService} from "./service/ExecuteService";
 import type {HistoryService} from "./service/HistoryService";
 import type {ComponentPropertyConstructor, ComponentProperty} from "./property/ComponentProperty";
-import type {ComponentModelConstructor, ComponentModel} from "./relation/ComponentModel";
-import type {ComponentTraitConstructor, ComponentTrait} from "./relation/ComponentTrait";
-import type {ComponentViewConstructor, ComponentView} from "./relation/ComponentView";
-import type {ComponentRelationConstructor, ComponentRelation} from "./relation/ComponentRelation";
+import type {ComponentModelConstructor, ComponentModel} from "./fastener/ComponentModel";
+import type {ComponentTraitConstructor, ComponentTrait} from "./fastener/ComponentTrait";
+import type {ComponentViewConstructor, ComponentView} from "./fastener/ComponentView";
+import type {ComponentFastenerConstructor, ComponentFastener} from "./fastener/ComponentFastener";
 
 export type ComponentFlags = number;
 
@@ -49,7 +49,7 @@ export interface ComponentPrototype {
   componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<Component, View> | undefined};
 
   /** @hidden */
-  componentRelationConstructors?: {[relationName: string]: ComponentRelationConstructor<Component, Component> | undefined};
+  componentFastenerConstructors?: {[fastenerName: string]: ComponentFastenerConstructor<Component, Component> | undefined};
 }
 
 export interface ComponentConstructor<C extends Component = Component> {
@@ -976,23 +976,23 @@ export abstract class Component {
     }
   }
 
-  abstract hasComponentRelation(relationName: string): boolean;
+  abstract hasComponentFastener(fastenerName: string): boolean;
 
-  abstract getComponentRelation(relationName: string): ComponentRelation<this, Component> | null;
+  abstract getComponentFastener(fastenerName: string): ComponentFastener<this, Component> | null;
 
-  abstract setComponentRelation(relationName: string, componentRelation: ComponentRelation<this, any> | null): void;
+  abstract setComponentFastener(fastenerName: string, componentFastener: ComponentFastener<this, any> | null): void;
 
   /** @hidden */
-  getLazyComponentRelation(relationName: string): ComponentRelation<this, Component> | null {
-    let componentRelation = this.getComponentRelation(relationName);
-    if (componentRelation === null) {
-      const constructor = Component.getComponentRelationConstructor(relationName, Object.getPrototypeOf(this));
+  getLazyComponentFastener(fastenerName: string): ComponentFastener<this, Component> | null {
+    let componentFastener = this.getComponentFastener(fastenerName);
+    if (componentFastener === null) {
+      const constructor = Component.getComponentFastenerConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        componentRelation = new constructor(this, relationName) as ComponentRelation<this, Component>;
-        this.setComponentRelation(relationName, componentRelation);
+        componentFastener = new constructor(this, fastenerName) as ComponentFastener<this, Component>;
+        this.setComponentFastener(fastenerName, componentFastener);
       }
     }
-    return componentRelation;
+    return componentFastener;
   }
 
   /** @hidden */
@@ -1209,13 +1209,13 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentRelationConstructor(relationName: string, componentPrototype: ComponentPrototype | null = null): ComponentRelationConstructor<Component, Component> | null {
+  static getComponentFastenerConstructor(fastenerName: string, componentPrototype: ComponentPrototype | null = null): ComponentFastenerConstructor<Component, Component> | null {
     if (componentPrototype === null) {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentRelationConstructors")) {
-        const constructor = componentPrototype.componentRelationConstructors![relationName];
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentFastenerConstructors")) {
+        const constructor = componentPrototype.componentFastenerConstructors![fastenerName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1226,21 +1226,21 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static decorateComponentRelation(constructor: ComponentRelationConstructor<Component, Component>,
+  static decorateComponentFastener(constructor: ComponentFastenerConstructor<Component, Component>,
                                    target: Object, propertyKey: string | symbol): void {
     const componentPrototype = target as ComponentPrototype;
-    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentRelationConstructors")) {
-      componentPrototype.componentRelationConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentFastenerConstructors")) {
+      componentPrototype.componentFastenerConstructors = {};
     }
-    componentPrototype.componentRelationConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentFastenerConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: Component): ComponentRelation<Component, Component> {
-        let componentRelation = this.getComponentRelation(propertyKey.toString());
-        if (componentRelation === null) {
-          componentRelation = new constructor(this, propertyKey.toString());
-          this.setComponentRelation(propertyKey.toString(), componentRelation);
+      get: function (this: Component): ComponentFastener<Component, Component> {
+        let componentFastener = this.getComponentFastener(propertyKey.toString());
+        if (componentFastener === null) {
+          componentFastener = new constructor(this, propertyKey.toString());
+          this.setComponentFastener(propertyKey.toString(), componentFastener);
         }
-        return componentRelation;
+        return componentFastener;
       },
       configurable: true,
       enumerable: true,

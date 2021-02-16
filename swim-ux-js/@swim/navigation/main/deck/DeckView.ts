@@ -22,7 +22,7 @@ import {
   ViewEdgeInsets,
   ViewProperty,
   ViewAnimator,
-  ViewRelation,
+  ViewFastener,
 } from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {DeckBar} from "./DeckBar";
@@ -66,7 +66,7 @@ export class DeckView extends HtmlView {
   /** @hidden */
   cardCount: number;
 
-  card: ViewRelation<this, DeckCard> | null;
+  card: ViewFastener<this, DeckCard> | null;
 
   pushCard(newCardView: DeckCard, timing?: AnyTiming | boolean): void {
     if (this.deckPhase.isAnimating()) {
@@ -78,18 +78,18 @@ export class DeckView extends HtmlView {
     this.cardCount = newCardCount;
 
     const oldCardKey = "card" + oldCardCount;
-    const oldCardRelation = this.getViewRelation(oldCardKey) as DeckViewCard<this, DeckCard> | null;
-    const oldCardView = oldCardRelation !== null ? oldCardRelation.view : null;
+    const oldCardFastener = this.getViewFastener(oldCardKey) as DeckViewCard<this, DeckCard> | null;
+    const oldCardView = oldCardFastener !== null ? oldCardFastener.view : null;
 
     const newCardKey = "card" + newCardCount;
-    const newCardRelation = new DeckViewCardRelation(this, newCardKey) as unknown as DeckViewCard<this, DeckCard>;
-    newCardRelation.cardIndex = newCardCount;
+    const newCardFastener = new DeckViewCardFastener(this, newCardKey) as unknown as DeckViewCard<this, DeckCard>;
+    newCardFastener.cardIndex = newCardCount;
     this.willPushCard(newCardView, oldCardView);
-    this.card = newCardRelation;
+    this.card = newCardFastener;
 
-    this.setViewRelation(newCardKey, newCardRelation);
-    newCardRelation.setView(newCardView);
-    newCardRelation.insert();
+    this.setViewFastener(newCardKey, newCardFastener);
+    newCardFastener.setView(newCardView);
+    newCardFastener.insert();
 
     if (timing === void 0 && oldCardCount === 0) {
       timing = false;
@@ -134,17 +134,17 @@ export class DeckView extends HtmlView {
     this.cardCount = newCardCount;
 
     const oldCardKey = "card" + oldCardCount;
-    const oldCardRelation = this.getViewRelation(oldCardKey) as DeckViewCard<this, DeckCard> | null;
-    const oldCardView = oldCardRelation !== null ? oldCardRelation.view : null;
+    const oldCardFastener = this.getViewFastener(oldCardKey) as DeckViewCard<this, DeckCard> | null;
+    const oldCardView = oldCardFastener !== null ? oldCardFastener.view : null;
 
     if (oldCardView !== null) {
       const newCardKey = "card" + newCardCount;
-      const newCardRelation = this.getViewRelation(newCardKey) as DeckViewCard<this, DeckCard> | null;
-      const newCardView = newCardRelation !== null ? newCardRelation.view : null;
+      const newCardFastener = this.getViewFastener(newCardKey) as DeckViewCard<this, DeckCard> | null;
+      const newCardView = newCardFastener !== null ? newCardFastener.view : null;
       this.willPopCard(newCardView, oldCardView);
-      this.card = newCardRelation;
-      if (newCardRelation !== null) {
-        newCardRelation.insert();
+      this.card = newCardFastener;
+      if (newCardFastener !== null) {
+        newCardFastener.insert();
       }
 
       if (timing === void 0 || timing === true) {
@@ -174,9 +174,9 @@ export class DeckView extends HtmlView {
     const oldCardKey = oldCardView.key;
     oldCardView.remove();
     if (oldCardKey !== void 0) {
-      const oldCardRelation = this.getViewRelation(oldCardKey) as DeckViewCard<this, DeckCard> | null;
-      if (oldCardRelation !== null && oldCardRelation.cardIndex > this.cardCount) {
-        this.setViewRelation(oldCardKey, null);
+      const oldCardFastener = this.getViewFastener(oldCardKey) as DeckViewCard<this, DeckCard> | null;
+      if (oldCardFastener !== null && oldCardFastener.cardIndex > this.cardCount) {
+        this.setViewFastener(oldCardKey, null);
       }
     }
     this.didObserve(function (viewObserver: DeckViewObserver): void {
@@ -192,15 +192,15 @@ export class DeckView extends HtmlView {
       if (deckPhase !== void 0) {
         const nextCardIndex = Math.round(deckPhase + 1);
         const nextCardKey = "card" + nextCardIndex;
-        const nextCardRelation = this.getViewRelation(nextCardKey) as DeckViewCard<this, DeckCard> | null;
-        const nextCardView = nextCardRelation !== null ? nextCardRelation.view : null;
+        const nextCardFastener = this.getViewFastener(nextCardKey) as DeckViewCard<this, DeckCard> | null;
+        const nextCardView = nextCardFastener !== null ? nextCardFastener.view : null;
         if (nextCardView !== null) {
           this.didPopCard(this.card !== null ? this.card.view : null, nextCardView);
         } else if (this.card !== null && this.card.view !== null && Math.round(deckPhase) > 0) {
           const prevCardIndex = Math.round(deckPhase - 1);
           const prevCardKey = "card" + prevCardIndex;
-          const prevCardRelation = this.getViewRelation(prevCardKey) as DeckViewCard<this, DeckCard> | null;
-          const catdCardView = prevCardRelation !== null ? prevCardRelation.view : null;
+          const prevCardFastener = this.getViewFastener(prevCardKey) as DeckViewCard<this, DeckCard> | null;
+          const catdCardView = prevCardFastener !== null ? prevCardFastener.view : null;
           this.didPushCard(this.card.view, catdCardView);
         }
       }
@@ -228,7 +228,7 @@ export class DeckView extends HtmlView {
 }
 
 /** @hidden */
-export abstract class DeckViewBar<V extends DeckView, S extends DeckBar> extends ViewRelation<V, S> {
+export abstract class DeckViewBar<V extends DeckView, S extends DeckBar> extends ViewFastener<V, S> {
   onSetView(barView: S | null): void {
     if (barView !== null) {
       this.initBar(barView);
@@ -267,12 +267,12 @@ export abstract class DeckViewBar<V extends DeckView, S extends DeckBar> extends
     this.owner.didPressCloseButton(event);
   }
 }
-ViewRelation({extends: DeckViewBar, type: DeckBar})(DeckView.prototype, "bar");
+ViewFastener({extends: DeckViewBar, type: DeckBar})(DeckView.prototype, "bar");
 
 /** @hidden */
-export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> extends ViewRelation<V, S> {
-  constructor(owner: V, relationName: string | undefined) {
-    super(owner, relationName);
+export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> extends ViewFastener<V, S> {
+  constructor(owner: V, fastenerName: string | undefined) {
+    super(owner, fastenerName);
     this.cardIndex = 0;
   }
 
@@ -401,7 +401,7 @@ export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> exten
 }
 
 /** @hidden */
-export const DeckViewCardRelation = ViewRelation.define<DeckView, DeckCard>({
+export const DeckViewCardFastener = ViewFastener.define<DeckView, DeckCard>({
   extends: DeckViewCard,
   type: DeckCard,
   child: false,

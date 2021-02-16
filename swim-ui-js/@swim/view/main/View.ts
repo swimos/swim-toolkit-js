@@ -55,7 +55,7 @@ import type {ThemeService} from "./service/ThemeService";
 import type {ModalService} from "./service/ModalService";
 import type {ViewPropertyConstructor, ViewProperty} from "./property/ViewProperty";
 import type {ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
-import type {ViewRelationConstructor, ViewRelation} from "./relation/ViewRelation";
+import type {ViewFastenerConstructor, ViewFastener} from "./fastener/ViewFastener";
 
 export type ViewFlags = number;
 
@@ -80,7 +80,7 @@ export interface ViewPrototype {
   viewAnimatorConstructors?: {[animatorName: string]: ViewAnimatorConstructor<View, unknown> | undefined};
 
   /** @hidden */
-  viewRelationConstructors?: {[relationName: string]: ViewRelationConstructor<View, View> | undefined};
+  viewFastenerConstructors?: {[fastenerName: string]: ViewFastenerConstructor<View, View> | undefined};
 }
 
 export interface ViewConstructor<V extends View = View> {
@@ -1264,23 +1264,23 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     });
   }
 
-  abstract hasViewRelation(relationName: string): boolean;
+  abstract hasViewFastener(fastenerName: string): boolean;
 
-  abstract getViewRelation(relationName: string): ViewRelation<this, View> | null;
+  abstract getViewFastener(fastenerName: string): ViewFastener<this, View> | null;
 
-  abstract setViewRelation(relationName: string, viewRelation: ViewRelation<this, any> | null): void;
+  abstract setViewFastener(fastenerName: string, viewFastener: ViewFastener<this, any> | null): void;
 
   /** @hidden */
-  getLazyViewRelation(relationName: string): ViewRelation<this, View> | null {
-    let viewRelation = this.getViewRelation(relationName);
-    if (viewRelation === null) {
-      const constructor = View.getViewRelationConstructor(relationName, Object.getPrototypeOf(this));
+  getLazyViewFastener(fastenerName: string): ViewFastener<this, View> | null {
+    let viewFastener = this.getViewFastener(fastenerName);
+    if (viewFastener === null) {
+      const constructor = View.getViewFastenerConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        viewRelation = new constructor(this, relationName);
-        this.setViewRelation(relationName, viewRelation);
+        viewFastener = new constructor(this, fastenerName);
+        this.setViewFastener(fastenerName, viewFastener);
       }
     }
-    return viewRelation;
+    return viewFastener;
   }
 
   abstract hasLayoutAnchor(anchorName: string): boolean;
@@ -1596,13 +1596,13 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   /** @hidden */
-  static getViewRelationConstructor(relationName: string, viewPrototype: ViewPrototype | null = null): ViewRelationConstructor<any, any> | null {
+  static getViewFastenerConstructor(fastenerName: string, viewPrototype: ViewPrototype | null = null): ViewFastenerConstructor<any, any> | null {
     if (viewPrototype === null) {
       viewPrototype = this.prototype as ViewPrototype;
     }
     do {
-      if (Object.prototype.hasOwnProperty.call(viewPrototype, "viewRelationConstructors")) {
-        const constructor = viewPrototype.viewRelationConstructors![relationName];
+      if (Object.prototype.hasOwnProperty.call(viewPrototype, "viewFastenerConstructors")) {
+        const constructor = viewPrototype.viewFastenerConstructors![fastenerName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1613,21 +1613,21 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   /** @hidden */
-  static decorateViewRelation(constructor: ViewRelationConstructor<View, View>,
+  static decorateViewFastener(constructor: ViewFastenerConstructor<View, View>,
                               target: Object, propertyKey: string | symbol): void {
     const viewPrototype = target as ViewPrototype;
-    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "viewRelationConstructors")) {
-      viewPrototype.viewRelationConstructors = {};
+    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "viewFastenerConstructors")) {
+      viewPrototype.viewFastenerConstructors = {};
     }
-    viewPrototype.viewRelationConstructors![propertyKey.toString()] = constructor;
+    viewPrototype.viewFastenerConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
-      get: function (this: View): ViewRelation<View, View> {
-        let viewRelation = this.getViewRelation(propertyKey.toString());
-        if (viewRelation === null) {
-          viewRelation = new constructor(this, propertyKey.toString());
-          this.setViewRelation(propertyKey.toString(), viewRelation);
+      get: function (this: View): ViewFastener<View, View> {
+        let viewFastener = this.getViewFastener(propertyKey.toString());
+        if (viewFastener === null) {
+          viewFastener = new constructor(this, propertyKey.toString());
+          this.setViewFastener(propertyKey.toString(), viewFastener);
         }
-        return viewRelation;
+        return viewFastener;
       },
       enumerable: true,
       configurable: true,
