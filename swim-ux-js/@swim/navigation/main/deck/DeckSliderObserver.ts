@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/controls";
+import type {HtmlView, HtmlViewObserver} from "@swim/dom";
+import type {DeckSlider} from "./DeckSlider";
 
-export * from "@swim/displays";
+export interface DeckSliderObserver<V extends DeckSlider = DeckSlider> extends HtmlViewObserver<V> {
+  deckSliderWillPushItem?(newItemView: HtmlView, oldItemView: HtmlView | null, view: V): void;
 
-export * from "@swim/surfaces";
+  deckSliderDidPushItem?(newItemView: HtmlView, oldItemView: HtmlView | null, view: V): void;
 
-export * from "@swim/navigation";
+  deckSliderWillPopItem?(newItemView: HtmlView | null, oldItemView: HtmlView, view: V): void;
+
+  deckSliderDidPopItem?(newItemView: HtmlView | null, oldItemView: HtmlView, view: V): void;
+}

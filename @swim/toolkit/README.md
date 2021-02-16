@@ -109,6 +109,10 @@ toolbars, controls, and other interactive application views and controllers.
   ([npm](https://www.npmjs.com/package/@swim/surfaces),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_surfaces.html)) –
   popovers, drawers, and other view containers.
+- [**@swim/navigation**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/navigation)
+  ([npm](https://www.npmjs.com/package/@swim/navigation),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_navigation.html)) –
+  card decks, master-detail views, and other navigation controllers.
 
 ### [**Swim Visualizations** Framework](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-vis-js)
 

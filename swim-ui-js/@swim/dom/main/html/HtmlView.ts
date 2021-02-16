@@ -1136,6 +1136,6 @@ export class HtmlView extends ElementView {
   static wbr: HtmlViewFactory;
 }
 export interface HtmlView extends StyleMap {
-  requireUpdate(updateFlags: ViewFlags): void;
+  requireUpdate(updateFlags: ViewFlags, immediate?: boolean): void;
 }
 StyleMap.define(HtmlView.prototype);

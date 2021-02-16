@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/controls";
+import type {HtmlViewObserver} from "@swim/dom";
+import type {DeckBar} from "./DeckBar";
 
-export * from "@swim/displays";
+export interface DeckBarObserver<V extends DeckBar = DeckBar> extends HtmlViewObserver<V> {
+  deckBarDidPressBackButton?(event: Event | null, view: V): void;
 
-export * from "@swim/surfaces";
-
-export * from "@swim/navigation";
+  deckBarDidPressCloseButton?(event: Event | null, view: V): void;
+}

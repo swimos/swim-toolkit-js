@@ -24,6 +24,8 @@ The **Swim UX** framework consists of the following component libraries:
   lists, trees, and other structured display views.
 - [**@swim/surfaces**](@swim/surfaces) –
   popovers, drawers, and other view containers.
+- [**@swim/navigation**](@swim/navigation) –
+  card decks, master-detail views, and other navigation controllers.
 
 **Swim UX** builds on the [**Swim Core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js)
 and [**Swim UI**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js)

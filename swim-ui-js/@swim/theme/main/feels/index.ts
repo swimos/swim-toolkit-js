@@ -41,5 +41,6 @@ Feel.transparent = new InterpolatedFeel("transparent");
 Feel.translucent = new OpacityFeel("translucent");
 Feel.embossed = new BrightnessFeel("embossed");
 Feel.nested = new BrightnessFeel("nested");
-
 Feel.hovering = new BrightnessFeel("hovering");
+
+Feel.navigating = new InterpolatedFeel("navigating");

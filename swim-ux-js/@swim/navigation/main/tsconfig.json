@@ -19,17 +19,26 @@
       "@swim/dom": ["../swim-ui-js/@swim/dom/main"],
       "@swim/graphics": ["../swim-ui-js/@swim/graphics/main"],
       "@swim/gesture": ["../swim-ui-js/@swim/gesture/main"],
-      "@swim/controls": ["@swim/controls/main"],
-      "@swim/displays": ["@swim/displays/main"],
-      "@swim/surfaces": ["@swim/surfaces/main"],
-      "@swim/navigation": ["@swim/navigation/main"]
+      "@swim/controls": ["@swim/controls/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "references": [
-    {"path": "../../controls/main"},
-    {"path": "../../displays/main"},
-    {"path": "../../surfaces/main"},
-    {"path": "../../navigation/main"}
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/util/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/codec/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/mapping/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/structure/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/math/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/time/main"},
+    {"path": "../../../../swim-ui-js/@swim/constraint/main"},
+    {"path": "../../../../swim-ui-js/@swim/animation/main"},
+    {"path": "../../../../swim-ui-js/@swim/color/main"},
+    {"path": "../../../../swim-ui-js/@swim/style/main"},
+    {"path": "../../../../swim-ui-js/@swim/theme/main"},
+    {"path": "../../../../swim-ui-js/@swim/view/main"},
+    {"path": "../../../../swim-ui-js/@swim/dom/main"},
+    {"path": "../../../../swim-ui-js/@swim/graphics/main"},
+    {"path": "../../../../swim-ui-js/@swim/gesture/main"},
+    {"path": "../../controls/main"}
   ]
 }

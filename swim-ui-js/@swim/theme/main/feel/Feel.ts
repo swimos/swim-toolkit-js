@@ -71,6 +71,7 @@ export abstract class Feel implements Mood {
   static translucent: Feel; // defined by feels
   static embossed: Feel; // defined by feels
   static nested: Feel; // defined by feels
-
   static hovering: Feel; // defined by feels
+
+  static navigating: Feel; // defined by feels
 }

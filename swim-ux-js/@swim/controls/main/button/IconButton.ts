@@ -34,6 +34,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     this.icon = null;
     this.onClick = this.onClick.bind(this);
     this.initButton();
+    this.initTheme();
   }
 
   protected initButton(): void {
@@ -52,6 +53,10 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     this.overflowY.setAutoState("hidden");
     this.userSelect.setAutoState("none");
     this.cursor.setAutoState("pointer");
+  }
+
+  protected initTheme(): void {
+    this.modifyTheme(Feel.default, [Feel.translucent, 1]);
   }
 
   initView(init: IconButtonInit): void {
@@ -152,7 +157,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     this.appendChildView(newIconView, newIconKey);
   }
 
-  popIcon(timing?: AnyTiming | boolean): void {
+  popIcon(timing?: AnyTiming | boolean): SvgIconView | null {
     const oldIconCount = this.iconCount;
     const newIconCount = oldIconCount - 1;
     this.iconCount = newIconCount;
@@ -185,6 +190,8 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
       newIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
       this.appendChildView(newIconView, newIconKey);
     }
+
+    return oldIconView;
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,

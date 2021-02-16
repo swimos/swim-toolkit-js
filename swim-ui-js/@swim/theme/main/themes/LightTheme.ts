@@ -46,7 +46,6 @@ const LightWarningColor = Color.parse("#e6de65");
 const LightAlertColor = Color.parse("#df4616");
 
 const LightSpacing = Length.px(10);
-const LightTiming = Easing.cubicOut.withDuration(250);
 
 const LightAmbient = FeelVector.of(
   [Look.font, LightFont],
@@ -81,7 +80,7 @@ const LightDefault = FeelVector.of(
   [Look.borderColor, LightBorderColor],
 
   [Look.spacing, LightSpacing],
-  [Look.timing, LightTiming],
+  [Look.timing, Easing.cubicOut.withDuration(250)],
 );
 
 const LightPrimary = FeelVector.of(
@@ -187,6 +186,10 @@ const LightHovering = FeelVector.of(
   [Look.backgroundColor, Color.black(1)],
 );
 
+const LightNavigating = FeelVector.of(
+  [Look.timing, Easing.cubicOut.withDuration(350)],
+);
+
 const LightTheme = ThemeMatrix.forCols(
   [Feel.ambient, LightAmbient],
   [Feel.default, LightDefault],
@@ -212,8 +215,9 @@ const LightTheme = ThemeMatrix.forCols(
   [Feel.translucent, LightTranslucent],
   [Feel.embossed, LightEmbossed],
   [Feel.nested, LightNested],
-
   [Feel.hovering, LightHovering],
+
+  [Feel.navigating, LightNavigating],
 );
 
 Theme.light = LightTheme;

@@ -29,6 +29,10 @@ component libraries:
   ([npm](https://www.npmjs.com/package/@swim/surfaces),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_surfaces.html)) –
   popovers, drawers, and other view containers.
+- [**@swim/navigation**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/navigation)
+  ([npm](https://www.npmjs.com/package/@swim/navigation),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_navigation.html)) –
+  card decks, master-detail views, and other navigation controllers.
 
 **@swim/ux** builds on the [**@swim/core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js/@swim/core)
 and [**@swim/ui**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/ui)

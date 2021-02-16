@@ -151,7 +151,7 @@ export class NodeView extends View {
       }
     }
     const viewController = this.viewController;
-    if (viewController !== void 0) {
+    if (viewController !== null) {
       result = callback.call(this, viewController as ViewObserverType<this>) as T | undefined;
       if (result !== void 0) {
         return result;

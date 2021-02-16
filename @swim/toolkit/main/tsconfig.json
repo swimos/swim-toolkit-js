@@ -34,6 +34,7 @@
       "@swim/controls": ["swim-ux-js/@swim/controls/main"],
       "@swim/displays": ["swim-ux-js/@swim/displays/main"],
       "@swim/surfaces": ["swim-ux-js/@swim/surfaces/main"],
+      "@swim/navigation": ["swim-ux-js/@swim/navigation/main"],
       "@swim/ux": ["swim-ux-js/@swim/ux/main"],
 
       "@swim/gauge": ["swim-vis-js/@swim/gauge/main"],

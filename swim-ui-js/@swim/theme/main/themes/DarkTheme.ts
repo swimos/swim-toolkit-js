@@ -46,7 +46,6 @@ const DarkWarningColor = Color.parse("#f9f070");
 const DarkAlertColor = Color.parse("#f6511d");
 
 const DarkSpacing = Length.px(10);
-const DarkTiming = Easing.cubicOut.withDuration(250);
 
 const DarkAmbient = FeelVector.of(
   [Look.font, DarkFont],
@@ -81,7 +80,7 @@ const DarkDefault = FeelVector.of(
   [Look.borderColor, DarkBorderColor],
 
   [Look.spacing, DarkSpacing],
-  [Look.timing, DarkTiming],
+  [Look.timing, Easing.cubicOut.withDuration(250)],
 );
 
 const DarkPrimary = FeelVector.of(
@@ -186,6 +185,10 @@ const DarkHovering = FeelVector.of(
   [Look.backgroundColor, Color.black(-1)],
 );
 
+const DarkNavigating = FeelVector.of(
+  [Look.timing, Easing.cubicOut.withDuration(350)],
+);
+
 const DarkTheme = ThemeMatrix.forCols(
   [Feel.ambient, DarkAmbient],
   [Feel.default, DarkDefault],
@@ -211,8 +214,9 @@ const DarkTheme = ThemeMatrix.forCols(
   [Feel.translucent, DarkTranslucent],
   [Feel.embossed, DarkEmbossed],
   [Feel.nested, DarkNested],
-
   [Feel.hovering, DarkHovering],
+
+  [Feel.navigating, DarkNavigating],
 );
 
 Theme.dark = DarkTheme;

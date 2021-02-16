@@ -5,6 +5,7 @@
     {"path": "./@swim/controls"},
     {"path": "./@swim/displays"},
     {"path": "./@swim/surfaces"},
+    {"path": "./@swim/navigation"},
     {"path": "./@swim/ux"}
   ]
 }

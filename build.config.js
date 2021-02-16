@@ -473,6 +473,17 @@ const ux = [
     ],
   },
   {
+    id: "navigation",
+    name: "@swim/navigation",
+    path: "swim-ux-js/@swim/navigation",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "controls"],
+      },
+    ],
+  },
+  {
     id: "ux",
     name: "@swim/ux",
     path: "swim-ux-js/@swim/ux",
@@ -481,7 +492,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["controls", "displays", "surfaces"],
+        deps: ["controls", "displays", "surfaces", "navigation"],
       },
     ],
   },

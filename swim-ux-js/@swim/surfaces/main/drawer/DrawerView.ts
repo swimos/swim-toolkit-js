@@ -160,10 +160,10 @@ export class DrawerView extends HtmlView implements Modal {
   @ViewAnimator({type: Length, state: Length.px(200)})
   declare expandedWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Number, state: 0, updateFlags: View.NeedsAnimate})
+  @ViewAnimator({type: Number, state: 0, updateFlags: View.NeedsResize | View.NeedsAnimate | View.NeedsLayout})
   declare drawerSlide: ViewAnimator<this, number>; // 0 = hidden; 1 = shown
 
-  @ViewAnimator({type: Number, state: 1, updateFlags: View.NeedsAnimate})
+  @ViewAnimator({type: Number, state: 1, updateFlags: View.NeedsResize | View.NeedsAnimate | View.NeedsLayout})
   declare drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
   /** @hidden */
@@ -256,7 +256,7 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   protected onSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
-    this.requireUpdate(View.NeedsLayout);
+    this.requireUpdate(View.NeedsResize | View.NeedsAnimate | View.NeedsLayout);
   }
 
   protected didSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
@@ -601,7 +601,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   protected didShow(): void {
     this.setDisplayState(DrawerView.ShownState);
-    this.requireUpdate(View.NeedsAnimate);
+    this.requireUpdate(View.NeedsResize | View.NeedsAnimate | View.NeedsLayout);
 
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
@@ -653,7 +653,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   protected didHide(): void {
     this.setDisplayState(DrawerView.HiddenState);
-    this.requireUpdate(View.NeedsAnimate);
+    this.requireUpdate(View.NeedsResize | View.NeedsAnimate | View.NeedsLayout);
 
     this.display.setAutoState("none");
 
@@ -713,7 +713,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   protected didExpand(): void {
     this.setDisplayState(DrawerView.ShownState);
-    this.requireUpdate(View.NeedsAnimate);
+    this.requireUpdate(View.NeedsResize | View.NeedsAnimate | View.NeedsLayout);
 
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
@@ -776,7 +776,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   protected didCollapse(): void {
     this.setDisplayState(DrawerView.CollapsedState);
-    this.requireUpdate(View.NeedsAnimate);
+    this.requireUpdate(View.NeedsResize | View.NeedsAnimate | View.NeedsLayout);
 
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {

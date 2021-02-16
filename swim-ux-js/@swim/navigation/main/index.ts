@@ -12,10 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/controls";
-
-export * from "@swim/displays";
-
-export * from "@swim/surfaces";
-
-export * from "@swim/navigation";
+export * from "./deck";

@@ -43,6 +43,7 @@ export const Mood = {} as {
   translucent: MoodVector; // defined by moods
   embossed: MoodVector; // defined by moods
   nested: MoodVector; // defined by moods
-
   hovering: MoodVector; // defined by moods
+
+  navigating: MoodVector; // defined by moods
 };

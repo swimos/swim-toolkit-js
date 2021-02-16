@@ -191,7 +191,7 @@ export class TreeSeed implements Equals, Equivalent {
     return new TreeSeed(Length.px(width), left, right, newRoots);
   }
 
-  equivalentTo(that: TreeSeed, epsilon?: number): boolean {
+  equivalentTo(that: unknown, epsilon?: number): boolean {
     if (this === that) {
       return true;
     } else if (that instanceof TreeSeed) {

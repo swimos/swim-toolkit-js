@@ -40,5 +40,6 @@ Mood.transparent = MoodVector.of([Feel.transparent, 1]);
 Mood.translucent = MoodVector.of([Feel.translucent, 1]);
 Mood.embossed = MoodVector.of([Feel.embossed, 1]);
 Mood.nested = MoodVector.of([Feel.nested, 1]);
-
 Mood.hovering = MoodVector.of([Feel.hovering, 1]);
+
+Mood.navigating = MoodVector.of([Feel.navigating, 1]);
