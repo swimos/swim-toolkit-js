@@ -1,7 +1,7 @@
 {
   "name": "@swim/map",
   "version": "3.11.0-dev.20201021",
-  "description": "Canvas views for efficiently rendering geospatially located map overlays, including fully animatable views for lines, circles, and polygons",
+  "description": "Graphics views for efficiently rendering animated geospatial map overlays",
   "homepage": "https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-maps-js/@swim/map",
   "author": "Chris Sachs <chris@swimos.org>",
   "copyright": "2015-2020 Swim inc.",

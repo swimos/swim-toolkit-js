@@ -15,6 +15,7 @@
 /// <reference types="mapbox-gl"/>
 
 export {MapboxProjection} from "./MapboxProjection";
+
 export {MapboxView} from "./MapboxView";
 export {MapboxViewObserver} from "./MapboxViewObserver";
 export {MapboxViewController} from "./MapboxViewController";

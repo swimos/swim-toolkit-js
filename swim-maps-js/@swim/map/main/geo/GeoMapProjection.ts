@@ -12,16 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./graphics";
+import type {AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {AnyGeoPoint, GeoPoint, GeoBox, GeoProjection} from "@swim/geo";
 
-export * from "./map";
+export abstract class GeoMapProjection implements GeoProjection {
+  abstract readonly frame: BoxR2;
 
-export * from "./layer";
+  abstract withFrame(frame: BoxR2): GeoMapProjection;
 
-export * from "./grid";
+  get bounds(): GeoBox {
+    return GeoBox.globe();
+  }
 
-export * from "./raster";
+  abstract project(geoPoint: AnyGeoPoint): PointR2;
+  abstract project(lng: number, lat: number): PointR2;
 
-export * from "./shape";
-
-export * from "./geo";
+  abstract unproject(viewPoint: AnyPointR2): GeoPoint;
+  abstract unproject(x: number, y: number): GeoPoint;
+}

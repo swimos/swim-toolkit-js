@@ -143,10 +143,10 @@ export class CanvasView extends HtmlView {
     this.onTouchEnd = this.onTouchEnd.bind(this);
     this.onTouchCancel = this.onTouchCancel.bind(this);
 
-    this.initCanvas(node);
+    this.initCanvas();
   }
 
-  protected initCanvas(node: HTMLCanvasElement): void {
+  protected initCanvas(): void {
     this.position.setAutoState("absolute");
   }
 
@@ -824,6 +824,11 @@ export class CanvasView extends HtmlView {
     }
   }
 
+  protected didRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
+    super.didRequestUpdate(targetView, updateFlags, immediate);
+    this.requireUpdate(View.NeedsRender | View.NeedsComposite);
+  }
+
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.ProcessMask) !== 0) {
       this.requireUpdate(View.NeedsRender | View.NeedsComposite);
@@ -835,6 +840,7 @@ export class CanvasView extends HtmlView {
     super.onResize(viewContext);
     this.resizeCanvas(this.node);
     this.resetRenderer();
+    this.requireUpdate(View.NeedsRender | View.NeedsComposite);
   }
 
   protected onScroll(viewContext: ViewContextType<this>): void {
@@ -886,6 +892,12 @@ export class CanvasView extends HtmlView {
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     displayFlags |= View.NeedsRender | View.NeedsComposite;
     return displayFlags;
+  }
+
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
+    this.resizeCanvas(this.node);
+    this.resetRenderer();
   }
 
   /** @hidden */
@@ -2073,11 +2085,11 @@ export class CanvasView extends HtmlView {
     }
   }
 
-  protected resizeCanvas(node: HTMLCanvasElement): void {
+  protected resizeCanvas(canvas: HTMLCanvasElement): void {
     let width: number;
     let height: number;
     let pixelRatio: number;
-    let parentNode = node.parentNode;
+    let parentNode = canvas.parentNode;
     if (parentNode instanceof HTMLElement) {
       let bounds: ClientRect | DOMRect;
       do {
@@ -2090,13 +2102,13 @@ export class CanvasView extends HtmlView {
       width = Math.floor(bounds.width);
       height = Math.floor(bounds.height);
       pixelRatio = this.pixelRatio;
-      node.width = width * pixelRatio;
-      node.height = height * pixelRatio;
-      node.style.width = width + "px";
-      node.style.height = height + "px";
+      canvas.width = width * pixelRatio;
+      canvas.height = height * pixelRatio;
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
     } else {
-      width = Math.floor(node.width);
-      height = Math.floor(node.height);
+      width = Math.floor(canvas.width);
+      height = Math.floor(canvas.height);
       pixelRatio = 1;
     }
     Object.defineProperty(this, "viewFrame", {

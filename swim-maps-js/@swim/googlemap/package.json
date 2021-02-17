@@ -1,7 +1,7 @@
 {
   "name": "@swim/googlemap",
   "version": "3.11.0-dev.20201021",
-  "description": "Support for overlaying @swim/map views on Google maps",
+  "description": "@swim/map overlays for Google maps",
   "homepage": "https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-maps-js/@swim/googlemap",
   "author": "Chris Sachs <chris@swimos.org>",
   "copyright": "2015-2020 Swim inc.",

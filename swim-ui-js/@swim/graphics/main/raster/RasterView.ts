@@ -116,8 +116,35 @@ export class RasterView extends LayerView {
     }
   }
 
+  protected didRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
+    super.didRequestUpdate(targetView, updateFlags, immediate);
+    this.requireUpdate(View.NeedsRender | View.NeedsComposite);
+  }
+
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+    if ((this.viewFlags & View.ProcessMask) !== 0 || (processFlags & View.NeedsResize) !== 0) {
+      this.requireUpdate(View.NeedsRender | View.NeedsComposite);
+    } else {
+      processFlags = 0;
+    }
+    return processFlags;
+  }
+
+  protected onResize(viewContext: ViewContextType<this>): void {
+    super.onResize(viewContext);
+    this.resizeCanvas(this.canvas);
+    this.resetRenderer();
+    this.requireUpdate(View.NeedsRender | View.NeedsComposite);
+  }
+
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    displayFlags |= View.NeedsRender | View.NeedsComposite;
+    if ((this.viewFlags & View.DisplayMask) !== 0) {
+      displayFlags |= View.NeedsRender | View.NeedsComposite;
+    } else if ((displayFlags & View.NeedsComposite) !== 0) {
+      displayFlags = View.NeedsDisplay | View.NeedsComposite;
+    } else {
+      displayFlags = 0;
+    }
     return displayFlags;
   }
 
@@ -127,14 +154,20 @@ export class RasterView extends LayerView {
     this.resetRenderer();
   }
 
-  protected onRender(viewContext: ViewContextType<this>): void {
-    super.onRender(viewContext);
+  protected willRender(viewContext: ViewContextType<this>): void {
+    super.willRender(viewContext);
     this.clearCanvas();
   }
 
-  protected onComposite(viewContext: ViewContextType<this>): void {
-    super.onComposite(viewContext);
+  protected didComposite(viewContext: ViewContextType<this>): void {
     this.compositeImage(viewContext);
+    super.didComposite(viewContext);
+  }
+
+  protected onSetHidden(hidden: boolean): void {
+    if (!hidden) {
+      this.requireUpdate(View.NeedsRender | View.NeedsComposite);
+    }
   }
 
   extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
@@ -212,7 +245,7 @@ export class RasterView extends LayerView {
     return document.createElement("canvas");
   }
 
-  protected resizeCanvas(node: HTMLCanvasElement): void {
+  protected resizeCanvas(canvas: HTMLCanvasElement): void {
     const compositeFrame = this.compositeFrame;
     const xMin = compositeFrame.xMin - Math.floor(compositeFrame.xMin);
     const yMin = compositeFrame.yMin - Math.floor(compositeFrame.yMin);
@@ -221,10 +254,10 @@ export class RasterView extends LayerView {
     const rasterFrame = new BoxR2(xMin, yMin, xMax, yMax);
     if (!this.rasterFrame.equals(rasterFrame)) {
       const pixelRatio = this.pixelRatio;
-      node.width = xMax * pixelRatio;
-      node.height = yMax * pixelRatio;
-      node.style.width = xMax + "px";
-      node.style.height = yMax + "px";
+      canvas.width = xMax * pixelRatio;
+      canvas.height = yMax * pixelRatio;
+      canvas.style.width = xMax + "px";
+      canvas.style.height = yMax + "px";
       Object.defineProperty(this, "rasterFrame", {
         value: rasterFrame,
         enumerable: true,
@@ -266,8 +299,7 @@ export class RasterView extends LayerView {
       context.globalCompositeOperation = this.compositeOperation.getValue();
       const x = Math.floor(compositeFrame.x);
       const y = Math.floor(compositeFrame.y);
-      const canvas = this.canvas;
-      context.drawImage(canvas, x, y, canvas.width, canvas.height);
+      context.drawImage(this.canvas, x, y, compositeFrame.width, compositeFrame.height);
       context.restore();
     }
   }
@@ -275,4 +307,8 @@ export class RasterView extends LayerView {
   static create(): RasterView {
     return new RasterView();
   }
+
+  static readonly mountFlags: ViewFlags = LayerView.mountFlags | View.NeedsRender | View.NeedsComposite;
+  static readonly powerFlags: ViewFlags = LayerView.powerFlags | View.NeedsRender | View.NeedsComposite;
+  static readonly uncullFlags: ViewFlags = LayerView.uncullFlags | View.NeedsRender | View.NeedsComposite;
 }

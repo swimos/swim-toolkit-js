@@ -100,14 +100,13 @@ the following component libraries:
 - [**@swim/maps**](swim-maps-js/@swim/maps) –
   umbrella package that depends on, and re-exports, all **Swim Maps** libraries.
 - [**@swim/map**](swim-maps-js/@swim/map) –
-  canvas views for efficiently rendering geospatially located map overlays,
-  including fully animatable views for lines, circles, and polygons.
+  graphics views for efficiently rendering animated geospatial map overlays.
 - [**@swim/mapbox**](swim-maps-js/@swim/mapbox) –
-  support for overlaying **@swim/map** views on Mapbox maps.
+  **@swim/map** overlays for Mapbox maps.
 - [**@swim/googlemap**](swim-maps-js/@swim/googlemap) –
-  support for overlaying **@swim/map** views on Google maps.
+  **@swim/map** overlays for Google maps.
 - [**@swim/esrimap**](swim-maps-js/@swim/esrimap) –
-  support for overlaying **@swim/map** views on ArcGIS maps.
+  **@swim/map** overlays for ArcGIS maps.
 
 ### [**Swim MVC** Framework](swim-mvc-js)
 

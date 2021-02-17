@@ -12,16 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./graphics";
+export {GeoMapProjection} from "./GeoMapProjection";
 
-export * from "./map";
+export {GeoMapView} from "./GeoMapView";
+export {GeoMapViewObserver} from "./GeoMapViewObserver";
+export {GeoMapViewController} from "./GeoMapViewController";
 
-export * from "./layer";
-
-export * from "./grid";
-
-export * from "./raster";
-
-export * from "./shape";
-
-export * from "./geo";
+export {EquirectangularGeoMapProjection} from "./EquirectangularGeoMapProjection";

@@ -12,16 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./graphics";
+import type {MapViewObserver} from "../map/MapViewObserver";
+import type {GeoMapView} from "./GeoMapView";
 
-export * from "./map";
-
-export * from "./layer";
-
-export * from "./grid";
-
-export * from "./raster";
-
-export * from "./shape";
-
-export * from "./geo";
+export interface GeoMapViewObserver<V extends GeoMapView = GeoMapView> extends MapViewObserver<V> {
+}
