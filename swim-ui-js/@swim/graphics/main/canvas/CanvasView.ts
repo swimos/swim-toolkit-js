@@ -850,8 +850,7 @@ export class CanvasView extends HtmlView {
 
   /** @hidden */
   protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((processFlags & View.ProcessMask) !== 0 &&
-        (this.graphicsViews.length !== 0 || this.node.childNodes.length !== 0)) {
+    if ((processFlags & View.ProcessMask) !== 0) {
       this.willProcessChildViews(processFlags, viewContext);
       this.onProcessChildViews(processFlags, viewContext);
       this.didProcessChildViews(processFlags, viewContext);
@@ -1021,8 +1020,7 @@ export class CanvasView extends HtmlView {
 
   /** @hidden */
   protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((displayFlags & View.DisplayMask) !== 0 &&
-        (this.graphicsViews.length !== 0 || this.node.childNodes.length !== 0)) {
+    if ((displayFlags & View.DisplayMask) !== 0) {
       this.willDisplayChildViews(displayFlags, viewContext);
       this.onDisplayChildViews(displayFlags, viewContext);
       this.didDisplayChildViews(displayFlags, viewContext);

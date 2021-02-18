@@ -381,10 +381,10 @@ export abstract class Model implements ModelDownlinkContext {
         modelObserver.modelWillRemoveChildModel(childModel, this);
       }
     }
+    this.requireUpdate(this.removeChildFlags);
   }
 
   protected onRemoveChildModel(childModel: Model): void {
-    this.requireUpdate(this.removeChildFlags);
     const traits = this.traits;
     for (let i = 0, n = traits.length; i < n; i += 1) {
       (traits[i]! as any).onRemoveChildModel(childModel);
@@ -1192,7 +1192,7 @@ export abstract class Model implements ModelDownlinkContext {
 
   /** @hidden */
   protected doAnalyzeChildModels(analyzeFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    if ((analyzeFlags & Model.AnalyzeMask) !== 0 && this.childModelCount !== 0) {
+    if ((analyzeFlags & Model.AnalyzeMask) !== 0) {
       this.willAnalyzeChildModels(analyzeFlags, modelContext);
       this.onAnalyzeChildModels(analyzeFlags, modelContext);
       this.didAnalyzeChildModels(analyzeFlags, modelContext);
@@ -1377,7 +1377,7 @@ export abstract class Model implements ModelDownlinkContext {
 
   /** @hidden */
   protected doRefreshChildModels(refreshFlags: ModelFlags, modelContext: ModelContextType<this>): void {
-    if ((refreshFlags & Model.RefreshMask) !== 0 && this.childModelCount !== 0) {
+    if ((refreshFlags & Model.RefreshMask)) {
       this.willRefreshChildModels(refreshFlags, modelContext);
       this.onRefreshChildModels(refreshFlags, modelContext);
       this.didRefreshChildModels(refreshFlags, modelContext);

@@ -445,10 +445,11 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
         viewObserver.viewWillRemoveChildView(childView, this);
       }
     }
+    this.requireUpdate(this.removeChildFlags);
   }
 
   protected onRemoveChildView(childView: View): void {
-    this.requireUpdate(this.removeChildFlags);
+    // hook
   }
 
   protected didRemoveChildView(childView: View): void {

@@ -376,10 +376,11 @@ export abstract class Trait implements ModelDownlinkContext {
         traitObserver.traitWillRemoveChildModel(childModel, this);
       }
     }
+    this.requireUpdate(this.removeChildFlags);
   }
 
   protected onRemoveChildModel(childModel: Model): void {
-    this.requireUpdate(this.removeChildFlags);
+    // hook
   }
 
   protected didRemoveChildModel(childModel: Model): void {

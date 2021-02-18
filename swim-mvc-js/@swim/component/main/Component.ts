@@ -277,10 +277,11 @@ export abstract class Component {
         componentObserver.componentWillRemoveChildComponent(childComponent, this);
       }
     }
+    this.requireUpdate(this.removeChildFlags);
   }
 
   protected onRemoveChildComponent(childComponent: Component): void {
-    this.requireUpdate(this.removeChildFlags);
+    // hook
   }
 
   protected didRemoveChildComponent(childComponent: Component): void {
@@ -624,7 +625,7 @@ export abstract class Component {
 
   /** @hidden */
   protected doCompileChildComponents(compileFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    if ((compileFlags & Component.CompileMask) !== 0 && this.childComponentCount !== 0) {
+    if ((compileFlags & Component.CompileMask) !== 0) {
       this.willCompileChildComponents(compileFlags, componentContext);
       this.onCompileChildComponents(compileFlags, componentContext);
       this.didCompileChildComponents(compileFlags, componentContext);
@@ -748,7 +749,7 @@ export abstract class Component {
 
   /** @hidden */
   protected doExecuteChildComponents(executeFlags: ComponentFlags, componentContext: ComponentContextType<this>): void {
-    if ((executeFlags & Component.ExecuteMask) !== 0 && this.childComponentCount !== 0) {
+    if ((executeFlags & Component.ExecuteMask) !== 0) {
       this.willExecuteChildComponents(executeFlags, componentContext);
       this.onExecuteChildComponents(executeFlags, componentContext);
       this.didExecuteChildComponents(executeFlags, componentContext);

@@ -346,8 +346,7 @@ export class MapGridView extends MapGraphicsView {
 
   /** @hidden */
   protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((processFlags & View.ProcessMask) !== 0 && !this.quadtree.isEmpty()
-        && !this.isHidden() && !this.isCulled()) {
+    if ((processFlags & View.ProcessMask) !== 0 && !this.isHidden() && !this.isCulled()) {
       this.willProcessChildViews(processFlags, viewContext);
       this.onProcessChildViews(processFlags, viewContext);
       this.didProcessChildViews(processFlags, viewContext);
