@@ -14,7 +14,6 @@
 
 import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
-import {Color} from "@swim/color";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
@@ -371,10 +370,8 @@ export class DrawerView extends HtmlView implements Modal {
     super.onLayout(viewContext);
     this.place(viewContext);
     if (viewContext.viewIdiom === "mobile") {
-      this.borderRightColor.setAutoState(Color.transparent());
       this.boxShadow.setAutoState(this.getLook(Look.shadow, Mood.floating));
     } else {
-      this.borderRightColor.setAutoState(this.getLook(Look.borderColor));
       this.boxShadow.setAutoState(this.getLook(Look.shadow));
     }
   }
@@ -565,12 +562,8 @@ export class DrawerView extends HtmlView implements Modal {
       }
       this.setDisplayState(DrawerView.ShowState);
       if (timing !== false) {
-        if (this.drawerSlide.value !== 1) {
-          this.drawerStretch.setAutoState(1, timing);
-          this.drawerSlide.setAutoState(1, timing);
-        } else {
-          this.drawerStretch.setAutoState(1, timing);
-        }
+        this.drawerStretch.setAutoState(1, timing);
+        this.drawerSlide.setAutoState(1, timing);
       } else {
         this.willShow();
         this.drawerStretch.setAutoState(1);
@@ -624,7 +617,6 @@ export class DrawerView extends HtmlView implements Modal {
         timing = Timing.fromAny(timing);
       }
       this.setDisplayState(DrawerView.HideState);
-      this.modalService.dismissModal(this);
       if (timing !== false) {
         this.drawerSlide.setAutoState(0, timing);
       } else {
@@ -637,6 +629,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   protected willHide(): void {
     this.setDisplayState(DrawerView.HidingState);
+    this.modalService.dismissModal(this);
 
     const viewController = this.viewController;
     if (viewController !== null && viewController.drawerWillHide !== void 0) {
@@ -678,7 +671,6 @@ export class DrawerView extends HtmlView implements Modal {
         timing = Timing.fromAny(timing);
       }
       this.setDisplayState(DrawerView.ExpandState);
-      this.modalService.dismissModal(this);
       if (timing !== false) {
         if (this.drawerStretch.value !== 1) {
           this.drawerSlide.setAutoState(1, timing);
@@ -697,6 +689,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   protected willExpand(): void {
     this.setDisplayState(DrawerView.ExpandingState);
+    this.modalService.dismissModal(this);
 
     const viewController = this.viewController;
     if (viewController !== null && viewController.drawerWillExpand !== void 0) {
@@ -736,7 +729,6 @@ export class DrawerView extends HtmlView implements Modal {
         timing = Timing.fromAny(timing);
       }
       this.setDisplayState(DrawerView.CollapseState);
-      this.modalService.dismissModal(this);
       if (this.drawerSlide.value === 0) {
         this.drawerStretch.setAutoState(0);
       }
@@ -758,6 +750,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   protected willCollapse(): void {
     this.setDisplayState(DrawerView.CollapsingState);
+    this.modalService.dismissModal(this);
 
     const viewController = this.viewController;
     if (viewController !== null && viewController.drawerWillCollapse !== void 0) {

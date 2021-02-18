@@ -218,7 +218,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
     const itemColor = theme.dot(this.highlighted.state ? Look.color : Look.mutedColor, mood);
 
     if (this.backgroundColor.isAuto()) {
-      let backgroundColor = this.getLook(Look.backgroundColor);
+      let backgroundColor = theme.dot(Look.backgroundColor, mood);
       if (backgroundColor !== void 0 && !this.highlighted.state && !this.gesture.isHovering()) {
         backgroundColor = backgroundColor.alpha(0);
       }
