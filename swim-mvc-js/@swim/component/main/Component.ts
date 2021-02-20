@@ -20,6 +20,7 @@ import type {ComponentObserverType, ComponentObserver} from "./ComponentObserver
 import type {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";
 import type {ExecuteService} from "./service/ExecuteService";
 import type {HistoryService} from "./service/HistoryService";
+import type {StorageService} from "./service/StorageService";
 import type {ComponentPropertyConstructor, ComponentProperty} from "./property/ComponentProperty";
 import type {ComponentModelConstructor, ComponentModel} from "./fastener/ComponentModel";
 import type {ComponentTraitConstructor, ComponentTrait} from "./fastener/ComponentTrait";
@@ -322,6 +323,8 @@ export abstract class Component {
   declare readonly executeService: ExecuteService<this>; // defined by ExecuteService
 
   declare readonly historyService: HistoryService<this>; // defined by HistoryService
+
+  declare readonly storageService: StorageService<this>; // defined by StorageService
 
   isMounted(): boolean {
     return (this.componentFlags & Component.MountedFlag) !== 0;

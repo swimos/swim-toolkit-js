@@ -25,6 +25,8 @@ export {
 
 export {ComponentManagerService} from "./ComponentManagerService";
 
+export {ExecuteService} from "./ExecuteService";
+
 export {HistoryService} from "./HistoryService";
 
-export {ExecuteService} from "./ExecuteService";
+export {StorageService} from "./StorageService";

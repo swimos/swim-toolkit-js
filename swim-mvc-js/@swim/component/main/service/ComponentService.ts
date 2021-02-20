@@ -18,9 +18,11 @@ import {ComponentManager} from "../manager/ComponentManager";
 import type {ComponentManagerObserverType} from "../manager/ComponentManagerObserver";
 import {ExecuteManager} from "../execute/ExecuteManager";
 import {HistoryManager} from "../history/HistoryManager";
+import {StorageManager} from "../storage/StorageManager";
 import {ComponentManagerService} from "../"; // forward import
 import {ExecuteService} from "../"; // forward import
 import {HistoryService} from "../"; // forward import
+import {StorageService} from "../"; // forward import
 
 export type ComponentServiceMemberType<C, K extends keyof C> =
   C extends {[P in K]: ComponentService<any, infer T>} ? T : unknown;
@@ -124,6 +126,7 @@ export const ComponentService = function <C extends Component, T>(
 
   <C extends Component, T extends ExecuteManager = ExecuteManager>(descriptor: {type: typeof ExecuteManager} & ComponentServiceDescriptor<C, T, ComponentManagerObserverType<T>>): PropertyDecorator;
   <C extends Component, T extends HistoryManager = HistoryManager>(descriptor: {type: typeof HistoryManager} & ComponentServiceDescriptor<C, T, ComponentManagerObserverType<T>>): PropertyDecorator;
+  <C extends Component, T extends StorageManager = StorageManager>(descriptor: {type: typeof StorageManager} & ComponentServiceDescriptor<C, T, ComponentManagerObserverType<T>>): PropertyDecorator;
   <C extends Component, T extends ComponentManager = ComponentManager>(descriptor: {type: typeof ComponentManager} & ComponentServiceDescriptor<C, T, ComponentManagerObserverType<T>>): PropertyDecorator;
   <C extends Component, T, I = {}>(descriptor: ComponentServiceDescriptorExtends<C, T, I>): PropertyDecorator;
   <C extends Component, T>(descriptor: ComponentServiceDescriptor<C, T>): PropertyDecorator;
@@ -334,6 +337,8 @@ ComponentService.getClass = function (type: unknown): ComponentServiceClass | nu
     return ExecuteService;
   } else if (type === HistoryManager) {
     return HistoryService;
+  } else if (type === StorageManager) {
+    return StorageService;
   } else if (type === ComponentManager) {
     return ComponentManagerService;
   }

@@ -12,35 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ComponentContextType,
-  ComponentContext,
-} from "./ComponentContext";
-export {
-  ComponentFlags,
-  ComponentInit,
-  ComponentPrototype,
-  ComponentConstructor,
-  ComponentClass,
-  Component,
-} from "./Component";
-export {
-  ComponentObserverType,
-  ComponentObserver,
-} from "./ComponentObserver";
+export {StorageManager} from "./StorageManager";
+export {StorageManagerObserver} from "./StorageManagerObserver";
 
-export * from "./manager";
+export {WebStorageManager} from "./WebStorageManager";
 
-export * from "./execute";
-
-export * from "./history";
-
-export * from "./storage";
-
-export * from "./service";
-
-export * from "./property";
-
-export * from "./fastener";
-
-export * from "./generic";
+export {EphemeralStorageManager} from "./EphemeralStorageManager";
