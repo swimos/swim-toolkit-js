@@ -14,7 +14,7 @@
 
 import {__extends} from "tslib";
 import type {Timing} from "@swim/mapping";
-import {Length, Transform} from "@swim/math";
+import {PxLength, Transform} from "@swim/math";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, ViewFactory, ViewConstructor, View, LayoutAnchor} from "@swim/view";
 import {StyleMapInit, StyleMap} from "../style/StyleMap";
@@ -370,19 +370,19 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const node = this.owner.node;
-      const offsetParent = node.offsetParent;
-      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
-                         : node === document.body  ? node.getBoundingClientRect() : null;
-      if (offsetBounds !== null) {
-        const bounds = node.getBoundingClientRect();
-        const newState = bounds.top - offsetBounds.top;
+      const top = this.owner.top.state;
+      if (top instanceof PxLength) {
+        const newState = top.pxValue();
         if (oldState !== newState) {
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
-        return NaN;
+        const newState = this.owner.node.offsetTop;
+        if (oldState !== newState) {
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
       }
     },
     setValue(newValue: number): void {
@@ -395,19 +395,28 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const node = this.owner.node;
-      const offsetParent = node.offsetParent;
-      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
-                         : node === document.body ? node.getBoundingClientRect() : null;
-      if (offsetBounds !== null) {
-        const bounds = node.getBoundingClientRect();
-        const newState = offsetBounds.right + bounds.right;
+      const right = this.owner.right.state;
+      if (right instanceof PxLength) {
+        const newState = right.pxValue();
         if (oldState !== newState) {
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
-        return NaN;
+        const node = this.owner.node;
+        const offsetParent = node.offsetParent;
+        const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                           : node === document.body ? node.getBoundingClientRect() : null;
+        if (offsetBounds !== null) {
+          const bounds = node.getBoundingClientRect();
+          const newState = bounds.right - offsetBounds.right;
+          if (oldState !== newState) {
+            this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          }
+          return newState;
+        } else {
+          return NaN;
+        }
       }
     },
     setValue(newValue: number): void {
@@ -420,19 +429,28 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const node = this.owner.node;
-      const offsetParent = node.offsetParent;
-      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
-                         : node === document.body ? node.getBoundingClientRect() : null;
-      if (offsetBounds !== null) {
-        const bounds = node.getBoundingClientRect();
-        const newState = offsetBounds.bottom + bounds.bottom;
+      const bottom = this.owner.bottom.state;
+      if (bottom instanceof PxLength) {
+        const newState = bottom.pxValue();
         if (oldState !== newState) {
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
-        return NaN;
+        const node = this.owner.node;
+        const offsetParent = node.offsetParent;
+        const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                           : node === document.body ? node.getBoundingClientRect() : null;
+        if (offsetBounds !== null) {
+          const bounds = node.getBoundingClientRect();
+          const newState = bounds.bottom - offsetBounds.bottom;
+          if (oldState !== newState) {
+            this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          }
+          return newState;
+        } else {
+          return NaN;
+        }
       }
     },
     setValue(newValue: number): void {
@@ -445,19 +463,19 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const node = this.owner.node;
-      const offsetParent = node.offsetParent;
-      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
-                         : node === document.body ? node.getBoundingClientRect() : null;
-      if (offsetBounds !== null) {
-        const bounds = node.getBoundingClientRect();
-        const newState = bounds.left - offsetBounds.left;
+      const left = this.owner.left.state;
+      if (left instanceof PxLength) {
+        const newState = left.pxValue();
         if (oldState !== newState) {
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
-        return NaN;
+        const newState = this.owner.node.offsetLeft;
+        if (oldState !== newState) {
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
       }
     },
     setValue(newValue: number): void {
@@ -470,12 +488,20 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const bounds = this.owner.node.getBoundingClientRect();
-      const newState = bounds.width;
-      if (oldState !== newState) {
-        this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+      const width = this.owner.width.state;
+      if (width instanceof PxLength) {
+        const newState = width.pxValue();
+        if (oldState !== newState) {
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
+      } else {
+        const newState = this.owner.node.offsetWidth;
+        if (oldState !== newState) {
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
       }
-      return newState;
     },
     setValue(newValue: number): void {
       this.owner.width.setState(newValue);
@@ -487,12 +513,20 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const bounds = this.owner.node.getBoundingClientRect();
-      const newState = bounds.height;
-      if (oldState !== newState) {
-        this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+      const height = this.owner.height.state;
+      if (height instanceof PxLength) {
+        const newState = height.pxValue();
+        if (oldState !== newState) {
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
+      } else {
+        const newState = this.owner.node.offsetHeight;
+        if (oldState !== newState) {
+          this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+        }
+        return newState;
       }
-      return newState;
     },
     setValue(newValue: number): void {
       this.owner.height.setState(newValue);
@@ -504,19 +538,29 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const node = this.owner.node;
-      const offsetParent = node.offsetParent;
-      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
-                         : node === document.body ? node.getBoundingClientRect() : null;
-      if (offsetBounds !== null) {
-        const bounds = node.getBoundingClientRect();
-        const newState = bounds.left + 0.5 * bounds.width - offsetBounds.left;
+      const left = this.owner.left.state;
+      const width = this.owner.width.state;
+      if (left instanceof PxLength && width instanceof PxLength) {
+        const newState = left.pxValue() + 0.5 * width.pxValue();
         if (oldState !== newState) {
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
-        return NaN;
+        const node = this.owner.node;
+        const offsetParent = node.offsetParent;
+        const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                           : node === document.body ? node.getBoundingClientRect() : null;
+        if (offsetBounds !== null) {
+          const bounds = node.getBoundingClientRect();
+          const newState = bounds.left + 0.5 * bounds.width - offsetBounds.left;
+          if (oldState !== newState) {
+            this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          }
+          return newState;
+        } else {
+          return NaN;
+        }
       }
     },
     setValue(newValue: number): void {
@@ -548,19 +592,29 @@ export class HtmlView extends ElementView {
   @LayoutAnchor<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
-      const node = this.owner.node;
-      const offsetParent = node.offsetParent;
-      const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
-                         : node === document.body ? node.getBoundingClientRect() : null;
-      if (offsetBounds !== null) {
-        const bounds = node.getBoundingClientRect();
-        const newState = bounds.top + 0.5 * bounds.height - offsetBounds.top;
+      const top = this.owner.top.state;
+      const height = this.owner.height.state;
+      if (top instanceof PxLength && height instanceof PxLength) {
+        const newState = top.pxValue() + 0.5 * height.pxValue();
         if (oldState !== newState) {
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
         }
         return newState;
       } else {
-        return NaN;
+        const node = this.owner.node;
+        const offsetParent = node.offsetParent;
+        const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                           : node === document.body ? node.getBoundingClientRect() : null;
+        if (offsetBounds !== null) {
+          const bounds = node.getBoundingClientRect();
+          const newState = bounds.top + 0.5 * bounds.height - offsetBounds.top;
+          if (oldState !== newState) {
+            this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
+          }
+          return newState;
+        } else {
+          return NaN;
+        }
       }
     },
     setValue(newValue: number): void {
@@ -593,7 +647,7 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const marginTop = this.owner.marginTop.value;
-      return marginTop instanceof Length ? marginTop.pxValue() : NaN;
+      return marginTop instanceof PxLength ? marginTop.pxValue() : NaN;
     },
     setValue(newValue: number): void {
       this.owner.marginTop.setState(newValue);
@@ -605,7 +659,7 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const marginRight = this.owner.marginRight.value;
-      return marginRight instanceof Length ? marginRight.pxValue() : NaN;
+      return marginRight instanceof PxLength ? marginRight.pxValue() : NaN;
     },
     setValue(newValue: number): void {
       this.owner.marginRight.setState(newValue);
@@ -617,7 +671,7 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const marginBottom = this.owner.marginBottom.value;
-      return marginBottom instanceof Length ? marginBottom.pxValue() : NaN;
+      return marginBottom instanceof PxLength ? marginBottom.pxValue() : NaN;
     },
     setValue(newValue: number): void {
       this.owner.marginBottom.setState(newValue);
@@ -629,7 +683,7 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const marginLeft = this.owner.marginLeft.value;
-      return marginLeft instanceof Length ? marginLeft.pxValue() : NaN;
+      return marginLeft instanceof PxLength ? marginLeft.pxValue() : NaN;
     },
     setValue(newValue: number): void {
       this.owner.marginLeft.setState(newValue);
@@ -641,7 +695,7 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const paddingTop = this.owner.paddingTop.value;
-      return paddingTop instanceof Length ? paddingTop.pxValue() : NaN;
+      return paddingTop instanceof PxLength ? paddingTop.pxValue() : NaN;
     },
     setValue(newValue: number): void {
       this.owner.paddingTop.setState(newValue);
@@ -653,7 +707,7 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const paddingRight = this.owner.paddingRight.value;
-      return paddingRight instanceof Length ? paddingRight.pxValue() : NaN;
+      return paddingRight instanceof PxLength ? paddingRight.pxValue() : NaN;
     },
     setValue(newValue: number): void {
       this.owner.paddingRight.setState(newValue);
@@ -665,7 +719,7 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const paddingBottom = this.owner.paddingBottom.value;
-      return paddingBottom instanceof Length ? paddingBottom.pxValue() : NaN;
+      return paddingBottom instanceof PxLength ? paddingBottom.pxValue() : NaN;
     },
     setValue(newValue: number): void {
       this.owner.paddingBottom.setState(newValue);
@@ -677,7 +731,7 @@ export class HtmlView extends ElementView {
     strength: "strong",
     getState(oldState: number): number {
       const paddingLeft = this.owner.paddingLeft.value;
-      return paddingLeft instanceof Length ? paddingLeft.pxValue() : NaN;
+      return paddingLeft instanceof PxLength ? paddingLeft.pxValue() : NaN;
     },
     setValue(newValue: number): void {
       this.owner.paddingLeft.setState(newValue);

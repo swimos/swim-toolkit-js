@@ -178,30 +178,58 @@ export class MapboxView extends MapLayerView implements MapView {
                       bounds.getEast(), bounds.getNorth());
   }
 
+  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+    if ((processFlags & View.NeedsResize) !== 0) {
+      processFlags |= View.NeedsProject;
+    }
+    return processFlags;
+  }
+
   protected onMapRender(): void {
     const map = this.map;
+    let needsProject = false;
+    const oldMapCenter = this.mapCenter;
     const center = map.getCenter();
-    Object.defineProperty(this, "mapCenter", {
-      value: new GeoPoint(center.lng, center.lat),
-      enumerable: true,
-      configurable: true,
-    });
-    Object.defineProperty(this, "mapZoom", {
-      value: map.getZoom(),
-      enumerable: true,
-      configurable: true,
-    });
-    Object.defineProperty(this, "mapHeading", {
-      value: map.getBearing(),
-      enumerable: true,
-      configurable: true,
-    });
-    Object.defineProperty(this, "mapTilt", {
-      value: map.getPitch(),
-      enumerable: true,
-      configurable: true,
-    });
-    if (!this.isHidden() && !this.isCulled()) {
+    const newMapCenter = new GeoPoint(center.lng, center.lat);
+    if (!oldMapCenter.equals(newMapCenter)) {
+      Object.defineProperty(this, "mapCenter", {
+        value: newMapCenter,
+        enumerable: true,
+        configurable: true,
+      });
+      needsProject = true;
+    }
+    const oldMapZoom = this.mapZoom;
+    const newMapZoom = map.getZoom();
+    if (oldMapZoom !== newMapZoom) {
+      Object.defineProperty(this, "mapZoom", {
+        value: newMapZoom,
+        enumerable: true,
+        configurable: true,
+      });
+      needsProject = true;
+    }
+    const oldMapHeading = this.mapHeading;
+    const newMapHeading = map.getBearing();
+    if (oldMapHeading !== newMapHeading) {
+      Object.defineProperty(this, "mapHeading", {
+        value: newMapHeading,
+        enumerable: true,
+        configurable: true,
+      });
+      needsProject = true;
+    }
+    const oldMapTilt = this.mapTilt;
+    const newMapTilt = map.getPitch();
+    if (oldMapTilt !== newMapTilt) {
+      Object.defineProperty(this, "mapTilt", {
+        value: newMapTilt,
+        enumerable: true,
+        configurable: true,
+      });
+      needsProject = true;
+    }
+    if (needsProject && !this.isHidden() && !this.isCulled()) {
       this.requireUpdate(View.NeedsProject, true);
     }
   }

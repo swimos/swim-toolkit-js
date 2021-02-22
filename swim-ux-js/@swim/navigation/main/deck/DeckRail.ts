@@ -22,12 +22,13 @@ export interface DeckRailInit {
   width?: AnyLength | null;
   left?: AnyLength | null;
   right?: AnyLength | null;
+  spacing?: AnyLength | null;
   posts?: AnyDeckPost[];
 }
 
 export class DeckRail implements Equals, Equivalent {
   constructor(width: Length | null, left: Length | null, right: Length | null,
-              posts: ReadonlyArray<DeckPost>) {
+              spacing: Length | null, posts: ReadonlyArray<DeckPost>) {
     Object.defineProperty(this, "width", {
       value: width,
       enumerable: true,
@@ -38,6 +39,10 @@ export class DeckRail implements Equals, Equivalent {
     });
     Object.defineProperty(this, "right", {
       value: right,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "spacing", {
+      value: spacing,
       enumerable: true,
     });
     Object.defineProperty(this, "posts", {
@@ -51,6 +56,8 @@ export class DeckRail implements Equals, Equivalent {
   declare readonly left: Length | null;
 
   declare readonly right: Length | null;
+
+  declare readonly spacing: Length | null;
 
   declare readonly posts: ReadonlyArray<DeckPost>;
 
@@ -83,8 +90,9 @@ export class DeckRail implements Equals, Equivalent {
     return null;
   }
 
-  resized(width: number, left?: AnyLength | null, right?: AnyLength | null,
-          spacing: number = 0): DeckRail {
+  resized(width: AnyLength, left?: AnyLength | null, right?: AnyLength | null,
+          spacing?: AnyLength | null): DeckRail {
+    width = Length.fromAny(width);
     if (left === void 0) {
       left = this.left;
     } else if (left !== null) {
@@ -95,65 +103,77 @@ export class DeckRail implements Equals, Equivalent {
     } else if (right !== null) {
       right = Length.fromAny(right);
     }
-    const oldPosts = this.posts;
-    const postCount = oldPosts.length;
-    const newPosts = new Array<DeckPost>(postCount);
-    const x0 = left !== null ? left.pxValue(width) : 0;
-    const x1 = right !== null ? right.pxValue(width) : 0;
-
-    let grow = 0;
-    let shrink = 0;
-    let basis = x0 + x1;
-    let x = x0;
-    for (let i = 0; i < postCount; i += 1) {
-      if (i !== 0) {
-        basis += spacing;
-        x += spacing;
-      }
-      const post = oldPosts[i]!;
-      const postWidth = post.basis.pxValue(width);
-      newPosts[i] = post.resized(postWidth, x, width - postWidth - x);
-      grow += post.grow;
-      shrink += post.shrink;
-      basis += postWidth;
-      x += postWidth;
+    if (spacing === void 0) {
+      spacing = this.spacing;
+    } else if (spacing !== null) {
+      spacing = Length.fromAny(spacing);
     }
+    if (Equals(this.width, width) && Equals(this.left, left) &&
+        Equals(this.right, right) && Equals(this.spacing, spacing)) {
+      return this;
+    } else {
+      const oldPosts = this.posts;
+      const postCount = oldPosts.length;
+      const newPosts = new Array<DeckPost>(postCount);
+      const railWidth = width.pxValue();
+      const railLeft = left !== null ? left.pxValue(railWidth) : 0;
+      const railRight = right !== null ? right.pxValue(railWidth) : 0;
+      const postSpacing = spacing !== null ? spacing.pxValue(railWidth) : 0;
 
-    if (basis < width && grow > 0) {
-      const delta = width - basis;
-      let x = x0;
-      let j = 0;
+      let grow = 0;
+      let shrink = 0;
+      let basis = railLeft + railRight;
+      let x = railLeft;
       for (let i = 0; i < postCount; i += 1) {
-        const post = newPosts[i]!;
-        if (j !== 0) {
-          basis += spacing;
-          x += spacing;
+        if (i !== 0) {
+          basis += postSpacing;
+          x += postSpacing;
         }
-        const postBasis = post.basis.pxValue(width);
-        const postWidth = postBasis + delta * (post.grow / grow);
-        newPosts[i] = post.resized(postWidth, x, width - postWidth - x);
+        const post = oldPosts[i]!;
+        const postWidth = post.basis.pxValue(railWidth);
+        newPosts[i] = post.resized(postWidth, x, railWidth - postWidth - x);
+        grow += post.grow;
+        shrink += post.shrink;
+        basis += postWidth;
         x += postWidth;
-        j += 1;
       }
-    } else if (basis > width && shrink > 0) {
-      const delta = basis - width;
-      let x = x0;
-      let j = 0;
-      for (let i = 0; i < postCount; i += 1) {
-        const post = newPosts[i]!;
-        if (j !== 0) {
-          basis += spacing;
-          x += spacing;
+
+      if (basis < railWidth && grow > 0) {
+        const delta = railWidth - basis;
+        let x = railLeft;
+        let j = 0;
+        for (let i = 0; i < postCount; i += 1) {
+          const post = newPosts[i]!;
+          if (j !== 0) {
+            basis += postSpacing;
+            x += postSpacing;
+          }
+          const postBasis = post.basis.pxValue(railWidth);
+          const postWidth = postBasis + delta * (post.grow / grow);
+          newPosts[i] = post.resized(postWidth, x, railWidth - postWidth - x);
+          x += postWidth;
+          j += 1;
         }
-        const postBasis = post.basis.pxValue(width);
-        const postWidth = postBasis - delta * (post.shrink / shrink);
-        newPosts[i] = post.resized(postWidth, x, width - postWidth - x);
-        x += postWidth;
-        j += 1;
+      } else if (basis > railWidth && shrink > 0) {
+        const delta = basis - railWidth;
+        let x = railLeft;
+        let j = 0;
+        for (let i = 0; i < postCount; i += 1) {
+          const post = newPosts[i]!;
+          if (j !== 0) {
+            basis += postSpacing;
+            x += postSpacing;
+          }
+          const postBasis = post.basis.pxValue(railWidth);
+          const postWidth = postBasis - delta * (post.shrink / shrink);
+          newPosts[i] = post.resized(postWidth, x, railWidth - postWidth - x);
+          x += postWidth;
+          j += 1;
+        }
       }
+
+      return new DeckRail(width, left, right, spacing, newPosts);
     }
-
-    return new DeckRail(Length.px(width), left, right, newPosts);
   }
 
   equivalentTo(that: unknown, epsilon?: number): boolean {
@@ -180,7 +200,8 @@ export class DeckRail implements Equals, Equivalent {
       return true;
     } else if (that instanceof DeckRail) {
       return Equals(this.width, that.width) && Equals(this.left, that.left)
-          && Equals(this.right, that.right) && Arrays.equal(this.posts, that.posts);
+          && Equals(this.right, that.right) && Equals(this.spacing, that.spacing)
+          && Arrays.equal(this.posts, that.posts);
     }
     return false;
   }
@@ -191,11 +212,11 @@ export class DeckRail implements Equals, Equivalent {
     for (let i = 0; i < n; i += 1) {
       posts[i] = DeckPost.fromAny(deckPosts[i]!);
     }
-    return new DeckRail(null, null, null, posts);
+    return new DeckRail(null, null, null, null, posts);
   }
 
   static create(posts: ReadonlyArray<DeckPost>): DeckRail {
-    return new DeckRail(null, null, null, posts);
+    return new DeckRail(null, null, null, null, posts);
   }
 
   static fromAny(value: AnyDeckRail): DeckRail {
@@ -212,19 +233,25 @@ export class DeckRail implements Equals, Equivalent {
     if (width !== void 0 && width !== null) {
       width = Length.fromAny(width);
     } else {
-      width = null
+      width = null;
     }
     let left = init.left;
     if (left !== void 0 && left !== null) {
       left = Length.fromAny(left);
     } else {
-      left = null
+      left = null;
     }
     let right = init.right;
     if (right !== void 0 && right !== null) {
       right = Length.fromAny(right);
     } else {
-      right = null
+      right = null;
+    }
+    let spacing = init.spacing;
+    if (spacing !== void 0 && spacing !== null) {
+      spacing = Length.fromAny(spacing);
+    } else {
+      spacing = null;
     }
     let posts: DeckPost[];
     if (init.posts !== void 0) {
@@ -236,6 +263,6 @@ export class DeckRail implements Equals, Equivalent {
     } else {
       posts = [];
     }
-    return new DeckRail(width, left, right, posts);
+    return new DeckRail(width, left, right, spacing, posts);
   }
 }

@@ -893,12 +893,6 @@ export class CanvasView extends HtmlView {
     return displayFlags;
   }
 
-  protected onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
-    this.resizeCanvas(this.node);
-    this.resetRenderer();
-  }
-
   /** @hidden */
   protected doDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     let cascadeFlags = displayFlags;

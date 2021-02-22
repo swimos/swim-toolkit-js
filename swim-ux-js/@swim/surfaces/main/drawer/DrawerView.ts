@@ -199,18 +199,18 @@ export class DrawerView extends HtmlView implements Modal {
 
   get effectiveWidth(): Length {
     const width = this.width.value;
-    if (this.placement === "left") {
-      const left = this.left.value;
-      if (width instanceof Length && left instanceof Length) {
-        return width.plus(left);
-      }
-    } else if (this.placement === "right") {
-      const right = this.left.value;
-      if (width instanceof Length && right instanceof Length) {
-        return width.plus(right);
-      }
-    }
     if (width instanceof Length) {
+      if (this.placement === "left") {
+        const left = this.left.value;
+        if (left instanceof Length) {
+          return width.plus(left);
+        }
+      } else if (this.placement === "right") {
+        const right = this.right.value;
+        if (right instanceof Length) {
+          return width.plus(right);
+        }
+      }
       return width;
     } else {
       return Length.px(this.clientBounds.width);
@@ -219,18 +219,18 @@ export class DrawerView extends HtmlView implements Modal {
 
   get effectiveHeight(): Length {
     const height = this.height.value;
-    if (this.placement === "top") {
-      const top = this.top.value;
-      if (height instanceof Length && top instanceof Length) {
-        return height.plus(top);
-      }
-    } else if (this.placement === "bottom") {
-      const bottom = this.bottom.value;
-      if (height instanceof Length && bottom instanceof Length) {
-        return height.plus(bottom);
-      }
-    }
     if (height instanceof Length) {
+      if (this.placement === "top") {
+        const top = this.top.value;
+        if (top instanceof Length) {
+          return height.plus(top);
+        }
+      } else if (this.placement === "bottom") {
+        const bottom = this.bottom.value;
+        if (bottom instanceof Length) {
+          return height.plus(bottom);
+        }
+      }
       return height;
     } else {
       return Length.px(this.clientBounds.height);
@@ -288,22 +288,30 @@ export class DrawerView extends HtmlView implements Modal {
 
   /** @hidden */
   protected updateDrawerSlideTop(drawerSlide: number): void {
-    this.top.setAutoState(Length.px((drawerSlide - 1) * this.node.offsetHeight));
+    let height: Length | string | number | undefined = this.height.value;
+    height = height instanceof Length ? height.pxValue() : this.node.offsetHeight;
+    this.top.setAutoState(Length.px((drawerSlide - 1) * height));
   }
 
   /** @hidden */
   protected updateDrawerSlideRight(drawerSlide: number): void {
-    this.right.setAutoState(Length.px((drawerSlide - 1) * this.node.offsetWidth));
+    let width: Length | string | number | undefined = this.width.value;
+    width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
+    this.right.setAutoState(Length.px((drawerSlide - 1) * width));
   }
 
   /** @hidden */
   protected updateDrawerSlideBottom(drawerSlide: number): void {
-    this.bottom.setAutoState(Length.px((drawerSlide - 1) * this.node.offsetHeight));
+    let height: Length | string | number | undefined = this.height.value;
+    height = height instanceof Length ? height.pxValue() : this.node.offsetHeight;
+    this.bottom.setAutoState(Length.px((drawerSlide - 1) * height));
   }
 
   /** @hidden */
   protected updateDrawerSlideLeft(drawerSlide: number): void {
-    this.left.setAutoState(Length.px((drawerSlide - 1) * this.node.offsetWidth));
+    let width: Length | string | number | undefined = this.width.value;
+    width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
+    this.left.setAutoState(Length.px((drawerSlide - 1) * width));
   }
 
   /** @hidden */

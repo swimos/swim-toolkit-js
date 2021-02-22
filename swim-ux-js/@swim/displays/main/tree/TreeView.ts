@@ -461,17 +461,14 @@ export class TreeView extends HtmlView {
                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                 viewContext: ViewContextType<this>) => void): void {
     this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
-    const disclosingPhase = this.disclosingPhase.getValueOr(1);
-    let seed = this.seed.state;
-    if (seed !== void 0 && seed.width === null) {
-      this.resizeTree();
-      seed = this.seed.state;
-    }
+    this.resizeTree();
+    const seed = this.seed.state;
     let width: Length | undefined;
     if (seed !== void 0 && seed.width !== null) {
       width = seed.width;
     }
     let y = this.limbSpacing.getState();
+    const disclosingPhase = this.disclosingPhase.getValueOr(1);
     const visibleViews = this.visibleViews;
     visibleViews.length = 0;
     const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
