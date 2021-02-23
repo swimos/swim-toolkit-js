@@ -194,7 +194,7 @@ TraitFastener.prototype.doSetTrait = function <S extends Trait>(this: TraitFaste
   if (oldTrait !== newTrait) {
     this.willSetOwnTrait(newTrait, oldTrait);
     this.willSetTrait(newTrait, oldTrait);
-    Object.defineProperty(this, "model", {
+    Object.defineProperty(this, "trait", {
       value: newTrait,
       enumerable: true,
       configurable: true,
