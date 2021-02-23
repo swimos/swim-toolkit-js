@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Color} from "@swim/color";
+import type {Look} from "@swim/theme";
 import {ViewProperty, ViewAnimator} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {AnyDeckPost, DeckPost} from "./DeckPost";
@@ -38,4 +40,6 @@ export abstract class DeckSlot extends HtmlView {
   abstract deckPhase: ViewAnimator<this, number | undefined>;
 
   abstract slotAlign: ViewAnimator<this, number>;
+
+  abstract readonly colorLook: Look<Color>;
 }

@@ -14,6 +14,7 @@
 
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Length} from "@swim/math";
+import type {Color} from "@swim/color";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewContext, View, ViewAnimator, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
@@ -42,6 +43,10 @@ export class DeckSlider extends DeckSlot {
 
   @ViewAnimator({type: Number, state: 0.5})
   declare slotAlign: ViewAnimator<this, number>;
+
+  get colorLook(): Look<Color> {
+    return Look.color;
+  }
 
   /** @hidden */
   itemCount: number;
@@ -226,7 +231,7 @@ export abstract class DeckSliderItem<V extends DeckSlider, S extends HtmlView> e
   protected viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                               timing: Timing | boolean, itemView: S): void {
     if (itemView.color.isAuto()) {
-      itemView.color.setAutoState(theme.dot(Look.color, mood), timing);
+      itemView.color.setAutoState(theme.dot(this.owner.colorLook, mood), timing);
     }
   }
 

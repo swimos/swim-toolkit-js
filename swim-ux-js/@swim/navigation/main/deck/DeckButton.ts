@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyTiming, Timing, Interpolator} from "@swim/mapping";
+import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
-import {Color} from "@swim/color";
+import type {Color} from "@swim/color";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType,ViewContext, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
@@ -49,6 +49,10 @@ export class DeckButton extends DeckSlot {
 
   @ViewAnimator({type: Number, state: 0})
   declare slotAlign: ViewAnimator<this, number>;
+
+  get colorLook(): Look<Color> {
+    return Look.accentColor;
+  }
 
   declare closeIcon: DeckButtonCloseIcon<this, SvgIconView>; // defined by DeckButtonCloseIcon
 
@@ -302,6 +306,7 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
     let iconOpacity: number | undefined;
     if (deckPhase <= 1) {
       iconOpacity = 0;
+      iconView.iconColor.setAutoState(void 0)
     } else if (labelView !== null && deckPhase < 2) {
       const parentView = this.owner.parentView;
       const nextPost = this.owner.nextPost.state;
@@ -333,6 +338,13 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
       const labelSlotSpace = slotWidth - iconLeft - iconWidth + (nextSlotWidth - labelWidth) * nextSlotAlign;
       iconLeft += (labelSlotSpace * (1 - labelPhase) + labelSlotSpace * slotAlign * labelPhase);
       iconOpacity = labelPhase;
+      const nextColor = nextSlot instanceof DeckSlot ? nextSlot.getLook(nextSlot.colorLook) : void 0;
+      const thisColor = this.owner.getLook(this.owner.colorLook);
+      if (nextColor !== void 0 && thisColor !== void 0) {
+        iconView.iconColor.setAutoState(nextColor.interpolateTo(thisColor)(labelPhase));
+      } else {
+        iconView.iconColor.setAutoState(thisColor);
+      }
     }
     iconView.setStyle("left", iconLeft + "px");
     iconView.setStyle("top", iconTop + "px");
@@ -348,7 +360,6 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
     super(owner, fastenerName);
     this.labelIndex = 0;
     this.labelWidth = void 0;
-    this.colorInterpolator = null;
     this.layoutWidth = 0;
   }
 
@@ -356,9 +367,6 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
 
   /** @hidden */
   labelWidth: Length | string | undefined;
-
-  /** @hidden */
-  colorInterpolator: Interpolator<Color> | null;
 
   /** @hidden */
   layoutWidth: number;
@@ -378,7 +386,7 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
   protected viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                               timing: Timing | boolean, labelView: S): void {
     if (labelView.color.isAuto()) {
-      labelView.color.setAutoState(theme.dot(Look.accentColor, mood), timing);
+      labelView.color.setAutoState(theme.dot(this.owner.colorLook, mood), timing);
     }
   }
 
@@ -389,13 +397,6 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
   protected initLabel(labelView: S): void {
     labelView.position.setAutoState("absolute");
     labelView.pointerEvents.setAutoState("none");
-
-    const labelColor = labelView.color.state;
-    if (labelColor instanceof Color) {
-      this.colorInterpolator = Interpolator(labelColor, labelView.getLookOr(Look.accentColor, labelColor));
-    } else {
-      this.colorInterpolator = null;
-    }
   }
 
   protected layoutLabel(labelView: S): void {
@@ -479,9 +480,12 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
       labelView.left.setAutoState(iconLeft + iconWidth + (labelSlotSpace * (1 - labelPhase) + labelSlotSpace * slotAlign * labelPhase));
       labelView.top.setAutoState(iconTop);
       labelView.height.setAutoState(iconHeight);
-      const colorInterpolator = this.colorInterpolator;
-      if (colorInterpolator !== null) {
-        labelView.color.setAutoState(colorInterpolator(labelPhase));
+      const nextColor = nextSlot instanceof DeckSlot ? nextSlot.getLook(nextSlot.colorLook) : void 0;
+      const thisColor = this.owner.getLook(this.owner.colorLook);
+      if (nextColor !== void 0 && thisColor !== void 0) {
+        labelView.color.setAutoState(nextColor.interpolateTo(thisColor)(labelPhase));
+      } else {
+        labelView.color.setAutoState(thisColor);
       }
       labelView.opacity.setAutoState(1);
       labelView.setCulled(false);
