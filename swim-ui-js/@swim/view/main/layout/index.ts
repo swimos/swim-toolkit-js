@@ -13,13 +13,13 @@
 // limitations under the License.
 
 export {
-  LayoutAnchorInit,
-  LayoutAnchorDescriptor,
-  LayoutAnchorDescriptorExtends,
-  LayoutAnchorConstructor,
-  LayoutAnchorClass,
-  LayoutAnchor,
-} from "./LayoutAnchor";
+  LayoutConstraintInit,
+  LayoutConstraintDescriptor,
+  LayoutConstraintDescriptorExtends,
+  LayoutConstraintConstructor,
+  LayoutConstraintClass,
+  LayoutConstraint,
+} from "./LayoutConstraint";
 
 export {LayoutSolver} from "./LayoutSolver";
 

@@ -16,8 +16,8 @@ import {__extends} from "tslib";
 import {ConstrainVariable, AnyConstraintStrength, ConstraintStrength} from "@swim/constraint";
 import {View} from "../View";
 
-export interface LayoutAnchorInit {
-  extends?: LayoutAnchorClass;
+export interface LayoutConstraintInit {
+  extends?: LayoutConstraintClass;
   value?: number;
   strength?: AnyConstraintStrength;
   constrained?: boolean;
@@ -27,20 +27,20 @@ export interface LayoutAnchorInit {
   initValue?(): number;
 }
 
-export type LayoutAnchorDescriptor<V extends View, I = {}> = LayoutAnchorInit & ThisType<LayoutAnchor<V> & I> & I;
+export type LayoutConstraintDescriptor<V extends View, I = {}> = LayoutConstraintInit & ThisType<LayoutConstraint<V> & I> & I;
 
-export type LayoutAnchorDescriptorExtends<V extends View, I = {}> = {extends: LayoutAnchorClass | undefined} & LayoutAnchorDescriptor<V, I>;
+export type LayoutConstraintDescriptorExtends<V extends View, I = {}> = {extends: LayoutConstraintClass | undefined} & LayoutConstraintDescriptor<V, I>;
 
-export interface LayoutAnchorConstructor<V extends View, I = {}> {
-  new(owner: V, anchorName: string | undefined): LayoutAnchor<V> & I;
-  prototype: LayoutAnchor<any> & I;
+export interface LayoutConstraintConstructor<V extends View, I = {}> {
+  new(owner: V, constraintName: string | undefined): LayoutConstraint<V> & I;
+  prototype: LayoutConstraint<any> & I;
 }
 
-export interface LayoutAnchorClass extends Function {
-  readonly prototype: LayoutAnchor<any>;
+export interface LayoutConstraintClass extends Function {
+  readonly prototype: LayoutConstraint<any>;
 }
 
-export interface LayoutAnchor<V extends View> extends ConstrainVariable {
+export interface LayoutConstraint<V extends View> extends ConstrainVariable {
   (): number;
   (state: number): V;
 
@@ -76,36 +76,36 @@ export interface LayoutAnchor<V extends View> extends ConstrainVariable {
   initValue(): number;
 }
 
-export const LayoutAnchor = function <V extends View>(
-    this: LayoutAnchor<V> | typeof LayoutAnchor,
-    owner: V | LayoutAnchorDescriptor<V>,
-    anchorName?: string,
-  ): LayoutAnchor<V> | PropertyDecorator {
-  if (this instanceof LayoutAnchor) { // constructor
-    return LayoutAnchorConstructor.call(this, owner as V, anchorName);
+export const LayoutConstraint = function <V extends View>(
+    this: LayoutConstraint<V> | typeof LayoutConstraint,
+    owner: V | LayoutConstraintDescriptor<V>,
+    constraintName?: string,
+  ): LayoutConstraint<V> | PropertyDecorator {
+  if (this instanceof LayoutConstraint) { // constructor
+    return LayoutConstraintConstructor.call(this, owner as V, constraintName);
   } else { // decorator factory
-    return LayoutAnchorDecoratorFactory(owner as LayoutAnchorDescriptor<V>);
+    return LayoutConstraintDecoratorFactory(owner as LayoutConstraintDescriptor<V>);
   }
 } as {
   /** @hidden */
-  new<V extends View>(owner: V, anchorName: string | undefined): LayoutAnchor<V>
+  new<V extends View>(owner: V, constraintName: string | undefined): LayoutConstraint<V>
 
-  <V extends View, I = {}>(descriptor: LayoutAnchorDescriptorExtends<V, I>): PropertyDecorator;
-  <V extends View>(descriptor: LayoutAnchorDescriptor<V>): PropertyDecorator;
+  <V extends View, I = {}>(descriptor: LayoutConstraintDescriptorExtends<V, I>): PropertyDecorator;
+  <V extends View>(descriptor: LayoutConstraintDescriptor<V>): PropertyDecorator;
 
   /** @hidden */
-  prototype: LayoutAnchor<any>;
+  prototype: LayoutConstraint<any>;
 
-  define<V extends View, I = {}>(descriptor: LayoutAnchorDescriptorExtends<V, I>): LayoutAnchorConstructor<V, I>;
-  define<V extends View>(descriptor: LayoutAnchorDescriptor<V>): LayoutAnchorConstructor<V>;
+  define<V extends View, I = {}>(descriptor: LayoutConstraintDescriptorExtends<V, I>): LayoutConstraintConstructor<V, I>;
+  define<V extends View>(descriptor: LayoutConstraintDescriptor<V>): LayoutConstraintConstructor<V>;
 };
-__extends(LayoutAnchor, ConstrainVariable);
+__extends(LayoutConstraint, ConstrainVariable);
 
-function LayoutAnchorConstructor<V extends View>(this: LayoutAnchor<V>, owner: V, anchorName: string | undefined): LayoutAnchor<V> {
-  const _this: LayoutAnchor<V> = (ConstrainVariable as Function).call(this) || this;
-  if (anchorName !== void 0) {
+function LayoutConstraintConstructor<V extends View>(this: LayoutConstraint<V>, owner: V, constraintName: string | undefined): LayoutConstraint<V> {
+  const _this: LayoutConstraint<V> = (ConstrainVariable as Function).call(this) || this;
+  if (constraintName !== void 0) {
     Object.defineProperty(_this, "name", {
-      value: anchorName,
+      value: constraintName,
       enumerable: true,
       configurable: true,
     });
@@ -137,11 +137,11 @@ function LayoutAnchorConstructor<V extends View>(this: LayoutAnchor<V>, owner: V
   return _this;
 }
 
-function LayoutAnchorDecoratorFactory<V extends View>(descriptor: LayoutAnchorDescriptor<V>): PropertyDecorator {
-  return View.decorateLayoutAnchor.bind(View, LayoutAnchor.define<View>(descriptor));
+function LayoutConstraintDecoratorFactory<V extends View>(descriptor: LayoutConstraintDescriptor<V>): PropertyDecorator {
+  return View.decorateLayoutConstraint.bind(View, LayoutConstraint.define<View>(descriptor));
 }
 
-LayoutAnchor.prototype.updateValue = function (newValue: number): void {
+LayoutConstraint.prototype.updateValue = function (newValue: number): void {
   const oldValue = this.value;
   if (oldValue !== newValue) {
     Object.defineProperty(this, "value", {
@@ -155,7 +155,7 @@ LayoutAnchor.prototype.updateValue = function (newValue: number): void {
   }
 };
 
-LayoutAnchor.prototype.setState = function (newState: number): void {
+LayoutConstraint.prototype.setState = function (newState: number): void {
   const oldState = this.state;
   if (isFinite(oldState) && !isFinite(newState)) {
     this.owner.removeConstraintVariable(this);
@@ -174,7 +174,7 @@ LayoutAnchor.prototype.setState = function (newState: number): void {
   }
 };
 
-LayoutAnchor.prototype.updateState = function (): void {
+LayoutConstraint.prototype.updateState = function (): void {
   if (!this.constrained && this.getState !== void 0) {
     const oldState = this.state;
     const newState = this.getState(oldState);
@@ -182,7 +182,7 @@ LayoutAnchor.prototype.updateState = function (): void {
   }
 };
 
-LayoutAnchor.prototype.setStrength = function (newStrength: AnyConstraintStrength): void {
+LayoutConstraint.prototype.setStrength = function (newStrength: AnyConstraintStrength): void {
   const state = this.state;
   const oldStrength = this.strength;
   newStrength = ConstraintStrength.fromAny(newStrength);
@@ -199,7 +199,7 @@ LayoutAnchor.prototype.setStrength = function (newStrength: AnyConstraintStrengt
   }
 };
 
-LayoutAnchor.prototype.setConstrained = function (constrained: boolean): void {
+LayoutConstraint.prototype.setConstrained = function (constrained: boolean): void {
   Object.defineProperty(this, "constrained", {
     value: constrained,
     enumerable: true,
@@ -207,11 +207,11 @@ LayoutAnchor.prototype.setConstrained = function (constrained: boolean): void {
   });
 };
 
-LayoutAnchor.prototype.initValue = function (): number {
+LayoutConstraint.prototype.initValue = function (): number {
   return NaN;
 };
 
-LayoutAnchor.define = function <V extends View, I>(descriptor: LayoutAnchorDescriptor<V, I>): LayoutAnchorConstructor<V, I> {
+LayoutConstraint.define = function <V extends View, I>(descriptor: LayoutConstraintDescriptor<V, I>): LayoutConstraintConstructor<V, I> {
   let _super = descriptor.extends;
   const value = descriptor.value;
   const strength = descriptor.strength;
@@ -223,11 +223,11 @@ LayoutAnchor.define = function <V extends View, I>(descriptor: LayoutAnchorDescr
   delete descriptor.constrained;
 
   if (_super === void 0) {
-    _super = LayoutAnchor;
+    _super = LayoutConstraint;
   }
 
-  const _constructor = function DecoratedLayoutAnchor(this: LayoutAnchor<V>, owner: V, anchorName: string | undefined): LayoutAnchor<V> {
-    let _this: LayoutAnchor<V> = function LayoutAnchorAccessor(state?: number): number | V {
+  const _constructor = function DecoratedLayoutConstraint(this: LayoutConstraint<V>, owner: V, constraintName: string | undefined): LayoutConstraint<V> {
+    let _this: LayoutConstraint<V> = function LayoutConstraintAccessor(state?: number): number | V {
       if (state === void 0) {
         return _this.state;
       } else {
@@ -235,13 +235,13 @@ LayoutAnchor.define = function <V extends View, I>(descriptor: LayoutAnchorDescr
         _this.setState(state);
         return _this.owner;
       }
-    } as LayoutAnchor<V>;
+    } as LayoutConstraint<V>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, anchorName) || _this;
+    _this = _super!.call(_this, owner, constraintName) || _this;
     return _this;
-  } as unknown as LayoutAnchorConstructor<V, I>;
+  } as unknown as LayoutConstraintConstructor<V, I>;
 
-  const _prototype = descriptor as unknown as LayoutAnchor<any> & I;
+  const _prototype = descriptor as unknown as LayoutConstraint<any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;

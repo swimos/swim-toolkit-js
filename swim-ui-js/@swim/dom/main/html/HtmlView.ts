@@ -16,7 +16,7 @@ import {__extends} from "tslib";
 import type {Timing} from "@swim/mapping";
 import {PxLength, Transform} from "@swim/math";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewFlags, ViewFactory, ViewConstructor, View, LayoutAnchor} from "@swim/view";
+import {ViewFlags, ViewFactory, ViewConstructor, View, LayoutConstraint} from "@swim/view";
 import {StyleMapInit, StyleMap} from "../style/StyleMap";
 import {ViewNodeType, NodeViewConstructor, NodeView} from "../node/NodeView";
 import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";
@@ -367,7 +367,7 @@ export class HtmlView extends ElementView {
     return this;
   }
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const top = this.owner.top.state;
@@ -390,9 +390,9 @@ export class HtmlView extends ElementView {
       this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
-  declare topAnchor: LayoutAnchor<this>;
+  declare topConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const right = this.owner.right.state;
@@ -424,9 +424,9 @@ export class HtmlView extends ElementView {
       this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
-  declare rightAnchor: LayoutAnchor<this>;
+  declare rightConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const bottom = this.owner.bottom.state;
@@ -458,9 +458,9 @@ export class HtmlView extends ElementView {
       this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
-  declare bottomAnchor: LayoutAnchor<this>;
+  declare bottomConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const left = this.owner.left.state;
@@ -483,9 +483,9 @@ export class HtmlView extends ElementView {
       this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
-  declare leftAnchor: LayoutAnchor<this>;
+  declare leftConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const width = this.owner.width.state;
@@ -508,9 +508,9 @@ export class HtmlView extends ElementView {
       this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
-  declare widthAnchor: LayoutAnchor<this>;
+  declare widthConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const height = this.owner.height.state;
@@ -533,9 +533,9 @@ export class HtmlView extends ElementView {
       this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
     },
   })
-  declare heightAnchor: LayoutAnchor<this>;
+  declare heightConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const left = this.owner.left.state;
@@ -570,15 +570,15 @@ export class HtmlView extends ElementView {
                          : node === document.body ? node.getBoundingClientRect() : null;
       if (offsetBounds !== null) {
         const bounds = node.getBoundingClientRect();
-        const leftAnchor = this.owner.getLayoutAnchor("leftAnchor");
-        if (leftAnchor !== null && leftAnchor.constrained) {
+        const leftConstraint = this.owner.getLayoutConstraint("leftConstraint");
+        if (leftConstraint !== null && leftConstraint.constrained) {
           const newState = offsetBounds.left + newValue - 0.5 * bounds.width;
           this.owner.left.setState(newState);
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
           return;
         }
-        const rightAnchor = this.owner.getLayoutAnchor("rightAnchor");
-        if (rightAnchor !== null && rightAnchor.constrained) {
+        const rightConstraint = this.owner.getLayoutConstraint("rightConstraint");
+        if (rightConstraint !== null && rightConstraint.constrained) {
           const newState = offsetBounds.right - newValue - 0.5 * bounds.width;
           this.owner.right.setState(newState);
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
@@ -587,9 +587,9 @@ export class HtmlView extends ElementView {
       }
     },
   })
-  declare centerXAnchor: LayoutAnchor<this>;
+  declare centerXConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const top = this.owner.top.state;
@@ -624,15 +624,15 @@ export class HtmlView extends ElementView {
                          : node === document.body ? node.getBoundingClientRect() : null;
       if (offsetBounds !== null) {
         const bounds = node.getBoundingClientRect();
-        const topAnchor = this.owner.getLayoutAnchor("topAnchor");
-        if (topAnchor !== null && topAnchor.constrained) {
+        const topConstraint = this.owner.getLayoutConstraint("topConstraint");
+        if (topConstraint !== null && topConstraint.constrained) {
           const newState = offsetBounds.top + newValue - 0.5 * bounds.height;
           this.owner.top.setState(newState);
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
           return;
         }
-        const bottomAnchor = this.owner.getLayoutAnchor("bottomAnchor");
-        if (bottomAnchor !== null && bottomAnchor.constrained) {
+        const bottomConstraint = this.owner.getLayoutConstraint("bottomConstraint");
+        if (bottomConstraint !== null && bottomConstraint.constrained) {
           const newState = offsetBounds.bottom - newValue - 0.5 * bounds.height;
           this.owner.bottom.setState(newState);
           this.owner.requireUpdate(View.NeedsResize | View.NeedsLayout);
@@ -641,9 +641,9 @@ export class HtmlView extends ElementView {
       }
     },
   })
-  declare centerYAnchor: LayoutAnchor<this>;
+  declare centerYConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const marginTop = this.owner.marginTop.value;
@@ -653,9 +653,9 @@ export class HtmlView extends ElementView {
       this.owner.marginTop.setState(newValue);
     },
   })
-  declare marginTopAnchor: LayoutAnchor<this>;
+  declare marginTopConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const marginRight = this.owner.marginRight.value;
@@ -665,9 +665,9 @@ export class HtmlView extends ElementView {
       this.owner.marginRight.setState(newValue);
     },
   })
-  declare marginRightAnchor: LayoutAnchor<this>;
+  declare marginRightConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const marginBottom = this.owner.marginBottom.value;
@@ -677,9 +677,9 @@ export class HtmlView extends ElementView {
       this.owner.marginBottom.setState(newValue);
     },
   })
-  declare marginBottomAnchor: LayoutAnchor<this>;
+  declare marginBottomConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const marginLeft = this.owner.marginLeft.value;
@@ -689,9 +689,9 @@ export class HtmlView extends ElementView {
       this.owner.marginLeft.setState(newValue);
     },
   })
-  declare marginLeftAnchor: LayoutAnchor<this>;
+  declare marginLeftConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const paddingTop = this.owner.paddingTop.value;
@@ -701,9 +701,9 @@ export class HtmlView extends ElementView {
       this.owner.paddingTop.setState(newValue);
     },
   })
-  declare paddingTopAnchor: LayoutAnchor<this>;
+  declare paddingTopConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const paddingRight = this.owner.paddingRight.value;
@@ -713,9 +713,9 @@ export class HtmlView extends ElementView {
       this.owner.paddingRight.setState(newValue);
     },
   })
-  declare paddingRightAnchor: LayoutAnchor<this>;
+  declare paddingRightConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const paddingBottom = this.owner.paddingBottom.value;
@@ -725,9 +725,9 @@ export class HtmlView extends ElementView {
       this.owner.paddingBottom.setState(newValue);
     },
   })
-  declare paddingBottomAnchor: LayoutAnchor<this>;
+  declare paddingBottomConstraint: LayoutConstraint<this>;
 
-  @LayoutAnchor<HtmlView>({
+  @LayoutConstraint<HtmlView>({
     strength: "strong",
     getState(oldState: number): number {
       const paddingLeft = this.owner.paddingLeft.value;
@@ -737,7 +737,7 @@ export class HtmlView extends ElementView {
       this.owner.paddingLeft.setState(newValue);
     },
   })
-  declare paddingLeftAnchor: LayoutAnchor<this>;
+  declare paddingLeftConstraint: LayoutConstraint<this>;
 
   @AttributeAnimator({attributeName: "autocomplete", type: String})
   declare autocomplete: AttributeAnimator<this, string>;

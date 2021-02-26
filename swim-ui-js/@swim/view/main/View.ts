@@ -46,7 +46,7 @@ import type {
 import type {ViewControllerType, ViewController} from "./ViewController";
 import type {ViewIdiom} from "./viewport/ViewIdiom";
 import type {Viewport} from "./viewport/Viewport";
-import type {LayoutAnchorConstructor, LayoutAnchor} from "./layout/LayoutAnchor";
+import type {LayoutConstraintConstructor, LayoutConstraint} from "./layout/LayoutConstraint";
 import type {ViewServiceConstructor, ViewService} from "./service/ViewService";
 import type {ViewportService} from "./service/ViewportService";
 import type {DisplayService} from "./service/DisplayService";
@@ -1284,11 +1284,11 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     return viewFastener;
   }
 
-  abstract hasLayoutAnchor(anchorName: string): boolean;
+  abstract hasLayoutConstraint(constraintName: string): boolean;
 
-  abstract getLayoutAnchor(anchorName: string): LayoutAnchor<this> | null;
+  abstract getLayoutConstraint(constraintName: string): LayoutConstraint<this> | null;
 
-  abstract setLayoutAnchor(anchorName: string, layoutAnchor: LayoutAnchor<this> | null): void;
+  abstract setLayoutConstraint(constraintName: string, layoutConstraint: LayoutConstraint<this> | null): void;
 
   constraint(lhs: Constrain | number, relation: ConstraintRelation,
              rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
@@ -1636,16 +1636,16 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   /** @hidden */
-  static decorateLayoutAnchor(constructor: LayoutAnchorConstructor<View>,
-                              target: Object, propertyKey: string | symbol): void {
+  static decorateLayoutConstraint(constructor: LayoutConstraintConstructor<View>,
+                                  target: Object, propertyKey: string | symbol): void {
     Object.defineProperty(target, propertyKey, {
-      get: function (this: View): LayoutAnchor<View> {
-        let layoutAnchor = this.getLayoutAnchor(propertyKey.toString());
-        if (layoutAnchor === null) {
-          layoutAnchor = new constructor(this, propertyKey.toString());
-          this.setLayoutAnchor(propertyKey.toString(), layoutAnchor);
+      get: function (this: View): LayoutConstraint<View> {
+        let layoutConstraint = this.getLayoutConstraint(propertyKey.toString());
+        if (layoutConstraint === null) {
+          layoutConstraint = new constructor(this, propertyKey.toString());
+          this.setLayoutConstraint(propertyKey.toString(), layoutConstraint);
         }
-        return layoutAnchor;
+        return layoutConstraint;
       },
       enumerable: true,
       configurable: true,

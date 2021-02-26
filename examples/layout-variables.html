@@ -12,7 +12,7 @@
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const divider = bodyView.constraintVariable("divider");
-bodyView.constraint(divider, "eq", bodyView.widthAnchor.divide(4)).enabled(true);
+bodyView.constraint(divider, "eq", bodyView.widthConstraint.divide(4)).enabled(true);
 
 const sidebar = bodyView.append("div")
     .position("absolute")
@@ -22,23 +22,23 @@ const sidebar = bodyView.append("div")
     .borderRightWidth(1)
     .borderRightStyle("solid")
     .borderRightColor("#0000cc");
-sidebar.widthAnchor.setConstrained(true);
-sidebar.constraint(sidebar.widthAnchor, "eq", divider).enabled(true);
+sidebar.widthConstraint.setConstrained(true);
+sidebar.constraint(sidebar.widthConstraint, "eq", divider).enabled(true);
 
 const circle = bodyView.append("div")
     .position("absolute")
     .borderRadius("50%")
     .backgroundColor("#989898");
-circle.leftAnchor.setConstrained(true);
-circle.topAnchor.setConstrained(true);
-circle.widthAnchor.setConstrained(true);
-circle.heightAnchor.setConstrained(true);
-circle.centerXAnchor.setConstrained(true);
-circle.centerYAnchor.setConstrained(true);
-circle.constraint(circle.widthAnchor, "eq", circle.heightAnchor).enabled(true);
-circle.constraint(circle.heightAnchor, "eq", bodyView.heightAnchor.divide(3)).enabled(true);
-circle.constraint(circle.centerXAnchor, "eq", bodyView.widthAnchor.plus(divider).divide(2)).enabled(true);
-circle.constraint(circle.centerYAnchor, "eq", bodyView.heightAnchor.divide(2).minus(10)).enabled(true);
+circle.leftConstraint.setConstrained(true);
+circle.topConstraint.setConstrained(true);
+circle.widthConstraint.setConstrained(true);
+circle.heightConstraint.setConstrained(true);
+circle.centerXConstraint.setConstrained(true);
+circle.centerYConstraint.setConstrained(true);
+circle.constraint(circle.widthConstraint, "eq", circle.heightConstraint).enabled(true);
+circle.constraint(circle.heightConstraint, "eq", bodyView.heightConstraint.divide(3)).enabled(true);
+circle.constraint(circle.centerXConstraint, "eq", bodyView.widthConstraint.plus(divider).divide(2)).enabled(true);
+circle.constraint(circle.centerYConstraint, "eq", bodyView.heightConstraint.divide(2).minus(10)).enabled(true);
 
     </script>
   </body>

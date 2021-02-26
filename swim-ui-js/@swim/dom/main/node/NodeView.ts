@@ -25,7 +25,7 @@ import {
   View,
   ViewObserverType,
   ViewService,
-  LayoutAnchor,
+  LayoutConstraint,
   ModalManager,
   ViewProperty,
   ViewAnimator,
@@ -89,7 +89,7 @@ export class NodeView extends View {
       enumerable: true,
       configurable: true,
     });
-    Object.defineProperty(this, "layoutAnchors", {
+    Object.defineProperty(this, "layoutConstraints", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -1614,38 +1614,38 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  declare readonly layoutAnchors: {[anchorName: string]: LayoutAnchor<View> | undefined} | null;
+  declare readonly layoutConstraints: {[constraintName: string]: LayoutConstraint<View> | undefined} | null;
 
-  hasLayoutAnchor(anchorName: string): boolean {
-    const layoutAnchors = this.layoutAnchors;
-    return layoutAnchors !== null && layoutAnchors[anchorName] !== void 0;
+  hasLayoutConstraint(constraintName: string): boolean {
+    const layoutConstraints = this.layoutConstraints;
+    return layoutConstraints !== null && layoutConstraints[constraintName] !== void 0;
   }
 
-  getLayoutAnchor(anchorName: string): LayoutAnchor<this> | null {
-    const layoutAnchors = this.layoutAnchors;
-    if (layoutAnchors !== null) {
-      const layoutAnchor = layoutAnchors[anchorName];
-      if (layoutAnchor !== void 0) {
-        return layoutAnchor as LayoutAnchor<this>;
+  getLayoutConstraint(constraintName: string): LayoutConstraint<this> | null {
+    const layoutConstraints = this.layoutConstraints;
+    if (layoutConstraints !== null) {
+      const layoutConstraint = layoutConstraints[constraintName];
+      if (layoutConstraint !== void 0) {
+        return layoutConstraint as LayoutConstraint<this>;
       }
     }
     return null;
   }
 
-  setLayoutAnchor(anchorName: string, layoutAnchor: LayoutAnchor<this> | null): void {
-    let layoutAnchors = this.layoutAnchors;
-    if (layoutAnchors === null) {
-      layoutAnchors = {};
-      Object.defineProperty(this, "layoutAnchors", {
-        value: layoutAnchors,
+  setLayoutConstraint(constraintName: string, layoutConstraint: LayoutConstraint<this> | null): void {
+    let layoutConstraints = this.layoutConstraints;
+    if (layoutConstraints === null) {
+      layoutConstraints = {};
+      Object.defineProperty(this, "layoutConstraints", {
+        value: layoutConstraints,
         enumerable: true,
         configurable: true,
       });
     }
-    if (layoutAnchor !== null) {
-      layoutAnchors[anchorName] = layoutAnchor;
+    if (layoutConstraint !== null) {
+      layoutConstraints[constraintName] = layoutConstraint;
     } else {
-      delete layoutAnchors[anchorName];
+      delete layoutConstraints[constraintName];
     }
   }
 
@@ -1714,15 +1714,15 @@ export class NodeView extends View {
   }
 
   protected updateConstraints(): void {
-    this.updateLayoutAnchors();
+    this.updateLayoutConstraints();
   }
 
   /** @hidden */
-  updateLayoutAnchors(): void {
-    const layoutAnchors = this.layoutAnchors;
-    for (const anchorName in layoutAnchors) {
-      const layoutAnchor = layoutAnchors[anchorName]!;
-      layoutAnchor.updateState();
+  updateLayoutConstraints(): void {
+    const layoutConstraints = this.layoutConstraints;
+    for (const constraintName in layoutConstraints) {
+      const layoutConstraint = layoutConstraints[constraintName]!;
+      layoutConstraint.updateState();
     }
   }
 
@@ -1733,7 +1733,7 @@ export class NodeView extends View {
       const constraintVariables = this.constraintVariables;
       for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
         const constraintVariable = constraintVariables[i];
-        if (constraintVariable instanceof LayoutAnchor) {
+        if (constraintVariable instanceof LayoutConstraint) {
           layoutManager.activateConstraintVariable(constraintVariable);
           this.requireUpdate(View.NeedsLayout);
         }
