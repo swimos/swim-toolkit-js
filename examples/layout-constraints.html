@@ -16,10 +16,10 @@ const circle = bodyView.append("div")
     .borderRadius("50%")
     .backgroundColor("#989898");
 circle.addClass("circle");
-circle.constraint(circle.width.constrain(), "eq", circle.height).enabled(true);
-circle.constraint(circle.height.constrain(), "eq", bodyView.height.divide(3)).enabled(true);
-circle.constraint(circle.left.constrain(), "eq", bodyView.width.times(0.5).minus(circle.width.times(0.5))).enabled(true);
-circle.constraint(circle.top.constrain(), "eq", bodyView.height.times(0.5).minus(circle.height.times(0.5)).plus(10)).enabled(true);
+circle.constraint(circle.width.constrain(), "eq", circle.height);
+circle.constraint(circle.height.constrain(), "eq", bodyView.height.divide(3));
+circle.constraint(circle.left.constrain(), "eq", bodyView.width.times(0.5).minus(circle.width.times(0.5)));
+circle.constraint(circle.top.constrain(), "eq", bodyView.height.times(0.5).minus(circle.height.times(0.5)).plus(10));
 
     </script>
   </body>

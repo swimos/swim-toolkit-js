@@ -12,10 +12,10 @@
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const leftPaneWidth = bodyView.constraintVariable("leftPaneWidth");
-bodyView.constraint(leftPaneWidth, "eq", bodyView.width.divide(4)).enabled(true);
+bodyView.constraint(leftPaneWidth.constrain(), "eq", bodyView.width.divide(4));
 
 const rightPaneWidth = bodyView.constraintVariable("rightPaneWidth");
-bodyView.constraint(rightPaneWidth, "eq", bodyView.width.minus(leftPaneWidth)).enabled(true);
+bodyView.constraint(rightPaneWidth.constrain(), "eq", bodyView.width.minus(leftPaneWidth));
 
 const sidebar = bodyView.append("div")
     .position("absolute")
@@ -25,17 +25,17 @@ const sidebar = bodyView.append("div")
     .borderRightWidth(1)
     .borderRightStyle("solid")
     .borderRightColor("#0000cc");
-sidebar.constraint(sidebar.width.constrain(), "eq", leftPaneWidth).enabled(true);
+sidebar.constraint(sidebar.width.constrain(), "eq", leftPaneWidth);
 
 const circle = bodyView.append("div")
     .position("absolute")
     .borderRadius("50%")
     .backgroundColor("#989898");
 circle.addClass("circle");
-circle.constraint(circle.width.constrain(), "eq", circle.height).enabled(true);
-circle.constraint(circle.height.constrain(), "eq", bodyView.height.divide(3)).enabled(true);
-circle.constraint(circle.left.constrain(), "eq", leftPaneWidth.plus(rightPaneWidth.times(0.5)).minus(circle.width.times(0.5))).enabled(true);
-circle.constraint(circle.top.constrain(), "eq", bodyView.height.times(0.5).minus(circle.height.times(0.5)).plus(10)).enabled(true);
+circle.constraint(circle.width.constrain(), "eq", circle.height);
+circle.constraint(circle.height.constrain(), "eq", bodyView.height.divide(3));
+circle.constraint(circle.left.constrain(), "eq", leftPaneWidth.plus(rightPaneWidth.times(0.5)).minus(circle.width.times(0.5)));
+circle.constraint(circle.top.constrain(), "eq", bodyView.height.times(0.5).minus(circle.height.times(0.5)).plus(10));
 
     </script>
   </body>

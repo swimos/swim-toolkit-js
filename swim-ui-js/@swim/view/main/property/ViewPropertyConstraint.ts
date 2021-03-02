@@ -182,13 +182,13 @@ function ViewPropertyConstraintConstructor<V extends View, T, U>(this: ViewPrope
     value: ConstraintKey.nextId(),
     enumerable: true,
   });
-  Object.defineProperty(_this, "conditionCount", {
-    value: 0,
+  Object.defineProperty(_this, "strength", {
+    value: _this.strength ?? ConstraintStrength.Strong, // seed from prototype
     enumerable: true,
     configurable: true,
   });
-  Object.defineProperty(_this, "strength", {
-    value: _this.strength ?? ConstraintStrength.Strong, // seed from prototype
+  Object.defineProperty(_this, "conditionCount", {
+    value: 0,
     enumerable: true,
     configurable: true,
   });
@@ -228,7 +228,7 @@ ViewPropertyConstraint.prototype.evaluateConstraintVariable = function <T>(this:
 
 ViewPropertyConstraint.prototype.updateConstraintSolution = function <T>(this: ViewPropertyConstraint<View, T>, newState: number): void {
   if (this.isConstrained() && this.toNumber(this.state) !== newState) {
-    ViewProperty.prototype.setOwnState.call(this, this.fromAny(newState));
+    this.setOwnState(newState);
   }
 };
 

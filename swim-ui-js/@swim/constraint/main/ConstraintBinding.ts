@@ -18,13 +18,13 @@ import {ConstraintMap} from "./ConstraintMap";
 import {AnyConstraintExpression, ConstraintExpression} from "./ConstraintExpression";
 import type {ConstraintTerm} from "./ConstraintTerm";
 import type {ConstraintVariable} from "./ConstraintVariable";
-import {AnyConstraintStrength, ConstraintStrength} from "./ConstraintStrength";
+import type {ConstraintStrength} from "./ConstraintStrength";
 import type {Constraint} from "./Constraint";
 import type {ConstraintScope} from "./ConstraintScope";
 import type {ConstraintSolver} from "./ConstraintSolver";
 
 export class ConstraintBinding implements ConstraintVariable, Debug {
-  constructor(owner: ConstraintScope, name: string, value: number, strength: ConstraintStrength) {
+  constructor(owner: ConstraintScope, name: string, state: number, strength: ConstraintStrength) {
     Object.defineProperty(this, "id", {
       value: ConstraintKey.nextId(),
       enumerable: true,
@@ -38,17 +38,22 @@ export class ConstraintBinding implements ConstraintVariable, Debug {
       enumerable: true,
     });
     Object.defineProperty(this, "state", {
-      value: NaN,
-      enumerable: true,
-      configurable: true,
-    });
-    Object.defineProperty(this, "value", {
-      value: value,
+      value: state,
       enumerable: true,
       configurable: true,
     });
     Object.defineProperty(this, "strength", {
       value: strength,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "constraintFlags", {
+      value: 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "conditionCount", {
+      value: 0,
       enumerable: true,
       configurable: true,
     });
@@ -75,20 +80,6 @@ export class ConstraintBinding implements ConstraintVariable, Debug {
     return false;
   }
 
-  /** @hidden */
-  addConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
-    // nop
-  }
-
-  /** @hidden */
-  removeConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
-    // nop
-  }
-
-  evaluateConstraintVariable(): void {
-    // nop
-  }
-
   isConstant(): boolean {
     return false;
   }
@@ -97,51 +88,43 @@ export class ConstraintBinding implements ConstraintVariable, Debug {
 
   setState(newState: number): void {
     const oldState = this.state;
-    if (isFinite(oldState) && !isFinite(newState)) {
-      this.owner.removeConstraintVariable(this);
+    if (oldState !== newState) {
+      this.willSetState(newState, oldState);
+      Object.defineProperty(this, "state", {
+        value: newState,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetState(newState, oldState);
+      this.didSetState(newState, oldState);
     }
-    Object.defineProperty(this, "state", {
-      value: newState,
-      enumerable: true,
-      configurable: true,
-    });
-    if (isFinite(newState)) {
-      if (!isFinite(oldState)) {
-        this.owner.addConstraintVariable(this);
-      }
+  }
+
+  protected willSetState(newState: number, oldState: number): void {
+    // hook
+  }
+
+  protected onSetState(newState: number, oldState: number): void {
+    if (this.isConstraining()) {
       this.owner.setConstraintVariable(this, newState);
     }
   }
 
-  declare readonly value: number;
+  protected didSetState(newState: number, oldState: number): void {
+    // hook
+  }
 
-  updateConstraintSolution(value: number): void {
-    Object.defineProperty(this, "value", {
-      value: value,
-      enumerable: true,
-      configurable: true,
-    });
+  evaluateConstraintVariable(): void {
+    // nop
+  }
+
+  updateConstraintSolution(newState: number): void {
+    if (this.isConstrained()) {
+      this.setState(newState);
+    }
   }
 
   declare readonly strength: ConstraintStrength;
-
-  setStrength(newStrength: AnyConstraintStrength): void {
-    const state = this.state;
-    const oldStrength = this.strength;
-    newStrength = ConstraintStrength.fromAny(newStrength);
-    if (isFinite(state) && oldStrength !== newStrength) {
-      this.owner.removeConstraintVariable(this);
-    }
-    Object.defineProperty(this, "strength", {
-      value: newStrength,
-      enumerable: true,
-      configurable: true,
-    });
-    if (isFinite(state) && oldStrength !== newStrength) {
-      this.owner.addConstraintVariable(this);
-      this.owner.setConstraintVariable(this, state);
-    }
-  }
 
   get coefficient(): number {
     return 1;
@@ -191,12 +174,144 @@ export class ConstraintBinding implements ConstraintVariable, Debug {
     return ConstraintExpression.product(1 / scalar, this);
   }
 
+  /** @hidden */
+  declare readonly constraintFlags: number;
+
+  /** @hidden */
+  setConstraintFlags(constraintFlags: number): void {
+    Object.defineProperty(this, "constraintFlags", {
+      value: constraintFlags,
+      enumerable: true,
+      configurable: true,
+    });
+  }
+
+  isConstrained(): boolean {
+    return (this.constraintFlags & ConstraintBinding.ConstrainedFlag) !== 0;
+  }
+
+  constrain(constrained: boolean = true): this {
+    const constraintFlags = this.constraintFlags;
+    if (constrained && (constraintFlags & ConstraintBinding.ConstrainedFlag) === 0) {
+      this.setConstraintFlags(constraintFlags | ConstraintBinding.ConstrainedFlag);
+      if (this.conditionCount !== 0) {
+        this.stopConstraining();
+      }
+    } else if (!constrained && (constraintFlags & ConstraintBinding.ConstrainedFlag) !== 0) {
+      this.setConstraintFlags(constraintFlags & ~ConstraintBinding.ConstrainedFlag);
+      if (this.conditionCount !== 0) {
+        this.startConstraining();
+        this.updateConstraintVariable();
+      }
+    }
+    return this;
+  }
+
+  /** @hidden */
+  declare readonly conditionCount: number;
+
+  /** @hidden */
+  addConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
+    const oldConditionCount = this.conditionCount;
+    const newConditionCount = oldConditionCount + 1;
+    Object.defineProperty(this, "conditionCount", {
+      value: newConditionCount,
+      enumerable: true,
+      configurable: true,
+    });
+    if (!this.isConstrained() && oldConditionCount === 0) {
+      this.startConstraining();
+      this.updateConstraintVariable();
+    }
+  }
+
+  /** @hidden */
+  removeConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
+    const oldConditionCount = this.conditionCount;
+    const newConditionCount = oldConditionCount - 1;
+    Object.defineProperty(this, "conditionCount", {
+      value: newConditionCount,
+      enumerable: true,
+      configurable: true,
+    });
+    if (!this.isConstrained() && newConditionCount === 0) {
+      this.stopConstraining();
+    }
+  }
+
+  /** @hidden */
+  isConstraining(): boolean {
+    return (this.constraintFlags & ConstraintBinding.ConstrainingFlag) !== 0;
+  }
+
+  /** @hidden */
+  startConstraining(): void {
+    if ((this.constraintFlags & ConstraintBinding.ConstrainingFlag) === 0) {
+      this.willStartConstraining();
+      this.setConstraintFlags(this.constraintFlags | ConstraintBinding.ConstrainingFlag);
+      this.onStartConstraining();
+      this.didStartConstraining();
+    }
+  }
+
+  /** @hidden */
+  willStartConstraining(): void {
+    // hook
+  }
+
+  /** @hidden */
+  onStartConstraining(): void {
+    this.owner.addConstraintVariable(this);
+  }
+
+  /** @hidden */
+  didStartConstraining(): void {
+    // hook
+  }
+
+  /** @hidden */
+  stopConstraining(): void {
+    if ((this.constraintFlags & ConstraintBinding.ConstrainingFlag) !== 0) {
+      this.willStopConstraining();
+      this.setConstraintFlags(this.constraintFlags & ~ConstraintBinding.ConstrainingFlag);
+      this.onStopConstraining();
+      this.didStopConstraining();
+    }
+  }
+
+  /** @hidden */
+  willStopConstraining(): void {
+    // hook
+  }
+
+  /** @hidden */
+  onStopConstraining(): void {
+    this.owner.removeConstraintVariable(this);
+  }
+
+  /** @hidden */
+  didStopConstraining(): void {
+    // hook
+  }
+
+  updateConstraintVariable(): void {
+    const state = this.state;
+    if (state !== void 0) {
+      this.owner.setConstraintVariable(this, this.state);
+    }
+  }
+
   debug(output: Output): void {
-    output = output.debug(this.owner).write(46/*'.'*/).write("variable").write(40/*'('*/)
-        .debug(this.name).write(", ").debug(this.value).write(41/*')'*/);
+    output = output.debug(this.owner).write(46/*'.'*/).write("constraintVariable")
+        .write(40/*'('*/).debug(this.name).write(", ").debug(this.state).write(41/*')'*/);
   }
 
   toString(): string {
     return Format.debug(this);
   }
+
+  /** @hidden */
+  static readonly ConstrainedFlag: number = 1 << 0;
+  /** @hidden */
+  static readonly ConstrainingFlag: number = 1 << 1;
 }

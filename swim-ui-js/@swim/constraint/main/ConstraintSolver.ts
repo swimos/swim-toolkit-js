@@ -104,7 +104,9 @@ export class ConstraintSolver implements ConstraintScope {
     } else {
       strength = ConstraintStrength.fromAny(strength);
     }
-    return new Constraint(this, expression, relation, strength);
+    const constraint = new Constraint(this, expression, relation, strength);
+    this.addConstraint(constraint);
+    return constraint;
   }
 
   hasConstraint(constraint: Constraint): boolean {

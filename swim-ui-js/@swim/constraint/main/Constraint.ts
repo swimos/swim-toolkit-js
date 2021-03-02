@@ -54,19 +54,17 @@ export class Constraint implements ConstraintKey, Debug {
 
   declare readonly strength: ConstraintStrength;
 
-  enabled(): boolean;
-  enabled(enabled: boolean): this;
-  enabled(enabled?: boolean): boolean | this {
-    if (enabled === void 0) {
-      return this.scope.hasConstraint(this);
+  isConstrained(): boolean {
+    return this.scope.hasConstraint(this);
+  }
+
+  constrain(constrained: boolean = true): this {
+    if (constrained) {
+      this.scope.addConstraint(this);
     } else {
-      if (enabled) {
-        this.scope.addConstraint(this);
-      } else {
-        this.scope.removeConstraint(this);
-      }
-      return this;
+      this.scope.removeConstraint(this);
     }
+    return this;
   }
 
   debug(output: Output): void {

@@ -28,7 +28,7 @@ export class ConstraintGroup {
       value: [],
       enumerable: true,
     });
-    Object.defineProperty(this, "active", {
+    Object.defineProperty(this, "constrained", {
       value: false,
       enumerable: true,
       configurable: true,
@@ -65,7 +65,7 @@ export class ConstraintGroup {
     const constraints = this.constraints as Constraint[];
     if (constraints.indexOf(constraint) < 0) {
       constraints.push(constraint);
-      constraint.enabled(this.active);
+      constraint.constrain(this.constrained);
     }
   }
 
@@ -75,7 +75,7 @@ export class ConstraintGroup {
       const index = constraints.indexOf(constraint);
       if (index >= 0) {
         constraints.splice(index, 1);
-        constraint.enabled(false);
+        constraint.constrain(false);
       }
     }
   }
@@ -84,7 +84,7 @@ export class ConstraintGroup {
   enableConstraints(): void {
     const constraints = this.constraints;
     for (let i = 0, n = constraints.length ; i < n; i += 1) {
-      constraints[i]!.enabled(true);
+      constraints[i]!.constrain(true);
     }
   }
 
@@ -92,35 +92,33 @@ export class ConstraintGroup {
   disableConstraints(): void {
     const constraints = this.constraints;
     for (let i = 0, n = constraints.length ; i < n; i += 1) {
-      constraints[i]!.enabled(false);
+      constraints[i]!.constrain(false);
     }
   }
 
   /** @hidden */
-  declare readonly active: boolean;
+  declare readonly constrained: boolean;
 
-  enabled(): boolean;
-  enabled(enabled: boolean): this;
-  enabled(enabled?: boolean): boolean | this {
-    if (enabled === void 0) {
-      return this.active;
-    } else {
-      if (enabled && !this.active) {
-        Object.defineProperty(this, "active", {
-          value: true,
-          enumerable: true,
-          configurable: true,
-        });
-        this.enableConstraints();
-      } else if (!enabled && this.active) {
-        Object.defineProperty(this, "active", {
-          value: false,
-          enumerable: true,
-          configurable: true,
-        });
-        this.disableConstraints();
-      }
-      return this;
+  isConstrained(): boolean {
+    return this.constrained;
+  }
+
+  constrain(constrained: boolean = true): this {
+    if (constrained && !this.constrained) {
+      Object.defineProperty(this, "constrained", {
+        value: true,
+        enumerable: true,
+        configurable: true,
+      });
+      this.enableConstraints();
+    } else if (!constrained && this.constrained) {
+      Object.defineProperty(this, "constrained", {
+        value: false,
+        enumerable: true,
+        configurable: true,
+      });
+      this.disableConstraints();
     }
+    return this;
   }
 }

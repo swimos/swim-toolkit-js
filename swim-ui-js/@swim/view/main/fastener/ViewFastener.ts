@@ -311,7 +311,9 @@ ViewFastener.prototype.constraint = function (this: ViewFastener<View, View>, lh
   } else {
     strength = ConstraintStrength.fromAny(strength);
   }
-  return new Constraint(this.owner, expression, relation, strength);
+  const constraint = new Constraint(this.owner, expression, relation, strength);
+  this.addConstraint(constraint);
+  return constraint;
 };
 
 ViewFastener.prototype.hasConstraint = function (this: ViewFastener<View, View>, constraint: Constraint): boolean {

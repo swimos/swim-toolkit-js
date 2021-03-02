@@ -23,15 +23,15 @@ export class ConstraintSolverSpec extends Spec {
     const left = solver.constraintVariable("left");
     const width = solver.constraintVariable("width");
     const right = solver.constraintVariable("right");
-    solver.constraint(left.plus(width), "eq", right).enabled(true);
+    solver.constraint(right.constrain(), "eq", left.plus(width));
 
     left.setState(100);
     width.setState(400);
-    exam.equal(right.value, 500);
+    exam.equal(right.state, 500);
 
     left.setState(150);
     width.setState(250);
-    exam.equal(right.value, 400);
+    exam.equal(right.state, 400);
   }
 
   @Test
@@ -41,14 +41,14 @@ export class ConstraintSolverSpec extends Spec {
     const left = solver.constraintVariable("left");
     const width = solver.constraintVariable("width");
     const center = solver.constraintVariable("center");
-    solver.constraint(left.plus(width.times(0.5)), "eq", center).enabled(true);
+    solver.constraint(center.constrain(), "eq", left.plus(width.times(0.5)));
 
     left.setState(0);
     width.setState(500);
-    exam.equal(center.value, 250);
+    exam.equal(center.state, 250);
 
     left.setState(100);
     width.setState(400);
-    exam.equal(center.value, 300);
+    exam.equal(center.state, 300);
   }
 }

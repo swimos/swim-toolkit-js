@@ -185,13 +185,13 @@ function ViewAnimatorConstraintConstructor<V extends View, T, U>(this: ViewAnima
     value: ConstraintKey.nextId(),
     enumerable: true,
   });
-  Object.defineProperty(_this, "conditionCount", {
-    value: 0,
+  Object.defineProperty(_this, "strength", {
+    value: _this.strength ?? ConstraintStrength.Strong, // seed from prototype
     enumerable: true,
     configurable: true,
   });
-  Object.defineProperty(_this, "strength", {
-    value: _this.strength ?? ConstraintStrength.Strong, // seed from prototype
+  Object.defineProperty(_this, "conditionCount", {
+    value: 0,
     enumerable: true,
     configurable: true,
   });
