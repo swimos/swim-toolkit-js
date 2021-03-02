@@ -16,9 +16,10 @@ import {Arrays} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
 import {BoxR2, Transform} from "@swim/math";
 import {
-  Constrain,
-  ConstrainVariable,
-  ConstrainBinding,
+  AnyConstraintExpression,
+  ConstraintExpression,
+  ConstraintVariable,
+  ConstraintBinding,
   ConstraintRelation,
   AnyConstraintStrength,
   ConstraintStrength,
@@ -46,7 +47,6 @@ import type {
 import type {ViewControllerType, ViewController} from "./ViewController";
 import type {ViewIdiom} from "./viewport/ViewIdiom";
 import type {Viewport} from "./viewport/Viewport";
-import type {LayoutConstraintConstructor, LayoutConstraint} from "./layout/LayoutConstraint";
 import type {ViewServiceConstructor, ViewService} from "./service/ViewService";
 import type {ViewportService} from "./service/ViewportService";
 import type {DisplayService} from "./service/DisplayService";
@@ -1284,27 +1284,19 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     return viewFastener;
   }
 
-  abstract hasLayoutConstraint(constraintName: string): boolean;
-
-  abstract getLayoutConstraint(constraintName: string): LayoutConstraint<this> | null;
-
-  abstract setLayoutConstraint(constraintName: string, layoutConstraint: LayoutConstraint<this> | null): void;
-
-  constraint(lhs: Constrain | number, relation: ConstraintRelation,
-             rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
-    if (typeof lhs === "number") {
-      lhs = Constrain.constant(lhs);
+  constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation,
+             rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {
+    lhs = ConstraintExpression.fromAny(lhs);
+    if (rhs !== void 0) {
+      rhs = ConstraintExpression.fromAny(rhs);
     }
-    if (typeof rhs === "number") {
-      rhs = Constrain.constant(rhs);
-    }
-    const constrain = rhs !== void 0 ? lhs.minus(rhs) : lhs;
+    const expression = rhs !== void 0 ? lhs.minus(rhs) : lhs;
     if (strength === void 0) {
       strength = ConstraintStrength.Required;
     } else {
       strength = ConstraintStrength.fromAny(strength);
     }
-    return new Constraint(this, constrain, relation, strength);
+    return new Constraint(this, expression, relation, strength);
   }
 
   abstract readonly constraints: ReadonlyArray<Constraint>;
@@ -1333,7 +1325,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     }
   }
 
-  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable {
+  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstraintBinding {
     if (value === void 0) {
       value = 0;
     }
@@ -1342,19 +1334,19 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     } else {
       strength = ConstraintStrength.fromAny(strength);
     }
-    return new ConstrainBinding(this, name, value, strength);
+    return new ConstraintBinding(this, name, value, strength);
   }
 
-  abstract readonly constraintVariables: ReadonlyArray<ConstrainVariable>;
+  abstract readonly constraintVariables: ReadonlyArray<ConstraintVariable>;
 
-  abstract hasConstraintVariable(constraintVariable: ConstrainVariable): boolean;
+  abstract hasConstraintVariable(constraintVariable: ConstraintVariable): boolean;
 
-  abstract addConstraintVariable(constraintVariable: ConstrainVariable): void;
+  abstract addConstraintVariable(constraintVariable: ConstraintVariable): void;
 
-  abstract removeConstraintVariable(constraintVariable: ConstrainVariable): void;
+  abstract removeConstraintVariable(constraintVariable: ConstraintVariable): void;
 
   /** @hidden */
-  activateConstraintVariable(constraintVariable: ConstrainVariable): void {
+  activateConstraintVariable(constraintVariable: ConstraintVariable): void {
     const layoutManager = this.layoutService.manager;
     if (layoutManager !== void 0) {
       layoutManager.activateConstraintVariable(constraintVariable);
@@ -1363,7 +1355,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   /** @hidden */
-  deactivateConstraintVariable(constraintVariable: ConstrainVariable): void {
+  deactivateConstraintVariable(constraintVariable: ConstraintVariable): void {
     const layoutManager = this.layoutService.manager;
     if (layoutManager !== void 0) {
       layoutManager.deactivateConstraintVariable(constraintVariable);
@@ -1372,18 +1364,10 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   /** @hidden */
-  setConstraintVariable(constraintVariable: ConstrainVariable, state: number): void {
+  setConstraintVariable(constraintVariable: ConstraintVariable, state: number): void {
     const layoutManager = this.layoutService.manager;
     if (layoutManager !== void 0) {
       layoutManager.setConstraintVariable(constraintVariable, state);
-    }
-  }
-
-  /** @hidden */
-  updateConstraintVariables(): void {
-    const layoutManager = this.layoutService.manager;
-    if (layoutManager !== void 0) {
-      layoutManager.updateConstraintVariables();
     }
   }
 
@@ -1629,23 +1613,6 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
           this.setViewFastener(propertyKey.toString(), viewFastener);
         }
         return viewFastener;
-      },
-      enumerable: true,
-      configurable: true,
-    });
-  }
-
-  /** @hidden */
-  static decorateLayoutConstraint(constructor: LayoutConstraintConstructor<View>,
-                                  target: Object, propertyKey: string | symbol): void {
-    Object.defineProperty(target, propertyKey, {
-      get: function (this: View): LayoutConstraint<View> {
-        let layoutConstraint = this.getLayoutConstraint(propertyKey.toString());
-        if (layoutConstraint === null) {
-          layoutConstraint = new constructor(this, propertyKey.toString());
-          this.setLayoutConstraint(propertyKey.toString(), layoutConstraint);
-        }
-        return layoutConstraint;
       },
       enumerable: true,
       configurable: true,

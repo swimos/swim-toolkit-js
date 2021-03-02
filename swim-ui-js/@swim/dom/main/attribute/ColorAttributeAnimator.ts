@@ -18,11 +18,19 @@ import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class ColorAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Color, AnyColor> {
-  parse(value: string): Color {
-    return Color.parse(value);
+  parse(value: string): Color | undefined {
+    try {
+      return Color.parse(value);
+    } catch (swallow) {
+      return void 0;
+    }
   }
 
-  fromAny(value: AnyColor): Color {
-    return Color.fromAny(value);
+  fromAny(value: AnyColor): Color | undefined {
+    try {
+      return Color.fromAny(value);
+    } catch (swallow) {
+      return void 0;
+    }
   }
 }

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Equals, Equivalent} from "@swim/util"
+import {Debug, Format, Output} from "@swim/codec";
 import {AnyLength, Length} from "@swim/math";
 
 export type AnyDeckPost = DeckPost | DeckPostInit;
@@ -27,7 +28,7 @@ export interface DeckPostInit {
   right?: AnyLength | null;
 }
 
-export class DeckPost implements Equals, Equivalent {
+export class DeckPost implements Equals, Equivalent, Debug {
   constructor(key: string, grow: number, shrink: number, basis: Length,
               width: Length | null, left: Length | null, right: Length | null) {
     Object.defineProperty(this, "key", {
@@ -127,6 +128,21 @@ export class DeckPost implements Equals, Equivalent {
           && Equals(this.left, that.left) && Equals(this.right, that.right);
     }
     return false;
+  }
+
+  debug(output: Output): void {
+    output = output.write("DeckPost").write(46/*'.'*/).write("create").write(40/*'('*/)
+        .debug(this.key).write(", ").debug(this.grow).write(", ")
+        .debug(this.shrink).write(", ").debug(this.basis).write(41/*')'*/);
+    if (this.width !== null || this.left !== null || this.right !== null) {
+      output = output.write(46/*'.'*/).write("resized").write(40/*'('*/)
+          .debug(this.width).write(", ").debug(this.left).write(", ")
+          .debug(this.right).write(", ").write(41/*')'*/);
+    }
+  }
+
+  toString(): string {
+    return Format.debug(this);
   }
 
   static create(key: string, grow?: number, shrink?: number, basis?: AnyLength): DeckPost {

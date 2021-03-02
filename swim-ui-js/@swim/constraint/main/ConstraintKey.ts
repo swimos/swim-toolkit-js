@@ -12,16 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AttributeAnimator} from "./AttributeAnimator";
-import type {ElementView} from "../element/ElementView";
-
-/** @hidden */
-export abstract class BooleanAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, boolean, boolean | string> {
-  parse(value: string): boolean | undefined {
-    return !!value;
-  }
-
-  fromAny(value: boolean | string): boolean | undefined {
-    return !!value;
-  }
+export interface ConstraintKey {
+  readonly id: number;
 }
+
+export const ConstraintKey = {} as {
+  /** @hidden */
+  idCount: number;
+
+  nextId(): number;
+};
+
+Object.defineProperty(ConstraintKey, "idCount", {
+  value: 0,
+  enumerable: true,
+  configurable: true,
+});
+
+ConstraintKey.nextId = function (): number {
+  const nextId = ConstraintKey.idCount + 1;
+  Object.defineProperty(ConstraintKey, "idCount", {
+    value: nextId,
+    enumerable: true,
+    configurable: true,
+  });
+  return nextId;
+};

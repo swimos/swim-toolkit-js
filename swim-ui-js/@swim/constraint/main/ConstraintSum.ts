@@ -14,12 +14,12 @@
 
 import {Output, Debug, Format} from "@swim/codec";
 import {ConstraintMap} from "./ConstraintMap";
-import {Constrain} from "./Constrain";
-import type {ConstrainVariable} from "./ConstrainVariable";
+import {AnyConstraintExpression, ConstraintExpression} from "./ConstraintExpression";
+import type {ConstraintVariable} from "./ConstraintVariable";
 
-export class ConstrainSum extends Constrain implements Debug {
-  constructor(terms: ConstraintMap<ConstrainVariable, number>, constant: number) {
-    super();
+/** @hidden */
+export class ConstraintSum implements ConstraintExpression, Debug {
+  constructor(terms: ConstraintMap<ConstraintVariable, number>, constant: number) {
     Object.defineProperty(this, "terms", {
       value: terms,
       enumerable: true,
@@ -34,55 +34,55 @@ export class ConstrainSum extends Constrain implements Debug {
     return this.terms.isEmpty();
   }
 
-  declare readonly terms: ConstraintMap<ConstrainVariable, number>;
+  declare readonly terms: ConstraintMap<ConstraintVariable, number>;
 
   declare readonly constant: number;
 
-  plus(that: Constrain | number): Constrain {
-    return Constrain.sum(this, that);
+  plus(that: AnyConstraintExpression): ConstraintExpression {
+    return ConstraintExpression.sum(this, that);
   }
 
-  opposite(): Constrain {
+  negative(): ConstraintExpression {
     const oldTerms = this.terms;
-    const newTerms = new ConstraintMap<ConstrainVariable, number>();
+    const newTerms = new ConstraintMap<ConstraintVariable, number>();
     for (let i = 0, n = oldTerms.size; i < n; i += 1) {
       const [variable, coefficient] = oldTerms.getEntry(i)!;
       newTerms.set(variable, -coefficient);
     }
-    return new ConstrainSum(newTerms, -this.constant);
+    return new ConstraintSum(newTerms, -this.constant);
   }
 
-  minus(that: Constrain | number): Constrain {
+  minus(that: AnyConstraintExpression): ConstraintExpression {
     if (typeof that === "number") {
-      that = Constrain.constant(that);
+      that = ConstraintExpression.constant(that);
     } else {
-      that = that.opposite();
+      that = that.negative();
     }
-    return Constrain.sum(this, that);
+    return ConstraintExpression.sum(this, that);
   }
 
-  times(scalar: number): Constrain {
+  times(scalar: number): ConstraintExpression {
     const oldTerms = this.terms;
-    const newTerms = new ConstraintMap<ConstrainVariable, number>();
+    const newTerms = new ConstraintMap<ConstraintVariable, number>();
     for (let i = 0, n = oldTerms.size; i < n; i += 1) {
       const [variable, coefficient] = oldTerms.getEntry(i)!;
       newTerms.set(variable, coefficient * scalar);
     }
-    return new ConstrainSum(newTerms, this.constant * scalar);
+    return new ConstraintSum(newTerms, this.constant * scalar);
   }
 
-  divide(scalar: number): Constrain {
+  divide(scalar: number): ConstraintExpression {
     const oldTerms = this.terms;
-    const newTerms = new ConstraintMap<ConstrainVariable, number>();
+    const newTerms = new ConstraintMap<ConstraintVariable, number>();
     for (let i = 0, n = oldTerms.size; i < n; i += 1) {
       const [variable, coefficient] = oldTerms.getEntry(i)!;
       newTerms.set(variable, coefficient / scalar);
     }
-    return new ConstrainSum(newTerms, this.constant / scalar);
+    return new ConstraintSum(newTerms, this.constant / scalar);
   }
 
   debug(output: Output): void {
-    output = output.write("Constrain").write(46/*'.'*/).write("sum").write(40/*'('*/);
+    output = output.write("ConstraintExpression").write(46/*'.'*/).write("sum").write(40/*'('*/);
     const n = this.terms.size;
     for (let i = 0; i < n; i += 1) {
       const [variable, coefficient] = this.terms.getEntry(i)!;
@@ -92,7 +92,7 @@ export class ConstrainSum extends Constrain implements Debug {
       if (coefficient === 1) {
         output = output.debug(variable);
       } else {
-        output = output.debug(Constrain.product(coefficient, variable));
+        output = output.debug(ConstraintExpression.product(coefficient, variable));
       }
     }
     if (this.constant !== 0) {

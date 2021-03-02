@@ -130,7 +130,7 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return this.copy(newArray, newIndex);
   }
 
-  opposite(): FeelVector {
+  negative(): FeelVector {
     const oldArray = this.array;
     const n = oldArray.length;
     const newArray = new Array<[Look<unknown>, unknown]>(n);

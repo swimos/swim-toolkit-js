@@ -77,6 +77,12 @@ export interface StyleRule<V extends CssContext> extends CssRule<V>, StyleMap {
   setStyleAnimator(animatorName: string, animator: StyleAnimator<this, unknown> | null): void;
 
   /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
+
+  /** @hidden */
   initCss?(): string;
 
   /** @hidden */
@@ -226,6 +232,24 @@ StyleRule.prototype.setStyleAnimator = function (this: StyleRule<CssContext>, an
   } else {
     delete styleAnimators[animatorName];
   }
+};
+
+StyleRule.prototype.mount = function (): void {
+  CssRule.prototype.mount.call(this);
+  const styleAnimators = this.styleAnimators;
+  for (const animatorName in styleAnimators) {
+    const styleAnimator = styleAnimators[animatorName]!;
+    styleAnimator.mount();
+  }
+};
+
+StyleRule.prototype.unmount = function (): void {
+  const styleAnimators = this.styleAnimators;
+  for (const animatorName in styleAnimators) {
+    const styleAnimator = styleAnimators[animatorName]!;
+    styleAnimator.unmount();
+  }
+  CssRule.prototype.unmount.call(this);
 };
 
 StyleRule.prototype.createRule = function (this: StyleRule<CssContext>, cssText: string): CSSStyleRule {

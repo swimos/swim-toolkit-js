@@ -255,7 +255,7 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   /** @hidden */
-  protected mountTheme(): void {
+  protected activateTheme(): void {
     if (NodeView.isRootView(this.node)) {
       const themeManager = this.themeService.manager;
       if (themeManager !== void 0) {
@@ -336,7 +336,7 @@ export class ElementView extends NodeView implements StyleContext {
     return null;
   }
 
-  setAttributeAnimator(animatorName: string, attributeAnimator: AttributeAnimator<this, unknown> | null): void {
+  setAttributeAnimator(animatorName: string, newAttributeAnimator: AttributeAnimator<this, unknown> | null): void {
     let attributeAnimators = this.attributeAnimators;
     if (attributeAnimators === null) {
       attributeAnimators = {};
@@ -346,8 +346,15 @@ export class ElementView extends NodeView implements StyleContext {
         configurable: true,
       });
     }
-    if (attributeAnimator !== null) {
-      attributeAnimators[animatorName] = attributeAnimator;
+    const oldAttributedAnimator = attributeAnimators[animatorName];
+    if (oldAttributedAnimator !== void 0 && this.isMounted()) {
+      oldAttributedAnimator.unmount();
+    }
+    if (newAttributeAnimator !== null) {
+      attributeAnimators[animatorName] = newAttributeAnimator;
+      if (this.isMounted()) {
+        newAttributeAnimator.mount();
+      }
     } else {
       delete attributeAnimators[animatorName];
     }
@@ -467,7 +474,7 @@ export class ElementView extends NodeView implements StyleContext {
     return null;
   }
 
-  setStyleAnimator(animatorName: string, animator: StyleAnimator<this, unknown> | null): void {
+  setStyleAnimator(animatorName: string, newStyleAnimator: StyleAnimator<this, unknown> | null): void {
     let styleAnimators = this.styleAnimators;
     if (styleAnimators === null) {
       styleAnimators = {};
@@ -477,8 +484,15 @@ export class ElementView extends NodeView implements StyleContext {
         configurable: true,
       });
     }
-    if (animator !== null) {
-      styleAnimators[animatorName] = animator;
+    const oldStyleAnimator = styleAnimators[animatorName];
+    if (oldStyleAnimator !== void 0 && this.isMounted()) {
+      oldStyleAnimator.unmount();
+    }
+    if (newStyleAnimator !== null) {
+      styleAnimators[animatorName] = newStyleAnimator;
+      if (this.isMounted()) {
+        newStyleAnimator.mount();
+      }
     } else {
       delete styleAnimators[animatorName];
     }
@@ -682,12 +696,12 @@ export class ElementView extends NodeView implements StyleContext {
                                    target: Object, propertyKey: string | symbol): void {
     Object.defineProperty(target, propertyKey, {
       get: function (this: ElementView): AttributeAnimator<ElementView, unknown> {
-        let animator = this.getAttributeAnimator(propertyKey.toString());
-        if (animator === null) {
-          animator = new constructor(this, propertyKey.toString());
-          this.setAttributeAnimator(propertyKey.toString(), animator);
+        let attributeAnimator = this.getAttributeAnimator(propertyKey.toString());
+        if (attributeAnimator === null) {
+          attributeAnimator = new constructor(this, propertyKey.toString());
+          this.setAttributeAnimator(propertyKey.toString(), attributeAnimator);
         }
-        return animator;
+        return attributeAnimator;
       },
       configurable: true,
       enumerable: true,

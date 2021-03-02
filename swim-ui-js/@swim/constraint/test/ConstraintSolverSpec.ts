@@ -27,12 +27,10 @@ export class ConstraintSolverSpec extends Spec {
 
     left.setState(100);
     width.setState(400);
-    solver.updateConstraintVariables();
     exam.equal(right.value, 500);
 
     left.setState(150);
     width.setState(250);
-    solver.updateConstraintVariables();
     exam.equal(right.value, 400);
   }
 
@@ -47,12 +45,10 @@ export class ConstraintSolverSpec extends Spec {
 
     left.setState(0);
     width.setState(500);
-    solver.updateConstraintVariables();
     exam.equal(center.value, 250);
 
     left.setState(100);
     width.setState(400);
-    solver.updateConstraintVariables();
     exam.equal(center.value, 300);
   }
 }

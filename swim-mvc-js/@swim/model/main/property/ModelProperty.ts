@@ -163,7 +163,7 @@ export interface ModelProperty<M extends Model, T, U = never> {
   didUpdate(newState: T, oldState: T): void;
 
   /** @hidden */
-  updateSubPropertys(newState: T, oldState: T): void;
+  updateSubProperties(newState: T, oldState: T): void;
 
   /** @hidden */
   updateTraitPropertys(newState: T, oldState: T): void;
@@ -575,7 +575,7 @@ ModelProperty.prototype.setOwnState = function <T, U>(this: ModelProperty<Model,
     this.setPropertyFlags(this.propertyFlags | ModelProperty.UpdatedFlag);
     this.onSetState(newState as T, oldState);
     this.onUpdate(newState as T, oldState);
-    this.updateSubPropertys(newState as T, oldState);
+    this.updateSubProperties(newState as T, oldState);
     this.updateTraitPropertys(newState as T, oldState);
     this.didUpdate(newState as T, oldState);
     this.didSetState(newState as T, oldState);
@@ -644,7 +644,7 @@ ModelProperty.prototype.update = function <T>(this: ModelProperty<Model, T>, new
     });
     this.setPropertyFlags(this.propertyFlags | ModelProperty.UpdatedFlag);
     this.onUpdate(newState, oldState);
-    this.updateSubPropertys(newState, oldState);
+    this.updateSubProperties(newState, oldState);
     this.updateTraitPropertys(newState, oldState);
     this.didUpdate(newState, oldState);
   }
@@ -665,7 +665,7 @@ ModelProperty.prototype.didUpdate = function <T>(this: ModelProperty<Model, T>, 
   // hook
 };
 
-ModelProperty.prototype.updateSubPropertys = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
+ModelProperty.prototype.updateSubProperties = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
   const subProperties = this.subProperties;
   for (let i = 0, n = subProperties !== null ? subProperties.length : 0; i < n; i += 1) {
     const subProperty = subProperties![i]!;

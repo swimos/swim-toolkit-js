@@ -13,12 +13,21 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
+import type {
+  AnyConstraintExpression,
+  ConstraintVariable,
+  ConstraintBinding,
+  ConstraintRelation,
+  AnyConstraintStrength,
+  Constraint,
+  ConstraintScope,
+} from "@swim/constraint";
 import type {AnimationTrack, AnimationTimeline} from "@swim/animation";
 import {CssContext} from "./CssContext";
 import type {CssRule} from "./CssRule";
 
 export class StyleSheet implements AnimationTrack, CssContext {
-  constructor(owner: AnimationTimeline, stylesheet?: CSSStyleSheet) {
+  constructor(owner: AnimationTimeline & ConstraintScope, stylesheet?: CSSStyleSheet) {
     Object.defineProperty(this, "owner", {
       value: owner,
       enumerable: true,
@@ -39,7 +48,7 @@ export class StyleSheet implements AnimationTrack, CssContext {
     });
   }
 
-  declare readonly owner: AnimationTimeline;
+  declare readonly owner: AnimationTimeline & ConstraintScope;
 
   declare readonly stylesheet: CSSStyleSheet;
 
@@ -148,9 +157,64 @@ export class StyleSheet implements AnimationTrack, CssContext {
     }
   }
 
+  constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation,
+             rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {
+    return this.owner.constraint(lhs, relation, rhs, strength);
+  }
+
+  hasConstraint(constraint: Constraint): boolean {
+    return this.owner.hasConstraint(constraint);
+  }
+
+  addConstraint(constraint: Constraint): void {
+    return this.owner.addConstraint(constraint);
+  }
+
+  removeConstraint(constraint: Constraint): void {
+    return this.owner.removeConstraint(constraint);
+  }
+
+  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstraintBinding {
+    return this.owner.constraintVariable(name, value, strength);
+  }
+
+  hasConstraintVariable(constraintVariable: ConstraintVariable): boolean {
+    return this.owner.hasConstraintVariable(constraintVariable);
+  }
+
+  addConstraintVariable(constraintVariable: ConstraintVariable): void {
+    this.owner.addConstraintVariable(constraintVariable);
+  }
+
+  removeConstraintVariable(constraintVariable: ConstraintVariable): void {
+    this.owner.removeConstraintVariable(constraintVariable);
+  }
+
+  setConstraintVariable(constraintVariable: ConstraintVariable, state: number): void {
+    this.owner.setConstraintVariable(constraintVariable, state);
+  }
+
   requireUpdate(updateFlags: number): void {
     if (typeof (this.owner as any).requireUpdate === "function") {
       (this.owner as any).requireUpdate(updateFlags);
+    }
+  }
+
+  /** @hidden */
+  mount(): void {
+    const cssRules = this.cssRules;
+    for (const ruleName in cssRules) {
+      const cssRule = cssRules[ruleName]!;
+      cssRule.mount();
+    }
+  }
+
+  /** @hidden */
+  unmount(): void {
+    const cssRules = this.cssRules;
+    for (const ruleName in cssRules) {
+      const cssRule = cssRules[ruleName]!;
+      cssRule.unmount();
     }
   }
 }

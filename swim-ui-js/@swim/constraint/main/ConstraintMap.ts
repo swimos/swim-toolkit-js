@@ -12,15 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Iterator, Map} from "@swim/util";
+import type {ConstraintKey} from "./ConstraintKey";
 
 /** @hidden */
-export interface ConstraintKey {
-  readonly id: number;
-}
-
-/** @hidden */
-export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
+export class ConstraintMap<K extends ConstraintKey, V> {
   constructor(index?: {[id: number]: number | undefined}, array?: Array<[K, V]>) {
     Object.defineProperty(this, "index", {
       value: index !== void 0 ? index : {},
@@ -52,39 +47,42 @@ export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
   }
 
   get(key: K): V | undefined {
-    const index = this.index[key.id];
-    return index !== void 0 ? this.array[index]![1] : void 0;
+    const k = this.index[key.id];
+    return k !== void 0 ? this.array[k]![1] : void 0;
   }
 
   getField(key: K): [K, V] | undefined {
-    const index = this.index[key.id];
-    return index !== void 0 ? this.array[index] : void 0;
+    const k = this.index[key.id];
+    return k !== void 0 ? this.array[k] : void 0;
   }
 
-  getEntry(index: number): [K, V] | undefined {
-    return this.array[index];
+  getEntry(k: number): [K, V] | undefined {
+    return this.array[k];
   }
 
-  set(key: K, newValue: V): this {
-    const index = this.index[key.id];
-    if (index !== void 0) {
-      this.array[index]![1] = newValue;
+  set(key: K, newValue: V): V | undefined {
+    const k = this.index[key.id];
+    if (k !== void 0) {
+      const entry = this.array[k]!;
+      const oldValue = entry[1];
+      entry[1] = newValue;
+      return oldValue;
     } else {
       this.index[key.id] = this.array.length;
       this.array.push([key, newValue]);
+      return void 0;
     }
-    return this;
   }
 
   delete(key: K): boolean {
-    const index = this.index[key.id];
-    if (index !== void 0) {
+    const k = this.index[key.id];
+    if (k !== void 0) {
       delete this.index[key.id];
-      const item = this.array[index];
+      const item = this.array[k];
       const last = this.array.pop()!;
       if (item !== last) {
-        this.array[index] = last;
-        this.index[last[0].id] = index;
+        this.array[k] = last;
+        this.index[last[0].id] = k;
       }
       return true;
     } else {
@@ -93,14 +91,14 @@ export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
   }
 
   remove(key: K): V | undefined {
-    const index = this.index[key.id];
-    if (index !== void 0) {
+    const k = this.index[key.id];
+    if (k !== void 0) {
       delete this.index[key.id];
-      const item = this.array[index]!;
+      const item = this.array[k]!;
       const last = this.array.pop()!;
       if (item !== last) {
-        this.array[index] = last;
-        this.index[last[0].id] = index;
+        this.array[k] = last;
+        this.index[last[0].id] = k;
       }
       return item[1];
     } else {
@@ -133,18 +131,6 @@ export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
     return void 0;
   }
 
-  keys(): Iterator<K> {
-    throw new Error(); // not implemented
-  }
-
-  values(): Iterator<V> {
-    throw new Error(); // not implemented
-  }
-
-  entries(): Iterator<[K, V]> {
-    throw new Error(); // not implemented
-  }
-
   clone(): ConstraintMap<K, V> {
     const oldArray = this.array;
     const n = oldArray.length;
@@ -156,14 +142,5 @@ export class ConstraintMap<K extends ConstraintKey, V> implements Map<K, V> {
       newIndex[key.id] = i;
     }
     return new ConstraintMap(newIndex, newArray);
-  }
-
-  /** @hidden */
-  static idCount: number = 1;
-
-  static nextId(): number {
-    const nextId = ConstraintMap.idCount;
-    ConstraintMap.idCount = nextId + 1;
-    return nextId;
   }
 }

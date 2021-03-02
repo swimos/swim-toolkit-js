@@ -14,6 +14,15 @@
 
 import {__extends} from "tslib";
 import {Arrays} from "@swim/util";
+import type {
+  AnyConstraintExpression,
+  ConstraintVariable,
+  ConstraintBinding,
+  ConstraintRelation,
+  AnyConstraintStrength,
+  Constraint,
+  ConstraintScope,
+} from "@swim/constraint";
 import type {AnimationTrack, AnimationTimeline} from "@swim/animation";
 import {CssContext} from "./CssContext";
 import {
@@ -53,7 +62,7 @@ export interface CssRuleClass extends Function {
   readonly prototype: CssRule<any>;
 }
 
-export interface CssRule<V extends CssContext> extends AnimationTrack, AnimationTimeline {
+export interface CssRule<V extends CssContext> extends AnimationTrack, AnimationTimeline, ConstraintScope {
   readonly name: string | undefined;
 
   readonly owner: V;
@@ -75,6 +84,32 @@ export interface CssRule<V extends CssContext> extends AnimationTrack, Animation
   trackWillStopAnimating(track: AnimationTrack): void;
 
   trackDidStopAnimating(track: AnimationTrack): void;
+
+  constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation,
+             rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint;
+
+  hasConstraint(constraint: Constraint): boolean;
+
+  addConstraint(constraint: Constraint): void;
+
+  removeConstraint(constraint: Constraint): void;
+
+  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstraintBinding;
+
+  hasConstraintVariable(variable: ConstraintVariable): boolean;
+
+  addConstraintVariable(variable: ConstraintVariable): void;
+
+  removeConstraintVariable(variable: ConstraintVariable): void;
+
+  /** @hidden */
+  setConstraintVariable(constraintVariable: ConstraintVariable, state: number): void;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 
   /** @hidden */
   initCss?(): string | undefined;
@@ -197,6 +232,51 @@ CssRule.prototype.trackDidStopAnimating = function (track: AnimationTrack): void
       this.owner.trackDidStopAnimating(this);
     }
   }
+};
+
+CssRule.prototype.constraint = function (this: CssRule<CssContext>, lhs: AnyConstraintExpression, relation: ConstraintRelation,
+                                         rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {
+  return this.owner.constraint(lhs, relation, rhs, strength);
+};
+
+CssRule.prototype.hasConstraint = function (this: CssRule<CssContext>, constraint: Constraint): boolean {
+  return this.owner.hasConstraint(constraint);
+};
+
+CssRule.prototype.addConstraint = function (this: CssRule<CssContext>, constraint: Constraint): void {
+  this.owner.addConstraint(constraint);
+};
+
+CssRule.prototype.removeConstraint = function (this: CssRule<CssContext>, constraint: Constraint): void {
+  this.owner.removeConstraint(constraint);
+};
+
+CssRule.prototype.constraintVariable = function (this: CssRule<CssContext>, name: string, value?: number, strength?: AnyConstraintStrength): ConstraintBinding {
+  return this.owner.constraintVariable(name, value, strength);
+};
+
+CssRule.prototype.hasConstraintVariable = function (this: CssRule<CssContext>, constraintVariable: ConstraintVariable): boolean {
+  return this.owner.hasConstraintVariable(constraintVariable);
+};
+
+CssRule.prototype.addConstraintVariable = function (this: CssRule<CssContext>, constraintVariable: ConstraintVariable): void {
+  this.owner.addConstraintVariable(constraintVariable);
+};
+
+CssRule.prototype.removeConstraintVariable = function (this: CssRule<CssContext>, constraintVariable: ConstraintVariable): void {
+  this.owner.removeConstraintVariable(constraintVariable);
+};
+
+CssRule.prototype.setConstraintVariable = function (this: CssRule<CssContext>, constraintVariable: ConstraintVariable, state: number): void {
+  this.owner.setConstraintVariable(constraintVariable, state);
+};
+
+CssRule.prototype.mount = function (): void {
+  // hook
+};
+
+CssRule.prototype.unmount = function (): void {
+  // hook
 };
 
 CssRule.prototype.createRule = function (this: CssRule<CssContext>, cssText?: string): CSSRule {

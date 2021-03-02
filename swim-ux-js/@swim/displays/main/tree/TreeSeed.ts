@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Equivalent, Equals, Arrays} from "@swim/util"
+import {Debug, Format, Output} from "@swim/codec";
 import {AnyLength, Length} from "@swim/math";
 import {AnyTreeRoot, TreeRoot} from "./TreeRoot";
 
@@ -23,10 +24,10 @@ export interface TreeSeedInit {
   left?: AnyLength | null;
   right?: AnyLength | null;
   spacing?: AnyLength | null;
-  roots?: AnyTreeRoot[];
+  roots: AnyTreeRoot[];
 }
 
-export class TreeSeed implements Equals, Equivalent {
+export class TreeSeed implements Equals, Equivalent, Debug {
   constructor(width: Length | null, left: Length | null, right: Length | null,
               spacing: AnyLength | null, roots: ReadonlyArray<TreeRoot>) {
     Object.defineProperty(this, "width", {
@@ -241,6 +242,26 @@ export class TreeSeed implements Equals, Equivalent {
     return false;
   }
 
+  debug(output: Output): void {
+    output = output.write("TreeSeed").write(46/*'.'*/).write("of").write(40/*'('*/)
+    for (let i = 0, n = this.roots.length; i < n; i += 1) {
+      if (i !== 0) {
+        output = output.write(", ");
+      }
+      output = output.debug(this.roots[i]!);
+    }
+    output = output.write(41/*')'*/);
+    if (this.width !== null || this.left !== null || this.right !== null || this.spacing !== null) {
+      output = output.write(46/*'.'*/).write("resized").write(40/*'('*/)
+          .debug(this.width).write(", ").debug(this.left).write(", ")
+          .debug(this.right).write(", ").debug(this.spacing).write(41/*')'*/);
+    }
+  }
+
+  toString(): string {
+    return Format.debug(this);
+  }
+
   static of(...treeRoots: AnyTreeRoot[]): TreeSeed {
     const n = treeRoots.length;
     const roots = new Array<TreeRoot>(n);
@@ -288,15 +309,10 @@ export class TreeSeed implements Equals, Equivalent {
     } else {
       spacing = null;
     }
-    let roots: TreeRoot[];
-    if (init.roots !== void 0) {
-      const n = init.roots.length;
-      roots = new Array<TreeRoot>(n);
-      for (let i = 0; i < n; i += 1) {
-        roots[i] = TreeRoot.fromAny(init.roots[i]!);
-      }
-    } else {
-      roots = [];
+    const rootCount = init.roots.length;
+    const roots = new Array<TreeRoot>(rootCount);
+    for (let i = 0; i < rootCount; i += 1) {
+      roots[i] = TreeRoot.fromAny(init.roots[i]!);
     }
     return new TreeSeed(width, left, right, spacing, roots);
   }

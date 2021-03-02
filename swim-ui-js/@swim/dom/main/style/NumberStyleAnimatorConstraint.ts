@@ -13,13 +13,17 @@
 // limitations under the License.
 
 import type {StyleContext} from "./StyleContext";
-import {StyleAnimator} from "./StyleAnimator";
+import {StyleAnimatorConstraint} from "./StyleAnimatorConstraint";
 
 /** @hidden */
-export abstract class NumberOrStringStyleAnimator<V extends StyleContext> extends StyleAnimator<V, number | string, number | string> {
-  parse(value: string): number | string | undefined {
+export abstract class NumberStyleAnimatorConstraint<V extends StyleContext> extends StyleAnimatorConstraint<V, number, string> {
+  parse(value: string): number | undefined {
     const number = +value;
-    return isFinite(number) ? number : value;
+    return isFinite(number) ? number : void 0;
+  }
+
+  toNumber(value: number): number {
+    return typeof value === "number" ? value : 0;
   }
 
   fromCssValue(value: CSSStyleValue): number | undefined {
@@ -30,12 +34,12 @@ export abstract class NumberOrStringStyleAnimator<V extends StyleContext> extend
     }
   }
 
-  fromAny(value: number | string): number | string | undefined {
+  fromAny(value: number | string): number | undefined {
     if (typeof value === "number") {
       return value;
     } else {
       const number = +value;
-      return isFinite(number) ? number : value;
+      return isFinite(number) ? number : void 0;
     }
   }
 }

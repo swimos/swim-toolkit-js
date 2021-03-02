@@ -130,13 +130,13 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
     return MoodMatrix.fromColArray(newColArray, newColIndex);
   }
 
-  opposite(): MoodMatrix<M, N> {
+  negative(): MoodMatrix<M, N> {
     const oldColArray = this.colArray;
     const n = oldColArray.length;
     const newColArray = new Array<[N, MoodVector<M>]>(n);
     for (let j = 0; j < n; j += 1) {
       const [colKey, a] = oldColArray[j]!;
-      newColArray[j] = [colKey, a.opposite()];
+      newColArray[j] = [colKey, a.negative()];
     }
     return MoodMatrix.fromColArray(newColArray, this.colIndex);
   }
@@ -157,7 +157,7 @@ export class MoodMatrix<M extends Mood = Feel, N extends Mood = Feel> implements
       const [colKey, b] = thatColArray[j]!;
       if (newColIndex[colKey.name] === void 0) {
         newColIndex[colKey.name] = newColArray.length;
-        newColArray.push([colKey, b.opposite()]);
+        newColArray.push([colKey, b.negative()]);
       }
     }
     return MoodMatrix.fromColArray(newColArray, newColIndex);

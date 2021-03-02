@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {ConstraintScope} from "@swim/constraint";
 import type {AnimationTimeline} from "@swim/animation";
 import type {CssRuleConstructor, CssRule} from "./CssRule";
 
@@ -20,7 +21,7 @@ export interface CssContextPrototype {
   cssRuleConstructors?: {[ruleName: string]: CssRuleConstructor<CssContext> | undefined};
 }
 
-export interface CssContext extends AnimationTimeline {
+export interface CssContext extends AnimationTimeline, ConstraintScope {
   getRule(index: number): CSSRule | null;
 
   insertRule(cssText: string, index?: number): number;

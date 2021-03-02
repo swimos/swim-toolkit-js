@@ -64,7 +64,7 @@ export class MapPointView extends MapLayerView {
   @ViewAnimator<MapPointView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
     state: GeoPoint.origin(),
-    onSetValue(newValue: GeoPoint, oldValue: GeoPoint): void {
+    didSetValue(newValue: GeoPoint, oldValue: GeoPoint): void {
       this.owner.onSetGeoPoint(newValue, oldValue);
     },
   })

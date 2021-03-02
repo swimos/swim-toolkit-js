@@ -117,13 +117,10 @@ export interface ViewProperty<V extends View, T, U = never> {
 
   setState(state: T | U): void;
 
-  /** @hidden */
   willSetState(newState: T, oldState: T): void;
 
-  /** @hidden */
   onSetState(newState: T, oldState: T): void;
 
-  /** @hidden */
   didSetState(newState: T, oldState: T): void;
 
   setAutoState(state: T | U): void;
@@ -153,16 +150,38 @@ export interface ViewProperty<V extends View, T, U = never> {
   didUpdate(newState: T, oldState: T): void;
 
   /** @hidden */
-  updateSubPropertys(newState: T, oldState: T): void;
+  updateSubProperties(newState: T, oldState: T): void;
 
   /** @hidden */
   change(): void;
+
+  isMounted(): boolean;
 
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
+
+  toString(): string;
 
   updateFlags?: ViewFlags;
 
@@ -203,11 +222,17 @@ export const ViewProperty = function <V extends View, T, U>(
   define<V extends View, T, U = never>(descriptor: ViewPropertyDescriptor<V, T, U>): ViewPropertyConstructor<V, T, U>;
 
   /** @hidden */
+  MountedFlag: ViewPropertyFlags;
+  /** @hidden */
   UpdatedFlag: ViewPropertyFlags;
   /** @hidden */
   OverrideFlag: ViewPropertyFlags;
   /** @hidden */
   InheritedFlag: ViewPropertyFlags;
+  /** @hidden */
+  ConstrainedFlag: ViewPropertyFlags;
+  /** @hidden */
+  ConstrainingFlag: ViewPropertyFlags;
 };
 __extends(ViewProperty, Object);
 
@@ -317,10 +342,10 @@ Object.defineProperty(ViewProperty.prototype, "superName", {
 });
 
 ViewProperty.prototype.bindSuperProperty = function (this: ViewProperty<View, unknown>): void {
-  let view = this.owner;
-  if (view.isMounted()) {
+  if (this.isMounted()) {
     const superName = this.superName;
     if (superName !== void 0) {
+      let view = this.owner;
       do {
         const parentView = view.parentView;
         if (parentView !== null) {
@@ -476,7 +501,7 @@ ViewProperty.prototype.setOwnState = function <T, U>(this: ViewProperty<View, T,
     this.setPropertyFlags(this.propertyFlags | ViewProperty.UpdatedFlag);
     this.onSetState(newState as T, oldState);
     this.onUpdate(newState as T, oldState);
-    this.updateSubPropertys(newState as T, oldState);
+    this.updateSubProperties(newState as T, oldState);
     this.didUpdate(newState as T, oldState);
     this.didSetState(newState as T, oldState);
   }
@@ -544,7 +569,7 @@ ViewProperty.prototype.update = function <T>(this: ViewProperty<View, T>, newSta
     });
     this.setPropertyFlags(this.propertyFlags | ViewProperty.UpdatedFlag);
     this.onUpdate(newState, oldState);
-    this.updateSubPropertys(newState, oldState);
+    this.updateSubProperties(newState, oldState);
     this.didUpdate(newState, oldState);
   }
 };
@@ -564,7 +589,7 @@ ViewProperty.prototype.didUpdate = function <T>(this: ViewProperty<View, T>, new
   // hook
 };
 
-ViewProperty.prototype.updateSubPropertys = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
+ViewProperty.prototype.updateSubProperties = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
   const subProperties = this.subProperties;
   for (let i = 0, n = subProperties !== null ? subProperties.length : 0; i < n; i += 1) {
     const subProperty = subProperties![i]!;
@@ -578,12 +603,54 @@ ViewProperty.prototype.change = function (this: ViewProperty<View, unknown>): vo
   this.owner.requireUpdate(View.NeedsChange);
 };
 
+ViewProperty.prototype.isMounted = function (this: ViewProperty<View, unknown>): boolean {
+  return (this.propertyFlags & ViewProperty.MountedFlag) !== 0;
+};
+
 ViewProperty.prototype.mount = function (this: ViewProperty<View, unknown>): void {
+  if ((this.propertyFlags & ViewProperty.MountedFlag) === 0) {
+    this.willMount();
+    this.setPropertyFlags(this.propertyFlags | ViewProperty.MountedFlag);
+    this.onMount();
+    this.didMount();
+  }
+};
+
+ViewProperty.prototype.willMount = function (this: ViewProperty<View, unknown>): void {
+  // hook
+};
+
+ViewProperty.prototype.onMount = function (this: ViewProperty<View, unknown>): void {
   this.bindSuperProperty();
 };
 
+ViewProperty.prototype.didMount = function (this: ViewProperty<View, unknown>): void {
+  // hook
+};
+
 ViewProperty.prototype.unmount = function (this: ViewProperty<View, unknown>): void {
+  if ((this.propertyFlags & ViewProperty.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setPropertyFlags(this.propertyFlags & ~ViewProperty.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
+  }
+};
+
+ViewProperty.prototype.willUnmount = function (this: ViewProperty<View, unknown>): void {
+  // hook
+};
+
+ViewProperty.prototype.onUnmount = function (this: ViewProperty<View, unknown>): void {
   this.unbindSuperProperty();
+};
+
+ViewProperty.prototype.didUnmount = function (this: ViewProperty<View, unknown>): void {
+  // hook
+};
+
+ViewProperty.prototype.toString = function (this: ViewProperty<View, unknown>): string {
+  return this.name;
 };
 
 ViewProperty.prototype.fromAny = function <T, U>(this: ViewProperty<View, T, U>, value: T | U): T {
@@ -654,9 +721,12 @@ ViewProperty.define = function <V extends View, T, U, I>(descriptor: ViewPropert
   return _constructor;
 };
 
-ViewProperty.UpdatedFlag = 1 << 0;
-ViewProperty.OverrideFlag = 1 << 1;
-ViewProperty.InheritedFlag = 1 << 2;
+ViewProperty.MountedFlag = 1 << 0;
+ViewProperty.UpdatedFlag = 1 << 1;
+ViewProperty.OverrideFlag = 1 << 2;
+ViewProperty.InheritedFlag = 1 << 3;
+ViewProperty.ConstrainedFlag = 1 << 4;
+ViewProperty.ConstrainingFlag = 1 << 5;
 
 ViewProperty({extends: void 0, type: MoodVector, inherit: true})(View.prototype, "mood");
 ViewProperty({extends: void 0, type: ThemeMatrix, inherit: true})(View.prototype, "theme");

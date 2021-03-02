@@ -25,9 +25,6 @@ import {NumberAttributeAnimator} from "../"; // forward import
 import {LengthAttributeAnimator} from "../"; // forward import
 import {ColorAttributeAnimator} from "../"; // forward import
 import {TransformAttributeAnimator} from "../"; // forward import
-import {NumberOrStringAttributeAnimator} from "../"; // forward import
-import {LengthOrStringAttributeAnimator} from "../"; // forward import
-import {ColorOrStringAttributeAnimator} from "../"; // forward import
 import type {ViewNodeType} from "../node/NodeView";
 import {ElementView} from "../"; // forward import
 
@@ -43,6 +40,9 @@ export interface AttributeAnimatorInit<T, U = never> {
   type?: unknown;
 
   updateFlags?: ViewFlags;
+  willSetState?(newValue: T | undefined, oldValue: T | undefined): void;
+  onSetState?(newValue: T | undefined, oldValue: T | undefined): void;
+  didSetState?(newValue: T | undefined, oldValue: T | undefined): void;
   willSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
   onSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
   didSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
@@ -104,11 +104,33 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
 
   didStopAnimating(): void;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
+
+  toString(): string;
 
   updateFlags?: ViewFlags;
 
@@ -137,9 +159,6 @@ export const AttributeAnimator = function <V extends ElementView, T, U>(
   <V extends ElementView, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
   <V extends ElementView, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | undefined>(descriptor: {type: typeof Boolean} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
   <V extends ElementView, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends ElementView, T extends Length | string | undefined = Length | string | undefined, U extends AnyLength | string | undefined = AnyLength | string | undefined>(descriptor: {type: [typeof Length, typeof String]} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends ElementView, T extends Color | string | undefined = Color | string | undefined, U extends AnyColor | string | undefined = AnyColor | string | undefined>(descriptor: {type: [typeof Color, typeof String]} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends ElementView, T extends number | string | undefined = number | string | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: [typeof Number, typeof String]} & AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
   <V extends ElementView, T, U = never>(descriptor: AttributeAnimatorDescriptorFromAny<V, T, U>): PropertyDecorator;
   <V extends ElementView, T, U = never, I = {}>(descriptor: AttributeAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
   <V extends ElementView, T, U = never>(descriptor: AttributeAnimatorDescriptor<V, T, U>): PropertyDecorator;
@@ -283,12 +302,54 @@ AttributeAnimator.prototype.didStopAnimating = function (this: AttributeAnimator
   this.owner.trackDidStopAnimating(this);
 };
 
+AttributeAnimator.prototype.isMounted = function (this: AttributeAnimator<ElementView, unknown>): boolean {
+  return (this.animatorFlags & Animator.MountedFlag) !== 0;
+};
+
 AttributeAnimator.prototype.mount = function (this: AttributeAnimator<ElementView, unknown>): void {
+  if ((this.animatorFlags & Animator.MountedFlag) === 0) {
+    this.willMount();
+    this.setAnimatorFlags(this.animatorFlags | Animator.MountedFlag);
+    this.onMount();
+    this.didMount();
+  }
+};
+
+AttributeAnimator.prototype.willMount = function (this: AttributeAnimator<ElementView, unknown>): void {
+  // hook
+};
+
+AttributeAnimator.prototype.onMount = function (this: AttributeAnimator<ElementView, unknown>): void {
+  // hook
+};
+
+AttributeAnimator.prototype.didMount = function (this: AttributeAnimator<ElementView, unknown>): void {
   // hook
 };
 
 AttributeAnimator.prototype.unmount = function (this: AttributeAnimator<ElementView, unknown>): void {
+  if ((this.animatorFlags & Animator.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setAnimatorFlags(this.animatorFlags & ~Animator.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
+  }
+};
+
+AttributeAnimator.prototype.willUnmount = function (this: AttributeAnimator<ElementView, unknown>): void {
+  // hook
+};
+
+AttributeAnimator.prototype.onUnmount = function (this: AttributeAnimator<ElementView, unknown>): void {
   this.stopAnimating();
+};
+
+AttributeAnimator.prototype.didUnmount = function (this: AttributeAnimator<ElementView, unknown>): void {
+  // hook
+};
+
+AttributeAnimator.prototype.toString = function (this: AttributeAnimator<ElementView, unknown>): string {
+  return this.name;
 };
 
 AttributeAnimator.prototype.parse = function <T>(this: AttributeAnimator<ElementView, T>): T | undefined {
@@ -312,15 +373,6 @@ AttributeAnimator.getClass = function (type: unknown): AttributeAnimatorClass | 
     return ColorAttributeAnimator;
   } else if (type === Transform) {
     return TransformAttributeAnimator;
-  } else if (Array.isArray(type) && type.length === 2) {
-    const [type0, type1] = type;
-    if (type0 === Number && type1 === String) {
-      return NumberOrStringAttributeAnimator;
-    } else if (type0 === Length && type1 === String) {
-      return LengthOrStringAttributeAnimator;
-    } else if (type0 === Color && type1 === String) {
-      return ColorOrStringAttributeAnimator;
-    }
   }
   return null;
 };

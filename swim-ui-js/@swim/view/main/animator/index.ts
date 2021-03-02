@@ -24,15 +24,29 @@ export {
   ViewAnimator,
 } from "./ViewAnimator";
 
+export {
+  ViewAnimatorConstraintInit,
+  ViewAnimatorConstraintDescriptor,
+  ViewAnimatorConstraintDescriptorExtends,
+  ViewAnimatorConstraintDescriptorFromAny,
+  ViewAnimatorConstraintConstructor,
+  ViewAnimatorConstraintClass,
+  ViewAnimatorConstraint,
+} from "./ViewAnimatorConstraint";
+
 export {StringViewAnimator} from "./StringViewAnimator";
 
 export {BooleanViewAnimator} from "./BooleanViewAnimator";
 
 export {NumberViewAnimator} from "./NumberViewAnimator";
 
+export {NumberViewAnimatorConstraint} from "./NumberViewAnimatorConstraint";
+
 export {AngleViewAnimator} from "./AngleViewAnimator";
 
 export {LengthViewAnimator} from "./LengthViewAnimator";
+
+export {LengthViewAnimatorConstraint} from "./LengthViewAnimatorConstraint";
 
 export {ColorViewAnimator} from "./ColorViewAnimator";
 

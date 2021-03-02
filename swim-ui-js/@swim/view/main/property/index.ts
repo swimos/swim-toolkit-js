@@ -25,8 +25,22 @@ export {
   ViewProperty,
 } from "./ViewProperty";
 
+export {
+  ViewPropertyConstraintInit,
+  ViewPropertyConstraintDescriptor,
+  ViewPropertyConstraintDescriptorExtends,
+  ViewPropertyConstraintDescriptorFromAny,
+  ViewPropertyConstraintConstructor,
+  ViewPropertyConstraintClass,
+  ViewPropertyConstraint,
+} from "./ViewPropertyConstraint";
+
 export {StringViewProperty} from "./StringViewProperty";
 
 export {BooleanViewProperty} from "./BooleanViewProperty";
 
 export {NumberViewProperty} from "./NumberViewProperty";
+
+export {NumberViewPropertyConstraint} from "./NumberViewPropertyConstraint";
+
+export {LengthViewPropertyConstraint} from "./LengthViewPropertyConstraint";

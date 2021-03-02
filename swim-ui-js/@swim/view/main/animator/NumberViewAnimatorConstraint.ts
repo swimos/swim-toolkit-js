@@ -12,22 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AttributeAnimator} from "./AttributeAnimator";
-import type {ElementView} from "../element/ElementView";
+import type {View} from "../View";
+import {ViewAnimatorConstraint} from "./ViewAnimatorConstraint";
 
 /** @hidden */
-export abstract class NumberOrStringAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, number | string, number | string> {
-  parse(value: string): number | string {
-    const number = +value;
-    return isFinite(number) ? number : value;
+export abstract class NumberViewAnimatorConstraint<V extends View> extends ViewAnimatorConstraint<V, number | null | undefined, number | string | null | undefined> {
+  toNumber(value: number | null): number {
+    return typeof value === "number" ? value : 0;
   }
 
-  fromAny(value: number | string): number | string {
+  fromAny(value: number | string): number {
     if (typeof value === "number") {
       return value;
-    } else {
+    } else if (typeof value === "string") {
       const number = +value;
-      return isFinite(number) ? number : value;
+      if (isFinite(number)) {
+        return number;
+      } else {
+        throw new Error(value);
+      }
+    } else {
+      return value;
     }
   }
 }

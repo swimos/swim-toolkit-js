@@ -128,7 +128,7 @@ export class SliceView extends LayerView {
   @ViewAnimator<SliceView, number>({
     type: Number,
     state: 0,
-    onSetValue(newValue: number, oldValue: number): void {
+    didSetValue(newValue: number, oldValue: number): void {
       this.owner.onUpdateValue(newValue, oldValue);
     },
   })

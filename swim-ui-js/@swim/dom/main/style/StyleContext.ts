@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {ConstraintScope} from "@swim/constraint";
 import type {AnimationTimeline} from "@swim/animation";
 import type {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
 
-export interface StyleContext extends AnimationTimeline {
+export interface StyleContext extends AnimationTimeline, ConstraintScope {
   readonly node?: Node;
+
+  isMounted(): boolean;
 
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined;
 
@@ -41,12 +44,12 @@ StyleContext.decorateStyleAnimator = function (constructor: StyleAnimatorConstru
                                                target: Object, propertyKey: string | symbol): void {
   Object.defineProperty(target, propertyKey, {
     get: function (this: StyleContext): StyleAnimator<StyleContext, unknown> {
-      let animator = this.getStyleAnimator(propertyKey.toString());
-      if (animator === null) {
-        animator = new constructor(this, propertyKey.toString());
-        this.setStyleAnimator(propertyKey.toString(), animator);
+      let styleAnimator = this.getStyleAnimator(propertyKey.toString());
+      if (styleAnimator === null) {
+        styleAnimator = new constructor(this, propertyKey.toString());
+        this.setStyleAnimator(propertyKey.toString(), styleAnimator);
       }
-      return animator;
+      return styleAnimator;
     },
     configurable: true,
     enumerable: true,

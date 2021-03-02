@@ -58,6 +58,12 @@ export interface MediaRule<V extends CssContext> extends CssRule<V>, CssContext 
   setCssRule(ruleName: string, cssRule: CssRule<this> | null): void;
 
   /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
+
+  /** @hidden */
   initCss?(): string;
 
   /** @hidden */
@@ -133,6 +139,24 @@ MediaRule.prototype.setCssRule = function (this: MediaRule<CssContext>, ruleName
   } else {
     delete this.cssRules[ruleName];
   }
+};
+
+MediaRule.prototype.mount = function (): void {
+  CssRule.prototype.mount.call(this);
+  const cssRules = this.cssRules;
+  for (const ruleName in cssRules) {
+    const cssRule = cssRules[ruleName]!;
+    cssRule.mount();
+  }
+};
+
+MediaRule.prototype.unmount = function (): void {
+  const cssRules = this.cssRules;
+  for (const ruleName in cssRules) {
+    const cssRule = cssRules[ruleName]!;
+    cssRule.unmount();
+  }
+  CssRule.prototype.unmount.call(this);
 };
 
 MediaRule.prototype.createRule = function (this: MediaRule<CssContext>, cssText: string): CSSMediaRule {

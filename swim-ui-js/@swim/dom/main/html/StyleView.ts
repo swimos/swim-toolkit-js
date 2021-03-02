@@ -61,14 +61,22 @@ export class StyleView extends HtmlView {
 
   protected onMount(): void {
     super.onMount();
+    const sheet = this.createSheet();
     Object.defineProperty(this, "sheet", {
-      value: this.createSheet(),
+      value: sheet,
       enumerable: true,
       configurable: true,
     });
+    if (sheet !== null) {
+      sheet.mount();
+    }
   }
 
   protected onUnmount(): void {
+    const sheet = this.sheet;
+    if (sheet !== null) {
+      sheet.unmount();
+    }
     Object.defineProperty(this, "sheet", {
       value: null,
       enumerable: true,

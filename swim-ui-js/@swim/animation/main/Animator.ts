@@ -378,18 +378,24 @@ export abstract class Animator<T> implements AnimationTrack {
   }
 
   /** @hidden */
-  static readonly UpdatedFlag: AnimatorFlags = 1 << 0;
+  static readonly MountedFlag: AnimatorFlags = 1 << 0;
   /** @hidden */
-  static readonly OverrideFlag: AnimatorFlags = 1 << 1;
+  static readonly UpdatedFlag: AnimatorFlags = 1 << 1;
   /** @hidden */
-  static readonly InheritedFlag: AnimatorFlags = 1 << 2;
+  static readonly OverrideFlag: AnimatorFlags = 1 << 2;
   /** @hidden */
-  static readonly AnimatingFlag: AnimatorFlags = 1 << 3;
+  static readonly InheritedFlag: AnimatorFlags = 1 << 3;
   /** @hidden */
-  static readonly DivergedFlag: AnimatorFlags = 1 << 4;
+  static readonly ConstrainedFlag: AnimatorFlags = 1 << 4;
   /** @hidden */
-  static readonly InterruptFlag: AnimatorFlags = 1 << 5;
+  static readonly ConstrainingFlag: AnimatorFlags = 1 << 5;
+  /** @hidden */
+  static readonly AnimatingFlag: AnimatorFlags = 1 << 6;
+  /** @hidden */
+  static readonly DivergedFlag: AnimatorFlags = 1 << 7;
+  /** @hidden */
+  static readonly InterruptFlag: AnimatorFlags = 1 << 8;
 
   /** @hidden */
-  static AnimatorFlagsShift: number = 8;
+  static AnimatorFlagsShift: number = 12;
 }

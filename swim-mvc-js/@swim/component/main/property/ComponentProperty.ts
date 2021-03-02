@@ -154,7 +154,7 @@ export interface ComponentProperty<C extends Component, T, U = never> {
   didUpdate(newState: T, oldState: T): void;
 
   /** @hidden */
-  updateSubPropertys(newState: T, oldState: T): void;
+  updateSubProperties(newState: T, oldState: T): void;
 
   /** @hidden */
   revise(): void;
@@ -477,7 +477,7 @@ ComponentProperty.prototype.setOwnState = function <T, U>(this: ComponentPropert
     this.setPropertyFlags(this.propertyFlags | ComponentProperty.UpdatedFlag);
     this.onSetState(newState as T, oldState);
     this.onUpdate(newState as T, oldState);
-    this.updateSubPropertys(newState as T, oldState);
+    this.updateSubProperties(newState as T, oldState);
     this.didUpdate(newState as T, oldState);
     this.didSetState(newState as T, oldState);
   }
@@ -545,7 +545,7 @@ ComponentProperty.prototype.update = function <T>(this: ComponentProperty<Compon
     });
     this.setPropertyFlags(this.propertyFlags | ComponentProperty.UpdatedFlag);
     this.onUpdate(newState, oldState);
-    this.updateSubPropertys(newState, oldState);
+    this.updateSubProperties(newState, oldState);
     this.didUpdate(newState, oldState);
   }
 };
@@ -565,7 +565,7 @@ ComponentProperty.prototype.didUpdate = function <T>(this: ComponentProperty<Com
   // hook
 };
 
-ComponentProperty.prototype.updateSubPropertys = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
+ComponentProperty.prototype.updateSubProperties = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
   const subProperties = this.subProperties;
   for (let i = 0, n = subProperties !== null ? subProperties.length : 0; i < n; i += 1) {
     const subProperty = subProperties![i]!;

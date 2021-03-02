@@ -87,7 +87,7 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
   @ViewAnimator<MapArcView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
     state: GeoPoint.origin(),
-    onSetValue(newValue: GeoPoint, oldValue: GeoPoint): void {
+    didSetValue(newValue: GeoPoint, oldValue: GeoPoint): void {
       this.owner.onSetGeoCenter(newValue, oldValue);
     },
   })

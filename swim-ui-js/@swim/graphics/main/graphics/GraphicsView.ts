@@ -14,7 +14,7 @@
 
 import {Arrays} from "@swim/util";
 import {BoxR2, Transform} from "@swim/math";
-import type {ConstrainVariable, Constraint} from "@swim/constraint";
+import type {ConstraintVariable, Constraint} from "@swim/constraint";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
@@ -29,7 +29,6 @@ import {
   ViewWillComposite,
   ViewDidComposite,
   ViewService,
-  LayoutConstraint,
   ViewProperty,
   ViewAnimator,
   ViewFastener,
@@ -87,11 +86,6 @@ export abstract class GraphicsView extends View {
       configurable: true,
     });
     Object.defineProperty(this, "viewFasteners", {
-      value: null,
-      enumerable: true,
-      configurable: true,
-    });
-    Object.defineProperty(this, "layoutConstraints", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -365,7 +359,7 @@ export abstract class GraphicsView extends View {
     this.mountViewProperties();
     this.mountViewAnimators();
     this.mountViewFasteners();
-    this.mountTheme();
+    this.activateTheme();
   }
 
   protected didMount(): void {
@@ -677,20 +671,15 @@ export abstract class GraphicsView extends View {
     }
   }
 
+  protected willResize(viewContext: ViewContextType<this>): void {
+    super.willResize(viewContext);
+    this.evaluateConstraintVariables();
+  }
+
   protected onChange(viewContext: ViewContextType<this>): void {
     super.onChange(viewContext);
     this.changeViewProperties();
     this.updateTheme();
-  }
-
-  protected willLayout(viewContext: ViewContextType<this>): void {
-    super.willLayout(viewContext);
-    this.updateConstraints();
-  }
-
-  protected didLayout(viewContext: ViewContextType<this>): void {
-    this.updateConstraintVariables();
-    super.didLayout(viewContext);
   }
 
   /** @hidden */
@@ -948,7 +937,7 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
-  protected mountTheme(): void {
+  protected activateTheme(): void {
     // hook
   }
 
@@ -1368,42 +1357,6 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  /** @hidden */
-  declare readonly layoutConstraints: {[constraintName: string]: LayoutConstraint<View> | undefined} | null;
-
-  hasLayoutConstraint(constraintName: string): boolean {
-    const layoutConstraints = this.layoutConstraints;
-    return layoutConstraints !== null && layoutConstraints[constraintName] !== void 0;
-  }
-
-  getLayoutConstraint(constraintName: string): LayoutConstraint<this> | null {
-    const layoutConstraints = this.layoutConstraints;
-    if (layoutConstraints !== null) {
-      const layoutConstraint = layoutConstraints[constraintName];
-      if (layoutConstraint !== void 0) {
-        return layoutConstraint as LayoutConstraint<this>;
-      }
-    }
-    return null;
-  }
-
-  setLayoutConstraint(constraintName: string, layoutConstraint: LayoutConstraint<this> | null): void {
-    let layoutConstraints = this.layoutConstraints;
-    if (layoutConstraints === null) {
-      layoutConstraints = {};
-      Object.defineProperty(this, "layoutConstraints", {
-        value: layoutConstraints,
-        enumerable: true,
-        configurable: true,
-      });
-    }
-    if (layoutConstraint !== null) {
-      layoutConstraints[constraintName] = layoutConstraint;
-    } else {
-      delete layoutConstraints[constraintName];
-    }
-  }
-
   declare readonly constraints: ReadonlyArray<Constraint>;
 
   hasConstraint(constraint: Constraint): boolean {
@@ -1436,13 +1389,13 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  declare readonly constraintVariables: ReadonlyArray<ConstrainVariable>;
+  declare readonly constraintVariables: ReadonlyArray<ConstraintVariable>;
 
-  hasConstraintVariable(constraintVariable: ConstrainVariable): boolean {
+  hasConstraintVariable(constraintVariable: ConstraintVariable): boolean {
     return this.constraintVariables.indexOf(constraintVariable) >= 0;
   }
 
-  addConstraintVariable(constraintVariable: ConstrainVariable): void {
+  addConstraintVariable(constraintVariable: ConstraintVariable): void {
     const oldConstraintVariables = this.constraintVariables;
     const newConstraintVariables = Arrays.inserted(constraintVariable, oldConstraintVariables);
     if (oldConstraintVariables !== newConstraintVariables) {
@@ -1455,7 +1408,7 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  removeConstraintVariable(constraintVariable: ConstrainVariable): void {
+  removeConstraintVariable(constraintVariable: ConstraintVariable): void {
     const oldConstraintVariables = this.constraintVariables;
     const newConstraintVariables = Arrays.removed(constraintVariable, oldConstraintVariables);
     if (oldConstraintVariables !== newConstraintVariables) {
@@ -1468,16 +1421,12 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  protected updateConstraints(): void {
-    this.updateLayoutConstraints();
-  }
-
   /** @hidden */
-  updateLayoutConstraints(): void {
-    const layoutConstraints = this.layoutConstraints;
-    for (const constraintName in layoutConstraints) {
-      const layoutConstraint = layoutConstraints[constraintName]!;
-      layoutConstraint.updateState();
+  evaluateConstraintVariables(): void {
+    const constraintVariables = this.constraintVariables;
+    for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
+      const constraintVariable = constraintVariables[i]!;
+      constraintVariable.evaluateConstraintVariable();
     }
   }
 
@@ -1485,18 +1434,9 @@ export abstract class GraphicsView extends View {
   activateLayout(): void {
     const layoutManager = this.layoutService.manager;
     if (layoutManager !== void 0) {
-      const constraintVariables = this.constraintVariables;
-      for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-        const constraintVariable = constraintVariables[i];
-        if (constraintVariable instanceof LayoutConstraint) {
-          layoutManager.activateConstraintVariable(constraintVariable);
-          this.requireUpdate(View.NeedsLayout);
-        }
-      }
       const constraints = this.constraints;
       for (let i = 0, n = constraints.length; i < n; i += 1) {
         layoutManager.activateConstraint(constraints[i]!);
-        this.requireUpdate(View.NeedsLayout);
       }
     }
   }
@@ -1508,12 +1448,6 @@ export abstract class GraphicsView extends View {
       const constraints = this.constraints;
       for (let i = 0, n = constraints.length; i < n; i += 1) {
         layoutManager.deactivateConstraint(constraints[i]!);
-        this.requireUpdate(View.NeedsLayout);
-      }
-      const constraintVariables = this.constraintVariables;
-      for (let i = 0, n = constraintVariables.length; i < n; i += 1) {
-        layoutManager.deactivateConstraintVariable(constraintVariables[i]!);
-        this.requireUpdate(View.NeedsLayout);
       }
     }
   }

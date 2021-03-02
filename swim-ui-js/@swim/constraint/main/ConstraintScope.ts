@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Constrain} from "./Constrain";
-import type {ConstrainVariable} from "./ConstrainVariable";
+import type {AnyConstraintExpression} from "./ConstraintExpression";
+import type {ConstraintVariable} from "./ConstraintVariable";
+import type {ConstraintBinding} from "./ConstraintBinding";
 import type {ConstraintRelation} from "./ConstraintRelation";
 import type {AnyConstraintStrength} from "./ConstraintStrength";
 import type {Constraint} from "./Constraint";
 
 export interface ConstraintScope {
-  constraint(lhs: Constrain | number, relation: ConstraintRelation,
-             rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint;
+  constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation,
+             rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint;
 
   hasConstraint(constraint: Constraint): boolean;
 
@@ -28,13 +29,13 @@ export interface ConstraintScope {
 
   removeConstraint(constraint: Constraint): void;
 
-  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable;
+  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstraintBinding;
 
-  hasConstraintVariable(variable: ConstrainVariable): boolean;
+  hasConstraintVariable(variable: ConstraintVariable): boolean;
 
-  addConstraintVariable(variable: ConstrainVariable): void;
+  addConstraintVariable(variable: ConstraintVariable): void;
 
-  removeConstraintVariable(variable: ConstrainVariable): void;
+  removeConstraintVariable(variable: ConstraintVariable): void;
 
-  setConstraintVariable(variable: ConstrainVariable, state: number): void;
+  setConstraintVariable(variable: ConstraintVariable, state: number): void;
 }

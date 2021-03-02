@@ -35,9 +35,3 @@ export {LengthAttributeAnimator} from "./LengthAttributeAnimator";
 export {ColorAttributeAnimator} from "./ColorAttributeAnimator";
 
 export {TransformAttributeAnimator} from "./TransformAttributeAnimator";
-
-export {NumberOrStringAttributeAnimator} from "./NumberOrStringAttributeAnimator";
-
-export {LengthOrStringAttributeAnimator} from "./LengthOrStringAttributeAnimator";
-
-export {ColorOrStringAttributeAnimator} from "./ColorOrStringAttributeAnimator";

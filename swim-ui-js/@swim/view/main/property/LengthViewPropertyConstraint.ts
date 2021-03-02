@@ -13,28 +13,20 @@
 // limitations under the License.
 
 import {AnyLength, Length} from "@swim/math";
-import {AttributeAnimator} from "./AttributeAnimator";
-import type {ElementView} from "../element/ElementView";
+import type {View} from "../View";
+import {ViewPropertyConstraint} from "./ViewPropertyConstraint";
 
 /** @hidden */
-export abstract class LengthOrStringAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Length | string, AnyLength | string> {
-  parse(value: string): Length | string {
+export abstract class LengthViewPropertyConstraint<V extends View> extends ViewPropertyConstraint<V, Length | null | undefined, AnyLength | null | undefined> {
+  toNumber(value: Length | null | undefined): number {
     try {
-      return Length.parse(value);
+      return value !== void 0 && value !== null ? value.pxValue() : 0;
     } catch (swallow) {
-      return value;
+      return 0;
     }
   }
 
-  fromAny(value: AnyLength | string): Length | string {
-    if (typeof value === "string") {
-      try {
-        return Length.parse(value);
-      } catch (swallow) {
-        return value;
-      }
-    } else {
-      return Length.fromAny(value);
-    }
+  fromAny(value: AnyLength | null | undefined): Length | null | undefined {
+    return value !== void 0 && value !== null ? Length.fromAny(value) : null;
   }
 }

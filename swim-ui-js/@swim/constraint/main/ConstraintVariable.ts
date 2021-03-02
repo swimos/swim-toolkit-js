@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Constrain} from "./Constrain";
-import type {ConstrainVariable} from "./ConstrainVariable";
+import type {ConstraintSymbol} from "./ConstraintSymbol";
+import type {ConstraintTerm} from "./ConstraintTerm";
+import type {ConstraintStrength} from "./ConstraintStrength";
 
-export abstract class ConstrainTerm extends Constrain {
-  abstract readonly coefficient: number;
+export interface ConstraintVariable extends ConstraintSymbol, ConstraintTerm {
+  readonly name: string;
 
-  abstract readonly variable: ConstrainVariable | null;
+  readonly strength: ConstraintStrength;
 
-  abstract opposite(): ConstrainTerm;
+  evaluateConstraintVariable(): void;
 }

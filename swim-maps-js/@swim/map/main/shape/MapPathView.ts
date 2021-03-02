@@ -42,7 +42,7 @@ export class MapPathView extends MapLayerView {
   @ViewAnimator<MapPathView, GeoPath>({
     type: GeoPath,
     state: GeoPath.empty(),
-    onSetValue(newValue: GeoPath, oldValue: GeoPath): void {
+    didSetValue(newValue: GeoPath, oldValue: GeoPath): void {
       this.owner.onSetGeoPath(newValue, oldValue);
     },
   })

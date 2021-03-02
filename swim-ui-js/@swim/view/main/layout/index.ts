@@ -12,16 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  LayoutConstraintInit,
-  LayoutConstraintDescriptor,
-  LayoutConstraintDescriptorExtends,
-  LayoutConstraintConstructor,
-  LayoutConstraintClass,
-  LayoutConstraint,
-} from "./LayoutConstraint";
-
-export {LayoutSolver} from "./LayoutSolver";
-
 export {LayoutManager} from "./LayoutManager";
 export {LayoutManagerObserver} from "./LayoutManagerObserver";

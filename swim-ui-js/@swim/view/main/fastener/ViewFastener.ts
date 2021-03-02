@@ -15,9 +15,10 @@
 import {__extends} from "tslib";
 import {FromAny, Arrays} from "@swim/util";
 import {
-  Constrain,
-  ConstrainVariable,
-  ConstrainBinding,
+  AnyConstraintExpression,
+  ConstraintExpression,
+  ConstraintVariable,
+  ConstraintBinding,
   ConstraintRelation,
   AnyConstraintStrength,
   ConstraintStrength,
@@ -97,8 +98,8 @@ export interface ViewFastener<V extends View, S extends View, U = never> extends
   /** @hidden */
   didSetOwnView(newView: S | null, oldView: S | null): void;
 
-  constraint(lhs: Constrain | number, relation: ConstraintRelation,
-             rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint;
+  constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation,
+             rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint;
 
   readonly constraints: ReadonlyArray<Constraint>;
 
@@ -114,24 +115,24 @@ export interface ViewFastener<V extends View, S extends View, U = never> extends
   /** @hidden */
   deactivateConstraint(constraint: Constraint): void;
 
-  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable;
+  constraintVariable(name: string, value?: number, strength?: AnyConstraintStrength): ConstraintBinding;
 
-  readonly constraintVariables: ReadonlyArray<ConstrainVariable>;
+  readonly constraintVariables: ReadonlyArray<ConstraintVariable>;
 
-  hasConstraintVariable(variable: ConstrainVariable): boolean;
+  hasConstraintVariable(variable: ConstraintVariable): boolean;
 
-  addConstraintVariable(variable: ConstrainVariable): void;
+  addConstraintVariable(variable: ConstraintVariable): void;
 
-  removeConstraintVariable(variable: ConstrainVariable): void;
-
-  /** @hidden */
-  activateConstraintVariable(constraintVariable: ConstrainVariable): void;
+  removeConstraintVariable(variable: ConstraintVariable): void;
 
   /** @hidden */
-  deactivateConstraintVariable(constraintVariable: ConstrainVariable): void;
+  activateConstraintVariable(constraintVariable: ConstraintVariable): void;
 
   /** @hidden */
-  setConstraintVariable(constraintVariable: ConstrainVariable, state: number): void;
+  deactivateConstraintVariable(constraintVariable: ConstraintVariable): void;
+
+  /** @hidden */
+  setConstraintVariable(constraintVariable: ConstraintVariable, state: number): void;
 
   /** @hidden */
   activateLayout(): void;
@@ -298,21 +299,19 @@ ViewFastener.prototype.didSetOwnView = function <S extends View>(this: ViewFaste
   // hook
 };
 
-ViewFastener.prototype.constraint = function (this: ViewFastener<View, View>, lhs: Constrain | number, relation: ConstraintRelation,
-                                              rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
-  if (typeof lhs === "number") {
-    lhs = Constrain.constant(lhs);
+ViewFastener.prototype.constraint = function (this: ViewFastener<View, View>, lhs: AnyConstraintExpression, relation: ConstraintRelation,
+                                              rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {
+  lhs = ConstraintExpression.fromAny(lhs);
+  if (rhs !== void 0) {
+    rhs = ConstraintExpression.fromAny(rhs);
   }
-  if (typeof rhs === "number") {
-    rhs = Constrain.constant(rhs);
-  }
-  const constrain = rhs !== void 0 ? lhs.minus(rhs) : lhs;
+  const expression = rhs !== void 0 ? lhs.minus(rhs) : lhs;
   if (strength === void 0) {
     strength = ConstraintStrength.Required;
   } else {
     strength = ConstraintStrength.fromAny(strength);
   }
-  return new Constraint(this.owner, constrain, relation, strength);
+  return new Constraint(this.owner, expression, relation, strength);
 };
 
 ViewFastener.prototype.hasConstraint = function (this: ViewFastener<View, View>, constraint: Constraint): boolean {
@@ -353,7 +352,7 @@ ViewFastener.prototype.deactivateConstraint = function (this: ViewFastener<View,
   this.owner.deactivateConstraint(constraint);
 };
 
-ViewFastener.prototype.constraintVariable = function (this: ViewFastener<View, View>, name: string, value?: number, strength?: AnyConstraintStrength): ConstrainVariable {
+ViewFastener.prototype.constraintVariable = function (this: ViewFastener<View, View>, name: string, value?: number, strength?: AnyConstraintStrength): ConstraintBinding {
   if (value === void 0) {
     value = 0;
   }
@@ -362,14 +361,14 @@ ViewFastener.prototype.constraintVariable = function (this: ViewFastener<View, V
   } else {
     strength = ConstraintStrength.fromAny(strength);
   }
-  return new ConstrainBinding(this, name, value, strength);
+  return new ConstraintBinding(this, name, value, strength);
 };
 
-ViewFastener.prototype.hasConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable): boolean {
+ViewFastener.prototype.hasConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstraintVariable): boolean {
   return this.constraintVariables.indexOf(constraintVariable) >= 0;
 };
 
-ViewFastener.prototype.addConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable): void {
+ViewFastener.prototype.addConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstraintVariable): void {
   const oldConstraintVariables = this.constraintVariables;
   const newConstraintVariables = Arrays.inserted(constraintVariable, oldConstraintVariables);
   if (oldConstraintVariables !== newConstraintVariables) {
@@ -382,7 +381,7 @@ ViewFastener.prototype.addConstraintVariable = function (this: ViewFastener<View
   }
 };
 
-ViewFastener.prototype.removeConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable): void {
+ViewFastener.prototype.removeConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstraintVariable): void {
   const oldConstraintVariables = this.constraintVariables;
   const newConstraintVariables = Arrays.removed(constraintVariable, oldConstraintVariables);
   if (oldConstraintVariables !== newConstraintVariables) {
@@ -395,15 +394,15 @@ ViewFastener.prototype.removeConstraintVariable = function (this: ViewFastener<V
   }
 };
 
-ViewFastener.prototype.activateConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable): void {
+ViewFastener.prototype.activateConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstraintVariable): void {
   this.owner.activateConstraintVariable(constraintVariable);
 };
 
-ViewFastener.prototype.deactivateConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable): void {
+ViewFastener.prototype.deactivateConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstraintVariable): void {
   this.owner.deactivateConstraintVariable(constraintVariable);
 };
 
-ViewFastener.prototype.setConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstrainVariable, state: number): void {
+ViewFastener.prototype.setConstraintVariable = function (this: ViewFastener<View, View>, constraintVariable: ConstraintVariable, state: number): void {
   this.owner.setConstraintVariable(constraintVariable, state);
 };
 

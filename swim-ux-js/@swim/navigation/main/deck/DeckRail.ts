@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Equals, Equivalent, Arrays} from "@swim/util"
+import {Debug, Format, Output} from "@swim/codec";
 import {AnyLength, Length} from "@swim/math";
 import {AnyDeckPost, DeckPost} from "./DeckPost";
 
@@ -26,7 +27,7 @@ export interface DeckRailInit {
   posts?: AnyDeckPost[];
 }
 
-export class DeckRail implements Equals, Equivalent {
+export class DeckRail implements Equals, Equivalent, Debug {
   constructor(width: Length | null, left: Length | null, right: Length | null,
               spacing: Length | null, posts: ReadonlyArray<DeckPost>) {
     Object.defineProperty(this, "width", {
@@ -204,6 +205,26 @@ export class DeckRail implements Equals, Equivalent {
           && Arrays.equal(this.posts, that.posts);
     }
     return false;
+  }
+
+  debug(output: Output): void {
+    output = output.write("DeckRail").write(46/*'.'*/).write("of").write(40/*'('*/)
+    for (let i = 0, n = this.posts.length; i < n; i += 1) {
+      if (i !== 0) {
+        output = output.write(", ");
+      }
+      output = output.debug(this.posts[i]!);
+    }
+    output = output.write(41/*')'*/);
+    if (this.width !== null || this.left !== null || this.right !== null || this.spacing !== null) {
+      output = output.write(46/*'.'*/).write("resized").write(40/*'('*/)
+          .debug(this.width).write(", ").debug(this.left).write(", ")
+          .debug(this.right).write(", ").debug(this.spacing).write(41/*')'*/);
+    }
+  }
+
+  toString(): string {
+    return Format.debug(this);
   }
 
   static of(...deckPosts: AnyDeckPost[]): DeckRail {

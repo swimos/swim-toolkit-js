@@ -129,7 +129,7 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     return this.copy(newArray, newIndex);
   }
 
-  opposite(): MoodVector<M> {
+  negative(): MoodVector<M> {
     const oldArray = this.array;
     const n = oldArray.length;
     const newArray = new Array<[M, number]>(n);

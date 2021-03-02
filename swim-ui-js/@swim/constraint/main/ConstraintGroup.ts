@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Constrain} from "./Constrain";
+import {AnyConstraintExpression, ConstraintExpression} from "./ConstraintExpression";
 import type {ConstraintRelation} from "./ConstraintRelation";
 import {AnyConstraintStrength, ConstraintStrength} from "./ConstraintStrength";
 import {Constraint} from "./Constraint";
@@ -37,21 +37,19 @@ export class ConstraintGroup {
 
   declare readonly scope: ConstraintScope;
 
-  constraint(lhs: Constrain | number, relation: ConstraintRelation,
-             rhs?: Constrain | number, strength?: AnyConstraintStrength): Constraint {
-    if (typeof lhs === "number") {
-      lhs = Constrain.constant(lhs);
+  constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation,
+             rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint {
+    lhs = ConstraintExpression.fromAny(lhs);
+    if (rhs !== void 0) {
+      rhs = ConstraintExpression.fromAny(rhs);
     }
-    if (typeof rhs === "number") {
-      rhs = Constrain.constant(rhs);
-    }
-    const constrain = rhs !== void 0 ? lhs.minus(rhs) : lhs;
+    const expression = rhs !== void 0 ? lhs.minus(rhs) : lhs;
     if (strength === void 0) {
       strength = ConstraintStrength.Required;
     } else {
       strength = ConstraintStrength.fromAny(strength);
     }
-    const constraint = new Constraint(this.scope, constrain, relation, strength);
+    const constraint = new Constraint(this.scope, expression, relation, strength);
     this.addConstraint(constraint);
     return constraint;
   }
@@ -64,19 +62,19 @@ export class ConstraintGroup {
   }
 
   addConstraint(constraint: Constraint): void {
-    const constraints = this.constraints;
+    const constraints = this.constraints as Constraint[];
     if (constraints.indexOf(constraint) < 0) {
-      (constraints as Constraint[]).push(constraint);
+      constraints.push(constraint);
       constraint.enabled(this.active);
     }
   }
 
   removeConstraint(constraint: Constraint): void {
-    const constraints = this.constraints;
+    const constraints = this.constraints as Constraint[];
     if (constraints !== void 0) {
       const index = constraints.indexOf(constraint);
       if (index >= 0) {
-        (constraints as Constraint[]).splice(index, 1);
+        constraints.splice(index, 1);
         constraint.enabled(false);
       }
     }

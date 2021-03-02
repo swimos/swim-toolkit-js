@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Equivalent, Equals} from "@swim/util"
+import {Debug, Format, Output} from "@swim/codec";
 import {AnyLength, Length} from "@swim/math";
 
 export type AnyTreeRoot = TreeRoot | TreeRootInit;
@@ -29,7 +30,7 @@ export interface TreeRootInit {
   hidden?: boolean;
 }
 
-export class TreeRoot implements Equals, Equivalent {
+export class TreeRoot implements Equals, Equivalent, Debug {
   constructor(key: string, grow: number, shrink: number, basis: Length,
               optional: boolean, width: Length | null, left: Length | null,
               right: Length | null, hidden: boolean) {
@@ -75,23 +76,17 @@ export class TreeRoot implements Equals, Equivalent {
 
   declare readonly grow: number;
 
-  withGrow(grow: number): TreeRoot {
-    return this.copy(this.key, grow, this.shrink, this.basis, this.optional,
-                     this.width, this.left, this.right, this.hidden);
-  }
-
   declare readonly shrink: number;
-
-  withShrink(shrink: number): TreeRoot {
-      return this.copy(this.key, this.grow, shrink, this.basis, this.optional,
-                       this.width, this.left, this.right, this.hidden);
-  }
 
   declare readonly basis: Length;
 
-  withBasis(basis: AnyLength): TreeRoot {
-    basis = Length.fromAny(basis);
-    return this.copy(this.key, this.grow, this.shrink, basis, this.optional,
+  withFlex(grow: number, shrink: number, basis?: AnyLength): TreeRoot {
+    if (basis !== void 0) {
+      basis = Length.fromAny(basis);
+    } else {
+      basis = this.basis;
+    }
+    return this.copy(this.key, grow, shrink, basis, this.optional,
                      this.width, this.left, this.right, this.hidden);
   }
 
@@ -160,6 +155,25 @@ export class TreeRoot implements Equals, Equivalent {
           && Equals(this.right, that.right) && this.hidden === that.hidden;
     }
     return false;
+  }
+
+  debug(output: Output): void {
+    output = output.write("TreeRoot").write(46/*'.'*/).write("create").write(40/*'('*/)
+        .debug(this.key).write(", ").debug(this.grow).write(", ")
+        .debug(this.shrink).write(", ").debug(this.basis);
+    if (this.optional) {
+      output = output.write(", ").debug(this.optional);
+    }
+    output = output.write(41/*')'*/);
+    if (this.width !== null || this.left !== null || this.right !== null || this.hidden) {
+      output = output.write(46/*'.'*/).write("resized").write(40/*'('*/)
+          .debug(this.width).write(", ").debug(this.left).write(", ")
+          .debug(this.right).write(", ").debug(this.hidden).write(41/*')'*/);
+    }
+  }
+
+  toString(): string {
+    return Format.debug(this);
   }
 
   static create(key: string, grow?: number, shrink?: number,

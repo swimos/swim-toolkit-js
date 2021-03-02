@@ -355,6 +355,7 @@ export class TreeView extends HtmlView {
       const spacing = this.limbSpacing.getState();
       const newSeed = oldSeed.resized(width, left, right, spacing);
       this.seed.setState(newSeed);
+      this.requireUpdate(View.NeedsLayout);
     }
   }
 

@@ -66,6 +66,7 @@ import {
 } from "@swim/style";
 import type {StyleContext} from "./StyleContext";
 import {StyleAnimatorMemberInit, StyleAnimator} from "./StyleAnimator";
+import {StyleAnimatorConstraint} from "./StyleAnimatorConstraint";
 
 export interface StyleMapInit {
   alignContent?: StyleAnimatorMemberInit<StyleMap, "alignContent">;
@@ -77,11 +78,11 @@ export interface StyleMapInit {
   backgroundColor?: StyleAnimatorMemberInit<StyleMap, "backgroundColor">;
   backgroundImage?: StyleAnimatorMemberInit<StyleMap, "backgroundImage">;
   borderCollapse?: StyleAnimatorMemberInit<StyleMap, "borderCollapse">;
-  borderColor?: [AnyColor | "currentColor" | undefined,
-                 AnyColor | "currentColor" | undefined,
-                 AnyColor | "currentColor" | undefined,
-                 AnyColor | "currentColor" | undefined] |
-                AnyColor | "currentColor";
+  borderColor?: [AnyColor | undefined,
+                 AnyColor | undefined,
+                 AnyColor | undefined,
+                 AnyColor | undefined] |
+                AnyColor;
   borderTopColor?: StyleAnimatorMemberInit<StyleMap, "borderTopColor">;
   borderRightColor?: StyleAnimatorMemberInit<StyleMap, "borderRightColor">;
   borderBottomColor?: StyleAnimatorMemberInit<StyleMap, "borderBottomColor">;
@@ -137,11 +138,11 @@ export interface StyleMapInit {
   justifyContent?: StyleAnimatorMemberInit<StyleMap, "justifyContent">;
   left?: StyleAnimatorMemberInit<StyleMap, "left">;
   lineHeight?: StyleAnimatorMemberInit<StyleMap, "lineHeight">;
-  margin?: [AnyLength | "auto" | undefined,
-            AnyLength | "auto" | undefined,
-            AnyLength | "auto" | undefined,
-            AnyLength | "auto" | undefined] |
-           AnyLength | "auto";
+  margin?: [AnyLength | undefined,
+            AnyLength | undefined,
+            AnyLength | undefined,
+            AnyLength | undefined] |
+           AnyLength;
   marginTop?: StyleAnimatorMemberInit<StyleMap, "marginTop">;
   marginRight?: StyleAnimatorMemberInit<StyleMap, "marginRight">;
   marginBottom?: StyleAnimatorMemberInit<StyleMap, "marginBottom">;
@@ -214,26 +215,26 @@ export interface StyleMap extends StyleContext {
 
   borderCollapse: StyleAnimator<this, BorderCollapse>;
 
-  borderColor(): [Color | "currentColor" | undefined,
-                  Color | "currentColor" | undefined,
-                  Color | "currentColor" | undefined,
-                  Color | "currentColor" | undefined] |
-                 Color | "currentColor" | undefined;
-  borderColor(value: [AnyColor | "currentColor" | undefined,
-                      AnyColor | "currentColor" | undefined,
-                      AnyColor | "currentColor" | undefined,
-                      AnyColor | "currentColor" | undefined] |
-                     AnyColor | "currentColor" | undefined,
+  borderColor(): [Color | undefined,
+                  Color | undefined,
+                  Color | undefined,
+                  Color | undefined] |
+                 Color | undefined;
+  borderColor(value: [AnyColor | undefined,
+                      AnyColor | undefined,
+                      AnyColor | undefined,
+                      AnyColor | undefined] |
+                     AnyColor | undefined,
               timing?: AnyTiming | boolean,
               priority?: string): this;
 
-  borderTopColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
+  borderTopColor: StyleAnimator<this, Color, AnyColor>;
 
-  borderRightColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
+  borderRightColor: StyleAnimator<this, Color, AnyColor>;
 
-  borderBottomColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
+  borderBottomColor: StyleAnimator<this, Color, AnyColor>;
 
-  borderLeftColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
+  borderLeftColor: StyleAnimator<this, Color, AnyColor>;
 
   borderRadius(): [Length | undefined,
                    Length | undefined,
@@ -300,13 +301,13 @@ export interface StyleMap extends StyleContext {
 
   borderLeftWidth: StyleAnimator<this, Length | BorderWidth, AnyLength | BorderWidth>;
 
-  bottom: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
+  bottom: StyleAnimatorConstraint<this, Length, AnyLength>;
 
   boxShadow: StyleAnimator<this, BoxShadow, AnyBoxShadow>;
 
   boxSizing: StyleAnimator<this, BoxSizing>;
 
-  color: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
+  color: StyleAnimator<this, Color, AnyColor>;
 
   cursor: StyleAnimator<this, CssCursor>;
 
@@ -339,34 +340,34 @@ export interface StyleMap extends StyleContext {
 
   fontWeight: StyleAnimator<this, FontWeight>;
 
-  height: StyleAnimator<this, Height, AnyLength | Height>;
+  height: StyleAnimatorConstraint<this, Height, AnyLength | Height>;
 
   justifyContent: StyleAnimator<this, JustifyContent>;
 
-  left: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
+  left: StyleAnimatorConstraint<this, Length, AnyLength>;
 
   lineHeight: StyleAnimator<this, LineHeight, AnyLineHeight>;
 
-  margin(): [Length | "auto" | undefined,
-             Length | "auto" | undefined,
-             Length | "auto" | undefined,
-             Length | "auto" | undefined] |
-            Length | "auto" | undefined;
-  margin(value: [AnyLength | "auto" | undefined,
-                 AnyLength | "auto" | undefined,
-                 AnyLength | "auto" | undefined,
-                 AnyLength | "auto" | undefined] |
-                AnyLength | "auto" | undefined,
+  margin(): [Length | undefined,
+             Length | undefined,
+             Length | undefined,
+             Length | undefined] |
+            Length | undefined;
+  margin(value: [AnyLength | undefined,
+                 AnyLength | undefined,
+                 AnyLength | undefined,
+                 AnyLength | undefined] |
+                AnyLength | undefined,
          timing?: AnyTiming | boolean,
          priority?: string): this;
 
-  marginTop: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
+  marginTop: StyleAnimatorConstraint<this, Length, AnyLength>;
 
-  marginRight: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
+  marginRight: StyleAnimatorConstraint<this, Length, AnyLength>;
 
-  marginBottom: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
+  marginBottom: StyleAnimatorConstraint<this, Length, AnyLength>;
 
-  marginLeft: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
+  marginLeft: StyleAnimatorConstraint<this, Length, AnyLength>;
 
   maxHeight: StyleAnimator<this, MaxHeight, AnyLength | MaxHeight>;
 
@@ -380,7 +381,7 @@ export interface StyleMap extends StyleContext {
 
   order: StyleAnimator<this, number, number | string>;
 
-  outlineColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
+  outlineColor: StyleAnimator<this, Color, AnyColor>;
 
   outlineStyle: StyleAnimator<this, BorderStyle>;
 
@@ -427,23 +428,23 @@ export interface StyleMap extends StyleContext {
           timing?: AnyTiming | boolean,
           priority?: string): this;
 
-  paddingTop: StyleAnimator<this, Length, AnyLength>;
+  paddingTop: StyleAnimatorConstraint<this, Length, AnyLength>;
 
-  paddingRight: StyleAnimator<this, Length, AnyLength>;
+  paddingRight: StyleAnimatorConstraint<this, Length, AnyLength>;
 
-  paddingBottom: StyleAnimator<this, Length, AnyLength>;
+  paddingBottom: StyleAnimatorConstraint<this, Length, AnyLength>;
 
-  paddingLeft: StyleAnimator<this, Length, AnyLength>;
+  paddingLeft: StyleAnimatorConstraint<this, Length, AnyLength>;
 
   pointerEvents: StyleAnimator<this, PointerEvents>;
 
   position: StyleAnimator<this, Position>;
 
-  right: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
+  right: StyleAnimatorConstraint<this, Length, AnyLength>;
 
   textAlign: StyleAnimator<this, TextAlign>;
 
-  textDecorationColor: StyleAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
+  textDecorationColor: StyleAnimator<this, Color, AnyColor>;
 
   textDecorationLine: StyleAnimator<this, string>;
 
@@ -453,7 +454,7 @@ export interface StyleMap extends StyleContext {
 
   textTransform: StyleAnimator<this, TextTransform>;
 
-  top: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
+  top: StyleAnimatorConstraint<this, Length, AnyLength>;
 
   touchAction: StyleAnimator<this, TouchAction>;
 
@@ -467,7 +468,7 @@ export interface StyleMap extends StyleContext {
 
   whiteSpace: StyleAnimator<this, WhiteSpace>;
 
-  width: StyleAnimator<this, Width, AnyLength | Width>;
+  width: StyleAnimatorConstraint<this, Width, AnyLength | Width>;
 
   zIndex: StyleAnimator<this, number | string>;
 }
@@ -814,13 +815,13 @@ StyleMap.define = function (prototype: StyleMap): void {
 
   prototype.borderColor = borderColor;
 
-  StyleAnimator({propertyNames: "border-top-color", type: [Color, String]})(prototype, "borderTopColor");
+  StyleAnimator({propertyNames: "border-top-color", type: Color})(prototype, "borderTopColor");
 
-  StyleAnimator({propertyNames: "border-right-color", type: [Color, String]})(prototype, "borderRightColor");
+  StyleAnimator({propertyNames: "border-right-color", type: Color})(prototype, "borderRightColor");
 
-  StyleAnimator({propertyNames: "border-bottom-color", type: [Color, String]})(prototype, "borderBottomColor");
+  StyleAnimator({propertyNames: "border-bottom-color", type: Color})(prototype, "borderBottomColor");
 
-  StyleAnimator({propertyNames: "border-left-color", type: [Color, String]})(prototype, "borderLeftColor");
+  StyleAnimator({propertyNames: "border-left-color", type: Color})(prototype, "borderLeftColor");
 
   prototype.borderRadius = borderRadius;
 
@@ -846,21 +847,37 @@ StyleMap.define = function (prototype: StyleMap): void {
 
   prototype.borderWidth = borderWidth;
 
-  StyleAnimator({propertyNames: "border-top-width", type: [Length, String]})(prototype, "borderTopWidth");
+  StyleAnimator({propertyNames: "border-top-width", type: Length})(prototype, "borderTopWidth");
 
-  StyleAnimator({propertyNames: "border-right-width", type: [Length, String]})(prototype, "borderRightWidth");
+  StyleAnimator({propertyNames: "border-right-width", type: Length})(prototype, "borderRightWidth");
 
-  StyleAnimator({propertyNames: "border-bottom-width", type: [Length, String]})(prototype, "borderBottomWidth");
+  StyleAnimator({propertyNames: "border-bottom-width", type: Length})(prototype, "borderBottomWidth");
 
-  StyleAnimator({propertyNames: "border-left-width", type: [Length, String]})(prototype, "borderLeftWidth");
+  StyleAnimator({propertyNames: "border-left-width", type: Length})(prototype, "borderLeftWidth");
 
-  StyleAnimator({propertyNames: "bottom", type: [Length, String]})(prototype, "bottom");
+  StyleAnimatorConstraint({
+    propertyNames: "bottom",
+    type: Length,
+    get computedValue(): Length | undefined {
+      const node = this.owner.node;
+      if (node instanceof HTMLElement) {
+        const offsetParent = node.offsetParent;
+        const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                           : node === document.body ? node.getBoundingClientRect() : null;
+        if (offsetBounds !== null) {
+          const bounds = node.getBoundingClientRect();
+          return Length.px(bounds.bottom - offsetBounds.bottom);
+        }
+      }
+      return void 0;
+    },
+  })(prototype, "bottom");
 
   StyleAnimator({propertyNames: "box-shadow", type: BoxShadow})(prototype, "boxShadow");
 
   StyleAnimator({propertyNames: "box-sizing", type: String})(prototype, "boxSizing");
 
-  StyleAnimator({propertyNames: "color", type: [Color, String]})(prototype, "color");
+  StyleAnimator({propertyNames: "color", type: Color})(prototype, "color");
 
   StyleAnimator({propertyNames: "cursor", type: String})(prototype, "cursor");
 
@@ -868,7 +885,7 @@ StyleMap.define = function (prototype: StyleMap): void {
 
   StyleAnimator({propertyNames: "filter", type: String})(prototype, "filter");
 
-  StyleAnimator({propertyNames: "flex-basis", type: [Length, String]})(prototype, "flexBasis");
+  StyleAnimator({propertyNames: "flex-basis", type: Length})(prototype, "flexBasis");
 
   StyleAnimator({propertyNames: "flex-direction", type: String})(prototype, "flexDirection");
 
@@ -882,7 +899,7 @@ StyleMap.define = function (prototype: StyleMap): void {
 
   StyleAnimator({propertyNames: "font-family", type: FontFamily})(prototype, "fontFamily");
 
-  StyleAnimator({propertyNames: "font-size", type: [Length, String]})(prototype, "fontSize");
+  StyleAnimator({propertyNames: "font-size", type: Length})(prototype, "fontSize");
 
   StyleAnimator({propertyNames: "font-stretch", type: String})(prototype, "fontStretch");
 
@@ -892,41 +909,55 @@ StyleMap.define = function (prototype: StyleMap): void {
 
   StyleAnimator({propertyNames: "font-weight", type: String})(prototype, "fontWeight");
 
-  StyleAnimator({propertyNames: "height", type: [Length, String]})(prototype, "height");
+  StyleAnimatorConstraint({
+    propertyNames: "height",
+    type: Length,
+    get computedValue(): Length | undefined {
+      const node = this.owner.node;
+      return node instanceof HTMLElement ? Length.px(node.offsetHeight) : void 0;
+    },
+  })(prototype, "height");
 
   StyleAnimator({propertyNames: "justify-content", type: String})(prototype, "justifyContent");
 
-  StyleAnimator({propertyNames: "left", type: [Length, String]})(prototype, "left");
+  StyleAnimatorConstraint({
+    propertyNames: "left",
+    type: Length,
+    get computedValue(): Length | undefined {
+      const node = this.owner.node;
+      return node instanceof HTMLElement ? Length.px(node.offsetLeft) : void 0;
+    },
+  })(prototype, "left");
 
   StyleAnimator({propertyNames: "line-height", type: LineHeight})(prototype, "lineHeight");
 
   prototype.margin = margin;
 
-  StyleAnimator({propertyNames: "margin-top", type: [Length, String]})(prototype, "marginTop");
+  StyleAnimatorConstraint({propertyNames: "margin-top", type: Length})(prototype, "marginTop");
 
-  StyleAnimator({propertyNames: "margin-right", type: [Length, String]})(prototype, "marginRight");
+  StyleAnimatorConstraint({propertyNames: "margin-right", type: Length})(prototype, "marginRight");
 
-  StyleAnimator({propertyNames: "margin-bottom", type: [Length, String]})(prototype, "marginBottom");
+  StyleAnimatorConstraint({propertyNames: "margin-bottom", type: Length})(prototype, "marginBottom");
 
-  StyleAnimator({propertyNames: "margin-left", type: [Length, String]})(prototype, "marginLeft");
+  StyleAnimatorConstraint({propertyNames: "margin-left", type: Length})(prototype, "marginLeft");
 
-  StyleAnimator({propertyNames: "max-height", type: [Length, String]})(prototype, "maxHeight");
+  StyleAnimator({propertyNames: "max-height", type: Length})(prototype, "maxHeight");
 
-  StyleAnimator({propertyNames: "max-width", type: [Length, String]})(prototype, "maxWidth");
+  StyleAnimator({propertyNames: "max-width", type: Length})(prototype, "maxWidth");
 
-  StyleAnimator({propertyNames: "min-height", type: [Length, String]})(prototype, "minHeight");
+  StyleAnimator({propertyNames: "min-height", type: Length})(prototype, "minHeight");
 
-  StyleAnimator({propertyNames: "min-width", type: [Length, String]})(prototype, "minWidth");
+  StyleAnimator({propertyNames: "min-width", type: Length})(prototype, "minWidth");
 
   StyleAnimator({propertyNames: "opacity", type: Number})(prototype, "opacity");
 
   StyleAnimator({propertyNames: "order", type: Number})(prototype, "order");
 
-  StyleAnimator({propertyNames: "outline-color", type: [Color, String]})(prototype, "outlineColor");
+  StyleAnimator({propertyNames: "outline-color", type: Color})(prototype, "outlineColor");
 
   StyleAnimator({propertyNames: "outline-style", type: String})(prototype, "outlineStyle");
 
-  StyleAnimator({propertyNames: "outline-width", type: [Length, String]})(prototype, "outlineWidth");
+  StyleAnimator({propertyNames: "outline-width", type: Length})(prototype, "outlineWidth");
 
   prototype.overflow = overflow;
 
@@ -944,23 +975,39 @@ StyleMap.define = function (prototype: StyleMap): void {
 
   prototype.padding = padding;
 
-  StyleAnimator({propertyNames: "padding-top", type: Length})(prototype, "paddingTop");
+  StyleAnimatorConstraint({propertyNames: "padding-top", type: Length})(prototype, "paddingTop");
 
-  StyleAnimator({propertyNames: "padding-right", type: Length})(prototype, "paddingRight");
+  StyleAnimatorConstraint({propertyNames: "padding-right", type: Length})(prototype, "paddingRight");
 
-  StyleAnimator({propertyNames: "padding-bottom", type: Length})(prototype, "paddingBottom");
+  StyleAnimatorConstraint({propertyNames: "padding-bottom", type: Length})(prototype, "paddingBottom");
 
-  StyleAnimator({propertyNames: "padding-left", type: Length})(prototype, "paddingLeft");
+  StyleAnimatorConstraint({propertyNames: "padding-left", type: Length})(prototype, "paddingLeft");
 
   StyleAnimator({propertyNames: "pointer-events", type: String})(prototype, "pointerEvents");
 
   StyleAnimator({propertyNames: "position", type: String})(prototype, "position");
 
-  StyleAnimator({propertyNames: "right", type: [Length, String]})(prototype, "right");
+  StyleAnimatorConstraint({
+    propertyNames: "right",
+    type: Length,
+    get computedValue(): Length | undefined {
+      const node = this.owner.node;
+      if (node instanceof HTMLElement) {
+        const offsetParent = node.offsetParent;
+        const offsetBounds = offsetParent !== null ? offsetParent.getBoundingClientRect()
+                           : node === document.body ? node.getBoundingClientRect() : null;
+        if (offsetBounds !== null) {
+          const bounds = node.getBoundingClientRect();
+          return Length.px(bounds.right - offsetBounds.right);
+        }
+      }
+      return void 0;
+    },
+  })(prototype, "right");
 
   StyleAnimator({propertyNames: "text-align", type: String})(prototype, "textAlign");
 
-  StyleAnimator({propertyNames: "text-decoration-color", type: [Color, String]})(prototype, "textDecorationColor");
+  StyleAnimator({propertyNames: "text-decoration-color", type: Color})(prototype, "textDecorationColor");
 
   StyleAnimator({propertyNames: "text-decoration-line", type: String})(prototype, "textDecorationLine");
 
@@ -970,7 +1017,14 @@ StyleMap.define = function (prototype: StyleMap): void {
 
   StyleAnimator({propertyNames: "text-transform", type: String})(prototype, "textTransform");
 
-  StyleAnimator({propertyNames: "top", type: [Length, String]})(prototype, "top");
+  StyleAnimatorConstraint({
+    propertyNames: "top",
+    type: Length,
+    get computedValue(): Length | undefined {
+      const node = this.owner.node;
+      return node instanceof HTMLElement ? Length.px(node.offsetTop) : void 0;
+    },
+  })(prototype, "top");
 
   StyleAnimator({propertyNames: "touch-action", type: String})(prototype, "touchAction");
 
@@ -978,42 +1032,49 @@ StyleMap.define = function (prototype: StyleMap): void {
 
   StyleAnimator({propertyNames: ["user-select", "-webkit-user-select", "-moz-user-select", "-ms-user-select"], type: String})(prototype, "userSelect");
 
-  StyleAnimator({propertyNames: "vertical-align", type: [Length, String]})(prototype, "verticalAlign");
+  StyleAnimator({propertyNames: "vertical-align", type: String})(prototype, "verticalAlign");
 
   StyleAnimator({propertyNames: "visibility", type: String})(prototype, "visibility");
 
   StyleAnimator({propertyNames: "white-space", type: String})(prototype, "whiteSpace");
 
-  StyleAnimator({propertyNames: "width", type: [Length, String]})(prototype, "width");
+  StyleAnimatorConstraint({
+    propertyNames: "width",
+    type: Length,
+    get computedValue(): Length | undefined {
+      const node = this.owner.node;
+      return node instanceof HTMLElement ? Length.px(node.offsetWidth) : void 0;
+    },
+  })(prototype, "width");
 
-  StyleAnimator({propertyNames: "z-index", type: [Number, String]})(prototype, "zIndex");
+  StyleAnimator({propertyNames: "z-index", type: Number})(prototype, "zIndex");
 };
 
-function borderColor(this: StyleMap): [Color | "currentColor" | undefined,
-                                       Color | "currentColor" | undefined,
-                                       Color | "currentColor" | undefined,
-                                       Color | "currentColor" | undefined] |
-                                      Color | "currentColor" | undefined;
+function borderColor(this: StyleMap): [Color | undefined,
+                                       Color | undefined,
+                                       Color | undefined,
+                                       Color | undefined] |
+                                      Color | undefined;
 function borderColor(this: StyleMap,
-                     value: [AnyColor | "currentColor" | undefined,
-                             AnyColor | "currentColor" | undefined,
-                             AnyColor | "currentColor" | undefined,
-                             AnyColor | "currentColor" | undefined] |
-                            AnyColor | "currentColor" | undefined,
+                     value: [AnyColor | undefined,
+                             AnyColor | undefined,
+                             AnyColor | undefined,
+                             AnyColor | undefined] |
+                            AnyColor | undefined,
                      timing?: AnyTiming | boolean,
                      priority?: string): StyleMap;
 function borderColor(this: StyleMap,
-                     value?: [AnyColor | "currentColor" | undefined,
-                              AnyColor | "currentColor" | undefined,
-                              AnyColor | "currentColor" | undefined,
-                              AnyColor | "currentColor" | undefined] |
-                             AnyColor | "currentColor" | undefined,
+                     value?: [AnyColor | undefined,
+                              AnyColor | undefined,
+                              AnyColor | undefined,
+                              AnyColor | undefined] |
+                             AnyColor | undefined,
                      timing?: AnyTiming | boolean,
-                     priority?: string): [Color | "currentColor" | undefined,
-                                          Color | "currentColor" | undefined,
-                                          Color | "currentColor" | undefined,
-                                          Color | "currentColor" | undefined] |
-                                         Color | "currentColor" | undefined | StyleMap {
+                     priority?: string): [Color | undefined,
+                                          Color | undefined,
+                                          Color | undefined,
+                                          Color | undefined] |
+                                         Color | undefined | StyleMap {
   if (value === void 0) {
     const borderTopColor = this.borderTopColor();
     const borderRightColor = this.borderRightColor();
@@ -1274,31 +1335,31 @@ function font(this: StyleMap, value?: AnyFont, timing?: AnyTiming | boolean, pri
   }
 }
 
-function margin(this: StyleMap): [Length | "auto" | undefined,
-                                  Length | "auto" | undefined,
-                                  Length | "auto" | undefined,
-                                  Length | "auto" | undefined] |
-                                 Length | "auto" | undefined;
+function margin(this: StyleMap): [Length | undefined,
+                                  Length | undefined,
+                                  Length | undefined,
+                                  Length | undefined] |
+                                 Length | undefined;
 function margin(this: StyleMap,
-                value: [AnyLength | "auto" | undefined,
-                        AnyLength | "auto" | undefined,
-                        AnyLength | "auto" | undefined,
-                        AnyLength | "auto" | undefined] |
-                       AnyLength | "auto" | undefined,
+                value: [AnyLength | undefined,
+                        AnyLength | undefined,
+                        AnyLength | undefined,
+                        AnyLength | undefined] |
+                       AnyLength | undefined,
                 timing?: AnyTiming | boolean,
                 priority?: string): StyleMap;
 function margin(this: StyleMap,
-                value?: [AnyLength | "auto" |undefined,
-                         AnyLength | "auto" |undefined,
-                         AnyLength | "auto" |undefined,
-                         AnyLength | "auto" |undefined] |
-                        AnyLength | "auto" | undefined,
+                value?: [AnyLength | undefined,
+                         AnyLength | undefined,
+                         AnyLength | undefined,
+                         AnyLength | undefined] |
+                        AnyLength | undefined,
                 timing?: AnyTiming | boolean,
-                priority?: string): [Length | "auto" | undefined,
-                                     Length | "auto" | undefined,
-                                     Length | "auto" | undefined,
-                                     Length | "auto" | undefined] |
-                                    Length | "auto" | undefined | StyleMap {
+                priority?: string): [Length | undefined,
+                                     Length | undefined,
+                                     Length | undefined,
+                                     Length | undefined] |
+                                    Length | undefined | StyleMap {
   if (value === void 0) {
     const marginTop = this.marginTop();
     const marginRight = this.marginRight();

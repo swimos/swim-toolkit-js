@@ -133,13 +133,13 @@ export class ThemeMatrix implements Equals, Debug {
     return ThemeMatrix.fromColArray(newColArray, newColIndex);
   }
 
-  opposite(): ThemeMatrix {
+  negative(): ThemeMatrix {
     const oldColArray = this.colArray;
     const n = oldColArray.length;
     const newColArray = new Array<[Feel, FeelVector]>(n);
     for (let j = 0; j < n; j += 1) {
       const [feel, a] = oldColArray[j]!;
-      newColArray[j] = [feel, a.opposite()];
+      newColArray[j] = [feel, a.negative()];
     }
     return ThemeMatrix.fromColArray(newColArray, this.colIndex);
   }
@@ -160,7 +160,7 @@ export class ThemeMatrix implements Equals, Debug {
       const [feel, b] = thatColArray[j]!;
       if (newColIndex[feel.name] === void 0) {
         newColIndex[feel.name] = newColArray.length;
-        newColArray.push([feel, b.opposite()]);
+        newColArray.push([feel, b.negative()]);
       }
     }
     return ThemeMatrix.fromColArray(newColArray, newColIndex);

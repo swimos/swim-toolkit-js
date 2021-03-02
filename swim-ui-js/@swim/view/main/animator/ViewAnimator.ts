@@ -42,6 +42,9 @@ export interface ViewAnimatorInit<T, U = never> {
   inherit?: string | boolean;
 
   updateFlags?: ViewFlags;
+  willSetState?(newValue: T, oldValue: T): void;
+  onSetState?(newValue: T, oldValue: T): void;
+  didSetState?(newValue: T, oldValue: T): void;
   willSetValue?(newValue: T, oldValue: T): void;
   onSetValue?(newValue: T, oldValue: T): void;
   didSetValue?(newValue: T, oldValue: T): void;
@@ -140,11 +143,33 @@ export interface ViewAnimator<V extends View, T, U = never> extends Animator<T> 
 
   didStopAnimating(): void;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
+
+  toString(): string;
 
   updateFlags?: ViewFlags;
 
@@ -291,10 +316,10 @@ Object.defineProperty(ViewAnimator.prototype, "superName", {
 });
 
 ViewAnimator.prototype.bindSuperAnimator = function (this: ViewAnimator<View, unknown>): void {
-  let view = this.owner;
-  if (view.isMounted()) {
+  if (this.isMounted()) {
     const superName = this.superName;
     if (superName !== void 0) {
+      let view = this.owner;
       do {
         const parentView = view.parentView;
         if (parentView !== null) {
@@ -515,13 +540,55 @@ ViewAnimator.prototype.didStopAnimating = function (this: ViewAnimator<View, unk
   this.owner.trackDidStopAnimating(this);
 };
 
+ViewAnimator.prototype.isMounted = function (this: ViewAnimator<View, unknown>): boolean {
+  return (this.animatorFlags & Animator.MountedFlag) !== 0;
+};
+
 ViewAnimator.prototype.mount = function (this: ViewAnimator<View, unknown>): void {
+  if ((this.animatorFlags & Animator.MountedFlag) === 0) {
+    this.willMount();
+    this.setAnimatorFlags(this.animatorFlags | Animator.MountedFlag);
+    this.onMount();
+    this.didMount();
+  }
+};
+
+ViewAnimator.prototype.willMount = function (this: ViewAnimator<View, unknown>): void {
+  // hook
+};
+
+ViewAnimator.prototype.onMount = function (this: ViewAnimator<View, unknown>): void {
   this.bindSuperAnimator();
 };
 
+ViewAnimator.prototype.didMount = function (this: ViewAnimator<View, unknown>): void {
+  // hook
+};
+
 ViewAnimator.prototype.unmount = function (this: ViewAnimator<View, unknown>): void {
+  if ((this.animatorFlags & Animator.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setAnimatorFlags(this.animatorFlags & ~Animator.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
+  }
+};
+
+ViewAnimator.prototype.willUnmount = function (this: ViewAnimator<View, unknown>): void {
+  // hook
+};
+
+ViewAnimator.prototype.onUnmount = function (this: ViewAnimator<View, unknown>): void {
   this.stopAnimating();
   this.unbindSuperAnimator();
+};
+
+ViewAnimator.prototype.didUnmount = function (this: ViewAnimator<View, unknown>): void {
+  // hook
+};
+
+ViewAnimator.prototype.toString = function (this: ViewAnimator<View, unknown>): string {
+  return this.name;
 };
 
 ViewAnimator.prototype.fromAny = function <T, U>(this: ViewAnimator<View, T, U>, value: T | U): T {

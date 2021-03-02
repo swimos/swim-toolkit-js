@@ -14,35 +14,35 @@
 
 import {AnyLength, Length} from "@swim/math";
 import type {StyleContext} from "./StyleContext";
-import {StyleAnimator} from "./StyleAnimator";
+import {StyleAnimatorConstraint} from "./StyleAnimatorConstraint";
 
 /** @hidden */
-export abstract class LengthOrStringStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Length | string, AnyLength | string> {
-  parse(value: string): Length | string | undefined {
+export abstract class LengthStyleAnimatorConstraint<V extends StyleContext> extends StyleAnimatorConstraint<V, Length, AnyLength> {
+  parse(value: string): Length | undefined {
     try {
       return Length.parse(value);
     } catch (swallow) {
-      return value;
-    }
-  }
-
-  fromCssValue(value: CSSStyleValue): Length | undefined {
-    if (value instanceof CSSNumericValue) {
-      return Length.fromCssValue(value);
-    } else {
       return void 0;
     }
   }
 
-  fromAny(value: AnyLength | string): Length | string | undefined {
-    if (typeof value === "string") {
-      try {
-        return Length.parse(value);
-      } catch (swallow) {
-        return value;
-      }
-    } else {
+  toNumber(value: Length): number {
+    try {
+      return value.pxValue();
+    } catch (swallow) {
+      return 0;
+    }
+  }
+
+  fromCssValue(value: CSSStyleValue): Length | undefined {
+    return Length.fromCssValue(value);
+  }
+
+  fromAny(value: AnyLength | string): Length | undefined {
+    try {
       return Length.fromAny(value);
+    } catch (swallow) {
+      return void 0;
     }
   }
 }

@@ -15,7 +15,7 @@
 import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {StyleAnimator, HtmlView} from "@swim/dom";
+import {StyleAnimator, StyleAnimatorConstraint, HtmlView} from "@swim/dom";
 
 export type ButtonGlowState = "ready" | "glowing" | "pulsing" | "fading";
 
@@ -48,14 +48,18 @@ export class ButtonGlow extends HtmlView {
   /** @hidden */
   glowTimer: number;
 
-  @StyleAnimator<ButtonGlow, Length | "auto", AnyLength | "auto">({
+  @StyleAnimatorConstraint<ButtonGlow, Length, AnyLength>({
     propertyNames: "left",
-    type: [Length, String],
-    onEnd(left: Length | "auto"): void {
+    type: Length,
+    get computedValue(): Length | undefined {
+      const node = this.owner.node;
+      return node instanceof HTMLElement ? Length.px(node.offsetLeft) : void 0;
+    },
+    onEnd(left: Length): void {
       this.owner.didGlow();
-    }
+    },
   })
-  declare left: StyleAnimator<this, Length | "auto", AnyLength | "auto">;
+  declare left: StyleAnimatorConstraint<this, Length, AnyLength>;
 
   @StyleAnimator<ButtonGlow, number, number | string>({
     propertyNames: "opacity",

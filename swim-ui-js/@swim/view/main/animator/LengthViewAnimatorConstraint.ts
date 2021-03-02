@@ -12,29 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyColor, Color} from "@swim/color";
-import {AttributeAnimator} from "./AttributeAnimator";
-import type {ElementView} from "../element/ElementView";
+import {AnyLength, Length} from "@swim/math";
+import type {View} from "../View";
+import {ViewAnimatorConstraint} from "./ViewAnimatorConstraint";
 
 /** @hidden */
-export abstract class ColorOrStringAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Color | string, AnyColor | string> {
-  parse(value: string): Color | string {
+export abstract class LengthViewAnimatorConstraint<V extends View> extends ViewAnimatorConstraint<V, Length | null | undefined, AnyLength | null | undefined> {
+  toNumber(value: Length | null | undefined): number {
     try {
-      return Color.parse(value);
+      return value !== void 0 && value !== null ? value.pxValue() : 0;
     } catch (swallow) {
-      return value;
+      return 0;
     }
   }
 
-  fromAny(value: AnyColor | string): Color | string {
-    if (typeof value === "string") {
-      try {
-        return Color.parse(value);
-      } catch (swallow) {
-        return value;
-      }
-    } else {
-      return Color.fromAny(value);
-    }
+  fromAny(value: AnyLength | null | undefined): Length | null | undefined {
+    return value !== void 0 && value !== null ? Length.fromAny(value) : null;
   }
 }

@@ -19,7 +19,11 @@ import {StyleAnimator} from "./StyleAnimator";
 /** @hidden */
 export abstract class LengthStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Length, AnyLength> {
   parse(value: string): Length | undefined {
-    return Length.parse(value);
+    try {
+      return Length.parse(value);
+    } catch (swallow) {
+      return void 0;
+    }
   }
 
   fromCssValue(value: CSSStyleValue): Length | undefined {
@@ -27,6 +31,10 @@ export abstract class LengthStyleAnimator<V extends StyleContext> extends StyleA
   }
 
   fromAny(value: AnyLength): Length | undefined {
-    return Length.fromAny(value);
+    try {
+      return Length.fromAny(value);
+    } catch (swallow) {
+      return void 0;
+    }
   }
 }

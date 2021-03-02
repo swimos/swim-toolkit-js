@@ -19,10 +19,18 @@ import {StyleAnimator} from "./StyleAnimator";
 /** @hidden */
 export abstract class ColorStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Color, AnyColor> {
   parse(value: string): Color | undefined {
-    return Color.parse(value);
+    try {
+      return Color.parse(value);
+    } catch (swallow) {
+      return void 0;
+    }
   }
 
   fromAny(value: AnyColor): Color | undefined {
-    return Color.fromAny(value);
+    try {
+      return Color.fromAny(value);
+    } catch (swallow) {
+      return void 0;
+    }
   }
 }

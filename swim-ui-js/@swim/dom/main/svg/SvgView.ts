@@ -482,23 +482,23 @@ export class SvgView extends ElementView {
   @AttributeAnimator({attributeName: "d", type: String})
   declare d: AttributeAnimator<this, string>;
 
-  @AttributeAnimator({attributeName: "dx", type: [Number, String]}) // list-of-lengths
-  declare dx: AttributeAnimator<this, number, number | string>;
+  @AttributeAnimator({attributeName: "dx", type: Length})
+  declare dx: AttributeAnimator<this, Length, AnyLength>;
 
-  @AttributeAnimator({attributeName: "dy", type: [Number, String]}) // list-of-lengths
-  declare dy: AttributeAnimator<this, number, number | string>;
+  @AttributeAnimator({attributeName: "dy", type: Length})
+  declare dy: AttributeAnimator<this, Length, AnyLength>;
 
   @AttributeAnimator({attributeName: "edgeMode", type: String})
   declare edgeMode: AttributeAnimator<this, string>;
 
-  @AttributeAnimator({attributeName: "fill", type: [Color, String]})
+  @AttributeAnimator({attributeName: "fill", type: Color})
   declare fill: AttributeAnimator<this, Paint, AnyColor | Paint>;
 
   @AttributeAnimator({attributeName: "fill-rule", type: String})
   declare fillRule: AttributeAnimator<this, FillRule>;
 
-  @AttributeAnimator({attributeName: "flood-color", type: [Color, String]})
-  declare floodColor: AttributeAnimator<this, Color | "currentColor", AnyColor | "currentColor">;
+  @AttributeAnimator({attributeName: "flood-color", type: Color})
+  declare floodColor: AttributeAnimator<this, Color, AnyColor>;
 
   @AttributeAnimator({attributeName: "flood-opacity", type: Number})
   declare floodOpacity: AttributeAnimator<this, number, number | string>;
@@ -539,7 +539,7 @@ export class SvgView extends ElementView {
   @AttributeAnimator({attributeName: "stdDeviation", type: Number})
   declare stdDeviation: AttributeAnimator<this, number, number | string>;
 
-  @AttributeAnimator({attributeName: "stroke", type: [Color, String]})
+  @AttributeAnimator({attributeName: "stroke", type: Color})
   declare stroke: AttributeAnimator<this, Paint, AnyColor | Paint>;
 
   @AttributeAnimator({attributeName: "stroke-dasharray", type: String})
@@ -642,7 +642,7 @@ export class SvgView extends ElementView {
   @StyleAnimator({propertyNames: "font-family", type: FontFamily})
   declare fontFamily: StyleAnimator<this, FontFamily | FontFamily[], FontFamily | ReadonlyArray<FontFamily>>;
 
-  @StyleAnimator({propertyNames: "font-size", type: [Length, String]})
+  @StyleAnimator({propertyNames: "font-size", type: Length})
   declare fontSize: StyleAnimator<this, FontSize, AnyFontSize>;
 
   @StyleAnimator({propertyNames: "font-stretch", type: String})

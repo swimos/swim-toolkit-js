@@ -19,7 +19,11 @@ import {StyleAnimator} from "./StyleAnimator";
 /** @hidden */
 export abstract class TransformStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Transform, AnyTransform> {
   parse(value: string): Transform | undefined {
-    return Transform.parse(value);
+    try {
+      return Transform.parse(value);
+    } catch (swallow) {
+      return void 0;
+    }
   }
 
   fromCssValue(value: CSSStyleValue): Transform | undefined {
@@ -27,6 +31,10 @@ export abstract class TransformStyleAnimator<V extends StyleContext> extends Sty
   }
 
   fromAny(value: AnyTransform): Transform | undefined {
-    return Transform.fromAny(value);
+    try {
+      return Transform.fromAny(value);
+    } catch (swallow) {
+      return void 0;
+    }
   }
 }

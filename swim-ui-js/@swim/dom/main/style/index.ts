@@ -26,11 +26,25 @@ export {
   StyleAnimator,
 } from "./StyleAnimator";
 
+export {
+  StyleAnimatorConstraintInit,
+  StyleAnimatorConstraintDescriptor,
+  StyleAnimatorConstraintDescriptorExtends,
+  StyleAnimatorConstraintDescriptorFromAny,
+  StyleAnimatorConstraintConstructor,
+  StyleAnimatorConstraintClass,
+  StyleAnimatorConstraint,
+} from "./StyleAnimatorConstraint";
+
 export {StringStyleAnimator} from "./StringStyleAnimator";
 
 export {NumberStyleAnimator} from "./NumberStyleAnimator";
 
+export {NumberStyleAnimatorConstraint} from "./NumberStyleAnimatorConstraint";
+
 export {LengthStyleAnimator} from "./LengthStyleAnimator";
+
+export {LengthStyleAnimatorConstraint} from "./LengthStyleAnimatorConstraint";
 
 export {ColorStyleAnimator} from "./ColorStyleAnimator";
 
@@ -41,12 +55,6 @@ export {FontFamilyStyleAnimator} from "./FontFamilyStyleAnimator";
 export {BoxShadowStyleAnimator} from "./BoxShadowStyleAnimator";
 
 export {TransformStyleAnimator} from "./TransformStyleAnimator";
-
-export {NumberOrStringStyleAnimator} from "./NumberOrStringStyleAnimator";
-
-export {LengthOrStringStyleAnimator} from "./LengthOrStringStyleAnimator";
-
-export {ColorOrStringStyleAnimator} from "./ColorOrStringStyleAnimator";
 
 export {
   StyleMapInit,

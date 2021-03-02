@@ -28,9 +28,6 @@ import {LineHeightStyleAnimator} from "../"; // forward import
 import {FontFamilyStyleAnimator} from "../"; // forward import
 import {TransformStyleAnimator} from "../"; // forward import
 import {BoxShadowStyleAnimator} from "../"; // forward import
-import {NumberOrStringStyleAnimator} from "../"; // forward import
-import {LengthOrStringStyleAnimator} from "../"; // forward import
-import {ColorOrStringStyleAnimator} from "../"; // forward import
 
 export type StyleAnimatorMemberType<V, K extends keyof V> =
   V extends {[P in K]: StyleAnimator<any, infer T, any>} ? T : unknown;
@@ -44,6 +41,9 @@ export interface StyleAnimatorInit<T, U = never> {
   type?: unknown;
 
   updateFlags?: number;
+  willSetState?(newValue: T | undefined, oldValue: T | undefined): void;
+  onSetState?(newValue: T | undefined, oldValue: T | undefined): void;
+  didSetState?(newValue: T | undefined, oldValue: T | undefined): void;
   willSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
   onSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
   didSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
@@ -108,11 +108,33 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
 
   didStopAnimating(): void;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
+
+  toString(): string;
 
   updateFlags?: number;
 
@@ -145,9 +167,6 @@ export const StyleAnimator = function <V extends StyleContext, T, U>(
   <V extends StyleContext, T extends FontFamily | ReadonlyArray<FontFamily> | undefined = FontFamily | ReadonlyArray<FontFamily> | undefined, U extends FontFamily | ReadonlyArray<FontFamily> | undefined = FontFamily | ReadonlyArray<FontFamily> | undefined>(descriptor: {type: typeof FontFamily} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
   <V extends StyleContext, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
   <V extends StyleContext, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends Length | string | undefined = Length | string | undefined, U extends AnyLength | string | undefined = AnyLength | string | undefined>(descriptor: {type: [typeof Length, typeof String]} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends Color | string | undefined = Color | string | undefined, U extends AnyColor | string | undefined = AnyColor | string | undefined>(descriptor: {type: [typeof Color, typeof String]} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends number | string | undefined = number | string | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: [typeof Number, typeof String]} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
   <V extends StyleContext, T, U = never>(descriptor: StyleAnimatorDescriptorFromAny<V, T, U>): PropertyDecorator;
   <V extends StyleContext, T, U = never, I = {}>(descriptor: StyleAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
   <V extends StyleContext, T, U = never>(descriptor: StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
@@ -325,12 +344,54 @@ StyleAnimator.prototype.didStopAnimating = function (this: StyleAnimator<StyleCo
   this.owner.trackDidStopAnimating(this);
 };
 
+StyleAnimator.prototype.isMounted = function (this: StyleAnimator<StyleContext, unknown>): boolean {
+  return (this.animatorFlags & Animator.MountedFlag) !== 0;
+};
+
 StyleAnimator.prototype.mount = function (this: StyleAnimator<StyleContext, unknown>): void {
+  if ((this.animatorFlags & Animator.MountedFlag) === 0) {
+    this.willMount();
+    this.setAnimatorFlags(this.animatorFlags | Animator.MountedFlag);
+    this.onMount();
+    this.didMount();
+  }
+};
+
+StyleAnimator.prototype.willMount = function (this: StyleAnimator<StyleContext, unknown>): void {
+  // hook
+};
+
+StyleAnimator.prototype.onMount = function (this: StyleAnimator<StyleContext, unknown>): void {
+  // hook
+};
+
+StyleAnimator.prototype.didMount = function (this: StyleAnimator<StyleContext, unknown>): void {
   // hook
 };
 
 StyleAnimator.prototype.unmount = function (this: StyleAnimator<StyleContext, unknown>): void {
+  if ((this.animatorFlags & Animator.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setAnimatorFlags(this.animatorFlags & ~Animator.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
+  }
+};
+
+StyleAnimator.prototype.willUnmount = function (this: StyleAnimator<StyleContext, unknown>): void {
+  // hook
+};
+
+StyleAnimator.prototype.onUnmount = function (this: StyleAnimator<StyleContext, unknown>): void {
   this.stopAnimating();
+};
+
+StyleAnimator.prototype.didUnmount = function (this: StyleAnimator<StyleContext, unknown>): void {
+  // hook
+};
+
+StyleAnimator.prototype.toString = function (this: StyleAnimator<StyleContext, unknown>): string {
+  return this.name;
 };
 
 StyleAnimator.prototype.parse = function <T>(this: StyleAnimator<StyleContext, T>, value: string): T | undefined {
@@ -362,15 +423,6 @@ StyleAnimator.getClass = function (type: unknown): StyleAnimatorClass | null {
     return BoxShadowStyleAnimator;
   } else if (type === Transform) {
     return TransformStyleAnimator;
-  } else if (Array.isArray(type) && type.length === 2) {
-    const [type0, type1] = type;
-    if (type0 === Number && type1 === String) {
-      return NumberOrStringStyleAnimator;
-    } else if (type0 === Length && type1 === String) {
-      return LengthOrStringStyleAnimator;
-    } else if (type0 === Color && type1 === String) {
-      return ColorOrStringStyleAnimator;
-    }
   }
   return null;
 };

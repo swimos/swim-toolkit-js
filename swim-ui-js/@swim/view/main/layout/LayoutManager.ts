@@ -13,10 +13,9 @@
 // limitations under the License.
 
 import {Lazy} from "@swim/util";
-import type {ConstrainVariable, Constraint, ConstraintSolver} from "@swim/constraint";
-import {View} from "../View";
+import {ConstraintVariable, Constraint, ConstraintSolver} from "@swim/constraint";
+import type {View} from "../View";
 import {ViewManager} from "../manager/ViewManager";
-import {LayoutSolver} from "./LayoutSolver";
 import type {LayoutManagerObserver} from "./LayoutManagerObserver";
 
 export class LayoutManager<V extends View = View> extends ViewManager<V> {
@@ -32,7 +31,7 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
 
   /** @hidden */
   protected createSolver(): ConstraintSolver {
-    return new LayoutSolver(this);
+    return new ConstraintSolver();
   }
 
   activateConstraint(constraint: Constraint): void {
@@ -43,57 +42,16 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
     this.solver.removeConstraint(constraint);
   }
 
-  activateConstraintVariable(constraintVariable: ConstrainVariable): void {
+  activateConstraintVariable(constraintVariable: ConstraintVariable): void {
     this.solver.addConstraintVariable(constraintVariable);
   }
 
-  deactivateConstraintVariable(constraintVariable: ConstrainVariable): void {
+  deactivateConstraintVariable(constraintVariable: ConstraintVariable): void {
     this.solver.removeConstraintVariable(constraintVariable);
   }
 
-  setConstraintVariable(constraintVariable: ConstrainVariable, state: number): void {
+  setConstraintVariable(constraintVariable: ConstraintVariable, state: number): void {
     this.solver.setConstraintVariable(constraintVariable, state);
-  }
-
-  updateConstraintVariables(): void {
-    this.solver.updateConstraintVariables();
-  }
-
-  didAddConstraint(constraint: Constraint): void {
-    const rootViews = this.rootViews;
-    for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i]!.requireUpdate(View.NeedsLayout);
-    }
-  }
-
-  didRemoveConstraint(constraint: Constraint): void {
-    const rootViews = this.rootViews;
-    for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i]!.requireUpdate(View.NeedsLayout);
-    }
-  }
-
-  didAddConstraintVariable(constraintVariable: ConstrainVariable): void {
-    const rootViews = this.rootViews;
-    for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i]!.requireUpdate(View.NeedsLayout);
-    }
-  }
-
-  didRemoveConstraintVariable(constraintVariable: ConstrainVariable): void {
-    const rootViews = this.rootViews;
-    for (let i = 0, n = rootViews.length; i < n; i += 1) {
-      rootViews[i]!.requireUpdate(View.NeedsLayout);
-    }
-  }
-
-  didUpdateConstraintVariable(constraintVariable: ConstrainVariable, newValue: number, oldValue: number): void {
-    if (oldValue !== newValue) {
-      const rootViews = this.rootViews;
-      for (let i = 0, n = rootViews.length; i < n; i += 1) {
-        rootViews[i]!.requireUpdate(View.NeedsLayout);
-      }
-    }
   }
 
   declare readonly viewManagerObservers: ReadonlyArray<LayoutManagerObserver>;

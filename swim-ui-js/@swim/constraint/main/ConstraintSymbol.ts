@@ -12,27 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ConstraintKey, ConstraintMap} from "./ConstraintMap";
+import {ConstraintKey} from "./ConstraintKey";
+import type {Constraint} from "./Constraint";
+import type {ConstraintSolver} from "./ConstraintSolver";
 
 /** @hidden */
 export interface ConstraintSymbol extends ConstraintKey {
+  /** @hidden */
   isExternal(): boolean;
 
+  /** @hidden */
   isDummy(): boolean;
 
+  /** @hidden */
   isInvalid(): boolean;
+
+  /** @hidden */
+  addConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void;
+
+  /** @hidden */
+  removeConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void;
+
+  updateConstraintSolution(value: number): void;
 }
 
 /** @hidden */
 export const ConstraintSymbol = {} as {
-  Invalid: ConstraintInvalid; // defined by ConstraintInvalid
+  readonly invalid: ConstraintInvalid; // defined by ConstraintInvalid
 };
 
 /** @hidden */
 export class ConstraintSlack implements ConstraintSymbol {
   constructor() {
     Object.defineProperty(this, "id", {
-      value: ConstraintMap.nextId(),
+      value: ConstraintKey.nextId(),
       enumerable: true,
     });
   }
@@ -50,13 +63,25 @@ export class ConstraintSlack implements ConstraintSymbol {
   isInvalid(): boolean {
     return false;
   }
+
+  addConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
+    // nop
+  }
+
+  removeConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
+    // nop
+  }
+
+  updateConstraintSolution(value: number): void {
+    // nop
+  }
 }
 
 /** @hidden */
 export class ConstraintDummy implements ConstraintSymbol {
   constructor() {
     Object.defineProperty(this, "id", {
-      value: ConstraintMap.nextId(),
+      value: ConstraintKey.nextId(),
       enumerable: true,
     });
   }
@@ -74,13 +99,25 @@ export class ConstraintDummy implements ConstraintSymbol {
   isInvalid(): boolean {
     return false;
   }
+
+  addConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
+    // nop
+  }
+
+  removeConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
+    // nop
+  }
+
+  updateConstraintSolution(value: number): void {
+    // nop
+  }
 }
 
 /** @hidden */
 export class ConstraintError implements ConstraintSymbol {
   constructor() {
     Object.defineProperty(this, "id", {
-      value: ConstraintMap.nextId(),
+      value: ConstraintKey.nextId(),
       enumerable: true,
     });
   }
@@ -97,6 +134,18 @@ export class ConstraintError implements ConstraintSymbol {
 
   isInvalid(): boolean {
     return false;
+  }
+
+  addConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
+    // nop
+  }
+
+  removeConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
+    // nop
+  }
+
+  updateConstraintSolution(value: number): void {
+    // nop
   }
 }
 
@@ -117,5 +166,21 @@ export class ConstraintInvalid implements ConstraintSymbol {
   isInvalid(): boolean {
     return true;
   }
+
+  addConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
+    // nop
+  }
+
+  removeConstraintCondition(constraint: Constraint, solver: ConstraintSolver): void {
+    // nop
+  }
+
+  updateConstraintSolution(value: number): void {
+    // nop
+  }
 }
-ConstraintSymbol.Invalid = new ConstraintInvalid();
+Object.defineProperty(ConstraintSymbol, "invalid", {
+  value: new ConstraintInvalid(),
+  enumerable: true,
+  configurable: true,
+});

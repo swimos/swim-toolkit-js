@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  ConstraintKey,
-  ConstraintMap,
-} from "./ConstraintMap";
+export {ConstraintKey} from "./ConstraintKey";
+
+export {ConstraintMap} from "./ConstraintMap";
 
 export {
   ConstraintSymbol,
@@ -25,13 +24,18 @@ export {
   ConstraintInvalid,
 } from "./ConstraintSymbol";
 
-export {Constrain} from "./Constrain";
-export {ConstrainSum} from "./ConstrainSum";
-export {ConstrainTerm} from "./ConstrainTerm";
-export {ConstrainProduct} from "./ConstrainProduct";
-export {ConstrainConstant} from "./ConstrainConstant";
-export {ConstrainVariable} from "./ConstrainVariable";
-export {ConstrainBinding} from "./ConstrainBinding";
+export {
+  AnyConstraintExpression,
+  ConstraintExpression,
+} from "./ConstraintExpression";
+
+export {ConstraintSum} from "./ConstraintSum";
+export {ConstraintTerm} from "./ConstraintTerm";
+export {ConstraintProduct} from "./ConstraintProduct";
+export {ConstraintConstant} from "./ConstraintConstant";
+
+export {ConstraintVariable} from "./ConstraintVariable";
+export {ConstraintBinding} from "./ConstraintBinding";
 
 export {ConstraintRelation} from "./ConstraintRelation";
 export {
@@ -44,5 +48,7 @@ export {Constraint} from "./Constraint";
 export {ConstraintGroup} from "./ConstraintGroup";
 
 export {ConstraintScope} from "./ConstraintScope";
+
+export {ConstraintRow} from "./ConstraintRow";
 
 export {ConstraintSolver} from "./ConstraintSolver";
