@@ -19,6 +19,10 @@
     {"path": "./swim-ux-js/@swim/navigation"},
     {"path": "./swim-ux-js/@swim/ux"},
 
+    {"path": "./swim-mvc-js/@swim/model"},
+    {"path": "./swim-mvc-js/@swim/component"},
+    {"path": "./swim-mvc-js/@swim/mvc"},
+
     {"path": "./swim-vis-js/@swim/gauge"},
     {"path": "./swim-vis-js/@swim/pie"},
     {"path": "./swim-vis-js/@swim/chart"},
@@ -29,10 +33,6 @@
     {"path": "./swim-maps-js/@swim/googlemap"},
     {"path": "./swim-maps-js/@swim/esrimap"},
     {"path": "./swim-maps-js/@swim/maps"},
-
-    {"path": "./swim-mvc-js/@swim/model"},
-    {"path": "./swim-mvc-js/@swim/component"},
-    {"path": "./swim-mvc-js/@swim/mvc"},
 
     {"path": "./@swim/toolkit"}
   ]

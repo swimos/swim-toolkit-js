@@ -37,6 +37,10 @@
       "@swim/navigation": ["swim-ux-js/@swim/navigation/main"],
       "@swim/ux": ["swim-ux-js/@swim/ux/main"],
 
+      "@swim/model": ["swim-mvc-js/@swim/model/main"],
+      "@swim/component": ["swim-mvc-js/@swim/component/main"],
+      "@swim/mvc": ["swim-mvc-js/@swim/mvc/main"],
+
       "@swim/gauge": ["swim-vis-js/@swim/gauge/main"],
       "@swim/pie": ["swim-vis-js/@swim/pie/main"],
       "@swim/chart": ["swim-vis-js/@swim/chart/main"],
@@ -46,11 +50,7 @@
       "@swim/mapbox": ["swim-maps-js/@swim/mapbox/main"],
       "@swim/googlemap": ["swim-maps-js/@swim/googlemap/main"],
       "@swim/esirmap": ["swim-maps-js/@swim/esirmap/main"],
-      "@swim/maps": ["swim-maps-js/@swim/maps/main"],
-
-      "@swim/model": ["swim-mvc-js/@swim/model/main"],
-      "@swim/component": ["swim-mvc-js/@swim/component/main"],
-      "@swim/mvc": ["swim-mvc-js/@swim/mvc/main"]
+      "@swim/maps": ["swim-maps-js/@swim/maps/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
   },
@@ -71,6 +71,10 @@
     {"path": "../../../swim-ux-js/@swim/displays/main"},
     {"path": "../../../swim-ux-js/@swim/ux/main"},
 
+    {"path": "../../../swim-mvc-js/@swim/model/main"},
+    {"path": "../../../swim-mvc-js/@swim/component/main"},
+    {"path": "../../../swim-mvc-js/@swim/mvc/main"},
+
     {"path": "../../../swim-vis-js/@swim/gauge/main"},
     {"path": "../../../swim-vis-js/@swim/pie/main"},
     {"path": "../../../swim-vis-js/@swim/chart/main"},
@@ -80,10 +84,6 @@
     {"path": "../../../swim-maps-js/@swim/mapbox/main"},
     {"path": "../../../swim-maps-js/@swim/googlemap/main"},
     {"path": "../../../swim-maps-js/@swim/esrimap/main"},
-    {"path": "../../../swim-maps-js/@swim/maps/main"},
-
-    {"path": "../../../swim-mvc-js/@swim/model/main"},
-    {"path": "../../../swim-mvc-js/@swim/component/main"},
-    {"path": "../../../swim-mvc-js/@swim/mvc/main"}
+    {"path": "../../../swim-maps-js/@swim/maps/main"}
   ]
 }

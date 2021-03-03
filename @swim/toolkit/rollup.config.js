@@ -51,9 +51,9 @@ const main = {
   plugins: [
     nodeResolve({moduleDirectories: ["../../swim-ui-js",
                                      "../../swim-ux-js",
+                                     "../../swim-mvc-js",
                                      "../../swim-vis-js",
                                      "../../swim-maps-js",
-                                     "../../swim-mvc-js",
                                      "node_modules"]}),
     sourcemaps(),
   ],

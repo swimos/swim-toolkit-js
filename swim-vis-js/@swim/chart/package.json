@@ -16,8 +16,14 @@
     "@swim/mapping": "3.11.0-dev.20201021",
     "@swim/collections": "3.11.0-dev.20201021",
     "@swim/structure": "3.11.0-dev.20201021",
+    "@swim/streamlet": "3.11.0-dev.20201021",
+    "@swim/dataflow": "3.11.0-dev.20201021",
+    "@swim/recon": "3.11.0-dev.20201021",
+    "@swim/uri": "3.11.0-dev.20201021",
     "@swim/math": "3.11.0-dev.20201021",
     "@swim/time": "3.11.0-dev.20201021",
+    "@swim/warp": "3.11.0-dev.20201021",
+    "@swim/client": "3.11.0-dev.20201021",
     "@swim/constraint": "3.11.0-dev.20201021",
     "@swim/animation": "3.11.0-dev.20201021",
     "@swim/color": "3.11.0-dev.20201021",
@@ -26,6 +32,8 @@
     "@swim/view": "3.11.0-dev.20201021",
     "@swim/dom": "3.11.0-dev.20201021",
     "@swim/graphics": "3.11.0-dev.20201021",
-    "@swim/gesture": "3.11.0-dev.20201021"
+    "@swim/gesture": "3.11.0-dev.20201021",
+    "@swim/model": "3.11.0-dev.20201021",
+    "@swim/component": "3.11.0-dev.20201021"
   }
 }
