@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Swim Pie Component</title>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
+  </head>
+  <body style="display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; margin: 0;">
+    <div id="ui" style="display: flex; width: 67%; height: 67%;">
+    </div>
+    <script src="../../swim-system-js/swim-core-js/@swim/core/dist/main/swim-core.js"></script>
+    <script src="../../swim-system-js/swim-mesh-js/@swim/mesh/dist/main/swim-mesh.js"></script>
+    <script src="../swim-ui-js/@swim/ui/dist/main/swim-ui.js"></script>
+    <script src="../swim-mvc-js/@swim/mvc/dist/main/swim-mvc.js"></script>
+    <script src="../swim-vis-js/@swim/vis/dist/main/swim-vis.js"></script>
+    <script>
+
+const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
+
+const canvasView = uiView.append("canvas")
+    .pointerEventsEnabled(true)
+    .touchAction("manipulation");
+
+class DemoPieComponent extends swim.PieComponent {
+  initPie(pieView) {
+    pieView.tickColor("#4a4a4a")
+           .font("14px sans-serif")
+           .textColor("#4a4a4a");
+  }
+  initPieSlice(sliceView) {
+    sliceView.sliceColor("#4a4a4a")
+             .on("pointerenter", function (event) {
+               sliceView.sliceColor("#1db0ef", {dt: 200});
+             })
+             .on("pointerleave", function (event) {
+               sliceView.sliceColor("#4a4a4a", {dt: 200});
+             });
+  }
+  initPieSliceLabel(labelView) {
+    labelView.textColor("#ffffff");
+  }
+  onSetPieSliceValue(newValue, oldValue, sliceComponent) {
+    const label = Math.round(100 * newValue).toString();
+    sliceComponent.setLabel(label);
+  }
+}
+
+const pieComponent = new DemoPieComponent();
+pieComponent.mount();
+pieComponent.pie.insert(canvasView);
+
+const pieModel = new swim.CompoundModel();
+pieModel.mount();
+const pieTrait = new swim.PieTrait();
+
+const slice1Trait = new swim.SliceTrait();
+slice1Trait.setValue(1);
+//slice1Trait.setLabel("Label 1");
+slice1Trait.setLegend("Slice 1");
+
+const slice2Trait = new swim.SliceTrait();
+slice2Trait.setValue(1);
+//slice2Trait.setLabel("Label 2");
+slice2Trait.setLegend("Slice 2");
+
+pieModel.setTrait("pie", pieTrait);
+pieModel.setTrait("slice1", slice1Trait);
+pieComponent.source.setTrait(pieTrait);
+pieModel.setTrait("slice2", slice2Trait);
+
+setInterval(function () {
+  slice1Trait.setValue(0.1 + 0.9 * Math.random());
+  slice2Trait.setValue(0.1 + 0.9 * Math.random());
+}, 1000);
+
+    </script>
+  </body>
+</html>

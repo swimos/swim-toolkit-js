@@ -17,9 +17,23 @@ export {
   SliceViewInit,
   SliceView,
 } from "./SliceView";
+export {SliceViewObserver} from "./SliceViewObserver";
 
 export {
   AnyPieView,
   PieViewInit,
   PieView,
 } from "./PieView";
+export {PieViewObserver} from "./PieViewObserver";
+
+export {SliceTrait} from "./SliceTrait";
+export {SliceTraitObserver} from "./SliceTraitObserver";
+
+export {PieTrait} from "./PieTrait";
+export {PieTraitObserver} from "./PieTraitObserver";
+
+export {SliceComponent} from "./SliceComponent";
+export {SliceComponentObserver} from "./SliceComponentObserver";
+
+export {PieComponent} from "./PieComponent";
+export {PieComponentObserver} from "./PieComponentObserver";

@@ -16,7 +16,14 @@ import {Equivalent} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, BoxR2, AnyPointR2, PointR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
+import {
+  ViewContextType,
+  ViewFlags,
+  View,
+  ViewProperty,
+  ViewAnimator,
+  ViewFastener,
+} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -187,35 +194,31 @@ export class DialView extends LayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  label(): GraphicsView | null;
-  label(label: GraphicsView | AnyTextRunView | null): this;
-  label(label?: GraphicsView | AnyTextRunView | null): GraphicsView | null | this {
-    if (label === void 0) {
-      const childView = this.getChildView("label");
-      return childView instanceof GraphicsView ? childView : null;
-    } else {
-      if (label !== null && !(label instanceof GraphicsView)) {
-        label = TextRunView.fromAny(label);
+  @ViewFastener<DialView, GraphicsView, AnyTextRunView>({
+    type: TextRunView,
+    observe: false,
+    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
+      if (value instanceof GraphicsView) {
+        return value;
+      } else {
+        return TextRunView.fromAny(value);
       }
-      this.setChildView("label", label);
-      return this;
-    }
-  }
+    },
+  })
+  declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
-  legend(): GraphicsView | null;
-  legend(legend: GraphicsView | AnyTextRunView | null): this;
-  legend(legend?: GraphicsView | AnyTextRunView | null): GraphicsView | null | this {
-    if (legend === void 0) {
-      const childView = this.getChildView("legend");
-      return childView instanceof GraphicsView ? childView : null;
-    } else {
-      if (legend !== null && !(legend instanceof GraphicsView)) {
-        legend = TextRunView.fromAny(legend);
+  @ViewFastener<DialView, GraphicsView, AnyTextRunView>({
+    type: TextRunView,
+    observe: false,
+    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
+      if (value instanceof GraphicsView) {
+        return value;
+      } else {
+        return TextRunView.fromAny(value);
       }
-      this.setChildView("legend", legend);
-      return this;
-    }
-  }
+    },
+  })
+  declare legend: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
   @ViewProperty({type: String, state: "auto"})
   declare arrangement: ViewProperty<this, DialViewArrangement>;
@@ -265,8 +268,8 @@ export class DialView extends LayerView {
 
     context.restore();
 
-    const label = this.label();
-    if (label !== null && !label.isHidden()) {
+    const labelView = this.label.view;
+    if (labelView !== null && !labelView.isHidden()) {
       const r = (innerRadius.value + outerRadius.value) / 2;
       const rx = r * Math.cos(startAngle.value + Equivalent.Epsilon);
       const ry = r * Math.sin(startAngle.value + Equivalent.Epsilon);
@@ -290,15 +293,15 @@ export class DialView extends LayerView {
       const dx = labelPadding * Math.cos(padAngle);
       const dy = labelPadding * Math.sin(padAngle);
 
-      if (TypesetView.is(label)) {
-        label.textAlign.setAutoState(textAlign);
-        label.textBaseline.setAutoState("middle");
-        label.textOrigin.setAutoState(new PointR2(center.x + rx + dx, center.y + ry + dy));
+      if (TypesetView.is(labelView)) {
+        labelView.textAlign.setAutoState(textAlign);
+        labelView.textBaseline.setAutoState("middle");
+        labelView.textOrigin.setAutoState(new PointR2(center.x + rx + dx, center.y + ry + dy));
       }
     }
 
-    const legend = this.legend();
-    if (legend !== null && !legend.isHidden()) {
+    const legendView = this.legend.view;
+    if (legendView !== null && !legendView.isHidden()) {
       const tickAlign = this.tickAlign.getValue();
       const tickAngle = startAngle.value + sweepAngle.value * delta * tickAlign;
       const tickRadius = this.tickRadius.getValue().pxValue(size);
@@ -346,14 +349,14 @@ export class DialView extends LayerView {
         }
       }
 
-      if (TypesetView.is(legend)) {
+      if (TypesetView.is(legendView)) {
         const tickPadding = this.tickPadding.getValue().pxValue(size);
-        if (FillView.is(legend)) {
-          legend.fill.setAutoState(tickColor);
+        if (FillView.is(legendView)) {
+          legendView.fill.setAutoState(tickColor);
         }
-        legend.textAlign.setAutoState(textAlign);
-        legend.textBaseline.setAutoState("alphabetic");
-        legend.textOrigin.setAutoState(new PointR2(cx + r2x + dx, cy + r2y - tickPadding));
+        legendView.textAlign.setAutoState(textAlign);
+        legendView.textBaseline.setAutoState("alphabetic");
+        legendView.textOrigin.setAutoState(new PointR2(cx + r2x + dx, cy + r2y - tickPadding));
       }
     }
   }
@@ -392,6 +395,10 @@ export class DialView extends LayerView {
       return this;
     }
     return null;
+  }
+
+  static create(): DialView {
+    return new DialView();
   }
 
   static fromInit(init: DialViewInit): DialView {

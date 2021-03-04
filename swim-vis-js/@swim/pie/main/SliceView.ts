@@ -16,10 +16,11 @@ import {Equivalent} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewAnimator, ViewFastener} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
+  GraphicsViewController,
   LayerView,
   CanvasContext,
   CanvasRenderer,
@@ -29,7 +30,7 @@ import {
   AnyTextRunView,
   TextRunView,
 } from "@swim/graphics";
-import {PieView} from "./PieView";
+import type {SliceViewObserver} from "./SliceViewObserver";
 
 export type AnySliceView = SliceView | SliceViewInit;
 
@@ -125,14 +126,56 @@ export class SliceView extends LayerView {
     }
   }
 
+  declare readonly viewController: GraphicsViewController & SliceViewObserver | null;
+
+  declare readonly viewObservers: ReadonlyArray<SliceViewObserver>;
+
   @ViewAnimator<SliceView, number>({
     type: Number,
     state: 0,
+    willSetValue(newValue: number, oldValue: number): void {
+      this.owner.willSetValue(newValue, oldValue);
+    },
     onSetValue(newValue: number, oldValue: number): void {
-      this.owner.onUpdateValue(newValue, oldValue);
+      this.owner.onSetValue(newValue, oldValue);
+    },
+    didSetValue(newValue: number, oldValue: number): void {
+      this.owner.didSetValue(newValue, oldValue);
     },
   })
   declare value: ViewAnimator<this, number>;
+
+  protected willSetValue(newValue: number, oldValue: number): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.sliceWillSetValue !== void 0) {
+      viewController.sliceWillSetValue(newValue, oldValue, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.sliceWillSetValue !== void 0) {
+        viewObserver.sliceWillSetValue(newValue, oldValue, this);
+      }
+    }
+  }
+
+  protected onSetValue(newValue: number, oldValue: number): void {
+    // hook
+  }
+
+  protected didSetValue(newValue: number, oldValue: number): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.sliceDidSetValue !== void 0) {
+        viewObserver.sliceDidSetValue(newValue, oldValue, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.sliceDidSetValue !== void 0) {
+      viewController.sliceDidSetValue(newValue, oldValue, this);
+    }
+  }
 
   @ViewAnimator({type: Number, state: 1})
   declare total: ViewAnimator<this, number>;
@@ -188,41 +231,123 @@ export class SliceView extends LayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  label(): GraphicsView | null;
-  label(label: GraphicsView | AnyTextRunView | null): this;
-  label(label?: GraphicsView | AnyTextRunView | null): GraphicsView | null | this {
-    if (label === void 0) {
-      const childView = this.getChildView("label");
-      return childView instanceof GraphicsView ? childView : null;
-    } else {
-      if (label !== null && !(label instanceof GraphicsView)) {
-        label = TextRunView.fromAny(label);
+  @ViewFastener<SliceView, GraphicsView, AnyTextRunView>({
+    type: TextRunView,
+    observe: false,
+    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
+      if (value instanceof GraphicsView) {
+        return value;
+      } else if (typeof value === "string" && this.view instanceof TextRunView) {
+        this.view.text(value);
+        return this.view;
+      } else {
+        return TextRunView.fromAny(value);
       }
-      this.setChildView("label", label);
-      return this;
+    },
+    willSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.willSetLabel(newLabelView, oldLabelView);
+    },
+    onSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.onSetLabel(newLabelView, oldLabelView);
+    },
+    didSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.didSetLabel(newLabelView, oldLabelView);
+    },
+  })
+  declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
+
+  protected willSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.sliceWillSetLabel !== void 0) {
+      viewController.sliceWillSetLabel(newLabelView, oldLabelView, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.sliceWillSetLabel !== void 0) {
+        viewObserver.sliceWillSetLabel(newLabelView, oldLabelView, this);
+      }
     }
   }
 
-  legend(): GraphicsView | null;
-  legend(legend: GraphicsView | AnyTextRunView | null): this;
-  legend(legend?: GraphicsView | AnyTextRunView | null): GraphicsView | null | this {
-    if (legend === void 0) {
-      const childView = this.getChildView("legend");
-      return childView instanceof GraphicsView ? childView : null;
-    } else {
-      if (legend !== null && !(legend instanceof GraphicsView)) {
-        legend = TextRunView.fromAny(legend);
+  protected onSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    // hook
+  }
+
+  protected didSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.sliceDidSetLabel !== void 0) {
+        viewObserver.sliceDidSetLabel(newLabelView, oldLabelView, this);
       }
-      this.setChildView("legend", legend);
-      return this;
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.sliceDidSetLabel !== void 0) {
+      viewController.sliceDidSetLabel(newLabelView, oldLabelView, this);
     }
   }
 
-  protected onUpdateValue(newValue: number, oldValue: number): void {
-    const pieView = this.getSuperView(PieView);
-    if (pieView !== null) {
-      pieView.requireUpdate(View.NeedsAnimate);
+  @ViewFastener<SliceView, GraphicsView, AnyTextRunView>({
+    type: TextRunView,
+    observe: false,
+    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
+      if (value instanceof GraphicsView) {
+        return value;
+      } else if (typeof value === "string" && this.view instanceof TextRunView) {
+        this.view.text(value);
+        return this.view;
+      } else {
+        return TextRunView.fromAny(value);
+      }
+    },
+    willSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+      this.owner.willSetLegend(newLegendView, oldLegendView);
+    },
+    onSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+      this.owner.onSetLegend(newLegendView, oldLegendView);
+    },
+    didSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+      this.owner.didSetLegend(newLegendView, oldLegendView);
+    },
+  })
+  declare legend: ViewFastener<this, GraphicsView, AnyTextRunView>;
+
+  protected willSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.sliceWillSetLegend !== void 0) {
+      viewController.sliceWillSetLegend(newLegendView, oldLegendView, this);
     }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.sliceWillSetLegend !== void 0) {
+        viewObserver.sliceWillSetLegend(newLegendView, oldLegendView, this);
+      }
+    }
+  }
+
+  protected onSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+    // hook
+  }
+
+  protected didSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.sliceDidSetLegend !== void 0) {
+        viewObserver.sliceDidSetLegend(newLegendView, oldLegendView, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.sliceDidSetLegend !== void 0) {
+      viewController.sliceDidSetLegend(newLegendView, oldLegendView, this);
+    }
+  }
+
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
+    this.center.onAnimate(viewContext.updateTime);
   }
 
   protected onRender(viewContext: ViewContextType<this>): void {
@@ -261,23 +386,23 @@ export class SliceView extends LayerView {
     arc.draw(context, frame);
     context.fill();
 
-    const label = this.label();
-    if (label !== null && !label.isHidden()) {
+    const labelView = this.label.view;
+    if (labelView !== null && !labelView.isHidden()) {
       const labelRadius = this.labelRadius.getValue().pxValue(deltaRadius);
       const labelAngle = startAngle.value + sweepAngle.value / 2;
       const r = innerRadius.value + labelRadius;
       const rx = r * Math.cos(labelAngle);
       const ry = r * Math.sin(labelAngle);
 
-      if (TypesetView.is(label)) {
-        label.textAlign.setAutoState("center");
-        label.textBaseline.setAutoState("middle");
-        label.textOrigin.setAutoState(new PointR2(center.x + rx, center.y + ry));
+      if (TypesetView.is(labelView)) {
+        labelView.textAlign.setAutoState("center");
+        labelView.textBaseline.setAutoState("middle");
+        labelView.textOrigin.setAutoState(new PointR2(center.x + rx, center.y + ry));
       }
     }
 
-    const legend = this.legend();
-    if (legend !== null && !legend.isHidden()) {
+    const legendView = this.legend.view;
+    if (legendView !== null && !legendView.isHidden()) {
       const tickAlign = this.tickAlign.getValue();
       const tickAngle = startAngle.value + sweepAngle.value * tickAlign;
       const tickRadius = this.tickRadius.getValue().pxValue(size);
@@ -325,14 +450,14 @@ export class SliceView extends LayerView {
         }
       }
 
-      if (TypesetView.is(legend)) {
+      if (TypesetView.is(legendView)) {
         const tickPadding = this.tickPadding.getValue().pxValue(size);
-        if (FillView.is(legend)) {
-          legend.fill.setAutoState(tickColor);
+        if (FillView.is(legendView)) {
+          legendView.fill.setAutoState(tickColor);
         }
-        legend.textAlign.setAutoState(textAlign);
-        legend.textBaseline.setAutoState("alphabetic");
-        legend.textOrigin.setAutoState(new PointR2(cx + r2x + dx, cy + r2y - tickPadding));
+        legendView.textAlign.setAutoState(textAlign);
+        legendView.textBaseline.setAutoState("alphabetic");
+        legendView.textOrigin.setAutoState(new PointR2(cx + r2x + dx, cy + r2y - tickPadding));
       }
     }
   }
@@ -377,6 +502,10 @@ export class SliceView extends LayerView {
       return this;
     }
     return null;
+  }
+
+  static create(): SliceView {
+    return new SliceView();
   }
 
   static fromInit(init: SliceViewInit): SliceView {

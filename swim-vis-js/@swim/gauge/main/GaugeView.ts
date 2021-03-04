@@ -15,8 +15,15 @@
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
-import {GraphicsViewInit, LayerView, TypesetView, AnyTextRunView, TextRunView} from "@swim/graphics";
+import {ViewContextType, ViewFlags, View, ViewAnimator, ViewFastener} from "@swim/view";
+import {
+  GraphicsViewInit,
+  GraphicsView,
+  LayerView,
+  TypesetView,
+  AnyTextRunView,
+  TextRunView,
+} from "@swim/graphics";
 import {AnyDialView, DialView} from "./"; // forward import
 
 export type AnyGaugeView = GaugeView | GaugeViewInit;
@@ -41,7 +48,7 @@ export interface GaugeViewInit extends GraphicsViewInit {
   tickColor?: AnyColor;
   font?: AnyFont;
   textColor?: AnyColor;
-  title?: View | string;
+  title?: GraphicsView | string;
   dials?: AnyDialView[];
 }
 
@@ -170,19 +177,18 @@ export class GaugeView extends LayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  title(): View | null;
-  title(title: View | AnyTextRunView | null): this;
-  title(title?: View | AnyTextRunView | null): View | null | this {
-    if (title === void 0) {
-      return this.getChildView("title");
-    } else {
-      if (title !== null && !(title instanceof View)) {
-        title = TextRunView.fromAny(title);
+  @ViewFastener<GaugeView, GraphicsView, AnyTextRunView>({
+    type: TextRunView,
+    observe: false,
+    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
+      if (value instanceof GraphicsView) {
+        return value;
+      } else {
+        return TextRunView.fromAny(value);
       }
-      this.setChildView("title", title);
-      return this;
-    }
-  }
+    },
+  })
+  declare title: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
   addDial(dial: AnyDialView, key?: string): void {
     if (key === void 0) {
@@ -246,11 +252,11 @@ export class GaugeView extends LayerView {
       }
     }
 
-    const title = this.title();
-    if (TypesetView.is(title)) {
-      title.textAlign.setAutoState("center");
-      title.textBaseline.setAutoState("middle");
-      title.textOrigin.setAutoState(this.center.state);
+    const titleView = this.title.view;
+    if (TypesetView.is(titleView)) {
+      titleView.textAlign.setAutoState("center");
+      titleView.textBaseline.setAutoState("middle");
+      titleView.textOrigin.setAutoState(this.center.state);
     }
   }
 
@@ -286,6 +292,10 @@ export class GaugeView extends LayerView {
     }
 
     this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
+  }
+
+  static create(): GaugeView {
+    return new GaugeView();
   }
 
   static fromInit(init: GaugeViewInit): GaugeView {

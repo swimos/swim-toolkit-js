@@ -392,10 +392,7 @@ export class CanvasView extends HtmlView {
       this.onRemoveChildView(oldChildView);
       this.didRemoveChildView(oldChildView);
       oldChildView.setKey(void 0);
-    } else if (oldChildView !== void 0) {
-      if (!(oldChildView instanceof NodeView)) {
-        throw new TypeError("" + oldChildView);
-      }
+    } else if (oldChildView instanceof NodeView) {
       const oldChildNode = oldChildView.node;
       const targetNode = oldChildNode.nextSibling;
       targetView = targetNode !== null ? (targetNode as ViewNode).view || null : null;
@@ -409,6 +406,8 @@ export class CanvasView extends HtmlView {
       this.didRemoveChildNode(oldChildNode);
       this.didRemoveChildView(oldChildView);
       oldChildView.setKey(void 0);
+    } else if (oldChildView !== null) {
+      throw new TypeError("" + oldChildView);
     }
     if (newChildView !== null) {
       newChildView.setKey(key);

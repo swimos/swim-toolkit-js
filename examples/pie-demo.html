@@ -133,7 +133,9 @@ body {
     <div id="ui">
     </div>
     <script src="../../swim-system-js/swim-core-js/@swim/core/dist/main/swim-core.js"></script>
+    <script src="../../swim-system-js/swim-mesh-js/@swim/mesh/dist/main/swim-mesh.js"></script>
     <script src="../swim-ui-js/@swim/ui/dist/main/swim-ui.js"></script>
+    <script src="../swim-mvc-js/@swim/mvc/dist/main/swim-mvc.js"></script>
     <script src="../swim-vis-js/@swim/vis/dist/main/swim-vis.js"></script>
     <script>
 
@@ -190,15 +192,17 @@ function createSlice() {
       .legend("");
   slice.label().setHidden(!showLabels.checked);
   slice.legend().setHidden(!showLegend.checked);
-  slice.value.didSetValue = function (newValue) {
-    // Update the slice label.
-    slice.label().text(Math.round(100 * newValue / slice.total()) + "%")
-                 .setHidden(!showLabels.checked);
+  slice.addViewObserver({
+    sliceDidSetValue(newValue) {
+      // Update the slice label.
+      slice.label().text(Math.round(100 * newValue / slice.total()) + "%")
+                   .setHidden(!showLabels.checked);
 
-    // Update the slice legend.
-    slice.legend().text(slice.key + " (" + Math.round(100 * newValue) + ")")
-                  .setHidden(!showLegend.checked);
-  };
+      // Update the slice legend.
+      slice.legend().text(slice.key + " (" + Math.round(100 * newValue) + ")")
+                    .setHidden(!showLegend.checked);
+    },
+  });
   // Add mouse event handlers.
   slice.on("pointerenter", function (event) {
         slice.sliceColor(hoverColors[Math.floor(Math.random() * hoverColors.length)], {dt: 200});
