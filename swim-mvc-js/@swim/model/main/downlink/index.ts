@@ -59,3 +59,9 @@ export {
   ModelValueDownlinkClass,
   ModelValueDownlink,
 } from "./ModelValueDownlink";
+
+export {DownlinkTrait} from "./DownlinkTrait";
+
+export {ValueDownlinkTrait} from "./ValueDownlinkTrait";
+
+export {MapDownlinkTrait} from "./MapDownlinkTrait";

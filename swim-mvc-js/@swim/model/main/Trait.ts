@@ -695,8 +695,6 @@ export abstract class Trait implements ModelDownlinkContext {
     const model = this.model;
     if (model !== null) {
       model.requireUpdate(updateFlags, immediate);
-    } else {
-      throw new TypeError("no model");
     }
   }
 
