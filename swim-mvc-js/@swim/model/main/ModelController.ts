@@ -196,11 +196,11 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     }
   }
 
-  modelWillInsertChildModel(childModel: Model, targetModel: Model | null | undefined, model: M): void {
+  modelWillInsertChildModel(childModel: Model, targetModel: Model | null, model: M): void {
     // hook
   }
 
-  modelDidInsertChildModel(childModel: Model, targetModel: Model | null | undefined, model: M): void {
+  modelDidInsertChildModel(childModel: Model, targetModel: Model | null, model: M): void {
     // hook
   }
 
@@ -317,11 +317,11 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     }
   }
 
-  modelWillInsertTrait(trait: Trait, targetTrait: Trait | null | undefined, model: M): void {
+  modelWillInsertTrait(trait: Trait, targetTrait: Trait | null, model: M): void {
     // hook
   }
 
-  modelDidInsertTrait(trait: Trait, targetTrait: Trait | null | undefined, model: M): void {
+  modelDidInsertTrait(trait: Trait, targetTrait: Trait | null, model: M): void {
     // hook
   }
 

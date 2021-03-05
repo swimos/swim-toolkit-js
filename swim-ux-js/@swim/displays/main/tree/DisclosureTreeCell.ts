@@ -42,7 +42,7 @@ export class DisclosureTreeCell extends TreeCell {
     super.didPress(input, event);
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView.key === "button" && childView instanceof DisclosureButton) {
       this.onInsertButton(childView);

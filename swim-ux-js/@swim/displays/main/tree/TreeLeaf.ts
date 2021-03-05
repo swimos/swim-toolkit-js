@@ -234,7 +234,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     }
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof TreeCell) {
       this.onInsertCell(childView);

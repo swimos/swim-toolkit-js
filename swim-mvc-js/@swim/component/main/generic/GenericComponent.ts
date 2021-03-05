@@ -149,9 +149,9 @@ export abstract class GenericComponent extends Component {
 
   abstract insertChildComponent(childComponent: Component, targetComponent: Component | null, key?: string): void;
 
-  protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
+  protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     super.onInsertChildComponent(childComponent, targetComponent);
-    this.insertComponentFastener(childComponent);
+    this.insertComponentFastener(childComponent, targetComponent);
   }
 
   cascadeInsert(updateFlags?: ComponentFlags, componentContext?: ComponentContext): void {
@@ -796,12 +796,12 @@ export abstract class GenericComponent extends Component {
   }
 
   /** @hidden */
-  protected insertComponentFastener(childComponent: Component): void {
+  protected insertComponentFastener(childComponent: Component, targetComponent: Component | null): void {
     const fastenerName = childComponent.key;
     if (fastenerName !== void 0) {
       const componentFastener = this.getLazyComponentFastener(fastenerName);
       if (componentFastener !== null && componentFastener.child === true) {
-        componentFastener.doSetComponent(childComponent);
+        componentFastener.doSetComponent(childComponent, targetComponent);
       }
     }
   }
@@ -812,7 +812,7 @@ export abstract class GenericComponent extends Component {
     if (fastenerName !== void 0) {
       const componentFastener = this.getComponentFastener(fastenerName);
       if (componentFastener !== null && componentFastener.child === true) {
-        componentFastener.doSetComponent(null);
+        componentFastener.doSetComponent(null, null);
       }
     }
   }

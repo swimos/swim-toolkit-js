@@ -50,7 +50,7 @@ export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     this.appendChildView(plot);
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (PlotView.is<X, Y>(childView)) {
       this.onInsertPlot(childView);

@@ -29,11 +29,11 @@ export interface ComponentFastenerInit<S extends Component, U = never> {
   child?: boolean;
   type?: unknown;
 
-  willSetComponent?(newComponent: S | null, oldComponent: S | null): void;
-  onSetComponent?(newComponent: S | null, oldComponent: S | null): void;
-  didSetComponent?(newComponent: S | null, oldComponent: S | null): void;
+  willSetComponent?(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
+  onSetComponent?(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
+  didSetComponent?(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
   createComponent?(): S | U | null;
-  insertComponent?(parentComponent: Component, childComponent: S, key: string | undefined): void;
+  insertComponent?(parentComponent: Component, childComponent: S, targetComponent: Component | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
 }
 
@@ -54,7 +54,7 @@ export interface ComponentFastenerClass extends Function {
 
 export interface ComponentFastener<C extends Component, S extends Component, U = never> {
   (): S | null;
-  (component: S | U | null): C;
+  (component: S | U | null, targetComponent?: Component | null): C;
 
   readonly name: string;
 
@@ -64,28 +64,28 @@ export interface ComponentFastener<C extends Component, S extends Component, U =
 
   getComponent(): S;
 
-  setComponent(component: S | U | null): void;
+  setComponent(newComponent: S | U | null, targetComponent?: Component | null): S | null;
 
   /** @hidden */
-  doSetComponent(newComponent: S | null): void;
+  doSetComponent(newComponent: S | null, targetComponent: Component | null): void;
 
   /** @hidden */
-  willSetComponent(newComponent: S | null, oldComponent: S | null): void;
+  willSetComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
 
   /** @hidden */
-  onSetComponent(newComponent: S | null, oldComponent: S | null): void;
+  onSetComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
 
   /** @hidden */
-  didSetComponent(newComponent: S | null, oldComponent: S | null): void;
+  didSetComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
 
   /** @hidden */
-  willSetOwnComponent(newComponent: S | null, oldComponent: S | null): void;
+  willSetOwnComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
 
   /** @hidden */
-  onSetOwnComponent(newComponent: S | null, oldComponent: S | null): void;
+  onSetOwnComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
 
   /** @hidden */
-  didSetOwnComponent(newComponent: S | null, oldComponent: S | null): void;
+  didSetOwnComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
 
   /** @hidden */
   mount(): void;
@@ -93,15 +93,14 @@ export interface ComponentFastener<C extends Component, S extends Component, U =
   /** @hidden */
   unmount(): void;
 
-  insert(parentComponent: Component, key?: string | null): S | null;
-  insert(key?: string | null): S | null;
+  insert(parentComponent?: Component | null, childComponent?: S | U | null, targetComponent?: Component | null, key?: string | null): S | null;
 
   remove(): S | null;
 
   createComponent(): S | U | null;
 
   /** @hidden */
-  insertComponent(parentComponent: Component, childComponent: S, key: string | undefined): void;
+  insertComponent(parentComponent: Component, childComponent: S, targetComponent: Component | null, key: string | undefined): void;
 
   /** @hidden */
   observe?: boolean;
@@ -172,55 +171,60 @@ ComponentFastener.prototype.getComponent = function <S extends Component>(this: 
   return component;
 };
 
-ComponentFastener.prototype.setComponent = function <S extends Component, U>(this: ComponentFastener<Component, S, U>, component: S | U | null): void {
-  if (component !== null) {
-    component = this.fromAny(component);
+ComponentFastener.prototype.setComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, targetComponent?: Component | null): S | null {
+  const oldComponent = this.component;
+  if (newComponent !== null) {
+    newComponent = this.fromAny(newComponent);
+  }
+  if (targetComponent === void 0) {
+    targetComponent = null;
   }
   if (this.child === true) {
-    if (component === null) {
+    if (newComponent === null) {
       this.owner.setChildComponent(this.name, null);
-    } else if ((component as S).parentComponent !== this.owner || (component as S).key !== this.name) {
-      this.insertComponent(this.owner, component as S, this.name);
+    } else if (newComponent.parentComponent !== this.owner || newComponent.key !== this.name) {
+      this.insertComponent(this.owner, newComponent, targetComponent, this.name);
     }
   } else {
-    this.doSetComponent(component as S | null);
+    this.doSetComponent(newComponent, targetComponent);
   }
+  return oldComponent;
 };
 
-ComponentFastener.prototype.doSetComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null): void {
+ComponentFastener.prototype.doSetComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, targetComponent: Component | null): void {
   const oldComponent = this.component;
   if (oldComponent !== newComponent) {
-    this.willSetOwnComponent(newComponent, oldComponent);
-    this.willSetComponent(newComponent, oldComponent);
+    this.willSetOwnComponent(newComponent, oldComponent, targetComponent);
+    this.willSetComponent(newComponent, oldComponent, targetComponent);
     Object.defineProperty(this, "component", {
       value: newComponent,
       enumerable: true,
       configurable: true,
     });
-    this.onSetOwnComponent(newComponent, oldComponent);
-    this.onSetComponent(newComponent, oldComponent);
-    this.didSetComponent(newComponent, oldComponent);
-    this.didSetOwnComponent(newComponent, oldComponent);
+    this.onSetOwnComponent(newComponent, oldComponent, targetComponent);
+    this.onSetComponent(newComponent, oldComponent, targetComponent);
+    this.didSetComponent(newComponent, oldComponent, targetComponent);
+    this.didSetOwnComponent(newComponent, oldComponent, targetComponent);
   }
 };
 
-ComponentFastener.prototype.willSetComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null): void {
+ComponentFastener.prototype.willSetComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void {
   // hook
 };
 
-ComponentFastener.prototype.onSetComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null): void {
+ComponentFastener.prototype.onSetComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void {
   // hook
 };
 
-ComponentFastener.prototype.didSetComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null): void {
+ComponentFastener.prototype.didSetComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void {
   // hook
 };
 
-ComponentFastener.prototype.willSetOwnComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null): void {
+ComponentFastener.prototype.willSetOwnComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void {
   // hook
 };
 
-ComponentFastener.prototype.onSetOwnComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null): void {
+ComponentFastener.prototype.onSetOwnComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void {
   if (this.observe === true && this.owner.isMounted()) {
     if (oldComponent !== null) {
       oldComponent.removeComponentObserver(this as ComponentObserverType<S>);
@@ -231,7 +235,7 @@ ComponentFastener.prototype.onSetOwnComponent = function <S extends Component>(t
   }
 };
 
-ComponentFastener.prototype.didSetOwnComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null): void {
+ComponentFastener.prototype.didSetOwnComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void {
   // hook
 };
 
@@ -249,17 +253,23 @@ ComponentFastener.prototype.unmount = function <S extends Component>(this: Compo
   }
 };
 
-ComponentFastener.prototype.insert = function <S extends Component>(this: ComponentFastener<Component, S>, parentComponent?: Component | string | null, key?: string | null): S | null {
-  let component = this.component;
-  if (component === null) {
-    component = this.createComponent();
+ComponentFastener.prototype.insert = function <S extends Component>(this: ComponentFastener<Component, S>, parentComponent?: Component | null, childComponent?: S | null, targetComponent?: Component | null, key?: string | null): S | null {
+  if (targetComponent === void 0) {
+    targetComponent = null;
   }
-  if (component !== null) {
-    if (typeof parentComponent === "string" || parentComponent === null) {
-      key = parentComponent;
-      parentComponent = void 0;
+  if (childComponent === void 0 || childComponent === null) {
+    childComponent = this.component;
+    if (childComponent === null) {
+      childComponent = this.createComponent();
     }
-    if (parentComponent === void 0) {
+  } else {
+    childComponent = this.fromAny(childComponent);
+    if (childComponent !== null) {
+      this.doSetComponent(childComponent, targetComponent);
+    }
+  }
+  if (childComponent !== null) {
+    if (parentComponent === void 0 || parentComponent === null) {
       parentComponent = this.owner;
     }
     if (key === void 0) {
@@ -267,34 +277,30 @@ ComponentFastener.prototype.insert = function <S extends Component>(this: Compon
     } else if (key === null) {
       key = void 0;
     }
-    if (component.parentComponent !== parentComponent || component.key !== key) {
-      this.insertComponent(parentComponent, component, key);
+    if (childComponent.parentComponent !== parentComponent || childComponent.key !== key) {
+      this.insertComponent(parentComponent, childComponent, targetComponent, key);
     }
     if (this.component === null) {
-      this.doSetComponent(component);
+      this.doSetComponent(childComponent, targetComponent);
     }
   }
-  return component
+  return childComponent
 };
 
 ComponentFastener.prototype.remove = function <S extends Component>(this: ComponentFastener<Component, S>): S | null {
-  const component = this.component;
-  if (component !== null) {
-    component.remove();
+  const childComponent = this.component;
+  if (childComponent !== null) {
+    childComponent.remove();
   }
-  return component;
+  return childComponent;
 };
 
 ComponentFastener.prototype.createComponent = function <S extends Component, U>(this: ComponentFastener<Component, S, U>): S | U | null {
   return null;
 };
 
-ComponentFastener.prototype.insertComponent = function <S extends Component>(this: ComponentFastener<Component, S>, parentComponent: Component, childComponent: S, key: string | undefined): void {
-  if (key !== void 0) {
-    parentComponent.setChildComponent(key, childComponent);
-  } else {
-    parentComponent.appendChildComponent(childComponent);
-  }
+ComponentFastener.prototype.insertComponent = function <S extends Component>(this: ComponentFastener<Component, S>, parentComponent: Component, childComponent: S, targetComponent: Component | null, key: string | undefined): void {
+  parentComponent.insertChildComponent(childComponent, targetComponent, key);
 };
 
 ComponentFastener.prototype.fromAny = function <S extends Component, U>(this: ComponentFastener<Component, S, U>, value: S | U): S | null {
@@ -310,11 +316,11 @@ ComponentFastener.define = function <C extends Component, S extends Component, U
   }
 
   const _constructor = function DecoratedComponentFastener(this: ComponentFastener<C, S>, owner: C, fastenerName: string | undefined): ComponentFastener<C, S, U> {
-    let _this: ComponentFastener<C, S, U> = function ComponentFastenerAccessor(component?: S | U | null): S | null | C {
+    let _this: ComponentFastener<C, S, U> = function ComponentFastenerAccessor(component?: S | U | null, targetComponent?: Component | null): S | null | C {
       if (component === void 0) {
         return _this.component;
       } else {
-        _this.setComponent(component);
+        _this.setComponent(component, targetComponent);
         return _this.owner;
       }
     } as ComponentFastener<C, S, U>;

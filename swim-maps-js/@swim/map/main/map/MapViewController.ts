@@ -25,9 +25,9 @@ export interface MapViewController<V extends MapView = MapView> extends MapGraph
 
   viewDidSetParentView(newParentView: View | null, oldParentView: View | null, view: V): void;
 
-  viewWillInsertChildView(childView: View, targetView: View | null | undefined, view: V): void;
+  viewWillInsertChildView(childView: View, targetView: View | null, view: V): void;
 
-  viewDidInsertChildView(childView: View, targetView: View | null | undefined, view: V): void;
+  viewDidInsertChildView(childView: View, targetView: View | null, view: V): void;
 
   viewWillRemoveChildView(childView: View, view: V): void;
 

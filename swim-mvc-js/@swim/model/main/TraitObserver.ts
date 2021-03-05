@@ -27,17 +27,17 @@ export interface TraitObserver<R extends Trait = Trait> {
 
   traitDidSetParentModel?(newParentModel: Model | null, oldParentModel: Model | null, trait: R): void;
 
-  traitWillInsertChildModel?(childModel: Model, targetModel: Model | null | undefined, trait: R): void;
+  traitWillInsertChildModel?(childModel: Model, targetModel: Model | null, trait: R): void;
 
-  traitDidInsertChildModel?(childModel: Model, targetModel: Model | null | undefined, trait: R): void;
+  traitDidInsertChildModel?(childModel: Model, targetModel: Model | null, trait: R): void;
 
   traitWillRemoveChildModel?(childModel: Model, trait: R): void;
 
   traitDidRemoveChildModel?(childModel: Model, trait: R): void;
 
-  traitWillInsertTrait?(memberTrait: Trait, targetTrait: Trait | null | undefined, trait: R): void;
+  traitWillInsertTrait?(memberTrait: Trait, targetTrait: Trait | null, trait: R): void;
 
-  traitDidInsertTrait?(memberTrait: Trait, targetTrait: Trait | null | undefined, trait: R): void;
+  traitDidInsertTrait?(memberTrait: Trait, targetTrait: Trait | null, trait: R): void;
 
   traitWillRemoveTrait?(memberTrait: Trait, trait: R): void;
 

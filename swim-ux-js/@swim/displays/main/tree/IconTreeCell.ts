@@ -71,7 +71,7 @@ export class IconTreeCell extends TreeCell implements IconView {
     return svgView instanceof SvgIconView ? svgView : null;
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView.key === "svg" && childView instanceof SvgIconView) {
       this.onInsertSvg(childView);

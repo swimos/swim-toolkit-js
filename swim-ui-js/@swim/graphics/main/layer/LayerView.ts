@@ -192,7 +192,7 @@ export class LayerView extends GraphicsView {
       childView.setKey(key);
     }
     const childViews = this.childViews as View[];
-    const targetView = childViews.length !== 0 ? childViews[0] : null;
+    const targetView = childViews.length !== 0 ? childViews[0]! : null;
     this.willInsertChildView(childView, targetView);
     childViews.unshift(childView);
     this.insertChildViewMap(childView);

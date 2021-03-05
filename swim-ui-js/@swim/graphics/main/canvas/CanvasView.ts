@@ -504,7 +504,7 @@ export class CanvasView extends HtmlView {
       childView.setKey(key);
     }
     const graphicsViews = this.graphicsViews as GraphicsView[];
-    const targetView = graphicsViews.length !== 0 ? graphicsViews[0] : null;
+    const targetView = graphicsViews.length !== 0 ? graphicsViews[0]! : null;
     this.willInsertChildView(childView, targetView);
     graphicsViews.unshift(childView);
     this.insertChildViewMap(childView);
@@ -536,14 +536,14 @@ export class CanvasView extends HtmlView {
   }
 
   insertChildView(childView: View, targetView: View | null, key?: string): void {
-    if (childView instanceof GraphicsView && targetView instanceof GraphicsView) {
+    if (childView instanceof GraphicsView) {
       this.insertGraphicsView(childView, targetView, key);
     } else {
       super.insertChildView(childView, targetView, key);
     }
   }
 
-  insertGraphicsView(childView: GraphicsView, targetView: GraphicsView | null, key?: string): void {
+  insertGraphicsView(childView: GraphicsView, targetView: View | null, key?: string): void {
     if (targetView !== null && !(targetView instanceof GraphicsView)) {
       throw new TypeError("" + targetView);
     }

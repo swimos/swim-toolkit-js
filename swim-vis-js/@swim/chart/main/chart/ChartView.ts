@@ -292,7 +292,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     return LinearRange(yRangeMin, yRangeMax);
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof GraphView) {
       this.onInsertGraph(childView);

@@ -70,7 +70,7 @@ export class TreeStem extends HtmlView {
   @ViewProperty({type: TreeSeed, inherit: true})
   declare seed: ViewProperty<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof TreeVein) {
       this.onInsertVein(childView);

@@ -30,11 +30,11 @@ export interface ModelTraitInit<S extends Trait, U = never> {
   sibling?: boolean;
   type?: unknown;
 
-  willSetTrait?(newTrait: S | null, oldTrait: S | null): void;
-  onSetTrait?(newTrait: S | null, oldTrait: S | null): void;
-  didSetTrait?(newTrait: S | null, oldTrait: S | null): void;
+  willSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
+  onSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
+  didSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
   createTrait?(): S | U | null;
-  insertTrait?(model: Model, trait: S, key: string | undefined): void;
+  insertTrait?(model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
 }
 
@@ -55,7 +55,7 @@ export interface ModelTraitClass extends Function {
 
 export interface ModelTrait<M extends Model, S extends Trait, U = never> {
   (): S | null;
-  (trait: S | U | null): M;
+  (trait: S | U | null, targetTrait?: Trait | null): M;
 
   readonly name: string;
 
@@ -65,28 +65,28 @@ export interface ModelTrait<M extends Model, S extends Trait, U = never> {
 
   getTrait(): S;
 
-  setTrait(trait: S | U | null): void;
+  setTrait(newTrait: S | U | null, targetTrait?: Trait | null): S | null;
 
   /** @hidden */
-  doSetTrait(newTrait: S | null): void;
+  doSetTrait(newTrait: S | null, targetTrait: Trait | null): void;
 
   /** @hidden */
-  willSetTrait(newTrait: S | null, oldTrait: S | null): void;
+  willSetTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
   /** @hidden */
-  onSetTrait(newTrait: S | null, oldTrait: S | null): void;
+  onSetTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
   /** @hidden */
-  didSetTrait(newTrait: S | null, oldTrait: S | null): void;
+  didSetTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
   /** @hidden */
-  willSetOwnTrait(newTrait: S | null, oldTrait: S | null): void;
+  willSetOwnTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
   /** @hidden */
-  onSetOwnTrait(newTrait: S | null, oldTrait: S | null): void;
+  onSetOwnTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
   /** @hidden */
-  didSetOwnTrait(newTrait: S | null, oldTrait: S | null): void;
+  didSetOwnTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
   /** @hidden */
   mount(): void;
@@ -94,15 +94,14 @@ export interface ModelTrait<M extends Model, S extends Trait, U = never> {
   /** @hidden */
   unmount(): void;
 
-  insert(model: Model, key?: string | null): S | null;
-  insert(key?: string | null): S | null;
+  insert(model?: Model | null, trait?: S | U | null, targetTrait?: Trait | null, key?: string | null): S | null;
 
   remove(): S | null;
 
   createTrait(): S | U | null;
 
   /** @hidden */
-  insertTrait(model: Model, trait: S, key: string | undefined): void;
+  insertTrait(model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
 
   /** @hidden */
   observe?: boolean;
@@ -173,55 +172,60 @@ ModelTrait.prototype.getTrait = function <S extends Trait>(this: ModelTrait<Mode
   return trait;
 };
 
-ModelTrait.prototype.setTrait = function <S extends Trait, U>(this: ModelTrait<Model, S, U>, trait: S | U | null): void {
-  if (trait !== null) {
-    trait = this.fromAny(trait);
+ModelTrait.prototype.setTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, targetTrait?: Trait | null): S | null {
+  const oldTrait = this.trait;
+  if (newTrait !== null) {
+    newTrait = this.fromAny(newTrait);
+  }
+  if (targetTrait === void 0) {
+    targetTrait = null;
   }
   if (this.sibling === true) {
-    if (trait === null) {
+    if (newTrait === null) {
       this.owner.setTrait(this.name, null);
-    } else if ((trait as S).model !== this.owner || (trait as S).key !== this.name) {
-      this.insertTrait(this.owner, trait as S, this.name);
+    } else if (newTrait.model !== this.owner || newTrait.key !== this.name) {
+      this.insertTrait(this.owner, newTrait, targetTrait, this.name);
     }
   } else {
-    this.doSetTrait(trait as S | null);
+    this.doSetTrait(newTrait, targetTrait);
   }
+  return oldTrait;
 };
 
-ModelTrait.prototype.doSetTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null): void {
+ModelTrait.prototype.doSetTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, targetTrait: Trait | null): void {
   const oldTrait = this.trait;
   if (oldTrait !== newTrait) {
-    this.willSetOwnTrait(newTrait, oldTrait);
-    this.willSetTrait(newTrait, oldTrait);
+    this.willSetOwnTrait(newTrait, oldTrait, targetTrait);
+    this.willSetTrait(newTrait, oldTrait, targetTrait);
     Object.defineProperty(this, "trait", {
       value: newTrait,
       enumerable: true,
       configurable: true,
     });
-    this.onSetOwnTrait(newTrait, oldTrait);
-    this.onSetTrait(newTrait, oldTrait);
-    this.didSetTrait(newTrait, oldTrait);
-    this.didSetOwnTrait(newTrait, oldTrait);
+    this.onSetOwnTrait(newTrait, oldTrait, targetTrait);
+    this.onSetTrait(newTrait, oldTrait, targetTrait);
+    this.didSetTrait(newTrait, oldTrait, targetTrait);
+    this.didSetOwnTrait(newTrait, oldTrait, targetTrait);
   }
 };
 
-ModelTrait.prototype.willSetTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null): void {
+ModelTrait.prototype.willSetTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void {
   // hook
 };
 
-ModelTrait.prototype.onSetTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null): void {
+ModelTrait.prototype.onSetTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void {
   // hook
 };
 
-ModelTrait.prototype.didSetTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null): void {
+ModelTrait.prototype.didSetTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void {
   // hook
 };
 
-ModelTrait.prototype.willSetOwnTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null): void {
+ModelTrait.prototype.willSetOwnTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void {
   // hook
 };
 
-ModelTrait.prototype.onSetOwnTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null): void {
+ModelTrait.prototype.onSetOwnTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void {
   if (this.observe === true && this.owner.isMounted()) {
     if (oldTrait !== null) {
       oldTrait.removeTraitObserver(this as TraitObserverType<S>);
@@ -232,7 +236,7 @@ ModelTrait.prototype.onSetOwnTrait = function <S extends Trait>(this: ModelTrait
   }
 };
 
-ModelTrait.prototype.didSetOwnTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null): void {
+ModelTrait.prototype.didSetOwnTrait = function <S extends Trait>(this: ModelTrait<Model, S>, newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void {
   // hook
 };
 
@@ -250,17 +254,23 @@ ModelTrait.prototype.unmount = function <S extends Trait>(this: ModelTrait<Model
   }
 };
 
-ModelTrait.prototype.insert = function <S extends Trait>(this: ModelTrait<Model, S>, model?: Model | string | null, key?: string | null): S | null {
-  let trait = this.trait;
-  if (trait === null) {
-    trait = this.createTrait();
+ModelTrait.prototype.insert = function <S extends Trait>(this: ModelTrait<Model, S>, model?: Model | null, trait?: S | null, targetTrait?: Trait | null, key?: string | null): S | null {
+  if (targetTrait === void 0) {
+    targetTrait = null;
+  }
+  if (trait === void 0 || trait === null) {
+    trait = this.trait;
+    if (trait === null) {
+      trait = this.createTrait();
+    }
+  } else {
+    trait = this.fromAny(trait);
+    if (trait !== null) {
+      this.doSetTrait(trait, targetTrait);
+    }
   }
   if (trait !== null) {
-    if (typeof model === "string" || model === null) {
-      key = model;
-      model = void 0;
-    }
-    if (model === void 0) {
+    if (model === void 0 || model === null) {
       model = this.owner;
     }
     if (key === void 0) {
@@ -269,10 +279,10 @@ ModelTrait.prototype.insert = function <S extends Trait>(this: ModelTrait<Model,
       key = void 0;
     }
     if (trait.model !== model || trait.key !== key) {
-      this.insertTrait(this.owner, trait, key);
+      this.insertTrait(this.owner, trait, targetTrait, key);
     }
     if (this.trait === null) {
-      this.doSetTrait(trait);
+      this.doSetTrait(trait, targetTrait);
     }
   }
   return trait;
@@ -290,12 +300,8 @@ ModelTrait.prototype.createTrait = function <S extends Trait, U>(this: ModelTrai
   return null;
 };
 
-ModelTrait.prototype.insertTrait = function <S extends Trait>(this: ModelTrait<Model, S>, model: Model, trait: S, key: string | undefined): void {
-  if (key !== void 0) {
-    model.setTrait(key, trait);
-  } else {
-    model.appendTrait(trait);
-  }
+ModelTrait.prototype.insertTrait = function <S extends Trait>(this: ModelTrait<Model, S>, model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void {
+  model.insertTrait(trait, targetTrait, key);
 };
 
 ModelTrait.prototype.fromAny = function <S extends Trait, U>(this: ModelTrait<Model, S, U>, value: S | U): S | null {
@@ -311,11 +317,11 @@ ModelTrait.define = function <M extends Model, S extends Trait, U, I>(descriptor
   }
 
   const _constructor = function DecoratedModelTrait(this: ModelTrait<M, S>, owner: M, fastenerName: string | undefined): ModelTrait<M, S, U> {
-    let _this: ModelTrait<M, S, U> = function ModelTraitAccessor(trait?: S | U | null): S | null | M {
+    let _this: ModelTrait<M, S, U> = function ModelTraitAccessor(trait?: S | U | null, targetTrait?: Trait | null): S | null | M {
       if (trait === void 0) {
         return _this.trait;
       } else {
-        _this.setTrait(trait);
+        _this.setTrait(trait, targetTrait);
         return _this.owner;
       }
     } as ModelTrait<M, S, U>;

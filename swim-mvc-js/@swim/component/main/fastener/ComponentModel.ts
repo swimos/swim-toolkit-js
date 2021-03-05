@@ -28,11 +28,11 @@ export interface ComponentModelInit<M extends Model, U = never> {
   observe?: boolean;
   type?: unknown;
 
-  willSetModel?(newModel: M | null, oldModel: M | null): void;
-  onSetModel?(newModel: M | null, oldModel: M | null): void;
-  didSetModel?(newModel: M | null, oldModel: M | null): void;
+  willSetModel?(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
+  onSetModel?(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
+  didSetModel?(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
   createModel?(): M | U | null;
-  insertModel?(parentModel: Model, childModel: M, key: string | undefined): void;
+  insertModel?(parentModel: Model, childModel: M, targetModel: Model | null, key: string | undefined): void;
   fromAny?(value: M | U): M | null;
 }
 
@@ -53,7 +53,7 @@ export interface ComponentModelClass extends Function {
 
 export interface ComponentModel<C extends Component, M extends Model, U = never> {
   (): M | null;
-  (model: M | U | null): C;
+  (model: M | U | null, targetModel?: Model | null): C;
 
   readonly name: string;
 
@@ -63,25 +63,25 @@ export interface ComponentModel<C extends Component, M extends Model, U = never>
 
   getModel(): M;
 
-  setModel(newModel: M | U | null): void;
+  setModel(newModel: M | U | null, targetModel?: Model | null): M | null;
 
   /** @hidden */
-  willSetModel(newModel: M | null, oldModel: M | null): void;
+  willSetModel(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
 
   /** @hidden */
-  onSetModel(newModel: M | null, oldModel: M | null): void;
+  onSetModel(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
 
   /** @hidden */
-  didSetModel(newModel: M | null, oldModel: M | null): void;
+  didSetModel(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
 
   /** @hidden */
-  willSetOwnModel(newModel: M | null, oldModel: M | null): void;
+  willSetOwnModel(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
 
   /** @hidden */
-  onSetOwnModel(newModel: M | null, oldModel: M | null): void;
+  onSetOwnModel(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
 
   /** @hidden */
-  didSetOwnModel(newModel: M | null, oldModel: M | null): void;
+  didSetOwnModel(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
 
   /** @hidden */
   mount(): void;
@@ -89,14 +89,14 @@ export interface ComponentModel<C extends Component, M extends Model, U = never>
   /** @hidden */
   unmount(): void;
 
-  insert(parentModel: Model, key?: string | null): M | null;
+  insert(parentModel: Model, childModel?: M | U | null, targetModel?: Model | null, key?: string | null): M | null;
 
   remove(): M | null;
 
   createModel(): M | U | null;
 
   /** @hidden */
-  insertModel(parentModel: Model, childModel: M, key: string | undefined): void;
+  insertModel(parentModel: Model, childModel: M, targetMoel: Model | null, key: string | undefined): void;
 
   /** @hidden */
   observe?: boolean;
@@ -164,44 +164,48 @@ ComponentModel.prototype.getModel = function <M extends Model>(this: ComponentMo
   return model;
 };
 
-ComponentModel.prototype.setModel = function <M extends Model, U>(this: ComponentModel<Component, M, U>, newModel: M | U | null): void {
+ComponentModel.prototype.setModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, targetModel?: Model | null): M | null {
   const oldModel = this.model;
   if (newModel !== null) {
     newModel = this.fromAny(newModel);
   }
   if (oldModel !== newModel) {
-    this.willSetOwnModel(newModel as M | null, oldModel);
-    this.willSetModel(newModel as M | null, oldModel);
+    if (targetModel === void 0) {
+      targetModel = null;
+    }
+    this.willSetOwnModel(newModel, oldModel, targetModel);
+    this.willSetModel(newModel, oldModel, targetModel);
     Object.defineProperty(this, "model", {
-      value: newModel as M | null,
+      value: newModel,
       enumerable: true,
       configurable: true,
     });
-    this.onSetOwnModel(newModel as M | null, oldModel);
-    this.onSetModel(newModel as M | null, oldModel);
-    this.didSetModel(newModel as M | null, oldModel);
-    this.didSetOwnModel(newModel as M | null, oldModel);
+    this.onSetOwnModel(newModel, oldModel, targetModel);
+    this.onSetModel(newModel, oldModel, targetModel);
+    this.didSetModel(newModel, oldModel, targetModel);
+    this.didSetOwnModel(newModel, oldModel, targetModel);
   }
+  return oldModel;
 };
 
-ComponentModel.prototype.willSetModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null): void {
+ComponentModel.prototype.willSetModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
   // hook
 };
 
-ComponentModel.prototype.onSetModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null): void {
+ComponentModel.prototype.onSetModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
   // hook
 };
 
-ComponentModel.prototype.didSetModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null): void {
+ComponentModel.prototype.didSetModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
   // hook
 };
 
-ComponentModel.prototype.willSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null): void {
-  this.owner.willSetComponentModel(this, newModel, oldModel);
+ComponentModel.prototype.willSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
+  this.owner.willSetComponentModel(this, newModel, oldModel, targetModel);
 };
 
-ComponentModel.prototype.onSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null): void {
-  this.owner.onSetComponentModel(this, newModel, oldModel);
+ComponentModel.prototype.onSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
+  this.owner.onSetComponentModel(this, newModel, oldModel, targetModel);
   if (this.observe === true && this.owner.isMounted()) {
     if (oldModel !== null) {
       oldModel.removeModelObserver(this as ModelObserverType<M>);
@@ -212,8 +216,8 @@ ComponentModel.prototype.onSetOwnModel = function <M extends Model>(this: Compon
   }
 };
 
-ComponentModel.prototype.didSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null): void {
-  this.owner.didSetComponentModel(this, newModel, oldModel);
+ComponentModel.prototype.didSetOwnModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
+  this.owner.didSetComponentModel(this, newModel, oldModel, targetModel);
 };
 
 ComponentModel.prototype.mount = function <M extends Model>(this: ComponentModel<Component, M>): void {
@@ -230,45 +234,51 @@ ComponentModel.prototype.unmount = function <M extends Model>(this: ComponentMod
   }
 };
 
-ComponentModel.prototype.insert = function <M extends Model>(this: ComponentModel<Component, M>, parentModel: Model, key?: string | null): M | null {
-  let model = this.model;
-  if (model === null) {
-    model = this.createModel();
+ComponentModel.prototype.insert = function <M extends Model>(this: ComponentModel<Component, M>, parentModel: Model, childModel?: M | null, targetModel?: Model | null, key?: string | null): M | null {
+  if (targetModel === void 0) {
+    targetModel = null;
   }
-  if (model !== null) {
+  if (childModel === void 0 || childModel === null) {
+    childModel = this.model;
+    if (childModel === null) {
+      childModel = this.createModel();
+    }
+  } else {
+    childModel = this.fromAny(childModel);
+    if (childModel !== null) {
+      this.setModel(childModel, targetModel);
+    }
+  }
+  if (childModel !== null) {
     if (key === void 0) {
       key = this.name;
     } else if (key === null) {
       key = void 0;
     }
-    if (model.parentModel !== parentModel || model.key !== key) {
-      this.insertModel(parentModel, model, key);
+    if (childModel.parentModel !== parentModel || childModel.key !== key) {
+      this.insertModel(parentModel, childModel, targetModel, key);
     }
     if (this.model === null) {
-      this.setModel(model);
+      this.setModel(childModel, targetModel);
     }
   }
-  return model;
+  return childModel;
 };
 
 ComponentModel.prototype.remove = function <M extends Model>(this: ComponentModel<Component, M>): M | null {
-  const model = this.model;
-  if (model !== null) {
-    model.remove();
+  const childModel = this.model;
+  if (childModel !== null) {
+    childModel.remove();
   }
-  return model;
+  return childModel;
 };
 
 ComponentModel.prototype.createModel = function <M extends Model, U>(this: ComponentModel<Component, M, U>): M | U | null {
   return null;
 };
 
-ComponentModel.prototype.insertModel = function <M extends Model>(this: ComponentModel<Component, M>, parentModel: Model, childModel: M, key: string | undefined): void {
-  if (key !== void 0) {
-    parentModel.setChildModel(key, childModel);
-  } else {
-    parentModel.appendChildModel(childModel);
-  }
+ComponentModel.prototype.insertModel = function <M extends Model>(this: ComponentModel<Component, M>, parentModel: Model, childModel: M, targetModel: Model | null, key: string | undefined): void {
+  parentModel.insertChildModel(childModel, targetModel, key);
 };
 
 ComponentModel.prototype.fromAny = function <M extends Model, U>(this: ComponentModel<Component, M, U>, value: M | U): M | null {
@@ -284,11 +294,11 @@ ComponentModel.define = function <C extends Component, M extends Model, U, I>(de
   }
 
   const _constructor = function DecoratedComponentModel(this: ComponentModel<C, M, U>, owner: C, modelName: string | undefined): ComponentModel<C, M, U> {
-    let _this: ComponentModel<C, M, U> = function ComponentModelAccessor(model?: M | null): M | null | C {
+    let _this: ComponentModel<C, M, U> = function ComponentModelAccessor(model?: M | null, targetModel?: Model | null): M | null | C {
       if (model === void 0) {
         return _this.model;
       } else {
-        _this.setModel(model);
+        _this.setModel(model, targetModel);
         return _this.owner;
       }
     } as ComponentModel<C, M, U>;

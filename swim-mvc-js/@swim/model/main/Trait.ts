@@ -329,7 +329,7 @@ export abstract class Trait implements ModelDownlinkContext {
     return (this.constructor as TraitClass).insertChildFlags;
   }
 
-  protected willInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
+  protected willInsertChildModel(childModel: Model, targetModel: Model | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -339,11 +339,11 @@ export abstract class Trait implements ModelDownlinkContext {
     }
   }
 
-  protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
+  protected onInsertChildModel(childModel: Model, targetModel: Model | null): void {
     this.requireUpdate(this.insertChildFlags);
   }
 
-  protected didInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
+  protected didInsertChildModel(childModel: Model, targetModel: Model | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -490,7 +490,7 @@ export abstract class Trait implements ModelDownlinkContext {
     return (this.constructor as TraitClass).insertTraitFlags;
   }
 
-  protected willInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
+  protected willInsertTrait(trait: Trait, targetTrait: Trait | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -500,11 +500,11 @@ export abstract class Trait implements ModelDownlinkContext {
     }
   }
 
-  protected onInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
+  protected onInsertTrait(trait: Trait, targetTrait: Trait | null): void {
     this.requireUpdate(this.insertTraitFlags);
   }
 
-  protected didInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
+  protected didInsertTrait(trait: Trait, targetTrait: Trait | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;

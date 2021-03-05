@@ -321,7 +321,7 @@ export class NodeView extends View {
   }
 
   setChildView(key: string, newChildView: View | null): View | null {
-    let targetNode: Node | null = null;
+    let targetNode: ViewNode | null = null;
     if (newChildView !== null) {
       if (!(newChildView instanceof NodeView)) {
         throw new TypeError("" + newChildView);
@@ -351,7 +351,13 @@ export class NodeView extends View {
     }
     if (newChildView !== null) {
       const newChildNode = newChildView.node;
-      const targetView = targetNode !== null ? (targetNode as ViewNode).view : null;
+      let targetView: View | null | undefined = null;
+      if (targetNode !== null) {
+        targetView = targetNode.view;
+        if (targetView === void 0) {
+          targetView = null;
+        }
+      }
       newChildView.setKey(key);
       this.willInsertChildView(newChildView, targetView);
       this.willInsertChildNode(newChildNode, targetNode);
@@ -475,7 +481,13 @@ export class NodeView extends View {
     }
     const childNode = childView.node;
     const targetNode = this.node.firstChild as ViewNode | null;
-    const targetView = targetNode !== null ? targetNode.view : null;
+    let targetView: View | null | undefined = null;
+    if (targetNode !== null) {
+      targetView = targetNode.view;
+      if (targetView === void 0) {
+        targetView = null;
+      }
+    }
     this.willInsertChildView(childView, targetView);
     this.willInsertChildNode(childNode, targetNode);
     this.node.insertBefore(childNode, targetNode);
@@ -491,7 +503,13 @@ export class NodeView extends View {
   prependChildNode(childNode: Node, key?: string): void {
     const childView = (childNode as ViewNode).view;
     const targetNode = this.node.firstChild as ViewNode | null;
-    const targetView = targetNode !== null ? targetNode.view : null;
+    let targetView: View | null | undefined = null;
+    if (targetNode !== null) {
+      targetView = targetNode.view;
+      if (targetView === void 0) {
+        targetView = null;
+      }
+    }
     if (childView !== void 0) {
       childView.remove();
       if (key !== void 0) {
@@ -565,14 +583,20 @@ export class NodeView extends View {
     childView.cascadeInsert();
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
-    this.insertViewFastener(childView);
+    this.insertViewFastener(childView, targetView);
   }
 
   insertChildNode(childNode: Node, targetNode: Node | null, key?: string): void {
     const childView = (childNode as ViewNode).view;
-    const targetView = targetNode !== null ? (targetNode as ViewNode).view : null;
+    let targetView: View | null | undefined = null;
+    if (targetNode !== null) {
+      targetView = (targetNode as ViewNode).view;
+      if (targetView === void 0) {
+        targetView = null;
+      }
+    }
     if (childView !== void 0) {
       childView.remove();
       if (key !== void 0) {
@@ -1581,12 +1605,12 @@ export class NodeView extends View {
   }
 
   /** @hidden */
-  protected insertViewFastener(childView: View): void {
+  protected insertViewFastener(childView: View, targetView: View | null): void {
     const fastenerName = childView.key;
     if (fastenerName !== void 0) {
       const viewFastener = this.getLazyViewFastener(fastenerName);
       if (viewFastener !== null && viewFastener.child === true) {
-        viewFastener.doSetView(childView);
+        viewFastener.doSetView(childView, targetView);
       }
     }
   }
@@ -1597,7 +1621,7 @@ export class NodeView extends View {
     if (fastenerName !== void 0) {
       const viewFastener = this.getViewFastener(fastenerName);
       if (viewFastener !== null && viewFastener.child === true) {
-        viewFastener.doSetView(null);
+        viewFastener.doSetView(null, null);
       }
     }
   }

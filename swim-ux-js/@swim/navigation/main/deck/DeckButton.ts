@@ -221,7 +221,7 @@ export abstract class DeckButtonCloseIcon<V extends DeckButton, S extends SvgIco
     }
   }
 
-  insertView(parentView: View, childView: S, key: string | undefined): void {
+  insertView(parentView: View, childView: S, taregtView: View | null, key: string | undefined): void {
     parentView.prependChildView(childView, key);
   }
 
@@ -269,7 +269,7 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
     }
   }
 
-  insertView(parentView: View, childView: S, key: string | undefined): void {
+  insertView(parentView: View, childView: S, taregtView: View | null, key: string | undefined): void {
     parentView.prependChildView(childView, key);
   }
 
@@ -377,7 +377,7 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
     }
   }
 
-  insertView(parentView: View, childView: S, key: string | undefined): void {
+  insertView(parentView: View, childView: S, taregtView: View | null, key: string | undefined): void {
     const targetKey = "label" + (this.labelIndex + 1);
     const targetView = parentView.getChildView(targetKey);
     parentView.insertChildView(childView, targetView, key);

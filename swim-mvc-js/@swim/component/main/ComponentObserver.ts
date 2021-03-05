@@ -28,9 +28,9 @@ export interface ComponentObserver<C extends Component = Component> {
 
   componentDidSetParentComponent?(newParentComponent: Component | null, oldParentComponent: Component | null, component: C): void;
 
-  componentWillInsertChildComponent?(childComponent: Component, targetModel: Component | null | undefined, component: C): void;
+  componentWillInsertChildComponent?(childComponent: Component, targetModel: Component | null, component: C): void;
 
-  componentDidInsertChildComponent?(childComponent: Component, targetModel: Component | null | undefined, component: C): void;
+  componentDidInsertChildComponent?(childComponent: Component, targetModel: Component | null, component: C): void;
 
   componentWillRemoveChildComponent?(childComponent: Component, component: C): void;
 
@@ -72,15 +72,15 @@ export interface ComponentObserver<C extends Component = Component> {
 
   componentDidCompute?(componentContext: ComponentContextType<C>, component: C): void;
 
-  componentWillSetModel?<M extends Model>(componentModel: ComponentModel<C, M>, newModel: M | null, oldModel: M | null, component: C): void;
+  componentWillSetModel?<M extends Model>(componentModel: ComponentModel<C, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null, component: C): void;
 
-  componentDidSetModel?<M extends Model>(componentModel: ComponentModel<C, M>, newModel: M | null, oldModel: M | null, component: C): void;
+  componentDidSetModel?<M extends Model>(componentModel: ComponentModel<C, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null, component: C): void;
 
-  componentWillSetTrait?<R extends Trait>(componentTrait: ComponentTrait<C, R>, newTrait: R | null, oldTrait: R | null, component: C): void;
+  componentWillSetTrait?<R extends Trait>(componentTrait: ComponentTrait<C, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null, component: C): void;
 
-  componentDidSetTrait?<R extends Trait>(componentTrait: ComponentTrait<C, R>, newTrait: R | null, oldTrait: R | null, component: C): void;
+  componentDidSetTrait?<R extends Trait>(componentTrait: ComponentTrait<C, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null, component: C): void;
 
-  componentWillSetView?<V extends View>(componentView: ComponentView<C, V>, newView: V | null, oldView: V | null, component: C): void;
+  componentWillSetView?<V extends View>(componentView: ComponentView<C, V>, newView: V | null, oldView: V | null, targetView: View | null, component: C): void;
 
-  componentDidSetView?<V extends View>(componentView: ComponentView<C, V>, newView: V | null, oldView: V | null, component: C): void;
+  componentDidSetView?<V extends View>(componentView: ComponentView<C, V>, newView: V | null, oldView: V | null, targetView: View | null, component: C): void;
 }

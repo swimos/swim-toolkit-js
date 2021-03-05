@@ -310,7 +310,7 @@ export abstract class Model implements ModelDownlinkContext {
     return (this.constructor as ModelClass).insertChildFlags;
   }
 
-  protected willInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
+  protected willInsertChildModel(childModel: Model, targetModel: Model | null): void {
     const traits = this.traits;
     for (let i = 0, n = traits.length; i < n; i += 1) {
       (traits[i]! as any).willInsertChildModel(childModel, targetModel);
@@ -328,7 +328,7 @@ export abstract class Model implements ModelDownlinkContext {
     }
   }
 
-  protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
+  protected onInsertChildModel(childModel: Model, targetModel: Model | null): void {
     this.requireUpdate(this.insertChildFlags);
     const traits = this.traits;
     for (let i = 0, n = traits.length; i < n; i += 1) {
@@ -336,7 +336,7 @@ export abstract class Model implements ModelDownlinkContext {
     }
   }
 
-  protected didInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
+  protected didInsertChildModel(childModel: Model, targetModel: Model | null): void {
     const modelObservers = this.modelObservers;
     for (let i = 0, n = modelObservers.length; i < n; i += 1) {
       const modelObserver = modelObservers[i]!;
@@ -577,7 +577,7 @@ export abstract class Model implements ModelDownlinkContext {
       trait.setKey(key);
     }
     const traits = this.traits;
-    const targetTrait = traits.length !== 0 ? traits[0] : null;
+    const targetTrait = traits.length !== 0 ? traits[0]! : null;
     this.willInsertTrait(trait, targetTrait);
     (traits as Trait[]).unshift(trait);
     this.insertTraitMap(trait);
@@ -613,7 +613,7 @@ export abstract class Model implements ModelDownlinkContext {
     return (this.constructor as ModelClass).insertTraitFlags;
   }
 
-  protected willInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
+  protected willInsertTrait(newTrait: Trait, targetTrait: Trait | null): void {
     const traits = this.traits;
     for (let i = 0, n = traits.length; i < n; i += 1) {
       (traits[i]! as any).willInsertTrait(newTrait, targetTrait);
@@ -631,7 +631,7 @@ export abstract class Model implements ModelDownlinkContext {
     }
   }
 
-  protected onInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
+  protected onInsertTrait(newTrait: Trait, targetTrait: Trait | null): void {
     this.requireUpdate(this.insertTraitFlags);
     const traits = this.traits;
     for (let i = 0, n = traits.length; i < n; i += 1) {
@@ -639,7 +639,7 @@ export abstract class Model implements ModelDownlinkContext {
     }
   }
 
-  protected didInsertTrait(newTrait: Trait, targetTrait: Trait | null | undefined): void {
+  protected didInsertTrait(newTrait: Trait, targetTrait: Trait | null): void {
     const modelObservers = this.modelObservers;
     for (let i = 0, n = modelObservers.length; i < n; i += 1) {
       const modelObserver = modelObservers[i]!;

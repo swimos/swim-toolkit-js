@@ -183,7 +183,7 @@ export class CompositeComponent extends GenericComponent {
       childComponent.setKey(key);
     }
     const childComponents = this.childComponents as Component[];
-    const targetComponent = childComponents.length !== 0 ? childComponents[0] : null;
+    const targetComponent = childComponents.length !== 0 ? childComponents[0]! : null;
     this.willInsertChildComponent(childComponent, targetComponent);
     childComponents.unshift(childComponent);
     this.insertChildComponentMap(childComponent);

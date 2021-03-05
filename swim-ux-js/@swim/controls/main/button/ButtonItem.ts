@@ -82,7 +82,7 @@ export class ButtonItem extends HtmlView {
     }
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     const childKey = childView.key;
     if (childKey === "button" && childView instanceof FloatingButton) {

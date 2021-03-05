@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {GraphicsView} from "@swim/graphics";
-import type {TraitObserver} from "@swim/model";
+import type {Trait, TraitObserver} from "@swim/model";
 import type {SliceTrait} from "./SliceTrait";
 import type {PieTrait} from "./PieTrait";
 
@@ -22,7 +22,7 @@ export interface PieTraitObserver<R extends PieTrait = PieTrait> extends TraitOb
 
   pieDidSetTitle?(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, trait: R): void;
 
-  pieWillSetSlice?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, trait: R): void;
+  pieWillSetSlice?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null, trait: R): void;
 
-  pieDidSetSlice?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, trait: R): void;
+  pieDidSetSlice?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null, trait: R): void;
 }

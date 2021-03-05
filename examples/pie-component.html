@@ -63,7 +63,7 @@ slice2Trait.setLegend("Slice 2");
 pieModel.setTrait("pie", pieTrait);
 pieModel.setTrait("slice1", slice1Trait);
 pieComponent.source.setTrait(pieTrait);
-pieModel.setTrait("slice2", slice2Trait);
+pieModel.insertTrait(slice2Trait, slice1Trait, "slice2");
 
 setInterval(function () {
   slice1Trait.setValue(0.1 + 0.9 * Math.random());

@@ -30,11 +30,11 @@ export interface TraitModelInit<S extends Model, U = never> {
   child?: boolean;
   type?: unknown;
 
-  willSetModel?(newModel: S | null, oldModel: S | null): void;
-  onSetModel?(newModel: S | null, oldModel: S | null): void;
-  didSetModel?(newModel: S | null, oldModel: S | null): void;
+  willSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
+  onSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
+  didSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
   createModel?(): S | U | null;
-  insertModel?(parentModel: Model, childModel: S, key: string | undefined): void;
+  insertModel?(parentModel: Model, childModel: S, targetModel: Model | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
 }
 
@@ -55,7 +55,7 @@ export interface TraitModelClass extends Function {
 
 export interface TraitModel<R extends Trait, S extends Model, U = never> {
   (): S | null;
-  (model: S | U | null): R;
+  (model: S | U | null, targetModel?: Model | null): R;
 
   readonly name: string;
 
@@ -65,28 +65,28 @@ export interface TraitModel<R extends Trait, S extends Model, U = never> {
 
   getModel(): S;
 
-  setModel(model: S | U | null): void;
+  setModel(newModel: S | U | null, targetModel?: Model | null): S | null;
 
   /** @hidden */
-  doSetModel(newModel: S | null): void;
+  doSetModel(newModel: S | null, targetModel: Model | null): void;
 
   /** @hidden */
-  willSetModel(newModel: S | null, oldModel: S | null): void;
+  willSetModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
 
   /** @hidden */
-  onSetModel(newModel: S | null, oldModel: S | null): void;
+  onSetModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
 
   /** @hidden */
-  didSetModel(newModel: S | null, oldModel: S | null): void;
+  didSetModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
 
   /** @hidden */
-  willSetOwnModel(newModel: S | null, oldModel: S | null): void;
+  willSetOwnModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
 
   /** @hidden */
-  onSetOwnModel(newModel: S | null, oldModel: S | null): void;
+  onSetOwnModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
 
   /** @hidden */
-  didSetOwnModel(newModel: S | null, oldModel: S | null): void;
+  didSetOwnModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
 
   /** @hidden */
   mount(): void;
@@ -94,15 +94,14 @@ export interface TraitModel<R extends Trait, S extends Model, U = never> {
   /** @hidden */
   unmount(): void;
 
-  insert(parentModel: Model, key?: string | null): S | null;
-  insert(key?: string | null): S | null;
+  insert(parentModel?: Model | null, childModel?: S | U | null, targetModel?: Model | null, key?: string | null): S | null;
 
   remove(): S | null;
 
   createModel(): S | U | null;
 
   /** @hidden */
-  insertModel(parentModel: Model, childModel: S, key: string | undefined): void;
+  insertModel(parentModel: Model, childModel: S, targetModel: Model | null, key: string | undefined): void;
 
   /** @hidden */
   observe?: boolean;
@@ -173,56 +172,61 @@ TraitModel.prototype.getModel = function <S extends Model>(this: TraitModel<Trai
   return model;
 };
 
-TraitModel.prototype.setModel = function <S extends Model, U>(this: TraitModel<Trait, S, U>, model: S | U | null): void {
-  if (model !== null) {
-    model = this.fromAny(model);
+TraitModel.prototype.setModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, targetModel?: Model | null): S | null {
+  const oldModel = this.model;
+  if (newModel !== null) {
+    newModel = this.fromAny(newModel);
+  }
+  if (targetModel === void 0) {
+    targetModel = null;
   }
   let ownModel: Model | null | undefined;
   if (this.child === true && (ownModel = this.owner.model, ownModel !== null)) {
-    if (model === null) {
+    if (newModel === null) {
       ownModel.setChildModel(this.name, null);
-    } else if ((model as S).parentModel !== ownModel || (model as S).key !== this.name) {
-      this.insertModel(ownModel, model as S, this.name);
+    } else if (newModel.parentModel !== ownModel || newModel.key !== this.name) {
+      this.insertModel(ownModel, newModel, targetModel, this.name);
     }
   } else {
-    this.doSetModel(model as S | null);
+    this.doSetModel(newModel, targetModel);
   }
+  return oldModel;
 };
 
-TraitModel.prototype.doSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null): void {
+TraitModel.prototype.doSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, targetModel: Model | null): void {
   const oldModel = this.model;
   if (oldModel !== newModel) {
-    this.willSetOwnModel(newModel, oldModel);
-    this.willSetModel(newModel, oldModel);
+    this.willSetOwnModel(newModel, oldModel, targetModel);
+    this.willSetModel(newModel, oldModel, targetModel);
     Object.defineProperty(this, "model", {
       value: newModel,
       enumerable: true,
       configurable: true,
     });
-    this.onSetOwnModel(newModel, oldModel);
-    this.onSetModel(newModel, oldModel);
-    this.didSetModel(newModel, oldModel);
-    this.didSetOwnModel(newModel, oldModel);
+    this.onSetOwnModel(newModel, oldModel, targetModel);
+    this.onSetModel(newModel, oldModel, targetModel);
+    this.didSetModel(newModel, oldModel, targetModel);
+    this.didSetOwnModel(newModel, oldModel, targetModel);
   }
 };
 
-TraitModel.prototype.willSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
+TraitModel.prototype.willSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null, targetModel: Model | null): void {
   // hook
 };
 
-TraitModel.prototype.onSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
+TraitModel.prototype.onSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null, targetModel: Model | null): void {
   // hook
 };
 
-TraitModel.prototype.didSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
+TraitModel.prototype.didSetModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null, targetModel: Model | null): void {
   // hook
 };
 
-TraitModel.prototype.willSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
+TraitModel.prototype.willSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null, targetModel: Model | null): void {
   // hook
 };
 
-TraitModel.prototype.onSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
+TraitModel.prototype.onSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null, targetModel: Model | null): void {
   if (this.observe === true && this.owner.isMounted()) {
     if (oldModel !== null) {
       oldModel.removeModelObserver(this as ModelObserverType<S>);
@@ -233,7 +237,7 @@ TraitModel.prototype.onSetOwnModel = function <S extends Model>(this: TraitModel
   }
 };
 
-TraitModel.prototype.didSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null): void {
+TraitModel.prototype.didSetOwnModel = function <S extends Model>(this: TraitModel<Trait, S>, newModel: S | null, oldModel: S | null, targetModel: Model | null): void {
   // hook
 };
 
@@ -251,17 +255,23 @@ TraitModel.prototype.unmount = function <S extends Model>(this: TraitModel<Trait
   }
 };
 
-TraitModel.prototype.insert = function <S extends Model>(this: TraitModel<Trait, S>, parentModel?: Model | string | null, key?: string | null): S | null {
-  let model = this.model;
-  if (model === null) {
-    model = this.createModel();
+TraitModel.prototype.insert = function <S extends Model>(this: TraitModel<Trait, S>, parentModel?: Model | null, childModel?: S | null, targetModel?: Model | null, key?: string | null): S | null {
+  if (targetModel === void 0) {
+    targetModel = null;
   }
-  if (model !== null) {
-    if (typeof parentModel === "string" || parentModel === null) {
-      key = parentModel;
-      parentModel = void 0;
+  if (childModel === void 0 || childModel === null) {
+    childModel = this.model;
+    if (childModel === null) {
+      childModel = this.createModel();
     }
-    if (parentModel === void 0) {
+  } else {
+    childModel = this.fromAny(childModel);
+    if (childModel !== null) {
+      this.doSetModel(childModel, targetModel);
+    }
+  }
+  if (childModel !== null) {
+    if (parentModel === void 0 || parentModel === null) {
       parentModel = this.owner.model;
     }
     if (key === void 0) {
@@ -269,34 +279,30 @@ TraitModel.prototype.insert = function <S extends Model>(this: TraitModel<Trait,
     } else if (key === null) {
       key = void 0;
     }
-    if (parentModel !== null && (model.parentModel !== parentModel || model.key !== key)) {
-      this.insertModel(parentModel, model, key);
+    if (parentModel !== null && (childModel.parentModel !== parentModel || childModel.key !== key)) {
+      this.insertModel(parentModel, childModel, targetModel, key);
     }
     if (this.model === null) {
-      this.doSetModel(model);
+      this.doSetModel(childModel, targetModel);
     }
   }
-  return model;
+  return childModel;
 };
 
 TraitModel.prototype.remove = function <S extends Model>(this: TraitModel<Trait, S>): S | null {
-  const model = this.model;
-  if (model !== null) {
-    model.remove();
+  const childModel = this.model;
+  if (childModel !== null) {
+    childModel.remove();
   }
-  return model;
+  return childModel;
 };
 
 TraitModel.prototype.createModel = function <S extends Model, U>(this: TraitModel<Trait, S, U>): S | U | null {
   return null;
 };
 
-TraitModel.prototype.insertModel = function <S extends Model>(this: TraitModel<Trait, S>, parentModel: Model, childModel: S, key: string | undefined): void {
-  if (key !== void 0) {
-    parentModel.setChildModel(key, childModel);
-  } else {
-    parentModel.appendChildModel(childModel);
-  }
+TraitModel.prototype.insertModel = function <S extends Model>(this: TraitModel<Trait, S>, parentModel: Model, childModel: S, targetModel: Model | null, key: string | undefined): void {
+  parentModel.insertChildModel(childModel, targetModel, key);
 };
 
 TraitModel.prototype.fromAny = function <S extends Model, U>(this: TraitModel<Trait, S, U>, value: S | U): S | null {
@@ -312,11 +318,11 @@ TraitModel.define = function <R extends Trait, S extends Model, U, I>(descriptor
   }
 
   const _constructor = function DecoratedTraitModel(this: TraitModel<R, S>, owner: R, fastenerName: string | undefined): TraitModel<R, S, U> {
-    let _this: TraitModel<R, S, U> = function TraitModelAccessor(model?: S | U | null): S | null | R {
+    let _this: TraitModel<R, S, U> = function TraitModelAccessor(model?: S | U | null, targetModel?: Model | null): S | null | R {
       if (model === void 0) {
         return _this.model;
       } else {
-        _this.setModel(model);
+        _this.setModel(model, targetModel);
         return _this.owner;
       }
     } as TraitModel<R, S, U>;

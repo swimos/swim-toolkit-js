@@ -171,9 +171,9 @@ export abstract class GenericModel extends Model {
 
   abstract insertChildModel(childModel: Model, targetModel: Model | null, key?: string): void;
 
-  protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
+  protected onInsertChildModel(childModel: Model, targetModel: Model | null): void {
     super.onInsertChildModel(childModel, targetModel);
-    this.insertModelFastener(childModel);
+    this.insertModelFastener(childModel, targetModel);
   }
 
   cascadeInsert(updateFlags?: ModelFlags, modelContext?: ModelContext): void {
@@ -190,9 +190,9 @@ export abstract class GenericModel extends Model {
 
   abstract removeAll(): void;
 
-  protected onInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
+  protected onInsertTrait(trait: Trait, targetTrait: Trait | null): void {
     super.onInsertTrait(trait, targetTrait);
-    this.insertModelTrait(trait);
+    this.insertModelTrait(trait, targetTrait);
   }
 
   protected onRemoveTrait(trait: Trait): void {
@@ -794,12 +794,12 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  protected insertModelFastener(childModel: Model): void {
+  protected insertModelFastener(childModel: Model, targetModel: Model | null): void {
     const fastenerName = childModel.key;
     if (fastenerName !== void 0) {
       const modelFastener = this.getLazyModelFastener(fastenerName);
       if (modelFastener !== null && modelFastener.child === true) {
-        modelFastener.doSetModel(childModel);
+        modelFastener.doSetModel(childModel, targetModel);
       }
     }
   }
@@ -810,7 +810,7 @@ export abstract class GenericModel extends Model {
     if (fastenerName !== void 0) {
       const modelFastener = this.getModelFastener(fastenerName);
       if (modelFastener !== null && modelFastener.child === true) {
-        modelFastener.doSetModel(null);
+        modelFastener.doSetModel(null, null);
       }
     }
   }
@@ -877,12 +877,12 @@ export abstract class GenericModel extends Model {
   }
 
   /** @hidden */
-  protected insertModelTrait(trait: Trait): void {
+  protected insertModelTrait(trait: Trait, targetTrait: Trait | null): void {
     const fastenerName = trait.key;
     if (fastenerName !== void 0) {
       const modelTrait = this.getLazyModelTrait(fastenerName);
       if (modelTrait !== null && modelTrait.sibling === true) {
-        modelTrait.doSetTrait(trait);
+        modelTrait.doSetTrait(trait, null);
       }
     }
   }
@@ -893,7 +893,7 @@ export abstract class GenericModel extends Model {
     if (fastenerName !== void 0) {
       const modelTrait = this.getModelTrait(fastenerName);
       if (modelTrait !== null && modelTrait.sibling === true) {
-        modelTrait.doSetTrait(null);
+        modelTrait.doSetTrait(null, null);
       }
     }
   }

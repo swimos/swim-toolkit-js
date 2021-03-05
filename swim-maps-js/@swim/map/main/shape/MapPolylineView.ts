@@ -202,7 +202,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   /** @hidden */
   declare readonly gradientStops: number;
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof MapPointView) {
       this.onInsertPoint(childView);

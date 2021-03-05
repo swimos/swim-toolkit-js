@@ -152,9 +152,9 @@ export class GenericTrait extends Trait {
     }
   }
 
-  protected onInsertChildModel(childModel: Model, targetModel: Model | null | undefined): void {
+  protected onInsertChildModel(childModel: Model, targetModel: Model | null): void {
     super.onInsertChildModel(childModel, targetModel);
-    this.insertTraitModel(childModel);
+    this.insertTraitModel(childModel, targetModel);
   }
 
   protected onRemoveChildModel(childModel: Model): void {
@@ -162,9 +162,9 @@ export class GenericTrait extends Trait {
     this.removeTraitModel(childModel);
   }
 
-  protected onInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
+  protected onInsertTrait(trait: Trait, targetTrait: Trait | null): void {
     super.onInsertTrait(trait, targetTrait);
-    this.insertTraitFastener(trait);
+    this.insertTraitFastener(trait, targetTrait);
   }
 
   protected onRemoveTrait(trait: Trait): void {
@@ -470,7 +470,7 @@ export class GenericTrait extends Trait {
         if (newTraitModel.child === true) {
           const childModel = this.getChildModel(newTraitModel.name);
           if (childModel !== null) {
-            newTraitModel.doSetModel(childModel);
+            newTraitModel.doSetModel(childModel, null);
           }
         }
       }
@@ -488,7 +488,7 @@ export class GenericTrait extends Trait {
       if (traitModel.child === true) {
         const childModel = this.getChildModel(traitModel.name);
         if (childModel !== null) {
-          traitModel.doSetModel(childModel);
+          traitModel.doSetModel(childModel, null);
         }
       }
     }
@@ -504,12 +504,12 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  protected insertTraitModel(childModel: Model): void {
+  protected insertTraitModel(childModel: Model, targetModel: Model | null): void {
     const fastenerName = childModel.key;
     if (fastenerName !== void 0) {
       const traitModel = this.getLazyTraitModel(fastenerName);
       if (traitModel !== null && traitModel.child === true) {
-        traitModel.doSetModel(childModel);
+        traitModel.doSetModel(childModel, targetModel);
       }
     }
   }
@@ -520,7 +520,7 @@ export class GenericTrait extends Trait {
     if (fastenerName !== void 0) {
       const traitModel = this.getTraitModel(fastenerName);
       if (traitModel !== null && traitModel.child === true) {
-        traitModel.doSetModel(null);
+        traitModel.doSetModel(null, null);
       }
     }
   }
@@ -565,7 +565,7 @@ export class GenericTrait extends Trait {
         if (newTraitFastener.sibling === true) {
           const trait = this.getTrait(newTraitFastener.name);
           if (trait !== null) {
-            newTraitFastener.doSetTrait(trait);
+            newTraitFastener.doSetTrait(trait, null);
           }
         }
       }
@@ -583,7 +583,7 @@ export class GenericTrait extends Trait {
       if (traitFastener.sibling === true) {
         const trait = this.getTrait(traitFastener.name);
         if (trait !== null) {
-          traitFastener.doSetTrait(trait);
+          traitFastener.doSetTrait(trait, null);
         }
       }
     }
@@ -599,12 +599,12 @@ export class GenericTrait extends Trait {
   }
 
   /** @hidden */
-  protected insertTraitFastener(trait: Trait): void {
+  protected insertTraitFastener(trait: Trait, targetTrait: Trait | null): void {
     const fastenerName = trait.key;
     if (fastenerName !== void 0) {
       const traitFastener = this.getLazyTraitFastener(fastenerName);
       if (traitFastener !== null && traitFastener.sibling === true) {
-        traitFastener.doSetTrait(trait);
+        traitFastener.doSetTrait(trait, null);
       }
     }
   }
@@ -615,7 +615,7 @@ export class GenericTrait extends Trait {
     if (fastenerName !== void 0) {
       const traitFastener = this.getTraitFastener(fastenerName);
       if (traitFastener !== null && traitFastener.sibling === true) {
-        traitFastener.doSetTrait(null);
+        traitFastener.doSetTrait(null, null);
       }
     }
   }

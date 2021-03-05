@@ -72,7 +72,7 @@ export class DeckBar extends HtmlView {
     }
   }
 
-  onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof DeckSlot) {
       this.onInsertSlot(childView);

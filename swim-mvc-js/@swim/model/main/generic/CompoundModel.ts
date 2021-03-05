@@ -183,7 +183,7 @@ export class CompoundModel extends GenericModel {
       childModel.setKey(key);
     }
     const childModels = this.childModels as Model[];
-    const targetModel = childModels.length !== 0 ? childModels[0] : null;
+    const targetModel = childModels.length !== 0 ? childModels[0]! : null;
     this.willInsertChildModel(childModel, targetModel);
     childModels.unshift(childModel);
     this.insertChildModelMap(childModel);

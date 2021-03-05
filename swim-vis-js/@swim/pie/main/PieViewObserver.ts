@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ViewObserver} from "@swim/view";
+import type {View, ViewObserver} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import type {SliceView} from "./SliceView";
 import type {PieView} from "./PieView";
@@ -22,7 +22,7 @@ export interface PieViewObserver<V extends PieView = PieView> extends ViewObserv
 
   pieDidSetTitle?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, view: V): void;
 
-  pieWillSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, view: V): void;
+  pieWillSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null, view: V): void;
 
-  pieDidSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, view: V): void;
+  pieDidSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null, view: V): void;
 }

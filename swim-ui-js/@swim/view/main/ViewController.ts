@@ -191,11 +191,11 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     }
   }
 
-  viewWillInsertChildView(childView: View, targetView: View | null | undefined, view: V): void {
+  viewWillInsertChildView(childView: View, targetView: View | null, view: V): void {
     // hook
   }
 
-  viewDidInsertChildView(childView: View, targetView: View | null | undefined, view: V): void {
+  viewDidInsertChildView(childView: View, targetView: View | null, view: V): void {
     // hook
   }
 

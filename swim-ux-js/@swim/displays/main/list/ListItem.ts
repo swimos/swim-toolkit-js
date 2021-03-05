@@ -73,7 +73,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
     createView(): HtmlView | null {
       return this.owner.createIconView();
     },
-    insertView(parentView: View, childView: HtmlView, key: string | undefined): void {
+    insertView(parentView: View, childView: HtmlView, taregtView: View | null, key: string | undefined): void {
       parentView.prependChildView(childView, key);
     },
     fromAny(value: HtmlView | Graphics): HtmlView | null {
@@ -114,7 +114,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
     createView(): HtmlView | null {
       return this.owner.createLabelView();
     },
-    insertView(parentView: View, childView: HtmlView, key: string | undefined): void {
+    insertView(parentView: View, childView: HtmlView, taregtView: View | null, key: string | undefined): void {
       const targetView = this.owner.accessory.view;
       parentView.insertChildView(childView, targetView, key);
     },
@@ -164,7 +164,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
     createView(): HtmlView | null {
       return this.owner.createAccessoryView();
     },
-    insertView(parentView: View, childView: HtmlView, key: string | undefined): void {
+    insertView(parentView: View, childView: HtmlView, taregtView: View | null, key: string | undefined): void {
       parentView.appendChildView(childView, key);
     },
     fromAny(value: HtmlView | Graphics | string): HtmlView | null {

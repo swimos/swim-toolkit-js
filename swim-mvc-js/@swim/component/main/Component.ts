@@ -235,7 +235,7 @@ export abstract class Component {
     return (this.constructor as ComponentClass).insertChildFlags;
   }
 
-  protected willInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
+  protected willInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -245,11 +245,11 @@ export abstract class Component {
     }
   }
 
-  protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
+  protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     this.requireUpdate(this.insertChildFlags);
   }
 
-  protected didInsertChildComponent(childComponent: Component, targetComponent: Component | null | undefined): void {
+  protected didInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -862,28 +862,28 @@ export abstract class Component {
   }
 
   /** @hidden */
-  willSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null): void {
+  willSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillSetModel !== void 0) {
-        componentObserver.componentWillSetModel(componentModel, newModel, oldModel, this);
+        componentObserver.componentWillSetModel(componentModel, newModel, oldModel, targetModel, this);
       }
     }
   }
 
   /** @hidden */
-  onSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null): void {
+  onSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
     // hook
   }
 
   /** @hidden */
-  didSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null): void {
+  didSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidSetModel !== void 0) {
-        componentObserver.componentDidSetModel(componentModel, newModel, oldModel, this);
+        componentObserver.componentDidSetModel(componentModel, newModel, oldModel, targetModel, this);
       }
     }
   }
@@ -908,28 +908,28 @@ export abstract class Component {
   }
 
   /** @hidden */
-  willSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null): void {
+  willSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillSetTrait !== void 0) {
-        componentObserver.componentWillSetTrait(componentTrait, newTrait, oldTrait, this);
+        componentObserver.componentWillSetTrait(componentTrait, newTrait, oldTrait, targetTrait, this);
       }
     }
   }
 
   /** @hidden */
-  onSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null): void {
+  onSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void {
     // hook
   }
 
   /** @hidden */
-  didSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null): void {
+  didSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidSetTrait !== void 0) {
-        componentObserver.componentDidSetTrait(componentTrait, newTrait, oldTrait, this);
+        componentObserver.componentDidSetTrait(componentTrait, newTrait, oldTrait, targetTrait, this);
       }
     }
   }
@@ -954,28 +954,28 @@ export abstract class Component {
   }
 
   /** @hidden */
-  willSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null): void {
+  willSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null, targetView: View | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
       if (componentObserver.componentWillSetView !== void 0) {
-        componentObserver.componentWillSetView(componentView, newView, oldView, this);
+        componentObserver.componentWillSetView(componentView, newView, oldView, targetView, this);
       }
     }
   }
 
   /** @hidden */
-  onSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null): void {
+  onSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null, targetView: View | null): void {
     // hook
   }
 
   /** @hidden */
-  didSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null): void {
+  didSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null, targetView: View | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidSetView !== void 0) {
-        componentObserver.componentDidSetView(componentView, newView, oldView, this);
+        componentObserver.componentDidSetView(componentView, newView, oldView, targetView, this);
       }
     }
   }

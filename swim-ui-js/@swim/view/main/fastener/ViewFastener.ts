@@ -40,11 +40,11 @@ export interface ViewFastenerInit<S extends View, U = never> {
   child?: boolean;
   type?: ViewFactory<S, U>;
 
-  willSetView?(newView: S | null, oldView: S | null): void;
-  onSetView?(newView: S | null, oldView: S | null): void;
-  didSetView?(newView: S | null, oldView: S | null): void;
+  willSetView?(newView: S | null, oldView: S | null, targetView: View | null): void;
+  onSetView?(newView: S | null, oldView: S | null, targetView: View | null): void;
+  didSetView?(newView: S | null, oldView: S | null, targetView: View | null): void;
   createView?(): S | U | null;
-  insertView?(parentView: View, childView: S, key: string | undefined): void;
+  insertView?(parentView: View, childView: S, targetView: View | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
 }
 
@@ -65,7 +65,7 @@ export interface ViewFastenerClass extends Function {
 
 export interface ViewFastener<V extends View, S extends View, U = never> extends ConstraintScope {
   (): S | null;
-  (view: S | U | null): V;
+  (view: S | U | null, targetView?: View | null): V;
 
   readonly name: string;
 
@@ -75,28 +75,28 @@ export interface ViewFastener<V extends View, S extends View, U = never> extends
 
   getView(): S;
 
-  setView(view: S | U | null): void;
+  setView(newView: S | U | null, targetView?: View | null): S | null;
 
   /** @hidden */
-  doSetView(newView: S | null): void;
+  doSetView(newView: S | null, targetView: View | null): void;
 
   /** @hidden */
-  willSetView(newView: S | null, oldView: S | null): void;
+  willSetView(newView: S | null, oldView: S | null, targetView: View | null): void;
 
   /** @hidden */
-  onSetView(newView: S | null, oldView: S | null): void;
+  onSetView(newView: S | null, oldView: S | null, targetView: View | null): void;
 
   /** @hidden */
-  didSetView(newView: S | null, oldView: S | null): void;
+  didSetView(newView: S | null, oldView: S | null, targetView: View | null): void;
 
   /** @hidden */
-  willSetOwnView(newView: S | null, oldView: S | null): void;
+  willSetOwnView(newView: S | null, oldView: S | null, targetView: View | null): void;
 
   /** @hidden */
-  onSetOwnView(newView: S | null, oldView: S | null): void;
+  onSetOwnView(newView: S | null, oldView: S | null, targetView: View | null): void;
 
   /** @hidden */
-  didSetOwnView(newView: S | null, oldView: S | null): void;
+  didSetOwnView(newView: S | null, oldView: S | null, targetView: View | null): void;
 
   constraint(lhs: AnyConstraintExpression, relation: ConstraintRelation,
              rhs?: AnyConstraintExpression, strength?: AnyConstraintStrength): Constraint;
@@ -146,15 +146,14 @@ export interface ViewFastener<V extends View, S extends View, U = never> extends
   /** @hidden */
   unmount(): void;
 
-  insert(parentView: View, key?: string | null): S | null;
-  insert(key?: string | null): S | null;
+  insert(parentView?: View | null, childView?: S | U | null, targetView?: View | null, key?: string | null): S | null;
 
   remove(): S | null;
 
   createView(): S | U | null;
 
   /** @hidden */
-  insertView(parentView: View, childView: S, key: string | undefined): void;
+  insertView(parentView: View, childView: S, targetView: View | null, key: string | undefined): void;
 
   /** @hidden */
   observe?: boolean;
@@ -235,56 +234,61 @@ ViewFastener.prototype.getView = function <S extends View>(this: ViewFastener<Vi
   return view;
 };
 
-ViewFastener.prototype.setView = function <S extends View, U>(this: ViewFastener<View, S, U>, view: S | U | null): void {
-  if (view !== null) {
-    view = this.fromAny(view);
+ViewFastener.prototype.setView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, targetView?: View | null): S | null {
+  const oldView = this.view;
+  if (newView !== null) {
+    newView = this.fromAny(newView);
+  }
+  if (targetView === void 0) {
+    targetView = null
   }
   if (this.child === true) {
-    if (view === null) {
+    if (newView === null) {
       this.owner.setChildView(this.name, null);
-    } else if ((view as S).parentView !== this.owner || (view as S).key !== this.name) {
-      this.insertView(this.owner, view as S, this.name);
+    } else if (newView.parentView !== this.owner || newView.key !== this.name) {
+      this.insertView(this.owner, newView, targetView, this.name);
     }
   } else {
-    this.doSetView(view as S | null);
+    this.doSetView(newView, targetView);
   }
+  return oldView;
 };
 
-ViewFastener.prototype.doSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null): void {
+ViewFastener.prototype.doSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, targetView: View | null): void {
   const oldView = this.view;
   if (oldView !== newView) {
     this.deactivateLayout();
-    this.willSetOwnView(newView, oldView);
-    this.willSetView(newView, oldView);
+    this.willSetOwnView(newView, oldView, targetView);
+    this.willSetView(newView, oldView, targetView);
     Object.defineProperty(this, "view", {
       value: newView,
       enumerable: true,
       configurable: true,
     });
-    this.onSetOwnView(newView, oldView);
-    this.onSetView(newView, oldView);
-    this.didSetView(newView, oldView);
-    this.didSetOwnView(newView, oldView);
+    this.onSetOwnView(newView, oldView, targetView);
+    this.onSetView(newView, oldView, targetView);
+    this.didSetView(newView, oldView, targetView);
+    this.didSetOwnView(newView, oldView, targetView);
   }
 };
 
-ViewFastener.prototype.willSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.willSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null, targetView: View | null): void {
   // hook
 };
 
-ViewFastener.prototype.onSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.onSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null, targetView: View | null): void {
   // hook
 };
 
-ViewFastener.prototype.didSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.didSetView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null, targetView: View | null): void {
   // hook
 };
 
-ViewFastener.prototype.willSetOwnView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.willSetOwnView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null, targetView: View | null): void {
   // hook
 };
 
-ViewFastener.prototype.onSetOwnView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.onSetOwnView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null, targetView: View | null): void {
   if (this.observe === true && this.owner.isMounted()) {
     if (oldView !== null) {
       oldView.removeViewObserver(this as ViewObserverType<S>);
@@ -295,7 +299,7 @@ ViewFastener.prototype.onSetOwnView = function <S extends View>(this: ViewFasten
   }
 };
 
-ViewFastener.prototype.didSetOwnView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null): void {
+ViewFastener.prototype.didSetOwnView = function <S extends View>(this: ViewFastener<View, S>, newView: S | null, oldView: S | null, targetView: View | null): void {
   // hook
 };
 
@@ -446,17 +450,23 @@ ViewFastener.prototype.unmount = function (): void {
   this.deactivateLayout();
 };
 
-ViewFastener.prototype.insert = function <S extends View>(this: ViewFastener<View, S>, parentView?: View | string | null, key?: string | null): S | null {
-  let view = this.view;
-  if (view === null) {
-    view = this.createView();
+ViewFastener.prototype.insert = function <S extends View>(this: ViewFastener<View, S>, parentView?: View | null, childView?: S | null, targetView?: View | null, key?: string | null): S | null {
+  if (targetView === void 0) {
+    targetView = null;
   }
-  if (view !== null) {
-    if (typeof parentView === "string" || parentView === null) {
-      key = parentView;
-      parentView = void 0;
+  if (childView === void 0 || childView === null) {
+    childView = this.view;
+    if (childView === null) {
+      childView = this.createView();
     }
-    if (parentView === void 0) {
+  } else {
+    childView = this.fromAny(childView);
+    if (childView !== null) {
+      this.doSetView(childView, targetView);
+    }
+  }
+  if (childView !== null) {
+    if (parentView === void 0 || parentView === null) {
       parentView = this.owner;
     }
     if (key === void 0) {
@@ -464,22 +474,22 @@ ViewFastener.prototype.insert = function <S extends View>(this: ViewFastener<Vie
     } else if (key === null) {
       key = void 0;
     }
-    if (view.parentView !== parentView || view.key !== key) {
-      this.insertView(parentView, view, key);
+    if (childView.parentView !== parentView || childView.key !== key) {
+      this.insertView(parentView, childView, targetView, key);
     }
     if (this.view === null) {
-      this.doSetView(view);
+      this.doSetView(childView, targetView);
     }
   }
-  return view;
+  return childView;
 };
 
 ViewFastener.prototype.remove = function <S extends View>(this: ViewFastener<View, S>): S | null {
-  const view = this.view;
-  if (view !== null) {
-    view.remove();
+  const childView = this.view;
+  if (childView !== null) {
+    childView.remove();
   }
-  return view;
+  return childView;
 };
 
 ViewFastener.prototype.createView = function <S extends View, U>(this: ViewFastener<View, S, U>): S | U | null {
@@ -490,12 +500,8 @@ ViewFastener.prototype.createView = function <S extends View, U>(this: ViewFaste
   return null;
 };
 
-ViewFastener.prototype.insertView = function <S extends View>(this: ViewFastener<View, S>, parentView: View, childView: S, key: string | undefined): void {
-  if (key !== void 0) {
-    parentView.setChildView(key, childView);
-  } else {
-    parentView.appendChildView(childView);
-  }
+ViewFastener.prototype.insertView = function <S extends View>(this: ViewFastener<View, S>, parentView: View, childView: S, targetView: View | null, key: string | undefined): void {
+  parentView.insertChildView(childView, targetView, key);
 };
 
 ViewFastener.prototype.fromAny = function <S extends View, U>(this: ViewFastener<View, S, U>, value: S | U): S | null {
@@ -517,11 +523,11 @@ ViewFastener.define = function <V extends View, S extends View, U, I>(descriptor
   }
 
   const _constructor = function DecoratedViewFastener(this: ViewFastener<V, S>, owner: V, fastenerName: string | undefined): ViewFastener<V, S, U> {
-    let _this: ViewFastener<V, S, U> = function ViewFastenerAccessor(view?: S | U | null): S | null | V {
+    let _this: ViewFastener<V, S, U> = function ViewFastenerAccessor(view?: S | U | null, targetView?: View | null): S | null | V {
       if (view === void 0) {
         return _this.view;
       } else {
-        _this.setView(view);
+        _this.setView(view, targetView);
         return _this.owner;
       }
     } as ViewFastener<V, S, U>;

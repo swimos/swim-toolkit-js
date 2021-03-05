@@ -307,9 +307,9 @@ export abstract class GraphicsView extends View {
 
   abstract insertChildView(childView: View, targetView: View | null, key?: string): void;
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
-    this.insertViewFastener(childView);
+    this.insertViewFastener(childView, targetView);
   }
 
   cascadeInsert(updateFlags?: ViewFlags, viewContext?: ViewContext): void {
@@ -1336,12 +1336,12 @@ export abstract class GraphicsView extends View {
   }
 
   /** @hidden */
-  protected insertViewFastener(childView: View): void {
+  protected insertViewFastener(childView: View, targetView: View | null): void {
     const fastenerName = childView.key;
     if (fastenerName !== void 0) {
       const viewFastener = this.getLazyViewFastener(fastenerName);
       if (viewFastener !== null && viewFastener.child === true) {
-        viewFastener.doSetView(childView);
+        viewFastener.doSetView(childView, targetView);
       }
     }
   }
@@ -1352,7 +1352,7 @@ export abstract class GraphicsView extends View {
     if (fastenerName !== void 0) {
       const viewFastener = this.getViewFastener(fastenerName);
       if (viewFastener !== null && viewFastener.child === true) {
-        viewFastener.doSetView(null);
+        viewFastener.doSetView(null, null);
       }
     }
   }

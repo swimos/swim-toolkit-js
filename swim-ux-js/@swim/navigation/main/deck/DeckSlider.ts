@@ -222,7 +222,7 @@ export abstract class DeckSliderItem<V extends DeckSlider, S extends HtmlView> e
     }
   }
 
-  insertView(parentView: View, childView: S, key: string | undefined): void {
+  insertView(parentView: View, childView: S, taregtView: View | null, key: string | undefined): void {
     const targetKey = "item" + (this.itemIndex + 1);
     const targetView = parentView.getChildView(targetKey);
     parentView.insertChildView(childView, targetView, key);

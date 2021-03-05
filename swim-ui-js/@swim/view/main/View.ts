@@ -390,7 +390,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     return (this.constructor as ViewClass).insertChildFlags;
   }
 
-  protected willInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected willInsertChildView(childView: View, targetView: View | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.viewWillInsertChildView !== void 0) {
       viewController.viewWillInsertChildView(childView, targetView, this);
@@ -404,11 +404,11 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     }
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     this.requireUpdate(this.insertChildFlags);
   }
 
-  protected didInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected didInsertChildView(childView: View, targetView: View | null): void {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;

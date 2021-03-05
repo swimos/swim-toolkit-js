@@ -295,7 +295,7 @@ export class TreeLimb extends HtmlView {
     this.display.setAutoState("block");
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView.key === "leaf" && childView instanceof TreeLeaf) {
       this.onInsertLeaf(childView);

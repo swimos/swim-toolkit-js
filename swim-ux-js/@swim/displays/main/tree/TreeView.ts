@@ -151,7 +151,7 @@ export class TreeView extends HtmlView {
   /** @hidden */
   declare readonly visibleViews: View[];
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     const key = childView.key;
     if (key === "stem" && childView instanceof TreeStem) {

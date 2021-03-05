@@ -218,7 +218,7 @@ export class DataPointView<X, Y> extends LayerView {
     return this.gradientStop;
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView.key === "label" && childView instanceof GraphicsView) {
       this.onInsertLabel(childView);

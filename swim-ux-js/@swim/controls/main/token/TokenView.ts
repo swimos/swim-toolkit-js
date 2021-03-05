@@ -81,10 +81,10 @@ export class TokenView extends HtmlView {
     shapeView.setStyle("top", "0");
     shapeView.setStyle("left", "0");
 
-    this.head.insert(shapeView, "head");
+    this.head.insert(shapeView);
     this.headIcon.setView(this.headIcon.createView());
-    this.body.insert(shapeView, "body");
-    this.foot.insert(shapeView, "foot");
+    this.body.insert(shapeView);
+    this.foot.insert(shapeView);
     this.footIcon.setView(this.footIcon.createView());
   }
 
@@ -303,7 +303,7 @@ export class TokenView extends HtmlView {
         this.owner.initHeadIcon(headIconView);
       }
     },
-    insertView(parentView: View, childView: SvgView, key: string | undefined): void {
+    insertView(parentView: View, childView: SvgView, taregtView: View | null, key: string | undefined): void {
       const shapeView = this.owner.shape.view;
       if (shapeView !== null) {
         shapeView.insertChildView(childView, this.owner.body.view, key);
@@ -472,7 +472,7 @@ export class TokenView extends HtmlView {
         this.owner.initFootIcon(footIconView);
       }
     },
-    insertView(parentView: View, childView: SvgView, key: string | undefined): void {
+    insertView(parentView: View, childView: SvgView, taregtView: View | null, key: string | undefined): void {
       const shapeView = this.owner.shape.view;
       if (shapeView !== null) {
         shapeView.appendChildView(childView, key);

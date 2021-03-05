@@ -199,7 +199,7 @@ export class MapLayerView extends MapGraphicsView {
       childView.setKey(key);
     }
     const childViews = this.childViews as View[];
-    const targetView = childViews.length !== 0 ? childViews[0] : null;
+    const targetView = childViews.length !== 0 ? childViews[0]! : null;
     this.willInsertChildView(childView, targetView);
     childViews.unshift(childView);
     this.insertChildViewMap(childView);
@@ -239,7 +239,7 @@ export class MapLayerView extends MapGraphicsView {
     childView.cascadeInsert();
   }
 
-  protected didInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected didInsertChildView(childView: View, targetView: View | null): void {
     if (childView instanceof MapGraphicsView) {
       this.childViewDidInsertGeoBounds(childView, childView.geoBounds);
     }

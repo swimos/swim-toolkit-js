@@ -257,7 +257,7 @@ export class PieView extends LayerView {
     }
   }
 
-  insertSlice(sliceView: SliceView, targetView: SliceView | null = null): void {
+  insertSlice(sliceView: SliceView, targetView: View | null = null): void {
     const sliceFasteners = this.sliceFasteners as ViewFastener<this, SliceView>[];
     let targetIndex = sliceFasteners.length;
     if (targetView !== null) {
@@ -272,7 +272,7 @@ export class PieView extends LayerView {
     }
     const sliceFastener = this.createSliceFastener(sliceView);
     sliceFasteners.splice(targetIndex, 0, sliceFastener);
-    sliceFastener.setView(sliceView);
+    sliceFastener.setView(sliceView, targetView);
     if (this.isMounted()) {
       sliceFastener.mount();
     }
@@ -297,14 +297,14 @@ export class PieView extends LayerView {
   static SliceFastener = ViewFastener.define<PieView, SliceView>({
     type: SliceView,
     child: false,
-    willSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
-      this.owner.willSetSlice(newSliceView, oldSliceView, this);
+    willSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null): void {
+      this.owner.willSetSlice(newSliceView, oldSliceView, targetView, this);
     },
-    onSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
-      this.owner.onSetSlice(newSliceView, oldSliceView, this);
+    onSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null): void {
+      this.owner.onSetSlice(newSliceView, oldSliceView, targetView, this);
     },
-    didSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
-      this.owner.didSetSlice(newSliceView, oldSliceView, this);
+    didSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null): void {
+      this.owner.didSetSlice(newSliceView, oldSliceView, targetView, this);
     },
     sliceDidSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
       this.owner.onSetSliceValue(newValue, sliceView);
@@ -319,37 +319,37 @@ export class PieView extends LayerView {
   declare readonly sliceFasteners: ReadonlyArray<ViewFastener<this, SliceView>>;
 
   protected willSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null,
-                         sliceFastener: ViewFastener<this, SliceView>): void {
+                         targetView: View | null, sliceFastener: ViewFastener<this, SliceView>): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.pieWillSetSlice !== void 0) {
-      viewController.pieWillSetSlice(newSliceView, oldSliceView, this);
+      viewController.pieWillSetSlice(newSliceView, oldSliceView, targetView, this);
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
       if (viewObserver.pieWillSetSlice !== void 0) {
-        viewObserver.pieWillSetSlice(newSliceView, oldSliceView, this);
+        viewObserver.pieWillSetSlice(newSliceView, oldSliceView, targetView, this);
       }
     }
   }
 
   protected onSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null,
-                       sliceFastener: ViewFastener<this, SliceView>): void {
+                       targetView: View | null, sliceFastener: ViewFastener<this, SliceView>): void {
     // hook
   }
 
   protected didSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null,
-                        sliceFastener: ViewFastener<this, SliceView>): void {
+                        targetView: View | null, sliceFastener: ViewFastener<this, SliceView>): void {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
       if (viewObserver.pieDidSetSlice !== void 0) {
-        viewObserver.pieDidSetSlice(newSliceView, oldSliceView, this);
+        viewObserver.pieDidSetSlice(newSliceView, oldSliceView, targetView, this);
       }
     }
     const viewController = this.viewController;
     if (viewController !== null && viewController.pieDidSetSlice !== void 0) {
-      viewController.pieDidSetSlice(newSliceView, oldSliceView, this);
+      viewController.pieDidSetSlice(newSliceView, oldSliceView, targetView, this);
     }
   }
 
@@ -376,7 +376,7 @@ export class PieView extends LayerView {
     return true;
   }
 
-  protected onInsertSlice(sliceView: SliceView, targetView: SliceView | null): void {
+  protected onInsertSlice(sliceView: SliceView, targetView: View | null): void {
     if (this.autoSlice) {
       this.insertSlice(sliceView, targetView);
     }
@@ -392,10 +392,10 @@ export class PieView extends LayerView {
     this.requireUpdate(View.NeedsLayout);
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof SliceView) {
-      this.onInsertSlice(childView, targetView instanceof SliceView ? targetView : null);
+      this.onInsertSlice(childView, targetView);
     }
   }
 

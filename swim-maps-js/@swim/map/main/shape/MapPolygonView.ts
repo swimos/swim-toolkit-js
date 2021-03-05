@@ -202,7 +202,7 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof MapPointView) {
       this.onInsertPoint(childView);

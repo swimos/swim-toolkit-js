@@ -24,17 +24,17 @@ export interface ModelObserver<M extends Model = Model> {
 
   modelDidSetParentModel?(newParentModel: Model | null, oldParentModel: Model | null, model: M): void;
 
-  modelWillInsertChildModel?(childModel: Model, targetModel: Model | null | undefined, model: M): void;
+  modelWillInsertChildModel?(childModel: Model, targetModel: Model | null, model: M): void;
 
-  modelDidInsertChildModel?(childModel: Model, targetModel: Model | null | undefined, model: M): void;
+  modelDidInsertChildModel?(childModel: Model, targetModel: Model | null, model: M): void;
 
   modelWillRemoveChildModel?(childModel: Model, model: M): void;
 
   modelDidRemoveChildModel?(childModel: Model, model: M): void;
 
-  modelWillInsertTrait?(trait: Trait, targetTrait: Trait | null | undefined, model: M): void;
+  modelWillInsertTrait?(trait: Trait, targetTrait: Trait | null, model: M): void;
 
-  modelDidInsertTrait?(trait: Trait, targetTrait: Trait | null | undefined, model: M): void;
+  modelDidInsertTrait?(trait: Trait, targetTrait: Trait | null, model: M): void;
 
   modelWillRemoveTrait?(trait: Trait, model: M): void;
 

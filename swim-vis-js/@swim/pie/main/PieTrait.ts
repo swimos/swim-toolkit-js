@@ -74,7 +74,7 @@ export class PieTrait extends GenericTrait {
     }
   }
 
-  insertSlice(sliceTrait: SliceTrait, targetTrait: SliceTrait | null = null): void {
+  insertSlice(sliceTrait: SliceTrait, targetTrait: Trait | null = null): void {
     const sliceFasteners = this.sliceFasteners as TraitFastener<this, SliceTrait>[];
     let targetIndex = sliceFasteners.length;
     if (targetTrait !== null) {
@@ -89,7 +89,7 @@ export class PieTrait extends GenericTrait {
     }
     const sliceFastener = this.createSliceFastener(sliceTrait);
     sliceFasteners.splice(targetIndex, 0, sliceFastener);
-    sliceFastener.setTrait(sliceTrait);
+    sliceFastener.setTrait(sliceTrait, targetTrait);
     if (this.isMounted()) {
       sliceFastener.mount();
     }
@@ -115,14 +115,14 @@ export class PieTrait extends GenericTrait {
     type: SliceTrait,
     sibling: false,
     observe: false,
-    willSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
-      this.owner.willSetSlice(newSliceTrait, oldSliceTrait, this);
+    willSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
+      this.owner.willSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
     },
-    onSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
-      this.owner.onSetSlice(newSliceTrait, oldSliceTrait, this);
+    onSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
+      this.owner.onSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
     },
-    didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
-      this.owner.didSetSlice(newSliceTrait, oldSliceTrait, this);
+    didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
+      this.owner.didSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
     },
   });
 
@@ -134,28 +134,28 @@ export class PieTrait extends GenericTrait {
   declare readonly sliceFasteners: ReadonlyArray<TraitFastener<this, SliceTrait>>;
 
   protected willSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null,
-                         sliceFastener: TraitFastener<this, SliceTrait>): void {
+                         targetTrait: Trait | null, sliceFastener: TraitFastener<this, SliceTrait>): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
       if (traitObserver.pieWillSetSlice !== void 0) {
-        traitObserver.pieWillSetSlice(newSliceTrait, oldSliceTrait, this);
+        traitObserver.pieWillSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
       }
     }
   }
 
   protected onSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null,
-                       sliceFastener: TraitFastener<this, SliceTrait>): void {
+                       targetTrait: Trait | null, sliceFastener: TraitFastener<this, SliceTrait>): void {
     // hook
   }
 
   protected didSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null,
-                        sliceFastener: TraitFastener<this, SliceTrait>): void {
+                        targetTrait: Trait | null, sliceFastener: TraitFastener<this, SliceTrait>): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
       if (traitObserver.pieDidSetSlice !== void 0) {
-        traitObserver.pieDidSetSlice(newSliceTrait, oldSliceTrait, this);
+        traitObserver.pieDidSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
       }
     }
   }
@@ -195,7 +195,7 @@ export class PieTrait extends GenericTrait {
     }
   }
 
-  protected onInsertSlice(sliceTrait: SliceTrait, targetTrait: SliceTrait | null): void {
+  protected onInsertSlice(sliceTrait: SliceTrait, targetTrait: Trait | null): void {
     if (this.autoSlice) {
       this.insertSlice(sliceTrait, targetTrait);
     }
@@ -214,10 +214,10 @@ export class PieTrait extends GenericTrait {
     super.didSetModel(newModel, oldModel);
   }
 
-  protected onInsertTrait(trait: Trait, targetTrait: Trait | null | undefined): void {
+  protected onInsertTrait(trait: Trait, targetTrait: Trait | null): void {
     super.onInsertTrait(trait, targetTrait);
     if (trait instanceof SliceTrait) {
-      this.onInsertSlice(trait, targetTrait instanceof SliceTrait ? targetTrait : null);
+      this.onInsertSlice(trait, targetTrait);
     }
   }
 

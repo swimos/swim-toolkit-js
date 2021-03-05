@@ -37,7 +37,7 @@ export class ListView extends HtmlView {
 
   declare readonly viewObservers: ReadonlyArray<ListViewObserver>;
 
-  protected onInsertChildView(childView: View, targetView: View | null | undefined): void {
+  protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof ListItem) {
       this.onInsertItem(childView);
