@@ -14,9 +14,9 @@
 
 export * from "@swim/ui";
 
-export * from "@swim/ux";
-
 export * from "@swim/mvc";
+
+export * from "@swim/ux";
 
 export * from "@swim/vis";
 

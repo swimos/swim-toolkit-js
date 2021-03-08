@@ -13,15 +13,15 @@
     {"path": "./swim-ui-js/@swim/gesture"},
     {"path": "./swim-ui-js/@swim/ui"},
 
+    {"path": "./swim-mvc-js/@swim/model"},
+    {"path": "./swim-mvc-js/@swim/component"},
+    {"path": "./swim-mvc-js/@swim/mvc"},
+
     {"path": "./swim-ux-js/@swim/controls"},
     {"path": "./swim-ux-js/@swim/displays"},
     {"path": "./swim-ux-js/@swim/surfaces"},
     {"path": "./swim-ux-js/@swim/navigation"},
     {"path": "./swim-ux-js/@swim/ux"},
-
-    {"path": "./swim-mvc-js/@swim/model"},
-    {"path": "./swim-mvc-js/@swim/component"},
-    {"path": "./swim-mvc-js/@swim/mvc"},
 
     {"path": "./swim-vis-js/@swim/gauge"},
     {"path": "./swim-vis-js/@swim/pie"},

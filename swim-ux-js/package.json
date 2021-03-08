@@ -29,6 +29,9 @@
     "@swim/graphics": "3.11.0-dev.20201021",
     "@swim/gesture": "3.11.0-dev.20201021",
 
+    "@swim/model": "3.11.0-dev.20201021",
+    "@swim/component": "3.11.0-dev.20201021",
+
     "@rollup/plugin-node-resolve": "11",
     "@types/eslint": "7",
     "@types/node": "14",

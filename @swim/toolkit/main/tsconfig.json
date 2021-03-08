@@ -31,15 +31,15 @@
       "@swim/gesture": ["swim-ui-js/@swim/gesture/main"],
       "@swim/ui": ["swim-ui-js/@swim/ui/main"],
 
+      "@swim/model": ["swim-mvc-js/@swim/model/main"],
+      "@swim/component": ["swim-mvc-js/@swim/component/main"],
+      "@swim/mvc": ["swim-mvc-js/@swim/mvc/main"],
+
       "@swim/controls": ["swim-ux-js/@swim/controls/main"],
       "@swim/displays": ["swim-ux-js/@swim/displays/main"],
       "@swim/surfaces": ["swim-ux-js/@swim/surfaces/main"],
       "@swim/navigation": ["swim-ux-js/@swim/navigation/main"],
       "@swim/ux": ["swim-ux-js/@swim/ux/main"],
-
-      "@swim/model": ["swim-mvc-js/@swim/model/main"],
-      "@swim/component": ["swim-mvc-js/@swim/component/main"],
-      "@swim/mvc": ["swim-mvc-js/@swim/mvc/main"],
 
       "@swim/gauge": ["swim-vis-js/@swim/gauge/main"],
       "@swim/pie": ["swim-vis-js/@swim/pie/main"],
@@ -66,14 +66,14 @@
     {"path": "../../../swim-ui-js/@swim/gesture/main"},
     {"path": "../../../swim-ui-js/@swim/ui/main"},
 
+    {"path": "../../../swim-mvc-js/@swim/model/main"},
+    {"path": "../../../swim-mvc-js/@swim/component/main"},
+    {"path": "../../../swim-mvc-js/@swim/mvc/main"},
+
     {"path": "../../../swim-ux-js/@swim/controls/main"},
     {"path": "../../../swim-ux-js/@swim/surfaces/main"},
     {"path": "../../../swim-ux-js/@swim/displays/main"},
     {"path": "../../../swim-ux-js/@swim/ux/main"},
-
-    {"path": "../../../swim-mvc-js/@swim/model/main"},
-    {"path": "../../../swim-mvc-js/@swim/component/main"},
-    {"path": "../../../swim-mvc-js/@swim/mvc/main"},
 
     {"path": "../../../swim-vis-js/@swim/gauge/main"},
     {"path": "../../../swim-vis-js/@swim/pie/main"},

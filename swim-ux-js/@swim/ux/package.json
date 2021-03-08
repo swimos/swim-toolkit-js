@@ -26,6 +26,8 @@
     "@swim/dom": "3.11.0-dev.20201021",
     "@swim/graphics": "3.11.0-dev.20201021",
     "@swim/gesture": "3.11.0-dev.20201021",
+    "@swim/model": "3.11.0-dev.20201021",
+    "@swim/component": "3.11.0-dev.20201021",
     "@swim/controls": "3.11.0-dev.20201021",
     "@swim/displays": "3.11.0-dev.20201021",
     "@swim/surfaces": "3.11.0-dev.20201021",

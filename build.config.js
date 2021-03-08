@@ -438,6 +438,44 @@ const ui = [
   },
 ];
 
+const mvc = [
+  {
+    id: "model",
+    name: "@swim/model",
+    path: "swim-mvc-js/@swim/model",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "mapping", "collections", "structure", "streamlet", "dataflow", "recon", "uri", "warp", "client"],
+      },
+    ],
+  },
+  {
+    id: "component",
+    name: "@swim/component",
+    path: "swim-mvc-js/@swim/component",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "mapping", "collections", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "constraint", "animation", "color", "style", "theme", "view", "dom", "model"],
+      },
+    ],
+  },
+  {
+    id: "mvc",
+    name: "@swim/mvc",
+    path: "swim-mvc-js/@swim/mvc",
+    title: "Swim MVC",
+    framework: true,
+    targets: [
+      {
+        id: "main",
+        deps: ["model", "component"],
+      },
+    ],
+  },
+];
+
 const ux = [
   {
     id: "controls",
@@ -457,7 +495,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "controls"],
+        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "model", "component", "controls"],
       },
     ],
   },
@@ -493,44 +531,6 @@ const ux = [
       {
         id: "main",
         deps: ["controls", "displays", "surfaces", "navigation"],
-      },
-    ],
-  },
-];
-
-const mvc = [
-  {
-    id: "model",
-    name: "@swim/model",
-    path: "swim-mvc-js/@swim/model",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "mapping", "collections", "structure", "streamlet", "dataflow", "recon", "uri", "warp", "client"],
-      },
-    ],
-  },
-  {
-    id: "component",
-    name: "@swim/component",
-    path: "swim-mvc-js/@swim/component",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "mapping", "collections", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "constraint", "animation", "color", "style", "theme", "view", "dom", "model"],
-      },
-    ],
-  },
-  {
-    id: "mvc",
-    name: "@swim/mvc",
-    path: "swim-mvc-js/@swim/mvc",
-    title: "Swim MVC",
-    framework: true,
-    targets: [
-      {
-        id: "main",
-        deps: ["model", "component"],
       },
     ],
   },
@@ -654,7 +654,7 @@ const toolkit = [
     targets: [
       {
         id: "main",
-        deps: ["ui", "ux", "mvc", "vis", "maps"],
+        deps: ["ui", "mvc", "ux", "vis", "maps"],
         peerDeps: ["system"],
       },
     ],
@@ -663,6 +663,6 @@ const toolkit = [
 
 export default {
   version: "3.10.2",
-  projects: core.concat(mesh).concat(system).concat(ui).concat(ux).concat(mvc).concat(vis).concat(maps).concat(toolkit),
+  projects: core.concat(mesh).concat(system).concat(ui).concat(mvc).concat(ux).concat(vis).concat(maps).concat(toolkit),
   gaID: "UA-79441805-2",
 };

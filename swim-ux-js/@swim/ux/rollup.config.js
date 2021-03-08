@@ -26,6 +26,8 @@ const main = {
       "@swim/dom": "swim",
       "@swim/graphics": "swim",
       "@swim/gesture": "swim",
+      "@swim/model": "swim",
+      "@swim/component": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -47,6 +49,8 @@ const main = {
     "@swim/dom",
     "@swim/graphics",
     "@swim/gesture",
+    "@swim/model",
+    "@swim/component",
   ],
   plugins: [
     nodeResolve({moduleDirectories: ["../..", "node_modules"]}),

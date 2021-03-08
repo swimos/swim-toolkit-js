@@ -9,8 +9,8 @@
 The **Swim Toolkit** TypeScript implementation provides a set of frameworks for
 building pervasively real-time user interface applications.  **Swim Toolkit**
 incorporates the [**Swim UI**](swim-ui-js) real-time user interface toolkit,
-the [**Swim UX**](swim-ux-js) real-time application framework,
 the [**Swim MVC**](swim-mvc-js) real-time component framework,
+the [**Swim UX**](swim-ux-js) real-time application framework,
 the [**Swim Visualizations**](swim-vis-js) real-time visualizations framework,
 and the [**Swim Maps**](swim-maps-js) real-time maps framework.
 
@@ -56,6 +56,19 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
 - [**@swim/gesture**](swim-ui-js/@swim/gesture) –
   multitouch gesture recognizers, with kinematic surface modeling.
 
+### [**Swim MVC** Framework](swim-mvc-js)
+
+The **Swim MVC** framework implements a model-view-controller framework built
+on the **Swim UI** toolkit.  **Swim MVC** consists of the following component
+libraries:
+
+- [**@swim/mvc**](swim-mvc-js/@swim/mvc) –
+  umbrella package that depends on, and re-exports, all **Swim MVC** libraries.
+- [**@swim/model**](swim-mvc-js/@swim/model) –
+  lifecycle-managed model hierarchy supporting dynamic scoping and service injection.
+- [**@swim/component**](swim-mvc-js/@swim/component) –
+  componentized controller layer with application lifecycle and service management.
+
 ### [**Swim UX** Framework](swim-ux-js)
 
 The **Swim UX** framework implements a user interface toolkit for advanced
@@ -73,19 +86,6 @@ toolbars, controls, and other interactive application views and controllers.
   popovers, drawers, and other view containers.
 - [**@swim/navigation**](swim-ux-js/@swim/navigation) –
   card decks, master-detail views, and other navigation controllers.
-
-### [**Swim MVC** Framework](swim-mvc-js)
-
-The **Swim MVC** framework implements a model-view-controller framework built
-on the **Swim UI** toolkit.  **Swim MVC** consists of the following component
-libraries:
-
-- [**@swim/mvc**](swim-mvc-js/@swim/mvc) –
-  umbrella package that depends on, and re-exports, all **Swim MVC** libraries.
-- [**@swim/model**](swim-mvc-js/@swim/model) –
-  lifecycle-managed model hierarchy supporting dynamic scoping and service injection.
-- [**@swim/component**](swim-mvc-js/@swim/component) –
-  componentized controller layer with application lifecycle and service management.
 
 ### [**Swim Visualizations** Framework](swim-vis-js)
 
@@ -136,7 +136,7 @@ bundles all **@swim/toolkit** child frameworks, can be found in
 
 Browser applications can load `swim-toolkit.js`, along with its `swim-system.js`
 dependency, from the SwimOS CDN.  The `swim-toolkit.js` bundle supersedes
-`swim-ui.js`, `swim-ux.js`, `swim-mvc.js`, `swim-vis.js`, and
+`swim-ui.js`, `swim-mvc.js`, `swim-ux.js`, `swim-vis.js`, and
 `swim-maps.js`—those scripts need not be loaded when using `swim-toolkit.js`.
 
 ```html
