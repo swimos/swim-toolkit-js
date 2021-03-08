@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import type {FromAny} from "@swim/util";
+import {FromAny} from "@swim/util";
 import type {Model} from "../Model";
 import {Trait} from "../Trait";
 import type {TraitObserverType} from "../TraitObserver";
@@ -33,18 +33,15 @@ export interface TraitFastenerInit<S extends Trait, U = never> {
   willSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
   onSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
   didSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
+
   createTrait?(): S | U | null;
   insertTrait?(model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
 }
 
-export type TraitFastenerDescriptor<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = TraitFastenerInit<S, U> & ThisType<TraitFastener<R, S, U> & I> & I;
+export type TraitFastenerDescriptor<R extends Trait, S extends Trait, U = never, I = {}> = TraitFastenerInit<S, U> & ThisType<TraitFastener<R, S, U> & I> & I;
 
-export type TraitFastenerDescriptorExtends<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = {extends: TraitFastenerClass | undefined} & TraitFastenerDescriptor<R, S, U, I>;
-
-export type TraitFastenerDescriptorFromAny<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & TraitFastenerDescriptor<R, S, U, I>;
-
-export interface TraitFastenerConstructor<R extends Trait, S extends Trait, U = never, I = TraitObserverType<S>> {
+export interface TraitFastenerConstructor<R extends Trait, S extends Trait, U = never, I = {}> {
   new(owner: R, fastenerName: string | undefined): TraitFastener<R, S, U> & I;
   prototype: TraitFastener<any, any> & I;
 }
@@ -71,6 +68,12 @@ export interface TraitFastener<R extends Trait, S extends Trait, U = never> {
   doSetTrait(newTrait: S | null, targetTrait: Trait | null): void;
 
   /** @hidden */
+  attachTrait(newTrait: S): void;
+
+  /** @hidden */
+  detachTrait(oldTrait: S): void;
+
+  /** @hidden */
   willSetTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
   /** @hidden */
@@ -79,29 +82,14 @@ export interface TraitFastener<R extends Trait, S extends Trait, U = never> {
   /** @hidden */
   didSetTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
-  /** @hidden */
-  willSetOwnTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
-
-  /** @hidden */
-  onSetOwnTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
-
-  /** @hidden */
-  didSetOwnTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
-
-  /** @hidden */
-  mount(): void;
-
-  /** @hidden */
-  unmount(): void;
-
-  insert(model?: Model | null, trait?: S | U | null, targetTrait?: Trait | null, key?: string | null): S | null;
-
-  remove(): S | null;
+  injectTrait(model?: Model | null, trait?: S | U | null, targetTrait?: Trait | null, key?: string | null): S | null;
 
   createTrait(): S | U | null;
 
   /** @hidden */
   insertTrait(model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
+
+  removeTrait(): S | null;
 
   /** @hidden */
   observe?: boolean;
@@ -113,6 +101,12 @@ export interface TraitFastener<R extends Trait, S extends Trait, U = never> {
   readonly type?: unknown;
 
   fromAny(value: S | U): S | null;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 }
 
 export const TraitFastener = function <R extends Trait, S extends Trait, U>(
@@ -129,13 +123,15 @@ export const TraitFastener = function <R extends Trait, S extends Trait, U>(
   /** @hidden */
   new<R extends Trait, S extends Trait, U = never>(owner: R, fastenerName: string | undefined): TraitFastener<R, S, U>;
 
-  <R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitFastenerDescriptorExtends<R, S, U, I>): PropertyDecorator;
+  <R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: {extends: TraitFastenerClass | undefined} & TraitFastenerDescriptor<R, S, U, I>): PropertyDecorator;
+  <R extends Trait, S extends Trait = Trait, U = never>(descriptor: {observe: boolean} & TraitFastenerDescriptor<R, S, U, TraitObserverType<S>>): PropertyDecorator;
   <R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitFastenerDescriptor<R, S, U>): PropertyDecorator;
 
   /** @hidden */
   prototype: TraitFastener<any, any>;
 
-  define<R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: TraitFastenerDescriptorExtends<R, S, U, I>): TraitFastenerConstructor<R, S, U>;
+  define<R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: {extends: TraitFastenerClass | undefined} & TraitFastenerDescriptor<R, S, U, I>): TraitFastenerConstructor<R, S, U>;
+  define<R extends Trait, S extends Trait = Trait, U = never>(descriptor: {observe: boolean} & TraitFastenerDescriptor<R, S, U, TraitObserverType<S>>): TraitFastenerConstructor<R, S, U>;
   define<R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitFastenerDescriptor<R, S, U>): TraitFastenerConstructor<R, S, U>;
 };
 __extends(TraitFastener, Object);
@@ -196,17 +192,32 @@ TraitFastener.prototype.setTrait = function <S extends Trait>(this: TraitFastene
 TraitFastener.prototype.doSetTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null, targetTrait: Trait | null): void {
   const oldTrait = this.trait;
   if (oldTrait !== newTrait) {
-    this.willSetOwnTrait(newTrait, oldTrait, targetTrait);
     this.willSetTrait(newTrait, oldTrait, targetTrait);
+    if (oldTrait !== null) {
+      this.detachTrait(oldTrait);
+    }
     Object.defineProperty(this, "trait", {
       value: newTrait,
       enumerable: true,
       configurable: true,
     });
-    this.onSetOwnTrait(newTrait, oldTrait, targetTrait);
+    if (newTrait !== null) {
+      this.attachTrait(newTrait);
+    }
     this.onSetTrait(newTrait, oldTrait, targetTrait);
     this.didSetTrait(newTrait, oldTrait, targetTrait);
-    this.didSetOwnTrait(newTrait, oldTrait, targetTrait);
+  }
+};
+
+TraitFastener.prototype.attachTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S): void {
+  if (this.observe === true && this.owner.isMounted()) {
+    newTrait.addTraitObserver(this as TraitObserverType<S>);
+  }
+};
+
+TraitFastener.prototype.detachTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, oldTrait: S): void {
+  if (this.observe === true && this.owner.isMounted()) {
+    oldTrait.removeTraitObserver(this as TraitObserverType<S>);
   }
 };
 
@@ -222,40 +233,7 @@ TraitFastener.prototype.didSetTrait = function <S extends Trait>(this: TraitFast
   // hook
 };
 
-TraitFastener.prototype.willSetOwnTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void {
-  // hook
-};
-
-TraitFastener.prototype.onSetOwnTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void {
-  if (this.observe === true && this.owner.isMounted()) {
-    if (oldTrait !== null) {
-      oldTrait.removeTraitObserver(this as TraitObserverType<S>);
-    }
-    if (newTrait !== null) {
-      newTrait.addTraitObserver(this as TraitObserverType<S>);
-    }
-  }
-};
-
-TraitFastener.prototype.didSetOwnTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void {
-  // hook
-};
-
-TraitFastener.prototype.mount = function <S extends Trait>(this: TraitFastener<Trait, S>): void {
-  const trait = this.trait;
-  if (trait !== null && this.observe === true) {
-    trait.addTraitObserver(this as TraitObserverType<S>);
-  }
-};
-
-TraitFastener.prototype.unmount = function <S extends Trait>(this: TraitFastener<Trait, S>): void {
-  const trait = this.trait;
-  if (trait !== null && this.observe === true) {
-    trait.removeTraitObserver(this as TraitObserverType<S>);
-  }
-};
-
-TraitFastener.prototype.insert = function <S extends Trait>(this: TraitFastener<Trait, S>, model?: Model | null, trait?: S | null, targetTrait?: Trait | null, key?: string | null): S | null {
+TraitFastener.prototype.injectTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, model?: Model | null, trait?: S | null, targetTrait?: Trait | null, key?: string | null): S | null {
   if (targetTrait === void 0) {
     targetTrait = null;
   }
@@ -289,14 +267,6 @@ TraitFastener.prototype.insert = function <S extends Trait>(this: TraitFastener<
   return trait;
 };
 
-TraitFastener.prototype.remove = function <S extends Trait>(this: TraitFastener<Trait, S>): S | null {
-  const trait = this.trait;
-  if (trait !== null) {
-    trait.remove();
-  }
-  return trait;
-};
-
 TraitFastener.prototype.createTrait = function <S extends Trait, U>(this: TraitFastener<Trait, S, U>): S | U | null {
   return null;
 };
@@ -305,8 +275,36 @@ TraitFastener.prototype.insertTrait = function <S extends Trait>(this: TraitFast
   model.insertTrait(trait, targetTrait, key);
 };
 
+TraitFastener.prototype.removeTrait = function <S extends Trait>(this: TraitFastener<Trait, S>): S | null {
+  const trait = this.trait;
+  if (trait !== null) {
+    trait.remove();
+  }
+  return trait;
+};
+
 TraitFastener.prototype.fromAny = function <S extends Trait, U>(this: TraitFastener<Trait, S, U>, value: S | U): S | null {
-  return value as S | null;
+  const type = this.type;
+  if (FromAny.is<S, U>(type)) {
+    return type.fromAny(value);
+  } else if (value instanceof Trait) {
+    return value;
+  }
+  return null;
+};
+
+TraitFastener.prototype.mount = function <S extends Trait>(this: TraitFastener<Trait, S>): void {
+  const trait = this.trait;
+  if (trait !== null && this.observe === true) {
+    trait.addTraitObserver(this as TraitObserverType<S>);
+  }
+};
+
+TraitFastener.prototype.unmount = function <S extends Trait>(this: TraitFastener<Trait, S>): void {
+  const trait = this.trait;
+  if (trait !== null && this.observe === true) {
+    trait.removeTraitObserver(this as TraitObserverType<S>);
+  }
 };
 
 TraitFastener.define = function <R extends Trait, S extends Trait, U, I>(descriptor: TraitFastenerDescriptor<R, S, U, I>): TraitFastenerConstructor<R, S, U, I> {
@@ -337,9 +335,6 @@ TraitFastener.define = function <R extends Trait, S extends Trait, U, I>(descrip
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
 
-  if (_prototype.observe === void 0) {
-    _prototype.observe = true;
-  }
   if (_prototype.sibling === void 0) {
     _prototype.sibling = true;
   }

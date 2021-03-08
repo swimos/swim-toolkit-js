@@ -93,7 +93,7 @@ export class DeckButton extends DeckSlot {
 
     this.setViewFastener(newLabelKey, newLabelFastener);
     newLabelFastener.setView(newLabelView);
-    newLabelFastener.insert();
+    newLabelFastener.injectView();
 
     if (timing === void 0 && oldLabelCount === 0) {
       timing = false;
@@ -146,7 +146,7 @@ export class DeckButton extends DeckSlot {
       this.willPopLabel(newLabelView, oldLabelView);
       this.label = newLabelFastener;
       if (newLabelFastener !== null) {
-        newLabelFastener.insert();
+        newLabelFastener.injectView();
       }
 
       if (timing === void 0 || timing === true) {
@@ -259,7 +259,11 @@ export abstract class DeckButtonCloseIcon<V extends DeckButton, S extends SvgIco
     iconView.opacity.setAutoState(1 - iconPhase);
   }
 }
-ViewFastener({extends: DeckButtonCloseIcon, type: SvgIconView})(DeckButton.prototype, "closeIcon");
+ViewFastener({
+  extends: DeckButtonCloseIcon,
+  type: SvgIconView,
+  observe: true,
+})(DeckButton.prototype, "closeIcon");
 
 /** @hidden */
 export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIconView> extends ViewFastener<V, S> {
@@ -352,7 +356,11 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
     iconView.opacity.setAutoState(iconOpacity);
   }
 }
-ViewFastener({extends: DeckButtonBackIcon, type: SvgIconView})(DeckButton.prototype, "backIcon");
+ViewFastener({
+  extends: DeckButtonBackIcon,
+  type: SvgIconView,
+  observe: true,
+})(DeckButton.prototype, "backIcon");
 
 /** @hidden */
 export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> extends ViewFastener<V, S> {
@@ -505,4 +513,5 @@ export const DeckButtonLabelFastener = ViewFastener.define<DeckButton, HtmlView>
   extends: DeckButtonLabel,
   type: HtmlView,
   child: false,
+  observe: true,
 });

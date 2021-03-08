@@ -15,72 +15,67 @@
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Look, Mood} from "@swim/theme";
 import type {GraphicsView} from "@swim/graphics";
-import {Trait, TraitObserverType} from "@swim/model";
 import {
   ComponentProperty,
-  ComponentTrait,
   ComponentView,
+  ComponentViewTrait,
   CompositeComponent,
 } from "@swim/component";
 import {SliceView} from "./SliceView";
 import {SliceTrait} from "./SliceTrait";
 import type {SliceComponentObserver} from "./SliceComponentObserver";
 
-export class SliceComponent<S extends Trait = SliceTrait> extends CompositeComponent {
-  declare readonly componentObservers: ReadonlyArray<SliceComponentObserver<S>>;
-
-  createSlice(): SliceView {
-    return SliceView.create();
-  }
+export class SliceComponent extends CompositeComponent {
+  declare readonly componentObservers: ReadonlyArray<SliceComponentObserver>;
 
   get value(): number | undefined {
-    const sourceTrait = this.source.trait;
-    if (sourceTrait instanceof SliceTrait) {
-      return sourceTrait.value;
-    } else {
-      return void 0;
-    }
+    const sliceTrait = this.slice.trait;
+    return sliceTrait !== null ? sliceTrait.value : void 0;
   }
 
   setValue(value: number): void {
-    const sourceTrait = this.source.trait;
-    if (sourceTrait instanceof SliceTrait) {
-      sourceTrait.setValue(value);
+    const sliceTrait = this.slice.trait;
+    if (sliceTrait !== null) {
+      sliceTrait.setValue(value);
     }
   }
 
   setLabel(label: GraphicsView | string | undefined): void {
-    const sourceTrait = this.source.trait;
-    if (sourceTrait instanceof SliceTrait) {
-      sourceTrait.setLabel(label);
+    const sliceTrait = this.slice.trait;
+    if (sliceTrait !== null) {
+      sliceTrait.setLabel(label);
     }
   }
 
   setLegend(label: GraphicsView | string | undefined): void {
-    const sourceTrait = this.source.trait;
-    if (sourceTrait instanceof SliceTrait) {
-      sourceTrait.setLegend(label);
+    const sliceTrait = this.slice.trait;
+    if (sliceTrait !== null) {
+      sliceTrait.setLegend(label);
     }
   }
 
-  protected initSlice(sliceView: SliceView): void {
+  createSliceView(): SliceView {
+    return SliceView.create();
+  }
+
+  protected initSliceView(sliceView: SliceView): void {
     // hook
   }
 
-  protected attachSlice(sliceView: SliceView): void {
-    const sourceTrait = this.source.trait;
-    if (sourceTrait instanceof SliceTrait) {
-      this.setSliceValue(sourceTrait.value);
-      this.setSliceLabel(sourceTrait.label);
-      this.setSliceLegend(sourceTrait.legend);
+  protected attachSliceView(sliceView: SliceView): void {
+    const sliceTrait = this.slice.trait;
+    if (sliceTrait !== null) {
+      this.setSliceValue(sliceTrait.value);
+      this.setSliceLabel(sliceTrait.label);
+      this.setSliceLegend(sliceTrait.legend);
     }
   }
 
-  protected detachSlice(sliceView: SliceView): void {
+  protected detachSliceView(sliceView: SliceView): void {
     // hook
   }
 
-  protected willSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
+  protected willSetSliceView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -90,15 +85,15 @@ export class SliceComponent<S extends Trait = SliceTrait> extends CompositeCompo
     }
   }
 
-  protected onSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
+  protected onSetSliceView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
     if (newSliceView !== null) {
-      this.initSlice(newSliceView);
+      this.initSliceView(newSliceView);
       this.label.setView(newSliceView.label.view);
       this.legend.setView(newSliceView.legend.view);
     }
   }
 
-  protected didSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
+  protected didSetSliceView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -130,7 +125,7 @@ export class SliceComponent<S extends Trait = SliceTrait> extends CompositeCompo
   }
 
   protected onSetSliceValue(newValue: number, oldValue: number, sliceView: SliceView): void {
-    if (newValue === 0 && this.source.trait === null) {
+    if (newValue === 0 && this.slice.trait === null) {
       sliceView.remove();
     }
   }
@@ -219,22 +214,20 @@ export class SliceComponent<S extends Trait = SliceTrait> extends CompositeCompo
     }
   }
 
-  protected initSource(sourceTrait: S): void {
+  protected initSliceTrait(sliceTrait: SliceTrait): void {
     // hook
   }
 
-  protected attachSource(sourceTrait: S): void {
-    if (sourceTrait instanceof SliceTrait) {
-      const sliceView = this.slice.view;
-      if (sliceView !== null) {
-        this.setSliceValue(sourceTrait.value);
-        this.setSliceLabel(sourceTrait.label);
-        this.setSliceLegend(sourceTrait.legend);
-      }
+  protected attachSliceTrait(sliceTrait: SliceTrait): void {
+    const sliceView = this.slice.view;
+    if (sliceView !== null) {
+      this.setSliceValue(sliceTrait.value);
+      this.setSliceLabel(sliceTrait.label);
+      this.setSliceLegend(sliceTrait.legend);
     }
   }
 
-  protected detachSource(sourceTrait: S): void {
+  protected detachSliceTrait(sliceTrait: SliceTrait): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
       if (sliceView.value.isAuto()) {
@@ -246,28 +239,28 @@ export class SliceComponent<S extends Trait = SliceTrait> extends CompositeCompo
     }
   }
 
-  protected willSetSource(newSourceTrait: S | null, oldSourceTrait: S | null): void {
+  protected willSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.sliceWillSetSource !== void 0) {
-        componentObserver.sliceWillSetSource(newSourceTrait, oldSourceTrait, this);
+      if (componentObserver.sliceWillSetTrait !== void 0) {
+        componentObserver.sliceWillSetTrait(newSliceTrait, oldSliceTrait, this);
       }
     }
   }
 
-  protected onSetSource(newSourceTrait: S | null, oldSourceTrait: S | null): void {
-    if (newSourceTrait !== null) {
-      this.initSource(newSourceTrait);
+  protected onSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
+    if (newSliceTrait !== null) {
+      this.initSliceTrait(newSliceTrait);
     }
   }
 
-  protected didSetSource(newSourceTrait: S | null, oldSourceTrait: S | null): void {
+  protected didSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.sliceDidSetSource !== void 0) {
-        componentObserver.sliceDidSetSource(newSourceTrait, oldSourceTrait, this);
+      if (componentObserver.sliceDidSetTrait !== void 0) {
+        componentObserver.sliceDidSetTrait(newSliceTrait, oldSliceTrait, this);
       }
     }
   }
@@ -275,38 +268,74 @@ export class SliceComponent<S extends Trait = SliceTrait> extends CompositeCompo
   @ComponentProperty({type: Timing, inherit: true})
   declare sliceTiming: ComponentProperty<this, Timing | boolean | undefined, AnyTiming>;
 
-  @ComponentView<SliceComponent<S>, SliceView>({
-    type: SliceView,
+  @ComponentViewTrait<SliceComponent, SliceView, SliceTrait>({
+    viewType: SliceView,
+    observeView: true,
     willSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
-      this.owner.willSetSlice(newSliceView, oldSliceView);
+      this.owner.willSetSliceView(newSliceView, oldSliceView);
     },
     onSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
       if (oldSliceView !== null) {
-        this.owner.detachSlice(oldSliceView);
+        this.owner.detachSliceView(oldSliceView);
       }
-      this.owner.onSetSlice(newSliceView, oldSliceView);
+      this.owner.onSetSliceView(newSliceView, oldSliceView);
       if (newSliceView !== null) {
-        this.owner.attachSlice(newSliceView);
+        this.owner.attachSliceView(newSliceView);
       }
     },
     didSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
-      this.owner.didSetSlice(newSliceView, oldSliceView);
+      this.owner.didSetSliceView(newSliceView, oldSliceView);
     },
-    sliceWillSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
+    sliceViewWillSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
       this.owner.willSetSliceValue(newValue, oldValue, sliceView);
     },
-    sliceDidSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
+    sliceViewDidSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
       this.owner.onSetSliceValue(newValue, oldValue, sliceView);
       this.owner.didSetSliceValue(newValue, oldValue, sliceView);
     },
+    sliceViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceView: SliceView): void {
+      if (newLabelView !== null) {
+        this.owner.label.setView(newLabelView);
+      }
+    },
+    sliceViewDidSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceView: SliceView): void {
+      if (newLegendView !== null) {
+        this.owner.legend.setView(newLegendView);
+      }
+    },
     createView(): SliceView | null {
-      return this.owner.createSlice();
-    }
+      return this.owner.createSliceView();
+    },
+    traitType: SliceTrait,
+    observeTrait: true,
+    willSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
+      this.owner.willSetSliceTrait(newSliceTrait, oldSliceTrait);
+    },
+    onSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
+      if (oldSliceTrait !== null) {
+        this.owner.detachSliceTrait(oldSliceTrait);
+      }
+      this.owner.onSetSliceTrait(newSliceTrait, oldSliceTrait);
+      if (newSliceTrait !== null) {
+        this.owner.attachSliceTrait(newSliceTrait);
+      }
+    },
+    didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
+      this.owner.didSetSliceTrait(newSliceTrait, oldSliceTrait);
+    },
+    sliceTraitDidSetValue(newValue: number, oldValue: number, sliceTrait: SliceTrait): void {
+      this.owner.setSliceValue(newValue);
+    },
+    sliceTraitDidSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, sliceTrait: SliceTrait): void {
+      this.owner.setSliceLabel(newLabel);
+    },
+    sliceTraitDidSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, sliceTrait: SliceTrait): void {
+      this.owner.setSliceLegend(newLegend);
+    },
   })
-  declare slice: ComponentView<this, SliceView>;
+  declare slice: ComponentViewTrait<this, SliceView, SliceTrait>;
 
-  @ComponentView<SliceComponent<S>, GraphicsView>({
-    observe: false,
+  @ComponentView<SliceComponent, GraphicsView>({
     willSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
       this.owner.willSetSliceLabel(newLabelView, oldLabelView);
     },
@@ -319,8 +348,7 @@ export class SliceComponent<S extends Trait = SliceTrait> extends CompositeCompo
   })
   declare label: ComponentView<this, GraphicsView>;
 
-  @ComponentView<SliceComponent<S>, GraphicsView>({
-    observe: false,
+  @ComponentView<SliceComponent, GraphicsView>({
     willSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
       this.owner.willSetSliceLegend(newLegendView, oldLegendView);
     },
@@ -332,34 +360,4 @@ export class SliceComponent<S extends Trait = SliceTrait> extends CompositeCompo
     },
   })
   declare legend: ComponentView<this, GraphicsView>;
-
-  @ComponentTrait<SliceComponent<S>, S, never, TraitObserverType<SliceTrait>>({
-    extends: void 0,
-    type: Trait,
-    willSetTrait(newSourceTrait: S | null, oldSourceTrait: S | null): void {
-      this.owner.willSetSource(newSourceTrait, oldSourceTrait);
-    },
-    onSetTrait(newSourceTrait: S | null, oldSourceTrait: S | null): void {
-      if (oldSourceTrait !== null) {
-        this.owner.detachSource(oldSourceTrait);
-      }
-      this.owner.onSetSource(newSourceTrait, oldSourceTrait);
-      if (newSourceTrait !== null) {
-        this.owner.attachSource(newSourceTrait);
-      }
-    },
-    didSetTrait(newSourceTrait: S | null, oldSourceTrait: S | null): void {
-      this.owner.didSetSource(newSourceTrait, oldSourceTrait);
-    },
-    sliceDidSetValue(newValue: number, oldValue: number, sourceTrait: SliceTrait): void {
-      this.owner.setSliceValue(newValue);
-    },
-    sliceDidSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, sourceTrait: SliceTrait): void {
-      this.owner.setSliceLabel(newLabel);
-    },
-    sliceDidSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, sourceTrait: SliceTrait): void {
-      this.owner.setSliceLegend(newLegend);
-    },
-  })
-  declare source: ComponentTrait<this, S>;
 }

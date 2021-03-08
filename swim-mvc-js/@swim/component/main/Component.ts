@@ -25,6 +25,7 @@ import type {ComponentPropertyConstructor, ComponentProperty} from "./property/C
 import type {ComponentModelConstructor, ComponentModel} from "./fastener/ComponentModel";
 import type {ComponentTraitConstructor, ComponentTrait} from "./fastener/ComponentTrait";
 import type {ComponentViewConstructor, ComponentView} from "./fastener/ComponentView";
+import type {ComponentViewTraitConstructor, ComponentViewTrait} from "./fastener/ComponentViewTrait";
 import type {ComponentFastenerConstructor, ComponentFastener} from "./fastener/ComponentFastener";
 
 export type ComponentFlags = number;
@@ -48,6 +49,9 @@ export interface ComponentPrototype {
 
   /** @hidden */
   componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<Component, View> | undefined};
+
+  /** @hidden */
+  componentViewTraitConstructors?: {[fastenerName: string]: ComponentViewTraitConstructor<Component, View, Trait> | undefined};
 
   /** @hidden */
   componentFastenerConstructors?: {[fastenerName: string]: ComponentFastenerConstructor<Component, Component> | undefined};
@@ -861,33 +865,6 @@ export abstract class Component {
     return componentModel;
   }
 
-  /** @hidden */
-  willSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.componentWillSetModel !== void 0) {
-        componentObserver.componentWillSetModel(componentModel, newModel, oldModel, targetModel, this);
-      }
-    }
-  }
-
-  /** @hidden */
-  onSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
-    // hook
-  }
-
-  /** @hidden */
-  didSetComponentModel<M extends Model>(componentModel: ComponentModel<this, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.componentDidSetModel !== void 0) {
-        componentObserver.componentDidSetModel(componentModel, newModel, oldModel, targetModel, this);
-      }
-    }
-  }
-
   abstract hasComponentTrait(traitName: string): boolean;
 
   abstract getComponentTrait(traitName: string): ComponentTrait<this, Trait> | null;
@@ -905,33 +882,6 @@ export abstract class Component {
       }
     }
     return componentTrait;
-  }
-
-  /** @hidden */
-  willSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.componentWillSetTrait !== void 0) {
-        componentObserver.componentWillSetTrait(componentTrait, newTrait, oldTrait, targetTrait, this);
-      }
-    }
-  }
-
-  /** @hidden */
-  onSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void {
-    // hook
-  }
-
-  /** @hidden */
-  didSetComponentTrait<R extends Trait>(componentTrait: ComponentTrait<this, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.componentDidSetTrait !== void 0) {
-        componentObserver.componentDidSetTrait(componentTrait, newTrait, oldTrait, targetTrait, this);
-      }
-    }
   }
 
   abstract hasComponentView(viewName: string): boolean;
@@ -953,31 +903,23 @@ export abstract class Component {
     return componentView;
   }
 
-  /** @hidden */
-  willSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null, targetView: View | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.componentWillSetView !== void 0) {
-        componentObserver.componentWillSetView(componentView, newView, oldView, targetView, this);
-      }
-    }
-  }
+  abstract hasComponentViewTrait(fastenerName: string): boolean;
+
+  abstract getComponentViewTrait(fastenerName: string): ComponentViewTrait<this, View, Trait> | null;
+
+  abstract setComponentViewTrait(fastenerName: string, componentViewTrait: ComponentViewTrait<this, any, any> | null): void;
 
   /** @hidden */
-  onSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null, targetView: View | null): void {
-    // hook
-  }
-
-  /** @hidden */
-  didSetComponentView<V extends View>(componentView: ComponentView<this, V>, newView: V | null, oldView: V | null, targetView: View | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.componentDidSetView !== void 0) {
-        componentObserver.componentDidSetView(componentView, newView, oldView, targetView, this);
+  getLazyComponentViewTrait(fastenerName: string): ComponentViewTrait<this, View, Trait> | null {
+    let componentViewTrait = this.getComponentViewTrait(fastenerName);
+    if (componentViewTrait === null) {
+      const constructor = Component.getComponentViewTraitConstructor(fastenerName, Object.getPrototypeOf(this));
+      if (constructor !== null) {
+        componentViewTrait = new constructor(this, fastenerName) as ComponentViewTrait<this, View, Trait>;
+        this.setComponentViewTrait(fastenerName, componentViewTrait);
       }
     }
+    return componentViewTrait;
   }
 
   abstract hasComponentFastener(fastenerName: string): boolean;
@@ -1206,6 +1148,45 @@ export abstract class Component {
           this.setComponentView(propertyKey.toString(), componentView);
         }
         return componentView;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  /** @hidden */
+  static getComponentViewTraitConstructor(fastenerName: string, componentPrototype: ComponentPrototype | null = null): ComponentViewTraitConstructor<Component, View, Trait> | null {
+    if (componentPrototype === null) {
+      componentPrototype = this.prototype as ComponentPrototype;
+    }
+    do {
+      if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentViewTraitConstructors")) {
+        const constructor = componentPrototype.componentViewTraitConstructors![fastenerName];
+        if (constructor !== void 0) {
+          return constructor;
+        }
+      }
+      componentPrototype = Object.getPrototypeOf(componentPrototype);
+    } while (componentPrototype !== null);
+    return null;
+  }
+
+  /** @hidden */
+  static decorateComponentViewTrait(constructor: ComponentViewTraitConstructor<Component, View, Trait>,
+                                    target: Object, propertyKey: string | symbol): void {
+    const componentPrototype = target as ComponentPrototype;
+    if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentViewTraitConstructors")) {
+      componentPrototype.componentViewTraitConstructors = {};
+    }
+    componentPrototype.componentViewTraitConstructors![propertyKey.toString()] = constructor;
+    Object.defineProperty(target, propertyKey, {
+      get: function (this: Component): ComponentViewTrait<Component, View, Trait> {
+        let componentViewTrait = this.getComponentViewTrait(propertyKey.toString());
+        if (componentViewTrait === null) {
+          componentViewTrait = new constructor(this, propertyKey.toString());
+          this.setComponentViewTrait(propertyKey.toString(), componentViewTrait);
+        }
+        return componentViewTrait;
       },
       configurable: true,
       enumerable: true,

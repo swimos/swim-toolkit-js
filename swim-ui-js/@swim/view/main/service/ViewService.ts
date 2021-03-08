@@ -99,12 +99,6 @@ export interface ViewService<V extends View, T> {
   getManagerOr<E>(elseManager: E): (T extends undefined ? never : T) | E;
 
   /** @hidden */
-  mount(): void;
-
-  /** @hidden */
-  unmount(): void;
-
-  /** @hidden */
   observe?: boolean;
 
   /** @hidden */
@@ -112,6 +106,12 @@ export interface ViewService<V extends View, T> {
 
   /** @hidden */
   initManager(): T;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 }
 
 export const ViewService = function <V extends View, T>(
@@ -326,16 +326,16 @@ ViewService.prototype.getManagerOr = function <T, E>(this: ViewService<View, T>,
   return manager as (T extends undefined ? never : T) | E;
 };
 
+ViewService.prototype.initManager = function <T>(this: ViewService<View, T>): T {
+  return void 0 as unknown as T;
+};
+
 ViewService.prototype.mount = function (this: ViewService<View, unknown>): void {
   this.bindSuperService();
 };
 
 ViewService.prototype.unmount = function (this: ViewService<View, unknown>): void {
   this.unbindSuperService();
-};
-
-ViewService.prototype.initManager = function <T>(this: ViewService<View, T>): T {
-  return void 0 as unknown as T;
 };
 
 ViewService.getClass = function (type: unknown): ViewServiceClass | null {

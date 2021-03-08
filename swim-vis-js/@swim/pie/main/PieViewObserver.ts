@@ -18,11 +18,11 @@ import type {SliceView} from "./SliceView";
 import type {PieView} from "./PieView";
 
 export interface PieViewObserver<V extends PieView = PieView> extends ViewObserver<V> {
-  pieWillSetTitle?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, view: V): void;
+  pieViewWillSetTitle?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, view: V): void;
 
-  pieDidSetTitle?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, view: V): void;
+  pieViewDidSetTitle?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, view: V): void;
 
-  pieWillSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null, view: V): void;
+  pieViewWillSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null, view: V): void;
 
-  pieDidSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null, view: V): void;
+  pieViewDidSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null, view: V): void;
 }

@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import type {FromAny} from "@swim/util";
-import type {Model, Trait, TraitObserverType} from "@swim/model";
+import {FromAny} from "@swim/util";
+import {Model, Trait, TraitObserverType} from "@swim/model";
 import {Component} from "../Component";
 
 export type ComponentTraitMemberType<C, K extends keyof C> =
@@ -31,18 +31,15 @@ export interface ComponentTraitInit<R extends Trait, U = never> {
   willSetTrait?(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
   onSetTrait?(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
   didSetTrait?(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
+
   createTrait?(): R | U | null;
   insertTrait?(model: Model, trait: R, targetTrait: Trait | null, key: string | undefined): void;
   fromAny?(value: R | U): R | null;
 }
 
-export type ComponentTraitDescriptor<C extends Component, R extends Trait, U = never, I = TraitObserverType<R>> = ComponentTraitInit<R, U> & ThisType<ComponentTrait<C, R, U> & I> & I;
+export type ComponentTraitDescriptor<C extends Component, R extends Trait, U = never, I = {}> = ComponentTraitInit<R, U> & ThisType<ComponentTrait<C, R, U> & I> & I;
 
-export type ComponentTraitDescriptorExtends<C extends Component, R extends Trait, U = never, I = TraitObserverType<R>> = {extends: ComponentTraitClass | undefined} & ComponentTraitDescriptor<C, R, U, I>;
-
-export type ComponentTraitDescriptorFromAny<C extends Component, R extends Trait, U = never, I = TraitObserverType<R>> = ({type: FromAny<R, U>} | {fromAny(value: R | U): R | null}) & ComponentTraitDescriptor<C, R, U, I>;
-
-export interface ComponentTraitConstructor<C extends Component, R extends Trait, U = never, I = TraitObserverType<R>> {
+export interface ComponentTraitConstructor<C extends Component, R extends Trait, U = never, I = {}> {
   new(owner: C, traitName: string | undefined): ComponentTrait<C, R, U> & I;
   prototype: ComponentTrait<any, any> & I;
 }
@@ -66,6 +63,12 @@ export interface ComponentTrait<C extends Component, R extends Trait, U = never>
   setTrait(newTrait: R | U | null, targetTrait?: Trait | null): R | null;
 
   /** @hidden */
+  attachTrait(newTrait: R): void;
+
+  /** @hidden */
+  detachTrait(oldTrait: R): void;
+
+  /** @hidden */
   willSetTrait(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
 
   /** @hidden */
@@ -74,29 +77,14 @@ export interface ComponentTrait<C extends Component, R extends Trait, U = never>
   /** @hidden */
   didSetTrait(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
 
-  /** @hidden */
-  willSetOwnTrait(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
-
-  /** @hidden */
-  onSetOwnTrait(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
-
-  /** @hidden */
-  didSetOwnTrait(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
-
-  /** @hidden */
-  mount(): void;
-
-  /** @hidden */
-  unmount(): void;
-
-  insert(model: Model, trait?: R | U | null, targetTrait?: Trait | null, key?: string | null): R | null;
-
-  remove(): R | null;
+  injectTrait(model: Model, trait?: R | U | null, targetTrait?: Trait | null, key?: string | null): R | null;
 
   createTrait(): R | U | null;
 
   /** @hidden */
   insertTrait(model: Model, trait: R, targetTrait: Trait | null, key: string | undefined): void;
+
+  removeTrait(): R | null;
 
   /** @hidden */
   observe?: boolean;
@@ -105,6 +93,12 @@ export interface ComponentTrait<C extends Component, R extends Trait, U = never>
   readonly type?: unknown;
 
   fromAny(value: R | U): R | null;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 }
 
 export const ComponentTrait = function <C extends Component, R extends Trait, U>(
@@ -121,13 +115,15 @@ export const ComponentTrait = function <C extends Component, R extends Trait, U>
   /** @hidden */
   new<C extends Component, R extends Trait, U = never>(owner: C, traitName: string | undefined): ComponentTrait<C, R, U>;
 
-  <C extends Component, R extends Trait = Trait, U = never, I = TraitObserverType<R>>(descriptor: ComponentTraitDescriptorExtends<C, R, U, I>): PropertyDecorator;
+  <C extends Component, R extends Trait = Trait, U = never, I = TraitObserverType<R>>(descriptor: {extends: ComponentTraitClass | undefined} & ComponentTraitDescriptor<C, R, U, I>): PropertyDecorator;
+  <C extends Component, R extends Trait = Trait, U = never>(descriptor: {observe: boolean} & ComponentTraitDescriptor<C, R, U, TraitObserverType<R>>): PropertyDecorator;
   <C extends Component, R extends Trait = Trait, U = never>(descriptor: ComponentTraitDescriptor<C, R, U>): PropertyDecorator;
 
   /** @hidden */
   prototype: ComponentTrait<any, any>;
 
-  define<C extends Component, R extends Trait = Trait, U = never, I = TraitObserverType<R>>(descriptor: ComponentTraitDescriptorExtends<C, R, U, I>): ComponentTraitConstructor<C, R, U, I>;
+  define<C extends Component, R extends Trait = Trait, U = never, I = TraitObserverType<R>>(descriptor: {extends: ComponentTraitClass | undefined} & ComponentTraitDescriptor<C, R, U, I>): ComponentTraitConstructor<C, R, U, I>;
+  define<C extends Component, R extends Trait = Trait, U = never>(descriptor: {observe: boolean} & ComponentTraitDescriptor<C, R, U, TraitObserverType<R>>): ComponentTraitConstructor<C, R, U>;
   define<C extends Component, R extends Trait = Trait, U = never>(descriptor: ComponentTraitDescriptor<C, R, U>): ComponentTraitConstructor<C, R, U>;
 };
 __extends(ComponentTrait, Object);
@@ -173,19 +169,34 @@ ComponentTrait.prototype.setTrait = function <R extends Trait>(this: ComponentTr
     if (targetTrait === void 0) {
       targetTrait = null;
     }
-    this.willSetOwnTrait(newTrait, oldTrait, targetTrait);
     this.willSetTrait(newTrait, oldTrait, targetTrait);
+    if (oldTrait !== null) {
+      this.detachTrait(oldTrait);
+    }
     Object.defineProperty(this, "trait", {
       value: newTrait,
       enumerable: true,
       configurable: true,
     });
-    this.onSetOwnTrait(newTrait, oldTrait, targetTrait);
+    if (newTrait !== null) {
+      this.attachTrait(newTrait);
+    }
     this.onSetTrait(newTrait, oldTrait, targetTrait);
     this.didSetTrait(newTrait, oldTrait, targetTrait);
-    this.didSetOwnTrait(newTrait, oldTrait, targetTrait);
   }
   return oldTrait;
+};
+
+ComponentTrait.prototype.attachTrait = function <R extends Trait>(this: ComponentTrait<Component, R>, newTrait: R): void {
+  if (this.observe === true && this.owner.isMounted()) {
+    newTrait.addTraitObserver(this as TraitObserverType<R>);
+  }
+};
+
+ComponentTrait.prototype.detachTrait = function <R extends Trait>(this: ComponentTrait<Component, R>, oldTrait: R): void {
+  if (this.observe === true && this.owner.isMounted()) {
+    oldTrait.removeTraitObserver(this as TraitObserverType<R>);
+  }
 };
 
 ComponentTrait.prototype.willSetTrait = function <R extends Trait>(this: ComponentTrait<Component, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void {
@@ -200,41 +211,7 @@ ComponentTrait.prototype.didSetTrait = function <R extends Trait>(this: Componen
   // hook
 };
 
-ComponentTrait.prototype.willSetOwnTrait = function <R extends Trait>(this: ComponentTrait<Component, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void {
-  this.owner.willSetComponentTrait(this, newTrait, oldTrait, targetTrait);
-};
-
-ComponentTrait.prototype.onSetOwnTrait = function <R extends Trait>(this: ComponentTrait<Component, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void {
-  this.owner.onSetComponentTrait(this, newTrait, oldTrait, targetTrait);
-  if (this.observe === true && this.owner.isMounted()) {
-    if (oldTrait !== null) {
-      oldTrait.removeTraitObserver(this as TraitObserverType<R>);
-    }
-    if (newTrait !== null) {
-      newTrait.addTraitObserver(this as TraitObserverType<R>);
-    }
-  }
-};
-
-ComponentTrait.prototype.didSetOwnTrait = function <R extends Trait>(this: ComponentTrait<Component, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void {
-  this.owner.didSetComponentTrait(this, newTrait, oldTrait, targetTrait);
-};
-
-ComponentTrait.prototype.mount = function <R extends Trait>(this: ComponentTrait<Component, R>): void {
-  const trait = this.trait;
-  if (trait !== null && this.observe === true) {
-    trait.addTraitObserver(this as TraitObserverType<R>);
-  }
-};
-
-ComponentTrait.prototype.unmount = function <R extends Trait>(this: ComponentTrait<Component, R>): void {
-  const trait = this.trait;
-  if (trait !== null && this.observe === true) {
-    trait.removeTraitObserver(this as TraitObserverType<R>);
-  }
-};
-
-ComponentTrait.prototype.insert = function <R extends Trait>(this: ComponentTrait<Component, R>, model: Model, trait?: R | null, targetTrait?: Trait | null, key?: string | null): R | null {
+ComponentTrait.prototype.injectTrait = function <R extends Trait>(this: ComponentTrait<Component, R>, model: Model, trait?: R | null, targetTrait?: Trait | null, key?: string | null): R | null {
   if (targetTrait === void 0) {
     targetTrait = null;
   }
@@ -265,14 +242,6 @@ ComponentTrait.prototype.insert = function <R extends Trait>(this: ComponentTrai
   return trait;
 };
 
-ComponentTrait.prototype.remove = function <R extends Trait>(this: ComponentTrait<Component, R>): R | null {
-  const trait = this.trait;
-  if (trait !== null) {
-    trait.remove();
-  }
-  return trait;
-};
-
 ComponentTrait.prototype.createTrait = function <R extends Trait, U>(this: ComponentTrait<Component, R, U>): R | U | null {
   return null;
 };
@@ -281,8 +250,36 @@ ComponentTrait.prototype.insertTrait = function <R extends Trait>(this: Componen
   model.insertTrait(trait, targetTrait, key);
 };
 
+ComponentTrait.prototype.removeTrait = function <R extends Trait>(this: ComponentTrait<Component, R>): R | null {
+  const trait = this.trait;
+  if (trait !== null) {
+    trait.remove();
+  }
+  return trait;
+};
+
 ComponentTrait.prototype.fromAny = function <R extends Trait, U>(this: ComponentTrait<Component, R, U>, value: R | U): R | null {
-  return value as R | null;
+  const type = this.type;
+  if (FromAny.is<R, U>(type)) {
+    return type.fromAny(value);
+  } else if (value instanceof Trait) {
+    return value;
+  }
+  return null;
+};
+
+ComponentTrait.prototype.mount = function <R extends Trait>(this: ComponentTrait<Component, R>): void {
+  const trait = this.trait;
+  if (trait !== null && this.observe === true) {
+    trait.addTraitObserver(this as TraitObserverType<R>);
+  }
+};
+
+ComponentTrait.prototype.unmount = function <R extends Trait>(this: ComponentTrait<Component, R>): void {
+  const trait = this.trait;
+  if (trait !== null && this.observe === true) {
+    trait.removeTraitObserver(this as TraitObserverType<R>);
+  }
 };
 
 ComponentTrait.define = function <C extends Component, R extends Trait, U, I>(descriptor: ComponentTraitDescriptor<C, R, U, I>): ComponentTraitConstructor<C, R, U, I> {
@@ -312,10 +309,6 @@ ComponentTrait.define = function <C extends Component, R extends Trait, U, I>(de
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
-
-  if (_prototype.observe === void 0) {
-    _prototype.observe = true;
-  }
 
   return _constructor;
 };

@@ -14,7 +14,7 @@
 
 import {Equals} from "@swim/util";
 import type {GraphicsView} from "@swim/graphics";
-import {TraitModelType, Trait, TraitFastener, GenericTrait} from "@swim/model";
+import {Model, TraitModelType, Trait, TraitFastener, GenericTrait} from "@swim/model";
 import {SliceTrait} from "./SliceTrait";
 import type {PieTraitObserver} from "./PieTraitObserver";
 
@@ -54,8 +54,8 @@ export class PieTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.pieWillSetTitle !== void 0) {
-        traitObserver.pieWillSetTitle(newTitle, oldTitle, this);
+      if (traitObserver.pieTraitWillSetTitle !== void 0) {
+        traitObserver.pieTraitWillSetTitle(newTitle, oldTitle, this);
       }
     }
   }
@@ -68,23 +68,21 @@ export class PieTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.pieDidSetTitle !== void 0) {
-        traitObserver.pieDidSetTitle(newTitle, oldTitle, this);
+      if (traitObserver.pieTraitDidSetTitle !== void 0) {
+        traitObserver.pieTraitDidSetTitle(newTitle, oldTitle, this);
       }
     }
   }
 
   insertSlice(sliceTrait: SliceTrait, targetTrait: Trait | null = null): void {
     const sliceFasteners = this.sliceFasteners as TraitFastener<this, SliceTrait>[];
-    let targetIndex = sliceFasteners.length;
-    if (targetTrait !== null) {
-      for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
-        const sliceFastener = sliceFasteners[i]!;
-        if (sliceFastener.trait === sliceTrait) {
-          return;
-        } else if (sliceFastener.trait === targetTrait) {
-          targetIndex = i;
-        }
+    let targetIndex = -1;
+    for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
+      const sliceFastener = sliceFasteners[i]!;
+      if (sliceFastener.trait === sliceTrait) {
+        return;
+      } else if (sliceFastener.trait === targetTrait) {
+        targetIndex = i;
       }
     }
     const sliceFastener = this.createSliceFastener(sliceTrait);
@@ -114,12 +112,17 @@ export class PieTrait extends GenericTrait {
   static SliceFastener = TraitFastener.define<PieTrait, SliceTrait>({
     type: SliceTrait,
     sibling: false,
-    observe: false,
     willSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
       this.owner.willSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
     },
     onSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
+      if (oldSliceTrait !== null) {
+        this.owner.detachSlice(oldSliceTrait, this);
+      }
       this.owner.onSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
+      if (newSliceTrait !== null) {
+        this.owner.attachSlice(newSliceTrait, this);
+      }
     },
     didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
       this.owner.didSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
@@ -133,13 +136,25 @@ export class PieTrait extends GenericTrait {
   /** @hidden */
   declare readonly sliceFasteners: ReadonlyArray<TraitFastener<this, SliceTrait>>;
 
+  protected attachSlice(sliceTrait: SliceTrait, sliceFastener: TraitFastener<this, SliceTrait>): void {
+    if (this.isConsuming()) {
+      sliceTrait.addTraitConsumer(this);
+    }
+  }
+
+  protected detachSlice(sliceTrait: SliceTrait, sliceFastener: TraitFastener<this, SliceTrait>): void {
+    if (this.isConsuming()) {
+      sliceTrait.removeTraitConsumer(this);
+    }
+  }
+
   protected willSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null,
                          targetTrait: Trait | null, sliceFastener: TraitFastener<this, SliceTrait>): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.pieWillSetSlice !== void 0) {
-        traitObserver.pieWillSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
+      if (traitObserver.pieTraitWillSetSlice !== void 0) {
+        traitObserver.pieTraitWillSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
       }
     }
   }
@@ -154,8 +169,8 @@ export class PieTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.pieDidSetSlice !== void 0) {
-        traitObserver.pieDidSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
+      if (traitObserver.pieTraitDidSetSlice !== void 0) {
+        traitObserver.pieTraitDidSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
       }
     }
   }
@@ -179,32 +194,48 @@ export class PieTrait extends GenericTrait {
   }
 
   /** @hidden */
-  get autoSlice(): boolean {
-    return true;
-  }
-
-  protected detectSlices(model: TraitModelType<this>): void {
-    if (this.autoSlice) {
-      const traits = model.traits;
-      for (let i = 0, n = traits.length; i < n; i += 1) {
-        const trait = traits[i]!;
-        if (trait instanceof SliceTrait) {
-          this.insertSlice(trait);
-        }
+  protected startConsumingSlices(): void {
+    const sliceFasteners = this.sliceFasteners;
+    for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
+      const sliceTrait = sliceFasteners[i]!.trait;
+      if (sliceTrait !== null) {
+        sliceTrait.addTraitConsumer(this);
       }
     }
   }
 
-  protected onInsertSlice(sliceTrait: SliceTrait, targetTrait: Trait | null): void {
-    if (this.autoSlice) {
-      this.insertSlice(sliceTrait, targetTrait);
+  /** @hidden */
+  protected stopConsumingSlices(): void {
+    const sliceFasteners = this.sliceFasteners;
+    for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
+      const sliceTrait = sliceFasteners[i]!.trait;
+      if (sliceTrait !== null) {
+        sliceTrait.removeTraitConsumer(this);
+      }
     }
   }
 
-  protected onRemoveSlice(sliceTrait: SliceTrait): void {
-    if (this.autoSlice) {
-      this.removeSlice(sliceTrait);
+  protected detectSlices(model: TraitModelType<this>): void {
+    const childModels = model.childModels;
+    for (let i = 0, n = childModels.length; i < n; i += 1) {
+      const childModel = childModels[i]!;
+      const sliceTrait = this.detectSlice(childModel);
+      if (sliceTrait !== null) {
+        this.insertSlice(sliceTrait);
+      }
     }
+  }
+
+  protected detectSlice(model: Model): SliceTrait | null {
+    return model.getTrait(SliceTrait);
+  }
+
+  protected onInsertSlice(sliceTrait: SliceTrait, targetTrait: Trait | null): void {
+    this.insertSlice(sliceTrait, targetTrait);
+  }
+
+  protected onRemoveSlice(sliceTrait: SliceTrait): void {
+    this.removeSlice(sliceTrait);
   }
 
   protected didSetModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null): void {
@@ -214,17 +245,20 @@ export class PieTrait extends GenericTrait {
     super.didSetModel(newModel, oldModel);
   }
 
-  protected onInsertTrait(trait: Trait, targetTrait: Trait | null): void {
-    super.onInsertTrait(trait, targetTrait);
-    if (trait instanceof SliceTrait) {
-      this.onInsertSlice(trait, targetTrait);
+  protected onInsertChildModel(childModel: Model, targetModel: Model | null): void {
+    super.onInsertChildModel(childModel, targetModel);
+    const sliceTrait = this.detectSlice(childModel);
+    if (sliceTrait !== null) {
+      const targetTrait = targetModel !== null ? this.detectSlice(targetModel) : null;
+      this.onInsertSlice(sliceTrait, targetTrait);
     }
   }
 
-  protected onRemoveTrait(trait: Trait): void {
-    super.onRemoveTrait(trait);
-    if (trait instanceof SliceTrait) {
-      this.onRemoveSlice(trait);
+  protected onRemoveChildModel(childModel: Model): void {
+    super.onRemoveChildModel(childModel);
+    const sliceTrait = this.detectSlice(childModel);
+    if (sliceTrait !== null) {
+      this.onRemoveSlice(sliceTrait);
     }
   }
 
@@ -238,5 +272,15 @@ export class PieTrait extends GenericTrait {
   protected unmountTraitFasteners(): void {
     this.unmountSliceFasteners();
     super.unmountTraitFasteners();
+  }
+
+  protected onStartConsuming(): void {
+    super.onStartConsuming();
+    this.startConsumingSlices();
+  }
+
+  protected onStopConsuming(): void {
+    super.onStopConsuming();
+    this.stopConsumingSlices();
   }
 }

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import type {FromAny} from "@swim/util";
+import {FromAny} from "@swim/util";
 import {Model} from "../Model";
 import type {ModelObserverType} from "../ModelObserver";
 
@@ -32,18 +32,15 @@ export interface ModelFastenerInit<S extends Model, U = never> {
   willSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
   onSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
   didSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
+
   createModel?(): S | U | null;
   insertModel?(parentModel: Model, childModel: S, targetModel: Model | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
 }
 
-export type ModelFastenerDescriptor<M extends Model, S extends Model, U = never, I = ModelObserverType<S>> = ModelFastenerInit<S, U> & ThisType<ModelFastener<M, S, U> & I> & I;
+export type ModelFastenerDescriptor<M extends Model, S extends Model, U = never, I = {}> = ModelFastenerInit<S, U> & ThisType<ModelFastener<M, S, U> & I> & I;
 
-export type ModelFastenerDescriptorExtends<M extends Model, S extends Model, U = never, I = ModelObserverType<S>> = {extends: ModelFastenerClass | undefined} & ModelFastenerDescriptor<M, S, U, I>;
-
-export type ModelFastenerDescriptorFromAny<M extends Model, S extends Model, U = never, I = ModelObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ModelFastenerDescriptor<M, S, U, I>;
-
-export interface ModelFastenerConstructor<M extends Model, S extends Model, U = never, I = ModelObserverType<S>> {
+export interface ModelFastenerConstructor<M extends Model, S extends Model, U = never, I = {}> {
   new(owner: M, fastenerName: string | undefined): ModelFastener<M, S, U> & I;
   prototype: ModelFastener<any, any> & I;
 }
@@ -70,6 +67,12 @@ export interface ModelFastener<M extends Model, S extends Model, U = never> {
   doSetModel(newModel: S | null, targetModel: Model | null): void;
 
   /** @hidden */
+  attachModel(newModel: S): void;
+
+  /** @hidden */
+  detachModel(oldModel: S): void;
+
+  /** @hidden */
   willSetModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
 
   /** @hidden */
@@ -78,29 +81,14 @@ export interface ModelFastener<M extends Model, S extends Model, U = never> {
   /** @hidden */
   didSetModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
 
-  /** @hidden */
-  willSetOwnModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
-
-  /** @hidden */
-  onSetOwnModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
-
-  /** @hidden */
-  didSetOwnModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
-
-  /** @hidden */
-  mount(): void;
-
-  /** @hidden */
-  unmount(): void;
-
-  insert(parentModel?: Model | null, childModel?: S | U | null, targetModel?: Model | null, key?: string | null): S | null;
-
-  remove(): S | null;
+  injectModel(parentModel?: Model | null, childModel?: S | U | null, targetModel?: Model | null, key?: string | null): S | null;
 
   createModel(): S | U | null;
 
   /** @hidden */
   insertModel(parentModel: Model, childModel: S, targetModel: Model | null, key: string | undefined): void;
+
+  removeModel(): S | null;
 
   /** @hidden */
   observe?: boolean;
@@ -112,6 +100,12 @@ export interface ModelFastener<M extends Model, S extends Model, U = never> {
   readonly type?: unknown;
 
   fromAny(value: S | U): S | null;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 }
 
 export const ModelFastener = function <M extends Model, S extends Model, U>(
@@ -128,13 +122,15 @@ export const ModelFastener = function <M extends Model, S extends Model, U>(
   /** @hidden */
   new<M extends Model, S extends Model, U = never>(owner: M, fastenerName: string | undefined): ModelFastener<M, S, U>;
 
-  <M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: ModelFastenerDescriptorExtends<M, S, U, I>): PropertyDecorator;
+  <M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: {extends: ModelFastenerClass | undefined} & ModelFastenerDescriptor<M, S, U, I>): PropertyDecorator;
+  <M extends Model, S extends Model = Model, U = never>(descriptor: {observe: boolean} & ModelFastenerDescriptor<M, S, U, ModelObserverType<S>>): PropertyDecorator;
   <M extends Model, S extends Model = Model, U = never>(descriptor: ModelFastenerDescriptor<M, S, U>): PropertyDecorator;
 
   /** @hidden */
   prototype: ModelFastener<any, any>;
 
-  define<M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: ModelFastenerDescriptorExtends<M, S, U, I>): ModelFastenerConstructor<M, S, U>;
+  define<M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: {extends: ModelFastenerClass | undefined} & ModelFastenerDescriptor<M, S, U, I>): ModelFastenerConstructor<M, S, U>;
+  define<M extends Model, S extends Model = Model, U = never>(descriptor: {observe: boolean} & ModelFastenerDescriptor<M, S, U, ModelObserverType<S>>): ModelFastenerConstructor<M, S, U>;
   define<M extends Model, S extends Model = Model, U = never>(descriptor: ModelFastenerDescriptor<M, S, U>): ModelFastenerConstructor<M, S, U>;
 };
 __extends(ModelFastener, Object);
@@ -194,17 +190,32 @@ ModelFastener.prototype.setModel = function <S extends Model>(this: ModelFastene
 ModelFastener.prototype.doSetModel = function <S extends Model>(this: ModelFastener<Model, S>, newModel: S | null, targetModel: Model | null): void {
   const oldModel = this.model;
   if (oldModel !== newModel) {
-    this.willSetOwnModel(newModel, oldModel, targetModel);
     this.willSetModel(newModel, oldModel, targetModel);
+    if (oldModel !== null) {
+      this.detachModel(oldModel);
+    }
     Object.defineProperty(this, "model", {
       value: newModel,
       enumerable: true,
       configurable: true,
     });
-    this.onSetOwnModel(newModel, oldModel, targetModel);
+    if (newModel !== null) {
+      this.attachModel(newModel);
+    }
     this.onSetModel(newModel, oldModel, targetModel);
     this.didSetModel(newModel, oldModel, targetModel);
-    this.didSetOwnModel(newModel, oldModel, targetModel);
+  }
+};
+
+ModelFastener.prototype.attachModel = function <S extends Model>(this: ModelFastener<Model, S>, newModel: S): void {
+  if (this.observe === true && this.owner.isMounted()) {
+    newModel.addModelObserver(this as ModelObserverType<S>);
+  }
+};
+
+ModelFastener.prototype.detachModel = function <S extends Model>(this: ModelFastener<Model, S>, oldModel: S): void {
+  if (this.observe === true && this.owner.isMounted()) {
+    oldModel.removeModelObserver(this as ModelObserverType<S>);
   }
 };
 
@@ -220,40 +231,7 @@ ModelFastener.prototype.didSetModel = function <S extends Model>(this: ModelFast
   // hook
 };
 
-ModelFastener.prototype.willSetOwnModel = function <S extends Model>(this: ModelFastener<Model, S>, newModel: S | null, oldModel: S | null, targetModel: Model | null): void {
-  // hook
-};
-
-ModelFastener.prototype.onSetOwnModel = function <S extends Model>(this: ModelFastener<Model, S>, newModel: S | null, oldModel: S | null, targetModel: Model | null): void {
-  if (this.observe === true && this.owner.isMounted()) {
-    if (oldModel !== null) {
-      oldModel.removeModelObserver(this as ModelObserverType<S>);
-    }
-    if (newModel !== null) {
-      newModel.addModelObserver(this as ModelObserverType<S>);
-    }
-  }
-};
-
-ModelFastener.prototype.didSetOwnModel = function <S extends Model>(this: ModelFastener<Model, S>, newModel: S | null, oldModel: S | null, targetModel: Model | null): void {
-  // hook
-};
-
-ModelFastener.prototype.mount = function <S extends Model>(this: ModelFastener<Model, S>): void {
-  const model = this.model;
-  if (model !== null && this.observe === true) {
-    model.addModelObserver(this as ModelObserverType<S>);
-  }
-};
-
-ModelFastener.prototype.unmount = function <S extends Model>(this: ModelFastener<Model, S>): void {
-  const model = this.model;
-  if (model !== null && this.observe === true) {
-    model.removeModelObserver(this as ModelObserverType<S>);
-  }
-};
-
-ModelFastener.prototype.insert = function <S extends Model>(this: ModelFastener<Model, S>, parentModel?: Model | null, childModel?: S | null, targetModel?: Model | null, key?: string | null): S | null {
+ModelFastener.prototype.injectModel = function <S extends Model>(this: ModelFastener<Model, S>, parentModel?: Model | null, childModel?: S | null, targetModel?: Model | null, key?: string | null): S | null {
   if (targetModel === void 0) {
     targetModel = null;
   }
@@ -287,14 +265,6 @@ ModelFastener.prototype.insert = function <S extends Model>(this: ModelFastener<
   return childModel;
 };
 
-ModelFastener.prototype.remove = function <S extends Model>(this: ModelFastener<Model, S>): S | null {
-  const childModel = this.model;
-  if (childModel !== null) {
-    childModel.remove();
-  }
-  return childModel;
-};
-
 ModelFastener.prototype.createModel = function <S extends Model, U>(this: ModelFastener<Model, S, U>): S | U | null {
   return null;
 };
@@ -303,8 +273,36 @@ ModelFastener.prototype.insertModel = function <S extends Model>(this: ModelFast
   parentModel.insertChildModel(childModel, targetModel, key);
 };
 
+ModelFastener.prototype.removeModel = function <S extends Model>(this: ModelFastener<Model, S>): S | null {
+  const childModel = this.model;
+  if (childModel !== null) {
+    childModel.remove();
+  }
+  return childModel;
+};
+
 ModelFastener.prototype.fromAny = function <S extends Model, U>(this: ModelFastener<Model, S, U>, value: S | U): S | null {
-  return value as S | null;
+  const type = this.type;
+  if (FromAny.is<S, U>(type)) {
+    return type.fromAny(value);
+  } else if (value instanceof Model) {
+    return value;
+  }
+  return null;
+};
+
+ModelFastener.prototype.mount = function <S extends Model>(this: ModelFastener<Model, S>): void {
+  const model = this.model;
+  if (model !== null && this.observe === true) {
+    model.addModelObserver(this as ModelObserverType<S>);
+  }
+};
+
+ModelFastener.prototype.unmount = function <S extends Model>(this: ModelFastener<Model, S>): void {
+  const model = this.model;
+  if (model !== null && this.observe === true) {
+    model.removeModelObserver(this as ModelObserverType<S>);
+  }
 };
 
 ModelFastener.define = function <M extends Model, S extends Model, U, I>(descriptor: ModelFastenerDescriptor<M, S, U, I>): ModelFastenerConstructor<M, S, U, I> {
@@ -335,9 +333,6 @@ ModelFastener.define = function <M extends Model, S extends Model, U, I>(descrip
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
 
-  if (_prototype.observe === void 0) {
-    _prototype.observe = true;
-  }
   if (_prototype.child === void 0) {
     _prototype.child = true;
   }

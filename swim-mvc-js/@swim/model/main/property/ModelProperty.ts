@@ -171,18 +171,18 @@ export interface ModelProperty<M extends Model, T, U = never> {
   /** @hidden */
   mutate(): void;
 
-  /** @hidden */
-  mount(): void;
-
-  /** @hidden */
-  unmount(): void;
-
   updateFlags?: ModelFlags;
 
   fromAny(value: T | U): T;
 
   /** @hidden */
   initState?(): T | U;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 }
 
 export const ModelProperty = function <M extends Model, T, U>(
@@ -687,16 +687,16 @@ ModelProperty.prototype.mutate = function (this: ModelProperty<Model, unknown>):
   this.owner.requireUpdate(Model.NeedsMutate);
 };
 
+ModelProperty.prototype.fromAny = function <T, U>(this: ModelProperty<Model, T, U>, value: T | U): T {
+  return value as T;
+};
+
 ModelProperty.prototype.mount = function (this: ModelProperty<Model, unknown>): void {
   this.bindSuperProperty();
 };
 
 ModelProperty.prototype.unmount = function (this: ModelProperty<Model, unknown>): void {
   this.unbindSuperProperty();
-};
-
-ModelProperty.prototype.fromAny = function <T, U>(this: ModelProperty<Model, T, U>, value: T | U): T {
-  return value as T;
 };
 
 ModelProperty.getClass = function (type: unknown): ModelPropertyClass | null {

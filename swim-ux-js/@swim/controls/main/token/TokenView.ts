@@ -64,7 +64,7 @@ export class TokenView extends HtmlView {
     this.height.setAutoState(32);
     this.boxSizing.setAutoState("content-box");
     this.userSelect.setAutoState("none");
-    this.shape.insert();
+    this.shape.injectView();
   }
 
   declare readonly viewController: TokenViewController | null;
@@ -81,10 +81,10 @@ export class TokenView extends HtmlView {
     shapeView.setStyle("top", "0");
     shapeView.setStyle("left", "0");
 
-    this.head.insert(shapeView);
+    this.head.injectView(shapeView);
     this.headIcon.setView(this.headIcon.createView());
-    this.body.insert(shapeView);
-    this.foot.insert(shapeView);
+    this.body.injectView(shapeView);
+    this.foot.injectView(shapeView);
     this.footIcon.setView(this.footIcon.createView());
   }
 
@@ -223,8 +223,9 @@ export class TokenView extends HtmlView {
 
   @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
-    child: false,
     type: SvgView.path,
+    child: false,
+    observe: true,
     onSetView(headView: SvgView | null): void {
       if (headView !== null) {
         this.owner.initHead(headView);
@@ -296,8 +297,8 @@ export class TokenView extends HtmlView {
   /** @hidden */
   @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
-    child: false,
     type: SvgView.path,
+    child: false,
     onSetView(headIconView: SvgView | null): void {
       if (headIconView !== null) {
         this.owner.initHeadIcon(headIconView);
@@ -323,8 +324,9 @@ export class TokenView extends HtmlView {
 
   @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
-    child: false,
     type: SvgView.path,
+    child: false,
+    observe: true,
     onSetView(bodyView: SvgView | null): void {
       if (bodyView !== null) {
         this.owner.initBody(bodyView);
@@ -392,8 +394,9 @@ export class TokenView extends HtmlView {
 
   @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
-    child: false,
     type: SvgView.path,
+    child: false,
+    observe: true,
     onSetView(footView: SvgView | null): void {
       if (footView !== null) {
         this.owner.initFoot(footView);
@@ -465,8 +468,8 @@ export class TokenView extends HtmlView {
   /** @hidden */
   @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
-    child: false,
     type: SvgView.path,
+    child: false,
     onSetView(footIconView: SvgView | null): void {
       if (footIconView !== null) {
         this.owner.initFootIcon(footIconView);
@@ -506,7 +509,7 @@ export class TokenView extends HtmlView {
     onSetView(labelView: HtmlView | null): void {
       if (labelView !== null) {
         if (labelView.parentView === null) {
-          this.owner.labelContainer.insert();
+          this.owner.labelContainer.injectView();
           const labelContainer = this.owner.labelContainer.view;
           if (labelContainer !== null) {
             labelContainer.appendChildView(labelView);
@@ -605,7 +608,7 @@ export class TokenView extends HtmlView {
         const renderer = new PathRenderer(context);
         const frame = new BoxR2(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
         icon.render(renderer, frame);
-        this.headIcon.remove();
+        this.headIcon.removeView();
       }
       headView.d.setAutoState(context.toString());
     }
@@ -618,9 +621,9 @@ export class TokenView extends HtmlView {
         const frame = new BoxR2(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
         icon.render(renderer, frame);
         headIconView.d.setAutoState(context.toString());
-        this.headIcon.insert();
+        this.headIcon.injectView();
       } else {
-        this.headIcon.remove();
+        this.headIcon.removeView();
       }
     }
 
@@ -650,7 +653,7 @@ export class TokenView extends HtmlView {
           const renderer = new PathRenderer(context);
           const frame = new BoxR2(paddingLeft + bodyRight + gap, paddingTop, paddingLeft + bodyRight + gap + 2 * radius, paddingTop + 2 * radius);
           accessoryIcon.render(renderer, frame);
-          this.headIcon.remove();
+          this.headIcon.removeView();
         }
       }
       footView.d.setAutoState(context.toString());
@@ -666,9 +669,9 @@ export class TokenView extends HtmlView {
           accessoryIcon.render(renderer, frame);
         }
         footIconView.d.setAutoState(context.toString());
-        this.footIcon.insert();
+        this.footIcon.injectView();
       } else {
-        this.footIcon.remove();
+        this.footIcon.removeView();
       }
     }
   }

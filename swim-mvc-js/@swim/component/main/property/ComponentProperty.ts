@@ -159,18 +159,18 @@ export interface ComponentProperty<C extends Component, T, U = never> {
   /** @hidden */
   revise(): void;
 
-  /** @hidden */
-  mount(): void;
-
-  /** @hidden */
-  unmount(): void;
-
   updateFlags?: ComponentFlags;
 
   fromAny(value: T | U): T;
 
   /** @hidden */
   initState?(): T | U;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 }
 
 export const ComponentProperty = function <C extends Component, T, U>(
@@ -579,16 +579,16 @@ ComponentProperty.prototype.revise = function (this: ComponentProperty<Component
   this.owner.requireUpdate(Component.NeedsRevise);
 };
 
+ComponentProperty.prototype.fromAny = function <T, U>(this: ComponentProperty<Component, T, U>, value: T | U): T {
+  return value as T;
+};
+
 ComponentProperty.prototype.mount = function (this: ComponentProperty<Component, unknown>): void {
   this.bindSuperProperty();
 };
 
 ComponentProperty.prototype.unmount = function (this: ComponentProperty<Component, unknown>): void {
   this.unbindSuperProperty();
-};
-
-ComponentProperty.prototype.fromAny = function <T, U>(this: ComponentProperty<Component, T, U>, value: T | U): T {
-  return value as T;
 };
 
 ComponentProperty.getConstructor = function (type: unknown): ComponentPropertyClass | null {

@@ -155,6 +155,13 @@ export interface ViewProperty<V extends View, T, U = never> {
   /** @hidden */
   change(): void;
 
+  updateFlags?: ViewFlags;
+
+  fromAny(value: T | U): T;
+
+  /** @hidden */
+  initState?(): T | U;
+
   isMounted(): boolean;
 
   /** @hidden */
@@ -182,13 +189,6 @@ export interface ViewProperty<V extends View, T, U = never> {
   didUnmount(): void;
 
   toString(): string;
-
-  updateFlags?: ViewFlags;
-
-  fromAny(value: T | U): T;
-
-  /** @hidden */
-  initState?(): T | U;
 }
 
 export const ViewProperty = function <V extends View, T, U>(
@@ -603,6 +603,10 @@ ViewProperty.prototype.change = function (this: ViewProperty<View, unknown>): vo
   this.owner.requireUpdate(View.NeedsChange);
 };
 
+ViewProperty.prototype.fromAny = function <T, U>(this: ViewProperty<View, T, U>, value: T | U): T {
+  return value as T;
+};
+
 ViewProperty.prototype.isMounted = function (this: ViewProperty<View, unknown>): boolean {
   return (this.propertyFlags & ViewProperty.MountedFlag) !== 0;
 };
@@ -651,10 +655,6 @@ ViewProperty.prototype.didUnmount = function (this: ViewProperty<View, unknown>)
 
 ViewProperty.prototype.toString = function (this: ViewProperty<View, unknown>): string {
   return this.name;
-};
-
-ViewProperty.prototype.fromAny = function <T, U>(this: ViewProperty<View, T, U>, value: T | U): T {
-  return value as T;
 };
 
 ViewProperty.getClass = function (type: unknown): ViewPropertyClass | null {

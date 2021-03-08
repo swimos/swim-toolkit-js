@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import type {FromAny} from "@swim/util";
+import {FromAny} from "@swim/util";
 import {Component} from "../Component";
 import type {ComponentObserverType} from "../ComponentObserver";
 
@@ -32,18 +32,15 @@ export interface ComponentFastenerInit<S extends Component, U = never> {
   willSetComponent?(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
   onSetComponent?(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
   didSetComponent?(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
+
   createComponent?(): S | U | null;
   insertComponent?(parentComponent: Component, childComponent: S, targetComponent: Component | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
 }
 
-export type ComponentFastenerDescriptor<C extends Component, S extends Component, U = never, I = ComponentObserverType<S>> = ComponentFastenerInit<S, U> & ThisType<ComponentFastener<C, S, U> & I> & I;
+export type ComponentFastenerDescriptor<C extends Component, S extends Component, U = never, I = {}> = ComponentFastenerInit<S, U> & ThisType<ComponentFastener<C, S, U> & I> & I;
 
-export type ComponentFastenerDescriptorExtends<C extends Component, S extends Component, U = never, I = ComponentObserverType<S>> = {extends: ComponentFastenerClass | undefined} & ComponentFastenerDescriptor<C, S, U, I>;
-
-export type ComponentFastenerDescriptorFromAny<C extends Component, S extends Component, U = never, I = ComponentObserverType<S>> = ({type: FromAny<S, U>} | {fromAny(value: S | U): S | null}) & ComponentFastenerDescriptor<C, S, U, I>;
-
-export interface ComponentFastenerConstructor<C extends Component, S extends Component, U = never, I = ComponentObserverType<S>> {
+export interface ComponentFastenerConstructor<C extends Component, S extends Component, U = never, I = {}> {
   new(owner: C, fastenerName: string | undefined): ComponentFastener<C, S, U> & I;
   prototype: ComponentFastener<any, any> & I;
 }
@@ -70,6 +67,12 @@ export interface ComponentFastener<C extends Component, S extends Component, U =
   doSetComponent(newComponent: S | null, targetComponent: Component | null): void;
 
   /** @hidden */
+  attachComponent(newComponent: S): void;
+
+  /** @hidden */
+  detachComponent(oldComponent: S): void;
+
+  /** @hidden */
   willSetComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
 
   /** @hidden */
@@ -78,29 +81,14 @@ export interface ComponentFastener<C extends Component, S extends Component, U =
   /** @hidden */
   didSetComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
 
-  /** @hidden */
-  willSetOwnComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
-
-  /** @hidden */
-  onSetOwnComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
-
-  /** @hidden */
-  didSetOwnComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
-
-  /** @hidden */
-  mount(): void;
-
-  /** @hidden */
-  unmount(): void;
-
-  insert(parentComponent?: Component | null, childComponent?: S | U | null, targetComponent?: Component | null, key?: string | null): S | null;
-
-  remove(): S | null;
+  injectComponent(parentComponent?: Component | null, childComponent?: S | U | null, targetComponent?: Component | null, key?: string | null): S | null;
 
   createComponent(): S | U | null;
 
   /** @hidden */
   insertComponent(parentComponent: Component, childComponent: S, targetComponent: Component | null, key: string | undefined): void;
+
+  removeComponent(): S | null;
 
   /** @hidden */
   observe?: boolean;
@@ -112,6 +100,12 @@ export interface ComponentFastener<C extends Component, S extends Component, U =
   readonly type?: unknown;
 
   fromAny(value: S | U): S | null;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 }
 
 export const ComponentFastener = function <C extends Component, S extends Component, U>(
@@ -128,13 +122,15 @@ export const ComponentFastener = function <C extends Component, S extends Compon
   /** @hidden */
   new<C extends Component, S extends Component, U = never>(owner: C, fastenerName: string | undefined): ComponentFastener<C, S, U>;
 
-  <C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: ComponentFastenerDescriptorExtends<C, S, U, I>): PropertyDecorator;
+  <C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: {extends: ComponentFastenerClass | undefined} & ComponentFastenerDescriptor<C, S, U, I>): PropertyDecorator;
+  <C extends Component, S extends Component = Component, U = never>(descriptor: {observe: boolean} & ComponentFastenerDescriptor<C, S, U, ComponentObserverType<S>>): PropertyDecorator;
   <C extends Component, S extends Component = Component, U = never>(descriptor: ComponentFastenerDescriptor<C, S, U>): PropertyDecorator;
 
   /** @hidden */
   prototype: ComponentFastener<any, any>;
 
-  define<C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: ComponentFastenerDescriptorExtends<C, S, U, I>): ComponentFastenerConstructor<C, S, U, I>;
+  define<C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: {extends: ComponentFastenerClass | undefined} & ComponentFastenerDescriptor<C, S, U, I>): ComponentFastenerConstructor<C, S, U, I>;
+  define<C extends Component, S extends Component = Component, U = never>(descriptor: {observe: boolean} & ComponentFastenerDescriptor<C, S, U, ComponentObserverType<S>>): ComponentFastenerConstructor<C, S, U>;
   define<C extends Component, S extends Component = Component, U = never>(descriptor: ComponentFastenerDescriptor<C, S, U>): ComponentFastenerConstructor<C, S, U>;
 };
 __extends(ComponentFastener, Object);
@@ -194,17 +190,32 @@ ComponentFastener.prototype.setComponent = function <S extends Component>(this: 
 ComponentFastener.prototype.doSetComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, targetComponent: Component | null): void {
   const oldComponent = this.component;
   if (oldComponent !== newComponent) {
-    this.willSetOwnComponent(newComponent, oldComponent, targetComponent);
     this.willSetComponent(newComponent, oldComponent, targetComponent);
+    if (oldComponent !== null) {
+      this.detachComponent(oldComponent);
+    }
     Object.defineProperty(this, "component", {
       value: newComponent,
       enumerable: true,
       configurable: true,
     });
-    this.onSetOwnComponent(newComponent, oldComponent, targetComponent);
+    if (newComponent !== null) {
+      this.attachComponent(newComponent);
+    }
     this.onSetComponent(newComponent, oldComponent, targetComponent);
     this.didSetComponent(newComponent, oldComponent, targetComponent);
-    this.didSetOwnComponent(newComponent, oldComponent, targetComponent);
+  }
+};
+
+ComponentFastener.prototype.attachComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S): void {
+  if (this.observe === true && this.owner.isMounted()) {
+    newComponent.addComponentObserver(this as ComponentObserverType<S>);
+  }
+};
+
+ComponentFastener.prototype.detachComponent = function <S extends Component>(this: ComponentFastener<Component, S>, oldComponent: S): void {
+  if (this.observe === true && this.owner.isMounted()) {
+    oldComponent.removeComponentObserver(this as ComponentObserverType<S>);
   }
 };
 
@@ -220,40 +231,7 @@ ComponentFastener.prototype.didSetComponent = function <S extends Component>(thi
   // hook
 };
 
-ComponentFastener.prototype.willSetOwnComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void {
-  // hook
-};
-
-ComponentFastener.prototype.onSetOwnComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void {
-  if (this.observe === true && this.owner.isMounted()) {
-    if (oldComponent !== null) {
-      oldComponent.removeComponentObserver(this as ComponentObserverType<S>);
-    }
-    if (newComponent !== null) {
-      newComponent.addComponentObserver(this as ComponentObserverType<S>);
-    }
-  }
-};
-
-ComponentFastener.prototype.didSetOwnComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void {
-  // hook
-};
-
-ComponentFastener.prototype.mount = function <S extends Component>(this: ComponentFastener<Component, S>): void {
-  const component = this.component;
-  if (component !== null && this.observe === true) {
-    component.addComponentObserver(this as ComponentObserverType<S>);
-  }
-};
-
-ComponentFastener.prototype.unmount = function <S extends Component>(this: ComponentFastener<Component, S>): void {
-  const component = this.component;
-  if (component !== null && this.observe === true) {
-    component.removeComponentObserver(this as ComponentObserverType<S>);
-  }
-};
-
-ComponentFastener.prototype.insert = function <S extends Component>(this: ComponentFastener<Component, S>, parentComponent?: Component | null, childComponent?: S | null, targetComponent?: Component | null, key?: string | null): S | null {
+ComponentFastener.prototype.injectComponent = function <S extends Component>(this: ComponentFastener<Component, S>, parentComponent?: Component | null, childComponent?: S | null, targetComponent?: Component | null, key?: string | null): S | null {
   if (targetComponent === void 0) {
     targetComponent = null;
   }
@@ -287,14 +265,6 @@ ComponentFastener.prototype.insert = function <S extends Component>(this: Compon
   return childComponent
 };
 
-ComponentFastener.prototype.remove = function <S extends Component>(this: ComponentFastener<Component, S>): S | null {
-  const childComponent = this.component;
-  if (childComponent !== null) {
-    childComponent.remove();
-  }
-  return childComponent;
-};
-
 ComponentFastener.prototype.createComponent = function <S extends Component, U>(this: ComponentFastener<Component, S, U>): S | U | null {
   return null;
 };
@@ -303,8 +273,36 @@ ComponentFastener.prototype.insertComponent = function <S extends Component>(thi
   parentComponent.insertChildComponent(childComponent, targetComponent, key);
 };
 
+ComponentFastener.prototype.removeComponent = function <S extends Component>(this: ComponentFastener<Component, S>): S | null {
+  const childComponent = this.component;
+  if (childComponent !== null) {
+    childComponent.remove();
+  }
+  return childComponent;
+};
+
 ComponentFastener.prototype.fromAny = function <S extends Component, U>(this: ComponentFastener<Component, S, U>, value: S | U): S | null {
-  return value as S | null;
+  const type = this.type;
+  if (FromAny.is<S, U>(type)) {
+    return type.fromAny(value);
+  } else if (value instanceof Component) {
+    return value;
+  }
+  return null;
+};
+
+ComponentFastener.prototype.mount = function <S extends Component>(this: ComponentFastener<Component, S>): void {
+  const component = this.component;
+  if (component !== null && this.observe === true) {
+    component.addComponentObserver(this as ComponentObserverType<S>);
+  }
+};
+
+ComponentFastener.prototype.unmount = function <S extends Component>(this: ComponentFastener<Component, S>): void {
+  const component = this.component;
+  if (component !== null && this.observe === true) {
+    component.removeComponentObserver(this as ComponentObserverType<S>);
+  }
 };
 
 ComponentFastener.define = function <C extends Component, S extends Component, U, I>(descriptor: ComponentFastenerDescriptor<C, S, U, I>): ComponentFastenerConstructor<C, S, U, I> {
@@ -335,9 +333,6 @@ ComponentFastener.define = function <C extends Component, S extends Component, U
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
 
-  if (_prototype.observe === void 0) {
-    _prototype.observe = true;
-  }
   if (_prototype.child === void 0) {
     _prototype.child = true;
   }

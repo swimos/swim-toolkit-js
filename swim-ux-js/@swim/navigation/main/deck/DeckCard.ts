@@ -45,15 +45,15 @@ export class DeckCard extends HtmlView {
   @ViewProperty({type: String})
   declare cardTitle: ViewProperty<this, string | undefined>;
 
-  @ViewFastener({child: false, type: HtmlView, observe: false})
+  @ViewFastener({child: false, type: HtmlView})
   declare backItem: ViewFastener<this, HtmlView>;
 
-  @ViewFastener({child: false, type: HtmlView, observe: false})
+  @ViewFastener({child: false, type: HtmlView})
   declare titleView: ViewFastener<this, HtmlView>;
 
-  @ViewFastener({child: false, type: HtmlView, observe: false})
+  @ViewFastener({child: false, type: HtmlView})
   declare leftItem: ViewFastener<this, HtmlView>;
 
-  @ViewFastener({child: false, type: HtmlView, observe: false})
+  @ViewFastener({child: false, type: HtmlView})
   declare rightItem: ViewFastener<this, HtmlView>;
 }

@@ -104,6 +104,12 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
 
   didStopAnimating(): void;
 
+  updateFlags?: ViewFlags;
+
+  parse(value: string): T | undefined;
+
+  fromAny(value: T | U): T | undefined;
+
   isMounted(): boolean;
 
   /** @hidden */
@@ -131,12 +137,6 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
   didUnmount(): void;
 
   toString(): string;
-
-  updateFlags?: ViewFlags;
-
-  parse(value: string): T | undefined;
-
-  fromAny(value: T | U): T | undefined;
 }
 
 export const AttributeAnimator = function <V extends ElementView, T, U>(
@@ -302,6 +302,14 @@ AttributeAnimator.prototype.didStopAnimating = function (this: AttributeAnimator
   this.owner.trackDidStopAnimating(this);
 };
 
+AttributeAnimator.prototype.parse = function <T>(this: AttributeAnimator<ElementView, T>): T | undefined {
+  return void 0;
+};
+
+AttributeAnimator.prototype.fromAny = function <T, U>(this: AttributeAnimator<ElementView, T, U>, value: T | U): T | undefined {
+  return void 0;
+};
+
 AttributeAnimator.prototype.isMounted = function (this: AttributeAnimator<ElementView, unknown>): boolean {
   return (this.animatorFlags & Animator.MountedFlag) !== 0;
 };
@@ -350,14 +358,6 @@ AttributeAnimator.prototype.didUnmount = function (this: AttributeAnimator<Eleme
 
 AttributeAnimator.prototype.toString = function (this: AttributeAnimator<ElementView, unknown>): string {
   return this.name;
-};
-
-AttributeAnimator.prototype.parse = function <T>(this: AttributeAnimator<ElementView, T>): T | undefined {
-  return void 0;
-};
-
-AttributeAnimator.prototype.fromAny = function <T, U>(this: AttributeAnimator<ElementView, T, U>, value: T | U): T | undefined {
-  return void 0;
 };
 
 AttributeAnimator.getClass = function (type: unknown): AttributeAnimatorClass | null {

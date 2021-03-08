@@ -79,6 +79,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     extends: void 0,
     type: HtmlIconView,
     child: false,
+    observe: true,
     iconIndex: 0,
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                       timing: Timing | boolean, iconView: HtmlIconView): void {

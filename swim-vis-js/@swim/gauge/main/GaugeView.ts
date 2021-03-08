@@ -179,7 +179,6 @@ export class GaugeView extends LayerView {
 
   @ViewFastener<GaugeView, GraphicsView, AnyTextRunView>({
     type: TextRunView,
-    observe: false,
     fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
       if (value instanceof GraphicsView) {
         return value;

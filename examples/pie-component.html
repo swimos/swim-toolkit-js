@@ -21,12 +21,12 @@ const canvasView = uiView.append("canvas")
     .touchAction("manipulation");
 
 class DemoPieComponent extends swim.PieComponent {
-  initPie(pieView) {
+  initPieView(pieView) {
     pieView.tickColor("#4a4a4a")
            .font("14px sans-serif")
            .textColor("#4a4a4a");
   }
-  initPieSlice(sliceView) {
+  initSliceView(sliceView) {
     sliceView.sliceColor("#4a4a4a")
              .on("pointerenter", function (event) {
                sliceView.sliceColor("#1db0ef", {dt: 200});
@@ -35,10 +35,10 @@ class DemoPieComponent extends swim.PieComponent {
                sliceView.sliceColor("#4a4a4a", {dt: 200});
              });
   }
-  initPieSliceLabel(labelView) {
+  initSliceLabel(labelView) {
     labelView.textColor("#ffffff");
   }
-  onSetPieSliceValue(newValue, oldValue, sliceComponent) {
+  onSetSliceValue(newValue, oldValue, sliceComponent) {
     const label = Math.round(100 * newValue).toString();
     sliceComponent.setLabel(label);
   }
@@ -46,24 +46,28 @@ class DemoPieComponent extends swim.PieComponent {
 
 const pieComponent = new DemoPieComponent();
 pieComponent.mount();
-pieComponent.pie.insert(canvasView);
+pieComponent.pie.injectView(canvasView);
 
 const pieModel = new swim.CompoundModel();
 pieModel.mount();
 const pieTrait = new swim.PieTrait();
 
+const slice1Model = new swim.CompoundModel();
 const slice1Trait = new swim.SliceTrait();
 slice1Trait.setValue(1);
 slice1Trait.setLegend("Slice 1");
+slice1Model.setTrait("slice", slice1Trait);
 
+const slice2Model = new swim.CompoundModel();
 const slice2Trait = new swim.SliceTrait();
 slice2Trait.setValue(1);
 slice2Trait.setLegend("Slice 2");
+slice2Model.setTrait("slice", slice2Trait);
 
 pieModel.setTrait("pie", pieTrait);
-pieModel.setTrait("slice1", slice1Trait);
-pieComponent.source.setTrait(pieTrait);
-pieModel.insertTrait(slice2Trait, slice1Trait, "slice2");
+pieModel.appendChildModel(slice1Model, "slice1");
+pieComponent.pie.setTrait(pieTrait);
+pieModel.insertChildModel(slice2Model, slice1Model, "slice2");
 
 setInterval(function () {
   slice1Trait.setValue(0.1 + 0.9 * Math.random());

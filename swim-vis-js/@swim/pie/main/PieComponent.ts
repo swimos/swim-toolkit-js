@@ -14,12 +14,12 @@
 
 import {AnyTiming, Timing} from "@swim/mapping";
 import type {GraphicsView} from "@swim/graphics";
-import {Trait, TraitObserverType} from "@swim/model";
+import type {Trait} from "@swim/model";
 import {
   Component,
   ComponentProperty,
-  ComponentTrait,
   ComponentView,
+  ComponentViewTrait,
   ComponentFastener,
   CompositeComponent,
 } from "@swim/component";
@@ -30,9 +30,7 @@ import {PieTrait} from "./PieTrait";
 import {SliceComponent} from "./SliceComponent";
 import type {PieComponentObserver} from "./PieComponentObserver";
 
-export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTrait> extends CompositeComponent {
-  declare readonly componentObservers: ReadonlyArray<PieComponentObserver<P, S>>;
-
+export class PieComponent extends CompositeComponent {
   constructor() {
     super();
     Object.defineProperty(this, "sliceFasteners", {
@@ -41,24 +39,24 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     });
   }
 
-  setPieTitle(title: GraphicsView | string | undefined): void {
-    const pieView = this.pie.view;
-    if (pieView !== null) {
-      pieView.title.setView(title !== void 0 ? title : null);
+  declare readonly componentObservers: ReadonlyArray<PieComponentObserver>;
+
+  setTitle(title: GraphicsView | string | undefined): void {
+    const pieTrait = this.pie.trait;
+    if (pieTrait !== null) {
+      pieTrait.setTitle(title);
     }
   }
 
-  insertSlice(sliceComponent: SliceComponent<S>, targetComponent: Component | null = null): void {
-    const sliceFasteners = this.sliceFasteners as ComponentFastener<this, SliceComponent<S>>[];
-    let targetIndex = sliceFasteners.length;
-    if (targetComponent !== null) {
-      for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
-        const sliceFastener = sliceFasteners[i]!;
-        if (sliceFastener.component === sliceComponent) {
-          return;
-        } else if (sliceFastener.component === targetComponent) {
-          targetIndex = i;
-        }
+  insertSlice(sliceComponent: SliceComponent, targetComponent: Component | null = null): void {
+    const sliceFasteners = this.sliceFasteners as ComponentFastener<this, SliceComponent>[];
+    let targetIndex = -1;
+    for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
+      const sliceFastener = sliceFasteners[i]!;
+      if (sliceFastener.component === sliceComponent) {
+        return;
+      } else if (sliceFastener.component === targetComponent) {
+        targetIndex = i;
       }
     }
     const sliceFastener = this.createSliceFastener(sliceComponent);
@@ -69,8 +67,8 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  removeSlice(sliceComponent: SliceComponent<S>): void {
-    const sliceFasteners = this.sliceFasteners as ComponentFastener<this, SliceComponent<S>>[];
+  removeSlice(sliceComponent: SliceComponent): void {
+    const sliceFasteners = this.sliceFasteners as ComponentFastener<this, SliceComponent>[];
     for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
       const sliceFastener = sliceFasteners[i]!;
       if (sliceFastener.component === sliceComponent) {
@@ -84,15 +82,15 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  insertSliceTrait(sliceTrait: S, targetTrait: Trait | null = null): void {
-    const sliceFasteners = this.sliceFasteners as ComponentFastener<this, SliceComponent<S>>[];
-    let targetComponent: SliceComponent<S> | null = null;
+  insertSliceTrait(sliceTrait: SliceTrait, targetTrait: Trait | null = null): void {
+    const sliceFasteners = this.sliceFasteners as ComponentFastener<this, SliceComponent>[];
+    let targetComponent: SliceComponent | null = null;
     for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
       const sliceComponent = sliceFasteners[i]!.component;
       if (sliceComponent !== null) {
-        if (sliceComponent.source.trait === sliceTrait) {
+        if (sliceComponent.slice.trait === sliceTrait) {
           return;
-        } else if (sliceComponent.source.trait === targetTrait) {
+        } else if (sliceComponent.slice.trait === targetTrait) {
           targetComponent = sliceComponent;
         }
       }
@@ -100,16 +98,16 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     const sliceComponent = this.createSliceComponent(sliceTrait);
     if (sliceComponent !== null) {
       this.insertChildComponent(sliceComponent, targetComponent);
-      sliceComponent.source.setTrait(sliceTrait);
+      sliceComponent.slice.setTrait(sliceTrait);
       if (sliceComponent.slice.view === null) {
-        const sliceView = this.createPieSlice(sliceComponent);
+        const sliceView = this.createSliceView(sliceComponent);
         let targetView: SliceView | null = null;
         if (targetComponent !== null) {
           targetView = targetComponent.slice.view;
         }
         const pieView = this.pie.view;
         if (pieView !== null) {
-          sliceComponent.slice.insert(pieView, sliceView, targetView, null);
+          sliceComponent.slice.injectView(pieView, sliceView, targetView, null);
         } else {
           sliceComponent.slice.setView(sliceView, targetView);
         }
@@ -117,12 +115,12 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  removeSliceTrait(sliceTrait: S): void {
-    const sliceFasteners = this.sliceFasteners as ComponentFastener<this, SliceComponent<S>>[];
+  removeSliceTrait(sliceTrait: SliceTrait): void {
+    const sliceFasteners = this.sliceFasteners as ComponentFastener<this, SliceComponent>[];
     for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
       const sliceFastener = sliceFasteners[i]!;
       const sliceComponent = sliceFastener.component;
-      if (sliceComponent !== null && sliceComponent.source.trait === sliceTrait) {
+      if (sliceComponent !== null && sliceComponent.slice.trait === sliceTrait) {
         sliceFastener.setComponent(null);
         if (this.isMounted()) {
           sliceFastener.unmount();
@@ -134,58 +132,37 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  protected createSliceComponent(sliceTrait: S): SliceComponent<S> | null {
+  protected createSliceComponent(sliceTrait: SliceTrait): SliceComponent | null {
     return new SliceComponent();
   }
 
-  protected initSliceComponent(sliceComponent: SliceComponent<S>): void {
+  protected initSliceComponent(sliceComponent: SliceComponent): void {
     const sliceView = sliceComponent.slice.view;
     if (sliceView !== null) {
-      this.initPieSlice(sliceView, sliceComponent);
+      this.initSliceView(sliceView, sliceComponent);
       const labelView = sliceView.label.view;
       if (labelView !== null) {
-        this.initPieSliceLabel(labelView, sliceComponent);
+        this.initSliceLabel(labelView, sliceComponent);
       }
       const legendView = sliceView.legend.view;
       if (legendView !== null) {
-        this.initPieSliceLegend(legendView, sliceComponent);
+        this.initSliceLegend(legendView, sliceComponent);
       }
     }
   }
 
-  protected createSliceFastener(sliceComponent: SliceComponent<S>): ComponentFastener<this, SliceComponent<S>> {
-    return new PieComponent.SliceFastener(this as unknown as PieComponent, sliceComponent.key) as unknown as ComponentFastener<this, SliceComponent<S>>;
-  }
-
-  protected willSetSlice(newSliceComponent: SliceComponent<S> | null, oldSliceComponent: SliceComponent<S> | null,
-                         sliceFastener: ComponentFastener<this, SliceComponent<S>>): void {
-    // hook
-  }
-
-  protected onSetSlice(newSliceComponent: SliceComponent<S> | null, oldSliceComponent: SliceComponent<S> | null,
-                       sliceFastener: ComponentFastener<this, SliceComponent<S>>): void {
-    if (newSliceComponent !== null) {
-      this.initSliceComponent(newSliceComponent);
-    }
-  }
-
-  protected didSetSlice(newSliceComponent: SliceComponent<S> | null, oldSliceComponent: SliceComponent<S> | null,
-                        sliceFastener: ComponentFastener<this, SliceComponent<S>>): void {
-    // hook
-  }
-
-  createPie(): PieView | null {
+  createPieView(): PieView | null {
     return PieView.create();
   }
 
-  initPie(pieView: PieView): void {
+  initPieView(pieView: PieView): void {
     // hook
   }
 
-  protected attachPie(pieView: PieView): void {
-    const sourceTrait = this.source.trait;
-    if (sourceTrait instanceof PieTrait) {
-      this.setPieTitle(sourceTrait.title);
+  protected attachPieView(pieView: PieView): void {
+    const pieTrait = this.pie.trait;
+    if (pieTrait !== null) {
+      this.setPieTitle(pieTrait.title);
     }
     const sliceFasteners = this.sliceFasteners;
     for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
@@ -199,11 +176,11 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  protected detachPie(pieView: PieView): void {
+  protected detachPieView(pieView: PieView): void {
     // hook
   }
 
-  protected willSetPie(newPieView: PieView | null, oldPieView: PieView | null): void {
+  protected willSetPieView(newPieView: PieView | null, oldPieView: PieView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -213,20 +190,27 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  protected onSetPie(newPieView: PieView | null, oldPieView: PieView | null): void {
+  protected onSetPieView(newPieView: PieView | null, oldPieView: PieView | null): void {
     if (newPieView !== null) {
-      this.initPie(newPieView);
+      this.initPieView(newPieView);
       this.title.setView(newPieView.title.view);
     }
   }
 
-  protected didSetPie(newPieView: PieView | null, oldPieView: PieView | null): void {
+  protected didSetPieView(newPieView: PieView | null, oldPieView: PieView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
       if (componentObserver.pieDidSetView !== void 0) {
         componentObserver.pieDidSetView(newPieView, oldPieView, this);
       }
+    }
+  }
+
+  setPieTitle(title: GraphicsView | string | undefined): void {
+    const pieView = this.pie.view;
+    if (pieView !== null) {
+      pieView.title.setView(title !== void 0 ? title : null);
     }
   }
 
@@ -254,15 +238,15 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  createPieSlice(sliceComponent: SliceComponent<S>): SliceView | null {
-    return sliceComponent.createSlice();
+  createSliceView(sliceComponent: SliceComponent): SliceView | null {
+    return sliceComponent.createSliceView();
   }
 
-  initPieSlice(sliceView: SliceView, sliceComponent: SliceComponent<S>): void {
+  initSliceView(sliceView: SliceView, sliceComponent: SliceComponent): void {
     // hook
   }
 
-  protected willSetPieSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent<S>): void {
+  protected willSetSliceView(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -272,21 +256,21 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  protected onSetPieSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent<S>): void {
+  protected onSetSliceView(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent): void {
     if (newSliceView !== null) {
-      this.initPieSlice(newSliceView, sliceComponent);
+      this.initSliceView(newSliceView, sliceComponent);
       const labelView = newSliceView.label.view;
       if (labelView !== null) {
-        this.initPieSliceLabel(labelView, sliceComponent);
+        this.initSliceLabel(labelView, sliceComponent);
       }
       const legendView = newSliceView.legend.view;
       if (legendView !== null) {
-        this.initPieSliceLegend(legendView, sliceComponent);
+        this.initSliceLegend(legendView, sliceComponent);
       }
     }
   }
 
-  protected didSetPieSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent<S>): void {
+  protected didSetSliceView(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -296,7 +280,7 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  protected willSetPieSliceValue(newValue: number, oldValue: number, sliceComponent: SliceComponent<S>): void {
+  protected willSetSliceValue(newValue: number, oldValue: number, sliceComponent: SliceComponent): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -306,11 +290,11 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  protected onSetPieSliceValue(newValue: number, oldValue: number, sliceComponent: SliceComponent<S>): void {
+  protected onSetSliceValue(newValue: number, oldValue: number, sliceComponent: SliceComponent): void {
     // hook
   }
 
-  protected didSetPieSliceValue(newValue: number, oldValue: number, sliceComponent: SliceComponent<S>): void {
+  protected didSetSliceValue(newValue: number, oldValue: number, sliceComponent: SliceComponent): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -320,11 +304,11 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  initPieSliceLabel(labelView: GraphicsView, sliceComponent: SliceComponent<S>): void {
+  initSliceLabel(labelView: GraphicsView, sliceComponent: SliceComponent): void {
     // hook
   }
 
-  protected willSetPieSliceLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent<S>): void {
+  protected willSetSliceLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -334,13 +318,13 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  protected onSetPieSliceLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent<S>): void {
+  protected onSetSliceLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent): void {
     if (newLabelView !== null) {
-      this.initPieSliceLabel(newLabelView, sliceComponent);
+      this.initSliceLabel(newLabelView, sliceComponent);
     }
   }
 
-  protected didSetPieSliceLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent<S>): void {
+  protected didSetSliceLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -350,11 +334,11 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  initPieSliceLegend(labelView: GraphicsView, sliceComponent: SliceComponent<S>): void {
+  initSliceLegend(labelView: GraphicsView, sliceComponent: SliceComponent): void {
     // hook
   }
 
-  protected willSetPieSliceLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent<S>): void {
+  protected willSetSliceLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -364,13 +348,13 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  protected onSetPieSliceLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent<S>): void {
+  protected onSetSliceLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent): void {
     if (newLegendView !== null) {
-      this.initPieSliceLegend(newLegendView, sliceComponent);
+      this.initSliceLegend(newLegendView, sliceComponent);
     }
   }
 
-  protected didSetPieSliceLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent<S>): void {
+  protected didSetSliceLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -380,94 +364,90 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  protected initPieSliceSource(sourceTrait: S | null, sliceComponent: SliceComponent<S>): void {
+  protected initSliceTrait(sliceTrait: SliceTrait | null, sliceComponent: SliceComponent): void {
     // hook
   }
 
-  protected willSetPieSliceSource(newSourceTrait: S | null, oldSourceTrait: S | null, sliceComponent: SliceComponent<S>): void {
+  protected willSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.pieWillSetSliceSource !== void 0) {
-        componentObserver.pieWillSetSliceSource(newSourceTrait, oldSourceTrait, sliceComponent, this);
+      if (componentObserver.pieWillSetSliceTrait !== void 0) {
+        componentObserver.pieWillSetSliceTrait(newSliceTrait, oldSliceTrait, sliceComponent, this);
       }
     }
   }
 
-  protected onSetPieSliceSource(newSourceTrait: S | null, oldSourceTrait: S | null, sliceComponent: SliceComponent<S>): void {
-    if (newSourceTrait !== null) {
-      this.initPieSliceSource(newSourceTrait, sliceComponent);
+  protected onSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent): void {
+    if (newSliceTrait !== null) {
+      this.initSliceTrait(newSliceTrait, sliceComponent);
     }
   }
 
-  protected didSetPieSliceSource(newSourceTrait: S | null, oldSourceTrait: S | null, sliceComponent: SliceComponent<S>): void {
+  protected didSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.pieDidSetSliceSource !== void 0) {
-        componentObserver.pieDidSetSliceSource(newSourceTrait, oldSourceTrait, sliceComponent, this);
+      if (componentObserver.pieDidSetSliceTrait !== void 0) {
+        componentObserver.pieDidSetSliceTrait(newSliceTrait, oldSliceTrait, sliceComponent, this);
       }
     }
   }
 
-  protected initSource(sourceTrait: P): void {
+  protected initPieTrait(pieTrait: PieTrait): void {
     // hook
   }
 
-  protected attachSource(sourceTrait: P): void {
-    if (sourceTrait instanceof PieTrait) {
-      const pieView = this.pie.view;
-      if (pieView !== null) {
-        this.setPieTitle(sourceTrait.title);
-      }
-      const sliceFasteners = sourceTrait.sliceFasteners;
-      for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
-        const sliceTrait = sliceFasteners[i]!.trait as S | null;
-        if (sliceTrait !== null) {
-          this.insertSliceTrait(sliceTrait);
-        }
+  protected attachPieTrait(pieTrait: PieTrait): void {
+    const pieView = this.pie.view;
+    if (pieView !== null) {
+      this.setPieTitle(pieTrait.title);
+    }
+    const sliceFasteners = pieTrait.sliceFasteners;
+    for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
+      const sliceTrait = sliceFasteners[i]!.trait;
+      if (sliceTrait !== null) {
+        this.insertSliceTrait(sliceTrait);
       }
     }
   }
 
-  protected detachSource(sourceTrait: P): void {
+  protected detachPieTrait(pieTrait: PieTrait): void {
     const pieView = this.pie.view;
     if (pieView !== null) {
       this.setPieTitle(void 0);
     }
-    if (sourceTrait instanceof PieTrait) {
-      const sliceFasteners = sourceTrait.sliceFasteners;
-      for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
-        const sliceTrait = sliceFasteners[i]!.trait as S | null;
-        if (sliceTrait !== null) {
-          this.removeSliceTrait(sliceTrait);
-        }
+    const sliceFasteners = pieTrait.sliceFasteners;
+    for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
+      const sliceTrait = sliceFasteners[i]!.trait;
+      if (sliceTrait !== null) {
+        this.removeSliceTrait(sliceTrait);
       }
     }
   }
 
-  protected willSetSource(newSourceTrait: P | null, oldSourceTrait: P | null): void {
+  protected willSetPieTrait(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.pieWillSetSource !== void 0) {
-        componentObserver.pieWillSetSource(newSourceTrait, oldSourceTrait, this);
+      if (componentObserver.pieWillSetTrait !== void 0) {
+        componentObserver.pieWillSetTrait(newPieTrait, oldPieTrait, this);
       }
     }
   }
 
-  protected onSetSource(newSourceTrait: P | null, oldSourceTrait: P | null): void {
-    if (newSourceTrait !== null) {
-      this.initSource(newSourceTrait);
+  protected onSetPieTrait(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null): void {
+    if (newPieTrait !== null) {
+      this.initPieTrait(newPieTrait);
     }
   }
 
-  protected didSetSource(newSourceTrait: P | null, oldSourceTrait: P | null): void {
+  protected didSetPieTrait(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.pieDidSetSource !== void 0) {
-        componentObserver.pieDidSetSource(newSourceTrait, oldSourceTrait, this);
+      if (componentObserver.pieDidSetTrait !== void 0) {
+        componentObserver.pieDidSetTrait(newPieTrait, oldPieTrait, this);
       }
     }
   }
@@ -475,31 +455,60 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
   @ComponentProperty({type: Timing, state: true})
   declare sliceTiming: ComponentProperty<this, Timing | boolean | undefined, AnyTiming>;
 
-  @ComponentView<PieComponent<P, S>, PieView>({
-    type: PieView,
+  @ComponentViewTrait<PieComponent, PieView, PieTrait>({
+    viewType: PieView,
     willSetView(newPieView: PieView | null, oldPieView: PieView | null): void {
-      this.owner.willSetPie(oldPieView, newPieView);
+      this.owner.willSetPieView(oldPieView, newPieView);
     },
     onSetView(newPieView: PieView | null, oldPieView: PieView | null): void {
       if (oldPieView !== null) {
-        this.owner.detachPie(oldPieView);
+        this.owner.detachPieView(oldPieView);
       }
-      this.owner.onSetPie(newPieView, oldPieView);
+      this.owner.onSetPieView(newPieView, oldPieView);
       if (newPieView !== null) {
-        this.owner.attachPie(newPieView);
+        this.owner.attachPieView(newPieView);
       }
     },
     didSetView(newPieView: PieView | null, oldPieView: PieView | null): void {
-      this.owner.didSetPie(oldPieView, newPieView);
+      this.owner.didSetPieView(oldPieView, newPieView);
     },
     createView(): PieView | null {
-      return this.owner.createPie();
+      return this.owner.createPieView();
+    },
+    traitType: PieTrait,
+    observeTrait: true,
+    willSetTrait(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null): void {
+      this.owner.willSetPieTrait(newPieTrait, oldPieTrait);
+    },
+    onSetTrait(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null): void {
+      if (oldPieTrait !== null) {
+        this.owner.detachPieTrait(oldPieTrait);
+      }
+      this.owner.onSetPieTrait(newPieTrait, oldPieTrait);
+      if (newPieTrait !== null) {
+        this.owner.attachPieTrait(newPieTrait);
+      }
+    },
+    didSetTrait(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null): void {
+      this.owner.didSetPieTrait(newPieTrait, oldPieTrait);
+    },
+    pieTraitDidSetTitle(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, pieTrait: PieTrait): void {
+      this.owner.setPieTitle(newTitle);
+    },
+    pieTraitWillSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait, pieTrait: PieTrait): void {
+      if (oldSliceTrait !== null) {
+        this.owner.removeSliceTrait(oldSliceTrait);
+      }
+    },
+    pieTraitDidSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait, pieTrait: PieTrait): void {
+      if (newSliceTrait !== null) {
+        this.owner.insertSliceTrait(newSliceTrait, targetTrait);
+      }
     },
   })
-  declare pie: ComponentView<this, PieView>;
+  declare pie: ComponentViewTrait<this, PieView, PieTrait>;
 
-  @ComponentView<PieComponent<P, S>, GraphicsView>({
-    observe: false,
+  @ComponentView<PieComponent, GraphicsView>({
     willSetView(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
       this.owner.willSetPieTitle(newTitleView, oldTitleView);
     },
@@ -512,44 +521,11 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
   })
   declare title: ComponentView<this, GraphicsView>;
 
-  @ComponentTrait<PieComponent<P, S>, P, never, TraitObserverType<PieTrait>>({
-    extends: void 0,
-    type: Trait,
-    willSetTrait(newSourceTrait: P | null, oldSourceTrait: P | null): void {
-      this.owner.willSetSource(newSourceTrait, oldSourceTrait);
-    },
-    onSetTrait(newSourceTrait: P | null, oldSourceTrait: P | null): void {
-      if (oldSourceTrait !== null) {
-        this.owner.detachSource(oldSourceTrait);
-      }
-      this.owner.onSetSource(newSourceTrait, oldSourceTrait);
-      if (newSourceTrait !== null) {
-        this.owner.attachSource(newSourceTrait);
-      }
-    },
-    didSetTrait(newSourceTrait: P | null, oldSourceTrait: P | null): void {
-      this.owner.didSetSource(newSourceTrait, oldSourceTrait);
-    },
-    pieDidSetTitle(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, sourceTrait: PieTrait): void {
-      this.owner.setPieTitle(newTitle);
-    },
-    pieWillSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait, sourceTrait: PieTrait): void {
-      if (oldSliceTrait !== null) {
-        this.owner.removeSliceTrait(oldSliceTrait as unknown as S);
-      }
-    },
-    pieDidSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait, sourceTrait: PieTrait): void {
-      if (newSliceTrait !== null) {
-        this.owner.insertSliceTrait(newSliceTrait as unknown as S, targetTrait);
-      }
-    },
-  })
-  declare source: ComponentTrait<this, P>;
-
   /** @hidden */
   static SliceFastener = ComponentFastener.define<PieComponent, SliceComponent>({
     type: SliceComponent,
     child: false,
+    observe: true,
     willSetComponent(newSliceComponent: SliceComponent | null, oldSliceComponent: SliceComponent | null): void {
       this.owner.willSetSlice(newSliceComponent, oldSliceComponent, this);
     },
@@ -560,51 +536,72 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
       this.owner.didSetSlice(newSliceComponent, oldSliceComponent, this);
     },
     sliceWillSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent): void {
-      this.owner.willSetPieSlice(newSliceView, oldSliceView, sliceComponent);
+      this.owner.willSetSliceView(newSliceView, oldSliceView, sliceComponent);
     },
     sliceDidSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent): void {
-      this.owner.onSetPieSlice(newSliceView, oldSliceView, sliceComponent);
-      this.owner.didSetPieSlice(newSliceView, oldSliceView, sliceComponent);
+      this.owner.onSetSliceView(newSliceView, oldSliceView, sliceComponent);
+      this.owner.didSetSliceView(newSliceView, oldSliceView, sliceComponent);
     },
     sliceWillSetValue(newValue: number, oldValue: number, sliceComponent: SliceComponent): void {
-      this.owner.willSetPieSliceValue(newValue, oldValue, sliceComponent);
+      this.owner.willSetSliceValue(newValue, oldValue, sliceComponent);
     },
     sliceDidSetValue(newValue: number, oldValue: number, sliceComponent: SliceComponent): void {
-      this.owner.onSetPieSliceValue(newValue, oldValue, sliceComponent);
-      this.owner.didSetPieSliceValue(newValue, oldValue, sliceComponent);
+      this.owner.onSetSliceValue(newValue, oldValue, sliceComponent);
+      this.owner.didSetSliceValue(newValue, oldValue, sliceComponent);
     },
     sliceWillSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent): void {
-      this.owner.willSetPieSliceLabel(newLabelView, oldLabelView, sliceComponent);
+      this.owner.willSetSliceLabel(newLabelView, oldLabelView, sliceComponent);
     },
     sliceDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent): void {
-      this.owner.onSetPieSliceLabel(newLabelView, oldLabelView, sliceComponent);
-      this.owner.didSetPieSliceLabel(newLabelView, oldLabelView, sliceComponent);
+      this.owner.onSetSliceLabel(newLabelView, oldLabelView, sliceComponent);
+      this.owner.didSetSliceLabel(newLabelView, oldLabelView, sliceComponent);
     },
     sliceWillSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent): void {
-      this.owner.willSetPieSliceLegend(newLegendView, oldLegendView, sliceComponent);
+      this.owner.willSetSliceLegend(newLegendView, oldLegendView, sliceComponent);
     },
     sliceDidSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent): void {
-      this.owner.onSetPieSliceLegend(newLegendView, oldLegendView, sliceComponent);
-      this.owner.didSetPieSliceLegend(newLegendView, oldLegendView, sliceComponent);
+      this.owner.onSetSliceLegend(newLegendView, oldLegendView, sliceComponent);
+      this.owner.didSetSliceLegend(newLegendView, oldLegendView, sliceComponent);
     },
-    sliceWillSetSource(newSourceTrait: SliceTrait | null, oldSourceTrait: SliceTrait | null, sliceComponent: SliceComponent): void {
-      this.owner.willSetPieSliceSource(newSourceTrait, oldSourceTrait, sliceComponent);
+    sliceWillSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent): void {
+      this.owner.willSetSliceTrait(newSliceTrait, oldSliceTrait, sliceComponent);
     },
-    sliceDidSetSource(newSourceTrait: SliceTrait | null, oldSourceTrait: SliceTrait | null, sliceComponent: SliceComponent): void {
-      this.owner.onSetPieSliceSource(newSourceTrait, oldSourceTrait, sliceComponent);
-      this.owner.didSetPieSliceSource(newSourceTrait, oldSourceTrait, sliceComponent);
+    sliceDidSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent): void {
+      this.owner.onSetSliceTrait(newSliceTrait, oldSliceTrait, sliceComponent);
+      this.owner.didSetSliceTrait(newSliceTrait, oldSliceTrait, sliceComponent);
     },
   });
 
-  /** @hidden */
-  declare readonly sliceFasteners: ReadonlyArray<ComponentFastener<this, SliceComponent<S>>>;
+  protected createSliceFastener(sliceComponent: SliceComponent): ComponentFastener<this, SliceComponent> {
+    return new PieComponent.SliceFastener(this as unknown as PieComponent, sliceComponent.key) as unknown as ComponentFastener<this, SliceComponent>;
+  }
 
-  protected getSliceFastener(sliceTrait: S): ComponentFastener<this, SliceComponent<S>> | null {
+  /** @hidden */
+  declare readonly sliceFasteners: ReadonlyArray<ComponentFastener<this, SliceComponent>>;
+
+  protected willSetSlice(newSliceComponent: SliceComponent | null, oldSliceComponent: SliceComponent | null,
+                         sliceFastener: ComponentFastener<this, SliceComponent>): void {
+    // hook
+  }
+
+  protected onSetSlice(newSliceComponent: SliceComponent | null, oldSliceComponent: SliceComponent | null,
+                       sliceFastener: ComponentFastener<this, SliceComponent>): void {
+    if (newSliceComponent !== null) {
+      this.initSliceComponent(newSliceComponent);
+    }
+  }
+
+  protected didSetSlice(newSliceComponent: SliceComponent | null, oldSliceComponent: SliceComponent | null,
+                        sliceFastener: ComponentFastener<this, SliceComponent>): void {
+    // hook
+  }
+
+  protected getSliceFastener(sliceTrait: SliceTrait): ComponentFastener<this, SliceComponent> | null {
     const sliceFasteners = this.sliceFasteners;
     for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
       const sliceFastener = sliceFasteners[i]!;
       const sliceComponent = sliceFastener.component;
-      if (sliceComponent !== null && sliceComponent.source.trait === sliceTrait) {
+      if (sliceComponent !== null && sliceComponent.slice.trait === sliceTrait) {
         return sliceFastener;
       }
     }
@@ -629,34 +626,31 @@ export class PieComponent<P extends Trait = PieTrait, S extends Trait = SliceTra
     }
   }
 
-  /** @hidden */
-  get autoSlice(): boolean {
-    return true;
+  protected detectSlice(component: Component): SliceComponent | null {
+    return component instanceof SliceComponent ? component : null;
   }
 
-  protected onInsertSlice(sliceComponent: SliceComponent<S>, targetComponent: Component | null): void {
-    if (this.autoSlice) {
-      this.insertSlice(sliceComponent, targetComponent);
-    }
+  protected onInsertSlice(sliceComponent: SliceComponent, targetComponent: Component | null): void {
+    this.insertSlice(sliceComponent, targetComponent);
   }
 
-  protected onRemoveSlice(sliceComponent: SliceComponent<S>): void {
-    if (this.autoSlice) {
-      this.removeSlice(sliceComponent);
-    }
+  protected onRemoveSlice(sliceComponent: SliceComponent): void {
+    this.removeSlice(sliceComponent);
   }
 
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     super.onInsertChildComponent(childComponent, targetComponent);
-    if (childComponent instanceof SliceComponent) {
-      this.onInsertSlice(childComponent, targetComponent);
+    const sliceComponent = this.detectSlice(childComponent);
+    if (sliceComponent !== null) {
+      this.onInsertSlice(sliceComponent, targetComponent);
     }
   }
 
   protected onRemoveChildComponent(childComponent: Component): void {
     super.onRemoveChildComponent(childComponent);
-    if (childComponent instanceof SliceComponent) {
-      this.onRemoveSlice(childComponent);
+    const sliceComponent = this.detectSlice(childComponent);
+    if (sliceComponent !== null) {
+      this.onRemoveSlice(sliceComponent);
     }
   }
 

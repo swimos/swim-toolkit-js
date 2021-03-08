@@ -105,12 +105,6 @@ export interface ModelService<M extends Model, T> {
   getManagerOr<E>(elseManager: E): (T extends undefined ? never : T) | E;
 
   /** @hidden */
-  mount(): void;
-
-  /** @hidden */
-  unmount(): void;
-
-  /** @hidden */
   observe?: boolean;
 
   /** @hidden */
@@ -118,6 +112,12 @@ export interface ModelService<M extends Model, T> {
 
   /** @hidden */
   initManager(): T;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 }
 
 export const ModelService = function <M extends Model, T>(
@@ -359,16 +359,16 @@ ModelService.prototype.getManagerOr = function <T, E>(this: ModelService<Model, 
   return manager as (T extends undefined ? never : T) | E;
 };
 
+ModelService.prototype.initManager = function <T>(this: ModelService<Model, T>): T {
+  return void 0 as unknown as T;
+};
+
 ModelService.prototype.mount = function (this: ModelService<Model, unknown>): void {
   this.bindSuperService();
 };
 
 ModelService.prototype.unmount = function (this: ModelService<Model, unknown>): void {
   this.unbindSuperService();
-};
-
-ModelService.prototype.initManager = function <T>(this: ModelService<Model, T>): T {
-  return void 0 as unknown as T;
 };
 
 ModelService.getClass = function (type: unknown): ModelServiceClass | null {

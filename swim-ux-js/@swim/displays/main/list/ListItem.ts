@@ -64,7 +64,6 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
 
   @ViewFastener<ListItem, HtmlView, Graphics>({
     type: HtmlView,
-    observe: false,
     onSetView(iconView: HtmlView | null): void {
       if (iconView !== null) {
         this.owner.initIconView(iconView);
@@ -105,7 +104,6 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
 
   @ViewFastener<ListItem, HtmlView, string | undefined>({
     type: HtmlView,
-    observe: false,
     onSetView(labelView: HtmlView | null): void {
       if (labelView !== null) {
         this.owner.initLabelView(labelView);
@@ -155,7 +153,6 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
 
   @ViewFastener<ListItem, HtmlView, Graphics | string>({
     type: HtmlView,
-    observe: false,
     onSetView(accessoryView: HtmlView | null): void {
       if (accessoryView !== null) {
         this.owner.initAccessoryView(accessoryView);

@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Trait} from "@swim/model";
-import type {ComponentObserver} from "@swim/component";
 import type {GraphicsView} from "@swim/graphics";
+import type {ComponentObserver} from "@swim/component";
 import type {SliceView} from "./SliceView";
 import type {PieView} from "./PieView";
 import type {SliceTrait} from "./SliceTrait";
@@ -22,36 +21,36 @@ import type {PieTrait} from "./PieTrait";
 import type {SliceComponent} from "./SliceComponent";
 import type {PieComponent} from "./PieComponent";
 
-export interface PieComponentObserver<P extends Trait = PieTrait, S extends Trait = SliceTrait, C extends PieComponent<P, S> = PieComponent<P, S>> extends ComponentObserver<C> {
-  pieWillSetView?(newSliceView: PieView | null, oldSliceView: PieView | null, component: C): void;
+export interface PieComponentObserver<C extends PieComponent = PieComponent> extends ComponentObserver<C> {
+  pieWillSetView?(newPieView: PieView | null, oldPieView: PieView | null, component: C): void;
 
-  pieDidSetView?(newSliceView: PieView | null, oldSliceView: PieView | null, component: C): void;
+  pieDidSetView?(newPieView: PieView | null, oldPieView: PieView | null, component: C): void;
+
+  pieWillSetTrait?(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null, component: C): void;
+
+  pieDidSetTrait?(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null, component: C): void;
 
   pieWillSetTitle?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, component: C): void;
 
   pieDidSetTitle?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, component: C): void;
 
-  pieWillSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent<S>, component: C): void;
+  pieWillSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent, component: C): void;
 
-  pieDidSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent<S>, component: C): void;
+  pieDidSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent, component: C): void;
 
-  pieWillSetSliceValue?(newValue: number, oldValue: number, sliceComponent: SliceComponent<S>, component: C): void;
+  pieWillSetSliceValue?(newValue: number, oldValue: number, sliceComponent: SliceComponent, component: C): void;
 
-  pieDidSetSliceValue?(newValue: number, oldValue: number, sliceComponent: SliceComponent<S>, component: C): void;
+  pieDidSetSliceValue?(newValue: number, oldValue: number, sliceComponent: SliceComponent, component: C): void;
 
-  pieWillSetSliceLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent<S>, component: C): void;
+  pieWillSetSliceLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent, component: C): void;
 
-  pieDidSetSliceLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent<S>, component: C): void;
+  pieDidSetSliceLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceComponent: SliceComponent, component: C): void;
 
-  pieWillSetSliceLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent<S>, component: C): void;
+  pieWillSetSliceLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent, component: C): void;
 
-  pieDidSetSliceLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent<S>, component: C): void;
+  pieDidSetSliceLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent, component: C): void;
 
-  pieWillSetSliceSource?(newSourceTrait: S | null, oldSourceTrait: S | null, sliceComponent: SliceComponent<S>, component: C): void;
+  pieWillSetSliceTrait?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent, component: C): void;
 
-  pieDidSetSliceSource?(newSourceTrait: S | null, oldSourceTrait: S | null, sliceComponent: SliceComponent<S>, component: C): void;
-
-  pieWillSetSource?(newSourceTrait: P | null, oldSourceTrait: P | null, component: C): void;
-
-  pieDidSetSource?(newSourceTrait: P | null, oldSourceTrait: P | null, component: C): void;
+  pieDidSetSliceTrait?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent, component: C): void;
 }

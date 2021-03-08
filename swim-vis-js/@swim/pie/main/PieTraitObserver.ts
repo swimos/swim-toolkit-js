@@ -18,11 +18,11 @@ import type {SliceTrait} from "./SliceTrait";
 import type {PieTrait} from "./PieTrait";
 
 export interface PieTraitObserver<R extends PieTrait = PieTrait> extends TraitObserver<R> {
-  pieWillSetTitle?(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, trait: R): void;
+  pieTraitWillSetTitle?(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, trait: R): void;
 
-  pieDidSetTitle?(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, trait: R): void;
+  pieTraitDidSetTitle?(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, trait: R): void;
 
-  pieWillSetSlice?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null, trait: R): void;
+  pieTraitWillSetSlice?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null, trait: R): void;
 
-  pieDidSetSlice?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null, trait: R): void;
+  pieTraitDidSetSlice?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null, trait: R): void;
 }

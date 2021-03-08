@@ -59,8 +59,8 @@ export class SliceTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.sliceWillSetValue !== void 0) {
-        traitObserver.sliceWillSetValue(newValue, oldValue, this);
+      if (traitObserver.sliceTraitWillSetValue !== void 0) {
+        traitObserver.sliceTraitWillSetValue(newValue, oldValue, this);
       }
     }
   }
@@ -73,8 +73,8 @@ export class SliceTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.sliceDidSetValue !== void 0) {
-        traitObserver.sliceDidSetValue(newValue, oldValue, this);
+      if (traitObserver.sliceTraitDidSetValue !== void 0) {
+        traitObserver.sliceTraitDidSetValue(newValue, oldValue, this);
       }
     }
   }
@@ -99,8 +99,8 @@ export class SliceTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.sliceWillSetLabel !== void 0) {
-        traitObserver.sliceWillSetLabel(newLabel, oldLabel, this);
+      if (traitObserver.sliceTraitWillSetLabel !== void 0) {
+        traitObserver.sliceTraitWillSetLabel(newLabel, oldLabel, this);
       }
     }
   }
@@ -113,8 +113,8 @@ export class SliceTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.sliceDidSetLabel !== void 0) {
-        traitObserver.sliceDidSetLabel(newLabel, oldLabel, this);
+      if (traitObserver.sliceTraitDidSetLabel !== void 0) {
+        traitObserver.sliceTraitDidSetLabel(newLabel, oldLabel, this);
       }
     }
   }
@@ -143,8 +143,8 @@ export class SliceTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.sliceWillSetLegend !== void 0) {
-        traitObserver.sliceWillSetLegend(newLegend, oldLegend, this);
+      if (traitObserver.sliceTraitWillSetLegend !== void 0) {
+        traitObserver.sliceTraitWillSetLegend(newLegend, oldLegend, this);
       }
     }
   }
@@ -157,8 +157,8 @@ export class SliceTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.sliceDidSetLegend !== void 0) {
-        traitObserver.sliceDidSetLegend(newLegend, oldLegend, this);
+      if (traitObserver.sliceTraitDidSetLegend !== void 0) {
+        traitObserver.sliceTraitDidSetLegend(newLegend, oldLegend, this);
       }
     }
   }

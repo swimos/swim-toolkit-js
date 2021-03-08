@@ -108,6 +108,14 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
 
   didStopAnimating(): void;
 
+  updateFlags?: number;
+
+  parse(value: string): T | undefined;
+
+  fromCssValue(value: CSSStyleValue): T | undefined;
+
+  fromAny(value: T | U): T | undefined;
+
   isMounted(): boolean;
 
   /** @hidden */
@@ -135,14 +143,6 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
   didUnmount(): void;
 
   toString(): string;
-
-  updateFlags?: number;
-
-  parse(value: string): T | undefined;
-
-  fromCssValue(value: CSSStyleValue): T | undefined;
-
-  fromAny(value: T | U): T | undefined;
 }
 
 export const StyleAnimator = function <V extends StyleContext, T, U>(
@@ -344,6 +344,18 @@ StyleAnimator.prototype.didStopAnimating = function (this: StyleAnimator<StyleCo
   this.owner.trackDidStopAnimating(this);
 };
 
+StyleAnimator.prototype.parse = function <T>(this: StyleAnimator<StyleContext, T>, value: string): T | undefined {
+  return void 0;
+};
+
+StyleAnimator.prototype.fromCssValue = function <T>(this: StyleAnimator<StyleContext, T>, value: CSSStyleValue): T | undefined {
+  return void 0;
+};
+
+StyleAnimator.prototype.fromAny = function <T, U>(this: StyleAnimator<StyleContext, T, U>, value: T | U): T | undefined {
+  return void 0;
+};
+
 StyleAnimator.prototype.isMounted = function (this: StyleAnimator<StyleContext, unknown>): boolean {
   return (this.animatorFlags & Animator.MountedFlag) !== 0;
 };
@@ -392,18 +404,6 @@ StyleAnimator.prototype.didUnmount = function (this: StyleAnimator<StyleContext,
 
 StyleAnimator.prototype.toString = function (this: StyleAnimator<StyleContext, unknown>): string {
   return this.name;
-};
-
-StyleAnimator.prototype.parse = function <T>(this: StyleAnimator<StyleContext, T>, value: string): T | undefined {
-  return void 0;
-};
-
-StyleAnimator.prototype.fromCssValue = function <T>(this: StyleAnimator<StyleContext, T>, value: CSSStyleValue): T | undefined {
-  return void 0;
-};
-
-StyleAnimator.prototype.fromAny = function <T, U>(this: StyleAnimator<StyleContext, T, U>, value: T | U): T | undefined {
-  return void 0;
 };
 
 StyleAnimator.getClass = function (type: unknown): StyleAnimatorClass | null {

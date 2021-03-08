@@ -95,12 +95,6 @@ export interface ComponentService<C extends Component, T> {
   getManagerOr<E>(elseManager: E): (T extends undefined ? never : T) | E;
 
   /** @hidden */
-  mount(): void;
-
-  /** @hidden */
-  unmount(): void;
-
-  /** @hidden */
   observe?: boolean;
 
   /** @hidden */
@@ -108,6 +102,12 @@ export interface ComponentService<C extends Component, T> {
 
   /** @hidden */
   initManager(): T;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 }
 
 export const ComponentService = function <C extends Component, T>(
@@ -320,16 +320,16 @@ ComponentService.prototype.getManagerOr = function <T, E>(this: ComponentService
   return manager as (T extends undefined ? never : T) | E;
 };
 
+ComponentService.prototype.initManager = function <T>(this: ComponentService<Component, T>): T {
+  return void 0 as unknown as T;
+};
+
 ComponentService.prototype.mount = function (this: ComponentService<Component, unknown>): void {
   this.bindSuperService();
 };
 
 ComponentService.prototype.unmount = function (this: ComponentService<Component, unknown>): void {
   this.unbindSuperService();
-};
-
-ComponentService.prototype.initManager = function <T>(this: ComponentService<Component, T>): T {
-  return void 0 as unknown as T;
 };
 
 ComponentService.getClass = function (type: unknown): ComponentServiceClass | null {

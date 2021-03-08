@@ -17,15 +17,15 @@ import type {GraphicsView} from "@swim/graphics";
 import type {SliceView} from "./SliceView";
 
 export interface SliceViewObserver<V extends SliceView = SliceView> extends ViewObserver<V> {
-  sliceWillSetValue?(newValue: number, oldValue: number, view: V): void;
+  sliceViewWillSetValue?(newValue: number, oldValue: number, view: V): void;
 
-  sliceDidSetValue?(newValue: number, oldValue: number, view: V): void;
+  sliceViewDidSetValue?(newValue: number, oldValue: number, view: V): void;
 
-  sliceWillSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, view: V): void;
+  sliceViewWillSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, view: V): void;
 
-  sliceDidSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, view: V): void;
+  sliceViewDidSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, view: V): void;
 
-  sliceWillSetLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, view: V): void;
+  sliceViewWillSetLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, view: V): void;
 
-  sliceDidSetLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, view: V): void;
+  sliceViewDidSetLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, view: V): void;
 }

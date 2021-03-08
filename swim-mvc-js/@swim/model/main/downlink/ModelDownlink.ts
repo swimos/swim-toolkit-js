@@ -142,12 +142,6 @@ export interface ModelDownlink<M extends ModelDownlinkContext> {
   relink(): void;
 
   /** @hidden */
-  mount(): void;
-
-  /** @hidden */
-  unmount(): void;
-
-  /** @hidden */
   reconcile(): void;
 
   /**
@@ -179,6 +173,12 @@ export interface ModelDownlink<M extends ModelDownlinkContext> {
 
   /** @hidden */
   initBody?(): AnyValue | null;
+
+  /** @hidden */
+  mount(): void;
+
+  /** @hidden */
+  unmount(): void;
 }
 
 export const ModelDownlink = function <M extends ModelDownlinkContext>(
@@ -575,16 +575,6 @@ ModelDownlink.prototype.relink = function (this: ModelDownlink<ModelDownlinkCont
   this.owner.requireUpdate(Model.NeedsReconcile);
 };
 
-ModelDownlink.prototype.mount = function (this: ModelDownlink<ModelDownlinkContext>): void {
-  if ((this.downlinkFlags & ModelDownlink.EnabledFlag) !== 0) {
-    this.owner.requireUpdate(Model.NeedsReconcile);
-  }
-};
-
-ModelDownlink.prototype.unmount = function (this: ModelDownlink<ModelDownlinkContext>): void {
-  this.unlink();
-};
-
 ModelDownlink.prototype.reconcile = function (this: ModelDownlink<ModelDownlinkContext>): void {
   if (this.downlink !== null && (this.downlinkFlags & ModelDownlink.RelinkMask) === ModelDownlink.RelinkMask) {
     this.unlink();
@@ -622,6 +612,16 @@ ModelDownlink.prototype.bindDownlink = function (this: ModelDownlink<ModelDownli
     downlink = downlink.body(body);
   }
   return downlink;
+};
+
+ModelDownlink.prototype.mount = function (this: ModelDownlink<ModelDownlinkContext>): void {
+  if ((this.downlinkFlags & ModelDownlink.EnabledFlag) !== 0) {
+    this.owner.requireUpdate(Model.NeedsReconcile);
+  }
+};
+
+ModelDownlink.prototype.unmount = function (this: ModelDownlink<ModelDownlinkContext>): void {
+  this.unlink();
 };
 
 ModelDownlink.define = function <M extends ModelDownlinkContext, I>(descriptor: ModelDownlinkDescriptor<M, I>): ModelDownlinkConstructor<M, I> {

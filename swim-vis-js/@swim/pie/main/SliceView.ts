@@ -147,14 +147,14 @@ export class SliceView extends LayerView {
 
   protected willSetValue(newValue: number, oldValue: number): void {
     const viewController = this.viewController;
-    if (viewController !== null && viewController.sliceWillSetValue !== void 0) {
-      viewController.sliceWillSetValue(newValue, oldValue, this);
+    if (viewController !== null && viewController.sliceViewWillSetValue !== void 0) {
+      viewController.sliceViewWillSetValue(newValue, oldValue, this);
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.sliceWillSetValue !== void 0) {
-        viewObserver.sliceWillSetValue(newValue, oldValue, this);
+      if (viewObserver.sliceViewWillSetValue !== void 0) {
+        viewObserver.sliceViewWillSetValue(newValue, oldValue, this);
       }
     }
   }
@@ -167,13 +167,13 @@ export class SliceView extends LayerView {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.sliceDidSetValue !== void 0) {
-        viewObserver.sliceDidSetValue(newValue, oldValue, this);
+      if (viewObserver.sliceViewDidSetValue !== void 0) {
+        viewObserver.sliceViewDidSetValue(newValue, oldValue, this);
       }
     }
     const viewController = this.viewController;
-    if (viewController !== null && viewController.sliceDidSetValue !== void 0) {
-      viewController.sliceDidSetValue(newValue, oldValue, this);
+    if (viewController !== null && viewController.sliceViewDidSetValue !== void 0) {
+      viewController.sliceViewDidSetValue(newValue, oldValue, this);
     }
   }
 
@@ -233,7 +233,6 @@ export class SliceView extends LayerView {
 
   @ViewFastener<SliceView, GraphicsView, AnyTextRunView>({
     type: TextRunView,
-    observe: false,
     fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
       if (value instanceof GraphicsView) {
         return value;
@@ -258,14 +257,14 @@ export class SliceView extends LayerView {
 
   protected willSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
     const viewController = this.viewController;
-    if (viewController !== null && viewController.sliceWillSetLabel !== void 0) {
-      viewController.sliceWillSetLabel(newLabelView, oldLabelView, this);
+    if (viewController !== null && viewController.sliceViewWillSetLabel !== void 0) {
+      viewController.sliceViewWillSetLabel(newLabelView, oldLabelView, this);
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.sliceWillSetLabel !== void 0) {
-        viewObserver.sliceWillSetLabel(newLabelView, oldLabelView, this);
+      if (viewObserver.sliceViewWillSetLabel !== void 0) {
+        viewObserver.sliceViewWillSetLabel(newLabelView, oldLabelView, this);
       }
     }
   }
@@ -278,19 +277,18 @@ export class SliceView extends LayerView {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.sliceDidSetLabel !== void 0) {
-        viewObserver.sliceDidSetLabel(newLabelView, oldLabelView, this);
+      if (viewObserver.sliceViewDidSetLabel !== void 0) {
+        viewObserver.sliceViewDidSetLabel(newLabelView, oldLabelView, this);
       }
     }
     const viewController = this.viewController;
-    if (viewController !== null && viewController.sliceDidSetLabel !== void 0) {
-      viewController.sliceDidSetLabel(newLabelView, oldLabelView, this);
+    if (viewController !== null && viewController.sliceViewDidSetLabel !== void 0) {
+      viewController.sliceViewDidSetLabel(newLabelView, oldLabelView, this);
     }
   }
 
   @ViewFastener<SliceView, GraphicsView, AnyTextRunView>({
     type: TextRunView,
-    observe: false,
     fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
       if (value instanceof GraphicsView) {
         return value;
@@ -315,14 +313,14 @@ export class SliceView extends LayerView {
 
   protected willSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
     const viewController = this.viewController;
-    if (viewController !== null && viewController.sliceWillSetLegend !== void 0) {
-      viewController.sliceWillSetLegend(newLegendView, oldLegendView, this);
+    if (viewController !== null && viewController.sliceViewWillSetLegend !== void 0) {
+      viewController.sliceViewWillSetLegend(newLegendView, oldLegendView, this);
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.sliceWillSetLegend !== void 0) {
-        viewObserver.sliceWillSetLegend(newLegendView, oldLegendView, this);
+      if (viewObserver.sliceViewWillSetLegend !== void 0) {
+        viewObserver.sliceViewWillSetLegend(newLegendView, oldLegendView, this);
       }
     }
   }
@@ -335,13 +333,13 @@ export class SliceView extends LayerView {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.sliceDidSetLegend !== void 0) {
-        viewObserver.sliceDidSetLegend(newLegendView, oldLegendView, this);
+      if (viewObserver.sliceViewDidSetLegend !== void 0) {
+        viewObserver.sliceViewDidSetLegend(newLegendView, oldLegendView, this);
       }
     }
     const viewController = this.viewController;
-    if (viewController !== null && viewController.sliceDidSetLegend !== void 0) {
-      viewController.sliceDidSetLegend(newLegendView, oldLegendView, this);
+    if (viewController !== null && viewController.sliceViewDidSetLegend !== void 0) {
+      viewController.sliceViewDidSetLegend(newLegendView, oldLegendView, this);
     }
   }
 

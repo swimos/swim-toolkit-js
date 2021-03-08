@@ -40,10 +40,10 @@ export class TitleDeckBar extends DeckBar {
     const rail = DeckRail.create([backPost, titlePost, morePost]);
     this.rail.setAutoState(rail);
 
-    this.backMembrane.insert();
-    this.backButton.insert();
-    this.titleSlider.insert();
-    this.moreSlider.insert();
+    this.backMembrane.injectView();
+    this.backButton.injectView();
+    this.titleSlider.injectView();
+    this.moreSlider.injectView();
   }
 
   get closeIcon(): Graphics {
@@ -91,7 +91,7 @@ export class TitleDeckBar extends DeckBar {
   createBackButton(): DeckButton | null {
     const backButton = DeckButton.create();
     backButton.backIcon.setView(this.createBackIcon());
-    backButton.backIcon.insert();
+    backButton.backIcon.injectView();
     return backButton;
   }
 
@@ -176,6 +176,7 @@ export class TitleDeckBar extends DeckBar {
 
   @ViewFastener<TitleDeckBar, DeckButton>({
     type: DeckButton,
+    observe: true,
     onSetView(backButton: DeckButton | null): void {
       if (backButton !== null) {
         this.owner.initBackButton(backButton);

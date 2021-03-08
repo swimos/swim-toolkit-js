@@ -22,6 +22,7 @@ import type {ComponentProperty} from "../property/ComponentProperty";
 import type {ComponentModel} from "../fastener/ComponentModel";
 import type {ComponentTrait} from "../fastener/ComponentTrait";
 import type {ComponentView} from "../fastener/ComponentView";
+import type {ComponentViewTrait} from "../fastener/ComponentViewTrait";
 import type {ComponentFastener} from "../fastener/ComponentFastener";
 
 export abstract class GenericComponent extends Component {
@@ -58,6 +59,11 @@ export abstract class GenericComponent extends Component {
       configurable: true,
     });
     Object.defineProperty(this, "componentViews", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "componentViewTraits", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -191,6 +197,7 @@ export abstract class GenericComponent extends Component {
     this.mountComponentModels();
     this.mountComponentTraits();
     this.mountComponentViews();
+    this.mountComponentViewTraits();
     this.mountComponentFasteners();
   }
 
@@ -225,6 +232,7 @@ export abstract class GenericComponent extends Component {
 
   protected onUnmount(): void {
     this.unmountComponentFasteners();
+    this.unmountComponentViewTraits();
     this.unmountComponentViews();
     this.unmountComponentTraits();
     this.unmountComponentModels();
@@ -731,6 +739,67 @@ export abstract class GenericComponent extends Component {
     for (const viewName in componentViews) {
       const componentView = componentViews[viewName]!;
       componentView.unmount();
+    }
+  }
+
+  /** @hidden */
+  declare readonly componentViewTraits: {[fastenerName: string]: ComponentViewTrait<Component, View, Trait> | undefined} | null;
+
+  hasComponentViewTrait(fastenerName: string): boolean {
+    const componentViewTraits = this.componentViewTraits;
+    return componentViewTraits !== null && componentViewTraits[fastenerName] !== void 0;
+  }
+
+  getComponentViewTrait(fastenerName: string): ComponentViewTrait<this, View, Trait> | null {
+    const componentViewTraits = this.componentViewTraits;
+    if (componentViewTraits !== null) {
+      const componentViewTrait = componentViewTraits[fastenerName];
+      if (componentViewTrait !== void 0) {
+        return componentViewTrait as ComponentViewTrait<this, View, Trait>;
+      }
+    }
+    return null;
+  }
+
+  setComponentViewTrait(fastenerName: string, newComponentViewTrait: ComponentViewTrait<this, any, any> | null): void {
+    let componentViewTraits = this.componentViewTraits;
+    if (componentViewTraits === null) {
+      componentViewTraits = {};
+      Object.defineProperty(this, "componentViewTraits", {
+        value: componentViewTraits,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    const oldComponentViewTrait = componentViewTraits[fastenerName];
+    if (oldComponentViewTrait !== void 0 && this.isMounted()) {
+      oldComponentViewTrait.unmount();
+    }
+    if (newComponentViewTrait !== null) {
+      componentViewTraits[fastenerName] = newComponentViewTrait;
+      if (this.isMounted()) {
+        newComponentViewTrait.mount();
+      }
+    } else {
+      delete componentViewTraits[fastenerName];
+    }
+  }
+
+  /** @hidden */
+  protected mountComponentViewTraits(): void {
+    const componentViewTraits = this.componentViewTraits;
+    for (const fastenerName in componentViewTraits) {
+      const componentViewTrait = componentViewTraits[fastenerName]!;
+      componentViewTrait.mount();
+    }
+  }
+
+  /** @hidden */
+  protected unmountComponentViewTraits(): void {
+    const componentViewTraits = this.componentViewTraits;
+    for (const fastenerName in componentViewTraits) {
+      const componentViewTrait = componentViewTraits[fastenerName]!;
+      componentViewTrait.unmount();
     }
   }
 

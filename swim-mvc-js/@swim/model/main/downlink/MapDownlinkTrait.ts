@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import type {AnyValue, Value} from "@swim/structure";
-import type {Uri} from "@swim/uri";
 import {ModelMapDownlink} from "./ModelMapDownlink";
 import {DownlinkTrait} from "./DownlinkTrait";
 
@@ -27,15 +26,6 @@ export abstract class MapDownlinkTrait extends DownlinkTrait {
   }
 
   @ModelMapDownlink<MapDownlinkTrait, Value, Value, AnyValue, AnyValue>({
-    hostUri(): Uri | null {
-      return this.owner.hostUri;
-    },
-    nodeUri(): Uri | null {
-      return this.owner.nodeUri;
-    },
-    laneUri(): Uri | null {
-      return this.owner.laneUri;
-    },
     didUpdate(key: Value, newValue: Value, oldValue: Value): void {
       if (this.owner.isConsuming()) {
         this.owner.downlinkDidUpdate(key, newValue, oldValue);

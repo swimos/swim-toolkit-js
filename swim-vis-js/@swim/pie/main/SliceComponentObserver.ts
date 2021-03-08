@@ -12,17 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Trait} from "@swim/model";
-import type {ComponentObserver} from "@swim/component";
 import type {GraphicsView} from "@swim/graphics";
+import type {ComponentObserver} from "@swim/component";
 import type {SliceView} from "./SliceView";
 import type {SliceTrait} from "./SliceTrait";
 import type {SliceComponent} from "./SliceComponent";
 
-export interface SliceComponentObserver<S extends Trait = SliceTrait, C extends SliceComponent<S> = SliceComponent<S>> extends ComponentObserver<C> {
+export interface SliceComponentObserver<C extends SliceComponent = SliceComponent> extends ComponentObserver<C> {
   sliceWillSetView?(newSliceView: SliceView | null, oldSliceView: SliceView | null, component: C): void;
 
   sliceDidSetView?(newSliceView: SliceView | null, oldSliceView: SliceView | null, component: C): void;
+
+  sliceWillSetTrait?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, component: C): void;
+
+  sliceDidSetTrait?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, component: C): void;
 
   sliceWillSetValue?(newValue: number, oldValue: number, component: C): void;
 
@@ -35,8 +38,4 @@ export interface SliceComponentObserver<S extends Trait = SliceTrait, C extends 
   sliceWillSetLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, component: C): void;
 
   sliceDidSetLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, component: C): void;
-
-  sliceWillSetSource?(newSourceTrait: S | null, oldSourceTrait: S | null, component: C): void;
-
-  sliceDidSetSource?(newSourceTrait: S | null, oldSourceTrait: S | null, component: C): void;
 }

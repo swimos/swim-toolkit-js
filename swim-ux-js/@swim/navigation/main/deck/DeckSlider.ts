@@ -83,7 +83,7 @@ export class DeckSlider extends DeckSlot {
 
     this.setViewFastener(newItemKey, newItemFastener);
     newItemFastener.setView(newItemView);
-    newItemFastener.insert();
+    newItemFastener.injectView();
 
     if (timing === void 0 && oldItemCount === 0) {
       timing = false;
@@ -136,7 +136,7 @@ export class DeckSlider extends DeckSlot {
       this.willPopItem(newItemView, oldItemView);
       this.item = newItemFastener;
       if (newItemFastener !== null) {
-        newItemFastener.insert();
+        newItemFastener.injectView();
       }
 
       if (timing === void 0 || timing === true) {
@@ -304,4 +304,5 @@ export const DeckSliderItemFastener = ViewFastener.define<DeckSlider, HtmlView>(
   extends: DeckSliderItem,
   type: HtmlView,
   child: false,
+  observe: true,
 });

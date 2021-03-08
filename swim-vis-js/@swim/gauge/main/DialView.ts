@@ -196,7 +196,6 @@ export class DialView extends LayerView {
 
   @ViewFastener<DialView, GraphicsView, AnyTextRunView>({
     type: TextRunView,
-    observe: false,
     fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
       if (value instanceof GraphicsView) {
         return value;
@@ -209,7 +208,6 @@ export class DialView extends LayerView {
 
   @ViewFastener<DialView, GraphicsView, AnyTextRunView>({
     type: TextRunView,
-    observe: false,
     fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
       if (value instanceof GraphicsView) {
         return value;

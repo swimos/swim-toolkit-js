@@ -91,6 +91,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     extends: void 0,
     type: SvgIconView,
     child: false,
+    observe: true,
     iconIndex: 0,
     viewDidAnimate(viewContext: ViewContext, iconView: SvgIconView): void {
       if (!iconView.opacity.isAnimating() && this.iconIndex !== this.owner.iconCount) {

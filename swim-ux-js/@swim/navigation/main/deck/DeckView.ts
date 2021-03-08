@@ -89,7 +89,7 @@ export class DeckView extends HtmlView {
 
     this.setViewFastener(newCardKey, newCardFastener);
     newCardFastener.setView(newCardView);
-    newCardFastener.insert();
+    newCardFastener.injectView();
 
     if (timing === void 0 && oldCardCount === 0) {
       timing = false;
@@ -144,7 +144,7 @@ export class DeckView extends HtmlView {
       this.willPopCard(newCardView, oldCardView);
       this.card = newCardFastener;
       if (newCardFastener !== null) {
-        newCardFastener.insert();
+        newCardFastener.injectView();
       }
 
       if (timing === void 0 || timing === true) {
@@ -267,7 +267,11 @@ export abstract class DeckViewBar<V extends DeckView, S extends DeckBar> extends
     this.owner.didPressCloseButton(event);
   }
 }
-ViewFastener({extends: DeckViewBar, type: DeckBar})(DeckView.prototype, "bar");
+ViewFastener({
+  extends: DeckViewBar,
+  type: DeckBar,
+  observe: true,
+})(DeckView.prototype, "bar");
 
 /** @hidden */
 export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> extends ViewFastener<V, S> {
@@ -405,4 +409,5 @@ export const DeckViewCardFastener = ViewFastener.define<DeckView, DeckCard>({
   extends: DeckViewCard,
   type: DeckCard,
   child: false,
+  observe: true,
 });

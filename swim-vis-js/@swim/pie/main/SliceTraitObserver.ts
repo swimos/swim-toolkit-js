@@ -17,15 +17,15 @@ import type {TraitObserver} from "@swim/model";
 import type {SliceTrait} from "./SliceTrait";
 
 export interface SliceTraitObserver<R extends SliceTrait = SliceTrait> extends TraitObserver<R> {
-  sliceWillSetValue?(newValue: number, oldValue: number, trait: R): void;
+  sliceTraitWillSetValue?(newValue: number, oldValue: number, trait: R): void;
 
-  sliceDidSetValue?(newValue: number, oldValue: number, trait: R): void;
+  sliceTraitDidSetValue?(newValue: number, oldValue: number, trait: R): void;
 
-  sliceWillSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
+  sliceTraitWillSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
 
-  sliceDidSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
+  sliceTraitDidSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
 
-  sliceWillSetLegend?(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, trait: R): void;
+  sliceTraitWillSetLegend?(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, trait: R): void;
 
-  sliceDidSetLegend?(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, trait: R): void;
+  sliceTraitDidSetLegend?(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, trait: R): void;
 }

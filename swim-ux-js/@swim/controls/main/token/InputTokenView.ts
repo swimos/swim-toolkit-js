@@ -35,7 +35,7 @@ export class InputTokenView extends TokenView {
   }
 
   protected initToken(): void {
-    this.stylesheet.insert();
+    this.stylesheet.injectView();
     super.initToken();
     this.addClass("input-token");
     this.label.setView(this.label.createView());
@@ -84,8 +84,9 @@ export class InputTokenView extends TokenView {
   }
 
   @ViewFastener<InputTokenView, StyleView>({
-    child: true,
     type: HtmlView.style,
+    child: true,
+    observe: true,
     viewDidMount(styleView: StyleView): void {
       this.owner.initStylesheet(styleView);
     },
@@ -95,10 +96,11 @@ export class InputTokenView extends TokenView {
   @ViewFastener<InputTokenView, HtmlView>({
     child: false,
     type: HtmlView.input,
+    observe: true,
     onSetView(labelView: HtmlView | null): void {
       if (labelView !== null) {
         if (labelView.parentView === null) {
-          this.owner.labelContainer.insert();
+          this.owner.labelContainer.injectView();
           const labelContainer = this.owner.labelContainer.view;
           if (labelContainer !== null) {
             labelContainer.appendChildView(labelView);

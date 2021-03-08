@@ -143,6 +143,13 @@ export interface ViewAnimator<V extends View, T, U = never> extends Animator<T> 
 
   didStopAnimating(): void;
 
+  updateFlags?: ViewFlags;
+
+  fromAny(value: T | U): T;
+
+  /** @hidden */
+  initState?(): T | U;
+
   isMounted(): boolean;
 
   /** @hidden */
@@ -170,13 +177,6 @@ export interface ViewAnimator<V extends View, T, U = never> extends Animator<T> 
   didUnmount(): void;
 
   toString(): string;
-
-  updateFlags?: ViewFlags;
-
-  fromAny(value: T | U): T;
-
-  /** @hidden */
-  initState?(): T | U;
 }
 
 export const ViewAnimator = function <V extends View, T, U>(
@@ -540,6 +540,10 @@ ViewAnimator.prototype.didStopAnimating = function (this: ViewAnimator<View, unk
   this.owner.trackDidStopAnimating(this);
 };
 
+ViewAnimator.prototype.fromAny = function <T, U>(this: ViewAnimator<View, T, U>, value: T | U): T {
+  return value as T;
+};
+
 ViewAnimator.prototype.isMounted = function (this: ViewAnimator<View, unknown>): boolean {
   return (this.animatorFlags & Animator.MountedFlag) !== 0;
 };
@@ -589,10 +593,6 @@ ViewAnimator.prototype.didUnmount = function (this: ViewAnimator<View, unknown>)
 
 ViewAnimator.prototype.toString = function (this: ViewAnimator<View, unknown>): string {
   return this.name;
-};
-
-ViewAnimator.prototype.fromAny = function <T, U>(this: ViewAnimator<View, T, U>, value: T | U): T {
-  return value as T;
 };
 
 ViewAnimator.getClass = function (type: unknown): ViewAnimatorClass | null {

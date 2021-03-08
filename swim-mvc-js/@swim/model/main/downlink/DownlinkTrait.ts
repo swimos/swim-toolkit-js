@@ -12,25 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Uri} from "@swim/uri";
 import {Trait} from "../Trait";
 import type {TraitConsumerType} from "../TraitConsumer";
 import {TraitFastener} from "../fastener/TraitFastener";
 import {GenericTrait} from "../generic/GenericTrait";
 
 export abstract class DownlinkTrait extends GenericTrait {
-  get hostUri(): Uri | null {
-    return null;
-  }
-
-  get nodeUri(): Uri | null {
-    return null;
-  }
-
-  get laneUri(): Uri | null {
-    return null;
-  }
-
   protected attachDriver(driverTrait: Trait): void {
     if (driverTrait.isConsuming()) {
       this.addTraitConsumer(driverTrait as TraitConsumerType<this>);
@@ -53,6 +40,7 @@ export abstract class DownlinkTrait extends GenericTrait {
 
   @TraitFastener<DownlinkTrait, Trait>({
     type: Trait,
+    observe: true,
     onSetTrait(newDriverTrait: Trait | null, oldDriverTrait: Trait | null): void {
       if (oldDriverTrait !== null) {
         this.owner.detachDriver(oldDriverTrait);

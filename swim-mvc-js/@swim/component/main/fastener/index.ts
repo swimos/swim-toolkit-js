@@ -17,8 +17,6 @@ export {
   ComponentModelMemberInit,
   ComponentModelInit,
   ComponentModelDescriptor,
-  ComponentModelDescriptorExtends,
-  ComponentModelDescriptorFromAny,
   ComponentModelConstructor,
   ComponentModelClass,
   ComponentModel,
@@ -29,8 +27,6 @@ export {
   ComponentTraitMemberInit,
   ComponentTraitInit,
   ComponentTraitDescriptor,
-  ComponentTraitDescriptorExtends,
-  ComponentTraitDescriptorFromAny,
   ComponentTraitConstructor,
   ComponentTraitClass,
   ComponentTrait,
@@ -41,20 +37,24 @@ export {
   ComponentViewMemberInit,
   ComponentViewInit,
   ComponentViewDescriptor,
-  ComponentViewDescriptorExtends,
-  ComponentViewDescriptorFromAny,
   ComponentViewConstructor,
   ComponentViewClass,
   ComponentView,
 } from "./ComponentView";
 
 export {
+  ComponentViewTraitInit,
+  ComponentViewTraitDescriptor,
+  ComponentViewTraitConstructor,
+  ComponentViewTraitClass,
+  ComponentViewTrait,
+} from "./ComponentViewTrait";
+
+export {
   ComponentFastenerMemberType,
   ComponentFastenerMemberInit,
   ComponentFastenerInit,
   ComponentFastenerDescriptor,
-  ComponentFastenerDescriptorExtends,
-  ComponentFastenerDescriptorFromAny,
   ComponentFastenerConstructor,
   ComponentFastenerClass,
   ComponentFastener,
