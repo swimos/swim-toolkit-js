@@ -29,6 +29,8 @@ const LightIconColor = Color.parse("#4a4a4a");
 const LightAccentColor = Color.parse("#5c5d5e");
 const LightMutedColor = Color.parse("#989898");
 const LightNeutralColor = Color.parse("#808080");
+const LightSubduedColor = Color.parse("#d7d6d5");
+const LightFaintColor = Color.parse("#e0dedc");
 const LightHighlightColor = Color.black(0.05);
 
 const LightBackgroundColor = Color.parse("#f9f8f6");
@@ -56,6 +58,8 @@ const LightAmbient = FeelVector.of(
   [Look.accentColor, LightAccentColor],
   [Look.mutedColor, LightMutedColor],
   [Look.neutralColor, LightNeutralColor],
+  [Look.subduedColor, LightSubduedColor],
+  [Look.faintColor, LightFaintColor],
   [Look.highlightColor, LightHighlightColor],
 
   [Look.backgroundColor, LightBackgroundColor],
@@ -74,6 +78,8 @@ const LightDefault = FeelVector.of(
   [Look.accentColor, LightAccentColor],
   [Look.mutedColor, LightMutedColor],
   [Look.neutralColor, LightNeutralColor],
+  [Look.subduedColor, LightSubduedColor],
+  [Look.faintColor, LightFaintColor],
   [Look.highlightColor, LightHighlightColor],
 
   [Look.backgroundColor, LightBackgroundColor],

@@ -837,9 +837,7 @@ export class CanvasView extends HtmlView {
 
   protected onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);
-    this.resizeCanvas(this.node);
-    this.resetRenderer();
-    this.requireUpdate(View.NeedsRender | View.NeedsComposite);
+    this.requireUpdate(View.NeedsLayout | View.NeedsRender | View.NeedsComposite);
   }
 
   protected onScroll(viewContext: ViewContextType<this>): void {
@@ -945,6 +943,12 @@ export class CanvasView extends HtmlView {
   protected didDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     this.detectHitTargets();
     super.didDisplay(displayFlags, viewContext);
+  }
+
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
+    this.resizeCanvas(this.node);
+    this.resetRenderer();
   }
 
   protected willRender(viewContext: ViewContextType<this>): void {
@@ -2082,16 +2086,14 @@ export class CanvasView extends HtmlView {
     let pixelRatio: number;
     let parentNode = canvas.parentNode;
     if (parentNode instanceof HTMLElement) {
-      let bounds: ClientRect | DOMRect;
       do {
-        bounds = parentNode.getBoundingClientRect();
-        if (bounds.width !== 0 && bounds.height !== 0) {
+        width = Math.floor(parentNode.offsetWidth);
+        height = Math.floor(parentNode.offsetHeight);
+        if (width !== 0 && height !== 0) {
           break;
         }
         parentNode = parentNode.parentNode;
       } while (parentNode instanceof HTMLElement);
-      width = Math.floor(bounds.width);
-      height = Math.floor(bounds.height);
       pixelRatio = this.pixelRatio;
       canvas.width = width * pixelRatio;
       canvas.height = height * pixelRatio;

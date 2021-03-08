@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AnyTiming, Timing} from "@swim/mapping";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import type {GraphicsView} from "@swim/graphics";
 import type {Trait} from "@swim/model";
 import {
@@ -151,11 +152,11 @@ export class PieComponent extends CompositeComponent {
     }
   }
 
-  createPieView(): PieView | null {
+  protected createPieView(): PieView | null {
     return PieView.create();
   }
 
-  initPieView(pieView: PieView): void {
+  protected initPieView(pieView: PieView): void {
     // hook
   }
 
@@ -191,7 +192,11 @@ export class PieComponent extends CompositeComponent {
   }
 
   protected onSetPieView(newPieView: PieView | null, oldPieView: PieView | null): void {
+    if (oldPieView !== null) {
+      this.detachPieView(oldPieView);
+    }
     if (newPieView !== null) {
+      this.attachPieView(newPieView);
       this.initPieView(newPieView);
       this.title.setView(newPieView.title.view);
     }
@@ -207,11 +212,20 @@ export class PieComponent extends CompositeComponent {
     }
   }
 
+  protected themePieView(pieView: PieView, theme: ThemeMatrix,
+                         mood: MoodVector, timing: Timing | boolean): void {
+    // hook
+  }
+
   setPieTitle(title: GraphicsView | string | undefined): void {
     const pieView = this.pie.view;
     if (pieView !== null) {
       pieView.title.setView(title !== void 0 ? title : null);
     }
+  }
+
+  protected initPieTitle(titleView: GraphicsView | null): void {
+    // hook
   }
 
   protected willSetPieTitle(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
@@ -225,7 +239,9 @@ export class PieComponent extends CompositeComponent {
   }
 
   protected onSetPieTitle(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
-    // hook
+    if (newTitleView !== null) {
+      this.initPieTitle(newTitleView);
+    }
   }
 
   protected didSetPieTitle(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
@@ -238,11 +254,11 @@ export class PieComponent extends CompositeComponent {
     }
   }
 
-  createSliceView(sliceComponent: SliceComponent): SliceView | null {
-    return sliceComponent.createSliceView();
+  protected createSliceView(sliceComponent: SliceComponent): SliceView | null {
+    return sliceComponent.slice.createView();
   }
 
-  initSliceView(sliceView: SliceView, sliceComponent: SliceComponent): void {
+  protected initSliceView(sliceView: SliceView, sliceComponent: SliceComponent): void {
     // hook
   }
 
@@ -304,7 +320,7 @@ export class PieComponent extends CompositeComponent {
     }
   }
 
-  initSliceLabel(labelView: GraphicsView, sliceComponent: SliceComponent): void {
+  protected initSliceLabel(labelView: GraphicsView, sliceComponent: SliceComponent): void {
     // hook
   }
 
@@ -334,7 +350,7 @@ export class PieComponent extends CompositeComponent {
     }
   }
 
-  initSliceLegend(labelView: GraphicsView, sliceComponent: SliceComponent): void {
+  protected initSliceLegend(labelView: GraphicsView, sliceComponent: SliceComponent): void {
     // hook
   }
 
@@ -437,7 +453,11 @@ export class PieComponent extends CompositeComponent {
   }
 
   protected onSetPieTrait(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null): void {
+    if (oldPieTrait !== null) {
+      this.detachPieTrait(oldPieTrait);
+    }
     if (newPieTrait !== null) {
+      this.attachPieTrait(newPieTrait);
       this.initPieTrait(newPieTrait);
     }
   }
@@ -455,22 +475,22 @@ export class PieComponent extends CompositeComponent {
   @ComponentProperty({type: Timing, state: true})
   declare sliceTiming: ComponentProperty<this, Timing | boolean | undefined, AnyTiming>;
 
-  @ComponentViewTrait<PieComponent, PieView, PieTrait>({
+  /** @hidden */
+  static PieFastener = ComponentViewTrait.define<PieComponent, PieView, PieTrait>({
     viewType: PieView,
+    observeView: true,
     willSetView(newPieView: PieView | null, oldPieView: PieView | null): void {
-      this.owner.willSetPieView(oldPieView, newPieView);
+      this.owner.willSetPieView(newPieView, oldPieView);
     },
     onSetView(newPieView: PieView | null, oldPieView: PieView | null): void {
-      if (oldPieView !== null) {
-        this.owner.detachPieView(oldPieView);
-      }
       this.owner.onSetPieView(newPieView, oldPieView);
-      if (newPieView !== null) {
-        this.owner.attachPieView(newPieView);
-      }
     },
     didSetView(newPieView: PieView | null, oldPieView: PieView | null): void {
-      this.owner.didSetPieView(oldPieView, newPieView);
+      this.owner.didSetPieView(newPieView, oldPieView);
+    },
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                      timing: Timing | boolean, pieView: PieView): void {
+      this.owner.themePieView(pieView, theme, mood, timing);
     },
     createView(): PieView | null {
       return this.owner.createPieView();
@@ -481,13 +501,7 @@ export class PieComponent extends CompositeComponent {
       this.owner.willSetPieTrait(newPieTrait, oldPieTrait);
     },
     onSetTrait(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null): void {
-      if (oldPieTrait !== null) {
-        this.owner.detachPieTrait(oldPieTrait);
-      }
       this.owner.onSetPieTrait(newPieTrait, oldPieTrait);
-      if (newPieTrait !== null) {
-        this.owner.attachPieTrait(newPieTrait);
-      }
     },
     didSetTrait(newPieTrait: PieTrait | null, oldPieTrait: PieTrait | null): void {
       this.owner.didSetPieTrait(newPieTrait, oldPieTrait);
@@ -505,6 +519,10 @@ export class PieComponent extends CompositeComponent {
         this.owner.insertSliceTrait(newSliceTrait, targetTrait);
       }
     },
+  });
+
+  @ComponentViewTrait<PieComponent, PieView, PieTrait>({
+    extends: PieComponent.PieFastener,
   })
   declare pie: ComponentViewTrait<this, PieView, PieTrait>;
 
@@ -626,31 +644,31 @@ export class PieComponent extends CompositeComponent {
     }
   }
 
-  protected detectSlice(component: Component): SliceComponent | null {
+  protected detectSliceComponent(component: Component): SliceComponent | null {
     return component instanceof SliceComponent ? component : null;
   }
 
-  protected onInsertSlice(sliceComponent: SliceComponent, targetComponent: Component | null): void {
+  protected onInsertSliceComponent(sliceComponent: SliceComponent, targetComponent: Component | null): void {
     this.insertSlice(sliceComponent, targetComponent);
   }
 
-  protected onRemoveSlice(sliceComponent: SliceComponent): void {
+  protected onRemoveSliceComponent(sliceComponent: SliceComponent): void {
     this.removeSlice(sliceComponent);
   }
 
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     super.onInsertChildComponent(childComponent, targetComponent);
-    const sliceComponent = this.detectSlice(childComponent);
+    const sliceComponent = this.detectSliceComponent(childComponent);
     if (sliceComponent !== null) {
-      this.onInsertSlice(sliceComponent, targetComponent);
+      this.onInsertSliceComponent(sliceComponent, targetComponent);
     }
   }
 
   protected onRemoveChildComponent(childComponent: Component): void {
     super.onRemoveChildComponent(childComponent);
-    const sliceComponent = this.detectSlice(childComponent);
+    const sliceComponent = this.detectSliceComponent(childComponent);
     if (sliceComponent !== null) {
-      this.onRemoveSlice(sliceComponent);
+      this.onRemoveSliceComponent(sliceComponent);
     }
   }
 

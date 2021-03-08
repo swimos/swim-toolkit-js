@@ -29,6 +29,8 @@ const DarkIconColor = Color.parse("#d8d8d8");
 const DarkAccentColor = Color.parse("#6c6d6e");
 const DarkMutedColor = Color.parse("#989898");
 const DarkNeutralColor = Color.parse("#808080");
+const DarkSubduedColor = Color.parse("#28292a");
+const DarkFaintColor = Color.parse("#1f2123");
 const DarkHighlightColor = Color.white(0.1);
 
 const DarkBackgroundColor = Color.parse("#161719");
@@ -56,6 +58,8 @@ const DarkAmbient = FeelVector.of(
   [Look.accentColor, DarkAccentColor],
   [Look.mutedColor, DarkMutedColor],
   [Look.neutralColor, DarkNeutralColor],
+  [Look.subduedColor, DarkSubduedColor],
+  [Look.faintColor, DarkFaintColor],
   [Look.highlightColor, DarkHighlightColor],
 
   [Look.backgroundColor, DarkBackgroundColor],
@@ -74,6 +78,8 @@ const DarkDefault = FeelVector.of(
   [Look.accentColor, DarkAccentColor],
   [Look.mutedColor, DarkMutedColor],
   [Look.neutralColor, DarkNeutralColor],
+  [Look.subduedColor, DarkSubduedColor],
+  [Look.faintColor, DarkFaintColor],
   [Look.highlightColor, DarkHighlightColor],
 
   [Look.backgroundColor, DarkBackgroundColor],

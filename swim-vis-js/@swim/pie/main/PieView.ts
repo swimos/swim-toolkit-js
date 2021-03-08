@@ -170,7 +170,7 @@ export class PieView extends LayerView {
   declare labelRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  declare sliceColor: ViewAnimator<this, Color, AnyColor>;
+  declare sliceColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Number, state: 0.5})
   declare tickAlign: ViewAnimator<this, number>;
@@ -184,11 +184,11 @@ export class PieView extends LayerView {
   @ViewAnimator({type: Length, state: Length.px(1)})
   declare tickWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, state: Length.px(1)})
+  @ViewAnimator({type: Length, state: Length.px(2)})
   declare tickPadding: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  declare tickColor: ViewAnimator<this, Color, AnyColor>;
+  declare tickColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
   declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;

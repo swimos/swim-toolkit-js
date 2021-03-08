@@ -145,10 +145,10 @@ export class GaugeView extends LayerView {
   declare dialSpacing: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: Color.transparent()})
-  declare dialColor: ViewAnimator<this, Color, AnyColor>;
+  declare dialColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  declare meterColor: ViewAnimator<this, Color, AnyColor>;
+  declare meterColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Length, state: Length.pct(25)})
   declare labelPadding: ViewAnimator<this, Length, AnyLength>;
@@ -165,11 +165,11 @@ export class GaugeView extends LayerView {
   @ViewAnimator({type: Length, state: Length.px(1)})
   declare tickWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, state: Length.px(1)})
+  @ViewAnimator({type: Length, state: Length.px(2)})
   declare tickPadding: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: Color.black()})
-  declare tickColor: ViewAnimator<this, Color, AnyColor>;
+  declare tickColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewAnimator({type: Font, inherit: true})
   declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;

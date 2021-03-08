@@ -28,6 +28,8 @@ Look.statusColor = new ColorLook("statusColor");
 Look.accentColor = new ColorLook("accentColor");
 Look.mutedColor = new ColorLook("mutedColor");
 Look.neutralColor = new ColorLook("neutralColor");
+Look.subduedColor = new ColorLook("subduedColor");
+Look.faintColor = new ColorLook("faintColor");
 Look.highlightColor = new ColorLook("highlightColor");
 
 Look.backgroundColor = new ColorLook("backgroundColor");

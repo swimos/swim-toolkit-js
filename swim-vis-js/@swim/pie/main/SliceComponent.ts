@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyTiming, Timing} from "@swim/mapping";
-import {Look, Mood} from "@swim/theme";
+import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {GraphicsView} from "@swim/graphics";
 import {
   ComponentProperty,
@@ -54,7 +54,7 @@ export class SliceComponent extends CompositeComponent {
     }
   }
 
-  createSliceView(): SliceView {
+  protected createSliceView(): SliceView {
     return SliceView.create();
   }
 
@@ -86,7 +86,11 @@ export class SliceComponent extends CompositeComponent {
   }
 
   protected onSetSliceView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
+    if (oldSliceView !== null) {
+      this.detachSliceView(oldSliceView);
+    }
     if (newSliceView !== null) {
+      this.attachSliceView(newSliceView);
       this.initSliceView(newSliceView);
       this.label.setView(newSliceView.label.view);
       this.legend.setView(newSliceView.legend.view);
@@ -101,6 +105,11 @@ export class SliceComponent extends CompositeComponent {
         componentObserver.sliceDidSetView(newSliceView, oldSliceView, this);
       }
     }
+  }
+
+  protected themeSliceView(sliceView: SliceView, theme: ThemeMatrix,
+                           mood: MoodVector, timing: Timing | boolean): void {
+    // hook
   }
 
   protected setSliceValue(value: number): void {
@@ -250,7 +259,11 @@ export class SliceComponent extends CompositeComponent {
   }
 
   protected onSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
+    if (oldSliceTrait !== null) {
+      this.detachSliceTrait(oldSliceTrait);
+    }
     if (newSliceTrait !== null) {
+      this.attachSliceTrait(newSliceTrait);
       this.initSliceTrait(newSliceTrait);
     }
   }
@@ -268,23 +281,22 @@ export class SliceComponent extends CompositeComponent {
   @ComponentProperty({type: Timing, inherit: true})
   declare sliceTiming: ComponentProperty<this, Timing | boolean | undefined, AnyTiming>;
 
-  @ComponentViewTrait<SliceComponent, SliceView, SliceTrait>({
+  /** @hidden */
+  static SliceFastener = ComponentViewTrait.define<SliceComponent, SliceView, SliceTrait>({
     viewType: SliceView,
     observeView: true,
     willSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
       this.owner.willSetSliceView(newSliceView, oldSliceView);
     },
     onSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
-      if (oldSliceView !== null) {
-        this.owner.detachSliceView(oldSliceView);
-      }
       this.owner.onSetSliceView(newSliceView, oldSliceView);
-      if (newSliceView !== null) {
-        this.owner.attachSliceView(newSliceView);
-      }
     },
     didSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
       this.owner.didSetSliceView(newSliceView, oldSliceView);
+    },
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                      timing: Timing | boolean, sliceView: SliceView): void {
+      this.owner.themeSliceView(sliceView, theme, mood, timing);
     },
     sliceViewWillSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
       this.owner.willSetSliceValue(newValue, oldValue, sliceView);
@@ -312,13 +324,7 @@ export class SliceComponent extends CompositeComponent {
       this.owner.willSetSliceTrait(newSliceTrait, oldSliceTrait);
     },
     onSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
-      if (oldSliceTrait !== null) {
-        this.owner.detachSliceTrait(oldSliceTrait);
-      }
       this.owner.onSetSliceTrait(newSliceTrait, oldSliceTrait);
-      if (newSliceTrait !== null) {
-        this.owner.attachSliceTrait(newSliceTrait);
-      }
     },
     didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
       this.owner.didSetSliceTrait(newSliceTrait, oldSliceTrait);
@@ -332,6 +338,10 @@ export class SliceComponent extends CompositeComponent {
     sliceTraitDidSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, sliceTrait: SliceTrait): void {
       this.owner.setSliceLegend(newLegend);
     },
+  });
+
+  @ComponentViewTrait<SliceComponent, SliceView, SliceTrait>({
+    extends: SliceComponent.SliceFastener,
   })
   declare slice: ComponentViewTrait<this, SliceView, SliceTrait>;
 

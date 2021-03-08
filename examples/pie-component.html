@@ -44,12 +44,6 @@ class DemoPieComponent extends swim.PieComponent {
   }
 }
 
-const pieComponent = new DemoPieComponent();
-pieComponent.mount();
-pieComponent.pie.injectView(canvasView);
-
-const pieModel = new swim.CompoundModel();
-pieModel.mount();
 const pieTrait = new swim.PieTrait();
 
 const slice1Model = new swim.CompoundModel();
@@ -64,9 +58,16 @@ slice2Trait.setValue(1);
 slice2Trait.setLegend("Slice 2");
 slice2Model.setTrait("slice", slice2Trait);
 
+const pieModel = new swim.CompoundModel();
+pieModel.mount();
 pieModel.setTrait("pie", pieTrait);
 pieModel.appendChildModel(slice1Model, "slice1");
+
+const pieComponent = new DemoPieComponent();
+pieComponent.mount();
+pieComponent.pie.injectView(canvasView);
 pieComponent.pie.setTrait(pieTrait);
+
 pieModel.insertChildModel(slice2Model, slice1Model, "slice2");
 
 setInterval(function () {

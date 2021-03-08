@@ -132,9 +132,7 @@ export class MapRasterView extends MapLayerView {
 
   protected onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);
-    this.resizeCanvas(this.canvas);
-    this.resetRenderer();
-    this.requireUpdate(View.NeedsRender | View.NeedsComposite);
+    this.requireUpdate(View.NeedsLayout | View.NeedsRender | View.NeedsComposite);
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
@@ -154,8 +152,8 @@ export class MapRasterView extends MapLayerView {
     this.resetRenderer();
   }
 
-  protected willRender(viewContext: ViewContextType<this>): void {
-    super.willRender(viewContext);
+  protected onRender(viewContext: ViewContextType<this>): void {
+    super.onRender(viewContext);
     this.clearCanvas();
   }
 
