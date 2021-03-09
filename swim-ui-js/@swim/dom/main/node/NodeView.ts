@@ -1074,8 +1074,6 @@ export class NodeView extends View {
       if ((this.viewFlags & View.CulledFlag) === 0) {
         this.doCull();
       }
-    } else {
-      throw new Error("already culled");
     }
   }
 
@@ -1116,8 +1114,6 @@ export class NodeView extends View {
       if ((this.viewFlags & View.CulledFlag) === 0) {
         this.doUncull();
       }
-    } else {
-      throw new Error("already unculled");
     }
   }
 

@@ -220,6 +220,14 @@ export class PieView extends LayerView {
   })
   declare title: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
+  protected initTitle(titleView: GraphicsView): void {
+    if (TypesetView.is(titleView)) {
+      titleView.textAlign.setAutoState("center");
+      titleView.textBaseline.setAutoState("middle");
+      titleView.textOrigin.setAutoState(this.center.state);
+    }
+  }
+
   protected willSetTitle(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.pieViewWillSetTitle !== void 0) {
@@ -235,10 +243,8 @@ export class PieView extends LayerView {
   }
 
   protected onSetTitle(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
-    if (TypesetView.is(newTitleView)) {
-      newTitleView.textAlign.setAutoState("center");
-      newTitleView.textBaseline.setAutoState("middle");
-      newTitleView.textOrigin.setAutoState(this.center.state);
+    if (newTitleView !== null) {
+      this.initTitle(newTitleView);
     }
   }
 
@@ -316,6 +322,10 @@ export class PieView extends LayerView {
   /** @hidden */
   declare readonly sliceFasteners: ReadonlyArray<ViewFastener<this, SliceView>>;
 
+  protected initSlice(sliceView: SliceView, sliceFastener: ViewFastener<this, SliceView>): void {
+    // hook
+  }
+
   protected willSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null,
                          targetView: View | null, sliceFastener: ViewFastener<this, SliceView>): void {
     const viewController = this.viewController;
@@ -333,7 +343,9 @@ export class PieView extends LayerView {
 
   protected onSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null,
                        targetView: View | null, sliceFastener: ViewFastener<this, SliceView>): void {
-    // hook
+    if (newSliceView !== null) {
+      this.initSlice(newSliceView, sliceFastener);
+    }
   }
 
   protected didSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null,

@@ -119,10 +119,10 @@ export class PieTrait extends GenericTrait {
       if (oldSliceTrait !== null) {
         this.owner.detachSlice(oldSliceTrait, this);
       }
-      this.owner.onSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
       if (newSliceTrait !== null) {
         this.owner.attachSlice(newSliceTrait, this);
       }
+      this.owner.onSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
     },
     didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
       this.owner.didSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);

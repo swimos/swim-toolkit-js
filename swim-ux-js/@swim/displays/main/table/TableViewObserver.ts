@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./list";
+import type {View} from "@swim/view";
+import type {HtmlViewObserver} from "@swim/dom";
+import type {RowView} from "./RowView";
+import type {TableView} from "./TableView";
 
-export * from "./table";
+export interface TableViewObserver<V extends TableView = TableView> extends HtmlViewObserver<V> {
+  tableViewWillSetRow?(newRowView: RowView | null, oldRowView: RowView | null, targetView: View | null, view: V): void;
 
-export * from "./tree";
+  tableViewDidSetRow?(newRowView: RowView | null, oldRowView: RowView | null, targetView: View | null, view: V): void;
+}

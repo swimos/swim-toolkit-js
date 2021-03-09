@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./list";
+import type {HtmlView} from "@swim/dom";
+import type {TraitObserver} from "@swim/model";
+import type {ColTrait} from "./ColTrait";
 
-export * from "./table";
+export interface ColTraitObserver<R extends ColTrait = ColTrait> extends TraitObserver<R> {
+  colTraitWillSetHeader?(newHeader: HtmlView | string | undefined, oldHeader: HtmlView | string | undefined, trait: R): void;
 
-export * from "./tree";
+  colTraitDidSetHeader?(newHeader: HtmlView | string | undefined, oldHeader: HtmlView | string | undefined, trait: R): void;
+}

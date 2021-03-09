@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./list";
+import type {Trait, TraitObserver} from "@swim/model";
+import type {CellTrait} from "./CellTrait";
+import type {RowTrait} from "./RowTrait";
 
-export * from "./table";
+export interface RowTraitObserver<R extends RowTrait = RowTrait> extends TraitObserver<R> {
+  rowTraitWillSetCell?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null, trait: R): void;
 
-export * from "./tree";
+  rowTraitDidSetCell?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null, trait: R): void;
+}

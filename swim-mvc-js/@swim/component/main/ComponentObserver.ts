@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {View} from "@swim/view";
-import type {Model, Trait} from "@swim/model";
 import type {ComponentContextType} from "./ComponentContext";
 import type {Component} from "./Component";
-import type {ComponentModel} from "./fastener/ComponentModel";
-import type {ComponentTrait} from "./fastener/ComponentTrait";
-import type {ComponentView} from "./fastener/ComponentView";
 
 export type ComponentObserverType<C extends Component> =
   C extends {readonly componentObservers: ReadonlyArray<infer CO>} ? CO : never;
@@ -71,16 +66,4 @@ export interface ComponentObserver<C extends Component = Component> {
   componentWillCompute?(componentContext: ComponentContextType<C>, component: C): void;
 
   componentDidCompute?(componentContext: ComponentContextType<C>, component: C): void;
-
-  componentWillSetModel?<M extends Model>(componentModel: ComponentModel<C, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null, component: C): void;
-
-  componentDidSetModel?<M extends Model>(componentModel: ComponentModel<C, M>, newModel: M | null, oldModel: M | null, targetModel: Model | null, component: C): void;
-
-  componentWillSetTrait?<R extends Trait>(componentTrait: ComponentTrait<C, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null, component: C): void;
-
-  componentDidSetTrait?<R extends Trait>(componentTrait: ComponentTrait<C, R>, newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null, component: C): void;
-
-  componentWillSetView?<V extends View>(componentView: ComponentView<C, V>, newView: V | null, oldView: V | null, targetView: View | null, component: C): void;
-
-  componentDidSetView?<V extends View>(componentView: ComponentView<C, V>, newView: V | null, oldView: V | null, targetView: View | null, component: C): void;
 }

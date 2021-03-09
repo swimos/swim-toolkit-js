@@ -483,13 +483,6 @@ export class TreeView extends HtmlView {
     type self = this;
     function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
                              viewContext: ViewContextType<self>): void {
-      displayChildView.call(this, childView, displayFlags, viewContext);
-      if (childView instanceof TreeLimb || childView instanceof TreeStem) {
-        let dy: Length | string | number | undefined = childView.height.value;
-        dy = dy instanceof Length ? dy.pxValue() : childView.node.offsetHeight;
-        childView.top.setAutoState(y * disclosingPhase);
-        y += dy * disclosingPhase;
-      }
       if (childView instanceof HtmlView) {
         const top = childView.top.state;
         const height = childView.height.state;
@@ -509,6 +502,13 @@ export class TreeView extends HtmlView {
         if (isVisible) {
           visibleViews.push(childView);
         }
+      }
+      displayChildView.call(this, childView, displayFlags, viewContext);
+      if (childView instanceof TreeLimb || childView instanceof TreeStem) {
+        let dy: Length | string | number | undefined = childView.height.value;
+        dy = dy instanceof Length ? dy.pxValue() : childView.node.offsetHeight;
+        childView.top.setAutoState(y * disclosingPhase);
+        y += dy * disclosingPhase;
       }
     }
     super.displayChildViews(displayFlags, viewContext, layoutChildView);
@@ -534,7 +534,6 @@ export class TreeView extends HtmlView {
     type self = this;
     function scrollChildView(this: self, childView: View, displayFlags: ViewFlags,
                              viewContext: ViewContextType<self>): void {
-      displayChildView.call(this, childView, displayFlags, viewContext);
       if (childView instanceof HtmlView) {
         const top = childView.top.state;
         const height = childView.height.state;
@@ -553,6 +552,7 @@ export class TreeView extends HtmlView {
           // not yet laid out
         }
       }
+      displayChildView.call(this, childView, displayFlags, viewContext);
     }
     super.displayChildViews(displayFlags, viewContext, scrollChildView);
   }

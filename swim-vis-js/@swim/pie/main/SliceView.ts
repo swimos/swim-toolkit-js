@@ -255,6 +255,10 @@ export class SliceView extends LayerView {
   })
   declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
+  protected initLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
   protected willSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.sliceViewWillSetLabel !== void 0) {
@@ -270,7 +274,9 @@ export class SliceView extends LayerView {
   }
 
   protected onSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
-    // hook
+    if (newLabelView !== null) {
+      this.initLabel(newLabelView);
+    }
   }
 
   protected didSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
@@ -311,6 +317,10 @@ export class SliceView extends LayerView {
   })
   declare legend: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
+  protected initLegend(legendView: GraphicsView | null): void {
+    // hook
+  }
+
   protected willSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.sliceViewWillSetLegend !== void 0) {
@@ -326,7 +336,9 @@ export class SliceView extends LayerView {
   }
 
   protected onSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
-    // hook
+    if (newLegendView !== null) {
+      this.initLegend(newLegendView);
+    }
   }
 
   protected didSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {

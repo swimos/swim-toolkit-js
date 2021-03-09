@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./list";
+import type {HtmlView} from "@swim/dom";
+import type {TraitObserver} from "@swim/model";
+import type {CellTrait} from "./CellTrait";
 
-export * from "./table";
+export interface CellTraitObserver<R extends CellTrait = CellTrait> extends TraitObserver<R> {
+  cellTraitWillSetContent?(newContent: HtmlView | string | undefined, oldContent: HtmlView | string | undefined, trait: R): void;
 
-export * from "./tree";
+  cellTraitDidSetContent?(newContent: HtmlView | string | undefined, oldContent: HtmlView | string | undefined, trait: R): void;
+}

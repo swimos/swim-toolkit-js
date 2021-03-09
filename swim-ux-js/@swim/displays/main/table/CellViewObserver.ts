@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./list";
+import type {HtmlView, HtmlViewObserver} from "@swim/dom";
+import type {CellView} from "./CellView";
 
-export * from "./table";
+export interface CellViewObserver<V extends CellView = CellView> extends HtmlViewObserver<V> {
+  cellViewWillSetContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, view: V): void;
 
-export * from "./tree";
+  cellViewDidSetContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, view: V): void;
+}
