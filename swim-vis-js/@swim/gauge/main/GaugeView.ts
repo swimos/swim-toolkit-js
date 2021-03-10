@@ -178,6 +178,7 @@ export class GaugeView extends LayerView {
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewFastener<GaugeView, GraphicsView, AnyTextRunView>({
+    key: true,
     type: TextRunView,
     fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
       if (value instanceof GraphicsView) {

@@ -26,8 +26,9 @@ export type ComponentViewMemberInit<V, K extends keyof V> =
 
 export interface ComponentViewInit<V extends View, U = never> {
   extends?: ComponentViewClass;
-  observe?: boolean;
+  key?: string | boolean;
   type?: ViewFactory<V, U>;
+  observe?: boolean;
 
   willSetView?(newView: V | null, oldView: V | null, targetView: View | null): void;
   onSetView?(newView: V | null, oldView: V | null, targetView: View | null): void;
@@ -41,12 +42,12 @@ export interface ComponentViewInit<V extends View, U = never> {
 export type ComponentViewDescriptor<C extends Component, V extends View, U = never, I = {}> = ComponentViewInit<V, U> & ThisType<ComponentView<C, V, U> & I> & I;
 
 export interface ComponentViewConstructor<C extends Component, V extends View, U = never, I = {}> {
-  new(owner: C, viewName: string | undefined): ComponentView<C, V, U> & I;
-  prototype: ComponentView<any, any> & I;
+  new(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentView<C, V, U> & I;
+  prototype: Omit<ComponentView<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
 export interface ComponentViewClass extends Function {
-  readonly prototype: ComponentView<any, any>;
+  readonly prototype: Omit<ComponentView<any, any>, "key"> & {key?: string | boolean};
 }
 
 export interface ComponentView<C extends Component, V extends View, U = never> {
@@ -56,6 +57,8 @@ export interface ComponentView<C extends Component, V extends View, U = never> {
   readonly name: string;
 
   readonly owner: C;
+
+  readonly key: string | undefined;
 
   readonly view: V | null;
 
@@ -105,16 +108,17 @@ export interface ComponentView<C extends Component, V extends View, U = never> {
 export const ComponentView = function <C extends Component, V extends View = View, U = never>(
     this: ComponentView<C, V, U> | typeof ComponentView,
     owner: C | ComponentViewDescriptor<C, V, U>,
-    viewName?: string,
+    key?: string,
+    fastenerName?: string,
   ): ComponentView<C, V, U> | PropertyDecorator {
   if (this instanceof ComponentView) { // constructor
-    return ComponentViewConstructor.call(this as unknown as ComponentView<Component, View, unknown>, owner as C, viewName);
+    return ComponentViewConstructor.call(this as unknown as ComponentView<Component, View, unknown>, owner as C, key, fastenerName);
   } else { // decorator factory
     return ComponentViewDecoratorFactory(owner as ComponentViewDescriptor<C, V, U>);
   }
 } as {
   /** @hidden */
-  new<C extends Component, V extends View, U = never>(owner: C, viewName: string | undefined): ComponentView<C, V, U>;
+  new<C extends Component, V extends View, U = never>(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentView<C, V, U>;
 
   <C extends Component, V extends View = View, U = never, I = ViewObserverType<V>>(descriptor: {extends: ComponentViewClass | undefined} & ComponentViewDescriptor<C, V, U, I>): PropertyDecorator;
   <C extends Component, V extends View = View, U = never>(descriptor: {observe: boolean} & ComponentViewDescriptor<C, V, U, ViewObserverType<V>>): PropertyDecorator;
@@ -129,16 +133,20 @@ export const ComponentView = function <C extends Component, V extends View = Vie
 };
 __extends(ComponentView, Object);
 
-function ComponentViewConstructor<C extends Component, V extends View, U>(this: ComponentView<C, V, U>, owner: C, viewName: string | undefined): ComponentView<C, V, U> {
-  if (viewName !== void 0) {
+function ComponentViewConstructor<C extends Component, V extends View, U>(this: ComponentView<C, V, U>, owner: C, key: string | undefined, fastenerName: string | undefined): ComponentView<C, V, U> {
+  if (fastenerName !== void 0) {
     Object.defineProperty(this, "name", {
-      value: viewName,
+      value: fastenerName,
       enumerable: true,
       configurable: true,
     });
   }
   Object.defineProperty(this, "owner", {
     value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "key", {
+    value: key,
     enumerable: true,
   });
   Object.defineProperty(this, "view", {
@@ -233,7 +241,7 @@ ComponentView.prototype.injectView = function <V extends View>(this: ComponentVi
   }
   if (childView !== null) {
     if (key === void 0) {
-      key = this.name;
+      key = this.key;
     } else if (key === null) {
       key = void 0;
     }
@@ -299,7 +307,7 @@ ComponentView.define = function <C extends Component, V extends View, U, I>(desc
     _super = ComponentView;
   }
 
-  const _constructor = function DecoratedComponentView(this: ComponentView<C, V, U>, owner: C, viewName: string | undefined): ComponentView<C, V, U> {
+  const _constructor = function DecoratedComponentView(this: ComponentView<C, V, U>, owner: C, key: string | undefined, fastenerName: string | undefined): ComponentView<C, V, U> {
     let _this: ComponentView<C, V, U> = function ComponentViewAccessor(view?: V | U | null, targetView?: View | null): V | null | C {
       if (view === void 0) {
         return _this.view;
@@ -309,7 +317,7 @@ ComponentView.define = function <C extends Component, V extends View, U, I>(desc
       }
     } as ComponentView<C, V, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, viewName) || _this;
+    _this = _super!.call(_this, owner, key, fastenerName) || _this;
     return _this;
   } as unknown as ComponentViewConstructor<C, V, U, I>;
 

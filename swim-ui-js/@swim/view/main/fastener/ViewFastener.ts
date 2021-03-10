@@ -36,9 +36,10 @@ export type ViewFastenerMemberInit<V, K extends keyof V> =
 
 export interface ViewFastenerInit<S extends View, U = never> {
   extends?: ViewFastenerClass;
-  observe?: boolean;
-  child?: boolean;
+  key?: string | boolean;
   type?: ViewFactory<S, U>;
+  child?: boolean;
+  observe?: boolean;
 
   willSetView?(newView: S | null, oldView: S | null, targetView: View | null): void;
   onSetView?(newView: S | null, oldView: S | null, targetView: View | null): void;
@@ -52,12 +53,12 @@ export interface ViewFastenerInit<S extends View, U = never> {
 export type ViewFastenerDescriptor<V extends View, S extends View, U = never, I = {}> = ViewFastenerInit<S, U> & ThisType<ViewFastener<V, S, U> & I> & I;
 
 export interface ViewFastenerConstructor<V extends View, S extends View, U = never, I = {}> {
-  new(owner: V, fastenerName: string | undefined): ViewFastener<V, S, U> & I;
-  prototype: ViewFastener<any, any> & I;
+  new(owner: V, key: string | undefined, fastenerName: string | undefined): ViewFastener<V, S, U> & I;
+  prototype: Omit<ViewFastener<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
 export interface ViewFastenerClass extends Function {
-  readonly prototype: ViewFastener<any, any>;
+  readonly prototype: Omit<ViewFastener<any, any>, "key"> & {key?: string | boolean};
 }
 
 export interface ViewFastener<V extends View, S extends View, U = never> extends ConstraintScope {
@@ -67,6 +68,8 @@ export interface ViewFastener<V extends View, S extends View, U = never> extends
   readonly name: string;
 
   readonly owner: V;
+
+  readonly key: string | undefined;
 
   readonly view: S | null;
 
@@ -164,16 +167,17 @@ export interface ViewFastener<V extends View, S extends View, U = never> extends
 export const ViewFastener = function <V extends View, S extends View, U>(
     this: ViewFastener<V, S, U> | typeof ViewFastener,
     owner: V | ViewFastenerDescriptor<V, S, U>,
+    key?: string,
     fastenerName?: string,
   ): ViewFastener<V, S, U> | PropertyDecorator {
   if (this instanceof ViewFastener) { // constructor
-    return ViewFastenerConstructor.call(this as unknown as ViewFastener<View, View, unknown>, owner as V, fastenerName);
+    return ViewFastenerConstructor.call(this as unknown as ViewFastener<View, View, unknown>, owner as V, key, fastenerName);
   } else { // decorator factory
     return ViewFastenerDecoratorFactory(owner as ViewFastenerDescriptor<V, S, U>);
   }
 } as {
   /** @hidden */
-  new<V extends View, S extends View, U = never>(owner: V, fastenerName: string | undefined): ViewFastener<V, S, U>;
+  new<V extends View, S extends View, U = never>(owner: V, key: string | undefined, fastenerName: string | undefined): ViewFastener<V, S, U>;
 
   <V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: {extends: ViewFastenerClass | undefined} & ViewFastenerDescriptor<V, S, U, I>): PropertyDecorator;
   <V extends View, S extends View = View, U = never>(descriptor: {observe: boolean} & ViewFastenerDescriptor<V, S, U, ViewObserverType<S>>): PropertyDecorator;
@@ -188,7 +192,7 @@ export const ViewFastener = function <V extends View, S extends View, U>(
 };
 __extends(ViewFastener, Object);
 
-function ViewFastenerConstructor<V extends View, S extends View, U>(this: ViewFastener<V, S, U>, owner: V, fastenerName: string | undefined): ViewFastener<V, S, U> {
+function ViewFastenerConstructor<V extends View, S extends View, U>(this: ViewFastener<V, S, U>, owner: V, key: string | undefined, fastenerName: string | undefined): ViewFastener<V, S, U> {
   if (fastenerName !== void 0) {
     Object.defineProperty(this, "name", {
       value: fastenerName,
@@ -198,6 +202,10 @@ function ViewFastenerConstructor<V extends View, S extends View, U>(this: ViewFa
   }
   Object.defineProperty(this, "owner", {
     value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "key", {
+    value: key,
     enumerable: true,
   });
   Object.defineProperty(this, "view", {
@@ -239,14 +247,13 @@ ViewFastener.prototype.setView = function <S extends View>(this: ViewFastener<Vi
     targetView = null
   }
   if (this.child === true) {
-    if (newView === null) {
-      this.owner.setChildView(this.name, null);
-    } else if (newView.parentView !== this.owner || newView.key !== this.name) {
-      this.insertView(this.owner, newView, targetView, this.name);
+    if (newView !== null && (newView.parentView !== this.owner || newView.key !== this.key)) {
+      this.insertView(this.owner, newView, targetView, this.key);
+    } else if (newView === null && oldView !== null) {
+      oldView.remove();
     }
-  } else {
-    this.doSetView(newView, targetView);
   }
+  this.doSetView(newView, targetView);
   return oldView;
 };
 
@@ -315,7 +322,7 @@ ViewFastener.prototype.injectView = function <S extends View>(this: ViewFastener
       parentView = this.owner;
     }
     if (key === void 0) {
-      key = this.name;
+      key = this.key;
     } else if (key === null) {
       key = void 0;
     }
@@ -514,7 +521,7 @@ ViewFastener.define = function <V extends View, S extends View, U, I>(descriptor
     _super = ViewFastener;
   }
 
-  const _constructor = function DecoratedViewFastener(this: ViewFastener<V, S>, owner: V, fastenerName: string | undefined): ViewFastener<V, S, U> {
+  const _constructor = function DecoratedViewFastener(this: ViewFastener<V, S>, owner: V, key: string | undefined, fastenerName: string | undefined): ViewFastener<V, S, U> {
     let _this: ViewFastener<V, S, U> = function ViewFastenerAccessor(view?: S | U | null, targetView?: View | null): S | null | V {
       if (view === void 0) {
         return _this.view;
@@ -524,7 +531,7 @@ ViewFastener.define = function <V extends View, S extends View, U, I>(descriptor
       }
     } as ViewFastener<V, S, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, fastenerName) || _this;
+    _this = _super!.call(_this, owner, key, fastenerName) || _this;
     return _this;
   } as unknown as ViewFastenerConstructor<V, S, U, I>;
 

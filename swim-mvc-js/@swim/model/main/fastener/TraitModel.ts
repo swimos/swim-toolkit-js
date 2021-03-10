@@ -26,9 +26,10 @@ export type TraitModelMemberInit<R, K extends keyof R> =
 
 export interface TraitModelInit<S extends Model, U = never> {
   extends?: TraitModelClass;
-  observe?: boolean;
-  child?: boolean;
+  key?: string | boolean;
   type?: unknown;
+  child?: boolean;
+  observe?: boolean;
 
   willSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
   onSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
@@ -42,12 +43,12 @@ export interface TraitModelInit<S extends Model, U = never> {
 export type TraitModelDescriptor<R extends Trait, S extends Model, U = never, I = {}> = TraitModelInit<S, U> & ThisType<TraitModel<R, S, U> & I> & I;
 
 export interface TraitModelConstructor<R extends Trait, S extends Model, U = never, I = {}> {
-  new(owner: R, fastenerName: string | undefined): TraitModel<R, S, U> & I;
-  prototype: TraitModel<any, any> & I;
+  new(owner: R, key: string | undefined, fastenerName: string | undefined): TraitModel<R, S, U> & I;
+  prototype: Omit<TraitModel<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
 export interface TraitModelClass extends Function {
-  readonly prototype: TraitModel<any, any>;
+  readonly prototype: Omit<TraitModel<any, any>, "key"> & {key?: string | boolean};
 }
 
 export interface TraitModel<R extends Trait, S extends Model, U = never> {
@@ -57,6 +58,8 @@ export interface TraitModel<R extends Trait, S extends Model, U = never> {
   readonly name: string;
 
   readonly owner: R;
+
+  readonly key: string | undefined;
 
   readonly model: S | null;
 
@@ -112,16 +115,17 @@ export interface TraitModel<R extends Trait, S extends Model, U = never> {
 export const TraitModel = function TraitModel<R extends Trait, S extends Model, U>(
     this: TraitModel<R, S, U> | typeof TraitModel,
     owner: R | TraitModelDescriptor<R, S, U>,
+    key?: string,
     fastenerName?: string,
   ): TraitModel<R, S, U> | PropertyDecorator {
   if (this instanceof TraitModel) { // constructor
-    return TraitModelConstructor.call(this as unknown as TraitModel<Trait, Model, unknown>, owner as R, fastenerName);
+    return TraitModelConstructor.call(this as unknown as TraitModel<Trait, Model, unknown>, owner as R, key, fastenerName);
   } else { // decorator factory
     return TraitModelDecoratorFactory(owner as TraitModelDescriptor<R, S, U>);
   }
 } as {
   /** @hidden */
-  new<R extends Trait, S extends Model, U = never>(owner: R, fastenerName: string | undefined): TraitModel<R, S, U>;
+  new<R extends Trait, S extends Model, U = never>(owner: R, key: string | undefined, fastenerName: string | undefined): TraitModel<R, S, U>;
 
   <R extends Trait, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: {extends: TraitModelClass | undefined} & TraitModelDescriptor<R, S, U, I>): PropertyDecorator;
   <R extends Trait, S extends Model = Model, U = never>(descriptor: {observe: boolean} & TraitModelDescriptor<R, S, U, ModelObserverType<S>>): PropertyDecorator;
@@ -136,7 +140,7 @@ export const TraitModel = function TraitModel<R extends Trait, S extends Model, 
 };
 __extends(TraitModel, Object);
 
-function TraitModelConstructor<R extends Trait, S extends Model, U>(this: TraitModel<R, S, U>, owner: R, fastenerName: string | undefined): TraitModel<R, S, U> {
+function TraitModelConstructor<R extends Trait, S extends Model, U>(this: TraitModel<R, S, U>, owner: R, key: string | undefined, fastenerName: string | undefined): TraitModel<R, S, U> {
   if (fastenerName !== void 0) {
     Object.defineProperty(this, "name", {
       value: fastenerName,
@@ -146,6 +150,10 @@ function TraitModelConstructor<R extends Trait, S extends Model, U>(this: TraitM
   }
   Object.defineProperty(this, "owner", {
     value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "key", {
+    value: key,
     enumerable: true,
   });
   Object.defineProperty(this, "model", {
@@ -178,14 +186,13 @@ TraitModel.prototype.setModel = function <S extends Model>(this: TraitModel<Trai
   }
   let ownModel: Model | null | undefined;
   if (this.child === true && (ownModel = this.owner.model, ownModel !== null)) {
-    if (newModel === null) {
-      ownModel.setChildModel(this.name, null);
-    } else if (newModel.parentModel !== ownModel || newModel.key !== this.name) {
-      this.insertModel(ownModel, newModel, targetModel, this.name);
+    if (newModel !== null && (newModel.parentModel !== ownModel || newModel.key !== this.key)) {
+      this.insertModel(ownModel, newModel, targetModel, this.key);
+    } else if (newModel === null && oldModel !== null) {
+      oldModel.remove();
     }
-  } else {
-    this.doSetModel(newModel, targetModel);
   }
+  this.doSetModel(newModel, targetModel);
   return oldModel;
 };
 
@@ -253,7 +260,7 @@ TraitModel.prototype.injectModel = function <S extends Model>(this: TraitModel<T
       parentModel = this.owner.model;
     }
     if (key === void 0) {
-      key = this.name;
+      key = this.key;
     } else if (key === null) {
       key = void 0;
     }
@@ -315,7 +322,7 @@ TraitModel.define = function <R extends Trait, S extends Model, U, I>(descriptor
     _super = TraitModel;
   }
 
-  const _constructor = function DecoratedTraitModel(this: TraitModel<R, S>, owner: R, fastenerName: string | undefined): TraitModel<R, S, U> {
+  const _constructor = function DecoratedTraitModel(this: TraitModel<R, S>, owner: R, key: string | undefined, fastenerName: string | undefined): TraitModel<R, S, U> {
     let _this: TraitModel<R, S, U> = function TraitModelAccessor(model?: S | U | null, targetModel?: Model | null): S | null | R {
       if (model === void 0) {
         return _this.model;
@@ -325,7 +332,7 @@ TraitModel.define = function <R extends Trait, S extends Model, U, I>(descriptor
       }
     } as TraitModel<R, S, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, fastenerName) || _this;
+    _this = _super!.call(_this, owner, key, fastenerName) || _this;
     return _this;
   } as unknown as TraitModelConstructor<R, S, U, I>;
 

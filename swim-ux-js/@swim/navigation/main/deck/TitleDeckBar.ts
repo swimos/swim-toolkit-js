@@ -146,7 +146,7 @@ export class TitleDeckBar extends DeckBar {
     const backFastener = backButton.getViewFastener(oldLabelView.key!);
     if (backFastener !== null) {
       backFastener.setView(null);
-      backButton.setViewFastener(backFastener.name, null);
+      backButton.setViewFastener(backFastener.key!, null);
     }
     const titleSlider = this.titleSlider.view;
     if (titleSlider !== null) {
@@ -161,6 +161,7 @@ export class TitleDeckBar extends DeckBar {
   }
 
   @ViewFastener<TitleDeckBar, ButtonMembrane>({
+    key: true,
     type: ButtonMembrane,
     onSetView(newBackMembrane: ButtonMembrane | null, oldBackMembrane: ButtonMembrane | null): void {
       if (oldBackMembrane !== null) {
@@ -175,6 +176,7 @@ export class TitleDeckBar extends DeckBar {
   declare backMembrane: ViewFastener<this, ButtonMembrane>;
 
   @ViewFastener<TitleDeckBar, DeckButton>({
+    key: true,
     type: DeckButton,
     observe: true,
     onSetView(backButton: DeckButton | null): void {
@@ -192,6 +194,7 @@ export class TitleDeckBar extends DeckBar {
   declare backButton: ViewFastener<this, DeckButton>;
 
   @ViewFastener<TitleDeckBar, DeckSlider>({
+    key: true,
     type: DeckSlider,
     onSetView(titleSlider: DeckSlider | null): void {
       if (titleSlider !== null) {
@@ -202,6 +205,7 @@ export class TitleDeckBar extends DeckBar {
   declare titleSlider: ViewFastener<this, DeckSlider>;
 
   @ViewFastener<TitleDeckBar, DeckSlider>({
+    key: true,
     type: DeckSlider,
     onSetView(moreSlider: DeckSlider | null): void {
       if (moreSlider !== null) {

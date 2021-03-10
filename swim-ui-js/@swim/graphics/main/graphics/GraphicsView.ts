@@ -813,8 +813,7 @@ export abstract class GraphicsView extends View {
 
   /** @hidden */
   protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((displayFlags & View.DisplayMask) !== 0 && this.childViewCount !== 0
-        && !this.isHidden() && !this.isCulled()) {
+    if ((displayFlags & View.DisplayMask) !== 0 && !this.isHidden() && !this.isCulled()) {
       this.willDisplayChildViews(displayFlags, viewContext);
       this.onDisplayChildViews(displayFlags, viewContext);
       this.didDisplayChildViews(displayFlags, viewContext);

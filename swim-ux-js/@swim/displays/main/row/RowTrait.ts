@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Model, TraitModelType, Trait, TraitFastener, GenericTrait} from "@swim/model";
-import {CellTrait} from "./CellTrait";
+import {CellTrait} from "../cell/CellTrait";
 import type {RowTraitObserver} from "./RowTraitObserver";
 
 export class RowTrait extends GenericTrait {
@@ -61,33 +61,9 @@ export class RowTrait extends GenericTrait {
     }
   }
 
-  /** @hidden */
-  static CellFastener = TraitFastener.define<RowTrait, CellTrait>({
-    type: CellTrait,
-    sibling: false,
-    willSetTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null): void {
-      this.owner.willSetCell(newCellTrait, oldCellTrait, targetTrait, this);
-    },
-    onSetTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null): void {
-      if (oldCellTrait !== null) {
-        this.owner.detachCell(oldCellTrait, this);
-      }
-      if (newCellTrait !== null) {
-        this.owner.attachCell(newCellTrait, this);
-      }
-      this.owner.onSetCell(newCellTrait, oldCellTrait, targetTrait, this);
-    },
-    didSetTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null): void {
-      this.owner.didSetCell(newCellTrait, oldCellTrait, targetTrait, this);
-    },
-  });
-
-  protected createCellFastener(cellTrait: CellTrait): TraitFastener<this, CellTrait> {
-    return new RowTrait.CellFastener(this, cellTrait.key) as TraitFastener<this, CellTrait>;
+  protected initCell(cellTrait: CellTrait, cellFastener: TraitFastener<this, CellTrait>): void {
+    // hook
   }
-
-  /** @hidden */
-  declare readonly cellFasteners: ReadonlyArray<TraitFastener<this, CellTrait>>;
 
   protected attachCell(cellTrait: CellTrait, cellFastener: TraitFastener<this, CellTrait>): void {
     if (this.isConsuming()) {
@@ -114,7 +90,9 @@ export class RowTrait extends GenericTrait {
 
   protected onSetCell(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null,
                       targetTrait: Trait | null, cellFastener: TraitFastener<this, CellTrait>): void {
-    // hook
+    if (newCellTrait !== null) {
+      this.initCell(newCellTrait, cellFastener);
+    }
   }
 
   protected didSetCell(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null,
@@ -127,6 +105,34 @@ export class RowTrait extends GenericTrait {
       }
     }
   }
+
+  /** @hidden */
+  static CellFastener = TraitFastener.define<RowTrait, CellTrait>({
+    type: CellTrait,
+    sibling: false,
+    willSetTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null): void {
+      this.owner.willSetCell(newCellTrait, oldCellTrait, targetTrait, this);
+    },
+    onSetTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null): void {
+      if (oldCellTrait !== null) {
+        this.owner.detachCell(oldCellTrait, this);
+      }
+      if (newCellTrait !== null) {
+        this.owner.attachCell(newCellTrait, this);
+      }
+      this.owner.onSetCell(newCellTrait, oldCellTrait, targetTrait, this);
+    },
+    didSetTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null): void {
+      this.owner.didSetCell(newCellTrait, oldCellTrait, targetTrait, this);
+    },
+  });
+
+  protected createCellFastener(cellTrait: CellTrait): TraitFastener<this, CellTrait> {
+    return new RowTrait.CellFastener(this, cellTrait.key, "cell") as TraitFastener<this, CellTrait>;
+  }
+
+  /** @hidden */
+  declare readonly cellFasteners: ReadonlyArray<TraitFastener<this, CellTrait>>;
 
   /** @hidden */
   protected mountCellFasteners(): void {

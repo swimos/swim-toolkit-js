@@ -76,7 +76,7 @@ export class DeckSlider extends DeckSlot {
     const oldItemView = oldItemFastener !== null ? oldItemFastener.view : null;
 
     const newItemKey = "item" + newItemCount;
-    const newItemFastener = new DeckSliderItemFastener(this, newItemKey) as unknown as DeckSliderItem<this, HtmlView>;
+    const newItemFastener = new DeckSliderItemFastener(this, newItemKey, newItemKey) as unknown as DeckSliderItem<this, HtmlView>;
     newItemFastener.itemIndex = newItemCount;
     this.willPushItem(newItemView, oldItemView);
     this.item = newItemFastener;
@@ -205,8 +205,8 @@ export class DeckSlider extends DeckSlot {
 
 /** @hidden */
 export abstract class DeckSliderItem<V extends DeckSlider, S extends HtmlView> extends ViewFastener<V, S> {
-  constructor(owner: V, fastenerName: string | undefined) {
-    super(owner, fastenerName);
+  constructor(owner: V, key: string | undefined, fastenerName: string | undefined) {
+    super(owner, key, fastenerName);
     this.itemIndex = 0;
     this.itemWidth = void 0;
   }

@@ -1595,7 +1595,10 @@ export abstract class Model implements ModelDownlinkContext {
     if (modelFastener === null) {
       const constructor = Model.getModelFastenerConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        modelFastener = new constructor(this, fastenerName) as ModelFastener<this, Model>;
+        const key = constructor.prototype.key === true ? fastenerName
+                  : constructor.prototype.key === false ? void 0
+                  : constructor.prototype.key;
+        modelFastener = new constructor(this, key, fastenerName) as ModelFastener<this, Model>;
         this.setModelFastener(fastenerName, modelFastener);
       }
     }
@@ -1614,7 +1617,10 @@ export abstract class Model implements ModelDownlinkContext {
     if (modelTrait === null) {
       const constructor = Model.getModelTraitConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        modelTrait = new constructor(this, fastenerName) as ModelTrait<this, Trait>;
+        const key = constructor.prototype.key === true ? fastenerName
+                  : constructor.prototype.key === false ? void 0
+                  : constructor.prototype.key;
+        modelTrait = new constructor(this, key, fastenerName) as ModelTrait<this, Trait>;
         this.setModelTrait(fastenerName, modelTrait);
       }
     }
@@ -1743,17 +1749,21 @@ export abstract class Model implements ModelDownlinkContext {
   /** @hidden */
   static decorateModelFastener(constructor: ModelFastenerConstructor<Model, Model>,
                                target: Object, propertyKey: string | symbol): void {
+    const fastenerName = propertyKey.toString();
+    const key = constructor.prototype.key === true ? fastenerName
+              : constructor.prototype.key === false ? void 0
+              : constructor.prototype.key;
     const modelPrototype = target as ModelPrototype;
     if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelFastenerConstructors")) {
       modelPrototype.modelFastenerConstructors = {};
     }
-    modelPrototype.modelFastenerConstructors![propertyKey.toString()] = constructor;
+    modelPrototype.modelFastenerConstructors![fastenerName] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Model): ModelFastener<Model, Model> {
-        let modelFastener = this.getModelFastener(propertyKey.toString());
+        let modelFastener = this.getModelFastener(fastenerName);
         if (modelFastener === null) {
-          modelFastener = new constructor(this, propertyKey.toString());
-          this.setModelFastener(propertyKey.toString(), modelFastener);
+          modelFastener = new constructor(this, key, fastenerName);
+          this.setModelFastener(fastenerName, modelFastener);
         }
         return modelFastener;
       },
@@ -1782,17 +1792,21 @@ export abstract class Model implements ModelDownlinkContext {
   /** @hidden */
   static decorateModelTrait(constructor: ModelTraitConstructor<Model, Trait>,
                             target: Object, propertyKey: string | symbol): void {
+    const fastenerName = propertyKey.toString();
+    const key = constructor.prototype.key === true ? fastenerName
+              : constructor.prototype.key === false ? void 0
+              : constructor.prototype.key;
     const modelPrototype = target as ModelPrototype;
     if (!Object.prototype.hasOwnProperty.call(modelPrototype, "modelTraitConstructors")) {
       modelPrototype.modelTraitConstructors = {};
     }
-    modelPrototype.modelTraitConstructors![propertyKey.toString()] = constructor;
+    modelPrototype.modelTraitConstructors![fastenerName] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Model): ModelTrait<Model, Trait> {
-        let modelTrait = this.getModelTrait(propertyKey.toString());
+        let modelTrait = this.getModelTrait(fastenerName);
         if (modelTrait === null) {
-          modelTrait = new constructor(this, propertyKey.toString());
-          this.setModelTrait(propertyKey.toString(), modelTrait);
+          modelTrait = new constructor(this, key, fastenerName);
+          this.setModelTrait(fastenerName, modelTrait);
         }
         return modelTrait;
       },

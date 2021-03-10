@@ -1017,7 +1017,7 @@ export class CanvasView extends HtmlView {
 
   /** @hidden */
   protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((displayFlags & View.DisplayMask) !== 0) {
+    if ((displayFlags & View.DisplayMask) !== 0 && !this.isHidden() && !this.isCulled()) {
       this.willDisplayChildViews(displayFlags, viewContext);
       this.onDisplayChildViews(displayFlags, viewContext);
       this.didDisplayChildViews(displayFlags, viewContext);

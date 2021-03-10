@@ -25,9 +25,10 @@ export type ModelFastenerMemberInit<M, K extends keyof M> =
 
 export interface ModelFastenerInit<S extends Model, U = never> {
   extends?: ModelFastenerClass;
-  observe?: boolean;
-  child?: boolean;
+  key?: string | boolean;
   type?: unknown;
+  child?: boolean;
+  observe?: boolean;
 
   willSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
   onSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
@@ -41,12 +42,12 @@ export interface ModelFastenerInit<S extends Model, U = never> {
 export type ModelFastenerDescriptor<M extends Model, S extends Model, U = never, I = {}> = ModelFastenerInit<S, U> & ThisType<ModelFastener<M, S, U> & I> & I;
 
 export interface ModelFastenerConstructor<M extends Model, S extends Model, U = never, I = {}> {
-  new(owner: M, fastenerName: string | undefined): ModelFastener<M, S, U> & I;
-  prototype: ModelFastener<any, any> & I;
+  new(owner: M, key: string | undefined, fastenerName: string | undefined): ModelFastener<M, S, U> & I;
+  prototype: Omit<ModelFastener<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
 export interface ModelFastenerClass extends Function {
-  readonly prototype: ModelFastener<any, any>;
+  readonly prototype: Omit<ModelFastener<any, any>, "key"> & {key?: string | boolean};
 }
 
 export interface ModelFastener<M extends Model, S extends Model, U = never> {
@@ -56,6 +57,8 @@ export interface ModelFastener<M extends Model, S extends Model, U = never> {
   readonly name: string;
 
   readonly owner: M;
+
+  readonly key: string | undefined;
 
   readonly model: S | null;
 
@@ -111,16 +114,17 @@ export interface ModelFastener<M extends Model, S extends Model, U = never> {
 export const ModelFastener = function <M extends Model, S extends Model, U>(
     this: ModelFastener<M, S, U> | typeof ModelFastener,
     owner: M | ModelFastenerDescriptor<M, S, U>,
+    key?: string,
     fastenerName?: string,
   ): ModelFastener<M, S, U> | PropertyDecorator {
   if (this instanceof ModelFastener) { // constructor
-    return ModelFastenerConstructor.call(this as unknown as ModelFastener<Model, Model, unknown>, owner as M, fastenerName);
+    return ModelFastenerConstructor.call(this as unknown as ModelFastener<Model, Model, unknown>, owner as M, key, fastenerName);
   } else { // decorator factory
     return ModelFastenerDecoratorFactory(owner as ModelFastenerDescriptor<M, S, U>);
   }
 } as {
   /** @hidden */
-  new<M extends Model, S extends Model, U = never>(owner: M, fastenerName: string | undefined): ModelFastener<M, S, U>;
+  new<M extends Model, S extends Model, U = never>(owner: M, key: string | undefined, fastenerName: string | undefined): ModelFastener<M, S, U>;
 
   <M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: {extends: ModelFastenerClass | undefined} & ModelFastenerDescriptor<M, S, U, I>): PropertyDecorator;
   <M extends Model, S extends Model = Model, U = never>(descriptor: {observe: boolean} & ModelFastenerDescriptor<M, S, U, ModelObserverType<S>>): PropertyDecorator;
@@ -135,7 +139,7 @@ export const ModelFastener = function <M extends Model, S extends Model, U>(
 };
 __extends(ModelFastener, Object);
 
-function ModelFastenerConstructor<M extends Model, S extends Model, U>(this: ModelFastener<M, S, U>, owner: M, fastenerName: string | undefined): ModelFastener<M, S, U> {
+function ModelFastenerConstructor<M extends Model, S extends Model, U>(this: ModelFastener<M, S, U>, owner: M, key: string | undefined, fastenerName: string | undefined): ModelFastener<M, S, U> {
   if (fastenerName !== void 0) {
     Object.defineProperty(this, "name", {
       value: fastenerName,
@@ -145,6 +149,10 @@ function ModelFastenerConstructor<M extends Model, S extends Model, U>(this: Mod
   }
   Object.defineProperty(this, "owner", {
     value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "key", {
+    value: key,
     enumerable: true,
   });
   Object.defineProperty(this, "model", {
@@ -176,14 +184,13 @@ ModelFastener.prototype.setModel = function <S extends Model>(this: ModelFastene
     targetModel = null;
   }
   if (this.child === true) {
-    if (newModel === null) {
-      this.owner.setChildModel(this.name, null);
-    } else if (newModel.parentModel !== this.owner || newModel.key !== this.name) {
-      this.insertModel(this.owner, newModel, targetModel, this.name);
+    if (newModel !== null && (newModel.parentModel !== this.owner || newModel.key !== this.key)) {
+      this.insertModel(this.owner, newModel, targetModel, this.key);
+    } else if (newModel === null && oldModel !== null) {
+      oldModel.remove();
     }
-  } else {
-    this.doSetModel(newModel , targetModel);
   }
+  this.doSetModel(newModel , targetModel);
   return oldModel;
 };
 
@@ -251,7 +258,7 @@ ModelFastener.prototype.injectModel = function <S extends Model>(this: ModelFast
       parentModel = this.owner;
     }
     if (key === void 0) {
-      key = this.name;
+      key = this.key;
     } else if (key === null) {
       key = void 0;
     }
@@ -313,7 +320,7 @@ ModelFastener.define = function <M extends Model, S extends Model, U, I>(descrip
     _super = ModelFastener;
   }
 
-  const _constructor = function DecoratedModelFastener(this: ModelFastener<M, S>, owner: M, fastenerName: string | undefined): ModelFastener<M, S, U> {
+  const _constructor = function DecoratedModelFastener(this: ModelFastener<M, S>, owner: M, key: string | undefined, fastenerName: string | undefined): ModelFastener<M, S, U> {
     let _this: ModelFastener<M, S, U> = function ModelFastenerAccessor(model?: S | U | null, targetModel?: Model | null): S | null | M {
       if (model === void 0) {
         return _this.model;
@@ -323,7 +330,7 @@ ModelFastener.define = function <M extends Model, S extends Model, U, I>(descrip
       }
     } as ModelFastener<M, S, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, fastenerName) || _this;
+    _this = _super!.call(_this, owner, key, fastenerName) || _this;
     return _this;
   } as unknown as ModelFastenerConstructor<M, S, U, I>;
 

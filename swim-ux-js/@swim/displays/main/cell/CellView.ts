@@ -32,27 +32,6 @@ export class CellView extends HtmlView {
 
   declare readonly viewObservers: ReadonlyArray<CellViewObserver>;
 
-  @ViewFastener<CellView, HtmlView, string>({
-    type: HtmlView,
-    fromAny(value: HtmlView | string): HtmlView | null {
-      if (value instanceof HtmlView) {
-        return value;
-      } else {
-        return this.owner.createContent(value);
-      }
-    },
-    willSetView(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
-      this.owner.willSetContent(newContentView, oldContentView);
-    },
-    onSetView(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
-      this.owner.onSetContent(newContentView, oldContentView);
-    },
-    didSetView(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
-      this.owner.didSetContent(newContentView, oldContentView);
-    },
-  })
-  declare content: ViewFastener<this, HtmlView, string>;
-
   protected createContent(value?: string): HtmlView | null {
     const contentView = HtmlView.span.create();
     contentView.alignSelf.setAutoState("center");
@@ -99,4 +78,26 @@ export class CellView extends HtmlView {
       viewController.cellViewDidSetContent(newContentView, oldContentView, this);
     }
   }
+
+  @ViewFastener<CellView, HtmlView, string>({
+    key: true,
+    type: HtmlView,
+    fromAny(value: HtmlView | string): HtmlView | null {
+      if (value instanceof HtmlView) {
+        return value;
+      } else {
+        return this.owner.createContent(value);
+      }
+    },
+    willSetView(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
+      this.owner.willSetContent(newContentView, oldContentView);
+    },
+    onSetView(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
+      this.owner.onSetContent(newContentView, oldContentView);
+    },
+    didSetView(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
+      this.owner.didSetContent(newContentView, oldContentView);
+    },
+  })
+  declare content: ViewFastener<this, HtmlView, string>;
 }

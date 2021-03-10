@@ -26,9 +26,10 @@ export type TraitFastenerMemberInit<R, K extends keyof R> =
 
 export interface TraitFastenerInit<S extends Trait, U = never> {
   extends?: TraitFastenerClass;
-  observe?: boolean;
-  sibling?: boolean;
+  key?: string | boolean;
   type?: unknown;
+  sibling?: boolean;
+  observe?: boolean;
 
   willSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
   onSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
@@ -42,12 +43,12 @@ export interface TraitFastenerInit<S extends Trait, U = never> {
 export type TraitFastenerDescriptor<R extends Trait, S extends Trait, U = never, I = {}> = TraitFastenerInit<S, U> & ThisType<TraitFastener<R, S, U> & I> & I;
 
 export interface TraitFastenerConstructor<R extends Trait, S extends Trait, U = never, I = {}> {
-  new(owner: R, fastenerName: string | undefined): TraitFastener<R, S, U> & I;
-  prototype: TraitFastener<any, any> & I;
+  new(owner: R, key: string | undefined, fastenerName: string | undefined): TraitFastener<R, S, U> & I;
+  prototype: Omit<TraitFastener<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
 export interface TraitFastenerClass extends Function {
-  readonly prototype: TraitFastener<any, any>;
+  readonly prototype: Omit<TraitFastener<any, any>, "key"> & {key?: string | boolean};
 }
 
 export interface TraitFastener<R extends Trait, S extends Trait, U = never> {
@@ -57,6 +58,8 @@ export interface TraitFastener<R extends Trait, S extends Trait, U = never> {
   readonly name: string;
 
   readonly owner: R;
+
+  readonly key: string | undefined;
 
   readonly trait: S | null;
 
@@ -112,16 +115,17 @@ export interface TraitFastener<R extends Trait, S extends Trait, U = never> {
 export const TraitFastener = function <R extends Trait, S extends Trait, U>(
     this: TraitFastener<R, S, U> | typeof TraitFastener,
     owner: R | TraitFastenerDescriptor<R, S, U>,
+    key?: string,
     fastenerName?: string,
   ): TraitFastener<R, S, U> | PropertyDecorator {
   if (this instanceof TraitFastener) { // constructor
-    return TraitFastenerConstructor.call(this as unknown as TraitFastener<Trait, Trait, unknown>, owner as R, fastenerName);
+    return TraitFastenerConstructor.call(this as unknown as TraitFastener<Trait, Trait, unknown>, owner as R, key, fastenerName);
   } else { // decorator factory
     return TraitFastenerDecoratorFactory(owner as TraitFastenerDescriptor<R, S, U>);
   }
 } as {
   /** @hidden */
-  new<R extends Trait, S extends Trait, U = never>(owner: R, fastenerName: string | undefined): TraitFastener<R, S, U>;
+  new<R extends Trait, S extends Trait, U = never>(owner: R, key: string | undefined, fastenerName: string | undefined): TraitFastener<R, S, U>;
 
   <R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: {extends: TraitFastenerClass | undefined} & TraitFastenerDescriptor<R, S, U, I>): PropertyDecorator;
   <R extends Trait, S extends Trait = Trait, U = never>(descriptor: {observe: boolean} & TraitFastenerDescriptor<R, S, U, TraitObserverType<S>>): PropertyDecorator;
@@ -136,7 +140,7 @@ export const TraitFastener = function <R extends Trait, S extends Trait, U>(
 };
 __extends(TraitFastener, Object);
 
-function TraitFastenerConstructor<R extends Trait, S extends Trait, U>(this: TraitFastener<R, S, U>, owner: R, fastenerName: string | undefined): TraitFastener<R, S, U> {
+function TraitFastenerConstructor<R extends Trait, S extends Trait, U>(this: TraitFastener<R, S, U>, owner: R, key: string | undefined, fastenerName: string | undefined): TraitFastener<R, S, U> {
   if (fastenerName !== void 0) {
     Object.defineProperty(this, "name", {
       value: fastenerName,
@@ -146,6 +150,10 @@ function TraitFastenerConstructor<R extends Trait, S extends Trait, U>(this: Tra
   }
   Object.defineProperty(this, "owner", {
     value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "key", {
+    value: key,
     enumerable: true,
   });
   Object.defineProperty(this, "trait", {
@@ -178,14 +186,13 @@ TraitFastener.prototype.setTrait = function <S extends Trait>(this: TraitFastene
   }
   let model: Model | null | undefined;
   if (this.sibling === true && (model = this.owner.model, model !== null)) {
-    if (newTrait === null) {
-      model.setTrait(this.name, null);
-    } else if (newTrait.model !== model || newTrait.key !== this.name) {
-      this.insertTrait(model, newTrait, targetTrait, this.name);
+    if (newTrait !== null && (newTrait.model !== model || newTrait.key !== this.key)) {
+      this.insertTrait(model, newTrait, targetTrait, this.key);
+    } else if (newTrait === null && oldTrait !== null) {
+      oldTrait.remove();
     }
-  } else {
-    this.doSetTrait(newTrait, targetTrait);
   }
+  this.doSetTrait(newTrait, targetTrait);
   return oldTrait;
 };
 
@@ -253,7 +260,7 @@ TraitFastener.prototype.injectTrait = function <S extends Trait>(this: TraitFast
       model = this.owner.model;
     }
     if (key === void 0) {
-      key = this.name;
+      key = this.key;
     } else if (key === null) {
       key = void 0;
     }
@@ -315,7 +322,7 @@ TraitFastener.define = function <R extends Trait, S extends Trait, U, I>(descrip
     _super = TraitFastener;
   }
 
-  const _constructor = function DecoratedTraitFastener(this: TraitFastener<R, S>, owner: R, fastenerName: string | undefined): TraitFastener<R, S, U> {
+  const _constructor = function DecoratedTraitFastener(this: TraitFastener<R, S>, owner: R, key: string | undefined, fastenerName: string | undefined): TraitFastener<R, S, U> {
     let _this: TraitFastener<R, S, U> = function TraitFastenerAccessor(trait?: S | U | null, targetTrait?: Trait | null): S | null | R {
       if (trait === void 0) {
         return _this.trait;
@@ -325,7 +332,7 @@ TraitFastener.define = function <R extends Trait, S extends Trait, U, I>(descrip
       }
     } as TraitFastener<R, S, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, fastenerName) || _this;
+    _this = _super!.call(_this, owner, key, fastenerName) || _this;
     return _this;
   } as unknown as TraitFastenerConstructor<R, S, U, I>;
 

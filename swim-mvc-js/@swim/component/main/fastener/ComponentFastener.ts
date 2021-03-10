@@ -25,9 +25,10 @@ export type ComponentFastenerMemberInit<C, K extends keyof C> =
 
 export interface ComponentFastenerInit<S extends Component, U = never> {
   extends?: ComponentFastenerClass;
-  observe?: boolean;
-  child?: boolean;
+  key?: string | boolean;
   type?: unknown;
+  child?: boolean;
+  observe?: boolean;
 
   willSetComponent?(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
   onSetComponent?(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
@@ -41,12 +42,12 @@ export interface ComponentFastenerInit<S extends Component, U = never> {
 export type ComponentFastenerDescriptor<C extends Component, S extends Component, U = never, I = {}> = ComponentFastenerInit<S, U> & ThisType<ComponentFastener<C, S, U> & I> & I;
 
 export interface ComponentFastenerConstructor<C extends Component, S extends Component, U = never, I = {}> {
-  new(owner: C, fastenerName: string | undefined): ComponentFastener<C, S, U> & I;
-  prototype: ComponentFastener<any, any> & I;
+  new(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentFastener<C, S, U> & I;
+  prototype: Omit<ComponentFastener<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
 export interface ComponentFastenerClass extends Function {
-  readonly prototype: ComponentFastener<any, any>;
+  readonly prototype: Omit<ComponentFastener<any, any>, "key"> & {key?: string | boolean};
 }
 
 export interface ComponentFastener<C extends Component, S extends Component, U = never> {
@@ -56,6 +57,8 @@ export interface ComponentFastener<C extends Component, S extends Component, U =
   readonly name: string;
 
   readonly owner: C;
+
+  readonly key: string | undefined;
 
   readonly component: S | null;
 
@@ -111,16 +114,17 @@ export interface ComponentFastener<C extends Component, S extends Component, U =
 export const ComponentFastener = function <C extends Component, S extends Component, U>(
     this: ComponentFastener<C, S, U> | typeof ComponentFastener,
     owner: C | ComponentFastenerDescriptor<C, S, U>,
+    key?: string,
     fastenerName?: string,
   ): ComponentFastener<C, S, U> | PropertyDecorator {
   if (this instanceof ComponentFastener) { // constructor
-    return ComponentFastenerConstructor.call(this as unknown as ComponentFastener<Component, Component, unknown>, owner as C, fastenerName);
+    return ComponentFastenerConstructor.call(this as unknown as ComponentFastener<Component, Component, unknown>, owner as C, key, fastenerName);
   } else { // decorator factory
     return ComponentFastenerDecoratorFactory(owner as ComponentFastenerDescriptor<C, S, U>);
   }
 } as {
   /** @hidden */
-  new<C extends Component, S extends Component, U = never>(owner: C, fastenerName: string | undefined): ComponentFastener<C, S, U>;
+  new<C extends Component, S extends Component, U = never>(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentFastener<C, S, U>;
 
   <C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: {extends: ComponentFastenerClass | undefined} & ComponentFastenerDescriptor<C, S, U, I>): PropertyDecorator;
   <C extends Component, S extends Component = Component, U = never>(descriptor: {observe: boolean} & ComponentFastenerDescriptor<C, S, U, ComponentObserverType<S>>): PropertyDecorator;
@@ -135,7 +139,7 @@ export const ComponentFastener = function <C extends Component, S extends Compon
 };
 __extends(ComponentFastener, Object);
 
-function ComponentFastenerConstructor<C extends Component, S extends Component, U>(this: ComponentFastener<C, S, U>, owner: C, fastenerName: string | undefined): ComponentFastener<C, S, U> {
+function ComponentFastenerConstructor<C extends Component, S extends Component, U>(this: ComponentFastener<C, S, U>, owner: C, key: string | undefined, fastenerName: string | undefined): ComponentFastener<C, S, U> {
   if (fastenerName !== void 0) {
     Object.defineProperty(this, "name", {
       value: fastenerName,
@@ -145,6 +149,10 @@ function ComponentFastenerConstructor<C extends Component, S extends Component, 
   }
   Object.defineProperty(this, "owner", {
     value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "key", {
+    value: key,
     enumerable: true,
   });
   Object.defineProperty(this, "component", {
@@ -176,14 +184,13 @@ ComponentFastener.prototype.setComponent = function <S extends Component>(this: 
     targetComponent = null;
   }
   if (this.child === true) {
-    if (newComponent === null) {
-      this.owner.setChildComponent(this.name, null);
-    } else if (newComponent.parentComponent !== this.owner || newComponent.key !== this.name) {
-      this.insertComponent(this.owner, newComponent, targetComponent, this.name);
+    if (newComponent !== null && (newComponent.parentComponent !== this.owner || newComponent.key !== this.key)) {
+      this.insertComponent(this.owner, newComponent, targetComponent, this.key);
+    } else if (newComponent === null && oldComponent !== null) {
+      oldComponent.remove();
     }
-  } else {
-    this.doSetComponent(newComponent, targetComponent);
   }
+  this.doSetComponent(newComponent, targetComponent);
   return oldComponent;
 };
 
@@ -251,7 +258,7 @@ ComponentFastener.prototype.injectComponent = function <S extends Component>(thi
       parentComponent = this.owner;
     }
     if (key === void 0) {
-      key = this.name;
+      key = this.key;
     } else if (key === null) {
       key = void 0;
     }
@@ -313,7 +320,7 @@ ComponentFastener.define = function <C extends Component, S extends Component, U
     _super = ComponentFastener;
   }
 
-  const _constructor = function DecoratedComponentFastener(this: ComponentFastener<C, S>, owner: C, fastenerName: string | undefined): ComponentFastener<C, S, U> {
+  const _constructor = function DecoratedComponentFastener(this: ComponentFastener<C, S>, owner: C, key: string | undefined, fastenerName: string | undefined): ComponentFastener<C, S, U> {
     let _this: ComponentFastener<C, S, U> = function ComponentFastenerAccessor(component?: S | U | null, targetComponent?: Component | null): S | null | C {
       if (component === void 0) {
         return _this.component;
@@ -323,7 +330,7 @@ ComponentFastener.define = function <C extends Component, S extends Component, U
       }
     } as ComponentFastener<C, S, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, fastenerName) || _this;
+    _this = _super!.call(_this, owner, key, fastenerName) || _this;
     return _this;
   } as unknown as ComponentFastenerConstructor<C, S, U, I>;
 

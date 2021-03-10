@@ -100,6 +100,39 @@ export abstract class Animator<T> implements AnimationTrack {
   }
 
   /** @hidden */
+  setIntermediateValue(newValue: T, newState?: T): void {
+    const oldState = arguments.length > 1 ? this.state : void 0;
+    const stateChanged = arguments.length > 1 && !Equals(oldState, newState);
+    if (stateChanged) {
+      this.willSetState(newState!, oldState!);
+      Object.defineProperty(this, "ownState", {
+        value: newState,
+        enumerable: true,
+        configurable: true,
+      });
+      Object.defineProperty(this, "timing", {
+        value: null,
+        enumerable: true,
+        configurable: true,
+      });
+      Object.defineProperty(this, "interpolator", {
+        value: null,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetState(newState!, oldState!);
+    }
+    this.setValue(newValue);
+    if (stateChanged) {
+      this.didSetState(newState!, oldState!);
+      if ((this.animatorFlags & Animator.AnimatingFlag) !== 0) {
+        this.onInterrupt(this.value);
+        this.stopAnimating();
+      }
+    }
+  }
+
+  /** @hidden */
   declare readonly ownState: T;
 
   get state(): T {
@@ -323,7 +356,7 @@ export abstract class Animator<T> implements AnimationTrack {
       if (interpolator === null) {
         interpolator = Interpolator(oldValue, this.state);
         Object.defineProperty(this, "interpolator", {
-          value: timing,
+          value: interpolator,
           enumerable: true,
           configurable: true,
         });

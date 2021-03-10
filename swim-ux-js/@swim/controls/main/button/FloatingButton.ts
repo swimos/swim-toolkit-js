@@ -89,7 +89,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
       if (!iconView.opacity.isAnimating() && this.iconIndex !== this.owner.iconCount) {
         iconView.remove();
         if (this.iconIndex > this.owner.iconCount) {
-          this.owner.setViewFastener(this.name, null);
+          this.owner.setViewFastener(this.key!, null);
         }
       }
     },
@@ -122,7 +122,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
     const newIconCount = oldIconCount + 1;
     const newIconKey = "icon" + newIconCount;
-    const newIconFastener = new FloatingButton.IconFastener(this, newIconKey) as ViewFastener<this, HtmlIconView> & {iconIndex: number};
+    const newIconFastener = new FloatingButton.IconFastener(this, newIconKey, newIconKey) as ViewFastener<this, HtmlIconView> & {iconIndex: number};
     newIconFastener.iconIndex = newIconCount;
     const newIconView = HtmlIconView.create();
     newIconView.position.setAutoState("absolute");

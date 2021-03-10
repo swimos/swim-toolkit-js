@@ -346,6 +346,7 @@ export class SliceComponent extends CompositeComponent {
   declare slice: ComponentViewTrait<this, SliceView, SliceTrait>;
 
   @ComponentView<SliceComponent, GraphicsView>({
+    key: true,
     willSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
       this.owner.willSetSliceLabel(newLabelView, oldLabelView);
     },
@@ -359,6 +360,7 @@ export class SliceComponent extends CompositeComponent {
   declare label: ComponentView<this, GraphicsView>;
 
   @ComponentView<SliceComponent, GraphicsView>({
+    key: true,
     willSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
       this.owner.willSetSliceLegend(newLegendView, oldLegendView);
     },

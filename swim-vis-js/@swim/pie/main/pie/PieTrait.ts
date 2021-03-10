@@ -15,7 +15,7 @@
 import {Equals} from "@swim/util";
 import type {GraphicsView} from "@swim/graphics";
 import {Model, TraitModelType, Trait, TraitFastener, GenericTrait} from "@swim/model";
-import {SliceTrait} from "./SliceTrait";
+import {SliceTrait} from "../slice/SliceTrait";
 import type {PieTraitObserver} from "./PieTraitObserver";
 
 export class PieTrait extends GenericTrait {
@@ -108,33 +108,9 @@ export class PieTrait extends GenericTrait {
     }
   }
 
-  /** @hidden */
-  static SliceFastener = TraitFastener.define<PieTrait, SliceTrait>({
-    type: SliceTrait,
-    sibling: false,
-    willSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
-      this.owner.willSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
-    },
-    onSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
-      if (oldSliceTrait !== null) {
-        this.owner.detachSlice(oldSliceTrait, this);
-      }
-      if (newSliceTrait !== null) {
-        this.owner.attachSlice(newSliceTrait, this);
-      }
-      this.owner.onSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
-    },
-    didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
-      this.owner.didSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
-    },
-  });
-
-  protected createSliceFastener(sliceTrait: SliceTrait): TraitFastener<this, SliceTrait> {
-    return new PieTrait.SliceFastener(this, sliceTrait.key) as TraitFastener<this, SliceTrait>;
+  protected initSlice(sliceTrait: SliceTrait, sliceFastener: TraitFastener<this, SliceTrait>): void {
+    // hook
   }
-
-  /** @hidden */
-  declare readonly sliceFasteners: ReadonlyArray<TraitFastener<this, SliceTrait>>;
 
   protected attachSlice(sliceTrait: SliceTrait, sliceFastener: TraitFastener<this, SliceTrait>): void {
     if (this.isConsuming()) {
@@ -161,7 +137,9 @@ export class PieTrait extends GenericTrait {
 
   protected onSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null,
                        targetTrait: Trait | null, sliceFastener: TraitFastener<this, SliceTrait>): void {
-    // hook
+    if (newSliceTrait !== null) {
+      this.initSlice(newSliceTrait, sliceFastener);
+    }
   }
 
   protected didSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null,
@@ -174,6 +152,34 @@ export class PieTrait extends GenericTrait {
       }
     }
   }
+
+  /** @hidden */
+  static SliceFastener = TraitFastener.define<PieTrait, SliceTrait>({
+    type: SliceTrait,
+    sibling: false,
+    willSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
+      this.owner.willSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
+    },
+    onSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
+      if (oldSliceTrait !== null) {
+        this.owner.detachSlice(oldSliceTrait, this);
+      }
+      if (newSliceTrait !== null) {
+        this.owner.attachSlice(newSliceTrait, this);
+      }
+      this.owner.onSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
+    },
+    didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
+      this.owner.didSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
+    },
+  });
+
+  protected createSliceFastener(sliceTrait: SliceTrait): TraitFastener<this, SliceTrait> {
+    return new PieTrait.SliceFastener(this, sliceTrait.key, "slice") as TraitFastener<this, SliceTrait>;
+  }
+
+  /** @hidden */
+  declare readonly sliceFasteners: ReadonlyArray<TraitFastener<this, SliceTrait>>;
 
   /** @hidden */
   protected mountSliceFasteners(): void {
@@ -215,6 +221,10 @@ export class PieTrait extends GenericTrait {
     }
   }
 
+  protected detectSlice(model: Model): SliceTrait | null {
+    return model.getTrait(SliceTrait);
+  }
+
   protected detectSlices(model: TraitModelType<this>): void {
     const childModels = model.childModels;
     for (let i = 0, n = childModels.length; i < n; i += 1) {
@@ -224,10 +234,6 @@ export class PieTrait extends GenericTrait {
         this.insertSlice(sliceTrait);
       }
     }
-  }
-
-  protected detectSlice(model: Model): SliceTrait | null {
-    return model.getTrait(SliceTrait);
   }
 
   protected onInsertSlice(sliceTrait: SliceTrait, targetTrait: Trait | null): void {

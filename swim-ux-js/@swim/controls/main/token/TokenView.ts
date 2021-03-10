@@ -207,6 +207,7 @@ export class TokenView extends HtmlView {
   declare expandedPhase: ViewAnimator<this, number>;
 
   @ViewFastener<TokenView, SvgView>({
+    key: true,
     type: SvgView,
     onSetView(shapeView: SvgView | null): void {
       if (shapeView !== null) {
@@ -223,6 +224,7 @@ export class TokenView extends HtmlView {
 
   @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
+    key: true,
     type: SvgView.path,
     child: false,
     observe: true,
@@ -297,6 +299,7 @@ export class TokenView extends HtmlView {
   /** @hidden */
   @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
+    key: true,
     type: SvgView.path,
     child: false,
     onSetView(headIconView: SvgView | null): void {
@@ -324,6 +327,7 @@ export class TokenView extends HtmlView {
 
   @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
+    key: true,
     type: SvgView.path,
     child: false,
     observe: true,
@@ -394,6 +398,7 @@ export class TokenView extends HtmlView {
 
   @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
+    key: true,
     type: SvgView.path,
     child: false,
     observe: true,
@@ -468,6 +473,7 @@ export class TokenView extends HtmlView {
   /** @hidden */
   @ViewFastener<TokenView, SvgView, never, ViewObserver & PositionGestureDelegate>({
     extends: void 0,
+    key: true,
     type: SvgView.path,
     child: false,
     onSetView(footIconView: SvgView | null): void {
@@ -494,6 +500,7 @@ export class TokenView extends HtmlView {
   declare accessory: ViewProperty<this, Graphics | null> & {embossed: boolean};
 
   @ViewFastener<TokenView, HtmlView>({
+    key: true,
     type: HtmlView,
     onSetView(labelContainer: HtmlView | null): void {
       if (labelContainer !== null) {
@@ -504,6 +511,7 @@ export class TokenView extends HtmlView {
   declare labelContainer: ViewFastener<this, HtmlView>;
 
   @ViewFastener<TokenView, HtmlView>({
+    key: true,
     child: false,
     type: HtmlView,
     onSetView(labelView: HtmlView | null): void {

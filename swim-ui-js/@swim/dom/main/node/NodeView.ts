@@ -685,13 +685,6 @@ export class NodeView extends View {
         }
         this.cascadeProcess(updateFlags, viewContext);
       }
-      updateFlags |= this.viewFlags & View.UpdateMask;
-      if ((updateFlags & View.DisplayMask) !== 0) {
-        if (viewContext === void 0) {
-          viewContext = this.superViewContext;
-        }
-        this.cascadeDisplay(updateFlags, viewContext);
-      }
     }
   }
 
@@ -1299,8 +1292,7 @@ export class NodeView extends View {
 
   /** @hidden */
   protected doDisplayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((displayFlags & View.DisplayMask) !== 0 && this.node.childNodes.length !== 0
-        && !this.isCulled()) {
+    if ((displayFlags & View.DisplayMask) !== 0 && !this.isCulled()) {
       this.willDisplayChildViews(displayFlags, viewContext);
       this.onDisplayChildViews(displayFlags, viewContext);
       this.didDisplayChildViews(displayFlags, viewContext);

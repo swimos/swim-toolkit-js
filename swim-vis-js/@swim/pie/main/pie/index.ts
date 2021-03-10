@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Trait, TraitObserver} from "@swim/model";
-import type {CellTrait} from "./CellTrait";
-import type {RowTrait} from "./RowTrait";
+export {
+  AnyPieView,
+  PieViewInit,
+  PieView,
+} from "./PieView";
+export {PieViewObserver} from "./PieViewObserver";
 
-export interface RowTraitObserver<R extends RowTrait = RowTrait> extends TraitObserver<R> {
-  rowTraitWillSetCell?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null, trait: R): void;
+export {PieTrait} from "./PieTrait";
+export {PieTraitObserver} from "./PieTraitObserver";
 
-  rowTraitDidSetCell?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null, trait: R): void;
-}
+export {PieComponent} from "./PieComponent";
+export {PieComponentObserver} from "./PieComponentObserver";

@@ -25,8 +25,9 @@ export type ComponentModelMemberInit<V, K extends keyof V> =
 
 export interface ComponentModelInit<M extends Model, U = never> {
   extends?: ComponentModelClass;
-  observe?: boolean;
+  key?: string | boolean;
   type?: unknown;
+  observe?: boolean;
 
   willSetModel?(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
   onSetModel?(newModel: M | null, oldModel: M | null, targetModel: Model | null): void;
@@ -40,12 +41,12 @@ export interface ComponentModelInit<M extends Model, U = never> {
 export type ComponentModelDescriptor<C extends Component, M extends Model, U = never, I = {}> = ComponentModelInit<M, U> & ThisType<ComponentModel<C, M, U> & I> & I;
 
 export interface ComponentModelConstructor<C extends Component, M extends Model, U = never, I = {}> {
-  new(owner: C, modelName: string | undefined): ComponentModel<C, M, U> & I;
-  prototype: ComponentModel<any, any> & I;
+  new(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentModel<C, M, U> & I;
+  prototype: Omit<ComponentModel<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
 export interface ComponentModelClass extends Function {
-  readonly prototype: ComponentModel<any, any>;
+  readonly prototype: Omit<ComponentModel<any, any>, "key"> & {key?: string | boolean};
 }
 
 export interface ComponentModel<C extends Component, M extends Model, U = never> {
@@ -55,6 +56,8 @@ export interface ComponentModel<C extends Component, M extends Model, U = never>
   readonly name: string;
 
   readonly owner: C;
+
+  readonly key: string | undefined;
 
   readonly model: M | null;
 
@@ -104,16 +107,17 @@ export interface ComponentModel<C extends Component, M extends Model, U = never>
 export const ComponentModel = function <C extends Component, M extends Model, U>(
     this: ComponentModel<C, M, U> | typeof ComponentModel,
     owner: C | ComponentModelDescriptor<C, M, U>,
-    modelName?: string,
+    key?: string,
+    fastenerName?: string,
   ): ComponentModel<C, M, U> | PropertyDecorator {
   if (this instanceof ComponentModel) { // constructor
-    return ComponentModelConstructor.call(this as unknown as ComponentModel<Component, Model, unknown>, owner as C, modelName);
+    return ComponentModelConstructor.call(this as unknown as ComponentModel<Component, Model, unknown>, owner as C, key, fastenerName);
   } else { // decorator factory
     return ComponentModelDecoratorFactory(owner as ComponentModelDescriptor<C, M, U>);
   }
 } as {
   /** @hidden */
-  new<C extends Component, M extends Model, U = never>(owner: C, modelName: string | undefined): ComponentModel<C, M, U>;
+  new<C extends Component, M extends Model, U = never>(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentModel<C, M, U>;
 
   <C extends Component, M extends Model = Model, U = never, I = ModelObserverType<M>>(descriptor: {extends: ComponentModelClass | undefined} & ComponentModelDescriptor<C, M, U, I>): PropertyDecorator;
   <C extends Component, M extends Model = Model, U = never>(descriptor: {observe: boolean} & ComponentModelDescriptor<C, M, U, ModelObserverType<M>>): PropertyDecorator;
@@ -128,16 +132,20 @@ export const ComponentModel = function <C extends Component, M extends Model, U>
 };
 __extends(ComponentModel, Object);
 
-function ComponentModelConstructor<C extends Component, M extends Model, U>(this: ComponentModel<C, M, U>, owner: C, modelName: string | undefined): ComponentModel<C, M, U> {
-  if (modelName !== void 0) {
+function ComponentModelConstructor<C extends Component, M extends Model, U>(this: ComponentModel<C, M, U>, owner: C, key: string | undefined, fastenerName: string | undefined): ComponentModel<C, M, U> {
+  if (fastenerName !== void 0) {
     Object.defineProperty(this, "name", {
-      value: modelName,
+      value: fastenerName,
       enumerable: true,
       configurable: true,
     });
   }
   Object.defineProperty(this, "owner", {
     value: owner,
+    enumerable: true,
+  });
+  Object.defineProperty(this, "key", {
+    value: key,
     enumerable: true,
   });
   Object.defineProperty(this, "model", {
@@ -228,7 +236,7 @@ ComponentModel.prototype.injectModel = function <M extends Model>(this: Componen
   }
   if (childModel !== null) {
     if (key === void 0) {
-      key = this.name;
+      key = this.key;
     } else if (key === null) {
       key = void 0;
     }
@@ -290,7 +298,7 @@ ComponentModel.define = function <C extends Component, M extends Model, U, I>(de
     _super = ComponentModel;
   }
 
-  const _constructor = function DecoratedComponentModel(this: ComponentModel<C, M, U>, owner: C, modelName: string | undefined): ComponentModel<C, M, U> {
+  const _constructor = function DecoratedComponentModel(this: ComponentModel<C, M, U>, owner: C, key: string | undefined, fastenerName: string | undefined): ComponentModel<C, M, U> {
     let _this: ComponentModel<C, M, U> = function ComponentModelAccessor(model?: M | null, targetModel?: Model | null): M | null | C {
       if (model === void 0) {
         return _this.model;
@@ -300,7 +308,7 @@ ComponentModel.define = function <C extends Component, M extends Model, U, I>(de
       }
     } as ComponentModel<C, M, U>;
     Object.setPrototypeOf(_this, this);
-    _this = _super!.call(_this, owner, modelName) || _this;
+    _this = _super!.call(_this, owner, key, fastenerName) || _this;
     return _this;
   } as unknown as ComponentModelConstructor<C, M, U, I>;
 

@@ -14,7 +14,7 @@
 
 import type {GraphicsView} from "@swim/graphics";
 import type {Trait, TraitObserver} from "@swim/model";
-import type {SliceTrait} from "./SliceTrait";
+import type {SliceTrait} from "../slice/SliceTrait";
 import type {PieTrait} from "./PieTrait";
 
 export interface PieTraitObserver<R extends PieTrait = PieTrait> extends TraitObserver<R> {

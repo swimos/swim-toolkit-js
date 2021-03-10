@@ -63,6 +63,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
   declare drawerStretch: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   @ViewFastener<ListItem, HtmlView, Graphics>({
+    key: true,
     type: HtmlView,
     onSetView(iconView: HtmlView | null): void {
       if (iconView !== null) {
@@ -103,6 +104,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   @ViewFastener<ListItem, HtmlView, string | undefined>({
+    key: true,
     type: HtmlView,
     onSetView(labelView: HtmlView | null): void {
       if (labelView !== null) {
@@ -152,6 +154,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   @ViewFastener<ListItem, HtmlView, Graphics | string>({
+    key: true,
     type: HtmlView,
     onSetView(accessoryView: HtmlView | null): void {
       if (accessoryView !== null) {

@@ -42,13 +42,13 @@ export interface ComponentPrototype {
   componentPropertyConstructors?: {[propertyName: string]: ComponentPropertyConstructor<Component, unknown> | undefined};
 
   /** @hidden */
-  componentModelConstructors?: {[modelName: string]: ComponentModelConstructor<Component, Model> | undefined};
+  componentModelConstructors?: {[fastenerName: string]: ComponentModelConstructor<Component, Model> | undefined};
 
   /** @hidden */
-  componentTraitConstructors?: {[traitName: string]: ComponentTraitConstructor<Component, Trait> | undefined};
+  componentTraitConstructors?: {[fastenerName: string]: ComponentTraitConstructor<Component, Trait> | undefined};
 
   /** @hidden */
-  componentViewConstructors?: {[viewName: string]: ComponentViewConstructor<Component, View> | undefined};
+  componentViewConstructors?: {[fastenerName: string]: ComponentViewConstructor<Component, View> | undefined};
 
   /** @hidden */
   componentViewTraitConstructors?: {[fastenerName: string]: ComponentViewTraitConstructor<Component, View, Trait> | undefined};
@@ -846,58 +846,67 @@ export abstract class Component {
     return componentProperty
   }
 
-  abstract hasComponentModel(modelName: string): boolean;
+  abstract hasComponentModel(fastenerName: string): boolean;
 
-  abstract getComponentModel(modelName: string): ComponentModel<this, Model> | null;
+  abstract getComponentModel(fastenerName: string): ComponentModel<this, Model> | null;
 
-  abstract setComponentModel(modelName: string, componentModel: ComponentModel<this, any> | null): void;
+  abstract setComponentModel(fastenerName: string, componentModel: ComponentModel<this, any> | null): void;
 
   /** @hidden */
-  getLazyComponentModel(modelName: string): ComponentModel<this, Model> | null {
-    let componentModel = this.getComponentModel(modelName);
+  getLazyComponentModel(fastenerName: string): ComponentModel<this, Model> | null {
+    let componentModel = this.getComponentModel(fastenerName);
     if (componentModel === null) {
-      const constructor = Component.getComponentModelConstructor(modelName, Object.getPrototypeOf(this));
+      const constructor = Component.getComponentModelConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        componentModel = new constructor(this, modelName) as ComponentModel<this, Model>;
-        this.setComponentModel(modelName, componentModel);
+        const key = constructor.prototype.key === true ? fastenerName
+                  : constructor.prototype.key === false ? void 0
+                  : constructor.prototype.key;
+        componentModel = new constructor(this, key, fastenerName) as ComponentModel<this, Model>;
+        this.setComponentModel(fastenerName, componentModel);
       }
     }
     return componentModel;
   }
 
-  abstract hasComponentTrait(traitName: string): boolean;
+  abstract hasComponentTrait(fastenerName: string): boolean;
 
-  abstract getComponentTrait(traitName: string): ComponentTrait<this, Trait> | null;
+  abstract getComponentTrait(fastenerName: string): ComponentTrait<this, Trait> | null;
 
-  abstract setComponentTrait(traitName: string, componentTrait: ComponentTrait<this, any> | null): void;
+  abstract setComponentTrait(fastenerName: string, componentTrait: ComponentTrait<this, any> | null): void;
 
   /** @hidden */
-  getLazyComponentTrait(traitName: string): ComponentTrait<this, Trait> | null {
-    let componentTrait = this.getComponentTrait(traitName);
+  getLazyComponentTrait(fastenerName: string): ComponentTrait<this, Trait> | null {
+    let componentTrait = this.getComponentTrait(fastenerName);
     if (componentTrait === null) {
-      const constructor = Component.getComponentTraitConstructor(traitName, Object.getPrototypeOf(this));
+      const constructor = Component.getComponentTraitConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        componentTrait = new constructor(this, traitName) as ComponentTrait<this, Trait>;
-        this.setComponentTrait(traitName, componentTrait);
+        const key = constructor.prototype.key === true ? fastenerName
+                  : constructor.prototype.key === false ? void 0
+                  : constructor.prototype.key;
+        componentTrait = new constructor(this, key, fastenerName) as ComponentTrait<this, Trait>;
+        this.setComponentTrait(fastenerName, componentTrait);
       }
     }
     return componentTrait;
   }
 
-  abstract hasComponentView(viewName: string): boolean;
+  abstract hasComponentView(fastenerName: string): boolean;
 
-  abstract getComponentView(viewName: string): ComponentView<this, View> | null;
+  abstract getComponentView(fastenerName: string): ComponentView<this, View> | null;
 
-  abstract setComponentView(viewName: string, componentView: ComponentView<this, any> | null): void;
+  abstract setComponentView(fastenerName: string, componentView: ComponentView<this, any> | null): void;
 
   /** @hidden */
-  getLazyComponentView(viewName: string): ComponentView<this, View> | null {
-    let componentView = this.getComponentView(viewName);
+  getLazyComponentView(fastenerName: string): ComponentView<this, View> | null {
+    let componentView = this.getComponentView(fastenerName);
     if (componentView === null) {
-      const constructor = Component.getComponentViewConstructor(viewName, Object.getPrototypeOf(this));
+      const constructor = Component.getComponentViewConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        componentView = new constructor(this, viewName) as ComponentView<this, View>;
-        this.setComponentView(viewName, componentView);
+        const key = constructor.prototype.key === true ? fastenerName
+                  : constructor.prototype.key === false ? void 0
+                  : constructor.prototype.key;
+        componentView = new constructor(this, key, fastenerName) as ComponentView<this, View>;
+        this.setComponentView(fastenerName, componentView);
       }
     }
     return componentView;
@@ -915,7 +924,13 @@ export abstract class Component {
     if (componentViewTrait === null) {
       const constructor = Component.getComponentViewTraitConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        componentViewTrait = new constructor(this, fastenerName) as ComponentViewTrait<this, View, Trait>;
+        const viewKey = constructor.prototype.viewKey === true ? fastenerName
+                      : constructor.prototype.viewKey === false ? void 0
+                      : constructor.prototype.viewKey;
+        const traitKey = constructor.prototype.traitKey === true ? fastenerName
+                       : constructor.prototype.traitKey === false ? void 0
+                       : constructor.prototype.traitKey;
+        componentViewTrait = new constructor(this, viewKey, traitKey, fastenerName) as ComponentViewTrait<this, View, Trait>;
         this.setComponentViewTrait(fastenerName, componentViewTrait);
       }
     }
@@ -934,7 +949,10 @@ export abstract class Component {
     if (componentFastener === null) {
       const constructor = Component.getComponentFastenerConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        componentFastener = new constructor(this, fastenerName) as ComponentFastener<this, Component>;
+        const key = constructor.prototype.key === true ? fastenerName
+                  : constructor.prototype.key === false ? void 0
+                  : constructor.prototype.key;
+        componentFastener = new constructor(this, key, fastenerName) as ComponentFastener<this, Component>;
         this.setComponentFastener(fastenerName, componentFastener);
       }
     }
@@ -1038,13 +1056,13 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentModelConstructor(modelName: string, componentPrototype: ComponentPrototype | null = null): ComponentModelConstructor<Component, Model> | null {
+  static getComponentModelConstructor(fastenerName: string, componentPrototype: ComponentPrototype | null = null): ComponentModelConstructor<Component, Model> | null {
     if (componentPrototype === null) {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
       if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentModelConstructors")) {
-        const constructor = componentPrototype.componentModelConstructors![modelName];
+        const constructor = componentPrototype.componentModelConstructors![fastenerName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1057,17 +1075,21 @@ export abstract class Component {
   /** @hidden */
   static decorateComponentModel(constructor: ComponentModelConstructor<Component, Model>,
                                 target: Object, propertyKey: string | symbol): void {
+    const fastenerName = propertyKey.toString();
+    const key = constructor.prototype.key === true ? fastenerName
+              : constructor.prototype.key === false ? void 0
+              : constructor.prototype.key;
     const componentPrototype = target as ComponentPrototype;
     if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentModelConstructors")) {
       componentPrototype.componentModelConstructors = {};
     }
-    componentPrototype.componentModelConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentModelConstructors![fastenerName] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentModel<Component, Model> {
-        let componentModel = this.getComponentModel(propertyKey.toString());
+        let componentModel = this.getComponentModel(fastenerName);
         if (componentModel === null) {
-          componentModel = new constructor(this, propertyKey.toString());
-          this.setComponentModel(propertyKey.toString(), componentModel);
+          componentModel = new constructor(this, key, fastenerName);
+          this.setComponentModel(fastenerName, componentModel);
         }
         return componentModel;
       },
@@ -1077,13 +1099,13 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentTraitConstructor(traitName: string, componentPrototype: ComponentPrototype | null = null): ComponentTraitConstructor<Component, Trait> | null {
+  static getComponentTraitConstructor(fastenerName: string, componentPrototype: ComponentPrototype | null = null): ComponentTraitConstructor<Component, Trait> | null {
     if (componentPrototype === null) {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
       if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentTraitConstructors")) {
-        const constructor = componentPrototype.componentTraitConstructors![traitName];
+        const constructor = componentPrototype.componentTraitConstructors![fastenerName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1096,17 +1118,21 @@ export abstract class Component {
   /** @hidden */
   static decorateComponentTrait(constructor: ComponentTraitConstructor<Component, Trait>,
                                 target: Object, propertyKey: string | symbol): void {
+    const fastenerName = propertyKey.toString();
+    const key = constructor.prototype.key === true ? fastenerName
+              : constructor.prototype.key === false ? void 0
+              : constructor.prototype.key;
     const componentPrototype = target as ComponentPrototype;
     if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentTraitConstructors")) {
       componentPrototype.componentTraitConstructors = {};
     }
-    componentPrototype.componentTraitConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentTraitConstructors![fastenerName] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentTrait<Component, Trait> {
-        let componentTrait = this.getComponentTrait(propertyKey.toString());
+        let componentTrait = this.getComponentTrait(fastenerName);
         if (componentTrait === null) {
-          componentTrait = new constructor(this, propertyKey.toString());
-          this.setComponentTrait(propertyKey.toString(), componentTrait);
+          componentTrait = new constructor(this, key, fastenerName);
+          this.setComponentTrait(fastenerName, componentTrait);
         }
         return componentTrait;
       },
@@ -1116,13 +1142,13 @@ export abstract class Component {
   }
 
   /** @hidden */
-  static getComponentViewConstructor(viewName: string, componentPrototype: ComponentPrototype | null = null): ComponentViewConstructor<Component, View> | null {
+  static getComponentViewConstructor(fastenerName: string, componentPrototype: ComponentPrototype | null = null): ComponentViewConstructor<Component, View> | null {
     if (componentPrototype === null) {
       componentPrototype = this.prototype as ComponentPrototype;
     }
     do {
       if (Object.prototype.hasOwnProperty.call(componentPrototype, "componentViewConstructors")) {
-        const constructor = componentPrototype.componentViewConstructors![viewName];
+        const constructor = componentPrototype.componentViewConstructors![fastenerName];
         if (constructor !== void 0) {
           return constructor;
         }
@@ -1135,17 +1161,21 @@ export abstract class Component {
   /** @hidden */
   static decorateComponentView(constructor: ComponentViewConstructor<Component, View>,
                                target: Object, propertyKey: string | symbol): void {
+    const fastenerName = propertyKey.toString();
+    const key = constructor.prototype.key === true ? fastenerName
+              : constructor.prototype.key === false ? void 0
+              : constructor.prototype.key;
     const componentPrototype = target as ComponentPrototype;
     if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentViewConstructors")) {
       componentPrototype.componentViewConstructors = {};
     }
-    componentPrototype.componentViewConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentViewConstructors![fastenerName] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentView<Component, View> {
-        let componentView = this.getComponentView(propertyKey.toString());
+        let componentView = this.getComponentView(fastenerName);
         if (componentView === null) {
-          componentView = new constructor(this, propertyKey.toString());
-          this.setComponentView(propertyKey.toString(), componentView);
+          componentView = new constructor(this, key, fastenerName);
+          this.setComponentView(fastenerName, componentView);
         }
         return componentView;
       },
@@ -1174,17 +1204,24 @@ export abstract class Component {
   /** @hidden */
   static decorateComponentViewTrait(constructor: ComponentViewTraitConstructor<Component, View, Trait>,
                                     target: Object, propertyKey: string | symbol): void {
+    const fastenerName = propertyKey.toString();
+    const viewKey = constructor.prototype.viewKey === true ? fastenerName
+                  : constructor.prototype.viewKey === false ? void 0
+                  : constructor.prototype.viewKey;
+    const traitKey = constructor.prototype.traitKey === true ? fastenerName
+                   : constructor.prototype.traitKey === false ? void 0
+                   : constructor.prototype.traitKey;
     const componentPrototype = target as ComponentPrototype;
     if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentViewTraitConstructors")) {
       componentPrototype.componentViewTraitConstructors = {};
     }
-    componentPrototype.componentViewTraitConstructors![propertyKey.toString()] = constructor;
+    componentPrototype.componentViewTraitConstructors![fastenerName] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentViewTrait<Component, View, Trait> {
-        let componentViewTrait = this.getComponentViewTrait(propertyKey.toString());
+        let componentViewTrait = this.getComponentViewTrait(fastenerName);
         if (componentViewTrait === null) {
-          componentViewTrait = new constructor(this, propertyKey.toString());
-          this.setComponentViewTrait(propertyKey.toString(), componentViewTrait);
+          componentViewTrait = new constructor(this, viewKey, traitKey, fastenerName);
+          this.setComponentViewTrait(fastenerName, componentViewTrait);
         }
         return componentViewTrait;
       },
@@ -1213,6 +1250,10 @@ export abstract class Component {
   /** @hidden */
   static decorateComponentFastener(constructor: ComponentFastenerConstructor<Component, Component>,
                                    target: Object, propertyKey: string | symbol): void {
+    const fastenerName = propertyKey.toString();
+    const key = constructor.prototype.key === true ? fastenerName
+              : constructor.prototype.key === false ? void 0
+              : constructor.prototype.key;
     const componentPrototype = target as ComponentPrototype;
     if (!Object.prototype.hasOwnProperty.call(componentPrototype, "componentFastenerConstructors")) {
       componentPrototype.componentFastenerConstructors = {};
@@ -1220,10 +1261,10 @@ export abstract class Component {
     componentPrototype.componentFastenerConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: Component): ComponentFastener<Component, Component> {
-        let componentFastener = this.getComponentFastener(propertyKey.toString());
+        let componentFastener = this.getComponentFastener(fastenerName);
         if (componentFastener === null) {
-          componentFastener = new constructor(this, propertyKey.toString());
-          this.setComponentFastener(propertyKey.toString(), componentFastener);
+          componentFastener = new constructor(this, key, fastenerName);
+          this.setComponentFastener(fastenerName, componentFastener);
         }
         return componentFastener;
       },

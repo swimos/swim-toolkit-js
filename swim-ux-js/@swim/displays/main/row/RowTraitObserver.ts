@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {View} from "@swim/view";
-import type {HtmlViewObserver} from "@swim/dom";
-import type {CellView} from "./CellView";
-import type {RowView} from "./RowView";
+import type {Trait, TraitObserver} from "@swim/model";
+import type {CellTrait} from "../cell/CellTrait";
+import type {RowTrait} from "./RowTrait";
 
-export interface RowViewObserver<V extends RowView = RowView> extends HtmlViewObserver<V> {
-  rowViewWillSetCell?(newCellView: CellView | null, oldCellView: CellView | null, targetView: View | null, view: V): void;
+export interface RowTraitObserver<R extends RowTrait = RowTrait> extends TraitObserver<R> {
+  rowTraitWillSetCell?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null, trait: R): void;
 
-  rowViewDidSetCell?(newCellView: CellView | null, oldCellView: CellView | null, targetView: View | null, view: V): void;
+  rowTraitDidSetCell?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null, trait: R): void;
 }

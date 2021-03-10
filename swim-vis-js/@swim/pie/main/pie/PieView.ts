@@ -33,7 +33,7 @@ import {
   AnyTextRunView,
   TextRunView,
 } from "@swim/graphics";
-import {AnySliceView, SliceView} from "./SliceView";
+import {AnySliceView, SliceView} from "../slice/SliceView";
 import type {PieViewObserver} from "./PieViewObserver";
 
 export type AnyPieView = PieView | PieViewInit;
@@ -196,30 +196,6 @@ export class PieView extends LayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewFastener<PieView, GraphicsView, AnyTextRunView>({
-    type: TextRunView,
-    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
-      if (value instanceof GraphicsView) {
-        return value;
-      } else if (typeof value === "string" && this.view instanceof TextRunView) {
-        this.view.text(value);
-        return this.view;
-      } else {
-        return TextRunView.fromAny(value);
-      }
-    },
-    willSetView(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
-      this.owner.willSetTitle(newTitleView, oldTitleView);
-    },
-    onSetView(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
-      this.owner.onSetTitle(newTitleView, oldTitleView);
-    },
-    didSetView(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
-      this.owner.didSetTitle(newTitleView, oldTitleView);
-    },
-  })
-  declare title: ViewFastener<this, GraphicsView, AnyTextRunView>;
-
   protected initTitle(titleView: GraphicsView): void {
     if (TypesetView.is(titleView)) {
       titleView.textAlign.setAutoState("center");
@@ -262,6 +238,31 @@ export class PieView extends LayerView {
     }
   }
 
+  @ViewFastener<PieView, GraphicsView, AnyTextRunView>({
+    key: true,
+    type: TextRunView,
+    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
+      if (value instanceof GraphicsView) {
+        return value;
+      } else if (typeof value === "string" && this.view instanceof TextRunView) {
+        this.view.text(value);
+        return this.view;
+      } else {
+        return TextRunView.fromAny(value);
+      }
+    },
+    willSetView(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
+      this.owner.willSetTitle(newTitleView, oldTitleView);
+    },
+    onSetView(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
+      this.owner.onSetTitle(newTitleView, oldTitleView);
+    },
+    didSetView(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
+      this.owner.didSetTitle(newTitleView, oldTitleView);
+    },
+  })
+  declare title: ViewFastener<this, GraphicsView, AnyTextRunView>;
+
   insertSlice(sliceView: SliceView, targetView: View | null = null): void {
     const sliceFasteners = this.sliceFasteners as ViewFastener<this, SliceView>[];
     let targetIndex = -1;
@@ -295,32 +296,6 @@ export class PieView extends LayerView {
       }
     }
   }
-
-  /** @hidden */
-  static SliceFastener = ViewFastener.define<PieView, SliceView>({
-    type: SliceView,
-    child: false,
-    observe: true,
-    willSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null): void {
-      this.owner.willSetSlice(newSliceView, oldSliceView, targetView, this);
-    },
-    onSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null): void {
-      this.owner.onSetSlice(newSliceView, oldSliceView, targetView, this);
-    },
-    didSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null): void {
-      this.owner.didSetSlice(newSliceView, oldSliceView, targetView, this);
-    },
-    sliceViewDidSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
-      this.owner.onSetSliceValue(newValue, sliceView);
-    },
-  });
-
-  protected createSliceFastener(sliceView: SliceView): ViewFastener<this, SliceView> {
-    return new PieView.SliceFastener(this, sliceView.key) as ViewFastener<this, SliceView>;
-  }
-
-  /** @hidden */
-  declare readonly sliceFasteners: ReadonlyArray<ViewFastener<this, SliceView>>;
 
   protected initSlice(sliceView: SliceView, sliceFastener: ViewFastener<this, SliceView>): void {
     // hook
@@ -366,6 +341,32 @@ export class PieView extends LayerView {
   protected onSetSliceValue(value: number, sliceView: SliceView): void {
     this.requireUpdate(View.NeedsLayout);
   }
+
+  /** @hidden */
+  static SliceFastener = ViewFastener.define<PieView, SliceView>({
+    type: SliceView,
+    child: false,
+    observe: true,
+    willSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null): void {
+      this.owner.willSetSlice(newSliceView, oldSliceView, targetView, this);
+    },
+    onSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null): void {
+      this.owner.onSetSlice(newSliceView, oldSliceView, targetView, this);
+    },
+    didSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null): void {
+      this.owner.didSetSlice(newSliceView, oldSliceView, targetView, this);
+    },
+    sliceViewDidSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
+      this.owner.onSetSliceValue(newValue, sliceView);
+    },
+  });
+
+  protected createSliceFastener(sliceView: SliceView): ViewFastener<this, SliceView> {
+    return new PieView.SliceFastener(this, sliceView.key, "slice") as ViewFastener<this, SliceView>;
+  }
+
+  /** @hidden */
+  declare readonly sliceFasteners: ReadonlyArray<ViewFastener<this, SliceView>>;
 
   /** @hidden */
   protected mountSliceFasteners(): void {

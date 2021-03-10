@@ -84,6 +84,7 @@ export class InputTokenView extends TokenView {
   }
 
   @ViewFastener<InputTokenView, StyleView>({
+    key: true,
     type: HtmlView.style,
     child: true,
     observe: true,

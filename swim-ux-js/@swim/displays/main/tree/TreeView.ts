@@ -121,7 +121,7 @@ export class TreeView extends HtmlView {
     }
   }
 
-  @ViewProperty({type: TreeSeed, inherit: true})
+  @ViewProperty({type: TreeSeed, inherit: true, updateFlags: View.NeedsResize | View.NeedsLayout})
   declare seed: ViewProperty<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
 
   @ViewProperty<TreeView, number>({
@@ -246,6 +246,15 @@ export class TreeView extends HtmlView {
     this.modifyTheme(Feel.default, [Feel.nested, depth !== 0 ? 1 : void 0]);
   }
 
+  /** @hidden */
+  descendantDidSetDisclosurePhase(descendantView: HtmlView, disclosurePhase: number): void {
+    this.requireUpdate(View.NeedsLayout);
+    const parentView = this.parentView;
+    if (parentView instanceof TreeLimb) {
+      parentView.descendantDidSetDisclosurePhase(descendantView, disclosurePhase);
+    }
+  }
+
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
                          timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
@@ -317,14 +326,6 @@ export class TreeView extends HtmlView {
     return treeViewContext;
   }
 
-  protected onRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
-    super.onRequireUpdate(updateFlags, immediate);
-    const parentView = this.parentView;
-    if (parentView instanceof TreeLimb) {
-      parentView.requireUpdate(updateFlags & (View.NeedsResize | View.NeedsLayout));
-    }
-  }
-
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsResize) !== 0) {
       processFlags |= View.NeedsScroll;
@@ -355,26 +356,7 @@ export class TreeView extends HtmlView {
       const spacing = this.limbSpacing.getState();
       const newSeed = oldSeed.resized(width, left, right, spacing);
       this.seed.setState(newSeed);
-      this.requireUpdate(View.NeedsLayout);
     }
-  }
-
-  protected onScroll(viewContext: ViewContextType<this>): void {
-    super.onScroll(viewContext);
-    this.setViewFlags(this.viewFlags | View.NeedsScroll); // defer to display pass
-    this.requireUpdate(View.NeedsDisplay);
-  }
-
-  protected onChange(viewContext: ViewContextType<this>): void {
-    super.onChange(viewContext);
-    this.setViewFlags(this.viewFlags | View.NeedsChange); // defer to display pass
-    this.requireUpdate(View.NeedsDisplay);
-  }
-
-  protected onAnimate(viewContext: ViewContextType<this>): void {
-    super.onAnimate(viewContext);
-    const disclosurePhase = this.disclosurePhase.value;
-    this.opacity.setAutoState(disclosurePhase !== void 0 ? disclosurePhase : 1);
   }
 
   protected processVisibleViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
@@ -398,8 +380,63 @@ export class TreeView extends HtmlView {
                               processChildView: (this: this, childView: View, processFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
     if (!this.isCulled()) {
-      this.processVisibleViews(processFlags, viewContext, processChildView);
+      if ((processFlags & (View.NeedsScroll | View.NeedsChange)) !== 0) {
+        this.scrollChildViews(processFlags, viewContext, processChildView);
+      } else {
+        this.processVisibleViews(processFlags, viewContext, processChildView);
+      }
     }
+  }
+
+  protected scrollChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                             processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                viewContext: ViewContextType<this>) => void): void {
+    const depth = this.depth.getState();
+
+    const visibleViews = this.visibleViews;
+    visibleViews.length = 0;
+
+    const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
+    (viewContext as any).visibleFrame = visibleFrame;
+    Object.defineProperty(this, "visibleFrame", {
+      value: visibleFrame,
+      enumerable: true,
+      configurable: true,
+    });
+
+    type self = this;
+    function scrollChildView(this: self, childView: View, processFlags: ViewFlags,
+                             viewContext: ViewContextType<self>): void {
+      if ((processFlags & View.NeedsChange) !== 0 && childView instanceof TreeLimb) {
+        const subtree = childView.subtree;
+        if (subtree !== null) {
+          subtree.depth.setAutoState(depth + 1);
+        }
+      }
+      let isVisible: boolean;
+      if (childView instanceof HtmlView) {
+        const top = childView.top.state;
+        const height = childView.height.state;
+        if (top instanceof Length && height instanceof Length) {
+          const yMin0 = visibleFrame.yMin;
+          const yMax0 = visibleFrame.yMax;
+          const yMin1 = top.pxValue();
+          const yMax1 = yMin1 + height.pxValue();
+          isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
+          childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
+          childView.setCulled(!isVisible);
+        } else {
+          isVisible = true;
+        }
+      } else {
+        isVisible = true;
+      }
+      if (isVisible) {
+        visibleViews.push(childView);
+        processChildView.call(this, childView, processFlags, viewContext);
+      }
+    }
+    super.processChildViews(processFlags, viewContext, scrollChildView);
   }
 
   protected displayVisibleViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
@@ -422,56 +459,30 @@ export class TreeView extends HtmlView {
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                               displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
-    if ((displayFlags & View.NeedsChange) !== 0) {
-      this.changeChildViews(displayFlags, viewContext, displayChildView);
-    } else if ((displayFlags & View.NeedsLayout) !== 0) {
+    if ((displayFlags & View.NeedsLayout) !== 0) {
       this.layoutChildViews(displayFlags, viewContext, displayChildView);
-    } else if ((displayFlags & View.NeedsScroll) !== 0) {
-      this.scrollChildViews(displayFlags, viewContext, displayChildView);
     } else {
       this.displayVisibleViews(displayFlags, viewContext, displayChildView);
-    }
-  }
-
-  protected changeChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
-                                                viewContext: ViewContextType<this>) => void): void {
-    this.setViewFlags(this.viewFlags & ~View.NeedsChange);
-    const depth = this.depth.getState();
-    type self = this;
-    function changeChildView(this: self, childView: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
-      if (childView instanceof TreeLimb) {
-        const subtree = childView.subtree;
-        if (subtree !== null) {
-          subtree.depth.setAutoState(depth + 1);
-        }
-      }
-      displayChildView.call(this, childView, displayFlags, viewContext);
-    }
-    if ((displayFlags & View.NeedsLayout) !== 0) {
-      this.layoutChildViews(displayFlags, viewContext, changeChildView);
-    } else if ((displayFlags & View.NeedsScroll) !== 0) {
-      this.scrollChildViews(displayFlags, viewContext, changeChildView);
-    } else {
-      this.displayVisibleViews(displayFlags, viewContext, changeChildView);
     }
   }
 
   protected layoutChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                 viewContext: ViewContextType<this>) => void): void {
-    this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
     this.resizeTree();
     const seed = this.seed.state;
     let width: Length | undefined;
     if (seed !== void 0 && seed.width !== null) {
       width = seed.width;
     }
-    let y = this.limbSpacing.getState();
+
+    let yValue = this.limbSpacing.getState();
+    let yState = yValue;
     const disclosingPhase = this.disclosingPhase.getValueOr(1);
+
     const visibleViews = this.visibleViews;
     visibleViews.length = 0;
+
     const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
     (viewContext as any).visibleFrame = visibleFrame;
     Object.defineProperty(this, "visibleFrame", {
@@ -483,10 +494,16 @@ export class TreeView extends HtmlView {
     type self = this;
     function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
                              viewContext: ViewContextType<self>): void {
+      let isVisible: boolean;
       if (childView instanceof HtmlView) {
+        childView.width.setAutoState(width);
+        if (childView instanceof TreeLimb || childView instanceof TreeStem) {
+          if (childView.top.isAuto()) {
+            childView.top.setIntermediateValue(Length.px(yValue * disclosingPhase), Length.px(yState));
+          }
+        }
         const top = childView.top.state;
         const height = childView.height.state;
-        let isVisible: boolean;
         if (top instanceof Length && height instanceof Length) {
           const yMin0 = visibleFrame.yMin;
           const yMax0 = visibleFrame.yMax;
@@ -496,65 +513,32 @@ export class TreeView extends HtmlView {
         } else {
           isVisible = true;
         }
-        childView.width.setAutoState(width);
         childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
         childView.setCulled(!isVisible);
-        if (isVisible) {
-          visibleViews.push(childView);
-        }
+      } else {
+        isVisible = true;
+      }
+      if (isVisible) {
+        visibleViews.push(childView);
       }
       displayChildView.call(this, childView, displayFlags, viewContext);
       if (childView instanceof TreeLimb || childView instanceof TreeStem) {
-        let dy: Length | string | number | undefined = childView.height.value;
-        dy = dy instanceof Length ? dy.pxValue() : childView.node.offsetHeight;
-        childView.top.setAutoState(y * disclosingPhase);
-        y += dy * disclosingPhase;
+        let heightValue: Length | string | number | undefined = childView.height.value;
+        heightValue = heightValue instanceof Length ? heightValue.pxValue() : childView.node.offsetHeight;
+        let heightState: Length | string | number | undefined = childView.height.state;
+        heightState = heightState instanceof Length ? heightState.pxValue() : heightValue;
+        yValue += heightValue * disclosingPhase;
+        yState += heightState;
       }
     }
     super.displayChildViews(displayFlags, viewContext, layoutChildView);
 
-    this.height.setAutoState(y);
-    const disclosurePhase = this.disclosurePhase.value;
-    this.opacity.setAutoState(disclosurePhase !== void 0 ? disclosurePhase : 1);
-  }
-
-  protected scrollChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
-                                                viewContext: ViewContextType<this>) => void): void {
-    this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
-    const visibleViews = this.visibleViews;
-    visibleViews.length = 0;
-    const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
-    (viewContext as any).visibleFrame = visibleFrame;
-    Object.defineProperty(this, "visibleFrame", {
-      value: visibleFrame,
-      enumerable: true,
-      configurable: true,
-    });
-    type self = this;
-    function scrollChildView(this: self, childView: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
-      if (childView instanceof HtmlView) {
-        const top = childView.top.state;
-        const height = childView.height.state;
-        if (top instanceof Length && height instanceof Length) {
-          const yMin0 = visibleFrame.yMin;
-          const yMax0 = visibleFrame.yMax;
-          const yMin1 = top.pxValue();
-          const yMax1 = yMin1 + height.pxValue();
-          const isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
-          childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
-          childView.setCulled(!isVisible);
-          if (isVisible) {
-            visibleViews.push(childView);
-          }
-        } else {
-          // not yet laid out
-        }
-      }
-      displayChildView.call(this, childView, displayFlags, viewContext);
+    if (this.height.isAuto()) {
+      this.height.setIntermediateValue(Length.px(yValue), Length.px(yState));
     }
-    super.displayChildViews(displayFlags, viewContext, scrollChildView);
+
+    const disclosurePhase = this.disclosurePhase.getValueOr(1);
+    this.opacity.setAutoState(disclosurePhase);
   }
 
   static fromInit(init: TreeViewInit): TreeView {

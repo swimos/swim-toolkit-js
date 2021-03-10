@@ -193,7 +193,7 @@ function createSlice() {
   slice.label().setHidden(!showLabels.checked);
   slice.legend().setHidden(!showLegend.checked);
   slice.addViewObserver({
-    sliceDidSetValue(newValue) {
+    sliceViewDidSetValue(newValue) {
       // Update the slice label.
       slice.label().text(Math.round(100 * newValue / slice.total()) + "%")
                    .setHidden(!showLabels.checked);

@@ -195,6 +195,7 @@ export class DialView extends LayerView {
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   @ViewFastener<DialView, GraphicsView, AnyTextRunView>({
+    key: true,
     type: TextRunView,
     fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
       if (value instanceof GraphicsView) {
@@ -207,6 +208,7 @@ export class DialView extends LayerView {
   declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
   @ViewFastener<DialView, GraphicsView, AnyTextRunView>({
+    key: true,
     type: TextRunView,
     fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
       if (value instanceof GraphicsView) {

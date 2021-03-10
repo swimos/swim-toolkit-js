@@ -15,8 +15,8 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {ViewContextType, ViewFlags, View, ViewEdgeInsets, ViewProperty, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
-import {AnyTableLayout, TableLayout} from "./TableLayout";
-import {RowView} from "./RowView";
+import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
+import {RowView} from "../row/RowView";
 import type {TableViewObserver} from "./TableViewObserver";
 
 export class TableView extends HtmlView {
@@ -47,7 +47,7 @@ export class TableView extends HtmlView {
 
   declare readonly viewObservers: ReadonlyArray<TableViewObserver>;
 
-  @ViewProperty({type: TableLayout})
+  @ViewProperty({type: TableLayout, updateFlags: View.NeedsLayout})
   declare layout: ViewProperty<this, TableLayout | undefined, AnyTableLayout | undefined>;
 
   @ViewProperty({type: Length, state: Length.zero()})
@@ -96,28 +96,6 @@ export class TableView extends HtmlView {
     }
   }
 
-  /** @hidden */
-  static RowFastener = ViewFastener.define<TableView, RowView>({
-    type: RowView,
-    child: false,
-    willSetView(newRowView: RowView | null, oldRowView: RowView | null, targetView: View | null): void {
-      this.owner.willSetRow(newRowView, oldRowView, targetView, this);
-    },
-    onSetView(newRowView: RowView | null, oldRowView: RowView | null, targetView: View | null): void {
-      this.owner.onSetRow(newRowView, oldRowView, targetView, this);
-    },
-    didSetView(newRowView: RowView | null, oldRowView: RowView | null, targetView: View | null): void {
-      this.owner.didSetRow(newRowView, oldRowView, targetView, this);
-    },
-  });
-
-  protected createRowFastener(rowView: RowView): ViewFastener<this, RowView> {
-    return new TableView.RowFastener(this, rowView.key) as ViewFastener<this, RowView>;
-  }
-
-  /** @hidden */
-  declare readonly rowFasteners: ReadonlyArray<ViewFastener<this, RowView>>;
-
   protected initRow(rowView: RowView, rowFastener: ViewFastener<this, RowView>): void {
     rowView.position.setAutoState("absolute");
     rowView.left.setAutoState(0);
@@ -165,6 +143,28 @@ export class TableView extends HtmlView {
       viewController.tableViewDidSetRow(newRowView, oldRowView, targetView, this);
     }
   }
+
+  /** @hidden */
+  static RowFastener = ViewFastener.define<TableView, RowView>({
+    type: RowView,
+    child: false,
+    willSetView(newRowView: RowView | null, oldRowView: RowView | null, targetView: View | null): void {
+      this.owner.willSetRow(newRowView, oldRowView, targetView, this);
+    },
+    onSetView(newRowView: RowView | null, oldRowView: RowView | null, targetView: View | null): void {
+      this.owner.onSetRow(newRowView, oldRowView, targetView, this);
+    },
+    didSetView(newRowView: RowView | null, oldRowView: RowView | null, targetView: View | null): void {
+      this.owner.didSetRow(newRowView, oldRowView, targetView, this);
+    },
+  });
+
+  protected createRowFastener(rowView: RowView): ViewFastener<this, RowView> {
+    return new TableView.RowFastener(this, rowView.key, "row") as ViewFastener<this, RowView>;
+  }
+
+  /** @hidden */
+  declare readonly rowFasteners: ReadonlyArray<ViewFastener<this, RowView>>;
 
   /** @hidden */
   protected mountRowFasteners(): void {
@@ -252,14 +252,7 @@ export class TableView extends HtmlView {
       const colSpacing = this.colSpacing.getState().pxValue(width);
       const newLayout = oldLayout.resized(width, left, right, colSpacing);
       this.layout.setState(newLayout);
-      this.requireUpdate(View.NeedsLayout);
     }
-  }
-
-  protected onScroll(viewContext: ViewContextType<this>): void {
-    super.onScroll(viewContext);
-    this.setViewFlags(this.viewFlags | View.NeedsScroll); // defer to display pass
-    this.requireUpdate(View.NeedsDisplay);
   }
 
   protected processVisibleViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
@@ -283,8 +276,54 @@ export class TableView extends HtmlView {
                               processChildView: (this: this, childView: View, processFlags: ViewFlags,
                                                  viewContext: ViewContextType<this>) => void): void {
     if (!this.isCulled()) {
-      this.processVisibleViews(processFlags, viewContext, processChildView);
+      if ((processFlags & View.NeedsScroll) !== 0) {
+        this.scrollChildViews(processFlags, viewContext, processChildView);
+      } else {
+        this.processVisibleViews(processFlags, viewContext, processChildView);
+      }
     }
+  }
+
+  protected scrollChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                             processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                viewContext: ViewContextType<this>) => void): void {
+    const visibleViews = this.visibleViews as View[];
+    visibleViews.length = 0;
+
+    const visibleFrame = this.detectVisibleFrame();
+    Object.defineProperty(this, "visibleFrame", {
+      value: visibleFrame,
+      enumerable: true,
+      configurable: true,
+    });
+
+    type self = this;
+    function scrollChildView(this: self, childView: View, processFlags: ViewFlags,
+                             viewContext: ViewContextType<self>): void {
+      let isVisible: boolean;
+      if (childView instanceof HtmlView) {
+        const top = childView.top.state;
+        const height = childView.height.state;
+        if (top instanceof Length && height instanceof Length) {
+          const yMin0 = visibleFrame.yMin;
+          const yMax0 = visibleFrame.yMax;
+          const yMin1 = top.pxValue();
+          const yMax1 = yMin1 + height.pxValue();
+          isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
+          childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
+          childView.setCulled(!isVisible);
+        } else {
+          isVisible = true;
+        }
+      } else {
+        isVisible = true;
+      }
+      if (isVisible) {
+        visibleViews.push(childView);
+        processChildView.call(this, childView, processFlags, viewContext);
+      }
+    }
+    super.processChildViews(processFlags, viewContext, scrollChildView);
   }
 
   protected displayVisibleViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
@@ -309,8 +348,6 @@ export class TableView extends HtmlView {
                                                  viewContext: ViewContextType<this>) => void): void {
     if ((displayFlags & View.NeedsLayout) !== 0) {
       this.layoutChildViews(displayFlags, viewContext, displayChildView);
-    } else if ((displayFlags & View.NeedsScroll) !== 0) {
-      this.scrollChildViews(displayFlags, viewContext, displayChildView);
     } else {
       this.displayVisibleViews(displayFlags, viewContext, displayChildView);
     }
@@ -319,9 +356,7 @@ export class TableView extends HtmlView {
   protected layoutChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
                                                 viewContext: ViewContextType<this>) => void): void {
-    this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
     this.resizeTable();
-
     const layout = this.layout.state;
     let width: Length | undefined;
     if (layout !== void 0 && layout.width !== null) {
@@ -348,13 +383,14 @@ export class TableView extends HtmlView {
     function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
                              viewContext: ViewContextType<self>): void {
       if (childView instanceof RowView) {
+        childView.top.setAutoState(y);
         childView.width.setAutoState(width);
         childView.height.setAutoState(rowHeight);
       }
+      let isVisible: boolean;
       if (childView instanceof HtmlView) {
         const top = childView.top.state;
         const height = childView.height.state;
-        let isVisible: boolean;
         if (top instanceof Length && height instanceof Length) {
           const yMin0 = visibleFrame.yMin;
           const yMax0 = visibleFrame.yMax;
@@ -366,62 +402,22 @@ export class TableView extends HtmlView {
         }
         childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
         childView.setCulled(!isVisible);
-        if (isVisible) {
-          visibleViews.push(childView);
-        }
+      } else {
+        isVisible = true;
+      }
+      if (isVisible) {
+        visibleViews.push(childView);
       }
       displayChildView.call(this, childView, displayFlags, viewContext);
       if (childView instanceof RowView) {
         let height: Length | string | number | undefined = childView.height.state;
         height = height instanceof Length ? height.pxValue() : childView.node.offsetHeight;
-        childView.top.setAutoState(y);
         y += height + ySpacing;
       }
     }
     super.displayChildViews(displayFlags, viewContext, layoutChildView);
 
     this.height.setAutoState(y);
-  }
-
-  protected scrollChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                             displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
-                                                viewContext: ViewContextType<this>) => void): void {
-    this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
-
-    const visibleViews = this.visibleViews as View[];
-    visibleViews.length = 0;
-
-    const visibleFrame = this.detectVisibleFrame();
-    Object.defineProperty(this, "visibleFrame", {
-      value: visibleFrame,
-      enumerable: true,
-      configurable: true,
-    });
-
-    type self = this;
-    function scrollChildView(this: self, childView: View, displayFlags: ViewFlags,
-                             viewContext: ViewContextType<self>): void {
-      if (childView instanceof HtmlView) {
-        const top = childView.top.state;
-        const height = childView.height.state;
-        if (top instanceof Length && height instanceof Length) {
-          const yMin0 = visibleFrame.yMin;
-          const yMax0 = visibleFrame.yMax;
-          const yMin1 = top.pxValue();
-          const yMax1 = yMin1 + height.pxValue();
-          const isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
-          childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
-          childView.setCulled(!isVisible);
-          if (isVisible) {
-            visibleViews.push(childView);
-          }
-        } else {
-          // not yet laid out
-        }
-      }
-      displayChildView.call(this, childView, displayFlags, viewContext);
-    }
-    super.displayChildViews(displayFlags, viewContext, scrollChildView);
   }
 
   /** @hidden */

@@ -86,7 +86,7 @@ export class DeckButton extends DeckSlot {
     const oldLabelView = oldLabelFastener !== null ? oldLabelFastener.view : null;
 
     const newLabelKey = "label" + newLabelCount;
-    const newLabelFastener = new DeckButtonLabelFastener(this, newLabelKey) as unknown as DeckButtonLabel<this, HtmlView>;
+    const newLabelFastener = new DeckButtonLabelFastener(this, newLabelKey, newLabelKey) as unknown as DeckButtonLabel<this, HtmlView>;
     newLabelFastener.labelIndex = newLabelCount;
     this.willPushLabel(newLabelView, oldLabelView);
     this.label = newLabelFastener;
@@ -261,6 +261,7 @@ export abstract class DeckButtonCloseIcon<V extends DeckButton, S extends SvgIco
 }
 ViewFastener({
   extends: DeckButtonCloseIcon,
+  key: true,
   type: SvgIconView,
   observe: true,
 })(DeckButton.prototype, "closeIcon");
@@ -358,14 +359,15 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
 }
 ViewFastener({
   extends: DeckButtonBackIcon,
+  key: true,
   type: SvgIconView,
   observe: true,
 })(DeckButton.prototype, "backIcon");
 
 /** @hidden */
 export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> extends ViewFastener<V, S> {
-  constructor(owner: V, fastenerName: string | undefined) {
-    super(owner, fastenerName);
+  constructor(owner: V, key: string | undefined, fastenerName: string | undefined) {
+    super(owner, key, fastenerName);
     this.labelIndex = 0;
     this.labelWidth = void 0;
     this.layoutWidth = 0;

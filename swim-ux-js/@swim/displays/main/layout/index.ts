@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {BoxR2} from "@swim/math";
-import type {ViewContext} from "@swim/view";
+export {
+  AnyColLayout,
+  ColLayoutInit,
+  ColLayout,
+} from "./ColLayout";
 
-export interface TableViewContext extends ViewContext {
-  /**
-   * The current client viewport rectangle, translated into view coordinates.
-   */
-  readonly visibleFrame: BoxR2;
-}
+export {
+  AnyTableLayout,
+  TableLayoutInit,
+  TableLayout,
+} from "./TableLayout";

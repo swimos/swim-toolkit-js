@@ -22,8 +22,9 @@ import {Component} from "../Component";
 export interface ComponentViewTraitInit<V extends View, R extends Trait, VU = never, RU = never> {
   extends?: ComponentViewTraitClass;
 
-  observeView?: boolean;
+  viewKey?: string | boolean;
   viewType?: ViewFactory<V, VU>;
+  observeView?: boolean;
   willSetView?(newView: V | null, oldView: V | null, targetView: View | null): void;
   onSetView?(newView: V | null, oldView: V | null, targetView: View | null): void;
   didSetView?(newView: V | null, oldView: V | null, targetView: View | null): void;
@@ -31,8 +32,9 @@ export interface ComponentViewTraitInit<V extends View, R extends Trait, VU = ne
   insertView?(parentView: View, childView: V, targetView: View | null, key: string | undefined): void;
   fromAny?(value: V | VU): V | null;
 
-  observeTrait?: boolean;
+  traitKey?: string | boolean;
   traitType?: unknown;
+  observeTrait?: boolean;
   willSetTrait?(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
   onSetTrait?(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
   didSetTrait?(newTrait: R | null, oldTrait: R | null, targetTrait: Trait | null): void;
@@ -43,18 +45,20 @@ export interface ComponentViewTraitInit<V extends View, R extends Trait, VU = ne
 export type ComponentViewTraitDescriptor<C extends Component, V extends View, R extends Trait, VU = never, RU = never, I = {}> = ComponentViewTraitInit<V, R, VU, RU> & ThisType<ComponentViewTrait<C, V, R, VU, RU> & I> & I;
 
 export interface ComponentViewTraitConstructor<C extends Component, V extends View, R extends Trait, VU = never, RU = never, I = {}> {
-  new(owner: C, fastenerName: string | undefined): ComponentViewTrait<C, V, R, VU, RU> & I;
-  prototype: ComponentViewTrait<any, any, any, any> & I;
+  new(owner: C, viewKey: string | undefined, traitKey: string | undefined, fastenerName: string | undefined): ComponentViewTrait<C, V, R, VU, RU> & I;
+  prototype: Omit<ComponentViewTrait<any, any, any, any>, "viewKey" | "traitKey"> & {viewKey?: string | boolean; traitKey?: string | boolean} & I;
 }
 
 export interface ComponentViewTraitClass extends Function {
-  readonly prototype: ComponentViewTrait<any, any, any, any>;
+  readonly prototype: Omit<ComponentViewTrait<any, any, any, any>, "viewKey" | "traitKey"> & {viewKey?: string | boolean; traitKey?: string | boolean};
 }
 
 export interface ComponentViewTrait<C extends Component, V extends View, R extends Trait, VU = never, RU = never> {
   readonly name: string;
 
   readonly owner: C;
+
+  readonly viewKey: string | undefined;
 
   readonly view: V | null;
 
@@ -93,6 +97,8 @@ export interface ComponentViewTrait<C extends Component, V extends View, R exten
   readonly viewType?: ViewFactory<V>;
 
   fromAnyView(value: V | VU): V | null;
+
+  readonly traitKey: string | undefined;
 
   readonly trait: R | null;
 
@@ -142,16 +148,18 @@ export interface ComponentViewTrait<C extends Component, V extends View, R exten
 export const ComponentViewTrait = function <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(
     this: ComponentViewTrait<C, V, R, VU, RU> | typeof ComponentViewTrait,
     owner: C | ComponentViewTraitDescriptor<C, V, R, VU, RU>,
+    viewKey?: string,
+    traitKey?: string,
     fastenerName?: string,
   ): ComponentViewTrait<C, V, R, VU, RU> | PropertyDecorator {
   if (this instanceof ComponentViewTrait) { // constructor
-    return ComponentViewTraitConstructor.call(this, owner as C, fastenerName) as ComponentViewTrait<C, V, R, VU, RU>;
+    return ComponentViewTraitConstructor.call(this, owner as C, viewKey, traitKey, fastenerName) as ComponentViewTrait<C, V, R, VU, RU>;
   } else { // decorator factory
     return ComponentViewDecoratorFactory(owner as ComponentViewTraitDescriptor<C, V, R, VU, RU>);
   }
 } as {
   /** @hidden */
-  new<C extends Component, V extends View, R extends Trait, VU = never, RU = never>(owner: C, fastenerName: string | undefined): ComponentViewTrait<C, V, R, VU, RU>;
+  new<C extends Component, V extends View, R extends Trait, VU = never, RU = never>(owner: C, viewKey: string | undefined, traitKey: string | undefined, fastenerName: string | undefined): ComponentViewTrait<C, V, R, VU, RU>;
 
   <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = ViewObserverType<V> & TraitObserverType<R>>(descriptor: {extends: ComponentViewTraitClass | undefined} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I>): PropertyDecorator;
   <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(descriptor: {observeView: boolean, observeTrait: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, ViewObserverType<V> & TraitObserverType<R>>): PropertyDecorator;
@@ -170,7 +178,7 @@ export const ComponentViewTrait = function <C extends Component, V extends View 
 };
 __extends(ComponentViewTrait, Object);
 
-function ComponentViewTraitConstructor<C extends Component, V extends View, R extends Trait, VU, RU>(this: ComponentViewTrait<C, V, R, VU, RU>, owner: C, fastenerName: string | undefined): ComponentViewTrait<C, V, R, VU, RU> {
+function ComponentViewTraitConstructor<C extends Component, V extends View, R extends Trait, VU, RU>(this: ComponentViewTrait<C, V, R, VU, RU>, owner: C, viewKey: string | undefined, traitKey: string | undefined, fastenerName: string | undefined): ComponentViewTrait<C, V, R, VU, RU> {
   if (fastenerName !== void 0) {
     Object.defineProperty(this, "name", {
       value: fastenerName,
@@ -182,10 +190,18 @@ function ComponentViewTraitConstructor<C extends Component, V extends View, R ex
     value: owner,
     enumerable: true,
   });
+  Object.defineProperty(this, "viewKey", {
+    value: viewKey,
+    enumerable: true,
+  });
   Object.defineProperty(this, "view", {
     value: null,
     enumerable: true,
     configurable: true,
+  });
+  Object.defineProperty(this, "traitKey", {
+    value: traitKey,
+    enumerable: true,
   });
   Object.defineProperty(this, "trait", {
     value: null,
@@ -279,7 +295,7 @@ ComponentViewTrait.prototype.injectView = function <V extends View>(this: Compon
   }
   if (childView !== null) {
     if (key === void 0) {
-      key = this.name;
+      key = this.viewKey;
     } else if (key === null) {
       key = void 0;
     }
@@ -399,7 +415,7 @@ ComponentViewTrait.prototype.injectTrait = function <R extends Trait>(this: Comp
   }
   if (trait !== null) {
     if (key === void 0) {
-      key = this.name;
+      key = this.traitKey;
     } else if (key === null) {
       key = void 0;
     }
@@ -469,8 +485,8 @@ ComponentViewTrait.define = function <C extends Component, V extends View, R ext
     _super = ComponentViewTrait;
   }
 
-  const _constructor = function DecoratedComponentViewTrait(this: ComponentViewTrait<C, V, R, VU, RU>, owner: C, fastenerName: string | undefined): ComponentViewTrait<C, V, R, VU, RU> {
-    const _this = _super!.call(this, owner, fastenerName) || this;
+  const _constructor = function DecoratedComponentViewTrait(this: ComponentViewTrait<C, V, R, VU, RU>, owner: C, viewKey: string | undefined, traitKey: string | undefined, fastenerName: string | undefined): ComponentViewTrait<C, V, R, VU, RU> {
+    const _this = _super!.call(this, owner, viewKey, traitKey, fastenerName) || this;
     return _this;
   } as unknown as ComponentViewTraitConstructor<C, V, R, VU, RU, I>;
 

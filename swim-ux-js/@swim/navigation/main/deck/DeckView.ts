@@ -82,7 +82,7 @@ export class DeckView extends HtmlView {
     const oldCardView = oldCardFastener !== null ? oldCardFastener.view : null;
 
     const newCardKey = "card" + newCardCount;
-    const newCardFastener = new DeckViewCardFastener(this, newCardKey) as unknown as DeckViewCard<this, DeckCard>;
+    const newCardFastener = new DeckViewCardFastener(this, newCardKey, newCardKey) as unknown as DeckViewCard<this, DeckCard>;
     newCardFastener.cardIndex = newCardCount;
     this.willPushCard(newCardView, oldCardView);
     this.card = newCardFastener;
@@ -269,14 +269,15 @@ export abstract class DeckViewBar<V extends DeckView, S extends DeckBar> extends
 }
 ViewFastener({
   extends: DeckViewBar,
+  key: true,
   type: DeckBar,
   observe: true,
 })(DeckView.prototype, "bar");
 
 /** @hidden */
 export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> extends ViewFastener<V, S> {
-  constructor(owner: V, fastenerName: string | undefined) {
-    super(owner, fastenerName);
+  constructor(owner: V, key: string | undefined, fastenerName: string | undefined) {
+    super(owner, key, fastenerName);
     this.cardIndex = 0;
   }
 

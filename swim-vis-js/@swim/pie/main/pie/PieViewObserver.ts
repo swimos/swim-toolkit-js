@@ -14,7 +14,7 @@
 
 import type {View, ViewObserver} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import type {SliceView} from "./SliceView";
+import type {SliceView} from "../slice/SliceView";
 import type {PieView} from "./PieView";
 
 export interface PieViewObserver<V extends PieView = PieView> extends ViewObserver<V> {

@@ -1277,7 +1277,10 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     if (viewFastener === null) {
       const constructor = View.getViewFastenerConstructor(fastenerName, Object.getPrototypeOf(this));
       if (constructor !== null) {
-        viewFastener = new constructor(this, fastenerName);
+        const key = constructor.prototype.key === true ? fastenerName
+                  : constructor.prototype.key === false ? void 0
+                  : constructor.prototype.key;
+        viewFastener = new constructor(this, key, fastenerName);
         this.setViewFastener(fastenerName, viewFastener);
       }
     }
@@ -1602,17 +1605,21 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   /** @hidden */
   static decorateViewFastener(constructor: ViewFastenerConstructor<View, View>,
                               target: Object, propertyKey: string | symbol): void {
+    const fastenerName = propertyKey.toString();
+    const key = constructor.prototype.key === true ? fastenerName
+              : constructor.prototype.key === false ? void 0
+              : constructor.prototype.key;
     const viewPrototype = target as ViewPrototype;
     if (!Object.prototype.hasOwnProperty.call(viewPrototype, "viewFastenerConstructors")) {
       viewPrototype.viewFastenerConstructors = {};
     }
-    viewPrototype.viewFastenerConstructors![propertyKey.toString()] = constructor;
+    viewPrototype.viewFastenerConstructors![fastenerName] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: View): ViewFastener<View, View> {
-        let viewFastener = this.getViewFastener(propertyKey.toString());
+        let viewFastener = this.getViewFastener(fastenerName);
         if (viewFastener === null) {
-          viewFastener = new constructor(this, propertyKey.toString());
-          this.setViewFastener(propertyKey.toString(), viewFastener);
+          viewFastener = new constructor(this, key, fastenerName);
+          this.setViewFastener(fastenerName, viewFastener);
         }
         return viewFastener;
       },
@@ -1699,7 +1706,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
 
   static readonly mountFlags: ViewFlags = View.NeedsResize | View.NeedsChange | View.NeedsLayout;
   static readonly powerFlags: ViewFlags = View.NeedsResize | View.NeedsChange | View.NeedsLayout;
-  static readonly uncullFlags: ViewFlags = 0;
+  static readonly uncullFlags: ViewFlags = View.NeedsResize | View.NeedsChange | View.NeedsLayout;
   static readonly insertChildFlags: ViewFlags = View.NeedsLayout;
   static readonly removeChildFlags: ViewFlags = View.NeedsLayout;
 }

@@ -14,8 +14,8 @@
 
 import {ViewContextType, ViewFlags, View, ViewProperty, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
-import {AnyTableLayout, TableLayout} from "./TableLayout";
-import {CellView} from "./CellView";
+import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
+import {CellView} from "../cell/CellView";
 import type {RowViewObserver} from "./RowViewObserver";
 
 export class RowView extends HtmlView {
@@ -78,28 +78,6 @@ export class RowView extends HtmlView {
     }
   }
 
-  /** @hidden */
-  static CellFastener = ViewFastener.define<RowView, CellView>({
-    type: CellView,
-    child: false,
-    willSetView(newCellView: CellView | null, oldCellView: CellView | null, targetView: View | null): void {
-      this.owner.willSetCell(newCellView, oldCellView, targetView, this);
-    },
-    onSetView(newCellView: CellView | null, oldCellView: CellView | null, targetView: View | null): void {
-      this.owner.onSetCell(newCellView, oldCellView, targetView, this);
-    },
-    didSetView(newCellView: CellView | null, oldCellView: CellView | null, targetView: View | null): void {
-      this.owner.didSetCell(newCellView, oldCellView, targetView, this);
-    },
-  });
-
-  protected createCellFastener(cellView: CellView): ViewFastener<this, CellView> {
-    return new RowView.CellFastener(this, cellView.key) as ViewFastener<this, CellView>;
-  }
-
-  /** @hidden */
-  declare readonly cellFasteners: ReadonlyArray<ViewFastener<this, CellView>>;
-
   protected initCell(cellView: CellView, cellFastener: ViewFastener<this, CellView>): void {
     cellView.display.setAutoState("none");
     cellView.position.setAutoState("absolute");
@@ -145,6 +123,28 @@ export class RowView extends HtmlView {
       viewController.rowViewDidSetCell(newCellView, oldCellView, targetView, this);
     }
   }
+
+  /** @hidden */
+  static CellFastener = ViewFastener.define<RowView, CellView>({
+    type: CellView,
+    child: false,
+    willSetView(newCellView: CellView | null, oldCellView: CellView | null, targetView: View | null): void {
+      this.owner.willSetCell(newCellView, oldCellView, targetView, this);
+    },
+    onSetView(newCellView: CellView | null, oldCellView: CellView | null, targetView: View | null): void {
+      this.owner.onSetCell(newCellView, oldCellView, targetView, this);
+    },
+    didSetView(newCellView: CellView | null, oldCellView: CellView | null, targetView: View | null): void {
+      this.owner.didSetCell(newCellView, oldCellView, targetView, this);
+    },
+  });
+
+  protected createCellFastener(cellView: CellView): ViewFastener<this, CellView> {
+    return new RowView.CellFastener(this, cellView.key, "cell") as ViewFastener<this, CellView>;
+  }
+
+  /** @hidden */
+  declare readonly cellFasteners: ReadonlyArray<ViewFastener<this, CellView>>;
 
   /** @hidden */
   protected mountCellFasteners(): void {

@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import type {Trait, TraitObserver} from "@swim/model";
-import type {RowTrait} from "./RowTrait";
-import type {ColTrait} from "./ColTrait";
+import type {ColTrait} from "../col/ColTrait";
+import type {RowTrait} from "../row/RowTrait";
 import type {TableTrait} from "./TableTrait";
 
 export interface TableTraitObserver<R extends TableTrait = TableTrait> extends TraitObserver<R> {

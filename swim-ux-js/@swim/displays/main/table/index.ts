@@ -12,37 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyColLayout,
-  ColLayoutInit,
-  ColLayout,
-} from "./ColLayout";
-
-export {
-  AnyTableLayout,
-  TableLayoutInit,
-  TableLayout,
-} from "./TableLayout";
-
-export {TableViewContext} from "./TableViewContext";
-
-export {CellView} from "./CellView";
-export {CellViewObserver} from "./CellViewObserver";
-
-export {RowView} from "./RowView";
-export {RowViewObserver} from "./RowViewObserver";
-
 export {TableView} from "./TableView";
 export {TableViewObserver} from "./TableViewObserver";
 
-export {CellTrait} from "./CellTrait";
-export {CellTraitObserver} from "./CellTraitObserver";
-
-export {RowTrait} from "./RowTrait";
-export {RowTraitObserver} from "./RowTraitObserver";
-
-export {ColTrait} from "./ColTrait";
-export {ColTraitObserver} from "./ColTraitObserver";
-
 export {TableTrait} from "./TableTrait";
 export {TableTraitObserver} from "./TableTraitObserver";
+
+export {TableComponent} from "./TableComponent";
+export {TableComponentObserver} from "./TableComponentObserver";

@@ -130,21 +130,6 @@ export class SliceView extends LayerView {
 
   declare readonly viewObservers: ReadonlyArray<SliceViewObserver>;
 
-  @ViewAnimator<SliceView, number>({
-    type: Number,
-    state: 0,
-    willSetValue(newValue: number, oldValue: number): void {
-      this.owner.willSetValue(newValue, oldValue);
-    },
-    onSetValue(newValue: number, oldValue: number): void {
-      this.owner.onSetValue(newValue, oldValue);
-    },
-    didSetValue(newValue: number, oldValue: number): void {
-      this.owner.didSetValue(newValue, oldValue);
-    },
-  })
-  declare value: ViewAnimator<this, number>;
-
   protected willSetValue(newValue: number, oldValue: number): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.sliceViewWillSetValue !== void 0) {
@@ -176,6 +161,21 @@ export class SliceView extends LayerView {
       viewController.sliceViewDidSetValue(newValue, oldValue, this);
     }
   }
+
+  @ViewAnimator<SliceView, number>({
+    type: Number,
+    state: 0,
+    willSetValue(newValue: number, oldValue: number): void {
+      this.owner.willSetValue(newValue, oldValue);
+    },
+    onSetValue(newValue: number, oldValue: number): void {
+      this.owner.onSetValue(newValue, oldValue);
+    },
+    didSetValue(newValue: number, oldValue: number): void {
+      this.owner.didSetValue(newValue, oldValue);
+    },
+  })
+  declare value: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 1})
   declare total: ViewAnimator<this, number>;
@@ -231,30 +231,6 @@ export class SliceView extends LayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewFastener<SliceView, GraphicsView, AnyTextRunView>({
-    type: TextRunView,
-    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
-      if (value instanceof GraphicsView) {
-        return value;
-      } else if (typeof value === "string" && this.view instanceof TextRunView) {
-        this.view.text(value);
-        return this.view;
-      } else {
-        return TextRunView.fromAny(value);
-      }
-    },
-    willSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
-      this.owner.willSetLabel(newLabelView, oldLabelView);
-    },
-    onSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
-      this.owner.onSetLabel(newLabelView, oldLabelView);
-    },
-    didSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
-      this.owner.didSetLabel(newLabelView, oldLabelView);
-    },
-  })
-  declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
-
   protected initLabel(labelView: GraphicsView): void {
     // hook
   }
@@ -294,6 +270,7 @@ export class SliceView extends LayerView {
   }
 
   @ViewFastener<SliceView, GraphicsView, AnyTextRunView>({
+    key: true,
     type: TextRunView,
     fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
       if (value instanceof GraphicsView) {
@@ -305,17 +282,17 @@ export class SliceView extends LayerView {
         return TextRunView.fromAny(value);
       }
     },
-    willSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
-      this.owner.willSetLegend(newLegendView, oldLegendView);
+    willSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.willSetLabel(newLabelView, oldLabelView);
     },
-    onSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
-      this.owner.onSetLegend(newLegendView, oldLegendView);
+    onSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.onSetLabel(newLabelView, oldLabelView);
     },
-    didSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
-      this.owner.didSetLegend(newLegendView, oldLegendView);
+    didSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.didSetLabel(newLabelView, oldLabelView);
     },
   })
-  declare legend: ViewFastener<this, GraphicsView, AnyTextRunView>;
+  declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
   protected initLegend(legendView: GraphicsView | null): void {
     // hook
@@ -354,6 +331,31 @@ export class SliceView extends LayerView {
       viewController.sliceViewDidSetLegend(newLegendView, oldLegendView, this);
     }
   }
+
+  @ViewFastener<SliceView, GraphicsView, AnyTextRunView>({
+    key: true,
+    type: TextRunView,
+    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
+      if (value instanceof GraphicsView) {
+        return value;
+      } else if (typeof value === "string" && this.view instanceof TextRunView) {
+        this.view.text(value);
+        return this.view;
+      } else {
+        return TextRunView.fromAny(value);
+      }
+    },
+    willSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+      this.owner.willSetLegend(newLegendView, oldLegendView);
+    },
+    onSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+      this.owner.onSetLegend(newLegendView, oldLegendView);
+    },
+    didSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+      this.owner.didSetLegend(newLegendView, oldLegendView);
+    },
+  })
+  declare legend: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);

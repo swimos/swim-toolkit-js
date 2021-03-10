@@ -14,7 +14,7 @@
 
 import type {View} from "@swim/view";
 import type {HtmlViewObserver} from "@swim/dom";
-import type {RowView} from "./RowView";
+import type {RowView} from "../row/RowView";
 import type {TableView} from "./TableView";
 
 export interface TableViewObserver<V extends TableView = TableView> extends HtmlViewObserver<V> {

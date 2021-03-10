@@ -14,11 +14,11 @@
 
 import type {GraphicsView} from "@swim/graphics";
 import type {ComponentObserver} from "@swim/component";
-import type {SliceView} from "./SliceView";
+import type {SliceView} from "../slice/SliceView";
+import type {SliceTrait} from "../slice/SliceTrait";
+import type {SliceComponent} from "../slice/SliceComponent";
 import type {PieView} from "./PieView";
-import type {SliceTrait} from "./SliceTrait";
 import type {PieTrait} from "./PieTrait";
-import type {SliceComponent} from "./SliceComponent";
 import type {PieComponent} from "./PieComponent";
 
 export interface PieComponentObserver<C extends PieComponent = PieComponent> extends ComponentObserver<C> {
@@ -34,9 +34,13 @@ export interface PieComponentObserver<C extends PieComponent = PieComponent> ext
 
   pieDidSetTitle?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, component: C): void;
 
-  pieWillSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent, component: C): void;
+  pieWillSetSliceView?(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent, component: C): void;
 
-  pieDidSetSlice?(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent, component: C): void;
+  pieDidSetSliceView?(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceComponent: SliceComponent, component: C): void;
+
+  pieWillSetSliceTrait?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent, component: C): void;
+
+  pieDidSetSliceTrait?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent, component: C): void;
 
   pieWillSetSliceValue?(newValue: number, oldValue: number, sliceComponent: SliceComponent, component: C): void;
 
@@ -49,8 +53,4 @@ export interface PieComponentObserver<C extends PieComponent = PieComponent> ext
   pieWillSetSliceLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent, component: C): void;
 
   pieDidSetSliceLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceComponent: SliceComponent, component: C): void;
-
-  pieWillSetSliceTrait?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent, component: C): void;
-
-  pieDidSetSliceTrait?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, sliceComponent: SliceComponent, component: C): void;
 }

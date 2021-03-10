@@ -100,12 +100,12 @@ export class TreeLimb extends HtmlView {
   }
 
   isExpanded(): boolean {
-    const disclosureState = this.disclosureState.state;
+    const disclosureState = this.disclosureState.getStateOr("expanded");
     return disclosureState === "expanded" || disclosureState === "expanding";
   }
 
   isCollapsed(): boolean {
-    const disclosureState = this.disclosureState.state;
+    const disclosureState = this.disclosureState.getStateOr("expanded");
     return disclosureState === "collapsed" || disclosureState === "collapsing";
   }
 
@@ -127,8 +127,11 @@ export class TreeLimb extends HtmlView {
   @ViewAnimator<TreeLimb, number>({
     type: Number,
     state: 0,
+    didSetValue(newValue: number, oldValue: number): void {
+      this.owner.descendantDidSetDisclosurePhase(this.owner, newValue);
+    },
     onEnd(disclosurePhase: number): void {
-      const disclosureState = this.owner.disclosureState.state;
+      const disclosureState = this.owner.disclosureState.getStateOr("expanded");
       if (disclosureState === "expanding" && disclosurePhase === 1) {
         this.owner.didExpand();
       } else if (disclosureState === "collapsing" && disclosurePhase === 0) {
@@ -138,7 +141,7 @@ export class TreeLimb extends HtmlView {
   })
   declare disclosurePhase: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @ViewAnimator({type: Number, inherit: true})
+  @ViewAnimator({type: Number, inherit: true, updateFlags: View.NeedsLayout})
   declare disclosingPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
   @ViewProperty({type: Number, inherit: true})
@@ -159,7 +162,7 @@ export class TreeLimb extends HtmlView {
           this.disclosingPhase.setState(this.disclosurePhase.value);
           this.disclosingPhase.setState(1, timing);
         } else {
-          setTimeout(this.didExpand.bind(this));
+          this.didExpand();
         }
       } else {
         this.disclosurePhase.setState(1);
@@ -223,7 +226,7 @@ export class TreeLimb extends HtmlView {
           this.disclosingPhase.setState(this.disclosurePhase.value);
           this.disclosingPhase.setState(0, timing);
         } else {
-          setTimeout(this.didCollapse.bind(this));
+          this.didCollapse();
         }
       } else {
         this.disclosurePhase.setState(0);
@@ -343,6 +346,15 @@ export class TreeLimb extends HtmlView {
   }
 
   /** @hidden */
+  descendantDidSetDisclosurePhase(descendantView: HtmlView, disclosurePhase: number): void {
+    this.requireUpdate(View.NeedsLayout);
+    const parentView = this.parentView;
+    if (parentView instanceof TreeView) {
+      parentView.descendantDidSetDisclosurePhase(descendantView, disclosurePhase);
+    }
+  }
+
+  /** @hidden */
   declare readonly visibleFrame: BoxR2;
 
   protected detectVisibleFrame(viewContext: ViewContext): BoxR2 {
@@ -371,40 +383,27 @@ export class TreeLimb extends HtmlView {
     return treeViewContext;
   }
 
-  protected onRequireUpdate(updateFlags: ViewFlags, immediate: boolean): void {
-    super.onRequireUpdate(updateFlags, immediate);
-    const parentView = this.parentView;
-    if (parentView instanceof TreeView) {
-      parentView.requireUpdate(updateFlags & (View.NeedsResize | View.NeedsLayout));
-    }
-  }
-
-  protected onScroll(viewContext: ViewContextType<this>): void {
-    super.onScroll(viewContext);
-    this.setViewFlags(this.viewFlags | View.NeedsScroll); // defer to display pass
-    this.requireUpdate(View.NeedsDisplay);
-  }
-
-  protected onAnimate(viewContext: ViewContextType<this>): void {
-    super.onAnimate(viewContext);
-    const disclosingPhase = this.disclosingPhase.takeUpdatedValue();
-    if (disclosingPhase !== void 0) {
-      this.requireUpdate(View.NeedsLayout);
-    }
+  protected onProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
+    super.onProcess(processFlags, viewContext);
+    const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
+    Object.defineProperty(this, "visibleFrame", {
+      value: visibleFrame,
+      enumerable: true,
+      configurable: true,
+    });
+    (viewContext as any).visibleFrame = this.visibleFrame;
   }
 
   protected onDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
     super.onDisplay(displayFlags, viewContext);
-    if ((displayFlags & (View.NeedsScroll | View.NeedsLayout)) !== 0) {
-      const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
-      Object.defineProperty(this, "visibleFrame", {
-        value: visibleFrame,
-        enumerable: true,
-        configurable: true,
-      });
-      (viewContext as any).visibleFrame = this.visibleFrame;
-      this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
-    }
+    const visibleFrame = this.detectVisibleFrame(Object.getPrototypeOf(viewContext));
+    Object.defineProperty(this, "visibleFrame", {
+      value: visibleFrame,
+      enumerable: true,
+      configurable: true,
+    });
+    (viewContext as any).visibleFrame = this.visibleFrame;
+    this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
   }
 
   protected didLayout(viewContext: ViewContextType<this>): void {
@@ -413,32 +412,49 @@ export class TreeLimb extends HtmlView {
   }
 
   protected layoutLimb(): void {
-    const disclosingPhase = this.disclosureState.state === "expanded"
-                          ? this.disclosingPhase.getValueOr(1)
-                          : 1;
+    const disclosureState = this.disclosureState.getStateOr("expanded");
+    const disclosingPhase = disclosureState === "expanded" ? this.disclosingPhase.getValueOr(1) : 1;
     const seed = this.seed.state;
     const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
     const limbSpacing = this.limbSpacing.getStateOr(0);
-    let y = 0;
+    let yValue = 0;
+    let yState = yValue
     const leaf = this.leaf;
     if (leaf !== null) {
-      let dy: Length | string | number | undefined = leaf.height.value;
-      dy = dy instanceof Length ? dy.pxValue() : leaf.node.offsetHeight;
-      leaf.top.setAutoState(y * disclosingPhase);
-      leaf.width.setAutoState(width !== void 0 ? width.pxValue() : void 0);
-      y += dy * disclosingPhase;
+      if (leaf.top.isAuto()) {
+        leaf.top.setIntermediateValue(Length.px(yValue * disclosingPhase), Length.px(yState));
+      }
+      leaf.width.setAutoState(width);
+      let heightValue: Length | string | number | undefined = leaf.height.value;
+      heightValue = heightValue instanceof Length ? heightValue.pxValue() : leaf.node.offsetHeight;
+      let heightState: Length | string | number | undefined = leaf.height.state;
+      heightState = heightState instanceof Length ? heightState.pxValue() : heightValue;
+      yValue += heightValue * disclosingPhase;
+      yState += heightState;
     }
     const subtree = this.subtree;
-    if (subtree !== null && this.disclosureState.state !== "collapsed") {
-      let dy: Length | string | number | undefined = subtree.height.value;
-      dy = dy instanceof Length ? dy.pxValue() : subtree.node.offsetHeight;
-      subtree.top.setAutoState(y * disclosingPhase);
+    if (subtree !== null && disclosureState !== "collapsed") {
+      if (subtree.top.isAuto()) {
+        subtree.top.setIntermediateValue(Length.px(yValue * disclosingPhase), Length.px(yState));
+      }
       subtree.width.setAutoState(width);
-      y += dy * disclosingPhase;
+      let heightValue: Length | string | number | undefined = subtree.height.value;
+      heightValue = heightValue instanceof Length ? heightValue.pxValue() : subtree.node.offsetHeight;
+      let heightState: Length | string | number | undefined = subtree.height.state;
+      heightState = heightState instanceof Length ? heightState.pxValue() : heightValue;
+      yValue += heightValue * disclosingPhase;
+      if (disclosureState !== "collapsing") {
+        yState += heightState;
+      } else {
+        yState += limbSpacing;
+      }
     } else {
-      y += limbSpacing * disclosingPhase;
+      yValue += limbSpacing * disclosingPhase;
+      yState += limbSpacing;
     }
-    this.height.setAutoState(y);
+    if (this.height.isAuto()) {
+      this.height.setIntermediateValue(Length.px(yValue), Length.px(yState));
+    }
   }
 
   static fromInit(init: TreeLimbInit): TreeLimb {
@@ -459,6 +475,4 @@ export class TreeLimb extends HtmlView {
     }
     throw new TypeError("" + value);
   }
-
-  static readonly uncullFlags: ViewFlags = HtmlView.uncullFlags | View.NeedsLayout;
 }
