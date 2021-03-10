@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Equals} from "@swim/util";
 import {Model, TraitModelType, Trait, TraitFastener, GenericTrait} from "@swim/model";
+import type {ColLayout} from "../layout/ColLayout";
+import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
 import {ColTrait} from "../col/ColTrait";
 import {RowTrait} from "../row/RowTrait";
 import type {TableTraitObserver} from "./TableTraitObserver";
@@ -20,6 +23,11 @@ import type {TableTraitObserver} from "./TableTraitObserver";
 export class TableTrait extends GenericTrait {
   constructor() {
     super();
+    Object.defineProperty(this, "layout", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
     Object.defineProperty(this, "colFasteners", {
       value: [],
       enumerable: true,
@@ -32,9 +40,72 @@ export class TableTrait extends GenericTrait {
 
   declare readonly traitObservers: ReadonlyArray<TableTraitObserver>;
 
+  protected createLayout(): TableLayout | null {
+    const colLayouts: ColLayout[] = [];
+    const colFasteners = this.colFasteners;
+    for (let i = 0, n = colFasteners.length; i < n; i += 1) {
+      const colTrait = colFasteners[i]!.trait;
+      if (colTrait !== null) {
+        const colLayout = colTrait.layout;
+        if (colLayout !== null) {
+          colLayouts.push(colLayout);
+        }
+      }
+    }
+    return TableLayout.create(colLayouts);
+  }
+
+  protected updateLayout(): void {
+    const layout = this.createLayout();
+    this.setLayout(layout);
+  }
+
+  declare readonly layout: TableLayout | null;
+
+  setLayout(newLayout: AnyTableLayout | null): void {
+    if (newLayout !== null) {
+      newLayout = TableLayout.fromAny(newLayout);
+    }
+    const oldLayout = this.layout;
+    if (!Equals(newLayout, oldLayout)) {
+      this.willSetLayout(newLayout, oldLayout);
+      Object.defineProperty(this, "layout", {
+        value: newLayout,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetLayout(newLayout, oldLayout);
+      this.didSetLayout(newLayout, oldLayout);
+    }
+  }
+
+  protected willSetLayout(newLayout: TableLayout | null, oldHeader: TableLayout | null): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.tableTraitWillSetLayout !== void 0) {
+        traitObserver.tableTraitWillSetLayout(newLayout, oldHeader, this);
+      }
+    }
+  }
+
+  protected onSetLayout(newLayout: TableLayout | null, oldHeader: TableLayout | null): void {
+    // hook
+  }
+
+  protected didSetLayout(newLayout: TableLayout | null, oldHeader: TableLayout | null): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.tableTraitDidSetLayout !== void 0) {
+        traitObserver.tableTraitDidSetLayout(newLayout, oldHeader, this);
+      }
+    }
+  }
+
   insertCol(colTrait: ColTrait, targetTrait: Trait | null = null): void {
     const colFasteners = this.colFasteners as TraitFastener<this, ColTrait>[];
-    let targetIndex = -1;
+    let targetIndex = colFasteners.length;
     for (let i = 0, n = colFasteners.length; i < n; i += 1) {
       const colFastener = colFasteners[i]!;
       if (colFastener.trait === colTrait) {
@@ -98,6 +169,7 @@ export class TableTrait extends GenericTrait {
     if (newColTrait !== null) {
       this.initCol(newColTrait, colFastener);
     }
+    this.updateLayout();
   }
 
   protected didSetCol(newColTrait: ColTrait | null, oldColTrait: ColTrait | null,
@@ -111,10 +183,16 @@ export class TableTrait extends GenericTrait {
     }
   }
 
+  protected onSetColLayout(newColLayout: ColLayout | null, oldColLayout: ColLayout | null,
+                           colFastener: TraitFastener<this, ColTrait>): void {
+    this.updateLayout();
+  }
+
   /** @hidden */
   static ColFastener = TraitFastener.define<TableTrait, ColTrait>({
     type: ColTrait,
     sibling: false,
+    observe: true,
     willSetTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null, targetTrait: Trait | null): void {
       this.owner.willSetCol(newColTrait, oldColTrait, targetTrait, this);
     },
@@ -130,10 +208,13 @@ export class TableTrait extends GenericTrait {
     didSetTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null, targetTrait: Trait | null): void {
       this.owner.didSetCol(newColTrait, oldColTrait, targetTrait, this);
     },
+    colTraitDidSetLayout(newColLayout: ColLayout | null, oldColLayout: ColLayout | null): void {
+      this.owner.onSetColLayout(newColLayout, oldColLayout, this);
+    },
   });
 
   protected createColFastener(colTrait: ColTrait): TraitFastener<this, ColTrait> {
-    return new TableTrait.ColFastener(this, colTrait.key, "col") as TraitFastener<this, ColTrait>;
+    return new TableTrait.ColFastener(this, colTrait.key, "col");
   }
 
   /** @hidden */
@@ -181,7 +262,7 @@ export class TableTrait extends GenericTrait {
 
   insertRow(rowTrait: RowTrait, targetTrait: Trait | null = null): void {
     const rowFasteners = this.rowFasteners as TraitFastener<this, RowTrait>[];
-    let targetIndex = -1;
+    let targetIndex = rowFasteners.length;
     for (let i = 0, n = rowFasteners.length; i < n; i += 1) {
       const rowFastener = rowFasteners[i]!;
       if (rowFastener.trait === rowTrait) {
@@ -280,7 +361,7 @@ export class TableTrait extends GenericTrait {
   });
 
   protected createRowFastener(rowTrait: RowTrait): TraitFastener<this, RowTrait> {
-    return new TableTrait.RowFastener(this, rowTrait.key, "row") as TraitFastener<this, RowTrait>;
+    return new TableTrait.RowFastener(this, rowTrait.key, "row");
   }
 
   /** @hidden */
@@ -326,20 +407,12 @@ export class TableTrait extends GenericTrait {
     }
   }
 
-  protected detectCol(model: Model): ColTrait | null {
-    return model.getTrait(ColTrait);
-  }
-
   protected onInsertCol(colTrait: ColTrait, targetTrait: Trait | null): void {
     this.insertCol(colTrait, targetTrait);
   }
 
   protected onRemoveCol(colTrait: ColTrait): void {
     this.removeCol(colTrait);
-  }
-
-  protected detectRow(model: Model): RowTrait | null {
-    return model.getTrait(RowTrait);
   }
 
   protected onInsertRow(rowTrait: RowTrait, targetTrait: Trait | null): void {
@@ -350,15 +423,23 @@ export class TableTrait extends GenericTrait {
     this.removeRow(rowTrait);
   }
 
-  protected detectChildModels(model: TraitModelType<this>): void {
+  protected detectColModel(model: Model): ColTrait | null {
+    return model.getTrait(ColTrait);
+  }
+
+  protected detectRowModel(model: Model): RowTrait | null {
+    return model.getTrait(RowTrait);
+  }
+
+  protected detectModels(model: TraitModelType<this>): void {
     const childModels = model.childModels;
     for (let i = 0, n = childModels.length; i < n; i += 1) {
       const childModel = childModels[i]!;
-      const colTrait = this.detectCol(childModel);
+      const colTrait = this.detectColModel(childModel);
       if (colTrait !== null) {
         this.insertCol(colTrait);
       }
-      const rowTrait = this.detectRow(childModel);
+      const rowTrait = this.detectRowModel(childModel);
       if (rowTrait !== null) {
         this.insertRow(rowTrait);
       }
@@ -367,32 +448,32 @@ export class TableTrait extends GenericTrait {
 
   protected didSetModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null): void {
     if (newModel !== null) {
-      this.detectChildModels(newModel);
+      this.detectModels(newModel);
     }
     super.didSetModel(newModel, oldModel);
   }
 
   protected onInsertChildModel(childModel: Model, targetModel: Model | null): void {
     super.onInsertChildModel(childModel, targetModel);
-    const colTrait = this.detectCol(childModel);
+    const colTrait = this.detectColModel(childModel);
     if (colTrait !== null) {
-      const targetTrait = targetModel !== null ? this.detectCol(targetModel) : null;
+      const targetTrait = targetModel !== null ? this.detectColModel(targetModel) : null;
       this.onInsertCol(colTrait, targetTrait);
     }
-    const rowTrait = this.detectRow(childModel);
+    const rowTrait = this.detectRowModel(childModel);
     if (rowTrait !== null) {
-      const targetTrait = targetModel !== null ? this.detectRow(targetModel) : null;
+      const targetTrait = targetModel !== null ? this.detectRowModel(targetModel) : null;
       this.onInsertRow(rowTrait, targetTrait);
     }
   }
 
   protected onRemoveChildModel(childModel: Model): void {
     super.onRemoveChildModel(childModel);
-    const colTrait = this.detectCol(childModel);
+    const colTrait = this.detectColModel(childModel);
     if (colTrait !== null) {
       this.onRemoveCol(colTrait);
     }
-    const rowTrait = this.detectRow(childModel);
+    const rowTrait = this.detectRowModel(childModel);
     if (rowTrait !== null) {
       this.onRemoveRow(rowTrait);
     }

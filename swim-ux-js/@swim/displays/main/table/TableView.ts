@@ -64,7 +64,7 @@ export class TableView extends HtmlView {
 
   insertRow(rowView: RowView, targetView: View | null = null): void {
     const rowFasteners = this.rowFasteners as ViewFastener<this, RowView>[];
-    let targetIndex = -1;
+    let targetIndex = rowFasteners.length;
     for (let i = 0, n = rowFasteners.length; i < n; i += 1) {
       const rowFastener = rowFasteners[i]!;
       if (rowFastener.view === rowView) {
@@ -160,7 +160,7 @@ export class TableView extends HtmlView {
   });
 
   protected createRowFastener(rowView: RowView): ViewFastener<this, RowView> {
-    return new TableView.RowFastener(this, rowView.key, "row") as ViewFastener<this, RowView>;
+    return new TableView.RowFastener(this, rowView.key, "row");
   }
 
   /** @hidden */

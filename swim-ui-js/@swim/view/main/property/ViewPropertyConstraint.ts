@@ -40,7 +40,7 @@ export interface ViewPropertyConstraintInit<T, U = never> extends ViewPropertyIn
   toNumber?(value: T): number;
 }
 
-export type ViewPropertyConstraintDescriptor<V extends View, T, U = never, I = {}> = ViewPropertyConstraintInit<T, U> & ThisType<ViewPropertyConstraint<V, T, U> & I> & I;
+export type ViewPropertyConstraintDescriptor<V extends View, T, U = never, I = {}> = ViewPropertyConstraintInit<T, U> & ThisType<ViewPropertyConstraint<V, T, U> & I> & Partial<I>;
 
 export type ViewPropertyConstraintDescriptorExtends<V extends View, T, U = never, I = {}> = {extends: ViewPropertyConstraintClass | undefined} & ViewPropertyConstraintDescriptor<V, T, U, I>;
 

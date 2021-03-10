@@ -40,10 +40,10 @@ export interface TraitFastenerInit<S extends Trait, U = never> {
   fromAny?(value: S | U): S | null;
 }
 
-export type TraitFastenerDescriptor<R extends Trait, S extends Trait, U = never, I = {}> = TraitFastenerInit<S, U> & ThisType<TraitFastener<R, S, U> & I> & I;
+export type TraitFastenerDescriptor<R extends Trait, S extends Trait, U = never, I = {}> = TraitFastenerInit<S, U> & ThisType<TraitFastener<R, S, U> & I> & Partial<I>;
 
 export interface TraitFastenerConstructor<R extends Trait, S extends Trait, U = never, I = {}> {
-  new(owner: R, key: string | undefined, fastenerName: string | undefined): TraitFastener<R, S, U> & I;
+  new<O extends R>(owner: O, key: string | undefined, fastenerName: string | undefined): TraitFastener<O, S, U> & I;
   prototype: Omit<TraitFastener<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
@@ -127,16 +127,14 @@ export const TraitFastener = function <R extends Trait, S extends Trait, U>(
   /** @hidden */
   new<R extends Trait, S extends Trait, U = never>(owner: R, key: string | undefined, fastenerName: string | undefined): TraitFastener<R, S, U>;
 
-  <R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: {extends: TraitFastenerClass | undefined} & TraitFastenerDescriptor<R, S, U, I>): PropertyDecorator;
-  <R extends Trait, S extends Trait = Trait, U = never>(descriptor: {observe: boolean} & TraitFastenerDescriptor<R, S, U, TraitObserverType<S>>): PropertyDecorator;
-  <R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitFastenerDescriptor<R, S, U>): PropertyDecorator;
+  <R extends Trait, S extends Trait = Trait, U = never, I = {}>(descriptor: {observe: boolean} & TraitFastenerDescriptor<R, S, U, I & TraitObserverType<S>>): PropertyDecorator;
+  <R extends Trait, S extends Trait = Trait, U = never, I = {}>(descriptor: TraitFastenerDescriptor<R, S, U, I>): PropertyDecorator;
 
   /** @hidden */
   prototype: TraitFastener<any, any>;
 
-  define<R extends Trait, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: {extends: TraitFastenerClass | undefined} & TraitFastenerDescriptor<R, S, U, I>): TraitFastenerConstructor<R, S, U>;
-  define<R extends Trait, S extends Trait = Trait, U = never>(descriptor: {observe: boolean} & TraitFastenerDescriptor<R, S, U, TraitObserverType<S>>): TraitFastenerConstructor<R, S, U>;
-  define<R extends Trait, S extends Trait = Trait, U = never>(descriptor: TraitFastenerDescriptor<R, S, U>): TraitFastenerConstructor<R, S, U>;
+  define<R extends Trait, S extends Trait = Trait, U = never, I = {}>(descriptor: {observe: boolean} & TraitFastenerDescriptor<R, S, U, I & TraitObserverType<S>>): TraitFastenerConstructor<R, S, U, I>;
+  define<R extends Trait, S extends Trait = Trait, U = never, I = {}>(descriptor: TraitFastenerDescriptor<R, S, U, I>): TraitFastenerConstructor<R, S, U, I>;
 };
 __extends(TraitFastener, Object);
 
@@ -155,6 +153,7 @@ function TraitFastenerConstructor<R extends Trait, S extends Trait, U>(this: Tra
   Object.defineProperty(this, "key", {
     value: key,
     enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "trait", {
     value: null,

@@ -46,7 +46,7 @@ export class RowView extends HtmlView {
 
   insertCell(cellView: CellView, targetView: View | null = null): void {
     const cellFasteners = this.cellFasteners as ViewFastener<this, CellView>[];
-    let targetIndex = -1;
+    let targetIndex = cellFasteners.length;
     for (let i = 0, n = cellFasteners.length; i < n; i += 1) {
       const cellFastener = cellFasteners[i]!;
       if (cellFastener.view === cellView) {
@@ -140,7 +140,7 @@ export class RowView extends HtmlView {
   });
 
   protected createCellFastener(cellView: CellView): ViewFastener<this, CellView> {
-    return new RowView.CellFastener(this, cellView.key, "cell") as ViewFastener<this, CellView>;
+    return new RowView.CellFastener(this, cellView.key, "cell");
   }
 
   /** @hidden */

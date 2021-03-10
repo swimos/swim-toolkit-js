@@ -54,7 +54,7 @@ export interface TraitPropertyInit<T, U = never> {
   createModelProperty?(): ModelProperty<Model, T>;
 }
 
-export type TraitPropertyDescriptor<R extends Trait, T, U = never, I = {}> = TraitPropertyInit<T, U> & ThisType<TraitProperty<R, T, U> & I> & I;
+export type TraitPropertyDescriptor<R extends Trait, T, U = never, I = {}> = TraitPropertyInit<T, U> & ThisType<TraitProperty<R, T, U> & I> & Partial<I>;
 
 export type TraitPropertyDescriptorExtends<R extends Trait, T, U = never, I = {}> = {extends: TraitPropertyClass | undefined} & TraitPropertyDescriptor<R, T, U, I>;
 

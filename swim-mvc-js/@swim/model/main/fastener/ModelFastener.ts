@@ -39,10 +39,10 @@ export interface ModelFastenerInit<S extends Model, U = never> {
   fromAny?(value: S | U): S | null;
 }
 
-export type ModelFastenerDescriptor<M extends Model, S extends Model, U = never, I = {}> = ModelFastenerInit<S, U> & ThisType<ModelFastener<M, S, U> & I> & I;
+export type ModelFastenerDescriptor<M extends Model, S extends Model, U = never, I = {}> = ModelFastenerInit<S, U> & ThisType<ModelFastener<M, S, U> & I> & Partial<I>;
 
 export interface ModelFastenerConstructor<M extends Model, S extends Model, U = never, I = {}> {
-  new(owner: M, key: string | undefined, fastenerName: string | undefined): ModelFastener<M, S, U> & I;
+  new<O extends M>(owner: O, key: string | undefined, fastenerName: string | undefined): ModelFastener<O, S, U> & I;
   prototype: Omit<ModelFastener<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
@@ -126,16 +126,14 @@ export const ModelFastener = function <M extends Model, S extends Model, U>(
   /** @hidden */
   new<M extends Model, S extends Model, U = never>(owner: M, key: string | undefined, fastenerName: string | undefined): ModelFastener<M, S, U>;
 
-  <M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: {extends: ModelFastenerClass | undefined} & ModelFastenerDescriptor<M, S, U, I>): PropertyDecorator;
-  <M extends Model, S extends Model = Model, U = never>(descriptor: {observe: boolean} & ModelFastenerDescriptor<M, S, U, ModelObserverType<S>>): PropertyDecorator;
-  <M extends Model, S extends Model = Model, U = never>(descriptor: ModelFastenerDescriptor<M, S, U>): PropertyDecorator;
+  <M extends Model, S extends Model = Model, U = never, I = {}>(descriptor: {observe: boolean} & ModelFastenerDescriptor<M, S, U, I & ModelObserverType<S>>): PropertyDecorator;
+  <M extends Model, S extends Model = Model, U = never, I = {}>(descriptor: ModelFastenerDescriptor<M, S, U, I>): PropertyDecorator;
 
   /** @hidden */
   prototype: ModelFastener<any, any>;
 
-  define<M extends Model, S extends Model = Model, U = never, I = ModelObserverType<S>>(descriptor: {extends: ModelFastenerClass | undefined} & ModelFastenerDescriptor<M, S, U, I>): ModelFastenerConstructor<M, S, U>;
-  define<M extends Model, S extends Model = Model, U = never>(descriptor: {observe: boolean} & ModelFastenerDescriptor<M, S, U, ModelObserverType<S>>): ModelFastenerConstructor<M, S, U>;
-  define<M extends Model, S extends Model = Model, U = never>(descriptor: ModelFastenerDescriptor<M, S, U>): ModelFastenerConstructor<M, S, U>;
+  define<M extends Model, S extends Model = Model, U = never, I = {}>(descriptor: {observe: boolean} & ModelFastenerDescriptor<M, S, U, I & ModelObserverType<S>>): ModelFastenerConstructor<M, S, U, I>;
+  define<M extends Model, S extends Model = Model, U = never, I = {}>(descriptor: ModelFastenerDescriptor<M, S, U, I>): ModelFastenerConstructor<M, S, U, I>;
 };
 __extends(ModelFastener, Object);
 
@@ -154,6 +152,7 @@ function ModelFastenerConstructor<M extends Model, S extends Model, U>(this: Mod
   Object.defineProperty(this, "key", {
     value: key,
     enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "model", {
     value: null,

@@ -265,7 +265,7 @@ export class PieView extends LayerView {
 
   insertSlice(sliceView: SliceView, targetView: View | null = null): void {
     const sliceFasteners = this.sliceFasteners as ViewFastener<this, SliceView>[];
-    let targetIndex = -1;
+    let targetIndex = sliceFasteners.length;
     for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
       const sliceFastener = sliceFasteners[i]!;
       if (sliceFastener.view === sliceView) {
@@ -362,7 +362,7 @@ export class PieView extends LayerView {
   });
 
   protected createSliceFastener(sliceView: SliceView): ViewFastener<this, SliceView> {
-    return new PieView.SliceFastener(this, sliceView.key, "slice") as ViewFastener<this, SliceView>;
+    return new PieView.SliceFastener(this, sliceView.key, "slice");
   }
 
   /** @hidden */

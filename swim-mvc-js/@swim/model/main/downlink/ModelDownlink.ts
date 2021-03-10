@@ -61,7 +61,7 @@ export interface ModelDownlinkInit extends DownlinkObserver {
 
 export type ModelDownlinkFlags = number;
 
-export type ModelDownlinkDescriptor<M extends ModelDownlinkContext, I = {}> = ModelDownlinkInit & ThisType<ModelDownlink<M> & I> & I;
+export type ModelDownlinkDescriptor<M extends ModelDownlinkContext, I = {}> = ModelDownlinkInit & ThisType<ModelDownlink<M> & I> & Partial<I>;
 
 export type ModelDownlinkDescriptorExtends<M extends ModelDownlinkContext, I = {}> = {extends: ModelDownlinkClass | undefined} & ModelDownlinkDescriptor<M, I>;
 

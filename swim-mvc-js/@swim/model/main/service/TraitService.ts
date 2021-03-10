@@ -45,7 +45,7 @@ export interface TraitServiceInit<T> {
   createModelService?(): ModelService<Model, T>;
 }
 
-export type TraitServiceDescriptor<R extends Trait, T, I = {}> = TraitServiceInit<T> & ThisType<TraitService<R, T> & I> & I;
+export type TraitServiceDescriptor<R extends Trait, T, I = {}> = TraitServiceInit<T> & ThisType<TraitService<R, T> & I> & Partial<I>;
 
 export type TraitServiceDescriptorExtends<R extends Trait, T, I = {}> = {extends: TraitServiceClass | undefined} & TraitServiceDescriptor<R, T, I>;
 

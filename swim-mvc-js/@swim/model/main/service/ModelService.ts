@@ -40,7 +40,7 @@ export interface ModelServiceInit<T> {
   initManager?(): T;
 }
 
-export type ModelServiceDescriptor<M extends Model, T, I = {}> = ModelServiceInit<T> & ThisType<ModelService<M, T> & I> & I;
+export type ModelServiceDescriptor<M extends Model, T, I = {}> = ModelServiceInit<T> & ThisType<ModelService<M, T> & I> & Partial<I>;
 
 export type ModelServiceDescriptorExtends<M extends Model, T, I = {}> = {extends: ModelServiceClass | undefined} & ModelServiceDescriptor<M, T, I>;
 

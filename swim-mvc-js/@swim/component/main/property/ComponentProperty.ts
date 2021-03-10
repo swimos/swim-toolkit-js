@@ -41,7 +41,7 @@ export interface ComponentPropertyInit<T, U = never> {
   initState?(): T | U;
 }
 
-export type ComponentPropertyDescriptor<C extends Component, T, U = never, I = {}> = ComponentPropertyInit<T, U> & ThisType<ComponentProperty<C, T, U> & I> & I;
+export type ComponentPropertyDescriptor<C extends Component, T, U = never, I = {}> = ComponentPropertyInit<T, U> & ThisType<ComponentProperty<C, T, U> & I> & Partial<I>;
 
 export type ComponentPropertyDescriptorExtends<C extends Component, T, U = never, I = {}> = {extends: ComponentPropertyClass | undefined} & ComponentPropertyDescriptor<C, T, U, I>;
 

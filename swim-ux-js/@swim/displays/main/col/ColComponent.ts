@@ -16,6 +16,7 @@ import type {Timing} from "@swim/mapping";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import type {HtmlView} from "@swim/dom";
 import {ComponentView, ComponentViewTrait, CompositeComponent} from "@swim/component";
+import type {ColLayout} from "../layout/ColLayout";
 import {ColView} from "./ColView";
 import {ColTrait} from "./ColTrait";
 import type {ColComponentObserver} from "./ColComponentObserver";
@@ -27,6 +28,75 @@ export class ColComponent extends CompositeComponent {
     const colTrait = this.col.trait;
     if (colTrait !== null) {
       colTrait.setHeader(header);
+    }
+  }
+
+  protected initColTrait(colTrait: ColTrait): void {
+    // hook
+  }
+
+  protected attachColTrait(colTrait: ColTrait): void {
+    const colView = this.col.view;
+    if (colView !== null) {
+      this.setColHeader(colTrait.header);
+    }
+  }
+
+  protected detachColTrait(colTrait: ColTrait): void {
+    // hook
+  }
+
+  protected willSetColTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.colWillSetTrait !== void 0) {
+        componentObserver.colWillSetTrait(newColTrait, oldColTrait, this);
+      }
+    }
+  }
+
+  protected onSetColTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null): void {
+    if (oldColTrait !== null) {
+      this.detachColTrait(oldColTrait);
+    }
+    if (newColTrait !== null) {
+      this.attachColTrait(newColTrait);
+      this.initColTrait(newColTrait);
+    }
+  }
+
+  protected didSetColTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.colDidSetTrait !== void 0) {
+        componentObserver.colDidSetTrait(newColTrait, oldColTrait, this);
+      }
+    }
+  }
+
+  protected willSetColLayout(newLayout: ColLayout | null, oldLayout: ColLayout | null): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.colWillSetLayout !== void 0) {
+        componentObserver.colWillSetLayout(newLayout, oldLayout, this);
+      }
+    }
+  }
+
+  protected onSetColLayout(newLayout: ColLayout | null, oldLayout: ColLayout | null): void {
+    // hook
+  }
+
+  protected didSetColLayout(newLayout: ColLayout | null, oldLayout: ColLayout | null): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.colDidSetLayout !== void 0) {
+        componentObserver.colDidSetLayout(newLayout, oldLayout, this);
+      }
     }
   }
 
@@ -92,7 +162,7 @@ export class ColComponent extends CompositeComponent {
     }
   }
 
-  protected initColHeader(headerView: HtmlView | null): void {
+  protected initColHeader(headerView: HtmlView): void {
     // hook
   }
 
@@ -122,51 +192,6 @@ export class ColComponent extends CompositeComponent {
     }
   }
 
-  protected initColTrait(colTrait: ColTrait): void {
-    // hook
-  }
-
-  protected attachColTrait(colTrait: ColTrait): void {
-    const colView = this.col.view;
-    if (colView !== null) {
-      this.setColHeader(colTrait.header);
-    }
-  }
-
-  protected detachColTrait(colTrait: ColTrait): void {
-    // hook
-  }
-
-  protected willSetColTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.colWillSetTrait !== void 0) {
-        componentObserver.colWillSetTrait(newColTrait, oldColTrait, this);
-      }
-    }
-  }
-
-  protected onSetColTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null): void {
-    if (oldColTrait !== null) {
-      this.detachColTrait(oldColTrait);
-    }
-    if (newColTrait !== null) {
-      this.attachColTrait(newColTrait);
-      this.initColTrait(newColTrait);
-    }
-  }
-
-  protected didSetColTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.colDidSetTrait !== void 0) {
-        componentObserver.colDidSetTrait(newColTrait, oldColTrait, this);
-      }
-    }
-  }
-
   /** @hidden */
   static ColFastener = ComponentViewTrait.define<ColComponent, ColView, ColTrait>({
     viewType: ColView,
@@ -184,7 +209,7 @@ export class ColComponent extends CompositeComponent {
                       timing: Timing | boolean, colView: ColView): void {
       this.owner.themeColView(colView, theme, mood, timing);
     },
-    colViewDidSetHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colView: ColView): void {
+    colViewDidSetHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
       if (newHeaderView !== null) {
         this.owner.header.setView(newHeaderView);
       }
@@ -203,7 +228,14 @@ export class ColComponent extends CompositeComponent {
     didSetTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null): void {
       this.owner.didSetColTrait(newColTrait, oldColTrait);
     },
-    colTraitDidSetHeader(newHeader: HtmlView | string | undefined, oldHeader: HtmlView | string | undefined, colTrait: ColTrait): void {
+    colTraitWillSetLayout(newLayout: ColLayout | null, oldLayout: ColLayout | null): void {
+      this.owner.willSetColLayout(newLayout, oldLayout);
+    },
+    colTraitDidSetLayout(newLayout: ColLayout | null, oldLayout: ColLayout | null): void {
+      this.owner.onSetColLayout(newLayout, oldLayout);
+      this.owner.didSetColLayout(newLayout, oldLayout);
+    },
+    colTraitDidSetHeader(newHeader: HtmlView | string | undefined, oldHeader: HtmlView | string | undefined): void {
       this.owner.setColHeader(newHeader);
     },
   });

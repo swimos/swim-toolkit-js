@@ -33,7 +33,7 @@ export class CellTrait extends GenericTrait {
 
   setContent(newContent: HtmlView | string | undefined): void {
     const oldContent = this.content;
-    if (!Equals(oldContent, newContent)) {
+    if (!Equals(newContent, oldContent)) {
       this.willSetContent(newContent, oldContent);
       Object.defineProperty(this, "content", {
         value: newContent,

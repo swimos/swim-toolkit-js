@@ -24,7 +24,7 @@ export interface MediaRuleInit extends CssRuleInit {
   initRule?(rule: CSSMediaRule): CSSMediaRule;
 }
 
-export type MediaRuleDescriptor<V extends CssContext, I = {}> = MediaRuleInit & ThisType<MediaRule<V> & I> & I;
+export type MediaRuleDescriptor<V extends CssContext, I = {}> = MediaRuleInit & ThisType<MediaRule<V> & I> & Partial<I>;
 
 export type MediaRuleDescriptorExtends<V extends CssContext, I = {}> = {extends: MediaRuleClass | undefined} & MediaRuleDescriptor<V, I>;
 

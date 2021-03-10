@@ -43,7 +43,7 @@ export interface StyleAnimatorConstraintInit<T, U = never> extends StyleAnimator
   toNumber?(value: T): number;
 }
 
-export type StyleAnimatorConstraintDescriptor<V extends StyleContext, T, U = never, I = {}> = StyleAnimatorConstraintInit<T, U> & ThisType<StyleAnimatorConstraint<V, T, U> & I> & I;
+export type StyleAnimatorConstraintDescriptor<V extends StyleContext, T, U = never, I = {}> = StyleAnimatorConstraintInit<T, U> & ThisType<StyleAnimatorConstraint<V, T, U> & I> & Partial<I>;
 
 export type StyleAnimatorConstraintDescriptorExtends<V extends StyleContext, T, U = never, I = {}> = {extends: StyleAnimatorConstraintClass | undefined} & StyleAnimatorConstraintDescriptor<V, T, U, I>;
 

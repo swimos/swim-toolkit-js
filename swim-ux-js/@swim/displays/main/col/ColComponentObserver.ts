@@ -14,6 +14,7 @@
 
 import type {HtmlView} from "@swim/dom";
 import type {ComponentObserver} from "@swim/component";
+import type {ColLayout} from "../layout/ColLayout";
 import type {ColView} from "./ColView";
 import type {ColTrait} from "./ColTrait";
 import type {ColComponent} from "./ColComponent";
@@ -30,4 +31,8 @@ export interface ColComponentObserver<C extends ColComponent = ColComponent> ext
   colWillSetHeader?(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, component: C): void;
 
   colDidSetHeader?(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, component: C): void;
+
+  colWillSetLayout?(newLayout: ColLayout | null, oldLayout: ColLayout | null, component: C): void;
+
+  colDidSetLayout?(newLayout: ColLayout | null, oldLayout: ColLayout | null, component: C): void;
 }

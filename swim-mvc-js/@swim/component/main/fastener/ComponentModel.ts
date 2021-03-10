@@ -38,10 +38,10 @@ export interface ComponentModelInit<M extends Model, U = never> {
   fromAny?(value: M | U): M | null;
 }
 
-export type ComponentModelDescriptor<C extends Component, M extends Model, U = never, I = {}> = ComponentModelInit<M, U> & ThisType<ComponentModel<C, M, U> & I> & I;
+export type ComponentModelDescriptor<C extends Component, M extends Model, U = never, I = {}> = ComponentModelInit<M, U> & ThisType<ComponentModel<C, M, U> & I> & Partial<I>;
 
 export interface ComponentModelConstructor<C extends Component, M extends Model, U = never, I = {}> {
-  new(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentModel<C, M, U> & I;
+  new<O extends C>(owner: O, key: string | undefined, fastenerName: string | undefined): ComponentModel<O, M, U> & I;
   prototype: Omit<ComponentModel<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
@@ -119,16 +119,14 @@ export const ComponentModel = function <C extends Component, M extends Model, U>
   /** @hidden */
   new<C extends Component, M extends Model, U = never>(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentModel<C, M, U>;
 
-  <C extends Component, M extends Model = Model, U = never, I = ModelObserverType<M>>(descriptor: {extends: ComponentModelClass | undefined} & ComponentModelDescriptor<C, M, U, I>): PropertyDecorator;
-  <C extends Component, M extends Model = Model, U = never>(descriptor: {observe: boolean} & ComponentModelDescriptor<C, M, U, ModelObserverType<M>>): PropertyDecorator;
-  <C extends Component, M extends Model = Model, U = never>(descriptor: ComponentModelDescriptor<C, M, U>): PropertyDecorator;
+  <C extends Component, M extends Model = Model, U = never, I = {}>(descriptor: {observe: boolean} & ComponentModelDescriptor<C, M, U, I & ModelObserverType<M>>): PropertyDecorator;
+  <C extends Component, M extends Model = Model, U = never, I = {}>(descriptor: ComponentModelDescriptor<C, M, U, I>): PropertyDecorator;
 
   /** @hidden */
   prototype: ComponentModel<any, any>;
 
-  define<C extends Component, M extends Model = Model, U = never, I = ModelObserverType<M>>(descriptor: {extends: ComponentModelClass | undefined} & ComponentModelDescriptor<C, M, U, I>): ComponentModelConstructor<C, M, U, I>;
-  define<C extends Component, M extends Model = Model, U = never>(descriptor: {observe: boolean} & ComponentModelDescriptor<C, M, U, ModelObserverType<M>>): ComponentModelConstructor<C, M, U>;
-  define<C extends Component, M extends Model = Model, U = never>(descriptor: ComponentModelDescriptor<C, M, U>): ComponentModelConstructor<C, M, U>;
+  define<C extends Component, M extends Model = Model, U = never, I = {}>(descriptor: {observe: boolean} & ComponentModelDescriptor<C, M, U, I & ModelObserverType<M>>): ComponentModelConstructor<C, M, U, I>;
+  define<C extends Component, M extends Model = Model, U = never, I = {}>(descriptor: ComponentModelDescriptor<C, M, U, I>): ComponentModelConstructor<C, M, U, I>;
 };
 __extends(ComponentModel, Object);
 
@@ -147,6 +145,7 @@ function ComponentModelConstructor<C extends Component, M extends Model, U>(this
   Object.defineProperty(this, "key", {
     value: key,
     enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "model", {
     value: null,

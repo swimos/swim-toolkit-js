@@ -30,6 +30,51 @@ export class CellComponent extends CompositeComponent {
     }
   }
 
+  protected initCellTrait(cellTrait: CellTrait): void {
+    // hook
+  }
+
+  protected attachCellTrait(cellTrait: CellTrait): void {
+    const cellView = this.cell.view;
+    if (cellView !== null) {
+      this.setCellContent(cellTrait.content);
+    }
+  }
+
+  protected detachCellTrait(cellTrait: CellTrait): void {
+    // hook
+  }
+
+  protected willSetCellTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.cellWillSetTrait !== void 0) {
+        componentObserver.cellWillSetTrait(newCellTrait, oldCellTrait, this);
+      }
+    }
+  }
+
+  protected onSetCellTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null): void {
+    if (oldCellTrait !== null) {
+      this.detachCellTrait(oldCellTrait);
+    }
+    if (newCellTrait !== null) {
+      this.attachCellTrait(newCellTrait);
+      this.initCellTrait(newCellTrait);
+    }
+  }
+
+  protected didSetCellTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.cellDidSetTrait !== void 0) {
+        componentObserver.cellDidSetTrait(newCellTrait, oldCellTrait, this);
+      }
+    }
+  }
+
   protected createCellView(): CellView {
     return CellView.create();
   }
@@ -122,51 +167,6 @@ export class CellComponent extends CompositeComponent {
     }
   }
 
-  protected initCellTrait(cellTrait: CellTrait): void {
-    // hook
-  }
-
-  protected attachCellTrait(cellTrait: CellTrait): void {
-    const cellView = this.cell.view;
-    if (cellView !== null) {
-      this.setCellContent(cellTrait.content);
-    }
-  }
-
-  protected detachCellTrait(cellTrait: CellTrait): void {
-    // hook
-  }
-
-  protected willSetCellTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.cellWillSetTrait !== void 0) {
-        componentObserver.cellWillSetTrait(newCellTrait, oldCellTrait, this);
-      }
-    }
-  }
-
-  protected onSetCellTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null): void {
-    if (oldCellTrait !== null) {
-      this.detachCellTrait(oldCellTrait);
-    }
-    if (newCellTrait !== null) {
-      this.attachCellTrait(newCellTrait);
-      this.initCellTrait(newCellTrait);
-    }
-  }
-
-  protected didSetCellTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.cellDidSetTrait !== void 0) {
-        componentObserver.cellDidSetTrait(newCellTrait, oldCellTrait, this);
-      }
-    }
-  }
-
   /** @hidden */
   static CellFastener = ComponentViewTrait.define<CellComponent, CellView, CellTrait>({
     viewType: CellView,
@@ -184,7 +184,7 @@ export class CellComponent extends CompositeComponent {
                       timing: Timing | boolean, cellView: CellView): void {
       this.owner.themeCellView(cellView, theme, mood, timing);
     },
-    cellViewDidSetContent(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellView: CellView): void {
+    cellViewDidSetContent(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
       if (newContentView !== null) {
         this.owner.content.setView(newContentView);
       }
@@ -203,7 +203,7 @@ export class CellComponent extends CompositeComponent {
     didSetTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null): void {
       this.owner.didSetCellTrait(newCellTrait, oldCellTrait);
     },
-    cellTraitDidSetContent(newContent: HtmlView | string | undefined, oldContent: HtmlView | string | undefined, cellTrait: CellTrait): void {
+    cellTraitDidSetContent(newContent: HtmlView | string | undefined, oldContent: HtmlView | string | undefined): void {
       this.owner.setCellContent(newContent);
     },
   });

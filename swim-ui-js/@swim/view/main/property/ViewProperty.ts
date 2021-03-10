@@ -42,7 +42,7 @@ export interface ViewPropertyInit<T, U = never> {
   initState?(): T | U;
 }
 
-export type ViewPropertyDescriptor<V extends View, T, U = never, I = {}> = ViewPropertyInit<T, U> & ThisType<ViewProperty<V, T, U> & I> & I;
+export type ViewPropertyDescriptor<V extends View, T, U = never, I = {}> = ViewPropertyInit<T, U> & ThisType<ViewProperty<V, T, U> & I> & Partial<I>;
 
 export type ViewPropertyDescriptorExtends<V extends View, T, U = never, I = {}> = {extends: ViewPropertyClass | undefined} & ViewPropertyDescriptor<V, T, U, I>;
 

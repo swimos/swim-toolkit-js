@@ -49,7 +49,7 @@ export interface CssRuleInit {
   initRule?(rule: CSSRule): CSSRule;
 }
 
-export type CssRuleDescriptor<V extends CssContext, I = {}> = CssRuleInit & ThisType<CssRule<V> & I> & I;
+export type CssRuleDescriptor<V extends CssContext, I = {}> = CssRuleInit & ThisType<CssRule<V> & I> & Partial<I>;
 
 export type CssRuleDescriptorExtends<V extends CssContext, I = {}> = {extends: CssRuleClass | undefined} & CssRuleDescriptor<V, I>;
 

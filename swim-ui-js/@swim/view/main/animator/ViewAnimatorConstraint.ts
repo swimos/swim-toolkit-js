@@ -42,7 +42,7 @@ export interface ViewAnimatorConstraintInit<T, U = never> extends ViewAnimatorIn
   toNumber?(value: T): number;
 }
 
-export type ViewAnimatorConstraintDescriptor<V extends View, T, U = never, I = {}> = ViewAnimatorConstraintInit<T, U> & ThisType<ViewAnimatorConstraint<V, T, U> & I> & I;
+export type ViewAnimatorConstraintDescriptor<V extends View, T, U = never, I = {}> = ViewAnimatorConstraintInit<T, U> & ThisType<ViewAnimatorConstraint<V, T, U> & I> & Partial<I>;
 
 export type ViewAnimatorConstraintDescriptorExtends<V extends View, T, U = never, I = {}> = {extends: ViewAnimatorConstraintClass | undefined} & ViewAnimatorConstraintDescriptor<V, T, U, I>;
 

@@ -39,7 +39,7 @@ export interface ComponentServiceInit<T> {
   initManager?(): T;
 }
 
-export type ComponentServiceDescriptor<C extends Component, T, I = {}> = ComponentServiceInit<T> & ThisType<ComponentService<C, T> & I> & I;
+export type ComponentServiceDescriptor<C extends Component, T, I = {}> = ComponentServiceInit<T> & ThisType<ComponentService<C, T> & I> & Partial<I>;
 
 export type ComponentServiceDescriptorExtends<C extends Component, T, I = {}> = {extends: ComponentServiceClass | undefined} & ComponentServiceDescriptor<C, T, I>;
 

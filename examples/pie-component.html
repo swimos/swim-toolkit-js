@@ -20,13 +20,15 @@ const canvasView = uiView.append("canvas")
     .pointerEventsEnabled(true)
     .touchAction("manipulation");
 
-class DemoPieComponent extends swim.PieComponent {
+class ExamplePieComponent extends swim.PieComponent {
   initPieView(pieView) {
+    super.initPieView(pieView);
     pieView.tickColor("#4a4a4a")
            .font("14px sans-serif")
            .textColor("#4a4a4a");
   }
   initSliceView(sliceView) {
+    super.initPieView(sliceView);
     sliceView.sliceColor("#4a4a4a")
              .on("pointerenter", function (event) {
                sliceView.sliceColor("#1db0ef", {dt: 200});
@@ -36,11 +38,13 @@ class DemoPieComponent extends swim.PieComponent {
              });
   }
   initSliceLabel(labelView) {
+    super.initSliceLabel(labelView);
     labelView.textColor("#ffffff");
   }
-  onSetSliceValue(newValue, oldValue, sliceComponent) {
+  onSetSliceValue(newValue, oldValue, sliceFastener) {
+    super.onSetSliceValue(newValue, oldValue, sliceFastener);
     const label = Math.round(100 * newValue).toString();
-    sliceComponent.setLabel(label);
+    sliceFastener.component.setLabel(label);
   }
 }
 
@@ -63,7 +67,7 @@ pieModel.mount();
 pieModel.setTrait("pie", pieTrait);
 pieModel.appendChildModel(slice1Model, "slice1");
 
-const pieComponent = new DemoPieComponent();
+const pieComponent = new ExamplePieComponent();
 pieComponent.mount();
 pieComponent.pie.injectView(canvasView);
 pieComponent.pie.setTrait(pieTrait);

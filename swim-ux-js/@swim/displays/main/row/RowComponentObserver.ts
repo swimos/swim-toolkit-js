@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {HtmlView} from "@swim/dom";
-import type {ComponentObserver} from "@swim/component";
+import type {ComponentObserver, ComponentFastener} from "@swim/component";
 import type {CellView} from "../cell/CellView";
 import type {CellTrait} from "../cell/CellTrait";
 import type {CellComponent} from "../cell/CellComponent";
@@ -22,23 +22,27 @@ import type {RowTrait} from "./RowTrait";
 import type {RowComponent} from "./RowComponent";
 
 export interface RowComponentObserver<C extends RowComponent = RowComponent> extends ComponentObserver<C> {
-  rowWillSetView?(newRowView: RowView | null, oldRowView: RowView | null, component: C): void;
-
-  rowDidSetView?(newRowView: RowView | null, oldRowView: RowView | null, component: C): void;
-
   rowWillSetTrait?(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, component: C): void;
 
   rowDidSetTrait?(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, component: C): void;
 
-  rowWillSetCellView?(newCellView: CellView | null, oldCellView: CellView | null, cellComponent: CellComponent, component: C): void;
+  rowWillSetView?(newRowView: RowView | null, oldRowView: RowView | null, component: C): void;
 
-  rowDidSetCellView?(newCellView: CellView | null, oldCellView: CellView | null, cellComponent: CellComponent, component: C): void;
+  rowDidSetView?(newRowView: RowView | null, oldRowView: RowView | null, component: C): void;
 
-  rowWillSetCellTrait?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, cellComponent: CellComponent, component: C): void;
+  rowWillSetCell?(newCellComponent: CellComponent | null, oldCellComponent: CellComponent | null, cellFastener: ComponentFastener<C, CellComponent>): void;
 
-  rowDidSetCellTrait?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, cellComponent: CellComponent, component: C): void;
+  rowDidSetCell?(newCellComponent: CellComponent | null, oldCellComponent: CellComponent | null, cellFastener: ComponentFastener<C, CellComponent>): void;
 
-  rowWillSetCellContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellComponent: CellComponent, component: C): void;
+  rowWillSetCellTrait?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, cellFastener: ComponentFastener<C, CellComponent>): void;
 
-  rowDidSetCellContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellComponent: CellComponent, component: C): void;
+  rowDidSetCellTrait?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, cellFastener: ComponentFastener<C, CellComponent>): void;
+
+  rowWillSetCellView?(newCellView: CellView | null, oldCellView: CellView | null, cellFastener: ComponentFastener<C, CellComponent>): void;
+
+  rowDidSetCellView?(newCellView: CellView | null, oldCellView: CellView | null, cellFastener: ComponentFastener<C, CellComponent>): void;
+
+  rowWillSetCellContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellFastener: ComponentFastener<C, CellComponent>): void;
+
+  rowDidSetCellContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellFastener: ComponentFastener<C, CellComponent>): void;
 }

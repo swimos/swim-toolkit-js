@@ -43,7 +43,7 @@ export interface ViewServiceInit<T> {
   initManager?(): T;
 }
 
-export type ViewServiceDescriptor<V extends View, T, I = {}> = ViewServiceInit<T> & ThisType<ViewService<V, T> & I> & I;
+export type ViewServiceDescriptor<V extends View, T, I = {}> = ViewServiceInit<T> & ThisType<ViewService<V, T> & I> & Partial<I>;
 
 export type ViewServiceDescriptorExtends<V extends View, T, I = {}> = {extends: ViewServiceClass | undefined} & ViewServiceDescriptor<V, T, I>;
 

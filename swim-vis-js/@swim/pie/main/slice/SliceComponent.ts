@@ -54,6 +54,61 @@ export class SliceComponent extends CompositeComponent {
     }
   }
 
+  protected initSliceTrait(sliceTrait: SliceTrait): void {
+    // hook
+  }
+
+  protected attachSliceTrait(sliceTrait: SliceTrait): void {
+    const sliceView = this.slice.view;
+    if (sliceView !== null) {
+      this.setSliceValue(sliceTrait.value);
+      this.setSliceLabel(sliceTrait.label);
+      this.setSliceLegend(sliceTrait.legend);
+    }
+  }
+
+  protected detachSliceTrait(sliceTrait: SliceTrait): void {
+    const sliceView = this.slice.view;
+    if (sliceView !== null) {
+      if (sliceView.value.isAuto()) {
+        // remove after tween to zero
+        sliceView.value.setAutoState(0);
+      } else {
+        sliceView.remove();
+      }
+    }
+  }
+
+  protected willSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.sliceWillSetTrait !== void 0) {
+        componentObserver.sliceWillSetTrait(newSliceTrait, oldSliceTrait, this);
+      }
+    }
+  }
+
+  protected onSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
+    if (oldSliceTrait !== null) {
+      this.detachSliceTrait(oldSliceTrait);
+    }
+    if (newSliceTrait !== null) {
+      this.attachSliceTrait(newSliceTrait);
+      this.initSliceTrait(newSliceTrait);
+    }
+  }
+
+  protected didSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.sliceDidSetTrait !== void 0) {
+        componentObserver.sliceDidSetTrait(newSliceTrait, oldSliceTrait, this);
+      }
+    }
+  }
+
   protected createSliceView(): SliceView {
     return SliceView.create();
   }
@@ -223,61 +278,6 @@ export class SliceComponent extends CompositeComponent {
     }
   }
 
-  protected initSliceTrait(sliceTrait: SliceTrait): void {
-    // hook
-  }
-
-  protected attachSliceTrait(sliceTrait: SliceTrait): void {
-    const sliceView = this.slice.view;
-    if (sliceView !== null) {
-      this.setSliceValue(sliceTrait.value);
-      this.setSliceLabel(sliceTrait.label);
-      this.setSliceLegend(sliceTrait.legend);
-    }
-  }
-
-  protected detachSliceTrait(sliceTrait: SliceTrait): void {
-    const sliceView = this.slice.view;
-    if (sliceView !== null) {
-      if (sliceView.value.isAuto()) {
-        // remove after tween to zero
-        sliceView.value.setAutoState(0);
-      } else {
-        sliceView.remove();
-      }
-    }
-  }
-
-  protected willSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.sliceWillSetTrait !== void 0) {
-        componentObserver.sliceWillSetTrait(newSliceTrait, oldSliceTrait, this);
-      }
-    }
-  }
-
-  protected onSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
-    if (oldSliceTrait !== null) {
-      this.detachSliceTrait(oldSliceTrait);
-    }
-    if (newSliceTrait !== null) {
-      this.attachSliceTrait(newSliceTrait);
-      this.initSliceTrait(newSliceTrait);
-    }
-  }
-
-  protected didSetSliceTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.sliceDidSetTrait !== void 0) {
-        componentObserver.sliceDidSetTrait(newSliceTrait, oldSliceTrait, this);
-      }
-    }
-  }
-
   @ComponentProperty({type: Timing, inherit: true})
   declare sliceTiming: ComponentProperty<this, Timing | boolean | undefined, AnyTiming>;
 
@@ -305,12 +305,12 @@ export class SliceComponent extends CompositeComponent {
       this.owner.onSetSliceValue(newValue, oldValue, sliceView);
       this.owner.didSetSliceValue(newValue, oldValue, sliceView);
     },
-    sliceViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceView: SliceView): void {
+    sliceViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
       if (newLabelView !== null) {
         this.owner.label.setView(newLabelView);
       }
     },
-    sliceViewDidSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceView: SliceView): void {
+    sliceViewDidSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
       if (newLegendView !== null) {
         this.owner.legend.setView(newLegendView);
       }
@@ -329,13 +329,13 @@ export class SliceComponent extends CompositeComponent {
     didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
       this.owner.didSetSliceTrait(newSliceTrait, oldSliceTrait);
     },
-    sliceTraitDidSetValue(newValue: number, oldValue: number, sliceTrait: SliceTrait): void {
+    sliceTraitDidSetValue(newValue: number, oldValue: number): void {
       this.owner.setSliceValue(newValue);
     },
-    sliceTraitDidSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, sliceTrait: SliceTrait): void {
+    sliceTraitDidSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
       this.owner.setSliceLabel(newLabel);
     },
-    sliceTraitDidSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, sliceTrait: SliceTrait): void {
+    sliceTraitDidSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined): void {
       this.owner.setSliceLegend(newLegend);
     },
   });

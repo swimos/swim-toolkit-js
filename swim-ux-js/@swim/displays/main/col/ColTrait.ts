@@ -15,11 +15,17 @@
 import {Equals} from "@swim/util";
 import type {HtmlView} from "@swim/dom";
 import {GenericTrait} from "@swim/model";
+import {AnyColLayout, ColLayout} from "../layout/ColLayout";
 import type {ColTraitObserver} from "./ColTraitObserver";
 
 export class ColTrait extends GenericTrait {
   constructor() {
     super();
+    Object.defineProperty(this, "layout", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
     Object.defineProperty(this, "header", {
       value: void 0,
       enumerable: true,
@@ -29,11 +35,54 @@ export class ColTrait extends GenericTrait {
 
   declare readonly traitObservers: ReadonlyArray<ColTraitObserver>;
 
+  declare readonly layout: ColLayout | null;
+
+  setLayout(newLayout: AnyColLayout | null): void {
+    if (newLayout !== null) {
+      newLayout = ColLayout.fromAny(newLayout);
+    }
+    const oldLayout = this.layout;
+    if (!Equals(newLayout, oldLayout)) {
+      this.willSetLayout(newLayout as ColLayout, oldLayout);
+      Object.defineProperty(this, "layout", {
+        value: newLayout,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetLayout(newLayout as ColLayout, oldLayout);
+      this.didSetLayout(newLayout as ColLayout, oldLayout);
+    }
+  }
+
+  protected willSetLayout(newLayout: ColLayout | null, oldHeader: ColLayout | null): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.colTraitWillSetLayout !== void 0) {
+        traitObserver.colTraitWillSetLayout(newLayout, oldHeader, this);
+      }
+    }
+  }
+
+  protected onSetLayout(newLayout: ColLayout | null, oldHeader: ColLayout | null): void {
+    // hook
+  }
+
+  protected didSetLayout(newLayout: ColLayout | null, oldHeader: ColLayout | null): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.colTraitDidSetLayout !== void 0) {
+        traitObserver.colTraitDidSetLayout(newLayout, oldHeader, this);
+      }
+    }
+  }
+
   declare readonly header: HtmlView | string | undefined;
 
   setHeader(newHeader: HtmlView | string | undefined): void {
     const oldHeader = this.header;
-    if (!Equals(oldHeader, newHeader)) {
+    if (!Equals(newHeader, oldHeader)) {
       this.willSetHeader(newHeader, oldHeader);
       Object.defineProperty(this, "header", {
         value: newHeader,

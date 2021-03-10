@@ -40,10 +40,10 @@ export interface ModelTraitInit<S extends Trait, U = never> {
   fromAny?(value: S | U): S | null;
 }
 
-export type ModelTraitDescriptor<M extends Model, S extends Trait, U = never, I = {}> = ModelTraitInit<S, U> & ThisType<ModelTrait<M, S, U> & I> & I;
+export type ModelTraitDescriptor<M extends Model, S extends Trait, U = never, I = {}> = ModelTraitInit<S, U> & ThisType<ModelTrait<M, S, U> & I> & Partial<I>;
 
 export interface ModelTraitConstructor<M extends Model, S extends Trait, U = never, I = {}> {
-  new(owner: M, key: string | undefined, fastenerName: string | undefined): ModelTrait<M, S, U> & I;
+  new<O extends M>(owner: O, key: string | undefined, fastenerName: string | undefined): ModelTrait<O, S, U> & I;
   prototype: Omit<ModelTrait<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
@@ -127,16 +127,14 @@ export const ModelTrait = function <M extends Model, S extends Trait, U>(
   /** @hidden */
   new<M extends Model, S extends Trait, U = never>(owner: M, key: string | undefined, fastenerName: string | undefined): ModelTrait<M, S, U>;
 
-  <M extends Model, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: {extends: ModelTraitClass | undefined} & ModelTraitDescriptor<M, S, U, I>): PropertyDecorator;
-  <M extends Model, S extends Trait = Trait, U = never>(descriptor: {observe: boolean} & ModelTraitDescriptor<M, S, U, TraitObserverType<S>>): PropertyDecorator;
-  <M extends Model, S extends Trait = Trait, U = never>(descriptor: ModelTraitDescriptor<M, S, U>): PropertyDecorator;
+  <M extends Model, S extends Trait = Trait, U = never, I = {}>(descriptor: {observe: boolean} & ModelTraitDescriptor<M, S, U, I & TraitObserverType<S>>): PropertyDecorator;
+  <M extends Model, S extends Trait = Trait, U = never, I = {}>(descriptor: ModelTraitDescriptor<M, S, U, I>): PropertyDecorator;
 
   /** @hidden */
   prototype: ModelTrait<any, any>;
 
-  define<M extends Model, S extends Trait = Trait, U = never, I = TraitObserverType<S>>(descriptor: {extends: ModelTraitClass | undefined} & ModelTraitDescriptor<M, S, U, I>): ModelTraitConstructor<M, S, U>;
-  define<M extends Model, S extends Trait = Trait, U = never>(descriptor: {observe: boolean} & ModelTraitDescriptor<M, S, U, TraitObserverType<S>>): ModelTraitConstructor<M, S, U>;
-  define<M extends Model, S extends Trait = Trait, U = never>(descriptor: ModelTraitDescriptor<M, S, U>): ModelTraitConstructor<M, S, U>;
+  define<M extends Model, S extends Trait = Trait, U = never, I = {}>(descriptor: {observe: boolean} & ModelTraitDescriptor<M, S, U, I & TraitObserverType<S>>): ModelTraitConstructor<M, S, U, I>;
+  define<M extends Model, S extends Trait = Trait, U = never, I = {}>(descriptor: ModelTraitDescriptor<M, S, U, I>): ModelTraitConstructor<M, S, U, I>;
 };
 __extends(ModelTrait, Object);
 
@@ -155,6 +153,7 @@ function ModelTraitConstructor<M extends Model, S extends Trait, U>(this: ModelT
   Object.defineProperty(this, "key", {
     value: key,
     enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "trait", {
     value: null,

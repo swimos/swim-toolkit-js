@@ -122,7 +122,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
     const newIconCount = oldIconCount + 1;
     const newIconKey = "icon" + newIconCount;
-    const newIconFastener = new FloatingButton.IconFastener(this, newIconKey, newIconKey) as ViewFastener<this, HtmlIconView> & {iconIndex: number};
+    const newIconFastener = new FloatingButton.IconFastener(this, newIconKey, newIconKey);
     newIconFastener.iconIndex = newIconCount;
     const newIconView = HtmlIconView.create();
     newIconView.position.setAutoState("absolute");

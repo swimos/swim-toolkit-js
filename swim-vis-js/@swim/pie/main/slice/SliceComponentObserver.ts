@@ -19,13 +19,13 @@ import type {SliceTrait} from "./SliceTrait";
 import type {SliceComponent} from "./SliceComponent";
 
 export interface SliceComponentObserver<C extends SliceComponent = SliceComponent> extends ComponentObserver<C> {
-  sliceWillSetView?(newSliceView: SliceView | null, oldSliceView: SliceView | null, component: C): void;
-
-  sliceDidSetView?(newSliceView: SliceView | null, oldSliceView: SliceView | null, component: C): void;
-
   sliceWillSetTrait?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, component: C): void;
 
   sliceDidSetTrait?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, component: C): void;
+
+  sliceWillSetView?(newSliceView: SliceView | null, oldSliceView: SliceView | null, component: C): void;
+
+  sliceDidSetView?(newSliceView: SliceView | null, oldSliceView: SliceView | null, component: C): void;
 
   sliceWillSetValue?(newValue: number, oldValue: number, component: C): void;
 

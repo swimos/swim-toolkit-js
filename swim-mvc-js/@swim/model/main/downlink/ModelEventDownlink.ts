@@ -25,7 +25,7 @@ export interface ModelEventDownlinkInit extends ModelDownlinkInit, EventDownlink
   initDownlink?(downlink: EventDownlink): EventDownlink;
 }
 
-export type ModelEventDownlinkDescriptor<M extends ModelDownlinkContext, I = {}> = ModelEventDownlinkInit & ThisType<ModelEventDownlink<M> & I> & I;
+export type ModelEventDownlinkDescriptor<M extends ModelDownlinkContext, I = {}> = ModelEventDownlinkInit & ThisType<ModelEventDownlink<M> & I> & Partial<I>;
 
 export type ModelEventDownlinkDescriptorExtends<M extends ModelDownlinkContext, I = {}> = {extends: ModelEventDownlinkClass | undefined} & ModelEventDownlinkDescriptor<M, I>;
 

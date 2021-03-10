@@ -39,10 +39,10 @@ export interface ComponentViewInit<V extends View, U = never> {
   fromAny?(value: V | U): V | null;
 }
 
-export type ComponentViewDescriptor<C extends Component, V extends View, U = never, I = {}> = ComponentViewInit<V, U> & ThisType<ComponentView<C, V, U> & I> & I;
+export type ComponentViewDescriptor<C extends Component, V extends View, U = never, I = {}> = ComponentViewInit<V, U> & ThisType<ComponentView<C, V, U> & I> & Partial<I>;
 
 export interface ComponentViewConstructor<C extends Component, V extends View, U = never, I = {}> {
-  new(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentView<C, V, U> & I;
+  new<O extends C>(owner: O, key: string | undefined, fastenerName: string | undefined): ComponentView<O, V, U> & I;
   prototype: Omit<ComponentView<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
@@ -120,16 +120,14 @@ export const ComponentView = function <C extends Component, V extends View = Vie
   /** @hidden */
   new<C extends Component, V extends View, U = never>(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentView<C, V, U>;
 
-  <C extends Component, V extends View = View, U = never, I = ViewObserverType<V>>(descriptor: {extends: ComponentViewClass | undefined} & ComponentViewDescriptor<C, V, U, I>): PropertyDecorator;
-  <C extends Component, V extends View = View, U = never>(descriptor: {observe: boolean} & ComponentViewDescriptor<C, V, U, ViewObserverType<V>>): PropertyDecorator;
-  <C extends Component, V extends View = View, U = never>(descriptor: ComponentViewDescriptor<C, V, U>): PropertyDecorator;
+  <C extends Component, V extends View = View, U = never, I = {}>(descriptor: {observe: boolean} & ComponentViewDescriptor<C, V, U, I & ViewObserverType<V>>): PropertyDecorator;
+  <C extends Component, V extends View = View, U = never, I = {}>(descriptor: ComponentViewDescriptor<C, V, U, I>): PropertyDecorator;
 
   /** @hidden */
   prototype: ComponentView<any, any>;
 
-  define<C extends Component, V extends View = View, U = never, I = ViewObserverType<V>>(descriptor: {extends: ComponentViewClass | undefined} & ComponentViewDescriptor<C, V, U, I>): ComponentViewConstructor<C, V, U, I>;
-  define<C extends Component, V extends View = View, U = never>(descriptor: {observe: boolean} & ComponentViewDescriptor<C, V, U, ViewObserverType<V>>): ComponentViewConstructor<C, V, U>;
-  define<C extends Component, V extends View = View, U = never>(descriptor: ComponentViewDescriptor<C, V, U>): ComponentViewConstructor<C, V, U>;
+  define<C extends Component, V extends View = View, U = never, I = {}>(descriptor: {observe: boolean} & ComponentViewDescriptor<C, V, U, I & ViewObserverType<V>>): ComponentViewConstructor<C, V, U, I>;
+  define<C extends Component, V extends View = View, U = never, I = {}>(descriptor: ComponentViewDescriptor<C, V, U, I>): ComponentViewConstructor<C, V, U, I>;
 };
 __extends(ComponentView, Object);
 
@@ -148,6 +146,7 @@ function ComponentViewConstructor<C extends Component, V extends View, U>(this: 
   Object.defineProperty(this, "key", {
     value: key,
     enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "view", {
     value: null,

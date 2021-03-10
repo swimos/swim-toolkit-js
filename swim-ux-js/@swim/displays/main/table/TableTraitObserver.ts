@@ -13,16 +13,21 @@
 // limitations under the License.
 
 import type {Trait, TraitObserver} from "@swim/model";
+import type {TableLayout} from "../layout/TableLayout";
 import type {ColTrait} from "../col/ColTrait";
 import type {RowTrait} from "../row/RowTrait";
 import type {TableTrait} from "./TableTrait";
 
 export interface TableTraitObserver<R extends TableTrait = TableTrait> extends TraitObserver<R> {
-  tableTraitWillSetRow?(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, targetTrait: Trait | null, trait: R): void;
+  tableTraitWillSetLayout?(newLayout: TableLayout | null, oldLayout: TableLayout | null, trait: R): void;
 
-  tableTraitDidSetRow?(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, targetTrait: Trait | null, trait: R): void;
+  tableTraitDidSetLayout?(newLayout: TableLayout | null, oldLayout: TableLayout | null, trait: R): void;
 
   tableTraitWillSetCol?(newColTrait: ColTrait | null, oldColTrait: ColTrait | null, targetTrait: Trait | null, trait: R): void;
 
   tableTraitDidSetCol?(newColTrait: ColTrait | null, oldColTrait: ColTrait | null, targetTrait: Trait | null, trait: R): void;
+
+  tableTraitWillSetRow?(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, targetTrait: Trait | null, trait: R): void;
+
+  tableTraitDidSetRow?(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, targetTrait: Trait | null, trait: R): void;
 }

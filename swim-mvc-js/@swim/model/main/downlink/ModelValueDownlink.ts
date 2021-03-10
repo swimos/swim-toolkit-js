@@ -26,7 +26,7 @@ export interface ModelValueDownlinkInit<V, VU = never> extends ModelDownlinkInit
   initDownlink?(downlink: ValueDownlink<V, VU>): ValueDownlink<V, VU>;
 }
 
-export type ModelValueDownlinkDescriptor<M extends ModelDownlinkContext, V, VU = never, I = {}> = ModelValueDownlinkInit<V, VU> & ThisType<ModelValueDownlink<M, V, VU> & I> & I;
+export type ModelValueDownlinkDescriptor<M extends ModelDownlinkContext, V, VU = never, I = {}> = ModelValueDownlinkInit<V, VU> & ThisType<ModelValueDownlink<M, V, VU> & I> & Partial<I>;
 
 export type ModelValueDownlinkDescriptorExtends<M extends ModelDownlinkContext, V, VU = never, I = {}> = {extends: ModelValueDownlinkClass | undefined} & ModelValueDownlinkDescriptor<M, V, VU, I>;
 

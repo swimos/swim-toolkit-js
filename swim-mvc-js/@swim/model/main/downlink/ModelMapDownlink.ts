@@ -28,7 +28,7 @@ export interface ModelMapDownlinkInit<K, V, KU = never, VU = never> extends Mode
   initDownlink?(downlink: MapDownlink<K, V, KU, VU>): MapDownlink<K, V, KU, VU>;
 }
 
-export type ModelMapDownlinkDescriptor<M extends ModelDownlinkContext, K, V, KU = never, VU = never, I = {}> = ModelMapDownlinkInit<K, V, KU, VU> & ThisType<ModelMapDownlink<M, K, V, KU, VU> & I> & I;
+export type ModelMapDownlinkDescriptor<M extends ModelDownlinkContext, K, V, KU = never, VU = never, I = {}> = ModelMapDownlinkInit<K, V, KU, VU> & ThisType<ModelMapDownlink<M, K, V, KU, VU> & I> & Partial<I>;
 
 export type ModelMapDownlinkDescriptorExtends<M extends ModelDownlinkContext, K, V, KU = never, VU = never, I = {}> = {extends: ModelMapDownlinkClass | undefined} & ModelMapDownlinkDescriptor<M, K, V, KU, VU, I>;
 

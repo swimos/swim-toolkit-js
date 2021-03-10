@@ -43,7 +43,7 @@ export class SliceTrait extends GenericTrait {
 
   setValue(newValue: number): void {
     const oldValue = this.value;
-    if (oldValue !== newValue) {
+    if (newValue !== oldValue) {
       this.willSetValue(newValue, oldValue);
       Object.defineProperty(this, "value", {
         value: newValue,
@@ -83,7 +83,7 @@ export class SliceTrait extends GenericTrait {
 
   setLabel(newLabel: GraphicsView | string | undefined): void {
     const oldLabel = this.label;
-    if (!Equals(oldLabel, newLabel)) {
+    if (!Equals(newLabel, oldLabel)) {
       this.willSetLabel(newLabel, oldLabel);
       Object.defineProperty(this, "label", {
         value: newLabel,
@@ -127,7 +127,7 @@ export class SliceTrait extends GenericTrait {
 
   setLegend(newLegend: GraphicsView | string | undefined): void {
     const oldLegend = this.legend;
-    if (!Equals(oldLegend, newLegend)) {
+    if (!Equals(newLegend, oldLegend)) {
       this.willSetLegend(newLegend, oldLegend);
       Object.defineProperty(this, "legend", {
         value: newLegend,

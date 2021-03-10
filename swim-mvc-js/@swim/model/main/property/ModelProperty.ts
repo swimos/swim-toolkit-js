@@ -43,7 +43,7 @@ export interface ModelPropertyInit<T, U = never> {
   initState?(): T | U;
 }
 
-export type ModelPropertyDescriptor<M extends Model, T, U = never, I = {}> = ModelPropertyInit<T, U> & ThisType<ModelProperty<M, T, U> & I> & I;
+export type ModelPropertyDescriptor<M extends Model, T, U = never, I = {}> = ModelPropertyInit<T, U> & ThisType<ModelProperty<M, T, U> & I> & Partial<I>;
 
 export type ModelPropertyDescriptorExtends<M extends Model, T, U = never, I = {}> = {extends: ModelPropertyClass | undefined} & ModelPropertyDescriptor<M, T, U, I>;
 

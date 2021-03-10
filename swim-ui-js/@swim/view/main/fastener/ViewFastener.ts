@@ -50,10 +50,10 @@ export interface ViewFastenerInit<S extends View, U = never> {
   fromAny?(value: S | U): S | null;
 }
 
-export type ViewFastenerDescriptor<V extends View, S extends View, U = never, I = {}> = ViewFastenerInit<S, U> & ThisType<ViewFastener<V, S, U> & I> & I;
+export type ViewFastenerDescriptor<V extends View, S extends View, U = never, I = {}> = ViewFastenerInit<S, U> & ThisType<ViewFastener<V, S, U> & I> & Partial<I>;
 
 export interface ViewFastenerConstructor<V extends View, S extends View, U = never, I = {}> {
-  new(owner: V, key: string | undefined, fastenerName: string | undefined): ViewFastener<V, S, U> & I;
+  new<O extends V>(owner: O, key: string | undefined, fastenerName: string | undefined): ViewFastener<O, S, U> & I;
   prototype: Omit<ViewFastener<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
@@ -179,16 +179,14 @@ export const ViewFastener = function <V extends View, S extends View, U>(
   /** @hidden */
   new<V extends View, S extends View, U = never>(owner: V, key: string | undefined, fastenerName: string | undefined): ViewFastener<V, S, U>;
 
-  <V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: {extends: ViewFastenerClass | undefined} & ViewFastenerDescriptor<V, S, U, I>): PropertyDecorator;
-  <V extends View, S extends View = View, U = never>(descriptor: {observe: boolean} & ViewFastenerDescriptor<V, S, U, ViewObserverType<S>>): PropertyDecorator;
-  <V extends View, S extends View = View, U = never>(descriptor: ViewFastenerDescriptor<V, S, U>): PropertyDecorator;
+  <V extends View, S extends View = View, U = never, I = {}>(descriptor: {observe: boolean} & ViewFastenerDescriptor<V, S, U, I & ViewObserverType<S>>): PropertyDecorator;
+  <V extends View, S extends View = View, U = never, I = {}>(descriptor: ViewFastenerDescriptor<V, S, U, I>): PropertyDecorator;
 
   /** @hidden */
   prototype: ViewFastener<any, any>;
 
-  define<V extends View, S extends View = View, U = never, I = ViewObserverType<S>>(descriptor: {extends: ViewFastenerClass | undefined} & ViewFastenerDescriptor<V, S, U, I>): ViewFastenerConstructor<V, S, U, I>;
-  define<V extends View, S extends View = View, U = never>(descriptor: {observe: boolean} & ViewFastenerDescriptor<V, S, U, ViewObserverType<S>>): ViewFastenerConstructor<V, S, U>;
-  define<V extends View, S extends View = View, U = never>(descriptor: ViewFastenerDescriptor<V, S, U>): ViewFastenerConstructor<V, S, U>;
+  define<V extends View, S extends View = View, U = never, I = {}>(descriptor: {observe: boolean} & ViewFastenerDescriptor<V, S, U, I & ViewObserverType<S>>): ViewFastenerConstructor<V, S, U, I>;
+  define<V extends View, S extends View = View, U = never, I = {}>(descriptor: ViewFastenerDescriptor<V, S, U, I>): ViewFastenerConstructor<V, S, U, I>;
 };
 __extends(ViewFastener, Object);
 
@@ -207,6 +205,7 @@ function ViewFastenerConstructor<V extends View, S extends View, U>(this: ViewFa
   Object.defineProperty(this, "key", {
     value: key,
     enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "view", {
     value: null,

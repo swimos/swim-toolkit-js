@@ -134,7 +134,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     }
 
     const newIconKey = "icon" + newIconCount;
-    const newIconFastener = new IconButton.IconFastener(this, newIconKey, newIconKey) as ViewFastener<this, SvgIconView> & {iconIndex: number};
+    const newIconFastener = new IconButton.IconFastener(this, newIconKey, newIconKey);
     newIconFastener.iconIndex = newIconCount;
     this.icon = newIconFastener;
     const newIconView = SvgIconView.create();

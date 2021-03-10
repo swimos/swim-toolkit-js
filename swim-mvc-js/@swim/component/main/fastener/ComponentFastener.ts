@@ -39,10 +39,10 @@ export interface ComponentFastenerInit<S extends Component, U = never> {
   fromAny?(value: S | U): S | null;
 }
 
-export type ComponentFastenerDescriptor<C extends Component, S extends Component, U = never, I = {}> = ComponentFastenerInit<S, U> & ThisType<ComponentFastener<C, S, U> & I> & I;
+export type ComponentFastenerDescriptor<C extends Component, S extends Component, U = never, I = {}> = ComponentFastenerInit<S, U> & ThisType<ComponentFastener<C, S, U> & I> & Partial<I>;
 
 export interface ComponentFastenerConstructor<C extends Component, S extends Component, U = never, I = {}> {
-  new(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentFastener<C, S, U> & I;
+  new<O extends C>(owner: O, key: string | undefined, fastenerName: string | undefined): ComponentFastener<O, S, U> & I;
   prototype: Omit<ComponentFastener<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
@@ -126,16 +126,14 @@ export const ComponentFastener = function <C extends Component, S extends Compon
   /** @hidden */
   new<C extends Component, S extends Component, U = never>(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentFastener<C, S, U>;
 
-  <C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: {extends: ComponentFastenerClass | undefined} & ComponentFastenerDescriptor<C, S, U, I>): PropertyDecorator;
-  <C extends Component, S extends Component = Component, U = never>(descriptor: {observe: boolean} & ComponentFastenerDescriptor<C, S, U, ComponentObserverType<S>>): PropertyDecorator;
-  <C extends Component, S extends Component = Component, U = never>(descriptor: ComponentFastenerDescriptor<C, S, U>): PropertyDecorator;
+  <C extends Component, S extends Component = Component, U = never, I = {}>(descriptor: {observe: boolean} & ComponentFastenerDescriptor<C, S, U, I & ComponentObserverType<S>>): PropertyDecorator;
+  <C extends Component, S extends Component = Component, U = never, I = {}>(descriptor: ComponentFastenerDescriptor<C, S, U, I>): PropertyDecorator;
 
   /** @hidden */
   prototype: ComponentFastener<any, any>;
 
-  define<C extends Component, S extends Component = Component, U = never, I = ComponentObserverType<S>>(descriptor: {extends: ComponentFastenerClass | undefined} & ComponentFastenerDescriptor<C, S, U, I>): ComponentFastenerConstructor<C, S, U, I>;
-  define<C extends Component, S extends Component = Component, U = never>(descriptor: {observe: boolean} & ComponentFastenerDescriptor<C, S, U, ComponentObserverType<S>>): ComponentFastenerConstructor<C, S, U>;
-  define<C extends Component, S extends Component = Component, U = never>(descriptor: ComponentFastenerDescriptor<C, S, U>): ComponentFastenerConstructor<C, S, U>;
+  define<C extends Component, S extends Component = Component, U = never, I = {}>(descriptor: {observe: boolean} & ComponentFastenerDescriptor<C, S, U, I & ComponentObserverType<S>>): ComponentFastenerConstructor<C, S, U, I>;
+  define<C extends Component, S extends Component = Component, U = never, I = {}>(descriptor: ComponentFastenerDescriptor<C, S, U, I>): ComponentFastenerConstructor<C, S, U, I>;
 };
 __extends(ComponentFastener, Object);
 
@@ -154,6 +152,7 @@ function ComponentFastenerConstructor<C extends Component, S extends Component, 
   Object.defineProperty(this, "key", {
     value: key,
     enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "component", {
     value: null,

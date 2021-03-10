@@ -38,10 +38,10 @@ export interface ComponentTraitInit<R extends Trait, U = never> {
   fromAny?(value: R | U): R | null;
 }
 
-export type ComponentTraitDescriptor<C extends Component, R extends Trait, U = never, I = {}> = ComponentTraitInit<R, U> & ThisType<ComponentTrait<C, R, U> & I> & I;
+export type ComponentTraitDescriptor<C extends Component, R extends Trait, U = never, I = {}> = ComponentTraitInit<R, U> & ThisType<ComponentTrait<C, R, U> & I> & Partial<I>;
 
 export interface ComponentTraitConstructor<C extends Component, R extends Trait, U = never, I = {}> {
-  new(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentTrait<C, R, U> & I;
+  new<O extends C>(owner: O, key: string | undefined, fastenerName: string | undefined): ComponentTrait<O, R, U> & I;
   prototype: Omit<ComponentTrait<any, any>, "key"> & {key?: string | boolean} & I;
 }
 
@@ -119,16 +119,14 @@ export const ComponentTrait = function <C extends Component, R extends Trait, U>
   /** @hidden */
   new<C extends Component, R extends Trait, U = never>(owner: C, key: string | undefined, fastenerName: string | undefined): ComponentTrait<C, R, U>;
 
-  <C extends Component, R extends Trait = Trait, U = never, I = TraitObserverType<R>>(descriptor: {extends: ComponentTraitClass | undefined} & ComponentTraitDescriptor<C, R, U, I>): PropertyDecorator;
-  <C extends Component, R extends Trait = Trait, U = never>(descriptor: {observe: boolean} & ComponentTraitDescriptor<C, R, U, TraitObserverType<R>>): PropertyDecorator;
-  <C extends Component, R extends Trait = Trait, U = never>(descriptor: ComponentTraitDescriptor<C, R, U>): PropertyDecorator;
+  <C extends Component, R extends Trait = Trait, U = never, I = {}>(descriptor: {observe: boolean} & ComponentTraitDescriptor<C, R, U, I & TraitObserverType<R>>): PropertyDecorator;
+  <C extends Component, R extends Trait = Trait, U = never, I = {}>(descriptor: ComponentTraitDescriptor<C, R, U, I>): PropertyDecorator;
 
   /** @hidden */
   prototype: ComponentTrait<any, any>;
 
-  define<C extends Component, R extends Trait = Trait, U = never, I = TraitObserverType<R>>(descriptor: {extends: ComponentTraitClass | undefined} & ComponentTraitDescriptor<C, R, U, I>): ComponentTraitConstructor<C, R, U, I>;
-  define<C extends Component, R extends Trait = Trait, U = never>(descriptor: {observe: boolean} & ComponentTraitDescriptor<C, R, U, TraitObserverType<R>>): ComponentTraitConstructor<C, R, U>;
-  define<C extends Component, R extends Trait = Trait, U = never>(descriptor: ComponentTraitDescriptor<C, R, U>): ComponentTraitConstructor<C, R, U>;
+  define<C extends Component, R extends Trait = Trait, U = never, I = {}>(descriptor: {observe: boolean} & ComponentTraitDescriptor<C, R, U, I & TraitObserverType<R>>): ComponentTraitConstructor<C, R, U, I>;
+  define<C extends Component, R extends Trait = Trait, U = never, I = {}>(descriptor: ComponentTraitDescriptor<C, R, U, I>): ComponentTraitConstructor<C, R, U, I>;
 };
 __extends(ComponentTrait, Object);
 
@@ -147,6 +145,7 @@ function ComponentTraitConstructor<C extends Component, R extends Trait, U>(this
   Object.defineProperty(this, "key", {
     value: key,
     enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "trait", {
     value: null,

@@ -42,10 +42,10 @@ export interface ComponentViewTraitInit<V extends View, R extends Trait, VU = ne
   insertTrait?(model: Model, trait: R, targetTrait: Trait | null, key: string | undefined): void;
 }
 
-export type ComponentViewTraitDescriptor<C extends Component, V extends View, R extends Trait, VU = never, RU = never, I = {}> = ComponentViewTraitInit<V, R, VU, RU> & ThisType<ComponentViewTrait<C, V, R, VU, RU> & I> & I;
+export type ComponentViewTraitDescriptor<C extends Component, V extends View, R extends Trait, VU = never, RU = never, I = {}> = ComponentViewTraitInit<V, R, VU, RU> & ThisType<ComponentViewTrait<C, V, R, VU, RU> & I> & Partial<I>;
 
 export interface ComponentViewTraitConstructor<C extends Component, V extends View, R extends Trait, VU = never, RU = never, I = {}> {
-  new(owner: C, viewKey: string | undefined, traitKey: string | undefined, fastenerName: string | undefined): ComponentViewTrait<C, V, R, VU, RU> & I;
+  new<O extends C>(owner: O, viewKey: string | undefined, traitKey: string | undefined, fastenerName: string | undefined): ComponentViewTrait<O, V, R, VU, RU> & I;
   prototype: Omit<ComponentViewTrait<any, any, any, any>, "viewKey" | "traitKey"> & {viewKey?: string | boolean; traitKey?: string | boolean} & I;
 }
 
@@ -161,20 +161,18 @@ export const ComponentViewTrait = function <C extends Component, V extends View 
   /** @hidden */
   new<C extends Component, V extends View, R extends Trait, VU = never, RU = never>(owner: C, viewKey: string | undefined, traitKey: string | undefined, fastenerName: string | undefined): ComponentViewTrait<C, V, R, VU, RU>;
 
-  <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = ViewObserverType<V> & TraitObserverType<R>>(descriptor: {extends: ComponentViewTraitClass | undefined} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I>): PropertyDecorator;
-  <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(descriptor: {observeView: boolean, observeTrait: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, ViewObserverType<V> & TraitObserverType<R>>): PropertyDecorator;
-  <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(descriptor: {observeView: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, ViewObserverType<V>>): PropertyDecorator;
-  <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(descriptor: {observeTrait: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, TraitObserverType<R>>): PropertyDecorator;
-  <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(descriptor: ComponentViewTraitDescriptor<C, V, R, VU, RU>): PropertyDecorator;
+  <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: {observeView: boolean, observeTrait: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I & ViewObserverType<V> & TraitObserverType<R>>): PropertyDecorator;
+  <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: {observeView: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I & ViewObserverType<V>>): PropertyDecorator;
+  <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: {observeTrait: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I & TraitObserverType<R>>): PropertyDecorator;
+  <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: ComponentViewTraitDescriptor<C, V, R, VU, RU, I>): PropertyDecorator;
 
   /** @hidden */
   prototype: ComponentViewTrait<any, any, any, any>;
 
-  define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = ViewObserverType<V> & TraitObserverType<R>>(descriptor: {extends: ComponentViewTraitClass | undefined} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I>): ComponentViewTraitConstructor<C, V, R, VU, RU, I>;
-  define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(descriptor: {observeView: boolean, observeTrait: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, ViewObserverType<V> & TraitObserverType<R>>): ComponentViewTraitConstructor<C, V, R, VU, RU>;
-  define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(descriptor: {observeView: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, ViewObserverType<V>>): ComponentViewTraitConstructor<C, V, R, VU, RU>;
-  define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(descriptor: {observeTrait: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, TraitObserverType<R>>): ComponentViewTraitConstructor<C, V, R, VU, RU>;
-  define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(descriptor: ComponentViewTraitDescriptor<C, V, R, VU, RU>): ComponentViewTraitConstructor<C, V, R, VU, RU>;
+  define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: {observeView: boolean, observeTrait: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I & ViewObserverType<V> & TraitObserverType<R>>): ComponentViewTraitConstructor<C, V, R, VU, RU, I>;
+  define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: {observeView: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I & ViewObserverType<V>>): ComponentViewTraitConstructor<C, V, R, VU, RU, I>;
+  define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: {observeTrait: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I & TraitObserverType<R>>): ComponentViewTraitConstructor<C, V, R, VU, RU, I>;
+  define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: ComponentViewTraitDescriptor<C, V, R, VU, RU, I>): ComponentViewTraitConstructor<C, V, R, VU, RU, I>;
 };
 __extends(ComponentViewTrait, Object);
 
@@ -193,6 +191,7 @@ function ComponentViewTraitConstructor<C extends Component, V extends View, R ex
   Object.defineProperty(this, "viewKey", {
     value: viewKey,
     enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "view", {
     value: null,
@@ -202,6 +201,7 @@ function ComponentViewTraitConstructor<C extends Component, V extends View, R ex
   Object.defineProperty(this, "traitKey", {
     value: traitKey,
     enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "trait", {
     value: null,

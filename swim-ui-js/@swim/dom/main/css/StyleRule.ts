@@ -32,7 +32,7 @@ export interface StyleRuleInit extends CssRuleInit {
   initRule?(rule: CSSStyleRule): CSSStyleRule;
 }
 
-export type StyleRuleDescriptor<V extends CssContext, I = {}> = StyleRuleInit & ThisType<StyleRule<V> & I> & I;
+export type StyleRuleDescriptor<V extends CssContext, I = {}> = StyleRuleInit & ThisType<StyleRule<V> & I> & Partial<I>;
 
 export type StyleRuleDescriptorExtends<V extends CssContext, I = {}> = {extends: StyleRuleClass | undefined} & StyleRuleDescriptor<V, I>;
 

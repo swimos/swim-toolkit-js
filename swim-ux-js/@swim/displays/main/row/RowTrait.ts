@@ -29,7 +29,7 @@ export class RowTrait extends GenericTrait {
 
   insertCell(cellTrait: CellTrait, targetTrait: Trait | null = null): void {
     const cellFasteners = this.cellFasteners as TraitFastener<this, CellTrait>[];
-    let targetIndex = -1;
+    let targetIndex = cellFasteners.length;
     for (let i = 0, n = cellFasteners.length; i < n; i += 1) {
       const cellFastener = cellFasteners[i]!;
       if (cellFastener.trait === cellTrait) {
@@ -128,7 +128,7 @@ export class RowTrait extends GenericTrait {
   });
 
   protected createCellFastener(cellTrait: CellTrait): TraitFastener<this, CellTrait> {
-    return new RowTrait.CellFastener(this, cellTrait.key, "cell") as TraitFastener<this, CellTrait>;
+    return new RowTrait.CellFastener(this, cellTrait.key, "cell");
   }
 
   /** @hidden */
@@ -174,21 +174,6 @@ export class RowTrait extends GenericTrait {
     }
   }
 
-  protected detectCells(model: TraitModelType<this>): void {
-    const childModels = model.childModels;
-    for (let i = 0, n = childModels.length; i < n; i += 1) {
-      const childModel = childModels[i]!;
-      const cellTrait = this.detectCell(childModel);
-      if (cellTrait !== null) {
-        this.insertCell(cellTrait);
-      }
-    }
-  }
-
-  protected detectCell(model: Model): CellTrait | null {
-    return model.getTrait(CellTrait);
-  }
-
   protected onInsertCell(cellTrait: CellTrait, targetTrait: Trait | null): void {
     this.insertCell(cellTrait, targetTrait);
   }
@@ -197,25 +182,72 @@ export class RowTrait extends GenericTrait {
     this.removeCell(cellTrait);
   }
 
+  protected detectCellModel(model: Model): CellTrait | null {
+    return model.getTrait(CellTrait);
+  }
+
+  protected detectModels(model: TraitModelType<this>): void {
+    const childModels = model.childModels;
+    for (let i = 0, n = childModels.length; i < n; i += 1) {
+      const childModel = childModels[i]!;
+      const cellTrait = this.detectCellModel(childModel);
+      if (cellTrait !== null) {
+        this.insertCell(cellTrait);
+      }
+    }
+  }
+
+  protected detectCellTrait(trait: Trait): CellTrait | null {
+    return trait instanceof CellTrait ? trait : null;
+  }
+
+  protected detectTraits(model: TraitModelType<this>): void {
+    const traits = model.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      const trait = traits[i]!;
+      const cellTrait = this.detectCellTrait(trait);
+      if (cellTrait !== null) {
+        this.insertCell(cellTrait);
+      }
+    }
+  }
+
   protected didSetModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null): void {
     if (newModel !== null) {
-      this.detectCells(newModel);
+      this.detectModels(newModel);
+      this.detectTraits(newModel);
     }
     super.didSetModel(newModel, oldModel);
   }
 
   protected onInsertChildModel(childModel: Model, targetModel: Model | null): void {
     super.onInsertChildModel(childModel, targetModel);
-    const cellTrait = this.detectCell(childModel);
+    const cellTrait = this.detectCellModel(childModel);
     if (cellTrait !== null) {
-      const targetTrait = targetModel !== null ? this.detectCell(targetModel) : null;
+      const targetTrait = targetModel !== null ? this.detectCellModel(targetModel) : null;
       this.onInsertCell(cellTrait, targetTrait);
     }
   }
 
   protected onRemoveChildModel(childModel: Model): void {
     super.onRemoveChildModel(childModel);
-    const cellTrait = this.detectCell(childModel);
+    const cellTrait = this.detectCellModel(childModel);
+    if (cellTrait !== null) {
+      this.onRemoveCell(cellTrait);
+    }
+  }
+
+  protected onInsertTrait(trait: Trait, targetTrait: Trait | null): void {
+    super.onInsertTrait(trait, targetTrait);
+    const cellTrait = this.detectCellTrait(trait);
+    if (cellTrait !== null) {
+      this.onInsertCell(cellTrait, targetTrait);
+    }
+  }
+
+  protected onRemoveTrait(trait: Trait): void {
+    super.onRemoveTrait(trait);
+    const cellTrait = this.detectCellTrait(trait);
     if (cellTrait !== null) {
       this.onRemoveCell(cellTrait);
     }
