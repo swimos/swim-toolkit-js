@@ -28,11 +28,11 @@ export interface ColComponentObserver<C extends ColComponent = ColComponent> ext
 
   colDidSetTrait?(newColTrait: ColTrait | null, oldColTrait: ColTrait | null, component: C): void;
 
-  colWillSetHeader?(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, component: C): void;
-
-  colDidSetHeader?(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, component: C): void;
-
   colWillSetLayout?(newLayout: ColLayout | null, oldLayout: ColLayout | null, component: C): void;
 
   colDidSetLayout?(newLayout: ColLayout | null, oldLayout: ColLayout | null, component: C): void;
+
+  colWillSetHeaderView?(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, component: C): void;
+
+  colDidSetHeaderView?(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, component: C): void;
 }

@@ -35,6 +35,7 @@ export interface TraitModelInit<S extends Model, U = never> {
   onSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
   didSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
 
+  parentModel?: Model | null;
   createModel?(): S | U | null;
   insertModel?(parentModel: Model, childModel: S, targetModel: Model | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
@@ -84,6 +85,9 @@ export interface TraitModel<R extends Trait, S extends Model, U = never> {
 
   /** @hidden */
   didSetModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
+
+  /** @hidden */
+  readonly parentModel: Model | null;
 
   injectModel(parentModel?: Model | null, childModel?: S | U | null, targetModel?: Model | null, key?: string | null): S | null;
 
@@ -239,6 +243,14 @@ TraitModel.prototype.didSetModel = function <S extends Model>(this: TraitModel<T
   // hook
 };
 
+Object.defineProperty(TraitModel.prototype, "parentModel", {
+  get(this: TraitModel<Trait, Model>): Model | null {
+    return this.owner.model;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
 TraitModel.prototype.injectModel = function <S extends Model>(this: TraitModel<Trait, S>, parentModel?: Model | null, childModel?: S | null, targetModel?: Model | null, key?: string | null): S | null {
   if (targetModel === void 0) {
     targetModel = null;
@@ -256,7 +268,7 @@ TraitModel.prototype.injectModel = function <S extends Model>(this: TraitModel<T
   }
   if (childModel !== null) {
     if (parentModel === void 0 || parentModel === null) {
-      parentModel = this.owner.model;
+      parentModel = this.parentModel;
     }
     if (key === void 0) {
       key = this.key;

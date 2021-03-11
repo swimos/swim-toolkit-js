@@ -35,8 +35,9 @@ export interface ModelTraitInit<S extends Trait, U = never> {
   onSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
   didSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
+  parentModel?: Model | null;
   createTrait?(): S | U | null;
-  insertTrait?(model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
+  insertTrait?(parentModel: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
 }
 
@@ -85,12 +86,15 @@ export interface ModelTrait<M extends Model, S extends Trait, U = never> {
   /** @hidden */
   didSetTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
-  injectTrait(model?: Model | null, trait?: S | U | null, targetTrait?: Trait | null, key?: string | null): S | null;
+  /** @hidden */
+  readonly parentModel: Model | null;
+
+  injectTrait(parentModel?: Model | null, trait?: S | U | null, targetTrait?: Trait | null, key?: string | null): S | null;
 
   createTrait(): S | U | null;
 
   /** @hidden */
-  insertTrait(model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
+  insertTrait(parentModel: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
 
   removeTrait(): S | null;
 
@@ -238,7 +242,15 @@ ModelTrait.prototype.didSetTrait = function <S extends Trait>(this: ModelTrait<M
   // hook
 };
 
-ModelTrait.prototype.injectTrait = function <S extends Trait>(this: ModelTrait<Model, S>, model?: Model | null, trait?: S | null, targetTrait?: Trait | null, key?: string | null): S | null {
+Object.defineProperty(ModelTrait.prototype, "parentModel", {
+  get(this: ModelTrait<Model, Trait>): Model | null {
+    return this.owner;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+ModelTrait.prototype.injectTrait = function <S extends Trait>(this: ModelTrait<Model, S>, parentModel?: Model | null, trait?: S | null, targetTrait?: Trait | null, key?: string | null): S | null {
   if (targetTrait === void 0) {
     targetTrait = null;
   }
@@ -254,16 +266,16 @@ ModelTrait.prototype.injectTrait = function <S extends Trait>(this: ModelTrait<M
     }
   }
   if (trait !== null) {
-    if (model === void 0 || model === null) {
-      model = this.owner;
+    if (parentModel === void 0 || parentModel === null) {
+      parentModel = this.parentModel;
     }
     if (key === void 0) {
       key = this.key;
     } else if (key === null) {
       key = void 0;
     }
-    if (trait.model !== model || trait.key !== key) {
-      this.insertTrait(this.owner, trait, targetTrait, key);
+    if (parentModel !== null && (trait.model !== parentModel || trait.key !== key)) {
+      this.insertTrait(parentModel, trait, targetTrait, key);
     }
     if (this.trait === null) {
       this.doSetTrait(trait, targetTrait);
@@ -276,8 +288,8 @@ ModelTrait.prototype.createTrait = function <S extends Trait, U>(this: ModelTrai
   return null;
 };
 
-ModelTrait.prototype.insertTrait = function <S extends Trait>(this: ModelTrait<Model, S>, model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void {
-  model.insertTrait(trait, targetTrait, key);
+ModelTrait.prototype.insertTrait = function <S extends Trait>(this: ModelTrait<Model, S>, parentModel: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void {
+  parentModel.insertTrait(trait, targetTrait, key);
 };
 
 ModelTrait.prototype.removeTrait = function <S extends Trait>(this: ModelTrait<Model, S>): S | null {

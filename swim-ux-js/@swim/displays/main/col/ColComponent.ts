@@ -108,6 +108,11 @@ export class ColComponent extends CompositeComponent {
     // hook
   }
 
+  protected themeColView(colView: ColView, theme: ThemeMatrix,
+                         mood: MoodVector, timing: Timing | boolean): void {
+    // hook
+  }
+
   protected attachColView(colView: ColView): void {
     const colTrait = this.col.trait;
     if (colTrait !== null) {
@@ -150,11 +155,6 @@ export class ColComponent extends CompositeComponent {
     }
   }
 
-  protected themeColView(colView: ColView, theme: ThemeMatrix,
-                         mood: MoodVector, timing: Timing | boolean): void {
-    // hook
-  }
-
   protected setColHeader(header: HtmlView | string | undefined): void {
     const colView = this.col.view;
     if (colView !== null) {
@@ -162,32 +162,32 @@ export class ColComponent extends CompositeComponent {
     }
   }
 
-  protected initColHeader(headerView: HtmlView): void {
+  protected initColHeaderView(headerView: HtmlView): void {
     // hook
   }
 
-  protected willSetColHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
+  protected willSetColHeaderView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.colWillSetHeader !== void 0) {
-        componentObserver.colWillSetHeader(newHeaderView, oldHeaderView, this);
+      if (componentObserver.colWillSetHeaderView !== void 0) {
+        componentObserver.colWillSetHeaderView(newHeaderView, oldHeaderView, this);
       }
     }
   }
 
-  protected onSetColHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
+  protected onSetColHeaderView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
     if (newHeaderView !== null) {
-      this.initColHeader(newHeaderView);
+      this.initColHeaderView(newHeaderView);
     }
   }
 
-  protected didSetColHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
+  protected didSetColHeaderView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.colDidSetHeader !== void 0) {
-        componentObserver.colDidSetHeader(newHeaderView, oldHeaderView, this);
+      if (componentObserver.colDidSetHeaderView !== void 0) {
+        componentObserver.colDidSetHeaderView(newHeaderView, oldHeaderView, this);
       }
     }
   }
@@ -247,13 +247,13 @@ export class ColComponent extends CompositeComponent {
 
   @ComponentView<ColComponent, HtmlView>({
     willSetView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
-      this.owner.willSetColHeader(newHeaderView, oldHeaderView);
+      this.owner.willSetColHeaderView(newHeaderView, oldHeaderView);
     },
     onSetView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
-      this.owner.onSetColHeader(newHeaderView, oldHeaderView);
+      this.owner.onSetColHeaderView(newHeaderView, oldHeaderView);
     },
     didSetView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
-      this.owner.didSetColHeader(newHeaderView, oldHeaderView);
+      this.owner.didSetColHeaderView(newHeaderView, oldHeaderView);
     },
   })
   declare header: ComponentView<this, HtmlView>;

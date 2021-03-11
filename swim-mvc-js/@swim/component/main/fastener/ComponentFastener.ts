@@ -34,6 +34,7 @@ export interface ComponentFastenerInit<S extends Component, U = never> {
   onSetComponent?(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
   didSetComponent?(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
 
+  parentComponent?: Component | null;
   createComponent?(): S | U | null;
   insertComponent?(parentComponent: Component, childComponent: S, targetComponent: Component | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
@@ -83,6 +84,9 @@ export interface ComponentFastener<C extends Component, S extends Component, U =
 
   /** @hidden */
   didSetComponent(newComponent: S | null, oldComponent: S | null, targetComponent: Component | null): void;
+
+  /** @hidden */
+  readonly parentComponent: Component | null;
 
   injectComponent(parentComponent?: Component | null, childComponent?: S | U | null, targetComponent?: Component | null, key?: string | null): S | null;
 
@@ -237,6 +241,14 @@ ComponentFastener.prototype.didSetComponent = function <S extends Component>(thi
   // hook
 };
 
+Object.defineProperty(ComponentFastener.prototype, "parentComponent", {
+  get(this: ComponentFastener<Component, Component>): Component | null {
+    return this.owner;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
 ComponentFastener.prototype.injectComponent = function <S extends Component>(this: ComponentFastener<Component, S>, parentComponent?: Component | null, childComponent?: S | null, targetComponent?: Component | null, key?: string | null): S | null {
   if (targetComponent === void 0) {
     targetComponent = null;
@@ -254,14 +266,14 @@ ComponentFastener.prototype.injectComponent = function <S extends Component>(thi
   }
   if (childComponent !== null) {
     if (parentComponent === void 0 || parentComponent === null) {
-      parentComponent = this.owner;
+      parentComponent = this.parentComponent;
     }
     if (key === void 0) {
       key = this.key;
     } else if (key === null) {
       key = void 0;
     }
-    if (childComponent.parentComponent !== parentComponent || childComponent.key !== key) {
+    if (parentComponent !== null && (childComponent.parentComponent !== parentComponent || childComponent.key !== key)) {
       this.insertComponent(parentComponent, childComponent, targetComponent, key);
     }
     if (this.component === null) {

@@ -307,7 +307,7 @@ export class TokenView extends HtmlView {
         this.owner.initHeadIcon(headIconView);
       }
     },
-    insertView(parentView: View, childView: SvgView, taregtView: View | null, key: string | undefined): void {
+    insertView(parentView: View, childView: SvgView, targetView: View | null, key: string | undefined): void {
       const shapeView = this.owner.shape.view;
       if (shapeView !== null) {
         shapeView.insertChildView(childView, this.owner.body.view, key);
@@ -481,7 +481,7 @@ export class TokenView extends HtmlView {
         this.owner.initFootIcon(footIconView);
       }
     },
-    insertView(parentView: View, childView: SvgView, taregtView: View | null, key: string | undefined): void {
+    insertView(parentView: View, childView: SvgView, targetView: View | null, key: string | undefined): void {
       const shapeView = this.owner.shape.view;
       if (shapeView !== null) {
         shapeView.appendChildView(childView, key);

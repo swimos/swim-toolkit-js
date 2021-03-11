@@ -54,11 +54,9 @@ class ExampleTableComponent extends swim.TableComponent {
   }
 }
 
-const tableTrait = new swim.TableTrait();
-
 const colAModel = new swim.CompoundModel();
 const colATrait = new swim.ColTrait();
-colATrait.setLayout({key: "a", grow: 2});
+colATrait.setLayout({key: "a", grow: 2, textColor: swim.Look.mutedColor});
 colATrait.setHeader("A");
 colAModel.setTrait("colA", colATrait);
 
@@ -70,11 +68,12 @@ colBModel.setTrait("colB", colBTrait);
 
 const tableModel = new swim.CompoundModel();
 tableModel.mount();
+const tableTrait = new swim.TableTrait();
 tableModel.setTrait("table", tableTrait);
 tableModel.appendChildModel(colAModel);
 tableModel.appendChildModel(colBModel);
 
-function addRow(i) {
+function createRowModel(i) {
   const rowModel = new swim.CompoundModel();
   const rowTrait = new swim.RowTrait();
   const cellATrait = new swim.CellTrait();
@@ -84,10 +83,10 @@ function addRow(i) {
   rowModel.setTrait("col", rowTrait);
   rowModel.setTrait("a", cellATrait);
   rowModel.setTrait("b", cellBTrait);
-  tableModel.appendChildModel(rowModel);
+  return rowModel;
 }
 for (let i = 1; i <= 100; i += 1) {
-  addRow(i);
+  tableModel.appendChildModel(createRowModel(i));
 }
 
 const tableComponent = new ExampleTableComponent();

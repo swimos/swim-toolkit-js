@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewFastener} from "@swim/view";
+import type {Timing} from "@swim/mapping";
+import type {Color} from "@swim/color";
+import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import {ViewProperty, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
 import type {CellViewObserver} from "./CellViewObserver";
 
@@ -31,6 +34,34 @@ export class CellView extends HtmlView {
   declare readonly viewController: HtmlViewController & CellViewObserver | null;
 
   declare readonly viewObservers: ReadonlyArray<CellViewObserver>;
+
+  @ViewProperty<CellView, Look<Color> | Color | undefined>({
+    didUpdate(newTextColor: Look<Color> | Color | undefined, oldTextColor: Look<Color> | Color | undefined): void {
+      this.owner.setTextColor(newTextColor);
+    },
+  })
+  declare textColor: ViewProperty<this, Look<Color> | Color | undefined>;
+
+  protected setTextColor(textColor: Look<Color> | Color | undefined): void {
+    if (this.color.isAuto()) {
+      if (textColor instanceof Look) {
+        textColor = this.getLook(textColor);
+      }
+      this.color.setAutoState(textColor);
+    }
+  }
+
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
+                         timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
+    if (this.color.isAuto()) {
+      let textColor = this.textColor.state;
+      if (textColor instanceof Look) {
+        textColor = this.getLook(textColor);
+      }
+      this.color.setAutoState(textColor, timing);
+    }
+  }
 
   protected createContent(value?: string): HtmlView | null {
     const contentView = HtmlView.span.create();

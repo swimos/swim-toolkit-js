@@ -218,6 +218,7 @@ export class RowView extends HtmlView {
           childView.left.setAutoState(col.left !== null ? col.left : void 0);
           childView.width.setAutoState(col.width !== null ? col.width : void 0);
           childView.height.setAutoState(height);
+          childView.textColor.setAutoState(col.textColor !== null ? col.textColor : void 0);
         } else {
           childView.display.setAutoState("none");
           childView.left.setAutoState(void 0);

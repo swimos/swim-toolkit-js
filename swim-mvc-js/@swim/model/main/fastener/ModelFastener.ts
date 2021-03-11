@@ -34,6 +34,7 @@ export interface ModelFastenerInit<S extends Model, U = never> {
   onSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
   didSetModel?(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
 
+  parentModel?: Model | null;
   createModel?(): S | U | null;
   insertModel?(parentModel: Model, childModel: S, targetModel: Model | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
@@ -83,6 +84,9 @@ export interface ModelFastener<M extends Model, S extends Model, U = never> {
 
   /** @hidden */
   didSetModel(newModel: S | null, oldModel: S | null, targetModel: Model | null): void;
+
+  /** @hidden */
+  readonly parentModel: Model | null;
 
   injectModel(parentModel?: Model | null, childModel?: S | U | null, targetModel?: Model | null, key?: string | null): S | null;
 
@@ -237,6 +241,14 @@ ModelFastener.prototype.didSetModel = function <S extends Model>(this: ModelFast
   // hook
 };
 
+Object.defineProperty(ModelFastener.prototype, "parentModel", {
+  get(this: ModelFastener<Model, Model>): Model | null {
+    return this.owner;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
 ModelFastener.prototype.injectModel = function <S extends Model>(this: ModelFastener<Model, S>, parentModel?: Model | null, childModel?: S | null, targetModel?: Model | null, key?: string | null): S | null {
   if (targetModel === void 0) {
     targetModel = null;
@@ -254,14 +266,14 @@ ModelFastener.prototype.injectModel = function <S extends Model>(this: ModelFast
   }
   if (childModel !== null) {
     if (parentModel === void 0 || parentModel === null) {
-      parentModel = this.owner;
+      parentModel = this.parentModel;
     }
     if (key === void 0) {
       key = this.key;
     } else if (key === null) {
       key = void 0;
     }
-    if (childModel.parentModel !== parentModel || childModel.key !== key) {
+    if (parentModel !== null && (childModel.parentModel !== parentModel || childModel.key !== key)) {
       this.insertModel(parentModel, childModel, targetModel, key);
     }
     if (this.model === null) {

@@ -235,7 +235,7 @@ export abstract class DeckViewBar<V extends DeckView, S extends DeckBar> extends
     }
   }
 
-  insertView(parentView: View, childView: S, taregtView: View | null, key: string | undefined): void {
+  insertView(parentView: View, childView: S, targetView: View | null, key: string | undefined): void {
     parentView.prependChildView(childView, key);
   }
 
@@ -289,9 +289,9 @@ export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> exten
     }
   }
 
-  insertView(parentView: View, childView: S, taregtView: View | null, key: string | undefined): void {
+  insertView(parentView: View, childView: S, targetView: View | null, key: string | undefined): void {
     const targetKey = "card" + (this.cardIndex + 1);
-    const targetView = parentView.getChildView(targetKey);
+    targetView = parentView.getChildView(targetKey);
     parentView.insertChildView(childView, targetView, key);
   }
 

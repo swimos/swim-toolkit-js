@@ -30,9 +30,9 @@ export interface PieComponentObserver<C extends PieComponent = PieComponent> ext
 
   pieDidSetView?(newPieView: PieView | null, oldPieView: PieView | null, component: C): void;
 
-  pieWillSetTitle?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, component: C): void;
+  pieWillSetTitleView?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, component: C): void;
 
-  pieDidSetTitle?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, component: C): void;
+  pieDidSetTitleView?(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null, component: C): void;
 
   pieWillSetSlice?(newSliceComponent: SliceComponent | null, oldSliceComponent: SliceComponent | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
 
@@ -50,11 +50,11 @@ export interface PieComponentObserver<C extends PieComponent = PieComponent> ext
 
   pieDidSetSliceValue?(newValue: number, oldValue: number, sliceFastener: ComponentFastener<C, SliceComponent>): void;
 
-  pieWillSetSliceLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
+  pieWillSetSliceLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
 
-  pieDidSetSliceLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
+  pieDidSetSliceLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
 
-  pieWillSetSliceLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
+  pieWillSetSliceLegendView?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
 
-  pieDidSetSliceLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
+  pieDidSetSliceLegendView?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
 }

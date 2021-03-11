@@ -27,7 +27,7 @@ export interface CellComponentObserver<C extends CellComponent = CellComponent> 
 
   cellDidSetTrait?(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, component: C): void;
 
-  cellWillSetContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, component: C): void;
+  cellWillSetContentView?(newContentView: HtmlView | null, oldContentView: HtmlView | null, component: C): void;
 
-  cellDidSetContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, component: C): void;
+  cellDidSetContentView?(newContentView: HtmlView | null, oldContentView: HtmlView | null, component: C): void;
 }

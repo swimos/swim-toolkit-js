@@ -165,6 +165,11 @@ export class TableComponent extends CompositeComponent {
     }
   }
 
+  protected themeTableView(tableView: TableView, theme: ThemeMatrix,
+                           mood: MoodVector, timing: Timing | boolean): void {
+    // hook
+  }
+
   protected attachTableView(tableView: TableView): void {
     const rowFasteners = this.rowFasteners;
     for (let i = 0, n = rowFasteners.length; i < n; i += 1) {
@@ -210,11 +215,6 @@ export class TableComponent extends CompositeComponent {
         componentObserver.tableDidSetView(newTableView, oldTableView, this);
       }
     }
-  }
-
-  protected themeTableView(tableView: TableView, theme: ThemeMatrix,
-                           mood: MoodVector, timing: Timing | boolean): void {
-    // hook
   }
 
   /** @hidden */
@@ -326,7 +326,7 @@ export class TableComponent extends CompositeComponent {
       this.initColView(colView, colFastener);
       const headerView = colView.header.view;
       if (headerView !== null) {
-        this.initColHeader(headerView, colFastener);
+        this.initColHeaderView(headerView, colFastener);
       }
     }
   }
@@ -485,32 +485,32 @@ export class TableComponent extends CompositeComponent {
     }
   }
 
-  protected initColHeader(headerView: HtmlView, colFastener: ComponentFastener<this, ColComponent>): void {
+  protected initColHeaderView(headerView: HtmlView, colFastener: ComponentFastener<this, ColComponent>): void {
     // hook
   }
 
-  protected willSetColHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colFastener: ComponentFastener<this, ColComponent>): void {
+  protected willSetColHeaderView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colFastener: ComponentFastener<this, ColComponent>): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.tableWillSetColHeader !== void 0) {
-        componentObserver.tableWillSetColHeader(newHeaderView, oldHeaderView, colFastener);
+      if (componentObserver.tableWillSetColHeaderView !== void 0) {
+        componentObserver.tableWillSetColHeaderView(newHeaderView, oldHeaderView, colFastener);
       }
     }
   }
 
-  protected onSetColHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colFastener: ComponentFastener<this, ColComponent>): void {
+  protected onSetColHeaderView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colFastener: ComponentFastener<this, ColComponent>): void {
     if (newHeaderView !== null) {
-      this.initColHeader(newHeaderView, colFastener);
+      this.initColHeaderView(newHeaderView, colFastener);
     }
   }
 
-  protected didSetColHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colFastener: ComponentFastener<this, ColComponent>): void {
+  protected didSetColHeaderView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colFastener: ComponentFastener<this, ColComponent>): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.tableDidSetColHeader !== void 0) {
-        componentObserver.tableDidSetColHeader(newHeaderView, oldHeaderView, colFastener);
+      if (componentObserver.tableDidSetColHeaderView !== void 0) {
+        componentObserver.tableDidSetColHeaderView(newHeaderView, oldHeaderView, colFastener);
       }
     }
   }
@@ -550,12 +550,12 @@ export class TableComponent extends CompositeComponent {
       this.owner.onSetColLayout(newColLayout, oldColLayout, this);
       this.owner.didSetColLayout(newColLayout, oldColLayout, this);
     },
-    colWillSetHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
-      this.owner.willSetColHeader(newHeaderView, oldHeaderView, this);
+    colWillSetHeaderView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
+      this.owner.willSetColHeaderView(newHeaderView, oldHeaderView, this);
     },
-    colDidSetHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
-      this.owner.onSetColHeader(newHeaderView, oldHeaderView, this);
-      this.owner.didSetColHeader(newHeaderView, oldHeaderView, this);
+    colDidSetHeaderView(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
+      this.owner.onSetColHeaderView(newHeaderView, oldHeaderView, this);
+      this.owner.didSetColHeaderView(newHeaderView, oldHeaderView, this);
     },
   });
 
@@ -791,7 +791,7 @@ export class TableComponent extends CompositeComponent {
       this.initCellView(cellView, cellFastener, rowFastener);
       const contentView = cellView.content.view;
       if (contentView !== null) {
-        this.initCellContent(contentView, cellFastener, rowFastener);
+        this.initCellContentView(contentView, cellFastener, rowFastener);
       }
     }
   }
@@ -886,7 +886,7 @@ export class TableComponent extends CompositeComponent {
       this.initCellView(newCellView, cellFastener, rowFastener);
       const contentView = newCellView.content.view;
       if (contentView !== null) {
-        this.initCellContent(contentView, cellFastener, rowFastener);
+        this.initCellContentView(contentView, cellFastener, rowFastener);
       }
     }
   }
@@ -903,39 +903,39 @@ export class TableComponent extends CompositeComponent {
     }
   }
 
-  protected initCellContent(contentView: HtmlView, cellFastener: ComponentFastener<RowComponent, CellComponent>,
-                            rowFastener: ComponentFastener<this, RowComponent>): void {
+  protected initCellContentView(contentView: HtmlView, cellFastener: ComponentFastener<RowComponent, CellComponent>,
+                                rowFastener: ComponentFastener<this, RowComponent>): void {
     // hook
   }
 
-  protected willSetCellContent(newContentView: HtmlView | null, oldContentView: HtmlView | null,
-                               cellFastener: ComponentFastener<RowComponent, CellComponent>,
-                               rowFastener: ComponentFastener<this, RowComponent>): void {
+  protected willSetCellContentView(newContentView: HtmlView | null, oldContentView: HtmlView | null,
+                                   cellFastener: ComponentFastener<RowComponent, CellComponent>,
+                                   rowFastener: ComponentFastener<this, RowComponent>): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.tableWillSetCellContent !== void 0) {
-        componentObserver.tableWillSetCellContent(newContentView, oldContentView, cellFastener, rowFastener);
+      if (componentObserver.tableWillSetCellContentView !== void 0) {
+        componentObserver.tableWillSetCellContentView(newContentView, oldContentView, cellFastener, rowFastener);
       }
     }
   }
 
-  protected onSetCellContent(newContentView: HtmlView | null, oldContentView: HtmlView | null,
-                             cellFastener: ComponentFastener<RowComponent, CellComponent>,
-                             rowFastener: ComponentFastener<this, RowComponent>): void {
+  protected onSetCellContentView(newContentView: HtmlView | null, oldContentView: HtmlView | null,
+                                 cellFastener: ComponentFastener<RowComponent, CellComponent>,
+                                 rowFastener: ComponentFastener<this, RowComponent>): void {
     if (newContentView !== null) {
-      this.initCellContent(newContentView, cellFastener, rowFastener);
+      this.initCellContentView(newContentView, cellFastener, rowFastener);
     }
   }
 
-  protected didSetCellContent(newContentView: HtmlView | null, oldContentView: HtmlView | null,
-                              cellFastener: ComponentFastener<RowComponent, CellComponent>,
-                              rowFastener: ComponentFastener<this, RowComponent>): void {
+  protected didSetCellContentView(newContentView: HtmlView | null, oldContentView: HtmlView | null,
+                                  cellFastener: ComponentFastener<RowComponent, CellComponent>,
+                                  rowFastener: ComponentFastener<this, RowComponent>): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.tableDidSetCellContent !== void 0) {
-        componentObserver.tableDidSetCellContent(newContentView, oldContentView, cellFastener, rowFastener);
+      if (componentObserver.tableDidSetCellContentView !== void 0) {
+        componentObserver.tableDidSetCellContentView(newContentView, oldContentView, cellFastener, rowFastener);
       }
     }
   }
@@ -995,14 +995,14 @@ export class TableComponent extends CompositeComponent {
       this.owner.onSetCellView(newCellView, oldCellView, cellFastener, this);
       this.owner.didSetCellView(newCellView, oldCellView, cellFastener, this);
     },
-    rowWillSetCellContent(newContentView: HtmlView | null, oldContentView: HtmlView | null,
-                          cellFastener: ComponentFastener<RowComponent, CellComponent>): void {
-      this.owner.willSetCellContent(newContentView, oldContentView, cellFastener, this);
+    rowWillSetCellContentView(newContentView: HtmlView | null, oldContentView: HtmlView | null,
+                              cellFastener: ComponentFastener<RowComponent, CellComponent>): void {
+      this.owner.willSetCellContentView(newContentView, oldContentView, cellFastener, this);
     },
-    rowDidSetCellContent(newContentView: HtmlView | null, oldContentView: HtmlView | null,
-                         cellFastener: ComponentFastener<RowComponent, CellComponent>): void {
-      this.owner.onSetCellContent(newContentView, oldContentView, cellFastener, this);
-      this.owner.didSetCellContent(newContentView, oldContentView, cellFastener, this);
+    rowDidSetCellContentView(newContentView: HtmlView | null, oldContentView: HtmlView | null,
+                             cellFastener: ComponentFastener<RowComponent, CellComponent>): void {
+      this.owner.onSetCellContentView(newContentView, oldContentView, cellFastener, this);
+      this.owner.didSetCellContentView(newContentView, oldContentView, cellFastener, this);
     },
   });
 

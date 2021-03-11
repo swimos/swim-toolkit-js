@@ -31,11 +31,11 @@ export interface SliceComponentObserver<C extends SliceComponent = SliceComponen
 
   sliceDidSetValue?(newValue: number, oldValue: number, component: C): void;
 
-  sliceWillSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, component: C): void;
+  sliceWillSetLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, component: C): void;
 
-  sliceDidSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, component: C): void;
+  sliceDidSetLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, component: C): void;
 
-  sliceWillSetLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, component: C): void;
+  sliceWillSetLegendView?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, component: C): void;
 
-  sliceDidSetLegend?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, component: C): void;
+  sliceDidSetLegendView?(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, component: C): void;
 }

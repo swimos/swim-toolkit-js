@@ -48,7 +48,6 @@ class ExamplePieComponent extends swim.PieComponent {
   }
 }
 
-const pieTrait = new swim.PieTrait();
 
 const slice1Model = new swim.CompoundModel();
 const slice1Trait = new swim.SliceTrait();
@@ -64,6 +63,7 @@ slice2Model.setTrait("slice", slice2Trait);
 
 const pieModel = new swim.CompoundModel();
 pieModel.mount();
+const pieTrait = new swim.PieTrait();
 pieModel.setTrait("pie", pieTrait);
 pieModel.appendChildModel(slice1Model, "slice1");
 

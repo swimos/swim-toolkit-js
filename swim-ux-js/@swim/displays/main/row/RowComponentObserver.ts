@@ -42,7 +42,7 @@ export interface RowComponentObserver<C extends RowComponent = RowComponent> ext
 
   rowDidSetCellView?(newCellView: CellView | null, oldCellView: CellView | null, cellFastener: ComponentFastener<C, CellComponent>): void;
 
-  rowWillSetCellContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellFastener: ComponentFastener<C, CellComponent>): void;
+  rowWillSetCellContentView?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellFastener: ComponentFastener<C, CellComponent>): void;
 
-  rowDidSetCellContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellFastener: ComponentFastener<C, CellComponent>): void;
+  rowDidSetCellContentView?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellFastener: ComponentFastener<C, CellComponent>): void;
 }

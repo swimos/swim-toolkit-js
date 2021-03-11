@@ -58,9 +58,9 @@ export interface TableComponentObserver<C extends TableComponent = TableComponen
 
   tableDidSetColLayout?(newColLayout: ColLayout | null, oldColLayout: ColLayout | null, colFastener: ComponentFastener<C, ColComponent>): void;
 
-  tableWillSetColHeader?(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colFastener: ComponentFastener<C, ColComponent>): void;
+  tableWillSetColHeaderView?(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colFastener: ComponentFastener<C, ColComponent>): void;
 
-  tableDidSetColHeader?(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colFastener: ComponentFastener<C, ColComponent>): void;
+  tableDidSetColHeaderView?(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null, colFastener: ComponentFastener<C, ColComponent>): void;
 
   tableWillSetRow?(newRowComponent: RowComponent | null, oldRowComponent: RowComponent | null, rowFastener: ComponentFastener<C, RowComponent>): void;
 
@@ -86,7 +86,7 @@ export interface TableComponentObserver<C extends TableComponent = TableComponen
 
   tableDidSetCellView?(newCellView: CellView | null, oldCellView: CellView | null, cellFastener: ComponentFastener<RowComponent, CellComponent>, rowFastener: ComponentFastener<C, RowComponent>): void;
 
-  tableWillSetCellContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellFastener: ComponentFastener<RowComponent, CellComponent>, rowFastener: ComponentFastener<C, RowComponent>): void;
+  tableWillSetCellContentView?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellFastener: ComponentFastener<RowComponent, CellComponent>, rowFastener: ComponentFastener<C, RowComponent>): void;
 
-  tableDidSetCellContent?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellFastener: ComponentFastener<RowComponent, CellComponent>, rowFastener: ComponentFastener<C, RowComponent>): void;
+  tableDidSetCellContentView?(newContentView: HtmlView | null, oldContentView: HtmlView | null, cellFastener: ComponentFastener<RowComponent, CellComponent>, rowFastener: ComponentFastener<C, RowComponent>): void;
 }

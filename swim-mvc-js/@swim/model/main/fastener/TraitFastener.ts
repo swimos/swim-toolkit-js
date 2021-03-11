@@ -35,8 +35,9 @@ export interface TraitFastenerInit<S extends Trait, U = never> {
   onSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
   didSetTrait?(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
+  parentModel?: Model | null;
   createTrait?(): S | U | null;
-  insertTrait?(model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
+  insertTrait?(parentModel: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
   fromAny?(value: S | U): S | null;
 }
 
@@ -85,12 +86,15 @@ export interface TraitFastener<R extends Trait, S extends Trait, U = never> {
   /** @hidden */
   didSetTrait(newTrait: S | null, oldTrait: S | null, targetTrait: Trait | null): void;
 
-  injectTrait(model?: Model | null, trait?: S | U | null, targetTrait?: Trait | null, key?: string | null): S | null;
+  /** @hidden */
+  readonly parentModel: Model | null;
+
+  injectTrait(parentModel?: Model | null, trait?: S | U | null, targetTrait?: Trait | null, key?: string | null): S | null;
 
   createTrait(): S | U | null;
 
   /** @hidden */
-  insertTrait(model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
+  insertTrait(parentModel: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void;
 
   removeTrait(): S | null;
 
@@ -183,10 +187,10 @@ TraitFastener.prototype.setTrait = function <S extends Trait>(this: TraitFastene
   if (targetTrait === void 0) {
     targetTrait = null;
   }
-  let model: Model | null | undefined;
-  if (this.sibling === true && (model = this.owner.model, model !== null)) {
-    if (newTrait !== null && (newTrait.model !== model || newTrait.key !== this.key)) {
-      this.insertTrait(model, newTrait, targetTrait, this.key);
+  let parentModel: Model | null | undefined;
+  if (this.sibling === true && (parentModel = this.owner.model, parentModel !== null)) {
+    if (newTrait !== null && (newTrait.model !== parentModel || newTrait.key !== this.key)) {
+      this.insertTrait(parentModel, newTrait, targetTrait, this.key);
     } else if (newTrait === null && oldTrait !== null) {
       oldTrait.remove();
     }
@@ -239,7 +243,15 @@ TraitFastener.prototype.didSetTrait = function <S extends Trait>(this: TraitFast
   // hook
 };
 
-TraitFastener.prototype.injectTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, model?: Model | null, trait?: S | null, targetTrait?: Trait | null, key?: string | null): S | null {
+Object.defineProperty(TraitFastener.prototype, "parentModel", {
+  get(this: TraitFastener<Trait, Trait>): Model | null {
+    return this.owner.model;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
+TraitFastener.prototype.injectTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, parentModel?: Model | null, trait?: S | null, targetTrait?: Trait | null, key?: string | null): S | null {
   if (targetTrait === void 0) {
     targetTrait = null;
   }
@@ -255,16 +267,16 @@ TraitFastener.prototype.injectTrait = function <S extends Trait>(this: TraitFast
     }
   }
   if (trait !== null) {
-    if (model === void 0 || model === null) {
-      model = this.owner.model;
+    if (parentModel === void 0 || parentModel === null) {
+      parentModel = this.parentModel;
     }
     if (key === void 0) {
       key = this.key;
     } else if (key === null) {
       key = void 0;
     }
-    if (model !== null && (trait.model !== model || trait.key !== key)) {
-      this.insertTrait(model, trait, targetTrait, key);
+    if (parentModel !== null && (trait.model !== parentModel || trait.key !== key)) {
+      this.insertTrait(parentModel, trait, targetTrait, key);
     }
     if (this.trait === null) {
       this.doSetTrait(trait, targetTrait);
@@ -277,8 +289,8 @@ TraitFastener.prototype.createTrait = function <S extends Trait, U>(this: TraitF
   return null;
 };
 
-TraitFastener.prototype.insertTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, model: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void {
-  model.insertTrait(trait, targetTrait, key);
+TraitFastener.prototype.insertTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, parentModel: Model, trait: S, targetTrait: Trait | null, key: string | undefined): void {
+  parentModel.insertTrait(trait, targetTrait, key);
 };
 
 TraitFastener.prototype.removeTrait = function <S extends Trait>(this: TraitFastener<Trait, S>): S | null {

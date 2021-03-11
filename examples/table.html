@@ -64,6 +64,7 @@ const tableLayout = swim.TableLayout.fromAny({
       key: "name",
       grow: 1,
       basis: 240,
+      textColor: swim.Look.mutedColor,
     },
     {
       key: "kpi1",
@@ -86,17 +87,18 @@ const tableLayout = swim.TableLayout.fromAny({
 const tableView = swim.TableView.create();
 tableView.layout.setState(tableLayout);
 
-function addRow(name, kpi1, kpi2) {
-  const rowView = tableView.append(swim.RowView);
+function createRowView(i) {
+  const rowView = swim.RowView.create();
   const nameCell = rowView.append(swim.CellView, "name");
-  nameCell.content.setView(name);
+  nameCell.content.setView("Row " + i);
   const kpi1Cell = rowView.append(swim.CellView, "kpi1");
-  kpi1Cell.content.setView(kpi1);
+  kpi1Cell.content.setView("" + i);
   const kpi2Cell = rowView.append(swim.CellView, "kpi2");
-  kpi2Cell.content.setView(kpi2);
+  kpi2Cell.content.setView("" + -i);
+  return rowView;
 }
 for (let i = 1; i <= 100; i += 1) {
-  addRow("Row " + i, "" + i, "" + -i);
+  tableView.appendChildView(createRowView(i));
 }
 
 containerView.appendChildView(tableView);

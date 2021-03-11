@@ -15,6 +15,8 @@
 import {Equivalent, Equals} from "@swim/util"
 import {Debug, Format, Output} from "@swim/codec";
 import {AnyLength, Length} from "@swim/math";
+import {AnyColor, Color} from "@swim/color";
+import {Look} from "@swim/theme";
 
 export type AnyColLayout = ColLayout | ColLayoutInit;
 
@@ -24,6 +26,7 @@ export interface ColLayoutInit {
   shrink?: number;
   basis?: AnyLength;
   optional?: boolean;
+  textColor?: Look<Color> | AnyColor | null;
   width?: AnyLength | null;
   left?: AnyLength | null;
   right?: AnyLength | null;
@@ -32,8 +35,9 @@ export interface ColLayoutInit {
 
 export class ColLayout implements Equals, Equivalent, Debug {
   constructor(key: string, grow: number, shrink: number, basis: Length,
-              optional: boolean, width: Length | null, left: Length | null,
-              right: Length | null, hidden: boolean) {
+              optional: boolean, textColor: Look<Color> | Color | null,
+              width: Length | null, left: Length | null, right: Length | null,
+              hidden: boolean) {
     Object.defineProperty(this, "key", {
       value: key,
       enumerable: true,
@@ -52,6 +56,10 @@ export class ColLayout implements Equals, Equivalent, Debug {
     });
     Object.defineProperty(this, "optional", {
       value: optional,
+      enumerable: true,
+    });
+    Object.defineProperty(this, "textColor", {
+      value: textColor,
       enumerable: true,
     });
     Object.defineProperty(this, "width", {
@@ -86,7 +94,7 @@ export class ColLayout implements Equals, Equivalent, Debug {
     } else {
       basis = this.basis;
     }
-    return this.copy(this.key, grow, shrink, basis, this.optional,
+    return this.copy(this.key, grow, shrink, basis, this.optional, this.textColor,
                      this.width, this.left, this.right, this.hidden);
   }
 
@@ -94,7 +102,17 @@ export class ColLayout implements Equals, Equivalent, Debug {
 
   asOptional(optional: boolean): ColLayout {
     return this.copy(this.key, this.grow, this.shrink, this.basis, optional,
-                     this.width, this.left, this.right, this.hidden);
+                     this.textColor, this.width, this.left, this.right, this.hidden);
+  }
+
+  declare readonly textColor: Look<Color> | Color | null;
+
+  withTextColor(textColor: Look<Color> | AnyColor | null): ColLayout {
+    if (textColor !== null && !(textColor instanceof Look)) {
+      textColor = Color.fromAny(textColor);
+    }
+    return this.copy(this.key, this.grow, this.shrink, this.basis, this.optional,
+                     textColor, this.width, this.left, this.right, this.hidden);
   }
 
   declare readonly width: Length | null;
@@ -106,8 +124,8 @@ export class ColLayout implements Equals, Equivalent, Debug {
   declare readonly hidden: boolean;
 
   asHidden(hidden: boolean): ColLayout {
-    return this.copy(this.key, this.grow, this.shrink, this.basis,
-                     this.optional, this.width, this.left, this.right, hidden);
+    return this.copy(this.key, this.grow, this.shrink, this.basis, this.optional,
+                     this.textColor, this.width, this.left, this.right, hidden);
   }
 
   resized(width: AnyLength | null, left: AnyLength | null,
@@ -124,15 +142,16 @@ export class ColLayout implements Equals, Equivalent, Debug {
     if (hidden === void 0) {
       hidden = this.hidden;
     }
-    return this.copy(this.key, this.grow, this.shrink, this.basis,
-                     this.optional, width, left, right, hidden);
+    return this.copy(this.key, this.grow, this.shrink, this.basis, this.optional,
+                     this.textColor, width, left, right, hidden);
   }
 
   protected copy(key: string, grow: number, shrink: number, basis: Length,
-                 optional: boolean, width: Length | null, left: Length | null,
-                 right: Length | null, hidden: boolean): ColLayout {
-    return new ColLayout(key, grow, shrink, basis, optional,
-                        width, left, right, hidden);
+                 optional: boolean, textColor: Look<Color> | Color | null,
+                 width: Length | null, left: Length | null, right: Length | null,
+                 hidden: boolean): ColLayout {
+    return new ColLayout(key, grow, shrink, basis, optional, textColor,
+                         width, left, right, hidden);
   }
 
   equivalentTo(that: unknown, epsilon?: number): boolean {
@@ -140,7 +159,8 @@ export class ColLayout implements Equals, Equivalent, Debug {
       return true;
     } else if (that instanceof ColLayout) {
       return this.key === that.key && this.grow === that.grow && this.shrink === that.shrink
-          && this.basis.equivalentTo(that.basis, epsilon) && this.optional === that.optional;
+          && this.basis.equivalentTo(that.basis, epsilon) && this.optional === that.optional
+          && Equivalent(this.textColor, that.textColor, epsilon);
     }
     return false;
   }
@@ -151,8 +171,9 @@ export class ColLayout implements Equals, Equivalent, Debug {
     } else if (that instanceof ColLayout) {
       return this.key === that.key && this.grow === that.grow && this.shrink === that.shrink
           && this.basis.equals(that.basis) && this.optional === that.optional
-          && Equals(this.width, that.width) && Equals(this.left, that.left)
-          && Equals(this.right, that.right) && this.hidden === that.hidden;
+          && Equals(this.textColor, that.textColor) && Equals(this.width, that.width)
+          && Equals(this.left, that.left) && Equals(this.right, that.right)
+          && this.hidden === that.hidden;
     }
     return false;
   }
@@ -163,6 +184,9 @@ export class ColLayout implements Equals, Equivalent, Debug {
         .debug(this.shrink).write(", ").debug(this.basis);
     if (this.optional) {
       output = output.write(", ").debug(this.optional);
+    }
+    if (this.textColor !== null) {
+      output = output.write(", ").debug(this.textColor);
     }
     output = output.write(41/*')'*/);
     if (this.width !== null || this.left !== null || this.right !== null || this.hidden) {
@@ -176,8 +200,8 @@ export class ColLayout implements Equals, Equivalent, Debug {
     return Format.debug(this);
   }
 
-  static create(key: string, grow?: number, shrink?: number,
-                basis?: AnyLength, optional?: boolean): ColLayout {
+  static create(key: string, grow?: number, shrink?: number, basis?: AnyLength,
+                optional?: boolean, textColor?: Look<Color> | AnyColor | null): ColLayout {
     if (grow === void 0) {
       grow = 0;
     }
@@ -192,7 +216,13 @@ export class ColLayout implements Equals, Equivalent, Debug {
     if (optional === void 0) {
       optional = false;
     }
-    return new ColLayout(key, grow, shrink, basis, optional,
+    if (textColor === void 0) {
+      textColor = null;
+    }
+    if (textColor !== null && !(textColor instanceof Look)) {
+      textColor = Color.fromAny(textColor);
+    }
+    return new ColLayout(key, grow, shrink, basis, optional, textColor,
                          null, null, null, false);
   }
 
@@ -228,6 +258,13 @@ export class ColLayout implements Equals, Equivalent, Debug {
     if (optional === void 0) {
       optional = false;
     }
+    let textColor = init.textColor;
+    if (textColor === void 0) {
+      textColor = null;
+    }
+    if (textColor !== null && !(textColor instanceof Look)) {
+      textColor = Color.fromAny(textColor);
+    }
     let width = init.width;
     if (width !== void 0 && width !== null) {
       width = Length.fromAny(width);
@@ -250,7 +287,7 @@ export class ColLayout implements Equals, Equivalent, Debug {
     if (hidden === void 0) {
       hidden = false;
     }
-    return new ColLayout(key, grow, shrink, basis, optional,
+    return new ColLayout(key, grow, shrink, basis, optional, textColor,
                          width, left, right, hidden);
   }
 }

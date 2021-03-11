@@ -97,13 +97,13 @@ export class TableView extends HtmlView {
   }
 
   protected initRow(rowView: RowView, rowFastener: ViewFastener<this, RowView>): void {
+    rowView.display.setAutoState("none");
     rowView.position.setAutoState("absolute");
     rowView.left.setAutoState(0);
     rowView.top.setAutoState(0);
     const layout = this.layout.state;
     rowView.width.setAutoState(layout !== void 0 && layout.width !== null ? layout.width : void 0);
     rowView.height.setAutoState(this.rowHeight.getState());
-    rowView.visibility.setAutoState("hidden");
     rowView.setCulled(true);
   }
 
@@ -247,8 +247,14 @@ export class TableView extends HtmlView {
       let width: Length | string | number | undefined = this.width.state;
       width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
       const edgeInsets = this.edgeInsets.state;
-      const left = edgeInsets !== void 0 ? edgeInsets.insetLeft : 0;
-      const right = edgeInsets !== void 0 ? edgeInsets.insetRight : 0;
+      let paddingLeft: Length | string | number | undefined = this.paddingLeft.state;
+      paddingLeft = paddingLeft instanceof Length ? paddingLeft.pxValue(width) : 0;
+      let paddingRight: Length | string | number | undefined = this.paddingRight.state;
+      paddingRight = paddingRight instanceof Length ? paddingRight.pxValue(width) : 0;
+      let left = edgeInsets !== void 0 ? edgeInsets.insetLeft : 0;
+      left += paddingLeft;
+      let right = edgeInsets !== void 0 ? edgeInsets.insetRight : 0;
+      right += paddingRight;
       const colSpacing = this.colSpacing.getState().pxValue(width);
       const newLayout = oldLayout.resized(width, left, right, colSpacing);
       this.layout.setState(newLayout);
@@ -310,7 +316,7 @@ export class TableView extends HtmlView {
           const yMin1 = top.pxValue();
           const yMax1 = yMin1 + height.pxValue();
           isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
-          childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
+          childView.display.setAutoState(isVisible ? "flex" : "none");
           childView.setCulled(!isVisible);
         } else {
           isVisible = true;
@@ -400,7 +406,7 @@ export class TableView extends HtmlView {
         } else {
           isVisible = true;
         }
-        childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
+        childView.display.setAutoState(isVisible ? "flex" : "none");
         childView.setCulled(!isVisible);
       } else {
         isVisible = true;
