@@ -16,17 +16,11 @@ import {Equivalent} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, BoxR2, AnyPointR2, PointR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {
-  ViewContextType,
-  ViewFlags,
-  View,
-  ViewProperty,
-  ViewAnimator,
-  ViewFastener,
-} from "@swim/view";
+import {ViewContextType, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
+  GraphicsViewController,
   LayerView,
   CanvasContext,
   CanvasRenderer,
@@ -36,6 +30,7 @@ import {
   AnyTextRunView,
   TextRunView,
 } from "@swim/graphics";
+import type {DialViewObserver} from "./DialViewObserver";
 
 export type DialViewArrangement = "auto" | "manual";
 
@@ -137,7 +132,55 @@ export class DialView extends LayerView {
     }
   }
 
-  @ViewAnimator({type: Number, state: 0})
+  declare readonly viewController: GraphicsViewController & DialViewObserver | null;
+
+  declare readonly viewObservers: ReadonlyArray<DialViewObserver>;
+
+  protected willSetValue(newValue: number, oldValue: number): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.dialViewWillSetValue !== void 0) {
+      viewController.dialViewWillSetValue(newValue, oldValue, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.dialViewWillSetValue !== void 0) {
+        viewObserver.dialViewWillSetValue(newValue, oldValue, this);
+      }
+    }
+  }
+
+  protected onSetValue(newValue: number, oldValue: number): void {
+    // hook
+  }
+
+  protected didSetValue(newValue: number, oldValue: number): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.dialViewDidSetValue !== void 0) {
+        viewObserver.dialViewDidSetValue(newValue, oldValue, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.dialViewDidSetValue !== void 0) {
+      viewController.dialViewDidSetValue(newValue, oldValue, this);
+    }
+  }
+
+  @ViewAnimator<DialView, number>({
+    type: Number,
+    state: 0,
+    willSetValue(newValue: number, oldValue: number): void {
+      this.owner.willSetValue(newValue, oldValue);
+    },
+    onSetValue(newValue: number, oldValue: number): void {
+      this.owner.onSetValue(newValue, oldValue);
+    },
+    didSetValue(newValue: number, oldValue: number): void {
+      this.owner.didSetValue(newValue, oldValue);
+    },
+  })
   declare value: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 1})
@@ -194,18 +237,43 @@ export class DialView extends LayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  @ViewFastener<DialView, GraphicsView, AnyTextRunView>({
-    key: true,
-    type: TextRunView,
-    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
-      if (value instanceof GraphicsView) {
-        return value;
-      } else {
-        return TextRunView.fromAny(value);
+  protected initLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected willSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.dialViewWillSetLabel !== void 0) {
+      viewController.dialViewWillSetLabel(newLabelView, oldLabelView, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.dialViewWillSetLabel !== void 0) {
+        viewObserver.dialViewWillSetLabel(newLabelView, oldLabelView, this);
       }
-    },
-  })
-  declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
+    }
+  }
+
+  protected onSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    if (newLabelView !== null) {
+      this.initLabel(newLabelView);
+    }
+  }
+
+  protected didSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.dialViewDidSetLabel !== void 0) {
+        viewObserver.dialViewDidSetLabel(newLabelView, oldLabelView, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.dialViewDidSetLabel !== void 0) {
+      viewController.dialViewDidSetLabel(newLabelView, oldLabelView, this);
+    }
+  }
 
   @ViewFastener<DialView, GraphicsView, AnyTextRunView>({
     key: true,
@@ -213,15 +281,95 @@ export class DialView extends LayerView {
     fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
       if (value instanceof GraphicsView) {
         return value;
+      } else if (typeof value === "string" && this.view instanceof TextRunView) {
+        this.view.text(value);
+        return this.view;
       } else {
         return TextRunView.fromAny(value);
       }
+    },
+    willSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.willSetLabel(newLabelView, oldLabelView);
+    },
+    onSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.onSetLabel(newLabelView, oldLabelView);
+    },
+    didSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.didSetLabel(newLabelView, oldLabelView);
+    },
+  })
+  declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
+
+  protected initLegend(legendView: GraphicsView | null): void {
+    // hook
+  }
+
+  protected willSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.dialViewWillSetLegend !== void 0) {
+      viewController.dialViewWillSetLegend(newLegendView, oldLegendView, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.dialViewWillSetLegend !== void 0) {
+        viewObserver.dialViewWillSetLegend(newLegendView, oldLegendView, this);
+      }
+    }
+  }
+
+  protected onSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+    if (newLegendView !== null) {
+      this.initLegend(newLegendView);
+    }
+  }
+
+  protected didSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.dialViewDidSetLegend !== void 0) {
+        viewObserver.dialViewDidSetLegend(newLegendView, oldLegendView, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.dialViewDidSetLegend !== void 0) {
+      viewController.dialViewDidSetLegend(newLegendView, oldLegendView, this);
+    }
+  }
+
+  @ViewFastener<DialView, GraphicsView, AnyTextRunView>({
+    key: true,
+    type: TextRunView,
+    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
+      if (value instanceof GraphicsView) {
+        return value;
+      } else if (typeof value === "string" && this.view instanceof TextRunView) {
+        this.view.text(value);
+        return this.view;
+      } else {
+        return TextRunView.fromAny(value);
+      }
+    },
+    willSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+      this.owner.willSetLegend(newLegendView, oldLegendView);
+    },
+    onSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+      this.owner.onSetLegend(newLegendView, oldLegendView);
+    },
+    didSetView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+      this.owner.didSetLegend(newLegendView, oldLegendView);
     },
   })
   declare legend: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
   @ViewProperty({type: String, state: "auto"})
   declare arrangement: ViewProperty<this, DialViewArrangement>;
+
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
+    this.center.onAnimate(viewContext.updateTime);
+  }
 
   protected onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
@@ -415,7 +563,4 @@ export class DialView extends LayerView {
     }
     throw new TypeError("" + value);
   }
-
-  static readonly insertChildFlags: ViewFlags = LayerView.insertChildFlags | View.NeedsAnimate;
-  static readonly removeChildFlags: ViewFlags = LayerView.removeChildFlags | View.NeedsAnimate;
 }

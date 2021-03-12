@@ -190,8 +190,8 @@ function createDial() {
       .meterColor(meterColor)
       .label(new swim.TextRunView().textColor("#4a4a4a"))
       .legend("");
-  dial.label().setHidden(!showLabels.checked);
-  dial.legend().setHidden(!showLegend.checked);
+  dial.label().setHidden(true);
+  dial.legend().setHidden(true);
   dial.value.didSetValue = function (newValue) {
     // Update the dial label.
     dial.label().text(Math.round(100 * newValue / dial.total()) + "%")

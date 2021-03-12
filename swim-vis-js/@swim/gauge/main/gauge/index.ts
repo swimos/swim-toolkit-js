@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./dial";
-
-export * from "./gauge";
+export {
+  AnyGaugeView,
+  GaugeViewInit,
+  GaugeView,
+} from "./GaugeView";
+export {GaugeViewObserver} from "./GaugeViewObserver";

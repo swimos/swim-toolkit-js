@@ -12,15 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  AnyLength,
-  Length,
-  AnyAngle,
-  Angle,
-  AnyPointR2,
-  PointR2,
-  BoxR2,
-} from "@swim/math";
+import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
 import {ViewContextType, View, ViewAnimator, ViewFastener} from "@swim/view";
@@ -142,13 +134,13 @@ export class PieView extends LayerView {
 
   declare readonly viewObservers: ReadonlyArray<PieViewObserver>;
 
-  @ViewAnimator({type: Number, state: 0})
+  @ViewAnimator({type: Number, state: 0, updateFlags: View.NeedsLayout})
   declare limit: ViewAnimator<this, number>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin(), updateFlags: View.NeedsLayout})
   declare center: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Angle, state: Angle.rad(-Math.PI / 2)})
+  @ViewAnimator({type: Angle, state: Angle.rad(-Math.PI / 2), updateFlags: View.NeedsLayout})
   declare baseAngle: ViewAnimator<this, Angle, AnyAngle>;
 
   @ViewAnimator({type: Length, state: Length.pct(3)})
@@ -263,7 +255,8 @@ export class PieView extends LayerView {
   })
   declare title: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
-  insertSlice(sliceView: SliceView, targetView: View | null = null): void {
+  insertSlice(sliceView: AnySliceView, targetView: View | null = null): void {
+    sliceView = SliceView.fromAny(sliceView);
     const sliceFasteners = this.sliceFasteners as ViewFastener<this, SliceView>[];
     let targetIndex = sliceFasteners.length;
     for (let i = 0, n = sliceFasteners.length; i < n; i += 1) {
@@ -420,14 +413,14 @@ export class PieView extends LayerView {
   }
 
   protected layoutPie(frame: BoxR2): void {
-    const sliceFasteners = this.sliceFasteners;
-    const sliceCount = sliceFasteners.length;
-
     if (this.center.isAuto()) {
       const cx = (frame.xMin + frame.xMax) / 2;
       const cy = (frame.yMin + frame.yMax) / 2;
       this.center.setAutoState(new PointR2(cx, cy));
     }
+
+    const sliceFasteners = this.sliceFasteners;
+    const sliceCount = sliceFasteners.length;
 
     let total = 0;
     for (let i = 0; i < sliceCount; i += 1) {

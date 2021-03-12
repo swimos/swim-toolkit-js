@@ -190,8 +190,8 @@ function createSlice() {
       .sliceColor(sliceColor)
       .label(new swim.TextRunView().textColor("#ffffff"))
       .legend("");
-  slice.label().setHidden(!showLabels.checked);
-  slice.legend().setHidden(!showLegend.checked);
+  slice.label().setHidden(true);
+  slice.legend().setHidden(true);
   slice.addViewObserver({
     sliceViewDidSetValue(newValue) {
       // Update the slice label.
