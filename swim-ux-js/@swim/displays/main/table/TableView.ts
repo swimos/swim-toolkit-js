@@ -51,9 +51,6 @@ export class TableView extends HtmlView {
   declare layout: ViewProperty<this, TableLayout | undefined, AnyTableLayout | undefined>;
 
   @ViewProperty({type: Length, state: Length.zero()})
-  declare colSpacing: ViewProperty<this, Length, AnyLength>;
-
-  @ViewProperty({type: Length, state: Length.zero()})
   declare rowSpacing: ViewProperty<this, Length, AnyLength>;
 
   @ViewProperty({type: Length, state: Length.px(24)})
@@ -255,8 +252,7 @@ export class TableView extends HtmlView {
       left += paddingLeft;
       let right = edgeInsets !== void 0 ? edgeInsets.insetRight : 0;
       right += paddingRight;
-      const colSpacing = this.colSpacing.getState().pxValue(width);
-      const newLayout = oldLayout.resized(width, left, right, colSpacing);
+      const newLayout = oldLayout.resized(width, left, right);
       this.layout.setState(newLayout);
     }
   }

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Equals} from "@swim/util";
+import {AnyLength, Length} from "@swim/math";
 import {Model, TraitModelType, Trait, TraitFastener, GenericTrait} from "@swim/model";
 import type {ColLayout} from "../layout/ColLayout";
 import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
@@ -24,6 +25,11 @@ export class TableTrait extends GenericTrait {
   constructor() {
     super();
     Object.defineProperty(this, "layout", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "colSpacing", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -52,7 +58,8 @@ export class TableTrait extends GenericTrait {
         }
       }
     }
-    return TableLayout.create(colLayouts);
+    const colSpacing = this.colSpacing;
+    return new TableLayout(null, null, null, colSpacing, colLayouts);
   }
 
   protected updateLayout(): void {
@@ -101,6 +108,27 @@ export class TableTrait extends GenericTrait {
         traitObserver.tableTraitDidSetLayout(newLayout, oldHeader, this);
       }
     }
+  }
+
+  declare readonly colSpacing: Length | null;
+
+  setColSpacing(newColSpacing: AnyLength | null): void {
+    if (newColSpacing !== null) {
+      newColSpacing = Length.fromAny(newColSpacing);
+    }
+    const oldColSpacing = this.colSpacing;
+    if (!Equals(newColSpacing, oldColSpacing)) {
+      Object.defineProperty(this, "colSpacing", {
+        value: newColSpacing,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetColSpacing(newColSpacing, oldColSpacing);
+    }
+  }
+
+  protected onSetColSpacing(newColSpacing: Length | null, oldColSpacing: Length | null): void {
+    this.updateLayout();
   }
 
   insertCol(colTrait: ColTrait, targetTrait: Trait | null = null): void {

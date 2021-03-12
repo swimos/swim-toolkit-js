@@ -66,6 +66,10 @@ export class CellView extends HtmlView {
   protected createContent(value?: string): HtmlView | null {
     const contentView = HtmlView.span.create();
     contentView.alignSelf.setAutoState("center");
+    contentView.whiteSpace.setAutoState("nowrap");
+    contentView.textOverflow.setAutoState("ellipsis");
+    contentView.overflowX.setAutoState("hidden");
+    contentView.overflowY.setAutoState("hidden");
     if (value !== void 0) {
       contentView.text(value);
     }

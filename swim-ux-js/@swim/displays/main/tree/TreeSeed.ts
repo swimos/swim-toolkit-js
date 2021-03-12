@@ -174,7 +174,6 @@ export class TreeSeed implements Equals, Equivalent, Debug {
           const root = newRoots[i]!;
           if (!root.hidden) {
             if (j !== 0) {
-              basis += rootSpacing;
               x += rootSpacing;
             }
             const rootBasis = root.basis.pxValue(seedWidth);
@@ -194,7 +193,6 @@ export class TreeSeed implements Equals, Equivalent, Debug {
           const root = newRoots[i]!;
           if (!root.hidden) {
             if (j !== 0) {
-              basis += rootSpacing;
               x += rootSpacing;
             }
             const rootBasis = root.basis.pxValue(seedWidth);

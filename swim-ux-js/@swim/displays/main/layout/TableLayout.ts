@@ -23,13 +23,13 @@ export interface TableLayoutInit {
   width?: AnyLength | null;
   left?: AnyLength | null;
   right?: AnyLength | null;
-  spacing?: AnyLength | null;
+  colSpacing?: AnyLength | null;
   cols: AnyColLayout[];
 }
 
 export class TableLayout implements Equals, Equivalent, Debug {
   constructor(width: Length | null, left: Length | null, right: Length | null,
-              spacing: AnyLength | null, cols: ReadonlyArray<ColLayout>) {
+              colSpacing: AnyLength | null, cols: ReadonlyArray<ColLayout>) {
     Object.defineProperty(this, "width", {
       value: width,
       enumerable: true,
@@ -42,8 +42,8 @@ export class TableLayout implements Equals, Equivalent, Debug {
       value: right,
       enumerable: true,
     });
-    Object.defineProperty(this, "spacing", {
-      value: spacing,
+    Object.defineProperty(this, "colSpacing", {
+      value: colSpacing,
       enumerable: true,
     });
     Object.defineProperty(this, "cols", {
@@ -58,7 +58,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
 
   declare readonly right: Length | null;
 
-  declare readonly spacing: Length | null;
+  declare readonly colSpacing: Length | null;
 
   declare readonly cols: ReadonlyArray<ColLayout>;
 
@@ -74,7 +74,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
   }
 
   resized(width: AnyLength, left?: AnyLength | null, right?: AnyLength | null,
-          spacing?: AnyLength | null): TableLayout {
+          colSpacing?: AnyLength | null): TableLayout {
     width = Length.fromAny(width);
     if (left === void 0) {
       left = this.left;
@@ -86,13 +86,13 @@ export class TableLayout implements Equals, Equivalent, Debug {
     } else if (right !== null) {
       right = Length.fromAny(right);
     }
-    if (spacing === void 0) {
-      spacing = this.spacing;
-    } else if (spacing !== null) {
-      spacing = Length.fromAny(spacing);
+    if (colSpacing === void 0) {
+      colSpacing = this.colSpacing;
+    } else if (colSpacing !== null) {
+      colSpacing = Length.fromAny(colSpacing);
     }
     if (Equals(this.width, width) && Equals(this.left, left) &&
-        Equals(this.right, right) && Equals(this.spacing, spacing)) {
+        Equals(this.right, right) && Equals(this.colSpacing, colSpacing)) {
       return this;
     } else {
       const oldCols = this.cols;
@@ -101,7 +101,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
       const tableWidth = width.pxValue();
       const tableLeft = left !== null ? left.pxValue(tableWidth) : 0;
       const tableRight = right !== null ? right.pxValue(tableWidth) : 0;
-      const colSpacing = spacing !== null ? spacing.pxValue(tableWidth) : 0;
+      const spacing = colSpacing !== null ? colSpacing.pxValue(tableWidth) : 0;
 
       let grow = 0;
       let shrink = 0;
@@ -110,8 +110,8 @@ export class TableLayout implements Equals, Equivalent, Debug {
       let x = tableLeft;
       for (let i = 0; i < colCount; i += 1) {
         if (i !== 0) {
-          basis += colSpacing;
-          x += colSpacing;
+          basis += spacing;
+          x += spacing;
         }
         const col = oldCols[i]!;
         const colWidth = col.basis.pxValue(tableWidth);
@@ -140,8 +140,8 @@ export class TableLayout implements Equals, Equivalent, Debug {
           }
           x -= colWidth;
           if (i !== 0) {
-            basis -= colSpacing;
-            x -= colSpacing;
+            basis -= spacing;
+            x -= spacing;
           }
 
           if (basis <= tableWidth) {
@@ -156,8 +156,8 @@ export class TableLayout implements Equals, Equivalent, Debug {
         while (i < colCount) {
           const col = newCols[i]!;
           if (!col.optional) {
-            basis += colSpacing;
-            x += colSpacing;
+            basis += spacing;
+            x += spacing;
             const colWidth = col.basis.pxValue(tableWidth);
             newCols[i] = col.resized(colWidth, x, tableWidth - colWidth - x);
             x += colWidth;
@@ -174,8 +174,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
           const col = newCols[i]!;
           if (!col.hidden) {
             if (j !== 0) {
-              basis += colSpacing;
-              x += colSpacing;
+              x += spacing;
             }
             const colBasis = col.basis.pxValue(tableWidth);
             const colWidth = colBasis + delta * (col.grow / grow);
@@ -183,7 +182,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
             x += colWidth;
             j += 1;
           } else {
-            newCols[i] = col.resized(0, x + colSpacing, tableWidth - x - colSpacing);
+            newCols[i] = col.resized(0, x + spacing, tableWidth - x - spacing);
           }
         }
       } else if (basis > tableWidth && shrink > 0) {
@@ -194,8 +193,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
           const col = newCols[i]!;
           if (!col.hidden) {
             if (j !== 0) {
-              basis += colSpacing;
-              x += colSpacing;
+              x += spacing;
             }
             const colBasis = col.basis.pxValue(tableWidth);
             const colWidth = colBasis - delta * (col.shrink / shrink);
@@ -203,12 +201,12 @@ export class TableLayout implements Equals, Equivalent, Debug {
             x += colWidth;
             j += 1;
           } else {
-            newCols[i] = col.resized(0, x + colSpacing, tableWidth - x - colSpacing);
+            newCols[i] = col.resized(0, x + spacing, tableWidth - x - spacing);
           }
         }
       }
 
-      return new TableLayout(width, left, right, spacing, newCols);
+      return new TableLayout(width, left, right, colSpacing, newCols);
     }
   }
 
@@ -236,7 +234,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
       return true;
     } else if (that instanceof TableLayout) {
       return Equals(this.width, that.width) && Equals(this.left, that.left)
-          && Equals(this.right, that.right) && Equals(this.spacing, that.spacing)
+          && Equals(this.right, that.right) && Equals(this.colSpacing, that.colSpacing)
           && Arrays.equal(this.cols, that.cols);
     }
     return false;
@@ -251,10 +249,10 @@ export class TableLayout implements Equals, Equivalent, Debug {
       output = output.debug(this.cols[i]!);
     }
     output = output.write(41/*')'*/);
-    if (this.width !== null || this.left !== null || this.right !== null || this.spacing !== null) {
+    if (this.width !== null || this.left !== null || this.right !== null || this.colSpacing !== null) {
       output = output.write(46/*'.'*/).write("resized").write(40/*'('*/)
           .debug(this.width).write(", ").debug(this.left).write(", ")
-          .debug(this.right).write(", ").debug(this.spacing).write(41/*')'*/);
+          .debug(this.right).write(", ").debug(this.colSpacing).write(41/*')'*/);
     }
   }
 
@@ -303,17 +301,17 @@ export class TableLayout implements Equals, Equivalent, Debug {
     } else {
       right = null;
     }
-    let spacing = init.spacing;
-    if (spacing !== void 0 && spacing !== null) {
-      spacing = Length.fromAny(spacing);
+    let colSpacing = init.colSpacing;
+    if (colSpacing !== void 0 && colSpacing !== null) {
+      colSpacing = Length.fromAny(colSpacing);
     } else {
-      spacing = null;
+      colSpacing = null;
     }
     const colCount = init.cols.length;
     const cols = new Array<ColLayout>(colCount);
     for (let i = 0; i < colCount; i += 1) {
       cols[i] = ColLayout.fromAny(init.cols[i]!);
     }
-    return new TableLayout(width, left, right, spacing, cols);
+    return new TableLayout(width, left, right, colSpacing, cols);
   }
 }
