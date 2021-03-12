@@ -23,6 +23,8 @@ export type ComponentModelMemberType<C, K extends keyof C> =
 export type ComponentModelMemberInit<V, K extends keyof V> =
   V extends {[P in K]: ComponentModel<any, infer M, infer U>} ? M | U : unknown;
 
+export type ComponentModelFlags = number;
+
 export interface ComponentModelInit<M extends Model, U = never> {
   extends?: ComponentModelClass;
   key?: string | boolean;
@@ -56,6 +58,12 @@ export interface ComponentModel<C extends Component, M extends Model, U = never>
   readonly name: string;
 
   readonly owner: C;
+
+  /** @hidden */
+  fastenerFlags: ComponentModelFlags;
+
+  /** @hidden */
+  setFastenerFlags(fastenerFlags: ComponentModelFlags): void;
 
   readonly key: string | undefined;
 
@@ -97,11 +105,31 @@ export interface ComponentModel<C extends Component, M extends Model, U = never>
 
   fromAny(value: M | U): M | null;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
 }
 
 export const ComponentModel = function <C extends Component, M extends Model, U>(
@@ -127,6 +155,9 @@ export const ComponentModel = function <C extends Component, M extends Model, U>
 
   define<C extends Component, M extends Model = Model, U = never, I = {}>(descriptor: {observe: boolean} & ComponentModelDescriptor<C, M, U, I & ModelObserverType<M>>): ComponentModelConstructor<C, M, U, I>;
   define<C extends Component, M extends Model = Model, U = never, I = {}>(descriptor: ComponentModelDescriptor<C, M, U, I>): ComponentModelConstructor<C, M, U, I>;
+
+  /** @hidden */
+  MountedFlag: ComponentModelFlags;
 };
 __extends(ComponentModel, Object);
 
@@ -141,6 +172,11 @@ function ComponentModelConstructor<C extends Component, M extends Model, U>(this
   Object.defineProperty(this, "owner", {
     value: owner,
     enumerable: true,
+  });
+  Object.defineProperty(this, "fastenerFlags", {
+    value: 0,
+    enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "key", {
     value: key,
@@ -158,6 +194,14 @@ function ComponentModelConstructor<C extends Component, M extends Model, U>(this
 function ComponentModelDecoratorFactory<C extends Component, M extends Model, U = never>(descriptor: ComponentModelDescriptor<C, M, U>): PropertyDecorator {
   return Component.decorateComponentModel.bind(Component, ComponentModel.define(descriptor as ComponentModelDescriptor<Component, Model>));
 }
+
+ComponentModel.prototype.setFastenerFlags = function (this: ComponentModel<Component, Model>, fastenerFlags: ComponentModelFlags): void {
+  Object.defineProperty(this, "fastenerFlags", {
+    value: fastenerFlags,
+    enumerable: true,
+    configurable: true,
+  });
+};
 
 ComponentModel.prototype.getModel = function <M extends Model>(this: ComponentModel<Component, M>): M {
   const model = this.model;
@@ -195,13 +239,13 @@ ComponentModel.prototype.setModel = function <M extends Model>(this: ComponentMo
 };
 
 ComponentModel.prototype.attachModel = function <M extends Model>(this: ComponentModel<Component, M>, newModel: M): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     newModel.addModelObserver(this as ModelObserverType<M>);
   }
 };
 
 ComponentModel.prototype.detachModel = function <M extends Model>(this: ComponentModel<Component, M>, oldModel: M): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     oldModel.removeModelObserver(this as ModelObserverType<M>);
   }
 };
@@ -275,18 +319,50 @@ ComponentModel.prototype.fromAny = function <M extends Model, U>(this: Component
   return null;
 };
 
-ComponentModel.prototype.mount = function <M extends Model>(this: ComponentModel<Component, M>): void {
-  const model = this.model;
-  if (model !== null && this.observe === true) {
-    model.addModelObserver(this as ModelObserverType<M>);
+ComponentModel.prototype.isMounted = function (this: ComponentModel<Component, Model>): boolean {
+  return (this.fastenerFlags & ComponentModel.MountedFlag) !== 0;
+};
+
+ComponentModel.prototype.mount = function (this: ComponentModel<Component, Model>): void {
+  if ((this.fastenerFlags & ComponentModel.MountedFlag) === 0) {
+    this.willMount();
+    this.setFastenerFlags(this.fastenerFlags | ComponentModel.MountedFlag);
+    this.onMount();
+    this.didMount();
   }
 };
 
-ComponentModel.prototype.unmount = function <M extends Model>(this: ComponentModel<Component, M>): void {
-  const model = this.model;
-  if (model !== null && this.observe === true) {
-    model.removeModelObserver(this as ModelObserverType<M>);
+ComponentModel.prototype.willMount = function (this: ComponentModel<Component, Model>): void {
+  // hook
+};
+
+ComponentModel.prototype.onMount = function (this: ComponentModel<Component, Model>): void {
+  // hook
+};
+
+ComponentModel.prototype.didMount = function (this: ComponentModel<Component, Model>): void {
+  // hook
+};
+
+ComponentModel.prototype.unmount = function (this: ComponentModel<Component, Model>): void {
+  if ((this.fastenerFlags & ComponentModel.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setFastenerFlags(this.fastenerFlags & ~ComponentModel.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
   }
+};
+
+ComponentModel.prototype.willUnmount = function (this: ComponentModel<Component, Model>): void {
+  // hook
+};
+
+ComponentModel.prototype.onUnmount = function (this: ComponentModel<Component, Model>): void {
+  // hook
+};
+
+ComponentModel.prototype.didUnmount = function (this: ComponentModel<Component, Model>): void {
+  // hook
 };
 
 ComponentModel.define = function <C extends Component, M extends Model, U, I>(descriptor: ComponentModelDescriptor<C, M, U, I>): ComponentModelConstructor<C, M, U, I> {
@@ -319,3 +395,5 @@ ComponentModel.define = function <C extends Component, M extends Model, U, I>(de
 
   return _constructor;
 };
+
+ComponentModel.MountedFlag = 1 << 0;

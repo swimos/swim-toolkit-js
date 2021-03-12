@@ -19,6 +19,8 @@ import {NodeView} from "@swim/dom";
 import {Model, Trait, TraitObserverType} from "@swim/model";
 import {Component} from "../Component";
 
+export type ComponentViewTraitFlags = number;
+
 export interface ComponentViewTraitInit<V extends View, R extends Trait, VU = never, RU = never> {
   extends?: ComponentViewTraitClass;
 
@@ -57,6 +59,12 @@ export interface ComponentViewTrait<C extends Component, V extends View, R exten
   readonly name: string;
 
   readonly owner: C;
+
+  /** @hidden */
+  fastenerFlags: ComponentViewTraitFlags;
+
+  /** @hidden */
+  setFastenerFlags(fastenerFlags: ComponentViewTraitFlags): void;
 
   readonly viewKey: string | undefined;
 
@@ -138,11 +146,31 @@ export interface ComponentViewTrait<C extends Component, V extends View, R exten
 
   fromAnyTrait(value: R | RU): R | null;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
 }
 
 export const ComponentViewTrait = function <C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never>(
@@ -173,6 +201,9 @@ export const ComponentViewTrait = function <C extends Component, V extends View 
   define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: {observeView: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I & ViewObserverType<V>>): ComponentViewTraitConstructor<C, V, R, VU, RU, I>;
   define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: {observeTrait: boolean} & ComponentViewTraitDescriptor<C, V, R, VU, RU, I & TraitObserverType<R>>): ComponentViewTraitConstructor<C, V, R, VU, RU, I>;
   define<C extends Component, V extends View = View, R extends Trait = Trait, VU = never, RU = never, I = {}>(descriptor: ComponentViewTraitDescriptor<C, V, R, VU, RU, I>): ComponentViewTraitConstructor<C, V, R, VU, RU, I>;
+
+  /** @hidden */
+  MountedFlag: ComponentViewTraitFlags;
 };
 __extends(ComponentViewTrait, Object);
 
@@ -187,6 +218,11 @@ function ComponentViewTraitConstructor<C extends Component, V extends View, R ex
   Object.defineProperty(this, "owner", {
     value: owner,
     enumerable: true,
+  });
+  Object.defineProperty(this, "fastenerFlags", {
+    value: 0,
+    enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "viewKey", {
     value: viewKey,
@@ -214,6 +250,14 @@ function ComponentViewTraitConstructor<C extends Component, V extends View, R ex
 function ComponentViewDecoratorFactory<C extends Component, V extends View, R extends Trait, VU, RU>(descriptor: ComponentViewTraitDescriptor<C, V, R, VU, RU>): PropertyDecorator {
   return Component.decorateComponentViewTrait.bind(Component, ComponentViewTrait.define(descriptor as ComponentViewTraitDescriptor<Component, View, Trait>));
 }
+
+ComponentViewTrait.prototype.setFastenerFlags = function (this: ComponentViewTrait<Component, View, Trait>, fastenerFlags: ComponentViewTraitFlags): void {
+  Object.defineProperty(this, "fastenerFlags", {
+    value: fastenerFlags,
+    enumerable: true,
+    configurable: true,
+  });
+};
 
 ComponentViewTrait.prototype.getView = function <V extends View>(this: ComponentViewTrait<Component, V, Trait>): V {
   const view = this.view;
@@ -255,13 +299,13 @@ ComponentViewTrait.prototype.setView = function <V extends View>(this: Component
 };
 
 ComponentViewTrait.prototype.attachView = function <V extends View>(this: ComponentViewTrait<Component, V, Trait>, newView: V): void {
-  if (this.observeView === true && this.owner.isMounted()) {
+  if (this.observeView === true) {
     newView.addViewObserver(this as ViewObserverType<V>);
   }
 };
 
 ComponentViewTrait.prototype.detachView = function <V extends View>(this: ComponentViewTrait<Component, V, Trait>, oldView: V): void {
-  if (this.observeView === true && this.owner.isMounted()) {
+  if (this.observeView === true) {
     oldView.removeViewObserver(this as ViewObserverType<V>);
   }
 };
@@ -375,13 +419,13 @@ ComponentViewTrait.prototype.setTrait = function <R extends Trait>(this: Compone
 };
 
 ComponentViewTrait.prototype.attachTrait = function <R extends Trait>(this: ComponentViewTrait<Component, View, R>, newTrait: R): void {
-  if (this.observeTrait === true && this.owner.isMounted()) {
+  if (this.observeTrait === true) {
     newTrait.addTraitObserver(this as TraitObserverType<R>);
   }
 };
 
 ComponentViewTrait.prototype.detachTrait = function <R extends Trait>(this: ComponentViewTrait<Component, View, R>, oldTrait: R): void {
-  if (this.observeTrait === true && this.owner.isMounted()) {
+  if (this.observeTrait === true) {
     oldTrait.removeTraitObserver(this as TraitObserverType<R>);
   }
 };
@@ -455,26 +499,50 @@ ComponentViewTrait.prototype.fromAnyTrait = function <R extends Trait, RU>(this:
   return null;
 };
 
-ComponentViewTrait.prototype.mount = function <V extends View, R extends Trait>(this: ComponentViewTrait<Component, V, R>): void {
-  const view = this.view;
-  if (view !== null && this.observeView === true) {
-    view.addViewObserver(this as ViewObserverType<V>);
-  }
-  const trait = this.trait;
-  if (trait !== null && this.observeTrait === true) {
-    trait.addTraitObserver(this as TraitObserverType<R>);
+ComponentViewTrait.prototype.isMounted = function (this: ComponentViewTrait<Component, View, Trait>): boolean {
+  return (this.fastenerFlags & ComponentViewTrait.MountedFlag) !== 0;
+};
+
+ComponentViewTrait.prototype.mount = function (this: ComponentViewTrait<Component, View, Trait>): void {
+  if ((this.fastenerFlags & ComponentViewTrait.MountedFlag) === 0) {
+    this.willMount();
+    this.setFastenerFlags(this.fastenerFlags | ComponentViewTrait.MountedFlag);
+    this.onMount();
+    this.didMount();
   }
 };
 
-ComponentViewTrait.prototype.unmount = function <V extends View, R extends Trait>(this: ComponentViewTrait<Component, V, R>): void {
-  const trait = this.trait;
-  if (trait !== null && this.observeTrait === true) {
-    trait.removeTraitObserver(this as TraitObserverType<R>);
+ComponentViewTrait.prototype.willMount = function (this: ComponentViewTrait<Component, View, Trait>): void {
+  // hook
+};
+
+ComponentViewTrait.prototype.onMount = function (this: ComponentViewTrait<Component, View, Trait>): void {
+  // hook
+};
+
+ComponentViewTrait.prototype.didMount = function (this: ComponentViewTrait<Component, View, Trait>): void {
+  // hook
+};
+
+ComponentViewTrait.prototype.unmount = function (this: ComponentViewTrait<Component, View, Trait>): void {
+  if ((this.fastenerFlags & ComponentViewTrait.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setFastenerFlags(this.fastenerFlags & ~ComponentViewTrait.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
   }
-  const view = this.view;
-  if (view !== null && this.observeView === true) {
-    view.removeViewObserver(this as ViewObserverType<V>);
-  }
+};
+
+ComponentViewTrait.prototype.willUnmount = function (this: ComponentViewTrait<Component, View, Trait>): void {
+  // hook
+};
+
+ComponentViewTrait.prototype.onUnmount = function (this: ComponentViewTrait<Component, View, Trait>): void {
+  // hook
+};
+
+ComponentViewTrait.prototype.didUnmount = function (this: ComponentViewTrait<Component, View, Trait>): void {
+  // hook
 };
 
 ComponentViewTrait.define = function <C extends Component, V extends View, R extends Trait, VU, RU, I>(descriptor: ComponentViewTraitDescriptor<C, V, R, VU, RU, I>): ComponentViewTraitConstructor<C, V, R, VU, RU, I> {
@@ -498,3 +566,5 @@ ComponentViewTrait.define = function <C extends Component, V extends View, R ext
 
   return _constructor;
 };
+
+ComponentViewTrait.MountedFlag = 1 << 0;

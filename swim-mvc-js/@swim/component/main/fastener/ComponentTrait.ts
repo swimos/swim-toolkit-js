@@ -23,6 +23,8 @@ export type ComponentTraitMemberType<C, K extends keyof C> =
 export type ComponentTraitMemberInit<V, K extends keyof V> =
   V extends {[P in K]: ComponentTrait<any, infer R, infer U>} ? R | U : unknown;
 
+export type ComponentTraitFlags = number;
+
 export interface ComponentTraitInit<R extends Trait, U = never> {
   extends?: ComponentTraitClass;
   key?: string | boolean;
@@ -56,6 +58,12 @@ export interface ComponentTrait<C extends Component, R extends Trait, U = never>
   readonly name: string;
 
   readonly owner: C;
+
+  /** @hidden */
+  fastenerFlags: ComponentTraitFlags;
+
+  /** @hidden */
+  setFastenerFlags(fastenerFlags: ComponentTraitFlags): void;
 
   readonly key: string | undefined;
 
@@ -97,11 +105,31 @@ export interface ComponentTrait<C extends Component, R extends Trait, U = never>
 
   fromAny(value: R | U): R | null;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
 }
 
 export const ComponentTrait = function <C extends Component, R extends Trait, U>(
@@ -127,6 +155,9 @@ export const ComponentTrait = function <C extends Component, R extends Trait, U>
 
   define<C extends Component, R extends Trait = Trait, U = never, I = {}>(descriptor: {observe: boolean} & ComponentTraitDescriptor<C, R, U, I & TraitObserverType<R>>): ComponentTraitConstructor<C, R, U, I>;
   define<C extends Component, R extends Trait = Trait, U = never, I = {}>(descriptor: ComponentTraitDescriptor<C, R, U, I>): ComponentTraitConstructor<C, R, U, I>;
+
+  /** @hidden */
+  MountedFlag: ComponentTraitFlags;
 };
 __extends(ComponentTrait, Object);
 
@@ -141,6 +172,11 @@ function ComponentTraitConstructor<C extends Component, R extends Trait, U>(this
   Object.defineProperty(this, "owner", {
     value: owner,
     enumerable: true,
+  });
+  Object.defineProperty(this, "fastenerFlags", {
+    value: 0,
+    enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "key", {
     value: key,
@@ -158,6 +194,14 @@ function ComponentTraitConstructor<C extends Component, R extends Trait, U>(this
 function ComponentTraitDecoratorFactory<C extends Component, R extends Trait, U>(descriptor: ComponentTraitDescriptor<C, R, U>): PropertyDecorator {
   return Component.decorateComponentTrait.bind(Component, ComponentTrait.define(descriptor as ComponentTraitDescriptor<Component, Trait>));
 }
+
+ComponentTrait.prototype.setFastenerFlags = function (this: ComponentTrait<Component, Trait>, fastenerFlags: ComponentTraitFlags): void {
+  Object.defineProperty(this, "fastenerFlags", {
+    value: fastenerFlags,
+    enumerable: true,
+    configurable: true,
+  });
+};
 
 ComponentTrait.prototype.getTrait = function <R extends Trait>(this: ComponentTrait<Component, R>): R {
   const trait = this.trait;
@@ -195,13 +239,13 @@ ComponentTrait.prototype.setTrait = function <R extends Trait>(this: ComponentTr
 };
 
 ComponentTrait.prototype.attachTrait = function <R extends Trait>(this: ComponentTrait<Component, R>, newTrait: R): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     newTrait.addTraitObserver(this as TraitObserverType<R>);
   }
 };
 
 ComponentTrait.prototype.detachTrait = function <R extends Trait>(this: ComponentTrait<Component, R>, oldTrait: R): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     oldTrait.removeTraitObserver(this as TraitObserverType<R>);
   }
 };
@@ -275,18 +319,50 @@ ComponentTrait.prototype.fromAny = function <R extends Trait, U>(this: Component
   return null;
 };
 
-ComponentTrait.prototype.mount = function <R extends Trait>(this: ComponentTrait<Component, R>): void {
-  const trait = this.trait;
-  if (trait !== null && this.observe === true) {
-    trait.addTraitObserver(this as TraitObserverType<R>);
+ComponentTrait.prototype.isMounted = function (this: ComponentTrait<Component, Trait>): boolean {
+  return (this.fastenerFlags & ComponentTrait.MountedFlag) !== 0;
+};
+
+ComponentTrait.prototype.mount = function (this: ComponentTrait<Component, Trait>): void {
+  if ((this.fastenerFlags & ComponentTrait.MountedFlag) === 0) {
+    this.willMount();
+    this.setFastenerFlags(this.fastenerFlags | ComponentTrait.MountedFlag);
+    this.onMount();
+    this.didMount();
   }
 };
 
-ComponentTrait.prototype.unmount = function <R extends Trait>(this: ComponentTrait<Component, R>): void {
-  const trait = this.trait;
-  if (trait !== null && this.observe === true) {
-    trait.removeTraitObserver(this as TraitObserverType<R>);
+ComponentTrait.prototype.willMount = function (this: ComponentTrait<Component, Trait>): void {
+  // hook
+};
+
+ComponentTrait.prototype.onMount = function (this: ComponentTrait<Component, Trait>): void {
+  // hook
+};
+
+ComponentTrait.prototype.didMount = function (this: ComponentTrait<Component, Trait>): void {
+  // hook
+};
+
+ComponentTrait.prototype.unmount = function (this: ComponentTrait<Component, Trait>): void {
+  if ((this.fastenerFlags & ComponentTrait.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setFastenerFlags(this.fastenerFlags & ~ComponentTrait.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
   }
+};
+
+ComponentTrait.prototype.willUnmount = function (this: ComponentTrait<Component, Trait>): void {
+  // hook
+};
+
+ComponentTrait.prototype.onUnmount = function (this: ComponentTrait<Component, Trait>): void {
+  // hook
+};
+
+ComponentTrait.prototype.didUnmount = function (this: ComponentTrait<Component, Trait>): void {
+  // hook
 };
 
 ComponentTrait.define = function <C extends Component, R extends Trait, U, I>(descriptor: ComponentTraitDescriptor<C, R, U, I>): ComponentTraitConstructor<C, R, U, I> {
@@ -319,3 +395,5 @@ ComponentTrait.define = function <C extends Component, R extends Trait, U, I>(de
 
   return _constructor;
 };
+
+ComponentTrait.MountedFlag = 1 << 0;

@@ -24,6 +24,8 @@ export type ComponentViewMemberType<C, K extends keyof C> =
 export type ComponentViewMemberInit<V, K extends keyof V> =
   V extends {[P in K]: ComponentView<any, infer V, infer U>} ? V | U : unknown;
 
+export type ComponentViewFlags = number;
+
 export interface ComponentViewInit<V extends View, U = never> {
   extends?: ComponentViewClass;
   key?: string | boolean;
@@ -57,6 +59,12 @@ export interface ComponentView<C extends Component, V extends View, U = never> {
   readonly name: string;
 
   readonly owner: C;
+
+  /** @hidden */
+  fastenerFlags: ComponentViewFlags;
+
+  /** @hidden */
+  setFastenerFlags(fastenerFlags: ComponentViewFlags): void;
 
   readonly key: string | undefined;
 
@@ -98,11 +106,31 @@ export interface ComponentView<C extends Component, V extends View, U = never> {
 
   fromAny(value: V | U): V | null;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
 }
 
 export const ComponentView = function <C extends Component, V extends View = View, U = never>(
@@ -128,6 +156,9 @@ export const ComponentView = function <C extends Component, V extends View = Vie
 
   define<C extends Component, V extends View = View, U = never, I = {}>(descriptor: {observe: boolean} & ComponentViewDescriptor<C, V, U, I & ViewObserverType<V>>): ComponentViewConstructor<C, V, U, I>;
   define<C extends Component, V extends View = View, U = never, I = {}>(descriptor: ComponentViewDescriptor<C, V, U, I>): ComponentViewConstructor<C, V, U, I>;
+
+  /** @hidden */
+  MountedFlag: ComponentViewFlags;
 };
 __extends(ComponentView, Object);
 
@@ -142,6 +173,11 @@ function ComponentViewConstructor<C extends Component, V extends View, U>(this: 
   Object.defineProperty(this, "owner", {
     value: owner,
     enumerable: true,
+  });
+  Object.defineProperty(this, "fastenerFlags", {
+    value: 0,
+    enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "key", {
     value: key,
@@ -159,6 +195,14 @@ function ComponentViewConstructor<C extends Component, V extends View, U>(this: 
 function ComponentViewDecoratorFactory<C extends Component, V extends View, U>(descriptor: ComponentViewDescriptor<C, V, U>): PropertyDecorator {
   return Component.decorateComponentView.bind(Component, ComponentView.define(descriptor as ComponentViewDescriptor<Component, View>));
 }
+
+ComponentView.prototype.setFastenerFlags = function (this: ComponentView<Component, View>, fastenerFlags: ComponentViewFlags): void {
+  Object.defineProperty(this, "fastenerFlags", {
+    value: fastenerFlags,
+    enumerable: true,
+    configurable: true,
+  });
+};
 
 ComponentView.prototype.getView = function <V extends View>(this: ComponentView<Component, V>): V {
   const view = this.view;
@@ -200,13 +244,13 @@ ComponentView.prototype.setView = function <V extends View>(this: ComponentView<
 };
 
 ComponentView.prototype.attachView = function <V extends View>(this: ComponentView<Component, V>, newView: V): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     newView.addViewObserver(this as ViewObserverType<V>);
   }
 };
 
 ComponentView.prototype.detachView = function <V extends View>(this: ComponentView<Component, V>, oldView: V): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     oldView.removeViewObserver(this as ViewObserverType<V>);
   }
 };
@@ -284,18 +328,50 @@ ComponentView.prototype.fromAny = function <V extends View, U>(this: ComponentVi
   return null;
 };
 
-ComponentView.prototype.mount = function <V extends View>(this: ComponentView<Component, V>): void {
-  const view = this.view;
-  if (view !== null && this.observe === true) {
-    view.addViewObserver(this as ViewObserverType<V>);
+ComponentView.prototype.isMounted = function (this: ComponentView<Component, View>): boolean {
+  return (this.fastenerFlags & ComponentView.MountedFlag) !== 0;
+};
+
+ComponentView.prototype.mount = function (this: ComponentView<Component, View>): void {
+  if ((this.fastenerFlags & ComponentView.MountedFlag) === 0) {
+    this.willMount();
+    this.setFastenerFlags(this.fastenerFlags | ComponentView.MountedFlag);
+    this.onMount();
+    this.didMount();
   }
 };
 
-ComponentView.prototype.unmount = function <V extends View>(this: ComponentView<Component, V>): void {
-  const view = this.view;
-  if (view !== null && this.observe === true) {
-    view.removeViewObserver(this as ViewObserverType<V>);
+ComponentView.prototype.willMount = function (this: ComponentView<Component, View>): void {
+  // hook
+};
+
+ComponentView.prototype.onMount = function (this: ComponentView<Component, View>): void {
+  // hook
+};
+
+ComponentView.prototype.didMount = function (this: ComponentView<Component, View>): void {
+  // hook
+};
+
+ComponentView.prototype.unmount = function (this: ComponentView<Component, View>): void {
+  if ((this.fastenerFlags & ComponentView.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setFastenerFlags(this.fastenerFlags & ~ComponentView.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
   }
+};
+
+ComponentView.prototype.willUnmount = function (this: ComponentView<Component, View>): void {
+  // hook
+};
+
+ComponentView.prototype.onUnmount = function (this: ComponentView<Component, View>): void {
+  // hook
+};
+
+ComponentView.prototype.didUnmount = function (this: ComponentView<Component, View>): void {
+  // hook
 };
 
 ComponentView.define = function <C extends Component, V extends View, U, I>(descriptor: ComponentViewDescriptor<C, V, U, I>): ComponentViewConstructor<C, V, U, I> {
@@ -328,3 +404,5 @@ ComponentView.define = function <C extends Component, V extends View, U, I>(desc
 
   return _constructor;
 };
+
+ComponentView.MountedFlag = 1 << 0;

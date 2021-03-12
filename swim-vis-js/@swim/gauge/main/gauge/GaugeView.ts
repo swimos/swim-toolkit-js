@@ -295,7 +295,14 @@ export class GaugeView extends LayerView {
   }
 
   protected initDial(dialView: DialView, dialFastener: ViewFastener<this, DialView>): void {
-    // hook
+    const labelView = dialView.label.view;
+    if (labelView !== null) {
+      this.initDialLabel(labelView, dialView);
+    }
+    const legendView = dialView.legend.view;
+    if (legendView !== null) {
+      this.initDialLegend(legendView, dialView);
+    }
   }
 
   protected willSetDial(newDialView: DialView | null, oldDialView: DialView | null,
@@ -339,6 +346,14 @@ export class GaugeView extends LayerView {
     this.requireUpdate(View.NeedsLayout);
   }
 
+  protected initDialLabel(labelView: GraphicsView, dialView: DialView): void {
+    this.requireUpdate(View.NeedsLayout);
+  }
+
+  protected initDialLegend(legendView: GraphicsView, dialView: DialView): void {
+    this.requireUpdate(View.NeedsLayout);
+  }
+
   /** @hidden */
   static DialFastener = ViewFastener.define<GaugeView, DialView>({
     type: DialView,
@@ -355,6 +370,16 @@ export class GaugeView extends LayerView {
     },
     dialViewDidSetValue(newValue: number, oldValue: number, dialView: DialView): void {
       this.owner.onSetDialValue(newValue, dialView);
+    },
+    dialViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, dialView: DialView): void {
+      if (newLabelView !== null) {
+        this.owner.initDialLabel(newLabelView, dialView);
+      }
+    },
+    dialViewDidSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, dialView: DialView): void {
+      if (newLegendView !== null) {
+        this.owner.initDialLegend(newLegendView, dialView);
+      }
     },
   });
 

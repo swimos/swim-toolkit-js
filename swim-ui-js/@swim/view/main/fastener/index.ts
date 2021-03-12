@@ -15,6 +15,7 @@
 export {
   ViewFastenerMemberType,
   ViewFastenerMemberInit,
+  ViewFastenerFlags,
   ViewFastenerInit,
   ViewFastenerDescriptor,
   ViewFastenerConstructor,

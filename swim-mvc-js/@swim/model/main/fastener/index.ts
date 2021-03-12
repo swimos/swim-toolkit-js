@@ -15,6 +15,7 @@
 export {
   ModelFastenerMemberType,
   ModelFastenerMemberInit,
+  ModelFastenerFlags,
   ModelFastenerInit,
   ModelFastenerDescriptor,
   ModelFastenerConstructor,
@@ -25,6 +26,7 @@ export {
 export {
   ModelTraitMemberType,
   ModelTraitMemberInit,
+  ModelTraitFlags,
   ModelTraitInit,
   ModelTraitDescriptor,
   ModelTraitConstructor,
@@ -35,6 +37,7 @@ export {
 export {
   TraitModelMemberType,
   TraitModelMemberInit,
+  TraitModelFlags,
   TraitModelInit,
   TraitModelDescriptor,
   TraitModelConstructor,
@@ -45,6 +48,7 @@ export {
 export {
   TraitFastenerMemberType,
   TraitFastenerMemberInit,
+  TraitFastenerFlags,
   TraitFastenerInit,
   TraitFastenerDescriptor,
   TraitFastenerConstructor,

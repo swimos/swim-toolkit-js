@@ -24,6 +24,8 @@ export type TraitFastenerMemberType<R, K extends keyof R> =
 export type TraitFastenerMemberInit<R, K extends keyof R> =
   R extends {[P in K]: TraitFastener<any, infer T, infer U>} ? T | U : unknown;
 
+export type TraitFastenerFlags = number;
+
 export interface TraitFastenerInit<S extends Trait, U = never> {
   extends?: TraitFastenerClass;
   key?: string | boolean;
@@ -59,6 +61,12 @@ export interface TraitFastener<R extends Trait, S extends Trait, U = never> {
   readonly name: string;
 
   readonly owner: R;
+
+  /** @hidden */
+  fastenerFlags: TraitFastenerFlags;
+
+  /** @hidden */
+  setFastenerFlags(fastenerFlags: TraitFastenerFlags): void;
 
   readonly key: string | undefined;
 
@@ -109,11 +117,31 @@ export interface TraitFastener<R extends Trait, S extends Trait, U = never> {
 
   fromAny(value: S | U): S | null;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
 }
 
 export const TraitFastener = function <R extends Trait, S extends Trait, U>(
@@ -139,6 +167,9 @@ export const TraitFastener = function <R extends Trait, S extends Trait, U>(
 
   define<R extends Trait, S extends Trait = Trait, U = never, I = {}>(descriptor: {observe: boolean} & TraitFastenerDescriptor<R, S, U, I & TraitObserverType<S>>): TraitFastenerConstructor<R, S, U, I>;
   define<R extends Trait, S extends Trait = Trait, U = never, I = {}>(descriptor: TraitFastenerDescriptor<R, S, U, I>): TraitFastenerConstructor<R, S, U, I>;
+
+  /** @hidden */
+  MountedFlag: TraitFastenerFlags;
 };
 __extends(TraitFastener, Object);
 
@@ -153,6 +184,11 @@ function TraitFastenerConstructor<R extends Trait, S extends Trait, U>(this: Tra
   Object.defineProperty(this, "owner", {
     value: owner,
     enumerable: true,
+  });
+  Object.defineProperty(this, "fastenerFlags", {
+    value: 0,
+    enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "key", {
     value: key,
@@ -170,6 +206,14 @@ function TraitFastenerConstructor<R extends Trait, S extends Trait, U>(this: Tra
 function TraitFastenerDecoratorFactory<R extends Trait, S extends Trait, U>(descriptor: TraitFastenerDescriptor<R, S, U>): PropertyDecorator {
   return Trait.decorateTraitFastener.bind(Trait, TraitFastener.define(descriptor as TraitFastenerDescriptor<Trait, Trait>));
 }
+
+TraitFastener.prototype.setFastenerFlags = function (this: TraitFastener<Trait, Trait>, fastenerFlags: TraitFastenerFlags): void {
+  Object.defineProperty(this, "fastenerFlags", {
+    value: fastenerFlags,
+    enumerable: true,
+    configurable: true,
+  });
+};
 
 TraitFastener.prototype.getTrait = function <S extends Trait>(this: TraitFastener<Trait, S>): S {
   const trait = this.trait;
@@ -220,13 +264,13 @@ TraitFastener.prototype.doSetTrait = function <S extends Trait>(this: TraitFaste
 };
 
 TraitFastener.prototype.attachTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, newTrait: S): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     newTrait.addTraitObserver(this as TraitObserverType<S>);
   }
 };
 
 TraitFastener.prototype.detachTrait = function <S extends Trait>(this: TraitFastener<Trait, S>, oldTrait: S): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     oldTrait.removeTraitObserver(this as TraitObserverType<S>);
   }
 };
@@ -311,18 +355,50 @@ TraitFastener.prototype.fromAny = function <S extends Trait, U>(this: TraitFaste
   return null;
 };
 
-TraitFastener.prototype.mount = function <S extends Trait>(this: TraitFastener<Trait, S>): void {
-  const trait = this.trait;
-  if (trait !== null && this.observe === true) {
-    trait.addTraitObserver(this as TraitObserverType<S>);
+TraitFastener.prototype.isMounted = function (this: TraitFastener<Trait, Trait>): boolean {
+  return (this.fastenerFlags & TraitFastener.MountedFlag) !== 0;
+};
+
+TraitFastener.prototype.mount = function (this: TraitFastener<Trait, Trait>): void {
+  if ((this.fastenerFlags & TraitFastener.MountedFlag) === 0) {
+    this.willMount();
+    this.setFastenerFlags(this.fastenerFlags | TraitFastener.MountedFlag);
+    this.onMount();
+    this.didMount();
   }
 };
 
-TraitFastener.prototype.unmount = function <S extends Trait>(this: TraitFastener<Trait, S>): void {
-  const trait = this.trait;
-  if (trait !== null && this.observe === true) {
-    trait.removeTraitObserver(this as TraitObserverType<S>);
+TraitFastener.prototype.willMount = function (this: TraitFastener<Trait, Trait>): void {
+  // hook
+};
+
+TraitFastener.prototype.onMount = function (this: TraitFastener<Trait, Trait>): void {
+  // hook
+};
+
+TraitFastener.prototype.didMount = function (this: TraitFastener<Trait, Trait>): void {
+  // hook
+};
+
+TraitFastener.prototype.unmount = function (this: TraitFastener<Trait, Trait>): void {
+  if ((this.fastenerFlags & TraitFastener.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setFastenerFlags(this.fastenerFlags & ~TraitFastener.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
   }
+};
+
+TraitFastener.prototype.willUnmount = function (this: TraitFastener<Trait, Trait>): void {
+  // hook
+};
+
+TraitFastener.prototype.onUnmount = function (this: TraitFastener<Trait, Trait>): void {
+  // hook
+};
+
+TraitFastener.prototype.didUnmount = function (this: TraitFastener<Trait, Trait>): void {
+  // hook
 };
 
 TraitFastener.define = function <R extends Trait, S extends Trait, U, I>(descriptor: TraitFastenerDescriptor<R, S, U, I>): TraitFastenerConstructor<R, S, U, I> {
@@ -359,3 +435,5 @@ TraitFastener.define = function <R extends Trait, S extends Trait, U, I>(descrip
 
   return _constructor;
 };
+
+TraitFastener.MountedFlag = 1 << 0;

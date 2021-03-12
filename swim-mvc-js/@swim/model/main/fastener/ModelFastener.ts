@@ -23,6 +23,8 @@ export type ModelFastenerMemberType<M, K extends keyof M> =
 export type ModelFastenerMemberInit<M, K extends keyof M> =
   M extends {[P in K]: ModelFastener<any, infer T, infer U>} ? T | U : unknown;
 
+export type ModelFastenerFlags = number;
+
 export interface ModelFastenerInit<S extends Model, U = never> {
   extends?: ModelFastenerClass;
   key?: string | boolean;
@@ -58,6 +60,12 @@ export interface ModelFastener<M extends Model, S extends Model, U = never> {
   readonly name: string;
 
   readonly owner: M;
+
+  /** @hidden */
+  fastenerFlags: ModelFastenerFlags;
+
+  /** @hidden */
+  setFastenerFlags(fastenerFlags: ModelFastenerFlags): void;
 
   readonly key: string | undefined;
 
@@ -108,11 +116,31 @@ export interface ModelFastener<M extends Model, S extends Model, U = never> {
 
   fromAny(value: S | U): S | null;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
 }
 
 export const ModelFastener = function <M extends Model, S extends Model, U>(
@@ -138,6 +166,9 @@ export const ModelFastener = function <M extends Model, S extends Model, U>(
 
   define<M extends Model, S extends Model = Model, U = never, I = {}>(descriptor: {observe: boolean} & ModelFastenerDescriptor<M, S, U, I & ModelObserverType<S>>): ModelFastenerConstructor<M, S, U, I>;
   define<M extends Model, S extends Model = Model, U = never, I = {}>(descriptor: ModelFastenerDescriptor<M, S, U, I>): ModelFastenerConstructor<M, S, U, I>;
+
+  /** @hidden */
+  MountedFlag: ModelFastenerFlags;
 };
 __extends(ModelFastener, Object);
 
@@ -152,6 +183,11 @@ function ModelFastenerConstructor<M extends Model, S extends Model, U>(this: Mod
   Object.defineProperty(this, "owner", {
     value: owner,
     enumerable: true,
+  });
+  Object.defineProperty(this, "fastenerFlags", {
+    value: 0,
+    enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "key", {
     value: key,
@@ -169,6 +205,14 @@ function ModelFastenerConstructor<M extends Model, S extends Model, U>(this: Mod
 function ModelFastenerDecoratorFactory<M extends Model, S extends Model, U>(descriptor: ModelFastenerDescriptor<M, S, U>): PropertyDecorator {
   return Model.decorateModelFastener.bind(Model, ModelFastener.define(descriptor as ModelFastenerDescriptor<Model, Model>));
 }
+
+ModelFastener.prototype.setFastenerFlags = function (this: ModelFastener<Model, Model>, fastenerFlags: ModelFastenerFlags): void {
+  Object.defineProperty(this, "fastenerFlags", {
+    value: fastenerFlags,
+    enumerable: true,
+    configurable: true,
+  });
+};
 
 ModelFastener.prototype.getModel = function <S extends Model>(this: ModelFastener<Model, S>): S {
   const model = this.model;
@@ -218,13 +262,13 @@ ModelFastener.prototype.doSetModel = function <S extends Model>(this: ModelFaste
 };
 
 ModelFastener.prototype.attachModel = function <S extends Model>(this: ModelFastener<Model, S>, newModel: S): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     newModel.addModelObserver(this as ModelObserverType<S>);
   }
 };
 
 ModelFastener.prototype.detachModel = function <S extends Model>(this: ModelFastener<Model, S>, oldModel: S): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     oldModel.removeModelObserver(this as ModelObserverType<S>);
   }
 };
@@ -309,18 +353,50 @@ ModelFastener.prototype.fromAny = function <S extends Model, U>(this: ModelFaste
   return null;
 };
 
-ModelFastener.prototype.mount = function <S extends Model>(this: ModelFastener<Model, S>): void {
-  const model = this.model;
-  if (model !== null && this.observe === true) {
-    model.addModelObserver(this as ModelObserverType<S>);
+ModelFastener.prototype.isMounted = function (this: ModelFastener<Model, Model>): boolean {
+  return (this.fastenerFlags & ModelFastener.MountedFlag) !== 0;
+};
+
+ModelFastener.prototype.mount = function (this: ModelFastener<Model, Model>): void {
+  if ((this.fastenerFlags & ModelFastener.MountedFlag) === 0) {
+    this.willMount();
+    this.setFastenerFlags(this.fastenerFlags | ModelFastener.MountedFlag);
+    this.onMount();
+    this.didMount();
   }
 };
 
-ModelFastener.prototype.unmount = function <S extends Model>(this: ModelFastener<Model, S>): void {
-  const model = this.model;
-  if (model !== null && this.observe === true) {
-    model.removeModelObserver(this as ModelObserverType<S>);
+ModelFastener.prototype.willMount = function (this: ModelFastener<Model, Model>): void {
+  // hook
+};
+
+ModelFastener.prototype.onMount = function (this: ModelFastener<Model, Model>): void {
+  // hook
+};
+
+ModelFastener.prototype.didMount = function (this: ModelFastener<Model, Model>): void {
+  // hook
+};
+
+ModelFastener.prototype.unmount = function (this: ModelFastener<Model, Model>): void {
+  if ((this.fastenerFlags & ModelFastener.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setFastenerFlags(this.fastenerFlags & ~ModelFastener.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
   }
+};
+
+ModelFastener.prototype.willUnmount = function (this: ModelFastener<Model, Model>): void {
+  // hook
+};
+
+ModelFastener.prototype.onUnmount = function (this: ModelFastener<Model, Model>): void {
+  // hook
+};
+
+ModelFastener.prototype.didUnmount = function (this: ModelFastener<Model, Model>): void {
+  // hook
 };
 
 ModelFastener.define = function <M extends Model, S extends Model, U, I>(descriptor: ModelFastenerDescriptor<M, S, U, I>): ModelFastenerConstructor<M, S, U, I> {
@@ -357,3 +433,5 @@ ModelFastener.define = function <M extends Model, S extends Model, U, I>(descrip
 
   return _constructor;
 };
+
+ModelFastener.MountedFlag = 1 << 0;

@@ -23,6 +23,8 @@ export type ComponentFastenerMemberType<C, K extends keyof C> =
 export type ComponentFastenerMemberInit<C, K extends keyof C> =
   C extends {[P in K]: ComponentFastener<any, infer T, infer U>} ? T | U : unknown;
 
+export type ComponentFastenerFlags = number;
+
 export interface ComponentFastenerInit<S extends Component, U = never> {
   extends?: ComponentFastenerClass;
   key?: string | boolean;
@@ -58,6 +60,12 @@ export interface ComponentFastener<C extends Component, S extends Component, U =
   readonly name: string;
 
   readonly owner: C;
+
+  /** @hidden */
+  fastenerFlags: ComponentFastenerFlags;
+
+  /** @hidden */
+  setFastenerFlags(fastenerFlags: ComponentFastenerFlags): void;
 
   readonly key: string | undefined;
 
@@ -108,11 +116,31 @@ export interface ComponentFastener<C extends Component, S extends Component, U =
 
   fromAny(value: S | U): S | null;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
 }
 
 export const ComponentFastener = function <C extends Component, S extends Component, U>(
@@ -138,6 +166,9 @@ export const ComponentFastener = function <C extends Component, S extends Compon
 
   define<C extends Component, S extends Component = Component, U = never, I = {}>(descriptor: {observe: boolean} & ComponentFastenerDescriptor<C, S, U, I & ComponentObserverType<S>>): ComponentFastenerConstructor<C, S, U, I>;
   define<C extends Component, S extends Component = Component, U = never, I = {}>(descriptor: ComponentFastenerDescriptor<C, S, U, I>): ComponentFastenerConstructor<C, S, U, I>;
+
+  /** @hidden */
+  MountedFlag: ComponentFastenerFlags;
 };
 __extends(ComponentFastener, Object);
 
@@ -152,6 +183,11 @@ function ComponentFastenerConstructor<C extends Component, S extends Component, 
   Object.defineProperty(this, "owner", {
     value: owner,
     enumerable: true,
+  });
+  Object.defineProperty(this, "fastenerFlags", {
+    value: 0,
+    enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "key", {
     value: key,
@@ -169,6 +205,14 @@ function ComponentFastenerConstructor<C extends Component, S extends Component, 
 function ComponentFastenerDecoratorFactory<C extends Component, S extends Component, U>(descriptor: ComponentFastenerDescriptor<C, S, U>): PropertyDecorator {
   return Component.decorateComponentFastener.bind(Component, ComponentFastener.define(descriptor as ComponentFastenerDescriptor<Component, Component>));
 }
+
+ComponentFastener.prototype.setFastenerFlags = function (this: ComponentFastener<Component, Component>, fastenerFlags: ComponentFastenerFlags): void {
+  Object.defineProperty(this, "fastenerFlags", {
+    value: fastenerFlags,
+    enumerable: true,
+    configurable: true,
+  });
+};
 
 ComponentFastener.prototype.getComponent = function <S extends Component>(this: ComponentFastener<Component, S>): S {
   const component = this.component;
@@ -218,13 +262,13 @@ ComponentFastener.prototype.doSetComponent = function <S extends Component>(this
 };
 
 ComponentFastener.prototype.attachComponent = function <S extends Component>(this: ComponentFastener<Component, S>, newComponent: S): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     newComponent.addComponentObserver(this as ComponentObserverType<S>);
   }
 };
 
 ComponentFastener.prototype.detachComponent = function <S extends Component>(this: ComponentFastener<Component, S>, oldComponent: S): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     oldComponent.removeComponentObserver(this as ComponentObserverType<S>);
   }
 };
@@ -309,18 +353,50 @@ ComponentFastener.prototype.fromAny = function <S extends Component, U>(this: Co
   return null;
 };
 
-ComponentFastener.prototype.mount = function <S extends Component>(this: ComponentFastener<Component, S>): void {
-  const component = this.component;
-  if (component !== null && this.observe === true) {
-    component.addComponentObserver(this as ComponentObserverType<S>);
+ComponentFastener.prototype.isMounted = function (this: ComponentFastener<Component, Component>): boolean {
+  return (this.fastenerFlags & ComponentFastener.MountedFlag) !== 0;
+};
+
+ComponentFastener.prototype.mount = function (this: ComponentFastener<Component, Component>): void {
+  if ((this.fastenerFlags & ComponentFastener.MountedFlag) === 0) {
+    this.willMount();
+    this.setFastenerFlags(this.fastenerFlags | ComponentFastener.MountedFlag);
+    this.onMount();
+    this.didMount();
   }
 };
 
-ComponentFastener.prototype.unmount = function <S extends Component>(this: ComponentFastener<Component, S>): void {
-  const component = this.component;
-  if (component !== null && this.observe === true) {
-    component.removeComponentObserver(this as ComponentObserverType<S>);
+ComponentFastener.prototype.willMount = function (this: ComponentFastener<Component, Component>): void {
+  // hook
+};
+
+ComponentFastener.prototype.onMount = function (this: ComponentFastener<Component, Component>): void {
+  // hook
+};
+
+ComponentFastener.prototype.didMount = function (this: ComponentFastener<Component, Component>): void {
+  // hook
+};
+
+ComponentFastener.prototype.unmount = function (this: ComponentFastener<Component, Component>): void {
+  if ((this.fastenerFlags & ComponentFastener.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setFastenerFlags(this.fastenerFlags & ~ComponentFastener.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
   }
+};
+
+ComponentFastener.prototype.willUnmount = function (this: ComponentFastener<Component, Component>): void {
+  // hook
+};
+
+ComponentFastener.prototype.onUnmount = function (this: ComponentFastener<Component, Component>): void {
+  // hook
+};
+
+ComponentFastener.prototype.didUnmount = function (this: ComponentFastener<Component, Component>): void {
+  // hook
 };
 
 ComponentFastener.define = function <C extends Component, S extends Component, U, I>(descriptor: ComponentFastenerDescriptor<C, S, U, I>): ComponentFastenerConstructor<C, S, U, I> {
@@ -357,3 +433,5 @@ ComponentFastener.define = function <C extends Component, S extends Component, U
 
   return _constructor;
 };
+
+ComponentFastener.MountedFlag = 1 << 0;

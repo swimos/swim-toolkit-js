@@ -34,6 +34,8 @@ export type ViewFastenerMemberType<V, K extends keyof V> =
 export type ViewFastenerMemberInit<V, K extends keyof V> =
   V extends {[P in K]: ViewFastener<any, infer T, infer U>} ? T | U : unknown;
 
+export type ViewFastenerFlags = number;
+
 export interface ViewFastenerInit<S extends View, U = never> {
   extends?: ViewFastenerClass;
   key?: string | boolean;
@@ -69,6 +71,12 @@ export interface ViewFastener<V extends View, S extends View, U = never> extends
   readonly name: string;
 
   readonly owner: V;
+
+  /** @hidden */
+  fastenerFlags: ViewFastenerFlags;
+
+  /** @hidden */
+  setFastenerFlags(fastenerFlags: ViewFastenerFlags): void;
 
   readonly key: string | undefined;
 
@@ -161,11 +169,31 @@ export interface ViewFastener<V extends View, S extends View, U = never> extends
 
   fromAny(value: S | U): S | null;
 
+  isMounted(): boolean;
+
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
 }
 
 export const ViewFastener = function <V extends View, S extends View, U>(
@@ -191,6 +219,9 @@ export const ViewFastener = function <V extends View, S extends View, U>(
 
   define<V extends View, S extends View = View, U = never, I = {}>(descriptor: {observe: boolean} & ViewFastenerDescriptor<V, S, U, I & ViewObserverType<S>>): ViewFastenerConstructor<V, S, U, I>;
   define<V extends View, S extends View = View, U = never, I = {}>(descriptor: ViewFastenerDescriptor<V, S, U, I>): ViewFastenerConstructor<V, S, U, I>;
+
+  /** @hidden */
+  MountedFlag: ViewFastenerFlags;
 };
 __extends(ViewFastener, Object);
 
@@ -205,6 +236,11 @@ function ViewFastenerConstructor<V extends View, S extends View, U>(this: ViewFa
   Object.defineProperty(this, "owner", {
     value: owner,
     enumerable: true,
+  });
+  Object.defineProperty(this, "fastenerFlags", {
+    value: 0,
+    enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(this, "key", {
     value: key,
@@ -232,6 +268,14 @@ function ViewFastenerConstructor<V extends View, S extends View, U>(this: ViewFa
 function ViewFastenerDecoratorFactory<V extends View, S extends View, U>(descriptor: ViewFastenerDescriptor<V, S, U>): PropertyDecorator {
   return View.decorateViewFastener.bind(View, ViewFastener.define(descriptor as ViewFastenerDescriptor<View, View>));
 }
+
+ViewFastener.prototype.setFastenerFlags = function (this: ViewFastener<View, View>, fastenerFlags: ViewFastenerFlags): void {
+  Object.defineProperty(this, "fastenerFlags", {
+    value: fastenerFlags,
+    enumerable: true,
+    configurable: true,
+  });
+};
 
 ViewFastener.prototype.getView = function <S extends View>(this: ViewFastener<View, S>): S {
   const view = this.view;
@@ -282,13 +326,13 @@ ViewFastener.prototype.doSetView = function <S extends View>(this: ViewFastener<
 };
 
 ViewFastener.prototype.attachView = function <S extends View>(this: ViewFastener<View, S>, newView: S): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     newView.addViewObserver(this as ViewObserverType<S>);
   }
 };
 
 ViewFastener.prototype.detachView = function <S extends View>(this: ViewFastener<View, S>, oldView: S): void {
-  if (this.observe === true && this.owner.isMounted()) {
+  if (this.observe === true) {
     oldView.removeViewObserver(this as ViewObserverType<S>);
   }
 };
@@ -508,20 +552,50 @@ ViewFastener.prototype.fromAny = function <S extends View, U>(this: ViewFastener
   return null;
 };
 
-ViewFastener.prototype.mount = function <S extends View>(this: ViewFastener<View, S>): void {
-  this.activateLayout();
-  const view = this.view;
-  if (view !== null && this.observe === true) {
-    view.addViewObserver(this as ViewObserverType<S>);
+ViewFastener.prototype.isMounted = function (this: ViewFastener<View, View>): boolean {
+  return (this.fastenerFlags & ViewFastener.MountedFlag) !== 0;
+};
+
+ViewFastener.prototype.mount = function (this: ViewFastener<View, View>): void {
+  if ((this.fastenerFlags & ViewFastener.MountedFlag) === 0) {
+    this.willMount();
+    this.setFastenerFlags(this.fastenerFlags | ViewFastener.MountedFlag);
+    this.onMount();
+    this.didMount();
   }
 };
 
-ViewFastener.prototype.unmount = function <S extends View>(this: ViewFastener<View, S>): void {
-  const view = this.view;
-  if (view !== null && this.observe === true) {
-    view.removeViewObserver(this as ViewObserverType<S>);
+ViewFastener.prototype.willMount = function (this: ViewFastener<View, View>): void {
+  // hook
+};
+
+ViewFastener.prototype.onMount = function (this: ViewFastener<View, View>): void {
+  this.activateLayout();
+};
+
+ViewFastener.prototype.didMount = function (this: ViewFastener<View, View>): void {
+  // hook
+};
+
+ViewFastener.prototype.unmount = function (this: ViewFastener<View, View>): void {
+  if ((this.fastenerFlags & ViewFastener.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setFastenerFlags(this.fastenerFlags & ~ViewFastener.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
   }
+};
+
+ViewFastener.prototype.willUnmount = function (this: ViewFastener<View, View>): void {
+  // hook
+};
+
+ViewFastener.prototype.onUnmount = function (this: ViewFastener<View, View>): void {
   this.deactivateLayout();
+};
+
+ViewFastener.prototype.didUnmount = function (this: ViewFastener<View, View>): void {
+  // hook
 };
 
 ViewFastener.define = function <V extends View, S extends View, U, I>(descriptor: ViewFastenerDescriptor<V, S, U, I>): ViewFastenerConstructor<V, S, U, I> {
@@ -558,3 +632,5 @@ ViewFastener.define = function <V extends View, S extends View, U, I>(descriptor
 
   return _constructor;
 };
+
+ViewFastener.MountedFlag = 1 << 0;

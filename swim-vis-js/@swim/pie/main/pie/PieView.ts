@@ -291,7 +291,14 @@ export class PieView extends LayerView {
   }
 
   protected initSlice(sliceView: SliceView, sliceFastener: ViewFastener<this, SliceView>): void {
-    // hook
+    const labelView = sliceView.label.view;
+    if (labelView !== null) {
+      this.initSliceLabel(labelView, sliceView);
+    }
+    const legendView = sliceView.legend.view;
+    if (legendView !== null) {
+      this.initSliceLegend(legendView, sliceView);
+    }
   }
 
   protected willSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null,
@@ -335,6 +342,14 @@ export class PieView extends LayerView {
     this.requireUpdate(View.NeedsLayout);
   }
 
+  protected initSliceLabel(labelView: GraphicsView, sliceView: SliceView): void {
+    this.requireUpdate(View.NeedsLayout);
+  }
+
+  protected initSliceLegend(legendView: GraphicsView, sliceView: SliceView): void {
+    this.requireUpdate(View.NeedsLayout);
+  }
+
   /** @hidden */
   static SliceFastener = ViewFastener.define<PieView, SliceView>({
     type: SliceView,
@@ -351,6 +366,16 @@ export class PieView extends LayerView {
     },
     sliceViewDidSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
       this.owner.onSetSliceValue(newValue, sliceView);
+    },
+    sliceViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceView: SliceView): void {
+      if (newLabelView !== null) {
+        this.owner.initSliceLabel(newLabelView, sliceView);
+      }
+    },
+    sliceViewDidSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceView: SliceView): void {
+      if (newLegendView !== null) {
+        this.owner.initSliceLegend(newLegendView, sliceView);
+      }
     },
   });
 
