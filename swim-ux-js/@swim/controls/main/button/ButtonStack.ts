@@ -16,10 +16,19 @@ import {Lazy} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Length} from "@swim/math";
 import {Look} from "@swim/theme";
-import {ViewContextType, View, ModalOptions, ModalState, Modal, ViewAnimator} from "@swim/view";
+import {
+  ViewContextType,
+  View,
+  ModalOptions,
+  ModalState,
+  Modal,
+  ViewAnimator,
+  PositionGestureInput,
+  PositionGesture,
+  PositionGestureDelegate,
+} from "@swim/view";
 import {StyleAnimator, ViewNode, HtmlView} from "@swim/dom";
 import {Graphics, VectorIcon} from "@swim/graphics";
-import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import {FloatingButton} from "./FloatingButton";
 import {ButtonItem} from "./ButtonItem";
 import type {ButtonStackObserver} from "./ButtonStackObserver";

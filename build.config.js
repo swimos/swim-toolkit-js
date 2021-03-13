@@ -413,17 +413,6 @@ const ui = [
     ],
   },
   {
-    id: "gesture",
-    name: "@swim/gesture",
-    path: "swim-ui-js/@swim/gesture",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view"],
-      },
-    ],
-  },
-  {
     id: "ui",
     name: "@swim/ui",
     path: "swim-ui-js/@swim/ui",
@@ -432,7 +421,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture"],
+        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom", "graphics"],
       },
     ],
   },
@@ -484,7 +473,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture"],
+        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics"],
       },
     ],
   },
@@ -495,7 +484,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "model", "component", "controls"],
+        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "model", "component", "controls"],
       },
     ],
   },
@@ -506,7 +495,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "controls"],
+        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "controls"],
       },
     ],
   },
@@ -517,7 +506,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "controls"],
+        deps: ["util", "codec", "mapping", "structure", "math", "time", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "controls"],
       },
     ],
   },
@@ -566,7 +555,7 @@ const vis = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "collections", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture", "model", "component"],
+        deps: ["util", "codec", "mapping", "collections", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "model", "component"],
       },
     ],
   },

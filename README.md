@@ -53,8 +53,6 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
 - [**@swim/graphics**](swim-ui-js/@swim/graphics) –
   canvas graphics views, with procedurally animated shapes, and procedurally
   styled typesetters.
-- [**@swim/gesture**](swim-ui-js/@swim/gesture) –
-  multitouch gesture recognizers, with kinematic surface modeling.
 
 ### [**Swim MVC** Framework](swim-mvc-js)
 

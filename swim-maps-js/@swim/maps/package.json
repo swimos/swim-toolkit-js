@@ -31,7 +31,6 @@
     "@swim/view": "3.11.0-dev.20201021",
     "@swim/dom": "3.11.0-dev.20201021",
     "@swim/graphics": "3.11.0-dev.20201021",
-    "@swim/gesture": "3.11.0-dev.20201021",
     "@swim/map": "3.11.0-dev.20201021",
     "@swim/mapbox": "3.11.0-dev.20201021",
     "@swim/googlemap": "3.11.0-dev.20201021",

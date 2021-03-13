@@ -16,10 +16,18 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import type {Height} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, View, ViewEdgeInsets, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
+import {
+  ViewContextType,
+  View,
+  ViewEdgeInsets,
+  ViewProperty,
+  ViewAnimator,
+  ViewFastener,
+  PositionGestureInput,
+  PositionGestureDelegate,
+} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {Graphics, HtmlIconView} from "@swim/graphics";
-import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembrane} from "@swim/controls";
 import type {ListItemObserver} from "./ListItemObserver";
 import type {ListItemController} from "./ListItemController";

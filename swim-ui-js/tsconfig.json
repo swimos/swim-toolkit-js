@@ -10,7 +10,6 @@
     {"path": "./@swim/view"},
     {"path": "./@swim/dom"},
     {"path": "./@swim/graphics"},
-    {"path": "./@swim/gesture"},
     {"path": "./@swim/ui"}
   ]
 }

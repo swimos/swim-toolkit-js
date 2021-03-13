@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ViewObserverType, View, ViewObserver} from "@swim/view";
+import type {View} from "../View";
+import type {ViewObserverType, ViewObserver} from "../ViewObserver";
 import type {GestureInputType} from "./GestureInput";
 import {PositionGestureInput} from "./PositionGestureInput";
 import type {PositionGestureDelegate} from "./PositionGestureDelegate";

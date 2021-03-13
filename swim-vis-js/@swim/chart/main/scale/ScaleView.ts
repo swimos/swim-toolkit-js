@@ -29,9 +29,17 @@ import type {BoxR2} from "@swim/math";
 import {DateTime, TimeDomain, TimeScale} from "@swim/time";
 import {AnyColor, Color} from "@swim/color";
 import {AnyFont, Font} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
+import {
+  ViewContextType,
+  ViewFlags,
+  View,
+  ViewProperty,
+  ViewAnimator,
+  ScaleGestureInput,
+  ScaleGestureDelegate,
+  ScaleGesture,
+} from "@swim/view";
 import {GraphicsViewInit, LayerView} from "@swim/graphics";
-import {ScaleGestureInput, ScaleGestureDelegate, ScaleGesture} from "@swim/gesture";
 import {ScaleXView} from "./ScaleXView";
 import {ScaleYView} from "./ScaleYView";
 import type {ScaleXYView} from "./ScaleXYView";

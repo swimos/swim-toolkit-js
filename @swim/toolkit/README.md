@@ -81,10 +81,6 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
   [doc](https://docs.swimos.org/js/latest/modules/_swim_graphics.html)) –
   canvas graphics views, with procedurally animated shapes, and procedurally
   styled typesetters.
-- [**@swim/gesture**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/gesture)
-  ([npm](https://www.npmjs.com/package/@swim/gesture),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_gesture.html)) –
-  multitouch gesture recognizers, with kinematic surface modeling.
 
 ### [**Swim MVC** Framework](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js)
 

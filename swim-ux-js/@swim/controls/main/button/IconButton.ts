@@ -16,10 +16,25 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length, Angle, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewContext, View, ViewObserverType, ViewAnimator, ViewFastener} from "@swim/view";
+import {
+  ViewContextType,
+  ViewContext,
+  View,
+  ViewObserverType,
+  ViewAnimator,
+  ViewFastener,
+  PositionGestureDelegate,
+} from "@swim/view";
 import type {HtmlViewObserver, HtmlViewController} from "@swim/dom";
-import {Graphics, Icon, FilledIcon, IconViewInit, IconView, IconViewAnimator, SvgIconView} from "@swim/graphics";
-import type {PositionGestureDelegate} from "@swim/gesture";
+import {
+  Graphics,
+  Icon,
+  FilledIcon,
+  IconViewInit,
+  IconView,
+  IconViewAnimator,
+  SvgIconView,
+} from "@swim/graphics";
 import type {ButtonObserver} from "./ButtonObserver";
 import {ButtonMembraneInit, ButtonMembrane} from "./ButtonMembrane";
 

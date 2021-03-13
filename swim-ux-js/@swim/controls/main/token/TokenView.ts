@@ -16,10 +16,20 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import {Length, BoxR2} from "@swim/math";
 import type {Color} from "@swim/color";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewObserver, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
+import {
+  ViewContextType,
+  ViewFlags,
+  View,
+  ViewObserver,
+  ViewProperty,
+  ViewAnimator,
+  ViewFastener,
+  PositionGestureInput,
+  PositionGesture,
+  PositionGestureDelegate,
+} from "@swim/view";
 import {HtmlViewInit, HtmlView, SvgView} from "@swim/dom";
 import {Graphics, PathContext, PathRenderer} from "@swim/graphics";
-import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
 import type {TokenViewObserver} from "./TokenViewObserver";
 import type {TokenViewController} from "./TokenViewController";
 

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {PositionGestureInput} from "@swim/view";
 import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
-import type {PositionGestureInput} from "@swim/gesture";
 import type {TreeCellObserver} from "./TreeCellObserver";
 import type {TreeCellController} from "./TreeCellController";
 import {TitleTreeCell} from "../"; // forward import

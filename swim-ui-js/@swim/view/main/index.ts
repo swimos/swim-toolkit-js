@@ -73,6 +73,8 @@ export * from "./fastener";
 
 export * from "./event";
 
+export * from "./gesture";
+
 declare global {
   interface VisualViewportEventMap {
     "resize": UIEvent;

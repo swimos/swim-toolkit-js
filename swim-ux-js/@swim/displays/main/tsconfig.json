@@ -18,7 +18,6 @@
       "@swim/view": ["../swim-ui-js/@swim/view/main"],
       "@swim/dom": ["../swim-ui-js/@swim/dom/main"],
       "@swim/graphics": ["../swim-ui-js/@swim/graphics/main"],
-      "@swim/gesture": ["../swim-ui-js/@swim/gesture/main"],
       "@swim/model": ["../swim-mvc-js/@swim/model/main"],
       "@swim/component": ["../swim-mvc-js/@swim/component/main"],
       "@swim/controls": ["@swim/controls/main"]
@@ -40,7 +39,6 @@
     {"path": "../../../../swim-ui-js/@swim/view/main"},
     {"path": "../../../../swim-ui-js/@swim/dom/main"},
     {"path": "../../../../swim-ui-js/@swim/graphics/main"},
-    {"path": "../../../../swim-ui-js/@swim/gesture/main"},
     {"path": "../../../../swim-mvc-js/@swim/model/main"},
     {"path": "../../../../swim-mvc-js/@swim/component/main"},
     {"path": "../../controls/main"}

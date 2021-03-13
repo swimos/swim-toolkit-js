@@ -25,7 +25,6 @@
     "@swim/view": "3.11.0-dev.20201021",
     "@swim/dom": "3.11.0-dev.20201021",
     "@swim/graphics": "3.11.0-dev.20201021",
-    "@swim/gesture": "3.11.0-dev.20201021",
     "@swim/controls": "3.11.0-dev.20201021"
   }
 }

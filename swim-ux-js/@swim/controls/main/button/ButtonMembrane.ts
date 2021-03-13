@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {HtmlViewInit, HtmlView} from "@swim/dom";
-import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/gesture";
+import {PositionGestureInput, PositionGesture, PositionGestureDelegate} from "@swim/view";
 import {ButtonGlow} from "./ButtonGlow";
 
 export interface ButtonMembraneInit extends HtmlViewInit {

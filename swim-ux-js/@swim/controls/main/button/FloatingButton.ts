@@ -15,9 +15,16 @@
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Length, Angle, Transform} from "@swim/math";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewContext, ViewObserverType, ViewAnimator, ViewFastener} from "@swim/view";
+import {
+  ViewContextType,
+  ViewContext,
+  ViewObserverType,
+  ViewAnimator,
+  ViewFastener,
+  PositionGestureInput,
+  PositionGestureDelegate,
+} from "@swim/view";
 import {Graphics, HtmlIconView} from "@swim/graphics";
-import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembrane} from "./ButtonMembrane";
 
 export type FloatingButtonType = "regular" | "mini";

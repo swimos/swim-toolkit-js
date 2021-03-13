@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/mapping";
+import type {PositionGestureInput} from "@swim/view";
 import {HtmlViewController} from "@swim/dom";
-import type {PositionGestureInput} from "@swim/gesture";
 import type {TreeLeaf} from "./TreeLeaf";
 import type {TreeLeafObserver} from "./TreeLeafObserver";
 

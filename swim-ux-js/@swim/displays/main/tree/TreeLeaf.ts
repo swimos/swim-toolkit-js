@@ -14,9 +14,15 @@
 
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewProperty} from "@swim/view";
+import {
+  ViewContextType,
+  ViewFlags,
+  View,
+  ViewProperty,
+  PositionGestureInput,
+  PositionGestureDelegate,
+} from "@swim/view";
 import type {ViewNode, HtmlViewConstructor, HtmlView} from "@swim/dom";
-import type {PositionGestureInput, PositionGestureDelegate} from "@swim/gesture";
 import {ButtonMembraneInit, ButtonMembrane} from "@swim/controls";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeCell, TreeCell} from "./TreeCell";

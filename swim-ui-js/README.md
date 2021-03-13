@@ -38,8 +38,6 @@ The **Swim UI** framework consists of the following component libraries:
 - [**@swim/graphics**](@swim/graphics) –
   canvas graphics views, with procedurally animated shapes, and procedurally
   styled typesetters.
-- [**@swim/gesture**](@swim/gesture) –
-  multitouch gesture recognizers, with kinematic surface modeling.
 
 **Swim UI** builds on the [**Swim Core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js)
 framework; it has no additional dependencies.

@@ -20,4 +20,3 @@ export * from "@swim/theme";
 export * from "@swim/view";
 export * from "@swim/dom";
 export * from "@swim/graphics";
-export * from "@swim/gesture";

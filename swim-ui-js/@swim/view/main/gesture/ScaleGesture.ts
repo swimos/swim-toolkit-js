@@ -14,7 +14,9 @@
 
 import type {BoxR2} from "@swim/math";
 import type {AnyTiming, ContinuousScale} from "@swim/mapping";
-import {ViewContext, View, ViewObserver} from "@swim/view";
+import type {ViewContext} from "../ViewContext";
+import {View} from "../View";
+import type {ViewObserver} from "../ViewObserver";
 import type {GestureInputType} from "./GestureInput";
 import {AbstractMomentumGesture} from "./MomentumGesture";
 import type {ScaleGestureDelegate} from "./ScaleGestureDelegate";

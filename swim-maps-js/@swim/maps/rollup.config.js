@@ -26,7 +26,6 @@ const main = {
       "@swim/view": "swim",
       "@swim/dom": "swim",
       "@swim/graphics": "swim",
-      "@swim/gesture": "swim",
       "mapbox-gl": "mapboxgl",
     },
     sourcemap: true,
@@ -49,7 +48,6 @@ const main = {
     "@swim/view",
     "@swim/dom",
     "@swim/graphics",
-    "@swim/gesture",
     "mapbox-gl",
   ],
   plugins: [

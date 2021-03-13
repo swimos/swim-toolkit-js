@@ -15,9 +15,8 @@
 import type {Timing} from "@swim/mapping";
 import {Color} from "@swim/color";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewFastener} from "@swim/view";
+import {ViewFastener, PositionGesture} from "@swim/view";
 import {StyleRule, StyleSheet, HtmlView, StyleView, SvgView} from "@swim/dom";
-import type {PositionGesture} from "@swim/gesture";
 import {TokenViewInit, TokenView} from "./TokenView";
 import type {InputTokenViewObserver} from "./InputTokenViewObserver";
 import type {InputTokenViewController} from "./InputTokenViewController";

@@ -98,16 +98,6 @@ const ui = [
     ],
   },
   {
-    id: "gesture",
-    name: "@swim/gesture",
-    targets: [
-      {
-        id: "main",
-        deps: ["constraint", "animation", "color", "style", "theme", "view"],
-      },
-    ],
-  },
-  {
     id: "ui",
     name: "@swim/ui",
     title: "Swim UI",
@@ -115,7 +105,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom", "graphics", "gesture"],
+        deps: ["constraint", "animation", "color", "style", "theme", "view", "dom", "graphics"],
       },
     ],
   },
