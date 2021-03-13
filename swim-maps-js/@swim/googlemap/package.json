@@ -22,7 +22,6 @@
     "@swim/geo": "3.11.0-dev.20201021",
     "@swim/time": "3.11.0-dev.20201021",
     "@swim/constraint": "3.11.0-dev.20201021",
-    "@swim/animation": "3.11.0-dev.20201021",
     "@swim/color": "3.11.0-dev.20201021",
     "@swim/style": "3.11.0-dev.20201021",
     "@swim/theme": "3.11.0-dev.20201021",

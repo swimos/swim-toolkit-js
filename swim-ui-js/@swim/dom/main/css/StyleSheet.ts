@@ -22,7 +22,7 @@ import type {
   Constraint,
   ConstraintScope,
 } from "@swim/constraint";
-import type {AnimationTrack, AnimationTimeline} from "@swim/animation";
+import type {AnimationTrack, AnimationTimeline} from "@swim/view";
 import {CssContext} from "./CssContext";
 import type {CssRule} from "./CssRule";
 

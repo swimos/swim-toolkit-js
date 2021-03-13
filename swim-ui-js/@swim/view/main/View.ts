@@ -26,7 +26,6 @@ import {
   Constraint,
   ConstraintScope,
 } from "@swim/constraint";
-import type {AnimationTrack, AnimationTimeline} from "@swim/animation";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {ViewContextType, ViewContext} from "./ViewContext";
 import type {
@@ -54,6 +53,8 @@ import type {LayoutService} from "./service/LayoutService";
 import type {ThemeService} from "./service/ThemeService";
 import type {ModalService} from "./service/ModalService";
 import type {ViewPropertyConstructor, ViewProperty} from "./property/ViewProperty";
+import type {AnimationTrack} from "./animation/AnimationTrack";
+import type {AnimationTimeline} from "./animation/AnimationTimeline";
 import type {ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
 import type {ViewFastenerConstructor, ViewFastener} from "./fastener/ViewFastener";
 

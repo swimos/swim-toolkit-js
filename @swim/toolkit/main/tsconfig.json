@@ -21,7 +21,6 @@
       "@swim/client": ["../swim-system-js/swim-mesh-js/@swim/client/main"],
 
       "@swim/constraint": ["swim-ui-js/@swim/constraint/main"],
-      "@swim/animation": ["swim-ui-js/@swim/animation/main"],
       "@swim/color": ["swim-ui-js/@swim/color/main"],
       "@swim/style": ["swim-ui-js/@swim/style/main"],
       "@swim/theme": ["swim-ui-js/@swim/theme/main"],
@@ -55,7 +54,6 @@
   },
   "references": [
     {"path": "../../../swim-ui-js/@swim/constraint/main"},
-    {"path": "../../../swim-ui-js/@swim/animation/main"},
     {"path": "../../../swim-ui-js/@swim/color/main"},
     {"path": "../../../swim-ui-js/@swim/style/main"},
     {"path": "../../../swim-ui-js/@swim/theme/main"},

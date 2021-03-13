@@ -16,9 +16,9 @@ import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
 import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {Animator} from "@swim/animation";
 import {AnyColor, Color} from "@swim/color";
 import {AnyLineHeight, LineHeight, FontFamily, AnyBoxShadow, BoxShadow} from "@swim/style";
+import {Animator} from "@swim/view";
 import {StyleContext} from "./StyleContext";
 import {StringStyleAnimator} from "../"; // forward import
 import {NumberStyleAnimator} from "../"; // forward import

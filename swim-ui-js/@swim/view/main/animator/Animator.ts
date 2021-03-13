@@ -14,7 +14,7 @@
 
 import {Equals} from "@swim/util";
 import {AnyTiming, Timing, Easing, Interpolator} from "@swim/mapping";
-import type {AnimationTrack} from "./AnimationTrack";
+import type {AnimationTrack} from "../animation/AnimationTrack";
 
 export type AnimatorFlags = number;
 

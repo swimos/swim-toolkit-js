@@ -13,6 +13,11 @@
 // limitations under the License.
 
 export {
+  AnimatorFlags,
+  Animator,
+} from "./Animator";
+
+export {
   ViewAnimatorMemberType,
   ViewAnimatorMemberInit,
   ViewAnimatorInit,

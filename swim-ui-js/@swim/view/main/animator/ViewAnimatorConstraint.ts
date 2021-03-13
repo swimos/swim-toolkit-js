@@ -28,8 +28,8 @@ import {
   Constraint,
   ConstraintSolver,
 } from "@swim/constraint";
-import {Animator} from "@swim/animation";
 import {View} from "../View";
+import {Animator} from "./Animator";
 import {ViewAnimatorInit, ViewAnimator} from "./ViewAnimator";
 import {NumberViewAnimatorConstraint} from "../"; // forward import
 import {LengthViewAnimatorConstraint} from "../"; // forward import

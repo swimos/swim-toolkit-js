@@ -28,7 +28,7 @@ import {
   Constraint,
   ConstraintSolver,
 } from "@swim/constraint";
-import {Animator} from "@swim/animation";
+import {Animator} from "@swim/view";
 import {StyleContext} from "./StyleContext";
 import {StyleAnimatorInit, StyleAnimator} from "./StyleAnimator";
 import {NumberStyleAnimatorConstraint} from "../"; // forward import

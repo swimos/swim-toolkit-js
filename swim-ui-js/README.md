@@ -21,8 +21,6 @@ The **Swim UI** framework consists of the following component libraries:
   umbrella package that depends on, and re-exports, all Swim UI libraries.
 - [**@swim/constraint**](@swim/constraint) –
   incremental solver for systems of linear layout constraints.
-- [**@swim/animation**](@swim/animation) –
-  procedurally animated transitions between managed states.
 - [**@swim/color**](@swim/color) –
   RGB and HSL color types with color-space-aware operators, conversions,
   and parsers.

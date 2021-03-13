@@ -3,7 +3,6 @@
   "include": [],
   "references": [
     {"path": "./@swim/constraint"},
-    {"path": "./@swim/animation"},
     {"path": "./@swim/color"},
     {"path": "./@swim/style"},
     {"path": "./@swim/theme"},

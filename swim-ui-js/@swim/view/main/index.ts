@@ -67,6 +67,8 @@ export * from "./service";
 
 export * from "./property";
 
+export * from "./animation";
+
 export * from "./animator";
 
 export * from "./fastener";

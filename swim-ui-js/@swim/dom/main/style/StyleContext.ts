@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {ConstraintScope} from "@swim/constraint";
-import type {AnimationTimeline} from "@swim/animation";
+import type {AnimationTimeline} from "@swim/view";
 import type {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
 
 export interface StyleContext extends AnimationTimeline, ConstraintScope {

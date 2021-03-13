@@ -15,8 +15,3 @@
 export {AnimationTrack} from "./AnimationTrack";
 
 export {AnimationTimeline} from "./AnimationTimeline";
-
-export {
-  AnimatorFlags,
-  Animator,
-} from "./Animator";

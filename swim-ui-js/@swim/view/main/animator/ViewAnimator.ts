@@ -17,9 +17,9 @@ import {FromAny} from "@swim/util";
 import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/color";
-import {Animator} from "@swim/animation";
 import {AnyFont, Font} from "@swim/style";
 import {ViewFlags, View} from "../View";
+import {Animator} from "./Animator";
 import {StringViewAnimator} from "../"; // forward import
 import {BooleanViewAnimator} from "../"; // forward import
 import {NumberViewAnimator} from "../"; // forward import

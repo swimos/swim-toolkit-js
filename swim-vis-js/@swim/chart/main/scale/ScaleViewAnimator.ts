@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import {Domain, Range, AnyTiming, ContinuousScale} from "@swim/mapping";
-import {Animator} from "@swim/animation";
-import {View, ViewAnimator} from "@swim/view";
+import {View, Animator, ViewAnimator} from "@swim/view";
 import {ScaleView} from "../"; // forward import
 
 export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimator<V, ContinuousScale<X, Y> | undefined, ContinuousScale<X, Y> | string | undefined> {
