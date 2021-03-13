@@ -117,11 +117,17 @@ export abstract class GenericComponent extends Component {
   /** @hidden */
   setParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
     this.willSetParentComponent(newParentComponent, oldParentComponent);
+    if (oldParentComponent !== null) {
+      this.detachParentComponent(oldParentComponent);
+    }
     Object.defineProperty(this, "parentComponent", {
       value: newParentComponent,
       enumerable: true,
       configurable: true,
     });
+    if (newParentComponent !== null) {
+      this.attachParentComponent(newParentComponent);
+    }
     this.onSetParentComponent(newParentComponent, oldParentComponent);
     this.didSetParentComponent(newParentComponent, oldParentComponent);
   }

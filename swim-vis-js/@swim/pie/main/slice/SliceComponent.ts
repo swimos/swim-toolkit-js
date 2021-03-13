@@ -189,6 +189,7 @@ export class SliceComponent extends CompositeComponent {
       if (legend !== void 0) {
         sliceTrait.setLegend(legend);
       }
+      sliceView.setHidden(value === 0);
     } else if (value === 0) {
       sliceView.remove();
     }

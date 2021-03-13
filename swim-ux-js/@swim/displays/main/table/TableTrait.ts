@@ -371,6 +371,7 @@ export class TableTrait extends GenericTrait {
   static RowFastener = TraitFastener.define<TableTrait, RowTrait>({
     type: RowTrait,
     sibling: false,
+    observe: true,
     willSetTrait(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, targetTrait: Trait | null): void {
       this.owner.willSetRow(newRowTrait, oldRowTrait, targetTrait, this);
     },
@@ -385,6 +386,11 @@ export class TableTrait extends GenericTrait {
     },
     didSetTrait(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, targetTrait: Trait | null): void {
       this.owner.didSetRow(newRowTrait, oldRowTrait, targetTrait, this);
+    },
+    traitDidSetParentModel(newParentModel: Model | null, oldParentModel: Model | null, rowTrait: RowTrait): void {
+      if (newParentModel === null) {
+        this.owner.onRemoveRow(rowTrait);
+      }
     },
   });
 
@@ -474,6 +480,10 @@ export class TableTrait extends GenericTrait {
     }
   }
 
+  protected detectColTrait(trait: Trait): ColTrait | null {
+    return trait instanceof ColTrait ? trait : null;
+  }
+
   protected didSetModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null): void {
     if (newModel !== null) {
       this.detectModels(newModel);
@@ -504,6 +514,22 @@ export class TableTrait extends GenericTrait {
     const rowTrait = this.detectRowModel(childModel);
     if (rowTrait !== null) {
       this.onRemoveRow(rowTrait);
+    }
+  }
+
+  protected onInsertTrait(trait: Trait, targetTrait: Trait | null): void {
+    super.onInsertTrait(trait, targetTrait);
+    const colTrait = this.detectColTrait(trait);
+    if (colTrait !== null) {
+      this.onInsertCol(colTrait, targetTrait);
+    }
+  }
+
+  protected onRemoveTrait(trait: Trait): void {
+    super.onRemoveTrait(trait);
+    const colTrait = this.detectColTrait(trait);
+    if (colTrait !== null) {
+      this.onRemoveCol(colTrait);
     }
   }
 

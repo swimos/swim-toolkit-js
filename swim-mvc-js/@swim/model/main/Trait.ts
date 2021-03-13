@@ -221,6 +221,14 @@ export abstract class Trait implements ModelDownlinkContext {
     return model !== null ? model.parentModel : null;
   }
 
+  protected attachParentModel(parentModel: Model): void {
+    // hook
+  }
+
+  protected detachParentModel(parentModel: Model): void {
+    // hook
+  }
+
   protected willSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {

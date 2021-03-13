@@ -654,6 +654,10 @@ export class TableComponent extends CompositeComponent {
 
   protected onSetRow(newRowComponent: RowComponent | null, oldRowComponent: RowComponent | null,
                      rowFastener: ComponentFastener<this, RowComponent>): void {
+    if (oldRowComponent !== null) {
+      oldRowComponent.row.removeView();
+      oldRowComponent.remove();
+    }
     if (newRowComponent !== null) {
       this.initRow(newRowComponent, rowFastener);
     }
@@ -1083,5 +1087,11 @@ export class TableComponent extends CompositeComponent {
     this.unmountRowFasteners();
     this.unmountColFasteners();
     super.unmountComponentFasteners();
+  }
+
+  protected onUnmount(): void {
+    super.onUnmount();
+    this.table.setView(null);
+    this.table.setTrait(null);
   }
 }

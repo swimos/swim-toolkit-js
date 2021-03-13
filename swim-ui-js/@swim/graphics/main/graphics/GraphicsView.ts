@@ -228,11 +228,17 @@ export abstract class GraphicsView extends View {
   /** @hidden */
   setParentView(newParentView: View | null, oldParentView: View | null): void {
     this.willSetParentView(newParentView, oldParentView);
+    if (oldParentView !== null) {
+      this.detachParentView(oldParentView);
+    }
     Object.defineProperty(this, "parentView", {
       value: newParentView,
       enumerable: true,
       configurable: true,
     });
+    if (newParentView !== null) {
+      this.attachParentView(newParentView);
+    }
     this.onSetParentView(newParentView, oldParentView);
     this.didSetParentView(newParentView, oldParentView);
   }

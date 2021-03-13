@@ -125,11 +125,17 @@ export abstract class GenericModel extends Model {
   /** @hidden */
   setParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
     this.willSetParentModel(newParentModel, oldParentModel);
+    if (oldParentModel !== null) {
+      this.detachParentModel(oldParentModel);
+    }
     Object.defineProperty(this, "parentModel", {
       value: newParentModel,
       enumerable: true,
       configurable: true,
     });
+    if (newParentModel !== null) {
+      this.attachParentModel(newParentModel);
+    }
     this.onSetParentModel(newParentModel, oldParentModel);
     this.didSetParentModel(newParentModel, oldParentModel);
   }

@@ -179,6 +179,12 @@ export class NodeView extends View {
   /** @hidden */
   setParentView(newParentView: View | null, oldParentView: View | null): void {
     this.willSetParentView(newParentView, oldParentView);
+    if (oldParentView !== null) {
+      this.detachParentView(oldParentView);
+    }
+    if (newParentView !== null) {
+      this.attachParentView(newParentView);
+    }
     this.onSetParentView(newParentView, oldParentView);
     this.didSetParentView(newParentView, oldParentView);
   }

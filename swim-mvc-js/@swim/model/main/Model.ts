@@ -219,6 +219,38 @@ export abstract class Model implements ModelDownlinkContext {
   /** @hidden */
   abstract setParentModel(newParentModel: Model | null, oldParentModel: Model | null): void;
 
+  protected attachParentModel(parentModel: Model): void {
+    if (parentModel.isMounted()) {
+      this.cascadeMount();
+      if (parentModel.isPowered()) {
+        this.cascadePower();
+      }
+    }
+    const traits = this.traits;
+    for (let i = 0, n = traits.length; i < n; i += 1) {
+      (traits[i]! as any).attachParentModel(parentModel);
+    }
+  }
+
+  protected detachParentModel(parentModel: Model): void {
+    try {
+      const traits = this.traits;
+      for (let i = 0, n = traits.length; i < n; i += 1) {
+        (traits[i]! as any).detachParentModel(parentModel);
+      }
+    } finally {
+      if (this.isMounted()) {
+        try {
+          if (this.isPowered()) {
+            this.cascadeUnpower();
+          }
+        } finally {
+          this.cascadeUnmount();
+        }
+      }
+    }
+  }
+
   protected willSetParentModel(newParentModel: Model | null, oldParentModel: Model | null): void {
     const traits = this.traits;
     for (let i = 0, n = traits.length; i < n; i += 1) {
@@ -241,22 +273,6 @@ export abstract class Model implements ModelDownlinkContext {
     const traits = this.traits;
     for (let i = 0, n = traits.length; i < n; i += 1) {
       (traits[i]! as any).onSetParentModel(newParentModel, oldParentModel);
-    }
-    if (newParentModel !== null) {
-      if (newParentModel.isMounted()) {
-        this.cascadeMount();
-        if (newParentModel.isPowered()) {
-          this.cascadePower();
-        }
-      }
-    } else if (this.isMounted()) {
-      try {
-        if (this.isPowered()) {
-          this.cascadeUnpower();
-        }
-      } finally {
-        this.cascadeUnmount();
-      }
     }
   }
 

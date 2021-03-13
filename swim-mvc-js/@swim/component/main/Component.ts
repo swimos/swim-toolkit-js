@@ -168,6 +168,27 @@ export abstract class Component {
   /** @hidden */
   abstract setParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void;
 
+  protected attachParentComponent(parentComponent: Component): void {
+    if (parentComponent.isMounted()) {
+      this.cascadeMount();
+      if (parentComponent.isPowered()) {
+        this.cascadePower();
+      }
+    }
+  }
+
+  protected detachParentComponent(parentComponent: Component): void {
+    if (this.isMounted()) {
+      try {
+        if (this.isPowered()) {
+          this.cascadeUnpower();
+        }
+      } finally {
+        this.cascadeUnmount();
+      }
+    }
+  }
+
   protected willSetParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
@@ -179,22 +200,7 @@ export abstract class Component {
   }
 
   protected onSetParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {
-    if (newParentComponent !== null) {
-      if (newParentComponent.isMounted()) {
-        this.cascadeMount();
-        if (newParentComponent.isPowered()) {
-          this.cascadePower();
-        }
-      }
-    } else if (this.isMounted()) {
-      try {
-        if (this.isPowered()) {
-          this.cascadeUnpower();
-        }
-      } finally {
-        this.cascadeUnmount();
-      }
-    }
+    // hook
   }
 
   protected didSetParentComponent(newParentComponent: Component | null, oldParentComponent: Component | null): void {

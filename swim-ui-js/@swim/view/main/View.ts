@@ -308,6 +308,30 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   /** @hidden */
   abstract setParentView(newParentView: View | null, oldParentView: View | null): void;
 
+  protected attachParentView(parentView: View): void {
+    if (parentView.isMounted()) {
+      this.cascadeMount();
+      if (parentView.isPowered()) {
+        this.cascadePower();
+      }
+      if (parentView.isCulled()) {
+        this.cascadeCull();
+      }
+    }
+  }
+
+  protected detachParentView(parentView: View): void {
+    if (this.isMounted()) {
+      try {
+        if (this.isPowered()) {
+          this.cascadeUnpower();
+        }
+      } finally {
+        this.cascadeUnmount();
+      }
+    }
+  }
+
   protected willSetParentView(newParentView: View | null, oldParentView: View | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.viewWillSetParentView !== void 0) {
@@ -323,25 +347,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   protected onSetParentView(newParentView: View | null, oldParentView: View | null): void {
-    if (newParentView !== null) {
-      if (newParentView.isMounted()) {
-        this.cascadeMount();
-        if (newParentView.isPowered()) {
-          this.cascadePower();
-        }
-        if (newParentView.isCulled()) {
-          this.cascadeCull();
-        }
-      }
-    } else if (this.isMounted()) {
-      try {
-        if (this.isPowered()) {
-          this.cascadeUnpower();
-        }
-      } finally {
-        this.cascadeUnmount();
-      }
-    }
+    // hook
   }
 
   protected didSetParentView(newParentView: View | null, oldParentView: View | null): void {
