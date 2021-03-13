@@ -17,6 +17,21 @@ import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
 import {AnyColor, Color, AnyLinearGradient, LinearGradient} from "@swim/color";
 import {
+  FontStyle,
+  FontVariant,
+  FontWeight,
+  FontStretch,
+  AnyFontSize,
+  FontSize,
+  AnyLineHeight,
+  LineHeight,
+  FontFamily,
+  AnyFont,
+  Font,
+  AnyBoxShadow,
+  BoxShadow,
+} from "@swim/style";
+import type {
   AlignContent,
   AlignItems,
   AlignSelf,
@@ -50,20 +65,7 @@ import {
   Visibility,
   WhiteSpace,
   Width,
-  FontStyle,
-  FontVariant,
-  FontWeight,
-  FontStretch,
-  AnyFontSize,
-  FontSize,
-  AnyLineHeight,
-  LineHeight,
-  FontFamily,
-  AnyFont,
-  Font,
-  AnyBoxShadow,
-  BoxShadow,
-} from "@swim/style";
+} from "./types";
 import type {StyleContext} from "./StyleContext";
 import {StyleAnimatorMemberInit, StyleAnimator} from "./StyleAnimator";
 import {StyleAnimatorConstraint} from "./StyleAnimatorConstraint";

@@ -28,6 +28,9 @@ import {
   FontFamily,
   AnyFont,
   Font,
+} from "@swim/style";
+import type {ViewFactory, ViewConstructor, View} from "@swim/view";
+import type {
   AlignmentBaseline,
   CssCursor,
   FillRule,
@@ -36,8 +39,7 @@ import {
   SvgPointerEvents,
   TextAnchor,
   TouchAction,
-} from "@swim/style";
-import type {ViewFactory, ViewConstructor, View} from "@swim/view";
+} from "../style/types";
 import {StyleAnimatorMemberInit, StyleAnimator} from "../style/StyleAnimator";
 import {ViewNodeType, NodeViewConstructor, NodeView} from "../node/NodeView";
 import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";

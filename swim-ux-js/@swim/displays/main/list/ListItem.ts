@@ -14,7 +14,6 @@
 
 import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
-import type {Height} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
@@ -26,7 +25,7 @@ import {
   PositionGestureInput,
   PositionGestureDelegate,
 } from "@swim/view";
-import {HtmlView} from "@swim/dom";
+import {Height, HtmlView} from "@swim/dom";
 import {Graphics, HtmlIconView} from "@swim/graphics";
 import {ButtonMembrane} from "@swim/controls";
 import type {ListItemObserver} from "./ListItemObserver";
