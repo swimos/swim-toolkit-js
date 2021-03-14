@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import type {Timing} from "@swim/mapping";
+import type {Trait} from "@swim/model";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import type {HtmlView} from "@swim/dom";
-import type {Trait} from "@swim/model";
 import {Component,ComponentViewTrait, ComponentFastener, CompositeComponent} from "@swim/component";
 import type {CellView} from "../cell/CellView";
 import type {CellTrait} from "../cell/CellTrait";

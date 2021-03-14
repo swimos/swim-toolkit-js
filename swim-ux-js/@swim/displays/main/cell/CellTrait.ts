@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Equals} from "@swim/util";
-import type {HtmlView} from "@swim/dom";
 import {GenericTrait} from "@swim/model";
+import type {HtmlView} from "@swim/dom";
 import type {CellTraitObserver} from "./CellTraitObserver";
 
 export class CellTrait extends GenericTrait {

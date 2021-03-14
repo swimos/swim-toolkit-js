@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import type {View} from "@swim/view";
 import type {Model, Trait} from "@swim/model";
+import type {View} from "@swim/view";
 import type {ComponentContextType, ComponentContext} from "./ComponentContext";
 import type {ComponentObserverType, ComponentObserver} from "./ComponentObserver";
 import type {ComponentServiceConstructor, ComponentService} from "./service/ComponentService";

@@ -1,7 +1,7 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 
-const script = "swim-mvc";
+const script = "swim-component";
 const namespace = "swim";
 
 const main = {
@@ -25,6 +25,7 @@ const main = {
       "@swim/time": "swim",
       "@swim/warp": "swim",
       "@swim/client": "swim",
+      "@swim/model": "swim",
       "@swim/style": "swim",
       "@swim/theme": "swim",
       "@swim/view": "swim",
@@ -49,6 +50,7 @@ const main = {
     "@swim/time",
     "@swim/warp",
     "@swim/client",
+    "@swim/model",
     "@swim/style",
     "@swim/theme",
     "@swim/view",

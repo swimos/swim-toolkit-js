@@ -14,9 +14,9 @@
 
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
+import {Model, Trait, TraitObserverType} from "@swim/model";
 import {ViewFactory, View, ViewObserverType} from "@swim/view";
 import {NodeView} from "@swim/dom";
-import {Model, Trait, TraitObserverType} from "@swim/model";
 import {Component} from "../Component";
 
 export type ComponentViewTraitFlags = number;

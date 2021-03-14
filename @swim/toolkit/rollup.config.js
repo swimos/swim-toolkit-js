@@ -52,7 +52,6 @@ const main = {
   ],
   plugins: [
     nodeResolve({moduleDirectories: ["../../swim-ui-js",
-                                     "../../swim-mvc-js",
                                      "../../swim-ux-js",
                                      "../../swim-vis-js",
                                      "../../swim-maps-js",

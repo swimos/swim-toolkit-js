@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Equals} from "@swim/util";
-import type {GraphicsView} from "@swim/graphics";
 import {Model, TraitModelType, Trait, TraitFastener, GenericTrait} from "@swim/model";
+import type {GraphicsView} from "@swim/graphics";
 import {SliceTrait} from "../slice/SliceTrait";
 import type {PieTraitObserver} from "./PieTraitObserver";
 

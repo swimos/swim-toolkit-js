@@ -11,8 +11,6 @@ building pervasively real-time user interface applications.
 **@swim/toolkit** incorporates the
 [**@swim/ui**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js)
 real-time user interface toolkit, the
-[**@swim/mvc**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js)
-real-time component framework, the
 [**@swim/ux**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js)
 real-time application framework, the
 [**@swim/vis**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-vis-js)
@@ -46,6 +44,10 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
   pervasively real-time user interface toolkit, with a unified view hierarchy
   for HTML, SVG, and Canvas components, animated procedural styling, and
   constraint-based layouts.
+- [**@swim/model**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/model)
+  ([npm](https://www.npmjs.com/package/@swim/model),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_model.html)) –
+  lifecycle-managed model hierarchy supporting dynamic scoping and service injection.
 - [**@swim/style**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/style)
   ([npm](https://www.npmjs.com/package/@swim/style),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_style.html)) –
@@ -68,22 +70,7 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
   [doc](https://docs.swimos.org/js/latest/modules/_swim_graphics.html)) –
   canvas graphics views, with procedurally animated shapes, and procedurally
   styled typesetters.
-
-### [**Swim MVC** Framework](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js)
-
-The **Swim MVC** framework implements a model-view-controller framework built
-on the **Swim UI** toolkit.  **Swim MVC** consists of the following component
-libraries:
-
-- [**@swim/mvc**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/mvc)
-  ([npm](https://www.npmjs.com/package/@swim/mvc),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_mvc.html)) –
-  model-view-controller framework built on the **@swim/ui** toolkit.
-- [**@swim/model**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/model)
-  ([npm](https://www.npmjs.com/package/@swim/model),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_model.html)) –
-  lifecycle-managed model hierarchy supporting dynamic scoping and service injection.
-- [**@swim/component**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-mvc-js/@swim/component)
+- [**@swim/component**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/component)
   ([npm](https://www.npmjs.com/package/@swim/component),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_component.html)) –
   componentized controller layer with application lifecycle and service management.
@@ -186,8 +173,8 @@ bundles all **@swim/toolkit** child frameworks, can be found in
 
 Browser applications can load `swim-toolkit.js`, along with its `swim-system.js`
 dependency, from the SwimOS CDN.  The `swim-toolkit.js` bundle supersedes
-`swim-ui.js`, `swim-mvc.js`, `swim-ux.js`, `swim-vis.js`, and
-`swim-maps.js`—those scripts need not be loaded when using `swim-toolkit.js`.
+`swim-ui.js`, `swim-ux.js`, `swim-vis.js`, and `swim-maps.js`—those scripts
+need not be loaded when using `swim-toolkit.js`.
 
 ```html
 <!-- Development -->

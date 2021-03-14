@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Equals} from "@swim/util";
-import type {GraphicsView} from "@swim/graphics";
 import {GenericTrait} from "@swim/model";
+import type {GraphicsView} from "@swim/graphics";
 import type {SliceTraitObserver} from "./SliceTraitObserver";
 
 export class SliceTrait extends GenericTrait {

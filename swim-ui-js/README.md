@@ -19,6 +19,8 @@ The **Swim UI** framework consists of the following component libraries:
 
 - [**@swim/ui**](@swim/ui) –
   umbrella package that depends on, and re-exports, all Swim UI libraries.
+- [**@swim/model**](@swim/model) –
+  lifecycle-managed model hierarchy supporting dynamic scoping and service injection.
 - [**@swim/style**](@swim/style) –
   Font, color, gradient, shadow and related types and parsers.
 - [**@swim/theme**](@swim/theme) –
@@ -31,6 +33,8 @@ The **Swim UI** framework consists of the following component libraries:
 - [**@swim/graphics**](@swim/graphics) –
   canvas graphics views, with procedurally animated shapes, and procedurally
   styled typesetters.
+- [**@swim/component**](@swim/component) –
+  componentized controller layer with application lifecycle and service management.
 
 **Swim UI** builds on the [**Swim Core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js)
 framework; it has no additional dependencies.

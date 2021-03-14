@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import {AnyTiming, Timing} from "@swim/mapping";
+import type {Trait} from "@swim/model";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import type {GraphicsView} from "@swim/graphics";
-import type {Trait} from "@swim/model";
 import {
   Component,
   ComponentProperty,

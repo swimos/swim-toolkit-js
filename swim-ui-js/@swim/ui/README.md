@@ -17,6 +17,10 @@ part of the [**@swim/toolkit**](https://github.com/swimos/swim/tree/master/swim-
 The **@swim/ui** umbrella package depends on, and re-exports, the following
 component libraries:
 
+- [**@swim/model**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/model)
+  ([npm](https://www.npmjs.com/package/@swim/model),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_model.html)) –
+  lifecycle-managed model hierarchy supporting dynamic scoping and service injection.
 - [**@swim/style**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/style)
   ([npm](https://www.npmjs.com/package/@swim/style),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_style.html)) –
@@ -39,6 +43,10 @@ component libraries:
   [doc](https://docs.swimos.org/js/latest/modules/_swim_graphics.html)) –
   canvas graphics views, with procedurally animated shapes, and procedurally
   styled typesetters.
+- [**@swim/component**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/component)
+  ([npm](https://www.npmjs.com/package/@swim/component),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_component.html)) –
+  componentized controller layer with application lifecycle and service management.
 
 **@swim/ui** builds on the [**@swim/core**](https://github.com/swimos/swim/tree/master/swim-system-js/swim-core-js/@swim/core)
 framework; it has no additional dependencies.

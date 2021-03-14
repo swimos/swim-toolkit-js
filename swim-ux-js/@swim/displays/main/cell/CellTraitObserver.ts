@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {HtmlView} from "@swim/dom";
 import type {TraitObserver} from "@swim/model";
+import type {HtmlView} from "@swim/dom";
 import type {CellTrait} from "./CellTrait";
 
 export interface CellTraitObserver<R extends CellTrait = CellTrait> extends TraitObserver<R> {

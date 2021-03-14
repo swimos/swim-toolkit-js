@@ -1,5 +1,14 @@
 const ui = [
   {
+    id: "model",
+    name: "@swim/model",
+    targets: [
+      {
+        id: "main",
+      },
+    ],
+  },
+  {
     id: "style",
     name: "@swim/style",
     targets: [
@@ -57,6 +66,16 @@ const ui = [
     ],
   },
   {
+    id: "component",
+    name: "@swim/component",
+    targets: [
+      {
+        id: "main",
+        deps: ["model", "style", "theme", "view", "dom"],
+      },
+    ],
+  },
+  {
     id: "ui",
     name: "@swim/ui",
     title: "Swim UI",
@@ -64,7 +83,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["style", "theme", "view", "dom", "graphics"],
+        deps: ["model", "style", "theme", "view", "dom", "graphics", "component"],
       },
     ],
   },

@@ -21,16 +21,14 @@
       "@swim/warp": ["../swim-system-js/swim-mesh-js/@swim/warp/main"],
       "@swim/client": ["../swim-system-js/swim-mesh-js/@swim/client/main"],
 
+      "@swim/model": ["swim-ui-js/@swim/model/main"],
       "@swim/style": ["swim-ui-js/@swim/style/main"],
       "@swim/theme": ["swim-ui-js/@swim/theme/main"],
       "@swim/view": ["swim-ui-js/@swim/view/main"],
       "@swim/dom": ["swim-ui-js/@swim/dom/main"],
       "@swim/graphics": ["swim-ui-js/@swim/graphics/main"],
+      "@swim/component": ["swim-ui-js/@swim/component/main"],
       "@swim/ui": ["swim-ui-js/@swim/ui/main"],
-
-      "@swim/model": ["swim-mvc-js/@swim/model/main"],
-      "@swim/component": ["swim-mvc-js/@swim/component/main"],
-      "@swim/mvc": ["swim-mvc-js/@swim/mvc/main"],
 
       "@swim/controls": ["swim-ux-js/@swim/controls/main"],
       "@swim/displays": ["swim-ux-js/@swim/displays/main"],
@@ -52,16 +50,14 @@
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "references": [
+    {"path": "../../../swim-ui-js/@swim/model/main"},
     {"path": "../../../swim-ui-js/@swim/style/main"},
     {"path": "../../../swim-ui-js/@swim/theme/main"},
     {"path": "../../../swim-ui-js/@swim/view/main"},
     {"path": "../../../swim-ui-js/@swim/dom/main"},
     {"path": "../../../swim-ui-js/@swim/graphics/main"},
+    {"path": "../../../swim-ui-js/@swim/component/main"},
     {"path": "../../../swim-ui-js/@swim/ui/main"},
-
-    {"path": "../../../swim-mvc-js/@swim/model/main"},
-    {"path": "../../../swim-mvc-js/@swim/component/main"},
-    {"path": "../../../swim-mvc-js/@swim/mvc/main"},
 
     {"path": "../../../swim-ux-js/@swim/controls/main"},
     {"path": "../../../swim-ux-js/@swim/surfaces/main"},

@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export * from "@swim/model";
 export * from "@swim/style";
 export * from "@swim/theme";
 export * from "@swim/view";
 export * from "@swim/dom";
 export * from "@swim/graphics";
+export * from "@swim/component";
