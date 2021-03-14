@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Swim Gauge Component</title>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
+  </head>
+  <body style="display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; margin: 0;">
+    <div id="ui" style="display: flex; width: 67%; height: 67%;">
+    </div>
+    <script src="../../swim-system-js/swim-core-js/@swim/core/dist/main/swim-core.js"></script>
+    <script src="../../swim-system-js/swim-mesh-js/@swim/mesh/dist/main/swim-mesh.js"></script>
+    <script src="../swim-ui-js/@swim/ui/dist/main/swim-ui.js"></script>
+    <script src="../swim-vis-js/@swim/vis/dist/main/swim-vis.js"></script>
+    <script>
+
+const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
+
+const canvasView = uiView.append("canvas")
+    .pointerEventsEnabled(true)
+    .touchAction("manipulation");
+
+class ExampleGaugeComponent extends swim.GaugeComponent {
+  initGaugeView(gaugeView) {
+    super.initGaugeView(gaugeView);
+    gaugeView.innerRadius(swim.Length.pct(25))
+             .startAngle(swim.Angle.rad(3 * Math.PI / 4))
+             .sweepAngle(swim.Angle.rad(3 * Math.PI / 2))
+             .cornerRadius(0)
+             .dialColor("#cccccc")
+             .meterColor("#4a4a4a")
+             .tickAlign(1)
+             .tickColor("#4a4a4a")
+             .font("14px sans-serif")
+             .textColor("#4a4a4a");
+  }
+  initDialView(dialView) {
+    super.initDialView(dialView);
+    dialView.meterColor("#4a4a4a")
+            .on("pointerenter", function (event) {
+              dialView.meterColor("#1db0ef", {dt: 200});
+            })
+            .on("pointerleave", function (event) {
+              dialView.meterColor("#4a4a4a", {dt: 200});
+            });
+  }
+  initDialLabelView(labelView) {
+    super.initDialLabelView(labelView);
+    labelView.textColor("#4a4a4a");
+  }
+  onSetDialValue(newValue, oldValue, dialFastener) {
+    super.onSetDialValue(newValue, oldValue, dialFastener);
+    const label = Math.round(100 * newValue).toString();
+    dialFastener.component.setLabel(label);
+  }
+}
+
+const dial1Model = new swim.CompoundModel();
+const dial1Trait = new swim.DialTrait();
+dial1Trait.setValue(1);
+dial1Trait.setLegend("Dial 1");
+dial1Model.setTrait("dial", dial1Trait);
+
+const dial2Model = new swim.CompoundModel();
+const dial2Trait = new swim.DialTrait();
+dial2Trait.setValue(1);
+dial2Trait.setLegend("Dial 2");
+dial2Model.setTrait("dial", dial2Trait);
+
+const gaugeModel = new swim.CompoundModel();
+gaugeModel.mount();
+const gaugeTrait = new swim.GaugeTrait();
+gaugeModel.setTrait("gauge", gaugeTrait);
+gaugeModel.appendChildModel(dial1Model, "dial1");
+
+const gaugeComponent = new ExampleGaugeComponent();
+gaugeComponent.mount();
+gaugeComponent.gauge.injectView(canvasView);
+gaugeComponent.gauge.setTrait(gaugeTrait);
+
+gaugeModel.insertChildModel(dial2Model, dial1Model, "dial2");
+
+setInterval(function () {
+  dial1Trait.setValue(0.1 + 0.9 * Math.random());
+  dial2Trait.setValue(0.1 + 0.9 * Math.random());
+}, 1000);
+
+    </script>
+  </body>
+</html>

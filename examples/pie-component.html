@@ -27,7 +27,7 @@ class ExamplePieComponent extends swim.PieComponent {
            .textColor("#4a4a4a");
   }
   initSliceView(sliceView) {
-    super.initPieView(sliceView);
+    super.initSliceView(sliceView);
     sliceView.sliceColor("#4a4a4a")
              .on("pointerenter", function (event) {
                sliceView.sliceColor("#1db0ef", {dt: 200});
@@ -46,7 +46,6 @@ class ExamplePieComponent extends swim.PieComponent {
     sliceFastener.component.setLabel(label);
   }
 }
-
 
 const slice1Model = new swim.CompoundModel();
 const slice1Trait = new swim.SliceTrait();

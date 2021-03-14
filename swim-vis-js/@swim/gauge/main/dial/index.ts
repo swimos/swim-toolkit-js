@@ -19,3 +19,9 @@ export {
   DialView,
 } from "./DialView";
 export {DialViewObserver} from "./DialViewObserver";
+
+export {DialTrait} from "./DialTrait";
+export {DialTraitObserver} from "./DialTraitObserver";
+
+export {DialComponent} from "./DialComponent";
+export {DialComponentObserver} from "./DialComponentObserver";
