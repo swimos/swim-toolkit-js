@@ -14,7 +14,6 @@
 
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
-import {Length} from "@swim/math";
 import {
   ConstraintKey,
   ConstraintMap,
@@ -27,6 +26,7 @@ import {
   Constraint,
   ConstraintSolver,
 } from "@swim/constraint";
+import {Length} from "@swim/math";
 import {View} from "../View";
 import {ViewPropertyInit, ViewProperty} from "./ViewProperty";
 import {NumberViewPropertyConstraint} from "../"; // forward import

@@ -14,7 +14,6 @@
 
 import {Arrays} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
-import {BoxR2, Transform} from "@swim/math";
 import {
   AnyConstraintExpression,
   ConstraintExpression,
@@ -26,6 +25,7 @@ import {
   Constraint,
   ConstraintScope,
 } from "@swim/constraint";
+import {BoxR2, Transform} from "@swim/math";
 import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {ViewContextType, ViewContext} from "./ViewContext";
 import type {

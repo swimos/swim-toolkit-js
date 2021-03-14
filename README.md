@@ -34,8 +34,6 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
 
 - [**@swim/ui**](swim-ui-js/@swim/ui) –
   umbrella package that depends on, and re-exports, all **Swim UI** libraries.
-- [**@swim/constraint**](swim-ui-js/@swim/constraint) –
-  incremental solver for systems of linear layout constraints.
 - [**@swim/color**](swim-ui-js/@swim/color) –
   RGB and HSL color types with color-space-aware operators, conversions,
   and parsers.

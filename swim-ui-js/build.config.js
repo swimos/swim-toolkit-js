@@ -1,18 +1,5 @@
 const ui = [
   {
-    id: "constraint",
-    name: "@swim/constraint",
-    targets: [
-      {
-        id: "main",
-      },
-      {
-        id: "test",
-        deps: ["constraint"],
-      },
-    ],
-  },
-  {
     id: "color",
     name: "@swim/color",
     targets: [
@@ -59,7 +46,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "color", "style", "theme"],
+        deps: ["color", "style", "theme"],
       },
     ],
   },
@@ -69,7 +56,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "color", "style", "theme", "view"],
+        deps: ["color", "style", "theme", "view"],
       },
     ],
   },
@@ -79,7 +66,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "color", "style", "theme", "view", "dom"],
+        deps: ["color", "style", "theme", "view", "dom"],
       },
     ],
   },
@@ -91,7 +78,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["constraint", "color", "style", "theme", "view", "dom", "graphics"],
+        deps: ["color", "style", "theme", "view", "dom", "graphics"],
       },
     ],
   },

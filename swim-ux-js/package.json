@@ -15,11 +15,11 @@
     "@swim/build": "3.11.0-dev.20201021",
     "@swim/unit": "3.11.0-dev.20201021",
     "@swim/mapping": "3.11.0-dev.20201021",
+    "@swim/constraint": "3.11.0-dev.20201021",
     "@swim/structure": "3.11.0-dev.20201021",
     "@swim/math": "3.11.0-dev.20201021",
     "@swim/time": "3.11.0-dev.20201021",
 
-    "@swim/constraint": "3.11.0-dev.20201021",
     "@swim/color": "3.11.0-dev.20201021",
     "@swim/style": "3.11.0-dev.20201021",
     "@swim/theme": "3.11.0-dev.20201021",

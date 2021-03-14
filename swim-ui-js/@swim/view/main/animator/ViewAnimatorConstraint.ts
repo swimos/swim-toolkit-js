@@ -15,7 +15,6 @@
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
 import type {AnyTiming} from "@swim/mapping";
-import {AnyLength, Length} from "@swim/math";
 import {
   ConstraintKey,
   ConstraintMap,
@@ -28,6 +27,7 @@ import {
   Constraint,
   ConstraintSolver,
 } from "@swim/constraint";
+import {AnyLength, Length} from "@swim/math";
 import {View} from "../View";
 import {Animator} from "./Animator";
 import {ViewAnimatorInit, ViewAnimator} from "./ViewAnimator";

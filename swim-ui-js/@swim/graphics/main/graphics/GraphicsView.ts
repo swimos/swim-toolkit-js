@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import {BoxR2, Transform} from "@swim/math";
 import type {ConstraintVariable, Constraint} from "@swim/constraint";
+import {BoxR2, Transform} from "@swim/math";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,

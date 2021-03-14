@@ -8,6 +8,7 @@
       "@swim/codec": ["../swim-system-js/swim-core-js/@swim/codec/main"],
       "@swim/mapping": ["../swim-system-js/swim-core-js/@swim/mapping/main"],
       "@swim/collections": ["../swim-system-js/swim-core-js/@swim/collections/main"],
+      "@swim/constraint": ["../swim-system-js/swim-core-js/@swim/constraint/main"],
       "@swim/structure": ["../swim-system-js/swim-core-js/@swim/structure/main"],
       "@swim/streamlet": ["../swim-system-js/swim-core-js/@swim/streamlet/main"],
       "@swim/dataflow": ["../swim-system-js/swim-core-js/@swim/dataflow/main"],
@@ -20,7 +21,6 @@
       "@swim/warp": ["../swim-system-js/swim-mesh-js/@swim/warp/main"],
       "@swim/client": ["../swim-system-js/swim-mesh-js/@swim/client/main"],
 
-      "@swim/constraint": ["swim-ui-js/@swim/constraint/main"],
       "@swim/color": ["swim-ui-js/@swim/color/main"],
       "@swim/style": ["swim-ui-js/@swim/style/main"],
       "@swim/theme": ["swim-ui-js/@swim/theme/main"],
@@ -53,7 +53,6 @@
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "references": [
-    {"path": "../../../swim-ui-js/@swim/constraint/main"},
     {"path": "../../../swim-ui-js/@swim/color/main"},
     {"path": "../../../swim-ui-js/@swim/style/main"},
     {"path": "../../../swim-ui-js/@swim/theme/main"},

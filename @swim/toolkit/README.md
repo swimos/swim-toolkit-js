@@ -46,10 +46,6 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
   pervasively real-time user interface toolkit, with a unified view hierarchy
   for HTML, SVG, and Canvas components, animated procedural styling, and
   constraint-based layouts.
-- [**@swim/constraint**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/constraint)
-  ([npm](https://www.npmjs.com/package/@swim/constraint),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_constraint.html)) –
-  incremental solver for systems of linear layout constraints.
 - [**@swim/color**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/color)
   ([npm](https://www.npmjs.com/package/@swim/color),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_color.html)) –

@@ -17,10 +17,6 @@ part of the [**@swim/toolkit**](https://github.com/swimos/swim/tree/master/swim-
 The **@swim/ui** umbrella package depends on, and re-exports, the following
 component libraries:
 
-- [**@swim/constraint**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/constraint)
-  ([npm](https://www.npmjs.com/package/@swim/constraint),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_constraint.html)) –
-  incremental solver for systems of linear layout constraints.
 - [**@swim/color**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/color)
   ([npm](https://www.npmjs.com/package/@swim/color),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_color.html)) –
