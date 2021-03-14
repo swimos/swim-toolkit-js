@@ -50,6 +50,10 @@ export interface GaugeComponentObserver<C extends GaugeComponent = GaugeComponen
 
   gaugeDidSetDialValue?(newValue: number, oldValue: number, dialFastener: ComponentFastener<C, DialComponent>): void;
 
+  gaugeWillSetDialLimit?(newLimit: number, oldLimit: number, dialFastener: ComponentFastener<C, DialComponent>): void;
+
+  gaugeDidSetDialLimit?(newLimit: number, oldLimit: number, dialFastener: ComponentFastener<C, DialComponent>): void;
+
   gaugeWillSetDialLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, dialFastener: ComponentFastener<C, DialComponent>): void;
 
   gaugeDidSetDialLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, dialFastener: ComponentFastener<C, DialComponent>): void;

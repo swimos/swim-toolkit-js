@@ -31,6 +31,10 @@ export interface DialComponentObserver<C extends DialComponent = DialComponent> 
 
   dialDidSetValue?(newValue: number, oldValue: number, component: C): void;
 
+  dialWillSetLimit?(newLimit: number, oldLimit: number, component: C): void;
+
+  dialDidSetLimit?(newLimit: number, oldLimit: number, component: C): void;
+
   dialWillSetLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, component: C): void;
 
   dialDidSetLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, component: C): void;

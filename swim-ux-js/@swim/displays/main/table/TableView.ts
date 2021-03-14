@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
+import {Look} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewEdgeInsets, ViewProperty, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
 import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
@@ -97,10 +98,11 @@ export class TableView extends HtmlView {
     rowView.display.setAutoState("none");
     rowView.position.setAutoState("absolute");
     rowView.left.setAutoState(0);
-    rowView.top.setAutoState(0);
+    rowView.top.setAutoState(void 0);
     const layout = this.layout.state;
     rowView.width.setAutoState(layout !== void 0 && layout.width !== null ? layout.width : void 0);
     rowView.height.setAutoState(this.rowHeight.getState());
+    rowView.opacity.setAutoState(0);
     rowView.setCulled(true);
   }
 
@@ -381,13 +383,16 @@ export class TableView extends HtmlView {
       configurable: true,
     });
 
+    const timing = this.getLook(Look.timing);
+
     type self = this;
     function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
                              viewContext: ViewContextType<self>): void {
       if (childView instanceof RowView) {
-        childView.top.setAutoState(y);
+        childView.top.setAutoState(y, timing);
         childView.width.setAutoState(width);
-        childView.height.setAutoState(rowHeight);
+        childView.height.setAutoState(rowHeight, timing);
+        childView.opacity.setAutoState(1, timing);
       }
       let isVisible: boolean;
       if (childView instanceof HtmlView) {

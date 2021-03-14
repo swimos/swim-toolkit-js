@@ -459,7 +459,7 @@ export class GaugeView extends LayerView {
     }
 
     const size = Math.min(frame.width, frame.height);
-    const limit = this.limit.getValue();
+    const gaugeLimit = this.limit.getValue();
     const startAngle = this.startAngle.getValue();
     const sweepAngle = this.sweepAngle.getValue();
     let r0 = this.innerRadius.getValue().pxValue(size);
@@ -470,9 +470,9 @@ export class GaugeView extends LayerView {
     for (let i = 0; i < dialCount; i += 1) {
       const dialView = dialFasteners[i]!.view;
       if (dialView !== null && dialView.arrangement.state === "auto") {
-        if (isFinite(limit)) {
-          const total = dialView.total.getValue();
-          dialView.total.setAutoState(Math.max(total, limit));
+        if (isFinite(gaugeLimit)) {
+          const dialLimit = dialView.limit.getValue();
+          dialView.limit.setAutoState(Math.max(dialLimit, gaugeLimit));
         }
         dialView.startAngle.setAutoState(startAngle);
         dialView.sweepAngle.setAutoState(sweepAngle);

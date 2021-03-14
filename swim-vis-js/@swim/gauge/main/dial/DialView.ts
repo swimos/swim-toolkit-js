@@ -37,7 +37,7 @@ export type AnyDialView = DialView | DialViewInit;
 
 export interface DialViewInit extends GraphicsViewInit {
   value?: number;
-  total?: number;
+  limit?: number;
   center?: AnyPointR2;
   innerRadius?: AnyLength;
   outerRadius?: AnyLength;
@@ -66,8 +66,8 @@ export class DialView extends LayerView {
     if (init.value !== void 0) {
       this.value(init.value);
     }
-    if (init.total !== void 0) {
-      this.total(init.total);
+    if (init.limit !== void 0) {
+      this.limit(init.limit);
     }
     if (init.center !== void 0) {
       this.center(init.center);
@@ -182,8 +182,52 @@ export class DialView extends LayerView {
   })
   declare value: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, state: 1})
-  declare total: ViewAnimator<this, number>;
+  protected willSetLimit(newLimit: number, oldLimit: number): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.dialViewWillSetLimit !== void 0) {
+      viewController.dialViewWillSetLimit(newLimit, oldLimit, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.dialViewWillSetLimit !== void 0) {
+        viewObserver.dialViewWillSetLimit(newLimit, oldLimit, this);
+      }
+    }
+  }
+
+  protected onSetLimit(newLimit: number, oldLimit: number): void {
+    // hook
+  }
+
+  protected didSetLimit(newLimit: number, oldLimit: number): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.dialViewDidSetLimit !== void 0) {
+        viewObserver.dialViewDidSetLimit(newLimit, oldLimit, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.dialViewDidSetLimit !== void 0) {
+      viewController.dialViewDidSetLimit(newLimit, oldLimit, this);
+    }
+  }
+
+  @ViewAnimator<DialView, number>({
+    type: Number,
+    state: 1,
+    willSetValue(newLimit: number, oldLimit: number): void {
+      this.owner.willSetLimit(newLimit, oldLimit);
+    },
+    onSetValue(newLimit: number, oldLimit: number): void {
+      this.owner.onSetLimit(newLimit, oldLimit);
+    },
+    didSetValue(newLimit: number, oldLimit: number): void {
+      this.owner.didSetLimit(newLimit, oldLimit);
+    },
+  })
+  declare limit: ViewAnimator<this, number>;
 
   @ViewAnimator({type: PointR2, inherit: true})
   declare center: ViewAnimator<this, PointR2 | undefined, AnyPointR2 | undefined>;
@@ -386,8 +430,8 @@ export class DialView extends LayerView {
     const height = frame.height;
     const size = Math.min(width, height);
     const value = this.value.getValue();
-    const total = this.total.getValue();
-    const delta = total !== 0 ? value / total : 0;
+    const limit = this.limit.getValue();
+    const delta = limit !== 0 ? value / limit : 0;
 
     const center = this.center.getValue();
     const innerRadius = this.innerRadius.getValue().px(size);

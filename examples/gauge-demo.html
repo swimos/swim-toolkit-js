@@ -193,7 +193,7 @@ function createDial() {
   dial.legend().setHidden(true);
   dial.value.didSetValue = function (newValue) {
     // Update the dial label.
-    dial.label().text(Math.round(100 * newValue / dial.total()) + "%")
+    dial.label().text(Math.round(100 * newValue / dial.limit()) + "%")
                  .setHidden(!showLabels.checked);
 
     // Update the dial legend.

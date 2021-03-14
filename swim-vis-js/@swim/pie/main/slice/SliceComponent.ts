@@ -114,7 +114,7 @@ export class SliceComponent extends CompositeComponent {
   }
 
   protected initSliceView(sliceView: SliceView): void {
-    this.updateSliceValue(sliceView.value.state, sliceView);
+    this.updateSliceValue(sliceView.value.value, sliceView);
   }
 
   protected themeSliceView(sliceView: SliceView, theme: ThemeMatrix,

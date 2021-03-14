@@ -511,6 +511,30 @@ export class GaugeComponent extends CompositeComponent {
     }
   }
 
+  protected willSetDialLimit(newLimit: number, oldLimit: number, dialFastener: ComponentFastener<this, DialComponent>): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.gaugeWillSetDialLimit !== void 0) {
+        componentObserver.gaugeWillSetDialLimit(newLimit, oldLimit, dialFastener);
+      }
+    }
+  }
+
+  protected onSetDialLimit(newLimit: number, oldLimit: number, dialFastener: ComponentFastener<this, DialComponent>): void {
+    // hook
+  }
+
+  protected didSetDialLimit(newLimit: number, oldLimit: number, dialFastener: ComponentFastener<this, DialComponent>): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.gaugeDidSetDialLimit !== void 0) {
+        componentObserver.gaugeDidSetDialLimit(newLimit, oldLimit, dialFastener);
+      }
+    }
+  }
+
   protected initDialLabelView(labelView: GraphicsView, dialFastener: ComponentFastener<this, DialComponent>): void {
     // hook
   }
@@ -608,6 +632,13 @@ export class GaugeComponent extends CompositeComponent {
     dialDidSetValue(newValue: number, oldValue: number): void {
       this.owner.onSetDialValue(newValue, oldValue, this);
       this.owner.didSetDialValue(newValue, oldValue, this);
+    },
+    dialWillSetLimit(newLimit: number, oldLimit: number): void {
+      this.owner.willSetDialValue(newLimit, oldLimit, this);
+    },
+    dialDidSetLimit(newLimit: number, oldLimit: number): void {
+      this.owner.onSetDialValue(newLimit, oldLimit, this);
+      this.owner.didSetDialValue(newLimit, oldLimit, this);
     },
     dialWillSetLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
       this.owner.willSetDialLabelView(newLabelView, oldLabelView, this);

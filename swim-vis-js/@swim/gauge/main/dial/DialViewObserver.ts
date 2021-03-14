@@ -21,6 +21,10 @@ export interface DialViewObserver<V extends DialView = DialView> extends ViewObs
 
   dialViewDidSetValue?(newValue: number, oldValue: number, view: V): void;
 
+  dialViewWillSetLimit?(newLimit: number, oldLimit: number, view: V): void;
+
+  dialViewDidSetLimit?(newLimit: number, oldLimit: number, view: V): void;
+
   dialViewWillSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, view: V): void;
 
   dialViewDidSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, view: V): void;

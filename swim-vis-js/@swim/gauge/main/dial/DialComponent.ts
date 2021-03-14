@@ -40,6 +40,13 @@ export class DialComponent extends CompositeComponent {
     }
   }
 
+  setLimit(limit: number): void {
+    const dialTrait = this.dial.trait;
+    if (dialTrait !== null) {
+      dialTrait.setLimit(limit);
+    }
+  }
+
   setLabel(label: GraphicsView | string | undefined): void {
     const dialTrait = this.dial.trait;
     if (dialTrait !== null) {
@@ -62,6 +69,7 @@ export class DialComponent extends CompositeComponent {
     const dialView = this.dial.view;
     if (dialView !== null) {
       this.setDialValue(dialTrait.value);
+      this.setDialLimit(dialTrait.limit);
       this.setDialLabel(dialTrait.label);
       this.setDialLegend(dialTrait.legend);
     }
@@ -106,7 +114,7 @@ export class DialComponent extends CompositeComponent {
   }
 
   protected initDialView(dialView: DialView): void {
-    this.updateDialValue(dialView.value.state, dialView);
+    this.updateDialValue(dialView.value.value, dialView.limit.value, dialView);
   }
 
   protected themeDialView(dialView: DialView, theme: ThemeMatrix,
@@ -118,6 +126,7 @@ export class DialComponent extends CompositeComponent {
     const dialTrait = this.dial.trait;
     if (dialTrait !== null) {
       this.setDialValue(dialTrait.value);
+      this.setDialLimit(dialTrait.limit);
       this.setDialLabel(dialTrait.label);
       this.setDialLegend(dialTrait.legend);
     }
@@ -170,18 +179,28 @@ export class DialComponent extends CompositeComponent {
     }
   }
 
-  protected updateDialValue(value: number, dialView: DialView): void {
+  protected setDialLimit(limit: number): void {
+    const dialView = this.dial.view;
+    if (dialView !== null) {
+      let timing = this.dialTiming.state;
+      if (timing === true) {
+        timing = dialView.getLook(Look.timing, Mood.ambient);
+      }
+      dialView.limit.setAutoState(limit, timing);
+    }
+  }
+
+  protected updateDialValue(value: number, limit: number, dialView: DialView): void {
     const dialTrait = this.dial.trait;
     if (dialTrait !== null) {
-      const label = dialTrait.formatLabel(value);
+      const label = dialTrait.formatLabel(value, limit);
       if (label !== void 0) {
         dialTrait.setLabel(label);
       }
-      const legend = dialTrait.formatLegend(value);
+      const legend = dialTrait.formatLegend(value, limit);
       if (legend !== void 0) {
         dialTrait.setLegend(legend);
       }
-      dialView.setHidden(value === 0);
     } else if (value === 0) {
       dialView.remove();
     }
@@ -198,7 +217,7 @@ export class DialComponent extends CompositeComponent {
   }
 
   protected onSetDialValue(newValue: number, oldValue: number, dialView: DialView): void {
-    this.updateDialValue(newValue, dialView);
+    this.updateDialValue(newValue, dialView.limit.value, dialView);
   }
 
   protected didSetDialValue(newValue: number, oldValue: number, dialView: DialView): void {
@@ -207,6 +226,30 @@ export class DialComponent extends CompositeComponent {
       const componentObserver = componentObservers[i]!;
       if (componentObserver.dialDidSetValue !== void 0) {
         componentObserver.dialDidSetValue(newValue, oldValue, this);
+      }
+    }
+  }
+
+  protected willSetDialLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.dialWillSetLimit !== void 0) {
+        componentObserver.dialWillSetLimit(newLimit, oldLimit, this);
+      }
+    }
+  }
+
+  protected onSetDialLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
+    this.updateDialValue(dialView.value.value, newLimit, dialView);
+  }
+
+  protected didSetDialLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.dialDidSetLimit !== void 0) {
+        componentObserver.dialDidSetLimit(newLimit, oldLimit, this);
       }
     }
   }
@@ -312,6 +355,13 @@ export class DialComponent extends CompositeComponent {
       this.owner.onSetDialValue(newValue, oldValue, dialView);
       this.owner.didSetDialValue(newValue, oldValue, dialView);
     },
+    dialViewWillSetLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
+      this.owner.willSetDialLimit(newLimit, oldLimit, dialView);
+    },
+    dialViewDidSetLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
+      this.owner.onSetDialLimit(newLimit, oldLimit, dialView);
+      this.owner.didSetDialLimit(newLimit, oldLimit, dialView);
+    },
     dialViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
       if (newLabelView !== null) {
         this.owner.label.setView(newLabelView);
@@ -338,6 +388,9 @@ export class DialComponent extends CompositeComponent {
     },
     dialTraitDidSetValue(newValue: number, oldValue: number): void {
       this.owner.setDialValue(newValue);
+    },
+    dialTraitDidSetLimit(newLimit: number, oldLimit: number): void {
+      this.owner.setDialLimit(newLimit);
     },
     dialTraitDidSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
       this.owner.setDialLabel(newLabel);

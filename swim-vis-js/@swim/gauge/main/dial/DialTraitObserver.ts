@@ -21,6 +21,10 @@ export interface DialTraitObserver<R extends DialTrait = DialTrait> extends Trai
 
   dialTraitDidSetValue?(newValue: number, oldValue: number, trait: R): void;
 
+  dialTraitWillSetLimit?(newLimit: number, oldLimit: number, trait: R): void;
+
+  dialTraitDidSetLimit?(newLimit: number, oldLimit: number, trait: R): void;
+
   dialTraitWillSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
 
   dialTraitDidSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;

@@ -25,6 +25,11 @@ export class DialTrait extends GenericTrait {
       enumerable: true,
       configurable: true,
     });
+    Object.defineProperty(this, "limit", {
+      value: 1,
+      enumerable: true,
+      configurable: true,
+    });
     Object.defineProperty(this, "label", {
       value: void 0,
       enumerable: true,
@@ -79,6 +84,46 @@ export class DialTrait extends GenericTrait {
     }
   }
 
+  declare readonly limit: number;
+
+  setLimit(newLimit: number): void {
+    const oldLimit = this.limit;
+    if (newLimit !== oldLimit) {
+      this.willSetLimit(newLimit, oldLimit);
+      Object.defineProperty(this, "limit", {
+        value: newLimit,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetLimit(newLimit, oldLimit);
+      this.didSetLimit(newLimit, oldLimit);
+    }
+  }
+
+  protected willSetLimit(newLimit: number, oldLimit: number): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.dialTraitWillSetLimit !== void 0) {
+        traitObserver.dialTraitWillSetLimit(newLimit, oldLimit, this);
+      }
+    }
+  }
+
+  protected onSetLimit(newLimit: number, oldLimit: number): void {
+    // hook
+  }
+
+  protected didSetLimit(newLimit: number, oldLimit: number): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.dialTraitDidSetLimit !== void 0) {
+        traitObserver.dialTraitDidSetLimit(newLimit, oldLimit, this);
+      }
+    }
+  }
+
   declare readonly label: GraphicsView | string | undefined;
 
   setLabel(newLabel: GraphicsView | string | undefined): void {
@@ -119,7 +164,7 @@ export class DialTrait extends GenericTrait {
     }
   }
 
-  formatLabel(value: number): string | undefined {
+  formatLabel(value: number, limit: number): string | undefined {
     return void 0;
   }
 
@@ -163,7 +208,7 @@ export class DialTrait extends GenericTrait {
     }
   }
 
-  formatLegend(value: number): string | undefined {
+  formatLegend(value: number, limit: number): string | undefined {
     return void 0;
   }
 }
