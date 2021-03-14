@@ -449,8 +449,8 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   endPress(input: PositionGestureInput, event: Event | null): void {
+    input.clearHoldTimer();
     if (input.pressing) {
-      input.clearHoldTimer();
       this.willEndPress(input, event);
       input.pressing = false;
       Object.defineProperty(this, "pressCount", {
@@ -486,8 +486,8 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   cancelPress(input: PositionGestureInput, event: Event | null): void {
+    input.clearHoldTimer();
     if (input.pressing) {
-      input.clearHoldTimer();
       this.willCancelPress(input, event);
       input.pressing = false;
       Object.defineProperty(this, "pressCount", {
@@ -547,8 +547,9 @@ export class AbstractPositionGesture<V extends View> implements ViewObserver<V> 
   }
 
   longPress(input: PositionGestureInput): void {
-    if (input.pressing) {
-      input.clearHoldTimer();
+    input.clearHoldTimer();
+    const dt = performance.now() - input.t0;
+    if (dt < 1.5 * input.holdDelay && input.pressing) {
       this.willLongPress(input);
       this.onLongPress(input);
       this.didLongPress(input);
