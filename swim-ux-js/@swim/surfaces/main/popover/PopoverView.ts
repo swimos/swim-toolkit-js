@@ -15,7 +15,7 @@
 import {Arrays} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyBoxR2, BoxR2} from "@swim/math";
-import {Color} from "@swim/color";
+import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {
   ViewContextType,

@@ -17,7 +17,7 @@ import {Parser, Diagnostic, Unicode} from "@swim/codec";
 import type {Interpolate, Interpolator} from "@swim/mapping";
 import {Item, Value, Text, Form} from "@swim/structure";
 import {AnyLength, Length} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "../color/Color";
 import {BoxShadowInterpolator} from "../"; // forward import
 import {BoxShadowForm} from "../"; // forward import
 import {BoxShadowParser} from "../"; // forward import

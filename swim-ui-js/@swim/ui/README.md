@@ -17,15 +17,10 @@ part of the [**@swim/toolkit**](https://github.com/swimos/swim/tree/master/swim-
 The **@swim/ui** umbrella package depends on, and re-exports, the following
 component libraries:
 
-- [**@swim/color**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/color)
-  ([npm](https://www.npmjs.com/package/@swim/color),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_color.html)) –
-  RGB and HSL color types with color-space-aware operators, conversions,
-  and parsers.
 - [**@swim/style**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/style)
   ([npm](https://www.npmjs.com/package/@swim/style),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_style.html)) –
-  CSS style types and universal style value parser.
+  Font, color, gradient, shadow and related types and parsers.
 - [**@swim/theme**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/theme)
   ([npm](https://www.npmjs.com/package/@swim/theme),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_theme.html)) –

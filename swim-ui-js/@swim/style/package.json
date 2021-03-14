@@ -1,7 +1,7 @@
 {
   "name": "@swim/style",
   "version": "3.11.0-dev.20201021",
-  "description": "CSS style types and universal style value parser",
+  "description": "Font, color, gradient, shadow and related types and parsers",
   "homepage": "https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ui-js/@swim/style",
   "author": "Chris Sachs <chris@swimos.org>",
   "copyright": "2015-2020 Swim inc.",
@@ -16,7 +16,6 @@
     "@swim/mapping": "3.11.0-dev.20201021",
     "@swim/structure": "3.11.0-dev.20201021",
     "@swim/math": "3.11.0-dev.20201021",
-    "@swim/time": "3.11.0-dev.20201021",
-    "@swim/color": "3.11.0-dev.20201021"
+    "@swim/time": "3.11.0-dev.20201021"
   }
 }

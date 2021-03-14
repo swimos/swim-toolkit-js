@@ -14,7 +14,7 @@
 
 import {Spec, Test, Exam} from "@swim/unit";
 import {Angle} from "@swim/math";
-import {LinearGradient} from "@swim/color";
+import {LinearGradient} from "@swim/style";
 
 export class LinearGradientSpec extends Spec {
   @Test

@@ -34,11 +34,8 @@ style, animate, and render mixed HTML, SVG, Canvas, and WebGL components.
 
 - [**@swim/ui**](swim-ui-js/@swim/ui) –
   umbrella package that depends on, and re-exports, all **Swim UI** libraries.
-- [**@swim/color**](swim-ui-js/@swim/color) –
-  RGB and HSL color types with color-space-aware operators, conversions,
-  and parsers.
 - [**@swim/style**](swim-ui-js/@swim/style) –
-  CSS style types and universal style value parser.
+  Font, color, gradient, shadow and related types and parsers.
 - [**@swim/theme**](swim-ui-js/@swim/theme) –
   semantic looks and feels for mood-aware UX components.
 - [**@swim/view**](swim-ui-js/@swim/view) –

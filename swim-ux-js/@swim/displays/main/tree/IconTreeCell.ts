@@ -14,7 +14,7 @@
 
 import type {Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {Graphics, Icon, FilledIcon, IconViewInit, IconView, IconViewAnimator, SvgIconView} from "@swim/graphics";

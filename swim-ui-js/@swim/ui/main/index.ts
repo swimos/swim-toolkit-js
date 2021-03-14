@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/color";
 export * from "@swim/style";
 export * from "@swim/theme";
 export * from "@swim/view";

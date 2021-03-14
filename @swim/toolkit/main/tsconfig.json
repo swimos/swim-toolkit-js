@@ -21,7 +21,6 @@
       "@swim/warp": ["../swim-system-js/swim-mesh-js/@swim/warp/main"],
       "@swim/client": ["../swim-system-js/swim-mesh-js/@swim/client/main"],
 
-      "@swim/color": ["swim-ui-js/@swim/color/main"],
       "@swim/style": ["swim-ui-js/@swim/style/main"],
       "@swim/theme": ["swim-ui-js/@swim/theme/main"],
       "@swim/view": ["swim-ui-js/@swim/view/main"],
@@ -53,7 +52,6 @@
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "references": [
-    {"path": "../../../swim-ui-js/@swim/color/main"},
     {"path": "../../../swim-ui-js/@swim/style/main"},
     {"path": "../../../swim-ui-js/@swim/theme/main"},
     {"path": "../../../swim-ui-js/@swim/view/main"},

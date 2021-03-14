@@ -14,7 +14,7 @@
 
 import {Item, Record, Form} from "@swim/structure";
 import {Length} from "@swim/math";
-import {Color} from "@swim/color";
+import {Color} from "../color/Color";
 import {AnyBoxShadow, BoxShadow} from "./BoxShadow";
 
 /** @hidden */

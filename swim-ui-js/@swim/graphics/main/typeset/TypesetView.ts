@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import type {AnyPointR2, PointR2} from "@swim/math";
-import type {AnyColor, Color} from "@swim/color";
-import type {AnyFont, Font} from "@swim/style";
+import type {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import type {ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
 

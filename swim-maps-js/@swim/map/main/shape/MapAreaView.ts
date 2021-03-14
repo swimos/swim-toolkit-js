@@ -14,7 +14,7 @@
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import type {GeoBox, GeoPath} from "@swim/geo";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewProperty, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,

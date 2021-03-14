@@ -10,7 +10,6 @@
       "@swim/structure": ["../../swim-system-js/swim-core-js/@swim/structure/main"],
       "@swim/math": ["../../swim-system-js/swim-core-js/@swim/math/main"],
       "@swim/time": ["../../swim-system-js/swim-core-js/@swim/time/main"],
-      "@swim/color": ["@swim/color/main"],
       "@swim/style": ["@swim/style/main"]
     },
     "tsBuildInfoFile": "../lib/main/.tsbuildinfo"
@@ -22,7 +21,6 @@
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/structure/main"},
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/math/main"},
     {"path": "../../../../../swim-system-js/swim-core-js/@swim/time/main"},
-    {"path": "../../color/main"},
     {"path": "../../style/main"}
   ]
 }

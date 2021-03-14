@@ -320,32 +320,17 @@ const system = [
 
 const ui = [
   {
-    id: "color",
-    name: "@swim/color",
-    path: "swim-ui-js/@swim/color",
-    targets: [
-      {
-        id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math"],
-      },
-      {
-        id: "test",
-        deps: ["util", "codec", "unit", "mapping", "structure", "math", "color"],
-      },
-    ],
-  },
-  {
     id: "style",
     name: "@swim/style",
     path: "swim-ui-js/@swim/style",
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "color"],
+        deps: ["util", "codec", "mapping", "structure", "math", "time"],
       },
       {
         id: "test",
-        deps: ["util", "codec", "unit", "mapping", "structure", "math", "time", "color", "style"],
+        deps: ["util", "codec", "unit", "mapping", "structure", "math", "time", "style"],
       },
     ],
   },
@@ -356,11 +341,11 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "structure", "math", "time", "color", "style"],
+        deps: ["util", "codec", "mapping", "structure", "math", "time", "style"],
       },
       {
         id: "test",
-        deps: ["util", "codec", "unit", "mapping", "structure", "math", "time", "color", "style", "theme"],
+        deps: ["util", "codec", "unit", "mapping", "structure", "math", "time", "style", "theme"],
       },
     ],
   },
@@ -371,7 +356,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "color", "style", "theme"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme"],
       },
     ],
   },
@@ -382,7 +367,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "color", "style", "theme", "view"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view"],
       },
     ],
   },
@@ -393,7 +378,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "color", "style", "theme", "view", "dom"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view", "dom"],
       },
     ],
   },
@@ -406,7 +391,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["color", "style", "theme", "view", "dom", "graphics"],
+        deps: ["style", "theme", "view", "dom", "graphics"],
       },
     ],
   },
@@ -431,7 +416,7 @@ const mvc = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "color", "style", "theme", "view", "dom", "model"],
+        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "style", "theme", "view", "dom", "model"],
       },
     ],
   },
@@ -458,7 +443,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "color", "style", "theme", "view", "dom", "graphics"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view", "dom", "graphics"],
       },
     ],
   },
@@ -469,7 +454,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "color", "style", "theme", "view", "dom", "graphics", "model", "component", "controls"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view", "dom", "graphics", "model", "component", "controls"],
       },
     ],
   },
@@ -480,7 +465,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "color", "style", "theme", "view", "dom", "graphics", "controls"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view", "dom", "graphics", "controls"],
       },
     ],
   },
@@ -491,7 +476,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "color", "style", "theme", "view", "dom", "graphics", "controls"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view", "dom", "graphics", "controls"],
       },
     ],
   },
@@ -518,7 +503,7 @@ const vis = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "color", "style", "theme", "view", "dom", "graphics", "model", "component"],
+        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "style", "theme", "view", "dom", "graphics", "model", "component"],
       },
     ],
   },
@@ -529,7 +514,7 @@ const vis = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "color", "style", "theme", "view", "dom", "graphics", "model", "component"],
+        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "style", "theme", "view", "dom", "graphics", "model", "component"],
       },
     ],
   },
@@ -540,7 +525,7 @@ const vis = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "color", "style", "theme", "view", "dom", "graphics", "model", "component"],
+        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "style", "theme", "view", "dom", "graphics", "model", "component"],
       },
     ],
   },
@@ -567,7 +552,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "geo", "time", "color", "style", "theme", "view", "dom", "graphics"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "geo", "time", "style", "theme", "view", "dom", "graphics"],
       },
     ],
   },
@@ -578,7 +563,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "geo", "time", "color", "style", "theme", "view", "dom", "graphics", "map"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "geo", "time", "style", "theme", "view", "dom", "graphics", "map"],
       },
     ],
   },
@@ -589,7 +574,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "geo", "time", "color", "style", "theme", "view", "dom", "graphics", "map"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "geo", "time", "style", "theme", "view", "dom", "graphics", "map"],
       },
     ],
   },
@@ -600,7 +585,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "geo", "time", "color", "style", "theme", "view", "dom", "graphics", "map"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "geo", "time", "style", "theme", "view", "dom", "graphics", "map"],
       },
     ],
   },

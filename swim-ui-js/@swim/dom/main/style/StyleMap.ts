@@ -15,7 +15,6 @@
 import {Equals, Values} from "@swim/util";
 import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {AnyColor, Color, AnyLinearGradient, LinearGradient} from "@swim/color";
 import {
   FontStyle,
   FontVariant,
@@ -28,6 +27,10 @@ import {
   FontFamily,
   AnyFont,
   Font,
+  AnyColor,
+  Color,
+  AnyLinearGradient,
+  LinearGradient,
   AnyBoxShadow,
   BoxShadow,
 } from "@swim/style";

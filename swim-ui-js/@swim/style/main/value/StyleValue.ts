@@ -17,8 +17,11 @@ import {Interpolator} from "@swim/mapping";
 import type {Form} from "@swim/structure";
 import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
 import {AnyDateTime, DateTime} from "@swim/time";
-import {AnyColor, Color, RgbColorInit, HslColorInit, AnyLinearGradient, LinearGradient} from "@swim/color";
 import {AnyFont, Font} from "../font/Font";
+import {AnyColor, Color} from "../color/Color";
+import type {RgbColorInit} from "../rgb/RgbColor";
+import type {HslColorInit} from "../hsl/HslColor";
+import {AnyLinearGradient, LinearGradient} from "../gradient/LinearGradient";
 import {AnyBoxShadow, BoxShadowInit, BoxShadow} from "../shadow/BoxShadow";
 import {StyleValueForm} from "../"; // forward import
 import {StyleValueParser} from "../"; // forward import
@@ -26,10 +29,10 @@ import {StyleValueParser} from "../"; // forward import
 export type AnyStyleValue = AnyDateTime
                           | AnyAngle
                           | AnyLength
-                          | AnyColor | RgbColorInit | HslColorInit
                           | AnyFont
-                          | AnyBoxShadow | BoxShadowInit
+                          | AnyColor | RgbColorInit | HslColorInit
                           | AnyLinearGradient
+                          | AnyBoxShadow | BoxShadowInit
                           | AnyTransform
                           | Interpolator<any>
                           | number
@@ -38,10 +41,10 @@ export type AnyStyleValue = AnyDateTime
 export type StyleValue = DateTime
                        | Angle
                        | Length
-                       | Color
                        | Font
-                       | BoxShadow
+                       | Color
                        | LinearGradient
+                       | BoxShadow
                        | Transform
                        | Interpolator<any>
                        | number
@@ -70,10 +73,10 @@ StyleValue.fromAny = function (value: AnyStyleValue): StyleValue {
     return value;
   } else if (value instanceof Date || DateTime.isInit(value)) {
     return DateTime.fromAny(value);
-  } else if (Color.isInit(value)) {
-    return Color.fromAny(value);
   } else if (Font.isInit(value)) {
     return Font.fromAny(value);
+  } else if (Color.isInit(value)) {
+    return Color.fromAny(value);
   } else if (BoxShadow.isInit(value)) {
     return BoxShadow.fromAny(value)!;
   } else if (typeof value === "string") {

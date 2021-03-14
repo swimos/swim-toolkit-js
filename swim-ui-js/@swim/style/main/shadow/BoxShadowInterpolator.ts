@@ -15,7 +15,7 @@
 import {__extends} from "tslib";
 import {Interpolator} from "@swim/mapping";
 import type {Length} from "@swim/math";
-import type {Color} from "@swim/color";
+import type {Color} from "../color/Color";
 import {BoxShadow} from "./BoxShadow";
 
 /** @hidden */

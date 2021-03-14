@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import type {Domain, Range, AnyTiming, ContinuousScale} from "@swim/mapping";
-import type {AnyColor} from "@swim/color";
-import type {AnyFont} from "@swim/style";
+import type {AnyFont, AnyColor} from "@swim/style";
 import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
 import type {AnyDataPointView} from "../data/DataPointView";
 import type {ScaleXYView} from "../scale/ScaleXYView";

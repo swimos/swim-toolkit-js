@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import {Spec, Test, Exam} from "@swim/unit";
-import {Color} from "@swim/color";
-import {BoxShadow} from "@swim/style";
+import {Color, BoxShadow} from "@swim/style";
 
 export class BoxShadowSpec extends Spec {
   @Test

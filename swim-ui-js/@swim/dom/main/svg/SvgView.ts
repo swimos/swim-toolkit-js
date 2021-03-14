@@ -15,7 +15,6 @@
 import {__extends} from "tslib";
 import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
 import {
   FontStyle,
   FontVariant,
@@ -28,6 +27,8 @@ import {
   FontFamily,
   AnyFont,
   Font,
+  AnyColor,
+  Color,
 } from "@swim/style";
 import type {ViewFactory, ViewConstructor, View} from "@swim/view";
 import type {

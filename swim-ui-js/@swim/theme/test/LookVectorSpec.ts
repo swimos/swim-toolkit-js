@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Spec, Test, Exam} from "@swim/unit";
-import {Color} from "@swim/color";
+import {Color} from "@swim/style";
 import {Look, LookVector, Feel, MoodVector} from "@swim/theme";
 
 export class LookVectorSpec extends Spec {

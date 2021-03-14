@@ -19,11 +19,8 @@ The **Swim UI** framework consists of the following component libraries:
 
 - [**@swim/ui**](@swim/ui) –
   umbrella package that depends on, and re-exports, all Swim UI libraries.
-- [**@swim/color**](@swim/color) –
-  RGB and HSL color types with color-space-aware operators, conversions,
-  and parsers.
 - [**@swim/style**](@swim/style) –
-  CSS style types and universal style value parser.
+  Font, color, gradient, shadow and related types and parsers.
 - [**@swim/theme**](@swim/theme) –
   semantic looks and feels for mood-aware UX components.
 - [**@swim/view**](@swim/view) –

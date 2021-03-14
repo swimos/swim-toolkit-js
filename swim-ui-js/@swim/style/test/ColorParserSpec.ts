@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Spec, Test, Exam} from "@swim/unit";
-import {Color} from "@swim/color";
+import {Color} from "@swim/style";
 
 export class ColorParserSpec extends Spec {
   @Test

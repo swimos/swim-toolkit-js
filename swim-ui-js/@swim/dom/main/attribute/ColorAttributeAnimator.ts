@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {AttributeAnimator} from "./AttributeAnimator";
 import type {ElementView} from "../element/ElementView";
 

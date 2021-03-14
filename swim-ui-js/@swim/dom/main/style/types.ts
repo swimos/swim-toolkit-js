@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Length} from "@swim/math";
-import type {Color} from "@swim/color";
+import type {Color} from "@swim/style";
 
 export type AlignContent = "baseline"
                          | "center"

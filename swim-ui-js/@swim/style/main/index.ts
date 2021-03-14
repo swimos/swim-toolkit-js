@@ -14,6 +14,14 @@
 
 export * from "./font";
 
+export * from "./color";
+
+export * from "./rgb";
+
+export * from "./hsl";
+
+export * from "./gradient";
+
 export * from "./shadow";
 
 export * from "./value";

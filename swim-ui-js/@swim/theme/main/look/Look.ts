@@ -14,8 +14,7 @@
 
 import type {AnyTiming, Timing, Interpolator} from "@swim/mapping";
 import type {AnyLength, Length} from "@swim/math";
-import type {AnyColor, Color} from "@swim/color";
-import type {AnyFont, Font, AnyBoxShadow, BoxShadow} from "@swim/style";
+import type {AnyFont, Font, AnyColor, Color, AnyBoxShadow, BoxShadow} from "@swim/style";
 import {LookVector} from "./LookVector";
 import type {Feel} from "../feel/Feel";
 import type {Mood} from "../mood/Mood";

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Timing} from "@swim/mapping";
-import {Color} from "@swim/color";
+import {Color} from "@swim/style";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFastener, PositionGesture} from "@swim/view";
 import {StyleRule, StyleSheet, HtmlView, StyleView, SvgView} from "@swim/dom";

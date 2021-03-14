@@ -14,7 +14,7 @@
 
 import type {Timing} from "@swim/mapping";
 import {AnyLength, Length, BoxR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import type {Graphics} from "../graphics/Graphics";

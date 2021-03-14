@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {GeoPoint, GeoBox, GeoProjection} from "@swim/geo";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {MapGraphicsViewInit, MapGraphicsView} from "../graphics/MapGraphicsView";

@@ -15,7 +15,7 @@
 import {Equivalent, Equals} from "@swim/util"
 import {Debug, Format, Output} from "@swim/codec";
 import {AnyLength, Length} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
 
 export type AnyColLayout = ColLayout | ColLayoutInit;

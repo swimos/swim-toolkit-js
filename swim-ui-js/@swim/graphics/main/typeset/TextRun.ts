@@ -15,8 +15,7 @@
 import {Equals} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/style";
+import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {Graphics} from "../graphics/Graphics";
 import type {CanvasContext} from "../canvas/CanvasContext";

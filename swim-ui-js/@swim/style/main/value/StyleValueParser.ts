@@ -24,9 +24,13 @@ import {
   AffineTransformParser,
 } from "@swim/math";
 import {DateTimeInit, DateTimeFormat} from "@swim/time";
-import {Color, HexColorParser, RgbColorParser, HslColorParser, LinearGradientParser} from "@swim/color";
 import type {FontWeight} from "../font/FontWeight";
 import {FontParser} from "../font/FontParser";
+import {Color} from "../color/Color";
+import {HexColorParser} from "../rgb/HexColorParser";
+import {RgbColorParser} from "../rgb/RgbColorParser";
+import {HslColorParser} from "../hsl/HslColorParser";
+import {LinearGradientParser} from "../gradient/LinearGradientParser";
 import type {StyleValue} from "./StyleValue";
 
 /** @hidden */
@@ -84,6 +88,8 @@ export class StyleValueParser extends Parser<StyleValue> {
           case "hsl":
           case "hsla": return HslColorParser.parseRest(input);
 
+          case "linear-gradient": return LinearGradientParser.parseRest(input, identOutput);
+
           case "normal":
           case "italic":
           case "oblique": return FontParser.parseRest(input, ident);
@@ -108,8 +114,6 @@ export class StyleValueParser extends Parser<StyleValue> {
           case "x-small":
           case "xx-large":
           case "xx-small": return FontParser.parseRest(input, void 0, void 0, void 0, void 0, ident);
-
-          case "linear-gradient": return LinearGradientParser.parseRest(input, identOutput);
 
           case "translateX":
           case "translateY":

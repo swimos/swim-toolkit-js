@@ -14,6 +14,9 @@
 
 export {FontParserSpec} from "./FontParserSpec";
 export {FontWriterSpec} from "./FontWriterSpec";
+export {ColorParserSpec} from "./ColorParserSpec";
+export {ColorStopSpec} from "./ColorStopSpec";
+export {LinearGradientSpec} from "./LinearGradientSpec";
 export {BoxShadowSpec} from "./BoxShadowSpec";
 export {StyleValueSpec} from "./StyleValueSpec";
 export {StyleSuite} from "./StyleSuite";

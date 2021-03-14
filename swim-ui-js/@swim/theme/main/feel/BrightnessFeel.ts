@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Color} from "@swim/color";
+import {Color} from "@swim/style";
 import type {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 

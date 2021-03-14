@@ -27,8 +27,7 @@ import {
 } from "@swim/mapping";
 import type {BoxR2} from "@swim/math";
 import {DateTime, TimeDomain, TimeScale} from "@swim/time";
-import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/style";
+import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {
   ViewContextType,
   ViewFlags,

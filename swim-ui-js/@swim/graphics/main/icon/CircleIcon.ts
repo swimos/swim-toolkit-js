@@ -16,7 +16,7 @@ import {Equals, Equivalent, Lazy} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import type {Interpolate, Interpolator} from "@swim/mapping";
 import type {BoxR2} from "@swim/math";
-import type {Color} from "@swim/color";
+import type {Color} from "@swim/style";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {DrawingContext} from "../drawing/DrawingContext";

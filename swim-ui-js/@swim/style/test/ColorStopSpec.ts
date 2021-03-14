@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Spec, Test, Exam} from "@swim/unit";
-import {ColorStop} from "@swim/color";
+import {ColorStop} from "@swim/style";
 
 export class ColorStopSpec extends Spec {
   @Test

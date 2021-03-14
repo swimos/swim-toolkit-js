@@ -15,7 +15,7 @@
 import type {Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {Graphics, GraphicsView, Icon, FilledIcon, IconViewInit, IconView, IconViewAnimator, CanvasRenderer} from "@swim/graphics";

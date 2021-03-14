@@ -1,28 +1,14 @@
 const ui = [
   {
-    id: "color",
-    name: "@swim/color",
-    targets: [
-      {
-        id: "main",
-      },
-      {
-        id: "test",
-        deps: ["color"],
-      },
-    ],
-  },
-  {
     id: "style",
     name: "@swim/style",
     targets: [
       {
         id: "main",
-        deps: ["color"],
       },
       {
         id: "test",
-        deps: ["color", "style"],
+        deps: ["style"],
       },
     ],
   },
@@ -32,11 +18,11 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["color", "style"],
+        deps: ["style"],
       },
       {
         id: "test",
-        deps: ["color", "style", "theme"],
+        deps: ["style", "theme"],
       },
     ],
   },
@@ -46,7 +32,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["color", "style", "theme"],
+        deps: ["style", "theme"],
       },
     ],
   },
@@ -56,7 +42,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["color", "style", "theme", "view"],
+        deps: ["style", "theme", "view"],
       },
     ],
   },
@@ -66,7 +52,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["color", "style", "theme", "view", "dom"],
+        deps: ["style", "theme", "view", "dom"],
       },
     ],
   },
@@ -78,7 +64,7 @@ const ui = [
     targets: [
       {
         id: "main",
-        deps: ["color", "style", "theme", "view", "dom", "graphics"],
+        deps: ["style", "theme", "view", "dom", "graphics"],
       },
     ],
   },

@@ -16,7 +16,7 @@ import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
 import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {ViewFlags, Animator} from "@swim/view";
 import {StringAttributeAnimator} from "../"; // forward import
 import {BooleanAttributeAnimator} from "../"; // forward import

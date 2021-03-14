@@ -17,7 +17,6 @@ const main = {
       "@swim/structure": "swim",
       "@swim/math": "swim",
       "@swim/time": "swim",
-      "@swim/color": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -30,7 +29,6 @@ const main = {
     "@swim/structure",
     "@swim/math",
     "@swim/time",
-    "@swim/color",
   ],
   plugins: [
     nodeResolve({moduleDirectories: ["../..", "node_modules"]}),

@@ -15,7 +15,7 @@
 import {Equals} from "@swim/util";
 import {Interpolator} from "@swim/mapping";
 import type {PathR2} from "@swim/math";
-import type {Color} from "@swim/color";
+import type {Color} from "@swim/style";
 import type {Look, MoodMatrix} from "@swim/theme";
 import type {PaintingFillRule} from "../painting/PaintingContext";
 import {VectorIcon} from "./VectorIcon";

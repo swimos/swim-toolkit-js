@@ -14,7 +14,8 @@
 
 import {Input, Output, Parser, Diagnostic, Unicode} from "@swim/codec";
 import {Length, LengthParser} from "@swim/math";
-import {Color, ColorParser} from "@swim/color";
+import type {Color} from "../color/Color";
+import {ColorParser} from "../color/ColorParser";
 import {BoxShadow} from "./BoxShadow";
 
 /** @hidden */

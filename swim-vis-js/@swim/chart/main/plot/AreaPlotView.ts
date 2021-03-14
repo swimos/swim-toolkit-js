@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {BoxR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {ViewAnimator} from "@swim/view";
 import type {GraphicsView, CanvasContext, CanvasRenderer, FillViewInit, FillView} from "@swim/graphics";
 import type {PlotViewController} from "./PlotViewController";

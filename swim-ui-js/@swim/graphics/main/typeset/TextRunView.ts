@@ -14,8 +14,7 @@
 
 import type {AnyTiming} from "@swim/mapping";
 import {AnyPointR2, PointR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/style";
+import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import {LayerView} from "../layer/LayerView";
 import type {CanvasContext} from "../canvas/CanvasContext";

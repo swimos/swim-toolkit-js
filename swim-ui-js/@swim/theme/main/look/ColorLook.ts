@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Interpolator} from "@swim/mapping";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {Look} from "./Look";
 
 export class ColorLook extends Look<Color, AnyColor> {

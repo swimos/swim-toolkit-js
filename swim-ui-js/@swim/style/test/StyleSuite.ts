@@ -15,6 +15,9 @@
 import {Spec, Unit} from "@swim/unit";
 import {FontParserSpec} from "./FontParserSpec";
 import {FontWriterSpec} from "./FontWriterSpec";
+import {ColorParserSpec} from "./ColorParserSpec";
+import {ColorStopSpec} from "./ColorStopSpec";
+import {LinearGradientSpec} from "./LinearGradientSpec";
 import {BoxShadowSpec} from "./BoxShadowSpec";
 import {StyleValueSpec} from "./StyleValueSpec";
 
@@ -28,6 +31,21 @@ export class StyleSuite extends Spec {
   @Unit
   fontWriterSpec(): Spec {
     return new FontWriterSpec();
+  }
+
+  @Unit
+  colorParserSpec(): Spec {
+    return new ColorParserSpec();
+  }
+
+  @Unit
+  colorStopSpec(): Spec {
+    return new ColorStopSpec();
+  }
+
+  @Unit
+  linearGradientSpec(): Spec {
+    return new LinearGradientSpec();
   }
 
   @Unit

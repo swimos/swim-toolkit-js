@@ -14,7 +14,7 @@
 
 import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length, Angle, Transform} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,

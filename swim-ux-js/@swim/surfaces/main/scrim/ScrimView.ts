@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyTiming, Timing} from "@swim/mapping";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import type {ModalManager, ModalManagerObserver,} from "@swim/view";
 import {StyleAnimator, HtmlView} from "@swim/dom";

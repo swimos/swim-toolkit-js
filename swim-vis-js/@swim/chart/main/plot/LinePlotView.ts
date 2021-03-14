@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {ViewProperty, ViewAnimator} from "@swim/view";
 import type {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";

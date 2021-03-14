@@ -15,8 +15,7 @@
 import {Values} from "@swim/util";
 import {Domain, Range, AnyTiming, ContinuousScale} from "@swim/mapping";
 import type {BoxR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
-import {AnyFont, Font} from "@swim/style";
+import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {LayerView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";

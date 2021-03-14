@@ -14,7 +14,7 @@
 
 import {Equals} from "@swim/util";
 import {Interpolator} from "@swim/mapping";
-import type {Color} from "@swim/color";
+import type {Color} from "@swim/style";
 import type {Look, MoodMatrix} from "@swim/theme";
 import {CircleIcon} from "./CircleIcon";
 

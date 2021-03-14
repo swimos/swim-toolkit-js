@@ -14,7 +14,7 @@
 
 import {Range, AnyTiming, Timing, Easing, LinearRange} from "@swim/mapping";
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {View, ViewProperty, ViewAnimator} from "@swim/view";
 import type {ChartViewObserver} from "./ChartViewObserver";
 import type {ChartViewController} from "./ChartViewController";

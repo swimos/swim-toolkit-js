@@ -14,7 +14,7 @@
 
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2, CircleR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
-import {AnyColor, Color} from "@swim/color";
+import {AnyColor, Color} from "@swim/style";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,

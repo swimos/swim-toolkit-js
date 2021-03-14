@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {AnyLength, Length} from "@swim/math";
-import type {AnyColor, Color} from "@swim/color";
+import type {AnyColor, Color} from "@swim/style";
 import {ViewInit, View, ViewAnimator} from "@swim/view";
 import type {Graphics} from "../graphics/Graphics";
 import {GraphicsIconView} from "../"; // forward import

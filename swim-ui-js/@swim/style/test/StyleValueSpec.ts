@@ -15,8 +15,7 @@
 import {Spec, Test, Exam} from "@swim/unit";
 import {Length, Angle, Transform, AffineTransform} from "@swim/math";
 import {DateTime} from "@swim/time";
-import {Color, LinearGradient} from "@swim/color";
-import {Font, StyleValue} from "@swim/style";
+import {Font, Color, LinearGradient, StyleValue} from "@swim/style";
 
 export class StyleValueSpec extends Spec {
   @Test
