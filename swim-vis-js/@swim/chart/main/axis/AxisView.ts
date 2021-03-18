@@ -18,7 +18,7 @@ import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
-import type {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
+import type {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
 import {AnyTickView, TickView} from "../tick/TickView";
 import {TickGenerator} from "../tick/TickGenerator";
 import type {AxisViewObserver} from "./AxisViewObserver";
@@ -134,7 +134,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   abstract readonly orientation: AxisOrientation;
 
-  abstract scale: ScaleViewAnimator<this, D, number>;
+  abstract scale: ContinuousScaleAnimator<this, D, number>;
 
   /** @hidden */
   declare readonly ticks: BTree<D, TickView<D>>;
@@ -338,7 +338,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     const origin = this.origin.value;
     const scale = this.scale.value;
     let tickGenerator = this.tickGenerator.state;
-    if (origin !== void 0 && scale !== void 0 && tickGenerator !== null) {
+    if (origin !== void 0 && scale !== null && tickGenerator !== null) {
       let timing: Timing | boolean = this.tickTransition.state;
       if (tickGenerator === true) {
         tickGenerator = TickGenerator.fromScale(scale);
@@ -406,7 +406,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     if (tickView !== null) {
       const tickLabel = this.createTickLabel(tickValue, tickView);
       if (tickLabel !== null) {
-        tickView.tickLabel(tickLabel);
+        tickView.label(tickLabel);
         tickView.preserve(false);
       }
     }
@@ -449,15 +449,11 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     return displayFlags;
   }
 
-  protected willDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    super.willDisplay(displayFlags, viewContext);
+  protected onLayout(viewContext: ViewContextType<this>): void {
+    super.onLayout(viewContext);
     if (this.scale.isInherited() && this.scale.isAnimating()) {
       this.scale.onAnimate(viewContext.updateTime);
     }
-  }
-
-  protected onLayout(viewContext: ViewContextType<this>): void {
-    super.onLayout(viewContext);
     this.updateTicks();
   }
 
@@ -467,7 +463,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     if ((displayFlags & View.NeedsLayout) !== 0 && childView instanceof TickView) {
       const origin = this.origin.value;
       const scale = this.scale.value;
-      if (origin !== void 0 && scale !== void 0) {
+      if (origin !== void 0 && scale !== null) {
         this.layoutTick(childView, origin, this.viewFrame, scale);
       }
     }
@@ -498,74 +494,37 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   protected abstract renderDomain(context: CanvasContext, origin: PointR2, frame: BoxR2): void;
 
-  static top<X>(init?: AxisViewInit<X>): TopAxisView<X> {
-    const view = new TopAxisView<X>();
-    if (init !== void 0) {
-      view.initView(init);
-    }
-    return view;
-  }
-
-  static right<Y>(init?: AxisViewInit<Y>): RightAxisView<Y> {
-    const view = new RightAxisView<Y>();
-    if (init !== void 0) {
-      view.initView(init);
-    }
-    return view;
-  }
-
-  static bottom<X>(init?: AxisViewInit<X>): BottomAxisView<X> {
-    const view = new BottomAxisView<X>();
-    if (init !== void 0) {
-      view.initView(init);
-    }
-    return view;
-  }
-
-  static left<Y>(init?: AxisViewInit<Y>): LeftAxisView<Y> {
-    const view = new LeftAxisView<Y>();
-    if (init !== void 0) {
-      view.initView(init);
-    }
-    return view;
-  }
-
-  static fromOrientation<D>(orientation: AxisOrientation): AxisView<D> {
+  static fromInit<D>(init: AxisViewInit<D>): AxisView<D> {
+    const orientation = init.orientation;
     if (orientation === "top") {
-      return this.top();
+      return TopAxisView.fromInit(init);
     } else if (orientation === "right") {
-      return this.right();
+      return RightAxisView.fromInit(init);
     } else if (orientation === "bottom") {
-      return this.bottom();
+      return BottomAxisView.fromInit(init);
     } else if (orientation === "left") {
-      return this.left();
+      return LeftAxisView.fromInit(init);
     } else {
-      throw new TypeError(orientation);
+      throw new Error("unknown axis orientation: " + orientation);
     }
   }
 
-  static fromInit<D>(init: AxisViewInit<D>, orientation?: AxisOrientation): AxisView<D> {
-    if (orientation === void 0) {
-      orientation = init.orientation;
-      if (orientation === void 0) {
-        throw new Error("undefined axis orientation");
-      }
-    }
-    const view = this.fromOrientation<D>(orientation);
-    view.initView(init)
-    return view;
-  }
-
-  static fromAny<D>(value: AnyAxisView<D> | true, orientation?: AxisOrientation): AxisView<D> {
+  static fromAny<D>(value: AnyAxisView<D> | true): AxisView<D> {
     if (value instanceof AxisView) {
       return value;
-    } else if (value === true) {
-      if (orientation === void 0) {
-        throw new Error("undefined axis orientation");
-      }
-      return this.fromOrientation(orientation);
     } else if (typeof value === "object" && value !== null) {
-      return this.fromInit(value, orientation);
+      const orientation = value.orientation;
+      if (orientation === "top") {
+        return TopAxisView.fromAny(value);
+      } else if (orientation === "right") {
+        return RightAxisView.fromAny(value);
+      } else if (orientation === "bottom") {
+        return BottomAxisView.fromAny(value);
+      } else if (orientation === "left") {
+        return LeftAxisView.fromAny(value);
+      } else {
+        throw new Error("unknown axis orientation: " + orientation);
+      }
     }
     throw new TypeError("" + value);
   }

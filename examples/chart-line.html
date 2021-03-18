@@ -15,14 +15,14 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = swim.CanvasView.create()
+const canvasView = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-const chart = canvas.append(swim.ChartView)
+const chartView = canvasView.append(swim.ChartView)
     .bottomAxis(true)
     .leftAxis(true)
     //.xDomainBounds([false, false])
@@ -36,20 +36,21 @@ const chart = canvas.append(swim.ChartView)
     .domainTracking(true)
     .xGestures(true)
     .yGestures(true);
-const graph = chart.graph;
 
-chart.leftAxis().gridLineColor("#d8d8d8")
-                .gridLineWidth(1);
+const graphView = chartView.graph.injectView();
 
-const plot = graph.append(swim.LinePlotView)
+chartView.leftAxis().gridLineColor("#d8d8d8")
+                    .gridLineWidth(1);
+
+const plotView = graphView.append(swim.LinePlotView)
     .hitMode("plot")
     .stroke("#4a4a4a")
     .strokeWidth(4)
     .on("pointerenter", function (event) {
-      plot.stroke("#1db0ef", {dt: 250});
+      plotView.stroke("#1db0ef", {dt: 250});
     })
     .on("pointerleave", function (event) {
-      plot.stroke("#4a4a4a", {dt: 250});
+      plotView.stroke("#4a4a4a", {dt: 250});
     });
 
 const cycles = 4;
@@ -59,15 +60,15 @@ let n = cycles * samplesPerCycle
 while (i <= n) {
   const x = i * 2 * Math.PI / samplesPerCycle;
   const y = Math.sin(x) * x;
-  plot.insertDataPoint({x: x, y: y});
+  plotView.insertDataPoint({x: x, y: y});
   i += 1;
 }
 
-uiView.append(canvas);
+uiView.append(canvasView);
 
 //setTimeout(function () {
-//  chart.xDomain(0, Math.PI, {dt: 10000, easing: "cubic-in-out"});
-//  chart.yDomain(-1, 1, {dt: 10000, easing: "cubic-in-out"});
+//  chartView.xDomain(0, Math.PI, {dt: 10000, easing: "cubic-in-out"});
+//  chartView.yDomain(-1, 1, {dt: 10000, easing: "cubic-in-out"});
 //}, 1000);
 
     </script>

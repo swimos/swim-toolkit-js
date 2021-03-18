@@ -897,19 +897,19 @@ export class CanvasView extends HtmlView {
     try {
       this.willDisplay(cascadeFlags, viewContext);
       if (((this.viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
-        this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
         this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
+        this.willLayout(viewContext);
       }
       if (((this.viewFlags | displayFlags) & View.NeedsRender) !== 0) {
-        this.willRender(viewContext);
         cascadeFlags |= View.NeedsRender;
         this.setViewFlags(this.viewFlags & ~View.NeedsRender);
+        this.willRender(viewContext);
       }
       if (((this.viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
-        this.willComposite(viewContext);
         cascadeFlags |= View.NeedsComposite;
         this.setViewFlags(this.viewFlags & ~View.NeedsComposite);
+        this.willComposite(viewContext);
       }
 
       this.onDisplay(cascadeFlags, viewContext);

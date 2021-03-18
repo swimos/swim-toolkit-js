@@ -160,8 +160,10 @@ export class DeckPost implements Equals, Equivalent, Debug {
     return new DeckPost(key, grow, shrink, basis, null, null, null);
   }
 
-  static fromAny(value: AnyDeckPost): DeckPost {
-    if (value instanceof DeckPost) {
+  static fromAny(value: AnyDeckPost): DeckPost;
+  static fromAny(value: AnyDeckPost | undefined): DeckPost | undefined;
+  static fromAny(value: AnyDeckPost | undefined): DeckPost | undefined {
+    if (value === void 0 || value instanceof DeckPost) {
       return value;
     } else if (typeof value === "object" && value !== null) {
       return DeckPost.fromInit(value);

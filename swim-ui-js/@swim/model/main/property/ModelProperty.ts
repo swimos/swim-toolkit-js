@@ -121,9 +121,9 @@ export interface ModelProperty<M extends Model, T, U = never> {
 
   readonly superState: T | undefined;
 
-  getState(): T extends undefined ? never : T;
+  getState(): NonNullable<T>;
 
-  getStateOr<E>(elseState: E): (T extends undefined ? never : T) | E;
+  getStateOr<E>(elseState: E): NonNullable<T> | E;
 
   setState(state: T | U): void;
 
@@ -244,10 +244,7 @@ function ModelPropertyConstructor<M extends Model, T, U>(this: ModelProperty<M, 
   let propertyFlags = ModelProperty.UpdatedFlag;
   let state: T | undefined;
   if (this.initState !== void 0) {
-    const initState = this.initState();
-    if (initState !== void 0) {
-      state = this.fromAny(initState);
-    }
+    state = this.fromAny(this.initState());
   } else if (this.inherit !== false) {
     propertyFlags |= ModelProperty.InheritedFlag;
   }
@@ -505,20 +502,20 @@ Object.defineProperty(ModelProperty.prototype, "superState", {
   configurable: true,
 });
 
-ModelProperty.prototype.getState = function <T, U>(this: ModelProperty<Model, T, U>): T extends undefined ? never : T {
+ModelProperty.prototype.getState = function <T, U>(this: ModelProperty<Model, T, U>): NonNullable<T> {
   const state = this.state;
-  if (state === void 0) {
-    throw new TypeError("undefined " + this.name + " state");
+  if (state === void 0 || state === null) {
+    throw new TypeError(state + " " + this.name + " state");
   }
-  return state as T extends undefined ? never : T;
+  return state as NonNullable<T>;
 };
 
-ModelProperty.prototype.getStateOr = function <T, U, E>(this: ModelProperty<Model, T, U>, elseState: E): (T extends undefined ? never : T) | E {
-  let state: T | E | undefined = this.state;
-  if (state === void 0) {
+ModelProperty.prototype.getStateOr = function <T, U, E>(this: ModelProperty<Model, T, U>, elseState: E): NonNullable<T> | E {
+  let state: T | E = this.state;
+  if (state === void 0 || state === null) {
     state = elseState;
   }
-  return state as (T extends undefined ? never : T) | E;
+  return state as NonNullable<T> | E;
 };
 
 ModelProperty.prototype.setState = function <T, U>(this: ModelProperty<Model, T, U>, state: T | U): void {
@@ -553,9 +550,7 @@ ModelProperty.prototype.setAutoState = function <T, U>(this: ModelProperty<Model
 
 ModelProperty.prototype.setOwnState = function <T, U>(this: ModelProperty<Model, T, U>, newState: T | U): void {
   const oldState = this.state;
-  if (newState !== void 0) {
-    newState = this.fromAny(newState);
-  }
+  newState = this.fromAny(newState);
   if ((this.propertyFlags & ModelProperty.InheritedFlag) !== 0) {
     this.setPropertyFlags(this.propertyFlags & ~ModelProperty.InheritedFlag);
     const traitProperties = this.traitProperties;
@@ -585,9 +580,7 @@ ModelProperty.prototype.setOwnState = function <T, U>(this: ModelProperty<Model,
 ModelProperty.prototype.setBaseState = function <T, U>(this: ModelProperty<Model, T, U>, state: T | U): void {
   let superProperty: ModelProperty<Model, T> | null | undefined;
   if (this.isInherited() && (superProperty = this.superProperty, superProperty !== null)) {
-    if (state !== void 0) {
-      state = this.fromAny(state);
-    }
+    state = this.fromAny(state);
     superProperty.setBaseState(state as T);
   } else {
     this.setState(state);

@@ -15,16 +15,20 @@
 import {Range, AnyTiming, Timing, Easing, LinearRange} from "@swim/mapping";
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {View, ViewProperty, ViewAnimator} from "@swim/view";
+import {View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import type {ChartViewObserver} from "./ChartViewObserver";
 import type {ChartViewController} from "./ChartViewController";
-import {ScaleViewInit, ScaleView} from "../scale/ScaleView";
+import {ScaledViewInit, ScaledView} from "../scaled/ScaledView";
 import {AnyGraphView, GraphView} from "../graph/GraphView";
-import {AnyAxisView, AxisView} from "../axis/AxisView";
+import type {AnyAxisView, AxisView} from "../axis/AxisView";
+import {TopAxisView} from "../axis/TopAxisView";
+import {RightAxisView} from "../axis/RightAxisView";
+import {BottomAxisView} from "../axis/BottomAxisView";
+import {LeftAxisView} from "../axis/LeftAxisView";
 
 export type AnyChartView<X = unknown, Y = unknown> = ChartView<X, Y> | ChartViewInit<X, Y>;
 
-export interface ChartViewInit<X = unknown, Y = unknown> extends ScaleViewInit<X, Y> {
+export interface ChartViewInit<X = unknown, Y = unknown> extends ScaledViewInit<X, Y> {
   viewController?: ChartViewController<X, Y>;
   graph?: AnyGraphView<X, Y>;
 
@@ -52,16 +56,11 @@ export interface ChartViewInit<X = unknown, Y = unknown> extends ScaleViewInit<X
   gridLineWidth?: number;
 }
 
-export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
-  constructor() {
-    super();
-    this.initChart();
-  }
-
+export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   initView(init: ChartViewInit<X, Y>): void {
     super.initView(init);
      if (init.graph !== void 0) {
-      this.setGraph(init.graph);
+      this.graph(init.graph);
     }
 
     if (init.topAxis !== void 0) {
@@ -124,105 +123,9 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     }
   }
 
-  protected initChart(): void {
-    this.setChildView("graph", this.createGraph());
-  }
-
-  protected createGraph(): GraphView<X, Y> | null {
-    return new GraphView();
-  }
-
   declare readonly viewController: ChartViewController<X, Y> | null;
 
   declare readonly viewObservers: ReadonlyArray<ChartViewObserver<X, Y>>;
-
-  get graph(): GraphView<X, Y> | null {
-    const childView = this.getChildView("graph");
-    return childView instanceof GraphView ? childView : null;
-  }
-
-  setGraph(graph: AnyGraphView<X, Y> | null): void {
-    if (graph !== null) {
-      graph = GraphView.fromAny(graph);
-    }
-    this.setChildView("graph", graph);
-  }
-
-  topAxis(): AxisView<X> | null;
-  topAxis(topAxis: AnyAxisView<X> | true | null): this;
-  topAxis(topAxis?: AnyAxisView<X> | true | null): AxisView<X> | null | this {
-    if (topAxis === void 0) {
-      const childView = this.getChildView("topAxis");
-      return childView instanceof AxisView ? childView : null;
-    } else {
-      if (topAxis !== null) {
-        topAxis = AxisView.fromAny(topAxis, "top");
-      }
-      if (topAxis !== null) {
-        this.prependChildView(topAxis, "topAxis");
-      } else {
-        this.removeChildView("topAxis");
-      }
-      return this;
-    }
-  }
-
-  rightAxis(): AxisView<Y> | null;
-  rightAxis(rightAxis: AnyAxisView<Y> | true | null): this;
-  rightAxis(rightAxis?: AnyAxisView<Y> | true | null): AxisView<Y> | null | this {
-    if (rightAxis === void 0) {
-      const childView = this.getChildView("rightAxis");
-      return childView instanceof AxisView ? childView : null;
-    } else {
-      if (rightAxis !== null) {
-        rightAxis = AxisView.fromAny(rightAxis, "right");
-      }
-      if (rightAxis !== null) {
-        this.prependChildView(rightAxis, "rightAxis");
-      } else {
-        this.removeChildView("rightAxis");
-      }
-      return this;
-    }
-  }
-
-  bottomAxis(): AxisView<X> | null;
-  bottomAxis(bottomAxis: AnyAxisView<X> | true | null): this;
-  bottomAxis(bottomAxis?: AnyAxisView<X> | true | null): AxisView<X> | null | this {
-    if (bottomAxis === void 0) {
-      const childView = this.getChildView("bottomAxis");
-      return childView instanceof AxisView ? childView : null;
-    } else {
-      if (bottomAxis !== null) {
-        bottomAxis = AxisView.fromAny(bottomAxis, "bottom");
-      }
-      if (bottomAxis !== null) {
-        this.prependChildView(bottomAxis, "bottomAxis");
-      } else {
-        this.removeChildView("bottomAxis");
-      }
-      return this;
-    }
-  }
-
-  leftAxis(): AxisView<Y> | null;
-  leftAxis(leftAxis: AnyAxisView<Y> | true | null): this;
-  leftAxis(leftAxis?: AnyAxisView<Y> | true | null): AxisView<Y> | null | this {
-    if (leftAxis === void 0) {
-      const childView = this.getChildView("leftAxis");
-      return childView instanceof AxisView ? childView : null;
-    } else {
-      if (leftAxis !== null) {
-        leftAxis = AxisView.fromAny(leftAxis, "left");
-      }
-      if (leftAxis !== null) {
-        this.prependChildView(leftAxis, "leftAxis");
-      } else {
-        this.removeChildView("leftAxis");
-      }
-      return this;
-    }
-  }
 
   @ViewAnimator({type: Length, state: Length.px(20)})
   declare gutterTop: ViewAnimator<this, Length, AnyLength>;
@@ -272,7 +175,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
   @ViewAnimator({type: Number, state: 0})
   declare gridLineWidth: ViewAnimator<this, number>;
 
-  xRange(): Range<number> | undefined {
+  xRange(): Range<number> | null {
     const frame = this.viewFrame;
     const gutterLeft = this.gutterLeft.getValue().pxValue(frame.width);
     const gutterRight = this.gutterRight.getValue().pxValue(frame.width);
@@ -282,7 +185,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     return LinearRange(xRangeMin, xRangeMax);
   }
 
-  yRange(): Range<number> | undefined {
+  yRange(): Range<number> | null {
     const frame = this.viewFrame;
     const gutterTop = this.gutterTop.getValue().pxValue(frame.height);
     const gutterBottom = this.gutterBottom.getValue().pxValue(frame.height);
@@ -292,43 +195,314 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     return LinearRange(yRangeMin, yRangeMax);
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null): void {
-    super.onInsertChildView(childView, targetView);
-    if (childView instanceof GraphView) {
-      this.onInsertGraph(childView);
-    } else if (childView instanceof AxisView) {
-      this.onInsertAxis(childView);
+  protected createGraph(): GraphView<X, Y> | null {
+    return new GraphView();
+  }
+
+  protected initGraph(graphView: GraphView<X, Y>): void {
+    // hook
+  }
+
+  protected willSetGraph(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.chartViewWillSetGraph !== void 0) {
+      viewController.chartViewWillSetGraph(newGraphView, oldGraphView, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.chartViewWillSetGraph !== void 0) {
+        viewObserver.chartViewWillSetGraph(newGraphView, oldGraphView, this);
+      }
     }
   }
 
-  protected onRemoveChildView(childView: View): void {
-    if (childView instanceof GraphView) {
-      this.onInsertGraph(childView);
-    } else if (childView instanceof AxisView) {
-      this.onRemoveAxis(childView);
+  protected onSetGraph(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null): void {
+    if (newGraphView !== null) {
+      this.initGraph(newGraphView);
     }
-    super.onRemoveChildView(childView);
   }
 
-  protected onInsertGraph(graph: GraphView<X, Y>): void {
+  protected didSetGraph(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.chartViewDidSetGraph !== void 0) {
+        viewObserver.chartViewDidSetGraph(newGraphView, oldGraphView, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.chartViewDidSetGraph !== void 0) {
+      viewController.chartViewDidSetGraph(newGraphView, oldGraphView, this);
+    }
+  }
+
+  @ViewFastener<ChartView<X, Y>, GraphView<X, Y>, AnyGraphView<X, Y>>({
+    key: true,
+    type: GraphView,
+    child: true,
+    createView(): GraphView<X, Y> | null {
+      return this.owner.createGraph();
+    },
+    willSetView(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null): void {
+      this.owner.willSetGraph(newGraphView, oldGraphView);
+    },
+    onSetView(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null): void {
+      this.owner.onSetGraph(newGraphView, oldGraphView);
+    },
+    didSetView(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null): void {
+      this.owner.didSetGraph(newGraphView, oldGraphView);
+    },
+  })
+  declare graph: ViewFastener<this, GraphView<X, Y>, AnyGraphView<X, Y>>;
+
+  protected createTopAxis(): AxisView<X> | null {
+    return new TopAxisView();
+  }
+
+  protected initTopAxis(topAxisView: AxisView<X>): void {
     // hook
   }
 
-  protected onRemoveGraph(graph: GraphView<X, Y>): void {
+  protected willSetTopAxis(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.chartViewWillSetTopAxis !== void 0) {
+      viewController.chartViewWillSetTopAxis(newTopAxisView, oldTopAxisView, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.chartViewWillSetTopAxis !== void 0) {
+        viewObserver.chartViewWillSetTopAxis(newTopAxisView, oldTopAxisView, this);
+      }
+    }
+  }
+
+  protected onSetTopAxis(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null): void {
+    if (newTopAxisView !== null) {
+      this.initTopAxis(newTopAxisView);
+    }
+  }
+
+  protected didSetTopAxis(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.chartViewDidSetTopAxis !== void 0) {
+        viewObserver.chartViewDidSetTopAxis(newTopAxisView, oldTopAxisView, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.chartViewDidSetTopAxis !== void 0) {
+      viewController.chartViewDidSetTopAxis(newTopAxisView, oldTopAxisView, this);
+    }
+  }
+
+  @ViewFastener<ChartView<X, Y>, AxisView<X>, AnyAxisView<X> | true>({
+    key: true,
+    type: TopAxisView,
+    child: true,
+    createView(): AxisView<X> | null {
+      return this.owner.createTopAxis();
+    },
+    willSetView(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null): void {
+      this.owner.willSetTopAxis(newTopAxisView, oldTopAxisView);
+    },
+    onSetView(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null): void {
+      this.owner.onSetTopAxis(newTopAxisView, oldTopAxisView);
+    },
+    didSetView(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null): void {
+      this.owner.didSetTopAxis(newTopAxisView, oldTopAxisView);
+    },
+  })
+  declare topAxis: ViewFastener<this, AxisView<X>, AnyAxisView<X> | true>;
+
+  protected createRightAxis(): AxisView<Y> | null {
+    return new RightAxisView();
+  }
+
+  protected initRightAxis(rightAxisView: AxisView<Y>): void {
     // hook
   }
 
-  protected onInsertAxis(axis: AxisView<X | Y>): void {
+  protected willSetRightAxis(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.chartViewWillSetRightAxis !== void 0) {
+      viewController.chartViewWillSetRightAxis(newRightAxisView, oldRightAxisView, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.chartViewWillSetRightAxis !== void 0) {
+        viewObserver.chartViewWillSetRightAxis(newRightAxisView, oldRightAxisView, this);
+      }
+    }
+  }
+
+  protected onSetRightAxis(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null): void {
+    if (newRightAxisView !== null) {
+      this.initRightAxis(newRightAxisView);
+    }
+  }
+
+  protected didSetRightAxis(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.chartViewDidSetRightAxis !== void 0) {
+        viewObserver.chartViewDidSetRightAxis(newRightAxisView, oldRightAxisView, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.chartViewDidSetRightAxis !== void 0) {
+      viewController.chartViewDidSetRightAxis(newRightAxisView, oldRightAxisView, this);
+    }
+  }
+
+  @ViewFastener<ChartView<X, Y>, AxisView<Y>, AnyAxisView<Y> | true>({
+    key: true,
+    type: RightAxisView,
+    child: true,
+    createView(): AxisView<Y> | null {
+      return this.owner.createRightAxis();
+    },
+    willSetView(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null): void {
+      this.owner.willSetRightAxis(newRightAxisView, oldRightAxisView);
+    },
+    onSetView(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null): void {
+      this.owner.onSetRightAxis(newRightAxisView, oldRightAxisView);
+    },
+    didSetView(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null): void {
+      this.owner.didSetRightAxis(newRightAxisView, oldRightAxisView);
+    },
+  })
+  declare rightAxis: ViewFastener<this, AxisView<Y>, AnyAxisView<Y> | true>;
+
+  protected createBottomAxis(): AxisView<X> | null {
+    return new BottomAxisView();
+  }
+
+  protected initBottomAxis(bottomAxisView: AxisView<X>): void {
     // hook
   }
 
-  protected onRemoveAxis(axis: AxisView<X | Y>): void {
+  protected willSetBottomAxis(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.chartViewWillSetBottomAxis !== void 0) {
+      viewController.chartViewWillSetBottomAxis(newBottomAxisView, oldBottomAxisView, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.chartViewWillSetBottomAxis !== void 0) {
+        viewObserver.chartViewWillSetBottomAxis(newBottomAxisView, oldBottomAxisView, this);
+      }
+    }
+  }
+
+  protected onSetBottomAxis(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null): void {
+    if (newBottomAxisView !== null) {
+      this.initBottomAxis(newBottomAxisView);
+    }
+  }
+
+  protected didSetBottomAxis(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.chartViewDidSetBottomAxis !== void 0) {
+        viewObserver.chartViewDidSetBottomAxis(newBottomAxisView, oldBottomAxisView, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.chartViewDidSetBottomAxis !== void 0) {
+      viewController.chartViewDidSetBottomAxis(newBottomAxisView, oldBottomAxisView, this);
+    }
+  }
+
+  @ViewFastener<ChartView<X, Y>, AxisView<X>, AnyAxisView<X> | true>({
+    key: true,
+    type: BottomAxisView,
+    child: true,
+    createView(): AxisView<X> | null {
+      return this.owner.createBottomAxis();
+    },
+    willSetView(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null): void {
+      this.owner.willSetBottomAxis(newBottomAxisView, oldBottomAxisView);
+    },
+    onSetView(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null): void {
+      this.owner.onSetBottomAxis(newBottomAxisView, oldBottomAxisView);
+    },
+    didSetView(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null): void {
+      this.owner.didSetBottomAxis(newBottomAxisView, oldBottomAxisView);
+    },
+  })
+  declare bottomAxis: ViewFastener<this, AxisView<X>, AnyAxisView<X> | true>;
+
+  protected createLeftAxis(): AxisView<Y> | null {
+    return new LeftAxisView();
+  }
+
+  protected initLeftAxis(leftAxisView: AxisView<Y>): void {
     // hook
   }
+
+  protected willSetLeftAxis(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.chartViewWillSetLeftAxis !== void 0) {
+      viewController.chartViewWillSetLeftAxis(newLeftAxisView, oldLeftAxisView, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.chartViewWillSetLeftAxis !== void 0) {
+        viewObserver.chartViewWillSetLeftAxis(newLeftAxisView, oldLeftAxisView, this);
+      }
+    }
+  }
+
+  protected onSetLeftAxis(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null): void {
+    if (newLeftAxisView !== null) {
+      this.initLeftAxis(newLeftAxisView);
+    }
+  }
+
+  protected didSetLeftAxis(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.chartViewDidSetLeftAxis !== void 0) {
+        viewObserver.chartViewDidSetLeftAxis(newLeftAxisView, oldLeftAxisView, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.chartViewDidSetLeftAxis !== void 0) {
+      viewController.chartViewDidSetLeftAxis(newLeftAxisView, oldLeftAxisView, this);
+    }
+  }
+
+  @ViewFastener<ChartView<X, Y>, AxisView<Y>, AnyAxisView<Y> | true>({
+    key: true,
+    type: LeftAxisView,
+    child: true,
+    createView(): AxisView<Y> | null {
+      return this.owner.createLeftAxis();
+    },
+    willSetView(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null): void {
+      this.owner.willSetLeftAxis(newLeftAxisView, oldLeftAxisView);
+    },
+    onSetView(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null): void {
+      this.owner.onSetLeftAxis(newLeftAxisView, oldLeftAxisView);
+    },
+    didSetView(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null): void {
+      this.owner.didSetLeftAxis(newLeftAxisView, oldLeftAxisView);
+    },
+  })
+  declare leftAxis: ViewFastener<this, AxisView<Y>, AnyAxisView<Y> | true>;
 
   protected updateScales(): void {
-    super.updateScales();
     this.layoutChart(this.viewFrame);
+    super.updateScales();
   }
 
   protected layoutChart(frame: BoxR2): void {
@@ -342,54 +516,54 @@ export class ChartView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     const graphBottom = frame.yMax - gutterBottom;
     const graphLeft = frame.xMin + gutterLeft;
 
-    const topAxis = this.topAxis();
-    if (topAxis !== null) {
-      const topFrame = topAxis.viewFrame;
+    const topAxisView = this.topAxis.view;
+    if (topAxisView !== null) {
+      const topFrame = topAxisView.viewFrame;
       if (topFrame.xMin !== graphLeft || topFrame.yMin !== frame.yMin ||
           topFrame.xMax !== graphRight || topFrame.yMax !== graphBottom) {
-        topAxis.setViewFrame(new BoxR2(graphLeft, frame.yMin, graphRight, graphBottom));
-        topAxis.origin.setAutoState(new PointR2(graphLeft, graphTop));
-        topAxis.requireUpdate(View.NeedsLayout);
+        topAxisView.setViewFrame(new BoxR2(graphLeft, frame.yMin, graphRight, graphBottom));
+        topAxisView.origin.setAutoState(new PointR2(graphLeft, graphTop));
+        topAxisView.requireUpdate(View.NeedsLayout);
       }
     }
-    const rightAxis = this.rightAxis();
-    if (rightAxis !== null) {
-      const rightFrame = rightAxis.viewFrame;
+    const rightAxisView = this.rightAxis.view;
+    if (rightAxisView !== null) {
+      const rightFrame = rightAxisView.viewFrame;
       if (rightFrame.xMin !== graphLeft || rightFrame.yMin !== graphTop ||
           rightFrame.xMax !== frame.xMax || rightFrame.yMax !== graphBottom) {
-        rightAxis.setViewFrame(new BoxR2(graphLeft, graphTop, frame.xMax, graphBottom));
-        rightAxis.origin.setAutoState(new PointR2(Math.max(graphLeft, graphRight), graphBottom));
-        rightAxis.requireUpdate(View.NeedsLayout);
+        rightAxisView.setViewFrame(new BoxR2(graphLeft, graphTop, frame.xMax, graphBottom));
+        rightAxisView.origin.setAutoState(new PointR2(Math.max(graphLeft, graphRight), graphBottom));
+        rightAxisView.requireUpdate(View.NeedsLayout);
       }
     }
-    const bottomAxis = this.bottomAxis();
-    if (bottomAxis !== null) {
-      const bottomFrame = bottomAxis.viewFrame;
+    const bottomAxisView = this.bottomAxis.view;
+    if (bottomAxisView !== null) {
+      const bottomFrame = bottomAxisView.viewFrame;
       if (bottomFrame.xMin !== graphLeft || bottomFrame.yMin !== graphTop ||
           bottomFrame.xMax !== graphRight || bottomFrame.yMax !== frame.yMax) {
-        bottomAxis.setViewFrame(new BoxR2(graphLeft, graphTop, graphRight, frame.yMax));
-        bottomAxis.origin.setAutoState(new PointR2(graphLeft, Math.max(graphTop, graphBottom)));
-        bottomAxis.requireUpdate(View.NeedsLayout);
+        bottomAxisView.setViewFrame(new BoxR2(graphLeft, graphTop, graphRight, frame.yMax));
+        bottomAxisView.origin.setAutoState(new PointR2(graphLeft, Math.max(graphTop, graphBottom)));
+        bottomAxisView.requireUpdate(View.NeedsLayout);
       }
     }
-    const leftAxis = this.leftAxis();
-    if (leftAxis !== null) {
-      const leftFrame = leftAxis.viewFrame;
+    const leftAxisView = this.leftAxis.view;
+    if (leftAxisView !== null) {
+      const leftFrame = leftAxisView.viewFrame;
       if (leftFrame.xMin !== frame.xMin || leftFrame.yMin !== graphTop ||
           leftFrame.xMax !== graphRight || leftFrame.yMax !== graphBottom) {
-        leftAxis.setViewFrame(new BoxR2(frame.xMin, graphTop, graphRight, graphBottom));
-        leftAxis.origin.setAutoState(new PointR2(graphLeft, graphBottom));
-        leftAxis.requireUpdate(View.NeedsLayout);
+        leftAxisView.setViewFrame(new BoxR2(frame.xMin, graphTop, graphRight, graphBottom));
+        leftAxisView.origin.setAutoState(new PointR2(graphLeft, graphBottom));
+        leftAxisView.requireUpdate(View.NeedsLayout);
       }
     }
 
-    const graph = this.graph;
-    if (graph !== null) {
-      const graphFrame = graph.viewFrame;
+    const graphView = this.graph.view;
+    if (graphView !== null) {
+      const graphFrame = graphView.viewFrame;
       if (graphFrame.xMin !== graphLeft || graphFrame.yMin !== graphTop ||
           graphFrame.xMax !== graphRight || graphFrame.yMax !== graphBottom) {
-        graph.setViewFrame(new BoxR2(graphLeft, graphTop, graphRight, graphBottom));
-        graph.requireUpdate(View.NeedsLayout);
+        graphView.setViewFrame(new BoxR2(graphLeft, graphTop, graphRight, graphBottom));
+        graphView.requireUpdate(View.NeedsLayout);
       }
     }
   }

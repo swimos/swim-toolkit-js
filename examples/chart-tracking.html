@@ -15,19 +15,19 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = swim.CanvasView.create()
+const canvasView = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-const chart = canvas.append(swim.ChartView)
+const chartView = canvasView.append(swim.ChartView)
     .bottomAxis(true)
     .leftAxis(true)
     .xRangePadding([2, 2])
     .yRangePadding([2, 2])
-    .fitAspectRatio(1)
+    .fitAspectRatio(-1)
     .preserveAspectRatio(true)
     .domainTracking(true)
     .xGestures(true)
@@ -36,24 +36,25 @@ const chart = canvas.append(swim.ChartView)
     .tickMarkColor("#4a4a4a")
     .font("12px sans-serif")
     .textColor("#4a4a4a");
-const graph = chart.graph;
 
-chart.leftAxis().insertTick({
+const graphView = chartView.graph.injectView();
+
+chartView.leftAxis().insertTick({
   value: 0,
   tickLabel: "zero",
   gridLineColor: '#d8d8d8',
   gridLineWidth: 1,
 });
 
-const plot = graph.append(swim.LinePlotView)
+const plotView = graphView.append(swim.LinePlotView)
     .hitMode("plot")
     .stroke("#4a4a4a")
     .strokeWidth(4)
     .on("pointerenter", function (event) {
-      plot.stroke("#1db0ef", {dt: 250});
+      plotView.stroke("#1db0ef", {dt: 250});
     })
     .on("pointerleave", function (event) {
-      plot.stroke("#4a4a4a", {dt: 250});
+      plotView.stroke("#4a4a4a", {dt: 250});
     });
 
 const cycles = 4;
@@ -63,11 +64,11 @@ let n = cycles * samplesPerCycle
 while (i <= n) {
   const x = i * 2 * Math.PI / samplesPerCycle;
   const y = Math.sin(x);
-  plot.insertDataPoint({x: x, y: y});
+  plotView.insertDataPoint({x: x, y: y});
   i += 1;
 }
 
-uiView.append(canvas);
+uiView.append(canvasView);
 
 const samplesPerInterval = 10;
 let j = 0;
@@ -77,13 +78,13 @@ function updatePlot() {
   while (i <= n) {
     const x = i * 2 * Math.PI / samplesPerCycle;
     const y = Math.sin(x);
-    plot.insertDataPoint({x: x, y: y});
+    plotView.insertDataPoint({x: x, y: y});
     i += 1;
   }
   k += samplesPerInterval;
   while (j < k) {
     const x = j * 2 * Math.PI / samplesPerCycle;
-    plot.removeDataPoint(x);
+    plotView.removeDataPoint(x);
     j += 1;
   }
 }

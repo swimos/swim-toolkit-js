@@ -113,9 +113,9 @@ export interface ViewAnimator<V extends View, T, U = never> extends Animator<T> 
 
   readonly superState: T | undefined;
 
-  getValue(): T extends undefined ? never : T;
+  getValue(): NonNullable<T>;
 
-  getState(): T extends undefined ? never : T;
+  getState(): NonNullable<T>;
 
   setState(state: T | U, timing?: AnyTiming | boolean): void;
 
@@ -244,20 +244,18 @@ function ViewAnimatorConstructor<V extends View, T, U>(this: ViewAnimator<V, T, 
     configurable: true,
   });
   if (_this.initState !== void 0) {
-    const initState = _this.initState();
-    if (initState !== void 0) {
-      Object.defineProperty(_this, "ownState", {
-        value: _this.fromAny(initState),
-        enumerable: true,
-        configurable: true,
-      });
-      Object.defineProperty(_this, "ownValue", {
-        value: _this.ownState,
-        enumerable: true,
-        configurable: true,
-      });
-    }
-  } else if (_this.inherit !== false) {
+    Object.defineProperty(_this, "ownState", {
+      value: _this.fromAny(_this.initState()),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(_this, "ownValue", {
+      value: _this.ownState,
+      enumerable: true,
+      configurable: true,
+    });
+  }
+  if (_this.inherit !== false) {
     Object.defineProperty(_this, "animatorFlags", {
       value: _this.animatorFlags | Animator.InheritedFlag,
       enumerable: true,
@@ -422,20 +420,20 @@ Object.defineProperty(ViewAnimator.prototype, "superState", {
   configurable: true,
 });
 
-ViewAnimator.prototype.getValue = function <T, U>(this: ViewAnimator<View, T, U>): T extends undefined ? never : T {
+ViewAnimator.prototype.getValue = function <T, U>(this: ViewAnimator<View, T, U>): NonNullable<T> {
   const value = this.value;
-  if (value === void 0) {
-    throw new TypeError("undefined " + this.name + " value");
+  if (value === void 0 || value === null) {
+    throw new TypeError(value + " " + this.name + " value");
   }
-  return value as T extends undefined ? never : T;
+  return value as NonNullable<T>;
 };
 
-ViewAnimator.prototype.getState = function <T, U>(this: ViewAnimator<View, T, U>): T extends undefined ? never : T {
+ViewAnimator.prototype.getState = function <T, U>(this: ViewAnimator<View, T, U>): NonNullable<T> {
   const state = this.state;
-  if (state === void 0) {
-    throw new TypeError("undefined " + this.name + " state");
+  if (state === void 0 || state === null) {
+    throw new TypeError(state + " " + this.name + " state");
   }
-  return state as T extends undefined ? never : T;
+  return state as NonNullable<T>;
 };
 
 ViewAnimator.prototype.setState = function <T, U>(this: ViewAnimator<View, T, U>, state: T | U, timing?: AnyTiming | boolean): void {
@@ -450,9 +448,7 @@ ViewAnimator.prototype.setAutoState = function <T, U>(this: ViewAnimator<View, T
 };
 
 ViewAnimator.prototype.setOwnState = function <T, U>(this: ViewAnimator<View, T, U>, state: T | U, timing?: AnyTiming | boolean): void {
-  if (state !== void 0) {
-    state = this.fromAny(state);
-  }
+  state = this.fromAny(state);
   this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag);
   Animator.prototype.setState.call(this, state, timing);
 };
@@ -460,9 +456,7 @@ ViewAnimator.prototype.setOwnState = function <T, U>(this: ViewAnimator<View, T,
 ViewAnimator.prototype.setBaseState = function <T, U>(this: ViewAnimator<View, T, U>, state: T | U, timing?: AnyTiming | boolean): void {
   let superAnimator: ViewAnimator<View, T> | null;
   if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator !== null)) {
-    if (state !== void 0) {
-      state = this.fromAny(state);
-    }
+    state = this.fromAny(state);
     superAnimator.setBaseState(state as T, timing);
   } else {
     this.setState(state, timing);

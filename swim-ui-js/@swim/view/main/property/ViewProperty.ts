@@ -111,9 +111,9 @@ export interface ViewProperty<V extends View, T, U = never> {
 
   readonly superState: T | undefined;
 
-  getState(): T extends undefined ? never : T;
+  getState(): NonNullable<T>;
 
-  getStateOr<E>(elseState: E): (T extends undefined ? never : T) | E;
+  getStateOr<E>(elseState: E): NonNullable<T> | E;
 
   setState(state: T | U): void;
 
@@ -256,10 +256,7 @@ function ViewPropertyConstructor<V extends View, T, U>(this: ViewProperty<V, T, 
   let propertyFlags = ViewProperty.UpdatedFlag;
   let state: T | undefined;
   if (this.initState !== void 0) {
-    const initState = this.initState();
-    if (initState !== void 0) {
-      state = this.fromAny(initState);
-    }
+    state = this.fromAny(this.initState());
   } else if (this.inherit !== false) {
     propertyFlags |= ViewProperty.InheritedFlag;
   }
@@ -445,20 +442,20 @@ Object.defineProperty(ViewProperty.prototype, "superState", {
   configurable: true,
 });
 
-ViewProperty.prototype.getState = function <T, U>(this: ViewProperty<View, T, U>): T extends undefined ? never : T {
+ViewProperty.prototype.getState = function <T, U>(this: ViewProperty<View, T, U>): NonNullable<T> {
   const state = this.state;
-  if (state === void 0) {
-    throw new TypeError("undefined " + this.name + " state");
+  if (state === void 0 || state === null) {
+    throw new TypeError(state + " " + this.name + " state");
   }
-  return state as T extends undefined ? never : T;
+  return state as NonNullable<T>;
 };
 
-ViewProperty.prototype.getStateOr = function <T, U, E>(this: ViewProperty<View, T, U>, elseState: E): (T extends undefined ? never : T) | E {
-  let state: T | E | undefined = this.state;
-  if (state === void 0) {
+ViewProperty.prototype.getStateOr = function <T, U, E>(this: ViewProperty<View, T, U>, elseState: E): NonNullable<T> | E {
+  let state: T | E = this.state;
+  if (state === void 0 || state === null) {
     state = elseState;
   }
-  return state as (T extends undefined ? never : T) | E;
+  return state as NonNullable<T> | E;
 };
 
 ViewProperty.prototype.setState = function <T, U>(this: ViewProperty<View, T, U>, state: T | U): void {
@@ -486,9 +483,7 @@ ViewProperty.prototype.setAutoState = function <T, U>(this: ViewProperty<View, T
 
 ViewProperty.prototype.setOwnState = function <T, U>(this: ViewProperty<View, T, U>, newState: T | U): void {
   const oldState = this.state;
-  if (newState !== void 0) {
-    newState = this.fromAny(newState);
-  }
+  newState = this.fromAny(newState);
   this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag);
   if (!Equals(oldState, newState)) {
     this.willSetState(newState as T, oldState);
@@ -510,9 +505,7 @@ ViewProperty.prototype.setOwnState = function <T, U>(this: ViewProperty<View, T,
 ViewProperty.prototype.setBaseState = function <T, U>(this: ViewProperty<View, T, U>, state: T | U): void {
   let superProperty: ViewProperty<View, T> | null;
   if (this.isInherited() && (superProperty = this.superProperty, superProperty !== null)) {
-    if (state !== void 0) {
-      state = this.fromAny(state);
-    }
+    state = this.fromAny(state);
     superProperty.setBaseState(state as T);
   } else {
     this.setState(state);

@@ -387,7 +387,7 @@ export class SliceView extends LayerView {
     const startAngle = this.phaseAngle.getValue().rad();
     const sweepAngle = Angle.rad(2 * Math.PI * delta);
     const padAngle = this.padAngle.getValue();
-    const padRadius = this.padRadius.getValue() as Length | null;
+    const padRadius = this.padRadius.getValueOr(null);
     const cornerRadius = this.cornerRadius.getValue().px(deltaRadius);
     const arc = new Arc(center, innerRadius, outerRadius, startAngle,
                         sweepAngle, padAngle, padRadius, cornerRadius);
@@ -502,7 +502,7 @@ export class SliceView extends LayerView {
     const startAngle = this.phaseAngle.getValue().rad();
     const sweepAngle = Angle.rad(2 * Math.PI * delta);
     const padAngle = this.padAngle.getValue();
-    const padRadius = this.padRadius.getValue() as Length | null;
+    const padRadius = this.padRadius.getValueOr(null);
     const cornerRadius = this.cornerRadius.getValue().px(deltaRadius);
     const arc = new Arc(center, innerRadius, outerRadius, startAngle,
                         sweepAngle, padAngle, padRadius, cornerRadius);

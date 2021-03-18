@@ -124,9 +124,9 @@ export interface TraitProperty<R extends Trait, T, U = never> {
 
   readonly superState: T | undefined;
 
-  getState(): T extends undefined ? never : T;
+  getState(): NonNullable<T>;
 
-  getStateOr<E>(elseState: E): (T extends undefined ? never : T) | E;
+  getStateOr<E>(elseState: E): NonNullable<T> | E;
 
   setState(state: T | U): void;
 
@@ -239,10 +239,7 @@ function TraitPropertyConstructor<R extends Trait, T, U>(this: TraitProperty<R, 
   let propertyFlags = ModelProperty.UpdatedFlag;
   let state: T | undefined;
   if (this.initState !== void 0) {
-    const initState = this.initState();
-    if (initState !== void 0) {
-      state = this.fromAny(initState);
-    }
+    state = this.fromAny(this.initState());
   } else if (this.inherit !== false) {
     propertyFlags |= ModelProperty.InheritedFlag;
   }
@@ -429,28 +426,26 @@ Object.defineProperty(TraitProperty.prototype, "superState", {
   configurable: true,
 });
 
-TraitProperty.prototype.getState = function <T, U>(this: TraitProperty<Trait, T, U>): T extends undefined ? never : T {
+TraitProperty.prototype.getState = function <T, U>(this: TraitProperty<Trait, T, U>): NonNullable<T> {
   const state = this.state;
-  if (state === void 0) {
-    throw new TypeError("undefined " + this.name + " state");
+  if (state === void 0 || state === null) {
+    throw new TypeError(state + " " + this.name + " state");
   }
-  return state as T extends undefined ? never : T;
+  return state as NonNullable<T>;
 };
 
-TraitProperty.prototype.getStateOr = function <T, U, E>(this: TraitProperty<Trait, T, U>, elseState: E): (T extends undefined ? never : T) | E {
-  let state: T | E | undefined = this.state;
-  if (state === void 0) {
+TraitProperty.prototype.getStateOr = function <T, U, E>(this: TraitProperty<Trait, T, U>, elseState: E): NonNullable<T> | E {
+  let state: T | E = this.state;
+  if (state === void 0 || state === null) {
     state = elseState;
   }
-  return state as (T extends undefined ? never : T) | E;
+  return state as NonNullable<T> | E;
 };
 
 TraitProperty.prototype.setState = function <T, U>(this: TraitProperty<Trait, T, U>, state: T | U): void {
   const modelProperty = this.modelProperty;
   if (modelProperty !== null) {
-    if (state !== void 0) {
-      state = this.fromAny(state);
-    }
+    state = this.fromAny(state);
     modelProperty.setState(state as T);
   } else {
     this.setPropertyFlags(this.propertyFlags | ModelProperty.OverrideFlag);
@@ -473,9 +468,7 @@ TraitProperty.prototype.didSetState = function <T>(this: TraitProperty<Trait, T>
 TraitProperty.prototype.setAutoState = function <T, U>(this: TraitProperty<Trait, T, U>, state: T | U): void {
   const modelProperty = this.modelProperty;
   if (modelProperty !== null) {
-    if (state !== void 0) {
-      state = this.fromAny(state);
-    }
+    state = this.fromAny(state);
     modelProperty.setAutoState(state as T);
   } else if ((this.propertyFlags & ModelProperty.OverrideFlag) === 0) {
     this.setOwnState(state);
@@ -483,9 +476,7 @@ TraitProperty.prototype.setAutoState = function <T, U>(this: TraitProperty<Trait
 };
 
 TraitProperty.prototype.setOwnState = function <T, U>(this: TraitProperty<Trait, T, U>, newState: T | U): void {
-  if (newState !== void 0) {
-    newState = this.fromAny(newState);
-  }
+  newState = this.fromAny(newState);
   const modelProperty = this.modelProperty;
   if (modelProperty !== null) {
     modelProperty.setOwnState(newState as T);
@@ -512,9 +503,7 @@ TraitProperty.prototype.setOwnState = function <T, U>(this: TraitProperty<Trait,
 TraitProperty.prototype.setBaseState = function <T, U>(this: TraitProperty<Trait, T, U>, state: T | U): void {
   const modelProperty = this.modelProperty;
   if (modelProperty !== null) {
-    if (state !== void 0) {
-      state = this.fromAny(state);
-    }
+    state = this.fromAny(state);
     modelProperty.setBaseState(state as T);
   } else {
     this.setState(state);

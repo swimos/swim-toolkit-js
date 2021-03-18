@@ -127,15 +127,15 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
   declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
 
   get value(): Arc {
-    return new Arc(this.viewCenter.getValue(), this.innerRadius.getValue(), this.outerRadius.getValue(),
-                   this.startAngle.getValue(), this.sweepAngle.getValue(), this.padAngle.getValue(),
-                   this.padRadius.getValue(), this.cornerRadius.getValue());
+    return new Arc(this.viewCenter.value, this.innerRadius.value, this.outerRadius.value,
+                   this.startAngle.value, this.sweepAngle.value, this.padAngle.value,
+                   this.padRadius.value, this.cornerRadius.value);
   }
 
   get state(): Arc {
-    return new Arc(this.viewCenter.getState(), this.innerRadius.getState(), this.outerRadius.getState(),
-                   this.startAngle.getState(), this.sweepAngle.getState(), this.padAngle.getState(),
-                   this.padRadius.getState(), this.cornerRadius.getState());
+    return new Arc(this.viewCenter.state, this.innerRadius.state, this.outerRadius.state,
+                   this.startAngle.state, this.sweepAngle.state, this.padAngle.state,
+                   this.padRadius.state, this.cornerRadius.state);
   }
 
   protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {

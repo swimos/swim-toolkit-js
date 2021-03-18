@@ -13,21 +13,21 @@
 // limitations under the License.
 
 import type {BoxR2} from "@swim/math";
-import type {ViewContextType, View} from "@swim/view";
+import type {ViewContextType} from "@swim/view";
 import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
-import {ScaleViewInit, ScaleView} from "../scale/ScaleView";
+import {ScaledViewInit, ScaledView} from "../scaled/ScaledView";
 import {AnyPlotView, PlotView} from "../plot/PlotView";
 import type {GraphViewObserver} from "./GraphViewObserver";
 import type {GraphViewController} from "./GraphViewController";
 
 export type AnyGraphView<X = unknown, Y = unknown> = GraphView<X, Y> | GraphViewInit<X, Y>;
 
-export interface GraphViewInit<X = unknown, Y = unknown> extends ScaleViewInit<X, Y> {
+export interface GraphViewInit<X = unknown, Y = unknown> extends ScaledViewInit<X, Y> {
   viewController?: GraphViewController<X, Y>;
   plots?: AnyPlotView<X, Y>[];
 }
 
-export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
+export class GraphView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   declare readonly viewController: GraphViewController<X, Y> | null;
 
   declare readonly viewObservers: ReadonlyArray<GraphViewObserver<X, Y>>;
@@ -48,28 +48,6 @@ export class GraphView<X = unknown, Y = unknown> extends ScaleView<X, Y> {
     }
     plot = PlotView.fromAny(plot);
     this.appendChildView(plot);
-  }
-
-  protected onInsertChildView(childView: View, targetView: View | null): void {
-    super.onInsertChildView(childView, targetView);
-    if (PlotView.is<X, Y>(childView)) {
-      this.onInsertPlot(childView);
-    }
-  }
-
-  protected onRemoveChildView(childView: View): void {
-    if (PlotView.is<X, Y>(childView)) {
-      this.onRemovePlot(childView);
-    }
-    super.onRemoveChildView(childView);
-  }
-
-  protected onInsertPlot(plot: PlotView<X, Y>): void {
-    // hook
-  }
-
-  protected onRemovePlot(plot: PlotView<X, Y>): void {
-    // hook
   }
 
   protected willRender(viewContext: ViewContextType<this>): void {

@@ -1165,24 +1165,24 @@ export class NodeView extends View {
     try {
       this.willProcess(cascadeFlags, viewContext);
       if (((this.viewFlags | processFlags) & View.NeedsResize) !== 0) {
-        this.willResize(viewContext);
         cascadeFlags |= View.NeedsResize;
         this.setViewFlags(this.viewFlags & ~View.NeedsResize);
+        this.willResize(viewContext);
       }
       if (((this.viewFlags | processFlags) & View.NeedsScroll) !== 0) {
-        this.willScroll(viewContext);
         cascadeFlags |= View.NeedsScroll;
         this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
+        this.willScroll(viewContext);
       }
       if (((this.viewFlags | processFlags) & View.NeedsChange) !== 0) {
-        this.willChange(viewContext);
         cascadeFlags |= View.NeedsChange;
         this.setViewFlags(this.viewFlags & ~View.NeedsChange);
+        this.willChange(viewContext);
       }
       if (((this.viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
-        this.willAnimate(viewContext);
         cascadeFlags |= View.NeedsAnimate;
         this.setViewFlags(this.viewFlags & ~View.NeedsAnimate);
+        this.willAnimate(viewContext);
       }
 
       this.onProcess(cascadeFlags, viewContext);
@@ -1275,9 +1275,9 @@ export class NodeView extends View {
     try {
       this.willDisplay(cascadeFlags, viewContext);
       if (((this.viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
-        this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
         this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
+        this.willLayout(viewContext);
       }
 
       this.onDisplay(cascadeFlags, viewContext);

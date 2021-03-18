@@ -29,11 +29,11 @@ export interface ScaleGestureDelegate<X, Y> extends MomentumGestureDelegate {
 
   yGestures?(): boolean;
 
-  xScale?(): ContinuousScale<X, number> | undefined;
-  xScale?(xScale: ContinuousScale<X, number> | undefined, timing?: AnyTiming | boolean): unknown;
+  xScale?(): ContinuousScale<X, number> | null;
+  xScale?(xScale: ContinuousScale<X, number> | null, timing?: AnyTiming | boolean): unknown;
 
-  yScale?(): ContinuousScale<Y, number> | undefined;
-  yScale?(yScale: ContinuousScale<Y, number> | undefined, timing?: AnyTiming | boolean): unknown;
+  yScale?(): ContinuousScale<Y, number> | null;
+  yScale?(yScale: ContinuousScale<Y, number> | null, timing?: AnyTiming | boolean): unknown;
 
   willBeginHover?(input: ScaleGestureInput<X, Y>, event: Event | null): void;
 

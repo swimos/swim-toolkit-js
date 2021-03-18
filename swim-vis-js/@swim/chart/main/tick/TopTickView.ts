@@ -25,17 +25,17 @@ export class TopTickView<X> extends TickView<X> {
     return "top";
   }
 
-  protected layoutTickLabel(tickLabel: GraphicsView): void {
+  protected layoutLabel(labelView: GraphicsView): void {
     const anchor = this.anchor.getValue();
     const x = Math.round(anchor.x);
     const y0 = Math.round(anchor.y);
     const y1 = y0 - this.tickMarkLength.getValue();
     const y2 = y1 - this.tickLabelPadding.getValue();
 
-    if (TypesetView.is(tickLabel)) {
-      tickLabel.textAlign.setAutoState("center");
-      tickLabel.textBaseline.setAutoState("bottom");
-      tickLabel.textOrigin.setAutoState(new PointR2(x, y2));
+    if (TypesetView.is(labelView)) {
+      labelView.textAlign.setAutoState("center");
+      labelView.textBaseline.setAutoState("bottom");
+      labelView.textOrigin.setAutoState(new PointR2(x, y2));
     }
   }
 

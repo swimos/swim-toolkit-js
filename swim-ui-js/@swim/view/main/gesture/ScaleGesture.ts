@@ -122,10 +122,10 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     }
   }
 
-  xScale(): ContinuousScale<X, number> | undefined;
-  xScale(xScale: ContinuousScale<X, number> | undefined, timing?: AnyTiming | boolean): this;
-  xScale(xScale?: ContinuousScale<X, number> | undefined,
-         timing?: AnyTiming | boolean): ContinuousScale<X, number> | undefined | this {
+  xScale(): ContinuousScale<X, number> | null;
+  xScale(xScale: ContinuousScale<X, number> | null, timing?: AnyTiming | boolean): this;
+  xScale(xScale?: ContinuousScale<X, number> | null,
+         timing?: AnyTiming | boolean): ContinuousScale<X, number> | null | this {
     const delegate = this.delegate;
     if (xScale === void 0) {
       if (delegate !== null && delegate.xScale !== void 0) {
@@ -133,7 +133,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
           return delegate.xScale();
         }
       }
-      return void 0;
+      return null;
     } else {
       if (delegate !== null && delegate.xScale !== void 0) {
         if (delegate.xGestures === void 0 || delegate.xGestures()) {
@@ -144,10 +144,10 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     }
   }
 
-  yScale(): ContinuousScale<Y, number> | undefined;
-  yScale(yScale: ContinuousScale<Y, number> | undefined, timing?: AnyTiming | boolean): this;
-  yScale(yScale?: ContinuousScale<Y, number> | undefined,
-         timing?: AnyTiming | boolean): ContinuousScale<Y, number> | undefined | this {
+  yScale(): ContinuousScale<Y, number> | null;
+  yScale(yScale: ContinuousScale<Y, number> | null, timing?: AnyTiming | boolean): this;
+  yScale(yScale?: ContinuousScale<Y, number> | null,
+         timing?: AnyTiming | boolean): ContinuousScale<Y, number> | null | this {
     const delegate = this.delegate;
     if (yScale === void 0) {
       if (delegate !== null && delegate.yScale !== void 0) {
@@ -155,7 +155,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
           return delegate.yScale();
         }
       }
-      return void 0;
+      return null;
     } else {
       if (delegate !== null && delegate.yScale !== void 0) {
         if (delegate.yGestures === void 0 || delegate.yGestures()) {
@@ -288,13 +288,13 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   }
 
   protected updateInputDomain(input: ScaleGestureInput<X, Y>,
-                              xScale?: ContinuousScale<X, number>,
-                              yScale?: ContinuousScale<Y, number>,
+                              xScale?: ContinuousScale<X, number> | null,
+                              yScale?: ContinuousScale<Y, number> | null,
                               bounds?: BoxR2): void {
     if (xScale === void 0) {
       xScale = this.xScale();
     }
-    if (xScale !== void 0) {
+    if (xScale !== null) {
       if (bounds === void 0) {
         bounds = this.view!.clientBounds;
       }
@@ -303,7 +303,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     if (yScale === void 0) {
       yScale = this.yScale();
     }
-    if (yScale !== void 0) {
+    if (yScale !== null) {
       if (bounds === void 0) {
         bounds = this.view!.clientBounds;
       }
@@ -357,15 +357,15 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
       const bounds = this.view!.clientBounds;
       const xScale = this.xScale();
       const yScale = this.yScale();
-      if (xScale !== void 0 && yScale !== void 0) {
+      if (xScale !== null && yScale !== null) {
         if (input1 !== void 0 && this.preserveAspectRatio) {
           this.rescaleRadial(xScale, yScale, input0, input1, bounds);
         } else {
           this.rescaleXY(xScale, yScale, input0, input1, bounds);
         }
-      } else if (xScale !== void 0) {
+      } else if (xScale !== null) {
         this.rescaleX(xScale, input0, input1, bounds);
-      } else if (yScale !== void 0) {
+      } else if (yScale !== null) {
         this.rescaleY(yScale, input0, input1, bounds);
       }
     }
@@ -497,22 +497,22 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     const rax1 = a1 * -uvx1;
     const ray1 = a1 * -uvy1;
 
-    let newXScale: ContinuousScale<X, number> | undefined;
+    let newXScale: ContinuousScale<X, number> | null = null;
     const solvedXScale = oldXScale.solveDomain(x0, rx0, x1, rx1);
     if (!solvedXScale.equals(oldXScale)) {
       newXScale = solvedXScale;
       this.xScale(newXScale);
     }
 
-    let newYScale: ContinuousScale<Y, number> | undefined;
+    let newYScale: ContinuousScale<Y, number> | null = null;
     const solvedYScale = oldYScale.solveDomain(y0, ry0, y1, ry1);
     if (!solvedYScale.equals(oldYScale)) {
       newYScale = solvedYScale;
       this.yScale(newYScale);
     }
 
-    if (newXScale !== void 0 || newYScale !== void 0) {
-      if (newXScale !== void 0) {
+    if (newXScale !== null || newYScale !== null) {
+      if (newXScale !== null) {
         input0.x0 = input0.x;
         input0.dx = 0;
         input0.vx = rvx0;
@@ -525,7 +525,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
         input1.ax = rax1;
         input1.xCoord = this.unscaleX(input1.x0, newXScale, bounds);
       }
-      if (newYScale !== void 0) {
+      if (newYScale !== null) {
         input0.y0 = input0.y;
         input0.dy = 0;
         input0.vy = rvy0;
@@ -544,12 +544,12 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
         for (const inputId in inputs) {
           const input = inputs[inputId]!;
           if (input !== input0 && input !== input1) {
-            if (newXScale !== void 0) {
+            if (newXScale !== null) {
               input.x0 = input.x;
               input.dx = 0;
               input.xCoord = this.unscaleX(input.x0, newXScale, bounds);
             }
-            if (newYScale !== void 0) {
+            if (newYScale !== null) {
               input.y0 = input.y;
               input.dy = 0;
               input.yCoord = this.unscaleY(input.y0, newYScale, bounds);
@@ -610,7 +610,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
       }
     }
 
-    let newXScale: ContinuousScale<X, number> | undefined;
+    let newXScale: ContinuousScale<X, number> | null = null;
     if (!disableX) {
       newXScale = oldXScale.solveDomain(x0, sx0, x1, sx1);
       if (!newXScale.equals(oldXScale)) {
@@ -618,7 +618,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
       }
     }
 
-    let newYScale: ContinuousScale<Y, number> | undefined;
+    let newYScale: ContinuousScale<Y, number> | null = null;
     if (!disableY) {
       newYScale = oldYScale.solveDomain(y0, sy0, y1, sy1);
       if (!newYScale.equals(oldYScale)) {
@@ -626,16 +626,16 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
       }
     }
 
-    if ((newXScale !== void 0 || newYScale !== void 0) && this.preserveAspectRatio) {
+    if ((newXScale !== null || newYScale !== null) && this.preserveAspectRatio) {
       const inputs = this.inputs;
       for (const inputId in inputs) {
         const input = inputs[inputId]!;
-        if (newXScale !== void 0) {
+        if (newXScale !== null) {
           input.x0 = input.x;
           input.dx = 0;
           input.xCoord = this.unscaleX(input.x0, newXScale, bounds);
         }
-        if (newYScale !== void 0) {
+        if (newYScale !== null) {
           input.y0 = input.y;
           input.dy = 0;
           input.yCoord = this.unscaleY(input.y0, newYScale, bounds);
@@ -729,11 +729,11 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     if (input1 !== void 0) {
       const xScale = this.xScale();
       const yScale = this.yScale();
-      if (xScale !== void 0 && yScale !== void 0) {
+      if (xScale !== null && yScale !== null) {
         this.distributeXYMomentum(input0, input1);
-      } else if (xScale !== void 0) {
+      } else if (xScale !== null) {
         this.distributeXMomentum(input0, input1);
-      } else if (yScale !== void 0) {
+      } else if (yScale !== null) {
         this.distributeYMomentum(input0, input1);
       }
     }

@@ -22,3 +22,4 @@ export {
   DataPointViewInit,
   DataPointView,
 } from "./DataPointView";
+export {DataPointViewObserver} from "./DataPointViewObserver";

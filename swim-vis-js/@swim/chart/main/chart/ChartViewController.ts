@@ -12,35 +12,75 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ScaleViewController} from "../scale/ScaleViewController";
+import {ScaledViewController} from "../scaled/ScaledViewController";
 import type {GraphView} from "../graph/GraphView";
 import type {AxisView} from "../axis/AxisView";
 import type {ChartView} from "./ChartView";
 import type {ChartViewObserver} from "./ChartViewObserver";
 
-export class ChartViewController<X = unknown, Y = unknown, V extends ChartView<X, Y> = ChartView<X, Y>> extends ScaleViewController<X, Y, V> implements ChartViewObserver<X, Y, V> {
-  get graph(): GraphView<X, Y> | null {
+export class ChartViewController<X = unknown, Y = unknown, V extends ChartView<X, Y> = ChartView<X, Y>> extends ScaledViewController<X, Y, V> implements ChartViewObserver<X, Y, V> {
+  get graphView(): GraphView<X, Y> | null {
     const view = this.view;
-    return view !== null ? view.graph : null;
+    return view !== null ? view.graph.view : null;
   }
 
-  topAxis(): AxisView<X> | null {
+  get topAxisView(): AxisView<X> | null {
     const view = this.view;
-    return view !== null ? view.topAxis() : null;
+    return view !== null ? view.topAxis.view : null;
   }
 
-  rightAxis(): AxisView<Y> | null {
+  get rightAxisView(): AxisView<Y> | null {
     const view = this.view;
-    return view !== null ? view.rightAxis() : null;
+    return view !== null ? view.rightAxis.view : null;
   }
 
-  bottomAxis(): AxisView<X> | null {
+  get bottomAxisView(): AxisView<X> | null {
     const view = this.view;
-    return view !== null ? view.bottomAxis() : null;
+    return view !== null ? view.bottomAxis.view : null;
   }
 
-  leftAxis(): AxisView<Y> | null {
+  get leftAxisView(): AxisView<Y> | null {
     const view = this.view;
-    return view !== null ? view.leftAxis() : null;
+    return view !== null ? view.leftAxis.view : null;
+  }
+
+  chartViewWillSetGraph(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null, view: V): void {
+    // hook
+  }
+
+  chartViewDidSetGraph(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null, view: V): void {
+    // hook
+  }
+
+  chartViewWillSetTopAxis(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null, view: V): void {
+    // hook
+  }
+
+  chartViewDidSetTopAxis(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null, view: V): void {
+    // hook
+  }
+
+  chartViewWillSetRightAxis(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null, view: V): void {
+    // hook
+  }
+
+  chartViewDidSetRightAxis(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null, view: V): void {
+    // hook
+  }
+
+  chartViewWillSetBottomAxis(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null, view: V): void {
+    // hook
+  }
+
+  chartViewDidSetBottomAxis(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null, view: V): void {
+    // hook
+  }
+
+  chartViewWillSetLeftAxis(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null, view: V): void {
+    // hook
+  }
+
+  chartViewDidSetLeftAxis(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null, view: V): void {
+    // hook
   }
 }

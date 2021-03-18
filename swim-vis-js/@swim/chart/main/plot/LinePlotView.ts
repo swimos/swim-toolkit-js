@@ -14,7 +14,7 @@
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import {ViewProperty, ViewAnimator} from "@swim/view";
+import {ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import type {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";
 import type {PlotViewController} from "./PlotViewController";
@@ -56,8 +56,7 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
   declare hitWidth: ViewProperty<this, number>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
-    const data = this.data;
-    const n = data.size;
+    const dataPointFasteners = this.dataPointFasteners;
 
     const stroke = this.stroke.getValue();
     const strokeWidth = this.strokeWidth.getValue().pxValue(Math.min(frame.width, frame.height));
@@ -67,9 +66,9 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
     let x0: number;
     let x1: number;
     let dx: number;
-    if (n > 0) {
-      const p0 = data.firstValue()!;
-      const p1 = data.lastValue()!;
+    if (!dataPointFasteners.isEmpty()) {
+      const p0 = dataPointFasteners.firstValue()!.view!;
+      const p1 = dataPointFasteners.lastValue()!.view!;
       x0 = p0.xCoord;
       x1 = p1.xCoord;
       dx = x1 - x0;
@@ -84,7 +83,9 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
 
     context.beginPath();
     let i = 0;
-    data.forEach(function (x: X, p: DataPointView<X, Y>): void {
+    type self = this;
+    dataPointFasteners.forEach(function (x: X, dataPointFastener: ViewFastener<self, DataPointView<X, Y>>): void {
+      const p = dataPointFastener.view!;
       const xCoord = p.xCoord;
       const yCoord = p.yCoord;
       if (i === 0) {
@@ -121,7 +122,9 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
 
     context.beginPath();
     let i = 0;
-    this.data.forEach(function (x: X, p: DataPointView<X, Y>): void {
+    type self = this;
+    this.dataPointFasteners.forEach(function (x: X, dataPointFastener: ViewFastener<self, DataPointView<X, Y>>): void {
+      const p = dataPointFastener.view!;
       const xCoord = p.xCoord;
       const yCoord = p.yCoord;
       if (i === 0) {

@@ -12,8 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ScaleViewObserver} from "../scale/ScaleViewObserver";
+import type {ScaledViewObserver} from "../scaled/ScaledViewObserver";
+import type {GraphView} from "../graph/GraphView";
+import type {AxisView} from "../axis/AxisView";
 import type {ChartView} from "./ChartView";
 
-export interface ChartViewObserver<X = unknown, Y = unknown, V extends ChartView<X, Y> = ChartView<X, Y>> extends ScaleViewObserver<X, Y, V> {
+export interface ChartViewObserver<X = unknown, Y = unknown, V extends ChartView<X, Y> = ChartView<X, Y>> extends ScaledViewObserver<X, Y, V> {
+  chartViewWillSetGraph?(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null, view: V): void;
+
+  chartViewDidSetGraph?(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null, view: V): void;
+
+  chartViewWillSetTopAxis?(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null, view: V): void;
+
+  chartViewDidSetTopAxis?(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null, view: V): void;
+
+  chartViewWillSetRightAxis?(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null, view: V): void;
+
+  chartViewDidSetRightAxis?(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null, view: V): void;
+
+  chartViewWillSetBottomAxis?(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null, view: V): void;
+
+  chartViewDidSetBottomAxis?(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null, view: V): void;
+
+  chartViewWillSetLeftAxis?(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null, view: V): void;
+
+  chartViewDidSetLeftAxis?(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null, view: V): void;
 }

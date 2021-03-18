@@ -393,19 +393,19 @@ export abstract class GenericModel extends Model {
     try {
       this.willAnalyze(cascadeFlags, modelContext);
       if (((this.modelFlags | analyzeFlags) & Model.NeedsMutate) !== 0) {
-        this.willMutate(modelContext);
         cascadeFlags |= Model.NeedsMutate;
         this.setModelFlags(this.modelFlags & ~Model.NeedsMutate);
+        this.willMutate(modelContext);
       }
       if (((this.modelFlags | analyzeFlags) & Model.NeedsAggregate) !== 0) {
-        this.willAggregate(modelContext);
         cascadeFlags |= Model.NeedsAggregate;
         this.setModelFlags(this.modelFlags & ~Model.NeedsAggregate);
+        this.willAggregate(modelContext);
       }
       if (((this.modelFlags | analyzeFlags) & Model.NeedsCorrelate) !== 0) {
-        this.willCorrelate(modelContext);
         cascadeFlags |= Model.NeedsCorrelate;
         this.setModelFlags(this.modelFlags & ~Model.NeedsCorrelate);
+        this.willCorrelate(modelContext);
       }
 
       this.onAnalyze(cascadeFlags, modelContext);
@@ -486,14 +486,14 @@ export abstract class GenericModel extends Model {
     try {
       this.willRefresh(cascadeFlags, modelContext);
       if (((this.modelFlags | refreshFlags) & Model.NeedsValidate) !== 0) {
-        this.willValidate(modelContext);
         cascadeFlags |= Model.NeedsValidate;
         this.setModelFlags(this.modelFlags & ~Model.NeedsValidate);
+        this.willValidate(modelContext);
       }
       if (((this.modelFlags | refreshFlags) & Model.NeedsReconcile) !== 0) {
-        this.willReconcile(modelContext);
         cascadeFlags |= Model.NeedsReconcile;
         this.setModelFlags(this.modelFlags & ~Model.NeedsReconcile);
+        this.willReconcile(modelContext);
       }
 
       this.onRefresh(cascadeFlags, modelContext);

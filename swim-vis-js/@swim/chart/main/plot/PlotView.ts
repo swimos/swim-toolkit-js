@@ -14,9 +14,10 @@
 
 import type {Domain, Range, AnyTiming, ContinuousScale} from "@swim/mapping";
 import type {AnyFont, AnyColor} from "@swim/style";
-import {GraphicsViewInit, GraphicsView} from "@swim/graphics";
+import type {ViewAnimator} from "@swim/view";
+import {GraphicsViewInit, GraphicsView, GraphicsViewController} from "@swim/graphics";
 import type {AnyDataPointView} from "../data/DataPointView";
-import type {ScaleXYView} from "../scale/ScaleXYView";
+import type {ScaledXYView} from "../scaled/ScaledXYView";
 import type {PlotViewObserver} from "./PlotViewObserver";
 import type {PlotViewController} from "./PlotViewController";
 import {ScatterPlotView} from "../"; // forward import
@@ -42,46 +43,36 @@ export interface PlotViewInit<X, Y> extends GraphicsViewInit {
   textColor?: AnyColor;
 }
 
-export interface PlotView<X, Y> extends GraphicsView, ScaleXYView<X, Y> {
-  readonly viewController: PlotViewController<X, Y> | null;
+export interface PlotView<X, Y> extends GraphicsView, ScaledXYView<X, Y> {
+  readonly viewController: GraphicsViewController<PlotView<X, Y>> & PlotViewController<X, Y> | null;
 
   readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 
   plotType: PlotType;
 
-  xScale(): ContinuousScale<X, number> | undefined;
-  xScale(xScale: ContinuousScale<X, number> | undefined,
-         timing?: AnyTiming | boolean): this;
+  readonly xScale: ViewAnimator<this, ContinuousScale<X, number> | null, string>;
 
-  yScale(): ContinuousScale<Y, number> | undefined;
-  yScale(yScale: ContinuousScale<Y, number> | undefined,
-         timing?: AnyTiming | boolean): this;
+  readonly yScale: ViewAnimator<this, ContinuousScale<Y, number> | null, string>;
 
-  xDomain(): Domain<X> | undefined;
-  xDomain(xDomain: Domain<X> | undefined, timing?: AnyTiming | boolean): this;
+  xDomain(): Domain<X> | null;
+  xDomain(xDomain: Domain<X> | null, timing?: AnyTiming | boolean): this;
   xDomain(xMin: X, xMax: X, timing?: AnyTiming | boolean): this;
 
-  yDomain(): Domain<Y> | undefined;
-  yDomain(yDomain: Domain<Y> | undefined, timing?: AnyTiming | boolean): this;
+  yDomain(): Domain<Y> | null;
+  yDomain(yDomain: Domain<Y> | null, timing?: AnyTiming | boolean): this;
   yDomain(yMin: Y, yMax: Y, timingtimingtiming?: AnyTiming | boolean): this;
 
-  xRange(): Range<number> | undefined;
+  xRange(): Range<number> | null;
 
-  yRange(): Range<number> | undefined;
+  yRange(): Range<number> | null;
 
-  xDataDomain(): readonly [X, X] | undefined;
+  readonly xDataDomain: Domain<X> | null;
 
-  /** @hidden */
-  getXDataDomain(): readonly [X, X] | undefined;
+  readonly yDataDomain: Domain<Y> | null;
 
-  yDataDomain(): readonly [Y, Y] | undefined;
+  readonly xDataRange: Range<number> | null;
 
-  /** @hidden */
-  getYDataDomain(): readonly [Y, Y] | undefined;
-
-  xDataRange(): readonly [number, number] | undefined;
-
-  yDataRange(): readonly [number, number] | undefined;
+  readonly yDataRange: Range<number> | null;
 }
 
 export const PlotView = {} as {

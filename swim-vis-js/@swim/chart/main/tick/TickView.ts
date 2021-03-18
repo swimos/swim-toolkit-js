@@ -15,7 +15,7 @@
 import type {Timing} from "@swim/mapping";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {ViewContextType, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewAnimator, ViewFastener} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -57,7 +57,7 @@ export interface TickViewInit<D> extends GraphicsViewInit {
   font?: AnyFont;
   textColor?: AnyColor;
 
-  tickLabel?: GraphicsView | string | null;
+  label?: GraphicsView | string | null;
 }
 
 export abstract class TickView<D> extends LayerView {
@@ -120,8 +120,8 @@ export abstract class TickView<D> extends LayerView {
       this.textColor(init.textColor);
     }
 
-    if (init.tickLabel !== void 0) {
-      this.tickLabel(init.tickLabel);
+    if (init.label !== void 0) {
+      this.label(init.label);
     }
   }
 
@@ -180,20 +180,48 @@ export abstract class TickView<D> extends LayerView {
   @ViewAnimator({type: Color, inherit: true})
   declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  tickLabel(): GraphicsView | null;
-  tickLabel(tickLabel: GraphicsView | AnyTextRunView | null): this;
-  tickLabel(tickLabel?: GraphicsView | AnyTextRunView | null): GraphicsView | null | this {
-    if (tickLabel === void 0) {
-      const childView = this.getChildView("tickLabel");
-      return childView instanceof GraphicsView ? childView : null;
-    } else {
-      if (tickLabel !== null && !(tickLabel instanceof GraphicsView)) {
-        tickLabel = TextRunView.fromAny(tickLabel);
-      }
-      this.setChildView("tickLabel", tickLabel);
-      return this;
+  protected initLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected willSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    // hook
+  }
+
+  protected onSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    if (newLabelView !== null) {
+      this.initLabel(newLabelView);
     }
   }
+
+  protected didSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    // hook
+  }
+
+  @ViewFastener<TickView<D>, GraphicsView, AnyTextRunView>({
+    key: true,
+    type: TextRunView,
+    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
+      if (value instanceof GraphicsView) {
+        return value;
+      } else if (typeof value === "string" && this.view instanceof TextRunView) {
+        this.view.text(value);
+        return this.view;
+      } else {
+        return TextRunView.fromAny(value);
+      }
+    },
+    willSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.willSetLabel(newLabelView, oldLabelView);
+    },
+    onSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.onSetLabel(newLabelView, oldLabelView);
+    },
+    didSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.didSetLabel(newLabelView, oldLabelView);
+    },
+  })
+  declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
   /** @hidden */
   declare readonly preserved: boolean;
@@ -237,9 +265,9 @@ export abstract class TickView<D> extends LayerView {
 
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
-    const tickLabel = this.tickLabel();
-    if (tickLabel !== null) {
-      this.layoutTickLabel(tickLabel);
+    const labelView = this.label.view;
+    if (labelView !== null) {
+      this.layoutLabel(labelView);
     }
   }
 
@@ -270,7 +298,7 @@ export abstract class TickView<D> extends LayerView {
     super.didRender(viewContext);
   }
 
-  protected abstract layoutTickLabel(tickLabel: GraphicsView): void;
+  protected abstract layoutLabel(labelView: GraphicsView): void;
 
   protected abstract renderTick(context: CanvasContext, frame: BoxR2): void;
 

@@ -15,14 +15,14 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = swim.CanvasView.create()
+const canvasView = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-const chart = canvas.append(swim.ChartView)
+const chartView = canvasView.append(swim.ChartView)
     .topAxis(true)
     .rightAxis(true)
     .bottomAxis(true)
@@ -40,13 +40,15 @@ const chart = canvas.append(swim.ChartView)
     .font("12px sans-serif")
     .textColor("#4a4a4a");
 
-chart.leftAxis().gridLineColor("#d8d8d8")
-                .gridLineWidth(1);
+chartView.graph.injectView();
 
-chart.bottomAxis().gridLineColor("#d8d8d8")
-                  .gridLineWidth(1);
+chartView.leftAxis().gridLineColor("#d8d8d8")
+                    .gridLineWidth(1);
 
-uiView.append(canvas);
+chartView.bottomAxis().gridLineColor("#d8d8d8")
+                      .gridLineWidth(1);
+
+uiView.append(canvasView);
 
     </script>
   </body>

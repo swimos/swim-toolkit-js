@@ -16,17 +16,17 @@ import {ContinuousScale} from "@swim/mapping";
 import {PointR2, BoxR2} from "@swim/math";
 import {View, ViewAnimator} from "@swim/view";
 import type {CanvasContext} from "@swim/graphics";
-import {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
+import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
 import type {TickView} from "../tick/TickView";
-import {AxisOrientation, AxisView} from "./AxisView";
+import {AxisOrientation, AnyAxisView, AxisViewInit, AxisView} from "./AxisView";
 
 export class LeftAxisView<Y = unknown> extends AxisView<Y> {
   get orientation(): AxisOrientation {
     return "left";
   }
 
-  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: "yScale", updateFlags: View.NeedsLayout})
-  declare scale: ScaleViewAnimator<this, Y, number>;
+  @ViewAnimator({extends: ContinuousScaleAnimator, type: ContinuousScale, inherit: "yScale", updateFlags: View.NeedsLayout})
+  declare scale: ContinuousScaleAnimator<this, Y, number>;
 
   protected layoutTick(tick: TickView<Y>, origin: PointR2, frame: BoxR2,
                        scale: ContinuousScale<Y, number>): void {
@@ -59,5 +59,26 @@ export class LeftAxisView<Y = unknown> extends AxisView<Y> {
       }
       context.stroke();
     }
+  }
+
+  static create<Y>(): LeftAxisView<Y> {
+    return new LeftAxisView<Y>();
+  }
+
+  static fromInit<Y>(init: AxisViewInit<Y>): AxisView<Y> {
+    const view = new LeftAxisView<Y>();
+    view.initView(init)
+    return view;
+  }
+
+  static fromAny<Y>(value: AnyAxisView<Y> | true): AxisView<Y> {
+    if (value instanceof AxisView) {
+      return value;
+    } else if (value === true) {
+      return new LeftAxisView<Y>();
+    } else if (typeof value === "object" && value !== null) {
+      return this.fromInit(value);
+    }
+    throw new TypeError("" + value);
   }
 }

@@ -72,7 +72,7 @@ export class BubblePlotView<X, Y> extends ScatterPlotView<X, Y> implements FillV
       const p = childViews[i];
       if (p instanceof DataPointView) {
         context.beginPath();
-        const r = p.r.value || radius;
+        const r = p.radius.getValueOr(radius);
         context.arc(p.xCoord, p.yCoord, r.pxValue(size), 0, 2 * Math.PI);
         let fillStyle = p.color.value || fill;
         if (fillStyle !== void 0) {

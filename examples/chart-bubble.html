@@ -15,14 +15,14 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = swim.CanvasView.create()
+const canvasView = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-const chart = canvas.append(swim.ChartView)
+const chartView = canvasView.append(swim.ChartView)
     .bottomAxis(true)
     .leftAxis(true)
     .xGestures(true)
@@ -39,13 +39,14 @@ const chart = canvas.append(swim.ChartView)
     .font("12px sans-serif")
     .textColor("#4a4a4a")
     .rescaleTransition(undefined);
-const graph = chart.graph;
 
-chart.leftAxis().createTickLabel = function (tickValue) {
+const graphView = chartView.graph.injectView();
+
+chartView.leftAxis().createTickLabel = function (tickValue) {
   return tickValue + "%";
 };
 
-const plot = graph.append(swim.BubblePlotView)
+const plotView = graphView.append(swim.BubblePlotView)
     .fill("#4a4a4a")
     .on("pointerover", function (event) {
       if (event.targetView instanceof swim.DataPointView) {
@@ -64,13 +65,13 @@ for (let i = 0; i < n; i += 1) {
   const key = "p" + i;
   const x = Math.round(100 * Math.random());
   const y = Math.round(100 * Math.random());
-  const r = 10 + Math.round(Math.random() * 10);
+  const radius = 10 + Math.round(Math.random() * 10);
   const opacity = 0.5 + 0.5 * Math.random();
-  const bubble = swim.DataPointView.fromAny({x: x, y: y, r: r, color: "#4a4a4a", opacity: opacity});
-  plot.insertDataPoint(bubble, key);
+  const bubble = swim.DataPointView.fromAny({x: x, y: y, radius: radius, color: "#4a4a4a", opacity: opacity});
+  plotView.appendChildView(bubble, key);
 }
 
-uiView.append(canvas);
+uiView.append(canvasView);
 
 setInterval(function () {
   const timing = swim.Easing.linear.withDuration(2000);
@@ -78,12 +79,12 @@ setInterval(function () {
     const key = "p" + i;
     const x = Math.round(100 * Math.random());
     const y = Math.round(100 * Math.random());
-    const r = 10 + Math.round(Math.random() * 10);
+    const radius = 10 + Math.round(Math.random() * 10);
     const opacity = 0.5 + 0.5 * Math.random();
-    plot.getDataPoint(key)
+    plotView.getChildView(key)
         .x(x, timing)
         .y(y, timing)
-        .r(r, timing)
+        .radius(radius, timing)
         .opacity(opacity, timing);
   }
 }, 2000);

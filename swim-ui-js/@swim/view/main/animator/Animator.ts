@@ -54,20 +54,20 @@ export abstract class Animator<T> implements AnimationTrack {
     return this.ownValue;
   }
 
-  getValue(): T extends undefined ? never : T {
+  getValue(): NonNullable<T> {
     const value = this.value;
-    if (value === void 0) {
-      throw new TypeError("undefined animator value");
+    if (value === void 0 || value === null) {
+      throw new TypeError(value + " " + (this instanceof Function ? this.name : "animator") + " value");
     }
-    return value as T extends undefined ? never : T;
+    return value as NonNullable<T>;
   }
 
-  getValueOr<E>(elseValue: E): (T extends undefined ? never : T) | E {
-    let value: T | E | undefined = this.value;
-    if (value === void 0) {
+  getValueOr<E>(elseValue: E): NonNullable<T> | E {
+    let value: T | E = this.value;
+    if (value === void 0 || value === null) {
       value = elseValue
     }
-    return value as (T extends undefined ? never : T) | E;
+    return value as NonNullable<T> | E;
   }
 
   setValue(newValue: T, oldValue?: T): void {
@@ -139,20 +139,20 @@ export abstract class Animator<T> implements AnimationTrack {
     return this.ownState;
   }
 
-  getState(): T extends undefined ? never : T {
+  getState(): NonNullable<T> {
     const state = this.state;
-    if (state === void 0) {
-      throw new TypeError("undefined animator state");
+    if (state === void 0 || state === null) {
+      throw new TypeError(state + " " + (this instanceof Function ? this.name : "animator") + " state");
     }
-    return state as T extends undefined ? never : T;
+    return state as NonNullable<T>;
   }
 
-  getStateOr<E>(elseState: E): (T extends undefined ? never : T) | E {
-    let state: T | E | undefined = this.state;
-    if (state === void 0) {
+  getStateOr<E>(elseState: E): NonNullable<T> | E {
+    let state: T | E = this.state;
+    if (state === void 0 || state === null) {
       state = elseState
     }
-    return state as (T extends undefined ? never : T) | E;
+    return state as NonNullable<T> | E;
   }
 
   setState(newState: T, timing: AnyTiming | boolean | null = null): void {

@@ -94,9 +94,9 @@ export interface ViewService<V extends View, T> {
 
   readonly superManager: T | undefined;
 
-  getManager(): T extends undefined ? never : T;
+  getManager(): NonNullable<T>;
 
-  getManagerOr<E>(elseManager: E): (T extends undefined ? never : T) | E;
+  getManagerOr<E>(elseManager: E): NonNullable<T> | E;
 
   /** @hidden */
   observe?: boolean;
@@ -310,20 +310,20 @@ Object.defineProperty(ViewService.prototype, "superManager", {
   configurable: true,
 });
 
-ViewService.prototype.getManager = function <T>(this: ViewService<View, T>): T extends undefined ? never : T {
+ViewService.prototype.getManager = function <T>(this: ViewService<View, T>): NonNullable<T> {
   const manager = this.manager;
-  if (manager === void 0) {
-    throw new TypeError("undefined " + this.name + " manager");
+  if (manager === void 0 || manager === null) {
+    throw new TypeError(manager + " " + this.name + " manager");
   }
-  return manager as T extends undefined ? never : T;
+  return manager as NonNullable<T>;
 };
 
-ViewService.prototype.getManagerOr = function <T, E>(this: ViewService<View, T>, elseManager: E): (T extends undefined ? never : T) | E {
-  let manager: T | E | undefined = this.manager;
-  if (manager === void 0) {
+ViewService.prototype.getManagerOr = function <T, E>(this: ViewService<View, T>, elseManager: E): NonNullable<T> | E {
+  let manager: T | E = this.manager;
+  if (manager === void 0 || manager === null) {
     manager = elseManager;
   }
-  return manager as (T extends undefined ? never : T) | E;
+  return manager as NonNullable<T> | E;
 };
 
 ViewService.prototype.initManager = function <T>(this: ViewService<View, T>): T {

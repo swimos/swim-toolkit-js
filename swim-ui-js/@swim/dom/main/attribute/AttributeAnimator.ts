@@ -85,9 +85,9 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
 
   setAuto(auto: boolean): void;
 
-  getValue(): T extends undefined ? never : T;
+  getValue(): NonNullable<T>;
 
-  getState(): T extends undefined ? never : T;
+  getState(): NonNullable<T>;
 
   setState(state: T | U | undefined, timing?: AnyTiming | boolean): void;
 
@@ -244,20 +244,20 @@ AttributeAnimator.prototype.setAuto = function (this: AttributeAnimator<ElementV
   }
 };
 
-AttributeAnimator.prototype.getValue = function <T>(this: AttributeAnimator<ElementView, T>): T {
+AttributeAnimator.prototype.getValue = function <T>(this: AttributeAnimator<ElementView, T>): NonNullable<T> {
   const value = this.value;
   if (value === void 0) {
-    throw new TypeError("undefined " + this.name + " value");
+    throw new TypeError(value + " " + this.name + " value");
   }
-  return value;
+  return value as NonNullable<T>;
 };
 
-AttributeAnimator.prototype.getState = function <T>(this: AttributeAnimator<ElementView, T>): T {
+AttributeAnimator.prototype.getState = function <T>(this: AttributeAnimator<ElementView, T>): NonNullable<T> {
   const state = this.state;
   if (state === void 0) {
-    throw new TypeError("undefined " + this.name + " state");
+    throw new TypeError(state + " " + this.name + " state");
   }
-  return state;
+  return state as NonNullable<T>;
 };
 
 AttributeAnimator.prototype.setState = function <T, U>(this: AttributeAnimator<ElementView, T, U>, state: T | U | undefined, timing?: AnyTiming | boolean): void {

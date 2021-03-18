@@ -15,14 +15,14 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = swim.CanvasView.create()
+const canvasView = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-const chart = canvas.append(swim.ChartView)
+const chartView = canvasView.append(swim.ChartView)
     .bottomAxis(true)
     .leftAxis(true)
     .xRangePadding([2, 2])
@@ -34,9 +34,10 @@ const chart = canvas.append(swim.ChartView)
     .tickMarkColor("#4a4a4a")
     .font("12px sans-serif")
     .textColor("#4a4a4a");
-const graph = chart.graph;
 
-const plot = graph.append(swim.LinePlotView)
+const graphView = chartView.graph.injectView();
+
+const plotView = graphView.append(swim.LinePlotView)
     .hitMode("domain")
     .stroke("#4a4a4a")
     .strokeWidth(2)
@@ -59,7 +60,7 @@ for (let i = 0, n = cycles * samples; i <= n; i += 1) {
   const x = i * 2 * Math.PI / samples;
   const y = Math.round(1000 * Math.sin(x)) / 1000;
   const opacity = i === 0 ? 0.75 : i === n ? 0.25 : void 0;
-  plot.insertDataPoint({
+  plotView.insertDataPoint({
     x: x,
     y: y,
     opacity: opacity,
@@ -68,7 +69,7 @@ for (let i = 0, n = cycles * samples; i <= n; i += 1) {
   });
 }
 
-uiView.append(canvas);
+uiView.append(canvasView);
 
     </script>
   </body>

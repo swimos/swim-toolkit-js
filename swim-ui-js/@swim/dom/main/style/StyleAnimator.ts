@@ -97,9 +97,9 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
 
   setAuto(auto: boolean): void;
 
-  getValue(): T extends undefined ? never : T;
+  getValue(): NonNullable<T>;
 
-  getState(): T extends undefined ? never : T;
+  getState(): NonNullable<T>;
 
   setState(state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void;
 
@@ -275,20 +275,20 @@ StyleAnimator.prototype.setAuto = function (this: StyleAnimator<StyleContext, un
   }
 };
 
-StyleAnimator.prototype.getValue = function <T>(this: StyleAnimator<StyleContext, T>): T {
+StyleAnimator.prototype.getValue = function <T>(this: StyleAnimator<StyleContext, T>): NonNullable<T> {
   const value = this.value;
-  if (value === void 0) {
-    throw new TypeError("undefined " + this.name + " value");
+  if (value === void 0 || value === null) {
+    throw new TypeError(value + " " + this.name + " value");
   }
-  return value;
+  return value as NonNullable<T>;
 };
 
-StyleAnimator.prototype.getState = function <T>(this: StyleAnimator<StyleContext, T>): T {
+StyleAnimator.prototype.getState = function <T>(this: StyleAnimator<StyleContext, T>): NonNullable<T> {
   const state = this.state;
-  if (state === void 0) {
-    throw new TypeError("undefined " + this.name + " state");
+  if (state === void 0 || state === null) {
+    throw new TypeError(state + " " + this.name + " state");
   }
-  return state;
+  return state as NonNullable<T>;
 };
 
 StyleAnimator.prototype.setState = function <T, U>(this: StyleAnimator<StyleContext, T, U>, state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void {

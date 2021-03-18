@@ -15,14 +15,14 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = swim.CanvasView.create()
+const canvasView = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-const chart = canvas.append(swim.ChartView)
+const chartView = canvasView.append(swim.ChartView)
     .bottomAxis(true)
     .leftAxis(true)
     .fitAspectRatio(1)
@@ -33,16 +33,17 @@ const chart = canvas.append(swim.ChartView)
     .tickMarkColor("#4a4a4a")
     .font("12px sans-serif")
     .textColor("#4a4a4a");
-const graph = chart.graph;
 
-const plot = graph.append(swim.AreaPlotView)
+const graphView = chartView.graph.injectView();
+
+const plotView = graphView.append(swim.AreaPlotView)
     .hitMode("plot")
     .fill("#4a4a4a")
     .on("pointerenter", function (event) {
-      plot.fill("#1db0ef", {dt: 250});
+      plotView.fill("#1db0ef", {dt: 250});
     })
     .on("pointerleave", function (event) {
-      plot.fill("#4a4a4a", {dt: 250});
+      plotView.fill("#4a4a4a", {dt: 250});
     });
 
 const cycles = 2;
@@ -52,10 +53,10 @@ for (let i = 0, n = cycles * samples; i <= n; i += 1) {
   const y = Math.sin(x) + 1;
   const y2 = Math.sin(x) - 1;
   const opacity = i === 0 ? 0.75 : i === n ? 0.25 : void 0;
-  plot.insertDataPoint({x: x, y: y, y2: y2, opacity: opacity});
+  plotView.insertDataPoint({x: x, y: y, y2: y2, opacity: opacity});
 }
 
-uiView.append(canvas);
+uiView.append(canvasView);
 
     </script>
   </body>

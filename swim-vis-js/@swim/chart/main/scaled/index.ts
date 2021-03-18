@@ -12,8 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {GraphicsViewObserver} from "@swim/graphics";
-import type {ScaleView} from "./ScaleView";
+export {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
 
-export interface ScaleViewObserver<X = unknown, Y = unknown, V extends ScaleView<X, Y> = ScaleView<X, Y>> extends GraphicsViewObserver<V> {
-}
+export {ScaledXView} from "./ScaledXView";
+export {ScaledXViewObserver} from "./ScaledXViewObserver";
+
+export {ScaledYView} from "./ScaledYView";
+export {ScaledYViewObserver} from "./ScaledYViewObserver";
+
+export {ScaledXYView} from "./ScaledXYView";
+export {ScaledXYViewObserver} from "./ScaledXYViewObserver";
+
+export {
+  ScaledFlags,
+  ScaledViewInit,
+  ScaledView,
+} from "./ScaledView";
+export {ScaledViewObserver} from "./ScaledViewObserver";
+export {ScaledViewController} from "./ScaledViewController";

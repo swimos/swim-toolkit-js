@@ -336,19 +336,19 @@ export abstract class GenericComponent extends Component {
     try {
       this.willCompile(cascadeFlags, componentContext);
       if (((this.componentFlags | compileFlags) & Component.NeedsResolve) !== 0) {
-        this.willResolve(componentContext);
         cascadeFlags |= Component.NeedsResolve;
         this.setComponentFlags(this.componentFlags & ~Component.NeedsResolve);
+        this.willResolve(componentContext);
       }
       if (((this.componentFlags | compileFlags) & Component.NeedsGenerate) !== 0) {
-        this.willGenerate(componentContext);
         cascadeFlags |= Component.NeedsGenerate;
         this.setComponentFlags(this.componentFlags & ~Component.NeedsGenerate);
+        this.willGenerate(componentContext);
       }
       if (((this.componentFlags | compileFlags) & Component.NeedsAssemble) !== 0) {
-        this.willAssemble(componentContext);
         cascadeFlags |= Component.NeedsAssemble;
         this.setComponentFlags(this.componentFlags & ~Component.NeedsAssemble);
+        this.willAssemble(componentContext);
       }
 
       this.onCompile(cascadeFlags, componentContext);
@@ -397,14 +397,14 @@ export abstract class GenericComponent extends Component {
     try {
       this.willExecute(cascadeFlags, componentContext);
       if (((this.componentFlags | executeFlags) & Component.NeedsRevise) !== 0) {
-        this.willRevise(componentContext);
         cascadeFlags |= Component.NeedsRevise;
         this.setComponentFlags(this.componentFlags & ~Component.NeedsRevise);
+        this.willRevise(componentContext);
       }
       if (((this.componentFlags | executeFlags) & Component.NeedsCompute) !== 0) {
-        this.willCompute(componentContext);
         cascadeFlags |= Component.NeedsCompute;
         this.setComponentFlags(this.componentFlags & ~Component.NeedsCompute);
+        this.willCompute(componentContext);
       }
 
       this.onExecute(cascadeFlags, componentContext);

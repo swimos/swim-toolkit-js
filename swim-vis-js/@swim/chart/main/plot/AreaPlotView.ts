@@ -41,8 +41,7 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
   declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
-    const data = this.data;
-    const n = data.size;
+    const dataPointFasteners = this.dataPointFasteners;
 
     const fill = this.fill.getValue();
     const gradientStops = this.gradientStops;
@@ -53,9 +52,9 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
     let x0: number;
     let x1: number;
     let dx: number;
-    if (n > 0) {
-      const p0 = data.firstValue()!;
-      const p1 = data.lastValue()!;
+    if (!dataPointFasteners.isEmpty()) {
+      const p0 = dataPointFasteners.firstValue()!.view!;
+      const p1 = dataPointFasteners.lastValue()!.view!;
       x0 = p0.xCoord;
       x1 = p1.xCoord;
       dx = x1 - x0;
@@ -77,10 +76,10 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
       dx = NaN;
     }
 
-    const cursor = data.values();
+    const cursor = dataPointFasteners.values();
     cursor.next();
     while (cursor.hasNext()) {
-      const p = cursor.next().value!;
+      const p = cursor.next().value!.view!;
       context.lineTo(p.xCoord, p.yCoord);
       if (gradient !== void 0 && p.isGradientStop()) {
         let color = p.color.value || fill;
@@ -93,10 +92,10 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
       }
     }
     while (cursor.hasPrevious()) {
-      const p = cursor.previous().value!;
+      const p = cursor.previous().value!.view!;
       context.lineTo(p.xCoord, p.y2Coord!);
     }
-    if (n > 0) {
+    if (!dataPointFasteners.isEmpty()) {
       context.closePath();
     }
 
@@ -106,24 +105,23 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
 
   protected hitTestPlot(x: number, y: number, renderer: CanvasRenderer): GraphicsView | null {
     const context = renderer.context;
-    const data = this.data;
-    const n = data.size;
+    const dataPointFasteners = this.dataPointFasteners;
 
     context.beginPath();
-    const cursor = data.values();
+    const cursor = dataPointFasteners.values();
     if (cursor.hasNext()) {
-      const p = cursor.next().value!;
+      const p = cursor.next().value!.view!;
       context.moveTo(p.xCoord, p.yCoord);
     }
     while (cursor.hasNext()) {
-      const p = cursor.next().value!;
+      const p = cursor.next().value!.view!;
       context.lineTo(p.xCoord, p.yCoord);
     }
     while (cursor.hasPrevious()) {
-      const p = cursor.previous().value!;
+      const p = cursor.previous().value!.view!;
       context.lineTo(p.xCoord, p.y2Coord!);
     }
-    if (n > 0) {
+    if (!dataPointFasteners.isEmpty()) {
       context.closePath();
     }
 

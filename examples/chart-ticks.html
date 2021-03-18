@@ -15,14 +15,14 @@
 
 const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
 
-const canvas = swim.CanvasView.create()
+const canvasView = swim.CanvasView.create()
     .wheelEventsEnabled(true)
     .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-const chart = canvas.append(swim.ChartView)
+const chartView = canvasView.append(swim.ChartView)
     .topAxis(true)
     .rightAxis(true)
     .bottomAxis(true)
@@ -36,34 +36,35 @@ const chart = canvas.append(swim.ChartView)
     .tickMarkColor("#4a4a4a")
     .font("12px sans-serif")
     .textColor("#4a4a4a");
-const graph = chart.graph;
 
-chart.topAxis()
+const graphView = chartView.graph.injectView();
+
+chartView.topAxis()
     .tickGenerator(null)
     .tickMarkWidth(0)
     .tickMarkLength(0)
     .borderWidth(0);
-chart.rightAxis()
+chartView.rightAxis()
     .tickGenerator(null)
     .tickMarkWidth(0)
     .tickMarkLength(0)
     .borderWidth(0);
 
-const plot = graph.append(swim.LinePlotView)
+const plotView = graphView.append(swim.LinePlotView)
     .hitMode("domain")
     .stroke("#4a4a4a")
     .strokeWidth(2)
     .on("pointerover", function (event) {
       const dataPoint = event.targetView;
       const x = dataPoint.x.value;
-      chart.topAxis().insertTick({
+      chartView.topAxis().insertTick({
         value: x,
         tickLabel: x.toFixed(2),
         gridLineColor: '#1db0ef',
         gridLineWidth: 1,
       });
       const y = dataPoint.y.value;
-      chart.rightAxis().insertTick({
+      chartView.rightAxis().insertTick({
         value: y,
         tickLabel: y.toFixed(2),
         gridLineColor: '#1db0ef',
@@ -72,8 +73,8 @@ const plot = graph.append(swim.LinePlotView)
     })
     .on("pointerout", function (event) {
       const dataPoint = event.targetView;
-      chart.topAxis().removeTick(dataPoint.x.value);
-      chart.rightAxis().removeTick(dataPoint.y.value);
+      chartView.topAxis().removeTick(dataPoint.x.value);
+      chartView.rightAxis().removeTick(dataPoint.y.value);
     });
 
 const cycles = 2;
@@ -82,10 +83,10 @@ for (let i = 0, n = cycles * samples; i <= n; i += 1) {
   const x = i * 2 * Math.PI / samples;
   const y = Math.sin(x);
   const opacity = i === 0 ? 0.75 : i === n ? 0.25 : void 0;
-  plot.insertDataPoint({x: x, y: y, opacity: opacity});
+  plotView.insertDataPoint({x: x, y: y, opacity: opacity});
 }
 
-uiView.append(canvas);
+uiView.append(canvasView);
 
     </script>
   </body>

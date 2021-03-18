@@ -14,15 +14,19 @@
 
 import {Domain, Range, AnyTiming, ContinuousScale} from "@swim/mapping";
 import {View, Animator, ViewAnimator} from "@swim/view";
-import {ScaleView} from "../"; // forward import
+import {ScaledView} from "../"; // forward import
 
-export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimator<V, ContinuousScale<X, Y> | undefined, ContinuousScale<X, Y> | string | undefined> {
+export abstract class ContinuousScaleAnimator<V extends View, X, Y> extends ViewAnimator<V, ContinuousScale<X, Y> | null, string> {
+  initState(): ContinuousScale<X, Y> | null {
+    return null;
+  }
+
   setScale(domain: Domain<X> | string, range: Range<Y>, timing?: AnyTiming | boolean): void;
   setScale(xMin: X, xMax: X, yMin: Y, yMax: Y, timing?: AnyTiming | boolean): void;
   setScale(xMin?: Domain<X> | X | string, xMax?: Range<Y> | X,
            yMin?: Y | AnyTiming | boolean, yMax?: Y, timing?: AnyTiming | boolean): void {
     if (typeof xMin === "string") {
-      xMin = ScaleView.parseScale<X, Y>(xMin).domain;
+      xMin = ScaledView.parseScale<X, Y>(xMin).domain;
     }
     if (xMin instanceof Domain) {
       timing = yMin as AnyTiming | boolean;
@@ -35,7 +39,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
     }
     const oldState = this.state;
     let newState: ContinuousScale<X, Y>;
-    if (oldState !== void 0) {
+    if (oldState !== null) {
       newState = oldState.withDomain(xMin as X, xMax as X);
       if (yMin !== void 0 && yMax !== void 0) {
         newState = newState.overRange(yMin as Y, yMax);
@@ -47,7 +51,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
         timing = true;
       }
     } else {
-      newState = ScaleView.createScale(xMin as X, xMax as X, yMin as Y, yMax as Y);
+      newState = ScaledView.createScale(xMin as X, xMax as X, yMin as Y, yMax as Y);
     }
     this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag | Animator.OverrideFlag);
     super.setState(newState, timing);
@@ -58,7 +62,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
   setDomain(xMin?: Domain<X> | X | string, xMax?: X | AnyTiming | boolean,
             timing?: AnyTiming | boolean): void {
     if (typeof xMin === "string") {
-      xMin = ScaleView.parseScale<X, Y>(xMin).domain;
+      xMin = ScaledView.parseScale<X, Y>(xMin).domain;
     }
     if (xMin instanceof Domain) {
       timing = xMax as AnyTiming | boolean;
@@ -67,7 +71,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
     }
     const oldState = this.state;
     let newState: ContinuousScale<X, Y>;
-    if (oldState !== void 0) {
+    if (oldState !== null) {
       newState = oldState.withDomain(xMin as X, xMax as X);
       if ((timing === void 0 || timing === false) && (this.animatorFlags & Animator.AnimatingFlag) !== 0) {
         const oldValue = this.getValue();
@@ -76,7 +80,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
         timing = true;
       }
     } else {
-      newState = ScaleView.createScale(xMin as X, xMax as X, 0 as unknown as Y, 1 as unknown as Y);
+      newState = ScaledView.createScale(xMin as X, xMax as X, 0 as unknown as Y, 1 as unknown as Y);
     }
     this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag | Animator.OverrideFlag);
     super.setState(newState, timing);
@@ -86,7 +90,7 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
   setRange(yMin: Y, yMax: Y, timing?: AnyTiming | boolean): void;
   setRange(yMin?: Range<Y> | Y, yMax?: Y | AnyTiming | boolean, timing?: AnyTiming | boolean): void {
     const oldState = this.state;
-    if (oldState !== void 0) {
+    if (oldState !== null) {
       if (yMin instanceof Range) {
         timing = yMax as AnyTiming | boolean;
         yMax = (yMin as Range<Y>)[1];
@@ -108,8 +112,8 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
   setBaseScale(xMin: X, xMax: X, yMin: Y, yMax: Y, timing?: AnyTiming | boolean): void;
   setBaseScale(xMin?: Domain<X> | X | string, xMax?: Range<Y> | X,
                yMin?: Y | AnyTiming | boolean, yMax?: Y, timing?: AnyTiming | boolean): void {
-    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined> | null | undefined;
-    if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ScaleViewAnimator)) {
+    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | null> | null;
+    if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ContinuousScaleAnimator)) {
       superAnimator.setBaseScale(xMin as any, xMax as any, yMin as any, yMax as any, timing);
     } else {
       this.setScale(xMin as any, xMax as any, yMin as any, yMax as any, timing);
@@ -120,8 +124,8 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
   setBaseDomain(xMin: X, xMax: X, timing?: AnyTiming | boolean): void;
   setBaseDomain(xMin?: Domain<X> | X | string, xMax?: X | AnyTiming | boolean,
                 timing?: AnyTiming | boolean): void {
-    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined> | null | undefined;
-    if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ScaleViewAnimator)) {
+    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | null> | null;
+    if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ContinuousScaleAnimator)) {
       superAnimator.setBaseDomain(xMin as any, xMax as any, timing);
     } else {
       this.setDomain(xMin as any, xMax as any, timing);
@@ -131,17 +135,17 @@ export abstract class ScaleViewAnimator<V extends View, X, Y> extends ViewAnimat
   setBaseRange(range: Range<Y>, timing?: AnyTiming | boolean): void;
   setBaseRange(yMin: Y, yMax: Y, timing?: AnyTiming | boolean): void;
   setBaseRange(yMin?: Range<Y> | Y, yMax?: Y | AnyTiming | boolean, timing?: AnyTiming | boolean): void {
-    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | undefined> | null | undefined;
-    if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ScaleViewAnimator)) {
+    let superAnimator: ViewAnimator<View, ContinuousScale<X, Y> | null> | null;
+    if (this.isInherited() && (superAnimator = this.superAnimator, superAnimator instanceof ContinuousScaleAnimator)) {
       superAnimator.setBaseRange(yMin as any, yMax as any, timing);
     } else {
       this.setRange(yMin as any, yMax as any, timing);
     }
   }
 
-  fromAny(value: ContinuousScale<X, Y> | string | undefined): ContinuousScale<X, Y> | undefined {
+  fromAny(value: ContinuousScale<X, Y> | string | null): ContinuousScale<X, Y> | null {
     if (typeof value === "string") {
-      value = ScaleView.parseScale(value);
+      value = ScaledView.parseScale(value);
     }
     return value;
   }

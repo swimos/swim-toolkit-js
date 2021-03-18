@@ -309,8 +309,7 @@ export class DrawerView extends HtmlView implements Modal {
     }
   }
 
-  protected willAnimate(viewContext: ViewContextType<this>): void {
-    super.willAnimate(viewContext);
+  protected onAnimate(viewContext: ViewContextType<this>): void {
     const displayState = this.displayState;
     if (displayState === DrawerView.ShowState) {
       this.willShow();
@@ -321,9 +320,6 @@ export class DrawerView extends HtmlView implements Modal {
     } else if (displayState === DrawerView.CollapseState) {
       this.willCollapse();
     }
-  }
-
-  protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const drawerStretch = this.drawerStretch.takeUpdatedValue();
     if (drawerStretch !== void 0) {

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {ScaleViewObserver} from "../scale/ScaleViewObserver";
+import type {ScaledViewObserver} from "../scaled/ScaledViewObserver";
 import type {GraphView} from "./GraphView";
 
-export interface GraphViewObserver<X = unknown, Y = unknown, V extends GraphView<X, Y> = GraphView<X, Y>> extends ScaleViewObserver<X, Y, V> {
+export interface GraphViewObserver<X = unknown, Y = unknown, V extends GraphView<X, Y> = GraphView<X, Y>> extends ScaledViewObserver<X, Y, V> {
 }

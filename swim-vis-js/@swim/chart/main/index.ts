@@ -14,7 +14,7 @@
 
 export * from "./data";
 
-export * from "./scale";
+export * from "./scaled";
 
 export * from "./plot";
 

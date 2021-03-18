@@ -619,24 +619,24 @@ export abstract class GraphicsView extends View {
     try {
       this.willProcess(cascadeFlags, viewContext);
       if (((this.viewFlags | processFlags) & View.NeedsResize) !== 0) {
-        this.willResize(viewContext);
         cascadeFlags |= View.NeedsResize;
         this.setViewFlags(this.viewFlags & ~View.NeedsResize);
+        this.willResize(viewContext);
       }
       if (((this.viewFlags | processFlags) & View.NeedsScroll) !== 0) {
-        this.willScroll(viewContext);
         cascadeFlags |= View.NeedsScroll;
         this.setViewFlags(this.viewFlags & ~View.NeedsScroll);
+        this.willScroll(viewContext);
       }
       if (((this.viewFlags | processFlags) & View.NeedsChange) !== 0) {
-        this.willChange(viewContext);
         cascadeFlags |= View.NeedsChange;
         this.setViewFlags(this.viewFlags & ~View.NeedsChange);
+        this.willChange(viewContext);
       }
       if (((this.viewFlags | processFlags) & View.NeedsAnimate) !== 0) {
-        this.willAnimate(viewContext);
         cascadeFlags |= View.NeedsAnimate;
         this.setViewFlags(this.viewFlags & ~View.NeedsAnimate);
+        this.willAnimate(viewContext);
       }
 
       this.onProcess(cascadeFlags, viewContext);
@@ -710,19 +710,19 @@ export abstract class GraphicsView extends View {
     try {
       this.willDisplay(cascadeFlags, viewContext);
       if (((this.viewFlags | displayFlags) & View.NeedsLayout) !== 0) {
-        this.willLayout(viewContext);
         cascadeFlags |= View.NeedsLayout;
         this.setViewFlags(this.viewFlags & ~View.NeedsLayout);
+        this.willLayout(viewContext);
       }
       if (((this.viewFlags | displayFlags) & View.NeedsRender) !== 0) {
-        this.willRender(viewContext);
         cascadeFlags |= View.NeedsRender;
         this.setViewFlags(this.viewFlags & ~View.NeedsRender);
+        this.willRender(viewContext);
       }
       if (((this.viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
-        this.willComposite(viewContext);
         cascadeFlags |= View.NeedsComposite;
         this.setViewFlags(this.viewFlags & ~View.NeedsComposite);
+        this.willComposite(viewContext);
       }
 
       this.onDisplay(cascadeFlags, viewContext);

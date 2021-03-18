@@ -16,17 +16,17 @@ import {ContinuousScale} from "@swim/mapping";
 import {PointR2, BoxR2} from "@swim/math";
 import {View, ViewAnimator} from "@swim/view";
 import type {CanvasContext} from "@swim/graphics";
-import {ScaleViewAnimator} from "../scale/ScaleViewAnimator";
+import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
 import type {TickView} from "../tick/TickView";
-import {AxisOrientation, AxisView} from "./AxisView";
+import {AxisOrientation, AnyAxisView, AxisViewInit, AxisView} from "./AxisView";
 
 export class BottomAxisView<X = unknown> extends AxisView<X> {
   get orientation(): AxisOrientation {
     return "bottom";
   }
 
-  @ViewAnimator({extends: ScaleViewAnimator, type: ContinuousScale, inherit: "xScale", updateFlags: View.NeedsLayout})
-  declare scale: ScaleViewAnimator<this, X, number>;
+  @ViewAnimator({extends: ContinuousScaleAnimator, type: ContinuousScale, inherit: "xScale", updateFlags: View.NeedsLayout})
+  declare scale: ContinuousScaleAnimator<this, X, number>;
 
   protected layoutTick(tick: TickView<X>, origin: PointR2, frame: BoxR2,
                        scale: ContinuousScale<X, number>): void {
@@ -59,5 +59,26 @@ export class BottomAxisView<X = unknown> extends AxisView<X> {
       }
       context.stroke();
     }
+  }
+
+  static create<X>(): BottomAxisView<X> {
+    return new BottomAxisView<X>();
+  }
+
+  static fromInit<X>(init: AxisViewInit<X>): AxisView<X> {
+    const view = new BottomAxisView<X>();
+    view.initView(init)
+    return view;
+  }
+
+  static fromAny<X>(value: AnyAxisView<X> | true): AxisView<X> {
+    if (value instanceof AxisView) {
+      return value;
+    } else if (value === true) {
+      return new BottomAxisView<X>();
+    } else if (typeof value === "object" && value !== null) {
+      return this.fromInit(value);
+    }
+    throw new TypeError("" + value);
   }
 }

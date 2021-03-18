@@ -112,9 +112,9 @@ export interface ComponentProperty<C extends Component, T, U = never> {
 
   readonly superState: T | undefined;
 
-  getState(): T extends undefined ? never : T;
+  getState(): NonNullable<T>;
 
-  getStateOr<E>(elseState: E): (T extends undefined ? never : T) | E;
+  getStateOr<E>(elseState: E): NonNullable<T> | E;
 
   setState(state: T | U): void;
 
@@ -232,10 +232,7 @@ function ComponentPropertyConstructor<C extends Component, T, U>(this: Component
   let propertyFlags = ComponentProperty.UpdatedFlag;
   let state: T | undefined;
   if (this.initState !== void 0) {
-    const initState = this.initState();
-    if (initState !== void 0) {
-      state = this.fromAny(initState);
-    }
+    state = this.fromAny(this.initState());
   } else if (this.inherit !== false) {
     propertyFlags |= ComponentProperty.InheritedFlag;
   }
@@ -421,20 +418,20 @@ Object.defineProperty(ComponentProperty.prototype, "superState", {
   configurable: true,
 });
 
-ComponentProperty.prototype.getState = function <T, U>(this: ComponentProperty<Component, T, U>): T extends undefined ? never : T {
+ComponentProperty.prototype.getState = function <T, U>(this: ComponentProperty<Component, T, U>): NonNullable<T> {
   const state = this.state;
-  if (state === void 0) {
-    throw new TypeError("undefined " + this.name + " state");
+  if (state === void 0 || state === null) {
+    throw new TypeError(state + " " + this.name + " state");
   }
-  return state as T extends undefined ? never : T;
+  return state as NonNullable<T>;
 };
 
-ComponentProperty.prototype.getStateOr = function <T, U, E>(this: ComponentProperty<Component, T, U>, elseState: E): (T extends undefined ? never : T) | E {
-  let state: T | E | undefined = this.state;
-  if (state === void 0) {
+ComponentProperty.prototype.getStateOr = function <T, U, E>(this: ComponentProperty<Component, T, U>, elseState: E): NonNullable<T> | E {
+  let state: T | E = this.state;
+  if (state === void 0 || state === null) {
     state = elseState;
   }
-  return state as (T extends undefined ? never : T) | E;
+  return state as NonNullable<T> | E;
 };
 
 ComponentProperty.prototype.setState = function <T, U>(this: ComponentProperty<Component, T, U>, state: T | U): void {
@@ -462,9 +459,7 @@ ComponentProperty.prototype.setAutoState = function <T, U>(this: ComponentProper
 
 ComponentProperty.prototype.setOwnState = function <T, U>(this: ComponentProperty<Component, T, U>, newState: T | U): void {
   const oldState = this.state;
-  if (newState !== void 0) {
-    newState = this.fromAny(newState);
-  }
+  newState = this.fromAny(newState);
   this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag);
   if (!Equals(oldState, newState)) {
     this.willSetState(newState as T, oldState);
@@ -486,9 +481,7 @@ ComponentProperty.prototype.setOwnState = function <T, U>(this: ComponentPropert
 ComponentProperty.prototype.setBaseState = function <T, U>(this: ComponentProperty<Component, T, U>, state: T | U): void {
   let superProperty: ComponentProperty<Component, T> | null | undefined;
   if (this.isInherited() && (superProperty = this.superProperty, superProperty !== null)) {
-    if (state !== void 0) {
-      state = this.fromAny(state);
-    }
+    state = this.fromAny(state);
     superProperty.setBaseState(state as T);
   } else {
     this.setState(state);
