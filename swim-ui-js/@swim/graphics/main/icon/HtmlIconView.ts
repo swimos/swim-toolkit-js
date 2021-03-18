@@ -92,8 +92,7 @@ export class HtmlIconView extends HtmlView implements IconView {
     svgView.setStyle("position", "absolute");
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (!this.graphics.isInherited()) {
       const oldGraphics = this.graphics.value;

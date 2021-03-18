@@ -1152,8 +1152,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     this.didApplyTheme(theme, mood, timing);
   }
 
-  protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                           timing: Timing | boolean): void {
+  protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.viewWillApplyTheme !== void 0) {
       viewController.viewWillApplyTheme(theme, mood, timing, this);
@@ -1167,13 +1166,11 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     }
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     // hook
   }
 
-  protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                          timing: Timing | boolean): void {
+  protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
-import type {Timing} from "@swim/mapping";
+import type {AnyTiming, Timing} from "@swim/mapping";
 import {Transform} from "@swim/math";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {ViewFlags, ViewFactory, ViewConstructor, View} from "@swim/view";
@@ -295,8 +295,7 @@ export class HtmlView extends ElementView {
     return child;
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.node === document.body) {
       this.applyRootTheme(theme, mood, timing);
@@ -818,6 +817,7 @@ export class HtmlView extends ElementView {
   static wbr: HtmlViewFactory;
 }
 export interface HtmlView extends StyleMap {
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void;
   requireUpdate(updateFlags: ViewFlags, immediate?: boolean): void;
 }
 StyleMap.define(HtmlView.prototype);

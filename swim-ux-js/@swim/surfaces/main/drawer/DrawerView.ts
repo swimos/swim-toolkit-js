@@ -301,8 +301,7 @@ export class DrawerView extends HtmlView implements Modal {
     }
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
       this.backgroundColor.setAutoState(theme.dot(Look.backgroundColor, mood), timing);

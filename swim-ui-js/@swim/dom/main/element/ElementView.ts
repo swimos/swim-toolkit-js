@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
+import type {Timing} from "@swim/mapping";
 import {BoxR2} from "@swim/math";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
@@ -126,6 +127,11 @@ export class ElementView extends NodeView implements StyleContext {
     if (viewObserver.viewDidSetStyle !== void 0) {
       this.viewObserverCache.viewDidSetStyleObservers = Arrays.removed(viewObserver as ViewDidSetStyle, this.viewObserverCache.viewDidSetStyleObservers);
     }
+  }
+
+  protected onMount(): void {
+    super.onMount();
+    this.mountTheme();
   }
 
   protected onChange(viewContext: ViewContextType<this>): void {
@@ -254,8 +260,13 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
+    this.themeViewAnimators(theme, mood, timing);
+  }
+
   /** @hidden */
-  protected activateTheme(): void {
+  protected mountTheme(): void {
     if (NodeView.isRootView(this.node)) {
       const themeManager = this.themeService.manager;
       if (themeManager !== void 0) {
@@ -495,6 +506,25 @@ export class ElementView extends NodeView implements StyleContext {
       }
     } else {
       delete styleAnimators[animatorName];
+    }
+  }
+
+  /** @hidden */
+  protected themeViewAnimators(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+    const viewAnimators = this.viewAnimators;
+    for (const animatorName in viewAnimators) {
+      const viewAnimator = viewAnimators[animatorName]!;
+      viewAnimator.applyTheme(theme, mood, timing);
+    }
+    const attributeAnimators = this.attributeAnimators;
+    for (const animatorName in attributeAnimators) {
+      const attributeAnimator = attributeAnimators[animatorName]!;
+      attributeAnimator.applyTheme(theme, mood, timing);
+    }
+    const styleAnimators = this.styleAnimators;
+    for (const animatorName in styleAnimators) {
+      const styleAnimator = styleAnimators[animatorName]!;
+      styleAnimator.applyTheme(theme, mood, timing);
     }
   }
 

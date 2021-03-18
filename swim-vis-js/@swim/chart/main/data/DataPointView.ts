@@ -257,7 +257,7 @@ export class DataPointView<X, Y> extends LayerView {
   })
   declare y2: ViewAnimator<this, Y | undefined>;
 
-  protected willSetRadius(newRadius: Length | undefined, oldRadius: Length | undefined): void {
+  protected willSetRadius(newRadius: Length | null, oldRadius: Length | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.dataPointViewWillSetRadius !== void 0) {
       viewController.dataPointViewWillSetRadius(newRadius, oldRadius, this);
@@ -271,11 +271,11 @@ export class DataPointView<X, Y> extends LayerView {
     }
   }
 
-  protected onSetRadius(newRadius: Length | undefined, oldRadius: Length | undefined): void {
+  protected onSetRadius(newRadius: Length | null, oldRadius: Length | null): void {
     // hook
   }
 
-  protected didSetRadius(newRadius: Length | undefined, oldRadius: Length | undefined): void {
+  protected didSetRadius(newRadius: Length | null, oldRadius: Length | null): void {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
@@ -289,30 +289,32 @@ export class DataPointView<X, Y> extends LayerView {
     }
   }
 
-  @ViewAnimator<DataPointView<X, Y>, Length | undefined, AnyLength | undefined>({
+  @ViewAnimator<DataPointView<X, Y>, Length | null, AnyLength | null>({
     type: Length,
-    willSetValue(newRadius: Length | undefined, oldRadius: Length | undefined): void {
+    state: null,
+    willSetValue(newRadius: Length | null, oldRadius: Length | null): void {
       this.owner.willSetRadius(newRadius, oldRadius);
     },
-    onSetValue(newRadius: Length | undefined, oldRadius: Length | undefined): void {
+    onSetValue(newRadius: Length | null, oldRadius: Length | null): void {
       this.owner.onSetRadius(newRadius, oldRadius);
     },
-    didSetValue(newRadius: Length | undefined, oldRadius: Length | undefined): void {
+    didSetValue(newRadius: Length | null, oldRadius: Length | null): void {
       this.owner.didSetRadius(newRadius, oldRadius);
     },
   })
-  declare radius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare radius: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewProperty({type: Number, state: 5})
   declare hitRadius: ViewProperty<this, number>;
 
-  @ViewAnimator<DataPointView<X, Y>, Color | undefined>({
+  @ViewAnimator<DataPointView<X, Y>, Color | null>({
     type: Color,
-    didSetValue(newColor: Color | undefined, oldColor: Color | undefined): void {
+    state: null,
+    didSetValue(newColor: Color | null, oldColor: Color | null): void {
       this.owner.updateGradientStop();
     },
   })
-  declare color: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare color: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator<DataPointView<X, Y>, number | undefined>({
     type: Number,
@@ -520,7 +522,7 @@ export class DataPointView<X, Y> extends LayerView {
   protected hitTestPoint(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
     let hitRadius = this.hitRadius();
     const radius = this.radius.value;
-    if (radius !== void 0) {
+    if (radius !== null) {
       const size = Math.min(frame.width, frame.height);
       hitRadius = Math.max(hitRadius, radius.pxValue(size));
     }

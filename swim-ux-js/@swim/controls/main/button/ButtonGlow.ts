@@ -96,8 +96,7 @@ export class ButtonGlow extends HtmlView {
     super.onUnmount();
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
       let highlightColor = theme.dot(Look.highlightColor, mood);

@@ -14,6 +14,7 @@
 
 import {__extends} from "tslib";
 import {Arrays} from "@swim/util";
+import type {AnyTiming} from "@swim/mapping";
 import type {
   AnyConstraintExpression,
   ConstraintVariable,
@@ -23,6 +24,7 @@ import type {
   Constraint,
   ConstraintScope,
 } from "@swim/constraint";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import type {AnimationTrack, AnimationTimeline} from "@swim/view";
 import {CssContext} from "./CssContext";
 import {
@@ -104,6 +106,8 @@ export interface CssRule<V extends CssContext> extends AnimationTrack, Animation
 
   /** @hidden */
   setConstraintVariable(constraintVariable: ConstraintVariable, state: number): void;
+
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void;
 
   /** @hidden */
   mount(): void;
@@ -269,6 +273,10 @@ CssRule.prototype.removeConstraintVariable = function (this: CssRule<CssContext>
 
 CssRule.prototype.setConstraintVariable = function (this: CssRule<CssContext>, constraintVariable: ConstraintVariable, state: number): void {
   this.owner.setConstraintVariable(constraintVariable, state);
+};
+
+CssRule.prototype.applyTheme = function (theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
+  // hook
 };
 
 CssRule.prototype.mount = function (): void {

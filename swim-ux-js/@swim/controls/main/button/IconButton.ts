@@ -210,8 +210,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     return oldIconView;
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
       let backgroundColor = this.getLook(Look.backgroundColor);

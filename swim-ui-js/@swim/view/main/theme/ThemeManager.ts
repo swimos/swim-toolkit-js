@@ -101,8 +101,7 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     this.didApplyTheme(theme, mood, timing);
   }
 
-  protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                           timing: Timing | boolean): void {
+  protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     const viewManagerObservers = this.viewManagerObservers;
     for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
       const viewManagerObserver = viewManagerObservers[i]!;
@@ -112,13 +111,11 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     // hook
   }
 
-  protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                          timing: Timing | boolean): void {
+  protected didApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     const viewManagerObservers = this.viewManagerObservers;
     for (let i = 0, n = viewManagerObservers.length; i < n; i += 1) {
       const viewManagerObserver = viewManagerObservers[i]!;

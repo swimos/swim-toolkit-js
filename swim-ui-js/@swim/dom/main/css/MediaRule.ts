@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
+import {AnyTiming, Timing} from "@swim/mapping";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {CssContext} from "./CssContext";
 import {CssRuleInit, CssRule} from "./CssRule";
 
@@ -56,6 +58,8 @@ export interface MediaRule<V extends CssContext> extends CssRule<V>, CssContext 
   getCssRule(ruleName: string): CssRule<this> | null;
 
   setCssRule(ruleName: string, cssRule: CssRule<this> | null): void;
+
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void;
 
   /** @hidden */
   mount(): void;
@@ -138,6 +142,19 @@ MediaRule.prototype.setCssRule = function (this: MediaRule<CssContext>, ruleName
     this.cssRules[ruleName] = cssRule;
   } else {
     delete this.cssRules[ruleName];
+  }
+};
+
+MediaRule.prototype.applyTheme = function (theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
+  if (timing === void 0) {
+    timing = false;
+  } else {
+    timing = Timing.fromAny(timing);
+  }
+  const cssRules = this.cssRules;
+  for (const ruleName in cssRules) {
+    const cssRule = cssRules[ruleName]!;
+    cssRule.applyTheme(theme, mood, timing);
   }
 };
 

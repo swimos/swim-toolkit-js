@@ -53,3 +53,21 @@ export {
   AreaPlotViewInit,
   AreaPlotView,
 } from "./AreaPlotView";
+
+export {PlotTrait} from "./PlotTrait";
+export {PlotTraitObserver} from "./PlotTraitObserver";
+
+export {ScatterPlotTrait} from "./ScatterPlotTrait";
+export {ScatterPlotTraitObserver} from "./ScatterPlotTraitObserver";
+
+export {SeriesPlotTrait} from "./SeriesPlotTrait";
+export {SeriesPlotTraitObserver} from "./SeriesPlotTraitObserver";
+
+export {BubblePlotTrait} from "./BubblePlotTrait";
+export {BubblePlotTraitObserver} from "./BubblePlotTraitObserver";
+
+export {LinePlotTrait} from "./LinePlotTrait";
+export {LinePlotTraitObserver} from "./LinePlotTraitObserver";
+
+export {AreaPlotTrait} from "./AreaPlotTrait";
+export {AreaPlotTraitObserver} from "./AreaPlotTraitObserver";

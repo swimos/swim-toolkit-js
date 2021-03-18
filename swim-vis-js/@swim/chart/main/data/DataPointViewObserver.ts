@@ -30,9 +30,9 @@ export interface DataPointViewObserver<X, Y, V extends DataPointView<X, Y> = Dat
 
   dataPointViewDidSetY2?(newY2: Y | undefined, oldY2: Y | undefined, view: V): void;
 
-  dataPointViewWillSetRadius?(newRadius: Length | undefined, oldRadius: Length | undefined, view: V): void;
+  dataPointViewWillSetRadius?(newRadius: Length | null, oldRadius: Length | null, view: V): void;
 
-  dataPointViewDidSetRadius?(newRadius: Length | undefined, oldRadius: Length | undefined, view: V): void;
+  dataPointViewDidSetRadius?(newRadius: Length | null, oldRadius: Length | null, view: V): void;
 
   dataPointViewWillSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, view: V): void;
 

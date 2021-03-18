@@ -59,8 +59,7 @@ export class ButtonItem extends HtmlView {
   @ViewAnimator({type: Number, inherit: true})
   declare stackPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     const label = this.label;
     if (label !== null && label.color.isAuto()) {

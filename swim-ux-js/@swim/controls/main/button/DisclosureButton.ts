@@ -61,8 +61,7 @@ export class DisclosureButton extends HtmlView {
   @ViewAnimator({type: Color, inherit: true, updateFlags: View.NeedsAnimate})
   declare expandedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     this.collapsedColor.setAutoState(theme.dot(Look.color, mood), timing);
     this.expandedColor.setAutoState(theme.dot(Look.accentColor, mood), timing);

@@ -55,8 +55,7 @@ export class GraphicsIconView extends LayerView implements IconView {
   @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsLayout})
   declare graphics: ViewAnimator<this, Graphics | undefined>;
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (!this.graphics.isInherited()) {
       const oldGraphics = this.graphics.value;

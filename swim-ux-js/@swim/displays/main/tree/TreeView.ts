@@ -255,8 +255,7 @@ export class TreeView extends HtmlView {
     }
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     const depth = this.depth.state;
     if (depth !== void 0 && depth !== 0) {

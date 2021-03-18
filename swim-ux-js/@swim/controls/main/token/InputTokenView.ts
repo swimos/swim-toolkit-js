@@ -127,8 +127,7 @@ export class InputTokenView extends TokenView {
     return Look.neutralColor;
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     const styleView = this.stylesheet.view;
     if (styleView !== null) {

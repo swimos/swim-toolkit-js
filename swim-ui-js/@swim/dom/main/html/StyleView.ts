@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Timing} from "@swim/mapping";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import type {CssRule} from "../css/CssRule";
 import {StyleSheet} from "../css/StyleSheet";
 import {HtmlViewInit, HtmlView} from "../html/HtmlView";
@@ -57,6 +59,14 @@ export class StyleView extends HtmlView {
   getCssRule(ruleName: string): CssRule<StyleSheet> | null {
     const sheet = this.sheet;
     return sheet !== null ? sheet.getCssRule(ruleName) : null;
+  }
+
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
+    const sheet = this.sheet;
+    if (sheet !== null) {
+      sheet.applyTheme(theme, mood, timing);
+    }
   }
 
   protected onMount(): void {

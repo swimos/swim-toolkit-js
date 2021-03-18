@@ -191,8 +191,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
   @ViewAnimator({type: Number, inherit: true})
   declare stackPhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
 
     this.backgroundColor.setAutoState(theme.dot(Look.accentColor, mood), timing);

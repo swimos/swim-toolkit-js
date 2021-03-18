@@ -12,18 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Timing} from "@swim/mapping";
-import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {TreeCell} from "./TreeCell";
+import type {Trait, TraitObserver} from "@swim/model";
+import type {DataSetTrait} from "../data/DataSetTrait";
+import type {PlotTrait} from "./PlotTrait";
 
-export class TitleTreeCell extends TreeCell {
-  protected initCell(): void {
-    super.initCell();
-    this.addClass("title-tree-cell");
-  }
+export interface PlotTraitObserver<X, Y, R extends PlotTrait<X, Y> = PlotTrait<X, Y>> extends TraitObserver<R> {
+  plotTraitWillSetDataSet?(newDataSetTrait: DataSetTrait<X, Y> | null, oldDataSetTrait: DataSetTrait<X, Y> | null, targetTrait: Trait | null, trait: R): void;
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    super.onApplyTheme(theme, mood, timing);
-    this.color.setAutoState(theme.dot(Look.accentColor, mood), timing);
-  }
+  plotTraitDidSetDataSet?(newDataSetTrait: DataSetTrait<X, Y> | null, oldDataSetTrait: DataSetTrait<X, Y> | null, targetTrait: Trait | null, trait: R): void;
 }

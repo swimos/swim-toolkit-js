@@ -14,9 +14,10 @@
 
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
-import type {AnyTiming} from "@swim/mapping";
+import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyAngle, Angle, AnyTransform, Transform} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import type {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, View} from "../View";
 import {Animator} from "./Animator";
 import {StringViewAnimator} from "../"; // forward import
@@ -134,6 +135,18 @@ export interface ViewAnimator<V extends View, T, U = never> extends Animator<T> 
 
   onSetValue(newValue: T, oldValue: T): void;
 
+  readonly look: Look<T> | null;
+
+  setLook(newLook: Look<T> | null, timing?: AnyTiming | boolean): void;
+
+  willSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void;
+
+  onSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void;
+
+  didSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void;
+
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void;
+
   willStartAnimating(): void;
 
   didStartAnimating(): void;
@@ -227,6 +240,11 @@ function ViewAnimatorConstructor<V extends View, T, U>(this: ViewAnimator<V, T, 
   Object.defineProperty(_this, "owner", {
     value: owner,
     enumerable: true,
+  });
+  Object.defineProperty(_this, "look", {
+    value: null,
+    enumerable: true,
+    configurable: true,
   });
   Object.defineProperty(_this, "inherit", {
     value: _this.inherit ?? false, // seed from prototype
@@ -508,6 +526,56 @@ ViewAnimator.prototype.onSetValue = function <T>(this: ViewAnimator<View, T>, ne
   }
 };
 
+ViewAnimator.prototype.setLook = function <T>(this: ViewAnimator<View, T>, newLook: Look<T> | null, timing?: AnyTiming | boolean): void {
+  const oldLook = this.look;
+  if (newLook !== oldLook) {
+    if (timing === void 0) {
+      timing = false;
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+    this.willSetLook(newLook, oldLook, timing);
+    Object.defineProperty(this, "look", {
+      value: newLook,
+      enumerable: true,
+      configurable: true,
+    });
+    this.onSetLook(newLook, oldLook, timing);
+    this.didSetLook(newLook, oldLook, timing);
+  }
+};
+
+ViewAnimator.prototype.willSetLook = function <T>(this: ViewAnimator<View, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
+  // hook
+};
+
+ViewAnimator.prototype.onSetLook = function <T>(this: ViewAnimator<View, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
+  if (this.owner.isMounted()) {
+    if (newLook !== null) {
+      const state = this.owner.getLook(newLook);
+      if (state !== void 0) {
+        this.setAutoState(state, timing);
+      }
+    }
+  } else {
+    this.owner.requireUpdate(View.NeedsChange);
+  }
+};
+
+ViewAnimator.prototype.didSetLook = function <T>(this: ViewAnimator<View, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
+  // hook
+};
+
+ViewAnimator.prototype.applyTheme = function <T>(this: ViewAnimator<View, T>, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+  const look = this.look;
+  if (look !== null) {
+    const state = theme.dot(look, mood);
+    if (state !== void 0) {
+      this.setAutoState(state, timing);
+    }
+  }
+};
+
 ViewAnimator.prototype.willStartAnimating = function (this: ViewAnimator<View, unknown>): void {
   this.owner.trackWillStartAnimating(this);
   const subAnimators = this.subAnimators;
@@ -556,6 +624,10 @@ ViewAnimator.prototype.willMount = function (this: ViewAnimator<View, unknown>):
 
 ViewAnimator.prototype.onMount = function (this: ViewAnimator<View, unknown>): void {
   this.bindSuperAnimator();
+  const look = this.look;
+  if (look !== null) {
+    this.owner.requireUpdate(View.NeedsChange);
+  }
 };
 
 ViewAnimator.prototype.didMount = function (this: ViewAnimator<View, unknown>): void {

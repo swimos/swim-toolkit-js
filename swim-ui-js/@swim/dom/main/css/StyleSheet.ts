@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
+import {AnyTiming, Timing} from "@swim/mapping";
 import type {
   AnyConstraintExpression,
   ConstraintVariable,
@@ -22,6 +23,7 @@ import type {
   Constraint,
   ConstraintScope,
 } from "@swim/constraint";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import type {AnimationTrack, AnimationTimeline} from "@swim/view";
 import {CssContext} from "./CssContext";
 import type {CssRule} from "./CssRule";
@@ -99,6 +101,19 @@ export class StyleSheet implements AnimationTrack, CssContext {
       }
     }
     return cssRule;
+  }
+
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
+    if (timing === void 0) {
+      timing = false;
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+    const cssRules = this.cssRules;
+    for (const ruleName in cssRules) {
+      const cssRule = cssRules[ruleName]!;
+      cssRule.applyTheme(theme, mood, timing);
+    }
   }
 
   onAnimate(t: number): void {

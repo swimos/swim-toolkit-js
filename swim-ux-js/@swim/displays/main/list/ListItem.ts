@@ -219,8 +219,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
     }
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     const itemColor = theme.dot(this.highlighted.state ? Look.color : Look.mutedColor, mood);
 

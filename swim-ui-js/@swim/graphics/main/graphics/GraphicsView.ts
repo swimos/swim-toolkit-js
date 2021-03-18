@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
+import type {Timing} from "@swim/mapping";
 import type {ConstraintVariable, Constraint} from "@swim/constraint";
 import {BoxR2, Transform} from "@swim/math";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
@@ -365,7 +366,7 @@ export abstract class GraphicsView extends View {
     this.mountViewProperties();
     this.mountViewAnimators();
     this.mountViewFasteners();
-    this.activateTheme();
+    this.mountTheme();
   }
 
   protected didMount(): void {
@@ -937,8 +938,13 @@ export abstract class GraphicsView extends View {
     }
   }
 
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+    super.onApplyTheme(theme, mood, timing);
+    this.themeViewAnimators(theme, mood, timing);
+  }
+
   /** @hidden */
-  protected activateTheme(): void {
+  protected mountTheme(): void {
     // hook
   }
 
@@ -1254,6 +1260,15 @@ export abstract class GraphicsView extends View {
       }
     } else {
       delete viewAnimators[animatorName];
+    }
+  }
+
+  /** @hidden */
+  protected themeViewAnimators(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+    const viewAnimators = this.viewAnimators;
+    for (const animatorName in viewAnimators) {
+      const viewAnimator = viewAnimators[animatorName]!;
+      viewAnimator.applyTheme(theme, mood, timing);
     }
   }
 

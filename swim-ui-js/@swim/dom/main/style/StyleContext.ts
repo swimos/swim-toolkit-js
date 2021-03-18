@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {AnyTiming} from "@swim/mapping";
 import type {ConstraintScope} from "@swim/constraint";
+import type {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {AnimationTimeline} from "@swim/view";
 import type {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
 
@@ -20,6 +22,8 @@ export interface StyleContext extends AnimationTimeline, ConstraintScope {
   readonly node?: Node;
 
   isMounted(): boolean;
+
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined;
 
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined;
 
@@ -30,6 +34,8 @@ export interface StyleContext extends AnimationTimeline, ConstraintScope {
   getStyleAnimator(animatorName: string): StyleAnimator<this, unknown> | null;
 
   setStyleAnimator(animatorName: string, animator: StyleAnimator<this, unknown> | null): void;
+
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void;
 
   requireUpdate(updateFlags: number): void;
 }

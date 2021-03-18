@@ -12,18 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Timing} from "@swim/mapping";
-import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {TreeCell} from "./TreeCell";
+import type {SeriesPlotTraitObserver} from "./SeriesPlotTraitObserver";
+import type {LinePlotTrait} from "./LinePlotTrait";
 
-export class TitleTreeCell extends TreeCell {
-  protected initCell(): void {
-    super.initCell();
-    this.addClass("title-tree-cell");
-  }
-
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    super.onApplyTheme(theme, mood, timing);
-    this.color.setAutoState(theme.dot(Look.accentColor, mood), timing);
-  }
+export interface LinePlotTraitObserver<X, Y, R extends LinePlotTrait<X, Y> = LinePlotTrait<X, Y>> extends SeriesPlotTraitObserver<X, Y, R> {
 }

@@ -14,7 +14,7 @@
 
 import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
-import type {AnyTiming} from "@swim/mapping";
+import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
 import {
   AnyLineHeight,
@@ -25,7 +25,8 @@ import {
   AnyBoxShadow,
   BoxShadow,
 } from "@swim/style";
-import {Animator} from "@swim/view";
+import type {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import {View, Animator} from "@swim/view";
 import {StyleContext} from "./StyleContext";
 import {StringStyleAnimator} from "../"; // forward import
 import {NumberStyleAnimator} from "../"; // forward import
@@ -46,6 +47,7 @@ export interface StyleAnimatorInit<T, U = never> {
   propertyNames: string | ReadonlyArray<string>;
   extends?: StyleAnimatorClass;
   type?: unknown;
+  look?: Look<T>;
 
   updateFlags?: number;
   willSetState?(newValue: T | undefined, oldValue: T | undefined): void;
@@ -106,6 +108,18 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
   setAutoState(state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void;
 
   onSetValue(newValue: T | undefined, oldValue: T | undefined): void;
+
+  readonly look: Look<T> | null;
+
+  setLook(newLook: Look<T> | null, timing?: AnyTiming | boolean): void;
+
+  willSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void;
+
+  onSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void;
+
+  didSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void;
+
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void;
 
   willStartAnimating(): void;
 
@@ -202,9 +216,15 @@ function StyleAnimatorConstructor<V extends StyleContext, T, U>(this: StyleAnima
     value: owner,
     enumerable: true,
   });
+  Object.defineProperty(_this, "look", {
+    value: null,
+    enumerable: true,
+    configurable: true,
+  });
   Object.defineProperty(_this, "priority", {
     value: void 0,
     enumerable: true,
+    configurable: true,
   });
   return _this;
 }
@@ -314,6 +334,7 @@ StyleAnimator.prototype.setAutoState = function <T, U>(this: StyleAnimator<Style
       Object.defineProperty(this, "priority", {
         value: priority,
         enumerable: true,
+        configurable: true,
       });
     }
     Animator.prototype.setState.call(this, state, timing);
@@ -332,6 +353,52 @@ StyleAnimator.prototype.onSetValue = function <T>(this: StyleAnimator<StyleConte
   const updateFlags = this.updateFlags;
   if (updateFlags !== void 0) {
     this.owner.requireUpdate(updateFlags);
+  }
+};
+
+StyleAnimator.prototype.setLook = function <T>(this: StyleAnimator<StyleContext, T>, newLook: Look<T> | null, timing?: AnyTiming | boolean): void {
+  const oldLook = this.look;
+  if (newLook !== oldLook) {
+    if (timing === void 0) {
+      timing = false;
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+    this.willSetLook(newLook, oldLook, timing);
+    Object.defineProperty(this, "look", {
+      value: newLook,
+      enumerable: true,
+      configurable: true,
+    });
+    this.onSetLook(newLook, oldLook, timing);
+    this.didSetLook(newLook, oldLook, timing);
+  }
+};
+
+StyleAnimator.prototype.willSetLook = function <T>(this: StyleAnimator<StyleContext, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
+  // hook
+};
+
+StyleAnimator.prototype.onSetLook = function <T>(this: StyleAnimator<StyleContext, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
+  if (this.owner.isMounted()) {
+    if (newLook !== null && this.isAuto()) {
+      const state = this.owner.getLook(newLook);
+      this.setAutoState(state, timing);
+    }
+  } else {
+    this.owner.requireUpdate(View.NeedsChange);
+  }
+};
+
+StyleAnimator.prototype.didSetLook = function <T>(this: StyleAnimator<StyleContext, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
+  // hook
+};
+
+StyleAnimator.prototype.applyTheme = function <T>(this: StyleAnimator<StyleContext, T>, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+  const look = this.look;
+  if (look !== null && this.isAuto()) {
+    const state = theme.dot(look, mood);
+    this.setAutoState(state, timing);
   }
 };
 
@@ -381,7 +448,10 @@ StyleAnimator.prototype.willMount = function (this: StyleAnimator<StyleContext, 
 };
 
 StyleAnimator.prototype.onMount = function (this: StyleAnimator<StyleContext, unknown>): void {
-  // hook
+  const look = this.look;
+  if (look !== null) {
+    this.owner.requireUpdate(View.NeedsChange);
+  }
 };
 
 StyleAnimator.prototype.didMount = function (this: StyleAnimator<StyleContext, unknown>): void {

@@ -88,8 +88,7 @@ export class IconTreeCell extends TreeCell implements IconView {
     pathView.setStyle("position", "absolute");
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (!this.graphics.isInherited()) {
       const oldGraphics = this.graphics.value;

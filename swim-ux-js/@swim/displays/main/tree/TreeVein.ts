@@ -46,8 +46,7 @@ export class TreeVein extends HtmlView {
     super.initView(init);
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     this.color.setAutoState(theme.dot(Look.neutralColor, mood), timing);
   }

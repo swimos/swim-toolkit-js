@@ -13,7 +13,9 @@
 // limitations under the License.
 
 import {__extends} from "tslib";
+import {AnyTiming, Timing} from "@swim/mapping";
 import {ToStyleString, ToCssValue} from "@swim/style";
+import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import type {StyleAnimator} from "../style/StyleAnimator";
 import {StyleMapInit, StyleMap} from "../style/StyleMap";
 import {CssContext} from "./CssContext";
@@ -75,6 +77,8 @@ export interface StyleRule<V extends CssContext> extends CssRule<V>, StyleMap {
   getStyleAnimator(animatorName: string): StyleAnimator<this, unknown> | null;
 
   setStyleAnimator(animatorName: string, animator: StyleAnimator<this, unknown> | null): void;
+
+  applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void;
 
   /** @hidden */
   mount(): void;
@@ -231,6 +235,19 @@ StyleRule.prototype.setStyleAnimator = function (this: StyleRule<CssContext>, an
     styleAnimators[animatorName] = animator;
   } else {
     delete styleAnimators[animatorName];
+  }
+};
+
+StyleRule.prototype.applyTheme = function (theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
+  if (timing === void 0) {
+    timing = false;
+  } else {
+    timing = Timing.fromAny(timing);
+  }
+  const styleAnimators = this.styleAnimators;
+  for (const animatorName in styleAnimators) {
+    const styleAnimator = styleAnimators[animatorName]!;
+    styleAnimator.applyTheme(theme, mood, timing);
   }
 };
 

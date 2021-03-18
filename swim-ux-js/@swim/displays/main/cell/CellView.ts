@@ -51,8 +51,7 @@ export class CellView extends HtmlView {
     }
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                         timing: Timing | boolean): void {
+  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.color.isAuto()) {
       let textColor = this.textColor.state;

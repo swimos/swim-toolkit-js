@@ -911,7 +911,6 @@ export class NodeView extends View {
     this.mountViewProperties();
     this.mountViewAnimators();
     this.mountViewFasteners();
-    this.activateTheme();
   }
 
   protected didMount(): void {
@@ -1338,11 +1337,6 @@ export class NodeView extends View {
 
   modifyTheme(feel: Feel, ...entries: [Feel, number | undefined][]): void {
     // nop
-  }
-
-  /** @hidden */
-  protected activateTheme(): void {
-    // hook
   }
 
   /** @hidden */
