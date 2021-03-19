@@ -12,8 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Length} from "@swim/math";
+import type {Color} from "@swim/style";
+import type {Look} from "@swim/theme";
 import type {ScatterPlotTraitObserver} from "./ScatterPlotTraitObserver";
 import type {BubblePlotTrait} from "./BubblePlotTrait";
 
 export interface BubblePlotTraitObserver<X, Y, R extends BubblePlotTrait<X, Y> = BubblePlotTrait<X, Y>> extends ScatterPlotTraitObserver<X, Y, R> {
+  bubblePlotTraitWillSetRadius?(newRadius: Length | null, oldRadius: Length | null, trait: R): void;
+
+  bubblePlotTraitDidSetRadius?(newRadius: Length | null, oldRadius: Length | null, trait: R): void;
+
+  bubblePlotTraitWillSetFill?(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, trait: R): void;
+
+  bubblePlotTraitDidSetFill?(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, trait: R): void;
 }

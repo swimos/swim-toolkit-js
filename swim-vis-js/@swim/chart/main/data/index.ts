@@ -29,3 +29,9 @@ export {DataPointTraitObserver} from "./DataPointTraitObserver";
 
 export {DataSetTrait} from "./DataSetTrait";
 export {DataSetTraitObserver} from "./DataSetTraitObserver";
+
+export {DataPointComponent} from "./DataPointComponent";
+export {DataPointComponentObserver} from "./DataPointComponentObserver";
+
+export {DataSetComponent} from "./DataSetComponent";
+export {DataSetComponentObserver} from "./DataSetComponentObserver";

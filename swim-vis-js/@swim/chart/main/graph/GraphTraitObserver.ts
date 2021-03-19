@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  AnyGraphView,
-  GraphViewInit,
-  GraphView,
-} from "./GraphView";
-export {GraphViewObserver} from "./GraphViewObserver";
-export {GraphViewController} from "./GraphViewController";
+import type {Trait, TraitObserver} from "@swim/model";
+import type {PlotTrait} from "../plot/PlotTrait";
+import type {GraphTrait} from "./GraphTrait";
 
-export {GraphTrait} from "./GraphTrait";
-export {GraphTraitObserver} from "./GraphTraitObserver";
+export interface GraphTraitObserver<X, Y, R extends GraphTrait<X, Y> = GraphTrait<X, Y>> extends TraitObserver<R> {
+  graphTraitWillSetPlot?(newPlotTrait: PlotTrait<X, Y> | null, oldPlotTrait: PlotTrait<X, Y> | null, targetTrait: Trait | null, trait: R): void;
+
+  graphTraitDidSetPlot?(newPlotTrait: PlotTrait<X, Y> | null, oldPlotTrait: PlotTrait<X, Y> | null, targetTrait: Trait | null, trait: R): void;
+}

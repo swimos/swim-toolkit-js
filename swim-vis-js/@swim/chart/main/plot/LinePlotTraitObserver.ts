@@ -12,8 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Length} from "@swim/math";
+import type {Color} from "@swim/style";
+import type {Look} from "@swim/theme";
 import type {SeriesPlotTraitObserver} from "./SeriesPlotTraitObserver";
 import type {LinePlotTrait} from "./LinePlotTrait";
 
 export interface LinePlotTraitObserver<X, Y, R extends LinePlotTrait<X, Y> = LinePlotTrait<X, Y>> extends SeriesPlotTraitObserver<X, Y, R> {
+  linePlotTraitWillSetStroke?(newStroke: Look<Color> | Color | null, oldStroke: Look<Color> | Color | null, trait: R): void;
+
+  linePlotTraitDidSetStroke?(newStroke: Look<Color> | Color | null, oldStroke: Look<Color> | Color | null, trait: R): void;
+
+  linePlotTraitWillSetStrokeWidth?(newStrokeWidth: Length | null, oldStrokeWidth: Length | null, trait: R): void;
+
+  linePlotTraitDidSetStrokeWidth?(newStrokeWidth: Length | null, oldStrokeWidth: Length | null, trait: R): void;
 }

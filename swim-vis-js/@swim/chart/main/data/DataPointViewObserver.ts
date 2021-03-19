@@ -18,13 +18,13 @@ import type {GraphicsView} from "@swim/graphics";
 import type {DataPointView} from "./DataPointView";
 
 export interface DataPointViewObserver<X, Y, V extends DataPointView<X, Y> = DataPointView<X, Y>> extends ViewObserver<V> {
-  dataPointViewWillSetX?(newX: X, oldX: X, view: V): void;
+  dataPointViewWillSetX?(newX: X | undefined, oldX: X | undefined, view: V): void;
 
-  dataPointViewDidSetX?(newX: X, oldX: X, view: V): void;
+  dataPointViewDidSetX?(newX: X | undefined, oldX: X | undefined, view: V): void;
 
-  dataPointViewWillSetY?(newY: Y, oldY: Y, view: V): void;
+  dataPointViewWillSetY?(newY: Y | undefined, oldY: Y | undefined, view: V): void;
 
-  dataPointViewDidSetY?(newY: Y, oldY: Y, view: V): void;
+  dataPointViewDidSetY?(newY: Y | undefined, oldY: Y | undefined, view: V): void;
 
   dataPointViewWillSetY2?(newY2: Y | undefined, oldY2: Y | undefined, view: V): void;
 

@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import type {Length} from "@swim/math";
+import type {Color} from "@swim/style";
+import type {Look} from "@swim/theme";
 import type {TraitObserver} from "@swim/model";
 import type {GraphicsView} from "@swim/graphics";
 import type {DataPointTrait} from "./DataPointTrait";
@@ -33,6 +35,10 @@ export interface DataPointTraitObserver<X, Y, R extends DataPointTrait<X, Y> = D
   dataPointTraitWillSetRadius?(newRadius: Length | null, oldRadius: Length | null, trait: R): void;
 
   dataPointTraitDidSetRadius?(newRadius: Length | null, oldRadius: Length | null, trait: R): void;
+
+  dataPointTraitWillSetColor?(newColor: Look<Color> | Color | null, oldColor: Look<Color> | Color | null, trait: R): void;
+
+  dataPointTraitDidSetColor?(newColor: Look<Color> | Color | null, oldColor: Look<Color> | Color | null, trait: R): void;
 
   dataPointTraitWillSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
 

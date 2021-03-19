@@ -14,6 +14,8 @@
 
 import {Equals} from "@swim/util";
 import {AnyLength, Length} from "@swim/math";
+import {AnyColor, Color} from "@swim/style";
+import {Look} from "@swim/theme";
 import {GenericTrait} from "@swim/model";
 import type {GraphicsView} from "@swim/graphics";
 import type {DataPointTraitObserver} from "./DataPointTraitObserver";
@@ -37,6 +39,11 @@ export class DataPointTrait<X, Y> extends GenericTrait {
       configurable: true,
     });
     Object.defineProperty(this, "radius", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "color", {
       value: null,
       enumerable: true,
       configurable: true,
@@ -130,10 +137,52 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     }
   }
 
+  declare readonly y2: Y;
+
+  setY2(newY2: Y): void {
+    const oldY2 = this.y2;
+    if (!Equals(newY2, oldY2)) {
+      this.willSetY2(newY2, oldY2);
+      Object.defineProperty(this, "y2", {
+        value: newY2,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetY2(newY2, oldY2);
+      this.didSetY2(newY2, oldY2);
+    }
+  }
+
+  protected willSetY2(newY2: Y, oldY2: Y): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.dataPointTraitWillSetY2 !== void 0) {
+        traitObserver.dataPointTraitWillSetY2(newY2, oldY2, this);
+      }
+    }
+  }
+
+  protected onSetY2(newY2: Y, oldY2: Y): void {
+    // hook
+  }
+
+  protected didSetY2(newY2: Y, oldY2: Y): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.dataPointTraitDidSetY2 !== void 0) {
+        traitObserver.dataPointTraitDidSetY2(newY2, oldY2, this);
+      }
+    }
+  }
+
   declare readonly radius: Length | null;
 
-  setRadius(newRadius: AnyLength): void {
-    newRadius = Length.fromAny(newRadius);
+  setRadius(newRadius: AnyLength | null): void {
+    if (newRadius !== null) {
+      newRadius = Length.fromAny(newRadius);
+    }
     const oldRadius = this.radius;
     if (!Equals(newRadius, oldRadius)) {
       this.willSetRadius(newRadius, oldRadius);
@@ -171,42 +220,45 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     }
   }
 
-  declare readonly y2: Y;
+  declare readonly color: Look<Color> | Color | null;
 
-  setY2(newY2: Y): void {
-    const oldY2 = this.y2;
-    if (!Equals(newY2, oldY2)) {
-      this.willSetY2(newY2, oldY2);
-      Object.defineProperty(this, "y2", {
-        value: newY2,
+  setColor(newColor: Look<Color> | AnyColor | null): void {
+    if (newColor !== null && !(newColor instanceof Look)) {
+      newColor = Color.fromAny(newColor);
+    }
+    const oldColor = this.color;
+    if (!Equals(newColor, oldColor)) {
+      this.willSetColor(newColor, oldColor);
+      Object.defineProperty(this, "color", {
+        value: newColor,
         enumerable: true,
         configurable: true,
       });
-      this.onSetY2(newY2, oldY2);
-      this.didSetY2(newY2, oldY2);
+      this.onSetColor(newColor, oldColor);
+      this.didSetColor(newColor, oldColor);
     }
   }
 
-  protected willSetY2(newY2: Y, oldY2: Y): void {
+  protected willSetColor(newColor: Look<Color> | Color | null, oldColor: Look<Color> | Color | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitWillSetY2 !== void 0) {
-        traitObserver.dataPointTraitWillSetY2(newY2, oldY2, this);
+      if (traitObserver.dataPointTraitWillSetColor !== void 0) {
+        traitObserver.dataPointTraitWillSetColor(newColor, oldColor, this);
       }
     }
   }
 
-  protected onSetY2(newY2: Y, oldY2: Y): void {
+  protected onSetColor(newColor: Look<Color> | Color | null, oldColor: Look<Color> | Color | null): void {
     // hook
   }
 
-  protected didSetY2(newY2: Y, oldY2: Y): void {
+  protected didSetColor(newColor: Look<Color> | Color | null, oldColor: Look<Color> | Color | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitDidSetY2 !== void 0) {
-        traitObserver.dataPointTraitDidSetY2(newY2, oldY2, this);
+      if (traitObserver.dataPointTraitDidSetColor !== void 0) {
+        traitObserver.dataPointTraitDidSetColor(newColor, oldColor, this);
       }
     }
   }
@@ -251,7 +303,7 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     }
   }
 
-  formatLabel(value: number): string | undefined {
+  formatLabel(x: X | undefined, y: Y | undefined): string | undefined {
     return void 0;
   }
 }

@@ -53,7 +53,7 @@ export interface DataPointViewInit<X, Y> extends GraphicsViewInit {
 }
 
 export class DataPointView<X, Y> extends LayerView {
-  constructor(x: X, y: Y) {
+  constructor() {
     super();
     Object.defineProperty(this, "xCoord", {
       value: NaN,
@@ -75,8 +75,6 @@ export class DataPointView<X, Y> extends LayerView {
       enumerable: true,
       configurable: true,
     });
-    this.x.setAutoState(x);
-    this.y.setAutoState(y);
   }
 
   initView(init: DataPointViewInit<X, Y>): void {
@@ -121,7 +119,7 @@ export class DataPointView<X, Y> extends LayerView {
     });
   }
 
-  protected willSetX(newX: X, oldX: X): void {
+  protected willSetX(newX: X | undefined, oldX: X | undefined): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.dataPointViewWillSetX !== void 0) {
       viewController.dataPointViewWillSetX(newX, oldX, this);
@@ -135,11 +133,11 @@ export class DataPointView<X, Y> extends LayerView {
     }
   }
 
-  protected onSetX(newX: X, oldX: X): void {
+  protected onSetX(newX: X | undefined, oldX: X | undefined): void {
     // hook
   }
 
-  protected didSetX(newX: X, oldX: X): void {
+  protected didSetX(newX: X | undefined, oldX: X | undefined): void {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
@@ -153,21 +151,21 @@ export class DataPointView<X, Y> extends LayerView {
     }
   }
 
-  @ViewAnimator<DataPointView<X, Y>, X>({
+  @ViewAnimator<DataPointView<X, Y>, X | undefined>({
     extends: void 0,
-    willSetValue(newX: X, oldX: X): void {
+    willSetValue(newX: X | undefined, oldX: X | undefined): void {
       this.owner.willSetX(newX, oldX);
     },
-    onSetValue(newX: X, oldX: X): void {
+    onSetValue(newX: X | undefined, oldX: X | undefined): void {
       this.owner.onSetX(newX, oldX);
     },
-    didSetValue(newX: X, oldX: X): void {
+    didSetValue(newX: X | undefined, oldX: X | undefined): void {
       this.owner.didSetX(newX, oldX);
     },
   })
-  declare x: ViewAnimator<this, X>;
+  declare x: ViewAnimator<this, X | undefined>;
 
-  protected willSetY(newY: Y, oldY: Y): void {
+  protected willSetY(newY: Y | undefined, oldY: Y | undefined): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.dataPointViewWillSetY !== void 0) {
       viewController.dataPointViewWillSetY(newY, oldY, this);
@@ -181,11 +179,11 @@ export class DataPointView<X, Y> extends LayerView {
     }
   }
 
-  protected onSetY(newY: Y, oldY: Y): void {
+  protected onSetY(newY: Y | undefined, oldY: Y | undefined): void {
     // hook
   }
 
-  protected didSetY(newY: Y, oldY: Y): void {
+  protected didSetY(newY: Y | undefined, oldY: Y | undefined): void {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
@@ -200,13 +198,13 @@ export class DataPointView<X, Y> extends LayerView {
   }
 
   @ViewAnimator<DataPointView<X, Y>, Y>({
-    willSetValue(newY: Y, oldY: Y): void {
+    willSetValue(newY: Y | undefined, oldY: Y | undefined): void {
       this.owner.willSetY(newY, oldY);
     },
-    onSetValue(newY: Y, oldY: Y): void {
+    onSetValue(newY: Y | undefined, oldY: Y | undefined): void {
       this.owner.onSetY(newY, oldY);
     },
-    didSetValue(newY: Y, oldY: Y): void {
+    didSetValue(newY: Y | undefined, oldY: Y | undefined): void {
       this.owner.didSetY(newY, oldY);
     },
   })
@@ -403,6 +401,9 @@ export class DataPointView<X, Y> extends LayerView {
   declare labelPlacement: ViewProperty<this, DataPointLabelPlacement>;
 
   setState(point: DataPointViewInit<X, Y>, timing?: AnyTiming | boolean): void {
+    if (point.x !== void 0) {
+      this.x(point.x, timing);
+    }
     if (point.y !== void 0) {
       this.y(point.y, timing);
     }
@@ -535,8 +536,12 @@ export class DataPointView<X, Y> extends LayerView {
     return null;
   }
 
+  static create<X, Y>(): DataPointView<X, Y> {
+    return new DataPointView<X, Y>();
+  }
+
   static fromInit<X, Y>(init: DataPointViewInit<X, Y>): DataPointView<X, Y> {
-    const view = new DataPointView(init.x, init.y);
+    const view = new DataPointView<X, Y>();
     view.initView(init);
     return view;
   }

@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Color} from "@swim/style";
+import type {Look} from "@swim/theme";
 import type {SeriesPlotTraitObserver} from "./SeriesPlotTraitObserver";
 import type {AreaPlotTrait} from "./AreaPlotTrait";
 
 export interface AreaPlotTraitObserver<X, Y, R extends AreaPlotTrait<X, Y> = AreaPlotTrait<X, Y>> extends SeriesPlotTraitObserver<X, Y, R> {
+  areaPlotTraitWillSetFill?(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, trait: R): void;
+
+  areaPlotTraitDidSetFill?(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, trait: R): void;
 }
