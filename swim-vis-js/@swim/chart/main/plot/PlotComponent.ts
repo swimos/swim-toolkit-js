@@ -17,7 +17,13 @@ import {ComponentProperty, ComponentViewTrait} from "@swim/component";
 import {DataSetComponent} from "../data/DataSetComponent";
 import type {PlotView} from "./PlotView";
 import type {PlotTrait} from "./PlotTrait";
+import {BubblePlotTrait} from "./BubblePlotTrait";
+import {LinePlotTrait} from "./LinePlotTrait";
+import {AreaPlotTrait} from "./AreaPlotTrait";
 import type {PlotComponentObserver} from "./PlotComponentObserver";
+import {BubblePlotComponent} from "../"; // forward import
+import {LinePlotComponent} from "../"; // forward import
+import {AreaPlotComponent} from "../"; // forward import
 
 export abstract class PlotComponent<X, Y> extends DataSetComponent<X, Y> {
   declare readonly componentObservers: ReadonlyArray<PlotComponentObserver<X, Y>>;
@@ -26,4 +32,16 @@ export abstract class PlotComponent<X, Y> extends DataSetComponent<X, Y> {
   declare plotTiming: ComponentProperty<this, Timing | boolean | undefined, AnyTiming>;
 
   abstract readonly plot: ComponentViewTrait<this, PlotView<X, Y>, PlotTrait<X, Y>>;
+
+  static createPlot<X, Y>(plotTrait: PlotTrait<X, Y>): PlotComponent<X, Y> | null {
+    if (plotTrait instanceof BubblePlotTrait) {
+      return new BubblePlotComponent<X, Y>();
+    } else if (plotTrait instanceof LinePlotTrait) {
+      return new LinePlotComponent<X, Y>();
+    } else if (plotTrait instanceof AreaPlotTrait) {
+      return new AreaPlotComponent<X, Y>();
+    } else {
+      return null;
+    }
+  }
 }

@@ -205,7 +205,7 @@ export class DrawerView extends HtmlView implements Modal {
     return this.placement === "left" || this.placement === "right";
   }
 
-  @ViewProperty({type: Object, inherit: true})
+  @ViewProperty({type: Object, inherit: true, state: null})
   declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
   protected willSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {

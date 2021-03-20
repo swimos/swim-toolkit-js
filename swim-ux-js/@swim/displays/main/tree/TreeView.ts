@@ -133,7 +133,7 @@ export class TreeView extends HtmlView {
   })
   declare depth: ViewProperty<this, number>;
 
-  @ViewProperty({type: Object, state: null, inherit: true})
+  @ViewProperty({type: Object, inherit: true, state: null})
   declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
   @ViewProperty({type: Number, state: 2})

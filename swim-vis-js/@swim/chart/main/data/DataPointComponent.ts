@@ -109,7 +109,10 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
   }
 
   protected detachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>): void {
-    this.dataPoint.removeView();
+    const dataPointView = this.dataPoint.view;
+    if (dataPointView !== null) {
+      this.setDataPointLabel(void 0);
+    }
   }
 
   protected willSetDataPointTrait(newDataPointTrait: DataPointTrait<X, Y> | null, oldDataPointTrait: DataPointTrait<X, Y> | null): void {
@@ -155,6 +158,8 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
   }
 
   protected attachDataPointView(dataPointView: DataPointView<X, Y>): void {
+    this.label.setView(dataPointView.label.view);
+
     const dataPointTrait = this.dataPoint.trait;
     if (dataPointTrait !== null) {
       this.setDataPointX(dataPointTrait.x);
@@ -167,7 +172,7 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
   }
 
   protected detachDataPointView(dataPointView: DataPointView<X, Y>): void {
-    // hook
+    this.label.setView(null);
   }
 
   protected willSetDataPointView(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null): void {
@@ -187,7 +192,6 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
     if (newDataPointView !== null) {
       this.attachDataPointView(newDataPointView);
       this.initDataPointView(newDataPointView);
-      this.label.setView(newDataPointView.label.view);
     }
   }
 
@@ -368,6 +372,14 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
     // hook
   }
 
+  protected attachDataPointLabelView(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected detachDataPointLabelView(labelView: GraphicsView): void {
+    // hook
+  }
+
   protected willSetDataPointLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
@@ -379,7 +391,11 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
   }
 
   protected onSetDataPointLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    if (oldLabelView !== null) {
+      this.detachDataPointLabelView(oldLabelView);
+    }
     if (newLabelView !== null) {
+      this.attachDataPointLabelView(newLabelView);
       this.initDataPointLabelView(newLabelView);
     }
   }

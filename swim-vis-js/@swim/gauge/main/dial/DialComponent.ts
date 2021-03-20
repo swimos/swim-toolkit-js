@@ -115,14 +115,6 @@ export class DialComponent extends CompositeComponent {
 
   protected initDialView(dialView: DialView): void {
     this.updateDialValue(dialView.value.value, dialView.limit.value, dialView);
-  }
-
-  protected themeDialView(dialView: DialView, theme: ThemeMatrix,
-                          mood: MoodVector, timing: Timing | boolean): void {
-    // hook
-  }
-
-  protected attachDialView(dialView: DialView): void {
     const dialTrait = this.dial.trait;
     if (dialTrait !== null) {
       this.setDialValue(dialTrait.value);
@@ -132,8 +124,18 @@ export class DialComponent extends CompositeComponent {
     }
   }
 
-  protected detachDialView(dialView: DialView): void {
+  protected themeDialView(dialView: DialView, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     // hook
+  }
+
+  protected attachDialView(dialView: DialView): void {
+    this.label.setView(dialView.label.view);
+    this.legend.setView(dialView.legend.view);
+  }
+
+  protected detachDialView(dialView: DialView): void {
+    this.label.setView(null);
+    this.legend.setView(null);
   }
 
   protected willSetDialView(newDialView: DialView | null, oldDialView: DialView | null): void {
@@ -265,6 +267,14 @@ export class DialComponent extends CompositeComponent {
     // hook
   }
 
+  protected attachDialLabelView(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected detachDialLabelView(labelView: GraphicsView): void {
+    // hook
+  }
+
   protected willSetDialLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
@@ -276,7 +286,11 @@ export class DialComponent extends CompositeComponent {
   }
 
   protected onSetDialLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    if (oldLabelView !== null) {
+      this.detachDialLabelView(oldLabelView);
+    }
     if (newLabelView !== null) {
+      this.attachDialLabelView(newLabelView);
       this.initDialLabelView(newLabelView);
     }
   }
@@ -302,6 +316,14 @@ export class DialComponent extends CompositeComponent {
     // hook
   }
 
+  protected attachDialLegendView(legendView: GraphicsView): void {
+    // hook
+  }
+
+  protected detachDialLegendView(legendView: GraphicsView): void {
+    // hook
+  }
+
   protected willSetDialLegendView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
@@ -313,7 +335,11 @@ export class DialComponent extends CompositeComponent {
   }
 
   protected onSetDialLegendView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+    if (oldLegendView !== null) {
+      this.detachDialLegendView(oldLegendView);
+    }
     if (newLegendView !== null) {
+      this.attachDialLegendView(newLegendView);
       this.initDialLegendView(newLegendView);
     }
   }
@@ -344,8 +370,7 @@ export class DialComponent extends CompositeComponent {
     didSetView(newDialView: DialView | null, oldDialView: DialView | null): void {
       this.owner.didSetDialView(newDialView, oldDialView);
     },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                      timing: Timing | boolean, dialView: DialView): void {
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, dialView: DialView): void {
       this.owner.themeDialView(dialView, theme, mood, timing);
     },
     dialViewWillSetValue(newValue: number, oldValue: number, dialView: DialView): void {

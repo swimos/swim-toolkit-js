@@ -80,6 +80,14 @@ export class CellView extends HtmlView {
     // hook
   }
 
+  protected attachContent(contentView: HtmlView): void {
+    // hook
+  }
+
+  protected detachContent(contentView: HtmlView): void {
+    // hook
+  }
+
   protected willSetContent(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.cellViewWillSetContent !== void 0) {
@@ -95,7 +103,11 @@ export class CellView extends HtmlView {
   }
 
   protected onSetContent(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
+    if (oldContentView !== null) {
+      this.detachContent(oldContentView);
+    }
     if (newContentView !== null) {
+      this.attachContent(newContentView);
       this.initContent(newContentView);
     }
   }

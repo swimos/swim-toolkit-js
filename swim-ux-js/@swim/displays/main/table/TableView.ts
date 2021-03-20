@@ -57,7 +57,7 @@ export class TableView extends HtmlView {
   @ViewProperty({type: Length, state: Length.px(24)})
   declare rowHeight: ViewProperty<this, Length, AnyLength>;
 
-  @ViewProperty({type: Object, state: null, inherit: true})
+  @ViewProperty({type: Object, inherit: true, state: null})
   declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
   insertRow(rowView: RowView, targetView: View | null = null): void {
@@ -106,6 +106,14 @@ export class TableView extends HtmlView {
     rowView.setCulled(true);
   }
 
+  protected attachRow(rowView: RowView, rowFastener: ViewFastener<this, RowView>): void {
+    // hook
+  }
+
+  protected detachRow(rowView: RowView, rowFastener: ViewFastener<this, RowView>): void {
+    // hook
+  }
+
   protected willSetRow(newRowView: RowView | null, oldRowView: RowView | null,
                        targetView: View | null, rowFastener: ViewFastener<this, RowView>): void {
     const viewController = this.viewController;
@@ -123,7 +131,11 @@ export class TableView extends HtmlView {
 
   protected onSetRow(newRowView: RowView | null, oldRowView: RowView | null,
                      targetView: View | null, rowFastener: ViewFastener<this, RowView>): void {
+    if (oldRowView !== null) {
+      this.detachRow(oldRowView, rowFastener);
+    }
     if (newRowView !== null) {
+      this.attachRow(newRowView, rowFastener);
       this.initRow(newRowView, rowFastener);
     }
   }

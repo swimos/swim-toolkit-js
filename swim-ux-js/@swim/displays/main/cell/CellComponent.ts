@@ -42,7 +42,10 @@ export class CellComponent extends CompositeComponent {
   }
 
   protected detachCellTrait(cellTrait: CellTrait): void {
-    // hook
+    const cellView = this.cell.view;
+    if (cellView !== null) {
+      this.setCellContent(void 0);
+    }
   }
 
   protected willSetCellTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null): void {
@@ -83,12 +86,13 @@ export class CellComponent extends CompositeComponent {
     // hook
   }
 
-  protected themeCellView(cellView: CellView, theme: ThemeMatrix,
-                          mood: MoodVector, timing: Timing | boolean): void {
+  protected themeCellView(cellView: CellView, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     // hook
   }
 
   protected attachCellView(cellView: CellView): void {
+    this.content.setView(cellView.content.view);
+
     const cellTrait = this.cell.trait;
     if (cellTrait !== null) {
       this.setCellContent(cellTrait.content);
@@ -96,7 +100,7 @@ export class CellComponent extends CompositeComponent {
   }
 
   protected detachCellView(cellView: CellView): void {
-    // hook
+    this.content.setView(null);
   }
 
   protected willSetCellView(newCellView: CellView | null, oldCellView: CellView | null): void {
@@ -116,7 +120,6 @@ export class CellComponent extends CompositeComponent {
     if (newCellView !== null) {
       this.attachCellView(newCellView);
       this.initCellView(newCellView);
-      this.content.setView(newCellView.content.view);
     }
   }
 
@@ -137,7 +140,15 @@ export class CellComponent extends CompositeComponent {
     }
   }
 
-  protected initCellContentView(contentView: HtmlView | null): void {
+  protected initCellContentView(contentView: HtmlView): void {
+    // hook
+  }
+
+  protected attachCellContentView(contentView: HtmlView): void {
+    // hook
+  }
+
+  protected detachCellContentView(contentView: HtmlView): void {
     // hook
   }
 
@@ -152,7 +163,11 @@ export class CellComponent extends CompositeComponent {
   }
 
   protected onSetCellContentView(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
+    if (oldContentView !== null) {
+      this.detachCellContentView(oldContentView);
+    }
     if (newContentView !== null) {
+      this.attachCellContentView(newContentView);
       this.initCellContentView(newContentView);
     }
   }

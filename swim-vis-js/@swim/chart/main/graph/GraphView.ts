@@ -20,14 +20,14 @@ import {AnyPlotView, PlotView} from "../plot/PlotView";
 import type {GraphViewObserver} from "./GraphViewObserver";
 import type {GraphViewController} from "./GraphViewController";
 
-export type AnyGraphView<X = unknown, Y = unknown> = GraphView<X, Y> | GraphViewInit<X, Y>;
+export type AnyGraphView<X, Y> = GraphView<X, Y> | GraphViewInit<X, Y>;
 
-export interface GraphViewInit<X = unknown, Y = unknown> extends ScaledViewInit<X, Y> {
+export interface GraphViewInit<X, Y> extends ScaledViewInit<X, Y> {
   viewController?: GraphViewController<X, Y>;
   plots?: AnyPlotView<X, Y>[];
 }
 
-export class GraphView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
+export class GraphView<X, Y> extends ScaledView<X, Y> {
   declare readonly viewController: GraphViewController<X, Y> | null;
 
   declare readonly viewObservers: ReadonlyArray<GraphViewObserver<X, Y>>;

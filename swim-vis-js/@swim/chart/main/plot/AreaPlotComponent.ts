@@ -15,7 +15,9 @@
 import type {Timing} from "@swim/mapping";
 import type {Color} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ComponentViewTrait} from "@swim/component";
+import {ComponentViewTrait, ComponentFastener} from "@swim/component";
+import type {DataPointComponent} from "../data/DataPointComponent";
+import {DataSetTrait} from "../data/DataSetTrait";
 import {AreaPlotView} from "./AreaPlotView";
 import {AreaPlotTrait} from "./AreaPlotTrait";
 import {SeriesPlotComponent} from "./SeriesPlotComponent";
@@ -24,8 +26,33 @@ import type {AreaPlotComponentObserver} from "./AreaPlotComponentObserver";
 export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
   declare readonly componentObservers: ReadonlyArray<AreaPlotComponentObserver<X, Y>>;
 
+  protected detectDataSet(plotTrait: AreaPlotTrait<X, Y>): DataSetTrait<X, Y> | null {
+    return plotTrait.getTrait(DataSetTrait);
+  }
+
+  protected attachDataPoint(dataPointComponent: DataPointComponent<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    super.attachDataPoint(dataPointComponent, dataPointFastener);
+    const dataPointView = dataPointComponent.dataPoint.view;
+    if (dataPointView !== null && dataPointView.parentView === null) {
+      const plotView = this.plot.view;
+      if (plotView !== null) {
+        dataPointComponent.dataPoint.injectView(plotView);
+      }
+    }
+  }
+
+  protected detachDataPoint(dataPointComponent: DataPointComponent<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    super.detachDataPoint(dataPointComponent, dataPointFastener);
+    dataPointComponent.dataPoint.removeView();
+  }
+
   protected initPlotTrait(plotTrait: AreaPlotTrait<X, Y>): void {
-    // hook
+    if (this.dataSet.trait === null) {
+      const dataSetTrait = this.detectDataSet(plotTrait);
+      if (dataSetTrait !== null) {
+        this.dataSet.setTrait(dataSetTrait);
+      }
+    }
   }
 
   protected attachPlotTrait(plotTrait: AreaPlotTrait<X, Y>): void {
@@ -85,6 +112,14 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
     const plotTrait = this.plot.trait;
     if (plotTrait !== null) {
       this.setPlotFill(plotTrait.fill);
+    }
+
+    const dataPointFasteners = this.dataPointFasteners;
+    for (let i = 0, n = dataPointFasteners.length; i < n; i += 1) {
+      const dataPointComponent = dataPointFasteners[i]!.component;
+      if (dataPointComponent !== null) {
+        dataPointComponent.dataPoint.injectView(plotView);
+      }
     }
   }
 

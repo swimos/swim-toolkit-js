@@ -234,6 +234,14 @@ export class SliceView extends LayerView {
     // hook
   }
 
+  protected attachLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected detachLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
   protected willSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.sliceViewWillSetLabel !== void 0) {
@@ -249,7 +257,11 @@ export class SliceView extends LayerView {
   }
 
   protected onSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    if (oldLabelView !== null) {
+      this.detachLabel(oldLabelView);
+    }
     if (newLabelView !== null) {
+      this.attachLabel(newLabelView);
       this.initLabel(newLabelView);
     }
   }
@@ -297,6 +309,14 @@ export class SliceView extends LayerView {
     // hook
   }
 
+  protected attachLegend(legendView: GraphicsView | null): void {
+    // hook
+  }
+
+  protected detachLegend(legendView: GraphicsView | null): void {
+    // hook
+  }
+
   protected willSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.sliceViewWillSetLegend !== void 0) {
@@ -312,7 +332,11 @@ export class SliceView extends LayerView {
   }
 
   protected onSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+    if (oldLegendView !== null) {
+      this.detachLegend(oldLegendView);
+    }
     if (newLegendView !== null) {
+      this.attachLegend(newLegendView);
       this.initLegend(newLegendView);
     }
   }

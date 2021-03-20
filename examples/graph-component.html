@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Swim Graph Component</title>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
+  </head>
+  <body style="position: fixed; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; margin: 0; overflow: hidden;">
+    <div id="ui" style="display: flex; width: 90%; height: 90%; touch-action: none;">
+    </div>
+    <script src="../../swim-system-js/swim-core-js/@swim/core/dist/main/swim-core.js"></script>
+    <script src="../../swim-system-js/swim-mesh-js/@swim/mesh/dist/main/swim-mesh.js"></script>
+    <script src="../swim-ui-js/@swim/ui/dist/main/swim-ui.js"></script>
+    <script src="../swim-vis-js/@swim/vis/dist/main/swim-vis.js"></script>
+    <script>
+
+const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
+
+const canvasView = swim.CanvasView.create()
+    .wheelEventsEnabled(true)
+    .mouseEventsEnabled(true)
+    .pointerEventsEnabled(true)
+    .touchEventsEnabled(true)
+    .touchAction("manipulation");
+
+class ExampleGraphComponent extends swim.GraphComponent {
+  initGraphView(graphView) {
+    super.initGraphView(graphView);
+    graphView.xDomainPadding([Math.PI, Math.PI])
+             .yDomainPadding([1, 1])
+             .xRangePadding([2, 2])
+             .yRangePadding([2, 2])
+             .fitAspectRatio(-1 / 4)
+             .preserveAspectRatio(true)
+             .domainTracking(true)
+             .xGestures(true)
+             .yGestures(true);
+  }
+  initPlotView(plotView, plotFastener) {
+    super.initPlotView(plotView, plotFastener);
+    plotView.hitMode("plot")
+            .on("pointerenter", function (event) {
+              plotView.modifyMood(swim.Feel.default, [swim.Feel.secondary, 1]);
+            })
+            .on("pointerleave", function (event) {
+              plotView.modifyMood(swim.Feel.default, [swim.Feel.secondary, undefined]);
+            });
+  }
+  initDataPointView(dataPointView, dataPointFastener, plotFastener) {
+    super.initDataPointView(dataPointView, dataPointFastener, plotFastener);
+  }
+}
+
+const plot1Model = new swim.CompoundModel();
+const plot1Trait = new swim.LinePlotTrait();
+plot1Trait.setStroke(swim.Look.accentColor);
+plot1Trait.setStrokeWidth(4);
+plot1Model.setTrait("plot", plot1Trait);
+
+const dataSet1Trait = new swim.DataSetTrait();
+const cycles = 4;
+const samplesPerCycle = 100;
+let i = 0;
+let n = cycles * samplesPerCycle
+while (i <= n) {
+  const x = i * 2 * Math.PI / samplesPerCycle;
+  const y = Math.sin(x) * x;
+  const dataPointModel = new swim.CompoundModel();
+  const dataPointTrait = new swim.DataPointTrait();
+  dataPointTrait.setX(x);
+  dataPointTrait.setY(y);
+  dataPointModel.setTrait("dataPoint", dataPointTrait);
+  plot1Model.appendChildModel(dataPointModel);
+  i += 1;
+}
+plot1Model.setTrait("dataSet", dataSet1Trait);
+
+const graphModel = new swim.CompoundModel();
+graphModel.mount();
+const graphTrait = new swim.GraphTrait();
+graphModel.setTrait("graph", graphTrait);
+graphModel.appendChildModel(plot1Model);
+
+const graphComponent = new ExampleGraphComponent();
+graphComponent.mount();
+graphComponent.graph.injectView(canvasView);
+graphComponent.graph.setTrait(graphTrait);
+
+uiView.append(canvasView);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//const chartView = canvasView.append(swim.ChartView)
+//    .bottomAxis(true)
+//    .leftAxis(true)
+//    //.xDomainBounds([false, false])
+//    //.yDomainBounds([false, false])
+//    .xDomainPadding([Math.PI, Math.PI])
+//    .yDomainPadding([1, 1])
+//    .xRangePadding([2, 2])
+//    .yRangePadding([2, 2])
+//    .fitAspectRatio(-1 / 4)
+//    .preserveAspectRatio(true)
+//    .domainTracking(true)
+//    .xGestures(true)
+//    .yGestures(true);
+
+//const graphView = chartView.graph.injectView();
+
+//chartView.leftAxis().gridLineColor("#d8d8d8")
+//                    .gridLineWidth(1);
+
+//const plotView = graphView.append(swim.LinePlotView)
+//    .hitMode("plot")
+//    .stroke("#4a4a4a")
+//    .strokeWidth(4)
+//    .on("pointerenter", function (event) {
+//      plotView.stroke("#1db0ef", {dt: 250});
+//    })
+//    .on("pointerleave", function (event) {
+//      plotView.stroke("#4a4a4a", {dt: 250});
+//    });
+
+//const cycles = 4;
+//const samplesPerCycle = 100;
+//let i = 0;
+//let n = cycles * samplesPerCycle
+//while (i <= n) {
+//  const x = i * 2 * Math.PI / samplesPerCycle;
+//  const y = Math.sin(x) * x;
+//  plotView.insertDataPoint({x: x, y: y});
+//  i += 1;
+//}
+
+//uiView.append(canvasView);
+
+//setTimeout(function () {
+//  chartView.xDomain(0, Math.PI, {dt: 10000, easing: "cubic-in-out"});
+//  chartView.yDomain(-1, 1, {dt: 10000, easing: "cubic-in-out"});
+//}, 1000);
+
+    </script>
+  </body>
+</html>

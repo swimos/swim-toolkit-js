@@ -16,5 +16,5 @@ import {ScaledViewController} from "../scaled/ScaledViewController";
 import type {GraphView} from "./GraphView";
 import type {GraphViewObserver} from "./GraphViewObserver";
 
-export class GraphViewController<X = unknown, Y = unknown, V extends GraphView<X, Y> = GraphView<X, Y>> extends ScaledViewController<X, Y, V> implements GraphViewObserver<X, Y, V> {
+export class GraphViewController<X, Y, V extends GraphView<X, Y> = GraphView<X, Y>> extends ScaledViewController<X, Y, V> implements GraphViewObserver<X, Y, V> {
 }

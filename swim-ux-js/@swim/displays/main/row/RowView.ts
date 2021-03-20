@@ -87,6 +87,14 @@ export class RowView extends HtmlView {
     cellView.height.setAutoState(this.height.state);
   }
 
+  protected attachCell(cellView: CellView, cellFastener: ViewFastener<this, CellView>): void {
+    // hook
+  }
+
+  protected detachCell(cellView: CellView, cellFastener: ViewFastener<this, CellView>): void {
+    // hook
+  }
+
   protected willSetCell(newCellView: CellView | null, oldCellView: CellView | null,
                         targetView: View | null, cellFastener: ViewFastener<this, CellView>): void {
     const viewController = this.viewController;
@@ -104,7 +112,11 @@ export class RowView extends HtmlView {
 
   protected onSetCell(newCellView: CellView | null, oldCellView: CellView | null,
                       targetView: View | null, cellFastener: ViewFastener<this, CellView>): void {
+    if (oldCellView !== null) {
+      this.detachCell(oldCellView, cellFastener);
+    }
     if (newCellView !== null) {
+      this.attachCell(newCellView, cellFastener);
       this.initCell(newCellView, cellFastener);
     }
   }

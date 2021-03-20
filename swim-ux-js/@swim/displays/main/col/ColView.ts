@@ -45,6 +45,14 @@ export class ColView extends HtmlView {
     // hook
   }
 
+  protected attachHeader(headerView: HtmlView): void {
+    // hook
+  }
+
+  protected detachHeader(headerView: HtmlView): void {
+    // hook
+  }
+
   protected willSetHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.colViewWillSetHeader !== void 0) {
@@ -60,7 +68,11 @@ export class ColView extends HtmlView {
   }
 
   protected onSetHeader(newHeaderView: HtmlView | null, oldHeaderView: HtmlView | null): void {
+    if (oldHeaderView !== null) {
+      this.detachHeader(oldHeaderView);
+    }
     if (newHeaderView !== null) {
+      this.attachHeader(newHeaderView);
       this.initHeader(newHeaderView);
     }
   }

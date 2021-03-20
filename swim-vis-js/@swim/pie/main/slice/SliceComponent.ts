@@ -70,6 +70,9 @@ export class SliceComponent extends CompositeComponent {
   protected detachSliceTrait(sliceTrait: SliceTrait): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
+      this.setSliceValue(0);
+      this.setSliceLabel(void 0);
+      this.setSliceLegend(void 0);
       if (sliceView.value.isAuto()) {
         // remove after tween to zero
         sliceView.value.setAutoState(0);
@@ -115,14 +118,6 @@ export class SliceComponent extends CompositeComponent {
 
   protected initSliceView(sliceView: SliceView): void {
     this.updateSliceValue(sliceView.value.value, sliceView);
-  }
-
-  protected themeSliceView(sliceView: SliceView, theme: ThemeMatrix,
-                           mood: MoodVector, timing: Timing | boolean): void {
-    // hook
-  }
-
-  protected attachSliceView(sliceView: SliceView): void {
     const sliceTrait = this.slice.trait;
     if (sliceTrait !== null) {
       this.setSliceValue(sliceTrait.value);
@@ -131,8 +126,18 @@ export class SliceComponent extends CompositeComponent {
     }
   }
 
-  protected detachSliceView(sliceView: SliceView): void {
+  protected themeSliceView(sliceView: SliceView, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     // hook
+  }
+
+  protected attachSliceView(sliceView: SliceView): void {
+    this.label.setView(sliceView.label.view);
+    this.legend.setView(sliceView.legend.view);
+  }
+
+  protected detachSliceView(sliceView: SliceView): void {
+    this.label.setView(null);
+    this.legend.setView(null);
   }
 
   protected willSetSliceView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
@@ -230,6 +235,14 @@ export class SliceComponent extends CompositeComponent {
     // hook
   }
 
+  protected attachSliceLabelView(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected detachSliceLabelView(labelView: GraphicsView): void {
+    // hook
+  }
+
   protected willSetSliceLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
@@ -241,7 +254,11 @@ export class SliceComponent extends CompositeComponent {
   }
 
   protected onSetSliceLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    if (oldLabelView !== null) {
+      this.detachSliceLabelView(oldLabelView);
+    }
     if (newLabelView !== null) {
+      this.attachSliceLabelView(newLabelView);
       this.initSliceLabelView(newLabelView);
     }
   }
@@ -267,6 +284,14 @@ export class SliceComponent extends CompositeComponent {
     // hook
   }
 
+  protected attachSliceLegendView(legendView: GraphicsView): void {
+    // hook
+  }
+
+  protected detachSliceLegendView(legendView: GraphicsView): void {
+    // hook
+  }
+
   protected willSetSliceLegendView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
@@ -278,7 +303,11 @@ export class SliceComponent extends CompositeComponent {
   }
 
   protected onSetSliceLegendView(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+    if (oldLegendView !== null) {
+      this.detachSliceLegendView(oldLegendView);
+    }
     if (newLegendView !== null) {
+      this.attachSliceLegendView(newLegendView);
       this.initSliceLegendView(newLegendView);
     }
   }
@@ -309,8 +338,7 @@ export class SliceComponent extends CompositeComponent {
     didSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null): void {
       this.owner.didSetSliceView(newSliceView, oldSliceView);
     },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                      timing: Timing | boolean, sliceView: SliceView): void {
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, sliceView: SliceView): void {
       this.owner.themeSliceView(sliceView, theme, mood, timing);
     },
     sliceViewWillSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {

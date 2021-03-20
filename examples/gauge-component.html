@@ -56,13 +56,13 @@ class ExampleGaugeComponent extends swim.GaugeComponent {
 
 const dial1Model = new swim.CompoundModel();
 const dial1Trait = new swim.DialTrait();
-dial1Trait.setValue(1);
+dial1Trait.setValue(Math.random());
 dial1Trait.setLegend("Dial 1");
 dial1Model.setTrait("dial", dial1Trait);
 
 const dial2Model = new swim.CompoundModel();
 const dial2Trait = new swim.DialTrait();
-dial2Trait.setValue(1);
+dial2Trait.setValue(Math.random());
 dial2Trait.setLegend("Dial 2");
 dial2Model.setTrait("dial", dial2Trait);
 

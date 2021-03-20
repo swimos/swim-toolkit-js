@@ -338,6 +338,14 @@ export class DataPointView<X, Y> extends LayerView {
     // hook
   }
 
+  protected attachLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected detachLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
   protected willSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.dataPointViewWillSetLabel !== void 0) {
@@ -353,7 +361,11 @@ export class DataPointView<X, Y> extends LayerView {
   }
 
   protected onSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    if (oldLabelView !== null) {
+      this.detachLabel(oldLabelView);
+    }
     if (newLabelView !== null) {
+      this.attachLabel(newLabelView);
       this.initLabel(newLabelView);
     }
   }

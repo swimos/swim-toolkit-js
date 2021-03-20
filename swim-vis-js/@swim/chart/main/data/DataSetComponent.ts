@@ -163,13 +163,35 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
   }
 
   protected initDataPoint(dataPointComponent: DataPointComponent<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    const dataPointTrait = dataPointComponent.dataPoint.trait;
+    if (dataPointTrait !== null) {
+      this.initDataPointTrait(dataPointTrait, dataPointFastener);
+    }
     const dataPointView = dataPointComponent.dataPoint.view;
     if (dataPointView !== null) {
       this.initDataPointView(dataPointView, dataPointFastener);
-      const labelView = dataPointView.label.view;
-      if (labelView !== null) {
-        this.initDataPointLabelView(labelView, dataPointFastener);
-      }
+    }
+  }
+
+  protected attachDataPoint(dataPointComponent: DataPointComponent<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    const dataPointTrait = dataPointComponent.dataPoint.trait;
+    if (dataPointTrait !== null) {
+      this.attachDataPointTrait(dataPointTrait, dataPointFastener);
+    }
+    const dataPointView = dataPointComponent.dataPoint.view;
+    if (dataPointView !== null) {
+      this.attachDataPointView(dataPointView, dataPointFastener);
+    }
+  }
+
+  protected detachDataPoint(dataPointComponent: DataPointComponent<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    const dataPointTrait = dataPointComponent.dataPoint.trait;
+    if (dataPointTrait !== null) {
+      this.detachDataPointTrait(dataPointTrait, dataPointFastener);
+    }
+    const dataPointView = dataPointComponent.dataPoint.view;
+    if (dataPointView !== null) {
+      this.detachDataPointView(dataPointView, dataPointFastener);
     }
   }
 
@@ -186,7 +208,11 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
 
   protected onSetDataPoint(newDataPointComponent: DataPointComponent<X, Y> | null, oldDataPointComponent: DataPointComponent<X, Y> | null,
                            dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    if (oldDataPointComponent !== null) {
+      this.detachDataPoint(oldDataPointComponent, dataPointFastener);
+    }
     if (newDataPointComponent !== null) {
+      this.attachDataPoint(newDataPointComponent, dataPointFastener);
       this.initDataPoint(newDataPointComponent, dataPointFastener);
     }
   }
@@ -247,11 +273,20 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
     }
   }
 
-  protected initDataPointTrait(dataPointTrait: DataPointTrait<X, Y> | null, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+  protected initDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
     // hook
   }
 
-  protected willSetDataPointTrait(newDataPointTrait: DataPointTrait<X, Y> | null, oldDataPointTrait: DataPointTrait<X, Y> | null, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+  protected attachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    // hook
+  }
+
+  protected detachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    // hook
+  }
+
+  protected willSetDataPointTrait(newDataPointTrait: DataPointTrait<X, Y> | null, oldDataPointTrait: DataPointTrait<X, Y> | null,
+                                  dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -261,13 +296,19 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
     }
   }
 
-  protected onSetDataPointTrait(newDataPointTrait: DataPointTrait<X, Y> | null, oldDataPointTrait: DataPointTrait<X, Y> | null, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+  protected onSetDataPointTrait(newDataPointTrait: DataPointTrait<X, Y> | null, oldDataPointTrait: DataPointTrait<X, Y> | null,
+                                dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    if (oldDataPointTrait !== null) {
+      this.detachDataPointTrait(oldDataPointTrait, dataPointFastener);
+    }
     if (newDataPointTrait !== null) {
+      this.attachDataPointTrait(newDataPointTrait, dataPointFastener);
       this.initDataPointTrait(newDataPointTrait, dataPointFastener);
     }
   }
 
-  protected didSetDataPointTrait(newDataPointTrait: DataPointTrait<X, Y> | null, oldDataPointTrait: DataPointTrait<X, Y> | null, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+  protected didSetDataPointTrait(newDataPointTrait: DataPointTrait<X, Y> | null, oldDataPointTrait: DataPointTrait<X, Y> | null,
+                                 dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -282,10 +323,28 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
   }
 
   protected initDataPointView(dataPointView: DataPointView<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
-    // hook
+    const labelView = dataPointView.label.view;
+    if (labelView !== null) {
+      this.initDataPointLabelView(labelView, dataPointFastener);
+    }
   }
 
-  protected willSetDataPointView(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+  protected attachDataPointView(dataPointView: DataPointView<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    const labelView = dataPointView.label.view;
+    if (labelView !== null) {
+      this.attachDataPointLabelView(labelView, dataPointFastener);
+    }
+  }
+
+  protected detachDataPointView(dataPointView: DataPointView<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    const labelView = dataPointView.label.view;
+    if (labelView !== null) {
+      this.detachDataPointLabelView(labelView, dataPointFastener);
+    }
+  }
+
+  protected willSetDataPointView(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null,
+                                 dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -295,17 +354,19 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
     }
   }
 
-  protected onSetDataPointView(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+  protected onSetDataPointView(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null,
+                               dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    if (oldDataPointView !== null) {
+      this.detachDataPointView(oldDataPointView, dataPointFastener);
+    }
     if (newDataPointView !== null) {
+      this.attachDataPointView(newDataPointView, dataPointFastener);
       this.initDataPointView(newDataPointView, dataPointFastener);
-      const labelView = newDataPointView.label.view;
-      if (labelView !== null) {
-        this.initDataPointLabelView(labelView, dataPointFastener);
-      }
     }
   }
 
-  protected didSetDataPointView(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+  protected didSetDataPointView(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null,
+                                dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -415,7 +476,16 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
     // hook
   }
 
-  protected willSetDataPointLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+  protected attachDataPointLabelView(labelView: GraphicsView, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    // hook
+  }
+
+  protected detachDataPointLabelView(labelView: GraphicsView, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    // hook
+  }
+
+  protected willSetDataPointLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null,
+                                      dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
@@ -425,13 +495,19 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
     }
   }
 
-  protected onSetDataPointLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+  protected onSetDataPointLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null,
+                                    dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+    if (oldLabelView !== null) {
+      this.detachDataPointLabelView(oldLabelView, dataPointFastener);
+    }
     if (newLabelView !== null) {
+      this.attachDataPointLabelView(newLabelView, dataPointFastener);
       this.initDataPointLabelView(newLabelView, dataPointFastener);
     }
   }
 
-  protected didSetDataPointLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
+  protected didSetDataPointLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null,
+                                     dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;

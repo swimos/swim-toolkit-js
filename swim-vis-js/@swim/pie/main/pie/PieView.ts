@@ -195,6 +195,14 @@ export class PieView extends LayerView {
     }
   }
 
+  protected attachTitle(titleView: GraphicsView): void {
+    // hook
+  }
+
+  protected detachTitle(titleView: GraphicsView): void {
+    // hook
+  }
+
   protected willSetTitle(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.pieViewWillSetTitle !== void 0) {
@@ -210,7 +218,11 @@ export class PieView extends LayerView {
   }
 
   protected onSetTitle(newTitleView: GraphicsView | null, oldTitleView: GraphicsView | null): void {
+    if (oldTitleView !== null) {
+      this.detachTitle(oldTitleView);
+    }
     if (newTitleView !== null) {
+      this.attachTitle(newTitleView);
       this.initTitle(newTitleView);
     }
   }
@@ -292,12 +304,20 @@ export class PieView extends LayerView {
   protected initSlice(sliceView: SliceView, sliceFastener: ViewFastener<this, SliceView>): void {
     const labelView = sliceView.label.view;
     if (labelView !== null) {
-      this.initSliceLabel(labelView, sliceView);
+      this.initSliceLabel(labelView, sliceFastener);
     }
     const legendView = sliceView.legend.view;
     if (legendView !== null) {
-      this.initSliceLegend(legendView, sliceView);
+      this.initSliceLegend(legendView, sliceFastener);
     }
+  }
+
+  protected attachSlice(sliceView: SliceView, sliceFastener: ViewFastener<this, SliceView>): void {
+    // hook
+  }
+
+  protected detachSlice(sliceView: SliceView, sliceFastener: ViewFastener<this, SliceView>): void {
+    // hook
   }
 
   protected willSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null,
@@ -317,7 +337,11 @@ export class PieView extends LayerView {
 
   protected onSetSlice(newSliceView: SliceView | null, oldSliceView: SliceView | null,
                        targetView: View | null, sliceFastener: ViewFastener<this, SliceView>): void {
+    if (oldSliceView !== null) {
+      this.detachSlice(oldSliceView, sliceFastener);
+    }
     if (newSliceView !== null) {
+      this.attachSlice(newSliceView, sliceFastener);
       this.initSlice(newSliceView, sliceFastener);
     }
   }
@@ -337,16 +361,31 @@ export class PieView extends LayerView {
     }
   }
 
-  protected onSetSliceValue(value: number, sliceView: SliceView): void {
+  protected onSetSliceValue(newValue: number, oldValue: number,
+                            sliceFastener: ViewFastener<this, SliceView>): void {
     this.requireUpdate(View.NeedsLayout);
   }
 
-  protected initSliceLabel(labelView: GraphicsView, sliceView: SliceView): void {
-    this.requireUpdate(View.NeedsLayout);
+  protected initSliceLabel(labelView: GraphicsView, sliceFastener: ViewFastener<this, SliceView>): void {
+    // hook
   }
 
-  protected initSliceLegend(legendView: GraphicsView, sliceView: SliceView): void {
-    this.requireUpdate(View.NeedsLayout);
+  protected onSetSliceLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null,
+                            sliceFastener: ViewFastener<this, SliceView>): void {
+    if (newLabelView !== null) {
+      this.initSliceLabel(newLabelView, sliceFastener);
+    }
+  }
+
+  protected initSliceLegend(legendView: GraphicsView, sliceFastener: ViewFastener<this, SliceView>): void {
+    // hook
+  }
+
+  protected onSetSliceLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null,
+                             sliceFastener: ViewFastener<this, SliceView>): void {
+    if (newLegendView !== null) {
+      this.initSliceLegend(newLegendView, sliceFastener);
+    }
   }
 
   /** @hidden */
@@ -363,18 +402,14 @@ export class PieView extends LayerView {
     didSetView(newSliceView: SliceView | null, oldSliceView: SliceView | null, targetView: View | null): void {
       this.owner.didSetSlice(newSliceView, oldSliceView, targetView, this);
     },
-    sliceViewDidSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
-      this.owner.onSetSliceValue(newValue, sliceView);
+    sliceViewDidSetValue(newValue: number, oldValue: number): void {
+      this.owner.onSetSliceValue(newValue, oldValue, this);
     },
-    sliceViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceView: SliceView): void {
-      if (newLabelView !== null) {
-        this.owner.initSliceLabel(newLabelView, sliceView);
-      }
+    sliceViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.onSetSliceLabel(newLabelView, oldLabelView, this);
     },
-    sliceViewDidSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null, sliceView: SliceView): void {
-      if (newLegendView !== null) {
-        this.owner.initSliceLegend(newLegendView, sliceView);
-      }
+    sliceViewDidSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
+      this.owner.onSetSliceLegend(newLegendView, oldLegendView, this);
     },
   });
 

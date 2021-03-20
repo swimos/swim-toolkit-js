@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Swim Line Graph</title>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
+  </head>
+  <body style="position: fixed; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; margin: 0; overflow: hidden;">
+    <div id="ui" style="display: flex; width: 90%; height: 90%; touch-action: none;">
+    </div>
+    <script src="../../swim-system-js/swim-core-js/@swim/core/dist/main/swim-core.js"></script>
+    <script src="../../swim-system-js/swim-mesh-js/@swim/mesh/dist/main/swim-mesh.js"></script>
+    <script src="../swim-ui-js/@swim/ui/dist/main/swim-ui.js"></script>
+    <script src="../swim-vis-js/@swim/vis/dist/main/swim-vis.js"></script>
+    <script>
+
+const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
+
+const canvasView = swim.CanvasView.create()
+    .wheelEventsEnabled(true)
+    .mouseEventsEnabled(true)
+    .pointerEventsEnabled(true)
+    .touchEventsEnabled(true)
+    .touchAction("manipulation");
+
+const graphView = canvasView.append(swim.GraphView)
+    //.xDomainBounds([false, false])
+    //.yDomainBounds([false, false])
+    .xDomainPadding([Math.PI, Math.PI])
+    .yDomainPadding([1, 1])
+    .xRangePadding([2, 2])
+    .yRangePadding([2, 2])
+    .fitAspectRatio(-1 / 4)
+    .preserveAspectRatio(true)
+    .domainTracking(true)
+    .xGestures(true)
+    .yGestures(true);
+
+const plotView = graphView.append(swim.LinePlotView)
+    .hitMode("plot")
+    .stroke("#4a4a4a")
+    .strokeWidth(4)
+    .on("pointerenter", function (event) {
+      plotView.stroke("#1db0ef", {dt: 250});
+    })
+    .on("pointerleave", function (event) {
+      plotView.stroke("#4a4a4a", {dt: 250});
+    });
+
+const cycles = 4;
+const samplesPerCycle = 100;
+let i = 0;
+let n = cycles * samplesPerCycle
+while (i <= n) {
+  const x = i * 2 * Math.PI / samplesPerCycle;
+  const y = Math.sin(x) * x;
+  plotView.insertDataPoint({x: x, y: y});
+  i += 1;
+}
+
+uiView.append(canvasView);
+
+    </script>
+  </body>
+</html>

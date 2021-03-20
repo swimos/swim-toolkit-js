@@ -22,3 +22,6 @@ export {GraphViewController} from "./GraphViewController";
 
 export {GraphTrait} from "./GraphTrait";
 export {GraphTraitObserver} from "./GraphTraitObserver";
+
+export {GraphComponent} from "./GraphComponent";
+export {GraphComponentObserver} from "./GraphComponentObserver";

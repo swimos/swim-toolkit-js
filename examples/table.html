@@ -18,21 +18,6 @@
     <script src="../swim-ux-js/@swim/ux/dist/main/swim-ux.js"></script>
     <script>
 
-if (navigator.standalone) {
-  document.documentElement.style.width = "100vw";
-  document.documentElement.style.height = "100vh";
-} else {
-  document.documentElement.style.width = "100%";
-  document.documentElement.style.height = "100%";
-}
-if (navigator.standalone) {
-  document.body.style.width = "100vw";
-  document.body.style.height = "100vh";
-} else {
-  document.body.style.width = "100%";
-  document.body.style.height = "100%";
-}
-
 const bodyView = swim.HtmlView.fromNode(document.body);
 
 const containerView = swim.HtmlView.create("div")

@@ -38,7 +38,7 @@ export class DeckCard extends HtmlView {
     }
   }
 
-  @ViewProperty({type: Object, state: null, inherit: true})
+  @ViewProperty({type: Object, inherit: true, state: null})
   declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
   @ViewProperty({type: String})
