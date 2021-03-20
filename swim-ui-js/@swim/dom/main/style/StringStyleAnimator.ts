@@ -16,7 +16,7 @@ import type {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
-export abstract class StringStyleAnimator<V extends StyleContext> extends StyleAnimator<V, string> {
+export abstract class StringStyleAnimator<V extends StyleContext> extends StyleAnimator<V, string | undefined> {
   parse(value: string): string | undefined {
     return value;
   }

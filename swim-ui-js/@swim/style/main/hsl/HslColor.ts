@@ -233,7 +233,7 @@ export class HslColor extends Color {
   }
 
   static fromAny(value: AnyHslColor): HslColor {
-    if (value instanceof HslColor) {
+    if (value === void 0 || value === null || value instanceof HslColor) {
       return value;
     } else if (typeof value === "string") {
       return HslColor.parse(value);

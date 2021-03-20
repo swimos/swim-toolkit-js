@@ -89,7 +89,7 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
 
   protected applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
     if (timing === void 0 || timing === true) {
-      timing = theme.dot(Look.timing, Mood.ambient);
+      timing = theme.get(Look.timing, Mood.ambient);
       if (timing === void 0) {
         timing = false;
       }

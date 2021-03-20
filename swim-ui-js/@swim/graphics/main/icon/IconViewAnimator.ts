@@ -23,12 +23,12 @@ export abstract class IconViewAnimator<V extends IconView> extends ViewAnimator<
   fromAny(value: Graphics | null | undefined): Graphics | null | undefined {
     if (value instanceof Icon) {
       const iconColor = this.owner.iconColor.state;
-      if (iconColor !== void 0 && value instanceof FilledIcon) {
+      if (iconColor !== null && value instanceof FilledIcon) {
         value = value.withFillColor(iconColor);
       } else {
         const theme = this.owner.theme.state;
         const mood = this.owner.mood.state;
-        if (theme !== void 0 && mood !== void 0) {
+        if (theme !== null && mood !== null) {
           value = value.withTheme(theme, mood);
         }
       }

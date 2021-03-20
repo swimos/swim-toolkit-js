@@ -71,6 +71,20 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     return entry !== void 0 ? entry[1] : void 0;
   }
 
+  getOr<E>(key: M, elseValue: E): number | E;
+  getOr<E>(name: string, elseValue: E): number | E;
+  getOr<E>(index: number, elseValue: E): number | E;
+  getOr<E>(key: M | string | number | undefined, elseValue: E): number | E {
+    if (typeof key === "object" && key !== null || typeof key === "function") {
+      key = key.name;
+    }
+    if (typeof key === "string") {
+      key = this.index[key];
+    }
+    const entry = typeof key === "number" ? this.array[key] : void 0;
+    return entry !== void 0 ? entry[1] : elseValue;
+  }
+
   updated(key: M, value: number | undefined): MoodVector<M> {
     const oldArray = this.array;
     const oldIndex = this.index;
@@ -256,13 +270,13 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
     return new MoodVector(array, index);
   }
 
-  static fromAny<M extends Mood>(vector: AnyMoodVector<M>): MoodVector<M> {
-    if (vector instanceof MoodVector) {
-      return vector;
-    } else if (Array.isArray(vector)) {
-      return MoodVector.fromArray(vector);
+  static fromAny<M extends Mood>(value: AnyMoodVector<M>): MoodVector<M> {
+    if (value === void 0 || value === null || value instanceof MoodVector) {
+      return value;
+    } else if (Array.isArray(value)) {
+      return MoodVector.fromArray(value);
     }
-    throw new TypeError("" + vector);
+    throw new TypeError("" + value);
   }
 
   /** @hidden */

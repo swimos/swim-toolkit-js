@@ -104,7 +104,7 @@ export class EsriMapView extends EsriView {
   moveTo(mapCenter: AnyGeoPoint | undefined, mapZoom: number | undefined,
          timing?: AnyTiming | boolean): void {
     if (timing === void 0 || timing === true) {
-      timing = this.getLookOr(Look.timing, false, Mood.ambient);
+      timing = this.getLookOr(Look.timing, Mood.ambient, false);
     } else {
       timing = Timing.fromAny(timing);
     }

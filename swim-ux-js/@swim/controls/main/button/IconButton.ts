@@ -83,23 +83,23 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
 
   declare readonly viewObservers: ReadonlyArray<HtmlViewObserver & ButtonObserver>;
 
-  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
-  declare xAlign: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout})
+  declare xAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
-  declare yAlign: ViewAnimator<this, number | undefined>;
-
-  @ViewAnimator({type: Length, state: Length.px(24), updateFlags: View.NeedsLayout})
-  declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout})
+  declare yAlign: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Length, state: Length.px(24), updateFlags: View.NeedsLayout})
-  declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare iconWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Color, updateFlags: View.NeedsLayout})
-  declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Length, state: Length.px(24), updateFlags: View.NeedsLayout})
+  declare iconHeight: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsLayout})
-  declare graphics: ViewAnimator<this, Graphics | undefined>;
+  @ViewAnimator({type: Color, state: null, updateFlags: View.NeedsLayout})
+  declare iconColor: ViewAnimator<this, Color | null, AnyColor | null>;
+
+  @ViewAnimator({extends: IconViewAnimator, state: null, type: Object, updateFlags: View.NeedsLayout})
+  declare graphics: ViewAnimator<this, Graphics | null>;
 
   /** @hidden */
   static IconFastener = ViewFastener.define<IconButton, SvgIconView, never, ViewObserverType<SvgIconView> & {iconIndex: number}>({
@@ -213,7 +213,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
-      let backgroundColor = this.getLook(Look.backgroundColor);
+      let backgroundColor = this.getLookOr(Look.backgroundColor, null);
       if (!this.gesture.isHovering() && backgroundColor instanceof Color) {
         backgroundColor = backgroundColor.alpha(0);
       }
@@ -231,7 +231,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const iconColor = this.iconColor.takeUpdatedValue();
-    if (iconColor !== void 0) {
+    if (iconColor !== void 0 && iconColor !== null) {
       const oldGraphics = this.graphics.value;
       if (oldGraphics instanceof FilledIcon) {
         const newGraphics = oldGraphics.withFillColor(iconColor);
@@ -248,9 +248,9 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   protected layoutIcon(): void {
     const viewFasteners = this.viewFasteners;
     if (viewFasteners !== null) {
-      let viewWidth: Length | string | number | undefined = this.width.value;
+      let viewWidth: Length | number | null = this.width.value;
       viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
-      let viewHeight: Length | string | number | undefined = this.height.value;
+      let viewHeight: Length | number | null = this.height.value;
       viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
       for (const fastenerName in viewFasteners) {
         const viewFastener = viewFasteners[fastenerName];
@@ -295,7 +295,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = this.getLook(Look.timing);
       if (this.backgroundColor.isAuto()) {
-        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), timing);
+        this.backgroundColor.setAutoState(this.getLookOr(Look.backgroundColor, null), timing);
       }
     }
   }
@@ -304,8 +304,8 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
     const timing = this.getLook(Look.timing);
     if (this.backgroundColor.isAuto()) {
-      let backgroundColor = this.getLook(Look.backgroundColor);
-      if (backgroundColor instanceof Color) {
+      let backgroundColor = this.getLookOr(Look.backgroundColor, null);
+      if (backgroundColor !== null) {
         backgroundColor = backgroundColor.alpha(0);
       }
       this.backgroundColor.setAutoState(backgroundColor, timing);

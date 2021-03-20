@@ -16,7 +16,7 @@ import {AttributeAnimator} from "./AttributeAnimator";
 import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export abstract class NumberAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, number, number | string> {
+export abstract class NumberAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, number | undefined, string> {
   parse(value: string): number | undefined {
     const number = +value;
     return isFinite(number) ? number : void 0;

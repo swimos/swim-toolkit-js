@@ -19,7 +19,6 @@ import {GraphicsViewInit, GraphicsView, GraphicsViewController} from "@swim/grap
 import type {AnyDataPointView} from "../data/DataPointView";
 import type {ScaledXYView} from "../scaled/ScaledXYView";
 import type {PlotViewObserver} from "./PlotViewObserver";
-import type {PlotViewController} from "./PlotViewController";
 import {ScatterPlotView} from "../"; // forward import
 import {SeriesPlotView} from "../"; // forward import
 import {BubblePlotViewInit, BubblePlotView} from "../"; // forward import
@@ -31,7 +30,6 @@ export type PlotType = "bubble" | "line" | "area";
 export type AnyPlotView<X, Y> = PlotView<X, Y> | PlotViewInit<X, Y> | PlotType;
 
 export interface PlotViewInit<X, Y> extends GraphicsViewInit {
-  viewController?: PlotViewController<X, Y>;
   plotType?: PlotType;
 
   xScale?: ContinuousScale<X, number>;
@@ -44,7 +42,7 @@ export interface PlotViewInit<X, Y> extends GraphicsViewInit {
 }
 
 export interface PlotView<X, Y> extends GraphicsView, ScaledXYView<X, Y> {
-  readonly viewController: GraphicsViewController<PlotView<X, Y>> & PlotViewController<X, Y> | null;
+  readonly viewController: GraphicsViewController<PlotView<X, Y>> & PlotViewObserver<X, Y> | null;
 
   readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
 

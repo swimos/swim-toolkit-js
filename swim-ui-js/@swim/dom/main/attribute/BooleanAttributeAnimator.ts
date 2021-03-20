@@ -16,7 +16,7 @@ import {AttributeAnimator} from "./AttributeAnimator";
 import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export abstract class BooleanAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, boolean, boolean | string> {
+export abstract class BooleanAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, boolean | undefined, string> {
   parse(value: string): boolean | undefined {
     return !!value;
   }

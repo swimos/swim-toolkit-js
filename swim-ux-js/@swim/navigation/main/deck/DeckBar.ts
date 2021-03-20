@@ -49,8 +49,8 @@ export class DeckBar extends HtmlView {
     this.modifyTheme(Feel.default, [Feel.translucent, 1], [Feel.primary, 1]);
   }
 
-  @ViewProperty({type: DeckRail})
-  declare rail: ViewProperty<this, DeckRail | undefined, AnyDeckRail | undefined>;
+  @ViewProperty({type: DeckRail, state: null})
+  declare rail: ViewProperty<this, DeckRail | null, AnyDeckRail | null>;
 
   @ViewAnimator({type: Number, inherit: true})
   declare deckPhase: ViewAnimator<this, number | undefined>;
@@ -59,15 +59,15 @@ export class DeckBar extends HtmlView {
   declare barHeight: ViewProperty<this, Length, AnyLength>;
 
   @ViewProperty({type: Length, state: Length.zero(), updateFlags: View.NeedsResize})
-  declare itemSpacing: ViewProperty<this, Length | undefined, AnyLength | undefined>;
+  declare itemSpacing: ViewProperty<this, Length | null, AnyLength | null>;
 
-  @ViewProperty({type: Object, inherit: true, updateFlags: View.NeedsResize})
-  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | undefined>;
+  @ViewProperty({type: Object, inherit: true, state: null, updateFlags: View.NeedsResize})
+  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(theme.dot(Look.backgroundColor, mood), timing);
+      this.backgroundColor.setAutoState(theme.getOr(Look.backgroundColor, mood, null), timing);
     }
   }
 
@@ -89,30 +89,30 @@ export class DeckBar extends HtmlView {
 
   protected resizeBar(viewContext: ViewContextType<this>): void {
     const oldRail = this.rail.ownState;
-    if (oldRail !== void 0) {
+    if (oldRail !== void 0 && oldRail !== null) {
       const superRail = this.rail.superState;
-      let width: Length | string | number | undefined = void 0;
-      if (superRail !== void 0 && superRail.width !== null) {
+      let width: Length | string | number | null = null;
+      if (superRail !== void 0 && superRail !== null && superRail.width !== null) {
         width = superRail.width.pxValue();
       }
-      if (width === void 0) {
+      if (width === null) {
         const parentView = this.parentView;
         if (parentView instanceof HtmlView) {
           width = parentView.width.state;
           width = width instanceof Length ? width.pxValue() : parentView.node.offsetWidth;
         }
       }
-      if (width === void 0) {
+      if (width === null) {
         width = this.width.state;
         width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
       }
       let edgeInsets = this.edgeInsets.superState;
-      if (edgeInsets === void 0 && this.edgeInsets.isAuto()) {
+      if ((edgeInsets === void 0 || edgeInsets === null) && this.edgeInsets.isAuto()) {
         edgeInsets = viewContext.viewport.safeArea;
       }
-      const insetTop = edgeInsets !== void 0 ? edgeInsets.insetTop : 0;
-      const insetLeft = edgeInsets !== void 0 ? edgeInsets.insetLeft : 0;
-      const insetRight = edgeInsets !== void 0 ? edgeInsets.insetRight : 0;
+      const insetTop = edgeInsets !== void 0 && edgeInsets !== null ? edgeInsets.insetTop : 0;
+      const insetLeft = edgeInsets !== void 0 && edgeInsets !== null ? edgeInsets.insetLeft : 0;
+      const insetRight = edgeInsets !== void 0 && edgeInsets !== null ? edgeInsets.insetRight : 0;
       const spacing = this.itemSpacing.getStateOr(Length.zero()).pxValue(width);
       const newRail = oldRail.resized(width, insetLeft, insetRight, spacing);
       this.rail.setState(newRail);
@@ -127,10 +127,10 @@ export class DeckBar extends HtmlView {
 
   protected layoutBar(viewContext: ViewContextType<this>): void {
     let edgeInsets = this.edgeInsets.superState;
-    if (edgeInsets === void 0 && this.edgeInsets.isAuto()) {
+    if ((edgeInsets === void 0 || edgeInsets === null) && this.edgeInsets.isAuto()) {
       edgeInsets = viewContext.viewport.safeArea;
     }
-    const insetTop = edgeInsets !== void 0 ? edgeInsets.insetTop : 0;
+    const insetTop = edgeInsets !== void 0 && edgeInsets !== null ? edgeInsets.insetTop : 0;
     this.height.setAutoState(this.barHeight.state.plus(insetTop));
   }
 
@@ -150,40 +150,40 @@ export class DeckBar extends HtmlView {
                                                 viewContext: ViewContextType<this>) => void): void {
     const rail = this.rail.state;
     let edgeInsets = this.edgeInsets.superState;
-    if (edgeInsets === void 0 && this.edgeInsets.isAuto()) {
+    if ((edgeInsets === void 0 || edgeInsets === null) && this.edgeInsets.isAuto()) {
       edgeInsets = viewContext.viewport.safeArea;
     }
-    let height: Length | string | number | undefined = this.height.state;
+    let height: Length | number | null = this.height.state;
     height = height instanceof Length ? height.pxValue() : this.node.offsetHeight;
-    const slotTop = edgeInsets !== void 0 ? edgeInsets.insetTop : 0;
+    const slotTop = edgeInsets !== void 0 && edgeInsets !== null ? edgeInsets.insetTop : 0;
     const slotHeight = this.barHeight.state;
     type self = this;
     function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
                              viewContext: ViewContextType<self>): void {
       if (childView instanceof DeckSlot) {
         const key = childView.key;
-        const postIndex = rail !== void 0 && key !== void 0 ? rail.lookupPost(key) : void 0;
+        const postIndex = rail !== null && key !== void 0 ? rail.lookupPost(key) : void 0;
         if (postIndex !== void 0) {
           const post = rail!.getPost(postIndex)!;
           const nextPost = rail!.getPost(postIndex + 1);
           const prevPost = rail!.getPost(postIndex - 1);
           childView.display.setAutoState("flex");
-          childView.left.setAutoState(post.left !== null ? post.left : void 0);
+          childView.left.setAutoState(post.left);
           childView.top.setAutoState(slotTop);
-          childView.width.setAutoState(post.width !== null ? post.width : void 0);
+          childView.width.setAutoState(post.width);
           childView.height.setAutoState(slotHeight);
           childView.post.setAutoState(post);
-          childView.nextPost.setAutoState(nextPost !== null ? nextPost : void 0);
-          childView.prevPost.setAutoState(prevPost !== null ? prevPost : void 0);
+          childView.nextPost.setAutoState(nextPost);
+          childView.prevPost.setAutoState(prevPost);
         } else {
           childView.display.setAutoState("none");
-          childView.left.setAutoState(void 0);
-          childView.top.setAutoState(void 0);
-          childView.width.setAutoState(void 0);
-          childView.height.setAutoState(void 0);
-          childView.post.setAutoState(void 0);
-          childView.nextPost.setAutoState(void 0);
-          childView.prevPost.setAutoState(void 0);
+          childView.left.setAutoState(null);
+          childView.top.setAutoState(null);
+          childView.width.setAutoState(null);
+          childView.height.setAutoState(null);
+          childView.post.setAutoState(null);
+          childView.nextPost.setAutoState(null);
+          childView.prevPost.setAutoState(null);
         }
       }
       displayChildView.call(this, childView, displayFlags, viewContext);

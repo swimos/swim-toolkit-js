@@ -47,6 +47,10 @@ export abstract class Animator<T> implements AnimationTrack {
     });
   }
 
+  isDefined(value: T): boolean {
+    return value !== void 0 && value !== null;
+  }
+
   /** @hidden */
   declare readonly ownValue: T;
 
@@ -164,7 +168,7 @@ export abstract class Animator<T> implements AnimationTrack {
       timing = Timing.fromAny(timing);
     }
     const oldState = this.state;
-    if (oldState === void 0) {
+    if (!this.isDefined(oldState)) {
       this.setImmediateState(newState, oldState);
     } else if (!Equals(oldState, newState)) {
       if (timing === null) {

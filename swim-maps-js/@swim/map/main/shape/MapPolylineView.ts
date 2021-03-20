@@ -183,17 +183,17 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
   @ViewProperty({type: PointR2, state: PointR2.origin()})
   declare viewCentroid: ViewProperty<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null, inherit: true})
+  declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  @ViewAnimator({type: Font, state: null, inherit: true})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewProperty({type: Number})
   declare hitWidth: ViewProperty<this, number | undefined>;
@@ -334,7 +334,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     }
     if (pointCount !== 0) {
       const stroke = this.stroke.value;
-      if (stroke !== void 0) {
+      if (stroke !== null) {
         const size = Math.min(frame.width, frame.height);
         const strokeWidth = this.strokeWidth.getValue().pxValue(size);
         context.strokeStyle = stroke.toString();
@@ -361,20 +361,14 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
           const y1 = p1.viewPoint.getValue().y;
           const gradient = context.createLinearGradient(x0, y0, x1, y1);
 
-          let color = p0.color.value;
-          if (color === void 0) {
-            color = stroke;
-          }
+          let color = p0.color.getValueOr(stroke);
           let opacity = p0.opacity.value;
           if (typeof opacity === "number") {
             color = color.alpha(opacity);
           }
           gradient.addColorStop(0, color.toString());
 
-          color = p1.color.value;
-          if (color === void 0) {
-            color = stroke;
-          }
+          color = p1.color.getValueOr(stroke);
           opacity = p1.opacity.value;
           if (typeof opacity === "number") {
             color = color.alpha(opacity);
@@ -444,7 +438,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     if (pointCount !== 0) {
       let hitWidth = this.hitWidth.getStateOr(0);
       const strokeWidth = this.strokeWidth.value;
-      if (strokeWidth !== void 0) {
+      if (strokeWidth !== null) {
         const size = Math.min(frame.width, frame.height);
         hitWidth = Math.max(hitWidth, strokeWidth.pxValue(size));
       }

@@ -110,6 +110,14 @@ export class ThemeMatrix implements Equals, Debug {
     return entry !== void 0 ? entry[1] : void 0;
   }
 
+  get<T>(look: Look<T>, mood: MoodVector): T | undefined {
+    return this.dot(look, mood);
+  }
+
+  getOr<T, E>(look: Look<T>, mood: MoodVector, elseValue: E): T | E {
+    return this.dotOr(look, mood, elseValue);
+  }
+
   plus(that: ThemeMatrix): ThemeMatrix {
     const thisColArray = this.colArray;
     const thatColArray = that.colArray;
@@ -193,6 +201,24 @@ export class ThemeMatrix implements Equals, Debug {
       return look.dot(row, col);
     }
     return void 0;
+  }
+
+  dotOr<T, E>(look: Look<T>, col: MoodVector, elseValue: E): T | E;
+  dotOr(look: string | number, col: MoodVector, elseValue: unknown): unknown;
+  dotOr(look: Look<unknown> | string | number | undefined, col: MoodVector, elseValue: unknown): unknown {
+    if (typeof look === "object" && look !== null || typeof look === "function") {
+      look = look.name;
+    }
+    if (typeof look === "string") {
+      look = this.rowIndex[look];
+    }
+    const entry = typeof look === "number" ? this.rowArray[look] : void 0;
+    if (entry !== void 0) {
+      look = entry[0];
+      const row = entry[1];
+      return look.dotOr(row, col, elseValue);
+    }
+    return elseValue;
   }
 
   timesCol(col: MoodVector): FeelVector {

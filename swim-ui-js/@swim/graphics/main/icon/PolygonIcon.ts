@@ -113,11 +113,7 @@ export class PolygonIcon extends FilledIcon implements Interpolate<PolygonIcon>,
       if (moodModifier !== null) {
         mood = moodModifier.timesCol(mood, true);
       }
-      let fillColor: Color | null | undefined = theme.dot(fillLook, mood);
-      if (fillColor === void 0) {
-        fillColor = null;
-      }
-      return this.withFillColor(fillColor);
+      return this.withFillColor(theme.getOr(fillLook, mood, null));
     } else {
       return this;
     }

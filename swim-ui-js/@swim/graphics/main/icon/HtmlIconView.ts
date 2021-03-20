@@ -52,23 +52,23 @@ export class HtmlIconView extends HtmlView implements IconView {
     return SvgIconView.create();
   }
 
-  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
-  declare xAlign: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout})
+  declare xAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
-  declare yAlign: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout})
+  declare yAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout})
-  declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout})
+  declare iconWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout})
-  declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout})
+  declare iconHeight: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Color, updateFlags: View.NeedsLayout})
-  declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, updateFlags: View.NeedsLayout})
+  declare iconColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsLayout})
-  declare graphics: ViewAnimator<this, Graphics | undefined>;
+  @ViewAnimator({extends: IconViewAnimator, type: Object, state: null, updateFlags: View.NeedsLayout})
+  declare graphics: ViewAnimator<this, Graphics | null>;
 
   get svgView(): SvgIconView | null {
     const svgView = this.getChildView("svg");
@@ -106,7 +106,7 @@ export class HtmlIconView extends HtmlView implements IconView {
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const iconColor = this.iconColor.takeUpdatedValue();
-    if (iconColor !== void 0) {
+    if (iconColor !== void 0 && iconColor !== null) {
       const oldGraphics = this.graphics.value;
       if (oldGraphics instanceof FilledIcon) {
         const newGraphics = oldGraphics.withFillColor(iconColor);
@@ -123,9 +123,9 @@ export class HtmlIconView extends HtmlView implements IconView {
   protected layoutIcon(): void {
     const svgView = this.svgView;
     if (svgView !== null && (svgView.width.isAuto() || svgView.height.isAuto() || svgView.viewBox.isAuto())) {
-      let viewWidth: Length | string | number | undefined = this.width.value;
+      let viewWidth: Length | number | null = this.width.value;
       viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
-      let viewHeight: Length | string | number | undefined = this.height.value;
+      let viewHeight: Length | number | null = this.height.value;
       viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
       svgView.width.setAutoState(viewWidth);
       svgView.height.setAutoState(viewHeight);

@@ -17,24 +17,20 @@ import type {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
-export abstract class LengthStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Length, AnyLength> {
-  parse(value: string): Length | undefined {
-    try {
-      return Length.parse(value);
-    } catch (swallow) {
-      return void 0;
-    }
+export abstract class LengthStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Length | null, AnyLength | null> {
+  parse(value: string): Length | null {
+    return Length.parse(value);
   }
 
-  fromCssValue(value: CSSStyleValue): Length | undefined {
+  fromCssValue(value: CSSStyleValue): Length | null {
     return Length.fromCssValue(value);
   }
 
-  fromAny(value: AnyLength): Length | undefined {
+  fromAny(value: AnyLength): Length | null {
     try {
       return Length.fromAny(value);
     } catch (swallow) {
-      return void 0;
+      return null;
     }
   }
 }

@@ -160,7 +160,7 @@ export const ViewPropertyConstraint = function <V extends View, T, U>(
 } as unknown as {
   new<V extends View, T, U = never>(owner: V, propertyName: string | undefined): ViewPropertyConstraint<V, T, U>;
 
-  <V extends View, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & ViewPropertyConstraintDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends number | null | undefined = number | null | undefined, U extends number | string | null | undefined = number | string | null | undefined>(descriptor: {type: typeof Number} & ViewPropertyConstraintDescriptor<V, T, U>): PropertyDecorator;
   <V extends View, T, U = never>(descriptor: ViewPropertyConstraintDescriptorFromAny<V, T, U>): PropertyDecorator;
   <V extends View, T, U = never, I = {}>(descriptor: ViewPropertyConstraintDescriptorExtends<V, T, U, I>): PropertyDecorator;
   <V extends View, T, U = never>(descriptor: ViewPropertyConstraintDescriptor<V, T, U>): PropertyDecorator;

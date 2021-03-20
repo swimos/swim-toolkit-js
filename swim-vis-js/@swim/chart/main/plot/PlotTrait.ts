@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Trait, TraitFastener, GenericTrait} from "@swim/model";
+import {TraitModelType, Trait, TraitFastener, GenericTrait} from "@swim/model";
 import {DataSetTrait} from "../data/DataSetTrait";
 import type {PlotTraitObserver} from "./PlotTraitObserver";
 
 export class PlotTrait<X, Y> extends GenericTrait {
   declare readonly traitObservers: ReadonlyArray<PlotTraitObserver<X, Y>>;
-
-  declare readonly value: number;
 
   protected initDataSet(dataSetTrait: DataSetTrait<X, Y>): void {
     // hook
@@ -83,4 +81,44 @@ export class PlotTrait<X, Y> extends GenericTrait {
     },
   })
   declare dataSet: TraitFastener<this, DataSetTrait<X, Y>>;
+
+  protected detectDataSetTrait(trait: Trait): DataSetTrait<X, Y> | null {
+    return trait instanceof DataSetTrait ? trait : null;
+  }
+
+  protected detectTraits(model: TraitModelType<this>): void {
+    if (this.dataSet.trait === null) {
+      const traits = model.traits;
+      for (let i = 0, n = traits.length; i < n; i += 1) {
+        const trait = traits[i]!;
+        const dataSetTrait = this.detectDataSetTrait(trait);
+        if (dataSetTrait !== null) {
+          this.dataSet.setTrait(dataSetTrait);
+        }
+      }
+    }
+  }
+
+  protected didSetModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null): void {
+    if (newModel !== null) {
+      this.detectTraits(newModel);
+    }
+    super.didSetModel(newModel, oldModel);
+  }
+
+  protected onStartConsuming(): void {
+    super.onStartConsuming();
+    const dataSetTrait = this.dataSet.trait;
+    if (dataSetTrait !== null) {
+      dataSetTrait.addTraitConsumer(this);
+    }
+  }
+
+  protected onStopConsuming(): void {
+    super.onStopConsuming();
+    const dataSetTrait = this.dataSet.trait;
+    if (dataSetTrait !== null) {
+      dataSetTrait.removeTraitConsumer(this);
+    }
+  }
 }

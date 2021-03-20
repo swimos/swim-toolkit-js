@@ -274,7 +274,7 @@ export class TreeSeed implements Equals, Equivalent, Debug {
   }
 
   static fromAny(value: AnyTreeSeed): TreeSeed {
-    if (value instanceof TreeSeed) {
+    if (value === void 0 || value === null || value instanceof TreeSeed) {
       return value;
     } else if (typeof value === "object" && value !== null) {
       return TreeSeed.fromInit(value);

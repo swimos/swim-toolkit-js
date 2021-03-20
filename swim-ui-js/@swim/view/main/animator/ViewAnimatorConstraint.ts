@@ -162,8 +162,8 @@ export const ViewAnimatorConstraint = function <V extends View, T, U>(
 } as unknown as {
   new<V extends View, T, U = never>(owner: V, animatorName: string): ViewAnimatorConstraint<V, T, U>;
 
-  <V extends View, T extends Length | undefined = Length | undefined, U extends AnyLength | undefined = AnyLength | undefined>(descriptor: {type: typeof Length} & ViewAnimatorConstraintDescriptor<V, T, U>): PropertyDecorator;
-  <V extends View, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & ViewAnimatorConstraintDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends Length | null | undefined = Length | null | undefined, U extends AnyLength | null | undefined = AnyLength | null | undefined>(descriptor: {type: typeof Length} & ViewAnimatorConstraintDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends number | null | undefined = number | null | undefined, U extends number | string | null | undefined = number | string | null | undefined>(descriptor: {type: typeof Number} & ViewAnimatorConstraintDescriptor<V, T, U>): PropertyDecorator;
   <V extends View, T, U = never>(descriptor: ViewAnimatorConstraintDescriptorFromAny<V, T, U>): PropertyDecorator;
   <V extends View, T, U = never, I = {}>(descriptor: ViewAnimatorConstraintDescriptorExtends<V, T, U, I>): PropertyDecorator;
   <V extends View, T, U = never>(descriptor: ViewAnimatorConstraintDescriptor<V, T, U>): PropertyDecorator;
@@ -221,7 +221,7 @@ ViewAnimatorConstraint.prototype.isConstant = function (this: ViewAnimatorConstr
 ViewAnimatorConstraint.prototype.onSetValue = function <T>(this: ViewAnimatorConstraint<View, T>, newValue: T, oldValue: T): void {
   ViewAnimator.prototype.onSetValue.call(this, newValue, oldValue);
   if (this.isConstraining()) {
-    this.owner.setConstraintVariable(this, newValue !== void 0 ? this.toNumber(newValue) : 0);
+    this.owner.setConstraintVariable(this, this.toNumber(newValue));
   }
 };
 
@@ -397,10 +397,7 @@ ViewAnimatorConstraint.prototype.didStopConstraining = function (this: ViewAnima
 };
 
 ViewAnimatorConstraint.prototype.updateConstraintVariable = function (this: ViewAnimatorConstraint<View, unknown>): void {
-  const value = this.value;
-  if (value !== void 0) {
-    this.owner.setConstraintVariable(this, this.toNumber(value));
-  }
+  this.owner.setConstraintVariable(this, this.toNumber(this.value));
 };
 
 ViewAnimatorConstraint.prototype.onMount = function <T>(this: ViewAnimatorConstraint<View, T>): void {

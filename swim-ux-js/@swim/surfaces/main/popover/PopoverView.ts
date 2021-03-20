@@ -282,7 +282,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     this.setDisplayState(PopoverView.ShownState);
 
     this.pointerEvents.setAutoState("auto");
-    this.marginTop.setAutoState(void 0);
+    this.marginTop.setAutoState(null);
     this.opacity.setAutoState(void 0);
 
     const viewObservers = this.viewObservers;
@@ -337,7 +337,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     this.setDisplayState(PopoverView.HiddenState);
 
     this.visibility.setAutoState("hidden");
-    this.marginTop.setAutoState(void 0);
+    this.marginTop.setAutoState(null);
     this.opacity.setAutoState(void 0);
 
     const viewObservers = this.viewObservers;
@@ -455,7 +455,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       this.opacity.setAutoState(void 0);
       this.marginTop.setAutoState((1 - displayPhase) * this.node.clientHeight);
     } else {
-      this.marginTop.setAutoState(void 0);
+      this.marginTop.setAutoState(null);
       this.opacity.setAutoState(displayPhase);
     }
   }
@@ -575,20 +575,20 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
 
     let left = node.offsetLeft;
     let top = node.offsetTop;
-    let right: number | undefined;
-    let bottom: number | undefined;
+    let right: number | null = null;
+    let bottom: number | null = null;
 
-    let oldWidth: Length | string | number | undefined = this.width.state;
-    oldWidth = oldWidth instanceof Length ? oldWidth.pxValue() : void 0;
-    let oldHeight: Length | string | number | undefined = this.height.state;
-    oldHeight = oldHeight instanceof Length ? oldHeight.pxValue() : void 0;
+    let oldWidth: Length | number | null = this.width.state;
+    oldWidth = oldWidth instanceof Length ? oldWidth.pxValue() : null;
+    let oldHeight: Length | number | null = this.height.state;
+    oldHeight = oldHeight instanceof Length ? oldHeight.pxValue() : null;
     let width = oldWidth;
     let height = oldHeight;
 
-    let oldMaxWidth: Length | string | number | undefined = this.maxWidth.state;
-    oldMaxWidth = oldMaxWidth instanceof Length ? oldMaxWidth.pxValue() : void 0;
-    let oldMaxHeight: Length | string | number | undefined = this.maxHeight.state;
-    oldMaxHeight = oldMaxHeight instanceof Length ? oldMaxHeight.pxValue() : void 0;
+    let oldMaxWidth: Length | number | null = this.maxWidth.state;
+    oldMaxWidth = oldMaxWidth instanceof Length ? oldMaxWidth.pxValue() : null;
+    let oldMaxHeight: Length | number | null = this.maxHeight.state;
+    oldMaxHeight = oldMaxHeight instanceof Length ? oldMaxHeight.pxValue() : null;
     let maxWidth = oldMaxWidth;
     let maxHeight = oldMaxHeight;
 
@@ -597,16 +597,16 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       top = Math.round(placementTop);
       right = Math.round((placementFrame !== null ? placementFrame.width : window.innerWidth) - placementRight);
       width = Math.round(Math.max(0, placementRight - placementLeft));
-      height = void 0;
-      maxWidth = void 0;
+      height = null;
+      maxWidth = null;
       maxHeight = Math.round(Math.max(0, placementBottom - placementTop));
     } else if (placement === "below") {
       left = Math.round(placementLeft);
       top = Math.round(placementBottom - popoverHeight);
       right = Math.round(placementRight - (placementFrame !== null ? placementFrame.width : window.innerWidth));
       width = Math.round(Math.max(0, placementRight - placementLeft));
-      height = void 0;
-      maxWidth = void 0;
+      height = null;
+      maxWidth = null;
       maxHeight = Math.round(Math.max(0, placementBottom - placementTop));
     } else if (placement === "over") {
       left = Math.round(placementLeft);
@@ -615,8 +615,8 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       bottom = Math.round(placementBottom - (placementFrame !== null ? placementFrame.height : window.innerHeight));
       width = Math.round(Math.max(0, placementRight - placementLeft));
       height = Math.round(Math.max(0, placementBottom - placementTop));
-      maxWidth = void 0;
-      maxHeight = void 0;
+      maxWidth = null;
+      maxHeight = null;
     } else if (placement === "top" && !dropdown) {
       if (sourceX - popoverWidth / 2 <= placementLeft) {
         left = Math.round(placementLeft);
@@ -665,27 +665,27 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       left = Math.max(placementLeft, sourceLeft);
       top = Math.round(Math.max(placementTop, sourceTop - (popoverHeight + placementGap)));
       width = Math.round(Math.max(0, Math.min(sourceWidth, placementRight - sourceLeft)));
-      height = void 0;
+      height = null;
       maxWidth = Math.round(Math.max(0, placementRight - placementLeft));
       maxHeight = Math.round(Math.max(0, sourceBottom - placementTop));
     } else if (placement === "bottom" && dropdown) {
       left = Math.max(placementLeft, sourceLeft);
       top = Math.round(Math.max(placementTop, sourceBottom + placementGap));
       width = Math.round(Math.max(0, Math.min(sourceWidth, placementRight - sourceLeft)));
-      height = void 0;
+      height = null;
       maxWidth = Math.round(Math.max(0, placementRight - placementLeft));
       maxHeight = Math.round(Math.max(0, placementBottom - sourceTop));
     } else if (placement === "left" && dropdown) {
       left = Math.round(Math.max(placementLeft, sourceLeft - (popoverWidth + placementGap)));
       top = Math.max(placementTop, sourceTop);
-      width = void 0;
+      width = null;
       height = Math.round(Math.max(0, Math.min(sourceHeight, placementBottom - sourceTop)));
       maxWidth = Math.round(Math.max(0, sourceRight - placementLeft));
       maxHeight = Math.round(Math.max(0, placementBottom - placementTop));
     } else if (placement === "right" && dropdown) {
       left = Math.round(Math.max(placementLeft, sourceRight + placementGap));
       top = Math.max(placementTop, sourceTop);
-      width = void 0;
+      width = null;
       height = Math.round(Math.max(0, Math.min(sourceHeight, placementBottom - sourceTop)));
       maxWidth = Math.round(Math.max(0, placementRight - sourceLeft));
       maxHeight = Math.round(Math.max(0, placementBottom - placementTop));
@@ -779,7 +779,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     const offsetBottom = offsetTop + node.clientHeight;
 
     let backgroundColor = this.backgroundColor.value;
-    if (backgroundColor === void 0) {
+    if (backgroundColor === null) {
       backgroundColor = Color.transparent();
     }
     const borderRadius = this.borderRadius();
@@ -793,22 +793,22 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     const arrowYMin = offsetTop + radius + arrowWidth / 2;
     const arrowYMax = offsetBottom - radius - arrowWidth / 2;
 
-    arrow.top.setAutoState(void 0);
-    arrow.right.setAutoState(void 0);
-    arrow.bottom.setAutoState(void 0);
-    arrow.left.setAutoState(void 0);
-    arrow.borderLeftWidth.setAutoState(void 0);
+    arrow.top.setAutoState(null);
+    arrow.right.setAutoState(null);
+    arrow.bottom.setAutoState(null);
+    arrow.left.setAutoState(null);
+    arrow.borderLeftWidth.setAutoState(null);
     arrow.borderLeftStyle.setAutoState(void 0);
-    arrow.borderLeftColor.setAutoState(void 0);
-    arrow.borderRightWidth.setAutoState(void 0);
+    arrow.borderLeftColor.setAutoState(null);
+    arrow.borderRightWidth.setAutoState(null);
     arrow.borderRightStyle.setAutoState(void 0);
-    arrow.borderRightColor.setAutoState(void 0);
-    arrow.borderTopWidth.setAutoState(void 0);
+    arrow.borderRightColor.setAutoState(null);
+    arrow.borderTopWidth.setAutoState(null);
     arrow.borderTopStyle.setAutoState(void 0);
-    arrow.borderTopColor.setAutoState(void 0);
-    arrow.borderBottomWidth.setAutoState(void 0);
+    arrow.borderTopColor.setAutoState(null);
+    arrow.borderBottomWidth.setAutoState(null);
     arrow.borderBottomStyle.setAutoState(void 0);
-    arrow.borderBottomColor.setAutoState(void 0);
+    arrow.borderBottomColor.setAutoState(null);
     arrow.zIndex.setAutoState(100);
 
     if (placement === "none" || placement === "above" || placement === "below" || placement === "over") {

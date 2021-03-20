@@ -40,23 +40,23 @@ export class SvgIconView extends SvgView implements IconView {
     IconView.initView(this, init);
   }
 
-  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
-  declare xAlign: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout})
+  declare xAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout})
-  declare yAlign: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout})
+  declare yAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout})
-  declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout})
+  declare iconWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout})
-  declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout})
+  declare iconHeight: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Color, updateFlags: View.NeedsLayout})
-  declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, updateFlags: View.NeedsLayout})
+  declare iconColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsLayout})
-  declare graphics: ViewAnimator<this, Graphics | undefined>;
+  @ViewAnimator({extends: IconViewAnimator, type: Object, state: null, updateFlags: View.NeedsLayout})
+  declare graphics: ViewAnimator<this, Graphics | null>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
@@ -72,7 +72,7 @@ export class SvgIconView extends SvgView implements IconView {
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const iconColor = this.iconColor.takeUpdatedValue();
-    if (iconColor !== void 0) {
+    if (iconColor !== void 0 && iconColor !== null) {
       const oldGraphics = this.graphics.value;
       if (oldGraphics instanceof FilledIcon) {
         const newGraphics = oldGraphics.withFillColor(iconColor);
@@ -91,7 +91,7 @@ export class SvgIconView extends SvgView implements IconView {
     context.setPrecision(3);
     context.beginSvg();
     const graphics = this.graphics.takeValue();
-    if (graphics !== void 0) {
+    if (graphics !== null) {
       const frame = this.iconBounds;
       if (frame.isDefined() && frame.width > 0 && frame.height > 0) {
         context.beginPath();
@@ -113,12 +113,12 @@ export class SvgIconView extends SvgView implements IconView {
       const viewWidth = viewBox.width;
       const viewHeight = viewBox.height;
       const viewSize = Math.min(viewWidth, viewHeight);
-      let iconWidth: Length | number | undefined = this.iconWidth.value;
+      let iconWidth: Length | number | null = this.iconWidth.value;
       iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
-      let iconHeight: Length | number | undefined = this.iconHeight.value;
+      let iconHeight: Length | number | null = this.iconHeight.value;
       iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-      const x = viewBox.x + (viewWidth - iconWidth) * this.xAlign.getValueOr(0.5);
-      const y = viewBox.y + (viewHeight - iconHeight) * this.yAlign.getValueOr(0.5);
+      const x = viewBox.x + (viewWidth - iconWidth) * this.xAlign.getValue();
+      const y = viewBox.y + (viewHeight - iconHeight) * this.yAlign.getValue();
       return new BoxR2(x, y, x + iconWidth, y + iconHeight);
     } else {
       return BoxR2.undefined();

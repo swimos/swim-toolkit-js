@@ -17,20 +17,16 @@ import type {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
-export abstract class ColorStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Color, AnyColor> {
-  parse(value: string): Color | undefined {
-    try {
-      return Color.parse(value);
-    } catch (swallow) {
-      return void 0;
-    }
+export abstract class ColorStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Color | null, AnyColor | null> {
+  parse(value: string): Color | null {
+    return Color.parse(value);
   }
 
-  fromAny(value: AnyColor): Color | undefined {
+  fromAny(value: AnyColor): Color | null {
     try {
       return Color.fromAny(value);
     } catch (swallow) {
-      return void 0;
+      return null;
     }
   }
 }

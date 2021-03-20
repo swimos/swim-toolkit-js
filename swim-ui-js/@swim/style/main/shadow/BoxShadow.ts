@@ -320,7 +320,7 @@ export class BoxShadow implements Interpolate<BoxShadow>, Equals, Equivalent {
     } else {
       value = values;
     }
-    if (value instanceof BoxShadow) {
+    if (value === void 0 || value === null || value instanceof BoxShadow) {
       return value;
     } else if (typeof value === "string") {
       return BoxShadow.parse(value);

@@ -1323,12 +1323,18 @@ export class NodeView extends View {
     }
   }
 
-  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined {
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
     return void 0;
   }
 
-  getLookOr<T, V>(look: Look<T, unknown>, elseValue: V, mood?: MoodVector<Feel>): T | V {
-    return elseValue;
+  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
+    if (arguments.length === 2) {
+      elseValue = mood as E;
+      mood = null;
+    }
+    return elseValue as E;
   }
 
   modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): void {

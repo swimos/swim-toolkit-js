@@ -17,20 +17,16 @@ import {AttributeAnimator} from "./AttributeAnimator";
 import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
-export abstract class LengthAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Length, AnyLength> {
-  parse(value: string): Length | undefined {
-    try {
-      return Length.parse(value);
-    } catch (swallow) {
-      return void 0;
-    }
+export abstract class LengthAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Length | null, AnyLength | null> {
+  parse(value: string): Length | null {
+    return Length.parse(value);
   }
 
-  fromAny(value: AnyLength): Length | undefined {
+  fromAny(value: AnyLength): Length | null {
     try {
       return Length.fromAny(value);
     } catch (swallow) {
-      return void 0;
+      return null;
     }
   }
 }

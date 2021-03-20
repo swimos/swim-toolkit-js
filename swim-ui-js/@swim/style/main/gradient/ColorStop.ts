@@ -144,7 +144,7 @@ export class ColorStop implements Interpolate<ColorStop>, Equals, Equivalent {
   }
 
   static fromAny(value: AnyColorStop): ColorStop {
-    if (value instanceof ColorStop) {
+    if (value === void 0 || value === null || value instanceof ColorStop) {
       return value;
     } else if (typeof value === "string") {
       return ColorStop.parse(value);

@@ -18,8 +18,7 @@ import type {CanvasContext} from "./CanvasContext";
 
 export class CanvasRenderer extends PaintingRenderer {
   constructor(context: CanvasContext, pixelRatio: number,
-              theme: ThemeMatrix | null | undefined,
-              mood: MoodVector | null | undefined) {
+              theme: ThemeMatrix | null, mood: MoodVector | null) {
     super();
     Object.defineProperty(this, "context", {
       value: context,
@@ -32,12 +31,12 @@ export class CanvasRenderer extends PaintingRenderer {
       configurable: true,
     });
     Object.defineProperty(this, "theme", {
-      value: theme !== void 0 ? theme : null,
+      value: theme,
       enumerable: true,
       configurable: true,
     });
     Object.defineProperty(this, "mood", {
-      value: mood !== void 0 ? mood : null,
+      value: mood,
       enumerable: true,
       configurable: true,
     });

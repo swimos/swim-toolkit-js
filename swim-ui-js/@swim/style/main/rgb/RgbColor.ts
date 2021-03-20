@@ -257,7 +257,7 @@ export class RgbColor extends Color {
   }
 
   static fromAny(value: AnyRgbColor): RgbColor {
-    if (value instanceof RgbColor) {
+    if (value === void 0 || value === null || value instanceof RgbColor) {
       return value;
     } else if (typeof value === "string") {
       return RgbColor.parse(value);

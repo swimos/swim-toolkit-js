@@ -98,7 +98,7 @@ export class DeckButton extends DeckSlot {
     if (timing === void 0 && oldLabelCount === 0) {
       timing = false;
     } else if (timing === void 0 || timing === true) {
-      timing = this.getLookOr(Look.timing, false, Mood.navigating);
+      timing = this.getLookOr(Look.timing, Mood.navigating, false);
     } else {
       timing = Timing.fromAny(timing);
     }
@@ -150,7 +150,7 @@ export class DeckButton extends DeckSlot {
       }
 
       if (timing === void 0 || timing === true) {
-        timing = this.getLookOr(Look.timing, false, Mood.navigating);
+        timing = this.getLookOr(Look.timing, Mood.navigating, false);
       } else {
         timing = Timing.fromAny(timing);
       }
@@ -237,15 +237,15 @@ export abstract class DeckButtonCloseIcon<V extends DeckButton, S extends SvgIco
 
   protected layoutIcon(iconView: S): void {
     const slotAlign = this.owner.slotAlign.getValue();
-    let slotWidth: Length | string | number | undefined = this.owner.width.state;
+    let slotWidth: Length | number | null = this.owner.width.state;
     slotWidth = slotWidth instanceof Length ? slotWidth.pxValue() : this.owner.node.offsetWidth;
-    let slotHeight: Length | string | number | undefined = this.owner.height.state;
+    let slotHeight: Length | number | null = this.owner.height.state;
     slotHeight = slotHeight instanceof Length ? slotHeight.pxValue() : this.owner.node.offsetHeight;
 
     const iconPadding = this.owner.iconPadding.getState().pxValue(slotWidth);
-    let iconWidth: Length | number | undefined = iconView.width.state;
+    let iconWidth: Length | number | null = iconView.width.state;
     iconWidth = iconWidth instanceof Length ? iconWidth.pxValue() : 0;
-    let iconHeight: Length | number | undefined = iconView.height.state;
+    let iconHeight: Length | number | null = iconView.height.state;
     iconHeight = iconHeight instanceof Length ? iconHeight.pxValue() : 0;
 
     const deckPhase = this.owner.deckPhase.getValueOr(0);
@@ -290,15 +290,15 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
 
   protected layoutIcon(iconView: S): void {
     const slotAlign = this.owner.slotAlign.getValue();
-    let slotWidth: Length | string | number | undefined = this.owner.width.state;
+    let slotWidth: Length | number | null = this.owner.width.state;
     slotWidth = slotWidth instanceof Length ? slotWidth.pxValue() : this.owner.node.offsetWidth;
-    let slotHeight: Length | string | number | undefined = this.owner.height.state;
+    let slotHeight: Length | number | null = this.owner.height.state;
     slotHeight = slotHeight instanceof Length ? slotHeight.pxValue() : this.owner.node.offsetHeight;
 
     const iconPadding = this.owner.iconPadding.getState().pxValue(slotWidth);
-    let iconWidth: Length | number | undefined = iconView.width.state;
+    let iconWidth: Length | number | null = iconView.width.state;
     iconWidth = iconWidth instanceof Length ? iconWidth.pxValue() : 0;
-    let iconHeight: Length | number | undefined = iconView.height.state;
+    let iconHeight: Length | number | null = iconView.height.state;
     iconHeight = iconHeight instanceof Length ? iconHeight.pxValue() : 0;
 
     const deckPhase = this.owner.deckPhase.getValueOr(0);
@@ -311,20 +311,20 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
     let iconOpacity: number | undefined;
     if (deckPhase <= 1) {
       iconOpacity = 0;
-      iconView.iconColor.setAutoState(void 0)
+      iconView.iconColor.setAutoState(null);
     } else if (labelView !== null && deckPhase < 2) {
       const parentView = this.owner.parentView;
       const nextPost = this.owner.nextPost.state;
-      const nextSlot = parentView !== null && nextPost !== void 0 ? parentView.getChildView(nextPost.key) : null;
+      const nextSlot = parentView !== null && nextPost !== null ? parentView.getChildView(nextPost.key) : null;
       let nextSlotAlign: number;
-      let nextSlotWidth: Length | string | number | undefined;
+      let nextSlotWidth: Length | number | null;
       if (nextSlot instanceof DeckSlot) {
         nextSlotAlign = nextSlot.slotAlign.value;
         nextSlotWidth = nextSlot.width.state;
         nextSlotWidth = nextSlotWidth instanceof Length ? nextSlotWidth.pxValue() : nextSlot.node.offsetWidth;
-        let nextSlotLeft: Length | string | number | undefined = nextSlot.left.state;
+        let nextSlotLeft: Length | number | null = nextSlot.left.state;
         nextSlotLeft = nextSlotLeft instanceof Length ? nextSlotLeft.pxValue() : nextSlot.node.offsetLeft;
-        let slotLeft: Length | string | number | undefined = this.owner.left.state;
+        let slotLeft: Length | number | null = this.owner.left.state;
         slotLeft = slotLeft instanceof Length ? slotLeft.pxValue() : this.owner.node.offsetLeft;
         const slotGap = nextSlotLeft - (slotLeft + slotWidth);
         nextSlotWidth += slotGap;
@@ -334,7 +334,7 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
       }
       const prevIndex = nextIndex - 1;
       const labelPhase = deckPhase - prevIndex;
-      let labelWidth: Length | string | number | undefined = labelView.width.state;
+      let labelWidth: Length | number | null = labelView.width.state;
       if (labelWidth instanceof Length) {
         labelWidth = labelWidth.pxValue(slotWidth);
       } else {
@@ -343,9 +343,9 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
       const labelSlotSpace = slotWidth - iconLeft - iconWidth + (nextSlotWidth - labelWidth) * nextSlotAlign;
       iconLeft += (labelSlotSpace * (1 - labelPhase) + labelSlotSpace * slotAlign * labelPhase);
       iconOpacity = labelPhase;
-      const nextColor = nextSlot instanceof DeckSlot ? nextSlot.getLook(nextSlot.colorLook) : void 0;
-      const thisColor = this.owner.getLook(this.owner.colorLook);
-      if (nextColor !== void 0 && thisColor !== void 0) {
+      const nextColor = nextSlot instanceof DeckSlot ? nextSlot.getLookOr(nextSlot.colorLook, null) : null;
+      const thisColor = this.owner.getLookOr(this.owner.colorLook, null);
+      if (nextColor !== null && thisColor !== null) {
         iconView.iconColor.setAutoState(nextColor.interpolateTo(thisColor)(labelPhase));
       } else {
         iconView.iconColor.setAutoState(thisColor);
@@ -369,14 +369,14 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
   constructor(owner: V, key: string | undefined, fastenerName: string | undefined) {
     super(owner, key, fastenerName);
     this.labelIndex = 0;
-    this.labelWidth = void 0;
+    this.labelWidth = null;
     this.layoutWidth = 0;
   }
 
   labelIndex: number;
 
   /** @hidden */
-  labelWidth: Length | string | undefined;
+  labelWidth: Length | string | null;
 
   /** @hidden */
   layoutWidth: number;
@@ -393,10 +393,9 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
     parentView.insertChildView(childView, targetView, key);
   }
 
-  protected viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                              timing: Timing | boolean, labelView: S): void {
+  protected viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, labelView: S): void {
     if (labelView.color.isAuto()) {
-      labelView.color.setAutoState(theme.dot(this.owner.colorLook, mood), timing);
+      labelView.color.setAutoState(theme.getOr(this.owner.colorLook, mood, null), timing);
     }
   }
 
@@ -412,23 +411,23 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
   protected layoutLabel(labelView: S): void {
     const labelIndex = this.labelIndex;
     const slotAlign = this.owner.slotAlign.getValue();
-    let slotWidth: Length | string | number | undefined = this.owner.width.state;
+    let slotWidth: Length | number | null = this.owner.width.state;
     slotWidth = slotWidth instanceof Length ? slotWidth.pxValue() : this.owner.node.offsetWidth;
-    let slotHeight: Length | string | number | undefined = this.owner.height.state;
+    let slotHeight: Length | number | null = this.owner.height.state;
     slotHeight = slotHeight instanceof Length ? slotHeight.pxValue() : this.owner.node.offsetHeight;
 
     const parentView = this.owner.parentView;
     const nextPost = this.owner.nextPost.state;
-    const nextSlot = parentView !== null && nextPost !== void 0 ? parentView.getChildView(nextPost.key) : null;
+    const nextSlot = parentView !== null && nextPost !== null ? parentView.getChildView(nextPost.key) : null;
     let nextSlotAlign: number;
-    let nextSlotWidth: Length | string | number | undefined;
+    let nextSlotWidth: Length | number | null;
     if (nextSlot instanceof DeckSlot) {
       nextSlotAlign = nextSlot.slotAlign.value;
       nextSlotWidth = nextSlot.width.state;
       nextSlotWidth = nextSlotWidth instanceof Length ? nextSlotWidth.pxValue() : nextSlot.node.offsetWidth;
-      let nextSlotLeft: Length | string | number | undefined = nextSlot.left.state;
+      let nextSlotLeft: Length | number | null = nextSlot.left.state;
       nextSlotLeft = nextSlotLeft instanceof Length ? nextSlotLeft.pxValue() : nextSlot.node.offsetLeft;
-      let slotLeft: Length | string | number | undefined = this.owner.left.state;
+      let slotLeft: Length | number | null = this.owner.left.state;
       slotLeft = slotLeft instanceof Length ? slotLeft.pxValue() : this.owner.node.offsetLeft;
       const slotGap = nextSlotLeft - (slotLeft + slotWidth);
       nextSlotWidth += slotGap;
@@ -438,8 +437,8 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
     }
 
     const iconPadding = this.owner.iconPadding.getState().pxValue(slotWidth);
-    let iconWidth: Length | number | undefined;
-    let iconHeight: Length | number | undefined;
+    let iconWidth: Length | number | null;
+    let iconHeight: Length | number | null;
     const iconView = this.owner.backIcon.view;
     if (iconView !== null) {
       iconWidth = iconView.width.state;
@@ -455,7 +454,7 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
     const nextIndex = Math.max(this.owner.labelCount, Math.ceil(deckPhase));
     const prevIndex = nextIndex - 1;
     const labelPhase = deckPhase - prevIndex;
-    let labelWidth: Length | string | number | undefined = labelView.width.state;
+    let labelWidth: Length | number | null = labelView.width.state;
     this.labelWidth = labelWidth;
     if (labelWidth instanceof Length) {
       labelWidth = labelWidth.pxValue(slotWidth);
@@ -490,9 +489,9 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
       labelView.left.setAutoState(iconLeft + iconWidth + (labelSlotSpace * (1 - labelPhase) + labelSlotSpace * slotAlign * labelPhase));
       labelView.top.setAutoState(iconTop);
       labelView.height.setAutoState(iconHeight);
-      const nextColor = nextSlot instanceof DeckSlot ? nextSlot.getLook(nextSlot.colorLook) : void 0;
-      const thisColor = this.owner.getLook(this.owner.colorLook);
-      if (nextColor !== void 0 && thisColor !== void 0) {
+      const nextColor = nextSlot instanceof DeckSlot ? nextSlot.getLookOr(nextSlot.colorLook, null) : null;
+      const thisColor = this.owner.getLookOr(this.owner.colorLook, null);
+      if (nextColor !== null && thisColor !== null) {
         labelView.color.setAutoState(nextColor.interpolateTo(thisColor)(labelPhase));
       } else {
         labelView.color.setAutoState(thisColor);

@@ -38,8 +38,8 @@ export class RowView extends HtmlView {
 
   declare readonly viewObservers: ReadonlyArray<RowViewObserver>;
 
-  @ViewProperty({type: TableLayout, inherit: true})
-  declare layout: ViewProperty<this, TableLayout | undefined, AnyTableLayout | undefined>;
+  @ViewProperty({type: TableLayout, state: null, inherit: true})
+  declare layout: ViewProperty<this, TableLayout | null, AnyTableLayout | null>;
 
   @ViewProperty({type: Number, inherit: true})
   declare colSpacing: ViewProperty<this, number | undefined>;
@@ -212,18 +212,18 @@ export class RowView extends HtmlView {
                              viewContext: ViewContextType<self>): void {
       if (childView instanceof CellView) {
         const key = childView.key;
-        const col = layout !== void 0 && key !== void 0 ? layout.getCol(key) : null;
+        const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
         if (col !== null) {
           childView.display.setAutoState(!col.hidden ? "flex" : "none");
-          childView.left.setAutoState(col.left !== null ? col.left : void 0);
-          childView.width.setAutoState(col.width !== null ? col.width : void 0);
+          childView.left.setAutoState(col.left);
+          childView.width.setAutoState(col.width);
           childView.height.setAutoState(height);
-          childView.textColor.setAutoState(col.textColor !== null ? col.textColor : void 0);
+          childView.textColor.setAutoState(col.textColor);
         } else {
           childView.display.setAutoState("none");
-          childView.left.setAutoState(void 0);
-          childView.width.setAutoState(void 0);
-          childView.height.setAutoState(void 0);
+          childView.left.setAutoState(null);
+          childView.width.setAutoState(null);
+          childView.height.setAutoState(null);
         }
       }
       displayChildView.call(this, childView, displayFlags, viewContext);

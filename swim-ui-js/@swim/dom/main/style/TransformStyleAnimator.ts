@@ -17,24 +17,20 @@ import type {StyleContext} from "./StyleContext";
 import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
-export abstract class TransformStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Transform, AnyTransform> {
-  parse(value: string): Transform | undefined {
-    try {
-      return Transform.parse(value);
-    } catch (swallow) {
-      return void 0;
-    }
+export abstract class TransformStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Transform | null, AnyTransform | null> {
+  parse(value: string): Transform | null {
+    return Transform.parse(value);
   }
 
-  fromCssValue(value: CSSStyleValue): Transform | undefined {
+  fromCssValue(value: CSSStyleValue): Transform | null {
     return Transform.fromCssValue(value);
   }
 
-  fromAny(value: AnyTransform): Transform | undefined {
+  fromAny(value: AnyTransform): Transform | null {
     try {
       return Transform.fromAny(value);
     } catch (swallow) {
-      return void 0;
+      return null;
     }
   }
 }

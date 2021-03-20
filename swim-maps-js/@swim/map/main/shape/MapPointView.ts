@@ -72,23 +72,23 @@ export class MapPointView extends MapLayerView {
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
   declare viewPoint: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Length})
-  declare radius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null})
+  declare radius: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Color})
-  declare color: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null})
+  declare color: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Number})
   declare opacity: ViewAnimator<this, number | undefined>;
 
-  @ViewAnimator({type: Length})
-  declare labelPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null})
+  declare labelPadding: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  @ViewAnimator({type: Font, state: null, inherit: true})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewProperty({type: Number})
   declare hitRadius: ViewProperty<this, number | undefined>;
@@ -268,7 +268,7 @@ export class MapPointView extends MapLayerView {
     const radius = this.radius.value;
 
     let hitRadius = this.hitRadius.getStateOr(0);
-    if (radius !== void 0) {
+    if (radius !== null) {
       const size = Math.min(frame.width, frame.height);
       hitRadius = Math.max(hitRadius, radius.pxValue(size));
     }
@@ -283,27 +283,25 @@ export class MapPointView extends MapLayerView {
 
   toAny(): MapPointViewInit {
     const init: MapPointViewInit = {};
-    if (this.geoPoint.value !== void 0) {
-      init.lng = this.geoPoint.value.lng;
-      init.lat = this.geoPoint.value.lat;
-    }
-    if (this.viewPoint.value !== void 0 && !this.viewPoint.isAuto()) {
+    init.lng = this.geoPoint.value.lng;
+    init.lat = this.geoPoint.value.lat;
+    if (!this.viewPoint.isAuto()) {
       init.x = this.viewPoint.value.x;
       init.y = this.viewPoint.value.y;
     }
-    if (this.radius.value !== void 0) {
+    if (this.radius.value !== null) {
       init.radius = this.radius.value;
     }
     if (this.hitRadius.state !== void 0) {
       init.hitRadius = this.hitRadius.state;
     }
-    if (this.color.value !== void 0) {
+    if (this.color.value !== null) {
       init.color = this.color.value;
     }
     if (this.opacity.value !== void 0) {
       init.opacity = this.opacity.value;
     }
-    if (this.labelPadding.value !== void 0) {
+    if (this.labelPadding.value !== null) {
       init.labelPadding = this.labelPadding.value;
     }
     if (this.labelPlacement.state !== void 0) {

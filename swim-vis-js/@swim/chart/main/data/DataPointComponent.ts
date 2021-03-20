@@ -17,12 +17,7 @@ import type {AnyLength, Length} from "@swim/math";
 import type {AnyColor, Color} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {GraphicsView} from "@swim/graphics";
-import {
-  ComponentProperty,
-  ComponentView,
-  ComponentViewTrait,
-  CompositeComponent,
-} from "@swim/component";
+import {ComponentProperty, ComponentView, ComponentViewTrait, CompositeComponent} from "@swim/component";
 import {DataPointView} from "./DataPointView";
 import {DataPointTrait} from "./DataPointTrait";
 import type {DataPointComponentObserver} from "./DataPointComponentObserver";
@@ -257,10 +252,11 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
       if (timing === true) {
         timing = dataPointView.getLook(Look.timing, Mood.ambient);
       }
-      if (!(color instanceof Look)) {
-        dataPointView.color.setAutoState(color, timing);
+      if (color instanceof Look) {
+        dataPointView.color.setLook(color, timing);
       } else {
-        dataPointView.color.setLook(color);
+        dataPointView.color.setLook(null);
+        dataPointView.color.setAutoState(color, timing);
       }
     }
   }

@@ -16,7 +16,7 @@ import type {StyleContext} from "./StyleContext";
 import {StyleAnimatorConstraint} from "./StyleAnimatorConstraint";
 
 /** @hidden */
-export abstract class NumberStyleAnimatorConstraint<V extends StyleContext> extends StyleAnimatorConstraint<V, number, string> {
+export abstract class NumberStyleAnimatorConstraint<V extends StyleContext> extends StyleAnimatorConstraint<V, number | undefined, string> {
   parse(value: string): number | undefined {
     const number = +value;
     return isFinite(number) ? number : void 0;

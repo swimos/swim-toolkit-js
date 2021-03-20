@@ -35,17 +35,18 @@ export class CellView extends HtmlView {
 
   declare readonly viewObservers: ReadonlyArray<CellViewObserver>;
 
-  @ViewProperty<CellView, Look<Color> | Color | undefined>({
-    didUpdate(newTextColor: Look<Color> | Color | undefined, oldTextColor: Look<Color> | Color | undefined): void {
+  @ViewProperty<CellView, Look<Color> | Color | null>({
+    state: null,
+    didUpdate(newTextColor: Look<Color> | Color | null, oldTextColor: Look<Color> | Color | null): void {
       this.owner.setTextColor(newTextColor);
     },
   })
-  declare textColor: ViewProperty<this, Look<Color> | Color | undefined>;
+  declare textColor: ViewProperty<this, Look<Color> | Color | null>;
 
-  protected setTextColor(textColor: Look<Color> | Color | undefined): void {
+  protected setTextColor(textColor: Look<Color> | Color | null): void {
     if (this.color.isAuto()) {
       if (textColor instanceof Look) {
-        textColor = this.getLook(textColor);
+        textColor = this.getLookOr(textColor, null);
       }
       this.color.setAutoState(textColor);
     }
@@ -56,7 +57,7 @@ export class CellView extends HtmlView {
     if (this.color.isAuto()) {
       let textColor = this.textColor.state;
       if (textColor instanceof Look) {
-        textColor = this.getLook(textColor);
+        textColor = this.getLookOr(textColor, null);
       }
       this.color.setAutoState(textColor, timing);
     }

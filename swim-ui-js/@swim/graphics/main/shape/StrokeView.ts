@@ -23,9 +23,9 @@ export interface StrokeViewInit extends GraphicsViewInit {
 }
 
 export interface StrokeView extends GraphicsView {
-  readonly stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  readonly stroke: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  readonly strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  readonly strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 }
 
 export const StrokeView = {} as {

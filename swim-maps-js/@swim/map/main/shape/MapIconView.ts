@@ -72,23 +72,23 @@ export class MapIconView extends MapLayerView implements IconView {
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
   declare viewCenter: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
-  declare xAlign: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
+  declare xAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
-  declare yAlign: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
+  declare yAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
-  declare iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
+  declare iconWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Length, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
-  declare iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
+  declare iconHeight: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Color, updateFlags: View.NeedsRender | View.NeedsComposite})
-  declare iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, updateFlags: View.NeedsRender | View.NeedsComposite})
+  declare iconColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsRender | View.NeedsComposite})
-  declare graphics: ViewAnimator<this, Graphics | undefined>;
+  declare graphics: ViewAnimator<this, Graphics | null>;
 
   protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
     if (newGeoCenter.isDefined()) {
@@ -120,7 +120,7 @@ export class MapIconView extends MapLayerView implements IconView {
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const iconColor = this.iconColor.takeUpdatedValue();
-    if (iconColor !== void 0) {
+    if (iconColor !== void 0 && iconColor !== null) {
       const oldGraphics = this.graphics.value;
       if (oldGraphics instanceof FilledIcon) {
         const newGraphics = oldGraphics.withFillColor(iconColor);
@@ -178,7 +178,7 @@ export class MapIconView extends MapLayerView implements IconView {
 
   protected renderIcon(renderer: CanvasRenderer, frame: BoxR2): void {
     const graphics = this.graphics.value;
-    if (graphics !== void 0) {
+    if (graphics !== null) {
       let canvas = this.canvas;
       if (canvas === null) {
         canvas = document.createElement("canvas");
@@ -239,12 +239,12 @@ export class MapIconView extends MapLayerView implements IconView {
     const viewCenter = this.viewCenter.getValue();
     const px = inversePageTransform.transformX(viewCenter.x, viewCenter.y);
     const py = inversePageTransform.transformY(viewCenter.x, viewCenter.y);
-    let iconWidth: Length | number | undefined = this.iconWidth.value;
+    let iconWidth: Length | number | null = this.iconWidth.value;
     iconWidth = iconWidth instanceof Length ? iconWidth.pxValue(viewSize) : viewSize;
-    let iconHeight: Length | number | undefined = this.iconHeight.value;
+    let iconHeight: Length | number | null = this.iconHeight.value;
     iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
-    const x = px - iconWidth * this.xAlign.getValueOr(0.5);
-    const y = py - iconHeight * this.yAlign.getValueOr(0.5);
+    const x = px - iconWidth * this.xAlign.getValue();
+    const y = py - iconHeight * this.yAlign.getValue();
     return new BoxR2(x, y, x + iconWidth, y + iconHeight);
   }
 
@@ -257,18 +257,18 @@ export class MapIconView extends MapLayerView implements IconView {
       const frame = this.viewFrame;
       const viewSize = Math.min(frame.width, frame.height);
       const viewCenter = this.viewCenter.getValue();
-      let iconWidthValue: Length | number | undefined = this.iconWidth.value;
+      let iconWidthValue: Length | number | null = this.iconWidth.value;
       iconWidthValue = iconWidthValue instanceof Length ? iconWidthValue.pxValue(viewSize) : viewSize;
-      let iconWidthState: Length | number | undefined = this.iconWidth.state;
+      let iconWidthState: Length | number | null = this.iconWidth.state;
       iconWidthState = iconWidthState instanceof Length ? iconWidthState.pxValue(viewSize) : viewSize;
       const iconWidth = Math.max(iconWidthValue, iconWidthState);
-      let iconHeightValue: Length | number | undefined = this.iconHeight.value;
+      let iconHeightValue: Length | number | null = this.iconHeight.value;
       iconHeightValue = iconHeightValue instanceof Length ? iconHeightValue.pxValue(viewSize) : viewSize;
-      let iconHeightState: Length | number | undefined = this.iconHeight.state;
+      let iconHeightState: Length | number | null = this.iconHeight.state;
       iconHeightState = iconHeightState instanceof Length ? iconHeightState.pxValue(viewSize) : viewSize;
       const iconHeight = Math.max(iconHeightValue, iconHeightState);
-      const x = viewCenter.x - iconWidth * this.xAlign.getValueOr(0.5);
-      const y = viewCenter.y - iconHeight * this.yAlign.getValueOr(0.5);
+      const x = viewCenter.x - iconWidth * this.xAlign.getValue();
+      const y = viewCenter.y - iconHeight * this.yAlign.getValue();
       iconBounds = new BoxR2(x, y, x + iconWidth, y + iconHeight);
       Object.defineProperty(this, "iconBounds", {
         value: iconBounds,
@@ -299,7 +299,7 @@ export class MapIconView extends MapLayerView implements IconView {
       return this;
     }
     //const graphics = this.graphics.value;
-    //if (graphics !== void 0) {
+    //if (graphics !== null) {
     //  const context = renderer.context;
     //  graphics.render(renderer, frame);
     //  if (context.isPointInPath(x * renderer.pixelRatio, y * renderer.pixelRatio)) {

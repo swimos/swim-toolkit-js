@@ -60,11 +60,11 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
   @ViewProperty({type: Boolean, state: false})
   declare highlighted: ViewProperty<this, boolean>;
 
-  @ViewProperty({type: Object, inherit: true})
-  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | undefined>;
+  @ViewProperty({type: Object, inherit: true, state: null})
+  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare collapsedWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, inherit: true, state: null})
+  declare collapsedWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewAnimator({type: Number, inherit: true, updateFlags: View.NeedsAnimate})
   declare drawerStretch: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
@@ -106,7 +106,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
     if (iconView instanceof HtmlIconView) {
       iconView.iconWidth.setAutoState(24);
       iconView.iconHeight.setAutoState(24);
-      iconView.iconColor.setState(this.getLook(Look.mutedColor));
+      iconView.iconColor.setState(this.getLookOr(Look.mutedColor, null));
     }
   }
 
@@ -155,7 +155,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
     labelView.flexGrow.setAutoState(1);
     labelView.flexShrink.setAutoState(0);
     if (labelView.color.isAuto()) {
-      const itemColor = this.getLook(this.highlighted.state ? Look.color : Look.mutedColor);
+      const itemColor = this.getLookOr(this.highlighted.state ? Look.color : Look.mutedColor, null);
       labelView.color.setAutoState(itemColor);
     }
   }
@@ -212,20 +212,20 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
     if (accessoryView instanceof HtmlIconView) {
       accessoryView.iconWidth.setAutoState(24);
       accessoryView.iconHeight.setAutoState(24);
-      accessoryView.iconColor.setState(this.getLook(Look.mutedColor));
+      accessoryView.iconColor.setState(this.getLookOr(Look.mutedColor, null));
     } else if (accessoryView.color.isAuto()) {
-      const itemColor = this.getLook(this.highlighted.state ? Look.color : Look.mutedColor);
+      const itemColor = this.getLookOr(this.highlighted.state ? Look.color : Look.mutedColor, null);
       accessoryView.color.setAutoState(itemColor);
     }
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    const itemColor = theme.dot(this.highlighted.state ? Look.color : Look.mutedColor, mood);
+    const itemColor = theme.getOr(this.highlighted.state ? Look.color : Look.mutedColor, mood, null);
 
     if (this.backgroundColor.isAuto()) {
-      let backgroundColor = theme.dot(Look.backgroundColor, mood);
-      if (backgroundColor !== void 0 && !this.highlighted.state && !this.gesture.isHovering()) {
+      let backgroundColor = theme.getOr(Look.backgroundColor, mood, null);
+      if (backgroundColor !== null && !this.highlighted.state && !this.gesture.isHovering()) {
         backgroundColor = backgroundColor.alpha(0);
       }
       this.backgroundColor.setAutoState(backgroundColor, timing);
@@ -280,13 +280,13 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     const edgeInsets = this.edgeInsets.state;
-    if (edgeInsets !== void 0) {
-      let collapsedWidth: Length | number | undefined = this.collapsedWidth.state;
-      collapsedWidth = collapsedWidth !== void 0 ? collapsedWidth.pxValue() : ListItem.DefaultCollapsedWidth;
-      let height: Height | number | undefined = this.height.state;
+    if (edgeInsets !== null) {
+      let collapsedWidth: Length | number | null = this.collapsedWidth.state;
+      collapsedWidth = collapsedWidth !== null ? collapsedWidth.pxValue() : ListItem.DefaultCollapsedWidth;
+      let height: Height | number | null = this.height.state;
       height = height instanceof Length ? height.pxValue() : this.clientBounds.height;
-      const iconPadding = Math.max(0, (collapsedWidth - height) / 2);
 
+      const iconPadding = Math.max(0, (collapsedWidth - height) / 2);
       this.paddingLeft.setAutoState(Math.max(0, edgeInsets.insetLeft - iconPadding));
       const iconView = this.icon.view;
       if (iconView !== null) {
@@ -298,7 +298,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
       if (accessoryView !== null) {
         accessoryView.paddingRight.setAutoState(edgeInsets.insetRight);
         if (labelView !== null) {
-          labelView.paddingRight.setAutoState(void 0);
+          labelView.paddingRight.setAutoState(null);
         }
       } else if (labelView !== null) {
         labelView.paddingRight.setAutoState(edgeInsets.insetRight);
@@ -316,21 +316,22 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
         timing = Timing.fromAny(timing);
       }
       if (this.backgroundColor.isAuto()) {
-        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor));
+        this.backgroundColor.setAutoState(this.getLookOr(Look.backgroundColor, null));
       }
+      const iconColor = this.getLookOr(Look.color, null);
       const iconView = this.icon.view;
       if (iconView instanceof HtmlIconView) {
-        iconView.iconColor.setState(this.getLook(Look.color), timing);
+        iconView.iconColor.setState(iconColor, timing);
       }
       const labelView = this.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(this.getLook(Look.color), timing);
+        labelView.color.setAutoState(iconColor, timing);
       }
       const accessoryView = this.accessory.view;
       if (accessoryView instanceof HtmlIconView) {
-        accessoryView.iconColor.setState(this.getLook(Look.color), timing);
+        accessoryView.iconColor.setState(iconColor, timing);
       } else if (accessoryView !== null && accessoryView.color.isAuto()) {
-        accessoryView.color.setAutoState(this.getLook(Look.color), timing);
+        accessoryView.color.setAutoState(iconColor, timing);
       }
     }
     return this;
@@ -346,25 +347,26 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
         timing = Timing.fromAny(timing);
       }
       if (this.backgroundColor.isAuto()) {
-        let backgroundColor = this.getLook(Look.backgroundColor);
-        if (backgroundColor !== void 0 && !this.gesture.isHovering()) {
+        let backgroundColor = this.getLookOr(Look.backgroundColor, null);
+        if (backgroundColor !== null && !this.gesture.isHovering()) {
           backgroundColor = backgroundColor.alpha(0);
         }
         this.backgroundColor.setAutoState(backgroundColor, timing);
       }
+      const iconColor = this.getLookOr(Look.mutedColor, null);
       const iconView = this.icon.view;
       if (iconView instanceof HtmlIconView) {
-        iconView.iconColor.setState(this.getLook(Look.mutedColor), timing);
+        iconView.iconColor.setState(iconColor, timing);
       }
       const labelView = this.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(this.getLook(Look.mutedColor), timing);
+        labelView.color.setAutoState(iconColor, timing);
       }
       const accessoryView = this.accessory.view;
       if (accessoryView instanceof HtmlIconView) {
-        accessoryView.iconColor.setState(this.getLook(Look.mutedColor), timing);
+        accessoryView.iconColor.setState(iconColor, timing);
       } else if (accessoryView !== null && accessoryView.color.isAuto()) {
-        accessoryView.color.setAutoState(this.getLook(Look.mutedColor), timing);
+        accessoryView.color.setAutoState(iconColor, timing);
       }
     }
     return this;
@@ -395,7 +397,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
       if (this.backgroundColor.isAuto()) {
         const timing = this.gesture.isPressing() ? this.getLook(Look.timing) : false;
-        this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), timing);
+        this.backgroundColor.setAutoState(this.getLookOr(Look.backgroundColor, null), timing);
       }
     }
   }
@@ -403,8 +405,8 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
   didStopHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
     if (this.backgroundColor.isAuto()) {
-      let backgroundColor = this.getLook(Look.backgroundColor);
-      if (backgroundColor !== void 0 && !this.highlighted.state) {
+      let backgroundColor = this.getLookOr(Look.backgroundColor, null);
+      if (backgroundColor !== null && !this.highlighted.state) {
         backgroundColor = backgroundColor.alpha(0);
       }
       const timing = this.getLook(Look.timing);

@@ -53,8 +53,8 @@ export interface SliceViewInit extends GraphicsViewInit {
   tickColor?: AnyColor;
   font?: AnyFont;
   textColor?: AnyColor;
-  label?: GraphicsView | string | null;
-  legend?: GraphicsView | string | null;
+  label?: GraphicsView | string;
+  legend?: GraphicsView | string;
 }
 
 export class SliceView extends LayerView {
@@ -179,56 +179,56 @@ export class SliceView extends LayerView {
   @ViewAnimator({type: Number, state: 1})
   declare total: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: PointR2, inherit: true})
-  declare center: ViewAnimator<this, PointR2 | undefined, AnyPointR2 | undefined>;
+  @ViewAnimator({type: PointR2, state: PointR2.origin(), inherit: true})
+  declare center: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare innerRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(3), inherit: true})
+  declare innerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare outerRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(25), inherit: true})
+  declare outerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Angle, state: Angle.zero()})
-  declare phaseAngle: ViewAnimator<this, Angle | undefined, AnyAngle | undefined>;
+  declare phaseAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Angle, inherit: true})
-  declare padAngle: ViewAnimator<this, Angle | undefined, AnyAngle | undefined>;
+  @ViewAnimator({type: Angle, state: Angle.deg(2), inherit: true})
+  declare padAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare padRadius: ViewAnimator<this, Length | null | undefined, AnyLength | null | undefined>;
+  @ViewAnimator({type: Length, state: null, inherit: true})
+  declare padRadius: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare cornerRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.zero(), inherit: true})
+  declare cornerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare labelRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(50), inherit: true})
+  declare labelRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare sliceColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare sliceColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare tickAlign: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, state: 0.5, inherit: true})
+  declare tickAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare tickRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(30), inherit: true})
+  declare tickRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare tickLength: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(50), inherit: true})
+  declare tickLength: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare tickWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.px(1), inherit: true})
+  declare tickWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare tickPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.px(2), inherit: true})
+  declare tickPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare tickColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare tickColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  @ViewAnimator({type: Font, state: null, inherit: true})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected initLabel(labelView: GraphicsView): void {
     // hook
@@ -392,10 +392,13 @@ export class SliceView extends LayerView {
     const arc = new Arc(center, innerRadius, outerRadius, startAngle,
                         sweepAngle, padAngle, padRadius, cornerRadius);
 
-    context.beginPath();
-    context.fillStyle = this.sliceColor.getValue().toString();
-    arc.draw(context, frame);
-    context.fill();
+    const sliceColor = this.sliceColor.value;
+    if (sliceColor !== null) {
+      context.beginPath();
+      context.fillStyle = sliceColor.toString();
+      arc.draw(context, frame);
+      context.fill();
+    }
 
     const labelView = this.label.view;
     if (labelView !== null && !labelView.isHidden()) {
@@ -419,7 +422,7 @@ export class SliceView extends LayerView {
       const tickRadius = this.tickRadius.getValue().pxValue(size);
       const tickLength = this.tickLength.getValue().pxValue(width);
       const tickWidth = this.tickWidth.getValue().pxValue(size);
-      const tickColor = this.tickColor.getValue();
+      const tickColor = this.tickColor.value;
 
       const cx = center.x;
       const cy = center.y;
@@ -429,21 +432,23 @@ export class SliceView extends LayerView {
       const r2y = tickRadius * Math.sin(tickAngle + Equivalent.Epsilon);
       let dx = 0;
 
-      context.beginPath();
-      context.strokeStyle = tickColor.toString();
-      context.lineWidth = tickWidth;
-      context.moveTo(cx + r1x, cy + r1y);
-      context.lineTo(cx + r2x, cy + r2y);
-      if (tickLength !== 0) {
-        if (r2x >= 0) {
-          context.lineTo(cx + tickLength, cy + r2y);
-          dx = tickLength - r2x;
-        } else if (r2x < 0) {
-          context.lineTo(cx - tickLength, cy + r2y);
-          dx = tickLength + r2x;
+      if (tickColor !== null && tickWidth !== 0) {
+        context.beginPath();
+        context.strokeStyle = tickColor.toString();
+        context.lineWidth = tickWidth;
+        context.moveTo(cx + r1x, cy + r1y);
+        context.lineTo(cx + r2x, cy + r2y);
+        if (tickLength !== 0) {
+          if (r2x >= 0) {
+            context.lineTo(cx + tickLength, cy + r2y);
+            dx = tickLength - r2x;
+          } else if (r2x < 0) {
+            context.lineTo(cx - tickLength, cy + r2y);
+            dx = tickLength + r2x;
+          }
         }
+        context.stroke();
       }
-      context.stroke();
 
       let textAlign: CanvasTextAlign;
       if (r2x >= 0) {

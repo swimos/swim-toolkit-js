@@ -107,11 +107,11 @@ export class Rect implements Graphics, Equals, Debug {
     }
   }
 
-  draw(context: DrawingContext, frame?: BoxR2): void {
+  draw(context: DrawingContext, frame: BoxR2 | null = null): void {
     this.renderRect(context, frame);
   }
 
-  protected renderRect(context: DrawingContext, frame: BoxR2 | undefined): void {
+  protected renderRect(context: DrawingContext, frame: BoxR2 | null): void {
     context.rect(this.x.pxValue(), this.y.pxValue(),
                  this.width.pxValue(), this.height.pxValue());
   }
@@ -157,12 +157,12 @@ export class Rect implements Graphics, Equals, Debug {
     return new Rect(x, y, width, height);
   }
 
-  static fromAny(rect: AnyRect): Rect {
-    if (rect instanceof Rect) {
-      return rect;
-    } else if (typeof rect === "object" && rect !== null) {
-      return Rect.create(rect.x, rect.y, rect.width, rect.height);
+  static fromAny(value: AnyRect): Rect {
+    if (value instanceof Rect) {
+      return value;
+    } else if (typeof value === "object" && value !== null) {
+      return Rect.create(value.x, value.y, value.width, value.height);
     }
-    throw new TypeError("" + rect);
+    throw new TypeError("" + value);
   }
 }

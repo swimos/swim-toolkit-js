@@ -58,8 +58,8 @@ export class DeckView extends HtmlView {
   @ViewProperty({type: Number, state: 1 / 3})
   declare outAlign: ViewProperty<this, number>;
 
-  @ViewProperty({type: Object, inherit: true, updateFlags: View.NeedsResize})
-  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | undefined>;
+  @ViewProperty({type: Object, inherit: true, state: null, updateFlags: View.NeedsResize})
+  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
   declare bar: DeckViewBar<this, DeckBar>; // defined by DeckViewBar
 
@@ -94,7 +94,7 @@ export class DeckView extends HtmlView {
     if (timing === void 0 && oldCardCount === 0) {
       timing = false;
     } else if (timing === void 0 || timing === true) {
-      timing = this.getLookOr(Look.timing, false, Mood.navigating);
+      timing = this.getLookOr(Look.timing, Mood.navigating, false);
     } else {
       timing = Timing.fromAny(timing);
     }
@@ -148,7 +148,7 @@ export class DeckView extends HtmlView {
       }
 
       if (timing === void 0 || timing === true) {
-        timing = this.getLookOr(Look.timing, false, Mood.navigating);
+        timing = this.getLookOr(Look.timing, Mood.navigating, false);
       } else {
         timing = Timing.fromAny(timing);
       }
@@ -314,12 +314,12 @@ export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> exten
     let deckHeight = this.owner.height.state;
     deckHeight = deckHeight instanceof Length ? deckHeight : Length.px(this.owner.node.offsetHeight);
 
-    let barHeight: Length | string | undefined;
+    let barHeight: Length | null = null;
     const barView = this.owner.bar.view;
     if (barView !== null) {
       barHeight = barView.height.state;
       barHeight = barHeight instanceof Length ? barHeight : Length.px(barView.node.offsetHeight);
-      if (edgeInsets !== void 0) {
+      if (edgeInsets !== null) {
         edgeInsets = {
           insetTop: 0,
           insetRight: edgeInsets.insetRight,
@@ -352,12 +352,12 @@ export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> exten
     let deckHeight = this.owner.height.state;
     deckHeight = deckHeight instanceof Length ? deckHeight : Length.px(this.owner.node.offsetHeight);
 
-    let barHeight: Length | string | undefined;
+    let barHeight: Length | null = null;
     const barView = this.owner.bar.view;
     if (barView !== null) {
       barHeight = barView.height.state;
       barHeight = barHeight instanceof Length ? barHeight : Length.px(barView.node.offsetHeight);
-      if (edgeInsets !== void 0) {
+      if (edgeInsets !== null) {
         edgeInsets = {
           insetTop: 0,
           insetRight: edgeInsets.insetRight,

@@ -43,11 +43,11 @@ export class MapLineView extends MapPathView implements StrokeView {
     }
   }
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null, inherit: true})
+  declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewProperty({type: Number})
   declare hitWidth: ViewProperty<this, number | undefined>;
@@ -77,7 +77,7 @@ export class MapLineView extends MapPathView implements StrokeView {
       viewPath.draw(context);
       const stroke = this.stroke.value;
       const strokeWidth = this.strokeWidth.value;
-      if (stroke !== void 0 && strokeWidth !== void 0) {
+      if (stroke !== null && strokeWidth !== null) {
         const size = Math.min(frame.width, frame.height);
         context.lineWidth = strokeWidth.pxValue(size);
         context.strokeStyle = stroke.toString();
@@ -107,10 +107,10 @@ export class MapLineView extends MapPathView implements StrokeView {
     if (viewPath.isDefined()) {
       context.beginPath();
       viewPath.draw(context);
-      if (this.stroke.value !== void 0) {
+      if (this.stroke.value !== null) {
         let hitWidth = this.hitWidth.getStateOr(0);
         const strokeWidth = this.strokeWidth.value;
-        if (strokeWidth !== void 0) {
+        if (strokeWidth !== null) {
           const size = Math.min(frame.width, frame.height);
           hitWidth = Math.max(hitWidth, strokeWidth.pxValue(size));
         }

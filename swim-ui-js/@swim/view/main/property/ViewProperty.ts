@@ -257,7 +257,8 @@ function ViewPropertyConstructor<V extends View, T, U>(this: ViewProperty<V, T, 
   let state: T | undefined;
   if (this.initState !== void 0) {
     state = this.fromAny(this.initState());
-  } else if (this.inherit !== false) {
+  }
+  if (this.inherit !== false) {
     propertyFlags |= ViewProperty.InheritedFlag;
   }
   Object.defineProperty(this, "propertyFlags", {
@@ -721,5 +722,5 @@ ViewProperty.InheritedFlag = 1 << 3;
 ViewProperty.ConstrainedFlag = 1 << 4;
 ViewProperty.ConstrainingFlag = 1 << 5;
 
-ViewProperty({extends: void 0, type: MoodVector, inherit: true})(View.prototype, "mood");
-ViewProperty({extends: void 0, type: ThemeMatrix, inherit: true})(View.prototype, "theme");
+ViewProperty({extends: void 0, type: MoodVector, state: null, inherit: true})(View.prototype, "mood");
+ViewProperty({extends: void 0, type: ThemeMatrix, state: null, inherit: true})(View.prototype, "theme");

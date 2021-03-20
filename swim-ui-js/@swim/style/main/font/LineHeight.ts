@@ -22,7 +22,7 @@ export type LineHeight = Length | "normal";
 export const LineHeight = {} as {
   fromAny(height: AnyLineHeight): LineHeight;
 
-  fromValue(value: Value): LineHeight | undefined;
+  fromValue(value: Value): LineHeight | null;
 };
 
 LineHeight.fromAny = function (height: AnyLineHeight): LineHeight {
@@ -33,11 +33,12 @@ LineHeight.fromAny = function (height: AnyLineHeight): LineHeight {
   }
 };
 
-LineHeight.fromValue = function (value: Value): LineHeight | undefined {
-  const string = value.stringValue(void 0);
-  if (string !== void 0) {
+LineHeight.fromValue = function (value: Value): LineHeight | null {
+  const string = value.stringValue(null);
+  if (string !== null) {
     return LineHeight.fromAny(string);
   } else {
-    return Length.form().cast(value);
+    const height = Length.form().cast(value);
+    return height !== void 0 ? height : null;
   }
 };

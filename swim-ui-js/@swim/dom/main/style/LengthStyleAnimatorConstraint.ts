@@ -17,13 +17,9 @@ import type {StyleContext} from "./StyleContext";
 import {StyleAnimatorConstraint} from "./StyleAnimatorConstraint";
 
 /** @hidden */
-export abstract class LengthStyleAnimatorConstraint<V extends StyleContext> extends StyleAnimatorConstraint<V, Length, AnyLength> {
-  parse(value: string): Length | undefined {
-    try {
-      return Length.parse(value);
-    } catch (swallow) {
-      return void 0;
-    }
+export abstract class LengthStyleAnimatorConstraint<V extends StyleContext> extends StyleAnimatorConstraint<V, Length | null, AnyLength | null> {
+  parse(value: string): Length | null {
+    return Length.parse(value);
   }
 
   toNumber(value: Length): number {
@@ -34,15 +30,15 @@ export abstract class LengthStyleAnimatorConstraint<V extends StyleContext> exte
     }
   }
 
-  fromCssValue(value: CSSStyleValue): Length | undefined {
+  fromCssValue(value: CSSStyleValue): Length | null {
     return Length.fromCssValue(value);
   }
 
-  fromAny(value: AnyLength | string): Length | undefined {
+  fromAny(value: AnyLength | string): Length | null {
     try {
       return Length.fromAny(value);
     } catch (swallow) {
-      return void 0;
+      return null;
     }
   }
 }

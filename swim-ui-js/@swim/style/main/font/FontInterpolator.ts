@@ -34,9 +34,9 @@ export declare abstract class FontInterpolator {
   /** @hidden */
   declare readonly stretchInterpolator: Interpolator<FontStretch | undefined>;
   /** @hidden */
-  declare readonly sizeInterpolator: Interpolator<FontSize | undefined>;
+  declare readonly sizeInterpolator: Interpolator<FontSize | null>;
   /** @hidden */
-  declare readonly heightInterpolator: Interpolator<LineHeight | undefined>;
+  declare readonly heightInterpolator: Interpolator<LineHeight | null>;
   /** @hidden */
   declare readonly familyInterpolator: Interpolator<FontFamily | ReadonlyArray<FontFamily>>;
 

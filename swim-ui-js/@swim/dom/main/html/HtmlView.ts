@@ -305,8 +305,8 @@ export class HtmlView extends ElementView {
   /** @hidden */
   applyRootTheme(theme: ThemeMatrix, mood: MoodVector,
                  timing: Timing | boolean): void {
-    const font = theme.dot(Look.font, Mood.ambient);
-    if (font !== void 0) {
+    const font = theme.getOr(Look.font, Mood.ambient, null);
+    if (font !== null) {
       if (font.style !== void 0) {
         this.fontStyle.setAutoState(font.style);
       }
@@ -319,16 +319,16 @@ export class HtmlView extends ElementView {
       if (font.stretch !== void 0) {
         this.fontStretch.setAutoState(font.stretch);
       }
-      if (font.size !== void 0) {
+      if (font.size !== null) {
         this.fontSize.setAutoState(font.size);
       }
-      if (font.height !== void 0) {
+      if (font.height !== null) {
         this.lineHeight.setAutoState(font.height);
       }
       this.fontFamily.setAutoState(font.family);
     }
-    this.backgroundColor.setAutoState(theme.dot(Look.backgroundColor, Mood.ambient), timing);
-    this.color.setAutoState(theme.dot(Look.color, Mood.ambient), timing);
+    this.backgroundColor.setAutoState(theme.getOr(Look.backgroundColor, Mood.ambient, null), timing);
+    this.color.setAutoState(theme.getOr(Look.color, Mood.ambient, null), timing);
   }
 
   isPositioned(): boolean {
@@ -338,7 +338,7 @@ export class HtmlView extends ElementView {
 
   get parentTransform(): Transform {
     const transform = this.transform.value;
-    if (transform !== void 0) {
+    if (transform !== null) {
       return transform;
     } else if (this.isPositioned()) {
       const dx = this.node.offsetLeft;

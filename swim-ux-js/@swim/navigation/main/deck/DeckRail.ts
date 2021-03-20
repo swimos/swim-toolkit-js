@@ -241,7 +241,7 @@ export class DeckRail implements Equals, Equivalent, Debug {
   }
 
   static fromAny(value: AnyDeckRail): DeckRail {
-    if (value instanceof DeckRail) {
+    if (value === void 0 || value === null || value instanceof DeckRail) {
       return value;
     } else if (typeof value === "object" && value !== null) {
       return DeckRail.fromInit(value);

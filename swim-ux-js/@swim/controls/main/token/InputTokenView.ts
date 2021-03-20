@@ -133,14 +133,14 @@ export class InputTokenView extends TokenView {
     if (styleView !== null) {
       const placeholder = styleView.getCssRule("placeholder") as StyleRule<StyleSheet> | null;
       if (placeholder !== null) {
-        placeholder.color.setAutoState(theme.dot(this.placeholderLook, mood), timing);
+        placeholder.color.setAutoState(theme.getOr(this.placeholderLook, mood, null), timing);
       }
     }
 
     const labelView = this.label.view;
     if (labelView !== null) {
-      const font = theme.dot(Look.font, mood);
-      if (font !== void 0) {
+      const font = theme.getOr(Look.font, mood, null);
+      if (font !== null) {
         if (font.style !== void 0) {
           labelView.fontStyle.setAutoState(font.style);
         }

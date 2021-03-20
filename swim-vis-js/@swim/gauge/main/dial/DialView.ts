@@ -56,8 +56,8 @@ export interface DialViewInit extends GraphicsViewInit {
   font?: AnyFont;
   textColor?: AnyColor;
   arrangement?: DialViewArrangement;
-  label?: GraphicsView | string | null;
-  legend?: GraphicsView | string | null;
+  label?: GraphicsView | string;
+  legend?: GraphicsView | string;
 }
 
 export class DialView extends LayerView {
@@ -229,56 +229,56 @@ export class DialView extends LayerView {
   })
   declare limit: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: PointR2, inherit: true})
-  declare center: ViewAnimator<this, PointR2 | undefined, AnyPointR2 | undefined>;
+  @ViewAnimator({type: PointR2, state: PointR2.origin(), inherit: true})
+  declare center: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare innerRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(30), inherit: true})
+  declare innerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare outerRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(40), inherit: true})
+  declare outerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Angle, inherit: true})
-  declare startAngle: ViewAnimator<this, Angle | undefined, AnyAngle | undefined>;
+  @ViewAnimator({type: Angle, state: Angle.rad(-Math.PI / 2), inherit: true})
+  declare startAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Angle, inherit: true})
-  declare sweepAngle: ViewAnimator<this, Angle | undefined, AnyAngle | undefined>;
+  @ViewAnimator({type: Angle, state: Angle.rad(2 * Math.PI), inherit: true})
+  declare sweepAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare cornerRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(50), inherit: true})
+  declare cornerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare dialColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare dialColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare meterColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare meterColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare labelPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(25), inherit: true})
+  declare labelPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare tickAlign: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, state: 1.0, inherit: true})
+  declare tickAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare tickRadius: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(45), inherit: true})
+  declare tickRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare tickLength: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.pct(50), inherit: true})
+  declare tickLength: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare tickWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.px(1), inherit: true})
+  declare tickWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare tickPadding: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: Length.px(2), inherit: true})
+  declare tickPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare tickColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare tickColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
   @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected initLabel(labelView: GraphicsView): void {
     // hook
@@ -447,15 +447,23 @@ export class DialView extends LayerView {
     context.save();
 
     context.beginPath();
-    context.fillStyle = this.dialColor.getValue().toString();
+    const dialColor = this.dialColor.value;
+    if (dialColor !== null) {
+      context.fillStyle = dialColor.toString();
+    }
     dial.draw(context, frame);
-    context.fill();
+    if (dialColor !== null) {
+      context.fill();
+    }
     context.clip();
 
-    context.beginPath();
-    context.fillStyle = this.meterColor.getValue().toString();
-    meter.draw(context, frame);
-    context.fill();
+    const meterColor = this.meterColor.value;
+    if (meterColor !== null) {
+      context.beginPath();
+      context.fillStyle = meterColor.toString();
+      meter.draw(context, frame);
+      context.fill();
+    }
 
     context.restore();
 
@@ -498,7 +506,7 @@ export class DialView extends LayerView {
       const tickRadius = this.tickRadius.getValue().pxValue(size);
       const tickLength = this.tickLength.getValue().pxValue(width);
       const tickWidth = this.tickWidth.getValue().pxValue(size);
-      const tickColor = this.tickColor.getValue();
+      const tickColor = this.tickColor.value;
 
       const cx = center.x;
       const cy = center.y;
@@ -508,21 +516,23 @@ export class DialView extends LayerView {
       const r2y = tickRadius * Math.sin(tickAngle + Equivalent.Epsilon);
       let dx = 0;
 
-      context.beginPath();
-      context.strokeStyle = tickColor.toString();
-      context.lineWidth = tickWidth;
-      context.moveTo(cx + r1x, cy + r1y);
-      context.lineTo(cx + r2x, cy + r2y);
-      if (tickLength !== 0) {
-        if (r2x >= 0) {
-          context.lineTo(cx + tickLength, cy + r2y);
-          dx = tickLength - r2x;
-        } else if (r2x < 0) {
-          context.lineTo(cx - tickLength, cy + r2y);
-          dx = tickLength + r2x;
+      if (tickColor !== null) {
+        context.beginPath();
+        context.strokeStyle = tickColor.toString();
+        context.lineWidth = tickWidth;
+        context.moveTo(cx + r1x, cy + r1y);
+        context.lineTo(cx + r2x, cy + r2y);
+        if (tickLength !== 0) {
+          if (r2x >= 0) {
+            context.lineTo(cx + tickLength, cy + r2y);
+            dx = tickLength - r2x;
+          } else if (r2x < 0) {
+            context.lineTo(cx - tickLength, cy + r2y);
+            dx = tickLength + r2x;
+          }
         }
+        context.stroke();
       }
-      context.stroke();
 
       let textAlign: CanvasTextAlign;
       if (r2x >= 0) {

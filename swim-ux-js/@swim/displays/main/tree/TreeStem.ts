@@ -67,8 +67,8 @@ export class TreeStem extends HtmlView {
     }
   }
 
-  @ViewProperty({type: TreeSeed, inherit: true})
-  declare seed: ViewProperty<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  @ViewProperty({type: TreeSeed, state: null, inherit: true})
+  declare seed: ViewProperty<this, TreeSeed | null, AnyTreeSeed | null>;
 
   protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
@@ -114,19 +114,17 @@ export class TreeStem extends HtmlView {
                              viewContext: ViewContextType<self>): void {
       if (childView instanceof TreeVein) {
         const key = childView.key;
-        const root = seed !== void 0 && key !== void 0 ? seed.getRoot(key) : null;
+        const root = seed !== null && key !== void 0 ? seed.getRoot(key) : null;
         if (root !== null) {
           childView.display.setAutoState(!root.hidden ? "flex" : "none");
-          const left = root.left;
-          childView.left.setAutoState(left !== null ? left : void 0);
-          const width = root.width;
-          childView.width.setAutoState(width !== null ? width : void 0);
+          childView.left.setAutoState(root.left);
+          childView.width.setAutoState(root.width);
           childView.height.setAutoState(height);
         } else {
           childView.display.setAutoState("none");
-          childView.left.setAutoState(void 0);
-          childView.width.setAutoState(void 0);
-          childView.height.setAutoState(void 0);
+          childView.left.setAutoState(null);
+          childView.width.setAutoState(null);
+          childView.height.setAutoState(null);
         }
       }
       displayChildView.call(this, childView, displayFlags, viewContext);

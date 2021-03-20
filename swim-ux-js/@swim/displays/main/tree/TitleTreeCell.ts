@@ -24,6 +24,6 @@ export class TitleTreeCell extends TreeCell {
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    this.color.setAutoState(theme.dot(Look.accentColor, mood), timing);
+    this.color.setAutoState(theme.getOr(Look.accentColor, mood, null), timing);
   }
 }

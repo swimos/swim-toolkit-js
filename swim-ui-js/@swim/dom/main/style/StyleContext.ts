@@ -19,11 +19,11 @@ import type {AnimationTimeline} from "@swim/view";
 import type {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
 
 export interface StyleContext extends AnimationTimeline, ConstraintScope {
-  readonly node?: Node;
+  readonly node: Node | null;
 
   isMounted(): boolean;
 
-  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined;
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined;
 
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined;
 

@@ -245,7 +245,8 @@ function ModelPropertyConstructor<M extends Model, T, U>(this: ModelProperty<M, 
   let state: T | undefined;
   if (this.initState !== void 0) {
     state = this.fromAny(this.initState());
-  } else if (this.inherit !== false) {
+  }
+  if (this.inherit !== false) {
     propertyFlags |= ModelProperty.InheritedFlag;
   }
   Object.defineProperty(this, "propertyFlags", {

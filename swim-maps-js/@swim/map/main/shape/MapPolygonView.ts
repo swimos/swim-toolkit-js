@@ -186,20 +186,20 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
   @ViewProperty({type: PointR2, state: PointR2.origin()})
   declare viewCentroid: ViewProperty<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare fill: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null, inherit: true})
+  declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  @ViewAnimator({type: Font, state: null, inherit: true})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
@@ -335,13 +335,13 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
     context.closePath();
     if (pointCount !== 0) {
       const fill = this.fill.value;
-      if (fill !== void 0) {
+      if (fill !== null) {
         context.fillStyle = fill.toString();
         context.fill();
       }
       const stroke = this.stroke.value;
       const strokeWidth = this.strokeWidth.value;
-      if (stroke !== void 0 && strokeWidth !== void 0) {
+      if (stroke !== null && strokeWidth !== null) {
         const size = Math.min(frame.width, frame.height);
         context.lineWidth = strokeWidth.pxValue(size);
         context.strokeStyle = stroke.toString();
@@ -400,12 +400,12 @@ export class MapPolygonView extends MapLayerView implements FillView, StrokeView
     }
     context.closePath();
     if (pointCount !== 0) {
-      if (this.fill.value !== void 0 && context.isPointInPath(x, y)) {
+      if (this.fill.value !== null && context.isPointInPath(x, y)) {
         return this;
       }
-      if (this.stroke.value !== void 0) {
+      if (this.stroke.value !== null) {
         const strokeWidth = this.strokeWidth.value;
-        if (strokeWidth !== void 0) {
+        if (strokeWidth !== null) {
           const size = Math.min(frame.width, frame.height);
           context.lineWidth = strokeWidth.pxValue(size);
           if (context.isPointInStroke(x, y)) {

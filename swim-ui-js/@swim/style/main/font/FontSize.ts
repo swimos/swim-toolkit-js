@@ -31,7 +31,7 @@ export type FontSize = Length
 export const FontSize = {} as {
   fromAny(size: AnyFontSize): FontSize;
 
-  fromValue(value: Value): FontSize | undefined;
+  fromValue(value: Value): FontSize | null;
 };
 
 FontSize.fromAny = function (size: AnyFontSize): FontSize {
@@ -44,11 +44,12 @@ FontSize.fromAny = function (size: AnyFontSize): FontSize {
   }
 };
 
-FontSize.fromValue = function (value: Value): FontSize | undefined {
-  const string = value.stringValue(void 0);
-  if (string !== void 0) {
+FontSize.fromValue = function (value: Value): FontSize | null {
+  const string = value.stringValue(null);
+  if (string !== null) {
     return FontSize.fromAny(string);
   } else {
-    return Length.form().cast(value);
+    const size = Length.form().cast(value);
+    return size !== void 0 ? size : null;
   }
 };

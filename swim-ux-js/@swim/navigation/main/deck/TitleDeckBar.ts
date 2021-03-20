@@ -219,25 +219,21 @@ export class TitleDeckBar extends DeckBar {
     const backMembrane = this.backMembrane.view;
     const backButton = this.backButton.view;
     if (backMembrane !== null && backButton !== null) {
-      let edgeInsets = this.edgeInsets.superState;
-      if (edgeInsets === void 0 && this.edgeInsets.isAuto()) {
-        edgeInsets = viewContext.viewport.safeArea;
-      }
       if (backMembrane.width.isAuto()) {
-        let backButtonLeft: Length | string | number | undefined = backButton.left.state;
+        let backButtonLeft: Length | number | null = backButton.left.state;
         backButtonLeft = backButtonLeft instanceof Length ? backButtonLeft.pxValue() : backButton.node.offsetLeft;
         if (backButton.label !== null) {
           backMembrane.width.setAutoState(backButtonLeft + backButton.label.layoutWidth);
         } else {
-          let backButtonWidth: Length | string | number | undefined = backButton.height.state;
+          let backButtonWidth: Length | number | null = backButton.height.state;
           backButtonWidth = backButtonWidth instanceof Length ? backButtonWidth.pxValue() : backButton.node.offsetWidth;
           backMembrane.width.setAutoState(backButtonLeft + backButtonWidth);
         }
       }
       if (backMembrane.height.isAuto()) {
-        let backButtonTop: Length | string | number | undefined = backButton.top.state;
+        let backButtonTop: Length | number | null = backButton.top.state;
         backButtonTop = backButtonTop instanceof Length ? backButtonTop.pxValue() : backButton.node.offsetTop;
-        let backButtonHeight: Length | string | number | undefined = backButton.height.state;
+        let backButtonHeight: Length | number | null = backButton.height.state;
         backButtonHeight = backButtonHeight instanceof Length ? backButtonHeight.pxValue() : backButton.node.offsetHeight;
         backMembrane.height.setAutoState(backButtonTop + backButtonHeight);
       }

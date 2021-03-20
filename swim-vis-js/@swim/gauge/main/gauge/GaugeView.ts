@@ -158,16 +158,16 @@ export class GaugeView extends LayerView {
   @ViewAnimator({type: Length, state: Length.px(1), updateFlags: View.NeedsLayout})
   declare dialSpacing: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, state: Color.transparent()})
-  declare dialColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null})
+  declare dialColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Color, state: Color.black()})
-  declare meterColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null})
+  declare meterColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Length, state: Length.pct(25)})
   declare labelPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Number, state: 0.5})
+  @ViewAnimator({type: Number, state: 1.0})
   declare tickAlign: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Length, state: Length.pct(45)})
@@ -182,14 +182,14 @@ export class GaugeView extends LayerView {
   @ViewAnimator({type: Length, state: Length.px(2)})
   declare tickPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, state: Color.black()})
-  declare tickColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null})
+  declare tickColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  @ViewAnimator({type: Font, state: null, inherit: true})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected initTitle(titleView: GraphicsView): void {
     if (TypesetView.is(titleView)) {

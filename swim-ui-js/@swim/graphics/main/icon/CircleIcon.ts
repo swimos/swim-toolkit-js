@@ -27,8 +27,7 @@ import {FilledIcon} from "./FilledIcon";
 import {CircleIconInterpolator} from "../"; // forward import
 
 export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, Equals, Equivalent, Debug {
-  constructor(fillColor: Color | null, fillLook: Look<Color> | null,
-              moodModifier: MoodMatrix | null) {
+  constructor(fillColor: Color | null, fillLook: Look<Color> | null, moodModifier: MoodMatrix | null) {
     super();
     Object.defineProperty(this, "fillColor", {
       value: fillColor,
@@ -98,11 +97,7 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
       if (moodModifier !== null) {
         mood = moodModifier.timesCol(mood, true);
       }
-      let fillColor: Color | null | undefined = theme.dot(fillLook, mood);
-      if (fillColor === void 0) {
-        fillColor = null;
-      }
-      return this.withFillColor(fillColor);
+      return this.withFillColor(theme.getOr(fillLook, mood, null));
     } else {
       return this;
     }

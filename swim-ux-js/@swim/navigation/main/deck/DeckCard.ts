@@ -34,12 +34,12 @@ export class DeckCard extends HtmlView {
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(theme.dot(Look.backgroundColor, mood), timing);
+      this.backgroundColor.setAutoState(theme.getOr(Look.backgroundColor, mood, null), timing);
     }
   }
 
-  @ViewProperty({type: Object, inherit: true})
-  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | undefined>;
+  @ViewProperty({type: Object, state: null, inherit: true})
+  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
   @ViewProperty({type: String})
   declare cardTitle: ViewProperty<this, string | undefined>;

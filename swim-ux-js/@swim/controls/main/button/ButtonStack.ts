@@ -123,10 +123,10 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   @ViewAnimator({type: Number, state: 20, updateFlags: View.NeedsLayout})
   declare itemSpacing: ViewAnimator<this, number>;
 
-  @StyleAnimator<ButtonStack, number, number | string>({
+  @StyleAnimator<ButtonStack, number | undefined>({
     propertyNames: "opacity",
     type: Number,
-    onEnd(opacity: number): void {
+    onEnd(opacity: number | undefined): void {
       if (opacity === 1) {
         this.owner.didShow();
       } else if (opacity === 0) {
@@ -134,7 +134,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       }
     },
   })
-  declare opacity: StyleAnimator<this, number, number | string>;
+  declare opacity: StyleAnimator<this, number | undefined>;
 
   get modalView(): View | null {
     return null;

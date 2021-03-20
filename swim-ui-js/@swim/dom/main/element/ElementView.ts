@@ -149,39 +149,46 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
-  @ViewProperty({type: MoodMatrix})
-  declare moodModifier: ViewProperty<this, MoodMatrix | undefined>;
+  @ViewProperty({type: MoodMatrix, state: null})
+  declare moodModifier: ViewProperty<this, MoodMatrix | null>;
 
-  @ViewProperty({type: MoodMatrix})
-  declare themeModifier: ViewProperty<this, MoodMatrix | undefined>;
+  @ViewProperty({type: MoodMatrix, state: null})
+  declare themeModifier: ViewProperty<this, MoodMatrix | null>;
 
-  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined {
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
     const theme = this.theme.state;
     let value: T | undefined;
-    if (theme !== void 0) {
-      if (mood === void 0) {
+    if (theme !== null) {
+      if (mood === void 0 || mood === null) {
         mood = this.mood.state;
       }
-      if (mood !== void 0) {
-        value = theme.dot(look, mood);
+      if (mood !== null) {
+        value = theme.get(look, mood);
       }
     }
     return value;
   }
 
-  getLookOr<T, V>(look: Look<T, unknown>, elseValue: V, mood?: MoodVector<Feel>): T | V {
+  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
+    if (arguments.length === 2) {
+      elseValue = mood as E;
+      mood = null;
+    }
     const theme = this.theme.state;
-    let value: T | V | undefined;
-    if (theme !== void 0) {
-      if (mood === void 0) {
+    let value: T | E;
+    if (theme !== null) {
+      if (mood === void 0 || mood === null) {
         mood = this.mood.state;
       }
-      if (mood !== void 0) {
-        value = theme.dot(look, mood);
+      if (mood !== null) {
+        value = theme.getOr(look, mood as MoodVector<Feel>, elseValue as E);
+      } else {
+        value = elseValue as E;
       }
-    }
-    if (value === void 0) {
-      value = elseValue;
+    } else {
+      value = elseValue as E;
     }
     return value;
   }
@@ -207,18 +214,18 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected changeMood(): void {
-    const moodModifierProperty = this.getViewProperty("moodModifier") as ViewProperty<this, MoodMatrix | undefined> | null;
+    const moodModifierProperty = this.getViewProperty("moodModifier") as ViewProperty<this, MoodMatrix | null> | null;
     if (moodModifierProperty !== null && this.mood.isAuto()) {
       const moodModifier = moodModifierProperty.state;
-      if (moodModifier !== void 0) {
+      if (moodModifier !== null) {
         let superMood = this.mood.superState;
-        if (superMood === void 0) {
+        if (superMood === void 0 || superMood === null) {
           const themeManager = this.themeService.manager;
           if (themeManager !== void 0) {
             superMood = themeManager.mood;
           }
         }
-        if (superMood !== void 0) {
+        if (superMood !== void 0 && superMood !== null) {
           const mood = moodModifier.timesCol(superMood, true);
           this.mood.setAutoState(mood);
         }
@@ -229,18 +236,18 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   protected changeTheme(): void {
-    const themeModifierProperty = this.getViewProperty("themeModifier") as ViewProperty<this, MoodMatrix | undefined> | null;
+    const themeModifierProperty = this.getViewProperty("themeModifier") as ViewProperty<this, MoodMatrix | null> | null;
     if (themeModifierProperty !== null && this.theme.isAuto()) {
       const themeModifier = themeModifierProperty.state;
-      if (themeModifier !== void 0) {
+      if (themeModifier !== null) {
         let superTheme = this.theme.superState;
-        if (superTheme === void 0) {
+        if (superTheme === void 0 || superTheme === null) {
           const themeManager = this.themeService.manager;
           if (themeManager !== void 0) {
             superTheme = themeManager.theme;
           }
         }
-        if (superTheme !== void 0) {
+        if (superTheme !== void 0 && superTheme !== null) {
           const theme = superTheme.transform(themeModifier, true);
           this.theme.setAutoState(theme);
         }
@@ -255,7 +262,7 @@ export class ElementView extends NodeView implements StyleContext {
     this.changeTheme();
     const theme = this.theme.state;
     const mood = this.mood.state;
-    if (theme !== void 0 && mood !== void 0) {
+    if (theme !== null && mood !== null) {
       this.applyTheme(theme, mood);
     }
   }
@@ -270,10 +277,10 @@ export class ElementView extends NodeView implements StyleContext {
     if (NodeView.isRootView(this.node)) {
       const themeManager = this.themeService.manager;
       if (themeManager !== void 0) {
-        if (this.mood.isAuto() && this.mood.state === void 0) {
+        if (this.mood.isAuto() && this.mood.state === null) {
           this.mood.setAutoState(themeManager.mood);
         }
-        if (this.theme.isAuto() && this.theme.state === void 0) {
+        if (this.theme.isAuto() && this.theme.state === null) {
           this.theme.setAutoState(themeManager.theme);
         }
       }
@@ -286,7 +293,7 @@ export class ElementView extends NodeView implements StyleContext {
 
   setAttribute(attributeName: string, value: unknown): this {
     this.willSetAttribute(attributeName, value);
-    if (value !== void 0) {
+    if (value !== void 0 && value !== null) {
       this.node.setAttribute(attributeName, ToAttributeString(value));
     } else {
       this.node.removeAttribute(attributeName);
@@ -408,9 +415,9 @@ export class ElementView extends NodeView implements StyleContext {
   setStyle(propertyName: string, value: unknown, priority?: string): this {
     this.willSetStyle(propertyName, value, priority);
     if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
-      if (value !== void 0) {
+      if (value !== void 0 && value !== null) {
         const cssValue = ToCssValue(value);
-        if (cssValue !== void 0) {
+        if (cssValue !== null) {
           try {
             this.node.attributeStyleMap.set(propertyName, cssValue);
           } catch (e) {
@@ -423,7 +430,7 @@ export class ElementView extends NodeView implements StyleContext {
         this.node.attributeStyleMap.delete(propertyName);
       }
     } else {
-      if (value !== void 0) {
+      if (value !== void 0 && value !== null) {
         this.node.style.setProperty(propertyName, ToStyleString(value), priority);
       } else {
         this.node.style.removeProperty(propertyName);
@@ -558,22 +565,24 @@ export class ElementView extends NodeView implements StyleContext {
     super.unmountViewAnimators();
   }
 
-  id(): string | null;
-  id(value: string | null): this;
-  id(value?: string | null): string | null | this {
-    if (value === void 0) {
-      return this.getAttribute("id");
+  id(): string | undefined;
+  id(value: string | undefined): this;
+  id(value?: string | undefined): string | undefined | this {
+    if (arguments.length == 0) {
+      const id = this.getAttribute("id");
+      return id !== null ? id : void 0;
     } else {
       this.setAttribute("id", value);
       return this;
     }
   }
 
-  className(): string | null;
-  className(value: string | null): this;
-  className(value?: string | null): string | null | this {
-    if (value === void 0) {
-      return this.getAttribute("class");
+  className(): string | undefined;
+  className(value: string | undefined): this;
+  className(value?: string | undefined): string | undefined | this {
+    if (arguments.length === 0) {
+      const className = this.getAttribute("class");
+      return className !== null ? className : void 0;
     } else {
       this.setAttribute("class", value);
       return this;

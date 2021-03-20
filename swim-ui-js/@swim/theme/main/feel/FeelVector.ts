@@ -72,6 +72,20 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return entry !== void 0 ? entry[1] : void 0;
   }
 
+  getOr<T, E>(look: Look<T, any>, elseValue: E): T | E;
+  getOr(name: string, elseValue: unknown): unknown;
+  getOr(index: number, elseValue: unknown): unknown;
+  getOr<T, E>(look: Look<T, any> | string | number | undefined, elseValue: E): T | unknown | E {
+    if (typeof look === "object" && look !== null || typeof look === "function") {
+      look = look.name;
+    }
+    if (typeof look === "string") {
+      look = this.index[look];
+    }
+    const entry = typeof look === "number" ? this.array[look] : void 0;
+    return entry !== void 0 ? entry[1] : elseValue;
+  }
+
   updated<T, U = never>(look: Look<T, U>, value: T | U | undefined): FeelVector {
     const oldArray = this.array;
     const oldIndex = this.index;
@@ -258,13 +272,13 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
     return new FeelVector(array, index);
   }
 
-  static fromAny(vector: AnyFeelVector): FeelVector {
-    if (vector instanceof FeelVector) {
-      return vector;
-    } else if (Array.isArray(vector)) {
-      return FeelVector.of(...vector);
+  static fromAny(value: AnyFeelVector): FeelVector {
+    if (value === void 0 || value === null || value instanceof FeelVector) {
+      return value;
+    } else if (Array.isArray(value)) {
+      return FeelVector.of(...value);
     }
-    throw new TypeError("" + vector);
+    throw new TypeError("" + value);
   }
 
   /** @hidden */

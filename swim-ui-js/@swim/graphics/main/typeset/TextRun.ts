@@ -255,15 +255,15 @@ export class TextRun implements Graphics, Equals, Debug {
     return new TextRun(text, font, textAlign, textBaseline, textOrigin as PointR2, textColor);
   }
 
-  static fromAny(run: AnyTextRun): TextRun {
-    if (run instanceof TextRun) {
-      return run;
-    } else if (typeof run === "string") {
-      return TextRun.create(run);
-    } else if (typeof run === "object" && run !== null) {
-      return TextRun.create(run.text, run.font, run.textAlign, run.textBaseline,
-                            run.textOrigin, run.textColor);
+  static fromAny(value: AnyTextRun): TextRun {
+    if (value instanceof TextRun) {
+      return value;
+    } else if (typeof value === "string") {
+      return TextRun.create(value);
+    } else if (typeof value === "object" && value !== null) {
+      return TextRun.create(value.text, value.font, value.textAlign, value.textBaseline,
+                            value.textOrigin, value.textColor);
     }
-    throw new TypeError("" + run);
+    throw new TypeError("" + value);
   }
 }

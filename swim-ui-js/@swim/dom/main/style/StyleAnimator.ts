@@ -16,15 +16,7 @@ import {__extends} from "tslib";
 import {FromAny} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
-import {
-  AnyLineHeight,
-  LineHeight,
-  FontFamily,
-  AnyColor,
-  Color,
-  AnyBoxShadow,
-  BoxShadow,
-} from "@swim/style";
+import {FontFamily, AnyColor, Color, AnyBoxShadow, BoxShadow} from "@swim/style";
 import type {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {View, Animator} from "@swim/view";
 import {StyleContext} from "./StyleContext";
@@ -32,7 +24,6 @@ import {StringStyleAnimator} from "../"; // forward import
 import {NumberStyleAnimator} from "../"; // forward import
 import {LengthStyleAnimator} from "../"; // forward import
 import {ColorStyleAnimator} from "../"; // forward import
-import {LineHeightStyleAnimator} from "../"; // forward import
 import {FontFamilyStyleAnimator} from "../"; // forward import
 import {TransformStyleAnimator} from "../"; // forward import
 import {BoxShadowStyleAnimator} from "../"; // forward import
@@ -47,28 +38,31 @@ export interface StyleAnimatorInit<T, U = never> {
   propertyNames: string | ReadonlyArray<string>;
   extends?: StyleAnimatorClass;
   type?: unknown;
+  state?: T | U;
   look?: Look<T>;
 
   updateFlags?: number;
-  willSetState?(newValue: T | undefined, oldValue: T | undefined): void;
-  onSetState?(newValue: T | undefined, oldValue: T | undefined): void;
-  didSetState?(newValue: T | undefined, oldValue: T | undefined): void;
-  willSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
-  onSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
-  didSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
+  isDefined?(value: T): boolean;
+  willSetState?(newValue: T, oldValue: T): void;
+  onSetState?(newValue: T, oldValue: T): void;
+  didSetState?(newValue: T, oldValue: T): void;
+  willSetValue?(newValue: T, oldValue: T): void;
+  onSetValue?(newValue: T, oldValue: T): void;
+  didSetValue?(newValue: T, oldValue: T): void;
   onBegin?(value: T): void;
   onEnd?(value: T): void;
   onInterrupt?(value: T): void;
-  parse?(value: string): T | undefined;
-  fromCssValue?(value: CSSStyleValue): T | undefined;
-  fromAny?(value: T | U): T | undefined;
+  parse?(value: string): T;
+  fromCssValue?(value: CSSStyleValue): T;
+  fromAny?(value: T | U): T;
+  initState?(): T | U;
 }
 
 export type StyleAnimatorDescriptor<V extends StyleContext, T, U = never, I = {}> = StyleAnimatorInit<T, U> & ThisType<StyleAnimator<V, T, U> & I> & Partial<I>;
 
 export type StyleAnimatorDescriptorExtends<V extends StyleContext, T, U = never, I = {}> = {extends: StyleAnimatorClass | undefined} & StyleAnimatorDescriptor<V, T, U, I>;
 
-export type StyleAnimatorDescriptorFromAny<V extends StyleContext, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & StyleAnimatorDescriptor<V, T, U, I>;
+export type StyleAnimatorDescriptorFromAny<V extends StyleContext, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & StyleAnimatorDescriptor<V, T, U, I>;
 
 export interface StyleAnimatorConstructor<V extends StyleContext, T, U = never, I = {}> {
   new(owner: V, animatorName: string): StyleAnimator<V, T, U> & I;
@@ -79,21 +73,23 @@ export interface StyleAnimatorClass extends Function {
   readonly prototype: StyleAnimator<any, any>;
 }
 
-export interface StyleAnimator<V extends StyleContext, T, U = never> extends Animator<T | undefined> {
-  (): T | undefined;
-  (state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): V;
+export interface StyleAnimator<V extends StyleContext, T, U = never> extends Animator<T> {
+  (): T;
+  (state: T | U, timing?: AnyTiming | boolean): V;
 
   readonly name: string;
 
   readonly owner: V;
 
-  readonly node: Node | undefined;
+  readonly node: Node | null;
 
   readonly propertyNames: string | ReadonlyArray<string>;
 
   readonly propertyValue: T | undefined;
 
   readonly priority: string | undefined;
+
+  setPriority(priority: string | undefined): void;
 
   isAuto(): boolean;
 
@@ -103,11 +99,11 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
 
   getState(): NonNullable<T>;
 
-  setState(state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void;
+  setState(state: T | U, timing?: AnyTiming | boolean): void;
 
-  setAutoState(state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void;
+  setAutoState(state: T | U, timing?: AnyTiming | boolean): void;
 
-  onSetValue(newValue: T | undefined, oldValue: T | undefined): void;
+  onSetValue(newValue: T, oldValue: T): void;
 
   readonly look: Look<T> | null;
 
@@ -131,11 +127,14 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
 
   updateFlags?: number;
 
-  parse(value: string): T | undefined;
+  parse(value: string): T;
 
-  fromCssValue(value: CSSStyleValue): T | undefined;
+  fromCssValue(value: CSSStyleValue): T;
 
-  fromAny(value: T | U): T | undefined;
+  fromAny(value: T | U): T;
+
+  /** @hidden */
+  initState?(): T | U;
 
   isMounted(): boolean;
 
@@ -180,14 +179,13 @@ export const StyleAnimator = function <V extends StyleContext, T, U>(
   /** @hidden */
   new<V extends StyleContext, T, U = never>(owner: V, animatorName: string): StyleAnimator<V, T, U>;
 
-  <V extends StyleContext, T extends LineHeight | undefined = LineHeight | undefined, U extends AnyLineHeight | undefined = AnyLineHeight | undefined>(descriptor: {type: typeof LineHeight} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends Length | undefined = Length | undefined, U extends AnyLength | undefined = AnyLength | undefined>(descriptor: {type: typeof Length} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends Color | undefined = Color | undefined, U extends AnyColor | undefined = AnyColor | undefined>(descriptor: {type: typeof Color} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends BoxShadow | undefined = BoxShadow | undefined, U extends AnyBoxShadow | undefined = AnyBoxShadow | undefined>(descriptor: {type: typeof BoxShadow} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends Transform | undefined = Transform | undefined, U extends AnyTransform | undefined = AnyTransform | undefined>(descriptor: {type: typeof Transform} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends FontFamily | ReadonlyArray<FontFamily> | undefined = FontFamily | ReadonlyArray<FontFamily> | undefined, U extends FontFamily | ReadonlyArray<FontFamily> | undefined = FontFamily | ReadonlyArray<FontFamily> | undefined>(descriptor: {type: typeof FontFamily} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends StyleContext, T extends Length | null | undefined = Length | null | undefined, U extends AnyLength | null | undefined = AnyLength | null | undefined>(descriptor: {type: typeof Length} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends StyleContext, T extends Color | null | undefined = Color | null | undefined, U extends AnyColor | null | undefined = AnyColor | null | undefined>(descriptor: {type: typeof Color} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends StyleContext, T extends BoxShadow | null | undefined = BoxShadow | null | undefined, U extends AnyBoxShadow | null | undefined = AnyBoxShadow | null | undefined>(descriptor: {type: typeof BoxShadow} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends StyleContext, T extends Transform | null | undefined = Transform | null | undefined, U extends AnyTransform | null | undefined = AnyTransform | null | undefined>(descriptor: {type: typeof Transform} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends StyleContext, T extends FontFamily | ReadonlyArray<FontFamily> | null | undefined = FontFamily | ReadonlyArray<FontFamily> | null | undefined, U extends FontFamily | ReadonlyArray<FontFamily> | null | undefined = FontFamily | ReadonlyArray<FontFamily> | null | undefined>(descriptor: {type: typeof FontFamily} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends StyleContext, T extends string | null | undefined = string | null | undefined, U extends string | null | undefined = string | null | undefined>(descriptor: {type: typeof String} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends StyleContext, T extends number | null | undefined = number | null | undefined, U extends number | string | null | undefined = number | string | null | undefined>(descriptor: {type: typeof Number} & StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
   <V extends StyleContext, T, U = never>(descriptor: StyleAnimatorDescriptorFromAny<V, T, U>): PropertyDecorator;
   <V extends StyleContext, T, U = never, I = {}>(descriptor: StyleAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
   <V extends StyleContext, T, U = never>(descriptor: StyleAnimatorDescriptor<V, T, U>): PropertyDecorator;
@@ -226,6 +224,18 @@ function StyleAnimatorConstructor<V extends StyleContext, T, U>(this: StyleAnima
     enumerable: true,
     configurable: true,
   });
+  if (_this.initState !== void 0) {
+    Object.defineProperty(_this, "ownState", {
+      value: _this.fromAny(_this.initState()),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(_this, "ownValue", {
+      value: _this.ownState,
+      enumerable: true,
+      configurable: true,
+    });
+  }
   return _this;
 }
 
@@ -234,7 +244,7 @@ function StyleAnimatorDecoratorFactory<V extends StyleContext, T, U>(descriptor:
 }
 
 Object.defineProperty(StyleAnimator.prototype, "node", {
-  get: function (this: StyleAnimator<StyleContext, unknown>): Node | undefined {
+  get: function (this: StyleAnimator<StyleContext, unknown>): Node | null {
     return this.owner.node;
   },
   enumerable: true,
@@ -269,11 +279,12 @@ Object.defineProperty(StyleAnimator.prototype, "propertyValue", {
 });
 
 Object.defineProperty(StyleAnimator.prototype, "value", {
-  get: function <T>(this: StyleAnimator<StyleContext, T>): T | undefined {
+  get: function <T>(this: StyleAnimator<StyleContext, T>): T {
     let value = this.ownValue;
-    if (value === void 0) {
-      value = this.propertyValue;
-      if (value !== void 0) {
+    if (!this.isDefined(value)) {
+      const propertyValue = this.propertyValue;
+      if (propertyValue !== void 0) {
+        value = propertyValue;
         this.setAuto(false);
       }
     }
@@ -282,6 +293,25 @@ Object.defineProperty(StyleAnimator.prototype, "value", {
   enumerable: true,
   configurable: true,
 });
+
+StyleAnimator.prototype.setPriority = function (this: StyleAnimator<StyleContext, unknown>, priority: string | undefined): void {
+  Object.defineProperty(this, "priority", {
+    value: priority,
+    enumerable: true,
+    configurable: true,
+  });
+  const value = this.value;
+  if (this.isDefined(value)) {
+    const propertyNames = this.propertyNames;
+    if (typeof propertyNames === "string") {
+      this.owner.setStyle(propertyNames, value, priority);
+    } else {
+      for (let i = 0, n = propertyNames.length; i < n; i += 1) {
+        this.owner.setStyle(propertyNames[i]!, value, priority);
+      }
+    }
+  }
+};
 
 StyleAnimator.prototype.isAuto = function (this: StyleAnimator<StyleContext, unknown>): boolean {
   return (this.animatorFlags & Animator.OverrideFlag) === 0;
@@ -311,37 +341,24 @@ StyleAnimator.prototype.getState = function <T>(this: StyleAnimator<StyleContext
   return state as NonNullable<T>;
 };
 
-StyleAnimator.prototype.setState = function <T, U>(this: StyleAnimator<StyleContext, T, U>, state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void {
+StyleAnimator.prototype.setState = function <T, U>(this: StyleAnimator<StyleContext, T, U>, state: T | U, timing?: AnyTiming | boolean): void {
   if (state !== void 0) {
     state = this.fromAny(state);
-  }
-  if (arguments.length >= 3) {
-    Object.defineProperty(this, "priority", {
-      value: priority,
-      enumerable: true,
-    });
   }
   this.setAnimatorFlags(this.animatorFlags | Animator.OverrideFlag);
   Animator.prototype.setState.call(this, state, timing);
 };
 
-StyleAnimator.prototype.setAutoState = function <T, U>(this: StyleAnimator<StyleContext, T, U>, state: T | U | undefined, timing?: AnyTiming | boolean, priority?: string): void {
+StyleAnimator.prototype.setAutoState = function <T, U>(this: StyleAnimator<StyleContext, T, U>, state: T | U, timing?: AnyTiming | boolean): void {
   if ((this.animatorFlags & Animator.OverrideFlag) === 0) {
     if (state !== void 0) {
       state = this.fromAny(state);
-    }
-    if (arguments.length >= 3) {
-      Object.defineProperty(this, "priority", {
-        value: priority,
-        enumerable: true,
-        configurable: true,
-      });
     }
     Animator.prototype.setState.call(this, state, timing);
   }
 };
 
-StyleAnimator.prototype.onSetValue = function <T>(this: StyleAnimator<StyleContext, T>, newValue: T | undefined, oldValue: T | undefined): void {
+StyleAnimator.prototype.onSetValue = function <T>(this: StyleAnimator<StyleContext, T>, newValue: T, oldValue: T): void {
   const propertyNames = this.propertyNames;
   if (typeof propertyNames === "string") {
     this.owner.setStyle(propertyNames, newValue, this.priority);
@@ -383,7 +400,9 @@ StyleAnimator.prototype.onSetLook = function <T>(this: StyleAnimator<StyleContex
   if (this.owner.isMounted()) {
     if (newLook !== null && this.isAuto()) {
       const state = this.owner.getLook(newLook);
-      this.setAutoState(state, timing);
+      if (state !== void 0) {
+        this.setAutoState(state, timing);
+      }
     }
   } else {
     this.owner.requireUpdate(View.NeedsChange);
@@ -397,8 +416,10 @@ StyleAnimator.prototype.didSetLook = function <T>(this: StyleAnimator<StyleConte
 StyleAnimator.prototype.applyTheme = function <T>(this: StyleAnimator<StyleContext, T>, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
   const look = this.look;
   if (look !== null && this.isAuto()) {
-    const state = theme.dot(look, mood);
-    this.setAutoState(state, timing);
+    const state = theme.get(look, mood);
+    if (state !== void 0) {
+      this.setAutoState(state, timing);
+    }
   }
 };
 
@@ -418,16 +439,16 @@ StyleAnimator.prototype.didStopAnimating = function (this: StyleAnimator<StyleCo
   this.owner.trackDidStopAnimating(this);
 };
 
-StyleAnimator.prototype.parse = function <T>(this: StyleAnimator<StyleContext, T>, value: string): T | undefined {
-  return void 0;
+StyleAnimator.prototype.parse = function <T>(this: StyleAnimator<StyleContext, T>, value: string): T {
+  throw new Error();
 };
 
-StyleAnimator.prototype.fromCssValue = function <T>(this: StyleAnimator<StyleContext, T>, value: CSSStyleValue): T | undefined {
-  return void 0;
+StyleAnimator.prototype.fromCssValue = function <T>(this: StyleAnimator<StyleContext, T>, value: CSSStyleValue): T {
+  throw new Error();
 };
 
-StyleAnimator.prototype.fromAny = function <T, U>(this: StyleAnimator<StyleContext, T, U>, value: T | U): T | undefined {
-  return void 0;
+StyleAnimator.prototype.fromAny = function <T, U>(this: StyleAnimator<StyleContext, T, U>, value: T | U): T {
+  return value as T;
 };
 
 StyleAnimator.prototype.isMounted = function (this: StyleAnimator<StyleContext, unknown>): boolean {
@@ -492,8 +513,6 @@ StyleAnimator.getClass = function (type: unknown): StyleAnimatorClass | null {
     return LengthStyleAnimator;
   } else if (type === Color) {
     return ColorStyleAnimator;
-  } else if (type === LineHeight) {
-    return LineHeightStyleAnimator;
   } else if (type === FontFamily) {
     return FontFamilyStyleAnimator;
   } else if (type === BoxShadow) {
@@ -506,7 +525,10 @@ StyleAnimator.getClass = function (type: unknown): StyleAnimatorClass | null {
 
 StyleAnimator.define = function <V extends StyleContext, T, U, I>(descriptor: StyleAnimatorDescriptor<V, T, U, I>): StyleAnimatorConstructor<V, T, U, I> {
   let _super: StyleAnimatorClass | null | undefined = descriptor.extends;
+  const state = descriptor.state;
+  const initState = descriptor.initState;
   delete descriptor.extends;
+  delete descriptor.state;
 
   if (_super === void 0) {
     _super = StyleAnimator.getClass(descriptor.type);
@@ -519,11 +541,11 @@ StyleAnimator.define = function <V extends StyleContext, T, U, I>(descriptor: St
   }
 
   const _constructor = function DecoratedStyleAnimator(this: StyleAnimator<V, T, U>, owner: V, animatorName: string): StyleAnimator<V, T, U> {
-    let _this: StyleAnimator<V, T, U> = function StyleAnimatorAccessor(state?: T | U, timing?: AnyTiming | boolean, priority?: string): T | undefined | V {
+    let _this: StyleAnimator<V, T, U> = function StyleAnimatorAccessor(state?: T | U, timing?: AnyTiming | boolean): T | V {
       if (arguments.length === 0) {
         return _this.value;
       } else {
-        _this.setState(state, timing, priority);
+        _this.setState(state!, timing);
         return _this.owner;
       }
     } as StyleAnimator<V, T, U>;
@@ -532,11 +554,17 @@ StyleAnimator.define = function <V extends StyleContext, T, U, I>(descriptor: St
     return _this;
   } as unknown as StyleAnimatorConstructor<V, T, U, I>;
 
-  const _prototype = descriptor as unknown as StyleAnimator<V, T, U> & I;
+  const _prototype = descriptor as unknown as StyleAnimator<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  if (state !== void 0 && initState === void 0) {
+    _prototype.initState = function (): T | U {
+      return state;
+    };
+  }
 
   return _constructor;
 };

@@ -88,7 +88,7 @@ export class DeckSlider extends DeckSlot {
     if (timing === void 0 && oldItemCount === 0) {
       timing = false;
     } else if (timing === void 0 || timing === true) {
-      timing = this.getLookOr(Look.timing, false, Mood.navigating);
+      timing = this.getLookOr(Look.timing, Mood.navigating, false);
     } else {
       timing = Timing.fromAny(timing);
     }
@@ -140,7 +140,7 @@ export class DeckSlider extends DeckSlot {
       }
 
       if (timing === void 0 || timing === true) {
-        timing = this.getLookOr(Look.timing, false, Mood.navigating);
+        timing = this.getLookOr(Look.timing, Mood.navigating, false);
       } else {
         timing = Timing.fromAny(timing);
       }
@@ -208,13 +208,13 @@ export abstract class DeckSliderItem<V extends DeckSlider, S extends HtmlView> e
   constructor(owner: V, key: string | undefined, fastenerName: string | undefined) {
     super(owner, key, fastenerName);
     this.itemIndex = 0;
-    this.itemWidth = void 0;
+    this.itemWidth = null;
   }
 
   itemIndex: number;
 
   /** @hidden */
-  itemWidth: Length | string | undefined;
+  itemWidth: Length | string | null;
 
   onSetView(itemView: S | null): void {
     if (itemView !== null) {
@@ -228,10 +228,9 @@ export abstract class DeckSliderItem<V extends DeckSlider, S extends HtmlView> e
     parentView.insertChildView(childView, targetView, key);
   }
 
-  protected viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                              timing: Timing | boolean, itemView: S): void {
+  protected viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, itemView: S): void {
     if (itemView.color.isAuto()) {
-      itemView.color.setAutoState(theme.dot(this.owner.colorLook, mood), timing);
+      itemView.color.setAutoState(theme.getOr(this.owner.colorLook, mood, null), timing);
     }
   }
 
@@ -246,16 +245,16 @@ export abstract class DeckSliderItem<V extends DeckSlider, S extends HtmlView> e
   protected layoutItem(itemView: S): void {
     const itemIndex = this.itemIndex;
     const slotAlign = this.owner.slotAlign.getValue();
-    let slotWidth: Length | string | number | undefined = this.owner.width.state;
+    let slotWidth: Length | number | null = this.owner.width.state;
     slotWidth = slotWidth instanceof Length ? slotWidth.pxValue() : this.owner.node.offsetWidth;
-    let slotHeight: Length | string | number | undefined = this.owner.height.state;
+    let slotHeight: Length | number | null = this.owner.height.state;
     slotHeight = slotHeight instanceof Length ? slotHeight.pxValue() : this.owner.node.offsetHeight;
     const deckPhase = this.owner.deckPhase.getValueOr(0);
     const nextIndex = Math.max(this.owner.itemCount, Math.ceil(deckPhase));
     const prevIndex = nextIndex - 1;
     const itemPhase = deckPhase - prevIndex;
 
-    let itemWidth: Length | string | number | undefined = itemView.width.state;
+    let itemWidth: Length | number | null = itemView.width.state;
     this.itemWidth = itemWidth;
     if (itemWidth instanceof Length) {
       itemWidth = itemWidth.pxValue(slotWidth);

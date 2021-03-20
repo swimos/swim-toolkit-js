@@ -167,11 +167,11 @@ export class DrawerView extends HtmlView implements Modal {
   @ViewAnimator({type: Number, state: 1, updateFlags: View.NeedsResize | View.NeedsAnimate | View.NeedsLayout})
   declare drawerStretch: ViewAnimator<this, number>; // 0 = collapsed; 1 = expanded
 
-  @ViewPropertyConstraint({type: Length})
-  declare effectiveWidth: ViewPropertyConstraint<this, Length | undefined, AnyLength | undefined>;
+  @ViewPropertyConstraint({type: Length, state: null})
+  declare effectiveWidth: ViewPropertyConstraint<this, Length | null, AnyLength | null>;
 
-  @ViewPropertyConstraint({type: Length})
-  declare effectiveHeight: ViewPropertyConstraint<this, Length | undefined, AnyLength | undefined>;
+  @ViewPropertyConstraint({type: Length, state: null})
+  declare effectiveHeight: ViewPropertyConstraint<this, Length | null, AnyLength | null>;
 
   /** @hidden */
   declare readonly placement: DrawerPlacement;
@@ -206,7 +206,7 @@ export class DrawerView extends HtmlView implements Modal {
   }
 
   @ViewProperty({type: Object, inherit: true})
-  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | undefined>;
+  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
   protected willSetDrawerPlacement(newPlacement: DrawerPlacement, oldPlacement: DrawerPlacement): void {
     const viewController = this.viewController;
@@ -256,7 +256,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   /** @hidden */
   protected updateDrawerSlideTop(drawerSlide: number): void {
-    let height: Length | string | number | undefined = this.height.value;
+    let height: Length | number | null = this.height.value;
     height = height instanceof Length ? height.pxValue() : this.node.offsetHeight;
     this.top.setAutoState(Length.px((drawerSlide - 1) * height));
     this.effectiveWidth.setAutoState(this.width.value);
@@ -265,7 +265,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   /** @hidden */
   protected updateDrawerSlideRight(drawerSlide: number): void {
-    let width: Length | string | number | undefined = this.width.value;
+    let width: Length | number | null = this.width.value;
     width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
     this.right.setAutoState(Length.px((drawerSlide - 1) * width));
     this.effectiveWidth.setAutoState(Length.px(drawerSlide * width));
@@ -274,7 +274,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   /** @hidden */
   protected updateDrawerSlideBottom(drawerSlide: number): void {
-    let height: Length | string | number | undefined = this.height.value;
+    let height: Length | number | null = this.height.value;
     height = height instanceof Length ? height.pxValue() : this.node.offsetHeight;
     this.bottom.setAutoState(Length.px((drawerSlide - 1) * height));
     this.effectiveWidth.setAutoState(this.width.value);
@@ -283,7 +283,7 @@ export class DrawerView extends HtmlView implements Modal {
 
   /** @hidden */
   protected updateDrawerSlideLeft(drawerSlide: number): void {
-    let width: Length | string | number | undefined = this.width.value;
+    let width: Length | number | null = this.width.value;
     width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
     this.left.setAutoState(Length.px((drawerSlide - 1) * width));
     this.effectiveWidth.setAutoState(Length.px(drawerSlide * width));
@@ -304,7 +304,7 @@ export class DrawerView extends HtmlView implements Modal {
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(theme.dot(Look.backgroundColor, mood), timing);
+      this.backgroundColor.setAutoState(theme.getOr(Look.backgroundColor, mood, null), timing);
     }
   }
 
@@ -350,9 +350,9 @@ export class DrawerView extends HtmlView implements Modal {
     super.onLayout(viewContext);
     this.place(viewContext);
     if (viewContext.viewIdiom === "mobile") {
-      this.boxShadow.setAutoState(this.getLook(Look.shadow, Mood.floating));
+      this.boxShadow.setAutoState(this.getLookOr(Look.shadow, Mood.floating, null));
     } else {
-      this.boxShadow.setAutoState(this.getLook(Look.shadow));
+      this.boxShadow.setAutoState(this.getLookOr(Look.shadow, null));
     }
   }
 
@@ -377,16 +377,16 @@ export class DrawerView extends HtmlView implements Modal {
         .removeClass("drawer-left");
 
     this.position.setAutoState("fixed");
-    this.width.setAutoState(void 0);
-    this.height.setAutoState(void 0);
-    this.top.setAutoState(void 0);
+    this.width.setAutoState(null);
+    this.height.setAutoState(null);
+    this.top.setAutoState(null);
     this.right.setAutoState(Length.zero());
-    this.bottom.setAutoState(void 0);
+    this.bottom.setAutoState(null);
     this.left.setAutoState(Length.zero());
     this.updateDrawerSlideTop(this.drawerSlide.getValue());
 
     let edgeInsets = this.edgeInsets.superState;
-    if (edgeInsets === void 0) {
+    if ((edgeInsets === void 0 || edgeInsets === null) || edgeInsets === null) {
       edgeInsets = viewContext.viewport.safeArea;
     }
     this.edgeInsets.setAutoState({
@@ -409,17 +409,17 @@ export class DrawerView extends HtmlView implements Modal {
         .removeClass("drawer-left");
 
     this.position.setAutoState("fixed");
-    this.width.setAutoState(void 0);
-    this.height.setAutoState(void 0);
+    this.width.setAutoState(null);
+    this.height.setAutoState(null);
     this.top.setAutoState(Length.zero());
-    this.right.setAutoState(void 0);
+    this.right.setAutoState(null);
     this.bottom.setAutoState(Length.zero());
-    this.left.setAutoState(void 0);
+    this.left.setAutoState(null);
     this.updateDrawerStretch(this.drawerStretch.getValue());
     this.updateDrawerSlideRight(this.drawerSlide.getValue());
 
     let edgeInsets = this.edgeInsets.superState;
-    if (edgeInsets === void 0) {
+    if ((edgeInsets === void 0 || edgeInsets === null) || edgeInsets === null) {
       edgeInsets = viewContext.viewport.safeArea;
     }
     this.paddingTop.setAutoState(Length.px(edgeInsets.insetTop));
@@ -440,16 +440,16 @@ export class DrawerView extends HtmlView implements Modal {
         .removeClass("drawer-left");
 
     this.position.setAutoState("fixed");
-    this.width.setAutoState(void 0);
-    this.height.setAutoState(void 0);
-    this.top.setAutoState(void 0);
+    this.width.setAutoState(null);
+    this.height.setAutoState(null);
+    this.top.setAutoState(null);
     this.right.setAutoState(Length.zero());
-    this.bottom.setAutoState(void 0);
+    this.bottom.setAutoState(null);
     this.left.setAutoState(Length.zero());
     this.updateDrawerSlideBottom(this.drawerSlide.getValue());
 
     let edgeInsets = this.edgeInsets.superState;
-    if (edgeInsets === void 0) {
+    if ((edgeInsets === void 0 || edgeInsets === null) || edgeInsets === null) {
       edgeInsets = viewContext.viewport.safeArea;
     }
     this.edgeInsets.setAutoState({
@@ -472,17 +472,17 @@ export class DrawerView extends HtmlView implements Modal {
         .addClass("drawer-left");
 
     this.position.setAutoState("fixed");
-    this.width.setAutoState(void 0);
-    this.height.setAutoState(void 0);
+    this.width.setAutoState(null);
+    this.height.setAutoState(null);
     this.top.setAutoState(Length.zero());
-    this.right.setAutoState(void 0);
+    this.right.setAutoState(null);
     this.bottom.setAutoState(Length.zero());
-    this.left.setAutoState(void 0);
+    this.left.setAutoState(null);
     this.updateDrawerStretch(this.drawerStretch.getValue());
     this.updateDrawerSlideLeft(this.drawerSlide.getValue());
 
     let edgeInsets = this.edgeInsets.superState;
-    if (edgeInsets === void 0) {
+    if ((edgeInsets === void 0 || edgeInsets === null) || edgeInsets === null) {
       edgeInsets = viewContext.viewport.safeArea;
     }
     this.paddingTop.setAutoState(Length.px(edgeInsets.insetTop));

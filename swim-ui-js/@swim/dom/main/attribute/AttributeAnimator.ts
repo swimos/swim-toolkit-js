@@ -25,7 +25,6 @@ import {NumberAttributeAnimator} from "../"; // forward import
 import {LengthAttributeAnimator} from "../"; // forward import
 import {ColorAttributeAnimator} from "../"; // forward import
 import {TransformAttributeAnimator} from "../"; // forward import
-import type {ViewNodeType} from "../node/NodeView";
 import {ElementView} from "../"; // forward import
 
 export type AttributeAnimatorMemberType<V, K extends keyof V> =
@@ -38,27 +37,30 @@ export interface AttributeAnimatorInit<T, U = never> {
   attributeName: string;
   extends?: AttributeAnimatorClass;
   type?: unknown;
+  state?: T | U;
   look?: Look<T>;
 
   updateFlags?: ViewFlags;
-  willSetState?(newValue: T | undefined, oldValue: T | undefined): void;
-  onSetState?(newValue: T | undefined, oldValue: T | undefined): void;
-  didSetState?(newValue: T | undefined, oldValue: T | undefined): void;
-  willSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
-  onSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
-  didSetValue?(newValue: T | undefined, oldValue: T | undefined): void;
+  isDefined?(value: T): boolean;
+  willSetState?(newValue: T, oldValue: T): void;
+  onSetState?(newValue: T, oldValue: T): void;
+  didSetState?(newValue: T, oldValue: T): void;
+  willSetValue?(newValue: T, oldValue: T): void;
+  onSetValue?(newValue: T, oldValue: T): void;
+  didSetValue?(newValue: T, oldValue: T): void;
   onBegin?(value: T): void;
   onEnd?(value: T): void;
   onInterrupt?(value: T): void;
-  parse?(value: string): T | undefined
-  fromAny?(value: T | U): T | undefined;
+  parse?(value: string): T
+  fromAny?(value: T | U): T;
+  initState?(): T | U;
 }
 
 export type AttributeAnimatorDescriptor<V extends ElementView, T, U = never, I = {}> = AttributeAnimatorInit<T, U> & ThisType<AttributeAnimator<V, T, U> & I> & Partial<I>;
 
 export type AttributeAnimatorDescriptorExtends<V extends ElementView, T, U = never, I = {}> = {extends: AttributeAnimatorClass | undefined} & AttributeAnimatorDescriptor<V, T, U, I>;
 
-export type AttributeAnimatorDescriptorFromAny<V extends ElementView, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & AttributeAnimatorDescriptor<V, T, U, I>;
+export type AttributeAnimatorDescriptorFromAny<V extends ElementView, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & AttributeAnimatorDescriptor<V, T, U, I>;
 
 export interface AttributeAnimatorConstructor<V extends ElementView, T, U = never, I = {}> {
   new(owner: V, animatorName: string): AttributeAnimator<V, T, U> & I;
@@ -69,15 +71,15 @@ export interface AttributeAnimatorClass extends Function {
   readonly prototype: AttributeAnimator<any, any>;
 }
 
-export interface AttributeAnimator<V extends ElementView, T, U = never> extends Animator<T | undefined> {
-  (): T | undefined;
-  (value: T | U | undefined, timing?: AnyTiming | boolean): V;
+export interface AttributeAnimator<V extends ElementView, T, U = never> extends Animator<T> {
+  (): T;
+  (value: T | U, timing?: AnyTiming | boolean): V;
 
   readonly name: string;
 
   readonly owner: V;
 
-  readonly node: ViewNodeType<V>;
+  readonly node: Node;
 
   readonly attributeName: string;
 
@@ -91,11 +93,11 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
 
   getState(): NonNullable<T>;
 
-  setState(state: T | U | undefined, timing?: AnyTiming | boolean): void;
+  setState(state: T | U, timing?: AnyTiming | boolean): void;
 
-  setAutoState(state: T | U | undefined, timing?: AnyTiming | boolean): void;
+  setAutoState(state: T | U, timing?: AnyTiming | boolean): void;
 
-  onSetValue(newValue: T | undefined, oldValue: T | undefined): void;
+  onSetValue(newValue: T, oldValue: T): void;
 
   readonly look: Look<T> | null;
 
@@ -119,9 +121,12 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
 
   updateFlags?: ViewFlags;
 
-  parse(value: string): T | undefined;
+  parse(value: string): T;
 
-  fromAny(value: T | U): T | undefined;
+  fromAny(value: T | U): T;
+
+  /** @hidden */
+  initState?(): T | U;
 
   isMounted(): boolean;
 
@@ -205,6 +210,18 @@ function AttributeAnimatorConstructor<V extends ElementView, T, U>(this: Attribu
     enumerable: true,
     configurable: true,
   });
+  if (_this.initState !== void 0) {
+    Object.defineProperty(_this, "ownState", {
+      value: _this.fromAny(_this.initState()),
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(_this, "ownValue", {
+      value: _this.ownState,
+      enumerable: true,
+      configurable: true,
+    });
+  }
   return _this;
 }
 
@@ -213,7 +230,7 @@ function AttributeAnimatorDecoratorFactory<V extends ElementView, T, U = never>(
 }
 
 Object.defineProperty(AttributeAnimator.prototype, "node", {
-  get: function (this: AttributeAnimator<ElementView, unknown, unknown>): Element {
+  get: function (this: AttributeAnimator<ElementView, unknown>): Node {
     return this.owner.node;
   },
   enumerable: true,
@@ -237,11 +254,12 @@ Object.defineProperty(AttributeAnimator.prototype, "attributeValue", {
 });
 
 Object.defineProperty(AttributeAnimator.prototype, "value", {
-  get: function <T>(this: AttributeAnimator<ElementView, T>): T | undefined {
+  get: function <T>(this: AttributeAnimator<ElementView, T>): T {
     let value = this.ownValue;
-    if (value === void 0) {
-      value = this.attributeValue;
-      if (value !== void 0) {
+    if (!this.isDefined(value)) {
+      const attributeValue = this.attributeValue;
+      if (attributeValue !== void 0) {
+        value = attributeValue;
         this.setAuto(false);
       }
     }
@@ -279,7 +297,7 @@ AttributeAnimator.prototype.getState = function <T>(this: AttributeAnimator<Elem
   return state as NonNullable<T>;
 };
 
-AttributeAnimator.prototype.setState = function <T, U>(this: AttributeAnimator<ElementView, T, U>, state: T | U | undefined, timing?: AnyTiming | boolean): void {
+AttributeAnimator.prototype.setState = function <T, U>(this: AttributeAnimator<ElementView, T, U>, state: T | U, timing?: AnyTiming | boolean): void {
   if (state !== void 0) {
     state = this.fromAny(state);
   }
@@ -287,7 +305,7 @@ AttributeAnimator.prototype.setState = function <T, U>(this: AttributeAnimator<E
   Animator.prototype.setState.call(this, state, timing);
 };
 
-AttributeAnimator.prototype.setAutoState = function <T, U>(this: AttributeAnimator<ElementView, T, U>, state: T | U | undefined, timing?: AnyTiming | boolean): void {
+AttributeAnimator.prototype.setAutoState = function <T, U>(this: AttributeAnimator<ElementView, T, U>, state: T | U, timing?: AnyTiming | boolean): void {
   if ((this.animatorFlags & Animator.OverrideFlag) === 0) {
     if (state !== void 0) {
       state = this.fromAny(state);
@@ -296,7 +314,7 @@ AttributeAnimator.prototype.setAutoState = function <T, U>(this: AttributeAnimat
   }
 };
 
-AttributeAnimator.prototype.onSetValue = function <T>(this: AttributeAnimator<ElementView, T>, newValue: T | undefined, oldValue: T | undefined): void {
+AttributeAnimator.prototype.onSetValue = function <T>(this: AttributeAnimator<ElementView, T>, newValue: T, oldValue: T): void {
   this.owner.setAttribute(this.attributeName, newValue);
   const updateFlags = this.updateFlags;
   if (updateFlags !== void 0) {
@@ -331,7 +349,9 @@ AttributeAnimator.prototype.onSetLook = function <T>(this: AttributeAnimator<Ele
   if (this.owner.isMounted()) {
     if (newLook !== null && this.isAuto()) {
       const state = this.owner.getLook(newLook);
-      this.setAutoState(state, timing);
+      if (state !== void 0) {
+        this.setAutoState(state, timing);
+      }
     }
   } else {
     this.owner.requireUpdate(View.NeedsChange);
@@ -345,8 +365,10 @@ AttributeAnimator.prototype.didSetLook = function <T>(this: AttributeAnimator<El
 AttributeAnimator.prototype.applyTheme = function <T>(this: AttributeAnimator<ElementView, T>, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
   const look = this.look;
   if (look !== null && this.isAuto()) {
-    const state = theme.dot(look, mood);
-    this.setAutoState(state, timing);
+    const state = theme.get(look, mood);
+    if (state !== void 0) {
+      this.setAutoState(state, timing);
+    }
   }
 };
 
@@ -366,12 +388,12 @@ AttributeAnimator.prototype.didStopAnimating = function (this: AttributeAnimator
   this.owner.trackDidStopAnimating(this);
 };
 
-AttributeAnimator.prototype.parse = function <T>(this: AttributeAnimator<ElementView, T>): T | undefined {
-  return void 0;
+AttributeAnimator.prototype.parse = function <T>(this: AttributeAnimator<ElementView, T>): T {
+  throw new Error();
 };
 
-AttributeAnimator.prototype.fromAny = function <T, U>(this: AttributeAnimator<ElementView, T, U>, value: T | U): T | undefined {
-  return void 0;
+AttributeAnimator.prototype.fromAny = function <T, U>(this: AttributeAnimator<ElementView, T, U>, value: T | U): T {
+  return value as T;
 };
 
 AttributeAnimator.prototype.isMounted = function (this: AttributeAnimator<ElementView, unknown>): boolean {
@@ -446,7 +468,10 @@ AttributeAnimator.getClass = function (type: unknown): AttributeAnimatorClass | 
 
 AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor: AttributeAnimatorDescriptor<V, T, U, I>): AttributeAnimatorConstructor<V, T, U, I> {
   let _super: AttributeAnimatorClass | null | undefined = descriptor.extends;
+  const state = descriptor.state;
+  const initState = descriptor.initState;
   delete descriptor.extends;
+  delete descriptor.state;
 
   if (_super === void 0) {
     _super = AttributeAnimator.getClass(descriptor.type);
@@ -459,11 +484,11 @@ AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor:
   }
 
   const _constructor = function DecoratedAttributeAnimator(this: AttributeAnimator<V, T, U>, owner: V, animatorName: string): AttributeAnimator<V, T, U> {
-    let _this: AttributeAnimator<V, T, U> = function AttributeAnimatorAccessor(value?: T | U, timing?: AnyTiming | boolean): T | undefined | V {
+    let _this: AttributeAnimator<V, T, U> = function AttributeAnimatorAccessor(state?: T | U, timing?: AnyTiming | boolean): T | V {
       if (arguments.length === 0) {
         return _this.value;
       } else {
-        _this.setState(value, timing);
+        _this.setState(state!, timing);
         return _this.owner;
       }
     } as AttributeAnimator<V, T, U>;
@@ -472,11 +497,17 @@ AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor:
     return _this;
   } as unknown as AttributeAnimatorConstructor<V, T, U, I>;
 
-  const _prototype = descriptor as unknown as AttributeAnimator<V, T, U> & I;
+  const _prototype = descriptor as unknown as AttributeAnimator<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
+
+  if (state !== void 0 && initState === void 0) {
+    _prototype.initState = function (): T | U {
+      return state;
+    };
+  }
 
   return _constructor;
 };

@@ -17,9 +17,7 @@ import {PaintingRenderer} from "../painting/PaintingRenderer";
 import type {SvgContext} from "./SvgContext";
 
 export class SvgRenderer extends PaintingRenderer {
-  constructor(context: SvgContext,
-              theme: ThemeMatrix | null | undefined,
-              mood: MoodVector | null | undefined) {
+  constructor(context: SvgContext, theme: ThemeMatrix | null, mood: MoodVector | null) {
     super();
     Object.defineProperty(this, "context", {
       value: context,
@@ -27,12 +25,12 @@ export class SvgRenderer extends PaintingRenderer {
       configurable: true,
     });
     Object.defineProperty(this, "theme", {
-      value: theme !== void 0 ? theme : null,
+      value: theme,
       enumerable: true,
       configurable: true,
     });
     Object.defineProperty(this, "mood", {
-      value: mood !== void 0 ? mood : null,
+      value: mood,
       enumerable: true,
       configurable: true,
     });

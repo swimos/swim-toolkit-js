@@ -117,7 +117,7 @@ export abstract class Color implements Interpolate<Color>, HashCode, Equivalent,
   }
 
   static fromAny(value: AnyColor): Color {
-    if (value instanceof Color) {
+    if (value === void 0 || value === null || value instanceof Color) {
       return value;
     } else if (typeof value === "string") {
       return Color.parse(value);

@@ -17,12 +17,11 @@ import {Domain, Range, AnyTiming, LinearRange, ContinuousScale} from "@swim/mapp
 import type {BoxR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewAnimator, ViewFastener} from "@swim/view";
-import {GraphicsView, LayerView, CanvasContext, CanvasRenderer} from "@swim/graphics";
+import {GraphicsView, GraphicsViewController, LayerView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
 import type {PlotViewInit, PlotView} from "./PlotView";
-import type {PlotViewObserver} from "./PlotViewObserver";
-import type {PlotViewController} from "./PlotViewController";
+import type {ScatterPlotViewObserver} from "./ScatterPlotViewObserver";
 import {BubblePlotView} from "../"; // forward import
 
 export type ScatterPlotType = "bubble";
@@ -62,10 +61,6 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     });
   }
 
-  declare readonly viewController: PlotViewController<X, Y> | null;
-
-  declare readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
-
   initView(init: ScatterPlotViewInit<X, Y>): void {
     super.initView(init);
     if (init.xScale !== void 0) {
@@ -90,13 +85,17 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     }
   }
 
+  declare readonly viewController: GraphicsViewController<ScatterPlotView<X, Y>> & ScatterPlotViewObserver<X, Y> | null;
+
+  declare readonly viewObservers: ReadonlyArray<ScatterPlotViewObserver<X, Y>>;
+
   abstract readonly plotType: ScatterPlotType;
 
-  @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  @ViewAnimator({type: Font, state: null, inherit: true})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected willSetXScale(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null): void {
     const viewController = this.viewController;
@@ -284,7 +283,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   }
 
   protected updateXDataDomain(dataPointView: DataPointView<X, Y>): void {
-    const x = dataPointView.x.value;
+    const x: X = dataPointView.x.getValue();
     let xDataDomain = this.xDataDomain;
     if (xDataDomain === null) {
       xDataDomain = Domain(x, x);

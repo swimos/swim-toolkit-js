@@ -1126,13 +1126,14 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     // hook
   }
 
-  declare readonly mood: ViewProperty<this, MoodVector | undefined>; // defined by ViewProperty
+  declare readonly mood: ViewProperty<this, MoodVector | null>; // defined by ViewProperty
 
-  declare readonly theme: ViewProperty<this, ThemeMatrix | undefined>; // defined by ViewProperty
+  declare readonly theme: ViewProperty<this, ThemeMatrix | null>; // defined by ViewProperty
 
-  abstract getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined;
+  abstract getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined;
 
-  abstract getLookOr<T, V>(look: Look<T, unknown>, elseValue: V, mood?: MoodVector<Feel>): T | V;
+  abstract getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  abstract getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
 
   abstract modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): void;
 
@@ -1140,7 +1141,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
 
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
     if (timing === void 0 || timing === true) {
-      timing = theme.dot(Look.timing, Mood.ambient);
+      timing = theme.get(Look.timing, Mood.ambient);
       if (timing === void 0) {
         timing = false;
       }

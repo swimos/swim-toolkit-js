@@ -18,11 +18,11 @@ import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
 export abstract class BoxShadowStyleAnimator<V extends StyleContext> extends StyleAnimator<V, BoxShadow | null, AnyBoxShadow | null> {
-  parse(value: string): BoxShadow | null | undefined {
+  parse(value: string): BoxShadow | null {
     return BoxShadow.parse(value);
   }
 
-  fromAny(value: AnyBoxShadow): BoxShadow | null | undefined {
+  fromAny(value: AnyBoxShadow): BoxShadow | null {
     return BoxShadow.fromAny(value);
   }
 }

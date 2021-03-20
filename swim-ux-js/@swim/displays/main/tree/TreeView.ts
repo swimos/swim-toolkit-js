@@ -121,8 +121,8 @@ export class TreeView extends HtmlView {
     }
   }
 
-  @ViewProperty({type: TreeSeed, inherit: true, updateFlags: View.NeedsResize | View.NeedsLayout})
-  declare seed: ViewProperty<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  @ViewProperty({type: TreeSeed, state: null, inherit: true, updateFlags: View.NeedsResize | View.NeedsLayout})
+  declare seed: ViewProperty<this, TreeSeed | null, AnyTreeSeed | null>;
 
   @ViewProperty<TreeView, number>({
     type: Number,
@@ -133,8 +133,8 @@ export class TreeView extends HtmlView {
   })
   declare depth: ViewProperty<this, number>;
 
-  @ViewProperty({type: Object, inherit: true})
-  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | undefined>;
+  @ViewProperty({type: Object, state: null, inherit: true})
+  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
   @ViewProperty({type: Number, state: 2})
   declare limbSpacing: ViewProperty<this, number>;
@@ -188,7 +188,7 @@ export class TreeView extends HtmlView {
     stem.position.setAutoState("absolute");
     stem.left.setAutoState(0);
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
+    const width = seed !== null ? seed.width : null;
     stem.width.setAutoState(width);
     stem.visibility.setAutoState("hidden");
   }
@@ -201,7 +201,7 @@ export class TreeView extends HtmlView {
     limb.position.setAutoState("absolute");
     limb.left.setAutoState(0);
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
+    const width = seed !== null ? seed.width : null;
     limb.width.setAutoState(width);
     limb.depth.setAutoState(this.depth.state + 1);
     limb.visibility.setAutoState("hidden");
@@ -218,7 +218,7 @@ export class TreeView extends HtmlView {
     topBranch.top.setAutoState(0);
     topBranch.left.setAutoState(0);
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
+    const width = seed !== null ? seed.width : null;
     topBranch.width.setAutoState(width);
     topBranch.visibility.setAutoState("hidden");
   }
@@ -233,7 +233,7 @@ export class TreeView extends HtmlView {
     bottomBranch.bottom.setAutoState(0);
     bottomBranch.left.setAutoState(0);
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
+    const width = seed !== null ? seed.width : null;
     bottomBranch.width.setAutoState(width);
     bottomBranch.visibility.setAutoState("hidden");
   }
@@ -260,19 +260,19 @@ export class TreeView extends HtmlView {
     const depth = this.depth.state;
     if (depth !== void 0 && depth !== 0) {
       let superTheme = this.theme.superState;
-      if (superTheme === void 0) {
+      if (superTheme === void 0 || superTheme === null) {
         superTheme = theme;
       }
       const limbView = this.parentView;
       const leafView = limbView instanceof TreeLimb ? limbView.leaf : null;
-      const leafMood = leafView !== null ? leafView.moodModifier.state : void 0;
-      const superMood = leafMood !== void 0 ? leafMood.timesCol(mood) : mood;
+      const leafMood = leafView !== null ? leafView.moodModifier.state : null;
+      const superMood = leafMood !== null ? leafMood.timesCol(mood) : mood;
 
-      const backgroundColor = theme.dot(Look.backgroundColor, mood);
+      const backgroundColor = theme.getOr(Look.backgroundColor, mood, null);
       this.backgroundColor.setAutoState(backgroundColor, timing);
 
-      const accentColor = superTheme.dot(Look.accentColor, superMood);
-      const borderColor = superTheme.dot(Look.borderColor, superMood);
+      const accentColor = superTheme.getOr(Look.accentColor, superMood, null);
+      const borderColor = superTheme.getOr(Look.borderColor, superMood, null);
       const limbSpacing = this.limbSpacing.getState();
 
       let bottomBranch = this.getChildView("bottomBranch") as HtmlView | null;
@@ -338,20 +338,20 @@ export class TreeView extends HtmlView {
   }
 
   protected resizeTree(): void {
-    const oldSeed = !this.seed.isInherited() ? this.seed.state : void 0;
-    if (oldSeed !== void 0) {
+    const oldSeed = !this.seed.isInherited() ? this.seed.state : null;
+    if (oldSeed !== null) {
       const superSeed = this.seed.superState;
-      let width: Length | string | number | undefined = void 0;
-      if (superSeed !== void 0 && superSeed.width !== null) {
+      let width: Length | number | null = null;
+      if (superSeed !== void 0 && superSeed !== null && superSeed.width !== null) {
         width = superSeed.width.pxValue();
       }
-      if (width === void 0) {
+      if (width === null) {
         width = this.width.state;
         width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
       }
       const edgeInsets = this.edgeInsets.state;
-      const left = edgeInsets !== void 0 ? edgeInsets.insetLeft : 0;
-      const right = edgeInsets !== void 0 ? edgeInsets.insetRight : 0;
+      const left = edgeInsets !== null ? edgeInsets.insetLeft : 0;
+      const right = edgeInsets !== null ? edgeInsets.insetRight : 0;
       const spacing = this.limbSpacing.getState();
       const newSeed = oldSeed.resized(width, left, right, spacing);
       this.seed.setState(newSeed);
@@ -470,10 +470,7 @@ export class TreeView extends HtmlView {
                                                 viewContext: ViewContextType<this>) => void): void {
     this.resizeTree();
     const seed = this.seed.state;
-    let width: Length | undefined;
-    if (seed !== void 0 && seed.width !== null) {
-      width = seed.width;
-    }
+    const width = seed !== null ? seed.width : null;
 
     let yValue = this.limbSpacing.getState();
     let yState = yValue;
@@ -522,9 +519,9 @@ export class TreeView extends HtmlView {
       }
       displayChildView.call(this, childView, displayFlags, viewContext);
       if (childView instanceof TreeLimb || childView instanceof TreeStem) {
-        let heightValue: Length | string | number | undefined = childView.height.value;
+        let heightValue: Length | number | null = childView.height.value;
         heightValue = heightValue instanceof Length ? heightValue.pxValue() : childView.node.offsetHeight;
-        let heightState: Length | string | number | undefined = childView.height.state;
+        let heightState: Length | number | null = childView.height.state;
         heightState = heightState instanceof Length ? heightState.pxValue() : heightValue;
         yValue += heightValue * disclosingPhase;
         yState += heightState;

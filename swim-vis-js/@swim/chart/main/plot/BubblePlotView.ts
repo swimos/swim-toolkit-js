@@ -15,15 +15,13 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import {ViewAnimator} from "@swim/view";
-import type {CanvasContext, FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
-import {DataPointView} from "../data/DataPointView";
-import type {PlotViewController} from "./PlotViewController";
+import type {GraphicsViewController, CanvasContext, FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
 import {ScatterPlotType, ScatterPlotViewInit, ScatterPlotView} from "./ScatterPlotView";
+import type {BubblePlotViewObserver} from "./BubblePlotViewObserver";
 
 export type AnyBubblePlotView<X, Y> = BubblePlotView<X, Y> | BubblePlotViewInit<X, Y>;
 
 export interface BubblePlotViewInit<X, Y> extends ScatterPlotViewInit<X, Y>, FillViewInit, StrokeViewInit {
-  viewController?: PlotViewController<X, Y>;
   radius?: AnyLength;
 }
 
@@ -44,52 +42,54 @@ export class BubblePlotView<X, Y> extends ScatterPlotView<X, Y> implements FillV
     }
   }
 
+  declare readonly viewController: GraphicsViewController<BubblePlotView<X, Y>> & BubblePlotViewObserver<X, Y> | null;
+
+  declare readonly viewObservers: ReadonlyArray<BubblePlotViewObserver<X, Y>>;
+
   get plotType(): ScatterPlotType {
     return "bubble";
   }
 
   @ViewAnimator({type: Length, state: Length.px(5)})
-  declare radius: ViewAnimator<this, Length, AnyLength>;
+  declare radius: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Color, state: Color.black()})
-  declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null})
+  declare fill: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Color})
-  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null})
+  declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Length})
-  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null})
+  declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
     const size = Math.min(frame.width, frame.height);
-    const radius = this.radius.getValue();
+    const radius = this.radius.getValueOr(Length.zero());
     const fill = this.fill.value;
     const stroke = this.stroke.value;
     const strokeWidth = this.strokeWidth.value;
 
-    const childViews = this.childViews;
-    for (let i = 0, n = childViews.length; i < n; i += 1) {
-      const p = childViews[i];
-      if (p instanceof DataPointView) {
-        context.beginPath();
-        const r = p.radius.getValueOr(radius);
-        context.arc(p.xCoord, p.yCoord, r.pxValue(size), 0, 2 * Math.PI);
-        let fillStyle = p.color.value || fill;
-        if (fillStyle !== void 0) {
-          const opacity = p.opacity.value;
-          if (typeof opacity === "number") {
-            fillStyle = fillStyle.alpha(opacity);
-          }
-          context.fillStyle = fillStyle.toString();
-          context.fill();
+    const dataPointFasteners = this.dataPointFasteners;
+    for (let i = 0, n = dataPointFasteners.length; i < n; i += 1) {
+      const p = dataPointFasteners[i]!.view!;
+      context.beginPath();
+      const r = p.radius.getValueOr(radius).pxValue(size);
+      context.arc(p.xCoord, p.yCoord, r, 0, 2 * Math.PI);
+      let fillColor = p.color.getValueOr(fill);
+      if (fillColor !== null) {
+        const opacity = p.opacity.value;
+        if (opacity !== void 0) {
+          fillColor = fillColor.alpha(opacity);
         }
-        if (stroke !== void 0) {
-          if (strokeWidth !== void 0) {
-            context.lineWidth = strokeWidth.pxValue(size);
-          }
-          context.strokeStyle = stroke.toString();
-          context.stroke();
+        context.fillStyle = fillColor.toString();
+        context.fill();
+      }
+      if (stroke !== null) {
+        if (strokeWidth !== null) {
+          context.lineWidth = strokeWidth.pxValue(size);
         }
+        context.strokeStyle = stroke.toString();
+        context.stroke();
       }
     }
   }

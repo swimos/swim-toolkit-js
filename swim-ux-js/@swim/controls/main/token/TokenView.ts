@@ -250,10 +250,10 @@ export class TokenView extends HtmlView {
       headView.off("click", this.owner.onClickHead);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, headView: SvgView): void {
-      headView.fill.setAutoState(theme.dot(this.owner.fillLook, mood), timing);
+      headView.fill.setAutoState(theme.getOr(this.owner.fillLook, mood, null), timing);
       const headIconView = this.owner.headIcon.view;
       if (headIconView !== null && headIconView.fill.isAuto()) {
-        const iconColor = theme.dot(this.owner.fillLook, mood.updated(Feel.embossed, 1));
+        const iconColor = theme.getOr(this.owner.fillLook, mood.updated(Feel.embossed, 1), null);
         headIconView.fill.setAutoState(iconColor, timing);
       }
     },
@@ -261,10 +261,10 @@ export class TokenView extends HtmlView {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = headView.getLook(Look.timing);
-      headView.fill.setAutoState(headView.getLook(this.owner.fillLook), timing);
+      headView.fill.setAutoState(headView.getLookOr(this.owner.fillLook, null), timing);
       const headIconView = this.owner.headIcon.view;
       if (headIconView !== null && headIconView.fill.isAuto()) {
-        const iconColor = headView.getLook(this.owner.fillLook, headView.mood.getState().updated(Feel.embossed, 1));
+        const iconColor = headView.getLookOr(this.owner.fillLook, headView.mood.getState().updated(Feel.embossed, 1), null);
         headIconView.fill.setAutoState(iconColor, timing);
       }
     },
@@ -272,10 +272,10 @@ export class TokenView extends HtmlView {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const timing = headView.getLook(Look.timing);
-      headView.fill.setAutoState(headView.getLook(this.owner.fillLook), timing);
+      headView.fill.setAutoState(headView.getLookOr(this.owner.fillLook, null), timing);
       const headIconView = this.owner.headIcon.view;
       if (headIconView !== null && headIconView.fill.isAuto()) {
-        const iconColor = headView.getLook(this.owner.fillLook, headView.mood.getState().updated(Feel.embossed, 1));
+        const iconColor = headView.getLookOr(this.owner.fillLook, headView.mood.getState().updated(Feel.embossed, 1), null);
         headIconView.fill.setAutoState(iconColor, timing);
       }
     },
@@ -353,30 +353,30 @@ export class TokenView extends HtmlView {
       headView.off("click", this.owner.onClickBody);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, bodyView: SvgView): void {
-      bodyView.fill.setAutoState(theme.dot(this.owner.fillLook, mood), timing);
+      bodyView.fill.setAutoState(theme.getOr(this.owner.fillLook, mood, null), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(theme.dot(Look.backgroundColor, mood), timing);
+        labelView.color.setAutoState(theme.getOr(Look.backgroundColor, mood, null), timing);
       }
     },
     didStartHovering(): void {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = bodyView.getLook(Look.timing);
-      bodyView.fill.setAutoState(bodyView.getLook(this.owner.fillLook), timing);
+      bodyView.fill.setAutoState(bodyView.getLookOr(this.owner.fillLook, null), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(bodyView.getLook(Look.backgroundColor), timing);
+        labelView.color.setAutoState(bodyView.getLookOr(Look.backgroundColor, null), timing);
       }
     },
     didStopHovering(): void {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const timing = bodyView.getLook(Look.timing);
-      bodyView.fill.setAutoState(bodyView.getLook(this.owner.fillLook), timing);
+      bodyView.fill.setAutoState(bodyView.getLookOr(this.owner.fillLook, null), timing);
       const labelView = this.owner.label.view;
       if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(bodyView.getLook(Look.backgroundColor), timing);
+        labelView.color.setAutoState(bodyView.getLookOr(Look.backgroundColor, null), timing);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -424,10 +424,10 @@ export class TokenView extends HtmlView {
       footView.off("click", this.owner.onClickFoot);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, footView: SvgView): void {
-      footView.fill.setAutoState(theme.dot(this.owner.fillLook, mood), timing);
+      footView.fill.setAutoState(theme.getOr(this.owner.fillLook, mood, null), timing);
       const footIconView = this.owner.footIcon.view;
       if (footIconView !== null && footIconView.fill.isAuto()) {
-        const iconColor = theme.dot(this.owner.fillLook, mood.updated(Feel.embossed, 1));
+        const iconColor = theme.getOr(this.owner.fillLook, mood.updated(Feel.embossed, 1), null);
         footIconView.fill.setAutoState(iconColor, timing);
       }
     },
@@ -435,10 +435,10 @@ export class TokenView extends HtmlView {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = footView.getLook(Look.timing);
-      footView.fill.setAutoState(footView.getLook(this.owner.fillLook), timing);
+      footView.fill.setAutoState(footView.getLookOr(this.owner.fillLook, null), timing);
       const footIconView = this.owner.footIcon.view;
       if (footIconView !== null && footIconView.fill.isAuto()) {
-        const iconColor = footView.getLook(this.owner.fillLook, footView.mood.getState().updated(Feel.embossed, 1));
+        const iconColor = footView.getLookOr(this.owner.fillLook, footView.mood.getState().updated(Feel.embossed, 1), null);
         footIconView.fill.setAutoState(iconColor, timing);
       }
     },
@@ -446,10 +446,10 @@ export class TokenView extends HtmlView {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const timing = footView.getLook(Look.timing);
-      footView.fill.setAutoState(footView.getLook(this.owner.fillLook), timing);
+      footView.fill.setAutoState(footView.getLookOr(this.owner.fillLook, null), timing);
       const footIconView = this.owner.footIcon.view;
       if (footIconView !== null && footIconView.fill.isAuto()) {
-        const iconColor = footView.getLook(this.owner.fillLook, footView.mood.getState().updated(Feel.embossed, 1));
+        const iconColor = footView.getLookOr(this.owner.fillLook, footView.mood.getState().updated(Feel.embossed, 1), null);
         footIconView.fill.setAutoState(iconColor, timing);
       }
     },

@@ -51,14 +51,14 @@ export class RectView extends LayerView implements FillView, StrokeView {
   @ViewAnimator({type: Length, state: Length.zero()})
   declare height: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare fill: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare fill: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Length, inherit: true})
-  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  @ViewAnimator({type: Length, state: null, inherit: true})
+  declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
   get value(): Rect {
     return new Rect(this.x.getValue(), this.y.getValue(), this.width.getValue(), this.height.getValue());
@@ -114,14 +114,14 @@ export class RectView extends LayerView implements FillView, StrokeView {
     context.beginPath();
     context.rect(x, y, width, height);
     const fill = this.fill.value;
-    if (fill !== void 0) {
+    if (fill !== null) {
       context.fillStyle = fill.toString();
       context.fill();
     }
     const stroke = this.stroke.value;
-    if (stroke !== void 0) {
+    if (stroke !== null) {
       const strokeWidth = this.strokeWidth.value;
-      if (strokeWidth !== void 0) {
+      if (strokeWidth !== null) {
         const size = Math.min(frame.width, frame.height);
         context.lineWidth = strokeWidth.pxValue(size);
       }
@@ -162,11 +162,11 @@ export class RectView extends LayerView implements FillView, StrokeView {
     const height = this.height.getValue().pxValue(frame.height);
     context.beginPath();
     context.rect(x, y, width, height);
-    if (this.fill.value !== void 0 && context.isPointInPath(hx, hy)) {
+    if (this.fill.value !== null && context.isPointInPath(hx, hy)) {
       return this;
-    } else if (this.stroke.value !== void 0) {
+    } else if (this.stroke.value !== null) {
       const strokeWidth = this.strokeWidth.value;
-      if (strokeWidth !== void 0) {
+      if (strokeWidth !== null) {
         const size = Math.min(frame.width, frame.height);
         context.lineWidth = strokeWidth.pxValue(size);
         if (context.isPointInStroke(hx, hy)) {

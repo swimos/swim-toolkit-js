@@ -18,13 +18,12 @@ import {BTree} from "@swim/collections";
 import type {BoxR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
-import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
+import {GraphicsView, GraphicsViewController, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import type {DataPointCategory} from "../data/DataPoint";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
 import type {PlotViewInit, PlotView} from "./PlotView";
-import type {PlotViewObserver} from "./PlotViewObserver";
-import type {PlotViewController} from "./PlotViewController";
+import type {SeriesPlotViewObserver} from "./SeriesPlotViewObserver";
 import {AreaPlotView} from "../"; // forward import
 import {LinePlotView} from "../"; // forward import
 
@@ -74,10 +73,6 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     });
   }
 
-  declare readonly viewController: PlotViewController<X, Y> | null;
-
-  declare readonly viewObservers: ReadonlyArray<PlotViewObserver<X, Y>>;
-
   initView(init: SeriesPlotViewInit<X, Y>): void {
     super.initView(init);
     if (init.xScale !== void 0) {
@@ -106,13 +101,17 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     }
   }
 
+  declare readonly viewController: GraphicsViewController<SeriesPlotView<X, Y>> & SeriesPlotViewObserver<X, Y> | null;
+
+  declare readonly viewObservers: ReadonlyArray<SeriesPlotViewObserver<X, Y>>;
+
   abstract readonly plotType: SeriesPlotType;
 
-  @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  @ViewAnimator({type: Font, state: null, inherit: true})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewProperty({type: String, state: "domain"})
   declare hitMode: ViewProperty<this, SeriesPlotHitMode>;
@@ -303,7 +302,7 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
   }
 
   protected updateXDataDomain(dataPointView: DataPointView<X, Y>): void {
-    const x = dataPointView.x.value;
+    const x: X = dataPointView.x.getValue();
     let xDataDomain = this.xDataDomain;
     if (xDataDomain === null) {
       xDataDomain = Domain(x, x);

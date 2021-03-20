@@ -51,9 +51,9 @@ export interface StyleRule<V extends CssContext> extends CssRule<V>, StyleMap {
   (property: string): unknown;
   (property: string, value: unknown): V;
 
-  readonly rule: CSSStyleRule;
+  readonly node: Node | null;
 
-  readonly node: Node | undefined;
+  readonly rule: CSSStyleRule;
 
   readonly selector: string;
 
@@ -136,6 +136,14 @@ function StyleRuleDecoratorFactory<V extends CssContext>(descriptor: StyleRuleDe
   return CssContext.decorateCssRule.bind(CssContext, StyleRule.define(descriptor as StyleRuleDescriptor<CssContext>));
 }
 
+Object.defineProperty(StyleRule.prototype, "node", {
+  get: function (this: StyleRule<CssContext>): Node | null {
+    return null;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
 Object.defineProperty(StyleRule.prototype, "selector", {
   get: function (this: StyleRule<CssContext>): string {
     return this.rule.selectorText;
@@ -182,9 +190,9 @@ StyleRule.prototype.setStyle = function (this: StyleRule<CssContext>, propertyNa
                                          value: unknown, priority?: string): StyleRule<CssContext> {
   this.willSetStyle(propertyName, value, priority);
   if (typeof CSSStyleValue !== "undefined") { // CSS Typed OM support
-    if (value !== void 0) {
+    if (value !== void 0 && value !== null) {
       const cssValue = ToCssValue(value);
-      if (cssValue !== void 0) {
+      if (cssValue !== null) {
         try {
           this.rule.styleMap.set(propertyName, cssValue);
         } catch (e) {
@@ -197,7 +205,7 @@ StyleRule.prototype.setStyle = function (this: StyleRule<CssContext>, propertyNa
       this.rule.styleMap.delete(propertyName);
     }
   } else {
-    if (value !== void 0) {
+    if (value !== void 0 && value !== null) {
       this.rule.style.setProperty(propertyName, ToStyleString(value), priority);
     } else {
       this.rule.style.removeProperty(propertyName);

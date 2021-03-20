@@ -15,15 +15,14 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import {ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
-import type {GraphicsView, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
+import type {GraphicsView, GraphicsViewController, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";
-import type {PlotViewController} from "./PlotViewController";
 import {SeriesPlotType, SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";
+import type {LinePlotViewObserver} from "./LinePlotViewObserver";
 
 export type AnyLinePlotView<X, Y> = LinePlotView<X, Y> | LinePlotViewInit<X, Y>;
 
 export interface LinePlotViewInit<X, Y> extends SeriesPlotViewInit<X, Y>, StrokeViewInit {
-  viewController?: PlotViewController<X, Y>;
   hitWidth?: number;
 }
 
@@ -42,30 +41,33 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
     }
   }
 
+  declare readonly viewController: GraphicsViewController<LinePlotView<X, Y>> & LinePlotViewObserver<X, Y> | null;
+
+  declare readonly viewObservers: ReadonlyArray<LinePlotViewObserver<X, Y>>;
+
   get plotType(): SeriesPlotType {
     return "line";
   }
 
-  @ViewAnimator({type: Color, state: Color.black()})
-  declare stroke: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null})
+  declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Length, state: Length.px(1)})
-  declare strokeWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewProperty({type: Number, state: 5})
   declare hitWidth: ViewProperty<this, number>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
-    const dataPointFasteners = this.dataPointFasteners;
-
-    const stroke = this.stroke.getValue();
-    const strokeWidth = this.strokeWidth.getValue().pxValue(Math.min(frame.width, frame.height));
+    const stroke = this.stroke.getValueOr(Color.transparent());
+    const strokeWidth = this.strokeWidth.getValueOr(Length.zero()).pxValue(Math.min(frame.width, frame.height));
     const gradientStops = this.gradientStops;
-    let gradient: CanvasGradient | undefined;
+    let gradient: CanvasGradient | null = null;
 
     let x0: number;
     let x1: number;
     let dx: number;
+    const dataPointFasteners = this.dataPointFasteners;
     if (!dataPointFasteners.isEmpty()) {
       const p0 = dataPointFasteners.firstValue()!.view!;
       const p1 = dataPointFasteners.lastValue()!.view!;
@@ -93,10 +95,10 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
       } else {
         context.lineTo(xCoord, yCoord);
       }
-      if (gradient !== void 0 && p.isGradientStop()) {
-        let color = p.color.value || stroke;
+      if (gradient !== null && p.isGradientStop()) {
+        let color = p.color.getValueOr(stroke);
         const opacity = p.opacity.value;
-        if (typeof opacity === "number") {
+        if (opacity !== void 0) {
           color = color.alpha(opacity);
         }
         const offset = (xCoord - x0) / (dx || 1);
@@ -105,7 +107,7 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
       i += 1;
     }, this);
 
-    context.strokeStyle = gradient !== void 0 ? gradient : stroke.toString();
+    context.strokeStyle = gradient !== null ? gradient : stroke.toString();
     context.lineWidth = strokeWidth;
     context.stroke();
   }
@@ -114,7 +116,7 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
     const context = renderer.context;
     let hitWidth = this.hitWidth.state;
     const strokeWidth = this.strokeWidth.value;
-    if (strokeWidth !== void 0) {
+    if (strokeWidth !== null) {
       const frame = this.viewFrame;
       const size = Math.min(frame.width, frame.height);
       hitWidth = Math.max(hitWidth, strokeWidth.pxValue(size));

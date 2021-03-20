@@ -173,7 +173,7 @@ export class LinearGradient implements Interpolate<LinearGradient>, Equals, Equi
   }
 
   static fromAny(value: AnyLinearGradient): LinearGradient {
-    if (value instanceof LinearGradient) {
+    if (value === void 0 || value === null || value instanceof LinearGradient) {
       return value;
     } else if (typeof value === "string") {
       return LinearGradient.parse(value);

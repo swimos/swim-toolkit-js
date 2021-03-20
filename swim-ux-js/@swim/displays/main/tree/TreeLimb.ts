@@ -109,8 +109,8 @@ export class TreeLimb extends HtmlView {
     return disclosureState === "collapsed" || disclosureState === "collapsing";
   }
 
-  @ViewProperty({type: TreeSeed, inherit: true})
-  declare seed: ViewProperty<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  @ViewProperty({type: TreeSeed, state: null, inherit: true})
+  declare seed: ViewProperty<this, TreeSeed | null, AnyTreeSeed | null>;
 
   @ViewProperty<TreeLimb, number>({
     type: Number,
@@ -329,7 +329,7 @@ export class TreeLimb extends HtmlView {
     subtree.position.setAutoState("absolute");
     subtree.left.setAutoState(0);
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
+    const width = seed !== null ? seed.width : null;
     subtree.width.setAutoState(width);
     subtree.depth.setAutoState(this.depth.state);
   }
@@ -415,7 +415,7 @@ export class TreeLimb extends HtmlView {
     const disclosureState = this.disclosureState.getStateOr("expanded");
     const disclosingPhase = disclosureState === "expanded" ? this.disclosingPhase.getValueOr(1) : 1;
     const seed = this.seed.state;
-    const width = seed !== void 0 && seed.width !== null ? seed.width : void 0;
+    const width = seed !== null ? seed.width : null;
     const limbSpacing = this.limbSpacing.getStateOr(0);
     let yValue = 0;
     let yState = yValue
@@ -425,9 +425,9 @@ export class TreeLimb extends HtmlView {
         leaf.top.setIntermediateValue(Length.px(yValue * disclosingPhase), Length.px(yState));
       }
       leaf.width.setAutoState(width);
-      let heightValue: Length | string | number | undefined = leaf.height.value;
+      let heightValue: Length | number | null = leaf.height.value;
       heightValue = heightValue instanceof Length ? heightValue.pxValue() : leaf.node.offsetHeight;
-      let heightState: Length | string | number | undefined = leaf.height.state;
+      let heightState: Length | number | null = leaf.height.state;
       heightState = heightState instanceof Length ? heightState.pxValue() : heightValue;
       yValue += heightValue * disclosingPhase;
       yState += heightState;
@@ -438,9 +438,9 @@ export class TreeLimb extends HtmlView {
         subtree.top.setIntermediateValue(Length.px(yValue * disclosingPhase), Length.px(yState));
       }
       subtree.width.setAutoState(width);
-      let heightValue: Length | string | number | undefined = subtree.height.value;
+      let heightValue: Length | number | null = subtree.height.value;
       heightValue = heightValue instanceof Length ? heightValue.pxValue() : subtree.node.offsetHeight;
-      let heightState: Length | string | number | undefined = subtree.height.state;
+      let heightState: Length | number | null = subtree.height.state;
       heightState = heightState instanceof Length ? heightState.pxValue() : heightValue;
       yValue += heightValue * disclosingPhase;
       if (disclosureState !== "collapsing") {

@@ -274,7 +274,7 @@ export class TableLayout implements Equals, Equivalent, Debug {
   }
 
   static fromAny(value: AnyTableLayout): TableLayout {
-    if (value instanceof TableLayout) {
+    if (value === void 0 || value === null || value instanceof TableLayout) {
       return value;
     } else if (typeof value === "object" && value !== null) {
       return TableLayout.fromInit(value);

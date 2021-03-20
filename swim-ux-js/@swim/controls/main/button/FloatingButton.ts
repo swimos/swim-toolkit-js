@@ -88,9 +88,9 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     child: false,
     observe: true,
     iconIndex: 0,
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                      timing: Timing | boolean, iconView: HtmlIconView): void {
-      iconView.iconColor.setState(theme.dot(Look.backgroundColor, mood), timing);
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, iconView: HtmlIconView): void {
+      const iconColor = theme.getOr(Look.backgroundColor, mood, null);
+      iconView.iconColor.setState(iconColor, timing);
     },
     viewDidAnimate(viewContext: ViewContext, iconView: HtmlIconView): void {
       if (!iconView.opacity.isAnimating() && this.iconIndex !== this.owner.iconCount) {
@@ -194,10 +194,10 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
 
-    this.backgroundColor.setAutoState(theme.dot(Look.accentColor, mood), timing);
+    this.backgroundColor.setAutoState(theme.getOr(Look.accentColor, mood, null), timing);
 
-    let shadow = theme.dot(Look.shadow, Mood.floating);
-    if (shadow !== void 0) {
+    let shadow = theme.getOr(Look.shadow, Mood.floating, null);
+    if (shadow !== null) {
       const shadowColor = shadow.color;
       const stackPhase = this.stackPhase.getValueOr(1);
       shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * stackPhase));
@@ -208,8 +208,8 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
 
-    let shadow = this.getLook(Look.shadow, Mood.floating);
-    if (shadow !== void 0) {
+    let shadow = this.getLookOr(Look.shadow, Mood.floating, null);
+    if (shadow !== null) {
       const shadowColor = shadow.color;
       const stackPhase = this.stackPhase.getValueOr(1);
       shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * stackPhase));
@@ -221,7 +221,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     this.modifyMood(Feel.default, [Feel.hovering, 1]);
     if (this.backgroundColor.isAuto()) {
       const timing = this.getLook(Look.timing);
-      this.backgroundColor.setAutoState(this.getLook(Look.accentColor), timing);
+      this.backgroundColor.setAutoState(this.getLookOr(Look.accentColor, null), timing);
     }
   }
 
@@ -229,7 +229,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
     if (this.backgroundColor.isAuto()) {
       const timing = this.getLook(Look.timing);
-      this.backgroundColor.setAutoState(this.getLook(Look.accentColor), timing);
+      this.backgroundColor.setAutoState(this.getLookOr(Look.accentColor, null), timing);
     }
   }
 

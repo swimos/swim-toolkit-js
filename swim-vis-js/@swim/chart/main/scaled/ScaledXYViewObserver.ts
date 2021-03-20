@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {GraphicsViewObserver} from "@swim/graphics";
 import type {ScaledXViewObserver} from "./ScaledXViewObserver";
 import type {ScaledYViewObserver} from "./ScaledYViewObserver";
 import type {ScaledXYView} from "./ScaledXYView";
 
-export interface ScaledXYViewObserver<X = unknown, Y = unknown, V extends ScaledXYView<X, Y> = ScaledXYView<X, Y>> extends GraphicsViewObserver<V>, ScaledXViewObserver<X, V>, ScaledYViewObserver<Y, V> {
+export interface ScaledXYViewObserver<X = unknown, Y = unknown, V extends ScaledXYView<X, Y> = ScaledXYView<X, Y>> extends ScaledXViewObserver<X, V>, ScaledYViewObserver<Y, V> {
 }

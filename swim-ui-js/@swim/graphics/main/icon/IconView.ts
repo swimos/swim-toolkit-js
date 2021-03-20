@@ -30,17 +30,17 @@ export interface IconViewInit extends ViewInit {
 }
 
 export interface IconView extends View {
-  readonly xAlign: ViewAnimator<this, number | undefined>;
+  readonly xAlign: ViewAnimator<this, number>;
 
-  readonly yAlign: ViewAnimator<this, number | undefined>;
+  readonly yAlign: ViewAnimator<this, number>;
 
-  readonly iconWidth: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  readonly iconWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  readonly iconHeight: ViewAnimator<this, Length | undefined, AnyLength | undefined>;
+  readonly iconHeight: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  readonly iconColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  readonly iconColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  readonly graphics: ViewAnimator<this, Graphics | undefined>;
+  readonly graphics: ViewAnimator<this, Graphics | null>;
 }
 
 export const IconView = {} as {

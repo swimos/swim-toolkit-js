@@ -268,8 +268,7 @@ export abstract class GraphicsView extends View {
   abstract previousChildView(targetView: View): View | null;
 
   abstract forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
-  abstract forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
-                                  thisArg: S): T | undefined;
+  abstract forEachChildView<T, S>(callback: (this: S, childView: View) => T | void, thisArg: S): T | undefined;
 
   abstract getChildView(key: string): View | null;
 
@@ -827,39 +826,46 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  @ViewProperty({type: MoodMatrix})
-  declare moodModifier: ViewProperty<this, MoodMatrix | undefined>;
+  @ViewProperty({type: MoodMatrix, state: null})
+  declare moodModifier: ViewProperty<this, MoodMatrix | null>;
 
-  @ViewProperty({type: MoodMatrix})
-  declare themeModifier: ViewProperty<this, MoodMatrix | undefined>;
+  @ViewProperty({type: MoodMatrix, state: null})
+  declare themeModifier: ViewProperty<this, MoodMatrix | null>;
 
-  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel>): T | undefined {
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
     const theme = this.theme.state;
     let value: T | undefined;
-    if (theme !== void 0) {
-      if (mood === void 0) {
+    if (theme !== null) {
+      if (mood === void 0 || mood === null) {
         mood = this.mood.state;
       }
-      if (mood !== void 0) {
-        value = theme.dot(look, mood);
+      if (mood !== null) {
+        value = theme.get(look, mood);
       }
     }
     return value;
   }
 
-  getLookOr<T, V>(look: Look<T, unknown>, elseValue: V, mood?: MoodVector<Feel>): T | V {
+  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
+    if (arguments.length === 2) {
+      elseValue = mood as E;
+      mood = null;
+    }
     const theme = this.theme.state;
-    let value: T | V | undefined;
-    if (theme !== void 0) {
-      if (mood === void 0) {
+    let value: T | E;
+    if (theme !== null) {
+      if (mood === void 0 || mood === null) {
         mood = this.mood.state;
       }
-      if (mood !== void 0) {
-        value = theme.dot(look, mood);
+      if (mood !== null) {
+        value = theme.getOr(look, mood as MoodVector<Feel>, elseValue as E);
+      } else {
+        value = elseValue as E;
       }
-    }
-    if (value === void 0) {
-      value = elseValue;
+    } else {
+      value = elseValue as E;
     }
     return value;
   }
@@ -885,18 +891,18 @@ export abstract class GraphicsView extends View {
   }
 
   protected changeMood(): void {
-    const moodModifierProperty = this.getViewProperty("moodModifier") as ViewProperty<this, MoodMatrix | undefined> | null;
+    const moodModifierProperty = this.getViewProperty("moodModifier") as ViewProperty<this, MoodMatrix | null> | null;
     if (moodModifierProperty !== null && this.mood.isAuto()) {
       const moodModifier = moodModifierProperty.state;
-      if (moodModifier !== void 0) {
+      if (moodModifier !== null) {
         let superMood = this.mood.superState;
-        if (superMood === void 0) {
+        if (superMood === void 0 || superMood === null ) {
           const themeManager = this.themeService.manager;
           if (themeManager !== void 0) {
             superMood = themeManager.mood;
           }
         }
-        if (superMood !== void 0) {
+        if (superMood !== void 0 && superMood !== null) {
           const mood = moodModifier.timesCol(superMood, true);
           this.mood.setAutoState(mood);
         }
@@ -907,18 +913,18 @@ export abstract class GraphicsView extends View {
   }
 
   protected changeTheme(): void {
-    const themeModifierProperty = this.getViewProperty("themeModifier") as ViewProperty<this, MoodMatrix | undefined> | null;
+    const themeModifierProperty = this.getViewProperty("themeModifier") as ViewProperty<this, MoodMatrix | null> | null;
     if (themeModifierProperty !== null && this.theme.isAuto()) {
       const themeModifier = themeModifierProperty.state;
-      if (themeModifier !== void 0) {
+      if (themeModifier !== null) {
         let superTheme = this.theme.superState;
-        if (superTheme === void 0) {
+        if (superTheme === void 0 || superTheme === null) {
           const themeManager = this.themeService.manager;
           if (themeManager !== void 0) {
             superTheme = themeManager.theme;
           }
         }
-        if (superTheme !== void 0) {
+        if (superTheme !== void 0 && superTheme !== null) {
           const theme = superTheme.transform(themeModifier, true);
           this.theme.setAutoState(theme);
         }
@@ -933,7 +939,7 @@ export abstract class GraphicsView extends View {
     this.changeTheme();
     const theme = this.theme.state;
     const mood = this.mood.state;
-    if (theme !== void 0 && mood !== void 0) {
+    if (theme !== null && mood !== null) {
       this.applyTheme(theme, mood);
     }
   }

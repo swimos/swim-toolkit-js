@@ -48,8 +48,8 @@ export class TableView extends HtmlView {
 
   declare readonly viewObservers: ReadonlyArray<TableViewObserver>;
 
-  @ViewProperty({type: TableLayout, updateFlags: View.NeedsLayout})
-  declare layout: ViewProperty<this, TableLayout | undefined, AnyTableLayout | undefined>;
+  @ViewProperty({type: TableLayout, state: null, updateFlags: View.NeedsLayout})
+  declare layout: ViewProperty<this, TableLayout | null, AnyTableLayout | null>;
 
   @ViewProperty({type: Length, state: Length.zero()})
   declare rowSpacing: ViewProperty<this, Length, AnyLength>;
@@ -57,8 +57,8 @@ export class TableView extends HtmlView {
   @ViewProperty({type: Length, state: Length.px(24)})
   declare rowHeight: ViewProperty<this, Length, AnyLength>;
 
-  @ViewProperty({type: Object, inherit: true})
-  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | undefined>;
+  @ViewProperty({type: Object, state: null, inherit: true})
+  declare edgeInsets: ViewProperty<this, ViewEdgeInsets | null>;
 
   insertRow(rowView: RowView, targetView: View | null = null): void {
     const rowFasteners = this.rowFasteners as ViewFastener<this, RowView>[];
@@ -98,9 +98,9 @@ export class TableView extends HtmlView {
     rowView.display.setAutoState("none");
     rowView.position.setAutoState("absolute");
     rowView.left.setAutoState(0);
-    rowView.top.setAutoState(void 0);
+    rowView.top.setAutoState(null);
     const layout = this.layout.state;
-    rowView.width.setAutoState(layout !== void 0 && layout.width !== null ? layout.width : void 0);
+    rowView.width.setAutoState(layout !== null ? layout.width : null);
     rowView.height.setAutoState(this.rowHeight.getState());
     rowView.opacity.setAutoState(0);
     rowView.setCulled(true);
@@ -242,17 +242,17 @@ export class TableView extends HtmlView {
 
   protected resizeTable(): void {
     const oldLayout = this.layout.state;
-    if (oldLayout !== void 0) {
-      let width: Length | string | number | undefined = this.width.state;
+    if (oldLayout !== null) {
+      let width: Length | number | null = this.width.state;
       width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
       const edgeInsets = this.edgeInsets.state;
-      let paddingLeft: Length | string | number | undefined = this.paddingLeft.state;
+      let paddingLeft: Length | number | null = this.paddingLeft.state;
       paddingLeft = paddingLeft instanceof Length ? paddingLeft.pxValue(width) : 0;
-      let paddingRight: Length | string | number | undefined = this.paddingRight.state;
+      let paddingRight: Length | number | null = this.paddingRight.state;
       paddingRight = paddingRight instanceof Length ? paddingRight.pxValue(width) : 0;
-      let left = edgeInsets !== void 0 ? edgeInsets.insetLeft : 0;
+      let left = edgeInsets !== null ? edgeInsets.insetLeft : 0;
       left += paddingLeft;
-      let right = edgeInsets !== void 0 ? edgeInsets.insetRight : 0;
+      let right = edgeInsets !== null ? edgeInsets.insetRight : 0;
       right += paddingRight;
       const newLayout = oldLayout.resized(width, left, right);
       this.layout.setState(newLayout);
@@ -362,10 +362,7 @@ export class TableView extends HtmlView {
                                                 viewContext: ViewContextType<this>) => void): void {
     this.resizeTable();
     const layout = this.layout.state;
-    let width: Length | undefined;
-    if (layout !== void 0 && layout.width !== null) {
-      width = layout.width;
-    }
+    const width = layout !== null ? layout.width : null;
 
     const rowHeight = this.rowHeight.getState();
     const rowSpacing = this.rowSpacing.getState();
@@ -417,7 +414,7 @@ export class TableView extends HtmlView {
       }
       displayChildView.call(this, childView, displayFlags, viewContext);
       if (childView instanceof RowView) {
-        let height: Length | string | number | undefined = childView.height.state;
+        let height: Length | number | null = childView.height.state;
         height = height instanceof Length ? height.pxValue() : childView.node.offsetHeight;
         y += height + ySpacing;
       }

@@ -122,11 +122,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
       if (moodModifier !== null) {
         mood = moodModifier.timesCol(mood, true);
       }
-      let fillColor: Color | null | undefined = theme.dot(fillLook, mood);
-      if (fillColor === void 0) {
-        fillColor = null;
-      }
-      return this.withFillColor(fillColor);
+      return this.withFillColor(theme.getOr(fillLook, mood, null));
     } else {
       return this;
     }

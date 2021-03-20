@@ -233,7 +233,8 @@ function ComponentPropertyConstructor<C extends Component, T, U>(this: Component
   let state: T | undefined;
   if (this.initState !== void 0) {
     state = this.fromAny(this.initState());
-  } else if (this.inherit !== false) {
+  }
+  if (this.inherit !== false) {
     propertyFlags |= ComponentProperty.InheritedFlag;
   }
   Object.defineProperty(this, "propertyFlags", {

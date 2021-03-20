@@ -37,8 +37,8 @@ export class TextRunView extends LayerView implements TypesetView {
   @ViewAnimator({type: String, state: ""})
   declare text: ViewAnimator<this, string>;
 
-  @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  @ViewAnimator({type: Font, state: null, inherit: true})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
   @ViewAnimator({type: String, inherit: true})
   declare textAlign: ViewAnimator<this, CanvasTextAlign | undefined>;
@@ -46,11 +46,11 @@ export class TextRunView extends LayerView implements TypesetView {
   @ViewAnimator({type: String, inherit: true})
   declare textBaseline: ViewAnimator<this, CanvasTextBaseline | undefined>;
 
-  @ViewAnimator({type: PointR2, inherit: true})
-  declare textOrigin: ViewAnimator<this, PointR2 | undefined, AnyPointR2 | undefined>;
+  @ViewAnimator({type: PointR2, state: null, inherit: true})
+  declare textOrigin: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, state: null, inherit: true})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   get value(): TextRun {
     return new TextRun(this.text.getValue(), this.font.getValue(), this.textAlign.getValue(),
@@ -103,7 +103,7 @@ export class TextRunView extends LayerView implements TypesetView {
 
   protected renderText(context: CanvasContext): void {
     const font = this.font.value;
-    if (font !== void 0) {
+    if (font !== null) {
       context.font = font.toString();
     }
     const textAlign = this.textAlign.value;
@@ -115,11 +115,11 @@ export class TextRunView extends LayerView implements TypesetView {
       context.textBaseline = textBaseline;
     }
     let textOrigin = this.textOrigin.value;
-    if (textOrigin === void 0) {
+    if (textOrigin === null) {
       textOrigin = PointR2.origin();
     }
     const textColor = this.textColor.value;
-    if (textColor !== void 0) {
+    if (textColor !== null) {
       context.fillStyle = textColor.toString();
     }
     context.fillText(this.text.getValue(), textOrigin.x, textOrigin.y);

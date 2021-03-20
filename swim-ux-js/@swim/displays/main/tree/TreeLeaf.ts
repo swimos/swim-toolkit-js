@@ -84,8 +84,8 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
     }
   }
 
-  @ViewProperty({type: TreeSeed, inherit: true})
-  declare seed: ViewProperty<this, TreeSeed | undefined, AnyTreeSeed | undefined>;
+  @ViewProperty({type: TreeSeed, state: null, inherit: true})
+  declare seed: ViewProperty<this, TreeSeed | null, AnyTreeSeed | null>;
 
   @ViewProperty({type: Number, inherit: true})
   declare limbSpacing: ViewProperty<this, number | undefined>;
@@ -124,9 +124,9 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   protected onHighlight(timing: Timing | boolean): void {
     this.modifyMood(Feel.default, [Feel.selected, 1]);
     if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(this.getLook(Look.backgroundColor), timing);
+      this.backgroundColor.setAutoState(this.getLookOr(Look.backgroundColor, null), timing);
     }
-    const selectedColor = this.getLook(Look.accentColor);
+    const selectedColor = this.getLookOr(Look.accentColor, null);
     let selectedView = this.getChildView("selected") as HtmlView | null;
     if (selectedView === null) {
       selectedView = this.prepend("div", "selected");
@@ -136,7 +136,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       selectedView.bottom.setAutoState(2);
       selectedView.left.setAutoState(0);
       selectedView.width.setAutoState(4);
-      if (selectedColor !== void 0) {
+      if (selectedColor !== null) {
         selectedView.backgroundColor.setAutoState(selectedColor.alpha(0));
       }
     }
@@ -190,16 +190,16 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   protected onUnhighlight(timing: Timing | boolean): void {
     this.modifyMood(Feel.default, [Feel.selected, void 0]);
     if (this.backgroundColor.isAuto()) {
-      let backgroundColor = this.getLook(Look.backgroundColor);
-      if (backgroundColor !== void 0) {
+      let backgroundColor = this.getLookOr(Look.backgroundColor, null);
+      if (backgroundColor !== null) {
         backgroundColor = backgroundColor.alpha(0);
       }
       this.backgroundColor.setAutoState(backgroundColor, timing);
     }
     const selectedView = this.getChildView("selected") as HtmlView | null;
     if (selectedView !== null) {
-      let selectedColor = this.getLook(Look.accentColor);
-      if (selectedColor !== void 0) {
+      let selectedColor = this.getLookOr(Look.accentColor, null);
+      if (selectedColor !== null) {
         selectedColor = selectedColor.alpha(0);
       }
       selectedView.backgroundColor.setAutoState(selectedColor, timing);
@@ -223,16 +223,16 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
-      let backgroundColor = this.getLook(Look.backgroundColor);
-      if (backgroundColor !== void 0 && !this.highlighted.state) {
+      let backgroundColor = this.getLookOr(Look.backgroundColor, null);
+      if (backgroundColor !== null && !this.highlighted.state) {
         backgroundColor = backgroundColor.alpha(0);
       }
       this.backgroundColor.setAutoState(backgroundColor, timing);
     }
     const selectedView = this.getChildView("selected") as HtmlView | null;
     if (selectedView !== null) {
-      let selectedColor = this.getLook(Look.accentColor);
-      if (selectedColor !== void 0 && !this.highlighted.state) {
+      let selectedColor = this.getLookOr(Look.accentColor, null);
+      if (selectedColor !== null && !this.highlighted.state) {
         selectedColor = selectedColor.alpha(0);
       }
       selectedView.backgroundColor.setAutoState(selectedColor, timing);
@@ -283,19 +283,17 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
                              viewContext: ViewContextType<self>): void {
       if (childView instanceof TreeCell) {
         const key = childView.key;
-        const root = seed !== void 0 && key !== void 0 ? seed.getRoot(key) : null;
+        const root = seed !== null && key !== void 0 ? seed.getRoot(key) : null;
         if (root !== null) {
           childView.display.setAutoState(!root.hidden ? "flex" : "none");
-          const left = root.left;
-          childView.left.setAutoState(left !== null ? left : void 0);
-          const width = root.width;
-          childView.width.setAutoState(width !== null ? width : void 0);
+          childView.left.setAutoState(root.left);
+          childView.width.setAutoState(root.width);
           childView.height.setAutoState(height);
         } else {
           childView.display.setAutoState("none");
-          childView.left.setAutoState(void 0);
-          childView.width.setAutoState(void 0);
-          childView.height.setAutoState(void 0);
+          childView.left.setAutoState(null);
+          childView.width.setAutoState(null);
+          childView.height.setAutoState(null);
         }
       }
       displayChildView.call(this, childView, displayFlags, viewContext);

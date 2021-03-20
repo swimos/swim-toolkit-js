@@ -66,10 +66,11 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
     });
   }
 
-  @StyleAnimator<ScrimView, Color, AnyColor>({
+  @StyleAnimator<ScrimView, Color | null, AnyColor | null>({
     propertyNames: "background-color",
     type: Color,
-    onBegin(backgroundColor: Color | undefined): void {
+    state: null,
+    onBegin(backgroundColor: Color | null): void {
       const displayState = this.owner.displayState;
       if (displayState === ScrimView.ShowState) {
         this.owner.willShow();
@@ -77,7 +78,7 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
         this.owner.willHide();
       }
     },
-    onEnd(backgroundColor: Color | undefined): void {
+    onEnd(backgroundColor: Color | null): void {
       const displayState = this.owner.displayState;
       if (displayState === ScrimView.ShowingState) {
         this.owner.didShow();
@@ -86,7 +87,7 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
       }
     },
   })
-  declare backgroundColor: StyleAnimator<this, Color, AnyColor>;
+  declare backgroundColor: StyleAnimator<this, Color | null, AnyColor | null>;
 
   isShown(): boolean {  
     switch (this.displayState) {

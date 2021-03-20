@@ -429,14 +429,14 @@ export class Arc implements Graphics, Equals, Debug {
                    sweepAngle, padAngle, padRadius, cornerRadius);
   }
 
-  static fromAny(arc: AnyArc): Arc {
-    if (arc instanceof Arc) {
-      return arc;
-    } else if (typeof arc === "object" && arc !== null) {
-      return Arc.create(arc.center, arc.innerRadius, arc.outerRadius, arc.startAngle,
-                        arc.sweepAngle, arc.padAngle, arc.padRadius, arc.cornerRadius);
+  static fromAny(value: AnyArc): Arc {
+    if (value instanceof Arc) {
+      return value;
+    } else if (typeof value === "object" && value !== null) {
+      return Arc.create(value.center, value.innerRadius, value.outerRadius, value.startAngle,
+                        value.sweepAngle, value.padAngle, value.padRadius, value.cornerRadius);
     }
-    throw new TypeError("" + arc);
+    throw new TypeError("" + value);
   }
 
   private static intersect(x0: number, y0: number, x1: number, y1: number, x2: number, y2: number,

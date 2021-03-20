@@ -63,7 +63,7 @@ export class ButtonItem extends HtmlView {
     super.onApplyTheme(theme, mood, timing);
     const label = this.label;
     if (label !== null && label.color.isAuto()) {
-      label.color.setAutoState(theme.dot(Look.mutedColor, mood), timing);
+      label.color.setAutoState(theme.getOr(Look.mutedColor, mood, null), timing);
     }
   }
 
@@ -117,7 +117,7 @@ export class ButtonItem extends HtmlView {
     label.bottom.setAutoState(0);
     label.fontSize.setAutoState(17);
     label.fontWeight.setAutoState("500");
-    label.lineHeight.setAutoState("40px");
+    label.lineHeight.setAutoState(40);
     label.whiteSpace.setAutoState("nowrap");
     label.opacity.setAutoState(this.stackPhase.getValueOr(0));
   }

@@ -42,6 +42,7 @@ export interface ViewAnimatorInit<T, U = never> {
   inherit?: string | boolean;
 
   updateFlags?: ViewFlags;
+  isDefined?(value: T): boolean;
   willSetState?(newValue: T, oldValue: T): void;
   onSetState?(newValue: T, oldValue: T): void;
   didSetState?(newValue: T, oldValue: T): void;
@@ -205,14 +206,14 @@ export const ViewAnimator = function <V extends View, T, U>(
   /** @hidden */
   new<V extends View, T, U = never>(owner: V, animatorName: string | undefined): ViewAnimator<V, T, U>;
 
-  <V extends View, T extends Angle | undefined = Angle | undefined, U extends AnyAngle | undefined = AnyAngle | undefined>(descriptor: {type: typeof Angle} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends View, T extends Length | undefined = Length | undefined, U extends AnyLength | undefined = AnyLength | undefined>(descriptor: {type: typeof Length} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends View, T extends Color | undefined = Color | undefined, U extends AnyColor | undefined = AnyColor | undefined>(descriptor: {type: typeof Color} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends View, T extends Font | undefined = Font | undefined, U extends AnyFont | undefined = AnyFont | undefined>(descriptor: {type: typeof Font} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends View, T extends Transform | undefined = Transform | undefined, U extends AnyTransform | undefined = AnyTransform | undefined>(descriptor: {type: typeof Transform} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends View, T extends string | undefined = string | undefined, U extends string | undefined = string | undefined>(descriptor: {type: typeof String} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends View, T extends boolean | undefined = boolean | undefined, U extends boolean | string | undefined = boolean | string | undefined>(descriptor: {type: typeof Boolean} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
-  <V extends View, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends Angle | null | undefined = Angle | null | undefined, U extends AnyAngle | null | undefined = AnyAngle | null | undefined>(descriptor: {type: typeof Angle} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends Length | null | undefined = Length | null | undefined, U extends AnyLength | null | undefined = AnyLength | null | undefined>(descriptor: {type: typeof Length} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends Color | null | undefined = Color | null | undefined, U extends AnyColor | null | undefined = AnyColor | null | undefined>(descriptor: {type: typeof Color} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends Font | null | undefined = Font | null | undefined, U extends AnyFont | null | undefined = AnyFont | null | undefined>(descriptor: {type: typeof Font} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends Transform | null | undefined = Transform | null | undefined, U extends AnyTransform | null | undefined = AnyTransform | null | undefined>(descriptor: {type: typeof Transform} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends string | null | undefined = string | null | undefined, U extends string | null | undefined = string | null | undefined>(descriptor: {type: typeof String} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends boolean | null | undefined = boolean | null | undefined, U extends boolean | string | null | undefined = boolean | string | null | undefined>(descriptor: {type: typeof Boolean} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
+  <V extends View, T extends number | null | undefined = number | null | undefined, U extends number | string | null | undefined = number | string | null | undefined>(descriptor: {type: typeof Number} & ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
   <V extends View, T, U = never>(descriptor: ViewAnimatorDescriptorFromAny<V, T, U>): PropertyDecorator;
   <V extends View, T, U = never, I = {}>(descriptor: ViewAnimatorDescriptorExtends<V, T, U, I>): PropertyDecorator;
   <V extends View, T, U = never>(descriptor: ViewAnimatorDescriptor<V, T, U>): PropertyDecorator;
@@ -274,11 +275,7 @@ function ViewAnimatorConstructor<V extends View, T, U>(this: ViewAnimator<V, T, 
     });
   }
   if (_this.inherit !== false) {
-    Object.defineProperty(_this, "animatorFlags", {
-      value: _this.animatorFlags | Animator.InheritedFlag,
-      enumerable: true,
-      configurable: true,
-    });
+    _this.setAnimatorFlags(_this.animatorFlags | Animator.InheritedFlag);
   }
   return _this;
 }
@@ -339,27 +336,27 @@ ViewAnimator.prototype.bindSuperAnimator = function (this: ViewAnimator<View, un
         const parentView = view.parentView;
         if (parentView !== null) {
           view = parentView;
-          const animator = view.getLazyViewAnimator(superName);
-          if (animator !== null) {
+          const superAnimator = view.getLazyViewAnimator(superName);
+          if (superAnimator !== null) {
             Object.defineProperty(this, "superAnimator", {
-              value: animator,
+              value: superAnimator,
               enumerable: true,
               configurable: true,
             });
-            animator.addSubAnimator(this);
+            superAnimator.addSubAnimator(this);
             if (this.isInherited()) {
               Object.defineProperty(this, "ownState", {
-                value: animator.state,
+                value: superAnimator.state,
                 enumerable: true,
                 configurable: true,
               });
               Object.defineProperty(this, "ownValue", {
-                value: animator.value,
+                value: superAnimator.value,
                 enumerable: true,
                 configurable: true,
               });
               this.setAnimatorFlags(this.animatorFlags | Animator.UpdatedFlag);
-              if (animator.isAnimating()) {
+              if (superAnimator.isAnimating()) {
                 this.startAnimating();
               }
             }
@@ -569,7 +566,7 @@ ViewAnimator.prototype.didSetLook = function <T>(this: ViewAnimator<View, T>, ne
 ViewAnimator.prototype.applyTheme = function <T>(this: ViewAnimator<View, T>, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
   const look = this.look;
   if (look !== null) {
-    const state = theme.dot(look, mood);
+    const state = theme.get(look, mood);
     if (state !== void 0) {
       this.setAutoState(state, timing);
     }

@@ -55,16 +55,16 @@ export class DisclosureButton extends HtmlView {
   @ViewAnimator({type: Number, inherit: true, updateFlags: View.NeedsAnimate})
   declare disclosurePhase: ViewAnimator<this, number | undefined>; // 0 = collapsed; 1 = expanded
 
-  @ViewAnimator({type: Color, inherit: true, updateFlags: View.NeedsAnimate})
-  declare collapsedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, inherit: true, state: null, updateFlags: View.NeedsAnimate})
+  declare collapsedColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Color, inherit: true, updateFlags: View.NeedsAnimate})
-  declare expandedColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, inherit: true, state: null, updateFlags: View.NeedsAnimate})
+  declare expandedColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    this.collapsedColor.setAutoState(theme.dot(Look.color, mood), timing);
-    this.expandedColor.setAutoState(theme.dot(Look.accentColor, mood), timing);
+    this.collapsedColor.setAutoState(theme.getOr(Look.color, mood, null), timing);
+    this.expandedColor.setAutoState(theme.getOr(Look.accentColor, mood, null), timing);
   }
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
@@ -73,7 +73,7 @@ export class DisclosureButton extends HtmlView {
       const disclosurePhase = this.disclosurePhase.takeValue()!;
       const collapsedColor = this.collapsedColor.takeValue();
       const expandedColor = this.expandedColor.takeValue();
-      if (collapsedColor !== void 0 && expandedColor !== void 0 && this.arrow.fill.isAuto()) {
+      if (collapsedColor !== null && expandedColor !== null && this.arrow.fill.isAuto()) {
         const colorInterpolator = collapsedColor.interpolateTo(expandedColor);
         this.arrow.fill.setAutoState(colorInterpolator(disclosurePhase));
       }

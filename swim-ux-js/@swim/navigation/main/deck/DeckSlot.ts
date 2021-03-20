@@ -28,14 +28,14 @@ export abstract class DeckSlot extends HtmlView {
     this.addClass("deck-slot");
   }
 
-  @ViewProperty({type: DeckPost, inherit: true})
-  declare post: ViewProperty<this, DeckPost | undefined, AnyDeckPost | undefined>;
+  @ViewProperty({type: DeckPost, state: null, inherit: true})
+  declare post: ViewProperty<this, DeckPost | null, AnyDeckPost | null>;
 
-  @ViewProperty({type: DeckPost})
-  declare nextPost: ViewProperty<this, DeckPost | undefined, AnyDeckPost | undefined>;
+  @ViewProperty({type: DeckPost, state: null})
+  declare nextPost: ViewProperty<this, DeckPost | null, AnyDeckPost | null>;
 
-  @ViewProperty({type: DeckPost})
-  declare prevPost: ViewProperty<this, DeckPost | undefined, AnyDeckPost | undefined>;
+  @ViewProperty({type: DeckPost, state: null})
+  declare prevPost: ViewProperty<this, DeckPost | null, AnyDeckPost | null>;
 
   abstract deckPhase: ViewAnimator<this, number | undefined>;
 

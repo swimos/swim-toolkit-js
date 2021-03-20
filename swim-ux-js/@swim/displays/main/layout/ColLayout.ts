@@ -227,7 +227,7 @@ export class ColLayout implements Equals, Equivalent, Debug {
   }
 
   static fromAny(value: AnyColLayout): ColLayout {
-    if (value instanceof ColLayout) {
+    if (value === void 0 || value === null || value instanceof ColLayout) {
       return value;
     } else if (typeof value === "object" && value !== null) {
       return ColLayout.fromInit(value);

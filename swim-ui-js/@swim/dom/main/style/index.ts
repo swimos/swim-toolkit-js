@@ -50,8 +50,6 @@ export {LengthStyleAnimatorConstraint} from "./LengthStyleAnimatorConstraint";
 
 export {ColorStyleAnimator} from "./ColorStyleAnimator";
 
-export {LineHeightStyleAnimator} from "./LineHeightStyleAnimator";
-
 export {FontFamilyStyleAnimator} from "./FontFamilyStyleAnimator";
 
 export {BoxShadowStyleAnimator} from "./BoxShadowStyleAnimator";

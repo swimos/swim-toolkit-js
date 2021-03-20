@@ -111,6 +111,24 @@ export abstract class Look<T, U = never> implements Mood {
     return combination;
   }
 
+  dotOr<E>(a: LookVector<T>, b: MoodVector, elseValue: E): T | E {
+    const array = a.array;
+    const n = array.length;
+    if (n !== 0) {
+      let combination: T | undefined;
+      for (let i = 0, n = array.length; i < n; i += 1) {
+        const [feel, value] = array[i]!;
+        const weight = b.get(feel);
+        if (weight !== void 0 && weight !== 0) {
+          combination = feel.combine(this, combination, value, weight);
+        }
+      }
+      return combination!;
+    } else {
+      return elseValue;
+    }
+  }
+
   abstract combine(combination: T | undefined, value: T, weight?: number): T;
 
   abstract between(a: T, b: T): Interpolator<T>;

@@ -70,6 +70,20 @@ export class LookVector<T> implements Equals, Debug {
     return entry !== void 0 ? entry[1] : void 0;
   }
 
+  getOr<E>(feel: Feel, elseValue: E): T | E;
+  getOr<E>(name: string, elseValue: E): T | E;
+  getOr<E>(index: number, elseValue: E): T | E;
+  getOr<E>(feel: Feel | string | number | undefined, elseValue: E): T | E {
+    if (typeof feel === "object" && feel !== null || typeof feel === "function") {
+      feel = feel.name;
+    }
+    if (typeof feel === "string") {
+      feel = this.index[feel];
+    }
+    const entry = typeof feel === "number" ? this.array[feel] : void 0;
+    return entry !== void 0 ? entry[1] : elseValue;
+  }
+
   updated(feel: Feel, value: T | undefined): LookVector<T> {
     const oldArray = this.array;
     const oldIndex = this.index;
@@ -171,13 +185,13 @@ export class LookVector<T> implements Equals, Debug {
     return new LookVector(array, index);
   }
 
-  static fromAny<T>(vector: AnyLookVector<T>): LookVector<T> {
-    if (vector instanceof LookVector) {
-      return vector;
-    } else if (Array.isArray(vector)) {
-      return LookVector.fromArray(vector);
+  static fromAny<T>(value: AnyLookVector<T>): LookVector<T> {
+    if (value === void 0 || value === null || value instanceof LookVector) {
+      return value;
+    } else if (Array.isArray(value)) {
+      return LookVector.fromArray(value);
     }
-    throw new TypeError("" + vector);
+    throw new TypeError("" + value);
   }
 
   /** @hidden */

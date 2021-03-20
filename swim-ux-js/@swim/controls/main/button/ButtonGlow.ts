@@ -48,23 +48,24 @@ export class ButtonGlow extends HtmlView {
   /** @hidden */
   glowTimer: number;
 
-  @StyleAnimatorConstraint<ButtonGlow, Length, AnyLength>({
+  @StyleAnimatorConstraint<ButtonGlow, Length | null, AnyLength | null>({
     propertyNames: "left",
     type: Length,
-    get computedValue(): Length | undefined {
+    state: null,
+    get computedValue(): Length | null {
       const node = this.owner.node;
-      return node instanceof HTMLElement ? Length.px(node.offsetLeft) : void 0;
+      return node instanceof HTMLElement ? Length.px(node.offsetLeft) : null;
     },
-    onEnd(left: Length): void {
+    onEnd(left: Length | null): void {
       this.owner.didGlow();
     },
   })
-  declare left: StyleAnimatorConstraint<this, Length, AnyLength>;
+  declare left: StyleAnimatorConstraint<this, Length | null, AnyLength | null>;
 
-  @StyleAnimator<ButtonGlow, number, number | string>({
+  @StyleAnimator<ButtonGlow, number | undefined>({
     propertyNames: "opacity",
     type: Number,
-    onEnd(opacity: number): void {
+    onEnd(opacity: number | undefined): void {
       if (this.owner.glowState === "pulsing" && opacity === 0) {
         this.owner.didPulse();
       } else if (this.owner.glowState === "fading" && opacity === 0) {
@@ -72,12 +73,12 @@ export class ButtonGlow extends HtmlView {
       }
     },
   })
-  declare opacity: StyleAnimator<this, number, number | string>;
+  declare opacity: StyleAnimator<this, number | undefined>;
 
   protected didMount(): void {
     if (this.backgroundColor.isAuto()) {
-      let highlightColor = this.getLook(Look.highlightColor);
-      if (highlightColor !== void 0) {
+      let highlightColor = this.getLookOr(Look.highlightColor, null);
+      if (highlightColor !== null) {
         highlightColor = highlightColor.alpha(1);
       }
       this.backgroundColor.setAutoState(highlightColor);
@@ -99,8 +100,8 @@ export class ButtonGlow extends HtmlView {
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (this.backgroundColor.isAuto()) {
-      let highlightColor = theme.dot(Look.highlightColor, mood);
-      if (highlightColor !== void 0) {
+      let highlightColor = theme.getOr(Look.highlightColor, mood, null);
+      if (highlightColor !== null) {
         highlightColor = highlightColor.alpha(1);
       }
       this.backgroundColor.setAutoState(highlightColor);

@@ -31,25 +31,32 @@ export abstract class PaintingRenderer extends DrawingRenderer {
         mood = this.mood;
       }
       if (mood !== null) {
-        value = theme.dot(look, mood);
+        value = theme.get(look, mood);
       }
     }
     return value;
   }
 
-  getLookOr<T, V>(look: Look<T, unknown>, elseValue: V, mood?: MoodVector<Feel> | null): T | V {
+  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
+    if (arguments.length === 2) {
+      elseValue = mood as E;
+      mood = null;
+    }
     const theme = this.theme;
-    let value: T | V | undefined;
+    let value: T | E;
     if (theme !== null) {
       if (mood === void 0 || mood === null) {
         mood = this.mood;
       }
       if (mood !== null) {
-        value = theme.dot(look, mood);
+        value = theme.getOr(look, mood as MoodVector<Feel>, elseValue as E);
+      } else {
+        value = elseValue as E;
       }
-    }
-    if (value === void 0) {
-      value = elseValue;
+    } else {
+      value = elseValue as E;
     }
     return value;
   }

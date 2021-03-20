@@ -197,7 +197,7 @@ export class TreeRoot implements Equals, Equivalent, Debug {
   }
 
   static fromAny(value: AnyTreeRoot): TreeRoot {
-    if (value instanceof TreeRoot) {
+    if (value === void 0 || value === null || value instanceof TreeRoot) {
       return value;
     } else if (typeof value === "object" && value !== null) {
       return TreeRoot.fromInit(value);

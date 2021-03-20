@@ -39,7 +39,7 @@ export interface StyleAnimatorConstraintInit<T, U = never> extends StyleAnimator
 
   constrain?: boolean;
   strength?: AnyConstraintStrength;
-  computedValue?: T | undefined;
+  computedValue?: T;
   toNumber?(value: T): number;
 }
 
@@ -47,7 +47,7 @@ export type StyleAnimatorConstraintDescriptor<V extends StyleContext, T, U = nev
 
 export type StyleAnimatorConstraintDescriptorExtends<V extends StyleContext, T, U = never, I = {}> = {extends: StyleAnimatorConstraintClass | undefined} & StyleAnimatorConstraintDescriptor<V, T, U, I>;
 
-export type StyleAnimatorConstraintDescriptorFromAny<V extends StyleContext, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T | undefined}) & StyleAnimatorConstraintDescriptor<V, T, U, I>;
+export type StyleAnimatorConstraintDescriptorFromAny<V extends StyleContext, T, U = never, I = {}> = ({type: FromAny<T, U>} | {fromAny(value: T | U): T}) & StyleAnimatorConstraintDescriptor<V, T, U, I>;
 
 export interface StyleAnimatorConstraintConstructor<V extends StyleContext, T, U = never, I = {}> {
   new(owner: V, animatorName: string): StyleAnimatorConstraint<V, T, U> & I;
@@ -72,9 +72,9 @@ export interface StyleAnimatorConstraint<V extends StyleContext, T, U = never> e
 
   isConstant(): boolean;
 
-  readonly computedValue: T | undefined;
+  readonly computedValue: T;
 
-  onSetValue(newValue: T | undefined, oldValue: T | undefined): void;
+  onSetValue(newValue: T, oldValue: T): void;
 
   evaluateConstraintVariable(): void;
 
@@ -165,8 +165,8 @@ export const StyleAnimatorConstraint = function <V extends StyleContext, T, U>(
 } as unknown as {
   new<V extends StyleContext, T, U = never>(owner: V, animatorName: string): StyleAnimatorConstraint<V, T, U>;
 
-  <V extends StyleContext, T extends Length | undefined = Length | undefined, U extends AnyLength | undefined = AnyLength | undefined>(descriptor: {type: typeof Length} & StyleAnimatorConstraintDescriptor<V, T, U>): PropertyDecorator;
-  <V extends StyleContext, T extends number | undefined = number | undefined, U extends number | string | undefined = number | string | undefined>(descriptor: {type: typeof Number} & StyleAnimatorConstraintDescriptor<V, T, U>): PropertyDecorator;
+  <V extends StyleContext, T extends Length | null | undefined = Length | null | undefined, U extends AnyLength | null | undefined = AnyLength | null | undefined>(descriptor: {type: typeof Length} & StyleAnimatorConstraintDescriptor<V, T, U>): PropertyDecorator;
+  <V extends StyleContext, T extends number | null | undefined = number | null | undefined, U extends number | string | null | undefined = number | string | null | undefined>(descriptor: {type: typeof Number} & StyleAnimatorConstraintDescriptor<V, T, U>): PropertyDecorator;
   <V extends StyleContext, T, U = never>(descriptor: StyleAnimatorConstraintDescriptorFromAny<V, T, U>): PropertyDecorator;
   <V extends StyleContext, T, U = never, I = {}>(descriptor: StyleAnimatorConstraintDescriptorExtends<V, T, U, I>): PropertyDecorator;
   <V extends StyleContext, T, U = never>(descriptor: StyleAnimatorConstraintDescriptor<V, T, U>): PropertyDecorator;
@@ -222,31 +222,31 @@ StyleAnimatorConstraint.prototype.isConstant = function (this: StyleAnimatorCons
 };
 
 Object.defineProperty(StyleAnimatorConstraint.prototype, "computedValue", {
-  get<T>(this: StyleAnimatorConstraint<StyleContext, T>): T | undefined {
-    return void 0;
+  get<T>(this: StyleAnimatorConstraint<StyleContext, T>): T {
+    return void 0 as unknown as T;
   },
   enumerable: true,
   configurable: true,
 });
 
-StyleAnimatorConstraint.prototype.onSetValue = function <T>(this: StyleAnimatorConstraint<StyleContext, T>, newValue: T | undefined, oldValue: T | undefined): void {
+StyleAnimatorConstraint.prototype.onSetValue = function <T>(this: StyleAnimatorConstraint<StyleContext, T>, newValue: T, oldValue: T): void {
   StyleAnimator.prototype.onSetValue.call(this, newValue, oldValue);
   if (this.isConstraining()) {
-    this.owner.setConstraintVariable(this, newValue !== void 0 ? this.toNumber(newValue) : 0);
+    this.owner.setConstraintVariable(this, this.toNumber(newValue));
   }
 };
 
 StyleAnimatorConstraint.prototype.evaluateConstraintVariable = function <T>(this: StyleAnimatorConstraint<StyleContext, T>): void {
-  if (!this.isConstrained() && this.isConstraining() && this.ownValue === void 0) {
+  if (!this.isConstrained() && this.isConstraining() && !this.isDefined(this.ownValue)) {
     const value = this.computedValue;
-    if (value !== void 0) {
-      this.owner.setConstraintVariable(this, value !== void 0 ? this.toNumber(value) : 0);
+    if (this.isDefined(value)) {
+      this.owner.setConstraintVariable(this, this.toNumber(value));
     }
   }
 };
 
 StyleAnimatorConstraint.prototype.updateConstraintSolution = function <T>(this: StyleAnimatorConstraint<StyleContext, T>, newState: number): void {
-  if (this.isConstrained() && (this.state === void 0 || this.toNumber(this.state) !== newState)) {
+  if (this.isConstrained() && this.toNumber(this.state) !== newState) {
     Animator.prototype.setState.call(this, this.fromAny(newState));
   }
 };
@@ -414,12 +414,10 @@ StyleAnimatorConstraint.prototype.didStopConstraining = function (this: StyleAni
 
 StyleAnimatorConstraint.prototype.updateConstraintVariable = function (this: StyleAnimatorConstraint<StyleContext, unknown>): void {
   let value = this.ownValue;
-  if (value === void 0) {
+  if (!this.isDefined(value)) {
     value = this.computedValue;
   }
-  if (value !== void 0) {
-    this.owner.setConstraintVariable(this, this.toNumber(value));
-  }
+  this.owner.setConstraintVariable(this, this.toNumber(value));
 };
 
 StyleAnimatorConstraint.prototype.onMount = function <T>(this: StyleAnimatorConstraint<StyleContext, T>): void {
@@ -447,9 +445,12 @@ StyleAnimatorConstraint.getClass = function (type: unknown): StyleAnimatorConstr
 
 StyleAnimatorConstraint.define = function <V extends StyleContext, T, U, I>(descriptor: StyleAnimatorConstraintDescriptor<V, T, U, I>): StyleAnimatorConstraintConstructor<V, T, U, I> {
   let _super: StyleAnimatorConstraintClass | null | undefined = descriptor.extends;
+  const state = descriptor.state;
+  const initState = descriptor.initState;
   const constrain = descriptor.constrain;
   const strength = descriptor.strength;
   delete descriptor.extends;
+  delete descriptor.state;
   delete descriptor.constrain;
   delete descriptor.strength;
 
@@ -464,11 +465,11 @@ StyleAnimatorConstraint.define = function <V extends StyleContext, T, U, I>(desc
   }
 
   const _constructor = function DecoratedStyleAnimatorConstraint(this: StyleAnimatorConstraint<V, T, U>, owner: V, animatorName: string): StyleAnimatorConstraint<V, T, U> {
-    let _this: StyleAnimatorConstraint<V, T, U> = function StyleAnimatorConstraintAccessor(state?: T | U, timing?: AnyTiming | boolean, priority?: string): T | undefined | V {
+    let _this: StyleAnimatorConstraint<V, T, U> = function StyleAnimatorConstraintAccessor(state?: T | U, timing?: AnyTiming | boolean): T | V {
       if (arguments.length === 0) {
         return _this.value;
       } else {
-        _this.setState(state, timing, priority);
+        _this.setState(state!, timing);
         return _this.owner;
       }
     } as StyleAnimatorConstraint<V, T, U>;
@@ -480,12 +481,17 @@ StyleAnimatorConstraint.define = function <V extends StyleContext, T, U, I>(desc
     return _this;
   } as unknown as StyleAnimatorConstraintConstructor<V, T, U, I>;
 
-  const _prototype = descriptor as unknown as StyleAnimatorConstraint<V, T, U> & I;
+  const _prototype = descriptor as unknown as StyleAnimatorConstraint<any, any> & I;
   Object.setPrototypeOf(_constructor, _super);
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
 
+  if (state !== void 0 && initState === void 0) {
+    _prototype.initState = function (): T | U {
+      return state;
+    };
+  }
   if (strength !== void 0) {
     Object.defineProperty(_prototype, "strength", {
       value: ConstraintStrength.fromAny(strength),
