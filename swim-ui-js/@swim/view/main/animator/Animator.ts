@@ -174,7 +174,7 @@ export abstract class Animator<T> implements AnimationTrack {
       if (timing === null) {
         this.setImmediateState(newState, oldState);
       } else {
-        this.setAnimatedState(newState, oldState, timing);
+        this.setAnimatedState(newState, oldState, timing as Timing);
       }
     }
   }

@@ -255,7 +255,7 @@ StyleRule.prototype.applyTheme = function (theme: ThemeMatrix, mood: MoodVector,
   const styleAnimators = this.styleAnimators;
   for (const animatorName in styleAnimators) {
     const styleAnimator = styleAnimators[animatorName]!;
-    styleAnimator.applyTheme(theme, mood, timing);
+    styleAnimator.applyTheme(theme, mood, timing as Timing | boolean);
   }
 };
 

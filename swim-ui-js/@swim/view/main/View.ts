@@ -1135,22 +1135,21 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   abstract getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
   abstract getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
 
-  abstract modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): void;
+  abstract modifyMood(feel: Feel, ...entires: [Feel, number | undefined][]): void;
+  abstract modifyMood(feel: Feel, ...args: [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
 
-  abstract modifyTheme(feel: Feel, ...entries: [Feel, number | undefined][]): void;
+  abstract modifyTheme(feel: Feel, ...enties: [Feel, number | undefined][]): void;
+  abstract modifyTheme(feel: Feel, ...args: [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
 
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
     if (timing === void 0 || timing === true) {
-      timing = theme.get(Look.timing, Mood.ambient);
-      if (timing === void 0) {
-        timing = false;
-      }
+      timing = theme.getOr(Look.timing, Mood.ambient, false);
     } else {
       timing = Timing.fromAny(timing);
     }
-    this.willApplyTheme(theme, mood, timing);
-    this.onApplyTheme(theme, mood, timing);
-    this.didApplyTheme(theme, mood, timing);
+    this.willApplyTheme(theme, mood, timing as Timing | boolean);
+    this.onApplyTheme(theme, mood, timing as Timing | boolean);
+    this.didApplyTheme(theme, mood, timing as Timing | boolean);
   }
 
   protected willApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {

@@ -533,14 +533,14 @@ ViewAnimator.prototype.setLook = function <T>(this: ViewAnimator<View, T>, newLo
     } else {
       timing = Timing.fromAny(timing);
     }
-    this.willSetLook(newLook, oldLook, timing);
+    this.willSetLook(newLook, oldLook, timing as Timing | boolean);
     Object.defineProperty(this, "look", {
       value: newLook,
       enumerable: true,
       configurable: true,
     });
-    this.onSetLook(newLook, oldLook, timing);
-    this.didSetLook(newLook, oldLook, timing);
+    this.onSetLook(newLook, oldLook, timing as Timing | boolean);
+    this.didSetLook(newLook, oldLook, timing as Timing | boolean);
   }
 };
 

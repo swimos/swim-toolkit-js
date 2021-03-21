@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import type {Timing} from "@swim/mapping";
+import {AnyTiming, Timing} from "@swim/mapping";
 import {BoxR2} from "@swim/math";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
@@ -193,23 +193,57 @@ export class ElementView extends NodeView implements StyleContext {
     return value;
   }
 
-  modifyMood(feel: Feel, ...entries: [Feel, number | undefined][]): void {
+  modifyMood(feel: Feel, ...entires: [Feel, number | undefined][]): void;
+  modifyMood(feel: Feel, ...args: [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
+  modifyMood(feel: Feel, ...args: [Feel, number | undefined][] | [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void {
+    let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
+    const entries = args as [Feel, number | undefined][];
     const oldMoodModifier = this.moodModifier.getStateOr(MoodMatrix.empty());
     const newMoodModifier = oldMoodModifier.updatedCol(feel, true, ...entries);
     if (!newMoodModifier.equals(oldMoodModifier)) {
       this.moodModifier.setState(newMoodModifier);
       this.changeMood();
-      this.requireUpdate(View.NeedsChange);
+      if (timing !== void 0) {
+        const theme = this.theme.state;
+        const mood = this.mood.state;
+        if (theme !== null && mood !== null) {
+          if (timing === true) {
+            timing = theme.getOr(Look.timing, mood, false);
+          } else {
+            timing = Timing.fromAny(timing);
+          }
+          this.applyTheme(theme, mood, timing);
+        }
+      } else {
+        this.requireUpdate(View.NeedsChange);
+      }
     }
   }
 
-  modifyTheme(feel: Feel, ...entries: [Feel, number | undefined][]): void {
+  modifyTheme(feel: Feel, ...enties: [Feel, number | undefined][]): void;
+  modifyTheme(feel: Feel, ...args: [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
+  modifyTheme(feel: Feel, ...args: [Feel, number | undefined][] | [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void {
+    let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
+    const entries = args as [Feel, number | undefined][];
     const oldThemeModifier = this.themeModifier.getStateOr(MoodMatrix.empty());
     const newThemeModifier = oldThemeModifier.updatedCol(feel, true, ...entries);
     if (!newThemeModifier.equals(oldThemeModifier)) {
       this.themeModifier.setState(newThemeModifier);
       this.changeTheme();
-      this.requireUpdate(View.NeedsChange);
+      if (timing !== void 0) {
+        const theme = this.theme.state;
+        const mood = this.mood.state;
+        if (theme !== null && mood !== null) {
+          if (timing === true) {
+            timing = theme.getOr(Look.timing, mood, false);
+          } else {
+            timing = Timing.fromAny(timing);
+          }
+          this.applyTheme(theme, mood, timing);
+        }
+      } else {
+        this.requireUpdate(View.NeedsChange);
+      }
     }
   }
 

@@ -100,10 +100,10 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       } else {
         timing = Timing.fromAny(timing);
       }
-      this.willHighlight(timing);
+      this.willHighlight(timing as Timing | boolean);
       this.highlighted.setState(true);
-      this.onHighlight(timing);
-      this.didHighlight(timing);
+      this.onHighlight(timing as Timing | boolean);
+      this.didHighlight(timing as Timing | boolean);
     }
   }
 
@@ -166,10 +166,10 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       } else {
         timing = Timing.fromAny(timing);
       }
-      this.willUnhighlight(timing);
+      this.willUnhighlight(timing as Timing | boolean);
       this.highlighted.setState(false);
-      this.onUnhighlight(timing);
-      this.didUnhighlight(timing);
+      this.onUnhighlight(timing as Timing | boolean);
+      this.didUnhighlight(timing as Timing | boolean);
     }
   }
 
