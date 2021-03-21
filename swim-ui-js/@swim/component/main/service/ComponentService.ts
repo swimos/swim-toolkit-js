@@ -352,7 +352,6 @@ ComponentService.define = function <C extends Component, T, I>(descriptor: Compo
   const initManager = descriptor.initManager;
   delete descriptor.extends;
   delete descriptor.manager;
-  delete descriptor.inherit;
 
   if (_super === void 0) {
     _super = ComponentService.getClass(descriptor.type);

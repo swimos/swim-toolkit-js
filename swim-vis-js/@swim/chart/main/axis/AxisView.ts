@@ -17,12 +17,17 @@ import {BTree} from "@swim/collections";
 import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
-import {GraphicsViewInit, GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
+import {
+  GraphicsViewInit,
+  GraphicsView,
+  GraphicsViewController,
+  CanvasContext,
+  CanvasRenderer,
+} from "@swim/graphics";
 import type {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
 import {AnyTickView, TickView} from "../tick/TickView";
 import {TickGenerator} from "../tick/TickGenerator";
 import type {AxisViewObserver} from "./AxisViewObserver";
-import type {AxisViewController} from "./AxisViewController";
 import {TopAxisView} from "../"; // forward import
 import {RightAxisView} from "../"; // forward import
 import {BottomAxisView} from "../"; // forward import
@@ -33,8 +38,6 @@ export type AxisOrientation = "top" | "right" | "bottom" | "left";
 export type AnyAxisView<D = unknown> = AxisView<D> | AxisViewInit<D>;
 
 export interface AxisViewInit<D = unknown> extends GraphicsViewInit {
-  viewController?: AxisViewController<D>;
-
   orientation?: AxisOrientation;
   scale?: ContinuousScale<D, number> | string;
   ticks?: AnyTickView<D>[];
@@ -68,7 +71,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     });
   }
 
-  declare readonly viewController: AxisViewController<D> | null;
+  declare readonly viewController: GraphicsViewController<AxisView<D>> & AxisViewObserver<D> | null;
 
   declare readonly viewObservers: ReadonlyArray<AxisViewObserver<D>>;
 
@@ -139,8 +142,9 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   /** @hidden */
   declare readonly ticks: BTree<D, TickView<D>>;
 
-  getTick(value: D): TickView<D> | undefined {
-    return this.ticks.get(value);
+  getTick(value: D): TickView<D> | null {
+    const tickView = this.ticks.get(value);
+    return tickView !== void 0 ? tickView : null;
   }
 
   insertTick(tick: AnyTickView<D>): TickView<D> {
@@ -178,29 +182,29 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
   declare origin: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare borderColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, inherit: true, state: null})
+  declare borderColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare borderWidth: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, inherit: true, state: 1})
+  declare borderWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare borderSerif: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, inherit: true, state: 6})
+  declare borderSerif: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 80})
-  declare tickMarkSpacing: ViewAnimator<this, number | undefined>;
+  declare tickMarkSpacing: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare tickMarkColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, inherit: true, state: null})
+  declare tickMarkColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare tickMarkWidth: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, inherit: true, state: 1})
+  declare tickMarkWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare tickMarkLength: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, inherit: true, state: 6})
+  declare tickMarkLength: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare tickLabelPadding: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, inherit: true, state: 2})
+  declare tickLabelPadding: ViewAnimator<this, number>;
 
   @ViewProperty({
     type: Timing,
@@ -211,17 +215,17 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   })
   declare tickTransition: ViewProperty<this, Timing, AnyTiming>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare gridLineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, inherit: true, state: null})
+  declare gridLineColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare gridLineWidth: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, inherit: true, state: 0})
+  declare gridLineWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
+  @ViewAnimator({type: Font, inherit: true, state: null})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, inherit: true, state: null})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   get childViewCount(): number {
     return this.ticks.size;
@@ -266,10 +270,8 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
-  forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
-                         thisArg: S): T | undefined;
-  forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
-                         thisArg?: S): T | undefined {
+  forEachChildView<T, S>(callback: (this: S, childView: View) => T | void, thisArg: S): T | undefined;
+  forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void, thisArg?: S): T | undefined {
     return this.ticks.forEachValue(callback, thisArg);
   }
 
@@ -335,10 +337,9 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   protected updateTicks(): void {
-    const origin = this.origin.value;
     const scale = this.scale.value;
     let tickGenerator = this.tickGenerator.state;
-    if (origin !== void 0 && scale !== null && tickGenerator !== null) {
+    if (scale !== null && tickGenerator !== null) {
       let timing: Timing | boolean = this.tickTransition.state;
       if (tickGenerator === true) {
         tickGenerator = TickGenerator.fromScale(scale);
@@ -395,14 +396,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   protected createTickView(tickValue: D): TickView<D> | null {
-    let tickView: TickView<D> | null | undefined;
-    const viewController = this.viewController;
-    if (viewController !== null) {
-      tickView = viewController.createTickView(tickValue);
-    }
-    if (tickView === void 0) {
-      tickView = TickView.from(tickValue, this.orientation);
-    }
+    const tickView = TickView.from(tickValue, this.orientation);
     if (tickView !== null) {
       const tickLabel = this.createTickLabel(tickValue, tickView);
       if (tickLabel !== null) {
@@ -414,12 +408,19 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   }
 
   protected createTickLabel(tickValue: D, tickView: TickView<D>): GraphicsView | string | null {
-    let tickLabel: GraphicsView | string | null | undefined;
+    let tickLabel: GraphicsView | string | null = null;
     const viewController = this.viewController;
-    if (viewController !== null) {
-      tickLabel = viewController.createTickLabel(tickValue, tickView);
+    if (viewController !== null && viewController.createTickLabel !== void 0) {
+      tickLabel = viewController.createTickLabel(tickValue, tickView, this);
     }
-    if (tickLabel === void 0) {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n && (tickLabel === void 0 || tickLabel === null); i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.createTickLabel !== void 0) {
+        tickLabel = viewObserver.createTickLabel(tickValue, tickView, this);
+      }
+    }
+    if (tickLabel === void 0 || tickLabel === null) {
       const tickGenerator = this.tickGenerator.state;
       if (tickGenerator instanceof TickGenerator) {
         tickLabel = tickGenerator.format(tickValue);
@@ -435,11 +436,23 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   protected formatTickLabel(tickLabel: string, tickView: TickView<D>): string | null {
     const viewController = this.viewController;
-    if (viewController !== null) {
-      return viewController.formatTickLabel(tickLabel, tickView);
-    } else {
-      return tickLabel;
+    if (viewController !== null && viewController.formatTickLabel !== void 0) {
+      const label = viewController.formatTickLabel(tickLabel, tickView, this);
+      if (label !== void 0) {
+        return label;
+      }
     }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.formatTickLabel !== void 0) {
+        const label = viewObserver.formatTickLabel(tickLabel, tickView, this);
+        if (label !== void 0) {
+          return label;
+        }
+      }
+    }
+    return tickLabel;
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
@@ -461,10 +474,9 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
                                  viewContext: ViewContextType<this>): void {
     super.willDisplayChildView(childView, displayFlags, viewContext);
     if ((displayFlags & View.NeedsLayout) !== 0 && childView instanceof TickView) {
-      const origin = this.origin.value;
       const scale = this.scale.value;
-      if (origin !== void 0 && scale !== null) {
-        this.layoutTick(childView, origin, this.viewFrame, scale);
+      if (scale !== null) {
+        this.layoutTick(childView, this.origin.getValue(), this.viewFrame, scale);
       }
     }
   }
@@ -483,10 +495,9 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   protected didRender(viewContext: ViewContextType<this>): void {
     const renderer = viewContext.renderer;
-    const origin = this.origin.value;
-    if (renderer instanceof CanvasRenderer && origin !== void 0) {
+    if (renderer instanceof CanvasRenderer) {
       const context = renderer.context;
-      this.renderDomain(context, origin, this.viewFrame);
+      this.renderDomain(context, this.origin.getValue(), this.viewFrame);
       context.restore();
     }
     super.didRender(viewContext);

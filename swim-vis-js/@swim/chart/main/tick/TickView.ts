@@ -19,12 +19,14 @@ import {ViewContextType, ViewAnimator, ViewFastener} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
+  GraphicsViewController,
   LayerView,
   CanvasContext,
   CanvasRenderer,
   AnyTextRunView,
   TextRunView,
 } from "@swim/graphics";
+import type {TickViewObserver} from "./TickViewObserver";
 import {TopTickView} from "../"; // forward import
 import {RightTickView} from "../"; // forward import
 import {BottomTickView} from "../"; // forward import
@@ -73,11 +75,6 @@ export abstract class TickView<D> extends LayerView {
       enumerable: true,
       configurable: true,
     });
-    //Object.defineProperty(this, "offset0", {
-    //  value: NaN,
-    //  enumerable: true,
-    //  configurable: true,
-    //});
     Object.defineProperty(this, "tickState", {
       value: TickState.Excluded,
       enumerable: true,
@@ -88,7 +85,6 @@ export abstract class TickView<D> extends LayerView {
       enumerable: true,
       configurable: true,
     });
-    //this.opacity.interpolator = TickView.interpolateOpacity;
   }
 
   initView(init: TickViewInit<D>): void {
@@ -125,6 +121,10 @@ export abstract class TickView<D> extends LayerView {
     }
   }
 
+  declare readonly viewController: GraphicsViewController & TickViewObserver<D> | null;
+
+  declare readonly viewObservers: ReadonlyArray<TickViewObserver<D>>;
+
   abstract readonly orientation: TickOrientation;
 
   declare readonly value: D;
@@ -141,9 +141,6 @@ export abstract class TickView<D> extends LayerView {
     });
   }
 
-  ///** @hidden */
-  //declare readonly offset0: number;
-
   /** @hidden */
   declare readonly tickState: TickState;
 
@@ -153,49 +150,78 @@ export abstract class TickView<D> extends LayerView {
   @ViewAnimator({type: Number, state: 1})
   declare opacity: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare tickMarkSpacing: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Color, inherit: true, state: null})
+  declare tickMarkColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare tickMarkColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Number, inherit: true, state: 1})
+  declare tickMarkWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare tickMarkWidth: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, inherit: true, state: 6})
+  declare tickMarkLength: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare tickMarkLength: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Number, inherit: true, state: 2})
+  declare tickLabelPadding: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare tickLabelPadding: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Color, inherit: true, state: null})
+  declare gridLineColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Color, inherit: true})
-  declare gridLineColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Number, inherit: true, state: 0})
+  declare gridLineWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, inherit: true})
-  declare gridLineWidth: ViewAnimator<this, number | undefined>;
+  @ViewAnimator({type: Font, inherit: true, state: null})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | undefined, AnyFont | undefined>;
-
-  @ViewAnimator({type: Color, inherit: true})
-  declare textColor: ViewAnimator<this, Color | undefined, AnyColor | undefined>;
+  @ViewAnimator({type: Color, inherit: true, state: null})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected initLabel(labelView: GraphicsView): void {
     // hook
   }
 
-  protected willSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+  protected attachLabel(labelView: GraphicsView): void {
     // hook
   }
 
+  protected detachLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected willSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tickViewWillSetLabel !== void 0) {
+      viewController.tickViewWillSetLabel(newLabelView, oldLabelView, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.tickViewWillSetLabel !== void 0) {
+        viewObserver.tickViewWillSetLabel(newLabelView, oldLabelView, this);
+      }
+    }
+  }
+
   protected onSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    if (oldLabelView !== null) {
+      this.detachLabel(oldLabelView);
+    }
     if (newLabelView !== null) {
+      this.attachLabel(newLabelView);
       this.initLabel(newLabelView);
     }
   }
 
   protected didSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
-    // hook
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.tickViewDidSetLabel !== void 0) {
+        viewObserver.tickViewDidSetLabel(newLabelView, oldLabelView, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.tickViewDidSetLabel !== void 0) {
+      viewController.tickViewDidSetLabel(newLabelView, oldLabelView, this);
+    }
   }
 
   @ViewFastener<TickView<D>, GraphicsView, AnyTextRunView>({
@@ -301,50 +327,6 @@ export abstract class TickView<D> extends LayerView {
   protected abstract layoutLabel(labelView: GraphicsView): void;
 
   protected abstract renderTick(context: CanvasContext, frame: BoxR2): void;
-
-  //private static interpolateOpacity<D>(this: ViewAnimator<TickView<D>, number>, u: number): number {
-  //  // Interpolate over max of time and distance translated
-  //  const view = this.owner;
-  //  const offset = view.offset;
-  //  if (isNaN(view.offset0)) {
-  //    Object.defineProperty(this, "offset0", {
-  //      value: offset,
-  //      enumerable: true,
-  //      configurable: true,
-  //    });
-  //  }
-  //  const tickSpacing = view.tickMarkSpacing.getValue() / 2;
-  //  const v = Math.min(Math.abs(offset - view.offset0) / tickSpacing, 1);
-  //  const opacity = this.interpolator!(Math.max(u, v));
-  //  if (u === 1 || v === 1) {
-  //    this.setAnimatorFlags(this.animatorFlags & ~Animator.AnimatingFlag);
-  //  }
-  //  if (opacity === 0 && view.tickState === TickState.Leaving) {
-  //    Object.defineProperty(view, "tickState", {
-  //      value: TickState.Excluded,
-  //      enumerable: true,
-  //      configurable: true,
-  //    });
-  //    Object.defineProperty(view, "offset0", {
-  //      value: NaN,
-  //      enumerable: true,
-  //      configurable: true,
-  //    });
-  //    view.remove();
-  //  } else if (opacity === 1 && view.tickState === TickState.Entering) {
-  //    Object.defineProperty(view, "tickState", {
-  //      value: TickState.Included,
-  //      enumerable: true,
-  //      configurable: true,
-  //    });
-  //    Object.defineProperty(view, "offset0", {
-  //      value: NaN,
-  //      enumerable: true,
-  //      configurable: true,
-  //    });
-  //  }
-  //  return opacity;
-  //}
 
   static top<D>(value: D): TopTickView<D> {
     return new TopTickView(value);

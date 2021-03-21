@@ -533,7 +533,7 @@ export class DataPointView<X, Y> extends LayerView {
   }
 
   protected hitTestPoint(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
-    let hitRadius = this.hitRadius();
+    let hitRadius = this.hitRadius.state;
     const radius = this.radius.value;
     if (radius !== null) {
       const size = Math.min(frame.width, frame.height);

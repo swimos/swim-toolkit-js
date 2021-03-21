@@ -362,7 +362,6 @@ ViewService.define = function <V extends View, T, I>(descriptor: ViewServiceDesc
   const initManager = descriptor.initManager;
   delete descriptor.extends;
   delete descriptor.manager;
-  delete descriptor.inherit;
 
   if (_super === void 0) {
     _super = ViewService.getClass(descriptor.type);

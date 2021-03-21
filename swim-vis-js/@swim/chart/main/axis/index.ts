@@ -19,7 +19,6 @@ export {
   AxisView,
 } from "./AxisView";
 export {AxisViewObserver} from "./AxisViewObserver";
-export {AxisViewController} from "./AxisViewController";
 
 export {TopAxisView} from "./TopAxisView";
 

@@ -589,7 +589,6 @@ TraitProperty.define = function <R extends Trait, T, U, I>(descriptor: TraitProp
   let modelProperty = descriptor.modelProperty;
   delete descriptor.extends;
   delete descriptor.state;
-  delete descriptor.inherit;
   delete descriptor.modelProperty;
 
   if (_super === void 0) {

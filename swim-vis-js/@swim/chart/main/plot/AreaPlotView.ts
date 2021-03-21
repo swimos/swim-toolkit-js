@@ -14,6 +14,7 @@
 
 import type {BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
+import {Look} from "@swim/theme";
 import {ViewAnimator} from "@swim/view";
 import type {GraphicsView, GraphicsViewController, CanvasContext, CanvasRenderer, FillViewInit, FillView} from "@swim/graphics";
 import {SeriesPlotType, SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";
@@ -40,7 +41,7 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
     return "area";
   }
 
-  @ViewAnimator({type: Color, state: null})
+  @ViewAnimator({type: Color, state: null, look: Look.accentColor})
   declare fill: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {

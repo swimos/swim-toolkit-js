@@ -669,7 +669,6 @@ ViewProperty.define = function <V extends View, T, U, I>(descriptor: ViewPropert
   const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
-  delete descriptor.inherit;
 
   if (_super === void 0) {
     _super = ViewProperty.getClass(descriptor.type);

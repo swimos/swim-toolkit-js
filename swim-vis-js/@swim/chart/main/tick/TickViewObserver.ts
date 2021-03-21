@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ScaledViewController} from "../scaled/ScaledViewController";
-import type {GraphView} from "./GraphView";
-import type {GraphViewObserver} from "./GraphViewObserver";
+import type {GraphicsView, GraphicsViewObserver} from "@swim/graphics";
+import type {TickView} from "./TickView";
 
-export class GraphViewController<X, Y, V extends GraphView<X, Y> = GraphView<X, Y>> extends ScaledViewController<X, Y, V> implements GraphViewObserver<X, Y, V> {
+export interface TickViewObserver<D, V extends TickView<D> = TickView<D>> extends GraphicsViewObserver<V> {
+  tickViewWillSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, view: V): void;
+
+  tickViewDidSetLabel?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, view: V): void;
 }

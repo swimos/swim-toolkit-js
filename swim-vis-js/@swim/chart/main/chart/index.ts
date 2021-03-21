@@ -18,4 +18,6 @@ export {
   ChartView,
 } from "./ChartView";
 export {ChartViewObserver} from "./ChartViewObserver";
-export {ChartViewController} from "./ChartViewController";
+
+export {ChartTrait} from "./ChartTrait";
+export {ChartTraitObserver} from "./ChartTraitObserver";

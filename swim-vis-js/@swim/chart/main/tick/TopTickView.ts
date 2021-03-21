@@ -46,20 +46,22 @@ export class TopTickView<X> extends TickView<X> {
     const tickMarkLength = this.tickMarkLength.getValue();
     const y1 = y0 - tickMarkLength;
 
-    const tickMarkWidth = this.tickMarkWidth.value;
-    if (tickMarkWidth !== void 0 && tickMarkWidth !== 0 && tickMarkLength !== 0) {
+    const tickMarkColor = this.tickMarkColor.value;
+    const tickMarkWidth = this.tickMarkWidth.getValue();
+    if (tickMarkColor !== null && tickMarkWidth !== 0 && tickMarkLength !== 0) {
       context.beginPath();
-      context.strokeStyle = this.tickMarkColor.getValue().toString();
+      context.strokeStyle = tickMarkColor.toString();
       context.lineWidth = tickMarkWidth;
       context.moveTo(x, y0);
       context.lineTo(x, y1);
       context.stroke();
     }
 
-    const gridLineWidth = this.gridLineWidth.value;
-    if (gridLineWidth !== void 0 && gridLineWidth !== 0 && frame.xMin < x && x < frame.xMax) {
+    const gridLineColor = this.gridLineColor.value;
+    const gridLineWidth = this.gridLineWidth.getValue();
+    if (gridLineColor !== null && gridLineWidth !== 0 && frame.xMin < x && x < frame.xMax) {
       context.beginPath();
-      context.strokeStyle = this.gridLineColor.getValue().toString();
+      context.strokeStyle = gridLineColor.toString();
       context.lineWidth = gridLineWidth;
       context.moveTo(x, y0);
       context.lineTo(x, frame.yMax);

@@ -38,15 +38,16 @@ export class TopAxisView<X = unknown> extends AxisView<X> {
   }
 
   protected renderDomain(context: CanvasContext, origin: PointR2, frame: BoxR2): void {
-    const borderWidth = this.borderWidth.value;
-    if (borderWidth !== void 0 && borderWidth !== 0) {
+    const borderColor = this.borderColor.value;
+    const borderWidth = this.borderWidth.getValue();
+    if (borderColor !== null && borderWidth !== 0) {
       const x0 = frame.xMin;
       const x1 = frame.xMax;
       const y = origin.y;
       const dy = this.borderSerif.getValue();
 
       context.beginPath();
-      context.strokeStyle = this.borderColor.getValue().toString();
+      context.strokeStyle = borderColor.toString();
       context.lineWidth = borderWidth;
       if (dy !== 0) {
         context.moveTo(x0, y - dy);

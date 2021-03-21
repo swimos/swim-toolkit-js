@@ -711,7 +711,6 @@ ModelProperty.define = function <M extends Model, T, U, I>(descriptor: ModelProp
   const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
-  delete descriptor.inherit;
 
   if (_super === void 0) {
     _super = ModelProperty.getClass(descriptor.type);

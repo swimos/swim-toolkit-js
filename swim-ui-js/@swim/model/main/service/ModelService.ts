@@ -389,7 +389,6 @@ ModelService.define = function <M extends Model, T, I>(descriptor: ModelServiceD
   const initManager = descriptor.initManager;
   delete descriptor.extends;
   delete descriptor.manager;
-  delete descriptor.inherit;
 
   if (_super === void 0) {
     _super = ModelService.getClass(descriptor.type);

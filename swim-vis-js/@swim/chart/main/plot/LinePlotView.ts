@@ -14,6 +14,7 @@
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
+import {Look} from "@swim/theme";
 import {ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import type {GraphicsView, GraphicsViewController, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";
@@ -49,7 +50,7 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
     return "line";
   }
 
-  @ViewAnimator({type: Color, state: null})
+  @ViewAnimator({type: Color, state: null, look: Look.accentColor})
   declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Length, state: Length.px(1)})

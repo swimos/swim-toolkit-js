@@ -38,9 +38,9 @@ export interface StyleAnimatorInit<T, U = never> {
   propertyNames: string | ReadonlyArray<string>;
   extends?: StyleAnimatorClass;
   type?: unknown;
+
   state?: T | U;
   look?: Look<T>;
-
   updateFlags?: number;
   isDefined?(value: T): boolean;
   willSetState?(newValue: T, oldValue: T): void;
@@ -215,7 +215,7 @@ function StyleAnimatorConstructor<V extends StyleContext, T, U>(this: StyleAnima
     enumerable: true,
   });
   Object.defineProperty(_this, "look", {
-    value: null,
+    value: _this.look ?? null, // seed from prototype
     enumerable: true,
     configurable: true,
   });
@@ -346,6 +346,7 @@ StyleAnimator.prototype.setState = function <T, U>(this: StyleAnimator<StyleCont
     state = this.fromAny(state);
   }
   this.setAnimatorFlags(this.animatorFlags | Animator.OverrideFlag);
+  this.setLook(null);
   Animator.prototype.setState.call(this, state, timing);
 };
 
@@ -397,15 +398,15 @@ StyleAnimator.prototype.willSetLook = function <T>(this: StyleAnimator<StyleCont
 };
 
 StyleAnimator.prototype.onSetLook = function <T>(this: StyleAnimator<StyleContext, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
-  if (this.owner.isMounted()) {
-    if (newLook !== null && this.isAuto()) {
+  if (newLook !== null) {
+    if (this.owner.isMounted()) {
       const state = this.owner.getLook(newLook);
       if (state !== void 0) {
         this.setAutoState(state, timing);
       }
+    } else {
+      this.owner.requireUpdate(View.NeedsChange);
     }
-  } else {
-    this.owner.requireUpdate(View.NeedsChange);
   }
 };
 
@@ -526,6 +527,7 @@ StyleAnimator.getClass = function (type: unknown): StyleAnimatorClass | null {
 StyleAnimator.define = function <V extends StyleContext, T, U, I>(descriptor: StyleAnimatorDescriptor<V, T, U, I>): StyleAnimatorConstructor<V, T, U, I> {
   let _super: StyleAnimatorClass | null | undefined = descriptor.extends;
   const state = descriptor.state;
+  const look = descriptor.look;
   const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
@@ -565,6 +567,11 @@ StyleAnimator.define = function <V extends StyleContext, T, U, I>(descriptor: St
       return state;
     };
   }
+  Object.defineProperty(_prototype, "look", {
+    value: look ?? null,
+    enumerable: true,
+    configurable: true,
+  });
 
   return _constructor;
 };

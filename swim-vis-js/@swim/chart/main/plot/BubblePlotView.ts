@@ -14,6 +14,7 @@
 
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
+import {Look} from "@swim/theme";
 import {ViewAnimator} from "@swim/view";
 import type {GraphicsViewController, CanvasContext, FillViewInit, FillView, StrokeViewInit, StrokeView} from "@swim/graphics";
 import {ScatterPlotType, ScatterPlotViewInit, ScatterPlotView} from "./ScatterPlotView";
@@ -53,7 +54,7 @@ export class BubblePlotView<X, Y> extends ScatterPlotView<X, Y> implements FillV
   @ViewAnimator({type: Length, state: Length.px(5)})
   declare radius: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Color, state: null})
+  @ViewAnimator({type: Color, state: null, look: Look.accentColor})
   declare fill: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Color, state: null})

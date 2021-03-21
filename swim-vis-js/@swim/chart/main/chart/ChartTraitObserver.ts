@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {GraphicsView, GraphicsViewObserver} from "@swim/graphics";
-import type {TickView} from "../tick/TickView";
-import type {AxisView} from "./AxisView";
+import type {Trait, TraitObserver} from "@swim/model";
+import type {GraphTrait} from "../graph/GraphTrait";
+import type {ChartTrait} from "./ChartTrait";
 
-export interface AxisViewObserver<D = unknown, V extends AxisView<D> = AxisView<D>> extends GraphicsViewObserver<V> {
-  createTickLabel?(tickValue: D, tickView: TickView<D>, view: V): GraphicsView | string | null;
+export interface ChartTraitObserver<X, Y, R extends ChartTrait<X, Y> = ChartTrait<X, Y>> extends TraitObserver<R> {
+  chartTraitWillSetGraph?(newGraphTrait: GraphTrait<X, Y> | null, oldGraphTrait: GraphTrait<X, Y> | null, targetTrait: Trait | null, trait: R): void;
 
-  formatTickLabel?(tickLabel: string, tickView: TickView<D>, view: V): string | null;
+  chartTraitDidSetGraph?(newGraphTrait: GraphTrait<X, Y> | null, oldGraphTrait: GraphTrait<X, Y> | null, targetTrait: Trait | null, trait: R): void;
 }

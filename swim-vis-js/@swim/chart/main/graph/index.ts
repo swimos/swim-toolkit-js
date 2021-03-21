@@ -18,7 +18,6 @@ export {
   GraphView,
 } from "./GraphView";
 export {GraphViewObserver} from "./GraphViewObserver";
-export {GraphViewController} from "./GraphViewController";
 
 export {GraphTrait} from "./GraphTrait";
 export {GraphTraitObserver} from "./GraphTraitObserver";

@@ -37,9 +37,9 @@ export interface AttributeAnimatorInit<T, U = never> {
   attributeName: string;
   extends?: AttributeAnimatorClass;
   type?: unknown;
+
   state?: T | U;
   look?: Look<T>;
-
   updateFlags?: ViewFlags;
   isDefined?(value: T): boolean;
   willSetState?(newValue: T, oldValue: T): void;
@@ -206,7 +206,7 @@ function AttributeAnimatorConstructor<V extends ElementView, T, U>(this: Attribu
     enumerable: true,
   });
   Object.defineProperty(_this, "look", {
-    value: null,
+    value: _this.look ?? null, // seed from prototype
     enumerable: true,
     configurable: true,
   });
@@ -302,6 +302,7 @@ AttributeAnimator.prototype.setState = function <T, U>(this: AttributeAnimator<E
     state = this.fromAny(state);
   }
   this.setAnimatorFlags(this.animatorFlags | Animator.OverrideFlag);
+  this.setLook(null);
   Animator.prototype.setState.call(this, state, timing);
 };
 
@@ -346,15 +347,15 @@ AttributeAnimator.prototype.willSetLook = function <T>(this: AttributeAnimator<E
 };
 
 AttributeAnimator.prototype.onSetLook = function <T>(this: AttributeAnimator<ElementView, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
-  if (this.owner.isMounted()) {
-    if (newLook !== null && this.isAuto()) {
+  if (newLook !== null) {
+    if (this.owner.isMounted()) {
       const state = this.owner.getLook(newLook);
       if (state !== void 0) {
         this.setAutoState(state, timing);
       }
+    } else {
+      this.owner.requireUpdate(View.NeedsChange);
     }
-  } else {
-    this.owner.requireUpdate(View.NeedsChange);
   }
 };
 
@@ -469,6 +470,7 @@ AttributeAnimator.getClass = function (type: unknown): AttributeAnimatorClass | 
 AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor: AttributeAnimatorDescriptor<V, T, U, I>): AttributeAnimatorConstructor<V, T, U, I> {
   let _super: AttributeAnimatorClass | null | undefined = descriptor.extends;
   const state = descriptor.state;
+  const look = descriptor.look;
   const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
@@ -508,6 +510,11 @@ AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor:
       return state;
     };
   }
+  Object.defineProperty(_prototype, "look", {
+    value: look ?? null,
+    enumerable: true,
+    configurable: true,
+  });
 
   return _constructor;
 };

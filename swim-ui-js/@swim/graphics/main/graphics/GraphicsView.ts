@@ -989,8 +989,6 @@ export abstract class GraphicsView extends View {
       if ((this.viewFlags & View.HiddenFlag) === 0) {
         this.doHide();
       }
-    } else {
-      throw new Error("already hidden");
     }
   }
 
@@ -1028,8 +1026,6 @@ export abstract class GraphicsView extends View {
       if ((this.viewFlags & View.HiddenFlag) === 0) {
         this.doUnhide();
       }
-    } else {
-      throw new Error("already unhidden");
     }
   }
 

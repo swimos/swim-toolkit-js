@@ -13,11 +13,10 @@
 // limitations under the License.
 
 import type {Length} from "@swim/math";
-import type {ViewObserver} from "@swim/view";
-import type {GraphicsView} from "@swim/graphics";
+import type {GraphicsView, GraphicsViewObserver} from "@swim/graphics";
 import type {DataPointView} from "./DataPointView";
 
-export interface DataPointViewObserver<X, Y, V extends DataPointView<X, Y> = DataPointView<X, Y>> extends ViewObserver<V> {
+export interface DataPointViewObserver<X, Y, V extends DataPointView<X, Y> = DataPointView<X, Y>> extends GraphicsViewObserver<V> {
   dataPointViewWillSetX?(newX: X | undefined, oldX: X | undefined, view: V): void;
 
   dataPointViewDidSetX?(newX: X | undefined, oldX: X | undefined, view: V): void;

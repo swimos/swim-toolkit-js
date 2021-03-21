@@ -29,4 +29,3 @@ export {
   ScaledView,
 } from "./ScaledView";
 export {ScaledViewObserver} from "./ScaledViewObserver";
-export {ScaledViewController} from "./ScaledViewController";

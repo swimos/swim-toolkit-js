@@ -13,22 +13,24 @@
 // limitations under the License.
 
 import type {BoxR2} from "@swim/math";
-import type {ViewContextType} from "@swim/view";
-import {GraphicsView, CanvasContext, CanvasRenderer} from "@swim/graphics";
+import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import {ViewContextType, ViewAnimator} from "@swim/view";
+import {GraphicsView, GraphicsViewController, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {ScaledViewInit, ScaledView} from "../scaled/ScaledView";
 import {AnyPlotView, PlotView} from "../plot/PlotView";
 import type {GraphViewObserver} from "./GraphViewObserver";
-import type {GraphViewController} from "./GraphViewController";
 
 export type AnyGraphView<X, Y> = GraphView<X, Y> | GraphViewInit<X, Y>;
 
 export interface GraphViewInit<X, Y> extends ScaledViewInit<X, Y> {
-  viewController?: GraphViewController<X, Y>;
   plots?: AnyPlotView<X, Y>[];
+
+  font?: AnyFont;
+  textColor?: AnyColor;
 }
 
 export class GraphView<X, Y> extends ScaledView<X, Y> {
-  declare readonly viewController: GraphViewController<X, Y> | null;
+  declare readonly viewController: GraphicsViewController<GraphView<X, Y>> & GraphViewObserver<X, Y> | null;
 
   declare readonly viewObservers: ReadonlyArray<GraphViewObserver<X, Y>>;
 
@@ -40,7 +42,20 @@ export class GraphView<X, Y> extends ScaledView<X, Y> {
         this.addPlot(plots[i]!);
       }
     }
+
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.textColor !== void 0) {
+      this.textColor(init.textColor);
+    }
   }
+
+  @ViewAnimator({type: Font, inherit: true, state: null})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
+
+  @ViewAnimator({type: Color, inherit: true, state: null})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   addPlot(plot: AnyPlotView<X, Y>, key?: string): void {
     if (key === void 0 && typeof plot === "object" && plot !== null) {

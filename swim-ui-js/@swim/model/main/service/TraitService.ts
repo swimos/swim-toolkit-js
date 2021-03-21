@@ -360,7 +360,6 @@ TraitService.define = function <R extends Trait, T, I>(descriptor: TraitServiceD
   let modelService = descriptor.modelService;
   delete descriptor.extends;
   delete descriptor.manager;
-  delete descriptor.inherit;
   delete descriptor.modelService;
 
   if (_super === void 0) {

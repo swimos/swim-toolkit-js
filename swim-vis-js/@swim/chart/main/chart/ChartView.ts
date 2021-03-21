@@ -14,10 +14,11 @@
 
 import {Range, AnyTiming, Timing, Easing, LinearRange} from "@swim/mapping";
 import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
-import {AnyColor, Color} from "@swim/style";
+import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import {Look} from "@swim/theme";
 import {View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
+import type {GraphicsViewController} from "@swim/graphics";
 import type {ChartViewObserver} from "./ChartViewObserver";
-import type {ChartViewController} from "./ChartViewController";
 import {ScaledViewInit, ScaledView} from "../scaled/ScaledView";
 import {AnyGraphView, GraphView} from "../graph/GraphView";
 import type {AnyAxisView, AxisView} from "../axis/AxisView";
@@ -29,7 +30,6 @@ import {LeftAxisView} from "../axis/LeftAxisView";
 export type AnyChartView<X = unknown, Y = unknown> = ChartView<X, Y> | ChartViewInit<X, Y>;
 
 export interface ChartViewInit<X = unknown, Y = unknown> extends ScaledViewInit<X, Y> {
-  viewController?: ChartViewController<X, Y>;
   graph?: AnyGraphView<X, Y>;
 
   topAxis?: AnyAxisView<X> | true;
@@ -54,6 +54,9 @@ export interface ChartViewInit<X = unknown, Y = unknown> extends ScaledViewInit<
 
   gridLineColor?: AnyColor;
   gridLineWidth?: number;
+
+  font?: AnyFont;
+  textColor?: AnyColor;
 }
 
 export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
@@ -121,9 +124,16 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     if (init.gridLineWidth !== void 0) {
       this.gridLineWidth(init.gridLineWidth);
     }
+
+    if (init.font !== void 0) {
+      this.font(init.font);
+    }
+    if (init.textColor !== void 0) {
+      this.textColor(init.textColor);
+    }
   }
 
-  declare readonly viewController: ChartViewController<X, Y> | null;
+  declare readonly viewController: GraphicsViewController<ChartView<X, Y>> & ChartViewObserver<X, Y> | null;
 
   declare readonly viewObservers: ReadonlyArray<ChartViewObserver<X, Y>>;
 
@@ -139,8 +149,8 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   @ViewAnimator({type: Length, state: Length.px(40)})
   declare gutterLeft: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, state: Color.black()})
-  declare borderColor: ViewAnimator<this, Color, AnyColor>;
+  @ViewAnimator({type: Color, state: null, look: Look.neutralColor})
+  declare borderColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Number, state: 1})
   declare borderWidth: ViewAnimator<this, number>;
@@ -148,8 +158,8 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   @ViewAnimator({type: Number, state: 6})
   declare borderSerif: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Color, state: Color.black()})
-  declare tickMarkColor: ViewAnimator<this, Color, AnyColor>;
+  @ViewAnimator({type: Color, state: null, look: Look.neutralColor})
+  declare tickMarkColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Number, state: 1})
   declare tickMarkWidth: ViewAnimator<this, number>;
@@ -162,18 +172,23 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
 
   @ViewProperty({
     type: Timing,
-    inherit: true,
     initState(): Timing {
       return Easing.cubicOut.withDuration(250);
     },
   })
   declare tickTransition: ViewProperty<this, Timing, AnyTiming>;
 
-  @ViewAnimator({type: Color, state: Color.transparent()})
-  declare gridLineColor: ViewAnimator<this, Color, AnyColor>;
+  @ViewAnimator({type: Color, state: null, look: Look.subduedColor})
+  declare gridLineColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Number, state: 0})
   declare gridLineWidth: ViewAnimator<this, number>;
+
+  @ViewAnimator({type: Font, state: null})
+  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
+
+  @ViewAnimator({type: Color, state: null, look: Look.mutedColor})
+  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   xRange(): Range<number> | null {
     const frame = this.viewFrame;

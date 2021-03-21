@@ -603,7 +603,6 @@ ComponentProperty.define = function <C extends Component, T, U, I>(descriptor: C
   const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
-  delete descriptor.inherit;
 
   if (_super === void 0) {
     _super = ComponentProperty.getConstructor(descriptor.type);

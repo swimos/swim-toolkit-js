@@ -38,9 +38,10 @@ export type ViewAnimatorMemberInit<V, K extends keyof V> =
 export interface ViewAnimatorInit<T, U = never> {
   extends?: ViewAnimatorClass;
   type?: unknown;
-  state?: T | U;
   inherit?: string | boolean;
 
+  state?: T | U;
+  look?: Look<T>;
   updateFlags?: ViewFlags;
   isDefined?(value: T): boolean;
   willSetState?(newValue: T, oldValue: T): void;
@@ -243,7 +244,7 @@ function ViewAnimatorConstructor<V extends View, T, U>(this: ViewAnimator<V, T, 
     enumerable: true,
   });
   Object.defineProperty(_this, "look", {
-    value: null,
+    value: _this.look ?? null, // seed from prototype
     enumerable: true,
     configurable: true,
   });
@@ -453,6 +454,7 @@ ViewAnimator.prototype.getState = function <T, U>(this: ViewAnimator<View, T, U>
 
 ViewAnimator.prototype.setState = function <T, U>(this: ViewAnimator<View, T, U>, state: T | U, timing?: AnyTiming | boolean): void {
   this.setAnimatorFlags(this.animatorFlags | Animator.OverrideFlag);
+  this.setLook(null);
   this.setOwnState(state, timing);
 };
 
@@ -547,15 +549,15 @@ ViewAnimator.prototype.willSetLook = function <T>(this: ViewAnimator<View, T>, n
 };
 
 ViewAnimator.prototype.onSetLook = function <T>(this: ViewAnimator<View, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
-  if (this.owner.isMounted()) {
-    if (newLook !== null) {
+  if (newLook !== null) {
+    if (this.owner.isMounted()) {
       const state = this.owner.getLook(newLook);
       if (state !== void 0) {
         this.setAutoState(state, timing);
       }
+    } else {
+      this.owner.requireUpdate(View.NeedsChange);
     }
-  } else {
-    this.owner.requireUpdate(View.NeedsChange);
   }
 };
 
@@ -565,7 +567,7 @@ ViewAnimator.prototype.didSetLook = function <T>(this: ViewAnimator<View, T>, ne
 
 ViewAnimator.prototype.applyTheme = function <T>(this: ViewAnimator<View, T>, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
   const look = this.look;
-  if (look !== null) {
+  if (look !== null && this.isAuto()) {
     const state = theme.get(look, mood);
     if (state !== void 0) {
       this.setAutoState(state, timing);
@@ -681,11 +683,11 @@ ViewAnimator.getClass = function (type: unknown): ViewAnimatorClass | null {
 ViewAnimator.define = function <V extends View, T, U, I>(descriptor: ViewAnimatorDescriptor<V, T, U, I>): ViewAnimatorConstructor<V, T, U, I> {
   let _super: ViewAnimatorClass | null | undefined = descriptor.extends;
   const state = descriptor.state;
+  const look = descriptor.look;
   const inherit = descriptor.inherit;
   const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
-  delete descriptor.inherit;
 
   if (_super === void 0) {
     _super = ViewAnimator.getClass(descriptor.type);
@@ -722,6 +724,11 @@ ViewAnimator.define = function <V extends View, T, U, I>(descriptor: ViewAnimato
       return state;
     };
   }
+  Object.defineProperty(_prototype, "look", {
+    value: look ?? null,
+    enumerable: true,
+    configurable: true,
+  });
   Object.defineProperty(_prototype, "inherit", {
     value: inherit ?? false,
     enumerable: true,

@@ -25,7 +25,6 @@ import {
   LinearScale,
 } from "@swim/mapping";
 import {DateTime, TimeDomain, TimeScale} from "@swim/time";
-import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {
   ViewContextType,
   ViewFlags,
@@ -37,19 +36,17 @@ import {
   ScaleGestureDelegate,
   ScaleGesture,
 } from "@swim/view";
-import {GraphicsViewInit, LayerView} from "@swim/graphics";
+import {GraphicsViewInit, GraphicsViewController, LayerView} from "@swim/graphics";
 import {ScaledXView} from "./ScaledXView";
 import {ScaledYView} from "./ScaledYView";
 import type {ScaledXYView} from "./ScaledXYView";
 import {ContinuousScaleAnimator} from "./ContinuousScaleAnimator";
 import type {ScaledViewObserver} from "./ScaledViewObserver";
-import type {ScaledViewController} from "./ScaledViewController";
 
 /** @hidden */
 export type ScaledFlags = number;
 
 export interface ScaledViewInit<X = unknown, Y = unknown> extends GraphicsViewInit {
-  viewController?: ScaledViewController<X, Y>;
   xScale?: ContinuousScale<X, number>;
   yScale?: ContinuousScale<Y, number>;
 
@@ -80,14 +77,9 @@ export interface ScaledViewInit<X = unknown, Y = unknown> extends GraphicsViewIn
   scaleGesture?: ScaleGesture<X, Y>;
   rescaleTransition?: AnyTiming | boolean;
   reboundTransition?: AnyTiming | boolean;
-
-  font?: AnyFont;
-  textColor?: AnyColor;
 }
 
-export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView
-  implements ScaledXYView<X, Y>, ScaleGestureDelegate<X, Y> {
-
+export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView implements ScaledXYView<X, Y>, ScaleGestureDelegate<X, Y> {
   constructor() {
     super();
     Object.defineProperty(this, "scaledFlags", {
@@ -212,16 +204,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView
     if (init.reboundTransition !== void 0) {
       this.reboundTransition.setState(init.reboundTransition);
     }
-
-    if (init.font !== void 0) {
-      this.font(init.font);
-    }
-    if (init.textColor !== void 0) {
-      this.textColor(init.textColor);
-    }
   }
 
-  declare readonly viewController: ScaledViewController<X, Y> | null;
+  declare readonly viewController: GraphicsViewController<ScaledView<X, Y>> & ScaledViewObserver<X, Y> | null;
 
   declare readonly viewObservers: ReadonlyArray<ScaledViewObserver<X, Y>>;
 
@@ -236,12 +221,6 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView
       configurable: true,
     });
   }
-
-  @ViewAnimator({type: Font, state: null, inherit: true})
-  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
-
-  @ViewAnimator({type: Color, state: null, inherit: true})
-  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected willSetXScale(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null): void {
     const viewController = this.viewController;
