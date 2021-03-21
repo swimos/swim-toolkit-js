@@ -494,7 +494,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
     const xScaledDomain = scaledView.xDataDomain;
     if (xScaledDomain !== null) {
       let xDataDomain = this.xDataDomain;
-      if (xDataDomain === null) {
+      if (xDataDomain === null || this.scaledFasteners.length === 1) {
         xDataDomain = xScaledDomain;
       } else {
         if (Values.compare(xScaledDomain[0], xDataDomain[0]) < 0) {
@@ -562,7 +562,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
     const yScaledDomain = scaledView.yDataDomain;
     if (yScaledDomain !== null) {
       let yDataDomain = this.yDataDomain;
-      if (yDataDomain === null) {
+      if (yDataDomain === null || this.scaledFasteners.length === 1) {
         yDataDomain = yScaledDomain;
       } else {
         if (Values.compare(yScaledDomain[0], yDataDomain[0]) < 0) {
@@ -1208,7 +1208,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
     let xScale: ContinuousScale<X, number> | null;
     const xRange = this.xRange();
     if (xRange !== null) {
-      xScale = !this.xScale.isInherited() ? this.xScale.ownValue : null;
+      xScale = !this.xScale.isInherited() ? this.xScale.ownState : null;
       if (xScale !== null) {
         if (!xScale.range.equals(xRange)) {
           this.xScale.setRange(xRange);
@@ -1227,7 +1227,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
     let yScale: ContinuousScale<Y, number> | null;
     const yRange = this.yRange();
     if (yRange !== null) {
-      yScale = !this.yScale.isInherited() ? this.yScale.ownValue : null;
+      yScale = !this.yScale.isInherited() ? this.yScale.ownState : null;
       if (yScale !== null) {
         if (!yScale.range.equals(yRange)) {
           this.yScale.setRange(yRange);
@@ -1245,8 +1245,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
   }
 
   protected updateScales(): void {
-    const xScale = !this.xScale.isInherited() ? this.xScale.ownValue : null;
-    const yScale = !this.yScale.isInherited() ? this.yScale.ownValue : null;
+    const xScale = !this.xScale.isInherited() ? this.xScale.ownState : null;
+    const yScale = !this.yScale.isInherited() ? this.yScale.ownState : null;
     if (xScale !== null && yScale !== null) {
       const scaleGesture = this.scaleGesture.state;
       const isPressing = scaleGesture !== null && scaleGesture.isPressing();

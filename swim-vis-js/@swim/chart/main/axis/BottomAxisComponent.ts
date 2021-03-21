@@ -12,22 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  TickGenerator,
-  NumberTickGenerator,
-  TimeTickGenerator,
-} from "./TickGenerator";
+import type {AxisView} from "./AxisView";
+import {BottomAxisView} from "./BottomAxisView";
+import {AxisComponent} from "./AxisComponent";
 
-export {
-  TickState,
-  TickOrientation,
-  AnyTickView,
-  TickViewInit,
-  TickView,
-} from "./TickView";
-export {TickViewObserver} from "./TickViewObserver";
-
-export {TopTickView} from "./TopTickView";
-export {RightTickView} from "./RightTickView";
-export {BottomTickView} from "./BottomTickView";
-export {LeftTickView} from "./LeftTickView";
+export class BottomAxisComponent<X> extends AxisComponent<X> {
+  protected createAxisView(): AxisView<X> | null {
+    return BottomAxisView.create<X>();
+  }
+}

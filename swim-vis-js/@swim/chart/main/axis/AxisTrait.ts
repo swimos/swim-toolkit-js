@@ -12,22 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {
-  TickGenerator,
-  NumberTickGenerator,
-  TimeTickGenerator,
-} from "./TickGenerator";
+import {GenericTrait} from "@swim/model";
+import type {AxisTraitObserver} from "./AxisTraitObserver";
 
-export {
-  TickState,
-  TickOrientation,
-  AnyTickView,
-  TickViewInit,
-  TickView,
-} from "./TickView";
-export {TickViewObserver} from "./TickViewObserver";
-
-export {TopTickView} from "./TopTickView";
-export {RightTickView} from "./RightTickView";
-export {BottomTickView} from "./BottomTickView";
-export {LeftTickView} from "./LeftTickView";
+export abstract class AxisTrait<D> extends GenericTrait {
+  declare readonly traitObservers: ReadonlyArray<AxisTraitObserver<D>>;
+}

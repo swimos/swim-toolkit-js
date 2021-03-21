@@ -63,7 +63,7 @@ export class PlotTrait<X, Y> extends GenericTrait {
 
   @TraitFastener<PlotTrait<X, Y>, DataSetTrait<X, Y>>({
     type: DataSetTrait,
-    sibling: true,
+    sibling: false,
     willSetTrait(newDataSetTrait: DataSetTrait<X, Y> | null, oldDataSetTrait: DataSetTrait<X, Y> | null, targetTrait: Trait | null): void {
       this.owner.willSetDataSet(newDataSetTrait, oldDataSetTrait, targetTrait);
     },
@@ -104,6 +104,16 @@ export class PlotTrait<X, Y> extends GenericTrait {
       this.detectTraits(newModel);
     }
     super.didSetModel(newModel, oldModel);
+  }
+
+  protected onInsertTrait(trait: Trait, targetTrait: Trait | null): void {
+    super.onInsertTrait(trait, targetTrait);
+    if (this.dataSet.trait === null) {
+      const dataSetTrait = this.detectDataSetTrait(trait);
+      if (dataSetTrait !== null) {
+        this.dataSet.setTrait(dataSetTrait, targetTrait);
+      }
+    }
   }
 
   protected onStartConsuming(): void {

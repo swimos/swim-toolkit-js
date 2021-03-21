@@ -90,7 +90,11 @@ export class DataSetTrait<X, Y> extends GenericTrait {
 
   protected onSetDataPoint(newDataPointTrait: DataPointTrait<X, Y> | null, oldDataPointTrait: DataPointTrait<X, Y> | null,
                            targetTrait: Trait | null, dataPointFastener: TraitFastener<this, DataPointTrait<X, Y>>): void {
+    if (oldDataPointTrait !== null) {
+      this.detachDataPoint(oldDataPointTrait, dataPointFastener);
+    }
     if (newDataPointTrait !== null) {
+      this.attachDataPoint(newDataPointTrait, dataPointFastener);
       this.initDataPoint(newDataPointTrait, dataPointFastener);
     }
   }
@@ -114,12 +118,6 @@ export class DataSetTrait<X, Y> extends GenericTrait {
       this.owner.willSetDataPoint(newDataPointTrait, oldDataPointTrait, targetTrait, this);
     },
     onSetTrait(newDataPointTrait: DataPointTrait<unknown, unknown> | null, oldDataPointTrait: DataPointTrait<unknown, unknown> | null, targetTrait: Trait | null): void {
-      if (oldDataPointTrait !== null) {
-        this.owner.detachDataPoint(oldDataPointTrait, this);
-      }
-      if (newDataPointTrait !== null) {
-        this.owner.attachDataPoint(newDataPointTrait, this);
-      }
       this.owner.onSetDataPoint(newDataPointTrait, oldDataPointTrait, targetTrait, this);
     },
     didSetTrait(newDataPointTrait: DataPointTrait<unknown, unknown> | null, oldDataPointTrait: DataPointTrait<unknown, unknown> | null, targetTrait: Trait | null): void {

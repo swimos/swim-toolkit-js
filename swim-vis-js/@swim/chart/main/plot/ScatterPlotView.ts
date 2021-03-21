@@ -461,6 +461,15 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     }
   }
 
+  protected attachDataPoint(dataPointView: DataPointView<X, Y>, dataPointFastener: ViewFastener<this, DataPointView<X, Y>>): void {
+    this.updateXDataDomain(dataPointView);
+    this.updateYDataDomain(dataPointView);
+  }
+
+  protected detachDataPoint(dataPointView: DataPointView<X, Y>, dataPointFastener: ViewFastener<this, DataPointView<X, Y>>): void {
+    // xDataDomain and yDataDomain will be recomputed next layout pass
+  }
+
   protected willSetDataPoint(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null,
                              targetView: View | null, dataPointFastener: ViewFastener<this, DataPointView<X, Y>>): void {
     const viewController = this.viewController;
@@ -478,12 +487,12 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
 
   protected onSetDataPoint(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null,
                            targetView: View | null, dataPointFastener: ViewFastener<this, DataPointView<X, Y>>): void {
+    if (oldDataPointView !== null) {
+      this.detachDataPoint(oldDataPointView, dataPointFastener);
+    }
     if (newDataPointView !== null) {
+      this.attachDataPoint(newDataPointView, dataPointFastener);
       this.initDataPoint(newDataPointView, dataPointFastener);
-      if (newDataPointView !== null) {
-        this.updateXDataDomain(newDataPointView);
-        this.updateYDataDomain(newDataPointView);
-      }
     }
   }
 
@@ -502,19 +511,19 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     }
   }
 
-  protected onSetDataPointX(x: X, dataPointView: DataPointView<X, Y>,
+  protected onSetDataPointX(newX: X | undefined, oldX: X | undefined, dataPointView: DataPointView<X, Y>,
                             dataPointFastener: ViewFastener<this, DataPointView<X, Y>>): void {
     this.updateXDataDomain(dataPointView);
     this.requireUpdate(View.NeedsLayout);
   }
 
-  protected onSetDataPointY(y: Y, dataPointView: DataPointView<X, Y>,
+  protected onSetDataPointY(newY: Y | undefined, oldY: Y | undefined, dataPointView: DataPointView<X, Y>,
                             dataPointFastener: ViewFastener<this, DataPointView<X, Y>>): void {
     this.updateYDataDomain(dataPointView);
     this.requireUpdate(View.NeedsLayout);
   }
 
-  protected onSetDataPointY2(y2: Y | undefined, dataPointView: DataPointView<X, Y>,
+  protected onSetDataPointY2(newY2: Y | undefined, oldY2: Y | undefined, dataPointView: DataPointView<X, Y>,
                              dataPointFastener: ViewFastener<this, DataPointView<X, Y>>): void {
     this.updateYDataDomain(dataPointView);
     this.requireUpdate(View.NeedsLayout);
@@ -523,6 +532,13 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   protected initDataPointLabel(labelView: GraphicsView, dataPointView: DataPointView<X, Y>,
                                dataPointFastener: ViewFastener<this, DataPointView<X, Y>>): void {
     this.requireUpdate(View.NeedsLayout);
+  }
+
+  protected onSetDataPointLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, dataPointView: DataPointView<X, Y>,
+                                dataPointFastener: ViewFastener<this, DataPointView<X, Y>>): void {
+    if (newLabelView !== null) {
+      this.initDataPointLabel(newLabelView, dataPointView, dataPointFastener);
+    }
   }
 
   /** @hidden */
@@ -538,19 +554,17 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     didSetView(newDataPointView: DataPointView<unknown, unknown> | null, oldDataPointView: DataPointView<unknown, unknown> | null, targetView: View | null): void {
       this.owner.didSetDataPoint(newDataPointView, oldDataPointView, targetView, this);
     },
-    dataPointViewDidSetX(newX: unknown, oldX: unknown, dataPointView: DataPointView<unknown, unknown>): void {
-      this.owner.onSetDataPointX(newX, dataPointView, this);
+    dataPointViewDidSetX(newX: unknown | undefined, oldX: unknown | undefined, dataPointView: DataPointView<unknown, unknown>): void {
+      this.owner.onSetDataPointX(newX, oldX, dataPointView, this);
     },
-    dataPointViewDidSetY(newY: unknown, oldY: unknown, dataPointView: DataPointView<unknown, unknown>): void {
-      this.owner.onSetDataPointY(newY, dataPointView, this);
+    dataPointViewDidSetY(newY: unknown | undefined, oldY: unknown | undefined, dataPointView: DataPointView<unknown, unknown>): void {
+      this.owner.onSetDataPointY(newY, oldY, dataPointView, this);
     },
-    dataPointViewDidSetY2(newY2: unknown, oldY2: unknown, dataPointView: DataPointView<unknown, unknown>): void {
-      this.owner.onSetDataPointY2(newY2, dataPointView, this);
+    dataPointViewDidSetY2(newY2: unknown | undefined, oldY2: unknown | undefined, dataPointView: DataPointView<unknown, unknown>): void {
+      this.owner.onSetDataPointY2(newY2, oldY2, dataPointView, this);
     },
     dataPointViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, dataPointView: DataPointView<unknown, unknown>): void {
-      if (newLabelView !== null) {
-        this.owner.initDataPointLabel(newLabelView, dataPointView, this);
-      }
+      this.owner.onSetDataPointLabel(newLabelView, oldLabelView, dataPointView, this);
     },
   });
 

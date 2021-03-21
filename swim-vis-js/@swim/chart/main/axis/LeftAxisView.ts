@@ -20,7 +20,7 @@ import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
 import type {TickView} from "../tick/TickView";
 import {AxisOrientation, AnyAxisView, AxisViewInit, AxisView} from "./AxisView";
 
-export class LeftAxisView<Y = unknown> extends AxisView<Y> {
+export class LeftAxisView<Y> extends AxisView<Y> {
   get orientation(): AxisOrientation {
     return "left";
   }
@@ -66,18 +66,18 @@ export class LeftAxisView<Y = unknown> extends AxisView<Y> {
     return new LeftAxisView<Y>();
   }
 
-  static fromInit<Y>(init: AxisViewInit<Y>): AxisView<Y> {
+  static fromInit<Y>(init: AxisViewInit<Y>): LeftAxisView<Y> {
     const view = new LeftAxisView<Y>();
     view.initView(init)
     return view;
   }
 
-  static fromAny<Y>(value: AnyAxisView<Y> | true): AxisView<Y> {
-    if (value instanceof AxisView) {
+  static fromAny<Y>(value: AnyAxisView<Y> | true): LeftAxisView<Y> {
+    if (value instanceof LeftAxisView) {
       return value;
     } else if (value === true) {
       return new LeftAxisView<Y>();
-    } else if (typeof value === "object" && value !== null) {
+    } else if (typeof value === "object" && value !== null && !(value instanceof AxisView)) {
       return this.fromInit(value);
     }
     throw new TypeError("" + value);

@@ -35,9 +35,9 @@ import {LeftAxisView} from "../"; // forward import
 
 export type AxisOrientation = "top" | "right" | "bottom" | "left";
 
-export type AnyAxisView<D = unknown> = AxisView<D> | AxisViewInit<D>;
+export type AnyAxisView<D> = AxisView<D> | AxisViewInit<D>;
 
-export interface AxisViewInit<D = unknown> extends GraphicsViewInit {
+export interface AxisViewInit<D> extends GraphicsViewInit {
   orientation?: AxisOrientation;
   scale?: ContinuousScale<D, number> | string;
   ticks?: AnyTickView<D>[];
