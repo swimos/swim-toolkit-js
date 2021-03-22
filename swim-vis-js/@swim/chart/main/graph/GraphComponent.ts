@@ -271,22 +271,19 @@ export class GraphComponent<X, Y> extends CompositeComponent {
   }
 
   protected detachPlot(plotComponent: PlotComponent<X, Y>, plotFastener: ComponentFastener<this, PlotComponent<X, Y>>): void {
-    const plotTrait = plotComponent.plot.trait;
-    if (plotTrait !== null) {
-      this.detachPlotTrait(plotTrait, plotFastener);
-    }
-    const plotView = plotComponent.plot.view;
-    if (plotView !== null) {
-      this.detachPlotView(plotView, plotFastener);
-    }
-
     const dataSetTrait = plotComponent.dataSet.trait;
     if (dataSetTrait !== null) {
       this.detachDataSetTrait(dataSetTrait, plotFastener);
     }
 
-    plotComponent.plot.removeView();
-    plotComponent.remove();
+    const plotView = plotComponent.plot.view;
+    if (plotView !== null) {
+      this.detachPlotView(plotView, plotFastener);
+    }
+    const plotTrait = plotComponent.plot.trait;
+    if (plotTrait !== null) {
+      this.detachPlotTrait(plotTrait, plotFastener);
+    }
   }
 
   protected willSetPlot(newPlotComponent: PlotComponent<X, Y> | null, oldPlotComponent: PlotComponent<X, Y> | null,
@@ -337,8 +334,8 @@ export class GraphComponent<X, Y> extends CompositeComponent {
     }
     const plotComponent = this.createPlot(plotTrait);
     if (plotComponent !== null) {
-      this.insertChildComponent(plotComponent, targetComponent);
       plotComponent.plot.setTrait(plotTrait);
+      this.insertChildComponent(plotComponent, targetComponent);
       if (plotComponent.plot.view === null) {
         const plotView = this.createPlotView(plotComponent);
         let targetView: PlotView<X, Y> | null = null;
@@ -430,7 +427,7 @@ export class GraphComponent<X, Y> extends CompositeComponent {
   }
 
   protected detachPlotView(plotView: PlotView<X, Y>, plotFastener: ComponentFastener<this, PlotComponent<X, Y>>): void {
-    // hook
+    plotView.remove();
   }
 
   protected willSetPlotView(newPlotView: PlotView<X, Y> | null, oldPlotView: PlotView<X, Y> | null,
@@ -911,19 +908,11 @@ export class GraphComponent<X, Y> extends CompositeComponent {
     return component instanceof PlotComponent ? component : null;
   }
 
-  protected onInsertPlotComponent(plotComponent: PlotComponent<X, Y>, targetComponent: Component | null): void {
-    this.insertPlot(plotComponent, targetComponent);
-  }
-
-  protected onRemovePlotComponent(plotComponent: PlotComponent<X, Y>): void {
-    this.removePlot(plotComponent);
-  }
-
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     super.onInsertChildComponent(childComponent, targetComponent);
     const plotComponent = this.detectPlotComponent(childComponent);
     if (plotComponent !== null) {
-      this.onInsertPlotComponent(plotComponent, targetComponent);
+      this.insertPlot(plotComponent, targetComponent);
     }
   }
 
@@ -931,7 +920,7 @@ export class GraphComponent<X, Y> extends CompositeComponent {
     super.onRemoveChildComponent(childComponent);
     const plotComponent = this.detectPlotComponent(childComponent);
     if (plotComponent !== null) {
-      this.onRemovePlotComponent(plotComponent);
+      this.removePlot(plotComponent);
     }
   }
 
@@ -945,11 +934,5 @@ export class GraphComponent<X, Y> extends CompositeComponent {
   protected unmountComponentFasteners(): void {
     this.unmountPlotFasteners();
     super.unmountComponentFasteners();
-  }
-
-  protected onUnmount(): void {
-    super.onUnmount();
-    this.graph.setView(null);
-    this.graph.setTrait(null);
   }
 }

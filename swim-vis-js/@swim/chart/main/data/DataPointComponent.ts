@@ -145,8 +145,15 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
     }
   }
 
-  protected createDataPointView(): DataPointView<X, Y> {
-    return DataPointView.create();
+  protected createDataPointView(dataPointTrait: DataPointTrait<X, Y> | null): DataPointView<X, Y> {
+    const dataPointView = DataPointView.create<X, Y>();
+    if (dataPointTrait !== null) {
+      dataPointView.x.setAutoState(dataPointTrait.x);
+      dataPointView.y.setAutoState(dataPointTrait.y);
+      dataPointView.y2.setAutoState(dataPointTrait.y2);
+      dataPointView.radius.setAutoState(dataPointTrait.radius);
+    }
+    return dataPointView;
   }
 
   protected initDataPointView(dataPointView: DataPointView<X, Y>): void {
@@ -475,7 +482,7 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
       }
     },
     createView(): DataPointView<unknown, unknown> | null {
-      return this.owner.createDataPointView();
+      return this.owner.createDataPointView(this.trait);
     },
     traitType: DataPointTrait,
     observeTrait: true,

@@ -597,19 +597,11 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     return view instanceof DataPointView ? view : null;
   }
 
-  protected onInsertDataPoint(dataPointView: DataPointView<X, Y>, targetView: View | null): void {
-    this.insertDataPoint(dataPointView, targetView);
-  }
-
-  protected onRemoveDataPoint(dataPointView: DataPointView<X, Y>): void {
-    this.removeDataPoint(dataPointView);
-  }
-
   protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     const dataPointView = this.detectDataPoint(childView);
     if (dataPointView !== null) {
-      this.onInsertDataPoint(dataPointView, targetView);
+      this.insertDataPoint(dataPointView, targetView);
     }
   }
 
@@ -617,7 +609,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     super.onRemoveChildView(childView);
     const dataPointView = this.detectDataPoint(childView);
     if (dataPointView !== null) {
-      this.onRemoveDataPoint(dataPointView);
+      this.removeDataPoint(dataPointView);
     }
   }
 

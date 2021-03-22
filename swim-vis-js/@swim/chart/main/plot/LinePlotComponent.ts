@@ -39,11 +39,6 @@ export class LinePlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
     }
   }
 
-  protected detachDataPoint(dataPointComponent: DataPointComponent<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
-    super.detachDataPoint(dataPointComponent, dataPointFastener);
-    dataPointComponent.dataPoint.removeView();
-  }
-
   protected initPlotTrait(plotTrait: LinePlotTrait<X, Y>): void {
     if (this.dataSet.trait === null) {
       const dataSetTrait = this.detectDataSet(plotTrait);
@@ -62,7 +57,7 @@ export class LinePlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
   }
 
   protected detachPlotTrait(plotTrait: LinePlotTrait<X, Y>): void {
-    this.plot.removeView();
+    // hook
   }
 
   protected willSetPlotTrait(newPlotTrait: LinePlotTrait<X, Y> | null, oldPlotTrait: LinePlotTrait<X, Y> | null): void {

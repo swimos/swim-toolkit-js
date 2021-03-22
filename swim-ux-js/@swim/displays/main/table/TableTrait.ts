@@ -194,7 +194,11 @@ export class TableTrait extends GenericTrait {
 
   protected onSetCol(newColTrait: ColTrait | null, oldColTrait: ColTrait | null,
                      targetTrait: Trait | null, colFastener: TraitFastener<this, ColTrait>): void {
+    if (oldColTrait !== null) {
+      this.detachCol(oldColTrait, colFastener);
+    }
     if (newColTrait !== null) {
+      this.attachCol(newColTrait, colFastener);
       this.initCol(newColTrait, colFastener);
     }
     this.updateLayout();
@@ -225,12 +229,6 @@ export class TableTrait extends GenericTrait {
       this.owner.willSetCol(newColTrait, oldColTrait, targetTrait, this);
     },
     onSetTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null, targetTrait: Trait | null): void {
-      if (oldColTrait !== null) {
-        this.owner.detachCol(oldColTrait, this);
-      }
-      if (newColTrait !== null) {
-        this.owner.attachCol(newColTrait, this);
-      }
       this.owner.onSetCol(newColTrait, oldColTrait, targetTrait, this);
     },
     didSetTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null, targetTrait: Trait | null): void {
@@ -351,7 +349,11 @@ export class TableTrait extends GenericTrait {
 
   protected onSetRow(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null,
                      targetTrait: Trait | null, rowFastener: TraitFastener<this, RowTrait>): void {
+    if (oldRowTrait !== null) {
+      this.detachRow(oldRowTrait, rowFastener);
+    }
     if (newRowTrait !== null) {
+      this.attachRow(newRowTrait, rowFastener);
       this.initRow(newRowTrait, rowFastener);
     }
   }
@@ -376,12 +378,6 @@ export class TableTrait extends GenericTrait {
       this.owner.willSetRow(newRowTrait, oldRowTrait, targetTrait, this);
     },
     onSetTrait(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, targetTrait: Trait | null): void {
-      if (oldRowTrait !== null) {
-        this.owner.detachRow(oldRowTrait, this);
-      }
-      if (newRowTrait !== null) {
-        this.owner.attachRow(newRowTrait, this);
-      }
       this.owner.onSetRow(newRowTrait, oldRowTrait, targetTrait, this);
     },
     didSetTrait(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, targetTrait: Trait | null): void {
@@ -389,7 +385,7 @@ export class TableTrait extends GenericTrait {
     },
     traitDidSetParentModel(newParentModel: Model | null, oldParentModel: Model | null, rowTrait: RowTrait): void {
       if (newParentModel === null) {
-        this.owner.onRemoveRow(rowTrait);
+        this.owner.removeRow(rowTrait);
       }
     },
   });
@@ -441,22 +437,6 @@ export class TableTrait extends GenericTrait {
     }
   }
 
-  protected onInsertCol(colTrait: ColTrait, targetTrait: Trait | null): void {
-    this.insertCol(colTrait, targetTrait);
-  }
-
-  protected onRemoveCol(colTrait: ColTrait): void {
-    this.removeCol(colTrait);
-  }
-
-  protected onInsertRow(rowTrait: RowTrait, targetTrait: Trait | null): void {
-    this.insertRow(rowTrait, targetTrait);
-  }
-
-  protected onRemoveRow(rowTrait: RowTrait): void {
-    this.removeRow(rowTrait);
-  }
-
   protected detectColModel(model: Model): ColTrait | null {
     return model.getTrait(ColTrait);
   }
@@ -496,12 +476,12 @@ export class TableTrait extends GenericTrait {
     const colTrait = this.detectColModel(childModel);
     if (colTrait !== null) {
       const targetTrait = targetModel !== null ? this.detectColModel(targetModel) : null;
-      this.onInsertCol(colTrait, targetTrait);
+      this.insertCol(colTrait, targetTrait);
     }
     const rowTrait = this.detectRowModel(childModel);
     if (rowTrait !== null) {
       const targetTrait = targetModel !== null ? this.detectRowModel(targetModel) : null;
-      this.onInsertRow(rowTrait, targetTrait);
+      this.insertRow(rowTrait, targetTrait);
     }
   }
 
@@ -509,11 +489,11 @@ export class TableTrait extends GenericTrait {
     super.onRemoveChildModel(childModel);
     const colTrait = this.detectColModel(childModel);
     if (colTrait !== null) {
-      this.onRemoveCol(colTrait);
+      this.removeCol(colTrait);
     }
     const rowTrait = this.detectRowModel(childModel);
     if (rowTrait !== null) {
-      this.onRemoveRow(rowTrait);
+      this.removeRow(rowTrait);
     }
   }
 
@@ -521,7 +501,7 @@ export class TableTrait extends GenericTrait {
     super.onInsertTrait(trait, targetTrait);
     const colTrait = this.detectColTrait(trait);
     if (colTrait !== null) {
-      this.onInsertCol(colTrait, targetTrait);
+      this.insertCol(colTrait, targetTrait);
     }
   }
 
@@ -529,7 +509,7 @@ export class TableTrait extends GenericTrait {
     super.onRemoveTrait(trait);
     const colTrait = this.detectColTrait(trait);
     if (colTrait !== null) {
-      this.onRemoveCol(colTrait);
+      this.removeCol(colTrait);
     }
   }
 

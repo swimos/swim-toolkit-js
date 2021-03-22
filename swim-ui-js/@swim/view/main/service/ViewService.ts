@@ -169,7 +169,7 @@ function ViewServiceConstructor<V extends View, T>(this: ViewService<V, T>, owne
     configurable: true,
   });
   Object.defineProperty(this, "serviceFlags", {
-    value: this.inherit !== false ? ViewService.InheritedFlag : 0,
+    value: 0,
     enumerable: true,
     configurable: true,
   });
@@ -198,9 +198,7 @@ ViewService.prototype.setInherit = function (this: ViewService<View, unknown>, i
       enumerable: true,
       configurable: true,
     });
-    if (inherit !== false) {
-      this.bindSuperService();
-    }
+    this.bindSuperService();
   }
 };
 
@@ -210,7 +208,15 @@ ViewService.prototype.isInherited = function (this: ViewService<View, unknown>):
 
 ViewService.prototype.setInherited = function (this: ViewService<View, unknown>, inherited: boolean): void {
   if (inherited && (this.serviceFlags & ViewService.InheritedFlag) === 0) {
-    this.setServiceFlags(this.serviceFlags | ViewService.InheritedFlag);
+    const superService = this.superService;
+    if (superService !== null) {
+      this.setServiceFlags(this.serviceFlags | ViewService.InheritedFlag);
+      Object.defineProperty(this, "manager", {
+        value: superService.manager,
+        enumerable: true,
+        configurable: true,
+      });
+    }
   } else if (!inherited && (this.serviceFlags & ViewService.InheritedFlag) !== 0) {
     this.setServiceFlags(this.serviceFlags & ~ViewService.InheritedFlag);
   }
@@ -234,53 +240,52 @@ Object.defineProperty(ViewService.prototype, "superName", {
 });
 
 ViewService.prototype.bindSuperService = function (this: ViewService<View, unknown>): void {
+  const superName = this.superName;
   let view = this.owner;
-  if (view.isMounted()) {
-    let superService: ViewService<View, unknown> | null = null;
-    const superName = this.superName;
-    if (superName !== void 0) {
-      do {
-        const parentView = view.parentView;
-        if (parentView !== null) {
-          view = parentView;
-          const service = view.getViewService(superName);
-          if (service !== null) {
-            superService = service;
-            if (service.isInherited()) {
-              continue;
-            }
-          } else {
+  let superService: ViewService<View, unknown> | null = null;
+  if (superName !== void 0 && view.isMounted()) {
+    do {
+      const parentView = view.parentView;
+      if (parentView !== null) {
+        view = parentView;
+        const service = view.getViewService(superName);
+        if (service !== null) {
+          superService = service;
+          if (service.isInherited()) {
             continue;
           }
-        } else if (view !== this.owner) {
-          const service = view.getLazyViewService(superName);
-          if (service !== null) {
-            superService = service;
-          }
+        } else {
+          continue;
         }
-        break;
-      } while (true);
-    }
+      } else if (view !== this.owner) {
+        const service = view.getLazyViewService(superName);
+        if (service !== null) {
+          superService = service;
+        }
+      }
+      break;
+    } while (true);
     Object.defineProperty(this, "superService", {
       value: superService,
       enumerable: true,
       configurable: true,
     });
-    if (this.manager === void 0) {
-      if (superService !== null) {
-        Object.defineProperty(this, "manager", {
-          value: superService.manager,
-          enumerable: true,
-          configurable: true,
-        });
-      } else {
-        Object.defineProperty(this, "manager", {
-          value: this.initManager(),
-          enumerable: true,
-          configurable: true,
-        });
-        this.setServiceFlags(this.serviceFlags & ~ViewService.InheritedFlag);
-      }
+  }
+  if (this.manager === void 0) {
+    if (superService !== null) {
+      this.setServiceFlags(this.serviceFlags | ViewService.InheritedFlag);
+      Object.defineProperty(this, "manager", {
+        value: superService.manager,
+        enumerable: true,
+        configurable: true,
+      });
+    } else {
+      this.setServiceFlags(this.serviceFlags & ~ViewService.InheritedFlag);
+      Object.defineProperty(this, "manager", {
+        value: this.initManager(),
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
 };
@@ -291,6 +296,7 @@ ViewService.prototype.unbindSuperService = function (this: ViewService<View, unk
     enumerable: true,
     configurable: true,
   });
+  this.setServiceFlags(this.serviceFlags & ~ViewService.InheritedFlag);
 };
 
 Object.defineProperty(ViewService.prototype, "ownManager", {

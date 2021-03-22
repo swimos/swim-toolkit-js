@@ -241,16 +241,12 @@ function ModelPropertyConstructor<M extends Model, T, U>(this: ModelProperty<M, 
     enumerable: true,
     configurable: true,
   });
-  let propertyFlags = ModelProperty.UpdatedFlag;
   let state: T | undefined;
   if (this.initState !== void 0) {
     state = this.fromAny(this.initState());
   }
-  if (this.inherit !== false) {
-    propertyFlags |= ModelProperty.InheritedFlag;
-  }
   Object.defineProperty(this, "propertyFlags", {
-    value: propertyFlags,
+    value: ModelProperty.UpdatedFlag,
     enumerable: true,
     configurable: true,
   });
@@ -289,38 +285,7 @@ ModelProperty.prototype.setInherit = function (this: ModelProperty<Model, unknow
       enumerable: true,
       configurable: true,
     });
-    if (inherit !== false) {
-      this.bindSuperProperty();
-      if ((this.propertyFlags & ModelProperty.OverrideFlag) === 0) {
-        this.setPropertyFlags(this.propertyFlags | (ModelProperty.UpdatedFlag | ModelProperty.InheritedFlag));
-        this.owner.requireUpdate(Model.NeedsMutate);
-      }
-      const traitProperties = this.traitProperties;
-      for (let i = 0, n = traitProperties.length; i < n; i += 1) {
-        const traitProperty = traitProperties[i]!;
-        Object.defineProperty(traitProperty, "inherit", {
-          value: inherit,
-          enumerable: true,
-          configurable: true,
-        });
-        if ((traitProperty.propertyFlags & ModelProperty.OverrideFlag) === 0) {
-          traitProperty.setPropertyFlags(traitProperty.propertyFlags | (ModelProperty.UpdatedFlag | ModelProperty.InheritedFlag));
-          traitProperty.mutate();
-        }
-      }
-    } else if (this.inherit !== false) {
-      this.setPropertyFlags(this.propertyFlags & ~ModelProperty.InheritedFlag);
-      const traitProperties = this.traitProperties;
-      for (let i = 0, n = traitProperties.length; i < n; i += 1) {
-        const traitProperty = traitProperties[i]!;
-        Object.defineProperty(traitProperty, "inherit", {
-          value: false,
-          enumerable: true,
-          configurable: true,
-        });
-        traitProperty.setPropertyFlags(traitProperty.propertyFlags & ~ModelProperty.InheritedFlag);
-      }
-    }
+    this.bindSuperProperty();
   }
 };
 
@@ -329,23 +294,29 @@ ModelProperty.prototype.isInherited = function (this: ModelProperty<Model, unkno
 };
 
 ModelProperty.prototype.setInherited = function (this: ModelProperty<Model, unknown>, inherited: boolean): void {
-  if (inherited && (this.propertyFlags & ModelProperty.InheritedFlag) === 0) {
-    this.setPropertyFlags(this.propertyFlags | ModelProperty.InheritedFlag);
-    this.owner.requireUpdate(Model.NeedsMutate);
-    const traitProperties = this.traitProperties;
-    for (let i = 0, n = traitProperties.length; i < n; i += 1) {
-      const traitProperty = traitProperties[i]!;
-      traitProperty.setPropertyFlags(traitProperty.propertyFlags | ModelProperty.InheritedFlag);
-      traitProperty.mutate();
+  if (inherited && (this.propertyFlags & (ModelProperty.InheritedFlag | ModelProperty.OverrideFlag)) === 0) {
+    const superProperty = this.superProperty;
+    if (superProperty !== null) {
+      this.setPropertyFlags(this.propertyFlags | (ModelProperty.UpdatedFlag | ModelProperty.InheritedFlag));
+      Object.defineProperty(this, "state", {
+        value: superProperty.state,
+        enumerable: true,
+        configurable: true,
+      });
+      this.owner.requireUpdate(Model.NeedsMutate);
+      const traitProperties = this.traitProperties;
+      for (let i = 0, n = traitProperties.length; i < n; i += 1) {
+        const traitProperty = traitProperties[i]!;
+        traitProperty.setPropertyFlags(traitProperty.propertyFlags | (ModelProperty.UpdatedFlag | ModelProperty.InheritedFlag));
+        traitProperty.mutate();
+      }
     }
   } else if (!inherited && (this.propertyFlags & ModelProperty.InheritedFlag) !== 0) {
     this.setPropertyFlags(this.propertyFlags & ~ModelProperty.InheritedFlag);
-    this.owner.requireUpdate(Model.NeedsMutate);
     const traitProperties = this.traitProperties;
     for (let i = 0, n = traitProperties.length; i < n; i += 1) {
       const traitProperty = traitProperties[i]!;
       traitProperty.setPropertyFlags(traitProperty.propertyFlags & ~ModelProperty.InheritedFlag);
-      traitProperty.mutate();
     }
   }
 };
@@ -368,44 +339,42 @@ Object.defineProperty(ModelProperty.prototype, "superName", {
 });
 
 ModelProperty.prototype.bindSuperProperty = function (this: ModelProperty<Model, unknown>): void {
+  const superName = this.superName;
   let model = this.owner;
-  if (model.isMounted()) {
-    const superName = this.superName;
-    if (superName !== void 0) {
-      do {
-        const parentModel = model.parentModel;
-        if (parentModel !== null) {
-          model = parentModel;
-          const superProperty = model.getLazyModelProperty(superName);
-          if (superProperty !== null) {
-            Object.defineProperty(this, "superProperty", {
-              value: superProperty,
+  if (superName !== void 0 && model.isMounted()) {
+    do {
+      const parentModel = model.parentModel;
+      if (parentModel !== null) {
+        model = parentModel;
+        const superProperty = model.getLazyModelProperty(superName);
+        if (superProperty !== null) {
+          Object.defineProperty(this, "superProperty", {
+            value: superProperty,
+            enumerable: true,
+            configurable: true,
+          });
+          superProperty.addSubProperty(this);
+          if ((this.propertyFlags & ModelProperty.OverrideFlag) === 0) {
+            this.setPropertyFlags(this.propertyFlags | (ModelProperty.UpdatedFlag | ModelProperty.InheritedFlag));
+            Object.defineProperty(this, "state", {
+              value: superProperty.state,
               enumerable: true,
               configurable: true,
             });
-            superProperty.addSubProperty(this);
-            if (this.isInherited()) {
-              Object.defineProperty(this, "state", {
-                value: superProperty.state,
-                enumerable: true,
-                configurable: true,
-              });
-              this.setPropertyFlags(this.propertyFlags | ModelProperty.UpdatedFlag);
-              this.owner.requireUpdate(Model.NeedsMutate);
-              const traitProperties = this.traitProperties;
-              for (let i = 0, n = traitProperties.length; i < n; i += 1) {
-                const traitProperty = traitProperties[i]!;
-                traitProperty.setPropertyFlags(traitProperty.propertyFlags | ModelProperty.UpdatedFlag);
-                traitProperty.mutate();
-              }
+            this.owner.requireUpdate(Model.NeedsMutate);
+            const traitProperties = this.traitProperties;
+            for (let i = 0, n = traitProperties.length; i < n; i += 1) {
+              const traitProperty = traitProperties[i]!;
+              traitProperty.setPropertyFlags(traitProperty.propertyFlags | (ModelProperty.UpdatedFlag | ModelProperty.InheritedFlag));
+              traitProperty.mutate();
             }
-          } else {
-            continue;
           }
+        } else {
+          continue;
         }
-        break;
-      } while (true);
-    }
+      }
+      break;
+    } while (true);
   }
 };
 
@@ -418,6 +387,12 @@ ModelProperty.prototype.unbindSuperProperty = function (this: ModelProperty<Mode
       enumerable: true,
       configurable: true,
     });
+    this.setPropertyFlags(this.propertyFlags & ~ModelProperty.InheritedFlag);
+    const traitProperties = this.traitProperties;
+    for (let i = 0, n = traitProperties.length; i < n; i += 1) {
+      const traitProperty = traitProperties[i]!;
+      traitProperty.setPropertyFlags(traitProperty.propertyFlags & ~ModelProperty.InheritedFlag);
+    }
   }
 };
 

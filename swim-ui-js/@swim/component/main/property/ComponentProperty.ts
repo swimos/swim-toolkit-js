@@ -229,16 +229,12 @@ function ComponentPropertyConstructor<C extends Component, T, U>(this: Component
     enumerable: true,
     configurable: true,
   });
-  let propertyFlags = ComponentProperty.UpdatedFlag;
   let state: T | undefined;
   if (this.initState !== void 0) {
     state = this.fromAny(this.initState());
   }
-  if (this.inherit !== false) {
-    propertyFlags |= ComponentProperty.InheritedFlag;
-  }
   Object.defineProperty(this, "propertyFlags", {
-    value: propertyFlags,
+    value: ComponentProperty.UpdatedFlag,
     enumerable: true,
     configurable: true,
   });
@@ -272,15 +268,7 @@ ComponentProperty.prototype.setInherit = function (this: ComponentProperty<Compo
       enumerable: true,
       configurable: true,
     });
-    if (inherit !== false) {
-      this.bindSuperProperty();
-      if ((this.propertyFlags & ComponentProperty.OverrideFlag) === 0) {
-        this.setPropertyFlags(this.propertyFlags | (ComponentProperty.UpdatedFlag | ComponentProperty.InheritedFlag));
-        this.revise();
-      }
-    } else if (this.inherit !== false) {
-      this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag);
-    }
+    this.bindSuperProperty();
   }
 };
 
@@ -289,12 +277,19 @@ ComponentProperty.prototype.isInherited = function (this: ComponentProperty<Comp
 };
 
 ComponentProperty.prototype.setInherited = function (this: ComponentProperty<Component, unknown>, inherited: boolean): void {
-  if (inherited && (this.propertyFlags & ComponentProperty.InheritedFlag) === 0) {
-    this.setPropertyFlags(this.propertyFlags | ComponentProperty.InheritedFlag);
-    this.revise();
+  if (inherited && (this.propertyFlags & (ComponentProperty.InheritedFlag | ComponentProperty.OverrideFlag)) === 0) {
+    const superProperty = this.superProperty;
+    if (superProperty !== null) {
+      this.setPropertyFlags(this.propertyFlags | (ComponentProperty.UpdatedFlag | ComponentProperty.InheritedFlag));
+      Object.defineProperty(this, "state", {
+        value: superProperty.state,
+        enumerable: true,
+        configurable: true,
+      });
+      this.revise();
+    }
   } else if (!inherited && (this.propertyFlags & ComponentProperty.InheritedFlag) !== 0) {
     this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag);
-    this.revise();
   }
 };
 
@@ -316,38 +311,36 @@ Object.defineProperty(ComponentProperty.prototype, "superName", {
 });
 
 ComponentProperty.prototype.bindSuperProperty = function (this: ComponentProperty<Component, unknown>): void {
+  const superName = this.superName;
   let component = this.owner;
-  if (component.isMounted()) {
-    const superName = this.superName;
-    if (superName !== void 0) {
-      do {
-        const parentComponent = component.parentComponent;
-        if (parentComponent !== null) {
-          component = parentComponent;
-          const superProperty = component.getLazyComponentProperty(superName);
-          if (superProperty !== null) {
-            Object.defineProperty(this, "superProperty", {
-              value: superProperty,
+  if (superName !== void 0 && component.isMounted()) {
+    do {
+      const parentComponent = component.parentComponent;
+      if (parentComponent !== null) {
+        component = parentComponent;
+        const superProperty = component.getLazyComponentProperty(superName);
+        if (superProperty !== null) {
+          Object.defineProperty(this, "superProperty", {
+            value: superProperty,
+            enumerable: true,
+            configurable: true,
+          });
+          superProperty.addSubProperty(this);
+          if ((this.propertyFlags & ComponentProperty.OverrideFlag) === 0) {
+            this.setPropertyFlags(this.propertyFlags | (ComponentProperty.UpdatedFlag | ComponentProperty.InheritedFlag));
+            Object.defineProperty(this, "state", {
+              value: superProperty.state,
               enumerable: true,
               configurable: true,
             });
-            superProperty.addSubProperty(this);
-            if (this.isInherited()) {
-              Object.defineProperty(this, "state", {
-                value: superProperty.state,
-                enumerable: true,
-                configurable: true,
-              });
-              this.setPropertyFlags(this.propertyFlags | ComponentProperty.UpdatedFlag);
-              this.revise();
-            }
-          } else {
-            continue;
+            this.revise();
           }
+        } else {
+          continue;
         }
-        break;
-      } while (true);
-    }
+      }
+      break;
+    } while (true);
   }
 };
 
@@ -360,6 +353,7 @@ ComponentProperty.prototype.unbindSuperProperty = function (this: ComponentPrope
       enumerable: true,
       configurable: true,
     });
+    this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag);
   }
 };
 

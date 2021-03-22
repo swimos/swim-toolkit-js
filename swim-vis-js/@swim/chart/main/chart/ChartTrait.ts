@@ -429,6 +429,30 @@ export class ChartTrait<X, Y> extends GenericTrait {
     }
   }
 
+  protected onRemoveTrait(trait: Trait): void {
+    super.onRemoveTrait(trait);
+    const graphTrait = this.detectGraphTrait(trait);
+    if (graphTrait !== null && this.graph.trait === graphTrait) {
+      this.graph.setTrait(null);
+    }
+    const topAxisTrait = this.detectTopAxisTrait(trait);
+    if (topAxisTrait !== null && this.topAxis.trait === topAxisTrait) {
+      this.topAxis.setTrait(null);
+    }
+    const rightAxisTrait = this.detectRightAxisTrait(trait);
+    if (rightAxisTrait !== null && this.rightAxis.trait === rightAxisTrait) {
+      this.rightAxis.setTrait(null);
+    }
+    const bottomAxisTrait = this.detectBottomAxisTrait(trait);
+    if (bottomAxisTrait !== null && this.bottomAxis.trait === bottomAxisTrait) {
+      this.bottomAxis.setTrait(null);
+    }
+    const leftAxisTrait = this.detectLeftAxisTrait(trait);
+    if (leftAxisTrait !== null && this.leftAxis.trait === leftAxisTrait) {
+      this.leftAxis.setTrait(null);
+    }
+  }
+
   protected onStartConsuming(): void {
     super.onStartConsuming();
     const graphTrait = this.graph.trait;

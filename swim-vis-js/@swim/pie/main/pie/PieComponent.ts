@@ -358,13 +358,13 @@ export class PieComponent extends CompositeComponent {
   }
 
   protected detachSlice(sliceComponent: SliceComponent, sliceFastener: ComponentFastener<this, SliceComponent>): void {
-    const sliceTrait = sliceComponent.slice.trait;
-    if (sliceTrait !== null) {
-      this.detachSliceTrait(sliceTrait, sliceFastener);
-    }
     const sliceView = sliceComponent.slice.view;
     if (sliceView !== null) {
       this.detachSliceView(sliceView, sliceFastener);
+    }
+    const sliceTrait = sliceComponent.slice.trait;
+    if (sliceTrait !== null) {
+      this.detachSliceTrait(sliceTrait, sliceFastener);
     }
   }
 
@@ -416,8 +416,8 @@ export class PieComponent extends CompositeComponent {
     }
     const sliceComponent = this.createSlice(sliceTrait);
     if (sliceComponent !== null) {
-      this.insertChildComponent(sliceComponent, targetComponent);
       sliceComponent.slice.setTrait(sliceTrait);
+      this.insertChildComponent(sliceComponent, targetComponent);
       if (sliceComponent.slice.view === null) {
         const sliceView = this.createSliceView(sliceComponent);
         let targetView: SliceView | null = null;
@@ -451,15 +451,15 @@ export class PieComponent extends CompositeComponent {
     }
   }
 
-  protected initSliceTrait(sliceTrait: SliceTrait | null, sliceFastener: ComponentFastener<this, SliceComponent>): void {
+  protected initSliceTrait(sliceTrait: SliceTrait, sliceFastener: ComponentFastener<this, SliceComponent>): void {
     // hook
   }
 
-  protected attachSliceTrait(sliceTrait: SliceTrait | null, sliceFastener: ComponentFastener<this, SliceComponent>): void {
+  protected attachSliceTrait(sliceTrait: SliceTrait, sliceFastener: ComponentFastener<this, SliceComponent>): void {
     // hook
   }
 
-  protected detachSliceTrait(sliceTrait: SliceTrait | null, sliceFastener: ComponentFastener<this, SliceComponent>): void {
+  protected detachSliceTrait(sliceTrait: SliceTrait, sliceFastener: ComponentFastener<this, SliceComponent>): void {
     // hook
   }
 
@@ -531,6 +531,7 @@ export class PieComponent extends CompositeComponent {
     if (legendView !== null) {
       this.detachSliceLegendView(legendView, sliceFastener);
     }
+    sliceView.remove();
   }
 
   protected willSetSliceView(newSliceView: SliceView | null, oldSliceView: SliceView | null,
@@ -579,7 +580,15 @@ export class PieComponent extends CompositeComponent {
 
   protected onSetSliceValue(newValue: number, oldValue: number,
                             sliceFastener: ComponentFastener<this, SliceComponent>): void {
-    // hook
+    if (newValue === 0) {
+      const sliceComponent = sliceFastener.component;
+      if (sliceComponent !== null) {
+        const sliceTrait = sliceComponent.slice.trait;
+        if (sliceTrait !== null) {
+          this.removeSliceTrait(sliceTrait);
+        }
+      }
+    }
   }
 
   protected didSetSliceValue(newValue: number, oldValue: number,
@@ -778,19 +787,11 @@ export class PieComponent extends CompositeComponent {
     return component instanceof SliceComponent ? component : null;
   }
 
-  protected onInsertSliceComponent(sliceComponent: SliceComponent, targetComponent: Component | null): void {
-    this.insertSlice(sliceComponent, targetComponent);
-  }
-
-  protected onRemoveSliceComponent(sliceComponent: SliceComponent): void {
-    this.removeSlice(sliceComponent);
-  }
-
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     super.onInsertChildComponent(childComponent, targetComponent);
     const sliceComponent = this.detectSliceComponent(childComponent);
     if (sliceComponent !== null) {
-      this.onInsertSliceComponent(sliceComponent, targetComponent);
+      this.insertSlice(sliceComponent, targetComponent);
     }
   }
 
@@ -798,7 +799,7 @@ export class PieComponent extends CompositeComponent {
     super.onRemoveChildComponent(childComponent);
     const sliceComponent = this.detectSliceComponent(childComponent);
     if (sliceComponent !== null) {
-      this.onRemoveSliceComponent(sliceComponent);
+      this.removeSlice(sliceComponent);
     }
   }
 

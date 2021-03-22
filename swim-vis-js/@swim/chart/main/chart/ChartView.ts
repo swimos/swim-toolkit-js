@@ -184,7 +184,7 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   @ViewAnimator({type: Number, state: 0})
   declare gridLineWidth: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Font, state: null})
+  @ViewAnimator({type: Font, state: null, inherit: true})
   declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
   @ViewAnimator({type: Color, state: null, look: Look.mutedColor})
@@ -218,6 +218,14 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     // hook
   }
 
+  protected attachGraph(graphView: GraphView<X, Y>): void {
+    // hook
+  }
+
+  protected detachGraph(graphView: GraphView<X, Y>): void {
+    // hook
+  }
+
   protected willSetGraph(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.chartViewWillSetGraph !== void 0) {
@@ -233,7 +241,11 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   }
 
   protected onSetGraph(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null): void {
+    if (oldGraphView !== null) {
+      this.detachGraph(oldGraphView);
+    }
     if (newGraphView !== null) {
+      this.attachGraph(newGraphView);
       this.initGraph(newGraphView);
     }
   }
@@ -255,7 +267,6 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   @ViewFastener<ChartView<X, Y>, GraphView<X, Y>, AnyGraphView<X, Y>>({
     key: true,
     type: GraphView,
-    child: true,
     createView(): GraphView<X, Y> | null {
       return this.owner.createGraph();
     },
@@ -279,6 +290,14 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     // hook
   }
 
+  protected attachTopAxis(topAxisView: AxisView<X>): void {
+    // hook
+  }
+
+  protected detachTopAxis(topAxisView: AxisView<X>): void {
+    // hook
+  }
+
   protected willSetTopAxis(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.chartViewWillSetTopAxis !== void 0) {
@@ -294,7 +313,11 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   }
 
   protected onSetTopAxis(newTopAxisView: AxisView<X> | null, oldTopAxisView: AxisView<X> | null): void {
+    if (oldTopAxisView !== null) {
+      this.detachTopAxis(oldTopAxisView);
+    }
     if (newTopAxisView !== null) {
+      this.attachTopAxis(newTopAxisView);
       this.initTopAxis(newTopAxisView);
     }
   }
@@ -316,7 +339,6 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   @ViewFastener<ChartView<X, Y>, AxisView<X>, AnyAxisView<X> | true>({
     key: true,
     type: TopAxisView,
-    child: true,
     createView(): AxisView<X> | null {
       return this.owner.createTopAxis();
     },
@@ -340,6 +362,14 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     // hook
   }
 
+  protected attachRightAxis(rightAxisView: AxisView<Y>): void {
+    // hook
+  }
+
+  protected detachRightAxis(rightAxisView: AxisView<Y>): void {
+    // hook
+  }
+
   protected willSetRightAxis(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.chartViewWillSetRightAxis !== void 0) {
@@ -355,7 +385,11 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   }
 
   protected onSetRightAxis(newRightAxisView: AxisView<Y> | null, oldRightAxisView: AxisView<Y> | null): void {
+    if (oldRightAxisView !== null) {
+      this.detachRightAxis(oldRightAxisView);
+    }
     if (newRightAxisView !== null) {
+      this.attachRightAxis(newRightAxisView);
       this.initRightAxis(newRightAxisView);
     }
   }
@@ -377,7 +411,6 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   @ViewFastener<ChartView<X, Y>, AxisView<Y>, AnyAxisView<Y> | true>({
     key: true,
     type: RightAxisView,
-    child: true,
     createView(): AxisView<Y> | null {
       return this.owner.createRightAxis();
     },
@@ -401,6 +434,14 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     // hook
   }
 
+  protected attachBottomAxis(bottomAxisView: AxisView<X>): void {
+    // hook
+  }
+
+  protected detachBottomAxis(bottomAxisView: AxisView<X>): void {
+    // hook
+  }
+
   protected willSetBottomAxis(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.chartViewWillSetBottomAxis !== void 0) {
@@ -416,7 +457,11 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   }
 
   protected onSetBottomAxis(newBottomAxisView: AxisView<X> | null, oldBottomAxisView: AxisView<X> | null): void {
+    if (oldBottomAxisView !== null) {
+      this.detachBottomAxis(oldBottomAxisView);
+    }
     if (newBottomAxisView !== null) {
+      this.attachBottomAxis(newBottomAxisView);
       this.initBottomAxis(newBottomAxisView);
     }
   }
@@ -438,7 +483,6 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   @ViewFastener<ChartView<X, Y>, AxisView<X>, AnyAxisView<X> | true>({
     key: true,
     type: BottomAxisView,
-    child: true,
     createView(): AxisView<X> | null {
       return this.owner.createBottomAxis();
     },
@@ -462,6 +506,14 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     // hook
   }
 
+  protected attachLeftAxis(leftAxisView: AxisView<Y>): void {
+    // hook
+  }
+
+  protected detachLeftAxis(leftAxisView: AxisView<Y>): void {
+    // hook
+  }
+
   protected willSetLeftAxis(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null): void {
     const viewController = this.viewController;
     if (viewController !== null && viewController.chartViewWillSetLeftAxis !== void 0) {
@@ -477,7 +529,11 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   }
 
   protected onSetLeftAxis(newLeftAxisView: AxisView<Y> | null, oldLeftAxisView: AxisView<Y> | null): void {
+    if (oldLeftAxisView !== null) {
+      this.detachLeftAxis(oldLeftAxisView);
+    }
     if (newLeftAxisView !== null) {
+      this.attachLeftAxis(newLeftAxisView);
       this.initLeftAxis(newLeftAxisView);
     }
   }
@@ -499,7 +555,6 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
   @ViewFastener<ChartView<X, Y>, AxisView<Y>, AnyAxisView<Y> | true>({
     key: true,
     type: LeftAxisView,
-    child: true,
     createView(): AxisView<Y> | null {
       return this.owner.createLeftAxis();
     },
@@ -514,6 +569,94 @@ export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
     },
   })
   declare leftAxis: ViewFastener<this, AxisView<Y>, AnyAxisView<Y> | true>;
+
+  protected detectGraphView(view: View): GraphView<X, Y> | null {
+    return view instanceof GraphView ? view : null;
+  }
+
+  protected detectTopAxisView(view: View): TopAxisView<X> | null {
+    return view instanceof TopAxisView ? view : null;
+  }
+
+  protected detectRightAxisView(view: View): RightAxisView<Y> | null {
+    return view instanceof RightAxisView ? view : null;
+  }
+
+  protected detectBottomAxisView(view: View): BottomAxisView<X> | null {
+    return view instanceof BottomAxisView ? view : null;
+  }
+
+  protected detectLeftAxisView(view: View): LeftAxisView<Y> | null {
+    return view instanceof LeftAxisView ? view : null;
+  }
+
+  protected onInsertChildView(childView: View, targetView: View | null): void {
+    super.onInsertChildView(childView, targetView);
+    if (this.graph.view === null) {
+      const graphView = this.detectGraphView(childView);
+      if (graphView !== null) {
+        this.graph.setView(graphView, targetView);
+      }
+    }
+    if (this.topAxis.view === null) {
+      const topAxisView = this.detectTopAxisView(childView);
+      if (topAxisView !== null) {
+        this.topAxis.setView(topAxisView, targetView);
+      }
+    }
+    if (this.rightAxis.view === null) {
+      const rightAxisView = this.detectRightAxisView(childView);
+      if (rightAxisView !== null) {
+        this.rightAxis.setView(rightAxisView, targetView);
+      }
+    }
+    if (this.bottomAxis.view === null) {
+      const bottomAxisView = this.detectBottomAxisView(childView);
+      if (bottomAxisView !== null) {
+        this.bottomAxis.setView(bottomAxisView, targetView);
+      }
+    }
+    if (this.leftAxis.view === null) {
+      const leftAxisView = this.detectLeftAxisView(childView);
+      if (leftAxisView !== null) {
+        this.leftAxis.setView(leftAxisView, targetView);
+      }
+    }
+  }
+
+  protected onRemoveChildView(childView: View): void {
+    super.onRemoveChildView(childView);
+    if (this.graph.view === null) {
+      const graphView = this.detectGraphView(childView);
+      if (graphView !== null && this.graph.view === graphView) {
+        this.graph.setView(null);
+      }
+    }
+    if (this.topAxis.view === null) {
+      const topAxisView = this.detectTopAxisView(childView);
+      if (topAxisView !== null && this.topAxis.view === topAxisView) {
+        this.topAxis.setView(null);
+      }
+    }
+    if (this.rightAxis.view === null) {
+      const rightAxisView = this.detectRightAxisView(childView);
+      if (rightAxisView !== null && this.rightAxis.view === rightAxisView) {
+        this.rightAxis.setView(null);
+      }
+    }
+    if (this.bottomAxis.view === null) {
+      const bottomAxisView = this.detectBottomAxisView(childView);
+      if (bottomAxisView !== null && this.bottomAxis.view === bottomAxisView) {
+        this.bottomAxis.setView(null);
+      }
+    }
+    if (this.leftAxis.view === null) {
+      const leftAxisView = this.detectLeftAxisView(childView);
+      if (leftAxisView !== null && this.leftAxis.view === leftAxisView) {
+        this.leftAxis.setView(null);
+      }
+    }
+  }
 
   protected updateScales(): void {
     this.layoutChart(this.viewFrame);

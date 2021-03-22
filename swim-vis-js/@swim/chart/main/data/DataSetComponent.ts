@@ -185,13 +185,13 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
   }
 
   protected detachDataPoint(dataPointComponent: DataPointComponent<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
-    const dataPointTrait = dataPointComponent.dataPoint.trait;
-    if (dataPointTrait !== null) {
-      this.detachDataPointTrait(dataPointTrait, dataPointFastener);
-    }
     const dataPointView = dataPointComponent.dataPoint.view;
     if (dataPointView !== null) {
       this.detachDataPointView(dataPointView, dataPointFastener);
+    }
+    const dataPointTrait = dataPointComponent.dataPoint.trait;
+    if (dataPointTrait !== null) {
+      this.detachDataPointTrait(dataPointTrait, dataPointFastener);
     }
   }
 
@@ -243,8 +243,8 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
     }
     const dataPointComponent = this.createDataPoint(dataPointTrait);
     if (dataPointComponent !== null) {
-      this.insertChildComponent(dataPointComponent, targetComponent);
       dataPointComponent.dataPoint.setTrait(dataPointTrait);
+      this.insertChildComponent(dataPointComponent, targetComponent);
       if (dataPointComponent.dataPoint.view === null) {
         const dataPointView = this.createDataPointView(dataPointComponent);
         let targetView: DataPointView<X, Y> | null = null;
@@ -341,6 +341,7 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
     if (labelView !== null) {
       this.detachDataPointLabelView(labelView, dataPointFastener);
     }
+    dataPointView.remove();
   }
 
   protected willSetDataPointView(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null,
@@ -605,19 +606,11 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
     return component instanceof DataPointComponent ? component : null;
   }
 
-  protected onInsertDataPointComponent(dataPointComponent: DataPointComponent<X, Y>, targetComponent: Component | null): void {
-    this.insertDataPoint(dataPointComponent, targetComponent);
-  }
-
-  protected onRemoveDataPointComponent(dataPointComponent: DataPointComponent<X, Y>): void {
-    this.removeDataPoint(dataPointComponent);
-  }
-
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     super.onInsertChildComponent(childComponent, targetComponent);
     const dataPointComponent = this.detectDataPointComponent(childComponent);
     if (dataPointComponent !== null) {
-      this.onInsertDataPointComponent(dataPointComponent, targetComponent);
+      this.insertDataPoint(dataPointComponent, targetComponent);
     }
   }
 
@@ -625,7 +618,7 @@ export class DataSetComponent<X, Y> extends CompositeComponent {
     super.onRemoveChildComponent(childComponent);
     const dataPointComponent = this.detectDataPointComponent(childComponent);
     if (dataPointComponent !== null) {
-      this.onRemoveDataPointComponent(dataPointComponent);
+      this.removeDataPoint(dataPointComponent);
     }
   }
 

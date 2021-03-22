@@ -417,8 +417,8 @@ export class GaugeComponent extends CompositeComponent {
     }
     const dialComponent = this.createDial(dialTrait);
     if (dialComponent !== null) {
-      this.insertChildComponent(dialComponent, targetComponent);
       dialComponent.dial.setTrait(dialTrait);
+      this.insertChildComponent(dialComponent, targetComponent);
       if (dialComponent.dial.view === null) {
         const dialView = this.createDialView(dialComponent);
         let targetView: DialView | null = null;
@@ -452,15 +452,15 @@ export class GaugeComponent extends CompositeComponent {
     }
   }
 
-  protected initDialTrait(dialTrait: DialTrait | null, dialFastener: ComponentFastener<this, DialComponent>): void {
+  protected initDialTrait(dialTrait: DialTrait, dialFastener: ComponentFastener<this, DialComponent>): void {
     // hook
   }
 
-  protected attachDialTrait(dialTrait: DialTrait | null, dialFastener: ComponentFastener<this, DialComponent>): void {
+  protected attachDialTrait(dialTrait: DialTrait, dialFastener: ComponentFastener<this, DialComponent>): void {
     // hook
   }
 
-  protected detachDialTrait(dialTrait: DialTrait | null, dialFastener: ComponentFastener<this, DialComponent>): void {
+  protected detachDialTrait(dialTrait: DialTrait, dialFastener: ComponentFastener<this, DialComponent>): void {
     // hook
   }
 
@@ -532,6 +532,7 @@ export class GaugeComponent extends CompositeComponent {
     if (legendView !== null) {
       this.detachDialLegendView(legendView, dialFastener);
     }
+    dialView.remove();
   }
 
   protected willSetDialView(newDialView: DialView | null, oldDialView: DialView | null,
@@ -813,19 +814,11 @@ export class GaugeComponent extends CompositeComponent {
     return component instanceof DialComponent ? component : null;
   }
 
-  protected onInsertDialComponent(dialComponent: DialComponent, targetComponent: Component | null): void {
-    this.insertDial(dialComponent, targetComponent);
-  }
-
-  protected onRemoveDialComponent(dialComponent: DialComponent): void {
-    this.removeDial(dialComponent);
-  }
-
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     super.onInsertChildComponent(childComponent, targetComponent);
     const dialComponent = this.detectDialComponent(childComponent);
     if (dialComponent !== null) {
-      this.onInsertDialComponent(dialComponent, targetComponent);
+      this.insertDial(dialComponent, targetComponent);
     }
   }
 
@@ -833,7 +826,7 @@ export class GaugeComponent extends CompositeComponent {
     super.onRemoveChildComponent(childComponent);
     const dialComponent = this.detectDialComponent(childComponent);
     if (dialComponent !== null) {
-      this.onRemoveDialComponent(dialComponent);
+      this.removeDial(dialComponent);
     }
   }
 

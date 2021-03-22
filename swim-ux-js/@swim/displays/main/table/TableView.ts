@@ -199,19 +199,11 @@ export class TableView extends HtmlView {
     return view instanceof RowView ? view : null;
   }
 
-  protected onInsertRow(rowView: RowView, targetView: View | null): void {
-    this.insertRow(rowView, targetView);
-  }
-
-  protected onRemoveRow(rowView: RowView): void {
-    this.removeRow(rowView);
-  }
-
   protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     const rowView = this.detectRow(childView);
     if (rowView !== null) {
-      this.onInsertRow(rowView, targetView);
+      this.insertRow(rowView, targetView);
     }
   }
 
@@ -219,7 +211,7 @@ export class TableView extends HtmlView {
     super.onRemoveChildView(childView);
     const rowView = this.detectRow(childView);
     if (rowView !== null) {
-      this.onRemoveRow(rowView);
+      this.removeRow(rowView);
     }
   }
 

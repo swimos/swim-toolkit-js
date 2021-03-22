@@ -14,7 +14,7 @@
 
 import {__extends} from "tslib";
 import {AnyTiming, Timing} from "@swim/mapping";
-import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {CssContext} from "./CssContext";
 import {CssRuleInit, CssRule} from "./CssRule";
 
@@ -146,8 +146,8 @@ MediaRule.prototype.setCssRule = function (this: MediaRule<CssContext>, ruleName
 };
 
 MediaRule.prototype.applyTheme = function (theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
-  if (timing === void 0) {
-    timing = false;
+  if (timing === void 0 || timing === true) {
+    timing = theme.getOr(Look.timing, Mood.ambient, false);
   } else {
     timing = Timing.fromAny(timing);
   }

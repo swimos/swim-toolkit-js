@@ -90,7 +90,11 @@ export class GraphTrait<X, Y> extends GenericTrait {
 
   protected onSetPlot(newPlotTrait: PlotTrait<X, Y> | null, oldPlotTrait: PlotTrait<X, Y> | null,
                       targetTrait: Trait | null, plotFastener: TraitFastener<this, PlotTrait<X, Y>>): void {
+    if (oldPlotTrait !== null) {
+      this.detachPlot(oldPlotTrait, plotFastener);
+    }
     if (newPlotTrait !== null) {
+      this.attachPlot(newPlotTrait, plotFastener);
       this.initPlot(newPlotTrait, plotFastener);
     }
   }
@@ -114,12 +118,6 @@ export class GraphTrait<X, Y> extends GenericTrait {
       this.owner.willSetPlot(newPlotTrait, oldPlotTrait, targetTrait, this);
     },
     onSetTrait(newPlotTrait: PlotTrait<unknown, unknown> | null, oldPlotTrait: PlotTrait<unknown, unknown> | null, targetTrait: Trait | null): void {
-      if (oldPlotTrait !== null) {
-        this.owner.detachPlot(oldPlotTrait, this);
-      }
-      if (newPlotTrait !== null) {
-        this.owner.attachPlot(newPlotTrait, this);
-      }
       this.owner.onSetPlot(newPlotTrait, oldPlotTrait, targetTrait, this);
     },
     didSetTrait(newPlotTrait: PlotTrait<unknown, unknown> | null, oldPlotTrait: PlotTrait<unknown, unknown> | null, targetTrait: Trait | null): void {
@@ -174,14 +172,6 @@ export class GraphTrait<X, Y> extends GenericTrait {
     }
   }
 
-  protected onInsertPlot(plotTrait: PlotTrait<X, Y>, targetTrait: Trait | null): void {
-    this.insertPlot(plotTrait, targetTrait);
-  }
-
-  protected onRemovePlot(plotTrait: PlotTrait<X, Y>): void {
-    this.removePlot(plotTrait);
-  }
-
   protected detectPlotModel(model: Model): PlotTrait<X, Y> | null {
     return model.getTrait(PlotTrait);
   }
@@ -209,7 +199,7 @@ export class GraphTrait<X, Y> extends GenericTrait {
     const plotTrait = this.detectPlotModel(childModel);
     if (plotTrait !== null) {
       const targetTrait = targetModel !== null ? this.detectPlotModel(targetModel) : null;
-      this.onInsertPlot(plotTrait, targetTrait);
+      this.insertPlot(plotTrait, targetTrait);
     }
   }
 
@@ -217,7 +207,7 @@ export class GraphTrait<X, Y> extends GenericTrait {
     super.onRemoveChildModel(childModel);
     const plotTrait = this.detectPlotModel(childModel);
     if (plotTrait !== null) {
-      this.onRemovePlot(plotTrait);
+      this.removePlot(plotTrait);
     }
   }
 

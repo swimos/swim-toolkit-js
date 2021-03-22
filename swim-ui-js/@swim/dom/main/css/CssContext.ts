@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type {ConstraintScope} from "@swim/constraint";
+import type {Look, Feel, MoodVector} from "@swim/theme";
 import type {AnimationTimeline} from "@swim/view";
 import type {CssRuleConstructor, CssRule} from "./CssRule";
 
@@ -33,6 +34,11 @@ export interface CssContext extends AnimationTimeline, ConstraintScope {
   getCssRule(ruleName: string): CssRule<this> | null;
 
   setCssRule(ruleName: string, cssRule: CssRule<this> | null): void;
+
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined;
+
+  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
 }
 
 /** @hidden */

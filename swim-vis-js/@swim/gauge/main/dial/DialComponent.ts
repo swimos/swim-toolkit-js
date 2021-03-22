@@ -76,7 +76,7 @@ export class DialComponent extends CompositeComponent {
   }
 
   protected detachDialTrait(dialTrait: DialTrait): void {
-    this.dial.removeView();
+    // hook
   }
 
   protected willSetDialTrait(newDialTrait: DialTrait | null, oldDialTrait: DialTrait | null): void {
@@ -155,8 +155,6 @@ export class DialComponent extends CompositeComponent {
     if (newDialView !== null) {
       this.attachDialView(newDialView);
       this.initDialView(newDialView);
-      this.label.setView(newDialView.label.view);
-      this.legend.setView(newDialView.legend.view);
     }
   }
 
@@ -203,8 +201,6 @@ export class DialComponent extends CompositeComponent {
       if (legend !== void 0) {
         dialTrait.setLegend(legend);
       }
-    } else if (value === 0) {
-      dialView.remove();
     }
   }
 
@@ -388,14 +384,10 @@ export class DialComponent extends CompositeComponent {
       this.owner.didSetDialLimit(newLimit, oldLimit, dialView);
     },
     dialViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
-      if (newLabelView !== null) {
-        this.owner.label.setView(newLabelView);
-      }
+      this.owner.label.setView(newLabelView);
     },
     dialViewDidSetLegend(newLegendView: GraphicsView | null, oldLegendView: GraphicsView | null): void {
-      if (newLegendView !== null) {
-        this.owner.legend.setView(newLegendView);
-      }
+      this.owner.legend.setView(newLegendView);
     },
     createView(): DialView | null {
       return this.owner.createDialView();

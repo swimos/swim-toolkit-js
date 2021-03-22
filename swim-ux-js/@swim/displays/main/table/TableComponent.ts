@@ -489,6 +489,7 @@ export class TableComponent extends CompositeComponent {
     if (headerView !== null) {
       this.detachColHeaderView(headerView, colFastener);
     }
+    colView.remove();
   }
 
   protected willSetColView(newColView: ColView | null, oldColView: ColView | null,
@@ -738,17 +739,14 @@ export class TableComponent extends CompositeComponent {
   }
 
   protected detachRow(rowComponent: RowComponent, rowFastener: ComponentFastener<this, RowComponent>): void {
-    const rowTrait = rowComponent.row.trait;
-    if (rowTrait !== null) {
-      this.detachRowTrait(rowTrait, rowFastener);
-    }
     const rowView = rowComponent.row.view;
     if (rowView !== null) {
       this.detachRowView(rowView, rowFastener);
     }
-
-    rowComponent.row.removeView();
-    rowComponent.remove();
+    const rowTrait = rowComponent.row.trait;
+    if (rowTrait !== null) {
+      this.detachRowTrait(rowTrait, rowFastener);
+    }
   }
 
   protected willSetRow(newRowComponent: RowComponent | null, oldRowComponent: RowComponent | null,
@@ -799,8 +797,8 @@ export class TableComponent extends CompositeComponent {
     }
     const rowComponent = this.createRow(rowTrait);
     if (rowComponent !== null) {
-      this.insertChildComponent(rowComponent, targetComponent);
       rowComponent.row.setTrait(rowTrait);
+      this.insertChildComponent(rowComponent, targetComponent);
       if (rowComponent.row.view === null) {
         const rowView = this.createRowView(rowComponent);
         let targetView: RowView | null = null;
@@ -892,7 +890,7 @@ export class TableComponent extends CompositeComponent {
   }
 
   protected detachRowView(rowView: RowView, rowFastener: ComponentFastener<this, RowComponent>): void {
-    // hook
+    rowView.remove();
   }
 
   protected willSetRowView(newRowView: RowView | null, oldRowView: RowView | null,
@@ -1269,19 +1267,11 @@ export class TableComponent extends CompositeComponent {
     return component instanceof RowComponent ? component : null;
   }
 
-  protected onInsertRowComponent(rowComponent: RowComponent, targetComponent: Component | null): void {
-    this.insertRow(rowComponent, targetComponent);
-  }
-
-  protected onRemoveRowComponent(rowComponent: RowComponent): void {
-    this.removeRow(rowComponent);
-  }
-
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     super.onInsertChildComponent(childComponent, targetComponent);
     const rowComponent = this.detectRowComponent(childComponent);
     if (rowComponent !== null) {
-      this.onInsertRowComponent(rowComponent, targetComponent);
+      this.insertRow(rowComponent, targetComponent);
     }
   }
 
@@ -1289,7 +1279,7 @@ export class TableComponent extends CompositeComponent {
     super.onRemoveChildComponent(childComponent);
     const rowComponent = this.detectRowComponent(childComponent);
     if (rowComponent !== null) {
-      this.onRemoveRowComponent(rowComponent);
+      this.removeRow(rowComponent);
     }
   }
 
@@ -1305,11 +1295,5 @@ export class TableComponent extends CompositeComponent {
     this.unmountRowFasteners();
     this.unmountColFasteners();
     super.unmountComponentFasteners();
-  }
-
-  protected onUnmount(): void {
-    super.onUnmount();
-    this.table.setView(null);
-    this.table.setTrait(null);
   }
 }

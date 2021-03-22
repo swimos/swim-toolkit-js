@@ -45,4 +45,7 @@ export {
   MediaRule,
 } from "./MediaRule";
 
-export {StyleSheet} from "./StyleSheet";
+export {
+  StyleSheetContext,
+  StyleSheet,
+} from "./StyleSheet";

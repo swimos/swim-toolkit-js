@@ -236,16 +236,12 @@ function TraitPropertyConstructor<R extends Trait, T, U>(this: TraitProperty<R, 
     enumerable: true,
     configurable: true,
   });
-  let propertyFlags = ModelProperty.UpdatedFlag;
   let state: T | undefined;
   if (this.initState !== void 0) {
     state = this.fromAny(this.initState());
   }
-  if (this.inherit !== false) {
-    propertyFlags |= ModelProperty.InheritedFlag;
-  }
   Object.defineProperty(this, "propertyFlags", {
-    value: propertyFlags,
+    value: ModelProperty.UpdatedFlag,
     enumerable: true,
     configurable: true,
   });
@@ -337,14 +333,6 @@ TraitProperty.prototype.setInherit = function (this: TraitProperty<Trait, unknow
       enumerable: true,
       configurable: true,
     });
-    if (inherit !== false) {
-      if ((this.propertyFlags & ModelProperty.OverrideFlag) === 0) {
-        this.setPropertyFlags(this.propertyFlags | (ModelProperty.UpdatedFlag | ModelProperty.InheritedFlag));
-        this.mutate();
-      }
-    } else if (this.inherit !== false) {
-      this.setPropertyFlags(this.propertyFlags & ~ModelProperty.InheritedFlag);
-    }
   }
 };
 
@@ -356,12 +344,14 @@ TraitProperty.prototype.setInherited = function (this: TraitProperty<Trait, unkn
   const modelProperty = this.modelProperty;
   if (modelProperty !== null) {
     modelProperty.setInherited(inherited);
-  } else if (inherited && (this.propertyFlags & ModelProperty.InheritedFlag) === 0) {
-    this.setPropertyFlags(this.propertyFlags | ModelProperty.InheritedFlag);
-    this.mutate();
+  } else if (inherited && (this.propertyFlags & (ModelProperty.InheritedFlag | ModelProperty.OverrideFlag)) === 0) {
+    const superProperty = this.superProperty;
+    if (superProperty !== null) {
+      this.setPropertyFlags(this.propertyFlags | ModelProperty.InheritedFlag);
+      this.mutate();
+    }
   } else if (!inherited && (this.propertyFlags & ModelProperty.InheritedFlag) !== 0) {
     this.setPropertyFlags(this.propertyFlags & ~ModelProperty.InheritedFlag);
-    this.mutate();
   }
 };
 

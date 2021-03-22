@@ -24,7 +24,7 @@ import type {
   Constraint,
   ConstraintScope,
 } from "@swim/constraint";
-import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import type {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {AnimationTrack, AnimationTimeline} from "@swim/view";
 import {CssContext} from "./CssContext";
 import {
@@ -106,6 +106,11 @@ export interface CssRule<V extends CssContext> extends AnimationTrack, Animation
 
   /** @hidden */
   setConstraintVariable(constraintVariable: ConstraintVariable, state: number): void;
+
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined;
+
+  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
 
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void;
 
@@ -273,6 +278,18 @@ CssRule.prototype.removeConstraintVariable = function (this: CssRule<CssContext>
 
 CssRule.prototype.setConstraintVariable = function (this: CssRule<CssContext>, constraintVariable: ConstraintVariable, state: number): void {
   this.owner.setConstraintVariable(constraintVariable, state);
+};
+
+CssRule.prototype.getLook = function <T>(this: CssRule<CssContext>, look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
+  return this.owner.getLook(look, mood);
+};
+
+CssRule.prototype.getLookOr = function <T, E>(this: CssRule<CssContext>, look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
+  if (arguments.length === 2) {
+    return this.owner.getLookOr(look, mood as E);
+  } else {
+    return this.owner.getLookOr(look, mood as MoodVector<Feel> | null, elseValue!);
+  }
 };
 
 CssRule.prototype.applyTheme = function (theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {

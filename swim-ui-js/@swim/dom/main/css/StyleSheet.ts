@@ -23,13 +23,20 @@ import type {
   Constraint,
   ConstraintScope,
 } from "@swim/constraint";
-import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {AnimationTrack, AnimationTimeline} from "@swim/view";
 import {CssContext} from "./CssContext";
 import type {CssRule} from "./CssRule";
 
+export interface StyleSheetContext extends AnimationTimeline, ConstraintScope {
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined;
+
+  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
+}
+
 export class StyleSheet implements AnimationTrack, CssContext {
-  constructor(owner: AnimationTimeline & ConstraintScope, stylesheet?: CSSStyleSheet) {
+  constructor(owner: StyleSheetContext, stylesheet?: CSSStyleSheet) {
     Object.defineProperty(this, "owner", {
       value: owner,
       enumerable: true,
@@ -50,7 +57,7 @@ export class StyleSheet implements AnimationTrack, CssContext {
     });
   }
 
-  declare readonly owner: AnimationTimeline & ConstraintScope;
+  declare readonly owner: StyleSheetContext;
 
   declare readonly stylesheet: CSSStyleSheet;
 
@@ -103,9 +110,23 @@ export class StyleSheet implements AnimationTrack, CssContext {
     return cssRule;
   }
 
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined {
+    return this.owner.getLook(look, mood);
+  }
+
+  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null | E, elseValue?: E): T | E {
+    if (arguments.length === 2) {
+      return this.owner.getLookOr(look, mood as E);
+    } else {
+      return this.owner.getLookOr(look, mood as MoodVector<Feel> | null, elseValue!);
+    }
+  }
+
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
-    if (timing === void 0) {
-      timing = false;
+    if (timing === void 0 || timing === true) {
+      timing = theme.getOr(Look.timing, Mood.ambient, false);
     } else {
       timing = Timing.fromAny(timing);
     }

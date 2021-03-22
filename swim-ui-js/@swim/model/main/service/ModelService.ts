@@ -172,7 +172,7 @@ function ModelServiceConstructor<M extends Model, T>(this: ModelService<M, T>, o
     configurable: true,
   });
   Object.defineProperty(this, "serviceFlags", {
-    value: this.inherit !== false ? ModelService.InheritedFlag : 0,
+    value: 0,
     enumerable: true,
     configurable: true,
   });
@@ -206,9 +206,7 @@ ModelService.prototype.setInherit = function (this: ModelService<Model, unknown>
       enumerable: true,
       configurable: true,
     });
-    if (inherit !== false) {
-      this.bindSuperService();
-    }
+    this.bindSuperService();
   }
 };
 
@@ -218,7 +216,15 @@ ModelService.prototype.isInherited = function (this: ModelService<Model, unknown
 
 ModelService.prototype.setInherited = function (this: ModelService<Model, unknown>, inherited: boolean): void {
   if (inherited && (this.serviceFlags & ModelService.InheritedFlag) === 0) {
-    this.setServiceFlags(this.serviceFlags | ModelService.InheritedFlag);
+    const superService = this.superService;
+    if (superService !== null) {
+      this.setServiceFlags(this.serviceFlags | ModelService.InheritedFlag);
+      Object.defineProperty(this, "manager", {
+        value: superService.manager,
+        enumerable: true,
+        configurable: true,
+      });
+    }
   } else if (!inherited && (this.serviceFlags & ModelService.InheritedFlag) !== 0) {
     this.setServiceFlags(this.serviceFlags & ~ModelService.InheritedFlag);
   }
@@ -242,63 +248,63 @@ Object.defineProperty(ModelService.prototype, "superName", {
 });
 
 ModelService.prototype.bindSuperService = function (this: ModelService<Model, unknown>): void {
+  const superName = this.superName;
   let model = this.owner;
-  if (model.isMounted()) {
-    let superService: ModelService<Model, unknown> | null = null;
-    const superName = this.superName;
-    if (superName !== void 0) {
-      do {
-        const parentModel = model.parentModel;
-        if (parentModel !== null) {
-          model = parentModel;
-          const service = model.getModelService(superName);
-          if (service !== null) {
-            superService = service;
-            if (service.isInherited()) {
-              continue;
-            }
-          } else {
+  let superService: ModelService<Model, unknown> | null = null;
+  if (superName !== void 0 && model.isMounted()) {
+    do {
+      const parentModel = model.parentModel;
+      if (parentModel !== null) {
+        model = parentModel;
+        const service = model.getModelService(superName);
+        if (service !== null) {
+          superService = service;
+          if (service.isInherited()) {
             continue;
           }
-        } else if (model !== this.owner) {
-          const service = model.getLazyModelService(superName);
-          if (service !== null) {
-            superService = service;
-          }
+        } else {
+          continue;
         }
-        break;
-      } while (true);
-    }
+      } else if (model !== this.owner) {
+        const service = model.getLazyModelService(superName);
+        if (service !== null) {
+          superService = service;
+        }
+      }
+      break;
+    } while (true);
     Object.defineProperty(this, "superService", {
       value: superService,
       enumerable: true,
       configurable: true,
     });
-    if (this.manager === void 0) {
-      if (superService !== null) {
-        Object.defineProperty(this, "manager", {
-          value: superService.manager,
-          enumerable: true,
-          configurable: true,
-        });
-      } else {
-        Object.defineProperty(this, "manager", {
-          value: this.initManager(),
-          enumerable: true,
-          configurable: true,
-        });
-        this.setServiceFlags(this.serviceFlags & ~ModelService.InheritedFlag);
-      }
-    }
-    const traitServices = this.traitServices;
-    for (let i = 0, n = traitServices.length; i < n; i += 1) {
-      const traitService = traitServices[i]!;
-      Object.defineProperty(traitService, "manager", {
-        value: this.manager,
+  }
+  if (this.manager === void 0) {
+    if (superService !== null) {
+      this.setServiceFlags(this.serviceFlags | ModelService.InheritedFlag);
+      Object.defineProperty(this, "manager", {
+        value: superService.manager,
+        enumerable: true,
+        configurable: true,
+      });
+    } else {
+      this.setServiceFlags(this.serviceFlags & ~ModelService.InheritedFlag);
+      Object.defineProperty(this, "manager", {
+        value: this.initManager(),
         enumerable: true,
         configurable: true,
       });
     }
+  }
+  const traitServices = this.traitServices;
+  for (let i = 0, n = traitServices.length; i < n; i += 1) {
+    const traitService = traitServices[i]!;
+    traitService.setServiceFlags(traitService.serviceFlags & ~ModelService.InheritedFlag | (this.serviceFlags & ModelService.InheritedFlag));
+    Object.defineProperty(traitService, "manager", {
+      value: this.manager,
+      enumerable: true,
+      configurable: true,
+    });
   }
 };
 
@@ -308,6 +314,12 @@ ModelService.prototype.unbindSuperService = function (this: ModelService<Model, 
     enumerable: true,
     configurable: true,
   });
+  this.setServiceFlags(this.serviceFlags & ~ModelService.InheritedFlag);
+  const traitServices = this.traitServices;
+  for (let i = 0, n = traitServices.length; i < n; i += 1) {
+    const traitService = traitServices[i]!;
+    traitService.setServiceFlags(traitService.serviceFlags & ~ModelService.InheritedFlag);
+  }
 };
 
 ModelService.prototype.addTraitService = function <T>(this: ModelService<Model, T>, traitService: TraitService<Trait, T>): void {

@@ -163,7 +163,7 @@ function ComponentServiceConstructor<C extends Component, T>(this: ComponentServ
     configurable: true,
   });
   Object.defineProperty(this, "serviceFlags", {
-    value: this.inherit !== false ? ComponentService.InheritedFlag : 0,
+    value: 0,
     enumerable: true,
     configurable: true,
   });
@@ -192,9 +192,7 @@ ComponentService.prototype.setInherit = function (this: ComponentService<Compone
       enumerable: true,
       configurable: true,
     });
-    if (inherit !== false) {
-      this.bindSuperService();
-    }
+    this.bindSuperService();
   }
 };
 
@@ -204,7 +202,15 @@ ComponentService.prototype.isInherited = function (this: ComponentService<Compon
 
 ComponentService.prototype.setInherited = function (this: ComponentService<Component, unknown>, inherited: boolean): void {
   if (inherited && (this.serviceFlags & ComponentService.InheritedFlag) === 0) {
-    this.setServiceFlags(this.serviceFlags | ComponentService.InheritedFlag);
+    const superService = this.superService;
+    if (superService !== null) {
+      this.setServiceFlags(this.serviceFlags | ComponentService.InheritedFlag);
+      Object.defineProperty(this, "manager", {
+        value: superService.manager,
+        enumerable: true,
+        configurable: true,
+      });
+    }
   } else if (!inherited && (this.serviceFlags & ComponentService.InheritedFlag) !== 0) {
     this.setServiceFlags(this.serviceFlags & ~ComponentService.InheritedFlag);
   }
@@ -228,53 +234,52 @@ Object.defineProperty(ComponentService.prototype, "superName", {
 });
 
 ComponentService.prototype.bindSuperService = function (this: ComponentService<Component, unknown>): void {
+  const superName = this.superName;
   let component = this.owner;
-  if (component.isMounted()) {
-    let superService: ComponentService<Component, unknown> | null = null;
-    const superName = this.superName;
-    if (superName !== void 0) {
-      do {
-        const parentComponent = component.parentComponent;
-        if (parentComponent !== null) {
-          component = parentComponent;
-          const service = component.getComponentService(superName);
-          if (service !== null) {
-            superService = service;
-            if (service.isInherited()) {
-              continue;
-            }
-          } else {
+  let superService: ComponentService<Component, unknown> | null = null;
+  if (superName !== void 0 && component.isMounted()) {
+    do {
+      const parentComponent = component.parentComponent;
+      if (parentComponent !== null) {
+        component = parentComponent;
+        const service = component.getComponentService(superName);
+        if (service !== null) {
+          superService = service;
+          if (service.isInherited()) {
             continue;
           }
-        } else if (component !== this.owner) {
-          const service = component.getLazyComponentService(superName);
-          if (service !== null) {
-            superService = service;
-          }
+        } else {
+          continue;
         }
-        break;
-      } while (true);
-    }
+      } else if (component !== this.owner) {
+        const service = component.getLazyComponentService(superName);
+        if (service !== null) {
+          superService = service;
+        }
+      }
+      break;
+    } while (true);
     Object.defineProperty(this, "superService", {
       value: superService,
       enumerable: true,
       configurable: true,
     });
-    if (this.manager === void 0) {
-      if (superService !== null) {
-        Object.defineProperty(this, "manager", {
-          value: superService.manager,
-          enumerable: true,
-          configurable: true,
-        });
-      } else {
-        Object.defineProperty(this, "manager", {
-          value: this.initManager(),
-          enumerable: true,
-          configurable: true,
-        });
-        this.setServiceFlags(this.serviceFlags & ~ComponentService.InheritedFlag);
-      }
+  }
+  if (this.manager === void 0) {
+    if (superService !== null) {
+      this.setServiceFlags(this.serviceFlags | ComponentService.InheritedFlag);
+      Object.defineProperty(this, "manager", {
+        value: superService.manager,
+        enumerable: true,
+        configurable: true,
+      });
+    } else {
+      this.setServiceFlags(this.serviceFlags & ~ComponentService.InheritedFlag);
+      Object.defineProperty(this, "manager", {
+        value: this.initManager(),
+        enumerable: true,
+        configurable: true,
+      });
     }
   }
 };
@@ -285,6 +290,7 @@ ComponentService.prototype.unbindSuperService = function (this: ComponentService
     enumerable: true,
     configurable: true,
   });
+  this.setServiceFlags(this.serviceFlags & ~ComponentService.InheritedFlag);
 };
 
 Object.defineProperty(ComponentService.prototype, "ownManager", {

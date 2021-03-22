@@ -137,7 +137,11 @@ export class GaugeTrait extends GenericTrait {
 
   protected onSetDial(newDialTrait: DialTrait | null, oldDialTrait: DialTrait | null,
                       targetTrait: Trait | null, dialFastener: TraitFastener<this, DialTrait>): void {
+    if (oldDialTrait !== null) {
+      this.detachDial(oldDialTrait, dialFastener);
+    }
     if (newDialTrait !== null) {
+      this.attachDial(newDialTrait, dialFastener);
       this.initDial(newDialTrait, dialFastener);
     }
   }
@@ -161,12 +165,6 @@ export class GaugeTrait extends GenericTrait {
       this.owner.willSetDial(newDialTrait, oldDialTrait, targetTrait, this);
     },
     onSetTrait(newDialTrait: DialTrait | null, oldDialTrait: DialTrait | null, targetTrait: Trait | null): void {
-      if (oldDialTrait !== null) {
-        this.owner.detachDial(oldDialTrait, this);
-      }
-      if (newDialTrait !== null) {
-        this.owner.attachDial(newDialTrait, this);
-      }
       this.owner.onSetDial(newDialTrait, oldDialTrait, targetTrait, this);
     },
     didSetTrait(newDialTrait: DialTrait | null, oldDialTrait: DialTrait | null, targetTrait: Trait | null): void {
@@ -221,14 +219,6 @@ export class GaugeTrait extends GenericTrait {
     }
   }
 
-  protected onInsertDial(dialTrait: DialTrait, targetTrait: Trait | null): void {
-    this.insertDial(dialTrait, targetTrait);
-  }
-
-  protected onRemoveDial(dialTrait: DialTrait): void {
-    this.removeDial(dialTrait);
-  }
-
   protected detectDialModel(model: Model): DialTrait | null {
     return model.getTrait(DialTrait);
   }
@@ -256,7 +246,7 @@ export class GaugeTrait extends GenericTrait {
     const dialTrait = this.detectDialModel(childModel);
     if (dialTrait !== null) {
       const targetTrait = targetModel !== null ? this.detectDialModel(targetModel) : null;
-      this.onInsertDial(dialTrait, targetTrait);
+      this.insertDial(dialTrait, targetTrait);
     }
   }
 
@@ -264,7 +254,7 @@ export class GaugeTrait extends GenericTrait {
     super.onRemoveChildModel(childModel);
     const dialTrait = this.detectDialModel(childModel);
     if (dialTrait !== null) {
-      this.onRemoveDial(dialTrait);
+      this.removeDial(dialTrait);
     }
   }
 

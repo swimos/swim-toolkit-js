@@ -23,8 +23,6 @@ export interface StyleContext extends AnimationTimeline, ConstraintScope {
 
   isMounted(): boolean;
 
-  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined;
-
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined;
 
   setStyle(propertyName: string, value: unknown, priority?: string): this;
@@ -34,6 +32,11 @@ export interface StyleContext extends AnimationTimeline, ConstraintScope {
   getStyleAnimator(animatorName: string): StyleAnimator<this, unknown> | null;
 
   setStyleAnimator(animatorName: string, animator: StyleAnimator<this, unknown> | null): void;
+
+  getLook<T>(look: Look<T, unknown>, mood?: MoodVector<Feel> | null): T | undefined;
+
+  getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
+  getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
 
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void;
 

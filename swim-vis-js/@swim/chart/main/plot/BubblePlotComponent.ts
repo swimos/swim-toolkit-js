@@ -42,11 +42,6 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
     }
   }
 
-  protected detachDataPoint(dataPointComponent: DataPointComponent<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
-    super.detachDataPoint(dataPointComponent, dataPointFastener);
-    dataPointComponent.dataPoint.removeView();
-  }
-
   protected initPlotTrait(plotTrait: BubblePlotTrait<X, Y>): void {
     if (this.dataSet.trait === null) {
       const dataSetTrait = this.detectDataSet(plotTrait);
@@ -65,7 +60,7 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
   }
 
   protected detachPlotTrait(plotTrait: BubblePlotTrait<X, Y>): void {
-    this.plot.removeView();
+    // hook
   }
 
   protected willSetPlotTrait(newPlotTrait: BubblePlotTrait<X, Y> | null, oldPlotTrait: BubblePlotTrait<X, Y> | null): void {

@@ -259,13 +259,13 @@ export class RowComponent extends CompositeComponent {
   }
 
   protected detachCell(cellComponent: CellComponent, cellFastener: ComponentFastener<this, CellComponent>): void {
-    const cellTrait = cellComponent.cell.trait;
-    if (cellTrait !== null) {
-      this.detachCellTrait(cellTrait, cellFastener);
-    }
     const cellView = cellComponent.cell.view;
     if (cellView !== null) {
       this.detachCellView(cellView, cellFastener);
+    }
+    const cellTrait = cellComponent.cell.trait;
+    if (cellTrait !== null) {
+      this.detachCellTrait(cellTrait, cellFastener);
     }
   }
 
@@ -317,8 +317,8 @@ export class RowComponent extends CompositeComponent {
     }
     const cellComponent = this.createCell(cellTrait);
     if (cellComponent !== null) {
-      this.insertChildComponent(cellComponent, targetComponent, cellTrait.key);
       cellComponent.cell.setTrait(cellTrait);
+      this.insertChildComponent(cellComponent, targetComponent, cellTrait.key);
       if (cellComponent.cell.view === null) {
         const cellView = this.createCellView(cellComponent);
         let targetView: CellView | null = null;
@@ -420,6 +420,7 @@ export class RowComponent extends CompositeComponent {
     if (contentView !== null) {
       this.detachCellContentView(contentView, cellFastener);
     }
+    cellView.remove();
   }
 
   protected willSetCellView(newCellView: CellView | null, oldCellView: CellView | null,
@@ -578,19 +579,11 @@ export class RowComponent extends CompositeComponent {
     return component instanceof CellComponent ? component : null;
   }
 
-  protected onInsertCellComponent(cellComponent: CellComponent, targetComponent: Component | null): void {
-    this.insertCell(cellComponent, targetComponent);
-  }
-
-  protected onRemoveCellComponent(cellComponent: CellComponent): void {
-    this.removeCell(cellComponent);
-  }
-
   protected onInsertChildComponent(childComponent: Component, targetComponent: Component | null): void {
     super.onInsertChildComponent(childComponent, targetComponent);
     const cellComponent = this.detectCellComponent(childComponent);
     if (cellComponent !== null) {
-      this.onInsertCellComponent(cellComponent, targetComponent);
+      this.insertCell(cellComponent, targetComponent);
     }
   }
 
@@ -598,7 +591,7 @@ export class RowComponent extends CompositeComponent {
     super.onRemoveChildComponent(childComponent);
     const cellComponent = this.detectCellComponent(childComponent);
     if (cellComponent !== null) {
-      this.onRemoveCellComponent(cellComponent);
+      this.removeCell(cellComponent);
     }
   }
 

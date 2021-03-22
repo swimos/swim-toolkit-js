@@ -17,7 +17,7 @@ import {FromAny} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
 import {FontFamily, AnyColor, Color, AnyBoxShadow, BoxShadow} from "@swim/style";
-import type {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {View, Animator} from "@swim/view";
 import {StyleContext} from "./StyleContext";
 import {StringStyleAnimator} from "../"; // forward import
@@ -105,6 +105,9 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
 
   onSetValue(newValue: T, oldValue: T): void;
 
+  /** @hidden */
+  readonly ownLook: Look<T> | null;
+
   readonly look: Look<T> | null;
 
   setLook(newLook: Look<T> | null, timing?: AnyTiming | boolean): void;
@@ -114,6 +117,8 @@ export interface StyleAnimator<V extends StyleContext, T, U = never> extends Ani
   onSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void;
 
   didSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void;
+
+  applyLook(look: Look<T>, timing: Timing | boolean): void;
 
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void;
 
@@ -214,8 +219,8 @@ function StyleAnimatorConstructor<V extends StyleContext, T, U>(this: StyleAnima
     value: owner,
     enumerable: true,
   });
-  Object.defineProperty(_this, "look", {
-    value: _this.look ?? null, // seed from prototype
+  Object.defineProperty(_this, "ownLook", {
+    value: _this.ownLook ?? null, // seed from prototype
     enumerable: true,
     configurable: true,
   });
@@ -374,7 +379,16 @@ StyleAnimator.prototype.onSetValue = function <T>(this: StyleAnimator<StyleConte
   }
 };
 
+Object.defineProperty(StyleAnimator.prototype, "look", {
+  get: function <T>(this: StyleAnimator<StyleContext, T>): Look<T> | null {
+    return this.ownLook;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
 StyleAnimator.prototype.setLook = function <T>(this: StyleAnimator<StyleContext, T>, newLook: Look<T> | null, timing?: AnyTiming | boolean): void {
+  this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag | Animator.OverrideFlag);
   const oldLook = this.look;
   if (newLook !== oldLook) {
     if (timing === void 0) {
@@ -383,7 +397,7 @@ StyleAnimator.prototype.setLook = function <T>(this: StyleAnimator<StyleContext,
       timing = Timing.fromAny(timing);
     }
     this.willSetLook(newLook, oldLook, timing as Timing | boolean);
-    Object.defineProperty(this, "look", {
+    Object.defineProperty(this, "ownLook", {
       value: newLook,
       enumerable: true,
       configurable: true,
@@ -399,14 +413,7 @@ StyleAnimator.prototype.willSetLook = function <T>(this: StyleAnimator<StyleCont
 
 StyleAnimator.prototype.onSetLook = function <T>(this: StyleAnimator<StyleContext, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
   if (newLook !== null) {
-    if (this.owner.isMounted()) {
-      const state = this.owner.getLook(newLook);
-      if (state !== void 0) {
-        this.setAutoState(state, timing);
-      }
-    } else {
-      this.owner.requireUpdate(View.NeedsChange);
-    }
+    this.applyLook(newLook, timing);
   }
 };
 
@@ -414,12 +421,29 @@ StyleAnimator.prototype.didSetLook = function <T>(this: StyleAnimator<StyleConte
   // hook
 };
 
+StyleAnimator.prototype.applyLook = function <T>(this: StyleAnimator<StyleContext, T>, look: Look<T>, timing: Timing | boolean): void {
+  if (this.owner.isMounted()) {
+    const state = this.owner.getLook(look);
+    if (state !== void 0) {
+      if (timing === true) {
+        timing = this.owner.getLookOr(Look.timing, true);
+      }
+      Animator.prototype.setState.call(this, state, timing);
+    }
+  } else {
+    this.owner.requireUpdate(View.NeedsChange);
+  }
+};
+
 StyleAnimator.prototype.applyTheme = function <T>(this: StyleAnimator<StyleContext, T>, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
   const look = this.look;
-  if (look !== null && this.isAuto()) {
+  if (look !== null) {
     const state = theme.get(look, mood);
     if (state !== void 0) {
-      this.setAutoState(state, timing);
+      if (timing === true) {
+        timing = this.owner.getLookOr(Look.timing, true);
+      }
+      Animator.prototype.setState.call(this, state, timing);
     }
   }
 };
@@ -472,7 +496,7 @@ StyleAnimator.prototype.willMount = function (this: StyleAnimator<StyleContext, 
 StyleAnimator.prototype.onMount = function (this: StyleAnimator<StyleContext, unknown>): void {
   const look = this.look;
   if (look !== null) {
-    this.owner.requireUpdate(View.NeedsChange);
+    this.applyLook(look, false);
   }
 };
 
@@ -531,6 +555,7 @@ StyleAnimator.define = function <V extends StyleContext, T, U, I>(descriptor: St
   const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
+  delete descriptor.look;
 
   if (_super === void 0) {
     _super = StyleAnimator.getClass(descriptor.type);
@@ -567,7 +592,7 @@ StyleAnimator.define = function <V extends StyleContext, T, U, I>(descriptor: St
       return state;
     };
   }
-  Object.defineProperty(_prototype, "look", {
+  Object.defineProperty(_prototype, "ownLook", {
     value: look ?? null,
     enumerable: true,
     configurable: true,

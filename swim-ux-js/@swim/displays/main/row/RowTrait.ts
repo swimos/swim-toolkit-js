@@ -90,7 +90,11 @@ export class RowTrait extends GenericTrait {
 
   protected onSetCell(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null,
                       targetTrait: Trait | null, cellFastener: TraitFastener<this, CellTrait>): void {
+    if (oldCellTrait !== null) {
+      this.detachCell(oldCellTrait, cellFastener);
+    }
     if (newCellTrait !== null) {
+      this.attachCell(newCellTrait, cellFastener);
       this.initCell(newCellTrait, cellFastener);
     }
   }
@@ -114,12 +118,6 @@ export class RowTrait extends GenericTrait {
       this.owner.willSetCell(newCellTrait, oldCellTrait, targetTrait, this);
     },
     onSetTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null): void {
-      if (oldCellTrait !== null) {
-        this.owner.detachCell(oldCellTrait, this);
-      }
-      if (newCellTrait !== null) {
-        this.owner.attachCell(newCellTrait, this);
-      }
       this.owner.onSetCell(newCellTrait, oldCellTrait, targetTrait, this);
     },
     didSetTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null, targetTrait: Trait | null): void {
@@ -174,14 +172,6 @@ export class RowTrait extends GenericTrait {
     }
   }
 
-  protected onInsertCell(cellTrait: CellTrait, targetTrait: Trait | null): void {
-    this.insertCell(cellTrait, targetTrait);
-  }
-
-  protected onRemoveCell(cellTrait: CellTrait): void {
-    this.removeCell(cellTrait);
-  }
-
   protected detectCellModel(model: Model): CellTrait | null {
     return model.getTrait(CellTrait);
   }
@@ -225,7 +215,7 @@ export class RowTrait extends GenericTrait {
     const cellTrait = this.detectCellModel(childModel);
     if (cellTrait !== null) {
       const targetTrait = targetModel !== null ? this.detectCellModel(targetModel) : null;
-      this.onInsertCell(cellTrait, targetTrait);
+      this.insertCell(cellTrait, targetTrait);
     }
   }
 
@@ -233,7 +223,7 @@ export class RowTrait extends GenericTrait {
     super.onRemoveChildModel(childModel);
     const cellTrait = this.detectCellModel(childModel);
     if (cellTrait !== null) {
-      this.onRemoveCell(cellTrait);
+      this.removeCell(cellTrait);
     }
   }
 
@@ -241,7 +231,7 @@ export class RowTrait extends GenericTrait {
     super.onInsertTrait(trait, targetTrait);
     const cellTrait = this.detectCellTrait(trait);
     if (cellTrait !== null) {
-      this.onInsertCell(cellTrait, targetTrait);
+      this.insertCell(cellTrait, targetTrait);
     }
   }
 
@@ -249,7 +239,7 @@ export class RowTrait extends GenericTrait {
     super.onRemoveTrait(trait);
     const cellTrait = this.detectCellTrait(trait);
     if (cellTrait !== null) {
-      this.onRemoveCell(cellTrait);
+      this.removeCell(cellTrait);
     }
   }
 

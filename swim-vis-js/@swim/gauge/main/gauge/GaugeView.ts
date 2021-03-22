@@ -14,6 +14,7 @@
 
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import {Look} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator, ViewFastener} from "@swim/view";
 import {
   GraphicsViewInit,
@@ -158,10 +159,10 @@ export class GaugeView extends LayerView {
   @ViewAnimator({type: Length, state: Length.px(1), updateFlags: View.NeedsLayout})
   declare dialSpacing: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, state: null})
+  @ViewAnimator({type: Color, state: null, look: Look.subduedColor})
   declare dialColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Color, state: null})
+  @ViewAnimator({type: Color, state: null, look: Look.accentColor})
   declare meterColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Length, state: Length.pct(25)})
@@ -182,13 +183,13 @@ export class GaugeView extends LayerView {
   @ViewAnimator({type: Length, state: Length.px(2)})
   declare tickPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, state: null})
+  @ViewAnimator({type: Color, state: null, look: Look.neutralColor})
   declare tickColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Font, state: null, inherit: true})
   declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, state: null, inherit: true})
+  @ViewAnimator({type: Color, state: null, look: Look.mutedColor})
   declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected initTitle(titleView: GraphicsView): void {

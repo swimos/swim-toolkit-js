@@ -180,19 +180,11 @@ export class RowView extends HtmlView {
     return view instanceof CellView ? view : null;
   }
 
-  protected onInsertCell(cellView: CellView, targetView: View | null): void {
-    this.insertCell(cellView, targetView);
-  }
-
-  protected onRemoveCell(cellView: CellView): void {
-    this.removeCell(cellView);
-  }
-
   protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     const cellView = this.detectCell(childView);
     if (cellView !== null) {
-      this.onInsertCell(cellView, targetView);
+      this.insertCell(cellView, targetView);
     }
   }
 
@@ -200,7 +192,7 @@ export class RowView extends HtmlView {
     super.onRemoveChildView(childView);
     const cellView = this.detectCell(childView);
     if (cellView !== null) {
-      this.onRemoveCell(cellView);
+      this.removeCell(cellView);
     }
   }
 

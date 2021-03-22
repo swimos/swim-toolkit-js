@@ -14,6 +14,7 @@
 
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import {Look} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator, ViewFastener} from "@swim/view";
 import {
   GraphicsViewInit,
@@ -160,7 +161,7 @@ export class PieView extends LayerView {
   @ViewAnimator({type: Length, state: Length.pct(50)})
   declare labelRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, state: null})
+  @ViewAnimator({type: Color, state: null, look: Look.accentColor})
   declare sliceColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Number, state: 0.5})
@@ -178,13 +179,13 @@ export class PieView extends LayerView {
   @ViewAnimator({type: Length, state: Length.px(2)})
   declare tickPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, state: null})
+  @ViewAnimator({type: Color, state: null, look: Look.neutralColor})
   declare tickColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Font, state: null, inherit: true})
   declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, state: null, inherit: true})
+  @ViewAnimator({type: Color, state: null, look: Look.mutedColor})
   declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected initTitle(titleView: GraphicsView): void {
@@ -442,19 +443,11 @@ export class PieView extends LayerView {
     return view instanceof SliceView ? view : null;
   }
 
-  protected onInsertSlice(sliceView: SliceView, targetView: View | null): void {
-    this.insertSlice(sliceView, targetView);
-  }
-
-  protected onRemoveSlice(sliceView: SliceView): void {
-    this.removeSlice(sliceView);
-  }
-
   protected onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     const sliceView = this.detectSlice(childView);
     if (sliceView !== null) {
-      this.onInsertSlice(sliceView, targetView);
+      this.insertSlice(sliceView, targetView);
     }
   }
 
@@ -462,7 +455,7 @@ export class PieView extends LayerView {
     super.onRemoveChildView(childView);
     const sliceView = this.detectSlice(childView);
     if (sliceView !== null) {
-      this.onRemoveSlice(sliceView);
+      this.removeSlice(sliceView);
     }
   }
 

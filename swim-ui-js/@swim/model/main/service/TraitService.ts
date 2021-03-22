@@ -173,7 +173,7 @@ function TraitServiceConstructor<R extends Trait, T>(this: TraitService<R, T>, o
     configurable: true,
   });
   Object.defineProperty(this, "serviceFlags", {
-    value: this.inherit !== false ? ModelService.InheritedFlag : 0,
+    value: 0,
     enumerable: true,
     configurable: true,
   });
@@ -272,7 +272,15 @@ TraitService.prototype.setInherited = function (this: TraitService<Trait, unknow
   if (modelService !== null) {
     modelService.setInherited(inherited);
   } else if (inherited && (this.serviceFlags & ModelService.InheritedFlag) === 0) {
-    this.setServiceFlags(this.serviceFlags | ModelService.InheritedFlag);
+    const superService = this.superService;
+    if (superService !== null) {
+      this.setServiceFlags(this.serviceFlags | ModelService.InheritedFlag);
+      Object.defineProperty(this, "manager", {
+        value: superService.manager,
+        enumerable: true,
+        configurable: true,
+      });
+    }
   } else if (!inherited && (this.serviceFlags & ModelService.InheritedFlag) !== 0) {
     this.setServiceFlags(this.serviceFlags & ~ModelService.InheritedFlag);
   }

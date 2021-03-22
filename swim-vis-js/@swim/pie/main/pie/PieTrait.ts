@@ -137,7 +137,11 @@ export class PieTrait extends GenericTrait {
 
   protected onSetSlice(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null,
                        targetTrait: Trait | null, sliceFastener: TraitFastener<this, SliceTrait>): void {
+    if (oldSliceTrait !== null) {
+      this.detachSlice(oldSliceTrait, sliceFastener);
+    }
     if (newSliceTrait !== null) {
+      this.attachSlice(newSliceTrait, sliceFastener);
       this.initSlice(newSliceTrait, sliceFastener);
     }
   }
@@ -161,12 +165,6 @@ export class PieTrait extends GenericTrait {
       this.owner.willSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
     },
     onSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
-      if (oldSliceTrait !== null) {
-        this.owner.detachSlice(oldSliceTrait, this);
-      }
-      if (newSliceTrait !== null) {
-        this.owner.attachSlice(newSliceTrait, this);
-      }
       this.owner.onSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
     },
     didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null): void {
@@ -221,14 +219,6 @@ export class PieTrait extends GenericTrait {
     }
   }
 
-  protected onInsertSlice(sliceTrait: SliceTrait, targetTrait: Trait | null): void {
-    this.insertSlice(sliceTrait, targetTrait);
-  }
-
-  protected onRemoveSlice(sliceTrait: SliceTrait): void {
-    this.removeSlice(sliceTrait);
-  }
-
   protected detectSliceModel(model: Model): SliceTrait | null {
     return model.getTrait(SliceTrait);
   }
@@ -256,7 +246,7 @@ export class PieTrait extends GenericTrait {
     const sliceTrait = this.detectSliceModel(childModel);
     if (sliceTrait !== null) {
       const targetTrait = targetModel !== null ? this.detectSliceModel(targetModel) : null;
-      this.onInsertSlice(sliceTrait, targetTrait);
+      this.insertSlice(sliceTrait, targetTrait);
     }
   }
 
@@ -264,7 +254,7 @@ export class PieTrait extends GenericTrait {
     super.onRemoveChildModel(childModel);
     const sliceTrait = this.detectSliceModel(childModel);
     if (sliceTrait !== null) {
-      this.onRemoveSlice(sliceTrait);
+      this.removeSlice(sliceTrait);
     }
   }
 

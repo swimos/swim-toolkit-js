@@ -41,11 +41,6 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
     }
   }
 
-  protected detachDataPoint(dataPointComponent: DataPointComponent<X, Y>, dataPointFastener: ComponentFastener<this, DataPointComponent<X, Y>>): void {
-    super.detachDataPoint(dataPointComponent, dataPointFastener);
-    dataPointComponent.dataPoint.removeView();
-  }
-
   protected initPlotTrait(plotTrait: AreaPlotTrait<X, Y>): void {
     if (this.dataSet.trait === null) {
       const dataSetTrait = this.detectDataSet(plotTrait);
@@ -63,7 +58,7 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
   }
 
   protected detachPlotTrait(plotTrait: AreaPlotTrait<X, Y>): void {
-    this.plot.removeView();
+    // hook
   }
 
   protected willSetPlotTrait(newPlotTrait: AreaPlotTrait<X, Y> | null, oldPlotTrait: AreaPlotTrait<X, Y> | null): void {

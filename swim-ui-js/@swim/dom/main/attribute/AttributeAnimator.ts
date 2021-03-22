@@ -17,7 +17,7 @@ import {FromAny} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length, AnyTransform, Transform} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
-import type {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewFlags, View, Animator} from "@swim/view";
 import {StringAttributeAnimator} from "../"; // forward import
 import {BooleanAttributeAnimator} from "../"; // forward import
@@ -99,6 +99,9 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
 
   onSetValue(newValue: T, oldValue: T): void;
 
+  /** @hidden */
+  readonly ownLook: Look<T> | null;
+
   readonly look: Look<T> | null;
 
   setLook(newLook: Look<T> | null, timing?: AnyTiming | boolean): void;
@@ -108,6 +111,8 @@ export interface AttributeAnimator<V extends ElementView, T, U = never> extends 
   onSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void;
 
   didSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void;
+
+  applyLook(look: Look<T>, timing: Timing | boolean): void;
 
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void;
 
@@ -205,8 +210,8 @@ function AttributeAnimatorConstructor<V extends ElementView, T, U>(this: Attribu
     value: owner,
     enumerable: true,
   });
-  Object.defineProperty(_this, "look", {
-    value: _this.look ?? null, // seed from prototype
+  Object.defineProperty(_this, "ownLook", {
+    value: _this.ownLook ?? null, // seed from prototype
     enumerable: true,
     configurable: true,
   });
@@ -323,7 +328,16 @@ AttributeAnimator.prototype.onSetValue = function <T>(this: AttributeAnimator<El
   }
 };
 
+Object.defineProperty(AttributeAnimator.prototype, "look", {
+  get: function <T>(this: AttributeAnimator<ElementView, T>): Look<T> | null {
+    return this.ownLook;
+  },
+  enumerable: true,
+  configurable: true,
+});
+
 AttributeAnimator.prototype.setLook = function <T>(this: AttributeAnimator<ElementView, T>, newLook: Look<T> | null, timing?: AnyTiming | boolean): void {
+  this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag | Animator.OverrideFlag);
   const oldLook = this.look;
   if (newLook !== oldLook) {
     if (timing === void 0) {
@@ -332,7 +346,7 @@ AttributeAnimator.prototype.setLook = function <T>(this: AttributeAnimator<Eleme
       timing = Timing.fromAny(timing);
     }
     this.willSetLook(newLook, oldLook, timing as Timing | boolean);
-    Object.defineProperty(this, "look", {
+    Object.defineProperty(this, "ownLook", {
       value: newLook,
       enumerable: true,
       configurable: true,
@@ -348,14 +362,7 @@ AttributeAnimator.prototype.willSetLook = function <T>(this: AttributeAnimator<E
 
 AttributeAnimator.prototype.onSetLook = function <T>(this: AttributeAnimator<ElementView, T>, newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
   if (newLook !== null) {
-    if (this.owner.isMounted()) {
-      const state = this.owner.getLook(newLook);
-      if (state !== void 0) {
-        this.setAutoState(state, timing);
-      }
-    } else {
-      this.owner.requireUpdate(View.NeedsChange);
-    }
+    this.applyLook(newLook, timing);
   }
 };
 
@@ -363,12 +370,29 @@ AttributeAnimator.prototype.didSetLook = function <T>(this: AttributeAnimator<El
   // hook
 };
 
+AttributeAnimator.prototype.applyLook = function <T>(this: AttributeAnimator<ElementView, T>, look: Look<T>, timing: Timing | boolean): void {
+  if (this.owner.isMounted()) {
+    const state = this.owner.getLook(look);
+    if (state !== void 0) {
+      if (timing === true) {
+        timing = this.owner.getLookOr(Look.timing, true);
+      }
+      Animator.prototype.setState.call(this, state, timing);
+    }
+  } else {
+    this.owner.requireUpdate(View.NeedsChange);
+  }
+};
+
 AttributeAnimator.prototype.applyTheme = function <T>(this: AttributeAnimator<ElementView, T>, theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
   const look = this.look;
-  if (look !== null && this.isAuto()) {
+  if (look !== null) {
     const state = theme.get(look, mood);
     if (state !== void 0) {
-      this.setAutoState(state, timing);
+      if (timing === true) {
+        timing = this.owner.getLookOr(Look.timing, true);
+      }
+      Animator.prototype.setState.call(this, state, timing);
     }
   }
 };
@@ -417,7 +441,7 @@ AttributeAnimator.prototype.willMount = function (this: AttributeAnimator<Elemen
 AttributeAnimator.prototype.onMount = function (this: AttributeAnimator<ElementView, unknown>): void {
   const look = this.look;
   if (look !== null) {
-    this.owner.requireUpdate(View.NeedsChange);
+    this.applyLook(look, false);
   }
 };
 
@@ -474,6 +498,7 @@ AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor:
   const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
+  delete descriptor.look;
 
   if (_super === void 0) {
     _super = AttributeAnimator.getClass(descriptor.type);
@@ -510,7 +535,7 @@ AttributeAnimator.define = function <V extends ElementView, T, U, I>(descriptor:
       return state;
     };
   }
-  Object.defineProperty(_prototype, "look", {
+  Object.defineProperty(_prototype, "ownLook", {
     value: look ?? null,
     enumerable: true,
     configurable: true,

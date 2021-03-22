@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Swim Graph Component</title>
+    <title>Swim Chart Component</title>
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
   </head>
   <body style="position: fixed; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; margin: 0; overflow: hidden;">
@@ -26,10 +26,10 @@ const canvasView = swim.CanvasView.create()
     .touchEventsEnabled(true)
     .touchAction("manipulation");
 
-class ExampleGraphComponent extends swim.GraphComponent {
-  initGraphView(graphView) {
-    super.initGraphView(graphView);
-    graphView.xDomainPadding([Math.PI, Math.PI])
+class ExampleChartComponent extends swim.ChartComponent {
+  initChartView(chartView) {
+    super.initChartView(chartView);
+    chartView.xDomainPadding([Math.PI, Math.PI])
              .yDomainPadding([1, 1])
              .xRangePadding([2, 2])
              .yRangePadding([2, 2])
@@ -78,16 +78,26 @@ while (i <= n) {
 }
 plot1Model.setTrait("dataSet", dataSet1Trait);
 
-const graphModel = new swim.CompoundModel();
-graphModel.mount();
+const chartModel = new swim.CompoundModel();
+chartModel.mount();
+const chartTrait = new swim.ChartTrait();
+chartModel.setTrait("chart", chartTrait);
 const graphTrait = new swim.GraphTrait();
-graphModel.setTrait("graph", graphTrait);
-graphModel.appendChildModel(plot1Model);
+chartModel.setTrait("graph", graphTrait);
+//const topAxisTrait = new swim.TopAxisTrait();
+//chartModel.setTrait("topAxis", topAxisTrait);
+//const rightAxisTrait = new swim.RightAxisTrait();
+//chartModel.setTrait("rightAxis", rightAxisTrait);
+const bottomAxisTrait = new swim.BottomAxisTrait();
+chartModel.setTrait("bottomAxis", bottomAxisTrait);
+const leftAxisTrait = new swim.LeftAxisTrait();
+chartModel.setTrait("leftAxis", leftAxisTrait);
+chartModel.appendChildModel(plot1Model);
 
-const graphComponent = new ExampleGraphComponent();
-graphComponent.mount();
-graphComponent.graph.injectView(canvasView);
-graphComponent.graph.setTrait(graphTrait);
+const chartComponent = new ExampleChartComponent();
+chartComponent.mount();
+chartComponent.chart.injectView(canvasView);
+chartComponent.chart.setTrait(chartTrait);
 
 containerView.append(canvasView);
 

@@ -46,7 +46,11 @@ export class PlotTrait<X, Y> extends GenericTrait {
   }
 
   protected onSetDataSet(newDataSetTrait: DataSetTrait<X, Y> | null, oldDataSetTrait: DataSetTrait<X, Y> | null, targetTrait: Trait | null): void {
+    if (oldDataSetTrait !== null) {
+      this.detachDataSet(oldDataSetTrait);
+    }
     if (newDataSetTrait !== null) {
+      this.attachDataSet(newDataSetTrait);
       this.initDataSet(newDataSetTrait);
     }
   }
@@ -68,12 +72,6 @@ export class PlotTrait<X, Y> extends GenericTrait {
       this.owner.willSetDataSet(newDataSetTrait, oldDataSetTrait, targetTrait);
     },
     onSetTrait(newDataSetTrait: DataSetTrait<X, Y> | null, oldDataSetTrait: DataSetTrait<X, Y> | null, targetTrait: Trait | null): void {
-      if (oldDataSetTrait !== null) {
-        this.owner.detachDataSet(oldDataSetTrait);
-      }
-      if (newDataSetTrait !== null) {
-        this.owner.attachDataSet(newDataSetTrait);
-      }
       this.owner.onSetDataSet(newDataSetTrait, oldDataSetTrait, targetTrait);
     },
     didSetTrait(newDataSetTrait: DataSetTrait<X, Y> | null, oldDataSetTrait: DataSetTrait<X, Y> | null, targetTrait: Trait | null): void {
@@ -113,6 +111,14 @@ export class PlotTrait<X, Y> extends GenericTrait {
       if (dataSetTrait !== null) {
         this.dataSet.setTrait(dataSetTrait, targetTrait);
       }
+    }
+  }
+
+  protected onRemoveTrait(trait: Trait): void {
+    super.onRemoveTrait(trait);
+    const dataSetTrait = this.detectDataSetTrait(trait);
+    if (dataSetTrait !== null && this.dataSet.trait === dataSetTrait) {
+      this.dataSet.setTrait(null);
     }
   }
 

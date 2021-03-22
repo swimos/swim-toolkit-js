@@ -5,40 +5,43 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
   </head>
   <body style="display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; margin: 0;">
-    <div id="ui" style="display: flex; width: 67%; height: 67%;">
-    </div>
     <script src="../../swim-system-js/swim-core-js/@swim/core/dist/main/swim-core.js"></script>
     <script src="../../swim-system-js/swim-mesh-js/@swim/mesh/dist/main/swim-mesh.js"></script>
     <script src="../swim-ui-js/@swim/ui/dist/main/swim-ui.js"></script>
     <script src="../swim-vis-js/@swim/vis/dist/main/swim-vis.js"></script>
     <script>
 
-const uiView = swim.HtmlView.fromNode(document.getElementById("ui"));
+//setTimeout(function () {
+//  swim.ThemeManager.global().setTheme(swim.Theme.light);
+//}, 1000);
 
-const canvasView = uiView.append("canvas")
+const bodyView = swim.HtmlView.fromNode(document.body);
+
+const containerView = bodyView.append("div").display("flex").width("67%").height("67%").touchAction("none").userSelect("none");
+
+const canvasView = containerView.append(swim.CanvasView)
+    .mouseEventsEnabled(true)
     .pointerEventsEnabled(true)
+    .touchEventsEnabled(true)
     .touchAction("manipulation");
 
 class ExamplePieComponent extends swim.PieComponent {
   initPieView(pieView) {
     super.initPieView(pieView);
-    pieView.tickColor("#4a4a4a")
-           .font("14px sans-serif")
-           .textColor("#4a4a4a");
+    pieView.font("14px sans-serif");
   }
   initSliceView(sliceView) {
     super.initSliceView(sliceView);
-    sliceView.sliceColor("#4a4a4a")
-             .on("pointerenter", function (event) {
-               sliceView.sliceColor("#1db0ef", {dt: 200});
+    sliceView.on("pointerenter", function (event) {
+               sliceView.modifyMood(swim.Feel.default, [swim.Feel.secondary, 1], true);
              })
              .on("pointerleave", function (event) {
-               sliceView.sliceColor("#4a4a4a", {dt: 200});
+               sliceView.modifyMood(swim.Feel.default, [swim.Feel.secondary, void 0], true);
              });
   }
   initSliceLabelView(labelView) {
     super.initSliceLabelView(labelView);
-    labelView.textColor("#ffffff");
+    labelView.textColor.setLook(swim.Look.backgroundColor);
   }
   onSetSliceValue(newValue, oldValue, sliceFastener) {
     super.onSetSliceValue(newValue, oldValue, sliceFastener);
@@ -59,23 +62,38 @@ slice2Trait.setValue(1);
 slice2Trait.setLegend("Slice 2");
 slice2Model.setTrait("slice", slice2Trait);
 
+const slice3Model = new swim.CompoundModel();
+const slice3Trait = new swim.SliceTrait();
+slice3Trait.setValue(1);
+slice3Trait.setLegend("Slice 3");
+slice3Model.setTrait("slice", slice3Trait);
+
 const pieModel = new swim.CompoundModel();
 pieModel.mount();
 const pieTrait = new swim.PieTrait();
 pieModel.setTrait("pie", pieTrait);
 pieModel.appendChildModel(slice1Model, "slice1");
+pieModel.appendChildModel(slice2Model, "slice2");
+pieModel.appendChildModel(slice3Model, "slice3");
 
 const pieComponent = new ExamplePieComponent();
 pieComponent.mount();
 pieComponent.pie.injectView(canvasView);
 pieComponent.pie.setTrait(pieTrait);
 
-pieModel.insertChildModel(slice2Model, slice1Model, "slice2");
-
 setInterval(function () {
   slice1Trait.setValue(0.1 + 0.9 * Math.random());
   slice2Trait.setValue(0.1 + 0.9 * Math.random());
+  slice3Trait.setValue(0.1 + 0.9 * Math.random());
 }, 1000);
+
+setInterval(function () {
+  if (slice3Model.isMounted()) {
+    slice3Model.remove();
+  } else {
+    pieModel.appendChildModel(slice3Model, "slice3");
+  }
+}, 2500);
 
     </script>
   </body>

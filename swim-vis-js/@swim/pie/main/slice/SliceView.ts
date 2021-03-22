@@ -15,6 +15,7 @@
 import {Equivalent} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
+import {Look} from "@swim/theme";
 import {ViewContextType, ViewAnimator, ViewFastener} from "@swim/view";
 import {
   GraphicsViewInit,
@@ -179,55 +180,55 @@ export class SliceView extends LayerView {
   @ViewAnimator({type: Number, state: 1})
   declare total: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: PointR2, state: PointR2.origin(), inherit: true})
+  @ViewAnimator({type: PointR2, inherit: true, state: PointR2.origin()})
   declare center: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  @ViewAnimator({type: Length, state: Length.pct(3), inherit: true})
+  @ViewAnimator({type: Length, inherit: true, state: Length.pct(3)})
   declare innerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, state: Length.pct(25), inherit: true})
+  @ViewAnimator({type: Length, inherit: true, state: Length.pct(25)})
   declare outerRadius: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Angle, state: Angle.zero()})
   declare phaseAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Angle, state: Angle.deg(2), inherit: true})
+  @ViewAnimator({type: Angle, inherit: true, state: Angle.deg(2)})
   declare padAngle: ViewAnimator<this, Angle, AnyAngle>;
 
-  @ViewAnimator({type: Length, state: null, inherit: true})
+  @ViewAnimator({type: Length, inherit: true, state: null})
   declare padRadius: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Length, state: Length.zero(), inherit: true})
+  @ViewAnimator({type: Length, inherit: true, state: Length.zero()})
   declare cornerRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, state: Length.pct(50), inherit: true})
+  @ViewAnimator({type: Length, inherit: true, state: Length.pct(50)})
   declare labelRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, state: null, inherit: true})
+  @ViewAnimator({type: Color, inherit: true, state: null, look: Look.accentColor})
   declare sliceColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Number, state: 0.5, inherit: true})
+  @ViewAnimator({type: Number, inherit: true, state: 0.5})
   declare tickAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Length, state: Length.pct(30), inherit: true})
+  @ViewAnimator({type: Length, inherit: true, state: Length.pct(30)})
   declare tickRadius: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, state: Length.pct(50), inherit: true})
+  @ViewAnimator({type: Length, inherit: true, state: Length.pct(50)})
   declare tickLength: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, state: Length.px(1), inherit: true})
+  @ViewAnimator({type: Length, inherit: true, state: Length.px(1)})
   declare tickWidth: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Length, state: Length.px(2), inherit: true})
+  @ViewAnimator({type: Length, inherit: true, state: Length.px(2)})
   declare tickPadding: ViewAnimator<this, Length, AnyLength>;
 
-  @ViewAnimator({type: Color, state: null, inherit: true})
+  @ViewAnimator({type: Color, inherit: true, state: null, look: Look.neutralColor})
   declare tickColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Font, state: null, inherit: true})
+  @ViewAnimator({type: Font, inherit: true, state: null})
   declare font: ViewAnimator<this, Font | null, AnyFont | null>;
 
-  @ViewAnimator({type: Color, state: null, inherit: true})
+  @ViewAnimator({type: Color, inherit: true, state: null, look: Look.mutedColor})
   declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected initLabel(labelView: GraphicsView): void {

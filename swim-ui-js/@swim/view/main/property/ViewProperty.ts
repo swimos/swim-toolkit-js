@@ -253,16 +253,12 @@ function ViewPropertyConstructor<V extends View, T, U>(this: ViewProperty<V, T, 
     enumerable: true,
     configurable: true,
   });
-  let propertyFlags = ViewProperty.UpdatedFlag;
   let state: T | undefined;
   if (this.initState !== void 0) {
     state = this.fromAny(this.initState());
   }
-  if (this.inherit !== false) {
-    propertyFlags |= ViewProperty.InheritedFlag;
-  }
   Object.defineProperty(this, "propertyFlags", {
-    value: propertyFlags,
+    value: ViewProperty.UpdatedFlag,
     enumerable: true,
     configurable: true,
   });
@@ -296,15 +292,7 @@ ViewProperty.prototype.setInherit = function (this: ViewProperty<View, unknown>,
       enumerable: true,
       configurable: true,
     });
-    if (inherit !== false) {
-      this.bindSuperProperty();
-      if ((this.propertyFlags & ViewProperty.OverrideFlag) === 0) {
-        this.setPropertyFlags(this.propertyFlags | (ViewProperty.UpdatedFlag | ViewProperty.InheritedFlag));
-        this.change();
-      }
-    } else if (this.inherit !== false) {
-      this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag);
-    }
+    this.bindSuperProperty();
   }
 };
 
@@ -313,12 +301,19 @@ ViewProperty.prototype.isInherited = function (this: ViewProperty<View, unknown>
 };
 
 ViewProperty.prototype.setInherited = function (this: ViewProperty<View, unknown>, inherited: boolean): void {
-  if (inherited && (this.propertyFlags & ViewProperty.InheritedFlag) === 0) {
-    this.setPropertyFlags(this.propertyFlags | ViewProperty.InheritedFlag);
-    this.change();
+  if (inherited && (this.propertyFlags & (ViewProperty.InheritedFlag | ViewProperty.OverrideFlag)) === 0) {
+    const superProperty = this.superProperty;
+    if (superProperty !== null) {
+      this.setPropertyFlags(this.propertyFlags | (ViewProperty.UpdatedFlag | ViewProperty.InheritedFlag));
+      Object.defineProperty(this, "state", {
+        value: superProperty.state,
+        enumerable: true,
+        configurable: true,
+      });
+      this.change();
+    }
   } else if (!inherited && (this.propertyFlags & ViewProperty.InheritedFlag) !== 0) {
     this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag);
-    this.change();
   }
 };
 
@@ -340,38 +335,36 @@ Object.defineProperty(ViewProperty.prototype, "superName", {
 });
 
 ViewProperty.prototype.bindSuperProperty = function (this: ViewProperty<View, unknown>): void {
-  if (this.isMounted()) {
-    const superName = this.superName;
-    if (superName !== void 0) {
-      let view = this.owner;
-      do {
-        const parentView = view.parentView;
-        if (parentView !== null) {
-          view = parentView;
-          const superProperty = view.getLazyViewProperty(superName);
-          if (superProperty !== null) {
-            Object.defineProperty(this, "superProperty", {
-              value: superProperty,
+  const superName = this.superName;
+  if (superName !== void 0 && this.isMounted()) {
+    let view = this.owner;
+    do {
+      const parentView = view.parentView;
+      if (parentView !== null) {
+        view = parentView;
+        const superProperty = view.getLazyViewProperty(superName);
+        if (superProperty !== null) {
+          Object.defineProperty(this, "superProperty", {
+            value: superProperty,
+            enumerable: true,
+            configurable: true,
+          });
+          superProperty.addSubProperty(this);
+          if ((this.propertyFlags & ViewProperty.OverrideFlag) === 0) {
+            this.setPropertyFlags(this.propertyFlags | (ViewProperty.UpdatedFlag | ViewProperty.InheritedFlag));
+            Object.defineProperty(this, "state", {
+              value: superProperty.state,
               enumerable: true,
               configurable: true,
             });
-            superProperty.addSubProperty(this);
-            if (this.isInherited()) {
-              Object.defineProperty(this, "state", {
-                value: superProperty.state,
-                enumerable: true,
-                configurable: true,
-              });
-              this.setPropertyFlags(this.propertyFlags | ViewProperty.UpdatedFlag);
-              this.change();
-            }
-          } else {
-            continue;
+            this.change();
           }
+        } else {
+          continue;
         }
-        break;
-      } while (true);
-    }
+      }
+      break;
+    } while (true);
   }
 };
 
@@ -384,6 +377,7 @@ ViewProperty.prototype.unbindSuperProperty = function (this: ViewProperty<View, 
       enumerable: true,
       configurable: true,
     });
+    this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag);
   }
 };
 
