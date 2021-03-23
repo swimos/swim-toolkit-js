@@ -20,7 +20,13 @@ export {
 } from "./DialView";
 export {DialViewObserver} from "./DialViewObserver";
 
-export {DialTrait} from "./DialTrait";
+export {
+  DialLabel,
+  DialLabelFunction,
+  DialLegend,
+  DialLegendFunction,
+  DialTrait,
+} from "./DialTrait";
 export {DialTraitObserver} from "./DialTraitObserver";
 
 export {DialComponent} from "./DialComponent";

@@ -19,7 +19,11 @@ export {
 } from "./PieView";
 export {PieViewObserver} from "./PieViewObserver";
 
-export {PieTrait} from "./PieTrait";
+export {
+  PieTitle,
+  PieTitleFunction,
+  PieTrait,
+} from "./PieTrait";
 export {PieTraitObserver} from "./PieTraitObserver";
 
 export {PieComponent} from "./PieComponent";

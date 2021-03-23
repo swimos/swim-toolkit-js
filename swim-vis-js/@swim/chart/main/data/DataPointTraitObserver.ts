@@ -16,8 +16,7 @@ import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
 import type {Look} from "@swim/theme";
 import type {TraitObserver} from "@swim/model";
-import type {GraphicsView} from "@swim/graphics";
-import type {DataPointTrait} from "./DataPointTrait";
+import type {DataPointLabel, DataPointTrait} from "./DataPointTrait";
 
 export interface DataPointTraitObserver<X, Y, R extends DataPointTrait<X, Y> = DataPointTrait<X, Y>> extends TraitObserver<R> {
   dataPointTraitWillSetX?(newX: X, oldX: X, trait: R): void;
@@ -40,7 +39,7 @@ export interface DataPointTraitObserver<X, Y, R extends DataPointTrait<X, Y> = D
 
   dataPointTraitDidSetColor?(newColor: Look<Color> | Color | null, oldColor: Look<Color> | Color | null, trait: R): void;
 
-  dataPointTraitWillSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
+  dataPointTraitWillSetLabel?(newLabel: DataPointLabel<X, Y> | null, oldLabel: DataPointLabel<X, Y> | null, trait: R): void;
 
-  dataPointTraitDidSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
+  dataPointTraitDidSetLabel?(newLabel: DataPointLabel<X, Y> | null, oldLabel: DataPointLabel<X, Y> | null, trait: R): void;
 }

@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import type {TraitObserver} from "@swim/model";
-import type {GraphicsView} from "@swim/graphics";
-import type {DialTrait} from "./DialTrait";
+import type {DialLabel, DialLegend, DialTrait} from "./DialTrait";
 
 export interface DialTraitObserver<R extends DialTrait = DialTrait> extends TraitObserver<R> {
   dialTraitWillSetValue?(newValue: number, oldValue: number, trait: R): void;
@@ -25,11 +24,11 @@ export interface DialTraitObserver<R extends DialTrait = DialTrait> extends Trai
 
   dialTraitDidSetLimit?(newLimit: number, oldLimit: number, trait: R): void;
 
-  dialTraitWillSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
+  dialTraitWillSetLabel?(newLabel: DialLabel | null, oldLabel: DialLabel | null, trait: R): void;
 
-  dialTraitDidSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
+  dialTraitDidSetLabel?(newLabel: DialLabel | null, oldLabel: DialLabel | null, trait: R): void;
 
-  dialTraitWillSetLegend?(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, trait: R): void;
+  dialTraitWillSetLegend?(newLegend: DialLegend | null, oldLegend: DialLegend | null, trait: R): void;
 
-  dialTraitDidSetLegend?(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, trait: R): void;
+  dialTraitDidSetLegend?(newLegend: DialLegend | null, oldLegend: DialLegend | null, trait: R): void;
 }

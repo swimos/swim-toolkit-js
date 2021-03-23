@@ -13,14 +13,13 @@
 // limitations under the License.
 
 import type {Trait, TraitObserver} from "@swim/model";
-import type {GraphicsView} from "@swim/graphics";
 import type {SliceTrait} from "../slice/SliceTrait";
-import type {PieTrait} from "./PieTrait";
+import type {PieTitle, PieTrait} from "./PieTrait";
 
 export interface PieTraitObserver<R extends PieTrait = PieTrait> extends TraitObserver<R> {
-  pieTraitWillSetTitle?(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, trait: R): void;
+  pieTraitWillSetTitle?(newTitle: PieTitle | null, oldTitle: PieTitle | null, trait: R): void;
 
-  pieTraitDidSetTitle?(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, trait: R): void;
+  pieTraitDidSetTitle?(newTitle: PieTitle | null, oldTitle: PieTitle | null, trait: R): void;
 
   pieTraitWillSetSlice?(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null, targetTrait: Trait | null, trait: R): void;
 

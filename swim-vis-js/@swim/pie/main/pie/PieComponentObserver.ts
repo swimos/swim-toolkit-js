@@ -46,9 +46,9 @@ export interface PieComponentObserver<C extends PieComponent = PieComponent> ext
 
   pieDidSetSliceView?(newSliceView: SliceView | null, oldSliceView: SliceView | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
 
-  pieWillSetSliceValue?(newValue: number, oldValue: number, sliceFastener: ComponentFastener<C, SliceComponent>): void;
+  pieWillSetSliceViewValue?(newValue: number, oldValue: number, sliceFastener: ComponentFastener<C, SliceComponent>): void;
 
-  pieDidSetSliceValue?(newValue: number, oldValue: number, sliceFastener: ComponentFastener<C, SliceComponent>): void;
+  pieDidSetSliceViewValue?(newValue: number, oldValue: number, sliceFastener: ComponentFastener<C, SliceComponent>): void;
 
   pieWillSetSliceLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, sliceFastener: ComponentFastener<C, SliceComponent>): void;
 

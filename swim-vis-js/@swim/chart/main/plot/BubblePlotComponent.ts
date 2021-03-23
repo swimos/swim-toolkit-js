@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Timing} from "@swim/mapping";
+import {AnyTiming, Timing} from "@swim/mapping";
 import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
@@ -54,8 +54,8 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
   protected attachPlotTrait(plotTrait: BubblePlotTrait<X, Y>): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
-      this.setPlotRadius(plotTrait.radius);
-      this.setPlotFill(plotTrait.fill);
+      this.setPlotViewRadius(plotTrait.radius, plotTrait);
+      this.setPlotViewFill(plotTrait.fill, plotTrait);
     }
   }
 
@@ -93,6 +93,14 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
     }
   }
 
+  protected onSetPlotTraitRadius(newRadius: Length | null, oldRadius: Length | null, plotTrait: BubblePlotTrait<X, Y>): void {
+    this.setPlotViewRadius(newRadius, plotTrait);
+  }
+
+  protected onSetPlotTraitFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: BubblePlotTrait<X, Y>): void {
+    this.setPlotViewFill(newFill, plotTrait);
+  }
+
   protected createPlotView(): BubblePlotView<X, Y> {
     return BubblePlotView.create<X, Y>();
   }
@@ -108,8 +116,8 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
   protected attachPlotView(plotView: BubblePlotView<X, Y>): void {
     const plotTrait = this.plot.trait;
     if (plotTrait !== null) {
-      this.setPlotRadius(plotTrait.radius);
-      this.setPlotFill(plotTrait.fill);
+      this.setPlotViewRadius(plotTrait.radius, plotTrait);
+      this.setPlotViewFill(plotTrait.fill, plotTrait);
     }
 
     const dataPointFasteners = this.dataPointFasteners;
@@ -155,28 +163,35 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
     }
   }
 
-  protected setPlotFill(fill: Look<Color> | Color | null): void {
+  protected setPlotViewFill(fill: Look<Color> | Color | null, plotTrait: BubblePlotTrait<X, Y>, timing?: AnyTiming | boolean): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
-      let timing = this.plotTiming.state;
-      if (timing === true) {
-        timing = plotView.getLook(Look.timing, Mood.ambient);
+      if (timing === void 0 || timing === true) {
+        timing = this.plotTiming.state;
+        if (timing === true) {
+          timing = plotView.getLook(Look.timing, Mood.ambient);
+        }
+      } else {
+        timing = Timing.fromAny(timing);
       }
       if (fill instanceof Look) {
         plotView.fill.setLook(fill, timing);
       } else {
-        plotView.fill.setLook(null);
         plotView.fill.setAutoState(fill, timing);
       }
     }
   }
 
-  protected setPlotRadius(radius: Length | null): void {
+  protected setPlotViewRadius(radius: Length | null, plotTrait: BubblePlotTrait<X, Y>, timing?: AnyTiming | boolean): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
-      let timing = this.plotTiming.state;
-      if (timing === true) {
-        timing = plotView.getLook(Look.timing, Mood.ambient);
+      if (timing === void 0 || timing === true) {
+        timing = this.plotTiming.state;
+        if (timing === true) {
+          timing = plotView.getLook(Look.timing, Mood.ambient);
+        }
+      } else {
+        timing = Timing.fromAny(timing);
       }
       plotView.radius.setAutoState(radius, timing);
     }
@@ -212,11 +227,11 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
     didSetTrait(newPlotTrait: BubblePlotTrait<unknown, unknown> | null, oldPlotTrait: BubblePlotTrait<unknown, unknown> | null): void {
       this.owner.didSetPlotTrait(newPlotTrait, oldPlotTrait);
     },
-    bubblePlotTraitDidSetRadius(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
-      this.owner.setPlotRadius(newStrokeWidth);
+    bubblePlotTraitDidSetRadius(newRadius: Length | null, oldRadius: Length | null, plotTrait: BubblePlotTrait<unknown, unknown>): void {
+      this.owner.onSetPlotTraitRadius(newRadius, oldRadius, plotTrait);
     },
-    bubblePlotTraitDidSetFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null): void {
-      this.owner.setPlotFill(newFill);
+    bubblePlotTraitDidSetFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: BubblePlotTrait<unknown, unknown>): void {
+      this.owner.onSetPlotTraitFill(newFill, oldFill, plotTrait);
     },
   });
 

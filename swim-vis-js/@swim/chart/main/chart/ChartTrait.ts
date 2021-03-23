@@ -77,12 +77,6 @@ export class ChartTrait<X, Y> extends GenericTrait {
       this.owner.willSetGraph(newGraphTrait, oldGraphTrait, targetTrait);
     },
     onSetTrait(newGraphTrait: GraphTrait<X, Y> | null, oldGraphTrait: GraphTrait<X, Y> | null, targetTrait: Trait | null): void {
-      if (oldGraphTrait !== null) {
-        this.owner.detachGraph(oldGraphTrait);
-      }
-      if (newGraphTrait !== null) {
-        this.owner.attachGraph(newGraphTrait);
-      }
       this.owner.onSetGraph(newGraphTrait, oldGraphTrait, targetTrait);
     },
     didSetTrait(newGraphTrait: GraphTrait<X, Y> | null, oldGraphTrait: GraphTrait<X, Y> | null, targetTrait: Trait | null): void {

@@ -700,27 +700,27 @@ export class GraphComponent<X, Y> extends CompositeComponent {
     }
   }
 
-  protected onSetDataPointX(newX: X | undefined, oldX: X | undefined,
-                            dataPointFastener: ComponentFastener<PlotComponent<X, Y>, DataPointComponent<X, Y>>,
-                            plotFastener: ComponentFastener<this, PlotComponent<X, Y>>): void {
+  protected onSetDataPointViewX(newX: X | undefined, oldX: X | undefined,
+                                dataPointFastener: ComponentFastener<PlotComponent<X, Y>, DataPointComponent<X, Y>>,
+                                plotFastener: ComponentFastener<this, PlotComponent<X, Y>>): void {
     // hook
   }
 
-  protected onSetDataPointY(newY: Y | undefined, oldY: Y | undefined,
-                            dataPointFastener: ComponentFastener<PlotComponent<X, Y>, DataPointComponent<X, Y>>,
-                            plotFastener: ComponentFastener<this, PlotComponent<X, Y>>): void {
+  protected onSetDataPointViewY(newY: Y | undefined, oldY: Y | undefined,
+                                dataPointFastener: ComponentFastener<PlotComponent<X, Y>, DataPointComponent<X, Y>>,
+                                plotFastener: ComponentFastener<this, PlotComponent<X, Y>>): void {
     // hook
   }
 
-  protected onSetDataPointY2(newY2: Y | undefined, oldY2: Y | undefined,
-                             dataPointFastener: ComponentFastener<PlotComponent<X, Y>, DataPointComponent<X, Y>>,
-                             plotFastener: ComponentFastener<this, PlotComponent<X, Y>>): void {
-    // hook
-  }
-
-  protected onSetDataPointRadius(newRadius: Length | null, oldRadius: Length | null,
+  protected onSetDataPointViewY2(newY2: Y | undefined, oldY2: Y | undefined,
                                  dataPointFastener: ComponentFastener<PlotComponent<X, Y>, DataPointComponent<X, Y>>,
                                  plotFastener: ComponentFastener<this, PlotComponent<X, Y>>): void {
+    // hook
+  }
+
+  protected onSetDataPointViewRadius(newRadius: Length | null, oldRadius: Length | null,
+                                     dataPointFastener: ComponentFastener<PlotComponent<X, Y>, DataPointComponent<X, Y>>,
+                                     plotFastener: ComponentFastener<this, PlotComponent<X, Y>>): void {
     // hook
   }
 
@@ -840,21 +840,21 @@ export class GraphComponent<X, Y> extends CompositeComponent {
       this.owner.onSetDataPointView(newDataPointView, oldDataPointView, dataPointFastener, this);
       this.owner.didSetDataPointView(newDataPointView, oldDataPointView, dataPointFastener, this);
     },
-    dataSetDidSetDataPointX(newX: unknown | undefined, oldX: unknown | undefined,
-                            dataPointFastener: ComponentFastener<PlotComponent<unknown, unknown>, DataPointComponent<unknown, unknown>>): void {
-      this.owner.onSetDataPointX(newX, oldX, dataPointFastener, this);
+    dataSetDidSetDataPointViewX(newX: unknown | undefined, oldX: unknown | undefined,
+                                dataPointFastener: ComponentFastener<PlotComponent<unknown, unknown>, DataPointComponent<unknown, unknown>>): void {
+      this.owner.onSetDataPointViewX(newX, oldX, dataPointFastener, this);
     },
-    dataSetDidSetDataPointY(newY: unknown | undefined, oldY: unknown | undefined,
-                            dataPointFastener: ComponentFastener<PlotComponent<unknown, unknown>, DataPointComponent<unknown, unknown>>): void {
-      this.owner.onSetDataPointY(newY, oldY, dataPointFastener, this);
+    dataSetDidSetDataPointViewY(newY: unknown | undefined, oldY: unknown | undefined,
+                                dataPointFastener: ComponentFastener<PlotComponent<unknown, unknown>, DataPointComponent<unknown, unknown>>): void {
+      this.owner.onSetDataPointViewY(newY, oldY, dataPointFastener, this);
     },
-    dataSetDidSetDataPointY2(newY2: unknown | undefined, oldY2: unknown | undefined,
-                             dataPointFastener: ComponentFastener<PlotComponent<unknown, unknown>, DataPointComponent<unknown, unknown>>): void {
-      this.owner.onSetDataPointY2(newY2, oldY2, dataPointFastener, this);
-    },
-    dataSetDidSetDataPointRadius(newRadius: Length | null, oldRadius: Length | null,
+    dataSetDidSetDataPointViewY2(newY2: unknown | undefined, oldY2: unknown | undefined,
                                  dataPointFastener: ComponentFastener<PlotComponent<unknown, unknown>, DataPointComponent<unknown, unknown>>): void {
-      this.owner.onSetDataPointRadius(newRadius, oldRadius, dataPointFastener, this);
+      this.owner.onSetDataPointViewY2(newY2, oldY2, dataPointFastener, this);
+    },
+    dataSetDidSetDataPointViewRadius(newRadius: Length | null, oldRadius: Length | null,
+                                     dataPointFastener: ComponentFastener<PlotComponent<unknown, unknown>, DataPointComponent<unknown, unknown>>): void {
+      this.owner.onSetDataPointViewRadius(newRadius, oldRadius, dataPointFastener, this);
     },
     dataSetWillSetDataPointLabelView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null,
                                      dataPointFastener: ComponentFastener<PlotComponent<unknown, unknown>, DataPointComponent<unknown, unknown>>): void {

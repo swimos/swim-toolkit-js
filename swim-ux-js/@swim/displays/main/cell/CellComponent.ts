@@ -17,13 +17,13 @@ import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import type {HtmlView} from "@swim/dom";
 import {ComponentView, ComponentViewTrait, CompositeComponent} from "@swim/component";
 import {CellView} from "./CellView";
-import {CellTrait} from "./CellTrait";
+import {CellContent, CellTrait} from "./CellTrait";
 import type {CellComponentObserver} from "./CellComponentObserver";
 
 export class CellComponent extends CompositeComponent {
   declare readonly componentObservers: ReadonlyArray<CellComponentObserver>;
 
-  setContent(content: HtmlView | string | undefined): void {
+  setContent(content: CellContent | null): void {
     const cellTrait = this.cell.trait;
     if (cellTrait !== null) {
       cellTrait.setContent(content);
@@ -37,14 +37,14 @@ export class CellComponent extends CompositeComponent {
   protected attachCellTrait(cellTrait: CellTrait): void {
     const cellView = this.cell.view;
     if (cellView !== null) {
-      this.setCellContent(cellTrait.content);
+      this.setCellContentView(cellTrait.content, cellTrait);
     }
   }
 
   protected detachCellTrait(cellTrait: CellTrait): void {
     const cellView = this.cell.view;
     if (cellView !== null) {
-      this.setCellContent(void 0);
+      this.setCellContentView(null, cellTrait);
     }
   }
 
@@ -78,6 +78,10 @@ export class CellComponent extends CompositeComponent {
     }
   }
 
+  protected onSetCellTraitContent(newContent: CellContent | null, oldLabel: CellContent | null, cellTrait: CellTrait): void {
+    this.setCellContentView(newContent, cellTrait);
+  }
+
   protected createCellView(): CellView {
     return CellView.create();
   }
@@ -95,7 +99,7 @@ export class CellComponent extends CompositeComponent {
 
     const cellTrait = this.cell.trait;
     if (cellTrait !== null) {
-      this.setCellContent(cellTrait.content);
+      this.setCellContentView(cellTrait.content, cellTrait);
     }
   }
 
@@ -133,11 +137,21 @@ export class CellComponent extends CompositeComponent {
     }
   }
 
-  protected setCellContent(content: HtmlView | string | undefined): void {
+  protected createCellContentView(content: CellContent, cellTrait: CellTrait): HtmlView | string | null {
+    if (typeof content === "function") {
+      return content(cellTrait);
+    } else {
+      return content;
+    }
+  }
+
+  protected setCellContentView(content: CellContent | null, cellTrait: CellTrait): void {
     const cellView = this.cell.view;
     if (cellView !== null) {
-      cellView.content.setView(content !== void 0 ? content : null);
+      const contentView = content !== null ? this.createCellContentView(content, cellTrait) : null;
+      cellView.content.setView(contentView);
     }
+
   }
 
   protected initCellContentView(contentView: HtmlView): void {
@@ -195,14 +209,11 @@ export class CellComponent extends CompositeComponent {
     didSetView(newCellView: CellView | null, oldCellView: CellView | null): void {
       this.owner.didSetCellView(newCellView, oldCellView);
     },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector,
-                      timing: Timing | boolean, cellView: CellView): void {
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, cellView: CellView): void {
       this.owner.themeCellView(cellView, theme, mood, timing);
     },
     cellViewDidSetContent(newContentView: HtmlView | null, oldContentView: HtmlView | null): void {
-      if (newContentView !== null) {
-        this.owner.content.setView(newContentView);
-      }
+      this.owner.content.setView(newContentView);
     },
     createView(): CellView | null {
       return this.owner.createCellView();
@@ -218,8 +229,8 @@ export class CellComponent extends CompositeComponent {
     didSetTrait(newCellTrait: CellTrait | null, oldCellTrait: CellTrait | null): void {
       this.owner.didSetCellTrait(newCellTrait, oldCellTrait);
     },
-    cellTraitDidSetContent(newContent: HtmlView | string | undefined, oldContent: HtmlView | string | undefined): void {
-      this.owner.setCellContent(newContent);
+    cellTraitDidSetContent(newContent: CellContent | null, oldContent: CellContent | null, cellTrait: CellTrait): void {
+      this.owner.onSetCellTraitContent(newContent, oldContent, cellTrait);
     },
   });
 

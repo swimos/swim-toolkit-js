@@ -13,16 +13,15 @@
 // limitations under the License.
 
 import type {TraitObserver} from "@swim/model";
-import type {HtmlView} from "@swim/dom";
 import type {ColLayout} from "../layout/ColLayout";
-import type {ColTrait} from "./ColTrait";
+import type {ColHeader, ColTrait} from "./ColTrait";
 
 export interface ColTraitObserver<R extends ColTrait = ColTrait> extends TraitObserver<R> {
   colTraitWillSetLayout?(newLayout: ColLayout | null, oldLayout: ColLayout | null, trait: R): void;
 
   colTraitDidSetLayout?(newLayout: ColLayout | null, oldLayout: ColLayout | null, trait: R): void;
 
-  colTraitWillSetHeader?(newHeader: HtmlView | string | undefined, oldHeader: HtmlView | string | undefined, trait: R): void;
+  colTraitWillSetHeader?(newHeader: ColHeader | null, oldHeader: ColHeader | null, trait: R): void;
 
-  colTraitDidSetHeader?(newHeader: HtmlView | string | undefined, oldHeader: HtmlView | string | undefined, trait: R): void;
+  colTraitDidSetHeader?(newHeader: ColHeader | null, oldHeader: ColHeader | null, trait: R): void;
 }

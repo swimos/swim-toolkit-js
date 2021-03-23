@@ -15,7 +15,11 @@
 export {CellView} from "./CellView";
 export {CellViewObserver} from "./CellViewObserver";
 
-export {CellTrait} from "./CellTrait";
+export {
+  CellContent,
+  CellContentFunction,
+  CellTrait,
+} from "./CellTrait";
 export {CellTraitObserver} from "./CellTraitObserver";
 
 export {CellComponent} from "./CellComponent";

@@ -28,21 +28,21 @@ export interface DataPointComponentObserver<X, Y, C extends DataPointComponent<X
 
   dataPointDidSetView?(newDataPointView: DataPointView<X, Y> | null, oldDataPointVIew: DataPointView<X, Y> | null, component: C): void;
 
-  dataPointWillSetX?(newX: X | undefined, oldX: X | undefined, component: C): void;
+  dataPointWillSetViewX?(newX: X | undefined, oldX: X | undefined, component: C): void;
 
-  dataPointDidSetX?(newX: X | undefined, oldX: X | undefined, component: C): void;
+  dataPointDidSetViewX?(newX: X | undefined, oldX: X | undefined, component: C): void;
 
-  dataPointWillSetY?(newY: Y | undefined, oldY: Y | undefined, component: C): void;
+  dataPointWillSetViewY?(newY: Y | undefined, oldY: Y | undefined, component: C): void;
 
-  dataPointDidSetY?(newY: Y | undefined, oldY: Y | undefined, component: C): void;
+  dataPointDidSetViewY?(newY: Y | undefined, oldY: Y | undefined, component: C): void;
 
-  dataPointWillSetY2?(newY2: Y | undefined, oldY2: Y | undefined, component: C): void;
+  dataPointWillSetViewY2?(newY2: Y | undefined, oldY2: Y | undefined, component: C): void;
 
-  dataPointDidSetY2?(newY2: Y | undefined, oldY2: Y | undefined, component: C): void;
+  dataPointDidSetViewY2?(newY2: Y | undefined, oldY2: Y | undefined, component: C): void;
 
-  dataPointWillSetRadius?(newRadius: Length | null, oldRadius: Length | null, component: C): void;
+  dataPointWillSetViewRadius?(newRadius: Length | null, oldRadius: Length | null, component: C): void;
 
-  dataPointDidSetRadius?(newRadius: Length | null, oldRadius: Length | null, component: C): void;
+  dataPointDidSetViewRadius?(newRadius: Length | null, oldRadius: Length | null, component: C): void;
 
   dataPointWillSetLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, component: C): void;
 

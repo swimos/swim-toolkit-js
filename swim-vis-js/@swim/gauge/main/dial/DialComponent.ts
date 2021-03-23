@@ -22,7 +22,7 @@ import {
   CompositeComponent,
 } from "@swim/component";
 import {DialView} from "./DialView";
-import {DialTrait} from "./DialTrait";
+import {DialLabel, DialLegend, DialTrait} from "./DialTrait";
 import type {DialComponentObserver} from "./DialComponentObserver";
 
 export class DialComponent extends CompositeComponent {
@@ -47,14 +47,14 @@ export class DialComponent extends CompositeComponent {
     }
   }
 
-  setLabel(label: GraphicsView | string | undefined): void {
+  setLabel(label: DialLabel | null): void {
     const dialTrait = this.dial.trait;
     if (dialTrait !== null) {
       dialTrait.setLabel(label);
     }
   }
 
-  setLegend(label: GraphicsView | string | undefined): void {
+  setLegend(label: DialLegend | null): void {
     const dialTrait = this.dial.trait;
     if (dialTrait !== null) {
       dialTrait.setLegend(label);
@@ -68,10 +68,10 @@ export class DialComponent extends CompositeComponent {
   protected attachDialTrait(dialTrait: DialTrait): void {
     const dialView = this.dial.view;
     if (dialView !== null) {
-      this.setDialValue(dialTrait.value);
-      this.setDialLimit(dialTrait.limit);
-      this.setDialLabel(dialTrait.label);
-      this.setDialLegend(dialTrait.legend);
+      this.setDialViewValue(dialTrait.value, dialTrait);
+      this.setDialViewLimit(dialTrait.limit, dialTrait);
+      this.setDialLabelView(dialTrait.label, dialTrait);
+      this.setDialLegendView(dialTrait.legend, dialTrait);
     }
   }
 
@@ -109,18 +109,51 @@ export class DialComponent extends CompositeComponent {
     }
   }
 
+  protected onSetDialTraitValue(newValue: number, oldValue: number, dialTrait: DialTrait): void {
+    this.setDialViewValue(newValue, dialTrait);
+  }
+
+  protected onSetDialTraitLimit(newLimit: number, oldLimit: number, dialTrait: DialTrait): void {
+    this.setDialViewLimit(newLimit, dialTrait);
+  }
+
+  protected updateDialTraitLabel(value: number, limit: number, dialTrait: DialTrait): void {
+    const label = dialTrait.formatLabel(value, limit);
+    if (label !== void 0) {
+      dialTrait.setLabel(label);
+    }
+  }
+
+  protected onSetDialTraitLabel(newLabel: DialLabel | null, oldLabel: DialLabel | null, dialTrait: DialTrait): void {
+    this.setDialLabelView(newLabel, dialTrait);
+  }
+
+  protected updateDialTraitLegend(value: number, limit: number, dialTrait: DialTrait): void {
+    const legend = dialTrait.formatLegend(value, limit);
+    if (legend !== void 0) {
+      dialTrait.setLegend(legend);
+    }
+  }
+
+  protected onSetDialTraitLegend(newLegend: DialLegend | null, oldLegend: DialLegend | null, dialTrait: DialTrait): void {
+    this.setDialLegendView(newLegend, dialTrait);
+  }
+
   protected createDialView(): DialView {
     return DialView.create();
   }
 
   protected initDialView(dialView: DialView): void {
-    this.updateDialValue(dialView.value.value, dialView.limit.value, dialView);
     const dialTrait = this.dial.trait;
     if (dialTrait !== null) {
-      this.setDialValue(dialTrait.value);
-      this.setDialLimit(dialTrait.limit);
-      this.setDialLabel(dialTrait.label);
-      this.setDialLegend(dialTrait.legend);
+      const value = dialView.value.value;
+      const limit = dialView.limit.value;
+      this.updateDialTraitLabel(value, limit, dialTrait);
+      this.updateDialTraitLegend(value, limit, dialTrait);
+      this.setDialViewValue(dialTrait.value, dialTrait);
+      this.setDialViewLimit(dialTrait.limit, dialTrait);
+      this.setDialLabelView(dialTrait.label, dialTrait);
+      this.setDialLegendView(dialTrait.legend, dialTrait);
     }
   }
 
@@ -168,94 +201,107 @@ export class DialComponent extends CompositeComponent {
     }
   }
 
-  protected setDialValue(value: number): void {
+  protected setDialViewValue(value: number, dialTrait: DialTrait, timing?: AnyTiming | boolean): void {
     const dialView = this.dial.view;
-    if (dialView !== null) {
-      let timing = this.dialTiming.state;
-      if (timing === true) {
-        timing = dialView.getLook(Look.timing, Mood.ambient);
+    if (dialView !== null && dialView.value.isAuto()) {
+      if (timing === void 0 || timing === true) {
+        timing = this.dialTiming.state;
+        if (timing === true) {
+          timing = dialView.getLook(Look.timing, Mood.ambient);
+        }
+      } else {
+        timing = Timing.fromAny(timing);
       }
       dialView.value.setAutoState(value, timing);
     }
   }
 
-  protected setDialLimit(limit: number): void {
+  protected willSetDialViewValue(newValue: number, oldValue: number, dialView: DialView): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.dialWillSetViewValue !== void 0) {
+        componentObserver.dialWillSetViewValue(newValue, oldValue, this);
+      }
+    }
+  }
+
+  protected onSetDialViewValue(newValue: number, oldValue: number, dialView: DialView): void {
+    const dialTrait = this.dial.trait;
+    if (dialTrait !== null) {
+      const limit = dialView.limit.value;
+      this.updateDialTraitLabel(newValue, limit, dialTrait);
+      this.updateDialTraitLegend(newValue, limit, dialTrait);
+    }
+  }
+
+  protected didSetDialViewValue(newValue: number, oldValue: number, dialView: DialView): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.dialDidSetViewValue !== void 0) {
+        componentObserver.dialDidSetViewValue(newValue, oldValue, this);
+      }
+    }
+  }
+
+  protected setDialViewLimit(limit: number, dialTrait: DialTrait, timing?: AnyTiming | boolean): void {
     const dialView = this.dial.view;
-    if (dialView !== null) {
-      let timing = this.dialTiming.state;
-      if (timing === true) {
-        timing = dialView.getLook(Look.timing, Mood.ambient);
+    if (dialView !== null && dialView.limit.isAuto()) {
+      if (timing === void 0 || timing === true) {
+        timing = this.dialTiming.state;
+        if (timing === true) {
+          timing = dialView.getLook(Look.timing, Mood.ambient);
+        }
+      } else {
+        timing = Timing.fromAny(timing);
       }
       dialView.limit.setAutoState(limit, timing);
     }
   }
 
-  protected updateDialValue(value: number, limit: number, dialView: DialView): void {
+  protected willSetDialViewLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.dialWillSetViewLimit !== void 0) {
+        componentObserver.dialWillSetViewLimit(newLimit, oldLimit, this);
+      }
+    }
+  }
+
+  protected onSetDialViewLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
     const dialTrait = this.dial.trait;
     if (dialTrait !== null) {
-      const label = dialTrait.formatLabel(value, limit);
-      if (label !== void 0) {
-        dialTrait.setLabel(label);
-      }
-      const legend = dialTrait.formatLegend(value, limit);
-      if (legend !== void 0) {
-        dialTrait.setLegend(legend);
-      }
+      const value = dialView.value.value;
+      this.updateDialTraitLabel(value, newLimit, dialTrait);
+      this.updateDialTraitLegend(value, newLimit, dialTrait);
     }
   }
 
-  protected willSetDialValue(newValue: number, oldValue: number, dialView: DialView): void {
+  protected didSetDialViewLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.dialWillSetValue !== void 0) {
-        componentObserver.dialWillSetValue(newValue, oldValue, this);
+      if (componentObserver.dialDidSetViewLimit !== void 0) {
+        componentObserver.dialDidSetViewLimit(newLimit, oldLimit, this);
       }
     }
   }
 
-  protected onSetDialValue(newValue: number, oldValue: number, dialView: DialView): void {
-    this.updateDialValue(newValue, dialView.limit.value, dialView);
-  }
-
-  protected didSetDialValue(newValue: number, oldValue: number, dialView: DialView): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.dialDidSetValue !== void 0) {
-        componentObserver.dialDidSetValue(newValue, oldValue, this);
-      }
+  protected createDialLabelView(label: DialLabel, dialTrait: DialTrait): GraphicsView | string | null {
+    if (typeof label === "function") {
+      return label(dialTrait);
+    } else {
+      return label;
     }
   }
 
-  protected willSetDialLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.dialWillSetLimit !== void 0) {
-        componentObserver.dialWillSetLimit(newLimit, oldLimit, this);
-      }
-    }
-  }
-
-  protected onSetDialLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
-    this.updateDialValue(dialView.value.value, newLimit, dialView);
-  }
-
-  protected didSetDialLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.dialDidSetLimit !== void 0) {
-        componentObserver.dialDidSetLimit(newLimit, oldLimit, this);
-      }
-    }
-  }
-
-  protected setDialLabel(label: GraphicsView | string | undefined): void {
+  protected setDialLabelView(label: DialLabel | null, dialTrait: DialTrait): void {
     const dialView = this.dial.view;
     if (dialView !== null) {
-      dialView.label.setView(label !== void 0 ? label : null);
+      const labelView = label !== null ? this.createDialLabelView(label, dialTrait) : null;
+      dialView.label.setView(labelView);
     }
   }
 
@@ -301,10 +347,19 @@ export class DialComponent extends CompositeComponent {
     }
   }
 
-  protected setDialLegend(legend: GraphicsView | string | undefined): void {
+  protected createDialLegendView(legend: DialLegend, dialTrait: DialTrait): GraphicsView | string | null {
+    if (typeof legend === "function") {
+      return legend(dialTrait);
+    } else {
+      return legend;
+    }
+  }
+
+  protected setDialLegendView(legend: DialLegend | null, dialTrait: DialTrait): void {
     const dialView = this.dial.view;
     if (dialView !== null) {
-      dialView.legend.setView(legend !== void 0 ? legend : null);
+      const legendView = legend !== null ? this.createDialLegendView(legend, dialTrait) : null;
+      dialView.legend.setView(legendView);
     }
   }
 
@@ -370,18 +425,18 @@ export class DialComponent extends CompositeComponent {
       this.owner.themeDialView(dialView, theme, mood, timing);
     },
     dialViewWillSetValue(newValue: number, oldValue: number, dialView: DialView): void {
-      this.owner.willSetDialValue(newValue, oldValue, dialView);
+      this.owner.willSetDialViewValue(newValue, oldValue, dialView);
     },
     dialViewDidSetValue(newValue: number, oldValue: number, dialView: DialView): void {
-      this.owner.onSetDialValue(newValue, oldValue, dialView);
-      this.owner.didSetDialValue(newValue, oldValue, dialView);
+      this.owner.onSetDialViewValue(newValue, oldValue, dialView);
+      this.owner.didSetDialViewValue(newValue, oldValue, dialView);
     },
     dialViewWillSetLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
-      this.owner.willSetDialLimit(newLimit, oldLimit, dialView);
+      this.owner.willSetDialViewLimit(newLimit, oldLimit, dialView);
     },
     dialViewDidSetLimit(newLimit: number, oldLimit: number, dialView: DialView): void {
-      this.owner.onSetDialLimit(newLimit, oldLimit, dialView);
-      this.owner.didSetDialLimit(newLimit, oldLimit, dialView);
+      this.owner.onSetDialViewLimit(newLimit, oldLimit, dialView);
+      this.owner.didSetDialViewLimit(newLimit, oldLimit, dialView);
     },
     dialViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
       this.owner.label.setView(newLabelView);
@@ -403,17 +458,17 @@ export class DialComponent extends CompositeComponent {
     didSetTrait(newDialTrait: DialTrait | null, oldDialTrait: DialTrait | null): void {
       this.owner.didSetDialTrait(newDialTrait, oldDialTrait);
     },
-    dialTraitDidSetValue(newValue: number, oldValue: number): void {
-      this.owner.setDialValue(newValue);
+    dialTraitDidSetValue(newValue: number, oldValue: number, dialTrait: DialTrait): void {
+      this.owner.onSetDialTraitValue(newValue, oldValue, dialTrait);
     },
-    dialTraitDidSetLimit(newLimit: number, oldLimit: number): void {
-      this.owner.setDialLimit(newLimit);
+    dialTraitDidSetLimit(newLimit: number, oldLimit: number, dialTrait: DialTrait): void {
+      this.owner.onSetDialTraitLimit(newLimit, oldLimit, dialTrait);
     },
-    dialTraitDidSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
-      this.owner.setDialLabel(newLabel);
+    dialTraitDidSetLabel(newLabel: DialLabel | null, oldLabel: DialLabel | null, dialTrait: DialTrait): void {
+      this.owner.onSetDialTraitLabel(newLabel, oldLabel, dialTrait);
     },
-    dialTraitDidSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined): void {
-      this.owner.setDialLegend(newLegend);
+    dialTraitDidSetLegend(newLegend: DialLegend | null, oldLegend: DialLegend | null, dialTrait: DialTrait): void {
+      this.owner.onSetDialTraitLegend(newLegend, oldLegend, dialTrait);
     },
   });
 

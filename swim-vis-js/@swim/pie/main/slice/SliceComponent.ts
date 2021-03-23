@@ -22,7 +22,7 @@ import {
   CompositeComponent,
 } from "@swim/component";
 import {SliceView} from "./SliceView";
-import {SliceTrait} from "./SliceTrait";
+import {SliceLabel, SliceLegend, SliceTrait} from "./SliceTrait";
 import type {SliceComponentObserver} from "./SliceComponentObserver";
 
 export class SliceComponent extends CompositeComponent {
@@ -40,14 +40,14 @@ export class SliceComponent extends CompositeComponent {
     }
   }
 
-  setLabel(label: GraphicsView | string | undefined): void {
+  setLabel(label: SliceLabel | null): void {
     const sliceTrait = this.slice.trait;
     if (sliceTrait !== null) {
       sliceTrait.setLabel(label);
     }
   }
 
-  setLegend(label: GraphicsView | string | undefined): void {
+  setLegend(label: SliceLegend | null): void {
     const sliceTrait = this.slice.trait;
     if (sliceTrait !== null) {
       sliceTrait.setLegend(label);
@@ -61,9 +61,9 @@ export class SliceComponent extends CompositeComponent {
   protected attachSliceTrait(sliceTrait: SliceTrait): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
-      this.setSliceValue(sliceTrait.value);
-      this.setSliceLabel(sliceTrait.label);
-      this.setSliceLegend(sliceTrait.legend);
+      this.setSliceViewValue(sliceTrait.value, sliceTrait);
+      this.setSliceLabelView(sliceTrait.label, sliceTrait);
+      this.setSliceLegendView(sliceTrait.legend, sliceTrait);
     }
   }
 
@@ -101,17 +101,46 @@ export class SliceComponent extends CompositeComponent {
     }
   }
 
+  protected onSetSliceTraitValue(newValue: number, oldValue: number, sliceTrait: SliceTrait): void {
+    this.setSliceViewValue(newValue, sliceTrait);
+  }
+
+  protected updateSliceTraitLabel(value: number, sliceTrait: SliceTrait): void {
+    const label = sliceTrait.formatLabel(value);
+    if (label !== void 0) {
+      sliceTrait.setLabel(label);
+    }
+  }
+
+  protected onSetSliceTraitLabel(newLabel: SliceLabel | null, oldLabel: SliceLabel | null, sliceTrait: SliceTrait): void {
+    this.setSliceLabelView(newLabel, sliceTrait);
+  }
+
+  protected updateSliceTraitLegend(value: number, sliceTrait: SliceTrait): void {
+    const legend = sliceTrait.formatLegend(value);
+    if (legend !== void 0) {
+      sliceTrait.setLegend(legend);
+    }
+  }
+
+  protected onSetSliceTraitLegend(newLegend: SliceLabel | null, oldLegend: SliceLabel | null, sliceTrait: SliceTrait): void {
+    this.setSliceLegendView(newLegend, sliceTrait);
+  }
+
   protected createSliceView(): SliceView {
     return SliceView.create();
   }
 
   protected initSliceView(sliceView: SliceView): void {
-    this.updateSliceValue(sliceView.value.value, sliceView);
+    const value = sliceView.value.value;
+    sliceView.setHidden(value === 0);
     const sliceTrait = this.slice.trait;
     if (sliceTrait !== null) {
-      this.setSliceValue(sliceTrait.value);
-      this.setSliceLabel(sliceTrait.label);
-      this.setSliceLegend(sliceTrait.legend);
+      this.updateSliceTraitLabel(value, sliceTrait);
+      this.updateSliceTraitLegend(value, sliceTrait);
+      this.setSliceViewValue(sliceTrait.value, sliceTrait);
+      this.setSliceLabelView(sliceTrait.label, sliceTrait);
+      this.setSliceLegendView(sliceTrait.legend, sliceTrait);
     }
   }
 
@@ -159,9 +188,9 @@ export class SliceComponent extends CompositeComponent {
     }
   }
 
-  setSliceValue(value: number, timing?: AnyTiming | boolean): void {
+  protected setSliceViewValue(value: number, sliceTrait: SliceTrait, timing?: AnyTiming | boolean): void {
     const sliceView = this.slice.view;
-    if (sliceView !== null) {
+    if (sliceView !== null && sliceView.value.isAuto()) {
       if (timing === void 0 || timing === true) {
         timing = this.sliceTiming.state;
         if (timing === true) {
@@ -174,49 +203,48 @@ export class SliceComponent extends CompositeComponent {
     }
   }
 
-  protected updateSliceValue(value: number, sliceView: SliceView): void {
+  protected willSetSliceViewValue(newValue: number, oldValue: number, sliceView: SliceView): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.sliceWillSetViewValue !== void 0) {
+        componentObserver.sliceWillSetViewValue(newValue, oldValue, this);
+      }
+    }
+  }
+
+  protected onSetSliceViewValue(newValue: number, oldValue: number, sliceView: SliceView): void {
+    sliceView.setHidden(newValue === 0);
     const sliceTrait = this.slice.trait;
     if (sliceTrait !== null) {
-      const label = sliceTrait.formatLabel(value);
-      if (label !== void 0) {
-        sliceTrait.setLabel(label);
-      }
-      const legend = sliceTrait.formatLegend(value);
-      if (legend !== void 0) {
-        sliceTrait.setLegend(legend);
-      }
-      sliceView.setHidden(value === 0);
+      this.updateSliceTraitLabel(newValue, sliceTrait);
+      this.updateSliceTraitLegend(newValue, sliceTrait);
     }
   }
 
-  protected willSetSliceValue(newValue: number, oldValue: number, sliceView: SliceView): void {
+  protected didSetSliceViewValue(newValue: number, oldValue: number, sliceView: SliceView): void {
     const componentObservers = this.componentObservers;
     for (let i = 0, n = componentObservers.length; i < n; i += 1) {
       const componentObserver = componentObservers[i]!;
-      if (componentObserver.sliceWillSetValue !== void 0) {
-        componentObserver.sliceWillSetValue(newValue, oldValue, this);
+      if (componentObserver.sliceDidSetViewValue !== void 0) {
+        componentObserver.sliceDidSetViewValue(newValue, oldValue, this);
       }
     }
   }
 
-  protected onSetSliceValue(newValue: number, oldValue: number, sliceView: SliceView): void {
-    this.updateSliceValue(newValue, sliceView);
-  }
-
-  protected didSetSliceValue(newValue: number, oldValue: number, sliceView: SliceView): void {
-    const componentObservers = this.componentObservers;
-    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
-      const componentObserver = componentObservers[i]!;
-      if (componentObserver.sliceDidSetValue !== void 0) {
-        componentObserver.sliceDidSetValue(newValue, oldValue, this);
-      }
+  protected createSliceLabelView(label: SliceLabel, sliceTrait: SliceTrait): GraphicsView | string | null {
+    if (typeof label === "function") {
+      return label(sliceTrait);
+    } else {
+      return label;
     }
   }
 
-  setSliceLabel(label: GraphicsView | string | undefined): void {
+  protected setSliceLabelView(label: SliceLabel | null, sliceTrait: SliceTrait): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
-      sliceView.label.setView(label !== void 0 ? label : null);
+      const labelView = label !== null ? this.createSliceLabelView(label, sliceTrait) : null;
+      sliceView.label.setView(labelView);
     }
   }
 
@@ -262,10 +290,19 @@ export class SliceComponent extends CompositeComponent {
     }
   }
 
-  setSliceLegend(legend: GraphicsView | string | undefined): void {
+  protected createSliceLegendView(legend: SliceLegend, sliceTrait: SliceTrait): GraphicsView | string | null {
+    if (typeof legend === "function") {
+      return legend(sliceTrait);
+    } else {
+      return legend;
+    }
+  }
+
+  protected setSliceLegendView(legend: SliceLegend | null, sliceTrait: SliceTrait): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
-      sliceView.legend.setView(legend !== void 0 ? legend : null);
+      const legendView = legend !== null ? this.createSliceLegendView(legend, sliceTrait) : null;
+      sliceView.legend.setView(legendView);
     }
   }
 
@@ -331,11 +368,11 @@ export class SliceComponent extends CompositeComponent {
       this.owner.themeSliceView(sliceView, theme, mood, timing);
     },
     sliceViewWillSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
-      this.owner.willSetSliceValue(newValue, oldValue, sliceView);
+      this.owner.willSetSliceViewValue(newValue, oldValue, sliceView);
     },
     sliceViewDidSetValue(newValue: number, oldValue: number, sliceView: SliceView): void {
-      this.owner.onSetSliceValue(newValue, oldValue, sliceView);
-      this.owner.didSetSliceValue(newValue, oldValue, sliceView);
+      this.owner.onSetSliceViewValue(newValue, oldValue, sliceView);
+      this.owner.didSetSliceViewValue(newValue, oldValue, sliceView);
     },
     sliceViewDidSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
       this.owner.label.setView(newLabelView);
@@ -357,14 +394,14 @@ export class SliceComponent extends CompositeComponent {
     didSetTrait(newSliceTrait: SliceTrait | null, oldSliceTrait: SliceTrait | null): void {
       this.owner.didSetSliceTrait(newSliceTrait, oldSliceTrait);
     },
-    sliceTraitDidSetValue(newValue: number, oldValue: number): void {
-      this.owner.setSliceValue(newValue);
+    sliceTraitDidSetValue(newValue: number, oldValue: number, sliceTrait: SliceTrait): void {
+      this.owner.onSetSliceTraitValue(newValue, oldValue, sliceTrait);
     },
-    sliceTraitDidSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
-      this.owner.setSliceLabel(newLabel);
+    sliceTraitDidSetLabel(newLabel: SliceLabel | null, oldLabel: SliceLabel | null, sliceTrait: SliceTrait): void {
+      this.owner.onSetSliceTraitLabel(newLabel, oldLabel, sliceTrait);
     },
-    sliceTraitDidSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined): void {
-      this.owner.setSliceLegend(newLegend);
+    sliceTraitDidSetLegend(newLegend: SliceLegend | null, oldLegend: SliceLegend | null, sliceTrait: SliceTrait): void {
+      this.owner.onSetSliceTraitLegend(newLegend, oldLegend, sliceTrait);
     },
   });
 

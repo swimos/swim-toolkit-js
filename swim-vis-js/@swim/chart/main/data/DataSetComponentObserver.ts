@@ -38,21 +38,21 @@ export interface DataSetComponentObserver<X, Y, C extends DataSetComponent<X, Y>
 
   dataSetDidSetDataPointView?(newDataPointView: DataPointView<X, Y> | null, oldDataPointView: DataPointView<X, Y> | null, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
 
-  dataSetWillSetDataPointX?(newX: X | undefined, oldX: X | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
+  dataSetWillSetDataPointViewX?(newX: X | undefined, oldX: X | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
 
-  dataSetDidSetDataPointX?(newX: X | undefined, oldX: X | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
+  dataSetDidSetDataPointViewX?(newX: X | undefined, oldX: X | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
 
-  dataSetWillSetDataPointY?(newY: Y | undefined, oldY: Y | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
+  dataSetWillSetDataPointViewY?(newY: Y | undefined, oldY: Y | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
 
-  dataSetDidSetDataPointY?(newY: Y | undefined, oldY: Y | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
+  dataSetDidSetDataPointViewY?(newY: Y | undefined, oldY: Y | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
 
-  dataSetWillSetDataPointY2?(newY2: Y | undefined, oldY2: Y | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
+  dataSetWillSetDataPointViewY2?(newY2: Y | undefined, oldY2: Y | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
 
-  dataSetDidSetDataPointY2?(newY2: Y | undefined, oldY2: Y | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
+  dataSetDidSetDataPointViewY2?(newY2: Y | undefined, oldY2: Y | undefined, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
 
-  dataSetWillSetDataPointRadius?(newRadius: Length | null, oldRadius: Length | null, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
+  dataSetWillSetDataPointViewRadius?(newRadius: Length | null, oldRadius: Length | null, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
 
-  dataSetDidSetDataPointRadius?(newRadius: Length | null, oldRadius: Length | null, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
+  dataSetDidSetDataPointViewRadius?(newRadius: Length | null, oldRadius: Length | null, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
 
   dataSetWillSetDataPointLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, dataPointFastener: ComponentFastener<C, DataPointComponent<X, Y>>): void;
 

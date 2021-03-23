@@ -18,11 +18,14 @@ import type {GraphicsView} from "@swim/graphics";
 import {SliceTrait} from "../slice/SliceTrait";
 import type {PieTraitObserver} from "./PieTraitObserver";
 
+export type PieTitle = PieTitleFunction | string;
+export type PieTitleFunction = (pieTrait: PieTrait) => GraphicsView | string | null;
+
 export class PieTrait extends GenericTrait {
   constructor() {
     super();
     Object.defineProperty(this, "title", {
-      value: void 0,
+      value: null,
       enumerable: true,
       configurable: true,
     });
@@ -34,9 +37,9 @@ export class PieTrait extends GenericTrait {
 
   declare readonly traitObservers: ReadonlyArray<PieTraitObserver>;
 
-  declare readonly title: GraphicsView | string | undefined;
+  declare readonly title: PieTitle | null;
 
-  setTitle(newTitle: GraphicsView | string | undefined): void {
+  setTitle(newTitle: PieTitle | null): void {
     const oldTitle = this.title;
     if (!Equals(newTitle, oldTitle)) {
       this.willSetTitle(newTitle, oldTitle);
@@ -50,7 +53,7 @@ export class PieTrait extends GenericTrait {
     }
   }
 
-  protected willSetTitle(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined): void {
+  protected willSetTitle(newTitle: PieTitle | null, oldTitle: PieTitle | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -60,11 +63,11 @@ export class PieTrait extends GenericTrait {
     }
   }
 
-  protected onSetTitle(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined): void {
+  protected onSetTitle(newTitle: PieTitle | null, oldTitle: PieTitle | null): void {
     // hook
   }
 
-  protected didSetTitle(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined): void {
+  protected didSetTitle(newTitle: PieTitle | null, oldTitle: PieTitle | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;

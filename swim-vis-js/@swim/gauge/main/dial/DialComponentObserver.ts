@@ -27,13 +27,13 @@ export interface DialComponentObserver<C extends DialComponent = DialComponent> 
 
   dialDidSetView?(newDialView: DialView | null, oldDialView: DialView | null, component: C): void;
 
-  dialWillSetValue?(newValue: number, oldValue: number, component: C): void;
+  dialWillSetViewValue?(newValue: number, oldValue: number, component: C): void;
 
-  dialDidSetValue?(newValue: number, oldValue: number, component: C): void;
+  dialDidSetViewValue?(newValue: number, oldValue: number, component: C): void;
 
-  dialWillSetLimit?(newLimit: number, oldLimit: number, component: C): void;
+  dialWillSetViewLimit?(newLimit: number, oldLimit: number, component: C): void;
 
-  dialDidSetLimit?(newLimit: number, oldLimit: number, component: C): void;
+  dialDidSetViewLimit?(newLimit: number, oldLimit: number, component: C): void;
 
   dialWillSetLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, component: C): void;
 

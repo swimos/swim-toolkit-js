@@ -17,6 +17,12 @@ import {GenericTrait} from "@swim/model";
 import type {GraphicsView} from "@swim/graphics";
 import type {SliceTraitObserver} from "./SliceTraitObserver";
 
+export type SliceLabel = SliceLabelFunction | string;
+export type SliceLabelFunction = (sliceTrait: SliceTrait) => GraphicsView | string | null;
+
+export type SliceLegend = SliceLegendFunction | string;
+export type SliceLegendFunction = (sliceTrait: SliceTrait) => GraphicsView | string | null;
+
 export class SliceTrait extends GenericTrait {
   constructor() {
     super();
@@ -26,12 +32,12 @@ export class SliceTrait extends GenericTrait {
       configurable: true,
     });
     Object.defineProperty(this, "label", {
-      value: void 0,
+      value: null,
       enumerable: true,
       configurable: true,
     });
     Object.defineProperty(this, "legend", {
-      value: void 0,
+      value: null,
       enumerable: true,
       configurable: true,
     });
@@ -79,9 +85,9 @@ export class SliceTrait extends GenericTrait {
     }
   }
 
-  declare readonly label: GraphicsView | string | undefined;
+  declare readonly label: SliceLabel | null;
 
-  setLabel(newLabel: GraphicsView | string | undefined): void {
+  setLabel(newLabel: SliceLabel | null): void {
     const oldLabel = this.label;
     if (!Equals(newLabel, oldLabel)) {
       this.willSetLabel(newLabel, oldLabel);
@@ -95,7 +101,7 @@ export class SliceTrait extends GenericTrait {
     }
   }
 
-  protected willSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
+  protected willSetLabel(newLabel: SliceLabel | null, oldLabel: SliceLabel | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -105,11 +111,11 @@ export class SliceTrait extends GenericTrait {
     }
   }
 
-  protected onSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
+  protected onSetLabel(newLabel: SliceLabel | null, oldLabel: SliceLabel | null): void {
     // hook
   }
 
-  protected didSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
+  protected didSetLabel(newLabel: SliceLabel | null, oldLabel: SliceLabel | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -123,9 +129,9 @@ export class SliceTrait extends GenericTrait {
     return void 0;
   }
 
-  declare readonly legend: GraphicsView | string | undefined;
+  declare readonly legend: SliceLegend | null;
 
-  setLegend(newLegend: GraphicsView | string | undefined): void {
+  setLegend(newLegend: SliceLegend | null): void {
     const oldLegend = this.legend;
     if (!Equals(newLegend, oldLegend)) {
       this.willSetLegend(newLegend, oldLegend);
@@ -139,7 +145,7 @@ export class SliceTrait extends GenericTrait {
     }
   }
 
-  protected willSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined): void {
+  protected willSetLegend(newLegend: SliceLegend | null, oldLegend: SliceLegend | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -149,11 +155,11 @@ export class SliceTrait extends GenericTrait {
     }
   }
 
-  protected onSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined): void {
+  protected onSetLegend(newLegend: SliceLegend | null, oldLegend: SliceLegend | null): void {
     // hook
   }
 
-  protected didSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined): void {
+  protected didSetLegend(newLegend: SliceLegend | null, oldLegend: SliceLegend | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;

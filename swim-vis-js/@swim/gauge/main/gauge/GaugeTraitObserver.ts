@@ -13,14 +13,13 @@
 // limitations under the License.
 
 import type {Trait, TraitObserver} from "@swim/model";
-import type {GraphicsView} from "@swim/graphics";
 import type {DialTrait} from "../dial/DialTrait";
-import type {GaugeTrait} from "./GaugeTrait";
+import type {GaugeTitle, GaugeTrait} from "./GaugeTrait";
 
 export interface GaugeTraitObserver<R extends GaugeTrait = GaugeTrait> extends TraitObserver<R> {
-  gaugeTraitWillSetTitle?(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, trait: R): void;
+  gaugeTraitWillSetTitle?(newTitle: GaugeTitle | null, oldTitle: GaugeTitle | null, trait: R): void;
 
-  gaugeTraitDidSetTitle?(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined, trait: R): void;
+  gaugeTraitDidSetTitle?(newTitle: GaugeTitle | null, oldTitle: GaugeTitle | null, trait: R): void;
 
   gaugeTraitWillSetDial?(newDialTrait: DialTrait | null, oldDialTrait: DialTrait | null, targetTrait: Trait | null, trait: R): void;
 

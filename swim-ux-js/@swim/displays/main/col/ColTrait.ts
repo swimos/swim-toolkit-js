@@ -18,6 +18,9 @@ import type {HtmlView} from "@swim/dom";
 import {AnyColLayout, ColLayout} from "../layout/ColLayout";
 import type {ColTraitObserver} from "./ColTraitObserver";
 
+export type ColHeader = ColHeaderFunction | string;
+export type ColHeaderFunction = (colTrait: ColTrait) => HtmlView | string | null;
+
 export class ColTrait extends GenericTrait {
   constructor() {
     super();
@@ -27,7 +30,7 @@ export class ColTrait extends GenericTrait {
       configurable: true,
     });
     Object.defineProperty(this, "header", {
-      value: void 0,
+      value: null,
       enumerable: true,
       configurable: true,
     });
@@ -78,9 +81,9 @@ export class ColTrait extends GenericTrait {
     }
   }
 
-  declare readonly header: HtmlView | string | undefined;
+  declare readonly header: ColHeader | null;
 
-  setHeader(newHeader: HtmlView | string | undefined): void {
+  setHeader(newHeader: ColHeader | null): void {
     const oldHeader = this.header;
     if (!Equals(newHeader, oldHeader)) {
       this.willSetHeader(newHeader, oldHeader);
@@ -94,7 +97,7 @@ export class ColTrait extends GenericTrait {
     }
   }
 
-  protected willSetHeader(newHeader: HtmlView | string | undefined, oldHeader: HtmlView | string | undefined): void {
+  protected willSetHeader(newHeader: ColHeader | null, oldHeader: ColHeader | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -104,11 +107,11 @@ export class ColTrait extends GenericTrait {
     }
   }
 
-  protected onSetHeader(newHeader: HtmlView | string | undefined, oldHeader: HtmlView | string | undefined): void {
+  protected onSetHeader(newHeader: ColHeader | null, oldHeader: ColHeader | null): void {
     // hook
   }
 
-  protected didSetHeader(newHeader: HtmlView | string | undefined, oldHeader: HtmlView | string | undefined): void {
+  protected didSetHeader(newHeader: ColHeader | null, oldHeader: ColHeader | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;

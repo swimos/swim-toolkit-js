@@ -18,11 +18,14 @@ import type {GraphicsView} from "@swim/graphics";
 import {DialTrait} from "../dial/DialTrait";
 import type {GaugeTraitObserver} from "./GaugeTraitObserver";
 
+export type GaugeTitle = GaugeTitleFunction | string;
+export type GaugeTitleFunction = (gaugeTrait: GaugeTrait) => GraphicsView | string | null;
+
 export class GaugeTrait extends GenericTrait {
   constructor() {
     super();
     Object.defineProperty(this, "title", {
-      value: void 0,
+      value: null,
       enumerable: true,
       configurable: true,
     });
@@ -34,9 +37,9 @@ export class GaugeTrait extends GenericTrait {
 
   declare readonly traitObservers: ReadonlyArray<GaugeTraitObserver>;
 
-  declare readonly title: GraphicsView | string | undefined;
+  declare readonly title: GaugeTitle | null;
 
-  setTitle(newTitle: GraphicsView | string | undefined): void {
+  setTitle(newTitle: GaugeTitle | null): void {
     const oldTitle = this.title;
     if (!Equals(newTitle, oldTitle)) {
       this.willSetTitle(newTitle, oldTitle);
@@ -50,7 +53,7 @@ export class GaugeTrait extends GenericTrait {
     }
   }
 
-  protected willSetTitle(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined): void {
+  protected willSetTitle(newTitle: GaugeTitle | null, oldTitle: GaugeTitle | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -60,11 +63,11 @@ export class GaugeTrait extends GenericTrait {
     }
   }
 
-  protected onSetTitle(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined): void {
+  protected onSetTitle(newTitle: GaugeTitle | null, oldTitle: GaugeTitle | null): void {
     // hook
   }
 
-  protected didSetTitle(newTitle: GraphicsView | string | undefined, oldTitle: GraphicsView | string | undefined): void {
+  protected didSetTitle(newTitle: GaugeTitle | null, oldTitle: GaugeTitle | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;

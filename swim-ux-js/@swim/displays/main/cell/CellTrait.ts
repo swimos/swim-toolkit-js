@@ -17,11 +17,14 @@ import {GenericTrait} from "@swim/model";
 import type {HtmlView} from "@swim/dom";
 import type {CellTraitObserver} from "./CellTraitObserver";
 
+export type CellContent = CellContentFunction | string;
+export type CellContentFunction = (cellTrait: CellTrait) => HtmlView | string | null;
+
 export class CellTrait extends GenericTrait {
   constructor() {
     super();
     Object.defineProperty(this, "content", {
-      value: void 0,
+      value: null,
       enumerable: true,
       configurable: true,
     });
@@ -29,9 +32,9 @@ export class CellTrait extends GenericTrait {
 
   declare readonly traitObservers: ReadonlyArray<CellTraitObserver>;
 
-  declare readonly content: HtmlView | string | undefined;
+  declare readonly content: CellContent | null;
 
-  setContent(newContent: HtmlView | string | undefined): void {
+  setContent(newContent: CellContent | null): void {
     const oldContent = this.content;
     if (!Equals(newContent, oldContent)) {
       this.willSetContent(newContent, oldContent);
@@ -45,7 +48,7 @@ export class CellTrait extends GenericTrait {
     }
   }
 
-  protected willSetContent(newContent: HtmlView | string | undefined, oldContent: HtmlView | string | undefined): void {
+  protected willSetContent(newContent: CellContent | null, oldContent: CellContent | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -55,11 +58,11 @@ export class CellTrait extends GenericTrait {
     }
   }
 
-  protected onSetContent(newContent: HtmlView | string | undefined, oldContent: HtmlView | string | undefined): void {
+  protected onSetContent(newContent: CellContent | null, oldContent: CellContent | null): void {
     // hook
   }
 
-  protected didSetContent(newContent: HtmlView | string | undefined, oldContent: HtmlView | string | undefined): void {
+  protected didSetContent(newContent: CellContent | null, oldContent: CellContent | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;

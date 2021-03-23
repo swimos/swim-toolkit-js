@@ -19,7 +19,11 @@ export {
 } from "./GaugeView";
 export {GaugeViewObserver} from "./GaugeViewObserver";
 
-export {GaugeTrait} from "./GaugeTrait";
+export {
+  GaugeTitle,
+  GaugeTitleFunction,
+  GaugeTrait,
+} from "./GaugeTrait";
 export {GaugeTraitObserver} from "./GaugeTraitObserver";
 
 export {GaugeComponent} from "./GaugeComponent";

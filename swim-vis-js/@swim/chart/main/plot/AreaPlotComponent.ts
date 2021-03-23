@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Timing} from "@swim/mapping";
+import {AnyTiming, Timing} from "@swim/mapping";
 import type {Color} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {ComponentViewTrait, ComponentFastener} from "@swim/component";
@@ -53,7 +53,7 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
   protected attachPlotTrait(plotTrait: AreaPlotTrait<X, Y>): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
-      this.setPlotFill(plotTrait.fill);
+      this.setPlotViewFill(plotTrait.fill, plotTrait);
     }
   }
 
@@ -91,6 +91,10 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
     }
   }
 
+  protected onSetPlotTraitFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: AreaPlotTrait<X, Y>): void {
+    this.setPlotViewFill(newFill, plotTrait);
+  }
+
   protected createPlotView(): AreaPlotView<X, Y> {
     return AreaPlotView.create<X, Y>();
   }
@@ -106,7 +110,7 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
   protected attachPlotView(plotView: AreaPlotView<X, Y>): void {
     const plotTrait = this.plot.trait;
     if (plotTrait !== null) {
-      this.setPlotFill(plotTrait.fill);
+      this.setPlotViewFill(plotTrait.fill, plotTrait);
     }
 
     const dataPointFasteners = this.dataPointFasteners;
@@ -152,17 +156,20 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
     }
   }
 
-  protected setPlotFill(fill: Look<Color> | Color | null): void {
+  protected setPlotViewFill(fill: Look<Color> | Color | null, plotTrait: AreaPlotTrait<X, Y>, timing?: AnyTiming | boolean): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
-      let timing = this.plotTiming.state;
-      if (timing === true) {
-        timing = plotView.getLook(Look.timing, Mood.ambient);
+      if (timing === void 0 || timing === true) {
+        timing = this.plotTiming.state;
+        if (timing === true) {
+          timing = plotView.getLook(Look.timing, Mood.ambient);
+        }
+      } else {
+        timing = Timing.fromAny(timing);
       }
       if (fill instanceof Look) {
         plotView.fill.setLook(fill, timing);
       } else {
-        plotView.fill.setLook(null);
         plotView.fill.setAutoState(fill, timing);
       }
     }
@@ -198,8 +205,8 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
     didSetTrait(newPlotTrait: AreaPlotTrait<unknown, unknown> | null, oldPlotTrait: AreaPlotTrait<unknown, unknown> | null): void {
       this.owner.didSetPlotTrait(newPlotTrait, oldPlotTrait);
     },
-    areaPlotTraitDidSetFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null): void {
-      this.owner.setPlotFill(newFill);
+    areaPlotTraitDidSetFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: AreaPlotTrait<unknown, unknown>): void {
+      this.owner.setPlotViewFill(newFill, plotTrait);
     },
   });
 

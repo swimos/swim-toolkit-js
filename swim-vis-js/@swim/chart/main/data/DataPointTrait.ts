@@ -20,6 +20,9 @@ import {GenericTrait} from "@swim/model";
 import type {GraphicsView} from "@swim/graphics";
 import type {DataPointTraitObserver} from "./DataPointTraitObserver";
 
+export type DataPointLabel<X, Y> = DataPointLabelFunction<X, Y> | string;
+export type DataPointLabelFunction<X, Y> = (dataPointTrait: DataPointTrait<X, Y>) => GraphicsView | string | null;
+
 export class DataPointTrait<X, Y> extends GenericTrait {
   constructor(x: X, y: Y) {
     super();
@@ -49,7 +52,7 @@ export class DataPointTrait<X, Y> extends GenericTrait {
       configurable: true,
     });
     Object.defineProperty(this, "label", {
-      value: void 0,
+      value: null,
       enumerable: true,
       configurable: true,
     });
@@ -263,9 +266,9 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     }
   }
 
-  declare readonly label: GraphicsView | string | undefined;
+  declare readonly label: DataPointLabel<X, Y> | null;
 
-  setLabel(newLabel: GraphicsView | string | undefined): void {
+  setLabel(newLabel: DataPointLabel<X, Y> | null): void {
     const oldLabel = this.label;
     if (!Equals(newLabel, oldLabel)) {
       this.willSetLabel(newLabel, oldLabel);
@@ -279,7 +282,7 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     }
   }
 
-  protected willSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
+  protected willSetLabel(newLabel: DataPointLabel<X, Y> | null, oldLabel: DataPointLabel<X, Y> | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -289,11 +292,11 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     }
   }
 
-  protected onSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
+  protected onSetLabel(newLabel: DataPointLabel<X, Y> | null, oldLabel: DataPointLabel<X, Y> | null): void {
     // hook
   }
 
-  protected didSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
+  protected didSetLabel(newLabel: DataPointLabel<X, Y> | null, oldLabel: DataPointLabel<X, Y> | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;

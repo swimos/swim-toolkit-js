@@ -17,6 +17,12 @@ import {GenericTrait} from "@swim/model";
 import type {GraphicsView} from "@swim/graphics";
 import type {DialTraitObserver} from "./DialTraitObserver";
 
+export type DialLabel = DialLabelFunction | string;
+export type DialLabelFunction = (dialTrait: DialTrait) => GraphicsView | string | null;
+
+export type DialLegend = DialLegendFunction | string;
+export type DialLegendFunction = (dialTrait: DialTrait) => GraphicsView | string | null;
+
 export class DialTrait extends GenericTrait {
   constructor() {
     super();
@@ -31,12 +37,12 @@ export class DialTrait extends GenericTrait {
       configurable: true,
     });
     Object.defineProperty(this, "label", {
-      value: void 0,
+      value: null,
       enumerable: true,
       configurable: true,
     });
     Object.defineProperty(this, "legend", {
-      value: void 0,
+      value: null,
       enumerable: true,
       configurable: true,
     });
@@ -124,9 +130,9 @@ export class DialTrait extends GenericTrait {
     }
   }
 
-  declare readonly label: GraphicsView | string | undefined;
+  declare readonly label: DialLabel | null;
 
-  setLabel(newLabel: GraphicsView | string | undefined): void {
+  setLabel(newLabel: DialLabel | null): void {
     const oldLabel = this.label;
     if (!Equals(newLabel, oldLabel)) {
       this.willSetLabel(newLabel, oldLabel);
@@ -140,7 +146,7 @@ export class DialTrait extends GenericTrait {
     }
   }
 
-  protected willSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
+  protected willSetLabel(newLabel: DialLabel | null, oldLabel: DialLabel | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -150,11 +156,11 @@ export class DialTrait extends GenericTrait {
     }
   }
 
-  protected onSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
+  protected onSetLabel(newLabel: DialLabel | null, oldLabel: DialLabel | null): void {
     // hook
   }
 
-  protected didSetLabel(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined): void {
+  protected didSetLabel(newLabel: DialLabel | null, oldLabel: DialLabel | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -168,9 +174,9 @@ export class DialTrait extends GenericTrait {
     return void 0;
   }
 
-  declare readonly legend: GraphicsView | string | undefined;
+  declare readonly legend: DialLegend | null;
 
-  setLegend(newLegend: GraphicsView | string | undefined): void {
+  setLegend(newLegend: DialLegend | null): void {
     const oldLegend = this.legend;
     if (!Equals(newLegend, oldLegend)) {
       this.willSetLegend(newLegend, oldLegend);
@@ -184,7 +190,7 @@ export class DialTrait extends GenericTrait {
     }
   }
 
-  protected willSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined): void {
+  protected willSetLegend(newLegend: DialLegend | null, oldLegend: DialLegend | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
@@ -194,11 +200,11 @@ export class DialTrait extends GenericTrait {
     }
   }
 
-  protected onSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined): void {
+  protected onSetLegend(newLegend: DialLegend | null, oldLegend: DialLegend | null): void {
     // hook
   }
 
-  protected didSetLegend(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined): void {
+  protected didSetLegend(newLegend: DialLegend | null, oldLegend: DialLegend | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;

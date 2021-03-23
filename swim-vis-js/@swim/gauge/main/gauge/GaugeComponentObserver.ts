@@ -46,13 +46,13 @@ export interface GaugeComponentObserver<C extends GaugeComponent = GaugeComponen
 
   gaugeDidSetDialView?(newDialView: DialView | null, oldDialView: DialView | null, dialFastener: ComponentFastener<C, DialComponent>): void;
 
-  gaugeWillSetDialValue?(newValue: number, oldValue: number, dialFastener: ComponentFastener<C, DialComponent>): void;
+  gaugeWillSetDialViewValue?(newValue: number, oldValue: number, dialFastener: ComponentFastener<C, DialComponent>): void;
 
-  gaugeDidSetDialValue?(newValue: number, oldValue: number, dialFastener: ComponentFastener<C, DialComponent>): void;
+  gaugeDidSetDialViewValue?(newValue: number, oldValue: number, dialFastener: ComponentFastener<C, DialComponent>): void;
 
-  gaugeWillSetDialLimit?(newLimit: number, oldLimit: number, dialFastener: ComponentFastener<C, DialComponent>): void;
+  gaugeWillSetDialViewLimit?(newLimit: number, oldLimit: number, dialFastener: ComponentFastener<C, DialComponent>): void;
 
-  gaugeDidSetDialLimit?(newLimit: number, oldLimit: number, dialFastener: ComponentFastener<C, DialComponent>): void;
+  gaugeDidSetDialViewLimit?(newLimit: number, oldLimit: number, dialFastener: ComponentFastener<C, DialComponent>): void;
 
   gaugeWillSetDialLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, dialFastener: ComponentFastener<C, DialComponent>): void;
 

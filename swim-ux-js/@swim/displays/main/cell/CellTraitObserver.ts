@@ -13,11 +13,10 @@
 // limitations under the License.
 
 import type {TraitObserver} from "@swim/model";
-import type {HtmlView} from "@swim/dom";
-import type {CellTrait} from "./CellTrait";
+import type {CellContent, CellTrait} from "./CellTrait";
 
 export interface CellTraitObserver<R extends CellTrait = CellTrait> extends TraitObserver<R> {
-  cellTraitWillSetContent?(newContent: HtmlView | string | undefined, oldContent: HtmlView | string | undefined, trait: R): void;
+  cellTraitWillSetContent?(newContent: CellContent | null, oldContent: CellContent | null, trait: R): void;
 
-  cellTraitDidSetContent?(newContent: HtmlView | string | undefined, oldContent: HtmlView | string | undefined, trait: R): void;
+  cellTraitDidSetContent?(newContent: CellContent | null, oldContent: CellContent | null, trait: R): void;
 }

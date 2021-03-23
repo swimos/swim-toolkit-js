@@ -13,19 +13,18 @@
 // limitations under the License.
 
 import type {TraitObserver} from "@swim/model";
-import type {GraphicsView} from "@swim/graphics";
-import type {SliceTrait} from "./SliceTrait";
+import type {SliceLabel, SliceLegend, SliceTrait} from "./SliceTrait";
 
 export interface SliceTraitObserver<R extends SliceTrait = SliceTrait> extends TraitObserver<R> {
   sliceTraitWillSetValue?(newValue: number, oldValue: number, trait: R): void;
 
   sliceTraitDidSetValue?(newValue: number, oldValue: number, trait: R): void;
 
-  sliceTraitWillSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
+  sliceTraitWillSetLabel?(newLabel: SliceLabel | null, oldLabel: SliceLabel | null, trait: R): void;
 
-  sliceTraitDidSetLabel?(newLabel: GraphicsView | string | undefined, oldLabel: GraphicsView | string | undefined, trait: R): void;
+  sliceTraitDidSetLabel?(newLabel: SliceLabel | null, oldLabel: SliceLabel | null, trait: R): void;
 
-  sliceTraitWillSetLegend?(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, trait: R): void;
+  sliceTraitWillSetLegend?(newLegend: SliceLegend | null, oldLegend: SliceLegend | null, trait: R): void;
 
-  sliceTraitDidSetLegend?(newLegend: GraphicsView | string | undefined, oldLegend: GraphicsView | string | undefined, trait: R): void;
+  sliceTraitDidSetLegend?(newLegend: SliceLegend | null, oldLegend: SliceLegend | null, trait: R): void;
 }

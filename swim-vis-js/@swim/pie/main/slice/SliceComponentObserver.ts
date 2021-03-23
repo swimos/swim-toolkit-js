@@ -27,9 +27,9 @@ export interface SliceComponentObserver<C extends SliceComponent = SliceComponen
 
   sliceDidSetView?(newSliceView: SliceView | null, oldSliceView: SliceView | null, component: C): void;
 
-  sliceWillSetValue?(newValue: number, oldValue: number, component: C): void;
+  sliceWillSetViewValue?(newValue: number, oldValue: number, component: C): void;
 
-  sliceDidSetValue?(newValue: number, oldValue: number, component: C): void;
+  sliceDidSetViewValue?(newValue: number, oldValue: number, component: C): void;
 
   sliceWillSetLabelView?(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null, component: C): void;
 
