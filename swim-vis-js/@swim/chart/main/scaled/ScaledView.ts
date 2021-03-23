@@ -46,7 +46,7 @@ import type {ScaledViewObserver} from "./ScaledViewObserver";
 /** @hidden */
 export type ScaledFlags = number;
 
-export interface ScaledViewInit<X = unknown, Y = unknown> extends GraphicsViewInit {
+export interface ScaledViewInit<X, Y> extends GraphicsViewInit {
   xScale?: ContinuousScale<X, number>;
   yScale?: ContinuousScale<Y, number>;
 
@@ -79,7 +79,7 @@ export interface ScaledViewInit<X = unknown, Y = unknown> extends GraphicsViewIn
   reboundTransition?: AnyTiming | boolean;
 }
 
-export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView implements ScaledXYView<X, Y>, ScaleGestureDelegate<X, Y> {
+export abstract class ScaledView<X, Y> extends LayerView implements ScaledXYView<X, Y>, ScaleGestureDelegate<X, Y> {
   constructor() {
     super();
     Object.defineProperty(this, "scaledFlags", {
@@ -490,22 +490,19 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
     }
   }
 
-  protected updateXDataDomain(scaledView: ScaledXView<X>): void {
-    const xScaledDomain = scaledView.xDataDomain;
-    if (xScaledDomain !== null) {
-      let xDataDomain = this.xDataDomain;
-      if (xDataDomain === null || this.scaledFasteners.length === 1) {
-        xDataDomain = xScaledDomain;
-      } else {
-        if (Values.compare(xScaledDomain[0], xDataDomain[0]) < 0) {
-          xDataDomain = Domain(xScaledDomain[0], xDataDomain[1]);
-        }
-        if (Values.compare(xDataDomain[1], xScaledDomain[1]) < 0) {
-          xDataDomain = Domain(xDataDomain[0], xScaledDomain[1]);
-        }
+  protected updateXDataDomain(xScaledDomain: Domain<X> | null, scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
+    let xDataDomain = this.xDataDomain;
+    if (xDataDomain === null || this.scaledFasteners.length === 1) {
+      xDataDomain = xScaledDomain;
+    } else if (xScaledDomain !== null) {
+      if (Values.compare(xScaledDomain[0], xDataDomain[0]) < 0) {
+        xDataDomain = Domain(xScaledDomain[0], xDataDomain[1]);
       }
-      this.setXDataDomain(xDataDomain);
+      if (Values.compare(xDataDomain[1], xScaledDomain[1]) < 0) {
+        xDataDomain = Domain(xDataDomain[0], xScaledDomain[1]);
+      }
     }
+    this.setXDataDomain(xDataDomain);
   }
 
   declare readonly yDataDomain: Domain<Y> | null;
@@ -558,22 +555,19 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
     }
   }
 
-  protected updateYDataDomain(scaledView: ScaledYView<Y>): void {
-    const yScaledDomain = scaledView.yDataDomain;
-    if (yScaledDomain !== null) {
-      let yDataDomain = this.yDataDomain;
-      if (yDataDomain === null || this.scaledFasteners.length === 1) {
-        yDataDomain = yScaledDomain;
-      } else {
-        if (Values.compare(yScaledDomain[0], yDataDomain[0]) < 0) {
-          yDataDomain = Domain(yScaledDomain[0], yDataDomain[1]);
-        }
-        if (Values.compare(yDataDomain[1], yScaledDomain[1]) < 0) {
-          yDataDomain = Domain(yDataDomain[0], yScaledDomain[1]);
-        }
+  protected updateYDataDomain(yScaledDomain: Domain<Y> | null, scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
+    let yDataDomain = this.yDataDomain;
+    if (yDataDomain === null || this.scaledFasteners.length === 1) {
+      yDataDomain = yScaledDomain;
+    } else if (yScaledDomain !== null) {
+      if (Values.compare(yScaledDomain[0], yDataDomain[0]) < 0) {
+        yDataDomain = Domain(yScaledDomain[0], yDataDomain[1]);
       }
-      this.setYDataDomain(yDataDomain);
+      if (Values.compare(yDataDomain[1], yScaledDomain[1]) < 0) {
+        yDataDomain = Domain(yDataDomain[0], yScaledDomain[1]);
+      }
     }
+    this.setYDataDomain(yDataDomain);
   }
 
   declare readonly xDataRange: Range<number> | null;
@@ -682,7 +676,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
 
   @ViewProperty<ScaledView<X, Y>, readonly [X | boolean, X | boolean]>({
     updateFlags: View.NeedsLayout,
-    initState: function (): readonly [X | boolean, X | boolean] {
+    initState(): readonly [X | boolean, X | boolean] {
       return [true, true];
     },
   })
@@ -690,7 +684,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
 
   @ViewProperty<ScaledView<X, Y>, readonly [Y | boolean, Y | boolean]>({
     updateFlags: View.NeedsLayout,
-    initState: function (): readonly [Y | boolean, Y | boolean] {
+    initState(): readonly [Y | boolean, Y | boolean] {
       return [true, true];
     },
   })
@@ -698,7 +692,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
 
   @ViewProperty<ScaledView<X, Y>, readonly [number | boolean, number | boolean]>({
     updateFlags: View.NeedsLayout,
-    initState: function (): readonly [number | boolean, number | boolean] {
+    initState(): readonly [number | boolean, number | boolean] {
       return [true, true];
     },
   })
@@ -706,7 +700,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
 
   @ViewProperty<ScaledView<X, Y>, readonly [number | boolean, number | boolean]>({
     updateFlags: View.NeedsLayout,
-    initState: function (): readonly [number | boolean, number | boolean] {
+    initState(): readonly [number | boolean, number | boolean] {
       return [true, true];
     },
   })
@@ -714,7 +708,7 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
 
   @ViewProperty<ScaledView<X, Y>, readonly [X | boolean, X | boolean]>({
     updateFlags: View.NeedsLayout,
-    initState: function (): readonly [X | boolean, X | boolean] {
+    initState(): readonly [X | boolean, X | boolean] {
       return [false, false];
     },
   })
@@ -722,31 +716,135 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
 
   @ViewProperty<ScaledView<X, Y>, readonly [Y | boolean, Y | boolean]>({
     updateFlags: View.NeedsLayout,
-    initState: function (): readonly [Y | boolean, Y | boolean] {
+    initState(): readonly [Y | boolean, Y | boolean] {
       return [false, false];
     },
   })
   declare yDomainPadding: ViewProperty<this, readonly [Y | boolean, Y | boolean]>
 
+  protected willSetXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewWillSetXRangePadding !== void 0) {
+      viewController.scaledViewWillSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewWillSetXRangePadding !== void 0) {
+        viewObserver.scaledViewWillSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+      }
+    }
+  }
+
+  protected onSetXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+    this.requireUpdate(View.NeedsLayout);
+  }
+
+  protected didSetXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewDidSetXRangePadding !== void 0) {
+        viewObserver.scaledViewDidSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewDidSetXRangePadding !== void 0) {
+      viewController.scaledViewDidSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+    }
+  }
+
+  protected updateXRangePadding(xScaledRangePadding: readonly [number, number], scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
+    if (this.xRangePadding.isAuto()) {
+      let xRangePadding = this.xRangePadding.state;
+      if (xRangePadding === null || this.scaledFasteners.length === 1) {
+        xRangePadding = xScaledRangePadding;
+      } else if (xScaledRangePadding !== null) {
+        xRangePadding = [Math.max(xRangePadding[0], xScaledRangePadding[0]), Math.max(xRangePadding[1], xScaledRangePadding[1])];
+      }
+      this.xRangePadding.setAutoState(xRangePadding);
+    }
+  }
+
   @ViewProperty<ScaledView<X, Y>, readonly [number, number]>({
-    updateFlags: View.NeedsLayout,
-    initState: function (): readonly [number, number] {
+    initState(): readonly [number, number] {
       return [0, 0];
+    },
+    willSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.willSetXRangePadding(newXRangePadding, oldXRangePadding);
+    },
+    onSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.onSetXRangePadding(newXRangePadding, oldXRangePadding);
+    },
+    didSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.didSetXRangePadding(newXRangePadding, oldXRangePadding);
     },
   })
   declare xRangePadding: ViewProperty<this, readonly [number, number]>
 
+  protected willSetYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewWillSetYRangePadding !== void 0) {
+      viewController.scaledViewWillSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewWillSetYRangePadding !== void 0) {
+        viewObserver.scaledViewWillSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+      }
+    }
+  }
+
+  protected onSetYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+    this.requireUpdate(View.NeedsLayout);
+  }
+
+  protected didSetYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewDidSetYRangePadding !== void 0) {
+        viewObserver.scaledViewDidSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewDidSetYRangePadding !== void 0) {
+      viewController.scaledViewDidSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+    }
+  }
+
+  protected updateYRangePadding(yScaledRangePadding: readonly [number, number], scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
+    if (this.yRangePadding.isAuto()) {
+      let yRangePadding = this.yRangePadding.state;
+      if (yRangePadding === null || this.scaledFasteners.length === 1) {
+        yRangePadding = yScaledRangePadding;
+      } else if (yScaledRangePadding !== null) {
+        yRangePadding = [Math.max(yRangePadding[0], yScaledRangePadding[0]), Math.max(yRangePadding[1], yScaledRangePadding[1])];
+      }
+      this.yRangePadding.setAutoState(yRangePadding);
+    }
+  }
+
   @ViewProperty<ScaledView<X, Y>, readonly [number, number]>({
-    updateFlags: View.NeedsLayout,
-    initState: function (): readonly [number, number] {
+    initState(): readonly [number, number] {
       return [0, 0];
+    },
+    willSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.willSetYRangePadding(newYRangePadding, oldYRangePadding);
+    },
+    onSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.onSetYRangePadding(newYRangePadding, oldYRangePadding);
+    },
+    didSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.didSetYRangePadding(newYRangePadding, oldYRangePadding);
     },
   })
   declare yRangePadding: ViewProperty<this, readonly [number, number]>
 
   @ViewProperty<ScaledView<X, Y>, readonly [number, number], number>({
     type: Object,
-    initState: function (): readonly [number, number] {
+    initState(): readonly [number, number] {
       return [1.0, 0.5];
     },
     fromAny(value: readonly [number, number] | number): readonly [number, number] {
@@ -1067,10 +1165,10 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
     if (newScaledView !== null) {
       this.initScaled(newScaledView, scaledFastener);
       if (ScaledXView.is<X>(newScaledView)) {
-        this.updateXDataDomain(newScaledView);
+        this.updateXDataDomain(newScaledView.xDataDomain, scaledFastener);
       }
       if (ScaledYView.is<Y>(newScaledView)) {
-        this.updateYDataDomain(newScaledView);
+        this.updateYDataDomain(newScaledView.yDataDomain, scaledFastener);
       }
     }
   }
@@ -1090,57 +1188,73 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
     }
   }
 
-  protected onSetScaledXScale(xScale: ContinuousScale<X, number> | null, scaledView: ScaledXView<X>,
+  protected onSetScaledXScale(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null,
                               scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
     // hook
   }
 
-  protected onSetScaledYScale(yScale: ContinuousScale<Y, number> | null, scaledView: ScaledYView<Y>,
+  protected onSetScaledYScale(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null,
                               scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
     // hook
   }
 
-  protected onSetScaledXDataDomain(xDataDomain: Domain<X> | null, scaledView: ScaledXView<X>,
+  protected onSetScaledXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number],
+                                     scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
+    this.updateXRangePadding(newXRangePadding, scaledFastener);
+  }
+
+  protected onSetScaledYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number],
+                                     scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
+    this.updateYRangePadding(newYRangePadding, scaledFastener);
+  }
+
+  protected onSetScaledXDataDomain(newXDataDomain: Domain<X> | null, oldXDataDomain: Domain<X> | null,
                                    scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
-    this.updateXDataDomain(scaledView);
+    this.updateXDataDomain(newXDataDomain, scaledFastener);
     this.requireUpdate(View.NeedsLayout);
   }
 
-  protected onSetScaledYDataDomain(yDataDomain: Domain<Y> | null, scaledView: ScaledYView<Y>,
+  protected onSetScaledYDataDomain(newYDataDomain: Domain<Y> | null, oldYDataDomain: Domain<Y> | null,
                                    scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
-    this.updateYDataDomain(scaledView);
+    this.updateYDataDomain(newYDataDomain, scaledFastener);
     this.requireUpdate(View.NeedsLayout);
   }
 
   /** @hidden */
-  static ScaledFastener = ViewFastener.define<ScaledView, ScaledXView | ScaledYView>({
+  static ScaledFastener = ViewFastener.define<ScaledView<unknown, unknown>, ScaledXView<unknown> | ScaledYView<unknown>>({
     child: false,
     observe: true,
-    willSetView(newScaledView: ScaledView | null, oldScaledView: ScaledXView | ScaledYView | null, targetView: View | null): void {
+    willSetView(newScaledView: ScaledView<unknown, unknown> | null, oldScaledView: ScaledXView<unknown> | ScaledYView<unknown> | null, targetView: View | null): void {
       this.owner.willSetScaled(newScaledView, oldScaledView, targetView, this);
     },
-    onSetView(newScaledView: ScaledView | null, oldScaledView: ScaledXView | ScaledYView | null, targetView: View | null): void {
+    onSetView(newScaledView: ScaledView<unknown, unknown> | null, oldScaledView: ScaledXView<unknown> | ScaledYView<unknown> | null, targetView: View | null): void {
       this.owner.onSetScaled(newScaledView, oldScaledView, targetView, this);
     },
-    didSetView(newScaledView: ScaledView | null, oldScaledView: ScaledXView | ScaledYView | null, targetView: View | null): void {
+    didSetView(newScaledView: ScaledView<unknown, unknown> | null, oldScaledView: ScaledXView<unknown> | ScaledYView<unknown> | null, targetView: View | null): void {
       this.owner.didSetScaled(newScaledView, oldScaledView, targetView, this);
     },
-    scaledViewDidSetXScale(newXScale: ContinuousScale<unknown, number> | null, oldXScale: ContinuousScale<unknown, number> | null, scaledView: ScaledXView): void {
-      this.owner.onSetScaledXScale(newXScale, scaledView, this);
+    scaledViewDidSetXScale(newXScale: ContinuousScale<unknown, number> | null, oldXScale: ContinuousScale<unknown, number> | null): void {
+      this.owner.onSetScaledXScale(newXScale, oldXScale, this);
     },
-    scaledViewDidSetYScale(newYScale: ContinuousScale<unknown, number> | null, oldYScale: ContinuousScale<unknown, number> | null, scaledView: ScaledYView): void {
-      this.owner.onSetScaledYScale(newYScale, scaledView, this);
+    scaledViewDidSetYScale(newYScale: ContinuousScale<unknown, number> | null, oldYScale: ContinuousScale<unknown, number> | null): void {
+      this.owner.onSetScaledYScale(newYScale, oldYScale, this);
     },
-    scaledViewDidSetXDataDomain(newXDomain: Domain<unknown> | null, oldXDomain: Domain<unknown> | null, scaledView: ScaledXView): void {
-      this.owner.onSetScaledXDataDomain(newXDomain, scaledView, this);
+    scaledViewDidSetXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.onSetScaledXRangePadding(newXRangePadding, oldXRangePadding, this);
     },
-    scaledViewDidSetYDataDomain(newYDomain: Domain<unknown> | null, oldYDomain: Domain<unknown> | null, scaledView: ScaledYView): void {
-      this.owner.onSetScaledYDataDomain(newYDomain, scaledView, this);
+    scaledViewDidSetYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.onSetScaledYRangePadding(newYRangePadding, oldYRangePadding, this);
+    },
+    scaledViewDidSetXDataDomain(newXDomain: Domain<unknown> | null, oldXDomain: Domain<unknown> | null): void {
+      this.owner.onSetScaledXDataDomain(newXDomain, oldXDomain, this);
+    },
+    scaledViewDidSetYDataDomain(newYDomain: Domain<unknown> | null, oldYDomain: Domain<unknown> | null): void {
+      this.owner.onSetScaledYDataDomain(newYDomain, oldYDomain, this);
     },
   });
 
   protected createScaledFastener(scaledView: ScaledXView<X> | ScaledYView<Y>): ViewFastener<this, ScaledXView<X> | ScaledYView<Y>> {
-    return new ScaledView.ScaledFastener(this as ScaledView, scaledView.key, "scaled") as ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>;
+    return new ScaledView.ScaledFastener(this as ScaledView<unknown, unknown>, scaledView.key, "scaled") as ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>;
   }
 
   /** @hidden */
@@ -1486,6 +1600,10 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
     let xDataDomainMax: X | undefined;
     let yDataDomainMin: Y | undefined;
     let yDataDomainMax: Y | undefined;
+    let xRangePaddingMin = 0;
+    let xRangePaddingMax = 0;
+    let yRangePaddingMin = 0;
+    let yRangePaddingMax = 0;
     let xCount = 0;
     let yCount = 0;
 
@@ -1507,6 +1625,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
             xDataDomainMin = childXDataDomain[0];
             xDataDomainMax = childXDataDomain[1];
           }
+          const childXRangePadding = childView.xRangePadding();
+          xRangePaddingMin = Math.max(childXRangePadding[0], xRangePaddingMin);
+          xRangePaddingMax = Math.max(childXRangePadding[1], xRangePaddingMax);
           xCount += 1;
         }
       }
@@ -1524,6 +1645,9 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
             yDataDomainMin = childYDataDomain[0];
             yDataDomainMax = childYDataDomain[1];
           }
+          const childYRangePadding = childView.yRangePadding();
+          yRangePaddingMin = Math.max(childYRangePadding[0], yRangePaddingMin);
+          yRangePaddingMax = Math.max(childYRangePadding[1], yRangePaddingMax);
           yCount += 1;
         }
       }
@@ -1532,6 +1656,8 @@ export abstract class ScaledView<X = unknown, Y = unknown> extends LayerView imp
 
     this.setXDataDomain(xCount !== 0 ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
     this.setYDataDomain(yCount !== 0 ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);
+    this.xRangePadding.setAutoState([xRangePaddingMin, xRangePaddingMax]);
+    this.yRangePadding.setAutoState([yRangePaddingMin, yRangePaddingMax]);
   }
 
   protected onBeginBoundingXScale(xScale: ContinuousScale<X, number>): void {

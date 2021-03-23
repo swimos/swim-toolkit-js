@@ -377,7 +377,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   @ViewProperty<PopoverView, BoxR2 | null, AnyBoxR2 | null>({
     type: BoxR2,
     state: null,
-    onUpdate(placementFrame: BoxR2 | null): void {
+    onSetState(placementFrame: BoxR2 | null): void {
       this.owner.place();
     },
     fromAny(value: AnyBoxR2 | null): BoxR2 | null {
@@ -389,7 +389,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   @ViewProperty<PopoverView, boolean>({
     type: Boolean,
     state: false,
-    onUpdate(dropdown: boolean): void {
+    onSetState(dropdown: boolean): void {
       this.owner.place();
     }
   })

@@ -252,6 +252,102 @@ export abstract class SeriesPlotView<X, Y> extends GraphicsView implements PlotV
     return yScale !== null ? yScale.range : null;
   }
 
+  protected willSetXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewWillSetXRangePadding !== void 0) {
+      viewController.scaledViewWillSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewWillSetXRangePadding !== void 0) {
+        viewObserver.scaledViewWillSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+      }
+    }
+  }
+
+  protected onSetXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+    // hook
+  }
+
+  protected didSetXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewDidSetXRangePadding !== void 0) {
+        viewObserver.scaledViewDidSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewDidSetXRangePadding !== void 0) {
+      viewController.scaledViewDidSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+    }
+  }
+
+  @ViewProperty<SeriesPlotView<X, Y>, readonly [number, number]>({
+    initState(): readonly [number, number] {
+      return [0, 0];
+    },
+    willSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.willSetXRangePadding(newXRangePadding, oldXRangePadding);
+    },
+    onSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.onSetXRangePadding(newXRangePadding, oldXRangePadding);
+    },
+    didSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.didSetXRangePadding(newXRangePadding, oldXRangePadding);
+    },
+  })
+  declare xRangePadding: ViewProperty<this, readonly [number, number]>
+
+  protected willSetYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewWillSetYRangePadding !== void 0) {
+      viewController.scaledViewWillSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewWillSetYRangePadding !== void 0) {
+        viewObserver.scaledViewWillSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+      }
+    }
+  }
+
+  protected onSetYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+    // hook
+  }
+
+  protected didSetYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewDidSetYRangePadding !== void 0) {
+        viewObserver.scaledViewDidSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewDidSetYRangePadding !== void 0) {
+      viewController.scaledViewDidSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+    }
+  }
+
+  @ViewProperty<SeriesPlotView<X, Y>, readonly [number, number]>({
+    initState(): readonly [number, number] {
+      return [0, 0];
+    },
+    willSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.willSetYRangePadding(newYRangePadding, oldYRangePadding);
+    },
+    onSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.onSetYRangePadding(newYRangePadding, oldYRangePadding);
+    },
+    didSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.didSetYRangePadding(newYRangePadding, oldYRangePadding);
+    },
+  })
+  declare yRangePadding: ViewProperty<this, readonly [number, number]>
+
   declare readonly xDataDomain: Domain<X> | null;
 
   protected setXDataDomain(newXDataDomain: Domain<X> | null): void {

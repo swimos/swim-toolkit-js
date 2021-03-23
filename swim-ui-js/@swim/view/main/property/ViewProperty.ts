@@ -35,9 +35,9 @@ export interface ViewPropertyInit<T, U = never> {
   inherit?: string | boolean;
 
   updateFlags?: ViewFlags;
-  willUpdate?(newState: T, oldState: T): void;
-  onUpdate?(newState: T, oldState: T): void;
-  didUpdate?(newState: T, oldState: T): void;
+  willSetState?(newState: T, oldState: T): void;
+  onSetState?(newState: T, oldState: T): void;
+  didSetState?(newState: T, oldState: T): void;
   fromAny?(value: T | U): T;
   initState?(): T | U;
 }
@@ -117,11 +117,11 @@ export interface ViewProperty<V extends View, T, U = never> {
 
   setState(state: T | U): void;
 
-  willSetState(newState: T, oldState: T): void;
+  willSetOwnState(newState: T, oldState: T): void;
 
-  onSetState(newState: T, oldState: T): void;
+  onSetOwnState(newState: T, oldState: T): void;
 
-  didSetState(newState: T, oldState: T): void;
+  didSetOwnState(newState: T, oldState: T): void;
 
   setAutoState(state: T | U): void;
 
@@ -143,11 +143,11 @@ export interface ViewProperty<V extends View, T, U = never> {
 
   update(newState: T, oldState: T): void;
 
-  willUpdate(newState: T, oldState: T): void;
+  willSetState(newState: T, oldState: T): void;
 
-  onUpdate(newState: T, oldState: T): void;
+  onSetState(newState: T, oldState: T): void;
 
-  didUpdate(newState: T, oldState: T): void;
+  didSetState(newState: T, oldState: T): void;
 
   /** @hidden */
   updateSubProperties(newState: T, oldState: T): void;
@@ -458,15 +458,15 @@ ViewProperty.prototype.setState = function <T, U>(this: ViewProperty<View, T, U>
   this.setOwnState(state);
 };
 
-ViewProperty.prototype.willSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
+ViewProperty.prototype.willSetOwnState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
   // hook
 };
 
-ViewProperty.prototype.onSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
+ViewProperty.prototype.onSetOwnState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
   // hook
 };
 
-ViewProperty.prototype.didSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
+ViewProperty.prototype.didSetOwnState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
   // hook
 };
 
@@ -481,19 +481,19 @@ ViewProperty.prototype.setOwnState = function <T, U>(this: ViewProperty<View, T,
   newState = this.fromAny(newState);
   this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag);
   if (!Equals(oldState, newState)) {
+    this.willSetOwnState(newState as T, oldState);
     this.willSetState(newState as T, oldState);
-    this.willUpdate(newState as T, oldState);
     Object.defineProperty(this, "state", {
       value: newState as T,
       enumerable: true,
       configurable: true,
     });
     this.setPropertyFlags(this.propertyFlags | ViewProperty.UpdatedFlag);
+    this.onSetOwnState(newState as T, oldState);
     this.onSetState(newState as T, oldState);
-    this.onUpdate(newState as T, oldState);
     this.updateSubProperties(newState as T, oldState);
-    this.didUpdate(newState as T, oldState);
     this.didSetState(newState as T, oldState);
+    this.didSetOwnState(newState as T, oldState);
   }
 };
 
@@ -549,31 +549,31 @@ ViewProperty.prototype.updateInherited = function (this: ViewProperty<View, unkn
 
 ViewProperty.prototype.update = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
   if (!Equals(oldState, newState)) {
-    this.willUpdate(newState, oldState);
+    this.willSetState(newState, oldState);
     Object.defineProperty(this, "state", {
       value: newState,
       enumerable: true,
       configurable: true,
     });
     this.setPropertyFlags(this.propertyFlags | ViewProperty.UpdatedFlag);
-    this.onUpdate(newState, oldState);
+    this.onSetState(newState, oldState);
     this.updateSubProperties(newState, oldState);
-    this.didUpdate(newState, oldState);
+    this.didSetState(newState, oldState);
   }
 };
 
-ViewProperty.prototype.willUpdate = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
+ViewProperty.prototype.willSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
   // hook
 };
 
-ViewProperty.prototype.onUpdate = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
+ViewProperty.prototype.onSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
   const updateFlags = this.updateFlags;
   if (updateFlags !== void 0) {
     this.owner.requireUpdate(updateFlags);
   }
 };
 
-ViewProperty.prototype.didUpdate = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
+ViewProperty.prototype.didSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
   // hook
 };
 

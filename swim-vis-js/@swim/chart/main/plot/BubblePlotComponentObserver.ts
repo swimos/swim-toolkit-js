@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Length} from "@swim/math";
+import type {Color} from "@swim/style";
+import type {Look} from "@swim/theme";
 import type {BubblePlotView} from "./BubblePlotView";
 import type {BubblePlotTrait} from "./BubblePlotTrait";
 import type {ScatterPlotComponentObserver} from "./ScatterPlotComponentObserver";
@@ -25,4 +28,12 @@ export interface BubblePlotComponentObserver<X, Y, C extends BubblePlotComponent
   plotWillSetView?(newPlotView: BubblePlotView<X, Y> | null, oldPlotView: BubblePlotView<X, Y> | null, component: C): void;
 
   plotDidSetView?(newPlotView: BubblePlotView<X, Y> | null, oldPlotView: BubblePlotView<X, Y> | null, component: C): void;
+
+  bubblePlotWillSetRadius?(newRadius: Length | null, oldRadius: Length | null, component: C): void;
+
+  bubblePlotDidSetRadius?(newRadius: Length | null, oldRadius: Length | null, component: C): void;
+
+  bubblePlotWillSetFill?(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, component: C): void;
+
+  bubblePlotDidSetFill?(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, component: C): void;
 }

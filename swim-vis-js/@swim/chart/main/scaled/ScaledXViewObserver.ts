@@ -16,10 +16,14 @@ import type {Domain, ContinuousScale} from "@swim/mapping";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import type {ScaledXView} from "./ScaledXView";
 
-export interface ScaledXViewObserver<X = unknown, V extends ScaledXView<X> = ScaledXView<X>> extends GraphicsViewObserver<V> {
+export interface ScaledXViewObserver<X, V extends ScaledXView<X> = ScaledXView<X>> extends GraphicsViewObserver<V> {
   scaledViewWillSetXScale?(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null, view: V): void;
 
   scaledViewDidSetXScale?(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null, view: V): void;
+
+  scaledViewWillSetXRangePadding?(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number], view: V): void;
+
+  scaledViewDidSetXRangePadding?(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number], view: V): void;
 
   scaledViewWillSetXDataDomain?(newXDataDomain: Domain<X> | null, oldXDataDomain: Domain<X> | null, view: V): void;
 

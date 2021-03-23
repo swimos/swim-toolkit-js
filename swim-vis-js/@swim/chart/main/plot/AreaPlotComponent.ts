@@ -91,8 +91,28 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
     }
   }
 
+  protected willSetPlotTraitFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: AreaPlotTrait<X, Y>): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.areaPlotWillSetFill !== void 0) {
+        componentObserver.areaPlotWillSetFill(newFill, oldFill, this);
+      }
+    }
+  }
+
   protected onSetPlotTraitFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: AreaPlotTrait<X, Y>): void {
     this.setPlotViewFill(newFill, plotTrait);
+  }
+
+  protected didSetPlotTraitFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: AreaPlotTrait<X, Y>): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.areaPlotDidSetFill !== void 0) {
+        componentObserver.areaPlotDidSetFill(newFill, oldFill, this);
+      }
+    }
   }
 
   protected createPlotView(): AreaPlotView<X, Y> {
@@ -205,8 +225,12 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
     didSetTrait(newPlotTrait: AreaPlotTrait<unknown, unknown> | null, oldPlotTrait: AreaPlotTrait<unknown, unknown> | null): void {
       this.owner.didSetPlotTrait(newPlotTrait, oldPlotTrait);
     },
+    areaPlotTraitWillSetFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: AreaPlotTrait<unknown, unknown>): void {
+      this.owner.willSetPlotTraitFill(newFill, oldFill, plotTrait);
+    },
     areaPlotTraitDidSetFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: AreaPlotTrait<unknown, unknown>): void {
-      this.owner.setPlotViewFill(newFill, plotTrait);
+      this.owner.onSetPlotTraitFill(newFill, oldFill, plotTrait);
+      this.owner.didSetPlotTraitFill(newFill, oldFill, plotTrait);
     },
   });
 

@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Length} from "@swim/math";
+import type {Color} from "@swim/style";
+import type {Look} from "@swim/theme";
 import type {LinePlotView} from "./LinePlotView";
 import type {LinePlotTrait} from "./LinePlotTrait";
 import type {SeriesPlotComponentObserver} from "./SeriesPlotComponentObserver";
@@ -25,4 +28,12 @@ export interface LinePlotComponentObserver<X, Y, C extends LinePlotComponent<X, 
   plotWillSetView?(newPlotView: LinePlotView<X, Y> | null, oldPlotView: LinePlotView<X, Y> | null, component: C): void;
 
   plotDidSetView?(newPlotView: LinePlotView<X, Y> | null, oldPlotView: LinePlotView<X, Y> | null, component: C): void;
+
+  linePlotWillSetStroke?(newStroke: Look<Color> | Color | null, oldStroke: Look<Color> | Color | null, component: C): void;
+
+  linePlotDidSetStroke?(newStroke: Look<Color> | Color | null, oldStroke: Look<Color> | Color | null, component: C): void;
+
+  linePlotWillSetStrokeWidth?(newStrokeWidth: Length | null, oldStrokeWidth: Length | null, component: C): void;
+
+  linePlotDidSetStrokeWidth?(newStrokeWidth: Length | null, oldStrokeWidth: Length | null, component: C): void;
 }

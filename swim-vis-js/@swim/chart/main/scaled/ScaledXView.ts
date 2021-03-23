@@ -18,7 +18,7 @@ import {GraphicsView, GraphicsViewController} from "@swim/graphics";
 import type {ScaledXViewObserver} from "./ScaledXViewObserver";
 import {ScaledView} from "../"; // forward import
 
-export interface ScaledXView<X = unknown> extends GraphicsView {
+export interface ScaledXView<X> extends GraphicsView {
   readonly viewController: GraphicsViewController<ScaledXView<X>> & ScaledXViewObserver<X> | null;
 
   readonly viewObservers: ReadonlyArray<ScaledXViewObserver<X>>;
@@ -30,6 +30,8 @@ export interface ScaledXView<X = unknown> extends GraphicsView {
   xDomain(xMin: X, xMax: X, timing: AnyTiming | boolean): this;
 
   xRange(): Range<number> | null;
+
+  xRangePadding(): readonly [number, number];
 
   readonly xDataDomain: Domain<X> | null;
 

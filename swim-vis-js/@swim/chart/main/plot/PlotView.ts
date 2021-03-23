@@ -64,6 +64,10 @@ export interface PlotView<X, Y> extends GraphicsView, ScaledXYView<X, Y> {
 
   yRange(): Range<number> | null;
 
+  xRangePadding(): readonly [number, number];
+
+  yRangePadding(): readonly [number, number];
+
   readonly xDataDomain: Domain<X> | null;
 
   readonly yDataDomain: Domain<Y> | null;

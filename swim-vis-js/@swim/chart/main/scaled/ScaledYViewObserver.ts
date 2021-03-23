@@ -16,10 +16,14 @@ import type {Domain, ContinuousScale} from "@swim/mapping";
 import type {GraphicsViewObserver} from "@swim/graphics";
 import type {ScaledYView} from "./ScaledYView";
 
-export interface ScaledYViewObserver<Y = unknown, V extends ScaledYView<Y> = ScaledYView<Y>> extends GraphicsViewObserver<V> {
+export interface ScaledYViewObserver<Y, V extends ScaledYView<Y> = ScaledYView<Y>> extends GraphicsViewObserver<V> {
   scaledViewWillSetYScale?(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null, view: V): void;
 
   scaledViewDidSetYScale?(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null, view: V): void;
+
+  scaledViewWillSetYRangePadding?(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number], view: V): void;
+
+  scaledViewDidSetYRangePadding?(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number], view: V): void;
 
   scaledViewWillSetYDataDomain?(newYDataDomain: Domain<Y> | null, oldYDataDomain: Domain<Y> | null, view: V): void;
 

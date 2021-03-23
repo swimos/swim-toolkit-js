@@ -36,9 +36,9 @@ export interface ModelPropertyInit<T, U = never> {
   inherit?: string | boolean;
 
   updateFlags?: ModelFlags;
-  willUpdate?(newState: T, oldState: T): void;
-  onUpdate?(newState: T, oldState: T): void;
-  didUpdate?(newState: T, oldState: T): void;
+  willSetState?(newState: T, oldState: T): void;
+  onSetState?(newState: T, oldState: T): void;
+  didSetState?(newState: T, oldState: T): void;
   fromAny?(value: T | U): T;
   initState?(): T | U;
 }
@@ -128,13 +128,13 @@ export interface ModelProperty<M extends Model, T, U = never> {
   setState(state: T | U): void;
 
   /** @hidden */
-  willSetState(newState: T, oldState: T): void;
+  willSetOwnState(newState: T, oldState: T): void;
 
   /** @hidden */
-  onSetState(newState: T, oldState: T): void;
+  onSetOwnState(newState: T, oldState: T): void;
 
   /** @hidden */
-  didSetState(newState: T, oldState: T): void;
+  didSetOwnState(newState: T, oldState: T): void;
 
   setAutoState(state: T | U): void;
 
@@ -156,11 +156,11 @@ export interface ModelProperty<M extends Model, T, U = never> {
 
   update(newState: T, oldState: T): void;
 
-  willUpdate(newState: T, oldState: T): void;
+  willSetState(newState: T, oldState: T): void;
 
-  onUpdate(newState: T, oldState: T): void;
+  onSetState(newState: T, oldState: T): void;
 
-  didUpdate(newState: T, oldState: T): void;
+  didSetState(newState: T, oldState: T): void;
 
   /** @hidden */
   updateSubProperties(newState: T, oldState: T): void;
@@ -506,15 +506,15 @@ ModelProperty.prototype.setState = function <T, U>(this: ModelProperty<Model, T,
   this.setOwnState(state);
 };
 
-ModelProperty.prototype.willSetState = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
+ModelProperty.prototype.willSetOwnState = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
   // hook
 };
 
-ModelProperty.prototype.onSetState = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
+ModelProperty.prototype.onSetOwnState = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
   // hook
 };
 
-ModelProperty.prototype.didSetState = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
+ModelProperty.prototype.didSetOwnState = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
   // hook
 };
 
@@ -536,20 +536,20 @@ ModelProperty.prototype.setOwnState = function <T, U>(this: ModelProperty<Model,
     }
   }
   if (!Equals(oldState, newState)) {
+    this.willSetOwnState(newState as T, oldState);
     this.willSetState(newState as T, oldState);
-    this.willUpdate(newState as T, oldState);
     Object.defineProperty(this, "state", {
       value: newState as T,
       enumerable: true,
       configurable: true,
     });
     this.setPropertyFlags(this.propertyFlags | ModelProperty.UpdatedFlag);
+    this.onSetOwnState(newState as T, oldState);
     this.onSetState(newState as T, oldState);
-    this.onUpdate(newState as T, oldState);
     this.updateSubProperties(newState as T, oldState);
     this.updateTraitPropertys(newState as T, oldState);
-    this.didUpdate(newState as T, oldState);
     this.didSetState(newState as T, oldState);
+    this.didSetOwnState(newState as T, oldState);
   }
 };
 
@@ -605,32 +605,32 @@ ModelProperty.prototype.updateInherited = function <T>(this: ModelProperty<Model
 
 ModelProperty.prototype.update = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
   if (!Equals(oldState, newState)) {
-    this.willUpdate(newState, oldState);
+    this.willSetState(newState, oldState);
     Object.defineProperty(this, "state", {
       value: newState,
       enumerable: true,
       configurable: true,
     });
     this.setPropertyFlags(this.propertyFlags | ModelProperty.UpdatedFlag);
-    this.onUpdate(newState, oldState);
+    this.onSetState(newState, oldState);
     this.updateSubProperties(newState, oldState);
     this.updateTraitPropertys(newState, oldState);
-    this.didUpdate(newState, oldState);
+    this.didSetState(newState, oldState);
   }
 };
 
-ModelProperty.prototype.willUpdate = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
+ModelProperty.prototype.willSetState = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
   // hook
 };
 
-ModelProperty.prototype.onUpdate = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
+ModelProperty.prototype.onSetState = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
   const updateFlags = this.updateFlags;
   if (updateFlags !== void 0) {
     this.owner.requireUpdate(updateFlags);
   }
 };
 
-ModelProperty.prototype.didUpdate = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
+ModelProperty.prototype.didSetState = function <T>(this: ModelProperty<Model, T>, newState: T, oldState: T): void {
   // hook
 };
 

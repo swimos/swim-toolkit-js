@@ -127,7 +127,7 @@ export class TreeView extends HtmlView {
   @ViewProperty<TreeView, number>({
     type: Number,
     state: 0,
-    onUpdate(depth: number): void {
+    onSetState(depth: number): void {
       this.owner.onUpdateDepth(depth);
     },
   })

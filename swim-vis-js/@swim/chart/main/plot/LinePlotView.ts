@@ -53,15 +53,33 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
   @ViewAnimator({type: Color, state: null, look: Look.accentColor})
   declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  @ViewAnimator({type: Length, state: Length.px(1)})
+  protected onSetStrokeWidth(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
+    if (this.xRangePadding.isAuto() || this.yRangePadding.isAuto()) {
+      const frame = this.viewFrame;
+      const size = Math.min(frame.width, frame.height);
+      const strokeWidth = this.strokeWidth.getValueOr(Length.zero()).pxValue(size);
+      const strokeRadius = strokeWidth / 2;
+      this.xRangePadding.setAutoState([strokeRadius, strokeRadius]);
+      this.yRangePadding.setAutoState([strokeRadius, strokeRadius]);
+    }
+  }
+
+  @ViewAnimator<LinePlotView<X, Y>, Length | null, AnyLength | null>({
+    type: Length,
+    state: Length.px(1),
+    onSetValue(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
+      this.owner.onSetStrokeWidth(newStrokeWidth, oldStrokeWidth);
+    },
+  })
   declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewProperty({type: Number, state: 5})
   declare hitWidth: ViewProperty<this, number>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
+    const size = Math.min(frame.width, frame.height);
     const stroke = this.stroke.getValueOr(Color.transparent());
-    const strokeWidth = this.strokeWidth.getValueOr(Length.zero()).pxValue(Math.min(frame.width, frame.height));
+    const strokeWidth = this.strokeWidth.getValueOr(Length.zero()).pxValue(size);
     const gradientStops = this.gradientStops;
     let gradient: CanvasGradient | null = null;
 

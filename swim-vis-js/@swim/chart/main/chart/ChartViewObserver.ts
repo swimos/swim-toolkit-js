@@ -17,7 +17,7 @@ import type {GraphView} from "../graph/GraphView";
 import type {AxisView} from "../axis/AxisView";
 import type {ChartView} from "./ChartView";
 
-export interface ChartViewObserver<X = unknown, Y = unknown, V extends ChartView<X, Y> = ChartView<X, Y>> extends ScaledViewObserver<X, Y, V> {
+export interface ChartViewObserver<X, Y, V extends ChartView<X, Y> = ChartView<X, Y>> extends ScaledViewObserver<X, Y, V> {
   chartViewWillSetGraph?(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null, view: V): void;
 
   chartViewDidSetGraph?(newGraphView: GraphView<X, Y> | null, oldGraphView: GraphView<X, Y> | null, view: V): void;

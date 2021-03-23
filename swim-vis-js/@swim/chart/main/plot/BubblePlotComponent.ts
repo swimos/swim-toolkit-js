@@ -93,12 +93,52 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
     }
   }
 
+  protected willSetPlotTraitRadius(newRadius: Length | null, oldRadius: Length | null, plotTrait: BubblePlotTrait<X, Y>): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.bubblePlotWillSetRadius !== void 0) {
+        componentObserver.bubblePlotWillSetRadius(newRadius, oldRadius, this);
+      }
+    }
+  }
+
   protected onSetPlotTraitRadius(newRadius: Length | null, oldRadius: Length | null, plotTrait: BubblePlotTrait<X, Y>): void {
     this.setPlotViewRadius(newRadius, plotTrait);
   }
 
+  protected didSetPlotTraitRadius(newRadius: Length | null, oldRadius: Length | null, plotTrait: BubblePlotTrait<X, Y>): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.bubblePlotDidSetRadius !== void 0) {
+        componentObserver.bubblePlotDidSetRadius(newRadius, oldRadius, this);
+      }
+    }
+  }
+
+  protected willSetPlotTraitFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: BubblePlotTrait<X, Y>): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.bubblePlotWillSetFill !== void 0) {
+        componentObserver.bubblePlotWillSetFill(newFill, oldFill, this);
+      }
+    }
+  }
+
   protected onSetPlotTraitFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: BubblePlotTrait<X, Y>): void {
     this.setPlotViewFill(newFill, plotTrait);
+  }
+
+  protected didSetPlotTraitFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: BubblePlotTrait<X, Y>): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.bubblePlotDidSetFill !== void 0) {
+        componentObserver.bubblePlotDidSetFill(newFill, oldFill, this);
+      }
+    }
   }
 
   protected createPlotView(): BubblePlotView<X, Y> {
@@ -227,11 +267,19 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
     didSetTrait(newPlotTrait: BubblePlotTrait<unknown, unknown> | null, oldPlotTrait: BubblePlotTrait<unknown, unknown> | null): void {
       this.owner.didSetPlotTrait(newPlotTrait, oldPlotTrait);
     },
+    bubblePlotTraitWillSetRadius(newRadius: Length | null, oldRadius: Length | null, plotTrait: BubblePlotTrait<unknown, unknown>): void {
+      this.owner.willSetPlotTraitRadius(newRadius, oldRadius, plotTrait);
+    },
     bubblePlotTraitDidSetRadius(newRadius: Length | null, oldRadius: Length | null, plotTrait: BubblePlotTrait<unknown, unknown>): void {
       this.owner.onSetPlotTraitRadius(newRadius, oldRadius, plotTrait);
+      this.owner.didSetPlotTraitRadius(newRadius, oldRadius, plotTrait);
+    },
+    bubblePlotTraitWillSetFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: BubblePlotTrait<unknown, unknown>): void {
+      this.owner.willSetPlotTraitFill(newFill, oldFill, plotTrait);
     },
     bubblePlotTraitDidSetFill(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, plotTrait: BubblePlotTrait<unknown, unknown>): void {
       this.owner.onSetPlotTraitFill(newFill, oldFill, plotTrait);
+      this.owner.didSetPlotTraitFill(newFill, oldFill, plotTrait);
     },
   });
 

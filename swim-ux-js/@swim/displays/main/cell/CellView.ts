@@ -37,7 +37,7 @@ export class CellView extends HtmlView {
 
   @ViewProperty<CellView, Look<Color> | Color | null>({
     state: null,
-    didUpdate(newTextColor: Look<Color> | Color | null, oldTextColor: Look<Color> | Color | null): void {
+    didSetState(newTextColor: Look<Color> | Color | null, oldTextColor: Look<Color> | Color | null): void {
       this.owner.setTextColor(newTextColor);
     },
   })

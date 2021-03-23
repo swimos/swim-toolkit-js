@@ -27,9 +27,9 @@ import {RightAxisView} from "../axis/RightAxisView";
 import {BottomAxisView} from "../axis/BottomAxisView";
 import {LeftAxisView} from "../axis/LeftAxisView";
 
-export type AnyChartView<X = unknown, Y = unknown> = ChartView<X, Y> | ChartViewInit<X, Y>;
+export type AnyChartView<X, Y> = ChartView<X, Y> | ChartViewInit<X, Y>;
 
-export interface ChartViewInit<X = unknown, Y = unknown> extends ScaledViewInit<X, Y> {
+export interface ChartViewInit<X, Y> extends ScaledViewInit<X, Y> {
   graph?: AnyGraphView<X, Y>;
 
   topAxis?: AnyAxisView<X> | true;
@@ -59,7 +59,7 @@ export interface ChartViewInit<X = unknown, Y = unknown> extends ScaledViewInit<
   textColor?: AnyColor;
 }
 
-export class ChartView<X = unknown, Y = unknown> extends ScaledView<X, Y> {
+export class ChartView<X, Y> extends ScaledView<X, Y> {
   initView(init: ChartViewInit<X, Y>): void {
     super.initView(init);
      if (init.graph !== void 0) {

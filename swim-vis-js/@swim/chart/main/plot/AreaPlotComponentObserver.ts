@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type {Color} from "@swim/style";
+import type {Look} from "@swim/theme";
 import type {AreaPlotView} from "./AreaPlotView";
 import type {AreaPlotTrait} from "./AreaPlotTrait";
 import type {SeriesPlotComponentObserver} from "./SeriesPlotComponentObserver";
@@ -25,4 +27,8 @@ export interface AreaPlotComponentObserver<X, Y, C extends AreaPlotComponent<X, 
   plotWillSetView?(newPlotView: AreaPlotView<X, Y> | null, oldPlotView: AreaPlotView<X, Y> | null, component: C): void;
 
   plotDidSetView?(newPlotView: AreaPlotView<X, Y> | null, oldPlotView: AreaPlotView<X, Y> | null, component: C): void;
+
+  areaPlotWillSetFill?(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, component: C): void;
+
+  areaPlotDidSetFill?(newFill: Look<Color> | Color | null, oldFill: Look<Color> | Color | null, component: C): void;
 }

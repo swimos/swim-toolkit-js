@@ -16,7 +16,7 @@ import {Equals, Values} from "@swim/util";
 import {Domain, Range, AnyTiming, LinearRange, ContinuousScale} from "@swim/mapping";
 import type {BoxR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewAnimator, ViewFastener} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {GraphicsView, GraphicsViewController, LayerView, CanvasContext, CanvasRenderer} from "@swim/graphics";
 import {AnyDataPointView, DataPointView} from "../data/DataPointView";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
@@ -232,6 +232,102 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     const yScale = this.yScale.value;
     return yScale !== null ? yScale.range : null;
   }
+
+  protected willSetXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewWillSetXRangePadding !== void 0) {
+      viewController.scaledViewWillSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewWillSetXRangePadding !== void 0) {
+        viewObserver.scaledViewWillSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+      }
+    }
+  }
+
+  protected onSetXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+    // hook
+  }
+
+  protected didSetXRangePadding(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewDidSetXRangePadding !== void 0) {
+        viewObserver.scaledViewDidSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewDidSetXRangePadding !== void 0) {
+      viewController.scaledViewDidSetXRangePadding(newXRangePadding, oldXRangePadding, this);
+    }
+  }
+
+  @ViewProperty<ScatterPlotView<X, Y>, readonly [number, number]>({
+    initState(): readonly [number, number] {
+      return [0, 0];
+    },
+    willSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.willSetXRangePadding(newXRangePadding, oldXRangePadding);
+    },
+    onSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.onSetXRangePadding(newXRangePadding, oldXRangePadding);
+    },
+    didSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.didSetXRangePadding(newXRangePadding, oldXRangePadding);
+    },
+  })
+  declare xRangePadding: ViewProperty<this, readonly [number, number]>
+
+  protected willSetYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewWillSetYRangePadding !== void 0) {
+      viewController.scaledViewWillSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewWillSetYRangePadding !== void 0) {
+        viewObserver.scaledViewWillSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+      }
+    }
+  }
+
+  protected onSetYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+    // hook
+  }
+
+  protected didSetYRangePadding(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.scaledViewDidSetYRangePadding !== void 0) {
+        viewObserver.scaledViewDidSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.scaledViewDidSetYRangePadding !== void 0) {
+      viewController.scaledViewDidSetYRangePadding(newYRangePadding, oldYRangePadding, this);
+    }
+  }
+
+  @ViewProperty<ScatterPlotView<X, Y>, readonly [number, number]>({
+    initState(): readonly [number, number] {
+      return [0, 0];
+    },
+    willSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.willSetYRangePadding(newYRangePadding, oldYRangePadding);
+    },
+    onSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.onSetYRangePadding(newYRangePadding, oldYRangePadding);
+    },
+    didSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.didSetYRangePadding(newYRangePadding, oldYRangePadding);
+    },
+  })
+  declare yRangePadding: ViewProperty<this, readonly [number, number]>
 
   declare readonly xDataDomain: Domain<X> | null;
 
@@ -655,10 +751,15 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
                                                 viewContext: ViewContextType<this>) => void): void {
     // Recompute extrema when laying out child views.
     const frame = this.viewFrame;
+    const size = Math.min(frame.width, frame.height);
     let xDataDomainMin: X | undefined;
     let xDataDomainMax: X | undefined;
     let yDataDomainMin: Y | undefined;
     let yDataDomainMax: Y | undefined;
+    let xRangePaddingMin = 0;
+    let xRangePaddingMax = 0;
+    let yRangePaddingMin = 0;
+    let yRangePaddingMax = 0;
 
     let point0 = null as DataPointView<X, Y> | null;
     type self = this;
@@ -668,6 +769,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
         const x1 = point1.x.getValue();
         const y1 = point1.y.getValue();
         const dy1 = point1.y2.value;
+        const r1 = point1.radius.value;
         const sx1 = xScale(x1);
         const sy1 = yScale(y1);
         point1.setXCoord(frame.xMin + sx1);
@@ -699,6 +801,13 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
           yDataDomainMax = y1;
         }
 
+        if (r1 !== null) {
+          const radius = r1.pxValue(size);
+          xRangePaddingMin = Math.max(radius, xRangePaddingMin);
+          xRangePaddingMax = Math.max(radius, xRangePaddingMax);
+          yRangePaddingMin = Math.max(radius, yRangePaddingMin);
+          yRangePaddingMax = Math.max(radius, yRangePaddingMax);
+        }
         point0 = point1;
       }
 
@@ -708,6 +817,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
 
     this.setXDataDomain(point0 !== null ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
     this.setYDataDomain(point0 !== null ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);
+    this.xRangePadding.setAutoState([xRangePaddingMin, xRangePaddingMax]);
+    this.yRangePadding.setAutoState([yRangePaddingMin, yRangePaddingMax]);
   }
 
   protected didRender(viewContext: ViewContextType<this>): void {

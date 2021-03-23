@@ -34,9 +34,9 @@ export interface ComponentPropertyInit<T, U = never> {
   inherit?: string | boolean;
 
   updateFlags?: ComponentFlags;
-  willUpdate?(newState: T, oldState: T): void;
-  onUpdate?(newState: T, oldState: T): void;
-  didUpdate?(newState: T, oldState: T): void;
+  willSetState?(newState: T, oldState: T): void;
+  onSetState?(newState: T, oldState: T): void;
+  didSetState?(newState: T, oldState: T): void;
   fromAny?(value: T | U): T;
   initState?(): T | U;
 }
@@ -119,13 +119,13 @@ export interface ComponentProperty<C extends Component, T, U = never> {
   setState(state: T | U): void;
 
   /** @hidden */
-  willSetState(newState: T, oldState: T): void;
+  willSetOwnState(newState: T, oldState: T): void;
 
   /** @hidden */
-  onSetState(newState: T, oldState: T): void;
+  onSetOwnState(newState: T, oldState: T): void;
 
   /** @hidden */
-  didSetState(newState: T, oldState: T): void;
+  didSetOwnState(newState: T, oldState: T): void;
 
   setAutoState(state: T | U): void;
 
@@ -147,11 +147,11 @@ export interface ComponentProperty<C extends Component, T, U = never> {
 
   update(newState: T, oldState: T): void;
 
-  willUpdate(newState: T, oldState: T): void;
+  willSetState(newState: T, oldState: T): void;
 
-  onUpdate(newState: T, oldState: T): void;
+  onSetState(newState: T, oldState: T): void;
 
-  didUpdate(newState: T, oldState: T): void;
+  didSetState(newState: T, oldState: T): void;
 
   /** @hidden */
   updateSubProperties(newState: T, oldState: T): void;
@@ -434,15 +434,15 @@ ComponentProperty.prototype.setState = function <T, U>(this: ComponentProperty<C
   this.setOwnState(state);
 };
 
-ComponentProperty.prototype.willSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
+ComponentProperty.prototype.willSetOwnState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
   // hook
 };
 
-ComponentProperty.prototype.onSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
+ComponentProperty.prototype.onSetOwnState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
   // hook
 };
 
-ComponentProperty.prototype.didSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
+ComponentProperty.prototype.didSetOwnState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
   // hook
 };
 
@@ -457,19 +457,19 @@ ComponentProperty.prototype.setOwnState = function <T, U>(this: ComponentPropert
   newState = this.fromAny(newState);
   this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag);
   if (!Equals(oldState, newState)) {
+    this.willSetOwnState(newState as T, oldState);
     this.willSetState(newState as T, oldState);
-    this.willUpdate(newState as T, oldState);
     Object.defineProperty(this, "state", {
       value: newState as T,
       enumerable: true,
       configurable: true,
     });
     this.setPropertyFlags(this.propertyFlags | ComponentProperty.UpdatedFlag);
+    this.onSetOwnState(newState as T, oldState);
     this.onSetState(newState as T, oldState);
-    this.onUpdate(newState as T, oldState);
     this.updateSubProperties(newState as T, oldState);
-    this.didUpdate(newState as T, oldState);
     this.didSetState(newState as T, oldState);
+    this.didSetOwnState(newState as T, oldState);
   }
 };
 
@@ -525,31 +525,31 @@ ComponentProperty.prototype.updateInherited = function <T>(this: ComponentProper
 
 ComponentProperty.prototype.update = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
   if (!Equals(oldState, newState)) {
-    this.willUpdate(newState, oldState);
+    this.willSetState(newState, oldState);
     Object.defineProperty(this, "state", {
       value: newState,
       enumerable: true,
       configurable: true,
     });
     this.setPropertyFlags(this.propertyFlags | ComponentProperty.UpdatedFlag);
-    this.onUpdate(newState, oldState);
+    this.onSetState(newState, oldState);
     this.updateSubProperties(newState, oldState);
-    this.didUpdate(newState, oldState);
+    this.didSetState(newState, oldState);
   }
 };
 
-ComponentProperty.prototype.willUpdate = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
+ComponentProperty.prototype.willSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
   // hook
 };
 
-ComponentProperty.prototype.onUpdate = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
+ComponentProperty.prototype.onSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
   const updateFlags = this.updateFlags;
   if (updateFlags !== void 0) {
     this.owner.requireUpdate(updateFlags);
   }
 };
 
-ComponentProperty.prototype.didUpdate = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
+ComponentProperty.prototype.didSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
   // hook
 };
 
