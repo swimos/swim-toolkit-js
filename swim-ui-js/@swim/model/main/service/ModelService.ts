@@ -26,7 +26,7 @@ import {WarpService} from "../"; // forward import
 import type {TraitService} from "./TraitService";
 
 export type ModelServiceMemberType<M, K extends keyof M> =
-  M extends {[P in K]: ModelService<any, infer T>} ? T : unknown;
+  M[K] extends ModelService<any, infer T> ? T : never;
 
 export type ModelServiceFlags = number;
 
@@ -65,8 +65,6 @@ export interface ModelService<M extends Model, T> {
   setInherit(inherit: string | boolean): void;
 
   isInherited(): boolean;
-
-  setInherited(inherited: boolean): void;
 
   /** @hidden */
   readonly serviceFlags: ModelServiceFlags;
@@ -212,22 +210,6 @@ ModelService.prototype.setInherit = function (this: ModelService<Model, unknown>
 
 ModelService.prototype.isInherited = function (this: ModelService<Model, unknown>): boolean {
   return (this.serviceFlags & ModelService.InheritedFlag) !== 0;
-};
-
-ModelService.prototype.setInherited = function (this: ModelService<Model, unknown>, inherited: boolean): void {
-  if (inherited && (this.serviceFlags & ModelService.InheritedFlag) === 0) {
-    const superService = this.superService;
-    if (superService !== null) {
-      this.setServiceFlags(this.serviceFlags | ModelService.InheritedFlag);
-      Object.defineProperty(this, "manager", {
-        value: superService.manager,
-        enumerable: true,
-        configurable: true,
-      });
-    }
-  } else if (!inherited && (this.serviceFlags & ModelService.InheritedFlag) !== 0) {
-    this.setServiceFlags(this.serviceFlags & ~ModelService.InheritedFlag);
-  }
 };
 
 ModelService.prototype.setServiceFlags = function (this: ModelService<Model, unknown>, serviceFlags: ModelServiceFlags): void {

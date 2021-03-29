@@ -70,10 +70,10 @@ export class TokenView extends HtmlView {
 
   protected initToken(): void {
     this.addClass("token");
-    this.position.setAutoState("relative");
-    this.height.setAutoState(32);
-    this.boxSizing.setAutoState("content-box");
-    this.userSelect.setAutoState("none");
+    this.position.setState("relative", View.Intrinsic);
+    this.height.setState(32, View.Intrinsic);
+    this.boxSizing.setState("content-box", View.Intrinsic);
+    this.userSelect.setState("none", View.Intrinsic);
     this.shape.injectView();
   }
 
@@ -100,9 +100,9 @@ export class TokenView extends HtmlView {
 
   protected initHead(headView: SvgView): void {
     headView.addClass("head");
-    headView.fillRule.setAutoState("evenodd");
-    headView.pointerEvents.setAutoState("bounding-box");
-    headView.cursor.setAutoState("pointer");
+    headView.fillRule.setState("evenodd", View.Intrinsic);
+    headView.pointerEvents.setState("bounding-box", View.Intrinsic);
+    headView.cursor.setState("pointer", View.Intrinsic);
     const headGesture = this.createHeadGesture(headView);
     if (headGesture !== null) {
       Object.defineProperty(this, "headGesture", {
@@ -122,13 +122,13 @@ export class TokenView extends HtmlView {
 
   protected initHeadIcon(headIconView: SvgView): void {
     headIconView.addClass("head-icon");
-    headIconView.pointerEvents.setAutoState("none");
+    headIconView.pointerEvents.setState("none", View.Intrinsic);
   }
 
   protected initBody(bodyView: SvgView): void {
     bodyView.addClass("body");
-    bodyView.pointerEvents.setAutoState("fill");
-    bodyView.cursor.setAutoState("pointer");
+    bodyView.pointerEvents.setState("fill", View.Intrinsic);
+    bodyView.cursor.setState("pointer", View.Intrinsic);
     const bodyGesture = this.createBodyGesture(bodyView);
     if (bodyGesture !== null) {
       Object.defineProperty(this, "bodyGesture", {
@@ -148,9 +148,9 @@ export class TokenView extends HtmlView {
 
   protected initFoot(footView: SvgView): void {
     footView.addClass("foot");
-    footView.fillRule.setAutoState("evenodd");
-    footView.pointerEvents.setAutoState("bounding-box");
-    footView.cursor.setAutoState("pointer");
+    footView.fillRule.setState("evenodd", View.Intrinsic);
+    footView.pointerEvents.setState("bounding-box", View.Intrinsic);
+    footView.cursor.setState("pointer", View.Intrinsic);
     const footGesture = this.createFootGesture(footView);
     if (footGesture !== null) {
       Object.defineProperty(this, "footGesture", {
@@ -170,25 +170,25 @@ export class TokenView extends HtmlView {
 
   protected initFootIcon(footIconView: SvgView): void {
     footIconView.addClass("foot-icon");
-    footIconView.pointerEvents.setAutoState("none");
+    footIconView.pointerEvents.setState("none", View.Intrinsic);
   }
 
   protected initLabelContainer(labelContainer: HtmlView): void {
     labelContainer.addClass("label");
-    labelContainer.display.setAutoState("block");
-    labelContainer.position.setAutoState("absolute");
-    labelContainer.top.setAutoState(0);
-    labelContainer.left.setAutoState(0);
-    labelContainer.overflowX.setAutoState("hidden");
-    labelContainer.overflowY.setAutoState("hidden");
-    labelContainer.pointerEvents.setAutoState("none");
+    labelContainer.display.setState("block", View.Intrinsic);
+    labelContainer.position.setState("absolute", View.Intrinsic);
+    labelContainer.top.setState(0, View.Intrinsic);
+    labelContainer.left.setState(0, View.Intrinsic);
+    labelContainer.overflowX.setState("hidden", View.Intrinsic);
+    labelContainer.overflowY.setState("hidden", View.Intrinsic);
+    labelContainer.pointerEvents.setState("none", View.Intrinsic);
   }
 
   protected initLabel(labelView: HtmlView): void {
-    labelView.position.setAutoState("absolute");
-    labelView.top.setAutoState(0);
-    labelView.bottom.setAutoState(0);
-    labelView.left.setAutoState(0);
+    labelView.position.setState("absolute", View.Intrinsic);
+    labelView.top.setState(0, View.Intrinsic);
+    labelView.bottom.setState(0, View.Intrinsic);
+    labelView.left.setState(0, View.Intrinsic);
   }
 
   declare readonly tokenState: TokenViewState;
@@ -250,33 +250,33 @@ export class TokenView extends HtmlView {
       headView.off("click", this.owner.onClickHead);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, headView: SvgView): void {
-      headView.fill.setAutoState(theme.getOr(this.owner.fillLook, mood, null), timing);
+      headView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, View.Intrinsic);
       const headIconView = this.owner.headIcon.view;
-      if (headIconView !== null && headIconView.fill.isAuto()) {
+      if (headIconView !== null && headIconView.fill.isPrecedent(View.Intrinsic)) {
         const iconColor = theme.getOr(this.owner.fillLook, mood.updated(Feel.embossed, 1), null);
-        headIconView.fill.setAutoState(iconColor, timing);
+        headIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
     },
     didStartHovering(): void {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = headView.getLook(Look.timing);
-      headView.fill.setAutoState(headView.getLookOr(this.owner.fillLook, null), timing);
+      headView.fill.setState(headView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const headIconView = this.owner.headIcon.view;
-      if (headIconView !== null && headIconView.fill.isAuto()) {
+      if (headIconView !== null && headIconView.fill.isPrecedent(View.Intrinsic)) {
         const iconColor = headView.getLookOr(this.owner.fillLook, headView.mood.getState().updated(Feel.embossed, 1), null);
-        headIconView.fill.setAutoState(iconColor, timing);
+        headIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
     },
     didStopHovering(): void {
       const headView = this.view!;
       headView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const timing = headView.getLook(Look.timing);
-      headView.fill.setAutoState(headView.getLookOr(this.owner.fillLook, null), timing);
+      headView.fill.setState(headView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const headIconView = this.owner.headIcon.view;
-      if (headIconView !== null && headIconView.fill.isAuto()) {
+      if (headIconView !== null && headIconView.fill.isPrecedent(View.Intrinsic)) {
         const iconColor = headView.getLookOr(this.owner.fillLook, headView.mood.getState().updated(Feel.embossed, 1), null);
-        headIconView.fill.setAutoState(iconColor, timing);
+        headIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -353,30 +353,30 @@ export class TokenView extends HtmlView {
       headView.off("click", this.owner.onClickBody);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, bodyView: SvgView): void {
-      bodyView.fill.setAutoState(theme.getOr(this.owner.fillLook, mood, null), timing);
+      bodyView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, View.Intrinsic);
       const labelView = this.owner.label.view;
-      if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(theme.getOr(Look.backgroundColor, mood, null), timing);
+      if (labelView !== null && labelView.color.isPrecedent(View.Intrinsic)) {
+        labelView.color.setState(theme.getOr(Look.backgroundColor, mood, null), timing, View.Intrinsic);
       }
     },
     didStartHovering(): void {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = bodyView.getLook(Look.timing);
-      bodyView.fill.setAutoState(bodyView.getLookOr(this.owner.fillLook, null), timing);
+      bodyView.fill.setState(bodyView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const labelView = this.owner.label.view;
-      if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(bodyView.getLookOr(Look.backgroundColor, null), timing);
+      if (labelView !== null && labelView.color.isPrecedent(View.Intrinsic)) {
+        labelView.color.setState(bodyView.getLookOr(Look.backgroundColor, null), timing, View.Intrinsic);
       }
     },
     didStopHovering(): void {
       const bodyView = this.view!;
       bodyView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const timing = bodyView.getLook(Look.timing);
-      bodyView.fill.setAutoState(bodyView.getLookOr(this.owner.fillLook, null), timing);
+      bodyView.fill.setState(bodyView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const labelView = this.owner.label.view;
-      if (labelView !== null && labelView.color.isAuto()) {
-        labelView.color.setAutoState(bodyView.getLookOr(Look.backgroundColor, null), timing);
+      if (labelView !== null && labelView.color.isPrecedent(View.Intrinsic)) {
+        labelView.color.setState(bodyView.getLookOr(Look.backgroundColor, null), timing, View.Intrinsic);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -424,33 +424,33 @@ export class TokenView extends HtmlView {
       footView.off("click", this.owner.onClickFoot);
     },
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, footView: SvgView): void {
-      footView.fill.setAutoState(theme.getOr(this.owner.fillLook, mood, null), timing);
+      footView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, View.Intrinsic);
       const footIconView = this.owner.footIcon.view;
-      if (footIconView !== null && footIconView.fill.isAuto()) {
+      if (footIconView !== null && footIconView.fill.isPrecedent(View.Intrinsic)) {
         const iconColor = theme.getOr(this.owner.fillLook, mood.updated(Feel.embossed, 1), null);
-        footIconView.fill.setAutoState(iconColor, timing);
+        footIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
     },
     didStartHovering(): void {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = footView.getLook(Look.timing);
-      footView.fill.setAutoState(footView.getLookOr(this.owner.fillLook, null), timing);
+      footView.fill.setState(footView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const footIconView = this.owner.footIcon.view;
-      if (footIconView !== null && footIconView.fill.isAuto()) {
+      if (footIconView !== null && footIconView.fill.isPrecedent(View.Intrinsic)) {
         const iconColor = footView.getLookOr(this.owner.fillLook, footView.mood.getState().updated(Feel.embossed, 1), null);
-        footIconView.fill.setAutoState(iconColor, timing);
+        footIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
     },
     didStopHovering(): void {
       const footView = this.view!;
       footView.modifyMood(Feel.default, [Feel.hovering, void 0]);
       const timing = footView.getLook(Look.timing);
-      footView.fill.setAutoState(footView.getLookOr(this.owner.fillLook, null), timing);
+      footView.fill.setState(footView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const footIconView = this.owner.footIcon.view;
-      if (footIconView !== null && footIconView.fill.isAuto()) {
+      if (footIconView !== null && footIconView.fill.isPrecedent(View.Intrinsic)) {
         const iconColor = footView.getLookOr(this.owner.fillLook, footView.mood.getState().updated(Feel.embossed, 1), null);
-        footIconView.fill.setAutoState(iconColor, timing);
+        footIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
     },
     didBeginPress(input: PositionGestureInput, event: Event | null): void {
@@ -598,22 +598,22 @@ export class TokenView extends HtmlView {
     const width = tokenWidth + paddingLeft + paddingRight;
     const height = boxHeight;
 
-    this.width.setAutoState(tokenWidth);
+    this.width.setState(tokenWidth, View.Intrinsic);
 
     const labelContainer = this.labelContainer.view;
     if (labelContainer !== null) {
-      labelContainer.display.setAutoState(expandedPhase !== 0 ? "block" : "none");
-      labelContainer.left.setAutoState(paddingLeft + tokenHeight + gap + labelPaddingLeft);
-      labelContainer.top.setAutoState(paddingTop);
-      labelContainer.width.setAutoState(expandedPhase * labelWidth);
-      labelContainer.height.setAutoState(tokenHeight);
+      labelContainer.display.setState(expandedPhase !== 0 ? "block" : "none", View.Intrinsic);
+      labelContainer.left.setState(paddingLeft + tokenHeight + gap + labelPaddingLeft, View.Intrinsic);
+      labelContainer.top.setState(paddingTop, View.Intrinsic);
+      labelContainer.width.setState(expandedPhase * labelWidth, View.Intrinsic);
+      labelContainer.height.setState(tokenHeight, View.Intrinsic);
     }
 
     const shapeView = this.shape.view;
     if (shapeView !== null) {
-      shapeView.width.setAutoState(width);
-      shapeView.height.setAutoState(height);
-      shapeView.viewBox.setAutoState("0 0 " + width + " " + height);
+      shapeView.width.setState(width, View.Intrinsic);
+      shapeView.height.setState(height, View.Intrinsic);
+      shapeView.viewBox.setState("0 0 " + width + " " + height, View.Intrinsic);
     }
 
     const headView = this.head.view;
@@ -628,7 +628,7 @@ export class TokenView extends HtmlView {
         icon.render(renderer, frame);
         this.headIcon.removeView();
       }
-      headView.d.setAutoState(context.toString());
+      headView.d.setState(context.toString(), View.Intrinsic);
     }
     const headIconView = this.headIcon.view;
     if (headIconView !== null) {
@@ -638,7 +638,7 @@ export class TokenView extends HtmlView {
         const renderer = new PathRenderer(context);
         const frame = new BoxR2(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
         icon.render(renderer, frame);
-        headIconView.d.setAutoState(context.toString());
+        headIconView.d.setState(context.toString(), View.Intrinsic);
         this.headIcon.injectView();
       } else {
         this.headIcon.removeView();
@@ -655,7 +655,7 @@ export class TokenView extends HtmlView {
         context.arc(paddingLeft + bodyRight - radius - u * gap, paddingTop + radius, radius + u * gap, Math.PI / 2 - u * padAngle, -(Math.PI / 2) + u * padAngle, true);
         context.closePath();
       }
-      bodyView.d.setAutoState(context.toString());
+      bodyView.d.setState(context.toString(), View.Intrinsic);
     }
 
     const footView = this.foot.view;
@@ -674,7 +674,7 @@ export class TokenView extends HtmlView {
           this.headIcon.removeView();
         }
       }
-      footView.d.setAutoState(context.toString());
+      footView.d.setState(context.toString(), View.Intrinsic);
     }
     const footIconView = this.footIcon.view;
     if (footIconView !== null) {
@@ -686,7 +686,7 @@ export class TokenView extends HtmlView {
           const frame = new BoxR2(paddingLeft + bodyRight + gap, paddingTop, paddingLeft + bodyRight + gap + tokenHeight, paddingTop + tokenHeight);
           accessoryIcon.render(renderer, frame);
         }
-        footIconView.d.setAutoState(context.toString());
+        footIconView.d.setState(context.toString(), View.Intrinsic);
         this.footIcon.injectView();
       } else {
         this.footIcon.removeView();
@@ -706,12 +706,12 @@ export class TokenView extends HtmlView {
       }
       if (timing !== false) {
         if (this.expandedPhase.value !== 1) {
-          this.expandedPhase.setAutoState(1, timing);
+          this.expandedPhase.setState(1, timing, View.Intrinsic);
         } else {
           setTimeout(this.didExpand.bind(this));
         }
       } else {
-        this.expandedPhase.setAutoState(1);
+        this.expandedPhase.setState(1, View.Intrinsic);
         this.didExpand();
       }
     }
@@ -725,7 +725,7 @@ export class TokenView extends HtmlView {
     });
     const labelContainer = this.labelContainer.view;
     if (labelContainer !== null) {
-      labelContainer.display.setAutoState("block");
+      labelContainer.display.setState("block", View.Intrinsic);
     }
 
     const viewController = this.viewController;
@@ -774,12 +774,12 @@ export class TokenView extends HtmlView {
       }
       if (timing !== false) {
         if (this.expandedPhase.value !== 0) {
-          this.expandedPhase.setAutoState(0, timing);
+          this.expandedPhase.setState(0, timing, View.Intrinsic);
         } else {
           setTimeout(this.didCollapse.bind(this));
         }
       } else {
-        this.expandedPhase.setAutoState(0);
+        this.expandedPhase.setState(0, View.Intrinsic);
         this.didCollapse();
       }
     }

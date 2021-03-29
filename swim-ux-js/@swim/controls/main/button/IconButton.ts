@@ -19,6 +19,7 @@ import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
   ViewContext,
+  ViewFlags,
   View,
   ViewObserverType,
   ViewAnimator,
@@ -54,20 +55,20 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
 
   protected initButton(): void {
     this.addClass("icon-button");
-    this.position.setAutoState("relative");
-    this.width.setAutoState(44);
-    this.height.setAutoState(44);
-    this.display.setAutoState("flex");
-    this.justifyContent.setAutoState("center");
-    this.alignItems.setAutoState("center");
-    this.borderTopLeftRadius.setAutoState(4);
-    this.borderTopRightRadius.setAutoState(4);
-    this.borderBottomLeftRadius.setAutoState(4);
-    this.borderBottomRightRadius.setAutoState(4);
-    this.overflowX.setAutoState("hidden");
-    this.overflowY.setAutoState("hidden");
-    this.userSelect.setAutoState("none");
-    this.cursor.setAutoState("pointer");
+    this.position.setState("relative", View.Intrinsic);
+    this.width.setState(44, View.Intrinsic);
+    this.height.setState(44, View.Intrinsic);
+    this.display.setState("flex", View.Intrinsic);
+    this.justifyContent.setState("center", View.Intrinsic);
+    this.alignItems.setState("center", View.Intrinsic);
+    this.borderTopLeftRadius.setState(4, View.Intrinsic);
+    this.borderTopRightRadius.setState(4, View.Intrinsic);
+    this.borderBottomLeftRadius.setState(4, View.Intrinsic);
+    this.borderBottomRightRadius.setState(4, View.Intrinsic);
+    this.overflowX.setState("hidden", View.Intrinsic);
+    this.overflowY.setState("hidden", View.Intrinsic);
+    this.userSelect.setState("none", View.Intrinsic);
+    this.cursor.setState("pointer", View.Intrinsic);
   }
 
   protected initTheme(): void {
@@ -141,8 +142,8 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     const oldIconView = oldIconFastener !== null ? oldIconFastener.view : null;
     if (oldIconView !== null) {
       if (timing !== false) {
-        oldIconView.opacity.setAutoState(0, timing);
-        oldIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(90)), timing);
+        oldIconView.opacity.setState(0, timing, View.Intrinsic);
+        oldIconView.cssTransform.setState(Transform.rotate(Angle.deg(90)), timing, View.Intrinsic);
       } else {
         oldIconView.remove();
       }
@@ -157,17 +158,17 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     newIconView.setStyle("position", "absolute");
     newIconView.setStyle("left", "0");
     newIconView.setStyle("top", "0");
-    newIconView.opacity.setAutoState(0);
-    newIconView.opacity.setAutoState(1, timing);
-    newIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(-90)));
-    newIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
-    newIconView.pointerEvents.setAutoState("none");
+    newIconView.opacity.setState(0, View.Intrinsic);
+    newIconView.opacity.setState(1, timing, View.Intrinsic);
+    newIconView.cssTransform.setState(Transform.rotate(Angle.deg(-90)), View.Intrinsic);
+    newIconView.cssTransform.setState(Transform.rotate(Angle.deg(0)), timing, View.Intrinsic);
+    newIconView.pointerEvents.setState("none", View.Intrinsic);
     newIconView.xAlign.setInherit(true);
     newIconView.yAlign.setInherit(true);
     newIconView.iconWidth.setInherit(true);
     newIconView.iconHeight.setInherit(true);
     newIconView.iconColor.setInherit(true);
-    newIconView.graphics.setAutoState(icon);
+    newIconView.graphics.setState(icon, View.Intrinsic);
     newIconFastener.setView(newIconView);
     this.setViewFastener(newIconKey, newIconFastener);
     this.appendChildView(newIconView, newIconKey);
@@ -189,8 +190,8 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     const oldIconView = oldIconFastener !== null ? oldIconFastener.view : null;
     if (oldIconView !== null) {
       if (timing !== false) {
-        oldIconView.opacity.setAutoState(0, timing);
-        oldIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(-90)), timing);
+        oldIconView.opacity.setState(0, timing, View.Intrinsic);
+        oldIconView.cssTransform.setState(Transform.rotate(Angle.deg(-90)), timing, View.Intrinsic);
       } else {
         oldIconView.remove();
         this.setViewFastener(oldIconKey, null);
@@ -202,8 +203,8 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     this.icon = newIconFastener;
     const newIconView = newIconFastener !== null ? newIconFastener.view : null;
     if (newIconView !== null) {
-      newIconView.opacity.setAutoState(1, timing);
-      newIconView.cssTransform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
+      newIconView.opacity.setState(1, timing, View.Intrinsic);
+      newIconView.cssTransform.setState(Transform.rotate(Angle.deg(0)), timing, View.Intrinsic);
       this.appendChildView(newIconView, newIconKey);
     }
 
@@ -212,12 +213,12 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (this.backgroundColor.isAuto()) {
+    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
       let backgroundColor = this.getLookOr(Look.backgroundColor, null);
       if (!this.gesture.isHovering() && backgroundColor instanceof Color) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      this.backgroundColor.setAutoState(backgroundColor, timing);
+      this.backgroundColor.setState(backgroundColor, timing, View.Intrinsic);
     }
     if (!this.graphics.isInherited()) {
       const oldGraphics = this.graphics.value;
@@ -226,6 +227,11 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
         this.graphics.setOwnState(newGraphics, oldGraphics.isThemed() ? timing : false);
       }
     }
+  }
+
+  protected onResize(viewContext: ViewContextType<this>): void {
+    super.onResize(viewContext);
+    this.requireUpdate(View.NeedsLayout);
   }
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
@@ -238,6 +244,13 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
         this.graphics.setOwnState(newGraphics);
       }
     }
+  }
+
+  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+    if ((this.viewFlags & View.NeedsLayout) === 0) {
+      displayFlags &= ~View.NeedsLayout;
+    }
+    return displayFlags;
   }
 
   protected onLayout(viewContext: ViewContextType<this>): void {
@@ -257,9 +270,9 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
         if (viewFastener instanceof IconButton.IconFastener) {
           const iconView = viewFastener.view;
           if (iconView !== null) {
-            iconView.width.setAutoState(viewWidth);
-            iconView.height.setAutoState(viewHeight);
-            iconView.viewBox.setAutoState("0 0 " + viewWidth + " " + viewHeight);
+            iconView.width.setState(viewWidth, View.Intrinsic);
+            iconView.height.setState(viewHeight, View.Intrinsic);
+            iconView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, View.Intrinsic);
           }
         }
       }
@@ -294,8 +307,8 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     if (this.hovers) {
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = this.getLook(Look.timing);
-      if (this.backgroundColor.isAuto()) {
-        this.backgroundColor.setAutoState(this.getLookOr(Look.backgroundColor, null), timing);
+      if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
+        this.backgroundColor.setState(this.getLookOr(Look.backgroundColor, null), timing, View.Intrinsic);
       }
     }
   }
@@ -303,12 +316,12 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   didStopHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
     const timing = this.getLook(Look.timing);
-    if (this.backgroundColor.isAuto()) {
+    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
       let backgroundColor = this.getLookOr(Look.backgroundColor, null);
       if (backgroundColor !== null) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      this.backgroundColor.setAutoState(backgroundColor, timing);
+      this.backgroundColor.setState(backgroundColor, timing, View.Intrinsic);
     }
   }
 

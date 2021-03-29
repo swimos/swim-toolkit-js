@@ -58,7 +58,28 @@ import type {AnimationTimeline} from "./animation/AnimationTimeline";
 import type {ViewAnimatorConstructor, ViewAnimator} from "./animator/ViewAnimator";
 import type {ViewFastenerConstructor, ViewFastener} from "./fastener/ViewFastener";
 
+export type ViewMemberType<V, K extends keyof V> =
+  V[K] extends ViewProperty<any, infer T, any> ? T :
+  V[K] extends ViewAnimator<any, infer T, any> ? T :
+  never;
+
+export type ViewMemberInit<V, K extends keyof V> =
+  V[K] extends ViewProperty<any, infer T, infer U> ? T | U :
+  V[K] extends ViewAnimator<any, infer T, infer U> ? T | U :
+  never;
+
+export type ViewMemberKey<V, K extends keyof V> =
+  V[K] extends ViewProperty<any, any> ? K :
+  V[K] extends ViewAnimator<any, any> ? K :
+  never;
+
+export type ViewMemberMap<V> = {
+  -readonly [K in keyof V as ViewMemberKey<V, K>]?: ViewMemberInit<V, K>;
+};
+
 export type ViewFlags = number;
+
+export type ViewPrecedence = number;
 
 export interface ViewInit {
   key?: string;
@@ -1380,6 +1401,35 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     }
   }
 
+  /** @hidden */
+  setViewMember(key: string, value: unknown, timing?: AnyTiming | boolean, precedence?: ViewPrecedence): void {
+    const viewProperty = this.getLazyViewProperty(key);
+    if (viewProperty !== null) {
+      viewProperty.setState(value, precedence);
+      return;
+    }
+    const viewAnimator = this.getLazyViewAnimator(key);
+    if (viewAnimator !== null) {
+      viewAnimator.setState(value, timing, precedence);
+      return;
+    }
+  }
+
+  setViewState<S extends View>(this: S, state: ViewMemberMap<S>, precedenceOrTiming: ViewPrecedence | AnyTiming | boolean | undefined): void;
+  setViewState<S extends View>(this: S, state: ViewMemberMap<S>, timing?: AnyTiming | boolean, precedence?: ViewPrecedence): void;
+  setViewState<S extends View>(this: S, state: ViewMemberMap<S>, timing?: ViewPrecedence | AnyTiming | boolean, precedence?: ViewPrecedence): void {
+    if (typeof timing === "number") {
+      precedence = timing;
+      timing = void 0;
+    } else if (precedence === void 0) {
+      precedence = View.Extrinsic;
+    }
+    for (const key in state) {
+      const value = state[key];
+      this.setViewMember(key, value, timing, precedence);
+    }
+  }
+
   extendViewContext(viewContext: ViewContext): ViewContextType<this> {
     return viewContext as ViewContextType<this>;
   }
@@ -1713,4 +1763,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   static readonly uncullFlags: ViewFlags = View.NeedsResize | View.NeedsChange | View.NeedsLayout;
   static readonly insertChildFlags: ViewFlags = View.NeedsLayout;
   static readonly removeChildFlags: ViewFlags = View.NeedsLayout;
+
+  static readonly Intrinsic: ViewPrecedence = 0;
+  static readonly Extrinsic: ViewPrecedence = 1;
 }

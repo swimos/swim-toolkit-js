@@ -14,7 +14,7 @@
 
 import type {Timing} from "@swim/mapping";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewEdgeInsets, ViewProperty, ViewFastener} from "@swim/view";
+import {View, ViewEdgeInsets, ViewProperty, ViewFastener} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 
 export class DeckCard extends HtmlView {
@@ -25,16 +25,16 @@ export class DeckCard extends HtmlView {
 
   protected initCard(): void {
     this.addClass("deck-card");
-    this.position.setAutoState("relative");
-    this.overflowX.setAutoState("auto");
-    this.overflowY.setAutoState("auto");
-    this.overflowScrolling.setAutoState("touch");
+    this.position.setState("relative", View.Intrinsic);
+    this.overflowX.setState("auto", View.Intrinsic);
+    this.overflowY.setState("auto", View.Intrinsic);
+    this.overflowScrolling.setState("touch", View.Intrinsic);
   }
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(theme.getOr(Look.backgroundColor, mood, null), timing);
+    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
+      this.backgroundColor.setState(theme.getOr(Look.backgroundColor, mood, null), timing, View.Intrinsic);
     }
   }
 

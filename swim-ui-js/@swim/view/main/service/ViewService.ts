@@ -29,7 +29,7 @@ import {ThemeService} from "../"; // forward import
 import {ModalService} from "../"; // forward import
 
 export type ViewServiceMemberType<V, K extends keyof V> =
-  V extends {[P in K]: ViewService<any, infer T>} ? T : unknown;
+  V[K] extends ViewService<any, infer T> ? T : never;
 
 export type ViewServiceFlags = number;
 
@@ -68,8 +68,6 @@ export interface ViewService<V extends View, T> {
   setInherit(inherit: string | boolean): void;
 
   isInherited(): boolean;
-
-  setInherited(inherited: boolean): void;
 
   /** @hidden */
   readonly serviceFlags: ViewServiceFlags;
@@ -204,22 +202,6 @@ ViewService.prototype.setInherit = function (this: ViewService<View, unknown>, i
 
 ViewService.prototype.isInherited = function (this: ViewService<View, unknown>): boolean {
   return (this.serviceFlags & ViewService.InheritedFlag) !== 0;
-};
-
-ViewService.prototype.setInherited = function (this: ViewService<View, unknown>, inherited: boolean): void {
-  if (inherited && (this.serviceFlags & ViewService.InheritedFlag) === 0) {
-    const superService = this.superService;
-    if (superService !== null) {
-      this.setServiceFlags(this.serviceFlags | ViewService.InheritedFlag);
-      Object.defineProperty(this, "manager", {
-        value: superService.manager,
-        enumerable: true,
-        configurable: true,
-      });
-    }
-  } else if (!inherited && (this.serviceFlags & ViewService.InheritedFlag) !== 0) {
-    this.setServiceFlags(this.serviceFlags & ~ViewService.InheritedFlag);
-  }
 };
 
 ViewService.prototype.setServiceFlags = function (this: ViewService<View, unknown>, serviceFlags: ViewServiceFlags): void {

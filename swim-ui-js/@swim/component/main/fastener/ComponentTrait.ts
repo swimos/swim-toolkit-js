@@ -18,10 +18,10 @@ import {Model, Trait, TraitObserverType} from "@swim/model";
 import {Component} from "../Component";
 
 export type ComponentTraitMemberType<C, K extends keyof C> =
-  C extends {[P in K]: ComponentTrait<any, infer R, any>} ? R : unknown;
+  C[K] extends ComponentTrait<any, infer R, any> ? R : never;
 
-export type ComponentTraitMemberInit<V, K extends keyof V> =
-  V extends {[P in K]: ComponentTrait<any, infer R, infer U>} ? R | U : unknown;
+export type ComponentTraitMemberInit<C, K extends keyof C> =
+  C[K] extends ComponentTrait<any, infer R, infer U> ? R | U : never;
 
 export type ComponentTraitFlags = number;
 

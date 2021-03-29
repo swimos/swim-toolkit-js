@@ -14,13 +14,9 @@
 
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
+import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import {
-  ComponentProperty,
-  ComponentView,
-  ComponentViewTrait,
-  CompositeComponent,
-} from "@swim/component";
+import {ComponentProperty, ComponentView, ComponentViewTrait, CompositeComponent} from "@swim/component";
 import {SliceView} from "./SliceView";
 import {SliceLabel, SliceLegend, SliceTrait} from "./SliceTrait";
 import type {SliceComponentObserver} from "./SliceComponentObserver";
@@ -190,7 +186,7 @@ export class SliceComponent extends CompositeComponent {
 
   protected setSliceViewValue(value: number, sliceTrait: SliceTrait, timing?: AnyTiming | boolean): void {
     const sliceView = this.slice.view;
-    if (sliceView !== null && sliceView.value.isAuto()) {
+    if (sliceView !== null && sliceView.value.isPrecedent(View.Intrinsic)) {
       if (timing === void 0 || timing === true) {
         timing = this.sliceTiming.state;
         if (timing === true) {
@@ -199,7 +195,7 @@ export class SliceComponent extends CompositeComponent {
       } else {
         timing = Timing.fromAny(timing);
       }
-      sliceView.value.setAutoState(value, timing);
+      sliceView.value.setState(value, timing, View.Intrinsic);
     }
   }
 

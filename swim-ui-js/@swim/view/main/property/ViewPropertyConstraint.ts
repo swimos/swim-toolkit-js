@@ -27,7 +27,7 @@ import {
   ConstraintSolver,
 } from "@swim/constraint";
 import {Length} from "@swim/math";
-import {View} from "../View";
+import {ViewPrecedence, View} from "../View";
 import {ViewPropertyInit, ViewProperty} from "./ViewProperty";
 import {NumberViewPropertyConstraint} from "../"; // forward import
 import {LengthViewPropertyConstraint} from "../"; // forward import
@@ -425,16 +425,19 @@ ViewPropertyConstraint.getClass = function (type: unknown): ViewPropertyConstrai
 
 ViewPropertyConstraint.define = function <V extends View, T, U, I>(descriptor: ViewPropertyConstraintDescriptor<V, T, U, I>): ViewPropertyConstraintConstructor<V, T, U, I> {
   let _super: ViewPropertyConstraintClass | null | undefined = descriptor.extends;
-  const state = descriptor.state;
   const inherit = descriptor.inherit;
-  const initState = descriptor.initState;
+  const state = descriptor.state;
+  const strength = descriptor.strength !== void 0 ? ConstraintStrength.fromAny(descriptor.strength) : void 0;
   const constrain = descriptor.constrain;
-  const strength = descriptor.strength;
+  const precedence = descriptor.precedence;
+  const initState = descriptor.initState;
   delete descriptor.extends;
-  delete descriptor.state;
   delete descriptor.inherit;
-  delete descriptor.constrain;
+  delete descriptor.state;
   delete descriptor.strength;
+  delete descriptor.constrain;
+  delete descriptor.precedence;
+  delete descriptor.initState;
 
   if (_super === void 0) {
     _super = ViewPropertyConstraint.getClass(descriptor.type);
@@ -447,16 +450,50 @@ ViewPropertyConstraint.define = function <V extends View, T, U, I>(descriptor: V
   }
 
   const _constructor = function DecoratedViewPropertyConstraint(this: ViewPropertyConstraint<V, T, U>, owner: V, propertyName: string | undefined): ViewPropertyConstraint<V, T, U> {
-    let _this: ViewPropertyConstraint<V, T, U> = function ViewPropertyConstraintAccessor(state?: T | U): T | V {
+    let _this: ViewPropertyConstraint<V, T, U> = function ViewPropertyConstraintAccessor(state?: T | U, precedence?: ViewPrecedence): T | V {
       if (arguments.length === 0) {
         return _this.state;
       } else {
-        _this.setState(state!);
+        _this.setState(state!, precedence);
         return _this.owner;
       }
     } as ViewPropertyConstraint<V, T, U>;
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, owner, propertyName) || _this;
+    let ownState: T | undefined;
+    if (initState !== void 0) {
+      ownState = _this.fromAny(initState());
+    } else if (state !== void 0) {
+      ownState = _this.fromAny(state);
+    }
+    if (ownState !== void 0) {
+      Object.defineProperty(_this, "ownState", {
+        value: ownState,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    if (strength !== void 0) {
+      Object.defineProperty(_this, "strength", {
+        value: strength,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    if (precedence !== void 0) {
+      Object.defineProperty(_this, "precedence", {
+        value: precedence,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    if (inherit !== void 0) {
+      Object.defineProperty(_this, "inherit", {
+        value: inherit,
+        enumerable: true,
+        configurable: true,
+      });
+    }
     if (constrain === true) {
       _this.constrain();
     }
@@ -468,24 +505,6 @@ ViewPropertyConstraint.define = function <V extends View, T, U, I>(descriptor: V
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
-
-  if (state !== void 0 && initState === void 0) {
-    _prototype.initState = function (): T | U {
-      return state;
-    };
-  }
-  Object.defineProperty(_prototype, "inherit", {
-    value: inherit ?? false,
-    enumerable: true,
-    configurable: true,
-  });
-  if (strength !== void 0) {
-    Object.defineProperty(_prototype, "strength", {
-      value: ConstraintStrength.fromAny(strength),
-      enumerable: true,
-      configurable: true,
-    });
-  }
 
   return _constructor;
 };

@@ -16,6 +16,7 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
+import {View} from "@swim/view";
 import {ComponentViewTrait, ComponentFastener} from "@swim/component";
 import type {DataPointComponent} from "../data/DataPointComponent";
 import {DataSetTrait} from "../data/DataSetTrait";
@@ -212,9 +213,9 @@ export class LinePlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
         timing = Timing.fromAny(timing);
       }
       if (stroke instanceof Look) {
-        plotView.stroke.setLook(stroke, timing);
+        plotView.stroke.setLook(stroke, timing, View.Intrinsic);
       } else {
-        plotView.stroke.setAutoState(stroke, timing);
+        plotView.stroke.setState(stroke, timing, View.Intrinsic);
       }
     }
   }
@@ -230,7 +231,7 @@ export class LinePlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
       } else {
         timing = Timing.fromAny(timing);
       }
-      plotView.strokeWidth.setAutoState(strokeWidth, timing);
+      plotView.strokeWidth.setState(strokeWidth, timing, View.Intrinsic);
     }
   }
 

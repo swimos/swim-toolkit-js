@@ -16,7 +16,7 @@ import {Equivalent} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
-import {ViewContextType, ViewAnimator, ViewFastener} from "@swim/view";
+import {ViewContextType, View, ViewAnimator, ViewFastener} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -168,10 +168,8 @@ export class SliceView extends LayerView {
     willSetValue(newValue: number, oldValue: number): void {
       this.owner.willSetValue(newValue, oldValue);
     },
-    onSetValue(newValue: number, oldValue: number): void {
-      this.owner.onSetValue(newValue, oldValue);
-    },
     didSetValue(newValue: number, oldValue: number): void {
+      this.owner.onSetValue(newValue, oldValue);
       this.owner.didSetValue(newValue, oldValue);
     },
   })
@@ -434,9 +432,9 @@ export class SliceView extends LayerView {
       const ry = r * Math.sin(labelAngle);
 
       if (TypesetView.is(labelView)) {
-        labelView.textAlign.setAutoState("center");
-        labelView.textBaseline.setAutoState("middle");
-        labelView.textOrigin.setAutoState(new PointR2(center.x + rx, center.y + ry));
+        labelView.textAlign.setState("center", View.Intrinsic);
+        labelView.textBaseline.setState("middle", View.Intrinsic);
+        labelView.textOrigin.setState(new PointR2(center.x + rx, center.y + ry), View.Intrinsic);
       }
     }
 
@@ -494,11 +492,11 @@ export class SliceView extends LayerView {
       if (TypesetView.is(legendView)) {
         const tickPadding = this.tickPadding.getValue().pxValue(size);
         if (FillView.is(legendView)) {
-          legendView.fill.setAutoState(tickColor);
+          legendView.fill.setState(tickColor, View.Intrinsic);
         }
-        legendView.textAlign.setAutoState(textAlign);
-        legendView.textBaseline.setAutoState("alphabetic");
-        legendView.textOrigin.setAutoState(new PointR2(cx + r2x + dx, cy + r2y - tickPadding));
+        legendView.textAlign.setState(textAlign, View.Intrinsic);
+        legendView.textBaseline.setState("alphabetic", View.Intrinsic);
+        legendView.textOrigin.setState(new PointR2(cx + r2x + dx, cy + r2y - tickPadding), View.Intrinsic);
       }
     }
   }

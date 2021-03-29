@@ -30,6 +30,8 @@ import type {ModelDownlink} from "./downlink/ModelDownlink";
 
 export type ModelFlags = number;
 
+export type ModelPrecedence = number;
+
 export interface ModelInit {
   key?: string;
   modelController?: ModelController;
@@ -1895,4 +1897,7 @@ export abstract class Model implements ModelDownlinkContext {
   static readonly removeTraitFlags: ModelFlags = 0;
   static readonly startConsumingFlags: ModelFlags = 0;
   static readonly stopConsumingFlags: ModelFlags = 0;
+
+  static readonly Intrinsic: ModelPrecedence = 0;
+  static readonly Extrinsic: ModelPrecedence = 1;
 }

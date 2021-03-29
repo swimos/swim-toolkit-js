@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Timing} from "@swim/mapping";
-import type {Color} from "@swim/style";
-import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewProperty, ViewFastener} from "@swim/view";
+import {View, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
 import type {CellViewObserver} from "./CellViewObserver";
 
@@ -27,49 +24,21 @@ export class CellView extends HtmlView {
 
   protected initCell(): void {
     this.addClass("table-cell");
-    this.overflowX.setAutoState("hidden");
-    this.overflowY.setAutoState("hidden");
+    this.overflowX.setState("hidden", View.Intrinsic);
+    this.overflowY.setState("hidden", View.Intrinsic);
   }
 
   declare readonly viewController: HtmlViewController & CellViewObserver | null;
 
   declare readonly viewObservers: ReadonlyArray<CellViewObserver>;
 
-  @ViewProperty<CellView, Look<Color> | Color | null>({
-    state: null,
-    didSetState(newTextColor: Look<Color> | Color | null, oldTextColor: Look<Color> | Color | null): void {
-      this.owner.setTextColor(newTextColor);
-    },
-  })
-  declare textColor: ViewProperty<this, Look<Color> | Color | null>;
-
-  protected setTextColor(textColor: Look<Color> | Color | null): void {
-    if (this.color.isAuto()) {
-      if (textColor instanceof Look) {
-        textColor = this.getLookOr(textColor, null);
-      }
-      this.color.setAutoState(textColor);
-    }
-  }
-
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
-    super.onApplyTheme(theme, mood, timing);
-    if (this.color.isAuto()) {
-      let textColor = this.textColor.state;
-      if (textColor instanceof Look) {
-        textColor = this.getLookOr(textColor, null);
-      }
-      this.color.setAutoState(textColor, timing);
-    }
-  }
-
   protected createContent(value?: string): HtmlView | null {
     const contentView = HtmlView.span.create();
-    contentView.alignSelf.setAutoState("center");
-    contentView.whiteSpace.setAutoState("nowrap");
-    contentView.textOverflow.setAutoState("ellipsis");
-    contentView.overflowX.setAutoState("hidden");
-    contentView.overflowY.setAutoState("hidden");
+    contentView.alignSelf.setState("center", View.Intrinsic);
+    contentView.whiteSpace.setState("nowrap", View.Intrinsic);
+    contentView.textOverflow.setState("ellipsis", View.Intrinsic);
+    contentView.overflowX.setState("hidden", View.Intrinsic);
+    contentView.overflowY.setState("hidden", View.Intrinsic);
     if (value !== void 0) {
       contentView.text(value);
     }

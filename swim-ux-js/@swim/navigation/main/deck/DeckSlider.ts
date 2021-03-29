@@ -31,7 +31,7 @@ export class DeckSlider extends DeckSlot {
 
   initSlider(): void {
     this.addClass("deck-slider");
-    this.position.setAutoState("relative");
+    this.position.setState("relative", View.Intrinsic);
   }
 
   declare readonly viewController: HtmlViewController & DeckSliderObserver | null;
@@ -55,9 +55,9 @@ export class DeckSlider extends DeckSlot {
 
   protected createItem(value: string): HtmlView {
     const itemView = HtmlView.span.create();
-    itemView.display.setAutoState("flex");
-    itemView.alignItems.setAutoState("center");
-    itemView.whiteSpace.setAutoState("nowrap");
+    itemView.display.setState("flex", View.Intrinsic);
+    itemView.alignItems.setState("center", View.Intrinsic);
+    itemView.whiteSpace.setState("nowrap", View.Intrinsic);
     itemView.text(value);
     return itemView;
   }
@@ -229,8 +229,8 @@ export abstract class DeckSliderItem<V extends DeckSlider, S extends HtmlView> e
   }
 
   protected viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, itemView: S): void {
-    if (itemView.color.isAuto()) {
-      itemView.color.setAutoState(theme.getOr(this.owner.colorLook, mood, null), timing);
+    if (itemView.color.isPrecedent(View.Intrinsic)) {
+      itemView.color.setState(theme.getOr(this.owner.colorLook, mood, null), timing, View.Intrinsic);
     }
   }
 
@@ -239,7 +239,7 @@ export abstract class DeckSliderItem<V extends DeckSlider, S extends HtmlView> e
   }
 
   protected initItem(itemView: S): void {
-    itemView.position.setAutoState("absolute");
+    itemView.position.setState("absolute", View.Intrinsic);
   }
 
   protected layoutItem(itemView: S): void {
@@ -263,36 +263,36 @@ export abstract class DeckSliderItem<V extends DeckSlider, S extends HtmlView> e
       // Memoize computed item width while animating
       // to avoid style recalculation in animation frames.
       if (this.owner.deckPhase.isAnimating()) {
-        itemView.width.setAutoState(itemWidth);
+        itemView.width.setState(itemWidth, View.Intrinsic);
       } else {
-        itemView.width.setAutoState(this.itemWidth);
+        itemView.width.setState(this.itemWidth, View.Intrinsic);
       }
     }
 
     const slotSpace = slotWidth - itemWidth;
     if (itemIndex < prevIndex || itemIndex === prevIndex && itemPhase === 1) { // under
-      itemView.left.setAutoState(0);
-      itemView.top.setAutoState(0);
-      itemView.height.setAutoState(slotHeight);
-      itemView.opacity.setAutoState(0);
+      itemView.left.setState(0, View.Intrinsic);
+      itemView.top.setState(0, View.Intrinsic);
+      itemView.height.setState(slotHeight, View.Intrinsic);
+      itemView.opacity.setState(0, View.Intrinsic);
       itemView.setCulled(true);
     } else if (itemIndex === prevIndex) { // out
-      itemView.left.setAutoState(slotSpace * slotAlign * (1 - itemPhase));
-      itemView.top.setAutoState(0);
-      itemView.height.setAutoState(slotHeight);
-      itemView.opacity.setAutoState(1 - itemPhase);
+      itemView.left.setState(slotSpace * slotAlign * (1 - itemPhase), View.Intrinsic);
+      itemView.top.setState(0, View.Intrinsic);
+      itemView.height.setState(slotHeight, View.Intrinsic);
+      itemView.opacity.setState(1 - itemPhase, View.Intrinsic);
       itemView.setCulled(false);
     } else if (itemIndex === nextIndex) { // in
-      itemView.left.setAutoState(slotSpace * (1 - itemPhase) + slotSpace * slotAlign * itemPhase);
-      itemView.top.setAutoState(0);
-      itemView.height.setAutoState(slotHeight);
-      itemView.opacity.setAutoState(itemPhase);
+      itemView.left.setState(slotSpace * (1 - itemPhase) + slotSpace * slotAlign * itemPhase, View.Intrinsic);
+      itemView.top.setState(0, View.Intrinsic);
+      itemView.height.setState(slotHeight, View.Intrinsic);
+      itemView.opacity.setState(itemPhase, View.Intrinsic);
       itemView.setCulled(false);
     } else { // over
-      itemView.left.setAutoState(slotSpace);
-      itemView.top.setAutoState(0);
-      itemView.height.setAutoState(slotHeight);
-      itemView.opacity.setAutoState(0);
+      itemView.left.setState(slotSpace, View.Intrinsic);
+      itemView.top.setState(0, View.Intrinsic);
+      itemView.height.setState(slotHeight, View.Intrinsic);
+      itemView.opacity.setState(0, View.Intrinsic);
       itemView.setCulled(true);
     }
   }

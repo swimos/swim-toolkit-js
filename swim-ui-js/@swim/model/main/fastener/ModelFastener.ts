@@ -18,10 +18,10 @@ import {Model} from "../Model";
 import type {ModelObserverType} from "../ModelObserver";
 
 export type ModelFastenerMemberType<M, K extends keyof M> =
-  M extends {[P in K]: ModelFastener<any, infer S, any>} ? S : unknown;
+  M[K] extends ModelFastener<any, infer S, any> ? S : never;
 
 export type ModelFastenerMemberInit<M, K extends keyof M> =
-  M extends {[P in K]: ModelFastener<any, infer T, infer U>} ? T | U : unknown;
+  M[K] extends ModelFastener<any, infer S, infer U> ? S | U : never;
 
 export type ModelFastenerFlags = number;
 

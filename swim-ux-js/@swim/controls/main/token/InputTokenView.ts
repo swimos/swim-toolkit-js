@@ -15,7 +15,7 @@
 import type {Timing} from "@swim/mapping";
 import {Color} from "@swim/style";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewFastener, PositionGesture} from "@swim/view";
+import {View, ViewFastener, PositionGesture} from "@swim/view";
 import {StyleRule, StyleSheet, HtmlView, StyleView, SvgView} from "@swim/dom";
 import {TokenViewInit, TokenView} from "./TokenView";
 import type {InputTokenViewObserver} from "./InputTokenViewObserver";
@@ -63,19 +63,19 @@ export class InputTokenView extends TokenView {
 
   protected initLabel(labelView: HtmlView): void {
     super.initLabel(labelView);
-    labelView.paddingTop.setAutoState(0);
-    labelView.paddingRight.setAutoState(0);
-    labelView.paddingBottom.setAutoState(0);
-    labelView.paddingLeft.setAutoState(0);
-    labelView.borderTopStyle.setAutoState("none");
-    labelView.borderRightStyle.setAutoState("none");
-    labelView.borderBottomStyle.setAutoState("none");
-    labelView.borderLeftStyle.setAutoState("none");
-    labelView.boxSizing.setAutoState("border-box");
-    labelView.backgroundColor.setAutoState(Color.transparent());
-    labelView.appearance.setAutoState("none");
-    labelView.outlineStyle.setAutoState("none");
-    labelView.pointerEvents.setAutoState("auto");
+    labelView.paddingTop.setState(0, View.Intrinsic);
+    labelView.paddingRight.setState(0, View.Intrinsic);
+    labelView.paddingBottom.setState(0, View.Intrinsic);
+    labelView.paddingLeft.setState(0, View.Intrinsic);
+    labelView.borderTopStyle.setState("none", View.Intrinsic);
+    labelView.borderRightStyle.setState("none", View.Intrinsic);
+    labelView.borderBottomStyle.setState("none", View.Intrinsic);
+    labelView.borderLeftStyle.setState("none", View.Intrinsic);
+    labelView.boxSizing.setState("border-box", View.Intrinsic);
+    labelView.backgroundColor.setState(Color.transparent(), View.Intrinsic);
+    labelView.appearance.setState("none", View.Intrinsic);
+    labelView.outlineStyle.setState("none", View.Intrinsic);
+    labelView.pointerEvents.setState("auto", View.Intrinsic);
   }
 
   protected createBodyGesture(bodyView: SvgView): PositionGesture<SvgView> | null {
@@ -133,34 +133,13 @@ export class InputTokenView extends TokenView {
     if (styleView !== null) {
       const placeholder = styleView.getCssRule("placeholder") as StyleRule<StyleSheet> | null;
       if (placeholder !== null) {
-        placeholder.color.setAutoState(theme.getOr(this.placeholderLook, mood, null), timing);
+        placeholder.color.setState(theme.getOr(this.placeholderLook, mood, null), timing, View.Intrinsic);
       }
     }
 
     const labelView = this.label.view;
     if (labelView !== null) {
-      const font = theme.getOr(Look.font, mood, null);
-      if (font !== null) {
-        if (font.style !== void 0) {
-          labelView.fontStyle.setAutoState(font.style);
-        }
-        if (font.variant !== void 0) {
-          labelView.fontVariant.setAutoState(font.variant);
-        }
-        if (font.weight !== void 0) {
-          labelView.fontWeight.setAutoState(font.weight);
-        }
-        if (font.stretch !== void 0) {
-          labelView.fontStretch.setAutoState(font.stretch);
-        }
-        if (font.size !== void 0) {
-          labelView.fontSize.setAutoState(font.size);
-        }
-        if (font.height !== void 0) {
-          labelView.lineHeight.setAutoState(font.height);
-        }
-        labelView.fontFamily.setAutoState(font.family);
-      }
+      labelView.font(theme.getOr(Look.font, mood, null), false, View.Intrinsic);
     }
   }
 

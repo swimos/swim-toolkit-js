@@ -30,6 +30,8 @@ import type {ComponentFastenerConstructor, ComponentFastener} from "./fastener/C
 
 export type ComponentFlags = number;
 
+export type ComponentPrecedence = number;
+
 export interface ComponentInit {
   key?: string;
 }
@@ -1336,4 +1338,7 @@ export abstract class Component {
   static readonly powerFlags: ComponentFlags = 0;
   static readonly insertChildFlags: ComponentFlags = 0;
   static readonly removeChildFlags: ComponentFlags = 0;
+
+  static readonly Intrinsic: ComponentPrecedence = 0;
+  static readonly Extrinsic: ComponentPrecedence = 1;
 }

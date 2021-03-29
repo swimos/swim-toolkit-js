@@ -157,10 +157,10 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
   protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
     let viewCenter: PointR2;
-    if (this.viewCenter.isAuto()) {
+    if (this.viewCenter.isPrecedent(View.Intrinsic)) {
       const geoProjection = viewContext.geoProjection;
       viewCenter = geoProjection.project(this.geoCenter.getValue());
-      this.viewCenter.setAutoState(viewCenter);
+      this.viewCenter.setState(viewCenter, View.Intrinsic);
     } else {
       viewCenter = this.viewCenter.getValue();
     }

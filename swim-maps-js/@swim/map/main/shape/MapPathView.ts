@@ -76,18 +76,18 @@ export class MapPathView extends MapLayerView {
     const geoProjection = viewContext.geoProjection;
 
     let viewPath: PathR2;
-    if (this.viewPath.isAuto()) {
+    if (this.viewPath.isPrecedent(View.Intrinsic)) {
       const geoPath = this.geoPath.getValue();
       viewPath = geoPath.project(geoProjection);
-      this.viewPath.setAutoState(viewPath);
+      this.viewPath.setState(viewPath, View.Intrinsic);
     } else {
       viewPath = this.viewPath.getValue();
     }
 
-    if (this.viewCentroid.isAuto()) {
+    if (this.viewCentroid.isPrecedent(View.Intrinsic)) {
       const geoCentroid = this.geoCentroid.getValue();
       const viewCentroid = geoProjection.project(geoCentroid);
-      this.viewCentroid.setAutoState(viewCentroid);
+      this.viewCentroid.setState(viewCentroid, View.Intrinsic);
     }
 
     Object.defineProperty(this, "viewBounds", {

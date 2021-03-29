@@ -14,6 +14,7 @@
 
 import type {Timing} from "@swim/mapping";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import {View} from "@swim/view";
 import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import type {TreeVeinObserver} from "./TreeVeinObserver";
 import type {TreeVeinController} from "./TreeVeinController";
@@ -32,10 +33,10 @@ export class TreeVein extends HtmlView {
 
   protected initVein(): void {
     this.addClass("tree-vein");
-    this.display.setAutoState("none");
-    this.alignItems.setAutoState("center");
-    this.overflowX.setAutoState("hidden");
-    this.overflowY.setAutoState("hidden");
+    this.display.setState("none", View.Intrinsic);
+    this.alignItems.setState("center", View.Intrinsic);
+    this.overflowX.setState("hidden", View.Intrinsic);
+    this.overflowY.setState("hidden", View.Intrinsic);
   }
 
   declare readonly viewController: TreeVeinController | null;
@@ -48,7 +49,7 @@ export class TreeVein extends HtmlView {
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    this.color.setAutoState(theme.getOr(Look.neutralColor, mood, null), timing);
+    this.color.setState(theme.getOr(Look.neutralColor, mood, null), timing, View.Intrinsic);
   }
 
   static fromInit(init: TreeVeinInit): TreeVein {

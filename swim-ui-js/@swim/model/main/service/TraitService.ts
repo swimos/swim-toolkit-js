@@ -26,7 +26,7 @@ import {
 } from "./ModelService";
 
 export type TraitServiceMemberType<R, K extends keyof R> =
-  R extends {[P in K]: TraitService<any, infer T>} ? T : unknown;
+  R[K] extends TraitService<any, infer T> ? T : never;
 
 export interface TraitServiceInit<T> {
   extends?: TraitServiceClass;
@@ -84,8 +84,6 @@ export interface TraitService<R extends Trait, T> {
   setInherit(inherit: string | boolean): void;
 
   isInherited(): boolean;
-
-  setInherited(inherited: boolean): void;
 
   /** @hidden */
   readonly serviceFlags: ModelServiceFlags;
@@ -265,25 +263,6 @@ TraitService.prototype.setInherit = function (this: TraitService<Trait, unknown>
 
 TraitService.prototype.isInherited = function (this: TraitService<Trait, unknown>): boolean {
   return (this.serviceFlags & ModelService.InheritedFlag) !== 0;
-};
-
-TraitService.prototype.setInherited = function (this: TraitService<Trait, unknown>, inherited: boolean): void {
-  const modelService = this.modelService;
-  if (modelService !== null) {
-    modelService.setInherited(inherited);
-  } else if (inherited && (this.serviceFlags & ModelService.InheritedFlag) === 0) {
-    const superService = this.superService;
-    if (superService !== null) {
-      this.setServiceFlags(this.serviceFlags | ModelService.InheritedFlag);
-      Object.defineProperty(this, "manager", {
-        value: superService.manager,
-        enumerable: true,
-        configurable: true,
-      });
-    }
-  } else if (!inherited && (this.serviceFlags & ModelService.InheritedFlag) !== 0) {
-    this.setServiceFlags(this.serviceFlags & ~ModelService.InheritedFlag);
-  }
 };
 
 TraitService.prototype.setServiceFlags = function (this: TraitService<Trait, unknown>, serviceFlags: ModelServiceFlags): void {

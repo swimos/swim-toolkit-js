@@ -29,10 +29,10 @@ import {ViewFactory, View} from "../View";
 import type {ViewObserverType} from "../ViewObserver";
 
 export type ViewFastenerMemberType<V, K extends keyof V> =
-  V extends {[P in K]: ViewFastener<any, infer S, any>} ? S : unknown;
+  V[K] extends ViewFastener<any, infer S, any> ? S : never;
 
 export type ViewFastenerMemberInit<V, K extends keyof V> =
-  V extends {[P in K]: ViewFastener<any, infer T, infer U>} ? T | U : unknown;
+  V[K] extends ViewFastener<any, infer S, infer U> ? S | U : never;
 
 export type ViewFastenerFlags = number;
 

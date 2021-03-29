@@ -16,6 +16,7 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import type {AnyLength, Length} from "@swim/math";
 import type {AnyColor, Color} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
+import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
 import {ComponentProperty, ComponentView, ComponentViewTrait, CompositeComponent} from "@swim/component";
 import {DataPointView} from "./DataPointView";
@@ -179,10 +180,10 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
   protected createDataPointView(dataPointTrait: DataPointTrait<X, Y> | null): DataPointView<X, Y> {
     const dataPointView = DataPointView.create<X, Y>();
     if (dataPointTrait !== null) {
-      dataPointView.x.setAutoState(dataPointTrait.x);
-      dataPointView.y.setAutoState(dataPointTrait.y);
-      dataPointView.y2.setAutoState(dataPointTrait.y2);
-      dataPointView.radius.setAutoState(dataPointTrait.radius);
+      dataPointView.x.setState(dataPointTrait.x, View.Intrinsic);
+      dataPointView.y.setState(dataPointTrait.y, View.Intrinsic);
+      dataPointView.y2.setState(dataPointTrait.y2, View.Intrinsic);
+      dataPointView.radius.setState(dataPointTrait.radius, View.Intrinsic);
     }
     return dataPointView;
   }
@@ -259,7 +260,7 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
       } else {
         timing = Timing.fromAny(timing);
       }
-      dataPointView.x.setAutoState(x, timing);
+      dataPointView.x.setState(x, timing, View.Intrinsic);
     }
   }
 
@@ -302,7 +303,7 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
       } else {
         timing = Timing.fromAny(timing);
       }
-      dataPointView.y.setAutoState(y, timing);
+      dataPointView.y.setState(y, timing, View.Intrinsic);
     }
   }
 
@@ -345,7 +346,7 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
       } else {
         timing = Timing.fromAny(timing);
       }
-      dataPointView.y2.setAutoState(y2, timing);
+      dataPointView.y2.setState(y2, timing, View.Intrinsic);
     }
   }
 
@@ -384,7 +385,7 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
       } else {
         timing = Timing.fromAny(timing);
       }
-      dataPointView.radius.setAutoState(radius, timing);
+      dataPointView.radius.setState(radius, timing, View.Intrinsic);
     }
   }
 
@@ -424,9 +425,9 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
         timing = Timing.fromAny(timing);
       }
       if (color instanceof Look) {
-        dataPointView.color.setLook(color, timing);
+        dataPointView.color.setLook(color, timing, View.Intrinsic);
       } else {
-        dataPointView.color.setAutoState(color, timing);
+        dataPointView.color.setState(color, timing, View.Intrinsic);
       }
     }
   }

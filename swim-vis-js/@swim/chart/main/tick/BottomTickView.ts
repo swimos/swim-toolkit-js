@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {PointR2, BoxR2} from "@swim/math";
+import {View} from "@swim/view";
 import {GraphicsView, CanvasContext, TypesetView} from "@swim/graphics";
 import {TickOrientation, TickView} from "./TickView";
 
@@ -33,9 +34,9 @@ export class BottomTickView<X> extends TickView<X> {
     const y2 = y1 + this.tickLabelPadding.getValue();
 
     if (TypesetView.is(labelView)) {
-      labelView.textAlign.setAutoState("center");
-      labelView.textBaseline.setAutoState("top");
-      labelView.textOrigin.setAutoState(new PointR2(x, y2));
+      labelView.textAlign.setState("center", View.Intrinsic);
+      labelView.textBaseline.setState("top", View.Intrinsic);
+      labelView.textOrigin.setState(new PointR2(x, y2), View.Intrinsic);
     }
   }
 

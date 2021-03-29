@@ -15,6 +15,8 @@
 export {
   ViewPropertyMemberType,
   ViewPropertyMemberInit,
+  ViewPropertyMemberKey,
+  ViewPropertyMemberMap,
   ViewPropertyFlags,
   ViewPropertyInit,
   ViewPropertyDescriptor,

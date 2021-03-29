@@ -14,28 +14,35 @@
 
 import {__extends} from "tslib";
 import {Equals, FromAny} from "@swim/util";
-import {ComponentFlags, Component} from "../Component";
+import {ComponentFlags, ComponentPrecedence, Component} from "../Component";
 import {StringComponentProperty} from "../"; // forward import
 import {BooleanComponentProperty} from "../"; // forward import
 import {NumberComponentProperty} from "../"; // forward import
 
 export type ComponentPropertyMemberType<C, K extends keyof C> =
-  C extends {[P in K]: ComponentProperty<any, infer T, any>} ? T : unknown;
+  C[K] extends ComponentProperty<any, infer T, any> ? T : never;
 
 export type ComponentPropertyMemberInit<C, K extends keyof C> =
-  C extends {[P in K]: ComponentProperty<any, infer T, infer U>} ? T | U : unknown;
+  C[K] extends ComponentProperty<any, infer T, infer U> ? T | U : never;
+
+export type ComponentPropertyMemberKey<C, K extends keyof C> =
+  C[K] extends ComponentProperty<any, any> ? K : never;
+
+export type ComponentPropertyMemberMap<C> = {
+  -readonly [K in keyof C as ComponentPropertyMemberKey<C, K>]?: ComponentPropertyMemberInit<C, K>;
+};
 
 export type ComponentPropertyFlags = number;
 
 export interface ComponentPropertyInit<T, U = never> {
   extends?: ComponentPropertyClass;
   type?: unknown;
-  state?: T | U;
   inherit?: string | boolean;
 
+  state?: T | U;
+  precedence?: ComponentPrecedence;
   updateFlags?: ComponentFlags;
   willSetState?(newState: T, oldState: T): void;
-  onSetState?(newState: T, oldState: T): void;
   didSetState?(newState: T, oldState: T): void;
   fromAny?(value: T | U): T;
   initState?(): T | U;
@@ -58,7 +65,7 @@ export interface ComponentPropertyClass extends Function {
 
 export interface ComponentProperty<C extends Component, T, U = never> {
   (): T;
-  (state: T | U): C;
+  (state: T | U, precedence?: ComponentPrecedence): C;
 
   readonly name: string;
 
@@ -71,12 +78,6 @@ export interface ComponentProperty<C extends Component, T, U = never> {
   isInherited(): boolean;
 
   setInherited(inherited: boolean): void;
-
-  /** @hidden */
-  propertyFlags: ComponentPropertyFlags;
-
-  /** @hidden */
-  setPropertyFlags(propertyFlags: ComponentPropertyFlags): void;
 
   /** @hidden */
   readonly superName: string | undefined;
@@ -98,40 +99,49 @@ export interface ComponentProperty<C extends Component, T, U = never> {
   /** @hidden */
   removeSubProperty(subProperty: ComponentProperty<Component, T>): void;
 
-  isAuto(): boolean;
+  readonly superState: T | undefined;
 
-  setAuto(auto: boolean): void;
-
-  isUpdated(): boolean;
-
-  isRevising(): boolean;
+  readonly ownState: T;
 
   readonly state: T;
-
-  readonly ownState: T | undefined;
-
-  readonly superState: T | undefined;
 
   getState(): NonNullable<T>;
 
   getStateOr<E>(elseState: E): NonNullable<T> | E;
 
-  setState(state: T | U): void;
+  setState(state: T | U, precedence?: ComponentPrecedence): void;
 
   /** @hidden */
-  willSetOwnState(newState: T, oldState: T): void;
-
-  /** @hidden */
-  onSetOwnState(newState: T, oldState: T): void;
-
-  /** @hidden */
-  didSetOwnState(newState: T, oldState: T): void;
-
-  setAutoState(state: T | U): void;
-
   setOwnState(state: T | U): void;
 
-  setBaseState(state: T | U): void;
+  willSetState(newState: T, oldState: T): void;
+
+  onSetState(newState: T, oldState: T): void;
+
+  didSetState(newState: T, oldState: T): void;
+
+  isPrecedent(precedence: ComponentPrecedence): boolean;
+
+  readonly precedence: ComponentPrecedence;
+
+  setPrecedence(precedence: ComponentPrecedence): void;
+
+  /** @hidden */
+  willSetPrecedence(newPrecedence: ComponentPrecedence, oldPrecedence: ComponentPrecedence): void;
+
+  /** @hidden */
+  onSetPrecedence(newPrecedence: ComponentPrecedence, oldPrecedence: ComponentPrecedence): void;
+
+  /** @hidden */
+  didSetPrecedence(newPrecedence: ComponentPrecedence, oldPrecedence: ComponentPrecedence): void;
+
+  /** @hidden */
+  propertyFlags: ComponentPropertyFlags;
+
+  /** @hidden */
+  setPropertyFlags(propertyFlags: ComponentPropertyFlags): void;
+
+  isUpdated(): boolean;
 
   readonly updatedState: T | undefined;
 
@@ -140,37 +150,48 @@ export interface ComponentProperty<C extends Component, T, U = never> {
   takeState(): T;
 
   /** @hidden */
+  revise(): void;
+
+  /** @hidden */
   onRevise(): void;
 
   /** @hidden */
-  updateInherited(): void;
-
-  update(newState: T, oldState: T): void;
-
-  willSetState(newState: T, oldState: T): void;
-
-  onSetState(newState: T, oldState: T): void;
-
-  didSetState(newState: T, oldState: T): void;
+  onReviseInherited(): void;
 
   /** @hidden */
   updateSubProperties(newState: T, oldState: T): void;
-
-  /** @hidden */
-  revise(): void;
 
   updateFlags?: ComponentFlags;
 
   fromAny(value: T | U): T;
 
-  /** @hidden */
-  initState?(): T | U;
+  isMounted(): boolean;
 
   /** @hidden */
   mount(): void;
 
   /** @hidden */
+  willMount(): void;
+
+  /** @hidden */
+  onMount(): void;
+
+  /** @hidden */
+  didMount(): void;
+
+  /** @hidden */
   unmount(): void;
+
+  /** @hidden */
+  willUnmount(): void;
+
+  /** @hidden */
+  onUnmount(): void;
+
+  /** @hidden */
+  didUnmount(): void;
+
+  toString(): string;
 }
 
 export const ComponentProperty = function <C extends Component, T, U>(
@@ -204,6 +225,8 @@ export const ComponentProperty = function <C extends Component, T, U>(
   define<C extends Component, T, U = never>(descriptor: ComponentPropertyDescriptor<C, T, U>): ComponentPropertyConstructor<C, T, U>;
 
   /** @hidden */
+  MountedFlag: ComponentPropertyFlags;
+  /** @hidden */
   UpdatedFlag: ComponentPropertyFlags;
   /** @hidden */
   OverrideFlag: ComponentPropertyFlags;
@@ -225,16 +248,7 @@ function ComponentPropertyConstructor<C extends Component, T, U>(this: Component
     enumerable: true,
   });
   Object.defineProperty(this, "inherit", {
-    value: this.inherit ?? false, // seed from prototype
-    enumerable: true,
-    configurable: true,
-  });
-  let state: T | undefined;
-  if (this.initState !== void 0) {
-    state = this.fromAny(this.initState());
-  }
-  Object.defineProperty(this, "propertyFlags", {
-    value: ComponentProperty.UpdatedFlag,
+    value: false,
     enumerable: true,
     configurable: true,
   });
@@ -248,8 +262,18 @@ function ComponentPropertyConstructor<C extends Component, T, U>(this: Component
     enumerable: true,
     configurable: true,
   });
-  Object.defineProperty(this, "state", {
-    value: state,
+  Object.defineProperty(this, "precedence", {
+    value: Component.Intrinsic,
+    enumerable: true,
+    configurable: true,
+  });
+  Object.defineProperty(this, "propertyFlags", {
+    value: ComponentProperty.UpdatedFlag,
+    enumerable: true,
+    configurable: true,
+  });
+  Object.defineProperty(this, "ownState", {
+    value: void 0,
     enumerable: true,
     configurable: true,
   });
@@ -277,28 +301,19 @@ ComponentProperty.prototype.isInherited = function (this: ComponentProperty<Comp
 };
 
 ComponentProperty.prototype.setInherited = function (this: ComponentProperty<Component, unknown>, inherited: boolean): void {
-  if (inherited && (this.propertyFlags & (ComponentProperty.InheritedFlag | ComponentProperty.OverrideFlag)) === 0) {
+  if (inherited && (this.propertyFlags & ComponentProperty.InheritedFlag) === 0) {
     const superProperty = this.superProperty;
-    if (superProperty !== null) {
-      this.setPropertyFlags(this.propertyFlags | (ComponentProperty.UpdatedFlag | ComponentProperty.InheritedFlag));
-      Object.defineProperty(this, "state", {
-        value: superProperty.state,
-        enumerable: true,
-        configurable: true,
-      });
+    if (superProperty !== null && superProperty.precedence >= this.precedence) {
+      this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.OverrideFlag | ComponentProperty.InheritedFlag);
+      this.setOwnState(superProperty.state);
       this.revise();
     }
   } else if (!inherited && (this.propertyFlags & ComponentProperty.InheritedFlag) !== 0) {
-    this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag);
+    const superProperty = this.superProperty;
+    if (superProperty !== null && superProperty.precedence < this.precedence) {
+      this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag);
+    }
   }
-};
-
-ComponentProperty.prototype.setPropertyFlags = function (this: ComponentProperty<Component, unknown>, propertyFlags: ComponentPropertyFlags): void {
-  Object.defineProperty(this, "propertyFlags", {
-    value: propertyFlags,
-    enumerable: true,
-    configurable: true,
-  });
 };
 
 Object.defineProperty(ComponentProperty.prototype, "superName", {
@@ -312,8 +327,8 @@ Object.defineProperty(ComponentProperty.prototype, "superName", {
 
 ComponentProperty.prototype.bindSuperProperty = function (this: ComponentProperty<Component, unknown>): void {
   const superName = this.superName;
-  let component = this.owner;
-  if (superName !== void 0 && component.isMounted()) {
+  if (superName !== void 0 && this.isMounted()) {
+    let component = this.owner;
     do {
       const parentComponent = component.parentComponent;
       if (parentComponent !== null) {
@@ -326,13 +341,9 @@ ComponentProperty.prototype.bindSuperProperty = function (this: ComponentPropert
             configurable: true,
           });
           superProperty.addSubProperty(this);
-          if ((this.propertyFlags & ComponentProperty.OverrideFlag) === 0) {
-            this.setPropertyFlags(this.propertyFlags | (ComponentProperty.UpdatedFlag | ComponentProperty.InheritedFlag));
-            Object.defineProperty(this, "state", {
-              value: superProperty.state,
-              enumerable: true,
-              configurable: true,
-            });
+          if ((this.propertyFlags & ComponentProperty.OverrideFlag) === 0 && superProperty.precedence >= this.precedence) {
+            this.setPropertyFlags(this.propertyFlags | ComponentProperty.InheritedFlag);
+            this.setOwnState(superProperty.state);
             this.revise();
           }
         } else {
@@ -380,34 +391,18 @@ ComponentProperty.prototype.removeSubProperty = function <T>(this: ComponentProp
   }
 };
 
-ComponentProperty.prototype.isAuto = function (this: ComponentProperty<Component, unknown>): boolean {
-  return (this.propertyFlags & ComponentProperty.OverrideFlag) === 0;
-};
-
-ComponentProperty.prototype.setAuto = function (this: ComponentProperty<Component, unknown>, auto: boolean): void {
-  if (auto && (this.propertyFlags & ComponentProperty.OverrideFlag) !== 0) {
-    this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.OverrideFlag);
-  } else if (!auto && (this.propertyFlags & ComponentProperty.OverrideFlag) === 0) {
-    this.setPropertyFlags(this.propertyFlags | ComponentProperty.OverrideFlag);
-  }
-};
-
-ComponentProperty.prototype.isUpdated = function (this: ComponentProperty<Component, unknown>): boolean {
-  return (this.propertyFlags & ComponentProperty.UpdatedFlag) !== 0;
-};
-
-Object.defineProperty(ComponentProperty.prototype, "ownState", {
+Object.defineProperty(ComponentProperty.prototype, "superState", {
   get: function <T>(this: ComponentProperty<Component, T>): T | undefined {
-    return !this.isInherited() ? this.state : void 0;
+    const superProperty = this.superProperty;
+    return superProperty !== null ? superProperty.state : void 0;
   },
   enumerable: true,
   configurable: true,
 });
 
-Object.defineProperty(ComponentProperty.prototype, "superState", {
-  get: function <T>(this: ComponentProperty<Component, T>): T | undefined {
-    const superProperty = this.superProperty;
-    return superProperty !== null ? superProperty.state : void 0;
+Object.defineProperty(ComponentProperty.prototype, "state", {
+  get: function <T>(this: ComponentProperty<Component, T>): T {
+    return this.ownState;
   },
   enumerable: true,
   configurable: true,
@@ -429,58 +424,94 @@ ComponentProperty.prototype.getStateOr = function <T, U, E>(this: ComponentPrope
   return state as NonNullable<T> | E;
 };
 
-ComponentProperty.prototype.setState = function <T, U>(this: ComponentProperty<Component, T, U>, state: T | U): void {
-  this.setPropertyFlags(this.propertyFlags | ComponentProperty.OverrideFlag);
-  this.setOwnState(state);
-};
-
-ComponentProperty.prototype.willSetOwnState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
-  // hook
-};
-
-ComponentProperty.prototype.onSetOwnState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
-  // hook
-};
-
-ComponentProperty.prototype.didSetOwnState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
-  // hook
-};
-
-ComponentProperty.prototype.setAutoState = function <T, U>(this: ComponentProperty<Component, T, U>, state: T | U): void {
-  if ((this.propertyFlags & ComponentProperty.OverrideFlag) === 0) {
-    this.setOwnState(state);
+ComponentProperty.prototype.setState = function <T, U>(this: ComponentProperty<Component, T, U>, newState: T | U, precedence?: ComponentPrecedence): void {
+  if (precedence === void 0) {
+    precedence = Component.Extrinsic;
+  }
+  if (precedence >= this.precedence) {
+    this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag | ComponentProperty.OverrideFlag);
+    this.setPrecedence(precedence);
+    this.setOwnState(newState);
   }
 };
 
 ComponentProperty.prototype.setOwnState = function <T, U>(this: ComponentProperty<Component, T, U>, newState: T | U): void {
-  const oldState = this.state;
   newState = this.fromAny(newState);
-  this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag);
-  if (!Equals(oldState, newState)) {
-    this.willSetOwnState(newState as T, oldState);
-    this.willSetState(newState as T, oldState);
-    Object.defineProperty(this, "state", {
-      value: newState as T,
+  const oldState = this.state;
+  if (!Equals(newState, oldState)) {
+    this.willSetState(newState, oldState);
+    Object.defineProperty(this, "ownState", {
+      value: newState,
       enumerable: true,
       configurable: true,
     });
     this.setPropertyFlags(this.propertyFlags | ComponentProperty.UpdatedFlag);
-    this.onSetOwnState(newState as T, oldState);
-    this.onSetState(newState as T, oldState);
-    this.updateSubProperties(newState as T, oldState);
-    this.didSetState(newState as T, oldState);
-    this.didSetOwnState(newState as T, oldState);
+    this.onSetState(newState, oldState);
+    this.updateSubProperties(newState, oldState);
+    this.didSetState(newState, oldState);
   }
 };
 
-ComponentProperty.prototype.setBaseState = function <T, U>(this: ComponentProperty<Component, T, U>, state: T | U): void {
-  let superProperty: ComponentProperty<Component, T> | null | undefined;
-  if (this.isInherited() && (superProperty = this.superProperty, superProperty !== null)) {
-    state = this.fromAny(state);
-    superProperty.setBaseState(state as T);
-  } else {
-    this.setState(state);
+ComponentProperty.prototype.willSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
+  // hook
+};
+
+ComponentProperty.prototype.onSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
+  const updateFlags = this.updateFlags;
+  if (updateFlags !== void 0) {
+    this.owner.requireUpdate(updateFlags);
   }
+};
+
+ComponentProperty.prototype.didSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
+  // hook
+};
+
+ComponentProperty.prototype.isPrecedent = function (this: ComponentProperty<Component, unknown>, precedence: ComponentPrecedence): boolean {
+  return precedence >= this.precedence;
+};
+
+ComponentProperty.prototype.setPrecedence = function (this: ComponentProperty<Component, unknown>, newPrecedence: ComponentPrecedence): void {
+  const oldPrecedence = this.precedence;
+  if (newPrecedence !== oldPrecedence) {
+    this.willSetPrecedence(newPrecedence, oldPrecedence);
+    Object.defineProperty(this, "precedence", {
+      value: newPrecedence,
+      enumerable: true,
+      configurable: true,
+    });
+    this.onSetPrecedence(newPrecedence, oldPrecedence);
+    this.didSetPrecedence(newPrecedence, oldPrecedence);
+  }
+};
+
+ComponentProperty.prototype.willSetPrecedence = function (this: ComponentProperty<Component, unknown>, newPrecedence: ComponentPrecedence, oldPrecedence: ComponentPrecedence): void {
+  // hook
+};
+
+ComponentProperty.prototype.onSetPrecedence = function (this: ComponentProperty<Component, unknown>, newPrecedence: ComponentPrecedence, oldPrecedence: ComponentPrecedence): void {
+  if (newPrecedence > oldPrecedence && (this.propertyFlags & ComponentProperty.InheritedFlag) !== 0) {
+    const superProperty = this.superProperty;
+    if (superProperty !== null && superProperty.precedence < this.precedence) {
+      this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.InheritedFlag);
+    }
+  }
+};
+
+ComponentProperty.prototype.didSetPrecedence = function (this: ComponentProperty<Component, unknown>, newPrecedence: ComponentPrecedence, oldPrecedence: ComponentPrecedence): void {
+  // hook
+};
+
+ComponentProperty.prototype.setPropertyFlags = function (this: ComponentProperty<Component, unknown>, propertyFlags: ComponentPropertyFlags): void {
+  Object.defineProperty(this, "propertyFlags", {
+    value: propertyFlags,
+    enumerable: true,
+    configurable: true,
+  });
+};
+
+ComponentProperty.prototype.isUpdated = function (this: ComponentProperty<Component, unknown>): boolean {
+  return (this.propertyFlags & ComponentProperty.UpdatedFlag) !== 0;
 };
 
 Object.defineProperty(ComponentProperty.prototype, "updatedState", {
@@ -510,47 +541,21 @@ ComponentProperty.prototype.takeState = function <T>(this: ComponentProperty<Com
   return this.state;
 }
 
+ComponentProperty.prototype.revise = function (this: ComponentProperty<Component, unknown>): void {
+  this.owner.requireUpdate(Component.NeedsRevise);
+};
+
 ComponentProperty.prototype.onRevise = function (this: ComponentProperty<Component, unknown>): void {
   if (this.isInherited()) {
-    this.updateInherited();
+    this.onReviseInherited();
   }
 };
 
-ComponentProperty.prototype.updateInherited = function <T>(this: ComponentProperty<Component, T>): void {
+ComponentProperty.prototype.onReviseInherited = function <T>(this: ComponentProperty<Component, T>): void {
   const superProperty = this.superProperty;
-  if (superProperty !== null) {
-    this.update(superProperty.state, this.state);
+  if (superProperty !== null && superProperty.precedence >= this.precedence) {
+    this.setOwnState(superProperty.state);
   }
-};
-
-ComponentProperty.prototype.update = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
-  if (!Equals(oldState, newState)) {
-    this.willSetState(newState, oldState);
-    Object.defineProperty(this, "state", {
-      value: newState,
-      enumerable: true,
-      configurable: true,
-    });
-    this.setPropertyFlags(this.propertyFlags | ComponentProperty.UpdatedFlag);
-    this.onSetState(newState, oldState);
-    this.updateSubProperties(newState, oldState);
-    this.didSetState(newState, oldState);
-  }
-};
-
-ComponentProperty.prototype.willSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
-  // hook
-};
-
-ComponentProperty.prototype.onSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
-  const updateFlags = this.updateFlags;
-  if (updateFlags !== void 0) {
-    this.owner.requireUpdate(updateFlags);
-  }
-};
-
-ComponentProperty.prototype.didSetState = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
-  // hook
 };
 
 ComponentProperty.prototype.updateSubProperties = function <T>(this: ComponentProperty<Component, T>, newState: T, oldState: T): void {
@@ -563,20 +568,58 @@ ComponentProperty.prototype.updateSubProperties = function <T>(this: ComponentPr
   }
 };
 
-ComponentProperty.prototype.revise = function (this: ComponentProperty<Component, unknown>): void {
-  this.owner.requireUpdate(Component.NeedsRevise);
-};
-
 ComponentProperty.prototype.fromAny = function <T, U>(this: ComponentProperty<Component, T, U>, value: T | U): T {
   return value as T;
 };
 
+ComponentProperty.prototype.isMounted = function (this: ComponentProperty<Component, unknown>): boolean {
+  return (this.propertyFlags & ComponentProperty.MountedFlag) !== 0;
+};
+
 ComponentProperty.prototype.mount = function (this: ComponentProperty<Component, unknown>): void {
+  if ((this.propertyFlags & ComponentProperty.MountedFlag) === 0) {
+    this.willMount();
+    this.setPropertyFlags(this.propertyFlags | ComponentProperty.MountedFlag);
+    this.onMount();
+    this.didMount();
+  }
+};
+
+ComponentProperty.prototype.willMount = function (this: ComponentProperty<Component, unknown>): void {
+  // hook
+};
+
+ComponentProperty.prototype.onMount = function (this: ComponentProperty<Component, unknown>): void {
   this.bindSuperProperty();
 };
 
+ComponentProperty.prototype.didMount = function (this: ComponentProperty<Component, unknown>): void {
+  // hook
+};
+
 ComponentProperty.prototype.unmount = function (this: ComponentProperty<Component, unknown>): void {
+  if ((this.propertyFlags & ComponentProperty.MountedFlag) !== 0) {
+    this.willUnmount();
+    this.setPropertyFlags(this.propertyFlags & ~ComponentProperty.MountedFlag);
+    this.onUnmount();
+    this.didUnmount();
+  }
+};
+
+ComponentProperty.prototype.willUnmount = function (this: ComponentProperty<Component, unknown>): void {
+  // hook
+};
+
+ComponentProperty.prototype.onUnmount = function (this: ComponentProperty<Component, unknown>): void {
   this.unbindSuperProperty();
+};
+
+ComponentProperty.prototype.didUnmount = function (this: ComponentProperty<Component, unknown>): void {
+  // hook
+};
+
+ComponentProperty.prototype.toString = function (this: ComponentProperty<Component, unknown>): string {
+  return this.name;
 };
 
 ComponentProperty.getConstructor = function (type: unknown): ComponentPropertyClass | null {
@@ -592,11 +635,15 @@ ComponentProperty.getConstructor = function (type: unknown): ComponentPropertyCl
 
 ComponentProperty.define = function <C extends Component, T, U, I>(descriptor: ComponentPropertyDescriptor<C, T, U, I>): ComponentPropertyConstructor<C, T, U, I> {
   let _super: ComponentPropertyClass | null | undefined = descriptor.extends;
-  const state = descriptor.state;
   const inherit = descriptor.inherit;
+  const state = descriptor.state;
+  const precedence = descriptor.precedence;
   const initState = descriptor.initState;
   delete descriptor.extends;
+  delete descriptor.inherit;
   delete descriptor.state;
+  delete descriptor.precedence;
+  delete descriptor.initState;
 
   if (_super === void 0) {
     _super = ComponentProperty.getConstructor(descriptor.type);
@@ -609,16 +656,43 @@ ComponentProperty.define = function <C extends Component, T, U, I>(descriptor: C
   }
 
   const _constructor = function DecoratedComponentProperty(this: ComponentProperty<C, T, U>, owner: C, propertyName: string | undefined): ComponentProperty<C, T, U> {
-    let _this: ComponentProperty<C, T, U> = function ComponentPropertyAccessor(state?: T | U): T | C {
+    let _this: ComponentProperty<C, T, U> = function ComponentPropertyAccessor(state?: T | U, precedence?: ComponentPrecedence): T | C {
       if (arguments.length === 0) {
         return _this.state;
       } else {
-        _this.setState(state!);
+        _this.setState(state!, precedence);
         return _this.owner;
       }
     } as ComponentProperty<C, T, U>;
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, owner, propertyName) || _this;
+    let ownState: T | undefined;
+    if (initState !== void 0) {
+      ownState = _this.fromAny(initState());
+    } else if (state !== void 0) {
+      ownState = _this.fromAny(state);
+    }
+    if (ownState !== void 0) {
+      Object.defineProperty(_this, "ownState", {
+        value: ownState,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    if (precedence !== void 0) {
+      Object.defineProperty(_this, "precedence", {
+        value: precedence,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    if (inherit !== void 0) {
+      Object.defineProperty(_this, "inherit", {
+        value: inherit,
+        enumerable: true,
+        configurable: true,
+      });
+    }
     return _this;
   } as unknown as ComponentPropertyConstructor<C, T, U, I>;
 
@@ -628,20 +702,10 @@ ComponentProperty.define = function <C extends Component, T, U, I>(descriptor: C
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
 
-  if (state !== void 0 && initState === void 0) {
-    _prototype.initState = function (): T | U {
-      return state;
-    };
-  }
-  Object.defineProperty(_prototype, "inherit", {
-    value: inherit ?? false,
-    enumerable: true,
-    configurable: true,
-  });
-
   return _constructor;
 };
 
-ComponentProperty.UpdatedFlag = 1 << 0;
-ComponentProperty.OverrideFlag = 1 << 1;
-ComponentProperty.InheritedFlag = 1 << 2;
+ComponentProperty.MountedFlag = 1 << 0;
+ComponentProperty.UpdatedFlag = 1 << 1;
+ComponentProperty.OverrideFlag = 1 << 2;
+ComponentProperty.InheritedFlag = 1 << 3;

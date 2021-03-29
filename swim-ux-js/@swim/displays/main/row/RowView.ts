@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Look} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewProperty, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
 import {AnyTableLayout, TableLayout} from "../layout/TableLayout";
@@ -30,8 +31,8 @@ export class RowView extends HtmlView {
 
   protected initRow(): void {
     this.addClass("table-row");
-    this.overflowX.setAutoState("hidden");
-    this.overflowY.setAutoState("hidden");
+    this.overflowX.setState("hidden", View.Intrinsic);
+    this.overflowY.setState("hidden", View.Intrinsic);
   }
 
   declare readonly viewController: HtmlViewController & RowViewObserver | null;
@@ -79,12 +80,12 @@ export class RowView extends HtmlView {
   }
 
   protected initCell(cellView: CellView, cellFastener: ViewFastener<this, CellView>): void {
-    cellView.display.setAutoState("none");
-    cellView.position.setAutoState("absolute");
-    cellView.left.setAutoState(0);
-    cellView.top.setAutoState(0);
-    cellView.width.setAutoState(0);
-    cellView.height.setAutoState(this.height.state);
+    cellView.display.setState("none", View.Intrinsic);
+    cellView.position.setState("absolute", View.Intrinsic);
+    cellView.left.setState(0, View.Intrinsic);
+    cellView.top.setState(0, View.Intrinsic);
+    cellView.width.setState(0, View.Intrinsic);
+    cellView.height.setState(this.height.state, View.Intrinsic);
   }
 
   protected attachCell(cellView: CellView, cellFastener: ViewFastener<this, CellView>): void {
@@ -218,16 +219,21 @@ export class RowView extends HtmlView {
         const key = childView.key;
         const col = layout !== null && key !== void 0 ? layout.getCol(key) : null;
         if (col !== null) {
-          childView.display.setAutoState(!col.hidden ? "flex" : "none");
-          childView.left.setAutoState(col.left);
-          childView.width.setAutoState(col.width);
-          childView.height.setAutoState(height);
-          childView.textColor.setAutoState(col.textColor);
+          childView.display.setState(!col.hidden ? "flex" : "none", View.Intrinsic);
+          childView.left.setState(col.left, View.Intrinsic);
+          childView.width.setState(col.width, View.Intrinsic);
+          childView.height.setState(height, View.Intrinsic);
+          const textColor = col.textColor;
+          if (textColor instanceof Look) {
+            childView.color.setLook(textColor, View.Intrinsic);
+          } else {
+            childView.color.setState(textColor, View.Intrinsic);
+          }
         } else {
-          childView.display.setAutoState("none");
-          childView.left.setAutoState(null);
-          childView.width.setAutoState(null);
-          childView.height.setAutoState(null);
+          childView.display.setState("none", View.Intrinsic);
+          childView.left.setState(null, View.Intrinsic);
+          childView.width.setState(null, View.Intrinsic);
+          childView.height.setState(null, View.Intrinsic);
         }
       }
       displayChildView.call(this, childView, displayFlags, viewContext);

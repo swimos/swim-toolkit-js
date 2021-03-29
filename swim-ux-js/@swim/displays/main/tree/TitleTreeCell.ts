@@ -14,6 +14,7 @@
 
 import type {Timing} from "@swim/mapping";
 import {Look, MoodVector, ThemeMatrix} from "@swim/theme";
+import {View} from "@swim/view";
 import {TreeCell} from "./TreeCell";
 
 export class TitleTreeCell extends TreeCell {
@@ -24,6 +25,6 @@ export class TitleTreeCell extends TreeCell {
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    this.color.setAutoState(theme.getOr(Look.accentColor, mood, null), timing);
+    this.color.setState(theme.getOr(Look.accentColor, mood, null), timing, View.Intrinsic);
   }
 }

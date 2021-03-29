@@ -14,11 +14,16 @@
 
 export * from "./types";
 
-export {StyleContext} from "./StyleContext";
+export {
+  StyleContextPrototype,
+  StyleContext,
+} from "./StyleContext";
 
 export {
   StyleAnimatorMemberType,
   StyleAnimatorMemberInit,
+  StyleAnimatorMemberKey,
+  StyleAnimatorMemberMap,
   StyleAnimatorInit,
   StyleAnimatorDescriptor,
   StyleAnimatorDescriptorExtends,

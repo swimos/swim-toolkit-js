@@ -17,8 +17,17 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import {BoxR2} from "@swim/math";
 import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
-import {ViewContextType, ViewConstructor, View, ViewObserverType, ViewProperty} from "@swim/view";
-import type {StyleContext} from "../style/StyleContext";
+import {
+  ViewContextType,
+  ViewPrecedence,
+  ViewPrototype,
+  ViewConstructor,
+  View,
+  ViewObserverType,
+  ViewProperty,
+  ViewAnimator,
+} from "@swim/view";
+import {StyleContextPrototype, StyleContext} from "../style/StyleContext";
 import type {StyleAnimator} from "../style/StyleAnimator";
 import {NodeViewInit, NodeViewConstructor, NodeView} from "../node/NodeView";
 import type {AttributeAnimatorConstructor, AttributeAnimator} from "../attribute/AttributeAnimator";
@@ -36,6 +45,31 @@ export interface ViewElement extends Element, ElementCSSInlineStyle {
   view?: ElementView;
 }
 
+export type ElementViewMemberType<V, K extends keyof V> =
+  V[K] extends ViewProperty<any, infer T, any> ? T :
+  V[K] extends ViewAnimator<any, infer T, any> ? T :
+  V[K] extends StyleAnimator<any, infer T, any> ? T :
+  V[K] extends AttributeAnimator<any, infer T, any> ? T :
+  never;
+
+export type ElementViewMemberInit<V, K extends keyof V> =
+  V[K] extends ViewProperty<any, infer T, infer U> ? T | U :
+  V[K] extends ViewAnimator<any, infer T, infer U> ? T | U :
+  V[K] extends StyleAnimator<any, infer T, infer U> ? T | U :
+  V[K] extends AttributeAnimator<any, infer T, infer U> ? T | U :
+  never;
+
+export type ElementViewMemberKey<V, K extends keyof V> =
+  V[K] extends ViewProperty<any, any> ? K :
+  V[K] extends ViewAnimator<any, any> ? K :
+  V[K] extends StyleAnimator<any, any> ? K :
+  V[K] extends AttributeAnimator<any, any> ? K :
+  never;
+
+export type ElementViewMemberMap<V> = {
+  -readonly [K in keyof V as ElementViewMemberKey<V, K>]?: ElementViewMemberInit<V, K>;
+};
+
 export interface ElementViewInit extends NodeViewInit {
   viewController?: ElementViewController;
   id?: string;
@@ -44,6 +78,11 @@ export interface ElementViewInit extends NodeViewInit {
   moodModifier?: MoodMatrix;
   theme?: ThemeMatrix;
   themeModifier?: MoodMatrix;
+}
+
+export interface ElementViewPrototype extends ViewPrototype, StyleContextPrototype {
+  /** @hidden */
+  attributeAnimatorConstructors?: {[animatorName: string]: AttributeAnimatorConstructor<ElementView, unknown> | undefined};
 }
 
 export interface ElementViewConstructor<V extends ElementView = ElementView> extends NodeViewConstructor<V> {
@@ -196,26 +235,28 @@ export class ElementView extends NodeView implements StyleContext {
   modifyMood(feel: Feel, ...entires: [Feel, number | undefined][]): void;
   modifyMood(feel: Feel, ...args: [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
   modifyMood(feel: Feel, ...args: [Feel, number | undefined][] | [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void {
-    let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
-    const entries = args as [Feel, number | undefined][];
-    const oldMoodModifier = this.moodModifier.getStateOr(MoodMatrix.empty());
-    const newMoodModifier = oldMoodModifier.updatedCol(feel, true, ...entries);
-    if (!newMoodModifier.equals(oldMoodModifier)) {
-      this.moodModifier.setState(newMoodModifier);
-      this.changeMood();
-      if (timing !== void 0) {
-        const theme = this.theme.state;
-        const mood = this.mood.state;
-        if (theme !== null && mood !== null) {
-          if (timing === true) {
-            timing = theme.getOr(Look.timing, mood, false);
-          } else {
-            timing = Timing.fromAny(timing);
+    if (this.moodModifier.isPrecedent(View.Intrinsic)) {
+      let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
+      const entries = args as [Feel, number | undefined][];
+      const oldMoodModifier = this.moodModifier.getStateOr(MoodMatrix.empty());
+      const newMoodModifier = oldMoodModifier.updatedCol(feel, true, ...entries);
+      if (!newMoodModifier.equals(oldMoodModifier)) {
+        this.moodModifier.setState(newMoodModifier, View.Intrinsic);
+        this.changeMood();
+        if (timing !== void 0) {
+          const theme = this.theme.state;
+          const mood = this.mood.state;
+          if (theme !== null && mood !== null) {
+            if (timing === true) {
+              timing = theme.getOr(Look.timing, mood, false);
+            } else {
+              timing = Timing.fromAny(timing);
+            }
+            this.applyTheme(theme, mood, timing);
           }
-          this.applyTheme(theme, mood, timing);
+        } else {
+          this.requireUpdate(View.NeedsChange);
         }
-      } else {
-        this.requireUpdate(View.NeedsChange);
       }
     }
   }
@@ -223,33 +264,35 @@ export class ElementView extends NodeView implements StyleContext {
   modifyTheme(feel: Feel, ...enties: [Feel, number | undefined][]): void;
   modifyTheme(feel: Feel, ...args: [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
   modifyTheme(feel: Feel, ...args: [Feel, number | undefined][] | [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void {
-    let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
-    const entries = args as [Feel, number | undefined][];
-    const oldThemeModifier = this.themeModifier.getStateOr(MoodMatrix.empty());
-    const newThemeModifier = oldThemeModifier.updatedCol(feel, true, ...entries);
-    if (!newThemeModifier.equals(oldThemeModifier)) {
-      this.themeModifier.setState(newThemeModifier);
-      this.changeTheme();
-      if (timing !== void 0) {
-        const theme = this.theme.state;
-        const mood = this.mood.state;
-        if (theme !== null && mood !== null) {
-          if (timing === true) {
-            timing = theme.getOr(Look.timing, mood, false);
-          } else {
-            timing = Timing.fromAny(timing);
+    if (this.themeModifier.isPrecedent(View.Intrinsic)) {
+      let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
+      const entries = args as [Feel, number | undefined][];
+      const oldThemeModifier = this.themeModifier.getStateOr(MoodMatrix.empty());
+      const newThemeModifier = oldThemeModifier.updatedCol(feel, true, ...entries);
+      if (!newThemeModifier.equals(oldThemeModifier)) {
+        this.themeModifier.setState(newThemeModifier, View.Intrinsic);
+        this.changeTheme();
+        if (timing !== void 0) {
+          const theme = this.theme.state;
+          const mood = this.mood.state;
+          if (theme !== null && mood !== null) {
+            if (timing === true) {
+              timing = theme.getOr(Look.timing, mood, false);
+            } else {
+              timing = Timing.fromAny(timing);
+            }
+            this.applyTheme(theme, mood, timing);
           }
-          this.applyTheme(theme, mood, timing);
+        } else {
+          this.requireUpdate(View.NeedsChange);
         }
-      } else {
-        this.requireUpdate(View.NeedsChange);
       }
     }
   }
 
   protected changeMood(): void {
     const moodModifierProperty = this.getViewProperty("moodModifier") as ViewProperty<this, MoodMatrix | null> | null;
-    if (moodModifierProperty !== null && this.mood.isAuto()) {
+    if (moodModifierProperty !== null && this.mood.isPrecedent(View.Intrinsic)) {
       const moodModifier = moodModifierProperty.state;
       if (moodModifier !== null) {
         let superMood = this.mood.superState;
@@ -261,7 +304,7 @@ export class ElementView extends NodeView implements StyleContext {
         }
         if (superMood !== void 0 && superMood !== null) {
           const mood = moodModifier.timesCol(superMood, true);
-          this.mood.setAutoState(mood);
+          this.mood.setState(mood, View.Intrinsic);
         }
       } else {
         this.mood.setInherited(true);
@@ -271,7 +314,7 @@ export class ElementView extends NodeView implements StyleContext {
 
   protected changeTheme(): void {
     const themeModifierProperty = this.getViewProperty("themeModifier") as ViewProperty<this, MoodMatrix | null> | null;
-    if (themeModifierProperty !== null && this.theme.isAuto()) {
+    if (themeModifierProperty !== null && this.theme.isPrecedent(View.Intrinsic)) {
       const themeModifier = themeModifierProperty.state;
       if (themeModifier !== null) {
         let superTheme = this.theme.superState;
@@ -283,7 +326,7 @@ export class ElementView extends NodeView implements StyleContext {
         }
         if (superTheme !== void 0 && superTheme !== null) {
           const theme = superTheme.transform(themeModifier, true);
-          this.theme.setAutoState(theme);
+          this.theme.setState(theme, View.Intrinsic);
         }
       } else {
         this.theme.setInherited(true);
@@ -311,11 +354,11 @@ export class ElementView extends NodeView implements StyleContext {
     if (NodeView.isRootView(this.node)) {
       const themeManager = this.themeService.manager;
       if (themeManager !== void 0) {
-        if (this.mood.isAuto() && this.mood.state === null) {
-          this.mood.setAutoState(themeManager.mood);
+        if (this.mood.isPrecedent(View.Intrinsic) && this.mood.state === null) {
+          this.mood.setState(themeManager.mood, View.Intrinsic);
         }
-        if (this.theme.isAuto() && this.theme.state === null) {
-          this.theme.setAutoState(themeManager.theme);
+        if (this.theme.isPrecedent(View.Intrinsic) && this.theme.state === null) {
+          this.theme.setState(themeManager.theme, View.Intrinsic);
         }
       }
     }
@@ -410,6 +453,19 @@ export class ElementView extends NodeView implements StyleContext {
     } else {
       delete attributeAnimators[animatorName];
     }
+  }
+
+  /** @hidden */
+  getLazyAttributeAnimator(animatorName: string): AttributeAnimator<this, unknown> | null {
+    let attributeAnimator = this.getAttributeAnimator(animatorName);
+    if (attributeAnimator === null) {
+      const constructor = ElementView.getAttributeAnimatorConstructor(animatorName, Object.getPrototypeOf(this));
+      if (constructor !== null) {
+        attributeAnimator = new constructor(this, animatorName);
+        this.setAttributeAnimator(animatorName, attributeAnimator);
+      }
+    }
+    return attributeAnimator;
   }
 
   getStyle(propertyNames: string | ReadonlyArray<string>): CSSStyleValue | string | undefined {
@@ -551,6 +607,19 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   /** @hidden */
+  getLazyStyleAnimator(animatorName: string): StyleAnimator<this, unknown> | null {
+    let styleAnimator = this.getStyleAnimator(animatorName);
+    if (styleAnimator === null) {
+      const constructor = StyleContext.getStyleAnimatorConstructor(animatorName, Object.getPrototypeOf(this));
+      if (constructor !== null) {
+        styleAnimator = new constructor(this, animatorName);
+        this.setStyleAnimator(animatorName, styleAnimator);
+      }
+    }
+    return styleAnimator;
+  }
+
+  /** @hidden */
   protected themeViewAnimators(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     const viewAnimators = this.viewAnimators;
     for (const animatorName in viewAnimators) {
@@ -659,6 +728,45 @@ export class ElementView extends NodeView implements StyleContext {
     return this;
   }
 
+  /** @hidden */
+  setViewMember(key: string, value: unknown, timing?: AnyTiming | boolean, precedence?: ViewPrecedence): void {
+    const viewProperty = this.getLazyViewProperty(key);
+    if (viewProperty !== null) {
+      viewProperty.setState(value, precedence);
+      return;
+    }
+    const viewAnimator = this.getLazyViewAnimator(key);
+    if (viewAnimator !== null) {
+      viewAnimator.setState(value, timing, precedence);
+      return;
+    }
+    const styleAnimator = this.getLazyStyleAnimator(key);
+    if (styleAnimator !== null) {
+      styleAnimator.setState(value, timing, precedence);
+      return;
+    }
+    const attributeAnimator = this.getLazyAttributeAnimator(key);
+    if (attributeAnimator !== null) {
+      attributeAnimator.setState(value, timing, precedence);
+      return;
+    }
+  }
+
+  setViewState<S extends ElementView>(this: S, state: ElementViewMemberMap<S>, precedenceOrTiming: ViewPrecedence | AnyTiming | boolean | undefined): void;
+  setViewState<S extends ElementView>(this: S, state: ElementViewMemberMap<S>, timing?: AnyTiming | boolean, precedence?: ViewPrecedence): void;
+  setViewState<S extends ElementView>(this: S, state: ElementViewMemberMap<S>, timing?: ViewPrecedence | AnyTiming | boolean, precedence?: ViewPrecedence): void {
+    if (typeof timing === "number") {
+      precedence = timing;
+      timing = void 0;
+    } else if (precedence === void 0) {
+      precedence = View.Extrinsic;
+    }
+    for (const key in state) {
+      const value = state[key];
+      this.setViewMember(key, value, timing, precedence);
+    }
+  }
+
   get clientBounds(): BoxR2 {
     const bounds = this.node.getBoundingClientRect();
     return new BoxR2(bounds.left, bounds.top, bounds.right, bounds.bottom);
@@ -765,8 +873,30 @@ export class ElementView extends NodeView implements StyleContext {
   }
 
   /** @hidden */
+  static getAttributeAnimatorConstructor(animatorName: string, viewPrototype: ElementViewPrototype | null): AttributeAnimatorConstructor<any, unknown> | null {
+    if (viewPrototype === null) {
+      viewPrototype = this.prototype as ElementViewPrototype;
+    }
+    while (viewPrototype !== null) {
+      if (Object.prototype.hasOwnProperty.call(viewPrototype, "attributeAnimatorConstructors")) {
+        const constructor = viewPrototype.attributeAnimatorConstructors![animatorName];
+        if (constructor !== void 0) {
+          return constructor;
+        }
+      }
+      viewPrototype = Object.getPrototypeOf(viewPrototype);
+    }
+    return null;
+  }
+
+  /** @hidden */
   static decorateAttributeAnimator(constructor: AttributeAnimatorConstructor<ElementView, unknown>,
                                    target: Object, propertyKey: string | symbol): void {
+    const viewPrototype = target as ElementViewPrototype;
+    if (!Object.prototype.hasOwnProperty.call(viewPrototype, "attributeAnimatorConstructors")) {
+      viewPrototype.attributeAnimatorConstructors = {};
+    }
+    viewPrototype.attributeAnimatorConstructors![propertyKey.toString()] = constructor;
     Object.defineProperty(target, propertyKey, {
       get: function (this: ElementView): AttributeAnimator<ElementView, unknown> {
         let attributeAnimator = this.getAttributeAnimator(propertyKey.toString());

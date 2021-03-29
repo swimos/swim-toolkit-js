@@ -15,7 +15,7 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
-import {ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
+import {View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import type {GraphicsView, GraphicsViewController, CanvasContext, CanvasRenderer, StrokeViewInit, StrokeView} from "@swim/graphics";
 import type {DataPointView} from "../data/DataPointView";
 import {SeriesPlotType, SeriesPlotViewInit, SeriesPlotView} from "./SeriesPlotView";
@@ -54,20 +54,20 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
   declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected onSetStrokeWidth(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
-    if (this.xRangePadding.isAuto() || this.yRangePadding.isAuto()) {
+    if (this.xRangePadding.isPrecedent(View.Intrinsic) || this.yRangePadding.isPrecedent(View.Intrinsic)) {
       const frame = this.viewFrame;
       const size = Math.min(frame.width, frame.height);
       const strokeWidth = this.strokeWidth.getValueOr(Length.zero()).pxValue(size);
       const strokeRadius = strokeWidth / 2;
-      this.xRangePadding.setAutoState([strokeRadius, strokeRadius]);
-      this.yRangePadding.setAutoState([strokeRadius, strokeRadius]);
+      this.xRangePadding.setState([strokeRadius, strokeRadius], View.Intrinsic);
+      this.yRangePadding.setState([strokeRadius, strokeRadius], View.Intrinsic);
     }
   }
 
   @ViewAnimator<LinePlotView<X, Y>, Length | null, AnyLength | null>({
     type: Length,
     state: Length.px(1),
-    onSetValue(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
+    didSetValue(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
       this.owner.onSetStrokeWidth(newStrokeWidth, oldStrokeWidth);
     },
   })

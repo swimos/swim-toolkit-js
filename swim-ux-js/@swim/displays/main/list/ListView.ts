@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {View} from "@swim/view";
+import {View} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {ListItem} from "./ListItem";
 import type {ListViewObserver} from "./ListViewObserver";
@@ -26,11 +26,11 @@ export class ListView extends HtmlView {
 
   protected initList(): void {
     this.addClass("list");
-    this.flexGrow.setAutoState(1);
-    this.flexShrink.setAutoState(0);
-    this.marginTop.setAutoState(12);
-    this.marginBottom.setAutoState(12);
-    this.userSelect.setAutoState("none");
+    this.flexGrow.setState(1, View.Intrinsic);
+    this.flexShrink.setState(0, View.Intrinsic);
+    this.marginTop.setState(12, View.Intrinsic);
+    this.marginBottom.setState(12, View.Intrinsic);
+    this.userSelect.setState("none", View.Intrinsic);
   }
 
   declare readonly viewController: ListViewController | null;

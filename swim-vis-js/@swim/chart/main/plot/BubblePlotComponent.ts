@@ -16,6 +16,7 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import type {Length} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
+import {View} from "@swim/view";
 import {ComponentViewTrait, ComponentFastener} from "@swim/component";
 import type {DataPointComponent} from "../data/DataPointComponent";
 import {DataSetTrait} from "../data/DataSetTrait";
@@ -215,9 +216,9 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
         timing = Timing.fromAny(timing);
       }
       if (fill instanceof Look) {
-        plotView.fill.setLook(fill, timing);
+        plotView.fill.setLook(fill, timing, View.Intrinsic);
       } else {
-        plotView.fill.setAutoState(fill, timing);
+        plotView.fill.setState(fill, timing, View.Intrinsic);
       }
     }
   }
@@ -233,7 +234,7 @@ export class BubblePlotComponent<X, Y> extends ScatterPlotComponent<X, Y> {
       } else {
         timing = Timing.fromAny(timing);
       }
-      plotView.radius.setAutoState(radius, timing);
+      plotView.radius.setState(radius, timing, View.Intrinsic);
     }
   }
 

@@ -46,10 +46,10 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
 
   protected initLeaf(): void {
     this.addClass("tree-leaf");
-    this.position.setAutoState("relative");
-    this.height.setAutoState(58);
-    this.overflowX.setAutoState("hidden");
-    this.overflowY.setAutoState("hidden");
+    this.position.setState("relative", View.Intrinsic);
+    this.height.setState(58, View.Intrinsic);
+    this.overflowX.setState("hidden", View.Intrinsic);
+    this.overflowY.setState("hidden", View.Intrinsic);
   }
 
   declare readonly viewController: TreeLeafController | null;
@@ -123,25 +123,25 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
 
   protected onHighlight(timing: Timing | boolean): void {
     this.modifyMood(Feel.default, [Feel.selected, 1]);
-    if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(this.getLookOr(Look.backgroundColor, null), timing);
+    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
+      this.backgroundColor.setState(this.getLookOr(Look.backgroundColor, null), timing, View.Intrinsic);
     }
     const selectedColor = this.getLookOr(Look.accentColor, null);
     let selectedView = this.getChildView("selected") as HtmlView | null;
     if (selectedView === null) {
       selectedView = this.prepend("div", "selected");
       selectedView.addClass("selected");
-      selectedView.position.setAutoState("absolute");
-      selectedView.top.setAutoState(2);
-      selectedView.bottom.setAutoState(2);
-      selectedView.left.setAutoState(0);
-      selectedView.width.setAutoState(4);
+      selectedView.position.setState("absolute", View.Intrinsic);
+      selectedView.top.setState(2, View.Intrinsic);
+      selectedView.bottom.setState(2, View.Intrinsic);
+      selectedView.left.setState(0, View.Intrinsic);
+      selectedView.width.setState(4, View.Intrinsic);
       if (selectedColor !== null) {
-        selectedView.backgroundColor.setAutoState(selectedColor.alpha(0));
+        selectedView.backgroundColor.setState(selectedColor.alpha(0), View.Intrinsic);
       }
     }
     if (selectedView !== null) {
-      selectedView.backgroundColor.setAutoState(selectedColor, timing);
+      selectedView.backgroundColor.setState(selectedColor, timing, View.Intrinsic);
     }
   }
 
@@ -189,12 +189,12 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
 
   protected onUnhighlight(timing: Timing | boolean): void {
     this.modifyMood(Feel.default, [Feel.selected, void 0]);
-    if (this.backgroundColor.isAuto()) {
+    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
       let backgroundColor = this.getLookOr(Look.backgroundColor, null);
       if (backgroundColor !== null) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      this.backgroundColor.setAutoState(backgroundColor, timing);
+      this.backgroundColor.setState(backgroundColor, timing, View.Intrinsic);
     }
     const selectedView = this.getChildView("selected") as HtmlView | null;
     if (selectedView !== null) {
@@ -202,7 +202,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       if (selectedColor !== null) {
         selectedColor = selectedColor.alpha(0);
       }
-      selectedView.backgroundColor.setAutoState(selectedColor, timing);
+      selectedView.backgroundColor.setState(selectedColor, timing, View.Intrinsic);
     }
   }
 
@@ -222,12 +222,12 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (this.backgroundColor.isAuto()) {
+    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
       let backgroundColor = this.getLookOr(Look.backgroundColor, null);
       if (backgroundColor !== null && !this.highlighted.state) {
         backgroundColor = backgroundColor.alpha(0);
       }
-      this.backgroundColor.setAutoState(backgroundColor, timing);
+      this.backgroundColor.setState(backgroundColor, timing, View.Intrinsic);
     }
     const selectedView = this.getChildView("selected") as HtmlView | null;
     if (selectedView !== null) {
@@ -235,7 +235,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
       if (selectedColor !== null && !this.highlighted.state) {
         selectedColor = selectedColor.alpha(0);
       }
-      selectedView.backgroundColor.setAutoState(selectedColor, timing);
+      selectedView.backgroundColor.setState(selectedColor, timing, View.Intrinsic);
     }
   }
 
@@ -254,9 +254,9 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected onInsertCell(cell: TreeCell): void {
-    cell.position.setAutoState("absolute");
-    cell.top.setAutoState(0);
-    cell.bottom.setAutoState(0);
+    cell.position.setState("absolute", View.Intrinsic);
+    cell.top.setState(0, View.Intrinsic);
+    cell.bottom.setState(0, View.Intrinsic);
   }
 
   protected onRemoveCell(cell: TreeCell): void {
@@ -285,15 +285,15 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
         const key = childView.key;
         const root = seed !== null && key !== void 0 ? seed.getRoot(key) : null;
         if (root !== null) {
-          childView.display.setAutoState(!root.hidden ? "flex" : "none");
-          childView.left.setAutoState(root.left);
-          childView.width.setAutoState(root.width);
-          childView.height.setAutoState(height);
+          childView.display.setState(!root.hidden ? "flex" : "none", View.Intrinsic);
+          childView.left.setState(root.left, View.Intrinsic);
+          childView.width.setState(root.width, View.Intrinsic);
+          childView.height.setState(height, View.Intrinsic);
         } else {
-          childView.display.setAutoState("none");
-          childView.left.setAutoState(null);
-          childView.width.setAutoState(null);
-          childView.height.setAutoState(null);
+          childView.display.setState("none", View.Intrinsic);
+          childView.left.setState(null, View.Intrinsic);
+          childView.width.setState(null, View.Intrinsic);
+          childView.height.setState(null, View.Intrinsic);
         }
       }
       displayChildView.call(this, childView, displayFlags, viewContext);

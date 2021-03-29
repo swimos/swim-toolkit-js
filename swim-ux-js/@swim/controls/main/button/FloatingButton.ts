@@ -18,6 +18,7 @@ import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
   ViewContext,
+  View,
   ViewObserverType,
   ViewAnimator,
   ViewFastener,
@@ -44,22 +45,22 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
   protected initButton(): void {
     this.addClass("floating-button");
-    this.position.setAutoState("relative");
+    this.position.setState("relative", View.Intrinsic);
     if (this.buttonType === "regular") {
-      this.width.setAutoState(56);
-      this.height.setAutoState(56);
+      this.width.setState(56, View.Intrinsic);
+      this.height.setState(56, View.Intrinsic);
     } else if (this.buttonType === "mini") {
-      this.width.setAutoState(40);
-      this.height.setAutoState(40);
+      this.width.setState(40, View.Intrinsic);
+      this.height.setState(40, View.Intrinsic);
     }
-    this.borderTopLeftRadius.setAutoState(Length.pct(50));
-    this.borderTopRightRadius.setAutoState(Length.pct(50));
-    this.borderBottomLeftRadius.setAutoState(Length.pct(50));
-    this.borderBottomRightRadius.setAutoState(Length.pct(50));
-    this.overflowX.setAutoState("hidden");
-    this.overflowY.setAutoState("hidden");
-    this.userSelect.setAutoState("none");
-    this.cursor.setAutoState("pointer");
+    this.borderTopLeftRadius.setState(Length.pct(50), View.Intrinsic);
+    this.borderTopRightRadius.setState(Length.pct(50), View.Intrinsic);
+    this.borderBottomLeftRadius.setState(Length.pct(50), View.Intrinsic);
+    this.borderBottomRightRadius.setState(Length.pct(50), View.Intrinsic);
+    this.overflowX.setState("hidden", View.Intrinsic);
+    this.overflowY.setState("hidden", View.Intrinsic);
+    this.userSelect.setState("none", View.Intrinsic);
+    this.cursor.setState("pointer", View.Intrinsic);
   }
 
   declare readonly buttonType: FloatingButtonType;
@@ -72,11 +73,11 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
         configurable: true,
       });
       if (buttonType === "regular") {
-        this.width.setAutoState(56);
-        this.height.setAutoState(56);
+        this.width.setState(56, View.Intrinsic);
+        this.height.setState(56, View.Intrinsic);
       } else if (buttonType === "mini") {
-        this.width.setAutoState(40);
-        this.height.setAutoState(40);
+        this.width.setState(40, View.Intrinsic);
+        this.height.setState(40, View.Intrinsic);
       }
     }
   }
@@ -120,8 +121,8 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     const oldIconView = oldIconFastener !== null ? oldIconFastener.view : null;
     if (oldIconView !== null) {
       if (timing !== false) {
-        oldIconView.opacity.setAutoState(0, timing);
-        oldIconView.transform.setAutoState(Transform.rotate(Angle.deg(90)), timing);
+        oldIconView.opacity.setState(0, timing, View.Intrinsic);
+        oldIconView.transform.setState(Transform.rotate(Angle.deg(90)), timing, View.Intrinsic);
       } else {
         oldIconView.remove();
       }
@@ -132,20 +133,20 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     const newIconFastener = new FloatingButton.IconFastener(this, newIconKey, newIconKey);
     newIconFastener.iconIndex = newIconCount;
     const newIconView = HtmlIconView.create();
-    newIconView.position.setAutoState("absolute");
-    newIconView.left.setAutoState(0);
-    newIconView.top.setAutoState(0);
-    newIconView.width.setAutoState(this.width.state);
-    newIconView.height.setAutoState(this.height.state);
-    newIconView.opacity.setAutoState(0);
-    newIconView.opacity.setAutoState(1, timing);
-    newIconView.transform.setAutoState(Transform.rotate(Angle.deg(-90)));
-    newIconView.transform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
-    newIconView.pointerEvents.setAutoState("none");
-    newIconView.iconWidth.setAutoState(24);
-    newIconView.iconHeight.setAutoState(24);
-    newIconView.iconColor.setAuto(false);
-    newIconView.graphics.setAutoState(icon);
+    newIconView.position.setState("absolute", View.Intrinsic);
+    newIconView.left.setState(0, View.Intrinsic);
+    newIconView.top.setState(0, View.Intrinsic);
+    newIconView.width.setState(this.width.state, View.Intrinsic);
+    newIconView.height.setState(this.height.state, View.Intrinsic);
+    newIconView.opacity.setState(0, View.Intrinsic);
+    newIconView.opacity.setState(1, timing, View.Intrinsic);
+    newIconView.transform.setState(Transform.rotate(Angle.deg(-90)), View.Intrinsic);
+    newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, View.Intrinsic);
+    newIconView.pointerEvents.setState("none", View.Intrinsic);
+    newIconView.iconWidth.setState(24, View.Intrinsic);
+    newIconView.iconHeight.setState(24, View.Intrinsic);
+    newIconView.iconColor.setPrecedence(View.Extrinsic);
+    newIconView.graphics.setState(icon, View.Intrinsic);
     newIconFastener.setView(newIconView);
     this.setViewFastener(newIconKey, newIconFastener);
     this.appendChildView(newIconView, newIconKey);
@@ -167,8 +168,8 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     const oldIconView = oldIconFastener !== null ? oldIconFastener.view : null;
     if (oldIconView !== null) {
       if (timing !== false) {
-        oldIconView.opacity.setAutoState(0, timing);
-        oldIconView.transform.setAutoState(Transform.rotate(Angle.deg(-90)), timing);
+        oldIconView.opacity.setState(0, timing, View.Intrinsic);
+        oldIconView.transform.setState(Transform.rotate(Angle.deg(-90)), timing, View.Intrinsic);
       } else {
         oldIconView.remove();
       }
@@ -179,8 +180,8 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
     const newIconFastener = this.getViewFastener(newIconKey) as ViewFastener<this, HtmlIconView> | null;
     const newIconView = newIconFastener !== null ? newIconFastener.view : null;
     if (newIconView !== null) {
-      newIconView.opacity.setAutoState(1, timing);
-      newIconView.transform.setAutoState(Transform.rotate(Angle.deg(0)), timing);
+      newIconView.opacity.setState(1, timing, View.Intrinsic);
+      newIconView.transform.setState(Transform.rotate(Angle.deg(0)), timing, View.Intrinsic);
       this.appendChildView(newIconView, newIconKey);
     }
 
@@ -194,7 +195,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
 
-    this.backgroundColor.setAutoState(theme.getOr(Look.accentColor, mood, null), timing);
+    this.backgroundColor.setState(theme.getOr(Look.accentColor, mood, null), timing, View.Intrinsic);
 
     let shadow = theme.getOr(Look.shadow, Mood.floating, null);
     if (shadow !== null) {
@@ -202,7 +203,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
       const stackPhase = this.stackPhase.getValueOr(1);
       shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * stackPhase));
     }
-    this.boxShadow.setAutoState(shadow, timing);
+    this.boxShadow.setState(shadow, timing, View.Intrinsic);
   }
 
   protected onLayout(viewContext: ViewContextType<this>): void {
@@ -214,22 +215,22 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
       const stackPhase = this.stackPhase.getValueOr(1);
       shadow = shadow.withColor(shadowColor.alpha(shadowColor.alpha() * stackPhase));
     }
-    this.boxShadow.setAutoState(shadow);
+    this.boxShadow.setState(shadow, View.Intrinsic);
   }
 
   didStartHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, 1]);
-    if (this.backgroundColor.isAuto()) {
+    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
       const timing = this.getLook(Look.timing);
-      this.backgroundColor.setAutoState(this.getLookOr(Look.accentColor, null), timing);
+      this.backgroundColor.setState(this.getLookOr(Look.accentColor, null), timing, View.Intrinsic);
     }
   }
 
   didStopHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
-    if (this.backgroundColor.isAuto()) {
+    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
       const timing = this.getLook(Look.timing);
-      this.backgroundColor.setAutoState(this.getLookOr(Look.accentColor, null), timing);
+      this.backgroundColor.setState(this.getLookOr(Look.accentColor, null), timing, View.Intrinsic);
     }
   }
 

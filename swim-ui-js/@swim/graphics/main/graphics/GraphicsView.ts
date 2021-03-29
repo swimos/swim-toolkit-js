@@ -873,26 +873,28 @@ export abstract class GraphicsView extends View {
   modifyMood(feel: Feel, ...entires: [Feel, number | undefined][]): void;
   modifyMood(feel: Feel, ...args: [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
   modifyMood(feel: Feel, ...args: [Feel, number | undefined][] | [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void {
-    let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
-    const entries = args as [Feel, number | undefined][];
-    const oldMoodModifier = this.moodModifier.getStateOr(MoodMatrix.empty());
-    const newMoodModifier = oldMoodModifier.updatedCol(feel, true, ...entries);
-    if (!newMoodModifier.equals(oldMoodModifier)) {
-      this.moodModifier.setState(newMoodModifier);
-      this.changeMood();
-      if (timing !== void 0) {
-        const theme = this.theme.state;
-        const mood = this.mood.state;
-        if (theme !== null && mood !== null) {
-          if (timing === true) {
-            timing = theme.getOr(Look.timing, mood, false);
-          } else {
-            timing = Timing.fromAny(timing);
+    if (this.moodModifier.isPrecedent(View.Intrinsic)) {
+      let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
+      const entries = args as [Feel, number | undefined][];
+      const oldMoodModifier = this.moodModifier.getStateOr(MoodMatrix.empty());
+      const newMoodModifier = oldMoodModifier.updatedCol(feel, true, ...entries);
+      if (!newMoodModifier.equals(oldMoodModifier)) {
+        this.moodModifier.setState(newMoodModifier, View.Intrinsic);
+        this.changeMood();
+        if (timing !== void 0) {
+          const theme = this.theme.state;
+          const mood = this.mood.state;
+          if (theme !== null && mood !== null) {
+            if (timing === true) {
+              timing = theme.getOr(Look.timing, mood, false);
+            } else {
+              timing = Timing.fromAny(timing);
+            }
+            this.applyTheme(theme, mood, timing);
           }
-          this.applyTheme(theme, mood, timing);
+        } else {
+          this.requireUpdate(View.NeedsChange);
         }
-      } else {
-        this.requireUpdate(View.NeedsChange);
       }
     }
   }
@@ -900,33 +902,35 @@ export abstract class GraphicsView extends View {
   modifyTheme(feel: Feel, ...enties: [Feel, number | undefined][]): void;
   modifyTheme(feel: Feel, ...args: [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
   modifyTheme(feel: Feel, ...args: [Feel, number | undefined][] | [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void {
-    let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
-    const entries = args as [Feel, number | undefined][];
-    const oldThemeModifier = this.themeModifier.getStateOr(MoodMatrix.empty());
-    const newThemeModifier = oldThemeModifier.updatedCol(feel, true, ...entries);
-    if (!newThemeModifier.equals(oldThemeModifier)) {
-      this.themeModifier.setState(newThemeModifier);
-      this.changeTheme();
-      if (timing !== void 0) {
-        const theme = this.theme.state;
-        const mood = this.mood.state;
-        if (theme !== null && mood !== null) {
-          if (timing === true) {
-            timing = theme.getOr(Look.timing, mood, false);
-          } else {
-            timing = Timing.fromAny(timing);
+    if (this.themeModifier.isPrecedent(View.Intrinsic)) {
+      let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
+      const entries = args as [Feel, number | undefined][];
+      const oldThemeModifier = this.themeModifier.getStateOr(MoodMatrix.empty());
+      const newThemeModifier = oldThemeModifier.updatedCol(feel, true, ...entries);
+      if (!newThemeModifier.equals(oldThemeModifier)) {
+        this.themeModifier.setState(newThemeModifier, View.Intrinsic);
+        this.changeTheme();
+        if (timing !== void 0) {
+          const theme = this.theme.state;
+          const mood = this.mood.state;
+          if (theme !== null && mood !== null) {
+            if (timing === true) {
+              timing = theme.getOr(Look.timing, mood, false);
+            } else {
+              timing = Timing.fromAny(timing);
+            }
+            this.applyTheme(theme, mood, timing);
           }
-          this.applyTheme(theme, mood, timing);
+        } else {
+          this.requireUpdate(View.NeedsChange);
         }
-      } else {
-        this.requireUpdate(View.NeedsChange);
       }
     }
   }
 
   protected changeMood(): void {
     const moodModifierProperty = this.getViewProperty("moodModifier") as ViewProperty<this, MoodMatrix | null> | null;
-    if (moodModifierProperty !== null && this.mood.isAuto()) {
+    if (moodModifierProperty !== null && this.mood.isPrecedent(View.Intrinsic)) {
       const moodModifier = moodModifierProperty.state;
       if (moodModifier !== null) {
         let superMood = this.mood.superState;
@@ -938,7 +942,7 @@ export abstract class GraphicsView extends View {
         }
         if (superMood !== void 0 && superMood !== null) {
           const mood = moodModifier.timesCol(superMood, true);
-          this.mood.setAutoState(mood);
+          this.mood.setState(mood, View.Intrinsic);
         }
       } else {
         this.mood.setInherited(true);
@@ -948,7 +952,7 @@ export abstract class GraphicsView extends View {
 
   protected changeTheme(): void {
     const themeModifierProperty = this.getViewProperty("themeModifier") as ViewProperty<this, MoodMatrix | null> | null;
-    if (themeModifierProperty !== null && this.theme.isAuto()) {
+    if (themeModifierProperty !== null && this.theme.isPrecedent(View.Intrinsic)) {
       const themeModifier = themeModifierProperty.state;
       if (themeModifier !== null) {
         let superTheme = this.theme.superState;
@@ -960,7 +964,7 @@ export abstract class GraphicsView extends View {
         }
         if (superTheme !== void 0 && superTheme !== null) {
           const theme = superTheme.transform(themeModifier, true);
-          this.theme.setAutoState(theme);
+          this.theme.setState(theme, View.Intrinsic);
         }
       } else {
         this.theme.setInherited(true);

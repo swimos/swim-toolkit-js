@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {View} from "@swim/view";
 import {ViewNode, SvgView} from "@swim/dom";
 import {PathContext} from "../path/PathContext";
 import type {PaintingFillRule, PaintingContext} from "../painting/PaintingContext";
@@ -132,25 +133,25 @@ export class SvgContext implements PaintingContext {
       if ((pathFlags & SvgContext.FillFlag) === 0) {
         const fill = pathView.getAttributeAnimator("fill");
         if (fill !== null) {
-          fill.setAutoState(void 0);
+          fill.setState(null, View.Intrinsic);
         }
       }
       if ((pathFlags & SvgContext.FillRuleFlag) === 0) {
         const fillRule = pathView.getAttributeAnimator("fillRule");
         if (fillRule !== null) {
-          fillRule.setAutoState(void 0);
+          fillRule.setState(void 0, View.Intrinsic);
         }
       }
       if ((pathFlags & SvgContext.StrokeFlag) === 0) {
         const stroke = pathView.getAttributeAnimator("stroke");
         if (stroke !== null) {
-          stroke.setAutoState(void 0);
+          stroke.setState(null, View.Intrinsic);
         }
       }
       if ((pathFlags & SvgContext.PathFlag) === 0) {
         const d = pathView.getAttributeAnimator("d");
         if (d !== null) {
-          d.setAutoState(void 0);
+          d.setState(void 0, View.Intrinsic);
         }
       }
     }
@@ -234,14 +235,15 @@ export class SvgContext implements PaintingContext {
         this.setPathView(pathView);
         created = true;
       }
-      pathView.fill.setAutoState(fillStyle);
+      pathView.fill.setState(fillStyle, View.Intrinsic);
       this.setPathFlags(this.pathFlags | SvgContext.FillFlag);
       if (fillRule !== void 0) {
-        pathView.fillRule.setAutoState(fillRule);
+        pathView.fillRule.setState(fillRule, View.Intrinsic);
         this.setPathFlags(this.pathFlags | SvgContext.FillRuleFlag);
       }
       if ((this.pathFlags & SvgContext.PathFlag) === 0) {
-        pathView.d.setAutoState(this.getPathContext().toString());
+        const pathString = this.getPathContext().toString();
+        pathView.d.setState(pathString, View.Intrinsic);
         this.setPathFlags(this.pathFlags | SvgContext.PathFlag);
       }
       if (created) {
@@ -267,10 +269,11 @@ export class SvgContext implements PaintingContext {
         this.setPathView(pathView);
         created = true;
       }
-      pathView.stroke.setAutoState(strokeStyle);
+      pathView.stroke.setState(strokeStyle, View.Intrinsic);
       this.setPathFlags(this.pathFlags | SvgContext.StrokeFlag);
       if ((this.pathFlags & SvgContext.PathFlag) === 0) {
-        pathView.d.setAutoState(this.getPathContext().toString());
+        const pathString = this.getPathContext().toString();
+        pathView.d.setState(pathString, View.Intrinsic);
         this.setPathFlags(this.pathFlags | SvgContext.PathFlag);
       }
       if (created) {
@@ -299,7 +302,7 @@ export class SvgContext implements PaintingContext {
     let pathView = this.pathView;
     if (pathView !== null) {
       let nextNode = pathView.node.nextSibling;
-      if (pathView.fill.state === void 0 && pathView.stroke.state === void 0) {
+      if (pathView.fill.state === null && pathView.stroke.state === null) {
         Object.defineProperty(this, "pathView", {
           value: null,
           enumerable: true,

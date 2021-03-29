@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {View} from "@swim/view";
 import type {DeckCard} from "./DeckCard";
 import type {DeckView} from "./DeckView";
 import {DeckViewController} from "./DeckViewController";
@@ -39,7 +40,7 @@ export class TitleDeckViewController<V extends DeckView> extends DeckViewControl
       deckBar.pushTitle(newCardView.cardTitle.getStateOr(""));
       const backMembrane = deckBar.backMembrane.view;
       if (backMembrane !== null) {
-        backMembrane.pointerEvents.setAutoState("none");
+        backMembrane.pointerEvents.setState("none", View.Intrinsic);
       }
     }
   }
@@ -49,7 +50,7 @@ export class TitleDeckViewController<V extends DeckView> extends DeckViewControl
     if (deckBar instanceof TitleDeckBar) {
       const backMembrane = deckBar.backMembrane.view;
       if (backMembrane !== null) {
-        backMembrane.pointerEvents.setAutoState("auto");
+        backMembrane.pointerEvents.setState("auto", View.Intrinsic);
       }
     }
   }

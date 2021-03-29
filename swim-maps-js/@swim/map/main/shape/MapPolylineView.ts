@@ -143,14 +143,14 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
       if (!invalid && j !== 0) {
         lngMid /= j;
         latMid /= j;
-        this.geoCentroid.setAutoState(new GeoPoint(lngMid, latMid));
+        this.geoCentroid.setState(new GeoPoint(lngMid, latMid), View.Intrinsic);
         Object.defineProperty(this, "geoBounds", {
           value: new GeoBox(lngMin, latMin, lngMax, latMax),
           enumerable: true,
           configurable: true,
         });
       } else {
-        this.geoCentroid.setAutoState(GeoPoint.origin());
+        this.geoCentroid.setState(GeoPoint.origin(), View.Intrinsic);
         Object.defineProperty(this, "geoBounds", {
           value: GeoBox.undefined(),
           enumerable: true,
@@ -258,7 +258,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
     if (!invalid && pointCount !== 0) {
       lngMid /= pointCount;
       latMid /= pointCount;
-      this.geoCentroid.setAutoState(new GeoPoint(lngMid, latMid));
+      this.geoCentroid.setState(new GeoPoint(lngMid, latMid), View.Intrinsic);
       Object.defineProperty(this, "geoBounds", {
         value: new GeoBox(lngMin, latMin, lngMax, latMax),
         enumerable: true,
@@ -266,7 +266,7 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
       });
       xMid /= pointCount;
       yMid /= pointCount;
-      this.viewCentroid.setAutoState(new PointR2(xMid, yMid));
+      this.viewCentroid.setState(new PointR2(xMid, yMid), View.Intrinsic);
       Object.defineProperty(this, "viewBounds", {
         value: new BoxR2(xMin, yMin, xMax, yMax),
         enumerable: true,
@@ -274,13 +274,13 @@ export class MapPolylineView extends MapLayerView implements StrokeView {
       });
       this.cullGeoFrame(viewContext.geoFrame);
     } else {
-      this.geoCentroid.setAutoState(GeoPoint.origin());
+      this.geoCentroid.setState(GeoPoint.origin(), View.Intrinsic);
       Object.defineProperty(this, "geoBounds", {
         value: GeoBox.undefined(),
         enumerable: true,
         configurable: true,
       });
-      this.viewCentroid.setAutoState(PointR2.origin());
+      this.viewCentroid.setState(PointR2.origin(), View.Intrinsic);
       Object.defineProperty(this, "viewBounds", {
         value: BoxR2.undefined(),
         enumerable: true,

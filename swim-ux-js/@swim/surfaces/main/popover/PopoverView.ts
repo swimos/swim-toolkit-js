@@ -90,10 +90,10 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   protected createArrow(): HtmlView | null {
     const arrow = HtmlView.create("div");
     arrow.addClass("popover-arrow");
-    arrow.display.setAutoState("none");
-    arrow.position.setAutoState("absolute");
-    arrow.width.setAutoState(0);
-    arrow.height.setAutoState(0);
+    arrow.display.setState("none", View.Intrinsic);
+    arrow.position.setState("absolute", View.Intrinsic);
+    arrow.width.setState(0, View.Intrinsic);
+    arrow.height.setState(0, View.Intrinsic);
     return arrow;
   }
 
@@ -275,15 +275,15 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     }
 
     this.place();
-    this.visibility.setAutoState("visible");
+    this.visibility.setState("visible", View.Intrinsic);
   }
 
   protected didShow(): void {
     this.setDisplayState(PopoverView.ShownState);
 
-    this.pointerEvents.setAutoState("auto");
-    this.marginTop.setAutoState(null);
-    this.opacity.setAutoState(void 0);
+    this.pointerEvents.setState("auto", View.Intrinsic);
+    this.marginTop.setState(null, View.Intrinsic);
+    this.opacity.setState(void 0, View.Intrinsic);
 
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
@@ -330,15 +330,15 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       }
     }
 
-    this.pointerEvents.setAutoState("none");
+    this.pointerEvents.setState("none", View.Intrinsic);
   }
 
   protected didHide(): void {
     this.setDisplayState(PopoverView.HiddenState);
 
-    this.visibility.setAutoState("hidden");
-    this.marginTop.setAutoState(null);
-    this.opacity.setAutoState(void 0);
+    this.visibility.setState("hidden", View.Intrinsic);
+    this.marginTop.setState(null, View.Intrinsic);
+    this.opacity.setState(void 0, View.Intrinsic);
 
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
@@ -377,7 +377,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   @ViewProperty<PopoverView, BoxR2 | null, AnyBoxR2 | null>({
     type: BoxR2,
     state: null,
-    onSetState(placementFrame: BoxR2 | null): void {
+    didSetState(placementFrame: BoxR2 | null): void {
       this.owner.place();
     },
     fromAny(value: AnyBoxR2 | null): BoxR2 | null {
@@ -389,7 +389,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   @ViewProperty<PopoverView, boolean>({
     type: Boolean,
     state: false,
-    onSetState(dropdown: boolean): void {
+    didSetState(dropdown: boolean): void {
       this.owner.place();
     }
   })
@@ -449,14 +449,14 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   protected applyDisplayPhase(displayPhase: number): void {
     const placement = this.currentPlacement;
     if (placement === "above") {
-      this.opacity.setAutoState(void 0);
-      this.marginTop.setAutoState((1 - displayPhase) * -this.node.clientHeight);
+      this.opacity.setState(void 0, View.Intrinsic);
+      this.marginTop.setState((1 - displayPhase) * -this.node.clientHeight, View.Intrinsic);
     } else if (placement === "below") {
-      this.opacity.setAutoState(void 0);
-      this.marginTop.setAutoState((1 - displayPhase) * this.node.clientHeight);
+      this.opacity.setState(void 0, View.Intrinsic);
+      this.marginTop.setState((1 - displayPhase) * this.node.clientHeight, View.Intrinsic);
     } else {
-      this.marginTop.setAutoState(null);
-      this.opacity.setAutoState(displayPhase);
+      this.marginTop.setState(null, View.Intrinsic);
+      this.opacity.setState(displayPhase, View.Intrinsic);
     }
   }
 
@@ -691,22 +691,22 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
       maxHeight = Math.round(Math.max(0, placementBottom - placementTop));
     }
 
-    if (placement !== "none" && (left !== node.offsetLeft && this.left.isAuto() ||
-                                 top !== node.offsetTop && this.top.isAuto() ||
-                                 width !== oldWidth && this.width.isAuto() ||
-                                 height !== oldHeight && this.height.isAuto() ||
-                                 maxWidth !== oldMaxWidth && this.maxWidth.isAuto() ||
-                                 maxHeight !== oldMaxHeight && this.maxHeight.isAuto())) {
+    if (placement !== "none" && (left !== node.offsetLeft && this.left.isPrecedent(View.Intrinsic)
+                              || top !== node.offsetTop && this.top.isPrecedent(View.Intrinsic)
+                              || width !== oldWidth && this.width.isPrecedent(View.Intrinsic)
+                              || height !== oldHeight && this.height.isPrecedent(View.Intrinsic)
+                              || maxWidth !== oldMaxWidth && this.maxWidth.isPrecedent(View.Intrinsic)
+                              || maxHeight !== oldMaxHeight && this.maxHeight.isPrecedent(View.Intrinsic))) {
       this.willPlacePopover(placement!);
-      this.position.setAutoState("absolute");
-      this.left.setAutoState(left);
-      this.right.setAutoState(right);
-      this.top.setAutoState(top);
-      this.bottom.setAutoState(bottom);
-      this.width.setAutoState(width);
-      this.height.setAutoState(height);
-      this.maxWidth.setAutoState(maxWidth);
-      this.maxHeight.setAutoState(maxHeight);
+      this.position.setState("absolute", View.Intrinsic);
+      this.left.setState(left, View.Intrinsic);
+      this.right.setState(right, View.Intrinsic);
+      this.top.setState(top, View.Intrinsic);
+      this.bottom.setState(bottom, View.Intrinsic);
+      this.width.setState(width, View.Intrinsic);
+      this.height.setState(height, View.Intrinsic);
+      this.maxWidth.setState(maxWidth, View.Intrinsic);
+      this.maxHeight.setState(maxHeight, View.Intrinsic);
       this.onPlacePopover(placement!);
       this.didPlacePopover(placement!);
     }
@@ -793,90 +793,90 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
     const arrowYMin = offsetTop + radius + arrowWidth / 2;
     const arrowYMax = offsetBottom - radius - arrowWidth / 2;
 
-    arrow.top.setAutoState(null);
-    arrow.right.setAutoState(null);
-    arrow.bottom.setAutoState(null);
-    arrow.left.setAutoState(null);
-    arrow.borderLeftWidth.setAutoState(null);
-    arrow.borderLeftStyle.setAutoState(void 0);
-    arrow.borderLeftColor.setAutoState(null);
-    arrow.borderRightWidth.setAutoState(null);
-    arrow.borderRightStyle.setAutoState(void 0);
-    arrow.borderRightColor.setAutoState(null);
-    arrow.borderTopWidth.setAutoState(null);
-    arrow.borderTopStyle.setAutoState(void 0);
-    arrow.borderTopColor.setAutoState(null);
-    arrow.borderBottomWidth.setAutoState(null);
-    arrow.borderBottomStyle.setAutoState(void 0);
-    arrow.borderBottomColor.setAutoState(null);
-    arrow.zIndex.setAutoState(100);
+    arrow.top.setState(null, View.Intrinsic);
+    arrow.right.setState(null, View.Intrinsic);
+    arrow.bottom.setState(null, View.Intrinsic);
+    arrow.left.setState(null, View.Intrinsic);
+    arrow.borderLeftWidth.setState(null, View.Intrinsic);
+    arrow.borderLeftStyle.setState(void 0, View.Intrinsic);
+    arrow.borderLeftColor.setState(null, View.Intrinsic);
+    arrow.borderRightWidth.setState(null, View.Intrinsic);
+    arrow.borderRightStyle.setState(void 0, View.Intrinsic);
+    arrow.borderRightColor.setState(null, View.Intrinsic);
+    arrow.borderTopWidth.setState(null, View.Intrinsic);
+    arrow.borderTopStyle.setState(void 0, View.Intrinsic);
+    arrow.borderTopColor.setState(null, View.Intrinsic);
+    arrow.borderBottomWidth.setState(null, View.Intrinsic);
+    arrow.borderBottomStyle.setState(void 0, View.Intrinsic);
+    arrow.borderBottomColor.setState(null, View.Intrinsic);
+    arrow.zIndex.setState(100, View.Intrinsic);
 
     if (placement === "none" || placement === "above" || placement === "below" || placement === "over") {
       // hide arrow
-      arrow.display.setAutoState("none");
+      arrow.display.setState("none", View.Intrinsic);
     } else if (Math.round(sourceY) <= Math.round(offsetTop - arrowHeight) // arrow tip below source center
         && arrowXMin <= sourceX && sourceX <= arrowXMax) { // arrow base on top popover edge
       // top arrow
-      arrow.display.setAutoState("block");
-      arrow.top.setAutoState(Math.round(-arrowHeight));
-      arrow.left.setAutoState(Math.round(sourceX - offsetLeft - arrowWidth / 2));
-      arrow.borderLeftWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderLeftStyle.setAutoState("solid");
-      arrow.borderLeftColor.setAutoState(Color.transparent());
-      arrow.borderRightWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderRightStyle.setAutoState("solid");
-      arrow.borderRightColor.setAutoState(Color.transparent());
-      arrow.borderBottomWidth.setAutoState(Math.round(arrowHeight));
-      arrow.borderBottomStyle.setAutoState("solid");
-      arrow.borderBottomColor.setAutoState(backgroundColor.toString());
+      arrow.display.setState("block", View.Intrinsic);
+      arrow.top.setState(Math.round(-arrowHeight), View.Intrinsic);
+      arrow.left.setState(Math.round(sourceX - offsetLeft - arrowWidth / 2), View.Intrinsic);
+      arrow.borderLeftWidth.setState(Math.round(arrowWidth / 2), View.Intrinsic);
+      arrow.borderLeftStyle.setState("solid", View.Intrinsic);
+      arrow.borderLeftColor.setState(Color.transparent(), View.Intrinsic);
+      arrow.borderRightWidth.setState(Math.round(arrowWidth / 2), View.Intrinsic);
+      arrow.borderRightStyle.setState("solid", View.Intrinsic);
+      arrow.borderRightColor.setState(Color.transparent(), View.Intrinsic);
+      arrow.borderBottomWidth.setState(Math.round(arrowHeight), View.Intrinsic);
+      arrow.borderBottomStyle.setState("solid", View.Intrinsic);
+      arrow.borderBottomColor.setState(backgroundColor, View.Intrinsic);
     } else if (Math.round(offsetBottom + arrowHeight) <= Math.round(sourceY) // arrow tip above source center
         && arrowXMin <= sourceX && sourceX <= arrowXMax) { // arrow base on bottom popover edge
       // bottom arrow
-      arrow.display.setAutoState("block");
-      arrow.bottom.setAutoState(Math.round(-arrowHeight));
-      arrow.left.setAutoState(Math.round(sourceX - offsetLeft - arrowWidth / 2));
-      arrow.borderLeftWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderLeftStyle.setAutoState("solid");
-      arrow.borderLeftColor.setAutoState(Color.transparent());
-      arrow.borderRightWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderRightStyle.setAutoState("solid");
-      arrow.borderRightColor.setAutoState(Color.transparent());
-      arrow.borderTopWidth.setAutoState(Math.round(arrowHeight));
-      arrow.borderTopStyle.setAutoState("solid");
-      arrow.borderTopColor.setAutoState(backgroundColor.toString());
+      arrow.display.setState("block", View.Intrinsic);
+      arrow.bottom.setState(Math.round(-arrowHeight), View.Intrinsic);
+      arrow.left.setState(Math.round(sourceX - offsetLeft - arrowWidth / 2), View.Intrinsic);
+      arrow.borderLeftWidth.setState(Math.round(arrowWidth / 2), View.Intrinsic);
+      arrow.borderLeftStyle.setState("solid", View.Intrinsic);
+      arrow.borderLeftColor.setState(Color.transparent(), View.Intrinsic);
+      arrow.borderRightWidth.setState(Math.round(arrowWidth / 2), View.Intrinsic);
+      arrow.borderRightStyle.setState("solid", View.Intrinsic);
+      arrow.borderRightColor.setState(Color.transparent(), View.Intrinsic);
+      arrow.borderTopWidth.setState(Math.round(arrowHeight), View.Intrinsic);
+      arrow.borderTopStyle.setState("solid", View.Intrinsic);
+      arrow.borderTopColor.setState(backgroundColor, View.Intrinsic);
     } else if (Math.round(sourceX) <= Math.round(offsetLeft - arrowHeight) // arrow tip right of source center
         && arrowYMin <= sourceY && sourceY <= arrowYMax) { // arrow base on left popover edge
       // left arrow
-      arrow.display.setAutoState("block");
-      arrow.left.setAutoState(Math.round(-arrowHeight));
-      arrow.top.setAutoState(Math.round(sourceY - offsetTop - arrowWidth / 2));
-      arrow.borderTopWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderTopStyle.setAutoState("solid");
-      arrow.borderTopColor.setAutoState(Color.transparent());
-      arrow.borderBottomWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderBottomStyle.setAutoState("solid");
-      arrow.borderBottomColor.setAutoState(Color.transparent());
-      arrow.borderRightWidth.setAutoState(Math.round(arrowHeight));
-      arrow.borderRightStyle.setAutoState("solid");
-      arrow.borderRightColor.setAutoState(backgroundColor.toString());
+      arrow.display.setState("block");
+      arrow.left.setState(Math.round(-arrowHeight), View.Intrinsic);
+      arrow.top.setState(Math.round(sourceY - offsetTop - arrowWidth / 2), View.Intrinsic);
+      arrow.borderTopWidth.setState(Math.round(arrowWidth / 2), View.Intrinsic);
+      arrow.borderTopStyle.setState("solid", View.Intrinsic);
+      arrow.borderTopColor.setState(Color.transparent(), View.Intrinsic);
+      arrow.borderBottomWidth.setState(Math.round(arrowWidth / 2), View.Intrinsic);
+      arrow.borderBottomStyle.setState("solid", View.Intrinsic);
+      arrow.borderBottomColor.setState(Color.transparent(), View.Intrinsic);
+      arrow.borderRightWidth.setState(Math.round(arrowHeight), View.Intrinsic);
+      arrow.borderRightStyle.setState("solid", View.Intrinsic);
+      arrow.borderRightColor.setState(backgroundColor, View.Intrinsic);
     } else if (Math.round(offsetRight + arrowHeight) <= Math.round(sourceX) // arrow tip left of source center
         && arrowYMin <= sourceY && sourceY <= arrowYMax) { // arrow base on right popover edge
       // right arrow
-      arrow.display.setAutoState("block");
-      arrow.right.setAutoState(Math.round(-arrowHeight));
-      arrow.top.setAutoState(Math.round(sourceY - offsetTop - arrowWidth / 2));
-      arrow.borderTopWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderTopStyle.setAutoState("solid");
-      arrow.borderTopColor.setAutoState(Color.transparent());
-      arrow.borderBottomWidth.setAutoState(Math.round(arrowWidth / 2));
-      arrow.borderBottomStyle.setAutoState("solid");
-      arrow.borderBottomColor.setAutoState(Color.transparent());
-      arrow.borderLeftWidth.setAutoState(Math.round(arrowHeight));
-      arrow.borderLeftStyle.setAutoState("solid");
-      arrow.borderLeftColor.setAutoState(backgroundColor.toString());
+      arrow.display.setState("block", View.Intrinsic);
+      arrow.right.setState(Math.round(-arrowHeight), View.Intrinsic);
+      arrow.top.setState(Math.round(sourceY - offsetTop - arrowWidth / 2), View.Intrinsic);
+      arrow.borderTopWidth.setState(Math.round(arrowWidth / 2), View.Intrinsic);
+      arrow.borderTopStyle.setState("solid", View.Intrinsic);
+      arrow.borderTopColor.setState(Color.transparent(), View.Intrinsic);
+      arrow.borderBottomWidth.setState(Math.round(arrowWidth / 2), View.Intrinsic);
+      arrow.borderBottomStyle.setState("solid", View.Intrinsic);
+      arrow.borderBottomColor.setState(Color.transparent(), View.Intrinsic);
+      arrow.borderLeftWidth.setState(Math.round(arrowHeight), View.Intrinsic);
+      arrow.borderLeftStyle.setState("solid", View.Intrinsic);
+      arrow.borderLeftColor.setState(backgroundColor, View.Intrinsic);
     } else {
       // no arrow
-      arrow.display.setAutoState("none");
+      arrow.display.setState("none", View.Intrinsic);
     }
   }
 

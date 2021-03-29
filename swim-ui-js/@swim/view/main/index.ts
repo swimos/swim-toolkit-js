@@ -17,7 +17,12 @@ export {
   ViewContext,
 } from "./ViewContext";
 export {
+  ViewMemberType,
+  ViewMemberInit,
+  ViewMemberKey,
+  ViewMemberMap,
   ViewFlags,
+  ViewPrecedence,
   ViewInit,
   ViewFactory,
   ViewPrototype,

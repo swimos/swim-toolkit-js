@@ -62,9 +62,9 @@ export class TreeView extends HtmlView {
 
   protected initTree(): void {
     this.addClass("tree");
-    this.display.setAutoState("block");
-    this.position.setAutoState("relative");
-    this.opacity.setAutoState(0);
+    this.display.setState("block", View.Intrinsic);
+    this.position.setState("relative", View.Intrinsic);
+    this.opacity.setState(0, View.Intrinsic);
   }
 
   declare readonly viewController: TreeViewController | null;
@@ -127,7 +127,7 @@ export class TreeView extends HtmlView {
   @ViewProperty<TreeView, number>({
     type: Number,
     state: 0,
-    onSetState(depth: number): void {
+    didSetState(depth: number): void {
       this.owner.onUpdateDepth(depth);
     },
   })
@@ -185,12 +185,12 @@ export class TreeView extends HtmlView {
   }
 
   protected onInsertStem(stem: TreeStem): void {
-    stem.position.setAutoState("absolute");
-    stem.left.setAutoState(0);
+    stem.position.setState("absolute", View.Intrinsic);
+    stem.left.setState(0, View.Intrinsic);
     const seed = this.seed.state;
     const width = seed !== null ? seed.width : null;
-    stem.width.setAutoState(width);
-    stem.visibility.setAutoState("hidden");
+    stem.width.setState(width, View.Intrinsic);
+    stem.visibility.setState("hidden", View.Intrinsic);
   }
 
   protected onRemoveStem(stem: TreeStem): void {
@@ -198,13 +198,13 @@ export class TreeView extends HtmlView {
   }
 
   protected onInsertLimb(limb: TreeLimb): void {
-    limb.position.setAutoState("absolute");
-    limb.left.setAutoState(0);
+    limb.position.setState("absolute", View.Intrinsic);
+    limb.left.setState(0, View.Intrinsic);
     const seed = this.seed.state;
     const width = seed !== null ? seed.width : null;
-    limb.width.setAutoState(width);
-    limb.depth.setAutoState(this.depth.state + 1);
-    limb.visibility.setAutoState("hidden");
+    limb.width.setState(width, View.Intrinsic);
+    limb.depth.setState(this.depth.state + 1, View.Intrinsic);
+    limb.visibility.setState("hidden", View.Intrinsic);
     limb.setCulled(true);
   }
 
@@ -214,13 +214,13 @@ export class TreeView extends HtmlView {
 
   protected onInsertTopBranch(topBranch: HtmlView): void {
     topBranch.addClass("branch-top");
-    topBranch.position.setAutoState("absolute");
-    topBranch.top.setAutoState(0);
-    topBranch.left.setAutoState(0);
+    topBranch.position.setState("absolute", View.Intrinsic);
+    topBranch.top.setState(0, View.Intrinsic);
+    topBranch.left.setState(0, View.Intrinsic);
     const seed = this.seed.state;
     const width = seed !== null ? seed.width : null;
-    topBranch.width.setAutoState(width);
-    topBranch.visibility.setAutoState("hidden");
+    topBranch.width.setState(width, View.Intrinsic);
+    topBranch.visibility.setState("hidden", View.Intrinsic);
   }
 
   protected onRemoveTopBranch(topBranch: HtmlView): void {
@@ -229,13 +229,13 @@ export class TreeView extends HtmlView {
 
   protected onInsertBottomBranch(bottomBranch: HtmlView): void {
     bottomBranch.addClass("branch-bottom");
-    bottomBranch.position.setAutoState("absolute");
-    bottomBranch.bottom.setAutoState(0);
-    bottomBranch.left.setAutoState(0);
+    bottomBranch.position.setState("absolute", View.Intrinsic);
+    bottomBranch.bottom.setState(0, View.Intrinsic);
+    bottomBranch.left.setState(0, View.Intrinsic);
     const seed = this.seed.state;
     const width = seed !== null ? seed.width : null;
-    bottomBranch.width.setAutoState(width);
-    bottomBranch.visibility.setAutoState("hidden");
+    bottomBranch.width.setState(width, View.Intrinsic);
+    bottomBranch.visibility.setState("hidden", View.Intrinsic);
   }
 
   protected onRemoveBottomBranch(bottomBranch: HtmlView): void {
@@ -269,7 +269,7 @@ export class TreeView extends HtmlView {
       const superMood = leafMood !== null ? leafMood.timesCol(mood) : mood;
 
       const backgroundColor = theme.getOr(Look.backgroundColor, mood, null);
-      this.backgroundColor.setAutoState(backgroundColor, timing);
+      this.backgroundColor.setState(backgroundColor, timing, View.Intrinsic);
 
       const accentColor = superTheme.getOr(Look.accentColor, superMood, null);
       const borderColor = superTheme.getOr(Look.borderColor, superMood, null);
@@ -279,17 +279,17 @@ export class TreeView extends HtmlView {
       if (bottomBranch === null) {
         bottomBranch = this.prepend("div", "bottomBranch");
       }
-      bottomBranch.height.setAutoState(limbSpacing / 2, timing);
-      bottomBranch.backgroundColor.setAutoState(borderColor, timing);
-      bottomBranch.zIndex.setAutoState(1000 - depth);
+      bottomBranch.height.setState(limbSpacing / 2, timing, View.Intrinsic);
+      bottomBranch.backgroundColor.setState(borderColor, timing, View.Intrinsic);
+      bottomBranch.zIndex.setState(1000 - depth, View.Intrinsic);
 
       let topBranch = this.getChildView("topBranch") as HtmlView | null;
       if (topBranch === null) {
         topBranch = this.prepend("div", "topBranch");
       }
-      topBranch.height.setAutoState(limbSpacing, timing);
-      topBranch.backgroundColor.setAutoState(accentColor, timing);
-      topBranch.zIndex.setAutoState(1000 - depth);
+      topBranch.height.setState(limbSpacing, timing, View.Intrinsic);
+      topBranch.backgroundColor.setState(accentColor, timing, View.Intrinsic);
+      topBranch.zIndex.setState(1000 - depth, View.Intrinsic);
     } else {
       this.removeChildView("topBranch");
       this.removeChildView("bottomBranch");
@@ -409,7 +409,7 @@ export class TreeView extends HtmlView {
       if ((processFlags & View.NeedsChange) !== 0 && childView instanceof TreeLimb) {
         const subtree = childView.subtree;
         if (subtree !== null) {
-          subtree.depth.setAutoState(depth + 1);
+          subtree.depth.setState(depth + 1, View.Intrinsic);
         }
       }
       let isVisible: boolean;
@@ -422,7 +422,7 @@ export class TreeView extends HtmlView {
           const yMin1 = top.pxValue();
           const yMax1 = yMin1 + height.pxValue();
           isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
-          childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
+          childView.visibility.setState(isVisible ? "visible" : "hidden", View.Intrinsic);
           childView.setCulled(!isVisible);
         } else {
           isVisible = true;
@@ -492,9 +492,9 @@ export class TreeView extends HtmlView {
                              viewContext: ViewContextType<self>): void {
       let isVisible: boolean;
       if (childView instanceof HtmlView) {
-        childView.width.setAutoState(width);
+        childView.width.setState(width, View.Intrinsic);
         if (childView instanceof TreeLimb || childView instanceof TreeStem) {
-          if (childView.top.isAuto()) {
+          if (childView.top.isPrecedent(View.Intrinsic)) {
             childView.top.setIntermediateValue(Length.px(yValue * disclosingPhase), Length.px(yState));
           }
         }
@@ -509,7 +509,7 @@ export class TreeView extends HtmlView {
         } else {
           isVisible = true;
         }
-        childView.visibility.setAutoState(isVisible ? "visible" : "hidden");
+        childView.visibility.setState(isVisible ? "visible" : "hidden", View.Intrinsic);
         childView.setCulled(!isVisible);
       } else {
         isVisible = true;
@@ -529,12 +529,12 @@ export class TreeView extends HtmlView {
     }
     super.displayChildViews(displayFlags, viewContext, layoutChildView);
 
-    if (this.height.isAuto()) {
+    if (this.height.isPrecedent(View.Intrinsic)) {
       this.height.setIntermediateValue(Length.px(yValue), Length.px(yState));
     }
 
     const disclosurePhase = this.disclosurePhase.getValueOr(1);
-    this.opacity.setAutoState(disclosurePhase);
+    this.opacity.setState(disclosurePhase, View.Intrinsic);
   }
 
   static fromInit(init: TreeViewInit): TreeView {

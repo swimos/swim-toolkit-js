@@ -25,15 +25,21 @@ export class LeftAxisView<Y> extends AxisView<Y> {
     return "left";
   }
 
-  @ViewAnimator({extends: ContinuousScaleAnimator, type: ContinuousScale, inherit: "yScale", updateFlags: View.NeedsLayout})
+  @ViewAnimator({
+    extends: ContinuousScaleAnimator,
+    type: ContinuousScale,
+    inherit: "yScale",
+    state: null,
+    updateFlags: View.NeedsLayout,
+  })
   declare scale: ContinuousScaleAnimator<this, Y, number>;
 
   protected layoutTick(tick: TickView<Y>, origin: PointR2, frame: BoxR2,
                        scale: ContinuousScale<Y, number>): void {
-    if (tick.anchor.isAuto()) {
+    if (tick.anchor.isPrecedent(View.Intrinsic)) {
       const offset = scale(tick.value);
       tick.setOffset(offset);
-      tick.anchor.setAutoState(new PointR2(origin.x, frame.yMin + offset));
+      tick.anchor.setState(new PointR2(origin.x, frame.yMin + offset), View.Intrinsic);
     }
   }
 

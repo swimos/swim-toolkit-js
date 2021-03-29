@@ -190,9 +190,9 @@ export class PieView extends LayerView {
 
   protected initTitle(titleView: GraphicsView): void {
     if (TypesetView.is(titleView)) {
-      titleView.textAlign.setAutoState("center");
-      titleView.textBaseline.setAutoState("middle");
-      titleView.textOrigin.setAutoState(this.center.state);
+      titleView.textAlign.setState("center", View.Intrinsic);
+      titleView.textBaseline.setState("middle", View.Intrinsic);
+      titleView.textOrigin.setState(this.center.state, View.Intrinsic);
     }
   }
 
@@ -465,10 +465,10 @@ export class PieView extends LayerView {
   }
 
   protected layoutPie(frame: BoxR2): void {
-    if (this.center.isAuto()) {
+    if (this.center.isPrecedent(View.Intrinsic)) {
       const cx = (frame.xMin + frame.xMax) / 2;
       const cy = (frame.yMin + frame.yMax) / 2;
-      this.center.setAutoState(new PointR2(cx, cy));
+      this.center.setState(new PointR2(cx, cy), View.Intrinsic);
     }
 
     const sliceFasteners = this.sliceFasteners;
@@ -490,8 +490,8 @@ export class PieView extends LayerView {
     for (let i = 0; i < sliceCount; i += 1) {
       const sliceView = sliceFasteners[i]!.view;
       if (sliceView !== null) {
-        sliceView.total.setAutoState(total);
-        sliceView.phaseAngle.setAutoState(baseAngle);
+        sliceView.total.setState(total, View.Intrinsic);
+        sliceView.phaseAngle.setState(baseAngle, View.Intrinsic);
         const value = sliceView.value.getValue();
         if (isFinite(value)) {
           const delta = total !== 0 ? value / total : 0;
@@ -502,7 +502,7 @@ export class PieView extends LayerView {
 
     const titleView = this.title.view;
     if (TypesetView.is(titleView)) {
-      titleView.textOrigin.setAutoState(this.center.value);
+      titleView.textOrigin.setState(this.center.value, View.Intrinsic);
     }
   }
 

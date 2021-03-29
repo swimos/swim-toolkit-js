@@ -16,7 +16,7 @@ import type {Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import {HtmlViewInit, HtmlView, HtmlViewController} from "@swim/dom";
 import type {Graphics} from "../graphics/Graphics";
 import {Icon} from "./Icon";
@@ -36,7 +36,7 @@ export class HtmlIconView extends HtmlView implements IconView {
   }
 
   protected initIcon(): void {
-    this.position.setAutoState("relative");
+    this.position.setState("relative", View.Intrinsic);
     const svgView = this.createSvgView();
     if (svgView !== null) {
       this.setChildView("svg", svgView);
@@ -103,6 +103,11 @@ export class HtmlIconView extends HtmlView implements IconView {
     }
   }
 
+  protected onResize(viewContext: ViewContextType<this>): void {
+    super.onResize(viewContext);
+    this.requireUpdate(View.NeedsLayout);
+  }
+
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const iconColor = this.iconColor.takeUpdatedValue();
@@ -115,6 +120,13 @@ export class HtmlIconView extends HtmlView implements IconView {
     }
   }
 
+  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+    if ((this.viewFlags & View.NeedsLayout) === 0) {
+      displayFlags &= ~View.NeedsLayout;
+    }
+    return displayFlags;
+  }
+
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.layoutIcon();
@@ -122,14 +134,16 @@ export class HtmlIconView extends HtmlView implements IconView {
 
   protected layoutIcon(): void {
     const svgView = this.svgView;
-    if (svgView !== null && (svgView.width.isAuto() || svgView.height.isAuto() || svgView.viewBox.isAuto())) {
+    if (svgView !== null && (svgView.width.isPrecedent(View.Intrinsic)
+                          || svgView.height.isPrecedent(View.Intrinsic)
+                          || svgView.viewBox.isPrecedent(View.Intrinsic))) {
       let viewWidth: Length | number | null = this.width.value;
       viewWidth = viewWidth instanceof Length ? viewWidth.pxValue() : this.node.offsetWidth;
       let viewHeight: Length | number | null = this.height.value;
       viewHeight = viewHeight instanceof Length ? viewHeight.pxValue() : this.node.offsetHeight;
-      svgView.width.setAutoState(viewWidth);
-      svgView.height.setAutoState(viewHeight);
-      svgView.viewBox.setAutoState("0 0 " + viewWidth + " " + viewHeight);
+      svgView.width.setState(viewWidth, View.Intrinsic);
+      svgView.height.setState(viewHeight, View.Intrinsic);
+      svgView.viewBox.setState("0 0 " + viewWidth + " " + viewHeight, View.Intrinsic);
     }
   }
 }

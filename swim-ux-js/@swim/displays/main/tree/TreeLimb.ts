@@ -49,7 +49,7 @@ export class TreeLimb extends HtmlView {
 
   protected initLimb(): void {
     this.addClass("tree-limb");
-    this.position.setAutoState("relative");
+    this.position.setState("relative", View.Intrinsic);
   }
 
   declare readonly viewController: TreeLimbController | null;
@@ -115,7 +115,7 @@ export class TreeLimb extends HtmlView {
   @ViewProperty<TreeLimb, number>({
     type: Number,
     state: 0,
-    onSetState(depth: number): void {
+    didSetState(depth: number): void {
       this.owner.onUpdateDepth(depth);
     },
   })
@@ -158,22 +158,22 @@ export class TreeLimb extends HtmlView {
       this.willExpand(timing);
       if (timing !== false) {
         if (disclosurePhase !== 1) {
-          this.disclosurePhase.setState(1, timing);
-          this.disclosingPhase.setState(this.disclosurePhase.value);
-          this.disclosingPhase.setState(1, timing);
+          this.disclosurePhase.setState(1, timing, View.Intrinsic);
+          this.disclosingPhase.setState(this.disclosurePhase.value, View.Intrinsic);
+          this.disclosingPhase.setState(1, timing, View.Intrinsic);
         } else {
           this.didExpand();
         }
       } else {
-        this.disclosurePhase.setState(1);
-        this.disclosingPhase.setState(1);
+        this.disclosurePhase.setState(1, View.Intrinsic);
+        this.disclosingPhase.setState(1, View.Intrinsic);
         this.didExpand();
       }
     }
   }
 
   protected willExpand(timing: AnyTiming | boolean): void {
-    this.disclosureState.setAutoState("expanding");
+    this.disclosureState.setState("expanding", View.Intrinsic);
     this.requireUpdate(View.NeedsResize | View.NeedsChange | View.NeedsLayout);
 
     const viewController = this.viewController;
@@ -190,12 +190,12 @@ export class TreeLimb extends HtmlView {
 
     const subtree = this.subtree;
     if (subtree !== null) {
-      subtree.display.setAutoState("block");
+      subtree.display.setState("block", View.Intrinsic);
     }
   }
 
   protected didExpand(): void {
-    this.disclosureState.setAutoState("expanded");
+    this.disclosureState.setState("expanded", View.Intrinsic);
     this.disclosingPhase.setInherited(true);
 
     const viewObservers = this.viewObservers;
@@ -222,22 +222,22 @@ export class TreeLimb extends HtmlView {
       this.willCollapse(timing);
       if (timing !== false) {
         if (disclosurePhase !== 0) {
-          this.disclosurePhase.setState(0, timing);
-          this.disclosingPhase.setState(this.disclosurePhase.value);
-          this.disclosingPhase.setState(0, timing);
+          this.disclosurePhase.setState(0, timing, View.Intrinsic);
+          this.disclosingPhase.setState(this.disclosurePhase.value, View.Intrinsic);
+          this.disclosingPhase.setState(0, timing, View.Intrinsic);
         } else {
           this.didCollapse();
         }
       } else {
-        this.disclosurePhase.setState(0);
-        this.disclosingPhase.setState(0);
+        this.disclosurePhase.setState(0, View.Intrinsic);
+        this.disclosingPhase.setState(0, View.Intrinsic);
         this.didCollapse();
       }
     }
   }
 
   protected willCollapse(timing: AnyTiming | boolean): void {
-    this.disclosureState.setAutoState("collapsing");
+    this.disclosureState.setState("collapsing", View.Intrinsic);
 
     const viewController = this.viewController;
     if (viewController !== null && viewController.limbWillCollapse !== void 0) {
@@ -253,17 +253,17 @@ export class TreeLimb extends HtmlView {
 
     const subtree = this.subtree;
     if (subtree !== null) {
-      subtree.height.setAutoState(0, timing);
+      subtree.height.setState(0, timing, View.Intrinsic);
     }
   }
 
   protected didCollapse(): void {
-    this.disclosureState.setAutoState("collapsed");
+    this.disclosureState.setState("collapsed", View.Intrinsic);
     this.disclosingPhase.setInherited(true);
     this.requireUpdate(View.NeedsResize | View.NeedsLayout);
     const subtree = this.subtree;
     if (subtree !== null) {
-      subtree.display.setAutoState("none");
+      subtree.display.setState("none", View.Intrinsic);
     }
 
     const viewObservers = this.viewObservers;
@@ -290,12 +290,12 @@ export class TreeLimb extends HtmlView {
 
   protected onCull(): void {
     super.onCull();
-    this.display.setAutoState("none");
+    this.display.setState("none", View.Intrinsic);
   }
 
   protected onUncull(): void {
     super.onUncull();
-    this.display.setAutoState("block");
+    this.display.setState("block", View.Intrinsic);
   }
 
   protected onInsertChildView(childView: View, targetView: View | null): void {
@@ -317,7 +317,7 @@ export class TreeLimb extends HtmlView {
   }
 
   protected onInsertLeaf(leaf: TreeLeaf): void {
-    leaf.position.setAutoState("absolute");
+    leaf.position.setState("absolute", View.Intrinsic);
   }
 
   protected onRemoveLeaf(leaf: TreeLeaf): void {
@@ -325,13 +325,13 @@ export class TreeLimb extends HtmlView {
   }
 
   protected onInsertSubtree(subtree: TreeView): void {
-    subtree.display.setAutoState(this.isExpanded() ? "block" : "none");
-    subtree.position.setAutoState("absolute");
-    subtree.left.setAutoState(0);
+    subtree.display.setState(this.isExpanded() ? "block" : "none", View.Intrinsic);
+    subtree.position.setState("absolute", View.Intrinsic);
+    subtree.left.setState(0, View.Intrinsic);
     const seed = this.seed.state;
     const width = seed !== null ? seed.width : null;
-    subtree.width.setAutoState(width);
-    subtree.depth.setAutoState(this.depth.state);
+    subtree.width.setState(width, View.Intrinsic);
+    subtree.depth.setState(this.depth.state, View.Intrinsic);
   }
 
   protected onRemoveSubtree(subtree: TreeView): void {
@@ -341,7 +341,7 @@ export class TreeLimb extends HtmlView {
   protected onUpdateDepth(depth: number): void {
     const subtree = this.subtree;
     if (subtree !== null) {
-      subtree.depth.setAutoState(depth);
+      subtree.depth.setState(depth, View.Intrinsic);
     }
   }
 
@@ -421,10 +421,10 @@ export class TreeLimb extends HtmlView {
     let yState = yValue
     const leaf = this.leaf;
     if (leaf !== null) {
-      if (leaf.top.isAuto()) {
+      if (leaf.top.isPrecedent(View.Intrinsic)) {
         leaf.top.setIntermediateValue(Length.px(yValue * disclosingPhase), Length.px(yState));
       }
-      leaf.width.setAutoState(width);
+      leaf.width.setState(width, View.Intrinsic);
       let heightValue: Length | number | null = leaf.height.value;
       heightValue = heightValue instanceof Length ? heightValue.pxValue() : leaf.node.offsetHeight;
       let heightState: Length | number | null = leaf.height.state;
@@ -434,10 +434,10 @@ export class TreeLimb extends HtmlView {
     }
     const subtree = this.subtree;
     if (subtree !== null && disclosureState !== "collapsed") {
-      if (subtree.top.isAuto()) {
+      if (subtree.top.isPrecedent(View.Intrinsic)) {
         subtree.top.setIntermediateValue(Length.px(yValue * disclosingPhase), Length.px(yState));
       }
-      subtree.width.setAutoState(width);
+      subtree.width.setState(width, View.Intrinsic);
       let heightValue: Length | number | null = subtree.height.value;
       heightValue = heightValue instanceof Length ? heightValue.pxValue() : subtree.node.offsetHeight;
       let heightState: Length | number | null = subtree.height.state;
@@ -452,7 +452,7 @@ export class TreeLimb extends HtmlView {
       yValue += limbSpacing * disclosingPhase;
       yState += limbSpacing;
     }
-    if (this.height.isAuto()) {
+    if (this.height.isPrecedent(View.Intrinsic)) {
       this.height.setIntermediateValue(Length.px(yValue), Length.px(yState));
     }
   }

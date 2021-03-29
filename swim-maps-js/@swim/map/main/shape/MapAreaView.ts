@@ -15,7 +15,7 @@
 import {AnyLength, Length, BoxR2} from "@swim/math";
 import type {GeoBox, GeoPath} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
-import {ViewContextType, ViewProperty, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {
   GraphicsView,
   FillViewInit,
@@ -62,8 +62,8 @@ export class MapAreaView extends MapPathView implements FillView, StrokeView {
 
   protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
     super.onSetGeoPath(newGeoPath, oldGeoPath);
-    if (this.geoCentroid.isAuto()) {
-      this.geoCentroid.setAutoState(newGeoPath.centroid());
+    if (this.geoCentroid.isPrecedent(View.Intrinsic)) {
+      this.geoCentroid.setState(newGeoPath.centroid(), View.Intrinsic);
     }
   }
 

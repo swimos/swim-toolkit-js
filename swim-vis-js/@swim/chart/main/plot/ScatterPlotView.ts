@@ -134,13 +134,12 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     extends: ContinuousScaleAnimator,
     type: ContinuousScale,
     inherit: true,
+    state: null,
     willSetValue(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null): void {
       this.owner.willSetXScale(newXScale, oldXScale);
     },
-    onSetValue(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null): void {
-      this.owner.onSetXScale(newXScale, oldXScale);
-    },
     didSetValue(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null): void {
+      this.owner.onSetXScale(newXScale, oldXScale);
       this.owner.didSetXScale(newXScale, oldXScale);
     },
   })
@@ -183,13 +182,12 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     extends: ContinuousScaleAnimator,
     type: ContinuousScale,
     inherit: true,
+    state: null,
     willSetValue(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null): void {
       this.owner.willSetYScale(newYScale, oldYScale);
     },
-    onSetValue(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null): void {
-      this.owner.onSetYScale(newYScale, oldYScale);
-    },
     didSetValue(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null): void {
+      this.owner.onSetYScale(newYScale, oldYScale);
       this.owner.didSetYScale(newYScale, oldYScale);
     },
   })
@@ -272,10 +270,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     willSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
       this.owner.willSetXRangePadding(newXRangePadding, oldXRangePadding);
     },
-    onSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
-      this.owner.onSetXRangePadding(newXRangePadding, oldXRangePadding);
-    },
     didSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.onSetXRangePadding(newXRangePadding, oldXRangePadding);
       this.owner.didSetXRangePadding(newXRangePadding, oldXRangePadding);
     },
   })
@@ -320,10 +316,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     willSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
       this.owner.willSetYRangePadding(newYRangePadding, oldYRangePadding);
     },
-    onSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
-      this.owner.onSetYRangePadding(newYRangePadding, oldYRangePadding);
-    },
     didSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.onSetYRangePadding(newYRangePadding, oldYRangePadding);
       this.owner.didSetYRangePadding(newYRangePadding, oldYRangePadding);
     },
   })
@@ -817,8 +811,8 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
 
     this.setXDataDomain(point0 !== null ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
     this.setYDataDomain(point0 !== null ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);
-    this.xRangePadding.setAutoState([xRangePaddingMin, xRangePaddingMax]);
-    this.yRangePadding.setAutoState([yRangePaddingMin, yRangePaddingMax]);
+    this.xRangePadding.setState([xRangePaddingMin, xRangePaddingMax], View.Intrinsic);
+    this.yRangePadding.setState([yRangePaddingMin, yRangePaddingMax], View.Intrinsic);
   }
 
   protected didRender(viewContext: ViewContextType<this>): void {

@@ -194,9 +194,9 @@ export class GaugeView extends LayerView {
 
   protected initTitle(titleView: GraphicsView): void {
     if (TypesetView.is(titleView)) {
-      titleView.textAlign.setAutoState("center");
-      titleView.textBaseline.setAutoState("middle");
-      titleView.textOrigin.setAutoState(this.center.state);
+      titleView.textAlign.setState("center", View.Intrinsic);
+      titleView.textBaseline.setState("middle", View.Intrinsic);
+      titleView.textOrigin.setState(this.center.state, View.Intrinsic);
     }
   }
 
@@ -476,10 +476,10 @@ export class GaugeView extends LayerView {
   }
 
   protected layoutGauge(frame: BoxR2): void {
-    if (this.center.isAuto()) {
+    if (this.center.isPrecedent(View.Intrinsic)) {
       const cx = (frame.xMin + frame.xMax) / 2;
       const cy = (frame.yMin + frame.yMax) / 2;
-      this.center.setAutoState(new PointR2(cx, cy));
+      this.center.setState(new PointR2(cx, cy), View.Intrinsic);
     }
 
     const dialFasteners = this.dialFasteners;
@@ -507,19 +507,19 @@ export class GaugeView extends LayerView {
       if (dialView !== null && dialView.arrangement.state === "auto") {
         if (isFinite(gaugeLimit)) {
           const dialLimit = dialView.limit.getValue();
-          dialView.limit.setAutoState(Math.max(dialLimit, gaugeLimit));
+          dialView.limit.setState(Math.max(dialLimit, gaugeLimit), View.Intrinsic);
         }
-        dialView.startAngle.setAutoState(startAngle);
-        dialView.sweepAngle.setAutoState(sweepAngle);
-        dialView.innerRadius.setAutoState(Length.px(r0));
-        dialView.outerRadius.setAutoState(Length.px(r0 + dr));
+        dialView.startAngle.setState(startAngle, View.Intrinsic);
+        dialView.sweepAngle.setState(sweepAngle, View.Intrinsic);
+        dialView.innerRadius.setState(Length.px(r0), View.Intrinsic);
+        dialView.outerRadius.setState(Length.px(r0 + dr), View.Intrinsic);
         r0 = r0 + dr + rs;
       }
     }
 
     const titleView = this.title.view;
     if (TypesetView.is(titleView)) {
-      titleView.textOrigin.setAutoState(this.center.state);
+      titleView.textOrigin.setState(this.center.state, View.Intrinsic);
     }
   }
 

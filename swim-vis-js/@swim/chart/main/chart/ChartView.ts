@@ -680,7 +680,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       if (topFrame.xMin !== graphLeft || topFrame.yMin !== frame.yMin ||
           topFrame.xMax !== graphRight || topFrame.yMax !== graphBottom) {
         topAxisView.setViewFrame(new BoxR2(graphLeft, frame.yMin, graphRight, graphBottom));
-        topAxisView.origin.setAutoState(new PointR2(graphLeft, graphTop));
+        topAxisView.origin.setState(new PointR2(graphLeft, graphTop), View.Intrinsic);
         topAxisView.requireUpdate(View.NeedsLayout);
       }
     }
@@ -690,7 +690,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       if (rightFrame.xMin !== graphLeft || rightFrame.yMin !== graphTop ||
           rightFrame.xMax !== frame.xMax || rightFrame.yMax !== graphBottom) {
         rightAxisView.setViewFrame(new BoxR2(graphLeft, graphTop, frame.xMax, graphBottom));
-        rightAxisView.origin.setAutoState(new PointR2(Math.max(graphLeft, graphRight), graphBottom));
+        rightAxisView.origin.setState(new PointR2(Math.max(graphLeft, graphRight), graphBottom), View.Intrinsic);
         rightAxisView.requireUpdate(View.NeedsLayout);
       }
     }
@@ -700,7 +700,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       if (bottomFrame.xMin !== graphLeft || bottomFrame.yMin !== graphTop ||
           bottomFrame.xMax !== graphRight || bottomFrame.yMax !== frame.yMax) {
         bottomAxisView.setViewFrame(new BoxR2(graphLeft, graphTop, graphRight, frame.yMax));
-        bottomAxisView.origin.setAutoState(new PointR2(graphLeft, Math.max(graphTop, graphBottom)));
+        bottomAxisView.origin.setState(new PointR2(graphLeft, Math.max(graphTop, graphBottom)), View.Intrinsic);
         bottomAxisView.requireUpdate(View.NeedsLayout);
       }
     }
@@ -710,7 +710,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       if (leftFrame.xMin !== frame.xMin || leftFrame.yMin !== graphTop ||
           leftFrame.xMax !== graphRight || leftFrame.yMax !== graphBottom) {
         leftAxisView.setViewFrame(new BoxR2(frame.xMin, graphTop, graphRight, graphBottom));
-        leftAxisView.origin.setAutoState(new PointR2(graphLeft, graphBottom));
+        leftAxisView.origin.setState(new PointR2(graphLeft, graphBottom), View.Intrinsic);
         leftAxisView.requireUpdate(View.NeedsLayout);
       }
     }

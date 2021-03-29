@@ -15,7 +15,7 @@
 import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
-import type {ModalManager, ModalManagerObserver,} from "@swim/view";
+import {View, ModalManager, ModalManagerObserver,} from "@swim/view";
 import {StyleAnimator, HtmlView} from "@swim/dom";
 
 export class ScrimView extends HtmlView implements ModalManagerObserver {
@@ -43,15 +43,15 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
 
   protected initScrim(): void {
     this.addClass("scrim");
-    this.display.setAutoState("none");
-    this.position.setAutoState("absolute");
-    this.top.setAutoState(0);
-    this.right.setAutoState(0);
-    this.bottom.setAutoState(0);
-    this.left.setAutoState(0);
-    this.pointerEvents.setAutoState("auto");
-    this.cursor.setAutoState("pointer");
-    this.backgroundColor.setAutoState(Color.black(0));
+    this.display.setState("none", View.Intrinsic);
+    this.position.setState("absolute", View.Intrinsic);
+    this.top.setState(0, View.Intrinsic);
+    this.right.setState(0, View.Intrinsic);
+    this.bottom.setState(0, View.Intrinsic);
+    this.left.setState(0, View.Intrinsic);
+    this.pointerEvents.setState("auto", View.Intrinsic);
+    this.cursor.setState("pointer", View.Intrinsic);
+    this.backgroundColor.setState(Color.black(0), View.Intrinsic);
   }
 
   /** @hidden */
@@ -116,11 +116,11 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
       }
       this.setDisplayState(ScrimView.ShowState);
       if (timing !== false) {
-        this.backgroundColor.setAutoState(Color.black(0));
-        this.backgroundColor.setAutoState(Color.black(opacity), timing);
+        this.backgroundColor.setState(Color.black(0), View.Intrinsic);
+        this.backgroundColor.setState(Color.black(opacity), timing, View.Intrinsic);
       } else {
         this.willShow();
-        this.backgroundColor.setAutoState(Color.black(opacity));
+        this.backgroundColor.setState(Color.black(opacity), View.Intrinsic);
         this.didShow();
       }
     }
@@ -129,7 +129,7 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
   protected willShow(): void {
     this.setDisplayState(ScrimView.ShowingState);
 
-    this.display.setAutoState("block");
+    this.display.setState("block", View.Intrinsic);
   }
 
   protected didShow(): void {
@@ -145,10 +145,10 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
       }
       this.setDisplayState(ScrimView.HideState);
       if (timing !== false) {
-        this.backgroundColor.setAutoState(Color.black(0), timing);
+        this.backgroundColor.setState(Color.black(0), timing, View.Intrinsic);
       } else {
         this.willHide();
-        this.backgroundColor.setAutoState(Color.black(0));
+        this.backgroundColor.setState(Color.black(0), View.Intrinsic);
         this.didHide();
       }
     }
@@ -161,7 +161,7 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
   protected didHide(): void {
     this.setDisplayState(ScrimView.HiddenState);
 
-    this.display.setAutoState("none");
+    this.display.setState("none", View.Intrinsic);
   }
 
   protected onMount(): void {
@@ -188,7 +188,7 @@ export class ScrimView extends HtmlView implements ModalManagerObserver {
       if (oldModality === 0) {
         this.show(opacity);
       } else {
-        this.backgroundColor.setAutoState(Color.black(opacity));
+        this.backgroundColor.setState(Color.black(opacity), View.Intrinsic);
         if (this.displayState === ScrimView.ShowingState) {
           this.didShow();
         }

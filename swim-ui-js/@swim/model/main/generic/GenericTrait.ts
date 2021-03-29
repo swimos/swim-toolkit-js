@@ -233,11 +233,6 @@ export class GenericTrait extends Trait {
     }
   }
 
-  protected onMutate(modelContext: TraitContextType<this>): void {
-    super.onMutate(modelContext);
-    this.mutateTraitProperties();
-  }
-
   protected onReconcile(modelContext: TraitContextType<this>): void {
     super.onReconcile(modelContext);
     this.reconcileTraitDownlinks();
@@ -400,15 +395,6 @@ export class GenericTrait extends Trait {
       }
     } else {
       delete traitProperties[propertyName];
-    }
-  }
-
-  /** @hidden */
-  mutateTraitProperties(): void {
-    const traitProperties = this.traitProperties;
-    for (const propertyName in traitProperties) {
-      const traitProperty = traitProperties[propertyName]!;
-      traitProperty.onMutate();
     }
   }
 

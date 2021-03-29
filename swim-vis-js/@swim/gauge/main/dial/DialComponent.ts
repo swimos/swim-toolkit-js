@@ -14,13 +14,9 @@
 
 import {AnyTiming, Timing} from "@swim/mapping";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
+import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
-import {
-  ComponentProperty,
-  ComponentView,
-  ComponentViewTrait,
-  CompositeComponent,
-} from "@swim/component";
+import {ComponentProperty, ComponentView, ComponentViewTrait, CompositeComponent} from "@swim/component";
 import {DialView} from "./DialView";
 import {DialLabel, DialLegend, DialTrait} from "./DialTrait";
 import type {DialComponentObserver} from "./DialComponentObserver";
@@ -203,7 +199,7 @@ export class DialComponent extends CompositeComponent {
 
   protected setDialViewValue(value: number, dialTrait: DialTrait, timing?: AnyTiming | boolean): void {
     const dialView = this.dial.view;
-    if (dialView !== null && dialView.value.isAuto()) {
+    if (dialView !== null && dialView.value.isPrecedent(View.Intrinsic)) {
       if (timing === void 0 || timing === true) {
         timing = this.dialTiming.state;
         if (timing === true) {
@@ -212,7 +208,7 @@ export class DialComponent extends CompositeComponent {
       } else {
         timing = Timing.fromAny(timing);
       }
-      dialView.value.setAutoState(value, timing);
+      dialView.value.setState(value, timing, View.Intrinsic);
     }
   }
 
@@ -247,7 +243,7 @@ export class DialComponent extends CompositeComponent {
 
   protected setDialViewLimit(limit: number, dialTrait: DialTrait, timing?: AnyTiming | boolean): void {
     const dialView = this.dial.view;
-    if (dialView !== null && dialView.limit.isAuto()) {
+    if (dialView !== null && dialView.limit.isPrecedent(View.Intrinsic)) {
       if (timing === void 0 || timing === true) {
         timing = this.dialTiming.state;
         if (timing === true) {
@@ -256,7 +252,7 @@ export class DialComponent extends CompositeComponent {
       } else {
         timing = Timing.fromAny(timing);
       }
-      dialView.limit.setAutoState(limit, timing);
+      dialView.limit.setState(limit, timing, View.Intrinsic);
     }
   }
 

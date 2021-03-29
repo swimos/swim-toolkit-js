@@ -15,6 +15,8 @@
 export {
   ModelPropertyMemberType,
   ModelPropertyMemberInit,
+  ModelPropertyMemberKey,
+  ModelPropertyMemberMap,
   ModelPropertyFlags,
   ModelPropertyInit,
   ModelPropertyDescriptor,
@@ -34,6 +36,8 @@ export {NumberModelProperty} from "./NumberModelProperty";
 export {
   TraitPropertyMemberType,
   TraitPropertyMemberInit,
+  TraitPropertyMemberKey,
+  TraitPropertyMemberMap,
   TraitPropertyInit,
   TraitPropertyDescriptor,
   TraitPropertyDescriptorExtends,

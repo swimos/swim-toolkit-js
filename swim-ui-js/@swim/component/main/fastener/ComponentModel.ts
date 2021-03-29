@@ -18,10 +18,10 @@ import {Model, ModelObserverType} from "@swim/model";
 import {Component} from "../Component";
 
 export type ComponentModelMemberType<C, K extends keyof C> =
-  C extends {[P in K]: ComponentModel<any, infer M, any>} ? M : unknown;
+  C[K] extends ComponentModel<any, infer M, any> ? M : never;
 
-export type ComponentModelMemberInit<V, K extends keyof V> =
-  V extends {[P in K]: ComponentModel<any, infer M, infer U>} ? M | U : unknown;
+export type ComponentModelMemberInit<C, K extends keyof C> =
+  C[K] extends ComponentModel<any, infer M, infer U> ? M | U : never;
 
 export type ComponentModelFlags = number;
 

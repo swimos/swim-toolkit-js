@@ -255,17 +255,16 @@ export abstract class ScaledView<X, Y> extends LayerView implements ScaledXYView
     }
   }
 
-  @ViewAnimator<ScaledView<X, Y>, ContinuousScale<X, number>>({
+  @ViewAnimator<ScaledView<X, Y>, ContinuousScale<X, number> | null>({
     extends: ContinuousScaleAnimator,
     type: ContinuousScale,
     inherit: true,
+    state: null,
     willSetValue(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null): void {
       this.owner.willSetXScale(newXScale, oldXScale);
     },
-    onSetValue(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null): void {
-      this.owner.onSetXScale(newXScale, oldXScale);
-    },
     didSetValue(newXScale: ContinuousScale<X, number> | null, oldXScale: ContinuousScale<X, number> | null): void {
+      this.owner.onSetXScale(newXScale, oldXScale);
       this.owner.didSetXScale(newXScale, oldXScale);
     },
     onBegin(xScale: ContinuousScale<X, number>): void {
@@ -319,17 +318,16 @@ export abstract class ScaledView<X, Y> extends LayerView implements ScaledXYView
     }
   }
 
-  @ViewAnimator<ScaledView<X, Y>, ContinuousScale<Y, number>>({
+  @ViewAnimator<ScaledView<X, Y>, ContinuousScale<Y, number> | null>({
     extends: ContinuousScaleAnimator,
     type: ContinuousScale,
     inherit: true,
+    state: null,
     willSetValue(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null): void {
       this.owner.willSetYScale(newYScale, oldYScale);
     },
-    onSetValue(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null): void {
-      this.owner.onSetYScale(newYScale, oldYScale);
-    },
     didSetValue(newYScale: ContinuousScale<Y, number> | null, oldYScale: ContinuousScale<Y, number> | null): void {
+      this.owner.onSetYScale(newYScale, oldYScale);
       this.owner.didSetYScale(newYScale, oldYScale);
     },
     onBegin(yScale: ContinuousScale<Y, number>): void {
@@ -755,14 +753,14 @@ export abstract class ScaledView<X, Y> extends LayerView implements ScaledXYView
   }
 
   protected updateXRangePadding(xScaledRangePadding: readonly [number, number], scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
-    if (this.xRangePadding.isAuto()) {
+    if (this.xRangePadding.isPrecedent(View.Intrinsic)) {
       let xRangePadding = this.xRangePadding.state;
       if (xRangePadding === null || this.scaledFasteners.length === 1) {
         xRangePadding = xScaledRangePadding;
       } else if (xScaledRangePadding !== null) {
         xRangePadding = [Math.max(xRangePadding[0], xScaledRangePadding[0]), Math.max(xRangePadding[1], xScaledRangePadding[1])];
       }
-      this.xRangePadding.setAutoState(xRangePadding);
+      this.xRangePadding.setState(xRangePadding, View.Intrinsic);
     }
   }
 
@@ -773,10 +771,8 @@ export abstract class ScaledView<X, Y> extends LayerView implements ScaledXYView
     willSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
       this.owner.willSetXRangePadding(newXRangePadding, oldXRangePadding);
     },
-    onSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
-      this.owner.onSetXRangePadding(newXRangePadding, oldXRangePadding);
-    },
     didSetState(newXRangePadding: readonly [number, number], oldXRangePadding: readonly [number, number]): void {
+      this.owner.onSetXRangePadding(newXRangePadding, oldXRangePadding);
       this.owner.didSetXRangePadding(newXRangePadding, oldXRangePadding);
     },
   })
@@ -815,14 +811,14 @@ export abstract class ScaledView<X, Y> extends LayerView implements ScaledXYView
   }
 
   protected updateYRangePadding(yScaledRangePadding: readonly [number, number], scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
-    if (this.yRangePadding.isAuto()) {
+    if (this.yRangePadding.isPrecedent(View.Intrinsic)) {
       let yRangePadding = this.yRangePadding.state;
       if (yRangePadding === null || this.scaledFasteners.length === 1) {
         yRangePadding = yScaledRangePadding;
       } else if (yScaledRangePadding !== null) {
         yRangePadding = [Math.max(yRangePadding[0], yScaledRangePadding[0]), Math.max(yRangePadding[1], yScaledRangePadding[1])];
       }
-      this.yRangePadding.setAutoState(yRangePadding);
+      this.yRangePadding.setState(yRangePadding, View.Intrinsic);
     }
   }
 
@@ -833,10 +829,8 @@ export abstract class ScaledView<X, Y> extends LayerView implements ScaledXYView
     willSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
       this.owner.willSetYRangePadding(newYRangePadding, oldYRangePadding);
     },
-    onSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
-      this.owner.onSetYRangePadding(newYRangePadding, oldYRangePadding);
-    },
     didSetState(newYRangePadding: readonly [number, number], oldYRangePadding: readonly [number, number]): void {
+      this.owner.onSetYRangePadding(newYRangePadding, oldYRangePadding);
       this.owner.didSetYRangePadding(newYRangePadding, oldYRangePadding);
     },
   })
@@ -1656,8 +1650,8 @@ export abstract class ScaledView<X, Y> extends LayerView implements ScaledXYView
 
     this.setXDataDomain(xCount !== 0 ? Domain<X>(xDataDomainMin!, xDataDomainMax!) : null);
     this.setYDataDomain(yCount !== 0 ? Domain<Y>(yDataDomainMin!, yDataDomainMax!) : null);
-    this.xRangePadding.setAutoState([xRangePaddingMin, xRangePaddingMax]);
-    this.yRangePadding.setAutoState([yRangePaddingMin, yRangePaddingMax]);
+    this.xRangePadding.setState([xRangePaddingMin, xRangePaddingMax], View.Intrinsic);
+    this.yRangePadding.setState([yRangePaddingMin, yRangePaddingMax], View.Intrinsic);
   }
 
   protected onBeginBoundingXScale(xScale: ContinuousScale<X, number>): void {

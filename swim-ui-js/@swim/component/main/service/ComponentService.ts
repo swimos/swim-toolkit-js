@@ -25,7 +25,7 @@ import {HistoryService} from "../"; // forward import
 import {StorageService} from "../"; // forward import
 
 export type ComponentServiceMemberType<C, K extends keyof C> =
-  C extends {[P in K]: ComponentService<any, infer T>} ? T : unknown;
+  C[K] extends ComponentService<any, infer T> ? T : never;
 
 export type ComponentServiceFlags = number;
 
@@ -64,8 +64,6 @@ export interface ComponentService<C extends Component, T> {
   setInherit(inherit: string | boolean): void;
 
   isInherited(): boolean;
-
-  setInherited(inherited: boolean): void;
 
   /** @hidden */
   readonly serviceFlags: ComponentServiceFlags;
@@ -198,22 +196,6 @@ ComponentService.prototype.setInherit = function (this: ComponentService<Compone
 
 ComponentService.prototype.isInherited = function (this: ComponentService<Component, unknown>): boolean {
   return (this.serviceFlags & ComponentService.InheritedFlag) !== 0;
-};
-
-ComponentService.prototype.setInherited = function (this: ComponentService<Component, unknown>, inherited: boolean): void {
-  if (inherited && (this.serviceFlags & ComponentService.InheritedFlag) === 0) {
-    const superService = this.superService;
-    if (superService !== null) {
-      this.setServiceFlags(this.serviceFlags | ComponentService.InheritedFlag);
-      Object.defineProperty(this, "manager", {
-        value: superService.manager,
-        enumerable: true,
-        configurable: true,
-      });
-    }
-  } else if (!inherited && (this.serviceFlags & ComponentService.InheritedFlag) !== 0) {
-    this.setServiceFlags(this.serviceFlags & ~ComponentService.InheritedFlag);
-  }
 };
 
 ComponentService.prototype.setServiceFlags = function (this: ComponentService<Component, unknown>, serviceFlags: ComponentServiceFlags): void {

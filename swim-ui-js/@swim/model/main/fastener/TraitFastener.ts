@@ -19,10 +19,10 @@ import {Trait} from "../Trait";
 import type {TraitObserverType} from "../TraitObserver";
 
 export type TraitFastenerMemberType<R, K extends keyof R> =
-  R extends {[P in K]: TraitFastener<any, infer S, any>} ? S : unknown;
+  R[K] extends TraitFastener<any, infer S, any> ? S : never;
 
 export type TraitFastenerMemberInit<R, K extends keyof R> =
-  R extends {[P in K]: TraitFastener<any, infer T, infer U>} ? T | U : unknown;
+  R[K] extends TraitFastener<any, infer S, infer U> ? S | U : never;
 
 export type TraitFastenerFlags = number;
 

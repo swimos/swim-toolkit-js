@@ -16,7 +16,7 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import {AnyLength, Length} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType,ViewContext, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
+import {ViewContextType, ViewContext, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
 import {SvgIconView} from "@swim/graphics";
 import {DeckSlot} from "./DeckSlot";
@@ -32,9 +32,9 @@ export class DeckButton extends DeckSlot {
 
   protected initButton(): void {
     this.addClass("deck-button");
-    this.position.setAutoState("relative");
-    this.userSelect.setAutoState("none");
-    this.cursor.setAutoState("pointer");
+    this.position.setState("relative", View.Intrinsic);
+    this.userSelect.setState("none", View.Intrinsic);
+    this.cursor.setState("pointer", View.Intrinsic);
   }
 
   declare readonly viewController: HtmlViewController & DeckButtonObserver | null;
@@ -65,9 +65,9 @@ export class DeckButton extends DeckSlot {
 
   protected createLabel(value: string): HtmlView {
     const labelView = HtmlView.span.create();
-    labelView.display.setAutoState("flex");
-    labelView.alignItems.setAutoState("center");
-    labelView.whiteSpace.setAutoState("nowrap");
+    labelView.display.setState("flex", View.Intrinsic);
+    labelView.alignItems.setState("center", View.Intrinsic);
+    labelView.whiteSpace.setState("nowrap", View.Intrinsic);
     labelView.text(value);
     return labelView;
   }
@@ -232,7 +232,7 @@ export abstract class DeckButtonCloseIcon<V extends DeckButton, S extends SvgIco
   protected initIcon(iconView: S): void {
     iconView.addClass("close-icon");
     iconView.setStyle("position", "absolute");
-    iconView.pointerEvents.setAutoState("none");
+    iconView.pointerEvents.setState("none", View.Intrinsic);
   }
 
   protected layoutIcon(iconView: S): void {
@@ -255,8 +255,8 @@ export abstract class DeckButtonCloseIcon<V extends DeckButton, S extends SvgIco
     const iconTop = (slotHeight - iconHeight) / 2;
     iconView.setStyle("left", iconLeft + "px");
     iconView.setStyle("top", iconTop + "px");
-    iconView.viewBox.setAutoState("0 0 " + iconWidth + " " + iconHeight);
-    iconView.opacity.setAutoState(1 - iconPhase);
+    iconView.viewBox.setState("0 0 " + iconWidth + " " + iconHeight, View.Intrinsic);
+    iconView.opacity.setState(1 - iconPhase, View.Intrinsic);
   }
 }
 ViewFastener({
@@ -285,7 +285,7 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
   protected initIcon(iconView: S): void {
     iconView.addClass("back-icon");
     iconView.setStyle("position", "absolute");
-    iconView.pointerEvents.setAutoState("none");
+    iconView.pointerEvents.setState("none", View.Intrinsic);
   }
 
   protected layoutIcon(iconView: S): void {
@@ -311,7 +311,7 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
     let iconOpacity: number | undefined;
     if (deckPhase <= 1) {
       iconOpacity = 0;
-      iconView.iconColor.setAutoState(null);
+      iconView.iconColor.setState(null, View.Intrinsic);
     } else if (labelView !== null && deckPhase < 2) {
       const parentView = this.owner.parentView;
       const nextPost = this.owner.nextPost.state;
@@ -346,15 +346,15 @@ export abstract class DeckButtonBackIcon<V extends DeckButton, S extends SvgIcon
       const nextColor = nextSlot instanceof DeckSlot ? nextSlot.getLookOr(nextSlot.colorLook, null) : null;
       const thisColor = this.owner.getLookOr(this.owner.colorLook, null);
       if (nextColor !== null && thisColor !== null) {
-        iconView.iconColor.setAutoState(nextColor.interpolateTo(thisColor)(labelPhase));
+        iconView.iconColor.setState(nextColor.interpolateTo(thisColor)(labelPhase), View.Intrinsic);
       } else {
-        iconView.iconColor.setAutoState(thisColor);
+        iconView.iconColor.setState(thisColor, View.Intrinsic);
       }
     }
     iconView.setStyle("left", iconLeft + "px");
     iconView.setStyle("top", iconTop + "px");
-    iconView.viewBox.setAutoState("0 0 " + iconWidth + " " + iconHeight);
-    iconView.opacity.setAutoState(iconOpacity);
+    iconView.viewBox.setState("0 0 " + iconWidth + " " + iconHeight, View.Intrinsic);
+    iconView.opacity.setState(iconOpacity, View.Intrinsic);
   }
 }
 ViewFastener({
@@ -394,8 +394,8 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
   }
 
   protected viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, labelView: S): void {
-    if (labelView.color.isAuto()) {
-      labelView.color.setAutoState(theme.getOr(this.owner.colorLook, mood, null), timing);
+    if (labelView.color.isPrecedent(View.Intrinsic)) {
+      labelView.color.setState(theme.getOr(this.owner.colorLook, mood, null), timing, View.Intrinsic);
     }
   }
 
@@ -404,8 +404,8 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
   }
 
   protected initLabel(labelView: S): void {
-    labelView.position.setAutoState("absolute");
-    labelView.pointerEvents.setAutoState("none");
+    labelView.position.setState("absolute", View.Intrinsic);
+    labelView.pointerEvents.setState("none", View.Intrinsic);
   }
 
   protected layoutLabel(labelView: S): void {
@@ -463,9 +463,9 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
       // Memoize computed label width while animating
       // to avoid style recalculation in animation frames.
       if (this.owner.deckPhase.isAnimating()) {
-        labelView.width.setAutoState(labelWidth);
+        labelView.width.setState(labelWidth, View.Intrinsic);
       } else {
-        labelView.width.setAutoState(this.labelWidth);
+        labelView.width.setState(this.labelWidth, View.Intrinsic);
       }
     }
 
@@ -474,35 +474,35 @@ export abstract class DeckButtonLabel<V extends DeckButton, S extends HtmlView> 
     const iconTop = (slotHeight - iconHeight) / 2;
     const labelSlotSpace = slotWidth - iconLeft - iconWidth + (nextSlotWidth - labelWidth) * nextSlotAlign;
     if (labelIndex < prevIndex || labelIndex === prevIndex && labelPhase === 1) { // under
-      labelView.left.setAutoState(iconLeft + iconWidth);
-      labelView.top.setAutoState(iconTop);
-      labelView.height.setAutoState(iconHeight);
-      labelView.opacity.setAutoState(0);
+      labelView.left.setState(iconLeft + iconWidth, View.Intrinsic);
+      labelView.top.setState(iconTop, View.Intrinsic);
+      labelView.height.setState(iconHeight, View.Intrinsic);
+      labelView.opacity.setState(0, View.Intrinsic);
       labelView.setCulled(true);
     } else if (labelIndex === prevIndex) { // out
-      labelView.left.setAutoState(iconLeft + iconWidth + (labelSlotSpace * slotAlign * (1 - labelPhase)));
-      labelView.top.setAutoState(iconTop);
-      labelView.height.setAutoState(iconHeight);
-      labelView.opacity.setAutoState(1 - labelPhase);
+      labelView.left.setState(iconLeft + iconWidth + (labelSlotSpace * slotAlign * (1 - labelPhase)), View.Intrinsic);
+      labelView.top.setState(iconTop, View.Intrinsic);
+      labelView.height.setState(iconHeight, View.Intrinsic);
+      labelView.opacity.setState(1 - labelPhase, View.Intrinsic);
       labelView.setCulled(false);
     } else if (labelIndex === nextIndex) { // in
-      labelView.left.setAutoState(iconLeft + iconWidth + (labelSlotSpace * (1 - labelPhase) + labelSlotSpace * slotAlign * labelPhase));
-      labelView.top.setAutoState(iconTop);
-      labelView.height.setAutoState(iconHeight);
+      labelView.left.setState(iconLeft + iconWidth + (labelSlotSpace * (1 - labelPhase) + labelSlotSpace * slotAlign * labelPhase), View.Intrinsic);
+      labelView.top.setState(iconTop, View.Intrinsic);
+      labelView.height.setState(iconHeight, View.Intrinsic);
       const nextColor = nextSlot instanceof DeckSlot ? nextSlot.getLookOr(nextSlot.colorLook, null) : null;
       const thisColor = this.owner.getLookOr(this.owner.colorLook, null);
       if (nextColor !== null && thisColor !== null) {
-        labelView.color.setAutoState(nextColor.interpolateTo(thisColor)(labelPhase));
+        labelView.color.setState(nextColor.interpolateTo(thisColor)(labelPhase), View.Intrinsic);
       } else {
-        labelView.color.setAutoState(thisColor);
+        labelView.color.setState(thisColor, View.Intrinsic);
       }
-      labelView.opacity.setAutoState(1);
+      labelView.opacity.setState(1, View.Intrinsic);
       labelView.setCulled(false);
     } else { // over
-      labelView.left.setAutoState(iconLeft + iconWidth + labelSlotSpace);
-      labelView.top.setAutoState(iconTop);
-      labelView.height.setAutoState(iconHeight);
-      labelView.opacity.setAutoState(0);
+      labelView.left.setState(iconLeft + iconWidth + labelSlotSpace, View.Intrinsic);
+      labelView.top.setState(iconTop, View.Intrinsic);
+      labelView.height.setState(iconHeight, View.Intrinsic);
+      labelView.opacity.setState(0, View.Intrinsic);
       labelView.setCulled(true);
     }
     this.layoutWidth = iconLeft + iconWidth + labelWidth + iconPadding;

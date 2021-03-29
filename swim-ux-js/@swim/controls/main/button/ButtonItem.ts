@@ -27,7 +27,7 @@ export class ButtonItem extends HtmlView {
 
   protected initButtonItem(): void {
     this.addClass("button-item");
-    this.position.setAutoState("relative");
+    this.position.setState("relative", View.Intrinsic);
     const button = this.createButton();
     if (button !== null) {
       this.setChildView("button", button);
@@ -62,8 +62,8 @@ export class ButtonItem extends HtmlView {
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     const label = this.label;
-    if (label !== null && label.color.isAuto()) {
-      label.color.setAutoState(theme.getOr(Look.mutedColor, mood, null), timing);
+    if (label !== null && label.color.isPrecedent(View.Intrinsic)) {
+      label.color.setState(theme.getOr(Look.mutedColor, mood, null), timing, View.Intrinsic);
     }
   }
 
@@ -72,12 +72,12 @@ export class ButtonItem extends HtmlView {
     const phase = this.stackPhase.getValueOr(1);
     const button = this.button;
     if (button !== null) {
-      this.width.setAutoState(button.width.state);
-      this.height.setAutoState(button.height.state);
+      this.width.setState(button.width.state, View.Intrinsic);
+      this.height.setState(button.height.state, View.Intrinsic);
     }
     const label = this.label;
     if (label !== null) {
-      label.opacity.setAutoState(phase);
+      label.opacity.setState(phase, View.Intrinsic);
     }
   }
 
@@ -110,16 +110,16 @@ export class ButtonItem extends HtmlView {
   }
 
   protected onInsertLabel(label: HtmlView): void {
-    label.display.setAutoState("block");
-    label.position.setAutoState("absolute");
-    label.top.setAutoState(0);
-    label.right.setAutoState(40 + 16);
-    label.bottom.setAutoState(0);
-    label.fontSize.setAutoState(17);
-    label.fontWeight.setAutoState("500");
-    label.lineHeight.setAutoState(40);
-    label.whiteSpace.setAutoState("nowrap");
-    label.opacity.setAutoState(this.stackPhase.getValueOr(0));
+    label.display.setState("block", View.Intrinsic);
+    label.position.setState("absolute", View.Intrinsic);
+    label.top.setState(0, View.Intrinsic);
+    label.right.setState(40 + 16, View.Intrinsic);
+    label.bottom.setState(0, View.Intrinsic);
+    label.fontSize.setState(17, View.Intrinsic);
+    label.fontWeight.setState("500", View.Intrinsic);
+    label.lineHeight.setState(40, View.Intrinsic);
+    label.whiteSpace.setState("nowrap", View.Intrinsic);
+    label.opacity.setState(this.stackPhase.getValueOr(0), View.Intrinsic);
   }
 
   protected onRemoveLabel(label: HtmlView): void {

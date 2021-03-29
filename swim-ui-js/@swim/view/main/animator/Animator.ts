@@ -14,29 +14,41 @@
 
 import {Equals} from "@swim/util";
 import {AnyTiming, Timing, Easing, Interpolator} from "@swim/mapping";
+import type {Look} from "@swim/theme";
+import {ViewPrecedence, View} from "../View";
 import type {AnimationTrack} from "../animation/AnimationTrack";
 
 export type AnimatorFlags = number;
 
 export abstract class Animator<T> implements AnimationTrack {
-  constructor(value: T, timing: Timing | null) {
+  constructor() {
     Object.defineProperty(this, "ownValue", {
-      value: value,
+      value: void 0,
       enumerable: true,
       configurable: true,
     });
     Object.defineProperty(this, "ownState", {
-      value: value,
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "ownLook", {
+      value: null,
       enumerable: true,
       configurable: true,
     });
     Object.defineProperty(this, "timing", {
-      value: timing,
+      value: null,
       enumerable: true,
       configurable: true,
     });
     Object.defineProperty(this, "interpolator", {
       value: null,
+      enumerable: true,
+      configurable: true,
+    });
+    Object.defineProperty(this, "precedence", {
+      value: View.Intrinsic,
       enumerable: true,
       configurable: true,
     });
@@ -78,7 +90,7 @@ export abstract class Animator<T> implements AnimationTrack {
     if (arguments.length === 1) {
       oldValue = this.value;
     }
-    if (!Equals(oldValue, newValue)) {
+    if (!Equals(newValue, oldValue)) {
       this.willSetValue(newValue, oldValue!);
       Object.defineProperty(this, "ownValue", {
         value: newValue,
@@ -106,7 +118,7 @@ export abstract class Animator<T> implements AnimationTrack {
   /** @hidden */
   setIntermediateValue(newValue: T, newState?: T): void {
     const oldState = arguments.length > 1 ? this.state : void 0;
-    const stateChanged = arguments.length > 1 && !Equals(oldState, newState);
+    const stateChanged = arguments.length > 1 && !Equals(newState, oldState);
     if (stateChanged) {
       this.willSetState(newState!, oldState!);
       Object.defineProperty(this, "ownState", {
@@ -159,19 +171,37 @@ export abstract class Animator<T> implements AnimationTrack {
     return state as NonNullable<T> | E;
   }
 
-  setState(newState: T, timing: AnyTiming | boolean | null = null): void {
-    if (timing === true) {
-      timing = this.timing;
-    } else if (timing === false) {
-      timing = null;
-    } else if (timing !== null) {
-      timing = Timing.fromAny(timing);
+  setState(newState: T, precedenceOrTiming: ViewPrecedence | AnyTiming | boolean | undefined): void;
+  setState(newState: T, timing?: AnyTiming | boolean, precedence?: ViewPrecedence): void;
+  setState(newState: T, timing?: ViewPrecedence | AnyTiming | boolean, precedence?: ViewPrecedence): void {
+    if (typeof timing === "number") {
+      precedence = timing;
+      timing = void 0;
+    } else if (precedence === void 0) {
+      precedence = View.Extrinsic;
     }
+    if (precedence >= this.precedence) {
+      this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag | Animator.OverrideFlag);
+      this.setPrecedence(precedence);
+      this.setOwnLook(null, false);
+      this.setOwnState(newState, timing);
+    }
+  }
+
+  /** @hidden */
+  setOwnState(newState: T, timing?: AnyTiming | boolean): void {
     const oldState = this.state;
     if (!this.isDefined(oldState)) {
       this.setImmediateState(newState, oldState);
-    } else if (!Equals(oldState, newState)) {
-      if (timing === null) {
+    } else if (!Equals(newState, oldState)) {
+      if (timing === void 0 || timing === false) {
+        timing = false;
+      } else if (timing === true) {
+        timing = this.timing ?? false;
+      } else {
+        timing = Timing.fromAny(timing);
+      }
+      if (timing === false) {
         this.setImmediateState(newState, oldState);
       } else {
         this.setAnimatedState(newState, oldState, timing as Timing);
@@ -246,9 +276,99 @@ export abstract class Animator<T> implements AnimationTrack {
     // hook
   }
 
+  /** @hidden */
+  declare readonly ownLook: Look<T> | null;
+
+  get look(): Look<T> | null {
+    return this.ownLook;
+  }
+
+  setLook(newLook: Look<T> | null, precedenceOrTiming: ViewPrecedence | AnyTiming | boolean | undefined): void;
+  setLook(newLook: Look<T> | null, timing?: AnyTiming | boolean, precedence?: ViewPrecedence): void;
+  setLook(newLook: Look<T> | null, timing?: ViewPrecedence | AnyTiming | boolean, precedence?: ViewPrecedence): void {
+    if (typeof timing === "number") {
+      precedence = timing;
+      timing = void 0;
+    } else if (precedence === void 0) {
+      precedence = View.Extrinsic;
+    }
+    if (precedence >= this.precedence) {
+      this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag | Animator.OverrideFlag);
+      this.setPrecedence(precedence);
+      this.setOwnLook(newLook, timing);
+    }
+  }
+
+  /** @hidden */
+  setOwnLook(newLook: Look<T> | null, timing?: AnyTiming | boolean): void {
+    const oldLook = this.look;
+    if (newLook !== oldLook) {
+      if (timing === void 0) {
+        timing = false;
+      } else {
+        timing = Timing.fromAny(timing);
+      }
+      this.willSetLook(newLook, oldLook, timing as Timing | boolean);
+      Object.defineProperty(this, "ownLook", {
+        value: newLook,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetLook(newLook, oldLook, timing as Timing | boolean);
+      this.didSetLook(newLook, oldLook, timing as Timing | boolean);
+    }
+  }
+
+  willSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
+    // hook
+  }
+
+  onSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
+    // hook
+  }
+
+  didSetLook(newLook: Look<T> | null, oldLook: Look<T> | null, timing: Timing | boolean): void {
+    // hook
+  }
+
   declare readonly timing: Timing | null;
 
   declare readonly interpolator: Interpolator<T> | null;
+
+  isPrecedent(precedence: ViewPrecedence): boolean {
+    return precedence >= this.precedence;
+  }
+
+  declare readonly precedence: ViewPrecedence;
+
+  setPrecedence(newPrecedence: ViewPrecedence): void {
+    const oldPrecedence = this.precedence;
+    if (newPrecedence !== oldPrecedence) {
+      this.willSetPrecedence(newPrecedence, oldPrecedence);
+      Object.defineProperty(this, "precedence", {
+        value: newPrecedence,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetPrecedence(newPrecedence, oldPrecedence);
+      this.didSetPrecedence(newPrecedence, oldPrecedence);
+    }
+  }
+
+  /** @hidden */
+  willSetPrecedence(newPrecedence: ViewPrecedence, oldPrecedence: ViewPrecedence): void {
+    // hook
+  }
+
+  /** @hidden */
+  onSetPrecedence(newPrecedence: ViewPrecedence, oldPrecedence: ViewPrecedence): void {
+    // hook
+  }
+
+  /** @hidden */
+  didSetPrecedence(newPrecedence: ViewPrecedence, oldPrecedence: ViewPrecedence): void {
+    // hook
+  }
 
   /** @hidden */
   declare readonly animatorFlags: AnimatorFlags;
@@ -373,7 +493,7 @@ export abstract class Animator<T> implements AnimationTrack {
 
       if ((this.animatorFlags & Animator.DivergedFlag) !== 0) {
         this.setAnimatorFlags(this.animatorFlags & ~Animator.DivergedFlag);
-        if (!Equals(oldValue, this.state)) {
+        if (!Equals(this.state, oldValue)) {
           timing = timing.withDomain(t, t + timing.duration);
         } else {
           timing = timing.withDomain(t - timing.duration, t);

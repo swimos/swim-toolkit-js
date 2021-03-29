@@ -16,7 +16,7 @@ import {Equivalent} from "@swim/util";
 import {AnyLength, Length, AnyAngle, Angle, BoxR2, AnyPointR2, PointR2} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
-import {ViewContextType, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
+import {ViewContextType, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {
   GraphicsViewInit,
   GraphicsView,
@@ -174,10 +174,8 @@ export class DialView extends LayerView {
     willSetValue(newValue: number, oldValue: number): void {
       this.owner.willSetValue(newValue, oldValue);
     },
-    onSetValue(newValue: number, oldValue: number): void {
-      this.owner.onSetValue(newValue, oldValue);
-    },
     didSetValue(newValue: number, oldValue: number): void {
+      this.owner.onSetValue(newValue, oldValue);
       this.owner.didSetValue(newValue, oldValue);
     },
   })
@@ -221,10 +219,8 @@ export class DialView extends LayerView {
     willSetValue(newLimit: number, oldLimit: number): void {
       this.owner.willSetLimit(newLimit, oldLimit);
     },
-    onSetValue(newLimit: number, oldLimit: number): void {
-      this.owner.onSetLimit(newLimit, oldLimit);
-    },
     didSetValue(newLimit: number, oldLimit: number): void {
+      this.owner.onSetLimit(newLimit, oldLimit);
       this.owner.didSetLimit(newLimit, oldLimit);
     },
   })
@@ -518,9 +514,9 @@ export class DialView extends LayerView {
       const dy = labelPadding * Math.sin(padAngle);
 
       if (TypesetView.is(labelView)) {
-        labelView.textAlign.setAutoState(textAlign);
-        labelView.textBaseline.setAutoState("middle");
-        labelView.textOrigin.setAutoState(new PointR2(center.x + rx + dx, center.y + ry + dy));
+        labelView.textAlign.setState(textAlign, View.Intrinsic);
+        labelView.textBaseline.setState("middle", View.Intrinsic);
+        labelView.textOrigin.setState(new PointR2(center.x + rx + dx, center.y + ry + dy), View.Intrinsic);
       }
     }
 
@@ -578,11 +574,11 @@ export class DialView extends LayerView {
       if (TypesetView.is(legendView)) {
         const tickPadding = this.tickPadding.getValue().pxValue(size);
         if (FillView.is(legendView)) {
-          legendView.fill.setAutoState(tickColor);
+          legendView.fill.setState(tickColor, View.Intrinsic);
         }
-        legendView.textAlign.setAutoState(textAlign);
-        legendView.textBaseline.setAutoState("alphabetic");
-        legendView.textOrigin.setAutoState(new PointR2(cx + r2x + dx, cy + r2y - tickPadding));
+        legendView.textAlign.setState(textAlign, View.Intrinsic);
+        legendView.textBaseline.setState("alphabetic", View.Intrinsic);
+        legendView.textOrigin.setState(new PointR2(cx + r2x + dx, cy + r2y - tickPadding), View.Intrinsic);
       }
     }
   }

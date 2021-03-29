@@ -15,6 +15,8 @@
 export {
   ComponentPropertyMemberType,
   ComponentPropertyMemberInit,
+  ComponentPropertyMemberKey,
+  ComponentPropertyMemberMap,
   ComponentPropertyFlags,
   ComponentPropertyInit,
   ComponentPropertyDescriptor,

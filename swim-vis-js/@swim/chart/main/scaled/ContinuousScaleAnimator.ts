@@ -17,10 +17,6 @@ import {View, Animator, ViewAnimator} from "@swim/view";
 import {ScaledView} from "../"; // forward import
 
 export abstract class ContinuousScaleAnimator<V extends View, X, Y> extends ViewAnimator<V, ContinuousScale<X, Y> | null, string> {
-  initState(): ContinuousScale<X, Y> | null {
-    return null;
-  }
-
   setScale(domain: Domain<X> | string, range: Range<Y>, timing?: AnyTiming | boolean): void;
   setScale(xMin: X, xMax: X, yMin: Y, yMax: Y, timing?: AnyTiming | boolean): void;
   setScale(xMin?: Domain<X> | X | string, xMax?: Range<Y> | X,
@@ -53,8 +49,8 @@ export abstract class ContinuousScaleAnimator<V extends View, X, Y> extends View
     } else {
       newState = ScaledView.createScale(xMin as X, xMax as X, yMin as Y, yMax as Y);
     }
-    this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag | Animator.OverrideFlag);
-    super.setState(newState, timing);
+    this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag);
+    this.setOwnState(newState, timing);
   }
 
   setDomain(domain: Domain<X> | string, timing?: AnyTiming | boolean): void;
@@ -82,8 +78,8 @@ export abstract class ContinuousScaleAnimator<V extends View, X, Y> extends View
     } else {
       newState = ScaledView.createScale(xMin as X, xMax as X, 0 as unknown as Y, 1 as unknown as Y);
     }
-    this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag | Animator.OverrideFlag);
-    super.setState(newState, timing);
+    this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag);
+    this.setOwnState(newState, timing);
   }
 
   setRange(range: Range<Y>, timing?: AnyTiming | boolean): void;
@@ -103,8 +99,8 @@ export abstract class ContinuousScaleAnimator<V extends View, X, Y> extends View
         this.setValue(newValue);
         timing = true;
       }
-      this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag | Animator.OverrideFlag);
-      super.setState(newState, timing);
+      this.setAnimatorFlags(this.animatorFlags & ~Animator.InheritedFlag);
+      this.setOwnState(newState, timing);
     }
   }
 

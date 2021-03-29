@@ -191,9 +191,9 @@ export class MapPointView extends MapLayerView {
 
   protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
-    if (this.viewPoint.isAuto()) {
+    if (this.viewPoint.isPrecedent(View.Intrinsic)) {
       const viewPoint = viewContext.geoProjection.project(this.geoPoint.getValue());
-      //this.viewPoint.setAutoState(viewPoint);
+      //this.viewPoint.setState(viewPoint, View.Intrinsic);
       Object.defineProperty(this.viewPoint, "ownValue", {
         value: viewPoint,
         enumerable: true,
@@ -230,9 +230,9 @@ export class MapPointView extends MapLayerView {
     }
 
     if (TypesetView.is(label)) {
-      label.textAlign.setAutoState("center");
-      label.textBaseline.setAutoState("bottom");
-      label.textOrigin.setAutoState(new PointR2(x, y1));
+      label.textAlign.setState("center", View.Intrinsic);
+      label.textBaseline.setState("bottom", View.Intrinsic);
+      label.textOrigin.setState(new PointR2(x, y1), View.Intrinsic);
     }
   }
 
@@ -285,7 +285,7 @@ export class MapPointView extends MapLayerView {
     const init: MapPointViewInit = {};
     init.lng = this.geoPoint.value.lng;
     init.lat = this.geoPoint.value.lat;
-    if (!this.viewPoint.isAuto()) {
+    if (!this.viewPoint.isPrecedent(View.Intrinsic)) {
       init.x = this.viewPoint.value.x;
       init.y = this.viewPoint.value.y;
     }

@@ -156,10 +156,8 @@ export class DataPointView<X, Y> extends LayerView {
     willSetValue(newX: X | undefined, oldX: X | undefined): void {
       this.owner.willSetX(newX, oldX);
     },
-    onSetValue(newX: X | undefined, oldX: X | undefined): void {
-      this.owner.onSetX(newX, oldX);
-    },
     didSetValue(newX: X | undefined, oldX: X | undefined): void {
+      this.owner.onSetX(newX, oldX);
       this.owner.didSetX(newX, oldX);
     },
   })
@@ -201,10 +199,8 @@ export class DataPointView<X, Y> extends LayerView {
     willSetValue(newY: Y | undefined, oldY: Y | undefined): void {
       this.owner.willSetY(newY, oldY);
     },
-    onSetValue(newY: Y | undefined, oldY: Y | undefined): void {
-      this.owner.onSetY(newY, oldY);
-    },
     didSetValue(newY: Y | undefined, oldY: Y | undefined): void {
+      this.owner.onSetY(newY, oldY);
       this.owner.didSetY(newY, oldY);
     },
   })
@@ -246,10 +242,8 @@ export class DataPointView<X, Y> extends LayerView {
     willSetValue(newY2: Y | undefined, oldY2: Y | undefined): void {
       this.owner.willSetY2(newY2, oldY2);
     },
-    onSetValue(newY2: Y | undefined, oldY2: Y | undefined): void {
-      this.owner.onSetY2(newY2, oldY2);
-    },
     didSetValue(newY2: Y | undefined, oldY2: Y | undefined): void {
+      this.owner.onSetY2(newY2, oldY2);
       this.owner.didSetY2(newY2, oldY2);
     },
   })
@@ -293,10 +287,8 @@ export class DataPointView<X, Y> extends LayerView {
     willSetValue(newRadius: Length | null, oldRadius: Length | null): void {
       this.owner.willSetRadius(newRadius, oldRadius);
     },
-    onSetValue(newRadius: Length | null, oldRadius: Length | null): void {
-      this.owner.onSetRadius(newRadius, oldRadius);
-    },
     didSetValue(newRadius: Length | null, oldRadius: Length | null): void {
+      this.owner.onSetRadius(newRadius, oldRadius);
       this.owner.didSetRadius(newRadius, oldRadius);
     },
   })
@@ -508,15 +500,15 @@ export class DataPointView<X, Y> extends LayerView {
     }
 
     if (TypesetView.is(labelView)) {
-      labelView.textAlign.setAutoState("center");
+      labelView.textAlign.setState("center", View.Intrinsic);
       if (placement === "above") {
-        labelView.textBaseline.setAutoState("bottom");
+        labelView.textBaseline.setState("bottom", View.Intrinsic);
       } else if (placement === "below") {
-        labelView.textBaseline.setAutoState("top");
+        labelView.textBaseline.setState("top", View.Intrinsic);
       } else if (placement === "middle") {
-        labelView.textBaseline.setAutoState("middle");
+        labelView.textBaseline.setState("middle", View.Intrinsic);
       }
-      labelView.textOrigin.setAutoState(new PointR2(x, y1));
+      labelView.textOrigin.setState(new PointR2(x, y1), View.Intrinsic);
     }
   }
 

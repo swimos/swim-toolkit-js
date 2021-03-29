@@ -30,15 +30,15 @@ export class DeckBar extends HtmlView {
 
   protected initBar(): void {
     this.addClass("deck-bar");
-    this.position.setAutoState("relative");
-    this.height.setAutoState(this.barHeight.state);
-    this.userSelect.setAutoState("none");
-    this.edgeInsets.setAutoState({
+    this.position.setState("relative", View.Intrinsic);
+    this.height.setState(this.barHeight.state, View.Intrinsic);
+    this.userSelect.setState("none", View.Intrinsic);
+    this.edgeInsets.setState({
       insetTop: 0,
       insetRight: 0,
       insetBottom: 0,
       insetLeft: 0,
-    });
+    }, View.Intrinsic);
   }
 
   declare readonly viewController: HtmlViewController & DeckBarObserver | null;
@@ -66,8 +66,8 @@ export class DeckBar extends HtmlView {
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (this.backgroundColor.isAuto()) {
-      this.backgroundColor.setAutoState(theme.getOr(Look.backgroundColor, mood, null), timing);
+    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
+      this.backgroundColor.setState(theme.getOr(Look.backgroundColor, mood, null), timing, View.Intrinsic);
     }
   }
 
@@ -79,7 +79,7 @@ export class DeckBar extends HtmlView {
   }
 
   protected onInsertSlot(childView: DeckSlot): void {
-    childView.position.setAutoState("absolute");
+    childView.position.setState("absolute", View.Intrinsic);
   }
 
   protected onResize(viewContext: ViewContextType<this>): void {
@@ -88,7 +88,7 @@ export class DeckBar extends HtmlView {
   }
 
   protected resizeBar(viewContext: ViewContextType<this>): void {
-    const oldRail = this.rail.ownState;
+    const oldRail = !this.rail.isInherited() ? this.rail.ownState : null;
     if (oldRail !== void 0 && oldRail !== null) {
       const superRail = this.rail.superState;
       let width: Length | string | number | null = null;
@@ -107,7 +107,7 @@ export class DeckBar extends HtmlView {
         width = width instanceof Length ? width.pxValue() : this.node.offsetWidth;
       }
       let edgeInsets = this.edgeInsets.superState;
-      if ((edgeInsets === void 0 || edgeInsets === null) && this.edgeInsets.isAuto()) {
+      if ((edgeInsets === void 0 || edgeInsets === null) && this.edgeInsets.isPrecedent(View.Intrinsic)) {
         edgeInsets = viewContext.viewport.safeArea;
       }
       const insetTop = edgeInsets !== void 0 && edgeInsets !== null ? edgeInsets.insetTop : 0;
@@ -116,7 +116,7 @@ export class DeckBar extends HtmlView {
       const spacing = this.itemSpacing.getStateOr(Length.zero()).pxValue(width);
       const newRail = oldRail.resized(width, insetLeft, insetRight, spacing);
       this.rail.setState(newRail);
-      this.height.setAutoState(this.barHeight.state.plus(insetTop));
+      this.height.setState(this.barHeight.state.plus(insetTop), View.Intrinsic);
     }
   }
 
@@ -127,11 +127,11 @@ export class DeckBar extends HtmlView {
 
   protected layoutBar(viewContext: ViewContextType<this>): void {
     let edgeInsets = this.edgeInsets.superState;
-    if ((edgeInsets === void 0 || edgeInsets === null) && this.edgeInsets.isAuto()) {
+    if ((edgeInsets === void 0 || edgeInsets === null) && this.edgeInsets.isPrecedent(View.Intrinsic)) {
       edgeInsets = viewContext.viewport.safeArea;
     }
     const insetTop = edgeInsets !== void 0 && edgeInsets !== null ? edgeInsets.insetTop : 0;
-    this.height.setAutoState(this.barHeight.state.plus(insetTop));
+    this.height.setState(this.barHeight.state.plus(insetTop), View.Intrinsic);
   }
 
   protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
@@ -150,7 +150,7 @@ export class DeckBar extends HtmlView {
                                                 viewContext: ViewContextType<this>) => void): void {
     const rail = this.rail.state;
     let edgeInsets = this.edgeInsets.superState;
-    if ((edgeInsets === void 0 || edgeInsets === null) && this.edgeInsets.isAuto()) {
+    if ((edgeInsets === void 0 || edgeInsets === null) && this.edgeInsets.isPrecedent(View.Intrinsic)) {
       edgeInsets = viewContext.viewport.safeArea;
     }
     let height: Length | number | null = this.height.state;
@@ -167,23 +167,23 @@ export class DeckBar extends HtmlView {
           const post = rail!.getPost(postIndex)!;
           const nextPost = rail!.getPost(postIndex + 1);
           const prevPost = rail!.getPost(postIndex - 1);
-          childView.display.setAutoState("flex");
-          childView.left.setAutoState(post.left);
-          childView.top.setAutoState(slotTop);
-          childView.width.setAutoState(post.width);
-          childView.height.setAutoState(slotHeight);
-          childView.post.setAutoState(post);
-          childView.nextPost.setAutoState(nextPost);
-          childView.prevPost.setAutoState(prevPost);
+          childView.display.setState("flex", View.Intrinsic);
+          childView.left.setState(post.left, View.Intrinsic);
+          childView.top.setState(slotTop, View.Intrinsic);
+          childView.width.setState(post.width, View.Intrinsic);
+          childView.height.setState(slotHeight, View.Intrinsic);
+          childView.post.setState(post, View.Intrinsic);
+          childView.nextPost.setState(nextPost, View.Intrinsic);
+          childView.prevPost.setState(prevPost, View.Intrinsic);
         } else {
-          childView.display.setAutoState("none");
-          childView.left.setAutoState(null);
-          childView.top.setAutoState(null);
-          childView.width.setAutoState(null);
-          childView.height.setAutoState(null);
-          childView.post.setAutoState(null);
-          childView.nextPost.setAutoState(null);
-          childView.prevPost.setAutoState(null);
+          childView.display.setState("none", View.Intrinsic);
+          childView.left.setState(null, View.Intrinsic);
+          childView.top.setState(null, View.Intrinsic);
+          childView.width.setState(null, View.Intrinsic);
+          childView.height.setState(null, View.Intrinsic);
+          childView.post.setState(null, View.Intrinsic);
+          childView.nextPost.setState(null, View.Intrinsic);
+          childView.prevPost.setState(null, View.Intrinsic);
         }
       }
       displayChildView.call(this, childView, displayFlags, viewContext);

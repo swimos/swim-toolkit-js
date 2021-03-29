@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ViewFastener} from "@swim/view";
+import {View, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
 import type {ColViewObserver} from "./ColViewObserver";
 
@@ -24,8 +24,8 @@ export class ColView extends HtmlView {
 
   protected initCol(): void {
     this.addClass("table-col");
-    this.overflowX.setAutoState("hidden");
-    this.overflowY.setAutoState("hidden");
+    this.overflowX.setState("hidden", View.Intrinsic);
+    this.overflowY.setState("hidden", View.Intrinsic);
   }
 
   declare readonly viewController: HtmlViewController & ColViewObserver | null;
@@ -34,7 +34,7 @@ export class ColView extends HtmlView {
 
   protected createHeader(value?: string): HtmlView | null {
     const headerView = HtmlView.span.create();
-    headerView.alignSelf.setAutoState("center");
+    headerView.alignSelf.setState("center", View.Intrinsic);
     if (value !== void 0) {
       headerView.text(value);
     }

@@ -62,13 +62,13 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
 
   protected initButtonStack(): void {
     this.addClass("button-stack");
-    this.display.setAutoState("block");
-    this.position.setAutoState("relative");
-    this.width.setAutoState(56);
-    this.height.setAutoState(56);
-    this.opacity.setAutoState(1);
-    this.userSelect.setAutoState("none");
-    this.cursor.setAutoState("pointer");
+    this.display.setState("block", View.Intrinsic);
+    this.position.setState("relative", View.Intrinsic);
+    this.width.setState(56, View.Intrinsic);
+    this.height.setState(56, View.Intrinsic);
+    this.opacity.setState(1, View.Intrinsic);
+    this.userSelect.setState("none", View.Intrinsic);
+    this.cursor.setState("pointer", View.Intrinsic);
   }
 
   protected initButton(): void {
@@ -236,7 +236,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     let stackHeight = 0;
     let y: number;
     if (button !== null) {
-      button.zIndex.setAutoState(childCount);
+      button.zIndex.setState(childCount, View.Intrinsic);
       const buttonHeight = button !== null ? button.height.value : void 0;
       y = buttonHeight instanceof Length
         ? buttonHeight.pxValue()
@@ -260,9 +260,9 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
         const dy = itemHeight instanceof Length
                  ? itemHeight.pxValue()
                  : childView.node.offsetHeight;
-        childView.display.setAutoState(stackPhase === 0 ? "none" : "flex");
-        childView.bottom.setAutoState(stackPhase * y);
-        childView.zIndex.setAutoState(zIndex);
+        childView.display.setState(stackPhase === 0 ? "none" : "flex", View.Intrinsic);
+        childView.bottom.setState(stackPhase * y, View.Intrinsic);
+        childView.zIndex.setState(zIndex, View.Intrinsic);
         y += dy;
         stackHeight += dy;
         itemIndex += 1;
@@ -305,12 +305,12 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     });
     button.addViewObserver(gesture);
     if (button instanceof FloatingButton) {
-      button.stackPhase.setAutoState(1);
+      button.stackPhase.setState(1, View.Intrinsic);
       if (this.isExpanded()) {
         button.pushIcon(this.closeIcon);
       }
     }
-    button.zIndex.setAutoState(0);
+    button.zIndex.setState(0, View.Intrinsic);
   }
 
   protected onRemoveButton(button: HtmlView): void {
@@ -323,11 +323,11 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
   }
 
   protected onInsertItem(item: ButtonItem): void {
-    item.position.setAutoState("absolute");
-    item.right.setAutoState(8);
-    item.bottom.setAutoState(8);
-    item.left.setAutoState(8);
-    item.zIndex.setAutoState(0);
+    item.position.setState("absolute", View.Intrinsic);
+    item.right.setState(8, View.Intrinsic);
+    item.bottom.setState(8, View.Intrinsic);
+    item.left.setState(8, View.Intrinsic);
+    item.zIndex.setState(0, View.Intrinsic);
   }
 
   protected onRemoveItem(item: ButtonItem): void {
@@ -350,12 +350,12 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       }
       if (timing !== false) {
         if (this.stackPhase.value !== 1) {
-          this.stackPhase.setAutoState(1, timing);
+          this.stackPhase.setState(1, timing, View.Intrinsic);
         } else {
           setTimeout(this.didExpand.bind(this));
         }
       } else {
-        this.stackPhase.setAutoState(1);
+        this.stackPhase.setState(1, View.Intrinsic);
         this.didExpand();
       }
     }
@@ -418,12 +418,12 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       }
       if (timing !== false) {
         if (this.stackPhase.value !== 0) {
-          this.stackPhase.setAutoState(0, timing);
+          this.stackPhase.setState(0, timing, View.Intrinsic);
         } else {
           setTimeout(this.didCollapse.bind(this));
         }
       } else {
-        this.stackPhase.setAutoState(0);
+        this.stackPhase.setState(0, View.Intrinsic);
         this.didCollapse();
       }
     }
@@ -488,9 +488,9 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       }
       this.willShow();
       if (timing !== false) {
-        this.opacity.setAutoState(1, timing);
+        this.opacity.setState(1, timing, View.Intrinsic);
       } else {
-        this.opacity.setAutoState(1);
+        this.opacity.setState(1, View.Intrinsic);
         this.didShow();
       }
     }
@@ -537,9 +537,9 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
       }
       this.willHide();
       if (timing !== false) {
-        this.opacity.setAutoState(0, timing);
+        this.opacity.setState(0, timing, View.Intrinsic);
       } else {
-        this.opacity.setAutoState(0);
+        this.opacity.setState(0, View.Intrinsic);
         this.didHide();
       }
     }
@@ -584,7 +584,7 @@ export class ButtonStack extends HtmlView implements Modal, PositionGestureDeleg
     if (!input.defaultPrevented && this.stackState !== "expanded") {
       const stackHeight = this.stackHeight;
       const stackPhase = Math.min(Math.max(0, -(input.y - input.y0) / (0.5 * stackHeight)), 1);
-      this.stackPhase.setAutoState(stackPhase);
+      this.stackPhase.setState(stackPhase, View.Intrinsic);
       this.requireUpdate(View.NeedsLayout);
       if (stackPhase > 0.1) {
         input.clearHoldTimer();

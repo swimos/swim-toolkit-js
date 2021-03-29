@@ -40,9 +40,9 @@ export class DeckView extends HtmlView {
 
   protected initDeck(): void {
     this.addClass("deck");
-    this.position.setAutoState("relative");
-    this.overflowX.setAutoState("hidden");
-    this.overflowY.setAutoState("hidden");
+    this.position.setState("relative", View.Intrinsic);
+    this.overflowX.setState("hidden", View.Intrinsic);
+    this.overflowY.setState("hidden", View.Intrinsic);
   }
 
   declare readonly viewController: DeckViewController | null;
@@ -246,17 +246,17 @@ export abstract class DeckViewBar<V extends DeckView, S extends DeckBar> extends
   protected initBar(barView: S): void {
     let deckWidth = this.owner.width.state;
     deckWidth = deckWidth instanceof Length ? deckWidth : Length.px(this.owner.node.offsetWidth);
-    barView.position.setAutoState("absolute");
-    barView.left.setAutoState(0);
-    barView.top.setAutoState(0);
-    barView.width.setAutoState(deckWidth);
-    barView.zIndex.setAutoState(1);
+    barView.position.setState("absolute", View.Intrinsic);
+    barView.left.setState(0, View.Intrinsic);
+    barView.top.setState(0, View.Intrinsic);
+    barView.width.setState(deckWidth, View.Intrinsic);
+    barView.zIndex.setState(1, View.Intrinsic);
   }
 
   protected resizeBar(barView: S): void {
     let deckWidth = this.owner.width.state;
     deckWidth = deckWidth instanceof Length ? deckWidth : Length.px(this.owner.node.offsetWidth);
-    barView.width.setAutoState(deckWidth);
+    barView.width.setState(deckWidth, View.Intrinsic);
   }
 
   deckBarDidPressBackButton(event: Event | null, view: V): void {
@@ -305,7 +305,7 @@ export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> exten
 
   protected initCard(cardView: S): void {
     let edgeInsets = this.owner.edgeInsets.state;
-    if (edgeInsets === void 0 && this.owner.edgeInsets.isAuto()) {
+    if (edgeInsets === void 0 && this.owner.edgeInsets.isPrecedent(View.Intrinsic)) {
       edgeInsets = this.owner.viewport.safeArea;
     }
 
@@ -329,21 +329,21 @@ export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> exten
       }
     }
 
-    cardView.edgeInsets.setAutoState(edgeInsets);
-    cardView.position.setAutoState("absolute");
-    cardView.left.setAutoState(deckWidth);
-    cardView.top.setAutoState(0);
-    cardView.width.setAutoState(deckWidth);
-    cardView.height.setAutoState(deckHeight);
-    cardView.paddingTop.setAutoState(barHeight);
-    cardView.boxSizing.setAutoState("border-box");
-    cardView.zIndex.setAutoState(0);
-    cardView.visibility.setAutoState("hidden");
+    cardView.edgeInsets.setState(edgeInsets, View.Intrinsic);
+    cardView.position.setState("absolute", View.Intrinsic);
+    cardView.left.setState(deckWidth, View.Intrinsic);
+    cardView.top.setState(0, View.Intrinsic);
+    cardView.width.setState(deckWidth, View.Intrinsic);
+    cardView.height.setState(deckHeight, View.Intrinsic);
+    cardView.paddingTop.setState(barHeight, View.Intrinsic);
+    cardView.boxSizing.setState("border-box", View.Intrinsic);
+    cardView.zIndex.setState(0, View.Intrinsic);
+    cardView.visibility.setState("hidden", View.Intrinsic);
   }
 
   protected resizeCard(cardView: S, viewContext: ViewContext): void {
     let edgeInsets = this.owner.edgeInsets.state;
-    if (edgeInsets === void 0 && this.owner.edgeInsets.isAuto()) {
+    if (edgeInsets === void 0 && this.owner.edgeInsets.isPrecedent(View.Intrinsic)) {
       edgeInsets = viewContext.viewport.safeArea;
     }
 
@@ -367,10 +367,10 @@ export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> exten
       }
     }
 
-    cardView.edgeInsets.setAutoState(edgeInsets);
-    cardView.width.setAutoState(deckWidth);
-    cardView.height.setAutoState(deckHeight);
-    cardView.paddingTop.setAutoState(barHeight);
+    cardView.edgeInsets.setState(edgeInsets, View.Intrinsic);
+    cardView.width.setState(deckWidth, View.Intrinsic);
+    cardView.height.setState(deckHeight, View.Intrinsic);
+    cardView.paddingTop.setState(barHeight, View.Intrinsic);
   }
 
   protected layoutCard(cardView: S, viewContext: ViewContext): void {
@@ -386,20 +386,20 @@ export abstract class DeckViewCard<V extends DeckView, S extends DeckCard> exten
 
     const cardIndex = this.cardIndex;
     if (cardIndex < prevIndex || cardIndex === prevIndex && cardPhase === 1) { // under
-      cardView.left.setAutoState(-cardWidth.pxValue() * outAlign);
-      cardView.visibility.setAutoState("hidden");
+      cardView.left.setState(-cardWidth.pxValue() * outAlign, View.Intrinsic);
+      cardView.visibility.setState("hidden", View.Intrinsic);
       cardView.setCulled(true);
     } else if (cardIndex === prevIndex) { // out
-      cardView.left.setAutoState(-cardWidth.pxValue() * outAlign * cardPhase);
-      cardView.visibility.setAutoState(void 0);
+      cardView.left.setState(-cardWidth.pxValue() * outAlign * cardPhase, View.Intrinsic);
+      cardView.visibility.setState(void 0, View.Intrinsic);
       cardView.setCulled(false);
     } else if (cardIndex === nextIndex) { // in
-      cardView.left.setAutoState(cardWidth.pxValue() * inAlign * (1 - cardPhase));
-      cardView.visibility.setAutoState(void 0);
+      cardView.left.setState(cardWidth.pxValue() * inAlign * (1 - cardPhase), View.Intrinsic);
+      cardView.visibility.setState(void 0, View.Intrinsic);
       cardView.setCulled(false);
     } else { // over
-      cardView.left.setAutoState(cardWidth.pxValue() * inAlign);
-      cardView.visibility.setAutoState("hidden");
+      cardView.left.setState(cardWidth.pxValue() * inAlign, View.Intrinsic);
+      cardView.visibility.setState("hidden", View.Intrinsic);
       cardView.setCulled(true);
     }
   }

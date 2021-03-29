@@ -18,10 +18,10 @@ import {Component} from "../Component";
 import type {ComponentObserverType} from "../ComponentObserver";
 
 export type ComponentFastenerMemberType<C, K extends keyof C> =
-  C extends {[P in K]: ComponentFastener<any, infer S, any>} ? S : unknown;
+  C[K] extends ComponentFastener<any, infer S, any> ? S : never;
 
 export type ComponentFastenerMemberInit<C, K extends keyof C> =
-  C extends {[P in K]: ComponentFastener<any, infer T, infer U>} ? T | U : unknown;
+  C[K] extends ComponentFastener<any, infer T, infer U> ? T | U : never;
 
 export type ComponentFastenerFlags = number;
 

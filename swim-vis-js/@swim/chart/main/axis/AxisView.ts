@@ -464,9 +464,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
 
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
-    if (this.scale.isInherited() && this.scale.isAnimating()) {
-      this.scale.onAnimate(viewContext.updateTime);
-    }
+    this.scale.onAnimate(viewContext.updateTime);
     this.updateTicks();
   }
 

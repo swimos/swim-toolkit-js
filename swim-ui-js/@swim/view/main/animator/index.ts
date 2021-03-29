@@ -20,6 +20,8 @@ export {
 export {
   ViewAnimatorMemberType,
   ViewAnimatorMemberInit,
+  ViewAnimatorMemberKey,
+  ViewAnimatorMemberMap,
   ViewAnimatorInit,
   ViewAnimatorDescriptor,
   ViewAnimatorDescriptorExtends,

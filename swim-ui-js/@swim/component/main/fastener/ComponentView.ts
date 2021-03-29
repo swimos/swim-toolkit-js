@@ -19,10 +19,10 @@ import {NodeView} from "@swim/dom";
 import {Component} from "../Component";
 
 export type ComponentViewMemberType<C, K extends keyof C> =
-  C extends {[P in K]: ComponentView<any, infer V, any>} ? V : unknown;
+  C[K] extends ComponentView<any, infer V, any> ? V : never;
 
-export type ComponentViewMemberInit<V, K extends keyof V> =
-  V extends {[P in K]: ComponentView<any, infer V, infer U>} ? V | U : unknown;
+export type ComponentViewMemberInit<C, K extends keyof C> =
+  C[K] extends ComponentView<any, infer V, infer U> ? V | U : never;
 
 export type ComponentViewFlags = number;
 

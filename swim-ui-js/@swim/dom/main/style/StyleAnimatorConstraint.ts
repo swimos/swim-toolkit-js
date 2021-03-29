@@ -28,7 +28,7 @@ import {
   ConstraintSolver,
 } from "@swim/constraint";
 import {AnyLength, Length} from "@swim/math";
-import {Animator} from "@swim/view";
+import {ViewPrecedence, Animator} from "@swim/view";
 import {StyleContext} from "./StyleContext";
 import {StyleAnimatorInit, StyleAnimator} from "./StyleAnimator";
 import {NumberStyleAnimatorConstraint} from "../"; // forward import
@@ -189,7 +189,7 @@ function StyleAnimatorConstraintConstructor<V extends StyleContext, T, U>(this: 
     enumerable: true,
   });
   Object.defineProperty(_this, "strength", {
-    value: _this.strength ?? ConstraintStrength.Strong, // seed from prototype
+    value: ConstraintStrength.Strong,
     enumerable: true,
     configurable: true,
   });
@@ -446,13 +446,18 @@ StyleAnimatorConstraint.getClass = function (type: unknown): StyleAnimatorConstr
 StyleAnimatorConstraint.define = function <V extends StyleContext, T, U, I>(descriptor: StyleAnimatorConstraintDescriptor<V, T, U, I>): StyleAnimatorConstraintConstructor<V, T, U, I> {
   let _super: StyleAnimatorConstraintClass | null | undefined = descriptor.extends;
   const state = descriptor.state;
-  const initState = descriptor.initState;
+  const look = descriptor.look;
+  const strength = descriptor.strength !== void 0 ? ConstraintStrength.fromAny(descriptor.strength) : void 0;
   const constrain = descriptor.constrain;
-  const strength = descriptor.strength;
+  const precedence = descriptor.precedence;
+  const initState = descriptor.initState;
   delete descriptor.extends;
   delete descriptor.state;
-  delete descriptor.constrain;
+  delete descriptor.look;
   delete descriptor.strength;
+  delete descriptor.constrain;
+  delete descriptor.precedence;
+  delete descriptor.initState;
 
   if (_super === void 0) {
     _super = StyleAnimatorConstraint.getClass(descriptor.type);
@@ -465,16 +470,59 @@ StyleAnimatorConstraint.define = function <V extends StyleContext, T, U, I>(desc
   }
 
   const _constructor = function DecoratedStyleAnimatorConstraint(this: StyleAnimatorConstraint<V, T, U>, owner: V, animatorName: string): StyleAnimatorConstraint<V, T, U> {
-    let _this: StyleAnimatorConstraint<V, T, U> = function StyleAnimatorConstraintAccessor(state?: T | U, timing?: AnyTiming | boolean): T | V {
+    let _this: StyleAnimatorConstraint<V, T, U> = function StyleAnimatorConstraintAccessor(state?: T | U, timing?: ViewPrecedence | AnyTiming | boolean, precedence?: ViewPrecedence): T | V {
       if (arguments.length === 0) {
         return _this.value;
       } else {
-        _this.setState(state!, timing);
+        if (arguments.length === 2) {
+          _this.setState(state!, timing);
+        } else {
+          _this.setState(state!, timing as AnyTiming | boolean | undefined, precedence);
+        }
         return _this.owner;
       }
     } as StyleAnimatorConstraint<V, T, U>;
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, owner, animatorName) || _this;
+    let ownState: T | undefined;
+    if (initState !== void 0) {
+      ownState = _this.fromAny(initState());
+    } else if (state !== void 0) {
+      ownState = _this.fromAny(state);
+    }
+    if (ownState !== void 0) {
+      Object.defineProperty(_this, "ownValue", {
+        value: ownState,
+        enumerable: true,
+        configurable: true,
+      });
+      Object.defineProperty(_this, "ownState", {
+        value: ownState,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    if (look !== void 0) {
+      Object.defineProperty(_this, "ownLook", {
+        value: look,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    if (strength !== void 0) {
+      Object.defineProperty(_this, "strength", {
+        value: strength,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    if (precedence !== void 0) {
+      Object.defineProperty(_this, "precedence", {
+        value: precedence,
+        enumerable: true,
+        configurable: true,
+      });
+    }
     if (constrain === true) {
       _this.constrain();
     }
@@ -486,19 +534,6 @@ StyleAnimatorConstraint.define = function <V extends StyleContext, T, U, I>(desc
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
-
-  if (state !== void 0 && initState === void 0) {
-    _prototype.initState = function (): T | U {
-      return state;
-    };
-  }
-  if (strength !== void 0) {
-    Object.defineProperty(_prototype, "strength", {
-      value: ConstraintStrength.fromAny(strength),
-      enumerable: true,
-      configurable: true,
-    });
-  }
 
   return _constructor;
 };

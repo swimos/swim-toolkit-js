@@ -15,28 +15,35 @@
 import {__extends} from "tslib";
 import {Equals, FromAny} from "@swim/util";
 import {MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewFlags, View} from "../View";
+import {ViewFlags, ViewPrecedence, View} from "../View";
 import {StringViewProperty} from "../"; // forward import
 import {BooleanViewProperty} from "../"; // forward import
 import {NumberViewProperty} from "../"; // forward import
 
 export type ViewPropertyMemberType<V, K extends keyof V> =
-  V extends {[P in K]: ViewProperty<any, infer T, any>} ? T : unknown;
+  V[K] extends ViewProperty<any, infer T, any> ? T : never;
 
 export type ViewPropertyMemberInit<V, K extends keyof V> =
-  V extends {[P in K]: ViewProperty<any, infer T, infer U>} ? T | U : unknown;
+  V[K] extends ViewProperty<any, infer T, infer U> ? T | U : never;
+
+export type ViewPropertyMemberKey<V, K extends keyof V> =
+  V[K] extends ViewProperty<any, any> ? K : never;
+
+export type ViewPropertyMemberMap<V> = {
+  -readonly [K in keyof V as ViewPropertyMemberKey<V, K>]?: ViewPropertyMemberInit<V, K>;
+};
 
 export type ViewPropertyFlags = number;
 
 export interface ViewPropertyInit<T, U = never> {
   extends?: ViewPropertyClass;
   type?: unknown;
-  state?: T | U;
   inherit?: string | boolean;
 
+  state?: T | U;
+  precedence?: ViewPrecedence;
   updateFlags?: ViewFlags;
   willSetState?(newState: T, oldState: T): void;
-  onSetState?(newState: T, oldState: T): void;
   didSetState?(newState: T, oldState: T): void;
   fromAny?(value: T | U): T;
   initState?(): T | U;
@@ -59,7 +66,7 @@ export interface ViewPropertyClass extends Function {
 
 export interface ViewProperty<V extends View, T, U = never> {
   (): T;
-  (state: T | U): V;
+  (state: T | U, precedence?: ViewPrecedence): V;
 
   readonly name: string;
 
@@ -72,12 +79,6 @@ export interface ViewProperty<V extends View, T, U = never> {
   isInherited(): boolean;
 
   setInherited(inherited: boolean): void;
-
-  /** @hidden */
-  propertyFlags: ViewPropertyFlags;
-
-  /** @hidden */
-  setPropertyFlags(propertyFlags: ViewPropertyFlags): void;
 
   /** @hidden */
   readonly superName: string | undefined;
@@ -99,35 +100,49 @@ export interface ViewProperty<V extends View, T, U = never> {
   /** @hidden */
   removeSubProperty(subProperty: ViewProperty<View, T>): void;
 
-  isAuto(): boolean;
+  readonly superState: T | undefined;
 
-  setAuto(auto: boolean): void;
-
-  isUpdated(): boolean;
+  readonly ownState: T;
 
   readonly state: T;
-
-  readonly ownState: T | undefined;
-
-  readonly superState: T | undefined;
 
   getState(): NonNullable<T>;
 
   getStateOr<E>(elseState: E): NonNullable<T> | E;
 
-  setState(state: T | U): void;
+  setState(state: T | U, precedence?: ViewFlags): void;
 
-  willSetOwnState(newState: T, oldState: T): void;
-
-  onSetOwnState(newState: T, oldState: T): void;
-
-  didSetOwnState(newState: T, oldState: T): void;
-
-  setAutoState(state: T | U): void;
-
+  /** @hidden */
   setOwnState(state: T | U): void;
 
-  setBaseState(state: T | U): void;
+  willSetState(newState: T, oldState: T): void;
+
+  onSetState(newState: T, oldState: T): void;
+
+  didSetState(newState: T, oldState: T): void;
+
+  isPrecedent(precedence: ViewPrecedence): boolean;
+
+  readonly precedence: ViewPrecedence;
+
+  setPrecedence(precedence: ViewPrecedence): void;
+
+  /** @hidden */
+  willSetPrecedence(newPrecedence: ViewPrecedence, oldPrecedence: ViewPrecedence): void;
+
+  /** @hidden */
+  onSetPrecedence(newPrecedence: ViewPrecedence, oldPrecedence: ViewPrecedence): void;
+
+  /** @hidden */
+  didSetPrecedence(newPrecedence: ViewPrecedence, oldPrecedence: ViewPrecedence): void;
+
+  /** @hidden */
+  propertyFlags: ViewPropertyFlags;
+
+  /** @hidden */
+  setPropertyFlags(propertyFlags: ViewPropertyFlags): void;
+
+  isUpdated(): boolean;
 
   readonly updatedState: T | undefined;
 
@@ -136,31 +151,20 @@ export interface ViewProperty<V extends View, T, U = never> {
   takeState(): T;
 
   /** @hidden */
+  change(): void;
+
+  /** @hidden */
   onChange(): void;
 
   /** @hidden */
-  updateInherited(): void;
-
-  update(newState: T, oldState: T): void;
-
-  willSetState(newState: T, oldState: T): void;
-
-  onSetState(newState: T, oldState: T): void;
-
-  didSetState(newState: T, oldState: T): void;
+  onChangeInherited(): void;
 
   /** @hidden */
   updateSubProperties(newState: T, oldState: T): void;
 
-  /** @hidden */
-  change(): void;
-
   updateFlags?: ViewFlags;
 
   fromAny(value: T | U): T;
-
-  /** @hidden */
-  initState?(): T | U;
 
   isMounted(): boolean;
 
@@ -249,16 +253,7 @@ function ViewPropertyConstructor<V extends View, T, U>(this: ViewProperty<V, T, 
     enumerable: true,
   });
   Object.defineProperty(this, "inherit", {
-    value: this.inherit ?? false, // seed from prototype
-    enumerable: true,
-    configurable: true,
-  });
-  let state: T | undefined;
-  if (this.initState !== void 0) {
-    state = this.fromAny(this.initState());
-  }
-  Object.defineProperty(this, "propertyFlags", {
-    value: ViewProperty.UpdatedFlag,
+    value: false,
     enumerable: true,
     configurable: true,
   });
@@ -272,8 +267,18 @@ function ViewPropertyConstructor<V extends View, T, U>(this: ViewProperty<V, T, 
     enumerable: true,
     configurable: true,
   });
-  Object.defineProperty(this, "state", {
-    value: state,
+  Object.defineProperty(this, "precedence", {
+    value: View.Intrinsic,
+    enumerable: true,
+    configurable: true,
+  });
+  Object.defineProperty(this, "propertyFlags", {
+    value: ViewProperty.UpdatedFlag,
+    enumerable: true,
+    configurable: true,
+  });
+  Object.defineProperty(this, "ownState", {
+    value: void 0,
     enumerable: true,
     configurable: true,
   });
@@ -301,28 +306,19 @@ ViewProperty.prototype.isInherited = function (this: ViewProperty<View, unknown>
 };
 
 ViewProperty.prototype.setInherited = function (this: ViewProperty<View, unknown>, inherited: boolean): void {
-  if (inherited && (this.propertyFlags & (ViewProperty.InheritedFlag | ViewProperty.OverrideFlag)) === 0) {
+  if (inherited && (this.propertyFlags & ViewProperty.InheritedFlag) === 0) {
     const superProperty = this.superProperty;
-    if (superProperty !== null) {
-      this.setPropertyFlags(this.propertyFlags | (ViewProperty.UpdatedFlag | ViewProperty.InheritedFlag));
-      Object.defineProperty(this, "state", {
-        value: superProperty.state,
-        enumerable: true,
-        configurable: true,
-      });
+    if (superProperty !== null && superProperty.precedence >= this.precedence) {
+      this.setPropertyFlags(this.propertyFlags & ~ViewProperty.OverrideFlag | ViewProperty.InheritedFlag);
+      this.setOwnState(superProperty.state);
       this.change();
     }
   } else if (!inherited && (this.propertyFlags & ViewProperty.InheritedFlag) !== 0) {
-    this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag);
+    const superProperty = this.superProperty;
+    if (superProperty !== null && superProperty.precedence < this.precedence) {
+      this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag);
+    }
   }
-};
-
-ViewProperty.prototype.setPropertyFlags = function (this: ViewProperty<View, unknown>, propertyFlags: ViewPropertyFlags): void {
-  Object.defineProperty(this, "propertyFlags", {
-    value: propertyFlags,
-    enumerable: true,
-    configurable: true,
-  });
 };
 
 Object.defineProperty(ViewProperty.prototype, "superName", {
@@ -350,13 +346,9 @@ ViewProperty.prototype.bindSuperProperty = function (this: ViewProperty<View, un
             configurable: true,
           });
           superProperty.addSubProperty(this);
-          if ((this.propertyFlags & ViewProperty.OverrideFlag) === 0) {
-            this.setPropertyFlags(this.propertyFlags | (ViewProperty.UpdatedFlag | ViewProperty.InheritedFlag));
-            Object.defineProperty(this, "state", {
-              value: superProperty.state,
-              enumerable: true,
-              configurable: true,
-            });
+          if ((this.propertyFlags & ViewProperty.OverrideFlag) === 0 && superProperty.precedence >= this.precedence) {
+            this.setPropertyFlags(this.propertyFlags | ViewProperty.InheritedFlag);
+            this.setOwnState(superProperty.state);
             this.change();
           }
         } else {
@@ -404,34 +396,18 @@ ViewProperty.prototype.removeSubProperty = function <T>(this: ViewProperty<View,
   }
 };
 
-ViewProperty.prototype.isAuto = function (this: ViewProperty<View, unknown>): boolean {
-  return (this.propertyFlags & ViewProperty.OverrideFlag) === 0;
-};
-
-ViewProperty.prototype.setAuto = function (this: ViewProperty<View, unknown>, auto: boolean): void {
-  if (auto && (this.propertyFlags & ViewProperty.OverrideFlag) !== 0) {
-    this.setPropertyFlags(this.propertyFlags & ~ViewProperty.OverrideFlag);
-  } else if (!auto && (this.propertyFlags & ViewProperty.OverrideFlag) === 0) {
-    this.setPropertyFlags(this.propertyFlags | ViewProperty.OverrideFlag);
-  }
-};
-
-ViewProperty.prototype.isUpdated = function (this: ViewProperty<View, unknown>): boolean {
-  return (this.propertyFlags & ViewProperty.UpdatedFlag) !== 0;
-};
-
-Object.defineProperty(ViewProperty.prototype, "ownState", {
+Object.defineProperty(ViewProperty.prototype, "superState", {
   get: function <T>(this: ViewProperty<View, T>): T | undefined {
-    return !this.isInherited() ? this.state : void 0;
+    const superProperty = this.superProperty;
+    return superProperty !== null ? superProperty.state : void 0;
   },
   enumerable: true,
   configurable: true,
 });
 
-Object.defineProperty(ViewProperty.prototype, "superState", {
-  get: function <T>(this: ViewProperty<View, T>): T | undefined {
-    const superProperty = this.superProperty;
-    return superProperty !== null ? superProperty.state : void 0;
+Object.defineProperty(ViewProperty.prototype, "state", {
+  get: function <T>(this: ViewProperty<View, T>): T {
+    return this.ownState;
   },
   enumerable: true,
   configurable: true,
@@ -453,58 +429,94 @@ ViewProperty.prototype.getStateOr = function <T, U, E>(this: ViewProperty<View, 
   return state as NonNullable<T> | E;
 };
 
-ViewProperty.prototype.setState = function <T, U>(this: ViewProperty<View, T, U>, state: T | U): void {
-  this.setPropertyFlags(this.propertyFlags | ViewProperty.OverrideFlag);
-  this.setOwnState(state);
-};
-
-ViewProperty.prototype.willSetOwnState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
-  // hook
-};
-
-ViewProperty.prototype.onSetOwnState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
-  // hook
-};
-
-ViewProperty.prototype.didSetOwnState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
-  // hook
-};
-
-ViewProperty.prototype.setAutoState = function <T, U>(this: ViewProperty<View, T, U>, state: T | U): void {
-  if ((this.propertyFlags & ViewProperty.OverrideFlag) === 0) {
-    this.setOwnState(state);
+ViewProperty.prototype.setState = function <T, U>(this: ViewProperty<View, T, U>, newState: T | U, precedence?: ViewPrecedence): void {
+  if (precedence === void 0) {
+    precedence = View.Extrinsic;
+  }
+  if (precedence >= this.precedence) {
+    this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag | ViewProperty.OverrideFlag);
+    this.setPrecedence(precedence);
+    this.setOwnState(newState);
   }
 };
 
 ViewProperty.prototype.setOwnState = function <T, U>(this: ViewProperty<View, T, U>, newState: T | U): void {
-  const oldState = this.state;
   newState = this.fromAny(newState);
-  this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag);
-  if (!Equals(oldState, newState)) {
-    this.willSetOwnState(newState as T, oldState);
-    this.willSetState(newState as T, oldState);
-    Object.defineProperty(this, "state", {
-      value: newState as T,
+  const oldState = this.state;
+  if (!Equals(newState, oldState)) {
+    this.willSetState(newState, oldState);
+    Object.defineProperty(this, "ownState", {
+      value: newState,
       enumerable: true,
       configurable: true,
     });
     this.setPropertyFlags(this.propertyFlags | ViewProperty.UpdatedFlag);
-    this.onSetOwnState(newState as T, oldState);
-    this.onSetState(newState as T, oldState);
-    this.updateSubProperties(newState as T, oldState);
-    this.didSetState(newState as T, oldState);
-    this.didSetOwnState(newState as T, oldState);
+    this.onSetState(newState, oldState);
+    this.updateSubProperties(newState, oldState);
+    this.didSetState(newState, oldState);
   }
 };
 
-ViewProperty.prototype.setBaseState = function <T, U>(this: ViewProperty<View, T, U>, state: T | U): void {
-  let superProperty: ViewProperty<View, T> | null;
-  if (this.isInherited() && (superProperty = this.superProperty, superProperty !== null)) {
-    state = this.fromAny(state);
-    superProperty.setBaseState(state as T);
-  } else {
-    this.setState(state);
+ViewProperty.prototype.willSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
+  // hook
+};
+
+ViewProperty.prototype.onSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
+  const updateFlags = this.updateFlags;
+  if (updateFlags !== void 0) {
+    this.owner.requireUpdate(updateFlags);
   }
+};
+
+ViewProperty.prototype.didSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
+  // hook
+};
+
+ViewProperty.prototype.isPrecedent = function (this: ViewProperty<View, unknown>, precedence: ViewPrecedence): boolean {
+  return precedence >= this.precedence;
+};
+
+ViewProperty.prototype.setPrecedence = function (this: ViewProperty<View, unknown>, newPrecedence: ViewPrecedence): void {
+  const oldPrecedence = this.precedence;
+  if (newPrecedence !== oldPrecedence) {
+    this.willSetPrecedence(newPrecedence, oldPrecedence);
+    Object.defineProperty(this, "precedence", {
+      value: newPrecedence,
+      enumerable: true,
+      configurable: true,
+    });
+    this.onSetPrecedence(newPrecedence, oldPrecedence);
+    this.didSetPrecedence(newPrecedence, oldPrecedence);
+  }
+};
+
+ViewProperty.prototype.willSetPrecedence = function (this: ViewProperty<View, unknown>, newPrecedence: ViewPrecedence, oldPrecedence: ViewPrecedence): void {
+  // hook
+};
+
+ViewProperty.prototype.onSetPrecedence = function (this: ViewProperty<View, unknown>, newPrecedence: ViewPrecedence, oldPrecedence: ViewPrecedence): void {
+  if (newPrecedence > oldPrecedence && (this.propertyFlags & ViewProperty.InheritedFlag) !== 0) {
+    const superProperty = this.superProperty;
+    if (superProperty !== null && superProperty.precedence < this.precedence) {
+      this.setPropertyFlags(this.propertyFlags & ~ViewProperty.InheritedFlag);
+    }
+  }
+};
+
+ViewProperty.prototype.didSetPrecedence = function (this: ViewProperty<View, unknown>, newPrecedence: ViewPrecedence, oldPrecedence: ViewPrecedence): void {
+  // hook
+};
+
+ViewProperty.prototype.setPropertyFlags = function (this: ViewProperty<View, unknown>, propertyFlags: ViewPropertyFlags): void {
+  Object.defineProperty(this, "propertyFlags", {
+    value: propertyFlags,
+    enumerable: true,
+    configurable: true,
+  });
+};
+
+ViewProperty.prototype.isUpdated = function (this: ViewProperty<View, unknown>): boolean {
+  return (this.propertyFlags & ViewProperty.UpdatedFlag) !== 0;
 };
 
 Object.defineProperty(ViewProperty.prototype, "updatedState", {
@@ -534,47 +546,21 @@ ViewProperty.prototype.takeState = function <T>(this: ViewProperty<View, T>): T 
   return this.state;
 }
 
+ViewProperty.prototype.change = function (this: ViewProperty<View, unknown>): void {
+  this.owner.requireUpdate(View.NeedsChange);
+};
+
 ViewProperty.prototype.onChange = function (this: ViewProperty<View, unknown>): void {
   if (this.isInherited()) {
-    this.updateInherited();
+    this.onChangeInherited();
   }
 };
 
-ViewProperty.prototype.updateInherited = function (this: ViewProperty<View, unknown>): void {
+ViewProperty.prototype.onChangeInherited = function (this: ViewProperty<View, unknown>): void {
   const superProperty = this.superProperty;
-  if (superProperty !== null) {
-    this.update(superProperty.state, this.state);
+  if (superProperty !== null && superProperty.precedence >= this.precedence) {
+    this.setOwnState(superProperty.state);
   }
-};
-
-ViewProperty.prototype.update = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
-  if (!Equals(oldState, newState)) {
-    this.willSetState(newState, oldState);
-    Object.defineProperty(this, "state", {
-      value: newState,
-      enumerable: true,
-      configurable: true,
-    });
-    this.setPropertyFlags(this.propertyFlags | ViewProperty.UpdatedFlag);
-    this.onSetState(newState, oldState);
-    this.updateSubProperties(newState, oldState);
-    this.didSetState(newState, oldState);
-  }
-};
-
-ViewProperty.prototype.willSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
-  // hook
-};
-
-ViewProperty.prototype.onSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
-  const updateFlags = this.updateFlags;
-  if (updateFlags !== void 0) {
-    this.owner.requireUpdate(updateFlags);
-  }
-};
-
-ViewProperty.prototype.didSetState = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
-  // hook
 };
 
 ViewProperty.prototype.updateSubProperties = function <T>(this: ViewProperty<View, T>, newState: T, oldState: T): void {
@@ -585,10 +571,6 @@ ViewProperty.prototype.updateSubProperties = function <T>(this: ViewProperty<Vie
       subProperty.change();
     }
   }
-};
-
-ViewProperty.prototype.change = function (this: ViewProperty<View, unknown>): void {
-  this.owner.requireUpdate(View.NeedsChange);
 };
 
 ViewProperty.prototype.fromAny = function <T, U>(this: ViewProperty<View, T, U>, value: T | U): T {
@@ -658,11 +640,15 @@ ViewProperty.getClass = function (type: unknown): ViewPropertyClass | null {
 
 ViewProperty.define = function <V extends View, T, U, I>(descriptor: ViewPropertyDescriptor<V, T, U, I>): ViewPropertyConstructor<V, T, U, I> {
   let _super: ViewPropertyClass | null | undefined = descriptor.extends;
-  const state = descriptor.state;
   const inherit = descriptor.inherit;
+  const state = descriptor.state;
+  const precedence = descriptor.precedence;
   const initState = descriptor.initState;
   delete descriptor.extends;
+  delete descriptor.inherit;
   delete descriptor.state;
+  delete descriptor.precedence;
+  delete descriptor.initState;
 
   if (_super === void 0) {
     _super = ViewProperty.getClass(descriptor.type);
@@ -675,16 +661,43 @@ ViewProperty.define = function <V extends View, T, U, I>(descriptor: ViewPropert
   }
 
   const _constructor = function DecoratedViewProperty(this: ViewProperty<V, T, U>, owner: V, propertyName: string | undefined): ViewProperty<V, T, U> {
-    let _this: ViewProperty<V, T, U> = function ViewPropertyAccessor(state?: T | U): T | V {
+    let _this: ViewProperty<V, T, U> = function ViewPropertyAccessor(state?: T | U, precedence?: ViewPrecedence): T | V {
       if (arguments.length === 0) {
         return _this.state;
       } else {
-        _this.setState(state!);
+        _this.setState(state!, precedence);
         return _this.owner;
       }
     } as ViewProperty<V, T, U>;
     Object.setPrototypeOf(_this, this);
     _this = _super!.call(_this, owner, propertyName) || _this;
+    let ownState: T | undefined;
+    if (initState !== void 0) {
+      ownState = _this.fromAny(initState());
+    } else if (state !== void 0) {
+      ownState = _this.fromAny(state);
+    }
+    if (ownState !== void 0) {
+      Object.defineProperty(_this, "ownState", {
+        value: ownState,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    if (precedence !== void 0) {
+      Object.defineProperty(_this, "precedence", {
+        value: precedence,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    if (inherit !== void 0) {
+      Object.defineProperty(_this, "inherit", {
+        value: inherit,
+        enumerable: true,
+        configurable: true,
+      });
+    }
     return _this;
   } as unknown as ViewPropertyConstructor<V, T, U, I>;
 
@@ -693,17 +706,6 @@ ViewProperty.define = function <V extends View, T, U, I>(descriptor: ViewPropert
   _constructor.prototype = _prototype;
   _constructor.prototype.constructor = _constructor;
   Object.setPrototypeOf(_constructor.prototype, _super.prototype);
-
-  if (state !== void 0 && initState === void 0) {
-    _prototype.initState = function (): T | U {
-      return state;
-    };
-  }
-  Object.defineProperty(_prototype, "inherit", {
-    value: inherit ?? false,
-    enumerable: true,
-    configurable: true,
-  });
 
   return _constructor;
 };

@@ -35,10 +35,10 @@ export class TreeStem extends HtmlView {
 
   protected initStem(): void {
     this.addClass("tree-stem");
-    this.position.setAutoState("relative");
-    this.height.setAutoState(60);
-    this.overflowX.setAutoState("hidden");
-    this.overflowY.setAutoState("hidden");
+    this.position.setState("relative", View.Intrinsic);
+    this.height.setState(60, View.Intrinsic);
+    this.overflowX.setState("hidden", View.Intrinsic);
+    this.overflowY.setState("hidden", View.Intrinsic);
   }
 
   declare readonly viewController: TreeStemController | null;
@@ -85,9 +85,9 @@ export class TreeStem extends HtmlView {
   }
 
   protected onInsertVein(vein: TreeVein): void {
-    vein.position.setAutoState("absolute");
-    vein.top.setAutoState(0);
-    vein.bottom.setAutoState(0);
+    vein.position.setState("absolute", View.Intrinsic);
+    vein.top.setState(0, View.Intrinsic);
+    vein.bottom.setState(0, View.Intrinsic);
   }
 
   protected onRemoveVein(vein: TreeVein): void {
@@ -116,15 +116,15 @@ export class TreeStem extends HtmlView {
         const key = childView.key;
         const root = seed !== null && key !== void 0 ? seed.getRoot(key) : null;
         if (root !== null) {
-          childView.display.setAutoState(!root.hidden ? "flex" : "none");
-          childView.left.setAutoState(root.left);
-          childView.width.setAutoState(root.width);
-          childView.height.setAutoState(height);
+          childView.display.setState(!root.hidden ? "flex" : "none", View.Intrinsic);
+          childView.left.setState(root.left, View.Intrinsic);
+          childView.width.setState(root.width, View.Intrinsic);
+          childView.height.setState(height, View.Intrinsic);
         } else {
-          childView.display.setAutoState("none");
-          childView.left.setAutoState(null);
-          childView.width.setAutoState(null);
-          childView.height.setAutoState(null);
+          childView.display.setState("none", View.Intrinsic);
+          childView.left.setState(null, View.Intrinsic);
+          childView.width.setState(null, View.Intrinsic);
+          childView.height.setState(null, View.Intrinsic);
         }
       }
       displayChildView.call(this, childView, displayFlags, viewContext);

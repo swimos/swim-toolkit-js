@@ -95,14 +95,14 @@ export class TableView extends HtmlView {
   }
 
   protected initRow(rowView: RowView, rowFastener: ViewFastener<this, RowView>): void {
-    rowView.display.setAutoState("none");
-    rowView.position.setAutoState("absolute");
-    rowView.left.setAutoState(0);
-    rowView.top.setAutoState(null);
+    rowView.display.setState("none", View.Intrinsic);
+    rowView.position.setState("absolute", View.Intrinsic);
+    rowView.left.setState(0, View.Intrinsic);
+    rowView.top.setState(null, View.Intrinsic);
     const layout = this.layout.state;
-    rowView.width.setAutoState(layout !== null ? layout.width : null);
-    rowView.height.setAutoState(this.rowHeight.getState());
-    rowView.opacity.setAutoState(0);
+    rowView.width.setState(layout !== null ? layout.width : null, View.Intrinsic);
+    rowView.height.setState(this.rowHeight.getState(), View.Intrinsic);
+    rowView.opacity.setState(0, View.Intrinsic);
     rowView.setCulled(true);
   }
 
@@ -318,7 +318,7 @@ export class TableView extends HtmlView {
           const yMin1 = top.pxValue();
           const yMax1 = yMin1 + height.pxValue();
           isVisible = yMin0 <= yMax1 && yMin1 <= yMax0;
-          childView.display.setAutoState(isVisible ? "flex" : "none");
+          childView.display.setState(isVisible ? "flex" : "none", View.Intrinsic);
           childView.setCulled(!isVisible);
         } else {
           isVisible = true;
@@ -390,10 +390,10 @@ export class TableView extends HtmlView {
     function layoutChildView(this: self, childView: View, displayFlags: ViewFlags,
                              viewContext: ViewContextType<self>): void {
       if (childView instanceof RowView) {
-        childView.top.setAutoState(y, timing);
-        childView.width.setAutoState(width);
-        childView.height.setAutoState(rowHeight, timing);
-        childView.opacity.setAutoState(1, timing);
+        childView.top.setState(y, timing, View.Intrinsic);
+        childView.width.setState(width, View.Intrinsic);
+        childView.height.setState(rowHeight, timing, View.Intrinsic);
+        childView.opacity.setState(1, timing, View.Intrinsic);
       }
       let isVisible: boolean;
       if (childView instanceof HtmlView) {
@@ -408,7 +408,7 @@ export class TableView extends HtmlView {
         } else {
           isVisible = true;
         }
-        childView.display.setAutoState(isVisible ? "flex" : "none");
+        childView.display.setState(isVisible ? "flex" : "none", View.Intrinsic);
         childView.setCulled(!isVisible);
       } else {
         isVisible = true;
@@ -425,7 +425,7 @@ export class TableView extends HtmlView {
     }
     super.displayChildViews(displayFlags, viewContext, layoutChildView);
 
-    this.height.setAutoState(y);
+    this.height.setState(y, View.Intrinsic);
   }
 
   /** @hidden */

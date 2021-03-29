@@ -18,6 +18,7 @@ export {
 } from "./ModelContext";
 export {
   ModelFlags,
+  ModelPrecedence,
   ModelInit,
   ModelPrototype,
   ModelConstructor,

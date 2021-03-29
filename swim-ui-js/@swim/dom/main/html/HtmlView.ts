@@ -16,7 +16,7 @@ import {__extends} from "tslib";
 import type {AnyTiming, Timing} from "@swim/mapping";
 import {Transform} from "@swim/math";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
-import type {ViewFlags, ViewFactory, ViewConstructor, View} from "@swim/view";
+import {ViewFlags, ViewFactory, ViewConstructor, View} from "@swim/view";
 import {StyleMapInit, StyleMap} from "../style/StyleMap";
 import {ViewNodeType, NodeViewConstructor, NodeView} from "../node/NodeView";
 import {AttributeAnimatorMemberInit, AttributeAnimator} from "../attribute/AttributeAnimator";
@@ -303,32 +303,31 @@ export class HtmlView extends ElementView {
   }
 
   /** @hidden */
-  applyRootTheme(theme: ThemeMatrix, mood: MoodVector,
-                 timing: Timing | boolean): void {
+  applyRootTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     const font = theme.getOr(Look.font, Mood.ambient, null);
     if (font !== null) {
       if (font.style !== void 0) {
-        this.fontStyle.setAutoState(font.style);
+        this.fontStyle.setState(font.style, void 0, 0);
       }
       if (font.variant !== void 0) {
-        this.fontVariant.setAutoState(font.variant);
+        this.fontVariant.setState(font.variant, void 0, 0);
       }
       if (font.weight !== void 0) {
-        this.fontWeight.setAutoState(font.weight);
+        this.fontWeight.setState(font.weight, void 0, 0);
       }
       if (font.stretch !== void 0) {
-        this.fontStretch.setAutoState(font.stretch);
+        this.fontStretch.setState(font.stretch, void 0, 0);
       }
       if (font.size !== null) {
-        this.fontSize.setAutoState(font.size);
+        this.fontSize.setState(font.size, void 0, 0);
       }
       if (font.height !== null) {
-        this.lineHeight.setAutoState(font.height);
+        this.lineHeight.setState(font.height, void 0, 0);
       }
-      this.fontFamily.setAutoState(font.family);
+      this.fontFamily.setState(font.family, void 0, 0);
     }
-    this.backgroundColor.setAutoState(theme.getOr(Look.backgroundColor, Mood.ambient, null), timing);
-    this.color.setAutoState(theme.getOr(Look.color, Mood.ambient, null), timing);
+    this.backgroundColor.setState(theme.getOr(Look.backgroundColor, Mood.ambient, null), timing, View.Intrinsic);
+    this.color.setState(theme.getOr(Look.color, Mood.ambient, null), timing, View.Intrinsic);
   }
 
   isPositioned(): boolean {

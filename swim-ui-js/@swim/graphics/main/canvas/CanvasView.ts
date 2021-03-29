@@ -147,7 +147,7 @@ export class CanvasView extends HtmlView {
   }
 
   protected initCanvas(): void {
-    this.position.setAutoState("absolute");
+    this.position.setState("absolute", View.Intrinsic);
   }
 
   declare readonly node: HTMLCanvasElement;

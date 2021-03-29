@@ -15,6 +15,7 @@
 import type {Timing} from "@swim/mapping";
 import type {Trait} from "@swim/model";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
+import {View} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import {Component, ComponentViewTrait, ComponentFastener, CompositeComponent} from "@swim/component";
 import type {TableLayout} from "../layout/TableLayout";
@@ -48,7 +49,7 @@ export class TableComponent extends CompositeComponent {
   declare readonly componentObservers: ReadonlyArray<TableComponentObserver>;
 
   protected layoutTable(tableLayout: TableLayout, tableView: TableView): void {
-    tableView.layout.setAutoState(tableLayout);
+    tableView.layout.setState(tableLayout, View.Intrinsic);
   }
 
   protected initTableTrait(tableTrait: TableTrait): void {

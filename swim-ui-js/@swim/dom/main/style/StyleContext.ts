@@ -18,6 +18,11 @@ import type {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {AnimationTimeline} from "@swim/view";
 import type {StyleAnimatorConstructor, StyleAnimator} from "./StyleAnimator";
 
+export interface StyleContextPrototype {
+  /** @hidden */
+  styleAnimatorConstructors?: {[animatorName: string]: StyleAnimatorConstructor<StyleContext, unknown> | undefined};
+}
+
 export interface StyleContext extends AnimationTimeline, ConstraintScope {
   readonly node: Node | null;
 
@@ -45,12 +50,32 @@ export interface StyleContext extends AnimationTimeline, ConstraintScope {
 
 /** @hidden */
 export const StyleContext = {} as {
+  getStyleAnimatorConstructor(animatorName: string, styleContextPrototype: StyleContextPrototype): StyleAnimatorConstructor<any, unknown> | null;
+
   decorateStyleAnimator(constructor: StyleAnimatorConstructor<StyleContext, unknown>,
                         target: Object, propertyKey: string | symbol): void;
 };
 
+StyleContext.getStyleAnimatorConstructor = function (animatorName: string, styleContextPrototype: StyleContextPrototype | null): StyleAnimatorConstructor<any, unknown> | null {
+  while (styleContextPrototype !== null) {
+    if (Object.prototype.hasOwnProperty.call(styleContextPrototype, "styleAnimatorConstructors")) {
+      const constructor = styleContextPrototype.styleAnimatorConstructors![animatorName];
+      if (constructor !== void 0) {
+        return constructor;
+      }
+    }
+    styleContextPrototype = Object.getPrototypeOf(styleContextPrototype);
+  }
+  return null;
+};
+
 StyleContext.decorateStyleAnimator = function (constructor: StyleAnimatorConstructor<StyleContext, unknown>,
                                                target: Object, propertyKey: string | symbol): void {
+  const styleContextPrototype = target as StyleContextPrototype;
+  if (!Object.prototype.hasOwnProperty.call(styleContextPrototype, "styleAnimatorConstructors")) {
+    styleContextPrototype.styleAnimatorConstructors = {};
+  }
+  styleContextPrototype.styleAnimatorConstructors![propertyKey.toString()] = constructor;
   Object.defineProperty(target, propertyKey, {
     get: function (this: StyleContext): StyleAnimator<StyleContext, unknown> {
       let styleAnimator = this.getStyleAnimator(propertyKey.toString());

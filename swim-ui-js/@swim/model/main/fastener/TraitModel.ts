@@ -19,10 +19,10 @@ import {Trait} from "../Trait";
 import type {ModelObserverType} from "../ModelObserver";
 
 export type TraitModelMemberType<R, K extends keyof R> =
-  R extends {[P in K]: TraitModel<any, infer S, any>} ? S : unknown;
+  R[K] extends TraitModel<any, infer S, any> ? S : never;
 
 export type TraitModelMemberInit<R, K extends keyof R> =
-  R extends {[P in K]: TraitModel<any, infer T, infer U>} ? T | U : unknown;
+  R[K] extends TraitModel<any, infer S, infer U> ? S | U : never;
 
 export type TraitModelFlags = number;
 

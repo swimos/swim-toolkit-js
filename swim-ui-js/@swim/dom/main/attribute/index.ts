@@ -15,6 +15,8 @@
 export {
   AttributeAnimatorMemberType,
   AttributeAnimatorMemberInit,
+  AttributeAnimatorMemberKey,
+  AttributeAnimatorMemberMap,
   AttributeAnimatorInit,
   AttributeAnimatorDescriptor,
   AttributeAnimatorDescriptorExtends,

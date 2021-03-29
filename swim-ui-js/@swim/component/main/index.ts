@@ -18,6 +18,7 @@ export {
 } from "./ComponentContext";
 export {
   ComponentFlags,
+  ComponentPrecedence,
   ComponentInit,
   ComponentPrototype,
   ComponentConstructor,

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {PositionGestureInput} from "@swim/view";
+import {View, PositionGestureInput} from "@swim/view";
 import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
 import type {TreeCellObserver} from "./TreeCellObserver";
 import type {TreeCellController} from "./TreeCellController";
@@ -37,10 +37,10 @@ export class TreeCell extends HtmlView {
 
   protected initCell(): void {
     this.addClass("tree-cell");
-    this.display.setAutoState("none");
-    this.alignItems.setAutoState("center");
-    this.overflowX.setAutoState("hidden");
-    this.overflowY.setAutoState("hidden");
+    this.display.setState("none", View.Intrinsic);
+    this.alignItems.setState("center", View.Intrinsic);
+    this.overflowX.setState("hidden", View.Intrinsic);
+    this.overflowY.setState("hidden", View.Intrinsic);
   }
 
   declare readonly viewController: TreeCellController | null;

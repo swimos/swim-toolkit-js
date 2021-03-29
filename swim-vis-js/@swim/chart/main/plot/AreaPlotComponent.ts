@@ -15,6 +15,7 @@
 import {AnyTiming, Timing} from "@swim/mapping";
 import type {Color} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
+import {View} from "@swim/view";
 import {ComponentViewTrait, ComponentFastener} from "@swim/component";
 import type {DataPointComponent} from "../data/DataPointComponent";
 import {DataSetTrait} from "../data/DataSetTrait";
@@ -188,9 +189,9 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
         timing = Timing.fromAny(timing);
       }
       if (fill instanceof Look) {
-        plotView.fill.setLook(fill, timing);
+        plotView.fill.setLook(fill, timing, View.Intrinsic);
       } else {
-        plotView.fill.setAutoState(fill, timing);
+        plotView.fill.setState(fill, timing, View.Intrinsic);
       }
     }
   }
