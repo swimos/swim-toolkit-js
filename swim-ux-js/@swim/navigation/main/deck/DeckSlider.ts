@@ -93,9 +93,9 @@ export class DeckSlider extends DeckSlot {
       timing = Timing.fromAny(timing);
     }
 
-    if (!this.deckPhase.isInherited()) {
-      this.deckPhase.setState(newItemCount, timing);
-    }
+    //if (this.deckPhase.superAnimator === null) {
+    //  this.deckPhase.setState(newItemCount, timing);
+    //}
     if (timing === false) {
       this.didPushItem(newItemView, oldItemView);
     }
@@ -145,9 +145,9 @@ export class DeckSlider extends DeckSlot {
         timing = Timing.fromAny(timing);
       }
 
-      if (!this.deckPhase.isInherited()) {
-        this.deckPhase.setState(newItemCount, timing);
-      }
+      //if (this.deckPhase.superAnimator === null) {
+      //  this.deckPhase.setState(newItemCount, timing);
+      //}
       if (timing === false) {
         this.didPopItem(newItemView, oldItemView);
       }

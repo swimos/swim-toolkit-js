@@ -103,9 +103,9 @@ export class DeckButton extends DeckSlot {
       timing = Timing.fromAny(timing);
     }
 
-    if (!this.deckPhase.isInherited()) {
-      this.deckPhase.setState(newLabelCount, timing);
-    }
+    //if (this.deckPhase.superAnimator === null) {
+    //  this.deckPhase.setState(newLabelCount, timing);
+    //}
     if (timing === false) {
       this.didPushLabel(newLabelView, oldLabelView);
     }
@@ -155,9 +155,9 @@ export class DeckButton extends DeckSlot {
         timing = Timing.fromAny(timing);
       }
 
-      if (!this.deckPhase.isInherited()) {
-        this.deckPhase.setState(newLabelCount, timing);
-      }
+      //if (this.deckPhase.superAnimator === null) {
+      //  this.deckPhase.setState(newLabelCount, timing);
+      //}
       if (timing === false) {
         this.didPopLabel(newLabelView, oldLabelView);
       }

@@ -69,11 +69,6 @@ export class SvgIconView extends SvgView implements IconView {
     }
   }
 
-  protected onResize(viewContext: ViewContextType<this>): void {
-    super.onResize(viewContext);
-    this.requireUpdate(View.NeedsLayout);
-  }
-
   protected onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const iconColor = this.iconColor.takeUpdatedValue();
@@ -84,13 +79,6 @@ export class SvgIconView extends SvgView implements IconView {
         this.graphics.setOwnState(newGraphics);
       }
     }
-  }
-
-  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this.viewFlags & View.NeedsLayout) === 0) {
-      displayFlags &= ~View.NeedsLayout;
-    }
-    return displayFlags;
   }
 
   protected onLayout(viewContext: ViewContextType<this>): void {

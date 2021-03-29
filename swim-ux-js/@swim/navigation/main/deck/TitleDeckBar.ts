@@ -124,9 +124,9 @@ export class TitleDeckBar extends DeckBar {
       } else {
         backButton.labelCount = titleSlider.itemCount;
       }
-      if (!this.deckPhase.isInherited()) {
-        this.deckPhase.setState(titleSlider.itemCount, timing);
-      }
+      //if (!this.deckPhase.isInherited()) {
+      //  this.deckPhase.setState(titleSlider.itemCount, timing);
+      //}
     }
   }
 
@@ -136,9 +136,9 @@ export class TitleDeckBar extends DeckBar {
     if (titleSlider !== null && backButton !== null) {
       titleSlider.popItem(timing);
       backButton.popLabel(timing);
-      if (!this.deckPhase.isInherited()) {
-        this.deckPhase.setState(titleSlider.itemCount, timing);
-      }
+      //if (!this.deckPhase.isInherited()) {
+      //  this.deckPhase.setState(titleSlider.itemCount, timing);
+      //}
     }
   }
 
