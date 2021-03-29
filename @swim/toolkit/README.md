@@ -86,10 +86,14 @@ toolbars, controls, and other interactive application views and controllers.
   ([npm](https://www.npmjs.com/package/@swim/ux),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_ux.html)) –
   user interface toolkit for advanced real-time applications.
-- [**@swim/controls**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/controls)
-  ([npm](https://www.npmjs.com/package/@swim/controls),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_controls.html)) –
-  buttons, switches, and other user input controls.
+- [**@swim/button**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/button)
+  ([npm](https://www.npmjs.com/package/@swim/button),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_button.html)) –
+  button-like user interface controls.
+- [**@swim/token**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/token)
+  ([npm](https://www.npmjs.com/package/@swim/token),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_token.html)) –
+  attribute, action, and user input token views.
 - [**@swim/displays**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/displays)
   ([npm](https://www.npmjs.com/package/@swim/displays),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_displays.html)) –

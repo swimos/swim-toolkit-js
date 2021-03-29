@@ -16,7 +16,7 @@
       "@swim/view": ["../swim-ui-js/@swim/view/main"],
       "@swim/dom": ["../swim-ui-js/@swim/dom/main"],
       "@swim/graphics": ["../swim-ui-js/@swim/graphics/main"],
-      "@swim/controls": ["@swim/controls/main"]
+      "@swim/button": ["@swim/button/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
   },
@@ -33,6 +33,6 @@
     {"path": "../../../../swim-ui-js/@swim/view/main"},
     {"path": "../../../../swim-ui-js/@swim/dom/main"},
     {"path": "../../../../swim-ui-js/@swim/graphics/main"},
-    {"path": "../../controls/main"}
+    {"path": "../../button/main"}
   ]
 }

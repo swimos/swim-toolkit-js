@@ -23,7 +23,7 @@ import {
   PositionGestureDelegate,
 } from "@swim/view";
 import type {ViewNode, HtmlViewConstructor, HtmlView} from "@swim/dom";
-import {ButtonMembraneInit, ButtonMembrane} from "@swim/controls";
+import {ButtonMembraneInit, ButtonMembrane} from "@swim/button";
 import {AnyTreeSeed, TreeSeed} from "./TreeSeed";
 import {AnyTreeCell, TreeCell} from "./TreeCell";
 import type {TreeLeafObserver} from "./TreeLeafObserver";

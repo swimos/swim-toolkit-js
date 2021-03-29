@@ -14,7 +14,7 @@
 
 import {Lazy} from "@swim/util";
 import {Graphics, VectorIcon} from "@swim/graphics";
-import {IconButton} from "@swim/controls";
+import {IconButton} from "@swim/button";
 import type {DrawerView} from "./DrawerView";
 
 export class DrawerButton extends IconButton {

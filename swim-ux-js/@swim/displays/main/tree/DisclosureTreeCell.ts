@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {View, PositionGestureInput} from "@swim/view";
-import {DisclosureButton} from "@swim/controls";
+import {DisclosureButton} from "@swim/button";
 import {TreeCell} from "./TreeCell";
 import {TreeLeaf} from "./TreeLeaf";
 import {TreeLimb} from "./TreeLimb";

@@ -18,7 +18,8 @@
       "@swim/dom": ["../swim-ui-js/@swim/dom/main"],
       "@swim/graphics": ["../swim-ui-js/@swim/graphics/main"],
       "@swim/component": ["../swim-ui-js/@swim/component/main"],
-      "@swim/controls": ["@swim/controls/main"],
+      "@swim/button": ["@swim/button/main"],
+      "@swim/token": ["@swim/token/main"],
       "@swim/displays": ["@swim/displays/main"],
       "@swim/surfaces": ["@swim/surfaces/main"],
       "@swim/navigation": ["@swim/navigation/main"]
@@ -26,7 +27,8 @@
     "tsBuildInfoFile": ".tsbuildinfo"
   },
   "references": [
-    {"path": "../../controls/main"},
+    {"path": "../../button/main"},
+    {"path": "../../token/main"},
     {"path": "../../displays/main"},
     {"path": "../../surfaces/main"},
     {"path": "../../navigation/main"}

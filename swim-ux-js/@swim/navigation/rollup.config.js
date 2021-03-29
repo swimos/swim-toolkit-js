@@ -23,7 +23,7 @@ const main = {
       "@swim/view": "swim",
       "@swim/dom": "swim",
       "@swim/graphics": "swim",
-      "@swim/controls": "swim",
+      "@swim/button": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -42,7 +42,7 @@ const main = {
     "@swim/view",
     "@swim/dom",
     "@swim/graphics",
-    "@swim/controls",
+    "@swim/button",
   ],
   plugins: [
     nodeResolve({moduleDirectories: ["../..", "node_modules"]}),

@@ -421,9 +421,20 @@ const ui = [
 
 const ux = [
   {
-    id: "controls",
-    name: "@swim/controls",
-    path: "swim-ux-js/@swim/controls",
+    id: "button",
+    name: "@swim/button",
+    path: "swim-ux-js/@swim/button",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view", "dom", "graphics"],
+      },
+    ],
+  },
+  {
+    id: "token",
+    name: "@swim/token",
+    path: "swim-ux-js/@swim/token",
     targets: [
       {
         id: "main",
@@ -438,7 +449,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "model", "style", "theme", "view", "dom", "graphics", "component", "controls"],
+        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "time", "warp", "client", "model", "style", "theme", "view", "dom", "graphics", "component", "button"],
       },
     ],
   },
@@ -449,7 +460,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view", "dom", "graphics", "controls"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view", "dom", "graphics", "button"],
       },
     ],
   },
@@ -460,7 +471,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view", "dom", "graphics", "controls"],
+        deps: ["util", "codec", "mapping", "constraint", "structure", "math", "time", "style", "theme", "view", "dom", "graphics", "button"],
       },
     ],
   },
@@ -473,7 +484,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["controls", "displays", "surfaces", "navigation"],
+        deps: ["button", "token", "displays", "surfaces", "navigation"],
       },
     ],
   },

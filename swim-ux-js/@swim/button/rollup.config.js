@@ -1,7 +1,7 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 
-const script = "swim-surfaces";
+const script = "swim-button";
 const namespace = "swim";
 
 const main = {
@@ -23,7 +23,6 @@ const main = {
       "@swim/view": "swim",
       "@swim/dom": "swim",
       "@swim/graphics": "swim",
-      "@swim/button": "swim",
     },
     sourcemap: true,
     interop: false,
@@ -42,7 +41,6 @@ const main = {
     "@swim/view",
     "@swim/dom",
     "@swim/graphics",
-    "@swim/button",
   ],
   plugins: [
     nodeResolve({moduleDirectories: ["../..", "node_modules"]}),

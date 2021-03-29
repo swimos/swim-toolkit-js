@@ -11,7 +11,8 @@
     {"path": "./swim-ui-js/@swim/component"},
     {"path": "./swim-ui-js/@swim/ui"},
 
-    {"path": "./swim-ux-js/@swim/controls"},
+    {"path": "./swim-ux-js/@swim/button"},
+    {"path": "./swim-ux-js/@swim/token"},
     {"path": "./swim-ux-js/@swim/displays"},
     {"path": "./swim-ux-js/@swim/surfaces"},
     {"path": "./swim-ux-js/@swim/navigation"},

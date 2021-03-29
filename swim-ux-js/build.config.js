@@ -1,7 +1,16 @@
 const ux = [
   {
-    id: "controls",
-    name: "@swim/controls",
+    id: "button",
+    name: "@swim/button",
+    targets: [
+      {
+        id: "main",
+      },
+    ],
+  },
+  {
+    id: "token",
+    name: "@swim/token",
     targets: [
       {
         id: "main",
@@ -14,7 +23,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["controls"],
+        deps: ["button"],
       },
     ],
   },
@@ -24,7 +33,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["controls"],
+        deps: ["button"],
       },
     ],
   },
@@ -34,7 +43,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["controls"],
+        deps: ["button"],
       },
     ],
   },
@@ -46,7 +55,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["controls", "displays", "surfaces", "navigation"],
+        deps: ["button", "token", "displays", "surfaces", "navigation"],
       },
     ],
   },

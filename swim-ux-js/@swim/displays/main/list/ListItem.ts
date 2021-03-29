@@ -27,7 +27,7 @@ import {
 } from "@swim/view";
 import {Height, HtmlView} from "@swim/dom";
 import {Graphics, HtmlIconView} from "@swim/graphics";
-import {ButtonMembrane} from "@swim/controls";
+import {ButtonMembrane} from "@swim/button";
 import type {ListItemObserver} from "./ListItemObserver";
 import type {ListItemController} from "./ListItemController";
 import {ListView} from "./ListView";

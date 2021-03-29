@@ -59,8 +59,10 @@ toolbars, controls, and other interactive application views and controllers.
 
 - [**@swim/ux**](swim-ux-js/@swim/ux) –
   umbrella package that depends on, and re-exports, all **Swim UX** libraries.
-- [**@swim/controls**](swim-ux-js/@swim/controls) –
-  buttons, switches, and other user input controls.
+- [**@swim/button**](swim-ux-js/@swim/button) –
+  button-like user interface controls.
+- [**@swim/token**](swim-ux-js/@swim/token) –
+  attribute, action, and user input token views.
 - [**@swim/displays**](swim-ux-js/@swim/displays) –
   lists, trees, and other structured display views.
 - [**@swim/surfaces**](swim-ux-js/@swim/surfaces) –

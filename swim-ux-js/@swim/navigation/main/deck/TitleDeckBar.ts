@@ -19,7 +19,7 @@ import {Look} from "@swim/theme";
 import {ViewContextType, View, ViewFastener} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import {Graphics, VectorIcon, SvgIconView} from "@swim/graphics";
-import {ButtonMembrane} from "@swim/controls";
+import {ButtonMembrane} from "@swim/button";
 import {DeckPost} from "./DeckPost";
 import {DeckRail} from "./DeckRail";
 import {DeckSlider, DeckSliderItem} from "./DeckSlider";
