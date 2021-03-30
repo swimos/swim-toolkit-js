@@ -32,7 +32,7 @@
 
       "@swim/button": ["swim-ux-js/@swim/button/main"],
       "@swim/token": ["swim-ux-js/@swim/token/main"],
-      "@swim/displays": ["swim-ux-js/@swim/displays/main"],
+      "@swim/grid": ["swim-ux-js/@swim/grid/main"],
       "@swim/surfaces": ["swim-ux-js/@swim/surfaces/main"],
       "@swim/deck": ["swim-ux-js/@swim/deck/main"],
       "@swim/ux": ["swim-ux-js/@swim/ux/main"],
@@ -62,8 +62,8 @@
 
     {"path": "../../../swim-ux-js/@swim/button/main"},
     {"path": "../../../swim-ux-js/@swim/token/main"},
+    {"path": "../../../swim-ux-js/@swim/grid/main"},
     {"path": "../../../swim-ux-js/@swim/surfaces/main"},
-    {"path": "../../../swim-ux-js/@swim/displays/main"},
     {"path": "../../../swim-ux-js/@swim/ux/main"},
 
     {"path": "../../../swim-vis-js/@swim/gauge/main"},

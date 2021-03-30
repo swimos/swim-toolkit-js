@@ -94,10 +94,10 @@ toolbars, controls, and other interactive application views and controllers.
   ([npm](https://www.npmjs.com/package/@swim/token),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_token.html)) –
   attribute, action, and user input token views.
-- [**@swim/displays**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/displays)
-  ([npm](https://www.npmjs.com/package/@swim/displays),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_displays.html)) –
-  lists, trees, and other structured display views.
+- [**@swim/grid**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/grid)
+  ([npm](https://www.npmjs.com/package/@swim/grid),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_grid.html)) –
+  tables, trees, lists, and other tabular views.
 - [**@swim/surfaces**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/surfaces)
   ([npm](https://www.npmjs.com/package/@swim/surfaces),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_surfaces.html)) –

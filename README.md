@@ -63,8 +63,8 @@ toolbars, controls, and other interactive application views and controllers.
   button-like user interface controls.
 - [**@swim/token**](swim-ux-js/@swim/token) –
   attribute, action, and user input token views.
-- [**@swim/displays**](swim-ux-js/@swim/displays) –
-  lists, trees, and other structured display views.
+- [**@swim/grid**](swim-ux-js/@swim/grid) –
+  tables, trees, lists, and other tabular views.
 - [**@swim/surfaces**](swim-ux-js/@swim/surfaces) –
   popovers, drawers, and other view containers.
 - [**@swim/deck**](swim-ux-js/@swim/deck) –

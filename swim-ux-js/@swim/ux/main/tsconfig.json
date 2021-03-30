@@ -20,7 +20,7 @@
       "@swim/component": ["../swim-ui-js/@swim/component/main"],
       "@swim/button": ["@swim/button/main"],
       "@swim/token": ["@swim/token/main"],
-      "@swim/displays": ["@swim/displays/main"],
+      "@swim/grid": ["@swim/grid/main"],
       "@swim/surfaces": ["@swim/surfaces/main"],
       "@swim/deck": ["@swim/deck/main"]
     },
@@ -29,7 +29,7 @@
   "references": [
     {"path": "../../button/main"},
     {"path": "../../token/main"},
-    {"path": "../../displays/main"},
+    {"path": "../../grid/main"},
     {"path": "../../surfaces/main"},
     {"path": "../../deck/main"}
   ]
