@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {MapView} from "./MapView";
-export {MapViewObserver} from "./MapViewObserver";
-export {MapViewController} from "./MapViewController";
+import type {MapGraphicsViewInit, MapGraphicsView} from "../graphics/MapGraphicsView";
+import type {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
+import type {GeoViewObserver} from "./GeoViewObserver";
 
-export {GeoMapProjection} from "./GeoMapProjection";
-export {EquirectangularGeoMapProjection} from "./EquirectangularGeoMapProjection";
+export interface GeoViewInit extends MapGraphicsViewInit {
+}
 
-export {GeoMapView} from "./GeoMapView";
-export {GeoMapViewObserver} from "./GeoMapViewObserver";
-export {GeoMapViewController} from "./GeoMapViewController";
+export interface GeoView extends MapGraphicsView {
+  readonly viewController: MapGraphicsViewController<GeoView> & GeoViewObserver | null;
+
+  readonly viewObservers: ReadonlyArray<GeoViewObserver>;
+}

@@ -25,14 +25,16 @@ import {
   CanvasContext,
   CanvasRenderer,
 } from "@swim/graphics";
-import {MapPathViewInit, MapPathView} from "./MapPathView";
+import type {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
+import {GeoPathViewInit, GeoPathView} from "./GeoPathView";
+import type {GeoAreaViewObserver} from "./GeoAreaViewObserver";
 
-export interface MapAreaViewInit extends MapPathViewInit, FillViewInit, StrokeViewInit {
+export interface GeoAreaViewInit extends GeoPathViewInit, FillViewInit, StrokeViewInit {
   clipViewport?: true;
 }
 
-export class MapAreaView extends MapPathView implements FillView, StrokeView {
-  initView(init: MapAreaViewInit): void {
+export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
+  initView(init: GeoAreaViewInit): void {
     super.initView(init);
     if (init.fill !== void 0) {
       this.fill(init.fill);
@@ -47,6 +49,10 @@ export class MapAreaView extends MapPathView implements FillView, StrokeView {
       this.clipViewport(init.clipViewport);
     }
   }
+
+  declare readonly viewController: MapGraphicsViewController<GeoAreaView> & GeoAreaViewObserver | null;
+
+  declare readonly viewObservers: ReadonlyArray<GeoAreaViewObserver>;
 
   @ViewAnimator({type: Color, state: null, inherit: true})
   declare fill: ViewAnimator<this, Color | null, AnyColor | null>;
@@ -155,12 +161,12 @@ export class MapAreaView extends MapPathView implements FillView, StrokeView {
     return null;
   }
 
-  static create(): MapAreaView {
-    return new MapAreaView();
+  static create(): GeoAreaView {
+    return new GeoAreaView();
   }
 
-  static fromInit(init: MapAreaViewInit): MapAreaView {
-    const view = new MapAreaView();
+  static fromInit(init: GeoAreaViewInit): GeoAreaView {
+    const view = new GeoAreaView();
     view.initView(init);
     return view;
   }

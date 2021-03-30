@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {MapView} from "./MapView";
-export {MapViewObserver} from "./MapViewObserver";
-export {MapViewController} from "./MapViewController";
+import type {MapViewObserver} from "./MapViewObserver";
+import type {GeoMapView} from "./GeoMapView";
 
-export {GeoMapProjection} from "./GeoMapProjection";
-export {EquirectangularGeoMapProjection} from "./EquirectangularGeoMapProjection";
-
-export {GeoMapView} from "./GeoMapView";
-export {GeoMapViewObserver} from "./GeoMapViewObserver";
-export {GeoMapViewController} from "./GeoMapViewController";
+export interface GeoMapViewObserver<V extends GeoMapView = GeoMapView> extends MapViewObserver<V> {
+}

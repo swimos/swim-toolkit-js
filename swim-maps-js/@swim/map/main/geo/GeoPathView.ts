@@ -15,14 +15,16 @@
 import {AnyPointR2, PointR2, BoxR2, PathR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, AnyGeoPath, GeoPath} from "@swim/geo";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
-import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
+import type {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
 import {MapLayerView} from "../layer/MapLayerView";
+import type {GeoViewInit, GeoView} from "./GeoView";
+import type {GeoPathViewObserver} from "./GeoPathViewObserver";
 
-export interface MapPathViewInit extends MapGraphicsViewInit {
+export interface GeoPathViewInit extends GeoViewInit {
   geoPath?: GeoPath;
 }
 
-export class MapPathView extends MapLayerView {
+export class GeoPathView extends MapLayerView implements GeoView {
   constructor() {
     super();
     Object.defineProperty(this, "viewBounds", {
@@ -32,18 +34,58 @@ export class MapPathView extends MapLayerView {
     });
   }
 
-  initView(init: MapPathViewInit): void {
+  initView(init: GeoPathViewInit): void {
     super.initView(init);
     if (init.geoPath !== void 0) {
       this.geoPath(init.geoPath);
     }
   }
 
-  @ViewAnimator<MapPathView, GeoPath>({
+  declare readonly viewController: MapGraphicsViewController<GeoPathView> & GeoPathViewObserver | null;
+
+  declare readonly viewObservers: ReadonlyArray<GeoPathViewObserver>;
+
+  protected willSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.geoViewWillSetShape !== void 0) {
+      viewController.geoViewWillSetShape(newGeoPath, oldGeoPath, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.geoViewWillSetShape !== void 0) {
+        viewObserver.geoViewWillSetShape(newGeoPath, oldGeoPath, this);
+      }
+    }
+  }
+
+  protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
+    this.updateGeoBounds(newGeoPath);
+  }
+
+  protected didSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.geoViewDidSetShape !== void 0) {
+        viewObserver.geoViewDidSetShape(newGeoPath, oldGeoPath, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.geoViewDidSetShape !== void 0) {
+      viewController.geoViewDidSetShape(newGeoPath, oldGeoPath, this);
+    }
+  }
+
+  @ViewAnimator<GeoPathView, GeoPath>({
     type: GeoPath,
     state: GeoPath.empty(),
-    didSetValue(newValue: GeoPath, oldValue: GeoPath): void {
-      this.owner.onSetGeoPath(newValue, oldValue);
+    willSetValue(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
+      this.owner.willSetGeoPath(newGeoPath, oldGeoPath);
+    },
+    didSetValue(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
+      this.owner.onSetGeoPath(newGeoPath, oldGeoPath);
+      this.owner.didSetGeoPath(newGeoPath, oldGeoPath);
     },
   })
   declare geoPath: ViewAnimator<this, GeoPath, AnyGeoPath>;
@@ -57,9 +99,9 @@ export class MapPathView extends MapLayerView {
   @ViewAnimator({type: PointR2, state: PointR2.undefined()})
   declare viewCentroid: ViewAnimator<this, PointR2, AnyPointR2>;
 
-  protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
+  protected updateGeoBounds(geoPath: GeoPath): void {
     const oldGeoBounds = this.geoBounds;
-    const newGeoBounds = newGeoPath.bounds;
+    const newGeoBounds = geoPath.bounds;
     if (!oldGeoBounds.equals(newGeoBounds)) {
       Object.defineProperty(this, "geoBounds", {
         value: newGeoBounds,

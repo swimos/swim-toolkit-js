@@ -459,7 +459,7 @@ export class DataPointView<X, Y> extends LayerView {
 
   protected updateGradientStop(): void {
     Object.defineProperty(this, "gradientStop", {
-      value: this.color.value !== void 0 || this.opacity.value !== void 0,
+      value: this.color.value !== null || this.opacity.value !== void 0,
       enumerable: true,
       configurable: true,
     });

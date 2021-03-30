@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {MapViewObserver} from "../map/MapViewObserver";
-import type {GeoMapView} from "./GeoMapView";
+import type {GeoPoint} from "@swim/geo";
+import type {GeoViewObserver} from "./GeoViewObserver";
+import type {GeoArcView} from "./GeoArcView";
 
-export interface GeoMapViewObserver<V extends GeoMapView = GeoMapView> extends MapViewObserver<V> {
+export interface GeoArcViewObserver<V extends GeoArcView = GeoArcView> extends GeoViewObserver<V> {
+  geoViewWillSetShape?(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null, view: V): void;
+
+  geoViewDidSetShape?(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null, view: V): void;
 }

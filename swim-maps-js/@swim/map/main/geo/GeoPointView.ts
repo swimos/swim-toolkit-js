@@ -16,7 +16,7 @@ import type {AnyTiming} from "@swim/mapping";
 import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
-import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
+import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {
   GraphicsView,
   TypesetView,
@@ -25,14 +25,16 @@ import {
   CanvasContext,
   CanvasRenderer,
 } from "@swim/graphics";
-import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
+import type {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
 import {MapLayerView} from "../layer/MapLayerView";
+import type {GeoViewInit, GeoView} from "./GeoView";
+import type {GeoPointViewObserver} from "./GeoPointViewObserver";
 
-export type MapPointLabelPlacement = "auto" | "top" | "right" | "bottom" | "left";
+export type GeoPointLabelPlacement = "auto" | "top" | "right" | "bottom" | "left";
 
-export type AnyMapPointView = MapPointView | MapPointViewInit | GeoPoint | GeoPointInit | GeoPointTuple;
+export type AnyGeoPointView = GeoPointView | GeoPointViewInit | GeoPoint | GeoPointInit | GeoPointTuple;
 
-export interface MapPointViewInit extends MapGraphicsViewInit {
+export interface GeoPointViewInit extends GeoViewInit {
   lng?: number;
   lat?: number;
   x?: number;
@@ -46,25 +48,65 @@ export interface MapPointViewInit extends MapGraphicsViewInit {
   opacity?: number;
 
   labelPadding?: AnyLength;
-  labelPlacement?: MapPointLabelPlacement;
+  labelPlacement?: GeoPointLabelPlacement;
 
   font?: AnyFont;
   textColor?: AnyColor;
 
-  label?: GraphicsView | string | null;
+  label?: GraphicsView | string;
 }
 
-export class MapPointView extends MapLayerView {
-  initView(init: MapPointViewInit): void {
+export class GeoPointView extends MapLayerView implements GeoView {
+  initView(init: GeoPointViewInit): void {
     super.initView(init);
     this.setState(init);
   }
 
-  @ViewAnimator<MapPointView, GeoPoint, AnyGeoPoint>({
+  declare readonly viewController: MapGraphicsViewController<GeoPointView> & GeoPointViewObserver | null;
+
+  declare readonly viewObservers: ReadonlyArray<GeoPointViewObserver>;
+
+  protected willSetGeoPoint(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.geoViewWillSetShape !== void 0) {
+      viewController.geoViewWillSetShape(newGeoPoint, oldGeoPoint, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.geoViewWillSetShape !== void 0) {
+        viewObserver.geoViewWillSetShape(newGeoPoint, oldGeoPoint, this);
+      }
+    }
+  }
+
+  protected onSetGeoPoint(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
+    this.updateGeoBounds(newGeoPoint);
+  }
+
+  protected didSetGeoPoint(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.geoViewDidSetShape !== void 0) {
+        viewObserver.geoViewDidSetShape(newGeoPoint, oldGeoPoint, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.geoViewDidSetShape !== void 0) {
+      viewController.geoViewDidSetShape(newGeoPoint, oldGeoPoint, this);
+    }
+  }
+
+  @ViewAnimator<GeoPointView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
     state: GeoPoint.origin(),
-    didSetValue(newValue: GeoPoint, oldValue: GeoPoint): void {
-      this.owner.onSetGeoPoint(newValue, oldValue);
+    willSetValue(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
+      this.owner.willSetGeoPoint(newGeoPoint, oldGeoPoint);
+    },
+    didSetValue(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
+      this.owner.onSetGeoPoint(newGeoPoint, oldGeoPoint);
+      this.owner.didSetGeoPoint(newGeoPoint, oldGeoPoint);
     },
   })
   declare geoPoint: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
@@ -93,31 +135,91 @@ export class MapPointView extends MapLayerView {
   @ViewProperty({type: Number})
   declare hitRadius: ViewProperty<this, number | undefined>;
 
-  label(): GraphicsView | null;
-  label(label: GraphicsView | AnyTextRunView | null): this;
-  label(label?: GraphicsView | AnyTextRunView | null): GraphicsView | null | this {
-    if (label === void 0) {
-      const childView = this.getChildView("label");
-      return childView instanceof GraphicsView ? childView : null;
-    } else {
-      if (label !== null && !(label instanceof GraphicsView)) {
-        label = TextRunView.fromAny(label);
+  protected initLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected attachLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected detachLabel(labelView: GraphicsView): void {
+    // hook
+  }
+
+  protected willSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.geoViewWillSetLabel !== void 0) {
+      viewController.geoViewWillSetLabel(newLabelView, oldLabelView, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.geoViewWillSetLabel !== void 0) {
+        viewObserver.geoViewWillSetLabel(newLabelView, oldLabelView, this);
       }
-      this.setChildView("label", label);
-      return this;
     }
   }
 
-  @ViewProperty({type: String, state: "auto"})
-  declare labelPlacement: ViewProperty<this, MapPointLabelPlacement>;
-
-  isGradientStop(): boolean {
-    return !!this.color.value || typeof this.opacity.value === "number";
+  protected onSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    if (oldLabelView !== null) {
+      this.detachLabel(oldLabelView);
+    }
+    if (newLabelView !== null) {
+      this.attachLabel(newLabelView);
+      this.initLabel(newLabelView);
+    }
   }
 
-  setState(point: AnyMapPointView, timing?: AnyTiming | boolean): void {
-    let init: MapPointViewInit;
-    if (point instanceof MapPointView) {
+  protected didSetLabel(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.geoViewDidSetLabel !== void 0) {
+        viewObserver.geoViewDidSetLabel(newLabelView, oldLabelView, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.geoViewDidSetLabel !== void 0) {
+      viewController.geoViewDidSetLabel(newLabelView, oldLabelView, this);
+    }
+  }
+
+  @ViewFastener<GeoPointView, GraphicsView, AnyTextRunView>({
+    key: true,
+    type: TextRunView,
+    fromAny(value: GraphicsView | AnyTextRunView): GraphicsView {
+      if (value instanceof GraphicsView) {
+        return value;
+      } else if (typeof value === "string" && this.view instanceof TextRunView) {
+        this.view.text(value);
+        return this.view;
+      } else {
+        return TextRunView.fromAny(value);
+      }
+    },
+    willSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.willSetLabel(newLabelView, oldLabelView);
+    },
+    onSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.onSetLabel(newLabelView, oldLabelView);
+    },
+    didSetView(newLabelView: GraphicsView | null, oldLabelView: GraphicsView | null): void {
+      this.owner.didSetLabel(newLabelView, oldLabelView);
+    },
+  })
+  declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
+
+  @ViewProperty({type: String, state: "auto"})
+  declare labelPlacement: ViewProperty<this, GeoPointLabelPlacement>;
+
+  isGradientStop(): boolean {
+    return this.color.value !== null || this.opacity.value !== void 0;
+  }
+
+  setState(point: AnyGeoPointView, timing?: AnyTiming | boolean): void {
+    let init: GeoPointViewInit;
+    if (point instanceof GeoPointView) {
       init = point.toAny();
     } else if (point instanceof GeoPoint) {
       init = point.toAny();
@@ -166,10 +268,10 @@ export class MapPointView extends MapLayerView {
     }
   }
 
-  protected onSetGeoPoint(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
-    if (newGeoPoint.isDefined()) {
+  protected updateGeoBounds(geoPoint: GeoPoint): void {
+    if (geoPoint.isDefined()) {
       const oldGeoBounds = this.geoBounds;
-      const newGeoBounds = new GeoBox(newGeoPoint.lng, newGeoPoint.lat, newGeoPoint.lng, newGeoPoint.lat);
+      const newGeoBounds = new GeoBox(geoPoint.lng, geoPoint.lat, geoPoint.lng, geoPoint.lat);
       if (!oldGeoBounds.equals(newGeoBounds)) {
         Object.defineProperty(this, "geoBounds", {
           value: newGeoBounds,
@@ -183,7 +285,7 @@ export class MapPointView extends MapLayerView {
   }
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((processFlags & View.NeedsProject) !== 0 && this.label() !== null) {
+    if ((processFlags & View.NeedsProject) !== 0 && this.label.view !== null) {
       this.requireUpdate(View.NeedsLayout);
     }
     return processFlags;
@@ -209,13 +311,13 @@ export class MapPointView extends MapLayerView {
 
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
-    const label = this.label();
-    if (label !== null) {
-      this.layoutLabel(label, this.viewFrame);
+    const labelView = this.label.view;
+    if (labelView !== null) {
+      this.layoutLabel(labelView, this.viewFrame);
     }
   }
 
-  protected layoutLabel(label: GraphicsView, frame: BoxR2): void {
+  protected layoutLabel(labelView: GraphicsView, frame: BoxR2): void {
     const placement = this.labelPlacement.state;
     // TODO: auto placement
 
@@ -229,10 +331,10 @@ export class MapPointView extends MapLayerView {
       y1 += padding;
     }
 
-    if (TypesetView.is(label)) {
-      label.textAlign.setState("center", View.Intrinsic);
-      label.textBaseline.setState("bottom", View.Intrinsic);
-      label.textOrigin.setState(new PointR2(x, y1), View.Intrinsic);
+    if (TypesetView.is(labelView)) {
+      labelView.textAlign.setState("center", View.Intrinsic);
+      labelView.textBaseline.setState("bottom", View.Intrinsic);
+      labelView.textOrigin.setState(new PointR2(x, y1), View.Intrinsic);
     }
   }
 
@@ -281,8 +383,8 @@ export class MapPointView extends MapLayerView {
     return null;
   }
 
-  toAny(): MapPointViewInit {
-    const init: MapPointViewInit = {};
+  toAny(): GeoPointViewInit {
+    const init: GeoPointViewInit = {};
     init.lng = this.geoPoint.value.lng;
     init.lat = this.geoPoint.value.lat;
     if (!this.viewPoint.isPrecedent(View.Intrinsic)) {
@@ -310,24 +412,24 @@ export class MapPointView extends MapLayerView {
     return init;
   }
 
-  static create(): MapPointView {
-    return new MapPointView();
+  static create(): GeoPointView {
+    return new GeoPointView();
   }
 
-  static fromGeoPoint(point: AnyGeoPoint): MapPointView {
-    const view = new MapPointView();
+  static fromGeoPoint(point: AnyGeoPoint): GeoPointView {
+    const view = new GeoPointView();
     view.setState(point);
     return view;
   }
 
-  static fromInit(init: MapPointViewInit): MapPointView {
-    const view = new MapPointView();
+  static fromInit(init: GeoPointViewInit): GeoPointView {
+    const view = new GeoPointView();
     view.initView(init);
     return view;
   }
 
-  static fromAny(value: AnyMapPointView): MapPointView {
-    if (value instanceof MapPointView) {
+  static fromAny(value: AnyGeoPointView): GeoPointView {
+    if (value instanceof GeoPointView) {
       return value;
     } else if (value instanceof GeoPoint || GeoPoint.isTuple(value)) {
       return this.fromGeoPoint(value);

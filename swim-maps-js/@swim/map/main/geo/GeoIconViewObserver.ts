@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {MapView} from "./MapView";
-export {MapViewObserver} from "./MapViewObserver";
-export {MapViewController} from "./MapViewController";
+import type {GeoPoint} from "@swim/geo";
+import type {GeoViewObserver} from "./GeoViewObserver";
+import type {GeoIconView} from "./GeoIconView";
 
-export {GeoMapProjection} from "./GeoMapProjection";
-export {EquirectangularGeoMapProjection} from "./EquirectangularGeoMapProjection";
+export interface GeoIconViewObserver<V extends GeoIconView = GeoIconView> extends GeoViewObserver<V> {
+  geoViewWillSetShape?(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null, view: V): void;
 
-export {GeoMapView} from "./GeoMapView";
-export {GeoMapViewObserver} from "./GeoMapViewObserver";
-export {GeoMapViewController} from "./GeoMapViewController";
+  geoViewDidSetShape?(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null, view: V): void;
+}

@@ -14,14 +14,12 @@
 
 export * from "./graphics";
 
-export * from "./map";
-
 export * from "./layer";
 
 export * from "./grid";
 
 export * from "./raster";
 
-export * from "./shape";
+export * from "./map";
 
 export * from "./geo";

@@ -17,12 +17,12 @@ import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import type {GraphicsViewContext} from "@swim/graphics";
-import type {MapView} from "../map/MapView";
 import {MapLayerView} from "../layer/MapLayerView";
+import type {MapView} from "./MapView";
 import type {GeoMapProjection} from "./GeoMapProjection";
+import {EquirectangularGeoMapProjection} from "./EquirectangularGeoMapProjection";
 import type {GeoMapViewObserver} from "./GeoMapViewObserver";
 import type {GeoMapViewController} from "./GeoMapViewController";
-import {EquirectangularGeoMapProjection} from "../"; // forward import
 
 export class GeoMapView extends MapLayerView implements MapView {
   constructor(geoProjection: GeoMapProjection) {

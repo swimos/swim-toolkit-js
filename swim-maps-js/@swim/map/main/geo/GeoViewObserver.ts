@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {MapView} from "./MapView";
-export {MapViewObserver} from "./MapViewObserver";
-export {MapViewController} from "./MapViewController";
+import type {GeoShape} from "@swim/geo";
+import type {MapGraphicsViewObserver} from "../graphics/MapGraphicsViewObserver";
+import type {GeoView} from "./GeoView";
 
-export {GeoMapProjection} from "./GeoMapProjection";
-export {EquirectangularGeoMapProjection} from "./EquirectangularGeoMapProjection";
+export interface GeoViewObserver<V extends GeoView = GeoView> extends MapGraphicsViewObserver<V> {
+  geoViewWillSetShape?(newGeoShape: GeoShape | null, oldGeoShape: GeoShape | null, view: V): void;
 
-export {GeoMapView} from "./GeoMapView";
-export {GeoMapViewObserver} from "./GeoMapViewObserver";
-export {GeoMapViewController} from "./GeoMapViewController";
+  geoViewDidSetShape?(newGeoShape: GeoShape | null, oldGeoShape: GeoShape | null, view: V): void;
+}

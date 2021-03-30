@@ -61,7 +61,7 @@ require([
         let intersectionView = mapGrid.getChildView(key);
         if (intersectionView === null) {
           const intersectionId = value.get("id").stringValue();
-          intersectionView = new swim.MapCircleView()
+          intersectionView = new swim.GeoCircleView()
               .geoCenter([lng, lat])
               .radius(5)
               .fill(INTERSECTION_COLOR);
@@ -102,7 +102,7 @@ require([
               if (approachView === undefined) {
                 const points = item.get("coords").toAny();
                 points.push(points[0]); // close path
-                const approachView = new swim.MapAreaView()
+                const approachView = new swim.GeoAreaView()
                   .geoPath(points)
                   .fill(swim.Color.transparent())
                   .stroke(swim.Color.transparent())
@@ -191,7 +191,7 @@ require([
       if (document.hidden || !mapView.geoBounds.contains(intersectionView.geoCenter.value)) {
         return;
       }
-      const ripple = new swim.MapCircleView()
+      const ripple = new swim.GeoCircleView()
           .geoCenter(intersectionView.geoCenter.value)
           .radius(0)
           .stroke(RIPPLE_COLOR)

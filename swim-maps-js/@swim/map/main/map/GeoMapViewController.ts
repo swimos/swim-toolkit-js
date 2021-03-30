@@ -14,7 +14,7 @@
 
 import type {GeoPoint} from "@swim/geo";
 import {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
-import type {MapViewController} from "../map/MapViewController";
+import type {MapViewController} from "./MapViewController";
 import type {GeoMapView} from "./GeoMapView";
 import type {GeoMapViewObserver} from "./GeoMapViewObserver";
 

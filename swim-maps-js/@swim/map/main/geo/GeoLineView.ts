@@ -23,14 +23,16 @@ import {
   CanvasContext,
   CanvasRenderer,
 } from "@swim/graphics";
-import {MapPathViewInit, MapPathView} from "./MapPathView";
+import type {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
+import {GeoPathViewInit, GeoPathView} from "./GeoPathView";
+import type {GeoLineViewObserver} from "./GeoLineViewObserver";
 
-export interface MapLineViewInit extends MapPathViewInit, StrokeViewInit {
+export interface GeoLineViewInit extends GeoPathViewInit, StrokeViewInit {
   hitWidth?: number;
 }
 
-export class MapLineView extends MapPathView implements StrokeView {
-  initView(init: MapLineViewInit): void {
+export class GeoLineView extends GeoPathView implements StrokeView {
+  initView(init: GeoLineViewInit): void {
     super.initView(init);
     if (init.stroke !== void 0) {
       this.stroke(init.stroke);
@@ -42,6 +44,10 @@ export class MapLineView extends MapPathView implements StrokeView {
       this.hitWidth(init.hitWidth);
     }
   }
+
+  declare readonly viewController: MapGraphicsViewController<GeoLineView> & GeoLineViewObserver | null;
+
+  declare readonly viewObservers: ReadonlyArray<GeoLineViewObserver>;
 
   @ViewAnimator({type: Color, state: null, inherit: true})
   declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
@@ -123,12 +129,12 @@ export class MapLineView extends MapPathView implements StrokeView {
     return null;
   }
 
-  static create(): MapLineView {
-    return new MapLineView();
+  static create(): GeoLineView {
+    return new GeoLineView();
   }
 
-  static fromInit(init: MapLineViewInit): MapLineView {
-    const view = new MapLineView();
+  static fromInit(init: GeoLineViewInit): GeoLineView {
+    const view = new GeoLineView();
     view.initView(init);
     return view;
   }

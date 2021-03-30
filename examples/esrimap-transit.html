@@ -79,8 +79,8 @@ require([
             ripple(lng, lat);
           }
         } else {
-          //vehicleView = new swim.MapCircleView().geoCenter([lng, lat]).radius(5).fill(VEHICLE_COLOR);
-          vehicleView = new swim.MapIconView()
+          //vehicleView = new swim.GeoCircleView().geoCenter([lng, lat]).radius(5).fill(VEHICLE_COLOR);
+          vehicleView = new swim.GeoIconView()
               .geoCenter([lng, lat])
               .iconWidth(10)
               .iconHeight(10)
@@ -92,7 +92,7 @@ require([
       .open();
 
   function ripple(lng, lat) {
-    const ripple = new swim.MapCircleView()
+    const ripple = new swim.GeoCircleView()
         .geoCenter([lng, lat])
         .radius(0)
         .stroke(RIPPLE_COLOR)

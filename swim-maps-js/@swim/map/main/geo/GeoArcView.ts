@@ -26,12 +26,14 @@ import {
   CanvasRenderer,
 } from "@swim/graphics";
 import {Arc} from "@swim/graphics";
-import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
+import type {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
 import {MapLayerView} from "../layer/MapLayerView";
+import type {GeoViewInit, GeoView} from "./GeoView";
+import type {GeoArcViewObserver} from "./GeoArcViewObserver";
 
-export type AnyMapArcView = MapArcView | MapArcViewInit;
+export type AnyGeoArcView = GeoArcView | GeoArcViewInit;
 
-export interface MapArcViewInit extends MapGraphicsViewInit, FillViewInit, StrokeViewInit {
+export interface GeoArcViewInit extends GeoViewInit, FillViewInit, StrokeViewInit {
   geoCenter?: AnyGeoPoint;
   viewCenter?: PointR2;
   innerRadius?: AnyLength;
@@ -43,8 +45,8 @@ export interface MapArcViewInit extends MapGraphicsViewInit, FillViewInit, Strok
   cornerRadius?: AnyLength;
 }
 
-export class MapArcView extends MapLayerView implements FillView, StrokeView {
-  initView(init: MapArcViewInit): void {
+export class GeoArcView extends MapLayerView implements GeoView, FillView, StrokeView {
+  initView(init: GeoArcViewInit): void {
     super.initView(init);
     if (init.geoCenter !== void 0) {
       this.geoCenter(init.geoCenter);
@@ -84,11 +86,51 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
     }
   }
 
-  @ViewAnimator<MapArcView, GeoPoint, AnyGeoPoint>({
+  declare readonly viewController: MapGraphicsViewController<GeoArcView> & GeoArcViewObserver | null;
+
+  declare readonly viewObservers: ReadonlyArray<GeoArcViewObserver>;
+
+  protected willSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.geoViewWillSetShape !== void 0) {
+      viewController.geoViewWillSetShape(newGeoCenter, oldGeoCenter, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.geoViewWillSetShape !== void 0) {
+        viewObserver.geoViewWillSetShape(newGeoCenter, oldGeoCenter, this);
+      }
+    }
+  }
+
+  protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+    this.updateGeoBounds(newGeoCenter);
+  }
+
+  protected didSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.geoViewDidSetShape !== void 0) {
+        viewObserver.geoViewDidSetShape(newGeoCenter, oldGeoCenter, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.geoViewDidSetShape !== void 0) {
+      viewController.geoViewDidSetShape(newGeoCenter, oldGeoCenter, this);
+    }
+  }
+
+  @ViewAnimator<GeoArcView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
     state: GeoPoint.origin(),
-    didSetValue(newValue: GeoPoint, oldValue: GeoPoint): void {
-      this.owner.onSetGeoCenter(newValue, oldValue);
+    willSetValue(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+      this.owner.willSetGeoCenter(newGeoCenter, oldGeoCenter);
+    },
+    didSetValue(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+      this.owner.onSetGeoCenter(newGeoCenter, oldGeoCenter);
+      this.owner.didSetGeoCenter(newGeoCenter, oldGeoCenter);
     },
   })
   declare geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
@@ -138,10 +180,10 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
                    this.padRadius.state, this.cornerRadius.state);
   }
 
-  protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
-    if (newGeoCenter.isDefined()) {
+  protected updateGeoBounds(geoCenter: GeoPoint): void {
+    if (geoCenter.isDefined()) {
       const oldGeoBounds = this.geoBounds;
-      const newGeoBounds = new GeoBox(newGeoCenter.lng, newGeoCenter.lat, newGeoCenter.lng, newGeoCenter.lat);
+      const newGeoBounds = new GeoBox(geoCenter.lng, geoCenter.lat, geoCenter.lng, geoCenter.lat);
       if (!oldGeoBounds.equals(newGeoBounds)) {
         Object.defineProperty(this, "geoBounds", {
           value: newGeoBounds,
@@ -265,18 +307,18 @@ export class MapArcView extends MapLayerView implements FillView, StrokeView {
     return null;
   }
 
-  static create(): MapArcView {
-    return new MapArcView();
+  static create(): GeoArcView {
+    return new GeoArcView();
   }
 
-  static fromInit(init: MapArcViewInit): MapArcView {
-    const view = new MapArcView();
+  static fromInit(init: GeoArcViewInit): GeoArcView {
+    const view = new GeoArcView();
     view.initView(init);
     return view;
   }
 
-  static fromAny(value: AnyMapArcView): MapArcView {
-    if (value instanceof MapArcView) {
+  static fromAny(value: AnyGeoArcView): GeoArcView {
+    if (value instanceof GeoArcView) {
       return value;
     } else if (typeof value === "object" && value !== null) {
       return this.fromInit(value);

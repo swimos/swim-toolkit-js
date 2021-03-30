@@ -18,20 +18,30 @@ import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
-import {Graphics, GraphicsView, Icon, FilledIcon, IconViewInit, IconView, IconViewAnimator, CanvasRenderer} from "@swim/graphics";
-import type {MapGraphicsViewInit} from "../graphics/MapGraphicsView";
+import {
+  Graphics,
+  GraphicsView,
+  Icon,
+  FilledIcon,
+  IconViewInit,
+  IconView,
+  IconViewAnimator,
+  CanvasRenderer,
+} from "@swim/graphics";
 import type {MapGraphicsViewController} from "../graphics/MapGraphicsViewController";
+import type {GeoViewInit, GeoView} from "./GeoView";
 import {MapLayerView} from "../layer/MapLayerView";
+import type {GeoIconViewObserver} from "./GeoIconViewObserver";
 
-export type AnyMapIconView = MapIconView | MapIconViewInit;
+export type AnyGeoIconView = GeoIconView | GeoIconViewInit;
 
-export interface MapIconViewInit extends MapGraphicsViewInit, IconViewInit {
+export interface GeoIconViewInit extends GeoViewInit, IconViewInit {
   viewController?: MapGraphicsViewController;
   geoCenter?: AnyGeoPoint;
   viewCenter?: AnyPointR2;
 }
 
-export class MapIconView extends MapLayerView implements IconView {
+export class GeoIconView extends MapLayerView implements GeoView, IconView {
   constructor() {
     super();
     Object.defineProperty(this, "canvas", {
@@ -46,7 +56,7 @@ export class MapIconView extends MapLayerView implements IconView {
     });
   }
 
-  initView(init: MapIconViewInit): void {
+  initView(init: GeoIconViewInit): void {
     super.initView(init);
     IconView.initView(this, init);
     if (init.geoCenter !== void 0) {
@@ -57,14 +67,54 @@ export class MapIconView extends MapLayerView implements IconView {
     }
   }
 
+  declare readonly viewController: MapGraphicsViewController<GeoIconView> & GeoIconViewObserver | null;
+
+  declare readonly viewObservers: ReadonlyArray<GeoIconViewObserver>;
+
   /** @hidden */
   declare readonly canvas: HTMLCanvasElement | null;
 
-  @ViewAnimator<MapIconView, GeoPoint, AnyGeoPoint>({
+  protected willSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.geoViewWillSetShape !== void 0) {
+      viewController.geoViewWillSetShape(newGeoCenter, oldGeoCenter, this);
+    }
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.geoViewWillSetShape !== void 0) {
+        viewObserver.geoViewWillSetShape(newGeoCenter, oldGeoCenter, this);
+      }
+    }
+  }
+
+  protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+    this.updateGeoBounds(newGeoCenter);
+  }
+
+  protected didSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+    const viewObservers = this.viewObservers;
+    for (let i = 0, n = viewObservers.length; i < n; i += 1) {
+      const viewObserver = viewObservers[i]!;
+      if (viewObserver.geoViewDidSetShape !== void 0) {
+        viewObserver.geoViewDidSetShape(newGeoCenter, oldGeoCenter, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.geoViewDidSetShape !== void 0) {
+      viewController.geoViewDidSetShape(newGeoCenter, oldGeoCenter, this);
+    }
+  }
+
+  @ViewAnimator<GeoIconView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
     state: GeoPoint.origin(),
-    didSetValue(newValue: GeoPoint, oldValue: GeoPoint): void {
-      this.owner.onSetGeoCenter(newValue, oldValue);
+    willSetValue(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
+      this.owner.willSetGeoCenter(newGeoPoint, oldGeoPoint);
+    },
+    didSetValue(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
+      this.owner.onSetGeoCenter(newGeoPoint, oldGeoPoint);
+      this.owner.didSetGeoCenter(newGeoPoint, oldGeoPoint);
     },
   })
   declare geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
@@ -90,10 +140,10 @@ export class MapIconView extends MapLayerView implements IconView {
   @ViewAnimator({extends: IconViewAnimator, type: Object, updateFlags: View.NeedsRender | View.NeedsComposite})
   declare graphics: ViewAnimator<this, Graphics | null>;
 
-  protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
-    if (newGeoCenter.isDefined()) {
+  protected updateGeoBounds(geoCenter: GeoPoint): void {
+    if (geoCenter.isDefined()) {
       const oldGeoBounds = this.geoBounds;
-      const newGeoBounds = new GeoBox(newGeoCenter.lng, newGeoCenter.lat, newGeoCenter.lng, newGeoCenter.lat);
+      const newGeoBounds = new GeoBox(geoCenter.lng, geoCenter.lat, geoCenter.lng, geoCenter.lat);
       if (!oldGeoBounds.equals(newGeoBounds)) {
         Object.defineProperty(this, "geoBounds", {
           value: newGeoBounds,
@@ -309,18 +359,18 @@ export class MapIconView extends MapLayerView implements IconView {
     return null;
   }
 
-  static create(): MapIconView {
-    return new MapIconView();
+  static create(): GeoIconView {
+    return new GeoIconView();
   }
 
-  static fromInit(init: MapIconViewInit): MapIconView {
-    const view = new MapIconView();
+  static fromInit(init: GeoIconViewInit): GeoIconView {
+    const view = new GeoIconView();
     view.initView(init);
     return view;
   }
 
-  static fromAny(value: AnyMapIconView): MapIconView {
-    if (value instanceof MapIconView) {
+  static fromAny(value: AnyGeoIconView): GeoIconView {
+    if (value instanceof GeoIconView) {
       return value;
     } else if (typeof value === "object" && value !== null) {
       return this.fromInit(value);
