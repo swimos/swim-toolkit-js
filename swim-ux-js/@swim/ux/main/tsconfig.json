@@ -22,7 +22,7 @@
       "@swim/token": ["@swim/token/main"],
       "@swim/displays": ["@swim/displays/main"],
       "@swim/surfaces": ["@swim/surfaces/main"],
-      "@swim/navigation": ["@swim/navigation/main"]
+      "@swim/deck": ["@swim/deck/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
   },
@@ -31,6 +31,6 @@
     {"path": "../../token/main"},
     {"path": "../../displays/main"},
     {"path": "../../surfaces/main"},
-    {"path": "../../navigation/main"}
+    {"path": "../../deck/main"}
   ]
 }

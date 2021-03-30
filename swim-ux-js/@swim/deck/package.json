@@ -1,13 +1,13 @@
 {
-  "name": "@swim/navigation",
+  "name": "@swim/deck",
   "version": "3.11.0-dev.20201021",
-  "description": "Card decks, master-detail views, and other navigation controllers",
+  "description": "Card stack navigation views",
   "homepage": "https://github.com/swimos/swim",
   "author": "Chris Sachs <chris@swim.ai>",
   "copyright": "2015-2020 Swim inc.",
   "license": "Apache-2.0",
   "repository": "https://github.com/swimos/swim.git",
-  "main": "dist/main/swim-navigation.js",
+  "main": "dist/main/swim-deck.js",
   "module": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "dependencies": {

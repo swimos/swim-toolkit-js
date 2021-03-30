@@ -465,9 +465,9 @@ const ux = [
     ],
   },
   {
-    id: "navigation",
-    name: "@swim/navigation",
-    path: "swim-ux-js/@swim/navigation",
+    id: "deck",
+    name: "@swim/deck",
+    path: "swim-ux-js/@swim/deck",
     targets: [
       {
         id: "main",
@@ -484,7 +484,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["button", "token", "displays", "surfaces", "navigation"],
+        deps: ["button", "token", "displays", "surfaces", "deck"],
       },
     ],
   },

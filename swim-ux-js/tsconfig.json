@@ -6,7 +6,7 @@
     {"path": "./@swim/token"},
     {"path": "./@swim/displays"},
     {"path": "./@swim/surfaces"},
-    {"path": "./@swim/navigation"},
+    {"path": "./@swim/deck"},
     {"path": "./@swim/ux"}
   ]
 }

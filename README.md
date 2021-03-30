@@ -67,8 +67,8 @@ toolbars, controls, and other interactive application views and controllers.
   lists, trees, and other structured display views.
 - [**@swim/surfaces**](swim-ux-js/@swim/surfaces) –
   popovers, drawers, and other view containers.
-- [**@swim/navigation**](swim-ux-js/@swim/navigation) –
-  card decks, master-detail views, and other navigation controllers.
+- [**@swim/deck**](swim-ux-js/@swim/deck) –
+  card stack navigation views.
 
 ### [**Swim Visualizations** Framework](swim-vis-js)
 

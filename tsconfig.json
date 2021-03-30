@@ -15,7 +15,7 @@
     {"path": "./swim-ux-js/@swim/token"},
     {"path": "./swim-ux-js/@swim/displays"},
     {"path": "./swim-ux-js/@swim/surfaces"},
-    {"path": "./swim-ux-js/@swim/navigation"},
+    {"path": "./swim-ux-js/@swim/deck"},
     {"path": "./swim-ux-js/@swim/ux"},
 
     {"path": "./swim-vis-js/@swim/gauge"},

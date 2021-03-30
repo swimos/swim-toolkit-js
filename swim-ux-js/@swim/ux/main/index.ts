@@ -20,4 +20,4 @@ export * from "@swim/displays";
 
 export * from "@swim/surfaces";
 
-export * from "@swim/navigation";
+export * from "@swim/deck";
