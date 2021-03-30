@@ -14,7 +14,7 @@
     {"path": "./swim-ux-js/@swim/button"},
     {"path": "./swim-ux-js/@swim/token"},
     {"path": "./swim-ux-js/@swim/grid"},
-    {"path": "./swim-ux-js/@swim/surfaces"},
+    {"path": "./swim-ux-js/@swim/window"},
     {"path": "./swim-ux-js/@swim/deck"},
     {"path": "./swim-ux-js/@swim/ux"},
 

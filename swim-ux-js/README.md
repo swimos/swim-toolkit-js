@@ -24,8 +24,8 @@ The **Swim UX** framework consists of the following component libraries:
   attribute, action, and user input token views.
 - [**@swim/grid**](@swim/grid) –
   tables, trees, lists, and other tabular views.
-- [**@swim/surfaces**](@swim/surfaces) –
-  popovers, drawers, and other view containers.
+- [**@swim/window**](@swim/window) –
+  popovers, drawers, and other view surfaces.
 - [**@swim/deck**](@swim/deck) –
   card stack navigation views.
 

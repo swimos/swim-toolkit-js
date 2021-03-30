@@ -18,6 +18,6 @@ export * from "@swim/token";
 
 export * from "@swim/grid";
 
-export * from "@swim/surfaces";
+export * from "@swim/window";
 
 export * from "@swim/deck";

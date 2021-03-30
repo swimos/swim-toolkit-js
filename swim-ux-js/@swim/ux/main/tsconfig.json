@@ -21,7 +21,7 @@
       "@swim/button": ["@swim/button/main"],
       "@swim/token": ["@swim/token/main"],
       "@swim/grid": ["@swim/grid/main"],
-      "@swim/surfaces": ["@swim/surfaces/main"],
+      "@swim/window": ["@swim/window/main"],
       "@swim/deck": ["@swim/deck/main"]
     },
     "tsBuildInfoFile": ".tsbuildinfo"
@@ -30,7 +30,7 @@
     {"path": "../../button/main"},
     {"path": "../../token/main"},
     {"path": "../../grid/main"},
-    {"path": "../../surfaces/main"},
+    {"path": "../../window/main"},
     {"path": "../../deck/main"}
   ]
 }

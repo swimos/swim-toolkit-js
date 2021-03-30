@@ -5,7 +5,7 @@
     {"path": "./@swim/button"},
     {"path": "./@swim/token"},
     {"path": "./@swim/grid"},
-    {"path": "./@swim/surfaces"},
+    {"path": "./@swim/window"},
     {"path": "./@swim/deck"},
     {"path": "./@swim/ux"}
   ]

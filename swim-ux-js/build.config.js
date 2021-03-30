@@ -28,8 +28,8 @@ const ux = [
     ],
   },
   {
-    id: "surfaces",
-    name: "@swim/surfaces",
+    id: "window",
+    name: "@swim/window",
     targets: [
       {
         id: "main",
@@ -55,7 +55,7 @@ const ux = [
     targets: [
       {
         id: "main",
-        deps: ["button", "token", "grid", "surfaces", "deck"],
+        deps: ["button", "token", "grid", "window", "deck"],
       },
     ],
   },

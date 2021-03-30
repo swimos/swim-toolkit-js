@@ -98,10 +98,10 @@ toolbars, controls, and other interactive application views and controllers.
   ([npm](https://www.npmjs.com/package/@swim/grid),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_grid.html)) –
   tables, trees, lists, and other tabular views.
-- [**@swim/surfaces**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/surfaces)
-  ([npm](https://www.npmjs.com/package/@swim/surfaces),
-  [doc](https://docs.swimos.org/js/latest/modules/_swim_surfaces.html)) –
-  popovers, drawers, and other view containers.
+- [**@swim/window**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/window)
+  ([npm](https://www.npmjs.com/package/@swim/window),
+  [doc](https://docs.swimos.org/js/latest/modules/_swim_window.html)) –
+  popovers, drawers, and other view surfaces.
 - [**@swim/deck**](https://github.com/swimos/swim/tree/master/swim-toolkit-js/swim-ux-js/@swim/deck)
   ([npm](https://www.npmjs.com/package/@swim/deck),
   [doc](https://docs.swimos.org/js/latest/modules/_swim_deck.html)) –
