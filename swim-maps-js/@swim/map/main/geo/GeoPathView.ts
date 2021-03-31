@@ -47,14 +47,14 @@ export class GeoPathView extends MapLayerView implements GeoView {
 
   protected willSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
     const viewController = this.viewController;
-    if (viewController !== null && viewController.geoViewWillSetShape !== void 0) {
-      viewController.geoViewWillSetShape(newGeoPath, oldGeoPath, this);
+    if (viewController !== null && viewController.geoViewWillSetGeometry !== void 0) {
+      viewController.geoViewWillSetGeometry(newGeoPath, oldGeoPath, this);
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.geoViewWillSetShape !== void 0) {
-        viewObserver.geoViewWillSetShape(newGeoPath, oldGeoPath, this);
+      if (viewObserver.geoViewWillSetGeometry !== void 0) {
+        viewObserver.geoViewWillSetGeometry(newGeoPath, oldGeoPath, this);
       }
     }
   }
@@ -67,13 +67,13 @@ export class GeoPathView extends MapLayerView implements GeoView {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.geoViewDidSetShape !== void 0) {
-        viewObserver.geoViewDidSetShape(newGeoPath, oldGeoPath, this);
+      if (viewObserver.geoViewDidSetGeometry !== void 0) {
+        viewObserver.geoViewDidSetGeometry(newGeoPath, oldGeoPath, this);
       }
     }
     const viewController = this.viewController;
-    if (viewController !== null && viewController.geoViewDidSetShape !== void 0) {
-      viewController.geoViewDidSetShape(newGeoPath, oldGeoPath, this);
+    if (viewController !== null && viewController.geoViewDidSetGeometry !== void 0) {
+      viewController.geoViewDidSetGeometry(newGeoPath, oldGeoPath, this);
     }
   }
 

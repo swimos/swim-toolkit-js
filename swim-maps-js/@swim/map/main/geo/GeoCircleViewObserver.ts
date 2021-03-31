@@ -17,7 +17,7 @@ import type {GeoViewObserver} from "./GeoViewObserver";
 import type {GeoCircleView} from "./GeoCircleView";
 
 export interface GeoCircleViewObserver<V extends GeoCircleView = GeoCircleView> extends GeoViewObserver<V> {
-  geoViewWillSetShape?(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null, view: V): void;
+  geoViewWillSetGeometry?(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null, view: V): void;
 
-  geoViewDidSetShape?(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null, view: V): void;
+  geoViewDidSetGeometry?(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null, view: V): void;
 }

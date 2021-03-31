@@ -71,14 +71,14 @@ export class GeoCircleView extends MapLayerView implements GeoView, FillView, St
 
   protected willSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
     const viewController = this.viewController;
-    if (viewController !== null && viewController.geoViewWillSetShape !== void 0) {
-      viewController.geoViewWillSetShape(newGeoCenter, oldGeoCenter, this);
+    if (viewController !== null && viewController.geoViewWillSetGeometry !== void 0) {
+      viewController.geoViewWillSetGeometry(newGeoCenter, oldGeoCenter, this);
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.geoViewWillSetShape !== void 0) {
-        viewObserver.geoViewWillSetShape(newGeoCenter, oldGeoCenter, this);
+      if (viewObserver.geoViewWillSetGeometry !== void 0) {
+        viewObserver.geoViewWillSetGeometry(newGeoCenter, oldGeoCenter, this);
       }
     }
   }
@@ -91,13 +91,13 @@ export class GeoCircleView extends MapLayerView implements GeoView, FillView, St
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.geoViewDidSetShape !== void 0) {
-        viewObserver.geoViewDidSetShape(newGeoCenter, oldGeoCenter, this);
+      if (viewObserver.geoViewDidSetGeometry !== void 0) {
+        viewObserver.geoViewDidSetGeometry(newGeoCenter, oldGeoCenter, this);
       }
     }
     const viewController = this.viewController;
-    if (viewController !== null && viewController.geoViewDidSetShape !== void 0) {
-      viewController.geoViewDidSetShape(newGeoCenter, oldGeoCenter, this);
+    if (viewController !== null && viewController.geoViewDidSetGeometry !== void 0) {
+      viewController.geoViewDidSetGeometry(newGeoCenter, oldGeoCenter, this);
     }
   }
 

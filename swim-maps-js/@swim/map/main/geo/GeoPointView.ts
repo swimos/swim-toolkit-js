@@ -68,14 +68,14 @@ export class GeoPointView extends MapLayerView implements GeoView {
 
   protected willSetGeoPoint(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
     const viewController = this.viewController;
-    if (viewController !== null && viewController.geoViewWillSetShape !== void 0) {
-      viewController.geoViewWillSetShape(newGeoPoint, oldGeoPoint, this);
+    if (viewController !== null && viewController.geoViewWillSetGeometry !== void 0) {
+      viewController.geoViewWillSetGeometry(newGeoPoint, oldGeoPoint, this);
     }
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.geoViewWillSetShape !== void 0) {
-        viewObserver.geoViewWillSetShape(newGeoPoint, oldGeoPoint, this);
+      if (viewObserver.geoViewWillSetGeometry !== void 0) {
+        viewObserver.geoViewWillSetGeometry(newGeoPoint, oldGeoPoint, this);
       }
     }
   }
@@ -88,13 +88,13 @@ export class GeoPointView extends MapLayerView implements GeoView {
     const viewObservers = this.viewObservers;
     for (let i = 0, n = viewObservers.length; i < n; i += 1) {
       const viewObserver = viewObservers[i]!;
-      if (viewObserver.geoViewDidSetShape !== void 0) {
-        viewObserver.geoViewDidSetShape(newGeoPoint, oldGeoPoint, this);
+      if (viewObserver.geoViewDidSetGeometry !== void 0) {
+        viewObserver.geoViewDidSetGeometry(newGeoPoint, oldGeoPoint, this);
       }
     }
     const viewController = this.viewController;
-    if (viewController !== null && viewController.geoViewDidSetShape !== void 0) {
-      viewController.geoViewDidSetShape(newGeoPoint, oldGeoPoint, this);
+    if (viewController !== null && viewController.geoViewDidSetGeometry !== void 0) {
+      viewController.geoViewDidSetGeometry(newGeoPoint, oldGeoPoint, this);
     }
   }
 

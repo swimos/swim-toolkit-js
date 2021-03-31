@@ -17,7 +17,7 @@ import type {MapGraphicsViewObserver} from "../graphics/MapGraphicsViewObserver"
 import type {GeoView} from "./GeoView";
 
 export interface GeoViewObserver<V extends GeoView = GeoView> extends MapGraphicsViewObserver<V> {
-  geoViewWillSetShape?(newGeoShape: GeoShape | null, oldGeoShape: GeoShape | null, view: V): void;
+  geoViewWillSetGeometry?(newGeoShape: GeoShape | null, oldGeoShape: GeoShape | null, view: V): void;
 
-  geoViewDidSetShape?(newGeoShape: GeoShape | null, oldGeoShape: GeoShape | null, view: V): void;
+  geoViewDidSetGeometry?(newGeoShape: GeoShape | null, oldGeoShape: GeoShape | null, view: V): void;
 }

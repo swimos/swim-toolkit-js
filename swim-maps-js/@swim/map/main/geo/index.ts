@@ -19,12 +19,11 @@ export {
 export {GeoViewObserver} from "./GeoViewObserver";
 
 export {
-  GeoPointLabelPlacement,
-  AnyGeoPointView,
-  GeoPointViewInit,
-  GeoPointView,
-} from "./GeoPointView";
-export {GeoPointViewObserver} from "./GeoPointViewObserver";
+  AnyGeoIconView,
+  GeoIconViewInit,
+  GeoIconView,
+} from "./GeoIconView";
+export {GeoIconViewObserver} from "./GeoIconViewObserver";
 
 export {
   AnyGeoCircleView,
@@ -39,13 +38,6 @@ export {
   GeoArcView,
 } from "./GeoArcView";
 export {GeoArcViewObserver} from "./GeoArcViewObserver";
-
-export {
-  AnyGeoIconView,
-  GeoIconViewInit,
-  GeoIconView,
-} from "./GeoIconView";
-export {GeoIconViewObserver} from "./GeoIconViewObserver";
 
 export {
   GeoPathViewInit,
@@ -64,6 +56,14 @@ export {
   GeoAreaView,
 } from "./GeoAreaView";
 export {GeoAreaViewObserver} from "./GeoAreaViewObserver";
+
+export {
+  GeoPointLabelPlacement,
+  AnyGeoPointView,
+  GeoPointViewInit,
+  GeoPointView,
+} from "./GeoPointView";
+export {GeoPointViewObserver} from "./GeoPointViewObserver";
 
 export {
   AnyGeoPlotView,
