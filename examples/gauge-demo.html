@@ -190,7 +190,6 @@ function createDial() {
     // Update the dial label.
     dialView.label.view.text(Math.round(100 * newValue / dialView.limit()) + "%")
                        .setHidden(!showLabels.checked);
-
     // Update the dial legend.
     dialView.legend.view.text(dialView.key + " (" + Math.round(100 * newValue) + ")")
                         .setHidden(!showLegend.checked);

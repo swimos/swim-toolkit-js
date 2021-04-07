@@ -57,8 +57,8 @@ export class PieTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.pieTraitWillSetTitle !== void 0) {
-        traitObserver.pieTraitWillSetTitle(newTitle, oldTitle, this);
+      if (traitObserver.traitWillSetPieTitle !== void 0) {
+        traitObserver.traitWillSetPieTitle(newTitle, oldTitle, this);
       }
     }
   }
@@ -71,8 +71,8 @@ export class PieTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.pieTraitDidSetTitle !== void 0) {
-        traitObserver.pieTraitDidSetTitle(newTitle, oldTitle, this);
+      if (traitObserver.traitDidSetPieTitle !== void 0) {
+        traitObserver.traitDidSetPieTitle(newTitle, oldTitle, this);
       }
     }
   }
@@ -132,8 +132,8 @@ export class PieTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.pieTraitWillSetSlice !== void 0) {
-        traitObserver.pieTraitWillSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
+      if (traitObserver.traitWillSetSlice !== void 0) {
+        traitObserver.traitWillSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
       }
     }
   }
@@ -154,8 +154,8 @@ export class PieTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.pieTraitDidSetSlice !== void 0) {
-        traitObserver.pieTraitDidSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
+      if (traitObserver.traitDidSetSlice !== void 0) {
+        traitObserver.traitDidSetSlice(newSliceTrait, oldSliceTrait, targetTrait, this);
       }
     }
   }

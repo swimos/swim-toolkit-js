@@ -44,10 +44,10 @@ class ExampleGaugeComponent extends swim.GaugeComponent {
               dialView.modifyMood(swim.Feel.default, [swim.Feel.secondary, void 0], true);
             });
   }
-  onSetDialViewValue(newValue, oldValue, dialFastener) {
-    super.onSetDialViewValue(newValue, oldValue, dialFastener);
+  onSetDialValue(newValue, oldValue, dialFastener) {
+    super.onSetDialValue(newValue, oldValue, dialFastener);
     const label = Math.round(100 * newValue).toString();
-    dialFastener.component.setLabel(label);
+    dialFastener.component.dial.trait.setLabel(label);
   }
 }
 

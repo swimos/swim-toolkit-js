@@ -61,8 +61,8 @@ export class ColTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.colTraitWillSetLayout !== void 0) {
-        traitObserver.colTraitWillSetLayout(newLayout, oldHeader, this);
+      if (traitObserver.traitWillSetColLayout !== void 0) {
+        traitObserver.traitWillSetColLayout(newLayout, oldHeader, this);
       }
     }
   }
@@ -75,8 +75,8 @@ export class ColTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.colTraitDidSetLayout !== void 0) {
-        traitObserver.colTraitDidSetLayout(newLayout, oldHeader, this);
+      if (traitObserver.traitDidSetColLayout !== void 0) {
+        traitObserver.traitDidSetColLayout(newLayout, oldHeader, this);
       }
     }
   }
@@ -101,8 +101,8 @@ export class ColTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.colTraitWillSetHeader !== void 0) {
-        traitObserver.colTraitWillSetHeader(newHeader, oldHeader, this);
+      if (traitObserver.traitWillSetColHeader !== void 0) {
+        traitObserver.traitWillSetColHeader(newHeader, oldHeader, this);
       }
     }
   }
@@ -115,8 +115,8 @@ export class ColTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.colTraitDidSetHeader !== void 0) {
-        traitObserver.colTraitDidSetHeader(newHeader, oldHeader, this);
+      if (traitObserver.traitDidSetColHeader !== void 0) {
+        traitObserver.traitDidSetColHeader(newHeader, oldHeader, this);
       }
     }
   }

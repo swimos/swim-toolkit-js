@@ -70,8 +70,8 @@ export class DialTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dialTraitWillSetValue !== void 0) {
-        traitObserver.dialTraitWillSetValue(newValue, oldValue, this);
+      if (traitObserver.traitWillSetDialValue !== void 0) {
+        traitObserver.traitWillSetDialValue(newValue, oldValue, this);
       }
     }
   }
@@ -84,8 +84,8 @@ export class DialTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dialTraitDidSetValue !== void 0) {
-        traitObserver.dialTraitDidSetValue(newValue, oldValue, this);
+      if (traitObserver.traitDidSetDialValue !== void 0) {
+        traitObserver.traitDidSetDialValue(newValue, oldValue, this);
       }
     }
   }
@@ -110,8 +110,8 @@ export class DialTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dialTraitWillSetLimit !== void 0) {
-        traitObserver.dialTraitWillSetLimit(newLimit, oldLimit, this);
+      if (traitObserver.traitWillSetDialLimit !== void 0) {
+        traitObserver.traitWillSetDialLimit(newLimit, oldLimit, this);
       }
     }
   }
@@ -124,8 +124,8 @@ export class DialTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dialTraitDidSetLimit !== void 0) {
-        traitObserver.dialTraitDidSetLimit(newLimit, oldLimit, this);
+      if (traitObserver.traitDidSetDialLimit !== void 0) {
+        traitObserver.traitDidSetDialLimit(newLimit, oldLimit, this);
       }
     }
   }
@@ -150,8 +150,8 @@ export class DialTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dialTraitWillSetLabel !== void 0) {
-        traitObserver.dialTraitWillSetLabel(newLabel, oldLabel, this);
+      if (traitObserver.traitWillSetDialLabel !== void 0) {
+        traitObserver.traitWillSetDialLabel(newLabel, oldLabel, this);
       }
     }
   }
@@ -164,8 +164,8 @@ export class DialTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dialTraitDidSetLabel !== void 0) {
-        traitObserver.dialTraitDidSetLabel(newLabel, oldLabel, this);
+      if (traitObserver.traitDidSetDialLabel !== void 0) {
+        traitObserver.traitDidSetDialLabel(newLabel, oldLabel, this);
       }
     }
   }
@@ -194,8 +194,8 @@ export class DialTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dialTraitWillSetLegend !== void 0) {
-        traitObserver.dialTraitWillSetLegend(newLegend, oldLegend, this);
+      if (traitObserver.traitWillSetDialLegend !== void 0) {
+        traitObserver.traitWillSetDialLegend(newLegend, oldLegend, this);
       }
     }
   }
@@ -208,8 +208,8 @@ export class DialTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dialTraitDidSetLegend !== void 0) {
-        traitObserver.dialTraitDidSetLegend(newLegend, oldLegend, this);
+      if (traitObserver.traitDidSetDialLegend !== void 0) {
+        traitObserver.traitDidSetDialLegend(newLegend, oldLegend, this);
       }
     }
   }

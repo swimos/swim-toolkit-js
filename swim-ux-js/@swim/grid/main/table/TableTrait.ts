@@ -86,26 +86,26 @@ export class TableTrait extends GenericTrait {
     }
   }
 
-  protected willSetLayout(newLayout: TableLayout | null, oldHeader: TableLayout | null): void {
+  protected willSetLayout(newLayout: TableLayout | null, oldLayout: TableLayout | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.tableTraitWillSetLayout !== void 0) {
-        traitObserver.tableTraitWillSetLayout(newLayout, oldHeader, this);
+      if (traitObserver.traitWillSetTableLayout !== void 0) {
+        traitObserver.traitWillSetTableLayout(newLayout, oldLayout, this);
       }
     }
   }
 
-  protected onSetLayout(newLayout: TableLayout | null, oldHeader: TableLayout | null): void {
+  protected onSetLayout(newLayout: TableLayout | null, oldLayout: TableLayout | null): void {
     // hook
   }
 
-  protected didSetLayout(newLayout: TableLayout | null, oldHeader: TableLayout | null): void {
+  protected didSetLayout(newLayout: TableLayout | null, oldLayout: TableLayout | null): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.tableTraitDidSetLayout !== void 0) {
-        traitObserver.tableTraitDidSetLayout(newLayout, oldHeader, this);
+      if (traitObserver.traitDidSetTableLayout !== void 0) {
+        traitObserver.traitDidSetTableLayout(newLayout, oldLayout, this);
       }
     }
   }
@@ -186,8 +186,8 @@ export class TableTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.tableTraitWillSetCol !== void 0) {
-        traitObserver.tableTraitWillSetCol(newColTrait, oldColTrait, targetTrait, this);
+      if (traitObserver.traitWillSetCol !== void 0) {
+        traitObserver.traitWillSetCol(newColTrait, oldColTrait, targetTrait, this);
       }
     }
   }
@@ -209,8 +209,8 @@ export class TableTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.tableTraitDidSetCol !== void 0) {
-        traitObserver.tableTraitDidSetCol(newColTrait, oldColTrait, targetTrait, this);
+      if (traitObserver.traitDidSetCol !== void 0) {
+        traitObserver.traitDidSetCol(newColTrait, oldColTrait, targetTrait, this);
       }
     }
   }
@@ -234,7 +234,7 @@ export class TableTrait extends GenericTrait {
     didSetTrait(newColTrait: ColTrait | null, oldColTrait: ColTrait | null, targetTrait: Trait | null): void {
       this.owner.didSetCol(newColTrait, oldColTrait, targetTrait, this);
     },
-    colTraitDidSetLayout(newColLayout: ColLayout | null, oldColLayout: ColLayout | null): void {
+    traitDidSetColLayout(newColLayout: ColLayout | null, oldColLayout: ColLayout | null): void {
       this.owner.onSetColLayout(newColLayout, oldColLayout, this);
     },
   });
@@ -341,8 +341,8 @@ export class TableTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.tableTraitWillSetRow !== void 0) {
-        traitObserver.tableTraitWillSetRow(newRowTrait, oldRowTrait, targetTrait, this);
+      if (traitObserver.traitWillSetRow !== void 0) {
+        traitObserver.traitWillSetRow(newRowTrait, oldRowTrait, targetTrait, this);
       }
     }
   }
@@ -363,8 +363,8 @@ export class TableTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.tableTraitDidSetRow !== void 0) {
-        traitObserver.tableTraitDidSetRow(newRowTrait, oldRowTrait, targetTrait, this);
+      if (traitObserver.traitDidSetRow !== void 0) {
+        traitObserver.traitDidSetRow(newRowTrait, oldRowTrait, targetTrait, this);
       }
     }
   }
@@ -373,7 +373,6 @@ export class TableTrait extends GenericTrait {
   static RowFastener = TraitFastener.define<TableTrait, RowTrait>({
     type: RowTrait,
     sibling: false,
-    observe: true,
     willSetTrait(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, targetTrait: Trait | null): void {
       this.owner.willSetRow(newRowTrait, oldRowTrait, targetTrait, this);
     },
@@ -382,11 +381,6 @@ export class TableTrait extends GenericTrait {
     },
     didSetTrait(newRowTrait: RowTrait | null, oldRowTrait: RowTrait | null, targetTrait: Trait | null): void {
       this.owner.didSetRow(newRowTrait, oldRowTrait, targetTrait, this);
-    },
-    traitDidSetParentModel(newParentModel: Model | null, oldParentModel: Model | null, rowTrait: RowTrait): void {
-      if (newParentModel === null) {
-        this.owner.removeRow(rowTrait);
-      }
     },
   });
 

@@ -53,8 +53,8 @@ export class AreaPlotTrait<X, Y> extends SeriesPlotTrait<X, Y> {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.areaPlotTraitWillSetFill !== void 0) {
-        traitObserver.areaPlotTraitWillSetFill(newFill, oldFill, this);
+      if (traitObserver.traitWillSetPlotFill !== void 0) {
+        traitObserver.traitWillSetPlotFill(newFill, oldFill, this);
       }
     }
   }
@@ -67,8 +67,8 @@ export class AreaPlotTrait<X, Y> extends SeriesPlotTrait<X, Y> {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.areaPlotTraitDidSetFill !== void 0) {
-        traitObserver.areaPlotTraitDidSetFill(newFill, oldFill, this);
+      if (traitObserver.traitDidSetPlotFill !== void 0) {
+        traitObserver.traitDidSetPlotFill(newFill, oldFill, this);
       }
     }
   }

@@ -59,8 +59,8 @@ export class LinePlotTrait<X, Y> extends SeriesPlotTrait<X, Y> {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.linePlotTraitWillSetStroke !== void 0) {
-        traitObserver.linePlotTraitWillSetStroke(newStroke, oldStroke, this);
+      if (traitObserver.traitWillSetPlotStroke !== void 0) {
+        traitObserver.traitWillSetPlotStroke(newStroke, oldStroke, this);
       }
     }
   }
@@ -73,8 +73,8 @@ export class LinePlotTrait<X, Y> extends SeriesPlotTrait<X, Y> {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.linePlotTraitDidSetStroke !== void 0) {
-        traitObserver.linePlotTraitDidSetStroke(newStroke, oldStroke, this);
+      if (traitObserver.traitDidSetPlotStroke !== void 0) {
+        traitObserver.traitDidSetPlotStroke(newStroke, oldStroke, this);
       }
     }
   }
@@ -100,8 +100,8 @@ export class LinePlotTrait<X, Y> extends SeriesPlotTrait<X, Y> {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.linePlotTraitWillSetStrokeWidth !== void 0) {
-        traitObserver.linePlotTraitWillSetStrokeWidth(newStrokeWidth, oldStrokeWidth, this);
+      if (traitObserver.traitWillSetPlotStrokeWidth !== void 0) {
+        traitObserver.traitWillSetPlotStrokeWidth(newStrokeWidth, oldStrokeWidth, this);
       }
     }
   }
@@ -114,8 +114,8 @@ export class LinePlotTrait<X, Y> extends SeriesPlotTrait<X, Y> {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.linePlotTraitDidSetStrokeWidth !== void 0) {
-        traitObserver.linePlotTraitDidSetStrokeWidth(newStrokeWidth, oldStrokeWidth, this);
+      if (traitObserver.traitDidSetPlotStrokeWidth !== void 0) {
+        traitObserver.traitDidSetPlotStrokeWidth(newStrokeWidth, oldStrokeWidth, this);
       }
     }
   }

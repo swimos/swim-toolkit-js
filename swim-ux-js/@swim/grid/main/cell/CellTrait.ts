@@ -52,8 +52,8 @@ export class CellTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.cellTraitWillSetContent !== void 0) {
-        traitObserver.cellTraitWillSetContent(newContent, oldContent, this);
+      if (traitObserver.traitWillSetCellContent !== void 0) {
+        traitObserver.traitWillSetCellContent(newContent, oldContent, this);
       }
     }
   }
@@ -66,8 +66,8 @@ export class CellTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.cellTraitDidSetContent !== void 0) {
-        traitObserver.cellTraitDidSetContent(newContent, oldContent, this);
+      if (traitObserver.traitDidSetCellContent !== void 0) {
+        traitObserver.traitDidSetCellContent(newContent, oldContent, this);
       }
     }
   }

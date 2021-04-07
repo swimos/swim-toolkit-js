@@ -57,8 +57,8 @@ export class GaugeTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.gaugeTraitWillSetTitle !== void 0) {
-        traitObserver.gaugeTraitWillSetTitle(newTitle, oldTitle, this);
+      if (traitObserver.traitWillSetGaugeTitle !== void 0) {
+        traitObserver.traitWillSetGaugeTitle(newTitle, oldTitle, this);
       }
     }
   }
@@ -71,8 +71,8 @@ export class GaugeTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.gaugeTraitDidSetTitle !== void 0) {
-        traitObserver.gaugeTraitDidSetTitle(newTitle, oldTitle, this);
+      if (traitObserver.traitDidSetGaugeTitle !== void 0) {
+        traitObserver.traitDidSetGaugeTitle(newTitle, oldTitle, this);
       }
     }
   }
@@ -132,8 +132,8 @@ export class GaugeTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.gaugeTraitWillSetDial !== void 0) {
-        traitObserver.gaugeTraitWillSetDial(newDialTrait, oldDialTrait, targetTrait, this);
+      if (traitObserver.traitWillSetDial !== void 0) {
+        traitObserver.traitWillSetDial(newDialTrait, oldDialTrait, targetTrait, this);
       }
     }
   }
@@ -154,8 +154,8 @@ export class GaugeTrait extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.gaugeTraitDidSetDial !== void 0) {
-        traitObserver.gaugeTraitDidSetDial(newDialTrait, oldDialTrait, targetTrait, this);
+      if (traitObserver.traitDidSetDial !== void 0) {
+        traitObserver.traitDidSetDial(newDialTrait, oldDialTrait, targetTrait, this);
       }
     }
   }

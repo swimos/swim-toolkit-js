@@ -51,6 +51,11 @@ export class DataPointTrait<X, Y> extends GenericTrait {
       enumerable: true,
       configurable: true,
     });
+    Object.defineProperty(this, "opacity", {
+      value: void 0,
+      enumerable: true,
+      configurable: true,
+    });
     Object.defineProperty(this, "label", {
       value: null,
       enumerable: true,
@@ -80,8 +85,8 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitWillSetX !== void 0) {
-        traitObserver.dataPointTraitWillSetX(newX, oldX, this);
+      if (traitObserver.traitWillSetDataPointX !== void 0) {
+        traitObserver.traitWillSetDataPointX(newX, oldX, this);
       }
     }
   }
@@ -94,8 +99,8 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitDidSetX !== void 0) {
-        traitObserver.dataPointTraitDidSetX(newX, oldX, this);
+      if (traitObserver.traitDidSetDataPointX !== void 0) {
+        traitObserver.traitDidSetDataPointX(newX, oldX, this);
       }
     }
   }
@@ -120,8 +125,8 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitWillSetY !== void 0) {
-        traitObserver.dataPointTraitWillSetY(newY, oldY, this);
+      if (traitObserver.traitWillSetDataPointY !== void 0) {
+        traitObserver.traitWillSetDataPointY(newY, oldY, this);
       }
     }
   }
@@ -134,15 +139,15 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitDidSetY !== void 0) {
-        traitObserver.dataPointTraitDidSetY(newY, oldY, this);
+      if (traitObserver.traitDidSetDataPointY !== void 0) {
+        traitObserver.traitDidSetDataPointY(newY, oldY, this);
       }
     }
   }
 
-  declare readonly y2: Y;
+  declare readonly y2: Y | undefined;
 
-  setY2(newY2: Y): void {
+  setY2(newY2: Y | undefined): void {
     const oldY2 = this.y2;
     if (!Equals(newY2, oldY2)) {
       this.willSetY2(newY2, oldY2);
@@ -156,26 +161,26 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     }
   }
 
-  protected willSetY2(newY2: Y, oldY2: Y): void {
+  protected willSetY2(newY2: Y | undefined, oldY2: Y | undefined): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitWillSetY2 !== void 0) {
-        traitObserver.dataPointTraitWillSetY2(newY2, oldY2, this);
+      if (traitObserver.traitWillSetDataPointY2 !== void 0) {
+        traitObserver.traitWillSetDataPointY2(newY2, oldY2, this);
       }
     }
   }
 
-  protected onSetY2(newY2: Y, oldY2: Y): void {
+  protected onSetY2(newY2: Y | undefined, oldY2: Y | undefined): void {
     // hook
   }
 
-  protected didSetY2(newY2: Y, oldY2: Y): void {
+  protected didSetY2(newY2: Y | undefined, oldY2: Y | undefined): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitDidSetY2 !== void 0) {
-        traitObserver.dataPointTraitDidSetY2(newY2, oldY2, this);
+      if (traitObserver.traitDidSetDataPointY2 !== void 0) {
+        traitObserver.traitDidSetDataPointY2(newY2, oldY2, this);
       }
     }
   }
@@ -203,8 +208,8 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitWillSetRadius !== void 0) {
-        traitObserver.dataPointTraitWillSetRadius(newRadius, oldRadius, this);
+      if (traitObserver.traitWillSetDataPointRadius !== void 0) {
+        traitObserver.traitWillSetDataPointRadius(newRadius, oldRadius, this);
       }
     }
   }
@@ -217,8 +222,8 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitDidSetRadius !== void 0) {
-        traitObserver.dataPointTraitDidSetRadius(newRadius, oldRadius, this);
+      if (traitObserver.traitDidSetDataPointRadius !== void 0) {
+        traitObserver.traitDidSetDataPointRadius(newRadius, oldRadius, this);
       }
     }
   }
@@ -246,8 +251,8 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitWillSetColor !== void 0) {
-        traitObserver.dataPointTraitWillSetColor(newColor, oldColor, this);
+      if (traitObserver.traitWillSetDataPointColor !== void 0) {
+        traitObserver.traitWillSetDataPointColor(newColor, oldColor, this);
       }
     }
   }
@@ -260,8 +265,48 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitDidSetColor !== void 0) {
-        traitObserver.dataPointTraitDidSetColor(newColor, oldColor, this);
+      if (traitObserver.traitDidSetDataPointColor !== void 0) {
+        traitObserver.traitDidSetDataPointColor(newColor, oldColor, this);
+      }
+    }
+  }
+
+  declare readonly opacity: number | undefined;
+
+  setOpacity(newOpacity: number | undefined): void {
+    const oldOpacity = this.opacity;
+    if (newOpacity !== oldOpacity) {
+      this.willSetOpacity(newOpacity, oldOpacity);
+      Object.defineProperty(this, "opacity", {
+        value: newOpacity,
+        enumerable: true,
+        configurable: true,
+      });
+      this.onSetOpacity(newOpacity, oldOpacity);
+      this.didSetOpacity(newOpacity, oldOpacity);
+    }
+  }
+
+  protected willSetOpacity(newOpacity: number | undefined, oldOpacity: number | undefined): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.traitWillSetDataPointOpacity !== void 0) {
+        traitObserver.traitWillSetDataPointOpacity(newOpacity, oldOpacity, this);
+      }
+    }
+  }
+
+  protected onSetOpacity(newOpacity: number | undefined, oldOpacity: number | undefined): void {
+    // hook
+  }
+
+  protected didSetOpacity(newOpacity: number | undefined, oldOpacity: number | undefined): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.traitDidSetDataPointOpacity !== void 0) {
+        traitObserver.traitDidSetDataPointOpacity(newOpacity, oldOpacity, this);
       }
     }
   }
@@ -286,8 +331,8 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitWillSetLabel !== void 0) {
-        traitObserver.dataPointTraitWillSetLabel(newLabel, oldLabel, this);
+      if (traitObserver.traitWillSetDataPointLabel !== void 0) {
+        traitObserver.traitWillSetDataPointLabel(newLabel, oldLabel, this);
       }
     }
   }
@@ -300,8 +345,8 @@ export class DataPointTrait<X, Y> extends GenericTrait {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
       const traitObserver = traitObservers[i]!;
-      if (traitObserver.dataPointTraitDidSetLabel !== void 0) {
-        traitObserver.dataPointTraitDidSetLabel(newLabel, oldLabel, this);
+      if (traitObserver.traitDidSetDataPointLabel !== void 0) {
+        traitObserver.traitDidSetDataPointLabel(newLabel, oldLabel, this);
       }
     }
   }

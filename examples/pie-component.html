@@ -43,10 +43,10 @@ class ExamplePieComponent extends swim.PieComponent {
     super.initSliceLabelView(labelView);
     labelView.textColor.setLook(swim.Look.backgroundColor);
   }
-  onSetSliceViewValue(newValue, oldValue, sliceFastener) {
-    super.onSetSliceViewValue(newValue, oldValue, sliceFastener);
+  onSetSliceValue(newValue, oldValue, sliceFastener) {
+    super.onSetSliceValue(newValue, oldValue, sliceFastener);
     const label = Math.round(100 * newValue).toString();
-    sliceFastener.component.setLabel(label);
+    sliceFastener.component.slice.trait.setLabel(label);
   }
 }
 

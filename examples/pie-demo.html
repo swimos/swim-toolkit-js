@@ -188,13 +188,12 @@ function createSlice() {
   sliceView.legend.view.setHidden(true);
   sliceView.modifyMood(swim.Feel.default, [swim.Feel.primary, 1]);
   sliceView.addViewObserver({
-    sliceViewDidSetValue(newValue) {
+    viewWillLayout() {
       // Update the slice label.
-      sliceView.label.view.text(Math.round(100 * newValue / sliceView.total()) + "%")
+      sliceView.label.view.text(Math.round(100 * sliceView.value.value / sliceView.total.value) + "%")
                           .setHidden(!showLabels.checked);
-
       // Update the slice legend.
-      sliceView.legend.view.text(sliceView.key + " (" + Math.round(100 * newValue) + ")")
+      sliceView.legend.view.text(sliceView.key + " (" + Math.round(100 * sliceView.value.value) + ")")
                            .setHidden(!showLegend.checked);
     },
   });
