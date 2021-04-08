@@ -476,7 +476,7 @@ export class GaugeView extends LayerView {
   }
 
   protected layoutGauge(frame: BoxR2): void {
-    if (this.center.isPrecedent(View.Intrinsic)) {
+    if (this.center.takesPrecedence(View.Intrinsic)) {
       const cx = (frame.xMin + frame.xMax) / 2;
       const cy = (frame.yMin + frame.yMax) / 2;
       this.center.setState(new PointR2(cx, cy), View.Intrinsic);

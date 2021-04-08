@@ -105,7 +105,7 @@ export class GeoPathView extends GeoLayerView {
     const geoViewport = viewContext.geoViewport;
 
     let viewPath: PathR2;
-    if (this.viewPath.isPrecedent(View.Intrinsic)) {
+    if (this.viewPath.takesPrecedence(View.Intrinsic)) {
       const geoPath = this.geoPath.getValue();
       viewPath = geoPath.project(geoViewport);
       this.viewPath.setState(viewPath, View.Intrinsic);
@@ -113,7 +113,7 @@ export class GeoPathView extends GeoLayerView {
       viewPath = this.viewPath.getValue();
     }
 
-    if (this.viewCentroid.isPrecedent(View.Intrinsic)) {
+    if (this.viewCentroid.takesPrecedence(View.Intrinsic)) {
       const geoCentroid = this.geoCentroid.getValue();
       const viewCentroid = geoViewport.project(geoCentroid);
       this.viewCentroid.setState(viewCentroid, View.Intrinsic);

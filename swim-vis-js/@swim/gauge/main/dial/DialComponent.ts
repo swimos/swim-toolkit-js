@@ -150,7 +150,7 @@ export class DialComponent extends CompositeComponent {
 
   protected setValue(value: number, dialTrait: DialTrait, timing?: AnyTiming | boolean): void {
     const dialView = this.dial.view;
-    if (dialView !== null && dialView.value.isPrecedent(View.Intrinsic)) {
+    if (dialView !== null && dialView.value.takesPrecedence(View.Intrinsic)) {
       if (timing === void 0 || timing === true) {
         timing = this.dialTiming.state;
         if (timing === true) {
@@ -194,7 +194,7 @@ export class DialComponent extends CompositeComponent {
 
   protected setLimit(limit: number, dialTrait: DialTrait, timing?: AnyTiming | boolean): void {
     const dialView = this.dial.view;
-    if (dialView !== null && dialView.limit.isPrecedent(View.Intrinsic)) {
+    if (dialView !== null && dialView.limit.takesPrecedence(View.Intrinsic)) {
       if (timing === void 0 || timing === true) {
         timing = this.dialTiming.state;
         if (timing === true) {

@@ -873,7 +873,7 @@ export abstract class GraphicsView extends View {
   modifyMood(feel: Feel, ...entires: [Feel, number | undefined][]): void;
   modifyMood(feel: Feel, ...args: [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
   modifyMood(feel: Feel, ...args: [Feel, number | undefined][] | [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void {
-    if (this.moodModifier.isPrecedent(View.Intrinsic)) {
+    if (this.moodModifier.takesPrecedence(View.Intrinsic)) {
       let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
       const entries = args as [Feel, number | undefined][];
       const oldMoodModifier = this.moodModifier.getStateOr(MoodMatrix.empty());
@@ -902,7 +902,7 @@ export abstract class GraphicsView extends View {
   modifyTheme(feel: Feel, ...enties: [Feel, number | undefined][]): void;
   modifyTheme(feel: Feel, ...args: [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
   modifyTheme(feel: Feel, ...args: [Feel, number | undefined][] | [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void {
-    if (this.themeModifier.isPrecedent(View.Intrinsic)) {
+    if (this.themeModifier.takesPrecedence(View.Intrinsic)) {
       let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
       const entries = args as [Feel, number | undefined][];
       const oldThemeModifier = this.themeModifier.getStateOr(MoodMatrix.empty());
@@ -930,7 +930,7 @@ export abstract class GraphicsView extends View {
 
   protected changeMood(): void {
     const moodModifierProperty = this.getViewProperty("moodModifier") as ViewProperty<this, MoodMatrix | null> | null;
-    if (moodModifierProperty !== null && this.mood.isPrecedent(View.Intrinsic)) {
+    if (moodModifierProperty !== null && this.mood.takesPrecedence(View.Intrinsic)) {
       const moodModifier = moodModifierProperty.state;
       if (moodModifier !== null) {
         let superMood = this.mood.superState;
@@ -952,7 +952,7 @@ export abstract class GraphicsView extends View {
 
   protected changeTheme(): void {
     const themeModifierProperty = this.getViewProperty("themeModifier") as ViewProperty<this, MoodMatrix | null> | null;
-    if (themeModifierProperty !== null && this.theme.isPrecedent(View.Intrinsic)) {
+    if (themeModifierProperty !== null && this.theme.takesPrecedence(View.Intrinsic)) {
       const themeModifier = themeModifierProperty.state;
       if (themeModifier !== null) {
         let superTheme = this.theme.superState;

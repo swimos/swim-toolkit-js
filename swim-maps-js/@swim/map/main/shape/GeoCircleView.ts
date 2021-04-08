@@ -136,7 +136,7 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
   protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
     let viewCenter: PointR2;
-    if (this.viewCenter.isPrecedent(View.Intrinsic)) {
+    if (this.viewCenter.takesPrecedence(View.Intrinsic)) {
       const geoViewport = viewContext.geoViewport;
       viewCenter = geoViewport.project(this.geoCenter.getValue());
       this.viewCenter.setState(viewCenter, View.Intrinsic);

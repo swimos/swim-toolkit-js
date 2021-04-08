@@ -197,7 +197,7 @@ export class GeoAreaView extends GeoPathView implements FillView, StrokeView {
 
   protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
     super.onSetGeoPath(newGeoPath, oldGeoPath);
-    if (this.geoCentroid.isPrecedent(View.Intrinsic)) {
+    if (this.geoCentroid.takesPrecedence(View.Intrinsic)) {
       this.geoCentroid.setState(newGeoPath.centroid(), View.Intrinsic);
     }
   }

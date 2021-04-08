@@ -278,7 +278,7 @@ export class GeoPointView extends GeoLayerView {
 
   protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
-    if (this.viewPoint.isPrecedent(View.Intrinsic)) {
+    if (this.viewPoint.takesPrecedence(View.Intrinsic)) {
       const viewPoint = viewContext.geoViewport.project(this.geoPoint.getValue());
       //this.viewPoint.setState(viewPoint, View.Intrinsic);
       Object.defineProperty(this.viewPoint, "ownValue", {
@@ -372,7 +372,7 @@ export class GeoPointView extends GeoLayerView {
     const init: GeoPointViewInit = {};
     init.lng = this.geoPoint.value.lng;
     init.lat = this.geoPoint.value.lat;
-    if (!this.viewPoint.isPrecedent(View.Intrinsic)) {
+    if (!this.viewPoint.takesPrecedence(View.Intrinsic)) {
       init.x = this.viewPoint.value.x;
       init.y = this.viewPoint.value.y;
     }

@@ -220,7 +220,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
   didStartHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, 1]);
-    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
+    if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
       const timing = this.getLook(Look.timing);
       this.backgroundColor.setState(this.getLookOr(Look.accentColor, null), timing, View.Intrinsic);
     }
@@ -228,7 +228,7 @@ export class FloatingButton extends ButtonMembrane implements PositionGestureDel
 
   didStopHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
-    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
+    if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
       const timing = this.getLook(Look.timing);
       this.backgroundColor.setState(this.getLookOr(Look.accentColor, null), timing, View.Intrinsic);
     }

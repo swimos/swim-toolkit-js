@@ -252,7 +252,7 @@ export class TokenView extends HtmlView {
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, headView: SvgView): void {
       headView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, View.Intrinsic);
       const headIconView = this.owner.headIcon.view;
-      if (headIconView !== null && headIconView.fill.isPrecedent(View.Intrinsic)) {
+      if (headIconView !== null && headIconView.fill.takesPrecedence(View.Intrinsic)) {
         const iconColor = theme.getOr(this.owner.fillLook, mood.updated(Feel.embossed, 1), null);
         headIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
@@ -263,7 +263,7 @@ export class TokenView extends HtmlView {
       const timing = headView.getLook(Look.timing);
       headView.fill.setState(headView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const headIconView = this.owner.headIcon.view;
-      if (headIconView !== null && headIconView.fill.isPrecedent(View.Intrinsic)) {
+      if (headIconView !== null && headIconView.fill.takesPrecedence(View.Intrinsic)) {
         const iconColor = headView.getLookOr(this.owner.fillLook, headView.mood.getState().updated(Feel.embossed, 1), null);
         headIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
@@ -274,7 +274,7 @@ export class TokenView extends HtmlView {
       const timing = headView.getLook(Look.timing);
       headView.fill.setState(headView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const headIconView = this.owner.headIcon.view;
-      if (headIconView !== null && headIconView.fill.isPrecedent(View.Intrinsic)) {
+      if (headIconView !== null && headIconView.fill.takesPrecedence(View.Intrinsic)) {
         const iconColor = headView.getLookOr(this.owner.fillLook, headView.mood.getState().updated(Feel.embossed, 1), null);
         headIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
@@ -355,7 +355,7 @@ export class TokenView extends HtmlView {
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, bodyView: SvgView): void {
       bodyView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, View.Intrinsic);
       const labelView = this.owner.label.view;
-      if (labelView !== null && labelView.color.isPrecedent(View.Intrinsic)) {
+      if (labelView !== null && labelView.color.takesPrecedence(View.Intrinsic)) {
         labelView.color.setState(theme.getOr(Look.backgroundColor, mood, null), timing, View.Intrinsic);
       }
     },
@@ -365,7 +365,7 @@ export class TokenView extends HtmlView {
       const timing = bodyView.getLook(Look.timing);
       bodyView.fill.setState(bodyView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const labelView = this.owner.label.view;
-      if (labelView !== null && labelView.color.isPrecedent(View.Intrinsic)) {
+      if (labelView !== null && labelView.color.takesPrecedence(View.Intrinsic)) {
         labelView.color.setState(bodyView.getLookOr(Look.backgroundColor, null), timing, View.Intrinsic);
       }
     },
@@ -375,7 +375,7 @@ export class TokenView extends HtmlView {
       const timing = bodyView.getLook(Look.timing);
       bodyView.fill.setState(bodyView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const labelView = this.owner.label.view;
-      if (labelView !== null && labelView.color.isPrecedent(View.Intrinsic)) {
+      if (labelView !== null && labelView.color.takesPrecedence(View.Intrinsic)) {
         labelView.color.setState(bodyView.getLookOr(Look.backgroundColor, null), timing, View.Intrinsic);
       }
     },
@@ -426,7 +426,7 @@ export class TokenView extends HtmlView {
     viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, footView: SvgView): void {
       footView.fill.setState(theme.getOr(this.owner.fillLook, mood, null), timing, View.Intrinsic);
       const footIconView = this.owner.footIcon.view;
-      if (footIconView !== null && footIconView.fill.isPrecedent(View.Intrinsic)) {
+      if (footIconView !== null && footIconView.fill.takesPrecedence(View.Intrinsic)) {
         const iconColor = theme.getOr(this.owner.fillLook, mood.updated(Feel.embossed, 1), null);
         footIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
@@ -437,7 +437,7 @@ export class TokenView extends HtmlView {
       const timing = footView.getLook(Look.timing);
       footView.fill.setState(footView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const footIconView = this.owner.footIcon.view;
-      if (footIconView !== null && footIconView.fill.isPrecedent(View.Intrinsic)) {
+      if (footIconView !== null && footIconView.fill.takesPrecedence(View.Intrinsic)) {
         const iconColor = footView.getLookOr(this.owner.fillLook, footView.mood.getState().updated(Feel.embossed, 1), null);
         footIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }
@@ -448,7 +448,7 @@ export class TokenView extends HtmlView {
       const timing = footView.getLook(Look.timing);
       footView.fill.setState(footView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const footIconView = this.owner.footIcon.view;
-      if (footIconView !== null && footIconView.fill.isPrecedent(View.Intrinsic)) {
+      if (footIconView !== null && footIconView.fill.takesPrecedence(View.Intrinsic)) {
         const iconColor = footView.getLookOr(this.owner.fillLook, footView.mood.getState().updated(Feel.embossed, 1), null);
         footIconView.fill.setState(iconColor, timing, View.Intrinsic);
       }

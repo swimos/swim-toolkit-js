@@ -213,7 +213,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
 
   protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
-    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
+    if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
       let backgroundColor = this.getLookOr(Look.backgroundColor, null);
       if (!this.gesture.isHovering() && backgroundColor instanceof Color) {
         backgroundColor = backgroundColor.alpha(0);
@@ -307,7 +307,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
     if (this.hovers) {
       this.modifyMood(Feel.default, [Feel.hovering, 1]);
       const timing = this.getLook(Look.timing);
-      if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
+      if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
         this.backgroundColor.setState(this.getLookOr(Look.backgroundColor, null), timing, View.Intrinsic);
       }
     }
@@ -316,7 +316,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   didStopHovering(): void {
     this.modifyMood(Feel.default, [Feel.hovering, void 0]);
     const timing = this.getLook(Look.timing);
-    if (this.backgroundColor.isPrecedent(View.Intrinsic)) {
+    if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
       let backgroundColor = this.getLookOr(Look.backgroundColor, null);
       if (backgroundColor !== null) {
         backgroundColor = backgroundColor.alpha(0);

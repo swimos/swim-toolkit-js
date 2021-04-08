@@ -73,7 +73,7 @@ export class DisclosureButton extends HtmlView {
       const disclosurePhase = this.disclosurePhase.takeValue()!;
       const collapsedColor = this.collapsedColor.takeValue();
       const expandedColor = this.expandedColor.takeValue();
-      if (collapsedColor !== null && expandedColor !== null && this.arrow.fill.isPrecedent(View.Intrinsic)) {
+      if (collapsedColor !== null && expandedColor !== null && this.arrow.fill.takesPrecedence(View.Intrinsic)) {
         const colorInterpolator = collapsedColor.interpolateTo(expandedColor);
         this.arrow.fill.setState(colorInterpolator(disclosurePhase), View.Intrinsic);
       }

@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export {Icon} from "./Icon";
+export {
+  IconSize,
+  Icon,
+} from "./Icon";
 
 export {FilledIcon} from "./FilledIcon";
 

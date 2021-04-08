@@ -753,7 +753,7 @@ export abstract class ScaledView<X, Y> extends LayerView implements ScaledXYView
   }
 
   protected updateXRangePadding(xScaledRangePadding: readonly [number, number], scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
-    if (this.xRangePadding.isPrecedent(View.Intrinsic)) {
+    if (this.xRangePadding.takesPrecedence(View.Intrinsic)) {
       let xRangePadding = this.xRangePadding.state;
       if (xRangePadding === null || this.scaledFasteners.length === 1) {
         xRangePadding = xScaledRangePadding;
@@ -811,7 +811,7 @@ export abstract class ScaledView<X, Y> extends LayerView implements ScaledXYView
   }
 
   protected updateYRangePadding(yScaledRangePadding: readonly [number, number], scaledFastener: ViewFastener<this, ScaledXView<X> | ScaledYView<Y>>): void {
-    if (this.yRangePadding.isPrecedent(View.Intrinsic)) {
+    if (this.yRangePadding.takesPrecedence(View.Intrinsic)) {
       let yRangePadding = this.yRangePadding.state;
       if (yRangePadding === null || this.scaledFasteners.length === 1) {
         yRangePadding = yScaledRangePadding;

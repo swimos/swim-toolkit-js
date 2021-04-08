@@ -148,7 +148,7 @@ export class SliceComponent extends CompositeComponent {
 
   protected setValue(value: number, sliceTrait: SliceTrait, timing?: AnyTiming | boolean): void {
     const sliceView = this.slice.view;
-    if (sliceView !== null && sliceView.value.isPrecedent(View.Intrinsic)) {
+    if (sliceView !== null && sliceView.value.takesPrecedence(View.Intrinsic)) {
       if (timing === void 0 || timing === true) {
         timing = this.sliceTiming.state;
         if (timing === true) {

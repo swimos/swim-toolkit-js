@@ -111,7 +111,7 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
   }
 
   protected onSetStrokeWidth(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
-    if (this.xRangePadding.isPrecedent(View.Intrinsic) || this.yRangePadding.isPrecedent(View.Intrinsic)) {
+    if (this.xRangePadding.takesPrecedence(View.Intrinsic) || this.yRangePadding.takesPrecedence(View.Intrinsic)) {
       const frame = this.viewFrame;
       const size = Math.min(frame.width, frame.height);
       const strokeWidth = this.strokeWidth.getValueOr(Length.zero()).pxValue(size);
