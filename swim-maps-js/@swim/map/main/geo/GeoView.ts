@@ -269,7 +269,7 @@ export abstract class GeoView extends GraphicsView {
   }
 
   deriveGeoBounds(): GeoBox {
-    let geoBounds: GeoBox | null = this.ownGeoBounds;
+    let geoBounds = this.ownGeoBounds;
     type self = this;
     function accumulateGeoBounds(this: self, childView: View): void {
       if (childView instanceof GeoView && !childView.isHidden()) {

@@ -442,7 +442,7 @@ export class GeoLayerView extends GeoView {
   }
 
   deriveGeoBounds(): GeoBox {
-    let geoBounds: GeoBox | null = this.ownGeoBounds;
+    let geoBounds = this.ownGeoBounds;
     const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
       const childView = childViews[i]!;

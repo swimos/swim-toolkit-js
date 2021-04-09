@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Equals} from "@swim/util";
-import {Model, TraitModelType, Trait, TraitFastener, GenericTrait} from "@swim/model";
+import {Model, TraitModelType, Trait, TraitProperty, TraitFastener, GenericTrait} from "@swim/model";
 import type {GraphicsView} from "@swim/graphics";
 import {SliceTrait} from "../slice/SliceTrait";
 import type {PieTraitObserver} from "./PieTraitObserver";
@@ -24,11 +23,6 @@ export type PieTitleFunction = (pieTrait: PieTrait) => GraphicsView | string | n
 export class PieTrait extends GenericTrait {
   constructor() {
     super();
-    Object.defineProperty(this, "title", {
-      value: null,
-      enumerable: true,
-      configurable: true,
-    });
     Object.defineProperty(this, "sliceFasteners", {
       value: [],
       enumerable: true,
@@ -36,22 +30,6 @@ export class PieTrait extends GenericTrait {
   }
 
   declare readonly traitObservers: ReadonlyArray<PieTraitObserver>;
-
-  declare readonly title: PieTitle | null;
-
-  setTitle(newTitle: PieTitle | null): void {
-    const oldTitle = this.title;
-    if (!Equals(newTitle, oldTitle)) {
-      this.willSetTitle(newTitle, oldTitle);
-      Object.defineProperty(this, "title", {
-        value: newTitle,
-        enumerable: true,
-        configurable: true,
-      });
-      this.onSetTitle(newTitle, oldTitle);
-      this.didSetTitle(newTitle, oldTitle);
-    }
-  }
 
   protected willSetTitle(newTitle: PieTitle | null, oldTitle: PieTitle | null): void {
     const traitObservers = this.traitObservers;
@@ -76,6 +54,18 @@ export class PieTrait extends GenericTrait {
       }
     }
   }
+
+  @TraitProperty<PieTrait, PieTitle | null>({
+    state: null,
+    willSetState(newTitle: PieTitle | null, oldTitle: PieTitle | null): void {
+      this.owner.willSetTitle(newTitle, oldTitle);
+    },
+    didSetState(newTitle: PieTitle | null, oldTitle: PieTitle | null): void {
+      this.owner.onSetTitle(newTitle, oldTitle);
+      this.owner.didSetTitle(newTitle, oldTitle);
+    },
+  })
+  declare title: TraitProperty<this, PieTitle | null>;
 
   insertSlice(sliceTrait: SliceTrait, targetTrait: Trait | null = null): void {
     const sliceFasteners = this.sliceFasteners as TraitFastener<this, SliceTrait>[];

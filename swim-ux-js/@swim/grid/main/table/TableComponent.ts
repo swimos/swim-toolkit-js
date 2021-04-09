@@ -53,7 +53,7 @@ export class TableComponent extends CompositeComponent {
   }
 
   protected initTableTrait(tableTrait: TableTrait): void {
-    const tableLayout = tableTrait.layout;
+    const tableLayout = tableTrait.layout.state;
     if (tableLayout !== null) {
       const tableView = this.table.view;
       if (tableView !== null) {
@@ -159,7 +159,7 @@ export class TableComponent extends CompositeComponent {
   protected initTableView(tableView: TableView): void {
     const tableTrait = this.table.trait;
     if (tableTrait !== null) {
-      const tableLayout = tableTrait.layout;
+      const tableLayout = tableTrait.layout.state;
       if (tableLayout !== null) {
         this.layoutTable(tableLayout, tableView);
       }

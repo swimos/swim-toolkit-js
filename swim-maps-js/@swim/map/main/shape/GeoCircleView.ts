@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length, AnyPointR2, PointR2, BoxR2, CircleR2} from "@swim/math";
-import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
+import {AnyLength, Length, AnyPointR2, PointR2, SegmentR2, BoxR2, CircleR2} from "@swim/math";
+import {AnyGeoPoint, GeoPoint} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
 import {ViewContextType, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {
@@ -84,8 +84,10 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
   }
 
   protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
-    this.setGeoBounds(new GeoBox(newGeoCenter.lng, newGeoCenter.lat, newGeoCenter.lng, newGeoCenter.lat));
-    this.requireUpdate(View.NeedsProject);
+    this.setGeoBounds(newGeoCenter.bounds);
+    if (this.isMounted()) {
+      this.projectCircle(this.viewContext as ViewContextType<this>);
+    }
   }
 
   protected didSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
@@ -105,6 +107,9 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
   @ViewAnimator<GeoCircleView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
     state: GeoPoint.origin(),
+    didSetState(newGeoCenter: GeoPoint, oldGeoCemter: GeoPoint): void {
+      this.owner.projectGeoCenter(newGeoCenter);
+    },
     willSetValue(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
       this.owner.willSetGeoCenter(newGeoCenter, oldGeoCenter);
     },
@@ -135,20 +140,33 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
 
   protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
-    let viewCenter: PointR2;
-    if (this.viewCenter.takesPrecedence(View.Intrinsic)) {
-      const geoViewport = viewContext.geoViewport;
-      viewCenter = geoViewport.project(this.geoCenter.getValue());
-      this.viewCenter.setState(viewCenter, View.Intrinsic);
-    } else {
-      viewCenter = this.viewCenter.getValue();
+    this.projectCircle(viewContext);
+  }
+
+  protected projectGeoCenter(geoCenter: GeoPoint): void {
+    if (this.isMounted()) {
+      const viewContext = this.viewContext as ViewContextType<this>;
+      const viewCenter = viewContext.geoViewport.project(geoCenter);
+      this.viewCenter.setIntermediateValue(this.viewCenter.value, viewCenter);
+      this.projectCircle(viewContext);
     }
-    const frame = this.viewFrame;
-    const size = Math.min(frame.width, frame.height);
-    const radius = this.radius.getValue().pxValue(size);
-    const invalid = !isFinite(viewCenter.x) || !isFinite(viewCenter.y) || !isFinite(radius);
-    const culled = invalid || !frame.intersectsCircle(new CircleR2(viewCenter.x, viewCenter.y, radius));
-    this.setCulled(culled);
+  }
+
+  protected projectCircle(viewContext: ViewContextType<this>): void {
+    if (this.viewCenter.takesPrecedence(View.Intrinsic)) {
+      this.viewCenter.setValue(viewContext.geoViewport.project(this.geoCenter.getValue()));
+    }
+    const viewFrame = this.viewFrame;
+    const size = Math.min(viewFrame.width, viewFrame.height);
+    const r = this.radius.getValue().pxValue(size);
+    const p0 = this.viewCenter.getValue();
+    const p1 = this.viewCenter.getState();
+    if (viewFrame.intersectsCircle(new CircleR2(p0.x, p0.y, r)) ||
+        viewFrame.intersectsSegment(new SegmentR2(p0.x, p0.y, p1.x, p1.y))) {
+      this.setCulled(false);
+    } else {
+      this.setCulled(true);
+    }
   }
 
   protected onRender(viewContext: ViewContextType<this>): void {

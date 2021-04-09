@@ -69,9 +69,7 @@ while (i <= n) {
   const x = i * 2 * Math.PI / samplesPerCycle;
   const y = Math.sin(x) * x;
   const dataPointModel = new swim.CompoundModel();
-  const dataPointTrait = new swim.DataPointTrait();
-  dataPointTrait.setX(x);
-  dataPointTrait.setY(y);
+  const dataPointTrait = new swim.DataPointTrait(x, y);
   dataPointModel.setTrait("dataPoint", dataPointTrait);
   plot1Model.appendChildModel(dataPointModel);
   i += 1;

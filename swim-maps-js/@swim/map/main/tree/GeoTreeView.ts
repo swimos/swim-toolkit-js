@@ -346,7 +346,7 @@ export class GeoTreeView extends GeoView {
 
   /** @hidden */
   protected doProcessChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>): void {
-    if ((processFlags & View.ProcessMask) !== 0 && !this.isHidden() && !this.isCulled()) {
+    if ((processFlags & View.ProcessMask) !== 0) {
       this.willProcessChildViews(processFlags, viewContext);
       this.onProcessChildViews(processFlags, viewContext);
       this.didProcessChildViews(processFlags, viewContext);
@@ -363,16 +363,16 @@ export class GeoTreeView extends GeoView {
   protected processTree(tree: GeoTree, processFlags: ViewFlags, viewContext: ViewContextType<this>,
                         processChildView: (this: this, childView: View, processFlags: ViewFlags,
                                            viewContext: ViewContextType<this>) => void): void {
-    if (tree.southWest !== null && tree.southWest.geoFrame.intersects(viewContext.geoViewport.geoFrame)) {
+    if (tree.southWest !== null) {
       this.processTree(tree.southWest, processFlags, viewContext, processChildView);
     }
-    if (tree.northWest !== null && tree.northWest.geoFrame.intersects(viewContext.geoViewport.geoFrame)) {
+    if (tree.northWest !== null) {
       this.processTree(tree.northWest, processFlags, viewContext, processChildView);
     }
-    if (tree.southEast !== null && tree.southEast.geoFrame.intersects(viewContext.geoViewport.geoFrame)) {
+    if (tree.southEast !== null) {
       this.processTree(tree.southEast, processFlags, viewContext, processChildView);
     }
-    if (tree.northEast !== null && tree.northEast.geoFrame.intersects(viewContext.geoViewport.geoFrame)) {
+    if (tree.northEast !== null) {
       this.processTree(tree.northEast, processFlags, viewContext, processChildView);
     }
     const childViews = tree.views;

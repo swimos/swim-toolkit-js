@@ -14,6 +14,7 @@
 
 import {AnyTiming, Timing} from "@swim/mapping";
 import type {AnyLength, Length} from "@swim/math";
+import {Model} from "@swim/model";
 import type {AnyColor, Color} from "@swim/style";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {View} from "@swim/view";
@@ -33,13 +34,13 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
   protected attachDataPointTrait(dataPointTrait: DataPointTrait<X, Y>): void {
     const dataPointView = this.dataPoint.view;
     if (dataPointView !== null) {
-      this.setX(dataPointTrait.x, dataPointTrait);
-      this.setY(dataPointTrait.y, dataPointTrait);
-      this.setY2(dataPointTrait.y2, dataPointTrait);
-      this.setRadius(dataPointTrait.radius, dataPointTrait);
-      this.setColor(dataPointTrait.color, dataPointTrait);
-      this.setOpacity(dataPointTrait.opacity, dataPointTrait);
-      this.setLabelView(dataPointTrait.label, dataPointTrait);
+      this.setX(dataPointTrait.x.state, dataPointTrait);
+      this.setY(dataPointTrait.y.state, dataPointTrait);
+      this.setY2(dataPointTrait.y2.state, dataPointTrait);
+      this.setRadius(dataPointTrait.radius.state, dataPointTrait);
+      this.setColor(dataPointTrait.color.state, dataPointTrait);
+      this.setOpacity(dataPointTrait.opacity.state, dataPointTrait);
+      this.setLabelView(dataPointTrait.label.state, dataPointTrait);
     }
   }
 
@@ -83,17 +84,17 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
   protected updateLabel(x: X | undefined, y: Y | undefined, dataPointTrait: DataPointTrait<X, Y>): void {
     const label = dataPointTrait.formatLabel(x, y);
     if (label !== void 0) {
-      dataPointTrait.setLabel(label);
+      dataPointTrait.label.setState(label, Model.Intrinsic);
     }
   }
 
   protected createDataPointView(dataPointTrait: DataPointTrait<X, Y> | null): DataPointView<X, Y> {
     const dataPointView = DataPointView.create<X, Y>();
     if (dataPointTrait !== null) {
-      dataPointView.x.setState(dataPointTrait.x, View.Intrinsic);
-      dataPointView.y.setState(dataPointTrait.y, View.Intrinsic);
-      dataPointView.y2.setState(dataPointTrait.y2, View.Intrinsic);
-      dataPointView.radius.setState(dataPointTrait.radius, View.Intrinsic);
+      dataPointView.x.setState(dataPointTrait.x.state, View.Intrinsic);
+      dataPointView.y.setState(dataPointTrait.y.state, View.Intrinsic);
+      dataPointView.y2.setState(dataPointTrait.y2.state, View.Intrinsic);
+      dataPointView.radius.setState(dataPointTrait.radius.state, View.Intrinsic);
     }
     return dataPointView;
   }
@@ -112,13 +113,13 @@ export class DataPointComponent<X, Y> extends CompositeComponent {
 
     const dataPointTrait = this.dataPoint.trait;
     if (dataPointTrait !== null) {
-      this.setX(dataPointTrait.x, dataPointTrait);
-      this.setY(dataPointTrait.y, dataPointTrait);
-      this.setY2(dataPointTrait.y2, dataPointTrait);
-      this.setRadius(dataPointTrait.radius, dataPointTrait);
-      this.setColor(dataPointTrait.color, dataPointTrait);
-      this.setOpacity(dataPointTrait.opacity, dataPointTrait);
-      this.setLabelView(dataPointTrait.label, dataPointTrait);
+      this.setX(dataPointTrait.x.state, dataPointTrait);
+      this.setY(dataPointTrait.y.state, dataPointTrait);
+      this.setY2(dataPointTrait.y2.state, dataPointTrait);
+      this.setRadius(dataPointTrait.radius.state, dataPointTrait);
+      this.setColor(dataPointTrait.color.state, dataPointTrait);
+      this.setOpacity(dataPointTrait.opacity.state, dataPointTrait);
+      this.setLabelView(dataPointTrait.label.state, dataPointTrait);
     }
   }
 

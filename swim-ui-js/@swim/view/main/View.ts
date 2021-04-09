@@ -556,7 +556,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   protected onMount(): void {
     this.requestUpdate(this, this.viewFlags & ~View.StatusMask, false);
     this.requireUpdate(this.mountFlags);
-    if (this.animationTracks.length !== 0) {
+    if (this.animationTracks.length !== 0 && !this.isCulled()) {
       this.requireUpdate(View.NeedsAnimate);
     }
   }
@@ -749,6 +749,9 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   protected onUncull(): void {
     this.requestUpdate(this, this.viewFlags & ~View.StatusMask, false);
     this.requireUpdate(this.uncullFlags);
+    if (this.animationTracks.length !== 0) {
+      this.requireUpdate(View.NeedsAnimate);
+    }
   }
 
   protected didUncull(): void {
@@ -974,7 +977,9 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   protected onAnimate(viewContext: ViewContextType<this>): void {
-    this.updateAnimations(viewContext.updateTime);
+    if (!this.isCulled()) {
+      this.updateAnimations(viewContext.updateTime);
+    }
   }
 
   /** @hidden */
@@ -1271,7 +1276,9 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
       enumerable: true,
       configurable: true,
     });
-    this.requireUpdate(View.NeedsAnimate);
+    if (!this.isCulled()) {
+      this.requireUpdate(View.NeedsAnimate);
+    }
   }
 
   trackDidStartAnimating(track: AnimationTrack): void {

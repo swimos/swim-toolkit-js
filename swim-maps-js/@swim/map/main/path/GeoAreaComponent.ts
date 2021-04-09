@@ -34,10 +34,10 @@ export class GeoAreaComponent extends GeoPathComponent {
   protected attachGeoTrait(geoTrait: GeoAreaTrait): void {
     const geoView = this.geo.view;
     if (geoView !== null) {
-      this.setGeoPath(geoTrait.geoPath, geoTrait);
-      this.setFill(geoTrait.fill, geoTrait);
-      this.setStroke(geoTrait.stroke, geoTrait);
-      this.setStrokeWidth(geoTrait.strokeWidth, geoTrait);
+      this.setGeoPath(geoTrait.geoPath.state, geoTrait);
+      this.setFill(geoTrait.fill.state, geoTrait);
+      this.setStroke(geoTrait.stroke.state, geoTrait);
+      this.setStrokeWidth(geoTrait.strokeWidth.state, geoTrait);
     }
   }
 
@@ -86,10 +86,10 @@ export class GeoAreaComponent extends GeoPathComponent {
   protected attachGeoView(geoView: GeoAreaView): void {
     const geoTrait = this.geo.trait;
     if (geoTrait !== null) {
-      this.setGeoPath(geoTrait.geoPath, geoTrait);
-      this.setFill(geoTrait.fill, geoTrait);
-      this.setStroke(geoTrait.stroke, geoTrait);
-      this.setStrokeWidth(geoTrait.strokeWidth, geoTrait);
+      this.setGeoPath(geoTrait.geoPath.state, geoTrait);
+      this.setFill(geoTrait.fill.state, geoTrait);
+      this.setStroke(geoTrait.stroke.state, geoTrait);
+      this.setStrokeWidth(geoTrait.strokeWidth.state, geoTrait);
     }
   }
 

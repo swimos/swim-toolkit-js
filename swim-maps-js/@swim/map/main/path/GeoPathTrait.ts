@@ -13,40 +13,15 @@
 // limitations under the License.
 
 import {AnyGeoPath, GeoPath, GeoBox} from "@swim/geo";
+import {TraitProperty} from "@swim/model";
 import {GeoTrait} from "../geo/GeoTrait";
 import type {GeoPathTraitObserver} from "./GeoPathTraitObserver";
 
 export abstract class GeoPathTrait extends GeoTrait {
-  constructor() {
-    super();
-    Object.defineProperty(this, "geoPath", {
-      value: GeoPath.empty(),
-      enumerable: true,
-      configurable: true,
-    });
-  }
-
   declare readonly traitObservers: ReadonlyArray<GeoPathTraitObserver>;
 
   get geoBounds(): GeoBox {
-    return this.geoPath.bounds;
-  }
-
-  declare readonly geoPath: GeoPath;
-
-  setGeoPath(newGeoPath: AnyGeoPath): void {
-    const oldGeoPath = this.geoPath;
-    newGeoPath = GeoPath.fromAny(newGeoPath);
-    if (!newGeoPath.equals(oldGeoPath)) {
-      this.willSetGeoPath(newGeoPath, oldGeoPath);
-      Object.defineProperty(this, "geoPath", {
-        value: newGeoPath,
-        enumerable: true,
-        configurable: true,
-      });
-      this.onSetGeoPath(newGeoPath, oldGeoPath);
-      this.didSetGeoPath(newGeoPath, oldGeoPath);
-    }
+    return this.geoPath.state.bounds;
   }
 
   protected willSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
@@ -72,4 +47,17 @@ export abstract class GeoPathTrait extends GeoTrait {
       }
     }
   }
+
+  @TraitProperty<GeoPathTrait, GeoPath, AnyGeoPath>({
+    type: GeoPath,
+    state: GeoPath.empty(),
+    willSetState(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
+      this.owner.willSetGeoPath(newGeoPath, oldGeoPath);
+    },
+    didSetState(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
+      this.owner.onSetGeoPath(newGeoPath, oldGeoPath);
+      this.owner.didSetGeoPath(newGeoPath, oldGeoPath);
+    },
+  })
+  declare geoPath: TraitProperty<this, GeoPath, AnyGeoPath>;
 }

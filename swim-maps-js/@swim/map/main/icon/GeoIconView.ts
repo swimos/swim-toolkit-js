@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import type {Timing} from "@swim/mapping";
-import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
-import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
+import {AnyLength, Length, AnyPointR2, PointR2, SegmentR2, BoxR2} from "@swim/math";
+import {AnyGeoPoint, GeoPoint} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -89,8 +89,10 @@ export class GeoIconView extends GeoLayerView implements IconView {
   }
 
   protected onSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
-    this.setGeoBounds(new GeoBox(newGeoCenter.lng, newGeoCenter.lat, newGeoCenter.lng, newGeoCenter.lat));
-    this.requireUpdate(View.NeedsProject);
+    this.setGeoBounds(newGeoCenter.bounds);
+    if (this.isMounted()) {
+      this.projectIcon(this.viewContext as ViewContextType<this>);
+    }
   }
 
   protected didSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
@@ -110,17 +112,34 @@ export class GeoIconView extends GeoLayerView implements IconView {
   @ViewAnimator<GeoIconView, GeoPoint, AnyGeoPoint>({
     type: GeoPoint,
     state: GeoPoint.origin(),
-    willSetValue(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
-      this.owner.willSetGeoCenter(newGeoPoint, oldGeoPoint);
+    didSetState(newGeoCenter: GeoPoint, oldGeoCemter: GeoPoint): void {
+      this.owner.projectGeoCenter(newGeoCenter);
     },
-    didSetValue(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
-      this.owner.onSetGeoCenter(newGeoPoint, oldGeoPoint);
-      this.owner.didSetGeoCenter(newGeoPoint, oldGeoPoint);
+    willSetValue(newGeoCenter: GeoPoint, oldGeoCemter: GeoPoint): void {
+      this.owner.willSetGeoCenter(newGeoCenter, oldGeoCemter);
+    },
+    didSetValue(newGeoCenter: GeoPoint, oldGeoCemter: GeoPoint): void {
+      this.owner.onSetGeoCenter(newGeoCenter, oldGeoCemter);
+      this.owner.didSetGeoCenter(newGeoCenter, oldGeoCemter);
     },
   })
   declare geoCenter: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewAnimator({type: PointR2, state: PointR2.origin()})
+  protected onSetViewCenter(newViewCenter: PointR2, oldViewCenter: PointR2): void {
+    Object.defineProperty(this, "iconBounds", {
+      value: null,
+      enumerable: true,
+      configurable: true,
+    });
+  }
+
+  @ViewAnimator<GeoIconView, PointR2, AnyPointR2>({
+    type: PointR2,
+    state: PointR2.origin(),
+    didSetValue(newViewCenter: PointR2, oldViewCenter: PointR2): void {
+      this.owner.onSetViewCenter(newViewCenter, oldViewCenter);
+    },
+  })
   declare viewCenter: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
@@ -208,22 +227,31 @@ export class GeoIconView extends GeoLayerView implements IconView {
 
   protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
-    let viewCenter: PointR2;
-    if (this.viewCenter.takesPrecedence(View.Intrinsic)) {
-      const geoViewport = viewContext.geoViewport;
-      viewCenter = geoViewport.project(this.geoCenter.getValue());
-      this.viewCenter.setState(viewCenter, View.Intrinsic);
-    } else {
-      viewCenter = this.viewCenter.getValue();
+    this.projectIcon(viewContext);
+  }
+
+  protected projectGeoCenter(geoCenter: GeoPoint): void {
+    if (this.isMounted()) {
+      const viewContext = this.viewContext as ViewContextType<this>;
+      const viewCenter = viewContext.geoViewport.project(geoCenter);
+      this.viewCenter.setIntermediateValue(this.viewCenter.value, viewCenter);
+      this.projectIcon(viewContext);
     }
-    Object.defineProperty(this, "iconBounds", {
-      value: null,
-      enumerable: true,
-      configurable: true,
-    });
-    const invalid = !isFinite(viewCenter.x) || !isFinite(viewCenter.y);
-    const culled = invalid || !this.viewFrame.intersectsBox(this.viewBounds);
-    this.setCulled(culled);
+  }
+
+  protected projectIcon(viewContext: ViewContextType<this>): void {
+    if (this.viewCenter.takesPrecedence(View.Intrinsic)) {
+      this.viewCenter.setValue(viewContext.geoViewport.project(this.geoCenter.getValue()));
+    }
+    const viewFrame = this.viewFrame;
+    const p0 = this.viewCenter.getValue();
+    const p1 = this.viewCenter.getState();
+    if (viewFrame.intersectsBox(this.viewBounds) ||
+        viewFrame.intersectsSegment(new SegmentR2(p0.x, p0.y, p1.x, p1.y))) {
+      this.setCulled(false);
+    } else {
+      this.setCulled(true);
+    }
   }
 
   needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {

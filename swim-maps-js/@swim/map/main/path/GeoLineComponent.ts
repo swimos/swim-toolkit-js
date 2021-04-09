@@ -34,9 +34,9 @@ export class GeoLineComponent extends GeoPathComponent {
   protected attachGeoTrait(geoTrait: GeoLineTrait): void {
     const geoView = this.geo.view;
     if (geoView !== null) {
-      this.setGeoPath(geoTrait.geoPath, geoTrait);
-      this.setStroke(geoTrait.stroke, geoTrait);
-      this.setStrokeWidth(geoTrait.strokeWidth, geoTrait);
+      this.setGeoPath(geoTrait.geoPath.state, geoTrait);
+      this.setStroke(geoTrait.stroke.state, geoTrait);
+      this.setStrokeWidth(geoTrait.strokeWidth.state, geoTrait);
     }
   }
 
@@ -85,9 +85,9 @@ export class GeoLineComponent extends GeoPathComponent {
   protected attachGeoView(geoView: GeoLineView): void {
     const geoTrait = this.geo.trait;
     if (geoTrait !== null) {
-      this.setGeoPath(geoTrait.geoPath, geoTrait);
-      this.setStroke(geoTrait.stroke, geoTrait);
-      this.setStrokeWidth(geoTrait.strokeWidth, geoTrait);
+      this.setGeoPath(geoTrait.geoPath.state, geoTrait);
+      this.setStroke(geoTrait.stroke.state, geoTrait);
+      this.setStrokeWidth(geoTrait.strokeWidth.state, geoTrait);
     }
   }
 

@@ -33,8 +33,8 @@ export class GeoIconComponent extends GeoComponent {
   protected attachGeoTrait(geoTrait: GeoIconTrait): void {
     const geoView = this.geo.view;
     if (geoView !== null) {
-      this.setGeoCenter(geoTrait.geoCenter, geoTrait);
-      this.setGraphics(geoTrait.graphics, geoTrait);
+      this.setGeoCenter(geoTrait.geoCenter.state, geoTrait);
+      this.setGraphics(geoTrait.graphics.state, geoTrait);
     }
   }
 
@@ -83,8 +83,8 @@ export class GeoIconComponent extends GeoComponent {
   protected attachGeoView(geoView: GeoIconView): void {
     const geoTrait = this.geo.trait;
     if (geoTrait !== null) {
-      this.setGeoCenter(geoTrait.geoCenter, geoTrait);
-      this.setGraphics(geoTrait.graphics, geoTrait);
+      this.setGeoCenter(geoTrait.geoCenter.state, geoTrait);
+      this.setGraphics(geoTrait.graphics.state, geoTrait);
     }
   }
 

@@ -53,7 +53,7 @@ export abstract class MapComponent extends CompositeComponent {
   protected attachMapTrait(mapTrait: MapTrait): void {
     const mapView = this.map.view;
     if (mapView !== null) {
-      this.setGeoPerspective(mapTrait.geoPerspective, mapTrait);
+      this.setGeoPerspective(mapTrait.geoPerspective.state, mapTrait);
     }
 
     const layerFasteners = mapTrait.layerFasteners;
@@ -117,7 +117,7 @@ export abstract class MapComponent extends CompositeComponent {
 
     const mapTrait = this.map.trait;
     if (mapTrait !== null) {
-      this.setGeoPerspective(mapTrait.geoPerspective, mapTrait);
+      this.setGeoPerspective(mapTrait.geoPerspective.state, mapTrait);
     }
 
     const layerFasteners = this.layerFasteners;

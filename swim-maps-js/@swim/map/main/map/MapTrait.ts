@@ -12,21 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Objects} from "@swim/util";
 import {GeoBox} from "@swim/geo";
-import {Model, TraitModelType, Trait, TraitFastener} from "@swim/model";
+import {Model, TraitModelType, Trait, TraitProperty, TraitFastener} from "@swim/model";
 import {GeoTrait} from "../geo/GeoTrait";
-import type {GeoPerspective} from "../geo/GeoPerspective";
+import {AnyGeoPerspective, GeoPerspective} from "../geo/GeoPerspective";
 import type {MapTraitObserver} from "./MapTraitObserver";
 
 export class MapTrait extends GeoTrait {
   constructor() {
     super();
-    Object.defineProperty(this, "geoPerspective", {
-      value: null,
-      enumerable: true,
-      configurable: true,
-    });
     Object.defineProperty(this, "layerFasteners", {
       value: [],
       enumerable: true,
@@ -37,22 +31,6 @@ export class MapTrait extends GeoTrait {
 
   get geoBounds(): GeoBox {
     return GeoBox.globe();
-  }
-
-  declare readonly geoPerspective: GeoPerspective | null;
-
-  setGeoPerspective(newGeoPerspective: GeoPerspective | null): void {
-    const oldGeoPerspective = this.geoPerspective;
-    if (!Objects.equal(newGeoPerspective, oldGeoPerspective)) {
-      this.willSetGeoPerspective(newGeoPerspective, oldGeoPerspective);
-      Object.defineProperty(this, "geoPerspective", {
-        value: newGeoPerspective,
-        enumerable: true,
-        configurable: true,
-      });
-      this.onSetGeoPerspective(newGeoPerspective, oldGeoPerspective);
-      this.didSetGeoPerspective(newGeoPerspective, oldGeoPerspective);
-    }
   }
 
   protected willSetGeoPerspective(newGeoPerspective: GeoPerspective | null, oldGeoPerspective: GeoPerspective | null): void {
@@ -78,6 +56,19 @@ export class MapTrait extends GeoTrait {
       }
     }
   }
+
+  @TraitProperty<MapTrait, GeoPerspective | null, AnyGeoPerspective | null>({
+    type: GeoPerspective,
+    state: null,
+    willSetState(newGeoPerspective: GeoPerspective | null, oldGeoPerspective: GeoPerspective | null): void {
+      this.owner.willSetGeoPerspective(newGeoPerspective, oldGeoPerspective);
+    },
+    didSetState(newGeoPerspective: GeoPerspective | null, oldGeoPerspective: GeoPerspective | null): void {
+      this.owner.onSetGeoPerspective(newGeoPerspective, oldGeoPerspective);
+      this.owner.didSetGeoPerspective(newGeoPerspective, oldGeoPerspective);
+    },
+  })
+  declare geoPerspective: TraitProperty<this, GeoPerspective | null, AnyGeoPerspective | null>;
 
   insertLayer(layerTrait: GeoTrait, targetTrait: Trait | null = null): void {
     const layerFasteners = this.layerFasteners as TraitFastener<this, GeoTrait>[];

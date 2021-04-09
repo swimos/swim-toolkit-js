@@ -49,7 +49,7 @@ export class PieComponent extends CompositeComponent {
   protected attachPieTrait(pieTrait: PieTrait): void {
     const pieView = this.pie.view;
     if (pieView !== null) {
-      this.setTitleView(pieTrait.title, pieTrait);
+      this.setTitleView(pieTrait.title.state, pieTrait);
     }
 
     const sliceFasteners = pieTrait.sliceFasteners;
@@ -119,7 +119,7 @@ export class PieComponent extends CompositeComponent {
 
     const pieTrait = this.pie.trait;
     if (pieTrait !== null) {
-      this.setTitleView(pieTrait.title, pieTrait);
+      this.setTitleView(pieTrait.title.state, pieTrait);
     }
 
     const sliceFasteners = this.sliceFasteners;

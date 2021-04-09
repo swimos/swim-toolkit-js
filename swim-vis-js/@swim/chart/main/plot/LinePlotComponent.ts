@@ -52,8 +52,8 @@ export class LinePlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
   protected attachPlotTrait(plotTrait: LinePlotTrait<X, Y>): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
-      this.setPlotStroke(plotTrait.stroke, plotTrait);
-      this.setPlotStrokeWidth(plotTrait.strokeWidth, plotTrait);
+      this.setPlotStroke(plotTrait.stroke.state, plotTrait);
+      this.setPlotStrokeWidth(plotTrait.strokeWidth.state, plotTrait);
     }
   }
 
@@ -102,8 +102,8 @@ export class LinePlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
   protected attachPlotView(plotView: LinePlotView<X, Y>): void {
     const plotTrait = this.plot.trait;
     if (plotTrait !== null) {
-      this.setPlotStroke(plotTrait.stroke, plotTrait);
-      this.setPlotStrokeWidth(plotTrait.strokeWidth, plotTrait);
+      this.setPlotStroke(plotTrait.stroke.state, plotTrait);
+      this.setPlotStrokeWidth(plotTrait.strokeWidth.state, plotTrait);
     }
 
     const dataPointFasteners = this.dataPointFasteners;

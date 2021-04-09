@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AnyTiming, Timing} from "@swim/mapping";
+import {Model} from "@swim/model";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
@@ -31,10 +32,10 @@ export class DialComponent extends CompositeComponent {
   protected attachDialTrait(dialTrait: DialTrait): void {
     const dialView = this.dial.view;
     if (dialView !== null) {
-      this.setValue(dialTrait.value, dialTrait);
-      this.setLimit(dialTrait.limit, dialTrait);
-      this.setLabelView(dialTrait.label, dialTrait);
-      this.setLegendView(dialTrait.legend, dialTrait);
+      this.setValue(dialTrait.value.state, dialTrait);
+      this.setLimit(dialTrait.limit.state, dialTrait);
+      this.setLabelView(dialTrait.label.state, dialTrait);
+      this.setLegendView(dialTrait.legend.state, dialTrait);
     }
   }
 
@@ -73,16 +74,20 @@ export class DialComponent extends CompositeComponent {
   }
 
   protected updateLabel(value: number, limit: number, dialTrait: DialTrait): void {
-    const label = dialTrait.formatLabel(value, limit);
-    if (label !== void 0) {
-      dialTrait.setLabel(label);
+    if (dialTrait.label.takesPrecedence(Model.Intrinsic)) {
+      const label = dialTrait.formatLabel(value, limit);
+      if (label !== void 0) {
+        dialTrait.label.setState(label, Model.Intrinsic);
+      }
     }
   }
 
   protected updateLegend(value: number, limit: number, dialTrait: DialTrait): void {
-    const legend = dialTrait.formatLegend(value, limit);
-    if (legend !== void 0) {
-      dialTrait.setLegend(legend);
+    if (dialTrait.legend.takesPrecedence(Model.Intrinsic)) {
+      const legend = dialTrait.formatLegend(value, limit);
+      if (legend !== void 0) {
+        dialTrait.legend.setState(legend, Model.Intrinsic);
+      }
     }
   }
 
@@ -97,10 +102,10 @@ export class DialComponent extends CompositeComponent {
       const limit = dialView.limit.value;
       this.updateLabel(value, limit, dialTrait);
       this.updateLegend(value, limit, dialTrait);
-      this.setValue(dialTrait.value, dialTrait);
-      this.setLimit(dialTrait.limit, dialTrait);
-      this.setLabelView(dialTrait.label, dialTrait);
-      this.setLegendView(dialTrait.legend, dialTrait);
+      this.setValue(dialTrait.value.state, dialTrait);
+      this.setLimit(dialTrait.limit.state, dialTrait);
+      this.setLabelView(dialTrait.label.state, dialTrait);
+      this.setLegendView(dialTrait.legend.state, dialTrait);
     }
   }
 

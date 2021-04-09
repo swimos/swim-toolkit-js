@@ -23,13 +23,6 @@ import type {CellComponentObserver} from "./CellComponentObserver";
 export class CellComponent extends CompositeComponent {
   declare readonly componentObservers: ReadonlyArray<CellComponentObserver>;
 
-  setContent(content: CellContent | null): void {
-    const cellTrait = this.cell.trait;
-    if (cellTrait !== null) {
-      cellTrait.setContent(content);
-    }
-  }
-
   protected initCellTrait(cellTrait: CellTrait): void {
     // hook
   }
@@ -37,7 +30,7 @@ export class CellComponent extends CompositeComponent {
   protected attachCellTrait(cellTrait: CellTrait): void {
     const cellView = this.cell.view;
     if (cellView !== null) {
-      this.setContentView(cellTrait.content, cellTrait);
+      this.setContentView(cellTrait.content.state, cellTrait);
     }
   }
 
@@ -91,7 +84,7 @@ export class CellComponent extends CompositeComponent {
 
     const cellTrait = this.cell.trait;
     if (cellTrait !== null) {
-      this.setContentView(cellTrait.content, cellTrait);
+      this.setContentView(cellTrait.content.state, cellTrait);
     }
   }
 

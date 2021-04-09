@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {AnyTiming, Timing} from "@swim/mapping";
+import {Model} from "@swim/model";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {View} from "@swim/view";
 import type {GraphicsView} from "@swim/graphics";
@@ -31,9 +32,9 @@ export class SliceComponent extends CompositeComponent {
   protected attachSliceTrait(sliceTrait: SliceTrait): void {
     const sliceView = this.slice.view;
     if (sliceView !== null) {
-      this.setValue(sliceTrait.value, sliceTrait);
-      this.setLabelView(sliceTrait.label, sliceTrait);
-      this.setLegendView(sliceTrait.legend, sliceTrait);
+      this.setValue(sliceTrait.value.state, sliceTrait);
+      this.setLabelView(sliceTrait.label.state, sliceTrait);
+      this.setLegendView(sliceTrait.legend.state, sliceTrait);
     }
   }
 
@@ -72,16 +73,20 @@ export class SliceComponent extends CompositeComponent {
   }
 
   protected updateLabel(value: number, sliceTrait: SliceTrait): void {
-    const label = sliceTrait.formatLabel(value);
-    if (label !== void 0) {
-      sliceTrait.setLabel(label);
+    if (sliceTrait.label.takesPrecedence(Model.Intrinsic)) {
+      const label = sliceTrait.formatLabel(value);
+      if (label !== void 0) {
+        sliceTrait.label.setState(label, Model.Intrinsic);
+      }
     }
   }
 
   protected updateLegend(value: number, sliceTrait: SliceTrait): void {
-    const legend = sliceTrait.formatLegend(value);
-    if (legend !== void 0) {
-      sliceTrait.setLegend(legend);
+    if (sliceTrait.legend.takesPrecedence(Model.Intrinsic)) {
+      const legend = sliceTrait.formatLegend(value);
+      if (legend !== void 0) {
+        sliceTrait.legend.setState(legend, Model.Intrinsic);
+      }
     }
   }
 
@@ -96,9 +101,9 @@ export class SliceComponent extends CompositeComponent {
     if (sliceTrait !== null) {
       this.updateLabel(value, sliceTrait);
       this.updateLegend(value, sliceTrait);
-      this.setValue(sliceTrait.value, sliceTrait);
-      this.setLabelView(sliceTrait.label, sliceTrait);
-      this.setLegendView(sliceTrait.legend, sliceTrait);
+      this.setValue(sliceTrait.value.state, sliceTrait);
+      this.setLabelView(sliceTrait.label.state, sliceTrait);
+      this.setLegendView(sliceTrait.legend.state, sliceTrait);
     }
   }
 

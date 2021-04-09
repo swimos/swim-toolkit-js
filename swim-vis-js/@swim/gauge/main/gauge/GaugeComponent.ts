@@ -42,13 +42,6 @@ export class GaugeComponent extends CompositeComponent {
 
   declare readonly componentObservers: ReadonlyArray<GaugeComponentObserver>;
 
-  setTitle(title: GaugeTitle | null): void {
-    const gaugeTrait = this.gauge.trait;
-    if (gaugeTrait !== null) {
-      gaugeTrait.setTitle(title);
-    }
-  }
-
   protected initGaugeTrait(gaugeTrait: GaugeTrait): void {
     // hook
   }
@@ -56,7 +49,7 @@ export class GaugeComponent extends CompositeComponent {
   protected attachGaugeTrait(gaugeTrait: GaugeTrait): void {
     const gaugeView = this.gauge.view;
     if (gaugeView !== null) {
-      this.setTitleView(gaugeTrait.title, gaugeTrait);
+      this.setTitleView(gaugeTrait.title.state, gaugeTrait);
     }
 
     const dialFasteners = gaugeTrait.dialFasteners;
@@ -126,7 +119,7 @@ export class GaugeComponent extends CompositeComponent {
 
     const gaugeTrait = this.gauge.trait;
     if (gaugeTrait !== null) {
-      this.setTitleView(gaugeTrait.title, gaugeTrait);
+      this.setTitleView(gaugeTrait.title.state, gaugeTrait);
     }
 
     const dialFasteners = this.dialFasteners;

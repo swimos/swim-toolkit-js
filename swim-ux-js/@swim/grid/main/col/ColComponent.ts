@@ -24,13 +24,6 @@ import type {ColComponentObserver} from "./ColComponentObserver";
 export class ColComponent extends CompositeComponent {
   declare readonly componentObservers: ReadonlyArray<ColComponentObserver>;
 
-  setHeader(header: ColHeader | null): void {
-    const colTrait = this.col.trait;
-    if (colTrait !== null) {
-      colTrait.setHeader(header);
-    }
-  }
-
   protected initColTrait(colTrait: ColTrait): void {
     // hook
   }
@@ -38,7 +31,7 @@ export class ColComponent extends CompositeComponent {
   protected attachColTrait(colTrait: ColTrait): void {
     const colView = this.col.view;
     if (colView !== null) {
-      this.setHeaderView(colTrait.header, colTrait);
+      this.setHeaderView(colTrait.header.state, colTrait);
     }
   }
 
@@ -116,7 +109,7 @@ export class ColComponent extends CompositeComponent {
 
     const colTrait = this.col.trait;
     if (colTrait !== null) {
-      this.setHeaderView(colTrait.header, colTrait);
+      this.setHeaderView(colTrait.header.state, colTrait);
     }
   }
 

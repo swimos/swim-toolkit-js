@@ -61,7 +61,9 @@ export class GeoPathView extends GeoLayerView {
 
   protected onSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
     this.setGeoBounds(newGeoPath.bounds);
-    this.requireUpdate(View.NeedsProject);
+    if (this.isMounted()) {
+      this.projectPath(this.viewContext as ViewContextType<this>);
+    }
   }
 
   protected didSetGeoPath(newGeoPath: GeoPath, oldGeoPath: GeoPath): void {
@@ -102,6 +104,10 @@ export class GeoPathView extends GeoLayerView {
 
   protected onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
+    this.projectPath(viewContext);
+  }
+
+  protected projectPath(viewContext: ViewContextType<this>): void {
     const geoViewport = viewContext.geoViewport;
 
     let viewPath: PathR2;

@@ -67,14 +67,14 @@ layerModel.setTrait("layer", layerTrait);
 
 function addFeature(featureId, layerModel) {
   const featureModel = new swim.CompoundModel();
-  const featureTrait = new swim.GeoIconTrait();
-  featureTrait.setGraphics(swim.CircleIcon.create());
+  const featureTrait = new swim.GeoIconTrait()
+    .graphics(swim.CircleIcon.create());
   featureModel.setTrait("feature", featureTrait);
   layerModel.appendChildModel(featureModel, "feature" + featureId);
   setInterval(function () {
     const lng = Math.random() * 360 - 180;
     const lat = Math.random() * 120 - 60;
-    featureTrait.setGeoCenter([lng, lat]);
+    featureTrait.geoCenter.setState([lng, lat]);
   }, 1000);
 }
 const featureCount = 32;

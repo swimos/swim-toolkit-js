@@ -13,46 +13,16 @@
 // limitations under the License.
 
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
+import {TraitProperty} from "@swim/model";
 import type {Graphics} from "@swim/graphics";
 import {GeoTrait} from "../geo/GeoTrait";
 import type {GeoIconTraitObserver} from "./GeoIconTraitObserver";
 
 export class GeoIconTrait extends GeoTrait {
-  constructor() {
-    super();
-    Object.defineProperty(this, "geoCenter", {
-      value: GeoPoint.origin(),
-      enumerable: true,
-      configurable: true,
-    });
-    Object.defineProperty(this, "graphics", {
-      value: null,
-      enumerable: true,
-      configurable: true,
-    });
-  }
-
   declare readonly traitObservers: ReadonlyArray<GeoIconTraitObserver>;
 
   get geoBounds(): GeoBox {
-    return this.geoCenter.bounds;
-  }
-
-  declare readonly geoCenter: GeoPoint;
-
-  setGeoCenter(newGeoCenter: AnyGeoPoint): void {
-    const oldGeoCenter = this.geoCenter;
-    newGeoCenter = GeoPoint.fromAny(newGeoCenter);
-    if (!(newGeoCenter as GeoPoint).equals(oldGeoCenter)) {
-      this.willSetGeoCenter(newGeoCenter as GeoPoint, oldGeoCenter);
-      Object.defineProperty(this, "geoCenter", {
-        value: newGeoCenter,
-        enumerable: true,
-        configurable: true,
-      });
-      this.onSetGeoCenter(newGeoCenter as GeoPoint, oldGeoCenter);
-      this.didSetGeoCenter(newGeoCenter as GeoPoint, oldGeoCenter);
-    }
+    return this.geoCenter.state.bounds;
   }
 
   protected willSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
@@ -79,21 +49,18 @@ export class GeoIconTrait extends GeoTrait {
     }
   }
 
-  declare readonly graphics: Graphics | null;
-
-  setGraphics(newGraphics: Graphics | null): void {
-    const oldGraphics = this.graphics;
-    if (newGraphics !== oldGraphics) {
-      this.willSetGraphics(newGraphics, oldGraphics);
-      Object.defineProperty(this, "graphics", {
-        value: newGraphics,
-        enumerable: true,
-        configurable: true,
-      });
-      this.onSetGraphics(newGraphics, oldGraphics);
-      this.didSetGraphics(newGraphics, oldGraphics);
-    }
-  }
+  @TraitProperty<GeoIconTrait, GeoPoint, AnyGeoPoint>({
+    type: GeoPoint,
+    state: GeoPoint.origin(),
+    willSetState(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+      this.owner.willSetGeoCenter(newGeoCenter, oldGeoCenter);
+    },
+    didSetState(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint): void {
+      this.owner.onSetGeoCenter(newGeoCenter, oldGeoCenter);
+      this.owner.didSetGeoCenter(newGeoCenter, oldGeoCenter);
+    },
+  })
+  declare geoCenter: TraitProperty<this, GeoPoint, AnyGeoPoint>;
 
   protected willSetGraphics(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
     const traitObservers = this.traitObservers;
@@ -118,4 +85,16 @@ export class GeoIconTrait extends GeoTrait {
       }
     }
   }
+
+  @TraitProperty<GeoIconTrait, Graphics | null>({
+    state: null,
+    willSetState(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
+      this.owner.willSetGraphics(newGraphics, oldGraphics);
+    },
+    didSetState(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
+      this.owner.onSetGraphics(newGraphics, oldGraphics);
+      this.owner.didSetGraphics(newGraphics, oldGraphics);
+    },
+  })
+  declare graphics: TraitProperty<this, Graphics | null>;
 }
