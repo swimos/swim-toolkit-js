@@ -13,9 +13,12 @@
 // limitations under the License.
 
 export {
-  IconSize,
-  Icon,
-} from "./Icon";
+  AnyIconLayout,
+  IconLayoutInit,
+  IconLayout,
+} from "./IconLayout";
+
+export {Icon} from "./Icon";
 
 export {FilledIcon} from "./FilledIcon";
 

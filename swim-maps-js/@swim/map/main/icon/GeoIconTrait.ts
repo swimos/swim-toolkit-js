@@ -14,7 +14,7 @@
 
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {TraitProperty} from "@swim/model";
-import type {Graphics} from "@swim/graphics";
+import {Graphics, AnyIconLayout, IconLayout} from "@swim/graphics";
 import {GeoTrait} from "../geo/GeoTrait";
 import type {GeoIconTraitObserver} from "./GeoIconTraitObserver";
 
@@ -61,6 +61,43 @@ export class GeoIconTrait extends GeoTrait {
     },
   })
   declare geoCenter: TraitProperty<this, GeoPoint, AnyGeoPoint>;
+
+  protected willSetIconLayout(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.traitWillSetIconLayout !== void 0) {
+        traitObserver.traitWillSetIconLayout(newIconLayout, oldIconLayout, this);
+      }
+    }
+  }
+
+  protected onSetIconLayout(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null): void {
+    // hook
+  }
+
+  protected didSetIconLayout(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null): void {
+    const traitObservers = this.traitObservers;
+    for (let i = 0, n = traitObservers.length; i < n; i += 1) {
+      const traitObserver = traitObservers[i]!;
+      if (traitObserver.traitDidSetIconLayout !== void 0) {
+        traitObserver.traitDidSetIconLayout(newIconLayout, oldIconLayout, this);
+      }
+    }
+  }
+
+  @TraitProperty<GeoIconTrait, IconLayout | null, AnyIconLayout | null>({
+    type: IconLayout,
+    state: null,
+    willSetState(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null): void {
+      this.owner.willSetIconLayout(newIconLayout, oldIconLayout);
+    },
+    didSetState(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null): void {
+      this.owner.onSetIconLayout(newIconLayout, oldIconLayout);
+      this.owner.didSetIconLayout(newIconLayout, oldIconLayout);
+    },
+  })
+  declare iconLayout: TraitProperty<this, IconLayout | null, AnyIconLayout | null>;
 
   protected willSetGraphics(newGraphics: Graphics | null, oldGraphics: Graphics | null): void {
     const traitObservers = this.traitObservers;

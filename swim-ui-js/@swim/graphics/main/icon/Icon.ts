@@ -19,11 +19,6 @@ import type {Graphics} from "../graphics/Graphics";
 import type {DrawingContext} from "../drawing/DrawingContext";
 import type {PaintingContext} from "../painting/PaintingContext";
 
-export interface IconSize {
-  readonly width: number;
-  readonly height: number;
-}
-
 export abstract class Icon implements Graphics {
   abstract readonly moodModifier: MoodMatrix | null;
 

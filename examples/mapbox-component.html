@@ -55,9 +55,9 @@ class ExampleLayerComponent extends swim.GeoLayerComponent {
   }
   initFeatureView(featureView) {
     super.initFeatureView(featureView);
-    if (featureView instanceof swim.GeoIconView) {
-      featureView.iconWidth(16).iconHeight(16);
-    }
+    //if (featureView instanceof swim.GeoIconView) {
+    //  featureView.iconWidth(24).iconHeight(24);
+    //}
   }
 }
 
@@ -68,6 +68,7 @@ layerModel.setTrait("layer", layerTrait);
 function addFeature(featureId, layerModel) {
   const featureModel = new swim.CompoundModel();
   const featureTrait = new swim.GeoIconTrait()
+    .iconLayout({iconWidth: 16, iconHeight: 16})
     .graphics(swim.CircleIcon.create());
   featureModel.setTrait("feature", featureTrait);
   layerModel.appendChildModel(featureModel, "feature" + featureId);
@@ -75,6 +76,8 @@ function addFeature(featureId, layerModel) {
     const lng = Math.random() * 360 - 180;
     const lat = Math.random() * 120 - 60;
     featureTrait.geoCenter.setState([lng, lat]);
+    //const iconSize = 8 + 16 * Math.random();
+    //featureTrait.iconLayout.setState({iconWidth: iconSize, iconHeight: iconSize});
   }, 1000);
 }
 const featureCount = 32;

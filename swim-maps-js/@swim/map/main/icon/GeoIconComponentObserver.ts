@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {GeoPoint} from "@swim/geo";
-import type {Graphics} from "@swim/graphics";
+import type {Graphics, IconLayout} from "@swim/graphics";
 import type {GeoIconView} from "./GeoIconView";
 import type {GeoIconTrait} from "./GeoIconTrait";
 import type {GeoComponentObserver} from "../geo/GeoComponentObserver";
@@ -31,6 +31,10 @@ export interface GeoIconComponentObserver<C extends GeoIconComponent = GeoIconCo
   componentWillSetGeoCenter?(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint, component: C): void;
 
   componentDidSetGeoCenter?(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint, component: C): void;
+
+  componentWillSetIconLayout?(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null, component: C): void;
+
+  componentDidSetIconLayout?(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null, component: C): void;
 
   componentWillSetGraphics?(newGraphics: Graphics | null, oldGraphics: Graphics | null, component: C): void;
 

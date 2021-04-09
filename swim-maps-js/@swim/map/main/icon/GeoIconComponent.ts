@@ -16,7 +16,7 @@ import {AnyTiming, Timing} from "@swim/mapping";
 import type {GeoPoint} from "@swim/geo";
 import {Look, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
 import {View} from "@swim/view";
-import type {Graphics} from "@swim/graphics";
+import type {Graphics, IconLayout} from "@swim/graphics";
 import {ComponentViewTrait} from "@swim/component";
 import {GeoComponent} from "../geo/GeoComponent";
 import {GeoIconView} from "./GeoIconView";
@@ -34,6 +34,7 @@ export class GeoIconComponent extends GeoComponent {
     const geoView = this.geo.view;
     if (geoView !== null) {
       this.setGeoCenter(geoTrait.geoCenter.state, geoTrait);
+      this.setIconLayout(geoTrait.iconLayout.state, geoTrait);
       this.setGraphics(geoTrait.graphics.state, geoTrait);
     }
   }
@@ -84,6 +85,7 @@ export class GeoIconComponent extends GeoComponent {
     const geoTrait = this.geo.trait;
     if (geoTrait !== null) {
       this.setGeoCenter(geoTrait.geoCenter.state, geoTrait);
+      this.setIconLayout(geoTrait.iconLayout.state, geoTrait);
       this.setGraphics(geoTrait.graphics.state, geoTrait);
     }
   }
@@ -161,6 +163,52 @@ export class GeoIconComponent extends GeoComponent {
       const componentObserver = componentObservers[i]!;
       if (componentObserver.componentDidSetGeoCenter !== void 0) {
         componentObserver.componentDidSetGeoCenter(newGeoCenter, oldGeoCenter, this);
+      }
+    }
+  }
+
+  protected setIconLayout(iconLayout: IconLayout | null, geoTrait: GeoIconTrait, timing?: AnyTiming | boolean): void {
+    const geoView = this.geo.view;
+    if (geoView !== null && iconLayout !== null) {
+      if (timing === void 0 || timing === true) {
+        timing = this.geoTiming.state;
+        if (timing === true) {
+          timing = geoView.getLook(Look.timing, Mood.ambient);
+        }
+      } else {
+        timing = Timing.fromAny(timing);
+      }
+      geoView.iconWidth.setState(iconLayout.iconWidth, timing, View.Intrinsic);
+      geoView.iconHeight.setState(iconLayout.iconHeight, timing, View.Intrinsic);
+      if (iconLayout.xAlign !== void 0) {
+        geoView.xAlign.setState(iconLayout.xAlign, timing, View.Intrinsic);
+      }
+      if (iconLayout.yAlign !== void 0) {
+        geoView.yAlign.setState(iconLayout.yAlign, timing, View.Intrinsic);
+      }
+    }
+  }
+
+  protected willSetIconLayout(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null, geoView: GeoIconView): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.componentWillSetIconLayout !== void 0) {
+        componentObserver.componentWillSetIconLayout(newIconLayout, oldIconLayout, this);
+      }
+    }
+  }
+
+  protected onSetIconLayout(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null, geoView: GeoIconView): void {
+    // hook
+  }
+
+  protected didSetIconLayout(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null, geoView: GeoIconView): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.componentDidSetIconLayout !== void 0) {
+        componentObserver.componentDidSetIconLayout(newIconLayout, oldIconLayout, this);
       }
     }
   }
@@ -250,6 +298,9 @@ export class GeoIconComponent extends GeoComponent {
     },
     traitDidSetGeoCenter(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint, geoTrait: GeoIconTrait): void {
       this.owner.setGeoCenter(newGeoCenter, geoTrait);
+    },
+    traitDidSetIconLayout(newIconLayout: IconLayout, oldIconLayout: IconLayout, geoTrait: GeoIconTrait): void {
+      this.owner.setIconLayout(newIconLayout, geoTrait);
     },
     traitDidSetGraphics(newGraphics: Graphics | null, oldGraphics: Graphics | null, geoTrait: GeoIconTrait): void {
       this.owner.setGraphics(newGraphics, geoTrait);

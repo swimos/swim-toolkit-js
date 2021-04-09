@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {GeoPoint} from "@swim/geo";
-import type {Graphics} from "@swim/graphics";
+import type {Graphics, IconLayout} from "@swim/graphics";
 import type {GeoTraitObserver} from "../geo/GeoTraitObserver";
 import type {GeoIconTrait} from "./GeoIconTrait";
 
@@ -21,6 +21,10 @@ export interface GeoIconTraitObserver<R extends GeoIconTrait = GeoIconTrait> ext
   traitWillSetGeoCenter?(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint, trait: R): void;
 
   traitDidSetGeoCenter?(newGeoCenter: GeoPoint, oldGeoCenter: GeoPoint, trait: R): void;
+
+  traitWillSetIconLayout?(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null, trait: R): void;
+
+  traitDidSetIconLayout?(newIconLayout: IconLayout | null, oldIconLayout: IconLayout | null, trait: R): void;
 
   traitWillSetGraphics?(newGraphics: Graphics | null, oldGraphics: Graphics | null, trait: R): void;
 
