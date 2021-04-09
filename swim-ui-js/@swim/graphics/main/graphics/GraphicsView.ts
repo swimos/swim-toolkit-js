@@ -16,7 +16,7 @@ import {Arrays} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
 import type {ConstraintVariable, Constraint} from "@swim/constraint";
 import {BoxR2, Transform} from "@swim/math";
-import {Look, Feel, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
+import {Look, Feel, MoodVectorUpdates, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
   ViewContext,
@@ -870,14 +870,10 @@ export abstract class GraphicsView extends View {
     return value;
   }
 
-  modifyMood(feel: Feel, ...entires: [Feel, number | undefined][]): void;
-  modifyMood(feel: Feel, ...args: [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
-  modifyMood(feel: Feel, ...args: [Feel, number | undefined][] | [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void {
+  modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void {
     if (this.moodModifier.takesPrecedence(View.Intrinsic)) {
-      let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
-      const entries = args as [Feel, number | undefined][];
       const oldMoodModifier = this.moodModifier.getStateOr(MoodMatrix.empty());
-      const newMoodModifier = oldMoodModifier.updatedCol(feel, true, ...entries);
+      const newMoodModifier = oldMoodModifier.updatedCol(feel, updates, true);
       if (!newMoodModifier.equals(oldMoodModifier)) {
         this.moodModifier.setState(newMoodModifier, View.Intrinsic);
         this.changeMood();
@@ -899,14 +895,10 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  modifyTheme(feel: Feel, ...enties: [Feel, number | undefined][]): void;
-  modifyTheme(feel: Feel, ...args: [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
-  modifyTheme(feel: Feel, ...args: [Feel, number | undefined][] | [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void {
+  modifyTheme(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void {
     if (this.themeModifier.takesPrecedence(View.Intrinsic)) {
-      let timing = args.length !== 0 && !Array.isArray(args[args.length - 1]) ? args.pop() as AnyTiming | boolean : void 0;
-      const entries = args as [Feel, number | undefined][];
       const oldThemeModifier = this.themeModifier.getStateOr(MoodMatrix.empty());
-      const newThemeModifier = oldThemeModifier.updatedCol(feel, true, ...entries);
+      const newThemeModifier = oldThemeModifier.updatedCol(feel, updates, true);
       if (!newThemeModifier.equals(oldThemeModifier)) {
         this.themeModifier.setState(newThemeModifier, View.Intrinsic);
         this.changeTheme();

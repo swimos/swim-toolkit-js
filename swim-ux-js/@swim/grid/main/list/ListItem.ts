@@ -309,7 +309,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
   highlight(timing?: AnyTiming | boolean): this {
     if (!this.highlighted.state) {
       this.highlighted.setState(true);
-      this.modifyMood(Feel.default, [Feel.selected, 1], [Feel.hovering, void 0]);
+      this.modifyMood(Feel.default, [[Feel.selected, 1], [Feel.hovering, void 0]]);
       if (timing === true) {
         timing = this.getLook(Look.timing);
       } else {
@@ -340,7 +340,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
   unhighlight(timing?: AnyTiming | boolean): this {
     if (this.highlighted.state) {
       this.highlighted.setState(false);
-      this.modifyMood(Feel.default, [Feel.selected, void 0]);
+      this.modifyMood(Feel.default, [[Feel.selected, void 0]]);
       if (timing === true) {
         timing = this.getLookOr(Look.timing, false);
       } else {
@@ -394,7 +394,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
 
   didStartHovering(): void {
     if (!this.highlighted.state && this.hovers) {
-      this.modifyMood(Feel.default, [Feel.hovering, 1]);
+      this.modifyMood(Feel.default, [[Feel.hovering, 1]]);
       if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
         const timing = this.gesture.isPressing() ? this.getLook(Look.timing) : false;
         this.backgroundColor.setState(this.getLookOr(Look.backgroundColor, null), timing, View.Intrinsic);
@@ -403,7 +403,7 @@ export class ListItem extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   didStopHovering(): void {
-    this.modifyMood(Feel.default, [Feel.hovering, void 0]);
+    this.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
     if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
       let backgroundColor = this.getLookOr(Look.backgroundColor, null);
       if (backgroundColor !== null && !this.highlighted.state) {

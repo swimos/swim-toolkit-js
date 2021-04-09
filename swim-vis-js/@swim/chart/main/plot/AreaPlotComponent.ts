@@ -54,7 +54,10 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
   protected attachPlotTrait(plotTrait: AreaPlotTrait<X, Y>): void {
     const plotView = this.plot.view;
     if (plotView !== null) {
-      this.setPlotFill(plotTrait.fill.state, plotTrait);
+      const fill = plotTrait.fill.state;
+      if (fill !== null) {
+        this.setPlotFill(fill, plotTrait);
+      }
     }
   }
 
@@ -103,7 +106,10 @@ export class AreaPlotComponent<X, Y> extends SeriesPlotComponent<X, Y> {
   protected attachPlotView(plotView: AreaPlotView<X, Y>): void {
     const plotTrait = this.plot.trait;
     if (plotTrait !== null) {
-      this.setPlotFill(plotTrait.fill.state, plotTrait);
+      const fill = plotTrait.fill.state;
+      if (fill !== null) {
+        this.setPlotFill(fill, plotTrait);
+      }
     }
 
     const dataPointFasteners = this.dataPointFasteners;

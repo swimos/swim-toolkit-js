@@ -46,7 +46,7 @@ export class DeckBar extends HtmlView {
   declare readonly viewObservers: ReadonlyArray<DeckBarObserver>;
 
   protected initTheme(): void {
-    this.modifyTheme(Feel.default, [Feel.translucent, 1], [Feel.primary, 1]);
+    this.modifyTheme(Feel.default, [[Feel.translucent, 1], [Feel.primary, 1]]);
   }
 
   @ViewProperty({type: DeckRail, state: null})

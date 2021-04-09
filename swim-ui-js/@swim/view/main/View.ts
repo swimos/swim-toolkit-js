@@ -26,7 +26,7 @@ import {
   ConstraintScope,
 } from "@swim/constraint";
 import {BoxR2, Transform} from "@swim/math";
-import {Look, Feel, Mood, MoodVector, ThemeMatrix} from "@swim/theme";
+import {Look, Feel, Mood, MoodVectorUpdates, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {ViewContextType, ViewContext} from "./ViewContext";
 import type {
   ViewObserverType,
@@ -1161,11 +1161,9 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   abstract getLookOr<T, E>(look: Look<T, unknown>, elseValue: E): T | E;
   abstract getLookOr<T, E>(look: Look<T, unknown>, mood: MoodVector<Feel> | null, elseValue: E): T | E;
 
-  abstract modifyMood(feel: Feel, ...entires: [Feel, number | undefined][]): void;
-  abstract modifyMood(feel: Feel, ...args: [...entires: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
+  abstract modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void;
 
-  abstract modifyTheme(feel: Feel, ...enties: [Feel, number | undefined][]): void;
-  abstract modifyTheme(feel: Feel, ...args: [...enties: [Feel, number | undefined][], timing: AnyTiming | boolean]): void;
+  abstract modifyTheme(feel: Feel, updates: MoodVectorUpdates<Feel>, timing?: AnyTiming | boolean): void;
 
   applyTheme(theme: ThemeMatrix, mood: MoodVector, timing?: AnyTiming | boolean): void {
     if (timing === void 0 || timing === true) {

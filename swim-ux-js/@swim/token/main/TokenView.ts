@@ -259,7 +259,7 @@ export class TokenView extends HtmlView {
     },
     didStartHovering(): void {
       const headView = this.view!;
-      headView.modifyMood(Feel.default, [Feel.hovering, 1]);
+      headView.modifyMood(Feel.default, [[Feel.hovering, 1]]);
       const timing = headView.getLook(Look.timing);
       headView.fill.setState(headView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const headIconView = this.owner.headIcon.view;
@@ -270,7 +270,7 @@ export class TokenView extends HtmlView {
     },
     didStopHovering(): void {
       const headView = this.view!;
-      headView.modifyMood(Feel.default, [Feel.hovering, void 0]);
+      headView.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
       const timing = headView.getLook(Look.timing);
       headView.fill.setState(headView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const headIconView = this.owner.headIcon.view;
@@ -361,7 +361,7 @@ export class TokenView extends HtmlView {
     },
     didStartHovering(): void {
       const bodyView = this.view!;
-      bodyView.modifyMood(Feel.default, [Feel.hovering, 1]);
+      bodyView.modifyMood(Feel.default, [[Feel.hovering, 1]]);
       const timing = bodyView.getLook(Look.timing);
       bodyView.fill.setState(bodyView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const labelView = this.owner.label.view;
@@ -371,7 +371,7 @@ export class TokenView extends HtmlView {
     },
     didStopHovering(): void {
       const bodyView = this.view!;
-      bodyView.modifyMood(Feel.default, [Feel.hovering, void 0]);
+      bodyView.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
       const timing = bodyView.getLook(Look.timing);
       bodyView.fill.setState(bodyView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const labelView = this.owner.label.view;
@@ -433,7 +433,7 @@ export class TokenView extends HtmlView {
     },
     didStartHovering(): void {
       const footView = this.view!;
-      footView.modifyMood(Feel.default, [Feel.hovering, 1]);
+      footView.modifyMood(Feel.default, [[Feel.hovering, 1]]);
       const timing = footView.getLook(Look.timing);
       footView.fill.setState(footView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const footIconView = this.owner.footIcon.view;
@@ -444,7 +444,7 @@ export class TokenView extends HtmlView {
     },
     didStopHovering(): void {
       const footView = this.view!;
-      footView.modifyMood(Feel.default, [Feel.hovering, void 0]);
+      footView.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
       const timing = footView.getLook(Look.timing);
       footView.fill.setState(footView.getLookOr(this.owner.fillLook, null), timing, View.Intrinsic);
       const footIconView = this.owner.footIcon.view;

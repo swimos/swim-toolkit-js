@@ -363,16 +363,16 @@ export class GeoTreeView extends GeoView {
   protected processTree(tree: GeoTree, processFlags: ViewFlags, viewContext: ViewContextType<this>,
                         processChildView: (this: this, childView: View, processFlags: ViewFlags,
                                            viewContext: ViewContextType<this>) => void): void {
-    if (tree.southWest !== null) {
+    if (tree.southWest !== null && tree.southWest.geoFrame.intersects(viewContext.geoViewport.geoFrame)) {
       this.processTree(tree.southWest, processFlags, viewContext, processChildView);
     }
-    if (tree.northWest !== null) {
+    if (tree.northWest !== null && tree.northWest.geoFrame.intersects(viewContext.geoViewport.geoFrame)) {
       this.processTree(tree.northWest, processFlags, viewContext, processChildView);
     }
-    if (tree.southEast !== null) {
+    if (tree.southEast !== null && tree.southEast.geoFrame.intersects(viewContext.geoViewport.geoFrame)) {
       this.processTree(tree.southEast, processFlags, viewContext, processChildView);
     }
-    if (tree.northEast !== null) {
+    if (tree.northEast !== null && tree.northEast.geoFrame.intersects(viewContext.geoViewport.geoFrame)) {
       this.processTree(tree.northEast, processFlags, viewContext, processChildView);
     }
     const childViews = tree.views;

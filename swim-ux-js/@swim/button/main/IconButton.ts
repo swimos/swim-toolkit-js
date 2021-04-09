@@ -72,7 +72,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   }
 
   protected initTheme(): void {
-    this.modifyTheme(Feel.default, [Feel.translucent, 1]);
+    this.modifyTheme(Feel.default, [[Feel.translucent, 1]]);
   }
 
   initView(init: IconButtonInit): void {
@@ -305,7 +305,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
 
   didStartHovering(): void {
     if (this.hovers) {
-      this.modifyMood(Feel.default, [Feel.hovering, 1]);
+      this.modifyMood(Feel.default, [[Feel.hovering, 1]]);
       const timing = this.getLook(Look.timing);
       if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
         this.backgroundColor.setState(this.getLookOr(Look.backgroundColor, null), timing, View.Intrinsic);
@@ -314,7 +314,7 @@ export class IconButton extends ButtonMembrane implements IconView, PositionGest
   }
 
   didStopHovering(): void {
-    this.modifyMood(Feel.default, [Feel.hovering, void 0]);
+    this.modifyMood(Feel.default, [[Feel.hovering, void 0]]);
     const timing = this.getLook(Look.timing);
     if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
       let backgroundColor = this.getLookOr(Look.backgroundColor, null);

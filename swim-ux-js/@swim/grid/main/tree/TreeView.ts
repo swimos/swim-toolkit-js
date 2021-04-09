@@ -243,7 +243,7 @@ export class TreeView extends HtmlView {
   }
 
   protected onUpdateDepth(depth: number): void {
-    this.modifyTheme(Feel.default, [Feel.nested, depth !== 0 ? 1 : void 0]);
+    this.modifyTheme(Feel.default, [[Feel.nested, depth !== 0 ? 1 : void 0]]);
   }
 
   /** @hidden */

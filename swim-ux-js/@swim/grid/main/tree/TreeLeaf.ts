@@ -122,7 +122,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected onHighlight(timing: Timing | boolean): void {
-    this.modifyMood(Feel.default, [Feel.selected, 1]);
+    this.modifyMood(Feel.default, [[Feel.selected, 1]]);
     if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
       this.backgroundColor.setState(this.getLookOr(Look.backgroundColor, null), timing, View.Intrinsic);
     }
@@ -188,7 +188,7 @@ export class TreeLeaf extends ButtonMembrane implements PositionGestureDelegate 
   }
 
   protected onUnhighlight(timing: Timing | boolean): void {
-    this.modifyMood(Feel.default, [Feel.selected, void 0]);
+    this.modifyMood(Feel.default, [[Feel.selected, void 0]]);
     if (this.backgroundColor.takesPrecedence(View.Intrinsic)) {
       let backgroundColor = this.getLookOr(Look.backgroundColor, null);
       if (backgroundColor !== null) {
