@@ -220,14 +220,7 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
     return new BoxR2(px - radius, py - radius, px + radius, py + radius);
   }
 
-  get viewBounds(): BoxR2 {
-    const frame = this.viewFrame;
-    const size = Math.min(frame.width, frame.height);
-    const viewCenter = this.viewCenter.getValue();
-    const radius = this.radius.getValue().pxValue(size);
-    return new BoxR2(viewCenter.x - radius, viewCenter.y - radius,
-                     viewCenter.x + radius, viewCenter.y + radius);
-  }
+  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
 
   get hitBounds(): BoxR2 {
     const frame = this.viewFrame;
@@ -304,3 +297,15 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
     throw new TypeError("" + value);
   }
 }
+Object.defineProperty(GeoCircleView.prototype, "viewBounds", {
+  get(this: GeoCircleView): BoxR2 {
+    const frame = this.viewFrame;
+    const size = Math.min(frame.width, frame.height);
+    const viewCenter = this.viewCenter.getValue();
+    const radius = this.radius.getValue().pxValue(size);
+    return new BoxR2(viewCenter.x - radius, viewCenter.y - radius,
+                     viewCenter.x + radius, viewCenter.y + radius);
+  },
+  enumerable: true,
+  configurable: true,
+});

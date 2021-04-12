@@ -150,6 +150,5 @@ export class GeoPathView extends GeoLayerView {
     }
   }
 
-  // @ts-ignore
   declare readonly viewBounds: BoxR2;
 }

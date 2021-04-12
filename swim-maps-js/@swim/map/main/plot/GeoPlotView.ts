@@ -403,7 +403,6 @@ export class GeoPlotView extends GeoLayerView implements StrokeView {
     return new BoxR2(px, py, px, py);
   }
 
-  // @ts-ignore
   declare readonly viewBounds: BoxR2;
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {

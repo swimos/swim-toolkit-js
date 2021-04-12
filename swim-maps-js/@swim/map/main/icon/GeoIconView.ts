@@ -356,33 +356,7 @@ export class GeoIconView extends GeoLayerView implements IconView {
   /** @hidden */
   declare readonly iconBounds: BoxR2 | null;
 
-  get viewBounds(): BoxR2 {
-    let iconBounds = this.iconBounds;
-    if (iconBounds === null) {
-      const frame = this.viewFrame;
-      const viewSize = Math.min(frame.width, frame.height);
-      const viewCenter = this.viewCenter.getValue();
-      let iconWidthValue: Length | number | null = this.iconWidth.value;
-      iconWidthValue = iconWidthValue instanceof Length ? iconWidthValue.pxValue(viewSize) : viewSize;
-      let iconWidthState: Length | number | null = this.iconWidth.state;
-      iconWidthState = iconWidthState instanceof Length ? iconWidthState.pxValue(viewSize) : viewSize;
-      const iconWidth = Math.max(iconWidthValue, iconWidthState);
-      let iconHeightValue: Length | number | null = this.iconHeight.value;
-      iconHeightValue = iconHeightValue instanceof Length ? iconHeightValue.pxValue(viewSize) : viewSize;
-      let iconHeightState: Length | number | null = this.iconHeight.state;
-      iconHeightState = iconHeightState instanceof Length ? iconHeightState.pxValue(viewSize) : viewSize;
-      const iconHeight = Math.max(iconHeightValue, iconHeightState);
-      const x = viewCenter.x - iconWidth * this.xAlign.getValue();
-      const y = viewCenter.y - iconHeight * this.yAlign.getValue();
-      iconBounds = new BoxR2(x, y, x + iconWidth, y + iconHeight);
-      Object.defineProperty(this, "iconBounds", {
-        value: iconBounds,
-        enumerable: true,
-        configurable: true,
-      });
-    }
-    return iconBounds;
-  }
+  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
@@ -433,3 +407,34 @@ export class GeoIconView extends GeoLayerView implements IconView {
     throw new TypeError("" + value);
   }
 }
+Object.defineProperty(GeoIconView.prototype, "viewBounds", {
+  get(this: GeoIconView): BoxR2 {
+    let iconBounds = this.iconBounds;
+    if (iconBounds === null) {
+      const frame = this.viewFrame;
+      const viewSize = Math.min(frame.width, frame.height);
+      const viewCenter = this.viewCenter.getValue();
+      let iconWidthValue: Length | number | null = this.iconWidth.value;
+      iconWidthValue = iconWidthValue instanceof Length ? iconWidthValue.pxValue(viewSize) : viewSize;
+      let iconWidthState: Length | number | null = this.iconWidth.state;
+      iconWidthState = iconWidthState instanceof Length ? iconWidthState.pxValue(viewSize) : viewSize;
+      const iconWidth = Math.max(iconWidthValue, iconWidthState);
+      let iconHeightValue: Length | number | null = this.iconHeight.value;
+      iconHeightValue = iconHeightValue instanceof Length ? iconHeightValue.pxValue(viewSize) : viewSize;
+      let iconHeightState: Length | number | null = this.iconHeight.state;
+      iconHeightState = iconHeightState instanceof Length ? iconHeightState.pxValue(viewSize) : viewSize;
+      const iconHeight = Math.max(iconHeightValue, iconHeightState);
+      const x = viewCenter.x - iconWidth * this.xAlign.getValue();
+      const y = viewCenter.y - iconHeight * this.yAlign.getValue();
+      iconBounds = new BoxR2(x, y, x + iconWidth, y + iconHeight);
+      Object.defineProperty(this, "iconBounds", {
+        value: iconBounds,
+        enumerable: true,
+        configurable: true,
+      });
+    }
+    return iconBounds;
+  },
+  enumerable: true,
+  configurable: true,
+});

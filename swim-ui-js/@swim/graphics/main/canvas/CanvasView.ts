@@ -1109,7 +1109,6 @@ export class CanvasView extends HtmlView {
     return canvasViewContext;
   }
 
-  // @ts-ignore
   declare readonly viewContext: GraphicsViewContext;
 
   /** @hidden */

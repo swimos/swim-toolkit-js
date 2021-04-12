@@ -276,14 +276,7 @@ export class GeoArcView extends GeoLayerView implements FillView, StrokeView {
     return new BoxR2(x, y, x, y);
   }
 
-  get viewBounds(): BoxR2 {
-    const frame = this.viewFrame;
-    const size = Math.min(frame.width, frame.height);
-    const viewCenter = this.viewCenter.getValue();
-    const radius = this.outerRadius.getValue().pxValue(size);
-    return new BoxR2(viewCenter.x - radius, viewCenter.y - radius,
-                     viewCenter.x + radius, viewCenter.y + radius);
-  }
+  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
 
   protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
@@ -339,3 +332,15 @@ export class GeoArcView extends GeoLayerView implements FillView, StrokeView {
     throw new TypeError("" + value);
   }
 }
+Object.defineProperty(GeoArcView.prototype, "viewBounds", {
+  get(this: GeoArcView): BoxR2 {
+    const frame = this.viewFrame;
+    const size = Math.min(frame.width, frame.height);
+    const viewCenter = this.viewCenter.getValue();
+    const radius = this.outerRadius.getValue().pxValue(size);
+    return new BoxR2(viewCenter.x - radius, viewCenter.y - radius,
+                     viewCenter.x + radius, viewCenter.y + radius);
+  },
+  enumerable: true,
+  configurable: true,
+});

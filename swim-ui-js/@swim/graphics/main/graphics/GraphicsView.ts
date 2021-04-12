@@ -585,14 +585,7 @@ export abstract class GraphicsView extends View {
     this.setCulled(!viewFrame.intersects(this.viewBounds));
   }
 
-  get renderer(): GraphicsRenderer | null {
-    const parentView = this.parentView;
-    if (parentView instanceof GraphicsView || parentView instanceof CanvasView) {
-      return parentView.renderer;
-    } else {
-      return null;
-    }
-  }
+  declare readonly renderer: GraphicsRenderer | null; // getter defined below to work around useDefineForClassFields lunacy
 
   needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this.viewFlags & View.NeedsAnimate) === 0) {
@@ -1500,7 +1493,6 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  // @ts-ignore
   declare readonly viewContext: GraphicsViewContext;
 
   /** @hidden */
@@ -1540,9 +1532,7 @@ export abstract class GraphicsView extends View {
    * this view could possibly render.  Views with view bounds that don't
    * overlap their view frames may be culled from rendering and hit testing.
    */
-  get viewBounds(): BoxR2 {
-    return this.viewFrame;
-  }
+  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
 
   get ownViewBounds(): BoxR2 | null {
     return null;
@@ -1969,3 +1959,22 @@ export abstract class GraphicsView extends View {
   static readonly insertChildFlags: ViewFlags = View.insertChildFlags | View.NeedsRender;
   static readonly removeChildFlags: ViewFlags = View.removeChildFlags | View.NeedsRender;
 }
+Object.defineProperty(GraphicsView.prototype, "renderer", {
+  get(this: GraphicsView): GraphicsRenderer | null {
+    const parentView = this.parentView;
+    if (parentView instanceof GraphicsView || parentView instanceof CanvasView) {
+      return parentView.renderer;
+    } else {
+      return null;
+    }
+  },
+  enumerable: true,
+  configurable: true,
+});
+Object.defineProperty(GraphicsView.prototype, "viewBounds", {
+  get(this: GraphicsView): BoxR2 {
+    return this.viewFrame;
+  },
+  enumerable: true,
+  configurable: true,
+});

@@ -36,6 +36,7 @@
     "@swim/dom": "3.11.0-dev.20210411",
     "@swim/graphics": "3.11.0-dev.20210411",
     "@swim/component": "3.11.0-dev.20210411",
-    "@swim/map": "3.11.0-dev.20210411"
+    "@swim/map": "3.11.0-dev.20210411",
+    "@types/googlemaps": ">= 3.0"
   }
 }
