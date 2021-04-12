@@ -155,7 +155,7 @@ export abstract class Trait implements ModelDownlinkContext {
     // hook
   }
 
-  abstract get key(): string | undefined;
+  abstract readonly key: string | undefined;
 
   /** @hidden */
   abstract setKey(key: string | undefined): void;
@@ -174,7 +174,7 @@ export abstract class Trait implements ModelDownlinkContext {
     }
   }
 
-  abstract get model(): Model | null;
+  abstract readonly model: Model | null;
 
   /** @hidden */
   abstract setModel(newModel: TraitModelType<this> | null, oldModel: TraitModelType<this> | null): void;
@@ -991,6 +991,15 @@ export abstract class Trait implements ModelDownlinkContext {
     return (this.constructor as TraitClass).startConsumingFlags;
   }
 
+  protected startConsuming(): void {
+    if ((this.traitFlags & Trait.ConsumingFlag) === 0) {
+      this.willStartConsuming();
+      this.setTraitFlags(this.traitFlags | Trait.ConsumingFlag);
+      this.onStartConsuming();
+      this.didStartConsuming();
+    }
+  }
+
   protected willStartConsuming(): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
@@ -1019,6 +1028,15 @@ export abstract class Trait implements ModelDownlinkContext {
     return (this.constructor as TraitClass).stopConsumingFlags;
   }
 
+  protected stopConsuming(): void {
+    if ((this.traitFlags & Trait.ConsumingFlag) !== 0) {
+      this.willStopConsuming();
+      this.setTraitFlags(this.traitFlags & ~Trait.ConsumingFlag);
+      this.onStopConsuming();
+      this.didStopConsuming();
+    }
+  }
+
   protected willStopConsuming(): void {
     const traitObservers = this.traitObservers;
     for (let i = 0, n = traitObservers.length; i < n; i += 1) {
@@ -1043,7 +1061,7 @@ export abstract class Trait implements ModelDownlinkContext {
     }
   }
 
-  abstract get traitConsumers(): ReadonlyArray<TraitConsumer>;
+  abstract readonly traitConsumers: ReadonlyArray<TraitConsumer>;
 
   abstract addTraitConsumer(traitConsumer: TraitConsumerType<this>): void;
 

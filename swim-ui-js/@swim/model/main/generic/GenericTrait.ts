@@ -244,24 +244,6 @@ export class GenericTrait extends Trait {
     this.reconcileTraitDownlinks();
   }
 
-  protected startConsuming(): void {
-    if ((this.traitFlags & Trait.ConsumingFlag) === 0) {
-      this.willStartConsuming();
-      this.setTraitFlags(this.traitFlags | Trait.ConsumingFlag);
-      this.onStartConsuming();
-      this.didStartConsuming();
-    }
-  }
-
-  protected stopConsuming(): void {
-    if ((this.traitFlags & Trait.ConsumingFlag) !== 0) {
-      this.willStopConsuming();
-      this.setTraitFlags(this.traitFlags & ~Trait.ConsumingFlag);
-      this.onStopConsuming();
-      this.didStopConsuming();
-    }
-  }
-
   declare readonly traitConsumers: ReadonlyArray<TraitConsumer>;
 
   addTraitConsumer(traitConsumer: TraitConsumerType<this>): void {
@@ -282,6 +264,11 @@ export class GenericTrait extends Trait {
     }
   }
 
+  protected onStartConsuming(): void {
+    super.onStartConsuming();
+    this.startConsumingTraitDownlinks();
+  }
+
   removeTraitConsumer(traitConsumer: TraitConsumerType<this>): void {
     const oldTraitConsumers = this.traitConsumers;
     const newTraitCnsumers = Arrays.removed(traitConsumer, oldTraitConsumers);
@@ -298,6 +285,11 @@ export class GenericTrait extends Trait {
         this.stopConsuming();
       }
     }
+  }
+
+  protected onStopConsuming(): void {
+    this.stopConsumingTraitDownlinks();
+    super.onStopConsuming();
   }
 
   /** @hidden */
@@ -710,6 +702,28 @@ export class GenericTrait extends Trait {
     for (const downlinkName in traitDownlinks) {
       const traitDownlink = traitDownlinks[downlinkName]!;
       traitDownlink.reconcile();
+    }
+  }
+
+  /** @hidden */
+  protected startConsumingTraitDownlinks(): void {
+    const traitDownlinks = this.traitDownlinks;
+    for (const downlinkName in traitDownlinks) {
+      const traitDownlink = traitDownlinks[downlinkName]!;
+      if (traitDownlink.consume === true) {
+        traitDownlink.addDownlinkConsumer(this);
+      }
+    }
+  }
+
+  /** @hidden */
+  protected stopConsumingTraitDownlinks(): void {
+    const traitDownlinks = this.traitDownlinks;
+    for (const downlinkName in traitDownlinks) {
+      const traitDownlink = traitDownlinks[downlinkName]!;
+      if (traitDownlink.consume === true) {
+        traitDownlink.removeDownlinkConsumer(this);
+      }
     }
   }
 }

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Trait} from "./Trait";
+import type {ModelDownlink} from "./ModelDownlink";
 
-export type TraitConsumerType<R extends Trait> =
-  R extends {readonly traitConsumers: ReadonlyArray<infer RC>} ? RC : never;
+export type ModelDownlinkConsumerType<M extends ModelDownlink<any>> =
+  M extends {readonly downlinkConsumers: ReadonlyArray<infer MC>} ? MC : never;
 
-export type TraitConsumer<R extends Trait = Trait> = unknown
+export type ModelDownlinkConsumer<M extends ModelDownlink<any> = ModelDownlink<any>> = unknown

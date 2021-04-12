@@ -13,7 +13,6 @@
 // limitations under the License.
 
 export {ModelDownlinkContext} from "./ModelDownlinkContext";
-
 export {
   ModelDownlinkInit,
   ModelDownlinkFlags,
@@ -23,6 +22,10 @@ export {
   ModelDownlinkClass,
   ModelDownlink,
 } from "./ModelDownlink";
+export {
+  ModelDownlinkConsumerType,
+  ModelDownlinkConsumer,
+} from "./ModelDownlinkConsumer";
 
 export {
   ModelEventDownlinkInit,

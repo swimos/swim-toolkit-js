@@ -1465,6 +1465,15 @@ export abstract class Model implements ModelDownlinkContext {
     return (this.constructor as ModelClass).startConsumingFlags;
   }
 
+  protected startConsuming(): void {
+    if ((this.modelFlags & Model.ConsumingFlag) === 0) {
+      this.willStartConsuming();
+      this.setModelFlags(this.modelFlags | Model.ConsumingFlag);
+      this.onStartConsuming();
+      this.didStartConsuming();
+    }
+  }
+
   protected willStartConsuming(): void {
     const modelController = this.modelController;
     if (modelController !== null && modelController.modelWillStartConsuming !== void 0) {
@@ -1501,6 +1510,15 @@ export abstract class Model implements ModelDownlinkContext {
     return (this.constructor as ModelClass).stopConsumingFlags;
   }
 
+  protected stopConsuming(): void {
+    if ((this.modelFlags & Model.ConsumingFlag) !== 0) {
+      this.willStopConsuming();
+      this.setModelFlags(this.modelFlags & ~Model.ConsumingFlag);
+      this.onStopConsuming();
+      this.didStopConsuming();
+    }
+  }
+
   protected willStopConsuming(): void {
     const modelController = this.modelController;
     if (modelController !== null && modelController.modelWillStopConsuming !== void 0) {
@@ -1533,7 +1551,7 @@ export abstract class Model implements ModelDownlinkContext {
     }
   }
 
-  abstract get modelConsumers(): ReadonlyArray<ModelConsumer>;
+  abstract readonly modelConsumers: ReadonlyArray<ModelConsumer>;
 
   abstract addModelConsumer(modelConsumer: ModelConsumerType<this>): void;
 
