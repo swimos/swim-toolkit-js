@@ -121,7 +121,9 @@ export class GeoPathView extends GeoLayerView {
 
     if (this.viewCentroid.takesPrecedence(View.Intrinsic)) {
       const geoCentroid = this.geoCentroid.getValue();
-      const viewCentroid = geoViewport.project(geoCentroid);
+      const viewCentroid = geoCentroid.isDefined()
+                         ? geoViewport.project(geoCentroid)
+                         : PointR2.undefined();
       this.viewCentroid.setState(viewCentroid, View.Intrinsic);
     }
 

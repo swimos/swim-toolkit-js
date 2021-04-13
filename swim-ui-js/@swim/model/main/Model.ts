@@ -25,7 +25,7 @@ import type {WarpService} from "./service/WarpService";
 import type {ModelPropertyConstructor, ModelProperty} from "./property/ModelProperty";
 import type {ModelFastenerConstructor, ModelFastener} from "./fastener/ModelFastener";
 import type {ModelTraitConstructor, ModelTrait} from "./fastener/ModelTrait";
-import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
+import {ModelDownlinkContextPrototype, ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
 import type {ModelDownlink} from "./downlink/ModelDownlink";
 
 export type ModelFlags = number;
@@ -37,7 +37,7 @@ export interface ModelInit {
   modelController?: ModelController;
 }
 
-export interface ModelPrototype {
+export interface ModelPrototype extends ModelDownlinkContextPrototype {
   /** @hidden */
   modelServiceConstructors?: {[serviceName: string]: ModelServiceConstructor<Model, unknown> | undefined};
 
@@ -1668,6 +1668,19 @@ export abstract class Model implements ModelDownlinkContext {
   abstract getModelDownlink(downlinkName: string): ModelDownlink<this> | null;
 
   abstract setModelDownlink(downlinkName: string, modelDownlink: ModelDownlink<this> | null): void;
+
+  /** @hidden */
+  getLazyModelDownlink(downlinkName: string): ModelDownlink<this> | null {
+    let modelDownlink = this.getModelDownlink(downlinkName) as ModelDownlink<this> | null;
+    if (modelDownlink === null) {
+      const constructor = ModelDownlinkContext.getModelDownlinkConstructor(downlinkName, Object.getPrototypeOf(this));
+      if (constructor !== null) {
+        modelDownlink = new constructor(this, downlinkName) as ModelDownlink<this>;
+        this.setModelDownlink(downlinkName, modelDownlink);
+      }
+    }
+    return modelDownlink;
+  }
 
   /** @hidden */
   extendModelContext(modelContext: ModelContext): ModelContextType<this> {

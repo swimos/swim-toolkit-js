@@ -90,6 +90,30 @@ export class GeoLayerComponent extends GeoComponent {
     }
   }
 
+  protected willSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.componentWillSetGeoBounds !== void 0) {
+        componentObserver.componentWillSetGeoBounds(newGeoBounds, oldGeoBounds, this);
+      }
+    }
+  }
+
+  protected onSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
+    // hook
+  }
+
+  protected didSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
+    const componentObservers = this.componentObservers;
+    for (let i = 0, n = componentObservers.length; i < n; i += 1) {
+      const componentObserver = componentObservers[i]!;
+      if (componentObserver.componentDidSetGeoBounds !== void 0) {
+        componentObserver.componentDidSetGeoBounds(newGeoBounds, oldGeoBounds, this);
+      }
+    }
+  }
+
   protected createGeoView(): GeoView | null {
     return GeoTreeView.create();
   }
@@ -184,6 +208,13 @@ export class GeoLayerComponent extends GeoComponent {
     },
     didSetTrait(newGeoTrait: GeoLayerTrait | null, oldGeoTrait: GeoLayerTrait | null): void {
       this.owner.didSetGeoTrait(newGeoTrait, oldGeoTrait);
+    },
+    traitWillSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
+      this.owner.willSetGeoBounds(newGeoBounds, oldGeoBounds);
+    },
+    traitDidSetGeoBounds(newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
+      this.owner.onSetGeoBounds(newGeoBounds, oldGeoBounds);
+      this.owner.didSetGeoBounds(newGeoBounds, oldGeoBounds);
     },
     traitWillSetFeature(newFeatureTrait: GeoTrait | null, oldFeatureTrait: GeoTrait | null, targetTrait: Trait): void {
       if (oldFeatureTrait !== null) {

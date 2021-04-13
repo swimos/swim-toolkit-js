@@ -22,6 +22,7 @@ import type {ModelService} from "../service/ModelService";
 import {ModelProperty} from "../property/ModelProperty";
 import type {ModelFastener} from "../fastener/ModelFastener";
 import type {ModelTrait} from "../fastener/ModelTrait";
+import {ModelDownlinkContext} from "../downlink/ModelDownlinkContext";
 import type {ModelDownlink} from "../downlink/ModelDownlink";
 
 export abstract class GenericModel extends Model {
@@ -230,6 +231,9 @@ export abstract class GenericModel extends Model {
     this.mountModelFasteners();
     this.mountModelTraits();
     this.mountModelDownlinks();
+    if (this.modelConsumers.length !== 0) {
+      this.startConsuming();
+    }
   }
 
   /** @hidden */
@@ -271,6 +275,7 @@ export abstract class GenericModel extends Model {
   }
 
   protected onUnmount(): void {
+    this.stopConsuming();
     this.unmountModelDownlinks();
     this.unmountModelTraits();
     this.unmountModelFasteners();
@@ -565,7 +570,7 @@ export abstract class GenericModel extends Model {
       });
       this.onAddModelConsumer(modelConsumer);
       this.didAddModelConsumer(modelConsumer);
-      if (oldModelConsumers.length === 0) {
+      if (oldModelConsumers.length === 0 && this.isMounted()) {
         this.startConsuming();
       }
     }
@@ -927,12 +932,18 @@ export abstract class GenericModel extends Model {
     }
     const oldModelDownlink = modelDownlinks[downlinkName];
     if (oldModelDownlink !== void 0 && this.isMounted()) {
+      if (this.isConsuming() && oldModelDownlink.consume === true) {
+        oldModelDownlink.removeDownlinkConsumer(this);
+      }
       oldModelDownlink.unmount();
     }
     if (newModelDownlink !== null) {
       modelDownlinks[downlinkName] = newModelDownlink;
       if (this.isMounted()) {
         newModelDownlink.mount();
+        if (this.isConsuming() && newModelDownlink.consume === true) {
+          newModelDownlink.addDownlinkConsumer(this);
+        }
       }
     } else {
       delete modelDownlinks[downlinkName];
@@ -946,6 +957,7 @@ export abstract class GenericModel extends Model {
       const modelDownlink = modelDownlinks[downlinkName]!;
       modelDownlink.mount();
     }
+    ModelDownlinkContext.initModelDownlinks(this);
   }
 
   /** @hidden */

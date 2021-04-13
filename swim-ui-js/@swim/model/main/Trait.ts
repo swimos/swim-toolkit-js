@@ -24,7 +24,7 @@ import type {ModelPropertyConstructor, ModelProperty} from "./property/ModelProp
 import type {TraitPropertyConstructor, TraitProperty} from "./property/TraitProperty";
 import type {TraitModelConstructor, TraitModel} from "./fastener/TraitModel";
 import type {TraitFastenerConstructor, TraitFastener} from "./fastener/TraitFastener";
-import type {ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
+import {ModelDownlinkContextPrototype, ModelDownlinkContext} from "./downlink/ModelDownlinkContext";
 import type {ModelDownlink} from "./downlink/ModelDownlink";
 
 export type TraitModelType<R extends Trait> = R extends {readonly model: infer M} ? M extends null ? never : M : Model;
@@ -33,7 +33,7 @@ export type TraitContextType<R extends Trait> = ModelContextType<TraitModelType<
 
 export type TraitFlags = number;
 
-export interface TraitPrototype {
+export interface TraitPrototype extends ModelDownlinkContextPrototype {
   /** @hidden */
   traitServiceConstructors?: {[serviceName: string]: TraitServiceConstructor<Trait, unknown> | undefined};
 
@@ -1184,6 +1184,19 @@ export abstract class Trait implements ModelDownlinkContext {
   abstract getModelDownlink(downlinkName: string): ModelDownlink<this> | null;
 
   abstract setModelDownlink(downlinkName: string, traitDownlink: ModelDownlink<this> | null): void;
+
+  /** @hidden */
+  getLazyModelDownlink(downlinkName: string): ModelDownlink<this> | null {
+    let modelDownlink = this.getModelDownlink(downlinkName) as ModelDownlink<this> | null;
+    if (modelDownlink === null) {
+      const constructor = ModelDownlinkContext.getModelDownlinkConstructor(downlinkName, Object.getPrototypeOf(this));
+      if (constructor !== null) {
+        modelDownlink = new constructor(this, downlinkName) as ModelDownlink<this>;
+        this.setModelDownlink(downlinkName, modelDownlink);
+      }
+    }
+    return modelDownlink;
+  }
 
   get modelContext(): TraitContextType<this> | null {
     const model = this.model;
