@@ -27,6 +27,8 @@ import {
   ViewObserverType,
   ViewWillRender,
   ViewDidRender,
+  ViewWillRasterize,
+  ViewDidRasterize,
   ViewWillComposite,
   ViewDidComposite,
   ViewService,
@@ -176,6 +178,12 @@ export abstract class GraphicsView extends View {
     if (viewObserver.viewDidRender !== void 0) {
       this.viewObserverCache.viewDidRenderObservers = Arrays.inserted(viewObserver as ViewDidRender, this.viewObserverCache.viewDidRenderObservers);
     }
+    if (viewObserver.viewWillRasterize !== void 0) {
+      this.viewObserverCache.viewWillRasterizeObservers = Arrays.inserted(viewObserver as ViewWillRasterize, this.viewObserverCache.viewWillRasterizeObservers);
+    }
+    if (viewObserver.viewDidRasterize !== void 0) {
+      this.viewObserverCache.viewDidRasterizeObservers = Arrays.inserted(viewObserver as ViewDidRasterize, this.viewObserverCache.viewDidRasterizeObservers);
+    }
     if (viewObserver.viewWillComposite !== void 0) {
       this.viewObserverCache.viewWillCompositeObservers = Arrays.inserted(viewObserver as ViewWillComposite, this.viewObserverCache.viewWillCompositeObservers);
     }
@@ -191,6 +199,12 @@ export abstract class GraphicsView extends View {
     }
     if (viewObserver.viewDidRender !== void 0) {
       this.viewObserverCache.viewDidRenderObservers = Arrays.removed(viewObserver as ViewDidRender, this.viewObserverCache.viewDidRenderObservers);
+    }
+    if (viewObserver.viewWillRasterize !== void 0) {
+      this.viewObserverCache.viewWillRasterizeObservers = Arrays.removed(viewObserver as ViewWillRasterize, this.viewObserverCache.viewWillRasterizeObservers);
+    }
+    if (viewObserver.viewDidRasterize !== void 0) {
+      this.viewObserverCache.viewDidRasterizeObservers = Arrays.removed(viewObserver as ViewDidRasterize, this.viewObserverCache.viewDidRasterizeObservers);
     }
     if (viewObserver.viewWillComposite !== void 0) {
       this.viewObserverCache.viewWillCompositeObservers = Arrays.removed(viewObserver as ViewWillComposite, this.viewObserverCache.viewWillCompositeObservers);
@@ -739,6 +753,11 @@ export abstract class GraphicsView extends View {
         this.setViewFlags(this.viewFlags & ~View.NeedsRender);
         this.willRender(viewContext);
       }
+      if (((this.viewFlags | displayFlags) & View.NeedsRasterize) !== 0) {
+        cascadeFlags |= View.NeedsRasterize;
+        this.setViewFlags(this.viewFlags & ~View.NeedsRasterize);
+        this.willRasterize(viewContext);
+      }
       if (((this.viewFlags | displayFlags) & View.NeedsComposite) !== 0) {
         cascadeFlags |= View.NeedsComposite;
         this.setViewFlags(this.viewFlags & ~View.NeedsComposite);
@@ -752,6 +771,9 @@ export abstract class GraphicsView extends View {
       if ((cascadeFlags & View.NeedsRender) !== 0) {
         this.onRender(viewContext);
       }
+      if ((cascadeFlags & View.NeedsRasterize) !== 0) {
+        this.onRasterize(viewContext);
+      }
       if ((cascadeFlags & View.NeedsComposite) !== 0) {
         this.onComposite(viewContext);
       }
@@ -760,6 +782,9 @@ export abstract class GraphicsView extends View {
 
       if ((cascadeFlags & View.NeedsComposite) !== 0) {
         this.didComposite(viewContext);
+      }
+      if ((cascadeFlags & View.NeedsRasterize) !== 0) {
+        this.didRasterize(viewContext);
       }
       if ((cascadeFlags & View.NeedsRender) !== 0) {
         this.didRender(viewContext);
@@ -802,6 +827,38 @@ export abstract class GraphicsView extends View {
     const viewController = this.viewController;
     if (viewController !== null && viewController.viewDidRender !== void 0) {
       viewController.viewDidRender(viewContext, this);
+    }
+  }
+
+  protected willRasterize(viewContext: ViewContextType<this>): void {
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewWillRasterize !== void 0) {
+      viewController.viewWillRasterize(viewContext, this);
+    }
+    const viewObservers = this.viewObserverCache.viewWillRasterizeObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0; i < viewObservers.length; i += 1) {
+        const viewObserver = viewObservers[i]!;
+        viewObserver.viewWillRasterize(viewContext, this);
+      }
+    }
+  }
+
+  protected onRasterize(viewContext: ViewContextType<this>): void {
+    // hook
+  }
+
+  protected didRasterize(viewContext: ViewContextType<this>): void {
+    const viewObservers = this.viewObserverCache.viewDidRasterizeObservers;
+    if (viewObservers !== void 0) {
+      for (let i = 0; i < viewObservers.length; i += 1) {
+        const viewObserver = viewObservers[i]!;
+        viewObserver.viewDidRasterize(viewContext, this);
+      }
+    }
+    const viewController = this.viewController;
+    if (viewController !== null && viewController.viewDidRasterize !== void 0) {
+      viewController.viewDidRasterize(viewContext, this);
     }
   }
 

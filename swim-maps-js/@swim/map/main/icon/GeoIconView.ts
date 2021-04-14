@@ -17,7 +17,7 @@ import {AnyLength, Length, AnyPointR2, PointR2, SegmentR2, BoxR2} from "@swim/ma
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
-import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
+import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import {
   Graphics,
   GraphicsView,
@@ -31,6 +31,7 @@ import {
 import type {GeoViewInit} from "../geo/GeoView";
 import type {GeoViewController} from "../geo/GeoViewController";
 import {GeoLayerView} from "../layer/GeoLayerView";
+import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
 import type {GeoIconViewObserver} from "./GeoIconViewObserver";
 
 export type AnyGeoIconView = GeoIconView | GeoIconViewInit;
@@ -142,19 +143,19 @@ export class GeoIconView extends GeoLayerView implements IconView {
   })
   declare viewCenter: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
 
-  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
+  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout | View.NeedsRasterize | View.NeedsComposite})
   declare xAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
+  @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout | View.NeedsRasterize | View.NeedsComposite})
   declare yAlign: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
+  @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout | View.NeedsRasterize | View.NeedsComposite})
   declare iconWidth: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout | View.NeedsRender | View.NeedsComposite})
+  @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout | View.NeedsRasterize | View.NeedsComposite})
   declare iconHeight: ViewAnimator<this, Length | null, AnyLength | null>;
 
-  @ViewAnimator({type: Color, state: null, updateFlags: View.NeedsRender | View.NeedsComposite})
+  @ViewAnimator({type: Color, state: null, updateFlags: View.NeedsRasterize | View.NeedsComposite})
   declare iconColor: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected willSetGraphics(newGraphics: Graphics | null, oldGraphic: Graphics | null): void {
@@ -172,7 +173,7 @@ export class GeoIconView extends GeoLayerView implements IconView {
   }
 
   protected onSetGraphics(newGraphics: Graphics | null, oldGraphic: Graphics | null): void {
-    this.requireUpdate(View.NeedsRender | View.NeedsComposite);
+    this.requireUpdate(View.NeedsRasterize | View.NeedsComposite);
   }
 
   protected didSetGraphics(newGraphics: Graphics | null, oldGraphic: Graphics | null): void {
@@ -261,16 +262,6 @@ export class GeoIconView extends GeoLayerView implements IconView {
     }
   }
 
-  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
-    if ((this.viewFlags & View.NeedsLayout) === 0) {
-      displayFlags &= ~View.NeedsLayout;
-    }
-    if ((this.viewFlags & View.NeedsRender) === 0) {
-      displayFlags &= ~View.NeedsRender;
-    }
-    return displayFlags;
-  }
-
   protected onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     Object.defineProperty(this, "iconBounds", {
@@ -280,15 +271,15 @@ export class GeoIconView extends GeoLayerView implements IconView {
     });
   }
 
-  protected onRender(viewContext: ViewContextType<this>): void {
-    super.onRender(viewContext);
+  protected onRasterize(viewContext: ViewContextType<this>): void {
+    super.onRasterize(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
-      this.renderIcon(renderer, this.viewBounds);
+      this.rasterizeIcon(renderer, this.viewBounds);
     }
   }
 
-  protected renderIcon(renderer: CanvasRenderer, frame: BoxR2): void {
+  protected rasterizeIcon(renderer: CanvasRenderer, frame: BoxR2): void {
     const graphics = this.graphics.value;
     if (graphics !== null && this.iconBounds !== null) {
       let canvas = this.canvas;
@@ -397,6 +388,10 @@ export class GeoIconView extends GeoLayerView implements IconView {
     //  }
     //}
     return null;
+  }
+
+  ripple(options?: GeoRippleOptions): GeoRippleView | null {
+    return GeoRippleView.ripple(this, options);
   }
 
   static create(): GeoIconView {

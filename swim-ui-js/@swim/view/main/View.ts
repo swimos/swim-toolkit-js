@@ -1745,11 +1745,13 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   static readonly NeedsDisplay: ViewFlags = 1 << 17;
   static readonly NeedsLayout: ViewFlags = 1 << 18;
   static readonly NeedsRender: ViewFlags = 1 << 19;
-  static readonly NeedsComposite: ViewFlags = 1 << 20;
+  static readonly NeedsRasterize: ViewFlags = 1 << 20;
+  static readonly NeedsComposite: ViewFlags = 1 << 21;
   /** @hidden */
   static readonly DisplayMask: ViewFlags = View.NeedsDisplay
                                          | View.NeedsLayout
                                          | View.NeedsRender
+                                         | View.NeedsRasterize
                                          | View.NeedsComposite;
 
   /** @hidden */

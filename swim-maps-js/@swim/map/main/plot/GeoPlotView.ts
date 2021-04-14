@@ -21,6 +21,7 @@ import {GraphicsView, StrokeViewInit, StrokeView, CanvasContext, CanvasRenderer}
 import type {GeoViewInit} from "../geo/GeoView";
 import type {GeoViewController} from "../geo/GeoViewController";
 import {GeoLayerView} from "../layer/GeoLayerView";
+import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
 import {AnyGeoPointView, GeoPointView} from "./GeoPointView";
 import type {GeoPlotViewObserver} from "./GeoPlotViewObserver";
 
@@ -451,6 +452,10 @@ export class GeoPlotView extends GeoLayerView implements StrokeView {
       }
     }
     return null;
+  }
+
+  ripple(options?: GeoRippleOptions): GeoRippleView | null {
+    return GeoRippleView.ripple(this, options);
   }
 
   static create(): GeoPlotView {

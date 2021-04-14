@@ -39,6 +39,7 @@ import {Arc} from "@swim/graphics";
 import type {GeoViewInit} from "../geo/GeoView";
 import type {GeoViewController} from "../geo/GeoViewController";
 import {GeoLayerView} from "../layer/GeoLayerView";
+import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
 import type {GeoArcViewObserver} from "./GeoArcViewObserver";
 
 export type AnyGeoArcView = GeoArcView | GeoArcViewInit;
@@ -336,6 +337,10 @@ export class GeoArcView extends GeoLayerView implements FillView, StrokeView {
       }
     }
     return null;
+  }
+
+  ripple(options?: GeoRippleOptions): GeoRippleView | null {
+    return GeoRippleView.ripple(this, options);
   }
 
   static create(): GeoArcView {

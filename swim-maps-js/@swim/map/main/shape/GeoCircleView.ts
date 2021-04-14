@@ -28,6 +28,7 @@ import {
 import type {GeoViewInit} from "../geo/GeoView";
 import type {GeoViewController} from "../geo/GeoViewController";
 import {GeoLayerView} from "../layer/GeoLayerView";
+import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
 import type {GeoCircleViewObserver} from "./GeoCircleViewObserver";
 
 export type AnyGeoCircleView = GeoCircleView | GeoCircleViewInit;
@@ -188,9 +189,9 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
   }
 
   protected renderCircle(context: CanvasContext, frame: BoxR2): void {
-    const size = Math.min(frame.width, frame.height);
     const viewCenter = this.viewCenter.value;
     if (viewCenter !== null && viewCenter.isDefined()) {
+      const size = Math.min(frame.width, frame.height);
       const radius = this.radius.getValue().pxValue(size);
 
       context.beginPath();
@@ -295,6 +296,10 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
       }
     }
     return null;
+  }
+
+  ripple(options?: GeoRippleOptions): GeoRippleView | null {
+    return GeoRippleView.ripple(this, options);
   }
 
   static create(): GeoCircleView {

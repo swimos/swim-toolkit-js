@@ -28,6 +28,7 @@ import {
 import type {GeoViewInit} from "../geo/GeoView";
 import type {GeoViewController} from "../geo/GeoViewController";
 import {GeoLayerView} from "../layer/GeoLayerView";
+import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
 import type {GeoPointViewObserver} from "./GeoPointViewObserver";
 
 export type GeoPointLabelPlacement = "auto" | "top" | "right" | "bottom" | "left";
@@ -363,6 +364,10 @@ export class GeoPointView extends GeoLayerView {
       return this;
     }
     return null;
+  }
+
+  ripple(options?: GeoRippleOptions): GeoRippleView | null {
+    return GeoRippleView.ripple(this, options);
   }
 
   toAny(): GeoPointViewInit {

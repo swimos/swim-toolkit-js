@@ -18,6 +18,7 @@ import {ViewContextType, View, ViewAnimator} from "@swim/view";
 import type {GeoViewInit} from "../geo/GeoView";
 import type {GeoViewController} from "../geo/GeoViewController";
 import {GeoLayerView} from "../layer/GeoLayerView";
+import {GeoRippleOptions, GeoRippleView} from "../effect/GeoRippleView";
 import type {GeoPathViewObserver} from "./GeoPathViewObserver";
 
 export interface GeoPathViewInit extends GeoViewInit {
@@ -153,4 +154,8 @@ export class GeoPathView extends GeoLayerView {
   }
 
   declare readonly viewBounds: BoxR2;
+
+  ripple(options?: GeoRippleOptions): GeoRippleView | null {
+    return GeoRippleView.ripple(this, options);
+  }
 }
