@@ -33,6 +33,7 @@
     "@swim/graphics": "3.11.0-dev.20210413.1",
     "@swim/component": "3.11.0-dev.20210413.1",
     "@swim/button": "3.11.0-dev.20210413.1",
+    "@swim/token": "3.11.0-dev.20210413.1",
     "@swim/grid": "3.11.0-dev.20210413.1",
     "@swim/window": "3.11.0-dev.20210413.1",
     "@swim/deck": "3.11.0-dev.20210413.1"

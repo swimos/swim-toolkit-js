@@ -44,6 +44,33 @@ import type {GraphicsViewObserver} from "./GraphicsViewObserver";
 import type {GraphicsViewController} from "./GraphicsViewController";
 import {CanvasView} from "../"; // forward import
 
+export interface GraphicsViewEventMap {
+  "auxclick": MouseEvent;
+  "click": MouseEvent;
+  "contextmenu": MouseEvent;
+  "dblclick": MouseEvent;
+  "mousedown": MouseEvent;
+  "mouseenter": MouseEvent;
+  "mouseleave": MouseEvent;
+  "mousemove": MouseEvent;
+  "mouseout": MouseEvent;
+  "mouseover": MouseEvent;
+  "mouseup": MouseEvent;
+  "pointercancel": PointerEvent;
+  "pointerdown": PointerEvent;
+  "pointerenter": PointerEvent;
+  "pointerleave": PointerEvent;
+  "pointermove": PointerEvent;
+  "pointerout": PointerEvent;
+  "pointerover": PointerEvent;
+  "pointerup": PointerEvent;
+  "touchcancel": TouchEvent;
+  "touchend": TouchEvent;
+  "touchmove": TouchEvent;
+  "touchstart": TouchEvent;
+  "wheel": WheelEvent;
+}
+
 export interface GraphicsViewInit extends ViewInit {
   viewController?: GraphicsViewController;
   mood?: MoodVector;
@@ -1630,8 +1657,10 @@ export abstract class GraphicsView extends View {
   /** @hidden */
   declare readonly eventHandlers: {[type: string]: ViewEventHandler[] | undefined} | null;
 
-  on(type: string, listener: EventListenerOrEventListenerObject,
-     options?: AddEventListenerOptions | boolean): this {
+  on<T extends keyof GraphicsViewEventMap>(type: T, listener: (this: this, event: GraphicsViewEventMap[T]) => unknown,
+                                           options?: AddEventListenerOptions | boolean): this;
+  on(type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean): this;
+  on(type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean): this {
     let eventHandlers = this.eventHandlers;
     if (eventHandlers === null) {
       eventHandlers = {};
@@ -1672,8 +1701,10 @@ export abstract class GraphicsView extends View {
     return this;
   }
 
-  off(type: string, listener: EventListenerOrEventListenerObject,
-      options?: EventListenerOptions | boolean): this {
+  off<T extends keyof GraphicsViewEventMap>(type: T, listener: (this: View, event: GraphicsViewEventMap[T]) => unknown,
+                                            options?: EventListenerOptions | boolean): this;
+  off(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): this;
+  off(type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean): this {
     const eventHandlers = this.eventHandlers;
     if (eventHandlers !== null) {
       const handlers = eventHandlers[type];
@@ -1711,7 +1742,7 @@ export abstract class GraphicsView extends View {
           if (!handler.capture) {
             const listener = handler.listener;
             if (typeof listener === "function") {
-              listener(event);
+              listener.call(this, event);
             } else if (typeof listener === "object" && listener !== null) {
               listener.handleEvent(event);
             }
