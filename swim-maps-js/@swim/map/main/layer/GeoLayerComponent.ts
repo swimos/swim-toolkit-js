@@ -169,11 +169,19 @@ export class GeoLayerComponent extends GeoComponent {
     }
   }
 
+  protected themeGeoView(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, geoView: GeoView): void {
+    // hook
+  }
+
   protected projectGeoView(viewContext: GeoViewContext, geoView: GeoView): void {
     // hook
   }
 
-  protected themeGeoView(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, geoView: GeoView): void {
+  protected cullGeoView(geoView: GeoView): void {
+    // hook
+  }
+
+  protected uncullGeoView(geoView: GeoView): void {
     // hook
   }
 
@@ -189,11 +197,17 @@ export class GeoLayerComponent extends GeoComponent {
     didSetView(newGeoView: GeoView | null, oldGeoView: GeoView | null): void {
       this.owner.didSetGeoView(newGeoView, oldGeoView);
     },
+    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, geoView: GeoView): void {
+      this.owner.themeGeoView(theme, mood, timing, geoView);
+    },
     viewWillProject(viewContext: GeoViewContext, geoView: GeoView): void {
       this.owner.projectGeoView(viewContext, geoView);
     },
-    viewDidApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean, geoView: GeoView): void {
-      this.owner.themeGeoView(theme, mood, timing, geoView);
+    viewDidCull(geoView: GeoView): void {
+      this.owner.cullGeoView(geoView);
+    },
+    viewWillUncull(geoView: GeoView): void {
+      this.owner.uncullGeoView(geoView);
     },
     createView(): GeoView | null {
       return this.owner.createGeoView();
