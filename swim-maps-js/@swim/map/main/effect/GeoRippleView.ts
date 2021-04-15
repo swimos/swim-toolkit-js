@@ -273,7 +273,8 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
   }
 
   static ripple(parentView: GeoView, options?: GeoRippleOptions): GeoRippleView | null {
-    if (!document.hidden && !parentView.isHidden() && !parentView.isCulled()) {
+    if (!document.hidden && !parentView.isHidden() && !parentView.isCulled() &&
+        parentView.geoBounds.intersects(parentView.geoViewport.geoFrame)) {
       const rippleView = GeoRippleView.create();
       rippleView.source.setView(parentView);
       parentView.appendChildView(rippleView);
