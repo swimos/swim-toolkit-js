@@ -171,6 +171,21 @@ const core = [
     ],
   },
   {
+    id: "macro",
+    name: "@swim/macro",
+    path: "../swim-system-js/swim-core-js/@swim/macro",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "args", "mapping", "structure", "recon"],
+      },
+      {
+        id: "test",
+        deps: ["util", "codec", "args", "unit", "mapping", "structure", "recon", "macro"],
+      },
+    ],
+  },
+  {
     id: "uri",
     name: "@swim/uri",
     path: "../swim-system-js/swim-core-js/@swim/uri",
