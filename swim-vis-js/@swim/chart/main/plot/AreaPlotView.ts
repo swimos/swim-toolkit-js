@@ -26,18 +26,18 @@ export interface AreaPlotViewInit<X, Y> extends SeriesPlotViewInit<X, Y>, FillVi
 }
 
 export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView {
-  initView(init: AreaPlotViewInit<X, Y>): void {
+  override initView(init: AreaPlotViewInit<X, Y>): void {
     super.initView(init);
     if (init.fill !== void 0) {
       this.fill(init.fill);
     }
   }
 
-  declare readonly viewController: GraphicsViewController<AreaPlotView<X, Y>> & AreaPlotViewObserver<X, Y> | null;
+  override readonly viewController!: GraphicsViewController<AreaPlotView<X, Y>> & AreaPlotViewObserver<X, Y> | null;
 
-  declare readonly viewObservers: ReadonlyArray<AreaPlotViewObserver<X, Y>>;
+  override readonly viewObservers!: ReadonlyArray<AreaPlotViewObserver<X, Y>>;
 
-  get plotType(): SeriesPlotType {
+  override get plotType(): SeriesPlotType {
     return "area";
   }
 
@@ -85,7 +85,7 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
       this.owner.didSetFill(newFill, oldFill);
     },
   })
-  declare fill: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected renderPlot(context: CanvasContext, frame: BoxR2): void {
     const fill = this.fill.getValueOr(Color.transparent());
@@ -186,13 +186,13 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
     return new AreaPlotView<X, Y>();
   }
 
-  static fromInit<X, Y>(init: AreaPlotViewInit<X, Y>): AreaPlotView<X, Y> {
+  static override fromInit<X, Y>(init: AreaPlotViewInit<X, Y>): AreaPlotView<X, Y> {
     const view = new AreaPlotView<X, Y>();
     view.initView(init);
     return view;
   }
 
-  static fromAny<X, Y>(value: AnyAreaPlotView<X, Y>): AreaPlotView<X, Y> {
+  static override fromAny<X, Y>(value: AnyAreaPlotView<X, Y>): AreaPlotView<X, Y> {
     if (value instanceof AreaPlotView) {
       return value;
     } else if (typeof value === "object" && value !== null) {

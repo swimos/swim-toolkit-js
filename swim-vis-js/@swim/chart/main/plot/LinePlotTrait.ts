@@ -20,7 +20,7 @@ import {SeriesPlotTrait} from "./SeriesPlotTrait";
 import type {LinePlotTraitObserver} from "./LinePlotTraitObserver";
 
 export class LinePlotTrait<X, Y> extends SeriesPlotTrait<X, Y> {
-  declare readonly traitObservers: ReadonlyArray<LinePlotTraitObserver<X, Y>>;
+  override readonly traitObservers!: ReadonlyArray<LinePlotTraitObserver<X, Y>>;
 
   protected willSetStroke(newStroke: Look<Color> | Color | null, oldStroke: Look<Color> | Color | null): void {
     const traitObservers = this.traitObservers;
@@ -62,7 +62,7 @@ export class LinePlotTrait<X, Y> extends SeriesPlotTrait<X, Y> {
       return stroke;
     },
   })
-  declare stroke: TraitProperty<this, Look<Color> | Color | null, Look<Color> | AnyColor | null>;
+  readonly stroke!: TraitProperty<this, Look<Color> | Color | null, Look<Color> | AnyColor | null>;
 
   protected willSetStrokeWidth(newStrokeWidth: Length | null, oldStrokeWidth: Length | null): void {
     const traitObservers = this.traitObservers;
@@ -99,5 +99,5 @@ export class LinePlotTrait<X, Y> extends SeriesPlotTrait<X, Y> {
       this.owner.didSetStrokeWidth(newStrokeWidth, oldStrokeWidth);
     },
   })
-  declare strokeWidth: TraitProperty<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: TraitProperty<this, Length | null, AnyLength | null>;
 }

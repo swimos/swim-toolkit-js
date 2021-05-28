@@ -30,39 +30,39 @@ export class LayerView extends GraphicsView {
     });
   }
 
-  declare readonly childViews: ReadonlyArray<View>;
+  override readonly childViews!: ReadonlyArray<View>;
 
-  get childViewCount(): number {
+  override get childViewCount(): number {
     return this.childViews.length;
   }
 
-  firstChildView(): View | null {
+  override firstChildView(): View | null {
     const childViews = this.childViews;
     return childViews.length !== 0 ? childViews[0]! : null;
   }
 
-  lastChildView(): View | null {
+  override lastChildView(): View | null {
     const childViews = this.childViews;
     return childViews.length !== 0 ? childViews[childViews.length - 1]! : null;
   }
 
-  nextChildView(targetView: View): View | null {
+  override nextChildView(targetView: View): View | null {
     const childViews = this.childViews;
     const targetIndex = childViews.indexOf(targetView);
     return targetIndex >= 0 && targetIndex + 1 < childViews.length ? childViews[targetIndex + 1]! : null;
   }
 
-  previousChildView(targetView: View): View | null {
+  override previousChildView(targetView: View): View | null {
     const childViews = this.childViews;
     const targetIndex = childViews.indexOf(targetView);
     return targetIndex - 1 >= 0 ? childViews[targetIndex - 1]! : null;
   }
 
-  forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
-  forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
-                         thisArg: S): T | undefined;
-  forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
-                         thisArg?: S): T | undefined {
+  override forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
+  override forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
+                                  thisArg: S): T | undefined;
+  override forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
+                                  thisArg?: S): T | undefined {
     let result: T | undefined;
     const childViews = this.childViews;
     let i = 0;
@@ -80,9 +80,9 @@ export class LayerView extends GraphicsView {
   }
 
   /** @hidden */
-  declare readonly childViewMap: {[key: string]: View | undefined} | null;
+  readonly childViewMap!: {[key: string]: View | undefined} | null;
 
-  getChildView(key: string): View | null {
+  override getChildView(key: string): View | null {
     const childViewMap = this.childViewMap;
     if (childViewMap !== null) {
       const childView = childViewMap[key];
@@ -93,7 +93,7 @@ export class LayerView extends GraphicsView {
     return null;
   }
 
-  setChildView(key: string, newChildView: View | null): View | null {
+  override setChildView(key: string, newChildView: View | null): View | null {
     let targetView: View | null = null;
     const childViews = this.childViews as View[];
     if (newChildView !== null) {
@@ -164,7 +164,7 @@ export class LayerView extends GraphicsView {
     }
   }
 
-  appendChildView(childView: View, key?: string): void {
+  override appendChildView(childView: View, key?: string): void {
     if (!(childView instanceof GraphicsView)) {
       throw new TypeError("" + childView);
     }
@@ -182,7 +182,7 @@ export class LayerView extends GraphicsView {
     childView.cascadeInsert();
   }
 
-  prependChildView(childView: View, key?: string): void {
+  override prependChildView(childView: View, key?: string): void {
     if (!(childView instanceof GraphicsView)) {
       throw new TypeError("" + childView);
     }
@@ -202,7 +202,7 @@ export class LayerView extends GraphicsView {
     childView.cascadeInsert();
   }
 
-  insertChildView(childView: View, targetView: View | null, key?: string): void {
+  override insertChildView(childView: View, targetView: View | null, key?: string): void {
     if (!(childView instanceof GraphicsView)) {
       throw new TypeError("" + childView);
     }
@@ -232,9 +232,9 @@ export class LayerView extends GraphicsView {
     childView.cascadeInsert();
   }
 
-  removeChildView(key: string): View | null;
-  removeChildView(childView: View): void;
-  removeChildView(key: string | View): View | null | void {
+  override removeChildView(key: string): View | null;
+  override removeChildView(childView: View): void;
+  override removeChildView(key: string | View): View | null | void {
     let childView: View | null;
     if (typeof key === "string") {
       childView = this.getChildView(key);
@@ -266,7 +266,7 @@ export class LayerView extends GraphicsView {
     }
   }
 
-  removeAll(): void {
+  override removeAll(): void {
     const childViews = this.childViews as View[];
     do {
       const count = childViews.length;
@@ -286,7 +286,7 @@ export class LayerView extends GraphicsView {
   }
 
   /** @hidden */
-  protected doMountChildViews(): void {
+  protected override doMountChildViews(): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -302,7 +302,7 @@ export class LayerView extends GraphicsView {
   }
 
   /** @hidden */
-  protected doUnmountChildViews(): void {
+  protected override doUnmountChildViews(): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -318,7 +318,7 @@ export class LayerView extends GraphicsView {
   }
 
   /** @hidden */
-  protected doPowerChildViews(): void {
+  protected override doPowerChildViews(): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -334,7 +334,7 @@ export class LayerView extends GraphicsView {
   }
 
   /** @hidden */
-  protected doUnpowerChildViews(): void {
+  protected override doUnpowerChildViews(): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -349,9 +349,9 @@ export class LayerView extends GraphicsView {
     }
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              processChildView: (this: this, childView: View, processFlags: ViewFlags,
-                                                 viewContext: ViewContextType<this>) => void): void {
+  protected override processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                                       processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                          viewContext: ViewContextType<this>) => void): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -366,9 +366,9 @@ export class LayerView extends GraphicsView {
     }
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
-                                                 viewContext: ViewContextType<this>) => void): void {
+  protected override displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                                       displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                          viewContext: ViewContextType<this>) => void): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -383,7 +383,7 @@ export class LayerView extends GraphicsView {
     }
   }
 
-  deriveViewBounds(): BoxR2 {
+  override deriveViewBounds(): BoxR2 {
     let viewBounds: BoxR2 | undefined;
     const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
@@ -405,7 +405,7 @@ export class LayerView extends GraphicsView {
     return viewBounds;
   }
 
-  deriveHitBounds(): BoxR2 {
+  override deriveHitBounds(): BoxR2 {
     let hitBounds: BoxR2 | undefined;
     const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
@@ -425,7 +425,7 @@ export class LayerView extends GraphicsView {
     return hitBounds;
   }
 
-  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit: GraphicsView | null = null;
     const childViews = this.childViews;
     for (let i = childViews.length - 1; i >= 0; i -= 1) {

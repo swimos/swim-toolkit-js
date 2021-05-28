@@ -17,7 +17,7 @@ import {DrawingRenderer} from "../drawing/DrawingRenderer";
 import type {PaintingContext} from "./PaintingContext";
 
 export abstract class PaintingRenderer extends DrawingRenderer {
-  abstract readonly context: PaintingContext;
+  abstract override readonly context: PaintingContext;
 
   abstract readonly theme: ThemeMatrix | null;
 

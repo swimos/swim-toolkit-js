@@ -28,13 +28,13 @@ export class EphemeralStorageManager<C extends Component = Component> extends St
     });
   }
 
-  declare readonly storage: {[key: string]: string | undefined};
+  readonly storage!: {[key: string]: string | undefined};
 
-  get(key: string): string | undefined {
+  override get(key: string): string | undefined {
     return this.storage[key];
   }
 
-  set(key: string, newValue: string | undefined): string | undefined {
+  override set(key: string, newValue: string | undefined): string | undefined {
     const oldValue = this.storage[key];
     if (newValue !== oldValue) {
       this.willSet(key, newValue, oldValue);
@@ -49,7 +49,7 @@ export class EphemeralStorageManager<C extends Component = Component> extends St
     return oldValue;
   }
 
-  clear(): void {
+  override clear(): void {
     this.willClear();
     Object.defineProperty(this, "storage", {
       value: {},

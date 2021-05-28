@@ -25,11 +25,11 @@ export abstract class EsriView extends MapView {
     EsriViewport.init();
   }
 
-  declare readonly viewController: EsriViewController | null;
+  override readonly viewController!: EsriViewController | null;
 
-  declare readonly viewObservers: ReadonlyArray<EsriViewObserver>;
+  override readonly viewObservers!: ReadonlyArray<EsriViewObserver>;
 
   abstract readonly map: __esri.View;
 
-  abstract readonly geoViewport: EsriViewport;
+  abstract override readonly geoViewport: EsriViewport;
 }

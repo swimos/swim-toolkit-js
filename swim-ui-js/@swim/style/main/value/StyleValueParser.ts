@@ -49,7 +49,7 @@ export class StyleValueParser extends Parser<StyleValue> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<StyleValue> {
+  override feed(input: Input): Parser<StyleValue> {
     return StyleValueParser.parse(input, this.identOutput, this.valueParser,
                                   this.unitsOutput, this.step);
   }

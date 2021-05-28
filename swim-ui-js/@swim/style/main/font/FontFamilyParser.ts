@@ -30,7 +30,7 @@ export class FontFamilyParser extends Parser<FontFamily> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<FontFamily> {
+  override feed(input: Input): Parser<FontFamily> {
     return FontFamilyParser.parse(input, this.output, this.quote, this.code, this.step);
   }
 

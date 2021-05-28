@@ -33,7 +33,7 @@ export class ViewController<V extends View = View> implements ViewObserver<V> {
     });
   }
 
-  declare readonly view: V | null;
+  readonly view!: V | null;
 
   setView(view: V | null): void {
     this.willSetView(view);

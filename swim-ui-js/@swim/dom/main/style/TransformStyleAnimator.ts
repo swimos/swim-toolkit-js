@@ -18,15 +18,15 @@ import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
 export abstract class TransformStyleAnimator<V extends StyleContext> extends StyleAnimator<V, Transform | null, AnyTransform | null> {
-  parse(value: string): Transform | null {
+  override parse(value: string): Transform | null {
     return Transform.parse(value);
   }
 
-  fromCssValue(value: CSSStyleValue): Transform | null {
+  override fromCssValue(value: CSSStyleValue): Transform | null {
     return Transform.fromCssValue(value);
   }
 
-  fromAny(value: AnyTransform): Transform | null {
+  override fromAny(value: AnyTransform): Transform | null {
     try {
       return Transform.fromAny(value);
     } catch (swallow) {

@@ -20,4 +20,3 @@ export {
 export {HslColorInterpolator} from "./HslColorInterpolator";
 
 export {HslColorParser} from "./HslColorParser";
-

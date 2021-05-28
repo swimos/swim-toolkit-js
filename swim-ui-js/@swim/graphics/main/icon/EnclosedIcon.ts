@@ -55,7 +55,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     });
   }
 
-  declare readonly outer: Icon | null;
+  readonly outer!: Icon | null;
 
   withOuter(outer: Icon | null): EnclosedIcon {
     if (this.outer === outer) {
@@ -66,7 +66,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     }
   }
 
-  declare readonly inner: Icon | null;
+  readonly inner!: Icon | null;
 
   withInner(inner: Icon | null): EnclosedIcon {
     if (this.inner === inner) {
@@ -77,7 +77,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     }
   }
 
-  declare readonly innerScale: number;
+  readonly innerScale!: number;
 
   withInnerScale(innerScale: number): EnclosedIcon {
     if (this.innerScale === innerScale) {
@@ -88,9 +88,9 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     }
   }
 
-  declare readonly moodModifier: MoodMatrix | null;
+  override readonly moodModifier!: MoodMatrix | null;
 
-  withMoodModifier(moodModifier: MoodMatrix | null): EnclosedIcon {
+  override withMoodModifier(moodModifier: MoodMatrix | null): EnclosedIcon {
     if (Equals(this.moodModifier, moodModifier)) {
       return this;
     } else {
@@ -99,7 +99,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     }
   }
 
-  modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>): EnclosedIcon {
+  override modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>): EnclosedIcon {
     let oldMoodModifier = this.moodModifier;
     if (oldMoodModifier === null) {
       oldMoodModifier = MoodMatrix.empty();
@@ -113,7 +113,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
   }
 
   /** @hidden */
-  declare readonly outerMoodModifier: MoodMatrix | null;
+  readonly outerMoodModifier!: MoodMatrix | null;
 
   withOuterMoodModifier(outerMoodModifier: MoodMatrix | null): EnclosedIcon {
     if (Equals(this.outerMoodModifier, outerMoodModifier)) {
@@ -138,7 +138,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
   }
 
   /** @hidden */
-  declare readonly innerMoodModifier: MoodMatrix | null;
+  readonly innerMoodModifier!: MoodMatrix | null;
 
   withInnerMoodModifier(innerMoodModifier: MoodMatrix | null): EnclosedIcon {
     if (Equals(this.innerMoodModifier, innerMoodModifier)) {
@@ -162,14 +162,14 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     }
   }
 
-  isThemed(): boolean {
+  override isThemed(): boolean {
     const outer = this.outer;
     const inner = this.inner;
     return (outer === null || outer.isThemed())
         && (inner === null || inner.isThemed());
   }
 
-  withTheme(theme: ThemeMatrix, mood: MoodVector): EnclosedIcon {
+  override withTheme(theme: ThemeMatrix, mood: MoodVector): EnclosedIcon {
     const moodModifier = this.moodModifier;
     const outerMoodModifier = this.outerMoodModifier;
     const innerMoodModifier = this.innerMoodModifier;
@@ -211,7 +211,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     }
   }
 
-  render(renderer: GraphicsRenderer, frame: BoxR2): void {
+  override render(renderer: GraphicsRenderer, frame: BoxR2): void {
     if (renderer instanceof PaintingRenderer) {
       this.paint(renderer.context, frame);
     } else if (renderer instanceof DrawingRenderer) {
@@ -219,7 +219,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     }
   }
 
-  paint(context: PaintingContext, frame: BoxR2): void {
+  override paint(context: PaintingContext, frame: BoxR2): void {
     const outer = this.outer;
     if (outer !== null) {
       outer.paint(context, this.outerFrame(frame));
@@ -230,7 +230,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
     }
   }
 
-  draw(context: DrawingContext, frame: BoxR2): void {
+  override draw(context: DrawingContext, frame: BoxR2): void {
     const outer = this.outer;
     if (outer !== null) {
       outer.draw(context, this.outerFrame(frame));
@@ -329,7 +329,7 @@ export class EnclosedIcon extends Icon implements Interpolate<EnclosedIcon>, Equ
         .debug(this.innerMoodModifier).write(41/*')'*/);
   }
 
-  toString(): string {
+  override toString(): string {
     return Format.debug(this);
   }
 

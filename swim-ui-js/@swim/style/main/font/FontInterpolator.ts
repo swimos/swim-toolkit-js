@@ -26,19 +26,19 @@ import {Font} from "./Font";
 /** @hidden */
 export declare abstract class FontInterpolator {
   /** @hidden */
-  declare readonly styleInterpolator: Interpolator<FontStyle | undefined>;
+  readonly styleInterpolator: Interpolator<FontStyle | undefined>;
   /** @hidden */
-  declare readonly variantInterpolator: Interpolator<FontVariant | undefined>;
+  readonly variantInterpolator: Interpolator<FontVariant | undefined>;
   /** @hidden */
-  declare readonly weightInterpolator: Interpolator<FontWeight | undefined>;
+  readonly weightInterpolator: Interpolator<FontWeight | undefined>;
   /** @hidden */
-  declare readonly stretchInterpolator: Interpolator<FontStretch | undefined>;
+  readonly stretchInterpolator: Interpolator<FontStretch | undefined>;
   /** @hidden */
-  declare readonly sizeInterpolator: Interpolator<FontSize | null>;
+  readonly sizeInterpolator: Interpolator<FontSize | null>;
   /** @hidden */
-  declare readonly heightInterpolator: Interpolator<LineHeight | null>;
+  readonly heightInterpolator: Interpolator<LineHeight | null>;
   /** @hidden */
-  declare readonly familyInterpolator: Interpolator<FontFamily | ReadonlyArray<FontFamily>>;
+  readonly familyInterpolator: Interpolator<FontFamily | ReadonlyArray<FontFamily>>;
 
   get 0(): Font;
 

@@ -17,7 +17,7 @@ import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
 export abstract class BooleanViewAnimator<V extends View> extends ViewAnimator<V, boolean | null | undefined, boolean | string | null | undefined> {
-  fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
+  override fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
     return !!value;
   }
 }

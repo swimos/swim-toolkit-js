@@ -80,13 +80,13 @@ export class ColLayout implements Equals, Equivalent, Debug {
     });
   }
 
-  declare readonly key: string;
+  readonly key!: string;
 
-  declare readonly grow: number;
+  readonly grow!: number;
 
-  declare readonly shrink: number;
+  readonly shrink!: number;
 
-  declare readonly basis: Length;
+  readonly basis!: Length;
 
   withFlex(grow: number, shrink: number, basis?: AnyLength): ColLayout {
     if (basis !== void 0) {
@@ -98,14 +98,14 @@ export class ColLayout implements Equals, Equivalent, Debug {
                      this.width, this.left, this.right, this.hidden);
   }
 
-  declare readonly optional: boolean;
+  readonly optional!: boolean;
 
   asOptional(optional: boolean): ColLayout {
     return this.copy(this.key, this.grow, this.shrink, this.basis, optional,
                      this.textColor, this.width, this.left, this.right, this.hidden);
   }
 
-  declare readonly textColor: Look<Color> | Color | null;
+  readonly textColor!: Look<Color> | Color | null;
 
   withTextColor(textColor: Look<Color> | AnyColor | null): ColLayout {
     if (textColor !== null && !(textColor instanceof Look)) {
@@ -115,13 +115,13 @@ export class ColLayout implements Equals, Equivalent, Debug {
                      textColor, this.width, this.left, this.right, this.hidden);
   }
 
-  declare readonly width: Length | null;
+  readonly width!: Length | null;
 
-  declare readonly left: Length | null;
+  readonly left!: Length | null;
 
-  declare readonly right: Length | null;
+  readonly right!: Length | null;
 
-  declare readonly hidden: boolean;
+  readonly hidden!: boolean;
 
   asHidden(hidden: boolean): ColLayout {
     return this.copy(this.key, this.grow, this.shrink, this.basis, this.optional,

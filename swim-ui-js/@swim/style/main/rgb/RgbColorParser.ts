@@ -36,7 +36,7 @@ export class RgbColorParser extends Parser<RgbColor> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<RgbColor> {
+  override feed(input: Input): Parser<RgbColor> {
     return RgbColorParser.parse(input, this.rParser, this.gParser,
                                 this.bParser, this.aParser, this.step);
   }

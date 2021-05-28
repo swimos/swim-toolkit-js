@@ -17,7 +17,7 @@ import {ComponentProperty} from "./ComponentProperty";
 
 /** @hidden */
 export abstract class BooleanComponentProperty<C extends Component> extends ComponentProperty<C, boolean | null | undefined, boolean | string | null | undefined> {
-  fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
+  override fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
     return !!value;
   }
 }

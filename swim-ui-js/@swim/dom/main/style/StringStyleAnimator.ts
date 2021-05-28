@@ -17,15 +17,15 @@ import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
 export abstract class StringStyleAnimator<V extends StyleContext> extends StyleAnimator<V, string | undefined> {
-  parse(value: string): string | undefined {
+  override parse(value: string): string | undefined {
     return value;
   }
 
-  fromCssValue(value: CSSStyleValue): string | undefined {
+  override fromCssValue(value: CSSStyleValue): string | undefined {
     return value.toString();
   }
 
-  fromAny(value: string): string | undefined {
+  override fromAny(value: string): string | undefined {
     return value;
   }
 }

@@ -38,5 +38,5 @@ export abstract class MapDownlinkTrait extends DownlinkTrait {
       }
     },
   })
-  declare downlink: ModelMapDownlink<this, Value, Value, AnyValue, AnyValue>;
+  readonly downlink!: ModelMapDownlink<this, Value, Value, AnyValue, AnyValue>;
 }

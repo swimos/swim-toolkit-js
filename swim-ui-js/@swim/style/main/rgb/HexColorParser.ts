@@ -26,7 +26,7 @@ export class HexColorParser extends Parser<RgbColor> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<RgbColor> {
+  override feed(input: Input): Parser<RgbColor> {
     return HexColorParser.parse(input, this.value, this.step);
   }
 

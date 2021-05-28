@@ -29,7 +29,7 @@ export class ColorStopListParser extends Parser<ColorStop[]> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<ColorStop[]> {
+  override feed(input: Input): Parser<ColorStop[]> {
     return ColorStopListParser.parse(input, this.stops !== void 0 ? this.stops.slice(0) : void 0,
                                      this.stopParser, this.step);
   }

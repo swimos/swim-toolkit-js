@@ -16,5 +16,5 @@ import {AxisTrait} from "./AxisTrait";
 import type {AxisTraitObserver} from "./AxisTraitObserver";
 
 export abstract class BottomAxisTrait<X> extends AxisTrait<X> {
-  declare readonly traitObservers: ReadonlyArray<AxisTraitObserver<X, BottomAxisTrait<X>>>;
+  override readonly traitObservers!: ReadonlyArray<AxisTraitObserver<X, BottomAxisTrait<X>>>;
 }

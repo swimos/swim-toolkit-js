@@ -17,7 +17,7 @@ import {ModelProperty} from "./ModelProperty";
 
 /** @hidden */
 export abstract class StringModelProperty<M extends Model> extends ModelProperty<M, string | null | undefined> {
-  fromAny(value: string | null | undefined): string | null | undefined {
+  override fromAny(value: string | null | undefined): string | null | undefined {
     return value;
   }
 }

@@ -35,9 +35,9 @@ export interface GeoRippleOptions {
 }
 
 export class GeoRippleView extends GeoLayerView implements StrokeView {
-  declare readonly viewController: GeoViewController<GeoRippleView> & GeoRippleViewObserver | null;
+  override readonly viewController!: GeoViewController<GeoRippleView> & GeoRippleViewObserver | null;
 
-  declare readonly viewObservers: ReadonlyArray<GeoRippleViewObserver>;
+  override readonly viewObservers!: ReadonlyArray<GeoRippleViewObserver>;
 
   protected willSetGeoCenter(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
     const viewController = this.viewController;
@@ -88,10 +88,10 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
       this.owner.didSetGeoCenter(newGeoCenter, oldGeoCenter);
     },
   })
-  declare geoCenter: ViewAnimator<this, GeoPoint | null, AnyGeoPoint | null>;
+  readonly geoCenter!: ViewAnimator<this, GeoPoint | null, AnyGeoPoint | null>;
 
   @ViewAnimator({type: PointR2, state: PointR2.undefined()})
-  declare viewCenter: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
+  readonly viewCenter!: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
 
   protected onSetRadius(newRadius: Length | null, oldRadius: Length | null): void {
     if (this.isMounted()) {
@@ -110,13 +110,13 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
       this.owner.remove();
     },
   })
-  declare radius: ViewAnimator<this, Length, AnyLength>;
+  readonly radius!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: null, look: Look.accentColor, inherit: true})
-  declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Length, state: Length.px(1), inherit: true})
-  declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewFastener<GeoRippleView, GeoView>({
     child: false,
@@ -133,9 +133,9 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
       this.owner.geoCenter.setState(newGeoBounds.center, View.Intrinsic);
     },
   })
-  declare source: ViewFastener<this, GeoView>;
+  readonly source!: ViewFastener<this, GeoView>;
 
-  protected onProject(viewContext: ViewContextType<this>): void {
+  protected override onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
     this.projectRipple(viewContext);
   }
@@ -173,7 +173,7 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
     }
   }
 
-  protected onRender(viewContext: ViewContextType<this>): void {
+  protected override onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -205,7 +205,7 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
     }
   }
 
-  protected updateGeoBounds(): void {
+  protected override updateGeoBounds(): void {
     // nop
   }
 

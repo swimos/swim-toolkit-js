@@ -31,7 +31,7 @@ export abstract class HistoryService<C extends Component> extends ComponentManag
     this.manager.replaceHistory(deltaState);
   }
 
-  initManager(): HistoryManager<C> {
+  override initManager(): HistoryManager<C> {
     return HistoryManager.global();
   }
 }

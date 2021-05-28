@@ -17,11 +17,11 @@ import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class BooleanAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, boolean | undefined, string> {
-  parse(value: string): boolean | undefined {
+  override parse(value: string): boolean | undefined {
     return !!value;
   }
 
-  fromAny(value: boolean | string): boolean | undefined {
+  override fromAny(value: boolean | string): boolean | undefined {
     return !!value;
   }
 }

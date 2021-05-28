@@ -32,30 +32,30 @@ export interface GraphicsIconViewInit extends GraphicsViewInit, IconViewInit {
 }
 
 export class GraphicsIconView extends LayerView implements IconView {
-  initView(init: GraphicsIconViewInit): void {
+  override initView(init: GraphicsIconViewInit): void {
     super.initView(init);
     IconView.initView(this, init);
   }
 
   @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout})
-  declare xAlign: ViewAnimator<this, number>;
+  readonly xAlign!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout})
-  declare yAlign: ViewAnimator<this, number>;
+  readonly yAlign!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout})
-  declare iconWidth: ViewAnimator<this, Length | null, AnyLength | null>;
+  readonly iconWidth!: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout})
-  declare iconHeight: ViewAnimator<this, Length | null, AnyLength | null>;
+  readonly iconHeight!: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewAnimator({type: Color, state: null, updateFlags: View.NeedsLayout})
-  declare iconColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly iconColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({extends: IconViewAnimator, type: Object, state: null, updateFlags: View.NeedsLayout})
-  declare graphics: ViewAnimator<this, Graphics | null>;
+  readonly graphics!: ViewAnimator<this, Graphics | null>;
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+  protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (!this.graphics.isInherited()) {
       const oldGraphics = this.graphics.value;
@@ -66,7 +66,7 @@ export class GraphicsIconView extends LayerView implements IconView {
     }
   }
 
-  protected onAnimate(viewContext: ViewContextType<this>): void {
+  protected override onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const iconColor = this.iconColor.takeUpdatedValue();
     if (iconColor !== void 0 && iconColor !== null) {
@@ -78,7 +78,7 @@ export class GraphicsIconView extends LayerView implements IconView {
     }
   }
 
-  protected onRender(viewContext: ViewContextType<this>): void {
+  protected override onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -100,7 +100,7 @@ export class GraphicsIconView extends LayerView implements IconView {
 
   declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
 
-  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
@@ -130,7 +130,7 @@ export class GraphicsIconView extends LayerView implements IconView {
     return null;
   }
 
-  static create(): GraphicsIconView {
+  static override create(): GraphicsIconView {
     return new GraphicsIconView();
   }
 }

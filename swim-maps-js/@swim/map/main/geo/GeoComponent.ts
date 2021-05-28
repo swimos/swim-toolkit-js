@@ -27,10 +27,10 @@ import {GeoIconTrait} from "../"; // forward import
 import {GeoIconComponent} from "../"; // forward import
 
 export abstract class GeoComponent extends CompositeComponent {
-  declare readonly componentObservers: ReadonlyArray<GeoComponentObserver>;
+  override readonly componentObservers!: ReadonlyArray<GeoComponentObserver>;
 
   @ComponentProperty({type: Timing, inherit: true})
-  declare geoTiming: ComponentProperty<this, Timing | boolean | undefined, AnyTiming>;
+  readonly geoTiming!: ComponentProperty<this, Timing | boolean | undefined, AnyTiming>;
 
   abstract readonly geo: ComponentViewTrait<this, GeoView, GeoTrait>;
 

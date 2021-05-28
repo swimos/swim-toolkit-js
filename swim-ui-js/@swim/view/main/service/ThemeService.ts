@@ -35,7 +35,7 @@ export abstract class ThemeService<V extends View> extends ViewManagerService<V,
     this.manager.setTheme(theme);
   }
 
-  initManager(): ThemeManager<V> {
+  override initManager(): ThemeManager<V> {
     return ThemeManager.global();
   }
 }

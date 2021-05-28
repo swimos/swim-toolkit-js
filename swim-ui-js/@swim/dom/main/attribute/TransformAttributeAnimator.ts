@@ -18,11 +18,11 @@ import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class TransformAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, Transform | null, AnyTransform | null> {
-  parse(value: string): Transform | null {
+  override parse(value: string): Transform | null {
     return Transform.parse(value);
   }
 
-  fromAny(value: AnyTransform): Transform | null {
+  override fromAny(value: AnyTransform): Transform | null {
     try {
       return Transform.fromAny(value);
     } catch (swallow) {

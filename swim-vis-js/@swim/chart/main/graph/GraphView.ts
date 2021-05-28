@@ -30,11 +30,11 @@ export interface GraphViewInit<X, Y> extends ScaledViewInit<X, Y> {
 }
 
 export class GraphView<X, Y> extends ScaledView<X, Y> {
-  declare readonly viewController: GraphicsViewController<GraphView<X, Y>> & GraphViewObserver<X, Y> | null;
+  override readonly viewController!: GraphicsViewController<GraphView<X, Y>> & GraphViewObserver<X, Y> | null;
 
-  declare readonly viewObservers: ReadonlyArray<GraphViewObserver<X, Y>>;
+  override readonly viewObservers!: ReadonlyArray<GraphViewObserver<X, Y>>;
 
-  initView(init: GraphViewInit<X, Y>): void {
+  override initView(init: GraphViewInit<X, Y>): void {
     super.initView(init);
     const plots = init.plots;
     if (plots !== void 0) {
@@ -52,10 +52,10 @@ export class GraphView<X, Y> extends ScaledView<X, Y> {
   }
 
   @ViewAnimator({type: Font, inherit: true, state: null})
-  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ViewAnimator<this, Font | null, AnyFont | null>;
 
   @ViewAnimator({type: Color, inherit: true, state: null})
-  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   addPlot(plot: AnyPlotView<X, Y>, key?: string): void {
     if (key === void 0 && typeof plot === "object" && plot !== null) {
@@ -65,7 +65,7 @@ export class GraphView<X, Y> extends ScaledView<X, Y> {
     this.appendChildView(plot);
   }
 
-  protected willRender(viewContext: ViewContextType<this>): void {
+  protected override willRender(viewContext: ViewContextType<this>): void {
     super.willRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer) {
@@ -75,7 +75,7 @@ export class GraphView<X, Y> extends ScaledView<X, Y> {
     }
   }
 
-  protected didRender(viewContext: ViewContextType<this>): void {
+  protected override didRender(viewContext: ViewContextType<this>): void {
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer) {
       const context = renderer.context;
@@ -90,7 +90,7 @@ export class GraphView<X, Y> extends ScaledView<X, Y> {
     context.clip();
   }
 
-  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       hit = this;
@@ -98,7 +98,7 @@ export class GraphView<X, Y> extends ScaledView<X, Y> {
     return hit;
   }
 
-  static create<X, Y>(): GraphView<X, Y> {
+  static override create<X, Y>(): GraphView<X, Y> {
     return new GraphView<X, Y>();
   }
 

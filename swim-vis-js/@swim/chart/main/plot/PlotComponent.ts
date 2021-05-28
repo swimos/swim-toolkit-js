@@ -26,10 +26,10 @@ import {LinePlotComponent} from "../"; // forward import
 import {AreaPlotComponent} from "../"; // forward import
 
 export abstract class PlotComponent<X, Y> extends DataSetComponent<X, Y> {
-  declare readonly componentObservers: ReadonlyArray<PlotComponentObserver<X, Y>>;
+  override readonly componentObservers!: ReadonlyArray<PlotComponentObserver<X, Y>>;
 
   @ComponentProperty({type: Timing, inherit: true})
-  declare plotTiming: ComponentProperty<this, Timing | boolean | undefined, AnyTiming>;
+  readonly plotTiming!: ComponentProperty<this, Timing | boolean | undefined, AnyTiming>;
 
   abstract readonly plot: ComponentViewTrait<this, PlotView<X, Y>, PlotTrait<X, Y>>;
 

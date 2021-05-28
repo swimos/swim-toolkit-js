@@ -17,7 +17,7 @@ import {ComponentProperty} from "./ComponentProperty";
 
 /** @hidden */
 export abstract class StringComponentProperty<C extends Component> extends ComponentProperty<C, string | null | undefined> {
-  fromAny(value: string | null | undefined): string | null | undefined {
+  override fromAny(value: string | null | undefined): string | null | undefined {
     return value;
   }
 }

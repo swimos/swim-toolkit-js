@@ -30,7 +30,7 @@ export abstract class ViewManager<V extends View = View> {
     });
   }
 
-  declare readonly viewManagerObservers: ReadonlyArray<ViewManagerObserver>;
+  readonly viewManagerObservers!: ReadonlyArray<ViewManagerObserver>;
 
   addViewManagerObserver(viewManagerObserver: ViewManagerObserverType<this>): void {
     const oldViewManagerObservers = this.viewManagerObservers;
@@ -164,7 +164,7 @@ export abstract class ViewManager<V extends View = View> {
     }
   }
 
-  declare readonly rootViews: ReadonlyArray<V>;
+  readonly rootViews!: ReadonlyArray<V>;
 
   insertRootView(rootView: V): void {
     const oldRootViews = this.rootViews;

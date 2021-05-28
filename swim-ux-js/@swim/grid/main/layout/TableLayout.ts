@@ -52,15 +52,15 @@ export class TableLayout implements Equals, Equivalent, Debug {
     });
   }
 
-  declare readonly width: Length | null;
+  readonly width!: Length | null;
 
-  declare readonly left: Length | null;
+  readonly left!: Length | null;
 
-  declare readonly right: Length | null;
+  readonly right!: Length | null;
 
-  declare readonly colSpacing: Length | null;
+  readonly colSpacing!: Length | null;
 
-  declare readonly cols: ReadonlyArray<ColLayout>;
+  readonly cols!: ReadonlyArray<ColLayout>;
 
   getCol(key: string): ColLayout | null {
     const cols = this.cols;

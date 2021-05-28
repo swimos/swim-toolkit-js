@@ -139,7 +139,7 @@ export abstract class ContinuousScaleAnimator<V extends View, X, Y> extends View
     }
   }
 
-  fromAny(value: ContinuousScale<X, Y> | string | null): ContinuousScale<X, Y> | null {
+  override fromAny(value: ContinuousScale<X, Y> | string | null): ContinuousScale<X, Y> | null {
     if (typeof value === "string") {
       value = ScaledView.parseScale(value);
     }

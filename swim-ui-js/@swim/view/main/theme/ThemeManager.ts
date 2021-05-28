@@ -35,7 +35,7 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     });
   }
 
-  declare readonly mood: MoodVector;
+  readonly mood!: MoodVector;
 
   protected initMood(): MoodVector {
     return Mood.default;
@@ -58,7 +58,7 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  declare readonly theme: ThemeMatrix;
+  readonly theme!: ThemeMatrix;
 
   protected initTheme(): ThemeMatrix {
     const viewport = Viewport.detect();
@@ -122,9 +122,9 @@ export class ThemeManager<V extends View = View> extends ViewManager<V> {
     }
   }
 
-  declare readonly viewManagerObservers: ReadonlyArray<ThemeManagerObserver>;
+  override readonly viewManagerObservers!: ReadonlyArray<ThemeManagerObserver>;
 
-  protected onInsertRootView(rootView: V): void {
+  protected override onInsertRootView(rootView: V): void {
     super.onInsertRootView(rootView);
     this.applyTheme(this.theme, this.mood);
   }

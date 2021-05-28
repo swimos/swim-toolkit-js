@@ -28,7 +28,7 @@ import {BottomAxisComponent} from "../"; // forward import
 import {LeftAxisComponent} from "../"; // forward import
 
 export abstract class AxisComponent<D> extends CompositeComponent {
-  declare readonly componentObservers: ReadonlyArray<AxisComponentObserver<D>>;
+  override readonly componentObservers!: ReadonlyArray<AxisComponentObserver<D>>;
 
   protected initAxisTrait(axisTrait: AxisTrait<D>): void {
     // hook
@@ -154,7 +154,7 @@ export abstract class AxisComponent<D> extends CompositeComponent {
   @ComponentViewTrait<AxisComponent<D>, AxisView<D>, AxisTrait<D>>({
     extends: AxisComponent.AxisFastener,
   })
-  declare axis: ComponentViewTrait<this, AxisView<D>, AxisTrait<D>>;
+  readonly axis!: ComponentViewTrait<this, AxisView<D>, AxisTrait<D>>;
 
   protected createAxis<D>(axisTrait: AxisTrait<D>): AxisComponent<D> | null {
     if (axisTrait instanceof TopAxisTrait) {

@@ -31,7 +31,7 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
   }
 
   /** @hidden */
-  declare readonly historyState: HistoryState;
+  readonly historyState!: HistoryState;
 
   get historyUri(): Uri {
     return HistoryState.toUri(this.historyState);
@@ -168,14 +168,14 @@ export class HistoryManager<C extends Component = Component> extends ComponentMa
     }
   }
 
-  declare readonly componentManagerObservers: ReadonlyArray<HistoryManagerObserver>;
+  override readonly componentManagerObservers!: ReadonlyArray<HistoryManagerObserver>;
 
-  protected onAttach(): void {
+  protected override onAttach(): void {
     super.onAttach();
     this.attachEvents();
   }
 
-  protected onDetach(): void {
+  protected override onDetach(): void {
     this.detachEvents();
     super.onDetach();
   }

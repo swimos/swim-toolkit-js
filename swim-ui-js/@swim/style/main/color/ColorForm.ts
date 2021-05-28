@@ -25,9 +25,9 @@ export class ColorForm extends Form<Color, AnyColor> {
     });
   }
 
-  declare readonly unit: Color | undefined;
+  override readonly unit: Color | undefined;
 
-  withUnit(unit: Color | undefined): Form<Color, AnyColor> {
+  override withUnit(unit: Color | undefined): Form<Color, AnyColor> {
     if (unit !== this.unit) {
       return new ColorForm(unit);
     } else {
@@ -35,12 +35,12 @@ export class ColorForm extends Form<Color, AnyColor> {
     }
   }
 
-  mold(color: AnyColor): Item {
+  override mold(color: AnyColor): Item {
     color = Color.fromAny(color);
     return Text.from(color.toString());
   }
 
-  cast(item: Item): Color | undefined {
+  override cast(item: Item): Color | undefined {
     const value = item.toValue();
     let color: Color | null = null;
     try {

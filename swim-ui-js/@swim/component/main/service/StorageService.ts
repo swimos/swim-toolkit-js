@@ -32,7 +32,7 @@ export abstract class StorageService<C extends Component> extends ComponentManag
     this.manager.clear();
   }
 
-  initManager(): StorageManager<C> {
+  override initManager(): StorageManager<C> {
     let manager: StorageManager<C> | null = WebStorageManager.local();
     if (manager === null) {
       manager = new EphemeralStorageManager();

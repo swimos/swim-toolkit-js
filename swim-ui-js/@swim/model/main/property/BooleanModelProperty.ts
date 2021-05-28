@@ -17,7 +17,7 @@ import {ModelProperty} from "./ModelProperty";
 
 /** @hidden */
 export abstract class BooleanModelProperty<M extends Model> extends ModelProperty<M, boolean | null | undefined, boolean | string | null | undefined> {
-  fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
+  override fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
     return !!value;
   }
 }

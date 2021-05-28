@@ -18,7 +18,7 @@ import type {ViewManagerObserverType} from "../manager/ViewManagerObserver";
 import {ViewService} from "./ViewService";
 
 export abstract class ViewManagerService<V extends View, VM extends ViewManager<V>> extends ViewService<V, VM> {
-  mount(): void {
+  override mount(): void {
     super.mount();
     const manager = this.manager;
     if (manager !== void 0) {
@@ -31,7 +31,7 @@ export abstract class ViewManagerService<V extends View, VM extends ViewManager<
     }
   }
 
-  unmount(): void {
+  override unmount(): void {
     const manager = this.manager;
     if (manager !== void 0) {
       if (this.observe !== false) {

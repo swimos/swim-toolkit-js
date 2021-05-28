@@ -34,9 +34,9 @@ export class BubblePlotTrait<X, Y> extends ScatterPlotTrait<X, Y> {
     });
   }
 
-  declare readonly traitObservers: ReadonlyArray<BubblePlotTraitObserver<X, Y>>;
+  override readonly traitObservers!: ReadonlyArray<BubblePlotTraitObserver<X, Y>>;
 
-  declare readonly radius: Length | null;
+  readonly radius!: Length | null;
 
   setRadius(newRadius: AnyLength): void {
     newRadius = Length.fromAny(newRadius);
@@ -77,7 +77,7 @@ export class BubblePlotTrait<X, Y> extends ScatterPlotTrait<X, Y> {
     }
   }
 
-  declare readonly fill: Look<Color> | Color | null;
+  readonly fill!: Look<Color> | Color | null;
 
   setFill(newFill: Look<Color> | AnyColor | null): void {
     if (newFill !== null && !(newFill instanceof Look)) {

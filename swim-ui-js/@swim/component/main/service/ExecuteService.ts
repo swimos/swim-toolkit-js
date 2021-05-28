@@ -35,7 +35,7 @@ export abstract class ExecuteService<C extends Component> extends ComponentManag
     return manager.updatedComponentContext();
   }
 
-  initManager(): ExecuteManager<C> {
+  override initManager(): ExecuteManager<C> {
     return ExecuteManager.global();
   }
 }

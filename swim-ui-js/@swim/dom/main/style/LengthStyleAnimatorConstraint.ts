@@ -18,11 +18,11 @@ import {StyleAnimatorConstraint} from "./StyleAnimatorConstraint";
 
 /** @hidden */
 export abstract class LengthStyleAnimatorConstraint<V extends StyleContext> extends StyleAnimatorConstraint<V, Length | null, AnyLength | null> {
-  parse(value: string): Length | null {
+  override parse(value: string): Length | null {
     return Length.parse(value);
   }
 
-  toNumber(value: Length): number {
+  override toNumber(value: Length): number {
     try {
       return value.pxValue();
     } catch (swallow) {
@@ -30,11 +30,11 @@ export abstract class LengthStyleAnimatorConstraint<V extends StyleContext> exte
     }
   }
 
-  fromCssValue(value: CSSStyleValue): Length | null {
+  override fromCssValue(value: CSSStyleValue): Length | null {
     return Length.fromCssValue(value);
   }
 
-  fromAny(value: AnyLength | string): Length | null {
+  override fromAny(value: AnyLength | string): Length | null {
     try {
       return Length.fromAny(value);
     } catch (swallow) {

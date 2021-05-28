@@ -62,7 +62,7 @@ export interface DialViewInit extends GraphicsViewInit {
 }
 
 export class DialView extends LayerView {
-  initView(init: DialViewInit): void {
+  override initView(init: DialViewInit): void {
     super.initView(init);
     if (init.value !== void 0) {
       this.value(init.value);
@@ -132,9 +132,9 @@ export class DialView extends LayerView {
     }
   }
 
-  declare readonly viewController: GraphicsViewController & DialViewObserver | null;
+  override readonly viewController!: GraphicsViewController & DialViewObserver | null;
 
-  declare readonly viewObservers: ReadonlyArray<DialViewObserver>;
+  override readonly viewObservers!: ReadonlyArray<DialViewObserver>;
 
   protected willSetValue(newValue: number, oldValue: number): void {
     const viewController = this.viewController;
@@ -179,7 +179,7 @@ export class DialView extends LayerView {
       this.owner.didSetValue(newValue, oldValue);
     },
   })
-  declare value: ViewAnimator<this, number>;
+  readonly value!: ViewAnimator<this, number>;
 
   protected willSetLimit(newLimit: number, oldLimit: number): void {
     const viewController = this.viewController;
@@ -224,58 +224,58 @@ export class DialView extends LayerView {
       this.owner.didSetLimit(newLimit, oldLimit);
     },
   })
-  declare limit: ViewAnimator<this, number>;
+  readonly limit!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: PointR2, inherit: true, state: PointR2.origin()})
-  declare center: ViewAnimator<this, PointR2, AnyPointR2>;
+  readonly center!: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Length, inherit: true, state: Length.pct(30)})
-  declare innerRadius: ViewAnimator<this, Length, AnyLength>;
+  readonly innerRadius!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, inherit: true, state: Length.pct(40)})
-  declare outerRadius: ViewAnimator<this, Length, AnyLength>;
+  readonly outerRadius!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Angle, inherit: true, state: Angle.rad(-Math.PI / 2)})
-  declare startAngle: ViewAnimator<this, Angle, AnyAngle>;
+  readonly startAngle!: ViewAnimator<this, Angle, AnyAngle>;
 
   @ViewAnimator({type: Angle, inherit: true, state: Angle.rad(2 * Math.PI)})
-  declare sweepAngle: ViewAnimator<this, Angle, AnyAngle>;
+  readonly sweepAngle!: ViewAnimator<this, Angle, AnyAngle>;
 
   @ViewAnimator({type: Length, inherit: true, state: Length.pct(50)})
-  declare cornerRadius: ViewAnimator<this, Length, AnyLength>;
+  readonly cornerRadius!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, inherit: true, state: null, look: Look.subduedColor})
-  declare dialColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly dialColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Color, inherit: true, state: null, look: Look.accentColor})
-  declare meterColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly meterColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Length, inherit: true, state: Length.pct(25)})
-  declare labelPadding: ViewAnimator<this, Length, AnyLength>;
+  readonly labelPadding!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Number, inherit: true, state: 1.0})
-  declare tickAlign: ViewAnimator<this, number>;
+  readonly tickAlign!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Length, inherit: true, state: Length.pct(45)})
-  declare tickRadius: ViewAnimator<this, Length, AnyLength>;
+  readonly tickRadius!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, inherit: true, state: Length.pct(50)})
-  declare tickLength: ViewAnimator<this, Length, AnyLength>;
+  readonly tickLength!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, inherit: true, state: Length.px(1)})
-  declare tickWidth: ViewAnimator<this, Length, AnyLength>;
+  readonly tickWidth!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, inherit: true, state: Length.px(2)})
-  declare tickPadding: ViewAnimator<this, Length, AnyLength>;
+  readonly tickPadding!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, inherit: true, state: null, look: Look.neutralColor})
-  declare tickColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly tickColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Font, inherit: true})
-  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ViewAnimator<this, Font | null, AnyFont | null>;
 
   @ViewAnimator({type: Color, inherit: true, look: Look.mutedColor})
-  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   protected initLabel(labelView: GraphicsView): void {
     // hook
@@ -350,7 +350,7 @@ export class DialView extends LayerView {
       this.owner.didSetLabel(newLabelView, oldLabelView);
     },
   })
-  declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
+  readonly label!: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
   protected initLegend(legendView: GraphicsView | null): void {
     // hook
@@ -425,17 +425,17 @@ export class DialView extends LayerView {
       this.owner.didSetLegend(newLegendView, oldLegendView);
     },
   })
-  declare legend: ViewFastener<this, GraphicsView, AnyTextRunView>;
+  readonly legend!: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
   @ViewProperty({type: String, state: "auto"})
-  declare arrangement: ViewProperty<this, DialViewArrangement>;
+  readonly arrangement!: ViewProperty<this, DialViewArrangement>;
 
-  protected onLayout(viewContext: ViewContextType<this>): void {
+  protected override onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.center.onAnimate(viewContext.updateTime);
   }
 
-  protected onRender(viewContext: ViewContextType<this>): void {
+  protected override onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -583,7 +583,7 @@ export class DialView extends LayerView {
     }
   }
 
-  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
@@ -619,7 +619,7 @@ export class DialView extends LayerView {
     return null;
   }
 
-  static create(): DialView {
+  static override create(): DialView {
     return new DialView();
   }
 

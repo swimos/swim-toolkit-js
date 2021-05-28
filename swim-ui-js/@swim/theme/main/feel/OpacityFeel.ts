@@ -17,8 +17,8 @@ import type {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 
 export class OpacityFeel extends Feel {
-  combine<T>(look: Look<T, any>, combination: T | undefined,
-             value: T, weight?: number): T {
+  override combine<T>(look: Look<T, any>, combination: T | undefined,
+                      value: T, weight?: number): T {
     if (combination instanceof Color && value instanceof Color) {
       if (weight === void 0 || weight === 1) {
         return combination.alpha(value.alpha()) as unknown as T;

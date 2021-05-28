@@ -34,31 +34,31 @@ export interface RectViewInit extends FillViewInit, StrokeViewInit {
 }
 
 export class RectView extends LayerView implements FillView, StrokeView {
-  initView(init: RectViewInit): void {
+  override initView(init: RectViewInit): void {
     super.initView(init);
     this.setState(init);
   }
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  declare x: ViewAnimator<this, Length, AnyLength>;
+  readonly x!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  declare y: ViewAnimator<this, Length, AnyLength>;
+  readonly y!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  declare width: ViewAnimator<this, Length, AnyLength>;
+  readonly width!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  declare height: ViewAnimator<this, Length, AnyLength>;
+  readonly height!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: null, inherit: true})
-  declare fill: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Color, state: null, inherit: true})
-  declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Length, state: null, inherit: true})
-  declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ViewAnimator<this, Length | null, AnyLength | null>;
 
   get value(): Rect {
     return new Rect(this.x.getValue(), this.y.getValue(), this.width.getValue(), this.height.getValue());
@@ -95,7 +95,7 @@ export class RectView extends LayerView implements FillView, StrokeView {
     }
   }
 
-  protected onRender(viewContext: ViewContextType<this>): void {
+  protected override onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -132,7 +132,7 @@ export class RectView extends LayerView implements FillView, StrokeView {
 
   declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
 
-  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;
@@ -170,7 +170,7 @@ export class RectView extends LayerView implements FillView, StrokeView {
     return null;
   }
 
-  static create(): RectView {
+  static override create(): RectView {
     return new RectView();
   }
 

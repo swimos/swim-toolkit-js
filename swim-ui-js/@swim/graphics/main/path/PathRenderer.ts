@@ -25,9 +25,9 @@ export class PathRenderer extends DrawingRenderer {
     });
   }
 
-  declare readonly context: PathContext;
+  readonly context!: PathContext;
 
-  get pixelRatio(): number {
+  override get pixelRatio(): number {
     return 1;
   }
 }

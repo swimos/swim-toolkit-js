@@ -173,7 +173,7 @@ export class TitleDeckBar extends DeckBar {
       }
     },
   })
-  declare backMembrane: ViewFastener<this, ButtonMembrane>;
+  readonly backMembrane!: ViewFastener<this, ButtonMembrane>;
 
   @ViewFastener<TitleDeckBar, DeckButton>({
     key: true,
@@ -191,7 +191,7 @@ export class TitleDeckBar extends DeckBar {
       this.owner.didPopBackButton(newLabelView, oldLabelView, backButton);
     },
   })
-  declare backButton: ViewFastener<this, DeckButton>;
+  readonly backButton!: ViewFastener<this, DeckButton>;
 
   @ViewFastener<TitleDeckBar, DeckSlider>({
     key: true,
@@ -202,7 +202,7 @@ export class TitleDeckBar extends DeckBar {
       }
     },
   })
-  declare titleSlider: ViewFastener<this, DeckSlider>;
+  readonly titleSlider!: ViewFastener<this, DeckSlider>;
 
   @ViewFastener<TitleDeckBar, DeckSlider>({
     key: true,
@@ -213,9 +213,9 @@ export class TitleDeckBar extends DeckBar {
       }
     },
   })
-  declare moreSlider: ViewFastener<this, DeckSlider>;
+  readonly moreSlider!: ViewFastener<this, DeckSlider>;
 
-  protected didLayout(viewContext: ViewContextType<this>): void {
+  protected override didLayout(viewContext: ViewContextType<this>): void {
     const backMembrane = this.backMembrane.view;
     const backButton = this.backButton.view;
     if (backMembrane !== null && backButton !== null) {

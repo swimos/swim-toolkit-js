@@ -29,5 +29,5 @@ export abstract class ValueDownlinkTrait extends DownlinkTrait {
       }
     },
   })
-  declare downlink: ModelValueDownlink<this, Value, AnyValue>;
+  readonly downlink!: ModelValueDownlink<this, Value, AnyValue>;
 }

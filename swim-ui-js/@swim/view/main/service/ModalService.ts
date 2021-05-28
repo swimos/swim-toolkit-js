@@ -43,7 +43,7 @@ export abstract class ModalService<V extends View> extends ViewManagerService<V,
     this.manager.displaceModals(event);
   }
 
-  initManager(): ModalManager<V> {
+  override initManager(): ModalManager<V> {
     return ModalManager.global();
   }
 }

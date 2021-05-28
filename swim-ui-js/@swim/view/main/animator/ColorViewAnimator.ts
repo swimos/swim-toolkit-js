@@ -18,7 +18,7 @@ import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
 export abstract class ColorViewAnimator<V extends View> extends ViewAnimator<V, Color | null | undefined, AnyColor | null | undefined> {
-  fromAny(value: AnyColor | null): Color | null {
+  override fromAny(value: AnyColor | null): Color | null {
     return value !== void 0 && value !== null ? Color.fromAny(value) : value;
   }
 }

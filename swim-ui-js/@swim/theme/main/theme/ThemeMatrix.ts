@@ -45,16 +45,16 @@ export class ThemeMatrix implements Equals, Debug {
   }
 
   /** @hidden */
-  declare readonly rowArray: ReadonlyArray<[Look<unknown>, LookVector<unknown>]>;
+  readonly rowArray!: ReadonlyArray<[Look<unknown>, LookVector<unknown>]>;
 
   /** @hidden */
-  declare readonly rowIndex: {readonly [name: string]: number | undefined};
+  readonly rowIndex!: {readonly [name: string]: number | undefined};
 
   /** @hidden */
-  declare readonly colArray: ReadonlyArray<[Feel, FeelVector]>;
+  readonly colArray!: ReadonlyArray<[Feel, FeelVector]>;
 
   /** @hidden */
-  declare readonly colIndex: {readonly [name: string]: number | undefined};
+  readonly colIndex!: {readonly [name: string]: number | undefined};
 
   get rowCount(): number {
     return this.rowArray.length;

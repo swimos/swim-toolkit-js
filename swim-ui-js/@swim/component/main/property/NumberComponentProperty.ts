@@ -17,7 +17,7 @@ import {ComponentProperty} from "./ComponentProperty";
 
 /** @hidden */
 export abstract class NumberComponentProperty<C extends Component> extends ComponentProperty<C, number | null | undefined, number | string | null | undefined> {
-  fromAny(value: number | string | null | undefined): number | null | undefined {
+  override fromAny(value: number | string | null | undefined): number | null | undefined {
     if (typeof value === "number") {
       return value;
     } else if (typeof value === "string") {

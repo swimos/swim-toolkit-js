@@ -19,7 +19,7 @@ import type {GeoPathTrait} from "./GeoPathTrait";
 import type {GeoPathComponentObserver} from "./GeoPathComponentObserver";
 
 export abstract class GeoPathComponent extends GeoComponent {
-  declare readonly componentObservers: ReadonlyArray<GeoPathComponentObserver>;
+  override readonly componentObservers!: ReadonlyArray<GeoPathComponentObserver>;
 
-  abstract readonly geo: ComponentViewTrait<this, GeoPathView, GeoPathTrait>;
+  abstract override readonly geo: ComponentViewTrait<this, GeoPathView, GeoPathTrait>;
 }

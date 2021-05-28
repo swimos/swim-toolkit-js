@@ -48,17 +48,17 @@ export abstract class EsriViewport implements GeoViewport, Equals {
     });
   }
 
-  declare readonly map: __esri.View;
+  readonly map!: __esri.View;
 
-  declare readonly geoFrame: GeoBox;
+  readonly geoFrame!: GeoBox;
 
-  declare readonly geoCenter: GeoPoint;
+  readonly geoCenter!: GeoPoint;
 
-  declare readonly zoom: number;
+  readonly zoom!: number;
 
-  declare readonly heading: number;
+  readonly heading!: number;
 
-  declare readonly tilt: number;
+  readonly tilt!: number;
 
   abstract project(geoPoint: AnyGeoPoint): PointR2;
   abstract project(lng: number, lat: number): PointR2;

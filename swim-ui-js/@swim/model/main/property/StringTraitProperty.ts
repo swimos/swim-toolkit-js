@@ -17,7 +17,7 @@ import {TraitProperty} from "./TraitProperty";
 
 /** @hidden */
 export abstract class StringTraitProperty<R extends Trait> extends TraitProperty<R, string | null | undefined> {
-  fromAny(value: string | null | undefined): string | null | undefined {
+  override fromAny(value: string | null | undefined): string | null | undefined {
     return value;
   }
 }

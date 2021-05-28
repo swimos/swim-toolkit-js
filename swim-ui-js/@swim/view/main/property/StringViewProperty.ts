@@ -17,7 +17,7 @@ import {ViewProperty} from "./ViewProperty";
 
 /** @hidden */
 export abstract class StringViewProperty<V extends View> extends ViewProperty<V, string | null | undefined> {
-  fromAny(value: string | null | undefined): string | null | undefined {
+  override fromAny(value: string | null | undefined): string | null | undefined {
     return value;
   }
 }

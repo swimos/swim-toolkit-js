@@ -26,7 +26,7 @@ export class ColorChannelParser extends Parser<ColorChannel> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<ColorChannel> {
+  override feed(input: Input): Parser<ColorChannel> {
     return ColorChannelParser.parse(input, this.valueParser, this.step);
   }
 

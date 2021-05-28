@@ -17,7 +17,7 @@ import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
 export abstract class NumberViewAnimator<V extends View> extends ViewAnimator<V, number | null | undefined, number | string | null | undefined> {
-  fromAny(value: number | string): number {
+  override fromAny(value: number | string): number {
     if (typeof value === "number") {
       return value;
     } else if (typeof value === "string") {

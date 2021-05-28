@@ -17,11 +17,11 @@ import {ViewPropertyConstraint} from "./ViewPropertyConstraint";
 
 /** @hidden */
 export abstract class NumberViewPropertyConstraint<V extends View> extends ViewPropertyConstraint<V, number | null | undefined, number | string | null | undefined> {
-  toNumber(value: number | null | undefined): number {
+  override toNumber(value: number | null | undefined): number {
     return typeof value === "number" ? value : 0;
   }
 
-  fromAny(value: number | string | null | undefined): number | null | undefined {
+  override fromAny(value: number | string | null | undefined): number | null | undefined {
     if (typeof value === "number") {
       return value;
     } else if (typeof value === "string") {

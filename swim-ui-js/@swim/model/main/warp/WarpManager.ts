@@ -28,9 +28,9 @@ export class WarpManager<M extends Model = Model> extends ModelManager<M> {
     });
   }
 
-  declare readonly client: WarpClient;
+  readonly client!: WarpClient;
 
-  declare readonly modelManagerObservers: ReadonlyArray<WarpManagerObserver>;
+  override readonly modelManagerObservers!: ReadonlyArray<WarpManagerObserver>;
 
   @Lazy
   static global<M extends Model>(): WarpManager<M> {

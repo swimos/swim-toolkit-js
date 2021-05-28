@@ -18,11 +18,11 @@ import type {MapboxView} from "./MapboxView";
 import type {MapboxViewObserver} from "./MapboxViewObserver";
 
 export class MapboxViewController<V extends MapboxView = MapboxView> extends MapViewController<V> implements MapboxViewObserver<V> {
-  viewWillSetGeoViewport(newGeoViewport: MapboxViewport, oldGeoViewport: MapboxViewport, view: V): void {
+  override viewWillSetGeoViewport(newGeoViewport: MapboxViewport, oldGeoViewport: MapboxViewport, view: V): void {
     // hook
   }
 
-  viewDidSetGeoViewport(newGeoViewport: MapboxViewport, oldGeoViewport: MapboxViewport, view: V): void {
+  override viewDidSetGeoViewport(newGeoViewport: MapboxViewport, oldGeoViewport: MapboxViewport, view: V): void {
     // hook
   }
 

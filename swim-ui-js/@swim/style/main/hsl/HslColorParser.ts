@@ -37,7 +37,7 @@ export class HslColorParser extends Parser<HslColor> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<HslColor> {
+  override feed(input: Input): Parser<HslColor> {
     return HslColorParser.parse(input, this.hParser, this.sParser,
                                 this.lParser, this.aParser, this.step);
   }

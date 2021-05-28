@@ -18,11 +18,11 @@ import type {EsriView} from "./EsriView";
 import type {EsriViewObserver} from "./EsriViewObserver";
 
 export class EsriViewController<V extends EsriView = EsriView> extends MapViewController<V> implements EsriViewObserver<V> {
-  viewWillSetGeoViewport(newGeoViewport: EsriViewport, oldGeoViewport: EsriViewport, view: V): void {
+  override viewWillSetGeoViewport(newGeoViewport: EsriViewport, oldGeoViewport: EsriViewport, view: V): void {
     // hook
   }
 
-  viewDidSetGeoViewport(newGeoViewport: EsriViewport, oldGeoViewport: EsriViewport, view: V): void {
+  override viewDidSetGeoViewport(newGeoViewport: EsriViewport, oldGeoViewport: EsriViewport, view: V): void {
     // hook
   }
 }

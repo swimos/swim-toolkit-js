@@ -16,8 +16,8 @@ import type {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 
 export class InterpolatedFeel extends Feel {
-  combine<T>(look: Look<T, any>, combination: T | undefined,
-             value: T, weight?: number): T {
+  override combine<T>(look: Look<T, any>, combination: T | undefined,
+                      value: T, weight?: number): T {
     return look.combine(combination, value, weight);
   }
 }

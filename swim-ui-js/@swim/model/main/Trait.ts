@@ -89,7 +89,7 @@ export abstract class Trait implements ModelDownlinkContext {
     });
   }
 
-  declare readonly traitFlags: TraitFlags;
+  readonly traitFlags!: TraitFlags;
 
   setTraitFlags(traitFlags: TraitFlags): void {
     Object.defineProperty(this, "traitFlags", {
@@ -99,7 +99,7 @@ export abstract class Trait implements ModelDownlinkContext {
     });
   }
 
-  declare readonly traitObservers: ReadonlyArray<TraitObserver>;
+  readonly traitObservers!: ReadonlyArray<TraitObserver>;
 
   addTraitObserver(traitObserver: TraitObserverType<this>): void {
     const oldTraitObservers = this.traitObservers;

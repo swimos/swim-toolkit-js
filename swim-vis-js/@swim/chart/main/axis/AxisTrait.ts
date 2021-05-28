@@ -16,5 +16,5 @@ import {GenericTrait} from "@swim/model";
 import type {AxisTraitObserver} from "./AxisTraitObserver";
 
 export abstract class AxisTrait<D> extends GenericTrait {
-  declare readonly traitObservers: ReadonlyArray<AxisTraitObserver<D>>;
+  override readonly traitObservers!: ReadonlyArray<AxisTraitObserver<D>>;
 }

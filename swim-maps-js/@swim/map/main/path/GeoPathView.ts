@@ -35,16 +35,16 @@ export class GeoPathView extends GeoLayerView {
     });
   }
 
-  initView(init: GeoPathViewInit): void {
+  override initView(init: GeoPathViewInit): void {
     super.initView(init);
     if (init.geoPath !== void 0) {
       this.geoPath(init.geoPath);
     }
   }
 
-  declare readonly viewController: GeoViewController<GeoPathView> & GeoPathViewObserver | null;
+  override readonly viewController!: GeoViewController<GeoPathView> & GeoPathViewObserver | null;
 
-  declare readonly viewObservers: ReadonlyArray<GeoPathViewObserver>;
+  override readonly viewObservers!: ReadonlyArray<GeoPathViewObserver>;
 
   protected willSetGeoPath(newGeoPath: GeoPath | null, oldGeoPath: GeoPath | null): void {
     const viewController = this.viewController;
@@ -92,18 +92,18 @@ export class GeoPathView extends GeoLayerView {
       this.owner.didSetGeoPath(newGeoPath, oldGeoPath);
     },
   })
-  declare geoPath: ViewAnimator<this, GeoPath | null, AnyGeoPath | null>;
+  readonly geoPath!: ViewAnimator<this, GeoPath | null, AnyGeoPath | null>;
 
   @ViewAnimator({type: PathR2, state: null})
-  declare viewPath: ViewAnimator<this, PathR2 | null>;
+  readonly viewPath!: ViewAnimator<this, PathR2 | null>;
 
   @ViewAnimator({type: GeoPoint, state: null})
-  declare geoCentroid: ViewAnimator<this, GeoPoint | null, AnyGeoPoint | null>;
+  readonly geoCentroid!: ViewAnimator<this, GeoPoint | null, AnyGeoPoint | null>;
 
   @ViewAnimator({type: PointR2, state: null})
-  declare viewCentroid: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
+  readonly viewCentroid!: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
 
-  protected onProject(viewContext: ViewContextType<this>): void {
+  protected override onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
     this.projectPath(viewContext);
   }
@@ -137,11 +137,11 @@ export class GeoPathView extends GeoLayerView {
     this.cullGeoFrame(viewContext.geoViewport.geoFrame);
   }
 
-  protected updateGeoBounds(): void {
+  protected override updateGeoBounds(): void {
     // nop
   }
 
-  get popoverFrame(): BoxR2 {
+  override get popoverFrame(): BoxR2 {
     const inversePageTransform = this.pageTransform.inverse();
     const viewCentroid = this.viewCentroid.value;
     if (viewCentroid !== null && viewCentroid.isDefined()) {
@@ -153,7 +153,7 @@ export class GeoPathView extends GeoLayerView {
     }
   }
 
-  declare readonly viewBounds: BoxR2;
+  override readonly viewBounds!: BoxR2;
 
   ripple(options?: GeoRippleOptions): GeoRippleView | null {
     return GeoRippleView.ripple(this, options);

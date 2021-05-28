@@ -26,9 +26,9 @@ export class FontForm extends Form<Font, AnyFont> {
     });
   }
 
-  declare readonly unit: Font | undefined;
+  override readonly unit!: Font | undefined;
 
-  withUnit(unit: Font | undefined): Form<Font, AnyFont> {
+  override withUnit(unit: Font | undefined): Form<Font, AnyFont> {
     if (unit !== this.unit) {
       return new FontForm(unit);
     } else {
@@ -36,7 +36,7 @@ export class FontForm extends Form<Font, AnyFont> {
     }
   }
 
-  mold(font: AnyFont): Item {
+  override mold(font: AnyFont): Item {
     font = Font.fromAny(font);
     const header = Record.create(7);
     if (font.style !== void 0) {
@@ -73,7 +73,7 @@ export class FontForm extends Form<Font, AnyFont> {
     return Record.of(Attr.of("font", header));
   }
 
-  cast(item: Item): Font | undefined {
+  override cast(item: Item): Font | undefined {
     const value = item.toValue();
     let font: Font | null = null;
     try {

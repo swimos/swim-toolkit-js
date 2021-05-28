@@ -16,7 +16,7 @@ import {AnyTiming, Timing, Interpolator} from "@swim/mapping";
 import {Look} from "./Look";
 
 export class TimingLook extends Look<Timing, AnyTiming> {
-  combine(combination: Timing | undefined, value: Timing, weight: number): Timing {
+  override combine(combination: Timing | undefined, value: Timing, weight: number): Timing {
     if (weight === void 0 || weight !== 0) {
       return value;
     } else if (combination !== void 0) {
@@ -26,11 +26,11 @@ export class TimingLook extends Look<Timing, AnyTiming> {
     }
   }
 
-  between(a: Timing, b: Timing): Interpolator<Timing> {
+  override between(a: Timing, b: Timing): Interpolator<Timing> {
     return Interpolator(a, b);
   }
 
-  coerce(value: AnyTiming): Timing {
+  override coerce(value: AnyTiming): Timing {
     return Timing.fromAny(value);
   }
 }

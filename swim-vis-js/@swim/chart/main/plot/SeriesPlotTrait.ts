@@ -16,5 +16,5 @@ import {PlotTrait} from "./PlotTrait";
 import type {SeriesPlotTraitObserver} from "./SeriesPlotTraitObserver";
 
 export class SeriesPlotTrait<X, Y> extends PlotTrait<X, Y> {
-  declare readonly traitObservers: ReadonlyArray<SeriesPlotTraitObserver<X, Y>>;
+  override readonly traitObservers!: ReadonlyArray<SeriesPlotTraitObserver<X, Y>>;
 }

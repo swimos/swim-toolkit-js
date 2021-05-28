@@ -22,6 +22,8 @@ export * from "./path";
 
 export * from "./painting";
 
+export * from "./svg";
+
 export * from "./canvas";
 
 export * from "./raster";

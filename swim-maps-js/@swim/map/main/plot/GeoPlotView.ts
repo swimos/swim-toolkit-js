@@ -51,7 +51,7 @@ export class GeoPlotView extends GeoLayerView implements StrokeView {
     });
   }
 
-  initView(init: GeoPlotViewInit): void {
+  override initView(init: GeoPlotViewInit): void {
     super.initView(init);
     if (init.stroke !== void 0) {
       this.stroke(init.stroke);
@@ -74,9 +74,9 @@ export class GeoPlotView extends GeoLayerView implements StrokeView {
     }
   }
 
-  declare readonly viewController: GeoViewController<GeoPlotView> & GeoPlotViewObserver | null;
+  override readonly viewController!: GeoViewController<GeoPlotView> & GeoPlotViewObserver | null;
 
-  declare readonly viewObservers: ReadonlyArray<GeoPlotViewObserver>;
+  override readonly viewObservers!: ReadonlyArray<GeoPlotViewObserver>;
 
   points(): ReadonlyArray<GeoPointView>;
   points(points: ReadonlyArray<AnyGeoPointView>, timing?: AnyTiming | boolean): this;
@@ -181,30 +181,30 @@ export class GeoPlotView extends GeoLayerView implements StrokeView {
   }
 
   @ViewProperty({type: GeoPoint, state: GeoPoint.origin()})
-  declare geoCentroid: ViewProperty<this, GeoPoint, AnyGeoPoint>;
+  readonly geoCentroid!: ViewProperty<this, GeoPoint, AnyGeoPoint>;
 
   @ViewProperty({type: PointR2, state: PointR2.origin()})
-  declare viewCentroid: ViewProperty<this, PointR2, AnyPointR2>;
+  readonly viewCentroid!: ViewProperty<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Color, state: null, inherit: true})
-  declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Length, state: null, inherit: true})
-  declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewAnimator({type: Font, state: null, inherit: true})
-  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ViewAnimator<this, Font | null, AnyFont | null>;
 
   @ViewAnimator({type: Color, state: null, inherit: true})
-  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewProperty({type: Number})
-  declare hitWidth: ViewProperty<this, number | undefined>;
+  readonly hitWidth!: ViewProperty<this, number | undefined>;
 
   /** @hidden */
-  declare readonly gradientStops: number;
+  readonly gradientStops!: number;
 
-  protected onInsertChildView(childView: View, targetView: View | null): void {
+  protected override onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof GeoPointView) {
       this.onInsertPoint(childView);
@@ -215,7 +215,7 @@ export class GeoPlotView extends GeoLayerView implements StrokeView {
     childView.requireUpdate(View.NeedsAnimate | View.NeedsProject);
   }
 
-  protected didProject(viewContext: ViewContextType<this>): void {
+  protected override didProject(viewContext: ViewContextType<this>): void {
     const oldGeoBounds = this.geoBounds;
     let lngMin = Infinity;
     let latMin = Infinity;
@@ -305,7 +305,7 @@ export class GeoPlotView extends GeoLayerView implements StrokeView {
     super.didProject(viewContext);
   }
 
-  protected onRender(viewContext: ViewContextType<this>): void {
+  protected override onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -392,11 +392,11 @@ export class GeoPlotView extends GeoLayerView implements StrokeView {
     }
   }
 
-  protected updateGeoBounds(): void {
+  protected override updateGeoBounds(): void {
     // nop
   }
 
-  get popoverFrame(): BoxR2 {
+  override get popoverFrame(): BoxR2 {
     const viewCentroid = this.viewCentroid.state;
     const inversePageTransform = this.pageTransform.inverse();
     const px = inversePageTransform.transformX(viewCentroid.x, viewCentroid.y);
@@ -404,9 +404,9 @@ export class GeoPlotView extends GeoLayerView implements StrokeView {
     return new BoxR2(px, py, px, py);
   }
 
-  declare readonly viewBounds: BoxR2;
+  override readonly viewBounds!: BoxR2;
 
-  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;

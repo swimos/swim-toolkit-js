@@ -17,7 +17,7 @@ import {AnyLength, Length, LengthInterpolator} from "@swim/math";
 import {Look} from "./Look";
 
 export class LengthLook extends Look<Length, AnyLength> {
-  combine(combination: Length | undefined, value: Length, weight?: number): Length {
+  override combine(combination: Length | undefined, value: Length, weight?: number): Length {
     if (combination !== void 0) {
       if (weight === void 0 || weight === 1) {
         return value;
@@ -33,11 +33,11 @@ export class LengthLook extends Look<Length, AnyLength> {
     }
   }
 
-  between(a: Length, b: Length): Interpolator<Length> {
+  override between(a: Length, b: Length): Interpolator<Length> {
     return LengthInterpolator(a, b);
   }
 
-  coerce(value: AnyLength): Length {
+  override coerce(value: AnyLength): Length {
     return Length.fromAny(value);
   }
 }

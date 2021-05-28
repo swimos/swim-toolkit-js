@@ -77,5 +77,5 @@ export abstract class StorageManager<C extends Component = Component> extends Co
     }
   }
 
-  declare readonly componentManagerObservers: ReadonlyArray<StorageManagerObserver>;
+  override readonly componentManagerObservers!: ReadonlyArray<StorageManagerObserver>;
 }

@@ -36,10 +36,10 @@ export class LookVector<T> implements Equals, Debug {
   }
 
   /** @hidden */
-  declare readonly array: ReadonlyArray<[Feel, T]>;
+  readonly array!: ReadonlyArray<[Feel, T]>;
 
   /** @hidden */
-  declare readonly index: {readonly [name: string]: number | undefined};
+  readonly index!: {readonly [name: string]: number | undefined};
 
   get size(): number {
     return this.array.length;

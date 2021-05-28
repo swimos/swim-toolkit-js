@@ -18,7 +18,7 @@ import {ViewAnimatorConstraint} from "./ViewAnimatorConstraint";
 
 /** @hidden */
 export abstract class LengthViewAnimatorConstraint<V extends View> extends ViewAnimatorConstraint<V, Length | null | undefined, AnyLength | null | undefined> {
-  toNumber(value: Length | null | undefined): number {
+  override toNumber(value: Length | null | undefined): number {
     try {
       return value !== void 0 && value !== null ? value.pxValue() : 0;
     } catch (swallow) {
@@ -26,7 +26,7 @@ export abstract class LengthViewAnimatorConstraint<V extends View> extends ViewA
     }
   }
 
-  fromAny(value: AnyLength | null | undefined): Length | null | undefined {
+  override fromAny(value: AnyLength | null | undefined): Length | null | undefined {
     return value !== void 0 && value !== null ? Length.fromAny(value) : null;
   }
 }

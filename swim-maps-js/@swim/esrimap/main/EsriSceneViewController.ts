@@ -18,11 +18,11 @@ import type {EsriSceneView} from "./EsriSceneView";
 import type {EsriSceneViewObserver} from "./EsriSceneViewObserver";
 
 export class EsriSceneViewController<V extends EsriSceneView = EsriSceneView> extends EsriViewController<V> implements EsriSceneViewObserver<V> {
-  viewWillSetGeoViewport(newGeoViewport: EsriSceneViewport, oldGeoViewport: EsriSceneViewport, view: V): void {
+  override viewWillSetGeoViewport(newGeoViewport: EsriSceneViewport, oldGeoViewport: EsriSceneViewport, view: V): void {
     // hook
   }
 
-  viewDidSetGeoViewport(newGeoViewport: EsriSceneViewport, oldGeoViewport: EsriSceneViewport, view: V): void {
+  override viewDidSetGeoViewport(newGeoViewport: EsriSceneViewport, oldGeoViewport: EsriSceneViewport, view: V): void {
     // hook
   }
 }

@@ -111,7 +111,7 @@ export abstract class Model implements ModelDownlinkContext {
     }
   }
 
-  declare readonly modelFlags: ModelFlags;
+  readonly modelFlags!: ModelFlags;
 
   setModelFlags(modelFlags: ModelFlags): void {
     Object.defineProperty(this, "modelFlags", {
@@ -121,7 +121,7 @@ export abstract class Model implements ModelDownlinkContext {
     });
   }
 
-  declare readonly modelController: ModelController | null;
+  readonly modelController!: ModelController | null;
 
   setModelController(newModelController: ModelControllerType<this> | null): void {
     const oldModelController = this.modelController;
@@ -155,7 +155,7 @@ export abstract class Model implements ModelDownlinkContext {
     // hook
   }
 
-  declare readonly modelObservers: ReadonlyArray<ModelObserver>;
+  readonly modelObservers!: ReadonlyArray<ModelObserver>;
 
   addModelObserver(modelObserver: ModelObserverType<this>): void {
     const oldModelObservers = this.modelObservers;
@@ -456,10 +456,10 @@ export abstract class Model implements ModelDownlinkContext {
     return this.traits.length;
   }
 
-  declare readonly traits: ReadonlyArray<Trait>;
+  readonly traits!: ReadonlyArray<Trait>;
 
   /** @hidden */
-  declare readonly traitMap: {[traitName: string]: Trait | undefined};
+  readonly traitMap!: {[traitName: string]: Trait | undefined};
 
   firstTrait(): Trait | null {
     const traits = this.traits;

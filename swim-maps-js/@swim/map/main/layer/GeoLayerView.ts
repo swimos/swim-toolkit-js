@@ -37,39 +37,39 @@ export class GeoLayerView extends GeoView {
     });
   }
 
-  declare readonly childViews: ReadonlyArray<View>;
+  override readonly childViews!: ReadonlyArray<View>;
 
-  get childViewCount(): number {
+  override get childViewCount(): number {
     return this.childViews.length;
   }
 
-  firstChildView(): View | null {
+  override firstChildView(): View | null {
     const childViews = this.childViews;
     return childViews.length !== 0 ? childViews[0]! : null;
   }
 
-  lastChildView(): View | null {
+  override lastChildView(): View | null {
     const childViews = this.childViews;
     return childViews.length !== 0 ? childViews[childViews.length - 1]! : null;
   }
 
-  nextChildView(targetView: View): View | null {
+  override nextChildView(targetView: View): View | null {
     const childViews = this.childViews;
     const targetIndex = childViews.indexOf(targetView);
     return targetIndex >= 0 && targetIndex + 1 < childViews.length ? childViews[targetIndex + 1]! : null;
   }
 
-  previousChildView(targetView: View): View | null {
+  override previousChildView(targetView: View): View | null {
     const childViews = this.childViews;
     const targetIndex = childViews.indexOf(targetView);
     return targetIndex - 1 >= 0 ? childViews[targetIndex - 1]! : null;
   }
 
-  forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
-  forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
-                         thisArg: S): T | undefined;
-  forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
-                         thisArg?: S): T | undefined {
+  override forEachChildView<T>(callback: (childView: View) => T | void): T | undefined;
+  override forEachChildView<T, S>(callback: (this: S, childView: View) => T | void,
+                                  thisArg: S): T | undefined;
+  override forEachChildView<T, S>(callback: (this: S | undefined, childView: View) => T | void,
+                                  thisArg?: S): T | undefined {
     let result: T | undefined;
     const childViews = this.childViews;
     let i = 0;
@@ -87,9 +87,9 @@ export class GeoLayerView extends GeoView {
   }
 
   /** @hidden */
-  declare readonly childViewMap: {[key: string]: View | undefined} | null;
+  readonly childViewMap!: {[key: string]: View | undefined} | null;
 
-  getChildView(key: string): View | null {
+  override getChildView(key: string): View | null {
     const childViewMap = this.childViewMap;
     if (childViewMap !== null) {
       const childView = childViewMap[key];
@@ -100,7 +100,7 @@ export class GeoLayerView extends GeoView {
     return null;
   }
 
-  setChildView(key: string, newChildView: View | null): View | null {
+  override setChildView(key: string, newChildView: View | null): View | null {
     let targetView: View | null = null;
     const childViews = this.childViews as View[];
     if (newChildView !== null) {
@@ -171,7 +171,7 @@ export class GeoLayerView extends GeoView {
     }
   }
 
-  appendChildView(childView: View, key?: string): void {
+  override appendChildView(childView: View, key?: string): void {
     if (!(childView instanceof GraphicsView)) {
       throw new TypeError("" + childView);
     }
@@ -189,7 +189,7 @@ export class GeoLayerView extends GeoView {
     childView.cascadeInsert();
   }
 
-  prependChildView(childView: View, key?: string): void {
+  override prependChildView(childView: View, key?: string): void {
     if (!(childView instanceof GraphicsView)) {
       throw new TypeError("" + childView);
     }
@@ -209,7 +209,7 @@ export class GeoLayerView extends GeoView {
     childView.cascadeInsert();
   }
 
-  insertChildView(childView: View, targetView: View | null, key?: string): void {
+  override insertChildView(childView: View, targetView: View | null, key?: string): void {
     if (!(childView instanceof GraphicsView)) {
       throw new TypeError("" + childView);
     }
@@ -239,16 +239,16 @@ export class GeoLayerView extends GeoView {
     childView.cascadeInsert();
   }
 
-  protected didInsertChildView(childView: View, targetView: View | null): void {
+  protected override didInsertChildView(childView: View, targetView: View | null): void {
     if (childView instanceof GeoView) {
       this.onInsertChildViewBounds(childView, childView.geoBounds);
     }
     super.didInsertChildView(childView, targetView);
   }
 
-  removeChildView(key: string): View | null;
-  removeChildView(childView: View): void;
-  removeChildView(key: string | View): View | null | void {
+  override removeChildView(key: string): View | null;
+  override removeChildView(childView: View): void;
+  override removeChildView(key: string | View): View | null | void {
     let childView: View | null;
     if (typeof key === "string") {
       childView = this.getChildView(key);
@@ -280,14 +280,14 @@ export class GeoLayerView extends GeoView {
     }
   }
 
-  protected didRemoveChildView(childView: View): void {
+  protected override didRemoveChildView(childView: View): void {
     if (childView instanceof GeoView) {
       this.onRemoveChildViewBounds(childView, childView.geoBounds);
     }
     super.didRemoveChildView(childView);
   }
 
-  removeAll(): void {
+  override removeAll(): void {
     const childViews = this.childViews as View[];
     do {
       const count = childViews.length;
@@ -307,7 +307,7 @@ export class GeoLayerView extends GeoView {
   }
 
   /** @hidden */
-  doMountChildViews(): void {
+  override doMountChildViews(): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -323,7 +323,7 @@ export class GeoLayerView extends GeoView {
   }
 
   /** @hidden */
-  doUnmountChildViews(): void {
+  override doUnmountChildViews(): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -339,7 +339,7 @@ export class GeoLayerView extends GeoView {
   }
 
   /** @hidden */
-  doPowerChildViews(): void {
+  override doPowerChildViews(): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -355,7 +355,7 @@ export class GeoLayerView extends GeoView {
   }
 
   /** @hidden */
-  doUnpowerChildViews(): void {
+  override doUnpowerChildViews(): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -370,9 +370,9 @@ export class GeoLayerView extends GeoView {
     }
   }
 
-  protected processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              processChildView: (this: this, childView: View, processFlags: ViewFlags,
-                                                 viewContext: ViewContextType<this>) => void): void {
+  protected override processChildViews(processFlags: ViewFlags, viewContext: ViewContextType<this>,
+                                       processChildView: (this: this, childView: View, processFlags: ViewFlags,
+                                                          viewContext: ViewContextType<this>) => void): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -387,9 +387,9 @@ export class GeoLayerView extends GeoView {
     }
   }
 
-  protected displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
-                              displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
-                                                 viewContext: ViewContextType<this>) => void): void {
+  protected override displayChildViews(displayFlags: ViewFlags, viewContext: ViewContextType<this>,
+                                       displayChildView: (this: this, childView: View, displayFlags: ViewFlags,
+                                                          viewContext: ViewContextType<this>) => void): void {
     const childViews = this.childViews;
     let i = 0;
     while (i < childViews.length) {
@@ -404,7 +404,7 @@ export class GeoLayerView extends GeoView {
     }
   }
 
-  declare readonly geoBounds: GeoBox;
+  override readonly geoBounds!: GeoBox;
 
   protected setGeoBounds(newGeoBounds: GeoBox): void {
     const oldGeoBounds = this.geoBounds;
@@ -432,15 +432,15 @@ export class GeoLayerView extends GeoView {
     this.updateGeoBounds();
   }
 
-  onSetChildViewGeoBounds(childView: GeoView, newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
+  override onSetChildViewGeoBounds(childView: GeoView, newGeoBounds: GeoBox, oldGeoBounds: GeoBox): void {
     this.updateGeoBounds();
   }
 
-  onSetChildViewHidden(childView: GeoView, hidden: boolean): void {
+  override onSetChildViewHidden(childView: GeoView, hidden: boolean): void {
     this.updateGeoBounds();
   }
 
-  deriveGeoBounds(): GeoBox {
+  override deriveGeoBounds(): GeoBox {
     let geoBounds = this.ownGeoBounds;
     const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
@@ -462,7 +462,7 @@ export class GeoLayerView extends GeoView {
     return geoBounds;
   }
 
-  deriveViewBounds(): BoxR2 {
+  override deriveViewBounds(): BoxR2 {
     let viewBounds: BoxR2 | null = this.ownViewBounds;
     const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
@@ -484,7 +484,7 @@ export class GeoLayerView extends GeoView {
     return viewBounds;
   }
 
-  deriveHitBounds(): BoxR2 {
+  override deriveHitBounds(): BoxR2 {
     let hitBounds: BoxR2 | undefined;
     const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
@@ -504,7 +504,7 @@ export class GeoLayerView extends GeoView {
     return hitBounds;
   }
 
-  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit: GraphicsView | null = null;
     const childViews = this.childViews;
     for (let i = childViews.length - 1; i >= 0; i -= 1) {

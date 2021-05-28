@@ -28,9 +28,9 @@ export class CellView extends HtmlView {
     this.overflowY.setState("hidden", View.Intrinsic);
   }
 
-  declare readonly viewController: HtmlViewController & CellViewObserver | null;
+  override readonly viewController!: HtmlViewController & CellViewObserver | null;
 
-  declare readonly viewObservers: ReadonlyArray<CellViewObserver>;
+  override readonly viewObservers!: ReadonlyArray<CellViewObserver>;
 
   protected createContent(value?: string): HtmlView | null {
     const contentView = HtmlView.span.create();
@@ -115,5 +115,5 @@ export class CellView extends HtmlView {
       this.owner.didSetContent(newContentView, oldContentView);
     },
   })
-  declare content: ViewFastener<this, HtmlView, string>;
+  readonly content!: ViewFastener<this, HtmlView, string>;
 }

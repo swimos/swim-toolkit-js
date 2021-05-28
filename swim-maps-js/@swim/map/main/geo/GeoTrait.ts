@@ -17,7 +17,7 @@ import {GenericTrait} from "@swim/model";
 import type {GeoTraitObserver} from "./GeoTraitObserver";
 
 export abstract class GeoTrait extends GenericTrait {
-  declare readonly traitObservers: ReadonlyArray<GeoTraitObserver>;
+  override readonly traitObservers!: ReadonlyArray<GeoTraitObserver>;
 
   abstract readonly geoBounds: GeoBox;
 }

@@ -26,9 +26,9 @@ export class EquirectangularMapViewport extends WorldMapViewport {
     });
   }
 
-  declare readonly viewFrame: BoxR2;
+  override readonly viewFrame!: BoxR2;
 
-  withViewFrame(viewFrame: BoxR2): WorldMapViewport {
+  override withViewFrame(viewFrame: BoxR2): WorldMapViewport {
     let xMin = viewFrame.xMin;
     let yMin = viewFrame.yMin;
     let xMax = viewFrame.xMax;
@@ -51,9 +51,9 @@ export class EquirectangularMapViewport extends WorldMapViewport {
     return new EquirectangularMapViewport(viewFrame);
   }
 
-  project(geoPoint: AnyGeoPoint): PointR2;
-  project(lng: number, lat: number): PointR2;
-  project(lng: AnyGeoPoint | number, lat?: number): PointR2 {
+  override project(geoPoint: AnyGeoPoint): PointR2;
+  override project(lng: number, lat: number): PointR2;
+  override project(lng: AnyGeoPoint | number, lat?: number): PointR2 {
     if (arguments.length === 1) {
       if (Array.isArray(lng)) {
         lat = lng[1];
@@ -69,9 +69,9 @@ export class EquirectangularMapViewport extends WorldMapViewport {
     return new PointR2(x, y);
   }
 
-  unproject(viewPoint: AnyPointR2): GeoPoint;
-  unproject(x: number, y: number): GeoPoint;
-  unproject(x: AnyPointR2 | number, y?: number): GeoPoint {
+  override unproject(viewPoint: AnyPointR2): GeoPoint;
+  override unproject(x: number, y: number): GeoPoint;
+  override unproject(x: AnyPointR2 | number, y?: number): GeoPoint {
     if (arguments.length === 1) {
       if (Array.isArray(x)) {
         y = x[1];

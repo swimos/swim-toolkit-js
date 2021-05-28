@@ -11,7 +11,7 @@
   "module": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "devDependencies": {
-    "@types/arcgis-js-api": "4.18"
+    "@types/arcgis-js-api": "4.19"
   },
   "dependencies": {
     "@swim/util": "3.11.0-dev.20210415",

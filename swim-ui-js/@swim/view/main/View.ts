@@ -159,7 +159,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     }
   }
 
-  declare readonly viewFlags: ViewFlags;
+  readonly viewFlags!: ViewFlags;
 
   setViewFlags(viewFlags: ViewFlags): void {
     Object.defineProperty(this, "viewFlags", {
@@ -169,7 +169,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     });
   }
 
-  declare readonly viewController: ViewController | null;
+  readonly viewController!: ViewController | null;
 
   setViewController(newViewController: ViewControllerType<this> | null): void {
     const oldViewController = this.viewController;
@@ -203,7 +203,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     // hook
   }
 
-  declare readonly viewObservers: ReadonlyArray<ViewObserver>;
+  readonly viewObservers!: ReadonlyArray<ViewObserver>;
 
   addViewObserver(viewObserver: ViewObserverType<this>): void {
     const oldViewObservers = this.viewObservers;
@@ -221,7 +221,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   /** @hidden */
-  declare readonly viewObserverCache: ViewObserverCache<this>;
+  readonly viewObserverCache!: ViewObserverCache<this>;
 
   protected willAddViewObserver(viewObserver: ViewObserverType<this>): void {
     // hook
@@ -1266,7 +1266,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
   }
 
   /** @hidden */
-  declare readonly animationTracks: ReadonlyArray<AnimationTrack>;
+  readonly animationTracks!: ReadonlyArray<AnimationTrack>;
 
   trackWillStartAnimating(track: AnimationTrack): void {
     Object.defineProperty(this, "animationTracks", {

@@ -72,29 +72,29 @@ export class GeoTree {
     });
   }
 
-  declare readonly depth: number;
+  readonly depth!: number;
 
-  declare readonly maxDepth: number;
+  readonly maxDepth!: number;
 
-  declare readonly density: number
+  readonly density!: number
 
-  declare readonly geoFrame: GeoBox;
+  readonly geoFrame!: GeoBox;
 
-  declare readonly geoBounds: GeoBox;
+  readonly geoBounds!: GeoBox;
 
-  declare readonly geoCenter: GeoPoint;
+  readonly geoCenter!: GeoPoint;
 
-  declare readonly southWest: GeoTree | null;
+  readonly southWest!: GeoTree | null;
 
-  declare readonly northWest: GeoTree | null;
+  readonly northWest!: GeoTree | null;
 
-  declare readonly southEast: GeoTree | null;
+  readonly southEast!: GeoTree | null;
 
-  declare readonly northEast: GeoTree | null;
+  readonly northEast!: GeoTree | null;
 
-  declare readonly views: ReadonlyArray<GeoView>;
+  readonly views!: ReadonlyArray<GeoView>;
 
-  declare readonly size: number;
+  readonly size!: number;
 
   isEmpty(): boolean {
     return this.size === 0;

@@ -42,11 +42,11 @@ export class CanvasRenderer extends PaintingRenderer {
     });
   }
 
-  declare readonly context: CanvasContext;
+  override readonly context!: CanvasContext;
 
-  declare readonly pixelRatio: number;
+  override readonly pixelRatio!: number;
 
-  declare readonly theme: ThemeMatrix | null;
+  override readonly theme!: ThemeMatrix | null;
 
-  declare readonly mood: MoodVector | null;
+  override readonly mood!: MoodVector | null;
 }

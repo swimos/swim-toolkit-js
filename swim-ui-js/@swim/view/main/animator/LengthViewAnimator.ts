@@ -18,7 +18,7 @@ import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
 export abstract class LengthViewAnimator<V extends View> extends ViewAnimator<V, Length | null | undefined, AnyLength | null | undefined> {
-  fromAny(value: AnyLength | null | undefined): Length | null | undefined {
+  override fromAny(value: AnyLength | null | undefined): Length | null | undefined {
     return value !== void 0 && value !== null ? Length.fromAny(value) : null;
   }
 }

@@ -35,30 +35,30 @@ export class SvgIconView extends SvgView implements IconView {
     super(node);
   }
 
-  initView(init: SvgIconViewInit): void {
+  override initView(init: SvgIconViewInit): void {
     super.initView(init);
     IconView.initView(this, init);
   }
 
   @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout})
-  declare xAlign: ViewAnimator<this, number>;
+  readonly xAlign!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 0.5, updateFlags: View.NeedsLayout})
-  declare yAlign: ViewAnimator<this, number>;
+  readonly yAlign!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout})
-  declare iconWidth: ViewAnimator<this, Length | null, AnyLength | null>;
+  readonly iconWidth!: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewAnimator({type: Length, state: null, updateFlags: View.NeedsLayout})
-  declare iconHeight: ViewAnimator<this, Length | null, AnyLength | null>;
+  readonly iconHeight!: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewAnimator({type: Color, state: null, updateFlags: View.NeedsLayout})
-  declare iconColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly iconColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({extends: IconViewAnimator, type: Object, state: null, updateFlags: View.NeedsLayout})
-  declare graphics: ViewAnimator<this, Graphics | null>;
+  readonly graphics!: ViewAnimator<this, Graphics | null>;
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+  protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     if (!this.graphics.isInherited()) {
       const oldGraphics = this.graphics.value;
@@ -69,7 +69,7 @@ export class SvgIconView extends SvgView implements IconView {
     }
   }
 
-  protected onAnimate(viewContext: ViewContextType<this>): void {
+  protected override onAnimate(viewContext: ViewContextType<this>): void {
     super.onAnimate(viewContext);
     const iconColor = this.iconColor.takeUpdatedValue();
     if (iconColor !== void 0 && iconColor !== null) {
@@ -81,7 +81,7 @@ export class SvgIconView extends SvgView implements IconView {
     }
   }
 
-  protected onLayout(viewContext: ViewContextType<this>): void {
+  protected override onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.renderIcon();
   }
@@ -124,5 +124,5 @@ export class SvgIconView extends SvgView implements IconView {
     }
   }
 
-  static readonly mountFlags: ViewFlags = SvgView.mountFlags | View.NeedsAnimate;
+  static override readonly mountFlags: ViewFlags = SvgView.mountFlags | View.NeedsAnimate;
 }

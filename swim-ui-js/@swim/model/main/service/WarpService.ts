@@ -25,7 +25,7 @@ export abstract class WarpService<M extends Model> extends ModelManagerService<M
     return this.manager.client;
   }
 
-  initManager(): WarpManager<M> {
+  override initManager(): WarpManager<M> {
     return WarpManager.global();
   }
 }

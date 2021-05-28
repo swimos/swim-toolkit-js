@@ -25,7 +25,7 @@ import {GeoPathComponent} from "./GeoPathComponent";
 import type {GeoAreaComponentObserver} from "./GeoAreaComponentObserver";
 
 export class GeoAreaComponent extends GeoPathComponent {
-  declare readonly componentObservers: ReadonlyArray<GeoAreaComponentObserver>;
+  override readonly componentObservers!: ReadonlyArray<GeoAreaComponentObserver>;
 
   protected initGeoTrait(geoTrait: GeoAreaTrait): void {
     // hook
@@ -388,5 +388,5 @@ export class GeoAreaComponent extends GeoPathComponent {
   @ComponentViewTrait<GeoAreaComponent, GeoAreaView, GeoAreaTrait>({
     extends: GeoAreaComponent.GetFastener,
   })
-  declare geo: ComponentViewTrait<this, GeoAreaView, GeoAreaTrait>;
+  readonly geo!: ComponentViewTrait<this, GeoAreaView, GeoAreaTrait>;
 }

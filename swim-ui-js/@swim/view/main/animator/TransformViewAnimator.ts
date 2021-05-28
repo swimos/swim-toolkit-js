@@ -18,7 +18,7 @@ import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
 export abstract class TransformViewAnimator<V extends View> extends ViewAnimator<V, Transform | null | undefined, AnyTransform | null | undefined> {
-  fromAny(value: AnyTransform | null | undefined): Transform | null | undefined {
+  override fromAny(value: AnyTransform | null | undefined): Transform | null | undefined {
     return value !== void 0 && value !== null ? Transform.fromAny(value) : null;
   }
 }

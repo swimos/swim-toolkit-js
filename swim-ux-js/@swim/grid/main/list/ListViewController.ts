@@ -27,7 +27,7 @@ export class ListViewController<V extends ListView = ListView> extends HtmlViewC
     });
   }
 
-  declare readonly selectedItem: ListItem | null;
+  readonly selectedItem!: ListItem | null;
 
   selectItem(newItem: ListItem | null): void {
     const oldItem = this.selectedItem;

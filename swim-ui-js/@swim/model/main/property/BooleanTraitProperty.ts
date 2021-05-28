@@ -17,7 +17,7 @@ import {TraitProperty} from "./TraitProperty";
 
 /** @hidden */
 export abstract class BooleanTraitProperty<R extends Trait> extends TraitProperty<R, boolean | null | undefined, boolean | string | null | undefined> {
-  fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
+  override fromAny(value: boolean | string | null | undefined): boolean | null | undefined {
     return !!value;
   }
 }

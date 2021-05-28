@@ -37,10 +37,10 @@ export class MoodVector<M extends Mood = Feel> implements Equals, Debug {
   }
 
   /** @hidden */
-  declare readonly array: ReadonlyArray<[M, number]>;
+  readonly array!: ReadonlyArray<[M, number]>;
 
   /** @hidden */
-  declare readonly index: {readonly [name: string]: number | undefined};
+  readonly index!: {readonly [name: string]: number | undefined};
 
   get size(): number {
     return this.array.length;

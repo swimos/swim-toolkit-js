@@ -17,16 +17,16 @@ import {StyleAnimatorConstraint} from "./StyleAnimatorConstraint";
 
 /** @hidden */
 export abstract class NumberStyleAnimatorConstraint<V extends StyleContext> extends StyleAnimatorConstraint<V, number | undefined, string> {
-  parse(value: string): number | undefined {
+  override parse(value: string): number | undefined {
     const number = +value;
     return isFinite(number) ? number : void 0;
   }
 
-  toNumber(value: number): number {
+  override toNumber(value: number): number {
     return typeof value === "number" ? value : 0;
   }
 
-  fromCssValue(value: CSSStyleValue): number | undefined {
+  override fromCssValue(value: CSSStyleValue): number | undefined {
     if (value instanceof CSSNumericValue) {
       return value.to("number").value;
     } else {
@@ -34,7 +34,7 @@ export abstract class NumberStyleAnimatorConstraint<V extends StyleContext> exte
     }
   }
 
-  fromAny(value: number | string): number | undefined {
+  override fromAny(value: number | string): number | undefined {
     if (typeof value === "number") {
       return value;
     } else {

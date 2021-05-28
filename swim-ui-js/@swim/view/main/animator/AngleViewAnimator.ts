@@ -18,7 +18,7 @@ import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
 export abstract class AngleViewAnimator<V extends View> extends ViewAnimator<V, Angle | null | undefined, AnyAngle | null | undefined> {
-  fromAny(value: AnyAngle | null): Angle | null {
+  override fromAny(value: AnyAngle | null): Angle | null {
     return value !== void 0 && value !== null ? Angle.fromAny(value) : value;
   }
 }

@@ -33,18 +33,18 @@ export class ListView extends HtmlView {
     this.userSelect.setState("none", View.Intrinsic);
   }
 
-  declare readonly viewController: ListViewController | null;
+  override readonly viewController!: ListViewController | null;
 
-  declare readonly viewObservers: ReadonlyArray<ListViewObserver>;
+  override readonly viewObservers!: ReadonlyArray<ListViewObserver>;
 
-  protected onInsertChildView(childView: View, targetView: View | null): void {
+  protected override onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (childView instanceof ListItem) {
       this.onInsertItem(childView);
     }
   }
 
-  protected onRemoveChildView(childView: View): void {
+  protected override onRemoveChildView(childView: View): void {
     if (childView instanceof ListItem) {
       this.onRemoveItem(childView);
     }

@@ -27,7 +27,7 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
     });
   }
 
-  declare readonly solver: ConstraintSolver;
+  readonly solver!: ConstraintSolver;
 
   /** @hidden */
   protected createSolver(): ConstraintSolver {
@@ -54,7 +54,7 @@ export class LayoutManager<V extends View = View> extends ViewManager<V> {
     this.solver.setConstraintVariable(constraintVariable, state);
   }
 
-  declare readonly viewManagerObservers: ReadonlyArray<LayoutManagerObserver>;
+  override readonly viewManagerObservers!: ReadonlyArray<LayoutManagerObserver>;
 
   @Lazy
   static global<V extends View>(): LayoutManager<V> {

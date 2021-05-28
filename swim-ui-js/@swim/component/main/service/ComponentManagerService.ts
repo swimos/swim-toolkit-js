@@ -19,7 +19,7 @@ import {ComponentService} from "./ComponentService";
 
 /** @hidden */
 export abstract class ComponentManagerService<C extends Component, CM extends ComponentManager<C>> extends ComponentService<C, CM> {
-  mount(): void {
+  override mount(): void {
     super.mount();
     const manager = this.manager;
     if (manager !== void 0) {
@@ -32,7 +32,7 @@ export abstract class ComponentManagerService<C extends Component, CM extends Co
     }
   }
 
-  unmount(): void {
+  override unmount(): void {
     const manager = this.manager;
     if (manager !== void 0) {
       if (this.observe !== false) {

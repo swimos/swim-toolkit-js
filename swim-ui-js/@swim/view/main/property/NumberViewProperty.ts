@@ -17,7 +17,7 @@ import {ViewProperty} from "./ViewProperty";
 
 /** @hidden */
 export abstract class NumberViewProperty<V extends View> extends ViewProperty<V, number | null | undefined, number | string | null | undefined> {
-  fromAny(value: number | string | null | undefined): number | null | undefined {
+  override fromAny(value: number | string | null | undefined): number | null | undefined {
     if (typeof value === "number") {
       return value;
     } else if (typeof value === "string") {

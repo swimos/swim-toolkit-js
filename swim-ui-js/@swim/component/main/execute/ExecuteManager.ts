@@ -40,7 +40,7 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
   }
 
-  declare readonly componentContext: ExecuteContext;
+  readonly componentContext!: ExecuteContext;
 
   protected initComponentContext(): ExecuteContext {
     return {
@@ -97,7 +97,7 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     rootComponent.cascadeUnpower();
   }
 
-  declare readonly rootFlags: ComponentFlags;
+  readonly rootFlags!: ComponentFlags;
 
   /** @hidden */
   setRootFlags(rootFlags: ComponentFlags): void {
@@ -253,14 +253,14 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     }
   }
 
-  declare readonly componentManagerObservers: ReadonlyArray<ExecuteManagerObserver>;
+  override readonly componentManagerObservers!: ReadonlyArray<ExecuteManagerObserver>;
 
-  protected onAttach(): void {
+  protected override onAttach(): void {
     super.onAttach();
     this.attachEvents();
   }
 
-  protected onDetach(): void {
+  protected override onDetach(): void {
     this.detachEvents();
     super.onDetach();
   }
@@ -277,7 +277,7 @@ export class ExecuteManager<C extends Component = Component> extends ComponentMa
     }
   }
 
-  protected onInsertRootComponent(rootComponent: C): void {
+  protected override onInsertRootComponent(rootComponent: C): void {
     super.onInsertRootComponent(rootComponent);
     this.requestUpdate(rootComponent, rootComponent.componentFlags & Component.UpdateMask, false);
   }

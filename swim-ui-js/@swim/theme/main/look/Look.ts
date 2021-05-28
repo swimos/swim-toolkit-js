@@ -21,7 +21,7 @@ import type {Mood} from "../mood/Mood";
 import type {MoodVector} from "../mood/MoodVector";
 
 export abstract class Look<T, U = never> implements Mood {
-  declare readonly name: string;
+  readonly name!: string;
 
   constructor(name: string) {
     Object.defineProperty(this, "name", {

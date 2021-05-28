@@ -50,7 +50,7 @@ export class Rect implements Graphics, Equals, Debug {
     });
   }
 
-  declare readonly x: Length;
+  readonly x!: Length;
 
   withX(x: AnyLength): Rect {
     x = Length.fromAny(x);
@@ -61,7 +61,7 @@ export class Rect implements Graphics, Equals, Debug {
     }
   }
 
-  declare readonly y: Length;
+  readonly y!: Length;
 
   withY(y: AnyLength): Rect {
     y = Length.fromAny(y);
@@ -72,7 +72,7 @@ export class Rect implements Graphics, Equals, Debug {
     }
   }
 
-  declare readonly width: Length;
+  readonly width!: Length;
 
   withWidth(width: AnyLength): Rect {
     width = Length.fromAny(width);
@@ -83,7 +83,7 @@ export class Rect implements Graphics, Equals, Debug {
     }
   }
 
-  declare readonly height: Length;
+  readonly height!: Length;
 
   withHeight(height: AnyLength): Rect {
     height = Length.fromAny(height);

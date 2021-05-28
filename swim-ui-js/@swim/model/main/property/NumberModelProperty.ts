@@ -17,7 +17,7 @@ import {ModelProperty} from "./ModelProperty";
 
 /** @hidden */
 export abstract class NumberModelProperty<M extends Model> extends ModelProperty<M, number | null | undefined, number | string | null | undefined> {
-  fromAny(value: number | string | null | undefined): number | null | undefined {
+  override fromAny(value: number | string | null | undefined): number | null | undefined {
     if (typeof value === "number") {
       return value;
     } else if (typeof value === "string") {

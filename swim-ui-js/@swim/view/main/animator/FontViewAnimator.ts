@@ -18,7 +18,7 @@ import {ViewAnimator} from "./ViewAnimator";
 
 /** @hidden */
 export abstract class FontViewAnimator<V extends View> extends ViewAnimator<V, Font | null | undefined, AnyFont | null | undefined> {
-  fromAny(value: AnyFont | null | undefined): Font | null | undefined {
+  override fromAny(value: AnyFont | null | undefined): Font | null | undefined {
     return value !== void 0 && value !== null ? Font.fromAny(value) : value;
   }
 }

@@ -60,7 +60,7 @@ export interface ChartViewInit<X, Y> extends ScaledViewInit<X, Y> {
 }
 
 export class ChartView<X, Y> extends ScaledView<X, Y> {
-  initView(init: ChartViewInit<X, Y>): void {
+  override initView(init: ChartViewInit<X, Y>): void {
     super.initView(init);
      if (init.graph !== void 0) {
       this.graph(init.graph);
@@ -133,42 +133,42 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
     }
   }
 
-  declare readonly viewController: GraphicsViewController<ChartView<X, Y>> & ChartViewObserver<X, Y> | null;
+  override readonly viewController!: GraphicsViewController<ChartView<X, Y>> & ChartViewObserver<X, Y> | null;
 
-  declare readonly viewObservers: ReadonlyArray<ChartViewObserver<X, Y>>;
-
-  @ViewAnimator({type: Length, state: Length.px(20)})
-  declare gutterTop: ViewAnimator<this, Length, AnyLength>;
-
-  @ViewAnimator({type: Length, state: Length.px(40)})
-  declare gutterRight: ViewAnimator<this, Length, AnyLength>;
+  override readonly viewObservers!: ReadonlyArray<ChartViewObserver<X, Y>>;
 
   @ViewAnimator({type: Length, state: Length.px(20)})
-  declare gutterBottom: ViewAnimator<this, Length, AnyLength>;
+  readonly gutterTop!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Length, state: Length.px(40)})
-  declare gutterLeft: ViewAnimator<this, Length, AnyLength>;
+  readonly gutterRight!: ViewAnimator<this, Length, AnyLength>;
+
+  @ViewAnimator({type: Length, state: Length.px(20)})
+  readonly gutterBottom!: ViewAnimator<this, Length, AnyLength>;
+
+  @ViewAnimator({type: Length, state: Length.px(40)})
+  readonly gutterLeft!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: null, look: Look.neutralColor})
-  declare borderColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly borderColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Number, state: 1})
-  declare borderWidth: ViewAnimator<this, number>;
+  readonly borderWidth!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 6})
-  declare borderSerif: ViewAnimator<this, number>;
+  readonly borderSerif!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Color, state: null, look: Look.neutralColor})
-  declare tickMarkColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly tickMarkColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Number, state: 1})
-  declare tickMarkWidth: ViewAnimator<this, number>;
+  readonly tickMarkWidth!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 6})
-  declare tickMarkLength: ViewAnimator<this, number>;
+  readonly tickMarkLength!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Number, state: 2})
-  declare tickLabelPadding: ViewAnimator<this, number>;
+  readonly tickLabelPadding!: ViewAnimator<this, number>;
 
   @ViewProperty({
     type: Timing,
@@ -176,21 +176,21 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       return Easing.cubicOut.withDuration(250);
     },
   })
-  declare tickTransition: ViewProperty<this, Timing, AnyTiming>;
+  readonly tickTransition!: ViewProperty<this, Timing, AnyTiming>;
 
   @ViewAnimator({type: Color, state: null, look: Look.subduedColor})
-  declare gridLineColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly gridLineColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Number, state: 0})
-  declare gridLineWidth: ViewAnimator<this, number>;
+  readonly gridLineWidth!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: Font, state: null, inherit: true})
-  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ViewAnimator<this, Font | null, AnyFont | null>;
 
   @ViewAnimator({type: Color, state: null, look: Look.mutedColor})
-  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  xRange(): Range<number> | null {
+  override xRange(): Range<number> | null {
     const frame = this.viewFrame;
     const gutterLeft = this.gutterLeft.getValue().pxValue(frame.width);
     const gutterRight = this.gutterRight.getValue().pxValue(frame.width);
@@ -200,7 +200,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
     return LinearRange(xRangeMin, xRangeMax);
   }
 
-  yRange(): Range<number> | null {
+  override yRange(): Range<number> | null {
     const frame = this.viewFrame;
     const gutterTop = this.gutterTop.getValue().pxValue(frame.height);
     const gutterBottom = this.gutterBottom.getValue().pxValue(frame.height);
@@ -280,7 +280,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       this.owner.didSetGraph(newGraphView, oldGraphView);
     },
   })
-  declare graph: ViewFastener<this, GraphView<X, Y>, AnyGraphView<X, Y>>;
+  readonly graph!: ViewFastener<this, GraphView<X, Y>, AnyGraphView<X, Y>>;
 
   protected createTopAxis(): AxisView<X> | null {
     return new TopAxisView();
@@ -352,7 +352,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       this.owner.didSetTopAxis(newTopAxisView, oldTopAxisView);
     },
   })
-  declare topAxis: ViewFastener<this, AxisView<X>, AnyAxisView<X> | true>;
+  readonly topAxis!: ViewFastener<this, AxisView<X>, AnyAxisView<X> | true>;
 
   protected createRightAxis(): AxisView<Y> | null {
     return new RightAxisView();
@@ -424,7 +424,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       this.owner.didSetRightAxis(newRightAxisView, oldRightAxisView);
     },
   })
-  declare rightAxis: ViewFastener<this, AxisView<Y>, AnyAxisView<Y> | true>;
+  readonly rightAxis!: ViewFastener<this, AxisView<Y>, AnyAxisView<Y> | true>;
 
   protected createBottomAxis(): AxisView<X> | null {
     return new BottomAxisView();
@@ -496,7 +496,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       this.owner.didSetBottomAxis(newBottomAxisView, oldBottomAxisView);
     },
   })
-  declare bottomAxis: ViewFastener<this, AxisView<X>, AnyAxisView<X> | true>;
+  readonly bottomAxis!: ViewFastener<this, AxisView<X>, AnyAxisView<X> | true>;
 
   protected createLeftAxis(): AxisView<Y> | null {
     return new LeftAxisView();
@@ -568,7 +568,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       this.owner.didSetLeftAxis(newLeftAxisView, oldLeftAxisView);
     },
   })
-  declare leftAxis: ViewFastener<this, AxisView<Y>, AnyAxisView<Y> | true>;
+  readonly leftAxis!: ViewFastener<this, AxisView<Y>, AnyAxisView<Y> | true>;
 
   protected detectGraphView(view: View): GraphView<X, Y> | null {
     return view instanceof GraphView ? view : null;
@@ -590,7 +590,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
     return view instanceof LeftAxisView ? view : null;
   }
 
-  protected onInsertChildView(childView: View, targetView: View | null): void {
+  protected override onInsertChildView(childView: View, targetView: View | null): void {
     super.onInsertChildView(childView, targetView);
     if (this.graph.view === null) {
       const graphView = this.detectGraphView(childView);
@@ -624,7 +624,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
     }
   }
 
-  protected onRemoveChildView(childView: View): void {
+  protected override onRemoveChildView(childView: View): void {
     super.onRemoveChildView(childView);
     if (this.graph.view === null) {
       const graphView = this.detectGraphView(childView);
@@ -658,7 +658,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
     }
   }
 
-  protected updateScales(): void {
+  protected override updateScales(): void {
     this.layoutChart(this.viewFrame);
     super.updateScales();
   }
@@ -726,7 +726,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
     }
   }
 
-  static create<X, Y>(): ChartView<X, Y> {
+  static override create<X, Y>(): ChartView<X, Y> {
     return new ChartView<X, Y>();
   }
 

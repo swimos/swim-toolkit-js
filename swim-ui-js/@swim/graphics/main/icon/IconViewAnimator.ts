@@ -20,7 +20,7 @@ import type {IconView} from "./IconView";
 
 /** @hidden */
 export abstract class IconViewAnimator<V extends IconView> extends ViewAnimator<V, Graphics | null | undefined> {
-  fromAny(value: Graphics | null | undefined): Graphics | null | undefined {
+  override fromAny(value: Graphics | null | undefined): Graphics | null | undefined {
     if (value instanceof Icon) {
       const iconColor = this.owner.iconColor.state;
       if (iconColor !== null && value instanceof FilledIcon) {

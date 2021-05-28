@@ -36,13 +36,13 @@ export class SvgRenderer extends PaintingRenderer {
     });
   }
 
-  declare readonly context: SvgContext;
+  override readonly context!: SvgContext;
 
-  get pixelRatio(): number {
+  override get pixelRatio(): number {
     return 1;
   }
 
-  declare readonly theme: ThemeMatrix | null;
+  override readonly theme!: ThemeMatrix | null;
 
-  declare readonly mood: MoodVector | null;
+  override readonly mood!: MoodVector | null;
 }

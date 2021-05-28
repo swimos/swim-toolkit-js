@@ -57,7 +57,7 @@ export class FontParser extends Parser<Font> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<Font> {
+  override feed(input: Input): Parser<Font> {
     return FontParser.parse(input, this.style, this.variant, this.weight,
                             this.stretch, this.size, this.height, this.family,
                             this.identOutput, this.lengthParser,

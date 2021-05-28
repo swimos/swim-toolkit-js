@@ -17,7 +17,7 @@ import type {Look} from "../look/Look";
 import {FeelVector} from "./FeelVector";
 
 export abstract class Feel implements Mood {
-  declare readonly name: string;
+  readonly name!: string;
 
   constructor(name: string) {
     Object.defineProperty(this, "name", {

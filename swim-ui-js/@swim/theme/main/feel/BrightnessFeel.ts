@@ -17,8 +17,8 @@ import type {Look} from "../look/Look";
 import {Feel} from "../feel/Feel";
 
 export class BrightnessFeel extends Feel {
-  combine<T>(look: Look<T, any>, combination: T | undefined,
-             value: T, weight?: number): T {
+  override combine<T>(look: Look<T, any>, combination: T | undefined,
+                      value: T, weight?: number): T {
     if (combination instanceof Color && value instanceof Color) {
       const amount = weight === void 0 ? value.alpha() : value.alpha() * weight;
       if (amount >= 0) {

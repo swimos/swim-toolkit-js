@@ -17,7 +17,7 @@ import {AnyBoxShadow, BoxShadow, BoxShadowInterpolator} from "@swim/style";
 import {Look} from "./Look";
 
 export class ShadowLook extends Look<BoxShadow, AnyBoxShadow> {
-  combine(combination: BoxShadow | undefined, value: BoxShadow, weight?: number): BoxShadow {
+  override combine(combination: BoxShadow | undefined, value: BoxShadow, weight?: number): BoxShadow {
     if (weight === void 0 || weight !== 0) {
       return value;
     } else if (combination !== void 0) {
@@ -27,11 +27,11 @@ export class ShadowLook extends Look<BoxShadow, AnyBoxShadow> {
     }
   }
 
-  between(a: BoxShadow, b: BoxShadow): Interpolator<BoxShadow> {
+  override between(a: BoxShadow, b: BoxShadow): Interpolator<BoxShadow> {
     return BoxShadowInterpolator(a, b);
   }
 
-  coerce(value: AnyBoxShadow): BoxShadow {
+  override coerce(value: AnyBoxShadow): BoxShadow {
     return BoxShadow.fromAny(value)!;
   }
 }

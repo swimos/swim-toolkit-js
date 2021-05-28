@@ -22,11 +22,11 @@ export class BottomTickView<X> extends TickView<X> {
     super(value);
   }
 
-  get orientation(): TickOrientation {
+  override get orientation(): TickOrientation {
     return "bottom";
   }
 
-  protected layoutLabel(labelView: GraphicsView): void {
+  protected override layoutLabel(labelView: GraphicsView): void {
     const anchor = this.anchor.getValue();
     const x = Math.round(anchor.x);
     const y0 = Math.round(anchor.y);
@@ -40,7 +40,7 @@ export class BottomTickView<X> extends TickView<X> {
     }
   }
 
-  protected renderTick(context: CanvasContext, frame: BoxR2): void {
+  protected override renderTick(context: CanvasContext, frame: BoxR2): void {
     const anchor = this.anchor.getValue();
     const x = Math.round(anchor.x);
     const y0 = Math.round(anchor.y);

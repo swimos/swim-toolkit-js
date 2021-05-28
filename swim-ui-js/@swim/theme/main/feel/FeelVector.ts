@@ -38,10 +38,10 @@ export class FeelVector implements Interpolate<FeelVector>, Equals, Debug {
   }
 
   /** @hidden */
-  declare readonly array: ReadonlyArray<[Look<unknown>, unknown]>;
+  readonly array!: ReadonlyArray<[Look<unknown>, unknown]>;
 
   /** @hidden */
-  declare readonly index: {readonly [name: string]: number | undefined};
+  readonly index!: {readonly [name: string]: number | undefined};
 
   get size(): number {
     return this.array.length;

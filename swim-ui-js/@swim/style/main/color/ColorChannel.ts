@@ -25,9 +25,9 @@ export class ColorChannel {
     });
   }
 
-  declare readonly value: number;
+  readonly value!: number;
 
-  declare readonly units: string;
+  readonly units!: string;
 
   scale(k: number): number {
     if (this.units === "%") {

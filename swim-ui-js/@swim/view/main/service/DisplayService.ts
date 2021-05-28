@@ -27,7 +27,7 @@ export abstract class DisplayService<V extends View> extends ViewManagerService<
     return manager.updatedViewContext(viewContext);
   }
 
-  initManager(): DisplayManager<V> {
+  override initManager(): DisplayManager<V> {
     return DisplayManager.global();
   }
 }

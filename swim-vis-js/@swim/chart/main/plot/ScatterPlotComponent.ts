@@ -19,7 +19,7 @@ import type {ScatterPlotTrait} from "./ScatterPlotTrait";
 import type {ScatterPlotComponentObserver} from "./ScatterPlotComponentObserver";
 
 export abstract class ScatterPlotComponent<X, Y> extends PlotComponent<X, Y> {
-  declare readonly componentObservers: ReadonlyArray<ScatterPlotComponentObserver<X, Y>>;
+  override readonly componentObservers!: ReadonlyArray<ScatterPlotComponentObserver<X, Y>>;
 
-  abstract readonly plot: ComponentViewTrait<this, ScatterPlotView<X, Y>, ScatterPlotTrait<X, Y>>;
+  abstract override readonly plot: ComponentViewTrait<this, ScatterPlotView<X, Y>, ScatterPlotTrait<X, Y>>;
 }

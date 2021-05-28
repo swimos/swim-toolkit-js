@@ -18,11 +18,11 @@ import type {GoogleMapView} from "./GoogleMapView";
 import type {GoogleMapViewObserver} from "./GoogleMapViewObserver";
 
 export class GoogleMapViewController<V extends GoogleMapView = GoogleMapView> extends MapViewController<V> implements GoogleMapViewObserver<V> {
-  viewWillSetGeoViewport(newGeoViewport: GoogleMapViewport, oldGeoViewport: GoogleMapViewport, view: V): void {
+  override viewWillSetGeoViewport(newGeoViewport: GoogleMapViewport, oldGeoViewport: GoogleMapViewport, view: V): void {
     // hook
   }
 
-  viewDidSetGeoViewport(newGeoViewport: GoogleMapViewport, oldGeoViewport: GoogleMapViewport, view: V): void {
+  override viewDidSetGeoViewport(newGeoViewport: GoogleMapViewport, oldGeoViewport: GoogleMapViewport, view: V): void {
     // hook
   }
 }

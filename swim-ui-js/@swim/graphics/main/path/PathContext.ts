@@ -29,7 +29,7 @@ export class PathContext implements DrawingContext {
     this.d = "";
   }
 
-  declare readonly precision: number;
+  readonly precision!: number;
 
   setPrecision(precision: number): void {
     Object.defineProperty(this, "precision", {

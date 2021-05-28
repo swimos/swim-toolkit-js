@@ -17,7 +17,7 @@ import {TopAxisView} from "./TopAxisView";
 import {AxisComponent} from "./AxisComponent";
 
 export class TopAxisComponent<X> extends AxisComponent<X> {
-  protected createAxisView(): AxisView<X> | null {
+  protected override createAxisView(): AxisView<X> | null {
     return TopAxisView.create<X>();
   }
 }

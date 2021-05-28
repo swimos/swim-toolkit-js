@@ -17,7 +17,7 @@ import {LeftAxisView} from "./LeftAxisView";
 import {AxisComponent} from "./AxisComponent";
 
 export class LeftAxisComponent<Y> extends AxisComponent<Y> {
-  protected createAxisView(): AxisView<Y> | null {
+  protected override createAxisView(): AxisView<Y> | null {
     return LeftAxisView.create<Y>();
   }
 }

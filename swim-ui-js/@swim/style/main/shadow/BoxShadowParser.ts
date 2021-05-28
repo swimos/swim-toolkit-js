@@ -44,7 +44,7 @@ export class BoxShadowParser extends Parser<BoxShadow | null> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<BoxShadow | null> {
+  override feed(input: Input): Parser<BoxShadow | null> {
     return BoxShadowParser.parse(input, this.boxShadow, this.identOutput, this.offsetXParser,
                                  this.offsetYParser, this.blurRadiusParser, this.spreadRadiusParser,
                                  this.colorParser, this.step);

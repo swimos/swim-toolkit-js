@@ -53,7 +53,7 @@ export abstract class ViewportService<V extends View> extends ViewManagerService
     manager.setViewIdiom(viewIdiom);
   }
 
-  initManager(): ViewportManager<V> {
+  override initManager(): ViewportManager<V> {
     return ViewportManager.global();
   }
 }

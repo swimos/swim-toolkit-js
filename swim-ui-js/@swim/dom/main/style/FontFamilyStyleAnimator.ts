@@ -18,11 +18,11 @@ import {StyleAnimator} from "./StyleAnimator";
 
 /** @hidden */
 export abstract class FontFamilyStyleAnimator<V extends StyleContext> extends StyleAnimator<V, FontFamily | ReadonlyArray<FontFamily> | undefined> {
-  parse(value: string): FontFamily | ReadonlyArray<FontFamily> | undefined {
+  override parse(value: string): FontFamily | ReadonlyArray<FontFamily> | undefined {
     return Font.parse(value).family;
   }
 
-  fromAny(value: FontFamily | ReadonlyArray<FontFamily>): FontFamily | ReadonlyArray<FontFamily> | undefined {
+  override fromAny(value: FontFamily | ReadonlyArray<FontFamily>): FontFamily | ReadonlyArray<FontFamily> | undefined {
     return Font.family(value).family;
   }
 }

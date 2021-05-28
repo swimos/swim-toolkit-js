@@ -41,7 +41,7 @@ export interface GeoCircleViewInit extends GeoViewInit, FillViewInit, StrokeView
 }
 
 export class GeoCircleView extends GeoLayerView implements FillView, StrokeView {
-  initView(init: GeoCircleViewInit): void {
+  override initView(init: GeoCircleViewInit): void {
     super.initView(init);
     if (init.geoCenter !== void 0) {
       this.geoCenter(init.geoCenter);
@@ -66,9 +66,9 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
     }
   }
 
-  declare readonly viewController: GeoViewController<GeoCircleView> & GeoCircleViewObserver | null;
+  override readonly viewController!: GeoViewController<GeoCircleView> & GeoCircleViewObserver | null;
 
-  declare readonly viewObservers: ReadonlyArray<GeoCircleViewObserver>;
+  override readonly viewObservers!: ReadonlyArray<GeoCircleViewObserver>;
 
   protected willSetGeoCenter(newGeoCenter: GeoPoint | null, oldGeoCenter: GeoPoint | null): void {
     const viewController = this.viewController;
@@ -119,27 +119,27 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
       this.owner.didSetGeoCenter(newGeoCenter, oldGeoCenter);
     },
   })
-  declare geoCenter: ViewAnimator<this, GeoPoint | null, AnyGeoPoint | null>;
+  readonly geoCenter!: ViewAnimator<this, GeoPoint | null, AnyGeoPoint | null>;
 
   @ViewAnimator({type: PointR2, state: PointR2.undefined()})
-  declare viewCenter: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
+  readonly viewCenter!: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
-  declare radius: ViewAnimator<this, Length, AnyLength>;
+  readonly radius!: ViewAnimator<this, Length, AnyLength>;
 
   @ViewAnimator({type: Color, state: null, inherit: true})
-  declare fill: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly fill!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Color, state: null, inherit: true})
-  declare stroke: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly stroke!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Length, state: null, inherit: true})
-  declare strokeWidth: ViewAnimator<this, Length | null, AnyLength | null>;
+  readonly strokeWidth!: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewProperty({type: Number})
-  declare hitRadius: ViewProperty<this, number | undefined>;
+  readonly hitRadius!: ViewProperty<this, number | undefined>;
 
-  protected onProject(viewContext: ViewContextType<this>): void {
+  protected override onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
     this.projectCircle(viewContext);
   }
@@ -177,7 +177,7 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
     }
   }
 
-  protected onRender(viewContext: ViewContextType<this>): void {
+  protected override onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     const renderer = viewContext.renderer;
     if (renderer instanceof CanvasRenderer && !this.isHidden() && !this.isCulled()) {
@@ -215,11 +215,11 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
     }
   }
 
-  protected updateGeoBounds(): void {
+  protected override updateGeoBounds(): void {
     // nop
   }
 
-  get popoverFrame(): BoxR2 {
+  override get popoverFrame(): BoxR2 {
     const viewCenter = this.viewCenter.value;
     const frame = this.viewFrame;
     if (viewCenter !== null && viewCenter.isDefined() && frame.isDefined()) {
@@ -236,7 +236,7 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
 
   declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
 
-  get hitBounds(): BoxR2 {
+  override get hitBounds(): BoxR2 {
     const viewCenter = this.viewCenter.value;
     const frame = this.viewFrame;
     if (viewCenter !== null && viewCenter.isDefined() && frame.isDefined()) {
@@ -250,7 +250,7 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
     }
   }
 
-  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;

@@ -18,11 +18,11 @@ import type {WorldMapView} from "./WorldMapView";
 import type {WorldMapViewObserver} from "./WorldMapViewObserver";
 
 export class WorldMapViewController<V extends WorldMapView = WorldMapView> extends MapViewController<V> implements WorldMapViewObserver<V> {
-  viewWillSetGeoViewport(newGeoViewport: WorldMapViewport, oldGeoViewport: WorldMapViewport, view: V): void {
+  override viewWillSetGeoViewport(newGeoViewport: WorldMapViewport, oldGeoViewport: WorldMapViewport, view: V): void {
     // hook
   }
 
-  viewDidSetGeoViewport(newGeoViewport: WorldMapViewport, oldGeoViewport: WorldMapViewport, view: V): void {
+  override viewDidSetGeoViewport(newGeoViewport: WorldMapViewport, oldGeoViewport: WorldMapViewport, view: V): void {
     // hook
   }
 }

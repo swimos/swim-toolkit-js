@@ -21,13 +21,13 @@ export abstract class FilledIcon extends Icon {
 
   abstract withFillColor(fillColor: Color | null): FilledIcon;
 
-  declare readonly fillLook: Look<Color> | null;
+  abstract readonly fillLook: Look<Color> | null;
 
   abstract withFillLook(fillLook: Look<Color> | null): FilledIcon;
 
-  abstract withMoodModifier(moodModifier: MoodMatrix | null): FilledIcon;
+  abstract override withMoodModifier(moodModifier: MoodMatrix | null): FilledIcon;
 
-  abstract modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>): FilledIcon;
+  abstract override modifyMood(feel: Feel, updates: MoodVectorUpdates<Feel>): FilledIcon;
 
-  abstract withTheme(theme: ThemeMatrix, mood: MoodVector): FilledIcon;
+  abstract override withTheme(theme: ThemeMatrix, mood: MoodVector): FilledIcon;
 }

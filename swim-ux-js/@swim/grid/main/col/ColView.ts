@@ -28,9 +28,9 @@ export class ColView extends HtmlView {
     this.overflowY.setState("hidden", View.Intrinsic);
   }
 
-  declare readonly viewController: HtmlViewController & ColViewObserver | null;
+  override readonly viewController!: HtmlViewController & ColViewObserver | null;
 
-  declare readonly viewObservers: ReadonlyArray<ColViewObserver>;
+  override readonly viewObservers!: ReadonlyArray<ColViewObserver>;
 
   protected createHeader(value?: string): HtmlView | null {
     const headerView = HtmlView.span.create();
@@ -111,5 +111,5 @@ export class ColView extends HtmlView {
       this.owner.didSetHeader(newHeaderView, oldHeaderView);
     },
   })
-  declare header: ViewFastener<this, HtmlView, string>;
+  readonly header!: ViewFastener<this, HtmlView, string>;
 }

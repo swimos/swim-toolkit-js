@@ -18,12 +18,12 @@ import {View} from "@swim/view";
 import {TreeCell} from "./TreeCell";
 
 export class TitleTreeCell extends TreeCell {
-  protected initCell(): void {
+  protected override initCell(): void {
     super.initCell();
     this.addClass("title-tree-cell");
   }
 
-  protected onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
+  protected override onApplyTheme(theme: ThemeMatrix, mood: MoodVector, timing: Timing | boolean): void {
     super.onApplyTheme(theme, mood, timing);
     this.color.setState(theme.getOr(Look.accentColor, mood, null), timing, View.Intrinsic);
   }

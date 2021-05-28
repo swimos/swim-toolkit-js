@@ -58,14 +58,14 @@ export interface GeoPointViewInit extends GeoViewInit {
 }
 
 export class GeoPointView extends GeoLayerView {
-  initView(init: GeoPointViewInit): void {
+  override initView(init: GeoPointViewInit): void {
     super.initView(init);
     this.setState(init);
   }
 
-  declare readonly viewController: GeoViewController<GeoPointView> & GeoPointViewObserver | null;
+  override readonly viewController!: GeoViewController<GeoPointView> & GeoPointViewObserver | null;
 
-  declare readonly viewObservers: ReadonlyArray<GeoPointViewObserver>;
+  override readonly viewObservers!: ReadonlyArray<GeoPointViewObserver>;
 
   protected willSetGeoPoint(newGeoPoint: GeoPoint, oldGeoPoint: GeoPoint): void {
     const viewController = this.viewController;
@@ -111,31 +111,31 @@ export class GeoPointView extends GeoLayerView {
       this.owner.didSetGeoPoint(newGeoPoint, oldGeoPoint);
     },
   })
-  declare geoPoint: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
+  readonly geoPoint!: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
   @ViewAnimator({type: PointR2, state: PointR2.origin()})
-  declare viewPoint: ViewAnimator<this, PointR2, AnyPointR2>;
+  readonly viewPoint!: ViewAnimator<this, PointR2, AnyPointR2>;
 
   @ViewAnimator({type: Length, state: null})
-  declare radius: ViewAnimator<this, Length | null, AnyLength | null>;
+  readonly radius!: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewAnimator({type: Color, state: null})
-  declare color: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly color!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewAnimator({type: Number})
-  declare opacity: ViewAnimator<this, number | undefined>;
+  readonly opacity!: ViewAnimator<this, number | undefined>;
 
   @ViewAnimator({type: Length, state: null})
-  declare labelPadding: ViewAnimator<this, Length | null, AnyLength | null>;
+  readonly labelPadding!: ViewAnimator<this, Length | null, AnyLength | null>;
 
   @ViewAnimator({type: Font, state: null, inherit: true})
-  declare font: ViewAnimator<this, Font | null, AnyFont | null>;
+  readonly font!: ViewAnimator<this, Font | null, AnyFont | null>;
 
   @ViewAnimator({type: Color, state: null, inherit: true})
-  declare textColor: ViewAnimator<this, Color | null, AnyColor | null>;
+  readonly textColor!: ViewAnimator<this, Color | null, AnyColor | null>;
 
   @ViewProperty({type: Number})
-  declare hitRadius: ViewProperty<this, number | undefined>;
+  readonly hitRadius!: ViewProperty<this, number | undefined>;
 
   protected initLabel(labelView: GraphicsView): void {
     // hook
@@ -210,10 +210,10 @@ export class GeoPointView extends GeoLayerView {
       this.owner.didSetLabel(newLabelView, oldLabelView);
     },
   })
-  declare label: ViewFastener<this, GraphicsView, AnyTextRunView>;
+  readonly label!: ViewFastener<this, GraphicsView, AnyTextRunView>;
 
   @ViewProperty({type: String, state: "auto"})
-  declare labelPlacement: ViewProperty<this, GeoPointLabelPlacement>;
+  readonly labelPlacement!: ViewProperty<this, GeoPointLabelPlacement>;
 
   isGradientStop(): boolean {
     return this.color.value !== null || this.opacity.value !== void 0;
@@ -270,14 +270,14 @@ export class GeoPointView extends GeoLayerView {
     }
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  override needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((processFlags & View.NeedsProject) !== 0 && this.label.view !== null) {
       this.requireUpdate(View.NeedsLayout);
     }
     return processFlags;
   }
 
-  protected onProject(viewContext: ViewContextType<this>): void {
+  protected override onProject(viewContext: ViewContextType<this>): void {
     super.onProject(viewContext);
     if (this.viewPoint.takesPrecedence(View.Intrinsic)) {
       const viewPoint = viewContext.geoViewport.project(this.geoPoint.getValue());
@@ -295,7 +295,7 @@ export class GeoPointView extends GeoLayerView {
     }
   }
 
-  protected onLayout(viewContext: ViewContextType<this>): void {
+  protected override onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     const labelView = this.label.view;
     if (labelView !== null) {
@@ -324,19 +324,19 @@ export class GeoPointView extends GeoLayerView {
     }
   }
 
-  protected updateGeoBounds(): void {
+  protected override updateGeoBounds(): void {
     // nop
   }
 
   declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
 
-  get hitBounds(): BoxR2 {
+  override get hitBounds(): BoxR2 {
     const {x, y} = this.viewPoint.getValue();
     const hitRadius = this.hitRadius.getStateOr(0);
     return new BoxR2(x - hitRadius, y - hitRadius, x + hitRadius, y + hitRadius);
   }
 
-  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
     if (hit === null) {
       const renderer = viewContext.renderer;

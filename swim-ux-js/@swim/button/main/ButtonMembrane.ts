@@ -34,12 +34,12 @@ export class ButtonMembrane extends HtmlView implements PositionGestureDelegate 
     this.addClass("membrane");
   }
 
-  initView(init: ButtonMembraneInit): void {
+  override initView(init: ButtonMembraneInit): void {
     super.initView(init);
   }
 
   /** @hidden */
-  declare readonly gesture: PositionGesture<ButtonMembrane>;
+  readonly gesture!: PositionGesture<ButtonMembrane>;
 
   protected createGesture(): PositionGesture<ButtonMembrane> {
     return new PositionGesture(this, this);

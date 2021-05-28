@@ -24,7 +24,7 @@ import {GeoIconTrait} from "./GeoIconTrait";
 import type {GeoIconComponentObserver} from "./GeoIconComponentObserver";
 
 export class GeoIconComponent extends GeoComponent {
-  declare readonly componentObservers: ReadonlyArray<GeoIconComponentObserver>;
+  override readonly componentObservers!: ReadonlyArray<GeoIconComponentObserver>;
 
   protected initGeoTrait(geoTrait: GeoIconTrait): void {
     // hook
@@ -310,5 +310,5 @@ export class GeoIconComponent extends GeoComponent {
   @ComponentViewTrait<GeoIconComponent, GeoIconView, GeoIconTrait>({
     extends: GeoIconComponent.GetFastener,
   })
-  declare geo: ComponentViewTrait<this, GeoIconView, GeoIconTrait>;
+  readonly geo!: ComponentViewTrait<this, GeoIconView, GeoIconTrait>;
 }

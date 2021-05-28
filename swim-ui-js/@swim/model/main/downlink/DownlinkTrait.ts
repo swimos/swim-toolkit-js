@@ -56,5 +56,5 @@ export abstract class DownlinkTrait extends GenericTrait {
       this.owner.driverWillStopConsuming(driverTrait);
     },
   })
-  declare driver: TraitFastener<this, Trait>;
+  readonly driver!: TraitFastener<this, Trait>;
 }

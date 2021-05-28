@@ -23,9 +23,9 @@ import {SvgView} from "../svg/SvgView";
 import type {DomManagerObserver} from "./DomManagerObserver";
 
 export class DomManager<V extends NodeView = NodeView> extends ViewManager<V> {
-  declare readonly viewManagerObservers: ReadonlyArray<DomManagerObserver>;
+  override readonly viewManagerObservers!: ReadonlyArray<DomManagerObserver>;
 
-  protected onInsertRootView(rootView: V): void {
+  protected override onInsertRootView(rootView: V): void {
     super.onInsertRootView(rootView);
     if (rootView instanceof ElementView && rootView.node.hasAttribute("swim-app")) {
       this.materializeViewController(rootView);

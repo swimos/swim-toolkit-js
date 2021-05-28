@@ -40,7 +40,7 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
   }
 
-  declare readonly modelContext: RefreshContext;
+  readonly modelContext!: RefreshContext;
 
   protected initModelContext(): RefreshContext {
     return {
@@ -97,7 +97,7 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     rootModel.cascadeUnpower();
   }
 
-  declare readonly rootFlags: ModelFlags;
+  readonly rootFlags!: ModelFlags;
 
   /** @hidden */
   setRootFlags(rootFlags: ModelFlags): void {
@@ -253,14 +253,14 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     }
   }
 
-  declare readonly modelManagerObservers: ReadonlyArray<RefreshManagerObserver>;
+  override readonly modelManagerObservers!: ReadonlyArray<RefreshManagerObserver>;
 
-  protected onAttach(): void {
+  protected override onAttach(): void {
     super.onAttach();
     this.attachEvents();
   }
 
-  protected onDetach(): void {
+  protected override onDetach(): void {
     this.detachEvents();
     super.onDetach();
   }
@@ -277,7 +277,7 @@ export class RefreshManager<M extends Model = Model> extends ModelManager<M> {
     }
   }
 
-  protected onInsertRootModel(rootModel: M): void {
+  protected override onInsertRootModel(rootModel: M): void {
     super.onInsertRootModel(rootModel);
     this.requestUpdate(rootModel, rootModel.modelFlags & Model.UpdateMask, false);
   }

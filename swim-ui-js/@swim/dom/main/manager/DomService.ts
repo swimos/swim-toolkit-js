@@ -17,7 +17,7 @@ import {NodeView} from "../node/NodeView";
 import {DomManager} from "./DomManager";
 
 export abstract class DomService<V extends NodeView> extends ViewManagerService<V, DomManager<V>> {
-  initManager(): DomManager<V> {
+  override initManager(): DomManager<V> {
     return DomManager.global();
   }
 }

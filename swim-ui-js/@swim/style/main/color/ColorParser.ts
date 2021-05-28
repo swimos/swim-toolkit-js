@@ -29,7 +29,7 @@ export class ColorParser extends Parser<Color> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<Color> {
+  override feed(input: Input): Parser<Color> {
     return ColorParser.parse(input, this.identOutput, this.step);
   }
 

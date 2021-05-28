@@ -21,4 +21,3 @@ export {RgbColorInterpolator} from "./RgbColorInterpolator";
 
 export {HexColorParser} from "./HexColorParser";
 export {RgbColorParser} from "./RgbColorParser";
-

@@ -17,12 +17,12 @@ import type {ElementView} from "../element/ElementView";
 
 /** @hidden */
 export abstract class NumberAttributeAnimator<V extends ElementView> extends AttributeAnimator<V, number | undefined, string> {
-  parse(value: string): number | undefined {
+  override parse(value: string): number | undefined {
     const number = +value;
     return isFinite(number) ? number : void 0;
   }
 
-  fromAny(value: number | string): number | undefined {
+  override fromAny(value: number | string): number | undefined {
     if (typeof value === "number") {
       return value;
     } else {

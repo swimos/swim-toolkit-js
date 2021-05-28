@@ -19,7 +19,7 @@ import type {SeriesPlotTrait} from "./SeriesPlotTrait";
 import type {SeriesPlotComponentObserver} from "./SeriesPlotComponentObserver";
 
 export abstract class SeriesPlotComponent<X, Y> extends PlotComponent<X, Y> {
-  declare readonly componentObservers: ReadonlyArray<SeriesPlotComponentObserver<X, Y>>;
+  override readonly componentObservers!: ReadonlyArray<SeriesPlotComponentObserver<X, Y>>;
 
-  abstract readonly plot: ComponentViewTrait<this, SeriesPlotView<X, Y>, SeriesPlotTrait<X, Y>>;
+  abstract override readonly plot: ComponentViewTrait<this, SeriesPlotView<X, Y>, SeriesPlotTrait<X, Y>>;
 }

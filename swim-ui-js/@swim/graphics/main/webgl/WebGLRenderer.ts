@@ -30,7 +30,7 @@ export class WebGLRenderer extends GraphicsRenderer {
     });
   }
 
-  declare readonly context: WebGLContext;
+  readonly context!: WebGLContext;
 
-  declare readonly pixelRatio: number;
+  readonly pixelRatio!: number;
 }

@@ -34,7 +34,7 @@ export class ColorStopParser extends Parser<ColorStop> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<ColorStop> {
+  override feed(input: Input): Parser<ColorStop> {
     return ColorStopParser.parse(input, this.colorParser, this.stopParser,
                                  this.hintParser, this.step);
   }

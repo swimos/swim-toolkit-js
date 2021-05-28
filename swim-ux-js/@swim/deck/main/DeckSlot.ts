@@ -29,17 +29,17 @@ export abstract class DeckSlot extends HtmlView {
   }
 
   @ViewProperty({type: DeckPost, state: null, inherit: true})
-  declare post: ViewProperty<this, DeckPost | null, AnyDeckPost | null>;
+  readonly post!: ViewProperty<this, DeckPost | null, AnyDeckPost | null>;
 
   @ViewProperty({type: DeckPost, state: null})
-  declare nextPost: ViewProperty<this, DeckPost | null, AnyDeckPost | null>;
+  readonly nextPost!: ViewProperty<this, DeckPost | null, AnyDeckPost | null>;
 
   @ViewProperty({type: DeckPost, state: null})
-  declare prevPost: ViewProperty<this, DeckPost | null, AnyDeckPost | null>;
+  readonly prevPost!: ViewProperty<this, DeckPost | null, AnyDeckPost | null>;
 
-  abstract deckPhase: ViewAnimator<this, number | undefined>;
+  abstract readonly deckPhase: ViewAnimator<this, number | undefined>;
 
-  abstract slotAlign: ViewAnimator<this, number>;
+  abstract readonly slotAlign: ViewAnimator<this, number>;
 
   abstract readonly colorLook: Look<Color>;
 }

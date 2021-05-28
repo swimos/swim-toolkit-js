@@ -25,7 +25,7 @@ import {GeoPathComponent} from "./GeoPathComponent";
 import type {GeoLineComponentObserver} from "./GeoLineComponentObserver";
 
 export class GeoLineComponent extends GeoPathComponent {
-  declare readonly componentObservers: ReadonlyArray<GeoLineComponentObserver>;
+  override readonly componentObservers!: ReadonlyArray<GeoLineComponentObserver>;
 
   protected initGeoTrait(geoTrait: GeoLineTrait): void {
     // hook
@@ -327,5 +327,5 @@ export class GeoLineComponent extends GeoPathComponent {
   @ComponentViewTrait<GeoLineComponent, GeoLineView, GeoLineTrait>({
     extends: GeoLineComponent.GetFastener,
   })
-  declare geo: ComponentViewTrait<this, GeoLineView, GeoLineTrait>;
+  readonly geo!: ComponentViewTrait<this, GeoLineView, GeoLineTrait>;
 }

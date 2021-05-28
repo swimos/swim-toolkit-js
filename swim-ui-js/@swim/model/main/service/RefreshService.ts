@@ -35,9 +35,12 @@ export abstract class RefreshService<M extends Model> extends ModelManagerServic
     return manager.updatedModelContext();
   }
 
-  initManager(): RefreshManager<M> {
+  override initManager(): RefreshManager<M> {
     return RefreshManager.global();
   }
 }
 
-ModelService({type: RefreshManager, observe: false})(Model.prototype, "refreshService");
+ModelService({
+  type: RefreshManager,
+  observe: false,
+})(Model.prototype, "refreshService");

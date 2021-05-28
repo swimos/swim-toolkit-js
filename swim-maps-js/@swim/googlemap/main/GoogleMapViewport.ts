@@ -48,17 +48,17 @@ export class GoogleMapViewport implements GeoViewport, Equals {
     });
   }
 
-  declare readonly projection: google.maps.MapCanvasProjection | null;
+  readonly projection!: google.maps.MapCanvasProjection | null;
 
-  declare readonly geoFrame: GeoBox;
+  readonly geoFrame!: GeoBox;
 
-  declare readonly geoCenter: GeoPoint;
+  readonly geoCenter!: GeoPoint;
 
-  declare readonly zoom: number;
+  readonly zoom!: number;
 
-  declare readonly heading: number;
+  readonly heading!: number;
 
-  declare readonly tilt: number;
+  readonly tilt!: number;
 
   project(geoPoint: AnyGeoPoint): PointR2;
   project(lng: number, lat: number): PointR2;

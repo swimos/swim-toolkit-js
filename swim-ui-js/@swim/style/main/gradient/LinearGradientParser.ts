@@ -34,7 +34,7 @@ export class LinearGradientParser extends Parser<LinearGradient> {
     this.step = step;
   }
 
-  feed(input: Input): Parser<LinearGradient> {
+  override feed(input: Input): Parser<LinearGradient> {
     return LinearGradientParser.parse(input, this.identOutput, this.angleParser,
                                       this.stopsParser, this.step);
   }

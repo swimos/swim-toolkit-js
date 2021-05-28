@@ -49,7 +49,7 @@ export class RasterView extends LayerView {
     });
   }
 
-  initView(init: RasterViewInit): void {
+  override initView(init: RasterViewInit): void {
     super.initView(init);
     if (init.opacity !== void 0) {
       this.opacity(init.opacity);
@@ -60,17 +60,17 @@ export class RasterView extends LayerView {
   }
 
   @ViewAnimator({type: Number, state: 1})
-  declare opacity: ViewAnimator<this, number>;
+  readonly opacity!: ViewAnimator<this, number>;
 
   @ViewAnimator({type: String, state: "source-over"})
-  declare compositeOperation: ViewAnimator<this, CanvasCompositeOperation>;
+  readonly compositeOperation!: ViewAnimator<this, CanvasCompositeOperation>;
 
   get pixelRatio(): number {
     return window.devicePixelRatio || 1;
   }
 
   /** @hidden */
-  declare readonly canvas: HTMLCanvasElement;
+  readonly canvas!: HTMLCanvasElement;
 
   get compositor(): GraphicsRenderer | null {
     const parentView = this.parentView;
@@ -81,7 +81,7 @@ export class RasterView extends LayerView {
     }
   }
 
-  declare readonly renderer: GraphicsRenderer | null;
+  override readonly renderer!: GraphicsRenderer | null;
 
   setRenderer(renderer: AnyGraphicsRenderer | null): void {
     if (typeof renderer === "string") {
@@ -115,12 +115,12 @@ export class RasterView extends LayerView {
     }
   }
 
-  protected didRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
+  protected override didRequestUpdate(targetView: View, updateFlags: ViewFlags, immediate: boolean): void {
     super.didRequestUpdate(targetView, updateFlags, immediate);
     this.requireUpdate(View.NeedsRender | View.NeedsComposite);
   }
 
-  needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  override needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this.viewFlags & View.ProcessMask) !== 0 || (processFlags & View.NeedsResize) !== 0) {
       this.requireUpdate(View.NeedsRender | View.NeedsComposite);
     } else {
@@ -129,12 +129,12 @@ export class RasterView extends LayerView {
     return processFlags;
   }
 
-  protected onResize(viewContext: ViewContextType<this>): void {
+  protected override onResize(viewContext: ViewContextType<this>): void {
     super.onResize(viewContext);
     this.requireUpdate(View.NeedsLayout | View.NeedsRender | View.NeedsComposite);
   }
 
-  needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
+  override needsDisplay(displayFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {
     if ((this.viewFlags & View.DisplayMask) !== 0) {
       displayFlags |= View.NeedsRender | View.NeedsComposite;
     } else if ((displayFlags & View.NeedsComposite) !== 0) {
@@ -145,36 +145,36 @@ export class RasterView extends LayerView {
     return displayFlags;
   }
 
-  protected onLayout(viewContext: ViewContextType<this>): void {
+  protected override onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);
     this.resizeCanvas(this.canvas);
     this.resetRenderer();
   }
 
-  protected onRender(viewContext: ViewContextType<this>): void {
+  protected override onRender(viewContext: ViewContextType<this>): void {
     super.onRender(viewContext);
     this.clearCanvas();
   }
 
-  protected didComposite(viewContext: ViewContextType<this>): void {
+  protected override didComposite(viewContext: ViewContextType<this>): void {
     this.compositeImage(viewContext);
     super.didComposite(viewContext);
   }
 
-  protected onSetHidden(hidden: boolean): void {
+  protected override onSetHidden(hidden: boolean): void {
     if (!hidden) {
       this.requireUpdate(View.NeedsRender | View.NeedsComposite);
     }
   }
 
-  extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
+  override extendViewContext(viewContext: GraphicsViewContext): ViewContextType<this> {
     const rasterViewContext = Object.create(viewContext);
     rasterViewContext.compositor = viewContext.renderer;
     rasterViewContext.renderer = this.renderer;
     return rasterViewContext;
   }
 
-  declare readonly viewContext: RasterViewContext;
+  override readonly viewContext!: RasterViewContext;
 
   /** @hidden */
   get compositeFrame(): BoxR2 {
@@ -191,13 +191,13 @@ export class RasterView extends LayerView {
   }
 
   /** @hidden */
-  declare readonly rasterFrame: BoxR2;
+  readonly rasterFrame!: BoxR2;
 
-  get viewFrame(): BoxR2 {
+  override get viewFrame(): BoxR2 {
     return this.rasterFrame;
   }
 
-  setViewFrame(viewFrame: BoxR2 | null): void {
+  override setViewFrame(viewFrame: BoxR2 | null): void {
     Object.defineProperty(this, "ownViewFrame", {
       value: viewFrame,
       enumerable: true,
@@ -205,7 +205,7 @@ export class RasterView extends LayerView {
     });
   }
 
-  protected doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
+  protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     const compositeFrame = this.compositeFrame;
     x -= Math.floor(compositeFrame.xMin);
     y -= Math.floor(compositeFrame.yMin);
@@ -227,7 +227,7 @@ export class RasterView extends LayerView {
     return hit;
   }
 
-  get parentTransform(): Transform {
+  override get parentTransform(): Transform {
     const compositeFrame = this.compositeFrame;
     const dx = Math.floor(compositeFrame.xMin);
     const dy = Math.floor(compositeFrame.yMin);
@@ -300,11 +300,11 @@ export class RasterView extends LayerView {
     }
   }
 
-  static create(): RasterView {
+  static override create(): RasterView {
     return new RasterView();
   }
 
-  static readonly mountFlags: ViewFlags = LayerView.mountFlags | View.NeedsRender | View.NeedsComposite;
-  static readonly powerFlags: ViewFlags = LayerView.powerFlags | View.NeedsRender | View.NeedsComposite;
-  static readonly uncullFlags: ViewFlags = LayerView.uncullFlags | View.NeedsRender | View.NeedsComposite;
+  static override readonly mountFlags: ViewFlags = LayerView.mountFlags | View.NeedsRender | View.NeedsComposite;
+  static override readonly powerFlags: ViewFlags = LayerView.powerFlags | View.NeedsRender | View.NeedsComposite;
+  static override readonly uncullFlags: ViewFlags = LayerView.uncullFlags | View.NeedsRender | View.NeedsComposite;
 }

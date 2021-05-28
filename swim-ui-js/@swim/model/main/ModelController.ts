@@ -29,7 +29,7 @@ export class ModelController<M extends Model = Model> implements ModelObserver<M
     });
   }
 
-  declare readonly model: M | null;
+  readonly model!: M | null;
 
   setModel(model: M | null): void {
     this.willSetModel(model);

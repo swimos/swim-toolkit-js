@@ -21,7 +21,7 @@ export type ColHeader = ColHeaderFunction | string;
 export type ColHeaderFunction = (colTrait: ColTrait) => HtmlView | string | null;
 
 export class ColTrait extends GenericTrait {
-  declare readonly traitObservers: ReadonlyArray<ColTraitObserver>;
+  override readonly traitObservers!: ReadonlyArray<ColTraitObserver>;
 
   protected willSetLayout(newLayout: ColLayout | null, oldHeader: ColLayout | null): void {
     const traitObservers = this.traitObservers;
@@ -58,7 +58,7 @@ export class ColTrait extends GenericTrait {
       this.owner.didSetLayout(newLayout, oldLayout);
     },
   })
-  declare layout: TraitProperty<this, ColLayout | null, AnyColLayout | null>;
+  readonly layout!: TraitProperty<this, ColLayout | null, AnyColLayout | null>;
 
   protected willSetHeader(newHeader: ColHeader | null, oldHeader: ColHeader | null): void {
     const traitObservers = this.traitObservers;
@@ -94,5 +94,5 @@ export class ColTrait extends GenericTrait {
       this.owner.didSetHeader(newHeader, oldHeader);
     },
   })
-  declare header: TraitProperty<this, ColHeader | null>;
+  readonly header!: TraitProperty<this, ColHeader | null>;
 }

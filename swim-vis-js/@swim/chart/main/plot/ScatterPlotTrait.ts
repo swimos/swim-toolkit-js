@@ -16,5 +16,5 @@ import {PlotTrait} from "./PlotTrait";
 import type {ScatterPlotTraitObserver} from "./ScatterPlotTraitObserver";
 
 export class ScatterPlotTrait<X, Y> extends PlotTrait<X, Y> {
-  declare readonly traitObservers: ReadonlyArray<ScatterPlotTraitObserver<X, Y>>;
+  override readonly traitObservers!: ReadonlyArray<ScatterPlotTraitObserver<X, Y>>;
 }

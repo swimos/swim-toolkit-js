@@ -62,7 +62,7 @@ export class TextRun implements Graphics, Equals, Debug {
     });
   }
 
-  declare readonly text: string;
+  readonly text!: string;
 
   withText(text: string): TextRun {
     if (this.text === text) {
@@ -73,7 +73,7 @@ export class TextRun implements Graphics, Equals, Debug {
     }
   }
 
-  declare readonly font: Font | null;
+  readonly font!: Font | null;
 
   withFont(font: AnyFont | null): TextRun {
     if (font !== null) {
@@ -87,7 +87,7 @@ export class TextRun implements Graphics, Equals, Debug {
     }
   }
 
-  declare readonly textAlign: CanvasTextAlign | null;
+  readonly textAlign!: CanvasTextAlign | null;
 
   withTextAlign(textAlign: CanvasTextAlign | null): TextRun {
     if (this.textAlign === textAlign) {
@@ -98,7 +98,7 @@ export class TextRun implements Graphics, Equals, Debug {
     }
   }
 
-  declare readonly textBaseline: CanvasTextBaseline | null;
+  readonly textBaseline!: CanvasTextBaseline | null;
 
   withTextBaseline(textBaseline: CanvasTextBaseline | null): TextRun {
     if (this.textBaseline === textBaseline) {
@@ -109,7 +109,7 @@ export class TextRun implements Graphics, Equals, Debug {
     }
   }
 
-  declare readonly textOrigin: PointR2 | null;
+  readonly textOrigin!: PointR2 | null;
 
   withTextOrigin(textOrigin: AnyPointR2 | null): TextRun | null {
     if (textOrigin !== null) {
@@ -123,7 +123,7 @@ export class TextRun implements Graphics, Equals, Debug {
     }
   }
 
-  declare readonly textColor: Color | null;
+  readonly textColor!: Color | null;
 
   withTextColor(textColor: AnyColor | null): TextRun {
     if (textColor !== null) {

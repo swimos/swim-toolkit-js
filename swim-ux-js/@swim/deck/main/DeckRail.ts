@@ -52,15 +52,15 @@ export class DeckRail implements Equals, Equivalent, Debug {
     });
   }
 
-  declare readonly width: Length | null;
+  readonly width!: Length | null;
 
-  declare readonly left: Length | null;
+  readonly left!: Length | null;
 
-  declare readonly right: Length | null;
+  readonly right!: Length | null;
 
-  declare readonly spacing: Length | null;
+  readonly spacing!: Length | null;
 
-  declare readonly posts: ReadonlyArray<DeckPost>;
+  readonly posts!: ReadonlyArray<DeckPost>;
 
   lookupPost(key: string): number | undefined {
     const posts = this.posts;

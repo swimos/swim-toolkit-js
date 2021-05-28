@@ -21,7 +21,7 @@ import type {TickView} from "../tick/TickView";
 import {AxisOrientation, AnyAxisView, AxisViewInit, AxisView} from "./AxisView";
 
 export class LeftAxisView<Y> extends AxisView<Y> {
-  get orientation(): AxisOrientation {
+  override get orientation(): AxisOrientation {
     return "left";
   }
 
@@ -32,10 +32,10 @@ export class LeftAxisView<Y> extends AxisView<Y> {
     state: null,
     updateFlags: View.NeedsLayout,
   })
-  declare scale: ContinuousScaleAnimator<this, Y, number>;
+  override readonly scale!: ContinuousScaleAnimator<this, Y, number>;
 
-  protected layoutTick(tick: TickView<Y>, origin: PointR2, frame: BoxR2,
-                       scale: ContinuousScale<Y, number>): void {
+  protected override layoutTick(tick: TickView<Y>, origin: PointR2, frame: BoxR2,
+                                scale: ContinuousScale<Y, number>): void {
     if (tick.anchor.takesPrecedence(View.Intrinsic)) {
       const offset = scale(tick.value);
       tick.setOffset(offset);
@@ -43,7 +43,7 @@ export class LeftAxisView<Y> extends AxisView<Y> {
     }
   }
 
-  protected renderDomain(context: CanvasContext, origin: PointR2, frame: BoxR2): void {
+  protected override renderDomain(context: CanvasContext, origin: PointR2, frame: BoxR2): void {
     const borderColor = this.borderColor.value;
     const borderWidth = this.borderWidth.getValue();
     if (borderColor !== null && borderWidth !== 0) {
@@ -72,13 +72,13 @@ export class LeftAxisView<Y> extends AxisView<Y> {
     return new LeftAxisView<Y>();
   }
 
-  static fromInit<Y>(init: AxisViewInit<Y>): LeftAxisView<Y> {
+  static override fromInit<Y>(init: AxisViewInit<Y>): LeftAxisView<Y> {
     const view = new LeftAxisView<Y>();
     view.initView(init)
     return view;
   }
 
-  static fromAny<Y>(value: AnyAxisView<Y> | true): LeftAxisView<Y> {
+  static override fromAny<Y>(value: AnyAxisView<Y> | true): LeftAxisView<Y> {
     if (value instanceof LeftAxisView) {
       return value;
     } else if (value === true) {

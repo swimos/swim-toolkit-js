@@ -17,7 +17,7 @@ import {AnyColor, Color} from "@swim/style";
 import {Look} from "./Look";
 
 export class ColorLook extends Look<Color, AnyColor> {
-  combine(combination: Color | undefined, value: Color, weight?: number): Color {
+  override combine(combination: Color | undefined, value: Color, weight?: number): Color {
     if (combination !== void 0) {
       if (weight === void 0 || weight === 1) {
         return value;
@@ -33,11 +33,11 @@ export class ColorLook extends Look<Color, AnyColor> {
     }
   }
 
-  between(a: Color, b: Color): Interpolator<Color> {
+  override between(a: Color, b: Color): Interpolator<Color> {
     return a.interpolateTo(b);
   }
 
-  coerce(value: AnyColor): Color {
+  override coerce(value: AnyColor): Color {
     return Color.fromAny(value);
   }
 }
