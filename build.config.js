@@ -578,6 +578,17 @@ const maps = [
     ],
   },
   {
+    id: "leaflet",
+    name: "@swim/leaflet",
+    path: "swim-maps-js/@swim/leaflet",
+    targets: [
+      {
+        id: "main",
+        deps: ["util", "codec", "mapping", "collections", "constraint", "structure", "streamlet", "dataflow", "recon", "uri", "math", "geo", "time", "warp", "client", "model", "style", "theme", "view", "dom", "graphics", "component", "map"],
+      },
+    ],
+  },
+  {
     id: "googlemap",
     name: "@swim/googlemap",
     path: "swim-maps-js/@swim/googlemap",
@@ -608,7 +619,7 @@ const maps = [
     targets: [
       {
         id: "main",
-        deps: ["map", "mapbox", "googlemap", "esrimap"],
+        deps: ["map", "mapbox", "leaflet", "googlemap", "esrimap"],
       },
     ],
   },

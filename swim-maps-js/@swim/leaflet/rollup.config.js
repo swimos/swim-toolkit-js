@@ -1,7 +1,7 @@
 import nodeResolve from "@rollup/plugin-node-resolve";
 import sourcemaps from "rollup-plugin-sourcemaps";
 
-const script = "swim-maps";
+const script = "swim-leaflet";
 const namespace = "swim";
 
 const main = {
@@ -33,8 +33,8 @@ const main = {
       "@swim/dom": "swim",
       "@swim/graphics": "swim",
       "@swim/component": "swim",
+      "@swim/map": "swim",
       "leaflet": "L",
-      "mapbox-gl": "mapboxgl",
     },
     sourcemap: true,
     interop: false,
@@ -63,8 +63,8 @@ const main = {
     "@swim/dom",
     "@swim/graphics",
     "@swim/component",
+    "@swim/map",
     "leaflet",
-    "mapbox-gl",
   ],
   plugins: [
     nodeResolve({moduleDirectories: ["../..", "node_modules"]}),

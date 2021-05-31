@@ -12,8 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/map";
-export * from "@swim/mapbox";
-export * from "@swim/leaflet";
-export * from "@swim/googlemap";
-export * from "@swim/esrimap";
+import type {MapViewObserver} from "@swim/map";
+import type {LeafletViewport} from "./LeafletViewport";
+import type {LeafletView} from "./LeafletView";
+
+export interface LeafletViewObserver<V extends LeafletView = LeafletView> extends MapViewObserver<V> {
+  viewWillSetGeoViewport?(newGeoViewport: LeafletViewport, oldGeoViewport: LeafletViewport, view: V): void;
+
+  viewDidSetGeoViewport?(newGeoViewport: LeafletViewport, oldGeoViewport: LeafletViewport, view: V): void;
+
+  viewWillMoveMap?(view: V): void;
+
+  viewDidMoveMap?(view: V): void;
+}

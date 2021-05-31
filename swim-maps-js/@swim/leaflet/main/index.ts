@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "@swim/map";
-export * from "@swim/mapbox";
-export * from "@swim/leaflet";
-export * from "@swim/googlemap";
-export * from "@swim/esrimap";
+export {LeafletViewport} from "./LeafletViewport";
+
+export {LeafletView} from "./LeafletView";
+export {LeafletViewObserver} from "./LeafletViewObserver";
+export {LeafletViewController} from "./LeafletViewController";

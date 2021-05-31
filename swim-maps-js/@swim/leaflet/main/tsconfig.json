@@ -25,19 +25,33 @@
       "@swim/dom": ["../../../../swim-ui-js/@swim/dom/main"],
       "@swim/graphics": ["../../../../swim-ui-js/@swim/graphics/main"],
       "@swim/component": ["../../../../swim-ui-js/@swim/component/main"],
-      "@swim/map": ["../../map/main"],
-      "@swim/mapbox": ["../../mapbox/main"],
-      "@swim/leaflet": ["../../leaflet/main"],
-      "@swim/googlemap": ["../../googlemap/main"],
-      "@swim/esrimap": ["../../esrimap/main"]
+      "@swim/map": ["../../map/main"]
     },
     "tsBuildInfoFile": "../lib/main/.tsbuildinfo"
   },
   "references": [
-    {"path": "../../map/main"},
-    {"path": "../../mapbox/main"},
-    {"path": "../../leaflet/main"},
-    {"path": "../../googlemap/main"},
-    {"path": "../../esrimap/main"}
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/util/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/codec/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/mapping/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/collections/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/constraint/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/structure/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/streamlet/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/dataflow/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/recon/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/uri/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/math/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/geo/main"},
+    {"path": "../../../../../swim-system-js/swim-core-js/@swim/time/main"},
+    {"path": "../../../../../swim-system-js/swim-mesh-js/@swim/warp/main"},
+    {"path": "../../../../../swim-system-js/swim-mesh-js/@swim/client/main"},
+    {"path": "../../../../swim-ui-js/@swim/model/main"},
+    {"path": "../../../../swim-ui-js/@swim/style/main"},
+    {"path": "../../../../swim-ui-js/@swim/theme/main"},
+    {"path": "../../../../swim-ui-js/@swim/view/main"},
+    {"path": "../../../../swim-ui-js/@swim/dom/main"},
+    {"path": "../../../../swim-ui-js/@swim/graphics/main"},
+    {"path": "../../../../swim-ui-js/@swim/component/main"},
+    {"path": "../../map/main"}
   ]
 }

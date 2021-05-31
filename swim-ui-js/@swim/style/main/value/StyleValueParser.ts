@@ -75,7 +75,7 @@ export class StyleValueParser extends Parser<StyleValue> {
     }
     if (step === 2) {
       identOutput = identOutput || Unicode.stringOutput();
-      while (input.isCont() && (c = input.head(), Unicode.isAlpha(c) || c === 45/*'-'*/)) {
+      while (input.isCont() && (c = input.head(), Unicode.isAlpha(c) || Unicode.isDigit(c) || c === 45/*'-'*/)) {
         input = input.step();
         identOutput.write(c);
       }
@@ -115,6 +115,7 @@ export class StyleValueParser extends Parser<StyleValue> {
           case "xx-large":
           case "xx-small": return FontParser.parseRest(input, void 0, void 0, void 0, void 0, ident);
 
+          case "translate3d":
           case "translateX":
           case "translateY":
           case "translate": return TranslateTransformParser.parseRest(input, identOutput);
