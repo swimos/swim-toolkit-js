@@ -72,13 +72,6 @@ export abstract class GenericModel extends Model {
 
   protected willObserve<T>(callback: (this: this, modelObserver: ModelObserverType<this>) => T | void): T | undefined {
     let result: T | undefined;
-    const modelController = this.modelController;
-    if (modelController !== null) {
-      result = callback.call(this, modelController as ModelObserverType<this>) as T | undefined;
-      if (result !== void 0) {
-        return result;
-      }
-    }
     const modelObservers = this.modelObservers;
     for (let i = 0, n = modelObservers.length; i < n; i += 1) {
       const modelObserver = modelObservers[i]!;
@@ -96,13 +89,6 @@ export abstract class GenericModel extends Model {
     for (let i = 0, n = modelObservers.length; i < n; i += 1) {
       const modelObserver = modelObservers[i]!;
       result = callback.call(this, modelObserver as ModelObserverType<this>) as T | undefined;
-      if (result !== void 0) {
-        return result;
-      }
-    }
-    const modelController = this.modelController;
-    if (modelController !== null) {
-      result = callback.call(this, modelController as ModelObserverType<this>) as T | undefined;
       if (result !== void 0) {
         return result;
       }

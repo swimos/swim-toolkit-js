@@ -30,10 +30,6 @@ export {
   ModelObserver,
 } from "./ModelObserver";
 export {
-  ModelControllerType,
-  ModelController,
-} from "./ModelController";
-export {
   ModelConsumerType,
   ModelConsumer,
 } from "./ModelConsumer";
