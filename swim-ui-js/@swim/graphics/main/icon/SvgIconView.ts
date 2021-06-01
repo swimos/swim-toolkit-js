@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Timing} from "@swim/mapping";
-import {AnyLength, Length, BoxR2} from "@swim/math";
+import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
@@ -102,7 +102,7 @@ export class SvgIconView extends SvgView implements IconView {
     context.finalizeSvg();
   }
 
-  get iconBounds(): BoxR2 {
+  get iconBounds(): R2Box {
     let viewportElement = this.node.viewportElement;
     if (viewportElement === null) {
       viewportElement = this.node;
@@ -118,9 +118,9 @@ export class SvgIconView extends SvgView implements IconView {
       iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
       const x = viewBox.x + (viewWidth - iconWidth) * this.xAlign.getValue();
       const y = viewBox.y + (viewHeight - iconHeight) * this.yAlign.getValue();
-      return new BoxR2(x, y, x + iconWidth, y + iconHeight);
+      return new R2Box(x, y, x + iconWidth, y + iconHeight);
     } else {
-      return BoxR2.undefined();
+      return R2Box.undefined();
     }
   }
 

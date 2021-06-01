@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {BoxR2} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import type {ViewContext} from "@swim/view";
 
 export interface TreeViewContext extends ViewContext {
   /**
    * The current client viewport rectangle, translated into view coordinates.
    */
-  readonly visibleFrame: BoxR2;
+  readonly visibleFrame: R2Box;
 }

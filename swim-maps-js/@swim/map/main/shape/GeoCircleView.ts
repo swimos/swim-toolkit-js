@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length, AnyPointR2, PointR2, SegmentR2, BoxR2, CircleR2} from "@swim/math";
+import {AnyLength, Length, AnyR2Point, R2Point, R2Segment, R2Box, R2Circle} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
 import {ViewContextType, View, ViewProperty, ViewAnimator} from "@swim/view";
@@ -35,7 +35,7 @@ export type AnyGeoCircleView = GeoCircleView | GeoCircleViewInit;
 
 export interface GeoCircleViewInit extends GeoViewInit, FillViewInit, StrokeViewInit {
   geoCenter?: AnyGeoPoint;
-  viewCenter?: AnyPointR2;
+  viewCenter?: AnyR2Point;
   radius?: AnyLength;
   hitRadius?: number;
 }
@@ -121,8 +121,8 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
   })
   readonly geoCenter!: ViewAnimator<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @ViewAnimator({type: PointR2, state: PointR2.undefined()})
-  readonly viewCenter!: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
+  @ViewAnimator({type: R2Point, state: R2Point.undefined()})
+  readonly viewCenter!: ViewAnimator<this, R2Point | null, AnyR2Point | null>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
   readonly radius!: ViewAnimator<this, Length, AnyLength>;
@@ -169,8 +169,8 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
     const p0 = this.viewCenter.value;
     const p1 = this.viewCenter.state;
     if (p0 !== null && p1 !== null && (
-        viewFrame.intersectsCircle(new CircleR2(p0.x, p0.y, r)) ||
-        viewFrame.intersectsSegment(new SegmentR2(p0.x, p0.y, p1.x, p1.y)))) {
+        viewFrame.intersectsCircle(new R2Circle(p0.x, p0.y, r)) ||
+        viewFrame.intersectsSegment(new R2Segment(p0.x, p0.y, p1.x, p1.y)))) {
       this.setCulled(false);
     } else {
       this.setCulled(true);
@@ -188,7 +188,7 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
     }
   }
 
-  protected renderCircle(context: CanvasContext, frame: BoxR2): void {
+  protected renderCircle(context: CanvasContext, frame: R2Box): void {
     const viewCenter = this.viewCenter.value;
     if (viewCenter !== null && viewCenter.isDefined()) {
       const size = Math.min(frame.width, frame.height);
@@ -219,7 +219,7 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
     // nop
   }
 
-  override get popoverFrame(): BoxR2 {
+  override get popoverFrame(): R2Box {
     const viewCenter = this.viewCenter.value;
     const frame = this.viewFrame;
     if (viewCenter !== null && viewCenter.isDefined() && frame.isDefined()) {
@@ -228,22 +228,22 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
       const px = inversePageTransform.transformX(viewCenter.x, viewCenter.y);
       const py = inversePageTransform.transformY(viewCenter.x, viewCenter.y);
       const radius = this.radius.getValue().pxValue(size);
-      return new BoxR2(px - radius, py - radius, px + radius, py + radius);
+      return new R2Box(px - radius, py - radius, px + radius, py + radius);
     } else {
       return this.pageBounds;
     }
   }
 
-  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
+  declare readonly viewBounds: R2Box; // getter defined below to work around useDefineForClassFields lunacy
 
-  override get hitBounds(): BoxR2 {
+  override get hitBounds(): R2Box {
     const viewCenter = this.viewCenter.value;
     const frame = this.viewFrame;
     if (viewCenter !== null && viewCenter.isDefined() && frame.isDefined()) {
       const size = Math.min(frame.width, frame.height);
       const radius = this.radius.getValue().pxValue(size);
       const hitRadius = Math.max(this.hitRadius.getStateOr(radius), radius);
-      return new BoxR2(viewCenter.x - hitRadius, viewCenter.y - hitRadius,
+      return new R2Box(viewCenter.x - hitRadius, viewCenter.y - hitRadius,
                        viewCenter.x + hitRadius, viewCenter.y + hitRadius);
     } else {
       return this.viewBounds;
@@ -263,7 +263,7 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
   }
 
   protected hitTestCircle(x: number, y: number, context: CanvasContext,
-                          frame: BoxR2, pixelRatio: number): GraphicsView | null {
+                          frame: R2Box, pixelRatio: number): GraphicsView | null {
     const viewCenter = this.viewCenter.value;
     if (viewCenter !== null && viewCenter.isDefined()) {
       const size = Math.min(frame.width, frame.height);
@@ -322,13 +322,13 @@ export class GeoCircleView extends GeoLayerView implements FillView, StrokeView 
   }
 }
 Object.defineProperty(GeoCircleView.prototype, "viewBounds", {
-  get(this: GeoCircleView): BoxR2 {
+  get(this: GeoCircleView): R2Box {
     const viewCenter = this.viewCenter.value;
     const frame = this.viewFrame;
     if (viewCenter !== null && viewCenter.isDefined() && frame.isDefined()) {
       const size = Math.min(frame.width, frame.height);
       const radius = this.radius.getValue().pxValue(size);
-      return new BoxR2(viewCenter.x - radius, viewCenter.y - radius,
+      return new R2Box(viewCenter.x - radius, viewCenter.y - radius,
                        viewCenter.x + radius, viewCenter.y + radius);
     } else {
       return this.viewFrame;

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {AnyLength, Length, AnyAngle, Angle, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator, ViewFastener} from "@swim/view";
@@ -32,7 +32,7 @@ export type AnyPieView = PieView | PieViewInit;
 
 export interface PieViewInit extends GraphicsViewInit {
   limit?: number;
-  center?: AnyPointR2;
+  center?: AnyR2Point;
   baseAngle?: AnyAngle;
   innerRadius?: AnyLength;
   outerRadius?: AnyLength;
@@ -137,8 +137,8 @@ export class PieView extends LayerView {
   @ViewAnimator({type: Number, state: 0, updateFlags: View.NeedsLayout})
   readonly limit!: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: PointR2, state: PointR2.origin(), updateFlags: View.NeedsLayout})
-  readonly center!: ViewAnimator<this, PointR2, AnyPointR2>;
+  @ViewAnimator({type: R2Point, state: R2Point.origin(), updateFlags: View.NeedsLayout})
+  readonly center!: ViewAnimator<this, R2Point, AnyR2Point>;
 
   @ViewAnimator({type: Angle, state: Angle.rad(-Math.PI / 2), updateFlags: View.NeedsLayout})
   readonly baseAngle!: ViewAnimator<this, Angle, AnyAngle>;
@@ -464,11 +464,11 @@ export class PieView extends LayerView {
     this.layoutPie(this.viewFrame);
   }
 
-  protected layoutPie(frame: BoxR2): void {
+  protected layoutPie(frame: R2Box): void {
     if (this.center.takesPrecedence(View.Intrinsic)) {
       const cx = (frame.xMin + frame.xMax) / 2;
       const cy = (frame.yMin + frame.yMax) / 2;
-      this.center.setState(new PointR2(cx, cy), View.Intrinsic);
+      this.center.setState(new R2Point(cx, cy), View.Intrinsic);
     }
 
     const sliceFasteners = this.sliceFasteners;

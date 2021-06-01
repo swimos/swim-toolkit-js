@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {BoxR2} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import {GraphicsView, GraphicsViewController, CanvasContext, CanvasRenderer} from "@swim/graphics";
@@ -84,7 +84,7 @@ export class GraphView<X, Y> extends ScaledView<X, Y> {
     super.didRender(viewContext);
   }
 
-  protected clipGraph(context: CanvasContext, frame: BoxR2): void {
+  protected clipGraph(context: CanvasContext, frame: R2Box): void {
     context.beginPath();
     context.rect(frame.x, frame.y, frame.width, frame.height);
     context.clip();

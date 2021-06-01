@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {BoxR2} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import type {AnyTiming, ContinuousScale} from "@swim/mapping";
 import type {ViewContext} from "../ViewContext";
 import {View} from "../View";
@@ -166,7 +166,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     }
   }
 
-  protected clientToRangeX(clientX: number, xScale: ContinuousScale<X, number>, bounds: BoxR2): number {
+  protected clientToRangeX(clientX: number, xScale: ContinuousScale<X, number>, bounds: R2Box): number {
     const viewX = clientX - bounds.xMin;
     const xRange = xScale.range;
     if (xRange[0] <= xRange[1]) {
@@ -176,7 +176,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     }
   }
 
-  protected clientToRangeY(clientY: number, yScale: ContinuousScale<Y, number>, bounds: BoxR2): number {
+  protected clientToRangeY(clientY: number, yScale: ContinuousScale<Y, number>, bounds: R2Box): number {
     const viewY = clientY - bounds.yMin;
     const yRange = yScale.range;
     if (yRange[0] <= yRange[1]) {
@@ -186,11 +186,11 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
     }
   }
 
-  protected unscaleX(clientX: number, xScale: ContinuousScale<X, number>, bounds: BoxR2): X {
+  protected unscaleX(clientX: number, xScale: ContinuousScale<X, number>, bounds: R2Box): X {
     return xScale.inverse(this.clientToRangeX(clientX, xScale, bounds));
   }
 
-  protected unscaleY(clientY: number, yScale: ContinuousScale<Y, number>, bounds: BoxR2): Y {
+  protected unscaleY(clientY: number, yScale: ContinuousScale<Y, number>, bounds: R2Box): Y {
     return yScale.inverse(this.clientToRangeY(clientY, yScale, bounds));
   }
 
@@ -290,7 +290,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   protected updateInputDomain(input: ScaleGestureInput<X, Y>,
                               xScale?: ContinuousScale<X, number> | null,
                               yScale?: ContinuousScale<Y, number> | null,
-                              bounds?: BoxR2): void {
+                              bounds?: R2Box): void {
     if (xScale === void 0) {
       xScale = this.xScale();
     }
@@ -380,7 +380,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
                           oldYScale: ContinuousScale<Y, number>,
                           input0: ScaleGestureInput<X, Y>,
                           input1: ScaleGestureInput<X, Y>,
-                          bounds: BoxR2): void {
+                          bounds: R2Box): void {
     const x0 = input0.xCoord!;
     const y0 = input0.yCoord!;
     const px0 = this.clientToRangeX(input0.x0, oldXScale, bounds);
@@ -564,7 +564,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
                       oldYScale: ContinuousScale<Y, number>,
                       input0: ScaleGestureInput<X, Y>,
                       input1: ScaleGestureInput<X, Y> | undefined,
-                      bounds: BoxR2): void {
+                      bounds: R2Box): void {
     const x0 = input0.xCoord!;
     const y0 = input0.yCoord!;
     let sx0 = this.clientToRangeX(input0.x, oldXScale, bounds);
@@ -647,7 +647,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   protected rescaleX(oldXScale: ContinuousScale<X, number>,
                      input0: ScaleGestureInput<X, Y>,
                      input1: ScaleGestureInput<X, Y> | undefined,
-                     bounds: BoxR2): void {
+                     bounds: R2Box): void {
     const x0 = input0.xCoord!;
     let sx0 = this.clientToRangeX(input0.x, oldXScale, bounds);
     let sx1: number | undefined;
@@ -681,7 +681,7 @@ export class AbstractScaleGesture<X, Y, V extends View> extends AbstractMomentum
   protected rescaleY(oldYScale: ContinuousScale<Y, number>,
                      input0: ScaleGestureInput<X, Y>,
                      input1: ScaleGestureInput<X, Y> | undefined,
-                     bounds: BoxR2): void {
+                     bounds: R2Box): void {
     const y0 = input0.yCoord!;
     let sy0 = this.clientToRangeY(input0.y, oldYScale, bounds);
     let sy1: number | undefined;

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Arrays} from "@swim/util";
-import {BoxR2} from "@swim/math";
+import {R2Box} from "@swim/math";
 import {
   ViewContextType,
   ViewContext,
@@ -90,7 +90,7 @@ export class CanvasView extends HtmlView {
       configurable: true,
     });
     Object.defineProperty(this, "viewFrame", {
-      value: BoxR2.undefined(),
+      value: R2Box.undefined(),
       enumerable: true,
       configurable: true,
     });
@@ -1169,17 +1169,17 @@ export class CanvasView extends HtmlView {
   override readonly viewContext!: GraphicsViewContext;
 
   /** @hidden */
-  readonly viewFrame!: BoxR2;
+  readonly viewFrame!: R2Box;
 
-  setViewFrame(viewFrame: BoxR2 | null): void {
+  setViewFrame(viewFrame: R2Box | null): void {
     // nop
   }
 
-  get viewBounds(): BoxR2 {
+  get viewBounds(): R2Box {
     return this.viewFrame;
   }
 
-  get hitBounds(): BoxR2 {
+  get hitBounds(): R2Box {
     return this.viewFrame;
   }
 
@@ -1214,7 +1214,7 @@ export class CanvasView extends HtmlView {
   }
 
   /** @hidden */
-  protected detectHitTargets(clientBounds?: BoxR2): void {
+  protected detectHitTargets(clientBounds?: R2Box): void {
     if ((this.canvasFlags & CanvasView.MouseEventsFlag) !== 0) {
       const mouse = this.mouse;
       if (mouse !== null) {
@@ -1616,7 +1616,7 @@ export class CanvasView extends HtmlView {
   }
 
   /** @hidden */
-  protected detectMouseTarget(mouse: CanvasViewMouse, clientBounds: BoxR2): void {
+  protected detectMouseTarget(mouse: CanvasViewMouse, clientBounds: R2Box): void {
     const clientX = mouse.clientX!;
     const clientY = mouse.clientY!;
     if (clientBounds.contains(clientX, clientY)) {
@@ -1880,7 +1880,7 @@ export class CanvasView extends HtmlView {
   }
 
   /** @hidden */
-  protected detectPointerTarget(pointer: CanvasViewPointer, clientBounds: BoxR2): void {
+  protected detectPointerTarget(pointer: CanvasViewPointer, clientBounds: R2Box): void {
     const clientX = pointer.clientX!;
     const clientY = pointer.clientY!;
     if (clientBounds.contains(clientX, clientY)) {
@@ -1979,7 +1979,7 @@ export class CanvasView extends HtmlView {
 
   /** @hidden */
   protected onTouchStart(event: TouchEvent): void {
-    let clientBounds: BoxR2 | undefined;
+    let clientBounds: R2Box | undefined;
     let touches = this.touches;
     if (touches === null) {
       touches = {};
@@ -2157,7 +2157,7 @@ export class CanvasView extends HtmlView {
       pixelRatio = 1;
     }
     Object.defineProperty(this, "viewFrame", {
-      value: new BoxR2(0, 0, width, height),
+      value: new R2Box(0, 0, width, height),
       enumerable: true,
       configurable: true,
     });

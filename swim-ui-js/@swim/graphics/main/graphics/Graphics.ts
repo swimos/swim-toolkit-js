@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {BoxR2} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import type {GraphicsRenderer} from "./GraphicsRenderer";
 
 export interface Graphics {
-  render(renderer: GraphicsRenderer, frame: BoxR2): void;
+  render(renderer: GraphicsRenderer, frame: R2Box): void;
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {AnyPointR2, PointR2} from "@swim/math";
+import type {AnyR2Point, R2Point} from "@swim/math";
 import type {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import type {ViewAnimator} from "@swim/view";
 import {GraphicsViewInit, GraphicsView} from "../graphics/GraphicsView";
@@ -21,7 +21,7 @@ export interface TypesetViewInit extends GraphicsViewInit {
   font?: AnyFont;
   textAlign?: CanvasTextAlign;
   textBaseline?: CanvasTextBaseline;
-  textOrigin?: AnyPointR2;
+  textOrigin?: AnyR2Point;
   textColor?: AnyColor;
 }
 
@@ -32,7 +32,7 @@ export interface TypesetView extends GraphicsView {
 
   readonly textBaseline: ViewAnimator<this, CanvasTextBaseline | undefined>;
 
-  readonly textOrigin: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
+  readonly textOrigin: ViewAnimator<this, R2Point | null, AnyR2Point | null>;
 
   readonly textColor: ViewAnimator<this, Color | null, AnyColor | null>;
 }

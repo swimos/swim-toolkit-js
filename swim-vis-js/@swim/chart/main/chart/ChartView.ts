@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Range, AnyTiming, Timing, Easing, LinearRange} from "@swim/mapping";
-import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
+import {AnyLength, Length, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
@@ -663,7 +663,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
     super.updateScales();
   }
 
-  protected layoutChart(frame: BoxR2): void {
+  protected layoutChart(frame: R2Box): void {
     const gutterTop = this.gutterTop.getValue().pxValue(frame.height);
     const gutterRight = this.gutterRight.getValue().pxValue(frame.width);
     const gutterBottom = this.gutterBottom.getValue().pxValue(frame.height);
@@ -679,8 +679,8 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       const topFrame = topAxisView.viewFrame;
       if (topFrame.xMin !== graphLeft || topFrame.yMin !== frame.yMin ||
           topFrame.xMax !== graphRight || topFrame.yMax !== graphBottom) {
-        topAxisView.setViewFrame(new BoxR2(graphLeft, frame.yMin, graphRight, graphBottom));
-        topAxisView.origin.setState(new PointR2(graphLeft, graphTop), View.Intrinsic);
+        topAxisView.setViewFrame(new R2Box(graphLeft, frame.yMin, graphRight, graphBottom));
+        topAxisView.origin.setState(new R2Point(graphLeft, graphTop), View.Intrinsic);
         topAxisView.requireUpdate(View.NeedsLayout);
       }
     }
@@ -689,8 +689,8 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       const rightFrame = rightAxisView.viewFrame;
       if (rightFrame.xMin !== graphLeft || rightFrame.yMin !== graphTop ||
           rightFrame.xMax !== frame.xMax || rightFrame.yMax !== graphBottom) {
-        rightAxisView.setViewFrame(new BoxR2(graphLeft, graphTop, frame.xMax, graphBottom));
-        rightAxisView.origin.setState(new PointR2(Math.max(graphLeft, graphRight), graphBottom), View.Intrinsic);
+        rightAxisView.setViewFrame(new R2Box(graphLeft, graphTop, frame.xMax, graphBottom));
+        rightAxisView.origin.setState(new R2Point(Math.max(graphLeft, graphRight), graphBottom), View.Intrinsic);
         rightAxisView.requireUpdate(View.NeedsLayout);
       }
     }
@@ -699,8 +699,8 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       const bottomFrame = bottomAxisView.viewFrame;
       if (bottomFrame.xMin !== graphLeft || bottomFrame.yMin !== graphTop ||
           bottomFrame.xMax !== graphRight || bottomFrame.yMax !== frame.yMax) {
-        bottomAxisView.setViewFrame(new BoxR2(graphLeft, graphTop, graphRight, frame.yMax));
-        bottomAxisView.origin.setState(new PointR2(graphLeft, Math.max(graphTop, graphBottom)), View.Intrinsic);
+        bottomAxisView.setViewFrame(new R2Box(graphLeft, graphTop, graphRight, frame.yMax));
+        bottomAxisView.origin.setState(new R2Point(graphLeft, Math.max(graphTop, graphBottom)), View.Intrinsic);
         bottomAxisView.requireUpdate(View.NeedsLayout);
       }
     }
@@ -709,8 +709,8 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       const leftFrame = leftAxisView.viewFrame;
       if (leftFrame.xMin !== frame.xMin || leftFrame.yMin !== graphTop ||
           leftFrame.xMax !== graphRight || leftFrame.yMax !== graphBottom) {
-        leftAxisView.setViewFrame(new BoxR2(frame.xMin, graphTop, graphRight, graphBottom));
-        leftAxisView.origin.setState(new PointR2(graphLeft, graphBottom), View.Intrinsic);
+        leftAxisView.setViewFrame(new R2Box(frame.xMin, graphTop, graphRight, graphBottom));
+        leftAxisView.origin.setState(new R2Point(graphLeft, graphBottom), View.Intrinsic);
         leftAxisView.requireUpdate(View.NeedsLayout);
       }
     }
@@ -720,7 +720,7 @@ export class ChartView<X, Y> extends ScaledView<X, Y> {
       const graphFrame = graphView.viewFrame;
       if (graphFrame.xMin !== graphLeft || graphFrame.yMin !== graphTop ||
           graphFrame.xMax !== graphRight || graphFrame.yMax !== graphBottom) {
-        graphView.setViewFrame(new BoxR2(graphLeft, graphTop, graphRight, graphBottom));
+        graphView.setViewFrame(new R2Box(graphLeft, graphTop, graphRight, graphBottom));
         graphView.requireUpdate(View.NeedsLayout);
       }
     }

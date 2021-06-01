@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Timing} from "@swim/mapping";
-import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewAnimator, ViewFastener} from "@swim/view";
 import {
@@ -144,8 +144,8 @@ export abstract class TickView<D> extends LayerView {
   /** @hidden */
   readonly tickState!: TickState;
 
-  @ViewAnimator({type: PointR2, state: PointR2.origin()})
-  readonly anchor!: ViewAnimator<this, PointR2, AnyPointR2>;
+  @ViewAnimator({type: R2Point, state: R2Point.origin()})
+  readonly anchor!: ViewAnimator<this, R2Point, AnyR2Point>;
 
   @ViewAnimator({type: Number, state: 1})
   readonly opacity!: ViewAnimator<this, number>;
@@ -326,7 +326,7 @@ export abstract class TickView<D> extends LayerView {
 
   protected abstract layoutLabel(labelView: GraphicsView): void;
 
-  protected abstract renderTick(context: CanvasContext, frame: BoxR2): void;
+  protected abstract renderTick(context: CanvasContext, frame: R2Box): void;
 
   static top<D>(value: D): TopTickView<D> {
     return new TopTickView(value);

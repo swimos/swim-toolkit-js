@@ -14,7 +14,7 @@
 
 import type {Equals} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
-import {AnyLength, Length, BoxR2} from "@swim/math";
+import {AnyLength, Length, R2Box} from "@swim/math";
 import type {Graphics} from "../graphics/Graphics";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {DrawingContext} from "../drawing/DrawingContext";
@@ -95,8 +95,8 @@ export class Rect implements Graphics, Equals, Debug {
   }
 
   render(): string;
-  render(renderer: GraphicsRenderer, frame?: BoxR2): void;
-  render(renderer?: GraphicsRenderer, frame?: BoxR2): string | void {
+  render(renderer: GraphicsRenderer, frame?: R2Box): void;
+  render(renderer?: GraphicsRenderer, frame?: R2Box): string | void {
     if (renderer === void 0) {
       const context = new PathContext();
       context.setPrecision(3);
@@ -107,11 +107,11 @@ export class Rect implements Graphics, Equals, Debug {
     }
   }
 
-  draw(context: DrawingContext, frame: BoxR2 | null = null): void {
+  draw(context: DrawingContext, frame: R2Box | null = null): void {
     this.renderRect(context, frame);
   }
 
-  protected renderRect(context: DrawingContext, frame: BoxR2 | null): void {
+  protected renderRect(context: DrawingContext, frame: R2Box | null): void {
     context.rect(this.x.pxValue(), this.y.pxValue(),
                  this.width.pxValue(), this.height.pxValue());
   }

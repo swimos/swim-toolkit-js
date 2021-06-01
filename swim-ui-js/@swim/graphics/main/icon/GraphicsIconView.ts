@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {Timing} from "@swim/mapping";
-import {AnyLength, Length, BoxR2} from "@swim/math";
+import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import type {MoodVector, ThemeMatrix} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator} from "@swim/view";
@@ -89,7 +89,7 @@ export class GraphicsIconView extends LayerView implements IconView {
     }
   }
 
-  protected renderIcon(renderer: CanvasRenderer, frame: BoxR2): void {
+  protected renderIcon(renderer: CanvasRenderer, frame: R2Box): void {
     const graphics = this.graphics.value;
     if (graphics !== null) {
       const context = renderer.context;
@@ -98,7 +98,7 @@ export class GraphicsIconView extends LayerView implements IconView {
     }
   }
 
-  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
+  declare readonly viewBounds: R2Box; // getter defined below to work around useDefineForClassFields lunacy
 
   protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
@@ -114,7 +114,7 @@ export class GraphicsIconView extends LayerView implements IconView {
     return hit;
   }
 
-  protected hitTestIcon(x: number, y: number, renderer: CanvasRenderer, frame: BoxR2): GraphicsView | null {
+  protected hitTestIcon(x: number, y: number, renderer: CanvasRenderer, frame: R2Box): GraphicsView | null {
     // TODO: icon hit test mode
     if (this.hitBounds.contains(x, y)) {
       return this;
@@ -135,7 +135,7 @@ export class GraphicsIconView extends LayerView implements IconView {
   }
 }
 Object.defineProperty(GraphicsIconView.prototype, "viewBounds", {
-  get(this: GraphicsIconView): BoxR2 {
+  get(this: GraphicsIconView): R2Box {
     const viewFrame = this.viewFrame;
     const viewWidth = viewFrame.width;
     const viewHeight = viewFrame.height;
@@ -146,7 +146,7 @@ Object.defineProperty(GraphicsIconView.prototype, "viewBounds", {
     iconHeight = iconHeight instanceof Length ? iconHeight.pxValue(viewSize) : viewSize;
     const x = viewFrame.x + (viewWidth - iconWidth) * this.xAlign.getValue();
     const y = viewFrame.y + (viewHeight - iconHeight) * this.yAlign.getValue();
-    return new BoxR2(x, y, x + iconWidth, y + iconHeight);
+    return new R2Box(x, y, x + iconWidth, y + iconHeight);
   },
   enumerable: true,
   configurable: true,

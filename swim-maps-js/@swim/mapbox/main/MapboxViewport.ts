@@ -15,7 +15,7 @@
 /// <reference types="mapbox-gl"/>
 
 import type {Equals} from "@swim/util";
-import {AnyPointR2, PointR2} from "@swim/math";
+import {AnyR2Point, R2Point} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import type {GeoViewport} from "@swim/map";
 
@@ -60,9 +60,9 @@ export class MapboxViewport implements GeoViewport, Equals {
 
   readonly tilt!: number;
 
-  project(geoPoint: AnyGeoPoint): PointR2;
-  project(lng: number, lat: number): PointR2;
-  project(lng: AnyGeoPoint | number, lat?: number): PointR2 {
+  project(geoPoint: AnyGeoPoint): R2Point;
+  project(lng: number, lat: number): R2Point;
+  project(lng: AnyGeoPoint | number, lat?: number): R2Point {
     let geoPoint: mapboxgl.LngLatLike;
     if (typeof lng === "number") {
       geoPoint = new mapboxgl.LngLat(lng, lat!);
@@ -70,12 +70,12 @@ export class MapboxViewport implements GeoViewport, Equals {
       geoPoint = lng;
     }
     const point = this.map.project(geoPoint);
-    return new PointR2(point.x, point.y);
+    return new R2Point(point.x, point.y);
   }
 
-  unproject(viewPoint: AnyPointR2): GeoPoint;
+  unproject(viewPoint: AnyR2Point): GeoPoint;
   unproject(x: number, y: number): GeoPoint;
-  unproject(x: AnyPointR2 | number, y?: number): GeoPoint {
+  unproject(x: AnyR2Point | number, y?: number): GeoPoint {
     let viewPoint: mapboxgl.PointLike;
     if (typeof x === "number") {
       viewPoint = new mapboxgl.Point(x, y!);

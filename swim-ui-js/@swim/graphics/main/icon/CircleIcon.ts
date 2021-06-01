@@ -15,7 +15,7 @@
 import {Equals, Equivalent, Lazy} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import type {Interpolate, Interpolator} from "@swim/mapping";
-import type {BoxR2} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look, Feel, MoodVectorUpdates, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
@@ -103,7 +103,7 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
     }
   }
 
-  override render(renderer: GraphicsRenderer, frame: BoxR2): void {
+  override render(renderer: GraphicsRenderer, frame: R2Box): void {
     if (renderer instanceof PaintingRenderer) {
       this.paint(renderer.context, frame);
     } else if (renderer instanceof DrawingRenderer) {
@@ -111,7 +111,7 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
     }
   }
 
-  override paint(context: PaintingContext, frame: BoxR2): void {
+  override paint(context: PaintingContext, frame: R2Box): void {
     context.beginPath();
     this.draw(context, frame);
     if (this.fillColor !== null) {
@@ -120,7 +120,7 @@ export class CircleIcon extends FilledIcon implements Interpolate<CircleIcon>, E
     context.fill();
   }
 
-  override draw(context: DrawingContext, frame: BoxR2): void {
+  override draw(context: DrawingContext, frame: R2Box): void {
     const centerX = (frame.xMin + frame.xMax) / 2;
     const centerY = (frame.yMin + frame.yMax) / 2;
     const width = frame.width;

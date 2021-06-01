@@ -15,7 +15,7 @@
 import {Arrays} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
 import type {ConstraintVariable, Constraint} from "@swim/constraint";
-import {BoxR2, Transform} from "@swim/math";
+import {R2Box, Transform} from "@swim/math";
 import {Look, Feel, MoodVectorUpdates, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {
   ViewContextType,
@@ -622,7 +622,7 @@ export abstract class GraphicsView extends View {
     }
   }
 
-  cullViewFrame(viewFrame: BoxR2 = this.viewFrame): void {
+  cullViewFrame(viewFrame: R2Box = this.viewFrame): void {
     this.setCulled(!viewFrame.intersects(this.viewBounds));
   }
 
@@ -1580,20 +1580,20 @@ export abstract class GraphicsView extends View {
   override readonly viewContext!: GraphicsViewContext;
 
   /** @hidden */
-  readonly ownViewFrame!: BoxR2 | null;
+  readonly ownViewFrame!: R2Box | null;
 
   /**
    * The parent-specified view-coordinate bounding box in which this view
    * should layout and render graphics.
    */
-  get viewFrame(): BoxR2 {
+  get viewFrame(): R2Box {
     let viewFrame = this.ownViewFrame;
     if (viewFrame === null) {
       const parentView = this.parentView;
       if (parentView instanceof GraphicsView || parentView instanceof CanvasView) {
         viewFrame = parentView.viewFrame;
       } else {
-        viewFrame = BoxR2.undefined();
+        viewFrame = R2Box.undefined();
       }
     }
     return viewFrame;
@@ -1603,7 +1603,7 @@ export abstract class GraphicsView extends View {
    * Sets the view-coordinate bounding box in which this view should layout
    * and render graphics.  Should only be invoked by the view's parent view.
    */
-  setViewFrame(viewFrame: BoxR2 | null): void {
+  setViewFrame(viewFrame: R2Box | null): void {
     Object.defineProperty(this, "ownViewFrame", {
       value: viewFrame,
       enumerable: true,
@@ -1616,14 +1616,14 @@ export abstract class GraphicsView extends View {
    * this view could possibly render.  Views with view bounds that don't
    * overlap their view frames may be culled from rendering and hit testing.
    */
-  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
+  declare readonly viewBounds: R2Box; // getter defined below to work around useDefineForClassFields lunacy
 
-  get ownViewBounds(): BoxR2 | null {
+  get ownViewBounds(): R2Box | null {
     return null;
   }
 
-  deriveViewBounds(): BoxR2 {
-    let viewBounds: BoxR2 | null = this.ownViewBounds;
+  deriveViewBounds(): R2Box {
+    let viewBounds: R2Box | null = this.ownViewBounds;
     type self = this;
     function accumulateViewBounds(this: self, childView: View): void {
       if (childView instanceof GraphicsView && !childView.isHidden()) {
@@ -1648,12 +1648,12 @@ export abstract class GraphicsView extends View {
    * The self-defined view-coordinate bounding box surrounding all hit regions
    * in this view.
    */
-  get hitBounds(): BoxR2 {
+  get hitBounds(): R2Box {
     return this.viewBounds;
   }
 
-  deriveHitBounds(): BoxR2 {
-    let hitBounds: BoxR2 | undefined;
+  deriveHitBounds(): R2Box {
+    let hitBounds: R2Box | undefined;
     type self = this;
     function accumulateHitBounds(this: self, childView: View): void {
       if (childView instanceof GraphicsView && !childView.isHidden()) {
@@ -1701,12 +1701,12 @@ export abstract class GraphicsView extends View {
     return Transform.identity();
   }
 
-  override get clientBounds(): BoxR2 {
+  override get clientBounds(): R2Box {
     const inverseClientTransform = this.clientTransform.inverse();
     return this.viewBounds.transform(inverseClientTransform);
   }
 
-  override get popoverFrame(): BoxR2 {
+  override get popoverFrame(): R2Box {
     const inversePageTransform = this.pageTransform.inverse();
     return this.viewBounds.transform(inversePageTransform);
   }
@@ -2060,7 +2060,7 @@ Object.defineProperty(GraphicsView.prototype, "renderer", {
   configurable: true,
 });
 Object.defineProperty(GraphicsView.prototype, "viewBounds", {
-  get(this: GraphicsView): BoxR2 {
+  get(this: GraphicsView): R2Box {
     return this.viewFrame;
   },
   enumerable: true,

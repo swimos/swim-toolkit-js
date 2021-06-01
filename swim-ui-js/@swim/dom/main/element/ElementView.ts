@@ -14,7 +14,7 @@
 
 import {Arrays} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
-import {BoxR2} from "@swim/math";
+import {R2Box} from "@swim/math";
 import {Look, Feel, MoodVectorUpdates, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import {ToAttributeString, ToStyleString, ToCssValue} from "@swim/style";
 import {
@@ -759,16 +759,16 @@ export class ElementView extends NodeView implements StyleContext {
     }
   }
 
-  override get clientBounds(): BoxR2 {
+  override get clientBounds(): R2Box {
     const bounds = this.node.getBoundingClientRect();
-    return new BoxR2(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    return new R2Box(bounds.left, bounds.top, bounds.right, bounds.bottom);
   }
 
-  override get pageBounds(): BoxR2 {
+  override get pageBounds(): R2Box {
     const bounds = this.node.getBoundingClientRect();
     const scrollX = window.pageXOffset;
     const scrollY = window.pageYOffset;
-    return new BoxR2(bounds.left + scrollX, bounds.top + scrollY,
+    return new R2Box(bounds.left + scrollX, bounds.top + scrollY,
                      bounds.right + scrollX, bounds.bottom + scrollY);
   }
 

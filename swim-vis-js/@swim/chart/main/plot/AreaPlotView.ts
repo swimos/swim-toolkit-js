@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {BoxR2} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {ViewAnimator} from "@swim/view";
@@ -87,7 +87,7 @@ export class AreaPlotView<X, Y> extends SeriesPlotView<X, Y> implements FillView
   })
   readonly fill!: ViewAnimator<this, Color | null, AnyColor | null>;
 
-  protected renderPlot(context: CanvasContext, frame: BoxR2): void {
+  protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const fill = this.fill.getValueOr(Color.transparent());
     const gradientStops = this.gradientStops;
     let gradient: CanvasGradient | null = null;

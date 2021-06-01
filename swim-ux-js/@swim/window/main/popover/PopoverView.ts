@@ -14,7 +14,7 @@
 
 import {Arrays} from "@swim/util";
 import {AnyTiming, Timing} from "@swim/mapping";
-import {AnyLength, Length, AnyBoxR2, BoxR2} from "@swim/math";
+import {AnyLength, Length, AnyR2Box, R2Box} from "@swim/math";
 import {Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {
@@ -38,7 +38,7 @@ export interface PopoverViewInit extends HtmlViewInit {
   viewController?: PopoverViewController;
   source?: View;
   placement?: PopoverPlacement[];
-  placementFrame?: BoxR2;
+  placementFrame?: R2Box;
   arrowWidth?: AnyLength;
   arrowHeight?: AnyLength;
 }
@@ -374,17 +374,17 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   /** @hidden */
   readonly currentPlacement!: PopoverPlacement;
 
-  @ViewProperty<PopoverView, BoxR2 | null, AnyBoxR2 | null>({
-    type: BoxR2,
+  @ViewProperty<PopoverView, R2Box | null, AnyR2Box | null>({
+    type: R2Box,
     state: null,
-    didSetState(placementFrame: BoxR2 | null): void {
+    didSetState(placementFrame: R2Box | null): void {
       this.owner.place();
     },
-    fromAny(value: AnyBoxR2 | null): BoxR2 | null {
-      return value !== null ? BoxR2.fromAny(value) : null;
+    fromAny(value: AnyR2Box | null): R2Box | null {
+      return value !== null ? R2Box.fromAny(value) : null;
     },
   })
-  readonly placementFrame!: ViewProperty<this, BoxR2 | null, AnyBoxR2 | null>;
+  readonly placementFrame!: ViewProperty<this, R2Box | null, AnyR2Box | null>;
 
   @ViewProperty<PopoverView, boolean>({
     type: Boolean,
@@ -466,7 +466,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   /** @hidden */
-  readonly sourceFrame!: BoxR2 | null;
+  readonly sourceFrame!: R2Box | null;
 
   place(force: boolean = false): PopoverPlacement {
     const source = this.source;
@@ -491,7 +491,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   /** @hidden */
-  protected placePopover(source: View, sourceFrame: BoxR2): PopoverPlacement {
+  protected placePopover(source: View, sourceFrame: R2Box): PopoverPlacement {
     const node = this.node;
     const parent = node.offsetParent;
     if (parent === null) {
@@ -752,7 +752,7 @@ export class PopoverView extends HtmlView implements Modal, HtmlViewObserver {
   }
 
   /** @hidden */
-  protected placeArrow(source: View, sourceFrame: BoxR2, arrow: HtmlView,
+  protected placeArrow(source: View, sourceFrame: R2Box, arrow: HtmlView,
                        placement: PopoverPlacement): void {
     const node = this.node;
     const parent = node.offsetParent;

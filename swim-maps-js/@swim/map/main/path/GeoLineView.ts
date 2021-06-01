@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length, BoxR2} from "@swim/math";
+import {AnyLength, Length, R2Box} from "@swim/math";
 import type {GeoPath} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
 import {ViewContextType, View, ViewProperty, ViewAnimator} from "@swim/view";
@@ -162,7 +162,7 @@ export class GeoLineView extends GeoPathView implements StrokeView {
     }
   }
 
-  protected renderLine(context: CanvasContext, frame: BoxR2): void {
+  protected renderLine(context: CanvasContext, frame: R2Box): void {
     const viewPath = this.viewPath.value;
     if (viewPath !== null && viewPath.isDefined()) {
       context.beginPath();
@@ -194,7 +194,7 @@ export class GeoLineView extends GeoPathView implements StrokeView {
     return hit;
   }
 
-  protected hitTestLine(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
+  protected hitTestLine(x: number, y: number, context: CanvasContext, frame: R2Box): GraphicsView | null {
     const viewPath = this.viewPath.value;
     if (viewPath !== null && viewPath.isDefined()) {
       context.beginPath();

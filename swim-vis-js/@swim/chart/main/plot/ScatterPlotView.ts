@@ -14,7 +14,7 @@
 
 import {Equals, Values} from "@swim/util";
 import {Domain, Range, AnyTiming, LinearRange, ContinuousScale} from "@swim/mapping";
-import type {BoxR2} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {GraphicsView, GraphicsViewController, LayerView, CanvasContext, CanvasRenderer} from "@swim/graphics";
@@ -713,7 +713,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
   /**
    * Updates own scale ranges to project onto view frame.
    */
-  protected resizeScales(frame: BoxR2): void {
+  protected resizeScales(frame: R2Box): void {
     const xScale = !this.xScale.isInherited() ? this.xScale.ownValue : null;
     if (xScale !== null && xScale.range[1] !== frame.width) {
       this.xScale.setRange(0, frame.width);
@@ -824,7 +824,7 @@ export abstract class ScatterPlotView<X, Y> extends LayerView implements PlotVie
     super.didRender(viewContext);
   }
 
-  protected abstract renderPlot(context: CanvasContext, frame: BoxR2): void;
+  protected abstract renderPlot(context: CanvasContext, frame: R2Box): void;
 
   /** @hidden */
   protected override mountViewFasteners(): void {

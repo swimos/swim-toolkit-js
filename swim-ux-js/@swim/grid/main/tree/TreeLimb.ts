@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyTiming, Timing} from "@swim/mapping";
-import {Length, BoxR2} from "@swim/math";
+import {Length, R2Box} from "@swim/math";
 import {Look} from "@swim/theme";
 import {ViewContextType, ViewContext, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {HtmlViewConstructor, HtmlViewInit, HtmlView} from "@swim/dom";
@@ -40,7 +40,7 @@ export class TreeLimb extends HtmlView {
   constructor(node: HTMLElement) {
     super(node);
     Object.defineProperty(this, "visibleFrame", {
-      value: new BoxR2(0, 0, window.innerWidth, window.innerHeight),
+      value: new R2Box(0, 0, window.innerWidth, window.innerHeight),
       enumerable: true,
       configurable: true,
     });
@@ -354,22 +354,22 @@ export class TreeLimb extends HtmlView {
   }
 
   /** @hidden */
-  readonly visibleFrame!: BoxR2;
+  readonly visibleFrame!: R2Box;
 
-  protected detectVisibleFrame(viewContext: ViewContext): BoxR2 {
+  protected detectVisibleFrame(viewContext: ViewContext): R2Box {
     const xBleed = 0;
     const yBleed = 64;
-    const parentVisibleFrame = (viewContext as TreeViewContext).visibleFrame as BoxR2 | undefined;
+    const parentVisibleFrame = (viewContext as TreeViewContext).visibleFrame as R2Box | undefined;
     if (parentVisibleFrame !== void 0) {
       const left = this.left.state;
       const x = left instanceof Length ? left.pxValue() : 0;
       const top = this.top.state;
       const y = top instanceof Length ? top.pxValue() : 0;
-      return new BoxR2(parentVisibleFrame.xMin - x - xBleed, parentVisibleFrame.yMin - y - yBleed,
+      return new R2Box(parentVisibleFrame.xMin - x - xBleed, parentVisibleFrame.yMin - y - yBleed,
                        parentVisibleFrame.xMax - x + xBleed, parentVisibleFrame.yMax - y + yBleed);
     } else {
       const {x, y} = this.node.getBoundingClientRect();
-      return new BoxR2(-x - xBleed,
+      return new R2Box(-x - xBleed,
                        -y - yBleed,
                        window.innerWidth - x + xBleed,
                        window.innerHeight - y + yBleed);

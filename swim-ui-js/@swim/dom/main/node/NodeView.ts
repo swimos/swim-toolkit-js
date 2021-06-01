@@ -15,7 +15,7 @@
 import {Arrays} from "@swim/util";
 import type {AnyTiming} from "@swim/mapping";
 import type {ConstraintVariable, Constraint} from "@swim/constraint";
-import {BoxR2, Transform} from "@swim/math";
+import {R2Box, Transform} from "@swim/math";
 import type {Look, Feel, MoodVectorUpdates, MoodVector} from "@swim/theme";
 import {
   ViewContextType,
@@ -1720,22 +1720,22 @@ export class NodeView extends View {
     return Transform.identity();
   }
 
-  override get clientBounds(): BoxR2 {
+  override get clientBounds(): R2Box {
     const range = document.createRange();
     range.selectNode(this.node);
     const bounds = range.getBoundingClientRect();
     range.detach();
-    return new BoxR2(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    return new R2Box(bounds.left, bounds.top, bounds.right, bounds.bottom);
   }
 
-  override get pageBounds(): BoxR2 {
+  override get pageBounds(): R2Box {
     const range = document.createRange();
     range.selectNode(this.node);
     const bounds = range.getBoundingClientRect();
     range.detach();
     const scrollX = window.pageXOffset;
     const scrollY = window.pageYOffset;
-    return new BoxR2(bounds.left + scrollX, bounds.top + scrollY,
+    return new R2Box(bounds.left + scrollX, bounds.top + scrollY,
                      bounds.right + scrollX, bounds.bottom + scrollY);
   }
 

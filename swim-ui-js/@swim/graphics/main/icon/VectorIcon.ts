@@ -15,7 +15,7 @@
 import {Equals, Equivalent} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
 import type {Interpolate, Interpolator} from "@swim/mapping";
-import {BoxR2, AnyPathR2, PathR2, Transform} from "@swim/math";
+import {AnyR2Path, R2Path, R2Box, Transform} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look, Feel, MoodVectorUpdates, MoodVector, MoodMatrix, ThemeMatrix} from "@swim/theme";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
@@ -27,7 +27,7 @@ import {FilledIcon} from "./FilledIcon";
 import {VectorIconInterpolator} from "../"; // forward import
 
 export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, Equals, Equivalent, Debug {
-  constructor(path: PathR2, fillRule: PaintingFillRule, fillColor: Color | null,
+  constructor(path: R2Path, fillRule: PaintingFillRule, fillColor: Color | null,
               fillLook: Look<Color> | null, moodModifier: MoodMatrix | null) {
     super();
     Object.defineProperty(this, "path", {
@@ -52,7 +52,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     });
   }
 
-  readonly path!: PathR2;
+  readonly path!: R2Path;
 
   readonly fillRule!: PaintingFillRule;
 
@@ -128,7 +128,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     }
   }
 
-  override render(renderer: GraphicsRenderer, frame: BoxR2): void {
+  override render(renderer: GraphicsRenderer, frame: R2Box): void {
     if (renderer instanceof PaintingRenderer) {
       this.paint(renderer.context, frame);
     } else if (renderer instanceof DrawingRenderer) {
@@ -136,7 +136,7 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     }
   }
 
-  override paint(context: PaintingContext, frame: BoxR2): void {
+  override paint(context: PaintingContext, frame: R2Box): void {
     context.beginPath();
     this.draw(context, frame);
     if (this.fillColor !== null) {
@@ -145,12 +145,12 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     context.fill(this.fillRule);
   }
 
-  override draw(context: DrawingContext, frame: BoxR2): void {
+  override draw(context: DrawingContext, frame: R2Box): void {
     this.path.transformDraw(context, Transform.scale(frame.width, frame.height)
                                               .translate(frame.x, frame.y));
   }
 
-  protected copy(path: PathR2, fillRule: PaintingFillRule, fillColor: Color | null,
+  protected copy(path: R2Path, fillRule: PaintingFillRule, fillColor: Color | null,
                  fillLook: Look<Color> | null, moodModifier: MoodMatrix | null): VectorIcon {
     return new VectorIcon(path, fillRule, fillColor, fillLook, moodModifier);
   }
@@ -204,9 +204,9 @@ export class VectorIcon extends FilledIcon implements Interpolate<VectorIcon>, E
     return Format.debug(this);
   }
 
-  static create(width: number, height: number, path: AnyPathR2,
+  static create(width: number, height: number, path: AnyR2Path,
                 fillRule?: PaintingFillRule): VectorIcon {
-    path = PathR2.fromAny(path);
+    path = R2Path.fromAny(path);
     if (width !== 1 || height !== 1) {
       path = path.transform(Transform.scale(1 / width, 1 / height));
     }

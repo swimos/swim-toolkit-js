@@ -14,7 +14,7 @@
 
 import {Equals} from "@swim/util";
 import {Output, Debug, Format} from "@swim/codec";
-import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import type {GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {Graphics} from "../graphics/Graphics";
@@ -28,13 +28,13 @@ export interface TextRunInit {
   font?: AnyFont;
   textAlign?: CanvasTextAlign;
   textBaseline?: CanvasTextBaseline;
-  textOrigin?: AnyPointR2;
+  textOrigin?: AnyR2Point;
   textColor?: AnyColor;
 }
 
 export class TextRun implements Graphics, Equals, Debug {
   constructor(text: string, font: Font | null, textAlign: CanvasTextAlign | null,
-              textBaseline: CanvasTextBaseline | null, textOrigin: PointR2 | null,
+              textBaseline: CanvasTextBaseline | null, textOrigin: R2Point | null,
               textColor: Color | null) {
     Object.defineProperty(this, "text", {
       value: text,
@@ -109,17 +109,17 @@ export class TextRun implements Graphics, Equals, Debug {
     }
   }
 
-  readonly textOrigin!: PointR2 | null;
+  readonly textOrigin!: R2Point | null;
 
-  withTextOrigin(textOrigin: AnyPointR2 | null): TextRun | null {
+  withTextOrigin(textOrigin: AnyR2Point | null): TextRun | null {
     if (textOrigin !== null) {
-      textOrigin = PointR2.fromAny(textOrigin);
+      textOrigin = R2Point.fromAny(textOrigin);
     }
     if (Equals(this.textOrigin, textOrigin)) {
       return this;
     } else {
       return this.copy(this.text, this.font, this.textAlign,
-                       this.textBaseline, textOrigin as PointR2, this.textColor);
+                       this.textBaseline, textOrigin as R2Point, this.textColor);
     }
   }
 
@@ -137,17 +137,17 @@ export class TextRun implements Graphics, Equals, Debug {
     }
   }
 
-  render(renderer: GraphicsRenderer, frame: BoxR2): void {
+  render(renderer: GraphicsRenderer, frame: R2Box): void {
     if (renderer instanceof CanvasRenderer) {
       this.draw(renderer.context, frame);
     }
   }
 
-  draw(context: CanvasContext, frame: BoxR2): void {
+  draw(context: CanvasContext, frame: R2Box): void {
     this.renderText(context, frame);
   }
 
-  protected renderText(context: CanvasContext, frame: BoxR2): void {
+  protected renderText(context: CanvasContext, frame: R2Box): void {
     context.save();
     if (this.font !== null) {
       context.font = this.font.toString();
@@ -160,7 +160,7 @@ export class TextRun implements Graphics, Equals, Debug {
     }
     let textOrigin = this.textOrigin;
     if (textOrigin === null) {
-      textOrigin = PointR2.origin();
+      textOrigin = R2Point.origin();
     }
     if (this.textColor !== null) {
       context.fillStyle = this.textColor.toString();
@@ -170,7 +170,7 @@ export class TextRun implements Graphics, Equals, Debug {
   }
 
   protected copy(text: string, font: Font | null, textAlign: CanvasTextAlign | null,
-                 textBaseline: CanvasTextBaseline | null, textOrigin: PointR2 | null,
+                 textBaseline: CanvasTextBaseline | null, textOrigin: R2Point | null,
                  textColor: Color | null): TextRun {
     return new TextRun(text, font, textAlign, textBaseline, textOrigin, textColor);
   }
@@ -241,18 +241,18 @@ export class TextRun implements Graphics, Equals, Debug {
                 font: AnyFont | null = null,
                 textAlign: CanvasTextAlign | null = null,
                 textBaseline: CanvasTextBaseline | null = null,
-                textOrigin: AnyPointR2 | null = null,
+                textOrigin: AnyR2Point | null = null,
                 textColor: AnyColor | null = null): TextRun {
     if (font !== null) {
       font = Font.fromAny(font);
     }
     if (textOrigin !== null) {
-      textOrigin = PointR2.fromAny(textOrigin);
+      textOrigin = R2Point.fromAny(textOrigin);
     }
     if (textColor !== null) {
       textColor = Color.fromAny(textColor);
     }
-    return new TextRun(text, font, textAlign, textBaseline, textOrigin as PointR2, textColor);
+    return new TextRun(text, font, textAlign, textBaseline, textOrigin as R2Point, textColor);
   }
 
   static fromAny(value: AnyTextRun): TextRun {

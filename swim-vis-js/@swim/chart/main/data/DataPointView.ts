@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/mapping";
-import {AnyLength, Length, PointR2, BoxR2} from "@swim/math";
+import {AnyLength, Length, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
 import {
@@ -542,14 +542,14 @@ export class DataPointView<X, Y> extends LayerView {
     this.layoutDataPoint(this.viewFrame);
   }
 
-  protected layoutDataPoint(frame: BoxR2): void {
+  protected layoutDataPoint(frame: R2Box): void {
     const labelView = this.label.view;
     if (labelView !== null) {
       this.layoutLabel(labelView, frame);
     }
   }
 
-  protected layoutLabel(labelView: GraphicsView, frame: BoxR2): void {
+  protected layoutLabel(labelView: GraphicsView, frame: R2Box): void {
     let placement = this.labelPlacement.state;
     if (placement !== "above" && placement !== "below" && placement !== "middle") {
       const category = this.category.state;
@@ -580,7 +580,7 @@ export class DataPointView<X, Y> extends LayerView {
       } else if (placement === "middle") {
         labelView.textBaseline.setState("middle", View.Intrinsic);
       }
-      labelView.textOrigin.setState(new PointR2(x, y1), View.Intrinsic);
+      labelView.textOrigin.setState(new R2Point(x, y1), View.Intrinsic);
     }
   }
 
@@ -596,7 +596,7 @@ export class DataPointView<X, Y> extends LayerView {
     return hit;
   }
 
-  protected hitTestPoint(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
+  protected hitTestPoint(x: number, y: number, context: CanvasContext, frame: R2Box): GraphicsView | null {
     let hitRadius = this.hitRadius.state;
     const radius = this.radius.value;
     if (radius !== null) {

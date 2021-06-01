@@ -25,7 +25,7 @@ import {
   Constraint,
   ConstraintScope,
 } from "@swim/constraint";
-import {BoxR2, Transform} from "@swim/math";
+import {R2Box, Transform} from "@swim/math";
 import {Look, Feel, Mood, MoodVectorUpdates, MoodVector, ThemeMatrix} from "@swim/theme";
 import type {ViewContextType, ViewContext} from "./ViewContext";
 import type {
@@ -1477,7 +1477,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     }
   }
 
-  get pageBounds(): BoxR2 {
+  get pageBounds(): R2Box {
     const clientBounds = this.clientBounds;
     const clientTransform = this.clientTransform;
     return clientBounds.transform(clientTransform);
@@ -1487,7 +1487,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
    * Returns the bounding box, in page coordinates, the edges to which attached
    * popovers should point.
    */
-  get popoverFrame(): BoxR2 {
+  get popoverFrame(): R2Box {
     return this.pageBounds;
   }
 
@@ -1507,7 +1507,7 @@ export abstract class View implements AnimationTimeline, ConstraintScope {
     return clientTransform.transform(pageTransform);
   }
 
-  abstract readonly clientBounds: BoxR2;
+  abstract readonly clientBounds: R2Box;
 
   intersectsViewport(): boolean {
     const bounds = this.clientBounds;

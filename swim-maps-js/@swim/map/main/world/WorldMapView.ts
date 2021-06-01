@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/mapping";
-import {BoxR2} from "@swim/math";
+import {R2Box} from "@swim/math";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {CanvasView} from "@swim/graphics";
@@ -130,7 +130,7 @@ export class WorldMapView extends MapView {
 
   static create(geoViewport?: WorldMapViewport): WorldMapView {
     if (geoViewport === void 0) {
-      geoViewport = new EquirectangularMapViewport(BoxR2.undefined());
+      geoViewport = new EquirectangularMapViewport(R2Box.undefined());
     }
     return new WorldMapView(geoViewport);
   }

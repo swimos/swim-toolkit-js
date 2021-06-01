@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {BoxR2} from "@swim/math";
+import type {R2Box} from "@swim/math";
 import {GeoBox} from "@swim/geo";
 import {ViewContextType, ViewFlags, View} from "@swim/view";
 import {GraphicsView} from "@swim/graphics";
@@ -462,8 +462,8 @@ export class GeoLayerView extends GeoView {
     return geoBounds;
   }
 
-  override deriveViewBounds(): BoxR2 {
-    let viewBounds: BoxR2 | null = this.ownViewBounds;
+  override deriveViewBounds(): R2Box {
+    let viewBounds: R2Box | null = this.ownViewBounds;
     const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
       const childView = childViews[i]!;
@@ -484,8 +484,8 @@ export class GeoLayerView extends GeoView {
     return viewBounds;
   }
 
-  override deriveHitBounds(): BoxR2 {
-    let hitBounds: BoxR2 | undefined;
+  override deriveHitBounds(): R2Box {
+    let hitBounds: R2Box | undefined;
     const childViews = this.childViews;
     for (let i = 0, n = childViews.length; i < n; i += 1) {
       const childView = childViews[i]!;

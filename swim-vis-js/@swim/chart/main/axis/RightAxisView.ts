@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ContinuousScale} from "@swim/mapping";
-import {PointR2, BoxR2} from "@swim/math";
+import {R2Point, R2Box} from "@swim/math";
 import {View, ViewAnimator} from "@swim/view";
 import type {CanvasContext} from "@swim/graphics";
 import {ContinuousScaleAnimator} from "../scaled/ContinuousScaleAnimator";
@@ -34,16 +34,16 @@ export class RightAxisView<Y> extends AxisView<Y> {
   })
   override readonly scale!: ContinuousScaleAnimator<this, Y, number>;
 
-  protected override layoutTick(tick: TickView<Y>, origin: PointR2, frame: BoxR2,
+  protected override layoutTick(tick: TickView<Y>, origin: R2Point, frame: R2Box,
                                 scale: ContinuousScale<Y, number>): void {
     if (tick.anchor.takesPrecedence(View.Intrinsic)) {
       const offset = scale(tick.value);
       tick.setOffset(offset);
-      tick.anchor.setState(new PointR2(origin.x, frame.yMin + offset), View.Intrinsic);
+      tick.anchor.setState(new R2Point(origin.x, frame.yMin + offset), View.Intrinsic);
     }
   }
 
-  protected override renderDomain(context: CanvasContext, origin: PointR2, frame: BoxR2): void {
+  protected override renderDomain(context: CanvasContext, origin: R2Point, frame: R2Box): void {
     const borderColor = this.borderColor.value;
     const borderWidth = this.borderWidth.getValue();
     if (borderColor !== null && borderWidth !== 0) {

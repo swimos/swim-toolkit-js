@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/mapping";
-import {AnyLength, Length, AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {AnyLength, Length, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyGeoPoint, GeoPointInit, GeoPointTuple, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
@@ -113,8 +113,8 @@ export class GeoPointView extends GeoLayerView {
   })
   readonly geoPoint!: ViewAnimator<this, GeoPoint, AnyGeoPoint>;
 
-  @ViewAnimator({type: PointR2, state: PointR2.origin()})
-  readonly viewPoint!: ViewAnimator<this, PointR2, AnyPointR2>;
+  @ViewAnimator({type: R2Point, state: R2Point.origin()})
+  readonly viewPoint!: ViewAnimator<this, R2Point, AnyR2Point>;
 
   @ViewAnimator({type: Length, state: null})
   readonly radius!: ViewAnimator<this, Length | null, AnyLength | null>;
@@ -233,7 +233,7 @@ export class GeoPointView extends GeoLayerView {
     if (init.lng !== void 0 && init.lat !== void 0) {
       this.geoPoint(new GeoPoint(init.lng, init.lat), timing);
     } else if (init.x !== void 0 && init.y !== void 0) {
-      this.viewPoint(new PointR2(init.x, init.y), timing);
+      this.viewPoint(new R2Point(init.x, init.y), timing);
     }
 
     if (init.radius !== void 0) {
@@ -303,7 +303,7 @@ export class GeoPointView extends GeoLayerView {
     }
   }
 
-  protected layoutLabel(labelView: GraphicsView, frame: BoxR2): void {
+  protected layoutLabel(labelView: GraphicsView, frame: R2Box): void {
     const placement = this.labelPlacement.state;
     // TODO: auto placement
 
@@ -320,7 +320,7 @@ export class GeoPointView extends GeoLayerView {
     if (TypesetView.is(labelView)) {
       labelView.textAlign.setState("center", View.Intrinsic);
       labelView.textBaseline.setState("bottom", View.Intrinsic);
-      labelView.textOrigin.setState(new PointR2(x, y1), View.Intrinsic);
+      labelView.textOrigin.setState(new R2Point(x, y1), View.Intrinsic);
     }
   }
 
@@ -328,12 +328,12 @@ export class GeoPointView extends GeoLayerView {
     // nop
   }
 
-  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
+  declare readonly viewBounds: R2Box; // getter defined below to work around useDefineForClassFields lunacy
 
-  override get hitBounds(): BoxR2 {
+  override get hitBounds(): R2Box {
     const {x, y} = this.viewPoint.getValue();
     const hitRadius = this.hitRadius.getStateOr(0);
-    return new BoxR2(x - hitRadius, y - hitRadius, x + hitRadius, y + hitRadius);
+    return new R2Box(x - hitRadius, y - hitRadius, x + hitRadius, y + hitRadius);
   }
 
   protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
@@ -348,7 +348,7 @@ export class GeoPointView extends GeoLayerView {
     return hit;
   }
 
-  protected hitTestPoint(hx: number, hy: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
+  protected hitTestPoint(hx: number, hy: number, context: CanvasContext, frame: R2Box): GraphicsView | null {
     const {x, y} = this.viewPoint.getValue();
     const radius = this.radius.value;
 
@@ -427,9 +427,9 @@ export class GeoPointView extends GeoLayerView {
   }
 }
 Object.defineProperty(GeoPointView.prototype, "viewBounds", {
-  get(this: GeoPointView): BoxR2 {
+  get(this: GeoPointView): R2Box {
     const {x, y} = this.viewPoint.getValue();
-    return new BoxR2(x, y, x, y);
+    return new R2Box(x, y, x, y);
   },
   enumerable: true,
   configurable: true,

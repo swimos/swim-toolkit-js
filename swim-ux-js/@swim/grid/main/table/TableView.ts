@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length, BoxR2} from "@swim/math";
+import {AnyLength, Length, R2Box} from "@swim/math";
 import {Look} from "@swim/theme";
 import {ViewContextType, ViewFlags, View, ViewEdgeInsets, ViewProperty, ViewFastener} from "@swim/view";
 import {HtmlView, HtmlViewController} from "@swim/dom";
@@ -33,7 +33,7 @@ export class TableView extends HtmlView {
       configurable: true,
     });
     Object.defineProperty(this, "visibleFrame", {
-      value: new BoxR2(0, 0, window.innerWidth, window.innerHeight),
+      value: new R2Box(0, 0, window.innerWidth, window.innerHeight),
       enumerable: true,
       configurable: true,
     });
@@ -219,9 +219,9 @@ export class TableView extends HtmlView {
   readonly visibleViews!: ReadonlyArray<View>;
 
   /** @hidden */
-  readonly visibleFrame!: BoxR2;
+  readonly visibleFrame!: R2Box;
 
-  protected detectVisibleFrame(): BoxR2 {
+  protected detectVisibleFrame(): R2Box {
     const xBleed = 0;
     const yBleed = 64;
     const bounds = this.node.getBoundingClientRect();
@@ -229,7 +229,7 @@ export class TableView extends HtmlView {
     const yMin = -bounds.y - yBleed;
     const xMax = window.innerWidth - bounds.x + xBleed;
     const yMax = window.innerHeight - bounds.y + yBleed;
-    return new BoxR2(xMin, yMin, xMax, yMax);
+    return new R2Box(xMin, yMin, xMax, yMax);
   }
 
   override needsProcess(processFlags: ViewFlags, viewContext: ViewContextType<this>): ViewFlags {

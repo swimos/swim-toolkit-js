@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyTiming, Timing} from "@swim/mapping";
-import {Length, BoxR2} from "@swim/math";
+import {Length, R2Box} from "@swim/math";
 import type {Color} from "@swim/style";
 import {Look, Feel, MoodVector, ThemeMatrix} from "@swim/theme";
 import {
@@ -624,7 +624,7 @@ export class TokenView extends HtmlView {
       context.closePath();
       if (icon !== null && !this.icon.embossed) {
         const renderer = new PathRenderer(context);
-        const frame = new BoxR2(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
+        const frame = new R2Box(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
         icon.render(renderer, frame);
         this.headIcon.removeView();
       }
@@ -636,7 +636,7 @@ export class TokenView extends HtmlView {
         const context = new PathContext();
         context.setPrecision(3);
         const renderer = new PathRenderer(context);
-        const frame = new BoxR2(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
+        const frame = new R2Box(paddingLeft, paddingTop, paddingLeft + tokenHeight, paddingTop + tokenHeight);
         icon.render(renderer, frame);
         headIconView.d.setState(context.toString(), View.Intrinsic);
         this.headIcon.injectView();
@@ -669,7 +669,7 @@ export class TokenView extends HtmlView {
         context.closePath();
         if (accessoryIcon !== null && !this.accessory.embossed) {
           const renderer = new PathRenderer(context);
-          const frame = new BoxR2(paddingLeft + bodyRight + gap, paddingTop, paddingLeft + bodyRight + gap + 2 * radius, paddingTop + 2 * radius);
+          const frame = new R2Box(paddingLeft + bodyRight + gap, paddingTop, paddingLeft + bodyRight + gap + 2 * radius, paddingTop + 2 * radius);
           accessoryIcon.render(renderer, frame);
           this.headIcon.removeView();
         }
@@ -683,7 +683,7 @@ export class TokenView extends HtmlView {
         context.setPrecision(3);
         if (expandedPhase !== 0) {
           const renderer = new PathRenderer(context);
-          const frame = new BoxR2(paddingLeft + bodyRight + gap, paddingTop, paddingLeft + bodyRight + gap + tokenHeight, paddingTop + tokenHeight);
+          const frame = new R2Box(paddingLeft + bodyRight + gap, paddingTop, paddingLeft + bodyRight + gap + tokenHeight, paddingTop + tokenHeight);
           accessoryIcon.render(renderer, frame);
         }
         footIconView.d.setState(context.toString(), View.Intrinsic);

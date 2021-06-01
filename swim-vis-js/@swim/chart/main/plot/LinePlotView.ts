@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length, BoxR2} from "@swim/math";
+import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {View, ViewProperty, ViewAnimator, ViewFastener} from "@swim/view";
@@ -151,7 +151,7 @@ export class LinePlotView<X, Y> extends SeriesPlotView<X, Y> implements StrokeVi
   @ViewProperty({type: Number, state: 5})
   readonly hitWidth!: ViewProperty<this, number>;
 
-  protected renderPlot(context: CanvasContext, frame: BoxR2): void {
+  protected renderPlot(context: CanvasContext, frame: R2Box): void {
     const size = Math.min(frame.width, frame.height);
     const stroke = this.stroke.getValueOr(Color.transparent());
     const strokeWidth = this.strokeWidth.getValueOr(Length.zero()).pxValue(size);

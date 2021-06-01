@@ -14,7 +14,7 @@
 
 import {AnyTiming, Timing, Easing, ContinuousScale} from "@swim/mapping";
 import {BTree} from "@swim/collections";
-import {AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewFlags, View, ViewProperty, ViewAnimator} from "@swim/view";
 import {
@@ -179,8 +179,8 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
   @ViewProperty({type: TickGenerator, state: true})
   readonly tickGenerator!: ViewProperty<this, TickGenerator<D> | true | null>;
 
-  @ViewAnimator({type: PointR2, state: PointR2.origin()})
-  readonly origin!: ViewAnimator<this, PointR2, AnyPointR2>;
+  @ViewAnimator({type: R2Point, state: R2Point.origin()})
+  readonly origin!: ViewAnimator<this, R2Point, AnyR2Point>;
 
   @ViewAnimator({type: Color, inherit: true, state: null})
   readonly borderColor!: ViewAnimator<this, Color | null, AnyColor | null>;
@@ -479,7 +479,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     }
   }
 
-  protected abstract layoutTick(tick: TickView<D>, origin: PointR2, frame: BoxR2,
+  protected abstract layoutTick(tick: TickView<D>, origin: R2Point, frame: R2Box,
                                 scale: ContinuousScale<D, number>): void;
 
   protected override willRender(viewContext: ViewContextType<this>): void {
@@ -501,7 +501,7 @@ export abstract class AxisView<D = unknown> extends GraphicsView {
     super.didRender(viewContext);
   }
 
-  protected abstract renderDomain(context: CanvasContext, origin: PointR2, frame: BoxR2): void;
+  protected abstract renderDomain(context: CanvasContext, origin: R2Point, frame: R2Box): void;
 
   static fromInit<D>(init: AxisViewInit<D>): AxisView<D> {
     const orientation = init.orientation;

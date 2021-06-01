@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2, Transform} from "@swim/math";
+import {R2Box, Transform} from "@swim/math";
 import {ViewContextType, ViewFlags, View, ViewAnimator} from "@swim/view";
 import type {AnyGraphicsRenderer, GraphicsRendererType, GraphicsRenderer} from "../graphics/GraphicsRenderer";
 import type {GraphicsViewContext} from "../graphics/GraphicsViewContext";
@@ -43,7 +43,7 @@ export class RasterView extends LayerView {
       configurable: true,
     });
     Object.defineProperty(this, "rasterFrame", {
-      value: BoxR2.undefined(),
+      value: R2Box.undefined(),
       enumerable: true,
       configurable: true,
     });
@@ -177,27 +177,27 @@ export class RasterView extends LayerView {
   override readonly viewContext!: RasterViewContext;
 
   /** @hidden */
-  get compositeFrame(): BoxR2 {
+  get compositeFrame(): R2Box {
     let viewFrame = this.ownViewFrame;
     if (viewFrame === null) {
       const parentView = this.parentView;
       if (parentView instanceof GraphicsView || parentView instanceof CanvasView) {
         viewFrame = parentView.viewFrame;
       } else {
-        viewFrame = BoxR2.undefined();
+        viewFrame = R2Box.undefined();
       }
     }
     return viewFrame;
   }
 
   /** @hidden */
-  readonly rasterFrame!: BoxR2;
+  readonly rasterFrame!: R2Box;
 
-  override get viewFrame(): BoxR2 {
+  override get viewFrame(): R2Box {
     return this.rasterFrame;
   }
 
-  override setViewFrame(viewFrame: BoxR2 | null): void {
+  override setViewFrame(viewFrame: R2Box | null): void {
     Object.defineProperty(this, "ownViewFrame", {
       value: viewFrame,
       enumerable: true,
@@ -247,7 +247,7 @@ export class RasterView extends LayerView {
     const yMin = compositeFrame.yMin - Math.floor(compositeFrame.yMin);
     const xMax = Math.ceil(xMin + compositeFrame.width);
     const yMax = Math.ceil(yMin + compositeFrame.height);
-    const rasterFrame = new BoxR2(xMin, yMin, xMax, yMax);
+    const rasterFrame = new R2Box(xMin, yMin, xMax, yMax);
     if (!this.rasterFrame.equals(rasterFrame)) {
       const pixelRatio = this.pixelRatio;
       canvas.width = xMax * pixelRatio;

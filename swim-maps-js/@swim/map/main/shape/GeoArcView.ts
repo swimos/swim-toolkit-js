@@ -17,11 +17,11 @@ import {
   Length,
   AnyAngle,
   Angle,
-  AnyPointR2,
-  PointR2,
-  SegmentR2,
-  BoxR2,
-  CircleR2,
+  AnyR2Point,
+  R2Point,
+  R2Segment,
+  R2Box,
+  R2Circle,
 } from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
@@ -46,7 +46,7 @@ export type AnyGeoArcView = GeoArcView | GeoArcViewInit;
 
 export interface GeoArcViewInit extends GeoViewInit, FillViewInit, StrokeViewInit {
   geoCenter?: AnyGeoPoint;
-  viewCenter?: PointR2;
+  viewCenter?: R2Point;
   innerRadius?: AnyLength;
   outerRadius?: AnyLength;
   startAngle?: AnyAngle;
@@ -152,8 +152,8 @@ export class GeoArcView extends GeoLayerView implements FillView, StrokeView {
   })
   readonly geoCenter!: ViewAnimator<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @ViewAnimator({type: PointR2, state: PointR2.undefined()})
-  readonly viewCenter!: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
+  @ViewAnimator({type: R2Point, state: R2Point.undefined()})
+  readonly viewCenter!: ViewAnimator<this, R2Point | null, AnyR2Point | null>;
 
   @ViewAnimator({type: Length, state: Length.zero()})
   readonly innerRadius!: ViewAnimator<this, Length, AnyLength>;
@@ -237,8 +237,8 @@ export class GeoArcView extends GeoLayerView implements FillView, StrokeView {
     const p0 = this.viewCenter.value;
     const p1 = this.viewCenter.state;
     if (p0 !== null && p1 !== null && (
-        viewFrame.intersectsCircle(new CircleR2(p0.x, p0.y, r)) ||
-        viewFrame.intersectsSegment(new SegmentR2(p0.x, p0.y, p1.x, p1.y)))) {
+        viewFrame.intersectsCircle(new R2Circle(p0.x, p0.y, r)) ||
+        viewFrame.intersectsSegment(new R2Segment(p0.x, p0.y, p1.x, p1.y)))) {
       this.setCulled(false);
     } else {
       this.setCulled(true);
@@ -256,7 +256,7 @@ export class GeoArcView extends GeoLayerView implements FillView, StrokeView {
     }
   }
 
-  protected renderArc(context: CanvasContext, frame: BoxR2): void {
+  protected renderArc(context: CanvasContext, frame: R2Box): void {
     const arc = this.value;
     if (arc !== null && frame.isDefined()) {
       arc.draw(context, frame);
@@ -282,7 +282,7 @@ export class GeoArcView extends GeoLayerView implements FillView, StrokeView {
     // nop
   }
 
-  override get popoverFrame(): BoxR2 {
+  override get popoverFrame(): R2Box {
     const viewCenter = this.viewCenter.value;
     const frame = this.viewFrame;
     if (viewCenter !== null && viewCenter.isDefined() && frame.isDefined()) {
@@ -294,13 +294,13 @@ export class GeoArcView extends GeoLayerView implements FillView, StrokeView {
       const a = this.startAngle.getValue().radValue() + this.sweepAngle.getValue().radValue() / 2;
       const x = px + r * Math.cos(a);
       const y = py + r * Math.sin(a);
-      return new BoxR2(x, y, x, y);
+      return new R2Box(x, y, x, y);
     } else {
       return this.pageBounds;
     }
   }
 
-  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
+  declare readonly viewBounds: R2Box; // getter defined below to work around useDefineForClassFields lunacy
 
   protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
@@ -318,7 +318,7 @@ export class GeoArcView extends GeoLayerView implements FillView, StrokeView {
     return hit;
   }
 
-  protected hitTestArc(x: number, y: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
+  protected hitTestArc(x: number, y: number, context: CanvasContext, frame: R2Box): GraphicsView | null {
     const arc = this.value;
     if (arc !== null) {
       context.beginPath();
@@ -363,13 +363,13 @@ export class GeoArcView extends GeoLayerView implements FillView, StrokeView {
   }
 }
 Object.defineProperty(GeoArcView.prototype, "viewBounds", {
-  get(this: GeoArcView): BoxR2 {
+  get(this: GeoArcView): R2Box {
     const viewCenter = this.viewCenter.value;
     const frame = this.viewFrame;
     if (viewCenter !== null && viewCenter.isDefined() && frame.isDefined()) {
       const size = Math.min(frame.width, frame.height);
       const radius = this.outerRadius.getValue().pxValue(size);
-      return new BoxR2(viewCenter.x - radius, viewCenter.y - radius,
+      return new R2Box(viewCenter.x - radius, viewCenter.y - radius,
                        viewCenter.x + radius, viewCenter.y + radius);
     } else {
       return this.viewFrame

@@ -15,12 +15,12 @@
 /// <reference types="leaflet"/>
 
 import type {Equals} from "@swim/util";
-import {AnyPointR2, PointR2, Transform, TranslateTransform} from "@swim/math";
+import {AnyR2Point, R2Point, Transform, TranslateTransform} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import type {GeoViewport} from "@swim/map";
 
 export class LeafletViewport implements GeoViewport, Equals {
-  constructor(map: L.Map, geoFrame: GeoBox, geoCenter: GeoPoint, viewOrigin: PointR2,
+  constructor(map: L.Map, geoFrame: GeoBox, geoCenter: GeoPoint, viewOrigin: R2Point,
               zoom: number, heading: number, tilt: number) {
     Object.defineProperty(this, "map", {
       value: map,
@@ -58,7 +58,7 @@ export class LeafletViewport implements GeoViewport, Equals {
 
   readonly geoCenter!: GeoPoint;
 
-  readonly viewOrigin!: PointR2;
+  readonly viewOrigin!: R2Point;
 
   readonly zoom!: number;
 
@@ -66,9 +66,9 @@ export class LeafletViewport implements GeoViewport, Equals {
 
   readonly tilt!: number;
 
-  project(geoPoint: AnyGeoPoint): PointR2;
-  project(lng: number, lat: number): PointR2;
-  project(lng: AnyGeoPoint | number, lat?: number): PointR2 {
+  project(geoPoint: AnyGeoPoint): R2Point;
+  project(lng: number, lat: number): R2Point;
+  project(lng: AnyGeoPoint | number, lat?: number): R2Point {
     const origin = this.viewOrigin;
     let geoPoint: L.LatLngExpression;
     if (typeof lng === "number") {
@@ -79,12 +79,12 @@ export class LeafletViewport implements GeoViewport, Equals {
       geoPoint = lng;
     }
     const point = this.map.project(geoPoint, this.zoom);
-    return new PointR2(point.x - origin.x, point.y - origin.y);
+    return new R2Point(point.x - origin.x, point.y - origin.y);
   }
 
-  unproject(viewPoint: AnyPointR2): GeoPoint;
+  unproject(viewPoint: AnyR2Point): GeoPoint;
   unproject(x: number, y: number): GeoPoint;
-  unproject(x: AnyPointR2 | number, y?: number): GeoPoint {
+  unproject(x: AnyR2Point | number, y?: number): GeoPoint {
     const origin = this.viewOrigin;
     let viewPoint: L.PointExpression;
     if (typeof x === "number") {
@@ -129,7 +129,7 @@ export class LeafletViewport implements GeoViewport, Equals {
     } catch (e) {
       // swallow
     }
-    const viewOrigin = new PointR2(x, y);
+    const viewOrigin = new R2Point(x, y);
     const zoom = map.getZoom();
     const heading = 0;
     const tilt = 0;

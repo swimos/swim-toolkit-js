@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/mapping";
-import {AnyLength, Length, BoxR2} from "@swim/math";
+import {AnyLength, Length, R2Box} from "@swim/math";
 import {AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import type {GraphicsView} from "../graphics/GraphicsView";
@@ -106,7 +106,7 @@ export class RectView extends LayerView implements FillView, StrokeView {
     }
   }
 
-  protected renderRect(context: CanvasContext, frame: BoxR2): void {
+  protected renderRect(context: CanvasContext, frame: R2Box): void {
     const x = this.x.getValue().pxValue(frame.width);
     const y = this.y.getValue().pxValue(frame.height);
     const width = this.width.getValue().pxValue(frame.width);
@@ -130,7 +130,7 @@ export class RectView extends LayerView implements FillView, StrokeView {
     }
   }
 
-  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
+  declare readonly viewBounds: R2Box; // getter defined below to work around useDefineForClassFields lunacy
 
   protected override doHitTest(x: number, y: number, viewContext: ViewContextType<this>): GraphicsView | null {
     let hit = super.doHitTest(x, y, viewContext);
@@ -148,7 +148,7 @@ export class RectView extends LayerView implements FillView, StrokeView {
     return hit;
   }
 
-  protected hitTestRect(hx: number, hy: number, context: CanvasContext, frame: BoxR2): GraphicsView | null {
+  protected hitTestRect(hx: number, hy: number, context: CanvasContext, frame: R2Box): GraphicsView | null {
     const x = this.x.getValue().pxValue(frame.width);
     const y = this.y.getValue().pxValue(frame.height);
     const width = this.width.getValue().pxValue(frame.width);
@@ -199,13 +199,13 @@ export class RectView extends LayerView implements FillView, StrokeView {
   }
 }
 Object.defineProperty(RectView.prototype, "viewBounds", {
-  get(this: RectView): BoxR2 {
+  get(this: RectView): R2Box {
     const frame = this.viewFrame;
     const x = this.x.getValue().pxValue(frame.width);
     const y = this.y.getValue().pxValue(frame.height);
     const width = this.width.getValue().pxValue(frame.width);
     const height = this.height.getValue().pxValue(frame.height);
-    return new BoxR2(x, y, x + width, y + height);
+    return new R2Box(x, y, x + width, y + height);
   },
   enumerable: true,
   configurable: true,

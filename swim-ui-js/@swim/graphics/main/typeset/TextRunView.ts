@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import type {AnyTiming} from "@swim/mapping";
-import {AnyPointR2, PointR2} from "@swim/math";
+import {AnyR2Point, R2Point} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {ViewContextType, ViewAnimator} from "@swim/view";
 import {LayerView} from "../layer/LayerView";
@@ -46,8 +46,8 @@ export class TextRunView extends LayerView implements TypesetView {
   @ViewAnimator({type: String, inherit: true})
   readonly textBaseline!: ViewAnimator<this, CanvasTextBaseline | undefined>;
 
-  @ViewAnimator({type: PointR2, state: null, inherit: true})
-  readonly textOrigin!: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
+  @ViewAnimator({type: R2Point, state: null, inherit: true})
+  readonly textOrigin!: ViewAnimator<this, R2Point | null, AnyR2Point | null>;
 
   @ViewAnimator({type: Color, state: null, inherit: true})
   readonly textColor!: ViewAnimator<this, Color | null, AnyColor | null>;
@@ -116,7 +116,7 @@ export class TextRunView extends LayerView implements TypesetView {
     }
     let textOrigin = this.textOrigin.value;
     if (textOrigin === null) {
-      textOrigin = PointR2.origin();
+      textOrigin = R2Point.origin();
     }
     const textColor = this.textColor.value;
     if (textColor !== null) {

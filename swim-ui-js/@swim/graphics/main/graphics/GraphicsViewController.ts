@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {BoxR2} from "@swim/math";
+import {R2Box} from "@swim/math";
 import {ViewController} from "@swim/view";
 import type {GraphicsView} from "./GraphicsView";
 import type {GraphicsViewObserver} from "./GraphicsViewObserver";
@@ -31,18 +31,18 @@ export class GraphicsViewController<V extends GraphicsView = GraphicsView> exten
     // hook
   }
 
-  get viewFrame(): BoxR2 {
+  get viewFrame(): R2Box {
     const view = this.view;
-    return view !== null ? view.viewFrame : BoxR2.undefined();
+    return view !== null ? view.viewFrame : R2Box.undefined();
   }
 
-  get viewBounds(): BoxR2 {
+  get viewBounds(): R2Box {
     const view = this.view;
-    return view !== null ? view.viewBounds : BoxR2.undefined();
+    return view !== null ? view.viewBounds : R2Box.undefined();
   }
 
-  get hitBounds(): BoxR2 {
+  get hitBounds(): R2Box {
     const view = this.view;
-    return view !== null ? view.hitBounds : BoxR2.undefined();
+    return view !== null ? view.hitBounds : R2Box.undefined();
   }
 }

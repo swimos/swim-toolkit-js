@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AnyLength, Length, AnyAngle, Angle, AnyPointR2, PointR2, BoxR2} from "@swim/math";
+import {AnyLength, Length, AnyAngle, Angle, AnyR2Point, R2Point, R2Box} from "@swim/math";
 import {AnyFont, Font, AnyColor, Color} from "@swim/style";
 import {Look} from "@swim/theme";
 import {ViewContextType, View, ViewAnimator, ViewFastener} from "@swim/view";
@@ -32,7 +32,7 @@ export type AnyGaugeView = GaugeView | GaugeViewInit;
 
 export interface GaugeViewInit extends GraphicsViewInit {
   limit?: number;
-  center?: AnyPointR2;
+  center?: AnyR2Point;
   innerRadius?: AnyLength;
   outerRadius?: AnyLength;
   startAngle?: AnyAngle;
@@ -138,8 +138,8 @@ export class GaugeView extends LayerView {
   @ViewAnimator({type: Number, state: 0, updateFlags: View.NeedsLayout})
   readonly limit!: ViewAnimator<this, number>;
 
-  @ViewAnimator({type: PointR2, state: PointR2.origin(), updateFlags: View.NeedsLayout})
-  readonly center!: ViewAnimator<this, PointR2, AnyPointR2>;
+  @ViewAnimator({type: R2Point, state: R2Point.origin(), updateFlags: View.NeedsLayout})
+  readonly center!: ViewAnimator<this, R2Point, AnyR2Point>;
 
   @ViewAnimator({type: Length, state: Length.pct(30), updateFlags: View.NeedsLayout})
   readonly innerRadius!: ViewAnimator<this, Length, AnyLength>;
@@ -475,11 +475,11 @@ export class GaugeView extends LayerView {
     this.layoutGauge(this.viewFrame);
   }
 
-  protected layoutGauge(frame: BoxR2): void {
+  protected layoutGauge(frame: R2Box): void {
     if (this.center.takesPrecedence(View.Intrinsic)) {
       const cx = (frame.xMin + frame.xMax) / 2;
       const cy = (frame.yMin + frame.yMax) / 2;
-      this.center.setState(new PointR2(cx, cy), View.Intrinsic);
+      this.center.setState(new R2Point(cx, cy), View.Intrinsic);
     }
 
     const dialFasteners = this.dialFasteners;

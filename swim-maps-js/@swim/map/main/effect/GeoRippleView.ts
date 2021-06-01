@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AnyTiming, Timing, Easing} from "@swim/mapping";
-import {AnyLength, Length, AnyPointR2, PointR2, SegmentR2, BoxR2, CircleR2} from "@swim/math";
+import {AnyLength, Length, AnyR2Point, R2Point, R2Segment, R2Box, R2Circle} from "@swim/math";
 import {AnyGeoPoint, GeoPoint, GeoBox} from "@swim/geo";
 import {AnyColor, Color} from "@swim/style";
 import {Look, Mood} from "@swim/theme";
@@ -90,8 +90,8 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
   })
   readonly geoCenter!: ViewAnimator<this, GeoPoint | null, AnyGeoPoint | null>;
 
-  @ViewAnimator({type: PointR2, state: PointR2.undefined()})
-  readonly viewCenter!: ViewAnimator<this, PointR2 | null, AnyPointR2 | null>;
+  @ViewAnimator({type: R2Point, state: R2Point.undefined()})
+  readonly viewCenter!: ViewAnimator<this, R2Point | null, AnyR2Point | null>;
 
   protected onSetRadius(newRadius: Length | null, oldRadius: Length | null): void {
     if (this.isMounted()) {
@@ -165,8 +165,8 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
     const p0 = this.viewCenter.value;
     const p1 = this.viewCenter.state;
     if (p0 !== null && p1 !== null && (
-        viewFrame.intersectsCircle(new CircleR2(p0.x, p0.y, r)) ||
-        viewFrame.intersectsSegment(new SegmentR2(p0.x, p0.y, p1.x, p1.y)))) {
+        viewFrame.intersectsCircle(new R2Circle(p0.x, p0.y, r)) ||
+        viewFrame.intersectsSegment(new R2Segment(p0.x, p0.y, p1.x, p1.y)))) {
       this.setCulled(false);
     } else {
       this.setCulled(true);
@@ -184,7 +184,7 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
     }
   }
 
-  protected renderRipple(context: CanvasContext, frame: BoxR2): void {
+  protected renderRipple(context: CanvasContext, frame: R2Box): void {
     const viewCenter = this.viewCenter.value;
     if (viewCenter !== null && viewCenter.isDefined()) {
       const size = Math.min(frame.width, frame.height);
@@ -209,7 +209,7 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
     // nop
   }
 
-  declare readonly viewBounds: BoxR2; // getter defined below to work around useDefineForClassFields lunacy
+  declare readonly viewBounds: R2Box; // getter defined below to work around useDefineForClassFields lunacy
 
   ripple(options?: GeoRippleOptions): this {
     let source: GeoView | null;
@@ -290,7 +290,7 @@ export class GeoRippleView extends GeoLayerView implements StrokeView {
   }
 }
 Object.defineProperty(GeoRippleView.prototype, "viewBounds", {
-  get(this: GeoRippleView): BoxR2 {
+  get(this: GeoRippleView): R2Box {
     const viewCenter = this.viewCenter.value;
     if (viewCenter !== null && viewCenter.isDefined()) {
       return viewCenter.bounds;
