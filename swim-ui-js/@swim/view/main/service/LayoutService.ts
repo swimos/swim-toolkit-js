@@ -23,4 +23,8 @@ export abstract class LayoutService<V extends View> extends ViewManagerService<V
   }
 }
 
-ViewService({type: LayoutManager, observe: false})(View.prototype, "layoutService");
+ViewService({
+  extends: LayoutService,
+  type: LayoutManager,
+  observe: false,
+})(View.prototype, "layoutService");
