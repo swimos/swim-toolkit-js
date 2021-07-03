@@ -12,26 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./geo";
+import type {Trait} from "@swim/model";
+import type {GeoLayerTraitObserver} from "../layer/GeoLayerTraitObserver";
+import type {GeoGridTrait} from "./GeoGridTrait";
 
-export * from "./layer";
+export interface GeoGridTraitObserver<R extends GeoGridTrait = GeoGridTrait> extends GeoLayerTraitObserver<R> {
+  traitWillSetTile?(newTileTrait: GeoGridTrait | null, oldTileTrait: GeoGridTrait | null, targetTrait: Trait | null, trait: R): void;
 
-export * from "./raster";
-
-export * from "./tree";
-
-export * from "./grid";
-
-export * from "./effect";
-
-export * from "./shape";
-
-export * from "./path";
-
-export * from "./plot";
-
-export * from "./icon";
-
-export * from "./map";
-
-export * from "./world";
+  traitDidSetTile?(newTileTrait: GeoGridTrait | null, oldTileTrait: GeoGridTrait | null, targetTrait: Trait | null, trait: R): void;
+}

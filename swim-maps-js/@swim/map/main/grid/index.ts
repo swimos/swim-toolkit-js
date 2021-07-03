@@ -12,26 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from "./geo";
+export {
+  GeoGridViewInit,
+  GeoGridView,
+} from "./GeoGridView";
 
-export * from "./layer";
+export {GeoGridTrait} from "./GeoGridTrait";
+export {GeoGridTraitObserver} from "./GeoGridTraitObserver";
 
-export * from "./raster";
-
-export * from "./tree";
-
-export * from "./grid";
-
-export * from "./effect";
-
-export * from "./shape";
-
-export * from "./path";
-
-export * from "./plot";
-
-export * from "./icon";
-
-export * from "./map";
-
-export * from "./world";
+export {GeoGridComponent} from "./GeoGridComponent";
+export {GeoGridComponentObserver} from "./GeoGridComponentObserver";
