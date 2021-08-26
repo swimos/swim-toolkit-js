@@ -2,7 +2,7 @@ const core = [
   {
     id: "util",
     name: "@swim/util",
-    path: "../swim-system-js/swim-core-js/@swim/util",
+    path: "../swim-runtime-js/swim-core-js/@swim/util",
     targets: [
       {
         id: "main",
@@ -16,7 +16,7 @@ const core = [
   {
     id: "codec",
     name: "@swim/codec",
-    path: "../swim-system-js/swim-core-js/@swim/codec",
+    path: "../swim-runtime-js/swim-core-js/@swim/codec",
     targets: [
       {
         id: "main",
@@ -31,7 +31,7 @@ const core = [
   {
     id: "args",
     name: "@swim/args",
-    path: "../swim-system-js/swim-core-js/@swim/args",
+    path: "../swim-runtime-js/swim-core-js/@swim/args",
     targets: [
       {
         id: "main",
@@ -46,7 +46,7 @@ const core = [
   {
     id: "build",
     name: "@swim/build",
-    path: "../swim-system-js/swim-core-js/@swim/build",
+    path: "../swim-runtime-js/swim-core-js/@swim/build",
     targets: [
       {
         id: "main",
@@ -57,7 +57,7 @@ const core = [
   {
     id: "unit",
     name: "@swim/unit",
-    path: "../swim-system-js/swim-core-js/@swim/unit",
+    path: "../swim-runtime-js/swim-core-js/@swim/unit",
     targets: [
       {
         id: "main",
@@ -68,7 +68,7 @@ const core = [
   {
     id: "mapping",
     name: "@swim/mapping",
-    path: "../swim-system-js/swim-core-js/@swim/mapping",
+    path: "../swim-runtime-js/swim-core-js/@swim/mapping",
     targets: [
       {
         id: "main",
@@ -83,7 +83,7 @@ const core = [
   {
     id: "collections",
     name: "@swim/collections",
-    path: "../swim-system-js/swim-core-js/@swim/collections",
+    path: "../swim-runtime-js/swim-core-js/@swim/collections",
     targets: [
       {
         id: "main",
@@ -98,7 +98,7 @@ const core = [
   {
     id: "constraint",
     name: "@swim/constraint",
-    path: "../swim-system-js/swim-core-js/@swim/constraint",
+    path: "../swim-runtime-js/swim-core-js/@swim/constraint",
     targets: [
       {
         id: "main",
@@ -113,7 +113,7 @@ const core = [
   {
     id: "structure",
     name: "@swim/structure",
-    path: "../swim-system-js/swim-core-js/@swim/structure",
+    path: "../swim-runtime-js/swim-core-js/@swim/structure",
     targets: [
       {
         id: "main",
@@ -128,7 +128,7 @@ const core = [
   {
     id: "streamlet",
     name: "@swim/streamlet",
-    path: "../swim-system-js/swim-core-js/@swim/streamlet",
+    path: "../swim-runtime-js/swim-core-js/@swim/streamlet",
     targets: [
       {
         id: "main",
@@ -143,7 +143,7 @@ const core = [
   {
     id: "dataflow",
     name: "@swim/dataflow",
-    path: "../swim-system-js/swim-core-js/@swim/dataflow",
+    path: "../swim-runtime-js/swim-core-js/@swim/dataflow",
     targets: [
       {
         id: "main",
@@ -158,7 +158,7 @@ const core = [
   {
     id: "recon",
     name: "@swim/recon",
-    path: "../swim-system-js/swim-core-js/@swim/recon",
+    path: "../swim-runtime-js/swim-core-js/@swim/recon",
     targets: [
       {
         id: "main",
@@ -173,7 +173,7 @@ const core = [
   {
     id: "macro",
     name: "@swim/macro",
-    path: "../swim-system-js/swim-core-js/@swim/macro",
+    path: "../swim-runtime-js/swim-core-js/@swim/macro",
     targets: [
       {
         id: "main",
@@ -188,7 +188,7 @@ const core = [
   {
     id: "uri",
     name: "@swim/uri",
-    path: "../swim-system-js/swim-core-js/@swim/uri",
+    path: "../swim-runtime-js/swim-core-js/@swim/uri",
     targets: [
       {
         id: "main",
@@ -203,7 +203,7 @@ const core = [
   {
     id: "math",
     name: "@swim/math",
-    path: "../swim-system-js/swim-core-js/@swim/math",
+    path: "../swim-runtime-js/swim-core-js/@swim/math",
     targets: [
       {
         id: "main",
@@ -218,7 +218,7 @@ const core = [
   {
     id: "geo",
     name: "@swim/geo",
-    path: "../swim-system-js/swim-core-js/@swim/geo",
+    path: "../swim-runtime-js/swim-core-js/@swim/geo",
     targets: [
       {
         id: "main",
@@ -233,7 +233,7 @@ const core = [
   {
     id: "time",
     name: "@swim/time",
-    path: "../swim-system-js/swim-core-js/@swim/time",
+    path: "../swim-runtime-js/swim-core-js/@swim/time",
     targets: [
       {
         id: "main",
@@ -248,7 +248,7 @@ const core = [
   {
     id: "core",
     name: "@swim/core",
-    path: "../swim-system-js/swim-core-js/@swim/core",
+    path: "../swim-runtime-js/swim-core-js/@swim/core",
     title: "Swim Core",
     framework: true,
     targets: [
@@ -260,11 +260,11 @@ const core = [
   },
 ];
 
-const mesh = [
+const host = [
   {
     id: "warp",
     name: "@swim/warp",
-    path: "../swim-system-js/swim-mesh-js/@swim/warp",
+    path: "../swim-runtime-js/swim-host-js/@swim/warp",
     targets: [
       {
         id: "main",
@@ -279,7 +279,7 @@ const mesh = [
   {
     id: "client",
     name: "@swim/client",
-    path: "../swim-system-js/swim-mesh-js/@swim/client",
+    path: "../swim-runtime-js/swim-host-js/@swim/client",
     targets: [
       {
         id: "main",
@@ -294,7 +294,7 @@ const mesh = [
   {
     id: "cli",
     name: "@swim/cli",
-    path: "../swim-system-js/swim-mesh-js/@swim/cli",
+    path: "../swim-runtime-js/swim-host-js/@swim/cli",
     targets: [
       {
         id: "main",
@@ -303,10 +303,10 @@ const mesh = [
     ],
   },
   {
-    id: "mesh",
-    name: "@swim/mesh",
-    path: "../swim-system-js/swim-mesh-js/@swim/mesh",
-    title: "Swim Mesh",
+    id: "host",
+    name: "@swim/host",
+    path: "../swim-runtime-js/swim-host-js/@swim/host",
+    title: "Swim Host",
     framework: true,
     targets: [
       {
@@ -317,17 +317,17 @@ const mesh = [
   },
 ];
 
-const system = [
+const runtime = [
   {
-    id: "system",
-    name: "@swim/system",
-    path: "../swim-system-js/@swim/system",
-    title: "Swim System",
+    id: "runtime",
+    name: "@swim/runtime",
+    path: "../swim-runtime-js/@swim/runtime",
+    title: "Swim Runtime",
     framework: true,
     targets: [
       {
         id: "main",
-        deps: ["core", "mesh"],
+        deps: ["core", "host"],
       },
     ],
   },
@@ -635,14 +635,14 @@ const toolkit = [
       {
         id: "main",
         deps: ["ui", "ux", "vis", "maps"],
-        peerDeps: ["system"],
+        peerDeps: ["runtime"],
       },
     ],
   },
 ];
 
 export default {
-  version: "3.11.0",
-  projects: core.concat(mesh).concat(system).concat(ui).concat(ux).concat(vis).concat(maps).concat(toolkit),
+  version: "4.0.0-dev.20210826",
+  projects: core.concat(host).concat(runtime).concat(ui).concat(ux).concat(vis).concat(maps).concat(toolkit),
   gaID: "UA-79441805-2",
 };

@@ -53,7 +53,7 @@ const test = {
     extend: true,
   },
   plugins: [
-    nodeResolve({moduleDirectories: ["../..", "../../../../swim-system-js/swim-core-js", "node_modules"]}),
+    nodeResolve({moduleDirectories: ["../..", "../../../../swim-runtime-js/swim-core-js", "node_modules"]}),
     sourcemaps(),
   ],
   onwarn(warning, warn) {

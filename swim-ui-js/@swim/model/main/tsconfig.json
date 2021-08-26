@@ -3,31 +3,31 @@
   "compilerOptions": {
     "outDir": "../lib/main",
     "paths": {
-      "@swim/util": ["../../../../../swim-system-js/swim-core-js/@swim/util/main"],
-      "@swim/codec": ["../../../../../swim-system-js/swim-core-js/@swim/codec/main"],
-      "@swim/mapping": ["../../../../../swim-system-js/swim-core-js/@swim/mapping/main"],
-      "@swim/collections": ["../../../../../swim-system-js/swim-core-js/@swim/collections/main"],
-      "@swim/structure": ["../../../../../swim-system-js/swim-core-js/@swim/structure/main"],
-      "@swim/streamlet": ["../../../../../swim-system-js/swim-core-js/@swim/streamlet/main"],
-      "@swim/dataflow": ["../../../../../swim-system-js/swim-core-js/@swim/dataflow/main"],
-      "@swim/recon": ["../../../../../swim-system-js/swim-core-js/@swim/recon/main"],
-      "@swim/uri": ["../../../../../swim-system-js/swim-core-js/@swim/uri/main"],
-      "@swim/warp": ["../../../../../swim-system-js/swim-mesh-js/@swim/warp/main"],
-      "@swim/client": ["../../../../../swim-system-js/swim-mesh-js/@swim/client/main"]
+      "@swim/util": ["../../../../../swim-runtime-js/swim-core-js/@swim/util/main"],
+      "@swim/codec": ["../../../../../swim-runtime-js/swim-core-js/@swim/codec/main"],
+      "@swim/mapping": ["../../../../../swim-runtime-js/swim-core-js/@swim/mapping/main"],
+      "@swim/collections": ["../../../../../swim-runtime-js/swim-core-js/@swim/collections/main"],
+      "@swim/structure": ["../../../../../swim-runtime-js/swim-core-js/@swim/structure/main"],
+      "@swim/streamlet": ["../../../../../swim-runtime-js/swim-core-js/@swim/streamlet/main"],
+      "@swim/dataflow": ["../../../../../swim-runtime-js/swim-core-js/@swim/dataflow/main"],
+      "@swim/recon": ["../../../../../swim-runtime-js/swim-core-js/@swim/recon/main"],
+      "@swim/uri": ["../../../../../swim-runtime-js/swim-core-js/@swim/uri/main"],
+      "@swim/warp": ["../../../../../swim-runtime-js/swim-host-js/@swim/warp/main"],
+      "@swim/client": ["../../../../../swim-runtime-js/swim-host-js/@swim/client/main"]
     },
     "tsBuildInfoFile": "../lib/main/.tsbuildinfo"
   },
   "references": [
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/util/main"},
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/codec/main"},
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/mapping/main"},
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/collections/main"},
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/structure/main"},
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/streamlet/main"},
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/dataflow/main"},
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/recon/main"},
-    {"path": "../../../../../swim-system-js/swim-core-js/@swim/uri/main"},
-    {"path": "../../../../../swim-system-js/swim-mesh-js/@swim/warp/main"},
-    {"path": "../../../../../swim-system-js/swim-mesh-js/@swim/client/main"}
+    {"path": "../../../../../swim-runtime-js/swim-core-js/@swim/util/main"},
+    {"path": "../../../../../swim-runtime-js/swim-core-js/@swim/codec/main"},
+    {"path": "../../../../../swim-runtime-js/swim-core-js/@swim/mapping/main"},
+    {"path": "../../../../../swim-runtime-js/swim-core-js/@swim/collections/main"},
+    {"path": "../../../../../swim-runtime-js/swim-core-js/@swim/structure/main"},
+    {"path": "../../../../../swim-runtime-js/swim-core-js/@swim/streamlet/main"},
+    {"path": "../../../../../swim-runtime-js/swim-core-js/@swim/dataflow/main"},
+    {"path": "../../../../../swim-runtime-js/swim-core-js/@swim/recon/main"},
+    {"path": "../../../../../swim-runtime-js/swim-core-js/@swim/uri/main"},
+    {"path": "../../../../../swim-runtime-js/swim-host-js/@swim/warp/main"},
+    {"path": "../../../../../swim-runtime-js/swim-host-js/@swim/client/main"}
   ]
 }

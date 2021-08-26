@@ -1,4 +1,4 @@
-// Copyright 2015-2021 Swim inc.
+// Copyright 2015-2021 Swim Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ export interface ViewAnimatorInit<T, U = never> {
   onBegin?(value: T): void;
   onEnd?(value: T): void;
   onInterrupt?(value: T): void;
+  equalState?(newState: T, oldState: T): boolean;
   fromAny?(value: T | U): T;
   initState?(): T | U;
 }
