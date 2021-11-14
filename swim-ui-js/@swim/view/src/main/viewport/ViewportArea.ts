@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface VisualViewport {
+/** @public */
+export interface ViewportArea {
   readonly width: number;
   readonly height: number;
   readonly offsetLeft: number;

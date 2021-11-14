@@ -12,4 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export type ViewColorScheme = "dark" | "light" | "no-preference";
+/** @public */
+export type ViewportIdiom = "unspecified" | "mobile" | "tablet" | "desktop";

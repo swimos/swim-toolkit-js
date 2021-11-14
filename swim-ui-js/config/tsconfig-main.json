@@ -9,7 +9,7 @@
     "importHelpers": true,
     "importsNotUsedAsValues": "error",
     "incremental": true,
-    "module": "es6",
+    "module": "es2020",
     "moduleResolution": "node",
     "noEmitHelpers": true,
     "noEmitOnError": true,
@@ -21,14 +21,13 @@
     "noUnusedLocals": true,
     "preserveConstEnums": true,
     "pretty": true,
-    "removeComments": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
-    "target": "ES5",
+    "target": "es2015",
     "types": ["node"]
   }
 }
