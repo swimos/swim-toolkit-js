@@ -12,10 +12,10 @@
     </style>
   </head>
   <body swim-theme style="display: flex;">
-    <script src="../../swim-runtime-js/swim-core-js/@swim/core/dist/swim-core.js"></script>
-    <script src="../../swim-runtime-js/swim-host-js/@swim/host/dist/swim-host.js"></script>
-    <script src="../swim-ui-js/@swim/ui/dist/swim-ui.js"></script>
-    <script src="../swim-ux-js/@swim/ux/dist/swim-ux.js"></script>
+    <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
+    <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
+    <script src="../swim-ui/dist/swim-ui.js"></script>
+    <script src="../swim-ux/dist/swim-ux.js"></script>
     <script>
 
 if (navigator.standalone) {
@@ -47,21 +47,21 @@ backButton.closeIcon.setView(deckBar.createCloseIcon());
 backButton.closeIcon.insertView();
 
 const card1 = swim.DeckCard.create();
-card1.cardTitle.setState("Card 1");
+card1.cardTitle.setValue("Card 1");
 const header1 = card1.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Card 1")).cursor("pointer");
 header1.on("click", () => {
   deckView.pushCard(card2);
 });
 
 const card2 = swim.DeckCard.create();
-card2.cardTitle.setState("Card 2");
+card2.cardTitle.setValue("Card 2");
 const header2 = card2.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Card 2")).cursor("pointer");
 header2.on("click", () => {
   deckView.pushCard(card3);
 });
 
 const card3 = swim.DeckCard.create();
-card3.cardTitle.setState("Card 3");
+card3.cardTitle.setValue("Card 3");
 card3.appendChild(swim.HtmlView.fromTag("h2").margin(12).text("Card 3"));
 
 deckView.pushCard(card1);

@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
   </head>
   <body swim-theme style="display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; margin: 0;">
-    <script src="../../swim-runtime-js/swim-core-js/@swim/core/dist/swim-core.js"></script>
-    <script src="../../swim-runtime-js/swim-host-js/@swim/host/dist/swim-host.js"></script>
-    <script src="../swim-ui-js/@swim/ui/dist/swim-ui.js"></script>
-    <script src="../swim-vis-js/@swim/vis/dist/swim-vis.js"></script>
+    <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
+    <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
+    <script src="../swim-ui/dist/swim-ui.js"></script>
+    <script src="../swim-vis/dist/swim-vis.js"></script>
     <script>
 
 //setTimeout(function () {
@@ -51,7 +51,7 @@ swim.TraitViewControllerSet({
   controllerWillSetSliceValue(newValue, oldValue, sliceController, pieController) {
     swim.PieController.slices.prototype.controllerWillSetSliceValue.call(this, newValue, oldValue, sliceController, pieController);
     const label = Math.round(100 * newValue).toString();
-    sliceController.slice.trait.label.setState(label);
+    sliceController.slice.trait.label.setValue(label);
   },
   attachSliceLabelView(labelView, sliceController) {
     swim.PieController.slices.prototype.attachSliceLabelView.call(this, labelView, sliceController);
@@ -91,9 +91,9 @@ pieController.pie.insertView(canvasView);
 pieController.pie.setTrait(pieTrait);
 
 setInterval(function () {
-  slice1Trait.value.setState(0.1 + 0.9 * Math.random());
-  slice2Trait.value.setState(0.1 + 0.9 * Math.random());
-  slice3Trait.value.setState(0.1 + 0.9 * Math.random());
+  slice1Trait.value.setValue(0.1 + 0.9 * Math.random());
+  slice2Trait.value.setValue(0.1 + 0.9 * Math.random());
+  slice3Trait.value.setValue(0.1 + 0.9 * Math.random());
 }, 1000);
 
 setInterval(function () {

@@ -12,10 +12,10 @@
     </style>
   </head>
   <body swim-theme style="display: flex; width: 100vw; height: 100vh; margin: 0;">
-    <script src="../../swim-runtime-js/swim-core-js/@swim/core/dist/swim-core.js"></script>
-    <script src="../../swim-runtime-js/swim-host-js/@swim/host/dist/swim-host.js"></script>
-    <script src="../swim-ui-js/@swim/ui/dist/swim-ui.js"></script>
-    <script src="../swim-ux-js/@swim/ux/dist/swim-ux.js"></script>
+    <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
+    <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
+    <script src="../swim-ui/dist/swim-ui.js"></script>
+    <script src="../swim-ux/dist/swim-ux.js"></script>
     <script>
 
 const bodyView = swim.HtmlView.fromNode(document.body);
@@ -69,7 +69,7 @@ const tableLayout = swim.TableLayout.fromAny({
 });
 
 const tableView = swim.TableView.create();
-tableView.layout.setState(tableLayout);
+tableView.layout.setValue(tableLayout);
 
 const headerView = tableView.header.insertView();
 headerView.getOrCreateCol("name").label("Name");

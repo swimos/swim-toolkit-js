@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no, viewport-fit=cover">
   </head>
   <body swim-theme style="position: fixed; display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh; margin: 0;">
-    <script src="../../swim-runtime-js/swim-core-js/@swim/core/dist/swim-core.js"></script>
-    <script src="../../swim-runtime-js/swim-host-js/@swim/host/dist/swim-host.js"></script>
-    <script src="../swim-ui-js/@swim/ui/dist/swim-ui.js"></script>
-    <script src="../swim-vis-js/@swim/vis/dist/swim-vis.js"></script>
+    <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
+    <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
+    <script src="../swim-ui/dist/swim-ui.js"></script>
+    <script src="../swim-vis/dist/swim-vis.js"></script>
     <script>
 
 //setTimeout(function () {
@@ -56,7 +56,7 @@ swim.TraitViewControllerSet({
   controllerWillSetDialValue(newValue, oldValue, dialController, gaugeController) {
     swim.GaugeController.dials.prototype.controllerWillSetDialValue.call(this, newValue, oldValue, dialController, gaugeController);
     const label = Math.round(100 * newValue).toString();
-    dialController.dial.trait.label.setState(label);
+    dialController.dial.trait.label.setValue(label);
   },
 })(ExampleGaugeController.prototype, "dials");
 
@@ -92,9 +92,9 @@ gaugeController.gauge.insertView(canvasView);
 gaugeController.gauge.setTrait(gaugeTrait);
 
 setInterval(function () {
-  dial1Trait.value.setState(0.1 + 0.9 * Math.random());
-  dial2Trait.value.setState(0.1 + 0.9 * Math.random());
-  dial3Trait.value.setState(0.1 + 0.9 * Math.random());
+  dial1Trait.value.setValue(0.1 + 0.9 * Math.random());
+  dial2Trait.value.setValue(0.1 + 0.9 * Math.random());
+  dial3Trait.value.setValue(0.1 + 0.9 * Math.random());
 }, 1000);
 
 setInterval(function () {

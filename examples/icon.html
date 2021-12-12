@@ -12,9 +12,9 @@
     </style>
   </head>
   <body swim-theme>
-    <script src="../../swim-runtime-js/swim-core-js/@swim/core/dist/swim-core.js"></script>
-    <script src="../../swim-runtime-js/swim-host-js/@swim/host/dist/swim-host.js"></script>
-    <script src="../swim-ui-js/@swim/ui/dist/swim-ui.js"></script>
+    <script src="../../swim-runtime/swim-core/dist/swim-core.js"></script>
+    <script src="../../swim-runtime/swim-host/dist/swim-host.js"></script>
+    <script src="../swim-ui/dist/swim-ui.js"></script>
     <script>
 
 if (navigator.standalone) {
@@ -50,6 +50,25 @@ const iconView = swim.HtmlIconView.create()
   .graphics(icon);
 iconView.modifyMood(swim.Feel.default, [[swim.Feel.primary, 1]]);
 bodyView.appendChild(iconView);
+
+function updateMood() {
+  const warnThreshold = 0.5;
+  const alertThreshold = 0.8;
+  let u = Math.random();
+  if (u < warnThreshold) {
+    iconView.modifyMood(swim.Feel.default, [[swim.Feel.warning, void 0], [swim.Feel.alert, void 0]]);
+  } else if (u < alertThreshold) {
+    u = (u - warnThreshold) / (alertThreshold - warnThreshold);
+    u = 0.6 + 0.4 * u;
+    iconView.modifyMood(swim.Feel.default, [[swim.Feel.warning, 1], [swim.Feel.alert, void 0]]);
+  } else {
+    u = (u - alertThreshold) / (1 - alertThreshold);
+    u = 0.6 + 0.4 * u;
+    iconView.modifyMood(swim.Feel.default, [[swim.Feel.warning, void 0], [swim.Feel.alert, u]]);
+  }
+}
+setInterval(updateMood, 1000);
+updateMood();
 
     </script>
   </body>
