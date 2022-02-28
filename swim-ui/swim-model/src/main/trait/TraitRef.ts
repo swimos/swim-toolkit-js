@@ -154,15 +154,15 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
       }
       if (oldTrait !== newTrait) {
         if (oldTrait !== null) {
-          this.willDetachTrait(oldTrait);
           (this as Mutable<typeof this>).trait = null;
+          this.willDetachTrait(oldTrait);
           this.onDetachTrait(oldTrait);
           this.deinitTrait(oldTrait);
           this.didDetachTrait(oldTrait);
         }
         if (newTrait !== null) {
-          this.willAttachTrait(newTrait, target);
           (this as Mutable<typeof this>).trait = newTrait;
+          this.willAttachTrait(newTrait, target);
           this.onAttachTrait(newTrait, target);
           this.initTrait(newTrait);
           this.didAttachTrait(newTrait, target);
@@ -186,14 +186,14 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
         target = null;
       }
       if (oldTrait !== null) {
-        this.willDetachTrait(oldTrait);
         (this as Mutable<typeof this>).trait = null;
+        this.willDetachTrait(oldTrait);
         this.onDetachTrait(oldTrait);
         this.deinitTrait(oldTrait);
         this.didDetachTrait(oldTrait);
       }
-      this.willAttachTrait(newTrait, target);
       (this as Mutable<typeof this>).trait = newTrait;
+      this.willAttachTrait(newTrait, target);
       this.onAttachTrait(newTrait, target);
       this.initTrait(newTrait);
       this.didAttachTrait(newTrait, target);
@@ -204,8 +204,8 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
   TraitRef.prototype.detachTrait = function <T extends Trait>(this: TraitRef<unknown, T>): T | null {
     const oldTrait = this.trait;
     if (oldTrait !== null) {
-      this.willDetachTrait(oldTrait);
       (this as Mutable<typeof this>).trait = null;
+      this.willDetachTrait(oldTrait);
       this.onDetachTrait(oldTrait);
       this.deinitTrait(oldTrait);
       this.didDetachTrait(oldTrait);
@@ -239,15 +239,15 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     const oldTrait = this.trait;
     if (newTrait !== oldTrait) {
       if (oldTrait !== null) {
-        this.willDetachTrait(oldTrait);
         (this as Mutable<typeof this>).trait = null;
+        this.willDetachTrait(oldTrait);
         this.onDetachTrait(oldTrait);
         this.deinitTrait(oldTrait);
         this.didDetachTrait(oldTrait);
         oldTrait.remove();
       }
-      this.willAttachTrait(newTrait, target);
       (this as Mutable<typeof this>).trait = newTrait;
+      this.willAttachTrait(newTrait, target);
       this.onAttachTrait(newTrait, target);
       this.initTrait(newTrait);
       this.didAttachTrait(newTrait, target);
@@ -275,8 +275,8 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     if (this.binds && this.trait === null) {
       const newTrait = this.detectModel(model);
       if (newTrait !== null) {
-        this.willAttachTrait(newTrait, null);
         (this as Mutable<typeof this>).trait = newTrait;
+        this.willAttachTrait(newTrait, null);
         this.onAttachTrait(newTrait, null);
         this.initTrait(newTrait);
         this.didAttachTrait(newTrait, null);
@@ -288,8 +288,8 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     if (this.binds) {
       const oldTrait = this.detectModel(model);
       if (oldTrait !== null && this.trait === oldTrait) {
-        this.willDetachTrait(oldTrait);
         (this as Mutable<typeof this>).trait = null;
+        this.willDetachTrait(oldTrait);
         this.onDetachTrait(oldTrait);
         this.deinitTrait(oldTrait);
         this.didDetachTrait(oldTrait);
@@ -305,8 +305,8 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     if (this.binds && this.trait === null) {
       const newTrait = this.detectTrait(trait);
       if (newTrait !== null) {
-        this.willAttachTrait(newTrait, target);
         (this as Mutable<typeof this>).trait = newTrait;
+        this.willAttachTrait(newTrait, target);
         this.onAttachTrait(newTrait, target);
         this.initTrait(newTrait);
         this.didAttachTrait(newTrait, target);
@@ -318,8 +318,8 @@ export const TraitRef = (function (_super: typeof TraitRelation) {
     if (this.binds) {
       const oldTrait = this.detectTrait(trait);
       if (oldTrait !== null && this.trait === oldTrait) {
-        this.willDetachTrait(oldTrait);
         (this as Mutable<typeof this>).trait = null;
+        this.willDetachTrait(oldTrait);
         this.onDetachTrait(oldTrait);
         this.deinitTrait(oldTrait);
         this.didDetachTrait(oldTrait);

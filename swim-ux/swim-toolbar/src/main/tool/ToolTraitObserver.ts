@@ -12,16 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {HtmlView, HtmlViewObserver} from "@swim/dom";
-import type {DeckSlider} from "./DeckSlider";
+import type {TraitObserver} from "@swim/model";
+import type {ToolTrait} from "./ToolTrait";
 
 /** @public */
-export interface DeckSliderObserver<V extends DeckSlider = DeckSlider> extends HtmlViewObserver<V> {
-  deckSliderWillPushItem?(newItemView: HtmlView, oldItemView: HtmlView | null, view: V): void;
-
-  deckSliderDidPushItem?(newItemView: HtmlView, oldItemView: HtmlView | null, view: V): void;
-
-  deckSliderWillPopItem?(newItemView: HtmlView | null, oldItemView: HtmlView, view: V): void;
-
-  deckSliderDidPopItem?(newItemView: HtmlView | null, oldItemView: HtmlView, view: V): void;
+export interface ToolTraitObserver<T extends ToolTrait = ToolTrait> extends TraitObserver<T> {
 }

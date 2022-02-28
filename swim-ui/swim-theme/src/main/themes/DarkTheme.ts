@@ -197,9 +197,6 @@ const DarkNested = FeelVector.of(
 );
 
 const DarkHovering = FeelVector.of(
-  [Look.statusColor, Color.black(1)],
-  [Look.accentColor, Color.black(1)],
-
   [Look.backgroundColor, Color.black(-2)],
 );
 

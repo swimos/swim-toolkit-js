@@ -144,15 +144,15 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
       }
       if (oldModel !== newModel) {
         if (oldModel !== null) {
-          this.willDetachModel(oldModel);
           (this as Mutable<typeof this>).model = null;
+          this.willDetachModel(oldModel);
           this.onDetachModel(oldModel);
           this.deinitModel(oldModel);
           this.didDetachModel(oldModel);
         }
         if (newModel !== null) {
-          this.willAttachModel(newModel, target);
           (this as Mutable<typeof this>).model = newModel;
+          this.willAttachModel(newModel, target);
           this.onAttachModel(newModel, target);
           this.initModel(newModel);
           this.didAttachModel(newModel, target);
@@ -176,14 +176,14 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
         target = null;
       }
       if (oldModel !== null) {
-        this.willDetachModel(oldModel);
         (this as Mutable<typeof this>).model = null;
+        this.willDetachModel(oldModel);
         this.onDetachModel(oldModel);
         this.deinitModel(oldModel);
         this.didDetachModel(oldModel);
       }
-      this.willAttachModel(newModel, target);
       (this as Mutable<typeof this>).model = newModel;
+      this.willAttachModel(newModel, target);
       this.onAttachModel(newModel, target);
       this.initModel(newModel);
       this.didAttachModel(newModel, target);
@@ -194,8 +194,8 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
   ModelRef.prototype.detachModel = function <M extends Model>(this: ModelRef<unknown, M>): M | null {
     const oldModel = this.model;
     if (oldModel !== null) {
-      this.willDetachModel(oldModel);
       (this as Mutable<typeof this>).model = null;
+      this.willDetachModel(oldModel);
       this.onDetachModel(oldModel);
       this.deinitModel(oldModel);
       this.didDetachModel(oldModel);
@@ -229,15 +229,15 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     const oldModel = this.model;
     if (newModel !== oldModel) {
       if (oldModel !== null) {
-        this.willDetachModel(oldModel);
         (this as Mutable<typeof this>).model = null;
+        this.willDetachModel(oldModel);
         this.onDetachModel(oldModel);
         this.deinitModel(oldModel);
         this.didDetachModel(oldModel);
         oldModel.remove();
       }
-      this.willAttachModel(newModel, target);
       (this as Mutable<typeof this>).model = newModel;
+      this.willAttachModel(newModel, target);
       this.onAttachModel(newModel, target);
       this.initModel(newModel);
       this.didAttachModel(newModel, target);
@@ -265,8 +265,8 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     if (this.binds && this.model === null) {
       const newModel = this.detectModel(model);
       if (newModel !== null) {
-        this.willAttachModel(newModel, target);
         (this as Mutable<typeof this>).model = newModel;
+        this.willAttachModel(newModel, target);
         this.onAttachModel(newModel, target);
         this.initModel(newModel);
         this.didAttachModel(newModel, target);
@@ -278,8 +278,8 @@ export const ModelRef = (function (_super: typeof ModelRelation) {
     if (this.binds) {
       const oldModel = this.detectModel(model);
       if (oldModel !== null && this.model === oldModel) {
-        this.willDetachModel(oldModel);
         (this as Mutable<typeof this>).model = null;
+        this.willDetachModel(oldModel);
         this.onDetachModel(oldModel);
         this.deinitModel(oldModel);
         this.didDetachModel(oldModel);

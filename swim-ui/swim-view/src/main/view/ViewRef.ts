@@ -213,15 +213,15 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       if (oldView !== newView) {
         if (oldView !== null) {
           this.deactivateLayout();
-          this.willDetachView(oldView);
           (this as Mutable<typeof this>).view = null;
+          this.willDetachView(oldView);
           this.onDetachView(oldView);
           this.deinitView(oldView);
           this.didDetachView(oldView);
         }
         if (newView !== null) {
-          this.willAttachView(newView, target);
           (this as Mutable<typeof this>).view = newView;
+          this.willAttachView(newView, target);
           this.onAttachView(newView, target);
           this.initView(newView);
           this.didAttachView(newView, target);
@@ -246,14 +246,14 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       }
       if (oldView !== null) {
         this.deactivateLayout();
-        this.willDetachView(oldView);
         (this as Mutable<typeof this>).view = null;
+        this.willDetachView(oldView);
         this.onDetachView(oldView);
         this.deinitView(oldView);
         this.didDetachView(oldView);
       }
-      this.willAttachView(newView, target);
       (this as Mutable<typeof this>).view = newView;
+      this.willAttachView(newView, target);
       this.onAttachView(newView, target);
       this.initView(newView);
       this.didAttachView(newView, target);
@@ -265,8 +265,8 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     const oldView = this.view;
     if (oldView !== null) {
       this.deactivateLayout();
-      this.willDetachView(oldView);
       (this as Mutable<typeof this>).view = null;
+      this.willDetachView(oldView);
       this.onDetachView(oldView);
       this.deinitView(oldView);
       this.didDetachView(oldView);
@@ -301,15 +301,15 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     if (newView !== oldView) {
       if (oldView !== null) {
         this.deactivateLayout();
-        this.willDetachView(oldView);
         (this as Mutable<typeof this>).view = null;
+        this.willDetachView(oldView);
         this.onDetachView(oldView);
         this.deinitView(oldView);
         this.didDetachView(oldView);
         oldView.remove();
       }
-      this.willAttachView(newView, target);
       (this as Mutable<typeof this>).view = newView;
+      this.willAttachView(newView, target);
       this.onAttachView(newView, target);
       this.initView(newView);
       this.didAttachView(newView, target);
@@ -337,8 +337,8 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
     if (this.binds && this.view === null) {
       const newView = this.detectView(view);
       if (newView !== null) {
-        this.willAttachView(newView, target);
         (this as Mutable<typeof this>).view = newView;
+        this.willAttachView(newView, target);
         this.onAttachView(newView, target);
         this.initView(newView);
         this.didAttachView(newView, target);
@@ -351,8 +351,8 @@ export const ViewRef = (function (_super: typeof ViewRelation) {
       const oldView = this.detectView(view);
       if (oldView !== null && this.view === oldView) {
         this.deactivateLayout();
-        this.willDetachView(oldView);
         (this as Mutable<typeof this>).view = null;
+        this.willDetachView(oldView);
         this.onDetachView(oldView);
         this.deinitView(oldView);
         this.didDetachView(oldView);

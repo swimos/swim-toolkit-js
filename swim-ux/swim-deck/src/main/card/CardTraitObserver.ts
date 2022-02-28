@@ -12,16 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {HtmlView, HtmlViewObserver} from "@swim/dom";
-import type {DeckButton} from "./DeckButton";
+import type {TraitObserver} from "@swim/model";
+import type {CardTraitTitle, CardTrait} from "./CardTrait";
 
 /** @public */
-export interface DeckButtonObserver<V extends DeckButton = DeckButton> extends HtmlViewObserver<V> {
-  deckButtonWillPushLabel?(newLabelView: HtmlView, oldLabelView: HtmlView | null, view: V): void;
+export interface CardTraitObserver<T extends CardTrait = CardTrait> extends TraitObserver<T> {
+  traitWillSetTitle?(newTitle: CardTraitTitle | null, oldTitle: CardTraitTitle | null, trait: T): void;
 
-  deckButtonDidPushLabel?(newLabelView: HtmlView, oldLabelView: HtmlView | null, view: V): void;
-
-  deckButtonWillPopLabel?(newLabelView: HtmlView | null, oldLabelView: HtmlView, view: V): void;
-
-  deckButtonDidPopLabel?(newLabelView: HtmlView | null, oldLabelView: HtmlView, view: V): void;
+  traitDidSetTitle?(newTitle: CardTraitTitle | null, oldTitle: CardTraitTitle | null, trait: T): void;
 }

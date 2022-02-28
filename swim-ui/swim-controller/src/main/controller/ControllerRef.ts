@@ -144,15 +144,15 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
       }
       if (oldController !== newController) {
         if (oldController !== null) {
-          this.willDetachController(oldController);
           (this as Mutable<typeof this>).controller = null;
+          this.willDetachController(oldController);
           this.onDetachController(oldController);
           this.deinitController(oldController);
           this.didDetachController(oldController);
         }
         if (newController !== null) {
-          this.willAttachController(newController, target);
           (this as Mutable<typeof this>).controller = newController;
+          this.willAttachController(newController, target);
           this.onAttachController(newController, target);
           this.initController(newController);
           this.didAttachController(newController, target);
@@ -176,14 +176,14 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
         target = null;
       }
       if (oldController !== null) {
-        this.willDetachController(oldController);
         (this as Mutable<typeof this>).controller = null;
+        this.willDetachController(oldController);
         this.onDetachController(oldController);
         this.deinitController(oldController);
         this.didDetachController(oldController);
       }
-      this.willAttachController(newController, target);
       (this as Mutable<typeof this>).controller = newController;
+      this.willAttachController(newController, target);
       this.onAttachController(newController, target);
       this.initController(newController);
       this.didAttachController(newController, target);
@@ -194,8 +194,8 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
   ControllerRef.prototype.detachController = function <C extends Controller>(this: ControllerRef<unknown, C>): C | null {
     const oldController = this.controller;
     if (oldController !== null) {
-      this.willDetachController(oldController);
       (this as Mutable<typeof this>).controller = null;
+      this.willDetachController(oldController);
       this.onDetachController(oldController);
       this.deinitController(oldController);
       this.didDetachController(oldController);
@@ -229,15 +229,15 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     const oldController = this.controller;
     if (newController !== oldController) {
       if (oldController !== null) {
-        this.willDetachController(oldController);
         (this as Mutable<typeof this>).controller = null;
+        this.willDetachController(oldController);
         this.onDetachController(oldController);
         this.deinitController(oldController);
         this.didDetachController(oldController);
         oldController.remove();
       }
-      this.willAttachController(newController, target);
       (this as Mutable<typeof this>).controller = newController;
+      this.willAttachController(newController, target);
       this.onAttachController(newController, target);
       this.initController(newController);
       this.didAttachController(newController, target);
@@ -265,8 +265,8 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     if (this.binds && this.controller === null) {
       const newController = this.detectController(controller);
       if (newController !== null) {
-        this.willAttachController(newController, target);
         (this as Mutable<typeof this>).controller = newController;
+        this.willAttachController(newController, target);
         this.onAttachController(newController, target);
         this.initController(newController);
         this.didAttachController(newController, target);
@@ -278,8 +278,8 @@ export const ControllerRef = (function (_super: typeof ControllerRelation) {
     if (this.binds) {
       const oldController = this.detectController(controller);
       if (oldController !== null && this.controller === oldController) {
-        this.willDetachController(oldController);
         (this as Mutable<typeof this>).controller = null;
+        this.willDetachController(oldController);
         this.onDetachController(oldController);
         this.deinitController(oldController);
         this.didDetachController(oldController);

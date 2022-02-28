@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {HtmlViewObserver} from "@swim/dom";
-import type {DeckBar} from "./DeckBar";
+export {BarView} from "./BarView";
+export {BarViewObserver} from "./BarViewObserver";
 
-/** @public */
-export interface DeckBarObserver<V extends DeckBar = DeckBar> extends HtmlViewObserver<V> {
-  deckBarDidPressBackButton?(event: Event | null, view: V): void;
+export {BarTrait} from "./BarTrait";
+export {BarTraitObserver} from "./BarTraitObserver";
 
-  deckBarDidPressCloseButton?(event: Event | null, view: V): void;
-}
+export {
+  BarControllerToolExt,
+  BarController,
+} from "./BarController";
+export {BarControllerObserver} from "./BarControllerObserver";

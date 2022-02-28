@@ -27,9 +27,6 @@ const containerView = bodyView.appendChild("div")
   .userSelect("none");
 
 class ExampleTableController extends swim.TableController {
-  createRowFastener(rowController) {
-    return ExampleTableController.RowFastener.create(this);
-  }
 }
 swim.TraitViewControllerSet({
   extends: true,

@@ -13,20 +13,20 @@
 // limitations under the License.
 
 import type {HtmlViewObserver} from "@swim/dom";
-import type {DeckCard} from "./DeckCard";
-import type {DeckView} from "./DeckView";
+import type {ToolView} from "@swim/toolbar";
+import type {CardView} from "./CardView";
 
 /** @public */
-export interface DeckViewObserver<V extends DeckView = DeckView> extends HtmlViewObserver<V> {
-  deckWillPushCard?(newCardView: DeckCard, oldCardView: DeckCard | null, view: V): void;
+export interface CardViewObserver<V extends CardView = CardView> extends HtmlViewObserver<V> {
+  viewWillAttachTitle?(titleView: ToolView, view: V): void;
 
-  deckDidPushCard?(newCardView: DeckCard, oldCardView: DeckCard | null, view: V): void;
+  viewDidDetachTitle?(titleView: ToolView, view: V): void;
 
-  deckWillPopCard?(newCardView: DeckCard | null, oldCardView: DeckCard, view: V): void;
+  viewWillPresent?(view: V): void;
 
-  deckDidPopCard?(newCardView: DeckCard | null, oldCardView: DeckCard, view: V): void;
+  viewDidPresent?(view: V): void;
 
-  deckDidPressBackButton?(event: Event | null, view: V): void;
+  viewWillDismiss?(view: V): void;
 
-  deckDidPressCloseButton?(event: Event | null, view: V): void;
+  viewDidDismiss?(view: V): void;
 }

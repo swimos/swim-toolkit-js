@@ -197,9 +197,6 @@ const LightNested = FeelVector.of(
 );
 
 const LightHovering = FeelVector.of(
-  [Look.statusColor, Color.black(1 / 4)],
-  [Look.accentColor, Color.black(1 / 4)],
-
   [Look.backgroundColor, Color.black(1 / 4)],
 );
 
