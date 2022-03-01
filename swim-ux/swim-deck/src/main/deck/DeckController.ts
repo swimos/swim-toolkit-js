@@ -106,7 +106,7 @@ export class DeckController extends Controller {
       const topTitleView = topCardView.cardTitle.insertView(this.bar.view, void 0, void 0, topCardKey);
       if (topTitleView !== null) {
         const timing = topTitleView.getLookOr(Look.timing, Mood.navigating, false);
-        topTitleView.color.setLook(Look.color, timing, Affinity.Intrinsic);
+        topTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
         topTitleView.zIndex.setState(1, Affinity.Intrinsic);
       }
       const topCardLayout = ToolLayout.create(topCardKey!, 1, 0, 0, 0.5);

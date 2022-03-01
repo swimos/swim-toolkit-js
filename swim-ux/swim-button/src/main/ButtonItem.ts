@@ -66,7 +66,7 @@ export class ButtonItem extends HtmlView {
     super.onApplyTheme(theme, mood, timing);
     const label = this.label;
     if (label !== null && label.color.hasAffinity(Affinity.Intrinsic)) {
-      label.color.setState(theme.getOr(Look.mutedColor, mood, null), timing, Affinity.Intrinsic);
+      label.color.setState(theme.getOr(Look.labelColor, mood, null), timing, Affinity.Intrinsic);
     }
   }
 

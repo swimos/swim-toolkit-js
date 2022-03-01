@@ -56,7 +56,7 @@ export class DisclosureButton extends HtmlView {
   @ThemeAnimator({type: Expansion, inherits: true, updateFlags: View.NeedsLayout})
   readonly disclosure!: ExpansionThemeAnimator<this, Expansion, AnyExpansion>;
 
-  @ThemeAnimator({type: Color, inherits: true, look: Look.color, updateFlags: View.NeedsLayout})
+  @ThemeAnimator({type: Color, inherits: true, look: Look.textColor, updateFlags: View.NeedsLayout})
   readonly collapsedColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
   @ThemeAnimator({type: Color, inherits: true, look: Look.accentColor, updateFlags: View.NeedsLayout})

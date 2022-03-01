@@ -152,10 +152,10 @@ function play() {
     title2View.color.setLook(swim.Look.accentColor, tween);
     setTimeout(function () {
       barView.layout.setState(layout1, tween);
-      title2View.color.setLook(swim.Look.color, tween);
+      title2View.color.setLook(swim.Look.textColor, tween);
       setTimeout(function () {
         barView.layout.setState(layout0, tween);
-        title1View.color.setLook(swim.Look.color, tween);
+        title1View.color.setLook(swim.Look.textColor, tween);
         setTimeout(play, duration + 5 * pause);
       }, duration + pause);
     }, duration + pause);
