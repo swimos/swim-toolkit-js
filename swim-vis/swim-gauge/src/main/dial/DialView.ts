@@ -110,7 +110,7 @@ export class DialView extends GraphicsView {
   @ThemeAnimator({type: Length, inherits: true, value: Length.pct(50), updateFlags: View.NeedsRender})
   readonly cornerRadius!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimator({type: Color, inherits: true, value: null, look: Look.plateColor, updateFlags: View.NeedsRender})
+  @ThemeAnimator({type: Color, inherits: true, value: null, look: Look.etchColor, updateFlags: View.NeedsRender})
   readonly dialColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
   @ThemeAnimator({type: Color, inherits: true, value: null, look: Look.accentColor, updateFlags: View.NeedsRender})

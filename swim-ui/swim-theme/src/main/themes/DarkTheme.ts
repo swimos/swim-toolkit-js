@@ -46,7 +46,8 @@ Theme.dark = (function (): ThemeMatrix {
   const raisedColor = Color.parse("#212121");
   const coveredColor = Color.parse("#363636");
 
-  const plateColor = Color.parse("#28292a");
+  const etchColor = Color.parse("#262626");
+  const maskColor = Color.parse("#343434");
   const tickColor = Color.parse("#c0c0c0");
   const gridColor = Color.parse("#3c3c3c");
 
@@ -68,7 +69,8 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.backgroundColor, backgroundColor],
     [Look.borderColor, borderColor],
 
-    [Look.plateColor, plateColor],
+    [Look.etchColor, etchColor],
+    [Look.maskColor, maskColor],
     [Look.tickColor, tickColor],
     [Look.gridColor, gridColor],
 
@@ -92,7 +94,8 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.backgroundColor, backgroundColor],
     [Look.borderColor, borderColor],
 
-    [Look.plateColor, plateColor],
+    [Look.etchColor, etchColor],
+    [Look.maskColor, maskColor],
     [Look.tickColor, tickColor],
     [Look.gridColor, gridColor],
 
@@ -180,21 +183,24 @@ Theme.dark = (function (): ThemeMatrix {
     [Look.iconColor, Color.black(1)],
     [Look.statusColor, Color.black(1)],
     [Look.accentColor, Color.black(1)],
-    [Look.plateColor, Color.black(1)],
+    [Look.etchColor, Color.black(1)],
+    [Look.maskColor, Color.black(1)],
   );
 
   const lighterFeel = FeelVector.of(
     [Look.iconColor, Color.black(-1)],
     [Look.statusColor, Color.black(-1)],
     [Look.accentColor, Color.black(-1)],
-    [Look.plateColor, Color.black(-1)],
+    [Look.etchColor, Color.black(-1)],
+    [Look.maskColor, Color.black(-1)],
   );
 
   const contrastedFeel = FeelVector.of(
     [Look.iconColor, Color.black(-1)],
     [Look.statusColor, Color.black(-1)],
     [Look.accentColor, Color.black(-1)],
-    [Look.plateColor, Color.black(-1)],
+    [Look.etchColor, Color.black(-1)],
+    [Look.maskColor, Color.black(-1)],
   );
 
   const embossedFeel = FeelVector.of(
@@ -210,6 +216,8 @@ Theme.dark = (function (): ThemeMatrix {
 
   const hoveringFeel = FeelVector.of(
     [Look.backgroundColor, Color.black(-2)],
+    [Look.etchColor, Color.black(-1)],
+    [Look.maskColor, Color.black(-1)],
   );
 
   const navigatingFeel = FeelVector.of(

@@ -35,7 +35,8 @@ Look.accentColor = new ColorLook("accentColor");
 Look.backgroundColor = new ColorLook("backgroundColor");
 Look.borderColor = new ColorLook("borderColor");
 
-Look.plateColor = new ColorLook("plateColor");
+Look.etchColor = new ColorLook("etchColor");
+Look.maskColor = new ColorLook("maskColor");
 Look.tickColor = new ColorLook("tickColor");
 Look.gridColor = new ColorLook("gridColor");
 

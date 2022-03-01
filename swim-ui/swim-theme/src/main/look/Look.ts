@@ -172,7 +172,8 @@ export abstract class Look<T, U = never> implements Mood {
   static backgroundColor: Look<Color, AnyColor>; // defined by looks
   static borderColor: Look<Color, AnyColor>; // defined by looks
 
-  static plateColor: Look<Color, AnyColor>; // defined by looks
+  static etchColor: Look<Color, AnyColor>; // defined by looks
+  static maskColor: Look<Color, AnyColor>; // defined by looks
   static tickColor: Look<Color, AnyColor>; // defined by looks
   static gridColor: Look<Color, AnyColor>; // defined by looks
 

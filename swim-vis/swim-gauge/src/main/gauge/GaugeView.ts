@@ -86,7 +86,7 @@ export class GaugeView extends GraphicsView {
   @ThemeAnimator({type: Length, value: Length.px(1), updateFlags: View.NeedsLayout})
   readonly dialSpacing!: ThemeAnimator<this, Length, AnyLength>;
 
-  @ThemeAnimator({type: Color, value: null, look: Look.plateColor})
+  @ThemeAnimator({type: Color, value: null, look: Look.etchColor})
   readonly dialColor!: ThemeAnimator<this, Color | null, AnyColor | null>;
 
   @ThemeAnimator({type: Color, value: null, look: Look.accentColor})
