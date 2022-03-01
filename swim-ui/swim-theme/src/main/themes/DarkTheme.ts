@@ -23,20 +23,20 @@ import {ThemeMatrix} from "../theme/ThemeMatrix";
 
 const DarkFont = Font.parse("14px -apple-system, system-ui, sans-serif");
 
-const DarkColor = Color.parse("#d8d8d8");
-const DarkIconColor = Color.parse("#d8d8d8");
+const DarkColor = Color.parse("#ffffff");
+const DarkIconColor = Color.parse("#ffffff");
 const DarkAccentColor = Color.parse("#6c6d6e");
-const DarkMutedColor = Color.parse("#989898");
-const DarkNeutralColor = Color.parse("#808080");
-const DarkSubduedColor = Color.parse("#28292a");
-const DarkFaintColor = Color.parse("#1f2123");
+const DarkMutedColor = Color.parse("#ffffff").alpha(0.85);
+const DarkNeutralColor = Color.parse("#ffffff").alpha(0.55);
+const DarkSubduedColor = Color.parse("#ffffff").alpha(0.25);
+const DarkFaintColor = Color.parse("#ffffff").alpha(0.1);
 const DarkHighlightColor = Color.white(0.1);
 
-const DarkBackgroundColor = Color.parse("#161719");
-const DarkBorderColor = DarkBackgroundColor.lighter(2 / 3);
+const DarkBackgroundColor = Color.parse("#181818");
+const DarkBorderColor = Color.parse("#ffffff").alpha(0.1);
 
-const DarkRaisedColor = Color.parse("#18191b");
-const DarkCoveredColor = Color.parse("#1e2022");
+const DarkRaisedColor = Color.parse("#212121");
+const DarkCoveredColor = Color.parse("#363636");
 
 const DarkPrimaryColor = Color.parse("#66ffdd");
 const DarkSecondaryColor = Color.parse("#32c5ff");

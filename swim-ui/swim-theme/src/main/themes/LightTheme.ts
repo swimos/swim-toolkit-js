@@ -23,28 +23,28 @@ import {ThemeMatrix} from "../theme/ThemeMatrix";
 
 const LightFont = Font.parse("14px -apple-system, system-ui, sans-serif");
 
-const LightColor = Color.parse("#4a4a4a");
+const LightColor = Color.parse("#000000");
 const LightIconColor = Color.parse("#4a4a4a");
 const LightAccentColor = Color.parse("#5c5d5e");
-const LightMutedColor = Color.parse("#989898");
-const LightNeutralColor = Color.parse("#808080");
-const LightSubduedColor = Color.parse("#d7d6d5");
-const LightFaintColor = Color.parse("#e0dedc");
+const LightMutedColor = Color.parse("#000000").alpha(0.85);
+const LightNeutralColor = Color.parse("#000000").alpha(0.5);
+const LightSubduedColor = Color.parse("#000000").alpha(0.26);
+const LightFaintColor = Color.parse("#000000").alpha(0.1);
 const LightHighlightColor = Color.black(0.05);
 
-const LightBackgroundColor = Color.parse("#f9f8f6");
-const LightBorderColor = LightBackgroundColor.darker(1 / 2);
+const LightBackgroundColor = Color.parse("#f9f9f9");
+const LightBorderColor = Color.parse("#000000").alpha(0.1);
 
-const LightRaisedColor = Color.parse("#f7f6f4");
-const LightCoveredColor = Color.parse("#f1efed");
+const LightRaisedColor = Color.parse("#f1f1f1");
+const LightCoveredColor = Color.parse("#ffffff");
 
-const LightPrimaryColor = Color.parse("#4fcfb3");
-const LightSecondaryColor = Color.parse("#008cc7");
+const LightPrimaryColor = Color.parse("#18bdb0");
+const LightSecondaryColor = Color.parse("#47b0ec");
 
 const LightDisabledColor = Color.parse("#7b7c7d");
 const LightInactiveColor = Color.parse("#7b7c7d");
-const LightWarningColor = Color.parse("#e6de65");
-const LightAlertColor = Color.parse("#df4616");
+const LightWarningColor = Color.parse("#fec309");
+const LightAlertColor = Color.parse("#fc2125");
 
 const LightSpacing = Length.px(10);
 
