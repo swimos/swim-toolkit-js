@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export {DeckBarController} from "./DeckBarController";
+export {DeckBarControllerObserver} from "./DeckBarControllerObserver";
+
 export {DeckView} from "./DeckView";
 export {DeckViewObserver} from "./DeckViewObserver";
 
@@ -20,8 +23,8 @@ export {DeckTraitObserver} from "./DeckTraitObserver";
 
 export {
   DeckControllerBarExt,
-  DeckControllerToolExt,
   DeckControllerCardExt,
+  DeckControllerTopCardExt,
   DeckController,
 } from "./DeckController";
 export {DeckControllerObserver} from "./DeckControllerObserver";

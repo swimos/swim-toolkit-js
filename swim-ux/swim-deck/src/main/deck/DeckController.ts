@@ -12,32 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {Class, Lazy, ObserverType} from "@swim/util";
-import {Affinity, MemberFastenerClass} from "@swim/component";
+import type {Class, ObserverType, AnyTiming} from "@swim/util";
+import type {MemberFastenerClass} from "@swim/component";
 import type {Trait} from "@swim/model";
-import {Look, Mood} from "@swim/theme";
 import type {PositionGestureInput} from "@swim/view";
-import {VectorIcon} from "@swim/graphics";
 import {
   Controller,
   TraitViewRef,
   TraitViewControllerRef,
   TraitViewControllerSet,
 } from "@swim/controller";
-import {
-  ToolLayout,
-  BarLayout,
-  ToolView,
-  ToolTrait,
-  ToolController,
-  ButtonToolController,
-  BarView,
-  BarTrait,
-  BarController,
-} from "@swim/toolbar";
+import {ToolView, BarView, BarTrait, BarController} from "@swim/toolbar";
 import type {CardView} from "../card/CardView";
 import type {CardTrait} from "../card/CardTrait";
 import {CardController} from "../card/CardController";
+import {DeckBarController} from "./DeckBarController";
 import {DeckView} from "./DeckView";
 import {DeckTrait} from "./DeckTrait";
 import type {DeckControllerObserver} from "./DeckControllerObserver";
@@ -51,11 +40,6 @@ export interface DeckControllerBarExt {
 }
 
 /** @public */
-export interface DeckControllerToolExt {
-  layout: ToolLayout | null;
-}
-
-/** @public */
 export type DeckControllerCardExt = {
   attachCardTrait(cardTrait: CardTrait, cardController: CardController): void;
   detachCardTrait(cardTrait: CardTrait, cardController: CardController): void;
@@ -66,72 +50,13 @@ export type DeckControllerCardExt = {
 };
 
 /** @public */
+export type DeckControllerTopCardExt = {
+  dismiss(timing?: AnyTiming | boolean): CardView | null;
+};
+
+/** @public */
 export class DeckController extends Controller {
   override readonly observerType?: Class<DeckControllerObserver>;
-
-  protected createBarLayout(): BarLayout | null {
-    const tools = new Array<ToolLayout>();
-    const topCardView = this.topCard.view;
-    const topCardKey = topCardView !== null ? "title" + topCardView.uid : void 0;
-    const backCardView = topCardView !== null ? topCardView.backCardView : null;
-    const backCardKey = backCardView !== null ? "title" + backCardView.uid : void 0;
-
-    if (topCardView === null || backCardView === null) {
-      this.backTool.removeView();
-      this.closeTool.insertView();
-      const closeToolLayout = this.closeTool.layout;
-      if (this.closeTool.controller !== null && closeToolLayout !== null) {
-        tools.push(closeToolLayout);
-      }
-    } else {
-      this.closeTool.removeView();
-      this.backTool.insertView();
-      const backToolLayout = this.backTool.layout;
-      if (this.backTool.controller !== null && backToolLayout !== null) {
-        tools.push(backToolLayout.withOverlap(backCardKey).withOverpad(16));
-      }
-    }
-
-    if (backCardView !== null) {
-      const backTitleView = backCardView.cardTitle.insertView(this.bar.view, void 0, void 0, backCardKey);
-      if (backTitleView !== null) {
-        const timing = backTitleView.getLookOr(Look.timing, Mood.navigating, false);
-        backTitleView.color.setLook(Look.accentColor, timing, Affinity.Intrinsic);
-        backTitleView.zIndex.setState(1, Affinity.Intrinsic);
-      }
-      const backCardLayout = ToolLayout.create(backCardKey!, 0, 0, 0, 0);
-      tools.push(backCardLayout);
-    }
-    if (topCardView !== null) {
-      const topTitleView = topCardView.cardTitle.insertView(this.bar.view, void 0, void 0, topCardKey);
-      if (topTitleView !== null) {
-        const timing = topTitleView.getLookOr(Look.timing, Mood.navigating, false);
-        topTitleView.color.setLook(Look.textColor, timing, Affinity.Intrinsic);
-        topTitleView.zIndex.setState(1, Affinity.Intrinsic);
-      }
-      const topCardLayout = ToolLayout.create(topCardKey!, 1, 0, 0, 0.5);
-      tools.push(topCardLayout);
-    }
-
-    const menuToolLayout = this.menuTool.layout;
-    if (this.menuTool.controller !== null && menuToolLayout !== null) {
-      tools.push(menuToolLayout);
-      this.menuTool.insertView();
-    }
-
-    return BarLayout.create(tools);
-  }
-
-  protected updateBarLayout(): void {
-    const barView = this.bar.view;
-    if (barView !== null) {
-      const barLayout = this.createBarLayout();
-      if (barLayout !== null) {
-        const timing = barView.getLookOr(Look.timing, Mood.navigating, false);
-        barView.layout.setState(barLayout, timing);
-      }
-    }
-  }
 
   @TraitViewRef<DeckController, DeckTrait, DeckView>({
     traitType: DeckTrait,
@@ -220,7 +145,7 @@ export class DeckController extends Controller {
   readonly deck!: TraitViewRef<this, DeckTrait, DeckView>;
   static readonly deck: MemberFastenerClass<DeckController, "deck">;
 
-  @TraitViewControllerRef<DeckController, BarTrait, BarView, BarController, DeckControllerBarExt>({
+  @TraitViewControllerRef<DeckController, BarTrait, BarView, BarController, DeckControllerBarExt & ObserverType<BarController | DeckBarController>>({
     implements: true,
     type: BarController,
     binds: true,
@@ -294,157 +219,25 @@ export class DeckController extends Controller {
     detachBarView(barView: BarView, barController: BarController): void {
       barView.remove();
     },
+    controllerDidPressClose(input: PositionGestureInput, event: Event | null): void {
+      this.owner.callObservers("controllerDidPressClose", input, event, this.owner);
+    },
+    controllerDidPressBack(input: PositionGestureInput, event: Event | null): void {
+      this.owner.topCard.dismiss();
+      this.owner.callObservers("controllerDidPressBack", input, event, this.owner);
+    },
+    controllerDidPressMenu(input: PositionGestureInput, event: Event | null): void {
+      this.owner.callObservers("controllerDidPressMenu", input, event, this.owner);
+    },
     detectController(controller: Controller): BarController | null {
       return controller instanceof BarController ? controller : null;
+    },
+    createController(): BarController {
+      return new DeckBarController();
     },
   })
   readonly bar!: TraitViewControllerRef<this, BarTrait, BarView, BarController>;
   static readonly bar: MemberFastenerClass<DeckController, "bar">;
-
-  protected didPressClose(input: PositionGestureInput, event: Event | null): void {
-    this.callObservers("controllerDidPressClose", input, event, this);
-  }
-
-  @TraitViewControllerRef<DeckController, ToolTrait, ToolView, ToolController, DeckControllerToolExt & ObserverType<ToolController | ButtonToolController>>({
-    implements: true,
-    type: BarController,
-    binds: true,
-    viewKey: "close",
-    observes: true,
-    init(): void {
-      this.layout = ToolLayout.create(this.viewKey!, 0, 0, 48);
-    },
-    get parentView(): BarView | null {
-      return this.owner.bar.view;
-    },
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
-      return toolController.tool;
-    },
-    didAttachController(toolController: ToolController): void {
-      this.owner.updateBarLayout();
-    },
-    willDetachController(toolController: ToolController): void {
-      toolController.tool.removeView();
-      this.owner.updateBarLayout();
-    },
-    controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
-      this.owner.didPressClose(input, event);
-    },
-    createController(): ToolController {
-      const toolController = new ButtonToolController();
-      const toolView = toolController.tool.attachView()!;
-      toolView.iconWidth.setState(24, Affinity.Intrinsic);
-      toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(DeckController.closeIcon, Affinity.Intrinsic);
-      return toolController;
-    },
-  })
-  readonly closeTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController> & DeckControllerToolExt;
-  static readonly closeTool: MemberFastenerClass<DeckController, "closeTool">;
-
-  /** @internal */
-  @Lazy
-  static get closeIcon(): VectorIcon {
-    return VectorIcon.create(24, 24, "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12Z");
-  }
-
-  protected didPressBack(input: PositionGestureInput, event: Event | null): void {
-    const topCardView = this.topCard.view;
-    if (topCardView !== null) {
-      const timing = topCardView.getLookOr(Look.timing, Mood.navigating, false);
-      topCardView.presence.dismiss(timing);
-    }
-  }
-
-  @TraitViewControllerRef<DeckController, ToolTrait, ToolView, ToolController, DeckControllerToolExt & ObserverType<ToolController | ButtonToolController>>({
-    implements: true,
-    type: BarController,
-    binds: true,
-    viewKey: "back",
-    observes: true,
-    init(): void {
-      this.layout = ToolLayout.create(this.viewKey!, 0, 0, 48);
-    },
-    get parentView(): BarView | null {
-      return this.owner.bar.view;
-    },
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
-      return toolController.tool;
-    },
-    didAttachController(toolController: ToolController): void {
-      this.owner.updateBarLayout();
-    },
-    willDetachController(toolController: ToolController): void {
-      toolController.tool.removeView();
-      this.owner.updateBarLayout();
-    },
-    controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
-      this.owner.didPressBack(input, event);
-    },
-    createController(): ToolController {
-      const toolController = new ButtonToolController();
-      const toolView = toolController.tool.attachView()!;
-      toolView.iconWidth.setState(24, Affinity.Intrinsic);
-      toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(DeckController.backIcon, Affinity.Intrinsic);
-      return toolController;
-    },
-  })
-  readonly backTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController> & DeckControllerToolExt;
-  static readonly backTool: MemberFastenerClass<DeckController, "backTool">;
-
-  /** @internal */
-  @Lazy
-  static get backIcon(): VectorIcon {
-    return VectorIcon.create(24, 24, "M17.77,3.77L16,2L6,12L16,22L17.77,20.23L9.54,12Z").withFillLook(Look.accentColor);
-  }
-
-  protected didPressMenu(input: PositionGestureInput, event: Event | null): void {
-    this.callObservers("controllerDidPressMenu", input, event, this);
-  }
-
-  @TraitViewControllerRef<DeckController, ToolTrait, ToolView, ToolController, DeckControllerToolExt & ObserverType<ToolController | ButtonToolController>>({
-    implements: true,
-    type: BarController,
-    binds: true,
-    viewKey: "menu",
-    observes: true,
-    init(): void {
-      this.layout = ToolLayout.create(this.viewKey!, 0, 0, 48);
-    },
-    get parentView(): BarView | null {
-      return this.owner.bar.view;
-    },
-    getTraitViewRef(toolController: ToolController): TraitViewRef<unknown, ToolTrait, ToolView> {
-      return toolController.tool;
-    },
-    didAttachController(toolController: ToolController): void {
-      this.owner.updateBarLayout();
-    },
-    willDetachController(toolController: ToolController): void {
-      toolController.tool.removeView();
-      this.owner.updateBarLayout();
-    },
-    controllerDidPressToolView(input: PositionGestureInput, event: Event | null): void {
-      this.owner.didPressMenu(input, event);
-    },
-    createController(): ToolController {
-      const toolController = new ButtonToolController();
-      const toolView = toolController.tool.attachView()!;
-      toolView.iconWidth.setState(24, Affinity.Intrinsic);
-      toolView.iconHeight.setState(24, Affinity.Intrinsic);
-      toolView.graphics.setState(DeckController.menuIcon, Affinity.Intrinsic);
-      return toolController;
-    },
-  })
-  readonly menuTool!: TraitViewControllerRef<this, ToolTrait, ToolView, ToolController> & DeckControllerToolExt;
-  static readonly menuTool: MemberFastenerClass<DeckController, "menuTool">;
-
-  /** @internal */
-  @Lazy
-  static get menuIcon(): VectorIcon {
-    return VectorIcon.create(24, 24, "M3,18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3Z");
-  }
 
   @TraitViewControllerSet<DeckController, CardTrait, CardView, CardController, DeckControllerCardExt>({
     implements: true,
@@ -563,31 +356,27 @@ export class DeckController extends Controller {
   readonly cards!: TraitViewControllerSet<this, CardTrait, CardView, CardController>;
   static readonly cards: MemberFastenerClass<DeckController, "cards">;
 
-  @TraitViewControllerRef<DeckController, CardTrait, CardView, CardController>({
+  @TraitViewControllerRef<DeckController, CardTrait, CardView, CardController, DeckControllerTopCardExt>({
+    implements: true,
     type: CardController,
     binds: false,
-    observes: true,
     getTraitViewRef(cardController: CardController): TraitViewRef<unknown, CardTrait, CardView> {
       return cardController.card;
     },
     willAttachController(cardController: CardController): void {
       this.owner.callObservers("controllerWillAttachTopCard", cardController, this.owner);
-      this.owner.updateBarLayout();
     },
     didDetachController(cardController: CardController): void {
-      const cardView = cardController.card.view;
-      if (cardView !== null && cardView.backCardView === null && cardView.frontCardView === null) {
-        this.owner.updateBarLayout();
-      }
       this.owner.callObservers("controllerDidDetachTopCard", cardController, this.owner);
     },
-    controllerWillAttachCardTitleView(titleView: ToolView, cardController: CardController): void {
-      this.owner.updateBarLayout();
-    },
-    controllerDidDetachCardTitleView(titleView: ToolView, cardController: CardController): void {
-      this.owner.updateBarLayout();
+    dismiss(timing?: AnyTiming | boolean): CardView | null {
+      const cardView = this.view;
+      if (cardView !== null) {
+        cardView.dismiss(timing);
+      }
+      return cardView;
     },
   })
-  readonly topCard!: TraitViewControllerRef<this, CardTrait, CardView, CardController>;
+  readonly topCard!: TraitViewControllerRef<this, CardTrait, CardView, CardController> & DeckControllerTopCardExt;
   static readonly topCard: MemberFastenerClass<DeckController, "topCard">;
 }

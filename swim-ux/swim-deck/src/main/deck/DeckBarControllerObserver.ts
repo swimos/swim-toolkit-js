@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {TraitObserver} from "@swim/model";
-import type {ToolLayout} from "../layout/ToolLayout";
-import type {ToolTrait} from "./ToolTrait";
+import type {PositionGestureInput} from "@swim/view";
+import type {BarControllerObserver} from "@swim/toolbar";
+import type {DeckBarController} from "./DeckBarController";
 
 /** @public */
-export interface ToolTraitObserver<T extends ToolTrait = ToolTrait> extends TraitObserver<T> {
-  traitWillSetLayout?(newLayout: ToolLayout | null, oldLayout: ToolLayout | null, trait: T): void;
+export interface DeckBarControllerObserver<C extends DeckBarController = DeckBarController> extends BarControllerObserver<C> {
+  controllerDidPressClose?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
-  traitDidSetLayout?(newLayout: ToolLayout | null, oldLayout: ToolLayout | null, trait: T): void;
+  controllerDidPressBack?(input: PositionGestureInput, event: Event | null, controller: C): void;
+
+  controllerDidPressMenu?(input: PositionGestureInput, event: Event | null, controller: C): void;
 }

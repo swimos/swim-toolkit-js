@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import type {Mutable, Class, Initable} from "@swim/util";
+import {Mutable, Class, Initable, AnyTiming, Timing} from "@swim/util";
 import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
 import {AnyPresence, Presence} from "@swim/style";
-import {Look, PresenceThemeAnimator} from "@swim/theme";
+import {Look, Mood, PresenceThemeAnimator} from "@swim/theme";
 import {ViewportInsets, ViewContextType, AnyView, View, ViewRef} from "@swim/view";
 import {HtmlViewInit, HtmlView} from "@swim/dom";
 import {ToolView, TitleToolView} from "@swim/toolbar";
@@ -111,6 +111,24 @@ export class CardView extends HtmlView {
     },
   })
   readonly presence!: PresenceThemeAnimator<this, Presence, AnyPresence>;
+
+  present(timing?: AnyTiming | boolean): void {
+    if (timing === void 0 || timing === true) {
+      timing = this.getLookOr(Look.timing, Mood.navigating, false);
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+    this.presence.present(timing);
+  }
+
+  dismiss(timing?: AnyTiming | boolean): void {
+    if (timing === void 0 || timing === true) {
+      timing = this.getLookOr(Look.timing, Mood.navigating, false);
+    } else {
+      timing = Timing.fromAny(timing);
+    }
+    this.presence.dismiss(timing);
+  }
 
   protected override onLayout(viewContext: ViewContextType<this>): void {
     super.onLayout(viewContext);

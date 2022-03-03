@@ -15,7 +15,6 @@
 import type {Class} from "@swim/util";
 import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import {Length} from "@swim/math";
-import {Look, Mood} from "@swim/theme";
 import {ViewportInsets, ViewContextType, View, ViewRef, ViewSet} from "@swim/view";
 import {HtmlView} from "@swim/dom";
 import {BarView} from "@swim/toolbar";
@@ -169,26 +168,24 @@ export class DeckView extends HtmlView {
       if (cardView.parent === null) {
         this.owner.insertChild(cardView, target);
       }
-      const timing = this.owner.getLookOr(Look.timing, Mood.navigating, false);
       if (cardView.frontCardView === null) {
         if (cardView.presence.presented) {
-          cardView.presence.dismiss(false);
+          cardView.dismiss(false);
         }
         cardView.cardAlign.setValue(1, Affinity.Intrinsic);
-        cardView.presence.present(cardView.backCardView !== null ? timing : false);
+        cardView.present(cardView.backCardView !== null);
       } else {
         cardView.cardAlign.setValue(-(1 / 3), Affinity.Intrinsic);
-        cardView.presence.present(timing);
+        cardView.present();
       }
     },
     didDetachView(cardView: CardView): void {
-      const timing = this.owner.getLookOr(Look.timing, Mood.navigating, false);
       if (cardView.frontCardView !== null) {
         cardView.cardAlign.setValue(-(1 / 3), Affinity.Intrinsic);
-        cardView.presence.dismiss(timing);
+        cardView.dismiss();
       } else {
         cardView.cardAlign.setValue(1, Affinity.Intrinsic);
-        cardView.presence.dismiss(timing);
+        cardView.dismiss();
       }
     },
   })

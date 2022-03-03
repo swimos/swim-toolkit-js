@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import type {Class} from "@swim/util";
-import type {MemberFastenerClass} from "@swim/component";
+import {Affinity, MemberFastenerClass, Property} from "@swim/component";
 import {Controller, TraitViewRef} from "@swim/controller";
+import {AnyToolLayout, ToolLayout} from "../layout/ToolLayout";
 import {ToolView} from "./ToolView";
 import {ToolTrait} from "./ToolTrait";
 import {TitleToolTrait} from "./TitleToolTrait";
@@ -29,11 +30,18 @@ export class ToolController extends Controller {
 
   @TraitViewRef<ToolController, ToolTrait, ToolView>({
     traitType: ToolTrait,
+    observesTrait: true,
+    initTrait(toolTrait: ToolTrait): void {
+      this.owner.layout.setValue(toolTrait.layout.value, Affinity.Intrinsic);
+    },
     willAttachTrait(toolTrait: ToolTrait): void {
       this.owner.callObservers("controllerWillAttachToolTrait", toolTrait, this.owner);
     },
     didDetachTrait(toolTrait: ToolTrait): void {
       this.owner.callObservers("controllerDidDetachToolTrait", toolTrait, this.owner);
+    },
+    traitDidSetLayout(newLayout: ToolLayout | null, oldLayout: ToolLayout | null): void {
+      this.owner.layout.setValue(newLayout, Affinity.Intrinsic);
     },
     viewType: ToolView,
     willAttachView(toolView: ToolView): void {
@@ -45,6 +53,18 @@ export class ToolController extends Controller {
   })
   readonly tool!: TraitViewRef<this, ToolTrait, ToolView>;
   static readonly tool: MemberFastenerClass<ToolController, "tool">;
+
+  @Property<ToolController, ToolLayout | null, AnyToolLayout | null>({
+    type: ToolLayout,
+    value: null,
+    willSetValue(newLayout: ToolLayout | null, oldLayout: ToolLayout | null): void {
+      this.owner.callObservers("controllerWillSetToolLayout", newLayout, oldLayout, this.owner);
+    },
+    didSetValue(newLayout: ToolLayout | null, oldLayout: ToolLayout | null): void {
+      this.owner.callObservers("controllerDidSetToolLayout", newLayout, oldLayout, this.owner);
+    },
+  })
+  readonly layout!: Property<this, ToolLayout | null, AnyToolLayout | null>;
 
   static fromTrait(toolTrait: ToolTrait): ToolController {
     if (toolTrait instanceof TitleToolTrait) {

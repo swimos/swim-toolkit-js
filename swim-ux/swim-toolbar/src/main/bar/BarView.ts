@@ -53,10 +53,14 @@ export class BarView extends HtmlView {
     inherits: true,
     value: null,
     updateFlags: View.NeedsLayout,
+    willSetValue(newLayout: BarLayout | null, oldLayout: BarLayout | null): void {
+      this.owner.callObservers("viewWillSetLayout", newLayout, oldLayout, this.owner);
+    },
     didSetValue(newLayout: BarLayout | null, oldLayout: BarLayout | null): void {
       if (newLayout !== null && newLayout.width === null) {
         this.owner.requireUpdate(View.NeedsResize);
       }
+      this.owner.callObservers("viewDidSetLayout", newLayout, oldLayout, this.owner);
     },
     transformState(newLayout: BarLayout | null): BarLayout | null {
       if (newLayout !== null && newLayout.width === null) {

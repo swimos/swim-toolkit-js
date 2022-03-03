@@ -46,6 +46,8 @@ export interface DeckControllerObserver<C extends DeckController = DeckControlle
 
   controllerDidPressClose?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
+  controllerDidPressBack?(input: PositionGestureInput, event: Event | null, controller: C): void;
+
   controllerDidPressMenu?(input: PositionGestureInput, event: Event | null, controller: C): void;
 
   controllerWillAttachCard?(cardController: CardController, controller: C): void;

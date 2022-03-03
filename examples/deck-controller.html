@@ -64,10 +64,10 @@ const deckController = new ExampleDeckController();
 deckController.mount();
 deckController.deck.insertView(bodyView).flexGrow(1);
 
-deckController.bar.insertController();
-deckController.closeTool.insertController();
-deckController.backTool.insertController();
-deckController.menuTool.insertController();
+const barController = deckController.bar.insertController();
+barController.closeTool.insertController();
+barController.backTool.insertController();
+barController.menuTool.insertController();
 
 function createCardController(i) {
   const cardController = new swim.CardController();

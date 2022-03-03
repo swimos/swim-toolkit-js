@@ -15,10 +15,13 @@
 import type {Class, ObserverType} from "@swim/util";
 import type {MemberFastenerClass} from "@swim/component";
 import type {TraitCreator, Trait} from "@swim/model";
+import {Look, Mood} from "@swim/theme";
 import type {PositionGestureInput, ViewCreator} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {Graphics} from "@swim/graphics";
 import {Controller, TraitViewRef, TraitViewControllerSet} from "@swim/controller";
+import type {ToolLayout} from "../layout/ToolLayout";
+import {BarLayout} from "../layout/BarLayout";
 import type {ToolView} from "../tool/ToolView";
 import {TitleToolView} from "../tool/TitleToolView";
 import type {ToolTrait} from "../tool/ToolTrait";
@@ -73,6 +76,7 @@ export class BarController extends Controller {
       this.owner.tools.deleteTraitController(toolTrait);
     },
     viewType: BarView,
+    observesView: true,
     initView(barView: BarView): void {
       const toolControllers = this.owner.tools.controllers;
       for (const controllerId in toolControllers) {
@@ -89,12 +93,45 @@ export class BarController extends Controller {
     willAttachView(barView: BarView): void {
       this.owner.callObservers("controllerWillAttachBarView", barView, this.owner);
     },
+    didAttachView(barView: BarView): void {
+      this.owner.updateLayout();
+    },
     didDetachView(barView: BarView): void {
       this.owner.callObservers("controllerDidDetachBarView", barView, this.owner);
+    },
+    viewWillSetLayout(newLayout: BarLayout | null, oldLayout: BarLayout | null): void {
+      this.owner.callObservers("controllerWillSetBarLayout", newLayout, oldLayout, this.owner);
+    },
+    viewDidSetLayout(newLayout: BarLayout | null, oldLayout: BarLayout | null): void {
+      this.owner.callObservers("controllerDidSetBarLayout", newLayout, oldLayout, this.owner);
     },
   })
   readonly bar!: TraitViewRef<this, BarTrait, BarView>;
   static readonly bar: MemberFastenerClass<BarController, "bar">;
+
+  protected createLayout(): BarLayout | null {
+    const tools = new Array<ToolLayout>();
+    const toolControllers = this.tools.controllers;
+    for (const controllerId in toolControllers) {
+      const toolController = toolControllers[controllerId]!;
+      const toolLayout = toolController.layout.value;
+      if (toolLayout !== null) {
+        tools.push(toolLayout);
+      }
+    }
+    return BarLayout.create(tools);
+  }
+
+  protected updateLayout(): void {
+    const barView = this.bar.view;
+    if (barView !== null) {
+      const barLayout = this.createLayout();
+      if (barLayout !== null) {
+        const timing = barView.getLookOr(Look.timing, Mood.navigating, false);
+        barView.layout.setState(barLayout, timing);
+      }
+    }
+  }
 
   getToolTrait<F extends abstract new (...args: any) => ToolTrait>(key: string, toolTraitClass: F): InstanceType<F> | null;
   getToolTrait(key: string): ToolTrait | null;
@@ -173,6 +210,7 @@ export class BarController extends Controller {
       if (toolView !== null) {
         this.attachToolView(toolView, toolController);
       }
+      this.owner.updateLayout();
     },
     willDetachController(toolController: ToolController): void {
       const toolView = toolController.tool.view;
@@ -185,6 +223,7 @@ export class BarController extends Controller {
       }
     },
     didDetachController(toolController: ToolController): void {
+      this.owner.updateLayout();
       this.owner.callObservers("controllerDidDetachTool", toolController, this.owner);
     },
     controllerWillAttachToolTrait(toolTrait: ToolTrait, toolController: ToolController): void {
@@ -225,6 +264,13 @@ export class BarController extends Controller {
         }
       }
       toolView.remove();
+    },
+    controllerWillSetToolLayout(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, toolController: ToolController): void {
+      this.owner.callObservers("controllerWillSetToolLayout", newToolLayout, oldToolLayout, toolController, this.owner);
+    },
+    controllerDidSetToolLayout(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, toolController: ToolController): void {
+      this.owner.updateLayout();
+      this.owner.callObservers("controllerDidSetToolLayout", newToolLayout, oldToolLayout, toolController, this.owner);
     },
     controllerWillAttachToolContentView(contentView: HtmlView, toolController: ToolController): void {
       this.attachToolContentView(contentView, toolController);

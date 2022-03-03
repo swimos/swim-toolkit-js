@@ -16,6 +16,8 @@ import type {PositionGestureInput} from "@swim/view";
 import type {HtmlView} from "@swim/dom";
 import type {Graphics} from "@swim/graphics";
 import type {ControllerObserver} from "@swim/controller";
+import type {ToolLayout} from "../layout/ToolLayout";
+import type {BarLayout} from "../layout/BarLayout";
 import type {ToolView} from "../tool/ToolView";
 import type {ToolTrait} from "../tool/ToolTrait";
 import type {ToolController} from "../tool/ToolController";
@@ -33,6 +35,10 @@ export interface BarControllerObserver<C extends BarController = BarController> 
 
   controllerDidDetachBarView?(barView: BarView, controller: C): void;
 
+  controllerWillSetBarLayout?(newBarLayout: BarLayout | null, oldBarLayout: BarLayout | null, controller: C): void;
+
+  controllerDidSetBarLayout?(newBarLayout: BarLayout | null, oldBarLayout: BarLayout | null, controller: C): void;
+
   controllerWillAttachTool?(toolController: ToolController, controller: C): void;
 
   controllerDidDetachTool?(toolController: ToolController, controller: C): void;
@@ -44,6 +50,10 @@ export interface BarControllerObserver<C extends BarController = BarController> 
   controllerWillAttachToolView?(toolView: ToolView, toolController: ToolController, controller: C): void;
 
   controllerDidDetachToolView?(toolView: ToolView, toolController: ToolController, controller: C): void;
+
+  controllerWillSetToolLayout?(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, toolController: ToolController, controller: C): void;
+
+  controllerDidSetToolLayout?(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, toolController: ToolController, controller: C): void;
 
   controllerWillAttachToolContentView?(toolContentView: HtmlView, toolController: ToolController, controller: C): void;
 

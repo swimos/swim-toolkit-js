@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import type {ControllerObserver} from "@swim/controller";
+import type {ToolLayout} from "../layout/ToolLayout";
 import type {ToolView} from "./ToolView";
 import type {ToolTrait} from "./ToolTrait";
 import type {ToolController} from "./ToolController";
@@ -26,4 +27,8 @@ export interface ToolControllerObserver<C extends ToolController = ToolControlle
   controllerWillAttachToolView?(toolView: ToolView, controller: C): void;
 
   controllerDidDetachToolView?(toolView: ToolView, controller: C): void;
+
+  controllerWillSetToolLayout?(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, controller: C): void;
+
+  controllerDidSetToolLayout?(newToolLayout: ToolLayout | null, oldToolLayout: ToolLayout | null, controller: C): void;
 }
